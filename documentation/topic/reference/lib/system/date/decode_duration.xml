@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-system-date-decode_duration">
+  <apiName>decode-duration</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>duration</apiItemName>
+        <apiOperationClassifier href="LdurationG.xml">&lt;duration&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionRestReturn>
+	<apiItemName>components</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionRestReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

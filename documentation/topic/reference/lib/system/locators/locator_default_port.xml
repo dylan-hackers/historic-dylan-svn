@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-system-locators-locator_default_port">
+  <apiName>locator-default-port</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>locator</apiItemName>
+        <apiOperationClassifier href="Lserver_urlG.xml">&lt;server-url&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionReturn>
+	<apiItemName>port</apiItemName>
+        <apiType value="{complex type}"/>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

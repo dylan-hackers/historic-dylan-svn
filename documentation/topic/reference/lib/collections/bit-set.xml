@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-collections-bit-set">
+  <apiName>bit-set</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="bit-set/Lbit_setG.xml">
+      <linktext><apiname>&lt;bit-set&gt;</apiname></linktext>
+    </link>
+    <link href="bit-set/copy_bit_setX.xml">
+      <linktext><apiname>copy-bit-set!</apiname></linktext>
+    </link>
+    <link href="bit-set/empty_bit_setX.xml">
+      <linktext><apiname>empty-bit-set!</apiname></linktext>
+    </link>
+    <link href="bit-set/infiniteQ.xml">
+      <linktext><apiname>infinite?</apiname></linktext>
+    </link>
+    <link href="bit-set/set_add.xml">
+      <linktext><apiname>set-add</apiname></linktext>
+    </link>
+    <link href="bit-set/set_addX.xml">
+      <linktext><apiname>set-add!</apiname></linktext>
+    </link>
+    <link href="bit-set/set_complement.xml">
+      <linktext><apiname>set-complement</apiname></linktext>
+    </link>
+    <link href="bit-set/set_complementX.xml">
+      <linktext><apiname>set-complement!</apiname></linktext>
+    </link>
+    <link href="bit-set/set_difference.xml">
+      <linktext><apiname>set-difference</apiname></linktext>
+    </link>
+    <link href="bit-set/set_differenceX.xml">
+      <linktext><apiname>set-difference!</apiname></linktext>
+    </link>
+    <link href="bit-set/set_intersection.xml">
+      <linktext><apiname>set-intersection</apiname></linktext>
+    </link>
+    <link href="bit-set/set_intersectionX.xml">
+      <linktext><apiname>set-intersection!</apiname></linktext>
+    </link>
+    <link href="bit-set/set_remove.xml">
+      <linktext><apiname>set-remove</apiname></linktext>
+    </link>
+    <link href="bit-set/set_removeX.xml">
+      <linktext><apiname>set-remove!</apiname></linktext>
+    </link>
+    <link href="bit-set/set_union.xml">
+      <linktext><apiname>set-union</apiname></linktext>
+    </link>
+    <link href="bit-set/set_unionX.xml">
+      <linktext><apiname>set-union!</apiname></linktext>
+    </link>
+    <link href="bit-set/universal_bit_setX.xml">
+      <linktext><apiname>universal-bit-set!</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

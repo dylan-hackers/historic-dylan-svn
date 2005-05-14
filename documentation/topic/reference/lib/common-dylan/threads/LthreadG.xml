@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-common-dylan-threads-LthreadG">
+  <apiName>&lt;thread&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanSuperClass href="../threads-primitives/Lportable_double_containerG.xml">&lt;portable-double-container&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>function:</apiItemName>
+        <apiOtherClassifier href="../dylan/LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>name:</apiItemName>
+        <apiOtherClassifier href="../threads-primitives/Loptional_nameG.xml">&lt;optional-name&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>priority:</apiItemName>
+        <apiOtherClassifier href="../dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

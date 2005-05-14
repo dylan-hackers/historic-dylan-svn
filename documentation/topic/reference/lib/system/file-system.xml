@@ -1,0 +1,233 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-system-file-system">
+  <apiName>file-system</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="file-system/Lbuffer_vectorG.xml">
+      <linktext><apiname>&lt;buffer-vector&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lbyte_file_streamG.xml">
+      <linktext><apiname>&lt;byte-file-stream&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/LcopySrename_dispositionG.xml">
+      <linktext><apiname>&lt;copy/rename-disposition&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lfile_does_not_exist_errorG.xml">
+      <linktext><apiname>&lt;file-does-not-exist-error&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lfile_errorG.xml">
+      <linktext><apiname>&lt;file-error&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lfile_exists_errorG.xml">
+      <linktext><apiname>&lt;file-exists-error&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lfile_streamG.xml">
+      <linktext><apiname>&lt;file-stream&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lfile_system_directory_locatorG.xml">
+      <linktext><apiname>&lt;file-system-directory-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lfile_system_errorG.xml">
+      <linktext><apiname>&lt;file-system-error&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lfile_system_file_locatorG.xml">
+      <linktext><apiname>&lt;file-system-file-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lfile_system_locatorG.xml">
+      <linktext><apiname>&lt;file-system-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lfile_typeG.xml">
+      <linktext><apiname>&lt;file-type&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Linvalid_file_permissions_errorG.xml">
+      <linktext><apiname>&lt;invalid-file-permissions-error&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmacintosh_directory_locatorG.xml">
+      <linktext><apiname>&lt;macintosh-directory-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmacintosh_file_locatorG.xml">
+      <linktext><apiname>&lt;macintosh-file-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmacintosh_file_system_locatorG.xml">
+      <linktext><apiname>&lt;macintosh-file-system-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmacintosh_server_locatorG.xml">
+      <linktext><apiname>&lt;macintosh-server-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmacintosh_volume_locatorG.xml">
+      <linktext><apiname>&lt;macintosh-volume-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmicrosoft_directory_locatorG.xml">
+      <linktext><apiname>&lt;microsoft-directory-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmicrosoft_file_locatorG.xml">
+      <linktext><apiname>&lt;microsoft-file-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmicrosoft_file_system_locatorG.xml">
+      <linktext><apiname>&lt;microsoft-file-system-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmicrosoft_server_locatorG.xml">
+      <linktext><apiname>&lt;microsoft-server-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmicrosoft_unc_locatorG.xml">
+      <linktext><apiname>&lt;microsoft-unc-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmicrosoft_volume_locatorG.xml">
+      <linktext><apiname>&lt;microsoft-volume-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lmulti_buffered_streamG.xml">
+      <linktext><apiname>&lt;multi-buffered-stream&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lnative_file_system_locatorG.xml">
+      <linktext><apiname>&lt;native-file-system-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/LpathnameG.xml">
+      <linktext><apiname>&lt;pathname&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lposix_directory_locatorG.xml">
+      <linktext><apiname>&lt;posix-directory-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lposix_file_locatorG.xml">
+      <linktext><apiname>&lt;posix-file-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/Lposix_file_system_locatorG.xml">
+      <linktext><apiname>&lt;posix-file-system-locator&gt;</apiname></linktext>
+    </link>
+    <link href="file-system/copy_file.xml">
+      <linktext><apiname>copy-file</apiname></linktext>
+    </link>
+    <link href="file-system/create_directory.xml">
+      <linktext><apiname>create-directory</apiname></linktext>
+    </link>
+    <link href="file-system/delete_directory.xml">
+      <linktext><apiname>delete-directory</apiname></linktext>
+    </link>
+    <link href="file-system/delete_file.xml">
+      <linktext><apiname>delete-file</apiname></linktext>
+    </link>
+    <link href="file-system/directory_contents.xml">
+      <linktext><apiname>directory-contents</apiname></linktext>
+    </link>
+    <link href="file-system/directory_emptyQ.xml">
+      <linktext><apiname>directory-empty?</apiname></linktext>
+    </link>
+    <link href="file-system/do_directory.xml">
+      <linktext><apiname>do-directory</apiname></linktext>
+    </link>
+    <link href="file-system/ensure_directories_exist.xml">
+      <linktext><apiname>ensure-directories-exist</apiname></linktext>
+    </link>
+    <link href="file-system/expand_pathname.xml">
+      <linktext><apiname>expand-pathname</apiname></linktext>
+    </link>
+    <link href="file-system/file_existsQ.xml">
+      <linktext><apiname>file-exists?</apiname></linktext>
+    </link>
+    <link href="file-system/file_properties.xml">
+      <linktext><apiname>file-properties</apiname></linktext>
+    </link>
+    <link href="file-system/file_property.xml">
+      <linktext><apiname>file-property</apiname></linktext>
+    </link>
+    <link href="file-system/file_property_setter.xml">
+      <linktext><apiname>file-property-setter</apiname></linktext>
+    </link>
+    <link href="file-system/file_system_separator.xml">
+      <linktext><apiname>file-system-separator</apiname></linktext>
+    </link>
+    <link href="file-system/file_type.xml">
+      <linktext><apiname>file-type</apiname></linktext>
+    </link>
+    <link href="file-system/home_directory.xml">
+      <linktext><apiname>home-directory</apiname></linktext>
+    </link>
+    <link href="file-system/link_target.xml">
+      <linktext><apiname>link-target</apiname></linktext>
+    </link>
+    <link href="file-system/multi_buffer_bytes.xml">
+      <linktext><apiname>multi-buffer-bytes</apiname></linktext>
+    </link>
+    <link href="file-system/multi_buffer_reads.xml">
+      <linktext><apiname>multi-buffer-reads</apiname></linktext>
+    </link>
+    <link href="file-system/multi_buffer_total_bytes.xml">
+      <linktext><apiname>multi-buffer-total-bytes</apiname></linktext>
+    </link>
+    <link href="file-system/multi_buffer_total_reads.xml">
+      <linktext><apiname>multi-buffer-total-reads</apiname></linktext>
+    </link>
+    <link href="file-system/multi_buffer_total_working_set.xml">
+      <linktext><apiname>multi-buffer-total-working-set</apiname></linktext>
+    </link>
+    <link href="file-system/multi_buffer_working_set.xml">
+      <linktext><apiname>multi-buffer-working-set</apiname></linktext>
+    </link>
+    <link href="file-system/multi_buffered_stream_position_setter.xml">
+      <linktext><apiname>multi-buffered-stream-position-setter</apiname></linktext>
+    </link>
+    <link href="file-system/read_4_aligned_bytes.xml">
+      <linktext><apiname>read-4-aligned-bytes</apiname></linktext>
+    </link>
+    <link href="file-system/read_4_aligned_bytes_as_word.xml">
+      <linktext><apiname>read-4-aligned-bytes-as-word</apiname></linktext>
+    </link>
+    <link href="file-system/read_8_aligned_bytes.xml">
+      <linktext><apiname>read-8-aligned-bytes</apiname></linktext>
+    </link>
+    <link href="file-system/rename_file.xml">
+      <linktext><apiname>rename-file</apiname></linktext>
+    </link>
+    <link href="file-system/root_directories.xml">
+      <linktext><apiname>root-directories</apiname></linktext>
+    </link>
+    <link href="file-system/shorten_pathname.xml">
+      <linktext><apiname>shorten-pathname</apiname></linktext>
+    </link>
+    <link href="file-system/stream_locator.xml">
+      <linktext><apiname>stream-locator</apiname></linktext>
+    </link>
+    <link href="file-system/temp_directory.xml">
+      <linktext><apiname>temp-directory</apiname></linktext>
+    </link>
+    <link href="file-system/type_for_file_stream.xml">
+      <linktext><apiname>type-for-file-stream</apiname></linktext>
+    </link>
+    <link href="file-system/with_open_file.xml">
+      <linktext><apiname>with-open-file</apiname></linktext>
+    </link>
+    <link href="file-system/working_directory.xml">
+      <linktext><apiname>working-directory</apiname></linktext>
+    </link>
+    <link href="file-system/working_directory_setter.xml">
+      <linktext><apiname>working-directory-setter</apiname></linktext>
+    </link>
+    <link href="file-system/writable_file_stream_position_setter.xml">
+      <linktext><apiname>writable-file-stream-position-setter</apiname></linktext>
+    </link>
+    <link href="file-system/write_4_aligned_bytes.xml">
+      <linktext><apiname>write-4-aligned-bytes</apiname></linktext>
+    </link>
+    <link href="file-system/write_4_aligned_bytes_from_word.xml">
+      <linktext><apiname>write-4-aligned-bytes-from-word</apiname></linktext>
+    </link>
+    <link href="file-system/write_8_aligned_bytes.xml">
+      <linktext><apiname>write-8-aligned-bytes</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

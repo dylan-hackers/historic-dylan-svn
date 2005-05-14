@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-testworks-specs-testworks-specs-Lfunction_specG">
+  <apiName>&lt;function-spec&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanSuperClass href="Ldefinition_specG.xml">&lt;definition-spec&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>function:</apiItemName>
+        <apiOtherClassifier href="LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>modifiers:</apiItemName>
+        <apiOtherClassifier href="LsequenceG.xml">&lt;sequence&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

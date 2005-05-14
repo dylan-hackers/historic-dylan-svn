@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-functional-dylan-simple-debugging-debug_message">
+  <apiName>debug-message</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>format-string</apiItemName>
+        <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionRestParam>
+	<apiItemName>format-args</apiItemName>
+        <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionRestParam>
+      <dylanFunctionRestReturn>
+	<apiItemName>results</apiItemName>
+        <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionRestReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

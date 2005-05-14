@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-collections-bit-vector-bit_vector_word">
+  <apiName>bit-vector-word</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>v</apiItemName>
+        <apiOperationClassifier href="Lbit_vectorG.xml">&lt;bit-vector&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>i</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionReturn>
+	<apiItemName>r</apiItemName>
+        <apiOperationClassifier href="{unknown object}.xml">{unknown object}</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

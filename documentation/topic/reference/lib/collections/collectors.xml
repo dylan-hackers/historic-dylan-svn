@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-collections-collectors">
+  <apiName>collectors</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="collectors/collect.xml">
+      <linktext><apiname>collect</apiname></linktext>
+    </link>
+    <link href="collectors/collect_first.xml">
+      <linktext><apiname>collect-first</apiname></linktext>
+    </link>
+    <link href="collectors/collect_first_into.xml">
+      <linktext><apiname>collect-first-into</apiname></linktext>
+    </link>
+    <link href="collectors/collect_into.xml">
+      <linktext><apiname>collect-into</apiname></linktext>
+    </link>
+    <link href="collectors/collect_last.xml">
+      <linktext><apiname>collect-last</apiname></linktext>
+    </link>
+    <link href="collectors/collect_last_into.xml">
+      <linktext><apiname>collect-last-into</apiname></linktext>
+    </link>
+    <link href="collectors/collected.xml">
+      <linktext><apiname>collected</apiname></linktext>
+    </link>
+    <link href="collectors/collecting.xml">
+      <linktext><apiname>collecting</apiname></linktext>
+    </link>
+    <link href="collectors/collector_protocol.xml">
+      <linktext><apiname>collector-protocol</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

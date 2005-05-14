@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
+<dylanFunction id="lib-system-date-encode_dayStime_duration">
+  <apiName>encode-day/time-duration</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanFunctionDetail>
+    <dylanFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>days</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>hours</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>minutes</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>seconds</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>microseconds</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionReturn>
+	<apiItemName>duration</apiItemName>
+        <apiOperationClassifier href="LdayStime_durationG.xml">&lt;day/time-duration&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanFunctionDetail>
+</dylanFunction>

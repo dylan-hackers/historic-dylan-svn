@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-testworks-specs-testworks-specs-register_variable">
+  <apiName>register-variable</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>spec</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>name</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>type</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>variable-getter</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>variable-setter</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionRestReturn>
+	<apiItemName>results</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionRestReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

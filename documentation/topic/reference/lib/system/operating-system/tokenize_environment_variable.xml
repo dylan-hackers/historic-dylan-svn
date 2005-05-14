@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
+<dylanFunction id="lib-system-operating-system-tokenize_environment_variable">
+  <apiName>tokenize-environment-variable</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanFunctionDetail>
+    <dylanFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>var</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionReturn>
+	<apiItemName>strings</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LsequenceG.xml">&lt;sequence&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanFunctionDetail>
+</dylanFunction>

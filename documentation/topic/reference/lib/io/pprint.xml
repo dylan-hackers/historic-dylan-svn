@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-io-pprint">
+  <apiName>pprint</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="pprint/Tdefault_line_lengthT.xml">
+      <linktext><apiname>*default-line-length*</apiname></linktext>
+    </link>
+    <link href="pprint/Tprint_miser_widthT.xml">
+      <linktext><apiname>*print-miser-width*</apiname></linktext>
+    </link>
+    <link href="pprint/Lpretty_streamG.xml">
+      <linktext><apiname>&lt;pretty-stream&gt;</apiname></linktext>
+    </link>
+    <link href="pprint/pprint_indent.xml">
+      <linktext><apiname>pprint-indent</apiname></linktext>
+    </link>
+    <link href="pprint/pprint_logical_block.xml">
+      <linktext><apiname>pprint-logical-block</apiname></linktext>
+    </link>
+    <link href="pprint/pprint_newline.xml">
+      <linktext><apiname>pprint-newline</apiname></linktext>
+    </link>
+    <link href="pprint/pprint_tab.xml">
+      <linktext><apiname>pprint-tab</apiname></linktext>
+    </link>
+    <link href="pprint/printing_logical_block.xml">
+      <linktext><apiname>printing-logical-block</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

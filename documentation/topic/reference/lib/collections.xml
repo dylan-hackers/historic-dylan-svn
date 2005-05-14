@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanLibrary PUBLIC "-//Gwydion//DTD DITA Dylan API Library//EN" "../../dtd/dylanLibrary.dtd" []>
+<dylanLibrary id="lib-collections">
+  <apiName>collections</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanLibraryDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanLibraryDetail>
+
+  <related-links>
+    <link href="collections/bit-set.xml">
+      <linktext><apiname>bit-set</apiname></linktext>
+    </link>
+    <link href="collections/bit-vector.xml">
+      <linktext><apiname>bit-vector</apiname></linktext>
+    </link>
+    <link href="collections/byte-vector.xml">
+      <linktext><apiname>byte-vector</apiname></linktext>
+    </link>
+    <link href="collections/collectors.xml">
+      <linktext><apiname>collectors</apiname></linktext>
+    </link>
+    <link href="collections/plists.xml">
+      <linktext><apiname>plists</apiname></linktext>
+    </link>
+    <link href="collections/set.xml">
+      <linktext><apiname>set</apiname></linktext>
+    </link>
+    <link href="collections/table-extensions.xml">
+      <linktext><apiname>table-extensions</apiname></linktext>
+    </link>
+  </related-links>
+</dylanLibrary>

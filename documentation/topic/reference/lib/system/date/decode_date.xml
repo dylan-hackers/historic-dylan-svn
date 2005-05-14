@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
+<dylanFunction id="lib-system-date-decode_date">
+  <apiName>decode-date</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanFunctionDetail>
+    <dylanFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>date</apiItemName>
+        <apiOperationClassifier href="LdateG.xml">&lt;date&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionReturn>
+	<apiItemName>year</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>month</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>day</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>hours</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>minutes</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>seconds</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>day-of-week</apiItemName>
+        <apiOperationClassifier href="Lday_of_weekG.xml">&lt;day-of-week&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>time-zone-offset</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanFunctionDetail>
+</dylanFunction>

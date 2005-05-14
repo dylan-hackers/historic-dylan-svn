@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-system-locators-subdirectory_locator">
+  <apiName>subdirectory-locator</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanGenericFunctionSealing value='open'/>
+      <dylanFunctionParam>
+	<apiItemName>locator</apiItemName>
+        <apiOperationClassifier href="Ldirectory_locatorG.xml">&lt;directory-locator&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionRestParam>
+	<apiItemName>sub-path</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionRestParam>
+      <dylanFunctionReturn>
+	<apiItemName>subdirectory</apiItemName>
+        <apiOperationClassifier href="Ldirectory_locatorG.xml">&lt;directory-locator&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

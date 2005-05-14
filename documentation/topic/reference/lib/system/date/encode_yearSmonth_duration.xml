@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
+<dylanFunction id="lib-system-date-encode_yearSmonth_duration">
+  <apiName>encode-year/month-duration</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanFunctionDetail>
+    <dylanFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>years</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>months</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionReturn>
+	<apiItemName>duration</apiItemName>
+        <apiOperationClassifier href="LyearSmonth_durationG.xml">&lt;year/month-duration&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanFunctionDetail>
+</dylanFunction>

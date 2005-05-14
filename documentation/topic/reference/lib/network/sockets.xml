@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-network-sockets">
+  <apiName>sockets</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="sockets/Dlocal_host.xml">
+      <linktext><apiname>$local-host</apiname></linktext>
+    </link>
+    <link href="sockets/Dloopback_address.xml">
+      <linktext><apiname>$loopback-address</apiname></linktext>
+    </link>
+    <link href="sockets/Labstract_socketG.xml">
+      <linktext><apiname>&lt;abstract-socket&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Laddress_in_useG.xml">
+      <linktext><apiname>&lt;address-in-use&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lblocking_call_interruptedG.xml">
+      <linktext><apiname>&lt;blocking-call-interrupted&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lbuffered_socketG.xml">
+      <linktext><apiname>&lt;buffered-socket&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lconnection_closedG.xml">
+      <linktext><apiname>&lt;connection-closed&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lconnection_failedG.xml">
+      <linktext><apiname>&lt;connection-failed&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lhost_not_foundG.xml">
+      <linktext><apiname>&lt;host-not-found&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lhost_unreachableG.xml">
+      <linktext><apiname>&lt;host-unreachable&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Linternal_socket_errorG.xml">
+      <linktext><apiname>&lt;internal-socket-error&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Linternet_addressG.xml">
+      <linktext><apiname>&lt;internet-address&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Linvalid_addressG.xml">
+      <linktext><apiname>&lt;invalid-address&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lipv4_addressG.xml">
+      <linktext><apiname>&lt;ipv4-address&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lipv4_host_order_addressG.xml">
+      <linktext><apiname>&lt;ipv4-host-order-address&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lipv4_network_order_addressG.xml">
+      <linktext><apiname>&lt;ipv4-network-order-address&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lipv4_numeric_addressG.xml">
+      <linktext><apiname>&lt;ipv4-numeric-address&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lnetwork_not_respondingG.xml">
+      <linktext><apiname>&lt;network-not-responding&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lnumeric_addressG.xml">
+      <linktext><apiname>&lt;numeric-address&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lout_of_resourcesG.xml">
+      <linktext><apiname>&lt;out-of-resources&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lrecoverable_socket_conditionG.xml">
+      <linktext><apiname>&lt;recoverable-socket-condition&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lserver_not_respondingG.xml">
+      <linktext><apiname>&lt;server-not-responding&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lserver_socketG.xml">
+      <linktext><apiname>&lt;server-socket&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lservice_not_foundG.xml">
+      <linktext><apiname>&lt;service-not-found&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lsocket_accessor_errorG.xml">
+      <linktext><apiname>&lt;socket-accessor-error&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lsocket_closedG.xml">
+      <linktext><apiname>&lt;socket-closed&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lsocket_conditionG.xml">
+      <linktext><apiname>&lt;socket-condition&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lsocket_errorG.xml">
+      <linktext><apiname>&lt;socket-error&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lsocket_warningG.xml">
+      <linktext><apiname>&lt;socket-warning&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/LsocketG.xml">
+      <linktext><apiname>&lt;socket&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Lsockets_not_initializedG.xml">
+      <linktext><apiname>&lt;sockets-not-initialized&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Ltcp_server_socketG.xml">
+      <linktext><apiname>&lt;tcp-server-socket&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Ltcp_socketG.xml">
+      <linktext><apiname>&lt;tcp-socket&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Ludp_server_socketG.xml">
+      <linktext><apiname>&lt;udp-server-socket&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/Ludp_socketG.xml">
+      <linktext><apiname>&lt;udp-socket&gt;</apiname></linktext>
+    </link>
+    <link href="sockets/accept.xml">
+      <linktext><apiname>accept</apiname></linktext>
+    </link>
+    <link href="sockets/aliases.xml">
+      <linktext><apiname>aliases</apiname></linktext>
+    </link>
+    <link href="sockets/all_addresses.xml">
+      <linktext><apiname>all-addresses</apiname></linktext>
+    </link>
+    <link href="sockets/calling_function.xml">
+      <linktext><apiname>calling-function</apiname></linktext>
+    </link>
+    <link href="sockets/client_class_for_protocol.xml">
+      <linktext><apiname>client-class-for-protocol</apiname></linktext>
+    </link>
+    <link href="sockets/client_class_for_server.xml">
+      <linktext><apiname>client-class-for-server</apiname></linktext>
+    </link>
+    <link href="sockets/close_socket.xml">
+      <linktext><apiname>close-socket</apiname></linktext>
+    </link>
+    <link href="sockets/explanation.xml">
+      <linktext><apiname>explanation</apiname></linktext>
+    </link>
+    <link href="sockets/host_address.xml">
+      <linktext><apiname>host-address</apiname></linktext>
+    </link>
+    <link href="sockets/host_name.xml">
+      <linktext><apiname>host-name</apiname></linktext>
+    </link>
+    <link href="sockets/host_order.xml">
+      <linktext><apiname>host-order</apiname></linktext>
+    </link>
+    <link href="sockets/invoke_with_socket_thread.xml">
+      <linktext><apiname>invoke-with-socket-thread</apiname></linktext>
+    </link>
+    <link href="sockets/local_host.xml">
+      <linktext><apiname>local-host</apiname></linktext>
+    </link>
+    <link href="sockets/local_port.xml">
+      <linktext><apiname>local-port</apiname></linktext>
+    </link>
+    <link href="sockets/network_order.xml">
+      <linktext><apiname>network-order</apiname></linktext>
+    </link>
+    <link href="sockets/numeric_host_address.xml">
+      <linktext><apiname>numeric-host-address</apiname></linktext>
+    </link>
+    <link href="sockets/register_socket_thread.xml">
+      <linktext><apiname>register-socket-thread</apiname></linktext>
+    </link>
+    <link href="sockets/remote_host.xml">
+      <linktext><apiname>remote-host</apiname></linktext>
+    </link>
+    <link href="sockets/remote_port.xml">
+      <linktext><apiname>remote-port</apiname></linktext>
+    </link>
+    <link href="sockets/server_class_for_protocol.xml">
+      <linktext><apiname>server-class-for-protocol</apiname></linktext>
+    </link>
+    <link href="sockets/socket_descriptor.xml">
+      <linktext><apiname>socket-descriptor</apiname></linktext>
+    </link>
+    <link href="sockets/socket_openQ.xml">
+      <linktext><apiname>socket-open?</apiname></linktext>
+    </link>
+    <link href="sockets/start_server.xml">
+      <linktext><apiname>start-server</apiname></linktext>
+    </link>
+    <link href="sockets/start_sockets.xml">
+      <linktext><apiname>start-sockets</apiname></linktext>
+    </link>
+    <link href="sockets/unregister_socket_thread.xml">
+      <linktext><apiname>unregister-socket-thread</apiname></linktext>
+    </link>
+    <link href="sockets/with_server_socket.xml">
+      <linktext><apiname>with-server-socket</apiname></linktext>
+    </link>
+    <link href="sockets/with_socket.xml">
+      <linktext><apiname>with-socket</apiname></linktext>
+    </link>
+    <link href="sockets/with_socket_thread.xml">
+      <linktext><apiname>with-socket-thread</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

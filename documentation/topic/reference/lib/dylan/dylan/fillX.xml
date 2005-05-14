@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-dylan-dylan-fillX">
+  <apiName>fill!</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanGenericFunctionSealing value='open'/>
+      <dylanFunctionParam>
+	<apiItemName>collection</apiItemName>
+        <apiOperationClassifier href="Lmutable_collectionG.xml">&lt;mutable-collection&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>value</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>start</apiItemName>
+        <apiOperationClassifier href="LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>end</apiItemName>
+        <apiOperationClassifier href="LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionReturn>
+	<apiItemName>mutable-collection</apiItemName>
+        <apiOperationClassifier href="Lmutable_collectionG.xml">&lt;mutable-collection&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-system-file-system-Lbyte_file_streamG">
+  <apiName>&lt;byte-file-stream&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanOpenClass/>
+      <dylanSuperClass href="Lfile_streamG.xml">&lt;file-stream&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../io/streams-internals/Lbyte_element_streamG.xml">&lt;byte-element-stream&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>encoding:</apiItemName>
+        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

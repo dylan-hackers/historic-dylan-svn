@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-dylan-dylan-aref">
+  <apiName>aref</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanGenericFunctionSealing value='open'/>
+      <dylanFunctionParam>
+	<apiItemName>array</apiItemName>
+        <apiOperationClassifier href="LarrayG.xml">&lt;array&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionRestParam>
+	<apiItemName>indices</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionRestParam>
+      <dylanFunctionReturn>
+	<apiItemName>object</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

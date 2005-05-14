@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-common-dylan-transcendentals">
+  <apiName>transcendentals</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="transcendentals/Ddouble_e.xml">
+      <linktext><apiname>$double-e</apiname></linktext>
+    </link>
+    <link href="transcendentals/Ddouble_pi.xml">
+      <linktext><apiname>$double-pi</apiname></linktext>
+    </link>
+    <link href="transcendentals/Dsingle_e.xml">
+      <linktext><apiname>$single-e</apiname></linktext>
+    </link>
+    <link href="transcendentals/Dsingle_pi.xml">
+      <linktext><apiname>$single-pi</apiname></linktext>
+    </link>
+    <link href="transcendentals/acos.xml">
+      <linktext><apiname>acos</apiname></linktext>
+    </link>
+    <link href="transcendentals/acosh.xml">
+      <linktext><apiname>acosh</apiname></linktext>
+    </link>
+    <link href="transcendentals/asin.xml">
+      <linktext><apiname>asin</apiname></linktext>
+    </link>
+    <link href="transcendentals/asinh.xml">
+      <linktext><apiname>asinh</apiname></linktext>
+    </link>
+    <link href="transcendentals/atan.xml">
+      <linktext><apiname>atan</apiname></linktext>
+    </link>
+    <link href="transcendentals/atan2.xml">
+      <linktext><apiname>atan2</apiname></linktext>
+    </link>
+    <link href="transcendentals/atanh.xml">
+      <linktext><apiname>atanh</apiname></linktext>
+    </link>
+    <link href="transcendentals/cos.xml">
+      <linktext><apiname>cos</apiname></linktext>
+    </link>
+    <link href="transcendentals/cosh.xml">
+      <linktext><apiname>cosh</apiname></linktext>
+    </link>
+    <link href="transcendentals/exp.xml">
+      <linktext><apiname>exp</apiname></linktext>
+    </link>
+    <link href="transcendentals/isqrt.xml">
+      <linktext><apiname>isqrt</apiname></linktext>
+    </link>
+    <link href="transcendentals/log.xml">
+      <linktext><apiname>log</apiname></linktext>
+    </link>
+    <link href="transcendentals/logn.xml">
+      <linktext><apiname>logn</apiname></linktext>
+    </link>
+    <link href="transcendentals/sin.xml">
+      <linktext><apiname>sin</apiname></linktext>
+    </link>
+    <link href="transcendentals/sinh.xml">
+      <linktext><apiname>sinh</apiname></linktext>
+    </link>
+    <link href="transcendentals/sqrt.xml">
+      <linktext><apiname>sqrt</apiname></linktext>
+    </link>
+    <link href="transcendentals/tan.xml">
+      <linktext><apiname>tan</apiname></linktext>
+    </link>
+    <link href="transcendentals/tanh.xml">
+      <linktext><apiname>tanh</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

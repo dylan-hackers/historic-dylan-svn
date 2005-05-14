@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
+<dylanFunction id="lib-c-ffi-c-ffi-c_unsigned_int_at">
+  <apiName>c-unsigned-int-at</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanFunctionDetail>
+    <dylanFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>c-pointer</apiItemName>
+        <apiOperationClassifier href="Lc_pointerG.xml">&lt;c-pointer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>byte-index</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>scaled-index</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionReturn>
+	<apiItemName>value</apiItemName>
+        <apiOperationClassifier href="Lmachine_wordG.xml">&lt;machine-word&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanFunctionDetail>
+</dylanFunction>

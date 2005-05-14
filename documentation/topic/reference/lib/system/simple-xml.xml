@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-system-simple-xml">
+  <apiName>simple-xml</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="simple-xml/Lxml_documentG.xml">
+      <linktext><apiname>&lt;xml-document&gt;</apiname></linktext>
+    </link>
+    <link href="simple-xml/Lxml_elementG.xml">
+      <linktext><apiname>&lt;xml-element&gt;</apiname></linktext>
+    </link>
+    <link href="simple-xml/Lxml_errorG.xml">
+      <linktext><apiname>&lt;xml-error&gt;</apiname></linktext>
+    </link>
+    <link href="simple-xml/Lxml_nodeG.xml">
+      <linktext><apiname>&lt;xml-node&gt;</apiname></linktext>
+    </link>
+    <link href="simple-xml/document_element.xml">
+      <linktext><apiname>document-element</apiname></linktext>
+    </link>
+    <link href="simple-xml/document_element_setter.xml">
+      <linktext><apiname>document-element-setter</apiname></linktext>
+    </link>
+    <link href="simple-xml/document_location.xml">
+      <linktext><apiname>document-location</apiname></linktext>
+    </link>
+    <link href="simple-xml/document_location_setter.xml">
+      <linktext><apiname>document-location-setter</apiname></linktext>
+    </link>
+    <link href="simple-xml/node_attribute.xml">
+      <linktext><apiname>node-attribute</apiname></linktext>
+    </link>
+    <link href="simple-xml/node_attribute_setter.xml">
+      <linktext><apiname>node-attribute-setter</apiname></linktext>
+    </link>
+    <link href="simple-xml/node_attributes.xml">
+      <linktext><apiname>node-attributes</apiname></linktext>
+    </link>
+    <link href="simple-xml/node_children.xml">
+      <linktext><apiname>node-children</apiname></linktext>
+    </link>
+    <link href="simple-xml/node_name.xml">
+      <linktext><apiname>node-name</apiname></linktext>
+    </link>
+    <link href="simple-xml/node_text.xml">
+      <linktext><apiname>node-text</apiname></linktext>
+    </link>
+    <link href="simple-xml/node_text_setter.xml">
+      <linktext><apiname>node-text-setter</apiname></linktext>
+    </link>
+    <link href="simple-xml/read_xml_document.xml">
+      <linktext><apiname>read-xml-document</apiname></linktext>
+    </link>
+    <link href="simple-xml/select_node_text.xml">
+      <linktext><apiname>select-node-text</apiname></linktext>
+    </link>
+    <link href="simple-xml/select_nodes.xml">
+      <linktext><apiname>select-nodes</apiname></linktext>
+    </link>
+    <link href="simple-xml/select_single_node.xml">
+      <linktext><apiname>select-single-node</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

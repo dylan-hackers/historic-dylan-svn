@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-functional-dylan-functional-extensions-Lstretchy_object_vectorG">
+  <apiName>&lt;stretchy-object-vector&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanSuperClass href="Llimited_stretchy_vectorG.xml">&lt;limited-stretchy-vector&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>capacity:</apiItemName>
+        <apiOtherClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>fill:</apiItemName>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>size:</apiItemName>
+        <apiOtherClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-network-sockets-Lipv4_numeric_addressG">
+  <apiName>&lt;ipv4-numeric-address&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanOpenClass/>
+      <dylanPrimaryClass/>
+      <dylanAbstractClass value="abstract-uninstantiable"/>
+      <dylanSuperClass href="Lnumeric_addressG.xml">&lt;numeric-address&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>address:</apiItemName>
+        <apiOtherClassifier href="../../dylan/dylan-extensions/Lmachine_wordG.xml">&lt;machine-word&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

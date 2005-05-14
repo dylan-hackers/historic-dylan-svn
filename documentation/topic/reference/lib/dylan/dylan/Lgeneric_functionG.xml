@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-dylan-dylan-Lgeneric_functionG">
+  <apiName>&lt;generic-function&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanPrimaryClass/>
+      <dylanAbstractClass value="abstract-uninstantiable"/>
+      <dylanSuperClass href="LfunctionG.xml">&lt;function&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>debug-name:</apiItemName>
+        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>key:</apiItemName>
+        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>key-types:</apiItemName>
+        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>required:</apiItemName>
+        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>rest-value:</apiItemName>
+        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>rest?:</apiItemName>
+        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>signature:</apiItemName>
+        <apiOtherClassifier href="../dylan-extensions/LsignatureG.xml">&lt;signature&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>values:</apiItemName>
+        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

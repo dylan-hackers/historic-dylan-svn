@@ -1,0 +1,311 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-testworks-testworks">
+  <apiName>testworks</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="testworks/Dbenchmark_result_divider.xml">
+      <linktext><apiname>$benchmark-result-divider</apiname></linktext>
+    </link>
+    <link href="testworks/Dtest_log_footer.xml">
+      <linktext><apiname>$test-log-footer</apiname></linktext>
+    </link>
+    <link href="testworks/Dtest_log_header.xml">
+      <linktext><apiname>$test-log-header</apiname></linktext>
+    </link>
+    <link href="testworks/Dtest_objects_table.xml">
+      <linktext><apiname>$test-objects-table</apiname></linktext>
+    </link>
+    <link href="testworks/Tannounce_check_functionT.xml">
+      <linktext><apiname>*announce-check-function*</apiname></linktext>
+    </link>
+    <link href="testworks/Tannounce_checksQT.xml">
+      <linktext><apiname>*announce-checks?*</apiname></linktext>
+    </link>
+    <link href="testworks/Tcheck_recording_functionT.xml">
+      <linktext><apiname>*check-recording-function*</apiname></linktext>
+    </link>
+    <link href="testworks/TdebugQT.xml">
+      <linktext><apiname>*debug?*</apiname></linktext>
+    </link>
+    <link href="testworks/Tdefault_progress_functionT.xml">
+      <linktext><apiname>*default-progress-function*</apiname></linktext>
+    </link>
+    <link href="testworks/Tdefault_report_functionT.xml">
+      <linktext><apiname>*default-report-function*</apiname></linktext>
+    </link>
+    <link href="testworks/Tformat_functionT.xml">
+      <linktext><apiname>*format-function*</apiname></linktext>
+    </link>
+    <link href="testworks/Lbenchmark_resultG.xml">
+      <linktext><apiname>&lt;benchmark-result&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/Lcheck_resultG.xml">
+      <linktext><apiname>&lt;check-result&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/Lcomponent_resultG.xml">
+      <linktext><apiname>&lt;component-result&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/LcomponentG.xml">
+      <linktext><apiname>&lt;component&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/Lperform_optionsG.xml">
+      <linktext><apiname>&lt;perform-options&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/LresultG.xml">
+      <linktext><apiname>&lt;result&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/Lsuite_resultG.xml">
+      <linktext><apiname>&lt;suite-result&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/LsuiteG.xml">
+      <linktext><apiname>&lt;suite&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/Ltest_resultG.xml">
+      <linktext><apiname>&lt;test-result&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/LtestG.xml">
+      <linktext><apiname>&lt;test&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/Lunit_resultG.xml">
+      <linktext><apiname>&lt;unit-result&gt;</apiname></linktext>
+    </link>
+    <link href="testworks/benchmark.xml">
+      <linktext><apiname>benchmark</apiname></linktext>
+    </link>
+    <link href="testworks/check.xml">
+      <linktext><apiname>check</apiname></linktext>
+    </link>
+    <link href="testworks/check_condition.xml">
+      <linktext><apiname>check-condition</apiname></linktext>
+    </link>
+    <link href="testworks/check_equal.xml">
+      <linktext><apiname>check-equal</apiname></linktext>
+    </link>
+    <link href="testworks/check_false.xml">
+      <linktext><apiname>check-false</apiname></linktext>
+    </link>
+    <link href="testworks/check_instanceQ.xml">
+      <linktext><apiname>check-instance?</apiname></linktext>
+    </link>
+    <link href="testworks/check_no_errors.xml">
+      <linktext><apiname>check-no-errors</apiname></linktext>
+    </link>
+    <link href="testworks/check_true.xml">
+      <linktext><apiname>check-true</apiname></linktext>
+    </link>
+    <link href="testworks/component_description.xml">
+      <linktext><apiname>component-description</apiname></linktext>
+    </link>
+    <link href="testworks/component_name.xml">
+      <linktext><apiname>component-name</apiname></linktext>
+    </link>
+    <link href="testworks/component_tags.xml">
+      <linktext><apiname>component-tags</apiname></linktext>
+    </link>
+    <link href="testworks/debug_failuresQ.xml">
+      <linktext><apiname>debug-failures?</apiname></linktext>
+    </link>
+    <link href="testworks/debugQ.xml">
+      <linktext><apiname>debug?</apiname></linktext>
+    </link>
+    <link href="testworks/display_results.xml">
+      <linktext><apiname>display-results</apiname></linktext>
+    </link>
+    <link href="testworks/do_benchmark.xml">
+      <linktext><apiname>do-benchmark</apiname></linktext>
+    </link>
+    <link href="testworks/do_check.xml">
+      <linktext><apiname>do-check</apiname></linktext>
+    </link>
+    <link href="testworks/do_check_condition.xml">
+      <linktext><apiname>do-check-condition</apiname></linktext>
+    </link>
+    <link href="testworks/do_results.xml">
+      <linktext><apiname>do-results</apiname></linktext>
+    </link>
+    <link href="testworks/execute_componentQ.xml">
+      <linktext><apiname>execute-component?</apiname></linktext>
+    </link>
+    <link href="testworks/failure_reason.xml">
+      <linktext><apiname>failure-reason</apiname></linktext>
+    </link>
+    <link href="testworks/failures_report_function.xml">
+      <linktext><apiname>failures-report-function</apiname></linktext>
+    </link>
+    <link href="testworks/find_suite.xml">
+      <linktext><apiname>find-suite</apiname></linktext>
+    </link>
+    <link href="testworks/find_test.xml">
+      <linktext><apiname>find-test</apiname></linktext>
+    </link>
+    <link href="testworks/find_test_object.xml">
+      <linktext><apiname>find-test-object</apiname></linktext>
+    </link>
+    <link href="testworks/full_progress_function.xml">
+      <linktext><apiname>full-progress-function</apiname></linktext>
+    </link>
+    <link href="testworks/full_report_function.xml">
+      <linktext><apiname>full-report-function</apiname></linktext>
+    </link>
+    <link href="testworks/log_report_function.xml">
+      <linktext><apiname>log-report-function</apiname></linktext>
+    </link>
+    <link href="testworks/make_suite.xml">
+      <linktext><apiname>make-suite</apiname></linktext>
+    </link>
+    <link href="testworks/null_progress_function.xml">
+      <linktext><apiname>null-progress-function</apiname></linktext>
+    </link>
+    <link href="testworks/null_report_function.xml">
+      <linktext><apiname>null-report-function</apiname></linktext>
+    </link>
+    <link href="testworks/perform_announce_checksQ.xml">
+      <linktext><apiname>perform-announce-checks?</apiname></linktext>
+    </link>
+    <link href="testworks/perform_announce_checksQ_setter.xml">
+      <linktext><apiname>perform-announce-checks?-setter</apiname></linktext>
+    </link>
+    <link href="testworks/perform_announce_function.xml">
+      <linktext><apiname>perform-announce-function</apiname></linktext>
+    </link>
+    <link href="testworks/perform_announce_function_setter.xml">
+      <linktext><apiname>perform-announce-function-setter</apiname></linktext>
+    </link>
+    <link href="testworks/perform_component.xml">
+      <linktext><apiname>perform-component</apiname></linktext>
+    </link>
+    <link href="testworks/perform_debugQ.xml">
+      <linktext><apiname>perform-debug?</apiname></linktext>
+    </link>
+    <link href="testworks/perform_debugQ_setter.xml">
+      <linktext><apiname>perform-debug?-setter</apiname></linktext>
+    </link>
+    <link href="testworks/perform_progress_format_function.xml">
+      <linktext><apiname>perform-progress-format-function</apiname></linktext>
+    </link>
+    <link href="testworks/perform_progress_format_function_setter.xml">
+      <linktext><apiname>perform-progress-format-function-setter</apiname></linktext>
+    </link>
+    <link href="testworks/perform_progress_function.xml">
+      <linktext><apiname>perform-progress-function</apiname></linktext>
+    </link>
+    <link href="testworks/perform_progress_function_setter.xml">
+      <linktext><apiname>perform-progress-function-setter</apiname></linktext>
+    </link>
+    <link href="testworks/perform_suite.xml">
+      <linktext><apiname>perform-suite</apiname></linktext>
+    </link>
+    <link href="testworks/perform_tags.xml">
+      <linktext><apiname>perform-tags</apiname></linktext>
+    </link>
+    <link href="testworks/perform_tags_setter.xml">
+      <linktext><apiname>perform-tags-setter</apiname></linktext>
+    </link>
+    <link href="testworks/perform_test.xml">
+      <linktext><apiname>perform-test</apiname></linktext>
+    </link>
+    <link href="testworks/plural.xml">
+      <linktext><apiname>plural</apiname></linktext>
+    </link>
+    <link href="testworks/print_benchmark_result_footer.xml">
+      <linktext><apiname>print-benchmark-result-footer</apiname></linktext>
+    </link>
+    <link href="testworks/print_benchmark_result_header.xml">
+      <linktext><apiname>print-benchmark-result-header</apiname></linktext>
+    </link>
+    <link href="testworks/print_failure_reason.xml">
+      <linktext><apiname>print-failure-reason</apiname></linktext>
+    </link>
+    <link href="testworks/print_one_benchmark_result.xml">
+      <linktext><apiname>print-one-benchmark-result</apiname></linktext>
+    </link>
+    <link href="testworks/record_test_unit_crash.xml">
+      <linktext><apiname>record-test-unit-crash</apiname></linktext>
+    </link>
+    <link href="testworks/result_bytes.xml">
+      <linktext><apiname>result-bytes</apiname></linktext>
+    </link>
+    <link href="testworks/result_microseconds.xml">
+      <linktext><apiname>result-microseconds</apiname></linktext>
+    </link>
+    <link href="testworks/result_name.xml">
+      <linktext><apiname>result-name</apiname></linktext>
+    </link>
+    <link href="testworks/result_operation.xml">
+      <linktext><apiname>result-operation</apiname></linktext>
+    </link>
+    <link href="testworks/result_seconds.xml">
+      <linktext><apiname>result-seconds</apiname></linktext>
+    </link>
+    <link href="testworks/result_status.xml">
+      <linktext><apiname>result-status</apiname></linktext>
+    </link>
+    <link href="testworks/result_subresults.xml">
+      <linktext><apiname>result-subresults</apiname></linktext>
+    </link>
+    <link href="testworks/result_time.xml">
+      <linktext><apiname>result-time</apiname></linktext>
+    </link>
+    <link href="testworks/result_type_name.xml">
+      <linktext><apiname>result-type-name</apiname></linktext>
+    </link>
+    <link href="testworks/result_value.xml">
+      <linktext><apiname>result-value</apiname></linktext>
+    </link>
+    <link href="testworks/root_suite.xml">
+      <linktext><apiname>root-suite</apiname></linktext>
+    </link>
+    <link href="testworks/run_test_application.xml">
+      <linktext><apiname>run-test-application</apiname></linktext>
+    </link>
+    <link href="testworks/safe_error_to_string.xml">
+      <linktext><apiname>safe-error-to-string</apiname></linktext>
+    </link>
+    <link href="testworks/status_name.xml">
+      <linktext><apiname>status-name</apiname></linktext>
+    </link>
+    <link href="testworks/suite_cleanup_function.xml">
+      <linktext><apiname>suite-cleanup-function</apiname></linktext>
+    </link>
+    <link href="testworks/suite_components.xml">
+      <linktext><apiname>suite-components</apiname></linktext>
+    </link>
+    <link href="testworks/suite_definer.xml">
+      <linktext><apiname>suite-definer</apiname></linktext>
+    </link>
+    <link href="testworks/suite_setup_function.xml">
+      <linktext><apiname>suite-setup-function</apiname></linktext>
+    </link>
+    <link href="testworks/summary_report_function.xml">
+      <linktext><apiname>summary-report-function</apiname></linktext>
+    </link>
+    <link href="testworks/test_definer.xml">
+      <linktext><apiname>test-definer</apiname></linktext>
+    </link>
+    <link href="testworks/test_function.xml">
+      <linktext><apiname>test-function</apiname></linktext>
+    </link>
+    <link href="testworks/test_output.xml">
+      <linktext><apiname>test-output</apiname></linktext>
+    </link>
+    <link href="testworks/with_test_unit.xml">
+      <linktext><apiname>with-test-unit</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

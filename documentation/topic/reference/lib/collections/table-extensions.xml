@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-collections-table-extensions">
+  <apiName>table-extensions</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="table-extensions/Lhash_stateG.xml">
+      <linktext><apiname>&lt;hash-state&gt;</apiname></linktext>
+    </link>
+    <link href="table-extensions/Lstring_tableG.xml">
+      <linktext><apiname>&lt;string-table&gt;</apiname></linktext>
+    </link>
+    <link href="table-extensions/case_insensitive_equal.xml">
+      <linktext><apiname>case-insensitive-equal</apiname></linktext>
+    </link>
+    <link href="table-extensions/case_insensitive_string_hash.xml">
+      <linktext><apiname>case-insensitive-string-hash</apiname></linktext>
+    </link>
+    <link href="table-extensions/collection_hash.xml">
+      <linktext><apiname>collection-hash</apiname></linktext>
+    </link>
+    <link href="table-extensions/remove_all_keysX.xml">
+      <linktext><apiname>remove-all-keys!</apiname></linktext>
+    </link>
+    <link href="table-extensions/sequence_hash.xml">
+      <linktext><apiname>sequence-hash</apiname></linktext>
+    </link>
+    <link href="table-extensions/string_hash.xml">
+      <linktext><apiname>string-hash</apiname></linktext>
+    </link>
+    <link href="table-extensions/values_hash.xml">
+      <linktext><apiname>values-hash</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

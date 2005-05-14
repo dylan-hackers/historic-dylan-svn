@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-common-dylan-streams-protocol-Lincomplete_write_errorG">
+  <apiName>&lt;incomplete-write-error&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanSuperClass href="Lend_of_stream_errorG.xml">&lt;end-of-stream-error&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>count:</apiItemName>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

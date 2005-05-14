@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanLibrary PUBLIC "-//Gwydion//DTD DITA Dylan API Library//EN" "../../dtd/dylanLibrary.dtd" []>
+<dylanLibrary id="lib-io">
+  <apiName>io</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanLibraryDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanLibraryDetail>
+
+  <related-links>
+    <link href="io/format.xml">
+      <linktext><apiname>format</apiname></linktext>
+    </link>
+    <link href="io/format-out.xml">
+      <linktext><apiname>format-out</apiname></linktext>
+    </link>
+    <link href="io/pprint.xml">
+      <linktext><apiname>pprint</apiname></linktext>
+    </link>
+    <link href="io/print.xml">
+      <linktext><apiname>print</apiname></linktext>
+    </link>
+    <link href="io/standard-io.xml">
+      <linktext><apiname>standard-io</apiname></linktext>
+    </link>
+    <link href="io/streams.xml">
+      <linktext><apiname>streams</apiname></linktext>
+    </link>
+  </related-links>
+</dylanLibrary>

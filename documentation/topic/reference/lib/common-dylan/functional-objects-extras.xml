@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-common-dylan-functional-objects-extras">
+  <apiName>functional-objects-extras</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="functional-objects-extras/Lclosable_objectG.xml">
+      <linktext><apiname>&lt;closable-object&gt;</apiname></linktext>
+    </link>
+    <link href="functional-objects-extras/Llocator_defaultsG.xml">
+      <linktext><apiname>&lt;locator-defaults&gt;</apiname></linktext>
+    </link>
+    <link href="functional-objects-extras/Lphysical_locatorG.xml">
+      <linktext><apiname>&lt;physical-locator&gt;</apiname></linktext>
+    </link>
+    <link href="functional-objects-extras/Lserver_locatorG.xml">
+      <linktext><apiname>&lt;server-locator&gt;</apiname></linktext>
+    </link>
+    <link href="functional-objects-extras/default_last_handler.xml">
+      <linktext><apiname>default-last-handler</apiname></linktext>
+    </link>
+    <link href="functional-objects-extras/write_console.xml">
+      <linktext><apiname>write-console</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

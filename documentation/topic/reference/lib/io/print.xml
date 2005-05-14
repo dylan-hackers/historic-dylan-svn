@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-io-print">
+  <apiName>print</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="print/Tprint_circleQT.xml">
+      <linktext><apiname>*print-circle?*</apiname></linktext>
+    </link>
+    <link href="print/Tprint_escapeQT.xml">
+      <linktext><apiname>*print-escape?*</apiname></linktext>
+    </link>
+    <link href="print/Tprint_lengthT.xml">
+      <linktext><apiname>*print-length*</apiname></linktext>
+    </link>
+    <link href="print/Tprint_levelT.xml">
+      <linktext><apiname>*print-level*</apiname></linktext>
+    </link>
+    <link href="print/Tprint_prettyQT.xml">
+      <linktext><apiname>*print-pretty?*</apiname></linktext>
+    </link>
+    <link href="print/do_printing_object.xml">
+      <linktext><apiname>do-printing-object</apiname></linktext>
+    </link>
+    <link href="print/print.xml">
+      <linktext><apiname>print</apiname></linktext>
+    </link>
+    <link href="print/print_object.xml">
+      <linktext><apiname>print-object</apiname></linktext>
+    </link>
+    <link href="print/print_to_string.xml">
+      <linktext><apiname>print-to-string</apiname></linktext>
+    </link>
+    <link href="print/printing_object.xml">
+      <linktext><apiname>printing-object</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

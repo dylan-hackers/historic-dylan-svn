@@ -1,0 +1,773 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-dylan-dylan">
+  <apiName>dylan</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="dylan/Dmaximum_integer.xml">
+      <linktext><apiname>$maximum-integer</apiname></linktext>
+    </link>
+    <link href="dylan/Dminimum_integer.xml">
+      <linktext><apiname>$minimum-integer</apiname></linktext>
+    </link>
+    <link href="dylan/B.xml">
+      <linktext><apiname>&amp;</apiname></linktext>
+    </link>
+    <link href="dylan/T.xml">
+      <linktext><apiname>*</apiname></linktext>
+    </link>
+    <link href="dylan/A.xml">
+      <linktext><apiname>+</apiname></linktext>
+    </link>
+    <link href="dylan/_.xml">
+      <linktext><apiname>-</apiname></linktext>
+    </link>
+    <link href="dylan/S.xml">
+      <linktext><apiname>/</apiname></linktext>
+    </link>
+    <link href="dylan/ME.xml">
+      <linktext><apiname>:=</apiname></linktext>
+    </link>
+    <link href="dylan/L.xml">
+      <linktext><apiname>&lt;</apiname></linktext>
+    </link>
+    <link href="dylan/LE.xml">
+      <linktext><apiname>&lt;=</apiname></linktext>
+    </link>
+    <link href="dylan/LabortG.xml">
+      <linktext><apiname>&lt;abort&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LarrayG.xml">
+      <linktext><apiname>&lt;array&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LbooleanG.xml">
+      <linktext><apiname>&lt;boolean&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lbyte_stringG.xml">
+      <linktext><apiname>&lt;byte-string&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LcharacterG.xml">
+      <linktext><apiname>&lt;character&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LclassG.xml">
+      <linktext><apiname>&lt;class&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LcollectionG.xml">
+      <linktext><apiname>&lt;collection&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LcomplexG.xml">
+      <linktext><apiname>&lt;complex&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LconditionG.xml">
+      <linktext><apiname>&lt;condition&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LdequeG.xml">
+      <linktext><apiname>&lt;deque&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Ldouble_floatG.xml">
+      <linktext><apiname>&lt;double-float&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lempty_listG.xml">
+      <linktext><apiname>&lt;empty-list&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LerrorG.xml">
+      <linktext><apiname>&lt;error&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lexplicit_key_collectionG.xml">
+      <linktext><apiname>&lt;explicit-key-collection&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lextended_floatG.xml">
+      <linktext><apiname>&lt;extended-float&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LfloatG.xml">
+      <linktext><apiname>&lt;float&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LfunctionG.xml">
+      <linktext><apiname>&lt;function&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lgeneric_functionG.xml">
+      <linktext><apiname>&lt;generic-function&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LintegerG.xml">
+      <linktext><apiname>&lt;integer&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LlistG.xml">
+      <linktext><apiname>&lt;list&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LmethodG.xml">
+      <linktext><apiname>&lt;method&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lmutable_collectionG.xml">
+      <linktext><apiname>&lt;mutable-collection&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lmutable_explicit_key_collectionG.xml">
+      <linktext><apiname>&lt;mutable-explicit-key-collection&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lmutable_sequenceG.xml">
+      <linktext><apiname>&lt;mutable-sequence&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LnumberG.xml">
+      <linktext><apiname>&lt;number&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lobject_tableG.xml">
+      <linktext><apiname>&lt;object-table&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LobjectG.xml">
+      <linktext><apiname>&lt;object&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LpairG.xml">
+      <linktext><apiname>&lt;pair&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LrangeG.xml">
+      <linktext><apiname>&lt;range&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LrationalG.xml">
+      <linktext><apiname>&lt;rational&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LrealG.xml">
+      <linktext><apiname>&lt;real&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LrestartG.xml">
+      <linktext><apiname>&lt;restart&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lsealed_object_errorG.xml">
+      <linktext><apiname>&lt;sealed-object-error&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LsequenceG.xml">
+      <linktext><apiname>&lt;sequence&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lserious_conditionG.xml">
+      <linktext><apiname>&lt;serious-condition&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lsimple_errorG.xml">
+      <linktext><apiname>&lt;simple-error&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lsimple_object_vectorG.xml">
+      <linktext><apiname>&lt;simple-object-vector&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lsimple_restartG.xml">
+      <linktext><apiname>&lt;simple-restart&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lsimple_vectorG.xml">
+      <linktext><apiname>&lt;simple-vector&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lsimple_warningG.xml">
+      <linktext><apiname>&lt;simple-warning&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lsingle_floatG.xml">
+      <linktext><apiname>&lt;single-float&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LsingletonG.xml">
+      <linktext><apiname>&lt;singleton&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lstretchy_collectionG.xml">
+      <linktext><apiname>&lt;stretchy-collection&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lstretchy_vectorG.xml">
+      <linktext><apiname>&lt;stretchy-vector&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LstringG.xml">
+      <linktext><apiname>&lt;string&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LsymbolG.xml">
+      <linktext><apiname>&lt;symbol&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LtableG.xml">
+      <linktext><apiname>&lt;table&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Ltype_errorG.xml">
+      <linktext><apiname>&lt;type-error&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LtypeG.xml">
+      <linktext><apiname>&lt;type&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/Lunicode_stringG.xml">
+      <linktext><apiname>&lt;unicode-string&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LvectorG.xml">
+      <linktext><apiname>&lt;vector&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/LwarningG.xml">
+      <linktext><apiname>&lt;warning&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/E.xml">
+      <linktext><apiname>=</apiname></linktext>
+    </link>
+    <link href="dylan/EE.xml">
+      <linktext><apiname>==</apiname></linktext>
+    </link>
+    <link href="dylan/G.xml">
+      <linktext><apiname>&gt;</apiname></linktext>
+    </link>
+    <link href="dylan/GE.xml">
+      <linktext><apiname>&gt;=</apiname></linktext>
+    </link>
+    <link href="dylan/C.xml">
+      <linktext><apiname>^</apiname></linktext>
+    </link>
+    <link href="dylan/abort.xml">
+      <linktext><apiname>abort</apiname></linktext>
+    </link>
+    <link href="dylan/abs.xml">
+      <linktext><apiname>abs</apiname></linktext>
+    </link>
+    <link href="dylan/add.xml">
+      <linktext><apiname>add</apiname></linktext>
+    </link>
+    <link href="dylan/addX.xml">
+      <linktext><apiname>add!</apiname></linktext>
+    </link>
+    <link href="dylan/add_method.xml">
+      <linktext><apiname>add-method</apiname></linktext>
+    </link>
+    <link href="dylan/add_new.xml">
+      <linktext><apiname>add-new</apiname></linktext>
+    </link>
+    <link href="dylan/add_newX.xml">
+      <linktext><apiname>add-new!</apiname></linktext>
+    </link>
+    <link href="dylan/all_superclasses.xml">
+      <linktext><apiname>all-superclasses</apiname></linktext>
+    </link>
+    <link href="dylan/always.xml">
+      <linktext><apiname>always</apiname></linktext>
+    </link>
+    <link href="dylan/anyQ.xml">
+      <linktext><apiname>any?</apiname></linktext>
+    </link>
+    <link href="dylan/applicable_methodQ.xml">
+      <linktext><apiname>applicable-method?</apiname></linktext>
+    </link>
+    <link href="dylan/apply.xml">
+      <linktext><apiname>apply</apiname></linktext>
+    </link>
+    <link href="dylan/aref.xml">
+      <linktext><apiname>aref</apiname></linktext>
+    </link>
+    <link href="dylan/aref_setter.xml">
+      <linktext><apiname>aref-setter</apiname></linktext>
+    </link>
+    <link href="dylan/as.xml">
+      <linktext><apiname>as</apiname></linktext>
+    </link>
+    <link href="dylan/as_lowercase.xml">
+      <linktext><apiname>as-lowercase</apiname></linktext>
+    </link>
+    <link href="dylan/as_lowercaseX.xml">
+      <linktext><apiname>as-lowercase!</apiname></linktext>
+    </link>
+    <link href="dylan/as_uppercase.xml">
+      <linktext><apiname>as-uppercase</apiname></linktext>
+    </link>
+    <link href="dylan/as_uppercaseX.xml">
+      <linktext><apiname>as-uppercase!</apiname></linktext>
+    </link>
+    <link href="dylan/ash.xml">
+      <linktext><apiname>ash</apiname></linktext>
+    </link>
+    <link href="dylan/backward_iteration_protocol.xml">
+      <linktext><apiname>backward-iteration-protocol</apiname></linktext>
+    </link>
+    <link href="dylan/begin.xml">
+      <linktext><apiname>begin</apiname></linktext>
+    </link>
+    <link href="dylan/block.xml">
+      <linktext><apiname>block</apiname></linktext>
+    </link>
+    <link href="dylan/break.xml">
+      <linktext><apiname>break</apiname></linktext>
+    </link>
+    <link href="dylan/case.xml">
+      <linktext><apiname>case</apiname></linktext>
+    </link>
+    <link href="dylan/ceiling.xml">
+      <linktext><apiname>ceiling</apiname></linktext>
+    </link>
+    <link href="dylan/ceilingS.xml">
+      <linktext><apiname>ceiling/</apiname></linktext>
+    </link>
+    <link href="dylan/cerror.xml">
+      <linktext><apiname>cerror</apiname></linktext>
+    </link>
+    <link href="dylan/check_type.xml">
+      <linktext><apiname>check-type</apiname></linktext>
+    </link>
+    <link href="dylan/choose.xml">
+      <linktext><apiname>choose</apiname></linktext>
+    </link>
+    <link href="dylan/choose_by.xml">
+      <linktext><apiname>choose-by</apiname></linktext>
+    </link>
+    <link href="dylan/class_definer.xml">
+      <linktext><apiname>class-definer</apiname></linktext>
+    </link>
+    <link href="dylan/complement.xml">
+      <linktext><apiname>complement</apiname></linktext>
+    </link>
+    <link href="dylan/compose.xml">
+      <linktext><apiname>compose</apiname></linktext>
+    </link>
+    <link href="dylan/concatenate.xml">
+      <linktext><apiname>concatenate</apiname></linktext>
+    </link>
+    <link href="dylan/concatenate_as.xml">
+      <linktext><apiname>concatenate-as</apiname></linktext>
+    </link>
+    <link href="dylan/condition_format_arguments.xml">
+      <linktext><apiname>condition-format-arguments</apiname></linktext>
+    </link>
+    <link href="dylan/condition_format_string.xml">
+      <linktext><apiname>condition-format-string</apiname></linktext>
+    </link>
+    <link href="dylan/conjoin.xml">
+      <linktext><apiname>conjoin</apiname></linktext>
+    </link>
+    <link href="dylan/constant_definer.xml">
+      <linktext><apiname>constant-definer</apiname></linktext>
+    </link>
+    <link href="dylan/copy_sequence.xml">
+      <linktext><apiname>copy-sequence</apiname></linktext>
+    </link>
+    <link href="dylan/curry.xml">
+      <linktext><apiname>curry</apiname></linktext>
+    </link>
+    <link href="dylan/default_handler.xml">
+      <linktext><apiname>default-handler</apiname></linktext>
+    </link>
+    <link href="dylan/dimension.xml">
+      <linktext><apiname>dimension</apiname></linktext>
+    </link>
+    <link href="dylan/dimensions.xml">
+      <linktext><apiname>dimensions</apiname></linktext>
+    </link>
+    <link href="dylan/direct_subclasses.xml">
+      <linktext><apiname>direct-subclasses</apiname></linktext>
+    </link>
+    <link href="dylan/direct_superclasses.xml">
+      <linktext><apiname>direct-superclasses</apiname></linktext>
+    </link>
+    <link href="dylan/disjoin.xml">
+      <linktext><apiname>disjoin</apiname></linktext>
+    </link>
+    <link href="dylan/do.xml">
+      <linktext><apiname>do</apiname></linktext>
+    </link>
+    <link href="dylan/do_handlers.xml">
+      <linktext><apiname>do-handlers</apiname></linktext>
+    </link>
+    <link href="dylan/domain_definer.xml">
+      <linktext><apiname>domain-definer</apiname></linktext>
+    </link>
+    <link href="dylan/element.xml">
+      <linktext><apiname>element</apiname></linktext>
+    </link>
+    <link href="dylan/element_setter.xml">
+      <linktext><apiname>element-setter</apiname></linktext>
+    </link>
+    <link href="dylan/emptyQ.xml">
+      <linktext><apiname>empty?</apiname></linktext>
+    </link>
+    <link href="dylan/error.xml">
+      <linktext><apiname>error</apiname></linktext>
+    </link>
+    <link href="dylan/evenQ.xml">
+      <linktext><apiname>even?</apiname></linktext>
+    </link>
+    <link href="dylan/everyQ.xml">
+      <linktext><apiname>every?</apiname></linktext>
+    </link>
+    <link href="dylan/fillX.xml">
+      <linktext><apiname>fill!</apiname></linktext>
+    </link>
+    <link href="dylan/find_key.xml">
+      <linktext><apiname>find-key</apiname></linktext>
+    </link>
+    <link href="dylan/find_method.xml">
+      <linktext><apiname>find-method</apiname></linktext>
+    </link>
+    <link href="dylan/first.xml">
+      <linktext><apiname>first</apiname></linktext>
+    </link>
+    <link href="dylan/first_setter.xml">
+      <linktext><apiname>first-setter</apiname></linktext>
+    </link>
+    <link href="dylan/floor.xml">
+      <linktext><apiname>floor</apiname></linktext>
+    </link>
+    <link href="dylan/floorS.xml">
+      <linktext><apiname>floor/</apiname></linktext>
+    </link>
+    <link href="dylan/for.xml">
+      <linktext><apiname>for</apiname></linktext>
+    </link>
+    <link href="dylan/forward_iteration_protocol.xml">
+      <linktext><apiname>forward-iteration-protocol</apiname></linktext>
+    </link>
+    <link href="dylan/function_arguments.xml">
+      <linktext><apiname>function-arguments</apiname></linktext>
+    </link>
+    <link href="dylan/function_definer.xml">
+      <linktext><apiname>function-definer</apiname></linktext>
+    </link>
+    <link href="dylan/function_return_values.xml">
+      <linktext><apiname>function-return-values</apiname></linktext>
+    </link>
+    <link href="dylan/function_specializers.xml">
+      <linktext><apiname>function-specializers</apiname></linktext>
+    </link>
+    <link href="dylan/gcd.xml">
+      <linktext><apiname>gcd</apiname></linktext>
+    </link>
+    <link href="dylan/generic_definer.xml">
+      <linktext><apiname>generic-definer</apiname></linktext>
+    </link>
+    <link href="dylan/generic_function_mandatory_keywords.xml">
+      <linktext><apiname>generic-function-mandatory-keywords</apiname></linktext>
+    </link>
+    <link href="dylan/generic_function_methods.xml">
+      <linktext><apiname>generic-function-methods</apiname></linktext>
+    </link>
+    <link href="dylan/head.xml">
+      <linktext><apiname>head</apiname></linktext>
+    </link>
+    <link href="dylan/head_setter.xml">
+      <linktext><apiname>head-setter</apiname></linktext>
+    </link>
+    <link href="dylan/identity.xml">
+      <linktext><apiname>identity</apiname></linktext>
+    </link>
+    <link href="dylan/if.xml">
+      <linktext><apiname>if</apiname></linktext>
+    </link>
+    <link href="dylan/initialize.xml">
+      <linktext><apiname>initialize</apiname></linktext>
+    </link>
+    <link href="dylan/instanceQ.xml">
+      <linktext><apiname>instance?</apiname></linktext>
+    </link>
+    <link href="dylan/integralQ.xml">
+      <linktext><apiname>integral?</apiname></linktext>
+    </link>
+    <link href="dylan/intersection.xml">
+      <linktext><apiname>intersection</apiname></linktext>
+    </link>
+    <link href="dylan/key_sequence.xml">
+      <linktext><apiname>key-sequence</apiname></linktext>
+    </link>
+    <link href="dylan/key_test.xml">
+      <linktext><apiname>key-test</apiname></linktext>
+    </link>
+    <link href="dylan/last.xml">
+      <linktext><apiname>last</apiname></linktext>
+    </link>
+    <link href="dylan/last_setter.xml">
+      <linktext><apiname>last-setter</apiname></linktext>
+    </link>
+    <link href="dylan/lcm.xml">
+      <linktext><apiname>lcm</apiname></linktext>
+    </link>
+    <link href="dylan/let.xml">
+      <linktext><apiname>let</apiname></linktext>
+    </link>
+    <link href="dylan/library_definer.xml">
+      <linktext><apiname>library-definer</apiname></linktext>
+    </link>
+    <link href="dylan/limited.xml">
+      <linktext><apiname>limited</apiname></linktext>
+    </link>
+    <link href="dylan/list.xml">
+      <linktext><apiname>list</apiname></linktext>
+    </link>
+    <link href="dylan/local.xml">
+      <linktext><apiname>local</apiname></linktext>
+    </link>
+    <link href="dylan/logand.xml">
+      <linktext><apiname>logand</apiname></linktext>
+    </link>
+    <link href="dylan/logbitQ.xml">
+      <linktext><apiname>logbit?</apiname></linktext>
+    </link>
+    <link href="dylan/logior.xml">
+      <linktext><apiname>logior</apiname></linktext>
+    </link>
+    <link href="dylan/lognot.xml">
+      <linktext><apiname>lognot</apiname></linktext>
+    </link>
+    <link href="dylan/logxor.xml">
+      <linktext><apiname>logxor</apiname></linktext>
+    </link>
+    <link href="dylan/lsh.xml">
+      <linktext><apiname>lsh</apiname></linktext>
+    </link>
+    <link href="dylan/macro.xml">
+      <linktext><apiname>macro</apiname></linktext>
+    </link>
+    <link href="dylan/macro_definer.xml">
+      <linktext><apiname>macro-definer</apiname></linktext>
+    </link>
+    <link href="dylan/make.xml">
+      <linktext><apiname>make</apiname></linktext>
+    </link>
+    <link href="dylan/map.xml">
+      <linktext><apiname>map</apiname></linktext>
+    </link>
+    <link href="dylan/map_as.xml">
+      <linktext><apiname>map-as</apiname></linktext>
+    </link>
+    <link href="dylan/map_into.xml">
+      <linktext><apiname>map-into</apiname></linktext>
+    </link>
+    <link href="dylan/max.xml">
+      <linktext><apiname>max</apiname></linktext>
+    </link>
+    <link href="dylan/memberQ.xml">
+      <linktext><apiname>member?</apiname></linktext>
+    </link>
+    <link href="dylan/merge_hash_ids.xml">
+      <linktext><apiname>merge-hash-ids</apiname></linktext>
+    </link>
+    <link href="dylan/method.xml">
+      <linktext><apiname>method</apiname></linktext>
+    </link>
+    <link href="dylan/method_definer.xml">
+      <linktext><apiname>method-definer</apiname></linktext>
+    </link>
+    <link href="dylan/min.xml">
+      <linktext><apiname>min</apiname></linktext>
+    </link>
+    <link href="dylan/module_definer.xml">
+      <linktext><apiname>module-definer</apiname></linktext>
+    </link>
+    <link href="dylan/modulo.xml">
+      <linktext><apiname>modulo</apiname></linktext>
+    </link>
+    <link href="dylan/negative.xml">
+      <linktext><apiname>negative</apiname></linktext>
+    </link>
+    <link href="dylan/negativeQ.xml">
+      <linktext><apiname>negative?</apiname></linktext>
+    </link>
+    <link href="dylan/object_class.xml">
+      <linktext><apiname>object-class</apiname></linktext>
+    </link>
+    <link href="dylan/object_hash.xml">
+      <linktext><apiname>object-hash</apiname></linktext>
+    </link>
+    <link href="dylan/oddQ.xml">
+      <linktext><apiname>odd?</apiname></linktext>
+    </link>
+    <link href="dylan/pair.xml">
+      <linktext><apiname>pair</apiname></linktext>
+    </link>
+    <link href="dylan/pop.xml">
+      <linktext><apiname>pop</apiname></linktext>
+    </link>
+    <link href="dylan/pop_last.xml">
+      <linktext><apiname>pop-last</apiname></linktext>
+    </link>
+    <link href="dylan/positiveQ.xml">
+      <linktext><apiname>positive?</apiname></linktext>
+    </link>
+    <link href="dylan/push.xml">
+      <linktext><apiname>push</apiname></linktext>
+    </link>
+    <link href="dylan/push_last.xml">
+      <linktext><apiname>push-last</apiname></linktext>
+    </link>
+    <link href="dylan/range.xml">
+      <linktext><apiname>range</apiname></linktext>
+    </link>
+    <link href="dylan/rank.xml">
+      <linktext><apiname>rank</apiname></linktext>
+    </link>
+    <link href="dylan/rcurry.xml">
+      <linktext><apiname>rcurry</apiname></linktext>
+    </link>
+    <link href="dylan/reduce.xml">
+      <linktext><apiname>reduce</apiname></linktext>
+    </link>
+    <link href="dylan/reduce1.xml">
+      <linktext><apiname>reduce1</apiname></linktext>
+    </link>
+    <link href="dylan/remainder.xml">
+      <linktext><apiname>remainder</apiname></linktext>
+    </link>
+    <link href="dylan/remove.xml">
+      <linktext><apiname>remove</apiname></linktext>
+    </link>
+    <link href="dylan/removeX.xml">
+      <linktext><apiname>remove!</apiname></linktext>
+    </link>
+    <link href="dylan/remove_duplicates.xml">
+      <linktext><apiname>remove-duplicates</apiname></linktext>
+    </link>
+    <link href="dylan/remove_duplicatesX.xml">
+      <linktext><apiname>remove-duplicates!</apiname></linktext>
+    </link>
+    <link href="dylan/remove_keyX.xml">
+      <linktext><apiname>remove-key!</apiname></linktext>
+    </link>
+    <link href="dylan/remove_method.xml">
+      <linktext><apiname>remove-method</apiname></linktext>
+    </link>
+    <link href="dylan/replace_elementsX.xml">
+      <linktext><apiname>replace-elements!</apiname></linktext>
+    </link>
+    <link href="dylan/replace_subsequenceX.xml">
+      <linktext><apiname>replace-subsequence!</apiname></linktext>
+    </link>
+    <link href="dylan/restart_query.xml">
+      <linktext><apiname>restart-query</apiname></linktext>
+    </link>
+    <link href="dylan/return_allowedQ.xml">
+      <linktext><apiname>return-allowed?</apiname></linktext>
+    </link>
+    <link href="dylan/return_description.xml">
+      <linktext><apiname>return-description</apiname></linktext>
+    </link>
+    <link href="dylan/return_query.xml">
+      <linktext><apiname>return-query</apiname></linktext>
+    </link>
+    <link href="dylan/reverse.xml">
+      <linktext><apiname>reverse</apiname></linktext>
+    </link>
+    <link href="dylan/reverseX.xml">
+      <linktext><apiname>reverse!</apiname></linktext>
+    </link>
+    <link href="dylan/round.xml">
+      <linktext><apiname>round</apiname></linktext>
+    </link>
+    <link href="dylan/roundS.xml">
+      <linktext><apiname>round/</apiname></linktext>
+    </link>
+    <link href="dylan/row_major_index.xml">
+      <linktext><apiname>row-major-index</apiname></linktext>
+    </link>
+    <link href="dylan/second.xml">
+      <linktext><apiname>second</apiname></linktext>
+    </link>
+    <link href="dylan/second_setter.xml">
+      <linktext><apiname>second-setter</apiname></linktext>
+    </link>
+    <link href="dylan/select.xml">
+      <linktext><apiname>select</apiname></linktext>
+    </link>
+    <link href="dylan/shallow_copy.xml">
+      <linktext><apiname>shallow-copy</apiname></linktext>
+    </link>
+    <link href="dylan/signal.xml">
+      <linktext><apiname>signal</apiname></linktext>
+    </link>
+    <link href="dylan/singleton.xml">
+      <linktext><apiname>singleton</apiname></linktext>
+    </link>
+    <link href="dylan/size.xml">
+      <linktext><apiname>size</apiname></linktext>
+    </link>
+    <link href="dylan/size_setter.xml">
+      <linktext><apiname>size-setter</apiname></linktext>
+    </link>
+    <link href="dylan/slot_initializedQ.xml">
+      <linktext><apiname>slot-initialized?</apiname></linktext>
+    </link>
+    <link href="dylan/sort.xml">
+      <linktext><apiname>sort</apiname></linktext>
+    </link>
+    <link href="dylan/sortX.xml">
+      <linktext><apiname>sort!</apiname></linktext>
+    </link>
+    <link href="dylan/sorted_applicable_methods.xml">
+      <linktext><apiname>sorted-applicable-methods</apiname></linktext>
+    </link>
+    <link href="dylan/subsequence_position.xml">
+      <linktext><apiname>subsequence-position</apiname></linktext>
+    </link>
+    <link href="dylan/subtypeQ.xml">
+      <linktext><apiname>subtype?</apiname></linktext>
+    </link>
+    <link href="dylan/table_protocol.xml">
+      <linktext><apiname>table-protocol</apiname></linktext>
+    </link>
+    <link href="dylan/tail.xml">
+      <linktext><apiname>tail</apiname></linktext>
+    </link>
+    <link href="dylan/tail_setter.xml">
+      <linktext><apiname>tail-setter</apiname></linktext>
+    </link>
+    <link href="dylan/third.xml">
+      <linktext><apiname>third</apiname></linktext>
+    </link>
+    <link href="dylan/third_setter.xml">
+      <linktext><apiname>third-setter</apiname></linktext>
+    </link>
+    <link href="dylan/truncate.xml">
+      <linktext><apiname>truncate</apiname></linktext>
+    </link>
+    <link href="dylan/truncateS.xml">
+      <linktext><apiname>truncate/</apiname></linktext>
+    </link>
+    <link href="dylan/type_error_expected_type.xml">
+      <linktext><apiname>type-error-expected-type</apiname></linktext>
+    </link>
+    <link href="dylan/type_error_value.xml">
+      <linktext><apiname>type-error-value</apiname></linktext>
+    </link>
+    <link href="dylan/type_for_copy.xml">
+      <linktext><apiname>type-for-copy</apiname></linktext>
+    </link>
+    <link href="dylan/type_union.xml">
+      <linktext><apiname>type-union</apiname></linktext>
+    </link>
+    <link href="dylan/union.xml">
+      <linktext><apiname>union</apiname></linktext>
+    </link>
+    <link href="dylan/unless.xml">
+      <linktext><apiname>unless</apiname></linktext>
+    </link>
+    <link href="dylan/until.xml">
+      <linktext><apiname>until</apiname></linktext>
+    </link>
+    <link href="dylan/values.xml">
+      <linktext><apiname>values</apiname></linktext>
+    </link>
+    <link href="dylan/variable_definer.xml">
+      <linktext><apiname>variable-definer</apiname></linktext>
+    </link>
+    <link href="dylan/vector.xml">
+      <linktext><apiname>vector</apiname></linktext>
+    </link>
+    <link href="dylan/while.xml">
+      <linktext><apiname>while</apiname></linktext>
+    </link>
+    <link href="dylan/zeroQ.xml">
+      <linktext><apiname>zero?</apiname></linktext>
+    </link>
+    <link href="dylan/V.xml">
+      <linktext><apiname>|</apiname></linktext>
+    </link>
+    <link href="dylan/N.xml">
+      <linktext><apiname>~</apiname></linktext>
+    </link>
+    <link href="dylan/NE.xml">
+      <linktext><apiname>~=</apiname></linktext>
+    </link>
+    <link href="dylan/NEE.xml">
+      <linktext><apiname>~==</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

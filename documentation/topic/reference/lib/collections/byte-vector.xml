@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-collections-byte-vector">
+  <apiName>byte-vector</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="byte-vector/Lbyte_vectorG.xml">
+      <linktext><apiname>&lt;byte-vector&gt;</apiname></linktext>
+    </link>
+    <link href="byte-vector/LbyteG.xml">
+      <linktext><apiname>&lt;byte&gt;</apiname></linktext>
+    </link>
+    <link href="byte-vector/byte_vector_fill.xml">
+      <linktext><apiname>byte-vector-fill</apiname></linktext>
+    </link>
+    <link href="byte-vector/byte_vector_ref.xml">
+      <linktext><apiname>byte-vector-ref</apiname></linktext>
+    </link>
+    <link href="byte-vector/byte_vector_ref_setter.xml">
+      <linktext><apiname>byte-vector-ref-setter</apiname></linktext>
+    </link>
+    <link href="byte-vector/copy_bytes.xml">
+      <linktext><apiname>copy-bytes</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

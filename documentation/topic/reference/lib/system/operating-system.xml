@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-system-operating-system">
+  <apiName>operating-system</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="operating-system/Darchitecture_little_endianQ.xml">
+      <linktext><apiname>$architecture-little-endian?</apiname></linktext>
+    </link>
+    <link href="operating-system/Dmachine_name.xml">
+      <linktext><apiname>$machine-name</apiname></linktext>
+    </link>
+    <link href="operating-system/Dos_name.xml">
+      <linktext><apiname>$os-name</apiname></linktext>
+    </link>
+    <link href="operating-system/Dos_variant.xml">
+      <linktext><apiname>$os-variant</apiname></linktext>
+    </link>
+    <link href="operating-system/Dos_version.xml">
+      <linktext><apiname>$os-version</apiname></linktext>
+    </link>
+    <link href="operating-system/Dplatform_name.xml">
+      <linktext><apiname>$platform-name</apiname></linktext>
+    </link>
+    <link href="operating-system/application_arguments.xml">
+      <linktext><apiname>application-arguments</apiname></linktext>
+    </link>
+    <link href="operating-system/application_filename.xml">
+      <linktext><apiname>application-filename</apiname></linktext>
+    </link>
+    <link href="operating-system/application_name.xml">
+      <linktext><apiname>application-name</apiname></linktext>
+    </link>
+    <link href="operating-system/command_line_option_prefix.xml">
+      <linktext><apiname>command-line-option-prefix</apiname></linktext>
+    </link>
+    <link href="operating-system/create_application_event.xml">
+      <linktext><apiname>create-application-event</apiname></linktext>
+    </link>
+    <link href="operating-system/environment_variable.xml">
+      <linktext><apiname>environment-variable</apiname></linktext>
+    </link>
+    <link href="operating-system/environment_variable_setter.xml">
+      <linktext><apiname>environment-variable-setter</apiname></linktext>
+    </link>
+    <link href="operating-system/exit_application.xml">
+      <linktext><apiname>exit-application</apiname></linktext>
+    </link>
+    <link href="operating-system/load_library.xml">
+      <linktext><apiname>load-library</apiname></linktext>
+    </link>
+    <link href="operating-system/login_group.xml">
+      <linktext><apiname>login-group</apiname></linktext>
+    </link>
+    <link href="operating-system/login_name.xml">
+      <linktext><apiname>login-name</apiname></linktext>
+    </link>
+    <link href="operating-system/owner_name.xml">
+      <linktext><apiname>owner-name</apiname></linktext>
+    </link>
+    <link href="operating-system/owner_organization.xml">
+      <linktext><apiname>owner-organization</apiname></linktext>
+    </link>
+    <link href="operating-system/register_application_exit_function.xml">
+      <linktext><apiname>register-application-exit-function</apiname></linktext>
+    </link>
+    <link href="operating-system/run_application.xml">
+      <linktext><apiname>run-application</apiname></linktext>
+    </link>
+    <link href="operating-system/signal_application_event.xml">
+      <linktext><apiname>signal-application-event</apiname></linktext>
+    </link>
+    <link href="operating-system/system_offset_definer.xml">
+      <linktext><apiname>system-offset-definer</apiname></linktext>
+    </link>
+    <link href="operating-system/system_offset_value.xml">
+      <linktext><apiname>system-offset-value</apiname></linktext>
+    </link>
+    <link href="operating-system/tokenize_command_lineMcommon_extensionsMcommon_dylan (Lbyte_stringGMdylanMdylan).xml">
+      <linktext><apiname>tokenize-command-line:common-extensions:common-dylan (&lt;byte-string&gt;:dylan:dylan)</apiname></linktext>
+    </link>
+    <link href="operating-system/tokenize_environment_variable.xml">
+      <linktext><apiname>tokenize-environment-variable</apiname></linktext>
+    </link>
+    <link href="operating-system/wait_for_application_event.xml">
+      <linktext><apiname>wait-for-application-event</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

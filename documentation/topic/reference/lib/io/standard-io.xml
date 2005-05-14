@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-io-standard-io">
+  <apiName>standard-io</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="standard-io/Tstandard_errorT.xml">
+      <linktext><apiname>*standard-error*</apiname></linktext>
+    </link>
+    <link href="standard-io/Tstandard_inputT.xml">
+      <linktext><apiname>*standard-input*</apiname></linktext>
+    </link>
+    <link href="standard-io/Tstandard_outputT.xml">
+      <linktext><apiname>*standard-output*</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

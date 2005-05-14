@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-common-dylan-locators-protocol">
+  <apiName>locators-protocol</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="locators-protocol/LlocatorG.xml">
+      <linktext><apiname>&lt;locator&gt;</apiname></linktext>
+    </link>
+    <link href="locators-protocol/list_locator.xml">
+      <linktext><apiname>list-locator</apiname></linktext>
+    </link>
+    <link href="locators-protocol/open_locator.xml">
+      <linktext><apiname>open-locator</apiname></linktext>
+    </link>
+    <link href="locators-protocol/supports_list_locatorQ.xml">
+      <linktext><apiname>supports-list-locator?</apiname></linktext>
+    </link>
+    <link href="locators-protocol/supports_open_locatorQ.xml">
+      <linktext><apiname>supports-open-locator?</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

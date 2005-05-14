@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
+<dylanFunction id="lib-collections-table-extensions-collection_hash">
+  <apiName>collection-hash</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanFunctionDetail>
+    <dylanFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>key-hash</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>element-hash</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>col</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LcollectionG.xml">&lt;collection&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>hash-state</apiItemName>
+        <apiOperationClassifier href="Lhash_stateG.xml">&lt;hash-state&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>ordered</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionReturn>
+	<apiItemName>id</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>state</apiItemName>
+        <apiOperationClassifier href="Lhash_stateG.xml">&lt;hash-state&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanFunctionDetail>
+</dylanFunction>

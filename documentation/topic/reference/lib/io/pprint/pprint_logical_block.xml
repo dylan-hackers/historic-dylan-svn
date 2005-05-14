@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-io-pprint-pprint_logical_block">
+  <apiName>pprint-logical-block</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanGenericFunctionSealing value='open'/>
+      <dylanFunctionParam>
+	<apiItemName>stream</apiItemName>
+        <apiOperationClassifier href="../../common-dylan/common-extensions/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>column</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>prefix</apiItemName>
+        <apiType value="{complex type}"/>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>per-line-prefix</apiItemName>
+        <apiType value="{complex type}"/>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>body</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>suffix</apiItemName>
+        <apiType value="{complex type}"/>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionKeywordParam>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

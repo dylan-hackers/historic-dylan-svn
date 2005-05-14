@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-network-sockets-Lservice_not_foundG">
+  <apiName>&lt;service-not-found&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanSuperClass href="Lrecoverable_socket_conditionG.xml">&lt;recoverable-socket-condition&gt;</dylanSuperClass>
+      <dylanSuperClass href="../sockets-internals/Lsealed_objectG.xml">&lt;sealed-object&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>protocol:</apiItemName>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>service:</apiItemName>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanVariable PUBLIC "-//Gwydion//DTD DITA Dylan API Variable//EN" "../../../../dtd/dylanVariable.dtd" []>
+<dylanVariable id="lib-io-print-Tprint_levelT">
+  <apiName>*print-level*</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanVariableDetail>
+    <dylanVariableDef>
+      <apiType value="{complex type}"/>
+    </dylanVariableDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanVariableDetail>
+</dylanVariable>

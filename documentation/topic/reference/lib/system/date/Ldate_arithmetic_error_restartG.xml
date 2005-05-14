@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-system-date-Ldate_arithmetic_error_restartG">
+  <apiName>&lt;date-arithmetic-error-restart&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanAbstractClass value="abstract-uninstantiable"/>
+      <dylanSuperClass href="Ldate_arithmetic_errorG.xml">&lt;date-arithmetic-error&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../dylan/dylan/LrestartG.xml">&lt;restart&gt;</dylanSuperClass>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-testworks-specs-testworks-specs">
+  <apiName>testworks-specs</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="testworks-specs/Lclass_specG.xml">
+      <linktext><apiname>&lt;class-spec&gt;</apiname></linktext>
+    </link>
+    <link href="testworks-specs/Lconstant_specG.xml">
+      <linktext><apiname>&lt;constant-spec&gt;</apiname></linktext>
+    </link>
+    <link href="testworks-specs/Ldefinition_specG.xml">
+      <linktext><apiname>&lt;definition-spec&gt;</apiname></linktext>
+    </link>
+    <link href="testworks-specs/Lfunction_specG.xml">
+      <linktext><apiname>&lt;function-spec&gt;</apiname></linktext>
+    </link>
+    <link href="testworks-specs/Lmacro_specG.xml">
+      <linktext><apiname>&lt;macro-spec&gt;</apiname></linktext>
+    </link>
+    <link href="testworks-specs/Lprotocol_specG.xml">
+      <linktext><apiname>&lt;protocol-spec&gt;</apiname></linktext>
+    </link>
+    <link href="testworks-specs/LspecG.xml">
+      <linktext><apiname>&lt;spec&gt;</apiname></linktext>
+    </link>
+    <link href="testworks-specs/Lvariable_specG.xml">
+      <linktext><apiname>&lt;variable-spec&gt;</apiname></linktext>
+    </link>
+    <link href="testworks-specs/check_protocol_classes.xml">
+      <linktext><apiname>check-protocol-classes</apiname></linktext>
+    </link>
+    <link href="testworks-specs/check_protocol_constants.xml">
+      <linktext><apiname>check-protocol-constants</apiname></linktext>
+    </link>
+    <link href="testworks-specs/check_protocol_functions.xml">
+      <linktext><apiname>check-protocol-functions</apiname></linktext>
+    </link>
+    <link href="testworks-specs/check_protocol_macros.xml">
+      <linktext><apiname>check-protocol-macros</apiname></linktext>
+    </link>
+    <link href="testworks-specs/check_protocol_variables.xml">
+      <linktext><apiname>check-protocol-variables</apiname></linktext>
+    </link>
+    <link href="testworks-specs/class_test_definer.xml">
+      <linktext><apiname>class-test-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/class_test_function.xml">
+      <linktext><apiname>class-test-function</apiname></linktext>
+    </link>
+    <link href="testworks-specs/constant_test_definer.xml">
+      <linktext><apiname>constant-test-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/definition_test_definer.xml">
+      <linktext><apiname>definition-test-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/destroy_test_instance.xml">
+      <linktext><apiname>destroy-test-instance</apiname></linktext>
+    </link>
+    <link href="testworks-specs/do_protocol_classes.xml">
+      <linktext><apiname>do-protocol-classes</apiname></linktext>
+    </link>
+    <link href="testworks-specs/function_test_definer.xml">
+      <linktext><apiname>function-test-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/library_spec_definer.xml">
+      <linktext><apiname>library-spec-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/macro_test_definer.xml">
+      <linktext><apiname>macro-test-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/make_test_instance.xml">
+      <linktext><apiname>make-test-instance</apiname></linktext>
+    </link>
+    <link href="testworks-specs/module_spec_definer.xml">
+      <linktext><apiname>module-spec-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/module_spec_protocol_definer.xml">
+      <linktext><apiname>module-spec-protocol-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/module_spec_suite_definer.xml">
+      <linktext><apiname>module-spec-suite-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/protocol_class_abstractQ.xml">
+      <linktext><apiname>protocol-class-abstract?</apiname></linktext>
+    </link>
+    <link href="testworks-specs/protocol_class_instantiableQ.xml">
+      <linktext><apiname>protocol-class-instantiable?</apiname></linktext>
+    </link>
+    <link href="testworks-specs/protocol_definition_spec.xml">
+      <linktext><apiname>protocol-definition-spec</apiname></linktext>
+    </link>
+    <link href="testworks-specs/protocol_spec_bindings_definer.xml">
+      <linktext><apiname>protocol-spec-bindings-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/protocol_spec_constant_definer.xml">
+      <linktext><apiname>protocol-spec-constant-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/protocol_spec_definer.xml">
+      <linktext><apiname>protocol-spec-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/protocol_spec_suite_definer.xml">
+      <linktext><apiname>protocol-spec-suite-definer</apiname></linktext>
+    </link>
+    <link href="testworks-specs/register_class.xml">
+      <linktext><apiname>register-class</apiname></linktext>
+    </link>
+    <link href="testworks-specs/register_constant.xml">
+      <linktext><apiname>register-constant</apiname></linktext>
+    </link>
+    <link href="testworks-specs/register_function.xml">
+      <linktext><apiname>register-function</apiname></linktext>
+    </link>
+    <link href="testworks-specs/register_macro.xml">
+      <linktext><apiname>register-macro</apiname></linktext>
+    </link>
+    <link href="testworks-specs/register_variable.xml">
+      <linktext><apiname>register-variable</apiname></linktext>
+    </link>
+    <link href="testworks-specs/spec_name.xml">
+      <linktext><apiname>spec-name</apiname></linktext>
+    </link>
+    <link href="testworks-specs/spec_title.xml">
+      <linktext><apiname>spec-title</apiname></linktext>
+    </link>
+    <link href="testworks-specs/test_protocol_definition.xml">
+      <linktext><apiname>test-protocol-definition</apiname></linktext>
+    </link>
+    <link href="testworks-specs/variable_test_definer.xml">
+      <linktext><apiname>variable-test-definer</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

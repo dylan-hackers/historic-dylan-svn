@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-functional-dylan-simple-debugging">
+  <apiName>simple-debugging</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="simple-debugging/assert.xml">
+      <linktext><apiname>assert</apiname></linktext>
+    </link>
+    <link href="simple-debugging/debug_assert.xml">
+      <linktext><apiname>debug-assert</apiname></linktext>
+    </link>
+    <link href="simple-debugging/debug_message.xml">
+      <linktext><apiname>debug-message</apiname></linktext>
+    </link>
+    <link href="simple-debugging/debug_out.xml">
+      <linktext><apiname>debug-out</apiname></linktext>
+    </link>
+    <link href="simple-debugging/debug_out_function.xml">
+      <linktext><apiname>debug-out-function</apiname></linktext>
+    </link>
+    <link href="simple-debugging/debug_out_function_setter.xml">
+      <linktext><apiname>debug-out-function-setter</apiname></linktext>
+    </link>
+    <link href="simple-debugging/debug_parts.xml">
+      <linktext><apiname>debug-parts</apiname></linktext>
+    </link>
+    <link href="simple-debugging/debug_parts_setter.xml">
+      <linktext><apiname>debug-parts-setter</apiname></linktext>
+    </link>
+    <link href="simple-debugging/debugging_partQ.xml">
+      <linktext><apiname>debugging-part?</apiname></linktext>
+    </link>
+    <link href="simple-debugging/debuggingQ.xml">
+      <linktext><apiname>debugging?</apiname></linktext>
+    </link>
+    <link href="simple-debugging/debuggingQ_setter.xml">
+      <linktext><apiname>debugging?-setter</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

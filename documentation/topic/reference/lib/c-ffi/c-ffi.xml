@@ -1,0 +1,803 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-c-ffi-c-ffi">
+  <apiName>c-ffi</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="c-ffi/Dmachine_word_size.xml">
+      <linktext><apiname>$machine-word-size</apiname></linktext>
+    </link>
+    <link href="c-ffi/Dmaximum_signed_machine_word.xml">
+      <linktext><apiname>$maximum-signed-machine-word</apiname></linktext>
+    </link>
+    <link href="c-ffi/Dmaximum_unsigned_machine_word.xml">
+      <linktext><apiname>$maximum-unsigned-machine-word</apiname></linktext>
+    </link>
+    <link href="c-ffi/Dminimum_signed_machine_word.xml">
+      <linktext><apiname>$minimum-signed-machine-word</apiname></linktext>
+    </link>
+    <link href="c-ffi/Dminimum_unsigned_machine_word.xml">
+      <linktext><apiname>$minimum-unsigned-machine-word</apiname></linktext>
+    </link>
+    <link href="c-ffi/PT.xml">
+      <linktext><apiname>%*</apiname></linktext>
+    </link>
+    <link href="c-ffi/PA.xml">
+      <linktext><apiname>%+</apiname></linktext>
+    </link>
+    <link href="c-ffi/P_.xml">
+      <linktext><apiname>%-</apiname></linktext>
+    </link>
+    <link href="c-ffi/Pabs.xml">
+      <linktext><apiname>%abs</apiname></linktext>
+    </link>
+    <link href="c-ffi/PceilingS.xml">
+      <linktext><apiname>%ceiling/</apiname></linktext>
+    </link>
+    <link href="c-ffi/Pcount_high_zeros.xml">
+      <linktext><apiname>%count-high-zeros</apiname></linktext>
+    </link>
+    <link href="c-ffi/Pcount_low_zeros.xml">
+      <linktext><apiname>%count-low-zeros</apiname></linktext>
+    </link>
+    <link href="c-ffi/Pdivide.xml">
+      <linktext><apiname>%divide</apiname></linktext>
+    </link>
+    <link href="c-ffi/PfloorS.xml">
+      <linktext><apiname>%floor/</apiname></linktext>
+    </link>
+    <link href="c-ffi/Plogand.xml">
+      <linktext><apiname>%logand</apiname></linktext>
+    </link>
+    <link href="c-ffi/PlogbitQ.xml">
+      <linktext><apiname>%logbit?</apiname></linktext>
+    </link>
+    <link href="c-ffi/Plogior.xml">
+      <linktext><apiname>%logior</apiname></linktext>
+    </link>
+    <link href="c-ffi/Plognot.xml">
+      <linktext><apiname>%lognot</apiname></linktext>
+    </link>
+    <link href="c-ffi/Plogxor.xml">
+      <linktext><apiname>%logxor</apiname></linktext>
+    </link>
+    <link href="c-ffi/Pnegative.xml">
+      <linktext><apiname>%negative</apiname></linktext>
+    </link>
+    <link href="c-ffi/ProundS.xml">
+      <linktext><apiname>%round/</apiname></linktext>
+    </link>
+    <link href="c-ffi/Pshift_left.xml">
+      <linktext><apiname>%shift-left</apiname></linktext>
+    </link>
+    <link href="c-ffi/Pshift_right.xml">
+      <linktext><apiname>%shift-right</apiname></linktext>
+    </link>
+    <link href="c-ffi/PtruncateS.xml">
+      <linktext><apiname>%truncate/</apiname></linktext>
+    </link>
+    <link href="c-ffi/Labstract_integerG.xml">
+      <linktext><apiname>&lt;abstract-integer&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lbig_integerG.xml">
+      <linktext><apiname>&lt;big-integer&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_booleanG.xml">
+      <linktext><apiname>&lt;c-boolean&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_charTG.xml">
+      <linktext><apiname>&lt;c-both-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_charG.xml">
+      <linktext><apiname>&lt;c-both-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_intTG.xml">
+      <linktext><apiname>&lt;c-both-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_intG.xml">
+      <linktext><apiname>&lt;c-both-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_longTG.xml">
+      <linktext><apiname>&lt;c-both-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_longG.xml">
+      <linktext><apiname>&lt;c-both-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_shortTG.xml">
+      <linktext><apiname>&lt;c-both-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_shortG.xml">
+      <linktext><apiname>&lt;c-both-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_signed_charTG.xml">
+      <linktext><apiname>&lt;c-both-signed-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_signed_charG.xml">
+      <linktext><apiname>&lt;c-both-signed-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_signed_intTG.xml">
+      <linktext><apiname>&lt;c-both-signed-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_signed_intG.xml">
+      <linktext><apiname>&lt;c-both-signed-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_signed_longTG.xml">
+      <linktext><apiname>&lt;c-both-signed-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_signed_longG.xml">
+      <linktext><apiname>&lt;c-both-signed-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_signed_shortTG.xml">
+      <linktext><apiname>&lt;c-both-signed-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_signed_shortG.xml">
+      <linktext><apiname>&lt;c-both-signed-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_unsigned_charTG.xml">
+      <linktext><apiname>&lt;c-both-unsigned-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_unsigned_charG.xml">
+      <linktext><apiname>&lt;c-both-unsigned-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_unsigned_intTG.xml">
+      <linktext><apiname>&lt;c-both-unsigned-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_unsigned_intG.xml">
+      <linktext><apiname>&lt;c-both-unsigned-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_unsigned_longTG.xml">
+      <linktext><apiname>&lt;c-both-unsigned-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_unsigned_longG.xml">
+      <linktext><apiname>&lt;c-both-unsigned-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_unsigned_shortTG.xml">
+      <linktext><apiname>&lt;c-both-unsigned-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_both_unsigned_shortG.xml">
+      <linktext><apiname>&lt;c-both-unsigned-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_charTG.xml">
+      <linktext><apiname>&lt;c-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_charG.xml">
+      <linktext><apiname>&lt;c-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_characterTG.xml">
+      <linktext><apiname>&lt;c-character*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_characterG.xml">
+      <linktext><apiname>&lt;c-character&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_doubleTG.xml">
+      <linktext><apiname>&lt;c-double*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_doubleG.xml">
+      <linktext><apiname>&lt;c-double&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_dylan_objectTG.xml">
+      <linktext><apiname>&lt;c-dylan-object*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_dylan_objectG.xml">
+      <linktext><apiname>&lt;c-dylan-object&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_floatTG.xml">
+      <linktext><apiname>&lt;c-float*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_floatG.xml">
+      <linktext><apiname>&lt;c-float&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_function_pointerG.xml">
+      <linktext><apiname>&lt;c-function-pointer&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_intTG.xml">
+      <linktext><apiname>&lt;c-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_intG.xml">
+      <linktext><apiname>&lt;c-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_longTG.xml">
+      <linktext><apiname>&lt;c-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_longG.xml">
+      <linktext><apiname>&lt;c-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_numberG.xml">
+      <linktext><apiname>&lt;c-number&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_pointer_to_pointerG.xml">
+      <linktext><apiname>&lt;c-pointer-to-pointer&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_pointerG.xml">
+      <linktext><apiname>&lt;c-pointer&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_charTG.xml">
+      <linktext><apiname>&lt;c-raw-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_charG.xml">
+      <linktext><apiname>&lt;c-raw-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_intTTG.xml">
+      <linktext><apiname>&lt;c-raw-int**&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_intTG.xml">
+      <linktext><apiname>&lt;c-raw-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_intG.xml">
+      <linktext><apiname>&lt;c-raw-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_longTG.xml">
+      <linktext><apiname>&lt;c-raw-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_longG.xml">
+      <linktext><apiname>&lt;c-raw-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_shortTG.xml">
+      <linktext><apiname>&lt;c-raw-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_shortG.xml">
+      <linktext><apiname>&lt;c-raw-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_charTTG.xml">
+      <linktext><apiname>&lt;c-raw-signed-char**&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_charTG.xml">
+      <linktext><apiname>&lt;c-raw-signed-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_charG.xml">
+      <linktext><apiname>&lt;c-raw-signed-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_intTTG.xml">
+      <linktext><apiname>&lt;c-raw-signed-int**&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_intTG.xml">
+      <linktext><apiname>&lt;c-raw-signed-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_intG.xml">
+      <linktext><apiname>&lt;c-raw-signed-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_longTTG.xml">
+      <linktext><apiname>&lt;c-raw-signed-long**&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_longTG.xml">
+      <linktext><apiname>&lt;c-raw-signed-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_longG.xml">
+      <linktext><apiname>&lt;c-raw-signed-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_shortTTG.xml">
+      <linktext><apiname>&lt;c-raw-signed-short**&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_shortTG.xml">
+      <linktext><apiname>&lt;c-raw-signed-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_signed_shortG.xml">
+      <linktext><apiname>&lt;c-raw-signed-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_charTTG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-char**&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsi.xml">
+      <linktext><apiname>&lt;c-raw-unsi</apiname></linktext>
+    </link>
+    <link href="c-ffi/gned_charTG.xml">
+      <linktext><apiname>gned-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_charG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_intTTG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-int**&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_intTG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_intG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_longTTG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-long**&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_longTG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_longG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_shortTTG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-short**&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_shortTG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_raw_unsigned_shortG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_shortTG.xml">
+      <linktext><apiname>&lt;c-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_shortG.xml">
+      <linktext><apiname>&lt;c-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_signed_charTG.xml">
+      <linktext><apiname>&lt;c-signed-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_signed_charG.xml">
+      <linktext><apiname>&lt;c-signed-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_signed_intTG.xml">
+      <linktext><apiname>&lt;c-signed-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_signed_intG.xml">
+      <linktext><apiname>&lt;c-signed-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_signed_longTG.xml">
+      <linktext><apiname>&lt;c-signed-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_signed_longG.xml">
+      <linktext><apiname>&lt;c-signed-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_signed_shortTG.xml">
+      <linktext><apiname>&lt;c-signed-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_signed_shortG.xml">
+      <linktext><apiname>&lt;c-signed-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_statically_typed_pointerG.xml">
+      <linktext><apiname>&lt;c-statically-typed-pointer&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_stringTG.xml">
+      <linktext><apiname>&lt;c-string*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_stringG.xml">
+      <linktext><apiname>&lt;c-string&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_structG.xml">
+      <linktext><apiname>&lt;c-struct&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unicode_stringTG.xml">
+      <linktext><apiname>&lt;c-unicode-string*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unicode_stringG.xml">
+      <linktext><apiname>&lt;c-unicode-string&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unionG.xml">
+      <linktext><apiname>&lt;c-union&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_charTG.xml">
+      <linktext><apiname>&lt;c-unsafe-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_charG.xml">
+      <linktext><apiname>&lt;c-unsafe-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_intTG.xml">
+      <linktext><apiname>&lt;c-unsafe-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_intG.xml">
+      <linktext><apiname>&lt;c-unsafe-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_longTG.xml">
+      <linktext><apiname>&lt;c-unsafe-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_longG.xml">
+      <linktext><apiname>&lt;c-unsafe-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_shortTG.xml">
+      <linktext><apiname>&lt;c-unsafe-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_shortG.xml">
+      <linktext><apiname>&lt;c-unsafe-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_signed_charTG.xml">
+      <linktext><apiname>&lt;c-unsafe-signed-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_signed_charG.xml">
+      <linktext><apiname>&lt;c-unsafe-signed-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_signed_intTG.xml">
+      <linktext><apiname>&lt;c-unsafe-signed-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_signed_intG.xml">
+      <linktext><apiname>&lt;c-unsafe-signed-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_signed_longTG.xml">
+      <linktext><apiname>&lt;c-unsafe-signed-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_signed_longG.xml">
+      <linktext><apiname>&lt;c-unsafe-signed-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_signed_shortTG.xml">
+      <linktext><apiname>&lt;c-unsafe-signed-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_signed_shortG.xml">
+      <linktext><apiname>&lt;c-unsafe-signed-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_unsigned_charTG.xml">
+      <linktext><apiname>&lt;c-unsafe-unsigned-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_unsigned_charG.xml">
+      <linktext><apiname>&lt;c-unsafe-unsigned-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_unsigned_intTG.xml">
+      <linktext><apiname>&lt;c-unsafe-unsigned-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_unsigned_intG.xml">
+      <linktext><apiname>&lt;c-unsafe-unsigned-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_unsigned_longTG.xml">
+      <linktext><apiname>&lt;c-unsafe-unsigned-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_unsigned_longG.xml">
+      <linktext><apiname>&lt;c-unsafe-unsigned-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_unsigned_shortTG.xml">
+      <linktext><apiname>&lt;c-unsafe-unsigned-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsafe_unsigned_shortG.xml">
+      <linktext><apiname>&lt;c-unsafe-unsigned-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsigned_charTG.xml">
+      <linktext><apiname>&lt;c-unsigned-char*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsigned_charG.xml">
+      <linktext><apiname>&lt;c-unsigned-char&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsigned_intTG.xml">
+      <linktext><apiname>&lt;c-unsigned-int*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsigned_intG.xml">
+      <linktext><apiname>&lt;c-unsigned-int&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsigned_longTG.xml">
+      <linktext><apiname>&lt;c-unsigned-long*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsigned_longG.xml">
+      <linktext><apiname>&lt;c-unsigned-long&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsigned_shortTG.xml">
+      <linktext><apiname>&lt;c-unsigned-short*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_unsigned_shortG.xml">
+      <linktext><apiname>&lt;c-unsigned-short&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_untyped_pointerG.xml">
+      <linktext><apiname>&lt;c-untyped-pointer&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_valueG.xml">
+      <linktext><apiname>&lt;c-value&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_voidTG.xml">
+      <linktext><apiname>&lt;c-void*&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lc_voidG.xml">
+      <linktext><apiname>&lt;c-void&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Ldesignator_classG.xml">
+      <linktext><apiname>&lt;designator-class&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lffi_integerG.xml">
+      <linktext><apiname>&lt;ffi-integer&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/Lmachine_wordG.xml">
+      <linktext><apiname>&lt;machine-word&gt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/alignment_of.xml">
+      <linktext><apiname>alignment-of</apiname></linktext>
+    </link>
+    <link href="c-ffi/as_unsigned.xml">
+      <linktext><apiname>as-unsigned</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_address_definer.xml">
+      <linktext><apiname>c-address-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_callable_wrapper_definer.xml">
+      <linktext><apiname>c-callable-wrapper-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_char_at.xml">
+      <linktext><apiname>c-char-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_char_at_setter.xml">
+      <linktext><apiname>c-char-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_double_at.xml">
+      <linktext><apiname>c-double-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_double_at_setter.xml">
+      <linktext><apiname>c-double-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_float_at.xml">
+      <linktext><apiname>c-float-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_float_at_setter.xml">
+      <linktext><apiname>c-float-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_function_definer.xml">
+      <linktext><apiname>c-function-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_int_at.xml">
+      <linktext><apiname>c-int-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_int_at_setter.xml">
+      <linktext><apiname>c-int-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_long_at.xml">
+      <linktext><apiname>c-long-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_long_at_setter.xml">
+      <linktext><apiname>c-long-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_mapped_subtype_definer.xml">
+      <linktext><apiname>c-mapped-subtype-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_pointer_at.xml">
+      <linktext><apiname>c-pointer-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_pointer_at_setter.xml">
+      <linktext><apiname>c-pointer-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_pointer_type_definer.xml">
+      <linktext><apiname>c-pointer-type-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_short_at.xml">
+      <linktext><apiname>c-short-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_short_at_setter.xml">
+      <linktext><apiname>c-short-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_signed_char_at.xml">
+      <linktext><apiname>c-signed-char-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_signed_char_at_setter.xml">
+      <linktext><apiname>c-signed-char-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_signed_int_at.xml">
+      <linktext><apiname>c-signed-int-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_signed_int_at_setter.xml">
+      <linktext><apiname>c-signed-int-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_signed_long_at.xml">
+      <linktext><apiname>c-signed-long-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_signed_long_at_setter.xml">
+      <linktext><apiname>c-signed-long-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_signed_short_at.xml">
+      <linktext><apiname>c-signed-short-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_signed_short_at_setter.xml">
+      <linktext><apiname>c-signed-short-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_string_constant.xml">
+      <linktext><apiname>c-string-constant</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_struct_definer.xml">
+      <linktext><apiname>c-struct-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_subtype_definer.xml">
+      <linktext><apiname>c-subtype-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_type_cast.xml">
+      <linktext><apiname>c-type-cast</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_unicode_string_constant.xml">
+      <linktext><apiname>c-unicode-string-constant</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_union_definer.xml">
+      <linktext><apiname>c-union-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_unsigned_char_at.xml">
+      <linktext><apiname>c-unsigned-char-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_unsigned_char_at_setter.xml">
+      <linktext><apiname>c-unsigned-char-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_unsigned_int_at.xml">
+      <linktext><apiname>c-unsigned-int-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_unsigned_int_at_setter.xml">
+      <linktext><apiname>c-unsigned-int-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_unsigned_long_at.xml">
+      <linktext><apiname>c-unsigned-long-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_unsigned_long_at_setter.xml">
+      <linktext><apiname>c-unsigned-long-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_unsigned_short_at.xml">
+      <linktext><apiname>c-unsigned-short-at</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_unsigned_short_at_setter.xml">
+      <linktext><apiname>c-unsigned-short-at-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/c_variable_definer.xml">
+      <linktext><apiname>c-variable-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/check_export_range.xml">
+      <linktext><apiname>check-export-range</apiname></linktext>
+    </link>
+    <link href="c-ffi/check_import_range.xml">
+      <linktext><apiname>check-import-range</apiname></linktext>
+    </link>
+    <link href="c-ffi/clear_memoryX.xml">
+      <linktext><apiname>clear-memory!</apiname></linktext>
+    </link>
+    <link href="c-ffi/concrete_class.xml">
+      <linktext><apiname>concrete-class</apiname></linktext>
+    </link>
+    <link href="c-ffi/concrete_class_setter.xml">
+      <linktext><apiname>concrete-class-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/copy_bytesX.xml">
+      <linktext><apiname>copy-bytes!</apiname></linktext>
+    </link>
+    <link href="c-ffi/copy_intoX.xml">
+      <linktext><apiname>copy-into!</apiname></linktext>
+    </link>
+    <link href="c-ffi/dPceilingS.xml">
+      <linktext><apiname>d%ceiling/</apiname></linktext>
+    </link>
+    <link href="c-ffi/dPdivide.xml">
+      <linktext><apiname>d%divide</apiname></linktext>
+    </link>
+    <link href="c-ffi/dPfloorS.xml">
+      <linktext><apiname>d%floor/</apiname></linktext>
+    </link>
+    <link href="c-ffi/dProundS.xml">
+      <linktext><apiname>d%round/</apiname></linktext>
+    </link>
+    <link href="c-ffi/dPtruncateS.xml">
+      <linktext><apiname>d%truncate/</apiname></linktext>
+    </link>
+    <link href="c-ffi/destroy.xml">
+      <linktext><apiname>destroy</apiname></linktext>
+    </link>
+    <link href="c-ffi/equal_memoryQ.xml">
+      <linktext><apiname>equal-memory?</apiname></linktext>
+    </link>
+    <link href="c-ffi/export_c_boolean.xml">
+      <linktext><apiname>export-c-boolean</apiname></linktext>
+    </link>
+    <link href="c-ffi/export_c_dylan_object.xml">
+      <linktext><apiname>export-c-dylan-object</apiname></linktext>
+    </link>
+    <link href="c-ffi/export_c_string.xml">
+      <linktext><apiname>export-c-string</apiname></linktext>
+    </link>
+    <link href="c-ffi/export_to_machine_word.xml">
+      <linktext><apiname>export-to-machine-word</apiname></linktext>
+    </link>
+    <link href="c-ffi/import_c_boolean.xml">
+      <linktext><apiname>import-c-boolean</apiname></linktext>
+    </link>
+    <link href="c-ffi/import_c_dylan_object.xml">
+      <linktext><apiname>import-c-dylan-object</apiname></linktext>
+    </link>
+    <link href="c-ffi/make_c_pointer.xml">
+      <linktext><apiname>make-c-pointer</apiname></linktext>
+    </link>
+    <link href="c-ffi/make_c_pointer_internal.xml">
+      <linktext><apiname>make-c-pointer-internal</apiname></linktext>
+    </link>
+    <link href="c-ffi/null_pointer.xml">
+      <linktext><apiname>null-pointer</apiname></linktext>
+    </link>
+    <link href="c-ffi/null_pointerQ.xml">
+      <linktext><apiname>null-pointer?</apiname></linktext>
+    </link>
+    <link href="c-ffi/pointer_address.xml">
+      <linktext><apiname>pointer-address</apiname></linktext>
+    </link>
+    <link href="c-ffi/pointer_cast.xml">
+      <linktext><apiname>pointer-cast</apiname></linktext>
+    </link>
+    <link href="c-ffi/pointer_value.xml">
+      <linktext><apiname>pointer-value</apiname></linktext>
+    </link>
+    <link href="c-ffi/pointer_value_address.xml">
+      <linktext><apiname>pointer-value-address</apiname></linktext>
+    </link>
+    <link href="c-ffi/pointer_value_setter.xml">
+      <linktext><apiname>pointer-value-setter</apiname></linktext>
+    </link>
+    <link href="c-ffi/raw_pointer_address.xml">
+      <linktext><apiname>raw-pointer-address</apiname></linktext>
+    </link>
+    <link href="c-ffi/raw_struct_type_definer.xml">
+      <linktext><apiname>raw-struct-type-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/raw_union_type_definer.xml">
+      <linktext><apiname>raw-union-type-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/referenced_type.xml">
+      <linktext><apiname>referenced-type</apiname></linktext>
+    </link>
+    <link href="c-ffi/register_c_dylan_object.xml">
+      <linktext><apiname>register-c-dylan-object</apiname></linktext>
+    </link>
+    <link href="c-ffi/simple_c_mapped_subtype_definer.xml">
+      <linktext><apiname>simple-c-mapped-subtype-definer</apiname></linktext>
+    </link>
+    <link href="c-ffi/size_of.xml">
+      <linktext><apiname>size-of</apiname></linktext>
+    </link>
+    <link href="c-ffi/soPT.xml">
+      <linktext><apiname>so%*</apiname></linktext>
+    </link>
+    <link href="c-ffi/soPA.xml">
+      <linktext><apiname>so%+</apiname></linktext>
+    </link>
+    <link href="c-ffi/soP_.xml">
+      <linktext><apiname>so%-</apiname></linktext>
+    </link>
+    <link href="c-ffi/soPabs.xml">
+      <linktext><apiname>so%abs</apiname></linktext>
+    </link>
+    <link href="c-ffi/soPnegative.xml">
+      <linktext><apiname>so%negative</apiname></linktext>
+    </link>
+    <link href="c-ffi/soPshift_left.xml">
+      <linktext><apiname>so%shift-left</apiname></linktext>
+    </link>
+    <link href="c-ffi/uPT.xml">
+      <linktext><apiname>u%*</apiname></linktext>
+    </link>
+    <link href="c-ffi/uPA.xml">
+      <linktext><apiname>u%+</apiname></linktext>
+    </link>
+    <link href="c-ffi/uP_.xml">
+      <linktext><apiname>u%-</apiname></linktext>
+    </link>
+    <link href="c-ffi/uPL.xml">
+      <linktext><apiname>u%&lt;</apiname></linktext>
+    </link>
+    <link href="c-ffi/uPdivide.xml">
+      <linktext><apiname>u%divide</apiname></linktext>
+    </link>
+    <link href="c-ffi/uProtate_left.xml">
+      <linktext><apiname>u%rotate-left</apiname></linktext>
+    </link>
+    <link href="c-ffi/uProtate_right.xml">
+      <linktext><apiname>u%rotate-right</apiname></linktext>
+    </link>
+    <link href="c-ffi/uPshift_left.xml">
+      <linktext><apiname>u%shift-left</apiname></linktext>
+    </link>
+    <link href="c-ffi/uPshift_right.xml">
+      <linktext><apiname>u%shift-right</apiname></linktext>
+    </link>
+    <link href="c-ffi/udPdivide.xml">
+      <linktext><apiname>ud%divide</apiname></linktext>
+    </link>
+    <link href="c-ffi/udPshift_left.xml">
+      <linktext><apiname>ud%shift-left</apiname></linktext>
+    </link>
+    <link href="c-ffi/udPshift_right.xml">
+      <linktext><apiname>ud%shift-right</apiname></linktext>
+    </link>
+    <link href="c-ffi/unregister_c_dylan_object.xml">
+      <linktext><apiname>unregister-c-dylan-object</apiname></linktext>
+    </link>
+    <link href="c-ffi/with_c_string.xml">
+      <linktext><apiname>with-c-string</apiname></linktext>
+    </link>
+    <link href="c-ffi/with_stack_structure.xml">
+      <linktext><apiname>with-stack-structure</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

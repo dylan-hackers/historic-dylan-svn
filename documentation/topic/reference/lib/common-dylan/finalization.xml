@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-common-dylan-finalization">
+  <apiName>finalization</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="finalization/automatic_finalization_enabledQ.xml">
+      <linktext><apiname>automatic-finalization-enabled?</apiname></linktext>
+    </link>
+    <link href="finalization/automatic_finalization_enabledQ_setter.xml">
+      <linktext><apiname>automatic-finalization-enabled?-setter</apiname></linktext>
+    </link>
+    <link href="finalization/drain_finalization_queue.xml">
+      <linktext><apiname>drain-finalization-queue</apiname></linktext>
+    </link>
+    <link href="finalization/finalize.xml">
+      <linktext><apiname>finalize</apiname></linktext>
+    </link>
+    <link href="finalization/finalize_when_unreachable.xml">
+      <linktext><apiname>finalize-when-unreachable</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

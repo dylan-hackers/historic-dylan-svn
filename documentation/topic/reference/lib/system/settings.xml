@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-system-settings">
+  <apiName>settings</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="settings/Dsettings_table.xml">
+      <linktext><apiname>$settings-table</apiname></linktext>
+    </link>
+    <link href="settings/Duninitialized.xml">
+      <linktext><apiname>$uninitialized</apiname></linktext>
+    </link>
+    <link href="settings/Lcurrent_user_settingsG.xml">
+      <linktext><apiname>&lt;current-user-settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/Lcurrent_user_software_settingsG.xml">
+      <linktext><apiname>&lt;current-user-software-settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/Ldefault_user_settingsG.xml">
+      <linktext><apiname>&lt;default-user-settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/Ldefault_user_software_settingsG.xml">
+      <linktext><apiname>&lt;default-user-software-settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/Llocal_hardware_settingsG.xml">
+      <linktext><apiname>&lt;local-hardware-settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/Llocal_settingsG.xml">
+      <linktext><apiname>&lt;local-settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/Llocal_software_settingsG.xml">
+      <linktext><apiname>&lt;local-software-settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/LsettingsG.xml">
+      <linktext><apiname>&lt;settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/Lsite_settingsG.xml">
+      <linktext><apiname>&lt;site-settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/Lsite_software_settingsG.xml">
+      <linktext><apiname>&lt;site-software-settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/Lsystem_settingsG.xml">
+      <linktext><apiname>&lt;system-settings&gt;</apiname></linktext>
+    </link>
+    <link href="settings/LuninitializedG.xml">
+      <linktext><apiname>&lt;uninitialized&gt;</apiname></linktext>
+    </link>
+    <link href="settings/initializedQ.xml">
+      <linktext><apiname>initialized?</apiname></linktext>
+    </link>
+    <link href="settings/remove_valueX.xml">
+      <linktext><apiname>remove-value!</apiname></linktext>
+    </link>
+    <link href="settings/settings_class_definer.xml">
+      <linktext><apiname>settings-class-definer</apiname></linktext>
+    </link>
+    <link href="settings/settings_definer.xml">
+      <linktext><apiname>settings-definer</apiname></linktext>
+    </link>
+    <link href="settings/settings_key_definer.xml">
+      <linktext><apiname>settings-key-definer</apiname></linktext>
+    </link>
+    <link href="settings/settings_slot_definer.xml">
+      <linktext><apiname>settings-slot-definer</apiname></linktext>
+    </link>
+    <link href="settings/settings_slots_definer.xml">
+      <linktext><apiname>settings-slots-definer</apiname></linktext>
+    </link>
+    <link href="settings/uninitialized_or.xml">
+      <linktext><apiname>uninitialized-or</apiname></linktext>
+    </link>
+    <link href="settings/uninitializedQ.xml">
+      <linktext><apiname>uninitialized?</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

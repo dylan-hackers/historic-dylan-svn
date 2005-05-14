@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-c-ffi-c-ffi-Lc_pointerG">
+  <apiName>&lt;c-pointer&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanOpenClass/>
+      <dylanAbstractClass value="abstract-uninstantiable"/>
+      <dylanSuperClass href="../../dylan/internal/Lc_non_structG.xml">&lt;c-non-struct&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>raw-pointer-address:</apiItemName>
+        <apiOtherClassifier href="{unknown object}.xml">{unknown object}</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-collections-plists">
+  <apiName>plists</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="plists/do_put_propertyX.xml">
+      <linktext><apiname>do-put-property!</apiname></linktext>
+    </link>
+    <link href="plists/do_remove_propertyX.xml">
+      <linktext><apiname>do-remove-property!</apiname></linktext>
+    </link>
+    <link href="plists/get_property.xml">
+      <linktext><apiname>get-property</apiname></linktext>
+    </link>
+    <link href="plists/keyword_sequence.xml">
+      <linktext><apiname>keyword-sequence</apiname></linktext>
+    </link>
+    <link href="plists/put_propertyX.xml">
+      <linktext><apiname>put-property!</apiname></linktext>
+    </link>
+    <link href="plists/remove_keywords.xml">
+      <linktext><apiname>remove-keywords</apiname></linktext>
+    </link>
+    <link href="plists/remove_propertyX.xml">
+      <linktext><apiname>remove-property!</apiname></linktext>
+    </link>
+    <link href="plists/value_sequence.xml">
+      <linktext><apiname>value-sequence</apiname></linktext>
+    </link>
+    <link href="plists/with_keywords_removed.xml">
+      <linktext><apiname>with-keywords-removed</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

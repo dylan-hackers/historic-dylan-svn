@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-system-date">
+  <apiName>date</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="date/Ldate_arithmetic_error_restartG.xml">
+      <linktext><apiname>&lt;date-arithmetic-error-restart&gt;</apiname></linktext>
+    </link>
+    <link href="date/Ldate_arithmetic_errorG.xml">
+      <linktext><apiname>&lt;date-arithmetic-error&gt;</apiname></linktext>
+    </link>
+    <link href="date/Ldate_arithmetic_invalid_dayG.xml">
+      <linktext><apiname>&lt;date-arithmetic-invalid-day&gt;</apiname></linktext>
+    </link>
+    <link href="date/Ldate_arithmetic_use_last_valid_dayG.xml">
+      <linktext><apiname>&lt;date-arithmetic-use-last-valid-day&gt;</apiname></linktext>
+    </link>
+    <link href="date/LdateG.xml">
+      <linktext><apiname>&lt;date&gt;</apiname></linktext>
+    </link>
+    <link href="date/Lday_of_weekG.xml">
+      <linktext><apiname>&lt;day-of-week&gt;</apiname></linktext>
+    </link>
+    <link href="date/LdayStime_durationG.xml">
+      <linktext><apiname>&lt;day/time-duration&gt;</apiname></linktext>
+    </link>
+    <link href="date/LdurationG.xml">
+      <linktext><apiname>&lt;duration&gt;</apiname></linktext>
+    </link>
+    <link href="date/LyearSmonth_durationG.xml">
+      <linktext><apiname>&lt;year/month-duration&gt;</apiname></linktext>
+    </link>
+    <link href="date/as_iso8601_string.xml">
+      <linktext><apiname>as-iso8601-string</apiname></linktext>
+    </link>
+    <link href="date/current_date.xml">
+      <linktext><apiname>current-date</apiname></linktext>
+    </link>
+    <link href="date/current_timestamp.xml">
+      <linktext><apiname>current-timestamp</apiname></linktext>
+    </link>
+    <link href="date/date_day.xml">
+      <linktext><apiname>date-day</apiname></linktext>
+    </link>
+    <link href="date/date_day_of_week.xml">
+      <linktext><apiname>date-day-of-week</apiname></linktext>
+    </link>
+    <link href="date/date_hours.xml">
+      <linktext><apiname>date-hours</apiname></linktext>
+    </link>
+    <link href="date/date_microseconds.xml">
+      <linktext><apiname>date-microseconds</apiname></linktext>
+    </link>
+    <link href="date/date_minutes.xml">
+      <linktext><apiname>date-minutes</apiname></linktext>
+    </link>
+    <link href="date/date_month.xml">
+      <linktext><apiname>date-month</apiname></linktext>
+    </link>
+    <link href="date/date_seconds.xml">
+      <linktext><apiname>date-seconds</apiname></linktext>
+    </link>
+    <link href="date/date_time_zone_offset.xml">
+      <linktext><apiname>date-time-zone-offset</apiname></linktext>
+    </link>
+    <link href="date/date_time_zone_offset_setter.xml">
+      <linktext><apiname>date-time-zone-offset-setter</apiname></linktext>
+    </link>
+    <link href="date/date_year.xml">
+      <linktext><apiname>date-year</apiname></linktext>
+    </link>
+    <link href="date/decode_date.xml">
+      <linktext><apiname>decode-date</apiname></linktext>
+    </link>
+    <link href="date/decode_duration.xml">
+      <linktext><apiname>decode-duration</apiname></linktext>
+    </link>
+    <link href="date/encode_date.xml">
+      <linktext><apiname>encode-date</apiname></linktext>
+    </link>
+    <link href="date/encode_dayStime_duration.xml">
+      <linktext><apiname>encode-day/time-duration</apiname></linktext>
+    </link>
+    <link href="date/encode_yearSmonth_duration.xml">
+      <linktext><apiname>encode-year/month-duration</apiname></linktext>
+    </link>
+    <link href="date/local_daylight_savings_timeQ.xml">
+      <linktext><apiname>local-daylight-savings-time?</apiname></linktext>
+    </link>
+    <link href="date/local_time_zone_name.xml">
+      <linktext><apiname>local-time-zone-name</apiname></linktext>
+    </link>
+    <link href="date/local_time_zone_offset.xml">
+      <linktext><apiname>local-time-zone-offset</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

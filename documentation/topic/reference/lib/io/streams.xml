@@ -1,0 +1,356 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-io-streams">
+  <apiName>streams</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="streams/Lbasic_positionable_streamG.xml">
+      <linktext><apiname>&lt;basic-positionable-stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lbasic_streamG.xml">
+      <linktext><apiname>&lt;basic-stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lbuffer_indexG.xml">
+      <linktext><apiname>&lt;buffer-index&gt;</apiname></linktext>
+    </link>
+    <link href="streams/LbufferG.xml">
+      <linktext><apiname>&lt;buffer&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lbuffered_streamG.xml">
+      <linktext><apiname>&lt;buffered-stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lbyte_characterG.xml">
+      <linktext><apiname>&lt;byte-character&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lbyte_string_streamG.xml">
+      <linktext><apiname>&lt;byte-string-stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lbyte_vectorG.xml">
+      <linktext><apiname>&lt;byte-vector&gt;</apiname></linktext>
+    </link>
+    <link href="streams/LbyteG.xml">
+      <linktext><apiname>&lt;byte&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lend_of_stream_errorG.xml">
+      <linktext><apiname>&lt;end-of-stream-error&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lincomplete_read_errorG.xml">
+      <linktext><apiname>&lt;incomplete-read-error&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lincomplete_write_errorG.xml">
+      <linktext><apiname>&lt;incomplete-write-error&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lposition_typeG.xml">
+      <linktext><apiname>&lt;position-type&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lpositionable_streamG.xml">
+      <linktext><apiname>&lt;positionable-stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lsequence_streamG.xml">
+      <linktext><apiname>&lt;sequence-stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lstream_closed_errorG.xml">
+      <linktext><apiname>&lt;stream-closed-error&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lstream_errorG.xml">
+      <linktext><apiname>&lt;stream-error&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lstream_not_readableG.xml">
+      <linktext><apiname>&lt;stream-not-readable&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lstream_not_writableG.xml">
+      <linktext><apiname>&lt;stream-not-writable&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lstream_position_errorG.xml">
+      <linktext><apiname>&lt;stream-position-error&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lstream_positionG.xml">
+      <linktext><apiname>&lt;stream-position&gt;</apiname></linktext>
+    </link>
+    <link href="streams/LstreamG.xml">
+      <linktext><apiname>&lt;stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lstring_streamG.xml">
+      <linktext><apiname>&lt;string-stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lunicode_characterG.xml">
+      <linktext><apiname>&lt;unicode-character&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lunicode_string_streamG.xml">
+      <linktext><apiname>&lt;unicode-string-stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams/Lwrapper_streamG.xml">
+      <linktext><apiname>&lt;wrapper-stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams/adjust_stream_position.xml">
+      <linktext><apiname>adjust-stream-position</apiname></linktext>
+    </link>
+    <link href="streams/buffer_dirtyQ.xml">
+      <linktext><apiname>buffer-dirty?</apiname></linktext>
+    </link>
+    <link href="streams/buffer_dirtyQ_setter.xml">
+      <linktext><apiname>buffer-dirty?-setter</apiname></linktext>
+    </link>
+    <link href="streams/buffer_end.xml">
+      <linktext><apiname>buffer-end</apiname></linktext>
+    </link>
+    <link href="streams/buffer_end_setter.xml">
+      <linktext><apiname>buffer-end-setter</apiname></linktext>
+    </link>
+    <link href="streams/buffer_fill.xml">
+      <linktext><apiname>buffer-fill</apiname></linktext>
+    </link>
+    <link href="streams/buffer_next.xml">
+      <linktext><apiname>buffer-next</apiname></linktext>
+    </link>
+    <link href="streams/buffer_next_setter.xml">
+      <linktext><apiname>buffer-next-setter</apiname></linktext>
+    </link>
+    <link href="streams/buffer_position.xml">
+      <linktext><apiname>buffer-position</apiname></linktext>
+    </link>
+    <link href="streams/buffer_position_setter.xml">
+      <linktext><apiname>buffer-position-setter</apiname></linktext>
+    </link>
+    <link href="streams/buffer_size.xml">
+      <linktext><apiname>buffer-size</apiname></linktext>
+    </link>
+    <link href="streams/buffer_start.xml">
+      <linktext><apiname>buffer-start</apiname></linktext>
+    </link>
+    <link href="streams/buffer_start_setter.xml">
+      <linktext><apiname>buffer-start-setter</apiname></linktext>
+    </link>
+    <link href="streams/buffer_subsequence.xml">
+      <linktext><apiname>buffer-subsequence</apiname></linktext>
+    </link>
+    <link href="streams/close.xml">
+      <linktext><apiname>close</apiname></linktext>
+    </link>
+    <link href="streams/copy_from_bufferX.xml">
+      <linktext><apiname>copy-from-buffer!</apiname></linktext>
+    </link>
+    <link href="streams/copy_into_bufferX.xml">
+      <linktext><apiname>copy-into-buffer!</apiname></linktext>
+    </link>
+    <link href="streams/discard_input.xml">
+      <linktext><apiname>discard-input</apiname></linktext>
+    </link>
+    <link href="streams/discard_output.xml">
+      <linktext><apiname>discard-output</apiname></linktext>
+    </link>
+    <link href="streams/do_force_output_buffers.xml">
+      <linktext><apiname>do-force-output-buffers</apiname></linktext>
+    </link>
+    <link href="streams/do_get_input_buffer.xml">
+      <linktext><apiname>do-get-input-buffer</apiname></linktext>
+    </link>
+    <link href="streams/do_get_output_buffer.xml">
+      <linktext><apiname>do-get-output-buffer</apiname></linktext>
+    </link>
+    <link href="streams/do_input_available_at_sourceQ.xml">
+      <linktext><apiname>do-input-available-at-source?</apiname></linktext>
+    </link>
+    <link href="streams/do_next_input_buffer.xml">
+      <linktext><apiname>do-next-input-buffer</apiname></linktext>
+    </link>
+    <link href="streams/do_next_output_buffer.xml">
+      <linktext><apiname>do-next-output-buffer</apiname></linktext>
+    </link>
+    <link href="streams/do_release_input_buffer.xml">
+      <linktext><apiname>do-release-input-buffer</apiname></linktext>
+    </link>
+    <link href="streams/do_release_output_buffer.xml">
+      <linktext><apiname>do-release-output-buffer</apiname></linktext>
+    </link>
+    <link href="streams/force_output.xml">
+      <linktext><apiname>force-output</apiname></linktext>
+    </link>
+    <link href="streams/force_output_buffers.xml">
+      <linktext><apiname>force-output-buffers</apiname></linktext>
+    </link>
+    <link href="streams/get_input_buffer.xml">
+      <linktext><apiname>get-input-buffer</apiname></linktext>
+    </link>
+    <link href="streams/get_output_buffer.xml">
+      <linktext><apiname>get-output-buffer</apiname></linktext>
+    </link>
+    <link href="streams/inner_stream.xml">
+      <linktext><apiname>inner-stream</apiname></linktext>
+    </link>
+    <link href="streams/inner_stream_setter.xml">
+      <linktext><apiname>inner-stream-setter</apiname></linktext>
+    </link>
+    <link href="streams/input_available_at_sourceQ.xml">
+      <linktext><apiname>input-available-at-source?</apiname></linktext>
+    </link>
+    <link href="streams/lock_stream.xml">
+      <linktext><apiname>lock-stream</apiname></linktext>
+    </link>
+    <link href="streams/new_line.xml">
+      <linktext><apiname>new-line</apiname></linktext>
+    </link>
+    <link href="streams/next_input_buffer.xml">
+      <linktext><apiname>next-input-buffer</apiname></linktext>
+    </link>
+    <link href="streams/next_output_buffer.xml">
+      <linktext><apiname>next-output-buffer</apiname></linktext>
+    </link>
+    <link href="streams/open_file_stream.xml">
+      <linktext><apiname>open-file-stream</apiname></linktext>
+    </link>
+    <link href="streams/outer_stream.xml">
+      <linktext><apiname>outer-stream</apiname></linktext>
+    </link>
+    <link href="streams/outer_stream_setter.xml">
+      <linktext><apiname>outer-stream-setter</apiname></linktext>
+    </link>
+    <link href="streams/peek.xml">
+      <linktext><apiname>peek</apiname></linktext>
+    </link>
+    <link href="streams/read.xml">
+      <linktext><apiname>read</apiname></linktext>
+    </link>
+    <link href="streams/read_character.xml">
+      <linktext><apiname>read-character</apiname></linktext>
+    </link>
+    <link href="streams/read_element.xml">
+      <linktext><apiname>read-element</apiname></linktext>
+    </link>
+    <link href="streams/read_intoX.xml">
+      <linktext><apiname>read-into!</apiname></linktext>
+    </link>
+    <link href="streams/read_line.xml">
+      <linktext><apiname>read-line</apiname></linktext>
+    </link>
+    <link href="streams/read_line_intoX.xml">
+      <linktext><apiname>read-line-into!</apiname></linktext>
+    </link>
+    <link href="streams/read_text.xml">
+      <linktext><apiname>read-text</apiname></linktext>
+    </link>
+    <link href="streams/read_text_intoX.xml">
+      <linktext><apiname>read-text-into!</apiname></linktext>
+    </link>
+    <link href="streams/read_through.xml">
+      <linktext><apiname>read-through</apiname></linktext>
+    </link>
+    <link href="streams/read_to.xml">
+      <linktext><apiname>read-to</apiname></linktext>
+    </link>
+    <link href="streams/read_to_end.xml">
+      <linktext><apiname>read-to-end</apiname></linktext>
+    </link>
+    <link href="streams/release_input_buffer.xml">
+      <linktext><apiname>release-input-buffer</apiname></linktext>
+    </link>
+    <link href="streams/release_output_buffer.xml">
+      <linktext><apiname>release-output-buffer</apiname></linktext>
+    </link>
+    <link href="streams/skip_through.xml">
+      <linktext><apiname>skip-through</apiname></linktext>
+    </link>
+    <link href="streams/stream_at_endQ.xml">
+      <linktext><apiname>stream-at-end?</apiname></linktext>
+    </link>
+    <link href="streams/stream_contents.xml">
+      <linktext><apiname>stream-contents</apiname></linktext>
+    </link>
+    <link href="streams/stream_contents_as.xml">
+      <linktext><apiname>stream-contents-as</apiname></linktext>
+    </link>
+    <link href="streams/stream_element_type.xml">
+      <linktext><apiname>stream-element-type</apiname></linktext>
+    </link>
+    <link href="streams/stream_error_count.xml">
+      <linktext><apiname>stream-error-count</apiname></linktext>
+    </link>
+    <link href="streams/stream_error_sequence.xml">
+      <linktext><apiname>stream-error-sequence</apiname></linktext>
+    </link>
+    <link href="streams/stream_error_stream.xml">
+      <linktext><apiname>stream-error-stream</apiname></linktext>
+    </link>
+    <link href="streams/stream_input_availableQ.xml">
+      <linktext><apiname>stream-input-available?</apiname></linktext>
+    </link>
+    <link href="streams/stream_limit.xml">
+      <linktext><apiname>stream-limit</apiname></linktext>
+    </link>
+    <link href="streams/stream_lock.xml">
+      <linktext><apiname>stream-lock</apiname></linktext>
+    </link>
+    <link href="streams/stream_lock_setter.xml">
+      <linktext><apiname>stream-lock-setter</apiname></linktext>
+    </link>
+    <link href="streams/stream_lockedQ.xml">
+      <linktext><apiname>stream-locked?</apiname></linktext>
+    </link>
+    <link href="streams/stream_openQ.xml">
+      <linktext><apiname>stream-open?</apiname></linktext>
+    </link>
+    <link href="streams/stream_position.xml">
+      <linktext><apiname>stream-position</apiname></linktext>
+    </link>
+    <link href="streams/stream_position_setter.xml">
+      <linktext><apiname>stream-position-setter</apiname></linktext>
+    </link>
+    <link href="streams/stream_size.xml">
+      <linktext><apiname>stream-size</apiname></linktext>
+    </link>
+    <link href="streams/synchronize_output.xml">
+      <linktext><apiname>synchronize-output</apiname></linktext>
+    </link>
+    <link href="streams/type_for_sequence_stream.xml">
+      <linktext><apiname>type-for-sequence-stream</apiname></linktext>
+    </link>
+    <link href="streams/unlock_stream.xml">
+      <linktext><apiname>unlock-stream</apiname></linktext>
+    </link>
+    <link href="streams/unread_element.xml">
+      <linktext><apiname>unread-element</apiname></linktext>
+    </link>
+    <link href="streams/wait_for_io_completion.xml">
+      <linktext><apiname>wait-for-io-completion</apiname></linktext>
+    </link>
+    <link href="streams/with_input_buffer.xml">
+      <linktext><apiname>with-input-buffer</apiname></linktext>
+    </link>
+    <link href="streams/with_output_buffer.xml">
+      <linktext><apiname>with-output-buffer</apiname></linktext>
+    </link>
+    <link href="streams/with_output_to_string.xml">
+      <linktext><apiname>with-output-to-string</apiname></linktext>
+    </link>
+    <link href="streams/with_stream_locked.xml">
+      <linktext><apiname>with-stream-locked</apiname></linktext>
+    </link>
+    <link href="streams/write.xml">
+      <linktext><apiname>write</apiname></linktext>
+    </link>
+    <link href="streams/write_element.xml">
+      <linktext><apiname>write-element</apiname></linktext>
+    </link>
+    <link href="streams/write_line.xml">
+      <linktext><apiname>write-line</apiname></linktext>
+    </link>
+    <link href="streams/write_text.xml">
+      <linktext><apiname>write-text</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

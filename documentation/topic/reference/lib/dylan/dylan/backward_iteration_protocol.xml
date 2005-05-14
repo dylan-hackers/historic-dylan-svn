@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-dylan-dylan-backward_iteration_protocol">
+  <apiName>backward-iteration-protocol</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanGenericFunctionSealing value='open'/>
+      <dylanFunctionParam>
+	<apiItemName>collection</apiItemName>
+        <apiOperationClassifier href="LcollectionG.xml">&lt;collection&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionReturn>
+	<apiItemName>initial-state</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>limit</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>next-state</apiItemName>
+        <apiOperationClassifier href="LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>finished-state?</apiItemName>
+        <apiOperationClassifier href="LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>current-key</apiItemName>
+        <apiOperationClassifier href="LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>current-element</apiItemName>
+        <apiOperationClassifier href="LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>current-element-setter</apiItemName>
+        <apiOperationClassifier href="LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>copy-state</apiItemName>
+        <apiOperationClassifier href="LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

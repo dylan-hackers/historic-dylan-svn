@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanLibrary PUBLIC "-//Gwydion//DTD DITA Dylan API Library//EN" "../../dtd/dylanLibrary.dtd" []>
+<dylanLibrary id="lib-common-dylan">
+  <apiName>common-dylan</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanLibraryDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanLibraryDetail>
+
+  <related-links>
+    <link href="common-dylan/byte-vector.xml">
+      <linktext><apiname>byte-vector</apiname></linktext>
+    </link>
+    <link href="common-dylan/common-extensions.xml">
+      <linktext><apiname>common-extensions</apiname></linktext>
+    </link>
+    <link href="../dylan/dylan.xml">
+      <linktext><apiname>dylan</apiname></linktext>
+    </link>
+    <link href="common-dylan/finalization.xml">
+      <linktext><apiname>finalization</apiname></linktext>
+    </link>
+    <link href="common-dylan/functional-objects-extras.xml">
+      <linktext><apiname>functional-objects-extras</apiname></linktext>
+    </link>
+    <link href="common-dylan/locators-protocol.xml">
+      <linktext><apiname>locators-protocol</apiname></linktext>
+    </link>
+    <link href="common-dylan/machine-words.xml">
+      <linktext><apiname>machine-words</apiname></linktext>
+    </link>
+    <link href="common-dylan/simple-io.xml">
+      <linktext><apiname>simple-io</apiname></linktext>
+    </link>
+    <link href="common-dylan/simple-profiling.xml">
+      <linktext><apiname>simple-profiling</apiname></linktext>
+    </link>
+    <link href="common-dylan/simple-random.xml">
+      <linktext><apiname>simple-random</apiname></linktext>
+    </link>
+    <link href="common-dylan/streams-protocol.xml">
+      <linktext><apiname>streams-protocol</apiname></linktext>
+    </link>
+    <link href="common-dylan/threads.xml">
+      <linktext><apiname>threads</apiname></linktext>
+    </link>
+    <link href="common-dylan/threads-extensions.xml">
+      <linktext><apiname>threads-extensions</apiname></linktext>
+    </link>
+    <link href="common-dylan/transcendentals.xml">
+      <linktext><apiname>transcendentals</apiname></linktext>
+    </link>
+  </related-links>
+</dylanLibrary>

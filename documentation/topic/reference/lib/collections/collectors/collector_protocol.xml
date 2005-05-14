@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-collections-collectors-collector_protocol">
+  <apiName>collector-protocol</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanGenericFunctionSealing value='open'/>
+      <dylanFunctionParam>
+	<apiItemName>class</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionReturn>
+	<apiItemName>new-collector</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>add-first</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>add-last</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>add-sequence-first</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>add-sequence-last</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+      <dylanFunctionReturn>
+	<apiItemName>collection</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-system-file-system-Lfile_streamG">
+  <apiName>&lt;file-stream&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanOpenClass/>
+      <dylanPrimaryClass/>
+      <dylanAbstractClass value="abstract-uninstantiable"/>
+      <dylanSuperClass href="../../io/streams-internals/Lsingle_buffered_streamG.xml">&lt;single-buffered-stream&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../io/streams-internals/Lexternal_streamG.xml">&lt;external-stream&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../io/streams/Lbasic_positionable_streamG.xml">&lt;basic-positionable-stream&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>accessor:</apiItemName>
+        <apiType value="{complex type}"/>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>buffer-size:</apiItemName>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>locator:</apiItemName>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

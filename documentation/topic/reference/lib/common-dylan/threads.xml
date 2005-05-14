@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-common-dylan-threads">
+  <apiName>threads</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="threads/Dbackground_priority.xml">
+      <linktext><apiname>$background-priority</apiname></linktext>
+    </link>
+    <link href="threads/Dhigh_priority.xml">
+      <linktext><apiname>$high-priority</apiname></linktext>
+    </link>
+    <link href="threads/Dinteractive_priority.xml">
+      <linktext><apiname>$interactive-priority</apiname></linktext>
+    </link>
+    <link href="threads/Dlow_priority.xml">
+      <linktext><apiname>$low-priority</apiname></linktext>
+    </link>
+    <link href="threads/Dnormal_priority.xml">
+      <linktext><apiname>$normal-priority</apiname></linktext>
+    </link>
+    <link href="threads/Dsemaphore_maximum_count_limit.xml">
+      <linktext><apiname>$semaphore-maximum-count-limit</apiname></linktext>
+    </link>
+    <link href="threads/Pdynamic_bind_variable.xml">
+      <linktext><apiname>%dynamic-bind-variable</apiname></linktext>
+    </link>
+    <link href="threads/Lconditional_update_errorG.xml">
+      <linktext><apiname>&lt;conditional-update-error&gt;</apiname></linktext>
+    </link>
+    <link href="threads/Lcount_exceeded_errorG.xml">
+      <linktext><apiname>&lt;count-exceeded-error&gt;</apiname></linktext>
+    </link>
+    <link href="threads/Lduplicate_join_errorG.xml">
+      <linktext><apiname>&lt;duplicate-join-error&gt;</apiname></linktext>
+    </link>
+    <link href="threads/Lexclusive_lockG.xml">
+      <linktext><apiname>&lt;exclusive-lock&gt;</apiname></linktext>
+    </link>
+    <link href="threads/LlockG.xml">
+      <linktext><apiname>&lt;lock&gt;</apiname></linktext>
+    </link>
+    <link href="threads/Lnot_owned_errorG.xml">
+      <linktext><apiname>&lt;not-owned-error&gt;</apiname></linktext>
+    </link>
+    <link href="threads/LnotificationG.xml">
+      <linktext><apiname>&lt;notification&gt;</apiname></linktext>
+    </link>
+    <link href="threads/Lread_write_lockG.xml">
+      <linktext><apiname>&lt;read-write-lock&gt;</apiname></linktext>
+    </link>
+    <link href="threads/Lrecursive_lockG.xml">
+      <linktext><apiname>&lt;recursive-lock&gt;</apiname></linktext>
+    </link>
+    <link href="threads/LsemaphoreG.xml">
+      <linktext><apiname>&lt;semaphore&gt;</apiname></linktext>
+    </link>
+    <link href="threads/Lsimple_lockG.xml">
+      <linktext><apiname>&lt;simple-lock&gt;</apiname></linktext>
+    </link>
+    <link href="threads/LsynchronizationG.xml">
+      <linktext><apiname>&lt;synchronization&gt;</apiname></linktext>
+    </link>
+    <link href="threads/Lsynchronous_threadG.xml">
+      <linktext><apiname>&lt;synchronous-thread&gt;</apiname></linktext>
+    </link>
+    <link href="threads/Lthread_inactive_errorG.xml">
+      <linktext><apiname>&lt;thread-inactive-error&gt;</apiname></linktext>
+    </link>
+    <link href="threads/LthreadG.xml">
+      <linktext><apiname>&lt;thread&gt;</apiname></linktext>
+    </link>
+    <link href="threads/Ltimeout_expiredG.xml">
+      <linktext><apiname>&lt;timeout-expired&gt;</apiname></linktext>
+    </link>
+    <link href="threads/associated_lock.xml">
+      <linktext><apiname>associated-lock</apiname></linktext>
+    </link>
+    <link href="threads/atomic_decrementX.xml">
+      <linktext><apiname>atomic-decrement!</apiname></linktext>
+    </link>
+    <link href="threads/atomic_incrementX.xml">
+      <linktext><apiname>atomic-increment!</apiname></linktext>
+    </link>
+    <link href="threads/conditional_updateX.xml">
+      <linktext><apiname>conditional-update!</apiname></linktext>
+    </link>
+    <link href="threads/conditional_update_aux.xml">
+      <linktext><apiname>conditional-update-aux</apiname></linktext>
+    </link>
+    <link href="threads/current_thread.xml">
+      <linktext><apiname>current-thread</apiname></linktext>
+    </link>
+    <link href="threads/dynamic_bind.xml">
+      <linktext><apiname>dynamic-bind</apiname></linktext>
+    </link>
+    <link href="threads/join_thread.xml">
+      <linktext><apiname>join-thread</apiname></linktext>
+    </link>
+    <link href="threads/owned_for_readingQ.xml">
+      <linktext><apiname>owned-for-reading?</apiname></linktext>
+    </link>
+    <link href="threads/ownedQ.xml">
+      <linktext><apiname>owned?</apiname></linktext>
+    </link>
+    <link href="threads/release.xml">
+      <linktext><apiname>release</apiname></linktext>
+    </link>
+    <link href="threads/release_all.xml">
+      <linktext><apiname>release-all</apiname></linktext>
+    </link>
+    <link href="threads/sequence_point.xml">
+      <linktext><apiname>sequence-point</apiname></linktext>
+    </link>
+    <link href="threads/sleep.xml">
+      <linktext><apiname>sleep</apiname></linktext>
+    </link>
+    <link href="threads/synchronization_name.xml">
+      <linktext><apiname>synchronization-name</apiname></linktext>
+    </link>
+    <link href="threads/synchronize_side_effects.xml">
+      <linktext><apiname>synchronize-side-effects</apiname></linktext>
+    </link>
+    <link href="threads/thread_name.xml">
+      <linktext><apiname>thread-name</apiname></linktext>
+    </link>
+    <link href="threads/thread_yield.xml">
+      <linktext><apiname>thread-yield</apiname></linktext>
+    </link>
+    <link href="threads/wait_for.xml">
+      <linktext><apiname>wait-for</apiname></linktext>
+    </link>
+    <link href="threads/with_lock.xml">
+      <linktext><apiname>with-lock</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

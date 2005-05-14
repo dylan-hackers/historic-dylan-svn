@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanLibrary PUBLIC "-//Gwydion//DTD DITA Dylan API Library//EN" "../../dtd/dylanLibrary.dtd" []>
+<dylanLibrary id="lib-c-ffi">
+  <apiName>c-ffi</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanLibraryDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanLibraryDetail>
+
+  <related-links>
+    <link href="c-ffi/c-ffi.xml">
+      <linktext><apiname>c-ffi</apiname></linktext>
+    </link>
+    <link href="c-ffi/unix-core.xml">
+      <linktext><apiname>unix-core</apiname></linktext>
+    </link>
+  </related-links>
+</dylanLibrary>

@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-common-dylan-streams-protocol">
+  <apiName>streams-protocol</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="streams-protocol/Lend_of_stream_errorG.xml">
+      <linktext><apiname>&lt;end-of-stream-error&gt;</apiname></linktext>
+    </link>
+    <link href="streams-protocol/Lincomplete_read_errorG.xml">
+      <linktext><apiname>&lt;incomplete-read-error&gt;</apiname></linktext>
+    </link>
+    <link href="streams-protocol/Lincomplete_write_errorG.xml">
+      <linktext><apiname>&lt;incomplete-write-error&gt;</apiname></linktext>
+    </link>
+    <link href="streams-protocol/Lpositionable_streamG.xml">
+      <linktext><apiname>&lt;positionable-stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams-protocol/Lstream_errorG.xml">
+      <linktext><apiname>&lt;stream-error&gt;</apiname></linktext>
+    </link>
+    <link href="streams-protocol/LstreamG.xml">
+      <linktext><apiname>&lt;stream&gt;</apiname></linktext>
+    </link>
+    <link href="streams-protocol/adjust_stream_position.xml">
+      <linktext><apiname>adjust-stream-position</apiname></linktext>
+    </link>
+    <link href="streams-protocol/close.xml">
+      <linktext><apiname>close</apiname></linktext>
+    </link>
+    <link href="streams-protocol/discard_input.xml">
+      <linktext><apiname>discard-input</apiname></linktext>
+    </link>
+    <link href="streams-protocol/discard_output.xml">
+      <linktext><apiname>discard-output</apiname></linktext>
+    </link>
+    <link href="streams-protocol/force_output.xml">
+      <linktext><apiname>force-output</apiname></linktext>
+    </link>
+    <link href="streams-protocol/open_file_stream.xml">
+      <linktext><apiname>open-file-stream</apiname></linktext>
+    </link>
+    <link href="streams-protocol/peek.xml">
+      <linktext><apiname>peek</apiname></linktext>
+    </link>
+    <link href="streams-protocol/read.xml">
+      <linktext><apiname>read</apiname></linktext>
+    </link>
+    <link href="streams-protocol/read_element.xml">
+      <linktext><apiname>read-element</apiname></linktext>
+    </link>
+    <link href="streams-protocol/read_intoX.xml">
+      <linktext><apiname>read-into!</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_at_endQ.xml">
+      <linktext><apiname>stream-at-end?</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_contents.xml">
+      <linktext><apiname>stream-contents</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_contents_as.xml">
+      <linktext><apiname>stream-contents-as</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_element_type.xml">
+      <linktext><apiname>stream-element-type</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_error_count.xml">
+      <linktext><apiname>stream-error-count</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_error_sequence.xml">
+      <linktext><apiname>stream-error-sequence</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_error_stream.xml">
+      <linktext><apiname>stream-error-stream</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_input_availableQ.xml">
+      <linktext><apiname>stream-input-available?</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_openQ.xml">
+      <linktext><apiname>stream-open?</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_position.xml">
+      <linktext><apiname>stream-position</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_position_setter.xml">
+      <linktext><apiname>stream-position-setter</apiname></linktext>
+    </link>
+    <link href="streams-protocol/stream_size.xml">
+      <linktext><apiname>stream-size</apiname></linktext>
+    </link>
+    <link href="streams-protocol/synchronize_output.xml">
+      <linktext><apiname>synchronize-output</apiname></linktext>
+    </link>
+    <link href="streams-protocol/unread_element.xml">
+      <linktext><apiname>unread-element</apiname></linktext>
+    </link>
+    <link href="streams-protocol/wait_for_io_completion.xml">
+      <linktext><apiname>wait-for-io-completion</apiname></linktext>
+    </link>
+    <link href="streams-protocol/write.xml">
+      <linktext><apiname>write</apiname></linktext>
+    </link>
+    <link href="streams-protocol/write_element.xml">
+      <linktext><apiname>write-element</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

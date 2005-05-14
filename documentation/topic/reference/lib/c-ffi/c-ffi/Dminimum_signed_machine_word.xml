@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
+<dylanConstant id="lib-c-ffi-c-ffi-Dminimum_signed_machine_word">
+  <apiName>$minimum-signed-machine-word</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanConstantDetail>
+    <dylanConstantDef>
+      <apiValueClassifier href="Lmachine_wordG.xml">&lt;machine-word&gt;</apiValueClassifier>
+    </dylanConstantDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanConstantDetail>
+</dylanConstant>

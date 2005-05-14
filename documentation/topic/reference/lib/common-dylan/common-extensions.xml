@@ -1,0 +1,206 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-common-dylan-common-extensions">
+  <apiName>common-extensions</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="common-extensions/Dunfound.xml">
+      <linktext><apiname>$unfound</apiname></linktext>
+    </link>
+    <link href="common-extensions/Dunsupplied.xml">
+      <linktext><apiname>$unsupplied</apiname></linktext>
+    </link>
+    <link href="common-extensions/Larithmetic_errorG.xml">
+      <linktext><apiname>&lt;arithmetic-error&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Larithmetic_overflow_errorG.xml">
+      <linktext><apiname>&lt;arithmetic-overflow-error&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Larithmetic_underflow_errorG.xml">
+      <linktext><apiname>&lt;arithmetic-underflow-error&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Lbyte_vectorG.xml">
+      <linktext><apiname>&lt;byte-vector&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Lclosable_objectG.xml">
+      <linktext><apiname>&lt;closable-object&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Ldivision_by_zero_errorG.xml">
+      <linktext><apiname>&lt;division-by-zero-error&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Lformat_string_conditionG.xml">
+      <linktext><apiname>&lt;format-string-condition&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Lobject_dequeG.xml">
+      <linktext><apiname>&lt;object-deque&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Lsimple_conditionG.xml">
+      <linktext><apiname>&lt;simple-condition&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Lstack_overflow_errorG.xml">
+      <linktext><apiname>&lt;stack-overflow-error&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/LstreamG.xml">
+      <linktext><apiname>&lt;stream&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Lstretchy_object_vectorG.xml">
+      <linktext><apiname>&lt;stretchy-object-vector&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Lstretchy_sequenceG.xml">
+      <linktext><apiname>&lt;stretchy-sequence&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/Lstring_tableG.xml">
+      <linktext><apiname>&lt;string-table&gt;</apiname></linktext>
+    </link>
+    <link href="common-extensions/application_arguments.xml">
+      <linktext><apiname>application-arguments</apiname></linktext>
+    </link>
+    <link href="common-extensions/application_filename.xml">
+      <linktext><apiname>application-filename</apiname></linktext>
+    </link>
+    <link href="common-extensions/application_name.xml">
+      <linktext><apiname>application-name</apiname></linktext>
+    </link>
+    <link href="common-extensions/assert.xml">
+      <linktext><apiname>assert</apiname></linktext>
+    </link>
+    <link href="common-extensions/close.xml">
+      <linktext><apiname>close</apiname></linktext>
+    </link>
+    <link href="common-extensions/concatenateX.xml">
+      <linktext><apiname>concatenate!</apiname></linktext>
+    </link>
+    <link href="common-extensions/condition_to_string.xml">
+      <linktext><apiname>condition-to-string</apiname></linktext>
+    </link>
+    <link href="common-extensions/debug_assert.xml">
+      <linktext><apiname>debug-assert</apiname></linktext>
+    </link>
+    <link href="common-extensions/debug_message.xml">
+      <linktext><apiname>debug-message</apiname></linktext>
+    </link>
+    <link href="common-extensions/difference.xml">
+      <linktext><apiname>difference</apiname></linktext>
+    </link>
+    <link href="common-extensions/exit_application.xml">
+      <linktext><apiname>exit-application</apiname></linktext>
+    </link>
+    <link href="common-extensions/false_or.xml">
+      <linktext><apiname>false-or</apiname></linktext>
+    </link>
+    <link href="common-extensions/falseQ.xml">
+      <linktext><apiname>false?</apiname></linktext>
+    </link>
+    <link href="common-extensions/fill_tableX.xml">
+      <linktext><apiname>fill-table!</apiname></linktext>
+    </link>
+    <link href="common-extensions/find_element.xml">
+      <linktext><apiname>find-element</apiname></linktext>
+    </link>
+    <link href="common-extensions/find_value.xml">
+      <linktext><apiname>find-value</apiname></linktext>
+    </link>
+    <link href="common-extensions/float_to_string.xml">
+      <linktext><apiname>float-to-string</apiname></linktext>
+    </link>
+    <link href="common-extensions/format_to_string.xml">
+      <linktext><apiname>format-to-string</apiname></linktext>
+    </link>
+    <link href="common-extensions/foundQ.xml">
+      <linktext><apiname>found?</apiname></linktext>
+    </link>
+    <link href="common-extensions/ignorable.xml">
+      <linktext><apiname>ignorable</apiname></linktext>
+    </link>
+    <link href="common-extensions/ignore.xml">
+      <linktext><apiname>ignore</apiname></linktext>
+    </link>
+    <link href="common-extensions/integer_to_string.xml">
+      <linktext><apiname>integer-to-string</apiname></linktext>
+    </link>
+    <link href="common-extensions/iterate.xml">
+      <linktext><apiname>iterate</apiname></linktext>
+    </link>
+    <link href="common-extensions/machine_word_to_string.xml">
+      <linktext><apiname>machine-word-to-string</apiname></linktext>
+    </link>
+    <link href="common-extensions/number_to_string.xml">
+      <linktext><apiname>number-to-string</apiname></linktext>
+    </link>
+    <link href="common-extensions/one_of.xml">
+      <linktext><apiname>one-of</apiname></linktext>
+    </link>
+    <link href="common-extensions/position.xml">
+      <linktext><apiname>position</apiname></linktext>
+    </link>
+    <link href="common-extensions/profiling.xml">
+      <linktext><apiname>profiling</apiname></linktext>
+    </link>
+    <link href="common-extensions/profiling_type_result.xml">
+      <linktext><apiname>profiling-type-result</apiname></linktext>
+    </link>
+    <link href="common-extensions/register_application_exit_function.xml">
+      <linktext><apiname>register-application-exit-function</apiname></linktext>
+    </link>
+    <link href="common-extensions/remove_all_keysX.xml">
+      <linktext><apiname>remove-all-keys!</apiname></linktext>
+    </link>
+    <link href="common-extensions/rest.xml">
+      <linktext><apiname>rest</apiname></linktext>
+    </link>
+    <link href="common-extensions/split.xml">
+      <linktext><apiname>split</apiname></linktext>
+    </link>
+    <link href="common-extensions/string_to_integer.xml">
+      <linktext><apiname>string-to-integer</apiname></linktext>
+    </link>
+    <link href="common-extensions/string_to_machine_word.xml">
+      <linktext><apiname>string-to-machine-word</apiname></linktext>
+    </link>
+    <link href="common-extensions/subclass.xml">
+      <linktext><apiname>subclass</apiname></linktext>
+    </link>
+    <link href="common-extensions/suppliedQ.xml">
+      <linktext><apiname>supplied?</apiname></linktext>
+    </link>
+    <link href="common-extensions/table_definer.xml">
+      <linktext><apiname>table-definer</apiname></linktext>
+    </link>
+    <link href="common-extensions/tokenize_command_line.xml">
+      <linktext><apiname>tokenize-command-line</apiname></linktext>
+    </link>
+    <link href="common-extensions/trueQ.xml">
+      <linktext><apiname>true?</apiname></linktext>
+    </link>
+    <link href="common-extensions/unfound.xml">
+      <linktext><apiname>unfound</apiname></linktext>
+    </link>
+    <link href="common-extensions/unfoundQ.xml">
+      <linktext><apiname>unfound?</apiname></linktext>
+    </link>
+    <link href="common-extensions/unsupplied.xml">
+      <linktext><apiname>unsupplied</apiname></linktext>
+    </link>
+    <link href="common-extensions/unsuppliedQ.xml">
+      <linktext><apiname>unsupplied?</apiname></linktext>
+    </link>
+    <link href="common-extensions/when.xml">
+      <linktext><apiname>when</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

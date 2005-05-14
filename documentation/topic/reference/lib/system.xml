@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanLibrary PUBLIC "-//Gwydion//DTD DITA Dylan API Library//EN" "../../dtd/dylanLibrary.dtd" []>
+<dylanLibrary id="lib-system">
+  <apiName>system</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanLibraryDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanLibraryDetail>
+
+  <related-links>
+    <link href="system/date.xml">
+      <linktext><apiname>date</apiname></linktext>
+    </link>
+    <link href="system/file-system.xml">
+      <linktext><apiname>file-system</apiname></linktext>
+    </link>
+    <link href="system/locators.xml">
+      <linktext><apiname>locators</apiname></linktext>
+    </link>
+    <link href="system/operating-system.xml">
+      <linktext><apiname>operating-system</apiname></linktext>
+    </link>
+    <link href="system/settings.xml">
+      <linktext><apiname>settings</apiname></linktext>
+    </link>
+    <link href="system/simple-xml.xml">
+      <linktext><apiname>simple-xml</apiname></linktext>
+    </link>
+  </related-links>
+</dylanLibrary>
