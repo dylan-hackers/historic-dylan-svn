@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"
+         prefer="public">
+  <public publicId="-//Gwydion//DTD DITA Dylan API Class//EN"
+          uri="dtd/dylanClass.dtd"/>
+  <public publicId="-//Gwydion//DTD DITA Dylan API Constant//EN"
+          uri="dtd/dylanConstant.dtd"/>
+  <public publicId="-//Gwydion//DTD DITA Dylan API Function//EN"
+          uri="dtd/dylanFunction.dtd"/>
+  <public publicId="-//Gwydion//DTD DITA Dylan API Generic Function//EN"
+          uri="dtd/dylanGenericFunction.dtd"/>
+  <public publicId="-//Gwydion//DTD DITA Dylan API Library//EN"
+          uri="dtd/dylanLibrary.dtd"/>
+  <public publicId="-//Gwydion//DTD DITA Dylan API Macro//EN"
+          uri="dtd/dylanMacro.dtd"/>
+  <public publicId="-//Gwydion//DTD DITA Dylan API Method//EN"
+          uri="dtd/dylanMethod.dtd"/>
+  <public publicId="-//Gwydion//DTD DITA Dylan API Module//EN"
+          uri="dtd/dylanModule.dtd"/>
+  <public publicId="-//Gwydion//DTD DITA Dylan API Type//EN"
+          uri="dtd/dylanType.dtd"/>
+  <public publicId="-//Gwydion//DTD DITA Dylan API Variable//EN"
+          uri="dtd/dylanVariable.dtd"/>
+</catalog>
