@@ -73,7 +73,39 @@ if($view eq 'download') {
 	print "<title>Gwydion Dylan: Topic $path</title>";
 	print "<body>";
 	&dump_menu;
-	print $q->h1("Directory $path");
+
+	unless($path =~ m|/$|) {
+	    $path .= '/';
+	}
+	
+	print $q->h1("Topic directory $path");
+
+	my @dirs;
+	my @files;
+	opendir(DIR, "$wwwtopic$path");
+	while(my $entry = readdir DIR) {
+	    next if($entry =~ /^\./);
+	    if(-d "$wwwtopic$path$entry") {
+		push @dirs, "$entry/";
+	    } else {
+		push @files, $entry;
+	    }
+	}
+	closedir(DIR);
+
+        print "<table>";
+	foreach my $dir (sort @dirs) {
+	    if(&path_ok("$path$dir")) {
+		print "<tr><td><a href=\"$uri$path$dir\">$dir</a></td></tr>";
+	    }
+	}
+	foreach my $file (sort @files) {
+	    if($file =~ /\.xml$/) {
+		print "<tr><td><a href=\"$uri$path$file\">$file</a></td></tr>";
+	    }
+	}
+	print "</table>";
+	
 	&dump_foot;
 	exit 0;
     } else {
