@@ -41,7 +41,7 @@ if($view eq 'download') {
     $parser->load_catalog("$ditaot/catalog-dita.xml");
     
     my $stylesheet
-	= $xslt->parse_stylesheet_file("$wwwtopic/xsl/dylan-dita2xhtml.xsl");
+	= $xslt->parse_stylesheet_file("$wwwtopic/xsl/dylan-dita2cms.xsl");
 
     $parser->expand_entities(1);
     $parser->complete_attributes(1);
@@ -94,16 +94,32 @@ if($view eq 'download') {
 	closedir(DIR);
 
         print "<table>";
+	print "<thead>";
+	print "<tr><th>Title</th><th>Summary</th></tr>";
+	print "</thead>";
+	print "<tbody>";
 	foreach my $dir (sort @dirs) {
 	    if(&path_ok("$path$dir")) {
-		print "<tr><td><a href=\"$uri$path$dir\">$dir</a></td></tr>";
+		print "<tr>";
+		print "<td><a href=\"$uri$path$dir\">$dir</a></td>";
+		print "<td><i>Directory</i></td>";
+		print "</tr>";
 	    }
 	}
 	foreach my $file (sort @files) {
 	    if($file =~ /\.xml$/) {
-		print "<tr><td><a href=\"$uri$path$file\">$file</a></td></tr>";
+		eval {
+		    my $doc = $parser->parse_file("$wwwtopic$path$file");
+		    my $result = $stylesheet->transform($doc);
+		    print "<tr><td><a href=\"$uri$path$file\">";
+		    printHTML($result->findnodes("/html/head/title/text()"));
+		    print "</a></td>";
+		    print '<td class="summary">', "Summary", '</td>';
+		    print '</tr>';
+		}
 	    }
 	}
+	print "</tbody>";
 	print "</table>";
 	
 	&dump_foot;
@@ -176,7 +192,7 @@ sub printHTML {
 		$value =~ s/</&lt;/g;
 		$value =~ s/>/&gt;/g;
 		$value =~ s/\"/&quot/g;
-		print $value, '\"';
+		print $value, '"';
 	    }
 	    my $child = $node->firstChild;
 	    if(defined $child) {
