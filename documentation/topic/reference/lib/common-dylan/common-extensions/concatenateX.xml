@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-common-extensions-concatenateX">
   <apiName>concatenate!</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Concatenates one or more collections, possibly
+  destructively.</shortdesc>
 
   <prolog>
     <author></author>
@@ -33,7 +35,19 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>A destructive version of the Dylan language <apioperation
+      href="../../dylan/dylan/concatenate.xml">concatenate</apioperation>
+      function; that is, one that might modify its first
+      argument. </p>
+
+      <p>It returns the concatenation of one or more sequences, in a
+      sequence that may or may not be freshly allocated. If
+      <parmname>result-sequence</parmname> is freshly allocated, then,
+      as for <apioperation
+      href="../../dylan/dylan/concatenate.xml">concatenate</apioperation>,
+      it is of the type returned by <apioperation
+      href="../../dylan/dylan/type_for_copy.xml">type-for-copy</apioperation>
+      of <parmname>sequence</parmname>.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

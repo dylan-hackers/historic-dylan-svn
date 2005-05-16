@@ -149,7 +149,7 @@ sub do_char_module_name {
 
     print LIBRARY << "EOF";
     <link href="$library/$module.xml">
-      <linktext><apipackage>$module</apipackage></linktext>
+      <linktext><apiname>$module</apiname></linktext>
     </link>
 EOF
 
@@ -190,7 +190,7 @@ EOF
 
     close(MODULE);
     if($module_file ne "$library/$module.xml") {
-	system("cmp $library/module.xml $module_file >/dev/null") || die;
+	system("cmp $library/$module.xml $module_file >/dev/null") || die;
 	if ($? == 0) {
 	    remove $module_file;
 	}

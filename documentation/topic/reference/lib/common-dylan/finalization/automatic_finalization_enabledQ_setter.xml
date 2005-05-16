@@ -2,7 +2,7 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-finalization-automatic_finalization_enabledQ_setter">
   <apiName>automatic-finalization-enabled?-setter</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Sets the automatic finalization system state.</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,7 +22,17 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Sets the automatic finalization system state to
+      <parmname>newval</parmname>.</p>
+
+      <p>The initial state is <codeph>#f</codeph>. If the state
+      changes from <codeph>#f</codeph> to <codeph>#t</codeph>, a new
+      thread is created which regularly calls <apioperation
+      href="drain_finalization_queue.xml">drain-finalization-queue</apioperation>
+      inside an empty dynamic environment (that is, with no dynamic
+      condition handlers). If the state changes from
+      <codeph>#t</codeph> to <codeph>#f</codeph>, the thread
+      exits.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

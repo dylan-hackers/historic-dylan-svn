@@ -2,7 +2,9 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-collections-set-Lobject_setG">
   <apiName>&lt;object-set&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+
+  <shortdesc>The class of sets that can contain elements of any
+  type.</shortdesc>
 
   <prolog>
     <author></author>
@@ -23,7 +25,9 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The class of sets that can contain elements of any type. This
+      class functions as the instantiable subclass of <apiclassifier
+      href="LsetG.html">&lt;set&gt;</apiclassifier>.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

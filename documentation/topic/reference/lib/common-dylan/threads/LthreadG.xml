@@ -2,7 +2,7 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-threads-LthreadG">
   <apiName>&lt;thread&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+  <shortdesc>The class of threads.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,15 +14,15 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="../threads-primitives/Lportable_double_containerG.xml">&lt;portable-double-container&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>function:</apiItemName>
         <apiOtherClassifier href="../dylan/LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>Required</apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>name:</apiItemName>
-        <apiOtherClassifier href="../threads-primitives/Loptional_nameG.xml">&lt;optional-name&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
@@ -33,7 +33,40 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apiname>&lt;thread&gt;</apiname> class represents a
+      thread of control executing <parmname>function</parmname>.</p>
+
+      <p>The <parmname>function</parmname> is called with no arguments
+      in the empty dynamic environment of the new thread. The thread
+      terminates when the function returns. </p>
+
+      <p>The function is executable immediately. You can suspend a new thread
+      (almost) immediately on creation by arranging for it to synchronize
+      on an unavailable resource upon entry to the function.</p>
+
+      <p>The optional <parmname>priority</parmname> keyword provides a
+      scheduling priority for the thread. The higher the value, the
+      greater the priority. The default value is zero, which is also
+      the value of the constant <apivalue
+      href="Dnormal_priority.xml">$normal-priority</apivalue>, one of
+      several constants that correspond to useful priority levels. The
+      library offers no way to change the priority of a thread
+      dynamically.</p>
+
+      <p>The following constants, listed in order of increasing value, may
+      be useful as values for the optional <i>priority</i> keyword:</p>
+
+      <ul>
+	<li><apivalue href="Dlow_priority.xml">$low-priority</apivalue></li>
+	<li><apivalue href="Dbackground_priority.xml">$background-priority</apivalue></li>
+	<li><apivalue href="Dnormal_priority.xml">$normal-priority </apivalue></li>
+	<li><apivalue href="Dinteractive_priority.xml">$interactive-priority </apivalue></li>
+	<li><apivalue href="Dhigh_priority.xml">$high-priority </apivalue></li>
+      </ul>
+
+      <p>The <parmname>name</parmname> keyword is a string that is
+      used as the thread’s name for convenience purposes, such for
+      display in the debugger.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

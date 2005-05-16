@@ -2,7 +2,7 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-common-extensions-Lstring_tableG">
   <apiName>&lt;string-table&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+  <shortdesc>A class of tables keyed on strings.</shortdesc>
 
   <prolog>
     <author></author>
@@ -18,7 +18,21 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apiname>&lt;string-table&gt;</apiname> class is the
+      class of tables that use instances of <apiclassifier
+      href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiclassifier>
+      for their keys. It is an error to use a key that is not an
+      instance of <apiclassifier
+      href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiclassifier>.</p>
+
+      <p>Keys are compared using the equivalence predicate
+      <apioperation href="../../dylan/E.xml">\=</apioperation>. The
+      elements of the table are instances of <apiclassifier
+      href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiclassifier>.</p>
+
+      <p>It is an error to modify a key once it has been used to add an
+      element to a <codeph>&lt;string-table&gt;</codeph>. The effects of
+      modification are not defined.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

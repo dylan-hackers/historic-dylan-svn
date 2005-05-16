@@ -2,7 +2,9 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-threads-Lexclusive_lockG">
   <apiName>&lt;exclusive-lock&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+
+  <shortdesc>The class of locks which prohibit unlocking by threads
+  that do not own the lock.</shortdesc>
 
   <prolog>
     <author></author>
@@ -20,7 +22,24 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The class of locks which prohibit unlocking by threads that
+      do not own the lock. </p>
+
+      <p>The notion of ownership is directly supported by the class,
+      and a thread can test whether an
+      <apiname>&lt;exclusive-lock&gt;</apiname> is currently owned. An
+      instance of <apiname>&lt;exclusive-lock&gt;</apiname> can only
+      be owned by one thread at a time, by calling <apioperation
+      href="wait_for.xml">wait-for</apioperation> on the lock. </p>
+
+      <p>Once owned, any attempt by any other thread to wait for the
+      lock will cause that thread to block. It is an error for a
+      thread to release an <apiname>&lt;exclusive-lock&gt;</apiname>
+      if another thread owns it. </p>
+
+      <p><apiname>&lt;exclusive-lock&gt;</apiname>  has no direct instances;
+      calling <codeph>make</codeph>  on <codeph>&lt;exclusive-lock&gt; </codeph>
+      returns an instance of <codeph>&lt;simple-lock&gt;</codeph>.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

@@ -2,7 +2,8 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-threads-Lread_write_lockG">
   <apiName>&lt;read-write-lock&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+  <shortdesc>The class of locks that can have multiple readers but only one
+  writer.</shortdesc>
 
   <prolog>
     <author></author>
@@ -21,7 +22,35 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apiname>&lt;;read-write-lock&gt;</apiname> class
+      represents locks that can have multiple readers but only one
+      writer.</p>
+
+      <p>The <apiname>&lt;read-write-lock&gt;</apiname> class can be
+      locked in either of two modes, <i>read</i> and <i>write</i>. A
+      write lock is exclusive, and implies ownership of the
+      lock. However, a read lock is non-exclusive, and an instance can
+      be locked multiple times in read mode, whether by multiple
+      threads, recursively by a single thread, or a combination of
+      both.</p>
+
+      <p>A <apiname>&lt;read-write-lock&gt;</apiname> can only be locked
+      in write mode if the lock is free, and the operation will block if
+      necessary. It can only be freed by the thread that owns it.</p>
+
+      <p>A <apiname>&lt;read-write-lock&gt;</apiname> can be locked in
+      read mode provided that it is not owned with a write lock. The
+      operation will block while the lock is owned. Each time it is
+      locked in read mode, an internal counter is incremented. This
+      counter is decremented each time a read-mode lock is
+      released. The lock is freed when the counter becomes zero.</p>
+
+      <p>The <apiname>&lt;read-write-lock&gt;</apiname> class is less
+      efficient than the other lock classes defined in the <apipackage
+      href="../threads.xml">threads</apipackage> module. However, it
+      provides an efficient and convenient means to protect data that
+      is frequently read and may occasionally be written by multiple
+      concurrent threads.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

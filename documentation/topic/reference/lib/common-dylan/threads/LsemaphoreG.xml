@@ -2,7 +2,7 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-threads-LsemaphoreG">
   <apiName>&lt;semaphore&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+  <shortdesc>The class of traditional counting semaphores.</shortdesc>
 
   <prolog>
     <author></author>
@@ -17,17 +17,24 @@
       <dylanOpenClass/>
       <dylanPrimaryClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="../threads-primitives/Lportable_containerG.xml">&lt;portable-container&gt;</dylanSuperClass>
       <dylanSuperClass href="LlockG.xml">&lt;lock&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>initial-count:</apiItemName>
         <apiOtherClassifier href="../dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>A non-negative integer, corresponding to the initial state
+        of the internal counter. The default value is 0.</apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>maximum-count:</apiItemName>
         <apiOtherClassifier href="../dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
-	<apiDefNote></apiDefNote>
+
+	<apiDefNote>A non-negative integer corresponding to the
+        maximum permitted value of the internal counter. The default
+        value is the largest value supported by the implementation,
+        which is the value of the constant <apivalue
+        href="Dsemaphore_maximum_count_limit.xml">$semaphore-maximum-count-limit</apivalue>. This
+        constant will not be smaller than 10000.</apiDefNote>
+
       </dylanInitKeyword>
     </dylanClassDef>
 

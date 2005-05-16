@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-machine-words-Pcount_high_zeros">
   <apiName>%count-high-zeros</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns a count of the consecutive high-order zero bits
+  in a <apiname>&lt;machine-word&gt;</apiname> instance.</shortdesc>
 
   <prolog>
     <author></author>
@@ -27,7 +29,18 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apiname>%count-high-zeros</apiname> function returns the
+      number of consecutive zero bits in <codeph>m</codeph> counting
+      from the most significant bit.</p>
+
+      <p>The position of the most significant non-zero bit in
+      <parmname>m</parmname> can be computed by subtracting this
+      result from <codeph>$machine-word-size - 1</codeph>. So, if
+      <parmname>i</parmname> is the result and <codeph>p =
+      ($machine-word-size - i - 1)</codeph>, then <codeph>%logbit?(p,
+      m)</codeph> is true, and for all values of <codeph>j</codeph>
+      such that <codeph>p &lt; j &lt; $machine-word-size</codeph> ,
+      <codeph>%logbit?(j, m)</codeph> is false.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

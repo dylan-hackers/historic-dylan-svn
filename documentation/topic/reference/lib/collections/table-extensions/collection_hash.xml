@@ -2,7 +2,7 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-collections-table-extensions-collection_hash">
   <apiName>collection-hash</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns a hash value for a collection.</shortdesc>
 
   <prolog>
     <author></author>
@@ -37,7 +37,7 @@
       <dylanFunctionKeywordParam>
 	<apiItemName>ordered</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The default value is <codeph>#f</codeph>.</apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionReturn>
 	<apiItemName>id</apiItemName>
@@ -52,7 +52,18 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Hashes every element of <parmname>collection</parmname> using
+       <parmname>key-hash</parmname> on the keys and
+       <parmname>elt-hash</parmname> on the elements, and merges the
+       resulting hash codes in order.</p>
+
+      <p>The <parmname>ordered</parmname> keyword is passed on to
+      <apioperation
+      href="../../dylan/dylan/merge_hash_ids.xml">merge-hash-ids</apioperation>.</p>
+
+      <p>The functions <parmname>key-hash</parmname> and
+      <parmname>elt-hash</parmname> must be suitable for use as hash
+      functions.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

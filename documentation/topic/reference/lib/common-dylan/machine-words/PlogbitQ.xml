@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-machine-words-PlogbitQ">
   <apiName>%logbit?</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns true if the given bit of a
+  <apiname>&lt;machine-word&gt;</apiname> instanceis set.</shortdesc>
 
   <prolog>
     <author></author>
@@ -32,7 +34,10 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns true iff the indexed bit (zero based, counting from
+      the least significant bit) of <codeph>m</codeph> is set. An
+      error is signaled unless <codeph>0 &lt;= index &lt;
+      $machine-word-size</codeph>.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

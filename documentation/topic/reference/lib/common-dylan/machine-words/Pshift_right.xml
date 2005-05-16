@@ -2,7 +2,8 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-machine-words-Pshift_right">
   <apiName>%shift-right</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns the arithmetic right shift of a
+  <apiname>&lt;machine-word&gt;</apiname> instance.</shortdesc>
 
   <prolog>
     <author></author>
@@ -32,7 +33,9 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Arithmetic right shift of <parmname>m</parmname> by
+      <parmname>count</parmname>. An error is signaled unless <codeph>0
+      &lt;= count &lt; $machine-word-size</codeph> .</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

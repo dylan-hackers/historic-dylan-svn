@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-threads-associated_lock">
   <apiName>associated-lock</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the lock associated with the supplied
+  notification object.</shortdesc>
 
   <prolog>
     <author></author>
@@ -15,19 +17,20 @@
   <dylanGenericFunctionDetail>
     <dylanGenericFunctionDef>
       <dylanFunctionParam>
-	<apiItemName>object</apiItemName>
-        <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiItemName>notification</apiItemName>
+        <apiOperationClassifier href="LnotificationG.xml">&lt;notification&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiItemName>lock</apiItemName>
+        <apiOperationClassifier href="Lsimple_lockG.xml">&lt;simple-lock&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the lock associated with the notification object
+      <parmname>notification</parmname>. </p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

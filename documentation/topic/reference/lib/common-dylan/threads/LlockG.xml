@@ -2,7 +2,7 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-threads-LlockG">
   <apiName>&lt;lock&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+  <shortdesc>The class of locks.</shortdesc>
 
   <prolog>
     <author></author>
@@ -20,7 +20,30 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>Locks are synchronization objects which change state when
+      they are <term>claimed</term> (using <apioperation
+      href="wait_for.xml">wait-for</apioperation> ), and revert state
+      when <term>released</term> (using <apioperation
+      href="release.xml">release</apioperation>). </p>
+
+      <p>It is normally necessary for programs to ensure that locks
+      are released, otherwise there is the possibility of
+      <term>deadlock</term> .  Locks may be used to restrict the
+      access of other threads to shared resources between the
+      synchronization and the release. It is common for a protected
+      operation to be performed by a body of code which is evaluated
+      in a single thread between synchronization and release.  A macro
+      <apioperation href="with_lock.xml">with-lock</apioperation>
+      <codeph></codeph> is provided for this purpose. When a thread
+      uses a lock for <term>mutual exclusion</term> in this way, the
+      thread is said to <term>own the lock</term> .</p>
+
+      <p><apiname>&lt;lock&gt;</apiname> has no direct instances;
+      calling <apioperation
+      href="../../dylan/dylan/make.xml">make</apioperation> on
+      <apiname>&lt;lock&gt;</apiname> returns an instance of
+      <apiclassifier
+      href="Lsimple_lockG.xml">&lt;simple-lock&gt;</apiclassifier>.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

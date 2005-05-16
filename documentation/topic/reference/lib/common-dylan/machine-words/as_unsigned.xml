@@ -32,7 +32,12 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>The value of <parmname>m</parmname> is interpreted as an
+      unsigned value and converted to an instance of <apiclassifier
+      href="../common-extensions/Labstract_integerG.xml">&lt;abstract-integer&gt;</apiclassifier>,
+      then the result of that conversion is converted to type
+      <parmname>t</parmname> using <apioperation
+      href="../../dylan/dylan/as.xml">as</apioperation>.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

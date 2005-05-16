@@ -2,7 +2,7 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-threads-Lrecursive_lockG">
   <apiName>&lt;recursive-lock&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+  <shortdesc>The class of locks that can be locked recursively.</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,7 +22,10 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>A thread can lock a <apiname>&lt;recursive-lock&gt;</apiname>
+      multiple times, recursively, but the lock must later be released
+      the same number of times. The lock will be freed on the last of
+      these releases. </p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

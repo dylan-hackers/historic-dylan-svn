@@ -1,8 +1,10 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-threads-LsynchronizationG">
   <apiName>&lt;synchronization&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+
+  <shortdesc>The class of objects that are used for inter-thread
+  synchronization.</shortdesc>
 
   <prolog>
     <author></author>
@@ -25,7 +27,20 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apiname>&lt;synchronization&gt;</apiname> class
+      represents objects that are used for inter-thread
+      synchronization.</p>
+
+      <p>There is no explicit mechanism in the library to block on a number
+      of synchronization objects simultaneously, until synchronization can
+      be achieved with one of them. This mechanism can be implemented by
+      creating a new thread to wait for each synchronization object, and
+      arranging for each thread to release a notification once synchronization
+      has been achieved.</p>
+
+      <p>The <parmname>name</parmname> keyword is a string that is
+      used as the synchronization object’s name for convenience
+      purposes, such as debugging.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

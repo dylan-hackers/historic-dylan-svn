@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-finalization-automatic_finalization_enabledQ">
   <apiName>automatic-finalization-enabled?</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns true if automatic finalization is enabled, and
+  false otherwise.</shortdesc>
 
   <prolog>
     <author></author>
@@ -17,12 +19,12 @@
       <dylanFunctionReturn>
 	<apiItemName>enabled?</apiItemName>
         <apiOperationClassifier href="../dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns true if automatic finalization is enabled, and false
+      otherwise.  The default value is <codeph>#f</codeph>.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

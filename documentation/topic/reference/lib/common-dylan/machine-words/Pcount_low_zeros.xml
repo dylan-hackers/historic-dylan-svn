@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-machine-words-Pcount_low_zeros">
   <apiName>%count-low-zeros</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns a count of the consecutive lower-order zero bits
+  in a <apiname>&lt;machine-word&gt;</apiname> instance.</shortdesc>
 
   <prolog>
     <author></author>
@@ -27,7 +29,14 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the number of consecutive zero bits in
+      <parmname>m</parmname>, counting from the least significant bit.</p>
+
+      <p>This is the position of the least significant non-zero bit in
+      <parmname>m</parmname>. So, if <varname>i</varname> is the
+      result, then <codeph>%logbit?(i, m)</codeph> is true, and for
+      all values of <varname>j</varname> such that <codeph>0 &lt;= j
+      &lt; i</codeph>, <codeph>%logbit?(j, m)</codeph> is false.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

@@ -2,7 +2,7 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-common-dylan-common-extensions-Lformat_string_conditionG">
   <apiName>&lt;format-string-condition&gt;</apiName>
-  <shortdesc></shortdesc>
+  <shortdesc>The class of conditions that take a format string.</shortdesc>
 
   <prolog>
     <author></author>

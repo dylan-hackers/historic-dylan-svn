@@ -2,7 +2,9 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-machine-words-Lmachine_wordG">
   <apiName>&lt;machine-word&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+
+  <shortdesc>The class of objects that can represent a limited range
+  of integral values.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,16 +16,16 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="../../dylan/internal/Lvalue_objectG.xml">&lt;value-object&gt;</dylanSuperClass>
-      <dylanInitKeyword>
-	<apiItemName>data:</apiItemName>
-        <apiOtherClassifier href="{unknown object}.xml">{unknown object}</apiOtherClassifier>
-	<apiDefNote></apiDefNote>
-      </dylanInitKeyword>
+      <dylanSuperClass href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The class <apiname>&lt;machine-word&gt;</apiname> represents
+      a limited range of integral values. The representation used has
+      the natural size suggested by the implementation
+      architecture. The class <apiname>&lt;machine-word&gt;</apiname> is
+      disjoint from all other classes specified by the Dylan
+      language.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

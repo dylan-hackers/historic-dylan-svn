@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-collections-table-extensions-case_insensitive_equal">
   <apiName>case-insensitive-equal</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the comparison of two strings for equality,
+  ignoring case differences between them.</shortdesc>
 
   <prolog>
     <author></author>
@@ -16,23 +18,47 @@
     <dylanGenericFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>string-1</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>
 	<apiItemName>string-2</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+      <dylanFunctionReturn>
+	<apiItemName>equal?</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Compares <parmname>string1</parmname> and
+      <parmname>string2</parmname> for equality, ignoring any case
+      differences between them. Returns true if they are equal, and
+      false otherwise. </p>
+
+      <p>The function has the same behavior as Dylan’s standard method
+      on <apioperation href="../../dylan/dylan/E.xml">=</apioperation>
+      for sequences, except that when comparing alphabetical
+      characters, it ignores any case differences.  This function is
+      used as an equivalence predicate for <apioperation
+      href="case_insensitive_string_hash.xml">case-insensitive-string-hash</apioperation>.</p>
+
+      <p>This function uses <apioperation
+      href="../../dylan/dylan/as_uppercase.xml">as-uppercase</apioperation>
+      or <apioperation href="../../>as-lowercase</apioperation> to convert the characters in
+      its string arguments. </p>
+
+      <p>COMMENT: AndrewS 1997-05-09: MarkT says: There is no discussion
+      of whether case-insensitive-equal is defined on &lt;unicode-string&gt;
+      or merely on &lt;byte-string&gt;, and if &lt;unicode-string&gt;, what
+      its semantics are for non-Latin char. sets</p>
+
+      <p>Kevin Mitchell says: "It uses <codeph>as-lowercase</codeph>  or
+<codeph>as-uppercase</codeph>  to convert the characters in the strings.
+      UNICODE semantics are whatever they are for those functions."</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

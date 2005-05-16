@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-machine-words-PT">
   <apiName>%*</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Performs signed multiplication on two
+  <apiname>&lt;machine-word&gt;</apiname> instances.</shortdesc>
 
   <prolog>
     <author></author>
@@ -42,7 +44,10 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Performs signed multiplication. The value of
+      <parmname>overflow?</parmname> is false iff the
+      <parmname>high</parmname> word result is a sign extension of the
+      <parmname>low</parmname> word result.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

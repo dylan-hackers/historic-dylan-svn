@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-threads-wait_for">
   <apiName>wait-for</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Blocks until a synchronization object is available.</shortdesc>
 
   <prolog>
     <author></author>
@@ -23,7 +23,13 @@
       <dylanFunctionKeywordParam>
 	<apiItemName>timeout</apiItemName>
         <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+
+	<apiDefNote>Time-out interval. If the value is
+        <codeph>#f</codeph> (the default), the time-out interval never
+        elapses. Otherwise the value should be a
+        <codeph>&lt;real&gt;</codeph>, corresponding to the desired
+        interval in seconds.</apiDefNote>
+
       </dylanFunctionKeywordParam>
       <dylanFunctionReturn>
 	<apiItemName>success?</apiItemName>
@@ -33,7 +39,18 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Blocks until a synchronization object is available.</p>
+
+      <p>This function is the basic blocking primitive of the Threads
+      library.  It blocks until <varname>object</varname> is available
+      and synchronization can be achieved, or the
+      <varname>timeout</varname> interval has expired. A non-blocking
+      synchronization may be attempted by specifying a
+      <varname>timeout</varname> of zero. Individual methods may
+      adjust the state of the synchronization object on
+      synchronization. The function returns <codeph>#t</codeph> if
+      synchronization is achieved before the timeout interval elapses;
+      otherwise it returns <codeph>#f.</codeph> </p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

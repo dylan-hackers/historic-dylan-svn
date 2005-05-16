@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-collections-table-extensions-case_insensitive_string_hash">
   <apiName>case-insensitive-string-hash</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the hash value of a string, without considering
+  case information.</shortdesc>
 
   <prolog>
     <author></author>
@@ -37,7 +39,11 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Produces a hash code for a string using the equivalence
+      predicate <apioperation
+      href="case_insensitive_equal.xml">case-insensitive-equal</apioperation>,
+      which does not consider the case of the characters in the
+      strings it compares.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

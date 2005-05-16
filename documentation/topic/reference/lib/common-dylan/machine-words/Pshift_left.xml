@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-machine-words-Pshift_left">
   <apiName>%shift-left</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the arithmetic left shift of a
+  <apiname>&lt;machine-word&gt;</apiname> instance.</shortdesc>
 
   <prolog>
     <author></author>
@@ -42,7 +44,11 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Arithmetic left shift of <codeph>m</codeph> by count. An
+      error is signaled unless <codeph>0 &lt;= count &lt;
+      $machine-word-size</codeph>. The value of
+      <codeph>overflow?</codeph> is false iff the high word result is
+      a sign extension of the low word result.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

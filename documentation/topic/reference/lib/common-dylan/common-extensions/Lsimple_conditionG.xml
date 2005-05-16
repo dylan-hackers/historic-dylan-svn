@@ -2,7 +2,7 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-common-extensions-Lsimple_conditionG">
   <apiName>&lt;simple-condition&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+  <shortdesc>The class of simple conditions.</shortdesc>
 
   <prolog>
     <author></author>
@@ -31,7 +31,13 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The class of simple conditions. It is the superclass of
+      <apiclassifier
+      href="../../dylan/dylan/Lsimple_errorG.xml">&lt;simple-error&gt;</apiclassifier>,
+      <apiname
+      href="../../dylan/dylan/Lsimple_warningG.xml">&lt;simple-warning&gt;</apiname>,
+      and <apiname
+      href="../../dylan/dylan/Lsimple_restartG.xml">&lt;simple-restart&gt;</apiname>.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

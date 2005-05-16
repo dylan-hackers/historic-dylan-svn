@@ -2,7 +2,9 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-threads-LnotificationG">
   <apiName>&lt;notification&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+
+  <shortdesc>The class of objects that can be used to notify threads
+  of a change of state elsewhere in the program.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,17 +16,96 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="../threads-primitives/Lportable_containerG.xml">&lt;portable-container&gt;</dylanSuperClass>
       <dylanSuperClass href="LsynchronizationG.xml">&lt;synchronization&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>lock:</apiItemName>
         <apiOtherClassifier href="Lsimple_lockG.xml">&lt;simple-lock&gt;</apiOtherClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>Required.</apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apiname>&lt;notification&gt;</apiname> class represents
+      objects that can be used to notify threads of a change of state
+      elsewhere in the program. Notifications are used in association
+      with locks, and are sometimes called <term>condition
+      variables</term>.  They may be used to support the sharing of
+      data between threads using <term>monitors</term> . Each
+      <apiname>&lt;notification&gt;</apiname> is permanently
+      associated with a <apiclassifier
+      href="Lsimple_lockG.xml">&lt;simple-lock&gt;</apiclassifier>,
+      although the same lock may be associated with many
+      notifications. </p>
+
+      <p>The required <varname>lock</varname> is associated with the
+      notification, and it is only possible to wait for or release the
+      notification if the lock is owned.</p>
+
+      <p>Threads wait for the change of state to be notified by
+      calling <apioperation
+      href="wait_for.xml">wait-for</apioperation> . Threads notify
+      other threads of the change of state by calling
+      <apioperation xref="release.xml">release</apioperation> .</p>
     </apiDesc>
+
+    <example>
+      <title>Example</title>
+
+      <p>This example shows how to use a notification and an associated
+      lock to implement a queue. The variable <codeph>*queue*</codeph> 
+      is the actual queue object (a <codeph>&lt;deque&gt;</codeph> ). Queue
+      access is performed by interlocking pushes and pops on the 
+      <codeph>&lt;deque&gt;</codeph> . The <codeph>*queue*</codeph>  variable
+      can be a constant, since it is the <codeph>&lt;deque&gt;</codeph>
+       which is mutated and not the value of <codeph>*queue*</codeph> .</p>
+      <pre>define constant *queue* = make(&lt;deque&gt;);</pre>
+
+      <p>The variable <codeph>*lock*</codeph>  is used to isolate access
+      to the queue </p>
+
+      <pre>define constant *lock* = make(&lt;lock&gt;);</pre>
+
+      <p>The variable <codeph>*something-queued*</codeph>  is a notification
+      which is used to notify other threads that an object is being put
+      onto an empty queue.</p>
+
+      <pre>define constant *something-queued* =</pre>
+
+      <pre>make(&lt;notification&gt;, lock: *lock*);</pre>
+
+      <p>The function <codeph>put-on-queue</codeph>  pushes an object onto
+      the queue. If the queue was initially empty, then all threads which
+      are waiting for the queue to fill are notified that there is a new
+      entry.</p>
+
+      <codeblock>
+define method put-on-queue (object) =&gt; ()
+  with-lock (*lock*)
+    if (*queue*.empty?)
+      release-all(*something-queued*)
+    end;
+    push(*queue*, object)
+  end with-lock
+end method;
+</codeblock>
+
+      <p>The <codeph>get-from-queue</codeph> function returns an
+      object from the queue. If no object is immediately available,
+      then it blocks until it receives a notification that the queue
+      is no longer empty.  After receiving the notification it tests
+      again to see if an object is present, in case it was popped by
+      another thread.</p>
+
+      <codeblock>
+define method get-from-queue () =&gt; (object)
+  with-lock (*lock*)
+    while (*queue*.empty?) 
+      wait-for(*something-queued*) 
+    end;
+    pop(*queue*)
+    end with-lock
+end method;
+</codeblock>
+    </example>    
   </dylanClassDetail>
 </dylanClass>

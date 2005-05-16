@@ -2,7 +2,7 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-simple-random-LrandomG">
   <apiName>&lt;random&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+  <shortdesc>The class of random number generators.</shortdesc>
 
   <prolog>
     <author></author>
@@ -18,12 +18,17 @@
       <dylanInitKeyword>
 	<apiItemName>seed:</apiItemName>
         <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The default value is computed to be random.</apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The class of pseudo-random number generators (PRNGs), capable
+      of generating a repeatable sequence of pseudo-random numbers.</p>
+
+      <p>The seed value determines where in the sequence of integers
+      random generation will start.  The default value is set based on
+      the current system time.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

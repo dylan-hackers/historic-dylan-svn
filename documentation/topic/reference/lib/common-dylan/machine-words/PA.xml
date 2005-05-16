@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-machine-words-PA">
   <apiName>%+</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Performs signed addition on two
+  <apiname>&lt;machine-word&gt;</apiname> instances.</shortdesc>
 
   <prolog>
     <author></author>
@@ -37,7 +39,7 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Performs signed addition.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>
