@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE task PUBLIC "-//IBM//DTD DITA Task//EN" "../dtd/task.dtd">
+<task id="generating-api-documents" xml:lang="en-us">
+  <title>Automatically Generating Dylan API Document Templates</title>
+
+  <taskbody>
+    <context>
+      <p>Topic-oriented API documentation can be generated automatically
+      from reports produced by the compiler.</p>
+    </context>
+
+    <steps>
+      <step>
+	<cmd>Start the Open Dylan environment command line:</cmd>
+	<choices>
+	  <choice>From the operating system command prompt, run
+	  <cmdname>console-environment</cmdname>,
+	  <cmdname>console-compiler</cmdname>, or
+	  <cmdname>minimal-console-compiler</cmdname>.</choice>
+	  <choice>Or, start the Open Dylan IDE and choose
+	  <menucascade> <uicontrol>Tools</uicontrol>
+	  <uicontrol>Command Line...</uicontrol>
+	  </menucascade>.</choice>
+	</choices>
+      </step>
+
+      <step>
+	<cmd>Open the library to be exported using the
+        <synph><kwd>open</kwd> <var>library-name</var></synph>
+        command.</cmd>
+
+	<stepxmp>For example, <userinput><cmdname>open</cmdname>
+	dood</userinput>.</stepxmp>
+      </step>
+
+      <step>
+	<cmd>Export the interface-reference using the
+	<synph><kwd>export</kwd> <kwd>interface-reference</kwd>
+	<option>-format</option> <kwd>xml</kwd> <option>-file</option>
+	/<var>path</var>/<var>library-name</var>.xml</synph>.</cmd>
+      </step>
+
+      <step>
+	<cmd>From the operating system command prompt, change to the
+	directory containing the working copy for
+	<filepath>documentation/topic/reference/lib</filepath> and
+	execute <synph><kwd>perl</kwd> <kwd>refman.pl</kwd>
+	/<var>path</var>/<var>library-name</var>.xml</synph></cmd>
+
+	<stepresult>This will produce a new template
+	<filepath><varname>library-name</varname>.xml</filepath>
+	library summary file, and
+	<filepath><varname>library-name</varname></filepath> directory
+	containing an XML module summary and a subdirectory for each
+	exported module.  These templates, and the generated API
+	description files for each module binding, can be completed by
+	adding text descriptions.</stepresult>
+      </step>
+    </steps>
+  </taskbody>
+</task>
