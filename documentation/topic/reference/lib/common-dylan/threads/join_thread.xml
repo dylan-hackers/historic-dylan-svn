@@ -21,7 +21,7 @@
       </dylanFunctionParam>
       <dylanFunctionRestParam>
 	<apiItemName>more-threads</apiItemName>
-        <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestParam>
       <dylanFunctionReturn>
@@ -31,7 +31,7 @@
       </dylanFunctionReturn>
       <dylanFunctionRestReturn>
 	<apiItemName>thread-values</apiItemName>
-        <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestReturn>
     </dylanFunctionDef>

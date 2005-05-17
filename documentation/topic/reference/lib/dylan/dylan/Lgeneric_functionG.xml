@@ -47,11 +47,13 @@
         <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
+<!--
       <dylanInitKeyword>
 	<apiItemName>signature:</apiItemName>
         <apiOtherClassifier href="../dylan-extensions/LsignatureG.xml">&lt;signature&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
+-->
       <dylanInitKeyword>
 	<apiItemName>values:</apiItemName>
         <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>

@@ -22,7 +22,7 @@
       </dylanFunctionParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>timeout</apiItemName>
-        <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 
 	<apiDefNote>Time-out interval. If the value is
         <codeph>#f</codeph> (the default), the time-out interval never
@@ -33,7 +33,7 @@
       </dylanFunctionKeywordParam>
       <dylanFunctionReturn>
 	<apiItemName>success?</apiItemName>
-        <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>

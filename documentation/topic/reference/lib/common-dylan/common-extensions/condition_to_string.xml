@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-common-extensions-condition_to_string">
   <apiName>condition-to-string</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns a string representation of a condition object.</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,13 +22,19 @@
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>string</apiItemName>
-        <apiType value="{complex type}"/>
+        <apiType value="false-or(&lt;string&gt;)"/>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns a string representation of a general instance of
+      <apiclassifier
+      href="../../dylan/dylan/LconditionG.xml">&lt;condition&gt;</apiclassifier>
+      . There is a method on <apiclassifier
+      href="Lformat_string_conditionG.xml">&lt;format-string-condition&gt;</apiclassifier>
+      and method on <apiclassifier
+      href="../../dylan/dylan/Ltype_errorG.xml">&lt;type-error&gt;</apiclassifier>.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

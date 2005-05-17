@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-common-extensions-debug_message">
   <apiName>debug-message</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Formats a string and outputs it to the debugger.</shortdesc>
 
   <prolog>
     <author></author>
@@ -16,7 +16,7 @@
     <dylanGenericFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>format-string</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionRestParam>
@@ -24,15 +24,13 @@
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestParam>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Formats a string and outputs it to the debugger. </p>
+
+      <p>The <parmname>format-string</parmname> is a format string as
+      defined in the <cite>Dylan Reference Manual</cite>.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

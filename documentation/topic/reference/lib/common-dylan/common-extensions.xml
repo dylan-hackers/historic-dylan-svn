@@ -55,7 +55,7 @@
     <link href="common-extensions/Lstack_overflow_errorG.xml">
       <linktext><apiname>&lt;stack-overflow-error&gt;</apiname></linktext>
     </link>
-    <link href="common-extensions/LstreamG.xml">
+    <link href="streams-protocol/LstreamG.xml">
       <linktext><apiname>&lt;stream&gt;</apiname></linktext>
     </link>
     <link href="common-extensions/Lstretchy_object_vectorG.xml">
@@ -79,7 +79,7 @@
     <link href="common-extensions/assert.xml">
       <linktext><apiname>assert</apiname></linktext>
     </link>
-    <link href="common-extensions/close.xml">
+    <link href="streams-protocol/close.xml">
       <linktext><apiname>close</apiname></linktext>
     </link>
     <link href="common-extensions/concatenateX.xml">

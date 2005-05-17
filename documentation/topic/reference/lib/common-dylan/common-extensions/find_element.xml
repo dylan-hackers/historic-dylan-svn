@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-common-extensions-find_element">
   <apiName>find-element</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns an element from a collection such that the
+  element satisfies a predicate.</shortdesc>
 
   <prolog>
     <author></author>
@@ -43,7 +45,16 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
-    </apiDesc>
+      <p>Returns a collection element that satisfies
+      <parmname>predicate</parmname>.</p>
+
+      <p>This function is identical to <apioperation
+      href="../../dylan/dylan/find_key.xml">find-key</apioperation>,
+      but it returns the element that satisfies
+      <parmname>predicate</parmname> rather than the key that
+      corresponds to the element. </p>
+
+      <p>COMMENT: Add descr. of skip, failure, and so on if there is
+      time.</p> </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

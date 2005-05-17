@@ -17,7 +17,6 @@
       <dylanOpenClass/>
       <dylanPrimaryClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="../threads-primitives/Lportable_containerG.xml">&lt;portable-container&gt;</dylanSuperClass>
       <dylanSuperClass href="Lexclusive_lockG.xml">&lt;exclusive-lock&gt;</dylanSuperClass>
     </dylanClassDef>
 

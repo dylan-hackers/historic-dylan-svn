@@ -2,7 +2,7 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-threads-current_thread">
   <apiName>current-thread</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns the current thread.</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,7 +22,7 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the current thread.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

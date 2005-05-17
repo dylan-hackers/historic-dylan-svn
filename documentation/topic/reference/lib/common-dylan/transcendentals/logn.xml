@@ -16,17 +16,17 @@
     <dylanFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>x</apiItemName>
-        <apiOperationClassifier href="LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>
 	<apiItemName>base</apiItemName>
-        <apiOperationClassifier href="LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>result</apiItemName>
-        <apiOperationClassifier href="LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanFunctionDef>

@@ -19,7 +19,6 @@
       <dylanAbstractClass value="abstract-uninstantiable"/>
       <dylanSuperClass href="Lmutable_explicit_key_collectionG.xml">&lt;mutable-explicit-key-collection&gt;</dylanSuperClass>
       <dylanSuperClass href="Lstretchy_collectionG.xml">&lt;stretchy-collection&gt;</dylanSuperClass>
-      <dylanSuperClass href="../dylan-extensions/Llimited_collectionG.xml">&lt;limited-collection&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>grow-size-function:</apiItemName>
         <apiOtherClassifier href="LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>

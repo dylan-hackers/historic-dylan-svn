@@ -16,7 +16,7 @@
     <dylanClassDef>
       <dylanOpenClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="../functional-objects-extras/Llocator_defaultsG.xml">&lt;locator-defaults&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

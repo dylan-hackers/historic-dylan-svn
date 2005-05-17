@@ -16,7 +16,7 @@
     <dylanFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>newval</apiItemName>
-        <apiOperationClassifier href="../dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
     </dylanFunctionDef>

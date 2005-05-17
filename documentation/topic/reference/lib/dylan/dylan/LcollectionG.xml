@@ -16,7 +16,7 @@
     <dylanClassDef>
       <dylanOpenClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="../dylan-extensions/Lobject_with_elementsG.xml">&lt;object-with-elements&gt;</dylanSuperClass>
+      <dylanSuperClass href="LobjectG.xml">&lt;object&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

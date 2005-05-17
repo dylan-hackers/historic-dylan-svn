@@ -16,7 +16,7 @@
     <dylanClassDef>
       <dylanOpenClass/>
       <dylanSuperClass href="LerrorG.xml">&lt;error&gt;</dylanSuperClass>
-      <dylanSuperClass href="../dylan-extensions/Lformat_string_conditionG.xml">&lt;format-string-condition&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../common-dylan/common-extensions/Lformat_string_conditionG.xml">&lt;format-string-condition&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>type:</apiItemName>
         <apiOtherClassifier href="LtypeG.xml">&lt;type&gt;</apiOtherClassifier>

@@ -18,10 +18,10 @@
     <dylanClassDef>
       <dylanOpenClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="../dylan/LobjectG.xml">&lt;object&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>name:</apiItemName>
-        <apiOtherClassifier href="../threads-primitives/Loptional_nameG.xml">&lt;optional-name&gt;</apiOtherClassifier>
+        <apiType value="false-or(&lt;string&gt;)"/>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

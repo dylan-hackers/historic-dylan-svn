@@ -17,7 +17,7 @@
       <dylanGenericFunctionSealing value='open'/>
       <dylanFunctionParam>
 	<apiItemName>state</apiItemName>
-        <apiOperationClassifier href="Lprofiling_stateG.xml">&lt;profiling-state&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../simple-profiling/Lprofiling_stateG.xml">&lt;profiling-state&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>

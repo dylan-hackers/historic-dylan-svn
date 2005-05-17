@@ -31,11 +31,13 @@
         <apiOtherClassifier href="LsequenceG.xml">&lt;sequence&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
+<!--
       <dylanInitKeyword>
 	<apiItemName>module:</apiItemName>
         <apiOtherClassifier href="../dylan-extensions/LmoduleG.xml">&lt;module&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
+-->
       <dylanInitKeyword>
 	<apiItemName>slots:</apiItemName>
         <apiOtherClassifier href="LsequenceG.xml">&lt;sequence&gt;</apiOtherClassifier>

@@ -15,7 +15,7 @@
   <dylanClassDetail>
     <dylanClassDef>
       <dylanPrimaryClass/>
-      <dylanSuperClass href="../dylan-extensions/Llimited_typeG.xml">&lt;limited-type&gt;</dylanSuperClass>
+      <dylanSuperClass href="LtypeG.xml">&lt;type&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>object:</apiItemName>
         <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>

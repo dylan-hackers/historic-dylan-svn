@@ -19,7 +19,7 @@
       <dylanSuperClass href="LvectorG.xml">&lt;vector&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>fill:</apiItemName>
-        <apiOtherClassifier href="../dylan-extensions/Lbyte_characterG.xml">&lt;byte-character&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../common-dylan/common-extensions/Lbyte_characterG.xml">&lt;byte-character&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

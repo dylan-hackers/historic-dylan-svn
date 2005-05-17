@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-common-extensions-difference">
   <apiName>difference</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns a sequence containing the elements of one
+  sequence that are not members of a second.</shortdesc>
 
   <prolog>
     <author></author>
@@ -28,7 +30,7 @@
       <dylanFunctionKeywordParam>
 	<apiItemName>test</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>Defaults to <apioperation href="../../dylan/dylan/EE.xml">\==</apioperation>.</apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionReturn>
 	<apiItemName>result-sequence</apiItemName>
@@ -38,7 +40,10 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns a sequence containing the elements of
+      <parmname>sequence-1</parmname> that are not members of
+      <parmname>sequence-2</parmname>. You can supply a membership
+      test function as <parmname>test</parmname>.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

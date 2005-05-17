@@ -14,10 +14,10 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="../dylan/Lserious_conditionG.xml">&lt;serious-condition&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../dylan/dylan/Lserious_conditionG.xml">&lt;serious-condition&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>synchronization:</apiItemName>
-        <apiOtherClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

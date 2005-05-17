@@ -17,17 +17,17 @@
       <dylanGenericFunctionSealing value='open'/>
       <dylanFunctionParam>
 	<apiItemName>y</apiItemName>
-        <apiOperationClassifier href="LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>
 	<apiItemName>x</apiItemName>
-        <apiOperationClassifier href="LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>result</apiItemName>
-        <apiOperationClassifier href="LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>

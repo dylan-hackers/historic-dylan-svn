@@ -14,7 +14,7 @@
 
   <dylanConstantDetail>
     <dylanConstantDef>
-      <apiValueClassifier href="Ldouble_floatG.xml">&lt;double-float&gt;</apiValueClassifier>
+      <apiValueClassifier href="../../dylan/dylan/Ldouble_floatG.xml">&lt;double-float&gt;</apiValueClassifier>
     </dylanConstantDef>
 
     <apiDesc>

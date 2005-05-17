@@ -15,12 +15,13 @@
   <dylanClassDetail>
     <dylanClassDef>
       <dylanSuperClass href="LfloatG.xml">&lt;float&gt;</dylanSuperClass>
-      <dylanSuperClass href="../internal/Lvalue_objectG.xml">&lt;value-object&gt;</dylanSuperClass>
+<!--
       <dylanInitKeyword>
 	<apiItemName>data:</apiItemName>
         <apiOtherClassifier href="{unknown object}.xml">{unknown object}</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
+-->
     </dylanClassDef>
 
     <apiDesc>

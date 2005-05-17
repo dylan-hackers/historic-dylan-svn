@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-finalization-finalize">
   <apiName>finalize</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Finalizes an object.</shortdesc>
 
   <prolog>
     <author></author>
@@ -17,13 +17,43 @@
       <dylanGenericFunctionSealing value='open'/>
       <dylanFunctionParam>
 	<apiItemName>object</apiItemName>
-        <apiOperationClassifier href="../dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Finalizes <parmname>object</parmname>.</p>
+
+      <p>You can define methods on <apiname>finalize</apiname> to
+      perform class-specific finalization procedures. These methods
+      are called <term>finalizers</term>.</p>
+
+      <p>A default <codeph>finalize</codeph> method on
+      <codeph>&lt;object&gt;</codeph> is provided.</p>
+
+      <p>The main interface to finalization is the function
+      <apioperation
+      href="drain_finalization_queue.xml">drain-finalization-queue</apioperation>,
+      which calls <apiname>finalize</apiname> on each object
+      awaiting finalization. Objects join the finalization queue if
+      they become unreachable after being registered for finalization
+      with <apioperation>finalize-when-unreachable</apioperation> .
+      However, you can call <apiname>finalize</apiname> directly if you
+      wish.</p>
+
+      <p>Once finalized, <parmname>object</parmname> is available for
+      reclamation by the garbage collector, unless finalization made
+      it reachable again.  (This is called <term>resurrection</term>.)
+      Because the object has been taken off the garbage collector’s
+      finalization register, it will not be added to the finalization
+      queue again, unless it is resurrected. However, it might still
+      appear in the queue if it was registered more than once.</p>
+
+      <note>Do not write singleton methods on
+      <apiname>finalize</apiname>. A singleton method would itself
+      reference the object, and hence prevent it from becoming
+      unreachable.</note>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

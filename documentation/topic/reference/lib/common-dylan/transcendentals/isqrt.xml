@@ -16,12 +16,12 @@
     <dylanFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>x</apiItemName>
-        <apiOperationClassifier href="LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>result</apiItemName>
-        <apiOperationClassifier href="LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanFunctionDef>

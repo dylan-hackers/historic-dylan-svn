@@ -19,13 +19,13 @@
   </dylanLibraryDetail>
 
   <related-links>
-    <link href="../common-dylan/byte-vector.xml">
+    <link href="common-dylan/byte-vector.xml">
       <linktext><apiname>byte-vector</apiname></linktext>
     </link>
-    <link href="../dylan/dylan.xml">
+    <link href="dylan/dylan.xml">
       <linktext><apiname>dylan</apiname></linktext>
     </link>
-    <link href="../common-dylan/finalization.xml">
+    <link href="common-dylan/finalization.xml">
       <linktext><apiname>finalization</apiname></linktext>
     </link>
     <link href="functional-dylan/functional-extensions.xml">
@@ -34,10 +34,10 @@
     <link href="functional-dylan/functional-locators-protocol.xml">
       <linktext><apiname>functional-locators-protocol</apiname></linktext>
     </link>
-    <link href="../common-dylan/locators-protocol.xml">
+    <link href="common-dylan/locators-protocol.xml">
       <linktext><apiname>locators-protocol</apiname></linktext>
     </link>
-    <link href="../common-dylan/machine-words.xml">
+    <link href="common-dylan/machine-words.xml">
       <linktext><apiname>machine-words</apiname></linktext>
     </link>
     <link href="functional-dylan/simple-debugging.xml">
@@ -46,19 +46,19 @@
     <link href="functional-dylan/simple-format.xml">
       <linktext><apiname>simple-format</apiname></linktext>
     </link>
-    <link href="../common-dylan/simple-profiling.xml">
+    <link href="common-dylan/simple-profiling.xml">
       <linktext><apiname>simple-profiling</apiname></linktext>
     </link>
-    <link href="../common-dylan/simple-random.xml">
+    <link href="common-dylan/simple-random.xml">
       <linktext><apiname>simple-random</apiname></linktext>
     </link>
-    <link href="../common-dylan/streams-protocol.xml">
+    <link href="common-dylan/streams-protocol.xml">
       <linktext><apiname>streams-protocol</apiname></linktext>
     </link>
-    <link href="../common-dylan/threads.xml">
+    <link href="common-dylan/threads.xml">
       <linktext><apiname>threads</apiname></linktext>
     </link>
-    <link href="../common-dylan/transcendentals.xml">
+    <link href="common-dylan/transcendentals.xml">
       <linktext><apiname>transcendentals</apiname></linktext>
     </link>
   </related-links>

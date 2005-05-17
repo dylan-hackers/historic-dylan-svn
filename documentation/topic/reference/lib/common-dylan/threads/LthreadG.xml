@@ -17,7 +17,7 @@
       <dylanSuperClass href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>function:</apiItemName>
-        <apiOtherClassifier href="../dylan/LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
 	<apiDefNote>Required</apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
@@ -27,7 +27,7 @@
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>priority:</apiItemName>
-        <apiOtherClassifier href="../dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

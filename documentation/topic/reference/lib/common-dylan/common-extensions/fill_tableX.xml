@@ -2,7 +2,7 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-fill_tableX">
   <apiName>fill-table!</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Fills a table with the keys and elements supplied.</shortdesc>
 
   <prolog>
     <author></author>
@@ -32,7 +32,26 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Modifies <parmname>table</parmname> so that it contains the
+      keys and elements supplied in the
+      <parmname>keys-and-elements</parmname> sequence.</p>
+
+      <p>This function interprets
+      <parmname>keys-and-elements</parmname> as key-element pairs,
+      that is, it treats the first element as a table key, the second
+      as the table element corresponding to that key, and so on. The
+      keys and elements should be suitable for <parmname>table</parmname> .</p>
+
+      <p>Because <parmname>keys-and-elements</parmname> is treated as
+      a sequence of paired key-element values, it should contain an
+      even number of elements; if it contains an odd number of
+      elements, <apiname>fill-table!</apiname> ignores the last element (which
+      would have been treated as a key). </p>
+
+      <p>COMMENT: AndrewS 1997-05-14: This seems to be a relative of
+      fill!, p337.</p>
+
+      <p>COMMENT: Maybe say something about overwriting existing entries?</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

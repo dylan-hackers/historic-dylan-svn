@@ -14,52 +14,56 @@
 
   <dylanLibraryDetail>
     <apiDesc>
-      <p></p>
     </apiDesc>
   </dylanLibraryDetail>
 
   <related-links>
-    <link href="common-dylan/byte-vector.xml">
-      <linktext><apiname>byte-vector</apiname></linktext>
-    </link>
-    <link href="common-dylan/common-extensions.xml">
-      <linktext><apiname>common-extensions</apiname></linktext>
-    </link>
-    <link href="../dylan/dylan.xml">
-      <linktext><apiname>dylan</apiname></linktext>
-    </link>
-    <link href="common-dylan/finalization.xml">
-      <linktext><apiname>finalization</apiname></linktext>
-    </link>
-    <link href="common-dylan/functional-objects-extras.xml">
-      <linktext><apiname>functional-objects-extras</apiname></linktext>
-    </link>
-    <link href="common-dylan/locators-protocol.xml">
-      <linktext><apiname>locators-protocol</apiname></linktext>
-    </link>
-    <link href="common-dylan/machine-words.xml">
-      <linktext><apiname>machine-words</apiname></linktext>
-    </link>
-    <link href="common-dylan/simple-io.xml">
-      <linktext><apiname>simple-io</apiname></linktext>
-    </link>
-    <link href="common-dylan/simple-profiling.xml">
-      <linktext><apiname>simple-profiling</apiname></linktext>
-    </link>
-    <link href="common-dylan/simple-random.xml">
-      <linktext><apiname>simple-random</apiname></linktext>
-    </link>
-    <link href="common-dylan/streams-protocol.xml">
-      <linktext><apiname>streams-protocol</apiname></linktext>
-    </link>
-    <link href="common-dylan/threads.xml">
-      <linktext><apiname>threads</apiname></linktext>
-    </link>
-    <link href="common-dylan/threads-extensions.xml">
-      <linktext><apiname>threads-extensions</apiname></linktext>
-    </link>
-    <link href="common-dylan/transcendentals.xml">
-      <linktext><apiname>transcendentals</apiname></linktext>
-    </link>
+    <linklist>
+      <title>Exported Modules</title>
+
+      <link href="common-dylan/byte-vector.xml">
+	<linktext><apiname>byte-vector</apiname></linktext>
+      </link>
+      <link href="common-dylan/common-dylan.xml">
+	<linktext><apiname>common-dylan</apiname></linktext>
+      </link>
+      <link href="common-dylan/common-extensions.xml">
+	<linktext><apiname>common-extensions</apiname></linktext>
+      </link>
+      <link href="dylan/dylan.xml">
+	<linktext><apiname>dylan</apiname> (re-exported from the
+	<apiname>dylan</apiname> library)</linktext>
+      </link>
+      <link href="common-dylan/finalization.xml">
+	<linktext><apiname>finalization</apiname></linktext>
+      </link>
+      <link href="common-dylan/locators-protocol.xml">
+	<linktext><apiname>locators-protocol</apiname></linktext>
+      </link>
+      <link href="common-dylan/machine-words.xml">
+	<linktext><apiname>machine-words</apiname></linktext>
+      </link>
+      <link href="common-dylan/simple-io.xml">
+	<linktext><apiname>simple-io</apiname></linktext>
+      </link>
+      <link href="common-dylan/simple-profiling.xml">
+	<linktext><apiname>simple-profiling</apiname></linktext>
+      </link>
+      <link href="common-dylan/simple-random.xml">
+	<linktext><apiname>simple-random</apiname></linktext>
+      </link>
+      <link href="common-dylan/streams-protocol.xml">
+	<linktext><apiname>streams-protocol</apiname></linktext>
+      </link>
+      <link href="common-dylan/threads.xml">
+	<linktext><apiname>threads</apiname></linktext>
+      </link>
+      <link href="common-dylan/threads-extensions.xml">
+	<linktext><apiname>threads-extensions</apiname></linktext>
+      </link>
+      <link href="common-dylan/transcendentals.xml">
+	<linktext><apiname>transcendentals</apiname></linktext>
+      </link>
+    </linklist>
   </related-links>
 </dylanLibrary>

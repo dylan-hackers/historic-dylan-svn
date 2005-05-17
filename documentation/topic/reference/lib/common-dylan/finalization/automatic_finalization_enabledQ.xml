@@ -18,7 +18,7 @@
     <dylanFunctionDef>
       <dylanFunctionReturn>
 	<apiItemName>enabled?</apiItemName>
-        <apiOperationClassifier href="../dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
       </dylanFunctionReturn>
     </dylanFunctionDef>
 

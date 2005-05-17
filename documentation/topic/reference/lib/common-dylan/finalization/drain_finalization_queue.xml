@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-finalization-drain_finalization_queue">
   <apiName>drain-finalization-queue</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Calls <codeph>finalize</codeph> on every object in the
+  finalization queue.</shortdesc>
 
   <prolog>
     <author></author>
@@ -17,7 +19,24 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Calls <apioperation
+      href="finalize.xml">finalize</apioperation> on each object that
+      is awaiting finalization. </p>
+
+      <p>Each call to <apioperation
+      href="finalize.xml">finalize</apioperation> is made inside
+      whatever dynamic handler environment is present when
+      <apiname>drain-finalization-queue</apiname> is called. If the
+      call to <apiname>drain-finalization-queue</apiname> is aborted
+      via a non-local exit during a call to <apioperation
+      href="finalize.xml">finalize</apioperation>, the finalization
+      queue retains all the objects that had been added to it but
+      which had not been passed to <apioperation
+      href="finalize.xml">finalize</apioperation>.</p>
+
+      <p>The order in which objects in the finalization queue will be
+      finalized is not defined. Applications should not make any
+      assumptions about finalization ordering.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

@@ -14,8 +14,7 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="../dylan-extensions/Labstract_integerG.xml">&lt;abstract-integer&gt;</dylanSuperClass>
-      <dylanSuperClass href="../internal/Lmachine_numberG.xml">&lt;machine-number&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../common-dylan/common-extensions/Labstract_integerG.xml">&lt;abstract-integer&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

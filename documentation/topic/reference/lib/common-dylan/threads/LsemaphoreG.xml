@@ -20,13 +20,13 @@
       <dylanSuperClass href="LlockG.xml">&lt;lock&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>initial-count:</apiItemName>
-        <apiOtherClassifier href="../dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
 	<apiDefNote>A non-negative integer, corresponding to the initial state
         of the internal counter. The default value is 0.</apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>maximum-count:</apiItemName>
-        <apiOtherClassifier href="../dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
 
 	<apiDefNote>A non-negative integer corresponding to the
         maximum permitted value of the internal counter. The default

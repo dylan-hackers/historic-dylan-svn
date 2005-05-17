@@ -15,7 +15,7 @@
   <dylanClassDetail>
     <dylanClassDef>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="../internal/Lmachine_numberG.xml">&lt;machine-number&gt;</dylanSuperClass>
+      <dylanSuperClass href="LrealG.xml">&lt;real&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

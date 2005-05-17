@@ -16,7 +16,7 @@
     <dylanClassDef>
       <dylanOpenClass/>
       <dylanSuperClass href="LrestartG.xml">&lt;restart&gt;</dylanSuperClass>
-      <dylanSuperClass href="../dylan-extensions/Lsimple_conditionG.xml">&lt;simple-condition&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../common-dylan/common-extensions/Lsimple_conditionG.xml">&lt;simple-condition&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

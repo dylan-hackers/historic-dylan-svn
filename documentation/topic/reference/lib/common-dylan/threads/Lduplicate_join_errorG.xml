@@ -14,11 +14,18 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="../threads-internal/Lthread_errorG.xml">&lt;thread-error&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../dylan/dylan/LerrorG.xml">&lt;error&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>A condition of this class may be signalled when a thread is
+      passed to <apioperation
+      href="join_thread.xml">join-thread</apioperation> and that
+      thread has already been joined by an earlier call to
+      <apioperation href="join_thread.xml">join-thread</apioperation>,
+      or if that thread is currently active in another call to
+      <apioperation
+      href="join_thread.xml">join-thread</apioperation>.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

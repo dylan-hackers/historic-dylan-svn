@@ -14,7 +14,7 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="Llimited_stretchy_vectorG.xml">&lt;limited-stretchy-vector&gt;</dylanSuperClass>
+      <dylanSuperClass href="Lstretchy_vectorG.xml">&lt;stretchy-vector&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>capacity:</apiItemName>
         <apiOtherClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>

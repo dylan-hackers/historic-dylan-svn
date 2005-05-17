@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-false_or">
   <apiName>false-or</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns a union type comprised of
+  <codeph>singleton(#f)</codeph> and one or more types.</shortdesc>
 
   <prolog>
     <author></author>
@@ -16,7 +18,7 @@
     <dylanFunctionDef>
       <dylanFunctionRestParam>
 	<apiItemName>types</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LtypeG.xml">&lt;type&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestParam>
       <dylanFunctionReturn>
@@ -27,7 +29,21 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns a union type comprised of
+      <codeph>singleton(#f)</codeph> and each of the supplied
+      <parmname>types</parmname>. This function is useful for
+      specifying slot types and function return values.</p>
+
+      <p>The expression</p>
+
+<codeblock>
+false-or(<varname>t</varname><sub>1</sub> , <varname>t</varname><sub>2</sub>, ..)
+</codeblock>
+
+      <p>is type-equivalent to</p>
+
+<codeblock>
+type-union(singleton(#f), <varname>t</varname><sub>1</sub>, <varname>t</varname><sub>2</sub> , ...)</codeblock>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

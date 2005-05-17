@@ -36,7 +36,7 @@
       </dylanFunctionKeywordParam>
       <dylanFunctionReturn>
 	<apiItemName>n</apiItemName>
-        <apiOperationClassifier href="Lmachine_wordG.xml">&lt;machine-word&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../machine-words/Lmachine_wordG.xml">&lt;machine-word&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
       <dylanFunctionReturn>

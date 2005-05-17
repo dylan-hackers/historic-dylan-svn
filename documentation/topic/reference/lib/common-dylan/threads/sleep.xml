@@ -16,7 +16,7 @@
     <dylanFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>secs</apiItemName>
-        <apiOperationClassifier href="../dylan/LrealG.xml">&lt;real&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LrealG.xml">&lt;real&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
     </dylanFunctionDef>

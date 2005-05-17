@@ -32,7 +32,42 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>A handler utility function defined on objects of class
+      <apiclassifier
+      href="../../dylan/dylan/Lserious_conditionG.xml">&lt;serious-condition&gt;</apiclassifier>
+      that can be by bound dynamically around a computation via
+      <codeph>let handler</codeph> or installed globally via
+      <apioperation
+      href="last_handler_definer.xml">last-handler-definer</apioperation>.</p>
+
+      <p>The default method formats and outputs the Dylan condition
+      <parmname>condition</parmname> using <apioperation
+      href="../../common-dylan/simple-io/format_out.xml">format-out</apioperation>
+      from the <apipackage
+      href="../../common-dylan.xml">common-dylan</apipackage> library,
+      and passes control on to the next handler.</p>
+
+      <p>This function is automatically installed as the last handler
+      for <apiclassifier
+      href="../../dylan/dylan/Lserious_conditionG.xml">&lt;serious-condition&gt;</apiclassifier>
+      if your library directly or indirectly uses the <apipackage
+      href="../../common-dylan.xml">common-dylan</apipackage>
+      library.</p>
     </apiDesc>
+
+    <example>
+      <p>The following form defines a dynamic handler around some body:</p>
+
+<codeblock>
+let handler &lt;serious-condition&gt; = default-last-handler;
+</codeblock>
+
+      <p>while the following form installs a globally visible last-handler:</p>
+
+<codeblock>
+define last-handler &lt;serious-condition&gt;
+  = default-last-handler;
+</codeblock>
+    </example>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

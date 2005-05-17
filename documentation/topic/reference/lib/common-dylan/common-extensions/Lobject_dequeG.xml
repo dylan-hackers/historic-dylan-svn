@@ -15,7 +15,6 @@
   <dylanClassDetail>
     <dylanClassDef>
       <dylanSuperClass href="../../dylan/dylan/LdequeG.xml">&lt;deque&gt;</dylanSuperClass>
-      <dylanSuperClass href="Llimited_collectionG.xml">&lt;limited-collection&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>fill:</apiItemName>
         <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
