@@ -14,7 +14,7 @@
 	Error logging out user!
       </dsp:then>
       <dsp:else>
-        User logged out!
+        User logged out! <a href="<dsp:show-referer/>">back</a>
       </dsp:else>
     </dsp:if>
   </div>
