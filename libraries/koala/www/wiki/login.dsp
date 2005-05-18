@@ -21,7 +21,9 @@
             Username: <input type="text" name="username" size="20"/> <br/>
             Password: <input type="password" name="password" size="20"/> <br/>
             <input type="hidden" name="referer" value="<dsp:show-referer/>">
-            <input type="submit" value="login"/>
+            <input type="submit" name="login" value="login"/> <br/><br/>
+            eMail-Address: <input type="text" name="email" size="60" /> (only required for creating new user)<br/>
+            <input type="submit" name="adduser" value="create user"/>
           </div>
         </form>
       </dsp:else>
