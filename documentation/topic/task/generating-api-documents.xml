@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE task PUBLIC "-//IBM//DTD DITA Task//EN" "../dtd/task.dtd">
-<task id="generating-api-documents" xml:lang="en-us">
+<task id="task-generating-api-documents" xml:lang="en-us">
   <title>Automatically Generating Dylan API Document Templates</title>
 
   <taskbody>
@@ -17,6 +17,7 @@
 	  <cmdname>console-environment</cmdname>,
 	  <cmdname>console-compiler</cmdname>, or
 	  <cmdname>minimal-console-compiler</cmdname>.</choice>
+
 	  <choice>Or, start the Open Dylan IDE and choose
 	  <menucascade> <uicontrol>Tools</uicontrol>
 	  <uicontrol>Command Line...</uicontrol>
@@ -37,7 +38,8 @@
 	<cmd>Export the interface-reference using the
 	<synph><kwd>export</kwd> <kwd>interface-reference</kwd>
 	<option>-format</option> <kwd>xml</kwd> <option>-file</option>
-	/<var>path</var>/<var>library-name</var>.xml</synph>.</cmd>
+	/<var>path</var>/<var>library-name</var>.xml</synph>
+	command.</cmd>
       </step>
 
       <step>
@@ -45,17 +47,30 @@
 	directory containing the working copy for
 	<filepath>documentation/topic/reference/lib</filepath> and
 	execute <synph><kwd>perl</kwd> <kwd>refman.pl</kwd>
-	/<var>path</var>/<var>library-name</var>.xml</synph></cmd>
-
-	<stepresult>This will produce a new template
-	<filepath><varname>library-name</varname>.xml</filepath>
-	library summary file, and
-	<filepath><varname>library-name</varname></filepath> directory
-	containing an XML module summary and a subdirectory for each
-	exported module.  These templates, and the generated API
-	description files for each module binding, can be completed by
-	adding text descriptions.</stepresult>
+	/<var>path</var>/<var>library-name</var>.xml</synph>.</cmd>
       </step>
     </steps>
+
+    <result>
+      <p>This will produce:</p>
+
+      <ol>
+	<li>A library description template
+	<filepath><varname>library-name</varname>.xml</filepath></li>
+
+	<li>A <filepath><varname>library-name</varname></filepath>
+	directory</li>
+
+	<li>A
+	<filepath><varname>library-name</varname>/<varname>module-name</varname>.xml</filepath>
+	module description template for each exported module</li>
+
+	<li>A <filepath><varname>library-name</varname>/<varname>module-name</varname></filepath> directory for each exported module</li>
+
+	<li>A template file for each exported binding, with the
+	filename determined using a name mangling scheme based on the
+	one used internally by DFMC.</li>
+      </ol>
+    </result>
   </taskbody>
 </task>
