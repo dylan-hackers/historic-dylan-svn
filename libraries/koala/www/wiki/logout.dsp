@@ -15,7 +15,7 @@
       </dsp:then>
       <dsp:else>
         User logged out!
-      </dsp:else>        
+      </dsp:else>
     </dsp:if>
   </div>
   <%dsp:include url="footer.dsp"/>
