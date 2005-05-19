@@ -17,7 +17,7 @@
       <dylanSuperClass href="LresultG.xml">&lt;result&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>subresults:</apiItemName>
-        <apiOtherClassifier href="LsequenceG.xml">&lt;sequence&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LsequenceG.xml">&lt;sequence&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

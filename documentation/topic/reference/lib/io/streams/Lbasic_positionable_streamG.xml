@@ -17,7 +17,7 @@
       <dylanOpenClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
       <dylanSuperClass href="Lbasic_streamG.xml">&lt;basic-stream&gt;</dylanSuperClass>
-      <dylanSuperClass href="Lpositionable_streamG.xml">&lt;positionable-stream&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../common-dylan/streams-protocol/Lpositionable_streamG.xml">&lt;positionable-stream&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

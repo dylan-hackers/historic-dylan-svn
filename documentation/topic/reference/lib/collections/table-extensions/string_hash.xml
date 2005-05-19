@@ -2,7 +2,7 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-collections-table-extensions-string_hash">
   <apiName>string-hash</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns a hash value for a string.</shortdesc>
 
   <prolog>
     <author></author>
@@ -15,7 +15,7 @@
   <dylanFunctionDetail>
     <dylanFunctionDef>
       <dylanFunctionParam>
-	<apiItemName>collection</apiItemName>
+	<apiItemName>string</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
@@ -37,7 +37,10 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Produces a hash code for the given
+      <parmname>string</parmname>, corresponding to the equivalence
+      predicate <apioperation
+      href="../../dylan/dylan/E.xml">\=</apioperation>.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

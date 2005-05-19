@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-threads-sleep">
   <apiName>sleep</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Blocks the current thread for a specified number of
+  seconds</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,7 +24,8 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Blocks the current thread for the number of seconds specified
+      in <parmname>interval</parmname> .</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

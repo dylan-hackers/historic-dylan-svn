@@ -2,7 +2,7 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-integer_to_string">
   <apiName>integer-to-string</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns a string representation of an integer.</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,17 +22,17 @@
       <dylanFunctionKeywordParam>
 	<apiItemName>base</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The default value is <codeph>10</codeph>.</apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>size</apiItemName>
-        <apiType value="{complex type}"/>
-	<apiDefNote></apiDefNote>
+        <apiType value="false-or(&lt;integer&gt;)"/>
+	<apiDefNote>The default value is <codeph>#f</codeph>.</apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>fill</apiItemName>
-        <apiOperationClassifier href="Lbyte_characterG.xml">&lt;byte-character&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+        <apiOperationClassifier href="../../dylan/dylan/LcharacterG.xml">&lt;byte-character&gt;</apiOperationClassifier>
+	<apiDefNote>The default value is <codeph>'0'</codeph>.</apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionReturn>
 	<apiItemName>string</apiItemName>
@@ -42,7 +42,14 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns a string representation of
+      <parmname>integer</parmname> in the given <i>base</i> , which
+      must be between 2 and 36. The size of the string is
+      right-aligned to <parmname>size</parmname> if
+      <parmname>size</parmname> is not <codeph>#f</codeph>, and it is
+      filled with the <parmname>fill</parmname> character. If the
+      string is already larger than <parmname>size</parmname> then it
+      is not truncated.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

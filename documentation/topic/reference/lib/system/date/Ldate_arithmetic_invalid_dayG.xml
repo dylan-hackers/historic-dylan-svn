@@ -17,7 +17,7 @@
       <dylanSuperClass href="Ldate_arithmetic_errorG.xml">&lt;date-arithmetic-error&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>day:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

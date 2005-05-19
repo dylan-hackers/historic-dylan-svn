@@ -17,7 +17,7 @@
       <dylanGenericFunctionSealing value='open'/>
       <dylanFunctionParam>
 	<apiItemName>class</apiItemName>
-        <apiOperationClassifier href="LclassG.xml">&lt;class&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LclassG.xml">&lt;class&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionReturn>

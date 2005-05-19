@@ -17,7 +17,7 @@
       <dylanSuperClass href="Lxml_nodeG.xml">&lt;xml-node&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>attributes:</apiItemName>
-        <apiOtherClassifier href="../../dylan/dylan-extensions/Lstring_tableG.xml">&lt;string-table&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../common-dylan/common-extensions/Lstring_tableG.xml">&lt;string-table&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>

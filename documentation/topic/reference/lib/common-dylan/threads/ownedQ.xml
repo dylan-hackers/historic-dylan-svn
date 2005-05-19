@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-threads-ownedQ">
   <apiName>owned?</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns true if an exclusive lock has been claimed by the
+  current thread.</shortdesc>
 
   <prolog>
     <author></author>
@@ -28,7 +30,8 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Tests whether the exclusive lock has been claimed by the current
+      thread.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

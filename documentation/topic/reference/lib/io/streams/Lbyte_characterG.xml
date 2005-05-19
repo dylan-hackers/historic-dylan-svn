@@ -14,7 +14,7 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="LcharacterG.xml">&lt;character&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../dylan/dylan/LcharacterG.xml">&lt;character&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

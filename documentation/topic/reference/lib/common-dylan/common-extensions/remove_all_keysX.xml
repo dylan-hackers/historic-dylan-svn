@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-common-extensions-remove_all_keysX">
   <apiName>remove-all-keys!</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Removes all keys from a collection and leaves it empty.</shortdesc>
 
   <prolog>
     <author></author>
@@ -28,7 +28,14 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Modifies <parmname>collection</parmname> by removing all its
+      keys and elements, and leaves it empty. </p>
+
+      <note>To empty collections that are not instances of
+      <apiclassifier
+      href="../../dylan/dylan/Lmutable_explicit_key_collectionG.xml">&lt;mutable-explicit-key-collection&gt;</apiclassifier>,
+      use <apioperation
+      href="../../dylan/dylan/size_setter.xml">size-setter</apioperation>.</note>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

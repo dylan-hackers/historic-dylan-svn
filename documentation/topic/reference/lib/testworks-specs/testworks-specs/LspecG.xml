@@ -15,10 +15,10 @@
   <dylanClassDetail>
     <dylanClassDef>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="LobjectG.xml">&lt;object&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>name:</apiItemName>
-        <apiOtherClassifier href="LsymbolG.xml">&lt;symbol&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LsymbolG.xml">&lt;symbol&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

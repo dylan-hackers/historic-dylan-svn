@@ -2,7 +2,8 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-simple-random-random">
   <apiName>random</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns a pseudorandomly generated number greater than or equal
+  to zero and less than a specified value.</shortdesc>
 
   <prolog>
     <author></author>
@@ -16,18 +17,27 @@
     <dylanGenericFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>range</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+      <dylanFunctionKeywordParam>
+	<apiItemName>random</apiItemName>
+	<apiOperationClassifier href="LrandomG.xml">&lt;random&gt;</apiOperationClassifier>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionReturn>
+	<apiItemName>random-integer</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+      </dylanFunctionReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns a pseudo-randomly generated number greater than or
+      equal to zero and less than <parmname>range</parmname>.</p>
+
+      <p>The <parmname>random</parmname> object contains the state of
+      the sequence, and can be used to continue a particular
+      sequence.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

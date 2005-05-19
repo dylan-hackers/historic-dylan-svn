@@ -21,7 +21,7 @@
       </dylanFunctionParam>
       <dylanFunctionParam>
 	<apiItemName>hash-state</apiItemName>
-        <apiOperationClassifier href="../dylan-extensions/Lhash_stateG.xml">&lt;hash-state&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../collections/table-extensions/Lhash_stateG.xml">&lt;hash-state&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionReturn>
@@ -31,7 +31,7 @@
       </dylanFunctionReturn>
       <dylanFunctionReturn>
 	<apiItemName>hash-state</apiItemName>
-        <apiOperationClassifier href="../dylan-extensions/Lhash_stateG.xml">&lt;hash-state&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../collections/table-extensions/Lhash_stateG.xml">&lt;hash-state&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>

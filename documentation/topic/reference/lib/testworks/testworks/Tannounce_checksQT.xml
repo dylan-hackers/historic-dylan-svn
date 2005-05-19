@@ -14,7 +14,7 @@
 
   <dylanVariableDetail>
     <dylanVariableDef>
-      <apiValueClassifier href="LbooleanG.xml">&lt;boolean&gt;</apiValueClassifier>
+      <apiValueClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiValueClassifier>
     </dylanVariableDef>
 
     <apiDesc>

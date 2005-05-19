@@ -17,22 +17,22 @@
       <dylanGenericFunctionSealing value='open'/>
       <dylanFunctionParam>
 	<apiItemName>stream</apiItemName>
-        <apiOperationClassifier href="LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>
 	<apiItemName>elements</apiItemName>
-        <apiOperationClassifier href="LstringG.xml">&lt;string&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>start</apiItemName>
-        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>end</apiItemName>
-        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionKeywordParam>
     </dylanGenericFunctionDef>

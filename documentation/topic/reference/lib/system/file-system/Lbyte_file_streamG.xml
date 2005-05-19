@@ -19,7 +19,7 @@
       <dylanSuperClass href="../../io/streams-internals/Lbyte_element_streamG.xml">&lt;byte-element-stream&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>encoding:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

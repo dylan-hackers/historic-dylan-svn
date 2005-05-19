@@ -17,12 +17,12 @@
       <dylanGenericFunctionSealing value='open'/>
       <dylanFunctionParam>
 	<apiItemName>stream</apiItemName>
-        <apiOperationClassifier href="LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>input-available?</apiItemName>
-        <apiOperationClassifier href="LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>

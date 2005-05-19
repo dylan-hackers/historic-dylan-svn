@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
-<dylanClass id="lib-functional-dylan-functional-locators-protocol-Lphysical_locatorG">
-  <apiName>&lt;physical-locator&gt;</apiName>
+<dylanClass id="lib-c-ffi-c-ffi-Lc_raw_unsigned_charTG">
+  <apiName>&lt;c-raw-unsigned-char*&gt;</apiName>
   <shortdesc>The class of .</shortdesc>
 
   <prolog>
@@ -16,7 +16,7 @@
     <dylanClassDef>
       <dylanOpenClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="LlocatorG.xml">&lt;locator&gt;</dylanSuperClass>
+      <dylanSuperClass href="Lc_statically_typed_pointerG.xml">&lt;c-statically-typed-pointer&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

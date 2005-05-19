@@ -22,76 +22,76 @@
     <link href="functional-extensions/Dend_count_LobjectG.xml">
       <linktext><apiname>$end-count-&lt;object&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Dunfound.xml">
+    <link href="../common-dylan/common-extensions/Dunfound.xml">
       <linktext><apiname>$unfound</apiname></linktext>
     </link>
-    <link href="functional-extensions/Dunsupplied.xml">
+    <link href="../common-dylan/common-extensions/Dunsupplied.xml">
       <linktext><apiname>$unsupplied</apiname></linktext>
     </link>
-    <link href="functional-extensions/Larithmetic_errorG.xml">
+    <link href="../common-dylan/common-extensions/Larithmetic_errorG.xml">
       <linktext><apiname>&lt;arithmetic-error&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Larithmetic_overflow_errorG.xml">
+    <link href="../common-dylan/common-extensions/Larithmetic_overflow_errorG.xml">
       <linktext><apiname>&lt;arithmetic-overflow-error&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Larithmetic_underflow_errorG.xml">
+    <link href="../common-dylan/common-extensions/Larithmetic_underflow_errorG.xml">
       <linktext><apiname>&lt;arithmetic-underflow-error&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lbyte_characterG.xml">
+    <link href="../io/streams/Lbyte_characterG.xml">
       <linktext><apiname>&lt;byte-character&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lclosable_objectG.xml">
+    <link href="../common-dylan/common-extensions/Lclosable_objectG.xml">
       <linktext><apiname>&lt;closable-object&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Ldivision_by_zero_errorG.xml">
+    <link href="../common-dylan/common-extensions/Ldivision_by_zero_errorG.xml">
       <linktext><apiname>&lt;division-by-zero-error&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lformat_string_conditionG.xml">
+    <link href="../common-dylan/common-extensions/Lformat_string_conditionG.xml">
       <linktext><apiname>&lt;format-string-condition&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lobject_dequeG.xml">
+    <link href="../common-dylan/common-extensions/Lobject_dequeG.xml">
       <linktext><apiname>&lt;object-deque&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lobject_setG.xml">
+    <link href="../collections/set/Lobject_setG.xml">
       <linktext><apiname>&lt;object-set&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lprofiling_stateG.xml">
+    <link href="../common-dylan/simple-profiling/Lprofiling_stateG.xml">
       <linktext><apiname>&lt;profiling-state&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/LsetG.xml">
+    <link href="../collections/set/LsetG.xml">
       <linktext><apiname>&lt;set&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lsimple_conditionG.xml">
+    <link href="../common-dylan/common-extensions/Lsimple_conditionG.xml">
       <linktext><apiname>&lt;simple-condition&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lstack_overflow_errorG.xml">
+    <link href="../common-dylan/common-extensions/Lstack_overflow_errorG.xml">
       <linktext><apiname>&lt;stack-overflow-error&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/LstreamG.xml">
+    <link href="../common-dylan/streams-protocol/LstreamG.xml">
       <linktext><apiname>&lt;stream&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lstretchy_object_vectorG.xml">
+    <link href="../common-dylan/common-extensions/Lstretchy_object_vectorG.xml">
       <linktext><apiname>&lt;stretchy-object-vector&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lstretchy_sequenceG.xml">
+    <link href="../common-dylan/common-extensions/Lstretchy_sequenceG.xml">
       <linktext><apiname>&lt;stretchy-sequence&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lstring_tableG.xml">
+    <link href="../common-dylan/common-extensions/Lstring_tableG.xml">
       <linktext><apiname>&lt;string-table&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/Lunicode_characterG.xml">
+    <link href="../io/streams/Lunicode_characterG.xml">
       <linktext><apiname>&lt;unicode-character&gt;</apiname></linktext>
     </link>
-    <link href="functional-extensions/application_arguments.xml">
+    <link href="../common-dylan/common-extensions/application_arguments.xml">
       <linktext><apiname>application-arguments</apiname></linktext>
     </link>
-    <link href="functional-extensions/application_filename.xml">
+    <link href="../common-dylan/common-extensions/application_filename.xml">
       <linktext><apiname>application-filename</apiname></linktext>
     </link>
-    <link href="functional-extensions/application_name.xml">
+    <link href="../common-dylan/common-extensions/application_name.xml">
       <linktext><apiname>application-name</apiname></linktext>
     </link>
-    <link href="functional-extensions/assert.xml">
+    <link href="../common-dylan/common-extensions/assert.xml">
       <linktext><apiname>assert</apiname></linktext>
     </link>
     <link href="functional-extensions/clear_class_breakpoint.xml">
@@ -100,76 +100,76 @@
     <link href="functional-extensions/clear_class_breakpoints.xml">
       <linktext><apiname>clear-class-breakpoints</apiname></linktext>
     </link>
-    <link href="functional-extensions/close.xml">
+    <link href="../common-dylan/streams-protocol/close.xml">
       <linktext><apiname>close</apiname></linktext>
     </link>
     <link href="functional-extensions/compute_initial_packed_slot.xml">
       <linktext><apiname>compute-initial-packed-slot</apiname></linktext>
     </link>
-    <link href="functional-extensions/concatenateX.xml">
+    <link href="../common-dylan/common-extensions/concatenateX.xml">
       <linktext><apiname>concatenate!</apiname></linktext>
     </link>
-    <link href="functional-extensions/condition_to_string.xml">
+    <link href="../common-dylan/common-extensions/condition_to_string.xml">
       <linktext><apiname>condition-to-string</apiname></linktext>
     </link>
-    <link href="functional-extensions/debug_assert.xml">
+    <link href="../common-dylan/common-extensions/debug_assert.xml">
       <linktext><apiname>debug-assert</apiname></linktext>
     </link>
-    <link href="functional-extensions/debug_message.xml">
+    <link href="../common-dylan/common-extensions/debug_message.xml">
       <linktext><apiname>debug-message</apiname></linktext>
     </link>
     <link href="functional-extensions/default_last_handler.xml">
       <linktext><apiname>default-last-handler</apiname></linktext>
     </link>
-    <link href="functional-extensions/difference.xml">
+    <link href="../common-dylan/common-extensions/difference.xml">
       <linktext><apiname>difference</apiname></linktext>
     </link>
     <link href="functional-extensions/display_class_breakpoints.xml">
       <linktext><apiname>display-class-breakpoints</apiname></linktext>
     </link>
-    <link href="functional-extensions/exit_application.xml">
+    <link href="../common-dylan/common-extensions/exit_application.xml">
       <linktext><apiname>exit-application</apiname></linktext>
     </link>
-    <link href="functional-extensions/false_or.xml">
+    <link href="../common-dylan/common-extensions/false_or.xml">
       <linktext><apiname>false-or</apiname></linktext>
     </link>
-    <link href="functional-extensions/falseQ.xml">
+    <link href="../common-dylan/common-extensions/falseQ.xml">
       <linktext><apiname>false?</apiname></linktext>
     </link>
-    <link href="functional-extensions/fill_tableX.xml">
+    <link href="../common-dylan/common-extensions/fill_tableX.xml">
       <linktext><apiname>fill-table!</apiname></linktext>
     </link>
-    <link href="functional-extensions/find_element.xml">
+    <link href="../common-dylan/common-extensions/find_element.xml">
       <linktext><apiname>find-element</apiname></linktext>
     </link>
-    <link href="functional-extensions/find_value.xml">
+    <link href="../common-dylan/common-extensions/find_value.xml">
       <linktext><apiname>find-value</apiname></linktext>
     </link>
-    <link href="functional-extensions/float_to_string.xml">
+    <link href="../common-dylan/common-extensions/float_to_string.xml">
       <linktext><apiname>float-to-string</apiname></linktext>
     </link>
-    <link href="functional-extensions/foundQ.xml">
+    <link href="../common-dylan/common-extensions/foundQ.xml">
       <linktext><apiname>found?</apiname></linktext>
     </link>
-    <link href="functional-extensions/ignorable.xml">
+    <link href="../common-dylan/common-extensions/ignorable.xml">
       <linktext><apiname>ignorable</apiname></linktext>
     </link>
-    <link href="functional-extensions/ignore.xml">
+    <link href="../common-dylan/common-extensions/ignore.xml">
       <linktext><apiname>ignore</apiname></linktext>
     </link>
     <link href="functional-extensions/initialize_packed_slots.xml">
       <linktext><apiname>initialize-packed-slots</apiname></linktext>
     </link>
-    <link href="functional-extensions/integer_to_string.xml">
+    <link href="../common-dylan/common-extensions/integer_to_string.xml">
       <linktext><apiname>integer-to-string</apiname></linktext>
     </link>
-    <link href="functional-extensions/iterate.xml">
+    <link href="../common-dylan/common-extensions/iterate.xml">
       <linktext><apiname>iterate</apiname></linktext>
     </link>
     <link href="functional-extensions/last_handler_definer.xml">
       <linktext><apiname>last-handler-definer</apiname></linktext>
     </link>
-    <link href="functional-extensions/machine_word_to_string.xml">
+    <link href="../common-dylan/common-extensions/machine_word_to_string.xml">
       <linktext><apiname>machine-word-to-string</apiname></linktext>
     </link>
     <link href="functional-extensions/not_found.xml">
@@ -178,10 +178,10 @@
     <link href="functional-extensions/not_foundQ.xml">
       <linktext><apiname>not-found?</apiname></linktext>
     </link>
-    <link href="functional-extensions/number_to_string.xml">
+    <link href="../common-dylan/common-extensions/number_to_string.xml">
       <linktext><apiname>number-to-string</apiname></linktext>
     </link>
-    <link href="functional-extensions/one_of.xml">
+    <link href="../common-dylan/common-extensions/one_of.xml">
       <linktext><apiname>one-of</apiname></linktext>
     </link>
     <link href="functional-extensions/pack_boolean.xml">
@@ -199,70 +199,70 @@
     <link href="functional-extensions/packed_slots_end_count.xml">
       <linktext><apiname>packed-slots-end-count</apiname></linktext>
     </link>
-    <link href="functional-extensions/position.xml">
+    <link href="../common-dylan/common-extensions/position.xml">
       <linktext><apiname>position</apiname></linktext>
     </link>
-    <link href="functional-extensions/profiling.xml">
+    <link href="../common-dylan/simple-profiling/profiling.xml">
       <linktext><apiname>profiling</apiname></linktext>
     </link>
-    <link href="functional-extensions/profiling_type_result.xml">
+    <link href="../common-dylan/simple-profiling/profiling_type_result.xml">
       <linktext><apiname>profiling-type-result</apiname></linktext>
     </link>
-    <link href="functional-extensions/register_application_exit_function.xml">
+    <link href="../common-dylan/common-extensions/register_application_exit_function.xml">
       <linktext><apiname>register-application-exit-function</apiname></linktext>
     </link>
-    <link href="functional-extensions/remove_all_keysX.xml">
+    <link href="../common-dylan/common-extensions/remove_all_keysX.xml">
       <linktext><apiname>remove-all-keys!</apiname></linktext>
     </link>
     <link href="functional-extensions/repeatable.xml">
       <linktext><apiname>repeatable</apiname></linktext>
     </link>
-    <link href="functional-extensions/rest.xml">
+    <link href="../common-dylan/common-extensions/rest.xml">
       <linktext><apiname>rest</apiname></linktext>
     </link>
     <link href="functional-extensions/set_class_breakpoint.xml">
       <linktext><apiname>set-class-breakpoint</apiname></linktext>
     </link>
-    <link href="functional-extensions/split.xml">
+    <link href="../common-dylan/common-extensions/split.xml">
       <linktext><apiname>split</apiname></linktext>
     </link>
-    <link href="functional-extensions/start_profiling_type.xml">
+    <link href="../common-dylan/simple-profiling/start_profiling_type.xml">
       <linktext><apiname>start-profiling-type</apiname></linktext>
     </link>
-    <link href="functional-extensions/stop_profiling_type.xml">
+    <link href="../common-dylan/simple-profiling/stop_profiling_type.xml">
       <linktext><apiname>stop-profiling-type</apiname></linktext>
     </link>
-    <link href="functional-extensions/string_to_integer.xml">
+    <link href="../common-dylan/common-extensions/string_to_integer.xml">
       <linktext><apiname>string-to-integer</apiname></linktext>
     </link>
-    <link href="functional-extensions/string_to_machine_word.xml">
+    <link href="../common-dylan/common-extensions/string_to_machine_word.xml">
       <linktext><apiname>string-to-machine-word</apiname></linktext>
     </link>
-    <link href="functional-extensions/subclass.xml">
+    <link href="../common-dylan/common-extensions/subclass.xml">
       <linktext><apiname>subclass</apiname></linktext>
     </link>
-    <link href="functional-extensions/suppliedQ.xml">
+    <link href="../common-dylan/common-extensions/suppliedQ.xml">
       <linktext><apiname>supplied?</apiname></linktext>
     </link>
-    <link href="functional-extensions/table_definer.xml">
+    <link href="../common-dylan/common-extensions/table_definer.xml">
       <linktext><apiname>table-definer</apiname></linktext>
     </link>
     <link href="functional-extensions/timing.xml">
       <linktext><apiname>timing</apiname></linktext>
     </link>
-    <link href="functional-extensions/tokenize_command_line.xml">
+    <link href="../common-dylan/common-extensions/tokenize_command_line.xml">
       <linktext><apiname>tokenize-command-line</apiname></linktext>
     </link>
-    <link href="functional-extensions/tokenize_command_line.xml">
+    <link href="../common-dylan/common-extensions/tokenize_command_line.xml">
       <linktext><apiname>tokenize-command-line</apiname></linktext>
     </link>
-    <link href="functional-extensions/trueQ.xml">
+    <link href="../common-dylan/common-extensions/trueQ.xml">
       <linktext><apiname>true?</apiname></linktext>
     </link>
-    <link href="functional-extensions/unfound.xml">
+    <link href="../common-dylan/common-extensions/unfound.xml">
       <linktext><apiname>unfound</apiname></linktext>
     </link>
-    <link href="functional-extensions/unfoundQ.xml">
+    <link href="../common-dylan/common-extensions/unfoundQ.xml">
       <linktext><apiname>unfound?</apiname></linktext>
     </link>
     <link href="functional-extensions/unpack_boolean.xml">
@@ -274,13 +274,13 @@
     <link href="functional-extensions/unpack_tristate.xml">
       <linktext><apiname>unpack-tristate</apiname></linktext>
     </link>
-    <link href="functional-extensions/unsupplied.xml">
+    <link href="../common-dylan/common-extensions/unsupplied.xml">
       <linktext><apiname>unsupplied</apiname></linktext>
     </link>
-    <link href="functional-extensions/unsuppliedQ.xml">
+    <link href="../common-dylan/common-extensions/unsuppliedQ.xml">
       <linktext><apiname>unsupplied?</apiname></linktext>
     </link>
-    <link href="functional-extensions/when.xml">
+    <link href="../common-dylan/common-extensions/when.xml">
       <linktext><apiname>when</apiname></linktext>
     </link>
   </related-links>

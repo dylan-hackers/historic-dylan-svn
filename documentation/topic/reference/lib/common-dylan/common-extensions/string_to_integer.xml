@@ -2,7 +2,10 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-string_to_integer">
   <apiName>string-to-integer</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the integer represented by its string argument,
+  or by a substring of that argument, in a number base between 2 and
+  36 inclusive.</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,17 +25,18 @@
       <dylanFunctionKeywordParam>
 	<apiItemName>base</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The default value is <codeph>10</codeph>.</apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>start</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The default value is <codeph>0</codeph>.</apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>end</apiItemName>
         <apiType value="{complex type}"/>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The default value is
+	<codeph>string.size</codeph>.</apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>default</apiItemName>
@@ -40,7 +44,7 @@
 	<apiDefNote></apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionReturn>
-	<apiItemName>n</apiItemName>
+	<apiItemName>integer</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
@@ -52,7 +56,24 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the integer represented by the characters of
+      <parmname>string</parmname> in the number base
+      <parmname>base</parmname>, where <parmname>base</parmname> is
+      between 2 and 36 inclusive. You can constrain the search to a
+      substring of <parmname>string</parmname> by giving values for
+      <parmname>start</parmname> and <parmname>end</parmname>.</p>
+
+      <p>This function also returns <parmname>next-key</parmname>, the
+      next key beyond the last character it examines.</p>
+
+      <p>If there is no integer contained in the specified region of
+      the string, this function returns <parmname>default</parmname>,
+      if one is specified. If you do not give a value for
+      <parmname>default</parmname> , this function signals an
+      error.</p>
+
+      <note>This function is similar to the C language
+      <apiname>strtod</apiname> function.</note>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

@@ -37,13 +37,13 @@
     <link href="operating-system/Dplatform_name.xml">
       <linktext><apiname>$platform-name</apiname></linktext>
     </link>
-    <link href="operating-system/application_arguments.xml">
+    <link href="../common-dylan/common-extensions/application_arguments.xml">
       <linktext><apiname>application-arguments</apiname></linktext>
     </link>
-    <link href="operating-system/application_filename.xml">
+    <link href="../common-dylan/common-extensions/application_filename.xml">
       <linktext><apiname>application-filename</apiname></linktext>
     </link>
-    <link href="operating-system/application_name.xml">
+    <link href="../common-dylan/common-extensions/application_name.xml">
       <linktext><apiname>application-name</apiname></linktext>
     </link>
     <link href="operating-system/command_line_option_prefix.xml">
@@ -58,7 +58,7 @@
     <link href="operating-system/environment_variable_setter.xml">
       <linktext><apiname>environment-variable-setter</apiname></linktext>
     </link>
-    <link href="operating-system/exit_application.xml">
+    <link href="../common-dylan/common-extensions/exit_application.xml">
       <linktext><apiname>exit-application</apiname></linktext>
     </link>
     <link href="operating-system/load_library.xml">
@@ -76,7 +76,7 @@
     <link href="operating-system/owner_organization.xml">
       <linktext><apiname>owner-organization</apiname></linktext>
     </link>
-    <link href="operating-system/register_application_exit_function.xml">
+    <link href="../common-dylan/common-extensions/register_application_exit_function.xml">
       <linktext><apiname>register-application-exit-function</apiname></linktext>
     </link>
     <link href="operating-system/run_application.xml">

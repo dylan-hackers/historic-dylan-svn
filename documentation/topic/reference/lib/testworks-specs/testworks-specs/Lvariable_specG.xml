@@ -17,7 +17,7 @@
       <dylanSuperClass href="Labstract_variable_specG.xml">&lt;abstract-variable-spec&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>setter:</apiItemName>
-        <apiOtherClassifier href="LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

@@ -52,9 +52,11 @@
     <link href="bit-vector/bit_vector_orX.xml">
       <linktext><apiname>bit-vector-or!</apiname></linktext>
     </link>
+<!--
     <link href="bit-vector/bit_vector_word.xml">
       <linktext><apiname>bit-vector-word</apiname></linktext>
     </link>
+-->
     <link href="bit-vector/bit_vector_xor.xml">
       <linktext><apiname>bit-vector-xor</apiname></linktext>
     </link>

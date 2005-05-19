@@ -14,7 +14,7 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="Lstream_errorG.xml">&lt;stream-error&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../common-dylan/streams-protocol/Lstream_errorG.xml">&lt;stream-error&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

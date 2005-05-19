@@ -17,12 +17,12 @@
       <dylanSuperClass href="Ldefinition_specG.xml">&lt;definition-spec&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>function:</apiItemName>
-        <apiOtherClassifier href="LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>modifiers:</apiItemName>
-        <apiOtherClassifier href="LsequenceG.xml">&lt;sequence&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LsequenceG.xml">&lt;sequence&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

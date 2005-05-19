@@ -31,7 +31,7 @@
       </dylanFunctionKeywordParam>
       <dylanFunctionReturn>
 	<apiItemName>value</apiItemName>
-        <apiOperationClassifier href="Lmachine_wordG.xml">&lt;machine-word&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../common-dylan/machine-words/Lmachine_wordG.xml">&lt;machine-word&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanFunctionDef>

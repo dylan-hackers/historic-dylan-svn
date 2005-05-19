@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-threads-join_thread">
   <apiName>join-thread</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Waits for another, existing, thread to terminate, and
+  then returns the values of its function.</shortdesc>
 
   <prolog>
     <author></author>
@@ -15,7 +17,7 @@
   <dylanFunctionDetail>
     <dylanFunctionDef>
       <dylanFunctionParam>
-	<apiItemName>thread1</apiItemName>
+	<apiItemName>thread</apiItemName>
         <apiOperationClassifier href="LthreadG.xml">&lt;thread&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
@@ -27,17 +29,40 @@
       <dylanFunctionReturn>
 	<apiItemName>thread</apiItemName>
         <apiOperationClassifier href="LthreadG.xml">&lt;thread&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The thread that was joined.</apiDefNote>
       </dylanFunctionReturn>
       <dylanFunctionRestReturn>
 	<apiItemName>thread-values</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The values returned from the thread that was
+	joined.</apiDefNote>
       </dylanFunctionRestReturn>
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Waits for another, existing, thread to terminate, by blocking
+      if necessary, and then returns the values of its function. The
+      function returns the thread object that was joined, along with
+      any values its function returns.</p>
+
+      <p>If more than one thread is passed to
+      <apiname>join-thread</apiname>, the current thread blocks until
+      the first of those threads terminates.  The values returned are
+      those of the first thread to terminate.</p>
+
+      <p>If one or more of the multiple threads has already terminated
+      at the time of the call, then one of those terminated threads is
+      joined.  When more than one thread has already terminated, it is
+      undefined which of those threads the implementation will
+      join.</p>
+
+      <p>The <apiclassifier
+       href="Lduplicate_join_errorG.xml">&lt;duplicate-join-error&gt;</apiclassifier>
+       condition is signalled if a thread is passed to
+       <codeph>join-thread</codeph> if it has already been joined in a
+       previous call to <apiname>join-thread</apiname>, or if the thread
+       is also being processed by another simultaneous call to
+       <apiname>join-thread</apiname> from another thread. </p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-tokenize_command_line">
   <apiName>tokenize-command-line</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Parses a command line into a command name and
+  arguments.</shortdesc>
 
   <prolog>
     <author></author>
@@ -32,7 +34,16 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Parses the command specified in <parmname>line</parmname>
+      into a command name and arguments. The rules used to tokenize
+      the string are given in Microsoft’s C/C++ reference in the
+      section “Parsing C Command-Line Arguments”.</p>
+
+      <note>This function is not currently implemented for POSIX-like
+      platforms.  The closest POSIX equivalent is perhaps the
+      <apiname>wordexp</apiname> function, but
+      <apiname>wordexp</apiname> can potentially introduce certain
+      security risks.</note>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

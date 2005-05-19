@@ -37,7 +37,7 @@
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>result</apiItemName>
-        <apiOperationClassifier href="Lmutable_sequenceG.xml">&lt;mutable-sequence&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/Lmutable_sequenceG.xml">&lt;mutable-sequence&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>

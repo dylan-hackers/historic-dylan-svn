@@ -34,7 +34,7 @@
     <link href="common-extensions/Larithmetic_underflow_errorG.xml">
       <linktext><apiname>&lt;arithmetic-underflow-error&gt;</apiname></linktext>
     </link>
-    <link href="common-extensions/Lbyte_vectorG.xml">
+    <link href="byte-vector/Lbyte_vectorG.xml">
       <linktext><apiname>&lt;byte-vector&gt;</apiname></linktext>
     </link>
     <link href="common-extensions/Lclosable_objectG.xml">
@@ -148,10 +148,10 @@
     <link href="common-extensions/position.xml">
       <linktext><apiname>position</apiname></linktext>
     </link>
-    <link href="common-extensions/profiling.xml">
+    <link href="simple-profiling/profiling.xml">
       <linktext><apiname>profiling</apiname></linktext>
     </link>
-    <link href="common-extensions/profiling_type_result.xml">
+    <link href="simple-profiling/profiling_type_result.xml">
       <linktext><apiname>profiling-type-result</apiname></linktext>
     </link>
     <link href="common-extensions/register_application_exit_function.xml">

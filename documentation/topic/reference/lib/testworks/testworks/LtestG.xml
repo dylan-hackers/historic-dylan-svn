@@ -17,7 +17,7 @@
       <dylanSuperClass href="LcomponentG.xml">&lt;component&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>function:</apiItemName>
-        <apiOtherClassifier href="LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

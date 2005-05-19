@@ -22,12 +22,12 @@
       </dylanFunctionParam>
       <dylanFunctionParam>
 	<apiItemName>protocol-name</apiItemName>
-        <apiOperationClassifier href="LsymbolG.xml">&lt;symbol&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LsymbolG.xml">&lt;symbol&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>
 	<apiItemName>definition-name</apiItemName>
-        <apiOperationClassifier href="LsymbolG.xml">&lt;symbol&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LsymbolG.xml">&lt;symbol&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
     </dylanGenericFunctionDef>

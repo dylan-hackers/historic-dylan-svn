@@ -18,7 +18,7 @@
       <dylanSuperClass href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>buffer-size:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
@@ -28,7 +28,7 @@
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>stream:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

@@ -22,7 +22,7 @@
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>sequence-stream-type</apiItemName>
-        <apiOperationClassifier href="LtypeG.xml">&lt;type&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LtypeG.xml">&lt;type&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>

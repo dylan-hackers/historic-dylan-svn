@@ -2,7 +2,10 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-ignore">
   <apiName>ignore</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>A compiler directive that tells the compiler it must not
+  issue a warning if its argument is bound but not
+  referenced.</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,7 +25,27 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>When the compiler encounters a variable that is bound but not
+      referenced, it normally issues a warning. The
+      <apiname>ignore</apiname> function is a compiler directive that
+      tells the compiler it must not issue this warning if any of the
+      <parmname>ignored-values</parmname> are bound but not
+      referenced.  The <apiname>ignore</apiname> function has no
+      run-time cost.</p> <p>The <apiname>ignore</apiname> function is
+      useful for ignoring arguments passed to, or values returned by,
+      a function, method, or macro. The function has the same extent
+      as a <codeph>let</codeph>; that is, it applies to the smallest
+      enclosing implicit body.</p>
+
+      <p>Use <apiname>ignore</apiname> if you never intend to
+      reference any of the <parmname>ignored-values</parmname> within
+      the extent of the <apiname>ignore</apiname>. The compiler will
+      issue a warning to tell you if your program violates the
+      <apiname>ignore</apiname> by referencing one of the variables.
+      If you are not concerned about the <apiname>ignore</apiname>
+      being violated, and do not wish to be warned if violation
+      occurs, use <apioperation
+      href="ignorable.xml">ignorable</apioperation> instead.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

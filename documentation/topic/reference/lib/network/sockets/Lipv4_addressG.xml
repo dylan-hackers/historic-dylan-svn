@@ -17,22 +17,22 @@
       <dylanSuperClass href="Linternet_addressG.xml">&lt;internet-address&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>address:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>addresses:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>aliases:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>name:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

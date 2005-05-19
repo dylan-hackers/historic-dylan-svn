@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-common-extensions-subclass">
   <apiName>subclass</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns type representing a class and its subclasses.</shortdesc>
 
   <prolog>
     <author></author>
@@ -16,18 +16,233 @@
     <dylanGenericFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>class</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LclassG.xml">&lt;class&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+      <dylanFunctionReturn>
+	<apiItemName>subclass-type</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LtypeG.xml">&lt;type&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+      </dylanFunctionReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns a type that describes all the objects representing subclasses
+      of the given class. We term such a type a <term>subclass type</term>.</p>
+
+      <p>The <apiname>subclass</apiname> function is allowed to return
+      an existing type if that type is type-equivalent to the subclass
+      type requested.</p>
+
+      <p>Without <apiname>subclass</apiname>, methods on generic
+      functions (such as Dylan’s standard <codeph>make</codeph> and
+      <codeph>as</codeph>) that take types as arguments are impossible
+      to reuse without resorting to ad-hoc techniques. In the language
+      defined by the DRM, the only mechanism available for
+      specializing such methods is to use singleton types. A singleton
+      type specializer used in this way, by definition, gives a method
+      applicable to exactly one type. In particular, such methods are
+      not applicable to subtypes of the type in question. In order to
+      define reusable methods on generic functions like this, we need
+      a type which allows us to express applicability to a type and
+      all its subtypes. </p>
+
+      <p>For an object <i>O</i> and class <i>Y</i> , the following
+      <codeph>instance?</codeph> relationship applies:</p>
+
+      <dl>
+	<dlentry>
+	  <dt>INSTANCE-1</dt>
+
+	  <dd><codeph>instance?(<varname>O</varname>,
+	  subclass(<varname>Y</varname>))</codeph> is true if and only
+	  if <varname>O</varname> is a class and <varname>O</varname>
+	  is a subclass of <varname>Y</varname>.</dd>
+	</dlentry>
+      </dl>
+
+      <p>For classes <varname>X</varname> and <varname>Y</varname> the
+      following <codeph>subtype?</codeph> relationships hold.  Note
+      that a rule applies only when no preceding rule matches.</p>
+
+      <dl>
+	<dlentry>
+	  <dt>SUBTYPE-1</dt>
+
+	  <dd><codeph>subtype?(subclass(<i>X</i> ),
+	  subclass(<varname>Y</varname>))</codeph> is true if and only
+	  if <varname>X</varname> is a subclass of
+	  <varname>Y</varname>.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt>SUBTYPE-2</dt>
+	  <dd><codeph>subtype?(singleton(<varname>X</varname> ),
+	  subclass(<varname>Y</varname>))</codeph> if and only if
+	  <varname>X</varname> is a class and <varname>X</varname> is
+	  a subclass of <varname>Y</varname>.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt>SUBTYPE-3</dt>
+	  
+	  <dd><codeph>subtype?(subclass(<varname>X</varname>),
+	  singleton(<varname>Y</varname>))</codeph> is always
+	  false.</dd>
+	</dlentry>
+
+	<dlentry id="SUBTYPE-4">
+	  <dt>SUBTYPE-4</dt>
+	  
+	  <dd><codeph>subtype?(subclass(<varname>X</varname>),
+          <varname>Y</varname>)</codeph>, where <varname>Y</varname>
+          is not a subclass type, is true if <varname>Y</varname> is
+          <apiclassifier
+          href="../../dylan/dylan/LclassG.xml">&lt;class&gt;</apiclassifier>
+          or any proper superclass of <apiclassifier
+          href="../../dylan/dylan/LclassG.xml">&lt;class&gt;</apiclassifier>
+          (including <apiclassifier
+          href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiclassifier>,
+          any implementation-defined supertypes, and unions involving
+          any of these). There may be other implementation-defined
+          combinations of types <varname>X</varname> and
+          <varname>Y</varname> for which this is also true.</dd>
+	</dlentry>
+
+	<dlentry id="SUBTYPE-5">
+	  <dt>SUBTYPE-5</dt>
+	  
+	  <dd><codeph>subtype?(<varname>X</varname>,
+	  subclass(<varname>Y</varname>))</codeph>, where
+	  <varname>X</varname> is not a subclass type, is true if
+	  <varname>Y</varname> is <apiclassifier
+	  href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiclassifier>
+	  or any proper supertype of <apiclassifier
+	  href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiclassifier>
+	  and <varname>X</varname> is a subclass of <apiclassifier
+	  href="../../dylan/dylan/LclassG.xml">&lt;class&gt;</apiclassifier>.</dd>
+	</dlentry>
+      </dl>
+
+      <p>Note that by subclass relationships <xref
+      href="#SUBTYPE-4">SUBTYPE-4</xref> and <xref
+      href="#SUBTYPE-5">SUBTYPE-5</xref>, we get the correspondence
+      that the type expressions <codeph>&lt;class&gt;</codeph> and
+      <codeph>subclass(&lt;object&gt;)</codeph> are
+      type-equivalent.</p>
+
+      <p>Where the <codeph>subtype?</codeph> test has not been
+      sufficient to determine an ordering for a method’s argument
+      position, the following further method-ordering rules apply to
+      cases involving subclass types (note that a rule applies only
+      when no preceding rule matches):</p>
+
+      <p><codeph>SPECIFICITY+1</codeph> . <codeph>subclass(</codeph> 
+      <varname>X</varname> <codeph>)</codeph>  precedes <codeph>subclass(</codeph> 
+      <varname>Y</varname> <codeph>)</codeph>  when the argument is a class <varname>C</varname>
+       and <varname>X</varname>  precedes <varname>Y</varname>  in the class precedence list of 
+      <varname>C</varname> .</p>
+
+      <p><codeph>SPECIFICITY+2</codeph> . <codeph>subclass(</codeph> 
+      <varname>X</varname> <codeph>)</codeph>  always precedes <varname>Y</varname> , <varname>Y</varname> 
+      not a subclass type. That is, applicable subclass types precede any
+      other applicable class-describing specializer. </p>
+
+      <p>The constraints implied by sealing come by direct application of
+      sealing rules 1-3 (see page 136of the DRM) and the following disjointness
+      criteria for subclass types (note that a rule applies only when no
+      preceding rule matches):</p>
+
+      <p><codeph>DISJOINTNESS+1</codeph> . A subclass type <codeph>subclass(</codeph>
+<varname>      X</varname> <codeph>)</codeph>  and a type <varname>Y</varname>  are disjoint if 
+      <varname>Y</varname>  is disjoint from <codeph>&lt;class&gt;</codeph> , or if
+<varname>      Y</varname>  is a subclass of <codeph>&lt;class&gt;</codeph>  without instance
+      classes that are also subclasses of <varname>X</varname> .</p>
+
+      <p><codeph>DISJOINTNESS+2</codeph> . Two subclass types <codeph>subclass(</codeph>
+<varname>      X</varname> <codeph>)</codeph>  and <codeph>subclass(</codeph> <varname>Y</varname>
+<codeph>)</codeph>  are disjoint if the classes <varname>X</varname>  and <varname>Y</varname> 
+      are disjoint. </p>
+
+      <p><codeph>DISJOINTNESS+3</codeph> . A subclass type <codeph>subclass(</codeph>
+<varname>      X</varname> <codeph>)</codeph>  and a singleton type <codeph>singleton(</codeph>
+<varname>      O</varname> <codeph>)</codeph>  are disjoint unless <varname>O</varname>  is a class
+      and <varname>O</varname>  is a subclass of <varname>X</varname> . </p>
+
+      <p>The guiding principle behind the semantics is that, as far as possible,
+      methods on classes called with an instance should behave isomorphically
+      to corresponding methods on corresponding subclass types called with
+      the class of that instance. So, for example, given the heterarchy:</p>
+
+<codeblock>
+&lt;object&gt;
+      |
+     &lt;A&gt;
+     / \
+   &lt;B&gt; &lt;C&gt;
+     \ /
+     &lt;D&gt;
+</codeblock>
+
+      <p>and methods:</p>
+
+<codeblock>
+method foo (&lt;A&gt;)
+method foo (&lt;B&gt;)
+method foo (&lt;C&gt;)
+method foo (&lt;D&gt;)
+method foo-using-type (subclass(&lt;A&gt;))
+method foo-using-type (subclass(&lt;B&gt;))
+method foo-using-type (subclass(&lt;C&gt;))
+method foo-using-type (subclass(&lt;D&gt;))
+</codeblock>
+
+      <p>that for a direct instance <varname>D1</varname> of
+      <codeph>&lt;D&gt;</codeph>:</p>
+
+<codeblock>foo-using-type(&lt;D&gt;)</codeblock>
+
+      <p>should behave analogously to:</p>
+
+<codeblock>foo(D1)</codeblock>
+
+      <p>with respect to method selection.</p>
     </apiDesc>
+
+    <example>
+
+<codeblock>
+define class &lt;A&gt; (&lt;object&gt;) end;
+define class &lt;B&gt; (&lt;A&gt;) end;
+define class &lt;C&gt; (&lt;A&gt;) end;
+define class &lt;D&gt; (&lt;B&gt;, &lt;C&gt;) end;
+
+define method make (class :: subclass(&lt;A&gt;), #key)
+  print("Making an &lt;A&gt;");
+  next-method();
+end method;
+
+define method make (class :: subclass(&lt;B&gt;), #key)
+  print("Making a &lt;B&gt;");
+  next-method();
+end method;
+
+define method make (class :: subclass(&lt;C&gt;), #key)
+  print("Making a &lt;C&gt;");
+  next-method();
+end method;
+
+define method make (class :: subclass(&lt;D&gt;), #key)
+  print("Making a &lt;D&gt;");
+  next-method();
+end method;
+<systemoutput>? </systemoutput>make(&lt;D&gt;);
+<systemoutput>Making a &lt;D&gt;
+Making a &lt;B&gt;
+Making a &lt;C&gt;
+Making an &lt;A&gt;
+{instance of &lt;D&gt;}</systemoutput>
+</codeblock>
+    </example>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

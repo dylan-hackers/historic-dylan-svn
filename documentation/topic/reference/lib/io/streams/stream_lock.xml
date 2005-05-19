@@ -22,7 +22,7 @@
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>lock</apiItemName>
-        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>

@@ -30,7 +30,7 @@
 	<apiItemName>equal?</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+      </dylanFunctionReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>
@@ -48,7 +48,7 @@
 
       <p>This function uses <apioperation
       href="../../dylan/dylan/as_uppercase.xml">as-uppercase</apioperation>
-      or <apioperation href="../../>as-lowercase</apioperation> to convert the characters in
+      or <apioperation href="../../dylan/dylan/as_lowercase.xml">as-lowercase</apioperation> to convert the characters in
       its string arguments. </p>
 
       <p>COMMENT: AndrewS 1997-05-09: MarkT says: There is no discussion

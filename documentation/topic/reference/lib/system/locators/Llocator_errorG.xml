@@ -14,7 +14,7 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="../../dylan/dylan-extensions/Lformat_string_conditionG.xml">&lt;format-string-condition&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../common-dylan/common-extensions/Lformat_string_conditionG.xml">&lt;format-string-condition&gt;</dylanSuperClass>
       <dylanSuperClass href="../../dylan/dylan/LerrorG.xml">&lt;error&gt;</dylanSuperClass>
     </dylanClassDef>
 

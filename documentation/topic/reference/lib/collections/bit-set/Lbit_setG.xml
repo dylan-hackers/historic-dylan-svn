@@ -15,10 +15,10 @@
   <dylanClassDetail>
     <dylanClassDef>
       <dylanPrimaryClass/>
-      <dylanSuperClass href="../../dylan/dylan-extensions/LsetG.xml">&lt;set&gt;</dylanSuperClass>
+      <dylanSuperClass href="../set/LsetG.xml">&lt;set&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>all-members-from:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
@@ -33,7 +33,7 @@
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>pad:</apiItemName>
-        <apiOtherClassifier href="../../dylan/dylan-extensions/LbitG.xml">&lt;bit&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../bit-vector/LbitG.xml">&lt;bit&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>

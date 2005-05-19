@@ -19,76 +19,76 @@
   </dylanModuleDetail>
 
   <related-links>
-    <link href="c-ffi/Dmachine_word_size.xml">
+    <link href="../common-dylan/machine-words/Dmachine_word_size.xml">
       <linktext><apiname>$machine-word-size</apiname></linktext>
     </link>
-    <link href="c-ffi/Dmaximum_signed_machine_word.xml">
+    <link href="../common-dylan/machine-words/Dmaximum_signed_machine_word.xml">
       <linktext><apiname>$maximum-signed-machine-word</apiname></linktext>
     </link>
-    <link href="c-ffi/Dmaximum_unsigned_machine_word.xml">
+    <link href="../common-dylan/machine-words/Dmaximum_unsigned_machine_word.xml">
       <linktext><apiname>$maximum-unsigned-machine-word</apiname></linktext>
     </link>
-    <link href="c-ffi/Dminimum_signed_machine_word.xml">
+    <link href="../common-dylan/machine-words/Dminimum_signed_machine_word.xml">
       <linktext><apiname>$minimum-signed-machine-word</apiname></linktext>
     </link>
-    <link href="c-ffi/Dminimum_unsigned_machine_word.xml">
+    <link href="../common-dylan/machine-words/Dminimum_unsigned_machine_word.xml">
       <linktext><apiname>$minimum-unsigned-machine-word</apiname></linktext>
     </link>
-    <link href="c-ffi/PT.xml">
+    <link href="../common-dylan/machine-words/PT.xml">
       <linktext><apiname>%*</apiname></linktext>
     </link>
-    <link href="c-ffi/PA.xml">
+    <link href="../common-dylan/machine-words/PA.xml">
       <linktext><apiname>%+</apiname></linktext>
     </link>
-    <link href="c-ffi/P_.xml">
+    <link href="../common-dylan/machine-words/P_.xml">
       <linktext><apiname>%-</apiname></linktext>
     </link>
-    <link href="c-ffi/Pabs.xml">
+    <link href="../common-dylan/machine-words/Pabs.xml">
       <linktext><apiname>%abs</apiname></linktext>
     </link>
-    <link href="c-ffi/PceilingS.xml">
+    <link href="../common-dylan/machine-words/PceilingS.xml">
       <linktext><apiname>%ceiling/</apiname></linktext>
     </link>
-    <link href="c-ffi/Pcount_high_zeros.xml">
+    <link href="../common-dylan/machine-words/Pcount_high_zeros.xml">
       <linktext><apiname>%count-high-zeros</apiname></linktext>
     </link>
-    <link href="c-ffi/Pcount_low_zeros.xml">
+    <link href="../common-dylan/machine-words/Pcount_low_zeros.xml">
       <linktext><apiname>%count-low-zeros</apiname></linktext>
     </link>
-    <link href="c-ffi/Pdivide.xml">
+    <link href="../common-dylan/machine-words/Pdivide.xml">
       <linktext><apiname>%divide</apiname></linktext>
     </link>
-    <link href="c-ffi/PfloorS.xml">
+    <link href="../common-dylan/machine-words/PfloorS.xml">
       <linktext><apiname>%floor/</apiname></linktext>
     </link>
-    <link href="c-ffi/Plogand.xml">
+    <link href="../common-dylan/machine-words/Plogand.xml">
       <linktext><apiname>%logand</apiname></linktext>
     </link>
-    <link href="c-ffi/PlogbitQ.xml">
+    <link href="../common-dylan/machine-words/PlogbitQ.xml">
       <linktext><apiname>%logbit?</apiname></linktext>
     </link>
-    <link href="c-ffi/Plogior.xml">
+    <link href="../common-dylan/machine-words/Plogior.xml">
       <linktext><apiname>%logior</apiname></linktext>
     </link>
-    <link href="c-ffi/Plognot.xml">
+    <link href="../common-dylan/machine-words/Plognot.xml">
       <linktext><apiname>%lognot</apiname></linktext>
     </link>
-    <link href="c-ffi/Plogxor.xml">
+    <link href="../common-dylan/machine-words/Plogxor.xml">
       <linktext><apiname>%logxor</apiname></linktext>
     </link>
-    <link href="c-ffi/Pnegative.xml">
+    <link href="../common-dylan/machine-words/Pnegative.xml">
       <linktext><apiname>%negative</apiname></linktext>
     </link>
-    <link href="c-ffi/ProundS.xml">
+    <link href="../common-dylan/machine-words/ProundS.xml">
       <linktext><apiname>%round/</apiname></linktext>
     </link>
-    <link href="c-ffi/Pshift_left.xml">
+    <link href="../common-dylan/machine-words/Pshift_left.xml">
       <linktext><apiname>%shift-left</apiname></linktext>
     </link>
-    <link href="c-ffi/Pshift_right.xml">
+    <link href="../common-dylan/machine-words/Pshift_right.xml">
       <linktext><apiname>%shift-right</apiname></linktext>
     </link>
-    <link href="c-ffi/PtruncateS.xml">
+    <link href="../common-dylan/machine-words/PtruncateS.xml">
       <linktext><apiname>%truncate/</apiname></linktext>
     </link>
     <link href="c-ffi/Labstract_integerG.xml">
@@ -292,11 +292,8 @@
     <link href="c-ffi/Lc_raw_unsigned_charTTG.xml">
       <linktext><apiname>&lt;c-raw-unsigned-char**&gt;</apiname></linktext>
     </link>
-    <link href="c-ffi/Lc_raw_unsi.xml">
-      <linktext><apiname>&lt;c-raw-unsi</apiname></linktext>
-    </link>
-    <link href="c-ffi/gned_charTG.xml">
-      <linktext><apiname>gned-char*&gt;</apiname></linktext>
+    <link href="c-ffi/Lc_raw_unsigned_charTG.xml">
+      <linktext><apiname>&lt;c-raw-unsigned-char*&gt;</apiname></linktext>
     </link>
     <link href="c-ffi/Lc_raw_unsigned_charG.xml">
       <linktext><apiname>&lt;c-raw-unsigned-char&gt;</apiname></linktext>
@@ -493,13 +490,13 @@
     <link href="c-ffi/Lffi_integerG.xml">
       <linktext><apiname>&lt;ffi-integer&gt;</apiname></linktext>
     </link>
-    <link href="c-ffi/Lmachine_wordG.xml">
+    <link href="../common-dylan/machine-words/Lmachine_wordG.xml">
       <linktext><apiname>&lt;machine-word&gt;</apiname></linktext>
     </link>
     <link href="c-ffi/alignment_of.xml">
       <linktext><apiname>alignment-of</apiname></linktext>
     </link>
-    <link href="c-ffi/as_unsigned.xml">
+    <link href="../common-dylan/machine-words/as_unsigned.xml">
       <linktext><apiname>as-unsigned</apiname></linktext>
     </link>
     <link href="c-ffi/c_address_definer.xml">
@@ -649,19 +646,19 @@
     <link href="c-ffi/copy_intoX.xml">
       <linktext><apiname>copy-into!</apiname></linktext>
     </link>
-    <link href="c-ffi/dPceilingS.xml">
+    <link href="../common-dylan/machine-words/dPceilingS.xml">
       <linktext><apiname>d%ceiling/</apiname></linktext>
     </link>
-    <link href="c-ffi/dPdivide.xml">
+    <link href="../common-dylan/machine-words/dPdivide.xml">
       <linktext><apiname>d%divide</apiname></linktext>
     </link>
-    <link href="c-ffi/dPfloorS.xml">
+    <link href="../common-dylan/machine-words/dPfloorS.xml">
       <linktext><apiname>d%floor/</apiname></linktext>
     </link>
-    <link href="c-ffi/dProundS.xml">
+    <link href="../common-dylan/machine-words/dProundS.xml">
       <linktext><apiname>d%round/</apiname></linktext>
     </link>
-    <link href="c-ffi/dPtruncateS.xml">
+    <link href="../common-dylan/machine-words/dPtruncateS.xml">
       <linktext><apiname>d%truncate/</apiname></linktext>
     </link>
     <link href="c-ffi/destroy.xml">
@@ -736,58 +733,58 @@
     <link href="c-ffi/size_of.xml">
       <linktext><apiname>size-of</apiname></linktext>
     </link>
-    <link href="c-ffi/soPT.xml">
+    <link href="../common-dylan/machine-words/soPT.xml">
       <linktext><apiname>so%*</apiname></linktext>
     </link>
-    <link href="c-ffi/soPA.xml">
+    <link href="../common-dylan/machine-words/soPA.xml">
       <linktext><apiname>so%+</apiname></linktext>
     </link>
-    <link href="c-ffi/soP_.xml">
+    <link href="../common-dylan/machine-words/soP_.xml">
       <linktext><apiname>so%-</apiname></linktext>
     </link>
-    <link href="c-ffi/soPabs.xml">
+    <link href="../common-dylan/machine-words/soPabs.xml">
       <linktext><apiname>so%abs</apiname></linktext>
     </link>
-    <link href="c-ffi/soPnegative.xml">
+    <link href="../common-dylan/machine-words/soPnegative.xml">
       <linktext><apiname>so%negative</apiname></linktext>
     </link>
-    <link href="c-ffi/soPshift_left.xml">
+    <link href="../common-dylan/machine-words/soPshift_left.xml">
       <linktext><apiname>so%shift-left</apiname></linktext>
     </link>
-    <link href="c-ffi/uPT.xml">
+    <link href="../common-dylan/machine-words/uPT.xml">
       <linktext><apiname>u%*</apiname></linktext>
     </link>
-    <link href="c-ffi/uPA.xml">
+    <link href="../common-dylan/machine-words/uPA.xml">
       <linktext><apiname>u%+</apiname></linktext>
     </link>
-    <link href="c-ffi/uP_.xml">
+    <link href="../common-dylan/machine-words/uP_.xml">
       <linktext><apiname>u%-</apiname></linktext>
     </link>
-    <link href="c-ffi/uPL.xml">
+    <link href="../common-dylan/machine-words/uPL.xml">
       <linktext><apiname>u%&lt;</apiname></linktext>
     </link>
-    <link href="c-ffi/uPdivide.xml">
+    <link href="../common-dylan/machine-words/uPdivide.xml">
       <linktext><apiname>u%divide</apiname></linktext>
     </link>
-    <link href="c-ffi/uProtate_left.xml">
+    <link href="../common-dylan/machine-words/uProtate_left.xml">
       <linktext><apiname>u%rotate-left</apiname></linktext>
     </link>
-    <link href="c-ffi/uProtate_right.xml">
+    <link href="../common-dylan/machine-words/uProtate_right.xml">
       <linktext><apiname>u%rotate-right</apiname></linktext>
     </link>
-    <link href="c-ffi/uPshift_left.xml">
+    <link href="../common-dylan/machine-words/uPshift_left.xml">
       <linktext><apiname>u%shift-left</apiname></linktext>
     </link>
-    <link href="c-ffi/uPshift_right.xml">
+    <link href="../common-dylan/machine-words/uPshift_right.xml">
       <linktext><apiname>u%shift-right</apiname></linktext>
     </link>
-    <link href="c-ffi/udPdivide.xml">
+    <link href="../common-dylan/machine-words/udPdivide.xml">
       <linktext><apiname>ud%divide</apiname></linktext>
     </link>
-    <link href="c-ffi/udPshift_left.xml">
+    <link href="../common-dylan/machine-words/udPshift_left.xml">
       <linktext><apiname>ud%shift-left</apiname></linktext>
     </link>
-    <link href="c-ffi/udPshift_right.xml">
+    <link href="../common-dylan/machine-words/udPshift_right.xml">
       <linktext><apiname>ud%shift-right</apiname></linktext>
     </link>
     <link href="c-ffi/unregister_c_dylan_object.xml">

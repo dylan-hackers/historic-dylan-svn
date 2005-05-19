@@ -55,7 +55,7 @@
     <link href="locators/Llocator_errorG.xml">
       <linktext><apiname>&lt;locator-error&gt;</apiname></linktext>
     </link>
-    <link href="locators/LlocatorG.xml">
+    <link href="../common-dylan/locators-protocol/LlocatorG.xml">
       <linktext><apiname>&lt;locator&gt;</apiname></linktext>
     </link>
     <link href="locators/Lmail_to_locatorG.xml">
@@ -94,7 +94,7 @@
     <link href="locators/https_parser.xml">
       <linktext><apiname>https-parser</apiname></linktext>
     </link>
-    <link href="locators/list_locator.xml">
+    <link href="../common-dylan/locators-protocol/list_locator.xml">
       <linktext><apiname>list-locator</apiname></linktext>
     </link>
     <link href="locators/locator_address.xml">
@@ -163,7 +163,7 @@
     <link href="locators/merge_locators.xml">
       <linktext><apiname>merge-locators</apiname></linktext>
     </link>
-    <link href="locators/open_locator.xml">
+    <link href="../common-dylan/locators-protocol/open_locator.xml">
       <linktext><apiname>open-locator</apiname></linktext>
     </link>
     <link href="locators/relative_locator.xml">
@@ -178,10 +178,10 @@
     <link href="locators/subdirectory_locator.xml">
       <linktext><apiname>subdirectory-locator</apiname></linktext>
     </link>
-    <link href="locators/supports_list_locatorQ.xml">
+    <link href="../common-dylan/locators-protocol/supports_list_locatorQ.xml">
       <linktext><apiname>supports-list-locator?</apiname></linktext>
     </link>
-    <link href="locators/supports_open_locatorQ.xml">
+    <link href="../common-dylan/locators-protocol/supports_open_locatorQ.xml">
       <linktext><apiname>supports-open-locator?</apiname></linktext>
     </link>
   </related-links>

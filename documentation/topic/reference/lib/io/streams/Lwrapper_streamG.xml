@@ -20,7 +20,7 @@
       <dylanSuperClass href="Lbasic_streamG.xml">&lt;basic-stream&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>inner-stream:</apiItemName>
-        <apiOtherClassifier href="LstreamG.xml">&lt;stream&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

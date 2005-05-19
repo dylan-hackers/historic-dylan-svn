@@ -16,7 +16,7 @@
     <dylanFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>event-object</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan-extensions/Lmachine_wordG.xml">&lt;machine-word&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../common-dylan/machine-words/Lmachine_wordG.xml">&lt;machine-word&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionKeywordParam>

@@ -2,7 +2,10 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-threads-sequence_point">
   <apiName>sequence-point</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>>Tells the compiler that it must consider the possibility
+  of visible side effects from other threads at the point of the
+  call</shortdesc>
 
   <prolog>
     <author></author>
@@ -17,7 +20,18 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Tells the compiler that it must consider the possibility of visible
+      side effects from other threads at the point of the call.</p>
+
+      <p>Normally, the compiler is not obliged to consider this
+      possibility, and is free to rearrange program order provided
+      that the reordering cannot be detected within a thread. </p>
+
+      <p>Calling this function effectively prohibits the compiler from
+      rearranging the order of reads or writes from or to global data,
+      relative to the call. This function may disallow compiler
+      optimizations, leading to less efficient code, even for
+      strongly-ordered machines.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

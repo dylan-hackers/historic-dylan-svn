@@ -15,10 +15,10 @@
   <dylanClassDetail>
     <dylanClassDef>
       <dylanPrimaryClass/>
-      <dylanSuperClass href="LvectorG.xml">&lt;vector&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../dylan/dylan/LvectorG.xml">&lt;vector&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>buffer-dirty?:</apiItemName>
-        <apiOtherClassifier href="LbooleanG.xml">&lt;boolean&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
@@ -43,7 +43,7 @@
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>fill:</apiItemName>
-        <apiOtherClassifier href="../streams-internals/Lbyte_representationG.xml">&lt;byte-representation&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../common-dylan/byte-vector/LbyteG.xml">&lt;byte-representation&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
@@ -53,7 +53,7 @@
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>use-count:</apiItemName>
-        <apiOtherClassifier href="LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

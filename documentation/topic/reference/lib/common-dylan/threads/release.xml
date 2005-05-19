@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-threads-release">
   <apiName>release</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Releases a synchronization object.</shortdesc>
 
   <prolog>
     <author></author>
@@ -23,7 +23,13 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Releases the supplied synchronization object,
+      <parmname>object</parmname>, potentially making it available to
+      other threads. Individual methods describe what this means for
+      each class of synchronization. This function does not block for
+      any of the subclasses of <apiclassifier
+      href="LsynchronizationG.xml">&lt;synchronization&gt;</apiclassifier>
+      provided by the library. </p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

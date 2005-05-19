@@ -17,11 +17,6 @@
       <dylanOpenClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
       <dylanSuperClass href="../../dylan/internal/Lc_non_structG.xml">&lt;c-non-struct&gt;</dylanSuperClass>
-      <dylanInitKeyword>
-	<apiItemName>raw-pointer-address:</apiItemName>
-        <apiOtherClassifier href="{unknown object}.xml">{unknown object}</apiOtherClassifier>
-	<apiDefNote></apiDefNote>
-      </dylanInitKeyword>
     </dylanClassDef>
 
     <apiDesc>

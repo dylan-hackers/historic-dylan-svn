@@ -19,10 +19,10 @@
   </dylanModuleDetail>
 
   <related-links>
-    <link href="simple-format/format_out.xml">
+    <link href="../common-dylan/simple-io/format_out.xml">
       <linktext><apiname>format-out</apiname></linktext>
     </link>
-    <link href="simple-format/format_to_string.xml">
+    <link href="../common-dylan/common-extensions/format_to_string.xml">
       <linktext><apiname>format-to-string</apiname></linktext>
     </link>
   </related-links>

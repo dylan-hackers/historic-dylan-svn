@@ -14,20 +14,20 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="LobjectG.xml">&lt;object&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>description:</apiItemName>
-        <apiOtherClassifier href="LstringG.xml">&lt;string&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>name:</apiItemName>
-        <apiOtherClassifier href="LstringG.xml">&lt;string&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>tags:</apiItemName>
-        <apiOtherClassifier href="LsequenceG.xml">&lt;sequence&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LsequenceG.xml">&lt;sequence&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

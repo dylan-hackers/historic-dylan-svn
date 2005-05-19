@@ -21,7 +21,7 @@
       </dylanFunctionParam>
       <dylanFunctionParam>
 	<apiItemName>stream</apiItemName>
-        <apiOperationClassifier href="../../common-dylan/common-extensions/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionKeywordParam>

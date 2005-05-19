@@ -21,12 +21,12 @@
       </dylanFunctionParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>wait?</apiItemName>
-        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>bytes</apiItemName>
-        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionReturn>

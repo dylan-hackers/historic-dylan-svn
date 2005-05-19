@@ -86,7 +86,7 @@
       <link href="../dylan/dylan/Lbyte_stringG.xml">
 	<linktext><apiname>&lt;byte-string&gt;</apiname></linktext>
       </link>
-      <link href="common-extensions/Lbyte_vectorG.xml">
+      <link href="byte-vector/Lbyte_vectorG.xml">
 	<linktext><apiname>&lt;byte-vector&gt;</apiname></linktext>
       </link>
       <link href="../dylan/dylan/LcharacterG.xml">
@@ -722,10 +722,10 @@
       <link href="../dylan/dylan/positiveQ.xml">
 	<linktext><apiname>positive?</apiname></linktext>
       </link>
-      <link href="common-extensions/profiling.xml">
+      <link href="simple-profiling/profiling.xml">
 	<linktext><apiname>profiling</apiname></linktext>
       </link>
-      <link href="common-extensions/profiling_type_result.xml">
+      <link href="simple-profiling/profiling_type_result.xml">
 	<linktext><apiname>profiling-type-result</apiname></linktext>
       </link>
       <link href="../dylan/dylan/push.xml">

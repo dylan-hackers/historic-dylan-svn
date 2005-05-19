@@ -16,7 +16,7 @@
     <dylanGenericFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>real</apiItemName>
-        <apiOperationClassifier href="../internal/Lmachine_numberG.xml">&lt;machine-number&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="LrealG.xml">&lt;machine-number&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionReturn>
@@ -26,7 +26,7 @@
       </dylanFunctionReturn>
       <dylanFunctionReturn>
 	<apiItemName>remainder</apiItemName>
-        <apiOperationClassifier href="../internal/Lmachine_numberG.xml">&lt;machine-number&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="LrealG.xml">&lt;machine-number&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>

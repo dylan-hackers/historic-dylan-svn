@@ -20,7 +20,7 @@
       <dylanSuperClass href="Lnumeric_addressG.xml">&lt;numeric-address&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>address:</apiItemName>
-        <apiOtherClassifier href="../../dylan/dylan-extensions/Lmachine_wordG.xml">&lt;machine-word&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../common-dylan/machine-words/Lmachine_wordG.xml">&lt;machine-word&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

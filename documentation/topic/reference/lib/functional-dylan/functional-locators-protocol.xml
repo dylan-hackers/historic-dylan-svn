@@ -19,28 +19,28 @@
   </dylanModuleDetail>
 
   <related-links>
-    <link href="functional-locators-protocol/Llocator_defaultsG.xml">
+    <link href="../system/locators/Llocator_defaultsG.xml">
       <linktext><apiname>&lt;locator-defaults&gt;</apiname></linktext>
     </link>
-    <link href="functional-locators-protocol/LlocatorG.xml">
+    <link href="../common-dylan/locators-protocol/LlocatorG.xml">
       <linktext><apiname>&lt;locator&gt;</apiname></linktext>
     </link>
-    <link href="functional-locators-protocol/Lphysical_locatorG.xml">
+    <link href="../system/locators/Lphysical_locatorG.xml">
       <linktext><apiname>&lt;physical-locator&gt;</apiname></linktext>
     </link>
-    <link href="functional-locators-protocol/Lserver_locatorG.xml">
+    <link href="../system/locators/Lserver_locatorG.xml">
       <linktext><apiname>&lt;server-locator&gt;</apiname></linktext>
     </link>
-    <link href="functional-locators-protocol/list_locator.xml">
+    <link href="../common-dylan/locators-protocol/list_locator.xml">
       <linktext><apiname>list-locator</apiname></linktext>
     </link>
-    <link href="functional-locators-protocol/open_locator.xml">
+    <link href="../common-dylan/locators-protocol/open_locator.xml">
       <linktext><apiname>open-locator</apiname></linktext>
     </link>
-    <link href="functional-locators-protocol/supports_list_locatorQ.xml">
+    <link href="../common-dylan/locators-protocol/supports_list_locatorQ.xml">
       <linktext><apiname>supports-list-locator?</apiname></linktext>
     </link>
-    <link href="functional-locators-protocol/supports_open_locatorQ.xml">
+    <link href="../common-dylan/locators-protocol/supports_open_locatorQ.xml">
       <linktext><apiname>supports-open-locator?</apiname></linktext>
     </link>
   </related-links>

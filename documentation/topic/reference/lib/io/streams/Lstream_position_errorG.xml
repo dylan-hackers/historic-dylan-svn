@@ -14,15 +14,15 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="Lstream_errorG.xml">&lt;stream-error&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../common-dylan/streams-protocol/Lstream_errorG.xml">&lt;stream-error&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>position:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>size:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

@@ -17,20 +17,20 @@
       <dylanOpenClass/>
       <dylanPrimaryClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="LstreamG.xml">&lt;stream&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>direction:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>element-type:</apiItemName>
-        <apiOtherClassifier href="LtypeG.xml">&lt;type&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LtypeG.xml">&lt;type&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>end:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
       <dylanInitKeyword>
@@ -40,7 +40,7 @@
       </dylanInitKeyword>
       <dylanInitKeyword>
 	<apiItemName>start:</apiItemName>
-        <apiOtherClassifier href="LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

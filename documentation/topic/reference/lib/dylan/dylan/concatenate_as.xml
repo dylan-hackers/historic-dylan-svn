@@ -30,14 +30,12 @@
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestParam>
       <dylanFunctionReturn>
-	<apiItemName>result-seque</apiItemName>
-      <dylanFunctionReturn>
-	<apiItemName>nce</apiItemName>
+	<apiItemName>result-sequence</apiItemName>
         <apiOperationClassifier href="Lmutable_sequenceG.xml">&lt;mutable-sequence&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>
-
+    
     <apiDesc>
       <p></p>
     </apiDesc>

@@ -14,7 +14,7 @@
 
   <dylanVariableDetail>
     <dylanVariableDef>
-      <apiValueClassifier href="LobjectG.xml">&lt;object&gt;</apiValueClassifier>
+      <apiValueClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiValueClassifier>
     </dylanVariableDef>
 
     <apiDesc>

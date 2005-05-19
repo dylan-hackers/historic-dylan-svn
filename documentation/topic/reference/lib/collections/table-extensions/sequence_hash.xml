@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-collections-table-extensions-sequence_hash">
   <apiName>sequence-hash</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns a hash value for the elements of a
+  sequence.</shortdesc>
 
   <prolog>
     <author></author>
@@ -42,7 +44,17 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Hashes every element of <parmname>sequence</parmname> using
+      <parmname>elt-hash-function</parmname>, and merges the resulting
+      hash codes in order.</p>
+
+      <p>The function <parmname>elt-hash-function</parmname> must be
+      suitable for use as a hash function, as described in the
+      <cite>Dylan Reference Manual</cite>.</p>
+
+      <p>The <parmname>ordered</parmname> keyword is passed on to
+      <apioperation
+      href="../../dylan/dylan/merge_hash_ids.xml">merge-hash-ids</apioperation>.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-float_to_string">
   <apiName>float-to-string</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns a decimal string representation of a
+  floating-point number.</shortdesc>
 
   <prolog>
     <author></author>
@@ -32,7 +34,8 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Formats a floating-point number as a string. It uses scientific
+      notation where necessary.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

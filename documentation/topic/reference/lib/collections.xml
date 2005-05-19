@@ -25,7 +25,7 @@
     <link href="collections/bit-vector.xml">
       <linktext><apiname>bit-vector</apiname></linktext>
     </link>
-    <link href="collections/byte-vector.xml">
+    <link href="common-dylan/byte-vector.xml">
       <linktext><apiname>byte-vector</apiname></linktext>
     </link>
     <link href="collections/collectors.xml">

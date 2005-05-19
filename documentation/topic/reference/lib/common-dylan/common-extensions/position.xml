@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-common-extensions-position">
   <apiName>position</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the key at which a particular value occurs in a
+  sequence.</shortdesc>
 
   <prolog>
     <author></author>
@@ -28,7 +30,7 @@
       <dylanFunctionKeywordParam>
 	<apiItemName>test</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The default value is <apioperation href="../../dylan/dylan/EE.xml">\==</apioperation></apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>skip</apiItemName>
@@ -48,7 +50,27 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the key at which <parmname>target</parmname> occurs in
+      <parmname>sequence</parmname>.</p>
+
+      <p>If <parmname>predicate</parmname> is supplied,
+      <apiname>position</apiname> uses it as an equivalence predicate
+      for comparing <parmname>sequence</parmname>’s elements to
+      <parmname>target</parmname> . It should take two objects and
+      return a boolean.  The default predicate used is
+      <apioperation href="../../dylan/dylan/EE.xml">\==</apioperation> . </p>
+
+      <p>COMMENT: Should use a better description for how
+      <parmname>test</parmname> is invoked.</p>
+
+      <p>The <parmname>skip</parmname> argument is interpreted as it
+      is by Dylan’s <apioperation
+      href="../../dylan/dylan/find_key.xml">find-key</apioperation>
+      function: <apiname>position</apiname> ignores the first
+      <parmname>skip</parmname> elements that match
+      <parmname>value</parmname>, and if <parmname>skip</parmname> or
+      fewer elements satisfy <parmname>predicate</parmname>, it
+      returns <codeph>#f</codeph>.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

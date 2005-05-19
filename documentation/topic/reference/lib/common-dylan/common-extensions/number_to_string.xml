@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-common-extensions-number_to_string">
   <apiName>number-to-string</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Formats a number as a string.</shortdesc>
 
   <prolog>
     <author></author>
@@ -28,7 +28,8 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Formats a number to a string. It uses scientific notation where
+      necessary.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

@@ -27,7 +27,7 @@
       </dylanFunctionParam>
       <dylanFunctionRestReturn>
 	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestReturn>
     </dylanGenericFunctionDef>

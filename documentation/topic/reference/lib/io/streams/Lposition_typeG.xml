@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
-<dylanConstant id="lib-io-streams-Lposition_typeG">
+<!DOCTYPE dylanType PUBLIC "-//Gwydion//DTD DITA Dylan API Type//EN" "../../../../dtd/dylanType.dtd" []>
+<dylanType>
   <apiName>&lt;position-type&gt;</apiName>
   <shortdesc></shortdesc>
 
@@ -14,11 +14,11 @@
 
   <dylanConstantDetail>
     <dylanConstantDef>
-      <apiValueClassifier href="LobjectG.xml">&lt;object&gt;</apiValueClassifier>
+      <apiValueClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiValueClassifier>
     </dylanConstantDef>
 
     <apiDesc>
       <p></p>
     </apiDesc>
   </dylanConstantDetail>
-</dylanConstant>
+</dylanType>

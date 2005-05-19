@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-application_arguments">
   <apiName>application-arguments</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the arguments passed to the running
+  application.</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,7 +24,8 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the arguments passed to the running application as a vector
+      of instances of <codeph>&lt;byte-string&gt;</codeph> .</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

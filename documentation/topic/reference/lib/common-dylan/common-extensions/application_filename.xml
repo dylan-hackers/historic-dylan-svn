@@ -2,7 +2,7 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-application_filename">
   <apiName>application-filename</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns the full filename of the running application.</shortdesc>
 
   <prolog>
     <author></author>
@@ -16,13 +16,15 @@
     <dylanFunctionDef>
       <dylanFunctionReturn>
 	<apiItemName>filename</apiItemName>
-        <apiType value="{complex type}"/>
+        <apiType value="false-or(&lt;byte-string&gt;)"/>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the full filename (that is, the absolute pathname) of
+      the running application, or <codeph>#f</codeph> if the filename
+      cannot be determined. </p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

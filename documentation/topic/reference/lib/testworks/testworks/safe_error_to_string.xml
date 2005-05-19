@@ -16,12 +16,12 @@
     <dylanFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>error</apiItemName>
-        <apiOperationClassifier href="LerrorG.xml">&lt;error&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LerrorG.xml">&lt;error&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>string</apiItemName>
-        <apiOperationClassifier href="LstringG.xml">&lt;string&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanFunctionDef>

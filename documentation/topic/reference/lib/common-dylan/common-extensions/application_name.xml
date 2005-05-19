@@ -2,7 +2,7 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-application_name">
   <apiName>application-name</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns the name of the running application.</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,7 +22,9 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the name of the running application. This is normally
+      the command name as typed on the command line, and may be an
+      absolute or relative pathname.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

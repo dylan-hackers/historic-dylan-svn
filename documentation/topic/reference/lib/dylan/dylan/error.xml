@@ -24,11 +24,6 @@
         <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestParam>
-      <dylanFunctionReturn>
-	<apiItemName>will-never-return</apiItemName>
-        <apiOperationClassifier href="{unknown object}.xml">{unknown object}</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
-      </dylanFunctionReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>

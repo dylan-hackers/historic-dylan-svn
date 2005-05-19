@@ -2,7 +2,7 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-simple-io-format_out">
   <apiName>format-out</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Formats its arguments to standard output.</shortdesc>
 
   <prolog>
     <author></author>
@@ -27,7 +27,15 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Formats its arguments to the standard output. </p>
+
+      <p>This function does not use the <apivalue
+       href="../../io/standard-io/Tstandard_outputT.xml">*standard-output*</apivalue>
+       stream defined in the <apipackage
+       href="../../io.xml">io</apipackage> library.</p>
+
+       <p>FIXME format directives reference, refer to more complete io
+       library format-out implementation.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

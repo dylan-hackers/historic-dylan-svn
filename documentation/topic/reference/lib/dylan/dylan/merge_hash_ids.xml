@@ -2,7 +2,7 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-dylan-dylan-merge_hash_ids">
   <apiName>merge-hash-ids</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns a hash ID created by merging two hash IDs.</shortdesc>
 
   <prolog>
     <author></author>
@@ -27,17 +27,38 @@
       <dylanFunctionKeywordParam>
 	<apiItemName>ordered</apiItemName>
         <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The default value is <codeph>#f</codeph>.</apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionReturn>
-	<apiItemName>id</apiItemName>
+	<apiItemName>merged-id</apiItemName>
         <apiOperationClassifier href="LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Computes a new hash ID by merging the argument hash IDs in
+      some implementation-dependent way. This can be used, for
+      example, to generate a hash ID for an object by combining hash
+      IDs of some of its parts.</p>
+
+      <p>The <parmname>id1</parmname>, <parmname>id2</parmname>
+      arguments and the return value <parmname>merged-id</parmname>
+      are all integers.</p>
+
+      <p>The <parmname>ordered</parmname> argument is a boolean, and
+      determines whether the algorithm used to the merge the IDs is
+      permitted to be order-dependent.  If false (the default), the
+      merged result must be independent of the order in which the
+      arguments are provided. If true, the order of the arguments
+      matters because the algorithm used need not be either
+      commutative or associative. It is best to provide a true value
+      for <parmname>ordered</parmname> when possible, as this may
+      result in a better distribution of hash IDs. However,
+      <parmname>ordered</parmname> must only be true if that will not
+      cause the hash function to violate the second constraint on hash
+      functions, as described in the <cite>Dylan Reference
+      Manual</cite>.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

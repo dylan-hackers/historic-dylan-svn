@@ -21,7 +21,7 @@
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>input-available?</apiItemName>
-        <apiOperationClassifier href="LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanFunctionDef>

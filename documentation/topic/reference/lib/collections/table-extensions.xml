@@ -22,7 +22,7 @@
     <link href="table-extensions/Lhash_stateG.xml">
       <linktext><apiname>&lt;hash-state&gt;</apiname></linktext>
     </link>
-    <link href="table-extensions/Lstring_tableG.xml">
+    <link href="../common-dylan/common-extensions/Lstring_tableG.xml">
       <linktext><apiname>&lt;string-table&gt;</apiname></linktext>
     </link>
     <link href="table-extensions/case_insensitive_equal.xml">
@@ -34,7 +34,7 @@
     <link href="table-extensions/collection_hash.xml">
       <linktext><apiname>collection-hash</apiname></linktext>
     </link>
-    <link href="table-extensions/remove_all_keysX.xml">
+    <link href="../common-dylan/common-extensions/remove_all_keysX.xml">
       <linktext><apiname>remove-all-keys!</apiname></linktext>
     </link>
     <link href="table-extensions/sequence_hash.xml">

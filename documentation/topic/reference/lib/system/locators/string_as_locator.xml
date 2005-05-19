@@ -27,7 +27,7 @@
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>locator</apiItemName>
-        <apiOperationClassifier href="LlocatorG.xml">&lt;locator&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../common-dylan/locators-protocol/LlocatorG.xml">&lt;locator&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>

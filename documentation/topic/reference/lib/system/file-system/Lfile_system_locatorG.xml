@@ -16,7 +16,7 @@
     <dylanClassDef>
       <dylanOpenClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="../../common-dylan/functional-objects-extras/Lphysical_locatorG.xml">&lt;physical-locator&gt;</dylanSuperClass>
+      <dylanSuperClass href="../locators/Lphysical_locatorG.xml">&lt;physical-locator&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

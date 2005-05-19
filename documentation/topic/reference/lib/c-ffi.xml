@@ -22,8 +22,5 @@
     <link href="c-ffi/c-ffi.xml">
       <linktext><apiname>c-ffi</apiname></linktext>
     </link>
-    <link href="c-ffi/unix-core.xml">
-      <linktext><apiname>unix-core</apiname></linktext>
-    </link>
   </related-links>
 </dylanLibrary>

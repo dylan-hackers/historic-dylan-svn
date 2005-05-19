@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-format_to_string">
   <apiName>format-to-string</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns a formatted string constructed from its
+  arguments.</shortdesc>
 
   <prolog>
     <author></author>
@@ -32,7 +34,14 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns a formatted string constructed from its arguments,
+      which include a <parmname>format-string</parmname> of formatting
+      directives and a series of <i>format-arguments</i> to be
+      formatted according to those directives.</p>
+
+      <p>The <parmname>format-string</parmname> must be a Dylan format
+      string as described in the <cite>Dylan Reference
+      Manual</cite>.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

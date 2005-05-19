@@ -15,7 +15,7 @@
   <dylanClassDetail>
     <dylanClassDef>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="../../common-dylan/functional-objects-extras/Lserver_locatorG.xml">&lt;server-locator&gt;</dylanSuperClass>
+      <dylanSuperClass href="../locators/Lserver_locatorG.xml">&lt;server-locator&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

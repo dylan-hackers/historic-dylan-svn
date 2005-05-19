@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-one_of">
   <apiName>one-of</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns a union type comprised of singletons formed from
+  its arguments.</shortdesc>
 
   <prolog>
     <author></author>
@@ -24,15 +26,28 @@
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestParam>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+      <dylanFunctionReturn>
+	<apiItemName>type</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LtypeG.xml">&lt;type&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+      </dylanFunctionReturn>
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns a union type comprised of
+      <codeph>singleton(<parmname>first</parmname>)</codeph> and the
+      singletons of any other objects passed with
+      <parmname>rest</parmname>.</p>
+
+<codeblock>
+one-of(<varname>x</varname>, <varname>y</varname>, <varname>z</varname> )
+</codeblock>
+
+      <p>is a type expression that is equivalent to</p>
+
+<codeblock>
+type-union(singleton(<varname>x</varname>), singleton(<varname>y</varname>), singleton(<varname>z</varname>))
+</codeblock>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-threads-release_all">
   <apiName>release-all</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Release a notification to all the threads that are
+  blocked and waiting for it.</shortdesc>
 
   <prolog>
     <author></author>
@@ -15,14 +17,17 @@
   <dylanFunctionDetail>
     <dylanFunctionDef>
       <dylanFunctionParam>
-	<apiItemName>notif</apiItemName>
+	<apiItemName>notification</apiItemName>
         <apiOperationClassifier href="LnotificationG.xml">&lt;notification&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Releases <parmname>notification</parmname>, announcing the
+      change of state to all threads which are blocked and waiting for
+      it. Those threads will then necessarily have to compete for the
+      lock associated with the notification. </p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

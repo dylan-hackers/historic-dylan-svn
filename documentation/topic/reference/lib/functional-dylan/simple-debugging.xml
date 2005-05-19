@@ -19,13 +19,13 @@
   </dylanModuleDetail>
 
   <related-links>
-    <link href="simple-debugging/assert.xml">
+    <link href="../common-dylan/common-extensions/assert.xml">
       <linktext><apiname>assert</apiname></linktext>
     </link>
-    <link href="simple-debugging/debug_assert.xml">
+    <link href="../common-dylan/common-extensions/debug_assert.xml">
       <linktext><apiname>debug-assert</apiname></linktext>
     </link>
-    <link href="simple-debugging/debug_message.xml">
+    <link href="../common-dylan/common-extensions/debug_message.xml">
       <linktext><apiname>debug-message</apiname></linktext>
     </link>
     <link href="simple-debugging/debug_out.xml">
