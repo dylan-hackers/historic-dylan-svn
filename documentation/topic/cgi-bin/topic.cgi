@@ -16,6 +16,9 @@ my $q = new CGI;
 my $view = $q->param('view') || 'default';
 my $path = $q->path_info;
 
+my $parser;
+my $xslt;
+
 if($view eq 'download') {
     if(&path_ok($path)
        && $path =~ /\.(xml|dita|ditamap)$/
@@ -35,17 +38,13 @@ if($view eq 'download') {
 } elsif($view eq 'default') {
     require XML::LibXML;
     require XML::LibXSLT;
-    require IO::Tee;
 
-    my $parser = new XML::LibXML;
-    my $xslt = new XML::LibXSLT;
+    $parser = new XML::LibXML;
+    $xslt = new XML::LibXSLT;
 
     $parser->load_catalog("$wwwtopic/catalog.xml");
     $parser->load_catalog("$ditaot/catalog-dita.xml");
     
-    my $stylesheet
-	= $xslt->parse_stylesheet_file("$wwwtopic/xsl/dylan-dita2cms.xsl");
-
     $parser->expand_entities(1);
     $parser->complete_attributes(1);
     $parser->load_ext_dtd(1);
@@ -56,45 +55,31 @@ if($view eq 'download') {
        && -f "$wwwtopic$path") {
 	print $q->header(-charset => 'utf-8', -encoding => 'utf-8');
 	binmode STDOUT, ":utf8";
-	&dump_head;
+	&start_head;
 
-	my $cachepath = "$cache$path.cache";
-	if(-f $cachepath
-	   && (-M $cachepath) < (-M "$wwwtopic$path")
-	   && (-M $cachepath) < (-M "$wwwdata/menu.html")
-	   && open(CACHE, '<:utf8', $cachepath)) {
-	    print <CACHE>;
-	    close(CACHE);
-	    &dump_foot;
-	    exit 0;
-	}
-
-	my $fh = \*STDOUT;
-	if(&ensure_cache_dirs($path) && open(CACHE, '>:utf8', $cachepath)) {
-	    $fh = new IO::Tee(\*STDOUT, \*CACHE);
-	} else {
-	    warn "Couldn't open cache file $cachepath: $!";
-	}
+	my $stylesheet
+	    = $xslt->parse_stylesheet_file("$wwwtopic/xsl/dylan-dita2cms.xsl");
 
 	my $doc = $parser->parse_file("$wwwtopic$path");
 	my $result = $stylesheet->transform($doc);
 
-	print $fh "<title>Gwydion Dylan: ";
-	&printHTML($result->findnodes("/html/head/title/text()"));
-	print $fh "</title>";
-	print $fh "</HEAD>";
-	print $fh "<body>";
-	&dump_menu($fh);
+	print "<title>Gwydion Dylan: ";
+	&print_title(\*STDOUT, $path, $stylesheet, $doc, $result);
+	print "</title>";
+	&end_head;
+	print "<body>";
+	&dump_menu;
 
-	&printHTML($fh, $result->findnodes("/html/body/node()"));
+	&print_body(\*STDOUT, $path, $stylesheet, $doc, $result);
 	&dump_foot;
 	exit 0;
     } elsif(-d "$wwwtopic$path"
 	    && !($path =~ m|/\.svn/|)) {
 	print $q->header(-charset => 'utf-8', -encoding => 'utf-8');
 	binmode STDOUT, ":utf8";
-	&dump_head;
+	&start_head;
 	print "<title>Gwydion Dylan: Topic $path</title>";
+	&end_head;
 	print "<body>";
 	&dump_menu;
 
@@ -117,9 +102,9 @@ if($view eq 'download') {
 	}
 	closedir(DIR);
 
-        print "<table>";
+        print '<table>';
 	print "<thead>";
-	print "<tr><th>Title</th><th>Summary</th></tr>";
+	print "<tr bgcolor='#6666FF'><th>Title</th><th>Summary</th></tr>";
 	print "</thead>";
 	print "<tbody>";
 	foreach my $dir (sort @dirs) {
@@ -130,16 +115,24 @@ if($view eq 'download') {
 		print "</tr>";
 	    }
 	}
-	foreach my $file (sort @files) {
-	    if($file =~ /\.(xml|dita|ditamap)$/) {
-		eval {
-		    my $doc = $parser->parse_file("$wwwtopic$path$file");
-		    my $result = $stylesheet->transform($doc);
-		    print "<tr><td><a href=\"$uri$path$file\">";
-		    printHTML($result->findnodes("/html/head/title/text()"));
-		    print "</a></td>";
-		    print '<td class="summary">', "Summary", '</td>';
-		    print '</tr>';
+
+	if(@files != 0) {
+	    my $stylesheet
+		= $xslt->parse_stylesheet_file("$wwwtopic/xsl/dylan-dita2cmsdir.xsl");
+
+	    foreach my $file (sort @files) {
+		if($file =~ /\.(xml|dita|ditamap)$/) {
+		    eval {
+			print "<tr><td><a href=\"$uri$path$file\">";
+			my ($doc, $result) =
+			    &print_title(\*STDOUT, "$path$file", $stylesheet);
+			print "</a></td>";
+			print '<td class="summary">';
+			&print_shortdesc(\*STDOUT, "$path$file", $stylesheet,
+					 $doc, $result);
+			print '</td>';
+			print '</tr>';
+		    };
 		}
 	    }
 	}
@@ -204,9 +197,14 @@ sub dump {
     close(FILE);
 }
 
-sub dump_head {
+sub start_head {
     my $fh = shift || \*STDOUT;
     &dump($fh, "$wwwdata/header.html");
+}
+
+sub end_head {
+    my $fh = shift || \*STDOUT;
+    print $fh "</HEAD>";
 }
 
 sub dump_menu {
@@ -217,6 +215,100 @@ sub dump_menu {
 sub dump_foot {
     my $fh = shift || \*STDOUT;
     &dump($fh, "$wwwdata/footer.html");
+}
+
+sub print_title {
+    my ($fh, $path, $stylesheet, $doc, $result) = @_;
+
+    my $titlecache = "$cache$path.title";
+    if(-f $titlecache
+       && (-M $titlecache) < (-M "$wwwtopic$path")
+       && open(CACHE, '<:utf8', $titlecache)) {
+	print $fh <CACHE>;
+	close(CACHE);
+	return;
+    }
+
+    unless(defined $doc) {
+	$doc = $parser->parse_file("$wwwtopic$path");
+    }
+    unless(defined $result) {
+	$result = $stylesheet->transform($doc);
+    }
+
+    my $title = $result->findnodes('/html/head/title/node()');
+    &printHTML(\*STDOUT, $title);
+
+    if(&ensure_cache_dirs($path) && open(CACHE, '>:utf8', $titlecache)) {
+	&printHTML(\*CACHE, $title);
+	close(CACHE);
+    }
+
+    return ($doc, $result);
+}
+
+sub print_shortdesc {
+    my ($fh, $path, $stylesheet, $doc, $result) = @_;
+
+    my $shortdesccache = "$cache$path.shortdesc";
+    if(-f $shortdesccache
+       && (-M $shortdesccache) < (-M "$wwwtopic$path")
+       && open(CACHE, '<:utf8', $shortdesccache)) {
+	print $fh <CACHE>;
+	close(CACHE);
+	return;
+    }
+
+    unless(defined $doc) {
+	$doc = $parser->parse_file("$wwwtopic$path");
+    }
+    unless(defined $result) {
+	$result = $stylesheet->transform($doc);
+    }
+
+    my $shortdesc
+	= $result->findnodes('/html/body/p[@class="shortdesc"]/node()');
+    &printHTML(\*STDOUT, $shortdesc);
+
+    if(&ensure_cache_dirs($path) && open(CACHE, '>:utf8', $shortdesccache)) {
+	&printHTML(\*CACHE, $shortdesc);
+	close(CACHE);
+    }
+
+    return ($doc, $result);
+}
+
+sub print_body {
+    require IO::Tee;
+    my ($fh, $path, $stylesheet, $doc, $result) = @_;
+
+    my $bodycache = "$cache$path.body";
+    if(-f $bodycache
+       && (-M $bodycache) < (-M "$wwwtopic$path")
+       && open(CACHE, '<:utf8', $bodycache)) {
+	print $fh <CACHE>;
+	close(CACHE);
+	return;
+    }
+
+    unless(defined $doc) {
+	$doc = $parser->parse_file("$wwwtopic$path");
+    }
+    unless(defined $result) {
+	$result = $stylesheet->transform($doc);
+    }
+
+    my $body = $result->findnodes('/html/body/node()');
+
+    if(&ensure_cache_dirs($path) && open(CACHE, '>:utf8', $bodycache)) {
+	my $tee = new IO::Tee(\*STDOUT, \*CACHE);
+	&printHTML($tee, $body);
+	close(CACHE);
+    } else {
+	&printHTML(\*STDOUT, $body);
+    }
+
+    return ($doc, $result);
 }
 
 sub printHTML {
@@ -252,6 +344,9 @@ sub printHTML {
 	    } else {
 		print $fh ' />'
 	    }
+	}
+	elsif($type eq 'XML::LibXML::NodeList') {
+	    &printHTML($fh, $node->get_nodelist);
 	}
 	elsif($type eq 'XML::LibXML::Comment') {
 	    # do nothing
