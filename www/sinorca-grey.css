@@ -31,6 +31,11 @@ h1 {
   margin-top: 3ex;
 }
 
+span.apitype {
+  position: absolute;
+  right: 4ex;
+}
+
 img {
   border: none;
 }
@@ -52,20 +57,26 @@ acronym {
   cursor: help;
 }
 
-code {
+code, span.apiname {
   font-family: "lucida console", "courier new", courier, monospace;
+}
+
+pre {
+  font-family: "lucida console", monospace;
+  padding-left: 3ex;
+  padding-bottom: 2ex;
 }
 
 dt {
   font-weight: bold;
   padding-left: 1ex;
-  padding-right: 1ex;
+  /* padding-right: 1ex; */
 }
 
 dd {
   padding-left: 1ex;
   padding-right: 1ex;
-  padding-bottom: 1.5em;
+  /* padding-bottom: 1.5em; */
 }
 
 #bodyText {
@@ -110,6 +121,17 @@ dd {
   font-variant: small-caps;
 }
 
+/* Various basic phrase styles */
+.bold { font-weight: bold; }
+.boldItalic { font-weight: bold; font-style: italic; }
+.italic { font-style: italic; }
+.underlined { text-decoration: underline; }
+.uicontrol { font-weight: bold; }
+.parmname { font-style: italic; }
+.kwd { font-weight: bold; }
+.defkwd { font-weight: bold; text-decoration: underline; }
+.var { font-style : italic;}
+.shortcut { text-decoration: underline; }
 
 /* ###### Header ###### */
 
