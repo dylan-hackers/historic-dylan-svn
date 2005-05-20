@@ -12,18 +12,28 @@
       </xsl:choose>
   </xsl:param>
   <xsl:element name="h{$headinglevel}">
-      <xsl:attribute name="class">topictitle<xsl:value-of select="$headinglevel"/></xsl:attribute>
-      <xsl:call-template name="commonattributes"/>
-      <xsl:apply-templates/>
-      <xsl:text> </xsl:text>
-      <span class="apitype">[Function]</span>
+    <xsl:attribute name="class">topictitle<xsl:value-of select="$headinglevel"/></xsl:attribute>
+    <xsl:call-template name="commonattributes"/>
+    <xsl:apply-templates/>
+    <xsl:text> </xsl:text>
+    <span class="apitype">[Function]</span>
   </xsl:element>
 </xsl:template>
 
 <xsl:template match="*[contains(@class,' dylanGenericFunction/dylanGenericFunction ')]/*[contains(@class,' topic/title ')]">
-  <xsl:apply-templates/>
-  <xsl:text> </xsl:text>
-  <span class="apitype">[<xsl:apply-templates select="following-sibling::*[contains(@class,' apiRef/apiDetail ')]" mode="adjectives"/>Generic Function]</span>
+  <xsl:param name="headinglevel">
+      <xsl:choose>
+          <xsl:when test="count(ancestor::*[contains(@class,' topic/topic ')]) > 6">6</xsl:when>
+          <xsl:otherwise><xsl:value-of select="count(ancestor::*[contains(@class,' topic/topic ')])"/></xsl:otherwise>
+      </xsl:choose>
+  </xsl:param>
+  <xsl:element name="h{$headinglevel}">
+    <xsl:attribute name="class">topictitle<xsl:value-of select="$headinglevel"/></xsl:attribute>
+    <xsl:call-template name="commonattributes"/>
+    <xsl:apply-templates/>
+    <xsl:text> </xsl:text>
+    <span class="apitype">[<xsl:apply-templates select="following-sibling::*[contains(@class,' apiRef/apiDetail ')]" mode="adjectives"/>Generic Function]</span>
+  </xsl:element>
 </xsl:template>
 
 <xsl:template match="*[contains(@class,' dylanFunction/dylanFunctionDef ')]">
@@ -216,6 +226,24 @@
 </dd>
 </xsl:template>
 
+<!-- ======================== dylanMacro ======================== -->
+
+<xsl:template match="*[contains(@class,' dylanMacro/dylanMacro ')]/*[contains(@class,' topic/title ')]">
+  <xsl:param name="headinglevel">
+      <xsl:choose>
+          <xsl:when test="count(ancestor::*[contains(@class,' topic/topic ')]) > 6">6</xsl:when>
+          <xsl:otherwise><xsl:value-of select="count(ancestor::*[contains(@class,' topic/topic ')])"/></xsl:otherwise>
+      </xsl:choose>
+  </xsl:param>
+  <xsl:element name="h{$headinglevel}">
+    <xsl:attribute name="class">topictitle<xsl:value-of select="$headinglevel"/></xsl:attribute>
+    <xsl:call-template name="commonattributes"/>
+    <xsl:apply-templates/>
+    <xsl:text> </xsl:text>
+    <span class="apitype">[<xsl:apply-templates select="following-sibling::*[contains(@class,' apiRef/apiDetail ')]" mode="adjectives"/>Macro]</span>
+  </xsl:element>
+</xsl:template>
+
 <!-- ======================== dylanVariable ======================== -->
 
 <xsl:template match="*[contains(@class,' dylanVariable/dylanVariable ')]/*[contains(@class,' topic/title ')]">
@@ -264,6 +292,42 @@
   <h4 class="sectiontitle">Type</h4>
   <xsl:apply-templates select="*[contains(@class, ' apiValue/apiValueClassifier ')]"/>
 </div>
+</xsl:template>
+
+<!-- ======================== dylanLibrary ======================== -->
+
+<xsl:template match="*[contains(@class,' dylanLibrary/dylanLibrary ')]/*[contains(@class,' topic/title ')]">
+  <xsl:param name="headinglevel">
+      <xsl:choose>
+          <xsl:when test="count(ancestor::*[contains(@class,' topic/topic ')]) > 6">6</xsl:when>
+          <xsl:otherwise><xsl:value-of select="count(ancestor::*[contains(@class,' topic/topic ')])"/></xsl:otherwise>
+      </xsl:choose>
+  </xsl:param>
+  <xsl:element name="h{$headinglevel}">
+    <xsl:attribute name="class">topictitle<xsl:value-of select="$headinglevel"/></xsl:attribute>
+    <xsl:call-template name="commonattributes"/>
+    <xsl:apply-templates/>
+    <xsl:text> </xsl:text>
+    <span class="apitype">[<xsl:apply-templates select="following-sibling::*[contains(@class,' apiRef/apiDetail ')]" mode="adjectives"/>Library]</span>
+  </xsl:element>
+</xsl:template>
+
+<!-- ======================== dylanModule ======================== -->
+
+<xsl:template match="*[contains(@class,' dylanModule/dylanModule ')]/*[contains(@class,' topic/title ')]">
+  <xsl:param name="headinglevel">
+      <xsl:choose>
+          <xsl:when test="count(ancestor::*[contains(@class,' topic/topic ')]) > 6">6</xsl:when>
+          <xsl:otherwise><xsl:value-of select="count(ancestor::*[contains(@class,' topic/topic ')])"/></xsl:otherwise>
+      </xsl:choose>
+  </xsl:param>
+  <xsl:element name="h{$headinglevel}">
+    <xsl:attribute name="class">topictitle<xsl:value-of select="$headinglevel"/></xsl:attribute>
+    <xsl:call-template name="commonattributes"/>
+    <xsl:apply-templates/>
+    <xsl:text> </xsl:text>
+    <span class="apitype">[<xsl:apply-templates select="following-sibling::*[contains(@class,' apiRef/apiDetail ')]" mode="adjectives"/>Module]</span>
+  </xsl:element>
 </xsl:template>
 
 <!-- ======================== adjectives ======================== -->
