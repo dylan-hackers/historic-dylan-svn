@@ -4,6 +4,18 @@
 
 <!-- ======================== dylanFunction ======================== -->
 
+<xsl:template match="*[contains(@class,' dylanFunction/dylanFunction ')]/*[contains(@class,' topic/title ')]">
+  <xsl:apply-templates/>
+  <xsl:text> </xsl:text>
+  <span class="apitype">[Function]</span>
+</xsl:template>
+
+<xsl:template match="*[contains(@class,' dylanGenericFunction/dylanGenericFunction ')]/*[contains(@class,' topic/title ')]">
+  <xsl:apply-templates/>
+  <xsl:text> </xsl:text>
+  <span class="apitype">[<xsl:apply-templates select="following-sibling::*[contains(@class,' apiRef/apiDetail ')]" mode="adjectives"/>Generic Function]</span>
+</xsl:template>
+
 <xsl:template match="*[contains(@class,' dylanFunction/dylanFunctionDef ')]">
 <div class="section">
   <h4 class="sectiontitle">Signature</h4>
@@ -136,6 +148,12 @@
 
 <!-- ======================== dylanClass ======================== -->
 
+<xsl:template match="*[contains(@class,' dylanClass/dylanClass ')]/*[contains(@class,' topic/title ')]">
+  <xsl:apply-templates/>
+  <xsl:text> </xsl:text>
+  <span class="apitype">[<xsl:apply-templates select="following-sibling::*[contains(@class,' apiRef/apiDetail ')]" mode="adjectives"/>Class]</span>
+</xsl:template>
+
 <xsl:template match="*[contains(@class,' dylanClass/dylanClassDef ')]">
 <div class="section">
   <h4 class="sectiontitle">Superclasses</h4>
@@ -176,6 +194,40 @@
 <dd>An instance of <xsl:apply-templates select="*[contains(@class,' apiClassifier/apiOtherClassifier ')]"/>. 
 <xsl:apply-templates select="*[contains(@class,' apiRef/apiDefNote ')]"/>
 </dd>
+</xsl:template>
+
+<!-- ======================== adjectives ======================== -->
+
+<xsl:template match="node()" mode="adjectives"/>
+
+<xsl:template match="*[contains(@class,' apiRef/apiDetail ')]" mode="adjectives">
+  <xsl:apply-templates mode="adjectives"/>
+</xsl:template>
+<xsl:template match="*[contains(@class,' apiRef/apiDef ')]" mode="adjectives">
+  <xsl:apply-templates mode="adjectives"/>
+</xsl:template>
+
+<xsl:template match="*[contains(@class, ' dylanGenericFunction/dylanGenericFunctionSealing ')]" mode="adjectives">
+  <xsl:text>Open </xsl:text>
+</xsl:template>
+
+<xsl:template match="*[contains(@class, ' dylanClass/dylanOpenClass ')]" mode="adjectives">
+  <xsl:text>Open </xsl:text>
+</xsl:template>
+
+<xsl:template match="*[contains(@class, ' dylanClass/dylanPrimaryClass ')]" mode="adjectives">
+  <xsl:text>Primary </xsl:text>
+</xsl:template>
+
+<xsl:template match="*[contains(@class, ' dylanClass/dylanAbstractClass ')]" mode="adjectives">
+  <xsl:choose>
+    <xsl:when test="@value='abstract-instantiable'">
+      <xsl:text>Instantiable Abstract </xsl:text>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:text>Abstract </xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>
