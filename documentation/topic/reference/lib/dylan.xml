@@ -2,7 +2,9 @@
 <!DOCTYPE dylanLibrary PUBLIC "-//Gwydion//DTD DITA Dylan API Library//EN" "../../dtd/dylanLibrary.dtd" []>
 <dylanLibrary id="lib-dylan">
   <apiName>dylan</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>The core run-time classes, functions, and syntax for the
+  Dylan language.</shortdesc>
 
   <prolog>
     <author></author>
@@ -19,8 +21,12 @@
   </dylanLibraryDetail>
 
   <related-links>
-    <link href="dylan/dylan.xml">
-      <linktext><apiname>dylan</apiname></linktext>
-    </link>
+    <linklist>
+      <title>Exported Modules</title>
+
+      <link href="dylan/dylan.xml">
+	<linktext><apiname>dylan</apiname></linktext>
+      </link>
+    </linklist>
   </related-links>
 </dylanLibrary>

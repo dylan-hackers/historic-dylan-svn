@@ -1,8 +1,10 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-unsupplied">
   <apiName>unsupplied</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the unique “unsupplied” value,
+  <apiname>$unsupplied</apiname>.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,15 +16,16 @@
 
   <dylanFunctionDetail>
     <dylanFunctionDef>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
+      <dylanFunctionReturn>
+	<apiItemName>unsupplied-marker</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+	<apiDefNote>The value <apivalue href="Dunsupplied.xml">$unsupplied</apivalue>.</apiDefNote>
+      </dylanFunctionReturn>
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the unique “unsupplied” value,
+      <codeph>$unsupplied</codeph>.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

@@ -19,11 +19,11 @@
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
+      <dylanFunctionReturn>
+	<apiItemName>object</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+      </dylanFunctionReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>

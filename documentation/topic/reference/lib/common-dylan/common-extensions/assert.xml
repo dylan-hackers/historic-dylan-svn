@@ -2,7 +2,9 @@
 <!DOCTYPE dylanMacro PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanMacro.dtd" []>
 <dylanMacro id="lib-common-dylan-common-extensions-assert">
   <apiName>assert</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>Signals an error if the expression passed to it evaluates
+  to false.</shortdesc>
 
   <prolog>
     <author></author>
@@ -12,9 +14,12 @@
     </copyright>
   </prolog>
 
+
   <dylanMacroDetail>
+
     <apiSyntax>
-      <apiSyntaxText></apiSyntaxText>
+      <apiSyntaxText>
+</apiSyntaxText>
     </apiSyntax>
 
     <apiDesc>

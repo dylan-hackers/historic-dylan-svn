@@ -2,7 +2,7 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-common-extensions-Larithmetic_overflow_errorG">
   <apiName>&lt;arithmetic-overflow-error&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+  <shortdesc>The class of errors representing arithmetic overflow.</shortdesc>
 
   <prolog>
     <author></author>
@@ -18,7 +18,16 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>Signalled when the result of a calculation is too large to be
+      represented as an object of the result class for the operation.
+      For integer calculations, this condition is signalled when the
+      result would be greater than <apivalue
+      href="../../dylan/dylan/Dmaximum_integer.xml">$maximum-integer</apivalue>
+      or less than <apivalue
+      href="../../dylan/dylan/Dminimum_integer.xml">$minimum-integer</apivalue>.
+      For floating point calculations, an example of an operation that
+      will signal this condition on machines with IEEE 754 floating
+      point is <codeph>1.0s20 * 1.0s20</codeph>.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

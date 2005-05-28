@@ -2,7 +2,9 @@
 <!DOCTYPE dylanLibrary PUBLIC "-//Gwydion//DTD DITA Dylan API Library//EN" "../../dtd/dylanLibrary.dtd" []>
 <dylanLibrary id="lib-common-dylan">
   <apiName>common-dylan</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>Common extensions to the core <apiname>dylan</apiname>
+  library.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,6 +16,12 @@
 
   <dylanLibraryDetail>
     <apiDesc>
+      <p>In the late 1990s, Dylan implementors at Harlequin worked
+      with the Gwydion Dylan Maintainers to provide a set of common
+      extensions to the Dylan language (as defined by the <cite>Dylan
+      Reference Manual</cite>). These extensions were designed to be
+      portable across implementations and made available in the
+      <apiname>common-dylan</apiname> library.</p>
     </apiDesc>
   </dylanLibraryDetail>
 

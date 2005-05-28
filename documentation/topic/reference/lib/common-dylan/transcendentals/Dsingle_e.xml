@@ -2,7 +2,9 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-common-dylan-transcendentals-Dsingle_e">
   <apiName>$single-e</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>The value of <codeph>e</codeph> , the base of natural
+  logarithms, as a single precision floating point number.</shortdesc>
 
   <prolog>
     <author></author>
@@ -18,7 +20,8 @@
     </dylanConstantDef>
 
     <apiDesc>
-      <p></p>
+      <p>The value of <codeph>e</codeph>, the base of natural logarithms,
+      as a single-precision floating point number.</p>
     </apiDesc>
   </dylanConstantDetail>
 </dylanConstant>

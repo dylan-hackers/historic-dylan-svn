@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-threads-synchronization_name">
   <apiName>synchronization-name</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns the name of a synchronization object.</shortdesc>
 
   <prolog>
     <author></author>
@@ -28,7 +28,10 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the name of the synchronization object,
+      <parmname>object</parmname>, if it was created with the
+      <codeph>name:</codeph> init-keyword. Otherwise,
+      <codeph>#f</codeph> is returned.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

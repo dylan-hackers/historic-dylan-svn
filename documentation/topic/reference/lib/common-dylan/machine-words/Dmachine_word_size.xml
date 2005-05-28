@@ -2,7 +2,9 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-common-dylan-machine-words-Dmachine_word_size">
   <apiName>$machine-word-size</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>The number of bits in the representation of a
+  <apiname>&lt;machine-word&gt;</apiname>.</shortdesc>
 
   <prolog>
     <author></author>
@@ -18,7 +20,8 @@
     </dylanConstantDef>
 
     <apiDesc>
-      <p></p>
+      <p>The number of bits in the representation of a <apiclassifier
+      href="Lmachine_wordG.xml">&lt;machine-word&gt;</apiclassifier>.</p>
     </apiDesc>
   </dylanConstantDetail>
 </dylanConstant>

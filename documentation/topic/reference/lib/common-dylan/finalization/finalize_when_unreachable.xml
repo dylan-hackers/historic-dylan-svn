@@ -31,7 +31,7 @@
       <parmname>object</parmname> becomes unreachable, it is added to the
       finalization queue rather than being immediately reclaimed. </p>
 
-      <p>The <parmname>Object</parmname> waits in the finalization
+      <p>The <parmname>object</parmname> waits in the finalization
       queue until the application calls <apioperation
       href="drain_finalization_queue.xml">drain-finalization-queue</apioperation>,
       which processes each object in the queue by calling the generic

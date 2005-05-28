@@ -2,7 +2,9 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-common-dylan-common-extensions-Dunfound">
   <apiName>$unfound</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>A unique value that can be used to indicate that a search
+  operation failed.</shortdesc>
 
   <prolog>
     <author></author>
@@ -18,7 +20,8 @@
     </dylanConstantDef>
 
     <apiDesc>
-      <p></p>
+      <p>A unique value that can be used to indicate that a search operation
+      failed.</p>
     </apiDesc>
   </dylanConstantDetail>
 </dylanConstant>

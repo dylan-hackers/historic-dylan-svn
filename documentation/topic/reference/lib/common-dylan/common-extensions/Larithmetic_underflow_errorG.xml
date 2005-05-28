@@ -2,7 +2,7 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-common-dylan-common-extensions-Larithmetic_underflow_errorG">
   <apiName>&lt;arithmetic-underflow-error&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+  <shortdesc>The class of errors representing arithmetic underflow.</shortdesc>
 
   <prolog>
     <author></author>
@@ -18,7 +18,14 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>Signalled when the magnitude of the result of a calculation
+      is too small to be represented by the result class for the
+      operation.  In other words, this value of the computation is
+      extremely close to but not equal to zero.  This condition is
+      never signalled for integer calculations.  For floating point
+      calculations, an example of an operation that will signal this
+      condition on a machine with IEEE 754 floating point is
+      <codeph>1.0s-20 * 1.0s-20</codeph>.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

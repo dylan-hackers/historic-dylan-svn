@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-threads-thread_name">
   <apiName>thread-name</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns the name of a thread.</shortdesc>
 
   <prolog>
     <author></author>
@@ -15,19 +15,21 @@
   <dylanGenericFunctionDetail>
     <dylanGenericFunctionDef>
       <dylanFunctionParam>
-	<apiItemName>object</apiItemName>
+	<apiItemName>thread</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+      <dylanFunctionReturn>
+	<apiItemName>name</apiItemName>
+	<apiType value="false-or(&lt;string&gt;)"/>
 	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+      </dylanFunctionReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the name of <parmname>thread</parmname> as a
+       string. If <parmname>thread</parmname> does not have a name,
+       this function returns <codeph>#f</codeph>.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

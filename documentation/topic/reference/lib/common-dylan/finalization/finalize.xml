@@ -29,8 +29,9 @@
       perform class-specific finalization procedures. These methods
       are called <term>finalizers</term>.</p>
 
-      <p>A default <codeph>finalize</codeph> method on
-      <codeph>&lt;object&gt;</codeph> is provided.</p>
+      <p>A default <codeph>finalize</codeph> method on <apiclassifier
+      href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiclassifier>
+      is provided.</p>
 
       <p>The main interface to finalization is the function
       <apioperation

@@ -1,8 +1,10 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-unfound">
   <apiName>unfound</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the unique “unfound” value,
+  <apiname>$unfound</apiname>.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,15 +16,17 @@
 
   <dylanFunctionDetail>
     <dylanFunctionDef>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
+      <dylanFunctionReturn>
+	<apiItemName>unfound-marker</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+	<apiDefNote>The value <apivalue
+	href="Dunfound.xml">$unfound</apivalue></apiDefNote>
+      </dylanFunctionReturn>
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the unique “unfound” value, <apivalue
+      href="Dunfound.xml">$unfound</apivalue>.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

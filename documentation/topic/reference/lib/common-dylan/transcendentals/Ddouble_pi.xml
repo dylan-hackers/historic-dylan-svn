@@ -1,8 +1,8 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-common-dylan-transcendentals-Ddouble_pi">
   <apiName>$double-pi</apiName>
-  <shortdesc></shortdesc>
+  <shortdesc>The value of π as a double-precision floating point number.</shortdesc>
 
   <prolog>
     <author></author>
@@ -18,7 +18,7 @@
     </dylanConstantDef>
 
     <apiDesc>
-      <p></p>
+      <p>The value of π as a double-precision floating point number.</p>
     </apiDesc>
   </dylanConstantDetail>
 </dylanConstant>

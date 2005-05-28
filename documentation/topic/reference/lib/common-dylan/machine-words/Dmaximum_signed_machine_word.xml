@@ -2,7 +2,9 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-common-dylan-machine-words-Dmaximum_signed_machine_word">
   <apiName>$maximum-signed-machine-word</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>The largest machine word, when interpreted as a signed
+  integer value.</shortdesc>
 
   <prolog>
     <author></author>
@@ -18,7 +20,8 @@
     </dylanConstantDef>
 
     <apiDesc>
-      <p></p>
+      <p>The largest machine word, when interpreted as a signed
+      integer value.</p>
     </apiDesc>
   </dylanConstantDetail>
 </dylanConstant>

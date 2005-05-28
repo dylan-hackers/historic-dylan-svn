@@ -1,8 +1,11 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-unsuppliedQ">
   <apiName>unsupplied?</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns true if its argument is equal to the unique
+  “unsupplied” value, <apiname>$unsupplied</apiname>, and false
+  otherwise.</shortdesc>
 
   <prolog>
     <author></author>
@@ -15,19 +18,24 @@
   <dylanFunctionDetail>
     <dylanFunctionDef>
       <dylanFunctionParam>
-	<apiItemName>x</apiItemName>
+	<apiItemName>object</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+      <dylanFunctionReturn>
+	<apiItemName>unsupplied?</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+      </dylanFunctionReturn>
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns true if its argument is equal to the unique
+      “unsupplied” value, <apivalue
+      href="Dunsupplied.xml">$unsupplied</apivalue>, and false if it
+      is not. It uses <apioperation
+      href="../../dylan/dylan/EE.xml">\==</apioperation> as the
+      equivalence predicate. </p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

@@ -1,8 +1,10 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-threads-thread_yield">
   <apiName>thread-yield</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Forces the current thread to yield control to the part of
+  the implementation responsible for scheduling threads.</shortdesc>
 
   <prolog>
     <author></author>
@@ -17,7 +19,11 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Forces the current thread to yield control to the part of the
+      implementation responsible for scheduling threads. Doing so may
+      have the effect of allowing other threads to run, and may be
+      essential to avoid deadlock in a coöperative scheduling
+      environment. </p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

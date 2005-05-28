@@ -2,7 +2,10 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-common-extensions-unfoundQ">
   <apiName>unfound?</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns true if its argument is equal to the unique
+  “unfound” value, <apiname>$unfound</apiname>, and false if it is
+  not.</shortdesc>
 
   <prolog>
     <author></author>
@@ -15,19 +18,24 @@
   <dylanFunctionDetail>
     <dylanFunctionDef>
       <dylanFunctionParam>
-	<apiItemName>x</apiItemName>
+	<apiItemName>object</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
-      <dylanFunctionRestReturn>
+      <dylanFunctionReturn>
 	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;boolean&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+      </dylanFunctionReturn>
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns true if <parmname>object</parmname> is equal to the
+      unique “unfound” value, <apivalue
+      href="Dunfound.xml">$unfound</apivalue> , and false if it is
+      not. It uses <apioperation
+      href="../../dylan/dylan/EE.xml">\==</apioperation> as the
+      equivalence predicate. </p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

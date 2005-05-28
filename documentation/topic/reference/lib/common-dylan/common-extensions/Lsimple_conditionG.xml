@@ -34,9 +34,9 @@
       <p>The class of simple conditions. It is the superclass of
       <apiclassifier
       href="../../dylan/dylan/Lsimple_errorG.xml">&lt;simple-error&gt;</apiclassifier>,
-      <apiname
+      <apiclassifier
       href="../../dylan/dylan/Lsimple_warningG.xml">&lt;simple-warning&gt;</apiname>,
-      and <apiname
+      and <apiclassifier
       href="../../dylan/dylan/Lsimple_restartG.xml">&lt;simple-restart&gt;</apiname>.</p>
     </apiDesc>
   </dylanClassDetail>

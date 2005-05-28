@@ -16,15 +16,15 @@
     <dylanGenericFunctionDef>
       <dylanGenericFunctionSealing value='open'/>
       <dylanFunctionParam>
-	<apiItemName>c</apiItemName>
+	<apiItemName>collection</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/Lmutable_explicit_key_collectionG.xml">&lt;mutable-explicit-key-collection&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
-      <dylanFunctionRestReturn>
-	<apiItemName>results</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+      <dylanFunctionReturn>
+	<apiItemName>collection</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/Lmutable_explicit_key_collectionG.xml">&lt;mutable-explicit-key-collection&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
-      </dylanFunctionRestReturn>
+      </dylanFunctionReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>
