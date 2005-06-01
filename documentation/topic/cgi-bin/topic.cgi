@@ -70,6 +70,8 @@ if($view eq 'download') {
 	print "<body>";
 	&dump_menu;
 
+	&print_path(\*STDOUT, $path);
+
 	&print_body(\*STDOUT, $path, $stylesheet, $doc, $result);
 	&dump_foot;
 	exit 0;
@@ -86,6 +88,8 @@ if($view eq 'download') {
 	unless($path =~ m|/$|) {
 	    $path .= '/';
 	}
+
+	&print_path(\*STDOUT, $path);
 	
 	print $q->h1("Topic directory $path");
 
@@ -215,6 +219,22 @@ sub dump_menu {
 sub dump_foot {
     my $fh = shift || \*STDOUT;
     &dump($fh, "$wwwdata/footer.html");
+}
+
+sub print_path {
+    my ($fh, $path) = @_;
+
+    my @components = split m|/|, $path;
+    shift(@components) && die;
+    pop(@components);
+
+    my $href = $uri;
+    print '<div class="path"><a href="', $uri, '">Topic</a>';
+    while(my $component = shift @components) {
+	$href = "$href/$component";
+	print ' &gt; <a href="', $href, '">', $component, '</a>';
+    }
+    print "</p>\n";
 }
 
 sub print_title {
