@@ -14,26 +14,26 @@
 
 <!-- stylesheet imports -->
 <!-- the main dita to xhtml converter -->
-<xsl:import href="../dita/xsl/xslhtml/dita2htmlImpl.xsl"/>
+<xsl:import href="../../dita/xsl/xslhtml/dita2htmlImpl.xsl"/>
 
 <!-- the dita to xhtml converter for task documents -->
-<xsl:import href="../dita/xsl/xslhtml/taskdisplay.xsl"/>
+<xsl:import href="../../dita/xsl/xslhtml/taskdisplay.xsl"/>
 
 <!-- the dita to xhtml converter for reference documents -->
-<xsl:import href="../dita/xsl/xslhtml/refdisplay.xsl"/>
+<xsl:import href="../../dita/xsl/xslhtml/refdisplay.xsl"/>
 
-<xsl:import href="xslhtml/dylan-apiref.xsl"/>
+<xsl:import href="../../xsl/xslhtml/dylan-apiref.xsl"/>
 
 <!-- user technologies domain -->
-<xsl:import href="../dita/xsl/xslhtml/ut-d.xsl"/>
+<xsl:import href="../../dita/xsl/xslhtml/ut-d.xsl"/>
 <!-- software domain -->
-<xsl:import href="../dita/xsl/xslhtml/sw-d.xsl"/>
+<xsl:import href="../../dita/xsl/xslhtml/sw-d.xsl"/>
 <!-- programming domain -->
-<xsl:import href="../dita/xsl/xslhtml/pr-d.xsl"/>
+<xsl:import href="../../dita/xsl/xslhtml/pr-d.xsl"/>
 <!-- ui domain -->
-<xsl:import href="../dita/xsl/xslhtml/ui-d.xsl"/>
+<xsl:import href="../../dita/xsl/xslhtml/ui-d.xsl"/>
 <!-- highlighting domain -->
-<xsl:import href="../dita/xsl/xslhtml/hi-d.xsl"/>
+<xsl:import href="../../dita/xsl/xslhtml/hi-d.xsl"/>
 
 <!-- Output XHTML with XML syntax, use UTF-8 encoding="UTF-8", transitional XHTML.
      Prevent indenting to conserve space on output. -->
