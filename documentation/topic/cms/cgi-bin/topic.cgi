@@ -8,6 +8,7 @@ use CGI::Carp;
 my $www = "/usr/local/www";
 my $wwwdata = "$www/data";
 my $wwwtopic = "$www/topic";
+my $wwwcms = "$wwwtopic/cms";
 my $cache = "$wwwtopic/Cache";
 my $ditaot = "$www/topic/dita";
 my $uri = "http://www.gwydiondylan.org/cgi-bin/topic.cgi";
@@ -58,7 +59,7 @@ if($view eq 'download') {
 	&start_head;
 
 	my $stylesheet
-	    = $xslt->parse_stylesheet_file("$wwwtopic/xsl/dylan-dita2cms.xsl");
+	    = $xslt->parse_stylesheet_file("$wwwcms/xsl/dylan-dita2cms.xsl");
 
 	my $doc = $parser->parse_file("$wwwtopic$path");
 	my $result = $stylesheet->transform($doc);
@@ -122,7 +123,7 @@ if($view eq 'download') {
 
 	if(@files != 0) {
 	    my $stylesheet
-		= $xslt->parse_stylesheet_file("$wwwtopic/xsl/dylan-dita2cmsdir.xsl");
+		= $xslt->parse_stylesheet_file("$wwwcms/xsl/dylan-dita2cmsdir.xsl");
 
 	    foreach my $file (sort @files) {
 		if($file =~ /\.(xml|dita|ditamap)$/) {
