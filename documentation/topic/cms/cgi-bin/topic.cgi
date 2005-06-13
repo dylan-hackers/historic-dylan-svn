@@ -57,6 +57,7 @@ if($view eq 'download') {
 	print $q->header(-charset => 'utf-8', -encoding => 'utf-8');
 	binmode STDOUT, ":utf8";
 	&start_head;
+	&print_links(\*STDOUT, $path);
 
 	my $stylesheet
 	    = $xslt->parse_stylesheet_file("$wwwcms/xsl/dylan-dita2cms.xsl");
@@ -71,7 +72,7 @@ if($view eq 'download') {
 	print "<body>";
 	&dump_menu;
 
-	&print_path(\*STDOUT, $path);
+	&print_breadcrumbs(\*STDOUT, $path);
 
 	&print_body(\*STDOUT, $path, $stylesheet, $doc, $result);
 	&dump_foot;
@@ -81,6 +82,9 @@ if($view eq 'download') {
 	print $q->header(-charset => 'utf-8', -encoding => 'utf-8');
 	binmode STDOUT, ":utf8";
 	&start_head;
+	
+	&print_links(\*STDOUT, $path);
+	
 	print "<title>Gwydion Dylan: Topic $path</title>";
 	&end_head;
 	print "<body>";
@@ -90,7 +94,7 @@ if($view eq 'download') {
 	    $path .= '/';
 	}
 
-	&print_path(\*STDOUT, $path);
+	&print_breadcrumbs(\*STDOUT, $path);
 	
 	print $q->h1("Topic directory $path");
 
@@ -222,7 +226,21 @@ sub dump_foot {
     &dump($fh, "$wwwdata/footer.html");
 }
 
-sub print_path {
+sub print_links {
+    my ($fh, $path) = @_;
+
+    print $fh '<link rel="top" href="', $uri, '" title="Top" />';
+
+    my @components = split m|/|, $path;
+    shift(@components) && die;
+    pop(@components) || return;
+
+    $path = join('/', @components);
+
+    print $fh '<link rel="up" href="', $uri, '/', $path, '" title="Up" />';
+}
+
+sub print_breadcrumbs {
     my ($fh, $path) = @_;
 
     my @components = split m|/|, $path;
@@ -230,12 +248,12 @@ sub print_path {
     pop(@components);
 
     my $href = $uri;
-    print '<div class="path"><a href="', $uri, '">Topic</a>';
+    print '<div class="breadcrumbs"><a href="', $uri, '">Topic</a> &gt; ';
     while(my $component = shift @components) {
 	$href = "$href/$component";
-	print ' &gt; <a href="', $href, '">', $component, '</a>';
+	print '<a href="', $href, '">', $component, '</a> &gt; ';
     }
-    print "</p>\n";
+    print "</div>\n";
 }
 
 sub print_title {
