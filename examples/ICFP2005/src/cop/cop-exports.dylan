@@ -13,7 +13,8 @@ define module cop
   use format-out;
   use standard-io;
   use streams;
-  use file-system;
+  use simple-random;
+  use format, import: { format };
 
   use world;
 end module;

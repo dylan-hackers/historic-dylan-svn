@@ -47,6 +47,17 @@ define class <player> (<object>)
   slot type :: <string>, init-keyword: type:;
 end;
 
+define class <plan> (<object>)
+  slot bot, init-keyword: bot:;
+  slot location, init-keyword: location:;
+  slot type, init-keyword: type:;
+  slot world, init-keyword: world:;
+end class;
+
+define class <inform> (<plan>)
+  slot certainty, init-keyword: certainty:;
+end;
+
 define method regexp-match(big :: <string>, regex :: <string>) => (#rest results);
   let (#rest marks) = regexp-position(big, regex);
   let result = make(<stretchy-vector>);
@@ -70,7 +81,7 @@ define function re (stream, #rest regexen)
   let regex = reduce1(method(x, y) concatenate(x, ws-re, y) end,
                       regexen);
   let line = read-line(stream);
-  //format(*standard-error*, "%s\n", line);
+  //format(*standard-error*, "line: %s\n", line);
   //force-output(*standard-error*);
   let (match, #rest substrings) = regexp-match(line, regex);
   //format-out("RE: %= %= %=\n", regex, line, match);
@@ -83,6 +94,7 @@ define constant name-re = "([-a-zA-Z0-9_#()]+)";
 define constant node-tag = "(hq|bank|robber-start|ordinary)";
 define constant edge-type = "(car|foot)";
 define constant number = "([0-9]+)";
+define constant negnumber = "(-?[0-9]+)";
 define constant ptype = "(cop-foot|cop-car|robber)";
 
 define method read-world-skeleton(stream :: <stream>)

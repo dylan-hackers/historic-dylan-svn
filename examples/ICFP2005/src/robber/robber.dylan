@@ -3,30 +3,6 @@ synopsis:
 author: 
 copyright: 
 
-define method find-player (world :: <world>) => (location)
-  block(return)
-    for (player in world.players)
-      if (player.name = world.world-skeleton.my-name)
-        return(player);
-      end if;
-    end for;
-  end block;
-end;
-
-define method find-possible-locations
-    (current-location, edges) => (result)
-  let result = make(<stretchy-vector>);
-  for (edge in edges)
-    if (edge.type = "foot")
-      if (edge.start-location = current-location)
-        add!(result, edge.end-location);
-      elseif (edge.end-location = current-location)
-        add!(result, edge.start-location);
-      end if;
-    end if;
-  end for;
-  result;
-end;
     
 define function main(name, arguments)
   format-out("reg: foobar robber\n");
