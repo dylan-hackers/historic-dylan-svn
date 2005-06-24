@@ -48,66 +48,56 @@ end;
 define class <parse-error> (<error>)
 end class;
 
+define function re (stream, #rest regexen)
+  let regex = reduce1(method(x, y) concatenate(x, ws-re, y) end,
+                      regexen);
+  let line = read-line(stream);
+  let (match, #rest substrings) = regexp-match(line, regex);
+  //format-out("RE: %= %= %=\n", regex, line, match);
+  unless (match) signal(make(<parse-error>)) end;
+  apply(values, substrings)
+end;
+
+define constant ws-re   = "[ \t]";
+define constant name-re = "([-a-zA-Z0-9_#()]+)";
+define constant node-tag = "(hq|bank|robber-start|ordinary)";
+define constant edge-type = "(car|foot)";
+define constant coordinate = "([0-9]+)";
+
 define method read-world-skeleton(stream :: <stream>)
-  local method re(#rest regexen)
-          let regex = apply(concatenate, regexen);
-          let line = read-line(stream);
-          let (match, #rest substrings) = regexp-match(line, regex);
-          unless (match) signal(make(<parse-error>)) end;
-          apply(values, substrings)
-        end;
-
-  let ws-re   = "[ \t]";
-  let name-re = "([-a-zA-Z0-9_#()]+)";
-  let node-tag = "(hq|bank|robber-start|ordinary)";
-  let edge-type = "(car|foot)";
-  let coordinate = "([0-9]+)";
-
+  let re = curry(re, stream);
   let res = make(<world-skeleton>);
 
   re("wsk\\\\");
-  res.my-name := re("name:", ws-re, name-re);
-  res.robber := re("robber:", ws-re, name-re);
+  res.my-name := re("name:", name-re);
+  res.robber := re("robber:", name-re);
   res.cops := make(<stretchy-vector>);
   for(i from 0 below 5)
-    add!(res.cops, re("cop:", ws-re, name-re))
+    add!(res.cops, re("cop:", name-re))
   end;
   re("nod\\\\");
-  res.nodes := make(<stretchy-vector>);
-  block()
-    while (#t)
-      let (#rest node) = re("nod:", ws-re,
-                            name-re, ws-re,
-                            node-tag, ws-re,
-                            coordinate, ws-re,
-                            coordinate);
-      add!(res.nodes,
-           apply(make, <node>,
-                 intermingle(#(name:, tag:, x:, y:),
-                             node)));
-    end while
-  exception (condition :: <parse-error>)
-    //format-out("Parse error while parsing node!\n");
-    //we assume we got "nod/"
-  end;
+  res.nodes := collect(stream,
+                       <node>,
+                       #(name:, tag:, x:, y:),
+                       list("nod:", name-re, node-tag, coordinate, coordinate));
   re("edg\\\\");
-  res.edges := make(<stretchy-vector>);
+  res.edges := collect(stream,
+                       <edge>,
+                       #(start:, end:, type:),
+                       list("edg:", name-re, name-re, edge-type));
+  re("wsk/");
+end;
+
+define function collect (stream, type, keywords, regexps)
+  let res = make(<stretchy-vector>);
   block()
     while(#t)
-      let (#rest edge) = re("edg:", ws-re,
-                            name-re, ws-re,
-                            name-re, ws-re,
-                            edge-type);
-      add!(res.edges,
-           apply(make, <edge>,
-                 intermingle(#(start:, end:, type:),
-                             edge)));
+      let (#rest substrings) = apply(re, stream, regexps);
+      add!(res, apply(make, type,
+                 intermingle(keywords, substrings)));
     end while;
   exception (condition :: <parse-error>)
-    //format-out("Parse error while parsing edges!\n");
-    //we assume we got "edg/"
   end;
-  re("wsk/");
 end;
 
 define function intermingle (#rest sequences)
