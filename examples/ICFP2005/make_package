@@ -18,7 +18,7 @@ for prog in ${PROGRAMS}; do
 	#!/bin/sh
 	US=\$(dirname \$0)
 	LD_LIBRARY_PATH=\${US}/bin:\${LD_LIBRARY_PATH}
-	export LD_LIBARAY_PATH
+	export LD_LIBRARY_PATH
 	exec \${US}/bin/${prog} "\$@"
 	END
     chmod +x submission/$prog
