@@ -6,7 +6,7 @@ PACKAGE=submission.tgz
 cd $(dirname $0)
 rm -rf submission submission.tgz
 
-mkdir -p submission/bin submission/src
+mkdir -p submission/bin
 cp $(ldd $(which d2c) | grep libgc | awk '{print $3}') submission/bin
 cp README submission
 
