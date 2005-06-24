@@ -6,7 +6,7 @@ PACKAGE=submission.tgz
 cd $(dirname $0)
 rm -rf submission submission.tgz
 
-mkdir -p submission/bin
+mkdir -p submission/bin submission/src
 cp $(ldd $(which d2c) | grep libgc | awk '{print $3}') submission/bin
 cp README submission
 
@@ -23,5 +23,8 @@ for prog in ${PROGRAMS}; do
 	END
     chmod +x submission/$prog
 done
+
+cp -r src submission
+for prog in ${PROGRAMS} shared; do (cd submission/src/$prog; make clean); done
 
 tar zcf ${PACKAGE} submission
