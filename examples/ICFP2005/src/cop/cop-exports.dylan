@@ -20,8 +20,8 @@ define module cop
   use standard-io;
   use streams;
   use subseq;
-  use regular-expressions;
+  use regular-expressions, exclude: { split };
   use file-system;
 
-  use world;
+  //use world;
 end module;

@@ -11,6 +11,15 @@ define class <world-skeleton> (<object>)
   slot edges;
 end;
 
+define class <world> (<object>)
+  slot world;
+  slot loot;
+  slot banks;
+  slot evidences;
+  slot distance;
+  slot players;
+end class;
+
 define class <point> (<object>)
   slot x :: <integer>, init-keyword: x:;
   slot y :: <integer>, init-keyword: y:;
@@ -28,6 +37,22 @@ define class <edge> (<object>)
   slot end-location :: <string>, init-keyword: end:;
   slot type :: <string>, init-keyword: type:;
 end class;
+
+define class <bank> (<object>)
+  slot location :: <string>, init-keyword: location:;
+  slot money :: <string>, init-keyword: money:;
+end;
+
+define class <evidence> (<object>)
+  slot location :: <string>, init-keyword: location:;
+  slot world :: <string>, init-keyword: world:;
+end;
+
+define class <player> (<object>)
+  slot name :: <string>, init-keyword: name:;
+  slot location :: <string>, init-keyword: location:;
+  slot type :: <string>, init-keyword: type:;
+end;
 
 define method regexp-match(big :: <string>, regex :: <string>) => (#rest results);
   let (#rest marks) = regexp-position(big, regex);
@@ -53,7 +78,7 @@ define function re (stream, #rest regexen)
                       regexen);
   let line = read-line(stream);
   let (match, #rest substrings) = regexp-match(line, regex);
-  //format-out("RE: %= %= %=\n", regex, line, match);
+  format-out("RE: %= %= %=\n", regex, line, match);
   unless (match) signal(make(<parse-error>)) end;
   apply(values, substrings)
 end;
@@ -62,7 +87,8 @@ define constant ws-re   = "[ \t]";
 define constant name-re = "([-a-zA-Z0-9_#()]+)";
 define constant node-tag = "(hq|bank|robber-start|ordinary)";
 define constant edge-type = "(car|foot)";
-define constant coordinate = "([0-9]+)";
+define constant number = "([0-9]+)";
+define constant ptype = "(cop-foot|cop-car|robber)";
 
 define method read-world-skeleton(stream :: <stream>)
   let re = curry(re, stream);
@@ -79,13 +105,39 @@ define method read-world-skeleton(stream :: <stream>)
   res.nodes := collect(stream,
                        <node>,
                        #(name:, tag:, x:, y:),
-                       list("nod:", name-re, node-tag, coordinate, coordinate));
+                       list("nod:", name-re, node-tag, number, number));
   re("edg\\\\");
   res.edges := collect(stream,
                        <edge>,
                        #(start:, end:, type:),
                        list("edg:", name-re, name-re, edge-type));
   re("wsk/");
+end;
+
+define method read-world (stream)
+  let res = make(<world>);
+  let re = curry(re, stream);
+  re("wor\\\\");
+  res.world := re("wor:", number);
+  res.loot := re("rbd:", number);
+  re("bv\\\\");
+  res.banks := collect(stream,
+                       <bank>,
+                       #(location:, money:),
+                       list("bv:", name-re, number));
+  re("ev\\\\");
+  res.evidences := collect(stream,
+                           <evidence>,
+                           #(location:, world:),
+                           list("ev:", name-re, number));
+  res.distance := re("smell:", number);
+  re("pl\\\\");
+  res.players := collect(stream,
+                         <player>,
+                         #(name:, location:, type:),
+                         list("pl:", name-re, name-re, ptype));
+  re("wor/");
+  res;
 end;
 
 define function collect (stream, type, keywords, regexps)
@@ -111,6 +163,11 @@ define function main(name, arguments)
                  direction: #"input",
                  element-type: <character>)
     read-world-skeleton(fs);
+  end;
+  with-open-file(fs = "world",
+                 direction: #"input",
+                 element-type: <character>)
+    read-world(fs);
   end;
  // exit-application(0);
 end function main;
