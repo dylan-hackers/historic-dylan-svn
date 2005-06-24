@@ -1,10 +1,8 @@
 go: cop
 	./cop
 
-SHARED=../shared/world.dylan
-
-cop: cop.lid cop.dylan cop-exports.dylan ${SHARED}
-	d2c -s cop.lid
+cop: cop.lid cop.dylan cop-exports.dylan
+	d2c -s -L../shared cop.lid
 
 clean:
 	-rm -f *.o *.s *.a *.c *.mak *~ cop
