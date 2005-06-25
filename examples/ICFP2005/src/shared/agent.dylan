@@ -39,9 +39,7 @@ end method perceive-plans;
 define open generic make-vote(cop :: <cop>, world :: <world>) => (vote);
 
 define method make-vote(cop :: <cop>, world :: <world>) => (vote);
-  choose(method(x)
-             (x.player-type = "cop-foot") | (x.player-type = "cop-car")
-         end, world.world-players)
+  concatenate(list(world.world-my-player), world.world-other-cops);
 end method make-vote;
 
 define open generic perceive-vote(vote, cop :: <cop>, world :: <world>);
@@ -62,7 +60,7 @@ define method drive-agent(agent :: <robber>,
   block()
     while (#t)
       let world = read-world(input-stream, skelet);
-      agent.agent-player := find-player(skelet.my-name, world);
+      agent.agent-player := world.world-my-player;
       //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
       let move = choose-move(agent, world);
       print(move);
@@ -81,7 +79,7 @@ define method drive-agent(agent :: <cop>,
   block()
     while (#t)
       let world = read-world(*standard-input*, skelet);
-      agent.agent-player := find-player(skelet.my-name, world);
+      agent.agent-player := world.world-my-player;
 
       send("inf\\\n");
       do(print, make-informs(agent, world));

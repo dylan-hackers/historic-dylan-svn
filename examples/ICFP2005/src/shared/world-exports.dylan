@@ -38,7 +38,10 @@ define module world
     world-banks,
     world-evidences,
     world-smell-distance,
-    world-players,
+    world-other-cops,
+    world-cops,
+    world-my-player,
+    world-robber,
     world-skeleton;
 
   export <node>,
@@ -88,8 +91,7 @@ define module world
   export <parse-error>,
     read-world-skeleton, read-world;
 
-  export find-player,
-    generate-moves,
+  export generate-moves,
     generate-plan,
     choose-move,
     distance;    

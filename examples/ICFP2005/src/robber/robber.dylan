@@ -9,7 +9,7 @@ end class <random-walk-robber>;
 
 define method choose-move(robber :: <random-walk-robber>, world :: <world>)
  => (move);
-  for (pl in world.world-players)
+  for (pl in world.world-cops)
     dbg("%s %s\n", pl.player-name, pl.player-location.node-name)
   end for;
   let (rank, shortest-path)

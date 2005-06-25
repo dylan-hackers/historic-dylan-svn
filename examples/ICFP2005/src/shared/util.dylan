@@ -1,15 +1,5 @@
 module: world
 
-define method find-player (name :: <string>, world :: <world>) => (location)
-  block(return)
-    for (player in world.world-players)
-      if (player.player-name = name)
-        return(player);
-      end if;
-    end for;
-  end block;
-end;
-
 define function dbg(#rest args)
   apply(format, *standard-error*, args);
   force-output(*standard-error*);

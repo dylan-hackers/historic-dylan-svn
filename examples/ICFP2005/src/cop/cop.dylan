@@ -14,7 +14,7 @@ end method choose-move;
 define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
   let plan = make(<stretchy-vector>);
 
-  for (cop in world.world-players)
+  for (cop in world.world-other-cops)
     let possible-locations = generate-moves(cop);
     let new-location = possible-locations[random(possible-locations.size)];
     add!(plan, generate-plan(world, cop, new-location));

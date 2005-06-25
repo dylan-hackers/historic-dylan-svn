@@ -19,7 +19,10 @@ define class <world> (<object>)
   constant slot world-banks          :: <vec>, required-init-keyword: banks:;
   constant slot world-evidences      :: <vec>, required-init-keyword: evidences:;
   constant slot world-smell-distance :: <integer>, required-init-keyword: smell:;
-  constant slot world-players        :: <vec>, required-init-keyword: players:;
+  constant slot world-cops           :: <vec>, required-init-keyword: cops:;
+  constant slot world-other-cops     :: <vec>, required-init-keyword: other-cops:;
+  constant slot world-my-player      :: <player>, required-init-keyword: my-player:;
+  constant slot world-robber         :: false-or(<player>), required-init-keyword: robber:;
   constant slot world-skeleton       :: <world-skeleton>, required-init-keyword: skeleton:;
 end class;
 
@@ -180,6 +183,42 @@ define method make (player == <player>,
   apply(next-method, player, location: location, args);
 end method;
 
+define method make (world == <world>,
+                    #next next-method,
+                    #rest rest,
+                    #key players,
+                    #all-keys) => (res :: <world>)
+  let args = rest;
+  args := exclude(args, #"players");
+  let players = players;
+  local method find-pl (name)
+          block(return)
+            for (element in players)
+              if (element.player-name = name)
+                players := remove!(players, element);
+                return(element);
+              end if;
+            end for;
+            #f;
+          end block;
+        end method;
+          
+  let my-player = find-pl(*world-skeleton*.my-name);
+  let robber = find-pl(*world-skeleton*.robber-name);
+  players := sort!(players, test: method(x, y)
+                                      x.player-name < y.player-name;
+                                  end method);
+  let cops = add(players, my-player);
+
+  apply(next-method,
+        world,
+        cops: cops,
+        robber: robber,
+        my-player: my-player,
+        other-cops: players,
+        args);
+end method;
+
 define method make (world-skeleton == <world-skeleton>,
                     #next next-method,
                     #rest rest,
@@ -317,15 +356,14 @@ define method read-world (stream, skeleton)
             list("pl:", name-re, name-re, ptype-re));
   re("wor/");
 
+
   make(<world>,
        number: string-to-integer(world),
        loot: string-to-integer(loot),
        banks: banks,
        evidences: evidences,
        smell: string-to-integer(smell),
-       players: sort(players, test: method(x, y)
-                                        x.player-name < y.player-name;
-                                    end method),
+       players: players,
        skeleton: skeleton);
 end;
 
