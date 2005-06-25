@@ -27,7 +27,7 @@ define method choose-move(cop :: <rookie-cop>, world :: <world>)
   values(possible-locations[random(possible-locations.size)], "cop-foot");
 end method choose-move;
 
-drive-agent(make(<rookie-cop>, *standard-input*, *standard-output*));
+drive-agent(make(<rookie-cop>), *standard-input*, *standard-output*);
   
 /*
 define function main(name, arguments)
@@ -162,103 +162,5 @@ define function main(name, arguments)
  exit-application(0);
 end function main;
 
-<<<<<<< .mine
-=======
-define method vote(world)
-  send("vote\\\n");
-  for (player :: <player> in world.world-players)
-    if ((player.player-type = cop-foot) | (player.player-type = cop-car))
-      send("vote: %s\n", player.player-name);
-    end if;
-  end for;
-  send("vote/\n");
-end vote;
-
-define class <from-message-inform> (<object>)
-  slot sender, required-init-keyword: sender:;
-  slot informs, required-init-keyword: informs:;
-end;
-
-lock-down <from-message-inform> end;
-
-define method read-from-message-inform (stream)
-  let res = make(<stretchy-vector>);
-  let re = curry(re, stream);
-  re("from\\\\");
-
-  block()
-    while(#t)
-      let from-who = re("from:", name-re);
-      re("inf\\\\");
-      let infos = collect(stream,
-                          <inform>,
-                          #(bot:, location:, type:, world:, certainty:),
-                          list("inf:", name-re, name-re, ptype-re, number-re, negnumber-re));
-      add!(res, make(<from-message-inform>,
-                     sender: from-who,
-                     informs: infos));
-    end while;
-  exception (condition :: <parse-error>)
-  end block;
-  res;
-end;
-
-
-define function print-inform (inform :: <inform>) => ()
-  if (inform.plan-world < 200)
-    send("inf: %s %s %s %d %d\n", inform.plan-bot,
-         inform.plan-location.node-name, inform.plan-type,
-         inform.plan-world, inform.inform-certainty);
-  end if;
-end function print-inform;
-
-define function print-plan (plan :: <plan>) => ()
-  if (plan.plan-world < 200) 
-    send("plan: %s %s %s %d\n", plan.plan-bot,
-         plan.plan-location.node-name,
-         plan.plan-type, plan.plan-world);
-  end if;
-end function print-plan;
-
-
-define class <from-message-plan> (<object>)
-  slot sender, required-init-keyword: sender:;
-  slot plans, required-init-keyword: plans:;
-end;
-
-lock-down <from-message-plan> end;
-
-define method read-from-message-plan (stream)
-  let res = make(<stretchy-vector>);
-  let re = curry(re, stream);
-  re("from\\\\");
-
-  block()
-    while(#t)
-      let from-who = re("from:", name-re);
-      re("plan\\\\");
-      let infos = collect(stream,
-                          <plan>,
-                          #(bot:, location:, type:, world:),
-                          list("plan:", name-re, name-re, ptype-re, number-re));
-      add!(res, make(<from-message-plan>,
-                     sender: from-who,
-                     plans: infos));
-    end while;
-  exception (condition :: <parse-error>)
-  end block;
-  res;
-end;
-
-define method read-vote-tally (stream)
-  let re = curry(re, stream);
-  block()
-    re("winner:", name-re);
-  exception (cond :: <parse-error>)
-    //no winner
-  end;
-end method;
-    
->>>>>>> .r69
 main(application-name(), application-arguments());
 */
