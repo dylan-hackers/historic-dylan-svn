@@ -6,7 +6,7 @@ define abstract class <agent> (<object>)
 end class <agent>;
 
 define open abstract class <cop> (<agent>)
-  slot initial-transport = "foot";
+  slot initial-transport = "cop-foot";
 end class <cop>;
 
 define open abstract class <robber> (<agent>)
