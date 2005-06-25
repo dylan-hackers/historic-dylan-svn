@@ -67,7 +67,7 @@ define function main(name, arguments)
       // Just inform of new location.
       let inf-my-cop-new = make(<inform>,
                                 bot: my-cop-name,
-                                location: as(<byte-string>, my-cop-location-new.node-name),
+                                location: my-cop-location-new,
                                 type: my-cop-type,
                                 world: our-world.world-number + 1,
                                 certainty: 100);
@@ -89,7 +89,7 @@ define function main(name, arguments)
 
       let plan-copA = make(<plan>,
                            bot: copA-name,
-                           location: as(<byte-string>, copA-location-new.node-name),
+                           location: copA-location-new,
                            type: copA-type,
                            world: our-world.world-number + 1);
 
@@ -99,7 +99,7 @@ define function main(name, arguments)
 
       let plan-copB = make(<plan>,
                            bot: copB-name,
-                           location: as(<byte-string>, copB-location-new.node-name),
+                           location: copB-location-new,
                            type: copB-type,
                            world: our-world.world-number + 1);
 
@@ -109,7 +109,7 @@ define function main(name, arguments)
 
       let plan-copC = make(<plan>,
                            bot: copC-name,
-                           location: as(<byte-string>, copC-location-new.node-name),
+                           location: copC-location-new,
                            type: copC-type,
                            world: our-world.world-number + 1);
 
@@ -119,7 +119,7 @@ define function main(name, arguments)
 
       let plan-copD = make(<plan>,
                            bot: copD-name,
-                           location: as(<byte-string>, copD-location-new.node-name),
+                           location: copD-location-new,
                            type: copD-type,
                            world: our-world.world-number + 1);
 
