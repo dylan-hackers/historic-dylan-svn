@@ -30,6 +30,7 @@ define class <node> (<object>)
   constant slot node-y         :: <string>, required-init-keyword: y:;
   constant slot moves-by-foot  :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot moves-by-car   :: <stretchy-vector> = make(<stretchy-vector>);
+  constant slot node-id        :: <integer>, required-init-keyword: node-id:;
 end class;
 
 define class <edge> (<object>)
@@ -113,7 +114,10 @@ define method make (node == <node>,
     args := exclude(args, #"name");
     name := as(<symbol>, name);
   end if;
-  apply(next-method, node, name: name, args);
+  let res = apply(next-method, node, name: name,
+                  node-id: next-node-id + 1, args);
+  next-node-id := next-node-id + 1;
+  res;
 end;
 
 define method make (plan == <plan>,
@@ -171,6 +175,55 @@ define method make (player == <player>,
   apply(next-method, player, location: location, args);
 end method;
 
+define method make (world-skeleton == <world-skeleton>,
+                    #next next-method,
+                    #rest rest,
+                    #key nodes,
+                    edges,
+                    #all-keys) => (res :: <world-skeleton>)
+
+  let args = rest;
+  let nodes-table = make(<table>);
+  for (node in nodes)
+    nodes-table[node.node-name] := node;
+    add!(node.moves-by-foot, node);
+    add!(node.moves-by-car, node);
+  end for;
+
+  local method add-node (list, target-node)
+          block(return)
+            for (element in list)
+              if (element.node-name = as(<symbol>, target-node))
+                return();
+              end if;
+            end for;
+            add!(list, nodes-table[as(<symbol>, target-node)]);
+          end block;
+        end method;
+
+  for (edge in edges)
+    if (edge-type(edge) = "foot")
+      //foot-edges are possible to go by foot or by car in the right direction
+      add-node(moves-by-foot(nodes-table[as(<symbol>, edge.edge-start)]),
+               edge.edge-end);
+      add-node(moves-by-car(nodes-table[as(<symbol>, edge.edge-start)]),
+               edge.edge-end);
+      //reverse direction, only by foot
+      add-node(moves-by-foot(nodes-table[as(<symbol>, edge.edge-end)]),
+               edge.edge-start);
+    elseif (edge-type(edge) = "car")
+      //shortcuts for cars
+      add-node(moves-by-car(nodes-table[as(<symbol>, edge.edge-start)]),
+               edge.edge-end);
+    end;
+  end for;
+
+  args := exclude(args, #"nodes");
+  apply(next-method, world-skeleton, nodes: nodes-table, args);
+end method;
+
+
+
 define method exclude (list, symbol) => (sequence)
   let res = make(<stretchy-vector>);
   for (i from 0 below list.size by 2)
@@ -182,9 +235,14 @@ define method exclude (list, symbol) => (sequence)
   res;
 end method;
 
+define method maximum-node-id () => (res :: <integer>)
+  next-node-id;
+end method;
+
 define class <parse-error> (<error>)
 end class;
 
+define variable next-node-id :: <integer> = 0;
 
 define constant ws-re   = "[ \t]";
 define constant name-re = "([-a-zA-Z0-9_#()]+)";
@@ -219,55 +277,11 @@ define method read-world-skeleton(stream :: <stream>)
             list("edg:", name-re, name-re, edge-type-re));
   re("wsk/");
 
-  let nodes-table = make(<table>);
-  for (node in nodes)
-    nodes-table[node.node-name] := node;
-  end for;
-
-  local method add-node (list, target-node)
-          block(return)
-            for (element in list)
-              if (element.node-name = as(<symbol>, target-node))
-                return();
-              end if;
-            end for;
-            add!(list, nodes-table[as(<symbol>, target-node)]);
-          end block;
-        end method;
-
-  for (edge in edges)
-    if (edge-type(edge) = "foot")
-      //foot-edges are possible to go by foot or by car in the right direction
-      add-node(moves-by-foot(nodes-table[as(<symbol>, edge.edge-start)]),
-               edge.edge-end);
-      add-node(moves-by-car(nodes-table[as(<symbol>, edge.edge-start)]),
-               edge.edge-end);
-      //reverse direction, only by foot
-      add-node(moves-by-foot(nodes-table[as(<symbol>, edge.edge-end)]),
-               edge.edge-start);
-    elseif (edge-type(edge) = "car")
-      //shortcuts for cars
-      add-node(moves-by-car(nodes-table[as(<symbol>, edge.edge-start)]),
-               edge.edge-end);
-    end;
-  end for;
-
-  /*for (ele in nodes-table)
-    dbg("NODE %=\n", ele.node-name);
-    for (move in ele.moves-by-car)
-      dbg("CAR MOVE: %=\n", move.node-name);
-    end for;
-    for (move in ele.moves-by-foot)
-      dbg("FOOT MOVE: %=\n", move.node-name);
-    end for;
-    dbg("\n");
-  end for;*/
-
   *world-skeleton* := make(<world-skeleton>,
                            my-name: my-name,
                            robber-name: robber-name,
                            cop-names: cop-names,
-                           nodes: nodes-table,
+                           nodes: nodes,
                            edges: edges);
 end;
 

@@ -138,29 +138,37 @@ define method print (move :: <move>)
        move.transport);
 end method;
 
-define method generate-moves (world :: <world>, player :: <player>)
+define method generate-moves (player :: <player>)
   => (move)
+  let move = make(<move>,
+                  target: player.player-location,
+                  transport: player.player-type);
+  generate-moves(move);
+
+end method;
+
+define method generate-moves(move :: <move>)
   let options = make(<stretchy-vector>);
 
   local method add-to-options (list, transport)
-          for (tar in player.player-location.list)
+          for (tar in move.target.list)
             add!(options, make(<move>,
                                target: tar,
                                transport: transport));
           end;
         end method;
 
-    
-  if ((player.player-type = "cop-foot") |
-        (player.player-location.node-tag = "hq"))
-    add-to-options(moves-by-foot, "cop-foot")
-  end;
-  if ((player.player-type = "cop-car") | 
-            (player.player-location.node-tag = "hq"))
-    add-to-options(moves-by-car, "cop-car")
-  end;
-  if (player.player-type = "robber")
+  if (move.transport = "robber")
     add-to-options(moves-by-foot, "robber");
+  else
+    if ((move.transport = "cop-foot") |
+          (move.target.node-tag = "hq"))
+      add-to-options(moves-by-foot, "cop-foot")
+    end;
+    if ((move.transport = "cop-car") | 
+          (move.target.node-tag = "hq"))
+      add-to-options(moves-by-car, "cop-car")
+    end;
   end if;
 
   //for (ele in options)
@@ -168,6 +176,7 @@ define method generate-moves (world :: <world>, player :: <player>)
   //end;
 
   options;
+
 end method;
 
 define method generate-plan(world :: <world>,
@@ -180,3 +189,41 @@ define method generate-plan(world :: <world>,
        type: move.transport,
        world: world.world-number + 1);
 end method;
+
+define function distance
+    (player :: <player>,
+     target-node :: <node>,
+     #key source :: <move>
+       = make(<move>,
+              target: player.player-location,
+              transport: player.player-type)) => (result)
+
+  let rank :: <vector> =
+    make(<vector>, size: maximum-node-id(), fill: maximum-node-id());
+  rank[source.target.node-id] := 0;
+
+  let todo-nodes = make(<deque>);
+
+  local method search (start)
+          block (return)
+            for (move in generate-moves(start))
+              if (rank[move.target.node-id] > rank[start.target.node-id])
+                rank[move.target.node-id] := rank[start.target.node-id] + 1;
+                push-last(todo-nodes, move);
+              end if;
+              if (move.target = target-node)
+                return(rank[move.target.node-id]);
+              end if;
+            end for;
+            if (todo-nodes.size = 0)
+              error("Graph not connected");
+            end if;
+            search(todo-nodes.pop);
+          end;
+        end method;
+
+  let result = search(source);
+
+  dbg("%=\n", rank);
+  result;
+end;

@@ -22,14 +22,15 @@ define module world
   use format, import: { format };
 
   export <world>, <inform>, <plan>,
-    world-skeleton, world-players, world-edges, world-number, cop-names, my-name,
+    world-skeleton, world-banks, bank-location, world-players,
+    world-edges, world-number, cop-names, my-name,
     evidence-location, evidence-world,
     <player>, player-type, player-name, player-location,
     <plan>, plan-world, plan-bot, plan-location, plan-type,
     inform-certainty, node-name,
     read-world-skeleton, read-world, <parse-error>,
     find-player, generate-moves, generate-plan,
-    dbg, lock-down;
+    dbg, lock-down, maximum-node-id;
 
   export <agent>, agent-player,
     <cop>, <robber>, <move>,
@@ -37,6 +38,6 @@ define module world
     make-informs, perceive-informs,
     make-plan, perceive-plans,
     make-vote, perceive-vote,
-    drive-agent;
+    drive-agent, distance;
 
 end module;

@@ -75,8 +75,6 @@ define function intermingle (#rest sequences)
               sequences));
 end;
 
-
-
 define constant <vec> = <simple-object-vector>;
 define constant <string> = <byte-string>;
 

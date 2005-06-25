@@ -8,9 +8,12 @@ end class <random-walk-robber>;
 
 define method choose-move(robber :: <random-walk-robber>, world :: <world>)
  => (move);
-  let options = generate-moves(world, robber.agent-player);
+  let options = generate-moves(robber.agent-player);
   let move = options[random(options.size)];
   dbg("moving to %s\n", move);
+  distance(robber.agent-player,
+           world.world-banks[0].bank-location);
+           
   move;
 end method choose-move;
     
