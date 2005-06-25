@@ -70,7 +70,7 @@ define method make (plan == <plan>,
                           #key world,
                           #all-keys) => (res :: <plan>)
   let args = rest;
-  if (instance?(world-number, <string>))
+  if (instance?(world, <string>))
     args := exclude(args, #"world");
     world := string-to-integer(world);
   end if;
