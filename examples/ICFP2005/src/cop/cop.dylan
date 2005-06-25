@@ -71,9 +71,7 @@ define function main(name, arguments)
                                 world: our-world.world-number + 2,
                                 certainty: 100);
 
-      dbg("before\n");
       inf-my-cop-new.print;
-      dbg("after\n");
       
       send("inf/\n");
 
@@ -188,12 +186,16 @@ define method read-from-message-inform (stream)
 end;
 
 define method print (inform :: <inform>)
-  send("inf: %s %s %s %d %d\n", inform.plan-bot, inform.plan-location, inform.plan-type,
-             inform.plan-world, inform.inform-certainty);
+  if (inform.plan-world < 200) 
+    send("inf: %s %s %s %d %d\n", inform.plan-bot, inform.plan-location, inform.plan-type,
+         inform.plan-world, inform.inform-certainty);
+  end if;
 end method print;
 
 define method print (plan :: <plan>)
-  send("plan: %s %s %s %d\n", plan.plan-bot, plan.plan-location, plan.plan-type, plan.plan-world);
+  if (plan.plan-world < 200) 
+    send("plan: %s %s %s %d\n", plan.plan-bot, plan.plan-location, plan.plan-type, plan.plan-world);
+  end if;
 end method print;
 
 define class <from-message-plan> (<object>)
