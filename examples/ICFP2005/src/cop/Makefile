@@ -1,7 +1,5 @@
-go: cop
-	./cop
-
-cop: cop.lid cop.dylan cop-exports.dylan
+cop: cop.lid cop.dylan cop-exports.dylan  ../shared/libworld-dylan.a
+	(cd ../shared; make)
 	d2c -s -L../shared cop.lid
 
 clean:

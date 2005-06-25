@@ -1,8 +1,9 @@
-go:
-	echo nothing to make in here!
+shared: libworld-dylan.a
 
-shared:
-	echo nothing to make in here!
+libworld-dylan.a: world.lid world.dylan world-exports.dylan util.dylan
+	d2c -s world.lid
 
 clean:
-	rm -f *~
+	-rm -f *.o *.s *.a *.c *.mak *~
+	-rm -rf .libs
+
