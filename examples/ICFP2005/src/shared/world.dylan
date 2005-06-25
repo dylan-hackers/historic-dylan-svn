@@ -1,6 +1,9 @@
 module: world
 
-define constant <vec> = <simple-object-vector>;
+lock-down
+   <world-skeleton>, <world>, <node>, <edge>, <bank>, <evidence>,
+   <player>, <plan>, <inform>, <parse-error>
+end lock-down;
 
 define class <world-skeleton> (<object>)
   slot my-name     :: <string>, required-init-keyword: my-name:;
@@ -19,8 +22,6 @@ define class <world> (<object>)
   slot world-players        :: <vec>, required-init-keyword: players:;
   slot world-skeleton       :: <world-skeleton>, required-init-keyword: skeleton:;
 end class;
-
-//define sealed method initialize(word :: <world>, #key
 
 define class <node> (<object>)
   slot name :: <string>, init-keyword: name:;
@@ -62,35 +63,9 @@ define class <inform> (<plan>)
   slot certainty, init-keyword: certainty:;
 end;
 
-define method regexp-match(big :: <string>, regex :: <string>) => (#rest results);
-  let (#rest marks) = regexp-position(big, regex);
-  let result = make(<stretchy-vector>);
-
-  if(marks[0])
-    for(i from 0 below marks.size by 2)
-      if(marks[i] & marks[i + 1])
-        result := add!(result, copy-sequence(big, start: marks[i], end: marks[i + 1]))
-      else
-        result := add!(result, #f)
-      end
-    end
-  end;
-  apply(values, result)
-end;
-
 define class <parse-error> (<error>)
 end class;
 
-define function re (stream, #rest regexen)
-  let regex = reduce1(method(x, y) concatenate(x, ws-re, y) end,
-                      regexen);
-  let line = read-line(stream);
-  dbg("line: %s\n", line);
-  let (match, #rest substrings) = regexp-match(line, regex);
-  //dbg("RE: %= %= %=\n", regex, line, match);
-  unless (match) signal(make(<parse-error>)) end;
-  apply(values, substrings)
-end;
 
 define constant ws-re   = "[ \t]";
 define constant name-re = "([-a-zA-Z0-9_#()]+)";
@@ -99,6 +74,7 @@ define constant edge-type-re = "(car|foot)";
 define constant number-re = "([0-9]+)";
 define constant negnumber-re = "(-?[0-9]+)";
 define constant ptype-re = "(cop-foot|cop-car|robber)";
+
 
 define method read-world-skeleton(stream :: <stream>)
   let re = curry(re, stream);
@@ -131,6 +107,7 @@ define method read-world-skeleton(stream :: <stream>)
        nodes: nodes,
        edges: edges);
 end;
+
 
 define method read-world (stream, skeleton)
   let re = curry(re, stream);
@@ -167,26 +144,3 @@ define method read-world (stream, skeleton)
        players: players,
        skeleton: skeleton);
 end;
-
-define function collect (stream, type, keywords, regexps)
- => (res :: <vec>);
-  let res = make(<stretchy-vector>);
-  block()
-    while(#t)
-      let (#rest substrings) = apply(re, stream, regexps);
-      add!(res,
-           apply(make, type,
-                 intermingle(keywords, substrings)));
-    end while;
-  exception (condition :: <parse-error>)
-  end;
-  as(<vec>, res);
-end;
-
-define function intermingle (#rest sequences)
-  apply(concatenate,
-        apply(map,
-              method(#rest elements) elements end,
-              sequences));
-end;
-
