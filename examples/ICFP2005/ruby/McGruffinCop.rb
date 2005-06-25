@@ -2,12 +2,38 @@ def brain_pick_initial_transport()
     'cop-car'.intern
 end
 
+def mgc_sort_locations(locations)
+    sorted_locations = []
+
+    $information.each do |cop, information|
+        information.each do |info|
+            if info.certainty > 0 then
+                if locations.include?(info.location) then
+                    sorted_locations << info.location
+                    #$stderr.puts "preferring #{info.location} because #{cop} is #{info.certainty} certain"
+                end
+            end
+        end
+    end
+    
+    leftover_locations = locations.dup
+    leftover_locations.delete_if do |location|
+        sorted_locations.include?(location)
+    end
+    leftover_locations.shuffle!
+    
+    sorted_locations += leftover_locations
+end
+
 def mgc_pick_next_location(location, transport)
     locations = reachable_locations(location, transport)
-    locations = locations.collect do |loc|
-        node_for_location(loc)
+    locations = mgc_sort_locations(locations)
+    
+    weighted_locations = []
+    locations.each_with_index do |location, i|
+        weighted_locations += [location] * (locations.size - i)
     end
-    locations[rand(locations.size)].name
+    weighted_locations[rand(weighted_locations.size)]
 end
 
 def brain_pick_next_location()
