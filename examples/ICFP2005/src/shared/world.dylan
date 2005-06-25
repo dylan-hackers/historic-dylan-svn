@@ -6,73 +6,73 @@ lock-down
 end lock-down;
 
 define class <world-skeleton> (<object>)
-  slot my-name     :: <string>, required-init-keyword: my-name:;
-  slot robber-name :: <string>, required-init-keyword: robber-name:;
-  slot cop-names   :: <vec>, required-init-keyword: cop-names:;
-  slot world-nodes :: <table>, required-init-keyword: nodes:;
-  slot world-edges :: <vec>, required-init-keyword: edges:;
+  constant slot my-name     :: <string>, required-init-keyword: my-name:;
+  constant slot robber-name :: <string>, required-init-keyword: robber-name:;
+  constant slot cop-names   :: <vec>, required-init-keyword: cop-names:;
+  constant slot world-nodes :: <table>, required-init-keyword: nodes:;
+  constant slot world-edges :: <vec>, required-init-keyword: edges:;
 end;
 
 define class <world> (<object>)
-  slot world-number         :: <integer>, required-init-keyword: number:;
-  slot world-loot           :: <integer>, required-init-keyword: loot:;
-  slot world-banks          :: <vec>, required-init-keyword: banks:;
-  slot world-evidences      :: <vec>, required-init-keyword: evidences:;
-  slot world-smell-distance :: <integer>, required-init-keyword: smell:;
-  slot world-players        :: <vec>, required-init-keyword: players:;
-  slot world-skeleton       :: <world-skeleton>, required-init-keyword: skeleton:;
+  constant slot world-number         :: <integer>, required-init-keyword: number:;
+  constant slot world-loot           :: <integer>, required-init-keyword: loot:;
+  constant slot world-banks          :: <vec>, required-init-keyword: banks:;
+  constant slot world-evidences      :: <vec>, required-init-keyword: evidences:;
+  constant slot world-smell-distance :: <integer>, required-init-keyword: smell:;
+  constant slot world-players        :: <vec>, required-init-keyword: players:;
+  constant slot world-skeleton       :: <world-skeleton>, required-init-keyword: skeleton:;
 end class;
 
 define class <node> (<object>)
-  slot node-name      :: <symbol>, required-init-keyword: name:;
-  slot node-tag       :: <string>, required-init-keyword: tag:;
-  slot node-x         :: <string>, required-init-keyword: x:;
-  slot node-y         :: <string>, required-init-keyword: y:;
-  slot moves-by-foot  :: <stretchy-vector> = make(<stretchy-vector>);
-  slot moves-by-car   :: <stretchy-vector> = make(<stretchy-vector>);
+  constant slot node-name      :: <symbol>, required-init-keyword: name:;
+  constant slot node-tag       :: <string>, required-init-keyword: tag:;
+  constant slot node-x         :: <string>, required-init-keyword: x:;
+  constant slot node-y         :: <string>, required-init-keyword: y:;
+  constant slot moves-by-foot  :: <stretchy-vector> = make(<stretchy-vector>);
+  constant slot moves-by-car   :: <stretchy-vector> = make(<stretchy-vector>);
 end class;
 
 define class <edge> (<object>)
-  slot edge-start :: <string>, required-init-keyword: start:;
-  slot edge-end   :: <string>, required-init-keyword: end:;
-  slot edge-type  :: <string>, required-init-keyword: type:;
+  constant slot edge-start :: <string>, required-init-keyword: start:;
+  constant slot edge-end   :: <string>, required-init-keyword: end:;
+  constant slot edge-type  :: <string>, required-init-keyword: type:;
 end class;
 
 define class <bank> (<object>)
-  slot bank-location :: <node>, required-init-keyword: location:;
+  constant slot bank-location :: <node>, required-init-keyword: location:;
   slot bank-money    :: <string>, required-init-keyword: money:;
 end;
 
 define class <evidence> (<object>)
-  slot evidence-location :: <node>, required-init-keyword: location:;
-  slot evidence-world    :: <string>, required-init-keyword: world:;
+  constant slot evidence-location :: <node>, required-init-keyword: location:;
+  constant slot evidence-world    :: <string>, required-init-keyword: world:;
 end;
 
 define class <player> (<object>)
-  slot player-name     :: <string>, required-init-keyword: name:;
-  slot player-location :: <node>, required-init-keyword: location:;
-  slot player-type     :: <string>, required-init-keyword: type:;
+  constant slot player-name     :: <string>, required-init-keyword: name:;
+  constant slot player-location :: <node>, required-init-keyword: location:;
+  constant slot player-type     :: <string>, required-init-keyword: type:;
 end;
 
 define class <plan> (<object>)
-  slot plan-bot      :: <string>, required-init-keyword: bot:;
-  slot plan-location :: <node>, required-init-keyword: location:;
-  slot plan-type     :: <string>, required-init-keyword: type:;
-  slot plan-world    :: <integer>, required-init-keyword: world:;
+  constant slot plan-bot      :: <string>, required-init-keyword: bot:;
+  constant slot plan-location :: <node>, required-init-keyword: location:;
+  constant slot plan-type     :: <string>, required-init-keyword: type:;
+  constant slot plan-world    :: <integer>, required-init-keyword: world:;
 end class;
 
 define class <inform> (<plan>)
-  slot inform-certainty :: <integer>, required-init-keyword: certainty:;
+  constant slot inform-certainty :: <integer>, required-init-keyword: certainty:;
 end;
 
 define class <from-message-inform> (<object>)
-  slot sender, required-init-keyword: sender:;
-  slot informs, required-init-keyword: informs:;
+  constant slot sender, required-init-keyword: sender:;
+  constant slot informs, required-init-keyword: informs:;
 end;
 
 define class <from-message-plan> (<object>)
-  slot sender, required-init-keyword: sender:;
-  slot plans, required-init-keyword: plans:;
+  constant slot sender, required-init-keyword: sender:;
+  constant slot plans, required-init-keyword: plans:;
 end;
 
 define variable *world-skeleton* = #f;
