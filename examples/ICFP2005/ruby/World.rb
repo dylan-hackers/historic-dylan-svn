@@ -50,16 +50,46 @@ def reachable_locations(location, transport)
     locations = [location]
 
     $edges.each do |edge|
-        next unless edge.from == location
-        
-        if edge.edge_type == :car then
-            next if transport != 'cop-car'.intern
+        if transport == 'cop-car'.intern then
+            next unless edge.from == location
+            locations << edge.to
+        else
+            next unless edge.from == location || edge.to == location
+            next if edge.edge_type == :car
+            
+            if edge.from == location then
+                locations << edge.to
+            else
+                locations << edge.from
+            end
         end
         
         locations << edge.to
     end
     
     locations
+end
+
+def locations_cops_can_smell()
+    locations = []
+
+    $cops.each do |cop|
+        location = $player_locations[cop]
+        transport = $player_transport[cop]
+        
+        locations << location
+        
+        reachable = reachable_locations(location, transport)
+        if transport == 'cop-car'.intern then
+            locations += reachable
+        else
+            locations += reachable.collect do |new_location|
+                reachable_locations(new_location, transport)
+            end.flatten + reachable
+        end
+    end
+    
+    locations.uniq
 end
 
 def node_for_location(location)
