@@ -26,3 +26,8 @@ define method find-possible-locations
   
   result;
 end;
+
+define function dbg(#rest args)
+  apply(format, *standard-error*, args);
+  force-output(*standard-error*);
+end;

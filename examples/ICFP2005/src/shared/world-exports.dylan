@@ -26,6 +26,6 @@ define module world
     read-world-skeleton, read-world, <parse-error>,
     find-player, find-possible-locations,
     re, ws-re, name-re, node-tag, edge-type-re, number-re, negnumber-re, ptype-re,
-    collect;
+    collect, dbg;
 
 end module;

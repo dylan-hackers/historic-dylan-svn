@@ -11,28 +11,23 @@ define function main(name, arguments)
   block()
     while (#t)
       let world = read-world(*standard-input*, skelet);
-      format(*standard-error*, "PLAYERS %=\n", world.players);
-      force-output(*standard-error*);
+      dbg("PLAYERS %=\n", world.players);
 
       let current-location = location(find-player(world));
-      format(*standard-error*, "CURLOC %=\n", current-location);
-      force-output(*standard-error*);    
+      dbg("CURLOC %=\n", current-location);
 
       let options =
         find-possible-locations(current-location, world.world-skeleton.edges);
 
-      format(*standard-error*, "Size: %d\n", options.size);
-      format(*standard-error*, "Size: %s\n", options[1]);
-      format(*standard-error*, "After the call.\n");
-      force-output(*standard-error*);    
+      dbg("Size: %d\n", options.size);
+      dbg("Size: %s\n", options[1]);
+      dbg("After the call.\n");
 
       for (i :: <integer> from 0 to options.size - 1)
-        format(*standard-error*, "Location %d: %s\n", i, options[i]);
-        force-output(*standard-error*);
+        dbg("Location %d: %s\n", i, options[i]);
       end for;
 
       format-out("mov: %s robber\n", options[random(options.size)]);
-      force-output(*standard-output*);
     end while;
   exception (condition :: <parse-error>)
   end;

@@ -81,10 +81,9 @@ define function re (stream, #rest regexen)
   let regex = reduce1(method(x, y) concatenate(x, ws-re, y) end,
                       regexen);
   let line = read-line(stream);
-  //format(*standard-error*, "line: %s\n", line);
-  //force-output(*standard-error*);
+  dbg("line: %s\n", line);
   let (match, #rest substrings) = regexp-match(line, regex);
-  //format-out("RE: %= %= %=\n", regex, line, match);
+  dbg("RE: %= %= %=\n", regex, line, match);
   unless (match) signal(make(<parse-error>)) end;
   apply(values, substrings)
 end;
