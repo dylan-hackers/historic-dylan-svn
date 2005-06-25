@@ -323,7 +323,9 @@ define method read-world (stream, skeleton)
        banks: banks,
        evidences: evidences,
        smell: string-to-integer(smell),
-       players: players,
+       players: sort(players, test: method(x, y)
+                                        x.player-name < y.player-name;
+                                    end method),
        skeleton: skeleton);
 end;
 

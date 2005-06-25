@@ -9,6 +9,9 @@ end class <random-walk-robber>;
 
 define method choose-move(robber :: <random-walk-robber>, world :: <world>)
  => (move);
+  for (pl in world.world-players)
+    dbg("%s %s\n", pl.player-name, pl.player-location.node-name)
+  end for;
   let (rank, shortest-path)
     = distance(robber.agent-player,
                world.world-banks[robber.bank-id].bank-location);

@@ -37,7 +37,7 @@ define module world
     world-loot,
     world-banks,
     world-evidences,
-    world-smell-devices,
+    world-smell-distance,
     world-players,
     world-skeleton;
 
