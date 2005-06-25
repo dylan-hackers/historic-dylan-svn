@@ -72,7 +72,7 @@ define function main(name, arguments)
                                 certainty: 100);
 
       dbg("before\n");
-      inf-my-cop-new.print();
+      inf-my-cop-new.print;
       dbg("after\n");
       
       send("inf/\n");
@@ -88,7 +88,7 @@ define function main(name, arguments)
 
       let plan-copA = make(<plan>,
                            bot: copA-name,
-                           location: copA-location,
+                           location: copA-location-new,
                            type: copA-type,
                            world: our-world.world-number + 2);
 
@@ -98,7 +98,7 @@ define function main(name, arguments)
 
       let plan-copB = make(<plan>,
                            bot: copB-name,
-                           location: copB-location,
+                           location: copB-location-new,
                            type: copB-type,
                            world: our-world.world-number + 2);
 
@@ -108,7 +108,7 @@ define function main(name, arguments)
 
       let plan-copC = make(<plan>,
                            bot: copC-name,
-                           location: copC-location,
+                           location: copC-location-new,
                            type: copC-type,
                            world: our-world.world-number + 2);
 
@@ -118,14 +118,14 @@ define function main(name, arguments)
 
       let plan-copD = make(<plan>,
                            bot: copD-name,
-                           location: copD-location,
+                           location: copD-location-new,
                            type: copD-type,
                            world: our-world.world-number + 2);
 
-      plan-copA.print();
-      plan-copB.print();
-      plan-copC.print();
-      plan-copD.print();
+      plan-copA.print;
+      plan-copB.print;
+      plan-copC.print;
+      plan-copD.print;
       
       send("plan/\n");
 
@@ -188,10 +188,8 @@ define method read-from-message-inform (stream)
 end;
 
 define method print (inform :: <inform>)
-  dbg("about to send\n");
   send("inf: %s %s %s %d %d\n", inform.plan-bot, inform.plan-location, inform.plan-type,
              inform.plan-world, inform.inform-certainty);
-  dbg("sent\n");
 end method print;
 
 define method print (plan :: <plan>)
