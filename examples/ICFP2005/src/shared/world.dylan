@@ -9,13 +9,13 @@ define class <world-skeleton> (<object>)
 end;
 
 define class <world> (<object>)
-  slot world;
-  slot loot;
-  slot banks;
-  slot evidences;
-  slot distance;
-  slot players :: <collection>;
-  slot world-skeleton :: <world-skeleton>;
+  slot world-number :: <integer>, required-init-keyword: number:;
+  slot world-loot :: <integer>, required-init-keyword: loot:;
+  slot world-banks :: <simple-object-vector>, required-init-keyword: banks:;
+  slot world-evidences :: <simple-object-vector>, required-init-keyword: evidences:;
+  slot world-smell-distance :: <integer>, required-init-keyword: smell:;
+  slot world-players :: <simple-object-vector>, required-init-keyword: players:;
+  slot world-skeleton :: <world-skeleton>, required-init-keyword: skeleton:;
 end class;
 
 define class <node> (<object>)
@@ -107,68 +107,82 @@ define method read-world-skeleton(stream :: <stream>)
     cop-names[i] := re("cop:", name-re);
   end;
   re("nod\\\\");
-  let nodes = collect(stream,
-                       <node>,
-                       #(name:, tag:, x:, y:),
-                       list("nod:", name-re, node-tag, number-re, number-re));
+  let nodes =
+    collect(stream,
+            <node>,
+            #(name:, tag:, x:, y:),
+            list("nod:", name-re, node-tag, number-re, number-re));
   re("edg\\\\");
-  let edges = collect(stream,
-                       <edge>,
-                       #(start:, end:, type:),
-                       list("edg:", name-re, name-re, edge-type-re));
+  let edges =
+    collect(stream,
+            <edge>,
+            #(start:, end:, type:),
+            list("edg:", name-re, name-re, edge-type-re));
   re("wsk/");
 
   make(<world-skeleton>,
        my-name: my-name,
        robber-name: robber-name,
        cop-names: cop-names,
-       nodes: as(<simple-object-vector>, nodes),
-       edges: as(<simple-object-vector>, edges));
+       nodes: nodes,
+       edges: edges);
 end;
 
 define method read-world (stream, skeleton)
-  let res = make(<world>);
   let re = curry(re, stream);
   re("wor\\\\");
-  res.world := re("wor:", number-re);
-  res.loot := re("rbd:", number-re);
+  let world = re("wor:", number-re);
+  let loot = re("rbd:", number-re);
   re("bv\\\\");
-  res.banks := collect(stream,
-                       <bank>,
-                       #(location:, money:),
-                       list("bv:", name-re, number-re));
+  let banks =
+    collect(stream,
+            <bank>,
+            #(location:, money:),
+            list("bv:", name-re, number-re));
   re("ev\\\\");
-  res.evidences := collect(stream,
-                           <evidence>,
-                           #(location:, world:),
-                           list("ev:", name-re, number-re));
-  res.distance := re("smell:", number-re);
+  let evidences =
+    collect(stream,
+            <evidence>,
+            #(location:, world:),
+            list("ev:", name-re, number-re));
+  let smell = re("smell:", number-re);
   re("pl\\\\");
-  res.players := collect(stream,
-                         <player>,
-                         #(name:, location:, type:),
-                         list("pl:", name-re, name-re, ptype-re));
+  let players =
+    collect(stream,
+            <player>,
+            #(name:, location:, type:),
+            list("pl:", name-re, name-re, ptype-re));
   re("wor/");
-  res.world-skeleton := skeleton;
-  res;
+
+  make(<world>,
+       number: as(<integer>, world),
+       loot: as(<integer>, loot),
+       banks: banks,
+       evidences: evidences,
+       smell: as(<integer>, smell),
+       players: players,
+       skeleton: skeleton);
 end;
 
 define function collect (stream, type, keywords, regexps)
+ => (res :: <simple-object-vector>);
   let res = make(<stretchy-vector>);
   block()
     while(#t)
       let (#rest substrings) = apply(re, stream, regexps);
-      add!(res, apply(make, type,
+      add!(res,
+           apply(make, type,
                  intermingle(keywords, substrings)));
     end while;
   exception (condition :: <parse-error>)
   end;
-  res;
+  as(<simple-object-vector>, res);
 end;
 
 define function intermingle (#rest sequences)
-  apply(concatenate, apply(map,
-                           method(#rest elements) elements end,
-                           sequences));
+  apply(concatenate,
+        apply(map,
+              method(#rest elements) elements end,
+              sequences));
 end;
 

@@ -34,7 +34,7 @@ define function main(name, arguments)
                                 bot: my-cop-name,
                                 location: my-cop-location-new,
                                 type: my-cop-type,
-                                world: our-world.world + 2,
+                                world: our-world.world-number + 2,
                                 certainty: 100);
 
       print-inform(inf-my-cop-new);
@@ -68,7 +68,7 @@ end function main;
 
 define method vote(world)
   send("vote\\\n");
-  for (player in world.players)
+  for (player in world.world-players)
     if ((player.type = cop-foot) | (player.type = cop-car))
       send("vote: %s\n", player.name);
     end if;

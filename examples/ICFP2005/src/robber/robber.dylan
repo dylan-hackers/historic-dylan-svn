@@ -11,7 +11,7 @@ define function main(name, arguments)
   block()
     while (#t)
       let world = read-world(*standard-input*, skelet);
-      dbg("PLAYERS %=\n", world.players);
+      dbg("PLAYERS %=\n", world.world-players);
 
       let current-location = location(find-player(world));
       dbg("CURLOC %=\n", current-location);

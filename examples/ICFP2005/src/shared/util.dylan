@@ -2,7 +2,7 @@ module: world
 
 define method find-player (world :: <world>) => (location)
   block(return)
-    for (player in world.players)
+    for (player in world.world-players)
       if (player.name = world.world-skeleton.my-name)
         return(player);
       end if;
