@@ -39,6 +39,8 @@ define function main(name, arguments)
                                 type: my-cop-type,
                                 world: our-world.world + 2,
                                 certainty: 100);
+
+      print-inform(inf-my-cop-new);
       
       format-out("inf/\n");
       force-output(*standard-output*);
@@ -110,6 +112,11 @@ define method read-from-message-inform (stream)
   end block;
   res;
 end;
+
+define method print-inform (inform :: <inform>)
+  format-out("inf: %s %s %s %d %d\n", inform.bot, inform.location, inform.type,
+             inform.world, inform.certainty);
+end method print-inform;
 
 define class <from-message-plan> (<object>)
   slot sender, init-keyword: sender:;

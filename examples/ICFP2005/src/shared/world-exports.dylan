@@ -27,6 +27,6 @@ define module world
     find-player, find-possible-locations,
     re, ws-re, name-re, node-tag, edge-type-re, number-re, negnumber-re, ptype-re,
     collect, dbg,
-    world;
+    world, bot, certainty;
 
 end module;
