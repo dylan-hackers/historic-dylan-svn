@@ -33,8 +33,10 @@ define function dbg(#rest args)
 end;
 
 define function send(#rest args)
-  apply(format, *standard-output*, args);
+  let msg = apply(format-to-string, args);
+  format-out(msg);
   force-output(*standard-output*);
+  dbg("Send: %s", msg);
 end;
 
 define method regexp-match(big :: <string>, regex :: <string>) => (#rest results);
