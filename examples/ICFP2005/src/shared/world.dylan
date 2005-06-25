@@ -28,7 +28,8 @@ define class <node> (<object>)
   slot node-tag       :: <string>, required-init-keyword: tag:;
   slot node-x         :: <string>, required-init-keyword: x:;
   slot node-y         :: <string>, required-init-keyword: y:;
-  slot possible-moves :: <stretchy-vector> = make(<stretchy-vector>);
+  slot moves-by-foot  :: <stretchy-vector> = make(<stretchy-vector>);
+  slot moves-by-car   :: <stretchy-vector> = make(<stretchy-vector>);
 end class;
 
 define class <edge> (<object>)
@@ -149,17 +150,40 @@ define method read-world-skeleton(stream :: <stream>)
     nodes-table[node.node-name] := node;
   end for;
 
+  local method add-node (list, target-node)
+          block(return)
+            for (element in list)
+              if (element.node-name = target-node)
+                return();
+              end if;
+            end for;
+            add!(list, nodes-table[target-node]);
+          end block;
+        end method;
+
   for (edge in edges)
-    add!(possible-moves(nodes-table[edge.edge-start]), edge);
+    add-node(moves-by-foot(nodes-table[edge.edge-start]),
+             edge.edge-end);
+    add-node(moves-by-car(nodes-table[edge.edge-start]),
+             edge.edge-end);
     if (edge-type(edge) = "foot")
-      add!(possible-moves(nodes-table[edge.edge-end]), edge);
+      //reverse direction
+      add-node(moves-by-foot(nodes-table[edge.edge-end]),
+               edge.edge-start);
+    elseif (edge-type(edge) = "car")
+      //shortcuts for cars
+      add-node(moves-by-car(nodes-table[edge.edge-start]),
+               edge.edge-end);
     end;
   end for;
 
   /*for (ele in nodes-table)
     dbg("NODE %s\n", ele.node-name);
-    for (move in ele.possible-moves)
-      dbg("MOVE: %s %s\n", move.edge-start, move.edge-end);
+    for (move in ele.moves-by-car)
+      dbg("CAR MOVE: %s\n", move.node-name);
+    end for;
+    for (move in ele.moves-by-foot)
+      dbg("FOOT MOVE: %s\n", move.node-name);
     end for;
     dbg("\n");
   end for;*/
