@@ -17,7 +17,7 @@ define function main(name, arguments)
       dbg("CURLOC %=\n", current-location);
 
       let options =
-        find-possible-locations(current-location, world.world-skeleton.edges);
+        find-possible-locations(current-location, world.world-skeleton.world-edges);
 
       dbg("options = %=\n", options);
 

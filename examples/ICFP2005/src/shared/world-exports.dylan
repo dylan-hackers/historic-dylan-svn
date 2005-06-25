@@ -22,7 +22,7 @@ define module world
   use format, import: { format };
 
   export <world>, <inform>, <plan>,
-    world-skeleton, players, location, edges, type, name,
+    world-skeleton, players, location, world-edges, type, name,
     read-world-skeleton, read-world, <parse-error>,
     find-player, find-possible-locations,
     re, ws-re, name-re, node-tag, edge-type-re, number-re, negnumber-re, ptype-re,

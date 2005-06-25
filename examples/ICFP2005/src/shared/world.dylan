@@ -1,11 +1,11 @@
 module: world
 
 define class <world-skeleton> (<object>)
-  slot my-name;
-  slot robber;
-  slot cops;
-  slot nodes;
-  slot edges;
+  slot my-name :: <string>, required-init-keyword: my-name:;
+  slot robber-name :: <string>, required-init-keyword: robber-name:;
+  slot cop-names :: <simple-object-vector>, required-init-keyword: cop-names:;
+  slot world-nodes :: <simple-object-vector>, required-init-keyword: nodes:;
+  slot world-edges :: <simple-object-vector>, required-init-keyword: edges:;
 end;
 
 define class <world> (<object>)
@@ -98,27 +98,32 @@ define constant ptype-re = "(cop-foot|cop-car|robber)";
 
 define method read-world-skeleton(stream :: <stream>)
   let re = curry(re, stream);
-  let res = make(<world-skeleton>);
 
   re("wsk\\\\");
-  res.my-name := re("name:", name-re);
-  res.robber := re("robber:", name-re);
-  res.cops := make(<stretchy-vector>);
+  let my-name = re("name:", name-re);
+  let robber-name = re("robber:", name-re);
+  let cop-names = make(<vector>, size: 5);
   for(i from 0 below 5)
-    add!(res.cops, re("cop:", name-re))
+    cop-names[i] := re("cop:", name-re);
   end;
   re("nod\\\\");
-  res.nodes := collect(stream,
+  let nodes = collect(stream,
                        <node>,
                        #(name:, tag:, x:, y:),
                        list("nod:", name-re, node-tag, number-re, number-re));
   re("edg\\\\");
-  res.edges := collect(stream,
+  let edges = collect(stream,
                        <edge>,
                        #(start:, end:, type:),
                        list("edg:", name-re, name-re, edge-type-re));
   re("wsk/");
-  res;
+
+  make(<world-skeleton>,
+       my-name: my-name,
+       robber-name: robber-name,
+       cop-names: cop-names,
+       nodes: as(<simple-object-vector>, nodes),
+       edges: as(<simple-object-vector>, edges));
 end;
 
 define method read-world (stream, skeleton)
