@@ -1,4 +1,4 @@
-cop: cop.lid cop.dylan cop-exports.dylan  ../shared/libworld-dylan.a
+cop: cop.lid cop.dylan cop-exports.dylan
 	(cd ../shared; make)
 	d2c -s -L../shared cop.lid
 

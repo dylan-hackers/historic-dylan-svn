@@ -1,4 +1,4 @@
-robber: robber.lid robber.dylan robber-exports.dylan ../shared/libworld-dylan.a
+robber: robber.lid robber.dylan robber-exports.dylan
 	(cd ../shared; make)
 	d2c -s -L../shared robber.lid
 
