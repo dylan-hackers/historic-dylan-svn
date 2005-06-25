@@ -6,7 +6,8 @@ require 'Common'
 require 'World'
 
 def send_register_message()
-    send_message "reg: #{$brain} #{brain_pick_initial_transport()}"
+    $transport = brain_pick_initial_transport()
+    send_message "reg: #{$brain} #{$transport}"
 end
 
 def receive_world_skeleton()
@@ -16,31 +17,78 @@ def receive_world_skeleton()
 end
 
 def send_inform()
-
+    send_message <<END_OF_INFORM
+inf\\
+inf/
+END_OF_INFORM
 end
 
 def receive_informs()
-
+    line = $stdin.gets.chomp
+    if line != 'from\\' then
+        raise 'malformed inform -- missing from group'
+    end
+    
+    line = $stdin.gets.chomp
+    while line != 'from/' do
+        line =~ /from:\s(\S+)/ or raise('malformed from')
+        bot = $1
+        
+        line = $stdin.gets.chomp
+        while line != 'inf/' do
+            line = $stdin.gets.chomp
+        end
+        
+        line = $stdin.gets.chomp
+    end
 end
 
 def send_plan()
-
+    send_message <<END_OF_PLAN
+plan\\
+plan/
+END_OF_PLAN
 end
 
 def receive_plans()
-
+    line = $stdin.gets.chomp
+    if line != 'from\\' then
+        raise 'malformed plan -- missing from group'
+    end
+    
+    line = $stdin.gets.chomp
+    while line != 'from/' do
+        line =~ /from:\s(\S+)/ or raise('malformed from')
+        bot = $1
+        
+        line = $stdin.gets.chomp
+        while line != 'plan/' do
+            line = $stdin.gets.chomp
+        end
+        
+        line = $stdin.gets.chomp
+    end
 end
 
 def send_vote()
-
+    send_message("vote\\\n" + $cops.collect do |cop|
+        "vote: #{cop}"
+    end.join("\n") + "\nvote/")
 end
 
 def receive_votes()
-
+    line = $stdin.gets.chomp
+    if line =~ /winner:\s(\S+)/
+    
+    elsif line != 'nowinner' then
+        raise 'malformed vote result'
+    end
 end
 
 def send_move_message()
-
+    $current_location = brain_pick_next_location()
+    send_message "mov: #{$current_location} #{$transport}"
+    
 end
 
 ACTIONS = {
