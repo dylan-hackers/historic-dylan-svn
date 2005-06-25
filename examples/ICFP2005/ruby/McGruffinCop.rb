@@ -16,6 +16,14 @@ def mgc_sort_locations(locations)
         end
     end
     
+    locations.each do |location|
+        node = node_for_location(location)
+        if node.is_bank? then
+            sorted_locations << location
+            $stderr.puts "preferring #{location} because it's a bank"
+        end
+    end
+    
     leftover_locations = locations.dup
     leftover_locations.delete_if do |location|
         sorted_locations.include?(location)
