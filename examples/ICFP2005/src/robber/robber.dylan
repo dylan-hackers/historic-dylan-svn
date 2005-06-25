@@ -16,7 +16,8 @@ define function main(name, arguments)
       let current-location = location(find-player(world));
       //format(*standard-error*, "CURLOC %=\n", current-location);
       //force-output(*standard-error*);    
-      let options = find-possible-locations(current-location, world.world-skeleton.edges);
+      let options =
+        find-possible-locations(current-location, world.world-skeleton.edges);
       format-out("mov: %s robber\n", options[random(options.size)]);
       force-output(*standard-output*);
     end while;
