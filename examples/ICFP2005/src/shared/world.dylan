@@ -65,7 +65,7 @@ define method regexp-match(big :: <string>, regex :: <string>) => (#rest results
   if(marks[0])
     for(i from 0 below marks.size by 2)
       if(marks[i] & marks[i + 1])
-        result := add!(result, subsequence(big, start: marks[i], end: marks[i + 1]))
+        result := add!(result, copy-sequence(big, start: marks[i], end: marks[i + 1]))
       else
         result := add!(result, #f)
       end
