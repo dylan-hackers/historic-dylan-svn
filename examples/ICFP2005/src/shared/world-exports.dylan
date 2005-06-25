@@ -21,8 +21,11 @@ define module world
 //  use simple-random;
   use format, import: { format };
 
-  export <world>, <inform>,
+  export <world>, <inform>, <plan>,
     world-skeleton, players, location, edges, type, name,
     read-world-skeleton, read-world, <parse-error>,
-    find-player, find-possible-locations;
+    find-player, find-possible-locations,
+    re, ws-re, name-re, node-tag, edge-type-re, number-re, negnumber-re, ptype-re,
+    collect;
+
 end module;

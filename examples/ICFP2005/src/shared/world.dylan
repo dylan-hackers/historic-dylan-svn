@@ -92,10 +92,10 @@ end;
 define constant ws-re   = "[ \t]";
 define constant name-re = "([-a-zA-Z0-9_#()]+)";
 define constant node-tag = "(hq|bank|robber-start|ordinary)";
-define constant edge-type = "(car|foot)";
-define constant number = "([0-9]+)";
-define constant negnumber = "(-?[0-9]+)";
-define constant ptype = "(cop-foot|cop-car|robber)";
+define constant edge-type-re = "(car|foot)";
+define constant number-re = "([0-9]+)";
+define constant negnumber-re = "(-?[0-9]+)";
+define constant ptype-re = "(cop-foot|cop-car|robber)";
 
 define method read-world-skeleton(stream :: <stream>)
   let re = curry(re, stream);
@@ -112,12 +112,12 @@ define method read-world-skeleton(stream :: <stream>)
   res.nodes := collect(stream,
                        <node>,
                        #(name:, tag:, x:, y:),
-                       list("nod:", name-re, node-tag, number, number));
+                       list("nod:", name-re, node-tag, number-re, number-re));
   re("edg\\\\");
   res.edges := collect(stream,
                        <edge>,
                        #(start:, end:, type:),
-                       list("edg:", name-re, name-re, edge-type));
+                       list("edg:", name-re, name-re, edge-type-re));
   re("wsk/");
   res;
 end;
@@ -126,24 +126,24 @@ define method read-world (stream, skeleton)
   let res = make(<world>);
   let re = curry(re, stream);
   re("wor\\\\");
-  res.world := re("wor:", number);
-  res.loot := re("rbd:", number);
+  res.world := re("wor:", number-re);
+  res.loot := re("rbd:", number-re);
   re("bv\\\\");
   res.banks := collect(stream,
                        <bank>,
                        #(location:, money:),
-                       list("bv:", name-re, number));
+                       list("bv:", name-re, number-re));
   re("ev\\\\");
   res.evidences := collect(stream,
                            <evidence>,
                            #(location:, world:),
-                           list("ev:", name-re, number));
-  res.distance := re("smell:", number);
+                           list("ev:", name-re, number-re));
+  res.distance := re("smell:", number-re);
   re("pl\\\\");
   res.players := collect(stream,
                          <player>,
                          #(name:, location:, type:),
-                         list("pl:", name-re, name-re, ptype));
+                         list("pl:", name-re, name-re, ptype-re));
   re("wor/");
   res.world-skeleton := skeleton;
   res;

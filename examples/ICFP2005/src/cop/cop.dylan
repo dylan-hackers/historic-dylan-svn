@@ -68,7 +68,7 @@ define method read-from-message-inform (stream)
       let infos = collect(stream,
                           <inform>,
                           #(bot:, location:, type:, world:, certainty:),
-                          list("inf:", name-re, name-re, ptype, number, negnumber));
+                          list("inf:", name-re, name-re, ptype-re, number-re, negnumber-re));
       add!(res, make(<from-message-inform>,
                      sender: from-who,
                      informs: infos));
@@ -95,7 +95,7 @@ define method read-from-message-plan (stream)
       let infos = collect(stream,
                           <plan>,
                           #(bot:, location:, type:, world:),
-                          list("plan:", name-re, name-re, ptype, number));
+                          list("plan:", name-re, name-re, ptype-re, number-re));
       add!(res, make(<from-message-plan>,
                      sender: from-who,
                      plans: infos));
