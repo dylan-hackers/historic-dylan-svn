@@ -11,7 +11,8 @@ define method find-player (name :: <string>, world :: <world>) => (location)
 end;
 
 define method find-possible-locations
-    (current-location, #key wanted-type = "foot") => (result)
+    (current-location :: <node>, #key wanted-type = "foot")
+ => (result :: <stretchy-object-vector>)
   if (wanted-type = "foot")
     current-location.moves-by-foot;
   elseif (wanted-type = "car")

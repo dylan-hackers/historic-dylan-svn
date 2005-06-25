@@ -41,6 +41,7 @@ define function main(name, arguments)
       end if;
     end if;
   end for;
+
   
   block()
     while (#t)
@@ -48,7 +49,7 @@ define function main(name, arguments)
       dbg("DEBUG: Cops: %s %s %s %s %s.\n", copA-name, copB-name, copC-name, copD-name, my-cop-name);
 
       dbg("DEBUG: Players: ");
-      for (player in our-world.world-players)
+      for (player :: <player> in our-world.world-players)
         dbg("%s ", player.player-name);
       end for;
       dbg("\n");
@@ -66,12 +67,12 @@ define function main(name, arguments)
       // Just inform of new location.
       let inf-my-cop-new = make(<inform>,
                                 bot: my-cop-name,
-                                location: my-cop-location-new,
+                                location: as(<byte-string>, my-cop-location-new.node-name),
                                 type: my-cop-type,
                                 world: our-world.world-number + 1,
                                 certainty: 100);
 
-      inf-my-cop-new.print;
+      inf-my-cop-new.print-inform;
       
       send("inf/\n");
 
@@ -81,14 +82,14 @@ define function main(name, arguments)
       send("plan\\\n");
 
       let copA-location = find-player(copA-name, our-world).player-location;
-      dbg("copA-loc= %=", copA-location);
+      dbg("copA-loc= %=\n", copA-location);
       possible-locations := find-possible-locations(copA-location);
       let copA-location-new = possible-locations[random(possible-locations.size)];
-      dbg("copA-loc-new= %=", copA-location-new);
+      dbg("copA-loc-new= %=\n", copA-location-new);
 
       let plan-copA = make(<plan>,
                            bot: copA-name,
-                           location: copA-location-new,
+                           location: as(<byte-string>, copA-location-new.node-name),
                            type: copA-type,
                            world: our-world.world-number + 1);
 
@@ -98,7 +99,7 @@ define function main(name, arguments)
 
       let plan-copB = make(<plan>,
                            bot: copB-name,
-                           location: copB-location-new,
+                           location: as(<byte-string>, copB-location-new.node-name),
                            type: copB-type,
                            world: our-world.world-number + 1);
 
@@ -108,7 +109,7 @@ define function main(name, arguments)
 
       let plan-copC = make(<plan>,
                            bot: copC-name,
-                           location: copC-location-new,
+                           location: as(<byte-string>, copC-location-new.node-name),
                            type: copC-type,
                            world: our-world.world-number + 1);
 
@@ -118,14 +119,14 @@ define function main(name, arguments)
 
       let plan-copD = make(<plan>,
                            bot: copD-name,
-                           location: copD-location-new,
+                           location: as(<byte-string>, copD-location-new.node-name),
                            type: copD-type,
                            world: our-world.world-number + 1);
 
-      plan-copA.print;
-      plan-copB.print;
-      plan-copC.print;
-      plan-copD.print;
+      plan-copA.print-plan;
+      plan-copB.print-plan;
+      plan-copC.print-plan;
+      plan-copD.print-plan;
       
       send("plan/\n");
 
@@ -139,7 +140,7 @@ define function main(name, arguments)
       dbg("About to give command.\n");
 
       // Do our cop move.
-      send("mov: %s %s\n", my-cop-location-new, my-cop-type);
+      send("mov: %s %s\n", as(<byte-string>, my-cop-location-new.node-name), my-cop-type);
 
       // Read new world.
       our-world := read-world(*standard-input*, skelet);
@@ -152,7 +153,7 @@ end function main;
 
 define method vote(world)
   send("vote\\\n");
-  for (player in world.world-players)
+  for (player :: <player> in world.world-players)
     if ((player.player-type = cop-foot) | (player.player-type = cop-car))
       send("vote: %s\n", player.player-name);
     end if;
@@ -161,9 +162,11 @@ define method vote(world)
 end vote;
 
 define class <from-message-inform> (<object>)
-  slot sender, init-keyword: sender:;
-  slot informs, init-keyword: informs:;
+  slot sender, required-init-keyword: sender:;
+  slot informs, required-init-keyword: informs:;
 end;
+
+lock-down <from-message-inform> end;
 
 define method read-from-message-inform (stream)
   let res = make(<stretchy-vector>);
@@ -187,23 +190,27 @@ define method read-from-message-inform (stream)
   res;
 end;
 
-define method print (inform :: <inform>)
+
+define function print-inform (inform :: <inform>) => ()
   if (inform.plan-world < 200) 
     send("inf: %s %s %s %d %d\n", inform.plan-bot, inform.plan-location, inform.plan-type,
          inform.plan-world, inform.inform-certainty);
   end if;
-end method print;
+end function print-inform;
 
-define method print (plan :: <plan>)
+define function print-plan (plan :: <plan>) => ()
   if (plan.plan-world < 200) 
     send("plan: %s %s %s %d\n", plan.plan-bot, plan.plan-location, plan.plan-type, plan.plan-world);
   end if;
-end method print;
+end function print-plan;
+
 
 define class <from-message-plan> (<object>)
-  slot sender, init-keyword: sender:;
-  slot plans, init-keyword: plans:;
+  slot sender, required-init-keyword: sender:;
+  slot plans, required-init-keyword: plans:;
 end;
+
+lock-down <from-message-plan> end;
 
 define method read-from-message-plan (stream)
   let res = make(<stretchy-vector>);

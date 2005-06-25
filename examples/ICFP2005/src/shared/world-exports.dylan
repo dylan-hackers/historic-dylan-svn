@@ -24,13 +24,13 @@ define module world
   export <world>, <inform>, <plan>,
     world-skeleton, world-players, world-edges, world-number, cop-names, my-name,
     evidence-location, evidence-world,
-    player-type, player-name, player-location,
-    plan-world, plan-bot, plan-location, plan-type,
+    <player>, player-type, player-name, player-location,
+    <plan>, plan-world, plan-bot, plan-location, plan-type,
     inform-certainty,
     read-world-skeleton, read-world, <parse-error>,
     find-player, find-possible-locations,
-    re, ws-re, name-re, node-tag, edge-type-re, number-re, negnumber-re, ptype-re,
-    collect, dbg, send;
+    re, ws-re, name-re, node-tag, node-name, edge-type-re, number-re, negnumber-re, ptype-re,
+    collect, dbg, send, lock-down;
 
   export <agent>, agent-location,
     <cop>, <robber>,

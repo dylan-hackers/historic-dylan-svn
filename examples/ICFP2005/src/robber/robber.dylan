@@ -13,7 +13,9 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
   let options =
     find-possible-locations(robber.agent-location);
   dbg("options = %=\n", options);
-  options[random(options.size)]
+  let move = options[random(options.size)];
+  dbg("moving to %s\n", move);
+  move;
 end method choose-move;
     
 define function main(name, arguments)
