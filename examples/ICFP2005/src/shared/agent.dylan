@@ -196,7 +196,7 @@ define function distance
      #key source :: <move>
        = make(<move>,
               target: player.player-location,
-              transport: player.player-type)) => (result)
+              transport: player.player-type)) => (rank, shortest-path)
 
   let rank :: <vector> =
     make(<vector>, size: maximum-node-id(), fill: maximum-node-id());
@@ -216,7 +216,7 @@ define function distance
                 push-last(todo-nodes, move);
               end if;
               if (move.target = target-node)
-                return(rank[move.target.node-id]);
+                return(move.target.node-id);
               end if;
             end for;
             if (todo-nodes.size = 0)
@@ -238,5 +238,5 @@ define function distance
       dbg("\n");
     end if;
   end for;*/
-  result;
+  values(rank[result], reverse(shortest-path[result]));
 end;

@@ -115,7 +115,7 @@ define method make (node == <node>,
     name := as(<symbol>, name);
   end if;
   let res = apply(next-method, node, name: name,
-                  node-id: next-node-id + 1, args);
+                  node-id: next-node-id, args);
   next-node-id := next-node-id + 1;
   res;
 end;
