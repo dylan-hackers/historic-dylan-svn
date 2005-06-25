@@ -1,5 +1,5 @@
 SHARED=../shared/Makefile ../shared/world.lid ../shared/world-exports.dylan \
-../shared/util.dylan  ../shared/world.dylan
+../shared/util.dylan  ../shared/world.dylan ../shared/agent.dylan
 
 cop: cop.lid cop.dylan cop-exports.dylan ${SHARED}
 	(cd ../shared; make)

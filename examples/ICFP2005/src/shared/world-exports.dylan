@@ -32,10 +32,11 @@ define module world
     dbg, lock-down;
 
   export <agent>, agent-location,
-    <cop>, <robber>,
+    <cop>, <robber>, <move>,
     choose-move,
     make-informs, perceive-informs,
     make-plan, perceive-plans,
     make-vote, perceive-vote,
     drive-agent;
+
 end module;

@@ -27,9 +27,9 @@ define method choose-move(cop :: <rookie-cop>, world :: <world>)
   values(possible-locations[random(possible-locations.size)], "cop-foot");
 end method choose-move;
 
-define method make-plan(cop :: <rookie-cop>, world :: <world>)
-  for (cop in our-world.world-players)
-    if (cop.player-name ~= my-cop-name)
+define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
+  for (cop in world.world-players)
+    if (cop.player-name ~= world.world-skeleton.my-name)
       if (copA-name = "")
         copA-name := cop.player-name;
       elseif (copB-name = "")
@@ -44,7 +44,7 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>)
 
   let copA-location = find-player(copA-name, world).player-location;
   dbg("copA-loc= %=\n", copA-location);
-  possible-locations := find-possible-locations(copA-location);
+  let possible-locations = find-possible-locations(copA-location);
   let copA-location-new = possible-locations[random(possible-locations.size)];
   dbg("copA-loc-new= %=\n", copA-location-new);
   

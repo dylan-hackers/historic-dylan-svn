@@ -65,8 +65,10 @@ define method drive-agent(agent :: <robber>,
       agent.agent-location 
         := find-player(skelet.my-name, world).player-location;
       //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
-      format(output-stream, "mov: %s robber\n",
-             node-name(choose-move(agent, world)));
+      let move = make(<move>,
+                      target: choose-move(agent, world),
+                      transport: "robber");
+      print(move);
       force-output(output-stream);
     end while;
   exception (condition :: <parse-error>)
@@ -107,8 +109,10 @@ define method drive-agent(agent :: <cop>,
       perceive-vote(read-vote-tally(input-stream), agent, world);
 
       let (target, transport) = choose-move(agent, world);
-      format(output-stream, "mov: %s %s\n", target.node-name, transport); 
-      force-output(output-stream);
+      let move = make(<move>,
+                      target: target,
+                      transport: transport);
+      print(move);
     end while;
   exception (condition :: <parse-error>)
   end;
@@ -116,15 +120,28 @@ end method drive-agent;
 
 define method print (inform :: <inform>)
   if (inform.plan-world < 200) 
-    send("inf: %s %s %s %d %d\n", inform.plan-bot, inform.plan-location, inform.plan-type,
+    send("inf: %s %s %s %d %d\n", inform.plan-bot,
+         inform.plan-location.node-name, inform.plan-type,
          inform.plan-world, inform.inform-certainty);
   end if;
 end method print;
 
 define method print (plan :: <plan>)
   if (plan.plan-world < 200) 
-    send("plan: %s %s %s %d\n", plan.plan-bot, plan.plan-location, plan.plan-type, plan.plan-world);
+    send("plan: %s %s %s %d\n", plan.plan-bot,
+         plan.plan-location.node-name,
+         plan.plan-type, plan.plan-world);
   end if;
 end method print;
 
     
+define class <move> (<object>)
+  slot target :: <node>, init-keyword: target:;
+  slot transport :: <string>, init-keyword: transport:;
+end class;
+
+define method print (move :: <move>)
+  send("mov: %s %s\n",
+       move.target.node-name,
+       move.transport);
+end method;
