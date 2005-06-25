@@ -3,35 +3,70 @@ synopsis:
 author: 
 copyright: 
 
+define constant <cop-type> = <string>;
+define constant cop-foot :: <cop-type> = "cop-foot";
+define constant cop-car :: <cop-type> = "cop-car";
+
+define variable my-cop-type :: <cop-type> = cop-foot;
+define variable my-cop-name :: <string> = "DyCop";
+
 define function main(name, arguments)
-  format-out("reg: foobar cop-foot\n");
+  format-out("reg: %s %s\n", my-cop-name, my-cop-type);
   force-output(*standard-output*);
   let skelet = read-world-skeleton(*standard-input*);
   block()
     while (#t)
-      let world = read-world(*standard-input*, skelet);
-      //inform-msg
+      let our-world = read-world(*standard-input*, skelet);
+
+      format(*standard-error*, "DEBUG: Entering cop brain.\n");
+      force-output(*standard-error*);    
+
+      let my-cop-location = location(find-player(our-world));
+      let possible-locations = find-possible-locations(my-cop-location, our-world.world-skeleton.edges);
+      let my-cop-location-new = possible-locations[random(possible-locations.size)];
+
+      format(*standard-error*, "DEBUG: Providing other cops with information.\n");
+      force-output(*standard-error*);    
+
+      // First step is to inform other cops of:
+      //  - where we are going to move to
+      //  - if we can or can't smell robber
       format-out("inf\\\n");
+
+      /*
+      let inf-my-cop-new = make(<inform>,
+                                bot: my-cop-name,
+                                location: my-cop-location-new,
+                                type: my-cop-type,
+                                world: our-world.world + 2,
+                                certainty: 100);
+      */
+      
       format-out("inf/\n");
       force-output(*standard-output*);
 
       let inform-messages = read-from-message-inform(*standard-input*);
 
-      //plan message
+      format(*standard-error*, "DEBUG: Providing other cops with DER PLAN.\n");
+      force-output(*standard-error*);    
+
+      // plan message
       format-out("plan\\\n");
       format-out("plan/\n");
       force-output(*standard-output*);
 
       let plans = read-from-message-plan(*standard-input*);
 
-      //vote
-      vote(world);
+      // vote
+      vote(our-world);
 
       let winner = read-vote-tally(*standard-input*);
 
-      let current-location = location(find-player(world));
-      let options = find-possible-locations(current-location, world.world-skeleton.edges);
-      format-out("mov: %s cop-foot\n", options[random(options.size)]);
+      format(*standard-error*, "About to give command.\n");
+      force-output(*standard-error*);    
+
+      format-out("mov: %s %s\n", my-cop-location-new, my-cop-type);
+
       force-output(*standard-output*);
     end while;
   exception (condition :: <parse-error>)
@@ -43,7 +78,7 @@ end function main;
 define method vote(world)
   format-out("vote\\\n");
   for (player in world.players)
-    if ((player.type = "cop-foot") | (player.type = "cop-car"))
+    if ((player.type = cop-foot) | (player.type = cop-car))
       format-out("vote: %s\n", player.name);
     end if;
   end for;
