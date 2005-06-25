@@ -24,16 +24,16 @@ define function main(name, arguments)
   let skelet = read-world-skeleton(*standard-input*);
 
   // Learn other cop's names.
-  for (player in skelet.world-players)
-    if (player.player-name ~= my-cop-name)
+  for (cop-name in skelet.cop-names)
+    if (cop-name ~= my-cop-name)
       if (copA-name = "")
-        copA-name = player.player-name;
+        copA-name = cop-name;
       elseif (copB-name = "")
-        copB-name = player.player-name;
+        copB-name = cop-name;
       elseif (copC-name = "")
-        copC-name = player.player-name;
+        copC-name = cop-name;
       elseif (copD-name = "")
-        copD-name = player.player-name;
+        copD-name = cop-name;
       end if;
     end if;
   end for;
