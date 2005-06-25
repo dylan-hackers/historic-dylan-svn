@@ -162,12 +162,13 @@ define method read-world-skeleton(stream :: <stream>)
         end method;
 
   for (edge in edges)
-    add-node(moves-by-foot(nodes-table[edge.edge-start]),
-             edge.edge-end);
-    add-node(moves-by-car(nodes-table[edge.edge-start]),
-             edge.edge-end);
     if (edge-type(edge) = "foot")
-      //reverse direction
+      //foot-edges are possible to go by foot or by car in the right direction
+      add-node(moves-by-foot(nodes-table[edge.edge-start]),
+               edge.edge-end);
+      add-node(moves-by-car(nodes-table[edge.edge-start]),
+               edge.edge-end);
+      //reverse direction, only by foot
       add-node(moves-by-foot(nodes-table[edge.edge-end]),
                edge.edge-start);
     elseif (edge-type(edge) = "car")
