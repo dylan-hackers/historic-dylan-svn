@@ -41,7 +41,7 @@ end class;
 
 define class <bank> (<object>)
   constant slot bank-location :: <node>, required-init-keyword: location:;
-  slot bank-money    :: <string>, required-init-keyword: money:;
+  constant slot bank-money    :: <integer>, required-init-keyword: money:;
 end;
 
 define class <evidence> (<object>)
@@ -95,13 +95,18 @@ define method make (bank == <bank>,
                     #next next-method,
                     #rest rest,
                     #key location,
+                    money,
                     #all-keys) => (res :: <bank>)
   let args = rest;
   if (instance?(location, <string>))
     args := exclude(args, #"location");
     location := *world-skeleton*.world-nodes[as(<symbol>, location)];
   end if;
-  apply(next-method, bank, location: location, args);
+  if (instance?(money, <string>))
+    args := exclude(args, #"money");
+    money := string-to-integer(money);
+  end if;
+  apply(next-method, bank, location: location, money: money, args);
 end;
 
 define method make (node == <node>,

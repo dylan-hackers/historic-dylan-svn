@@ -21,23 +21,91 @@ define module world
 //  use simple-random;
   use format, import: { format };
 
-  export <world>, <inform>, <plan>,
-    world-skeleton, world-banks, bank-location, world-players,
-    world-edges, world-number, cop-names, my-name,
-    evidence-location, evidence-world,
-    <player>, player-type, player-name, player-location,
-    <plan>, plan-world, plan-bot, plan-location, plan-type,
-    inform-certainty, node-name,
-    read-world-skeleton, read-world, <parse-error>,
-    find-player, generate-moves, generate-plan,
-    dbg, lock-down, maximum-node-id;
+  export dbg,
+    lock-down,
+    maximum-node-id;
 
-  export <agent>, agent-player,
-    <cop>, <robber>, <move>,
+  export <world-skeleton>,
+    my-name,
+    robber-name,
+    cop-names,
+    world-nodes,
+    world-edges;
+
+  export <world>,
+    world-number,
+    world-loot,
+    world-banks,
+    world-evidences,
+    world-smell-devices,
+    world-players,
+    world-skeleton;
+
+  export <node>,
+    node-name,
+    node-tag,
+    node-x,
+    node-y,
+    moves-by-foot,
+    moves-by-car,
+    node-id;
+
+  export <edge>,
+    edge-start,
+    edge-end,
+    edge-type;
+
+  export <bank>,
+    bank-location,
+    bank-money;
+
+  export <evidence>,
+    evidence-location,
+    evidence-world;
+
+  export <player>,
+    player-name,
+    player-location,
+    player-type;
+
+  export <plan>,
+    plan-bot,
+    plan-location,
+    plan-type,
+    plan-world;
+
+  export <inform>,
+    inform-certainty;
+
+  export <from-message-inform>,
+    sender,
+    informs;
+
+  export <from-message-plan>,
+    sender,
+    plans;
+
+  export <parse-error>,
+    read-world-skeleton, read-world;
+
+  export find-player,
+    generate-moves,
+    generate-plan,
     choose-move,
-    make-informs, perceive-informs,
+    distance;    
+
+  export drive-agent;
+
+  export <agent>,
+    agent-player;
+
+  export <cop>,
+    <robber>;
+
+  export  <move>;
+
+  export make-informs, perceive-informs,
     make-plan, perceive-plans,
-    make-vote, perceive-vote,
-    drive-agent, distance;
+    make-vote, perceive-vote;
 
 end module;
