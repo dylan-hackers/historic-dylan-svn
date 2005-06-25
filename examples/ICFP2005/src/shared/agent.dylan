@@ -12,7 +12,7 @@ end class <cop>;
 define open abstract class <robber> (<agent>)
 end class <robber>;
 
-define open generic choose-move(agent :: <agent>, world :: <world>) => (move);
+define open generic choose-move(agent :: <agent>, world :: <world>);
 
 define open generic make-informs(cop :: <cop>, world :: <world>) => (informs);
 
