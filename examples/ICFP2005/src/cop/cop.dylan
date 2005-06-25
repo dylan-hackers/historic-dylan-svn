@@ -54,7 +54,7 @@ define function main(name, arguments)
       dbg("\n");
 
       let my-cop-location = find-player(my-cop-name, our-world).player-location;
-      let possible-locations = find-possible-locations(my-cop-location, our-world.world-skeleton.world-edges);
+      let possible-locations = find-possible-locations(my-cop-location);
       let my-cop-location-new = possible-locations[random(possible-locations.size)];
 
       dbg("DEBUG: Providing other cops with information.\n");
@@ -82,7 +82,7 @@ define function main(name, arguments)
 
       let copA-location = find-player(copA-name, our-world).player-location;
       dbg("copA-loc= %=", copA-location);
-      possible-locations := find-possible-locations(copA-location, our-world.world-skeleton.world-edges);
+      possible-locations := find-possible-locations(copA-location);
       let copA-location-new = possible-locations[random(possible-locations.size)];
       dbg("copA-loc-new= %=", copA-location-new);
 
@@ -93,7 +93,7 @@ define function main(name, arguments)
                            world: our-world.world-number + 1);
 
       let copB-location = find-player(copB-name, our-world).player-location;
-      possible-locations := find-possible-locations(copB-location, our-world.world-skeleton.world-edges);
+      possible-locations := find-possible-locations(copB-location);
       let copB-location-new = possible-locations[random(possible-locations.size)];
 
       let plan-copB = make(<plan>,
@@ -103,7 +103,7 @@ define function main(name, arguments)
                            world: our-world.world-number + 1);
 
       let copC-location = find-player(copC-name, our-world).player-location;
-      possible-locations := find-possible-locations(copC-location, our-world.world-skeleton.world-edges);
+      possible-locations := find-possible-locations(copC-location);
       let copC-location-new = possible-locations[random(possible-locations.size)];
 
       let plan-copC = make(<plan>,
@@ -113,7 +113,7 @@ define function main(name, arguments)
                            world: our-world.world-number + 1);
 
       let copD-location = find-player(copD-name, our-world).player-location;
-      possible-locations := find-possible-locations(copD-location, our-world.world-skeleton.world-edges);
+      possible-locations := find-possible-locations(copD-location);
       let copD-location-new = possible-locations[random(possible-locations.size)];
 
       let plan-copD = make(<plan>,

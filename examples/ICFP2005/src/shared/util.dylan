@@ -11,20 +11,12 @@ define method find-player (name :: <string>, world :: <world>) => (location)
 end;
 
 define method find-possible-locations
-    (current-location, edges, #key wanted-type = "foot") => (result)
-  let result = make(<stretchy-vector>);
-
-  for (edge in edges)
-    if (edge.edge-type = wanted-type)
-      if (edge.edge-start = current-location)
-        add!(result, edge.edge-end);
-      elseif (edge.edge-end = current-location)
-        add!(result, edge.edge-start);
-      end if;
-    end if;
-  end for;
-  
-  result;
+    (current-location, #key wanted-type = "foot") => (result)
+  if (wanted-type = "foot")
+    current-location.moves-by-foot;
+  elseif (wanted-type = "car")
+    current-location.moves-by-car;
+  end if;
 end;
 
 define function dbg(#rest args)

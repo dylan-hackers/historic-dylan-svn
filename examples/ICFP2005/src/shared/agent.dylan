@@ -35,7 +35,9 @@ define method drive-agent(agent :: <robber>,
       let world = read-world(input-stream, skelet);
       agent.agent-location 
         := find-player(skelet.my-name, world).player-location;
-      format(output-stream, "mov: %s robber\n", choose-move(agent, world));
+      //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
+      format(output-stream, "mov: %s robber\n",
+             node-name(choose-move(agent, world)));
       force-output(output-stream);
     end while;
   exception (condition :: <parse-error>)

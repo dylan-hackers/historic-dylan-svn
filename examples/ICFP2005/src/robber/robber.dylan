@@ -11,8 +11,7 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
   dbg("PLAYERS %=\n", world.world-players);
   dbg("CURLOC %=\n", robber.agent-location);
   let options =
-    find-possible-locations(robber.agent-location,
-                            world.world-skeleton.world-edges);
+    find-possible-locations(robber.agent-location);
   dbg("options = %=\n", options);
   options[random(options.size)]
 end method choose-move;

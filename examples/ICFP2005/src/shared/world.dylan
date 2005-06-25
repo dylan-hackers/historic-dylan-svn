@@ -50,7 +50,7 @@ end;
 
 define class <player> (<object>)
   slot player-name     :: <string>, required-init-keyword: name:;
-  slot player-location :: <string>, required-init-keyword: location:;
+  slot player-location :: <node>, required-init-keyword: location:;
   slot player-type     :: <string>, required-init-keyword: type:;
 end;
 
@@ -64,6 +64,8 @@ end class;
 define class <inform> (<plan>)
   slot inform-certainty :: <integer>, required-init-keyword: certainty:;
 end;
+
+define variable *world-skeleton* = #f;
 
 define method make (node == <node>,
                     #next next-method,
@@ -108,6 +110,19 @@ define method make (inform == <inform>,
   end if;
   apply(next-method, inform, certainty: certainty,
         world: world, args);
+end method;
+
+define method make (player == <player>,
+                    #next next-method,
+                    #rest rest,
+                    #key location,
+                    #all-keys) => (res :: <player>)
+  let args = rest;
+  if (instance?(location, <string>))
+    args := exclude(args, #"location");
+    location := *world-skeleton*.world-nodes[as(<symbol>, location)];
+  end if;
+  apply(next-method, player, location: location, args);
 end method;
 
 define method exclude (list, symbol) => (sequence)
@@ -202,12 +217,12 @@ define method read-world-skeleton(stream :: <stream>)
     dbg("\n");
   end for;*/
 
-  make(<world-skeleton>,
-       my-name: my-name,
-       robber-name: robber-name,
-       cop-names: cop-names,
-       nodes: nodes-table,
-       edges: edges);
+  *world-skeleton* := make(<world-skeleton>,
+                           my-name: my-name,
+                           robber-name: robber-name,
+                           cop-names: cop-names,
+                           nodes: nodes-table,
+                           edges: edges);
 end;
 
 
