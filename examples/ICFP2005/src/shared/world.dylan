@@ -83,7 +83,7 @@ define function re (stream, #rest regexen)
   let line = read-line(stream);
   dbg("line: %s\n", line);
   let (match, #rest substrings) = regexp-match(line, regex);
-  dbg("RE: %= %= %=\n", regex, line, match);
+  //dbg("RE: %= %= %=\n", regex, line, match);
   unless (match) signal(make(<parse-error>)) end;
   apply(values, substrings)
 end;

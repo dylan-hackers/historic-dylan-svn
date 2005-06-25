@@ -20,16 +20,12 @@ define function main(name, arguments)
         find-possible-locations(current-location, world.world-skeleton.edges);
 
       dbg("options = %=\n", options);
-      dbg("Size: %d\n", options.size);
-      dbg("Size: %=\n", options[1]);
-      dbg("After the call.\n");
 
       for (i :: <integer> from 0 to options.size - 1)
         dbg("Location %d: %=\n", i, options[i]);
       end for;
 
-      format-out("mov: %s robber\n", options[random(options.size)]);
-      force-output(*standard-output*);
+      send("mov: %s robber\n", options[random(options.size)]);
     end while;
   exception (condition :: <parse-error>)
   end;

@@ -31,3 +31,8 @@ define function dbg(#rest args)
   apply(format, *standard-error*, args);
   force-output(*standard-error*);
 end;
+
+define function send(#rest args)
+  apply(format, *standard-output*, args);
+  force-output(*standard-output*);
+end;
