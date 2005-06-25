@@ -33,14 +33,12 @@ define function main(name, arguments)
       //  - if we can or can't smell robber
       format-out("inf\\\n");
 
-      /*
       let inf-my-cop-new = make(<inform>,
                                 bot: my-cop-name,
                                 location: my-cop-location-new,
                                 type: my-cop-type,
                                 world: our-world.world + 2,
                                 certainty: 100);
-      */
       
       format-out("inf/\n");
       force-output(*standard-output*);
