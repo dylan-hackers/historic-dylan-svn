@@ -1,22 +1,26 @@
 module: world
 
+define constant <vec> = <simple-object-vector>;
+
 define class <world-skeleton> (<object>)
-  slot my-name :: <string>, required-init-keyword: my-name:;
+  slot my-name     :: <string>, required-init-keyword: my-name:;
   slot robber-name :: <string>, required-init-keyword: robber-name:;
-  slot cop-names :: <simple-object-vector>, required-init-keyword: cop-names:;
-  slot world-nodes :: <simple-object-vector>, required-init-keyword: nodes:;
-  slot world-edges :: <simple-object-vector>, required-init-keyword: edges:;
+  slot cop-names   :: <vec>, required-init-keyword: cop-names:;
+  slot world-nodes :: <vec>, required-init-keyword: nodes:;
+  slot world-edges :: <vec>, required-init-keyword: edges:;
 end;
 
 define class <world> (<object>)
-  slot world-number :: <integer>, required-init-keyword: number:;
-  slot world-loot :: <integer>, required-init-keyword: loot:;
-  slot world-banks :: <simple-object-vector>, required-init-keyword: banks:;
-  slot world-evidences :: <simple-object-vector>, required-init-keyword: evidences:;
+  slot world-number         :: <integer>, required-init-keyword: number:;
+  slot world-loot           :: <integer>, required-init-keyword: loot:;
+  slot world-banks          :: <vec>, required-init-keyword: banks:;
+  slot world-evidences      :: <vec>, required-init-keyword: evidences:;
   slot world-smell-distance :: <integer>, required-init-keyword: smell:;
-  slot world-players :: <simple-object-vector>, required-init-keyword: players:;
-  slot world-skeleton :: <world-skeleton>, required-init-keyword: skeleton:;
+  slot world-players        :: <vec>, required-init-keyword: players:;
+  slot world-skeleton       :: <world-skeleton>, required-init-keyword: skeleton:;
 end class;
+
+//define sealed method initialize(word :: <world>, #key
 
 define class <node> (<object>)
   slot name :: <string>, init-keyword: name:;
@@ -155,17 +159,17 @@ define method read-world (stream, skeleton)
   re("wor/");
 
   make(<world>,
-       number: as(<integer>, world),
-       loot: as(<integer>, loot),
+       number: string-to-integer(world),
+       loot: string-to-integer(loot),
        banks: banks,
        evidences: evidences,
-       smell: as(<integer>, smell),
+       smell: string-to-integer(smell),
        players: players,
        skeleton: skeleton);
 end;
 
 define function collect (stream, type, keywords, regexps)
- => (res :: <simple-object-vector>);
+ => (res :: <vec>);
   let res = make(<stretchy-vector>);
   block()
     while(#t)
@@ -176,7 +180,7 @@ define function collect (stream, type, keywords, regexps)
     end while;
   exception (condition :: <parse-error>)
   end;
-  as(<simple-object-vector>, res);
+  as(<vec>, res);
 end;
 
 define function intermingle (#rest sequences)
