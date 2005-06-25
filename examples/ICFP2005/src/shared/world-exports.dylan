@@ -29,12 +29,13 @@ define module world
     inform-certainty, node-name,
     read-world-skeleton, read-world, <parse-error>,
     find-player, find-possible-locations,
-    re, ws-re, name-re, node-tag, node-name, edge-type-re, number-re, negnumber-re, ptype-re,
-    collect, dbg, send, lock-down;
+    dbg, lock-down;
 
   export <agent>, agent-location,
     <cop>, <robber>,
     choose-move,
+    make-informs, perceive-informs,
+    make-plan, perceive-plans,
+    make-vote, perceive-vote,
     drive-agent;
-
 end module;

@@ -19,6 +19,17 @@ define variable copC-type :: <cop-type> = cop-foot;
 define variable copD-name :: <string> = "";
 define variable copD-type :: <cop-type> = cop-foot;
 
+define class <rookie-cop> (<cop>)
+end class <rookie-cop>;
+
+define method choose-move(cop :: <rookie-cop>, world :: <world>)
+  let possible-locations = find-possible-locations(cop.agent-location);
+  values(possible-locations[random(possible-locations.size)], "cop-foot");
+end method choose-move;
+
+drive-agent(make(<rookie-cop>, *standard-input*, *standard-output*));
+  
+/*
 define function main(name, arguments)
   send("reg: %s %s\n", my-cop-name, my-cop-type);
   let skelet = read-world-skeleton(*standard-input*);
@@ -151,6 +162,8 @@ define function main(name, arguments)
  exit-application(0);
 end function main;
 
+<<<<<<< .mine
+=======
 define method vote(world)
   send("vote\\\n");
   for (player :: <player> in world.world-players)
@@ -246,4 +259,6 @@ define method read-vote-tally (stream)
   end;
 end method;
     
+>>>>>>> .r69
 main(application-name(), application-arguments());
+*/

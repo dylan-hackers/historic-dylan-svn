@@ -65,6 +65,16 @@ define class <inform> (<plan>)
   slot inform-certainty :: <integer>, required-init-keyword: certainty:;
 end;
 
+define class <from-message-inform> (<object>)
+  slot sender, required-init-keyword: sender:;
+  slot informs, required-init-keyword: informs:;
+end;
+
+define class <from-message-plan> (<object>)
+  slot sender, required-init-keyword: sender:;
+  slot plans, required-init-keyword: plans:;
+end;
+
 define variable *world-skeleton* = #f;
 
 define method make (evidence == <evidence>,
@@ -92,7 +102,6 @@ define method make (bank == <bank>,
   end if;
   apply(next-method, bank, location: location, args);
 end;
-
 
 define method make (node == <node>,
                     #next next-method,
@@ -298,3 +307,56 @@ define method read-world (stream, skeleton)
        players: players,
        skeleton: skeleton);
 end;
+
+define method read-from-message-inform (stream)
+  let res = make(<stretchy-vector>);
+  let re = curry(re, stream);
+  re("from\\\\");
+
+  block()
+    while(#t)
+      let from-who = re("from:", name-re);
+      re("inf\\\\");
+      let infos = collect(stream,
+                          <inform>,
+                          #(bot:, location:, type:, world:, certainty:),
+                          list("inf:", name-re, name-re, ptype-re, number-re, negnumber-re));
+      add!(res, make(<from-message-inform>,
+                     sender: from-who,
+                     informs: infos));
+    end while;
+  exception (condition :: <parse-error>)
+  end block;
+  res;
+end;
+
+define method read-from-message-plan (stream)
+  let res = make(<stretchy-vector>);
+  let re = curry(re, stream);
+  re("from\\\\");
+
+  block()
+    while(#t)
+      let from-who = re("from:", name-re);
+      re("plan\\\\");
+      let infos = collect(stream,
+                          <plan>,
+                          #(bot:, location:, type:, world:),
+                          list("plan:", name-re, name-re, ptype-re, number-re));
+      add!(res, make(<from-message-plan>,
+                     sender: from-who,
+                     plans: infos));
+    end while;
+  exception (condition :: <parse-error>)
+  end block;
+  res;
+end;
+
+define method read-vote-tally (stream)
+  let re = curry(re, stream);
+  block()
+    re("winner:", name-re);
+  exception (cond :: <parse-error>)
+    //no winner
+  end;
+end method;

@@ -8,11 +8,8 @@ end class <random-walk-robber>;
 
 define method choose-move(robber :: <random-walk-robber>, world :: <world>)
  => (move);
-  dbg("PLAYERS %=\n", world.world-players);
-  dbg("CURLOC %=\n", robber.agent-location);
   let options =
     find-possible-locations(robber.agent-location);
-  dbg("options = %=\n", options);
   let move = options[random(options.size)];
   dbg("moving to %s\n", move);
   move;
