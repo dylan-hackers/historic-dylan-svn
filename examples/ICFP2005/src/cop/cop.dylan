@@ -23,8 +23,16 @@ define class <rookie-cop> (<cop>)
 end class <rookie-cop>;
 
 define method choose-move(cop :: <rookie-cop>, world :: <world>)
-  let possible-locations = find-possible-locations(cop.agent-location);
-  values(possible-locations[random(possible-locations.size)], "cop-foot");
+  let player = block(return)
+                 for (player in world.world-players)
+                   if (player.player-name = world.world-skeleton.my-name)
+                     return(player);
+                   end if;
+                 end for;
+               end block;
+
+  let possible-locations = generate-moves(world, player);
+  possible-locations[random(possible-locations.size)];
 end method choose-move;
 
 define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
@@ -42,47 +50,32 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
     end if;
   end for;
 
-  let copA-location = find-player(copA-name, world).player-location;
-  dbg("copA-loc= %=\n", copA-location);
-  let possible-locations = find-possible-locations(copA-location);
+  let copA = find-player(copA-name, world);
+  dbg("copA= %=\n", copA);
+  let possible-locations = generate-moves(world, copA);
   let copA-location-new = possible-locations[random(possible-locations.size)];
   dbg("copA-loc-new= %=\n", copA-location-new);
   
-  let plan-copA = make(<plan>,
-                       bot: copA-name,
-                       location: copA-location-new,
-                       type: copA-type,
-                       world: world.world-number + 1);
+  let plan-copA = generate-plan(world, copA, copA-location-new);
   
-  let copB-location = find-player(copB-name, world).player-location;
-  possible-locations := find-possible-locations(copB-location);
+  let copB = find-player(copB-name, world);
+  possible-locations := generate-moves(world, copB);
   let copB-location-new = possible-locations[random(possible-locations.size)];
   
-  let plan-copB = make(<plan>,
-                       bot: copB-name,
-                       location: copB-location-new,
-                       type: copB-type,
-                       world: world.world-number + 1);
+  let plan-copB = generate-plan(world, copB, copB-location-new);
   
-  let copC-location = find-player(copC-name, world).player-location;
-  possible-locations := find-possible-locations(copC-location);
+  let copC = find-player(copC-name, world);
+  possible-locations := generate-moves(world, copC);
   let copC-location-new = possible-locations[random(possible-locations.size)];
   
-  let plan-copC = make(<plan>,
-                       bot: copC-name,
-                       location: copC-location-new,
-                       type: copC-type,
-                       world: world.world-number + 1);
+  let plan-copC = generate-plan(world, copC, copC-location-new);
   
-  let copD-location = find-player(copD-name, world).player-location;
-  possible-locations := find-possible-locations(copD-location);
+  let copD = find-player(copD-name, world);
+  possible-locations := generate-moves(world, copD);
   let copD-location-new = possible-locations[random(possible-locations.size)];
   
-  let plan-copD = make(<plan>,
-                       bot: copD-name,
-                       location: copD-location-new,
-                       type: copD-type,
-                       world: world.world-number + 1);
+  let plan-copD = generate-plan(world, copD, copD-location-new);
+
   list(plan-copA, plan-copB, plan-copC, plan-copD)
 end method make-plan;
 

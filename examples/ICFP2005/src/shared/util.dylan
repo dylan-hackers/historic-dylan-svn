@@ -10,16 +10,6 @@ define method find-player (name :: <string>, world :: <world>) => (location)
   end block;
 end;
 
-define method find-possible-locations
-    (current-location :: <node>, #key wanted-type = "foot")
- => (result :: <stretchy-object-vector>)
-  if (wanted-type = "foot")
-    current-location.moves-by-foot;
-  elseif (wanted-type = "car")
-    current-location.moves-by-car;
-  end if;
-end;
-
 define function dbg(#rest args)
   apply(format, *standard-error*, args);
   force-output(*standard-error*);

@@ -65,9 +65,7 @@ define method drive-agent(agent :: <robber>,
       agent.agent-location 
         := find-player(skelet.my-name, world).player-location;
       //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
-      let move = make(<move>,
-                      target: choose-move(agent, world),
-                      transport: "robber");
+      let move = choose-move(agent, world);
       print(move);
       force-output(output-stream);
     end while;
@@ -108,11 +106,7 @@ define method drive-agent(agent :: <cop>,
       
       perceive-vote(read-vote-tally(input-stream), agent, world);
 
-      let (target, transport) = choose-move(agent, world);
-      let move = make(<move>,
-                      target: target,
-                      transport: transport);
-      print(move);
+      print(choose-move(agent, world));
     end while;
   exception (condition :: <parse-error>)
   end;
@@ -144,4 +138,51 @@ define method print (move :: <move>)
   send("mov: %s %s\n",
        move.target.node-name,
        move.transport);
+end method;
+
+define method generate-moves (world :: <world>, player :: <player>)
+  => (move)
+  let options = make(<stretchy-vector>);
+    
+  if ((player.player-type = "cop-foot") |
+        (player.player-location.node-tag = "hq"))
+    for (tar in player.player-location.moves-by-foot)
+      add!(options, make(<move>,
+                         target: tar,
+                         transport: "cop-foot"));
+    end;
+  end;
+  if ((player.player-type = "cop-car") | 
+            (player.player-location.node-tag = "hq"))
+    for (tar in player.player-location.moves-by-car)
+      add!(options, make(<move>,
+                         target: tar,
+                         transport: "cop-car"));
+    end;
+  end;
+  if (player.player-type = "robber")
+    for (tar in player.player-location.moves-by-foot)
+      add!(options, make(<move>,
+                         target: tar,
+                         transport: "robber"));
+    end;
+  end if;
+
+  dbg("GENMOVE: type: %s\n", player.player-location.node-tag);
+  for (ele in options)
+    dbg("GENMOVE: %= %=\n", ele.target.node-name, ele.transport);
+  end;
+
+  options;
+end method;
+
+define method generate-plan(world :: <world>,
+                            player :: <player>,
+                            move :: <move>)
+  => (plan :: <plan>)
+  make(<plan>,
+       bot: player.player-name,
+       location: move.target,
+       type: move.transport,
+       world: world.world-number + 1);
 end method;

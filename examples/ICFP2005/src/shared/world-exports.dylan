@@ -28,7 +28,7 @@ define module world
     <plan>, plan-world, plan-bot, plan-location, plan-type,
     inform-certainty, node-name,
     read-world-skeleton, read-world, <parse-error>,
-    find-player, find-possible-locations,
+    find-player, generate-moves, generate-plan,
     dbg, lock-down;
 
   export <agent>, agent-location,

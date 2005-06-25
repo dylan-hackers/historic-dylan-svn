@@ -188,7 +188,7 @@ end class;
 
 define constant ws-re   = "[ \t]";
 define constant name-re = "([-a-zA-Z0-9_#()]+)";
-define constant node-tag = "(hq|bank|robber-start|ordinary)";
+define constant node-tag-re = "(hq|bank|robber-start|ordinary)";
 define constant edge-type-re = "(car|foot)";
 define constant number-re = "([0-9]+)";
 define constant negnumber-re = "(-?[0-9]+)";
@@ -210,7 +210,7 @@ define method read-world-skeleton(stream :: <stream>)
     collect(stream,
             <node>,
             #(name:, tag:, x:, y:),
-            list("nod:", name-re, node-tag, number-re, number-re));
+            list("nod:", name-re, node-tag-re, number-re, number-re));
   re("edg\\\\");
   let edges =
     collect(stream,
