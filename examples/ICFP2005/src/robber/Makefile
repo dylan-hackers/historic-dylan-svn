@@ -5,7 +5,7 @@ robber: robber.lid robber.dylan robber-exports.dylan ${SHARED}
 	(cd ../shared; make)
 	d2c -s -L../shared robber.lid
 
-run:
+run: robber
 	server --gui --robber "show-robber ./robber-wrapper"
 
 clean:
