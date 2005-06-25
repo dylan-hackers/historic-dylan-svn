@@ -6,7 +6,7 @@ define library world
   use system;
   use regular-expressions;
   use collection-extensions;
-  use streams;
+  //use streams;
   export world;
 end library;
 

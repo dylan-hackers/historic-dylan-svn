@@ -63,6 +63,49 @@ define class <inform> (<plan>)
   slot inform-certainty :: <integer>, required-init-keyword: certainty:;
 end;
 
+define method make (plan == <plan>,
+                          #next next-method,
+                          #rest rest,
+                          #key world,
+                          #all-keys) => (res :: <plan>)
+  let args = rest;
+  if (instance?(world-number, <string>))
+    args := exclude(args, #"world");
+    world := string-to-integer(world);
+  end if;
+  apply(next-method, plan, world: world, args);
+end method;
+
+define method make (inform == <inform>,
+                    #next next-method,
+                    #rest rest,
+                    #key certainty,
+                    world,
+                    #all-keys) => (res :: <inform>)
+  let args = rest;
+  if (instance?(certainty, <string>))
+    args := exclude(args, #"certainty");
+    certainty := string-to-integer(certainty);
+  end if;
+  if (instance?(world, <string>))
+    args := exclude(args, #"world");
+    world := string-to-integer(world);
+  end if;
+  apply(next-method, inform, certainty: certainty,
+        world: world, args);
+end method;
+
+define method exclude (list, symbol) => (sequence)
+  let res = make(<stretchy-vector>);
+  for (i from 0 below list.size by 2)
+    if (list[i] ~= symbol)
+      add!(res, list[i]);
+      add!(res, list[i + 1]);
+    end if;
+  end for;
+  res;
+end method;
+
 define class <parse-error> (<error>)
 end class;
 
