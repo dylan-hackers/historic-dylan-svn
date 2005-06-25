@@ -22,27 +22,36 @@ define variable copD-type :: <cop-type> = cop-car;
 define function main(name, arguments)
   send("reg: %s %s\n", my-cop-name, my-cop-type);
   let skelet = read-world-skeleton(*standard-input*);
+  my-cop-name := skelet.my-name;
+
+  // Read world first time here.
+  let our-world = read-world(*standard-input*, skelet);
 
   // Learn other cop's names.
-  for (cop-name in skelet.cop-names)
-    if (cop-name ~= my-cop-name)
+  for (cop in our-world.world-players)
+    if (cop.player-name ~= my-cop-name)
       if (copA-name = "")
-        copA-name = cop-name;
+        copA-name := cop.player-name;
       elseif (copB-name = "")
-        copB-name = cop-name;
+        copB-name := cop.player-name;
       elseif (copC-name = "")
-        copC-name = cop-name;
+        copC-name := cop.player-name;
       elseif (copD-name = "")
-        copD-name = cop-name;
+        copD-name := cop.player-name;
       end if;
     end if;
   end for;
   
   block()
     while (#t)
-      let our-world = read-world(*standard-input*, skelet);
-
       dbg("DEBUG: Entering cop brain.\n");
+      dbg("DEBUG: Cops: %s %s %s %s %s.\n", copA-name, copB-name, copC-name, copD-name, my-cop-name);
+
+      dbg("DEBUG: Players: ");
+      for (player in our-world.world-players)
+        dbg("%s ", player.player-name);
+      end for;
+      dbg("\n");
 
       let my-cop-location = find-player(my-cop-name, our-world).player-location;
       let possible-locations = find-possible-locations(my-cop-location, our-world.world-skeleton.world-edges);
@@ -62,7 +71,9 @@ define function main(name, arguments)
                                 world: our-world.world-number + 2,
                                 certainty: 100);
 
+      dbg("before\n");
       inf-my-cop-new.print();
+      dbg("after\n");
       
       send("inf/\n");
 
@@ -129,6 +140,9 @@ define function main(name, arguments)
 
       // Do our cop move.
       send("mov: %s %s\n", my-cop-location-new, my-cop-type);
+
+      // Read new world.
+      our-world := read-world(*standard-input*, skelet);
     end while;
   exception (condition :: <parse-error>)
   end;
@@ -174,8 +188,10 @@ define method read-from-message-inform (stream)
 end;
 
 define method print (inform :: <inform>)
+  dbg("about to send\n");
   send("inf: %s %s %s %d %d\n", inform.plan-bot, inform.plan-location, inform.plan-type,
              inform.plan-world, inform.inform-certainty);
+  dbg("sent\n");
 end method print;
 
 define method print (plan :: <plan>)
