@@ -11,13 +11,13 @@ define variable my-cop-type :: <cop-type> = cop-foot;
 define variable my-cop-name :: <string> = "DyCop42";
 
 define variable copA-name :: <string> = "";
-define variable copA-type :: <cop-type> = cop-car;
+define variable copA-type :: <cop-type> = cop-foot;
 define variable copB-name :: <string> = "";
-define variable copB-type :: <cop-type> = cop-car;
+define variable copB-type :: <cop-type> = cop-foot;
 define variable copC-name :: <string> = "";
-define variable copC-type :: <cop-type> = cop-car;
+define variable copC-type :: <cop-type> = cop-foot;
 define variable copD-name :: <string> = "";
-define variable copD-type :: <cop-type> = cop-car;
+define variable copD-type :: <cop-type> = cop-foot;
 
 define function main(name, arguments)
   send("reg: %s %s\n", my-cop-name, my-cop-type);
