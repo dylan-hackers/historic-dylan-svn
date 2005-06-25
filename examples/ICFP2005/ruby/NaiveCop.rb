@@ -9,3 +9,15 @@ def brain_pick_next_location()
     end
     locations[rand(locations.size)].name
 end
+
+def brain_make_informs()
+    []
+end
+
+def brain_make_plans()
+    []
+end
+
+def brain_make_votes()
+    $cops
+end

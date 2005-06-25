@@ -119,6 +119,7 @@ def read_world_skeleton(stream)
     if line !~ /robber:\s(\S+)/ then
         raise 'malformed skeleton -- missing robber name'
     end
+    $robber = $1
     
     $cops = []
     1.upto(5) do

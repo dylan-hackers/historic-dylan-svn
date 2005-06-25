@@ -5,6 +5,9 @@ $: << File.dirname($0)
 require 'Common'
 require 'World'
 
+Information = Struct.new('Information', :location, :world, :certainty)
+Plan = Struct.new('Plan', :bot, :location, :transport, :world)
+
 def send_register_message()
     $transport = brain_pick_initial_transport()
     send_message "reg: #{$brain} #{$transport}"
@@ -17,9 +20,16 @@ def receive_world_skeleton()
 end
 
 def send_inform()
+    informs = brain_make_informs()
+    inform_message = informs.collect do |inform|
+        "inf: #{$robber} #{inform.location} robber #{inform.world} #{inform.certainty}"
+    end.join("\n")
+    if informs.size > 0 then
+        inform_message += "\n"
+    end
     send_message <<END_OF_INFORM
 inf\\
-inf/
+#{inform_message}inf/
 END_OF_INFORM
 end
 
@@ -29,13 +39,29 @@ def receive_informs()
         raise 'malformed inform -- missing from group'
     end
     
+    $information = {}
     line = $stdin.gets.chomp
     while line != 'from/' do
         line =~ /from:\s(\S+)/ or raise('malformed from')
-        bot = $1
+        cop = $1
+        $information[cop] = []
         
         line = $stdin.gets.chomp
+        if line != 'inf\\' then
+            raise 'malformed inform -- missing inf group'
+        end
+        line = $stdin.gets.chomp
         while line != 'inf/' do
+            line =~ /inf:\s(\S+)\s(\S+)\s(\S+)\s(\d+)\s(-?\d+)/ or raise('malformed inf')
+            robber = $1
+            location = $2.intern
+            transport = $3.intern
+            world = $4.to_i
+            certainty = $5.to_i
+            if transport == :robber then
+                $information[cop] << Information.new(location, world, certainty)
+            end
+            
             line = $stdin.gets.chomp
         end
         
@@ -44,9 +70,16 @@ def receive_informs()
 end
 
 def send_plan()
+    plans = brain_make_plans()
+    plan_message = plans.collect do |plan|
+    "plan: #{plan.bot} #{plan.location} #{plan.transport} #{plan.world}"
+end.join("\n")
+    if plans.size > 0 then
+        plan_message += "\n"
+    end
     send_message <<END_OF_PLAN
 plan\\
-plan/
+#{plan_message}plan/
 END_OF_PLAN
 end
 
@@ -56,13 +89,27 @@ def receive_plans()
         raise 'malformed plan -- missing from group'
     end
     
+    $plans = {}
     line = $stdin.gets.chomp
     while line != 'from/' do
         line =~ /from:\s(\S+)/ or raise('malformed from')
-        bot = $1
+        cop = $1
+        $plans[cop] = []
         
         line = $stdin.gets.chomp
+        if line != 'plan\\' then
+            raise 'malformed plan -- missing plan group'
+        end
+        line = $stdin.gets.chomp
         while line != 'plan/' do
+            line =~ /plan:\s(\S+)\s(\S+)\s(\S+)\s(\d+)/ or raise('malformed plan')
+            bot = $1
+            location = $2.intern
+            transport = $3.intern
+            world = $4.to_i
+            
+            $plans[cop] << Plan.new(bot, location, transport, world)
+        
             line = $stdin.gets.chomp
         end
         
@@ -71,7 +118,8 @@ def receive_plans()
 end
 
 def send_vote()
-    send_message("vote\\\n" + $cops.collect do |cop|
+    votes = brain_make_votes()
+    send_message("vote\\\n" + votes.collect do |cop|
         "vote: #{cop}"
     end.join("\n") + "\nvote/")
 end
@@ -88,7 +136,6 @@ end
 def send_move_message()
     $current_location = brain_pick_next_location()
     send_message "mov: #{$current_location} #{$transport}"
-    
 end
 
 ACTIONS = {
