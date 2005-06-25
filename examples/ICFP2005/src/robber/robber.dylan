@@ -13,7 +13,7 @@ define function main(name, arguments)
       let world = read-world(*standard-input*, skelet);
       dbg("PLAYERS %=\n", world.world-players);
 
-      let current-location = find-player(world).player-location;
+      let current-location = find-player(skelet.my-name, world).player-location;
       dbg("CURLOC %=\n", current-location);
 
       let options =
