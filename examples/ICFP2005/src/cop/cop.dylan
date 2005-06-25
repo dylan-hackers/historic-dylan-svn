@@ -11,27 +11,24 @@ define variable my-cop-type :: <cop-type> = cop-foot;
 define variable my-cop-name :: <string> = "DyCop";
 
 define function main(name, arguments)
-  format-out("reg: %s %s\n", my-cop-name, my-cop-type);
-  force-output(*standard-output*);
+  send("reg: %s %s\n", my-cop-name, my-cop-type);
   let skelet = read-world-skeleton(*standard-input*);
   block()
     while (#t)
       let our-world = read-world(*standard-input*, skelet);
 
-      format(*standard-error*, "DEBUG: Entering cop brain.\n");
-      force-output(*standard-error*);    
+      dbg("DEBUG: Entering cop brain.\n");
 
       let my-cop-location = location(find-player(our-world));
-      let possible-locations = find-possible-locations(my-cop-location, our-world.world-skeleton.edges);
+      let possible-locations = find-possible-locations(my-cop-location, our-world.world-skeleton.world-edges);
       let my-cop-location-new = possible-locations[random(possible-locations.size)];
 
-      format(*standard-error*, "DEBUG: Providing other cops with information.\n");
-      force-output(*standard-error*);    
+      dbg("DEBUG: Providing other cops with information.\n");
 
       // First step is to inform other cops of:
       //  - where we are going to move to
       //  - if we can or can't smell robber
-      format-out("inf\\\n");
+      send("inf\\\n");
 
       let inf-my-cop-new = make(<inform>,
                                 bot: my-cop-name,
@@ -42,18 +39,15 @@ define function main(name, arguments)
 
       print-inform(inf-my-cop-new);
       
-      format-out("inf/\n");
-      force-output(*standard-output*);
+      send("inf/\n");
 
       let inform-messages = read-from-message-inform(*standard-input*);
 
-      format(*standard-error*, "DEBUG: Providing other cops with DER PLAN.\n");
-      force-output(*standard-error*);    
+      dbg("DEBUG: Providing other cops with DER PLAN.\n");
 
       // plan message
-      format-out("plan\\\n");
-      format-out("plan/\n");
-      force-output(*standard-output*);
+      send("plan\\\n");
+      send("plan/\n");
 
       let plans = read-from-message-plan(*standard-input*);
 
@@ -62,12 +56,9 @@ define function main(name, arguments)
 
       let winner = read-vote-tally(*standard-input*);
 
-      format(*standard-error*, "About to give command.\n");
-      force-output(*standard-error*);    
+      dbg("About to give command.\n");
 
-      format-out("mov: %s %s\n", my-cop-location-new, my-cop-type);
-
-      force-output(*standard-output*);
+      send("mov: %s %s\n", my-cop-location-new, my-cop-type);
     end while;
   exception (condition :: <parse-error>)
   end;
@@ -76,14 +67,13 @@ define function main(name, arguments)
 end function main;
 
 define method vote(world)
-  format-out("vote\\\n");
+  send("vote\\\n");
   for (player in world.players)
     if ((player.type = cop-foot) | (player.type = cop-car))
-      format-out("vote: %s\n", player.name);
+      send("vote: %s\n", player.name);
     end if;
   end for;
-  format-out("vote/\n");
-  force-output(*standard-output*);
+  send("vote/\n");
 end vote;
 
 define class <from-message-inform> (<object>)
@@ -114,7 +104,7 @@ define method read-from-message-inform (stream)
 end;
 
 define method print-inform (inform :: <inform>)
-  format-out("inf: %s %s %s %d %d\n", inform.bot, inform.location, inform.type,
+  send("inf: %s %s %s %d %d\n", inform.bot, inform.location, inform.type,
              inform.world, inform.certainty);
 end method print-inform;
 
