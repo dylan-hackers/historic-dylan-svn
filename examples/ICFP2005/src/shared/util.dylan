@@ -13,6 +13,7 @@ end;
 define method find-possible-locations
     (current-location, edges, #key wanted-type = "foot") => (result)
   let result = make(<stretchy-vector>);
+
   for (edge in edges)
     if (edge.type = wanted-type)
       if (edge.start-location = current-location)
@@ -22,5 +23,6 @@ define method find-possible-locations
       end if;
     end if;
   end for;
+  
   result;
 end;

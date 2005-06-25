@@ -17,9 +17,9 @@ define module world
   use standard-io;
   use regular-expressions, import: {regexp-position};
   use subseq, import: {subsequence};
-  use streams, import: {read-line};
+  use streams;
 //  use simple-random;
-//  use format, import: { format };
+  use format, import: { format };
 
   export <world>, <inform>,
     world-skeleton, players, location, edges, type, name,
