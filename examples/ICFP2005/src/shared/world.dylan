@@ -9,7 +9,7 @@ define class <world-skeleton> (<object>)
   slot my-name     :: <string>, required-init-keyword: my-name:;
   slot robber-name :: <string>, required-init-keyword: robber-name:;
   slot cop-names   :: <vec>, required-init-keyword: cop-names:;
-  slot world-nodes :: <string-table>, required-init-keyword: nodes:;
+  slot world-nodes :: <table>, required-init-keyword: nodes:;
   slot world-edges :: <vec>, required-init-keyword: edges:;
 end;
 
@@ -24,7 +24,7 @@ define class <world> (<object>)
 end class;
 
 define class <node> (<object>)
-  slot node-name      :: <string>, required-init-keyword: name:;
+  slot node-name      :: <symbol>, required-init-keyword: name:;
   slot node-tag       :: <string>, required-init-keyword: tag:;
   slot node-x         :: <string>, required-init-keyword: x:;
   slot node-y         :: <string>, required-init-keyword: y:;
@@ -65,11 +65,24 @@ define class <inform> (<plan>)
   slot inform-certainty :: <integer>, required-init-keyword: certainty:;
 end;
 
+define method make (node == <node>,
+                    #next next-method,
+                    #rest rest,
+                    #key name,
+                    #all-keys) => (res :: <node>)
+  let args = rest;
+  if (instance?(name, <string>))
+    args := exclude(args, #"name");
+    name := as(<symbol>, name);
+  end if;
+  apply(next-method, node, name: name, args);
+end;
+
 define method make (plan == <plan>,
-                          #next next-method,
-                          #rest rest,
-                          #key world,
-                          #all-keys) => (res :: <plan>)
+                    #next next-method,
+                    #rest rest,
+                    #key world,
+                    #all-keys) => (res :: <plan>)
   let args = rest;
   if (instance?(world, <string>))
     args := exclude(args, #"world");
@@ -145,7 +158,7 @@ define method read-world-skeleton(stream :: <stream>)
             list("edg:", name-re, name-re, edge-type-re));
   re("wsk/");
 
-  let nodes-table = make(<string-table>);
+  let nodes-table = make(<table>);
   for (node in nodes)
     nodes-table[node.node-name] := node;
   end for;
@@ -153,38 +166,38 @@ define method read-world-skeleton(stream :: <stream>)
   local method add-node (list, target-node)
           block(return)
             for (element in list)
-              if (element.node-name = target-node)
+              if (element.node-name = as(<symbol>, target-node))
                 return();
               end if;
             end for;
-            add!(list, nodes-table[target-node]);
+            add!(list, nodes-table[as(<symbol>, target-node)]);
           end block;
         end method;
 
   for (edge in edges)
     if (edge-type(edge) = "foot")
       //foot-edges are possible to go by foot or by car in the right direction
-      add-node(moves-by-foot(nodes-table[edge.edge-start]),
+      add-node(moves-by-foot(nodes-table[as(<symbol>, edge.edge-start)]),
                edge.edge-end);
-      add-node(moves-by-car(nodes-table[edge.edge-start]),
+      add-node(moves-by-car(nodes-table[as(<symbol>, edge.edge-start)]),
                edge.edge-end);
       //reverse direction, only by foot
-      add-node(moves-by-foot(nodes-table[edge.edge-end]),
+      add-node(moves-by-foot(nodes-table[as(<symbol>, edge.edge-end)]),
                edge.edge-start);
     elseif (edge-type(edge) = "car")
       //shortcuts for cars
-      add-node(moves-by-car(nodes-table[edge.edge-start]),
+      add-node(moves-by-car(nodes-table[as(<symbol>, edge.edge-start)]),
                edge.edge-end);
     end;
   end for;
 
   /*for (ele in nodes-table)
-    dbg("NODE %s\n", ele.node-name);
+    dbg("NODE %=\n", ele.node-name);
     for (move in ele.moves-by-car)
-      dbg("CAR MOVE: %s\n", move.node-name);
+      dbg("CAR MOVE: %=\n", move.node-name);
     end for;
     for (move in ele.moves-by-foot)
-      dbg("FOOT MOVE: %s\n", move.node-name);
+      dbg("FOOT MOVE: %=\n", move.node-name);
     end for;
     dbg("\n");
   end for;*/
