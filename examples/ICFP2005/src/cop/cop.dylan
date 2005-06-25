@@ -19,7 +19,7 @@ define function main(name, arguments)
 
       dbg("DEBUG: Entering cop brain.\n");
 
-      let my-cop-location = location(find-player(our-world));
+      let my-cop-location = find-player(our-world).player-location;
       let possible-locations = find-possible-locations(my-cop-location, our-world.world-skeleton.world-edges);
       let my-cop-location-new = possible-locations[random(possible-locations.size)];
 
@@ -69,8 +69,8 @@ end function main;
 define method vote(world)
   send("vote\\\n");
   for (player in world.world-players)
-    if ((player.type = cop-foot) | (player.type = cop-car))
-      send("vote: %s\n", player.name);
+    if ((player.player-type = cop-foot) | (player.player-type = cop-car))
+      send("vote: %s\n", player.player-name);
     end if;
   end for;
   send("vote/\n");
@@ -104,8 +104,8 @@ define method read-from-message-inform (stream)
 end;
 
 define method print-inform (inform :: <inform>)
-  send("inf: %s %s %s %d %d\n", inform.bot, inform.location, inform.type,
-             inform.world, inform.certainty);
+  send("inf: %s %s %s %d %d\n", inform.plan-bot, inform.plan-location, inform.plan-type,
+             inform.plan-world, inform.inform-certainty);
 end method print-inform;
 
 define class <from-message-plan> (<object>)

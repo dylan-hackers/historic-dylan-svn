@@ -3,7 +3,7 @@ module: world
 define method find-player (world :: <world>) => (location)
   block(return)
     for (player in world.world-players)
-      if (player.name = world.world-skeleton.my-name)
+      if (player.player-name = world.world-skeleton.my-name)
         return(player);
       end if;
     end for;
@@ -15,11 +15,11 @@ define method find-possible-locations
   let result = make(<stretchy-vector>);
 
   for (edge in edges)
-    if (edge.type = wanted-type)
-      if (edge.start-location = current-location)
-        add!(result, edge.end-location);
-      elseif (edge.end-location = current-location)
-        add!(result, edge.start-location);
+    if (edge.edge-type = wanted-type)
+      if (edge.edge-start = current-location)
+        add!(result, edge.edge-end);
+      elseif (edge.edge-end = current-location)
+        add!(result, edge.edge-start);
       end if;
     end if;
   end for;
@@ -92,6 +92,7 @@ end;
 
 
 define constant <vec> = <simple-object-vector>;
+define constant <string> = <byte-string>;
 
 define macro lock-down
   { lock-down ?classes end } => { ?classes }

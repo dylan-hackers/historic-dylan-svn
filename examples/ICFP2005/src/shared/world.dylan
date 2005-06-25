@@ -24,43 +24,43 @@ define class <world> (<object>)
 end class;
 
 define class <node> (<object>)
-  slot name :: <string>, init-keyword: name:;
-  slot tag :: <string>, init-keyword: tag:;
-  slot x :: <string>, init-keyword: x:;
-  slot y :: <string>, init-keyword: y:;
+  slot node-name :: <string>, required-init-keyword: name:;
+  slot node-tag  :: <string>, required-init-keyword: tag:;
+  slot node-x    :: <string>, required-init-keyword: x:;
+  slot node-y    :: <string>, required-init-keyword: y:;
 end class;
 
 define class <edge> (<object>)
-  slot start-location :: <string>, init-keyword: start:;
-  slot end-location :: <string>, init-keyword: end:;
-  slot type :: <string>, init-keyword: type:;
+  slot edge-start :: <string>, required-init-keyword: start:;
+  slot edge-end   :: <string>, required-init-keyword: end:;
+  slot edge-type  :: <string>, required-init-keyword: type:;
 end class;
 
 define class <bank> (<object>)
-  slot location :: <string>, init-keyword: location:;
-  slot money :: <string>, init-keyword: money:;
+  slot bank-location :: <string>, required-init-keyword: location:;
+  slot bank-money    :: <string>, required-init-keyword: money:;
 end;
 
 define class <evidence> (<object>)
-  slot location :: <string>, init-keyword: location:;
-  slot world :: <string>, init-keyword: world:;
+  slot evidence-location :: <string>, required-init-keyword: location:;
+  slot evidence-world    :: <string>, required-init-keyword: world:;
 end;
 
 define class <player> (<object>)
-  slot name :: <string>, init-keyword: name:;
-  slot location :: <string>, init-keyword: location:;
-  slot type :: <string>, init-keyword: type:;
+  slot player-name     :: <string>, required-init-keyword: name:;
+  slot player-location :: <string>, required-init-keyword: location:;
+  slot player-type     :: <string>, required-init-keyword: type:;
 end;
 
 define class <plan> (<object>)
-  slot bot, init-keyword: bot:;
-  slot location, init-keyword: location:;
-  slot type, init-keyword: type:;
-  slot world, init-keyword: world:;
+  slot plan-bot      :: <string>, required-init-keyword: bot:;
+  slot plan-location :: <string>, required-init-keyword: location:;
+  slot plan-type     :: <string>, required-init-keyword: type:;
+  slot plan-world    :: <integer>, required-init-keyword: world:;
 end class;
 
 define class <inform> (<plan>)
-  slot certainty, init-keyword: certainty:;
+  slot inform-certainty :: <integer>, required-init-keyword: certainty:;
 end;
 
 define class <parse-error> (<error>)
