@@ -34,7 +34,7 @@ end;
 
 define function send(#rest args)
   let msg = apply(format-to-string, args);
-  format-out(msg);
+  write(*standard-output*, msg);
   force-output(*standard-output*);
   dbg("Send: %s", msg);
 end;
@@ -46,7 +46,9 @@ define method regexp-match(big :: <string>, regex :: <string>) => (#rest results
   if(marks[0])
     for(i from 0 below marks.size by 2)
       if(marks[i] & marks[i + 1])
-        result := add!(result, copy-sequence(big, start: marks[i], end: marks[i + 1]))
+        result := add!(result, copy-sequence(big, 
+                                             start: marks[i], 
+                                             end: marks[i + 1]))
       else
         result := add!(result, #f)
       end
@@ -83,7 +85,7 @@ define function collect (stream, type, keywords, regexps)
   as(<vec>, res);
 end;
 
-
+// kudos to Intercal
 define function intermingle (#rest sequences)
   apply(concatenate,
         apply(map,

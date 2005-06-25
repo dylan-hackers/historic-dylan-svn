@@ -32,4 +32,9 @@ define module world
     re, ws-re, name-re, node-tag, edge-type-re, number-re, negnumber-re, ptype-re,
     collect, dbg, send;
 
+  export <agent>, agent-location,
+    <cop>, <robber>,
+    choose-move,
+    drive-agent;
+
 end module;

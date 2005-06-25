@@ -3,33 +3,23 @@ synopsis:
 author: 
 copyright: 
 
+define class <random-walk-robber> (<robber>)
+end class <random-walk-robber>;
+
+define method choose-move(robber :: <random-walk-robber>, world :: <world>)
+ => (move);
+  dbg("PLAYERS %=\n", world.world-players);
+  dbg("CURLOC %=\n", robber.agent-location);
+  let options =
+    find-possible-locations(robber.agent-location,
+                            world.world-skeleton.world-edges);
+  dbg("options = %=\n", options);
+  options[random(options.size)]
+end method choose-move;
     
 define function main(name, arguments)
-  format-out("reg: foobar robber\n");
-  force-output(*standard-output*);
-  let skelet = read-world-skeleton(*standard-input*);
-  block()
-    while (#t)
-      let world = read-world(*standard-input*, skelet);
-      dbg("PLAYERS %=\n", world.world-players);
-
-      let current-location = find-player(skelet.my-name, world).player-location;
-      dbg("CURLOC %=\n", current-location);
-
-      let options =
-        find-possible-locations(current-location, world.world-skeleton.world-edges);
-
-      dbg("options = %=\n", options);
-
-      for (i :: <integer> from 0 to options.size - 1)
-        dbg("Location %d: %=\n", i, options[i]);
-      end for;
-
-      send("mov: %s robber\n", options[random(options.size)]);
-    end while;
-  exception (condition :: <parse-error>)
-  end;
-  exit-application(0);
+  let robber = make(<random-walk-robber>);
+  drive-agent(robber, *standard-input*, *standard-output*);
 end function main;
 
 // Invoke our main() function.
