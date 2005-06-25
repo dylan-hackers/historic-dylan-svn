@@ -5,7 +5,7 @@ class Node
     attr_reader :name
 
     def initialize(string)
-        string =~ /nod:\s(\S+)\s(\S+)\s(\d+)\s(\d+)/
+        string =~ /nod:\s(\S+)\s(\S+)\s(\d+)\s(\d+)/ or raise('malformed node')
         @name = $1.intern
         @type = $2.intern
         @x = $3.to_i
@@ -25,13 +25,17 @@ class Node
     def is_bank?()
         @type == :bank
     end
+    
+    def is_hq?()
+        @type == :hq
+    end
 end
 
 class Edge
     attr_reader :from, :to, :edge_type
 
     def initialize(string)
-        string =~ /edg:\s(\S+)\s(\S+)\s(\S+)/
+        string =~ /edg:\s(\S+)\s(\S+)\s(\S+)/ or raise('malformed edge')
         @from = $1.intern
         @to = $2.intern
         @edge_type = $3.intern
@@ -99,6 +103,40 @@ def read_world(stream)
     end
 end
 
+def read_world_skeleton(stream)
+    line = stream.gets.chomp
+    if line != 'wsk\\' then
+        raise 'malformed skeleton -- missing skeleton group'
+    end
+    
+    line = stream.gets.chomp
+    if line !~ /name:\s(\S+)/ then
+        raise 'malformed skeleton -- missing player name'
+    end
+    $brain = $1
+    
+    line = stream.gets.chomp
+    if line !~ /robber:\s(\S+)/ then
+        raise 'malformed skeleton -- missing robber name'
+    end
+    
+    $cops = []
+    1.upto(5) do
+        line = stream.gets.chomp
+        if line !~ /cop:\s(\S+)/ then
+            raise 'malformed skeleton -- missing cop name'
+        end
+        $cops << $1.intern
+    end
+    
+    read_world(stream)
+    
+    line = stream.gets.chomp
+    if line != 'wsk/' then
+        raise 'malformed skeleton -- unclosed skeleton group'
+    end
+end
+
 def robber_start()
     $nodes.each do |node|
         if node.is_robber_start? then
@@ -106,6 +144,15 @@ def robber_start()
         end
     end
     raise 'malformed world -- no robber start'
+end
+
+def cop_hq()
+    $nodes.each do |node|
+        if node.is_hq? then
+            return node
+        end
+    end
+    raise 'malformed world -- no cop hq'
 end
 
 def read_bank_values(stream)
@@ -116,7 +163,7 @@ def read_bank_values(stream)
     
     1.upto(6) do
         line = stream.gets.chomp
-        line =~ /bv:\s(\S+)\s(\d+)/
+        line =~ /bv:\s(\S+)\s(\d+)/ or raise('malformed state -- bank value')
         $bank_values[$1.intern] = $2.to_i
     end
     
@@ -149,14 +196,15 @@ def read_player_locations(stream)
         raise 'malformed state -- missing player group'
     end
     
-    1.upto(6) do
-        line = stream.gets.chomp
-        line =~ /pl:\s(\S+)\s(\S+)\s(\S+)/
+    $player_locations = {}
+    $player_transport = {}
+    line = stream.gets.chomp
+    while line =~ /pl:\s(\S+)\s(\S+)\s(\S+)/ do
         $player_locations[$1.intern] = $2.intern
         $player_transport[$1.intern] = $3.intern
+        line = stream.gets.chomp
     end
     
-    line = stream.gets.chomp
     if line != 'pl/' then
         raise 'malformed state -- unclosed player group'
     end
@@ -164,18 +212,18 @@ end
 
 def read_state(stream)
     line = stream.gets.chomp
-    line =~ /wor:\s(\d+)/
+    line =~ /wor:\s(\d+)/ or raise('malformed state -- world number')
     $world_number = $1.to_i
     
     line = stream.gets.chomp
-    line =~ /rbd:\s(\d+)/
+    line =~ /rbd:\s(\d+)/ or raise('malformed state -- robbed')
     $robbed = $1.to_i
     
     read_bank_values(stream)
     read_evidence(stream)
     
     line = stream.gets.chomp
-    line =~ /smell:\s(\d+)/
+    line =~ /smell:\s(\d+)/ or raise('malformed state -- smell')
     $smell_distance = $1.to_i
     
     read_player_locations(stream)
