@@ -6,7 +6,7 @@ cop: cop.lid cop.dylan cop-exports.dylan ${SHARED}
 	d2c -s -L../shared cop.lid
 
 run:
-	server --gui --robber "gui-robber" --copE "show-cop ./cop"
+	server --gui --robber "show-robber ../robber/robber-wrapper" --copE "show-cop ./cop"
 
 clean:
 	-rm -f *.o *.s *.a *.c *.mak *~ cop

@@ -68,7 +68,7 @@ define function main(name, arguments)
                                 bot: my-cop-name,
                                 location: my-cop-location-new,
                                 type: my-cop-type,
-                                world: our-world.world-number + 2,
+                                world: our-world.world-number + 1,
                                 certainty: 100);
 
       inf-my-cop-new.print;
@@ -81,14 +81,16 @@ define function main(name, arguments)
       send("plan\\\n");
 
       let copA-location = find-player(copA-name, our-world).player-location;
+      dbg("copA-loc= %=", copA-location);
       possible-locations := find-possible-locations(copA-location, our-world.world-skeleton.world-edges);
       let copA-location-new = possible-locations[random(possible-locations.size)];
+      dbg("copA-loc-new= %=", copA-location-new);
 
       let plan-copA = make(<plan>,
                            bot: copA-name,
                            location: copA-location-new,
                            type: copA-type,
-                           world: our-world.world-number + 2);
+                           world: our-world.world-number + 1);
 
       let copB-location = find-player(copB-name, our-world).player-location;
       possible-locations := find-possible-locations(copB-location, our-world.world-skeleton.world-edges);
@@ -98,7 +100,7 @@ define function main(name, arguments)
                            bot: copB-name,
                            location: copB-location-new,
                            type: copB-type,
-                           world: our-world.world-number + 2);
+                           world: our-world.world-number + 1);
 
       let copC-location = find-player(copC-name, our-world).player-location;
       possible-locations := find-possible-locations(copC-location, our-world.world-skeleton.world-edges);
@@ -108,7 +110,7 @@ define function main(name, arguments)
                            bot: copC-name,
                            location: copC-location-new,
                            type: copC-type,
-                           world: our-world.world-number + 2);
+                           world: our-world.world-number + 1);
 
       let copD-location = find-player(copD-name, our-world).player-location;
       possible-locations := find-possible-locations(copD-location, our-world.world-skeleton.world-edges);
@@ -118,7 +120,7 @@ define function main(name, arguments)
                            bot: copD-name,
                            location: copD-location-new,
                            type: copD-type,
-                           world: our-world.world-number + 2);
+                           world: our-world.world-number + 1);
 
       plan-copA.print;
       plan-copB.print;
