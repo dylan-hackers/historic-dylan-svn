@@ -9,7 +9,7 @@ define class <world-skeleton> (<object>)
   slot my-name     :: <string>, required-init-keyword: my-name:;
   slot robber-name :: <string>, required-init-keyword: robber-name:;
   slot cop-names   :: <vec>, required-init-keyword: cop-names:;
-  slot world-nodes :: <vec>, required-init-keyword: nodes:;
+  slot world-nodes :: <string-table>, required-init-keyword: nodes:;
   slot world-edges :: <vec>, required-init-keyword: edges:;
 end;
 
@@ -24,10 +24,11 @@ define class <world> (<object>)
 end class;
 
 define class <node> (<object>)
-  slot node-name :: <string>, required-init-keyword: name:;
-  slot node-tag  :: <string>, required-init-keyword: tag:;
-  slot node-x    :: <string>, required-init-keyword: x:;
-  slot node-y    :: <string>, required-init-keyword: y:;
+  slot node-name      :: <string>, required-init-keyword: name:;
+  slot node-tag       :: <string>, required-init-keyword: tag:;
+  slot node-x         :: <string>, required-init-keyword: x:;
+  slot node-y         :: <string>, required-init-keyword: y:;
+  slot possible-moves :: <stretchy-vector> = make(<stretchy-vector>);
 end class;
 
 define class <edge> (<object>)
@@ -143,11 +144,31 @@ define method read-world-skeleton(stream :: <stream>)
             list("edg:", name-re, name-re, edge-type-re));
   re("wsk/");
 
+  let nodes-table = make(<string-table>);
+  for (node in nodes)
+    nodes-table[node.node-name] := node;
+  end for;
+
+  for (edge in edges)
+    add!(possible-moves(nodes-table[edge.edge-start]), edge);
+    if (edge-type(edge) = "foot")
+      add!(possible-moves(nodes-table[edge.edge-end]), edge);
+    end;
+  end for;
+
+  /*for (ele in nodes-table)
+    dbg("NODE %s\n", ele.node-name);
+    for (move in ele.possible-moves)
+      dbg("MOVE: %s %s\n", move.edge-start, move.edge-end);
+    end for;
+    dbg("\n");
+  end for;*/
+
   make(<world-skeleton>,
        my-name: my-name,
        robber-name: robber-name,
        cop-names: cop-names,
-       nodes: nodes,
+       nodes: nodes-table,
        edges: edges);
 end;
 
