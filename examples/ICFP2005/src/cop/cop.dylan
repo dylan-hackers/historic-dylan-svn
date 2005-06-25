@@ -192,15 +192,18 @@ end;
 
 
 define function print-inform (inform :: <inform>) => ()
-  if (inform.plan-world < 200) 
-    send("inf: %s %s %s %d %d\n", inform.plan-bot, inform.plan-location, inform.plan-type,
+  if (inform.plan-world < 200)
+    send("inf: %s %s %s %d %d\n", inform.plan-bot,
+         inform.plan-location.node-name, inform.plan-type,
          inform.plan-world, inform.inform-certainty);
   end if;
 end function print-inform;
 
 define function print-plan (plan :: <plan>) => ()
   if (plan.plan-world < 200) 
-    send("plan: %s %s %s %d\n", plan.plan-bot, plan.plan-location, plan.plan-type, plan.plan-world);
+    send("plan: %s %s %s %d\n", plan.plan-bot,
+         plan.plan-location.node-name,
+         plan.plan-type, plan.plan-world);
   end if;
 end function print-plan;
 

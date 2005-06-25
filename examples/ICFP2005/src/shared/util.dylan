@@ -26,10 +26,9 @@ define function dbg(#rest args)
 end;
 
 define function send(#rest args)
-  let msg = apply(format-to-string, args);
-  write(*standard-output*, msg);
+  apply(format, *standard-output*, args);
   force-output(*standard-output*);
-  dbg("Send: %s", msg);
+  dbg("Send: %s\n", args);
 end;
 
 define method regexp-match(big :: <string>, regex :: <string>) => (#rest results);

@@ -26,7 +26,7 @@ define module world
     evidence-location, evidence-world,
     <player>, player-type, player-name, player-location,
     <plan>, plan-world, plan-bot, plan-location, plan-type,
-    inform-certainty,
+    inform-certainty, node-name,
     read-world-skeleton, read-world, <parse-error>,
     find-player, find-possible-locations,
     re, ws-re, name-re, node-tag, node-name, edge-type-re, number-re, negnumber-re, ptype-re,

@@ -39,12 +39,12 @@ define class <edge> (<object>)
 end class;
 
 define class <bank> (<object>)
-  slot bank-location :: <string>, required-init-keyword: location:;
+  slot bank-location :: <node>, required-init-keyword: location:;
   slot bank-money    :: <string>, required-init-keyword: money:;
 end;
 
 define class <evidence> (<object>)
-  slot evidence-location :: <string>, required-init-keyword: location:;
+  slot evidence-location :: <node>, required-init-keyword: location:;
   slot evidence-world    :: <string>, required-init-keyword: world:;
 end;
 
@@ -56,7 +56,7 @@ end;
 
 define class <plan> (<object>)
   slot plan-bot      :: <string>, required-init-keyword: bot:;
-  slot plan-location :: <string>, required-init-keyword: location:;
+  slot plan-location :: <node>, required-init-keyword: location:;
   slot plan-type     :: <string>, required-init-keyword: type:;
   slot plan-world    :: <integer>, required-init-keyword: world:;
 end class;
@@ -66,6 +66,33 @@ define class <inform> (<plan>)
 end;
 
 define variable *world-skeleton* = #f;
+
+define method make (evidence == <evidence>,
+                    #next next-method,
+                    #rest rest,
+                    #key location,
+                    #all-keys) => (res :: <evidence>)
+  let args = rest;
+  if (instance?(location, <string>))
+    args := exclude(args, #"location");
+    location := *world-skeleton*.world-nodes[as(<symbol>, location)];
+  end if;
+  apply(next-method, evidence, location: location, args);
+end;
+
+define method make (bank == <bank>,
+                    #next next-method,
+                    #rest rest,
+                    #key location,
+                    #all-keys) => (res :: <bank>)
+  let args = rest;
+  if (instance?(location, <string>))
+    args := exclude(args, #"location");
+    location := *world-skeleton*.world-nodes[as(<symbol>, location)];
+  end if;
+  apply(next-method, bank, location: location, args);
+end;
+
 
 define method make (node == <node>,
                     #next next-method,
@@ -84,13 +111,18 @@ define method make (plan == <plan>,
                     #next next-method,
                     #rest rest,
                     #key world,
+                    location,
                     #all-keys) => (res :: <plan>)
   let args = rest;
   if (instance?(world, <string>))
     args := exclude(args, #"world");
     world := string-to-integer(world);
   end if;
-  apply(next-method, plan, world: world, args);
+  if (instance?(location, <string>))
+    args := exclude(args, #"location");
+    location := *world-skeleton*.world-nodes[as(<symbol>, location)];
+  end if;
+  apply(next-method, plan, world: world, location: location, args);
 end method;
 
 define method make (inform == <inform>,
@@ -98,6 +130,7 @@ define method make (inform == <inform>,
                     #rest rest,
                     #key certainty,
                     world,
+                    location,
                     #all-keys) => (res :: <inform>)
   let args = rest;
   if (instance?(certainty, <string>))
@@ -108,8 +141,12 @@ define method make (inform == <inform>,
     args := exclude(args, #"world");
     world := string-to-integer(world);
   end if;
+  if (instance?(location, <string>))
+    args := exclude(args, #"location");
+    location := *world-skeleton*.world-nodes[as(<symbol>, location)];
+  end if;
   apply(next-method, inform, certainty: certainty,
-        world: world, args);
+        world: world, location: location, args);
 end method;
 
 define method make (player == <player>,
