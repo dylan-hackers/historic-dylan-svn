@@ -23,15 +23,7 @@ define class <rookie-cop> (<cop>)
 end class <rookie-cop>;
 
 define method choose-move(cop :: <rookie-cop>, world :: <world>)
-  let player = block(return)
-                 for (player in world.world-players)
-                   if (player.player-name = world.world-skeleton.my-name)
-                     return(player);
-                   end if;
-                 end for;
-               end block;
-
-  let possible-locations = generate-moves(world, player);
+  let possible-locations = generate-moves(world, cop.agent-player);
   possible-locations[random(possible-locations.size)];
 end method choose-move;
 

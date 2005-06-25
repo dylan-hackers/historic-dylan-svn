@@ -1,7 +1,7 @@
 module: world
 
 define abstract class <agent> (<object>)
-  slot agent-location;
+  slot agent-player :: <player>;
   slot wanted-name = "DyBot";
 end class <agent>;
 
@@ -62,8 +62,7 @@ define method drive-agent(agent :: <robber>,
   block()
     while (#t)
       let world = read-world(input-stream, skelet);
-      agent.agent-location 
-        := find-player(skelet.my-name, world).player-location;
+      agent.agent-player := find-player(skelet.my-name, world);
       //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
       let move = choose-move(agent, world);
       print(move);
@@ -82,8 +81,7 @@ define method drive-agent(agent :: <cop>,
   block()
     while (#t)
       let world = read-world(*standard-input*, skelet);
-      agent.agent-location 
-        := find-player(skelet.my-name, world).player-location;
+      agent.agent-player := find-player(skelet.my-name, world);
 
       send("inf\\\n");
       do(print, make-informs(agent, world));
@@ -143,35 +141,31 @@ end method;
 define method generate-moves (world :: <world>, player :: <player>)
   => (move)
   let options = make(<stretchy-vector>);
+
+  local method add-to-options (list, transport)
+          for (tar in player.player-location.list)
+            add!(options, make(<move>,
+                               target: tar,
+                               transport: transport));
+          end;
+        end method;
+
     
   if ((player.player-type = "cop-foot") |
         (player.player-location.node-tag = "hq"))
-    for (tar in player.player-location.moves-by-foot)
-      add!(options, make(<move>,
-                         target: tar,
-                         transport: "cop-foot"));
-    end;
+    add-to-options(moves-by-foot, "cop-foot")
   end;
   if ((player.player-type = "cop-car") | 
             (player.player-location.node-tag = "hq"))
-    for (tar in player.player-location.moves-by-car)
-      add!(options, make(<move>,
-                         target: tar,
-                         transport: "cop-car"));
-    end;
+    add-to-options(moves-by-car, "cop-car")
   end;
   if (player.player-type = "robber")
-    for (tar in player.player-location.moves-by-foot)
-      add!(options, make(<move>,
-                         target: tar,
-                         transport: "robber"));
-    end;
+    add-to-options(moves-by-foot, "robber");
   end if;
 
-  dbg("GENMOVE: type: %s\n", player.player-location.node-tag);
-  for (ele in options)
-    dbg("GENMOVE: %= %=\n", ele.target.node-name, ele.transport);
-  end;
+  //for (ele in options)
+  //  dbg("GENMOVE: %= %=\n", ele.target.node-name, ele.transport);
+  //end;
 
   options;
 end method;

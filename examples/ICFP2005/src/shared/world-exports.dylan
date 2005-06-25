@@ -31,7 +31,7 @@ define module world
     find-player, generate-moves, generate-plan,
     dbg, lock-down;
 
-  export <agent>, agent-location,
+  export <agent>, agent-player,
     <cop>, <robber>, <move>,
     choose-move,
     make-informs, perceive-informs,
