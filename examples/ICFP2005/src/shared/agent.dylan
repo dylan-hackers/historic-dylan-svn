@@ -201,6 +201,8 @@ define function distance
   let rank :: <vector> =
     make(<vector>, size: maximum-node-id(), fill: maximum-node-id());
   rank[source.target.node-id] := 0;
+  let shortest-path :: <vector> =
+    make(<vector>, size: maximum-node-id(), fill: #());
 
   let todo-nodes = make(<deque>);
 
@@ -209,6 +211,8 @@ define function distance
             for (move in generate-moves(start))
               if (rank[move.target.node-id] > rank[start.target.node-id])
                 rank[move.target.node-id] := rank[start.target.node-id] + 1;
+                shortest-path[move.target.node-id] :=
+                  add(shortest-path[start.target.node-id], move);
                 push-last(todo-nodes, move);
               end if;
               if (move.target = target-node)
@@ -223,7 +227,16 @@ define function distance
         end method;
 
   let result = search(source);
-
-  dbg("%=\n", rank);
+  /*dbg("LOC: %s TARGET: %s\n", player.player-location.node-name,
+      target-node.node-name);
+  for (i from 0 below maximum-node-id())
+    if (size(shortest-path[i]) > 0)
+      dbg("SP TO %d, distance: %d  ", i, rank[i]);
+      for (j in shortest-path[i])
+        dbg("%s ", j.target.node-name);
+      end for;
+      dbg("\n");
+    end if;
+  end for;*/
   result;
 end;
