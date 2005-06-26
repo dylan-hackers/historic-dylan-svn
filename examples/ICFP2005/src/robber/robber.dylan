@@ -111,7 +111,7 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
 end method choose-move;
     
 define function main(name, arguments)
-    let robber = make(<random-walk-robber>);
+    let robber = make(<alterna-robber>);
     drive-agent(robber, *standard-input*, *standard-output*);
 end function main;
 
