@@ -16,6 +16,10 @@ define method make-informs(cop :: <cop>, world :: <world>) => (informs);
   cop.local-map := make(<vector>, size: world.world-skeleton.world-nodes.size, fill: 0);
 
   dbg("Running make-informs. %=\n", cop.agent-player.player-location);
+
+  dbg("%=\n", world.world-skeleton.robber-name);
+  dbg("%=\n", cop.agent-player.player-location);
+  dbg("%=\n", world.world-number + 1);
   
   let inf = make(<inform>,
                  inform-certainty: -100,
@@ -23,6 +27,9 @@ define method make-informs(cop :: <cop>, world :: <world>) => (informs);
                  plan-location: cop.agent-player.player-location,
                  plan-type: "robber",
                  plan-world: world.world-number + 1);
+
+  dbg("Here?\n");
+  
   add!(infs, inf);
 
   dbg("I never print.\n");
@@ -176,18 +183,24 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
         end if;
       end for;
 
+      let node-map = make(<vector>,
+                          size: world.world-skeleton.world-nodes.size);
+      for (node in world.world-skeleton.world-nodes)
+        node-map[node.node-id] := node;
+      end for;
+                                                                                
       // If we smell it, call others to come.
       if (best-node-val > -1)
         choose-move-to-target(my-cop-player, my-cop-player.player-type,
-                              world.world-skeleton.world-nodes[best-node-id]);
+                              node-map[best-node-id]);
         choose-move-to-target(copA-player, copA-player.player-type,
-                              world.world-skeleton.world-nodes[best-node-id]);
+                              node-map[best-node-id]);
         choose-move-to-target(copB-player, copB-player.player-type,
-                              world.world-skeleton.world-nodes[best-node-id]);
+                              node-map[best-node-id]);
         choose-move-to-target(copC-player, copC-player.player-type,
-                              world.world-skeleton.world-nodes[best-node-id]);
+                              node-map[best-node-id]);
         choose-move-to-target(copD-player, copD-player.player-type,
-                              world.world-skeleton.world-nodes[best-node-id]);
+                              node-map[best-node-id]);
       else
         if (world.world-smell-distance > 1)
           choose-move-random(my-cop-player, my-cop-player.player-type);
