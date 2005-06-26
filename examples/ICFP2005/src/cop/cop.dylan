@@ -60,7 +60,7 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
 
   local method choose-move-to-target(cop-player, transport, target)
           let (rank, shortest-path)
-            = distance(cop-player, target);
+            = distance(cop-player, target, keep-current-transport: #t);
           
           if (rank > 0)
             add!(plan, generate-plan(world, cop-player, shortest-path[0]));
@@ -80,9 +80,9 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
     cop.info-robber-best-location := world.world-robber.player-location;
 
     choose-move-to-target(my-cop-player, "cop-foot", cop.info-robber-best-location);
-    choose-move-to-target(copA-player, "cop-foot", cop.info-robber-best-location);
+    choose-move-to-target(copA-player, "cop-car", cop.info-robber-best-location);
     choose-move-to-target(copB-player, "cop-car", cop.info-robber-best-location);
-    choose-move-to-target(copC-player, "cop-foot", cop.info-robber-best-location);
+    choose-move-to-target(copC-player, "cop-car", cop.info-robber-best-location);
     choose-move-to-target(copD-player, "cop-car", cop.info-robber-best-location);
   else
     // If someone reached robots location, reset it.
