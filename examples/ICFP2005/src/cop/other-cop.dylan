@@ -18,6 +18,10 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
     cop.probability-map := advance-probability-map(world, cop.probability-map);
   end if;
 
+  for(a-cop in world.world-cops)
+    cop.probability-map[a-cop.player-location.node-id] := 0
+  end for;
+
   let sorted-nodes = sort(range(size: maximum-node-id()),
                                 test: method(x, y)
                                           cop.probability-map[x] > cop.probability-map[y]
