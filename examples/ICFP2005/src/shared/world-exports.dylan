@@ -106,7 +106,7 @@ define module world
     <robber>;
 
   export  <move>,
-    transport;
+    transport-setter;
 
   export make-informs, perceive-informs,
     make-plan, perceive-plans,
