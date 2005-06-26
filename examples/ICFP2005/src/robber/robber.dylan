@@ -29,7 +29,6 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
  => (move);
 
     let destination = block(return)
-
         let distances =
             map(method(bank)
                     let (rank, route) =
@@ -93,11 +92,8 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
                 //dbg("gotta move randomly\n");
                 return(random-move(robber, world, dangerous-nodes));
             end if;
-            
         else
-        
             //dbg("at the bank\n");
-            
             let node = robber.agent-player.player-location;
             if (~member?(node, dangerous-nodes))
                 return(node);
@@ -105,9 +101,7 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
                 //dbg("gotta move randomly\n");
                 return(random-move(robber, world, dangerous-nodes));
             end;
-            
        end if;
-        
     end;
 
     make(<move>,

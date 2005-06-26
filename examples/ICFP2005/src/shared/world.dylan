@@ -11,6 +11,7 @@ define class <world-skeleton> (<object>)
   constant slot cop-names   :: <vec>, required-init-keyword: cop-names:;
   constant slot world-nodes :: <table>, required-init-keyword: nodes:;
   constant slot world-edges :: <vec>, required-init-keyword: edges:;
+  constant slot world-nodes-by-id :: <collection>, required-init-keyword: nodes-by-id:;
 end;
 
 define class <world> (<object>)
@@ -243,10 +244,12 @@ define method make (world-skeleton == <world-skeleton>,
 
   let args = rest;
   let nodes-table = make(<table>);
+  let nodes-by-id = make(<stretchy-vector>);
   for (node in nodes)
     nodes-table[node.node-name] := node;
     add!(node.moves-by-foot, node);
     add!(node.moves-by-car, node);
+    nodes-by-id[node.node-id] := node;
   end for;
 
   local method add-node (list, target-node)
@@ -278,7 +281,10 @@ define method make (world-skeleton == <world-skeleton>,
   end for;
 
   args := exclude(args, #"nodes");
-  apply(next-method, world-skeleton, nodes: nodes-table, args);
+  apply(next-method, world-skeleton, 
+        nodes: nodes-table,
+        nodes-by-id: nodes-by-id,
+        args);
 end method;
 
 
@@ -297,6 +303,11 @@ end method;
 define method maximum-node-id () => (res :: <integer>)
   next-node-id;
 end method;
+
+define method find-node-by-id (world :: <world>, id :: <integer>)
+ => (node :: <node>);
+  world.world-skeleton.world-nodes-by-id[id]
+end method find-node-by-id;
 
 define class <parse-error> (<error>)
 end class;

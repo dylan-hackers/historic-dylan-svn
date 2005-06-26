@@ -25,13 +25,15 @@ define module world
 
   export dbg,
     lock-down,
-    maximum-node-id;
+    maximum-node-id,
+    find-node-by-id;
 
   export <world-skeleton>,
     my-name,
     robber-name,
     cop-names,
     world-nodes,
+    world-nodes-by-id,
     world-edges;
 
   export <world>,
