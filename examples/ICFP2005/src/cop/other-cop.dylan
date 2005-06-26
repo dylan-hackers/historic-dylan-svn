@@ -6,7 +6,7 @@ define class <predicting-cop> (<cop>)
 end class <predicting-cop>;
 
 define method choose-move(cop :: <predicting-cop>, world :: <world>)
-  let (distance, path) = distance(cop.agent-player.player-location,
+  let (distance, path) = distance(cop.agent-player,
                                   cop.my-target-node);
   path[0]
 end method choose-move;
