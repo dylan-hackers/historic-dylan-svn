@@ -69,7 +69,8 @@ define module world
   export <player>,
     player-name,
     player-location,
-    player-type;
+    player-type,
+    player-type-setter;
 
   export <plan>,
     plan-bot,

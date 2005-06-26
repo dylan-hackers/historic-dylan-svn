@@ -55,7 +55,7 @@ end;
 define class <player> (<object>)
   constant slot player-name     :: <string>, required-init-keyword: name:;
   constant slot player-location :: <node>, required-init-keyword: location:;
-  constant slot player-type     :: <string>, required-init-keyword: type:;
+  constant player-type     :: <string>, required-init-keyword: type:;
 end;
 
 define class <plan> (<object>)
