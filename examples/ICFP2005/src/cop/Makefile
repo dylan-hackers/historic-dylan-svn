@@ -11,6 +11,9 @@ run:
 ruby:
 	server --gui --robber "show-robber ../../ruby/Robber.rb NaiveRobber" --copE "show-cop ./cop-wrapper"
 
+update:
+	cd ../.. && svn update && cd -
+
 clean:
 	-rm -f *.o *.s *.a *.c *.mak *~ cop
 	-rm -rf .libs

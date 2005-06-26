@@ -2,7 +2,7 @@ module: world
 
 define abstract class <agent> (<object>)
   slot agent-player :: <player>;
-  slot wanted-name = "DyBot";
+  slot wanted-name = "DyCop";
 end class <agent>;
 
 define open abstract class <cop> (<agent>)
@@ -16,33 +16,15 @@ define open generic choose-move(agent :: <agent>, world :: <world>);
 
 define open generic make-informs(cop :: <cop>, world :: <world>) => (informs);
 
-define method make-informs(cop :: <cop>, world :: <world>) => (informs);
-  #()
-end method make-informs;
-
 define open generic perceive-informs(informs, cop :: <cop>, world :: <world>);
 
 define open generic make-plan(cop :: <cop>, world :: <world>) => (plan);
 
-define method make-plan(cop :: <cop>, world :: <world>) => (informs);
-  #()
-end method make-plan;
-
 define open generic perceive-plans(plans, cop :: <cop>, world :: <world>);
-
-define method perceive-plans(plans, cop :: <cop>, world :: <world>);
-end method perceive-plans;
 
 define open generic make-vote(cop :: <cop>, world :: <world>) => (vote);
 
-define method make-vote(cop :: <cop>, world :: <world>) => (vote);
-  concatenate(list(world.world-my-player), world.world-other-cops);
-end method make-vote;
-
 define open generic perceive-vote(vote, cop :: <cop>, world :: <world>);
-
-define method perceive-vote(vote, cop :: <cop>, world :: <world>);
-end method perceive-vote;
 
 define open generic drive-agent(agent :: <agent>,
                                 input-stream :: <stream>,
