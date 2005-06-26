@@ -140,16 +140,18 @@ define method print (move :: <move>)
        move.transport);
 end method;
 
-define method generate-moves (player :: <player>)
+define method generate-moves (player :: <player>,
+                              #key keep-current-transport = #f)
   => (move :: <move-vector>)
   let move = make(<move>,
                   target: player.player-location,
                   transport: player.player-type);
-  generate-moves(move);
+  generate-moves(move, keep-current-transport: keep-current-transport);
 
 end method;
 
-define method generate-moves(move :: <move>)
+define method generate-moves(move :: <move>,
+                             #key keep-current-transport = #f)
  => (moves :: <move-vector>)
   let options = make(<stretchy-vector>);
 
@@ -165,11 +167,11 @@ define method generate-moves(move :: <move>)
     add-to-options(move.target.moves-by-foot, "robber");
   else
     if ((move.transport = "cop-foot") |
-          (move.target.node-tag = "hq"))
+          (~keep-current-transport & (move.target.node-tag = "hq")))
       add-to-options(move.target.moves-by-foot, "cop-foot")
     end;
     if ((move.transport = "cop-car") | 
-          (move.target.node-tag = "hq"))
+          (~keep-current-transport & (move.target.node-tag = "hq")))
       add-to-options(move.target.moves-by-car, "cop-car")
     end;
   end if;
