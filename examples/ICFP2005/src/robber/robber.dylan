@@ -34,7 +34,11 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
             map(method(bank)
                     let (rank, route) =
                         distance(robber.agent-player, bank.bank-location);
-                    pair(rank, route)
+                    if (bank.bank-money > 0)
+                        pair(rank, route);
+                    else
+                        pair(100000, route);
+                    end
                 end,
                 world.world-banks);
 
