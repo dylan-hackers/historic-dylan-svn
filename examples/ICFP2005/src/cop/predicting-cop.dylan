@@ -1,4 +1,4 @@
-module: cop
+module: predicting-cop
 
 define abstract class <predicting-cop> (<cop>)
   slot probability-map :: false-or(<vector>) = #f;

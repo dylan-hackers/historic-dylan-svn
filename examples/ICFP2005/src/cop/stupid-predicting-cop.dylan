@@ -1,4 +1,4 @@
-module: cop
+module: stupid-predicting-cop
 
 define class <stupid-predicting-cop> (<predicting-cop>)
   slot my-target-node :: <node>;
