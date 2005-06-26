@@ -3,7 +3,7 @@ module: robber
 define class <alterna-robber> (<robber>)
 end class <alterna-robber>;
 
-define method choose-move(robber :: <alterna-robber>, world :: <world)
+define method choose-move(robber :: <alterna-robber>, world :: <world>)
   let possible-nodes = map(target, generate-moves(robber.agent-player));
   
   local method evasive-score(target-node)
