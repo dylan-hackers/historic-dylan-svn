@@ -31,7 +31,7 @@ define method advance-probability-map(world :: <world>, old-map :: <vector>)
  => (new-map :: <vector>);
   let new-map = make(<vector>, size: old-map.size);
 
-  for(node in world.world-nodes)
+  for(node in world.world-skeleton.world-nodes)
     new-map[node.node-id]
       := reduce1(\+, map(method(x)
                              (1.0s0 / x.moves-by-foot) * old-map[x.node-id]
