@@ -48,46 +48,21 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
 
     // Initialise info.
     cop.info-robber-best-location := world.world-robber.player-location;
-    
-    // My cop gets foot.
-    let possible-locations = generate-moves(my-cop);
-    let new-location = possible-locations[random(possible-locations.size)];
-    while (new-location.transport ~= "cop-foot")
-      new-location := possible-locations[random(possible-locations.size)];
-    end while;
-    add!(plan, generate-plan(world, my-cop, new-location));
 
-    // copA gets car.
-    let possible-locations = generate-moves(copA);
-    let new-location = possible-locations[random(possible-locations.size)];
-    while (new-location.transport ~= "cop-car")
-      new-location := possible-locations[random(possible-locations.size)];
-    end while;
-    add!(plan, generate-plan(world, copA, new-location));
+    local method choose-move(cop, transport)
+            let move = make(<move>,
+                            target: cop.player-location,
+                            transport: transport);
+            let possible-locations = generate-moves(move, keep-current-transport: #t);
+            let new-location = possible-locations[random(possible-locations.size)];
+            add!(plan, generate-plan(world, cop, new-location));
+          end;
 
-    // copB gets car.
-    let possible-locations = generate-moves(copB);
-    let new-location = possible-locations[random(possible-locations.size)];
-    while (new-location.transport ~= "cop-car")
-      new-location := possible-locations[random(possible-locations.size)];
-    end while;
-    add!(plan, generate-plan(world, copB, new-location));
-
-    // copC gets foot.
-    let possible-locations = generate-moves(copC);
-    let new-location = possible-locations[random(possible-locations.size)];
-    while (new-location.transport ~= "cop-foot")
-      new-location := possible-locations[random(possible-locations.size)];
-    end while;
-    add!(plan, generate-plan(world, copC, new-location));
-
-    // copD gets foot.
-    let possible-locations = generate-moves(copD);
-    let new-location = possible-locations[random(possible-locations.size)];
-    while (new-location.transport ~= "cop-foot")
-      new-location := possible-locations[random(possible-locations.size)];
-    end while;
-    add!(plan, generate-plan(world, copD, new-location));
+    choose-move(my-cop, "cop-foot");
+    choose-move(copA, "cop-car");
+    choose-move(copB, "cop-car");
+    choose-move(copC, "cop-foot");
+    choose-move(copD, "cop-foot");
   else
     // Check for evidence.
     for (e in world.world-evidences)
