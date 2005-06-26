@@ -95,7 +95,7 @@ define method make (evidence == <evidence>,
     args := exclude(args, #"world");
     world := string-to-integer(world);
   end if;
-  apply(next-method, evidence, location: location, args, world: world);
+  apply(next-method, evidence, location: location, world: world, args);
 end;
 
 define method make (bank == <bank>,
