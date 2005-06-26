@@ -84,14 +84,18 @@ define variable *world-skeleton* = #f;
 define method make (evidence == <evidence>,
                     #next next-method,
                     #rest rest,
-                    #key location,
+                    #key location, world,
                     #all-keys) => (res :: <evidence>)
   let args = rest;
   if (instance?(location, <string>))
     args := exclude(args, #"location");
     location := *world-skeleton*.world-nodes[as(<symbol>, location)];
   end if;
-  apply(next-method, evidence, location: location, args);
+  if (instance?(world, <string>))
+    args := exclude(args, #"world");
+    world := string-to-integer(world);
+  end if;
+  apply(next-method, evidence, location: location, args, world: world);
 end;
 
 define method make (bank == <bank>,
