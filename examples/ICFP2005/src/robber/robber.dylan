@@ -4,7 +4,7 @@ author:
 copyright: 
 
 define class <random-walk-robber> (<robber>)
-//    slot bank-id :: <integer> = 0;
+    slot most-recently-robbed-bank :: false-or(<bank>) = #f;
 end class <random-walk-robber>;
 
 define method random-move(robber :: <random-walk-robber>,
@@ -34,10 +34,13 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
             map(method(bank)
                     let (rank, route) =
                         distance(robber.agent-player, bank.bank-location);
-                    if (bank.bank-money > 0)
-                        pair(rank, route);
-                    else
+                    if (most-recently-robbed-bank == bank)
                         pair(100000, route);
+                    elseif (bank.bank-money == 0)
+                        robber.most-recently-robbed-bank := bank;
+                        pair(100000, route);
+                    else
+                        pair(rank, route);
                     end
                 end,
                 world.world-banks);
@@ -60,7 +63,18 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
                                 cop.player-location.node-name,
                                 cop.player-type,
                                 map(node-name, nodes));*/
-                            nodes;
+                            let next-positions = map(target, generate-moves(cop));
+                            let next-nodes =
+                                reduce(method(nodes0, node)
+                                           let fake-player = make(<player>,
+                                               name: cop.player-name,
+                                               location: node,
+                                               type: cop.player-type);
+                                           union(nodes0, smelled-nodes(fake-player));
+                                       end,
+                                       #(),
+                                       next-positions);
+                            union(nodes, next-nodes);
                         end,
                         world.world-other-cops));
         //dbg("dangerous-nodes: %=\n", dangerous-nodes);
