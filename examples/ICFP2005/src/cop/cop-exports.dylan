@@ -31,14 +31,9 @@ end module;
 
 define module cop
   use common-dylan;
-  //use format-out;
   use standard-io;
-  //use streams;
-  //use simple-random;
-  //use format, import: { format };
-//  use subseq;
-
   use world, import: {drive-agent};
+
   use predicting-cop;
   use stupid-predicting-cop;
 end module;

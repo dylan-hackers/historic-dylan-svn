@@ -4,8 +4,9 @@ author:
 copyright: 
     
 define function main(name, arguments)
-    let robber = make(<alterna-robber>);
-    drive-agent(robber, *standard-input*, *standard-output*);
+  //let robber = make(<alterna-robber>);
+  let robber = make(<random-walk-robber>);
+  drive-agent(robber, *standard-input*, *standard-output*);
 end function main;
 
 // Invoke our main() function.
