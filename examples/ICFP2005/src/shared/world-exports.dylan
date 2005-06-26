@@ -2,6 +2,7 @@ module: dylan-user
 
 define library world
   use common-dylan;
+  use Dylan, import: {Extensions};
   use io;
   use system;
   use regular-expressions;
@@ -16,7 +17,8 @@ define module world
   use format-out;
   use standard-io;
   use regular-expressions, import: {regexp-position};
-  use subseq, import: {subsequence};
+  //use subseq, import: {subsequence};
+  use extensions; //, import: {limited-vector-class};
   use streams;
 //  use simple-random;
   use format, import: { format };

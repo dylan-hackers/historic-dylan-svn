@@ -133,6 +133,10 @@ define class <move> (<object>)
   slot transport :: <string>, init-keyword: transport:;
 end class;
 
+limited-vector-class(<move-vector>, <move>, #f);
+lock-down <move>, <move-vector> end;
+
+
 define method print (move :: <move>)
   send("mov: %s %s\n",
        move.target.node-name,
@@ -140,7 +144,7 @@ define method print (move :: <move>)
 end method;
 
 define method generate-moves (player :: <player>)
-  => (move)
+  => (move :: <move-vector>)
   let move = make(<move>,
                   target: player.player-location,
                   transport: player.player-type);
@@ -149,10 +153,11 @@ define method generate-moves (player :: <player>)
 end method;
 
 define method generate-moves(move :: <move>)
+ => (moves :: <move-vector>)
   let options = make(<stretchy-vector>);
 
-  local method add-to-options (list, transport)
-          for (tar in move.target.list)
+  local method add-to-options (list :: <stretchy-object-vector>, transport :: <string>)
+          for (tar :: <node> in list)
             add!(options, make(<move>,
                                target: tar,
                                transport: transport));
@@ -160,15 +165,15 @@ define method generate-moves(move :: <move>)
         end method;
 
   if (move.transport = "robber")
-    add-to-options(moves-by-foot, "robber");
+    add-to-options(move.target.moves-by-foot, "robber");
   else
     if ((move.transport = "cop-foot") |
           (move.target.node-tag = "hq"))
-      add-to-options(moves-by-foot, "cop-foot")
+      add-to-options(move.target.moves-by-foot, "cop-foot")
     end;
     if ((move.transport = "cop-car") | 
           (move.target.node-tag = "hq"))
-      add-to-options(moves-by-car, "cop-car")
+      add-to-options(move.target.moves-by-car, "cop-car")
     end;
   end if;
 
@@ -176,7 +181,13 @@ define method generate-moves(move :: <move>)
   //  dbg("GENMOVE: %= %=\n", ele.target.node-name, ele.transport);
   //end;
 
-  options;
+  let res-size = options.size;
+  let res = make(<move-vector>, size: res-size, fill: move);
+  for (i from 0 below res-size,
+       move :: <move> in options)
+    res[i] := move;
+  end;
+  res;
 
 end method;
 
@@ -191,6 +202,10 @@ define method generate-plan(world :: <world>,
        world: world.world-number + 1);
 end method;
 
+limited-vector-class(<int-vector>, <integer>, 0);
+
+lock-down <int-vector> end;
+
 define function distance
     (player :: <player>,
      target-node :: <node>,
@@ -199,24 +214,25 @@ define function distance
               target: player.player-location,
               transport: player.player-type)) => (rank, shortest-path)
 
-  let rank :: <vector> =
-    make(<vector>, size: maximum-node-id(), fill: maximum-node-id());
+  let rank =
+    make(<int-vector>, size: maximum-node-id(), fill: maximum-node-id());
   rank[source.target.node-id] := 0;
-  let shortest-path :: <vector> =
+  let shortest-path :: <simple-object-vector> =
     make(<vector>, size: maximum-node-id(), fill: #());
 
   let todo-nodes = make(<deque>);
 
-  local method search (start)
+  local method search (start :: <move>)
+         => (next-node-id :: <integer>);
           block (return)
             for (move in generate-moves(start))
               if (rank[move.target.node-id] > rank[start.target.node-id])
                 rank[move.target.node-id] := rank[start.target.node-id] + 1;
-                shortest-path[move.target.node-id] :=
-                  add(shortest-path[start.target.node-id], move);
+                let old-path :: <list> = shortest-path[start.target.node-id];
+                shortest-path[move.target.node-id] := add(old-path, move);
                 push-last(todo-nodes, move);
               end if;
-              if (move.target = target-node)
+              if (move.target == target-node)
                 return(move.target.node-id);
               end if;
             end for;
@@ -239,5 +255,6 @@ define function distance
       dbg("\n");
     end if;
   end for;*/
-  values(rank[result], reverse(shortest-path[result]));
+  let res :: <list> = shortest-path[result];
+  values(rank[result], res.reverse);
 end;

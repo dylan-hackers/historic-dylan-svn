@@ -69,8 +69,8 @@ define constant <vec> = <simple-object-vector>;
 define constant <string> = <byte-string>;
 
 define macro lock-down
-  { lock-down ?classes end } => { ?classes }
-  classes:
+  { lock-down ?class-list end } => { ?class-list }
+  class-list:
     { } => { }
     { ?:name, ... } =>
     { define sealed domain make(singleton(?name));
