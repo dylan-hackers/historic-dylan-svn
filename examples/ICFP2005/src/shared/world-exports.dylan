@@ -69,8 +69,7 @@ define module world
   export <player>,
     player-name,
     player-location,
-    player-type,
-    player-type-setter;
+    player-type;
 
   export <plan>,
     plan-bot,
@@ -106,7 +105,8 @@ define module world
     initial-transport,
     <robber>;
 
-  export  <move>;
+  export  <move>,
+    transport;
 
   export make-informs, perceive-informs,
     make-plan, perceive-plans,
