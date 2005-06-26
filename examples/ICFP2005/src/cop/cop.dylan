@@ -22,11 +22,11 @@ define method make-informs(cop :: <cop>, world :: <world>) => (informs);
   dbg("%=\n", world.world-number + 1);
   
   let inf = make(<inform>,
-                 inform-certainty: -100,
-                 plan-bot: world.world-skeleton.robber-name,
-                 plan-location: cop.agent-player.player-location,
-                 plan-type: "robber",
-                 plan-world: world.world-number + 1);
+                 certainty: -100,
+                 bot: world.world-skeleton.robber-name,
+                 location: cop.agent-player.player-location,
+                 type: "robber",
+                 world: world.world-number + 1);
 
   dbg("Here?\n");
   
@@ -40,19 +40,19 @@ define method make-informs(cop :: <cop>, world :: <world>) => (informs);
     
     if (world.world-smell-distance = 1)
       let inf = make(<inform>,
-                     inform-certainty: truncate/(100,n-num),
-                     plan-bot: world.world-skeleton.robber-name,
-                     plan-location: n,
-                     plan-type: "robber",
-                     plan-world: world.world-number + 1);
+                     certainty: truncate/(100,n-num),
+                     bot: world.world-skeleton.robber-name,
+                     location: n,
+                     type: "robber",
+                     world: world.world-number + 1);
       add!(infs, inf);
     else
       let inf = make(<inform>,
-                     inform-certainty: -100,
-                     plan-bot: world.world-skeleton.robber-name,
-                     plan-location: n,
-                     plan-type: "robber",
-                     plan-world: world.world-number + 1);
+                     certainty: -100,
+                     bot: world.world-skeleton.robber-name,
+                     location: n,
+                     type: "robber",
+                     world: world.world-number + 1);
       add!(infs, inf);
     end if;
 
@@ -62,11 +62,11 @@ define method make-informs(cop :: <cop>, world :: <world>) => (informs);
       let nn-num = n.moves-by-foot.size;
       for (nn in n.moves-by-foot)
         let inf = make(<inform>,
-                       inform-certainty: truncate/(100,nn-num),
-                       plan-bot: world.world-skeleton.robber-name,
-                       plan-location: nn,
-                       plan-type: "robber",
-                       plan-world: world.world-number + 1);
+                       certainty: truncate/(100,nn-num),
+                       bot: world.world-skeleton.robber-name,
+                       location: nn,
+                       type: "robber",
+                       world: world.world-number + 1);
         add!(infs, inf);
       end for;
     end if;
