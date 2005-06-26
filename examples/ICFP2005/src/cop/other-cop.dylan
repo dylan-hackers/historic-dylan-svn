@@ -64,17 +64,34 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
   end for;
 
   let sorted-nodes
-    = sort(range(size: maximum-node-id()),
-           test: method(x, y)
-                     cop.probability-map[x] > cop.probability-map[y]
-                 end);
+    = copy-sequence(sort(range(size: maximum-node-id()),
+                         test: method(x, y)
+                                   cop.probability-map[x] > cop.probability-map[y]
+                               end), end: 5);
 
+  let players = world.world-cops;
+  let sorted-players = make(<stretchy-vector>);
+
+  for(target in sorted-nodes)
+    let remaining-players 
+      = sort(players, 
+             test: method(x, y)
+                       distance(x, target.find-node-by-id) 
+                         < distance(y, target.find-node-by-id)
+                   end method);
+    add!(sorted-players, remaining-players[0]);
+    players := remove!(players, remaining-players[0]);
+    if(remaining-players[0] = cop.agent-player)
+      cop.my-target-node := find-node-by-id(sorted-nodes[0]);
+    end if;
+  end for;
+      
   cop.my-target-node := find-node-by-id(sorted-nodes[0]);
 
   let plan = make(<stretchy-vector>);
 
-  for (other-cop in world.world-other-cops,
-       target in subsequence(sorted-nodes, start: 1))
+  for (other-cop in sorted-players,
+       target in sorted-nodes)
     if(cop.probability-map[target] = 0.0s0)
       target := sorted-nodes[0];
     end;
