@@ -202,7 +202,7 @@ define method generate-moves(move :: <move>,
   as(<simple-object-vector>, options);
 end method;
 
-define method random-move (player :: <player>) => (move :: <move>)
+define method random-player-move (player :: <player>) => (move :: <move>)
   let possible = generate-moves(player);
   possible[random(possible.size)];
 end method;

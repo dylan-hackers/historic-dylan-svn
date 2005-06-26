@@ -11,7 +11,7 @@ define method choose-move(cop :: <predicting-cop>, world :: <world>)
   //dbg("CHMOVE %s %s %s\n", cop.my-target-node.node-name, distance,
   //    cop.agent-player.player-location.node-name);
   if (distance = 0)
-    random-move(cop.agent-player);
+    random-player-move(cop.agent-player);
   else
     path[0];
   end if;

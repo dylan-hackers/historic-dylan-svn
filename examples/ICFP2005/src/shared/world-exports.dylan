@@ -102,7 +102,7 @@ define module world
     distance;    
 
   export next-move,
-    random-move,
+    random-player-move,
     advance-world;
 
   export drive-agent;
