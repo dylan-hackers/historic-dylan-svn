@@ -273,4 +273,5 @@ define method choose-move(cop :: <rookie-cop>, world :: <world>)
   end if;
 end method choose-move;
 
-drive-agent(make(<rookie-cop>), *standard-input*, *standard-output*);
+//drive-agent(make(<rookie-cop>), *standard-input*, *standard-output*);
+drive-agent(make(<predicting-cop>), *standard-input*, *standard-output*);
