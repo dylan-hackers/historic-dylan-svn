@@ -50,33 +50,41 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
 
         let dangerous-nodes =
             reduce1(union,
-                    map(smelled-nodes,
-                        world.world-cops));
-        dbg("dangerous-nodes: %=\n", dangerous-nodes);
+                    map(method(cop)
+                            let nodes = smelled-nodes(cop);
+                            /*dbg("cop at %= in %= smells %=\n",
+                                cop.player-location.node-name,
+                                cop.player-type,
+                                map(node-name, nodes));*/
+                            nodes;
+                        end,
+                        world.world-other-cops));
+        //dbg("dangerous-nodes: %=\n", dangerous-nodes);
 
         if (size(best-bank.tail) > 0)
         
-            dbg("got a plan to get to the bank\n");
+            //dbg("got a plan to get to the bank\n");
         
             let node = best-bank.tail[0].target;
-            dbg("node on way to bank: %=\n", node);
+            //dbg("currently at: %=\n", robber.agent-player.player-location.node-name);
+            //dbg("node on way to bank: %=\n", node.node-name);
             
             if (~member?(node, dangerous-nodes))
                 return(node);
             else
-                dbg("gotta move randomly\n");
+                //dbg("gotta move randomly\n");
                 return(random-move(robber, world, dangerous-nodes));
             end if;
             
         else
         
-            dbg("at the bank\n");
+            //dbg("at the bank\n");
             
             let node = robber.agent-player.player-location;
             if (~member?(node, dangerous-nodes))
                 return(node);
             else
-                dbg("gotta move randomly\n");
+                //dbg("gotta move randomly\n");
                 return(random-move(robber, world, dangerous-nodes));
             end;
             
