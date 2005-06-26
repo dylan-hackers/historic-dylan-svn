@@ -212,7 +212,7 @@ define method smelled-nodes(player :: <player>)
   if (player.player-type = "cop-car")
     res1;
   else
-    union(res1, res2);
+    concatenate(res1, res2);
   end if;
 end method;
 
