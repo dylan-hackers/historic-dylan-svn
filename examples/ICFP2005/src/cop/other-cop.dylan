@@ -44,6 +44,9 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
   plan
 end method make-plan;
 
+define method perceive-informs(informs, cop :: <predicting-cop>, world :: <world>)
+end method perceive-informs;
+
 define method advance-probability-map(world :: <world>, old-map :: <vector>)
  => (new-map :: <vector>);
   let new-map = make(<vector>, size: old-map.size);
