@@ -211,10 +211,19 @@ define method make (world == <world>,
           
   let my-player = find-pl(*world-skeleton*.my-name);
   let robber = find-pl(*world-skeleton*.robber-name);
+
   players := sort!(players, test: method(x, y)
                                       x.player-name < y.player-name;
                                   end method);
-  let cops = add(players, my-player);
+
+  let cops = players;
+  if (my-player.player-name = *world-skeleton*.robber-name)
+    //we are the robber
+    robber := my-player;
+  else
+    //add myself to the cops
+    cops := add(players, my-player);
+  end if;
 
   let number = number;
   if (instance?(number, <string>))

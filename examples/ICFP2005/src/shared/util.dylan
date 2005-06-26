@@ -92,9 +92,16 @@ define method advance-world (world :: <world>,
                              evidences = world.world-evidences,
                              smell = world.world-smell-distance)
  => (world :: <world>)
-  let players = cops; //add(cops, robber);
+  let players = add(cops, robber);
   /*for (p in players)
-    dbg("PLAYERS: %= ", p);
+    dbg("PLAYER: %= ", p);
+    if (p)
+      dbg("%s", p.player-name);
+    end if;
+    dbg("\n");
+  end for;
+  for (p in cops)
+    dbg("COP-PLAYER: %= ", p);
     if (p)
       dbg("%s", p.player-name);
     end if;
