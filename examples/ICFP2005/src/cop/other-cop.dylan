@@ -6,8 +6,9 @@ define class <predicting-cop> (<cop>)
 end class <predicting-cop>;
 
 define method choose-move(cop :: <predicting-cop>, world :: <world>)
-  let possible-locations = generate-moves(cop.agent-player);
-  possible-locations[random(possible-locations.size)];
+  let (distance, path) = distance(cop.agent-player.player-location,
+                                  cop.my-target-node);
+  path[0]
 end method choose-move;
 
 define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
