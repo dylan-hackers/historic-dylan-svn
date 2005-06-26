@@ -230,7 +230,7 @@ define function distance
        = make(<move>,
               target: player.player-location,
               transport: player.player-type),
-     #key keep-current-transport = #f)
+     keep-current-transport = #f)
  => (rank, shortest-path)
 
   let distance-to =
