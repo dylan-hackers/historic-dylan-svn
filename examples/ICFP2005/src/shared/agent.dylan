@@ -177,16 +177,16 @@ define method generate-moves(move :: <move>,
   if (move.transport = "robber")
     add-to-options(move.target.moves-by-foot, "robber");
   else
-    dbg("generate-moves transport = %s keep = %=\n", move.transport, keep-current-transport);
+    //dbg("generate-moves transport = %s keep = %=\n", move.transport, keep-current-transport);
     if ((move.transport = "cop-foot") |
           (~keep-current-transport & (move.target.node-tag = "hq")))
       add-to-options(move.target.moves-by-foot, "cop-foot");
-      dbg("adding foot moves\n");
+      //dbg("adding foot moves\n");
     end;
     if ((move.transport = "cop-car") | 
           (~keep-current-transport & (move.target.node-tag = "hq")))
       add-to-options(move.target.moves-by-car, "cop-car");
-      dbg("adding car moves\n");
+      //dbg("adding car moves\n");
     end;
   end if;
 
@@ -198,13 +198,12 @@ define method generate-moves(move :: <move>,
 end method;
 
 define method smelled-nodes(player :: <player>)
-  let first-moves = generate-moves(player);
+  let first-moves = generate-moves(player, keep-current-transport: #t);
   let all-moves =
     if (player.player-type = "cop-car")
       first-moves;
     else
       reduce(method(moves, move)
-                 dbg("in reduce with move=%= moves=%=\n", move, moves);
                  let new-moves = generate-moves(move, keep-current-transport: #t);
                  let the-union = union(moves, new-moves);
                  the-union;
