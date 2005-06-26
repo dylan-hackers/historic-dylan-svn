@@ -20,21 +20,17 @@ define method choose-move(cop :: <rookie-cop>, world :: <world>)
   end if;
 end method choose-move;
 
-define method perceive-informs(informs, cop :: <cop>, world :: <world>);
-  for (from-message-inform :: <from-message-inform> in informs)
-    // dbg("sender: %=\n", from-message-inform.sender);
-//    for (inf :: <inform> in from-message-inform.informs)
+define method perceive-informs(informs-dylan-is-stupid, cop :: <cop>, world :: <world>);
+  for (from-message-inform :: <from-message-inform> in informs-dylan-is-stupid)
+    for (inf :: <inform> in from-message-inform.informs)
       // Check the McGruff reports about the robber.
-      // dbg("Processing inform from bot %=\n", inf.plan-bot);
-      /*
       if (inf.plan-bot = world.world-skeleton.robber-name)
         if (inf.inform-certainty = 100)
           cop.info-robber-best-location := inf.plan-location;
           dbg("McGruff detected robber!\n");
         end if;
       end if;
-      */
-//    end for;
+    end for;
   end for;
 end method perceive-informs;
 
@@ -56,7 +52,9 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
     // My cop gets foot.
     let possible-locations = generate-moves(my-cop);
     let new-location = possible-locations[random(possible-locations.size)];
-    new-location.transport := "cop-foot";
+    while (new-location.transport ~= "cop-foot")
+      new-location := possible-locations[random(possible-locations.size)];
+    end while;
     add!(plan, generate-plan(world, my-cop, new-location));
 
     // copA gets car.
