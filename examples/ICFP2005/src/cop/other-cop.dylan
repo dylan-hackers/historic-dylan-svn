@@ -2,6 +2,7 @@ module: cop
 
 define class <predicting-cop> (<cop>)
   slot probability-map :: false-or(<vector>) = #f;
+  slot my-target-node :: <node>;
 end class <predicting-cop>;
 
 define method choose-move(cop :: <predicting-cop>, world :: <world>)
@@ -17,12 +18,28 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
     cop.probability-map := advance-probability-map(world, cop.probability-map);
   end if;
 
+  let sorted-nodes = sort(range(size: maximum-node-id()),
+                                test: method(x, y)
+                                          cop.probability-map[x] > cop.probability-map[y]
+                                      end);
+
+  cop.my-target-node := find-node-by-id(world, sorted-nodes[0]);
+
   let plan = make(<stretchy-vector>);
 
-  for (cop in world.world-other-cops)
-    let possible-locations = generate-moves(cop);
-    let new-location = possible-locations[random(possible-locations.size)];
-    add!(plan, generate-plan(world, cop, new-location));
+  for (other-cop in world.world-other-cops,
+       target in subsequence(sorted-nodes, start: 1))
+    if(cop.probability-map[target] = 0.0s0)
+      target := sorted-nodes[0];
+    end;
+    let (distance, path) = distance(other-cop, find-node-by-id(world, target));
+    if(distance > 0)
+      add!(plan, generate-plan(world, other-cop, path[0]));
+    else
+      let possible-locations = generate-moves(other-cop);
+      let new-location = possible-locations[random(possible-locations.size)];
+      add!(plan, generate-plan(world, other-cop, new-location));
+    end if;
   end for;
   plan
 end method make-plan;
