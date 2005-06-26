@@ -14,6 +14,9 @@ ruby:
 update:
 	cd ../.. && svn update && cd -
 
+commit:
+	cd ../.. && svn commit -m "" && cd -
+
 clean:
 	-rm -f *.o *.s *.a *.c *.mak *~ cop
 	-rm -rf .libs
