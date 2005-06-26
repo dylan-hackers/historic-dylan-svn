@@ -7,12 +7,10 @@ define class <rookie-cop> (<cop>)
 end class <rookie-cop>;
 
 define class <info> (<object>)
-    slot info-robber-best-location :: false-or(<node>), required-init-keyword: robber-best-location:;
+  slot info-robber-best-location :: <node>, init-keyword: robber-best-location:;
 end class <info>;
 
-define variable info :: <info> =
-  make(<info>,
-       robber-best-location: #f);
+define variable info :: <info> = make(<info>);
 
 define method choose-move(cop :: <rookie-cop>, world :: <world>)
   let possible-locations = generate-moves(cop.agent-player);
@@ -32,7 +30,7 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
   if (world.world-number = 1)
 
     // Initialise info.
-    info.robber-best-location := world.world-robber.player-location;
+    info.info-robber-best-location := world.world-robber.player-location;
     
     // My cop gets foot.
     let possible-locations = generate-moves(my-cop);
