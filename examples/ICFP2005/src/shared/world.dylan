@@ -187,6 +187,7 @@ define method make (world == <world>,
                     #next next-method,
                     #rest rest,
                     #key players,
+                    number,
                     #all-keys) => (res :: <world>)
   let args = rest;
   args := exclude(args, #"players");
@@ -210,8 +211,18 @@ define method make (world == <world>,
                                   end method);
   let cops = add(players, my-player);
 
+  args := exclude(args, #"number");
+  let number = string-to-integer(number);
+  if (number = 1) //first world
+    robber := make(<player>,
+                   name: *world-skeleton*.robber-name,
+                   location: *world-skeleton*.world-nodes[#"54-and-ridgewood"],
+                   type: "robber");
+  end;
+                   
   apply(next-method,
         world,
+        number: number,
         cops: cops,
         robber: robber,
         my-player: my-player,
@@ -358,7 +369,7 @@ define method read-world (stream, skeleton)
 
 
   make(<world>,
-       number: string-to-integer(world),
+       number: world,
        loot: string-to-integer(loot),
        banks: banks,
        evidences: evidences,

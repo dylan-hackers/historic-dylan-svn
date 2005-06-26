@@ -79,6 +79,9 @@ define method drive-agent(agent :: <cop>,
   block()
     while (#t)
       let world = read-world(*standard-input*, skelet);
+      if (world.world-robber)
+        dbg("DRIVE: ROBBER POS: %s\n", world.world-robber.player-location.node-name);
+      end;
       agent.agent-player := world.world-my-player;
 
       send("inf\\\n");
