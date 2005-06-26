@@ -95,6 +95,7 @@ define module world
 
   export generate-moves,
     generate-plan,
+    smelled-nodes,
     choose-move,
     distance;    
 
@@ -108,6 +109,7 @@ define module world
     <robber>;
 
   export  <move>,
+    target,
     transport,
     transport-setter;
 

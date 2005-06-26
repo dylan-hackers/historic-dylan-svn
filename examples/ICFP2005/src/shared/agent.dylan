@@ -190,6 +190,21 @@ define method generate-moves(move :: <move>,
 
 end method;
 
+define method smelled-nodes(player :: <player>)
+    let first-moves = generate-moves(player);
+    let all-moves = if (player.player-type = "cop-car")
+        first-moves;
+    else
+        reduce(method(moves, move)
+                   union(moves, generate-moves(move))
+               end,
+               first-moves,
+               first-moves);
+    end if;
+    
+    map(target, all-moves);
+end method;
+
 define method generate-plan(world :: <world>,
                             player :: <player>,
                             move :: <move>)
