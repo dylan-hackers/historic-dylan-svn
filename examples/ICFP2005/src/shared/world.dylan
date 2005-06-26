@@ -49,7 +49,7 @@ end;
 
 define class <evidence> (<object>)
   constant slot evidence-location :: <node>, required-init-keyword: location:;
-  constant slot evidence-world    :: <string>, required-init-keyword: world:;
+  constant slot evidence-world    :: <integer>, required-init-keyword: world:;
 end;
 
 define class <player> (<object>)
