@@ -1,4 +1,4 @@
-module: robber
+module: alterna-robber
 
 define class <alterna-robber> (<robber>)
   slot most-recently-robbed-bank :: false-or(<bank>) = #f;
