@@ -8,13 +8,34 @@ end class <predicting-cop>;
 define method choose-move(cop :: <predicting-cop>, world :: <world>)
   let (distance, path) = distance(cop.agent-player,
                                   cop.my-target-node);
-  path[0]
+  //dbg("CHMOVE %s %s %s\n", cop.my-target-node.node-name, distance,
+  //    cop.agent-player.player-location.node-name);
+  if (distance = 0)
+    random-move(cop.agent-player);
+  else
+    path[0];
+  end if;
 end method choose-move;
 
 define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
   if(world.world-robber | ~cop.probability-map)
     cop.probability-map := make(<vector>, size: maximum-node-id(), fill: 0.0s0);
     cop.probability-map[world.world-robber.player-location.node-id] := 1.0s0;
+  elseif (world.world-evidences.size > 0)
+    let newest-evidence
+      = first(sort(world.world-evidences,
+                   test: method(x, y)
+                             x.evidence-world < y.evidence-world;
+                         end method));
+    dbg("NEWEST EVIDENCE: loc: %s in world: %s current world: %s\n",
+        newest-evidence.evidence-location.node-name,
+        newest-evidence.evidence-world,
+        world.world-number);
+    cop.probability-map := make(<vector>, size: maximum-node-id(), fill: 0.0s0);
+    cop.probability-map[newest-evidence.evidence-location.node-id] := 1.0s0;
+    for (i from newest-evidence.evidence-world below world.world-number by 2)
+      advance-probability-map(world, cop.probability-map);
+    end;
   else
     cop.probability-map := advance-probability-map(world, cop.probability-map);
   end if;
@@ -23,10 +44,11 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
     cop.probability-map[a-cop.player-location.node-id] := 0
   end for;
 
-  let sorted-nodes = sort(range(size: maximum-node-id()),
-                                test: method(x, y)
-                                          cop.probability-map[x] > cop.probability-map[y]
-                                      end);
+  let sorted-nodes
+    = sort(range(size: maximum-node-id()),
+           test: method(x, y)
+                     cop.probability-map[x] > cop.probability-map[y]
+                 end);
 
   cop.my-target-node := find-node-by-id(world, sorted-nodes[0]);
 

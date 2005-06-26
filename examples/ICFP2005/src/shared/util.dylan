@@ -107,9 +107,9 @@ define method advance-world (world :: <world>,
     end if;
     dbg("\n");
   end for;*/
-  for (player in players)
+  /*for (player in players)
     player := next-move(player, generate-moves(player)[0]);
-  end for;
+  end for;*/
   make(<world>,
        number: world.world-number + 1,
        loot: world.world-loot,

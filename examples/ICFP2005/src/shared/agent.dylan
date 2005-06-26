@@ -202,6 +202,11 @@ define method generate-moves(move :: <move>,
   as(<simple-object-vector>, options);
 end method;
 
+define method random-move (player :: <player>) => (move :: <move>)
+  let possible = generate-moves(player);
+  possible[random(possible.size)];
+end method;
+
 define method smelled-nodes(player :: <player>)
     let first-moves = generate-moves(player, keep-current-transport: #t);
     let all-moves = if (player.player-type = "cop-car")

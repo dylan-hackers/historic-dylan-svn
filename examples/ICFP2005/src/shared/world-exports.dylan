@@ -20,7 +20,7 @@ define module world
   //use subseq, import: {subsequence};
   use extensions; //, import: {limited-vector-class};
   use streams;
-//  use simple-random;
+  use simple-random, import: { random };
   use format, import: { format };
 
   export dbg,
@@ -102,6 +102,7 @@ define module world
     distance;    
 
   export next-move,
+    random-move,
     advance-world;
 
   export drive-agent;
