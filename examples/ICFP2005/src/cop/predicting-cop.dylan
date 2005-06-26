@@ -5,12 +5,17 @@ define abstract class <predicting-cop> (<cop>)
   slot last-precise-info :: <integer> = 1;
 end class <predicting-cop>;
 
-define method consider-evidence (evidence, number, cop)
+define method consider-evidence (evidence :: <evidence>, 
+                                 world :: <world>,
+                                 cop :: <predicting-cop>)
   let mymap = make(<vector>, size: maximum-node-id(), fill: 0.0s0);
   mymap[evidence.evidence-location.node-id] := 1.0s0;
   for (i from evidence.evidence-world + 2
-         below number by 2)
+         below world.world-number by 2)
     mymap := advance-probability-map(mymap);
+    for(bank in world.world-banks)
+      mymap[bank.bank-location.node-id] := 0.0s0;
+    end for;
     //XXX set bank-location and cop-location in worlds to 0.0s0
   end;
   cop.probability-map := map(\*, mymap, cop.probability-map);
@@ -53,7 +58,7 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
             world.world-number);
 
         consider-evidence(newest-evidence,
-                          world.world-number,
+                          world,
                           cop);
       end if;
     end if;
@@ -166,7 +171,7 @@ define method perceive-informs(information, cop :: <predicting-cop>, world :: <w
       consider-evidence(make(<evidence>,
                              location: newest-info.plan-location,
                              world: newest-info.plan-world),
-                        world.world-number,
+                        world,
                         cop);
      /* dbg("NEWEST EVIDENCE FROM SOMEONE: loc: %s in world: %s current world: %s\n",
           newest-info.plan-location.node-name,
