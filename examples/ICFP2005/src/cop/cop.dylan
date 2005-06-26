@@ -6,11 +6,13 @@ copyright:
 define class <rookie-cop> (<cop>)
 end class <rookie-cop>;
 
-define class <info>
-    slot info-robber-best-location :: <node>, required-init-keyword: robber-best-location;
+define class <info> (<object>)
+    slot info-robber-best-location :: false-or(<node>), required-init-keyword: robber-best-location:;
 end class <info>;
 
-define variable info :: <info>;
+define variable info :: <info> =
+  make(<info>,
+       robber-best-location: #f);
 
 define method choose-move(cop :: <rookie-cop>, world :: <world>)
   let possible-locations = generate-moves(cop.agent-player);
@@ -20,17 +22,17 @@ end method choose-move;
 define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
   let plan = make(<stretchy-vector>);
 
-  let my-cop = world.world-players[0];
-  let copA = world.world-players[1];
-  let copB = world.world-players[2];
-  let copC = world.world-players[3];
-  let copD = world.world-players[4];
+  let my-cop = world.world-cops[0];
+  let copA = world.world-cops[1];
+  let copB = world.world-cops[2];
+  let copC = world.world-cops[3];
+  let copD = world.world-cops[4];
 
   // Do this as initialising step.
   if (world.world-number = 1)
 
     // Initialise info.
-    info := make(<info>, robber-best-location: 
+    info.robber-best-location := world.world-robber.player-location;
     
     // My cop gets foot.
     my-cop.player-type := "cop-foot";
@@ -62,7 +64,7 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
     new-location := possible-locations[random(possible-locations.size)];
     add!(plan, generate-plan(world, copD, new-location));
   else
-    for (cop in world.world-players)
+    for (cop in world.world-cops)
       let possible-locations = generate-moves(cop);
       let new-location = possible-locations[random(possible-locations.size)];
       add!(plan, generate-plan(world, cop, new-location));
