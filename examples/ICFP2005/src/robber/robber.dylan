@@ -10,7 +10,7 @@ end class <random-walk-robber>;
 define method random-move(robber :: <random-walk-robber>,
                           world :: <world>,
                           dangerous-nodes) => (move);
-    
+
     let possible-nodes = map(target, generate-moves(robber.agent-player));
     
     let possible-safe-nodes =
@@ -37,7 +37,7 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
                     pair(rank, route)
                 end,
                 world.world-banks);
-        
+
         let best-bank = 
             reduce1(method(rank-route-pair0, rank-route-pair1)
                         if (rank-route-pair0.head < rank-route-pair1.head)
@@ -47,12 +47,12 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
                         end if;
                     end,
                     distances);
-        
+
         let dangerous-nodes =
             reduce1(union,
                     map(smelled-nodes,
                         world.world-cops));
-        
+
         if (size(best-bank.tail) > 0)
         
             dbg("got a plan to get to the bank\n");
@@ -80,7 +80,7 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
        end if;
         
     end;
-    
+
     make(<move>,
          target: destination,
          transport: "robber");

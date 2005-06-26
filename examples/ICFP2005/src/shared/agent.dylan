@@ -142,8 +142,7 @@ define class <move> (<object>)
   slot transport :: <string>, init-keyword: transport:;
 end class;
 
-limited-vector-class(<move-vector>, <move>, #f);
-lock-down <move>, <move-vector> end;
+lock-down <move>  end;
 
 
 define method print (move :: <move>)
@@ -154,7 +153,7 @@ end method;
 
 define method generate-moves (player :: <player>,
                               #key keep-current-transport = #f)
-  => (move :: <move-vector>)
+  => (move :: <simple-object-vector>)
   let move = make(<move>,
                   target: player.player-location,
                   transport: player.player-type);
@@ -164,7 +163,7 @@ end method;
 
 define method generate-moves(move :: <move>,
                              #key keep-current-transport = #f)
- => (moves :: <move-vector>)
+ => (moves :: <simple-object-vector>)
   let options = make(<stretchy-vector>);
 
   local method add-to-options (list :: <stretchy-object-vector>, transport :: <string>)
@@ -195,29 +194,25 @@ define method generate-moves(move :: <move>,
   //  dbg("GENMOVE: %= %=\n", ele.target.node-name, ele.transport);
   //end;
 
-  let res-size = options.size;
-  let res = make(<move-vector>, size: res-size, fill: move);
-  for (i from 0 below res-size,
-       move :: <move> in options)
-    res[i] := move;
-  end;
-  res;
-
+  as(<simple-object-vector>, options);
 end method;
 
 define method smelled-nodes(player :: <player>)
-    let first-moves = generate-moves(player);
-    let all-moves = if (player.player-type = "cop-car")
-        first-moves;
+  let first-moves = generate-moves(player);
+  let all-moves =
+    if (player.player-type = "cop-car")
+      first-moves;
     else
-        reduce(method(moves, move)
-                   union(moves, generate-moves(move))
-               end,
-               first-moves,
-               first-moves);
+      reduce(method(moves, move)
+                 dbg("in reduce with move=%= moves=%=\n", move, moves);
+                 let new-moves = generate-moves(move, keep-current-transport: #t);
+                 let the-union = union(moves, new-moves);
+                 the-union;
+             end,
+             first-moves,
+             first-moves);
     end if;
-    
-    map(target, all-moves);
+  map(target, all-moves);
 end method;
 
 define method generate-plan(world :: <world>,
