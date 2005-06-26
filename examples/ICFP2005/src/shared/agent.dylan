@@ -208,20 +208,31 @@ define method random-player-move (player :: <player>) => (move :: <move>)
 end method;
 
 define method smelled-nodes(player :: <player>)
-    let first-moves = generate-moves(player, keep-current-transport: #t);
-    let all-moves = if (player.player-type = "cop-car")
-        first-moves;
-    else
-        reduce(method(moves, move)
-                   let new-moves = generate-moves(move, keep-current-transport: #t);
-                   let the-union = union(moves, new-moves);
-                   the-union;
-               end,
-               first-moves,
-               first-moves);
-    end if;
-    
-    remove-duplicates(map(target, all-moves));
+  let (res1, res2) = smelled-nodes-aux(player);
+  if (player.player-type = "cop-car")
+    res1;
+  else
+    union(res1, res2);
+  end if;
+end method;
+
+define method smelled-nodes-aux(player :: <player>)
+  let move = make(<move>,
+                  target: player.player-location,
+                  transport: "cop-foot");
+  let (first-rank, first-nodes) = distance(player, //not used
+                                           move.target,
+                                           source: move,
+                                           maximum-rank: 1,
+                                           keep-current-transport: #t);
+  let (second-rank, second-nodes)
+    = distance(player, //not used
+               move.target,
+               source: move,
+               maximum-rank: 2,
+               keep-current-transport: #t);
+
+  values (first-nodes, second-nodes);
 end method;
 
 define method generate-plan(world :: <world>,
@@ -234,6 +245,44 @@ define method generate-plan(world :: <world>,
        type: move.transport,
        world: world.world-number + 1);
 end method;
+
+define method generate-inform(world :: <world>,
+                              node :: <node>,
+                              certainty :: <integer>,
+                              #key number :: <integer> = world.world-number)
+ => (inform :: <inform>)
+  make(<inform>,
+       bot: world.world-skeleton.robber-name,
+       location: node,
+       type: "robber",
+       world: number,
+       certainty: certainty);
+end method;
+
+define method generate-informs (world, probability-map, list) => (informs)
+  let res = #();
+  for (node in list)
+    res := add(res,
+               generate-inform
+                 (world,
+                  node,
+                  truncate
+                    (probability-map[node.node-id] * 200 - 100)));
+    //dbg("MYINFORM %s %s %s\n", res.head.plan-location.node-name,
+    //    res.head.inform-certainty, res.head.plan-world);
+  end for;
+  res;
+end method;
+
+define method normalize! (map :: <vector>)
+  let sum = reduce1(\+, map);
+  for (elt in key-sequence(map))
+    map[elt] := map[elt] / sum;
+  end for;
+  map;
+end method;
+    
+
 
 limited-vector-class(<int-vector>, <integer>, 0);
 

@@ -97,7 +97,11 @@ define module world
 
   export generate-moves,
     generate-plan,
+    generate-inform,
+    generate-informs,
+    normalize!,
     smelled-nodes,
+    smelled-nodes-aux,
     choose-move,
     distance;    
 
