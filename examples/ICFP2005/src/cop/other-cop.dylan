@@ -28,7 +28,7 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
 end method make-plan;
 
 define method advance-probability-map(old-map :: <vector>) => (new-map :: <vector>);
-  let new-map := make(<vector>, size: old-map.size);
+  let new-map = make(<vector>, size: old-map.size);
 
   for(node in world.world-nodes)
     new-map[node.node-id]
