@@ -198,20 +198,20 @@ define method generate-moves(move :: <move>,
 end method;
 
 define method smelled-nodes(player :: <player>)
-  let first-moves = generate-moves(player, keep-current-transport: #t);
-  let all-moves =
-    if (player.player-type = "cop-car")
-      first-moves;
+    let first-moves = generate-moves(player, keep-current-transport: #t);
+    let all-moves = if (player.player-type = "cop-car")
+        first-moves;
     else
-      reduce(method(moves, move)
-                 let new-moves = generate-moves(move, keep-current-transport: #t);
-                 let the-union = union(moves, new-moves);
-                 the-union;
-             end,
-             first-moves,
-             first-moves);
+        reduce(method(moves, move)
+                   let new-moves = generate-moves(move, keep-current-transport: #t);
+                   let the-union = union(moves, new-moves);
+                   the-union;
+               end,
+               first-moves,
+               first-moves);
     end if;
-  map(target, all-moves);
+    
+    remove-duplicates(map(target, all-moves));
 end method;
 
 define method generate-plan(world :: <world>,

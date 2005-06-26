@@ -52,12 +52,15 @@ define method choose-move(robber :: <random-walk-robber>, world :: <world>)
             reduce1(union,
                     map(smelled-nodes,
                         world.world-cops));
+        dbg("dangerous-nodes: %=\n", dangerous-nodes);
 
         if (size(best-bank.tail) > 0)
         
             dbg("got a plan to get to the bank\n");
         
             let node = best-bank.tail[0].target;
+            dbg("node on way to bank: %=\n", node);
+            
             if (~member?(node, dangerous-nodes))
                 return(node);
             else
