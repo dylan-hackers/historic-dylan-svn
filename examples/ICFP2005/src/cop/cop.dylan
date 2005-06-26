@@ -183,6 +183,8 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
         end if;
       end for;
 
+      dbg("best-node-id: %d\n", best-node-id);
+
       let node-map = make(<vector>,
                           size: world.world-skeleton.world-nodes.size);
       for (node in world.world-skeleton.world-nodes)
@@ -190,7 +192,7 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
       end for;
                                                                                 
       // If we smell it, call others to come.
-      if (best-node-val > -1)
+      if (best-node-id > -1)
         choose-move-to-target(my-cop-player, my-cop-player.player-type,
                               node-map[best-node-id]);
         choose-move-to-target(copA-player, copA-player.player-type,
