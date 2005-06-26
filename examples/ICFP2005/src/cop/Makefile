@@ -8,6 +8,9 @@ cop: cop.lid cop.dylan cop-exports.dylan ${SHARED}
 run:
 	server --gui --robber "show-robber ../robber/robber-wrapper" --copE "show-cop ./cop-wrapper"
 
+ruby:
+	server --gui --robber "show-robber ../../ruby/Robber.rb NaiveRobber" --copE "show-cop ./cop-wrapper"
+
 clean:
 	-rm -f *.o *.s *.a *.c *.mak *~ cop
 	-rm -rf .libs
