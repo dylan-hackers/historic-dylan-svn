@@ -102,6 +102,7 @@ define module world
     agent-player;
 
   export <cop>,
+    initial-transport,
     <robber>;
 
   export  <move>;
