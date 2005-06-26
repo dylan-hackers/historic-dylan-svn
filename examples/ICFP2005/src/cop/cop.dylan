@@ -35,31 +35,31 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
     // My cop gets foot.
     let possible-locations = generate-moves(my-cop);
     let new-location = possible-locations[random(possible-locations.size)];
-    new-location.transport = "cop-foot";
+    new-location.transport := "cop-foot";
     add!(plan, generate-plan(world, my-cop, new-location));
 
     // copA gets car.
     possible-locations := generate-moves(copA);
     new-location := possible-locations[random(possible-locations.size)];
-    new-location.transport = "cop-car";
+    new-location.transport := "cop-car";
     add!(plan, generate-plan(world, copA, new-location));
 
     // copB gets car.
     possible-locations := generate-moves(copB);
     new-location := possible-locations[random(possible-locations.size)];
-    new-location.transport = "cop-car";
+    new-location.transport := "cop-car";
     add!(plan, generate-plan(world, copB, new-location));
 
     // copC gets foot.
     possible-locations := generate-moves(copC);
     new-location := possible-locations[random(possible-locations.size)];
-    new-location.transport = "cop-foot";
+    new-location.transport := "cop-foot";
     add!(plan, generate-plan(world, copC, new-location));
 
     // copD gets foot.
     possible-locations := generate-moves(copD);
     new-location := possible-locations[random(possible-locations.size)];
-    new-location.transport = "cop-foot";
+    new-location.transport := "cop-foot";
     add!(plan, generate-plan(world, copD, new-location));
   else
     for (cop in world.world-cops)
