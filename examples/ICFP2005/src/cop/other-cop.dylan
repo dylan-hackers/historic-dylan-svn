@@ -55,8 +55,7 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
     if(distance > 0)
       add!(plan, generate-plan(world, other-cop, path[0]));
     else
-      let possible-locations = generate-moves(other-cop);
-      let new-location = possible-locations[random(possible-locations.size)];
+      let new-location = random-player-move(other-cop);
       add!(plan, generate-plan(world, other-cop, new-location));
     end if;
   end for;
