@@ -78,3 +78,37 @@ define macro lock-down
       ... }
 end lock-down;
 
+define method next-move (player, move) => (player)
+  make(<player>,
+       name: player.player-name,
+       location: move.target,
+       type: player.player-type);
+end method;
+
+define method advance-world (world :: <world>,
+                             #key cops = world.world-cops,
+                             robber = world.world-robber,
+                             banks = world.world-banks,
+                             evidences = world.world-evidences,
+                             smell = world.world-smell-distance)
+ => (world :: <world>)
+  let players = cops; //add(cops, robber);
+  /*for (p in players)
+    dbg("PLAYERS: %= ", p);
+    if (p)
+      dbg("%s", p.player-name);
+    end if;
+    dbg("\n");
+  end for;*/
+  for (player in players)
+    player := next-move(player, generate-moves(player)[0]);
+  end for;
+  make(<world>,
+       number: world.world-number + 1,
+       loot: world.world-loot,
+       banks: banks,
+       evidences: evidences,
+       smell: smell,
+       players: players,
+       skeleton: world.world-skeleton);
+end method;

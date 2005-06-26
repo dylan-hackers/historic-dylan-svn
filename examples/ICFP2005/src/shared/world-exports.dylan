@@ -101,6 +101,9 @@ define module world
     choose-move,
     distance;    
 
+  export next-move,
+    advance-world;
+
   export drive-agent;
 
   export <agent>,

@@ -216,15 +216,19 @@ define method make (world == <world>,
                                   end method);
   let cops = add(players, my-player);
 
-  args := exclude(args, #"number");
-  let number = string-to-integer(number);
+  let number = number;
+  if (instance?(number, <string>))
+    args := exclude(args, #"number");
+    number := string-to-integer(number);
+  end if;
+
   if (number = 1) //first world
     robber := make(<player>,
                    name: *world-skeleton*.robber-name,
                    location: *world-skeleton*.world-nodes[#"54-and-ridgewood"],
                    type: "robber");
   end;
-                   
+
   apply(next-method,
         world,
         number: number,
