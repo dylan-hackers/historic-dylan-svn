@@ -14,7 +14,7 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
     cop.probability-map := make(<vector>, size: maximum-node-id(), fill: 0.0s0);
     cop.probability-map[world.world-robber.player-location.node-id] := 1.0s0;
   else
-    cop.probability-map := advance-probability-map(cop.probability-map);
+    cop.probability-map := advance-probability-map(world, cop.probability-map);
   end if;
 
   let plan = make(<stretchy-vector>);
@@ -27,7 +27,8 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
   plan
 end method make-plan;
 
-define method advance-probability-map(old-map :: <vector>) => (new-map :: <vector>);
+define method advance-probability-map(world :: <world>, old-map :: <vector>)
+ => (new-map :: <vector>);
   let new-map = make(<vector>, size: old-map.size);
 
   for(node in world.world-nodes)
