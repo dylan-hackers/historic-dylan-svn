@@ -214,9 +214,9 @@ define function distance
               target: player.player-location,
               transport: player.player-type)) => (rank, shortest-path)
 
-  let rank =
+  let distance-to =
     make(<int-vector>, size: maximum-node-id(), fill: maximum-node-id());
-  rank[source.target.node-id] := 0;
+  distance-to[source.target.node-id] := 0;
   let shortest-path :: <simple-object-vector> =
     make(<vector>, size: maximum-node-id(), fill: #());
 
@@ -224,16 +224,19 @@ define function distance
 
   local method search (start :: <move>)
          => (next-node-id :: <integer>);
+          let start-id = start.target.node-id;
+          let path-to-start = shortest-path[start-id];
+          let next-distance = distance-to[start-id] + 1;
           block (return)
-            for (move in generate-moves(start))
-              if (rank[move.target.node-id] > rank[start.target.node-id])
-                rank[move.target.node-id] := rank[start.target.node-id] + 1;
-                let old-path :: <list> = shortest-path[start.target.node-id];
-                shortest-path[move.target.node-id] := add(old-path, move);
-                push-last(todo-nodes, move);
+            for (next :: <move> in generate-moves(start))
+              let next-id = next.target.node-id;
+              if (distance-to[next-id] > next-distance)
+                distance-to[next-id] := next-distance;
+                shortest-path[next-id] := add!(path-to-start, next);
+                push-last(todo-nodes, next);
               end if;
-              if (move.target == target-node)
-                return(move.target.node-id);
+              if (next-id == target-node.node-id)
+                return(next-id);
               end if;
             end for;
             if (todo-nodes.size = 0)
@@ -243,18 +246,18 @@ define function distance
           end;
         end method;
 
-  let result = search(source);
+  let destination-id = search(source);
   /*dbg("LOC: %s TARGET: %s\n", player.player-location.node-name,
       target-node.node-name);
   for (i from 0 below maximum-node-id())
     if (size(shortest-path[i]) > 0)
-      dbg("SP TO %d, distance: %d  ", i, rank[i]);
+      dbg("SP TO %d, distance: %d  ", i, distance-to[i]);
       for (j in shortest-path[i])
         dbg("%s ", j.target.node-name);
       end for;
       dbg("\n");
     end if;
   end for;*/
-  let res :: <list> = shortest-path[result];
-  values(rank[result], res.reverse);
+  let res :: <list> = shortest-path[destination-id];
+  values(distance-to[destination-id], res.reverse);
 end;
