@@ -54,7 +54,7 @@ define method advance-probability-map(world :: <world>, old-map :: <vector>)
   for(node in world.world-skeleton.world-nodes)
     new-map[node.node-id]
       := reduce1(\+, map(method(x)
-                             (1.0s0 / x.moves-by-foot) * old-map[x.node-id]
+                             (1.0s0 / x.moves-by-foot.size) * old-map[x.node-id]
                          end method,
                          node.moves-by-foot))
   end for;
