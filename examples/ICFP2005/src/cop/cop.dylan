@@ -9,7 +9,7 @@ define class <rookie-cop> (<cop>)
   slot local-map :: <vector>;
 end class <rookie-cop>;
 
-define method make-informs(cop :: <cop>, world :: <world>) => (informs);
+define method make-informs(cop :: <rookie-cop>, world :: <world>) => (informs);
   let infs = make(<stretchy-vector>);
 
   // Reset our map for this move.
@@ -77,7 +77,7 @@ define method make-informs(cop :: <cop>, world :: <world>) => (informs);
   infs;
 end method make-informs;
 
-define method perceive-informs(informs-dylan-is-stupid, cop :: <cop>, world :: <world>);
+define method perceive-informs(informs-dylan-is-stupid, cop :: <rookie-cop>, world :: <world>);
   for (from-message-inform :: <from-message-inform> in informs-dylan-is-stupid)
     for (inf :: <inform> in from-message-inform.informs)
       // Check the McGruff reports about the robber.
@@ -243,14 +243,14 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
   plan
 end method make-plan;
 
-define method perceive-plans(plans, cop :: <cop>, world :: <world>);
+define method perceive-plans(plans, cop :: <rookie-cop>, world :: <world>);
 end method perceive-plans;
 
-define method make-vote(cop :: <cop>, world :: <world>) => (vote);
+define method make-vote(cop :: <rookie-cop>, world :: <world>) => (vote);
   concatenate(list(world.world-my-player), world.world-other-cops);
 end method make-vote;
 
-define method perceive-vote(vote, cop :: <cop>, world :: <world>);
+define method perceive-vote(vote, cop :: <rookie-cop>, world :: <world>);
 end method perceive-vote;
 
 define method choose-move(cop :: <rookie-cop>, world :: <world>)
