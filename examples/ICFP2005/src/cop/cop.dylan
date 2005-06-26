@@ -4,17 +4,19 @@ author:
 copyright: 
 
 define class <rookie-cop> (<cop>)
+  slot info-robber-best-location :: <node>, init-keyword: robber-best-location:;
 end class <rookie-cop>;
 
-define class <info> (<object>)
-  slot info-robber-best-location :: <node>, init-keyword: robber-best-location:;
-end class <info>;
-
-define variable info :: <info> = make(<info>);
-
 define method choose-move(cop :: <rookie-cop>, world :: <world>)
-  let possible-locations = generate-moves(cop.agent-player);
-  possible-locations[random(possible-locations.size)];
+  let (rank, shortest-path)
+    = distance(cop.agent-player, cop.info-robber-best-location);
+
+  if (rank > 0)
+    shortest-path[0];
+  else
+    let possible-locations = generate-moves(cop.agent-player);
+    possible-locations[random(possible-locations.size)];
+  end if;
 end method choose-move;
 
 define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
@@ -30,7 +32,7 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
   if (world.world-number = 1)
 
     // Initialise info.
-    info.info-robber-best-location := world.world-robber.player-location;
+    cop.info-robber-best-location := world.world-robber.player-location;
     
     // My cop gets foot.
     let possible-locations = generate-moves(my-cop);
@@ -62,10 +64,17 @@ define method make-plan(cop :: <rookie-cop>, world :: <world>) => (plan)
     new-location.transport := "cop-foot";
     add!(plan, generate-plan(world, copD, new-location));
   else
-    for (cop in world.world-cops)
-      let possible-locations = generate-moves(cop);
-      let new-location = possible-locations[random(possible-locations.size)];
-      add!(plan, generate-plan(world, cop, new-location));
+    for (cop-i in world.world-cops)
+      let (rank, shortest-path)
+        = distance(cop-i, cop.info-robber-best-location);
+
+      if (rank > 0)
+        add!(plan, generate-plan(world, cop-i, shortest-path[0]));
+      else
+        let possible-locations = generate-moves(cop-i);
+        let new-location = possible-locations[random(possible-locations.size)];
+        add!(plan, generate-plan(world, cop-i, new-location));
+      end if;
     end for;
   end if;
   
