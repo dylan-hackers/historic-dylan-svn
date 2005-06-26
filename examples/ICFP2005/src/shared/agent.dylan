@@ -51,60 +51,72 @@ define open generic drive-agent(agent :: <agent>,
 define method drive-agent(agent :: <robber>,
                           input-stream :: <stream>,
                           output-stream :: <stream>)
-  format(output-stream, "reg: %s robber\n", agent.wanted-name);
-  force-output(output-stream);
-  let skelet = read-world-skeleton(input-stream);
   block()
-    while (#t)
-      let world = read-world(input-stream, skelet);
-      agent.agent-player := world.world-my-player;
-      //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
-      let move = choose-move(agent, world);
-      print(move);
-      force-output(output-stream);
-    end while;
-  exception (condition :: <parse-error>)
+    format(output-stream, "reg: %s robber\n", agent.wanted-name);
+    force-output(output-stream);
+    let skelet = read-world-skeleton(input-stream);
+    block()
+      while (#t)
+        let world = read-world(input-stream, skelet);
+        agent.agent-player := world.world-my-player;
+        //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
+        let move = choose-move(agent, world);
+        print(move);
+        force-output(output-stream);
+      end while;
+    exception (condition :: <parse-error>)
+    end;
+  exception (condition :: <condition>)
+    dbg("Robber caught error: %=\n", condition);
+    report-condition(condition, *standard-error*);
+    dbg("Exiting program\n");
   end;
 end method drive-agent;
 
 define method drive-agent(agent :: <cop>,
                           input-stream :: <stream>,
                           output-stream :: <stream>)
-  send("reg: %s %s\n", agent.wanted-name, agent.initial-transport);
-  let skelet = read-world-skeleton(*standard-input*);
-
   block()
-    while (#t)
-      let world = read-world(*standard-input*, skelet);
-      if (world.world-robber)
-        dbg("DRIVE: ROBBER POS: %s\n", world.world-robber.player-location.node-name);
-      end;
-      agent.agent-player := world.world-my-player;
-
-      send("inf\\\n");
-      do(print, make-informs(agent, world));
-      send("inf/\n");
-
-      perceive-informs(read-from-message-inform(input-stream),
+    send("reg: %s %s\n", agent.wanted-name, agent.initial-transport);
+    let skelet = read-world-skeleton(*standard-input*);
+    
+    block()
+      while (#t)
+        let world = read-world(*standard-input*, skelet);
+        if (world.world-robber)
+          dbg("DRIVE: ROBBER POS: %s\n", world.world-robber.player-location.node-name);
+        end;
+        agent.agent-player := world.world-my-player;
+        
+        send("inf\\\n");
+        do(print, make-informs(agent, world));
+        send("inf/\n");
+        
+        perceive-informs(read-from-message-inform(input-stream),
+                         agent, world);
+        
+        send("plan\\\n");
+        do(print, make-plan(agent, world));
+        send("plan/\n");
+        
+        perceive-plans(read-from-message-plan(input-stream),
                        agent, world);
-
-      send("plan\\\n");
-      do(print, make-plan(agent, world));
-      send("plan/\n");
-
-      perceive-plans(read-from-message-plan(input-stream),
-                     agent, world);
-
-      send("vote\\\n");
-      do(method(x) send("vote: %s\n", x.player-name) end,
-         make-vote(agent, world));
-      send("vote/\n");
-      
-      perceive-vote(read-vote-tally(input-stream), agent, world);
-
-      print(choose-move(agent, world));
-    end while;
-  exception (condition :: <parse-error>)
+        
+        send("vote\\\n");
+        do(method(x) send("vote: %s\n", x.player-name) end,
+           make-vote(agent, world));
+        send("vote/\n");
+        
+        perceive-vote(read-vote-tally(input-stream), agent, world);
+        
+        print(choose-move(agent, world));
+      end while;
+    exception (condition :: <parse-error>)
+    end;
+  exception (condition :: <condition>)
+    dbg("Cop caught error: %=\n", condition);
+    report-condition(condition, *standard-error*);
+    dbg("Exiting program\n");
   end;
 end method drive-agent;
 
