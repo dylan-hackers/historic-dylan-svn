@@ -26,7 +26,8 @@ define module world
   export dbg,
     lock-down,
     maximum-node-id,
-    find-node-by-id;
+    find-node-by-id,
+    *world-skeleton*;
 
   export <world-skeleton>,
     my-name,
