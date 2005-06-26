@@ -40,6 +40,25 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
     cop.probability-map := advance-probability-map(world, cop.probability-map);
   end if;
 
+  if (world.world-smell-distance > 0)
+    let (rank, nodes) = distance(cop.agent-player,
+                                 cop.agent-player.player-location,
+                                 maximum-rank: world.world-smell-distance);
+    dbg("SMELL %s world: %s size: %s loc: %s\n",
+        world.world-smell-distance,
+        world.world-number,
+        nodes.size,
+        cop.agent-player.player-location.node-name);
+    for (e in nodes)
+      dbg("SMELL %s\n", e.node-name);
+    end for;
+    let prob-map = make(<vector>, size: maximum-node-id(), fill: 0);
+    for (node in nodes)
+      prob-map[node.node-id] := 1.0s0 / nodes.size;
+    end for;
+    cop.probability-map := map(\*, prob-map, cop.probability-map);
+  end;
+
   for(a-cop in world.world-cops)
     cop.probability-map[a-cop.player-location.node-id] := 0
   end for;
@@ -50,7 +69,7 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
                      cop.probability-map[x] > cop.probability-map[y]
                  end);
 
-  cop.my-target-node := find-node-by-id(world, sorted-nodes[0]);
+  cop.my-target-node := find-node-by-id(sorted-nodes[0]);
 
   let plan = make(<stretchy-vector>);
 
@@ -59,7 +78,7 @@ define method make-plan(cop :: <predicting-cop>, world :: <world>) => (plan)
     if(cop.probability-map[target] = 0.0s0)
       target := sorted-nodes[0];
     end;
-    let (distance, path) = distance(other-cop, find-node-by-id(world, target));
+    let (distance, path) = distance(other-cop, find-node-by-id(target));
     if(distance > 0)
       add!(plan, generate-plan(world, other-cop, path[0]));
     else

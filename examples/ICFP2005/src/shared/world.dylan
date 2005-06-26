@@ -317,9 +317,9 @@ define method maximum-node-id () => (res :: <integer>)
   next-node-id;
 end method;
 
-define method find-node-by-id (world :: <world>, id :: <integer>)
+define method find-node-by-id (id :: <integer>)
  => (node :: <node>);
-  world.world-skeleton.world-nodes-by-id[id]
+  *world-skeleton*.world-nodes-by-id[id]
 end method find-node-by-id;
 
 define class <parse-error> (<error>)

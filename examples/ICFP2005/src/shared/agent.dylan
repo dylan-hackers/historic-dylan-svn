@@ -118,10 +118,10 @@ define method drive-agent(agent :: <cop>,
       end while;
     exception (condition :: <parse-error>)
     end;
-  exception (condition :: <condition>)
-    dbg("Cop caught error: %=\n", condition);
-    report-condition(condition, *standard-error*);
-    dbg("Exiting program\n");
+  //exception (condition :: <condition>)
+  //  dbg("Cop caught error: %=\n", condition);
+  //  report-condition(condition, *standard-error*);
+  //  dbg("Exiting program\n");
   end;
 end method drive-agent;
 
@@ -246,7 +246,8 @@ define function distance
        = make(<move>,
               target: player.player-location,
               transport: player.player-type),
-     keep-current-transport = #f)
+     keep-current-transport = #f,
+     maximum-rank = #f)
  => (rank, shortest-path)
 
   let distance-to =
@@ -263,6 +264,9 @@ define function distance
           let path-to-start = shortest-path[start-id];
           let next-distance = distance-to[start-id] + 1;
           block (return)
+            if (maximum-rank & (maximum-rank < next-distance))
+              return(23);
+            end if;
             for (next :: <move> in
                    generate-moves(start,
                                   keep-current-transport: keep-current-transport))
@@ -272,7 +276,8 @@ define function distance
                 shortest-path[next-id] := add!(path-to-start, next);
                 push-last(todo-nodes, next);
               end if;
-              if (next-id == target-node.node-id)
+              if ((next-id == target-node.node-id)
+                    & (maximum-rank = #f))
                 return(next-id);
               end if;
             end for;
@@ -284,6 +289,13 @@ define function distance
         end method;
 
   let destination-id = search(source);
+  if (maximum-rank)
+    //we want to get all nodes with distance = maximum-rank
+    values(maximum-rank,
+           map(find-node-by-id, choose(method(x)
+                                           distance-to[x] = maximum-rank;
+                                       end,
+                                       key-sequence(distance-to))));
   /*dbg("LOC: %s TARGET: %s\n", player.player-location.node-name,
       target-node.node-name);
   for (i from 0 below maximum-node-id())
@@ -295,6 +307,8 @@ define function distance
       dbg("\n");
     end if;
   end for;*/
-  let res :: <list> = shortest-path[destination-id];
-  values(distance-to[destination-id], res.reverse);
+  else
+    let res :: <list> = shortest-path[destination-id];
+    values(distance-to[destination-id], res.reverse);
+  end if;
 end;
