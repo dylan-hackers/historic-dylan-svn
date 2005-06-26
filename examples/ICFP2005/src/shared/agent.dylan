@@ -166,13 +166,16 @@ define method generate-moves(move :: <move>,
   if (move.transport = "robber")
     add-to-options(move.target.moves-by-foot, "robber");
   else
+    dbg("generate-moves transport = %s keep = %=\n", move.transport, keep-current-transport);
     if ((move.transport = "cop-foot") |
           (~keep-current-transport & (move.target.node-tag = "hq")))
-      add-to-options(move.target.moves-by-foot, "cop-foot")
+      add-to-options(move.target.moves-by-foot, "cop-foot");
+      dbg("adding foot moves\n");
     end;
     if ((move.transport = "cop-car") | 
           (~keep-current-transport & (move.target.node-tag = "hq")))
-      add-to-options(move.target.moves-by-car, "cop-car")
+      add-to-options(move.target.moves-by-car, "cop-car");
+      dbg("adding car moves\n");
     end;
   end if;
 
@@ -226,7 +229,9 @@ define function distance
      #key source :: <move>
        = make(<move>,
               target: player.player-location,
-              transport: player.player-type)) => (rank, shortest-path)
+              transport: player.player-type),
+     #key keep-current-transport = #f)
+ => (rank, shortest-path)
 
   let distance-to =
     make(<int-vector>, size: maximum-node-id(), fill: maximum-node-id());
@@ -242,7 +247,9 @@ define function distance
           let path-to-start = shortest-path[start-id];
           let next-distance = distance-to[start-id] + 1;
           block (return)
-            for (next :: <move> in generate-moves(start))
+            for (next :: <move> in
+                   generate-moves(start,
+                                  keep-current-transport: keep-current-transport))
               let next-id = next.target.node-id;
               if (distance-to[next-id] > next-distance)
                 distance-to[next-id] := next-distance;
