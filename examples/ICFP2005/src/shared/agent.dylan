@@ -22,9 +22,6 @@ end method make-informs;
 
 define open generic perceive-informs(informs, cop :: <cop>, world :: <world>);
 
-define method perceive-informs(informs, cop :: <cop>, world :: <world>);
-end method perceive-informs;
-
 define open generic make-plan(cop :: <cop>, world :: <world>) => (plan);
 
 define method make-plan(cop :: <cop>, world :: <world>) => (informs);
