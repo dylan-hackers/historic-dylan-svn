@@ -29,7 +29,7 @@ end count-greater-than;
 
 define method choose-move(robber :: <bruce-robber>, world :: <world>)
   *num-evals* := 0;
-  let max-iterations = 5;
+  let max-iterations = 4;
   let node-lookup = world.world-skeleton.world-nodes-by-id;
   let num-nodes = node-lookup.size;
 
