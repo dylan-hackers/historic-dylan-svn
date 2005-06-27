@@ -2,14 +2,21 @@ module: bruce-robber
 
 
 define class <bruce-robber> (<robber>)
-  //slot goal-bank :: <integer> = 0;
+  slot goal-banks :: <stretchy-object-vector> = make(<stretchy-vector>;
 end class <bruce-robber>;
 
-define function next-bank(world :: <world>, n :: <integer>)
-  let banks = world.world-banks;
-  if (n + 1 = banks.size) 0 else n + 1; end
-end;
-
+/*
+define function find-accessable-banks(robber :: <bruce-robber>, world :: <world>)
+ => ();
+  if (robber.goal-banks.empty?)
+    for (bank :: <bank> in world.world-banks)
+      let node = bank.bank-location;
+      let escape-routes = node.moves-by-foot;
+      if (escape-routes.size >= 3)
+        add!(robber.goal-banks, bank.bank-location
+  end;
+end find-accessable-banks;
+*/
 
 define constant *cop-probability* = 100000000;
 
@@ -141,7 +148,8 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
   let shortest-path-len = 2000000001;
   let shortest-path = #();
   for (bank :: <bank> in world.world-banks)
-    if (bank.bank-money > 0)
+    if (bank.bank-money > 0 &
+          bank.bank-location.moves-by-foot.size >= 3)
       let bank-node-id = bank.bank-location.node-id;
       let dist = distances-to[bank-node-id];
       if (dist < shortest-path-len)
