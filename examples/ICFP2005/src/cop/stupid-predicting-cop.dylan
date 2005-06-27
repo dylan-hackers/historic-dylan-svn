@@ -29,7 +29,7 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
 
   for(target in sorted-nodes)
     let remaining-players 
-      = sort(players, 
+      = sort(players,
              test: method(x, y)
                        distance(x, target.find-node-by-id) 
                          < distance(y, target.find-node-by-id)

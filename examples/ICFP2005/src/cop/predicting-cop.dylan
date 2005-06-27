@@ -4,8 +4,7 @@ define abstract class <predicting-cop> (<cop>)
   slot probability-map :: false-or(<vector>) = #f;
   slot last-precise-info :: <integer> = 1;
 
-  // The information below is trying to analyse other people's plans.
-  slot alternative-plan-available :: <boolean> = #f;
+  slot plan-ranking :: <stretchy-vector> = make(<stretchy-vector>);
 
   // Rogue cops are the ones suspiciously feeding wrong info, they are
   // always voted to bottom of list - just below mcruff. This is a list
@@ -206,56 +205,69 @@ define method advance-probability-map(old-map :: <vector>)
   new-map
 end method advance-probability-map;
 
-define method perceive-plans(plans-stupid-dylan, cop :: <predicting-cop>, world :: <world>);
-  for (fmp :: <from-message-plan> in plans-stupid-dylan)
-    if (fmp.sender ~= world.world-skeleton.my-name)
-      // Ignore my plans, I know I am right.
-      if (fmp.plans.size > 0)
-        cop.alternative-plan-available = #t;
-      end if;
-    end if;    
+define method perceive-plans(plan-from-messages,
+                             cop :: <predicting-cop>,
+                             world :: <world>);
+  cop.plan-ranking := make(<stretchy-vector>);
+  for (fmp :: <from-message-plan> in plan-from-messages)
+    //Ignore my plans, I know I am right.
+    unless (fmp.sender = world.world-skeleton.my-name)
+
+      let sum = 0.0s0;
+
+      //look how good the plan is in our probability-map
+      for (ele in fmp.plans)
+        if (ele.plan-world = world.world-number + 1)
+
+          //search for player-object
+          let bot =
+            block(return)
+              for (player in world.world-cops)
+                if (player.player-name = ele.plan-bot)
+                  return(player)
+                end if;
+              end for;
+            end block;
+          
+          if (bot)
+  
+            //compare plan-type with player-type
+            if (bot.player-type = ele.plan-type)
+
+              //generate valid moves
+              let valid-moves = generate-moves(bot);
+
+              let move = make(<move>,
+                              target: ele.plan-location,
+                              transport: ele.plan-type);
+
+              //if it is a valid move, add probability from prob-map to sum
+              block (return)
+                for (mov in valid-moves)
+                  if (mov.target = move.target)
+                    sum := sum + cop.probability-map[move.target.node-id];
+                    return();
+                  end if;
+                end for;
+              end block;
+            end if;
+          end if;
+        end if;
+      end for;
+      //dbg("PERC PLA: %s %s\n", fmp.sender, sum);
+      cop.plan-ranking := add!(cop.plan-ranking, pair(sum, fmp.sender));
+    end unless;
   end for;
 end method perceive-plans;
 
 define method make-vote(cop :: <predicting-cop>, world :: <world>) => (vote);
-  // Vote McGruff down and rogue-cops.
-  let mcgruff-cops = make(<stretchy-vector>);
-  let good-cops = make(<stretchy-vector>);
 
-  for (p :: <player> in world.world-other-cops)
-    let (match, #rest substrings) = regexp-match(p.player-name, "McGruff");
-
-    if (match ~= #f)
-      // dbg("Found a McGruff!\n");
-      mcgruff-cops := add!(mcgruff-cops, p);
-    elseif (~member?(p, cop.rogue-cops))
-      // Not rogue and not McGruff.
-      // dbg("Found good cop!\n");
-      good-cops := add!(good-cops, p);
-    end if;          
-  end for;
-
-  let result = list(world.world-my-player);
-  for (p :: <player> in good-cops)
-    result := concatenate(result, list(p));
-  end for;
-  for (p :: <player> in mcgruff-cops)
-    result := concatenate(result, list(p));
-  end for;
-  for (p :: <player> in cop.rogue-cops)
-    result := concatenate(result, list(p));
-  end for;
-  
-  // concatenate(list(world.world-my-player), world.world-other-cops);
-
-  /*
-  dbg("Voting:\n");
-  for (p :: <player> in result)
-    dbg(" * %s\n", p.player-name);
-  end for;
-  */
-
-  result;
+  let ranking = map(tail, sort!(cop.plan-ranking, test: method(x, y)
+                                                            head(x) > head(y);
+                                                        end));
+  let res = concatenate(list(cop.agent-player.player-name), ranking);
+  //dbg("VOTE RES: %=\n", res);
+  res;
 end method make-vote;
 
 define method perceive-vote(vote, cop :: <predicting-cop>, world :: <world>);

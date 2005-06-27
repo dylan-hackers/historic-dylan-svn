@@ -112,7 +112,7 @@ define method drive-agent(agent :: <cop>,
                        agent, world);
         
         send("vote\\\n");
-        do(method(x) send("vote: %s\n", x.player-name) end,
+        do(method(x) send("vote: %s\n", x) end,
            make-vote(agent, world));
         send("vote/\n");
         
