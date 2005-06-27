@@ -204,7 +204,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
       shortest-path.size, shortest-path-len,
       map(node-id, shortest-path));
 
-  if (shortest-path.empty?) //shortest-path-len > 999999)
+  if (shortest-path.empty?)
     dbg("too hot for me .. let's get outta here...\n");
     
     // find the safest node we can reach
