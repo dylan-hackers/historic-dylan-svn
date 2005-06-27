@@ -384,7 +384,7 @@ define function find-safe-paths
               let cost = 1 +
                 case
                   imminent-danger-level > 0 => 999999;
-                  smell-level > 0 => round/(smell-level, fudge) * 2;
+                  smell-level > 0 => round/(smell-level * 2, fudge) * 2;
                   cop-probability == 0 => 0;
                   //cop-probability >= *cop-probability* => 999999;
                   otherwise => round/(cop-probability, fudge);
