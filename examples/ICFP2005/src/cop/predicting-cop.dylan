@@ -10,17 +10,47 @@ define method consider-evidence (evidence :: <evidence>,
                                  cop :: <predicting-cop>)
   let mymap = make(<vector>, size: maximum-node-id(), fill: 0.0s0);
   mymap[evidence.evidence-location.node-id] := 1.0s0;
-  for (i from evidence.evidence-world + 2
+  for (i from evidence.evidence-world + 1
          below world.world-number by 2)
-    mymap := advance-probability-map(mymap);
-    for(bank in world.world-banks)
-      mymap[bank.bank-location.node-id] := 0.0s0;
-    end for;
-    //XXX set bank-location and cop-location in worlds to 0.0s0
+    mymap := advance-probability-map-in-world(world.world-skeleton.worlds[i], mymap);
   end;
   cop.probability-map := map(\*, mymap, cop.probability-map);
   normalize!(cop.probability-map);
 end method;
+
+define method advance-probability-map-in-world(world :: <world>,
+                                                 mymap :: <vector>)
+ => (new-map :: <vector>)
+  let new-map = advance-probability-map(mymap);
+  for(bank in world.world-banks)
+    new-map[bank.bank-location.node-id] := 0.0s0;
+  end for;
+  for(cop in world.world-cops)
+    new-map[cop.player-location.node-id] := 0.0s0;
+  end for;
+  normalize!(new-map);
+  for(cop-name in world.world-skeleton.cop-names)
+    new-map := map(\*, 
+                   generate-map-from-informs
+                     (map(head, choose(method(x) x.tail = cop-name end, world.world-informs))),
+                   new-map);
+    normalize!(new-map);
+  end for;
+  new-map;
+end method advance-probability-map-in-world;
+
+define method generate-map-from-informs(informs) => (map)
+  let prob-map = make(<vector>,
+                      size: maximum-node-id(),
+                      fill: 0.5s0);
+
+  for (info in informs)
+    prob-map[info.plan-location.node-id]
+      := (info.inform-certainty + 100.0s0) / 200.0s0;
+  end for;
+  normalize!(prob-map);
+  prob-map
+end method generate-map-from-informs;
 
 define method make-informs (cop :: <predicting-cop>, world :: <world>)
  => (object)
@@ -30,45 +60,11 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
     cop.probability-map := make(<vector>, size: maximum-node-id(), fill: 0.0s0);
     cop.probability-map[world.world-robber.player-location.node-id] := 1.0s0;
   else
-    cop.probability-map := advance-probability-map(cop.probability-map);
-    for (bank in world.world-banks)
-      //we'll receive a message if robber is at the bank
-      cop.probability-map[bank.bank-location.node-id] := 0.0s0;
-    end for;
-    for(a-cop in world.world-cops)
-      cop.probability-map[a-cop.player-location.node-id] := 0.0s0;
-    end for;
-    normalize!(cop.probability-map);
-
-    if (world.world-evidences.size > 0)
-      let newest-evidence
-        = first(sort(world.world-evidences,
-                     test: method(x, y)
-                               x.evidence-world < y.evidence-world;
-                           end method));
-      if (newest-evidence.evidence-world > cop.last-precise-info)
-        res := add!(res, generate-inform
-                      (world,
-                       newest-evidence.evidence-location,
-                       100,
-                       number: newest-evidence.evidence-world));
-        dbg("NEWEST EVIDENCE: loc: %s in world: %s current world: %s\n",
-            newest-evidence.evidence-location.node-name,
-            newest-evidence.evidence-world,
-            world.world-number);
-
-        consider-evidence(newest-evidence,
-                          world,
-                          cop);
-      end if;
-    end if;
-
+    let prob-map = make(<vector>, size: maximum-node-id(),
+                        fill: 0.0s0);
     if (world.world-smell-distance > 0)
       let (first-nodes, second-nodes)
         = smelled-nodes-aux(cop.agent-player);
-      let prob-map = make(<vector>, size: maximum-node-id(),
-                          fill: 0.0s0);
-
       local method set-map(nodes, value)
               for (node in nodes)
                 prob-map[node.node-id] := value;
@@ -95,23 +91,43 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
       res := concatenate(res, generate-informs(world,
                                                prob-map,
                                                nodes));
-      cop.probability-map := map(\*, prob-map, cop.probability-map);
-      normalize!(cop.probability-map);
     else
       //set all probabilities in smell-reach to 0 (we know, there's
       //no robber around)
       let nodes = smelled-nodes(cop.agent-player);
       for (node in nodes)
-        cop.probability-map[node.node-id] := 0.0s0;
+        prob-map[node.node-id] := 0.0s0;
       end for;
       res := concatenate(res, generate-informs(world,
-                                               cop.probability-map,
+                                               prob-map,
                                                nodes));
-
-      normalize!(cop.probability-map);
     end;
   end if;
 
+
+  if (world.world-evidences.size > 0)
+    let newest-evidence
+      = first(sort(world.world-evidences,
+                   test: method(x, y)
+                             x.evidence-world > y.evidence-world;
+                         end method));
+    if (newest-evidence.evidence-world > cop.last-precise-info)
+      cop.last-precise-info := newest-evidence.evidence-world;
+      res := add!(res, generate-inform
+                    (world,
+                     newest-evidence.evidence-location,
+                     100,
+                     number: newest-evidence.evidence-world));
+      dbg("NEWEST EVIDENCE: loc: %s in world: %s current world: %s\n",
+          newest-evidence.evidence-location.node-name,
+          newest-evidence.evidence-world,
+          world.world-number);
+      
+      consider-evidence(newest-evidence,
+                        world,
+                        cop);
+    end if;
+  end if;
   res;
 end method;
 
@@ -146,17 +162,10 @@ define method perceive-informs(information, cop :: <predicting-cop>, world :: <w
             
             if (number = world.world-number)
 
-              let prob-map = make(<vector>,
-                                  size: maximum-node-id(),
-                                  fill: 0.5s0);
-
               for (info in infos)
-                prob-map[info.plan-location.node-id]
-                  := (info.inform-certainty + 100.0s0) / 200.0s0;
+                add!(world.world-informs, pair(info, inform.sender));
               end for;
-            
-              cop.probability-map := map(\*, prob-map, cop.probability-map);
-              normalize!(cop.probability-map);
+
               continue();
             end if;
             if (infos[0].inform-certainty = 100)
@@ -178,6 +187,7 @@ define method perceive-informs(information, cop :: <predicting-cop>, world :: <w
           newest-info.plan-world,
           world.world-number);*/
     end if;
+    cop.probability-map := advance-probability-map-in-world(world, cop.probability-map);
   end unless;
 end method perceive-informs;
 
@@ -199,7 +209,7 @@ define method perceive-plans(plans, cop :: <predicting-cop>, world :: <world>);
 end method perceive-plans;
 
 define method make-vote(cop :: <predicting-cop>, world :: <world>) => (vote);
-  next-method(cop, world); // Let the default action take place.
+  next-method()
 end method make-vote;
 
 define method perceive-vote(vote, cop :: <predicting-cop>, world :: <world>);

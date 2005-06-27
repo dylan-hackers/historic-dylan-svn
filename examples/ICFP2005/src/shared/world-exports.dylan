@@ -36,7 +36,8 @@ define module world
     cop-names,
     world-nodes,
     world-nodes-by-id,
-    world-edges;
+    world-edges,
+    worlds;
 
   export <world>,
     world-number,
@@ -48,7 +49,8 @@ define module world
     world-cops,
     world-my-player,
     world-robber,
-    world-skeleton;
+    world-skeleton,
+    world-informs;
 
   export <node>,
     node-name,
@@ -98,6 +100,7 @@ define module world
     read-world-skeleton, read-world;
 
   export generate-moves,
+    generate-moves-in-direction,
     generate-plan,
     generate-inform,
     generate-informs,

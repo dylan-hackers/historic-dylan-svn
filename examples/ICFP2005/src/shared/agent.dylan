@@ -160,6 +160,54 @@ define method print (move :: <move>)
        move.transport);
 end method;
 
+define method generate-moves-in-direction (player :: <player>,
+                                           target-id :: <integer>,
+                                           #key transport-type = #f)
+ => (moves)
+  let moves = if (transport-type)
+                generate-moves(make(<move>,
+                                    target: player.player-location,
+                                    transport: transport-type),
+                               keep-current-transport: #t)
+              else
+                generate-moves(player);
+              end if;
+  /*for (m in moves)
+    dbg("POSSI MOVE: %s %s %s\n",
+        player.player-name,
+        m.target.node-name,
+        m.transport);
+  end for;
+*/
+  let move-distance = make(<vector>, size: moves.size);
+  for (i from 0 below moves.size)
+    move-distance[i] := distance(player,
+                                 find-node-by-id(target-id),
+                                 source: moves[i]);
+  end for;
+  let move-indices
+    = sort(range(size: moves.size),
+           test: method(x,y)
+                     move-distance[x] < move-distance[y]
+                 end);
+  move-indices := choose(method(x)
+                             move-distance[x]
+                             = move-distance[move-indices[0]]
+                         end,
+                         move-indices);
+  moves := map(curry(element, moves), move-indices);
+  
+  /*    for (move in moves)
+          dbg("MOVE: %s %s %s %s\n",
+              other-cop.player-name,
+              move-distance[move-indices[0]],
+              move.target.node-name,
+              move.transport);
+        end for;
+    */
+  moves;
+end method;
+
 define method generate-moves (player :: <player>,
                               #key keep-current-transport = #f)
   => (move :: <simple-object-vector>)
@@ -275,6 +323,8 @@ define method generate-informs (world, probability-map, list) => (informs)
     //dbg("MYINFORM %s %s %s\n", res.head.plan-location.node-name,
     //    res.head.inform-certainty, res.head.plan-world);
   end for;
+  do(curry(add!, world.world-informs),
+     map(rcurry(pair, world.world-my-player.player-name), res));
   res;
 end method;
 

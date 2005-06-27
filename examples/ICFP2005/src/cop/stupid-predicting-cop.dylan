@@ -24,6 +24,15 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
   let players = world.world-cops;
   let sorted-players = make(<stretchy-vector>);
 
+  let transports = #();
+
+  if(world.world-number = 1)
+    let trans = list("cop-foot", "cop-car");
+    for (i from 0 below players.size)
+      transports := add!(transports, trans[modulo(i, trans.size)]);
+    end for;
+  end if;
+
   for(target in sorted-nodes)
     let remaining-players 
       = sort(players, 
@@ -37,31 +46,60 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
       cop.my-target-node := find-node-by-id(sorted-nodes[0]);
     end if;
   end for;
-      
+  
   cop.my-target-node := find-node-by-id(sorted-nodes[0]);
 
   let plan = make(<stretchy-vector>);
 
+  let move-suggestions = make(<vector>);
+
   for (other-cop in sorted-players,
-       target in sorted-nodes)
-    if(cop.probability-map[target] = 0.0s0)
-      target := sorted-nodes[0];
+       my-target in sorted-nodes,
+       i from 0)
+
+    if(cop.probability-map[my-target] = 0.0s0)
+      my-target := sorted-nodes[0];
     end;
-    let (distance, path) = distance(other-cop, find-node-by-id(target));
-    if(distance > 0)
-      add!(plan, generate-plan(world, other-cop, path[0]));
-    else
-      let new-location = random-player-move(other-cop);
-      add!(plan, generate-plan(world, other-cop, new-location));
-    end if;
+
+    let moves = generate-moves-in-direction
+      (other-cop, my-target,
+       transport-type: if (world.world-number = 1)
+                         transports[i];
+                       end);
+
+    moves := sort(moves, test: method(x,y)
+                                   cop.probability-map[x.target.node-id] <
+                                   cop.probability-map[y.target.node-id]
+                               end);
+
+    move-suggestions := add(move-suggestions, moves);
+
   end for;
-/*  for (p in plan)
+  
+  let generated-moves = #();
+  for (move in move-suggestions,
+       player in sorted-players)
+    let target-move = block(return)
+                        for (genmove in move)
+                          for (occupied-moves in generated-moves)
+                            if (genmove ~= occupied-moves)
+                              return(genmove);
+                            end if;
+                          end for;
+                        end for;
+                      end block;
+    unless (target-move)
+      target-move := move[0];
+    end unless;
+    generated-moves := add!(generated-moves, target-move);
+    add!(plan, generate-plan(world,
+                             player,
+                             target-move));
+  end for;
+
+  for (p in plan)
     dbg("WORLD %s PLAN %s %s %s\n", world.world-number, p.plan-bot, p.plan-location.node-name, p.plan-type);
   end;
-  for (i from 0 below maximum-node-id())
-    if (cop.probability-map[i] > 0)
-      dbg("%s %s\n", node-name(find-node-by-id(key-sequence(cop.probability-map)[i])), cop.probability-map[i]);
-    end if;
-  end for;*/
   plan
 end method make-plan;
+

@@ -9,7 +9,11 @@ define method choose-move(robber :: <alterna-robber>, world :: <world>)
 
   let evasive-move = choose-evasive-move(possible-nodes, robber, world);
   let robbing-move = choose-robbing-move(robber, world);
-  evasive-move | robbing-move | choose-random-move(robber, world)
+  if (modulo(world.world-number, 5) = 4)
+    choose-random-move(robber, world)
+  else
+    evasive-move | robbing-move | choose-random-move(robber, world)
+  end if;
 end method choose-move;
 
 define method choose-evasive-move(possible-nodes,

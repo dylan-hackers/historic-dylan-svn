@@ -12,6 +12,7 @@ define class <world-skeleton> (<object>)
   constant slot world-nodes :: <table>, required-init-keyword: nodes:;
   constant slot world-edges :: <vec>, required-init-keyword: edges:;
   constant slot world-nodes-by-id :: <collection>, required-init-keyword: nodes-by-id:;
+  constant slot worlds      :: <collection> = make(<stretchy-vector>);
 end;
 
 define class <world> (<object>)
@@ -25,6 +26,7 @@ define class <world> (<object>)
   constant slot world-my-player      :: <player>, required-init-keyword: my-player:;
   constant slot world-robber         :: false-or(<player>), required-init-keyword: robber:;
   constant slot world-skeleton       :: <world-skeleton>, required-init-keyword: skeleton:;
+  constant slot world-informs        :: <collection> = make(<stretchy-vector>);
 end class;
 
 define class <node> (<object>)
@@ -396,14 +398,17 @@ define method read-world (stream, skeleton)
   re("wor/");
 
 
-  make(<world>,
-       number: world,
-       loot: string-to-integer(loot),
-       banks: banks,
-       evidences: evidences,
-       smell: string-to-integer(smell),
-       players: players,
-       skeleton: skeleton);
+  let res =
+    make(<world>,
+         number: world,
+         loot: string-to-integer(loot),
+         banks: banks,
+         evidences: evidences,
+         smell: string-to-integer(smell),
+         players: players,
+         skeleton: skeleton);
+  skeleton.worlds[string-to-integer(world)] := res;
+  res
 end;
 
 define method read-from-message-inform (stream)
