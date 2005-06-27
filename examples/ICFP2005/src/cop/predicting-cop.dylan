@@ -53,9 +53,17 @@ define method advance-probability-map-in-world(world :: <world>,
 end method advance-probability-map-in-world;
 
 define method generate-map-from-informs(informs) => (map)
+       
+  
   let prob-map = make(<vector>,
                       size: maximum-node-id(),
-                      fill: 0.5s0);
+                      fill:  if(any?(method(x) 
+                                         x.inform-certainty > -100
+                                     end, informs))
+                               0.0s0
+                             else
+                               1.0s0
+                             end if);
 
   for (info in informs)
     prob-map[info.plan-location.node-id]
