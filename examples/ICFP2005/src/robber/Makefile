@@ -1,7 +1,7 @@
 SHARED=../shared/Makefile ../shared/world.lid ../shared/world-exports.dylan \
 ../shared/util.dylan  ../shared/world.dylan ../shared/agent.dylan
 
-robber: robber.lid robber.dylan alterna-robber.dylan random-walk-robber.dylan robber-exports.dylan ${SHARED}
+robber: robber.lid robber.dylan alterna-robber.dylan random-walk-robber.dylan bruce-robber.dylan robber-exports.dylan ${SHARED}
 	(cd ../shared; make)
 	d2c -s -L../shared robber.lid
 

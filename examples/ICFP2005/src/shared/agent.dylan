@@ -58,11 +58,15 @@ define method drive-agent(agent :: <robber>,
     block()
       while (#t)
         let world = read-world(input-stream, skelet);
+
+        /*
         let next-world = advance-world(world);
         for (cop in next-world.world-cops)
           dbg("COP %s LOC %s\n", cop.player-name,
               cop.player-location.node-name);
         end for;
+        */
+
         agent.agent-player := world.world-my-player;
         //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
         let move = choose-move(agent, world);

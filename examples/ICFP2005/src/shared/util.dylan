@@ -78,21 +78,31 @@ define macro lock-down
       ... }
 end lock-down;
 
-define method next-move (player, move) => (player)
+define sealed method next-move (player :: <player>, move :: <move>)
+ => (player :: <player>)
   make(<player>,
        name: player.player-name,
        location: move.target,
+       type: move.transport);
+end method;
+
+define sealed method next-move (player :: <player>, node :: <node>)
+ => (player :: <player>)
+  make(<player>,
+       name: player.player-name,
+       location: node,
        type: player.player-type);
 end method;
 
-define method advance-world (world :: <world>,
-                             #key cops = world.world-cops,
-                             robber = world.world-robber,
-                             banks = world.world-banks,
-                             evidences = world.world-evidences,
-                             smell = world.world-smell-distance)
+define sealed method advance-world
+    (world :: <world>,
+     #key cops = world.world-cops,
+     robber = world.world-robber,
+     banks = world.world-banks,
+     evidences = world.world-evidences,
+     smell = world.world-smell-distance)
  => (world :: <world>)
-  let players = add(cops, robber);
+  //let players = add(cops, robber);
   /*for (p in players)
     dbg("PLAYER: %= ", p);
     if (p)
@@ -116,6 +126,9 @@ define method advance-world (world :: <world>,
        banks: banks,
        evidences: evidences,
        smell: smell,
-       players: players,
+       cops: cops,
+       other-cops: world.world-other-cops,
+       my-player: world.world-my-player,
+       robber: robber,
        skeleton: world.world-skeleton);
 end method;

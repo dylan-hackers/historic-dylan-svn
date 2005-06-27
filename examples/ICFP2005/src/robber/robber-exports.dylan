@@ -23,6 +23,14 @@ define module alterna-robber
   export <alterna-robber>;
 end module;
 
+define module bruce-robber
+  use common-dylan;
+  use simple-random;
+  use world;
+  
+  export <bruce-robber>;
+end module;
+
 define module robber
   use common-dylan;
   use standard-io;
@@ -30,4 +38,5 @@ define module robber
 
   use random-walk-robber;
   use alterna-robber;
+  use bruce-robber;
 end module;
