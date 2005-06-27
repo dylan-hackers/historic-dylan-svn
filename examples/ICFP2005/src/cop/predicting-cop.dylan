@@ -237,8 +237,8 @@ define method perceive-plans(plan-from-messages,
             if (bot.player-type = ele.plan-type)
 
               //generate valid moves
-              let valid-moves = generate-moves(bot,
-                                               keep-current-transport: #t);
+              let valid-moves = generate-moves(bot);
+
 
               let move = make(<move>,
                               target: ele.plan-location,
