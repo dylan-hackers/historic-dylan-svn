@@ -89,10 +89,41 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
                              target-move));
   end for;
 
-/*
-  for (p in plan)
+
+/*  for (p in plan)
     dbg("WORLD %s PLAN %s %s %s\n", world.world-number, p.plan-bot, p.plan-location.node-name, p.plan-type);
   end;*/
   plan
 end method make-plan;
 
+define method perceive-vote (vote,
+                             cop :: <stupid-predicting-cop>,
+                             world :: <world>);
+  if (vote)
+    //we'll just look whether the move is valid and do it, if it is.
+/*    unless (vote = cop.agent-player.player-name)
+      let plan-move =
+        block(return)
+          for (player in world.world-cops)
+            if (player.player-name = vote)
+              for (move in cop.planned-moves)
+                if (head(move) = vote)
+                  return(tail(move))
+                end if;
+              end for;
+            end if
+          end for;
+        end block;
+      if (plan-move)
+        dbg("change away from move %s ", cop.my-target-move.target.node-name);
+        cop.my-target-move := plan-move;
+        dbg("changed move: from %s to %s by %s\n",
+            cop.agent-player.player-location.node-name,
+            plan-move.target.node-name,
+            plan-move.transport);
+
+      end if;
+    end unless;*/
+    //dbg("WINNER: %s\n", vote);
+  end if;
+end method perceive-vote;

@@ -3,6 +3,7 @@ module: predicting-cop
 define abstract class <predicting-cop> (<cop>)
   slot probability-map :: false-or(<vector>) = #f;
   slot last-precise-info :: <integer> = 1;
+  slot planned-moves :: <stretchy-vector> = make(<stretchy-vector>);
 
   slot plan-ranking :: <stretchy-vector> = make(<stretchy-vector>);
 
@@ -235,7 +236,8 @@ define method perceive-plans(plan-from-messages,
             if (bot.player-type = ele.plan-type)
 
               //generate valid moves
-              let valid-moves = generate-moves(bot);
+              let valid-moves = generate-moves(bot,
+                                               keep-current-transport: #t);
 
               let move = make(<move>,
                               target: ele.plan-location,
@@ -244,8 +246,14 @@ define method perceive-plans(plan-from-messages,
               //if it is a valid move, add probability from prob-map to sum
               block (return)
                 for (mov in valid-moves)
-                  if (mov.target = move.target)
+                  if ((mov.target = move.target) &
+                        (mov.transport = move.transport))
                     sum := sum + cop.probability-map[move.target.node-id];
+                    if (bot = cop.agent-player)
+                      
+                      cop.planned-moves := add!(cop.planned-moves,
+                                                pair(fmp.sender, mov));
+                    end if;
                     return();
                   end if;
                 end for;

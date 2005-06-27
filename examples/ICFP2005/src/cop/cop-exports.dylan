@@ -14,7 +14,7 @@ define module predicting-cop
   use simple-random;
   use world;
   
-  export <predicting-cop>, probability-map;
+  export <predicting-cop>, probability-map, planned-moves;
 end module;
 
 
