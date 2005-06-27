@@ -11,3 +11,9 @@ run: robber
 clean:
 	-rm -f *.o *.s *.a *.c *.mak *~ robber
 	-rm -rf .libs
+
+update:
+	cd ../.. && svn update && cd -
+
+commit:
+	cd ../.. && svn commit -m "" && cd -
