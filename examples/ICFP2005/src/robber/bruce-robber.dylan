@@ -5,8 +5,8 @@ define class <bruce-robber> (<robber>)
   slot goal-bank :: <integer> = 0;
 end class <bruce-robber>;
 
-define function next-bank(n)
-  let banks = *world-skeleton*.world-banks;
+define function next-bank(world :: <world>, n :: <integer>)
+  let banks = world.world-banks;
   if (n + 1 = banks.size) 0 else n + 1; end
 end;
 
@@ -46,7 +46,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
     end;
   end for;
 
-  for (i from 1 to 3)
+  for (i from 1 to 5)
     let new-cop-foot-prob = make(<int-vector>, size: num-nodes, fill: 0);
     let new-cop-car-prob = make(<int-vector>, size: num-nodes, fill: 0);
 
@@ -119,14 +119,27 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
     cop-total-prob[i] := cop-foot-prob[i] + cop-car-prob[i];
   end;
 
+  let goal = world.world-banks[robber.goal-bank].bank-location;
 
+  let (distance, safest-path) =
+    find-safe-path(cop-total-prob,
+                   world.world-robber.player-location,
+                   goal);
+  
+  let next-node = safest-path.head;
+  if (next-node == goal)
+    dbg("hey!!! we're about to rob a bank!!\n");
+    robber.goal-bank := next-bank(world, robber.goal-bank);
+  end;
+
+  make(<move>, target: next-node, transport: "robber");
 
 ////////////////////////////////// temp move chosing
-  let fw-world = future-world-from-world(world);
-  let (score, move) = robber-move(fw-world, 1);
+//  let fw-world = future-world-from-world(world);
+//  let (score, move) = robber-move(fw-world, 1);
 
-  dbg("choosing move with score %d\n", score);
-  make(<move>, target: move, transport: "robber");
+//  dbg("choosing move with score %d\n", score);
+//  make(<move>, target: move, transport: "robber");
 end method choose-move;
 
 
@@ -288,3 +301,61 @@ define method evaluate(world :: <future-world>)
   end;
 end evaluate;
 
+////////////////////////////////////////////////////////////////////
+// my find-path thingie
+
+define function find-safe-path
+    (cop-density :: <int-vector>,
+     from-node :: <node>,
+     to-node :: <node>)
+ => (distance :: <integer>, safest-path :: <list>)
+
+  let distance-to =
+    make(<int-vector>, size: maximum-node-id(), fill: maximum-node-id());
+  distance-to[from-node.node-id] := 0;
+  let shortest-path :: <simple-object-vector> =
+    make(<vector>, size: maximum-node-id(), fill: #());
+
+  let todo-nodes = make(<deque>);
+  let fudge :: <integer> = truncate/(*cop-probability*, 10);
+
+  local method search (start :: <node>) => ();
+          let start-id = start.node-id;
+          let path-to-start = shortest-path[start-id];
+          let distance-to-start = distance-to[start-id];  // increment distance is now variable
+          block (return)
+            let moves :: <stretchy-object-vector> = start.moves-by-foot;
+            for (next :: <node> in moves)
+              let next-id = next.node-id;
+              
+              let cop-probability = cop-density[next-id];
+              let cost = 1 +
+                case
+                  cop-probability == 0 => 0;
+                  cop-probability >= *cop-probability* => 999;
+                  otherwise => round/(cop-probability, fudge);
+                end;
+
+              if (distance-to[next-id] > distance-to-start)
+                distance-to[next-id] := distance-to-start + cost;
+                shortest-path[next-id] := add!(path-to-start, next);
+                push-last(todo-nodes, next);
+              end if;
+              //if ((next-id == to-node.node-id))
+                // caution -- didn't calculate distance to all nodes!
+              //  return(next-id);
+              //end if;
+            end for;
+            if (todo-nodes.size = 0)
+              return();
+              //error("Graph not connected");
+            end if;
+            search(todo-nodes.pop);
+          end;
+        end method;
+
+  search(from-node);
+
+  let res :: <list> = shortest-path[to-node.node-id];
+  values(distance-to[to-node.node-id], res.reverse);
+end;
