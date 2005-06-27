@@ -63,7 +63,7 @@ end count-greater-than;
 define method choose-move(robber :: <bruce-robber>, world :: <world>)
   find-accessable-banks(robber, world);
   *num-evals* := 0;
-  let max-iterations = 7;
+  let max-iterations = 4;
   let node-lookup = world.world-skeleton.world-nodes-by-id;
   let num-nodes = node-lookup.size;
 
@@ -199,13 +199,13 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
   end for;
 
   let shortest-path = shortest-path.reverse;
-  let next-node = if (shortest-path.empty?) my-location else shortest-path.head end;
+  let next-node = shortest-path.head;
 
   dbg("safest path (len %d, score %d) = %=\n",
       shortest-path.size, shortest-path-len,
       map(node-id, shortest-path));
 
-  if (#f) //shortest-path-len > 999999)
+  if (shortest-path.empty?) //shortest-path-len > 999999)
     dbg("too hot for me .. let's get outta here...\n");
     
     // find the safest node we can reach
@@ -423,7 +423,7 @@ define function find-safe-paths
  => (distance-to :: <int-vector>, shortest-paths :: <simple-object-vector>)
 
   let immediate-danger :: <int-vector> = danger[0];
-  let smell-range :: <int-vector> = danger[1];
+  let smell-range :: <int-vector> = danger[2];
   let cop-density :: <int-vector> = danger[danger.size - 1];
 
   let distance-to =
