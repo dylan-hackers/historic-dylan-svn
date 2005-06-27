@@ -9,7 +9,7 @@ define method choose-move(robber :: <alterna-robber>, world :: <world>)
 
   let evasive-move = choose-evasive-move(possible-nodes, robber, world);
   let robbing-move = choose-robbing-move(robber, world);
-  if (modulo(world.world-number, 23) = 4)
+  if (modulo(world.world-number, 10) = 7)
     choose-random-move(robber, world)
   else
     evasive-move | robbing-move | choose-random-move(robber, world)
@@ -23,7 +23,7 @@ define method choose-evasive-move(possible-nodes,
           reduce1(min, map(rcurry(distance, target-node), world.world-cops))
         end;
 
-  if(evasive-score(robber.agent-player.player-location) < 4)
+  if(evasive-score(robber.agent-player.player-location) < 5)
     let sorted-nodes = sort(possible-nodes, 
                             test: method(x, y)
                                       x.evasive-score > y.evasive-score
