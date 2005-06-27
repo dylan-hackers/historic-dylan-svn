@@ -16,6 +16,10 @@ end class <predicting-cop>;
 define method consider-evidence (evidence :: <evidence>, 
                                  world :: <world>,
                                  cop :: <predicting-cop>)
+  dbg("NEW EVIDENCE: loc: %s in world: %s current world: %s\n",
+      evidence.evidence-location.node-name,
+      evidence.evidence-world,
+      world.world-number);
   let mymap = make(<vector>, size: maximum-node-id(), fill: 0.0s0);
   mymap[evidence.evidence-location.node-id] := 1.0s0;
   for (i from evidence.evidence-world + 1
@@ -94,9 +98,9 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
           world.world-number,
           nodes.size,
           cop.agent-player.player-location.node-name);
-      for (e in nodes)
+      /*for (e in nodes)
         dbg("SMELL %s\n", e.node-name);
-      end for;
+      end for;*/
       res := concatenate(res, generate-informs(world,
                                                prob-map,
                                                nodes));
@@ -127,14 +131,8 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
                      newest-evidence.evidence-location,
                      100,
                      number: newest-evidence.evidence-world));
-      dbg("NEWEST EVIDENCE: loc: %s in world: %s current world: %s\n",
-          newest-evidence.evidence-location.node-name,
-          newest-evidence.evidence-world,
-          world.world-number);
-      
-      consider-evidence(newest-evidence,
-                        world,
-                        cop);
+
+      consider-evidence(newest-evidence, world, cop);
     end if;
   end if;
   res;
@@ -189,10 +187,6 @@ define method perceive-informs(information, cop :: <predicting-cop>, world :: <w
                              world: newest-info.plan-world),
                         world,
                         cop);
-     /* dbg("NEWEST EVIDENCE FROM SOMEONE: loc: %s in world: %s current world: %s\n",
-          newest-info.plan-location.node-name,
-          newest-info.plan-world,
-          world.world-number);*/
     end if;
     cop.probability-map := advance-probability-map-in-world(world, cop.probability-map);
   end unless;

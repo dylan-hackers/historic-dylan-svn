@@ -1,17 +1,11 @@
 module: stupid-predicting-cop
 
 define class <stupid-predicting-cop> (<predicting-cop>)
-  slot my-target-node :: <node>;
+  slot my-target-move :: <move>;
 end class;
 
 define method choose-move(cop :: <stupid-predicting-cop>, world :: <world>)
-  let (distance, path) = distance(cop.agent-player,
-                                  cop.my-target-node);
-  if (distance = 0)
-    random-player-move(cop.agent-player);
-  else
-    path[0];
-  end if;
+  cop.my-target-move;
 end method choose-move;
 
 define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (plan)
@@ -42,13 +36,8 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
                    end method);
     add!(sorted-players, remaining-players[0]);
     players := remove!(players, remaining-players[0]);
-    if(remaining-players[0] = cop.agent-player)
-      cop.my-target-node := find-node-by-id(sorted-nodes[0]);
-    end if;
   end for;
   
-  cop.my-target-node := find-node-by-id(sorted-nodes[0]);
-
   let plan = make(<stretchy-vector>);
 
   let move-suggestions = make(<vector>);
@@ -68,7 +57,7 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
                        end);
 
     moves := sort(moves, test: method(x,y)
-                                   cop.probability-map[x.target.node-id] <
+                                   cop.probability-map[x.target.node-id] >
                                    cop.probability-map[y.target.node-id]
                                end);
 
@@ -89,17 +78,21 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
                         end for;
                       end block;
     unless (target-move)
-      target-move := move[0];
+      target-move := move[random(move.size)];
     end unless;
+    if(player = cop.agent-player)
+      cop.my-target-move := target-move;
+    end if;
     generated-moves := add!(generated-moves, target-move);
     add!(plan, generate-plan(world,
                              player,
                              target-move));
   end for;
 
+/*
   for (p in plan)
     dbg("WORLD %s PLAN %s %s %s\n", world.world-number, p.plan-bot, p.plan-location.node-name, p.plan-type);
-  end;
+  end;*/
   plan
 end method make-plan;
 
