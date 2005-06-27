@@ -367,7 +367,7 @@ define function find-safe-paths
     make(<vector>, size: maximum-node-id(), fill: #());
 
   let todo-nodes = make(<deque>);
-  let fudge :: <integer> = truncate/(*cop-probability*, 10);
+  let fudge :: <integer> = truncate/(*cop-probability*, 100);
 
   local method search (start :: <node>) => ();
           let start-id = start.node-id;
