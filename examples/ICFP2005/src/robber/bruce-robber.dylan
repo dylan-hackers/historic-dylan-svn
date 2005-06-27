@@ -2,21 +2,47 @@ module: bruce-robber
 
 
 define class <bruce-robber> (<robber>)
-  //slot goal-banks :: <stretchy-object-vector> = make(<stretchy-vector>);
+  slot goal-banks :: <stretchy-object-vector> = make(<stretchy-vector>);
 end class <bruce-robber>;
 
-/*
+
 define function find-accessable-banks(robber :: <bruce-robber>, world :: <world>)
  => ();
   if (robber.goal-banks.empty?)
+    let nodes-by-id = world.world-skeleton.world-nodes-by-id;
+
     for (bank :: <bank> in world.world-banks)
       let node = bank.bank-location;
+      let reachable = make(<vector>, size: nodes-by-id.size);
       let escape-routes = node.moves-by-foot;
-      if (escape-routes.size >= 3)
-        add!(robber.goal-banks, bank.bank-location
+      for (node :: <node> in escape-routes)
+        reachable[node.node-id] := #t;
+      end;
+      let reachable-next = make(<vector>, size: nodes-by-id.size);
+      for (i from 0 below reachable.size)
+        if (reachable[i])
+          for (node :: <node> in nodes-by-id[i].moves-by-foot)
+            reachable-next[node.node-id] := #t;
+          end;
+          reachable-next[i] := #t;
+        end;
+      end;
+      
+      let numReachable = 0;
+      for (ok in reachable-next)
+        if (ok)
+          numReachable := numReachable + 1;
+        end
+      end;
+
+      dbg("bank at %d numreachable in two moves is %d\n", node.node-id, numReachable);
+      if (numReachable >= 10)
+        add!(robber.goal-banks, bank.bank-location);
+      end;
+    end;
   end;
 end find-accessable-banks;
-*/
+
 
 define constant *cop-probability* = 100000000;
 
@@ -35,8 +61,9 @@ end count-greater-than;
 
 
 define method choose-move(robber :: <bruce-robber>, world :: <world>)
+  find-accessable-banks(robber, world);
   *num-evals* := 0;
-  let max-iterations = 6;
+  let max-iterations = 7;
   let node-lookup = world.world-skeleton.world-nodes-by-id;
   let num-nodes = node-lookup.size;
 
@@ -144,32 +171,71 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
   */
 
   //let goal = world.world-banks[robber.goal-bank].bank-location;
+  
+  let my-location = world.world-robber.player-location;
 
   let (distances-to, safest-paths) =
     find-safe-paths(cop-total-prob,
-                    world.world-robber.player-location);
+                    my-location);
   
   let shortest-path-len = 2000000001;
   let shortest-path = #();
-  for (bank :: <bank> in world.world-banks)
+  let smallest-diff = 1000000;
+  for (bank :: <bank> in world.world-banks)    
     if (bank.bank-money > 0 &
-          bank.bank-location.moves-by-foot.size >= 3)
+          member?(bank.bank-location, robber.goal-banks))
+          //cop-total-prob[0][bank.bank-location.node-id] == 0)
       let bank-node-id = bank.bank-location.node-id;
+      let path = safest-paths[bank-node-id];
       let dist = distances-to[bank-node-id];
+      let diff = dist + dist - path.size;
       if (dist < shortest-path-len)
+      //if (diff < smallest-diff)
+        smallest-diff := diff;
         shortest-path-len := dist;
-        shortest-path := safest-paths[bank-node-id];
+        shortest-path := path;
       end;
     end;
   end for;
 
   let shortest-path = shortest-path.reverse;
+  let next-node = if (shortest-path.empty?) my-location else shortest-path.head end;
 
   dbg("safest path (len %d, score %d) = %=\n",
       shortest-path.size, shortest-path-len,
       map(node-id, shortest-path));
 
-  let next-node = shortest-path.head;
+  if (#f) //shortest-path-len > 999999)
+    dbg("too hot for me .. let's get outta here...\n");
+    
+    // find the safest node we can reach
+    let danger :: <int-vector> = cop-total-prob[0];
+    let safest-place = my-location;
+    let best-safety = danger[safest-place.node-id];
+    for (node :: <node> in my-location.moves-by-foot)
+      block (next)
+        let safety = danger[node.node-id];
+        dbg("safety at %d = %d\n", node.node-id, safety);
+        if (safety <= best-safety)
+          // make sure it's not a bank
+          for (bank :: <bank> in world.world-banks)
+            let bank-node = bank.bank-location;    
+            if (node == bank-node)
+              dbg("dont rob that bank!!\n");
+              next();
+            end;
+          end;
+
+          best-safety := safety;
+          safest-place := node;
+        end if;
+      end block;
+    end for;
+    
+    dbg("instead we'll go to %d with safety %d\n", safest-place.node-id, best-safety);
+    next-node := safest-place;
+  end;
+
 
   for (bank :: <bank> in world.world-banks)
     let bank-node = bank.bank-location;    
@@ -384,7 +450,7 @@ define function find-safe-paths
               let cost = 1 +
                 case
                   imminent-danger-level > 0 => 999999;
-                  smell-level > 0 => round/(smell-level * 2, fudge) * 2;
+                  smell-level > 0 => 5;
                   cop-probability == 0 => 0;
                   //cop-probability >= *cop-probability* => 999999;
                   otherwise => round/(cop-probability, fudge);
