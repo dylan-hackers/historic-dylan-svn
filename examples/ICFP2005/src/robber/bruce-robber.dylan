@@ -2,7 +2,7 @@ module: bruce-robber
 
 
 define class <bruce-robber> (<robber>)
-  slot goal-bank :: <integer> = 0;
+  //slot goal-bank :: <integer> = 0;
 end class <bruce-robber>;
 
 define function next-bank(world :: <world>, n :: <integer>)
@@ -29,7 +29,7 @@ end count-greater-than;
 
 define method choose-move(robber :: <bruce-robber>, world :: <world>)
   *num-evals* := 0;
-  let max-iterations = 4;
+  let max-iterations = 6;
   let node-lookup = world.world-skeleton.world-nodes-by-id;
   let num-nodes = node-lookup.size;
 
@@ -132,21 +132,39 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
   end;
   dbg("\n\n");
 
-  let goal = world.world-banks[robber.goal-bank].bank-location;
+  //let goal = world.world-banks[robber.goal-bank].bank-location;
 
-  let (distance, safest-path) =
-    find-safe-path(cop-total-prob[0],
-                   cop-total-prob[max-iterations - 1],
-                   world.world-robber.player-location,
-                   goal);
+  let (distances-to, safest-paths) =
+    find-safe-paths(cop-total-prob,
+                    world.world-robber.player-location);
   
-  dbg("safest path (%d) = %=\n", distance, safest-path);
+  let shortest-path-len = 2000000001;
+  let shortest-path = #();
+  for (bank :: <bank> in world.world-banks)
+    if (bank.bank-money > 0)
+      let bank-node-id = bank.bank-location.node-id;
+      let dist = distances-to[bank-node-id];
+      if (dist < shortest-path-len)
+        shortest-path-len := dist;
+        shortest-path := safest-paths[bank-node-id];
+      end;
+    end;
+  end for;
 
-  let next-node = safest-path.head;
+  let shortest-path = shortest-path.reverse;
 
-  if (next-node == goal)
-    dbg("hey!!! we're about to rob a bank!!\n");
-    robber.goal-bank := next-bank(world, robber.goal-bank);
+  dbg("safest path (len %d, score %d) = %=\n",
+      shortest-path.size, shortest-path-len,
+      map(node-id, shortest-path));
+
+  let next-node = shortest-path.head;
+
+  for (bank :: <bank> in world.world-banks)
+    let bank-node = bank.bank-location;    
+    if (next-node == bank-node)
+      dbg("hey!!! we're about to rob a bank!!\n");
+      //robber.goal-bank := next-bank(world, robber.goal-bank);
+    end;
   end;
 
   make(<move>, target: next-node, transport: "robber");
@@ -321,12 +339,13 @@ end evaluate;
 ////////////////////////////////////////////////////////////////////
 // my find-path thingie
 
-define function find-safe-path
-    (immediate-danger :: <int-vector>,
-     cop-density :: <int-vector>,
-     from-node :: <node>,
-     to-node :: <node>)
- => (distance :: <integer>, safest-path :: <list>)
+define function find-safe-paths
+    (danger :: <stretchy-object-vector>,
+     from-node :: <node>)
+ => (distance-to :: <int-vector>, shortest-paths :: <simple-object-vector>)
+
+  let immediate-danger :: <int-vector> = danger[0];
+  let cop-density :: <int-vector> = danger[danger.size - 1];
 
   let distance-to =
     make(<int-vector>, size: maximum-node-id(), fill: 2000000000);
@@ -335,7 +354,7 @@ define function find-safe-path
     make(<vector>, size: maximum-node-id(), fill: #());
 
   let todo-nodes = make(<deque>);
-  let fudge :: <integer> = truncate/(*cop-probability*, 100000);
+  let fudge :: <integer> = truncate/(*cop-probability*, 10);
 
   local method search (start :: <node>) => ();
           let start-id = start.node-id;
@@ -361,10 +380,6 @@ define function find-safe-path
                 shortest-path[next-id] := add!(path-to-start, next);
                 push-last(todo-nodes, next);
               end if;
-              //if ((next-id == to-node.node-id))
-                // caution -- didn't calculate distance to all nodes!
-              //  return(next-id);
-              //end if;
             end for;
             if (todo-nodes.size = 0)
               return();
@@ -375,7 +390,5 @@ define function find-safe-path
         end method;
 
   search(from-node);
-
-  let res :: <list> = shortest-path[to-node.node-id];
-  values(distance-to[to-node.node-id], res.reverse);
+  values(distance-to, shortest-path);
 end;
