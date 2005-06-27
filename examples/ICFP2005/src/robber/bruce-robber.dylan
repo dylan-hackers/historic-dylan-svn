@@ -122,13 +122,16 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
 
     let (foot-places, foot-prob) = count-greater-than(cop-foot-prob, 0);
     let (car-places, car-prob) = count-greater-than(cop-car-prob, 0);
+    /*
     dbg("round %d, places cops could be, foot: %d (%d), car: %d (%d)\n",
         i,
         foot-places, foot-prob,
         car-places, car-prob);
+    */
 
   end for; // iterating cop probabilities
   
+  /*
   dbg("\n\nby foot probability function: ");
   for (i in cop-foot-prob)
     dbg("%d  ", i);
@@ -138,6 +141,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
     dbg("%d  ", i);
   end;
   dbg("\n\n");
+  */
 
   //let goal = world.world-banks[robber.goal-bank].bank-location;
 
@@ -353,6 +357,7 @@ define function find-safe-paths
  => (distance-to :: <int-vector>, shortest-paths :: <simple-object-vector>)
 
   let immediate-danger :: <int-vector> = danger[0];
+  let smell-range :: <int-vector> = danger[1];
   let cop-density :: <int-vector> = danger[danger.size - 1];
 
   let distance-to =
@@ -374,10 +379,12 @@ define function find-safe-paths
               let next-id = next.node-id;
               
               let imminent-danger-level = immediate-danger[next-id];
+              let smell-level = smell-range[next-id];
               let cop-probability = cop-density[next-id];
               let cost = 1 +
                 case
                   imminent-danger-level > 0 => 999999;
+                  smell-level > 0 => round/(smell-level, fudge) * 2;
                   cop-probability == 0 => 0;
                   //cop-probability >= *cop-probability* => 999999;
                   otherwise => round/(cop-probability, fudge);
