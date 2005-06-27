@@ -29,12 +29,24 @@ end count-greater-than;
 
 define method choose-move(robber :: <bruce-robber>, world :: <world>)
   *num-evals* := 0;
+  let max-iterations = 5;
   let node-lookup = world.world-skeleton.world-nodes-by-id;
   let num-nodes = node-lookup.size;
 
   let cop-foot-prob = make(<int-vector>, size: num-nodes, fill: 0);
   let cop-car-prob = make(<int-vector>, size: num-nodes, fill: 0);
-  let cop-total-prob = make(<int-vector>, size: num-nodes, fill: 0);
+
+  let cop-total-prob = make(<stretchy-vector>);
+
+  local method save-cop-probabilities(cop-foot-prob :: <int-vector>,
+                                      cop-car-prob :: <int-vector>)
+          let totals = make(<int-vector>, size: num-nodes, fill: 0);
+          for (i from 0 below num-nodes)
+            totals[i] := cop-foot-prob[i] + cop-car-prob[i];
+          end;
+          add!(cop-total-prob, totals);
+        end method save-cop-probabilities;
+
 
   // set up tables, knowing where cops are right now
   for (cop :: <player> in world.world-cops)
@@ -46,7 +58,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
     end;
   end for;
 
-  for (i from 1 to 5)
+  for (i from 1 to max-iterations)
     let new-cop-foot-prob = make(<int-vector>, size: num-nodes, fill: 0);
     let new-cop-car-prob = make(<int-vector>, size: num-nodes, fill: 0);
 
@@ -66,8 +78,9 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
               let prob = probs[i];
               if (prob > 0)
                 let node = node-lookup[i];
+                let curr-node-id = node.node-id;
                 if (node == hq-node)
-                  let prob = truncate/(prob, node.moves-by-foot.size + node.moves-by-car.size);
+                  let prob = truncate/(prob, node.moves-by-foot.size + node.moves-by-car.size + 2);
                   let foot-moves :: <stretchy-object-vector> = node.moves-by-foot;
                   let car-moves :: <stretchy-object-vector> = node.moves-by-car;
                   for (move :: <node> in foot-moves)
@@ -78,13 +91,16 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
                     let target-id = move.node-id;
                     new-cop-car-prob[target-id] := new-cop-car-prob[target-id] + prob;
                   end;
+                  new-cop-foot-prob[curr-node-id] := new-cop-foot-prob[curr-node-id] + prob;
+                  new-cop-car-prob[curr-node-id] := new-cop-car-prob[curr-node-id] + prob;
                 else
                   let moves :: <stretchy-object-vector> = node.move-selector;
-                  let prob = truncate/(prob, moves.size);
+                  let prob = truncate/(prob, moves.size + 1);
                   for (move :: <node> in moves)
                     let target-id = move.node-id;
                     new-probs[target-id] := new-probs[target-id] + prob;
                   end for;
+                  new-probs[curr-node-id] := new-probs[curr-node-id] + prob;
                 end if; //hq
               end if; //prob nonzero
             end for; // all nodes
@@ -93,6 +109,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
     spread-probs(cop-foot-prob, new-cop-foot-prob, moves-by-foot);
     spread-probs(cop-car-prob, new-cop-car-prob, moves-by-car);
 
+    save-cop-probabilities(new-cop-foot-prob, new-cop-car-prob);
     cop-foot-prob := new-cop-foot-prob;
     cop-car-prob := new-cop-car-prob;
 
@@ -115,18 +132,18 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
   end;
   dbg("\n\n");
 
-  for (i from 0 below num-nodes)
-    cop-total-prob[i] := cop-foot-prob[i] + cop-car-prob[i];
-  end;
-
   let goal = world.world-banks[robber.goal-bank].bank-location;
 
   let (distance, safest-path) =
-    find-safe-path(cop-total-prob,
+    find-safe-path(cop-total-prob[0],
+                   cop-total-prob[max-iterations - 1],
                    world.world-robber.player-location,
                    goal);
   
+  dbg("safest path (%d) = %=\n", distance, safest-path);
+
   let next-node = safest-path.head;
+
   if (next-node == goal)
     dbg("hey!!! we're about to rob a bank!!\n");
     robber.goal-bank := next-bank(world, robber.goal-bank);
@@ -305,19 +322,20 @@ end evaluate;
 // my find-path thingie
 
 define function find-safe-path
-    (cop-density :: <int-vector>,
+    (immediate-danger :: <int-vector>,
+     cop-density :: <int-vector>,
      from-node :: <node>,
      to-node :: <node>)
  => (distance :: <integer>, safest-path :: <list>)
 
   let distance-to =
-    make(<int-vector>, size: maximum-node-id(), fill: maximum-node-id());
+    make(<int-vector>, size: maximum-node-id(), fill: 2000000000);
   distance-to[from-node.node-id] := 0;
   let shortest-path :: <simple-object-vector> =
     make(<vector>, size: maximum-node-id(), fill: #());
 
   let todo-nodes = make(<deque>);
-  let fudge :: <integer> = truncate/(*cop-probability*, 10);
+  let fudge :: <integer> = truncate/(*cop-probability*, 100000);
 
   local method search (start :: <node>) => ();
           let start-id = start.node-id;
@@ -328,11 +346,13 @@ define function find-safe-path
             for (next :: <node> in moves)
               let next-id = next.node-id;
               
+              let imminent-danger-level = immediate-danger[next-id];
               let cop-probability = cop-density[next-id];
               let cost = 1 +
                 case
+                  imminent-danger-level > 0 => 999999;
                   cop-probability == 0 => 0;
-                  cop-probability >= *cop-probability* => 999;
+                  //cop-probability >= *cop-probability* => 999999;
                   otherwise => round/(cop-probability, fudge);
                 end;
 
