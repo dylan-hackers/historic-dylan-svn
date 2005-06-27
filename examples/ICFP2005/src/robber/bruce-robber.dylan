@@ -2,7 +2,7 @@ module: bruce-robber
 
 
 define class <bruce-robber> (<robber>)
-  slot goal-banks :: <stretchy-object-vector> = make(<stretchy-vector>;
+  //slot goal-banks :: <stretchy-object-vector> = make(<stretchy-vector>);
 end class <bruce-robber>;
 
 /*
