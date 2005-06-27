@@ -62,67 +62,38 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
                                end);
 
     move-suggestions := add(move-suggestions, moves);
-    for (elt in moves)
-      dbg("POSMOVE %s to %s by %s\n",
-          other-cop.player-name,
-          elt.target.node-name,
-          elt.transport);
-    end for;
 
   end for;
   
-  let indices
-    = sort(range(size: move-suggestions.size),
-           test: method(x, y)
-                     move-suggestions[x].size < move-suggestions[y].size
-                 end);
-  dbg("indices: %s\n", indices);
-
-
-  let occupied-moves = #();
-
-  for (index in indices)
-    let target-move
-      = if (move-suggestions[index].size > 1)
-          block(return)
-            for (possible-move in move-suggestions[index])
-              for (occupied-move in occupied-moves)
-                if ((possible-move.target ~= occupied-move.target)
-                      & (possible-move.transport ~= occupied-move.transport))
-                  return(possible-move);
-                end if;
-              end for;
-            end for;
-          end block;
-        elseif (move-suggestions[index].size = 1)
-          move-suggestions[index][0];
-        end if;
-    
+  let generated-moves = #();
+  for (move in move-suggestions,
+       player in sorted-players)
+    let target-move = block(return)
+                        for (genmove in move)
+                          for (occupied-moves in generated-moves)
+                            if ((genmove.target ~= occupied-moves.target)
+                                  & (genmove.transport ~= occupied-moves.transport))
+                              return(genmove);
+                            end if;
+                          end for;
+                        end for;
+                      end block;
     unless (target-move)
-      dbg("everything is occupied :(  %s\n", sorted-players[index].player-name);
-      target-move
-        := move-suggestions[index][random(move-suggestions[index].size)];
-      //do a random move if there are more thank 2 other cops running
-      //to the new location (not really sure if this helps)
-/*      if (size(choose(method(x)
-                          target-move.target = x.target
-                      end, occupied-moves)) > 2)
-        dbg("Too much traffic, doing a random move\n");
-        target-move := random-player-move(sorted-players[index]);
-      end if;*/
+      target-move := move[random(move.size)];
     end unless;
-    if(sorted-players[index] = cop.agent-player)
+    if(player = cop.agent-player)
       cop.my-target-move := target-move;
     end if;
-    occupied-moves := add!(occupied-moves, target-move);
+    generated-moves := add!(generated-moves, target-move);
     add!(plan, generate-plan(world,
-                             sorted-players[index],
+                             player,
                              target-move));
   end for;
 
-  for (p in plan)
+
+/*  for (p in plan)
     dbg("WORLD %s PLAN %s %s %s\n", world.world-number, p.plan-bot, p.plan-location.node-name, p.plan-type);
-  end;
+  end;*/
   plan
 end method make-plan;
 
