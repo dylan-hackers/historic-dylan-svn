@@ -28,6 +28,7 @@ define module world
     lock-down,
     maximum-node-id,
     find-node-by-id,
+    regexp-match,
     *world-skeleton*;
 
   export <world-skeleton>,

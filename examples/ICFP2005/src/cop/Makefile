@@ -14,8 +14,9 @@ ruby:
 update:
 	cd ../.. && svn update && cd -
 
+M=""
 commit:
-	cd ../.. && svn commit -m "" && cd -
+	cd ../.. && svn commit -m "${M}" && cd -
 
 clean:
 	-rm -f *.o *.s *.a *.c *.mak *~ cop

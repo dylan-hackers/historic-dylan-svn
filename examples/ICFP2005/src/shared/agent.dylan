@@ -35,9 +35,12 @@ end method perceive-plans;
 
 define open generic make-vote(cop :: <cop>, world :: <world>) => (vote);
 
+/*
+// Change the one in predicting-cop.dylan.
 define method make-vote(cop :: <cop>, world :: <world>) => (vote);
   concatenate(list(world.world-my-player), world.world-other-cops);
 end method make-vote;
+*/
 
 define open generic perceive-vote(vote, cop :: <cop>, world :: <world>);
 

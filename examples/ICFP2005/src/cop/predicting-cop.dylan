@@ -3,6 +3,14 @@ module: predicting-cop
 define abstract class <predicting-cop> (<cop>)
   slot probability-map :: false-or(<vector>) = #f;
   slot last-precise-info :: <integer> = 1;
+
+  // The information below is trying to analyse other people's plans.
+  slot alternative-plan-available :: <boolean> = #f;
+
+  // Rogue cops are the ones suspiciously feeding wrong info, they are
+  // always voted to bottom of list - just below mcruff. This is a list
+  // of <player>.
+  slot rogue-cops :: <stretchy-vector> = make(<stretchy-vector>);
 end class <predicting-cop>;
 
 define method consider-evidence (evidence :: <evidence>, 
@@ -205,11 +213,56 @@ define method advance-probability-map(old-map :: <vector>)
   new-map
 end method advance-probability-map;
 
-define method perceive-plans(plans, cop :: <predicting-cop>, world :: <world>);
+define method perceive-plans(plans-stupid-dylan, cop :: <predicting-cop>, world :: <world>);
+  for (fmp :: <from-message-plan> in plans-stupid-dylan)
+    if (fmp.sender ~= world.world-skeleton.my-name)
+      // Ignore my plans, I know I am right.
+      if (fmp.plans.size > 0)
+        cop.alternative-plan-available = #t;
+      end if;
+    end if;    
+  end for;
 end method perceive-plans;
 
 define method make-vote(cop :: <predicting-cop>, world :: <world>) => (vote);
-  next-method()
+  // Vote McGruff down and rogue-cops.
+  let mcgruff-cops = make(<stretchy-vector>);
+  let good-cops = make(<stretchy-vector>);
+
+  for (p :: <player> in world.world-other-cops)
+    let (match, #rest substrings) = regexp-match(p.player-name, "McGruff");
+
+    if (match ~= #f)
+      // dbg("Found a McGruff!\n");
+      mcgruff-cops := add!(mcgruff-cops, p);
+    elseif (~member?(p, cop.rogue-cops))
+      // Not rogue and not McGruff.
+      // dbg("Found good cop!\n");
+      good-cops := add!(good-cops, p);
+    end if;          
+  end for;
+
+  let result = list(world.world-my-player);
+  for (p :: <player> in good-cops)
+    result := concatenate(result, list(p));
+  end for;
+  for (p :: <player> in mcgruff-cops)
+    result := concatenate(result, list(p));
+  end for;
+  for (p :: <player> in cop.rogue-cops)
+    result := concatenate(result, list(p));
+  end for;
+  
+  // concatenate(list(world.world-my-player), world.world-other-cops);
+
+  /*
+  dbg("Voting:\n");
+  for (p :: <player> in result)
+    dbg(" * %s\n", p.player-name);
+  end for;
+  */
+
+  result;
 end method make-vote;
 
 define method perceive-vote(vote, cop :: <predicting-cop>, world :: <world>);
