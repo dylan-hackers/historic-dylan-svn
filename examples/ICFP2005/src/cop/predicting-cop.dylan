@@ -22,8 +22,7 @@ define method consider-evidence (evidence :: <evidence>,
          below world.world-number by 2)
     mymap := advance-probability-map-in-world(world.world-skeleton.worlds[i], mymap);
   end;
-  cop.probability-map := map(\*, mymap, cop.probability-map);
-  normalize!(cop.probability-map);
+  cop.probability-map := mymap;
 end method;
 
 define method advance-probability-map-in-world(world :: <world>,
@@ -40,7 +39,9 @@ define method advance-probability-map-in-world(world :: <world>,
   for(cop-name in world.world-skeleton.cop-names)
     new-map := map(\*, 
                    generate-map-from-informs
-                     (map(head, choose(method(x) x.tail = cop-name end, world.world-informs))),
+                     (map(head, choose(method(x) 
+                                           x.tail = cop-name
+                                       end, world.world-informs))),
                    new-map);
     normalize!(new-map);
   end for;
@@ -169,11 +170,9 @@ define method perceive-informs(information, cop :: <predicting-cop>, world :: <w
                infos);*/
             
             if (number = world.world-number)
-
               for (info in infos)
                 add!(world.world-informs, pair(info, inform.sender));
               end for;
-
               continue();
             end if;
             if (infos[0].inform-certainty = 100)
