@@ -71,7 +71,8 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
     let target-move = block(return)
                         for (genmove in move)
                           for (occupied-moves in generated-moves)
-                            if (genmove ~= occupied-moves)
+                            if ((genmove.target ~= occupied-moves.target)
+                                  & (genmove.transport ~= occupied-moves.transport))
                               return(genmove);
                             end if;
                           end for;
