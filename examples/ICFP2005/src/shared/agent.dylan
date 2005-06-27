@@ -69,8 +69,15 @@ define method drive-agent(agent :: <robber>,
 
         agent.agent-player := world.world-my-player;
         //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
-        let move = choose-move(agent, world);
-        print(move);
+        block()
+          print(choose-move(agent, world));
+        exception (e :: <condition>)
+          print(make(<move>, 
+                     target: agent.agent-player.player-location,
+                     transport: agent.agent-player.player-type)).
+          dbg("Error %= while choose-move, ignored\n", e);
+        end block;
+
         force-output(output-stream);
       end while;
     exception (condition :: <parse-error>)
@@ -98,27 +105,62 @@ define method drive-agent(agent :: <cop>,
         agent.agent-player := world.world-my-player;
         
         send("inf\\\n");
-        do(print, make-informs(agent, world));
+        block()
+          do(print, make-informs(agent, world));
+        exception (e :: <condition>)
+          dbg("Error %= while make-informs, ignored\n", e);
+        end block;
         send("inf/\n");
         
-        perceive-informs(read-from-message-inform(input-stream),
-                         agent, world);
+        block()
+          perceive-informs(read-from-message-inform(input-stream),
+                           agent, world);
+        exception (e :: <condition>)
+          dbg("Error %= while perceive-informs, ignored\n", e);
+        end block;
         
         send("plan\\\n");
-        do(print, make-plan(agent, world));
+        block()
+          do(print, make-plan(agent, world));
+        exception (e :: <condition>)
+          dbg("Error %= while make-plan, ignored\n", e);
+        end block;
         send("plan/\n");
         
-        perceive-plans(read-from-message-plan(input-stream),
-                       agent, world);
+        block()
+          perceive-plans(read-from-message-plan(input-stream),
+                         agent, world);
+        exception (e :: <condition>)
+          dbg("Error %= while perceive-plans, ignored\n", e);
+        end block;
         
         send("vote\\\n");
-        do(method(x) send("vote: %s\n", x) end,
-           make-vote(agent, world));
+        block()
+          do(method(x) send("vote: %s\n", x) end,
+             make-vote(agent, world));
+        exception (e :: <condition>)
+          do(method(x) send("vote: %s\n", x) end,
+             world.world-skeleton.cop-names);
+          dbg("Error %= while make-plan, ignored\n", e);
+        end block;
         send("vote/\n");
         
-        perceive-vote(read-vote-tally(input-stream), agent, world);
+        block()
+          perceive-vote(read-vote-tally(input-stream), agent, world);
+        exception (e :: <condition>)
+          do(method(x) send("vote: %s\n", x) end,
+             world.world-skeleton.cop-names);
+          dbg("Error %= while read-vote-tally, ignored\n", e);
+        end block;
         
-        print(choose-move(agent, world));
+        block()
+          print(choose-move(agent, world));
+        exception (e :: <condition>)
+          print(make(<move>, 
+                     target: agent.agent-player.player-location,
+                     transport: agent.agent-player.player-type)).
+          dbg("Error %= while choose-move, ignored\n", e);
+        end block;
       end while;
     exception (condition :: <parse-error>)
     end;
