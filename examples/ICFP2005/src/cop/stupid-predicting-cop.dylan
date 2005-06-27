@@ -101,7 +101,7 @@ define method perceive-vote (vote,
                              world :: <world>);
   if (vote)
     //we'll just look whether the move is valid and do it, if it is.
-/*    unless (vote = cop.agent-player.player-name)
+    unless (vote = cop.agent-player.player-name)
       let plan-move =
         block(return)
           for (player in world.world-cops)
@@ -115,15 +115,14 @@ define method perceive-vote (vote,
           end for;
         end block;
       if (plan-move)
-        dbg("change away from move %s ", cop.my-target-move.target.node-name);
+        //dbg("change away from move %s ", cop.my-target-move.target.node-name);
         cop.my-target-move := plan-move;
-        dbg("changed move: from %s to %s by %s\n",
+        /*dbg("changed move: from %s to %s by %s\n",
             cop.agent-player.player-location.node-name,
             plan-move.target.node-name,
-            plan-move.transport);
-
+            plan-move.transport);*/
       end if;
-    end unless;*/
+    end unless;
     //dbg("WINNER: %s\n", vote);
   end if;
 end method perceive-vote;

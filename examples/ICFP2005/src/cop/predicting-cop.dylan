@@ -210,6 +210,7 @@ define method perceive-plans(plan-from-messages,
                              cop :: <predicting-cop>,
                              world :: <world>);
   cop.plan-ranking := make(<stretchy-vector>);
+  cop.planned-moves := make(<stretchy-vector>);
   for (fmp :: <from-message-plan> in plan-from-messages)
     //Ignore my plans, I know I am right.
     unless (fmp.sender = world.world-skeleton.my-name)
