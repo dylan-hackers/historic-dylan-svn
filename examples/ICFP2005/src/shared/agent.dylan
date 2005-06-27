@@ -351,7 +351,7 @@ define function distance
               transport: player.player-type),
      keep-current-transport = #f,
      maximum-rank = #f)
- => (rank, shortest-path)
+ => (rank :: <integer>, shortest-path :: <list>)
 
   let distance-to =
     make(<int-vector>, size: maximum-node-id(), fill: maximum-node-id());

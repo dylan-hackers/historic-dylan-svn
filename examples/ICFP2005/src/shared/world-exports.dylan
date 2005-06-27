@@ -24,7 +24,7 @@ define module world
   use format, import: { format };
 
   export dbg,
-    <vec>,
+    <vec>, <int-vector>,
     lock-down,
     maximum-node-id,
     find-node-by-id,

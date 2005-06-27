@@ -3,7 +3,7 @@ SHARED=../shared/Makefile ../shared/world.lid ../shared/world-exports.dylan \
 
 robber: robber.lid robber.dylan alterna-robber.dylan random-walk-robber.dylan bruce-robber.dylan robber-exports.dylan ${SHARED}
 	(cd ../shared; make)
-	d2c -s -L../shared robber.lid
+	d2c -g -s -L../shared robber.lid
 
 run: robber
 	server --gui --robber "show-robber ./robber-wrapper"
