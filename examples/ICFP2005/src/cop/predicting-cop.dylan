@@ -194,3 +194,13 @@ define method advance-probability-map(old-map :: <vector>)
   end for;
   new-map
 end method advance-probability-map;
+
+define method perceive-plans(plans, cop :: <predicting-cop>, world :: <world>);
+end method perceive-plans;
+
+define method make-vote(cop :: <predicting-cop>, world :: <world>) => (vote);
+  make-vote(cop, world); // Let the default action take place.
+end method make-vote;
+
+define method perceive-vote(vote, cop :: <predicting-cop>, world :: <world>);
+end method perceive-vote;
