@@ -1,0 +1,30 @@
+#!/bin/sh
+
+PROGRAMS="cop robber"
+PACKAGE=submission.tgz
+
+cd $(dirname $0)
+rm -rf submission submission.tgz
+
+mkdir -p submission/bin
+cp $(ldd $(which d2c) | grep libgc | awk '{print $3}') submission/bin
+cp README submission
+
+for prog in ${PROGRAMS}; do
+    (cd src/$prog; make $prog) || (echo make $prog failed; exit 1)
+    cp src/$prog/$prog submission/bin
+    strip submission/bin/$prog
+    cat >submission/$prog <<-END
+	#!/bin/sh
+	US=\$(dirname \$0)
+	LD_LIBRARY_PATH=\${US}/bin:\${LD_LIBRARY_PATH}
+	export LD_LIBRARY_PATH
+	exec \${US}/bin/${prog} "\$@"
+	END
+    chmod +x submission/$prog
+done
+
+cp -r src submission
+for prog in ${PROGRAMS} shared; do (cd submission/src/$prog; make clean); done
+
+tar zcf ${PACKAGE} submission

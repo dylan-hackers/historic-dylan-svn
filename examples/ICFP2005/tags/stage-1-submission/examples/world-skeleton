@@ -1,0 +1,941 @@
+wsk\
+name: foobar
+robber: foobar
+cop: McGruff2
+cop: McGruff3
+cop: McGruff4
+cop: McGruff5
+cop: NoOpCopX
+nod\
+nod: midway-south-and-dorchester ordinary 100 92
+nod: 52-and-kimbark ordinary 80 13
+nod: 58-and-maryland ordinary 10 75
+nod: park-and-harper ordinary 126 50
+nod: 55-and-south-shore(east) ordinary 186 45
+nod: 54-and-dorchester ordinary 100 29
+nod: museum-loop-#1 ordinary 180 81
+nod: 57-and-harper-ct ordinary 115 65
+nod: 56-and-stony-island ordinary 140 55
+nod: 53-and-blackstone ordinary 110 21
+nod: 51-and-lake-park ordinary 130 5
+nod: 53-and-cornell ordinary 150 21
+nod: the-other-55-and-drexel ordinary 20 43
+nod: 54-and-s-hyde-park ordinary 160 29
+nod: 55-and-everett ordinary 170 45
+nod: 59-and-harper ordinary 116 85
+nod: 51-and-drexel(east) ordinary 22 5
+nod: the-other-55-and-ingleside ordinary 28 43
+nod: 54pl-and-drexel ordinary 20 36
+nod: midway-south-and-woodlawn ordinary 70 92
+nod: 56-and-harper(east) ordinary 126 55
+nod: 54-and-ridgewood robber-start 94 29
+nod: 57-and-stony-island ordinary 140 65
+nod: 52-and-blackstone ordinary 110 13
+nod: quad-loop-#2 ordinary 54 75
+nod: harper-and-harper-ct ordinary 120 58
+nod: 58-and-cottage-grove ordinary 0 75
+nod: 55-and-s-hyde-park ordinary 160 45
+nod: 56-and-south-shore ordinary 186 55
+nod: 54-and-everett ordinary 170 29
+nod: 55-and-harper bank 126 45
+nod: 56-and-maryland ordinary 10 55
+nod: 56-and-dorchester ordinary 100 55
+nod: 52-culdesac ordinary 84 13
+nod: the-other-55-and-ellis ordinary 40 43
+nod: 54-and-ingleside ordinary 28 29
+nod: 51-and-blackstone ordinary 110 5
+nod: 59-and-kimbark ordinary 80 85
+nod: 51-and-cornell ordinary 140 5
+nod: 57-and-cottage-grove ordinary 0 65
+nod: 56-and-s-hyde-park ordinary 160 55
+nod: 55-and-right-joint ordinary 116 45
+nod: museum-loop-#4 ordinary 184 83
+nod: e-drexel-square-and-cottage-grove ordinary 0 10
+nod: science-and-lake-shore ordinary 190 75
+nod: rochdale-and-dorchester ordinary 100 41
+nod: 53-and-drexel(north) ordinary 20 21
+nod: 57-and-dorchester ordinary 100 65
+nod: 53-and-ingleside ordinary 28 21
+nod: 57-and-lake-shore ordinary 196 60
+nod: 47-and-lake-shore ordinary 196 0
+nod: 60-and-blackstone bank 110 95
+nod: everett-culdesac-#2 ordinary 170 37
+nod: 56-and-cottage-grove ordinary 0 55
+nod: 57-and-s-hyde-park ordinary 160 60
+nod: 59-and-dorchester ordinary 100 85
+nod: 52-and-harper(west) ordinary 120 13
+nod: 52-and-drexel(north) ordinary 20 13
+nod: 58-and-dorchester ordinary 100 75
+nod: 54-culdesac ordinary 84 29
+nod: 54-and-east-view-park ordinary 174 29
+nod: 59-and-ellis ordinary 40 85
+nod: 55-and-dorchester(south) ordinary 100 46
+nod: 59-and-woodlawn ordinary 70 85
+nod: quad-loop-#1 ordinary 50 73
+nod: 55-and-cottage-grove ordinary 0 45
+nod: 52-and-lake-park ordinary 134 13
+nod: 53-and-maryland ordinary 10 26
+nod: greenwood-culdesac-#2 ordinary 50 80
+nod: 57-and-lake-park ordinary 126 65
+nod: 56-and-everett(west) ordinary 170 55
+nod: e-drexel-square-and-drexel ordinary 20 10
+nod: 55-culdesac ordinary 192 45
+nod: 52-and-harper(east) ordinary 126 13
+nod: 53-and-east-view-park ordinary 174 21
+nod: 58-and-kenwood ordinary 88 75
+nod: 54pl-and-cottage-grove ordinary 0 36
+nod: 58-and-woodlawn ordinary 70 75
+nod: 54pl-and-maryland ordinary 10 36
+nod: midway-south-and-cottage-grove ordinary 0 92
+nod: midway-north-and-dorchester ordinary 100 88
+nod: kenwood-culdesac-#2 ordinary 88 79
+nod: 54pl-culdesac-#1 ordinary 24 37
+nod: 56-and-everett(east) ordinary 174 55
+nod: 57-and-harper ordinary 120 65
+nod: 54pl-and-lake-park ordinary 138 39
+nod: 57-and-ellis ordinary 40 65
+nod: 57-and-kenwood ordinary 88 65
+nod: 52-and-cottage-grove ordinary 0 15
+nod: 57-and-woodlawn ordinary 70 65
+nod: 54pl-and-harper ordinary 120 37
+nod: ingleside-culdesac ordinary 30 60
+nod: harper-culdesac ordinary 120 41
+nod: 51-and-university ordinary 60 5
+nod: 53-and-cottage-grove ordinary 0 26
+nod: 55-and-lake-park ordinary 136 45
+nod: 56-and-cornell ordinary 150 55
+nod: 54pl-and-blackstone ordinary 110 37
+nod: midway-north-and-woodlawn ordinary 70 88
+nod: 53-and-drexel(south) ordinary 20 26
+nod: 59-and-stony-island ordinary 140 85
+nod: 56-and-ellis ordinary 40 55
+nod: museum-loop-#3 ordinary 174 85
+nod: 56-and-kenwood ordinary 88 55
+nod: 53-and-lake-shore ordinary 190 21
+nod: 56-and-woodlawn ordinary 70 55
+nod: museum-and-s-hyde-park ordinary 160 65
+nod: midway-south-and-blackstone ordinary 110 92
+nod: 52-and-university ordinary 60 13
+nod: 52-and-ingleside ordinary 28 13
+nod: 54pl-and-ingleside ordinary 28 37
+nod: 54pl-and-dorchester ordinary 100 37
+nod: maryland-culdesac ordinary 10 40
+nod: 54-and-lake-park ordinary 138 29
+nod: midway-south-and-ellis ordinary 40 92
+nod: 59-and-cottage-grove ordinary 0 85
+nod: 51-and-cottage-grove ordinary 0 5
+nod: 52-and-drexel(south) ordinary 20 15
+nod: midway-south-and-stony-island ordinary 140 92
+nod: 55-and-ellis ordinary 40 45
+nod: 55-and-kenwood ordinary 88 45
+nod: 55-and-woodlawn hq 70 45
+nod: the-other-55-and-university ordinary 60 43
+nod: 56-and-park ordinary 115 55
+nod: 55-and-blackstone(north) ordinary 110 44
+nod: 53-and-university ordinary 60 21
+nod: 56-and-drexel ordinary 20 55
+nod: 51-and-ingleside ordinary 28 5
+nod: 54pl-culdesac-#2 ordinary 44 37
+nod: 56-and-harper(west) ordinary 120 55
+nod: 54-and-the-other-lake-park ordinary 130 29
+nod: 55-and-blackstone(south) ordinary 110 46
+nod: midway-south-and-cornell ordinary 150 92
+nod: 54-and-greenwood ordinary 50 29
+nod: 55-and-south-shore(west) ordinary 180 45
+nod: 60-and-cottage-grove ordinary 0 95
+nod: 54-and-harper ordinary 120 29
+nod: 54-and-ellis ordinary 40 29
+nod: 54-and-kenwood ordinary 88 29
+nod: science-and-columbia ordinary 184 75
+nod: 54-and-woodlawn ordinary 70 29
+nod: 54pl-and-university ordinary 60 37
+nod: museum-loop-#2 ordinary 170 83
+nod: greenwood-culdesac-#1 ordinary 50 68
+nod: 54-and-university ordinary 60 29
+nod: 58-and-kimbark ordinary 80 75
+nod: 58-culdesac bank 36 75
+nod: 51-and-drexel(west) ordinary 18 5
+nod: 52-and-greenwood ordinary 50 13
+nod: 53-and-the-other-lake-park bank 130 21
+nod: 58-and-drexel ordinary 20 75
+nod: 55-and-greenwood ordinary 50 45
+nod: 53-and-harper ordinary 120 21
+nod: south-shore-culdesac ordinary 184 32
+nod: 60-and-stony-island ordinary 140 95
+nod: 53-and-ellis ordinary 40 21
+nod: payne-dr-and-drexel ordinary 20 8
+nod: 59-and-blackstone ordinary 110 85
+nod: 53-and-kenwood ordinary 92 21
+nod: midway-north-and-blackstone ordinary 110 88
+nod: 53-and-woodlawn bank 70 21
+nod: 55-and-university ordinary 60 45
+nod: 57-and-kimbark bank 80 65
+nod: 54-and-drexel ordinary 20 29
+nod: 53-and-greenwood ordinary 50 21
+nod: 51-and-kimbark ordinary 80 5
+nod: 57-and-drexel ordinary 20 65
+nod: 54pl-and-woodlawn ordinary 70 37
+nod: 56-and-greenwood ordinary 50 55
+nod: midway-north-and-stony-island ordinary 140 88
+nod: 56-and-lake-park ordinary 132 55
+nod: 52-and-ellis ordinary 40 13
+nod: 58-and-blackstone ordinary 110 75
+nod: 52-and-kenwood ordinary 90 13
+nod: 52-and-woodlawn ordinary 70 13
+nod: 60-and-dorchester ordinary 100 95
+nod: 56-and-university ordinary 60 55
+nod: 56-and-kimbark ordinary 80 55
+nod: payne-dr-and-cottage-grove ordinary 0 8
+nod: 55-and-dorchester(north) ordinary 100 44
+nod: 57-and-greenwood ordinary 50 65
+nod: 51-and-harper ordinary 120 5
+nod: ellis-culdesac ordinary 40 15
+nod: 51-and-ellis ordinary 40 5
+nod: 57-and-blackstone ordinary 110 65
+nod: 51-and-kenwood ordinary 90 5
+nod: museum-and-57 ordinary 150 65
+nod: 51-and-woodlawn ordinary 70 5
+nod: the-other-55-and-greenwood ordinary 50 43
+nod: 57-and-university ordinary 60 65
+nod: 55-and-kimbark ordinary 80 45
+nod: midway-north-and-cornell ordinary 150 88
+nod: kenwood-culdesac-#1 ordinary 88 63
+nod: 51-and-dorchester ordinary 100 5
+nod: 53-and-berkley ordinary 45 21
+nod: 57-and-maryland ordinary 10 65
+nod: 60-and-ellis ordinary 40 95
+nod: 56-and-blackstone ordinary 110 55
+nod: midway-north-and-ellis ordinary 40 88
+nod: 60-and-woodlawn ordinary 70 95
+nod: 52pl-and-harper(east) ordinary 126 17
+nod: museum-and-everett ordinary 174 65
+nod: 51-and-s-hyde-park ordinary 150 5
+nod: 58-and-university ordinary 60 75
+nod: 54-and-kimbark ordinary 80 29
+nod: 52-and-dorchester ordinary 100 13
+nod: kimbark-culdesac ordinary 80 19
+nod: 52-and-berkley ordinary 45 13
+nod: 54pl-and-ellis ordinary 40 37
+nod: 53-and-lake-park ordinary 136 21
+nod: 55-and-cornell ordinary 150 45
+nod: rochdale-and-blackstone ordinary 110 41
+nod: 51-and-greenwood ordinary 50 5
+nod: quad-loop-#3 ordinary 50 77
+nod: east-view-park-and-south-shore ordinary 180 37
+nod: 57-and-everett ordinary 174 60
+nod: 59-and-university ordinary 60 85
+nod: 53-and-kimbark ordinary 80 21
+nod: 59-and-maryland ordinary 10 85
+nod: 55-and-left-joint ordinary 94 45
+nod: 52pl-and-harper(west) ordinary 120 17
+nod: 53-and-dorchester ordinary 100 21
+nod: 57-and-ingleside ordinary 30 65
+nod: everett-culdesac-#1 ordinary 170 35
+nod: 54-and-blackstone ordinary 110 29
+nod: museum-and-columbia ordinary 184 65
+nod: midway-north-and-cottage-grove ordinary 0 88
+nod: 54-and-cornell ordinary 150 29
+nod: 53-and-s-hyde-park ordinary 160 21
+nod/
+edg\
+edg: midway-south-and-dorchester 60-and-dorchester foot
+edg: midway-south-and-dorchester midway-north-and-dorchester foot
+edg: midway-south-and-dorchester midway-south-and-blackstone foot
+edg: 52-and-kimbark kimbark-culdesac foot
+edg: 52-and-kimbark 52-and-woodlawn foot
+edg: 58-and-maryland 59-and-maryland foot
+edg: 58-and-maryland 58-and-drexel foot
+edg: 58-and-maryland 58-and-cottage-grove foot
+edg: park-and-harper 56-and-harper(east) foot
+edg: park-and-harper 55-and-harper foot
+edg: park-and-harper 56-and-park foot
+edg: 55-and-south-shore(east) 56-and-south-shore foot
+edg: 55-and-south-shore(east) 55-culdesac foot
+edg: 55-and-south-shore(east) 55-and-south-shore(west) foot
+edg: 54-and-dorchester 54pl-and-dorchester foot
+edg: 54-and-dorchester 54-and-blackstone foot
+edg: 54-and-dorchester 54-and-ridgewood foot
+edg: museum-loop-#1 museum-loop-#2 foot
+edg: museum-loop-#1 science-and-columbia foot
+edg: 57-and-harper-ct 57-and-harper foot
+edg: 57-and-harper-ct 57-and-blackstone foot
+edg: 56-and-stony-island 57-and-stony-island foot
+edg: 56-and-stony-island 56-and-cornell foot
+edg: 56-and-stony-island 56-and-lake-park foot
+edg: 53-and-blackstone 54-and-blackstone foot
+edg: 53-and-blackstone 52-and-blackstone foot
+edg: 53-and-blackstone 53-and-harper foot
+edg: 53-and-blackstone 53-and-dorchester foot
+edg: 51-and-lake-park 52-and-lake-park foot
+edg: 51-and-lake-park 51-and-cornell foot
+edg: 51-and-lake-park 51-and-harper foot
+edg: 53-and-cornell 54-and-cornell foot
+edg: 53-and-cornell 51-and-cornell foot
+edg: 53-and-cornell 53-and-s-hyde-park foot
+edg: 53-and-cornell 53-and-lake-park foot
+edg: the-other-55-and-drexel 54pl-and-drexel foot
+edg: the-other-55-and-drexel the-other-55-and-ingleside foot
+edg: 54-and-s-hyde-park 55-and-s-hyde-park foot
+edg: 54-and-s-hyde-park 53-and-s-hyde-park foot
+edg: 54-and-s-hyde-park 54-and-everett foot
+edg: 54-and-s-hyde-park 54-and-cornell foot
+edg: 55-and-everett 56-and-everett(west) foot
+edg: 55-and-everett everett-culdesac-#2 foot
+edg: 55-and-everett 55-and-south-shore(west) foot
+edg: 55-and-everett 55-and-s-hyde-park foot
+edg: 59-and-harper 57-and-harper foot
+edg: 59-and-harper 59-and-stony-island foot
+edg: 59-and-harper 59-and-blackstone foot
+edg: 51-and-drexel(east) 51-and-ingleside foot
+edg: 51-and-drexel(east) 51-and-drexel(west) foot
+edg: the-other-55-and-ingleside 54pl-and-ingleside foot
+edg: the-other-55-and-ingleside the-other-55-and-ellis foot
+edg: the-other-55-and-ingleside the-other-55-and-drexel foot
+edg: 54pl-and-drexel the-other-55-and-drexel foot
+edg: 54pl-and-drexel 54-and-drexel foot
+edg: 54pl-and-drexel 54pl-and-maryland foot
+edg: midway-south-and-woodlawn 60-and-woodlawn foot
+edg: midway-south-and-woodlawn midway-north-and-woodlawn foot
+edg: midway-south-and-woodlawn midway-south-and-dorchester foot
+edg: 56-and-harper(east) park-and-harper foot
+edg: 56-and-harper(east) 56-and-lake-park foot
+edg: 54-and-ridgewood rochdale-and-dorchester foot
+edg: 54-and-ridgewood 54-and-dorchester foot
+edg: 57-and-stony-island 59-and-stony-island foot
+edg: 57-and-stony-island 56-and-stony-island foot
+edg: 57-and-stony-island museum-and-57 foot
+edg: 57-and-stony-island 57-and-lake-park foot
+edg: 52-and-blackstone 51-and-blackstone foot
+edg: 52-and-blackstone 52-and-dorchester foot
+edg: quad-loop-#2 quad-loop-#1 foot
+edg: quad-loop-#2 58-and-university foot
+edg: harper-and-harper-ct 57-and-harper foot
+edg: harper-and-harper-ct 56-and-harper(west) foot
+edg: harper-and-harper-ct 57-and-harper-ct foot
+edg: 58-and-cottage-grove 59-and-cottage-grove foot
+edg: 58-and-cottage-grove 57-and-cottage-grove foot
+edg: 58-and-cottage-grove 58-and-maryland foot
+edg: 55-and-s-hyde-park 56-and-s-hyde-park foot
+edg: 55-and-s-hyde-park 54-and-s-hyde-park foot
+edg: 55-and-s-hyde-park 55-and-everett foot
+edg: 55-and-s-hyde-park 55-and-cornell foot
+edg: 56-and-south-shore 55-and-south-shore(east) foot
+edg: 56-and-south-shore 56-and-everett(east) foot
+edg: 54-and-everett everett-culdesac-#1 foot
+edg: 54-and-everett 54-and-east-view-park foot
+edg: 54-and-everett 54-and-s-hyde-park foot
+edg: 55-and-harper park-and-harper foot
+edg: 55-and-harper 55-and-lake-park foot
+edg: 55-and-harper 55-and-right-joint foot
+edg: 56-and-maryland 57-and-maryland foot
+edg: 56-and-maryland 56-and-drexel foot
+edg: 56-and-dorchester 57-and-dorchester foot
+edg: 56-and-dorchester 56-and-blackstone foot
+edg: 52-culdesac 52-and-kenwood foot
+edg: the-other-55-and-ellis 55-and-ellis foot
+edg: the-other-55-and-ellis 54pl-and-ellis foot
+edg: the-other-55-and-ellis the-other-55-and-greenwood foot
+edg: the-other-55-and-ellis the-other-55-and-ingleside foot
+edg: 54-and-ingleside 53-and-ingleside foot
+edg: 54-and-ingleside 54-and-ellis foot
+edg: 51-and-blackstone 51-and-harper foot
+edg: 51-and-blackstone 51-and-dorchester foot
+edg: 59-and-kimbark 58-and-kimbark foot
+edg: 59-and-kimbark 59-and-woodlawn foot
+edg: 51-and-cornell 53-and-cornell foot
+edg: 51-and-cornell 51-and-s-hyde-park foot
+edg: 51-and-cornell 51-and-lake-park foot
+edg: 57-and-cottage-grove 58-and-cottage-grove foot
+edg: 57-and-cottage-grove 56-and-cottage-grove foot
+edg: 57-and-cottage-grove 57-and-maryland foot
+edg: 56-and-s-hyde-park 57-and-s-hyde-park foot
+edg: 56-and-s-hyde-park 55-and-s-hyde-park foot
+edg: 56-and-s-hyde-park 56-and-everett(west) foot
+edg: 56-and-s-hyde-park 56-and-cornell foot
+edg: 55-and-right-joint 55-and-harper foot
+edg: 55-and-right-joint 55-and-blackstone(north) foot
+edg: museum-loop-#4 museum-loop-#1 foot
+edg: e-drexel-square-and-cottage-grove 52-and-cottage-grove foot
+edg: e-drexel-square-and-cottage-grove payne-dr-and-cottage-grove foot
+edg: e-drexel-square-and-cottage-grove e-drexel-square-and-drexel foot
+edg: science-and-lake-shore science-and-columbia foot
+edg: rochdale-and-dorchester 55-and-dorchester(north) foot
+edg: rochdale-and-dorchester rochdale-and-blackstone foot
+edg: 53-and-drexel(north) 53-and-drexel(south) foot
+edg: 53-and-drexel(north) 52-and-drexel(south) foot
+edg: 53-and-drexel(north) 53-and-ingleside foot
+edg: 57-and-dorchester 58-and-dorchester foot
+edg: 57-and-dorchester 57-and-blackstone foot
+edg: 57-and-dorchester 57-and-kenwood foot
+edg: 53-and-ingleside 52-and-ingleside foot
+edg: 53-and-ingleside 53-and-ellis foot
+edg: 53-and-ingleside 53-and-drexel(north) foot
+edg: 57-and-lake-shore 57-and-everett foot
+edg: 47-and-lake-shore 51-and-s-hyde-park foot
+edg: 60-and-blackstone midway-south-and-blackstone foot
+edg: 60-and-blackstone 60-and-stony-island foot
+edg: 60-and-blackstone 60-and-dorchester foot
+edg: everett-culdesac-#2 55-and-everett foot
+edg: 56-and-cottage-grove 57-and-cottage-grove foot
+edg: 56-and-cottage-grove 55-and-cottage-grove foot
+edg: 56-and-cottage-grove 56-and-maryland foot
+edg: 57-and-s-hyde-park museum-and-s-hyde-park foot
+edg: 57-and-s-hyde-park 56-and-s-hyde-park foot
+edg: 57-and-s-hyde-park 57-and-everett foot
+edg: 57-and-s-hyde-park museum-and-57 foot
+edg: 59-and-dorchester midway-north-and-dorchester foot
+edg: 59-and-dorchester 59-and-blackstone foot
+edg: 59-and-dorchester 59-and-kimbark foot
+edg: 52-and-harper(west) 51-and-harper foot
+edg: 52-and-harper(west) 52-and-blackstone foot
+edg: 52-and-drexel(north) 52-and-drexel(south) foot
+edg: 52-and-drexel(north) e-drexel-square-and-drexel foot
+edg: 58-and-dorchester 59-and-dorchester foot
+edg: 58-and-dorchester 58-and-kenwood foot
+edg: 54-culdesac 54-and-kimbark foot
+edg: 54-and-east-view-park east-view-park-and-south-shore foot
+edg: 54-and-east-view-park 53-and-east-view-park foot
+edg: 54-and-east-view-park 54-and-everett foot
+edg: 59-and-ellis midway-north-and-ellis foot
+edg: 59-and-ellis 57-and-ellis foot
+edg: 59-and-ellis 59-and-maryland foot
+edg: 55-and-dorchester(south) 56-and-dorchester foot
+edg: 55-and-dorchester(south) 55-and-blackstone(south) foot
+edg: 59-and-woodlawn midway-north-and-woodlawn foot
+edg: 59-and-woodlawn 58-and-woodlawn foot
+edg: 59-and-woodlawn 59-and-university foot
+edg: quad-loop-#1 greenwood-culdesac-#1 foot
+edg: quad-loop-#1 quad-loop-#3 foot
+edg: 55-and-cottage-grove 56-and-cottage-grove foot
+edg: 55-and-cottage-grove 54pl-and-cottage-grove foot
+edg: 55-and-cottage-grove 55-and-ellis foot
+edg: 52-and-lake-park 53-and-lake-park foot
+edg: 52-and-lake-park 51-and-lake-park foot
+edg: 52-and-lake-park 52-and-harper(east) foot
+edg: 53-and-maryland 54pl-and-maryland foot
+edg: 53-and-maryland 53-and-drexel(south) foot
+edg: 53-and-maryland 53-and-cottage-grove foot
+edg: greenwood-culdesac-#2 quad-loop-#3 foot
+edg: 57-and-lake-park 56-and-lake-park foot
+edg: 57-and-lake-park 57-and-stony-island foot
+edg: 57-and-lake-park 57-and-harper foot
+edg: 56-and-everett(west) 55-and-everett foot
+edg: 56-and-everett(west) 56-and-everett(east) foot
+edg: 56-and-everett(west) 56-and-s-hyde-park foot
+edg: e-drexel-square-and-drexel 52-and-drexel(north) foot
+edg: e-drexel-square-and-drexel payne-dr-and-drexel foot
+edg: 55-culdesac 55-and-south-shore(east) foot
+edg: 52-and-harper(east) 52-and-harper(west) foot
+edg: 53-and-east-view-park 54-and-east-view-park foot
+edg: 53-and-east-view-park 53-and-lake-shore foot
+edg: 53-and-east-view-park 53-and-s-hyde-park foot
+edg: 58-and-kenwood kenwood-culdesac-#2 foot
+edg: 58-and-kenwood 57-and-kenwood foot
+edg: 58-and-kenwood 58-and-kimbark foot
+edg: 54pl-and-cottage-grove 55-and-cottage-grove foot
+edg: 54pl-and-cottage-grove 53-and-cottage-grove foot
+edg: 54pl-and-cottage-grove 54pl-and-maryland foot
+edg: 58-and-woodlawn 59-and-woodlawn foot
+edg: 58-and-woodlawn 57-and-woodlawn foot
+edg: 58-and-woodlawn 58-and-university foot
+edg: 54pl-and-maryland maryland-culdesac foot
+edg: 54pl-and-maryland 53-and-maryland foot
+edg: 54pl-and-maryland 54pl-and-drexel foot
+edg: 54pl-and-maryland 54pl-and-cottage-grove foot
+edg: midway-south-and-cottage-grove 60-and-cottage-grove foot
+edg: midway-south-and-cottage-grove midway-north-and-cottage-grove foot
+edg: midway-south-and-cottage-grove midway-south-and-ellis foot
+edg: midway-north-and-dorchester midway-south-and-dorchester foot
+edg: midway-north-and-dorchester 59-and-dorchester foot
+edg: midway-north-and-dorchester midway-north-and-woodlawn foot
+edg: kenwood-culdesac-#2 58-and-kenwood foot
+edg: 54pl-culdesac-#1 54pl-and-ingleside foot
+edg: 56-and-everett(east) 56-and-south-shore foot
+edg: 56-and-everett(east) 56-and-everett(west) foot
+edg: 57-and-harper 59-and-harper foot
+edg: 57-and-harper harper-and-harper-ct foot
+edg: 57-and-harper 57-and-lake-park foot
+edg: 57-and-harper 57-and-harper-ct foot
+edg: 54pl-and-lake-park 55-and-lake-park foot
+edg: 54pl-and-lake-park 54-and-lake-park foot
+edg: 54pl-and-lake-park 54pl-and-harper foot
+edg: 57-and-ellis 59-and-ellis foot
+edg: 57-and-ellis 56-and-ellis foot
+edg: 57-and-ellis 57-and-greenwood foot
+edg: 57-and-ellis 57-and-ingleside foot
+edg: 57-and-kenwood 57-and-dorchester foot
+edg: 57-and-kenwood 57-and-kimbark foot
+edg: 52-and-cottage-grove 53-and-cottage-grove foot
+edg: 52-and-cottage-grove e-drexel-square-and-cottage-grove foot
+edg: 52-and-cottage-grove 52-and-drexel(south) foot
+edg: 57-and-woodlawn 58-and-woodlawn foot
+edg: 57-and-woodlawn 56-and-woodlawn foot
+edg: 57-and-woodlawn 57-and-kimbark foot
+edg: 57-and-woodlawn 57-and-university foot
+edg: 54pl-and-harper harper-culdesac foot
+edg: 54pl-and-harper 54-and-harper foot
+edg: 54pl-and-harper 54pl-and-lake-park foot
+edg: 54pl-and-harper 54pl-and-blackstone foot
+edg: ingleside-culdesac 57-and-ingleside foot
+edg: harper-culdesac 54pl-and-harper foot
+edg: 51-and-university 51-and-woodlawn foot
+edg: 51-and-university 51-and-greenwood foot
+edg: 53-and-cottage-grove 54pl-and-cottage-grove foot
+edg: 53-and-cottage-grove 52-and-cottage-grove foot
+edg: 53-and-cottage-grove 53-and-maryland foot
+edg: 55-and-lake-park 56-and-lake-park foot
+edg: 55-and-lake-park 54pl-and-lake-park foot
+edg: 55-and-lake-park 55-and-cornell foot
+edg: 55-and-lake-park 55-and-harper foot
+edg: 56-and-cornell 55-and-cornell foot
+edg: 56-and-cornell 56-and-s-hyde-park foot
+edg: 56-and-cornell 56-and-stony-island foot
+edg: 54pl-and-blackstone rochdale-and-blackstone foot
+edg: 54pl-and-blackstone 54-and-blackstone foot
+edg: 54pl-and-blackstone 54pl-and-harper foot
+edg: 54pl-and-blackstone 54pl-and-dorchester foot
+edg: midway-north-and-woodlawn midway-south-and-woodlawn foot
+edg: midway-north-and-woodlawn 59-and-woodlawn foot
+edg: midway-north-and-woodlawn midway-north-and-ellis foot
+edg: 53-and-drexel(south) 54-and-drexel foot
+edg: 53-and-drexel(south) 53-and-drexel(north) foot
+edg: 53-and-drexel(south) 53-and-maryland foot
+edg: 59-and-stony-island midway-north-and-stony-island foot
+edg: 59-and-stony-island 57-and-stony-island foot
+edg: 59-and-stony-island 59-and-harper foot
+edg: 56-and-ellis 57-and-ellis foot
+edg: 56-and-ellis 55-and-ellis foot
+edg: 56-and-ellis 56-and-greenwood foot
+edg: museum-loop-#3 museum-loop-#4 foot
+edg: 56-and-kenwood kenwood-culdesac-#1 foot
+edg: 56-and-kenwood 55-and-kenwood foot
+edg: 56-and-kenwood 56-and-dorchester foot
+edg: 53-and-lake-shore 53-and-east-view-park foot
+edg: 56-and-woodlawn 57-and-woodlawn foot
+edg: 56-and-woodlawn 55-and-woodlawn foot
+edg: 56-and-woodlawn 56-and-kimbark foot
+edg: museum-and-s-hyde-park 57-and-s-hyde-park foot
+edg: museum-and-s-hyde-park museum-and-everett foot
+edg: museum-and-s-hyde-park museum-and-57 foot
+edg: midway-south-and-blackstone 60-and-blackstone foot
+edg: midway-south-and-blackstone midway-south-and-stony-island foot
+edg: 52-and-university 51-and-university foot
+edg: 52-and-university 52-and-greenwood foot
+edg: 52-and-ingleside 51-and-ingleside foot
+edg: 52-and-ingleside 52-and-drexel(north) foot
+edg: 54pl-and-ingleside 54-and-ingleside foot
+edg: 54pl-and-ingleside 54pl-and-ellis foot
+edg: 54pl-and-ingleside 54pl-culdesac-#1 foot
+edg: 54pl-and-dorchester rochdale-and-dorchester foot
+edg: 54pl-and-dorchester 54pl-and-blackstone foot
+edg: maryland-culdesac 54pl-and-maryland foot
+edg: 54-and-lake-park 54pl-and-lake-park foot
+edg: 54-and-lake-park 53-and-lake-park foot
+edg: 54-and-lake-park 54-and-the-other-lake-park foot
+edg: midway-south-and-ellis 60-and-ellis foot
+edg: midway-south-and-ellis midway-north-and-ellis foot
+edg: midway-south-and-ellis midway-south-and-woodlawn foot
+edg: 59-and-cottage-grove midway-north-and-cottage-grove foot
+edg: 59-and-cottage-grove 58-and-cottage-grove foot
+edg: 51-and-cottage-grove payne-dr-and-cottage-grove foot
+edg: 51-and-cottage-grove 51-and-drexel(west) foot
+edg: 52-and-drexel(south) 53-and-drexel(north) foot
+edg: 52-and-drexel(south) 52-and-drexel(north) foot
+edg: 52-and-drexel(south) 52-and-cottage-grove foot
+edg: midway-south-and-stony-island 60-and-stony-island foot
+edg: midway-south-and-stony-island midway-north-and-stony-island foot
+edg: midway-south-and-stony-island midway-south-and-cornell foot
+edg: 55-and-ellis 56-and-ellis foot
+edg: 55-and-ellis the-other-55-and-ellis foot
+edg: 55-and-ellis 55-and-greenwood foot
+edg: 55-and-ellis 55-and-cottage-grove foot
+edg: 55-and-kenwood 54-and-kenwood foot
+edg: 55-and-kenwood 55-and-left-joint foot
+edg: 55-and-kenwood 55-and-kimbark foot
+edg: 55-and-woodlawn 56-and-woodlawn foot
+edg: 55-and-woodlawn 54pl-and-woodlawn foot
+edg: 55-and-woodlawn 55-and-kimbark foot
+edg: 55-and-woodlawn 55-and-university foot
+edg: the-other-55-and-university 54pl-and-university foot
+edg: the-other-55-and-university the-other-55-and-greenwood foot
+edg: 56-and-park 56-and-harper(west) foot
+edg: 55-and-blackstone(north) rochdale-and-blackstone foot
+edg: 55-and-blackstone(north) 55-and-dorchester(north) foot
+edg: 53-and-university 52-and-university foot
+edg: 53-and-university 53-and-woodlawn foot
+edg: 53-and-university 53-and-greenwood foot
+edg: 56-and-drexel 57-and-drexel foot
+edg: 56-and-drexel 56-and-ellis foot
+edg: 51-and-ingleside 51-and-ellis foot
+edg: 51-and-ingleside 51-and-drexel(east) foot
+edg: 54pl-culdesac-#2 54pl-and-ellis foot
+edg: 56-and-harper(west) harper-and-harper-ct foot
+edg: 56-and-harper(west) 56-and-harper(east) foot
+edg: 54-and-the-other-lake-park 53-and-the-other-lake-park foot
+edg: 54-and-the-other-lake-park 54-and-lake-park foot
+edg: 54-and-the-other-lake-park 54-and-harper foot
+edg: 55-and-blackstone(south) 55-and-right-joint foot
+edg: midway-south-and-cornell midway-north-and-cornell foot
+edg: 54-and-greenwood the-other-55-and-greenwood foot
+edg: 54-and-greenwood 54-and-university foot
+edg: 55-and-south-shore(west) east-view-park-and-south-shore foot
+edg: 55-and-south-shore(west) 55-and-south-shore(east) foot
+edg: 55-and-south-shore(west) 55-and-everett foot
+edg: 60-and-cottage-grove midway-south-and-cottage-grove foot
+edg: 60-and-cottage-grove 60-and-ellis foot
+edg: 54-and-harper 54pl-and-harper foot
+edg: 54-and-harper 53-and-harper foot
+edg: 54-and-harper 54-and-the-other-lake-park foot
+edg: 54-and-harper 54-and-blackstone foot
+edg: 54-and-ellis 54pl-and-ellis foot
+edg: 54-and-ellis 53-and-ellis foot
+edg: 54-and-ellis 54-and-greenwood foot
+edg: 54-and-kenwood 54-and-ridgewood foot
+edg: science-and-columbia museum-loop-#1 foot
+edg: science-and-columbia science-and-lake-shore foot
+edg: 54-and-woodlawn 54pl-and-woodlawn foot
+edg: 54-and-woodlawn 53-and-woodlawn foot
+edg: 54-and-woodlawn 54-and-kimbark foot
+edg: 54pl-and-university 54-and-university foot
+edg: museum-loop-#2 museum-loop-#3 foot
+edg: greenwood-culdesac-#1 quad-loop-#1 foot
+edg: 54-and-university 53-and-university foot
+edg: 54-and-university 54-and-woodlawn foot
+edg: 58-and-kimbark 57-and-kimbark foot
+edg: 58-and-kimbark 58-and-woodlawn foot
+edg: 58-culdesac 58-and-drexel foot
+edg: 51-and-drexel(west) payne-dr-and-drexel foot
+edg: 51-and-drexel(west) 51-and-drexel(east) foot
+edg: 51-and-drexel(west) 51-and-cottage-grove foot
+edg: 52-and-greenwood 53-and-greenwood foot
+edg: 52-and-greenwood 52-and-berkley foot
+edg: 53-and-the-other-lake-park 54-and-the-other-lake-park foot
+edg: 53-and-the-other-lake-park 53-and-lake-park foot
+edg: 53-and-the-other-lake-park 53-and-harper foot
+edg: 58-and-drexel 57-and-drexel foot
+edg: 58-and-drexel 58-culdesac foot
+edg: 58-and-drexel 58-and-maryland foot
+edg: 55-and-greenwood 56-and-greenwood foot
+edg: 55-and-greenwood 55-and-university foot
+edg: 55-and-greenwood 55-and-ellis foot
+edg: 53-and-harper 54-and-harper foot
+edg: 53-and-harper 52pl-and-harper(west) foot
+edg: 53-and-harper 53-and-the-other-lake-park foot
+edg: 53-and-harper 53-and-blackstone foot
+edg: south-shore-culdesac east-view-park-and-south-shore foot
+edg: 60-and-stony-island midway-south-and-stony-island foot
+edg: 60-and-stony-island 60-and-blackstone foot
+edg: 53-and-ellis 54-and-ellis foot
+edg: 53-and-ellis 53-and-berkley foot
+edg: 53-and-ellis 53-and-ingleside foot
+edg: payne-dr-and-drexel e-drexel-square-and-drexel foot
+edg: payne-dr-and-drexel 51-and-drexel(east) foot
+edg: payne-dr-and-drexel payne-dr-and-cottage-grove foot
+edg: 59-and-blackstone midway-north-and-blackstone foot
+edg: 59-and-blackstone 58-and-blackstone foot
+edg: 59-and-blackstone 59-and-harper foot
+edg: 59-and-blackstone 59-and-dorchester foot
+edg: 53-and-kenwood 52-and-kenwood foot
+edg: 53-and-kenwood 53-and-dorchester foot
+edg: 53-and-kenwood 53-and-kimbark foot
+edg: midway-north-and-blackstone 59-and-blackstone foot
+edg: midway-north-and-blackstone midway-north-and-dorchester foot
+edg: 53-and-woodlawn 54-and-woodlawn foot
+edg: 53-and-woodlawn 52-and-woodlawn foot
+edg: 53-and-woodlawn 53-and-kimbark foot
+edg: 53-and-woodlawn 53-and-university foot
+edg: 55-and-university the-other-55-and-university foot
+edg: 55-and-university 55-and-woodlawn foot
+edg: 55-and-university 55-and-greenwood foot
+edg: 57-and-kimbark 56-and-kimbark foot
+edg: 57-and-kimbark 57-and-kenwood foot
+edg: 57-and-kimbark 57-and-woodlawn foot
+edg: 54-and-drexel 54pl-and-drexel foot
+edg: 54-and-drexel 53-and-drexel(south) foot
+edg: 54-and-drexel 54-and-ingleside foot
+edg: 53-and-greenwood 54-and-greenwood foot
+edg: 53-and-greenwood 53-and-university foot
+edg: 53-and-greenwood 53-and-berkley foot
+edg: 51-and-kimbark 52-and-kimbark foot
+edg: 51-and-kimbark 51-and-kenwood foot
+edg: 51-and-kimbark 51-and-woodlawn foot
+edg: 57-and-drexel 58-and-drexel foot
+edg: 57-and-drexel 56-and-drexel foot
+edg: 57-and-drexel 57-and-ingleside foot
+edg: 57-and-drexel 57-and-maryland foot
+edg: 54pl-and-woodlawn 55-and-woodlawn foot
+edg: 54pl-and-woodlawn 54-and-woodlawn foot
+edg: 54pl-and-woodlawn 54pl-and-university foot
+edg: 56-and-greenwood 56-and-university foot
+edg: midway-north-and-stony-island midway-south-and-stony-island foot
+edg: midway-north-and-stony-island 59-and-stony-island foot
+edg: midway-north-and-stony-island midway-north-and-blackstone foot
+edg: 56-and-lake-park 57-and-lake-park foot
+edg: 56-and-lake-park 55-and-lake-park foot
+edg: 56-and-lake-park 56-and-stony-island foot
+edg: 52-and-ellis ellis-culdesac foot
+edg: 52-and-ellis 51-and-ellis foot
+edg: 52-and-ellis 52-and-ingleside foot
+edg: 58-and-blackstone 57-and-blackstone foot
+edg: 58-and-blackstone 58-and-dorchester foot
+edg: 52-and-kenwood 51-and-kenwood foot
+edg: 52-and-kenwood 52-culdesac foot
+edg: 52-and-woodlawn 53-and-woodlawn foot
+edg: 52-and-woodlawn 51-and-woodlawn foot
+edg: 52-and-woodlawn 52-and-university foot
+edg: 60-and-dorchester midway-south-and-dorchester foot
+edg: 60-and-dorchester 60-and-blackstone foot
+edg: 60-and-dorchester 60-and-woodlawn foot
+edg: 56-and-university 55-and-university foot
+edg: 56-and-university 56-and-woodlawn foot
+edg: 56-and-kimbark 55-and-kimbark foot
+edg: 56-and-kimbark 56-and-kenwood foot
+edg: payne-dr-and-cottage-grove e-drexel-square-and-cottage-grove foot
+edg: payne-dr-and-cottage-grove 51-and-cottage-grove foot
+edg: payne-dr-and-cottage-grove payne-dr-and-drexel foot
+edg: 55-and-dorchester(north) 55-and-left-joint foot
+edg: 57-and-greenwood 57-and-university foot
+edg: 57-and-greenwood 57-and-ellis foot
+edg: 51-and-harper 52-and-harper(west) foot
+edg: 51-and-harper 51-and-lake-park foot
+edg: 51-and-harper 51-and-blackstone foot
+edg: ellis-culdesac 52-and-ellis foot
+edg: 51-and-ellis 52-and-ellis foot
+edg: 51-and-ellis 51-and-greenwood foot
+edg: 51-and-ellis 51-and-ingleside foot
+edg: 57-and-blackstone 56-and-blackstone foot
+edg: 57-and-blackstone 57-and-harper-ct foot
+edg: 57-and-blackstone 57-and-dorchester foot
+edg: 51-and-kenwood 51-and-dorchester foot
+edg: 51-and-kenwood 51-and-kimbark foot
+edg: museum-and-57 midway-north-and-cornell foot
+edg: museum-and-57 museum-and-s-hyde-park foot
+edg: museum-and-57 57-and-s-hyde-park foot
+edg: museum-and-57 57-and-stony-island foot
+edg: 51-and-woodlawn 52-and-woodlawn foot
+edg: 51-and-woodlawn 51-and-kimbark foot
+edg: 51-and-woodlawn 51-and-university foot
+edg: the-other-55-and-greenwood the-other-55-and-university foot
+edg: the-other-55-and-greenwood the-other-55-and-ellis foot
+edg: 57-and-university 56-and-university foot
+edg: 57-and-university 57-and-woodlawn foot
+edg: 57-and-university 57-and-greenwood foot
+edg: 55-and-kimbark 54-and-kimbark foot
+edg: 55-and-kimbark 55-and-kenwood foot
+edg: 55-and-kimbark 55-and-woodlawn foot
+edg: midway-north-and-cornell midway-south-and-cornell foot
+edg: midway-north-and-cornell museum-and-57 foot
+edg: midway-north-and-cornell midway-north-and-stony-island foot
+edg: kenwood-culdesac-#1 56-and-kenwood foot
+edg: 51-and-dorchester 52-and-dorchester foot
+edg: 51-and-dorchester 51-and-blackstone foot
+edg: 51-and-dorchester 51-and-kenwood foot
+edg: 53-and-berkley 52-and-berkley foot
+edg: 53-and-berkley 53-and-greenwood foot
+edg: 53-and-berkley 53-and-ellis foot
+edg: 57-and-maryland 58-and-maryland foot
+edg: 57-and-maryland 57-and-drexel foot
+edg: 57-and-maryland 57-and-cottage-grove foot
+edg: 60-and-ellis midway-south-and-ellis foot
+edg: 60-and-ellis 60-and-woodlawn foot
+edg: 60-and-ellis 60-and-cottage-grove foot
+edg: 56-and-blackstone 55-and-blackstone(south) foot
+edg: 56-and-blackstone 56-and-park foot
+edg: midway-north-and-ellis midway-south-and-ellis foot
+edg: midway-north-and-ellis 59-and-ellis foot
+edg: midway-north-and-ellis midway-north-and-cottage-grove foot
+edg: 60-and-woodlawn midway-south-and-woodlawn foot
+edg: 60-and-woodlawn 60-and-dorchester foot
+edg: 60-and-woodlawn 60-and-ellis foot
+edg: 52pl-and-harper(east) 52-and-harper(east) foot
+edg: museum-and-everett 57-and-everett foot
+edg: museum-and-everett museum-and-columbia foot
+edg: museum-and-everett museum-and-s-hyde-park foot
+edg: 51-and-s-hyde-park 53-and-s-hyde-park foot
+edg: 51-and-s-hyde-park 47-and-lake-shore foot
+edg: 51-and-s-hyde-park 51-and-cornell foot
+edg: 58-and-university 57-and-university foot
+edg: 58-and-university quad-loop-#2 foot
+edg: 54-and-kimbark 53-and-kimbark foot
+edg: 54-and-kimbark 54-culdesac foot
+edg: 52-and-dorchester 53-and-dorchester foot
+edg: 52-and-dorchester 52-and-kenwood foot
+edg: kimbark-culdesac 52-and-kimbark foot
+edg: 52-and-berkley 53-and-berkley foot
+edg: 52-and-berkley 52-and-ellis foot
+edg: 54pl-and-ellis the-other-55-and-ellis foot
+edg: 54pl-and-ellis 54-and-ellis foot
+edg: 54pl-and-ellis 54pl-culdesac-#2 foot
+edg: 54pl-and-ellis 54pl-and-ingleside foot
+edg: 53-and-lake-park 54-and-lake-park foot
+edg: 53-and-lake-park 52-and-lake-park foot
+edg: 53-and-lake-park 53-and-cornell foot
+edg: 53-and-lake-park 53-and-the-other-lake-park foot
+edg: 55-and-cornell 54-and-cornell foot
+edg: 55-and-cornell 55-and-s-hyde-park foot
+edg: 55-and-cornell 55-and-lake-park foot
+edg: rochdale-and-blackstone 55-and-blackstone(north) foot
+edg: rochdale-and-blackstone 54pl-and-blackstone foot
+edg: rochdale-and-blackstone rochdale-and-dorchester foot
+edg: 51-and-greenwood 52-and-greenwood foot
+edg: 51-and-greenwood 51-and-university foot
+edg: 51-and-greenwood 51-and-ellis foot
+edg: quad-loop-#3 greenwood-culdesac-#2 foot
+edg: quad-loop-#3 quad-loop-#2 foot
+edg: east-view-park-and-south-shore 55-and-south-shore(west) foot
+edg: east-view-park-and-south-shore south-shore-culdesac foot
+edg: east-view-park-and-south-shore 54-and-east-view-park foot
+edg: 57-and-everett 56-and-everett(east) foot
+edg: 57-and-everett 57-and-lake-shore foot
+edg: 57-and-everett 57-and-s-hyde-park foot
+edg: 59-and-university 58-and-university foot
+edg: 59-and-university 59-and-ellis foot
+edg: 53-and-kimbark 53-and-kenwood foot
+edg: 53-and-kimbark 53-and-woodlawn foot
+edg: 59-and-maryland 59-and-cottage-grove foot
+edg: 55-and-left-joint 55-and-dorchester(south) foot
+edg: 55-and-left-joint 55-and-kenwood foot
+edg: 52pl-and-harper(west) 52pl-and-harper(east) foot
+edg: 53-and-dorchester 54-and-dorchester foot
+edg: 53-and-dorchester 53-and-blackstone foot
+edg: 53-and-dorchester 53-and-kenwood foot
+edg: 57-and-ingleside ingleside-culdesac foot
+edg: 57-and-ingleside 57-and-ellis foot
+edg: 57-and-ingleside 57-and-drexel foot
+edg: everett-culdesac-#1 54-and-everett foot
+edg: 54-and-blackstone 54pl-and-blackstone foot
+edg: 54-and-blackstone 53-and-blackstone foot
+edg: 54-and-blackstone 54-and-harper foot
+edg: 54-and-blackstone 54-and-dorchester foot
+edg: museum-and-columbia science-and-columbia foot
+edg: midway-north-and-cottage-grove midway-south-and-cottage-grove foot
+edg: midway-north-and-cottage-grove 59-and-cottage-grove foot
+edg: 54-and-cornell 55-and-cornell foot
+edg: 54-and-cornell 53-and-cornell foot
+edg: 54-and-cornell 54-and-s-hyde-park foot
+edg: 53-and-s-hyde-park 54-and-s-hyde-park foot
+edg: 53-and-s-hyde-park 51-and-s-hyde-park foot
+edg: 53-and-s-hyde-park 53-and-east-view-park foot
+edg: 53-and-s-hyde-park 53-and-cornell foot
+edg: 53-and-blackstone 53-and-drexel(north) car
+edg: 53-and-blackstone 53-and-woodlawn car
+edg: 53-and-blackstone 53-and-s-hyde-park car
+edg: the-other-55-and-drexel the-other-55-and-university car
+edg: the-other-55-and-drexel the-other-55-and-ellis car
+edg: 54pl-and-drexel payne-dr-and-drexel car
+edg: 54pl-and-drexel 53-and-drexel(north) car
+edg: midway-south-and-woodlawn midway-south-and-cornell car
+edg: midway-south-and-woodlawn 51-and-woodlawn car
+edg: midway-south-and-woodlawn 53-and-woodlawn car
+edg: midway-south-and-woodlawn 55-and-woodlawn car
+edg: midway-south-and-woodlawn 57-and-woodlawn car
+edg: midway-south-and-woodlawn midway-north-and-woodlawn car
+edg: 55-and-s-hyde-park 55-and-cottage-grove car
+edg: 55-and-s-hyde-park 55-and-woodlawn car
+edg: 55-and-s-hyde-park 53-and-s-hyde-park car
+edg: 55-and-s-hyde-park museum-and-s-hyde-park car
+edg: the-other-55-and-ellis the-other-55-and-drexel car
+edg: the-other-55-and-ellis the-other-55-and-university car
+edg: 57-and-cottage-grove museum-and-57 car
+edg: 57-and-cottage-grove 57-and-woodlawn car
+edg: 57-and-cottage-grove 51-and-cottage-grove car
+edg: 57-and-cottage-grove 55-and-cottage-grove car
+edg: 57-and-cottage-grove midway-south-and-cottage-grove car
+edg: 57-and-cottage-grove midway-north-and-cottage-grove car
+edg: science-and-lake-shore 57-and-lake-shore car
+edg: 53-and-drexel(north) 53-and-s-hyde-park car
+edg: 53-and-drexel(north) 53-and-blackstone car
+edg: 53-and-drexel(north) 53-and-woodlawn car
+edg: 53-and-drexel(north) payne-dr-and-drexel car
+edg: 53-and-drexel(north) 54pl-and-drexel car
+edg: 57-and-lake-shore science-and-lake-shore car
+edg: 57-and-lake-shore 47-and-lake-shore car
+edg: 47-and-lake-shore 57-and-lake-shore car
+edg: 47-and-lake-shore 53-and-lake-shore car
+edg: 59-and-ellis 53-and-ellis car
+edg: 59-and-ellis 55-and-ellis car
+edg: 55-and-cottage-grove 55-and-s-hyde-park car
+edg: 55-and-cottage-grove 55-and-woodlawn car
+edg: 55-and-cottage-grove 51-and-cottage-grove car
+edg: 55-and-cottage-grove midway-south-and-cottage-grove car
+edg: 55-and-cottage-grove midway-north-and-cottage-grove car
+edg: 55-and-cottage-grove 57-and-cottage-grove car
+edg: midway-south-and-cottage-grove midway-south-and-cornell car
+edg: midway-south-and-cottage-grove midway-south-and-woodlawn car
+edg: midway-south-and-cottage-grove 51-and-cottage-grove car
+edg: midway-south-and-cottage-grove 55-and-cottage-grove car
+edg: midway-south-and-cottage-grove 57-and-cottage-grove car
+edg: midway-south-and-cottage-grove midway-north-and-cottage-grove car
+edg: 57-and-woodlawn 57-and-cottage-grove car
+edg: 57-and-woodlawn museum-and-57 car
+edg: 57-and-woodlawn 51-and-woodlawn car
+edg: 57-and-woodlawn 53-and-woodlawn car
+edg: 57-and-woodlawn 55-and-woodlawn car
+edg: 57-and-woodlawn midway-south-and-woodlawn car
+edg: 57-and-woodlawn midway-north-and-woodlawn car
+edg: midway-north-and-woodlawn midway-north-and-cottage-grove car
+edg: midway-north-and-woodlawn 51-and-woodlawn car
+edg: midway-north-and-woodlawn 53-and-woodlawn car
+edg: midway-north-and-woodlawn 55-and-woodlawn car
+edg: midway-north-and-woodlawn 57-and-woodlawn car
+edg: midway-north-and-woodlawn midway-south-and-woodlawn car
+edg: museum-and-s-hyde-park 53-and-s-hyde-park car
+edg: museum-and-s-hyde-park 55-and-s-hyde-park car
+edg: 51-and-cottage-grove 51-and-s-hyde-park car
+edg: 51-and-cottage-grove 51-and-woodlawn car
+edg: 51-and-cottage-grove midway-south-and-cottage-grove car
+edg: 51-and-cottage-grove midway-north-and-cottage-grove car
+edg: 51-and-cottage-grove 57-and-cottage-grove car
+edg: 51-and-cottage-grove 55-and-cottage-grove car
+edg: 55-and-ellis 53-and-ellis car
+edg: 55-and-ellis 59-and-ellis car
+edg: 55-and-woodlawn 55-and-cottage-grove car
+edg: 55-and-woodlawn 55-and-s-hyde-park car
+edg: 55-and-woodlawn 51-and-woodlawn car
+edg: 55-and-woodlawn 53-and-woodlawn car
+edg: 55-and-woodlawn midway-south-and-woodlawn car
+edg: 55-and-woodlawn midway-north-and-woodlawn car
+edg: 55-and-woodlawn 57-and-woodlawn car
+edg: the-other-55-and-university the-other-55-and-drexel car
+edg: the-other-55-and-university the-other-55-and-ellis car
+edg: 56-and-drexel 57-and-drexel car
+edg: 58-and-drexel 57-and-drexel car
+edg: 53-and-ellis 59-and-ellis car
+edg: 53-and-ellis 55-and-ellis car
+edg: payne-dr-and-drexel 54pl-and-drexel car
+edg: payne-dr-and-drexel 53-and-drexel(north) car
+edg: 53-and-woodlawn 53-and-drexel(north) car
+edg: 53-and-woodlawn 53-and-s-hyde-park car
+edg: 53-and-woodlawn 53-and-blackstone car
+edg: 53-and-woodlawn 51-and-woodlawn car
+edg: 53-and-woodlawn midway-south-and-woodlawn car
+edg: 53-and-woodlawn midway-north-and-woodlawn car
+edg: 53-and-woodlawn 57-and-woodlawn car
+edg: 53-and-woodlawn 55-and-woodlawn car
+edg: 57-and-drexel 58-and-drexel car
+edg: 57-and-drexel 56-and-drexel car
+edg: museum-and-57 midway-south-and-cornell car
+edg: museum-and-57 57-and-cottage-grove car
+edg: museum-and-57 57-and-woodlawn car
+edg: 51-and-woodlawn 51-and-cottage-grove car
+edg: 51-and-woodlawn 51-and-s-hyde-park car
+edg: 51-and-woodlawn midway-south-and-woodlawn car
+edg: 51-and-woodlawn midway-north-and-woodlawn car
+edg: 51-and-woodlawn 57-and-woodlawn car
+edg: 51-and-woodlawn 55-and-woodlawn car
+edg: 51-and-woodlawn 53-and-woodlawn car
+edg: midway-north-and-cornell midway-north-and-cottage-grove car
+edg: midway-north-and-cornell midway-north-and-woodlawn car
+edg: 51-and-s-hyde-park 51-and-cottage-grove car
+edg: 51-and-s-hyde-park 51-and-woodlawn car
+edg: midway-north-and-cottage-grove 51-and-cottage-grove car
+edg: midway-north-and-cottage-grove 55-and-cottage-grove car
+edg: midway-north-and-cottage-grove 57-and-cottage-grove car
+edg: midway-north-and-cottage-grove midway-south-and-cottage-grove car
+edg: 53-and-s-hyde-park 53-and-drexel(north) car
+edg: 53-and-s-hyde-park 53-and-woodlawn car
+edg: 53-and-s-hyde-park 53-and-blackstone car
+edg: 53-and-s-hyde-park museum-and-s-hyde-park car
+edg: 53-and-s-hyde-park 55-and-s-hyde-park car
+edg/
+wsk/
