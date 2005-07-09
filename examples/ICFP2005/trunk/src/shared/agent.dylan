@@ -5,6 +5,12 @@ define abstract class <agent> (<object>)
   slot wanted-name = "DyBot";
 end class <agent>;
 
+define method initialize (agent :: <agent>, #rest rest, #key, #all-keys)
+  next-method();
+  let name = agent.object-class.class-name;
+  agent.wanted-name := copy-sequence(name, start: 1, end: name.size - 1);
+end method;
+
 define open abstract class <cop> (<agent>)
   slot initial-transport = "cop-foot";
 end class <cop>;
@@ -14,35 +20,79 @@ end class <robber>;
 
 define open generic choose-move(agent :: <agent>, world :: <world>);
 
-define open generic make-informs(cop :: <cop>, world :: <world>) => (informs);
+define open generic make-informs(agent :: <agent>, world :: <world>) => (informs);
 
-define method make-informs(cop :: <cop>, world :: <world>) => (informs);
+define method make-informs(agent :: <agent>, world :: <world>) => (informs);
   #()
 end method make-informs;
 
-define open generic perceive-informs(informs, cop :: <cop>, world :: <world>);
+define open generic perceive-informs(informs, agent :: <agent>, world :: <world>);
+define method perceive-informs(informs, agent :: <agent>, world :: <world>)
+end method;
 
-define open generic make-plan(cop :: <cop>, world :: <world>) => (plan);
+define open generic make-plan(agent :: <agent>, world :: <world>) => (plan);
 
-define method make-plan(cop :: <cop>, world :: <world>) => (informs);
+define method make-plan(agent :: <agent>, world :: <world>) => (informs);
   #()
 end method make-plan;
 
-define open generic perceive-plans(plans, cop :: <cop>, world :: <world>);
+define open generic perceive-plans(plans, agent :: <agent>, world :: <world>);
 
-define method perceive-plans(plans, cop :: <cop>, world :: <world>);
+define method perceive-plans(plans, agent :: <agent>, world :: <world>);
 end method perceive-plans;
 
-define open generic make-vote(cop :: <cop>, world :: <world>) => (vote);
+define open generic perceive-offered-cops(offered-cops, robber :: <robber>, world :: <world>);
+define method perceive-offered-cops(offered-cops, robber :: <robber>, world :: <world>);
+end method;
+
+
+define open generic make-vote(agent :: <agent>, world :: <world>) => (vote);
+
+define method make-vote(robber :: <robber>, world :: <world>) => (vote);
+  concatenate(list(world.world-my-player), world.world-dirty-cops);
+end method make-vote;
 
 define method make-vote(cop :: <cop>, world :: <world>) => (vote);
   concatenate(list(world.world-my-player), world.world-other-cops);
 end method make-vote;
 
-define open generic perceive-vote(vote, cop :: <cop>, world :: <world>);
+define open generic perceive-vote(vote, agent :: <agent>, world :: <world>);
 
-define method perceive-vote(vote, cop :: <cop>, world :: <world>);
+define method perceive-vote(vote, agent :: <agent>, world :: <world>);
 end method perceive-vote;
+
+define open generic make-robber-informs(agent :: <cop>, world :: <world>);
+define method make-robber-informs(agent :: <cop>, world :: <world>)
+  #();
+end;
+
+define open generic perceive-robber-informs(informs, agent :: <cop>, world :: <world>);
+define method perceive-robber-informs(informs, agent :: <cop>, world :: <world>)
+end;
+
+define open generic make-robber-plan(agent :: <cop>, world :: <world>);
+define method make-robber-plan(agent :: <cop>, world :: <world>)
+  #()
+end method;
+
+define open generic perceive-robber-plans(plans, agent :: <cop>, world :: <world>);
+define method perceive-robber-plans(plans, agent :: <cop>, world :: <world>)
+end method;
+
+define open generic make-robber-vote(agent :: <cop>, world :: <world>);
+define method make-robber-vote(agent :: <cop>, world :: <world>)
+  concatenate(list(world.world-robber), world.world-dirty-cops);
+end;
+
+define open generic perceive-robber-vote(vote, agent :: <cop>, world :: <world>);
+define method perceive-robber-vote(vote, agent :: <cop>, world :: <world>)
+end;
+
+define open generic make-bribe(agent :: <robber>, world :: <world>);
+define method make-bribe(agent :: <robber>, world :: <world>)
+  "nobribe:";
+end;
+
 
 define open generic drive-agent(agent :: <agent>,
                                 input-stream :: <stream>,
@@ -51,42 +101,102 @@ define open generic drive-agent(agent :: <agent>,
 define method drive-agent(agent :: <robber>,
                           input-stream :: <stream>,
                           output-stream :: <stream>)
-  block()
+  //block()
     format(output-stream, "reg: %s robber\n", agent.wanted-name);
     force-output(output-stream);
     let skelet = read-world-skeleton(input-stream);
     block()
       while (#t)
         let world = read-world(input-stream, skelet);
-
-        /*
-        let next-world = advance-world(world);
-        for (cop in next-world.world-cops)
-          dbg("COP %s LOC %s\n", cop.player-name,
-              cop.player-location.node-name);
-        end for;
-        */
-
         agent.agent-player := world.world-my-player;
-        //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
-        block()
-          print(choose-move(agent, world));
-        exception (e :: <condition>)
-          print(make(<move>, 
-                     target: agent.agent-player.player-location,
-                     transport: agent.agent-player.player-type)).
-          dbg("Error %= while choose-move, ignored\n", e);
-        end block;
 
+        dbg("send inform\n");
+
+        send("inf\\\n");
+        block()
+          do(print, make-informs(agent, world));
+        exception (e :: <condition>)
+          dbg("Error %= while make-informs, ignored\n", e);
+        end block;
+        send("inf/\n");
+        block()
+          perceive-informs(read-from-message-inform(input-stream),
+                           agent, world);
+        exception (e :: <condition>)
+          dbg("Error %= while perceive-informs, ignored\n", e);
+        end block;
+        
+        send("plan\\\n");
+        block()
+          do(print, make-plan(agent, world));
+        exception (e :: <condition>)
+          dbg("Error %= while make-plan, ignored\n", e);
+        end block;
+        send("plan/\n");
+        
+        block()
+          perceive-plans(read-from-message-plan(input-stream),
+                         agent, world);
+        exception (e :: <condition>)
+          dbg("Error %= while perceive-plans, ignored\n", e);
+        end block;
+        
+        send("vote\\\n");
+        block()
+          do(method(x) send("vote: %s\n", x.player-name) end,
+             make-vote(agent, world));
+        exception (e :: <condition>)
+          do(method(x) send("vote: %s\n", x.player-name) end,
+             concatenate(list(world.world-my-player), world.world-dirty-cops));
+          dbg("Error %= while make-vote, ignored\n", e);
+        end block;
+        send("vote/\n");
+       
+        block()
+          perceive-vote(read-vote-tally(input-stream), agent, world);
+        exception (e :: <condition>)
+          dbg("Error %= while read-vote-tally, ignored\n", e);
+        end block;
+        
+        block()
+          send("%s\n", make-bribe(agent, world));
+        exception (e :: <condition>)
+          send("nobribe:\n");
+          dbg("Error %= while make-bribe, ignored\n", e);
+        end;
+
+        dbg("OFFERED\n");
+        let offered-cops = map(compose(curry(find-player, world),
+                                       bot),
+                               read-offered-cops(input-stream));
+        dbg("cops %=\n", offered-cops);
+
+        block()
+          perceive-offered-cops(offered-cops, agent, world);
+        exception (e :: <condition>)
+          dbg("Error %= while perceive-offered-cops\n", e);
+        end block;
+        dbg("TRY MOVING\n");
+        //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
+        //block()
+          print(choose-move(agent, world));
+        //exception (e :: <condition>)
+        //  print(make(<robber-move>, 
+        //             target: agent.agent-player.player-location,
+        //             transport: agent.agent-player.player-type,
+        //             bot: agent.agent-player)).
+        // dbg("Error %= while choose-move, ignored\n", e);
+        //end block;
+        dbg("FINISHED LOOP\n");
         force-output(output-stream);
       end while;
     exception (condition :: <parse-error>)
     end;
-  exception (condition :: <condition>)
-    dbg("Robber caught error: %=\n", condition);
-    report-condition(condition, *standard-error*);
-    dbg("Exiting program\n");
-  end;
+  //exception (condition :: <condition>)
+  //  dbg("Robber caught error: %=\n", condition);
+  //  report-condition(condition, *standard-error*);
+  //  dbg("Exiting program\n");
+  //end;
 end method drive-agent;
 
 define method drive-agent(agent :: <cop>,
@@ -136,12 +246,12 @@ define method drive-agent(agent :: <cop>,
         
         send("vote\\\n");
         block()
-          do(method(x) send("vote: %s\n", x) end,
+          do(method(x) send("vote: %s\n", x.player-name) end,
              make-vote(agent, world));
         exception (e :: <condition>)
-          do(method(x) send("vote: %s\n", x) end,
-             world.world-skeleton.cop-names);
-          dbg("Error %= while make-plan, ignored\n", e);
+          do(method(x) send("vote: %s\n", x.player-name) end,
+             world.world-cops);
+          dbg("Error %= while make-vote, ignored\n", e);
         end block;
         send("vote/\n");
         
@@ -153,14 +263,85 @@ define method drive-agent(agent :: <cop>,
           dbg("Error %= while read-vote-tally, ignored\n", e);
         end block;
         
-        block()
-          print(choose-move(agent, world));
-        exception (e :: <condition>)
-          print(make(<move>, 
-                     target: agent.agent-player.player-location,
-                     transport: agent.agent-player.player-type)).
-          dbg("Error %= while choose-move, ignored\n", e);
-        end block;
+        let dirty-cop? = member?(agent.agent-player, world.world-dirty-cops);
+
+        if (dirty-cop?)
+          block()
+            let move :: <dirty-cop-move> = choose-move(agent, world);
+            print(move);
+          exception (e :: <condition>)
+            print(make(<dirty-cop-move>,
+                       moves: list(make(<move>, 
+                                        target: agent.agent-player.player-location,
+                                        transport: agent.agent-player.player-type,
+                                        bot: agent.agent-player))));
+            dbg("Error %= while choose-move, ignored\n", e);
+          end block;
+          
+          let world = read-world(*standard-input*, skelet);
+          agent.agent-player := world.world-my-player;
+        
+          send("inf\\\n");
+          block()
+            do(print, make-robber-informs(agent, world));
+          exception (e :: <condition>)
+            dbg("Error %= while make-robber-informs, ignored\n", e);
+          end block;
+          send("inf/\n");
+        
+          block()
+            perceive-robber-informs(read-from-message-inform(input-stream),
+                                    agent, world);
+          exception (e :: <condition>)
+            dbg("Error %= while perceive-robber-informs, ignored\n", e);
+          end block;
+        
+          send("plan\\\n");
+          block()
+            do(print, make-robber-plan(agent, world));
+          exception (e :: <condition>)
+            dbg("Error %= while make-robber-plan, ignored\n", e);
+          end block;
+          send("plan/\n");
+          
+          block()
+            perceive-robber-plans(read-from-message-plan(input-stream),
+                                  agent, world);
+          exception (e :: <condition>)
+            dbg("Error %= while perceive-robber-plans, ignored\n", e);
+          end block;
+          
+          send("vote\\\n");
+          block()
+            do(method(x) send("vote: %s\n", x.player-name) end,
+               make-robber-vote(agent, world));
+          exception (e :: <condition>)
+            do(method(x) send("vote: %s\n", x.player-name) end,
+               concatenate(list(world.world-robber), world.world-dirty-cops));
+            dbg("Error %= while make-robber-vote, ignored\n", e);
+          end block;
+          send("vote/\n");
+        
+          block()
+            perceive-robber-vote(read-vote-tally(input-stream), agent, world);
+          exception (e :: <condition>)
+            do(method(x) send("vote: %s\n", x) end,
+               world.world-skeleton.cop-names);
+            dbg("Error %= while read-robber-vote-tally, ignored\n", e);
+          end block;
+          
+        else
+            block()
+              print(choose-move(agent, world));
+            exception (e :: <condition>)
+              print(make(<cop-move>,
+                         moves: list(make(<move>, 
+                                          target: agent.agent-player.player-location,
+                                          transport: agent.agent-player.player-type,
+                                          bot: agent.agent-player))));
+              dbg("Error %= while choose-move, ignored\n", e);
+            end block;
+        end if;
       end while;
     exception (condition :: <parse-error>)
     end;
@@ -170,6 +351,15 @@ define method drive-agent(agent :: <cop>,
   //  dbg("Exiting program\n");
   end;
 end method drive-agent;
+
+define constant bot-table = make(<case-insensitive-string-table>);
+define method register-bot (bot-class)
+  bot-table[bot-class.class-name] := bot-class;
+end method;
+
+define method find-bot (bot-class)
+  bot-table[bot-class];
+end method;
 
 define method print (inform :: <inform>)
   if (inform.plan-world < 200) 
@@ -191,25 +381,70 @@ end method print;
 define class <move> (<object>)
   slot target :: <node>, init-keyword: target:;
   slot transport :: <string>, init-keyword: transport:;
+  slot bot :: <player>, init-keyword: bot:;
 end class;
 
 lock-down <move>  end;
 
 
 define method print (move :: <move>)
-  send("mov: %s %s\n",
+  send("mov: %s %s %s\n",
        move.target.node-name,
-       move.transport);
+       move.transport,
+       move.bot.player-name);
+end method;
+
+define class <robber-move> (<move>)
+  slot bribe = "nobribe:", init-keyword: bribe:;
+end class;
+
+define method print (move :: <robber-move>)
+  send("rmov\\\n");
+  next-method();
+  //XXX more complex
+  send("%s\n", move.bribe);
+  send("rmov/\n");
+end method;
+
+define class <cop-move> (<object>)
+  slot moves, init-keyword: moves:;
+  slot offer = "straight-arrow:", init-keyword: offer:;
+  slot accusations = #(), init-keyword: accusations:;
+end class;
+
+define class <dirty-cop-move> (<cop-move>)
+end class;
+
+define method print(move :: <cop-move>)
+  send("cmov\\\n");
+  send("%s\n", move.offer);
+  send("mov\\\n");
+  do(print, move.moves);
+  send("mov/\n");
+  send("acc\\\n");
+  do(method(x)
+         send("acc: %s\n", x.player-name);
+     end, move.accusations);
+  send("acc/\n");
+  send("cmov/\n");
+end;
+
+define method print(move :: <dirty-cop-move>)
+  send("mov\\\n");
+  do(print, move.moves);
+  send("mov/\n");
 end method;
 
 define method generate-moves-in-direction (player :: <player>,
                                            target-id :: <integer>,
-                                           #key transport-type = #f)
+                                           #key transport-type,
+                                           away)
  => (moves)
   let moves = if (transport-type)
                 generate-moves(make(<move>,
                                     target: player.player-location,
-                                    transport: transport-type),
+                                    transport: transport-type,
+                                    bot: player),
                                keep-current-transport: #t)
               else
                 generate-moves(player);
@@ -230,7 +465,7 @@ define method generate-moves-in-direction (player :: <player>,
   let move-indices
     = sort(range(size: moves.size),
            test: method(x,y)
-                     move-distance[x] < move-distance[y]
+                     if (away) \> else \< end (move-distance[x], move-distance[y])
                  end);
   move-indices := choose(method(x)
                              move-distance[x]
@@ -255,7 +490,8 @@ define method generate-moves (player :: <player>,
   => (move :: <simple-object-vector>)
   let move = make(<move>,
                   target: player.player-location,
-                  transport: player.player-type);
+                  transport: player.player-type,
+                  bot: player);
   generate-moves(move, keep-current-transport: keep-current-transport);
 
 end method;
@@ -269,7 +505,8 @@ define method generate-moves(move :: <move>,
           for (tar :: <node> in list)
             add!(options, make(<move>,
                                target: tar,
-                               transport: transport));
+                               transport: transport,
+                               bot: move.bot));
           end;
         end method;
 
@@ -313,7 +550,8 @@ end method;
 define method smelled-nodes-aux(player :: <player>)
   let move = make(<move>,
                   target: player.player-location,
-                  transport: "cop-foot");
+                  transport: "cop-foot",
+                  bot: player);
   let (first-rank, first-nodes) = distance(player, //not used
                                            move.target,
                                            source: move,
@@ -390,7 +628,8 @@ define function distance
      #key source :: <move>
        = make(<move>,
               target: player.player-location,
-              transport: player.player-type),
+              transport: player.player-type,
+              bot: player),
      keep-current-transport = #f,
      maximum-rank = #f)
  => (rank :: <integer>, shortest-path :: <list>)

@@ -27,7 +27,15 @@ define module stupid-predicting-cop
   export <stupid-predicting-cop>;
 end module;
 
+define module dirty-cop
+  use common-dylan;
+  use simple-random;
+  use world;
+  use predicting-cop;
+  use stupid-predicting-cop;
 
+  export <dirty-cop>;
+end module;
 
 define module cop
   use common-dylan;
@@ -36,4 +44,5 @@ define module cop
 
   use predicting-cop;
   use stupid-predicting-cop;
+  use dirty-cop;
 end module;

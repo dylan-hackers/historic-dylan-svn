@@ -5,6 +5,7 @@ define class <bruce-robber> (<robber>)
   slot goal-banks :: <stretchy-object-vector> = make(<stretchy-vector>);
 end class <bruce-robber>;
 
+register-bot(<bruce-robber>);
 
 define function find-accessable-banks(robber :: <bruce-robber>, world :: <world>)
  => ();
@@ -244,7 +245,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
     end;
   end;
 
-  make(<move>, target: next-node, transport: "robber");
+  make(<robber-move>, target: next-node, transport: "robber", bot: world.world-my-player);
 
 end method choose-move;
 

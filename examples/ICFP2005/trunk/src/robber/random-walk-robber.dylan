@@ -4,6 +4,8 @@ define class <random-walk-robber> (<robber>)
     slot most-recently-robbed-bank :: false-or(<bank>) = #f;
 end class <random-walk-robber>;
 
+register-bot(<random-walk-robber>);
+
 define method random-move(robber :: <random-walk-robber>,
                           world :: <world>,
                           dangerous-nodes) => (move);

@@ -1,8 +1,5 @@
-SHARED=../shared/Makefile ../shared/world.lid ../shared/world-exports.dylan \
-../shared/util.dylan  ../shared/world.dylan ../shared/agent.dylan
 
-cop: cop.lid cop.dylan predicting-cop.dylan stupid-predicting-cop.dylan cop-exports.dylan ${SHARED}
-	(cd ../shared; make)
+cop: cop.lid cop.dylan predicting-cop.dylan stupid-predicting-cop.dylan cop-exports.dylan ../shared/world.lib.du
 	d2c -s -L../shared cop.lid
 
 run:

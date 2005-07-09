@@ -16,17 +16,21 @@ define class <world-skeleton> (<object>)
 end;
 
 define class <world> (<object>)
-  constant slot world-number         :: <integer>, required-init-keyword: number:;
-  constant slot world-loot           :: <integer>, required-init-keyword: loot:;
-  constant slot world-banks          :: <vec>, required-init-keyword: banks:;
-  constant slot world-evidences      :: <vec>, required-init-keyword: evidences:;
-  constant slot world-smell-distance :: <integer>, required-init-keyword: smell:;
-  constant slot world-cops           :: <vec>, required-init-keyword: cops:;
-  constant slot world-other-cops     :: <vec>, required-init-keyword: other-cops:;
-  constant slot world-my-player      :: <player>, required-init-keyword: my-player:;
-  constant slot world-robber         :: false-or(<player>), required-init-keyword: robber:;
-  constant slot world-skeleton       :: <world-skeleton>, required-init-keyword: skeleton:;
-  constant slot world-informs        :: <collection> = make(<stretchy-vector>);
+  constant slot world-number            :: <integer>, required-init-keyword: number:;
+  constant slot world-loot              :: <integer>, required-init-keyword: loot:;
+  constant slot world-dirty-cops        :: <vec>, required-init-keyword: dirty-cops:;
+  constant slot world-bot-takeover      :: <vec>, required-init-keyword: bot-takeover:;
+  constant slot world-false-accusations :: <vec>, required-init-keyword: false-accusations:;
+  constant slot world-banks             :: <vec>, required-init-keyword: banks:;
+  constant slot world-evidences         :: <vec>, required-init-keyword: evidences:;
+  constant slot world-smell-distance    :: <integer>, required-init-keyword: smell:;
+  constant slot world-players           :: <vec>, required-init-keyword: players:;
+  constant slot world-cops              :: <vec>, required-init-keyword: cops:;
+  constant slot world-other-cops        :: <vec>, required-init-keyword: other-cops:;
+  constant slot world-my-player         :: <player>, required-init-keyword: my-player:;
+  constant slot world-robber            :: false-or(<player>), required-init-keyword: robber:;
+  constant slot world-skeleton          :: <world-skeleton>, required-init-keyword: skeleton:;
+  constant slot world-informs           :: <collection> = make(<stretchy-vector>);
 end class;
 
 define class <node> (<object>)
@@ -194,25 +198,32 @@ define method make (world == <world>,
                     #next next-method,
                     #rest rest,
                     #key players,
+                    dirty-cops,
+                    bot-takeover,
+                    false-accusations,
                     number,
                     #all-keys) => (res :: <world>)
   let args = rest;
   args := exclude(args, #"players");
   let players = players;
+  let all-players = copy-sequence(players);
   local method find-pl (name)
           block(return)
-            for (element in players)
+            for (element in all-players)
               if (element.player-name = name)
-                players := remove!(players, element);
                 return(element);
               end if;
             end for;
             #f;
           end block;
         end method;
-          
+
+
   let my-player = find-pl(*world-skeleton*.my-name);
+  players := remove!(players, my-player);
+
   let robber = find-pl(*world-skeleton*.robber-name);
+  players := remove!(players, robber);
 
   players := sort!(players, test: method(x, y)
                                       x.player-name < y.player-name;
@@ -240,14 +251,41 @@ define method make (world == <world>,
                    type: "robber");
   end;
 
+  let dirty-cops* = map(compose(find-pl, bot), dirty-cops); 
+  args := exclude(args, #"dirty-cops");
+
+  for (x in bot-takeover)
+    x.taken-bot := find-pl(x.taken-bot);
+    x.controller := find-pl(x.controller);
+  end;
+  
+  for (x in false-accusations)
+    x.accusing-bot := find-pl(x.accusing-bot);
+    x.accused-bot := find-pl(x.accused-bot);
+    x.false-accusation-world := string-to-integer(x.false-accusation-world);
+  end;
+
   apply(next-method,
         world,
         number: number,
+        dirty-cops: dirty-cops*,
         cops: cops,
+        players: all-players,
         robber: robber,
         my-player: my-player,
         other-cops: players,
         args);
+end method;
+
+define method find-player (world :: <world>, name :: <string>)
+  block(return)
+    for (element in world.world-players)
+      if (element.player-name = name)
+        return(element);
+      end if;
+    end for;
+    #f;
+  end block;
 end method;
 
 define method make (world-skeleton == <world-skeleton>,
@@ -370,12 +408,44 @@ define method read-world-skeleton(stream :: <stream>)
                            edges: edges);
 end;
 
+define class <dirty-cops> (<object>)
+  slot bot, required-init-keyword: bot:;
+end class;
+
+define class <bot-taken> (<object>)
+  slot taken-bot, required-init-keyword: taken-bot:;
+  slot controller, required-init-keyword: controller:;
+end;
+
+define class <false-accusation> (<object>)
+  slot accusing-bot, required-init-keyword: accusing-bot:;
+  slot accused-bot, required-init-keyword: accused-bot:;
+  slot false-accusation-world, required-init-keyword: world:;
+end;
 
 define method read-world (stream, skeleton)
   let re = curry(re, stream);
   re("wor\\\\");
   let world = re("wor:", number-re);
   let loot = re("rbd:", number-re);
+  re("dc\\\\");
+  let dirty-cops =
+    collect(stream,
+            <dirty-cops>,
+            #(bot:),
+            list("dc:", name-re));
+  re("sc\\\\");
+  let bot-takeover =
+    collect(stream,
+            <bot-taken>,
+            #(taken-bot:, controller:),
+            list("sc:", name-re, name-re));
+  re("fac\\\\");
+  let false-accusations =
+    collect(stream,
+            <false-accusation>,
+            #(accusing-bot:, accused-bot:. world:),
+            list("fac:", name-re, name-re, number-re));
   re("bv\\\\");
   let banks =
     collect(stream,
@@ -402,6 +472,9 @@ define method read-world (stream, skeleton)
     make(<world>,
          number: world,
          loot: string-to-integer(loot),
+         dirty-cops: dirty-cops,
+         bot-takeover: bot-takeover,
+         false-accusations: false-accusations,
          banks: banks,
          evidences: evidences,
          smell: string-to-integer(smell),
@@ -463,3 +536,24 @@ define method read-vote-tally (stream)
     //no winner
   end;
 end method;
+
+define method read-accused (stream)
+  let re = curry(re, stream);
+  re("accused:");
+end;
+
+define method read-offered-cops (stream)
+  let re = curry(re, stream);
+  let res = #();
+  block()
+    re("nottelling:");
+  exception(cond :: <parse-error>)
+    res := collect(stream,
+                   <dirty-cops>,
+                   #(bot:),
+                   list("ofc:", name-re));
+    dbg("RES %=\n", res);
+  end;
+  res;
+end;
+

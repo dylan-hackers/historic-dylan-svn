@@ -13,6 +13,8 @@ define abstract class <predicting-cop> (<cop>)
   slot rogue-cops :: <stretchy-vector> = make(<stretchy-vector>);
 end class <predicting-cop>;
 
+register-bot(<predicting-cop>);
+
 define method consider-evidence (evidence :: <evidence>, 
                                  world :: <world>,
                                  cop :: <predicting-cop>)
@@ -230,14 +232,7 @@ define method perceive-plans(plan-from-messages,
         if (ele.plan-world = world.world-number + 1)
 
           //search for player-object
-          let bot =
-            block(return)
-              for (player in world.world-cops)
-                if (player.player-name = ele.plan-bot)
-                  return(player)
-                end if;
-              end for;
-            end block;
+          let bot = find-player(world, ele.plan-bot);
           
           if (bot)
   
@@ -250,7 +245,8 @@ define method perceive-plans(plan-from-messages,
 
               let move = make(<move>,
                               target: ele.plan-location,
-                              transport: ele.plan-type);
+                              transport: ele.plan-type,
+                              bot: bot);
 
               //if it is a valid move, add probability from prob-map to sum
               block (return)
@@ -272,7 +268,9 @@ define method perceive-plans(plan-from-messages,
         end if;
       end for;
       //dbg("PERC PLA: %s %s\n", fmp.sender, sum);
-      cop.plan-ranking := add!(cop.plan-ranking, pair(sum, fmp.sender));
+      cop.plan-ranking := add!(cop.plan-ranking,
+                               pair(sum,
+                                    find-player(world, fmp.sender)));
     end unless;
   end for;
 end method perceive-plans;
@@ -282,7 +280,7 @@ define method make-vote(cop :: <predicting-cop>, world :: <world>) => (vote);
   let ranking = map(tail, sort!(cop.plan-ranking, test: method(x, y)
                                                             head(x) > head(y);
                                                         end));
-  let res = concatenate(list(cop.agent-player.player-name), ranking);
+  let res = concatenate(list(cop.agent-player), ranking);
   //dbg("VOTE RES: %=\n", res);
   res;
 end method make-vote;

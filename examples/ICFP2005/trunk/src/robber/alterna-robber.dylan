@@ -4,6 +4,8 @@ define class <alterna-robber> (<robber>)
   slot most-recently-robbed-bank :: false-or(<bank>) = #f;
 end class <alterna-robber>;
 
+register-bot(<alterna-robber>);
+
 define method choose-move(robber :: <alterna-robber>, world :: <world>)
   let possible-nodes = map(target, generate-moves(robber.agent-player));
 
@@ -29,7 +31,7 @@ define method choose-evasive-move(possible-nodes,
                                       x.evasive-score > y.evasive-score
                                   end);
 
-    make(<move>, target: sorted-nodes[0], transport: "robber");
+    make(<move>, target: sorted-nodes[0], transport: "robber", bot: robber.agent-player);
   else
     #f
   end
@@ -60,7 +62,7 @@ define method choose-robbing-move(robber :: <alterna-robber>, world :: <world>)
             distances);
   
   if (size(best-bank.tail) > 0)
-    make(<move>, target: best-bank.tail[0].target, transport: "robber")
+    make(<move>, target: best-bank.tail[0].target, transport: "robber", bot: robber.agent-player)
   end if;
 end method choose-robbing-move;
         

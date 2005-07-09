@@ -3,4 +3,4 @@ synopsis:
 author: 
 copyright: 
 
-drive-agent(make(<stupid-predicting-cop>), *standard-input*, *standard-output*);
+drive-agent(make(<dirty-cop>), *standard-input*, *standard-output*);

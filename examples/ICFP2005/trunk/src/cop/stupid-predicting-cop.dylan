@@ -4,8 +4,11 @@ define class <stupid-predicting-cop> (<predicting-cop>)
   slot my-target-move :: <move>;
 end class;
 
+register-bot(<stupid-predicting-cop>);
+
 define method choose-move(cop :: <stupid-predicting-cop>, world :: <world>)
-  cop.my-target-move;
+  make(<cop-move>,
+       moves: list(cop.my-target-move));
 end method choose-move;
 
 define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (plan)

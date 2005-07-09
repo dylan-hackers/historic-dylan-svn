@@ -2,17 +2,20 @@ module: dylan-user
 
 define library world
   use common-dylan;
-  use Dylan, import: {Extensions};
+  use Dylan, import: {Extensions, Introspection};
   use io;
   use system;
   use regular-expressions;
   use collection-extensions;
+  use table-extensions;
   //use streams;
   export world;
 end library;
 
 
 define module world
+  use Introspection;
+  use table-extensions;
   use common-dylan, exclude: {<string>};
   use format-out;
   use standard-io;
@@ -43,9 +46,13 @@ define module world
   export <world>,
     world-number,
     world-loot,
+    world-dirty-cops,
+    world-bot-takeover,
+    world-false-accusations,
     world-banks,
     world-evidences,
     world-smell-distance,
+    world-players,
     world-other-cops,
     world-cops,
     world-my-player,
@@ -117,6 +124,8 @@ define module world
 
   export drive-agent;
 
+  export find-player;
+
   export <agent>,
     agent-player;
 
@@ -124,7 +133,27 @@ define module world
     initial-transport,
     <robber>;
 
+  export register-bot,
+    find-bot;
+
+  export make-robber-informs,
+    perceive-robber-informs,
+    make-robber-plan,
+    perceive-robber-plans,
+    make-robber-vote,
+    perceive-robber-vote,
+    make-bribe,
+    perceive-offered-cops;
+
   export  <move>,
+    <robber-move>,
+    <cop-move>,
+    moves,
+    offer,
+    offer-setter,
+    bribe,
+    bribe-setter,
+    bot,
     target,
     transport,
     transport-setter;
