@@ -14,7 +14,11 @@ define module predicting-cop
   use simple-random;
   use world;
   
-  export <predicting-cop>, probability-map, planned-moves;
+  export <predicting-cop>,
+    probability-map,
+    planned-moves,
+    plan-ranking,
+    plan-ranking-setter;
 end module;
 
 
@@ -24,7 +28,9 @@ define module stupid-predicting-cop
   use world;
   use predicting-cop;
   
-  export <stupid-predicting-cop>;
+  export <stupid-predicting-cop>,
+    my-target-move,
+    my-target-move-setter;
 end module;
 
 define module dirty-cop
