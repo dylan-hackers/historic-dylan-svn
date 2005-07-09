@@ -263,9 +263,8 @@ define method drive-agent(agent :: <cop>,
           dbg("Error %= while read-vote-tally, ignored\n", e);
         end block;
         
-        let dirty-cop? = member?(agent.agent-player, world.world-dirty-cops);
 
-        if (dirty-cop?)
+        if (dirty-cop?(agent, world))
           block()
             let move :: <dirty-cop-move> = choose-move(agent, world);
             print(move);
@@ -351,6 +350,10 @@ define method drive-agent(agent :: <cop>,
   //  dbg("Exiting program\n");
   end;
 end method drive-agent;
+
+define method dirty-cop? (cop, world :: <world>)
+  member?(cop.agent-player, world.world-dirty-cops);
+end method;
 
 define constant bot-table = make(<case-insensitive-string-table>);
 define method register-bot (bot-class)

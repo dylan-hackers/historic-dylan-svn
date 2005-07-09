@@ -143,11 +143,13 @@ define module world
     make-robber-vote,
     perceive-robber-vote,
     make-bribe,
-    perceive-offered-cops;
+    perceive-offered-cops,
+    dirty-cop?;
 
   export  <move>,
     <robber-move>,
     <cop-move>,
+    <dirty-cop-move>,
     moves,
     offer,
     offer-setter,

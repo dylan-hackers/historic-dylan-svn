@@ -7,6 +7,11 @@ register-bot(<dirty-cop>);
 
 define method choose-move(agent :: <dirty-cop>, world :: <world>)
   let move = next-method();
-  move.offer := "turncoat:";
-  move;
+  if (dirty-cop?(agent, world))
+    make(<dirty-cop-move>,
+         moves: move.moves);
+  else
+    move.offer := "turncoat:";
+    move;
+  end;
 end method;
