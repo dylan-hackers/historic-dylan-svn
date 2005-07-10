@@ -235,8 +235,8 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
   dbg("safest of len 4   len = %d, path = %=\n",
       safest-len4-cost, map(node-id, safest-len4.reverse));
   
-  if (longest-safe-including-move.size < 6)
-    if (longest-safe-path.size >= 6)
+  if (longest-safe-including-move.size < 4)
+    if (longest-safe-path.size > longest-safe-including-move.size)
       next-node := longest-safe-path.last;
     else
       next-node := safest-len4.last;
@@ -287,7 +287,7 @@ define function find-safe-paths
           let path-to-start = shortest-path[start-id];
           let cost-to-start = cost-to[start-id];
           let distance-to-at-start = distance-to[start-id];
-          let density-round-num = distance-to-at-start + 1;
+          let density-round-num = distance-to-at-start;
           if (density-round-num > density-round-max)
             density-round-num := density-round-max;
           end;
@@ -316,12 +316,12 @@ define function find-safe-paths
                 smell-level := smell-level +
                   if (fetch(smell-range,cop-num,next-id) > 0) 1 else 0 end;
                 cop-probability := cop-probability +
-                  if (fetch(cop-density,cop-num,next-id) > 1000000) 1 else 0 end;
+                  if (fetch(cop-density,cop-num,next-id) > 100000) 1 else 0 end;
               end;
               let penalty =
                 100000 * current-position-level +
                 1000 * imminent-danger-level +
-                cop-probability * cop-probability;
+                truncate/(cop-probability * cop-probability, 3);
               /*
                 case
                   //smell-level > 0 => 5;
