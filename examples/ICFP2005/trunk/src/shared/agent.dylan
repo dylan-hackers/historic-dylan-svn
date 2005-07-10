@@ -240,18 +240,18 @@ define method drive-agent(agent :: <cop>,
         block()
           perceive-plans(read-from-message-plan(input-stream),
                        agent, world);
-//        exception (e :: <condition>)
-//          dbg("Error %= while perceive-plans, ignored\n", e);
+        exception (e :: <condition>)
+          dbg("Error %= while perceive-plans, ignored\n", e);
         end block;
         
         send("vote\\\n");
         block()
           do(method(x) send("vote: %s\n", x.player-name) end,
              make-vote(agent, world));
-//        exception (e :: <condition>)
-//          do(method(x) send("vote: %s\n", x.player-name) end,
-//             world.world-cops);
-//          dbg("Error %= while make-vote, ignored\n", e);
+        exception (e :: <condition>)
+          do(method(x) send("vote: %s\n", x.player-name) end,
+             world.world-cops);
+          dbg("Error %= while make-vote, ignored\n", e);
         end block;
         send("vote/\n");
         

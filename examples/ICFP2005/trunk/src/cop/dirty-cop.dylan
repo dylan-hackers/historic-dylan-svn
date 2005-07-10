@@ -6,11 +6,11 @@ end class;
 register-bot(<dirty-cop>);
 
 define method choose-move(agent :: <dirty-cop>, world :: <world>)
-  /*
+  
   let move = make(<cop-move>,
                   moves: list(random-player-move(agent.agent-player)));
-*/
-  let move = next-method();
+
+//  let move = next-method();
   if (dirty-cop?(agent, world))
     make(<dirty-cop-move>,
          moves: move.moves);

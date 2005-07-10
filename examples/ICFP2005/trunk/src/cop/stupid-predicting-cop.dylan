@@ -2,6 +2,7 @@ module: stupid-predicting-cop
 
 define class <stupid-predicting-cop> (<predicting-cop>)
   slot all-planned-moves :: <collection> = #();
+  slot invalid-moves :: <string-table> = make(<string-table>);
 end class;
 
 register-bot(<stupid-predicting-cop>);
@@ -35,11 +36,46 @@ define method choose-move(cop :: <stupid-predicting-cop>, world :: <world>)
   let moves = map(curry(choose-move-for, cop), world.world-my-players);
   make(<cop-move>,
        moves: moves,
-       accusations: cop.accusations);
+       //we are always sure players we control aren't bad players
+       accusations: choose(method(x)
+                               ~ member?(x, world.world-my-players);
+                           end, cop.accusations));
 end method choose-move;
 
+define method check-moves (moves, world, cop)
+  if (world.world-loot > 0)
+    for (false-accusation in world.world-false-accusations)
+      if (world.world-number = false-accusation.false-accusation-world + 2)
+        dbg("FALSE ACC %= accused %= in world %= (curworld %=)\n",
+            false-accusation.accusing-bot.player-name,
+            false-accusation.accused-bot.player-name,
+            false-accusation.false-accusation-world,
+            world.world-number);
+        cop.invalid-moves[false-accusation.accused-bot.player-name] := 0; //=0?
+        cop.invalid-moves[false-accusation.accusing-bot.player-name] := 0; //=0?
+      end if;
+    end for;
+    for (move in moves)
+      let player = find-player(world, move.bot.player-name);
+      unless (player.player-location = move.target)
+        dbg("PLAYER %s didn't follow the winning plan %= LOC %=\n",
+            player.player-name,
+            move.target.node-name,
+            player.player-location.node-name);
+        cop.invalid-moves[player.player-name] :=
+          element(cop.invalid-moves, player.player-name, default: 0) + 1;
+        if (cop.invalid-moves[player.player-name] = 5)
+          cop.accusations := add!(cop.accusations, player);
+        end if;
+      end unless;
+    end for;
+  end if;
+end method;
+
+
 define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (plan)
-  cop.all-moves := #();
+  check-moves(cop.all-planned-moves, world, cop);
+  cop.all-moves := make(<stretchy-vector>);
   let sorted-nodes
     = copy-sequence(sort(range(size: maximum-node-id()),
                          test: method(x, y)
@@ -49,7 +85,7 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
   let players = world.world-cops;
   let sorted-players = make(<stretchy-vector>);
 
-  let transports = #();
+  let transports = make(<stretchy-vector>);
 
   if(world.world-number = 1)
     let trans = list("cop-foot", "cop-car");

@@ -1,4 +1,4 @@
 #!/bin/sh
 
 DIR=$(dirname $0)
-$DIR/bot-driver "<$1>" 2> /tmp/$1.log
+$DIR/bot-driver "<$1>" 2> /tmp/$1.$$.log

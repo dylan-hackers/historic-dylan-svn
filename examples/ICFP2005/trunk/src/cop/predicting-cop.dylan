@@ -7,7 +7,6 @@ define abstract class <predicting-cop> (<cop>)
   slot plan-ranking :: <stretchy-vector> = make(<stretchy-vector>);
   slot accusations = #();
   slot all-moves;
-  slot invalid-moves :: <table> = make(<table>);
 //  slot foo = #t;
 end class <predicting-cop>;
 
