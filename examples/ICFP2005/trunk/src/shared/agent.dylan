@@ -98,6 +98,62 @@ define open generic drive-agent(agent :: <agent>,
                                 input-stream :: <stream>,
                                 output-stream :: <stream>);
 
+define method drive-agent-aux(agent :: <agent>,
+                              input-stream :: <stream>,
+                              output-stream :: <stream>,
+                              skelet :: <world-skeleton>)
+ => (world :: <world>)
+  let world = read-world(input-stream, skelet);
+  agent.agent-player := world.world-my-player;
+
+  send("inf\\\n");
+  block()
+    do(print, make-informs(agent, world));
+  exception (e :: <condition>)
+    dbg("Error %= while make-informs, ignored\n", e);
+  end block;
+  send("inf/\n");
+  block()
+    perceive-informs(read-from-message-inform(input-stream),
+                     agent, world);
+  exception (e :: <condition>)
+    dbg("Error %= while perceive-informs, ignored\n", e);
+  end block;
+  
+  send("plan\\\n");
+  block()
+    do(print, make-plan(agent, world));
+  exception (e :: <condition>)
+    dbg("Error %= while make-plan, ignored\n", e);
+  end block;
+  send("plan/\n");
+  
+  let plans = read-from-message-plan(input-stream);
+  block()
+    perceive-plans(plans, agent, world);
+  exception (e :: <condition>)
+    dbg("Error %= while perceive-plans, ignored\n", e);
+  end block;
+  
+  send("vote\\\n");
+  block()
+    do(method(x) send("vote: %s\n", x.player-name) end,
+       make-vote(agent, world));
+  exception (e :: <condition>)
+    do(method(x) send("vote: %s\n", x) end,
+       map(sender, plans));
+    dbg("Error %= while make-vote, ignored\n", e);
+  end block;
+  send("vote/\n");
+  
+  block()
+    perceive-vote(read-vote-tally(input-stream), agent, world);
+  exception (e :: <condition>)
+    dbg("Error %= while read-vote-tally, ignored\n", e);
+  end block;
+  world;
+end method;
+
 define method drive-agent(agent :: <robber>,
                           input-stream :: <stream>,
                           output-stream :: <stream>)
@@ -107,57 +163,9 @@ define method drive-agent(agent :: <robber>,
     let skelet = read-world-skeleton(input-stream);
     block()
       while (#t)
-        let world = read-world(input-stream, skelet);
-        agent.agent-player := world.world-my-player;
 
-        dbg("send inform\n");
+        let world = drive-agent-aux(agent, input-stream, output-stream, skelet);
 
-        send("inf\\\n");
-        block()
-          do(print, make-informs(agent, world));
-        exception (e :: <condition>)
-          dbg("Error %= while make-informs, ignored\n", e);
-        end block;
-        send("inf/\n");
-        block()
-          perceive-informs(read-from-message-inform(input-stream),
-                           agent, world);
-        exception (e :: <condition>)
-          dbg("Error %= while perceive-informs, ignored\n", e);
-        end block;
-        
-        send("plan\\\n");
-        block()
-          do(print, make-plan(agent, world));
-        exception (e :: <condition>)
-          dbg("Error %= while make-plan, ignored\n", e);
-        end block;
-        send("plan/\n");
-        
-        block()
-          perceive-plans(read-from-message-plan(input-stream),
-                         agent, world);
-        exception (e :: <condition>)
-          dbg("Error %= while perceive-plans, ignored\n", e);
-        end block;
-        
-        send("vote\\\n");
-        block()
-          do(method(x) send("vote: %s\n", x.player-name) end,
-             make-vote(agent, world));
-        exception (e :: <condition>)
-          do(method(x) send("vote: %s\n", x.player-name) end,
-             concatenate(list(world.world-my-player), world.world-dirty-cops));
-          dbg("Error %= while make-vote, ignored\n", e);
-        end block;
-        send("vote/\n");
-       
-        block()
-          perceive-vote(read-vote-tally(input-stream), agent, world);
-        exception (e :: <condition>)
-          dbg("Error %= while read-vote-tally, ignored\n", e);
-        end block;
-        
         block()
           send("%s\n", make-bribe(agent, world));
         exception (e :: <condition>)
@@ -208,59 +216,8 @@ define method drive-agent(agent :: <cop>,
     
     block()
       while (#t)
-        let world = read-world(*standard-input*, skelet);
-        if (world.world-robber)
-          dbg("DRIVE: ROBBER POS: %s\n", world.world-robber.player-location.node-name);
-        end;
-        agent.agent-player := world.world-my-player;
-        
-        send("inf\\\n");
-        block()
-          do(print, make-informs(agent, world));
-        exception (e :: <condition>)
-          dbg("Error %= while make-informs, ignored\n", e);
-        end block;
-        send("inf/\n");
-        
-        block()
-          perceive-informs(read-from-message-inform(input-stream),
-                           agent, world);
-        exception (e :: <condition>)
-          dbg("Error %= while perceive-informs, ignored\n", e);
-        end block;
-        
-        send("plan\\\n");
-        block()
-          do(print, make-plan(agent, world));
-        exception (e :: <condition>)
-          dbg("Error %= while make-plan, ignored\n", e);
-        end block;
-        send("plan/\n");
-        
-        block()
-          perceive-plans(read-from-message-plan(input-stream),
-                       agent, world);
-        exception (e :: <condition>)
-          dbg("Error %= while perceive-plans, ignored\n", e);
-        end block;
-        
-        send("vote\\\n");
-        block()
-          do(method(x) send("vote: %s\n", x.player-name) end,
-             make-vote(agent, world));
-        exception (e :: <condition>)
-          do(method(x) send("vote: %s\n", x.player-name) end,
-             world.world-cops);
-          dbg("Error %= while make-vote, ignored\n", e);
-        end block;
-        send("vote/\n");
-        
-        block()
-          perceive-vote(read-vote-tally(input-stream), agent, world);
-        exception (e :: <condition>)
-          dbg("Error %= while read-vote-tally, ignored\n", e);
-        end block;
-        
+
+        let world = drive-agent-aux(agent, input-stream, output-stream, skelet);
 
         if (dirty-cop?(agent, world))
           block()
