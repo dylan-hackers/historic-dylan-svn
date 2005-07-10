@@ -67,111 +67,113 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
   let node-lookup = world.world-skeleton.world-nodes-by-id;
   let num-nodes = node-lookup.size;
 
-  let cop-foot-prob = make(<int-vector>, size: num-nodes, fill: 0);
-  let cop-car-prob = make(<int-vector>, size: num-nodes, fill: 0);
+  // for each future world, a table keyed by cop, containing a vector of probabilities
+  let cop-total-prob = make(<vector>, size: max-iterations);
+  for (i from 0 below max-iterations)
+    cop-total-prob[i] := make(<table>);
+  end;
 
-  let cop-total-prob = make(<stretchy-vector>);
-
-  local method save-cop-probabilities(cop-foot-prob :: <int-vector>,
-                                      cop-car-prob :: <int-vector>)
-          let totals = make(<int-vector>, size: num-nodes, fill: 0);
-          for (i from 0 below num-nodes)
-            totals[i] := cop-foot-prob[i] + cop-car-prob[i];
-          end;
-          add!(cop-total-prob, totals);
-        end method save-cop-probabilities;
-
-
-  // set up tables, knowing where cops are right now
-  for (cop :: <player> in world.world-cops)
-    let node-id = cop.player-location.node-id;
-    if (cop.player-type = "cop-foot")
-      cop-foot-prob[node-id] := cop-foot-prob[node-id] + *cop-probability*;
-    else
-      cop-car-prob[node-id] := cop-car-prob[node-id] + *cop-probability*;
-    end;
-  end for;
-
-  for (i from 1 to max-iterations)
-    let new-cop-foot-prob = make(<int-vector>, size: num-nodes, fill: 0);
-    let new-cop-car-prob = make(<int-vector>, size: num-nodes, fill: 0);
-
-    let hq-node =
-      block (return)
-        for (node :: <node> in node-lookup)
-          if (node.node-tag = "hq")
-            return(node);
-          end;
+  let hq-node =
+    block (return)
+      for (node :: <node> in node-lookup)
+        if (node.node-tag = "hq")
+          return(node);
         end;
       end;
+    end;
 
-    local method spread-probs(probs :: <int-vector>,
-                              new-probs :: <int-vector>,
-                              move-selector) => ();
-            for (i from 0 below num-nodes)
-              let prob = probs[i];
-              if (prob > 0)
-                let node = node-lookup[i];
-                let curr-node-id = node.node-id;
-                if (node == hq-node)
-                  let prob = truncate/(prob, node.moves-by-foot.size + node.moves-by-car.size + 2);
-                  let foot-moves :: <stretchy-object-vector> = node.moves-by-foot;
-                  let car-moves :: <stretchy-object-vector> = node.moves-by-car;
-                  for (move :: <node> in foot-moves)
-                    let target-id = move.node-id;
-                    new-cop-foot-prob[target-id] := new-cop-foot-prob[target-id] + prob;
-                  end;
-                  for (move :: <node> in car-moves)
-                    let target-id = move.node-id;
-                    new-cop-car-prob[target-id] := new-cop-car-prob[target-id] + prob;
-                  end;
-                  new-cop-foot-prob[curr-node-id] := new-cop-foot-prob[curr-node-id] + prob;
-                  new-cop-car-prob[curr-node-id] := new-cop-car-prob[curr-node-id] + prob;
-                else
-                  let moves :: <stretchy-object-vector> = node.move-selector;
-                  let prob = truncate/(prob, moves.size + 1);
-                  for (move :: <node> in moves)
-                    let target-id = move.node-id;
-                    new-probs[target-id] := new-probs[target-id] + prob;
-                  end for;
-                  new-probs[curr-node-id] := new-probs[curr-node-id] + prob;
-                end if; //hq
-              end if; //prob nonzero
-            end for; // all nodes
-          end method spread-probs;
+  for (cop :: <player> in world.world-cops)
+    let cop-foot-prob = make(<int-vector>, size: num-nodes, fill: 0);
+    let cop-car-prob = make(<int-vector>, size: num-nodes, fill: 0);
 
-    spread-probs(cop-foot-prob, new-cop-foot-prob, moves-by-foot);
-    spread-probs(cop-car-prob, new-cop-car-prob, moves-by-car);
+    // set up tables, knowing where cops are right now
+    let node-id = cop.player-location.node-id;
+    if (cop.player-type = "cop-foot")
+      cop-foot-prob[node-id] := *cop-probability*;
+    else
+      cop-car-prob[node-id] := *cop-probability*;
+    end;
 
-    save-cop-probabilities(new-cop-foot-prob, new-cop-car-prob);
-    cop-foot-prob := new-cop-foot-prob;
-    cop-car-prob := new-cop-car-prob;
+    // save current positions first (we don't want to step on one!)
+    let totals = make(<int-vector>, size: num-nodes, fill: 0);
+    totals[node-id] := *cop-probability*;
+    cop-total-prob[round-num][cop] := totals;
 
-    let (foot-places, foot-prob) = count-greater-than(cop-foot-prob, 0);
-    let (car-places, car-prob) = count-greater-than(cop-car-prob, 0);
+    for (round from 1 below max-iterations)
+      let new-cop-foot-prob = make(<int-vector>, size: num-nodes, fill: 0);
+      let new-cop-car-prob = make(<int-vector>, size: num-nodes, fill: 0);
+
+      local method spread-probs(probs :: <int-vector>,
+                                new-probs :: <int-vector>,
+                                move-selector) => ();
+              for (i from 0 below num-nodes)
+                let prob = probs[i];
+                if (prob > 0)
+                  let node = node-lookup[i];
+                  let curr-node-id = node.node-id;
+                  if (node == hq-node)
+                    let prob = truncate/(prob, node.moves-by-foot.size + node.moves-by-car.size + 2);
+                    let foot-moves :: <stretchy-object-vector> = node.moves-by-foot;
+                    let car-moves :: <stretchy-object-vector> = node.moves-by-car;
+                    for (move :: <node> in foot-moves)
+                      let target-id = move.node-id;
+                      new-cop-foot-prob[target-id] := new-cop-foot-prob[target-id] + prob;
+                    end;
+                    for (move :: <node> in car-moves)
+                      let target-id = move.node-id;
+                      new-cop-car-prob[target-id] := new-cop-car-prob[target-id] + prob;
+                    end;
+                    new-cop-foot-prob[curr-node-id] := new-cop-foot-prob[curr-node-id] + prob;
+                    new-cop-car-prob[curr-node-id] := new-cop-car-prob[curr-node-id] + prob;
+                  else
+                    let moves :: <stretchy-object-vector> = node.move-selector;
+                    let prob = truncate/(prob, moves.size + 1);
+                    for (move :: <node> in moves)
+                      let target-id = move.node-id;
+                      new-probs[target-id] := new-probs[target-id] + prob;
+                    end for;
+                    new-probs[curr-node-id] := new-probs[curr-node-id] + prob;
+                  end if; //hq
+                end if; //prob nonzero
+              end for; // all nodes
+            end method spread-probs;
+
+      spread-probs(cop-foot-prob, new-cop-foot-prob, moves-by-foot);
+      spread-probs(cop-car-prob, new-cop-car-prob, moves-by-car);
+
+      let totals = make(<int-vector>, size: num-nodes, fill: 0);
+      for (i from 0 below num-nodes)
+        totals[i] := new-cop-foot-prob[i] + new-cop-car-prob[i];
+      end;
+      cop-total-prob[round-num][cop] := totals;
+      cop-foot-prob := new-cop-foot-prob;
+      cop-car-prob := new-cop-car-prob;
+
+  
+      let (foot-places, foot-prob) = count-greater-than(cop-foot-prob, 0);
+      let (car-places, car-prob) = count-greater-than(cop-car-prob, 0);
+      dbg("round %d, places cop %s could be, foot: %d (%d), car: %d (%d)\n",
+          round-num,
+          cop.player-name,
+          foot-places, foot-prob,
+          car-places, car-prob);
+
+    end for; // iterating this cop probabilities
+  
     /*
-    dbg("round %d, places cops could be, foot: %d (%d), car: %d (%d)\n",
-        i,
-        foot-places, foot-prob,
-        car-places, car-prob);
+      dbg("\n\nby foot probability function: ");
+      for (i in cop-foot-prob)
+        dbg("%d  ", i);
+      end;
+    dbg("\n\nby car probability function: ");
+    for (i in cop-car-prob)
+      dbg("%d  ", i);
+    end;
+    dbg("\n\n");
     */
 
-  end for; // iterating cop probabilities
-  
-  /*
-  dbg("\n\nby foot probability function: ");
-  for (i in cop-foot-prob)
-    dbg("%d  ", i);
-  end;
-  dbg("\n\nby car probability function: ");
-  for (i in cop-car-prob)
-    dbg("%d  ", i);
-  end;
-  dbg("\n\n");
-  */
+  end for; // each cop
 
-  //let goal = world.world-banks[robber.goal-bank].bank-location;
-  
   let my-location = world.world-robber.player-location;
 
   let (distances-to, safest-paths) =

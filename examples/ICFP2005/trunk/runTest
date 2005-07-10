@@ -1,0 +1,7 @@
+#!/bin/sh
+cd $(dirname $0)
+EXE=./src/bot-driver/bot-wrapper
+
+tw-server -g \
+	-r "tw-show-robber \"${EXE} bruce-robber\"" \
+	-e "${EXE} stupid-predicting-cop"
