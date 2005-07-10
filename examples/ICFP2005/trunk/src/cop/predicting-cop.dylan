@@ -127,9 +127,9 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
     //look if another cop should have seen this
     //dbg("EVIDENCE!!!\n");
     for (evidence in world.world-evidences)
-      for (i from max(evidence.evidence-world - 23, 1) below //or -25?
-             evidence.evidence-world - 1 by 2) //or not -1?
-        //dbg("I %= real-world %=\n", i, world.world-number);
+      for (i from evidence.evidence-world + 1 below
+             min(world.world-number, evidence.evidence-world + 24) by 2)
+        dbg("I %= real-world %=\n", i, world.world-number);
         for (player in world.world-skeleton.worlds[i].world-cops)
           if (player.player-location = evidence.evidence-location)
             dbg("ACCUSATION: loc %= world %= (ev %=, real %=) %s\n",
