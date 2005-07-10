@@ -7,6 +7,7 @@ define abstract class <predicting-cop> (<cop>)
   slot plan-ranking :: <stretchy-vector> = make(<stretchy-vector>);
   slot accusations = #();
   slot all-moves;
+  slot invalid-moves :: <string-table> = make(<string-table>);
 //  slot foo = #t;
 end class <predicting-cop>;
 
@@ -64,7 +65,11 @@ define method generate-map-from-informs(informs) => (map)
 
   for (info in informs)
     prob-map[info.plan-location.node-id]
-      := (info.inform-certainty + 100.0s0) / 200.0s0;
+      := if (info.inform-certainty > 0)
+           info.inform-certainty / 100.0s0;
+         else
+           (info.inform-certainty + 100.0s0) / 100.0s0;
+         end if;
   end for;
   normalize!(prob-map);
   prob-map
@@ -213,9 +218,18 @@ define method perceive-informs(information, cop :: <predicting-cop>, world :: <w
                infos);*/
             
             if (number = world.world-number)
+              let prob-sum = 0.0s0;
               for (info in infos)
                 add!(world.world-informs, pair(info, inform.sender));
+                unless (info.inform-certainty = -100)
+                  prob-sum :=
+                    prob-sum + cop.probability-map[info.plan-location.node-id];
+                end unless;
               end for;
+              if (prob-sum = 0.0s0)
+                cop.invalid-moves[inform.sender]
+                  := element(cop.invalid-moves, inform.sender, default: 0) + 4;
+              end if;
               continue();
             end if;
             if (infos[0].inform-certainty = 100)

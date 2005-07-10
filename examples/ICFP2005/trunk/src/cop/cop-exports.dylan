@@ -22,7 +22,8 @@ define module predicting-cop
     accusations,
     accusations-setter,
     all-moves,
-    all-moves-setter;
+    all-moves-setter,
+    invalid-moves;
 end module;
 
 

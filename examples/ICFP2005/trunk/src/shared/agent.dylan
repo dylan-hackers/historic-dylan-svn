@@ -600,7 +600,11 @@ define method generate-informs (world, probability-map, list) => (informs)
                  (world,
                   node,
                   truncate
-                    (probability-map[node.node-id] * 200 - 100)));
+                    (if (probability-map[node.node-id] = 0.0s0)
+                       -100;
+                     else
+                       probability-map[node.node-id] * 100
+                     end if)));
     //dbg("MYINFORM %s %s %s\n", res.head.plan-location.node-name,
     //    res.head.inform-certainty, res.head.plan-world);
   end for;

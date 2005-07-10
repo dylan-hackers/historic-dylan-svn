@@ -2,7 +2,6 @@ module: stupid-predicting-cop
 
 define class <stupid-predicting-cop> (<predicting-cop>)
   slot all-planned-moves :: <collection> = #();
-  slot invalid-moves :: <string-table> = make(<string-table>);
 end class;
 
 register-bot(<stupid-predicting-cop>);
@@ -64,7 +63,7 @@ define method check-moves (moves, world, cop)
             player.player-location.node-name);
         cop.invalid-moves[player.player-name] :=
           element(cop.invalid-moves, player.player-name, default: 0) + 1;
-        if (cop.invalid-moves[player.player-name] = 5)
+        if (cop.invalid-moves[player.player-name] > 5)
           cop.accusations := add!(cop.accusations, player);
         end if;
       end unless;
