@@ -1,6 +1,6 @@
 
 cop: cop.lid cop.dylan predicting-cop.dylan stupid-predicting-cop.dylan cop-exports.dylan ../shared/world.lib.du
-	d2c -s -L../shared cop.lid
+	d2c -g -s -L../shared cop.lid
 
 run:
 	server --gui --robber "show-robber ../robber/robber-wrapper" --copE "show-cop ./cop-wrapper"
