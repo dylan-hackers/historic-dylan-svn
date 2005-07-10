@@ -28,6 +28,7 @@ define class <world> (<object>)
   constant slot world-cops              :: <vec>, required-init-keyword: cops:;
   constant slot world-other-cops        :: <vec>, required-init-keyword: other-cops:;
   constant slot world-my-player         :: <player>, required-init-keyword: my-player:;
+  constant slot world-my-players        :: <collection>, required-init-keyword: my-players:;
   constant slot world-robber            :: false-or(<player>), required-init-keyword: robber:;
   constant slot world-skeleton          :: <world-skeleton>, required-init-keyword: skeleton:;
   constant slot world-informs           :: <collection> = make(<stretchy-vector>);
@@ -229,6 +230,7 @@ define method make (world == <world>,
                                       x.player-name < y.player-name;
                                   end method);
 
+
   let cops = players;
   if (my-player.player-name = *world-skeleton*.robber-name)
     //we are the robber
@@ -258,6 +260,12 @@ define method make (world == <world>,
     x.taken-bot := find-pl(x.taken-bot);
     x.controller := find-pl(x.controller);
   end;
+
+  let my-players = concatenate(list(my-player),
+                               map(taken-bot,
+                                   choose(method(x)
+                                              x.controller = my-player
+                                          end, bot-takeover)));
   
   for (x in false-accusations)
     x.accusing-bot := find-pl(x.accusing-bot);
@@ -272,6 +280,7 @@ define method make (world == <world>,
         players: all-players,
         robber: robber,
         my-player: my-player,
+        my-players: my-players,
         other-cops: players,
         args);
 end method;

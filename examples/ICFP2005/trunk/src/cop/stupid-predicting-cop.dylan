@@ -32,12 +32,7 @@ end function;
   
 
 define method choose-move(cop :: <stupid-predicting-cop>, world :: <world>)
-  let moves = map(curry(choose-move-for, cop),
-                  concatenate(list(cop.agent-player),
-                              map(taken-bot,
-                                  choose(method(x)
-                                             x.controller = cop.agent-player
-                                         end, world.world-bot-takeover))));
+  let moves = map(curry(choose-move-for, cop), world.world-my-players);
   make(<cop-move>,
        moves: moves,
        accusations: cop.accusations);

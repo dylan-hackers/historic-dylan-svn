@@ -266,13 +266,13 @@ define method drive-agent(agent :: <cop>,
           block()
             let move :: <dirty-cop-move> = choose-move(agent, world);
             print(move);
-          //exception (e :: <condition>)
-          //  print(make(<dirty-cop-move>,
-          //             moves: list(make(<move>, 
-          //                              target: agent.agent-player.player-location,
-          //                              transport: agent.agent-player.player-type,
-          //                              bot: agent.agent-player))));
-          //  dbg("Error %= while choose-move, ignored\n", e);
+          exception (e :: <condition>)
+            print(make(<dirty-cop-move>,
+                       moves: list(make(<move>, 
+                                        target: agent.agent-player.player-location,
+                                        transport: agent.agent-player.player-type,
+                                        bot: agent.agent-player))));
+            dbg("Error %= while choose-move, ignored\n", e);
           end block;
           
           let world = read-world(*standard-input*, skelet);
@@ -328,24 +328,24 @@ define method drive-agent(agent :: <cop>,
           end block;
           
         else
-            //block()
-              print(choose-move(agent, world));
-            //exception (e :: <condition>)
-            //  print(make(<cop-move>,
-            //             moves: list(make(<move>, 
-            //                              target: agent.agent-player.player-location,
-            //                              transport: agent.agent-player.player-type,
-            //                              bot: agent.agent-player))));
-            //  dbg("Error %= while choose-move, ignored\n", e);
-            //end block;
+          block()
+            print(choose-move(agent, world));
+          exception (e :: <condition>)
+            print(make(<cop-move>,
+                       moves: list(make(<move>, 
+                                        target: agent.agent-player.player-location,
+                                        transport: agent.agent-player.player-type,
+                                        bot: agent.agent-player))));
+            dbg("Error %= while choose-move, ignored\n", e);
+          end block;
         end if;
       end while;
     exception (condition :: <parse-error>)
     end;
-  //exception (condition :: <condition>)
-  //  dbg("Cop caught error: %=\n", condition);
-  //  report-condition(condition, *standard-error*);
-  //  dbg("Exiting program\n");
+  exception (condition :: <condition>)
+    dbg("Cop %s caught error: %=\n", agent.agent-player.player-name, condition);
+    report-condition(condition, *standard-error*);
+    dbg("Exiting program\n");
   end;
 end method drive-agent;
 

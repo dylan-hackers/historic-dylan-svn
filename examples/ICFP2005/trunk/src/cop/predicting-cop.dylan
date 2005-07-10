@@ -53,8 +53,6 @@ define method advance-probability-map-in-world(world :: <world>,
 end method advance-probability-map-in-world;
 
 define method generate-map-from-informs(informs) => (map)
-       
-  
   let prob-map = make(<vector>,
                       size: maximum-node-id(),
                       fill:  if(any?(method(x) 
@@ -85,15 +83,21 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
     let prob-map = make(<vector>, size: maximum-node-id(),
                         fill: 0.0s0);
     if (world.world-smell-distance > 0)
-      let (first-nodes, second-nodes)
-        = smelled-nodes-aux(cop.agent-player);
+      let first-nodes = make(<stretchy-vector>);
+      let second-nodes = make(<stretchy-vector>);
+      for(player in world.world-my-players)
+        let (first-nodes-aux, second-nodes-aux)
+          = smelled-nodes-aux(player);
+        first-nodes := union(first-nodes, first-nodes-aux);
+        second-nodes := union(second-nodes, second-nodes-aux);
+      end for;
       local method set-map(nodes, value)
               for (node in nodes)
                 prob-map[node.node-id] := value;
               end for;
             end;
       let nodes = concatenate(first-nodes, second-nodes);
-
+      
       if (world.world-smell-distance = 1)
         set-map(first-nodes, 1.0s0 / first-nodes.size);
         set-map(second-nodes, 0.0s0);
@@ -107,16 +111,16 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
           world.world-number,
           nodes.size,
           cop.agent-player.player-location.node-name);
-      /*for (e in nodes)
-        dbg("SMELL %s\n", e.node-name);
-      end for;*/
+      /* for (e in nodes)
+           dbg("SMELL %s\n", e.node-name);
+         end for;*/
       res := concatenate(res, generate-informs(world,
                                                prob-map,
                                                nodes));
     else
       //set all probabilities in smell-reach to 0 (we know, there's
       //no robber around)
-      let nodes = smelled-nodes(cop.agent-player);
+      let nodes = reduce1(union, map(smelled-nodes, world.world-my-players));
       for (node in nodes)
         prob-map[node.node-id] := 0.0s0;
       end for;
@@ -125,15 +129,23 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
                                                nodes));
     end;
   end if;
-
+  
   //cop.accusations := world.world-cops;
-  /*if(world.world-number > 20)
-    let acc = find-player(world, "dirty-cop");
-    if (acc & cop.foo)
-      cop.foo := #f;
-      cop.accusations := add!(cop.accusations, acc);
+  /*
+    if(world.world-number > 20)
+      let acc = find-player(world, "dirty-cop");
+      if (acc & cop.foo)
+        cop.foo := #f;
+        cop.accusations := add!(cop.accusations, acc);
+      end if;
     end if;
-  end if;*/
+    */
+  /*
+  if (world.world-number = 21)
+    cop.accusations := world.world-other-cops;
+  end;
+  */
+
   if (world.world-evidences.size > 0)
     //look if another cop should have seen this
     //dbg("EVIDENCE!!!\n");

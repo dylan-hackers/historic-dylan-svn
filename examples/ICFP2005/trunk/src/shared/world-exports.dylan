@@ -56,6 +56,7 @@ define module world
     world-other-cops,
     world-cops,
     world-my-player,
+    world-my-players,
     world-robber,
     world-skeleton,
     world-informs;
