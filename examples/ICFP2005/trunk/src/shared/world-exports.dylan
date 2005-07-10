@@ -104,6 +104,15 @@ define module world
     sender,
     plans;
 
+  export <bot-taken>,
+    taken-bot,
+    controller;
+
+  export <false-accusation>,
+    accusing-bot,
+    accused-bot,
+    false-accusation-world;
+
   export <parse-error>,
     read-world-skeleton, read-world;
 
