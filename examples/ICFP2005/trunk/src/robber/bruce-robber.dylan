@@ -87,19 +87,18 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
     let cop-car-prob = make(<int-vector>, size: num-nodes, fill: 0);
 
     // set up tables, knowing where cops are right now
-    let node-id = cop.player-location.node-id;
     if (cop.player-type = "cop-foot")
-      cop-foot-prob[node-id] := *cop-probability*;
+      cop-foot-prob
     else
-      cop-car-prob[node-id] := *cop-probability*;
-    end;
+      cop-car-prob
+    end [cop.player-location.node-id] := *cop-probability*;
 
     // save current positions first (we don't want to step on one!)
     let totals = make(<int-vector>, size: num-nodes, fill: 0);
-    totals[node-id] := *cop-probability*;
-    cop-total-prob[round-num][cop] := totals;
+    totals[cop.player-location.node-id] := *cop-probability*;
+    cop-total-prob[0][cop] := totals;
 
-    for (round from 1 below max-iterations)
+    for (round-num from 1 below max-iterations)
       let new-cop-foot-prob = make(<int-vector>, size: num-nodes, fill: 0);
       let new-cop-car-prob = make(<int-vector>, size: num-nodes, fill: 0);
 
@@ -255,13 +254,14 @@ end method choose-move;
         
 
 define function find-safe-paths
-    (danger :: <stretchy-object-vector>,
+    (danger :: <simple-object-vector>,
      from-node :: <node>)
  => (distance-to :: <int-vector>, shortest-paths :: <simple-object-vector>)
 
-  let immediate-danger :: <int-vector> = danger[0];
-  let smell-range :: <int-vector> = danger[2];
-  let cop-density :: <int-vector> = danger[danger.size - 1];
+  let current-positions :: <table> = danger[0];
+  let immediate-danger :: <table> = danger[1];
+  let smell-range :: <table> = danger[3];
+  let cop-density :: <table> = danger[danger.size - 1];
 
   let distance-to =
     make(<int-vector>, size: maximum-node-id(), fill: 2000000000);
@@ -281,11 +281,25 @@ define function find-safe-paths
             for (next :: <node> in moves)
               let next-id = next.node-id;
               
-              let imminent-danger-level = immediate-danger[next-id];
-              let smell-level = smell-range[next-id];
-              let cop-probability = cop-density[next-id];
+              let current-position-level = 0;
+              let imminent-danger-level = 0;
+              let smell-level = 0;
+              let cop-probability = 0;
+
+              for (cop in current-positions.key-sequence)
+                local method fetch(table :: <table>, cop :: <player>, next-id :: <integer>)
+                       => (danger :: <integer>);
+                        let dangers :: <int-vector> = table[cop];
+                        dangers[next-id];
+                      end method fetch;
+                current-position-level := current-position-level + fetch(current-positions,cop,next-id);
+                imminent-danger-level := imminent-danger-level + fetch(immediate-danger,cop,next-id);
+                smell-level := smell-level + fetch(smell-range,cop,next-id);
+                cop-probability := cop-probability + fetch(cop-density,cop,next-id);
+              end;
               let cost = 1 +
                 case
+                  current-position-level > 0 => 999999;
                   imminent-danger-level > 0 => 999999;
                   smell-level > 0 => 5;
                   cop-probability == 0 => 0;
