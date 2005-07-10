@@ -135,12 +135,9 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
        player in sorted-players)
     let target-move = block(return)
                         for (genmove in move)
-                          for (occupied-moves in generated-moves)
-                            if ((genmove.target ~= occupied-moves.target)
-                                  & (genmove.transport ~= occupied-moves.transport))
-                              return(genmove);
-                            end if;
-                          end for;
+                          if (~member?(genmove, generated-moves))
+                            return(genmove);
+                          end if;
                         end for;
                       end block;
     unless (target-move)
@@ -149,9 +146,7 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
     generated-moves := add!(generated-moves, target-move);
     cop.all-moves := add(cop.all-moves, target-move);
     
-    add!(plan, generate-plan(world,
-                             player,
-                             target-move));
+    add!(plan, generate-plan(world, player, target-move));
   end for;
 
 

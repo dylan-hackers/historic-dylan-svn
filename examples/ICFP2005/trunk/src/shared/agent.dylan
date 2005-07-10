@@ -350,6 +350,9 @@ end class;
 
 lock-down <move>  end;
 
+define method \= (a :: <move>, b :: <move>) => (res :: <boolean>)
+  (a.transport = b.transport) & (a.target = b.target)
+end;
 
 define method print (move :: <move>)
   send("mov: %s %s %s\n",
