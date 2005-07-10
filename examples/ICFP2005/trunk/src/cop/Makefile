@@ -1,5 +1,5 @@
 
-cop: cop.lid cop.dylan predicting-cop.dylan stupid-predicting-cop.dylan cop-exports.dylan ../shared/world.lib.du
+cop.lib.du: cop.lid cop.dylan predicting-cop.dylan stupid-predicting-cop.dylan cop-exports.dylan ../shared/world.lib.du
 	d2c -g -s -L../shared cop.lid
 
 run:
