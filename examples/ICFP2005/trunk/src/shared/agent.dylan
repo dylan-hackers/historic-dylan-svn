@@ -499,7 +499,8 @@ end method;
 define method generate-moves(move :: <move>,
                              #key keep-current-transport = #f)
  => (moves :: <simple-object-vector>)
-  let options = make(<stretchy-vector>);
+  let options = make(<stretchy-vector>, size: 16);
+  options.size := 0; // preallocate space hack
 
   local method add-to-options (list :: <stretchy-object-vector>, transport :: <string>)
           for (tar :: <node> in list)
