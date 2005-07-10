@@ -235,8 +235,8 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
   dbg("safest of len 4   len = %d, path = %=\n",
       safest-len4-cost, map(node-id, safest-len4.reverse));
   
-  if (longest-safe-including-move.size < 4)
-    if (longest-safe-path.size > 4)
+  if (longest-safe-including-move.size < 6)
+    if (longest-safe-path.size >= 6)
       next-node := longest-safe-path.last;
     else
       next-node := safest-len4.last;
@@ -287,7 +287,7 @@ define function find-safe-paths
           let path-to-start = shortest-path[start-id];
           let cost-to-start = cost-to[start-id];
           let distance-to-at-start = distance-to[start-id];
-          let density-round-num = distance-to-at-start;
+          let density-round-num = distance-to-at-start + 1;
           if (density-round-num > density-round-max)
             density-round-num := density-round-max;
           end;
