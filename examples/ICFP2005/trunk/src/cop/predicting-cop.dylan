@@ -5,8 +5,10 @@ define abstract class <predicting-cop> (<cop>)
   slot last-precise-info :: <integer> = 1;
   slot planned-moves :: <stretchy-vector> = make(<stretchy-vector>);
   slot plan-ranking :: <stretchy-vector> = make(<stretchy-vector>);
-  slot accusations :: <stretchy-vector> = make(<stretchy-vector>);
-  //slot foo = #t;
+  slot accusations = #();
+  slot all-moves;
+  slot invalid-moves :: <table> = make(<table>);
+//  slot foo = #t;
 end class <predicting-cop>;
 
 register-bot(<predicting-cop>);
@@ -74,7 +76,7 @@ end method generate-map-from-informs;
 define method make-informs (cop :: <predicting-cop>, world :: <world>)
  => (object)
   let res = #();
-  cop.accusations := make(<stretchy-vector>);
+  cop.accusations := #();
   if(world.world-robber | ~cop.probability-map)
     cop.last-precise-info := world.world-number;
     cop.probability-map := make(<vector>, size: maximum-node-id(), fill: 0.0s0);
@@ -124,6 +126,7 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
     end;
   end if;
 
+  //cop.accusations := world.world-cops;
   /*if(world.world-number > 20)
     let acc = find-player(world, "dirty-cop");
     if (acc & cop.foo)
@@ -257,38 +260,37 @@ define method perceive-plans(plan-from-messages,
           
           if (bot)
   
-            //compare plan-type with player-type
-            if (bot.player-type = ele.plan-type)
-
-              //generate valid moves
-              let valid-moves = generate-moves(bot);
+            //generate valid moves
+            let valid-moves = generate-moves(bot);
 
 
-              let move = make(<move>,
-                              target: ele.plan-location,
-                              transport: ele.plan-type,
-                              bot: bot);
-
-              //if it is a valid move, add probability from prob-map to sum
-              block (return)
-                for (mov in valid-moves)
-                  if ((mov.target = move.target) &
-                        (mov.transport = move.transport))
-                    sum := sum + cop.probability-map[move.target.node-id];
-                    if (bot = cop.agent-player)
-                      
-                      cop.planned-moves := add!(cop.planned-moves,
-                                                pair(fmp.sender, mov));
-                    end if;
-                    return();
+            let move = make(<move>,
+                            target: ele.plan-location,
+                            transport: ele.plan-type,
+                            bot: bot);
+            
+            //if it is a valid move, add probability from prob-map to sum
+            block (return)
+              for (mov in valid-moves)
+                if ((mov.target = move.target) &
+                      (mov.transport = move.transport))
+                  if (member?(mov, cop.all-moves,
+                              test: method(x,y)
+                                        x.target = y.target;
+                                    end))
+                    sum := sum + 0.1;
                   end if;
-                end for;
-              end block;
-            end if;
+                  sum := sum + cop.probability-map[move.target.node-id];
+                  cop.planned-moves := add!(cop.planned-moves,
+                                            pair(fmp.sender, mov));
+                  return();
+                end if;
+              end for;
+            end block;
           end if;
         end if;
       end for;
-      //dbg("PERC PLA: %s %s\n", fmp.sender, sum);
+      dbg("PERC PLA: %s %s\n", fmp.sender, sum);
       cop.plan-ranking := add!(cop.plan-ranking,
                                pair(sum,
                                     find-player(world, fmp.sender)));
@@ -305,6 +307,3 @@ define method make-vote(cop :: <predicting-cop>, world :: <world>) => (vote);
   //dbg("VOTE RES: %=\n", res);
   res;
 end method make-vote;
-
-define method perceive-vote(vote, cop :: <predicting-cop>, world :: <world>);
-end method perceive-vote;

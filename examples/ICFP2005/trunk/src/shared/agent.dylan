@@ -101,7 +101,7 @@ define open generic drive-agent(agent :: <agent>,
 define method drive-agent(agent :: <robber>,
                           input-stream :: <stream>,
                           output-stream :: <stream>)
-  //block()
+  block()
     format(output-stream, "reg: %s robber\n", agent.wanted-name);
     force-output(output-stream);
     let skelet = read-world-skeleton(input-stream);
@@ -192,11 +192,11 @@ define method drive-agent(agent :: <robber>,
       end while;
     exception (condition :: <parse-error>)
     end;
-  //exception (condition :: <condition>)
-  //  dbg("Robber caught error: %=\n", condition);
-  //  report-condition(condition, *standard-error*);
-  //  dbg("Exiting program\n");
-  //end;
+  exception (condition :: <condition>)
+    dbg("Robber caught error: %=\n", condition);
+    report-condition(condition, *standard-error*);
+    dbg("Exiting program\n");
+  end;
 end method drive-agent;
 
 define method drive-agent(agent :: <cop>,
@@ -239,27 +239,25 @@ define method drive-agent(agent :: <cop>,
         
         block()
           perceive-plans(read-from-message-plan(input-stream),
-                         agent, world);
-        exception (e :: <condition>)
-          dbg("Error %= while perceive-plans, ignored\n", e);
+                       agent, world);
+//        exception (e :: <condition>)
+//          dbg("Error %= while perceive-plans, ignored\n", e);
         end block;
         
         send("vote\\\n");
         block()
           do(method(x) send("vote: %s\n", x.player-name) end,
              make-vote(agent, world));
-        exception (e :: <condition>)
-          do(method(x) send("vote: %s\n", x.player-name) end,
-             world.world-cops);
-          dbg("Error %= while make-vote, ignored\n", e);
+//        exception (e :: <condition>)
+//          do(method(x) send("vote: %s\n", x.player-name) end,
+//             world.world-cops);
+//          dbg("Error %= while make-vote, ignored\n", e);
         end block;
         send("vote/\n");
         
         block()
           perceive-vote(read-vote-tally(input-stream), agent, world);
         exception (e :: <condition>)
-          do(method(x) send("vote: %s\n", x) end,
-             world.world-skeleton.cop-names);
           dbg("Error %= while read-vote-tally, ignored\n", e);
         end block;
         
@@ -268,13 +266,13 @@ define method drive-agent(agent :: <cop>,
           block()
             let move :: <dirty-cop-move> = choose-move(agent, world);
             print(move);
-          exception (e :: <condition>)
-            print(make(<dirty-cop-move>,
-                       moves: list(make(<move>, 
-                                        target: agent.agent-player.player-location,
-                                        transport: agent.agent-player.player-type,
-                                        bot: agent.agent-player))));
-            dbg("Error %= while choose-move, ignored\n", e);
+          //exception (e :: <condition>)
+          //  print(make(<dirty-cop-move>,
+          //             moves: list(make(<move>, 
+          //                              target: agent.agent-player.player-location,
+          //                              transport: agent.agent-player.player-type,
+          //                              bot: agent.agent-player))));
+          //  dbg("Error %= while choose-move, ignored\n", e);
           end block;
           
           let world = read-world(*standard-input*, skelet);
@@ -330,16 +328,16 @@ define method drive-agent(agent :: <cop>,
           end block;
           
         else
-            block()
+            //block()
               print(choose-move(agent, world));
-            exception (e :: <condition>)
-              print(make(<cop-move>,
-                         moves: list(make(<move>, 
-                                          target: agent.agent-player.player-location,
-                                          transport: agent.agent-player.player-type,
-                                          bot: agent.agent-player))));
-              dbg("Error %= while choose-move, ignored\n", e);
-            end block;
+            //exception (e :: <condition>)
+            //  print(make(<cop-move>,
+            //             moves: list(make(<move>, 
+            //                              target: agent.agent-player.player-location,
+            //                              transport: agent.agent-player.player-type,
+            //                              bot: agent.agent-player))));
+            //  dbg("Error %= while choose-move, ignored\n", e);
+            //end block;
         end if;
       end while;
     exception (condition :: <parse-error>)
@@ -404,7 +402,6 @@ end class;
 define method print (move :: <robber-move>)
   send("rmov\\\n");
   next-method();
-  //XXX more complex
   send("%s\n", move.bribe);
   send("rmov/\n");
 end method;

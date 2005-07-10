@@ -6,6 +6,10 @@ end class;
 register-bot(<dirty-cop>);
 
 define method choose-move(agent :: <dirty-cop>, world :: <world>)
+  /*
+  let move = make(<cop-move>,
+                  moves: list(random-player-move(agent.agent-player)));
+*/
   let move = next-method();
   if (dirty-cop?(agent, world))
     make(<dirty-cop-move>,
@@ -17,28 +21,16 @@ define method choose-move(agent :: <dirty-cop>, world :: <world>)
 end method;
 
 define method make-informs (cop ::<dirty-cop>, world :: <world>) => (object)
+  next-method();
   #();
 end;
 
-define method perceive-informs (information, cop ::<dirty-cop>, world :: <world>)
-end method;
-
-define method perceive-plans (plan-from-messages, cop :: <dirty-cop>, world :: <world>)
-  cop.plan-ranking := make(<stretchy-vector>);
-  for (fmp :: <from-message-plan> in plan-from-messages)
-    unless (fmp.sender = world.world-skeleton.my-name)
-      cop.plan-ranking := add!(cop.plan-ranking, find-player(world, fmp.sender));
-    end unless;
-  end for;
-end method;
-
 define method make-plan (cop :: <dirty-cop>, world :: <world>) => (plan)
   let target-plans = #();
+  cop.all-moves := #();
   for (player in world.world-cops)
     let move = random-player-move(player);
-    if (player = cop.agent-player)
-      cop.my-target-move := move;
-    end if;
+    cop.all-moves := add!(cop.all-moves, move);
     target-plans := add!(target-plans, generate-plan(world,
                                                      player,
                                                      move));
@@ -52,14 +44,23 @@ end method;
 define method make-vote (cop :: <dirty-cop>, world :: <world>) => (vote)
   local method random-sort (plans)
           if (plans.size = 1)
-            list(plans[0]);
+            plans;
           else
             let random-value = plans[random(plans.size)];
             add(random-sort(remove(plans, random-value)), random-value);
           end if;
         end method;
-  let res = concatenate(list(cop.agent-player), random-sort(cop.plan-ranking));
+  let res = concatenate(list(cop.agent-player), 
+                        map(tail, random-sort(cop.plan-ranking)));
   dbg("RES MAKE VOTE %=\n", map(method(x) x.player-name end, res));
   res;
 end method;
 
+define method make-robber-plan (cop :: <dirty-cop>, world :: <world>)
+  let plan = #();
+  for (player in world.world-dirty-cops)
+    let move = random-player-move(player);
+    plan := add(plan, generate-plan(world, player, move));
+  end for;
+  plan;
+end method;

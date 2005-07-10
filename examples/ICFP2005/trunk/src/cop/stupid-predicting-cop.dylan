@@ -1,24 +1,43 @@
 module: stupid-predicting-cop
 
 define class <stupid-predicting-cop> (<predicting-cop>)
-  slot my-target-move :: <move>;
-  slot all-moves;
+  slot all-planned-moves :: <collection> = #();
 end class;
 
 register-bot(<stupid-predicting-cop>);
 
+define function choose-move-for-aux(moves, player)
+  let moves = choose(method(x)
+                         x.bot = player;
+                     end, moves);
+  if(moves.size > 0)
+    moves[0]
+  else
+    #f
+  end
+end;
+
+define function choose-move-for(cop, player)
+  let plan-move = choose-move-for-aux(cop.all-planned-moves,
+                                      player);
+  
+  if (plan-move)
+    dbg("Choosing voted plan move for %s\n", player.player-name);
+    plan-move
+  else
+    dbg("Executing own plan move for %s\n", player.player-name);
+    choose-move-for-aux(cop.all-moves, player)
+  end if;
+end function;
+  
+
 define method choose-move(cop :: <stupid-predicting-cop>, world :: <world>)
-  let moves = list(cop.my-target-move);
-  for (takeover in world.world-bot-takeover)
-    //dbg("takeover controller: %= taken-bot %=\n",
-        //takeover.controller.player-name, takeover.taken-bot.player-name);
-    if (takeover.controller = cop.agent-player)
-      //dbg("toke over %=\n", takeover.taken-bot.player-name);
-      moves := add(moves, head(choose(method(x)
-                                          x.bot = takeover.taken-bot;
-                                      end, cop.all-moves)));
-    end if;
-  end for;
+  let moves = map(curry(choose-move-for, cop),
+                  concatenate(list(cop.agent-player),
+                              map(taken-bot,
+                                  choose(method(x)
+                                             x.controller = cop.agent-player
+                                         end, world.world-bot-takeover))));
   make(<cop-move>,
        moves: moves,
        accusations: cop.accusations);
@@ -97,9 +116,6 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
     unless (target-move)
       target-move := move[random(move.size)];
     end unless;
-    if(player = cop.agent-player)
-      cop.my-target-move := target-move;
-    end if;
     generated-moves := add!(generated-moves, target-move);
     cop.all-moves := add(cop.all-moves, target-move);
     
@@ -120,28 +136,9 @@ define method perceive-vote (vote,
                              world :: <world>);
   if (vote)
     //we'll just look whether the move is valid and do it, if it is.
-    unless (vote = cop.agent-player.player-name)
-      let plan-move =
-        block(return)
-          for (player in world.world-cops)
-            if (player.player-name = vote)
-              for (move in cop.planned-moves)
-                if (head(move) = vote)
-                  return(tail(move))
-                end if;
-              end for;
-            end if
-          end for;
-        end block;
-      if (plan-move)
-        //dbg("change away from move %s ", cop.my-target-move.target.node-name);
-        //cop.my-target-move := plan-move;
-        /*dbg("changed move: from %s to %s by %s\n",
-            cop.agent-player.player-location.node-name,
-            plan-move.target.node-name,
-            plan-move.transport);*/
-      end if;
-    end unless;
+    cop.all-planned-moves := map(tail, choose(method(x) 
+                                                  x.head = vote
+                                              end, cop.planned-moves));
     //dbg("WINNER: %s\n", vote);
   end if;
 end method perceive-vote;

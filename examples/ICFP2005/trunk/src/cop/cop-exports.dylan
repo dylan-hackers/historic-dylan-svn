@@ -20,7 +20,9 @@ define module predicting-cop
     plan-ranking,
     plan-ranking-setter,
     accusations,
-    accusations-setter;
+    accusations-setter,
+    all-moves,
+    all-moves-setter;
 end module;
 
 
@@ -30,9 +32,7 @@ define module stupid-predicting-cop
   use world;
   use predicting-cop;
   
-  export <stupid-predicting-cop>,
-    my-target-move,
-    my-target-move-setter;
+  export <stupid-predicting-cop>;
 end module;
 
 define module dirty-cop
