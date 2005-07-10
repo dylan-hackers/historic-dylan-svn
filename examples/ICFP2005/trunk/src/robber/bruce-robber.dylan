@@ -66,11 +66,12 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
   let max-iterations = 4;
   let node-lookup = world.world-skeleton.world-nodes-by-id;
   let num-nodes = node-lookup.size;
+  let num-cops = world.world-cops.size;
 
-  // for each future world, a table keyed by cop, containing a vector of probabilities
+  // for each future world, a vector keyed by cop number, containing a vector of probabilities
   let cop-total-prob = make(<vector>, size: max-iterations);
   for (i from 0 below max-iterations)
-    cop-total-prob[i] := make(<table>);
+    cop-total-prob[i] := make(<vector>, size: num-cops);
   end;
 
   let hq-node =
@@ -82,7 +83,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
       end;
     end;
 
-  for (cop :: <player> in world.world-cops)
+  for (cop :: <player> in world.world-cops, cop-number from 0)
     let cop-foot-prob = make(<int-vector>, size: num-nodes, fill: 0);
     let cop-car-prob = make(<int-vector>, size: num-nodes, fill: 0);
 
@@ -96,7 +97,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
     // save current positions first (we don't want to step on one!)
     let totals = make(<int-vector>, size: num-nodes, fill: 0);
     totals[cop.player-location.node-id] := *cop-probability*;
-    cop-total-prob[0][cop] := totals;
+    cop-total-prob[0][cop-number] := totals;
 
     for (round-num from 1 below max-iterations)
       let new-cop-foot-prob = make(<int-vector>, size: num-nodes, fill: 0);
@@ -144,7 +145,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
       for (i from 0 below num-nodes)
         totals[i] := new-cop-foot-prob[i] + new-cop-car-prob[i];
       end;
-      cop-total-prob[round-num][cop] := totals;
+      cop-total-prob[round-num][cop-number] := totals;
       cop-foot-prob := new-cop-foot-prob;
       cop-car-prob := new-cop-car-prob;
 
@@ -258,10 +259,10 @@ define function find-safe-paths
      from-node :: <node>)
  => (distance-to :: <int-vector>, shortest-paths :: <simple-object-vector>)
 
-  let current-positions :: <table> = danger[0];
-  let immediate-danger :: <table> = danger[1];
-  let smell-range :: <table> = danger[3];
-  let cop-density :: <table> = danger[danger.size - 1];
+  let current-positions :: <simple-object-vector> = danger[0];
+  let immediate-danger :: <simple-object-vector> = danger[1];
+  let smell-range :: <simple-object-vector> = danger[3];
+  let cop-density :: <simple-object-vector> = danger[danger.size - 1];
 
   let distance-to =
     make(<int-vector>, size: maximum-node-id(), fill: 2000000000);
@@ -286,16 +287,16 @@ define function find-safe-paths
               let smell-level = 0;
               let cop-probability = 0;
 
-              for (cop in current-positions.key-sequence)
-                local method fetch(table :: <table>, cop :: <player>, next-id :: <integer>)
+              for (cop-num from 0 below current-positions.size)
+                local method fetch(table :: <simple-object-vector>, cop-num :: <integer>, next-id :: <integer>)
                        => (danger :: <integer>);
-                        let dangers :: <int-vector> = table[cop];
+                        let dangers :: <int-vector> = table[cop-num];
                         dangers[next-id];
                       end method fetch;
-                current-position-level := current-position-level + fetch(current-positions,cop,next-id);
-                imminent-danger-level := imminent-danger-level + fetch(immediate-danger,cop,next-id);
-                smell-level := smell-level + fetch(smell-range,cop,next-id);
-                cop-probability := cop-probability + fetch(cop-density,cop,next-id);
+                current-position-level := current-position-level + fetch(current-positions,cop-num,next-id);
+                imminent-danger-level := imminent-danger-level + fetch(immediate-danger,cop-num,next-id);
+                smell-level := smell-level + fetch(smell-range,cop-num,next-id);
+                cop-probability := cop-probability + fetch(cop-density,cop-num,next-id);
               end;
               let cost = 1 +
                 case
