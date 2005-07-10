@@ -6,6 +6,7 @@ define abstract class <predicting-cop> (<cop>)
   slot planned-moves :: <stretchy-vector> = make(<stretchy-vector>);
   slot plan-ranking :: <stretchy-vector> = make(<stretchy-vector>);
   slot accusations :: <stretchy-vector> = make(<stretchy-vector>);
+  //slot foo = #t;
 end class <predicting-cop>;
 
 register-bot(<predicting-cop>);
@@ -123,13 +124,20 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
     end;
   end if;
 
+  /*if(world.world-number > 20)
+    let acc = find-player(world, "dirty-cop");
+    if (acc & cop.foo)
+      cop.foo := #f;
+      cop.accusations := add!(cop.accusations, acc);
+    end if;
+  end if;*/
   if (world.world-evidences.size > 0)
     //look if another cop should have seen this
     //dbg("EVIDENCE!!!\n");
     for (evidence in world.world-evidences)
       for (i from evidence.evidence-world + 1 below
              min(world.world-number, evidence.evidence-world + 24) by 2)
-        dbg("I %= real-world %=\n", i, world.world-number);
+        //dbg("I %= real-world %=\n", i, world.world-number);
         for (player in world.world-skeleton.worlds[i].world-cops)
           if (player.player-location = evidence.evidence-location)
             dbg("ACCUSATION: loc %= world %= (ev %=, real %=) %s\n",

@@ -10,7 +10,10 @@ register-bot(<stupid-predicting-cop>);
 define method choose-move(cop :: <stupid-predicting-cop>, world :: <world>)
   let moves = list(cop.my-target-move);
   for (takeover in world.world-bot-takeover)
+    //dbg("takeover controller: %= taken-bot %=\n",
+        //takeover.controller.player-name, takeover.taken-bot.player-name);
     if (takeover.controller = cop.agent-player)
+      //dbg("toke over %=\n", takeover.taken-bot.player-name);
       moves := add(moves, head(choose(method(x)
                                           x.bot = takeover.taken-bot;
                                       end, cop.all-moves)));

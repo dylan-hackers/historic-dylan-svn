@@ -449,7 +449,7 @@ define method read-world (stream, skeleton)
   let bot-takeover =
     collect(stream,
             <bot-taken>,
-            #(taken-bot:, controller:),
+            #(controller:, taken-bot:),
             list("sc:", name-re, name-re));
   re("fac\\\\");
   let false-accusations =
