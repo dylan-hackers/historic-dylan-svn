@@ -204,41 +204,45 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
   let shortest-path = shortest-path.reverse;
   let next-node = shortest-path.head;
 
-  dbg("safest path (len %d, score %d) = %=\n",
+  dbg("safest path to a bank (len %d, score %d) = %=\n",
       shortest-path.size, shortest-path-len,
       map(node-id, shortest-path));
+  dbg("safe paths:\n");
+  let safest-len4 = #();
+  let safest-len4-cost = 2000000000;
+  let longest-safe-path = #();
+  let longest-safe-including-move = #();
+  for (i from 0 below safest-paths.size)
+    if (distances-to[i] < safest-len4-cost & safest-paths[i].size == 4)
+      safest-len4 := safest-paths[i];
+      safest-len4-cost := distances-to[i];
+    end;
+    if (distances-to[i] == safest-paths[i].size)
+      if (distances-to[i] > longest-safe-path.size)
+        longest-safe-path := safest-paths[i];
+      end;
+      if (distances-to[i] > longest-safe-including-move.size
+            & safest-paths[i].last == shortest-path.head)
+        longest-safe-including-move := safest-paths[i];
+      end;
+    end;
+  end for;
 
-  if (shortest-path.empty?)
-    dbg("too hot for me .. let's get outta here...\n");
-    
-    // find the safest node we can reach
-    let danger :: <int-vector> = cop-total-prob[0];
-    let safest-place = my-location;
-    let best-safety = danger[safest-place.node-id];
-    for (node :: <node> in my-location.moves-by-foot)
-      block (next)
-        let safety = danger[node.node-id];
-        dbg("safety at %d = %d\n", node.node-id, safety);
-        if (safety <= best-safety)
-          // make sure it's not a bank
-          for (bank :: <bank> in world.world-banks)
-            let bank-node = bank.bank-location;    
-            if (node == bank-node)
-              dbg("dont rob that bank!!\n");
-              next();
-            end;
-          end;
-
-          best-safety := safety;
-          safest-place := node;
-        end if;
-      end block;
-    end for;
-    
-    dbg("instead we'll go to %d with safety %d\n", safest-place.node-id, best-safety);
-    next-node := safest-place;
+  dbg("longest safe path len = %d, path = %=\n",
+      longest-safe-path.size, map(node-id, longest-safe-path.reverse));
+  dbg("longest incl move len = %d, path = %=\n",
+      longest-safe-including-move.size, map(node-id, longest-safe-including-move.reverse));
+  dbg("safest of len 4   len = %d, path = %=\n",
+      safest-len4-cost, map(node-id, safest-len4.reverse));
+  
+  if (longest-safe-including-move.size < 4)
+    if (longest-safe-path.size > 4)
+      next-node := longest-safe-path.last;
+    else
+      next-node := safest-len4.last;
+    end;
+    dbg("instead we'll go to %d\n", next-node.node-id);
   end;
-
 
   for (bank :: <bank> in world.world-banks)
     let bank-node = bank.bank-location;    
@@ -283,7 +287,7 @@ define function find-safe-paths
           let path-to-start = shortest-path[start-id];
           let cost-to-start = cost-to[start-id];
           let distance-to-at-start = distance-to[start-id];
-          let density-round-num = distance-to-at-start + 2;
+          let density-round-num = distance-to-at-start;
           if (density-round-num > density-round-max)
             density-round-num := density-round-max;
           end;
@@ -311,11 +315,14 @@ define function find-safe-paths
                   if (fetch(immediate-danger,cop-num,next-id) > 0) 1 else 0 end;
                 smell-level := smell-level +
                   if (fetch(smell-range,cop-num,next-id) > 0) 1 else 0 end;
-                cop-probability := cop-probability + fetch(cop-density,cop-num,next-id);
+                cop-probability := cop-probability +
+                  if (fetch(cop-density,cop-num,next-id) > 1000000) 1 else 0 end;
               end;
               let penalty =
                 100000 * current-position-level +
-                100 * imminent-danger-level +
+                1000 * imminent-danger-level +
+                cop-probability * cop-probability;
+              /*
                 case
                   //smell-level > 0 => 5;
                   cop-probability == 0 => 0;
@@ -324,6 +331,7 @@ define function find-safe-paths
                                //    round/(cop-probability, fudge * density-round-num));
                     round/(cop-probability, fudge /* * density-round-num */);
                 end;
+                */
 
               let cost = cost-to-start + penalty + 1;
               if (cost-to[next-id] > cost)
