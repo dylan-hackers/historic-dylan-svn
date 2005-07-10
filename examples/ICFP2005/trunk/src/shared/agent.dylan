@@ -345,7 +345,20 @@ define class <move> (<object>)
   slot bot :: <player>, init-keyword: bot:;
 end class;
 
-lock-down <move>  end;
+define class <robber-move> (<move>)
+  slot bribe = "nobribe:", init-keyword: bribe:;
+end class;
+
+define class <cop-move> (<object>)
+  slot moves, init-keyword: moves:;
+  slot offer = "straight-arrow:", init-keyword: offer:;
+  slot accusations = #(), init-keyword: accusations:;
+end class;
+
+define class <dirty-cop-move> (<cop-move>)
+end class;
+
+lock-down <move>, <robber-move>, <cop-move>, <dirty-cop-move>  end;
 
 define method \= (a :: <move>, b :: <move>) => (res :: <boolean>)
   (a.transport = b.transport) & (a.target = b.target)
@@ -358,25 +371,12 @@ define method print (move :: <move>)
        move.bot.player-name);
 end method;
 
-define class <robber-move> (<move>)
-  slot bribe = "nobribe:", init-keyword: bribe:;
-end class;
-
 define method print (move :: <robber-move>)
   send("rmov\\\n");
   next-method();
   send("%s\n", move.bribe);
   send("rmov/\n");
 end method;
-
-define class <cop-move> (<object>)
-  slot moves, init-keyword: moves:;
-  slot offer = "straight-arrow:", init-keyword: offer:;
-  slot accusations = #(), init-keyword: accusations:;
-end class;
-
-define class <dirty-cop-move> (<cop-move>)
-end class;
 
 define method print(move :: <cop-move>)
   send("cmov\\\n");

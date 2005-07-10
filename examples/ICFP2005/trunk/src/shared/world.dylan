@@ -2,7 +2,8 @@ module: world
 
 lock-down
    <world-skeleton>, <world>, <node>, <edge>, <bank>, <evidence>,
-   <player>, <plan>, <inform>, <parse-error>
+   <player>, <plan>, <inform>, <from-message-inform>, <from-message-plan>,
+   <dirty-cops>, <bot-taken>, <false-accusation>, <parse-error>
 end lock-down;
 
 define class <world-skeleton> (<object>)

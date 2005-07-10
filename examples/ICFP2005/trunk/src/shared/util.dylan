@@ -8,7 +8,6 @@ end;
 define function send(#rest args)
   apply(format, *standard-output*, args);
   force-output(*standard-output*);
-  dbg("Send: %s\n", args);
 end;
 
 define method regexp-match(big :: <string>, regex :: <string>) => (#rest results);
@@ -33,9 +32,7 @@ define function re (stream, #rest regexen)
   let regex = reduce1(method(x, y) concatenate(x, ws-re, y) end,
                       regexen);
   let line = read-line(stream);
-  dbg("line: %s\n", line);
   let (match, #rest substrings) = regexp-match(line, regex);
-  //dbg("RE: %= %= %=\n", regex, line, match);
   unless (match) signal(make(<parse-error>)) end;
   apply(values, substrings)
 end;
