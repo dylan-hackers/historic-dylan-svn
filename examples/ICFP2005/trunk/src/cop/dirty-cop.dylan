@@ -35,9 +35,6 @@ define method make-plan (cop :: <dirty-cop>, world :: <world>) => (plan)
                                                      player,
                                                      move));
   end for;
-  for (p in target-plans)
-    dbg("WORLD %s PLAN %s %s %s\n", world.world-number, p.plan-bot, p.plan-location.node-name, p.plan-type);
-  end;
   target-plans;
 end method;
 
@@ -50,10 +47,8 @@ define method make-vote (cop :: <dirty-cop>, world :: <world>) => (vote)
             add(random-sort(remove(plans, random-value)), random-value);
           end if;
         end method;
-  let res = concatenate(list(cop.agent-player), 
-                        map(tail, random-sort(cop.plan-ranking)));
-  dbg("RES MAKE VOTE %=\n", map(method(x) x.player-name end, res));
-  res;
+  concatenate(list(cop.agent-player), 
+              map(tail, random-sort(cop.plan-ranking)));
 end method;
 
 define method make-robber-plan (cop :: <dirty-cop>, world :: <world>)

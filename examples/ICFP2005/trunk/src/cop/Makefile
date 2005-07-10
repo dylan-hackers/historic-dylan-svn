@@ -1,5 +1,5 @@
 
-cop.lib.du: cop.lid cop.dylan predicting-cop.dylan stupid-predicting-cop.dylan cop-exports.dylan dirty-cop.dylan ../shared/world.lib.du
+cop.lib.du: cop.lid predicting-cop.dylan stupid-predicting-cop.dylan cop-exports.dylan dirty-cop.dylan ../shared/world.lib.du
 	d2c -g -s -L../shared cop.lid
 
 run:
@@ -16,5 +16,5 @@ commit:
 	cd ../.. && svn commit -m "${M}" && cd -
 
 clean:
-	-rm -f *.o *.s *.a *.c *.mak *~ cop
+	-rm -f *.o *.s *.a *.c *.mak *~ cop cop.lib.du
 	-rm -rf .libs

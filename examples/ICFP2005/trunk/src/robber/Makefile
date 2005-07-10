@@ -1,12 +1,12 @@
 
-robber.lib.du: robber.lid robber.dylan alterna-robber.dylan random-walk-robber.dylan bruce-robber.dylan robber-exports.dylan cheating-robber.dylan ../shared/world.lib.du
+robber.lib.du: robber.lid alterna-robber.dylan random-walk-robber.dylan bruce-robber.dylan robber-exports.dylan cheating-robber.dylan ../shared/world.lib.du
 	d2c -g -s -L../shared robber.lid
 
 run: robber
 	server --gui --robber "show-robber ./robber-wrapper"
 
 clean:
-	-rm -f *.o *.s *.a *.c *.mak *~ robber
+	-rm -f *.o *.s *.a *.c *.mak *~ robber robber.lib.du
 	-rm -rf .libs
 
 update:

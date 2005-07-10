@@ -22,10 +22,8 @@ define function choose-move-for(cop, player)
                                       player);
   
   if (plan-move)
-    dbg("Choosing voted plan move for %s\n", player.player-name);
     plan-move
   else
-    dbg("Executing own plan move for %s\n", player.player-name);
     choose-move-for-aux(cop.all-moves, player)
   end if;
 end function;
@@ -41,26 +39,17 @@ define method choose-move(cop :: <stupid-predicting-cop>, world :: <world>)
                            end, cop.accusations));
 end method choose-move;
 
-define method check-moves (moves, world, cop)
+define method check-moves (moves, world :: <world>, cop :: <predicting-cop>)
   if (world.world-loot > 0)
     for (false-accusation in world.world-false-accusations)
       if (world.world-number = false-accusation.false-accusation-world + 2)
-        dbg("FALSE ACC %= accused %= in world %= (curworld %=)\n",
-            false-accusation.accusing-bot.player-name,
-            false-accusation.accused-bot.player-name,
-            false-accusation.false-accusation-world,
-            world.world-number);
-        cop.invalid-moves[false-accusation.accused-bot.player-name] := 0; //=0?
-        cop.invalid-moves[false-accusation.accusing-bot.player-name] := 0; //=0?
+        cop.invalid-moves[false-accusation.accused-bot.player-name] := 0;
+        cop.invalid-moves[false-accusation.accusing-bot.player-name] := 0;
       end if;
     end for;
     for (move in moves)
       let player = find-player(world, move.bot.player-name);
       unless (player.player-location = move.target)
-        dbg("PLAYER %s didn't follow the winning plan %= LOC %=\n",
-            player.player-name,
-            move.target.node-name,
-            player.player-location.node-name);
         cop.invalid-moves[player.player-name] :=
           element(cop.invalid-moves, player.player-name, default: 0) + 1;
         if (cop.invalid-moves[player.player-name] > 5)
@@ -72,7 +61,8 @@ define method check-moves (moves, world, cop)
 end method;
 
 
-define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (plan)
+define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>)
+ => (plan)
   check-moves(cop.all-planned-moves, world, cop);
   cop.all-moves := make(<stretchy-vector>);
   let sorted-nodes
@@ -149,10 +139,6 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
     add!(plan, generate-plan(world, player, target-move));
   end for;
 
-
-/*  for (p in plan)
-    dbg("WORLD %s PLAN %s %s %s\n", world.world-number, p.plan-bot, p.plan-location.node-name, p.plan-type);
-  end;*/
   plan
 end method make-plan;
 
@@ -160,10 +146,9 @@ define method perceive-vote (vote,
                              cop :: <stupid-predicting-cop>,
                              world :: <world>);
   if (vote)
-    //we'll just look whether the move is valid and do it, if it is.
+    //we already checked whether the move is valid, so we'll move
     cop.all-planned-moves := map(tail, choose(method(x) 
                                                   x.head = vote
                                               end, cop.planned-moves));
-    //dbg("WINNER: %s\n", vote);
   end if;
 end method perceive-vote;
