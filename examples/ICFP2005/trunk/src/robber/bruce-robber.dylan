@@ -63,7 +63,7 @@ end count-greater-than;
 
 define method choose-move(robber :: <bruce-robber>, world :: <world>)
   find-accessable-banks(robber, world);
-  let max-iterations = 4;
+  let max-iterations = 6;
   let node-lookup = world.world-skeleton.world-nodes-by-id;
   let num-nodes = node-lookup.size;
   let num-cops = world.world-cops.size;
@@ -149,7 +149,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
       cop-foot-prob := new-cop-foot-prob;
       cop-car-prob := new-cop-car-prob;
 
-  
+      /*
       let (foot-places, foot-prob) = count-greater-than(cop-foot-prob, 0);
       let (car-places, car-prob) = count-greater-than(cop-car-prob, 0);
       dbg("round %d, places cop %s could be, foot: %d (%d), car: %d (%d)\n",
@@ -157,6 +157,7 @@ define method choose-move(robber :: <bruce-robber>, world :: <world>)
           cop.player-name,
           foot-places, foot-prob,
           car-places, car-prob);
+      */
 
     end for; // iterating this cop probabilities
   
@@ -259,13 +260,17 @@ define function find-safe-paths
      from-node :: <node>)
  => (distance-to :: <int-vector>, shortest-paths :: <simple-object-vector>)
 
+  let density-round-max = danger.size - 1;
+
   let current-positions :: <simple-object-vector> = danger[0];
   let immediate-danger :: <simple-object-vector> = danger[1];
-  let smell-range :: <simple-object-vector> = danger[3];
-  let cop-density :: <simple-object-vector> = danger[danger.size - 1];
+  let smell-range :: <simple-object-vector> = danger[2];
 
+  let cost-to =
+    make(<int-vector>, size: maximum-node-id(), fill: 2000000000);
   let distance-to =
     make(<int-vector>, size: maximum-node-id(), fill: 2000000000);
+  cost-to[from-node.node-id] := 0;
   distance-to[from-node.node-id] := 0;
   let shortest-path :: <simple-object-vector> =
     make(<vector>, size: maximum-node-id(), fill: #());
@@ -276,7 +281,14 @@ define function find-safe-paths
   local method search (start :: <node>) => ();
           let start-id = start.node-id;
           let path-to-start = shortest-path[start-id];
-          let distance-to-start = distance-to[start-id];  // increment distance is now variable
+          let cost-to-start = cost-to[start-id];
+          let distance-to-at-start = distance-to[start-id];
+          let density-round-num = distance-to-at-start + 2;
+          if (density-round-num > density-round-max)
+            density-round-num := density-round-max;
+          end;
+          let cop-density :: <simple-object-vector> = danger[density-round-num];
+
           block (return)
             let moves :: <stretchy-object-vector> = start.moves-by-foot;
             for (next :: <node> in moves)
@@ -293,23 +305,29 @@ define function find-safe-paths
                         let dangers :: <int-vector> = table[cop-num];
                         dangers[next-id];
                       end method fetch;
-                current-position-level := current-position-level + fetch(current-positions,cop-num,next-id);
-                imminent-danger-level := imminent-danger-level + fetch(immediate-danger,cop-num,next-id);
-                smell-level := smell-level + fetch(smell-range,cop-num,next-id);
+                current-position-level := current-position-level +
+                  if (fetch(current-positions,cop-num,next-id) > 0) 1 else 0 end;
+                imminent-danger-level := imminent-danger-level +
+                  if (fetch(immediate-danger,cop-num,next-id) > 0) 1 else 0 end;
+                smell-level := smell-level +
+                  if (fetch(smell-range,cop-num,next-id) > 0) 1 else 0 end;
                 cop-probability := cop-probability + fetch(cop-density,cop-num,next-id);
               end;
-              let cost = 1 +
+              let penalty =
+                100000 * current-position-level +
+                100 * imminent-danger-level +
                 case
-                  current-position-level > 0 => 999999;
-                  imminent-danger-level > 0 => 999999;
-                  smell-level > 0 => 5;
+                  //smell-level > 0 => 5;
                   cop-probability == 0 => 0;
                   //cop-probability >= *cop-probability* => 999999;
-                  otherwise => round/(cop-probability, fudge);
+                  otherwise => //dbg("prob penalty of %d\n",
+                               //    round/(cop-probability, fudge * density-round-num));
+                    round/(cop-probability, fudge /* * density-round-num */);
                 end;
 
-              if (distance-to[next-id] > distance-to-start)
-                distance-to[next-id] := distance-to-start + cost;
+              let cost = cost-to-start + penalty + 1;
+              if (cost-to[next-id] > cost)
+                cost-to[next-id] := cost;
                 shortest-path[next-id] := add!(path-to-start, next);
                 push-last(todo-nodes, next);
               end if;
@@ -323,5 +341,5 @@ define function find-safe-paths
         end method;
 
   search(from-node);
-  values(distance-to, shortest-path);
+  values(cost-to, shortest-path);
 end;
