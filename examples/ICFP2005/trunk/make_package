@@ -22,7 +22,7 @@ make_driver (){
 	US=\$(dirname \$0)
 	LD_LIBRARY_PATH=\${US}/bin:\${LD_LIBRARY_PATH}
 	export LD_LIBRARY_PATH
-	exec \${US}/bin/bot-driver $bot_type 2>/dev/null
+	exec \${US}/bin/bot-driver "<$bot_type>" 2>/dev/null
 	END
     chmod +x submission/$prog
 }
