@@ -173,7 +173,6 @@ define method drive-agent(agent :: <robber>,
           dbg("Error %= while make-bribe, ignored\n", e);
         end;
 
-        dbg("OFFERED\n");
         let offered-cops = map(compose(curry(find-player, world),
                                        bot),
                                read-offered-cops(input-stream));
@@ -184,18 +183,16 @@ define method drive-agent(agent :: <robber>,
         exception (e :: <condition>)
           dbg("Error %= while perceive-offered-cops\n", e);
         end block;
-        dbg("TRY MOVING\n");
-        //dbg("DRIVE-AGENT: %s\n", node-name(choose-move(agent, world)));
-        //block()
+
+        block()
           print(choose-move(agent, world));
-        //exception (e :: <condition>)
-        //  print(make(<robber-move>, 
-        //             target: agent.agent-player.player-location,
-        //             transport: agent.agent-player.player-type,
-        //             bot: agent.agent-player)).
-        // dbg("Error %= while choose-move, ignored\n", e);
-        //end block;
-        dbg("FINISHED LOOP\n");
+        exception (e :: <condition>)
+          print(make(<robber-move>, 
+                     target: agent.agent-player.player-location,
+                     transport: agent.agent-player.player-type,
+                     bot: agent.agent-player));
+          dbg("Error %= while choose-move, ignored\n", e);
+        end block;
         force-output(output-stream);
       end while;
     exception (condition :: <parse-error>)
@@ -415,13 +412,7 @@ define method generate-moves-in-direction (player :: <player>,
               else
                 generate-moves(player);
               end if;
-  /*for (m in moves)
-    dbg("POSSI MOVE: %s %s %s\n",
-        player.player-name,
-        m.target.node-name,
-        m.transport);
-  end for;
-*/
+
   let move-distance = make(<vector>, size: moves.size);
   for (i from 0 below moves.size)
     move-distance[i] := distance(player,
@@ -438,17 +429,7 @@ define method generate-moves-in-direction (player :: <player>,
                              = move-distance[move-indices[0]]
                          end,
                          move-indices);
-  moves := map(curry(element, moves), move-indices);
-  
-  /*    for (move in moves)
-          dbg("MOVE: %s %s %s %s\n",
-              other-cop.player-name,
-              move-distance[move-indices[0]],
-              move.target.node-name,
-              move.transport);
-        end for;
-    */
-  moves;
+  map(curry(element, moves), move-indices);
 end method;
 
 define method generate-moves (player :: <player>,
@@ -459,7 +440,6 @@ define method generate-moves (player :: <player>,
                   transport: player.player-type,
                   bot: player);
   generate-moves(move, keep-current-transport: keep-current-transport);
-
 end method;
 
 define method generate-moves(move :: <move>,
@@ -468,7 +448,8 @@ define method generate-moves(move :: <move>,
   let options = make(<stretchy-vector>, size: 16);
   options.size := 0; // preallocate space hack
 
-  local method add-to-options (list :: <stretchy-object-vector>, transport :: <string>)
+  local method add-to-options (list :: <stretchy-object-vector>,
+                               transport :: <string>)
           for (tar :: <node> in list)
             add!(options, make(<move>,
                                target: tar,
@@ -477,25 +458,16 @@ define method generate-moves(move :: <move>,
           end;
         end method;
 
-  if (move.transport = "robber")
-    add-to-options(move.target.moves-by-foot, "robber");
-  else
-    //dbg("generate-moves transport = %s keep = %=\n", move.transport, keep-current-transport);
-    if ((move.transport = "cop-foot") |
-          (~keep-current-transport & (move.target.node-tag = "hq")))
-      add-to-options(move.target.moves-by-foot, "cop-foot");
-      //dbg("adding foot moves\n");
-    end;
-    if ((move.transport = "cop-car") | 
-          (~keep-current-transport & (move.target.node-tag = "hq")))
-      add-to-options(move.target.moves-by-car, "cop-car");
-      //dbg("adding car moves\n");
-    end;
-  end if;
-
-  //for (ele in options)
-  //  dbg("GENMOVE: %= %=\n", ele.target.node-name, ele.transport);
-  //end;
+  case
+    move.transport = "robber"
+      => add-to-options(move.target.moves-by-foot, "robber");
+    (move.transport = "cop-foot") |
+        (~keep-current-transport & (move.target.node-tag = "hq"))
+      => add-to-options(move.target.moves-by-foot, "cop-foot");
+    (move.transport = "cop-car") | 
+      (~keep-current-transport & (move.target.node-tag = "hq"))
+      => add-to-options(move.target.moves-by-car, "cop-car");
+  end;
 
   as(<simple-object-vector>, options);
 end method;
@@ -561,18 +533,11 @@ end method;
 define method generate-informs (world, probability-map, list) => (informs)
   let res = #();
   for (node in list)
-    res := add(res,
-               generate-inform
-                 (world,
-                  node,
-                  truncate
-                    (if (probability-map[node.node-id] = 0.0s0)
-                       -100;
-                     else
-                       probability-map[node.node-id] * 100
+    res := add(res,generate-inform
+                 (world, node, truncate
+                    (if (probability-map[node.node-id] = 0.0s0) -100;
+                     else probability-map[node.node-id] * 100
                      end if)));
-    //dbg("MYINFORM %s %s %s\n", res.head.plan-location.node-name,
-    //    res.head.inform-certainty, res.head.plan-world);
   end for;
   do(curry(add!, world.world-informs),
      map(rcurry(pair, world.world-my-player.player-name), res));
@@ -587,7 +552,6 @@ define method normalize! (map :: <vector>)
   map;
 end method;
     
-
 
 limited-vector-class(<int-vector>, <integer>, 0);
 
@@ -651,17 +615,6 @@ define function distance
                                            distance-to[x] = maximum-rank;
                                        end,
                                        key-sequence(distance-to))));
-  /*dbg("LOC: %s TARGET: %s\n", player.player-location.node-name,
-      target-node.node-name);
-  for (i from 0 below maximum-node-id())
-    if (size(shortest-path[i]) > 0)
-      dbg("SP TO %d, distance: %d  ", i, distance-to[i]);
-      for (j in shortest-path[i])
-        dbg("%s ", j.target.node-name);
-      end for;
-      dbg("\n");
-    end if;
-  end for;*/
   else
     let res :: <list> = shortest-path[destination-id];
     values(distance-to[destination-id], res.reverse);
