@@ -8,7 +8,6 @@ define abstract class <predicting-cop> (<cop>)
   slot accusations = #();
   slot all-moves;
   slot invalid-moves :: <string-table> = make(<string-table>);
-//  slot foo = #t;
 end class <predicting-cop>;
 
 register-bot(<predicting-cop>);
@@ -16,21 +15,18 @@ register-bot(<predicting-cop>);
 define method consider-evidence (evidence :: <evidence>, 
                                  world :: <world>,
                                  cop :: <predicting-cop>)
-  dbg("NEW EVIDENCE: loc: %s in world: %s current world: %s\n",
-      evidence.evidence-location.node-name,
-      evidence.evidence-world,
-      world.world-number);
   let mymap = make(<vector>, size: maximum-node-id(), fill: 0.0s0);
   mymap[evidence.evidence-location.node-id] := 1.0s0;
   for (i from evidence.evidence-world + 1
          below world.world-number by 2)
-    mymap := advance-probability-map-in-world(world.world-skeleton.worlds[i], mymap);
+    mymap := advance-probability-map-in-world(world.world-skeleton.worlds[i],
+                                              mymap);
   end;
   cop.probability-map := mymap;
 end method;
 
 define method advance-probability-map-in-world(world :: <world>,
-                                                 mymap :: <vector>)
+                                               mymap :: <vector>)
  => (new-map :: <vector>)
   let new-map = advance-probability-map(mymap);
   for(bank in world.world-banks)
@@ -110,14 +106,6 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
         set-map(first-nodes, 0.0s0);
       end if;
       
-      dbg("SMELL %s world: %s size: %s loc: %s\n",
-          world.world-smell-distance,
-          world.world-number,
-          nodes.size,
-          cop.agent-player.player-location.node-name);
-      /* for (e in nodes)
-           dbg("SMELL %s\n", e.node-name);
-         end for;*/
       res := concatenate(res, generate-informs(world,
                                                prob-map,
                                                nodes));
@@ -134,41 +122,19 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
     end;
   end if;
   
-  //cop.accusations := world.world-cops;
-  /*
-    if(world.world-number > 20)
-      let acc = find-player(world, "dirty-cop");
-      if (acc & cop.foo)
-        cop.foo := #f;
-        cop.accusations := add!(cop.accusations, acc);
-      end if;
-    end if;
-    */
-  /*
-  if (world.world-number = 21)
-    cop.accusations := world.world-other-cops;
-  end;
-  */
-
   if (world.world-evidences.size > 0)
     //look if another cop should have seen this
-    //dbg("EVIDENCE!!!\n");
     for (evidence in world.world-evidences)
       for (i from evidence.evidence-world + 1 below
              min(world.world-number, evidence.evidence-world + 24) by 2)
-        //dbg("I %= real-world %=\n", i, world.world-number);
         for (player in world.world-skeleton.worlds[i].world-cops)
           if (player.player-location = evidence.evidence-location)
-            dbg("ACCUSATION: loc %= world %= (ev %=, real %=) %s\n",
-                player.player-location.node-name,
-                i, evidence.evidence-world, world.world-number,
-                player.player-name);
             cop.accusations := add!(cop.accusations, player)
           end if;
         end for;
       end for;
     end for;
-    //dbg("AFTER NEW LOOP\n");
+
     let newest-evidence
       = first(sort(world.world-evidences,
                    test: method(x, y)
@@ -207,15 +173,6 @@ define method perceive-informs(information, cop :: <predicting-cop>, world :: <w
             let infos = choose(method(x)
                                    x.plan-world = number
                                end, inform.informs);
-/*            do(method(x)
-                   dbg("INFORM from %s bot %s world %s loc %s val %s\n",
-                       inform.sender,
-                       x.plan-bot,
-                       x.plan-world,
-                       x.plan-location.node-name,
-                       x.inform-certainty)
-               end,
-               infos);*/
             
             if (number = world.world-number)
               let prob-sum = 0.0s0;
@@ -273,7 +230,6 @@ define method perceive-plans(plan-from-messages,
   for (fmp :: <from-message-plan> in plan-from-messages)
     //Ignore my plans, I know I am right.
     unless (fmp.sender = world.world-skeleton.my-name)
-
       let sum = 0.0s0;
 
       //look how good the plan is in our probability-map
@@ -282,12 +238,9 @@ define method perceive-plans(plan-from-messages,
 
           //search for player-object
           let bot = find-player(world, ele.plan-bot);
-          
           if (bot)
-  
             //generate valid moves
             let valid-moves = generate-moves(bot);
-
 
             let move = make(<move>,
                             target: ele.plan-location,
@@ -315,7 +268,6 @@ define method perceive-plans(plan-from-messages,
           end if;
         end if;
       end for;
-      dbg("PERC PLA: %s %s\n", fmp.sender, sum);
       cop.plan-ranking := add!(cop.plan-ranking,
                                pair(sum,
                                     find-player(world, fmp.sender)));
@@ -329,6 +281,5 @@ define method make-vote(cop :: <predicting-cop>, world :: <world>) => (vote);
                                                             head(x) > head(y);
                                                         end));
   let res = concatenate(list(cop.agent-player), ranking);
-  //dbg("VOTE RES: %=\n", res);
   res;
 end method make-vote;
