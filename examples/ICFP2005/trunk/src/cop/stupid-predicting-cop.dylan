@@ -2,16 +2,27 @@ module: stupid-predicting-cop
 
 define class <stupid-predicting-cop> (<predicting-cop>)
   slot my-target-move :: <move>;
+  slot all-moves;
 end class;
 
 register-bot(<stupid-predicting-cop>);
 
 define method choose-move(cop :: <stupid-predicting-cop>, world :: <world>)
+  let moves = list(cop.my-target-move);
+  for (takeover in world.world-bot-takeover)
+    if (takeover.controller = cop.agent-player)
+      moves := add(moves, head(choose(method(x)
+                                          x.bot = takeover.taken-bot;
+                                      end, cop.all-moves)));
+    end if;
+  end for;
   make(<cop-move>,
-       moves: list(cop.my-target-move));
+       moves: moves,
+       accusations: cop.accusations);
 end method choose-move;
 
 define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (plan)
+  cop.all-moves := #();
   let sorted-nodes
     = copy-sequence(sort(range(size: maximum-node-id()),
                          test: method(x, y)
@@ -63,7 +74,6 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
                                    cop.probability-map[x.target.node-id] >
                                    cop.probability-map[y.target.node-id]
                                end);
-
     move-suggestions := add(move-suggestions, moves);
 
   end for;
@@ -88,6 +98,8 @@ define method make-plan(cop :: <stupid-predicting-cop>, world :: <world>) => (pl
       cop.my-target-move := target-move;
     end if;
     generated-moves := add!(generated-moves, target-move);
+    cop.all-moves := add(cop.all-moves, target-move);
+    
     add!(plan, generate-plan(world,
                              player,
                              target-move));
@@ -120,7 +132,7 @@ define method perceive-vote (vote,
         end block;
       if (plan-move)
         //dbg("change away from move %s ", cop.my-target-move.target.node-name);
-        cop.my-target-move := plan-move;
+        //cop.my-target-move := plan-move;
         /*dbg("changed move: from %s to %s by %s\n",
             cop.agent-player.player-location.node-name,
             plan-move.target.node-name,

@@ -18,7 +18,9 @@ define module predicting-cop
     probability-map,
     planned-moves,
     plan-ranking,
-    plan-ranking-setter;
+    plan-ranking-setter,
+    accusations,
+    accusations-setter;
 end module;
 
 

@@ -262,7 +262,6 @@ define method make (world == <world>,
   for (x in false-accusations)
     x.accusing-bot := find-pl(x.accusing-bot);
     x.accused-bot := find-pl(x.accused-bot);
-    x.false-accusation-world := string-to-integer(x.false-accusation-world);
   end;
 
   apply(next-method,
@@ -341,6 +340,33 @@ define method make (world-skeleton == <world-skeleton>,
 end method;
 
 
+define class <dirty-cops> (<object>)
+  slot bot, required-init-keyword: bot:;
+end class;
+
+define class <bot-taken> (<object>)
+  slot taken-bot, required-init-keyword: taken-bot:;
+  slot controller, required-init-keyword: controller:;
+end;
+
+define class <false-accusation> (<object>)
+  slot accusing-bot, required-init-keyword: accusing-bot:;
+  slot accused-bot, required-init-keyword: accused-bot:;
+  slot false-accusation-world :: <integer>, required-init-keyword: false-accusation-world:;
+end;
+
+define method make (false-accusation == <false-accusation>,
+                    #next next-method,
+                    #rest rest,
+                    #key false-accusation-world,
+                    #all-keys) => (res :: <false-accusation>)
+  let args = rest;
+  args := exclude(args, #"false-accusation-world");
+  apply(next-method,
+        false-accusation,
+        false-accusation-world: string-to-integer(false-accusation-world),
+        args);
+end;
 
 define method exclude (list, symbol) => (sequence)
   let res = make(<stretchy-vector>);
@@ -408,21 +434,6 @@ define method read-world-skeleton(stream :: <stream>)
                            edges: edges);
 end;
 
-define class <dirty-cops> (<object>)
-  slot bot, required-init-keyword: bot:;
-end class;
-
-define class <bot-taken> (<object>)
-  slot taken-bot, required-init-keyword: taken-bot:;
-  slot controller, required-init-keyword: controller:;
-end;
-
-define class <false-accusation> (<object>)
-  slot accusing-bot, required-init-keyword: accusing-bot:;
-  slot accused-bot, required-init-keyword: accused-bot:;
-  slot false-accusation-world, required-init-keyword: world:;
-end;
-
 define method read-world (stream, skeleton)
   let re = curry(re, stream);
   re("wor\\\\");
@@ -444,7 +455,7 @@ define method read-world (stream, skeleton)
   let false-accusations =
     collect(stream,
             <false-accusation>,
-            #(accusing-bot:, accused-bot:. world:),
+            #(accusing-bot:, accused-bot:, false-accusation-world:),
             list("fac:", name-re, name-re, number-re));
   re("bv\\\\");
   let banks =

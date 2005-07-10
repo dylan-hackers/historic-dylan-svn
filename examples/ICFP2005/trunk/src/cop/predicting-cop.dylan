@@ -4,13 +4,8 @@ define abstract class <predicting-cop> (<cop>)
   slot probability-map :: false-or(<vector>) = #f;
   slot last-precise-info :: <integer> = 1;
   slot planned-moves :: <stretchy-vector> = make(<stretchy-vector>);
-
   slot plan-ranking :: <stretchy-vector> = make(<stretchy-vector>);
-
-  // Rogue cops are the ones suspiciously feeding wrong info, they are
-  // always voted to bottom of list - just below mcruff. This is a list
-  // of <player>.
-  slot rogue-cops :: <stretchy-vector> = make(<stretchy-vector>);
+  slot accusations :: <stretchy-vector> = make(<stretchy-vector>);
 end class <predicting-cop>;
 
 register-bot(<predicting-cop>);
@@ -78,6 +73,7 @@ end method generate-map-from-informs;
 define method make-informs (cop :: <predicting-cop>, world :: <world>)
  => (object)
   let res = #();
+  cop.accusations := make(<stretchy-vector>);
   if(world.world-robber | ~cop.probability-map)
     cop.last-precise-info := world.world-number;
     cop.probability-map := make(<vector>, size: maximum-node-id(), fill: 0.0s0);
@@ -127,8 +123,25 @@ define method make-informs (cop :: <predicting-cop>, world :: <world>)
     end;
   end if;
 
-
   if (world.world-evidences.size > 0)
+    //look if another cop should have seen this
+    //dbg("EVIDENCE!!!\n");
+    for (evidence in world.world-evidences)
+      for (i from max(evidence.evidence-world - 23, 1) below //or -25?
+             evidence.evidence-world - 1 by 2) //or not -1?
+        //dbg("I %= real-world %=\n", i, world.world-number);
+        for (player in world.world-skeleton.worlds[i].world-cops)
+          if (player.player-location = evidence.evidence-location)
+            dbg("ACCUSATION: loc %= world %= (ev %=, real %=) %s\n",
+                player.player-location.node-name,
+                i, evidence.evidence-world, world.world-number,
+                player.player-name);
+            cop.accusations := add!(cop.accusations, player)
+          end if;
+        end for;
+      end for;
+    end for;
+    //dbg("AFTER NEW LOOP\n");
     let newest-evidence
       = first(sort(world.world-evidences,
                    test: method(x, y)
