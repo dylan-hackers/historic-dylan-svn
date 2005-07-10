@@ -225,10 +225,13 @@ define method drive-agent(agent :: <cop>,
             print(move);
           exception (e :: <condition>)
             print(make(<dirty-cop-move>,
-                       moves: list(make(<move>, 
-                                        target: agent.agent-player.player-location,
-                                        transport: agent.agent-player.player-type,
-                                        bot: agent.agent-player))));
+                       moves: map(method(x)
+                                      make(<move>, 
+                                           target: x.player-location,
+                                           transport: x.player-type,
+                                           bot: x)
+                                  end,
+                                  world.world-my-players)));
             dbg("Error %= while choose-move, ignored\n", e);
           end block;
           
@@ -289,10 +292,13 @@ define method drive-agent(agent :: <cop>,
             print(choose-move(agent, world));
           exception (e :: <condition>)
             print(make(<cop-move>,
-                       moves: list(make(<move>, 
-                                        target: agent.agent-player.player-location,
-                                        transport: agent.agent-player.player-type,
-                                        bot: agent.agent-player))));
+                       moves: map(method(x)
+                                      make(<move>, 
+                                           target: x.player-location,
+                                           transport: x.player-type,
+                                           bot: x)
+                                  end,
+                                  world.world-my-players)));
             dbg("Error %= while choose-move, ignored\n", e);
           end block;
         end if;
