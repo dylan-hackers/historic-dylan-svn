@@ -155,7 +155,7 @@ dd {
 
 #header {
   font-size: 335%;
-  height: 1.45em;
+  height: 1.45em; min-height: 58px;
   padding-left: 4mm;
 }
 
