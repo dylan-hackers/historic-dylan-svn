@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <vlan> (<object>)
   slot vlan-number :: <integer>, required-init-keyword: number:;

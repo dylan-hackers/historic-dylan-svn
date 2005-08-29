@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <ip-address> (<object>)
   slot ip :: <byte-vector>, init-keyword: ip:;

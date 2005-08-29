@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <host> (<object>)
   slot host-name :: <string>, required-init-keyword: name:;

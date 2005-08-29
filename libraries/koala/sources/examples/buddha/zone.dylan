@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <zone> (<object>)
   slot zone-name :: <string>, required-init-keyword: name:;

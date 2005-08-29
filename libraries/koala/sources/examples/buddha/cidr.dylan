@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <cidr> (<object>)
   slot cidr-network-address :: <ip-address>,
