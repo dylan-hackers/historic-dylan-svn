@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <config> (<object>)
   slot config-name :: <string>, required-init-keyword: name:;

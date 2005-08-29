@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <subnet> (<network>)
   slot subnet-vlan :: false-or(<vlan>) = #f, init-keyword: vlan:;

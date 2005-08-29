@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define method exclude (list, symbol) => (sequence)
   let res = make(<stretchy-vector>);

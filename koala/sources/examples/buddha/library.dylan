@@ -1,5 +1,5 @@
 module: dylan-user
-author: Hannes Mehnert
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define library buddha
   use common-dylan;

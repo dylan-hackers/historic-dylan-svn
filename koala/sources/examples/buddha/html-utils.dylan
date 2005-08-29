@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define method gen-row (stream :: <stream>, list)
  => ()

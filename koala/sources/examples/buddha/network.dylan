@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <network> (<object>)
   slot network-cidr :: <cidr>, required-init-keyword: cidr:;
