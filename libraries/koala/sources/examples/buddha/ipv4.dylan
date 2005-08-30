@@ -20,9 +20,18 @@ end;
 
 define method \+ (a :: <ip-address>, b :: <integer>)
  => (res :: <ip-address>)
-//  let rem :: <integer> = 0;
-//  for (ele in reverse(a.ip))
-//    if (modulo(
+  let rem :: <integer> = b;
+  let res :: <ip-address>
+    = make(<ip-address>, ip: make(<byte-vector>, size: 4, fill: 0));
+  for (ele in reverse(a.ip),
+       i from 3 by -1)
+    let (quotient, remainder) = truncate/(ele + rem, 256);
+    res.ip[i] := remainder;
+    rem := quotient;
+    //format-out("rem %= res.ip[i] %=\n", rem, res.ip[i]);
+  end;
+  //format-out("%= + %= = %=\n", a, b, res);
+  res;
 end;
 
 define method \+ (a :: <integer>, b :: <ip-address>)

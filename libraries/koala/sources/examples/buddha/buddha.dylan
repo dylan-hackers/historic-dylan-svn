@@ -1,5 +1,5 @@
 module: buddha
-author: Hannes Mehnert
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define taglib buddha ()
 end;
@@ -335,6 +335,11 @@ define function main () => ()
                   cidr: "23.23.4.0/24",
                   vlan: 23));
   add-net(*config*, net2);
+
+  let foo = make(<ip-address>, ip: "23.23.23.23") + 66000;
+  foo := make(<ip-address>, ip: "192.168.2.254") + 10;
+  foo := make(<ip-address>, ip: "192.168.255.254") + 10;
+
 /*  let dood = make(<dood>,
                   locator: *config*.config-name,
                   direction: #"output",
