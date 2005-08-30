@@ -339,6 +339,9 @@ define function main () => ()
   let foo = make(<ip-address>, ip: "23.23.23.23") + 66000;
   foo := make(<ip-address>, ip: "192.168.2.254") + 10;
   foo := make(<ip-address>, ip: "192.168.255.254") + 10;
+  foo := make(<ip-address>, ip: "192.168.0.1") - 1;
+  foo := make(<ip-address>, ip: "192.168.0.1") - 2;
+  foo := make(<ip-address>, ip: "23.24.24.231") - 66000;
 
 /*  let dood = make(<dood>,
                   locator: *config*.config-name,

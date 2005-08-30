@@ -30,11 +30,11 @@ define method make (subnet == <subnet>,
   end;
   unless (dhcp-start)
     args := exclude(args, #"dhcp-start");
-    dhcp-start := network-address(cidr);
+    dhcp-start := network-address(cidr) + 1;
   end unless;
   unless (dhcp-end)
     args := exclude(args, #"dhcp-end");
-    dhcp-end := broadcast-address(cidr);
+    dhcp-end := broadcast-address(cidr) - 1;
   end unless;
   apply(next-method, subnet, cidr: cidr, vlan: vlan,
         dhcp-start: dhcp-start, dhcp-end: dhcp-end, args);
@@ -81,15 +81,30 @@ define method print-isc-dhcpd-file (subnet :: <subnet>, stream :: <stream>)
     do(method(x)
            format(stream, "\t%s;\n", x);
        end, subnet.dhcp-options);
-    format(stream, "\trange %s %s;\n",
-           ip-address-to-string(subnet.dhcp-start),
-           ip-address-to-string(subnet.dhcp-end));
+    do(method(x)
+           format(stream, "\trange %s %s;\n",
+                  ip-address-to-string(head(x)),
+                  ip-address-to-string(tail(x)));
+       end, generate-dhcp-ranges(subnet));
     format(stream, "}\n\n");
   end if;
 end;
 
 define method generate-dhcp-ranges (subnet :: <subnet>)
-  => (list :: <list>)
-  //vector, ueberall 1, wo kein host
-  //bis zur naechsten eins zusammenziehen
+ => (list :: <list>)
+  let start-ip :: <ip-address> = subnet.dhcp-start;
+  let end-ip :: <ip-address> = subnet.dhcp-end;
+  let res = make(<list>);
+  for (host in subnet.network-hosts)
+    let host-ip = host.host-ipv4-address;
+    if ((host-ip > start-ip) & (host-ip < end-ip))
+      res := add!(res, pair(start-ip, host-ip - 1));
+      start-ip := host-ip + 1;
+    end;
+  end for;
+  if (start-ip <= end-ip)
+    res := add!(res, pair(start-ip, end-ip));
+  end;
+  //format-out("ranges %=\n", reverse(res));
+  reverse(res);
 end;

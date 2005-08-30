@@ -21,15 +21,15 @@ end;
 define method \+ (a :: <ip-address>, b :: <integer>)
  => (res :: <ip-address>)
   let rem :: <integer> = b;
-  let res :: <ip-address>
-    = make(<ip-address>, ip: make(<byte-vector>, size: 4, fill: 0));
+  let res = make(<byte-vector>, size: 4, fill: 0);
   for (ele in reverse(a.ip),
        i from 3 by -1)
     let (quotient, remainder) = truncate/(ele + rem, 256);
-    res.ip[i] := remainder;
+    res[i] := remainder;
     rem := quotient;
-    //format-out("rem %= res.ip[i] %=\n", rem, res.ip[i]);
+    //format-out("rem %= res[i] %=\n", rem, res[i]);
   end;
+  res := make(<ip-address>, ip: res);
   //format-out("%= + %= = %=\n", a, b, res);
   res;
 end;
@@ -37,6 +37,27 @@ end;
 define method \+ (a :: <integer>, b :: <ip-address>)
  => (res :: <ip-address>)
   b + a;
+end;
+
+define method \- (a :: <ip-address>, b :: <integer>)
+ => (res :: <ip-address>)
+  let rem :: <integer> = b;
+  let res = make(<byte-vector>, size: 4, fill: 0);
+  for (ele in reverse(a.ip),
+       i from 3 by -1)
+    if (ele - rem < 0)
+      //format-out("ele - rem < 0 (%= - %= < %=)\n", ele, rem, ele - rem);
+      res[i] := modulo(ele - rem, 256);
+      rem := abs(truncate/(rem, 256));
+    else
+      res[i] := ele - rem;
+      rem := 0;
+    end;
+    //format-out("rem %= res[i] %=\n", rem, res[i]); 
+  end;
+  res := make(<ip-address>, ip: res);
+  //format-out("%= - %= = %=\n", a, b, res);
+  res;
 end;
 
 define method print-object (ip :: <ip-address>,
