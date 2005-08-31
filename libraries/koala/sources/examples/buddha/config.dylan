@@ -95,3 +95,20 @@ define method remove-net (config :: <config>, network :: <network>)
  => ()
   config.config-nets := remove!(config.config-nets, network);
 end;
+
+define method print-bind-zone-file
+    (config :: <config>, stream :: <stream>)
+ => ()
+  //we need to print dhcpd.conf file here
+  for (zone in config.config-zones)
+    print-bind-zone-file(zone, stream)
+  end;
+end;
+
+define method print-tinydns-zone-file
+    (config :: <config>, stream :: <stream>)
+ => ()
+  for (zone in config.config-zones)
+    print-tinydns-zone-file(zone, stream)
+  end;
+end;

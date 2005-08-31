@@ -66,26 +66,33 @@ define method print-bind-zone-file (zone :: <zone>, stream :: <stream>)
 end;
 
 define method print-tinydns-zone-file (zone :: <zone>, stream :: <stream>)
-  unless(zone.zone-reverse?)
-    //Zfqdn:mname:rname:ser:ref:ret:exp:min:ttl:timestamp:lo
-    format(stream, "Z%s:%s:%s:%d:%d:%d:%d:%d:%d\n",
-           zone.zone-name, zone.zone-nameserver[0],
-           zone.zone-hostmaster, zone.zone-serial,
-           zone.zone-refresh, zone.zone-retry,
-           zone.zone-expire, zone.zone-minimum,
-           zone.zone-time-to-live);
-    //nameserver
+  //Zfqdn:mname:rname:ser:ref:ret:exp:min:ttl:timestamp:lo
+  format(stream, "Z%s:%s:%s:%d:%d:%d:%d:%d:%d\n",
+         zone.zone-name, zone.zone-nameserver[0],
+         zone.zone-hostmaster, zone.zone-serial,
+         zone.zone-refresh, zone.zone-retry,
+         zone.zone-expire, zone.zone-minimum,
+         zone.zone-time-to-live);
+  //nameserver
+  do(method(x)
+         format(stream, "&%s::%s\n", zone.zone-name, x)
+     end, zone.zone-nameserver);
+  if (zone.zone-reverse?)
+    //PTR
     do(method(x)
-           format(stream, "&%s::%s\n", zone.zone-name, x)
-       end, zone.zone-nameserver);
+           format(stream, "^%s:%s\n",
+                  x.host-name,
+                  ip-address-to-string(x.host-ipv4-address));
+       end, zone.zone-hosts);
+  else
     //MX
     do(method(x)
            format(stream, "@%s::%s:%d\n",
                   zone.zone-name, tail(x), head(x));
        end, zone.zone-mail-exchange);
-    //A, PTR
+    //A
     do(method(x)
-           format(stream, "=%s:%s\n",
+           format(stream, "+%s:%s\n",
                   x.host-name,
                   ip-address-to-string(x.host-ipv4-address));
        end, zone.zone-hosts);
