@@ -388,15 +388,8 @@ define function main2()
   let control = connect-to-cisco(cisco);
   control.run;
 
-  write-line(control.socket, "terminal length 0");
-  force-output(control.socket);
-  write-line(control.socket, "show running");
-  force-output(control.socket);
-  let result = read-whats-available(control.socket,
-                                    timeout: 20,
-                                    end-marker: "#$");
-  let config = regexp-match(result,
-                            ".*");
+  send-command(control, "terminal length 0");
+  let result = send-command(control, "show running");
   format-out("%s\n", result);
 end;
 
