@@ -31,12 +31,13 @@ define method read-whats-available(stream :: <stream>,
                                    end-marker)
   let result = "";
 
-  while (stream-input-available?(stream))
+  while (stream-input-available?(stream) 
+           & ~(end-marker & subsequence-position(result, end-marker)))
     let elt = read-element(stream);
     result := add!(result, elt);
   end;
   if (timeout & timeout > 0)
-    unless (end-marker & regexp-match(result, end-marker))
+    unless (end-marker & subsequence-position(result, end-marker))
       sleep(1);
       result := concatenate!(result, 
                              read-whats-available(stream,
@@ -46,6 +47,16 @@ define method read-whats-available(stream :: <stream>,
   end;
   result;
 end method read-whats-available;
+
+define method read-to-marker(stream :: <stream>, end-marker :: <string>)
+  let result = "";
+
+  while (~subsequence-position(result, end-marker))
+    let elt = read-element(stream);
+    result := add!(result, elt);
+  end;
+  result;
+end method;
 
 define method run (control :: <cisco-ios-telnet-control>)
   while (control.connection-state ~= #"enabled")
@@ -71,8 +82,8 @@ define method run (control :: <cisco-ios-telnet-control>)
              let line = read-whats-available(control.socket, 
                                              timeout: 1,
                                              end-marker: ">");
-             let hostname = regexp-match(line, "(.*)>");
-             if (hostname)
+             let (match, hostname) = regexp-match(line, "(.*)>");
+             if (match)
                control.device.host-name := hostname;
                write-line(control.socket, "enable");
                force-output(control.socket);
@@ -99,3 +110,16 @@ define method run (control :: <cisco-ios-telnet-control>)
     end select;
   end while;
 end method run;
+
+define method send-command (control :: <cisco-ios-telnet-control>,
+                            command :: <string>)
+  write-line(control.socket, command);
+  force-output(control.socket);
+  read(control.socket, command.size + 2);
+  let result 
+    = read-to-marker(control.socket,
+                     concatenate(control.device.host-name, "#"));
+  copy-sequence(result, end: result.size - control.device.host-name.size - 1);
+end method send-command;
+  
+
