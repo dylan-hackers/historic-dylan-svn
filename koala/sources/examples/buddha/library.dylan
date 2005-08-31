@@ -7,11 +7,14 @@ define library buddha
   use koala, import: { dsp };
   use dood;
   use string-extensions, import: { character-type };
+  use regular-expressions;
+  use network;
   export buddha;
 end;
 
 define module buddha
   use common-dylan;
+  use threads;
   use format-out;
   use format, import: { format };
   use print, import: { print-object };
@@ -20,4 +23,6 @@ define module buddha
   use standard-io;
   use character-type, import: { hex-digit? };
   use dood;
+  use regular-expressions;
+  use sockets, import: { <tcp-socket>, <internet-address> };
 end;

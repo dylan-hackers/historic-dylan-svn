@@ -9,6 +9,7 @@ define class <host> (<object>)
   slot host-zone :: <zone>, init-keyword: zone:;
 end;
 
+
 /*
 define method make (host == <host>,
                     #next next-method,

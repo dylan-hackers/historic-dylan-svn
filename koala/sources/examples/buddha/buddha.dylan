@@ -115,7 +115,8 @@ end;
 
 define page user-page (<buddha-page>)
   (url: "/buddha/user.dsp",
-   source: "buddha/user.dsp")
+   source: "buddha/user.dsp",
+   alias: "/")
 end;
 
 define tag get-zone in buddha
@@ -370,9 +371,35 @@ define function main () => ()
   //  format-out("netmask %d %=\n", i, netmask-to-vector(i));
   //end;
 
-  start-server();
+  block()
+    start-server();
+  exception (e :: <condition>)
+    format-out("error: %=\n", e);
+  end
+end;
+
+define function main2()
+  let cisco = make(<cisco-ios-device>,
+                   name: "router",
+                   ip: make(<ip-address>, ip: "23.23.23.23"),
+                   login-password: "xxx",
+                   enable-password: "xxx");
+
+  let control = connect-to-cisco(cisco);
+  control.run;
+
+  write-line(control.socket, "terminal length 0");
+  force-output(control.socket);
+  write-line(control.socket, "show running");
+  force-output(control.socket);
+  let result = read-whats-available(control.socket,
+                                    timeout: 20,
+                                    end-marker: "#$");
+  let config = regexp-match(result,
+                            ".*");
+  format-out("%s\n", result);
 end;
 
 begin
-  main();
+  main2();
 end;
