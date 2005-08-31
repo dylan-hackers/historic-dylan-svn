@@ -99,6 +99,8 @@ define method generate-dhcp-ranges (subnet :: <subnet>)
     let host-ip = host.host-ipv4-address;
     if ((host-ip > start-ip) & (host-ip < end-ip))
       res := add!(res, pair(start-ip, host-ip - 1));
+    end;
+    if (host-ip >= start-ip)
       start-ip := host-ip + 1;
     end;
   end for;
