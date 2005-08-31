@@ -12,4 +12,5 @@ files: library
        zone
        host
        mac
+       cisco-telnet
        buddha

@@ -46,7 +46,6 @@ define responder http-error-responder ("/koala/http-error")
               format-arguments: vector(code-string)));
 end;
 
-/*
 // Shutdown the server.  You definately don't want this active in a 
 // production setting.
 //
@@ -58,7 +57,6 @@ define responder shutdown-responder ("/koala/shutdown")
   force-output(stream);
   stop-server(abort: #t);
 end;
-*/
 
 // Load a module
 //
