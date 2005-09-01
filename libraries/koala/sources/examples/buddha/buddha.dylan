@@ -1,145 +1,210 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define taglib buddha ()
+define macro page-definer
+  { define page ?:name end }
+    => { define responder ?name ## "-responder" ("/" ## ?"name")
+           (request, response)
+           if (request.request-method = #"get")
+             respond-to-get(as(<symbol>, ?"name"), request, response)
+           elseif (request.request-method = #"post")
+             respond-to-post(as(<symbol>, ?"name"), request, response);
+           end;
+         end; }
 end;
 
-define class <buddha-page> (<dylan-server-page>)
+define page net end;
+define page vlan end;
+define page host end;
+define page zone end;
+define page user end;
+//define page buddha.css end;
+
+define macro with-buddha-template
+  { with-buddha-template(?stream:variable, ?title:expression)
+      ?body:body
+    end }
+    => { begin
+           with-html(?stream)
+             with-header(?stream, concatenate("Buddha - ", ?title))
+               gen-stylesheet(?stream, "/buddha.css");
+             end;
+             with-body(?stream)
+               with-div (?stream, "header")
+                 with-div(?stream, "navbar")
+                   gen-link(?stream, "/net", "Network");
+                   gen-link(?stream, "/vlan", "VLAN");
+                   gen-link(?stream, "/host", "Host");
+                   gen-link(?stream, "/zone", "Zone");
+                   gen-link(?stream, "/user", "User Interface");
+                   gen-link(?stream, "/koala/shutdown", "Shutdown");
+                 end;
+               end;
+               ?body
+             end;
+           end;
+         end; }
 end;
 
-define page net-page (<buddha-page>)
-  (url: "/buddha/net.dsp",
-   source: "buddha/net.dsp")
-end;
-
-define tag show-nets in buddha
-  (page :: <net-page>, response :: <response>)
-  (output-format :: <string> = "html")
+define method respond-to-get
+    (page == #"net", request :: <request>, response :: <response>)
   let out = output-stream(response);
-  for (net in *config*.config-nets,
-       i from 0)
-    print-html(net, out);
-    with-form (out, "/buddha/net.dsp")
-      hidden-form-field(out, "action", "gen-dhcpd");
-      hidden-form-field(out, "network", integer-to-string(i));
-      submit-form-field(out, "dhcpd.conf", "generate dhcpd.conf");
-    end;
-    with-form (out, "/buddha/net.dsp")
-      hidden-form-field(out, "action", "remove-network");
-      hidden-form-field(out, "network", integer-to-string(i));
-      submit-form-field(out, "remove-network-button", "Remove this Network");
-    end;
-    with-form (out, "/buddha/net.dsp")
-      form-field(out, "cidr");
-      with-select(out, "vlan")
-        do(method(x)
-               let num = integer-to-string(x.vlan-number);
-               gen-option(out, num, concatenate(num, " ", x.vlan-name));
-           end, get-sorted-list(*config*.config-vlans));
+  with-buddha-template (out, "Networks")
+    with-div (out, "content")
+      for (net in *config*.config-nets,
+           i from 0)
+        print-html(net, out);
+        with-form (out, "/net")
+          hidden-form-field(out, "action", "gen-dhcpd");
+          hidden-form-field(out, "network", integer-to-string(i));
+          submit-form-field(out, "dhcpd.conf", "generate dhcpd.conf");
+        end;
+        with-form (out, "/net")
+          hidden-form-field(out, "action", "remove-network");
+          hidden-form-field(out, "network", integer-to-string(i));
+          submit-form-field(out,
+                            "remove-network-button",
+                            "Remove this Network");
+        end;
+        with-form (out, "/net")
+          form-field(out, "cidr");
+          with-select(out, "vlan")
+            do(method(x)
+                   let num = integer-to-string(x.vlan-number);
+                   gen-option(out, num, concatenate(num, " ", x.vlan-name));
+               end, get-sorted-list(*config*.config-vlans));
+          end;
+          form-field(out, "dhcp",
+                     type: "checkbox",
+                     value: "dhcp",
+                     checked: #t);
+          form-field(out, "dhcp-start");
+          form-field(out, "dhcp-end");
+          form-field(out, "dhcp-router");
+          form-field(out, "default-lease-time");
+          form-field(out, "max-lease-time");
+          form-field(out, "options");
+          hidden-form-field(out, "action", "add-subnet");
+          hidden-form-field(out, "network", integer-to-string(i));
+          submit-form-field(out,
+                            "add-subnet-button",
+                            concatenate("Add Subnet to ",
+                                        cidr-to-string(net.network-cidr)));
+        end;
       end;
-      form-field(out, "dhcp", type: "checkbox", value: "dhcp", checked: #t);
-      form-field(out, "dhcp-start");
-      form-field(out, "dhcp-end");
-      form-field(out, "dhcp-router");
-      form-field(out, "default-lease-time");
-      form-field(out, "max-lease-time");
-      form-field(out, "options");
-      hidden-form-field(out, "action", "add-subnet");
-      hidden-form-field(out, "network", integer-to-string(i));
-      submit-form-field(out,
-                        "add-subnet-button",
-                        concatenate("Add Subnet to ",
-                                    cidr-to-string(net.network-cidr)));
+      with-form (out, "/net")
+        form-field(out, "cidr");
+        form-field(out, "dhcp", type: "checkbox", value: "dhcp", checked: #t);
+        form-field(out, "default-lease-time", value: "600");
+        form-field(out, "max-lease-time", value: "7200");
+        form-field(out, "options");
+        hidden-form-field(out, "action", "add-network");
+        submit-form-field(out, "add-network-button", "Add Network");
+      end;
     end;
   end;
-  with-form (out, "/buddha/net.dsp")
-    form-field(out, "cidr");
-    form-field(out, "dhcp", type: "checkbox", value: "dhcp", checked: #t);
-    form-field(out, "default-lease-time", value: "600");
-    form-field(out, "max-lease-time", value: "7200");
-    form-field(out, "options");
-    hidden-form-field(out, "action", "add-network");
-    submit-form-field(out, "add-network-button", "Add Network");
-  end;
 end;
 
-define page vlan-page (<buddha-page>)
-  (url: "/buddha/vlan.dsp",
-   source: "buddha/vlan.dsp")
-end;
-
-define tag show-vlans in buddha
-  (page :: <vlan-page>, response :: <response>)
-  (output-format :: <string> = "html")
+define method respond-to-get
+    (page == #"vlan", request :: <request>, response :: <response>)
   let out = output-stream(response);
-  //with-table (out, #("Number", "Name", "Description"))
-    do(method(x)
-           print-html(x, out)
-       end, get-sorted-list(*config*.config-vlans));
-  //end;
-end;
-
-define page host-page (<buddha-page>)
-  (url: "/buddha/host.dsp",
-   source: "buddha/host.dsp")
-end;
-
-define tag show-hosts in buddha
-  (page :: <host-page>, response :: <response>)
-  (output-format :: <string> = "html")
-  let out = output-stream(response);
-  with-table (out, #("Name", "IP", "Net", "Mac", "Zone"))
-    for (net in *config*.config-nets)
+  with-buddha-template(out, "VLAN")
+    with-div(out, "content")
       do(method(x)
-             print-html(x, out);
-         end, net.network-hosts);
+             print-html(x, out)
+         end, get-sorted-list(*config*.config-vlans));
+    end;
+    with-div(out, "edit")
+      with-form(out, "/vlan")
+        form-field(out, "vlan");
+        form-field(out, "name");
+        form-field(out, "description");
+        submit-form-field(out, "add-vlan-button", "Add VLAN");
+      end;
     end;
   end;
 end;
 
-define page zone-page (<buddha-page>)
-  (url: "/buddha/zone.dsp",
-   source: "buddha/zone.dsp")
-end;
-
-define tag show-zones in buddha
-  (page :: <buddha-page>, response :: <response>)
-  ()
+define method respond-to-get
+    (page == #"host", request :: <request>, response :: <response>)
   let out = output-stream(response);
-  with-table (out, #("Name"))
-    do(method(x)
-           print-html(x, out);
-       end, *config*.config-zones);
+  with-buddha-template(out, "Hosts")
+    with-div(out, "content")
+      with-table (out, #("Name", "IP", "Net", "Mac", "Zone"))
+        for (net in *config*.config-nets)
+          do(method(x)
+                 print-html(x, out);
+             end, net.network-hosts);
+        end;
+      end;
+    end;
+    with-div(out, "edit")
+      with-form(out, "/host")
+        form-field(out, "name");
+        form-field(out, "ip");
+        form-field(out, "mac");
+        with-select(out, "zone")
+          do(method(x)
+                 gen-option(out, x.zone-name, x.zone-name);
+             end, choose(method(x)
+                             ~ zone-reverse?(x);
+                         end, *config*.config-zones));
+        end;
+        submit-form-field(out, "add-host-button", "Add Host");
+      end;
+    end;
   end;
 end;
 
-define page user-page (<buddha-page>)
-  (url: "/buddha/user.dsp",
-   source: "buddha/user.dsp",
-   alias: "/")
-end;
-
-define tag get-zone in buddha
-  (page :: <buddha-page>, response :: <response>)
-  ()
-  format(output-stream(response), "%s", *config*.config-zones[0].zone-name);
-end;
-
-define tag option-zones in buddha
-  (page :: <buddha-page>, response :: <response>)
-  ()
+define method respond-to-get
+    (page == #"zone", request :: <request>, response :: <response>)
   let out = output-stream(response);
-  with-select(out, "zone")
-    do(method(x)
-           gen-option(out, x.zone-name, x.zone-name);
-       end, choose(method(x)
-                       ~ zone-reverse?(x);
-                   end, *config*.config-zones));
+  with-buddha-template(out, "Zones")
+    with-div(out, "content")
+      with-table (out, #("Name"))
+        do(method(x)
+               print-html(x, out);
+           end, *config*.config-zones);
+      end;
+    end;
+    with-div(out, "edit")
+      with-form(out, "/zone")
+        form-field(out, "name");
+        form-field(out, "hostmaster");
+        form-field(out, "serial");
+        form-field(out, "refresh");
+        form-field(out, "retry");
+        form-field(out, "expire");
+        form-field(out, "minimum");
+        form-field(out, "time-to-live");
+        form-field(out, "nameserver");
+        form-field(out, "mail-exchange");
+        form-field(out, "txt");
+        submit-form-field(out, "add-zone-button", "Add Zone");
+      end;
+    end;
   end;
 end;
 
+define method respond-to-get
+    (page == #"user", request :: <request>, response :: <response>)
+  let out = output-stream(response);
+  with-buddha-template(out, "User Interface")
+    with-div(out, "content")
+      show-host-info();
+    end;
+    with-div(out, "edit")
+      with-form(out, "/user")
+        form-field(out, "hostname");
+        form-field(out, "mac");
+        submit-form-field(out, "add-host-button", "Add Hostname");
+      end;
+    end;
+  end;
+end;
+      
 define method respond-to-post
-    (page :: <user-page>, request :: <request>, response :: <response>)
+    (page == #"user", request :: <request>, response :: <response>)
   let ip = host-address(remote-host(request-socket(request)));
   let name = get-query-value("name");
   let mac = get-query-value("mac");
@@ -156,7 +221,7 @@ define method respond-to-post
 end;
 
 define method respond-to-post
-    (page :: <net-page>, request :: <request>, response :: <response>)
+    (page == #"net", request :: <request>, response :: <response>)
   let action = get-query-value("action");
   if (do-action(as(<symbol>, action), response))
     respond-to-get(page, request, response);
@@ -238,7 +303,7 @@ define method parse-options (options) => (list :: <list>)
 end;
 
 define method respond-to-post
-    (page :: <vlan-page>, request :: <request>, response :: <response>)
+    (page == #"vlan", request :: <request>, response :: <response>)
   let number = string-to-integer(get-query-value("number"));
   let name = get-query-value("name");
   let description = get-query-value("description");
@@ -251,7 +316,7 @@ define method respond-to-post
 end;
 
 define method respond-to-post
-    (page :: <host-page>, request :: <request>, response :: <response>)
+    (page == #"host", request :: <request>, response :: <response>)
   let name = get-query-value("name");
   let ip = make(<ip-address>,
                 ip: string-to-ip-address(get-query-value("ip")));
@@ -394,5 +459,5 @@ define function main2()
 end;
 
 begin
-  main2();
+  main();
 end;

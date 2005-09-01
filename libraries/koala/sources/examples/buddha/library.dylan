@@ -4,7 +4,7 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define library buddha
   use common-dylan;
   use io;
-  use koala, import: { dsp };
+  use koala, import: { koala };
   use dood;
   use string-extensions, import: { character-type };
   use regular-expressions;
@@ -18,7 +18,7 @@ define module buddha
   use format-out;
   use format, import: { format };
   use print, import: { print-object };
-  use dsp, exclude: { split, print-object };
+  use koala, exclude: { print-object };
   use streams;
   use standard-io;
   use character-type, import: { hex-digit? };
