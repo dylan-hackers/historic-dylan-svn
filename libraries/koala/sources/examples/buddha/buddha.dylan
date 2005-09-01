@@ -13,6 +13,11 @@ define macro page-definer
          end; }
 end;
 
+define responder default-responder ("/")
+  (request, response)
+  respond-to-get(#"net", request, response);
+end;
+
 define page net end;
 define page vlan end;
 define page host end;
