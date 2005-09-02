@@ -12,12 +12,20 @@ define method make (ip-address == <ip-address>,
                     #all-keys) => (res :: <ip-address>)
   let args = rest;
   if (instance?(ip, <string>))
-    args := exclude(args, #"ip");
-    ip := string-to-ip-address(ip);
-  end;
-  apply(next-method, ip-address, ip: ip, args);
+    ip := as(<ip-address>, ip);
+  else
+    apply(next-method, ip-address, ip: ip, args);
+  end if;
 end;
 
+//print-object
+define method print-object (ip :: <ip-address>,
+                            stream :: <stream>)
+ => ()
+  format(stream, "%s", as(<string>, ip));
+end;
+
+//arithmetic operations: +(ip, int) +(int, ip) -(ip, int)
 define method \+ (a :: <ip-address>, b :: <integer>)
  => (res :: <ip-address>)
   let rem :: <integer> = b;
@@ -60,92 +68,6 @@ define method \- (a :: <ip-address>, b :: <integer>)
   res;
 end;
 
-define method print-object (ip :: <ip-address>,
-                            stream :: <stream>)
- => ()
-  format(stream, "%s", ip-address-to-string(ip));
-end;
-  
-
-define method string-to-netmask (string :: <string>)
- => (netmask :: <integer>)
-  //"255.255.255.0"
-  let vec = reverse(string-to-ip-address(string));
-  //0, 255, 255, 255
-  let mask = 32;
-  block (not-zero)
-    for (ele in vec)
-      if (ele = 0)
-        mask := mask - 8;
-      else
-        for (i from 7 to 0 by -1)
-          unless (logbit?(i, ele))
-            mask := mask - i - 1;
-            not-zero();
-          end unless;
-        end for;
-      end;
-    end for;
-  end block;
-  mask;
-end;
-
-define method netmask-to-string (netmask :: <integer>)
- => (string :: <string>)
-  integer-to-string(netmask);
-end;
-
-define method netmask-to-vector (netmask :: <integer>)
- => (vec :: <byte-vector>)
-  let res = make(<byte-vector>, size: 4, fill: 255);
-  for (i from 0 below 4,
-       mask from netmask by -8)
-    if (mask < 0)
-      res[i] := 0;
-    elseif (mask < 8)
-      res[i] := logand(255, ash(255, 8 - mask));
-    end if
-  end for;
-  res;
-end;
-
-define method string-to-ip-address (string :: <string>)
- => (ip :: <byte-vector>)
-  let numbers = split(string, '.');
-  let ints = map(string-to-integer, numbers);
-  let res = make(<byte-vector>, size: 4, fill: 0);
-  for (i from 0 below res.size)
-    res[i] := as(<byte>, ints[i]);
-  end;
-  res;
-end method;
-
-define method ip-address-to-string (ip-address :: <byte-vector>)
- => (string :: <string>)
-  let strings = make(<list>);
-  for (ele in ip-address)
-    strings := add(strings, integer-to-string(ele));
-    //let strings = map(integer-to-string, ip-address);
-    //doesn't work. not sure why... '"10" is not of type limited(<integer>)'
-  end;
-//  let res = 
-  reduce1(method(x, y)
-              concatenate(x, ".", y)
-          end, reverse(strings));
-  //format-out("res %=\n", res);
-  //res;
-end;
-
-define method ip-address-to-string (ip-address :: <ip-address>)
- => (string :: <string>)
-  ip-address-to-string(ip-address.ip);
-end;
-
-define method parse-ip (ip) => (ip-address :: false-or(<ip-address>))
-  format-out("PARSE %= %=\n", ip, object-class(ip));
-  #f;
-end;
-
 define method \< (a :: <ip-address>, b :: <ip-address>)
  => (res :: <boolean>)
   block(done)
@@ -167,4 +89,71 @@ define method \= (a :: <ip-address>, b :: <ip-address>)
          map(\=,
              a.ip,
              b.ip));
+end;
+
+
+// conversions (string, ip, integer)
+define method as (class == <string>, ip-address :: <ip-address>)
+ => (res :: <string>)
+  let strings = make(<list>);
+  for (ele in ip-address.ip)
+    strings := add(strings, integer-to-string(ele));
+  end;
+  reduce1(method(x, y)
+              concatenate(x, ".", y)
+          end, reverse(strings));
+end;
+
+define method as (class == <ip-address>, netmask :: <integer>)
+ => (res :: <ip-address>)
+  let res = make(<byte-vector>, size: 4, fill: 255);
+  for (i from 0 below 4,
+       mask from netmask by -8)
+    if (mask < 0)
+      res[i] := 0;
+    elseif (mask < 8)
+      res[i] := logand(255, ash(255, 8 - mask));
+    end if
+  end for;
+  make(<ip-address>, ip: res);
+end;
+
+define method as (class == <ip-address>, string :: <string>)
+ => (res :: <ip-address>)
+  let numbers = split(string, '.');
+  let ints = map(string-to-integer, numbers);
+  let res = make(<byte-vector>, size: 4, fill: 0);
+  for (i from 0 below res.size)
+    res[i] := as(<byte>, ints[i]);
+  end;
+  make(<ip-address>, ip: res);
+end;
+
+
+define method string-to-netmask (string :: <string>)
+ => (netmask :: <integer>)
+  //"255.255.255.0"
+  let vec = reverse(as(<ip-address>, string).ip);
+  //0, 255, 255, 255
+  let mask = 32;
+  block (not-zero)
+    for (ele in vec)
+      if (ele = 0)
+        mask := mask - 8;
+      else
+        for (i from 7 to 0 by -1)
+          unless (logbit?(i, ele))
+            mask := mask - i - 1;
+            not-zero();
+          end unless;
+        end for;
+      end;
+    end for;
+  end block;
+  mask;
+end;
+
+define method parse-ip (ip) => (ip-address :: false-or(<ip-address>))
+  format-out("PARSE %= %=\n", ip, object-class(ip));
+  #f;
 end;

@@ -14,7 +14,7 @@ end class <cisco-ios-telnet-control>;
 
 define method connect-to-cisco(cisco :: <cisco-ios-device>)
   let address = make(<internet-address>,
-                     address: cisco.host-ipv4-address.ip-address-to-string);
+                     address: as(<string>, cisco.host-ipv4-address));
 
   let socket = make(<tcp-socket>, host: address, port: 23);
 
@@ -121,5 +121,5 @@ define method send-command (control :: <cisco-ios-telnet-control>,
                      concatenate(control.device.host-name, "#"));
   copy-sequence(result, end: result.size - control.device.host-name.size - 1);
 end method send-command;
-  
+
 

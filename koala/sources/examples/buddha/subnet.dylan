@@ -64,11 +64,11 @@ define method print-isc-dhcpd-file (subnet :: <subnet>, stream :: <stream>)
  => ()
   if (subnet.dhcp?)
     format(stream, "subnet %s netmask %s {\n",
-           ip-address-to-string(network-address(subnet.network-cidr)),
-           ip-address-to-string(netmask-address(subnet.network-cidr)));
+           as(<string>, network-address(subnet.network-cidr)),
+           as(<string>, netmask-address(subnet.network-cidr)));
     if (subnet.dhcp-router)
       format(stream, "\toption routers %s;\n",
-             ip-address-to-string(subnet.dhcp-router));
+             as(<string>, subnet.dhcp-router));
     end if;
     if (subnet.dhcp-default-lease-time)
       format(stream, "\tdefault-lease-time %d;\n",
@@ -83,8 +83,8 @@ define method print-isc-dhcpd-file (subnet :: <subnet>, stream :: <stream>)
        end, subnet.dhcp-options);
     do(method(x)
            format(stream, "\trange %s %s;\n",
-                  ip-address-to-string(head(x)),
-                  ip-address-to-string(tail(x)));
+                  as(<string>, head(x)),
+                  as(<string>, tail(x)));
        end, generate-dhcp-ranges(subnet));
     format(stream, "}\n\n");
   end if;

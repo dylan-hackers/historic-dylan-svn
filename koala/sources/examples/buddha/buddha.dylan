@@ -23,6 +23,8 @@ define page vlan end;
 define page host end;
 define page zone end;
 define page user end;
+define page save end;
+define page restore end;
 
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)
@@ -41,6 +43,8 @@ define macro with-buddha-template
                    gen-link(?stream, "/host", "Host");
                    gen-link(?stream, "/zone", "Zone");
                    gen-link(?stream, "/user", "User Interface");
+                   gen-link(?stream, "/save", "Save to disk");
+                   gen-link(?stream, "/restore", "Restore from disk");
                    gen-link(?stream, "/koala/shutdown", "Shutdown");
                  end;
                end;
@@ -48,6 +52,68 @@ define macro with-buddha-template
              end;
            end;
          end; }
+end;
+
+define variable *directory* = "/home/hannes/dylan/libraries/koala/www/buddha/";
+
+define method respond-to-get
+    (page == #"save", request :: <request>, response :: <response>)
+  let out = output-stream(response);
+  with-buddha-template(out, "Save Database")
+    with-div (out, "id", "content")
+      with-form (out, "/save")
+        form-field(out, "filename");
+        submit-form-field(out, "save-button", "Save");
+      end;
+    end;
+  end;
+end;
+
+define method respond-to-post
+    (page == #"save", request :: <request>, response :: <response>)
+  let file = get-query-value("filename");
+  let dood = make(<dood>,
+                  locator: concatenate(*directory*, base64-encode(file)),
+                  direction: #"output",
+                  if-exists: #"replace");
+  dood-root(dood) := *config*;
+  dood-commit(dood);
+  dood-close(dood);
+  format(output-stream(response), "Saved database\n");
+  respond-to-get(#"save", request, response);
+end;
+
+define method respond-to-get
+    (page == #"restore", request :: <request>, response :: <response>)
+  let out = output-stream(response);
+  with-buddha-template(out, "Restore Database")
+    with-div (out, "id", "content")
+      with-form(out, "/restore")
+        with-select(out, "filename")
+          do-directory(method(directory :: <pathname>,
+                              name :: <string>,
+                              type :: <file-type>)
+                           if (type == #"file")
+                             gen-option(out, name, base64-decode(name));
+                           end if;
+                       end, *directory*);
+        end;
+        submit-form-field(out, "restore-button", "Restore");
+      end;
+    end;
+  end;
+end;
+
+define method respond-to-post
+    (page == #"restore", request :: <request>, response :: <response>)
+  let file = get-query-value("filename");
+  let dood = make(<dood>,
+                  locator: concatenate(*directory*, file),
+                  direction: #"input");
+  *config* := dood-root(dood);
+  dood-close(dood);
+  format(output-stream(response), "Restored database\n");
+  respond-to-get(#"restore", request, response);
 end;
 
 define method respond-to-get
@@ -93,7 +159,7 @@ define method respond-to-get
           submit-form-field(out,
                             "add-subnet-button",
                             concatenate("Add Subnet to ",
-                                        cidr-to-string(net.network-cidr)));
+                                        as(<string>, net.network-cidr)));
         end;
       end;
       with-form (out, "/net")
@@ -226,7 +292,6 @@ end;
 
 define method do-action (action == #"gen-dhcpd", response :: <response>)
  => (show-get? :: <boolean>)
-  //generate dhcpd.conf
   let network = get-query-value("network");
   network := *config*.config-nets[string-to-integer(network)];
   set-content-type(response, "text/plain");
@@ -236,39 +301,43 @@ end;
 
 define method do-action (action == #"add-subnet", response :: <response>)
  => (show-get? :: <boolean>)
-  //add-subnet
   let network = get-query-value("network");
-  format-out("ADD SUBNET\n");
   let cidr = get-query-value("cidr");
   let vlan = string-to-integer(get-query-value("vlan"));
   let dhcp? = if (get-query-value("dhcp") = "dhcp") #t else #f end;
-  format-out("FOO %= %= %=\n", cidr, vlan, dhcp?);
-  let default-lease-time
-    = string-to-integer(get-query-value("default-lease-time"));
-  let max-lease-time
-    = string-to-integer(get-query-value("max-lease-time"));
-  format-out("DHCP %= %=\n", default-lease-time, max-lease-time);
-  let options = parse-options(get-query-value("options"));
-  let dhcp-start = parse-ip(get-query-value("dhcp-start"));
-  let dhcp-end = parse-ip(get-query-value("dhcp-end"));
-  let dhcp-router = parse-ip(get-query-value("dhcp-router"));
-  let subnet = make(<subnet>,
-                    cidr: cidr,
-                    vlan: vlan,
-                    dhcp?: dhcp?,
-                    default-lease-time: default-lease-time,
-                    max-lease-time: max-lease-time,
-                    options: options,
-                    dhcp-start: dhcp-start,
-                    dhcp-end: dhcp-end,
-                    dhcp-router: dhcp-router);
-  add-subnet(*config*.config-nets[string-to-integer(network)], subnet);
+  if (dhcp?)
+    let default-lease-time
+      = string-to-integer(get-query-value("default-lease-time"));
+    let max-lease-time
+      = string-to-integer(get-query-value("max-lease-time"));
+    format-out("DHCP %= %=\n", default-lease-time, max-lease-time);
+    let options = parse-options(get-query-value("options"));
+    let dhcp-start = parse-ip(get-query-value("dhcp-start"));
+    let dhcp-end = parse-ip(get-query-value("dhcp-end"));
+    let dhcp-router = parse-ip(get-query-value("dhcp-router"));
+    let subnet = make(<subnet>,
+                      cidr: cidr,
+                      vlan: vlan,
+                      dhcp?: dhcp?,
+                      default-lease-time: default-lease-time,
+                      max-lease-time: max-lease-time,
+                      options: options,
+                      dhcp-start: dhcp-start,
+                      dhcp-end: dhcp-end,
+                      dhcp-router: dhcp-router);
+    add-subnet(*config*.config-nets[string-to-integer(network)], subnet);
+  else
+    let subnet = make(<subnet>,
+                      cidr: cidr,
+                      vlan: vlan,
+                      dhcp?: dhcp?);
+    add-subnet(*config*.config-nets[string-to-integer(network)], subnet);
+  end;
   #t;
 end;
 
 define method do-action (action == #"add-network", response :: <response>)
  => (show-get? :: <boolean>)
-  //add network
   let cidr = get-query-value("cidr");
   let dhcp? = if (get-query-value("dhcp") = "dhcp") #t else #f end;
   let default-lease-time
@@ -300,7 +369,7 @@ end;
 
 define method respond-to-post
     (page == #"vlan", request :: <request>, response :: <response>)
-  let number = string-to-integer(get-query-value("number"));
+  let number = string-to-integer(get-query-value("vlan"));
   let name = get-query-value("name");
   let description = get-query-value("description");
   let vlan = make(<vlan>,
@@ -314,8 +383,7 @@ end;
 define method respond-to-post
     (page == #"host", request :: <request>, response :: <response>)
   let name = get-query-value("name");
-  let ip = make(<ip-address>,
-                ip: string-to-ip-address(get-query-value("ip")));
+  let ip = make(<ip-address>, ip: get-query-value("ip"));
   let mac = get-query-value("mac");
   let zone = get-query-value("zone");
   let network = find-network(*config*, ip);
@@ -405,6 +473,11 @@ define function main () => ()
   foo := make(<ip-address>, ip: "192.168.0.1") - 2;
   foo := make(<ip-address>, ip: "23.24.24.231") - 66000;
 
+  format-out("as(<string>, 23.23.23.23): %s\n",
+             as(<string>, make(<ip-address>, ip: "23.23.23.23")));
+  format-out("as(<ip-address>, \"23.23.23.23\": %=\n", as(<ip-address>,
+                                                          "23.23.23.23"));
+  format-out("as(<ip-address>, 23): %=\n", as(<ip-address>, 23));
 /*  let dood = make(<dood>,
                   locator: *config*.config-name,
                   direction: #"output",
