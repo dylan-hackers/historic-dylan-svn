@@ -16,7 +16,7 @@ end;
 
 define method print-html (vlan :: <vlan>, stream :: <stream>)
   => ()
-  format(stream, "VLAN %d %s %s<br>\n",
+  format(stream, "VLAN %d %s %s<br/>\n",
          vlan.vlan-number,
          vlan.vlan-name,
          vlan.vlan-description);
