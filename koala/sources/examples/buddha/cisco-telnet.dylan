@@ -68,7 +68,7 @@ define method run (control :: <cisco-ios-telnet-control>)
                                              end-marker: "Password:");
              let (banner, prompt) = regexp-match(line, "(.*)(Password:)");
              if (banner)
-               control.device.banner := line;
+               control.device.banner := banner;
                write-line(control.socket, 
                           control.device.login-password);
                force-output(control.socket);
