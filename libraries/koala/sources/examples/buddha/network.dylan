@@ -83,7 +83,7 @@ end;
 
 define method print-html (network :: <network>, stream :: <stream>)
  => ()
-  format(stream, "Network CIDR %=<br>", network.network-cidr);
+  format(stream, "Network CIDR %=<br/>", network.network-cidr);
   with-table (stream, #("CIDR", "VLAN"))
     do(method(x)
            print-html(x, stream);

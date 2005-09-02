@@ -23,7 +23,6 @@ define page vlan end;
 define page host end;
 define page zone end;
 define page user end;
-//define page buddha.css end;
 
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)
@@ -35,8 +34,8 @@ define macro with-buddha-template
                gen-stylesheet(?stream, "/buddha.css");
              end;
              with-body(?stream)
-               with-div (?stream, "header")
-                 with-div(?stream, "navbar")
+               with-div (?stream, "id", "header")
+                 with-div(?stream, "id", "navbar")
                    gen-link(?stream, "/net", "Network");
                    gen-link(?stream, "/vlan", "VLAN");
                    gen-link(?stream, "/host", "Host");
@@ -55,7 +54,7 @@ define method respond-to-get
     (page == #"net", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template (out, "Networks")
-    with-div (out, "content")
+    with-div (out, "id", "content")
       for (net in *config*.config-nets,
            i from 0)
         print-html(net, out);
@@ -114,18 +113,16 @@ define method respond-to-get
     (page == #"vlan", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template(out, "VLAN")
-    with-div(out, "content")
+    with-div(out, "id", "content")
       do(method(x)
              print-html(x, out)
          end, get-sorted-list(*config*.config-vlans));
     end;
-    with-div(out, "edit")
-      with-form(out, "/vlan")
-        form-field(out, "vlan");
-        form-field(out, "name");
-        form-field(out, "description");
-        submit-form-field(out, "add-vlan-button", "Add VLAN");
-      end;
+    with-form(out, "/vlan")
+      form-field(out, "vlan");
+      form-field(out, "name");
+      form-field(out, "description");
+      submit-form-field(out, "add-vlan-button", "Add VLAN");
     end;
   end;
 end;
@@ -134,7 +131,7 @@ define method respond-to-get
     (page == #"host", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template(out, "Hosts")
-    with-div(out, "content")
+    with-div(out, "id", "content")
       with-table (out, #("Name", "IP", "Net", "Mac", "Zone"))
         for (net in *config*.config-nets)
           do(method(x)
@@ -143,20 +140,18 @@ define method respond-to-get
         end;
       end;
     end;
-    with-div(out, "edit")
-      with-form(out, "/host")
-        form-field(out, "name");
-        form-field(out, "ip");
-        form-field(out, "mac");
-        with-select(out, "zone")
-          do(method(x)
-                 gen-option(out, x.zone-name, x.zone-name);
-             end, choose(method(x)
-                             ~ zone-reverse?(x);
-                         end, *config*.config-zones));
-        end;
-        submit-form-field(out, "add-host-button", "Add Host");
+    with-form(out, "/host")
+      form-field(out, "name");
+      form-field(out, "ip");
+      form-field(out, "mac");
+      with-select(out, "zone")
+        do(method(x)
+               gen-option(out, x.zone-name, x.zone-name);
+           end, choose(method(x)
+                           ~ zone-reverse?(x);
+                       end, *config*.config-zones));
       end;
+      submit-form-field(out, "add-host-button", "Add Host");
     end;
   end;
 end;
@@ -165,28 +160,26 @@ define method respond-to-get
     (page == #"zone", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template(out, "Zones")
-    with-div(out, "content")
+    with-div(out, "id", "content")
       with-table (out, #("Name"))
         do(method(x)
                print-html(x, out);
            end, *config*.config-zones);
       end;
     end;
-    with-div(out, "edit")
-      with-form(out, "/zone")
-        form-field(out, "name");
-        form-field(out, "hostmaster");
-        form-field(out, "serial");
+    with-form(out, "/zone")
+      form-field(out, "name");
+      form-field(out, "hostmaster");
+      form-field(out, "serial");
         form-field(out, "refresh");
-        form-field(out, "retry");
-        form-field(out, "expire");
-        form-field(out, "minimum");
-        form-field(out, "time-to-live");
-        form-field(out, "nameserver");
-        form-field(out, "mail-exchange");
-        form-field(out, "txt");
-        submit-form-field(out, "add-zone-button", "Add Zone");
-      end;
+      form-field(out, "retry");
+      form-field(out, "expire");
+      form-field(out, "minimum");
+      form-field(out, "time-to-live");
+      form-field(out, "nameserver");
+      form-field(out, "mail-exchange");
+      form-field(out, "txt");
+      submit-form-field(out, "add-zone-button", "Add Zone");
     end;
   end;
 end;
@@ -195,15 +188,13 @@ define method respond-to-get
     (page == #"user", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template(out, "User Interface")
-    with-div(out, "content")
+    with-div(out, "id", "content")
       show-host-info();
     end;
-    with-div(out, "edit")
-      with-form(out, "/user")
-        form-field(out, "hostname");
-        form-field(out, "mac");
-        submit-form-field(out, "add-host-button", "Add Hostname");
-      end;
+    with-form(out, "/user")
+      form-field(out, "hostname");
+      form-field(out, "mac");
+      submit-form-field(out, "add-host-button", "Add Hostname");
     end;
   end;
 end;

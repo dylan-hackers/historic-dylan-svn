@@ -28,7 +28,7 @@ end;
 define method gen-stylesheet (stream :: <stream>,
                               link :: <string>)
  => ()
-  format(stream, "<link rel=\"stylesheet\" href=\"%s\">", link);
+  format(stream, "<link rel=\"stylesheet\" href=\"%s\" />", link);
 end;
 
 define macro with-table
@@ -93,11 +93,11 @@ define macro with-select
 end macro;
 
 define macro with-div
-  { with-div (?stream:variable, ?name:expression)
+  { with-div (?stream:variable, ?name:expression, ?value:expression)
       ?body:body
     end }
   => { begin
-         format(?stream, "<div id=\"%s\">\n", ?name);
+         format(?stream, "<div %s=\"%s\">\n", ?name, ?value);
          ?body;
          format(?stream, "</div>\n");
        end; }
@@ -109,7 +109,9 @@ define macro with-form
     end }
   => { begin
          format(?stream, "<form action=\"%s\" method=\"post\">\n", ?name);
-         ?body;
+         with-div(?stream, "class", "edit")
+           ?body;
+         end;
          format(?stream, "</form>\n");
        end; }
 end macro;
@@ -140,10 +142,10 @@ define method form-field (stream :: <stream>,
   end;
   format(stream, "<input type=\"%s\" name=\"%s\" ", type, name);
   if (value)
-    format(stream, "value=\"%s\"", value);
+    format(stream, "value=\"%s\" ", value);
   end if;
   if (checked)
-    format(stream, " checked");
+    format(stream, "checked=\"checked\" ");
   end if;
-  format(stream, ">\n");
+  format(stream, "/>\n");
 end;
