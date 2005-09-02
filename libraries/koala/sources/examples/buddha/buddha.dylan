@@ -542,6 +542,7 @@ with-xml-builder()
       div(id => "foobar",
           class => "narf") {
         a("here", href => "http://www.foo.com"),
+        a(href => "http://www.ccc.de/"),
         text("foobar"),
         ul {
           li("foo"),

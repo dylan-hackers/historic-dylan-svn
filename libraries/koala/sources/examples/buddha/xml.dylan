@@ -1,6 +1,7 @@
 module: buddha
 
 /*
+TODO: do, collect, comments
 with-xml-builder()
   html {
     head {
@@ -10,6 +11,7 @@ with-xml-builder()
       div(id => "foobar",
           class => "narf") {
         a("here", href => "http://www.foo.com"),
+        a(href => "http://www.ccc.de/"),
         text("foobar"),
         ul {
           li("foo"),
@@ -31,6 +33,7 @@ generates:
   <body>
     <div id="foobar" class="narf">
       <a href="http://www.foo.com">here</a>
+      <a href="http://www.ccc.de/"/>
       foobar
       <ul>
         <li>foo</li>
@@ -70,7 +73,14 @@ define macro with-xml-builder
               children: list(make(<char-string>, text: ?value)),
               name: ?"name") }
    { ?:name ( ?value:expression, ?attribute-list ) }
-    => { make(<element>, name: ?"name", attributes: vector(?attribute-list)) }
+    => { make(<element>,
+              children: list(make(<char-string>, text: ?value)),
+              name: ?"name",
+              attributes: vector(?attribute-list)) }
+   { ?:name ( ?attribute-list ) }
+    => { make(<element>,
+              name: ?"name",
+              attributes: vector(?attribute-list)) }
    //{ comment ( ?value:expression ) } =>  { make-comment(?value) }
 
   element-list:
