@@ -57,7 +57,7 @@ define method print-bind-zone-file (zone :: <zone>, stream :: <stream>)
     do(method(x)
            format(stream, "%s\tIN\tA\t%s\n",
                   x.host-name,
-                  ip-address-to-string(x.host-ipv4-address))
+                  as(<string>, x.host-ipv4-address))
        end, zone.zone-hosts);
     do(method(x)
            format(stream, "%s\tCNAME\t%s\n", head(x), tail(x))
@@ -82,7 +82,7 @@ define method print-tinydns-zone-file (zone :: <zone>, stream :: <stream>)
     do(method(x)
            format(stream, "^%s:%s\n",
                   x.host-name,
-                  ip-address-to-string(x.host-ipv4-address));
+                  as(<string>, x.host-ipv4-address));
        end, zone.zone-hosts);
   else
     //MX
@@ -94,7 +94,7 @@ define method print-tinydns-zone-file (zone :: <zone>, stream :: <stream>)
     do(method(x)
            format(stream, "+%s:%s\n",
                   x.host-name,
-                  ip-address-to-string(x.host-ipv4-address));
+                  as(<string>, x.host-ipv4-address));
        end, zone.zone-hosts);
     //CNAME
     do(method(x)

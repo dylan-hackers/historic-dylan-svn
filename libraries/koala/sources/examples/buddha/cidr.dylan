@@ -44,16 +44,17 @@ end;
 
 define method print-object (cidr :: <cidr>, stream :: <stream>)
  => ()
-  format(stream, "%s", cidr-to-string(cidr));
+  format(stream, "%s", as(<string>, cidr));
 end;
 
 define method print-html (cidr :: <cidr>, stream :: <stream>)
  => ()
-  format(stream, "<td>%s</td>", cidr-to-string(cidr));
+  format(stream, "<td>%s</td>", as(<string>, cidr));
 end;
 
-define method cidr-to-string (cidr :: <cidr>) => (string :: <string>)
-  concatenate(ip-address-to-string(cidr.cidr-network-address), "/",
+define method as (class == <string>, cidr :: <cidr>)
+ => (res :: <string>)
+  concatenate(as(<string>, network-address(cidr)), "/",
               integer-to-string(cidr.cidr-netmask));
 end;
 
@@ -61,7 +62,7 @@ define method base-network-address (cidr :: <cidr>)
  => (ip-address :: <ip-address>)
   make(<ip-address>,
        ip: map(logand,
-               netmask-to-vector(cidr.cidr-netmask),
+               ip(netmask-address(cidr)),
                ip(network-address(cidr))));
 end;
 
@@ -69,7 +70,7 @@ define method broadcast-address (cidr :: <cidr>)
  => (ip-address :: <ip-address>)
   let mask = map(method(x)
                      logand(255, lognot(x));
-                 end, netmask-to-vector(cidr.cidr-netmask));
+                 end, ip(netmask-address(cidr)));
   make(<ip-address>,
        ip: map(logior,
                ip(network-address(cidr)),
@@ -83,6 +84,5 @@ end;
 
 define method netmask-address (cidr :: <cidr>)
  => (ip-address :: <ip-address>)
-  make(<ip-address>,
-       ip: netmask-to-vector(cidr.cidr-netmask));
+  as(<ip-address>, cidr.cidr-netmask);
 end;
