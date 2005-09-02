@@ -11,6 +11,7 @@ define library buddha
   use network;
   use system, import: { file-system };
   use xml-rpc-common;
+  use xml-parser;
   export buddha;
 end;
 
@@ -29,4 +30,5 @@ define module buddha
   use sockets, import: { <tcp-socket>, <internet-address> };
   use file-system;
   use xml-rpc-common, import: { base64-encode, base64-decode };
+  use xml-parser;
 end;
