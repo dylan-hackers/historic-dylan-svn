@@ -528,5 +528,30 @@ define function main2()
 end;
 
 begin
-  main();
+  main3();
+end;
+
+define method main3()
+let foo =
+with-xml-builder()
+  html {
+    head {
+      title("foo")
+    },
+    body {
+      div(id => "foobar",
+          class => "narf") {
+        a("here", href => "http://www.foo.com"),
+        text("foobar"),
+        ul {
+          li("foo"),
+          br,
+          li("bar"),
+          br
+        }
+      }
+    }
+  }
+end;
+  format-out("%=\n", foo);
 end;

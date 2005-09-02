@@ -3,6 +3,7 @@ executable: buddha
 files: library
        util
        html-utils
+       xml
        config
        network
        vlan
