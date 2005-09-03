@@ -462,12 +462,6 @@ define method respond-to-post
 end;
 
 define function main () => ()
-  let ip1 = make(<ip-address>, ip: "23.23.23.23");
-  let ip2 = make(<ip-address>, ip: "23.23.23.24");
-  let ip3 = make(<ip-address>, ip: "23.23.23.23");
-  format-out("%= = %= ? %=\n", ip1, ip2, ip1 = ip2);
-  format-out("%= = %= ? %=\n", ip1, ip3, ip1 = ip3);
-  format-out("%= = %= ? %=\n", ip3, ip2, ip3 = ip2);
   block()
     start-server();
   exception (e :: <condition>)
