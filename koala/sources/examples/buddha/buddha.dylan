@@ -44,6 +44,9 @@ define page zone end;
 define page user end;
 define page save end;
 define page restore end;
+define page browse end;
+
+
 
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)
@@ -64,6 +67,7 @@ define macro with-buddha-template
                    gen-link(?stream, "/user", "User Interface");
                    gen-link(?stream, "/save", "Save to disk");
                    gen-link(?stream, "/restore", "Restore from disk");
+                   gen-link(?stream, "/browse", "Browse");
                    gen-link(?stream, "/koala/shutdown", "Shutdown");
                  end;
                end;
@@ -71,6 +75,24 @@ define macro with-buddha-template
              end;
            end;
          end; }
+end;
+
+define method respond-to-get
+    (page == #"browse", request :: <request>, response :: <response>)
+  let out = output-stream(response);
+  let obj-string = get-query-value("obj");
+  let obj = *config*;
+  if (obj-string)
+    let path-elements = split(obj-string, '/');
+    for (slot in path-elements)
+      obj := find-slot(slot, obj);
+    end;
+  end;
+  with-buddha-template(out, "Browse")
+    with-div(out, "id", "content")
+      browse(out, obj, obj-string)
+    end;
+  end;
 end;
 
 define method respond-to-get
