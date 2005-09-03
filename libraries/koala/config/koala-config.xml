@@ -193,4 +193,10 @@
 <wiki content-directory = "www/wiki/content" />
 -->
 
+<!-- For the buddha example project.  Set the content-directory
+     to wherever you want the dood-dumps of buddha to be stored. -->
+<!--
+<buddha content-directory = "www/buddha/" />
+-->
+
 </koala>
