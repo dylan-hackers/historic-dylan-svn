@@ -2,25 +2,25 @@ module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <host> (<object>)
-  slot host-name :: <string>, required-init-keyword: name:;
-  slot host-ipv4-address :: <ip-address>, init-keyword: ip:;
+  slot host-name :: <string>, init-keyword: name:;
+  slot host-ipv4-address :: <ip-address>, required-init-keyword: ip:;
   slot host-net :: <subnet>, init-keyword: net:;
   slot host-mac :: <mac-address>, init-keyword: mac:;
   slot host-zone :: <zone>, init-keyword: zone:;
 end;
 
-
-/*
 define method make (host == <host>,
                     #next next-method,
                     #rest rest,
                     #key ip,
-                    mac,
                     #all-keys) => (res :: <host>)
   let args = rest;
-  apply(next-method, host, ip: ip, mac: mac, args);
+  if (instance?(ip, <string>))
+    args := exclude(args, #"ip");
+    ip := make(<ip-address>, ip: ip);
+  end;
+  apply(next-method, host, ip: ip, args);
 end method;
-*/
 
 define method print-object (host :: <host>, stream :: <stream>)
  => ()

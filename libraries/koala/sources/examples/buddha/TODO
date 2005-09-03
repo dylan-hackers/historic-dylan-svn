@@ -4,3 +4,12 @@ renumbering of subnets:
 
 blackhole ip-ranges
  => requested by abuse phone
+
+dynamic forms
+ => dhcp options can be multiple lines
+
+user management
+
+prevent cross-site scripting (escape <> in all input data)
+
+interface to get the next /XX subnet (or the next subnet with at least Y ips)

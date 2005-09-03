@@ -471,8 +471,7 @@ end;
 
 define function main2()
   let cisco = make(<cisco-ios-device>,
-                   name: "router",
-                   ip: make(<ip-address>, ip: "23.23.23.23"),
+                   ip: "23.23.23.23",
                    login-password: "xxx",
                    enable-password: "xxx");
 
