@@ -1,6 +1,23 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
+define variable *config* = make(<config>,
+                                name: "config",
+                                vlans: make(<table>));
+
+define variable *directory* = "www/buddha/";
+
+define sideways method process-config-element
+    (node :: <xml-element>, name == #"buddha")
+  let cdir = get-attr(node, #"content-directory");
+  if (~cdir)
+    log-warning("Buddha - No content-directory specified! - will use ./buddha/");
+    cidr := "./buddha/";
+  end;
+  *directory* := cdir;
+  log-info("Buddha content directory = %s", *directory*);
+end;
+
 define macro page-definer
   { define page ?:name end }
     => { define responder ?name ## "-responder" ("/" ## ?"name")
@@ -53,8 +70,6 @@ define macro with-buddha-template
            end;
          end; }
 end;
-
-define variable *directory* = "/home/hannes/dylan/libraries/koala/www/buddha/";
 
 define method respond-to-get
     (page == #"save", request :: <request>, response :: <response>)
@@ -397,114 +412,7 @@ define method respond-to-post
   respond-to-get(page, request, response);
 end;
 
-define variable *config* = #f;
-
 define function main () => ()
-  let vlans = list(make(<vlan>,
-                        number: 0,
-                        name: "default",
-                        description: "default vlan"),
-                   make(<vlan>,
-                        number: 23,
-                        name: "management",
-                        description: "management vlan"));
-  format-out("VLANS %=\n", vlans);
-  let zone = make(<zone>,
-                  name: "foo.bar.com");
-  format-out("before make <config>\n");
-  force-output(*standard-output*);
-  *config* := make(<config>,
-                   name: "foobar!",
-                   vlans: vlans,
-                   zones: list(zone));
-  format-out("after make <config>\n");
-  let net = make(<network>, cidr: "10.0.0.0/16");
-  add-subnet(net,
-             make(<subnet>,
-                  cidr: "10.0.0.0/24",
-                  vlan: 0));
-  add-subnet(net,
-             make(<subnet>,
-                  cidr: "10.0.1.0/24",
-                  vlan: 0));
-  add-subnet(net,
-             make(<subnet>,
-                  cidr: "10.0.2.0/24",
-                  vlan: 23));
-  add-subnet(net,
-             make(<subnet>,
-                  cidr: "10.0.4.0/23",
-                  vlan: 0));
-  add-subnet(net,
-             make(<subnet>,
-                  cidr: "10.0.6.0/24",
-                  vlan: 23));
-  add-subnet(net,
-             make(<subnet>,
-                  cidr: "10.0.7.0/25",
-                  vlan: 23));
-  add-net(*config*, net);
-  format-out("NETOWRK %=\n", find-network(*config*,
-                                          make(<ip-address>,
-                                               ip: "10.0.0.2")));
-  let net2 = make(<network>, cidr: "23.23.0.0/16");
-  add-subnet(net2,
-             make(<subnet>,
-                  cidr: "23.23.0.0/24",
-                  vlan: 0));
-  add-subnet(net2,
-             make(<subnet>,
-                  cidr: "23.23.1.0/24",
-                  vlan: 23));
-  add-subnet(net2,
-             make(<subnet>,
-                  cidr: "23.23.2.0/24",
-                  vlan: 0));
-  add-subnet(net2,
-             make(<subnet>,
-                  cidr: "23.23.4.0/24",
-                  vlan: 23));
-  add-net(*config*, net2);
-
-  let foo = make(<ip-address>, ip: "23.23.23.23") + 66000;
-  foo := make(<ip-address>, ip: "192.168.2.254") + 10;
-  foo := make(<ip-address>, ip: "192.168.255.254") + 10;
-  foo := make(<ip-address>, ip: "192.168.0.1") - 1;
-  foo := make(<ip-address>, ip: "192.168.0.1") - 2;
-  foo := make(<ip-address>, ip: "23.24.24.231") - 66000;
-
-  format-out("as(<string>, 23.23.23.23): %s\n",
-             as(<string>, make(<ip-address>, ip: "23.23.23.23")));
-  format-out("as(<ip-address>, \"23.23.23.23\": %=\n", as(<ip-address>,
-                                                          "23.23.23.23"));
-  format-out("as(<ip-address>, 23): %=\n", as(<ip-address>, 23));
-/*  let dood = make(<dood>,
-                  locator: *config*.config-name,
-                  direction: #"output",
-                  if-exists: #"replace");
-  dood-root(dood) := *config*;
-  dood-commit(dood);
-  dood-close(dood);
-
-  let dood2 = make(<dood>,
-                   locator: *config*.config-name,
-                   direction: #"input");
-  let data = dood-root(dood2);
-  dood-close(dood2);
-
-
-  format-out("DOOD says %=\n", data);
-  format-out("%= %=\n", string-to-integer("23foo23422foo"));
-  let bar = "10.0.0.2";
-  format-out("bar %=\n", split(bar, '.'));
-  let ip-bar = string-to-ip-address(bar);
-  format-out("stoip %=\n", ip-bar);
-  format-out("iptos %=\n", ip-address-to-string(ip-bar));
-  format-out("strtonet %=\n", string-to-netmask("255.255.255.252"));*/
-  //for (i from 0 to 32)
-  //  format-out("netmask %d %=\n", i, netmask-to-vector(i));
-  //end;
-
   block()
     start-server();
   exception (e :: <condition>)
@@ -528,7 +436,7 @@ define function main2()
 end;
 
 begin
-  main3();
+  main();
 end;
 
 define method main3()
