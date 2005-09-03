@@ -1,0 +1,6 @@
+renumbering of subnets:
+ => automatically change ips of hosts
+ => also dns records
+
+blackhole ip-ranges
+ => requested by abuse phone

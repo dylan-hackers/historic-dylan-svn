@@ -19,12 +19,14 @@ define method make (network == <network>,
                     #key cidr,
                     #all-keys) => (res :: <network>)
   let args = rest;
-  format-out("net-make called, cidr-class %=\n",
-             object-class(cidr));
   if (instance?(cidr, <string>))
     args := exclude(args, #"cidr");
     cidr := make(<cidr>,
                  network-address: cidr);
+  end;
+  unless (network-address(cidr) = base-network-address(cidr))
+    format-out("Network address is not the base network address, fixing that!\n");
+    cidr.cidr-network-address := base-network-address(cidr);
   end;
   apply(next-method, network, cidr: cidr, args);
 end;
@@ -72,6 +74,12 @@ define method ip-in-net? (net :: <network>, ip-addr :: <ip-address>)
      (ip-addr <= broadcast-address(net.network-cidr)));
 end;
 
+define method subnet-in-net? (net :: <network>, subnet :: <subnet>)
+ => (res :: <boolean>)
+  (ip-in-net?(net, network-address(subnet.network-cidr)) &
+     ip-in-net?(net, broadcast-address(subnet.network-cidr)))
+end;
+
 define method print-object (network :: <network>, stream :: <stream>)
  => ()
   format(stream, "Network: CIDR: %=\n",
@@ -93,18 +101,28 @@ end;
 
 define method add-host (network :: <network>, host :: <host>)
  => ()
-  network.network-hosts := sort(add(network.network-hosts, host));
+  network.network-hosts := sort!(add!(network.network-hosts, host));
   host.host-net.network-hosts
-    := sort(add(host.host-net.network-hosts, host));
+    := sort!(add!(host.host-net.network-hosts, host));
   host.host-zone.zone-hosts
-    := sort(add(host.host-zone.zone-hosts, host));
+    := sort!(add!(host.host-zone.zone-hosts, host));
 end;
 
 define method add-subnet (network :: <network>, subnet :: <subnet>)
  => ()
-  network.network-subnets := sort(add(network.network-subnets, subnet));
-  subnet.subnet-vlan.vlan-subnets
-    := sort(add(subnet.subnet-vlan.vlan-subnets, subnet));
+  if (subnet-in-net?(network, subnet))
+    if (fits?(network, subnet.network-cidr))
+      network.network-subnets := sort!(add!(network.network-subnets, subnet));
+      subnet.subnet-vlan.vlan-subnets
+        := sort!(add!(subnet.subnet-vlan.vlan-subnets, subnet));
+    else
+      format-out("Subnet %= overlaps with another subnet, not added!\n",
+                 subnet.network-cidr);
+    end if;
+  else
+    format-out("Subnet %= not in network %=, not added!\n",
+               subnet.network-cidr, network.network-cidr);
+  end;
 end;
 
 define method remove-host (network :: <network>, host :: <host>)

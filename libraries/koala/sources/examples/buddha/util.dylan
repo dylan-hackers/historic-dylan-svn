@@ -16,9 +16,9 @@ define method get-sorted-list (table :: <table>)
   => (list :: <list>)
   let res = make(<list>);
   for (ele in table)
-    res := add(res, ele);
+    res := add!(res, ele);
   end;
-  sort(res);
+  sort!(res);
 end;
 
 define method regexp-match(big :: <string>, regex :: <string>) => (#rest results);
