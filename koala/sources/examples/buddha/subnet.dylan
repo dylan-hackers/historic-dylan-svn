@@ -36,8 +36,17 @@ define method make (subnet == <subnet>,
     args := exclude(args, #"dhcp-end");
     dhcp-end := broadcast-address(cidr) - 1;
   end unless;
+  unless (dhcp-router)
+    args := exclude(args, #"dhcp-router");
+    dhcp-router := network-address(cidr) + 1;
+  end;
+  unless (network-address(cidr) = base-network-address(cidr))
+    format-out("Network address is not the base network address, fixing this!\n");
+    cidr.cidr-network-address := base-network-address(cidr);
+  end;
   apply(next-method, subnet, cidr: cidr, vlan: vlan,
-        dhcp-start: dhcp-start, dhcp-end: dhcp-end, args);
+        dhcp-start: dhcp-start, dhcp-end: dhcp-end,
+        dhcp-router: dhcp-router, args);
 end;
 
 define method print-object (subnet :: <subnet>, stream :: <stream>)

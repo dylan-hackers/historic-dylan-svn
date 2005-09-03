@@ -2,11 +2,11 @@ module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <config> (<object>)
-  slot config-name :: <string>, required-init-keyword: name:;
-  slot config-vlans :: <table>, init-keyword: vlans:;
+  constant slot config-name :: <string>, required-init-keyword: name:;
+  constant slot config-vlans :: <table>, init-keyword: vlans:;
   slot config-nets :: <list> = #(), init-keyword: nets:;
   slot config-zones :: <list> = #(), init-keyword: zones:;
-  slot config-dirty? :: <boolean> = #f;
+  //slot config-dirty? :: <boolean> = #f;
 end;
 
 define method make (config == <config>,
@@ -78,21 +78,39 @@ end;
 
 define method add-vlan (config :: <config>, vlan :: <vlan>)
  => ()
-  config.config-vlans[vlan.vlan-number] := vlan;
+  if (element(config.config-vlans, vlan.vlan-number, default: #f))
+    format-out("VLAN %d already exists!\n", vlan.vlan-number);
+  else
+    config.config-vlans[vlan.vlan-number] := vlan;
+  end;
 end;
 
 define method add-net (config :: <config>, network :: <network>)
  => ()
-  config.config-nets := sort(add(config.config-nets, network));
+  if (fits?(*config*, network.network-cidr))
+    config.config-nets := sort!(add!(config.config-nets, network));
+  else
+    format-out("Network %= overlaps with another network, not added.\n",
+               network.network-cidr);
+  end if;
 end;
 
-define method remove-vlan (config :: <config>, vlan :: <vlan>)
+define method remove-vlan (config :: <config>, vlan-number :: <integer>)
  => ()
-  config.config-vlans := remove!(config.config-vlans, vlan);
+  let vlan = config.config-vlans[vlan-number];
+  if (vlan.vlan-subnets.size = 0)
+    remove-key!(config.config-vlans, vlan-number);
+  else
+    format-out("Couldn't remove vlan %d because it has subnets.\n",
+               vlan-number);
+  end;
 end;
 
 define method remove-net (config :: <config>, network :: <network>)
  => ()
+  for (subnet in network.network-subnets)
+    remove-subnet(network, subnet);
+  end;
   config.config-nets := remove!(config.config-nets, network);
 end;
 

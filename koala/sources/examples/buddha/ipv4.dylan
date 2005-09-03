@@ -85,10 +85,15 @@ end;
 
 define method \= (a :: <ip-address>, b :: <ip-address>)
   => (res :: <boolean>)
-  every?(method(x) x = #t end,
-         map(\=,
-             a.ip,
-             b.ip));
+  block(done)
+    for (ele1 in a.ip,
+         ele2 in b.ip)
+      unless (ele1 = ele2)
+        done(#f);
+      end;
+    end;
+    done(#t);
+  end;
 end;
 
 

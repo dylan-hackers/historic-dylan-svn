@@ -12,7 +12,7 @@ define sideways method process-config-element
   let cdir = get-attr(node, #"content-directory");
   if (~cdir)
     log-warning("Buddha - No content-directory specified! - will use ./buddha/");
-    cidr := "./buddha/";
+    cdir := "./buddha/";
   end;
   *directory* := cdir;
   log-info("Buddha content directory = %s", *directory*);
@@ -25,7 +25,9 @@ define macro page-definer
            if (request.request-method = #"get")
              respond-to-get(as(<symbol>, ?"name"), request, response)
            elseif (request.request-method = #"post")
-             respond-to-post(as(<symbol>, ?"name"), request, response);
+             if (respond-to-post(as(<symbol>, ?"name"), request, response))
+               respond-to-get(as(<symbol>, ?"name"), request, response)
+             end;
            end;
          end; }
 end;
@@ -95,7 +97,7 @@ define method respond-to-post
   dood-commit(dood);
   dood-close(dood);
   format(output-stream(response), "Saved database\n");
-  respond-to-get(#"save", request, response);
+  #t;
 end;
 
 define method respond-to-get
@@ -128,7 +130,7 @@ define method respond-to-post
   *config* := dood-root(dood);
   dood-close(dood);
   format(output-stream(response), "Restored database\n");
-  respond-to-get(#"restore", request, response);
+  #t;
 end;
 
 define method respond-to-get
@@ -196,10 +198,16 @@ define method respond-to-get
   with-buddha-template(out, "VLAN")
     with-div(out, "id", "content")
       do(method(x)
-             print-html(x, out)
+             print-html(x, out);
+             with-form(out, "/vlan")
+               hidden-form-field(out, "action", "remove-vlan");
+               hidden-form-field(out, "vlan", integer-to-string(x.vlan-number));
+               submit-form-field(out, "remove-vlan-button", "Remove VLAN");
+             end;
          end, get-sorted-list(*config*.config-vlans));
     end;
     with-form(out, "/vlan")
+      hidden-form-field(out, "action", "add-vlan");
       form-field(out, "vlan");
       form-field(out, "name");
       form-field(out, "description");
@@ -252,7 +260,7 @@ define method respond-to-get
       form-field(out, "name");
       form-field(out, "hostmaster");
       form-field(out, "serial");
-        form-field(out, "refresh");
+      form-field(out, "refresh");
       form-field(out, "retry");
       form-field(out, "expire");
       form-field(out, "minimum");
@@ -300,9 +308,7 @@ end;
 define method respond-to-post
     (page == #"net", request :: <request>, response :: <response>)
   let action = get-query-value("action");
-  if (do-action(as(<symbol>, action), response))
-    respond-to-get(page, request, response);
-  end;
+  do-action(as(<symbol>, action), response)
 end;
 
 define method do-action (action == #"gen-dhcpd", response :: <response>)
@@ -384,6 +390,12 @@ end;
 
 define method respond-to-post
     (page == #"vlan", request :: <request>, response :: <response>)
+  let action = get-query-value("action");
+  do-action(as(<symbol>, action), response);
+end;
+
+define method do-action (action == #"add-vlan", response :: <response>)
+ => (show-get? :: <boolean>)
   let number = string-to-integer(get-query-value("vlan"));
   let name = get-query-value("name");
   let description = get-query-value("description");
@@ -392,7 +404,44 @@ define method respond-to-post
                   name: name,
                   description: description);
   add-vlan(*config*, vlan);
-  respond-to-get(page, request, response);
+  #t;
+end;
+
+define method do-action (action == #"remove-vlan", response :: <response>)
+ => (show-get? :: <boolean>)
+  let vlan = string-to-integer(get-query-value("vlan"));
+  remove-vlan(*config*, vlan);
+  #t;
+end;
+
+define method respond-to-post
+    (page == #"zone", request :: <request>, response :: <response>)
+  let name = get-query-value("name");
+  let hostmaster = get-query-value("hostmaster");
+  let serial = string-to-integer(get-query-value("serial"));
+  let refresh = string-to-integer(get-query-value("refresh"));
+  let retry = string-to-integer(get-query-value("retry"));
+  let expire = string-to-integer(get-query-value("expire"));
+  let minimum = string-to-integer(get-query-value("minimum"));
+  let time-to-live = string-to-integer(get-query-value("time-to-live"));
+  let nameserver = get-query-value("nameserver");
+  let mail-exchange = get-query-value("mail-exchange");
+  let txt = get-query-value("txt");
+  let zone = make(<zone>,
+                  name: name,
+                  hostmaster: hostmaster,
+                  serial: serial,
+                  refresh: refresh,
+                  retry: retry,
+                  expire: expire,
+                  minimum: minimum,
+                  time-to-live: time-to-live,
+                  nameserver: list(nameserver),
+                  mail-exchange: list(mail-exchange),
+                  txt: txt);
+  *config*.config-zones :=
+    sort!(add!(*config*.config-zones, zone));
+  #t;
 end;
 
 define method respond-to-post
@@ -409,10 +458,16 @@ define method respond-to-post
                   mac: parse-mac(mac),
                   zone: find-zone(*config*, zone));
   add-host(network, host);
-  respond-to-get(page, request, response);
+  #t;
 end;
 
 define function main () => ()
+  let ip1 = make(<ip-address>, ip: "23.23.23.23");
+  let ip2 = make(<ip-address>, ip: "23.23.23.24");
+  let ip3 = make(<ip-address>, ip: "23.23.23.23");
+  format-out("%= = %= ? %=\n", ip1, ip2, ip1 = ip2);
+  format-out("%= = %= ? %=\n", ip1, ip3, ip1 = ip3);
+  format-out("%= = %= ? %=\n", ip3, ip2, ip3 = ip2);
   block()
     start-server();
   exception (e :: <condition>)
