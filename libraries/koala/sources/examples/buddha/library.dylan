@@ -12,11 +12,13 @@ define library buddha
   use system, import: { file-system };
   use xml-rpc-common;
   use xml-parser;
+  use dylan;
   export buddha;
 end;
 
 define module buddha
   use common-dylan;
+  use dylan-extensions;
   use threads;
   use format-out;
   use format, import: { format };

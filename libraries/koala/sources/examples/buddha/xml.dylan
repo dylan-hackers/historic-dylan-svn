@@ -46,6 +46,32 @@ generates:
 </html>
 */
 
+define method escape-html (string :: <string>) => (res :: <string>)
+  let res = "";
+  for (char in string)
+    if (char = '>')
+      res := add!(res, '&');
+      res := add!(res, 'g');
+      res := add!(res, 't');
+      res := add!(res, ';');
+    elseif (char = '<')
+      res := add!(res, '&');
+      res := add!(res, 'l');
+      res := add!(res, 't');
+      res := add!(res, ';');
+    elseif (char = '&')
+      res := add!(res, '&');
+      res := add!(res, 'a');
+      res := add!(res, 'm');
+      res := add!(res, 'p');
+      res := add!(res, ';');
+    else
+      res := add!(res, char)
+    end;
+  end;
+  res;
+end;
+
 define macro with-xml-builder
   { with-xml-builder ()
       ?element
@@ -60,7 +86,7 @@ define macro with-xml-builder
   element:
    { ?:name } => { make(<element>, name: ?"name") }
    { text ( ?value:expression ) } => { make(<char-string>,
-                                            text: ?value) }
+                                            text: escape-html(?value)) }
    { ?:name { ?element-list } }
     => { make(<element>, children: list(?element-list), name: ?"name") }
    { ?:name ( ?attribute-list ) { ?element-list } }
@@ -70,11 +96,11 @@ define macro with-xml-builder
               attributes: vector(?attribute-list)) }
    { ?:name ( ?value:expression ) }
     => { make(<element>,
-              children: list(make(<char-string>, text: ?value)),
+              children: list(make(<char-string>, text: escape-html(?value))),
               name: ?"name") }
    { ?:name ( ?value:expression, ?attribute-list ) }
     => { make(<element>,
-              children: list(make(<char-string>, text: ?value)),
+              children: list(make(<char-string>, text: escape-html(?value))),
               name: ?"name",
               attributes: vector(?attribute-list)) }
    { ?:name ( ?attribute-list ) }

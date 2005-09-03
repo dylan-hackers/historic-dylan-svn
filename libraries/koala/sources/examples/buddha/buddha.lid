@@ -14,4 +14,5 @@ files: library
        host
        mac
        cisco-telnet
+       class-browser
        buddha
