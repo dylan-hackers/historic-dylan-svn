@@ -742,8 +742,8 @@ end;
 
       <programlisting>
 define method square-list(in :: &lt;list&gt;)
-	=&gt; out :: &lt;list&gt;
-	map(method(x) x * x end, in);
+  =&gt; out :: &lt;list&gt;
+  map(method(x) x * x end, in);
 end;
       </programlisting>
 
@@ -776,13 +776,13 @@ square-list( #(1,2,3,4) );
 
       <programlisting>
 define method sum-squares(in :: &lt;list&gt;) =&gt; sum-of-element-squares :: &lt;integer&gt;;
-	local	method square( x )
-				x * x;
-			end,
-			method sum(list :: &lt;list&gt;)
-				reduce1(\+, list);
-			end;
-	sum(map(square, in));
+  local method square( x )
+          x * x;
+        end,
+        method sum(list :: &lt;list&gt;)
+          reduce1(\+, list);
+        end;
+  sum(map(square, in));
 end;
       </programlisting>
 
@@ -794,15 +794,15 @@ end;
 
       <programlisting>
 define method build-put(string :: &lt;string&gt;) =&gt; &lt;function&gt;;
-	local	method string-putter()
-				puts(string);
-			end;
-	string-putter; // return local method
+  local method string-putter()
+          puts(string);
+        end;
+  string-putter; // return local method
 end;
 
 define method print-hello() =&gt; ();
-	let f = build-put(&quot;Hello!&quot;);
-	f();				// print &quot;Hello1&quot;
+  let f = build-put(&quot;Hello!&quot;);
+  f();				// print &quot;Hello1&quot;
 end;
       </programlisting>
 
@@ -827,15 +827,15 @@ end;
 
       <programlisting>
 define method display(i :: &lt;integer&gt;)
-	do-display-integer(i);
+  do-display-integer(i);
 end;
 
 define method display(s :: &lt;string&gt;)
-	do-display-string(s);
+  do-display-string(s);
 end;
 
 define method display(f :: &lt;float&gt;)
-	do-display-float(f);
+  do-display-float(f);
 end;
       </programlisting>
 
@@ -902,10 +902,10 @@ define generic display(thing :: &object;) =&gt; ()
 
       <programlisting>
 define method print-records(records :: &lt;collection&gt;,
-	#key init-codes = &quot;&quot;, lines-per-page = 66) =&gt; ();
+  #key init-codes = &quot;&quot;, lines-per-page = 66) =&gt; ();
 
-	send-init-codes(init-codes);
-	// ...print the records
+  send-init-codes(init-codes);
+  // ...print the records
 end method;
       </programlisting>
 
@@ -1019,8 +1019,8 @@ print-records(recs, lines-per-page: 120, init-codes: &quot;***42\n&quot;);
 
       <programlisting>
 define class &lt;vehicle&gt; (&object;)
-	slot serial-number;
-	slot owner;
+  slot serial-number;
+  slot owner;
 end;
       </programlisting>
 
@@ -1034,11 +1034,11 @@ end;
 
       <programlisting>
 define class &lt;vehicle&gt; (&object;)
-	slot serial-number :: &lt;integer&gt;,
-		required-init-keyword: sn:;
-	slot owner :: &lt;string&gt;,
-		init-keyword: owner:, // optional
-		init-value: &quot;Northern Motors&quot;;
+  slot serial-number :: &lt;integer&gt;,
+    required-init-keyword: sn:;
+  slot owner :: &lt;string&gt;,
+    init-keyword: owner:, // optional
+    init-value: &quot;Northern Motors&quot;;
 end class &lt;vehicle&gt;;
       </programlisting>
 
@@ -1106,7 +1106,7 @@ owner-setter(sample-vehicle, &quot;Faisal&quot;);
       <programlisting>
 sample-vehicle.owner;		// returns owner
 sample-vehicle.owner := &quot;Faisal&quot;;
-	  </programlisting>
+      </programlisting>
 
     </sect1>
 
@@ -1123,11 +1123,11 @@ sample-vehicle.owner := &quot;Faisal&quot;;
 
       <programlisting>
 define generic tax(v :: &lt;vehicle&gt;)
-	=&gt; tax-in-dollars :: &lt;float&gt;;
+  =&gt; tax-in-dollars :: &lt;float&gt;;
 
 define method tax(v :: &lt;vehicle&gt;)
-	=&gt; tax-in-dollars :: &lt;float&gt;;
-	100.00;
+  =&gt; tax-in-dollars :: &lt;float&gt;;
+  100.00;
 end;
 
 //=== Two new subclasses of vehicle
@@ -1136,21 +1136,21 @@ define class &lt;car&gt; (&lt;vehicle&gt;)
 end;
 
 define class &lt;truck&gt; (&lt;vehicle&gt;)
-	slot capacity,
-		required-init-keyword: tons:;
+  slot capacity,
+    required-init-keyword: tons:;
 end;
 
 //=== Two new &quot;tax&quot; methods
 
 define method tax( c :: &lt;car&gt; )
-	=&gt; tax-in-dollars :: &lt;float&gt;;
-	50.00;
+  =&gt; tax-in-dollars :: &lt;float&gt;;
+  50.00;
 end method;
 
 define method tax( t :: &lt;truck&gt; )
-	=&gt; tax-in-dollars :: &lt;float&gt;;
-	// standard vehicle tax plus $10/ton
-	next-method( ) + t.capacity * 10.00;
+  =&gt; tax-in-dollars :: &lt;float&gt;;
+  // standard vehicle tax plus $10/ton
+  next-method( ) + t.capacity * 10.00;
 end method;
       </programlisting>
 
@@ -1181,9 +1181,9 @@ end method;
 
       <programlisting>
 define method tax(t :: &lt;truck&gt;, #next next-method)
-	=&gt; tax-in-dollars :: &lt;float&gt;;
-	// standard vehicle tax plus $10/ton
-	next-method() + t.capacity * 10.00;
+  =&gt; tax-in-dollars :: &lt;float&gt;;
+  // standard vehicle tax plus $10/ton
+  next-method() + t.capacity * 10.00;
 end method;
       </programlisting>
 
@@ -1228,10 +1228,10 @@ end method;
 
       <programlisting>
 define method initialize(v :: &lt;vehicle&gt;, #all-keys) // accepts all keywords
-	next-method( );
-	if (v.serial-number &lt; 1000000)
-		error(&quot;Bad serial number!&quot;);
-	end if;
+  next-method( );
+  if (v.serial-number &lt; 1000000)
+    error(&quot;Bad serial number!&quot;);
+  end if;
 end method;
       </programlisting>
 
@@ -1263,7 +1263,7 @@ end method;
 
       <programlisting>
 define abstract class &lt;vehicle&gt; (&object;)
-	// ...as before
+  // ...as before
 end;
       </programlisting>
 
@@ -1279,14 +1279,14 @@ end;
 
       <programlisting>
 define method make(class == &lt;vehicle&gt;,
-	#rest keys, #key big? (#f), #all-keys)
-	=&gt; &lt;vehicle&gt;;
+  #rest keys, #key big? (#f), #all-keys)
+  =&gt; &lt;vehicle&gt;;
 
-	if ( big? )
-		make( &lt;truck&gt;, keys, tons: 2 );
-	else
-		make( &lt;car&gt;, keys );
-	end;
+  if ( big? )
+    make( &lt;truck&gt;, keys, tons: 2 );
+  else
+    make( &lt;car&gt;, keys );
+  end;
 end;
       </programlisting>
 
@@ -1344,17 +1344,17 @@ make(&lt;vehicle&gt;, sn: x);           =&gt;car
 define generic inspect-vehicle(v :: &lt;vehicle&gt;, i :: &lt;inspector&gt;) =&gt; ();
 
 define method inspect-vehicle(v :: &lt;vehicle&gt;, i :: &lt;inspector&gt;) =&gt; ();
-	look-for-rust(car);
+  look-for-rust(v);
 end;
 
 define method inspect-vehicle(car :: &lt;car&gt;, i :: &lt;inspector&gt;) =&gt; ();
-	next-method(); // perform vehicle inspection
-	check-seat-belts(car);
+  next-method(); // perform vehicle inspection
+  check-seat-belts(car);
 end;
 
 define method inspect-vehicle(truck :: &lt;truck&gt;, i :: &lt;inspector&gt;) =&gt; ();
-	next-method(); // perform vehicle inspection
-	check-cargo-attachments(truck);
+  next-method(); // perform vehicle inspection
+  check-cargo-attachments(truck);
 end;
     </programlisting>
 
@@ -1368,8 +1368,8 @@ end;
 
     <programlisting>
 define method inspect-vehicle(car :: &lt;car&gt;, i :: &lt;state-inspector&gt;) =&gt; ();
-	next-method(); // perform car inspection
-	check-insurance(car);
+  next-method(); // perform car inspection
+  check-insurance(car);
 end;
 
 let inspector = make(&lt;state-inspector&gt;);
@@ -1408,8 +1408,8 @@ inspect-vehicle(car, inspector);
 define constant $governors-car = make(&lt;car&gt;);
 
 define method inspect-vehicle(car == $governors-car,
-	i :: &lt;state-inspector&gt;) =&gt; ();
-	wave-through(car);
+  i :: &lt;state-inspector&gt;) =&gt; ();
+  wave-through(car);
 end;
       </programlisting>
 
@@ -1602,7 +1602,7 @@ end module;
       </para>
 
       <figure id="figure.mindy-libraries">
-        <title>Dependencies Among the Stanard Mindy Libraries</title>
+        <title>Dependencies Among the Standard Mindy Libraries</title>
 	<graphic fileref="mindy-libraries.pic" format="PIC"></graphic>
       </figure>
 
@@ -1856,10 +1856,10 @@ end; // returns 2
 
       <programlisting>
 block (finished)
-	if (sky-is-green())
-		finished("Weird!");
-	end;
-	"All's well."
+  if (sky-is-green())
+    finished("Weird!");
+  end;
+  "All's well."
 end block;
       </programlisting>
 
@@ -1873,13 +1873,13 @@ end block;
       <programlisting>
 let fd = open-input-file();
 block (return)
-	let (errorcode, data) = read-data(fd);
-	if (errorcode)
-		return(errorcode);
-	end if;
-	process-data(data);
+  let (errorcode, data) = read-data(fd);
+  if (errorcode)
+    return(errorcode);
+  end if;
+  process-data(data);
 cleanup
-	close(fd);
+  close(fd);
 end;
       </programlisting>
 
