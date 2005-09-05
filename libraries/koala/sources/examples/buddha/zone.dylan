@@ -28,6 +28,12 @@ define method print-html (zone :: <zone>, stream :: <stream>)
   gen-row(stream, list(zone.zone-name));
 end;
 
+define method gen-xml (zone :: <zone>)
+  with-xml()
+    tr { td(zone.zone-name) }
+  end
+end;
+
 define method print-bind-zone-file (zone :: <zone>, stream :: <stream>)
   format(stream, "@\tIN\tSOA\t%s.\t%s. (\n",
          zone.zone-nameserver[0],

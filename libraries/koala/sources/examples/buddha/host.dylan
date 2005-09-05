@@ -46,6 +46,19 @@ define method print-html (host :: <host>, stream :: <stream>)
                host.host-zone.zone-name));
 end;
 
+define method gen-xml (host :: <host>)
+  with-xml()
+    tr
+    {
+      td(host.host-name),
+      td(as(<string>, host.host-ipv4-address)),
+      td(as(<string>, host.host-net.network-cidr)),
+      td(mac-to-string(host.host-mac)),
+      td(host.host-zone.zone-name)
+    }
+  end;
+end;
+
 define method print-isc-dhcpd-file (host :: <host>, stream :: <stream>)
  => ()
   format(stream, "host %s {\n", host.host-name);

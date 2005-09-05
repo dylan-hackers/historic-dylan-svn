@@ -26,6 +26,25 @@ define method print-html (vlan :: <vlan>, stream :: <stream>)
   end;
 end;
 
+define method gen-xml (vlan :: <vlan>)
+  let res = make(<list>);
+  res := add!(res, with-xml()
+                     text(concatenate("VLAN ",
+                                      integer-to-string(vlan.vlan-number), " ",
+                                      vlan.vlan-name, " ",
+                                      vlan.vlan-description))
+                   end);
+  res := add!(res, with-xml()
+                     table
+                     {
+                       tr { th("CIDR"), th("VLAN") },
+                       do(do(method(x) gen-xml(x); end,
+                             vlan.vlan-subnets))
+                     }
+                   end);
+  res;
+end;
+              
 define method \< (a :: <vlan>, b :: <vlan>)
   => (res :: <boolean>)
   a.vlan-number < b.vlan-number
