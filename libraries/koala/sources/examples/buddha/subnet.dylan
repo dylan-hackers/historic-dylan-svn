@@ -61,14 +61,6 @@ define method print-object (subnet :: <subnet>, stream :: <stream>)
   end;
 end;
 
-define method print-html (subnet :: <subnet>, stream :: <stream>)
- => ()
-  //gen-row(stream, #(subnet.network-cidr, subnet.subnet-vlan.vlan-number))
-  format(stream, "<tr>");
-  print-html(subnet.network-cidr, stream);
-  format(stream, "<td>%d</td></tr>", subnet.subnet-vlan.vlan-number);
-end;
-
 define method gen-xml (subnet :: <subnet>)
   with-xml()
     tr { td(as(<string>, subnet.network-cidr)),

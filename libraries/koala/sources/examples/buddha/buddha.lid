@@ -2,7 +2,6 @@ library: buddha
 executable: buddha
 files: library
        util
-       html-utils
        xml
        config
        network
