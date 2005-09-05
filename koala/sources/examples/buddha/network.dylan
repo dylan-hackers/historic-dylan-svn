@@ -89,16 +89,6 @@ define method print-object (network :: <network>, stream :: <stream>)
   end for;
 end;
 
-define method print-html (network :: <network>, stream :: <stream>)
- => ()
-  format(stream, "Network CIDR %=<br/>", network.network-cidr);
-  with-table (stream, #("CIDR", "VLAN"))
-    do(method(x)
-           print-html(x, stream);
-       end, network.network-subnets);
-  end;
-end;
-
 define method gen-xml (network :: <network>)
  => (res :: <list>)
   let res = make(<list>);
@@ -110,9 +100,11 @@ define method gen-xml (network :: <network>)
                      table
                      {
                        tr { th("CIDR"), th("VLAN") },
-                       do(do(method(x)
-                                 gen-xml(x);
-                             end, network.network-subnets))
+                       do(let res = make(<list>);
+                          do(method(x)
+                                 res := add!(res, gen-xml(x));
+                             end, network.network-subnets);
+                          reverse(res))
                      }
                    end);
   res;

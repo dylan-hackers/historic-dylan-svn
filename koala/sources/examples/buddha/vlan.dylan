@@ -14,18 +14,6 @@ define method print-object (vlan :: <vlan>, stream :: <stream>)
         vlan.vlan-number, vlan.vlan-name, vlan.vlan-description);
 end;
 
-define method print-html (vlan :: <vlan>, stream :: <stream>)
-  => ()
-  format(stream, "VLAN %d %s %s<br/>\n",
-         vlan.vlan-number,
-         vlan.vlan-name,
-         vlan.vlan-description);
-  with-table (stream, #("CIDR", "VLAN"))
-    do(method(x) print-html(x, stream); end,
-       vlan.vlan-subnets);
-  end;
-end;
-
 define method gen-xml (vlan :: <vlan>)
   let res = make(<list>);
   res := add!(res, with-xml()
@@ -38,8 +26,12 @@ define method gen-xml (vlan :: <vlan>)
                      table
                      {
                        tr { th("CIDR"), th("VLAN") },
-                       do(do(method(x) gen-xml(x); end,
-                             vlan.vlan-subnets))
+                       do(let res = make(<list>);
+                          do(method(x)
+                                 res := add!(res, gen-xml(x));
+                             end,
+                             vlan.vlan-subnets);
+                          reverse(res))
                      }
                    end);
   res;

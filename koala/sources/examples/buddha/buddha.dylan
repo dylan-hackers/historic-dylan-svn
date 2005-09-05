@@ -184,7 +184,7 @@ define method respond-to-get
         do(let res = make(<list>);
            for (net in *config*.config-nets,
                 i from 0)
-             res := concatenate(res, gen-xml(net));
+             res := concatenate(gen-xml(net), res);
              res := add!(res, with-xml()
                                 form(action => "/net", \method => "post")
                                 {
@@ -228,16 +228,18 @@ define method respond-to-get
                                     input(type => "text", name => "cidr"),
                                     \select(name => "vlan")
                                     {
-                                      do(do(
+                                      do(let res = make(<list>);
+                                         do(
                                 method(x)
                                     let num = integer-to-string(x.vlan-number);
-                                    with-xml()
-                                      option(name => num,
-                                             value => concatenate(num,
-                                                                  " ",
-                                                                  x.vlan-name))
-                                    end;
-                                end, get-sorted-list(*config*.config-vlans)))
+                                    res := add!(res, with-xml()
+                                      option(concatenate(num,
+                                                         " ",
+                                                         x.vlan-name),
+                                             value => num)
+                                                     end);
+                                end, get-sorted-list(*config*.config-vlans));
+                                           reverse(res))
                                     },
                                     text("DHCP?"),
                                     input(type => "checkbox",
@@ -266,13 +268,13 @@ define method respond-to-get
                                     input(type => "submit",
                                           name => "add-subnet-button",
                                           value => concatenate
-                                            ("Add subnet to",
+                                            ("Add subnet to ",
                                              as(<string>, net.network-cidr)))
                                   }
                                 }
                               end);
            end;
-           res;),
+           reverse(res)),
         form(action => "/net", \method => "post")
         {
           div(class => "edit")
@@ -313,11 +315,11 @@ define method respond-to-get
       {
         do(let res = make(<list>);
            do(method(x)
-                  res := concatenate(res, gen-xml(x));
+                  res := concatenate(gen-xml(x), res);
                   res := add!(res,
                               with-xml()
                                 form(action => "/vlan", \method => "post")
-                                  {
+                                {
                                   div(class => "edit")
                                   {
                                     input(type => "hidden",
@@ -333,7 +335,7 @@ define method respond-to-get
                                 }
                               end);
               end, get-sorted-list(*config*.config-vlans));
-           res),
+           reverse(res)),
         form(action => "/vlan", \method => "post")
         {
           div(class => "edit")
@@ -376,7 +378,7 @@ define method respond-to-get
                     res := add!(res, gen-xml(x));
                 end, net.network-hosts);
            end;
-           res)
+           reverse(res))
         },
         form(action => "/host", \method => "post")
         {
@@ -683,9 +685,11 @@ define function main2()
 end;
 
 begin
-  let dood = make(<dood>,
-                  locator: concatenate("/home/hannes/dylan/libraries/koala/www/buddha/", base64-encode("foo")),
-                  direction: #"input");
+  let dood
+    = make(<dood>,
+           locator: concatenate("/home/hannes/dylan/libraries/koala/www/buddha/",
+                                base64-encode("foo")),
+           direction: #"input");
   *config* := dood-root(dood);
   dood-close(dood);
 

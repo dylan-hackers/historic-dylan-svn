@@ -47,11 +47,6 @@ define method print-object (cidr :: <cidr>, stream :: <stream>)
   format(stream, "%s", as(<string>, cidr));
 end;
 
-define method print-html (cidr :: <cidr>, stream :: <stream>)
- => ()
-  format(stream, "<td>%s</td>", as(<string>, cidr));
-end;
-
 define method as (class == <string>, cidr :: <cidr>)
  => (res :: <string>)
   concatenate(as(<string>, network-address(cidr)), "/",

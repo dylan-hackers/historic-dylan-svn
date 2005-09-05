@@ -23,11 +23,6 @@ define method print-object (zone :: <zone>, stream :: <stream>)
   format(stream, "%s", zone.zone-name);
 end method;
 
-define method print-html (zone :: <zone>, stream :: <stream>)
- => ()
-  gen-row(stream, list(zone.zone-name));
-end;
-
 define method gen-xml (zone :: <zone>)
   with-xml()
     tr { td(zone.zone-name) }

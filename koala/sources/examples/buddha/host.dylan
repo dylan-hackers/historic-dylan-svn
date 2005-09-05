@@ -37,15 +37,6 @@ define method \< (a :: <host>, b :: <host>) => (res :: <boolean>)
   a.host-ipv4-address < b.host-ipv4-address
 end;
 
-define method print-html (host :: <host>, stream :: <stream>)
-  gen-row(stream,
-          list(host.host-name,
-               as(<string>, host.host-ipv4-address),
-               as(<string>, host.host-net.network-cidr),
-               mac-to-string(host.host-mac),
-               host.host-zone.zone-name));
-end;
-
 define method gen-xml (host :: <host>)
   with-xml()
     tr
