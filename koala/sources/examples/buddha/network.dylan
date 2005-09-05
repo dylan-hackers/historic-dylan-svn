@@ -99,6 +99,25 @@ define method print-html (network :: <network>, stream :: <stream>)
   end;
 end;
 
+define method gen-xml (network :: <network>)
+ => (res :: <list>)
+  let res = make(<list>);
+  res := add!(res, with-xml()
+                     text(concatenate("Network CIDR ",
+                                      as(<string>, network.network-cidr)))
+                   end);
+  res := add!(res, with-xml()
+                     table
+                     {
+                       tr { th("CIDR"), th("VLAN") },
+                       do(do(method(x)
+                                 gen-xml(x);
+                             end, network.network-subnets))
+                     }
+                   end);
+  res;
+end;
+
 define method add-host (network :: <network>, host :: <host>)
  => ()
   network.network-hosts := sort!(add!(network.network-hosts, host));

@@ -50,21 +50,11 @@ define method escape-html (string :: <string>) => (res :: <string>)
   let res = "";
   for (char in string)
     if (char = '>')
-      res := add!(res, '&');
-      res := add!(res, 'g');
-      res := add!(res, 't');
-      res := add!(res, ';');
+      res := concatenate(res, "&gt;");
     elseif (char = '<')
-      res := add!(res, '&');
-      res := add!(res, 'l');
-      res := add!(res, 't');
-      res := add!(res, ';');
+      res := concatenate(res, "&lt;");
     elseif (char = '&')
-      res := add!(res, '&');
-      res := add!(res, 'a');
-      res := add!(res, 'm');
-      res := add!(res, 'p');
-      res := add!(res, ';');
+      res := concatenate(res, "&amp;");
     else
       res := add!(res, char)
     end;
@@ -74,39 +64,63 @@ end;
 
 define macro with-xml-builder
   { with-xml-builder ()
-      ?element
+      ?body:*
     end }
    => { begin
           let doc = make(<document>,
-                         children: list(?element));
+                         children: list(with-xml() ?body end));
           transform-document(doc, state: make(<add-parents>));
           doc;
         end; }
+end;
+
+define macro with-xml
+  { with-xml () ?element end }
+   => { begin
+          ?element[0]
+        end; }
 
   element:
-   { ?:name } => { make(<element>, name: ?"name") }
-   { text ( ?value:expression ) } => { make(<char-string>,
-                                            text: escape-html(?value)) }
+   { ?:name } => { list(make(<element>, name: ?"name")) }
+   { text ( ?value:expression ) } => { list(make(<char-string>,
+                                                 text: escape-html(?value))) }
+   { do(?:body) }
+    => { begin
+           let res = ?body;
+           if (res)
+             if (instance?(res, <sequence>))
+               res;
+             else
+               list(res);
+             end;
+           else
+             make(<list>)
+           end;
+         end }
    { ?:name { ?element-list } }
-    => { make(<element>, children: list(?element-list), name: ?"name") }
+    => { list(make(<element>,
+                   children: concatenate(?element-list),
+                   name: ?"name")) }
    { ?:name ( ?attribute-list ) { ?element-list } }
-    => { make(<element>,
-              children: list(?element-list),
-              name: ?"name",
-              attributes: vector(?attribute-list)) }
+    => { list(make(<element>,
+                   children: concatenate(?element-list),
+                   name: ?"name",
+                   attributes: vector(?attribute-list))) }
    { ?:name ( ?value:expression ) }
-    => { make(<element>,
-              children: list(make(<char-string>, text: escape-html(?value))),
-              name: ?"name") }
+    => { list(make(<element>,
+                   children: list(make(<char-string>,
+                                       text: escape-html(?value))),
+                   name: ?"name")) }
    { ?:name ( ?value:expression, ?attribute-list ) }
-    => { make(<element>,
-              children: list(make(<char-string>, text: escape-html(?value))),
-              name: ?"name",
-              attributes: vector(?attribute-list)) }
+    => { list(make(<element>,
+                   children: list(make(<char-string>,
+                                       text: escape-html(?value))),
+                   name: ?"name",
+                   attributes: vector(?attribute-list))) }
    { ?:name ( ?attribute-list ) }
-    => { make(<element>,
-              name: ?"name",
-              attributes: vector(?attribute-list)) }
+    => { list(make(<element>,
+                   name: ?"name",
+                   attributes: vector(?attribute-list))) }
    //{ comment ( ?value:expression ) } =>  { make-comment(?value) }
 
   element-list:
@@ -114,9 +128,9 @@ define macro with-xml-builder
    { ?element, ... } => { ?element, ... }
 
   attribute-list:
-   { ?key:expression => ?value:expression }
+   { ?key:name => ?value:expression }
                  => { make(<attribute>, name: ?"key", value: ?value) }
-   { ?key:expression => ?value:expression, ... }
+   { ?key:name => ?value:expression, ... }
                  => { make(<attribute>, name: ?"key", value: ?value), ... }
 
 end;

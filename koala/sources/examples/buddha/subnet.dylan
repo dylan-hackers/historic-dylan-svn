@@ -69,6 +69,14 @@ define method print-html (subnet :: <subnet>, stream :: <stream>)
   format(stream, "<td>%d</td></tr>", subnet.subnet-vlan.vlan-number);
 end;
 
+define method gen-xml (subnet :: <subnet>)
+  with-xml()
+    tr { td(as(<string>, subnet.network-cidr)),
+         td(integer-to-string(subnet.subnet-vlan.vlan-number))
+       }
+  end;
+end;
+
 define method print-isc-dhcpd-file (subnet :: <subnet>, stream :: <stream>)
  => ()
   if (subnet.dhcp?)

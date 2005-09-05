@@ -50,47 +50,53 @@ define page browse end;
 
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)
-      ?body:body
+      ?body:*
     end }
     => { begin
-           with-html(?stream)
-             with-header(?stream, concatenate("Buddha - ", ?title))
-               gen-stylesheet(?stream, "/buddha.css");
-             end;
-             with-body(?stream)
-               with-div (?stream, "id", "header")
-                 with-div(?stream, "id", "navbar")
-                   gen-link(?stream, "/net", "Network");
-                   gen-link(?stream, "/vlan", "VLAN");
-                   gen-link(?stream, "/host", "Host");
-                   gen-link(?stream, "/zone", "Zone");
-                   gen-link(?stream, "/user", "User Interface");
-                   gen-link(?stream, "/save", "Save to disk");
-                   gen-link(?stream, "/restore", "Restore from disk");
-                   gen-link(?stream, "/browse", "Browse");
-                   gen-link(?stream, "/koala/shutdown", "Shutdown");
-                 end;
-               end;
-               ?body
-             end;
-           end;
+           let page = with-xml-builder()
+html(xmlns => "http://www.w3.org/1999/xhtml") {
+  head {
+    title(concatenate("Buddha - ", ?title)),
+    link(rel => "stylesheet", href => "/buddha.css")
+  },
+  body {
+    div(id => "header") {
+      div(id => "navbar") {
+        a("Network", href => "/net"),
+        a("VLAN", href => "/vlan"),
+        a("Host", href => "/host"),
+        a("Zone", href => "/zone"),
+        a("User interface", href => "/user"),
+        a("Save to disk", href => "/save"),
+        a("Restore from disk", href => "/restore"),
+        a("Class browser", href => "/browse"),
+        a("Shutdown", href => "/koala/shutdown")
+      }
+    },
+    do(?body)
+  }
+}
+end;
+           format(?stream, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+           format(?stream, "%=", page);
          end; }
 end;
+
+define constant $obj-table = make(<string-table>);
 
 define method respond-to-get
     (page == #"browse", request :: <request>, response :: <response>)
   let out = output-stream(response);
   let obj-string = get-query-value("obj");
-  let obj = *config*;
-  if (obj-string)
-    let path-elements = split(obj-string, '/');
-    for (slot in path-elements)
-      obj := find-slot(slot, obj);
-    end;
+  unless (obj-string)
+    obj-string := "";
   end;
+  let obj = element($obj-table, obj-string, default: *config*);
   with-buddha-template(out, "Browse")
-    with-div(out, "id", "content")
-      browse(out, obj, obj-string)
+    with-xml()
+      div(id => "content") {
+        do(browse(obj))
+      }
     end;
   end;
 end;
@@ -99,11 +105,16 @@ define method respond-to-get
     (page == #"save", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template(out, "Save Database")
-    with-div (out, "id", "content")
-      with-form (out, "/save")
-        form-field(out, "filename");
-        submit-form-field(out, "save-button", "Save");
-      end;
+    with-xml()
+      div(id => "content") {
+        form(action => "/save", \method => "post") {
+          div(class => "edit") {
+            text("Filename"),
+            input(type => "text", name => "filename"),
+            input(type => "submit", name => "save-button", value => "Save")
+          }
+        }
+      }
     end;
   end;
 end;
@@ -126,19 +137,27 @@ define method respond-to-get
     (page == #"restore", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template(out, "Restore Database")
-    with-div (out, "id", "content")
-      with-form(out, "/restore")
-        with-select(out, "filename")
-          do-directory(method(directory :: <pathname>,
-                              name :: <string>,
-                              type :: <file-type>)
-                           if (type == #"file")
-                             gen-option(out, name, base64-decode(name));
-                           end if;
-                       end, *directory*);
-        end;
-        submit-form-field(out, "restore-button", "Restore");
-      end;
+    with-xml()
+      div(id => "content") {
+        form(action => "/restore", \method => "post") {
+          \select(name => "filename") {
+            do(let res = make(<list>);
+               do-directory(method(directory :: <pathname>,
+                                   name :: <string>,
+                                   type :: <file-type>)
+                                if (type == #"file")
+                                  res := add!(res,
+                                              with-xml()
+                                                option(base64-decode(name),
+                                                       value => name)
+                                              end);
+                                end if;
+                            end, *directory*);
+               res;)
+          },
+          input(type => "submit", name => "restore-button", value => "Restore")
+        }
+      }
     end;
   end;
 end;
@@ -159,57 +178,128 @@ define method respond-to-get
     (page == #"net", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template (out, "Networks")
-    with-div (out, "id", "content")
-      for (net in *config*.config-nets,
-           i from 0)
-        print-html(net, out);
-        with-form (out, "/net")
-          hidden-form-field(out, "action", "gen-dhcpd");
-          hidden-form-field(out, "network", integer-to-string(i));
-          submit-form-field(out, "dhcpd.conf", "generate dhcpd.conf");
-        end;
-        with-form (out, "/net")
-          hidden-form-field(out, "action", "remove-network");
-          hidden-form-field(out, "network", integer-to-string(i));
-          submit-form-field(out,
-                            "remove-network-button",
-                            "Remove this Network");
-        end;
-        with-form (out, "/net")
-          form-field(out, "cidr");
-          with-select(out, "vlan")
-            do(method(x)
-                   let num = integer-to-string(x.vlan-number);
-                   gen-option(out, num, concatenate(num, " ", x.vlan-name));
-               end, get-sorted-list(*config*.config-vlans));
-          end;
-          form-field(out, "dhcp",
-                     type: "checkbox",
-                     value: "dhcp",
-                     checked: #t);
-          form-field(out, "dhcp-start");
-          form-field(out, "dhcp-end");
-          form-field(out, "dhcp-router");
-          form-field(out, "default-lease-time");
-          form-field(out, "max-lease-time");
-          form-field(out, "options");
-          hidden-form-field(out, "action", "add-subnet");
-          hidden-form-field(out, "network", integer-to-string(i));
-          submit-form-field(out,
-                            "add-subnet-button",
-                            concatenate("Add Subnet to ",
-                                        as(<string>, net.network-cidr)));
-        end;
-      end;
-      with-form (out, "/net")
-        form-field(out, "cidr");
-        form-field(out, "dhcp", type: "checkbox", value: "dhcp", checked: #t);
-        form-field(out, "default-lease-time", value: "600");
-        form-field(out, "max-lease-time", value: "7200");
-        form-field(out, "options");
-        hidden-form-field(out, "action", "add-network");
-        submit-form-field(out, "add-network-button", "Add Network");
-      end;
+    with-xml ()
+      div(id => "content")
+      {
+        do(let res = make(<list>);
+           for (net in *config*.config-nets,
+                i from 0)
+             res := concatenate(res, gen-xml(net));
+             res := add!(res, with-xml()
+                                form(action => "/net", \method => "post")
+                                {
+                                  div(class => "edit")
+                                  {
+                                    input(type => "hidden",
+                                          name => "action",
+                                          value => "gen-dhcpd"),
+                                    input(type => "hidden",
+                                          name => "network",
+                                          value => integer-to-string(i)),
+                                    input(type => "submit",
+                                          name => "gen-dhcpd-button",
+                                          value => "generate dhcpd.conf")
+                                  }
+                                }
+                              end);
+             res := add!(res, with-xml()
+                                form(action => "net", \method => "post")
+                                {
+                                  div(class => "edit")
+                                  {
+                                    input(type => "hidden",
+                                          name => "action",
+                                          value => "remove-network"),
+                                    input(type => "hidden",
+                                          name => "network",
+                                          value => integer-to-string(i)),
+                                    input(type => "submit",
+                                          name => "remove-network-button",
+                                          value => "Remove this Network")
+                                  }
+                                }
+                              end);
+             res := add!(res, with-xml()
+                                form(action => "/net", \method => "post")
+                                {
+                                  div(class => "edit")
+                                  {
+                                    text("CIDR"),
+                                    input(type => "text", name => "cidr"),
+                                    \select(name => "vlan")
+                                    {
+                                      do(do(
+                                method(x)
+                                    let num = integer-to-string(x.vlan-number);
+                                    with-xml()
+                                      option(name => num,
+                                             value => concatenate(num,
+                                                                  " ",
+                                                                  x.vlan-name))
+                                    end;
+                                end, get-sorted-list(*config*.config-vlans)))
+                                    },
+                                    text("DHCP?"),
+                                    input(type => "checkbox",
+                                          value => "dhcp",
+                                          checked => "checked",
+                                          name => "dhcp"),
+                                    text("DHCP start"),
+                                    input(type => "text", name => "dhcp-start"),
+                                    text("DHCP end"),
+                                    input(type => "text", name => "dhcp-end"),
+                                    text("DHCP router"),
+                                    input(type => "text", name => "dhcp-router"),
+                                    text("Default lease time"),
+                                    input(type => "text",
+                                          name => "default-lease-time"),
+                                    text("Maximum lease time"),
+                                    input(type => "text", name => "max-lease-time"),
+                                    text("DHCP options"),
+                                    input(type => "text", name => "options"),
+                                    input(type => "hidden",
+                                          name => "action",
+                                          value => "add-subnet"),
+                                    input(type => "hidden",
+                                          name => "network",
+                                          value => integer-to-string(i)),
+                                    input(type => "submit",
+                                          name => "add-subnet-button",
+                                          value => concatenate
+                                            ("Add subnet to",
+                                             as(<string>, net.network-cidr)))
+                                  }
+                                }
+                              end);
+           end;
+           res;),
+        form(action => "/net", \method => "post")
+        {
+          div(class => "edit")
+          {
+            text("CIDR"),
+            input(type => "text", name => "cidr"),
+            text("DHCP?"),
+            input(type => "checkbox",
+                  value => "dhcp",
+                  checked => "checked",
+                  name => "dhcp"),
+            text("Default lease time"),
+            input(type => "text",
+                  name => "default-lease-time"),
+            text("Maximum lease time"),
+            input(type => "text", name => "max-lease-time"),
+            text("DHCP options"),
+            input(type => "text", name => "options"),
+            input(type => "hidden",
+                  name => "action",
+                  value => "add-network"),
+            input(type => "submit",
+                  name => "add-network-button",
+                  value => "Add network")
+          }
+        }
+      }
     end;
   end;
 end;
@@ -218,22 +308,54 @@ define method respond-to-get
     (page == #"vlan", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template(out, "VLAN")
-    with-div(out, "id", "content")
-      do(method(x)
-             print-html(x, out);
-             with-form(out, "/vlan")
-               hidden-form-field(out, "action", "remove-vlan");
-               hidden-form-field(out, "vlan", integer-to-string(x.vlan-number));
-               submit-form-field(out, "remove-vlan-button", "Remove VLAN");
-             end;
-         end, get-sorted-list(*config*.config-vlans));
-    end;
-    with-form(out, "/vlan")
-      hidden-form-field(out, "action", "add-vlan");
-      form-field(out, "vlan");
-      form-field(out, "name");
-      form-field(out, "description");
-      submit-form-field(out, "add-vlan-button", "Add VLAN");
+    with-xml()
+      div(id => "content")
+      {
+        do(let res = make(<list>);
+           do(method(x)
+                  res := concatenate(res, gen-xml(x));
+                  res := add!(res,
+                              with-xml()
+                                form(action => "/vlan", \method => "post")
+                                  {
+                                  div(class => "edit")
+                                  {
+                                    input(type => "hidden",
+                                          name => "action",
+                                          value => "remove-vlan"),
+                                    input(type => "hidden",
+                                          name => "vlan",
+                                          value => integer-to-string(x.vlan-number)),
+                                    input(type => "submit",
+                                          name => "remove-vlan-button",
+                                          value => "Remove VLAN")
+                                  }
+                                }
+                              end);
+              end, get-sorted-list(*config*.config-vlans));
+           res),
+        form(action => "/vlan", \method => "post")
+        {
+          div(class => "edit")
+          {
+            input(type => "hidden",
+                  name => "action",
+                  value => "add-vlan"),
+            text("VLAN Number"),
+            input(type => "text",
+                  name => "vlan"),
+            text("Name"),
+            input(type => "text",
+                  name => "name"),
+            text("Description"),
+            input(type => "text",
+                  name => "description"),
+            input(type => "submit",
+                  name => "add-vlan-button",
+                  value => "Add VLAN")
+          }
+        }
+      }
     end;
   end;
 end;
@@ -242,27 +364,49 @@ define method respond-to-get
     (page == #"host", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template(out, "Hosts")
-    with-div(out, "id", "content")
-      with-table (out, #("Name", "IP", "Net", "Mac", "Zone"))
-        for (net in *config*.config-nets)
-          do(method(x)
-                 print-html(x, out);
-             end, net.network-hosts);
-        end;
-      end;
-    end;
-    with-form(out, "/host")
-      form-field(out, "name");
-      form-field(out, "ip");
-      form-field(out, "mac");
-      with-select(out, "zone")
-        do(method(x)
-               gen-option(out, x.zone-name, x.zone-name);
-           end, choose(method(x)
-                           ~ zone-reverse?(x);
-                       end, *config*.config-zones));
-      end;
-      submit-form-field(out, "add-host-button", "Add Host");
+    with-xml()
+      div(id => "content")
+      {
+        table
+        {
+        tr { th("Name"), th("IP"), th("Net"), th("Mac"), th("Zone") },
+        do(let res = make(<list>);
+           for (net in *config*.config-nets)
+             do(method(x)
+                    res := add!(res, gen-xml(x));
+                end, net.network-hosts);
+           end;
+           res)
+        },
+        form(action => "/host", \method => "post")
+        {
+          div(class => "edit")
+          {
+            text("Name"),
+            input(type => "text", name => "name"),
+            text("IP"),
+            input(type => "text", name => "ip"),
+            text("MAC"),
+            input(type => "text", name => "mac"),
+            \select(name => "zone")
+            {
+              do(let res = make(<list>);
+                 do(method(x)
+                        res := add!(res,
+                                    with-xml()
+                                      option(x.zone-name, value => x.zone-name)
+                                    end);
+                    end, choose(method(x)
+                                    ~ zone-reverse?(x);
+                                end, *config*.config-zones));
+                 res)
+            },
+            input(type => "submit",
+                  name => "add-host-button",
+                  value => "Add Host")
+          }
+        }
+      }
     end;
   end;
 end;
@@ -271,26 +415,48 @@ define method respond-to-get
     (page == #"zone", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template(out, "Zones")
-    with-div(out, "id", "content")
-      with-table (out, #("Name"))
-        do(method(x)
-               print-html(x, out);
-           end, *config*.config-zones);
-      end;
-    end;
-    with-form(out, "/zone")
-      form-field(out, "name");
-      form-field(out, "hostmaster");
-      form-field(out, "serial");
-      form-field(out, "refresh");
-      form-field(out, "retry");
-      form-field(out, "expire");
-      form-field(out, "minimum");
-      form-field(out, "time-to-live");
-      form-field(out, "nameserver");
-      form-field(out, "mail-exchange");
-      form-field(out, "txt");
-      submit-form-field(out, "add-zone-button", "Add Zone");
+    with-xml()
+      div(id => "content")
+      {
+        table
+        {
+          tr { th("Name") },
+          do(let res = make(<list>);
+             do(method(x)
+                    res := add!(res, gen-xml(x));
+                end, *config*.config-zones);
+             res)
+        },
+        form(action => "/zone", \method => "post")
+        {
+          div(class => "edit")
+          {
+            text("Name"),
+            input(type => "text", name => "name"),
+            text("Hostmaster"),
+            input(type => "text", name => "hostmaster"),
+            text("Serial"),
+            input(type => "text", name => "serial"),
+            text("Retry"),
+            input(type => "text", name => "retry"),
+            text("Expire"),
+            input(type => "text", name => "expire"),
+            text("Minimum"),
+            input(type => "text", name => "minimum"),
+            text("Time to live"),
+            input(type => "text", name => "time-to-live"),
+            text("Nameserver"),
+            input(type => "text", name => "nameserver"),
+            text("Mail exchange"),
+            input(type => "text", name => "mail-exchange"),
+            text("txt"),
+            input(type => "text", name => "txt"),
+            input(type => "submit",
+                  name => "add-zone-button",
+                  value => "Add Zone")
+          }
+        }
+      }
     end;
   end;
 end;
@@ -299,13 +465,24 @@ define method respond-to-get
     (page == #"user", request :: <request>, response :: <response>)
   let out = output-stream(response);
   with-buddha-template(out, "User Interface")
-    with-div(out, "id", "content")
-      show-host-info();
-    end;
-    with-form(out, "/user")
-      form-field(out, "hostname");
-      form-field(out, "mac");
-      submit-form-field(out, "add-host-button", "Add Hostname");
+    with-xml()
+      div(id => "content")
+      {
+        do(show-host-info()),
+        form(action => "/user", action => "post")
+        {
+          div(class => "edit")
+          {
+            text("Hostname"),
+            input(type => "text", name => "hostname"),
+            text("MAC"),
+            input(type => "text", name => "mac"),
+            input(type => "submit",
+                  name => "add-host-button",
+                  value => "Add Hostname")
+          }
+        }
+      }
     end;
   end;
 end;
@@ -506,6 +683,12 @@ define function main2()
 end;
 
 begin
+  let dood = make(<dood>,
+                  locator: concatenate("/home/hannes/dylan/libraries/koala/www/buddha/", base64-encode("foo")),
+                  direction: #"input");
+  *config* := dood-root(dood);
+  dood-close(dood);
+
   main();
 end;
 
