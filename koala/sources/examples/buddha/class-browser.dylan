@@ -5,13 +5,29 @@ define method browse (object :: <object>) => (res :: <list>)
   let class = object.object-class;
   let res = make(<list>);
   for (slot in class.slot-descriptors)
+    let name = slot.slot-getter.debug-name;
     if (slot-initialized?(object, slot))
       let slot-object = slot.slot-getter(object);
-      let name = slot.slot-getter.debug-name;
       res := concatenate(res, show(slot-object, name));
+    else
+      res := add!(res, with-xml()
+                         li(concatenate(name, " not initialized"))
+                       end);
     end;
   end;
   res;
+end;
+
+define method show (object :: <ip-address>, slot-name :: <string>)
+  list(with-xml()
+         li(concatenate(slot-name, ":", as(<string>, object)))
+       end)
+end;
+
+define method show (object :: <cidr>, slot-name :: <string>)
+  list(with-xml()
+         li(concatenate(slot-name, ":", as(<string>, object)))
+       end)
 end;
 
 define method show (object :: <string>, slot-name :: <string>)
