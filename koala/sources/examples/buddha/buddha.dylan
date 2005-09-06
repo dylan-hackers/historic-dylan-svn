@@ -47,7 +47,6 @@ define page restore end;
 define page browse end;
 
 
-
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)
       ?body:*
@@ -100,6 +99,14 @@ define method respond-to-get
     end;
   end;
 end;
+
+define method get-reference (object :: <object>) => (res :: <string>)
+  let address = copy-sequence(format-to-string("%=", address-of(object)),
+                              start: 1);
+  $obj-table[address] := object;
+  address;
+end;
+
 
 define method respond-to-get
     (page == #"save", request :: <request>, response :: <response>)
