@@ -1,7 +1,8 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define constant <mac-address> = <list>;
+define class <mac-address> (<wrapper-sequence>)
+end;
 
 define method parse-mac (mac :: <string>)
  => (res :: false-or(<mac-address>))
@@ -26,11 +27,11 @@ define method parse-mac (mac :: <string>)
           end unless;
         end for;
       end for;
-      let res = make(<mac-address>, size: 6);
+      let res = make(<list>, size: 6);
       for (i from 0 below res.size)
         res[i] := fields[i];
       end;
-      res;
+      make(<mac-address>, data: res);
     elseif (size(mac) = 12)
       //assume xxxxxxxxxxxx
       for(ele in mac)
@@ -38,7 +39,7 @@ define method parse-mac (mac :: <string>)
           parse-error(#f);
         end unless;
       end for;
-      string-to-mac(mac);
+      as(<mac-address>, mac);
     else
       //something completely different
       parse-error(#f);
@@ -46,16 +47,32 @@ define method parse-mac (mac :: <string>)
   end block;
 end;
 
-define method string-to-mac (string :: <string>) => (mac :: <mac-address>)
+define method \= (a :: mac-address>, b :: <mac-address>)
+ => (res :: <boolean)
+  block(done)
+    for (ele1 in a,
+         ele2 in b)
+      unless (ele1 = ele2)
+        done(#f);
+      end;
+    end;
+    done(#t);
+  end;
+end;
+
+define method as (class == <mac-address>, string :: <string>)
+ => (res :: <mac-address>)
   //we are sure string is a correct mac-address (12 hex digits)
-  let mac = make(<mac-address>, size: 6);
+  let mac = make(<list>, size: 6);
   for (i from 0 below string.size by 2,
        j from 0)
     mac[j] := copy-sequence(string, start: i, end: i + 2);
   end;
-  mac;
+  make(<mac-address>,
+       data: mac);
 end;
 
-define method mac-to-string (mac :: <mac-address>) => (string :: <string>)
-  reduce1(method(a,b) concatenate(a, ":", b) end, mac);
+define method as (class == <string>, mac :: <mac-address>)
+ => (string :: <string>)
+  reduce1(method(a,b) concatenate(a, ":", b) end, mac.data);
 end;

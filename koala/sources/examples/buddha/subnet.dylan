@@ -3,6 +3,7 @@ author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <subnet> (<network>)
   slot subnet-vlan :: false-or(<vlan>) = #f, init-keyword: vlan:;
+  slot subnet-hosts :: <list> = #(), init-keyword: hosts:;
   slot dhcp-start :: <ip-address>, init-keyword: dhcp-start:;
   slot dhcp-end :: <ip-address>, init-keyword: dhcp-end:;
   slot dhcp-router :: false-or(<ip-address>) = #f,
@@ -69,6 +70,45 @@ define method gen-xml (subnet :: <subnet>)
   end;
 end;
 
+define method add-host (subnet :: <subnet>, host :: <host>)
+ => ()
+  if ((host.host-ipv4-address = network-address(subnet.network-cidr)) |
+        (host.host-ipv4-address = broadcast-address(subnet.network-cidr)))
+    format-out("Host can't have the network or broadcast address as IP %=\n",
+               host);
+  elseif (member?(host,
+              subnet.subnet-hosts,
+              test: method(x, y)
+                        x.host-ipv4-address = y.host-ipv4-address;
+                    end))
+    format-out("Host with same IP already exists: %=\n", host);
+  elseif (member?(host,
+                  host.host-zone.zone-hosts,
+                  test: method(x, y)
+                            x.host-name = y.host-name
+                        end))
+    format-out("Host with same name already exists: %=\n", host);
+  elseif (member?(host,
+                  subnet.subnet-hosts,
+                  test: method(x, y)
+                            x.host-mac = y.host-mac
+                        end))
+    format-out("Host with same mac already exists in this subnet: %=\n", host);
+  else
+    subnet.subnet-hosts := sort!(add!(subnet.subnet-hosts, host));
+    host.host-zone.zone-hosts
+      := sort!(add!(host.host-zone.zone-hosts, host));
+  end;
+end;
+
+define method remove-host (subnet :: <subnet>, host :: <host>)
+ => ()
+  subnet.subnet-hosts := remove!(subnet.subnet-hosts, host);
+  host.host-zone.zone-hosts
+    := remove!(host.host-zone.zone-hosts, host);
+end;
+
+
 define method print-isc-dhcpd-file (subnet :: <subnet>, stream :: <stream>)
  => ()
   if (subnet.dhcp?)
@@ -96,6 +136,9 @@ define method print-isc-dhcpd-file (subnet :: <subnet>, stream :: <stream>)
                   as(<string>, tail(x)));
        end, generate-dhcp-ranges(subnet));
     format(stream, "}\n\n");
+    for (host in subnet.subnet-hosts)
+      print-isc-dhcpd-file(host, stream);
+    end;
   end if;
 end;
 
@@ -104,7 +147,7 @@ define method generate-dhcp-ranges (subnet :: <subnet>)
   let start-ip :: <ip-address> = subnet.dhcp-start;
   let end-ip :: <ip-address> = subnet.dhcp-end;
   let res = make(<list>);
-  for (host in subnet.network-hosts)
+  for (host in subnet.subnet-hosts)
     let host-ip = host.host-ipv4-address;
     if ((host-ip > start-ip) & (host-ip < end-ip))
       res := add!(res, pair(start-ip, host-ip - 1));

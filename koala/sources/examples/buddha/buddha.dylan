@@ -381,9 +381,11 @@ define method respond-to-get
         tr { th("Name"), th("IP"), th("Net"), th("Mac"), th("Zone") },
         do(let res = make(<list>);
            for (net in *config*.config-nets)
-             do(method(x)
-                    res := add!(res, gen-xml(x));
-                end, net.network-hosts);
+             for (subnet in net.network-subnets)
+               do(method(x)
+                      res := add!(res, gen-xml(x));
+                  end, subnet.subnet-hosts);
+             end;
            end;
            reverse(res))
         },
@@ -446,6 +448,8 @@ define method respond-to-get
             input(type => "text", name => "hostmaster"),
             text("Serial"),
             input(type => "text", name => "serial"),
+            text("Refresh"),
+            input(type => "text", name => "refresh"),
             text("Retry"),
             input(type => "text", name => "retry"),
             text("Expire"),
@@ -646,7 +650,7 @@ define method respond-to-post
                   time-to-live: time-to-live,
                   nameserver: list(nameserver),
                   mail-exchange: list(mail-exchange),
-                  txt: txt);
+                  txt: list(txt));
   *config*.config-zones :=
     sort!(add!(*config*.config-zones, zone));
   #t;
@@ -655,14 +659,14 @@ end;
 define method respond-to-post
     (page == #"host", request :: <request>, response :: <response>)
   let name = get-query-value("name");
-  let ip = make(<ip-address>, ip: get-query-value("ip"));
+  let ip = make(<ip-address>, data: get-query-value("ip"));
   let mac = get-query-value("mac");
   let zone = get-query-value("zone");
-  let network = find-network(*config*, ip);
+  let network = find-network(find-network(*config*, ip), ip);
   let host = make(<host>,
                   name: name,
                   ip: ip,
-                  net: find-network(network, ip),
+                  net: network,
                   mac: parse-mac(mac),
                   zone: find-zone(*config*, zone));
   add-host(network, host);
@@ -692,14 +696,6 @@ define function main2()
 end;
 
 begin
-  let dood
-    = make(<dood>,
-           locator: concatenate("/home/hannes/dylan/libraries/koala/www/buddha/",
-                                base64-encode("foo")),
-           direction: #"input");
-  *config* := dood-root(dood);
-  dood-close(dood);
-
   main();
 end;
 

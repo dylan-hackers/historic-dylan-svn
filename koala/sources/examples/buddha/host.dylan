@@ -17,7 +17,7 @@ define method make (host == <host>,
   let args = rest;
   if (instance?(ip, <string>))
     args := exclude(args, #"ip");
-    ip := make(<ip-address>, ip: ip);
+    ip := make(<ip-address>, data: ip);
   end;
   apply(next-method, host, ip: ip, args);
 end method;
@@ -27,7 +27,7 @@ define method print-object (host :: <host>, stream :: <stream>)
   format(stream, "Host %s Zone %s Mac %s\n",
          host.host-name,
          host.host-zone.zone-name,
-         mac-to-string(host.host-mac));
+         as(<string>, host.host-mac));
   format(stream, "IP %s Net %s\n",
          as(<string>, host.host-ipv4-address),
          as(<string>, host.host-net.network-cidr));
@@ -44,7 +44,7 @@ define method gen-xml (host :: <host>)
       td(host.host-name),
       td(as(<string>, host.host-ipv4-address)),
       td(as(<string>, host.host-net.network-cidr)),
-      td(mac-to-string(host.host-mac)),
+      td(as(<string>, host.host-mac)),
       td(host.host-zone.zone-name)
     }
   end;
@@ -53,7 +53,7 @@ end;
 define method print-isc-dhcpd-file (host :: <host>, stream :: <stream>)
  => ()
   format(stream, "host %s {\n", host.host-name);
-  format(stream, "\thardware ethernet %s;\n", mac-to-string(host.host-mac));
+  format(stream, "\thardware ethernet %s;\n", as(<string>, host.host-mac));
   format(stream, "\tfixed-address %s;\n", as(<string>, host.host-ipv4-address));
   format(stream, "}\n\n");
 end;

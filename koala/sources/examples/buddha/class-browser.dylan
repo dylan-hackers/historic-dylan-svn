@@ -24,6 +24,12 @@ define method show (object :: <ip-address>, slot-name :: <string>)
        end)
 end;
 
+define method show (object :: <mac-address>, slot-name :: <string>)
+  list(with-xml()
+         li(concatenate(slot-name, ":", as(<string>, object)))
+       end)
+end;
+
 define method show (object :: <cidr>, slot-name :: <string>)
   list(with-xml()
          li(concatenate(slot-name, ":", as(<string>, object)))

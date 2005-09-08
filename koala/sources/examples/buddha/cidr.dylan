@@ -23,7 +23,7 @@ define method make (cidr == <cidr>,
       network-address := address-and-mask[0];
       netmask := address-and-mask[1];
     end if;
-    network-address := make(<ip-address>, ip: network-address);
+    network-address := make(<ip-address>, data: network-address);
   end;
   if (instance?(netmask, <string>))
     if (any?(method(x) x = '.' end, netmask))
@@ -56,20 +56,20 @@ end;
 define method base-network-address (cidr :: <cidr>)
  => (ip-address :: <ip-address>)
   make(<ip-address>,
-       ip: map(logand,
-               ip(netmask-address(cidr)),
-               ip(network-address(cidr))));
+       data: map(logand,
+                 netmask-address(cidr),
+                 network-address(cidr)))
 end;
 
 define method broadcast-address (cidr :: <cidr>)
  => (ip-address :: <ip-address>)
   let mask = map(method(x)
                      logand(255, lognot(x));
-                 end, ip(netmask-address(cidr)));
+                 end, netmask-address(cidr));
   make(<ip-address>,
-       ip: map(logior,
-               ip(network-address(cidr)),
-               mask));
+       data: map(logior,
+                 network-address(cidr),
+                 mask));
 end;
 
 define method network-address (cidr :: <cidr>)
