@@ -15,7 +15,7 @@ define class <zone> (<object>)
   slot zone-minimum :: <integer>, init-keyword: minimum:;
   slot zone-nameserver :: <list>, init-keyword: nameserver:;
   slot zone-mail-exchange :: <list>, init-keyword: mail-exchange:;
-  slot zone-text :: <list>, init-keyword: txt:;
+  slot zone-text :: <list> = #(), init-keyword: txt:;
 end class;
 
 define method print-object (zone :: <zone>, stream :: <stream>)
@@ -44,7 +44,7 @@ define method print-bind-zone-file (zone :: <zone>, stream :: <stream>)
        end, zone.zone-nameserver);
     do(method(x)
            format(stream, "%d\tIN\tPTR\n%s.%s.\n",
-                  x.host-ipv4-address.ip[3],
+                  x.host-ipv4-address[3],
                   x.host-name,
                   zone.zone-name)
        end, zone.zone-hosts);

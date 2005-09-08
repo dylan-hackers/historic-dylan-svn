@@ -4,7 +4,6 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define class <network> (<object>)
   slot network-cidr :: <cidr>, required-init-keyword: cidr:;
   slot network-subnets :: <list> = #(), init-keyword: subnets:;
-  slot network-hosts :: <list> = #(), init-keyword: hosts:;
   slot dhcp? :: <boolean> = #t, init-keyword: dhcp?:;
   slot dhcp-default-lease-time :: false-or(<integer>) = #f,
     init-keyword: dhcp-default-lease-time:;
@@ -110,15 +109,6 @@ define method gen-xml (network :: <network>)
   res;
 end;
 
-define method add-host (network :: <network>, host :: <host>)
- => ()
-  network.network-hosts := sort!(add!(network.network-hosts, host));
-  host.host-net.network-hosts
-    := sort!(add!(host.host-net.network-hosts, host));
-  host.host-zone.zone-hosts
-    := sort!(add!(host.host-zone.zone-hosts, host));
-end;
-
 define method add-subnet (network :: <network>, subnet :: <subnet>)
  => ()
   if (subnet-in-net?(network, subnet))
@@ -134,15 +124,6 @@ define method add-subnet (network :: <network>, subnet :: <subnet>)
     format-out("Subnet %= not in network %=, not added!\n",
                subnet.network-cidr, network.network-cidr);
   end;
-end;
-
-define method remove-host (network :: <network>, host :: <host>)
- => ()
-  network.network-hosts := remove!(network.network-hosts, host);
-  host.host-net.network-hosts
-    := remove!(host.host-net.network-hosts, host);
-  host.host-zone.zone-hosts
-    := remove!(host.host-zone.zone-hosts, host);
 end;
 
 define method remove-subnet (network :: <network>, subnet :: <subnet>)
@@ -169,9 +150,6 @@ define method print-isc-dhcpd-file (network :: <network>, stream :: <stream>)
        end, network.dhcp-options);
     for (subnet in network.network-subnets)
       print-isc-dhcpd-file(subnet, stream);
-    end;
-    for (host in network.network-hosts)
-      print-isc-dhcpd-file(host, stream);
     end;
   end if;
 end;
