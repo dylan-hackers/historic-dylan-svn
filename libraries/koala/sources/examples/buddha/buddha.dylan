@@ -18,6 +18,11 @@ define sideways method process-config-element
   log-info("Buddha content directory = %s", *directory*);
 end;
 
+define generic respond-to-get (page,
+                               request :: <request>,
+                               response :: <response>,
+                               #key errors);
+
 define macro page-definer
   { define page ?:name end }
     => { define responder ?name ## "-responder" ("/" ## ?"name")
@@ -25,9 +30,7 @@ define macro page-definer
            if (request.request-method = #"get")
              respond-to-get(as(<symbol>, ?"name"), request, response)
            elseif (request.request-method = #"post")
-             if (respond-to-post(as(<symbol>, ?"name"), request, response))
-               respond-to-get(as(<symbol>, ?"name"), request, response)
-             end;
+             respond-to-post(as(<symbol>, ?"name"), request, response)
            end;
          end; }
 end;
@@ -83,8 +86,19 @@ end;
 
 define constant $obj-table = make(<string-table>);
 
+define class <buddha-form-warning> (<condition>)
+  constant slot error-string :: <string>, required-init-keyword: warning:;
+end;
+
+define class <buddha-form-error> (<error>)
+  constant slot error-string :: <string>, required-init-keyword: error:;
+end;
+
 define method respond-to-get
-    (page == #"browse", request :: <request>, response :: <response>)
+    (page == #"browse",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
   let out = output-stream(response);
   let obj-string = get-query-value("obj");
   unless (obj-string)
@@ -109,10 +123,28 @@ end;
 
 
 define method respond-to-get
-    (page == #"save", request :: <request>, response :: <response>)
+    (page == #"save",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
   let out = output-stream(response);
   with-buddha-template(out, "Save Database")
-    with-xml()
+    if (errors & errors.size > 0)
+      collect(with-xml()
+                         div(id => "error")
+                           {
+                            ul
+                              {
+                               do(for(error in errors)
+                                    collect(with-xml()
+                                              li(error.error-string)
+                                            end);
+                                  end)
+                                 }
+                              }
+                       end);
+    end;
+    collect(with-xml()
       div(id => "content") {
         form(action => "/save", \method => "post") {
           div(class => "edit") {
@@ -122,26 +154,42 @@ define method respond-to-get
           }
         }
       }
-    end;
+                     end);
   end;
 end;
 
 define method respond-to-post
     (page == #"save", request :: <request>, response :: <response>)
+  let errors = #();
   let file = get-query-value("filename");
-  let dood = make(<dood>,
-                  locator: concatenate(*directory*, base64-encode(file)),
-                  direction: #"output",
-                  if-exists: #"replace");
-  dood-root(dood) := *config*;
-  dood-commit(dood);
-  dood-close(dood);
-  format(output-stream(response), "Saved database\n");
-  #t;
+  let handler <buddha-form-warning>
+    = method(e :: <buddha-form-warning>, next-handler :: <function>)
+          errors := add!(errors, e)
+      end;
+  block(return)
+    if (~file | file = "")
+      signal(make(<buddha-form-error>,
+                  error: "No file specified!"));
+    end;
+    let dood = make(<dood>,
+                    locator: concatenate(*directory*, base64-encode(file)),
+                    direction: #"output",
+                    if-exists: #"replace");
+    dood-root(dood) := *config*;
+    dood-commit(dood);
+    dood-close(dood);
+  exception (e :: <buddha-form-error>)
+    errors := add!(errors, e);
+    return();
+  end;
+  respond-to-get(page, request, response, errors: errors);
 end;
 
 define method respond-to-get
-    (page == #"restore", request :: <request>, response :: <response>)
+    (page == #"restore",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
   let out = output-stream(response);
   with-buddha-template(out, "Restore Database")
     with-xml()
@@ -178,11 +226,14 @@ define method respond-to-post
   *config* := dood-root(dood);
   dood-close(dood);
   format(output-stream(response), "Restored database\n");
-  #t;
+  respond-to-get(page, request, response);
 end;
 
 define method respond-to-get
-    (page == #"net", request :: <request>, response :: <response>)
+    (page == #"net",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
   let out = output-stream(response);
   with-buddha-template (out, "Networks")
     with-xml ()
@@ -314,7 +365,10 @@ define method respond-to-get
 end;
 
 define method respond-to-get
-    (page == #"vlan", request :: <request>, response :: <response>)
+    (page == #"vlan",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
   let out = output-stream(response);
   with-buddha-template(out, "VLAN")
     with-xml()
@@ -370,7 +424,10 @@ define method respond-to-get
 end;
 
 define method respond-to-get
-    (page == #"host", request :: <request>, response :: <response>)
+    (page == #"host",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
   let out = output-stream(response);
   with-buddha-template(out, "Hosts")
     with-xml()
@@ -423,7 +480,10 @@ define method respond-to-get
 end;
 
 define method respond-to-get
-    (page == #"zone", request :: <request>, response :: <response>)
+    (page == #"zone",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
   let out = output-stream(response);
   with-buddha-template(out, "Zones")
     with-xml()
@@ -475,7 +535,10 @@ define method respond-to-get
 end;
 
 define method respond-to-get
-    (page == #"user", request :: <request>, response :: <response>)
+    (page == #"user",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
   let out = output-stream(response);
   with-buddha-template(out, "User Interface")
     with-xml()
@@ -520,7 +583,9 @@ end;
 define method respond-to-post
     (page == #"net", request :: <request>, response :: <response>)
   let action = get-query-value("action");
-  do-action(as(<symbol>, action), response)
+  if (do-action(as(<symbol>, action), response))
+      respond-to-get(page, request, response);
+  end;
 end;
 
 define method do-action (action == #"gen-dhcpd", response :: <response>)
@@ -603,7 +668,9 @@ end;
 define method respond-to-post
     (page == #"vlan", request :: <request>, response :: <response>)
   let action = get-query-value("action");
-  do-action(as(<symbol>, action), response);
+  if (do-action(as(<symbol>, action), response))
+    respond-to-get(page, request, response);
+  end;
 end;
 
 define method do-action (action == #"add-vlan", response :: <response>)
@@ -653,7 +720,7 @@ define method respond-to-post
                   txt: list(txt));
   *config*.config-zones :=
     sort!(add!(*config*.config-zones, zone));
-  #t;
+  respond-to-get(page, request, response);
 end;
 
 define method respond-to-post
@@ -670,7 +737,7 @@ define method respond-to-post
                   mac: parse-mac(mac),
                   zone: find-zone(*config*, zone));
   add-host(network, host);
-  #t;
+  respond-to-get(page, request, response);
 end;
 
 define function main () => ()

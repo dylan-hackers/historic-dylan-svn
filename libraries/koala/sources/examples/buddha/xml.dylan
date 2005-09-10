@@ -86,12 +86,18 @@ define macro with-xml
                                                  text: escape-html(?value))) }
    { do(?:body) }
     => { begin
-           let res = ?body;
-           if (res)
-             if (instance?(res, <sequence>))
-               res;
+           let res = make(<stretchy-vector>);
+           local method ?=collect(element)
+                   add!(res, element)
+                 end;
+           let body-res = ?body;
+           if (res.size > 0)
+             res;
+           elseif (body-res)
+             if (instance?(body-res, <sequence>))
+               body-res;
              else
-               list(res);
+               list(body-res);
              end;
            else
              make(<list>)
