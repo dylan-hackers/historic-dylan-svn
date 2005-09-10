@@ -88,7 +88,7 @@ define macro with-xml
     => { begin
            let res = make(<stretchy-vector>);
            local method ?=collect(element)
-                   add!(res, element)
+                   res := add!(res, element)
                  end;
            let body-res = ?body;
            if (res.size > 0)

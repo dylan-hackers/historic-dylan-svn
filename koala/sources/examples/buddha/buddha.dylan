@@ -131,30 +131,32 @@ define method respond-to-get
   with-buddha-template(out, "Save Database")
     if (errors & errors.size > 0)
       collect(with-xml()
-                         div(id => "error")
-                           {
-                            ul
-                              {
-                               do(for(error in errors)
-                                    collect(with-xml()
-                                              li(error.error-string)
-                                            end);
-                                  end)
-                                 }
-                              }
-                       end);
+                div(id => "error")
+                { ul
+                  {
+                    do(for(error in errors)
+                         collect(with-xml()
+                                   li(error.error-string)
+                                 end);
+                       end)
+                  }
+                }
+              end);
     end;
     collect(with-xml()
-      div(id => "content") {
-        form(action => "/save", \method => "post") {
-          div(class => "edit") {
-            text("Filename"),
-            input(type => "text", name => "filename"),
-            input(type => "submit", name => "save-button", value => "Save")
-          }
-        }
-      }
-                     end);
+              div(id => "content")
+              { form(action => "/save", \method => "post")
+                { div(class => "edit")
+                  {
+                    text("Filename"),
+                    input(type => "text", name => "filename"),
+                    input(type => "submit",
+                          name => "save-button",
+                          value => "Save")
+                  }
+                }
+              }
+            end);
   end;
 end;
 
@@ -193,26 +195,26 @@ define method respond-to-get
   let out = output-stream(response);
   with-buddha-template(out, "Restore Database")
     with-xml()
-      div(id => "content") {
-        form(action => "/restore", \method => "post") {
-          \select(name => "filename") {
-            do(let res = make(<list>);
-               do-directory(method(directory :: <pathname>,
-                                   name :: <string>,
-                                   type :: <file-type>)
-                                if (type == #"file")
-                                  res := add!(res,
-                                              with-xml()
-                                                option(base64-decode(name),
-                                                       value => name)
-                                              end);
-                                end if;
-                            end, *directory*);
-               res;)
-          },
-          input(type => "submit", name => "restore-button", value => "Restore")
+      div(id => "content")
+        { form(action => "/restore", \method => "post")
+          { \select(name => "filename")
+            {
+              do(do-directory(method(directory :: <pathname>,
+                                     name :: <string>,
+                                     type :: <file-type>)
+                                  if (type == #"file")
+                                    collect(with-xml()
+                                              option(base64-decode(name),
+                                                     value => name)
+                                            end);
+                                  end if;
+                              end, *directory*))
+            },
+            input(type => "submit",
+                  name => "restore-button",
+                  value => "Restore")
+          }
         }
-      }
     end;
   end;
 end;
@@ -239,7 +241,7 @@ define method respond-to-get
     with-xml ()
       div(id => "content")
       {
-        do(let res = make(<list>);
+        do(let res = #();
            for (net in *config*.config-nets,
                 i from 0)
              res := concatenate(gen-xml(net), res);
@@ -436,15 +438,13 @@ define method respond-to-get
         table
         {
         tr { th("Name"), th("IP"), th("Net"), th("Mac"), th("Zone") },
-        do(let res = make(<list>);
-           for (net in *config*.config-nets)
+        do(for (net in *config*.config-nets)
              for (subnet in net.network-subnets)
                do(method(x)
-                      res := add!(res, gen-xml(x));
+                      collect(gen-xml(x));
                   end, subnet.subnet-hosts);
              end;
-           end;
-           reverse(res))
+           end)
         },
         form(action => "/host", \method => "post")
         {
@@ -458,16 +458,13 @@ define method respond-to-get
             input(type => "text", name => "mac"),
             \select(name => "zone")
             {
-              do(let res = make(<list>);
-                 do(method(x)
-                        res := add!(res,
-                                    with-xml()
-                                      option(x.zone-name, value => x.zone-name)
-                                    end);
+              do(do(method(x)
+                        collect(with-xml()
+                                  option(x.zone-name, value => x.zone-name)
+                                end);
                     end, choose(method(x)
                                     ~ zone-reverse?(x);
-                                end, *config*.config-zones));
-                 res)
+                                end, *config*.config-zones)))
             },
             input(type => "submit",
                   name => "add-host-button",
@@ -492,11 +489,9 @@ define method respond-to-get
         table
         {
           tr { th("Name") },
-          do(let res = make(<list>);
-             do(method(x)
-                    res := add!(res, gen-xml(x));
-                end, *config*.config-zones);
-             res)
+          do(do(method(x)
+                    collect(gen-xml(x));
+                end, *config*.config-zones))
         },
         form(action => "/zone", \method => "post")
         {
