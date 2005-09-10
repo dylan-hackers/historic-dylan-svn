@@ -47,8 +47,8 @@ define method parse-mac (mac :: <string>)
   end block;
 end;
 
-define method \= (a :: mac-address>, b :: <mac-address>)
- => (res :: <boolean)
+define method \= (a :: <mac-address>, b :: <mac-address>)
+ => (res :: <boolean>)
   block(done)
     for (ele1 in a,
          ele2 in b)
