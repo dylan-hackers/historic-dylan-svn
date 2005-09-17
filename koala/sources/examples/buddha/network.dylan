@@ -35,6 +35,11 @@ define method \< (a :: <network>, b :: <network>)
   a.network-cidr < b.network-cidr;
 end;
 
+define method as (class == <string>, network :: <network>)
+ => (res :: <string>)
+  as(<string>, network.network-cidr)
+end;
+  
 define method fits? (network :: <network>, cidr :: <cidr>)
  => (res :: <boolean>)
   //checks whether cidr is not used in network yet.

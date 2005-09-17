@@ -36,8 +36,13 @@ define method gen-xml (vlan :: <vlan>)
                    end);
   res;
 end;
-              
+
+define method as (class == <string>, vlan :: <vlan>)
+ => (res :: <string>)
+  concatenate(integer-to-string(vlan.vlan-number), " ", vlan.vlan-name);
+end;
+
 define method \< (a :: <vlan>, b :: <vlan>)
-  => (res :: <boolean>)
+ => (res :: <boolean>)
   a.vlan-number < b.vlan-number
 end;
