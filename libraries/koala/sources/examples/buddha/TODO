@@ -13,3 +13,5 @@ user management
 prevent cross-site scripting (escape <> in all input data)
 
 interface to get the next /XX subnet (or the next subnet with at least Y ips)
+
+with-xml:collect only works for elements, not for lists of elements

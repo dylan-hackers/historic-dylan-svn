@@ -48,7 +48,7 @@ define page user end;
 define page save end;
 define page restore end;
 define page browse end;
-
+define page edit end;
 
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)
@@ -72,6 +72,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
         a("Save to disk", href => "/save"),
         a("Restore from disk", href => "/restore"),
         a("Class browser", href => "/browse"),
+        a("Edit", href => "/edit"),
         a("Shutdown", href => "/koala/shutdown")
       }
     },
@@ -92,6 +93,26 @@ end;
 
 define class <buddha-form-error> (<error>)
   constant slot error-string :: <string>, required-init-keyword: error:;
+end;
+
+define method respond-to-get
+    (page == #"edit",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
+  let out = output-stream(response);
+  let obj-string = get-query-value("obj");
+  unless (obj-string)
+    obj-string := "";
+  end;
+  let obj = element($obj-table, obj-string, default: *config*);
+  with-buddha-template(out, "Edit")
+    with-xml()
+      div(id => "content") {
+        do(edit(obj))
+      }
+    end;
+  end;
 end;
 
 define method respond-to-get

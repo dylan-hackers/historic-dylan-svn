@@ -62,6 +62,11 @@ define method print-object (subnet :: <subnet>, stream :: <stream>)
   end;
 end;
 
+define method as (class == <string>, subnet :: <subnet>)
+ => (res :: <string>)
+  as(<string>, subnet.network-cidr);
+end;
+
 define method gen-xml (subnet :: <subnet>)
   with-xml()
     tr { td(as(<string>, subnet.network-cidr)),
