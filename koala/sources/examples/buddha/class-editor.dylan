@@ -18,9 +18,8 @@ define method edit (object :: <object>) => (res)
              end if;
              //if (subtype?(type, <sequence>) | subtype?(type, <table>))
              //add-form-foobar (also when not initialized)
-             //else
-             collect(with-xml() br end);
              //end if
+             collect(with-xml() br end);
            end),
         input(type => "submit", name => "save-button", value => "Save")
       }
@@ -39,14 +38,6 @@ define method edit-slot (object :: <object>, slot-name :: <string>)
   end;
 end;
 
-define method edit-slot (object :: <ip-address>, slot-name :: <string>)
-  with-xml()
-    input(type => "text",
-          name => slot-name,
-          value => as(<string>, object))
-  end;
-end;
-
 define method edit-slot (object :: <string>, slot-name :: <string>)
   with-xml()
     input(type => "text",
@@ -55,7 +46,7 @@ define method edit-slot (object :: <string>, slot-name :: <string>)
   end;
 end;
 
-define method edit-slot (object :: type-union(<sequence>, <table>),
+define method edit-slot (object :: type-union(<list>, <table>),
                          slot-name :: <string>)
   with-xml()
     ul

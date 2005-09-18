@@ -37,6 +37,11 @@ define method \< (a :: <host>, b :: <host>) => (res :: <boolean>)
   a.host-ipv4-address < b.host-ipv4-address
 end;
 
+define method as (class == <string>, host :: <host>)
+ => (res :: <string>)
+  concatenate(host.host-name, " ", as(<string>, host.host-ipv4-address));
+end;
+
 define method gen-xml (host :: <host>)
   with-xml()
     tr
