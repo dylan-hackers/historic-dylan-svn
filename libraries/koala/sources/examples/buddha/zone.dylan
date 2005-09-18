@@ -23,6 +23,11 @@ define method print-object (zone :: <zone>, stream :: <stream>)
   format(stream, "%s", zone.zone-name);
 end method;
 
+define method as (class == <string>, zone :: <zone>)
+ => (res :: <string>)
+  zone.zone-name;
+end;
+
 define method gen-xml (zone :: <zone>)
   with-xml()
     tr { td(zone.zone-name) }
