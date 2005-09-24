@@ -9,6 +9,14 @@ define class <config> (<object>)
   //slot config-dirty? :: <boolean> = #f;
 end;
 
+define method list-type (config :: <config>, slot-name :: <string>)
+  if (slot-name = "config-nets")
+    as(<symbol>, "<network>")
+  elseif (slot-name = "config-zones")
+    as(<symbol>, "<zone>")
+  end;
+end;
+
 define method make (config == <config>,
                     #next next-method,
                     #rest rest,

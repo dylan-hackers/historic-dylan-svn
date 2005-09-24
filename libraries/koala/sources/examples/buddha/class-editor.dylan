@@ -12,13 +12,16 @@ define method edit (object :: <object>) => (res)
              if (slot-initialized?(object, slot))
                let slot-object = slot.slot-getter(object);
                collect(edit-slot(slot-object, name));
+               if (instance?(slot-object, <list>))
+                 let type = list-type(object, name);
+                 if (type)
+                   collect(add-form(type));
+                 end;
+               end if;
              else
                //slot not initialized...
                collect(with-xml() input(type => "text", name => name) end)
              end if;
-             //if (subtype?(type, <sequence>) | subtype?(type, <table>))
-             //add-form-foobar (also when not initialized)
-             //end if
              collect(with-xml() br end);
            end),
         input(type => "submit", name => "save-button", value => "Save")
@@ -27,6 +30,55 @@ define method edit (object :: <object>) => (res)
   end;
 end;
 
+define generic add-form (object :: <object>);
+
+define macro add-form-helper
+  { add-form-helper(?type:name) end }
+    => { define method add-form (type == ?#"type")
+           with-xml()
+             form (action => "/edit", \method => "post")
+             {
+               div (class => "edit")
+               {
+                 do(let res = make(<list>);
+                    for(slot in ?type.slot-descriptors)
+                      let name = slot.slot-getter.debug-name;
+                      res := add!(res, with-xml()
+                                         text(name)
+                                       end);
+                      res := add!(res, with-xml()
+                                         input(type => "text",
+                                               name => name)
+                                       end);
+                      res := add!(res, with-xml() br end);
+                    end;
+                    reverse(res);),
+                 input(type => "submit",
+                       name => "add-button",
+                       value => "Add")
+               }
+             }
+           end;
+         end; }
+end;
+
+add-form-helper(<zone>) end;
+add-form-helper(<network>) end;
+add-form-helper(<subnet>) end;
+add-form-helper(<host>) end;
+
+define method add-form (type == #"<string>")
+  with-xml()
+    form (action => "/edit", \method => "post")
+    {
+      div (class => "edit")
+      {
+        input(type => "text", name => "string"),
+        input(type => "submit", name => "add-button", value => "Add")
+      }
+    }
+  end;
+end;
 
 define generic edit-slot (object :: <object>, slot-name :: <string>);
 

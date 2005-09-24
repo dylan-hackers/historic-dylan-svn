@@ -560,7 +560,7 @@ define method respond-to-get
     with-xml()
       div(id => "content")
       {
-        do(show-host-info()),
+        //do(show-host-info()),
         form(action => "/user", action => "post")
         {
           div(class => "edit")
@@ -578,7 +578,8 @@ define method respond-to-get
     end;
   end;
 end;
-      
+
+/*
 define method respond-to-post
     (page == #"user", request :: <request>, response :: <response>)
   let ip = host-address(remote-host(request-socket(request)));
@@ -595,6 +596,7 @@ define method respond-to-post
   add-host(network, host);
   respond-to-get(page, request, response);
 end;
+*/
 
 define method respond-to-post
     (page == #"net", request :: <request>, response :: <response>)

@@ -8,6 +8,12 @@ define class <vlan> (<object>)
   slot vlan-subnets :: <list> = #();
 end;
 
+define method list-type (vlan :: <vlan>, slot-name :: <string>)
+  if (slot-name = "vlan-subnets")
+    as(<symbol>, "<subnet>")
+  end;
+end;
+
 define method print-object (vlan :: <vlan>, stream :: <stream>)
  => ()
   format(stream, "VLAN %d name %s description %s",
