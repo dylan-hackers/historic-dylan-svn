@@ -17,8 +17,7 @@
 
 #if defined(MPS_OS_LI)
 /* open sesame magic */
-#define _BSD_SOURCE 1
-#define _POSIX_C_SOURCE 1
+#define _GNU_SOURCE 1
 #endif
 
 #include <pthread.h>

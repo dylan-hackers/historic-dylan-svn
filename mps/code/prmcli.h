@@ -11,8 +11,7 @@
 
 
 /* open sesame magic */
-#define _BSD_SOURCE 1
-#define _POSIX_C_SOURCE 1
+#define _GNU_SOURCE 1
 
 #include "mpm.h"
 
