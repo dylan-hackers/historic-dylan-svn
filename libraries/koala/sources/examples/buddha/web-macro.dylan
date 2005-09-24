@@ -59,10 +59,10 @@ define macro web-class-definer
   { define web-class ?:name (?superclass:*)
       ?class-slots:*
     end }
-    => { define-class(?name, ?superclass, web-slots(?class-slots));
-         //define class ?name (?superclass)
-         //  web-slots(?class-slots)
-         //end;
+    => { //define-class(?name, ?superclass, web-slots(?class-slots));
+         define class ?name (?superclass)
+           web-slots(?class-slots)
+         end;
          define inline method list-reference-slots (object :: ?name)
           => (res :: <list>)
            web-lists(?class-slots)
