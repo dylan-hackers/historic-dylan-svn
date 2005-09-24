@@ -10,6 +10,14 @@ define class <subnet> (<network>)
     init-keyword: dhcp-router:;
 end;
 
+define method list-type(subnet :: <subnet>, slot-name :: <string>)
+  if (slot-name = "subnet-hosts")
+    as(<symbol>, "<host>")
+  elseif (slot-name = "dhcp-options")
+    as(<symbol>, "<string>")
+  end;
+end;
+
 define method make (subnet == <subnet>,
                     #next next-method,
                     #rest rest,

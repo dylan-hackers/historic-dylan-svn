@@ -18,6 +18,18 @@ define class <zone> (<object>)
   slot zone-text :: <list> = #(), init-keyword: txt:;
 end class;
 
+define method list-type(zone :: <zone>, slot-name :: <string>)
+  if (slot-name = "zone-hosts")
+    as(<symbol>, "<host>")
+  elseif (slot-name = "zone-nameserver")
+    as(<symbol>, "<host>")
+  elseif (slot-name = "zone-mail-exchange")
+    as(<symbol>, "<host>")
+  elseif (slot-name = "zone-text")
+    as(<symbol>, "<string>")
+  end;
+end;
+
 define method print-object (zone :: <zone>, stream :: <stream>)
  => ();
   format(stream, "%s", zone.zone-name);

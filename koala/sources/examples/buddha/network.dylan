@@ -12,6 +12,14 @@ define class <network> (<object>)
   slot dhcp-options :: <list> = #(), init-keyword: dhcp-options:;
 end;
 
+define method list-type(network :: <network>, slot-name :: <string>)
+  if (slot-name = "network-subnets")
+    as(<symbol>, "<subnet>")
+  elseif (slot-name = "dhcp-options")
+    as(<symbol>, "<string>")
+  end;
+end;
+
 define method make (network == <network>,
                     #next next-method,
                     #rest rest,
