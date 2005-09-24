@@ -17,7 +17,7 @@ define variable *max-single-header-size* :: false-or(<integer>) = 16384;
 define variable *header-buffer-growth-amount* :: limited(<integer>, min: 1) = 1024;
 
 // Max size of data in a POST.
-define variable *max-post-size* :: false-or(<integer>) = 16384;
+define variable *max-post-size* :: false-or(<integer>) = 16*1024*1024;
 
 // The buffer/epos values are for internal use, wouldn't expect to doc 'em.
 define function read-message-headers (stream :: <stream>,

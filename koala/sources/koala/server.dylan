@@ -654,8 +654,8 @@ define function read-request-first-line
         request.request-url := substring(buffer, bpos, qpos | epos);
         if (qpos)
           log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
-          let query = decode-url(buffer, qpos + 1, epos);
-          extract-query-values(query, 0, size(query), request.request-query-values)
+          extract-query-values(buffer, qpos + 1, epos,
+                               request.request-query-values)
         end;
         let bpos = skip-whitespace(buffer, epos, eol);
         let vpos = whitespace-position(buffer, bpos, eol) | eol;
@@ -732,7 +732,8 @@ define function process-request-content
     let content = decode-url(buffer, 0, content-length);
     // By the time we get here request-query-values has already been bound to a <string-table>
     // containing the URL query values.  Now we augment it with any form values.
-    extract-query-values(content, 0, content.size, request.request-query-values);
+    extract-query-values(buffer, 0, content-length,
+                         request.request-query-values);
     request-content(request) := content
   // ---TODO: Deal with content types intelligently.  For now this'll have to do.
   elseif (member?(content-type, #["text/xml", "text/html", "text/plain"],
@@ -997,7 +998,7 @@ define function extract-request-version (buffer :: <string>,
   end;
 end extract-request-version;
 
-// Turn a string like "foo=8&bar=&baz=zzz" into a <string-table> with the "obvious" keys/vals.
+/ Turn a string like "foo=8&bar=&baz=zzz" into a <string-table> with the "obvious" keys/vals.
 // Note that in the above example string "bar" maps to "", not #f.
 //---TODO: Find out if the query keys are case-sensitive in the HTTP spec and make sure this
 //         does the right thing.
@@ -1007,8 +1008,8 @@ define method extract-query-values
   local method extract-key/val (beg :: <integer>, fin :: <integer>)
           let eq-pos = char-position('=', buffer, beg, fin);
           when (eq-pos & (eq-pos > beg))
-            let key = substring(buffer, beg, eq-pos);
-            let val = substring(buffer, eq-pos + 1, fin);
+            let key = decode-url(buffer, beg, eq-pos);
+            let val = decode-url(buffer, eq-pos + 1, fin);
             values(key, val)
           end
         end;

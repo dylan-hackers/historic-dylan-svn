@@ -49,6 +49,7 @@ end;
 // Shutdown the server.  You definately don't want this active in a 
 // production setting.
 //
+/*
 define responder shutdown-responder ("/koala/shutdown")
     (request, response)
   let stream = output-stream(response);
@@ -57,6 +58,7 @@ define responder shutdown-responder ("/koala/shutdown")
   force-output(stream);
   stop-server(abort: #t);
 end;
+*/
 
 // Load a module
 //
