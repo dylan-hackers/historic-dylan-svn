@@ -15,4 +15,5 @@ files: library
        cisco-telnet
        class-browser
        class-editor
+       web-macro
        buddha
