@@ -998,7 +998,7 @@ define function extract-request-version (buffer :: <string>,
   end;
 end extract-request-version;
 
-/ Turn a string like "foo=8&bar=&baz=zzz" into a <string-table> with the "obvious" keys/vals.
+// Turn a string like "foo=8&bar=&baz=zzz" into a <string-table> with the "obvious" keys/vals.
 // Note that in the above example string "bar" maps to "", not #f.
 //---TODO: Find out if the query keys are case-sensitive in the HTTP spec and make sure this
 //         does the right thing.
