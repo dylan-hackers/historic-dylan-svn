@@ -1,0 +1,28 @@
+[OPTIONS]
+Compatibility=1.1
+Compiled file=opendylan.chm
+Contents file=opendylan.hhc
+Default Window=opendylan.chm
+Default topic=opendylan.htm
+Display compile progress=Yes
+Full-text search=Yes
+Index file=opendylan.hhk
+Language=0x409 English (United States)
+Title=Open Dylan Documentation
+
+[WINDOWS]
+hqndylan.chm=,"opendylan.hhc","opendylan.hhk","opendylan.htm","opendylan.htm",,,,,0x2520,,0x207e,[425,166,1111,668],0xb0000,,,0,,,
+
+
+[FILES]
+opendylan.htm
+env\env_1.htm
+dguide\dguide_1.htm
+core\core_1.htm
+io\io_1.htm
+dref\dref_1.htm
+interop1\intero_1.htm
+interop2\intero_1.htm
+corba\corba_1.htm
+drm\drm_1.htm
+dpg\DB_1.HTM
