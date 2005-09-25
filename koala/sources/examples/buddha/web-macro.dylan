@@ -1,22 +1,5 @@
 module: buddha
 
-define macro web-slots
-  { web-slots(?slots) }
-    => { ?slots }
-
-    slots:
-    { } => { }
-    { data ?slot-name:name :: ?slot-type:expression; ... }
-    => { slot ?slot-name :: ?slot-type, init-keyword: ?slot-name ## ":";
-         ... }
-    { has-many ?slot-name:name; ... }
-    => { slot ?slot-name ## "s" :: <list> = #(); ... }
-    { has-a ?slot-name:name; ... }
-    => { slot ?slot-name :: "<" ## ?slot-name ## ">",
-              init-keyword: ?slot-name ## ":";
-         ... }
-end;
-
 define macro web-lists
   { web-lists(?slots) } => { list(?slots) }
 
@@ -51,18 +34,28 @@ define macro web-data
 end;
 
 define macro define-class
- { define-class(?:name, ?superclass:*, ?slots:macro) }
+ { define-class(?:name; ?superclass:*; (?slots:*)) }
     => { define class ?name (?superclass) ?slots end }
+
+    slots:
+    { } => { }
+    { ?slot:*; ... } => { ?slot ; ... }
+    
+    slot:
+    { data ?slot-name:name \:: ?slot-type:* }
+    => { slot ?slot-name :: ?slot-type, init-keyword: ?#"slot-name" }
+    { has-many ?slot-name:name }
+    => { slot ?slot-name ## "s" :: <list> = #() }
+    { has-a ?slot-name:name }
+    => { slot ?slot-name :: "<" ## ?slot-name ## ">",
+              init-keyword: ?#"slot-name" }
 end;
 
 define macro web-class-definer
   { define web-class ?:name (?superclass:*)
       ?class-slots:*
     end }
-    => { //define-class(?name, ?superclass, web-slots(?class-slots));
-         define class ?name (?superclass)
-           web-slots(?class-slots)
-         end;
+    => { define-class(?name; ?superclass; (?class-slots));
          define inline method list-reference-slots (object :: ?name)
           => (res :: <list>)
            web-lists(?class-slots)
@@ -78,17 +71,24 @@ define macro web-class-definer
 end;
 
 define web-class <foo> (<object>)
-  data foo :: <string>;
+  data namen :: <string>;
   has-many vlan;
   has-many network;
   has-many zone;
-  has-a fnord;
+  data foo :: <string>;
+  has-a config;
+  has-a host;
+  has-many subnet;
 end;
 
 let class = make(<foo>);
 format-out("list: %=\n", list-reference-slots(class));
 format-out("reference: %=\n", reference-slots(class));
 format-out("data: %=\n", data-slots(class));
+for (slot in class.object-class.slot-descriptors)
+  format-out("slot: %s\n", slot.slot-getter.debug-name)
+end;
+format-out("class %=\n", class);
 
 /*
 define web-class <config> (<object>)
