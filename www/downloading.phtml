@@ -3,6 +3,50 @@ require "shared.inc";
 standard_header("Downloading Software");
 ?>
 
+<p>
+There are two Dylan compilers which are currently being maintained.  One is
+the Dylan-to-C translator from the Gwydion project that originated at CMU,
+the other is Open Dylan, a compiler that started life at a company named
+Harlequin, was later sold by Functional Objects, and finally released under
+an open source license.
+</p>
+
+<p> The Gwydion compiler has been ported to a wide variety of
+platforms and has been seen to produce high-performance code, but has
+a number of flaws in error reporting that make it hard to use for the beginner.
+Open Dylan is only available for x86 platforms, running either Linux
+or Windows, but is in many ways a mature implementation, which should
+provide a better user experience.  If you are new to the language,
+choose Open Dylan if you can.</p>
+
+<h2>Open Dylan</h2>
+
+<p>
+The current version of Open Dylan is 1.0beta1.  Downloads for
+supported platforms can be found <a
+href="/downloads/opendylan/">here</a>.
+</p>
+
+<h3>Open Dylan on Linux</h3>
+
+<p> The README file inside the tarball describes installation and
+basic usage.  The easiest way is extracting the tarball in /usr/local.
+The Linux platform should have binutils installed, in order to allow
+linking.
+</p>
+
+<h3>Open Dylan on Windows</h3>
+
+<p> For installation, double-click on the installer, and follow
+instructions.  You need to have the linker of VC++ 6.0, 7.0 or the
+current .NET platform SDK installed.  The PellesC linker should for
+for most purposes too.  There's one caveat: deugging works wih the old
+VC++ 6.0 linker only, we're working on fixing that for the next
+release.
+</p>
+
+<h2>Gwydion Dylan</h2>
+
 <P><EM>Gwydion Dylan <?php current_version();?></EM> is the current release
 version of Gwydion Dylan. It still has some rough edges in terms of usability, but code generation is extremely stable, and we consider the compiler to be of production quality.</P>
 
