@@ -18,8 +18,8 @@
 <a href="/">Ravenbrook</a> /
 <a href="/project/">Projects</a> /
 <a href="/project/mps/">Memory Pool System</a> /
-<a href="/project/mps/version/1.100/">Version 1.100 Sources</a> /
-<a href="/project/mps/version/1.100/procedure/">Procedures</a>
+<a href="/project/mps/master/">Master Product Sources</a> /
+<a href="/project/mps/master/procedure/">Procedures</a>
 </p>
 
 <p><i><a href="/project/mps/">Memory Pool System Project</a></i></p>
@@ -71,8 +71,9 @@ and the correct release name. </p> </li>
 before you continue.</strong> </p></li>
 
 <li><p> Determine the changelevel at which you're going to make the
-release.  This should be the current changelevel; use <code>p4 counter
-change</code> to get it. </p></li>
+release.  This will usually be the latest submitted changelevel on the
+version branch; to get it use </p> <blockquote> <code>p4 changes -m 1
+version/VERSION/...</code> </blockquote> </li>
 
 </ol>
 
@@ -217,6 +218,16 @@ href="mailto:mps-staff@ravenbrook.com">mps-staff@ravenbrook.com</a>. </p></li>
 
 </tr>
 
+<tr valign="top">
+
+  <td>2004-03-03</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td>Fixed the way we determine the release changelevel to avoid possible pending changelists.</td>
+
+</tr>
+
 </table>
 
 
@@ -243,14 +254,14 @@ href="mailto:mps-staff@ravenbrook.com">mps-staff@ravenbrook.com</a>. </p></li>
 
 <div align="center">
 
-<p><code>$Id: //info.ravenbrook.com/project/mps/version/1.100/procedure/release-build/index.html#3 $</code></p>
+<p><code>$Id: //info.ravenbrook.com/project/mps/master/procedure/release-build/index.html#4 $</code></p>
 
 <p>
 <a href="/">Ravenbrook</a> /
 <a href="/project/">Projects</a> /
 <a href="/project/mps/">Memory Pool System</a> /
-<a href="/project/mps/version/1.100/">Version 1.100 Sources</a> /
-<a href="/project/mps/version/1.100/procedure/">Procedures</a>
+<a href="/project/mps/master/">Master Product Sources</a> /
+<a href="/project/mps/master/procedure/">Procedures</a>
 </p>
 
 </div>

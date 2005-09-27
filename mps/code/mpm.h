@@ -1,7 +1,7 @@
 /* mpm.h: MEMORY POOL MANAGER DEFINITIONS
  *
- * $Id: //info.ravenbrook.com/project/mps/version/1.100/code/mpm.h#1 $
- * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
+ * $Id: //info.ravenbrook.com/project/mps/master/code/mpm.h#18 $
+ * Copyright (c) 2001,2003 Ravenbrook Limited.  See end of file for license.
  * Portions copyright (C) 2002 Global Graphics Software.
  *
  * .trans.bufferinit: The Buffer data structure has an Init field and
@@ -152,7 +152,7 @@ extern size_t StringLength(const char *s);
 
 /* Version Determination
  *
- * See <design/version/>-library.  */
+ * See <design/version-library/>.  */
 
 extern char *MPSVersion(void);
 
@@ -356,7 +356,7 @@ extern void TraceDestroy(Trace trace);
 extern Res TraceAddWhite(Trace trace, Seg seg);
 extern Res TraceCondemnZones(Trace trace, ZoneSet condemnedSet);
 extern void TraceStart(Trace trace, double mortality, double finishingTime);
-extern Bool TracePoll(Globals globals);
+extern Size TracePoll(Globals globals);
 
 extern void TraceSegAccess(Arena arena, Seg seg, AccessSet mode);
 extern Res TraceFix(ScanState ss, Ref *refIO);
@@ -441,6 +441,7 @@ extern void GlobalsFinish(Globals arena);
 extern Res GlobalsCompleteCreate(Globals arenaGlobals);
 extern void GlobalsPrepareToDestroy(Globals arenaGlobals);
 extern Res GlobalsDescribe(Globals arena, mps_lib_FILE *stream);
+extern Ring GlobalsRememberedSummaryRing(Globals);
 
 #define ArenaGlobals(arena) (&(arena)->globals)
 #define GlobalsArena(glob) PARENT(ArenaStruct, globals, glob)
@@ -463,6 +464,8 @@ extern void (ArenaLeave)(Arena arena);
 #define ArenaLeave(arena)  UNUSED(arena)
 #endif
 
+extern void ArenaEnterRecursive(Arena arena);
+extern void ArenaLeaveRecursive(Arena arena);
 
 extern void (ArenaPoll)(Globals globals);
 #ifdef MPS_PROD_EPCORE
@@ -471,10 +474,13 @@ extern void (ArenaPoll)(Globals globals);
 /* .nogc.why: ScriptWorks doesn't use MM-provided incremental GC, so */
 /* doesn't need to poll when allocating. */
 
-extern Bool (ArenaStep)(Globals globals, double interval);
+extern Bool (ArenaStep)(Globals globals, double interval, double multiplier);
 extern void ArenaClamp(Globals globals);
 extern void ArenaRelease(Globals globals);
 extern void ArenaPark(Globals globals);
+extern void ArenaExposeRemember(Globals globals, int remember);
+extern void ArenaRestoreProtection(Globals globals);
+extern Res ArenaStartCollect(Globals globals);
 extern Res ArenaCollect(Globals globals);
 extern Bool ArenaHasAddr(Arena arena, Addr addr);
 
@@ -603,6 +609,8 @@ extern void SegClassMixInNoSplitMerge(SegClass class);
 
 #define SEG_SUPERCLASS(className) \
   ((SegClass)SUPERCLASS(className))
+
+#define ClassOfSeg(seg) ((seg)->class)
 
 extern Size SegSize(Seg seg);
 extern Addr (SegBase)(Seg seg);
@@ -940,7 +948,7 @@ extern void StackProbe(Size depth);
 
 /* C. COPYRIGHT AND LICENSE
  *
- * Copyright (C) 2001-2002 Ravenbrook Limited <http://www.ravenbrook.com/>.
+ * Copyright (C) 2001-2003 Ravenbrook Limited <http://www.ravenbrook.com/>.
  * All rights reserved.  This is an open source license.  Contact
  * Ravenbrook for commercial licensing options.
  * 

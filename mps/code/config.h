@@ -1,7 +1,7 @@
 /* config.h: MPS CONFIGURATION
  *
- * $Id: //info.ravenbrook.com/project/mps/version/1.100/code/config.h#2 $
- * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
+ * $Id: //info.ravenbrook.com/project/mps/master/code/config.h#14 $
+ * Copyright (c) 2001,2003 Ravenbrook Limited.  See end of file for license.
  * Portions copyright (c) 2002 Global Graphics Software.
  *
  * PURPOSE
@@ -210,6 +210,10 @@
 /* I count 4 function calls to scan, 10 to copy. */
 #define TraceCopyScanRATIO (1.5)
 
+/* Chosen so that the RememberedSummaryBlockStruct packs nicely into
+   pages */
+#define RememberedSummaryBLOCK 15
+
 
 
 /* Events
@@ -264,24 +268,11 @@
 #elif defined(CONFIG_PROD_DYLAN)
 #define MPS_PROD_STRING         "dylan"
 #define MPS_PROD_DYLAN
-/* .prod.arena-size: ARENA_SIZE is currently set larger for the
- * MM/Dylan product as an interim solution.
- * See request.dylan.170170.sol.patch and change.dylan.buffalo.170170.
- */
-#define ARENA_SIZE              ((Size)1<<30)
 #define ARENA_INIT_SPARE_COMMIT_LIMIT   ((Size)10uL*1024uL*1024uL)
 #define THREAD_MULTI
 #define PROTECTION
 #define DONGLE_NONE
 #define PROD_CHECK_DEFAULT CheckSHALLOW
-
-#elif defined(CONFIG_PROD_CONFIGURA)
-#define MPS_PROD_STRING         "configura"
-#define MPS_PROD_CONFIGURA
-#define ARENA_INIT_SPARE_COMMIT_LIMIT   ((Size)10uL*1024uL*1024uL)
-#define THREAD_SINGLE
-#define PROTECTION
-#define DONGLE_NONE
 
 #elif defined(CONFIG_PROD_MPS)
 #define MPS_PROD_STRING         "mps"
@@ -295,6 +286,14 @@
 #else
 #error "No target product configured."
 #endif
+
+/* .prod.arena-size: ARENA_SIZE is currently set larger for the
+ * MM/Dylan product as an interim solution.
+ * See request.dylan.170170.sol.patch and change.dylan.buffalo.170170.
+ * Note that this define is only used by the implementation of the
+ * deprecated mps_space_create interface.
+ */
+#define ARENA_SIZE              ((Size)1<<30)
 
 /* if CHECK_DEFAULT hasn't been defined already (e.g. by a variety, or
  * in a makefile), take the value from the product. */
@@ -324,7 +323,7 @@
 
 /* C. COPYRIGHT AND LICENSE
  *
- * Copyright (C) 2001-2002 Ravenbrook Limited <http://www.ravenbrook.com/>.
+ * Copyright (C) 2001-2003 Ravenbrook Limited <http://www.ravenbrook.com/>.
  * All rights reserved.  This is an open source license.  Contact
  * Ravenbrook for commercial licensing options.
  *

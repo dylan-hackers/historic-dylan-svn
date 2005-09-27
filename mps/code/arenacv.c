@@ -1,6 +1,6 @@
 /* arenacv.c: ARENA COVERAGE TEST
  *
- * $Id: //info.ravenbrook.com/project/mps/version/1.100/code/arenacv.c#1 $
+ * $Id: //info.ravenbrook.com/project/mps/master/code/arenacv.c#9 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  *
  * .coverage: At the moment, we're only trying to cover the new code

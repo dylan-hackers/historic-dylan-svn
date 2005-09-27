@@ -1,12 +1,13 @@
 # xcppgc.gmk: BUILD FOR MACOS X (CARBON)/POWERPC/GCC PLATFORM
 #
-# $Id: //info.ravenbrook.com/project/mps/version/1.100/code/xcppgc.gmk#1 $
-# Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
+# $Id: //info.ravenbrook.com/project/mps/master/code/xcppgc.gmk#12 $
+# Copyright (c) 2001,2005 Ravenbrook Limited.  See end of file for license.
 
 PFM = xcppgc
 
-MPMPF = mpsliban.c mpsioan.c lockan.c than.c vmxc.c \
-        protan.c prmcan.c span.c ssan.c
+MPMPF = lockan.c than.c vmxc.c \
+        protxc.c protxcpp.c prmcan.c span.c
+MPMS = ssxcpp.s
 SWPF = than.c vmxc.c protsw.c prmcan.c ssan.c
 
 LIBS =
@@ -24,7 +25,9 @@ CC = cc
 #   inline function.
 #   .types: sys/types.h uses 'long long' even under -ansi.
 CFLAGSCOMPILER := $(subst -Wstrict-prototypes,,$(CFLAGSCOMPILER)) \
-                  -Wno-unused -Wno-long-long
+                  -Wno-unused -Wno-long-long -no-cpp-precomp
+CFLAGSDEBUG := $(subst -g -ggdb3,-g3,$(CFLAGSDEBUG))
+CFLAGSOPT := $(subst -g -ggdb3,-g3,$(CFLAGSOPT))
 
 include comm.gmk
 

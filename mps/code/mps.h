@@ -1,6 +1,6 @@
 /* mps.h: RAVENBROOK MEMORY POOL SYSTEM C INTERFACE
  *
- * $Id: //info.ravenbrook.com/project/mps/version/1.100/code/mps.h#1 $
+ * $Id: //info.ravenbrook.com/project/mps/master/code/mps.h#17 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  * Portions copyright (c) 2002 Global Graphics Software.
  *
@@ -238,8 +238,12 @@ typedef struct mps_fmt_fixed_s {
 extern void mps_arena_clamp(mps_arena_t);
 extern void mps_arena_release(mps_arena_t);
 extern void mps_arena_park(mps_arena_t);
+extern void mps_arena_expose(mps_arena_t);
+extern void mps_arena_unsafe_expose_remember_protection(mps_arena_t);
+extern void mps_arena_unsafe_restore_protection(mps_arena_t);
+extern mps_res_t mps_arena_start_collect(mps_arena_t);
 extern mps_res_t mps_arena_collect(mps_arena_t);
-extern mps_bool_t mps_arena_step(mps_arena_t, double);
+extern mps_bool_t mps_arena_step(mps_arena_t, double, double);
 extern void mps_space_clamp(mps_space_t);
 extern void mps_space_release(mps_space_t);
 extern void mps_space_park(mps_space_t);
@@ -269,7 +273,10 @@ extern mps_bool_t mps_arena_has_addr(mps_arena_t, mps_addr_t);
 
 /* Client memory arenas */
 extern mps_res_t mps_arena_extend(mps_arena_t, mps_addr_t, size_t);
+#if 0
+/* There's no implementation for this function. */
 extern mps_res_t mps_arena_retract(mps_arena_t, mps_addr_t, size_t);
+#endif
 
 
 /* Object Formats */

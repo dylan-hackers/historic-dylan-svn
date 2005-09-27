@@ -1,6 +1,6 @@
 /* cbstest.c: COALESCING BLOCK STRUCTURE TEST
  *
- *  $Id: //info.ravenbrook.com/project/mps/version/1.100/code/cbstest.c#1 $
+ *  $Id: //info.ravenbrook.com/project/mps/master/code/cbstest.c#10 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  */
 
@@ -18,7 +18,7 @@ struct itimerspec; /* stop complaints from time.h */
 #endif
 #include <time.h>
 
-SRCID(cbstest, "$Id: //info.ravenbrook.com/project/mps/version/1.100/code/cbstest.c#1 $");
+SRCID(cbstest, "$Id: //info.ravenbrook.com/project/mps/master/code/cbstest.c#10 $");
 
 
 #define ArraySize ((Size)123456)
@@ -607,7 +607,7 @@ extern int main(int argc, char *argv[])
       "failed to allocate block");
   dummyBlock = (Addr)p; /* avoid pun */
 
-  printf("Allocated block [%p, %p)\n", dummyBlock,
+  printf("Allocated block [%p, %p)\n", (void*)dummyBlock,
          (char *)dummyBlock + ArraySize);
 
   checkCBS(cbs, allocTable, dummyBlock);

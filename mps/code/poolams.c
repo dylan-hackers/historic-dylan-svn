@@ -1,6 +1,6 @@
 /* poolams.c: AUTOMATIC MARK & SWEEP POOL CLASS
  *
- * $Id: //info.ravenbrook.com/project/mps/version/1.100/code/poolams.c#2 $
+ * $Id: //info.ravenbrook.com/project/mps/master/code/poolams.c#13 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  * Portions copyright (c) 2002 Global Graphics Software.
  *
@@ -20,7 +20,7 @@
 #include "mpm.h"
 #include <stdarg.h>
 
-SRCID(poolams, "$Id: //info.ravenbrook.com/project/mps/version/1.100/code/poolams.c#2 $");
+SRCID(poolams, "$Id: //info.ravenbrook.com/project/mps/master/code/poolams.c#13 $");
 
 
 #define AMSSig          ((Sig)0x519A3599) /* SIGnature AMS */
@@ -1456,6 +1456,7 @@ static Res AMSFix(Pool pool, ScanState ss, Seg seg, Ref *refIO)
 
 static Res amsBlackenObject(Seg seg, Index i, Addr p, Addr next, void *clos)
 {
+  UNUSED(p);
   AVER(clos == NULL);
   /* Do what amsScanObject does, minus the scanning. */
   if (AMS_IS_GREY(seg, i)) {

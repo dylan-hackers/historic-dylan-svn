@@ -1,7 +1,7 @@
 /* mpmst.h: MEMORY POOL MANAGER DATA STRUCTURES
  *
- * $Id: //info.ravenbrook.com/project/mps/version/1.100/code/mpmst.h#1 $
- * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
+ * $Id: //info.ravenbrook.com/project/mps/master/code/mpmst.h#12 $
+ * Copyright (c) 2001,2003 Ravenbrook Limited.  See end of file for license.
  * Portions copyright (C) 2001 Global Graphics Software.
  *
  * .design: This header file crosses module boundaries.  The relevant
@@ -504,11 +504,11 @@ typedef struct TraceStruct {
   STATISTIC_DECL(Count greySegCount); /* number of grey segs */
   STATISTIC_DECL(Count greySegMax); /* max number of grey segs */
   STATISTIC_DECL(Count rootScanCount); /* number of roots scanned */
-  STATISTIC_DECL(Count rootScanSize); /* total size of scanned roots */
-  STATISTIC_DECL(Size rootCopiedSize); /* bytes copied by scanning roots */
+  Count rootScanSize;           /* total size of scanned roots */
+  Size rootCopiedSize;          /* bytes copied by scanning roots */
   STATISTIC_DECL(Count segScanCount); /* number of segs scanned */
   Count segScanSize;            /* total size of scanned segments */
-  STATISTIC_DECL(Size segCopiedSize); /* bytes copied by scanning segments */
+  Size segCopiedSize;           /* bytes copied by scanning segments */
   STATISTIC_DECL(Count singleScanCount); /* number of single refs scanned */
   STATISTIC_DECL(Count singleScanSize); /* total size of single refs scanned */
   STATISTIC_DECL(Size singleCopiedSize); /* bytes copied by scanning single refs */
@@ -604,6 +604,12 @@ typedef struct GlobalsStruct {
   /* root fields (<code/root.c>) */
   RingStruct rootRing;          /* ring of roots attached to arena */
   Serial rootSerial;            /* serial of next root */
+
+  /* remember summary (<code/trace.c>) */
+  RingStruct rememberedSummaryRing;
+  /* index into next free slot in block.  0 means that a new
+     block should be allocated and appended. */
+  Index rememberedSummaryIndex;
 } GlobalsStruct;
 
 
@@ -673,6 +679,12 @@ typedef struct ArenaStruct {
   TraceSet flippedTraces;       /* set of running and flipped traces */
   TraceStruct trace[TraceLIMIT]; /* trace structures.  See
                                    <design/trace/#intance.limit> */
+
+  /* policy fields */
+  double tracedSize;
+  double tracedTime;
+  Word lastWorldCollect;
+
   RingStruct greyRing[RankLIMIT]; /* ring of grey segments at each rank */
   STATISTIC_DECL(Count writeBarrierHitCount); /* write barrier hits */
   RingStruct chainRing;         /* ring of chains */
@@ -696,7 +708,7 @@ typedef struct AllocPatternStruct {
 
 /* C. COPYRIGHT AND LICENSE
  *
- * Copyright (C) 2001-2002 Ravenbrook Limited <http://www.ravenbrook.com/>.
+ * Copyright (C) 2001-2003 Ravenbrook Limited <http://www.ravenbrook.com/>.
  * All rights reserved.  This is an open source license.  Contact
  * Ravenbrook for commercial licensing options.
  * 

@@ -1,6 +1,6 @@
 /* vmli.c: VIRTUAL MEMORY MAPPING FOR LINUX
  *
- * $Id: //info.ravenbrook.com/project/mps/version/1.100/code/vmli.c#1 $
+ * $Id: //info.ravenbrook.com/project/mps/master/code/vmli.c#9 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  *
  * .purpose: This is the implementation of the virtual memory mapping
@@ -55,7 +55,7 @@
 #error "vmli.c is LINUX specific, but MPS_OS_LI is not set"
 #endif
 
-SRCID(vmli, "$Id: //info.ravenbrook.com/project/mps/version/1.100/code/vmli.c#1 $");
+SRCID(vmli, "$Id: //info.ravenbrook.com/project/mps/master/code/vmli.c#9 $");
 
 
 /* VMStruct -- virtual memory structure */

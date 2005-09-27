@@ -1,6 +1,6 @@
 /* prmcli.h:  PROTECTION MUTATOR CONTEXT (Linux)
  *
- * $Id: //info.ravenbrook.com/project/mps/version/1.100/code/prmcli.h#1 $
+ * $Id: //info.ravenbrook.com/project/mps/master/code/prmcli.h#8 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  *
  * .readership: MPS developers.
@@ -11,7 +11,8 @@
 
 
 /* open sesame magic */
-#define _GNU_SOURCE 1
+#define _BSD_SOURCE 1
+#define _POSIX_C_SOURCE 1
 
 #include "mpm.h"
 

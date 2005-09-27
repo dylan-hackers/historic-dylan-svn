@@ -1,7 +1,7 @@
 /* trace.c: GENERIC TRACER IMPLEMENTATION
  *
- * $Id: //info.ravenbrook.com/project/mps/version/1.100/code/trace.c#1 $
- * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
+ * $Id: //info.ravenbrook.com/project/mps/master/code/trace.c#16 $
+ * Copyright (c) 2001,2003 Ravenbrook Limited.  See end of file for license.
  * Portions copyright (C) 2002 Global Graphics Software.
  *
  * .design: <design/trace/>.  */
@@ -10,7 +10,7 @@
 #include "mpm.h"
 #include <limits.h> /* for LONG_MAX */
 
-SRCID(trace, "$Id: //info.ravenbrook.com/project/mps/version/1.100/code/trace.c#1 $");
+SRCID(trace, "$Id: //info.ravenbrook.com/project/mps/master/code/trace.c#16 $");
 
 
 /* Types */
@@ -18,6 +18,19 @@ SRCID(trace, "$Id: //info.ravenbrook.com/project/mps/version/1.100/code/trace.c#
 enum {traceAccountingPhaseRootScan = 1, traceAccountingPhaseSegScan,
       traceAccountingPhaseSingleScan};
 typedef int traceAccountingPhase;
+
+struct RememberedSummaryBlockStruct {
+  RingStruct globalRing;        /* link on globals->rememberedSummaryRing */
+  struct SummaryPair {
+    Addr base;
+    RefSet summary;
+  } the[RememberedSummaryBLOCK];
+};
+
+/* Forward Declarations -- avoid compiler warning. */
+Res arenaRememberSummaryOne(Globals global, Addr base, RefSet summary);
+void arenaForgetProtection(Globals globals);
+void rememberedSummaryBlockInit(struct RememberedSummaryBlockStruct *block);
 
 
 /* TraceMessage -- type of GC end messages */
@@ -273,14 +286,14 @@ static void traceUpdateCounts(Trace trace, ScanState ss,
 {
   switch(phase) {
   case traceAccountingPhaseRootScan:
-    STATISTIC(trace->rootScanSize += ss->scannedSize);
-    STATISTIC(trace->rootCopiedSize += ss->copiedSize);
+    trace->rootScanSize += ss->scannedSize;
+    trace->rootCopiedSize += ss->copiedSize;
     STATISTIC(++trace->rootScanCount);
     break;
 
   case traceAccountingPhaseSegScan:
     trace->segScanSize += ss->scannedSize; /* see .workclock */
-    STATISTIC(trace->segCopiedSize += ss->copiedSize);
+    trace->segCopiedSize += ss->copiedSize;
     STATISTIC(++trace->segScanCount);
     break;
 
@@ -657,11 +670,11 @@ found:
   STATISTIC(trace->greySegCount = (Count)0);
   STATISTIC(trace->greySegMax = (Count)0);
   STATISTIC(trace->rootScanCount = (Count)0);
-  STATISTIC(trace->rootScanSize = (Size)0);
-  STATISTIC(trace->rootCopiedSize = (Size)0);
+  trace->rootScanSize = (Size)0;
+  trace->rootCopiedSize = (Size)0;
   STATISTIC(trace->segScanCount = (Count)0);
   trace->segScanSize = (Size)0; /* see .workclock */
-  STATISTIC(trace->segCopiedSize = (Size)0);
+  trace->segCopiedSize = (Size)0;
   STATISTIC(trace->singleScanCount = (Count)0);
   STATISTIC(trace->singleScanSize = (Size)0);
   STATISTIC(trace->singleCopiedSize = (Size)0);
@@ -1467,9 +1480,9 @@ void TraceStart(Trace trace, double mortality, double finishingTime)
 
 /* traceWorkClock -- a measure of the work done for this trace
  *
- * .workclock: Segment scanning work is the regulator.  */
+ * .workclock: Segment and root scanning work is the regulator.  */
 
-#define traceWorkClock(trace) (trace)->segScanSize
+#define traceWorkClock(trace) ((trace)->segScanSize + (trace)->rootScanSize)
 
 
 /* traceQuantum -- progresses a trace by one quantum */
@@ -1507,19 +1520,51 @@ static void traceQuantum(Trace trace)
            && (trace->emergency || traceWorkClock(trace) < pollEnd));
 }
 
+/* traceStartCollectAll: start a trace which condemns everything in
+ * the arena. */
+
+static Res traceStartCollectAll(Trace *traceReturn, Arena arena)
+{
+  Trace trace;
+  Res res;
+  double finishingTime;
+
+  AVERT(Arena, arena);
+  AVER(arena->busyTraces == TraceSetEMPTY);
+
+  res = TraceCreate(&trace, arena);
+  AVER(res == ResOK); /* succeeds because no other trace is busy */
+  res = traceCondemnAll(trace);
+  if (res != ResOK) /* should try some other trace, really @@@@ */
+    goto failCondemn;
+  finishingTime = ArenaAvail(arena)
+                  - trace->condemned * (1.0 - TraceTopGenMortality);
+  if (finishingTime < 0)
+    /* Run out of time, should really try a smaller collection. @@@@ */
+    finishingTime = 0.0;
+  TraceStart(trace, TraceTopGenMortality, finishingTime);
+  *traceReturn = trace;
+  return ResOK;
+
+failCondemn:
+  TraceDestroy(trace);
+  return res;
+}
+
 
 /* TracePoll -- Check if there's any tracing work to be done */
 
-Bool TracePoll(Globals globals)
+Size TracePoll(Globals globals)
 {
   Trace trace;
   Res res;
   Arena arena;
-  Bool done = FALSE;
+  Size scannedSize;
 
   AVERT(Globals, globals);
   arena = GlobalsArena(globals);
 
+  scannedSize = (Size)0;
   if (arena->busyTraces == TraceSetEMPTY) {
     /* If no traces are going on, see if we need to start one. */
     Size sFoundation, sCondemned, sSurvivors, sConsTrace;
@@ -1537,23 +1582,13 @@ Bool TracePoll(Globals globals)
     AVER(TraceWorkFactor >= 0);
     AVER(sSurvivors + tTracePerScan * TraceWorkFactor <= (double)SizeMAX);
     sConsTrace = (Size)(sSurvivors + tTracePerScan * TraceWorkFactor);
-    dynamicDeferral = (double)sConsTrace - (double)ArenaAvail(arena);
+    dynamicDeferral = (double)ArenaAvail(arena) - (double)sConsTrace;
 
-    if (dynamicDeferral > 0.0) { /* start full GC */
-      double finishingTime;
-
-      res = TraceCreate(&trace, arena);
-      AVER(res == ResOK); /* succeeds because no other trace is busy */
-      res = traceCondemnAll(trace);
-      if (res != ResOK) /* should try some other trace, really @@@@ */
-        goto failCondemn;
-      finishingTime = ArenaAvail(arena)
-                      - trace->condemned * (1.0 - TraceTopGenMortality);
-      if (finishingTime < 0)
-        /* Run out of time, should really try a smaller collection. @@@@ */
-        finishingTime = 0.0;
-      TraceStart(trace, TraceTopGenMortality, finishingTime);
-      done = TRUE;
+    if (dynamicDeferral < 0.0) { /* start full GC */
+      res = traceStartCollectAll(&trace, arena);
+      if (res != ResOK)
+        goto failStart;
+      scannedSize = traceWorkClock(trace);
     } else { /* Find the nursery most over its capacity. */
       Ring node, nextNode;
       double firstTime = 0.0;
@@ -1582,29 +1617,32 @@ Bool TracePoll(Globals globals)
         trace->chain = firstChain;
         ChainStartGC(firstChain, trace);
         TraceStart(trace, mortality, trace->condemned * TraceWorkFactor);
-        done = TRUE;
+        scannedSize = traceWorkClock(trace);
       }
     } /* (dynamicDeferral > 0.0) */
   } /* (arena->busyTraces == TraceSetEMPTY) */
 
   /* If there is a trace, do one quantum of work. */
   if (arena->busyTraces != TraceSetEMPTY) {
+    Size oldScanned;
     trace = ArenaTrace(arena, (TraceId)0);
     AVER(arena->busyTraces == TraceSetSingle(trace));
+    oldScanned = traceWorkClock(trace);
     traceQuantum(trace);
+    scannedSize = traceWorkClock(trace) - oldScanned;
     if (trace->state == TraceFINISHED)
       TraceDestroy(trace);
-    done = TRUE;
   }
-  return done;
+  return scannedSize;
 
 failCondemn:
   TraceDestroy(trace);
-  return FALSE;
+failStart:
+  return (Size)0;
 }
 
 
-/* ArenaClamp -- clamp the arena (no new collections) */
+/* ArenaClamp -- clamp the arena (no optional collection increments) */
 
 void ArenaClamp(Globals globals)
 {
@@ -1613,17 +1651,19 @@ void ArenaClamp(Globals globals)
 }
 
 
-/* ArenaRelease -- release the arena (allow new collections) */
+/* ArenaRelease -- release the arena (allow optional collection
+ * increments) */
 
 void ArenaRelease(Globals globals)
 {
   AVERT(Globals, globals);
+  arenaForgetProtection(globals);
   globals->clamped = FALSE;
   (void)TracePoll(globals);
 }
 
 
-/* ArenaClamp -- finish all collections and clamp the arena */
+/* ArenaPark -- finish all current collections and clamp the arena */
 
 void ArenaPark(Globals globals)
 {
@@ -1646,37 +1686,200 @@ void ArenaPark(Globals globals)
   }
 }
 
+/* Low level stuff for Expose / Remember / Restore */
 
-/* ArenaCollect -- collect everything in arena */
+typedef struct RememberedSummaryBlockStruct *RememberedSummaryBlock;
 
-Res ArenaCollect(Globals globals)
+void rememberedSummaryBlockInit(struct RememberedSummaryBlockStruct *block)
 {
-  Trace trace;
-  Res res;
+  size_t i;
+
+  RingInit(&block->globalRing);
+  for(i = 0; i < RememberedSummaryBLOCK; ++ i) {
+    block->the[i].base = (Addr)0;
+    block->the[i].summary = RefSetUNIV;
+  }
+  return;
+}
+
+Res arenaRememberSummaryOne(Globals global, Addr base, RefSet summary)
+{
+  Arena arena;
+  RememberedSummaryBlock block;
+
+  AVER(summary != RefSetUNIV);
+
+  arena = GlobalsArena(global);
+
+  if(global->rememberedSummaryIndex == 0) {
+    void *p;
+    RememberedSummaryBlock newBlock;
+    int res;
+
+    res = ControlAlloc(&p, arena, sizeof *newBlock, 0);
+    if(res != ResOK) {
+      return res;
+    }
+    newBlock = p;
+    rememberedSummaryBlockInit(newBlock);
+    RingAppend(GlobalsRememberedSummaryRing(global),
+      &newBlock->globalRing);
+  }
+  block = RING_ELT(RememberedSummaryBlock, globalRing,
+    RingPrev(GlobalsRememberedSummaryRing(global)));
+  AVER(global->rememberedSummaryIndex < RememberedSummaryBLOCK);
+  AVER(block->the[global->rememberedSummaryIndex].base == (Addr)0);
+  AVER(block->the[global->rememberedSummaryIndex].summary == RefSetUNIV);
+  block->the[global->rememberedSummaryIndex].base = base;
+  block->the[global->rememberedSummaryIndex].summary = summary;
+  ++ global->rememberedSummaryIndex;
+  if(global->rememberedSummaryIndex >= RememberedSummaryBLOCK) {
+    AVER(global->rememberedSummaryIndex == RememberedSummaryBLOCK);
+    global->rememberedSummaryIndex = 0;
+  }
+
+  return ResOK;
+}
+
+/* ArenaExposeRemember -- park arena and then lift all protection
+   barriers.  Parameter 'rememember' specifies whether to remember the
+   protection state or not (for later restoration with
+   ArenaRestoreProtection).
+   */
+void ArenaExposeRemember(Globals globals, int remember)
+{
+  Seg seg;
+  Arena arena;
 
   AVERT(Globals, globals);
+
   ArenaPark(globals);
 
-  res = TraceCreate(&trace, GlobalsArena(globals));
-  AVER(res == ResOK); /* should be a trace available -- we're parked */
+  arena = GlobalsArena(globals);
+  if(SegFirst(&seg, arena)) {
+    Addr base;
 
-  res = traceCondemnAll(trace);
+    do {
+      base = SegBase(seg);
+      if(IsSubclassPoly(ClassOfSeg(seg), GCSegClassGet())) {
+	if(remember) {
+	  RefSet summary;
+
+	  summary = SegSummary(seg);
+	  if(summary != RefSetUNIV) {
+	    Res res = arenaRememberSummaryOne(globals, base, summary);
+	    if(res != ResOK) {
+	      /* If we got an error then stop trying to remember any
+	      protections. */
+	      remember = 0;
+	    }
+	  }
+	}
+	SegSetSummary(seg, RefSetUNIV);
+	AVER(SegSM(seg) == AccessSetEMPTY);
+      }
+    } while(SegNext(&seg, arena, base));
+  }
+  return;
+}
+
+void ArenaRestoreProtection(Globals globals)
+{
+  Ring node, next;
+  Arena arena;
+
+  arena = GlobalsArena(globals);
+
+  RING_FOR(node, GlobalsRememberedSummaryRing(globals), next) {
+    RememberedSummaryBlock block =
+      RING_ELT(RememberedSummaryBlock, globalRing, node);
+    size_t i;
+
+    for(i = 0; i < RememberedSummaryBLOCK; ++ i) {
+      Seg seg;
+      Bool b;
+
+      if(block->the[i].base == (Addr)0) {
+	AVER(block->the[i].summary == RefSetUNIV);
+	continue;
+      }
+      b = SegOfAddr(&seg, arena, block->the[i].base);
+      if(b && SegBase(seg) == block->the[i].base) {
+        AVER(IsSubclassPoly(ClassOfSeg(seg), GCSegClassGet()));
+	SegSetSummary(seg, block->the[i].summary);
+      } else {
+	/* Either seg has gone or moved, both of which are
+	   client errors. */
+	NOTREACHED;
+      }
+    }
+  }
+
+  arenaForgetProtection(globals);
+  return;
+}
+
+void arenaForgetProtection(Globals globals)
+{
+  Ring node, next;
+  Arena arena;
+
+  arena = GlobalsArena(globals);
+  /* Setting this early means that we preserve the invariant
+     <code/global.c#remembered.summary> */
+  globals->rememberedSummaryIndex = 0;
+  RING_FOR(node, GlobalsRememberedSummaryRing(globals), next) {
+    RememberedSummaryBlock block =
+      RING_ELT(RememberedSummaryBlock, globalRing, node);
+
+    RingRemove(node);
+    ControlFree(arena, block, sizeof *block);
+  }
+  return;
+}
+
+/* ArenaStartCollect -- start a collection of everything in the
+ * arena; leave unclamped. */
+
+Res ArenaStartCollect(Globals globals)
+{
+  Arena arena;
+  Res res;
+  Trace trace;
+
+  AVERT(Globals, globals);
+  arena = GlobalsArena(globals);
+
+  ArenaPark(globals);
+  res = traceStartCollectAll(&trace, arena);
   if (res != ResOK)
-    goto failBegin;
-
-  TraceStart(trace, 0.0, 0.0);
-  ArenaPark(globals);
+    goto failStart;
+  ArenaRelease(globals);
   return ResOK;
 
-failBegin:
-  TraceDestroy(trace);
+failStart:
+  ArenaRelease(globals);
   return res;
 }
 
+/* ArenaCollect -- collect everything in arena; leave clamped */
+
+Res ArenaCollect(Globals globals)
+{
+  Res res;
+
+  AVERT(Globals, globals);
+  res = ArenaStartCollect(globals);
+  if (res != ResOK)
+    return res;
+
+  ArenaPark(globals);
+  return ResOK;
+}
 
 /* C. COPYRIGHT AND LICENSE
  *
- * Copyright (C) 2001-2002 Ravenbrook Limited <http://www.ravenbrook.com/>.
+ * Copyright (C) 2001-2003 Ravenbrook Limited <http://www.ravenbrook.com/>.
  * All rights reserved.  This is an open source license.  Contact
  * Ravenbrook for commercial licensing options.
  * 

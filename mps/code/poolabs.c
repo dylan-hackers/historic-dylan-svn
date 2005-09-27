@@ -1,6 +1,6 @@
 /* poolabs.c: ABSTRACT POOL CLASSES
  *
- * $Id: //info.ravenbrook.com/project/mps/version/1.100/code/poolabs.c#1 $
+ * $Id: //info.ravenbrook.com/project/mps/master/code/poolabs.c#10 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  * Portions copyright (C) 2002 Global Graphics Software.
  *
@@ -27,7 +27,7 @@
 
 #include "mpm.h"
 
-SRCID(poolabs, "$Id: //info.ravenbrook.com/project/mps/version/1.100/code/poolabs.c#1 $");
+SRCID(poolabs, "$Id: //info.ravenbrook.com/project/mps/master/code/poolabs.c#10 $");
 
 
 typedef PoolClassStruct AbstractPoolClassStruct;

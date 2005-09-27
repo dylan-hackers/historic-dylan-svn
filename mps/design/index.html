@@ -18,7 +18,7 @@
 <a href="/">Ravenbrook</a> /
 <a href="/project/">Projects</a> /
 <a href="/project/mps/">Memory Pool System</a> /
-<a href="/project/mps/version/1.100/">Version 1.100 Sources</a>
+<a href="/project/mps/master/">Master Product Sources</a>
 </p>
 
 <p><i><a href="/project/mps/">Memory Pool System Project</a></i></p>
@@ -44,10 +44,7 @@
 
 <p> <strong> This is not a complete set of design documents for the MPS.  We have many hundreds of documents, many of which contain confidential information.  We are sorting through these and will include more as time goes on.  We have tried to select the key documents for inclusion in the open source release, by including those documents referenced by the source code. </strong> </p>
 
-<p>This document will be modified as the product is developed.  Design
-documents will appear here according to the design document procedure
-[<a href="/project/p4dti/procedure/design-document/">RB
-2000-10-05</a>].</p>
+<p>This document will be modified as the product is developed.</p>
 
 <p>The readership of this document is the product developers.</p>
 
@@ -148,6 +145,14 @@ documents will appear here according to the design document procedure
 
 <tr valign="top">
 
+  <td> <code><a href="fix/">fix/</a></code> </td>
+
+  <td> The Design of the Generic Fix Function </td>
+
+</tr>
+
+<tr valign="top">
+
   <td> <code><a href="interface-c/">interface-c/</a></code> </td>
 
   <td> The design of the Memory Pool System interface to C </td>
@@ -191,6 +196,14 @@ documents will appear here according to the design document procedure
   <td> <code><a href="message/">message/</a></code> </td>
 
   <td> MPS to client message protocol </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td> <code><a href="object-debug/">object-debug/</a></code> </td>
+
+  <td> Debugging Features for Client Objects </td>
 
 </tr>
 
@@ -396,6 +409,22 @@ documents will appear here according to the design document procedure
 
 <tr valign="top">
 
+  <td> <code><a href="thread-manager/">thread-manager/</a></code> </td>
+
+  <td> The design of the MPS thread manager </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td> <code><a href="thread-safety/">thread-safety/</a></code> </td>
+
+  <td> Thread Safety in the MPS </td>
+
+</tr>
+
+<tr valign="top">
+
   <td> <code><a href="trace/">trace/</a></code> </td>
 
   <td> Tracer </td>
@@ -471,22 +500,6 @@ documents will appear here according to the design document procedure
 
 <h2><a id="section-A" name="section-A">A. References</a></h2>
 
-<table>
-
-<tr valign="top">
-
-  <td>[<a id="ref-RB-2000-10-05" name="ref-RB-2000-10-05" href="/project/p4dti/procedure/design-document/">RB 2000-10-05</a>]</td>
-
-  <td>
-    "P4DTI Project Design Document Procedure";
-    <a href="mailto:rb@ravenbrook.com">Richard Brooksby</a>;
-    <a href="http://www.ravenbrook.com/">Ravenbrook Limited</a>;
-    2000-10-05.
-  </td>
-
-</tr>
-
-</table>
 
 
 <h2><a id="section-B" name="section-B">B. Document History</a></h2>
@@ -510,6 +523,26 @@ documents will appear here according to the design document procedure
   <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
 
   <td>Added a bunch of design documents referenced by the source code.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2002-06-21</td>
+
+  <td><a href="mailto:nb@ravenbrook.com">NB</a></td>
+
+  <td>Remove P4DTI reference, which doesn't fit here.  Maybe one day we'll have a corporate design document procedure.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td> 2002-06-24 </td>
+  
+  <td> <a href="mailto:rb@ravenbrook.com">RB</a> </td>
+
+  <td> Added fix, object-debug, thread-manager, and thread-safety. </td>
 
 </tr>
 
@@ -540,13 +573,13 @@ documents will appear here according to the design document procedure
 
 <div align="center">
 
-<p><code>$Id: //info.ravenbrook.com/project/mps/version/1.100/design/index.html#3 $</code></p>
+<p><code>$Id: //info.ravenbrook.com/project/mps/master/design/index.html#5 $</code></p>
 
 <p>
 <a href="/">Ravenbrook</a> /
 <a href="/project/">Projects</a> /
 <a href="/project/mps/">Memory Pool System</a> /
-<a href="/project/mps/version/1.100/">Version 1.100 Sources</a>
+<a href="/project/mps/master/">Master Product Sources</a>
 </p>
 
 </div>
