@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define macro web-lists
   { web-lists(?slots) } => { list(?slots) }

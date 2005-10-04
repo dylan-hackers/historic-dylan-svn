@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <cisco-ios-device> (<host>)
   slot login-password :: <string>, init-keyword: login-password:;
