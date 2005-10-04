@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 
 define method edit (object :: <object>) => (res)
@@ -151,4 +152,3 @@ define method edit-slot (object :: <boolean>, slot-name :: <string>)
   end;
 end;
 
-               

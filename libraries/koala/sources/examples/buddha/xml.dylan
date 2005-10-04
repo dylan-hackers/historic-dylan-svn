@@ -1,4 +1,5 @@
 module: buddha
+author: Hannes Mehnert <hannes@mehnert.org>
 
 /*
 TODO: do, collect, comments
