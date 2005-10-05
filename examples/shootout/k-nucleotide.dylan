@@ -54,7 +54,7 @@ define function frequency(sequence :: <byte-string>, k :: <integer>)
                                b :: <key-value-pair>) b.val < a.val end);
   for (i :: <key-value-pair> in sorted)
     let percent :: <double-float> = as(<double-float>, i.val) * 100.0d0 / sum;
-    format-out("%s %.2f\n", i.key, percent);
+    format-out("%s %.3f\n", i.key, percent);
   end for;
   format-out("\n");
 end function frequency;
