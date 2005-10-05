@@ -2,11 +2,10 @@ module:    spectralnorm
 synopsis:  implementation of "spectral-norm" benchmark
 author:    Bruce Mitchener <bruce@cubik.org>
 copyright: public domain
-use-libraries:  common-dylan, io
-use-modules:    common-dylan, transcendentals, format-out
+use-libraries:  common-dylan, dylan, io
+use-modules:    common-dylan, transcendentals, format-out, extensions
 
-// define constant <double-vector> = limited(<vector>, of: <double-float>);
-define constant <double-vector> = <simple-object-vector>;
+limited-vector-class(<double-vector>, <double-float>, 0.0d0);
 
 define function eval-A (i :: <integer>, j :: <integer>) => result :: <double-float>;
   1.0d0 / (truncate/((i + j) * (i + j + 1), 2) + i + 1);
@@ -16,9 +15,7 @@ define function eval-A-times-u (u :: <double-vector>, Au :: <double-vector>);
   for (i from 0 below u.size)
     Au[i] := 0.0d0;
     for (j from 0 below u.size)
-      let Au-i :: <double-float> = Au[i];
-      let u-j :: <double-float> = u[j];
-      Au[i] := Au-i + eval-A(i, j) * u-j;
+      Au[i] := Au[i] + eval-A(i, j) * u[j];
     end for;
   end for;
 end function eval-A-times-u;
@@ -27,9 +24,7 @@ define function eval-At-times-u (u :: <double-vector>, Au :: <double-vector>);
   for (i from 0 below u.size)
     Au[i] := 0.0d0;
     for (j from 0 below u.size)
-      let Au-i :: <double-float> = Au[i];
-      let u-j :: <double-float> = u[j];
-      Au[i] := Au-i + eval-A(j, i) * u-j;
+      Au[i] := Au[i] + eval-A(j, i) * u[j];
     end for;
   end for;
 end function eval-At-times-u;
@@ -51,8 +46,8 @@ begin
   let vBv :: <double-float> = 0.0d0;
   let vv :: <double-float> = 0.0d0;
   for (i from 0 below N)
-    let u-i :: <double-float> = u[i];
-    let v-i :: <double-float> = v[i];
+    let u-i = u[i];
+    let v-i = v[i];
     vBv := vBv + u-i * v-i;
     vv := vv + v-i * v-i;
   end for;
