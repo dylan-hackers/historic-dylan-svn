@@ -11,23 +11,19 @@ end;
 define sealed domain make(singleton(<node>));
 define sealed domain initialize(<node>);
 
-define sealed generic build(n :: <integer>, d :: <integer>) => (res :: <tree>);
-define sealed generic check(tree :: <tree>) => (res :: <integer>);
-
-define method build(n :: <integer>, d == 0) => (res :: <tree>)
-  n;
+define function build(n :: <integer>, d :: <integer>) => (res :: <tree>)
+  if (d == 0)
+    n;
+  else
+    make(<node>, item: n, left: build(2 * n - 1, d - 1), right: build(2 * n, d - 1));
+  end;
 end;
 
-define method build(n :: <integer>, d :: <integer>) => (res :: <tree>)
-  make(<node>, item: n, left: build(2 * n - 1, d - 1), right: build(2 * n, d - 1));
-end;
-
-define method check(i :: <integer>) => (res :: <integer>);
-  i;
-end;
-
-define method check(node :: <node>) => (res :: <integer>);
-  node.item + node.left.check - node.right.check;
+define function check(tree :: <tree>) => (res :: <integer>);
+  select (tree by instance?)
+    <integer> => tree;
+    <node> => tree.item + tree.left.check - tree.right.check;
+  end;
 end;
 
 begin
@@ -41,9 +37,7 @@ begin
   let long-lived-tree = build(0, max-depth);
 
   for (d from min-depth to max-depth by 2)
-    let iterations = ash(1, max-depth - d + min-depth);
-    for (i from 1 to
- iterations,
+    for (i from 1 to ash(1, max-depth - d + min-depth),
          c = 0 then c + build(i, d).check + build(-i, d).check)
     finally
       format-out("%d\t  trees of depth %d\t  check: %d\n", 2 * i, d, c);
