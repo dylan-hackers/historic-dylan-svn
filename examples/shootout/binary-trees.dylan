@@ -31,19 +31,20 @@ begin
   let max-depth = max(min-depth + 2, application-arguments()[0].string-to-integer);
   let stretch-depth = max-depth + 1;
 
-  format-out("stretch tree of depth %d\t  check: %d\n",
+  format-out("stretch tree of depth %d\t check: %d\n",
              stretch-depth, build(0, stretch-depth).check);
 
   let long-lived-tree = build(0, max-depth);
 
   for (d from min-depth to max-depth by 2)
-    for (i from 1 to ash(1, max-depth - d + min-depth),
+    let iterations = ash(1, max-depth - d + min-depth);
+    for (i from 1 to iterations,
          c = 0 then c + build(i, d).check + build(-i, d).check)
     finally
-      format-out("%d\t  trees of depth %d\t  check: %d\n", 2 * i, d, c);
+      format-out("%d\t trees of depth %d\t check: %d\n", 2 * iterations, d, c);
     end for;
   end for;
 
-  format-out("long lived tree of depth %d\t  check: %d\n",
+  format-out("long lived tree of depth %d\t check: %d\n",
              max-depth, long-lived-tree.check);
 end;
