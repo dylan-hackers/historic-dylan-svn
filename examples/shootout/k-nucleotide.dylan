@@ -16,7 +16,7 @@ define function kfrequency
      freq :: <byte-string-table>,
      k :: <integer>,
      frame :: <integer>) => ();
-  for (i from frame below sequence.size - k by k)
+  for (i from frame below sequence.size - k + 1 by k)
     let sub = make(<byte-string>, size: k);
     for (offset from 0 below k) sub[offset] := sequence[i + offset] end;
     let record = element(freq, sub, default: #f);
