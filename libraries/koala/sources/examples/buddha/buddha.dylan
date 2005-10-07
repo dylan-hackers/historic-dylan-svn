@@ -585,10 +585,10 @@ define method respond-to-post
   let zone = *config*.config-zones[0];
   let network = find-network(*config*, ip);
   let host = make(<host>,
-                  name: name,
-                  ip: ip,
-                  net: find-network(network, ip),
-                  mac: parse-mac(mac),
+                  host-name: name,
+                  ipv4-address: ip,
+                  subnet: find-network(network, ip),
+                  mac-address: parse-mac(mac),
                   zone: zone);
   add-host(network, host);
   respond-to-get(page, request, response);
@@ -739,9 +739,9 @@ define method respond-to-post
   let network = find-network(find-network(*config*, ip), ip);
   let host = make(<host>,
                   host-name: name,
-                  ip: ip,
-                  net: network,
-                  mac: parse-mac(mac),
+                  ipv4-address: ip,
+                  subnet: network,
+                  mac-address: parse-mac(mac),
                   zone: find-zone(*config*, zone));
   add-host(network, host);
   respond-to-get(page, request, response);
@@ -757,7 +757,7 @@ end;
 
 define function main2()
   let cisco = make(<cisco-ios-device>,
-                   ip: "23.23.23.23",
+                   ipv4-address: "23.23.23.23",
                    login-password: "xxx",
                    enable-password: "xxx");
 
