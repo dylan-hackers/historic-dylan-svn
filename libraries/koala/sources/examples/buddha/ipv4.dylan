@@ -155,8 +155,3 @@ define method string-to-netmask (string :: <string>)
   end block;
   mask;
 end;
-
-define method parse-ip (ip) => (ip-address :: false-or(<ip-address>))
-  format-out("PARSE %= %=\n", ip, object-class(ip));
-  #f;
-end;

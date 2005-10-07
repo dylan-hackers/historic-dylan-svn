@@ -12,13 +12,21 @@ define method exclude (list, symbol) => (sequence)
   res;
 end method;
 
-define method get-sorted-list (table :: <table>)
-  => (list :: <list>)
-  let res = make(<list>);
-  for (ele in table)
-    res := add!(res, ele);
+define method replace-arg (args, symbol, type, new-value-method) => (sequence)
+  let res = make(<stretchy-vector>);
+  for (i from 0 below args.size by 2)
+    add!(res, args[i]);
+    if (args[i] ~= symbol)
+      add!(res, args[i + 1]);
+    else
+      if (instance?(args[i + 1], type))
+        add!(res, new-value-method(args[i + 1]));
+      else
+        add!(res, args[i + 1])
+      end;
+    end;
   end;
-  sort!(res);
+  res;
 end;
 
 define method regexp-match(big :: <string>, regex :: <string>) => (#rest results);

@@ -2,8 +2,7 @@ module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define variable *config* = make(<config>,
-                                name: "config",
-                                vlans: make(<table>));
+                                config-name: "config");
 
 define variable *directory* = "www/buddha/";
 
@@ -109,7 +108,8 @@ define method respond-to-get
   with-buddha-template(out, "Edit")
     with-xml()
       div(id => "content") {
-        do(edit(obj))
+        do(edit-form(obj)),
+        do(list-forms(obj))
       }
     end;
   end;
@@ -263,7 +263,7 @@ define method respond-to-get
       div(id => "content")
       {
         do(let res = #();
-           for (net in *config*.config-nets,
+           for (net in *config*.networks,
                 i from 0)
              res := concatenate(gen-xml(net), res);
              res := add!(res, with-xml()
@@ -310,17 +310,14 @@ define method respond-to-get
                                     \select(name => "vlan")
                                     {
                                       do(let res = make(<list>);
-                                         do(
-                                method(x)
-                                    let num = integer-to-string(x.vlan-number);
-                                    res := add!(res, with-xml()
-                                      option(concatenate(num,
-                                                         " ",
-                                                         x.vlan-name),
-                                             value => num)
-                                                     end);
-                                end, get-sorted-list(*config*.config-vlans));
-                                           reverse(res))
+                                         for (ele in *config*.vlans,
+                                              i from 0)
+                                           res := add!(res, with-xml()
+                                                              option(as(<string>, ele),
+                                                                     value => integer-to-string(i))
+                                                            end);
+                                         end;
+                                         reverse(res))
                                     },
                                     text("DHCP?"),
                                     input(type => "checkbox",
@@ -350,7 +347,7 @@ define method respond-to-get
                                           name => "add-subnet-button",
                                           value => concatenate
                                             ("Add subnet to ",
-                                             as(<string>, net.network-cidr)))
+                                             as(<string>, net.cidr)))
                                   }
                                 }
                               end);
@@ -411,14 +408,14 @@ define method respond-to-get
                                           value => "remove-vlan"),
                                     input(type => "hidden",
                                           name => "vlan",
-                                          value => integer-to-string(x.vlan-number)),
+                                          value => integer-to-string(x.number)),
                                     input(type => "submit",
                                           name => "remove-vlan-button",
                                           value => "Remove VLAN")
                                   }
                                 }
                               end);
-              end, get-sorted-list(*config*.config-vlans));
+              end, *config*.vlans);
            reverse(res)),
         form(action => "/vlan", \method => "post")
         {
@@ -459,11 +456,11 @@ define method respond-to-get
         table
         {
         tr { th("Name"), th("IP"), th("Net"), th("Mac"), th("Zone") },
-        do(for (net in *config*.config-nets)
-             for (subnet in net.network-subnets)
+        do(for (net in *config*.networks)
+             for (subnet in net.subnets)
                do(method(x)
                       collect(gen-xml(x));
-                  end, subnet.subnet-hosts);
+                  end, subnet.hosts);
              end;
            end)
         },
@@ -477,16 +474,16 @@ define method respond-to-get
             input(type => "text", name => "ip"),
             text("MAC"),
             input(type => "text", name => "mac"),
-            \select(name => "zone")
-            {
+            \select(name => "zone"),
+/*            {
               do(do(method(x)
                         collect(with-xml()
                                   option(x.zone-name, value => x.zone-name)
                                 end);
                     end, choose(method(x)
-                                    ~ zone-reverse?(x);
-                                end, *config*.config-zones)))
-            },
+                                    ~ reverse?(x);
+                                end, *config*.zones))) 
+            }, */
             input(type => "submit",
                   name => "add-host-button",
                   value => "Add Host")
@@ -512,7 +509,7 @@ define method respond-to-get
           tr { th("Name") },
           do(do(method(x)
                     collect(gen-xml(x));
-                end, *config*.config-zones))
+                end, *config*.zones))
         },
         form(action => "/zone", \method => "post")
         {
@@ -609,7 +606,7 @@ end;
 define method do-action (action == #"gen-dhcpd", response :: <response>)
  => (show-get? :: <boolean>)
   let network = get-query-value("network");
-  network := *config*.config-nets[string-to-integer(network)];
+  network := *config*.networks[string-to-integer(network)];
   set-content-type(response, "text/plain");
   print-isc-dhcpd-file(network, output-stream(response));
   #f; //we don't want the default page!
@@ -621,34 +618,25 @@ define method do-action (action == #"add-subnet", response :: <response>)
   let cidr = get-query-value("cidr");
   let vlan = string-to-integer(get-query-value("vlan"));
   let dhcp? = if (get-query-value("dhcp") = "dhcp") #t else #f end;
-  if (dhcp?)
-    let default-lease-time
-      = string-to-integer(get-query-value("default-lease-time"));
-    let max-lease-time
-      = string-to-integer(get-query-value("max-lease-time"));
-    format-out("DHCP %= %=\n", default-lease-time, max-lease-time);
-    let options = parse-options(get-query-value("options"));
-    let dhcp-start = parse-ip(get-query-value("dhcp-start"));
-    let dhcp-end = parse-ip(get-query-value("dhcp-end"));
-    let dhcp-router = parse-ip(get-query-value("dhcp-router"));
-    let subnet = make(<subnet>,
-                      cidr: cidr,
-                      vlan: vlan,
-                      dhcp?: dhcp?,
-                      default-lease-time: default-lease-time,
-                      max-lease-time: max-lease-time,
-                      options: options,
-                      dhcp-start: dhcp-start,
-                      dhcp-end: dhcp-end,
-                      dhcp-router: dhcp-router);
-    add-subnet(*config*.config-nets[string-to-integer(network)], subnet);
-  else
-    let subnet = make(<subnet>,
-                      cidr: cidr,
-                      vlan: vlan,
-                      dhcp?: dhcp?);
-    add-subnet(*config*.config-nets[string-to-integer(network)], subnet);
-  end;
+  let default-lease-time
+    = string-to-integer(get-query-value("default-lease-time"));
+  let max-lease-time
+    = string-to-integer(get-query-value("max-lease-time"));
+  let options = parse-options(get-query-value("options"));
+  let dhcp-start = as(<ip-address>, get-query-value("dhcp-start"));
+  let dhcp-end = as(<ip-address>, get-query-value("dhcp-end"));
+  let dhcp-router = as(<ip-address>, get-query-value("dhcp-router"));
+  let subnet = make(<subnet>,
+                    cidr: make(<cidr>, network-address: cidr),
+                    vlan: *config*.vlans[vlan],
+                    dhcp?: dhcp?,
+                    dhcp-default-lease-time: default-lease-time,
+                    dhcp-max-lease-time: max-lease-time,
+                    dhcp-options: options,
+                    dhcp-start: dhcp-start,
+                    dhcp-end: dhcp-end,
+                    dhcp-router: dhcp-router);
+  add-subnet(*config*.networks[string-to-integer(network)], subnet);
   #t;
 end;
 
@@ -662,11 +650,11 @@ define method do-action (action == #"add-network", response :: <response>)
     = string-to-integer(get-query-value("max-lease-time"));
   let options = parse-options(get-query-value("options"));
   let network = make(<network>,
-                     cidr: cidr,
+                     cidr: make(<cidr>, network-address: cidr),
                      dhcp?: dhcp?,
-                     max-lease-time: max-lease-time,
-                     default-lease-time: default-lease-time,
-                     options: options);
+                     dhcp-max-lease-time: max-lease-time,
+                     dhcp-default-lease-time: default-lease-time,
+                     dhcp-options: options);
   add-net(*config*, network);
   #t;
 end;
@@ -674,7 +662,7 @@ end;
 define method do-action (action == #"remove-network", response :: <response>)
  => (show-get? :: <boolean>)
   let network = get-query-value("network");
-  remove-net(*config*, *config*.config-nets[string-to-integer(network)]);
+  remove-net(*config*, *config*.networks[string-to-integer(network)]);
   #t;
 end;
 
@@ -698,7 +686,7 @@ define method do-action (action == #"add-vlan", response :: <response>)
   let description = get-query-value("description");
   let vlan = make(<vlan>,
                   number: number,
-                  name: name,
+                  vlan-name: name,
                   description: description);
   add-vlan(*config*, vlan);
   #t;
@@ -707,7 +695,9 @@ end;
 define method do-action (action == #"remove-vlan", response :: <response>)
  => (show-get? :: <boolean>)
   let vlan = string-to-integer(get-query-value("vlan"));
-  remove-vlan(*config*, vlan);
+  remove-vlan(*config*, choose(method(x)
+                                   x.number = vlan
+                               end, *config*.vlans)[0]);
   #t;
 end;
 
@@ -725,7 +715,7 @@ define method respond-to-post
   let mail-exchange = get-query-value("mail-exchange");
   let txt = get-query-value("txt");
   let zone = make(<zone>,
-                  name: name,
+                  zone-name: name,
                   hostmaster: hostmaster,
                   serial: serial,
                   refresh: refresh,
@@ -736,8 +726,7 @@ define method respond-to-post
                   nameserver: list(nameserver),
                   mail-exchange: list(mail-exchange),
                   txt: list(txt));
-  *config*.config-zones :=
-    sort!(add!(*config*.config-zones, zone));
+  *config*.zones := sort!(add!(*config*.zones, zone));
   respond-to-get(page, request, response);
 end;
 
@@ -749,7 +738,7 @@ define method respond-to-post
   let zone = get-query-value("zone");
   let network = find-network(find-network(*config*, ip), ip);
   let host = make(<host>,
-                  name: name,
+                  host-name: name,
                   ip: ip,
                   net: network,
                   mac: parse-mac(mac),

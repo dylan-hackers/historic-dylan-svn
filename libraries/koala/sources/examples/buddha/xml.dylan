@@ -1,4 +1,4 @@
-module: buddha
+module: xml
 author: Hannes Mehnert <hannes@mehnert.org>
 
 /*

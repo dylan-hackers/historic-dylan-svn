@@ -15,7 +15,7 @@ end class <cisco-ios-telnet-control>;
 
 define method connect-to-cisco(cisco :: <cisco-ios-device>)
   let address = make(<internet-address>,
-                     address: as(<string>, cisco.host-ipv4-address));
+                     address: as(<string>, cisco.ipv4-address));
 
   let socket = make(<tcp-socket>, host: address, port: 23);
 

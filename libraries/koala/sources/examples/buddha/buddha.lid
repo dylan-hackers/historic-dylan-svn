@@ -3,6 +3,7 @@ executable: buddha
 files: library
        util
        xml
+       web-macro
        config
        network
        vlan
@@ -15,5 +16,4 @@ files: library
        cisco-telnet
        class-browser
        class-editor
-       web-macro
        buddha

@@ -1,32 +1,26 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define class <vlan> (<object>)
-  slot vlan-number :: <integer>, required-init-keyword: number:;
-  slot vlan-name :: <string>, init-keyword: name:;
-  slot vlan-description :: <string>, init-keyword: description:;
-  slot vlan-subnets :: <list> = #();
-end;
-
-define method list-type (vlan :: <vlan>, slot-name :: <string>)
-  if (slot-name = "vlan-subnets")
-    as(<symbol>, "<subnet>")
-  end;
+define web-class <vlan> (<object>)
+  data number :: <integer>;
+  data vlan-name :: <string>;
+  data description :: <string>;
+  has-many subnet;
 end;
 
 define method print-object (vlan :: <vlan>, stream :: <stream>)
  => ()
   format(stream, "VLAN %d name %s description %s",
-        vlan.vlan-number, vlan.vlan-name, vlan.vlan-description);
+        vlan.number, vlan.vlan-name, vlan.description);
 end;
 
 define method gen-xml (vlan :: <vlan>)
   let res = make(<list>);
   res := add!(res, with-xml()
                      text(concatenate("VLAN ",
-                                      integer-to-string(vlan.vlan-number), " ",
+                                      integer-to-string(vlan.number), " ",
                                       vlan.vlan-name, " ",
-                                      vlan.vlan-description))
+                                      vlan.description))
                    end);
   res := add!(res, with-xml()
                      table
@@ -36,7 +30,7 @@ define method gen-xml (vlan :: <vlan>)
                           do(method(x)
                                  res := add!(res, gen-xml(x));
                              end,
-                             vlan.vlan-subnets);
+                             vlan.subnets);
                           reverse(res))
                      }
                    end);
@@ -45,10 +39,10 @@ end;
 
 define method as (class == <string>, vlan :: <vlan>)
  => (res :: <string>)
-  concatenate(integer-to-string(vlan.vlan-number), " ", vlan.vlan-name);
+  concatenate(integer-to-string(vlan.number), " ", vlan.vlan-name);
 end;
 
 define method \< (a :: <vlan>, b :: <vlan>)
  => (res :: <boolean>)
-  a.vlan-number < b.vlan-number
+  a.number < b.number
 end;
