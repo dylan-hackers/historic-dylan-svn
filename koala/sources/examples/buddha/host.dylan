@@ -9,24 +9,11 @@ define web-class <host> (<object>)
   has-a zone;
 end;
 
-define method make (host == <host>,
-                    #next next-method,
-                    #rest rest,
-                    #key ip,
-                    #all-keys) => (res :: <host>)
-  let args = rest;
-  if (instance?(ip, <string>))
-    args := exclude(args, #"ip");
-    ip := make(<ip-address>, data: ip);
-  end;
-  apply(next-method, host, ip: ip, args);
-end method;
-
 define method print-object (host :: <host>, stream :: <stream>)
  => ()
-  format(stream, "Host %s Zone  Mac %s\n",
+  format(stream, "Host %s Zone %s Mac %s\n",
          host.host-name,
-//         host.zone.zone-name,
+         host.zone.zone-name,
          as(<string>, host.mac-address));
   format(stream, "IP %s Net %s\n",
          as(<string>, host.ipv4-address),
@@ -50,7 +37,7 @@ define method gen-xml (host :: <host>)
       td(as(<string>, host.ipv4-address)),
       td(as(<string>, host.subnet.cidr)),
       td(as(<string>, host.mac-address)),
-//      td(host.zone.zone-name)
+      td(host.zone.zone-name)
     }
   end;
 end;
