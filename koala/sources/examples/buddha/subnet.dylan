@@ -1,124 +1,92 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define class <subnet> (<network>)
-  slot subnet-vlan :: false-or(<vlan>) = #f, init-keyword: vlan:;
-  slot subnet-hosts :: <list> = #(), init-keyword: hosts:;
-  slot dhcp-start :: <ip-address>, init-keyword: dhcp-start:;
-  slot dhcp-end :: <ip-address>, init-keyword: dhcp-end:;
-  slot dhcp-router :: false-or(<ip-address>) = #f,
-    init-keyword: dhcp-router:;
+//XXX: this should be dynamic generated...
+//without these I get lots of warnings:
+//Invalid type for argument object in call to
+// hosts (object :: <object>) => (#rest results :: <object>)
+// :  <zone> supplied, <subnet> expected.
+define dynamic generic hosts (o :: <object>) => (r :: <object>);
+define dynamic generic hosts-setter (h :: <object>, o :: <object>)
+ => (r :: <object>);
+
+define web-class <subnet> (<network>)
+  has-a vlan;
+  has-many host;
+  data dhcp-start :: <ip-address>;
+  data dhcp-end :: <ip-address>;
+  data dhcp-router :: <ip-address>;
 end;
 
-define method list-type(subnet :: <subnet>, slot-name :: <string>)
-  if (slot-name = "subnet-hosts")
-    as(<symbol>, "<host>")
-  elseif (slot-name = "dhcp-options")
-    as(<symbol>, "<string>")
-  end;
-end;
-
-define method make (subnet == <subnet>,
-                    #next next-method,
-                    #rest rest,
-                    #key cidr,
-                    dhcp-start,
-                    dhcp-end,
-                    dhcp-router,
-                    vlan,
-                    #all-keys) => (res :: <subnet>)
-  let args = rest;
-  if (instance?(cidr, <string>))
-    args := exclude(args, #"cidr");
-    cidr := make(<cidr>,
-                 network-address: cidr);
-  end if;
-  if (instance?(vlan, <integer>))
-    args := exclude(args, #"vlan");
-    vlan := *config*.config-vlans[vlan];
-  end;
-  unless (dhcp-start)
-    args := exclude(args, #"dhcp-start");
-    dhcp-start := network-address(cidr) + 1;
-  end unless;
-  unless (dhcp-end)
-    args := exclude(args, #"dhcp-end");
-    dhcp-end := broadcast-address(cidr) - 1;
-  end unless;
-  unless (dhcp-router)
-    args := exclude(args, #"dhcp-router");
-    dhcp-router := network-address(cidr) + 1;
-  end;
+/* chech in make or initialize or before all that stuff
   unless (network-address(cidr) = base-network-address(cidr))
     format-out("Network address is not the base network address, fixing this!\n");
     cidr.cidr-network-address := base-network-address(cidr);
   end;
-  apply(next-method, subnet, cidr: cidr, vlan: vlan,
-        dhcp-start: dhcp-start, dhcp-end: dhcp-end,
-        dhcp-router: dhcp-router, args);
-end;
+dhcp-start in subnet, dhcp-end in subnet, dhcp-router nicht in dhcp-range und in subnet
+*/
 
 define method print-object (subnet :: <subnet>, stream :: <stream>)
  => ()
-  if (subnet.subnet-vlan)
+  if (subnet.vlan)
     format(stream, "Subnet vlan %d cidr %=",
-           subnet.subnet-vlan.vlan-number,
-           subnet.network-cidr);
+           subnet.vlan.number,
+           subnet.cidr);
   else
     format(stream, "Subnet cidr %=",
-           subnet.network-cidr);
+           subnet.cidr);
   end;
 end;
 
 define method as (class == <string>, subnet :: <subnet>)
  => (res :: <string>)
-  as(<string>, subnet.network-cidr);
+  as(<string>, subnet.cidr);
 end;
 
 define method gen-xml (subnet :: <subnet>)
   with-xml()
-    tr { td(as(<string>, subnet.network-cidr)),
-         td(integer-to-string(subnet.subnet-vlan.vlan-number))
+    tr { td(as(<string>, subnet.cidr)),
+         td(integer-to-string(subnet.vlan.number))
        }
   end;
 end;
 
 define method add-host (subnet :: <subnet>, host :: <host>)
  => ()
-  if ((host.host-ipv4-address = network-address(subnet.network-cidr)) |
-        (host.host-ipv4-address = broadcast-address(subnet.network-cidr)))
+  if ((host.ipv4-address = network-address(subnet.cidr)) |
+        (host.ipv4-address = broadcast-address(subnet.cidr)))
     format-out("Host can't have the network or broadcast address as IP %=\n",
                host);
   elseif (member?(host,
-              subnet.subnet-hosts,
+              subnet.hosts,
               test: method(x, y)
-                        x.host-ipv4-address = y.host-ipv4-address;
+                        x.ipv4-address = y.ipv4-address;
                     end))
     format-out("Host with same IP already exists: %=\n", host);
   elseif (member?(host,
-                  host.host-zone.zone-hosts,
+                  host.zone.hosts,
                   test: method(x, y)
                             x.host-name = y.host-name
                         end))
     format-out("Host with same name already exists: %=\n", host);
   elseif (member?(host,
-                  subnet.subnet-hosts,
+                  subnet.hosts,
                   test: method(x, y)
-                            x.host-mac = y.host-mac
+                            x.mac-address = y.mac-address
                         end))
     format-out("Host with same mac already exists in this subnet: %=\n", host);
   else
-    subnet.subnet-hosts := sort!(add!(subnet.subnet-hosts, host));
-    host.host-zone.zone-hosts
-      := sort!(add!(host.host-zone.zone-hosts, host));
+    subnet.hosts := sort!(add!(subnet.hosts, host));
+    host.zone.hosts
+      := sort!(add!(host.zone.hosts, host));
   end;
 end;
 
 define method remove-host (subnet :: <subnet>, host :: <host>)
  => ()
-  subnet.subnet-hosts := remove!(subnet.subnet-hosts, host);
-  host.host-zone.zone-hosts
-    := remove!(host.host-zone.zone-hosts, host);
+  subnet.hosts := remove!(subnet.hosts, host);
+  host.zone.hosts
+    := remove!(host.zone.hosts, host);
 end;
 
 
@@ -126,8 +94,8 @@ define method print-isc-dhcpd-file (subnet :: <subnet>, stream :: <stream>)
  => ()
   if (subnet.dhcp?)
     format(stream, "subnet %s netmask %s {\n",
-           as(<string>, network-address(subnet.network-cidr)),
-           as(<string>, netmask-address(subnet.network-cidr)));
+           as(<string>, network-address(subnet.cidr)),
+           as(<string>, netmask-address(subnet.cidr)));
     if (subnet.dhcp-router)
       format(stream, "\toption routers %s;\n",
              as(<string>, subnet.dhcp-router));
@@ -149,7 +117,7 @@ define method print-isc-dhcpd-file (subnet :: <subnet>, stream :: <stream>)
                   as(<string>, tail(x)));
        end, generate-dhcp-ranges(subnet));
     format(stream, "}\n\n");
-    for (host in subnet.subnet-hosts)
+    for (host in subnet.hosts)
       print-isc-dhcpd-file(host, stream);
     end;
   end if;
@@ -160,8 +128,8 @@ define method generate-dhcp-ranges (subnet :: <subnet>)
   let start-ip :: <ip-address> = subnet.dhcp-start;
   let end-ip :: <ip-address> = subnet.dhcp-end;
   let res = make(<list>);
-  for (host in subnet.subnet-hosts)
-    let host-ip = host.host-ipv4-address;
+  for (host in subnet.hosts)
+    let host-ip = host.ipv4-address;
     if ((host-ip > start-ip) & (host-ip < end-ip))
       res := add!(res, pair(start-ip, host-ip - 1));
     end;

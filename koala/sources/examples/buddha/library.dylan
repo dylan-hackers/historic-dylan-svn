@@ -16,9 +16,33 @@ define library buddha
   export buddha;
 end;
 
+define module web-macro
+  use dylan;
+
+  export <slot>,
+    slot-name,
+    slot-type,
+    slot-getter-method;
+ 
+  export list-reference-slots,
+    reference-slots,
+    data-slots;
+
+  export \web-class-definer;
+end;
+
+define module xml
+  use dylan;
+  use xml-parser;
+  
+  export \with-xml,
+    \with-xml-builder,
+    escape-html;
+end;
+
 define module buddha
   use common-dylan;
-  use dylan-extensions;
+  use dylan-extensions, exclude: { slot-type };
   use threads;
   use format-out;
   use format, import: { format };
@@ -32,5 +56,6 @@ define module buddha
   use sockets, import: { <tcp-socket>, <internet-address> };
   use file-system;
   use xml-rpc-common, import: { base64-encode, base64-decode };
-  use xml-parser;
+  use xml;
+  use web-macro;
 end;

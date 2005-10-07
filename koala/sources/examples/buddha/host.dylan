@@ -1,12 +1,12 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define class <host> (<object>)
-  slot host-name :: <string>, init-keyword: name:;
-  slot host-ipv4-address :: <ip-address>, required-init-keyword: ip:;
-  slot host-net :: <subnet>, init-keyword: net:;
-  slot host-mac :: <mac-address>, init-keyword: mac:;
-  slot host-zone :: <zone>, init-keyword: zone:;
+define web-class <host> (<object>)
+  data host-name :: <string>;
+  data ipv4-address :: <ip-address>;
+  data mac-address :: <mac-address>;
+  has-a subnet;
+  has-a zone;
 end;
 
 define method make (host == <host>,
@@ -24,22 +24,22 @@ end method;
 
 define method print-object (host :: <host>, stream :: <stream>)
  => ()
-  format(stream, "Host %s Zone %s Mac %s\n",
+  format(stream, "Host %s Zone  Mac %s\n",
          host.host-name,
-         host.host-zone.zone-name,
-         as(<string>, host.host-mac));
+//         host.zone.zone-name,
+         as(<string>, host.mac-address));
   format(stream, "IP %s Net %s\n",
-         as(<string>, host.host-ipv4-address),
-         as(<string>, host.host-net.network-cidr));
+         as(<string>, host.ipv4-address),
+         as(<string>, host.subnet.cidr));
 end;
 
 define method \< (a :: <host>, b :: <host>) => (res :: <boolean>)
-  a.host-ipv4-address < b.host-ipv4-address
+  a.ipv4-address < b.ipv4-address
 end;
 
 define method as (class == <string>, host :: <host>)
  => (res :: <string>)
-  concatenate(host.host-name, " ", as(<string>, host.host-ipv4-address));
+  concatenate(host.host-name, " ", as(<string>, host.ipv4-address));
 end;
 
 define method gen-xml (host :: <host>)
@@ -47,10 +47,10 @@ define method gen-xml (host :: <host>)
     tr
     {
       td(host.host-name),
-      td(as(<string>, host.host-ipv4-address)),
-      td(as(<string>, host.host-net.network-cidr)),
-      td(as(<string>, host.host-mac)),
-      td(host.host-zone.zone-name)
+      td(as(<string>, host.ipv4-address)),
+      td(as(<string>, host.subnet.cidr)),
+      td(as(<string>, host.mac-address)),
+//      td(host.zone.zone-name)
     }
   end;
 end;
@@ -58,8 +58,8 @@ end;
 define method print-isc-dhcpd-file (host :: <host>, stream :: <stream>)
  => ()
   format(stream, "host %s {\n", host.host-name);
-  format(stream, "\thardware ethernet %s;\n", as(<string>, host.host-mac));
-  format(stream, "\tfixed-address %s;\n", as(<string>, host.host-ipv4-address));
+  format(stream, "\thardware ethernet %s;\n", as(<string>, host.mac-address));
+  format(stream, "\tfixed-address %s;\n", as(<string>, host.ipv4-address));
   format(stream, "}\n\n");
 end;
 
