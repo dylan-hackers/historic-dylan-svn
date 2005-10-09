@@ -18,9 +18,9 @@ define web-class <zone> (<object>)
   data expire :: <integer>;
   data time-to-live :: <integer>;
   data minimum :: <integer>;
-  data nameserver :: <list>;
-  data mail-exchange :: <list>;
-  data text :: <list>;
+  has-many nameserver :: <host>;
+  has-many mail-exchange :: <host>;
+  has-many text :: <string>;
 end;
 
 define method print-object (zone :: <zone>, stream :: <stream>)
@@ -41,7 +41,7 @@ end;
 
 define method print-bind-zone-file (zone :: <zone>, stream :: <stream>)
   format(stream, "@\tIN\tSOA\t%s.\t%s. (\n",
-         zone.nameserver[0],
+         zone.nameservers[0],
          zone.hostmaster);
   format(stream, "\t\t%d\t; Serial\n", zone.serial);
   format(stream, "\t\t%d\t; Refresh\n", zone.refresh);
@@ -51,7 +51,7 @@ define method print-bind-zone-file (zone :: <zone>, stream :: <stream>)
   if (zone.reverse?)
     do(method(x)
            format(stream, "\tIN\tNS\t%s. \n", x)
-       end, zone.nameserver);
+       end, zone.nameservers);
     do(method(x)
            format(stream, "%d\tIN\tPTR\n%s.%s.\n",
                   x.ipv4-address[3],
@@ -61,10 +61,10 @@ define method print-bind-zone-file (zone :: <zone>, stream :: <stream>)
   else
     do(method(x)
            format(stream, "\tIN\tNS\t%s. \n", x)
-       end, zone.nameserver);
+       end, zone.nameservers);
     do(method(x)
            format(stream, "\tIN\tMX\t%d\t%s.\n", head(x), tail(x))
-       end, zone.mail-exchange);
+       end, zone.mail-exchanges);
     do(method(x)
            format(stream, "%s\tIN\tA\t%s\n",
                   x.host-name,
@@ -79,7 +79,7 @@ end;
 define method print-tinydns-zone-file (zone :: <zone>, stream :: <stream>)
   //Zfqdn:mname:rname:ser:ref:ret:exp:min:ttl:timestamp:lo
   format(stream, "Z%s:%s:%s:%d:%d:%d:%d:%d:%d\n",
-         zone.zone-name, zone.nameserver[0],
+         zone.zone-name, zone.nameservers[0],
          zone.hostmaster, zone.serial,
          zone.refresh, zone.retry,
          zone.expire, zone.minimum,
@@ -87,7 +87,7 @@ define method print-tinydns-zone-file (zone :: <zone>, stream :: <stream>)
   //nameserver
   do(method(x)
          format(stream, "&%s::%s\n", zone.zone-name, x)
-     end, zone.nameserver);
+     end, zone.nameservers);
   if (zone.reverse?)
     //PTR
     do(method(x)
@@ -100,7 +100,7 @@ define method print-tinydns-zone-file (zone :: <zone>, stream :: <stream>)
     do(method(x)
            format(stream, "@%s::%s:%d\n",
                   zone.zone-name, tail(x), head(x));
-       end, zone.mail-exchange);
+       end, zone.mail-exchanges);
     //A
     do(method(x)
            format(stream, "+%s:%s\n",

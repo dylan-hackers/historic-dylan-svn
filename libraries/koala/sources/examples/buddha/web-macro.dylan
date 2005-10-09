@@ -5,6 +5,8 @@ define class <slot> (<object>)
   constant slot slot-name :: <string>, init-keyword: name:;
   constant slot slot-type :: <object>, init-keyword: type:;
   constant slot slot-getter-method :: <function>, init-keyword: getter:;
+  constant slot slot-setter-method :: <function>, init-keyword: setter:;
+  constant slot slot-global-list :: <object>, init-keyword: global-list:;
 end;
 
 define generic list-reference-slots
@@ -43,7 +45,14 @@ define macro web-lists
     => { make(<slot>,
               name: ?"slot-name" ## "s",
               type: "<" ## ?slot-name ## ">",
-              getter: ?slot-name ## "s"), ... }
+              getter: ?slot-name ## "s",
+              setter: ?slot-name ## "s-setter"), ... }
+    { has-many ?slot-name:name \:: ?slot-type:*; ... }
+    => { make(<slot>,
+              name: ?"slot-name" ## "s",
+              type: ?slot-type,
+              getter: ?slot-name ## "s",
+              setter: ?slot-name ## "s-setter"), ... }
     { ?other:*; ... }
     => { ... }
 end;
@@ -57,7 +66,9 @@ define macro web-reference
     => { make(<slot>,
               name: ?"slot-name",
               type: "<" ## ?#"slot-name" ## ">",
-              getter: ?slot-name ## "s"), ... }
+              getter: ?slot-name,
+              setter: ?slot-name ## "-setter",
+              global-list: ?slot-name ## "s"), ... }
     { ?other:*; ... }
     => { ... }
 end;
@@ -71,7 +82,8 @@ define macro web-data
     => { make(<slot>,
               name: ?"slot-name",
               type: ?slot-type,
-              getter: ?slot-name), ... }
+              getter: ?slot-name,
+              setter: ?slot-name ## "-setter"), ... }
     { ?other:*; ... }
     => { ... }
 end;
@@ -88,7 +100,9 @@ define macro define-class
     { data ?slot-name:name \:: ?slot-type:* }
     => { slot ?slot-name :: ?slot-type, init-keyword: ?#"slot-name" }
     { has-many ?slot-name:name }
-    => { slot ?slot-name ## "s" :: <list> = #() }
+    => { slot ?slot-name ## "s" :: <stretchy-vector> = make(<stretchy-vector>) }
+    { has-many ?slot-name:name \:: ?slot-type:* }
+    => { slot ?slot-name ## "s" :: <stretchy-vector> = make(<stretchy-vector>) }
     { has-a ?slot-name:name }
     => { slot ?slot-name :: "<" ## ?slot-name ## ">",
               init-keyword: ?#"slot-name" }

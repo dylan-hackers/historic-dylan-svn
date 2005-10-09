@@ -7,7 +7,7 @@ define web-class <network> (<object>)
   data dhcp? :: <boolean>;
   data dhcp-default-lease-time :: <integer>;
   data dhcp-max-lease-time :: <integer>;
-  data dhcp-options :: <list>;
+  has-many dhcp-option :: <string>;
 end;
 
 //check in make or initialize (maybe of cidr???

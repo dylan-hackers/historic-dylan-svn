@@ -6,12 +6,7 @@ define method edit-form (object :: <object>) => (res)
     form(action => "/edit", \method => "post")
     { div(class => "edit")
       { do(for (slot in data-slots(object))
-             format-out("SLOTSS %=\n", slot);
              let object = slot.slot-getter-method(object);
-             format-out("SLOT %= %= %=\n",
-                        slot.slot-name,
-                        slot.slot-type,
-                        object);
              collect(with-xml() text(concatenate(slot.slot-name, ": ")) end);
              //XXX check if slot is initialized?
              collect(edit-slot(object, slot.slot-name));
@@ -23,12 +18,11 @@ define method edit-form (object :: <object>) => (res)
              //get slot, generate select, option field for each element
              //of global list of elements...
              collect(with-xml()
-                       //probably better address of object?
                        \select(name => slot.slot-name)
-                       { do(for (ele in slot.slot-getter-method(*config*))
+                       { do(for (ele in slot.slot-global-list(*config*))
                               collect(with-xml()
                                         option(as(<string>, ele),
-                                               value => as(<string>, ele))
+                                               value => get-reference(ele))
                                       end)
                             end)
                        }
@@ -48,15 +42,41 @@ define method edit-form (object :: <object>) => (res)
   end;
 end;
 
+//simple case for lists of strings....
+define method add-form (string :: <string>,
+                        name :: <string>,
+                        parent :: <object>) => (foo)
+  with-xml()
+    form(action => "/edit", \method => "post")
+    { div(class => "edit")
+      {
+        input(type => "text",
+              name => "string"),
+        input(type => "hidden",
+              name => "obj-id",
+              value => get-reference(parent)),
+        input(type => "hidden",
+              name => "obj-type",
+              value => "<string>"),
+        input(type => "hidden",
+              name => "action",
+              value => "add-object"),
+        input(type => "submit",
+              name => "add-button",
+              value => concatenate("Add to ", name))
+      }
+    }
+  end;
+end;
+
 
 define method add-form (object :: <object>,
                         name :: <string>,
-                        list :: <object>) => (foo) // :: <list> ?
+                        parent :: <object>) => (foo) // :: <list> ?
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
       { do(for (slot in data-slots(object))
-             format-out("DATA SLOT %= %=\n", slot.slot-name, slot.slot-type);
              collect(with-xml() text(concatenate(slot.slot-name, ": ")) end);
              //here we should have at least a seperation between integer,
              //strings and lists... or should we implement all lists with
@@ -74,25 +94,15 @@ define method add-form (object :: <object>,
              collect(with-xml() br end);
            end;
            for (slot in reference-slots(object))
-             format-out("REF SLOT %= %= %=\n",
-                        slot.slot-name,
-                        slot.slot-type,
-                        slot.slot-getter-method);
              collect(with-xml() text(concatenate(slot.slot-name, ": ")) end);
              //get slot, generate select, option field for each element
              //of global list of elements...
              collect(with-xml()
-                       //probably better address of object?
                        \select(name => slot.slot-name)
-                       { do(for (ele in slot.slot-getter-method(*config*))
-                              //this will not work for hosts...
-                              //because *config*.subnets is not defined
-                              //anyway, when we come to the reference to the
-                              //displayed object, it should be the displeyed
-                              //object???.... not sure yet
+                       { do(for (ele in slot.slot-global-list(*config*))
                               collect(with-xml()
                                         option(as(<string>, ele),
-                                               value => as(<string>, ele))
+                                               value => get-reference(ele))
                                       end)
                             end)
                        }
@@ -100,10 +110,13 @@ define method add-form (object :: <object>,
            end),
         input(type => "hidden",
               name => "obj-id",
-              value => get-reference(list)),
+              value => get-reference(parent)),
         input(type => "hidden",
               name => "action",
               value => "add-object"),
+        input(type => "hidden",
+              name => "obj-type",
+              value => object-class(object).debug-name),
         input(type => "submit",
               name => "add-button",
               value => concatenate("Add to ", name))
@@ -132,6 +145,9 @@ define method list-forms (obj :: <object>) => (res)
                          { div(class => "edit")
                            { input(type => "hidden",
                                    name => "obj-id",
+                                   value => get-reference(object)),
+                             input(type => "hidden",
+                                   name => "remove-this",
                                    value => get-reference(ele)),
                              input(type => "hidden",
                                    name => "action",
@@ -144,13 +160,8 @@ define method list-forms (obj :: <object>) => (res)
                        end);
       res := add!(res, with-xml() br end);
     end;
-    format-out("Adding form for type %= slot-name %= to %=\n",
-               slot.slot-type,
-               slot.slot-name,
-               object);
-    res := add!(res, add-form(make(slot.slot-type),
-                              slot.slot-name,
-                              object));
+    res := add!(res,
+                add-form(make(slot.slot-type), slot.slot-name, object));
   end;
   res;
 end;
@@ -171,34 +182,6 @@ define method edit-slot (object :: <string>, slot-name :: <string>)
     input(type => "text",
           name => slot-name,
           value => object)
-  end;
-end;
-
-define method edit-slot (object :: type-union(<list>, <table>),
-                         slot-name :: <string>)
-  with-xml()
-    ul
-    { do(if (object.size > 0)
-           for (ele in object)
-             collect(with-xml()
-                       li { do(let reference = get-reference(ele);
-                               collect(with-xml()
-                                         a(as(<string>, ele),
-                                           href => concatenate("/edit?obj=",
-                                                               reference))
-                                       end);
-                               collect(with-xml()
-                                         input(type => "submit",
-                                               name => concatenate("remove-", reference),
-                                               value => "Remove")
-                                       end))
-                             }
-                     end);
-           end;
-         else
-           collect(with-xml() li("empty list") end);
-         end if)
-    }
   end;
 end;
 
@@ -227,3 +210,95 @@ define method edit-slot (object :: <boolean>, slot-name :: <string>)
   end;
 end;
 
+define method respond-to-post
+    (page == #"edit", request :: <request>, response :: <response>)
+  let errors = #();
+  let action = as(<symbol>, get-query-value("action"));
+  let object-string = get-query-value("obj-id");
+  let handler <buddha-form-warning>
+    = method(e :: <buddha-form-warning>, next-handler :: <function>)
+          errors := add!(errors, e)
+      end;
+  block(return)
+    //add, save, remove... we may not need this here...
+    let object = element($obj-table, object-string, default: #f);
+    unless (object)
+      signal(make(<buddha-form-error>,
+                  error: concatenate("Unknown object: ", object-string)));
+    end;
+    select (action)
+      #"add-object" => add-object(object, request);
+      #"remove-object" => remove-object(object, request);
+      #"save-object" => save-object(object, request);
+      otherwise => make(<buddha-form-error>,
+                        error: concatenate("Unknown action: ",
+                                           as(<string>, action)));
+    end select;
+  exception (e :: <buddha-form-error>)
+    errors := add!(errors, e);
+    return();
+  end;
+  //respont-to-get... with same object-string
+end;
+
+define method add-object (parent-object :: <object>, request :: <request>)
+  //look what type of object needs to be generated
+  let type = get-query-value("obj-type");
+  //if <string>, that's easy
+  if (type = "<string>")
+    let value = get-query-value("string");
+    parent-object := add!(parent-object, value);
+  else
+    //more complex objects:
+    let object = make(type); //XXX won't work... type is a string...
+    //data-slots ref-slots needs to be read and sanity checked
+    for (slot in data-slots(object))
+      let value = as(slot.slot-type, get-query-value(slot.slot-name));
+      //then set slots of object and add to parent list..
+      slot.slot-setter-method(object, value);
+    end;
+    for (slot in reference-slots(object))
+      let value = element($obj-table,
+                          get-query-value(slot.slot-name),
+                          default: #f);
+      slot.slot-setter-method(object, value);
+    end;
+    parent-object := add!(parent-object, object);
+  end;
+  //also may need to be added to other (global) lists
+end;
+
+define method remove-object (parent-object :: <object>, request :: <request>)
+  //read object value, get it from $obj-table
+  let object = element($obj-table,
+                       get-query-value("remove-this"),
+                       default: #f);
+  //sanity type-check
+  //remove from parent list and other has-a references
+  parent-object := remove!(parent-object, object);
+  //it may need to be removed from several (global) lists...
+end;
+
+define method save-object (object :: <object>, request :: <request>)
+  //data-slots and ref-slots may have changed...
+  for (slot in data-slots(object))
+    let value = as(slot.slot-type, get-query-value(slot.slot-name));
+    //do more error checking
+    //slot-setter! (only if not same)
+    if (value ~= slot.slot-getter-method(object))
+      slot.slot-setter-method(object, value);
+    end;
+  end;
+  for (slot in reference-slots(object))
+    let value = element($obj-table,
+                        get-query-value(slot.slot-name),
+                        default: #f);
+    //error check it
+    //slot-setter!
+    if (value ~= slot.slot-getter-method(object))
+      slot.slot-setter-method(object, value);
+    end;
+    //may be removed from some lists and added to others...
+    //hmm, only if a reference changes, iirc
+  end;
+end;

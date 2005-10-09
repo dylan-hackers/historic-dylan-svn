@@ -22,7 +22,9 @@ define module web-macro
   export <slot>,
     slot-name,
     slot-type,
-    slot-getter-method;
+    slot-getter-method,
+    slot-setter-method,
+    slot-global-list;
  
   export list-reference-slots,
     reference-slots,

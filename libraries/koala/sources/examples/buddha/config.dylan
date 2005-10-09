@@ -38,9 +38,9 @@ end;
 
 define method find-zone (config :: <config>, zone :: <string>)
   //XXX [0] is obviously wrong here
-/*  choose(method(x)
+  choose(method(x)
              x.zone-name = zone;
-         end, config.zones)[0]; */
+         end, config.zones)[0];
 end;
 
 define method print-object (config :: <config>, stream :: <stream>)
