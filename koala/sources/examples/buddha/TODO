@@ -5,12 +5,14 @@ renumbering of subnets:
 blackhole ip-ranges
  => requested by abuse phone
 
-dynamic forms
- => dhcp options can be multiple lines
-
 user management
 
-prevent cross-site scripting (escape <> in all input data)
+security:
+ -prevent cross-site scripting (escape <> in all input data)
+ -put obj-table in each session...
+ -everyone is able to delete everything (he only has to give the
+  correct obj-id and use remove-object as action, so only put those
+  objects in his obj-table which he needs access to...
 
 interface to get the next /XX subnet (or the next subnet with at least Y ips)
 
