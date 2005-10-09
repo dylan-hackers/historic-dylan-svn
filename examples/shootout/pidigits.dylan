@@ -1,6 +1,6 @@
 module:  pidigits
-use-libraries: common-dylan, io
-use-modules: common-dylan, standard-io, streams, format-out
+use-libraries: common-dylan, io, transcendental, dylan
+use-modules: common-dylan, standard-io, streams, format-out, extensions
 
 /*
  *  Based on Christopher Neufeld's  <shootout0000@cneufeld.ca>
@@ -18,13 +18,13 @@ define function compose-val (a1, a2)
 end function compose-val;
 
 define function compute-pi ( *stop-digits*)
-  let z = vector(1, 0, 0, 1);
-  let $curstate = vector( 0, 2, 0, 1 );
+  let z = vector(#e1, #e0, #e0, #e1);
+  let $curstate = vector( #e0, #e2, #e0, #e1 );
 
-  local method extract-digit (state, x :: <integer> ) => result :: <integer>;
-        let numerator :: <single-float> = 1.0s0 * x * state[0] + state[1];
-        let denominator :: <single-float> = 1.0s0 * x * state[2] + state[3];
-        floor ( numerator / denominator );
+  local method extract-digit (state, x :: <integer> ) => result :: <extended-integer>;
+        let numerator :: <extended-integer> = x * state[0] + state[1];
+        let denominator :: <extended-integer> = x * state[2] + state[3];
+        floor/ ( numerator, denominator );
       end method extract-digit;
 
   local method safe?( val, n ) => result :: <boolean>;
@@ -68,7 +68,6 @@ define function compute-pi ( *stop-digits*)
         z := consume( z, next-state() );
     end if;
   end while;
-  format-out("Ending\n");
 end function compute-pi;
         
 begin
