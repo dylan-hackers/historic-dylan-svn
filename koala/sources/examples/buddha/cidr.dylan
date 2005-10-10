@@ -53,6 +53,11 @@ define method as (class == <string>, cidr :: <cidr>)
               integer-to-string(cidr.cidr-netmask));
 end;
 
+define method as (class == <cidr>, string :: <string>)
+ => (res :: <cidr>)
+  make(<cidr>, network-address: string)
+end;
+
 define method base-network-address (cidr :: <cidr>)
  => (ip-address :: <ip-address>)
   make(<ip-address>,

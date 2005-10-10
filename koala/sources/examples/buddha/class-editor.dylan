@@ -20,10 +20,18 @@ define method edit-form (object :: <object>) => (res)
              collect(with-xml()
                        \select(name => slot.slot-name)
                        { do(for (ele in slot.slot-global-list(*config*))
-                              collect(with-xml()
-                                        option(as(<string>, ele),
-                                               value => get-reference(ele))
-                                      end)
+                              if (ele = slot.slot-getter-method(object))
+                                collect(with-xml()
+                                          option(as(<string>, ele),
+                                                 value => get-reference(ele),
+                                                 selected => "selected")
+                                        end);
+                              else
+                                collect(with-xml()
+                                          option(as(<string>, ele),
+                                                 value => get-reference(ele))
+                                        end)
+                              end if;
                             end)
                        }
                       end);
@@ -238,7 +246,7 @@ define method respond-to-post
     errors := add!(errors, e);
     return();
   end;
-  //respont-to-get... with same object-string
+  respond-to-get(#"edit", request, response, errors: errors);
 end;
 
 define method add-object (parent-object :: <object>, request :: <request>)
@@ -282,23 +290,53 @@ end;
 define method save-object (object :: <object>, request :: <request>)
   //data-slots and ref-slots may have changed...
   for (slot in data-slots(object))
-    let value = as(slot.slot-type, get-query-value(slot.slot-name));
-    //do more error checking
-    //slot-setter! (only if not same)
-    if (value ~= slot.slot-getter-method(object))
-      slot.slot-setter-method(object, value);
+    //convert value to type of slot
+    let value = get-query-value(slot.slot-name);
+    if (slot.slot-type = <boolean>)
+      if (value = slot.slot-name)
+        value := #t;
+      else
+        value := #f;
+      end;
+    else
+      value := as(slot.slot-type, value);
+    end;
+    //do more error checking //maybe use another generic function, not as?
+    //slot-setter! (only if not same object)
+    if (value & (value ~= slot.slot-getter-method(object)))
+      slot.slot-setter-method(value, object);
     end;
   end;
+  //now something completely different
   for (slot in reference-slots(object))
+    //get new value via reference
     let value = element($obj-table,
                         get-query-value(slot.slot-name),
                         default: #f);
-    //error check it
+    //error check it!
     //slot-setter!
-    if (value ~= slot.slot-getter-method(object))
-      slot.slot-setter-method(object, value);
+    let current-object = slot.slot-getter-method(object);
+    if (value & (value ~= current-object))
+      //remove old object from list of objects of referenced object
+      let class-name = debug-name(object-class(object));
+      let class-getter-name = concatenate(copy-sequence(class-name,
+                                                        start: 1,
+                                                        end: class-name.size - 1),
+                                          "s");
+      let list-slot = choose(method(x)
+                                 x.slot-name = class-getter-name
+                             end,
+                             list-reference-slots(current-object))[0];
+
+      let old-list = list-slot.slot-getter-method(current-object);
+      old-list := remove!(old-list, object);
+
+      //set slot in object
+      slot.slot-setter-method(value, object);
+
+      //add new object to list of objects of referenced object
+      let new-list = list-slot.slot-getter-method(value);
+      new-list := add!(new-list, object);
     end;
-    //may be removed from some lists and added to others...
-    //hmm, only if a reference changes, iirc
   end;
 end;
