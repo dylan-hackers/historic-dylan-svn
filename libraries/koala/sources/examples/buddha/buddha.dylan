@@ -106,6 +106,7 @@ define method respond-to-get
   end;
   let obj = element($obj-table, obj-string, default: *config*);
   with-buddha-template(out, "Edit")
+    show-errors(errors);
     with-xml()
       div(id => "content") {
         do(edit-form(obj)),
@@ -135,6 +136,23 @@ define method respond-to-get
   end;
 end;
 
+define method show-errors (errors)
+  if (errors & (errors.size > 0))
+    with-xml()
+      div(id => "error")
+      { ul
+        {
+          do(for(error in errors)
+               collect(with-xml()
+                         li(error.error-string)
+                       end);
+             end)
+         }
+       }
+    end;
+  end;
+end;
+
 define method get-reference (object :: <object>) => (res :: <string>)
   let address = copy-sequence(format-to-string("%=", address-of(object)),
                               start: 1);
@@ -150,20 +168,7 @@ define method respond-to-get
      #key errors)
   let out = output-stream(response);
   with-buddha-template(out, "Save Database")
-    if (errors & errors.size > 0)
-      collect(with-xml()
-                div(id => "error")
-                { ul
-                  {
-                    do(for(error in errors)
-                         collect(with-xml()
-                                   li(error.error-string)
-                                 end);
-                       end)
-                  }
-                }
-              end);
-    end;
+    show-errors(errors);
     collect(with-xml()
               div(id => "content")
               { form(action => "/save", \method => "post")
