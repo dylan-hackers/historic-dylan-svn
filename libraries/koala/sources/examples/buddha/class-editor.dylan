@@ -64,8 +64,8 @@ define method add-form (string :: <string>,
               name => "obj-id",
               value => get-reference(parent)),
         input(type => "hidden",
-              name => "obj-type",
-              value => "<string>"),
+              name => "obj",
+              value => get-reference(string)),
         input(type => "hidden",
               name => "action",
               value => "add-object"),
@@ -123,8 +123,8 @@ define method add-form (object :: <object>,
               name => "action",
               value => "add-object"),
         input(type => "hidden",
-              name => "obj-type",
-              value => object-class(object).debug-name),
+              name => "obj",
+              value => get-reference(object)),
         input(type => "submit",
               name => "add-button",
               value => concatenate("Add to ", name))
@@ -168,8 +168,7 @@ define method list-forms (obj :: <object>) => (res)
                        end);
       res := add!(res, with-xml() br end);
     end;
-    res := add!(res,
-                add-form(make(slot.slot-type), slot.slot-name, object));
+    res := add!(res, add-form(make(slot.slot-type), slot.slot-name, object));
   end;
   res;
 end;
@@ -251,25 +250,27 @@ end;
 
 define method add-object (parent-object :: <object>, request :: <request>)
   //look what type of object needs to be generated
-  let type = get-query-value("obj-type");
+  let object = element($obj-table,
+                       get-query-value("obj"),
+                       default: #f);
   //if <string>, that's easy
-  if (type = "<string>")
+  if (instance?(object, <string>))
     let value = get-query-value("string");
     parent-object := add!(parent-object, value);
   else
     //more complex objects:
-    let object = make(type); //XXX won't work... type is a string...
     //data-slots ref-slots needs to be read and sanity checked
     for (slot in data-slots(object))
-      let value = as(slot.slot-type, get-query-value(slot.slot-name));
+      let value = parse(slot.slot-name, slot.slot-type);
       //then set slots of object and add to parent list..
-      slot.slot-setter-method(object, value);
+      slot.slot-setter-method(value, object);
     end;
     for (slot in reference-slots(object))
       let value = element($obj-table,
                           get-query-value(slot.slot-name),
                           default: #f);
-      slot.slot-setter-method(object, value);
+      slot.slot-setter-method(value, object);
+      add-to-list(value, object);
     end;
     parent-object := add!(parent-object, object);
   end;
@@ -291,24 +292,28 @@ define method remove-object (parent-object :: <object>, request :: <request>)
   //it may need to be removed from several (global) lists...
 end;
 
+define method parse (name, type)
+  let value = get-query-value(name);
+  if (type = <string>)
+    value;
+  elseif (type = <boolean>)
+    if (value = name)
+      #t;
+    else
+      #f;
+    end;
+  elseif (type = <integer>)
+    string-to-integer(value)
+  else
+    as(type, value);
+  end;
+end;
+
 define method save-object (object :: <object>, request :: <request>)
   //data-slots and ref-slots may have changed...
   for (slot in data-slots(object))
     //convert value to type of slot
-    let value = get-query-value(slot.slot-name);
-    unless (slot.slot-type = <string>)
-      if (slot.slot-type = <boolean>)
-        if (value = slot.slot-name)
-          value := #t;
-        else
-          value := #f;
-        end;
-      elseif (slot.slot-type = <integer>)
-        value := string-to-integer(value)
-      else
-        value := as(slot.slot-type, value);
-      end;
-    end;
+    let value = parse(slot.slot-name, slot.slot-type);
     //do more error checking //maybe use another generic function, not as?
     //slot-setter! (only if not same object)
     if (value & (value ~= slot.slot-getter-method(object)))
