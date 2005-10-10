@@ -283,6 +283,10 @@ define method remove-object (parent-object :: <object>, request :: <request>)
                        default: #f);
   //sanity type-check
   //remove from parent list and other has-a references
+  for (slot in reference-slots(object))
+    remove-from-list(slot.slot-getter-method(object), object);
+  end;
+
   parent-object := remove!(parent-object, object);
   //it may need to be removed from several (global) lists...
 end;
@@ -292,14 +296,18 @@ define method save-object (object :: <object>, request :: <request>)
   for (slot in data-slots(object))
     //convert value to type of slot
     let value = get-query-value(slot.slot-name);
-    if (slot.slot-type = <boolean>)
-      if (value = slot.slot-name)
-        value := #t;
+    unless (slot.slot-type = <string>)
+      if (slot.slot-type = <boolean>)
+        if (value = slot.slot-name)
+          value := #t;
+        else
+          value := #f;
+        end;
+      elseif (slot.slot-type = <integer>)
+        value := string-to-integer(value)
       else
-        value := #f;
+        value := as(slot.slot-type, value);
       end;
-    else
-      value := as(slot.slot-type, value);
     end;
     //do more error checking //maybe use another generic function, not as?
     //slot-setter! (only if not same object)
@@ -318,25 +326,36 @@ define method save-object (object :: <object>, request :: <request>)
     let current-object = slot.slot-getter-method(object);
     if (value & (value ~= current-object))
       //remove old object from list of objects of referenced object
-      let class-name = debug-name(object-class(object));
-      let class-getter-name = concatenate(copy-sequence(class-name,
-                                                        start: 1,
-                                                        end: class-name.size - 1),
-                                          "s");
-      let list-slot = choose(method(x)
-                                 x.slot-name = class-getter-name
-                             end,
-                             list-reference-slots(current-object))[0];
-
-      let old-list = list-slot.slot-getter-method(current-object);
-      old-list := remove!(old-list, object);
+      remove-from-list(current-object, object);
 
       //set slot in object
       slot.slot-setter-method(value, object);
 
       //add new object to list of objects of referenced object
-      let new-list = list-slot.slot-getter-method(value);
-      new-list := add!(new-list, object);
+      add-to-list(value, object);
     end;
   end;
+end;
+
+define method find-slot (object :: <object>, name :: <object>)
+ => (res)
+  let class-name = debug-name(object-class(name));
+  let class-getter-name = concatenate(copy-sequence(class-name,
+                                                    start: 1,
+                                                    end: class-name.size - 1),
+                                      "s");
+  let list-slot = choose(method(x)
+                             x.slot-name = class-getter-name
+                         end, list-reference-slots(object))[0];
+  list-slot.slot-getter-method(object)
+end;
+
+define method remove-from-list (list :: <object>, element :: <object>)
+  let old-list = find-slot(list, element);
+  old-list := remove!(old-list, element);
+end;
+
+define method add-to-list (list :: <object>, element :: <object>)
+  let new-list = find-slot(list, element);
+  new-list := add!(new-list, element);
 end;
