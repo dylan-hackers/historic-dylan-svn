@@ -9,6 +9,11 @@ define web-class <config> (<object>)
   has-many subnet;
 end;
 
+define method as (class == <string>, config :: <config>)
+ => (res :: <string>)
+  config.config-name
+end;
+
 define method fits? (config :: <config>, fit-cidr :: <cidr>)
  => (res :: <boolean>)
   //checks whether cidr is not used in network yet.

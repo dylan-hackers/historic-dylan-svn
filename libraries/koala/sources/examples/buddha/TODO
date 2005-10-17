@@ -14,7 +14,13 @@ security:
   correct obj-id and use remove-object as action, so only put those
   objects in his obj-table which he needs access to...
 
+memleaks because list-forms calls add-form, which inserts an object in
+$obj-table... and it is only used if the add-button is pressed...
+
 interface to get the next /XX subnet (or the next subnet with at least Y ips)
+
+add-form should be able to respond-to-get from the redirecting site, don't
+ show /edit by default
 
 with-xml:collect only works for elements, not for lists of elements
 

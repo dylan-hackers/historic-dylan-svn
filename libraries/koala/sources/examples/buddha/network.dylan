@@ -79,27 +79,6 @@ define method print-object (network :: <network>, stream :: <stream>)
   end for;
 end;
 
-define method gen-xml (network :: <network>)
- => (res :: <list>)
-  let res = make(<list>);
-  res := add!(res, with-xml()
-                     text(concatenate("Network CIDR ",
-                                      as(<string>, network.cidr)))
-                   end);
-  res := add!(res, with-xml()
-                     table
-                     {
-                       tr { th("CIDR"), th("VLAN") },
-                       do(let res = make(<list>);
-                          do(method(x)
-                                 res := add!(res, gen-xml(x));
-                             end, network.subnets);
-                          reverse(res))
-                     }
-                   end);
-  res;
-end;
-
 define method add-subnet (network :: <network>, subnet :: <subnet>)
  => ()
   if (subnet-in-net?(network, subnet))

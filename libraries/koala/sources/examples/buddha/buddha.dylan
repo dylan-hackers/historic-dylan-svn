@@ -36,10 +36,11 @@ end;
 
 define responder default-responder ("/")
   (request, response)
-  respond-to-get(#"net", request, response);
+  respond-to-get(#"network", request, response);
 end;
 
-define page net end;
+define page network end;
+define page subnet end;
 define page vlan end;
 define page host end;
 define page zone end;
@@ -63,16 +64,16 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
   body {
     div(id => "header") {
       div(id => "navbar") {
-        a("Network", href => "/net"),
+        a("Network", href => "/network"),
+        a("Subnet", href => "/subnet"),
         a("VLAN", href => "/vlan"),
         a("Host", href => "/host"),
         a("Zone", href => "/zone"),
         a("User interface", href => "/user"),
-        a("Save to disk", href => "/save"),
-        a("Restore from disk", href => "/restore"),
+        a("Save", href => "/save"),
+        a("Restore", href => "/restore"),
         a("Class browser", href => "/browse"),
-        a("Edit", href => "/edit"),
-        a("Shutdown", href => "/koala/shutdown")
+        a("Edit", href => "/edit")
       }
     },
     do(?body)
@@ -83,8 +84,6 @@ end;
            format(?stream, "%=", page);
          end; }
 end;
-
-define constant $obj-table = make(<string-table>);
 
 define class <buddha-form-warning> (<condition>)
   constant slot error-string :: <string>, required-init-keyword: warning:;
@@ -122,7 +121,7 @@ define method respond-to-get
      response :: <response>,
      #key errors)
   let out = output-stream(response);
-  let obj-string = get-query-value("obj");
+  let obj-string = get-query-value("obj-id");
   unless (obj-string)
     obj-string := "";
   end;
@@ -130,7 +129,7 @@ define method respond-to-get
   with-buddha-template(out, "Browse")
     with-xml()
       div(id => "content") {
-        do(browse(obj))
+        do(browse-list(obj))
       }
     end;
   end;
@@ -152,14 +151,6 @@ define method show-errors (errors)
     end;
   end;
 end;
-
-define method get-reference (object :: <object>) => (res :: <string>)
-  let address = copy-sequence(format-to-string("%=", address-of(object)),
-                              start: 1);
-  $obj-table[address] := object;
-  address;
-end;
-
 
 define method respond-to-get
     (page == #"save",
@@ -258,132 +249,54 @@ define method respond-to-post
 end;
 
 define method respond-to-get
-    (page == #"net",
+    (page == #"network",
      request :: <request>,
      response :: <response>,
      #key errors)
+  //TODO: gen dhcp config
+  //      remove/edit network forms
   let out = output-stream(response);
   with-buddha-template (out, "Networks")
     with-xml ()
       div(id => "content")
       {
-        do(let res = #();
-           for (net in *config*.networks,
-                i from 0)
-             res := concatenate(gen-xml(net), res);
-             res := add!(res, with-xml()
-                                form(action => "/net", \method => "post")
-                                {
-                                  div(class => "edit")
-                                  {
-                                    input(type => "hidden",
-                                          name => "action",
-                                          value => "gen-dhcpd"),
-                                    input(type => "hidden",
-                                          name => "network",
-                                          value => integer-to-string(i)),
-                                    input(type => "submit",
-                                          name => "gen-dhcpd-button",
-                                          value => "generate dhcpd.conf")
-                                  }
-                                }
-                              end);
-             res := add!(res, with-xml()
-                                form(action => "net", \method => "post")
-                                {
-                                  div(class => "edit")
-                                  {
-                                    input(type => "hidden",
-                                          name => "action",
-                                          value => "remove-network"),
-                                    input(type => "hidden",
-                                          name => "network",
-                                          value => integer-to-string(i)),
-                                    input(type => "submit",
-                                          name => "remove-network-button",
-                                          value => "Remove this Network")
-                                  }
-                                }
-                              end);
-             res := add!(res, with-xml()
-                                form(action => "/net", \method => "post")
-                                {
-                                  div(class => "edit")
-                                  {
-                                    text("CIDR"),
-                                    input(type => "text", name => "cidr"),
-                                    \select(name => "vlan")
-                                    {
-                                      do(let res = make(<list>);
-                                         for (ele in *config*.vlans,
-                                              i from 0)
-                                           res := add!(res, with-xml()
-                                                              option(as(<string>, ele),
-                                                                     value => integer-to-string(i))
-                                                            end);
-                                         end;
-                                         reverse(res))
-                                    },
-                                    text("DHCP?"),
-                                    input(type => "checkbox",
-                                          value => "dhcp",
-                                          checked => "checked",
-                                          name => "dhcp"),
-                                    text("DHCP start"),
-                                    input(type => "text", name => "dhcp-start"),
-                                    text("DHCP end"),
-                                    input(type => "text", name => "dhcp-end"),
-                                    text("DHCP router"),
-                                    input(type => "text", name => "dhcp-router"),
-                                    text("Default lease time"),
-                                    input(type => "text",
-                                          name => "default-lease-time"),
-                                    text("Maximum lease time"),
-                                    input(type => "text", name => "max-lease-time"),
-                                    text("DHCP options"),
-                                    input(type => "text", name => "options"),
-                                    input(type => "hidden",
-                                          name => "action",
-                                          value => "add-subnet"),
-                                    input(type => "hidden",
-                                          name => "network",
-                                          value => integer-to-string(i)),
-                                    input(type => "submit",
-                                          name => "add-subnet-button",
-                                          value => concatenate
-                                            ("Add subnet to ",
-                                             as(<string>, net.cidr)))
-                                  }
-                                }
-                              end);
-           end;
-           reverse(res)),
-        form(action => "/net", \method => "post")
-        {
-          div(class => "edit")
-          {
-            text("CIDR"),
-            input(type => "text", name => "cidr"),
-            text("DHCP?"),
-            input(type => "checkbox",
-                  value => "dhcp",
-                  checked => "checked",
-                  name => "dhcp"),
-            text("Default lease time"),
-            input(type => "text",
-                  name => "default-lease-time"),
-            text("Maximum lease time"),
-            input(type => "text", name => "max-lease-time"),
-            text("DHCP options"),
-            input(type => "text", name => "options"),
-            input(type => "hidden",
-                  name => "action",
-                  value => "add-network"),
-            input(type => "submit",
-                  name => "add-network-button",
-                  value => "Add network")
-          }
-        }
+        do(browse-table(make(<network>), *config*.networks)),
+        do(add-form(make(<network>), "Networks", *config*.networks))
+      }
+    end;
+  end;
+end;
+
+define method respond-to-get
+    (page == #"subnet",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
+  //TODO: remove/edit subnet forms
+  let out = output-stream(response);
+  let obj-list = get-query-value("obj-id");
+  let parent-obj = get-query-value("obj-parent");
+  if (~obj-list | obj-list = "")
+    obj-list := *config*.subnets;
+  else
+    obj-list := element($obj-table,
+                        obj-list,
+                        default: *config*.subnets);
+  end;
+  if (~parent-obj | parent-obj = "")
+    parent-obj := *config*;
+  else
+    parent-obj := element($obj-table,
+                          parent-obj,
+                          default: *config*);
+  end;
+  with-buddha-template(out, concatenate("Subnets in ",
+                                        as(<string>, parent-obj)))
+    with-xml()
+      div(id => "content")
+      {
+        do(browse-table(make(<subnet>), obj-list)),
+        do(add-form(make(<subnet>), as(<string>, parent-obj), parent-obj))
       }
     end;
   end;
@@ -394,159 +307,54 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
+  //TODO: remove/edit vlan forms
   let out = output-stream(response);
   with-buddha-template(out, "VLAN")
     with-xml()
       div(id => "content")
       {
-        do(let res = make(<list>);
-           do(method(x)
-                  res := concatenate(gen-xml(x), res);
-                  res := add!(res,
-                              with-xml()
-                                form(action => "/vlan", \method => "post")
-                                {
-                                  div(class => "edit")
-                                  {
-                                    input(type => "hidden",
-                                          name => "action",
-                                          value => "remove-vlan"),
-                                    input(type => "hidden",
-                                          name => "vlan",
-                                          value => integer-to-string(x.number)),
-                                    input(type => "submit",
-                                          name => "remove-vlan-button",
-                                          value => "Remove VLAN")
-                                  }
-                                }
-                              end);
-              end, *config*.vlans);
-           reverse(res)),
-        form(action => "/vlan", \method => "post")
-        {
-          div(class => "edit")
-          {
-            input(type => "hidden",
-                  name => "action",
-                  value => "add-vlan"),
-            text("VLAN Number"),
-            input(type => "text",
-                  name => "vlan"),
-            text("Name"),
-            input(type => "text",
-                  name => "name"),
-            text("Description"),
-            input(type => "text",
-                  name => "description"),
-            input(type => "submit",
-                  name => "add-vlan-button",
-                  value => "Add VLAN")
-          }
-        }
+        do(browse-table(make(<vlan>), *config*.vlans)),
+        do(add-form(make(<vlan>), "Vlans", *config*.vlans))
       }
     end;
   end;
 end;
 
+/*
 define method respond-to-get
     (page == #"host",
      request :: <request>,
      response :: <response>,
      #key errors)
+  //TODO won't work this way..., needs a context
   let out = output-stream(response);
   with-buddha-template(out, "Hosts")
     with-xml()
       div(id => "content")
       {
-        table
-        {
-        tr { th("Name"), th("IP"), th("Net"), th("Mac"), th("Zone") },
-        do(for (net in *config*.networks)
-             for (subnet in net.subnets)
-               do(method(x)
-                      collect(gen-xml(x));
-                  end, subnet.hosts);
-             end;
-           end)
-        },
-        form(action => "/host", \method => "post")
-        {
-          div(class => "edit")
-          {
-            text("Name"),
-            input(type => "text", name => "name"),
-            text("IP"),
-            input(type => "text", name => "ip"),
-            text("MAC"),
-            input(type => "text", name => "mac"),
-            \select(name => "zone"),
-/*            {
-              do(do(method(x)
-                        collect(with-xml()
-                                  option(x.zone-name, value => x.zone-name)
-                                end);
-                    end, choose(method(x)
-                                    ~ reverse?(x);
-                                end, *config*.zones))) 
-            }, */
-            input(type => "submit",
-                  name => "add-host-button",
-                  value => "Add Host")
-          }
-        }
+        do(browse-table(make(<host>), *config*.hosts)),
+        do(add-form(make(<host>), "Hosts", *config*.hosts))
       }
     end;
   end;
 end;
+*/
 
 define method respond-to-get
     (page == #"zone",
      request :: <request>,
      response :: <response>,
      #key errors)
+  //TODO: edit/remove forms
+  //      strip more infos from table
+  //      generate tinydns/bind config file
   let out = output-stream(response);
   with-buddha-template(out, "Zones")
     with-xml()
       div(id => "content")
       {
-        table
-        {
-          tr { th("Name") },
-          do(do(method(x)
-                    collect(gen-xml(x));
-                end, *config*.zones))
-        },
-        form(action => "/zone", \method => "post")
-        {
-          div(class => "edit")
-          {
-            text("Name"),
-            input(type => "text", name => "name"),
-            text("Hostmaster"),
-            input(type => "text", name => "hostmaster"),
-            text("Serial"),
-            input(type => "text", name => "serial"),
-            text("Refresh"),
-            input(type => "text", name => "refresh"),
-            text("Retry"),
-            input(type => "text", name => "retry"),
-            text("Expire"),
-            input(type => "text", name => "expire"),
-            text("Minimum"),
-            input(type => "text", name => "minimum"),
-            text("Time to live"),
-            input(type => "text", name => "time-to-live"),
-            text("Nameserver"),
-            input(type => "text", name => "nameserver"),
-            text("Mail exchange"),
-            input(type => "text", name => "mail-exchange"),
-            text("txt"),
-            input(type => "text", name => "txt"),
-            input(type => "submit",
-                  name => "add-zone-button",
-                  value => "Add Zone")
-          }
-        }
+        do(browse-table(make(<zone>), *config*.zones)),
+        do(add-form(make(<zone>), "Zones", *config*.zones))
       }
     end;
   end;
@@ -600,14 +408,6 @@ define method respond-to-post
 end;
 */
 
-define method respond-to-post
-    (page == #"net", request :: <request>, response :: <response>)
-  let action = get-query-value("action");
-  if (do-action(as(<symbol>, action), response))
-      respond-to-get(page, request, response);
-  end;
-end;
-
 define method do-action (action == #"gen-dhcpd", response :: <response>)
  => (show-get? :: <boolean>)
   let network = get-query-value("network");
@@ -615,141 +415,6 @@ define method do-action (action == #"gen-dhcpd", response :: <response>)
   set-content-type(response, "text/plain");
   print-isc-dhcpd-file(network, output-stream(response));
   #f; //we don't want the default page!
-end;
-
-define method do-action (action == #"add-subnet", response :: <response>)
- => (show-get? :: <boolean>)
-  let network = get-query-value("network");
-  let cidr = get-query-value("cidr");
-  let vlan = string-to-integer(get-query-value("vlan"));
-  let dhcp? = if (get-query-value("dhcp") = "dhcp") #t else #f end;
-  let default-lease-time
-    = string-to-integer(get-query-value("default-lease-time"));
-  let max-lease-time
-    = string-to-integer(get-query-value("max-lease-time"));
-  let options = parse-options(get-query-value("options"));
-  let dhcp-start = as(<ip-address>, get-query-value("dhcp-start"));
-  let dhcp-end = as(<ip-address>, get-query-value("dhcp-end"));
-  let dhcp-router = as(<ip-address>, get-query-value("dhcp-router"));
-  let subnet = make(<subnet>,
-                    cidr: make(<cidr>, network-address: cidr),
-                    vlan: *config*.vlans[vlan],
-                    dhcp?: dhcp?,
-                    dhcp-default-lease-time: default-lease-time,
-                    dhcp-max-lease-time: max-lease-time,
-                    dhcp-options: options,
-                    dhcp-start: dhcp-start,
-                    dhcp-end: dhcp-end,
-                    dhcp-router: dhcp-router);
-  add-subnet(*config*.networks[string-to-integer(network)], subnet);
-  #t;
-end;
-
-define method do-action (action == #"add-network", response :: <response>)
- => (show-get? :: <boolean>)
-  let cidr = get-query-value("cidr");
-  let dhcp? = if (get-query-value("dhcp") = "dhcp") #t else #f end;
-  let default-lease-time
-    = string-to-integer(get-query-value("default-lease-time"));
-  let max-lease-time
-    = string-to-integer(get-query-value("max-lease-time"));
-  let options = parse-options(get-query-value("options"));
-  let network = make(<network>,
-                     cidr: make(<cidr>, network-address: cidr),
-                     dhcp?: dhcp?,
-                     dhcp-max-lease-time: max-lease-time,
-                     dhcp-default-lease-time: default-lease-time,
-                     dhcp-options: options);
-  add-net(*config*, network);
-  #t;
-end;
-
-define method do-action (action == #"remove-network", response :: <response>)
- => (show-get? :: <boolean>)
-  let network = get-query-value("network");
-  remove-net(*config*, *config*.networks[string-to-integer(network)]);
-  #t;
-end;
-
-define method parse-options (options) => (list :: <list>)
-  format-out("OPTIONS %=\n", options);
-  #();
-end;
-
-define method respond-to-post
-    (page == #"vlan", request :: <request>, response :: <response>)
-  let action = get-query-value("action");
-  if (do-action(as(<symbol>, action), response))
-    respond-to-get(page, request, response);
-  end;
-end;
-
-define method do-action (action == #"add-vlan", response :: <response>)
- => (show-get? :: <boolean>)
-  let number = string-to-integer(get-query-value("vlan"));
-  let name = get-query-value("name");
-  let description = get-query-value("description");
-  let vlan = make(<vlan>,
-                  number: number,
-                  vlan-name: name,
-                  description: description);
-  add-vlan(*config*, vlan);
-  #t;
-end;
-
-define method do-action (action == #"remove-vlan", response :: <response>)
- => (show-get? :: <boolean>)
-  let vlan = string-to-integer(get-query-value("vlan"));
-  remove-vlan(*config*, choose(method(x)
-                                   x.number = vlan
-                               end, *config*.vlans)[0]);
-  #t;
-end;
-
-define method respond-to-post
-    (page == #"zone", request :: <request>, response :: <response>)
-  let name = get-query-value("name");
-  let hostmaster = get-query-value("hostmaster");
-  let serial = string-to-integer(get-query-value("serial"));
-  let refresh = string-to-integer(get-query-value("refresh"));
-  let retry = string-to-integer(get-query-value("retry"));
-  let expire = string-to-integer(get-query-value("expire"));
-  let minimum = string-to-integer(get-query-value("minimum"));
-  let time-to-live = string-to-integer(get-query-value("time-to-live"));
-  let nameserver = get-query-value("nameserver");
-  let mail-exchange = get-query-value("mail-exchange");
-  let txt = get-query-value("txt");
-  let zone = make(<zone>,
-                  zone-name: name,
-                  hostmaster: hostmaster,
-                  serial: serial,
-                  refresh: refresh,
-                  retry: retry,
-                  expire: expire,
-                  minimum: minimum,
-                  time-to-live: time-to-live,
-                  nameserver: list(nameserver),
-                  mail-exchange: list(mail-exchange),
-                  txt: list(txt));
-  *config*.zones := sort!(add!(*config*.zones, zone));
-  respond-to-get(page, request, response);
-end;
-
-define method respond-to-post
-    (page == #"host", request :: <request>, response :: <response>)
-  let name = get-query-value("name");
-  let ip = make(<ip-address>, data: get-query-value("ip"));
-  let mac = get-query-value("mac");
-  let zone = get-query-value("zone");
-  let network = find-network(find-network(*config*, ip), ip);
-  let host = make(<host>,
-                  host-name: name,
-                  ipv4-address: ip,
-                  subnet: network,
-                  mac-address: parse-mac(mac),
-                  zone: find-zone(*config*, zone));
-  add-host(network, host);
-  respond-to-get(page, request, response);
 end;
 
 define function main () => ()
@@ -776,30 +441,4 @@ end;
 
 begin
   main();
-end;
-
-define method main3()
-let foo =
-with-xml-builder()
-  html {
-    head {
-      title("foo")
-    },
-    body {
-      div(id => "foobar",
-          class => "narf") {
-        a("here", href => "http://www.foo.com"),
-        a(href => "http://www.ccc.de/"),
-        text("foobar"),
-        ul {
-          li("foo"),
-          br,
-          li("bar"),
-          br
-        }
-      }
-    }
-  }
-end;
-  format-out("%=\n", foo);
 end;

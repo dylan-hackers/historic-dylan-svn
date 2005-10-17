@@ -4,6 +4,7 @@ files: library
        util
        xml
        web-macro
+       object-table
        config
        network
        vlan

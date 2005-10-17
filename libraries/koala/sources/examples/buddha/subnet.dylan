@@ -43,14 +43,6 @@ define method as (class == <string>, subnet :: <subnet>)
   as(<string>, subnet.cidr);
 end;
 
-define method gen-xml (subnet :: <subnet>)
-  with-xml()
-    tr { td(as(<string>, subnet.cidr)),
-         td(integer-to-string(subnet.vlan.number))
-       }
-  end;
-end;
-
 define method add-host (subnet :: <subnet>, host :: <host>)
  => ()
   if ((host.ipv4-address = network-address(subnet.cidr)) |
