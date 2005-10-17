@@ -9,3 +9,12 @@ define method get-reference (object :: <object>) => (res :: <string>)
   $obj-table[address] := object;
   address;
 end;
+
+define method get-object (reference :: singleton(#f))
+ =>  (res :: false-or(<object>))
+  #f;
+end;
+
+define method get-object (reference :: <string>) => (res :: false-or(<object>))
+  element($obj-table, reference, default: #f);
+end;

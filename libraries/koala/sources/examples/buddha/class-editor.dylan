@@ -228,7 +228,7 @@ define method respond-to-post
       end;
   block(return)
     //add, save, remove... we may not need this here...
-    let object = element($obj-table, object-string, default: #f);
+    let object = get-object(object-string);
     unless (object)
       signal(make(<buddha-form-error>,
                   error: concatenate("Unknown object: ", object-string)));
@@ -250,9 +250,7 @@ end;
 
 define method add-object (parent-object :: <object>, request :: <request>)
   //look what type of object needs to be generated
-  let object = element($obj-table,
-                       get-query-value("obj"),
-                       default: #f);
+  let object = get-object(get-query-value("obj"));
   //if <string>, that's easy
   if (instance?(object, <string>))
     let value = get-query-value("string");
@@ -266,9 +264,7 @@ define method add-object (parent-object :: <object>, request :: <request>)
       slot.slot-setter-method(value, object);
     end;
     for (slot in reference-slots(object))
-      let value = element($obj-table,
-                          get-query-value(slot.slot-name),
-                          default: #f);
+      let value = get-object(get-query-value(slot.slot-name));
       slot.slot-setter-method(value, object);
       add-to-list(value, object);
     end;
@@ -279,9 +275,7 @@ end;
 
 define method remove-object (parent-object :: <object>, request :: <request>)
   //read object value, get it from $obj-table
-  let object = element($obj-table,
-                       get-query-value("remove-this"),
-                       default: #f);
+  let object = get-object(get-query-value("remove-this"));
   //sanity type-check
   //remove from parent list and other has-a references
   for (slot in reference-slots(object))
@@ -323,9 +317,7 @@ define method save-object (object :: <object>, request :: <request>)
   //now something completely different
   for (slot in reference-slots(object))
     //get new value via reference
-    let value = element($obj-table,
-                        get-query-value(slot.slot-name),
-                        default: #f);
+    let value = get-object(get-query-value(slot.slot-name));
     //error check it!
     //slot-setter!
     let current-object = slot.slot-getter-method(object);

@@ -48,7 +48,7 @@ define module object-table
                                   <string-table> };
 
   export get-reference,
-    $obj-table;
+    get-object;
 end;
 
 define module class-browser

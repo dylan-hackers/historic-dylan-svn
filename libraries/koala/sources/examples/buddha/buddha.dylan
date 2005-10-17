@@ -103,7 +103,10 @@ define method respond-to-get
   unless (obj-string)
     obj-string := "";
   end;
-  let obj = element($obj-table, obj-string, default: *config*);
+  let obj = get-object(obj-string);
+  unless (obj)
+    obj := *config*;
+  end;
   with-buddha-template(out, "Edit")
     show-errors(errors);
     with-xml()
@@ -125,7 +128,10 @@ define method respond-to-get
   unless (obj-string)
     obj-string := "";
   end;
-  let obj = element($obj-table, obj-string, default: *config*);
+  let obj = get-object(obj-string);
+  unless (obj)
+    obj := *config*;
+  end;
   with-buddha-template(out, "Browse")
     with-xml()
       div(id => "content") {
@@ -276,19 +282,13 @@ define method respond-to-get
   let out = output-stream(response);
   let obj-list = get-query-value("obj-id");
   let parent-obj = get-query-value("obj-parent");
-  if (~obj-list | obj-list = "")
+  obj-list := get-object(obj-list);
+  unless (obj-list)
     obj-list := *config*.subnets;
-  else
-    obj-list := element($obj-table,
-                        obj-list,
-                        default: *config*.subnets);
   end;
-  if (~parent-obj | parent-obj = "")
+  parent-obj := get-object(parent-obj);
+  unless (parent-obj)
     parent-obj := *config*;
-  else
-    parent-obj := element($obj-table,
-                          parent-obj,
-                          default: *config*);
   end;
   with-buddha-template(out, concatenate("Subnets in ",
                                         as(<string>, parent-obj)))
