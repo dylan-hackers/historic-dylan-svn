@@ -14,29 +14,6 @@ define method print-object (vlan :: <vlan>, stream :: <stream>)
         vlan.number, vlan.vlan-name, vlan.description);
 end;
 
-define method gen-xml (vlan :: <vlan>)
-  let res = make(<list>);
-  res := add!(res, with-xml()
-                     text(concatenate("VLAN ",
-                                      integer-to-string(vlan.number), " ",
-                                      vlan.vlan-name, " ",
-                                      vlan.description))
-                   end);
-  res := add!(res, with-xml()
-                     table
-                     {
-                       tr { th("CIDR"), th("VLAN") },
-                       do(let res = make(<list>);
-                          do(method(x)
-                                 res := add!(res, gen-xml(x));
-                             end,
-                             vlan.subnets);
-                          reverse(res))
-                     }
-                   end);
-  res;
-end;
-
 define method as (class == <string>, vlan :: <vlan>)
  => (res :: <string>)
   concatenate(integer-to-string(vlan.number), " ", vlan.vlan-name);

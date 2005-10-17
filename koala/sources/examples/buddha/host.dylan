@@ -29,19 +29,6 @@ define method as (class == <string>, host :: <host>)
   concatenate(host.host-name, " ", as(<string>, host.ipv4-address));
 end;
 
-define method gen-xml (host :: <host>)
-  with-xml()
-    tr
-    {
-      td(host.host-name),
-      td(as(<string>, host.ipv4-address)),
-      td(as(<string>, host.subnet.cidr)),
-      td(as(<string>, host.mac-address)),
-      td(host.zone.zone-name)
-    }
-  end;
-end;
-
 define method print-isc-dhcpd-file (host :: <host>, stream :: <stream>)
  => ()
   format(stream, "host %s {\n", host.host-name);

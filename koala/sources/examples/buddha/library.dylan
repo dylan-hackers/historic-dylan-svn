@@ -17,7 +17,7 @@ define library buddha
 end;
 
 define module web-macro
-  use dylan;
+  use common-dylan;
 
   export <slot>,
     slot-name,
@@ -34,12 +34,32 @@ define module web-macro
 end;
 
 define module xml
-  use dylan;
+  use common-dylan;
   use xml-parser;
   
   export \with-xml,
     \with-xml-builder,
     escape-html;
+end;
+
+define module object-table
+  use common-dylan;
+  use dylan-extensions, import: { address-of,
+                                  <string-table> };
+
+  export get-reference,
+    $obj-table;
+end;
+
+define module class-browser
+  use common-dylan;
+  use xml;
+  use web-macro;
+  use object-table;
+  use format-out;
+  use dylan-extensions, import: { debug-name };
+  export browse-list,
+    browse-table;
 end;
 
 define module buddha
@@ -60,4 +80,6 @@ define module buddha
   use xml-rpc-common, import: { base64-encode, base64-decode };
   use xml;
   use web-macro;
+  use object-table;
+  use class-browser;
 end;

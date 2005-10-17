@@ -1,42 +1,117 @@
-module: buddha
+module: class-browser
 author: Hannes Mehnert <hannes@mehnert.org>
 
-
-define method browse (object :: <object>) => (res :: <list>)
-  let res = make(<list>);
+define method browse (object :: <object>, markup :: <function>)
+  let res = make(<stretchy-vector>);
   for (slot in data-slots(object))
-    //format-out("DATA SLOT %=\n", slot.slot-name);
-    res := add!(res, with-xml()
-                       li(concatenate(slot.slot-name, ": ",
-                                      show(slot.slot-getter-method(object))))
-                     end);
+    res := add!(res, markup(#"data", slot, object));
   end;
   for (slot in reference-slots(object))
-    //format-out("REF SLOT NAME %= TYPE %= GETTER %=\n",
-    //           slot.slot-name, slot.slot-type, slot.slot-getter-method(object));
-    res := add!(res,
-                with-xml()
-                  li { a(concatenate(slot.slot-name, ": ",
-                                     show(slot.slot-getter-method(object))),
-                         href => concatenate
-                           ("/browse?obj=",
-                            get-reference(slot.slot-getter-method(object))))
-                      }
-                end);
+    res := add!(res, markup(#"reference", slot, object));
   end;
   for (slot in list-reference-slots(object))
-    //format-out("LIST SLOT %=\n", slot.slot-name);
-    res := add!(res, with-xml() text(slot.slot-name) end);
-    for (ele in slot.slot-getter-method(object))
-      res := add!(res, with-xml()
-                         li{ a(show(ele),
-                               href => concatenate("/browse?obj=",
-                                                   get-reference(ele)))
-                            }
-                       end);
-    end;
+    res := add!(res, markup(#"list", slot, object));
   end;
-  reverse(res);
+  res;
+end;
+
+define method to-list (key == #"data", slot, object)
+  with-xml()
+    li(concatenate(slot.slot-name,
+                   ":",
+                   show(value(object, slot))))
+  end;
+end;
+
+define method to-list (key == #"reference", slot, object)
+  with-xml()
+    li {
+       text(concatenate(slot.slot-name, ":")),
+       do(show-with-link(value(object, slot), "/browse"))
+       }
+  end;
+end;
+
+define method to-list (key == #"list", slot, object)
+  with-xml()
+    li {
+       text(concatenate(slot.slot-name, ":")),
+       do(if (value(object, slot).size > 0)
+            collect(with-xml()
+                      ul {
+                         do(for(ele in value(object, slot))
+                              collect(with-xml()
+                                        li { do(show-with-link(ele, "/browse")) }
+                                      end)
+                            end)
+                         }
+                    end)
+          end)
+        }
+  end;
+end;
+
+define method show-with-link (object :: <object>, url :: <string>)
+  with-xml()
+    a(show(object),
+      href => concatenate(url,
+                          "?obj-id=",
+                          get-reference(object)))
+  end;
+end;
+
+define method browse-list (object :: <object>) => (res)
+  with-xml()
+    ul { do(browse(object, to-list)) }
+  end;
+end;
+
+define method to-table-header (key, slot, object)
+  with-xml()
+    th(slot.slot-name)
+  end;
+end;
+
+define method to-table (key == #"data", slot, object)
+  with-xml()
+    td(show(value(object, slot)))
+  end;
+end;
+
+define method to-table (key == #"reference", slot, object)
+  with-xml()
+    td{ do(show-with-link(value(object, slot), "/browse")) }
+  end;
+end;
+
+define method to-table (key == #"list", slot, object)
+  with-xml()
+    td {
+       a(show(size(value(object, slot))),
+         href => concatenate("/", copy-sequence(slot.slot-type.debug-name,
+                                                start: 1,
+                                                end: slot.slot-type.debug-name.size - 1),
+                             "?obj-id=", get-reference(value(object, slot)),
+                             "&obj-parent=", get-reference(object)))
+       }
+  end;
+end;
+
+define method browse-table (headline :: <object>, object :: <object>) => (res)
+  with-xml()
+    table {
+          tr { do(browse(headline, to-table-header)) },
+          do(for (ele in object)
+               collect(with-xml()
+                         tr { do(browse(ele, to-table)) }
+                        end)
+              end)
+           }
+  end;
+end;
+
+define method value (object :: <object>, slot :: <slot>) => (value :: <object>)
+  slot.slot-getter-method(object)
 end;
 
 define method show (object :: <string>)
