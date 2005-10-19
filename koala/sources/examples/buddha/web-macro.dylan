@@ -10,28 +10,28 @@ define class <slot> (<object>)
 end;
 
 define generic list-reference-slots
-    (object :: <object>, #next next-method)
+    (object :: subclass(<object>), #next next-method)
  => (res :: <list>);
 
 define generic reference-slots
-    (object :: <object>, #next next-method)
+    (object :: subclass(<object>), #next next-method)
  => (res :: <list>);
 
 define generic data-slots
-    (object :: <object>, #next next-method)
+    (object :: subclass(<object>), #next next-method)
  => (res :: <list>);
 
-define method list-reference-slots (object :: <object>)
+define method list-reference-slots (object :: subclass(<object>))
  => (res :: <list>)
   #()
 end;
 
-define method reference-slots (object :: <object>)
+define method reference-slots (object :: subclass(<object>))
  => (res :: <list>)
   #()
 end;
 
-define method data-slots (object :: <object>)
+define method data-slots (object :: subclass(<object>))
  => (res :: <list>)
   #()
 end;
@@ -114,17 +114,17 @@ define macro web-class-definer
     end }
     => { define-class(?name; ?superclass; ?class-slots);
          define inline method list-reference-slots
-             (object :: ?name, #next next-method)
+             (object :: subclass(?name), #next next-method)
           => (res :: <list>)
            concatenate(next-method(), web-lists(?class-slots))
          end;
          define inline method reference-slots
-             (object :: ?name, #next next-method)
+             (object :: subclass(?name), #next next-method)
           => (res :: <list>)
            concatenate(next-method(), web-reference(?class-slots));
          end;
          define inline method data-slots
-             (object :: ?name, #next next-method)
+             (object :: subclass(?name), #next next-method)
           => (res :: <list>)
            concatenate(next-method(), web-data(?class-slots));
          end; }

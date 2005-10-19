@@ -5,14 +5,14 @@ define method edit-form (object :: <object>) => (res)
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
-      { do(for (slot in data-slots(object))
+      { do(for (slot in data-slots(object.object-class))
              let object = slot.slot-getter-method(object);
              collect(with-xml() text(concatenate(slot.slot-name, ": ")) end);
              //XXX check if slot is initialized?
              collect(edit-slot(object, slot.slot-name));
              collect(with-xml() br end);
            end;
-           for (slot in reference-slots(object))
+           for (slot in reference-slots(object.object-class))
              
              collect(with-xml() text(concatenate(slot.slot-name, ": ")) end);
              //get slot, generate select, option field for each element
@@ -51,7 +51,7 @@ define method edit-form (object :: <object>) => (res)
 end;
 
 //simple case for lists of strings....
-define method add-form (string :: <string>,
+define method add-form (type == <string>,
                         name :: <string>,
                         parent :: <object>) => (foo)
   with-xml()
@@ -64,8 +64,8 @@ define method add-form (string :: <string>,
               name => "obj-id",
               value => get-reference(parent)),
         input(type => "hidden",
-              name => "obj",
-              value => get-reference(string)),
+              name => "object-type",
+              value => get-reference(type)),
         input(type => "hidden",
               name => "action",
               value => "add-object"),
@@ -78,13 +78,13 @@ define method add-form (string :: <string>,
 end;
 
 
-define method add-form (object :: <object>,
+define method add-form (object-type :: subclass(<object>),
                         name :: <string>,
                         parent :: <object>) => (foo) // :: <list> ?
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
-      { do(for (slot in data-slots(object))
+      { do(for (slot in data-slots(object-type))
              collect(with-xml() text(concatenate(slot.slot-name, ": ")) end);
              //here we should have at least a seperation between integer,
              //strings and lists... or should we implement all lists with
@@ -101,7 +101,7 @@ define method add-form (object :: <object>,
              end;
              collect(with-xml() br end);
            end;
-           for (slot in reference-slots(object))
+           for (slot in reference-slots(object-type))
              collect(with-xml() text(concatenate(slot.slot-name, ": ")) end);
              //get slot, generate select, option field for each element
              //of global list of elements...
@@ -120,11 +120,11 @@ define method add-form (object :: <object>,
               name => "obj-id",
               value => get-reference(parent)),
         input(type => "hidden",
+              name => "object-type",
+              value => get-reference(object-type)),
+        input(type => "hidden",
               name => "action",
               value => "add-object"),
-        input(type => "hidden",
-              name => "obj",
-              value => get-reference(object)),
         input(type => "submit",
               name => "add-button",
               value => concatenate("Add to ", name))
@@ -136,7 +136,7 @@ end;
 
 define method list-forms (obj :: <object>) => (res)
   let res = make(<stretchy-vector>);
-  for (slot in list-reference-slots(obj))
+  for (slot in list-reference-slots(obj.object-class))
     let object = slot.slot-getter-method(obj);
     res := add!(res, with-xml()
                        text(concatenate(slot.slot-name, ": "))
@@ -168,7 +168,7 @@ define method list-forms (obj :: <object>) => (res)
                        end);
       res := add!(res, with-xml() br end);
     end;
-    res := add!(res, add-form(make(slot.slot-type), slot.slot-name, object));
+    res := add!(res, add-form(slot.slot-type, slot.slot-name, object));
   end;
   res;
 end;
@@ -250,20 +250,23 @@ end;
 
 define method add-object (parent-object :: <object>, request :: <request>)
   //look what type of object needs to be generated
-  let object = get-object(get-query-value("obj"));
+  let object-type = get-object(get-query-value("object-type"));
   //if <string>, that's easy
+  //XXX: hmm, make should probably only be done when all slots
+  //are successfully parsed and then use init-keywords...
+  let object = make(object-type);
   if (instance?(object, <string>))
     let value = get-query-value("string");
     parent-object := add!(parent-object, value);
   else
     //more complex objects:
     //data-slots ref-slots needs to be read and sanity checked
-    for (slot in data-slots(object))
+    for (slot in data-slots(object-type))
       let value = parse(slot.slot-name, slot.slot-type);
       //then set slots of object and add to parent list..
       slot.slot-setter-method(value, object);
     end;
-    for (slot in reference-slots(object))
+    for (slot in reference-slots(object-type))
       let value = get-object(get-query-value(slot.slot-name));
       slot.slot-setter-method(value, object);
       add-to-list(value, object);
@@ -278,7 +281,7 @@ define method remove-object (parent-object :: <object>, request :: <request>)
   let object = get-object(get-query-value("remove-this"));
   //sanity type-check
   //remove from parent list and other has-a references
-  for (slot in reference-slots(object))
+  for (slot in reference-slots(object.object-class))
     remove-from-list(slot.slot-getter-method(object), object);
   end;
 
@@ -305,7 +308,7 @@ end;
 
 define method save-object (object :: <object>, request :: <request>)
   //data-slots and ref-slots may have changed...
-  for (slot in data-slots(object))
+  for (slot in data-slots(object.object-class))
     //convert value to type of slot
     let value = parse(slot.slot-name, slot.slot-type);
     //do more error checking //maybe use another generic function, not as?
@@ -315,7 +318,7 @@ define method save-object (object :: <object>, request :: <request>)
     end;
   end;
   //now something completely different
-  for (slot in reference-slots(object))
+  for (slot in reference-slots(object.object-class))
     //get new value via reference
     let value = get-object(get-query-value(slot.slot-name));
     //error check it!
@@ -343,7 +346,7 @@ define method find-slot (object :: <object>, name :: <object>)
                                       "s");
   let list-slot = choose(method(x)
                              x.slot-name = class-getter-name
-                         end, list-reference-slots(object))[0];
+                         end, list-reference-slots(object.object-class))[0];
   list-slot.slot-getter-method(object)
 end;
 
