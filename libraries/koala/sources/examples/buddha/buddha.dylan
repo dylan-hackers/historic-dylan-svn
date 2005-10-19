@@ -100,9 +100,6 @@ define method respond-to-get
      #key errors)
   let out = output-stream(response);
   let obj-string = get-query-value("obj");
-  unless (obj-string)
-    obj-string := "";
-  end;
   let obj = get-object(obj-string);
   unless (obj)
     obj := *config*;
@@ -125,9 +122,6 @@ define method respond-to-get
      #key errors)
   let out = output-stream(response);
   let obj-string = get-query-value("obj-id");
-  unless (obj-string)
-    obj-string := "";
-  end;
   let obj = get-object(obj-string);
   unless (obj)
     obj := *config*;
@@ -266,8 +260,8 @@ define method respond-to-get
     with-xml ()
       div(id => "content")
       {
-        do(browse-table(make(<network>), *config*.networks)),
-        do(add-form(make(<network>), "Networks", *config*.networks))
+        do(browse-table(<network>, *config*.networks)),
+        do(add-form(<network>, "Networks", *config*.networks))
       }
     end;
   end;
@@ -295,8 +289,8 @@ define method respond-to-get
     with-xml()
       div(id => "content")
       {
-        do(browse-table(make(<subnet>), obj-list)),
-        do(add-form(make(<subnet>), as(<string>, parent-obj), parent-obj))
+        do(browse-table(<subnet>, obj-list)),
+        do(add-form(<subnet>, as(<string>, parent-obj), parent-obj))
       }
     end;
   end;
@@ -313,8 +307,8 @@ define method respond-to-get
     with-xml()
       div(id => "content")
       {
-        do(browse-table(make(<vlan>), *config*.vlans)),
-        do(add-form(make(<vlan>), "Vlans", *config*.vlans))
+        do(browse-table(<vlan>, *config*.vlans)),
+        do(add-form(<vlan>, "Vlans", *config*.vlans))
       }
     end;
   end;
@@ -332,8 +326,8 @@ define method respond-to-get
     with-xml()
       div(id => "content")
       {
-        do(browse-table(make(<host>), *config*.hosts)),
-        do(add-form(make(<host>), "Hosts", *config*.hosts))
+        do(browse-table(<host>, *config*.hosts)),
+        do(add-form(<host>, "Hosts", *config*.hosts))
       }
     end;
   end;
@@ -353,8 +347,8 @@ define method respond-to-get
     with-xml()
       div(id => "content")
       {
-        do(browse-table(make(<zone>), *config*.zones)),
-        do(add-form(make(<zone>), "Zones", *config*.zones))
+        do(browse-table(<zone>, *config*.zones)),
+        do(add-form(<zone>, "Zones", *config*.zones))
       }
     end;
   end;

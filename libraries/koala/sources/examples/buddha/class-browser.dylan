@@ -1,16 +1,17 @@
 module: class-browser
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define method browse (object :: <object>, markup :: <function>)
+define method browse (object-type :: subclass(<object>),
+                      markup :: <function>)
   let res = make(<stretchy-vector>);
-  for (slot in data-slots(object))
-    res := add!(res, markup(#"data", slot, object));
+  for (slot in data-slots(object-type))
+    res := add!(res, markup(#"data", slot));
   end;
-  for (slot in reference-slots(object))
-    res := add!(res, markup(#"reference", slot, object));
+  for (slot in reference-slots(object-type))
+    res := add!(res, markup(#"reference", slot));
   end;
-  for (slot in list-reference-slots(object))
-    res := add!(res, markup(#"list", slot, object));
+  for (slot in list-reference-slots(object-type))
+    res := add!(res, markup(#"list", slot));
   end;
   res;
 end;
@@ -62,11 +63,11 @@ end;
 
 define method browse-list (object :: <object>) => (res)
   with-xml()
-    ul { do(browse(object, to-list)) }
+    ul { do(browse(object.object-class, rcurry(to-list, object))) }
   end;
 end;
 
-define method to-table-header (key, slot, object)
+define method to-table-header (key, slot)
   with-xml()
     th(slot.slot-name)
   end;
@@ -97,13 +98,14 @@ define method to-table (key == #"list", slot, object)
   end;
 end;
 
-define method browse-table (headline :: <object>, object :: <object>) => (res)
+define method browse-table (headline :: subclass(<object>),
+                            object :: <object>) => (res)
   with-xml()
     table {
           tr { do(browse(headline, to-table-header)) },
           do(for (ele in object)
                collect(with-xml()
-                         tr { do(browse(ele, to-table)) }
+                         tr { do(browse(headline, rcurry(to-table, ele))) }
                         end)
               end)
            }
