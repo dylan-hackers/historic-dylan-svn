@@ -274,23 +274,12 @@ define method respond-to-get
      #key errors)
   //TODO: remove/edit subnet forms
   let out = output-stream(response);
-  let obj-list = get-query-value("obj-id");
-  let parent-obj = get-query-value("obj-parent");
-  obj-list := get-object(obj-list);
-  unless (obj-list)
-    obj-list := *config*.subnets;
-  end;
-  parent-obj := get-object(parent-obj);
-  unless (parent-obj)
-    parent-obj := *config*;
-  end;
-  with-buddha-template(out, concatenate("Subnets in ",
-                                        as(<string>, parent-obj)))
+  with-buddha-template(out, "Subnets")
     with-xml()
       div(id => "content")
       {
-        do(browse-table(<subnet>, obj-list)),
-        do(add-form(<subnet>, as(<string>, parent-obj), parent-obj))
+        do(browse-table(<subnet>, *config*.subnets)),
+        do(add-form(<subnet>, "Subnets", *config*.subnets))
       }
     end;
   end;
@@ -314,7 +303,6 @@ define method respond-to-get
   end;
 end;
 
-/*
 define method respond-to-get
     (page == #"host",
      request :: <request>,
@@ -332,7 +320,6 @@ define method respond-to-get
     end;
   end;
 end;
-*/
 
 define method respond-to-get
     (page == #"zone",
@@ -382,25 +369,6 @@ define method respond-to-get
     end;
   end;
 end;
-
-/*
-define method respond-to-post
-    (page == #"user", request :: <request>, response :: <response>)
-  let ip = host-address(remote-host(request-socket(request)));
-  let name = get-query-value("name");
-  let mac = get-query-value("mac");
-  let zone = *config*.config-zones[0];
-  let network = find-network(*config*, ip);
-  let host = make(<host>,
-                  host-name: name,
-                  ipv4-address: ip,
-                  subnet: find-network(network, ip),
-                  mac-address: parse-mac(mac),
-                  zone: zone);
-  add-host(network, host);
-  respond-to-get(page, request, response);
-end;
-*/
 
 define method do-action (action == #"gen-dhcpd", response :: <response>)
  => (show-get? :: <boolean>)

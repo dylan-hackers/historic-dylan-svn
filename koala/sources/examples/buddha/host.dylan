@@ -11,13 +11,7 @@ end;
 
 define method print-object (host :: <host>, stream :: <stream>)
  => ()
-  format(stream, "Host %s Zone %s Mac %s\n",
-         host.host-name,
-         host.zone.zone-name,
-         as(<string>, host.mac-address));
-  format(stream, "IP %s Net %s\n",
-         as(<string>, host.ipv4-address),
-         as(<string>, host.subnet.cidr));
+  format(stream, "Host: %s\n", as(<string>, host))
 end;
 
 define method \< (a :: <host>, b :: <host>) => (res :: <boolean>)

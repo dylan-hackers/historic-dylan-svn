@@ -9,7 +9,6 @@ end;
 define web-class <zone> (<object>)
   data zone-name :: <string>;
   data reverse? :: <boolean>;
-  has-many host;
   has-many cname;
   data hostmaster :: <string>;
   data serial :: <integer>;
@@ -25,7 +24,7 @@ end;
 
 define method print-object (zone :: <zone>, stream :: <stream>)
  => ();
-  format(stream, "%s", zone.zone-name);
+  format(stream, "Zone: %s\n", as(<string>, zone));
 end method;
 
 define method as (class == <string>, zone :: <zone>)
@@ -33,78 +32,98 @@ define method as (class == <string>, zone :: <zone>)
   zone.zone-name;
 end;
 
-define method print-bind-zone-file (zone :: <zone>, stream :: <stream>)
+define method print-bind-zone-file (print-zone :: <zone>, stream :: <stream>)
   format(stream, "@\tIN\tSOA\t%s.\t%s. (\n",
-         zone.nameservers[0],
-         zone.hostmaster);
-  format(stream, "\t\t%d\t; Serial\n", zone.serial);
-  format(stream, "\t\t%d\t; Refresh\n", zone.refresh);
-  format(stream, "\t\t%d\t; Retry\n", zone.retry);
-  format(stream, "\t\t%d\t; Expire\n", zone.expire);
-  format(stream, "\t\t%d )\t; Minimum\n\n", zone.minimum);
-  if (zone.reverse?)
+         print-zone.nameservers[0],
+         print-zone.hostmaster);
+  format(stream, "\t\t%d\t; Serial\n", print-zone.serial);
+  format(stream, "\t\t%d\t; Refresh\n", print-zone.refresh);
+  format(stream, "\t\t%d\t; Retry\n", print-zone.retry);
+  format(stream, "\t\t%d\t; Expire\n", print-zone.expire);
+  format(stream, "\t\t%d )\t; Minimum\n\n", print-zone.minimum);
+  if (print-zone.reverse?)
     do(method(x)
            format(stream, "\tIN\tNS\t%s. \n", x)
-       end, zone.nameservers);
+       end, print-zone.nameservers);
     do(method(x)
            format(stream, "%d\tIN\tPTR\n%s.%s.\n",
                   x.ipv4-address[3],
                   x.host-name,
-                  zone.zone-name)
-       end, zone.hosts);
+                  print-zone.zone-name)
+       end, choose(method(x)
+                       ip-in-net?(parse-cidr(print-zone.zone-name),
+                                  x.ipv4-address)
+                   end, *config*.hosts));
   else
     do(method(x)
            format(stream, "\tIN\tNS\t%s. \n", x)
-       end, zone.nameservers);
+       end, print-zone.nameservers);
     do(method(x)
            format(stream, "\tIN\tMX\t%d\t%s.\n", head(x), tail(x))
-       end, zone.mail-exchanges);
+       end, print-zone.mail-exchanges);
     do(method(x)
            format(stream, "%s\tIN\tA\t%s\n",
                   x.host-name,
                   as(<string>, x.ipv4-address))
-       end, zone.hosts);
+       end, choose(method(x)
+                       x.zone = print-zone
+                   end, *config*.hosts));
     do(method(x)
            format(stream, "%s\tCNAME\t%s\n", source(x), target(x))
-       end, zone.cnames);
+       end, print-zone.cnames);
   end;
 end;
 
-define method print-tinydns-zone-file (zone :: <zone>, stream :: <stream>)
+define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
   //Zfqdn:mname:rname:ser:ref:ret:exp:min:ttl:timestamp:lo
   format(stream, "Z%s:%s:%s:%d:%d:%d:%d:%d:%d\n",
-         zone.zone-name, zone.nameservers[0],
-         zone.hostmaster, zone.serial,
-         zone.refresh, zone.retry,
-         zone.expire, zone.minimum,
-         zone.time-to-live);
+         print-zone.zone-name, print-zone.nameservers[0],
+         print-zone.hostmaster, print-zone.serial,
+         print-zone.refresh, print-zone.retry,
+         print-zone.expire, print-zone.minimum,
+         print-zone.time-to-live);
   //nameserver
   do(method(x)
-         format(stream, "&%s::%s\n", zone.zone-name, x)
-     end, zone.nameservers);
-  if (zone.reverse?)
+         format(stream, "&%s::%s\n", print-zone.zone-name, x)
+     end, print-zone.nameservers);
+  if (print-zone.reverse?)
     //PTR
     do(method(x)
            format(stream, "^%s:%s\n",
                   x.host-name,
                   as(<string>, x.ipv4-address));
-       end, zone.hosts);
+       end, choose(method(x)
+                       ip-in-net?(parse-cidr(print-zone.zone-name),
+                                  x.ipv4-address)
+                   end, *config*.hosts));
   else
     //MX
     do(method(x)
            format(stream, "@%s::%s:%d\n",
-                  zone.zone-name, tail(x), head(x));
-       end, zone.mail-exchanges);
+                  print-zone.zone-name, tail(x), head(x));
+       end, print-zone.mail-exchanges);
     //A
     do(method(x)
            format(stream, "+%s:%s\n",
                   x.host-name,
                   as(<string>, x.ipv4-address));
-       end, zone.hosts);
+       end, choose(method(x)
+                       x.zone = print-zone
+                   end, *config*.hosts));
     //CNAME
     do(method(x)
            format(stream, "C%s:%s\n",
                   source(x), target(x));
-       end, zone.cnames);
+       end, print-zone.cnames);
   end;
+end;
+
+define method parse-cidr (zone-name :: <string>) => (network :: <network>)
+  //XXX: needs to be done
+  //zone-name should be something like 1.2.3.in-addr.arpa for 3.2.1.0/24
+  make(<network>, cidr: "10.0.0.0/24");
+end;
+
+define method add-reverse-zones (network :: <network>) => ()
+  //XXX: add reverse zone for each /24 in network
 end;

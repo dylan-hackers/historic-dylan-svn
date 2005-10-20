@@ -5,13 +5,11 @@ define web-class <vlan> (<object>)
   data number :: <integer>;
   data vlan-name :: <string>;
   data description :: <string>;
-  has-many subnet;
 end;
 
 define method print-object (vlan :: <vlan>, stream :: <stream>)
  => ()
-  format(stream, "VLAN %d name %s description %s",
-        vlan.number, vlan.vlan-name, vlan.description);
+  format(stream, "VLAN %s\n", as(<string>, vlan))
 end;
 
 define method as (class == <string>, vlan :: <vlan>)

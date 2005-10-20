@@ -16,9 +16,6 @@ security:
 
 interface to get the next /XX subnet (or the next subnet with at least Y ips)
 
-add-form should be able to respond-to-get from the redirecting site, don't
- show /edit by default
-
 with-xml:collect only works for elements, not for lists of elements
 
 the following doesn't work (reference to undefined binding "collect" (but
