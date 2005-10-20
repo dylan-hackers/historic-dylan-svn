@@ -1,4 +1,4 @@
-module: buddha
+module: utils
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define method exclude (list, symbol) => (sequence)
@@ -44,6 +44,12 @@ define method regexp-match(big :: <string>, regex :: <string>) => (#rest results
     end
   end;
   apply(values, result)
+end;
+
+define method get-url-from-type (type) => (string :: <string>)
+  copy-sequence(type.debug-name,
+                start: 1,
+                end: type.debug-name.size - 1)
 end;
 
 define class <wrapper-sequence> (<sequence>)

@@ -11,8 +11,8 @@ files: library
        subnet
        cidr
        ipv4
-       zone
        host
+       zone
        mac
        cisco-telnet
        class-browser

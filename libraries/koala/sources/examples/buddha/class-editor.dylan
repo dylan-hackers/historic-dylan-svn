@@ -218,40 +218,48 @@ define method edit-slot (object :: <boolean>, slot-name :: <string>)
 end;
 
 define method respond-to-post
-    (page == #"edit", request :: <request>, response :: <response>)
+    (page == #"edit",
+     request :: <request>,
+     response :: <response>)
   let errors = #();
   let action = as(<symbol>, get-query-value("action"));
   let object-string = get-query-value("obj-id");
+  let object = get-object(object-string);
+  let answer = #f;
   let handler <buddha-form-warning>
     = method(e :: <buddha-form-warning>, next-handler :: <function>)
           errors := add!(errors, e)
       end;
   block(return)
     //add, save, remove... we may not need this here...
-    let object = get-object(object-string);
     unless (object)
       signal(make(<buddha-form-error>,
                   error: concatenate("Unknown object: ", object-string)));
     end;
-    select (action)
-      #"add-object" => add-object(object, request);
-      #"remove-object" => remove-object(object, request);
-      #"save-object" => save-object(object, request);
-      otherwise => make(<buddha-form-error>,
-                        error: concatenate("Unknown action: ",
-                                           as(<string>, action)));
-    end select;
+    answer :=
+      select (action)
+        #"add-object" => add-object(object, request);
+        #"remove-object" => remove-object(object, request);
+        #"save-object" => save-object(object, request);
+        otherwise => make(<buddha-form-error>,
+                          error: concatenate("Unknown action: ",
+                                             as(<string>, action)));
+      end select;
   exception (e :: <buddha-form-error>)
     errors := add!(errors, e);
     return();
   end;
-  respond-to-get(#"edit", request, response, errors: errors);
+  if (answer)
+    answer := as(<symbol>, get-url-from-type(answer))
+  else
+    answer := #"edit"
+  end;
+  respond-to-get(answer, request, response, errors: errors);
 end;
 
 define method add-object (parent-object :: <object>, request :: <request>)
   //look what type of object needs to be generated
   let object-type = get-object(get-query-value("object-type"));
-  //if <string>, that's easy
   //XXX: hmm, make should probably only be done when all slots
   //are successfully parsed and then use init-keywords...
   let object = make(object-type);
@@ -263,30 +271,32 @@ define method add-object (parent-object :: <object>, request :: <request>)
     //data-slots ref-slots needs to be read and sanity checked
     for (slot in data-slots(object-type))
       let value = parse(slot.slot-name, slot.slot-type);
-      //then set slots of object and add to parent list..
+      //then set slots of object
       slot.slot-setter-method(value, object);
     end;
     for (slot in reference-slots(object-type))
       let value = get-object(get-query-value(slot.slot-name));
       slot.slot-setter-method(value, object);
-      add-to-list(value, object);
     end;
-    parent-object := add!(parent-object, object);
+    //add to parent list..
+    //XXX: evil hardcoded hack
+    if (any?(method(x)
+                 x.slot-type = object-type
+             end, list-reference-slots(<config>)))
+      add-thing(object);
+    else
+      parent-object := add!(parent-object, object);
+    end
   end;
-  //also may need to be added to other (global) lists
+  object.object-class;
 end;
 
 define method remove-object (parent-object :: <object>, request :: <request>)
   //read object value, get it from $obj-table
   let object = get-object(get-query-value("remove-this"));
   //sanity type-check
-  //remove from parent list and other has-a references
-  for (slot in reference-slots(object.object-class))
-    remove-from-list(slot.slot-getter-method(object), object);
-  end;
-
   parent-object := remove!(parent-object, object);
-  //it may need to be removed from several (global) lists...
+  object.object-class;
 end;
 
 define method parse (name, type)
@@ -325,37 +335,9 @@ define method save-object (object :: <object>, request :: <request>)
     //slot-setter!
     let current-object = slot.slot-getter-method(object);
     if (value & (value ~= current-object))
-      //remove old object from list of objects of referenced object
-      remove-from-list(current-object, object);
-
       //set slot in object
       slot.slot-setter-method(value, object);
-
-      //add new object to list of objects of referenced object
-      add-to-list(value, object);
     end;
   end;
-end;
-
-define method find-slot (object :: <object>, name :: <object>)
- => (res)
-  let class-name = debug-name(object-class(name));
-  let class-getter-name = concatenate(copy-sequence(class-name,
-                                                    start: 1,
-                                                    end: class-name.size - 1),
-                                      "s");
-  let list-slot = choose(method(x)
-                             x.slot-name = class-getter-name
-                         end, list-reference-slots(object.object-class))[0];
-  list-slot.slot-getter-method(object)
-end;
-
-define method remove-from-list (list :: <object>, element :: <object>)
-  let old-list = find-slot(list, element);
-  old-list := remove!(old-list, element);
-end;
-
-define method add-to-list (list :: <object>, element :: <object>)
-  let new-list = find-slot(list, element);
-  new-list := add!(new-list, element);
+  object.object-class;
 end;

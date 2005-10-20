@@ -89,9 +89,7 @@ define method to-table (key == #"list", slot, object)
   with-xml()
     td {
        a(show(size(value(object, slot))),
-         href => concatenate("/", copy-sequence(slot.slot-type.debug-name,
-                                                start: 1,
-                                                end: slot.slot-type.debug-name.size - 1),
+         href => concatenate("/", get-url-from-type(slot.slot-type),
                              "?obj-id=", get-reference(value(object, slot)),
                              "&obj-parent=", get-reference(object)))
        }

@@ -7,6 +7,7 @@ define web-class <config> (<object>)
   has-many network;
   has-many zone;
   has-many subnet;
+  has-many host;
 end;
 
 define method as (class == <string>, config :: <config>)
@@ -14,95 +15,120 @@ define method as (class == <string>, config :: <config>)
   config.config-name
 end;
 
-define method fits? (config :: <config>, fit-cidr :: <cidr>)
+define method print-object (config :: <config>, stream :: <stream>)
+ => ()
+  format(stream, "Config:%s\n", as(<string>, config))
+end;
+
+define method fits? (network :: <network>) => (res :: <boolean>)
+  fits?-aux (network, *config*.networks)
+end;
+
+define method fits? (subnet :: <subnet>) => (res :: <boolean>)
+  fits?-aux(subnet, *config*.subnets)
+end;
+
+define method fits?-aux (network :: <network>, list :: <collection>)
  => (res :: <boolean>)
   //checks whether cidr is not used in network yet.
-  //each subnet (network-address and broadcast address)
+  //each network (network-address and broadcast address)
   //must be both greater than the network-address or
   //both smaller than broadcast-address
   every?(method(x)
-             ((network-address(cidr(x)) > network-address(fit-cidr)) &
-                (broadcast-address(cidr(x)) > network-address(fit-cidr))) |
-             ((network-address(cidr(x)) < broadcast-address(fit-cidr)) &
-                (broadcast-address(cidr(x)) < broadcast-address(fit-cidr)))
+             ((network-address(cidr(x)) > network-address(network.cidr)) &
+                (broadcast-address(cidr(x)) > network-address(network.cidr))) |
+             ((network-address(cidr(x)) < broadcast-address(network.cidr)) &
+                (broadcast-address(cidr(x)) < broadcast-address(network.cidr)))
          end,
-         config.networks);
+         list);
 end;
 
-define method find-network (config :: <config>, ip-address :: <ip-address>)
- => (network :: false-or(<network>))
-  block(return)
-    for (net in config.networks)
-      if (ip-in-net?(net, ip-address))
-        return(net)
-      end if;
-    end for;
-    #f;
-  end block;
-end;
 
-define method find-zone (config :: <config>, zone :: <string>)
-  //XXX [0] is obviously wrong here
-  choose(method(x)
-             x.zone-name = zone;
-         end, config.zones)[0];
-end;
-
-define method print-object (config :: <config>, stream :: <stream>)
+define method add-thing (zone :: <zone>)
  => ()
-  format(stream, "Config: %s\n", config.config-name);
-  for (net in config.networks)
-    format(stream, "%=\n", net);
-  end;
-  for (vlan in config.vlans)
-    format(stream, "%=\n", vlan);
-  end for;
-  for (zone in config.zones)
-    format(stream, "%=\n", zone);
-  end for;
-end;
-
-define method add-vlan (config :: <config>, vlan :: <vlan>)
- => ()
-  if (any?(method(x) x.number = vlan.number end , config.vlans))
-    format-out("VLAN %d already exists!\n", vlan.number);
+  if (any?(method(x) x.zone-name = zone.zone-name end , *config*.zones))
+    format-out("Zone %= already exists!\n", zone);
   else
-    config.vlans := sort!(add!(config.vlans, vlan));
+    *config*.zones := sort!(add!(*config*.zones, zone));
   end;
 end;
 
-define method add-net (config :: <config>, network :: <network>)
+define method add-thing (host :: <host>)
  => ()
-  if (fits?(*config*, network.cidr))
-    config.networks := sort!(add!(config.networks, network));
+  if (any?(method(x) x.host-name = host.host-name end,
+           choose(method(x) x.zone = host.zone end, *config*.hosts)))
+    format-out("Host with same name already exists in zone, didn't add\n");
+  elseif (any?(method(x) x.ipv4-address = host.ipv4-address end,
+               choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
+    format-out("Host with same IP address already exists in subnet, didn't add\n");
+  elseif (any?(method(x) x.mac-address = host.mac-address end,
+               choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
+    format-out("Host with same MAC address already exists in subnet, didn't add\n");
+  elseif ((host.ipv4-address = network-address(host.subnet.cidr)) |
+            (host.ipv4-address = broadcast-address(host.subnet.cidr)))
+    format-out("Host can't have the network or broadcast address as IP, didn't add\n");
   else
-    format-out("Network %= overlaps with another network, not added.\n",
-               network.cidr);
+    *config*.hosts := sort!(add!(*config*.hosts, host));
+  end;
+end;
+
+define method add-thing (vlan :: <vlan>)
+ => ()
+  if (any?(method(x) x.number = vlan.number end , *config*.vlans))
+    format-out("VLAN with same number already exists, didn't add\n");
+  elseif (any?(method(x) x.vlan-name = vlan.vlan-name end, *config*.vlans))
+    format-out("VLAN with same name already exists, didn't add\n");
+  else
+    *config*.vlans := sort!(add!(*config*.vlans, vlan));
+  end;
+end;
+
+define method add-thing (network :: <network>)
+ => ()
+  unless (network-address(network.cidr) = base-network-address(network.cidr))
+    format-out("Network address is not the base network address, fixing this!\n");
+    network.cidr.cidr-network-address := base-network-address(network.cidr);
+  end;
+  if (fits?(network))
+    *config*.networks := sort!(add!(*config*.networks, network));
+  else
+    format-out("Network overlaps with another network, didn't add\n");
   end if;
 end;
 
-define method remove-vlan (config :: <config>, vlan :: <vlan>)
+define method add-thing (subnet :: <subnet>)
  => ()
-  if (vlan.subnets.size = 0)
-    remove!(config.vlans, vlan);
+  unless (network-address(subnet.cidr) = base-network-address(subnet.cidr))
+    format-out("Network address is not the base network address, fixing this!\n");
+    subnet.cidr.cidr-network-address := base-network-address(subnet.cidr);
+  end;
+  if (fits?(subnet))
+    if (subnet-in-network? (subnet))
+      if (ip-in-net?(subnet, subnet.dhcp-start))
+        if (ip-in-net?(subnet, subnet.dhcp-end))
+          if (ip-in-net?(subnet, subnet.dhcp-router))
+            *config*.subnets := sort!(add!(*config*.subnets, subnet));
+          else
+            format-out("DHCP router not in subnet, didn't add\n");
+          end
+        else
+          format-out("DHCP end not in subnet, didn't add\n");
+        end
+      else
+        format-out("DHCP start not in subnet, didn't add\n");
+      end
+    else
+      format-out("Subnet not in a defined network, didn't add\n");
+    end
   else
-    format-out("Couldn't remove vlan %d because it has subnets.\n",
-               vlan.number);
-  end;
-end;
-
-define method remove-net (config :: <config>, network :: <network>)
- => ()
-  for (subnet in network.subnets)
-    remove-subnet(network, subnet);
-  end;
-  config.networks := remove!(config.networks, network);
+    format-out("Subnet overlaps with another subnet, didn't add\n");
+  end if;
 end;
 
 define method print-bind-zone-file
     (config :: <config>, stream :: <stream>)
  => ()
-  //we need to print dhcpd.conf file here
+  //we need to print named.conf file here
   for (zone in config.zones)
     print-bind-zone-file(zone, stream)
   end;

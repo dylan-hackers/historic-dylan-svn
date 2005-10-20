@@ -51,13 +51,25 @@ define module object-table
     get-object;
 end;
 
+define module utils
+  use common-dylan;
+  use dylan-extensions, import: { debug-name };
+  use regular-expressions;
+  export exclude,
+    regexp-match,
+    get-url-from-type,
+    <wrapper-sequence>,
+    <mutable-wrapper-sequence>,
+    data;
+end;
+
 define module class-browser
   use common-dylan;
   use xml;
   use web-macro;
   use object-table;
   use format-out;
-  use dylan-extensions, import: { debug-name };
+  use utils;
   export browse-list,
     browse-table;
 end;
@@ -69,17 +81,21 @@ define module buddha
   use format-out;
   use format, import: { format };
   use print, import: { print-object };
-  use koala, exclude: { print-object };
+
   use streams;
   use standard-io;
   use character-type, import: { hex-digit? };
-  use dood;
-  use regular-expressions;
+
+  use koala, exclude: { print-object };
   use sockets, import: { <tcp-socket>, <internet-address> };
+
+  use dood;
   use file-system;
   use xml-rpc-common, import: { base64-encode, base64-decode };
+
   use xml;
   use web-macro;
   use object-table;
   use class-browser;
+  use utils;
 end;

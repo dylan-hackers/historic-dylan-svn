@@ -4,8 +4,21 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define class <mac-address> (<wrapper-sequence>)
 end;
 
-define method parse-mac (mac :: <string>)
- => (res :: false-or(<mac-address>))
+define method \= (a :: <mac-address>, b :: <mac-address>)
+ => (res :: <boolean>)
+  block(done)
+    for (ele1 in a,
+         ele2 in b)
+      unless (ele1 = ele2)
+        done(#f);
+      end;
+    end;
+    done(#t);
+  end;
+end;
+
+define method as (class == <mac-address>, mac :: <string>)
+ => (res :: <mac-address>)
   block(parse-error)
     mac := as-lowercase(mac);
     if (any?(method(x) x = ':' end, mac))
@@ -39,37 +52,18 @@ define method parse-mac (mac :: <string>)
           parse-error(#f);
         end unless;
       end for;
-      as(<mac-address>, mac);
+      let res = make(<list>, size: 6);
+      for (i from 0 below mac.size by 2,
+           j from 0)
+        res[j] := copy-sequence(mac, start: i, end: i + 2);
+      end;
+      make(<mac-address>,
+           data: res);
     else
       //something completely different
       parse-error(#f);
     end if;
   end block;
-end;
-
-define method \= (a :: <mac-address>, b :: <mac-address>)
- => (res :: <boolean>)
-  block(done)
-    for (ele1 in a,
-         ele2 in b)
-      unless (ele1 = ele2)
-        done(#f);
-      end;
-    end;
-    done(#t);
-  end;
-end;
-
-define method as (class == <mac-address>, string :: <string>)
- => (res :: <mac-address>)
-  //we are sure string is a correct mac-address (12 hex digits)
-  let mac = make(<list>, size: 6);
-  for (i from 0 below string.size by 2,
-       j from 0)
-    mac[j] := copy-sequence(string, start: i, end: i + 2);
-  end;
-  make(<mac-address>,
-       data: mac);
 end;
 
 define method as (class == <string>, mac :: <mac-address>)
