@@ -83,6 +83,5 @@ define method generate-dhcp-ranges (this-subnet :: <subnet>)
   if (start-ip <= end-ip)
     res := add!(res, pair(start-ip, end-ip));
   end;
-  //format-out("ranges %=\n", reverse(res));
   reverse(res);
 end;

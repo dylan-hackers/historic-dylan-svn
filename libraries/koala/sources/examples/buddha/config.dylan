@@ -47,7 +47,6 @@ end;
 define method add-thing (zone :: <zone>)
  => ()
   if (any?(method(x) x.zone-name = zone.zone-name end , *config*.zones))
-    format-out("zone with same name exists\n");
     signal(make(<buddha-form-error>,
                 error: "Zone with same name already exists, didn't add"));
   else
@@ -63,7 +62,8 @@ define method add-thing (host :: <host>)
                 error: "Host with same name already exists in zone, didn't add"));
   elseif (any?(method(x) x.ipv4-address = host.ipv4-address end,
                choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
-    format-out("Host with same IP address already exists in subnet, didn't add\n");
+    signal(make(<buddha-form-error>,
+                error: "Host with same IP address already exists in subnet, didn't add"));
   elseif (any?(method(x) x.mac-address = host.mac-address end,
                choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
     signal(make(<buddha-form-error>,
@@ -127,12 +127,12 @@ define method add-thing (subnet :: <subnet>)
                       error: "DHCP end not in subnet, didn't add"));
         end
       else
-    signal(make(<buddha-form-error>,
-                error: "DHCP start not in subnet, didn't add"));
+        signal(make(<buddha-form-error>,
+                    error: "DHCP start not in subnet, didn't add"));
       end
     else
-    signal(make(<buddha-form-error>,
-                error: "Subnet not in a defined network, didn't add"));
+      signal(make(<buddha-form-error>,
+                  error: "Subnet not in a defined network, didn't add"));
     end
   else
     signal(make(<buddha-form-error>,

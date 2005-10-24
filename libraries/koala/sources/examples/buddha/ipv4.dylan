@@ -33,10 +33,8 @@ define method \+ (a :: <ip-address>, b :: <integer>)
     let (quotient, remainder) = truncate/(ele + rem, 256);
     res[i] := remainder;
     rem := quotient;
-    //format-out("rem %= res[i] %=\n", rem, res[i]);
   end;
   res := make(<ip-address>, data: res);
-  //format-out("%= + %= = %=\n", a, b, res);
   res;
 end;
 
@@ -52,18 +50,14 @@ define method \- (a :: <ip-address>, b :: <integer>)
   for (ele in reverse(a),
        i from 3 by -1)
     if (ele - rem < 0)
-      //format-out("ele - rem < 0 (%= - %= < %=)\n", ele, rem, ele - rem);
       res[i] := modulo(ele - rem, 256);
       rem := abs(truncate/(rem, 256));
     else
       res[i] := ele - rem;
       rem := 0;
     end;
-    //format-out("rem %= res[i] %=\n", rem, res[i]); 
   end;
-  res := make(<ip-address>, data: res);
-  //format-out("%= - %= = %=\n", a, b, res);
-  res;
+  make(<ip-address>, data: res);
 end;
 
 define method \< (a :: <ip-address>, b :: <ip-address>)
