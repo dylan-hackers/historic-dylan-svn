@@ -105,13 +105,14 @@ define method respond-to-get
     obj := *config*;
   end;
   with-buddha-template(out, "Edit")
-    show-errors(errors);
-    with-xml()
-      div(id => "content") {
-        do(edit-form(obj)),
-        do(list-forms(obj))
-      }
-    end;
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                do(edit-form(obj)),
+                do(list-forms(obj))
+              }
+            end);
   end;
 end;
 
@@ -136,19 +137,22 @@ define method respond-to-get
 end;
 
 define method show-errors (errors)
-  if (errors & (errors.size > 0))
-    with-xml()
-      div(id => "error")
-      { ul
-        {
-          do(for(error in errors)
-               collect(with-xml()
-                         li(error.error-string)
-                       end);
-             end)
-         }
-       }
-    end;
+  with-xml()
+    div(id => "error")
+    {
+      do(if (errors & (errors.size > 0))
+           with-xml()
+             ul
+             {
+               do(for(error in errors)
+                    collect(with-xml()
+                              li(error.error-string)
+                            end);
+                  end)
+             }
+           end;
+         end)
+    }
   end;
 end;
 
@@ -159,7 +163,7 @@ define method respond-to-get
      #key errors)
   let out = output-stream(response);
   with-buddha-template(out, "Save Database")
-    show-errors(errors);
+    collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
               { form(action => "/save", \method => "post")
@@ -257,13 +261,14 @@ define method respond-to-get
   //      remove/edit network forms
   let out = output-stream(response);
   with-buddha-template (out, "Networks")
-    with-xml ()
-      div(id => "content")
-      {
-        do(browse-table(<network>, *config*.networks)),
-        do(add-form(<network>, "Networks", *config*.networks))
-      }
-    end;
+    collect(show-errors(errors));
+    collect(with-xml ()
+              div(id => "content")
+              {
+                do(browse-table(<network>, *config*.networks)),
+                do(add-form(<network>, "Networks", *config*.networks))
+              }
+            end);
   end;
 end;
 
@@ -275,13 +280,14 @@ define method respond-to-get
   //TODO: remove/edit subnet forms
   let out = output-stream(response);
   with-buddha-template(out, "Subnets")
-    with-xml()
-      div(id => "content")
-      {
-        do(browse-table(<subnet>, *config*.subnets)),
-        do(add-form(<subnet>, "Subnets", *config*.subnets))
-      }
-    end;
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                do(browse-table(<subnet>, *config*.subnets)),
+                do(add-form(<subnet>, "Subnets", *config*.subnets))
+              }
+            end);
   end;
 end;
 
@@ -293,13 +299,14 @@ define method respond-to-get
   //TODO: remove/edit vlan forms
   let out = output-stream(response);
   with-buddha-template(out, "VLAN")
-    with-xml()
-      div(id => "content")
-      {
-        do(browse-table(<vlan>, *config*.vlans)),
-        do(add-form(<vlan>, "Vlans", *config*.vlans))
-      }
-    end;
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                do(browse-table(<vlan>, *config*.vlans)),
+                do(add-form(<vlan>, "Vlans", *config*.vlans))
+              }
+            end);
   end;
 end;
 
@@ -311,13 +318,14 @@ define method respond-to-get
   //TODO won't work this way..., needs a context
   let out = output-stream(response);
   with-buddha-template(out, "Hosts")
-    with-xml()
-      div(id => "content")
-      {
-        do(browse-table(<host>, *config*.hosts)),
-        do(add-form(<host>, "Hosts", *config*.hosts))
-      }
-    end;
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                do(browse-table(<host>, *config*.hosts)),
+                do(add-form(<host>, "Hosts", *config*.hosts))
+              }
+            end);
   end;
 end;
 
@@ -331,13 +339,14 @@ define method respond-to-get
   //      generate tinydns/bind config file
   let out = output-stream(response);
   with-buddha-template(out, "Zones")
-    with-xml()
-      div(id => "content")
-      {
-        do(browse-table(<zone>, *config*.zones)),
-        do(add-form(<zone>, "Zones", *config*.zones))
-      }
-    end;
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                do(browse-table(<zone>, *config*.zones)),
+                do(add-form(<zone>, "Zones", *config*.zones))
+              }
+            end);
   end;
 end;
 
@@ -348,25 +357,26 @@ define method respond-to-get
      #key errors)
   let out = output-stream(response);
   with-buddha-template(out, "User Interface")
-    with-xml()
-      div(id => "content")
-      {
-        //do(show-host-info()),
-        form(action => "/user", action => "post")
-        {
-          div(class => "edit")
-          {
-            text("Hostname"),
-            input(type => "text", name => "hostname"),
-            text("MAC"),
-            input(type => "text", name => "mac"),
-            input(type => "submit",
-                  name => "add-host-button",
-                  value => "Add Hostname")
-          }
-        }
-      }
-    end;
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                //do(show-host-info()),
+                form(action => "/user", action => "post")
+                {
+                  div(class => "edit")
+                  {
+                    text("Hostname"),
+                    input(type => "text", name => "hostname"),
+                    text("MAC"),
+                    input(type => "text", name => "mac"),
+                    input(type => "submit",
+                          name => "add-host-button",
+                          value => "Add Hostname")
+                  }
+                }
+              }
+            end);
   end;
 end;
 

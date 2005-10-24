@@ -8,35 +8,6 @@ define class <cidr> (<object>)
     required-init-keyword: netmask:;
 end class;
 
-define method make (cidr == <cidr>,
-                    #next next-method,
-                    #rest rest,
-                    #key network-address,
-                    netmask,
-                    #all-keys) => (res :: <cidr>)
-  let args = rest;
-  if (instance?(network-address, <string>))
-    args := exclude(args, #"network-address");
-    //support for xx.xx.xx.xx/yy
-    if (any?(method(x) x = '/' end, network-address))
-      let address-and-mask = split(network-address, '/');
-      network-address := address-and-mask[0];
-      netmask := address-and-mask[1];
-    end if;
-    network-address := make(<ip-address>, data: network-address);
-  end;
-  if (instance?(netmask, <string>))
-    if (any?(method(x) x = '.' end, netmask))
-      //support for xx.xx.xx.xx
-      netmask := string-to-netmask(netmask);
-    else
-      netmask := string-to-integer(netmask);
-    end if;
-  end if;
-  apply(next-method, cidr, network-address: network-address,
-        netmask: netmask, args);
-end;
-
 define method \< (a :: <cidr>, b :: <cidr>)
  => (res :: <boolean>)
   a.cidr-network-address < b.cidr-network-address
@@ -53,9 +24,19 @@ define method as (class == <string>, cidr :: <cidr>)
               integer-to-string(cidr.cidr-netmask));
 end;
 
-define method as (class == <cidr>, string :: <string>)
+define method as(class == <cidr>, string :: <string>)
  => (res :: <cidr>)
-  make(<cidr>, network-address: string)
+  let address-and-mask = split(string, '/');
+  let network-address = address-and-mask[0];
+  let netmask = address-and-mask[1];
+  network-address := make(<ip-address>, data: network-address);
+  if (any?(method(x) x = '.' end, netmask))
+    //support for xx.xx.xx.xx
+    netmask := string-to-netmask(netmask);
+  else
+    netmask := string-to-integer(netmask);
+  end if;
+  make(<cidr>, network-address: network-address, netmask: netmask)
 end;
 
 define method base-network-address (cidr :: <cidr>)
