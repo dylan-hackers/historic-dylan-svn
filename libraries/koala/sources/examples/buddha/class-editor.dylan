@@ -1,6 +1,10 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
+define method check (object :: <object>) => (res :: <boolean>)
+  #t;
+end;
+
 define method edit-form (object :: <object>) => (res)
   with-xml()
     form(action => "/edit", \method => "post")
@@ -151,24 +155,7 @@ define method list-forms (obj :: <object>) => (res)
                            href => concatenate("/edit?obj=",
                                                get-reference(ele)))
                        end);
-      res := add!(res, with-xml()
-                         form(action => "/edit", \method => "post")
-                         { div(class => "edit")
-                           { input(type => "hidden",
-                                   name => "obj-id",
-                                   value => get-reference(object)),
-                             input(type => "hidden",
-                                   name => "remove-this",
-                                   value => get-reference(ele)),
-                             input(type => "hidden",
-                                   name => "action",
-                                   value => "remove-object"),
-                             input(type => "submit",
-                                   name => "remove-button",
-                                   value => "Remove")
-                           }
-                         }
-                       end);
+      res := add!(res, remove-form(ele, object));
       res := add!(res, with-xml() br end);
     end;
     res := add!(res, add-form(slot.slot-type, slot.slot-name, object));
@@ -283,15 +270,12 @@ define method add-object (parent-object :: <object>, request :: <request>)
       let value = get-object(get-query-value(slot.slot-name));
       slot.slot-setter-method(value, object);
     end;
-    //add to parent list..
-    //XXX: evil hardcoded hack
-    if (any?(method(x)
-                 x.slot-type = object-type
-             end, list-reference-slots(<config>)))
-      add-thing(object);
-    else
-      parent-object := add!(parent-object, object);
-    end
+    //error check object
+    format-out("ADDING %= to PARENT %=\n", object, parent-object);
+    if (check(object))
+      //add to parent list.
+      parent-object := sort!(add!(parent-object, object));
+    end;
   end;
 end;
 
@@ -328,7 +312,7 @@ define method save-object (object :: <object>, request :: <request>)
     let value = parse(slot.slot-name, slot.slot-type);
     //slot-setter! (only if not same object)
     //can't check for if(value) here, because value can be #f and valid...
-    if (value ~= slot.slot-getter-method(object))
+    if (check(value) & value ~= slot.slot-getter-method(object))
       slot.slot-setter-method(value, object);
     end;
   end;
@@ -339,7 +323,7 @@ define method save-object (object :: <object>, request :: <request>)
     //error check it!
     //slot-setter!
     let current-object = slot.slot-getter-method(object);
-    if (value & (value ~= current-object))
+    if (value & check(value) & (value ~= current-object))
       //set slot in object
       slot.slot-setter-method(value, object);
     end;
