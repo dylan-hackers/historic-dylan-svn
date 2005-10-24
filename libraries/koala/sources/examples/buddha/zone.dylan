@@ -32,6 +32,10 @@ define method as (class == <string>, zone :: <zone>)
   zone.zone-name;
 end;
 
+define method \< (a :: <zone>, b :: <zone>) => (res :: <boolean>)
+  a.zone-name < b.zone-name
+end;
+
 define method print-bind-zone-file (print-zone :: <zone>, stream :: <stream>)
   format(stream, "@\tIN\tSOA\t%s.\t%s. (\n",
          print-zone.nameservers[0],

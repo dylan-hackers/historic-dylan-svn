@@ -123,6 +123,9 @@ define method add-form (object-type :: subclass(<object>),
               name => "object-type",
               value => get-reference(object-type)),
         input(type => "hidden",
+              name => "refer-to",
+              value => get-url-from-type(object-type)),
+        input(type => "hidden",
               name => "action",
               value => "add-object"),
         input(type => "submit",
@@ -225,7 +228,6 @@ define method respond-to-post
   let action = as(<symbol>, get-query-value("action"));
   let object-string = get-query-value("obj-id");
   let object = get-object(object-string);
-  let answer = #f;
   let handler <buddha-form-warning>
     = method(e :: <buddha-form-warning>, next-handler :: <function>)
           errors := add!(errors, e)
@@ -236,25 +238,28 @@ define method respond-to-post
       signal(make(<buddha-form-error>,
                   error: concatenate("Unknown object: ", object-string)));
     end;
-    answer :=
-      select (action)
-        #"add-object" => add-object(object, request);
-        #"remove-object" => remove-object(object, request);
-        #"save-object" => save-object(object, request);
-        otherwise => make(<buddha-form-error>,
-                          error: concatenate("Unknown action: ",
-                                             as(<string>, action)));
+    select (action)
+      #"add-object" => add-object(object, request);
+      #"remove-object" => remove-object(object, request);
+      #"save-object" => save-object(object, request);
+      otherwise => signal(make(<buddha-form-error>,
+                               error: concatenate("Unknown action: ",
+                                                  as(<string>, action))));
       end select;
   exception (e :: <buddha-form-error>)
     errors := add!(errors, e);
     return();
+  exception (e :: <error>)
+    errors := add!(errors, make(<buddha-form-error>,
+                                error: format-to-string("%=", e)));
+    return();
   end;
-  if (answer)
-    answer := as(<symbol>, get-url-from-type(answer))
-  else
-    answer := #"edit"
-  end;
-  respond-to-get(answer, request, response, errors: errors);
+  let referer = if (get-query-value("refer-to"))
+                  as(<symbol>, get-query-value("refer-to"));
+                else
+                  #"edit";
+                end;
+  respond-to-get(referer, request, response, errors: errors);
 end;
 
 define method add-object (parent-object :: <object>, request :: <request>)
@@ -288,7 +293,6 @@ define method add-object (parent-object :: <object>, request :: <request>)
       parent-object := add!(parent-object, object);
     end
   end;
-  object.object-class;
 end;
 
 define method remove-object (parent-object :: <object>, request :: <request>)
@@ -296,7 +300,6 @@ define method remove-object (parent-object :: <object>, request :: <request>)
   let object = get-object(get-query-value("remove-this"));
   //sanity type-check
   parent-object := remove!(parent-object, object);
-  object.object-class;
 end;
 
 define method parse (name, type)
@@ -320,10 +323,12 @@ define method save-object (object :: <object>, request :: <request>)
   //data-slots and ref-slots may have changed...
   for (slot in data-slots(object.object-class))
     //convert value to type of slot
+    //catch errors
+    //maybe use another generic function, not as in parse?
     let value = parse(slot.slot-name, slot.slot-type);
-    //do more error checking //maybe use another generic function, not as?
     //slot-setter! (only if not same object)
-    if (value & (value ~= slot.slot-getter-method(object)))
+    //can't check for if(value) here, because value can be #f and valid...
+    if (value ~= slot.slot-getter-method(object))
       slot.slot-setter-method(value, object);
     end;
   end;
@@ -339,5 +344,4 @@ define method save-object (object :: <object>, request :: <request>)
       slot.slot-setter-method(value, object);
     end;
   end;
-  object.object-class;
 end;
