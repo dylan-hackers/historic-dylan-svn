@@ -63,6 +63,20 @@ define module utils
     data;
 end;
 
+/*
+define module class-editor
+  use common-dylan;
+  use xml;
+  use web-macro;
+  use object-table;
+  use utils;
+  export edit-form,
+    remove-form,
+    add-form,
+    check;
+end;
+*/
+
 define module class-browser
   use common-dylan;
   use xml;
@@ -70,8 +84,10 @@ define module class-browser
   use object-table;
   use format-out;
   use utils;
+//  use class-editor;
   export browse-list,
-    browse-table;
+    browse-table,
+    remove-form; //this shouldn't be here
 end;
 
 define module buddha
@@ -97,5 +113,6 @@ define module buddha
   use web-macro;
   use object-table;
   use class-browser;
+//  use class-editor;
   use utils;
 end;

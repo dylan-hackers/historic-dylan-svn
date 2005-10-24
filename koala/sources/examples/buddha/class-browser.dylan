@@ -100,10 +100,17 @@ define method browse-table (headline :: subclass(<object>),
                             object :: <object>) => (res)
   with-xml()
     table {
-          tr { do(browse(headline, to-table-header)) },
+          tr { do(browse(headline, to-table-header)), th("Remove") },
           do(for (ele in object)
                collect(with-xml()
-                         tr { do(browse(headline, rcurry(to-table, ele))) }
+                         tr {
+                            do(browse(headline, rcurry(to-table, ele))),
+                            td {
+                               do(remove-form(ele,
+                                              object,
+                                              url: get-url-from-type(headline)))
+                            }
+                         }
                         end)
               end)
            }
@@ -133,3 +140,30 @@ end;
 define method show (object :: <object>)
   as(<string>, object)
 end;
+
+define method remove-form (object :: <object>, parent :: <object>,
+                           #key url :: <string> = "edit")
+  with-xml()
+    form(action => "/edit", \method => "post")
+    { div(class => "edit")
+      {
+         input(type => "hidden",
+               name => "refer-to",
+               value => url),
+         input(type => "hidden",
+               name => "obj-id",
+               value => get-reference(parent)),
+         input(type => "hidden",
+               name => "remove-this",
+               value => get-reference(object)),
+         input(type => "hidden",
+               name => "action",
+               value => "remove-object"),
+         input(type => "submit",
+               name => "remove-button",
+               value => "Remove")
+      }
+    }
+  end;
+end;
+
