@@ -21,10 +21,18 @@ end;
 
 define method subnet-in-network? (subnet :: <subnet>)
  => (res :: <boolean>)
-  fits?-aux(subnet,
-            choose(method(x)
-                       x.network = subnet.network
-                   end, *config*.networks))
+  //we already know that the subnet doesn't conflict with other subnets
+  //and only need to check whether it is in the network subnet.network
+  let sub-cidr = subnet.cidr;
+  let net-cidr = subnet.network.cidr;
+  if (((network-address(sub-cidr) < network-address(net-cidr)) |
+         (network-address(sub-cidr) = network-address(net-cidr))) &
+        ((broadcast-address(sub-cidr) < broadcast-address(net-cidr)) |
+           (broadcast-address(sub-cidr) = broadcast-address(net-cidr))))
+    #t
+  else
+    #f
+  end
 end;
 
 define method ip-in-net? (net :: <network>, ip-addr :: <ip-address>)
