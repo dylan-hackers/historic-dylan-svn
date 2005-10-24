@@ -25,7 +25,7 @@ define method subnet-in-network? (subnet :: <subnet>)
   //and only need to check whether it is in the network subnet.network
   let sub-cidr = subnet.cidr;
   let net-cidr = subnet.network.cidr;
-  if (((network-address(sub-cidr) < network-address(net-cidr)) |
+  if (((network-address(sub-cidr) > network-address(net-cidr)) |
          (network-address(sub-cidr) = network-address(net-cidr))) &
         ((broadcast-address(sub-cidr) < broadcast-address(net-cidr)) |
            (broadcast-address(sub-cidr) = broadcast-address(net-cidr))))

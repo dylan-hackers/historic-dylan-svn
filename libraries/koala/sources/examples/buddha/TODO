@@ -15,6 +15,19 @@ security:
   objects in his obj-table which he needs access to...
 
 interface to get the next /XX subnet (or the next subnet with at least Y ips)
+ *javascript chosing of network when adding subnet, dhcp-start, -end, -router
+
+default values for fields...
+
+string and cname lists user interface
+
+error check input on edit, not only on add
+
+remove/edit links
+
+links for gen-dhcp-config/gen-dns-config
+
+reverse-zones automatically generated
 
 with-xml:collect only works for elements, not for lists of elements
 
