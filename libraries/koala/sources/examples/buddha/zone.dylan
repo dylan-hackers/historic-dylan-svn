@@ -6,6 +6,11 @@ define class <cname> (<object>)
   slot target :: <string>, init-keyword: target:;
 end;
 
+define class <mail-exchange> (<object>)
+  slot mx-name :: <string>, init-keyword: mx-name:;
+  slot priority :: <integer>, init-keyword: priority:;
+end;
+
 define web-class <zone> (<object>)
   data zone-name :: <string>;
   data reverse? :: <boolean>;
@@ -17,8 +22,8 @@ define web-class <zone> (<object>)
   data expire :: <integer>;
   data time-to-live :: <integer>;
   data minimum :: <integer>;
-  has-many nameserver :: <host>;
-  has-many mail-exchange :: <host>;
+  has-many nameserver :: <string>;
+  has-many mail-exchange :: <mail-exchange>;
   has-many text :: <string>;
 end;
 

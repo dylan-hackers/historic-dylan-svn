@@ -100,7 +100,7 @@ define method browse-table (headline :: subclass(<object>),
                             object :: <object>) => (res)
   with-xml()
     table {
-          tr { do(browse(headline, to-table-header)), th("Remove") },
+          tr { do(browse(headline, to-table-header)), th("Remove"), th("Edit") },
           do(for (ele in object)
                collect(with-xml()
                          tr {
@@ -109,7 +109,9 @@ define method browse-table (headline :: subclass(<object>),
                                do(remove-form(ele,
                                               object,
                                               url: get-url-from-type(headline)))
-                            }
+                            },
+                            td { a("Edit", href => concatenate("/edit?obj=",
+                                                               get-reference(ele))) }
                          }
                         end)
               end)
