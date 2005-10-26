@@ -238,7 +238,7 @@ dd {
 .sideMenuBox a {
   text-decoration: none;
   display: block;
-  padding: 1.5ex 1ex 1.5ex 5mm;
+  padding: 1ex 1ex 1ex 5mm;
 }
 
 .sideMenuBox a:hover {
