@@ -9,7 +9,7 @@ define constant $IA = 3877;
 define constant $IC = 29573;
 define variable $LAST :: <integer> = 42;
 
-define method generate-random (max :: <double-float>) => (m :: <double-float>);
+define inline method generate-random (max :: <double-float>) => (m :: <double-float>);
   $LAST := modulo($LAST * $IA + $IC, $IM);
   max * $LAST / $IM;
 end method;
