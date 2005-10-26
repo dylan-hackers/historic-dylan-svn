@@ -57,7 +57,8 @@ end;
 //simple case for lists of strings....
 define method add-form (type == <string>,
                         name :: <string>,
-                        parent :: <object>) => (foo)
+                        parent :: <object>,
+                        #key fill-from-request) => (foo)
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
@@ -84,7 +85,8 @@ end;
 
 define method add-form (object-type :: subclass(<object>),
                         name :: <string>,
-                        parent :: <object>) => (foo) // :: <list> ?
+                        parent :: <object>,
+                        #key fill-from-request) => (foo) // :: <list> ?
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
@@ -93,15 +95,31 @@ define method add-form (object-type :: subclass(<object>),
              //here we should have at least a seperation between integer,
              //strings and lists... or should we implement all lists with
              //has-many?
+             let value = get-query-value(slot.slot-name);
              if (slot.slot-type = <boolean>)
-               collect(with-xml() input(type => "checkbox",
-                                        name => slot.slot-name,
-                                        value => slot.slot-name)
-                       end);
+               if (fill-from-request & value)
+                 collect(with-xml() input(type => "checkbox",
+                                          name => slot.slot-name,
+                                          value => slot.slot-name,
+                                          checked => "checked")
+                         end);
+               else
+                 collect(with-xml() input(type => "checkbox",
+                                          name => slot.slot-name,
+                                          value => slot.slot-name)
+                         end);
+               end;
              else
-               collect(with-xml() input(type => "text",
-                                        name => slot.slot-name)
-                       end);
+               if (fill-from-request & value)
+                 collect(with-xml() input(type => "text",
+                                          name => slot.slot-name,
+                                          value => value)
+                         end);
+               else
+                 collect(with-xml() input(type => "text",
+                                          name => slot.slot-name)
+                         end);
+               end if;
              end;
              collect(with-xml() br end);
            end;
@@ -109,13 +127,22 @@ define method add-form (object-type :: subclass(<object>),
              collect(with-xml() text(concatenate(slot.slot-name, ": ")) end);
              //get slot, generate select, option field for each element
              //of global list of elements...
+             let value = get-object(get-query-value(slot.slot-name));
              collect(with-xml()
                        \select(name => slot.slot-name)
                        { do(for (ele in slot.slot-global-list(*config*))
-                              collect(with-xml()
-                                        option(as(<string>, ele),
-                                               value => get-reference(ele))
-                                      end)
+                              if (fill-from-request & (ele = value))
+                                collect(with-xml()
+                                          option(as(<string>, ele),
+                                                 value => get-reference(ele),
+                                                 selected => "selected")
+                                        end);
+                              else
+                                collect(with-xml()
+                                          option(as(<string>, ele),
+                                                 value => get-reference(ele))
+                                        end);
+                              end;
                             end)
                        }
                       end);
@@ -246,7 +273,7 @@ define method respond-to-post
                 else
                   #"edit";
                 end;
-  respond-to-get(referer, request, response, errors: errors);
+  respond-to-get(referer, request, response, errors: if (errors.size > 0) errors else #f end);
 end;
 
 define method add-object (parent-object :: <object>, request :: <request>)
@@ -271,7 +298,6 @@ define method add-object (parent-object :: <object>, request :: <request>)
       slot.slot-setter-method(value, object);
     end;
     //error check object
-    format-out("ADDING %= to PARENT %=\n", object, parent-object);
     if (check(object))
       //add to parent list.
       parent-object := sort!(add!(parent-object, object));
@@ -323,7 +349,7 @@ define method save-object (object :: <object>, request :: <request>)
     //error check it!
     //slot-setter!
     let current-object = slot.slot-getter-method(object);
-    if (value & check(value) & (value ~= current-object))
+    if (value & (value ~= current-object))
       //set slot in object
       slot.slot-setter-method(value, object);
     end;

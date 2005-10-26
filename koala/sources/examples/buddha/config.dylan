@@ -81,7 +81,10 @@ end;
 
 define method check (vlan :: <vlan>)
  => (res :: <boolean>)
-  if (any?(method(x) x.number = vlan.number end , *config*.vlans))
+  if ((vlan.number < 0) | (vlan.number > 4095))
+    signal(make(<buddha-form-error>,
+                error: "VLAN not in range 0 - 4095"));
+  elseif (any?(method(x) x.number = vlan.number end , *config*.vlans))
     signal(make(<buddha-form-error>,
                 error: "VLAN with same number already exists"));
   elseif (any?(method(x) x.vlan-name = vlan.vlan-name end, *config*.vlans))
@@ -119,7 +122,13 @@ define method check (subnet :: <subnet>)
       if (ip-in-net?(subnet, subnet.dhcp-start))
         if (ip-in-net?(subnet, subnet.dhcp-end))
           if (ip-in-net?(subnet, subnet.dhcp-router))
-            #t;
+            if ((subnet.dhcp-router > subnet.dhcp-start)
+                  & (subnet.dhcp-router < subnet.dhcp-end))
+              signal(make(<buddha-form-error>,
+                          error: "Router has to be outside of dhcp-range"));
+            else
+              #t;
+            end if;
           else
             signal(make(<buddha-form-error>,
                         error: "DHCP router not in subnet"));

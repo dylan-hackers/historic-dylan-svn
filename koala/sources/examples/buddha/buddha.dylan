@@ -224,9 +224,10 @@ define method respond-to-get
                                      name :: <string>,
                                      type :: <file-type>)
                                   if (type == #"file")
+                                    let b64-name = base64-decode(name);
                                     collect(with-xml()
-                                              option(base64-decode(name),
-                                                     value => name)
+                                              option(b64-name,
+                                                     value => b64-name)
                                             end);
                                   end if;
                               end, *directory*))
@@ -243,6 +244,7 @@ end;
 define method respond-to-post
     (page == #"restore", request :: <request>, response :: <response>)
   let file = get-query-value("filename");
+  file := base64-encode(file);
   let dood = make(<dood>,
                   locator: concatenate(*directory*, file),
                   direction: #"input");
@@ -266,7 +268,7 @@ define method respond-to-get
               div(id => "content")
               {
                 do(browse-table(<network>, *config*.networks)),
-                do(add-form(<network>, "Networks", *config*.networks))
+                do(add-form(<network>, "Networks", *config*.networks, fill-from-request: errors))
               }
             end);
   end;
@@ -285,7 +287,7 @@ define method respond-to-get
               div(id => "content")
               {
                 do(browse-table(<subnet>, *config*.subnets)),
-                do(add-form(<subnet>, "Subnets", *config*.subnets))
+                do(add-form(<subnet>, "Subnets", *config*.subnets, fill-from-request: errors))
               }
             end);
   end;
@@ -304,7 +306,7 @@ define method respond-to-get
               div(id => "content")
               {
                 do(browse-table(<vlan>, *config*.vlans)),
-                do(add-form(<vlan>, "Vlans", *config*.vlans))
+                do(add-form(<vlan>, "Vlans", *config*.vlans, fill-from-request: errors))
               }
             end);
   end;
@@ -323,7 +325,7 @@ define method respond-to-get
               div(id => "content")
               {
                 do(browse-table(<host>, *config*.hosts)),
-                do(add-form(<host>, "Hosts", *config*.hosts))
+                do(add-form(<host>, "Hosts", *config*.hosts, fill-from-request: errors))
               }
             end);
   end;
@@ -344,7 +346,7 @@ define method respond-to-get
               div(id => "content")
               {
                 do(browse-table(<zone>, *config*.zones)),
-                do(add-form(<zone>, "Zones", *config*.zones))
+                do(add-form(<zone>, "Zones", *config*.zones, fill-from-request: errors))
               }
             end);
   end;

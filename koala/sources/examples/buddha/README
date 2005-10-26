@@ -46,3 +46,11 @@ Running buddha
 run ~/bin/buddha
 there should be a http-listener on the configured port
 
+Security considerations
+=======================
+
+Save/restore: always (when user submits a filename during save,
+and when user chooses a file during restore) converts user input
+to a base64-encoded string
+ -> no directory traversal or other malformed filenames
+-> even malformed GET/POST requests will be base64-encoded
