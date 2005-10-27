@@ -30,6 +30,8 @@ security:
 
 *caching of zones... don't increase serial if nothing changed...
 
+*highlight where an error occured... potentially fix it
+
 with-xml:collect only works for elements, not for lists of elements
 
 the following doesn't work (reference to undefined binding "collect" (but
