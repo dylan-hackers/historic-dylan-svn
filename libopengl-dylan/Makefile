@@ -8,7 +8,7 @@ ifeq ($(shell if [ -d "/System/Library/Frameworks" ]; then echo -n darwin; else 
 else
 ifeq ($(shell uname -o), Cygwin)
 	LIDFILE=cygwin-opengl.lid
-	MELANGE=melange -v --headers -I/usr/X11R6/include -I`$(CC) -print-file-name=include` --d2c
+	MELANGE=melange -v --headers -I/usr/include/w32api -I`$(CC) -print-file-name=include` --d2c
 # -DUSE_OPENGL32
 	LIBTOOL=touch configure.in && libtool
 else
