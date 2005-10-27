@@ -3,32 +3,57 @@ require "shared.inc";
 standard_header("Overview");
 ?>
 
-<P>We are an international team of volunteers working to create new development tools
-supporting <A HREF="about-dylan.phtml">Dylan</A>, an advanced dynamic object-oriented 
-programming language. We are currently updating and extending 
-<A HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">
-Carnegie Mellon University</A>'s
-Gwydion Dylan compiler, fixing bugs and making it work well under modern
-versions of Linux and FreeBSD. Our <A HREF="downloading.phtml">current
-release</A> is a technology preview, suitable for learning the Dylan programming 
-language and building command-line applications. Our long-term vision is to create
-one of the most advanced software development tools available.</P>
+<BLOCKQUOTE>
 
-<P>Please feel free to join us! You can look at <A HREF="goals.phtml">our
-goals</A>, some <A HREF="fragments.phtml">code examples</A>, or one of the
-following resources:</P>
+<EM>Dylan is an advanced, object-oriented, dynamic language which supports
+rapid program development.  When needed, programs can be optimized for more
+efficient execution by supplying more type information to the compiler.  Nearly
+all entities in Dylan (including functions, classes, and basic data types such
+as integers) are first class objects. Additionally Dylan supports multiple
+inheritance, polymorphism, multiple dispatch, keyword arguments, object
+introspection, macros, and many other advanced features...</EM>
 
-<P>[
-<A HREF="about-dylan.phtml">What is Dylan?</A> |
-<A HREF="learning.phtml">Learning Dylan</A> |
-<A HREF="limitations.phtml">Gwydion Dylan Limitations</A> |
-<A HREF="downloading.phtml">Downloading</A> 
-]<BR>[
-<A HREF="gdref.phtml">Documentation</A> |
-<A HREF="lists.phtml">Mailing Lists</A> |
-<A HREF="http://www.functionalobjects.com/products/fundev.phtml">Functional Developer for Windows</A>
-]</P>
+</BLOCKQUOTE>
 
+<p>For more on the background and goals of the Dylan language, see the <a
+href="/books/drm/drm_6.html">Introduction to the Dylan Reference Manual</a>.
+To get a quick feel of the language have a look at some <a
+href="fragments.phtml">code examples</a>.</p>
+
+<dl>
+<lh>The Dylan Team maintains two implementations of Dylan: </lh>
+
+<dt><a href="about-gd.phtml">Gwydion Dylan</a></dt>
+
+<dd>Compiles Dylan to C, is the <a href="ports.phtml">most portable</a>, and
+generates the <a href="contests.phtml">fastest code</a>.  Compiler is slow, it
+has no IDE and library support is not as complete as Open Dylan.</dd>
+
+<dt><a href="about-od.phtml">Open Dylan</a></dt>
+
+<dd>Compiles to native code, has an excellent IDE with support for incremental
+development, and has great library support.  Only supports x86 Linux and
+Windows, the IDE only runs on Windows, and generated code is slower than
+Gwydion Dylan's.</dd>
+
+</dl>
+
+<p>There is also a byte code compiler called Mindy which is still supported but
+no further work will be done on it.  All future work will concentrate on the
+two compilers.  Although we are working to make code more portable between
+compilers there are still some libraries that only work with one or the
+other.</p>
+
+<p>Please feel free to join us!  You can look at <a
+href="projects.phtml">projects that need work</a> and <a
+href="community.phtml">community resources</a>.</p>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 <H3>Recent News</H3>
 
 <DL>
@@ -51,6 +76,6 @@ if($err) {
 </DL>
 
 <P>[ <A HREF="news.phtml">Older News</A> |
-<A HREF="lists.phtml">Mailing List Archives</A> ]</P>
+<A HREF="community.phtml">Mailing List Archives</A> ]</P>
 
 <?php standard_footer(); ?>
