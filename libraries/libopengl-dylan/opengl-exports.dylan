@@ -843,7 +843,9 @@ define module opengl-glu
   export
     <GLUquadricObj>,
     <GLUtriangulatorObj>,
-    <GLUnurbsObj>;
+    <GLUnurbsObj>,
+    <GLdouble*>,
+    <GLvoid*>;
     
   // Constants:
   export
