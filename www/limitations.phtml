@@ -3,55 +3,49 @@ require "shared.inc";
 standard_header("Current Limitations");
 ?>
 
-<P>Neither the d2c compiler nor the Mindy interpreter are
-perfect. Each has a number of known problems which make it impractical
-for a range of applications. We're making both available anyways so
-people can get a feel for the language. In more traditional terms,
-Gwydion Dylan <?php current_version();?> corresponds to version 0.9 of
-most free software projects: the architecture is sound, but you'd have
-to be a little bit adventurous to use it.</P>
+<p>Neither the d2c compiler nor the Mindy interpreter are
+perfect. Here are some known limitations.</p>
 
-<P><STRONG>Limitations of d2c:</STRONG></P>
+<h3>Limitations of d2c:</h3>
 
-<UL>
+<ul>
 
-<LI><STRONG>d2c generates fast code slowly.</STRONG> This problem was solved in
+<li><strong>d2c generates fast code slowly.</strong> This problem was solved in
 the Open Dylan compiler by supporting incremental compilation. We'd like to do
-so as well, but it will take a while.
+the same in d2c eventually.</li>
 
-<LI>The Dylan-to-C interface is good, but sometimes has problems with
-unusual constructs in system header files.
+<li>The Dylan-to-C interface is good, but sometimes has problems with
+unusual constructs in system header files.</li>
 
-<LI><STRONG>Debugging is uncomfortable</STRONG>. Although there's now
+<li><strong>Debugging is uncomfortable.</strong> Although there's
 support on most platforms for dybug, a gdb wrapper that understands
-Dylan, this can hardly called elegant. But at least it's there.
+Dylan, this can hardly called elegant. But at least it's there.</li>
 
-<LI>d2c supports most of the Dylan language as specified in the Dylan 
-Reference Manual (DRM), but is lacking support for some features such
-as limited collections.
+<li>d2c supports most of the Dylan language as specified in the
+<a href="books/drm/">Dylan Reference Manual</a> (DRM), but is lacking
+support for some features, such as limited collections.</li>
 
-<LI>Did we mention debugging is cumbersome?
+</ul>
 
-</UL>
+<h3>Limitations of Mindy:</h3>
 
-<P><STRONG>Limitations of Mindy:</STRONG></P>
+<ul>
 
-<UL>
-
-<LI><STRONG>Mindy generates slow code quickly.</STRONG> You can
+<li><strong>Mindy generates slow code quickly.</strong> You can
 compile an enormous program into bytecodes in a blink of an eye, but
 it won't run as fast as the average Perl script&mdash;it certainly
 won't compete with GCC. Because Mindy has such a short turn-around
 time (and a built-in debugger), some developers use it to prototype
 programs, or just to make sure source files will compile before
-subjecting them to a (relatively slow) d2c compile.
+subjecting them to a (relatively slow) d2c compile.</li>
 
-<LI><STRONG>Mindy doesn't support Dylan macros</STRONG> and a number
-of other useful features.
+<li><strong>Mindy doesn't support Dylan macros</strong> and a number
+of other useful features.</li>
 
-<LI>No further work will be done on Mindy. All current work is 
-focused on d2c.
+<li>No further work will be done on Mindy, and it will not be included
+with 2.5.0 and later versions. All current work is focused on d2c and
+Open Dylan.</li>
 
-</UL>
+</ul>
 
 <?php standard_footer(); ?>
