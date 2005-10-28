@@ -22,7 +22,7 @@ function end_progress_table () {
 
 function short_header ($title) {
     readfile("/usr/local/www/data/header.html");
-    echo "<TITLE>Gwydion Dylan: " . $title . "</TITLE><BODY>";
+    echo "<TITLE>Dylan: " . $title . "</TITLE><BODY>";
     readfile("/usr/local/www/data/menu.html");
 }
 

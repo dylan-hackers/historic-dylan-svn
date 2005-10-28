@@ -3,28 +3,21 @@ require "shared.inc";
 standard_header("Downloading Software");
 ?>
 
-<p>
-There are two Dylan compilers which are currently being maintained.  One is
-the Dylan-to-C translator from the Gwydion project that originated at CMU,
-the other is Open Dylan, a compiler that started life at a company named
-Harlequin, was later sold by Functional Objects, and finally released under
-an open source license.
-</p>
+<h3>Contents</h3>
+<ol>
+<li><a href="#od">Open Dylan</a></li>
+<li><a href="#gd">Gwydion Dylan</a></li>
+<li><a href="#svn">Subversion Repository</a></li>
+<li><a href="/downloads/">Browse Download Directory</a></li>
+</ol>
 
-<p> The Gwydion compiler has been ported to a wide variety of
-platforms and has been seen to produce high-performance code, but has
-a number of flaws in error reporting that make it hard to use for the beginner.
-Open Dylan is only available for x86 platforms, running either Linux
-or Windows, but is in many ways a mature implementation, which should
-provide a better user experience.  If you are new to the language,
-choose Open Dylan if you can.</p>
-
+<a name="od"></a>
 <h2>Open Dylan</h2>
 
 <p>
-The current version of Open Dylan is 1.0beta1.  Downloads for
-supported platforms can be found <a
-href="/downloads/opendylan/">here</a>.
+The current version of Open Dylan is 1.0beta1.  Downloads for supported
+platforms can be found <a href="/downloads/opendylan/">here</a>.  The
+Open Dylan downloads include source and binaries.
 </p>
 
 <h3>Open Dylan on Linux</h3>
@@ -32,25 +25,27 @@ href="/downloads/opendylan/">here</a>.
 <p> The README file inside the tarball describes installation and
 basic usage.  The easiest way is extracting the tarball in /usr/local.
 The Linux platform should have binutils installed, in order to allow
-linking.
+linking.  Note that the Linux version has only a command-line compiler
+and no IDE.
 </p>
 
 <h3>Open Dylan on Windows</h3>
 
-<p> For installation, double-click on the installer, and follow
-instructions.  You need to have the linker of VC++ 6.0, 7.0 or the
-current .NET platform SDK installed.  The PellesC linker should for
-for most purposes too.  There's one caveat: deugging works wih the old
-VC++ 6.0 linker only, we're working on fixing that for the next
-release.
+<p>For installation, double-click on the installer, and follow instructions.
+You need to have either the PellesC linker or the linker of VC++ 6.0, 7.0 or
+the current .NET platform SDK installed.
 </p>
 
+
+<a name="gd"></a>
 <h2>Gwydion Dylan</h2>
 
 <P><EM>Gwydion Dylan <?php current_version();?></EM> is the current release
-version of Gwydion Dylan. It still has some rough edges in terms of usability, but code generation is extremely stable, and we consider the compiler to be of production quality.</P>
+version of Gwydion Dylan. It still has some rough edges in terms of usability,
+but code generation is extremely stable, and we consider the compiler to be of
+production quality.</P>
 
-<H2>Dependencies</H2>
+<h3>Dependencies</h3>
 
 <p>Gwydion Dylan uses a number of other tools which you will need to
 obtain if your system doesn't already have them.  Mindy compiler and
@@ -67,7 +62,7 @@ earlier come with the GC library included, but starting from 2.3.10
 and later we have decided for a number of reasons that it is better
 for the user (or OS vendor) to supply the GC library.)</p>
 
-<H2>Available Packages</H2>
+<h3>Available Packages</h3>
 
 <P>To use the d2c compiler, you'll normally want to download
 precompiled binaries for your platform (d2c is written in
@@ -94,7 +89,7 @@ binary of d2c is found. This may take some hours, but is the most
 convenient route. Of course, you can also use this if you already have
 an older version of d2c on your platform.</p>
 
-<H3>Debian</H3>
+<H4>Debian</H4>
 
 <p>Gwydion Dylan is part of the standard distribution of woody and
 sid. Just type:</p>
@@ -102,58 +97,49 @@ sid. Just type:</p>
 # apt-get install gwydion-dylan-dev
 </pre>
 
-<H3>Fink</H3>
+<H4>Fink</H4>
 
 Gwydion Dylan is part of the
 <A HREF="http://fink.sf.net/">Fink distribution</A>
 for Darwin and MacOS X.
 Just type <tt>apt-get install gwydion-dylan</tt>.
 
-<H3>FreeBSD</H3>
+<H4>FreeBSD</H4>
 
 Gwydion Dylan is available as the <tt>lang/dylan</tt> port in FreeBSD.
 
-<H3>Microsoft Windows</H3>
+<H4>Microsoft Windows</H4>
 There are no pre-built native binaries available, but Cygwin builds are
 in the download archive.  In addition, Gwydion Dylan can be compiled 
 with Microsoft Visual C++, or alternatively with gcc under Cygwin. Cygwin
 build directions are <A HREF="building-win32-cygwin.phtml">here</A>.
 
-<H2>Download Sites</H2>
 
-<UL>
-<LI><A HREF="downloads/">Gwydion Dylan HTTP server</A>
-<LI><A HREF="ftp://ftp.gwydiondylan.org/pub/gd/">Gwydion Dylan FTP Server</A>
-</UL>
-
+<a name="svn"></a>
 <H2>Subversion Source Repository</H2>
 
-<P><A HREF="cgi-bin/viewcvs.cgi">Browse our Subversion source
-tree.</A> You can also access the Subversion server directly, by
-checking out subdirectories of
+<P><A HREF="cgi-bin/viewcvs.cgi">Browse our Subversion source tree.</A> You can
+also access the Subversion server directly, by checking out subdirectories of
 <tt>svn://anonsvn.gwydiondylan.org/scm/svn/dylan</tt>.
-Currently</p>
+</p>
 
-<pre>
-svn://anonsvn.gwydiondylan.org/scm/svn/dylan/branches/GD_2_4/src
-</pre>
+<dl>
+<dt>Gwydion Dylan trunk</dt>
+<dd><tt>svn://anonsvn.gwydiondylan.org/scm/svn/dylan/trunk/src</tt></dd>
+<dt>Gwydion Dylan 2.4 branch (latest stable version)</dt>
+<dd><tt>svn://anonsvn.gwydiondylan.org/scm/svn/dylan/branches/GD_2_4/src</tt></dd>
+<dt>Open Dylan trunk</dt>
+<dd><tt>svn://anonsvn.gwydiondylan.org/scm/svn/dylan/trunk/fundev</tt></dd>
+</dl>
 
-<p>contains the stable 2.4 branch of d2c, and</p>
-
-<pre>
-svn://anonsvn.gwydiondylan.org/scm/svn/dylan/trunk/src
-</pre>
-
-<p>contains the bleeding-edge 2.5 development branch of d2c.</p>
-
-<p>We generally recommend that people start from the most recent
-tagged version under</p>
+<p>We generally recommend that people start from the most recent tagged version
+under
 
 <pre>
 svn://anonsvn.gwydiondylan.org/scm/svn/dylan/tags
 </pre>
 
-<p>which is currently <?php current_version();?>.  If that works for
+which is currently <?php current_version();?>.  If that works for
 you (or you're the type that doesn't read manuals before turning on
 your new VCR) then you can try the stable branch or even the trunk
 version.  We actually try pretty hard to make sure the trunk version
