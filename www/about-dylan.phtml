@@ -16,29 +16,56 @@ multiple dispatch, keyword arguments, object introspection, and many other
 advanced features...</EM>
 </BLOCKQUOTE>
 
-<P>Dylan is fast, flexible and capable of unusually sophisticated
-abstractions. Some of its more interesting features include:</P>
+<P>Dylan is fast, flexible and capable of unusually sophisticated abstractions.
+The <a href="books/drm/">Dylan Reference Manual</a> defines the language
+standard and has an excellent <a href="books/drm/drm_7.html">overview</a> of
+Dylan's features.</P>
 
-<UL>
-<LI><STRONG>An advanced object model.</STRONG> Dylan's object model is more
-powerful than those of most mainstream languages, but more familiar than
-what you'd find in an academic language.
-<LI><STRONG>Efficiency <EM>and</EM> flexibility.</STRONG>
-Dylan can be used as a dynamic prototyping language (like Smalltalk)
-or an efficient compiled language.  Open Dylan generates code as good as that of most C
-compilers.  Still, it provides an interactive prototyping environment
-like those found in Smalltalk or Common Lisp.
-<LI><STRONG>Support for advanced IDEs.</STRONG> The original implementation
-of Dylan stored code in a database and provided multiple views of how
-definitions were related. Cross-referencing, hypercode and online
-documentation were all popular research topics among the language's
-designers.
-<LI><STRONG>Infix syntax.</STRONG> (Most languages, including C, are
-infix. LISP is prefix and Forth is postfix.)
-</UL>
+<p>Some <a href="fragments.phtml">code examples</a> can give a quick feel for
+the language.</p>
 
-<P>[ <A HREF="fragments.phtml">Code examples</A> |
-<A HREF="goals.phtml">Our goals</A> ]</P>
+<p>The Dylan Hackers maintains two Dylan imlementations, Gwydion Dylan and Open
+Dylan:</p>
 
+<a name="gd">
+<h2>Gwydion Dylan</h2>
+</a>
+
+<p>
+Gwydion Dylan is a Dylan-to-C compiler <A
+HREF="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">originally</A>
+created by a team at Carnegie Mellon University.  Our current release is a
+technology preview, suitable for learning the Dylan programming language and
+building command-line applications.  Gwydion Dylan produces high-performance
+code, but has <a href="limitations.phtml">a number of limitations</a> that make
+it difficult to use for the beginner.  Gwydion is highly portable, with <a
+href="/downloads/binaries/">binaries</a> available for many versions of Linux,
+FreeBSD, OSX, cygwin, etc.
+</p>
+
+[ <a href="/downloads/binaries/">Download</a>
+| <a href="/about-gwydion.phtml">&rsaquo; Why &quot;Gwydion&quot;?</a>
+| <a href="/maintainers.phtml">&rsaquo; Gwydion Maintainers</a>
+| <a href="http://www.cs.cmu.edu/afs/cs/project/gwydion/docs/htdocs/gwydion/">&raquo; Gwydion at CMU</a>
+| <a href="http://monday.sourceforge.net/wiki/index.php/DylanHistory">Dylan History</a>
+]
+
+<a name="od">
+<h2>Open Dylan</h2>
+</a>
+
+<p>
+Open Dylan compiles to native code and has a full-featured IDE including an
+incremental development mode, browsing of runtime objects, remote debugging,
+etc.  Open Dylan currently only runs on the x86 platform and the IDE does not
+yet run on the Linux version.  Open Dylan is in many ways a mature
+implementation.  If you are new to the language, choose Open Dylan if you can.
+</p>
+
+<!-- TODO: add screen shot links here -->
+
+[ <a href="/downloads/opendylan/">Download</a>
+| <a href="http://monday.sourceforge.net/wiki/index.php/DylanHistory">Dylan History</a>
+]
 
 <?php standard_footer(); ?>
