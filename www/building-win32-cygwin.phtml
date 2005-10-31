@@ -54,14 +54,11 @@ downloading a <a href="http://www.gwydiondylan.org/downloads/src/tar/">tarball</
 of the source code, or alternatively, by retrieving the Gwydion Dylan source code from
 the repository using the CVS version control system.</p>
 
-<p>To get the source code via CVS you must first log into the CVS server:</p>
+<p>To get the source code via SVN, checkout the 2.4 branch of the source:</p>
 
 <pre>mkdir gd
 cd gd
-export CVSROOT=:ext:anoncvs@anoncvs.gwydiondylan.org:/scm/cvs
-cvs login</pre>
-
-<pre>cvs -z3 co src</pre>
+svn checkout svn://anonsvn.gwydiondylan.org/scm/svn/dylan/branches/GD_2_4/src</pre>
 
 <h3>4) Build the dbclink tool</h3>
 
@@ -117,6 +114,12 @@ make
 
 <p>Well done, you've successfully built Gwydion Dylan for Windows!</p>
 
-<p>Note: Once you compile and install, you may get the following problem: programs compile but don't link because libtool require a blank configure.in - just run <code>touch configure.in</code> to create a blank one to solve that. This is a workaround at this stage... :-)</p>
-    
+<p>Note: Once you compile and install, you may get the following problem: programs 
+  compile but don't link because libtool require a blank configure.in - just run 
+  <code>touch configure.in</code> to create a blank one to solve that. This is 
+  a workaround at this stage... :-)</p>
+<p>You may also want to download the libraries and examples, which you can do 
+  with the following commands:</p>
+<p>svn checkout svn://anonsvn.gwydiondylan.org/scm/svn/dylan/trunk/libraries<br>
+  svn checkout svn://anonsvn.gwydiondylan.org/scm/svn/dylan/trunk/examples</p>
 <?php standard_footer(); ?>
