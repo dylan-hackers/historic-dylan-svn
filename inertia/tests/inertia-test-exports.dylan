@@ -1,8 +1,12 @@
 module:    dylan-user
-synopsis:  Core UI shapes
+synopsis:  Inertia-test exports
 author:    Mike Austin
 copyright: Copyright (C) 2005 Mike L. Austin.  All rights reserved.
 license:   MIT/BSD, see LICENCE.txt for details
+
+//
+// inertia-test-exports.dylan
+//
 
 define library inertia-test
   use common-dylan;

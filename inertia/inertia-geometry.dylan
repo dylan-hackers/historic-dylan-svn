@@ -1,5 +1,5 @@
 module:    inertia-geometry
-synopsis:  Core UI shapes
+synopsis:  Core geometry
 author:    Mike Austin
 copyright: Copyright (C) 2005 Mike L. Austin.  All rights reserved.
 license:   MIT/BSD, see LICENCE.txt for details
@@ -36,18 +36,4 @@ end;
 define method print-object (point :: <point>, stream :: <stream>) => ()
   format (stream, "here\n");
 end;
-
-/*
-define method point-x (point :: <point>) => (<integer>)
-  point.x;
-end;
-
-define method point-y (point :: <point>) => (<integer>)
-  point.y;
-end;
-*/
-
-//define method point-x-setter (point :: <point>, x :: <double-float>) => ()
-//  point.point-x := x;
-//end;
 

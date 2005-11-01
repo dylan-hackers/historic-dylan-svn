@@ -1,8 +1,12 @@
 module:    dylan-user
-synopsis:  Core UI shapes
+synopsis:  Inertia exports
 author:    Mike Austin
 copyright: Copyright (C) 2005 Mike L. Austin.  All rights reserved.
 license:   MIT/BSD, see LICENCE.txt for details
+
+//
+// inertia-exports.dylan
+//
 
 define library inertia
   use common-dylan;
@@ -79,7 +83,8 @@ define module inertia-shapes
       mouse-origin, mouse-origin-setter,
     <shape-menu>,
     <shape-editor>,
-    <push-button>;
+    <push-button>,
+    <window>;
   
   export
     <event>,
