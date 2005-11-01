@@ -4,12 +4,16 @@ author:    Mike Austin
 copyright: Copyright (C) 2005 Mike L. Austin.  All rights reserved.
 license:   MIT/BSD, see LICENCE.txt for details
 
+//
+// inertia-shapes.dylan
+//
+
 // ---------------------------------------------------------------------------------------------- //
 // all class definitions
 // ---------------------------------------------------------------------------------------------- //
 
 define variable *angle* = 0.0;
-define variable *grabbed-shape* = #f;
+//define variable *grabbed-shape* = #f;
 
 define variable timer :: <function> = callback-method (n :: <integer>) => ();
   glutTimerFunc (n, timer, n);
@@ -27,7 +31,6 @@ define class <shape> (<object>)
   virtual slot point-y :: <double-float>;
   slot z-angle :: <double-float> = 0.0;
   slot z-scale :: <double-float> = 1.0;
-  slot first-mouse;
   slot mouse-mode = #"normal";
   slot line-width = 3.0;
   slot fill-color = vector (random-float (0.5) + 0.5, random-float (0.5) + 0.5, random-float (0.5) + 0.5, 0.9);
@@ -64,6 +67,7 @@ define method class-name (rectangle :: <rectangle>) "<rectangle>" end;
 define class <screen> (<rectangle>)
   inherited slot fill-color = vector (1.0, 1.0, 1.0, 1.0);
   slot mouse-origin :: <point>;
+  slot grabbed-shape;
 end;
 
 define method class-name (screen :: <screen>) "<screen>" end;
@@ -123,6 +127,11 @@ define method add-child (shape :: <shape>, child :: <shape>) => ()
   shape.children := add! (shape.children, child);
 end;
 
+define method remove-child (shape :: <shape>, child :: <shape>) => ()
+  child.parent := shape;
+  shape.children := remove! (shape.children, child);
+end;
+
 define method draw-shape (shape :: <shape>) => ()
   glPushMatrix ();
     glTranslate (shape.origin.point-x, shape.origin.point-y, 0.0);
@@ -175,8 +184,8 @@ define method draw-effects (shape :: <shape>)
     glColor (1.0, 1.0, 1.0, 0.6); glVertex (shape.extent.point-x,                        0.0, 0.0);
 
     glColor (0.0, 0.0, 0.0, 0.0); glVertex (                 0.0, shape.extent.point-y / 2.0, 0.0);
-    glColor (0.0, 0.0, 0.0, 0.15); glVertex (                 0.0,       shape.extent.point-y, 0.0);
-    glColor (0.0, 0.0, 0.0, 0.15); glVertex (shape.extent.point-x,       shape.extent.point-y, 0.0);
+    glColor (0.0, 0.0, 0.0, 0.1); glVertex (                 0.0,       shape.extent.point-y, 0.0);
+    glColor (0.0, 0.0, 0.0, 0.1); glVertex (shape.extent.point-x,       shape.extent.point-y, 0.0);
     glColor (0.0, 0.0, 0.0, 0.0); glVertex (shape.extent.point-x, shape.extent.point-y / 2.0, 0.0);
   glEnd ();
 end;
@@ -418,11 +427,8 @@ define method draw-overlay (shape :: <shape>, menu :: <shape-menu-center>) => ()
   glPopMatrix ();
 end;
 
-define method draw-effects (menu :: <shape-menu-center>)
-end;
-
-define method draw-outline (menu :: <shape-menu-center>) => ()
-end;
+define method draw-effects (menu :: <shape-menu-center>) end;
+define method draw-outline (menu :: <shape-menu-center>) end;
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -440,11 +446,8 @@ define method draw-overlay (shape :: <shape>, menu :: <shape-menu>) => ()
   glPopMatrix ();
 end;
 
-define method draw-effects (menu :: <shape-menu>)
-end;
-
-define method draw-outline (menu :: <shape-menu>) => ()
-end;
+define method draw-effects (menu :: <shape-menu>) end;
+define method draw-outline (menu :: <shape-menu>) end;
 
 define method draw-centered-string (x, y, string :: <string>)
   local draw-string (x, y, string)

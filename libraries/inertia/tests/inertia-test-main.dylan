@@ -1,5 +1,5 @@
 module:    inertia-test
-synopsis:  Core UI shapes
+synopsis:  Inertia test program
 author:    Mike Austin
 copyright: Copyright (C) 2005 Mike L. Austin.  All rights reserved.
 license:   MIT/BSD, see LICENCE.txt for details

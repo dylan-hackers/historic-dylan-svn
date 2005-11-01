@@ -1,8 +1,12 @@
 module:    inertia-shapes
-synopsis:  Core UI shapes
+synopsis:  Core events
 author:    Mike Austin
 copyright: Copyright (C) 2005 Mike L. Austin.  All rights reserved.
 license:   MIT/BSD, see LICENCE.txt for details
+
+//
+// inertia-events.dylan
+//
 
 define class <event> (<object>)
 end;
@@ -30,8 +34,16 @@ end;
 // event method definitions
 // ---------------------------------------------------------------------------------------------- //
 
+// send-event is called from the windows event callbacks with the topmost level shape, the *screen*,
+// and is handled by classes in different ways depending on the type of shape and the type of event.
+
+define generic send-event (shape :: <shape>, event :: <event>, data :: <object>) => (result :: <shape>);
+
+// <shape> handles converting between coordinate systems, locating the shape in the children
+// hierarchy, and finally sending an on-mouse-event() to the shape.
+
 define method send-event (shape :: <shape>, event :: <mouse-event>, button :: <integer>) => (result :: <shape>)
-  //format-out ("send-event (<shape>, <mouse-event>)\n");
+  format-out ("send-event (%=, %=, %=)\n", shape, event, button);
   block (return)
     for (child in shape.children)
       let x = event.origin.point-x - child.origin.point-x;
@@ -67,50 +79,26 @@ end;
 
 // ---------------------------------------------------------------------------------------------- //
 
-define method send-event (screen :: <screen>, event :: <mouse-event>, button :: <integer>)
+// <screen> handles mouse grabbing and setting the mouse location in mouse-origin
+
+define method send-event (screen :: <screen>, event :: <mouse-event>, button :: <integer>) => (result :: <shape>)
   screen.mouse-origin := event.origin;
   next-method ();
 end;
 
-define method send-event (screen :: <screen>, event :: <mouse-down-event>, button :: <integer>)
-  *grabbed-shape* := next-method (screen, event, button);
-  *grabbed-shape*.first-mouse := event.origin - *grabbed-shape*.origin;
-  //*grabbed-shape*.first-mouse := event.origin - *grabbed-shape*.screen-origin;
+define method send-event (screen :: <screen>, event :: <mouse-down-event>, button :: <integer>) => (result :: <shape>)
+  screen.grabbed-shape := next-method (screen, event, button);
+  screen.grabbed-shape;
 end;
 
-define method send-event (screen :: <screen>, event :: <mouse-down-event>, button == $GLUT-RIGHT-BUTTON)
-  *menu*.origin := event.origin - *menu*.extent / 2.0;
+define method send-event (screen :: <screen>, event :: <mouse-drag-event>, button :: <integer>) => (result :: <shape>)
+  event.origin := event.origin - screen.grabbed-shape.screen-origin;
+  on-mouse-event (screen.grabbed-shape, event, button);
+  screen.grabbed-shape;
 end;
 
-define method send-event (screen :: <screen>, event :: <mouse-up-event>, button :: <integer>)
-  *grabbed-shape*.mouse-mode := #"normal";
-  on-mouse-event (*grabbed-shape*, event, 0);
-  let shape = *grabbed-shape*;
-  *grabbed-shape* := #f;
-end;
-
-define method send-event (screen :: <screen>, event :: <mouse-drag-event>, button :: <integer>)
-  if (*grabbed-shape*.mouse-mode == #"gripper")
-    //let delta = event.origin - *grabbed-shape*.origin;
-    let delta = event.origin - *grabbed-shape*.screen-origin;
-
-    block ()
-      *grabbed-shape*.z-angle := atan2 (delta.point-y, delta.point-x) / ($PI / 180.0);
-    exception (<error>)
-      // Don't care if x and y are both 0
-    end;
-    *grabbed-shape*.z-scale := point-length (delta) / 50.0;
-  else
-    *grabbed-shape*.origin := event.origin - *grabbed-shape*.first-mouse;
-  end;
-  on-mouse-event (*grabbed-shape*, event, 0);
-  *grabbed-shape*;
-end;
-
-define method send-event (screen :: <screen>, event :: <mouse-drag-event>, button == $GLUT-RIGHT-BUTTON)
-end;
-
-define method send-event (screen :: <screen>, event :: <mouse-up-event>, button == $GLUT-RIGHT-BUTTON)
-  *menu*.origin := *screen*.origin;
+define method send-event (screen :: <screen>, event :: <mouse-up-event>, button :: <integer>) => (result :: <shape>)
+  on-mouse-event (screen.grabbed-shape, event, button);
+  screen.grabbed-shape;
 end;
 

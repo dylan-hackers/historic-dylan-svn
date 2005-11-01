@@ -1,11 +1,11 @@
 module:    inertia
-synopsis:  Core UI shapes
+synopsis:  Inertia initializations
 author:    Mike Austin
 copyright: Copyright (C) 2005 Mike L. Austin.  All rights reserved.
 license:   MIT/BSD, see LICENCE.txt for details
 
 //
-// inertia-mail.dylan
+// inertia-main.dylan
 //
 
 c-include("/usr/include/w32api/GL/glu.h");
@@ -14,14 +14,12 @@ define variable reshape :: <function> = callback-method (width :: <integer>, hei
 //define variable reshape = callback-method (width :: <integer>, height :: <integer>) => ();
   glMatrixMode ($GL-PROJECTION);
     glLoadIdentity ();
-    //gluPerspective (60.0, as(<double-float>, width) / as(<double-float>, height), 0.5, 10.0);
     gluOrtho2D (0.0, as(<double-float>, width), as(<double-float>, height), 0.0);
   glMatrixMode ($GL-MODELVIEW);
   glViewport (0, 0, width, height);
 end;
 
 define variable display :: <function> = callback-method () => ();
-  //format-out ("display\n");
   glClear ($GL-COLOR-BUFFER-BIT + $GL-DEPTH-BUFFER-BIT);
   glLoadIdentity ();
   glTranslate (0.375, 0.375, 0.0);
@@ -76,10 +74,6 @@ begin
   glutMouseFunc (mouse-callback);
   glutMotionFunc (motion-callback);
   
-  //gluTessCallback (*tess-object*, $GLU-BEGIN, polygon-begin);
-  //gluTessCallback (*tess-object*, $GLU-VERTEX, polygon-vertex);
-  //gluTessCallback (*tess-object*, $GLU-END, polygon-end);
- 
   glClearColor (1.0s0, 1.0s0, 1.0s0, 1.0s0);
   
   glEnable ($GL-BLEND); glBlendFunc ($GL-SRC-ALPHA, $GL-ONE-MINUS-SRC-ALPHA);
@@ -87,19 +81,23 @@ begin
 
   define variable *tess-object* = gluNewTess ();
 
-  call-out ("gluTessCallback", void:, ptr: *tess-object*.raw-value, int: 100100, ptr: c-expr( ptr: "glBegin"));
-  call-out ("gluTessCallback", void:, ptr: *tess-object*.raw-value, int: 100101, ptr: c-expr( ptr: "glVertex3dv"));
-  call-out ("gluTessCallback", void:, ptr: *tess-object*.raw-value, int: 100102, ptr: c-expr( ptr: "glEnd"));
+  call-out ("gluTessCallback", void:, ptr: *tess-object*.raw-value, int: 100100, ptr: c-expr (ptr: "glBegin"));
+  call-out ("gluTessCallback", void:, ptr: *tess-object*.raw-value, int: 100101, ptr: c-expr (ptr: "glVertex3dv"));
+  call-out ("gluTessCallback", void:, ptr: *tess-object*.raw-value, int: 100102, ptr: c-expr (ptr: "glEnd"));
 
   define variable *screen* = make (<screen>, width: 800.0, height: 600.0);
-  define variable *menu* = make (<shape-menu>, x: 100.0, y: 100.0, width: 100.0, height: 180.0);
+  define variable *menu* = make (<shape-menu>, width: 100.0, height: 180.0);
   define variable *editor* = make (<shape-editor>, width: 500.0, height: 500.0);
+  define variable *window* = make (<window>, x: 400.0, y: 200.0, caption: "Window 1");
   
+  add-child (*window*, make (<push-button>, caption: "Press Me", x: 190.0, y: 165.0));
   add-child (*editor*, make (<polygon>, x: 200.0, y: 200.0));
   add-child (*editor*, make (<spinning-polygon>, x: 300.0, y: 300.0));
   add-child (*editor*, make (<rectangle>, x: 400.0, y: 400.0));
-  add-child (*editor*, make (<push-button>, caption: "Press Me"));
+  add-child (*editor*, make (<push-button>, caption: "Another"));
+  add-child (*screen*, make (<window>, x: 400.0, y: 200.0, caption: "Window 2"));
   add-child (*screen*, *editor*);
+  add-child (*screen*, *window*);
   add-child (*screen*, *menu*);
 end;
 
