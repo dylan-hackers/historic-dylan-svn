@@ -4,6 +4,8 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define variable *config* = make(<config>,
                                 config-name: "config");
 
+define variable *commands* = #();
+
 define variable *directory* = "www/buddha/";
 
 define sideways method process-config-element
@@ -49,6 +51,7 @@ define page save end;
 define page restore end;
 define page browse end;
 define page edit end;
+define page commands end;
 
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)
@@ -73,7 +76,8 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
         a("Save", href => "/save"),
         a("Restore", href => "/restore"),
         a("Class browser", href => "/browse"),
-        a("Edit", href => "/edit")
+        a("Edit", href => "/edit"),
+        a("Commands", href => "/commands")
       }
     },
     do(?body)
@@ -91,6 +95,43 @@ end;
 
 define class <buddha-form-error> (<error>)
   constant slot error-string :: <string>, required-init-keyword: error:;
+end;
+
+define method respond-to-get (page == #"commands",
+                              request :: <request>,
+                              response :: <response>,
+                              #key errors)
+  let out = output-stream(response);
+  let action = get-query-value("do");
+  if (action)
+    let command = get-object(get-query-value("command"));
+    if (action = "undo")
+      undo(command: command)
+    elseif (action = "redo")
+      redo(command: command)
+    end
+  end;
+  with-buddha-template(out, "Commands")
+    with-xml()
+      ul {
+        do(for (command in *commands*)
+             collect(with-xml()
+                       li {
+                         do(print-xml(command)),
+                         text(" "),
+                         a("Undo",
+                           href => concatenate("/commands?do=undo&command=",
+                                               get-reference(command))),
+                         text(" "),
+                         a("Redo",
+                           href => concatenate("/commands?do=redo&command=",
+                                               get-reference(command)))
+                       }
+                     end)
+           end)
+      }
+    end;
+  end;
 end;
 
 define method respond-to-get
@@ -201,6 +242,16 @@ define method respond-to-post
     dood-root(dood) := *config*;
     dood-commit(dood);
     dood-close(dood);
+    /* dood is not able to store functions... :(
+    let cmd-dood = make(<dood>,
+                        locator: concatenate(*directory*,
+                                             base64-encode(file),
+                                             "-commands"),
+                        direction: #"output",
+                        if-exists: #"replace");
+    dood-root(cmd-dood) := *commands*;
+    dood-commit(cmd-dood);
+    dood-close(cmd-dood);*/
   exception (e :: <buddha-form-error>)
     errors := add!(errors, e);
     return();
@@ -250,6 +301,14 @@ define method respond-to-post
                   direction: #"input");
   *config* := dood-root(dood);
   dood-close(dood);
+  /* dood is not able to store functions... :(
+  let cmd-dood = make(<dood>,
+                      locator: concatenate(*directory*,
+                                           file,
+                                           "-commands"),
+                      direction: #"input");
+  *commands* := dood-root(cmd-dood);
+  dood-close(cmd-dood); */
   format(output-stream(response), "Restored database\n");
   respond-to-get(page, request, response);
 end;

@@ -16,5 +16,6 @@ files: library
        mac
        cisco-telnet
        class-browser
+       command
        class-editor
        buddha
