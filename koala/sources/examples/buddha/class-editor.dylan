@@ -300,7 +300,10 @@ define method add-object (parent-object :: <object>, request :: <request>)
     //error check object
     if (check(object))
       //add to parent list.
-      parent-object := sort!(add!(parent-object, object));
+      let command = make(<add-command>,
+                         arguments: list(object, parent-object));
+      *commands* := add!(*commands*, command);
+      redo();
     end;
   end;
 end;
@@ -309,7 +312,10 @@ define method remove-object (parent-object :: <object>, request :: <request>)
   //read object value, get it from $obj-table
   let object = get-object(get-query-value("remove-this"));
   //sanity type-check
-  parent-object := remove!(parent-object, object);
+  let command = make(<remove-command>,
+                     arguments: list(object, parent-object));
+  *commands* := add!(*commands*, command);
+  redo();
 end;
 
 define method parse (name, type)
@@ -329,8 +335,16 @@ define method parse (name, type)
   end;
 end;
 
+define class <triple> (<object>)
+  slot setter, init-keyword: setter:;
+  slot old-value, init-keyword: old-value:;
+  slot new-value, init-keyword: new-value:;
+  slot slot-name, init-keyword: slot-name:;
+end;
+
 define method save-object (object :: <object>, request :: <request>)
   //data-slots and ref-slots may have changed...
+  let slots = #();
   for (slot in data-slots(object.object-class))
     //convert value to type of slot
     //catch errors
@@ -339,7 +353,12 @@ define method save-object (object :: <object>, request :: <request>)
     //slot-setter! (only if not same object)
     //can't check for if(value) here, because value can be #f and valid...
     if (check(value) & value ~= slot.slot-getter-method(object))
-      slot.slot-setter-method(value, object);
+      slots := add!(slots,
+                    make(<triple>,
+                         setter: slot.slot-setter-method,
+                         slot-name: slot.slot-name,
+                         new-value: value,
+                         old-value: slot.slot-getter-method(object)));
     end;
   end;
   //now something completely different
@@ -350,8 +369,16 @@ define method save-object (object :: <object>, request :: <request>)
     //slot-setter!
     let current-object = slot.slot-getter-method(object);
     if (value & (value ~= current-object))
-      //set slot in object
-      slot.slot-setter-method(value, object);
+      slots := add!(slots,
+                    make(<triple>,
+                         setter: slot.slot-setter-method,
+                         slot-name: slot.slot-name,
+                         new-value: value,
+                         old-value: slot.slot-getter-method(object)));
     end;
   end;
+  let command = make(<edit-command>,
+                     arguments: list(object, slots));
+  *commands* := add!(*commands*, command);
+  redo();
 end;

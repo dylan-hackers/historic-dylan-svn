@@ -2,8 +2,8 @@ module: xml
 author: Hannes Mehnert <hannes@mehnert.org>
 
 /*
-TODO: do, collect, comments
-with-xml-builder()
+TODO: comments
+with-xml()
   html {
     head {
       title("foo")

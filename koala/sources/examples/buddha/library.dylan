@@ -87,7 +87,8 @@ define module class-browser
 //  use class-editor;
   export browse-list,
     browse-table,
-    remove-form; //this shouldn't be here
+    remove-form,  //this shouldn't be here
+    show;
 end;
 
 define module buddha
