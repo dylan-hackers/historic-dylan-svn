@@ -336,10 +336,9 @@ define method parse (name, type)
 end;
 
 define class <triple> (<object>)
-  slot setter, init-keyword: setter:;
-  slot old-value, init-keyword: old-value:;
-  slot new-value, init-keyword: new-value:;
-  slot slot-name, init-keyword: slot-name:;
+  constant slot old-value, init-keyword: old-value:;
+  constant slot new-value, init-keyword: new-value:;
+  constant slot slot-name, init-keyword: slot-name:;
 end;
 
 define method save-object (object :: <object>, request :: <request>)
@@ -355,7 +354,6 @@ define method save-object (object :: <object>, request :: <request>)
     if (check(value) & value ~= slot.slot-getter-method(object))
       slots := add!(slots,
                     make(<triple>,
-                         setter: slot.slot-setter-method,
                          slot-name: slot.slot-name,
                          new-value: value,
                          old-value: slot.slot-getter-method(object)));
@@ -371,7 +369,6 @@ define method save-object (object :: <object>, request :: <request>)
     if (value & (value ~= current-object))
       slots := add!(slots,
                     make(<triple>,
-                         setter: slot.slot-setter-method,
                          slot-name: slot.slot-name,
                          new-value: value,
                          old-value: slot.slot-getter-method(object)));
