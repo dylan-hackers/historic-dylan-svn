@@ -6,6 +6,14 @@ define variable *config* = make(<config>,
 
 define variable *commands* = #();
 
+define variable *version* = 0;
+
+define class <buddha> (<object>)
+  constant slot config :: <config> = *config*;
+  constant slot version :: <integer> = *version*;
+  constant slot commands = *commands*;
+end;
+
 define variable *directory* = "www/buddha/";
 
 define sideways method process-config-element
@@ -202,61 +210,20 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
-  let out = output-stream(response);
-  with-buddha-template(out, "Save Database")
-    collect(show-errors(errors));
-    collect(with-xml()
-              div(id => "content")
-              { form(action => "/save", \method => "post")
-                { div(class => "edit")
-                  {
-                    text("Filename"),
-                    input(type => "text", name => "filename"),
-                    input(type => "submit",
-                          name => "save-button",
-                          value => "Save")
-                  }
-                }
-              }
-            end);
-  end;
-end;
-
-define method respond-to-post
-    (page == #"save", request :: <request>, response :: <response>)
-  let errors = #();
-  let file = get-query-value("filename");
-  let handler <buddha-form-warning>
-    = method(e :: <buddha-form-warning>, next-handler :: <function>)
-          errors := add!(errors, e)
-      end;
-  block(return)
-    if (~file | file = "")
-      signal(make(<buddha-form-error>,
-                  error: "No file specified!"));
-    end;
-    let dood = make(<dood>,
-                    locator: concatenate(*directory*, base64-encode(file)),
-                    direction: #"output",
-                    if-exists: #"replace");
-    dood-root(dood) := *config*;
-    dood-commit(dood);
-    dood-close(dood);
-    /* dood is not able to store functions... :(
-    let cmd-dood = make(<dood>,
-                        locator: concatenate(*directory*,
-                                             base64-encode(file),
-                                             "-commands"),
-                        direction: #"output",
-                        if-exists: #"replace");
-    dood-root(cmd-dood) := *commands*;
-    dood-commit(cmd-dood);
-    dood-close(cmd-dood);*/
-  exception (e :: <buddha-form-error>)
-    errors := add!(errors, e);
-    return();
-  end;
-  respond-to-get(page, request, response, errors: errors);
+  let filename = concatenate("buddha-", integer-to-string(*version*));
+  let dood = make(<dood>,
+                  locator: concatenate(*directory*, base64-encode(filename)),
+                  direction: #"output",
+                  if-exists: #"replace");
+  dood-root(dood) := make(<buddha>);
+  dood-commit(dood);
+  dood-close(dood);
+  *version* := *version* + 1;
+  format(output-stream(response), "Saved %S\n", filename);
+  respond-to-get(#"network",
+                 request,
+                 response);
+                              
 end;
 
 define method respond-to-get
@@ -266,7 +233,8 @@ define method respond-to-get
      #key errors)
   let out = output-stream(response);
   with-buddha-template(out, "Restore Database")
-    with-xml()
+    collect(show-errors(errors));
+    collect(with-xml()
       div(id => "content")
         { form(action => "/restore", \method => "post")
           { \select(name => "filename")
@@ -288,29 +256,28 @@ define method respond-to-get
                   value => "Restore")
           }
         }
-    end;
+            end);
   end;
 end;
 
 define method respond-to-post
     (page == #"restore", request :: <request>, response :: <response>)
   let file = get-query-value("filename");
-  file := base64-encode(file);
+  let b64file = base64-encode(file);
   let dood = make(<dood>,
-                  locator: concatenate(*directory*, file),
+                  locator: concatenate(*directory*, b64file),
                   direction: #"input");
-  *config* := dood-root(dood);
+  let buddha = dood-root(dood);
   dood-close(dood);
-  /* dood is not able to store functions... :(
-  let cmd-dood = make(<dood>,
-                      locator: concatenate(*directory*,
-                                           file,
-                                           "-commands"),
-                      direction: #"input");
-  *commands* := dood-root(cmd-dood);
-  dood-close(cmd-dood); */
-  format(output-stream(response), "Restored database\n");
-  respond-to-get(page, request, response);
+  *config* := buddha.config;
+  *commands* := buddha.commands;
+  if (buddha.version > *version*)
+    *version* := buddha.version;
+  end;
+  format(output-stream(response), "Restored %s\n", file);
+  respond-to-get(page,
+                 request,
+                 response);
 end;
 
 define method respond-to-get
@@ -327,7 +294,10 @@ define method respond-to-get
               div(id => "content")
               {
                 do(browse-table(<network>, *config*.networks)),
-                do(add-form(<network>, "Networks", *config*.networks, fill-from-request: errors))
+                do(add-form(<network>,
+                            "Networks",
+                            *config*.networks,
+                            fill-from-request: errors))
               }
             end);
   end;

@@ -2,24 +2,40 @@ module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define abstract class <command> (<object>)
-  slot execute :: <function>, init-keyword: execute:;
-  slot unexecute :: <function>, init-keyword: unexecute:;
-  slot arguments :: <list>, init-keyword: arguments:;
+  constant slot arguments :: <list>, init-keyword: arguments:;
 end;
 
 define class <add-command> (<command>)
-  inherited slot execute = add-to-list;
-  inherited slot unexecute = remove-from-list;
 end;
 
 define class <remove-command> (<command>)
-  inherited slot execute = remove-from-list;
-  inherited slot unexecute = add-to-list;
 end;
 
 define class <edit-command> (<command>)
-  inherited slot execute = set-slots;
-  inherited slot unexecute = unset-slots;
+end;
+
+define method execute (command :: <add-command>)
+  add-to-list;
+end;
+
+define method unexecute (command :: <add-command>)
+  remove-from-list;
+end;
+
+define method execute (command :: <remove-command>)
+  remove-from-list;
+end;
+
+define method unexecute (command :: <remove-command>)
+  add-to-list;
+end;
+
+define method execute (command :: <edit-command>)
+  set-slots;
+end;
+
+define method unexecute (command :: <edit-command>)
+  unset-slots;
 end;
 
 define method print-xml (command :: <command>)
@@ -82,21 +98,43 @@ end;
 
 define method set-slots (object :: <object>, slots :: <list>)
   map(method(x)
-          x.setter(x.new-value, object)
+          set-slot(x.slot-name, object, x.new-value)
       end, slots);
 end;
 
 define method unset-slots (object :: <object>, slots :: <list>)
   map(method(x)
-          x.setter(x.old-value, object)
+          set-slot(x.slot-name, object, x.old-value)
       end, slots);
 end;
 
+define method set-slot (name :: <string>,
+                        object :: <object>,
+                        value :: <object>)
+    local method find-slot (slots)
+            block(return)
+              for (slot in slots)
+                if (slot.slot-name = name)
+                  return(slot);
+                end;
+              end;
+              #f;
+            end;
+          end;
+  let slot = find-slot(data-slots(object.object-class));
+  unless (slot)
+    slot := find-slot(reference-slots(object.object-class))
+  end;
+  if (slot)
+    slot.slot-setter-method(value, object)
+  end;
+end;
+
 define method undo (#key command = head(*commands*))
-  apply(command.unexecute, command.arguments);
+  apply(unexecute(command), command.arguments);
 end;
 
 define method redo (#key command = head(*commands*))
-  apply(command.execute, command.arguments);
+  apply(execute(command), command.arguments);
 end;
 

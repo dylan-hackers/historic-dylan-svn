@@ -8,7 +8,7 @@ blackhole ip-ranges
 *user management/session:
  *put obj-tables in user session objects
 
-*command abstraction for redo/undo, recent changes
+*recent changes
 
 security:
  -prevent cross-site scripting (escape <> in all input data)
