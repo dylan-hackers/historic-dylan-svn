@@ -3,19 +3,35 @@ require "shared.inc";
 standard_header("Current Limitations");
 ?>
 
-<p>Neither the d2c compiler nor the Mindy interpreter are
-perfect. Here are some known limitations.</p>
+<p>Here are some limitations of our Dylan implementations:</p>
 
-<h3>Limitations of d2c:</h3>
+<h3>Open Dylan</h3>
 
 <ul>
 
-<li><strong>d2c generates fast code slowly.</strong> This problem was solved in
-the Open Dylan compiler by supporting incremental compilation. We'd like to do
-the same in d2c eventually.</li>
+<li>The compiler only generates code for x86, though there is a
+partially completed PowerPC backend.</li>
+
+<li>The IDE only runs on Windows because there is only a win32 backend
+for DUIM.  There is a mostly-completed gtk+ backend.</li>
+
+<li>The generated code doesn't run as fast as it could.  More
+optimizations are needed.</li>
+
+</ul>
+
+<h3>Gwydion Dylan</h3>
+
+<ul>
+
+<li>d2c (the Gwydion compiler) generates fast code slowly.  This
+problem was solved in the Open Dylan compiler by supporting
+incremental compilation.  We'd like to do the same in d2c
+eventually.</li>
 
 <li>The Dylan-to-C interface is good, but sometimes has problems with
 unusual constructs in system header files.</li>
+<!-- What kind of problems?  How does it manifest?  -->
 
 <li><strong>Debugging is uncomfortable.</strong> Although there's
 support on most platforms for dybug, a gdb wrapper that understands
@@ -27,7 +43,7 @@ support for some features, such as limited collections.</li>
 
 </ul>
 
-<h3>Limitations of Mindy:</h3>
+<h3>Mindy</h3>
 
 <ul>
 
