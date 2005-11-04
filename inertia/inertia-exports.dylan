@@ -16,6 +16,7 @@ define library inertia
   use opengl;
   use melange-support;
 
+  export inertia;
   export inertia-geometry;
   export inertia-shapes;
 end;
@@ -75,8 +76,10 @@ define module inertia-shapes
   
   export
     <shape>,
-      add-child, contains-point?, send-event,
-      draw-shape, draw-content, draw-outline,
+      shape-left, shape-top, shape-left-setter, shape-top-setter,
+      shape-width, shape-height, shape-width-setter, shape-height-setter,
+      add-child, contains-point?, send-event, on-mouse-event,
+      draw-shape, draw-content, draw-outline, draw-overlay,
     <polygon>, <spinning-polygon>,
     <rectangle>,
     <screen>,
@@ -94,7 +97,9 @@ define module inertia-shapes
         <mouse-motion-event>,
         <mouse-drag-event>,
         <mouse-gripper-event>;
-  
-  export timer;
+
+  export
+    <mouse-button>,
+      $left-button, $middle-button, $right-button;
 end;
 

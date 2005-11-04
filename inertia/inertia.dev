@@ -1,7 +1,7 @@
 [Project]
 FileName=inertia.dev
 Name=inertia
-UnitCount=12
+UnitCount=13
 Type=1
 Ver=1
 ObjFiles=
@@ -148,6 +148,15 @@ BuildCmd=
 
 [Unit12]
 FileName=inertia-widgets.dylan
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit13]
+FileName=inertia-effects.dylan
 Folder=
 Compile=1
 Link=1
