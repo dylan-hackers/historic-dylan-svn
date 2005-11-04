@@ -31,27 +31,34 @@ define variable display :: <function> = callback-method () => ();
   glutSwapBuffers ();
 end;
 
-define variable *button* = 0;
+define variable *button* = #"none-button";
 
 define variable mouse-callback :: <function> = callback-method (button :: <integer>,
                                   state :: <integer>, x :: <integer>, y :: <integer>) => ();
   let origin = make (<point>, x: as(<double-float>, x), y: as(<double-float>, y));
-  *button* := button;
+  *button* := select (button)
+    $GLUT-LEFT-BUTTON => $left-button;
+    $GLUT-MIDDLE-BUTTON => $middle-button;
+    $GLUT-RIGHT-BUTTON => $right-button;
+  end;
 
   if (state == $GLUT-DOWN)
-    send-event (*screen*, make (<mouse-down-event>, origin: origin), button);
+    send-event (*screen*, make (<mouse-down-event>, origin: origin), *button*);
   elseif (state == $GLUT-UP)
-    send-event (*screen*, make (<mouse-up-event>, origin: origin), button);
+    send-event (*screen*, make (<mouse-up-event>, origin: origin), *button*);
+    *button* := #"none-button";
   end;
   glutPostRedisplay ();
 end;
 
-define variable passive-motion :: <function> = callback-method (x :: <integer>, y :: <integer>) => ();
+define variable passive-motion :: <function> = callback-method (x :: <integer>, y :: <integer>)
+ => ();
   let origin = make (<point>, x: as(<double-float>, x), y: as(<double-float>, y));
   send-event (*screen*, make (<mouse-motion-event>, origin: origin), *button*);
 end;
 
-define variable motion-callback :: <function> = callback-method (x :: <integer>, y :: <integer>) => ();
+define variable motion-callback :: <function> = callback-method (x :: <integer>, y :: <integer>)
+ => ();
   let origin = make (<point>, x: as(<double-float>, x), y: as(<double-float>, y));
   send-event (*screen*, make (<mouse-drag-event>, origin: origin), *button*);
   glutPostRedisplay ();
@@ -65,7 +72,7 @@ begin
   glutInitDisplayMode ($GLUT-RGBA + $GLUT-DEPTH + $GLUT-DOUBLE + $GLUT-STENCIL);
 
   glutInitWindowPosition (200, 100);
-  glutInitWindowSize (800, 600);
+  glutInitWindowSize (1024, 768);
   glutCreateWindow ("Dylan Inertia");
 
   glutDisplayFunc (display);
@@ -85,19 +92,8 @@ begin
   call-out ("gluTessCallback", void:, ptr: *tess-object*.raw-value, int: 100101, ptr: c-expr (ptr: "glVertex3dv"));
   call-out ("gluTessCallback", void:, ptr: *tess-object*.raw-value, int: 100102, ptr: c-expr (ptr: "glEnd"));
 
-  define variable *screen* = make (<screen>, width: 800.0, height: 600.0);
+  define variable *screen* = make (<screen>, width: 1024.0, height: 768.0);
   define variable *menu* = make (<shape-menu>, width: 100.0, height: 180.0);
-  define variable *editor* = make (<shape-editor>, width: 500.0, height: 500.0);
-  define variable *window* = make (<window>, x: 400.0, y: 200.0, caption: "Window 1");
-  
-  add-child (*window*, make (<push-button>, caption: "Press Me", x: 190.0, y: 165.0));
-  add-child (*editor*, make (<polygon>, x: 200.0, y: 200.0));
-  add-child (*editor*, make (<spinning-polygon>, x: 300.0, y: 300.0));
-  add-child (*editor*, make (<rectangle>, x: 400.0, y: 400.0));
-  add-child (*editor*, make (<push-button>, caption: "Another"));
-  add-child (*screen*, make (<window>, x: 400.0, y: 200.0, caption: "Window 2"));
-  add-child (*screen*, *editor*);
-  add-child (*screen*, *window*);
   add-child (*screen*, *menu*);
 end;
 

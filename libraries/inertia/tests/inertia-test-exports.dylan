@@ -19,6 +19,7 @@ define module inertia-test
   use opengl;
   use opengl-glut;
   use simple-io;
+  use inertia;
   use inertia-shapes;
 end;
 
