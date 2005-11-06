@@ -3,21 +3,21 @@ require "fragments.inc";
 code_header("Macros");
 ?>
 
-<P>Dylan allows you to create new control constructs and other high-level
+<p>Dylan allows you to create new control constructs and other high-level
 forms. They can be used to automatically release resources, simplify class
-creation, or adapt Dylan for a specific problem domain.</P>
+creation, or adapt Dylan for a specific problem domain.</p>
 
-<P>In the following example, we create a <CODE>with-mutex</CODE> statement
+<p>In the following example, we create a <code>with-mutex</code> statement
 that automatically acquires and releases a POSIX mutex. Once again, we
-import the necessary functions from C.</P>
+import the necessary functions from C.</p>
 
-<P>Dylan macros are part of the compiler, not a preprocessor. This means
+<p>Dylan macros are part of the compiler, not a preprocessor. This means
 that they can pay attention to the grammar of the language. They're also
-<EM>hygenic</EM>, which means they can't suffer name clashes with
-surrounding code. (In the example below, <CODE>mutex</CODE> in the macro
-expansion would not be seen by the expressions in <CODE>?code</CODE>.)</P>
+<em>hygienic</em>, which means they can't suffer name clashes with
+surrounding code. (In the example below, <code>mutex</code> in the macro
+expansion would not be seen by the expressions in <code>?code</code>.)</p>
 
-<BLOCKQUOTE><PRE>
+<blockquote><pre>
 define interface
   #include "pthread.h",
     import: {"pthread_mutex_t",
@@ -52,6 +52,6 @@ with-mutex (mutex)
 end;
 
 check-error(pthread-mutex-destroy(mutex));
-</PRE></BLOCKQUOTE>
+</pre></blockquote>
 
 <?php code_footer(); ?>
