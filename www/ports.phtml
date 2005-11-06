@@ -5,55 +5,54 @@ standard_header("Ports");
 
 <h3>Open Dylan</h3>
 
-<p>Open Dylan generates native code so porting it to different
-hardware architectures is non-trivial.  It currently supports x86
-machines running Windows or Linux.  There is a partially written PPC
-backend.  The development environment only runs on Windows until the
-gtk+ backend to DUIM is completed.
-
+<p>Open Dylan generates native code so porting it to different hardware
+architectures is non-trivial. It currently supports x86 machines running
+Windows or Linux. There is a partially written PowerPC backend. The
+development environment only runs on Windows until the GTK+ backend to DUIM
+is completed.</p>
 
 <h3>Gwydion Dylan</h3>
 
-<P>Several developers have volunteered to help out as soon as Gwydion is
+<p>Several developers have volunteered to help out as soon as Gwydion is
 supported on their architecture. Porting Gwydion to a new species of Unix
 requires the new platform, an internet connection, and a few days work.
-Faster machines and network connections and a currently-supported
-platform handy nearby make the job easier but it's been done on isolated
-sub-100 MHz machines with a 56k modem.<p>
+Faster machines and network connections and a currently-supported platform
+handy nearby make the job easier but it's been done on isolated sub-100 MHz
+machines with a 56k modem.</p>
 
-Currently supported platforms are</P>
+<p>Currently supported platforms are</p>
 
-<UL>
-<LI>Linux (x86, PPC), with packages as tarballs, RPMs and DEBs
-<LI>FreeBSD (it's in the ports)
-<LI>Solaris
-<LI>MacOS X/Darwin
-<LI>Windows with cygwin/gcc
-<LI>HP-UX
-</UL>
+<ul>
+  <li>Linux (x86, PowerPC), with packages as tarballs, RPMs and DEBs
+  <li>FreeBSD (it's in the ports)
+  <li>Solaris
+  <li>Mac OS X/Darwin
+  <li>Windows with Cygwin/gcc
+  <li>HP-UX
+</ul>
 
-<P>The most popular and actively-supported ports are those to Linux and the
-BSD's (including MacOS X/Darwin).  Unfortunately, several previously supported
+<p>The most popular and actively-supported ports are those to Linux and the
+BSD's (including Mac OS X/Darwin). Unfortunately, several previously supported
 platforms have been neglected due to none of the current volunteers using
-them.  If you're interested in one of these platforms the position of
+them. If you're interested in one of these platforms the position of
 maintainer is open and it's probably not a big deal to update them to the
-latest and greatest:</P>
-<UL>
-<LI>Windows with Visual C++
-<LI>OpenBSD
-<LI>MacOS
-<LI>BeOS
-</UL>
+latest and greatest:</p>
 
-If there is no binary for the current version of Gwydion Dylan for
-your platform, get an older binary and compile the
-sources. Alternatively if you've got a lot of time on your hands you
-can use our &quot;Mindy&quot; Dylan interpreter for bootstrapping --
-this takes several hours on a 700 MHz Athlon and up to several days on
-early model Pentiums and PPCs.<p>
+<ul>
+  <li>Windows with Visual C++
+  <li>OpenBSD
+  <li>Mac OS X
+  <li>BeOS
+</ul>
 
-Please announce your efforts on our gd-hackers mailing list, let us know
-of any problems you have (we may have seen them before). When you're done, 
-let us know as well, so we can put your binary on the server.
+<p>If there is no binary for the current version of Gwydion Dylan for your
+platform, get an older binary and compile the sources. Alternatively, if
+you've got a lot of time on your hands you can use our &quot;Mindy&quot;
+Dylan interpreter for bootstrapping&mdash;this takes several hours on a 700
+MHz Athlon and up to several days on early model Pentiums and PowerPCs.</p>
+
+<p>Please announce your efforts on our gd-hackers mailing list, let us know
+of any problems you have (we may have seen them before). When you're done,
+let us know as well, so we can put your binary on the server.</p>
 
 <?php standard_footer(); ?>
