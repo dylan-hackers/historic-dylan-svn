@@ -50,19 +50,19 @@ pre
 #header
 {
   background: steelblue;
-  border: 1px solid black;
   color: white;
+  border: 1px solid black;
   margin: 0;  padding: 0.5em 0.5em 1.5em; 
 }
-#header a { color: white; font-weight: normal; text-decoration: none; padding: 0 }
-#header a:hover { background: transparent; color: white }
-#header a:hover.logo { text-decoration: none }
-#header a.logo { font-family: serif; font-weight: bold; font-size: 150%; border-width: 0px }
-#header a.logo .sub 
-{
-  color: #E5794B;
-  font-size: 90%; 
-  position: relative; top: -0.3em; 
+#header a.logo { 
+  font-family: serif; 
+  font-weight: bold; 
+  font-size: 150%; 
+  border-width: 0px;
+  color: white;
+}
+#header a.logo:hover { 
+  background: transparent;
 }
 
 .search
@@ -79,18 +79,29 @@ pre
 }
 .login input { border: 1px solid black }
 
-#navbar { margin: 1em 0 -0.5em 0 }
-#navbar a 
+.navbar { 
+  margin: 1em 0 -0.5em 0 
+  color: white; 
+  font-weight: normal; 
+  text-decoration: none; 
+  padding: 0;
+}
+.navbar a 
 {
+  color: white; 
   border: 1px solid #E5794B;
   border-width: 1px 0 1px 0;
   font-size: 90%;
-  margin: 0 1em; padding: 0 0.2em 
+  margin: 0 1em; 
+  padding: 0 0.2em;
 }
-#navbar a:hover
+.navbar a:hover
 {
   border: 1px solid white;
   border-width: 1px 0 1px 0;
+  background: transparent;
+  color: white;
+  text-decoration: none;
 }
 
 .lastedit 
@@ -111,6 +122,10 @@ pre
   margin: 0; padding: 0 1.5em;
 }
 
+#content h1 {
+  color: #E5794B;
+}
+
 /*
  * footer
  */
@@ -122,5 +137,18 @@ pre
   font-family: serif;
   margin-top: 0.5em; padding: 0.01em;
 }
-#footer a[href] { color: #E5794B; text-decoration: none }
-#footer a[href]:hover { background: transparent; color: #E5794B }
+
+span.lastrevisions {
+  font-size: small;
+  float: right;
+  margin-right: 1em;
+}
+
+a.revisionlink {
+  border: none; 
+  color: black; 
+  margin: 0.2em 0; 
+  padding: 0 0; 
+  text-decoration: default;
+}
+
