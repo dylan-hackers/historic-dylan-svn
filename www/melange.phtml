@@ -14,7 +14,7 @@ and PowerPC&mdash;even with callbacks to closures.</p>
 
 <p>The original Gwydion developers at CMU wrote a nifty tool called Melange.
 It parses C header files and automatically generates Dylan interface files.
-We've been slowly enhancing Melange to handle more complicated header files,
+We&rsquo;ve been slowly enhancing Melange to handle more complicated header files,
 and stomping out all the bugs which we find along the way.</p>
 
 <p>Somewhere along we decided to rewrite parts of Melange, and a new project
@@ -24,13 +24,13 @@ missing the code generation part.  This project was later shelved.</p>
 <p>Peter Housel is now working on a brand new C code representation
 library called CPR (for C Program Representation), inspired by
 SML/NJ&rsquo;s <a href="http://www.smlnj.org/doc/ckit/">ckit</a> and
-George Necula's <a href="http://manju.cs.berkeley.edu/cil/">CIL</a>.
+George Necula&rsquo;s <a href="http://manju.cs.berkeley.edu/cil/">CIL</a>.
 This library will be able to parse C code and make its structure
 available to Dylan programs as an abstract syntax tree.</p>
 
 <p>The current plan is that a new CPR-based FFI mechanism called
 Collage will be replacing Melange in the hopefully near future.
-Unlike Melange, Collage won't usually generate interface files;
+Unlike Melange, Collage won&rsquo;t usually generate interface files;
 instead, it will be built into <code>d2c</code> and DFMC.</p>
 
 <p>For now, however, Melange is your best bet if you want to use a C
