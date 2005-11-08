@@ -6,6 +6,12 @@ define variable *config* = make(<config>,
 
 define variable *commands* = #();
 
+//list containing recent changes
+define variable *changes* = #();
+
+//tree containing commands..
+define variable *changetree*;
+
 define variable *version* = 0;
 
 define class <buddha> (<object>)
