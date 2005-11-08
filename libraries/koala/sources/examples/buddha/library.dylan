@@ -56,7 +56,6 @@ define module utils
   use dylan-extensions, import: { debug-name };
   use regular-expressions;
   export exclude,
-    regexp-match,
     get-url-from-type,
     <wrapper-sequence>,
     <mutable-wrapper-sequence>,
@@ -92,6 +91,7 @@ define module class-browser
 end;
 
 define module buddha
+  use regular-expressions;
   use common-dylan;
   use dylan-extensions, exclude: { slot-type };
   use threads;
