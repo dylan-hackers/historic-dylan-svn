@@ -108,19 +108,26 @@ end;
 define method respond-to-get (page == #"commands",
                               request :: <request>,
                               response :: <response>,
-                              #key errors)
+                              #key errors = #())
   let out = output-stream(response);
   let action = get-query-value("do");
+  let errors = errors;
   if (action)
-    let command = get-object(get-query-value("command"));
-    if (action = "undo")
-      undo(command: command)
-    elseif (action = "redo")
-      redo(command: command)
-    end
+    block(return)
+      let command = get-object(get-query-value("command"));
+      if (action = "undo")
+        undo(command: command)
+      elseif (action = "redo")
+        redo(command: command)
+      end
+    exception (e :: <buddha-form-error>)
+      errors := add!(errors, e);
+      return();
+    end;
   end;
   with-buddha-template(out, "Commands")
-    with-xml()
+    collect(show-errors(errors));
+    collect(with-xml()
       ul {
         do(for (command in *commands*)
              collect(with-xml()
@@ -138,7 +145,7 @@ define method respond-to-get (page == #"commands",
                      end)
            end)
       }
-    end;
+    end);
   end;
 end;
 

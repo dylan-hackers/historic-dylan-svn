@@ -88,7 +88,9 @@ end;
 define method add-to-list (object :: <object>, list :: <collection>)
   //only add if not in list
   unless (any?(method(x) x = object end, list))
-    list := sort!(add!(list, object))
+    if (check(object))
+      list := sort!(add!(list, object))
+    end;
   end
 end;
 
@@ -100,12 +102,14 @@ define method set-slots (object :: <object>, slots :: <list>)
   map(method(x)
           set-slot(x.slot-name, object, x.new-value)
       end, slots);
+  //check for consistency, on error, do a rollback
 end;
 
 define method unset-slots (object :: <object>, slots :: <list>)
   map(method(x)
           set-slot(x.slot-name, object, x.old-value)
       end, slots);
+  //check for consistency, on error, do a rollback
 end;
 
 define method set-slot (name :: <string>,
@@ -122,11 +126,13 @@ define method set-slot (name :: <string>,
             end;
           end;
   let slot = find-slot(data-slots(object.object-class));
-  unless (slot)
-    slot := find-slot(reference-slots(object.object-class))
-  end;
   if (slot)
-    slot.slot-setter-method(value, object)
+    slot.slot-setter-method(value, object);
+  else
+    slot := find-slot(reference-slots(object.object-class));
+    if (slot)
+      slot.slot-setter-method(value, object)
+    end;
   end;
 end;
 
