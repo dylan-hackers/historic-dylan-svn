@@ -16,6 +16,6 @@
       <a href="/wiki/edit.dsp?title=<wiki:show-title v="true" for-url="true"/>">Edit This Page</a>&nbsp;&nbsp;
     </dsp:when>
   </div>
-	<dsp:show-form-notes/>
+  <dsp:show-form-notes/>
 </div>
 <!-- begin user-generated page content -->
