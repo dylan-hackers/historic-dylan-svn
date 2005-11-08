@@ -10,15 +10,21 @@ license:   MIT/BSD, see LICENCE.txt for details
 
 define library inertia-test
   use common-dylan;
+  use transcendental;
+  use time;
+  use melange-support;
   use opengl;
   use inertia;
 end;
 
 define module inertia-test
   use common-dylan;
+  use transcendental;
+  use melange-support;
   use opengl;
   use opengl-glut;
   use simple-io;
+  use time;
   use inertia;
   use inertia-shapes;
 end;

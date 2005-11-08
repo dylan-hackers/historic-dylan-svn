@@ -10,6 +10,7 @@ license:   MIT/BSD, see LICENCE.txt for details
 
 define library inertia
   use common-dylan;
+  use string-extensions;
   use random;
   use io;
   use transcendental;
@@ -24,8 +25,11 @@ end;
 // ---------------------------------------------------------------------------------------------- //
 
 define module inertia
-  use common-dylan;
+  use common-dylan; //, rename: {method-definer => dylan-method-definer};
   use simple-io;
+  use streams;
+  use character-type;
+  //use string-conversions;
   use opengl;
   use opengl-glu;
   use opengl-glut;
@@ -34,11 +38,20 @@ define module inertia
   use inertia-shapes;
 
   export *tess-object*, *screen*, *menu*;
+  export 
+    <field>,
+    <persistent>,
+      fields,
+      build-object;
+
+  export table, make-from-symbol;
+  export *function-table*;
 end;
 
 define module inertia-gl-utils
   use common-dylan;
   use simple-io;
+  use streams;
   use opengl;
   use opengl-glu;
   use opengl-glut;
@@ -80,11 +93,15 @@ define module inertia-shapes
       shape-width, shape-height, shape-width-setter, shape-height-setter,
       add-child, contains-point?, send-event, on-mouse-event,
       draw-shape, draw-content, draw-outline, draw-overlay,
+      fill-color, reshape,
     <polygon>, <spinning-polygon>,
+    <button>,
+      on-click,
     <rectangle>,
     <screen>,
       mouse-origin, mouse-origin-setter,
     <shape-menu>,
+    <widget>,
     <shape-editor>,
     <push-button>,
     <window>;

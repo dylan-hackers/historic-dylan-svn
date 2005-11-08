@@ -1,7 +1,7 @@
 [Project]
 FileName=inertia.dev
 Name=inertia
-UnitCount=13
+UnitCount=19
 Type=1
 Ver=1
 ObjFiles=
@@ -20,7 +20,7 @@ ObjectOutput=
 OverrideOutput=0
 OverrideOutputName=
 HostApplication=
-Folders=tests
+Folders=inertia-shapes,inertia-widgets,tests
 CommandLine=
 UseCustomMakefile=0
 CustomMakefile=
@@ -66,15 +66,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=inertia-shapes.dylan
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit4]
 FileName=inertia.lid
 Folder=
 Compile=1
@@ -83,7 +74,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit5]
+[Unit4]
 FileName=tests\inertia-test.lid
 Folder=tests
 Compile=0
@@ -92,7 +83,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit6]
+[Unit5]
 FileName=tests\inertia-test-exports.dylan
 Folder=tests
 Compile=0
@@ -101,7 +92,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit7]
+[Unit6]
 FileName=tests\inertia-test-main.dylan
 Folder=tests
 Compile=0
@@ -110,7 +101,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit8]
+[Unit7]
 FileName=inertia-gl-utils.dylan
 Folder=
 Compile=1
@@ -119,16 +110,16 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit9]
+[Unit8]
 FileName=Makefile
-Folder=inertia
+Folder=
 Compile=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit10]
+[Unit9]
 FileName=inertia-main.dylan
 Folder=
 Compile=1
@@ -137,7 +128,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit11]
+[Unit10]
 FileName=inertia-events.dylan
 Folder=
 Compile=1
@@ -146,8 +137,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit12]
-FileName=inertia-widgets.dylan
+[Unit11]
+FileName=inertia-effects.dylan
 Folder=
 Compile=1
 Link=1
@@ -155,11 +146,74 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit13]
-FileName=inertia-effects.dylan
-Folder=
+[Unit12]
+FileName=inertia-shapes\shape-polygon.dylan
+Folder=inertia-shapes
 Compile=1
 Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit13]
+FileName=inertia-shapes\shape-rectangle.dylan
+Folder=inertia-shapes
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit14]
+FileName=inertia-shapes\shape-shape-menu.dylan
+Folder=inertia-shapes
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit15]
+FileName=inertia-widgets\widget-shape-editor.dylan
+Folder=inertia-widgets
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit16]
+FileName=inertia-widgets\widget-button.dylan
+Folder=inertia-widgets
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit17]
+FileName=inertia-widgets\widget-window.dylan
+Folder=inertia-widgets
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit18]
+FileName=inertia-shapes.dylan
+Folder=inertia
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit19]
+FileName=inertia-widgets.dylan
+Folder=inertia
+Compile=0
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=

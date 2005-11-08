@@ -60,7 +60,7 @@ end;
 
 define method send-event (shape :: <shape>, event :: <event>, data :: <object>)
  => (result :: <shape>)
-  format-out ("send-event (%=, %=, %=)\n", shape, event, data);
+  //format-out ("send-event (%=, %=, %=)\n", shape, event, data);
   shape;
 end;
 
@@ -81,9 +81,10 @@ define method send-event (shape :: <shape>, event :: <parent-reshape-event>, dif
   next-method ();
 end;
 
-define method send-event (shape :: <shape>, event :: <mouse-event>, button :: <mouse-button>)
+define method send-event
+    (shape :: <shape>, event :: <mouse-event>, button :: <mouse-button>)
  => (result :: <shape>)
-  format-out ("send-event (%=, %=, %=)\n", shape, event, button);
+  //format-out ("send-event (%=, %=, %=)\n", shape, event, button);
   block (return)
     for (child in shape.children)
       let x = event.origin.point-x - child.origin.point-x;
@@ -99,7 +100,6 @@ define method send-event (shape :: <shape>, event :: <mouse-event>, button :: <m
       if (((new-x / child.z-scale > 50.0) & (new-x / child.z-scale < 60.0))
           & (new-y > -5 & new-y < 5))
         if (instance? (event, <mouse-down-event>))
-          format-out ("gripper\n");
           child.mouse-mode := #"gripper";
           event.origin := new-origin;
           //return (send-event (child, event));
@@ -131,7 +131,6 @@ define method send-event (screen :: <screen>, event :: <mouse-motion-event>, but
  => (result :: <shape>)
   let shape = next-method ();
   if (screen.grabbed-shape ~= #f & shape ~= screen.grabbed-shape)
-    format-out ("here\n");
     on-mouse-event (screen.grabbed-shape, make (<mouse-exit-event>, origin: event.origin), button);
     screen.grabbed-shape := shape;
     on-mouse-event (screen.grabbed-shape, make (<mouse-enter-event>, origin: event.origin), button);
