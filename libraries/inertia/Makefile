@@ -8,8 +8,20 @@ tests/inertia-test: tests/inertia-test-exports.dylan tests/inertia-test-main.dyl
 	(cd tests; d2c -L.. inertia-test.lid)
 
 inertia.lib.du: inertia.lid inertia-exports.dylan inertia-gl-utils.dylan inertia-geometry.dylan \
-                inertia-shapes.dylan inertia-events.dylan inertia-effects.dylan inertia-widgets.dylan inertia-main.dylan
+                inertia-shapes.dylan \
+                inertia-shapes/shape-polygon.dylan \
+                inertia-shapes/shape-rectangle.dylan \
+                inertia-shapes/shape-shape-menu.dylan \
+                inertia-events.dylan inertia-effects.dylan \
+                inertia-widgets.dylan \
+                inertia-widgets/widget-shape-editor.dylan \
+                inertia-widgets/widget-button.dylan \
+                inertia-widgets/widget-window.dylan \
+                inertia-main.dylan
 	d2c inertia.lid
+
+test: tests/inertia-test
+	(cd tests; ./inertia-test)
 
 clean:
 	rm -rf *.mak *.lib.du *.lo *.o *.la *.a *.c .libs

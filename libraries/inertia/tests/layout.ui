@@ -1,0 +1,14 @@
+object window: <window>
+  shape-left: 10
+  shape-top: 10
+  object button: <push-button>
+    caption: "It's Alive!"
+    shape-left: 10
+    shape-top: 10
+    on-click: button-clicked
+#   on-click: <action>
+#     method: button-clicked
+#   end
+  end
+end
+
