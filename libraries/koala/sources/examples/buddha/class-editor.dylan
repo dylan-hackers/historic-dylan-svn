@@ -297,14 +297,10 @@ define method add-object (parent-object :: <object>, request :: <request>)
       let value = get-object(get-query-value(slot.slot-name));
       slot.slot-setter-method(value, object);
     end;
-    //error check object
-    if (check(object))
-      //add to parent list.
-      let command = make(<add-command>,
-                         arguments: list(object, parent-object));
-      *commands* := add!(*commands*, command);
-      redo();
-    end;
+    let command = make(<add-command>,
+                       arguments: list(object, parent-object));
+    *commands* := add!(*commands*, command);
+    redo();
   end;
 end;
 
@@ -345,13 +341,10 @@ define method save-object (object :: <object>, request :: <request>)
   //data-slots and ref-slots may have changed...
   let slots = #();
   for (slot in data-slots(object.object-class))
-    //convert value to type of slot
-    //catch errors
     //maybe use another generic function, not as in parse?
     let value = parse(slot.slot-name, slot.slot-type);
-    //slot-setter! (only if not same object)
     //can't check for if(value) here, because value can be #f and valid...
-    if (check(value) & value ~= slot.slot-getter-method(object))
+    if (value ~= slot.slot-getter-method(object))
       slots := add!(slots,
                     make(<triple>,
                          slot-name: slot.slot-name,
@@ -364,7 +357,6 @@ define method save-object (object :: <object>, request :: <request>)
     //get new value via reference
     let value = get-object(get-query-value(slot.slot-name));
     //error check it!
-    //slot-setter!
     let current-object = slot.slot-getter-method(object);
     if (value & (value ~= current-object))
       slots := add!(slots,
