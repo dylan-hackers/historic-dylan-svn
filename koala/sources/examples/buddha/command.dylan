@@ -126,13 +126,11 @@ define method set-slot (name :: <string>,
             end;
           end;
   let slot = find-slot(data-slots(object.object-class));
-  if (slot)
-    slot.slot-setter-method(value, object);
-  else
+  unless (slot)
     slot := find-slot(reference-slots(object.object-class));
-    if (slot)
-      slot.slot-setter-method(value, object)
-    end;
+  end;
+  if (slot)
+    slot.slot-setter-method(value, object)
   end;
 end;
 
