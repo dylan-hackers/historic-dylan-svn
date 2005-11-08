@@ -11,7 +11,7 @@
   <div id="content">
     <dsp:if test="logged-in?">
       <dsp:then>
-	Error logging out user!
+        Error logging out user!
       </dsp:then>
       <dsp:else>
         User logged out! <a href="<dsp:show-referer/>">back</a>

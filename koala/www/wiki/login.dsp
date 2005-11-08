@@ -14,7 +14,7 @@
         Logged in as <wiki:username/>. <a href="/wiki/logout.dsp">Logout</a>
       </dsp:then>
       <dsp:else>
-	You need to have Cookies enabled to continue.<br>
+        You need to have Cookies enabled to continue.<br>
         <dsp:show-form-notes/>
         <form action="/wiki/login.dsp" method="post">
           <div class="login">
