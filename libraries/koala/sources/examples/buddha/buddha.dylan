@@ -10,7 +10,7 @@ define variable *commands* = #();
 define variable *changes* = #();
 
 //tree containing commands..
-define variable *changetree*;
+//define variable *changetree*;
 
 define variable *version* = 0;
 
@@ -18,6 +18,7 @@ define class <buddha> (<object>)
   constant slot config :: <config> = *config*;
   constant slot version :: <integer> = *version*;
   constant slot commands = *commands*;
+  constant slot changes = *changes*;
 end;
 
 define variable *directory* = "www/buddha/";

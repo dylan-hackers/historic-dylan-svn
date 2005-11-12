@@ -1,6 +1,7 @@
 library: buddha
 executable: buddha
 files: library
+       changes
        util
        tree
        xml
