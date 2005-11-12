@@ -16,6 +16,12 @@ define library buddha
   export buddha;
 end;
 
+define module changes
+  use common-dylan;
+
+  export <entry>;
+end;
+
 define module tree
   use common-dylan;
 
