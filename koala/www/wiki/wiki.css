@@ -17,13 +17,16 @@ h1, h2, h3, h4, h5
 }
 
 hr { border: 0; background: black; height: 1px }
+
 a.internal { color: #0077bb ; }
 a:visited.internal { color: #004488; } 
 a.hyperspec { font-weight: bold; }
 
-a[href]:hover { background: #ff9 }
+table { 
+  border-collapse: collapse; 
+  border: 1px solid #aaa; 
+}
 
-table { border-collapse: collapse; border: 1px solid #aaa; }
 th 
 { 
   font-family: sans-serif; 
@@ -31,7 +34,15 @@ th
   color: white;
   text-transform: lowercase 
 }
-th, td { padding: 0.2em 0.3em }
+
+tr {
+  border-bottom: 1px solid #aaa;
+}
+
+td { 
+  padding: 0.2em 0.3em; 
+  border-right: 1px solid #aaa;
+}
 
 ul li { list-style-type: square }
 
@@ -126,6 +137,8 @@ pre
   color: #E5794B;
 }
 
+#content a:hover { background: #ff9 }
+
 /*
  * footer
  */
@@ -152,3 +165,7 @@ a.revisionlink {
   text-decoration: default;
 }
 
+#valid_xhtml {
+  text-align: right;
+  margin-right: 0.5em;
+}
