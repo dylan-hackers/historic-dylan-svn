@@ -1,6 +1,6 @@
 /* mpm.c: GENERAL MPM SUPPORT
  *
- * $Id: //info.ravenbrook.com/project/mps/master/code/mpm.c#9 $
+ * $Id: //info.ravenbrook.com/project/mps/master/code/mpm.c#10 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  *
  * .purpose: Miscellaneous support for the implementation of the MPM
@@ -15,7 +15,7 @@
 #include <float.h>
 #include <limits.h>
 
-SRCID(mpm, "$Id: //info.ravenbrook.com/project/mps/master/code/mpm.c#9 $");
+SRCID(mpm, "$Id: //info.ravenbrook.com/project/mps/master/code/mpm.c#10 $");
 
 
 #if defined(CHECK)
@@ -234,7 +234,8 @@ static Res WriteWord(mps_lib_FILE *stream, Word w, unsigned base,
   int r;
 
   AVER(stream != NULL);
-  AVER(2 <= base && base <= 16);
+  AVER(2 <= base);
+  AVER(base <= 16);
   AVER(width <= MPS_WORD_WIDTH);
  
   /* Add digits to the buffer starting at the right-hand end, so that */

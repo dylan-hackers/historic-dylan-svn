@@ -1,75 +1,57 @@
-/* libcbt: MPS LIBRARY CALLBACK TEST
- *
- * $Header: //info.ravenbrook.com/project/mps/master/code/libcbt.c#2 $
- * Copyright (C) 2005 Ravenbrook Limited.  See end of file for license.
- *
- * This is a simple test of the MPS Library Callback interface
- * (mpslibcb.h). */
+#How to test a release before shipping it to Configura
 
-#include "mps.h"
-#include "mpsavm.h"
-#include "mpslib.h"
-#include "mpslibcb.h"
+#You have a candidate release.  This document tells you how to test it before shipping it -- quick tests.  
+#Readership: all.  Confidential: no.  Status: rough notes.  
+#Background: knowing the history of MPS development for Configura is an advantage.  
+#Peer documents:
+#  <http://info.ravenbrook.com/project/mps/master/procedure/release-build/>.
+#  <http://info.ravenbrook.com/project/mps/master/procedure/release-configura/>.
 
-#include "testlib.h"
+#What do we test?
+#Not much -- this procedure is for a quick test before shipping, principally to make sure that the build isn't crock in some way.  
 
-#include <stdio.h>
-#include <stdlib.h>
-
-void libcbt_assert_fail(const char *);
-mps_clock_t libcbt_clock(void);
-
-int main(void)
-{
-  int res;
-  int defects = 0;
-  mps_arena_t arena;
-
-  res = mps_lib_callback_register("not a callback", (void(*)(void))0);
-  if(MPS_RES_OK == res) {
-    printf("mps_lib_callback_register claims to successfully register\n"
-      "an interface that does not exist.\n");
-    ++ defects;
-  }
-  die(mps_lib_callback_register("mps_lib_assert_fail",
-    (void(*)(void))libcbt_assert_fail),
-    "register assert_fail");
-  /* The following functions are registered in the order that you get by
-   * providing no functions and then providing functions as they are
-   * required by assertionn failures.
-   * Interestingly, for this very simple test, only mps_clock is
-   * required. */
-  die(mps_lib_callback_register("mps_clock",
-    (mps_lib_function_t)libcbt_clock),
-    "register clock");
-  die(mps_arena_create(&arena, mps_arena_class_vm(), 1000*1000),
-    "mps_arena_create");
-  if(defects) {
-    printf("Conclusion: Defects detected.\n");
-  } else {
-    printf("Conclusion: Failed to find any defects.\n");
-  }
-  return 0;
-}
-
-void libcbt_assert_fail(const char *message)
-{
-  fflush(stdout);
-  fprintf(stderr, "\nMPS ASSERTION FAILURE (TEST): %s\n", message);
-  fflush(stderr);
-  abort();
-}
-
-mps_clock_t libcbt_clock(void)
-{
-  static mps_clock_t c = 0;
-
-  ++ c;
-  return c;
-}
+#How to run the test:
+#You need python (eg. 2.3).  Cd to where you would type w3build.bat.  
+#Type ..\tool\test-runner.py
+#Each test should report "Conclusion:  Failed to find any defects."
+#Also check full log placed in file a1.txt.
 
 
-/* C. COPYRIGHT AND LICENSE
+import os
+testout = "./a1.txt"
+
+def runtest(test, variety, testout):
+  # appends to testout
+  os.system("echo .")
+  os.system("echo .")
+  os.system("echo .")
+  os.system("echo --- %s (%s) ---" % (test, variety) )
+  os.system("echo --- %s (%s) --- >>%s" % (test, variety, testout) )
+  os.system("nmake /f w3i3mv.nmk VARIETY=%s %s.exe >>%s" % (variety, test, testout) )
+  os.system(".\w3i3mv\%s\%s.exe >>%s" % (variety, test, testout) )
+
+def runtestlist( lTest, lVariety, testout ):
+  # clear testout
+  os.system("echo . >%s" % testout)
+
+  os.system("echo === Tests: (%s) (%s) ===" % (lTest, lVariety) )
+  os.system("echo === Tests: (%s) (%s) === >>%s" % (lTest, lVariety, testout) )
+  for test in lTest:
+    for variety in lVariety:
+      runtest(test, variety, testout)
+
+
+runtestlist([
+    "amcss",
+    "finalcv",
+#    "awlut",  # awlut.obj : error LNK2001: unresolved external symbol _dylan_weak_dependent
+    "awluthe",
+ ], ["ci", "we", "wi"], testout)
+
+os.system("echo DONE")
+
+"""
+ * C. COPYRIGHT AND LICENSE
  *
  * Copyright (C) 2005 Ravenbrook Limited <http://www.ravenbrook.com/>.
  * All rights reserved.  This is an open source license.  Contact
@@ -108,4 +90,5 @@ mps_clock_t libcbt_clock(void)
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+"""
+# $Id: //info.ravenbrook.com/project/mps/master/tool/test-runner.py#3 $

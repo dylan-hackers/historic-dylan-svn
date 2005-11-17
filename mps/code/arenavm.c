@@ -1,6 +1,6 @@
 /* arenavm.c: VIRTUAL MEMORY ARENA CLASS
  *
- * $Id: //info.ravenbrook.com/project/mps/master/code/arenavm.c#9 $
+ * $Id: //info.ravenbrook.com/project/mps/master/code/arenavm.c#10 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  *
  *
@@ -27,7 +27,7 @@
 #include "mpm.h"
 #include "mpsavm.h"
 
-SRCID(arenavm, "$Id: //info.ravenbrook.com/project/mps/master/code/arenavm.c#9 $");
+SRCID(arenavm, "$Id: //info.ravenbrook.com/project/mps/master/code/arenavm.c#10 $");
 
 
 /* @@@@ Arbitrary calculation for the maximum number of distinct */
@@ -848,7 +848,8 @@ static Bool pagesFindFreeInZones(Index *baseReturn, VMChunk *chunkReturn,
             break;
           }
 
-          AVER(base < limit && limit < chunk->limit);
+          AVER(base < limit);
+          AVER(limit < chunk->limit);
         } while(ZoneSetIsMember(arena, zones, limit));
 
         /* If the ZoneSet was universal, then the area found ought to */
