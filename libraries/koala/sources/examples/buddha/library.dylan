@@ -16,12 +16,6 @@ define library buddha
   export buddha;
 end;
 
-define module changes
-  use common-dylan;
-
-  export <entry>;
-end;
-
 define module tree
   use common-dylan;
 
@@ -55,6 +49,13 @@ define module xml
   export \with-xml,
     \with-xml-builder,
     escape-html;
+end;
+
+define module changes
+  use common-dylan;
+  use xml;
+
+  export <entry>;
 end;
 
 define module object-table

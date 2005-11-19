@@ -39,22 +39,23 @@ end;
 define abstract class <content> (<object>)
   /* slot CommonAttributes */
   slot type :: <string>, init-keyword: type:;
-end;
-
-define class <inline-text-content> (<content>)
   slot content :: <text>, init-keyword: content:;
 end;
 
+define class <inline-text-content> (<content>)
+  inherited slot content :: <text>, init-keyword: content:;
+end;
+
 define class <inline-xhtml-content> (<content>)
-  slot content :: <xhtml-div>, init-keyword: content:;
+  inherited slot content :: <xhtml-div>, init-keyword: content:;
 end;
 
 define class <inline-other-content> (<content>)
-  slot content :: <text>, init-keyword: text:;
+  inherited slot content :: <text>, init-keyword: text:;
 end;
 
 define class <out-of-line-content> (<content>)
-  slot content :: <source>, init-keyword: content:;
+  inherited slot content :: <source>, init-keyword: content:;
 end;
 
 define class <person> (<object>)
@@ -72,17 +73,14 @@ define class <category> (<object>)
   slot label :: false-or(<text>) = #f, init-keyword: label:;
 end;
 
-define class <text> (<object>)
-end;
+define constant <text> = <string>;
 
 define class <xhtml-div> (<object>)
 end;
 
-define class <uri> (<object>)
-end;
+define constant <uri> = <string>;
 
-define class <email> (<object>)
-end;
+define constant <email> = <string>;
 
 define class <generator> (<object>)
   slot uri :: false-or(<uri>) = #f, init-keyword: uri:;
@@ -101,4 +99,92 @@ end;
     
 define constant <source> = <feed>;
 
+define method generate-xhtml (feed :: <feed>)
+  with-xml()
+    div {
+      h1(concatenate("Recent changes: ", feed.title)),
+      text(feed.subtitle),
+      ul { do(do(method(x) collect(generate-xhtml(x)) end, feed.entry)) }
+    }
+  end;
+end;
 
+define method generate-xhtml (entry :: <entry>)
+  with-xml()
+    li {
+      do(collect(generate-xhtml(entry.updated))),
+      text(entry.title), //link to content
+      do(do(method(x) collect(generate-xhtml(x)) end, entry.author))
+      //link to each author
+    }
+  end;
+end;
+
+define method generate-xhtml (person :: <person>)
+end;
+
+define method generate-xhtml (date :: <date>)
+end;
+
+define method generate-atom (feed :: <feed>)
+  with-xml-builder()
+    feed (xmlns => "http://www.w3.org/2005/Atom")
+    {
+      title(feed.title),
+      subtitle(feed.subtitle),
+      updated { do(collect(generate-atom(feed.updated))) },
+      id(feed.identifier),
+      do(do(method(x) collect(generate-atom(x)) end, feed.link)),
+      rights(feed.rights),
+      do(collect(generate-atom(feed.generator))),
+      do(do(method(x) collect(generate-atom(x)) end, feed.entry))
+    } //missing: category, contributor, icon, logo
+  end; 
+end;
+
+define method generate-atom (link :: <link>)
+  with-xml()
+    link (rel => link.rel,
+          type => link.type,
+          href => link.href)
+  end //missing: title, hreflang, length
+end;
+
+define method generate-atom (person :: <person>)
+end;
+
+define method generate-atom (date :: <date>)
+//  with-xml()
+//  end;
+end;
+
+define method generate-atom (generator :: <generator>)
+  with-xml()
+    generator (uri => generator.uri, version => generator.version)
+    {
+      text(generator.text)
+    }
+  end;
+end;
+
+define method generate-atom (entry :: <entry>)
+  with-xml()
+    entry
+    {
+      title(entry.title),
+      do(do(method(x) collect(generate-atom(x)) end, entry.link)),
+      id(entry.identifier),
+      updated { do(collect(generate-atom(entry.updated))) },
+      published { do(collect(generate-atom(entry.published))) },
+      do(do(method(x) collect(generate-atom(x)) end, entry.author)),
+      do(do(method(x) collect(generate-atom(x)) end, entry.contributor)),
+      do(collect(generate-atom(entry.content))),
+    } //missing: category, summary
+  end;
+end;
+
+define method generate-atom (con :: <content>)
+  with-xml()
+    text(con.content)
+  end;
+end;
