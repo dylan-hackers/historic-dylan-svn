@@ -1,10 +1,10 @@
 library: buddha
 executable: buddha
 files: library
-       changes
        util
        tree
        xml
+       changes
        web-macro
        object-table
        config
