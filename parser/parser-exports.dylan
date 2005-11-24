@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2005  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -48,7 +48,8 @@ define module tokenize
   use source;
 
   export
-    <tokenizer>, get-token, unget-token, note-potential-end-point;
+    <tokenizer>, get-token, unget-token, note-potential-end-point,
+    <line-tokenizer>, line, line-setter, examine-ending;
 end module tokenize;
 
 define module source-utilities
