@@ -28,7 +28,7 @@
 </em>  make(&lt;time-offset&gt;, total-seconds: sum);	<em>// 5
 </em>end method \+;	<em>// 6</em>
 </pre>
-<p>On line 1, notice that the method is defined on <code>\+</code>, rather than simply on <code>+</code>. When we define a method on <code>+</code> or on another <a name="marker-2-247"></a>infix function, we need to use a backslash before the function name. The backslash clarifies that we mean the value of the variable + (which is a generic function), and that we are not trying to call the <br />function.</p>
+<p>On line 1, notice that the method is defined on <code>\+</code>, rather than simply on <code>+</code>. When we define a method on <code>+</code> or on another <a name="marker-2-247"></a>infix function, we need to use a backslash before the function name. The backslash clarifies that we mean the value of the variable + (which is a generic function), and that we are not trying to call the function.</p>
 <p>On line 4, we add the values stored in the <code>total-seconds</code> slots of the two instances. On line 5, we make and return a new instance of <code>&lt;time-offset&gt;</code>. We initialize the <code>total-seconds</code> slot to contain the sum calculated in line 4.</p>
 <p>To test the method, we need to create two instances of <code>&lt;time-offset&gt;</code>:</p>
 <pre>

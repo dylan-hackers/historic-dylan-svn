@@ -39,44 +39,43 @@ define module time
   use format-out;
 end module time;
 </pre></td></tr></table>
-<p>The library implementation file defines the classes, methods, and generic <br />functions.</p>
+<p>The library implementation file defines the classes, methods, and generic functions.</p>
 <table><tr><th><p>The implementation file: <code>library-implementation.dylan</code>. </p>
-</th></tr><tr><td><pre>
-module: time
+</th></tr><tr><td><pre>module: time</pre>
 <em>// Class definitions</em>
-define class &lt;time&gt; (&lt;object&gt;)
+<pre>define class &lt;time&gt; (&lt;object&gt;)
   slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;
-end class &lt;time&gt;; 
-<em>// A specific time of day from 00:00 (midnight) to before 24:00 (tomorrow)
-</em>define class &lt;time-of-day&gt; (&lt;time&gt;)
-end class &lt;time-of-day&gt;;
-</pre></td></tr><tr><td><em>// A relative time between -24:00 and +24:00
-</em>define class &lt;time-offset&gt; (&lt;time&gt;)
+end class &lt;time&gt;;</pre>
+<em>// A specific time of day from 00:00 (midnight) to before 24:00 (tomorrow)</em>
+<pre>define class &lt;time-of-day&gt; (&lt;time&gt;)
+end class &lt;time-of-day&gt;;</pre>
+</td></tr><tr><td><em>// A relative time between -24:00 and +24:00</em>
+<pre>define class &lt;time-offset&gt; (&lt;time&gt;)
 end class &lt;time-offset&gt;;
-</td></tr><tr><td><em>// Method for determining whether a time offset is in the past
-</em>define method past? (time :: &lt;time-offset&gt;) =&gt; (past? :: &lt;boolean&gt;)
+</pre></td></tr><tr><td><em>// Method for determining whether a time offset is in the past</em>
+<pre>define method past? (time :: &lt;time-offset&gt;) =&gt; (past? :: &lt;boolean&gt;)
   time.total-seconds &lt; 0;
-end method past?;
+end method past?;</pre>
 </td></tr><tr><td><em>// Methods for encoding and decoding total seconds</em>
-define method encode-total-seconds
+<pre>define method encode-total-seconds
     (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
  =&gt; (total-seconds :: &lt;integer&gt;)
   ((hours * 60) + minutes) * 60 + seconds;
-end method encode-total-seconds;
-</td></tr><tr><td>define method decode-total-seconds 
+end method encode-total-seconds;</pre>
+<pre>define method decode-total-seconds
     (time :: &lt;time&gt;)
  =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
   decode-total-seconds(abs(time.total-seconds));
-end method decode-total-seconds;
-</td></tr><tr><td>define method decode-total-seconds
+end method decode-total-seconds;</pre>
+<pre>define method decode-total-seconds
     (total-seconds :: &lt;integer&gt;)
  =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)<em>	</em>  let(total-minutes, seconds) = truncate/(total-seconds, 60);
   let(hours, minutes) = truncate/(total-minutes, 60);
   values(hours, minutes, seconds);
-end method decode-total-seconds;
+end method decode-total-seconds;</pre>
 </td></tr><tr><td><em>// The say generic function and its methods</em>
-<em>// Given an object, print a description of the object
-</em>define generic say (any-object :: &lt;object&gt;) =&gt; ();
+<em>// Given an object, print a description of the object</em>
+<pre>define generic say (any-object :: &lt;object&gt;) =&gt; ();
 define method say (time :: &lt;time&gt;) =&gt; ()
   let (hours, minutes) = decode-total-seconds(time); 
   format-out
@@ -85,7 +84,7 @@ end method say;
 define method say (time :: &lt;time-offset&gt;)
   format-out(&quot;%s &quot;, if (past?(time)) &quot;minus&quot; else &quot;plus&quot; end);
   next-method();
-end method say; 
+end method say;</pre>
 </td></tr></table>
 <p>The test file creates instances and calls <code>say</code> on the instances. The test file can access variables defined in the implementation file, because both files are in the <code>time</code> module. </p>
 <table><tr><th><p>The test file: <code>test.dylan</code>.</p>

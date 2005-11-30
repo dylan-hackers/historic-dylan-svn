@@ -31,6 +31,9 @@
 <table><tr><td><p><strong>Comparison with <a name="marker-2-47"></a>C and C++: Caution!</strong> C and C++ use integers to represent Boolean values &mdash; 0 represents false, and any nonzero value is considered true. Dylan has an explicit <code>&lt;boolean&gt;</code> type with two instances: <code>#f</code> represents false, and <code>#t</code> represents the <em>canonical</em> true value. However, any value other than <code>#f</code> is also considered true in a Boolean test. Thus, in Dylan, 0 is considered true.</p>
 </td></tr></table><table><tr><td><p><strong>Comparison with <a name="marker-2-49"></a>Java</strong>: Java has a separate type for Boolean values. Unlike Dylan, C, or C++, the Java <code>Boolean</code> class has only two values, <code>true</code> and <code>false</code>. This design allows the compiler to issue warnings for the common C error <code>if (a=b) ...</code>, because an assignment does not typically yield a Boolean result. An explicit conversion is required to test nonzero in Java: <code>if (a!=0) ...</code>.</p>
 </td></tr></table>
+
+<p></p>
+
 </div>
 
 <div class="toc">

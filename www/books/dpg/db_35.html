@@ -18,7 +18,7 @@
 
 <div class="content" id="heading35-0">
 <h1>3.1   <a name="marker-9-113"></a>Method definitions</h1>
-<p>In Dylan, we define <a name="marker-2-114"></a><a name="marker-2-115"></a>methods &mdash; a <strong>method</strong> is a kind of function. We define a <br />simple method, <code>say-hello</code>, as follows:</p>
+<p>In Dylan, we define <a name="marker-2-114"></a><a name="marker-2-115"></a>methods &mdash; a <strong>method</strong> is a kind of function. We define a simple method, <code>say-hello</code>, as follows:</p>
 <pre>
 define method say-hello ()
   format-out(&quot;hello, world\n&quot;);
@@ -29,10 +29,13 @@ end;
 <em>? </em>say-hello();
 <em>hello, world</em>
 </pre>
-<p>We use <code>define method</code> to define a method named <code>say-hello</code>. Just after the <br />name <code>say-hello</code>, we specify the method's <strong>parameter list</strong>, <code>()</code>. The parameter list of this method is empty, meaning that this method takes no arguments. The call <br />to <code>say-hello</code> provides an empty argument list, meaning that there are no arguments in the call. </p>
-<p>The body of the <code>say-hello</code> method has one expression &mdash; a call to <br /><code>format-out</code>. A method returns whatever is returned by the expression executed last in its body. In general, a method can return a single value, multiple values, <br />or no value at all. The <code>say-hello</code> method returns what <code>format-out</code> returns &mdash; no value at all. In the call to <code>say-hello</code>, we see the output of <code>format-out</code> in the <br />listener; we see output and not a returned value (because no value is returned).</p>
-<table><tr><td><p><strong>Usage note: </strong>In this chapter, we define methods that call the <code>format-out</code> function. Because <code>format-out</code> is in the <code>format-out</code> module, we need to make that module available. There are two ways to do so. The first way is to work in files, as described in <a href="db_30.html#marker-9-88">Section 2.5</a>. The second way is to use a gesture or command in your Dylan environment to make the <code>format-out</code> module accessible. Then, you can simply enter the method definitions into the <br />listener.</p>
+<p>We use <code>define method</code> to define a method named <code>say-hello</code>. Just after the name <code>say-hello</code>, we specify the method's <strong>parameter list</strong>, <code>()</code>. The parameter list of this method is empty, meaning that this method takes no arguments. The call to <code>say-hello</code> provides an empty argument list, meaning that there are no arguments in the call. </p>
+<p>The body of the <code>say-hello</code> method has one expression &mdash; a call to <code>format-out</code>. A method returns whatever is returned by the expression executed last in its body. In general, a method can return a single value, multiple values, or no value at all. The <code>say-hello</code> method returns what <code>format-out</code> returns &mdash; no value at all. In the call to <code>say-hello</code>, we see the output of <code>format-out</code> in the listener; we see output and not a returned value (because no value is returned).</p>
+<table><tr><td><p><strong>Usage note: </strong>In this chapter, we define methods that call the <code>format-out</code> function. Because <code>format-out</code> is in the <code>format-out</code> module, we need to make that module available. There are two ways to do so. The first way is to work in files, as described in <a href="db_30.html#marker-9-88">Section 2.5</a>. The second way is to use a gesture or command in your Dylan environment to make the <code>format-out</code> module accessible. Then, you can simply enter the method definitions into the listener.</p>
 </td></tr></table>
+
+<p></p>
+
 </div>
 
 <div class="toc">

@@ -35,7 +35,7 @@ define method encode-total-seconds 	<em>// 1
 <em>? </em>encode-total-seconds(8, 30, 59);
 <em>30659</em>
 </pre>
-<p>We find it convenient to call <code>encode-total-seconds</code> to initialize the <code>total-<br />seconds</code> slot when we create an instance of <code>&lt;time-of-day&gt;</code>, or when we store <br />a new value in that slot. Here, for example, we create a new instance:</p>
+<p>We find it convenient to call <code>encode-total-seconds</code> to initialize the <code>total-seconds</code> slot when we create an instance of <code>&lt;time-of-day&gt;</code>, or when we store a new value in that slot. Here, for example, we create a new instance:</p>
 <pre>
 <em>?</em> define variable *your-time-of-day* 
     = make(&lt;time-of-day&gt;, total-seconds: encode-total-seconds(8, 30, 59));

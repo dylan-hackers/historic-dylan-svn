@@ -26,7 +26,7 @@ define class &lt;relative-position&gt; (&lt;position&gt;)
   slot angle :: &lt;relative-angle&gt;, init-keyword: angle:;
 end class &lt;relative-position&gt;; 
 </pre>
-<p>The <code>distance</code> slot stores the distance to the other object, and the <code>angle</code> slot stores the direction to the other object. Unfortunately, the angle needed here is different from the <code>&lt;directed-angle&gt;</code> class, because the <code>&lt;directed-angle&gt;</code> class has a direction, such as south, which is not needed for the angle of <code>&lt;relative-<br />position&gt;</code>. </p>
+<p>The <code>distance</code> slot stores the distance to the other object, and the <code>angle</code> slot stores the direction to the other object. Unfortunately, the angle needed here is different from the <code>&lt;directed-angle&gt;</code> class, because the <code>&lt;directed-angle&gt;</code> class has a direction, such as south, which is not needed for the angle of <code>&lt;relative-position&gt;</code>. </p>
 <p>We need to provide a class of angle without direction, which we can use for the <code>angle</code> slot of the <code>&lt;relative-position&gt;</code> class). Therefore, we define two new classes, and redefine <code>&lt;directed-angle&gt;</code>:</p>
 <pre>
 <em>// Superclass of all angle classes

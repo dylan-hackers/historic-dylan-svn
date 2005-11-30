@@ -19,7 +19,6 @@
 <div class="content" id="heading58-0">
 <h1>4.6.3   <a name="marker-9-179"></a>Multiple return <a name="marker-2-180"></a>values</h1>
 <p>The method for <code>decode-total-seconds</code> returns three values: the hours, the minutes, and the seconds. To return the three values, the method uses the <a name="marker-2-181"></a><a name="marker-2-182"></a><code>values</code> function as the expression executed last in the body. The <code>values</code> function simply returns all its arguments as separate values. The ability to return multiple values allows a natural symmetry between <code>encode-total-seconds</code> and <code>decode-total-seconds</code>, as shown in <a href="#marker-9-151">Table 4.1</a>.</p>
-<p>:</p>
 <table><caption>Table 4.1   <a name="marker-9-151"></a>Symmetry of <code>encode-total-seconds</code> and <code>decode-total-seconds</code>.
 </caption><tr><th><p>Method</p>
 </th><th><p>Parameter(s)</p>
@@ -31,8 +30,11 @@
 </td><td><p><code>total-seconds</code></p>
 </td><td><p><code>hours, minutes, seconds</code></p>
 </td></tr></table><p>Lines 4 and 5 of the <code>decode-total-seconds</code> method contain calls to <code>truncate/</code>. The <code>truncate/</code> function is a built-in Dylan function. It takes two arguments, divides the first by the second, and returns two values: the result of the truncating division, and the remainder. </p>
-<table><tr><td><p><strong><a name="marker-2-139"></a><a name="marker-2-140"></a>Comparison with C:</strong> In C, <a name="marker-2-141"></a>/ on integers produces a truncated result. In Dylan, / on integers is implementation defined, and is not recommended for portable code. The Dylan functions named <a name="marker-2-142"></a><code>floor</code>, <br /><a name="marker-2-143"></a><code>ceiling</code>, <a name="marker-2-144"></a><a name="marker-2-145"></a><code>round</code>, and <a name="marker-2-146"></a><code>truncate</code> convert a rational or floating-point result to an integer with the appropriate rounding. The Dylan functions named <a name="marker-2-147"></a><code>floor/</code>, <a name="marker-2-148"></a><code>ceiling/</code>, <a name="marker-2-149"></a><code>round/</code>, and <a name="marker-2-150"></a><code>truncate/</code> take two arguments. Those generic functions divide the first argument by the second argument, and return two values: the rounded or truncated result, and the remainder.</p>
+<table><tr><td><p><strong><a name="marker-2-139"></a><a name="marker-2-140"></a>Comparison with C:</strong> In C, <a name="marker-2-141"></a>/ on integers produces a truncated result. In Dylan, / on integers is implementation defined, and is not recommended for portable code. The Dylan functions named <a name="marker-2-142"></a><code>floor</code>, <a name="marker-2-143"></a><code>ceiling</code>, <a name="marker-2-144"></a><a name="marker-2-145"></a><code>round</code>, and <a name="marker-2-146"></a><code>truncate</code> convert a rational or floating-point result to an integer with the appropriate rounding. The Dylan functions named <a name="marker-2-147"></a><code>floor/</code>, <a name="marker-2-148"></a><code>ceiling/</code>, <a name="marker-2-149"></a><code>round/</code>, and <a name="marker-2-150"></a><code>truncate/</code> take two arguments. Those generic functions divide the first argument by the second argument, and return two values: the rounded or truncated result, and the remainder.</p>
 </td></tr></table>
+
+<p></p>
+
 </div>
 
 <div class="toc">

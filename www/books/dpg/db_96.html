@@ -44,7 +44,7 @@ define method say (position :: &lt;absolute-position&gt;) =&gt; ()
              decode-total-seconds(position.longitude));
 end method say;
 </pre>
-<p>The preceding method depends on <code>decode-total-seconds</code> having a method that is applicable to <code>&lt;directed-angle&gt;</code> (the type of the objects returned by <br /><code>position.latitude</code> and <code>position.longtude</code>). We define such a method in <br /><a href="db_98.html#marker-9-269">Section 7.6</a>.</p>
+<p>The preceding method depends on <code>decode-total-seconds</code> having a method that is applicable to <code>&lt;directed-angle&gt;</code> (the type of the objects returned by <code>position.latitude</code> and <code>position.longtude</code>). We define such a method in <a href="db_98.html#marker-9-269">Section 7.6</a>.</p>
 <table><tr><td><p><strong>Modularity note:</strong> The preceding <code>say</code> method does not take advantage of the similarity between latitude and longitude. One clue that there is a modularity problem is that the two calls to <code>format-out</code> are nearly identical. </p>
 </td></tr></table><p>The <code>say</code> method on <code>&lt;absolute-position&gt;</code> should not call <code>format-out</code> directly on the two instances of <code>&lt;directed-angle&gt;</code> stored in the latitude and longitude slots. Instead, we can define a <code>say</code> method on <code>&lt;directed-angle&gt;</code>, and can call it in the method on <code>&lt;absolute-position&gt;</code>:</p>
 <pre>
@@ -97,7 +97,7 @@ define method say (position :: &lt;absolute-position&gt;) =&gt; ()
   say(position.longitude);
 end method say;
 </pre>
-<table><tr><td><p><strong>Modularity note:</strong> The approach of defining the classes <br /><code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> provides the following benefits:</p>
+<table><tr><td><p><strong>Modularity note:</strong> The approach of defining the classes <code>&lt;latitude&gt;</code> and <code>&lt;longitude&gt;</code> provides the following benefits:</p>
 <ul>
 <li><p>Each class is responsible for describing its instances. Each method depends on <code>say</code> working for all the classes. No method on one class must understand the details of a method on another class. </p></li>
 <li><p>We guard against any attempt to store a latitude in a slot designated for a longitude, and vice versa. This type checking will be useful when we introduce more differences between the classes. For example, the direction of a latitude is north or south, and the direction of a longitude is west or east. We can provide methods that ensure that the directions stored in a <code>&lt;latitude&gt;</code> instance are appropriate for latitude &mdash; and we can do the same for longitude. We show two techniques for implementing that type checking: See <a href="db_134.html#marker-9-352">Section 10.6, page 128</a>, and <a href="db_300.html#marker-9-773">Section 19.5, page 318</a>.</p></li>
