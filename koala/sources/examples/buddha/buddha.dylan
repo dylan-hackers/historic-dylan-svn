@@ -13,9 +13,12 @@ define class <buddha> (<object>)
   constant slot config :: <config> = *config*;
   constant slot version :: <integer> = *version*;
   constant slot changes = *changes*;
+  constant slot users = *users*;
 end;
 
 define variable *directory* = "www/buddha/";
+
+define thread variable *user* = #f;
 
 define sideways method process-config-element
     (node :: <xml-element>, name == #"buddha")
@@ -37,17 +40,31 @@ define macro page-definer
   { define page ?:name end }
     => { define responder ?name ## "-responder" ("/" ## ?"name")
            (request, response)
-           if (request.request-method = #"get")
-             respond-to-get(as(<symbol>, ?"name"), request, response)
-           elseif (request.request-method = #"post")
-             respond-to-post(as(<symbol>, ?"name"), request, response)
+           block(return)
+             unless (logged-in(request))
+               login(request);
+               unless (logged-in(request))
+                 //error
+                 respond-to-get(#"login", request, response,
+                                errors: list(make(<buddha-form-error>,
+                                                  error: "No valid user supplied\n")));
+                 return();
+               end;
+             end;
+             dynamic-bind(*user* = *users*[logged-in(request)])
+               if (request.request-method = #"get")
+                 respond-to-get(as(<symbol>, ?"name"), request, response)
+               elseif (request.request-method = #"post")
+                 respond-to-post(as(<symbol>, ?"name"), request, response)
+               end;
+             end;
            end;
          end; }
 end;
 
 define responder default-responder ("/")
   (request, response)
-  respond-to-get(#"network", request, response);
+  respond-to-get(#"login", request, response);
 end;
 
 define page network end;
@@ -61,6 +78,9 @@ define page restore end;
 define page browse end;
 define page edit end;
 define page changes end;
+define page adduser end;
+define page logout end;
+define page dhcp end;
 
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)
@@ -84,9 +104,12 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
         a("User interface", href => "/user"),
         a("Save", href => "/save"),
         a("Restore", href => "/restore"),
-        a("Class browser", href => "/browse"),
-        a("Edit", href => "/edit"),
-        a("Recent Changes", href => "/changes")
+        //a("Class browser", href => "/browse"),
+        //a("Edit", href => "/edit"),
+        //do(if (admin?(?=request)) a("User management", href => "/adduser") end),
+        a("Recent Changes", href => "/changes"),
+        text(concatenate("Logged in as ", *user*.username)),
+        a("Logout", href => "/logout")
       }
     },
     do(?body)
@@ -104,6 +127,73 @@ end;
 
 define class <buddha-form-error> (<error>)
   constant slot error-string :: <string>, required-init-keyword: error:;
+end;
+
+define method respond-to-get (page == #"adduser",
+                              request :: <request>,
+                              response :: <response>,
+                              #key errors = #())
+  let username = logged-in(request);
+  let user = element(*users*, username, default: #f);
+  if (user & user.admin?)
+    let out = output-stream(response);
+    with-buddha-template(out, "User management")
+      collect(show-errors(errors));
+      collect(with-xml()
+                div(id => "content")
+                  {
+                   do(browse-table(<user>, *users*)),
+                   do(add-form(<user>, "Users", *users*, fill-from-request: errors))
+                     }
+              end)
+    end;
+  else
+    errors := add!(errors, make(<buddha-form-error>, error: "Permission denied"));
+    respond-to-get (#"network", request, response, errors: errors);
+  end;
+end;
+
+define method respond-to-get (page == #"logout",
+                              request :: <request>,
+                              response :: <response>,
+                              #key errors = #());
+  clear-session(request);
+  respond-to-get(#"login", request, response);
+end;
+
+define method respond-to-get (page == #"login",
+                              request :: <request>,
+                              response :: <response>,
+                              #key errors = #())
+  let out = output-stream(response);
+  format(out, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+  let page = with-xml-builder()
+html(xmlns => "http://www.w3.org/1999/xhtml") {
+  head {
+    title("Buddha - Login"),
+    link(rel => "stylesheet", href => "/buddha.css")
+  },
+  body {
+    do(show-errors(errors)),
+    h1("Please login to buddha"),
+    form(action => "/network", \method => "get") {
+      div(class => "edit") {
+        text("Username "),
+        input(type => "text",
+              name => "username"),
+        br,
+        text("Password "),
+        input(type => "password",
+              name => "password"),
+        br,
+        input(type => "submit",
+              value => "Login")
+      }
+    }
+  }
+}
+  end;
+  format(out, "%=", page);
 end;
 
 define method respond-to-get (page == #"changes",
@@ -279,6 +369,7 @@ define method respond-to-post
   dood-close(dood);
   *config* := buddha.config;
   *changes* := buddha.changes;
+  *users* := buddha.users;
   if (buddha.version > *version*)
     *version* := buddha.version;
   end;
@@ -289,19 +380,52 @@ define method respond-to-post
 end;
 
 define method respond-to-get
+    (page == #"dhcp",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
+  let network = get-object(get-query-value("obj"));
+  set-content-type(response, "text/plain");
+  print-isc-dhcpd-file(network, output-stream(response));
+  #f; //we don't want the default page!
+end;
+
+define method respond-to-get
     (page == #"network",
      request :: <request>,
      response :: <response>,
      #key errors)
   //TODO: gen dhcp config
-  //      remove/edit network forms
   let out = output-stream(response);
   with-buddha-template (out, "Networks")
     collect(show-errors(errors));
     collect(with-xml ()
               div(id => "content")
               {
-                do(browse-table(<network>, *config*.networks)),
+                table {
+                  tr { do(browse(<network>, to-table-header)),
+                       th("Remove"),
+                       th("Edit"),
+                       th("dhcp.conf") },
+                  do(for (ele in *config*.networks)
+                       collect(with-xml()
+                                 tr {
+                                   do(browse(<network>, rcurry(to-table, ele))),
+                                   td {
+                                     do(remove-form(ele,
+                                                    *config*.networks,
+                                                    url: get-url-from-type(<network>)))
+                                   },
+                                   td { a("Edit",
+                                          href => concatenate("/edit?obj=",
+                                                              get-reference(ele))) },
+                                   td { a("dhcpd.conf",
+                                          href => concatenate("/dhcp?obj=",
+                                                              get-reference(ele))) }
+                                 }
+                               end)
+                     end)
+                },
                 do(add-form(<network>,
                             "Networks",
                             *config*.networks,
@@ -419,16 +543,12 @@ define method respond-to-get
   end;
 end;
 
-define method do-action (action == #"gen-dhcpd", response :: <response>)
- => (show-get? :: <boolean>)
-  let network = get-query-value("network");
-  network := *config*.networks[string-to-integer(network)];
-  set-content-type(response, "text/plain");
-  print-isc-dhcpd-file(network, output-stream(response));
-  #f; //we don't want the default page!
-end;
-
 define function main () => ()
+  *users*["hannes"] := make(<user>,
+                            username: "hannes",
+                            password: "fnord",
+                            email: "hannes@mehnert.org",
+                            admin?: #t);
   block()
     start-server();
   exception (e :: <condition>)

@@ -2,7 +2,7 @@ module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <change> (<object>)
-  slot author :: <string>, init-keyword: author:;
+  slot author :: <string>;
   slot date :: <date>;
   slot command :: <command>, init-keyword: command:;
 end;
@@ -10,6 +10,7 @@ end;
 define method initialize (change :: <change>, #rest rest, #key, #all-keys)
   next-method();
   change.date := current-date();
+  change.author := *user*.username;
 end;
 
 define method undo (change :: <change>)
@@ -34,7 +35,6 @@ define method undo (change :: <change>)
   end; */
   //on success, make a new <change> object, add it to *changes*
   let change = make(<change>,
-                    author: "undo-change",
                     command: reverse-command(change.command));
   *changes* := add!(*changes*, change);
 end;
@@ -62,7 +62,6 @@ define method redo (change :: <change>)
   end;
   //on success, make a new <change> object, add it to *changes*
   let change = make(<change>,
-                    author: "undo-change",
                     command: change.command);
   *changes* := add!(*changes*, change);
 end;
@@ -96,7 +95,7 @@ end;
 define method print-xml (change :: <change>)
   concatenate(print-xml(change.date),
               list(with-xml()
-                     text(concatenate(" author ", change.author, " "))
+                     text(concatenate(" by ", change.author, ": "))
                    end),
               print-xml(change.command));
 end;

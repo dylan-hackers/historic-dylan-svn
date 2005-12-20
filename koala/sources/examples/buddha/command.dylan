@@ -119,6 +119,16 @@ define method remove-from-list (object :: <object>, list :: <collection>)
   list := remove!(list, object);
 end;
 
+define method add-to-list (object :: <object>, table :: <table>)
+  if (check(object))
+    table[key(object)] := object;
+  end;
+end;
+
+define method remove-from-list (object :: <object>, list :: <table>)
+  remove-key!(list, key(object));
+end;
+
 define method set-slots (object :: <object>, slots :: <list>)
   map(method(x)
           set-slot(x.slot-name, object, x.new-value)
