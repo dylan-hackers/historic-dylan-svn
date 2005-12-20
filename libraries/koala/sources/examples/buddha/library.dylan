@@ -4,7 +4,7 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define library buddha
   use common-dylan;
   use io;
-  use koala, import: { koala };
+  use koala, import: { koala, dsp };
   use dood;
   use string-extensions, import: { character-type };
   use regular-expressions;
@@ -103,7 +103,10 @@ define module class-browser
   export browse-list,
     browse-table,
     remove-form,  //this shouldn't be here
-    show;
+    show,
+    browse,
+    to-table-header,
+    to-table;
 end;
 
 define module buddha
@@ -121,6 +124,7 @@ define module buddha
   use date;
 
   use koala, exclude: { print-object };
+  use dsp, import: { set-attribute, get-attribute };
   use sockets, import: { <tcp-socket>, <internet-address> };
 
   use dood;

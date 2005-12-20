@@ -21,4 +21,5 @@ files: library
        command
        change
        class-editor
+       users
        buddha

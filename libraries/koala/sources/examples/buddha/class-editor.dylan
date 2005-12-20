@@ -300,7 +300,6 @@ define method add-object (parent-object :: <object>, request :: <request>)
     let command = make(<add-command>,
                        arguments: list(object, parent-object));
     let change = make(<change>,
-                      author: "foo",
                       command: command);
     *changes* := add!(*changes*, change);
     redo(command);
@@ -314,7 +313,6 @@ define method remove-object (parent-object :: <object>, request :: <request>)
   let command = make(<remove-command>,
                      arguments: list(object, parent-object));
   let change = make(<change>,
-                    author: "foorem",
                     command: command);
   *changes* := add!(*changes*, change);
   redo(command);
@@ -375,7 +373,6 @@ define method save-object (object :: <object>, request :: <request>)
   let command = make(<edit-command>,
                      arguments: list(object, slots));
   let change = make(<change>,
-                    author: "savefoo",
                     command: command);
   *changes* := add!(*changes*, change);
   redo(command);
