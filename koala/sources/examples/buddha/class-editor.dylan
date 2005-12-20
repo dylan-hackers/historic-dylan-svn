@@ -299,8 +299,11 @@ define method add-object (parent-object :: <object>, request :: <request>)
     end;
     let command = make(<add-command>,
                        arguments: list(object, parent-object));
-    *commands* := add!(*commands*, command);
-    redo();
+    let change = make(<change>,
+                      author: "foo",
+                      command: command);
+    *changes* := add!(*changes*, change);
+    redo(command);
   end;
 end;
 
@@ -310,8 +313,11 @@ define method remove-object (parent-object :: <object>, request :: <request>)
   //sanity type-check
   let command = make(<remove-command>,
                      arguments: list(object, parent-object));
-  *commands* := add!(*commands*, command);
-  redo();
+  let change = make(<change>,
+                    author: "foorem",
+                    command: command);
+  *changes* := add!(*changes*, change);
+  redo(command);
 end;
 
 define method parse (name, type)
@@ -368,6 +374,9 @@ define method save-object (object :: <object>, request :: <request>)
   end;
   let command = make(<edit-command>,
                      arguments: list(object, slots));
-  *commands* := add!(*commands*, command);
-  redo();
+  let change = make(<change>,
+                    author: "savefoo",
+                    command: command);
+  *changes* := add!(*changes*, change);
+  redo(command);
 end;

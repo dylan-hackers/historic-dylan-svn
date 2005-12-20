@@ -14,6 +14,27 @@ end;
 define class <edit-command> (<command>)
 end;
 
+define method reverse-command (c :: <add-command>)
+  make(<remove-command>, arguments: c.arguments);
+end;
+
+define method reverse-command (c :: <remove-command>)
+  make(<add-command>, arguments: c.arguments);
+end;
+
+define method reverse-command (c :: <edit-command>)
+  make(<edit-command>,
+       arguments: list(c.arguments[0],
+                       map(reverse-triple, c.arguments[1])));
+end;
+
+define method reverse-triple (t :: <triple>)
+  make(<triple>,
+       slot-name: t.slot-name,
+       old-value: t.new-value,
+       new-value: t.old-value);
+end;
+
 define method execute (command :: <add-command>)
   add-to-list;
 end;
@@ -134,11 +155,11 @@ define method set-slot (name :: <string>,
   end;
 end;
 
-define method undo (#key command = head(*commands*))
+define method undo (command)
   apply(unexecute(command), command.arguments);
 end;
 
-define method redo (#key command = head(*commands*))
+define method redo (command)
   apply(execute(command), command.arguments);
 end;
 

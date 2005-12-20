@@ -4,11 +4,10 @@ author: Hannes Mehnert <hannes@mehnert.org>
 //XXX: this should be dynamic generated...
 //without these I get lots of warnings:
 //Invalid type for argument object in call to
-// hosts (object :: <object>) => (#rest results :: <object>)
-// :  <zone> supplied, <subnet> expected.
-define dynamic generic hosts (o :: <object>) => (r :: <object>);
-define dynamic generic hosts-setter (h :: <object>, o :: <object>)
- => (r :: <object>);
+// hosts (object :: <object>) => (#rest results :: <object>):  <zone> supplied, <subnet> expected.
+//define dynamic generic hosts (o :: <object>) => (r :: <object>);
+//define dynamic generic hosts-setter (h :: <object>, o :: <object>)
+// => (r :: <object>);
 
 define web-class <subnet> (<network>)
   has-a vlan;

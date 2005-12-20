@@ -9,7 +9,7 @@ define library buddha
   use string-extensions, import: { character-type };
   use regular-expressions;
   use network;
-  use system, import: { file-system };
+  use system, import: { file-system, date };
   use xml-rpc-common;
   use xml-parser;
   use dylan;
@@ -118,6 +118,7 @@ define module buddha
   use streams;
   use standard-io;
   use character-type, import: { hex-digit? };
+  use date;
 
   use koala, exclude: { print-object };
   use sockets, import: { <tcp-socket>, <internet-address> };
