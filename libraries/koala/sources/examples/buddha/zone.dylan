@@ -128,11 +128,21 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
 end;
 
 define method parse-cidr (zone-name :: <string>) => (network :: <network>)
-  //XXX: needs to be done
-  //zone-name should be something like 1.2.3.in-addr.arpa for 3.2.1.0/24
-  make(<network>, cidr: "10.0.0.0/24");
+  //zone-name is something like "1.2.3.in-addr.arpa." for the network 3.2.1.0/24
+  let parts = split(zone-name, '.');
+  let network-string
+    = concatenate(parts[2], ".", parts[1], ".", parts[0], ".0");
+  make(<network>, cidr: make(<cidr>,
+                             network-address: network-string,
+                             netmask: 24));
 end;
 
 define method add-reverse-zones (network :: <network>) => ()
-  //XXX: add reverse zone for each /24 in network
+  //XXX: add hostmaster, mx, nameserver,...
+  for (subnet in split-cidr(network.cidr, 24))
+    *config*.zones := add!(*config*.zones,
+                           make(<zone>,
+                                reverse?: #t,
+                                name: cidr-to-reverse-zone(subnet)));
+  end;
 end;

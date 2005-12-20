@@ -4,20 +4,14 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define variable *config* = make(<config>,
                                 config-name: "config");
 
-define variable *commands* = #();
-
 //list containing recent changes
 define variable *changes* = #();
-
-//tree containing commands..
-//define variable *changetree*;
 
 define variable *version* = 0;
 
 define class <buddha> (<object>)
   constant slot config :: <config> = *config*;
   constant slot version :: <integer> = *version*;
-  constant slot commands = *commands*;
   constant slot changes = *changes*;
 end;
 
@@ -27,10 +21,10 @@ define sideways method process-config-element
     (node :: <xml-element>, name == #"buddha")
   let cdir = get-attr(node, #"content-directory");
   if (~cdir)
-    log-warning("Buddha - No content-directory specified! - will use ./buddha/");
-    cdir := "./buddha/";
+    log-warning("Buddha - No content-directory specified!");
+  else
+    *directory* := cdir;
   end;
-  *directory* := cdir;
   log-info("Buddha content directory = %s", *directory*);
 end;
 
@@ -66,7 +60,7 @@ define page save end;
 define page restore end;
 define page browse end;
 define page edit end;
-define page commands end;
+define page changes end;
 
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)
@@ -92,7 +86,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
         a("Restore", href => "/restore"),
         a("Class browser", href => "/browse"),
         a("Edit", href => "/edit"),
-        a("Commands", href => "/commands")
+        a("Recent Changes", href => "/changes")
       }
     },
     do(?body)
@@ -112,7 +106,7 @@ define class <buddha-form-error> (<error>)
   constant slot error-string :: <string>, required-init-keyword: error:;
 end;
 
-define method respond-to-get (page == #"commands",
+define method respond-to-get (page == #"changes",
                               request :: <request>,
                               response :: <response>,
                               #key errors = #())
@@ -121,33 +115,33 @@ define method respond-to-get (page == #"commands",
   let errors = errors;
   if (action)
     block(return)
-      let command = get-object(get-query-value("command"));
+      let change = get-object(get-query-value("change"));
       if (action = "undo")
-        undo(command: command)
+        undo(change)
       elseif (action = "redo")
-        redo(command: command)
+        redo(change)
       end
     exception (e :: <buddha-form-error>)
       errors := add!(errors, e);
       return();
     end;
   end;
-  with-buddha-template(out, "Commands")
+  with-buddha-template(out, "Recent Changes")
     collect(show-errors(errors));
     collect(with-xml()
       ul {
-        do(for (command in *commands*)
+        do(for (change in *changes*)
              collect(with-xml()
                        li {
-                         do(print-xml(command)),
+                         do(print-xml(change)),
                          text(" "),
                          a("Undo",
-                           href => concatenate("/commands?do=undo&command=",
-                                               get-reference(command))),
+                           href => concatenate("/changes?do=undo&change=",
+                                               get-reference(change))) /* ,
                          text(" "),
                          a("Redo",
-                           href => concatenate("/commands?do=redo&command=",
-                                               get-reference(command)))
+                           href => concatenate("/changes?do=redo&change=",
+                                               get-reference(change))) */
                        }
                      end)
            end)
@@ -284,7 +278,7 @@ define method respond-to-post
   let buddha = dood-root(dood);
   dood-close(dood);
   *config* := buddha.config;
-  *commands* := buddha.commands;
+  *changes* := buddha.changes;
   if (buddha.version > *version*)
     *version* := buddha.version;
   end;

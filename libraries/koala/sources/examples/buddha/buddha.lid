@@ -19,5 +19,6 @@ files: library
        cisco-telnet
        class-browser
        command
+       change
        class-editor
        buddha
