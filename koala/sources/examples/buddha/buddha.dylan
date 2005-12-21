@@ -20,7 +20,10 @@ define variable *directory* = "www/buddha/";
 
 define thread variable *user* = #f;
 
-define variable *nameserver* = #("ns.congress.ccc.de", "ns2.congress.ccc.de");
+define variable *nameserver* = list(make(<nameserver>,
+                                         ns-name: "auth-int.congress.ccc.de"),
+                                    make(<nameserver>,
+                                         ns-name: "auth-ext.congress.ccc.de"));
 define variable *hostmaster* = "hostmaster.congress.ccc.de";
 define variable *refresh* = 180;
 define variable *retry* = 300;
@@ -41,12 +44,12 @@ define sideways method process-config-element
 end;
 
 define method initial-responder (request :: <request>, response :: <response>)
-  block(return)
-    dynamic-bind(*user* = make(<user>,
-                               username: "admin",
-                               password: "foo",
-                               email: "buddhaadmin@local",
-                               admin: #t))
+  dynamic-bind(*user* = make(<user>,
+                             username: "admin",
+                             password: "foo",
+                             email: "buddhaadmin@local",
+                             admin: #t))
+    block(return)
       if (request.request-method = #"post")
         respond-to-post(#"edit", request, response);
         return();
@@ -147,6 +150,7 @@ define page changes end;
 define page adduser end;
 define page logout end;
 define page dhcp end;
+define page tinydns end;
 
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)
@@ -456,6 +460,15 @@ define method respond-to-get
 end;
 
 define method respond-to-get
+    (page == #"tinydns",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
+  set-content-type(response, "text/plain");
+  print-tinydns-zone-file(*config*, output-stream(response));
+end;
+
+define method respond-to-get
     (page == #"network",
      request :: <request>,
      response :: <response>,
@@ -562,7 +575,7 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
-  //TODO: edit/remove forms
+
   //      strip more infos from table
   //      generate tinydns/bind config file
   let out = output-stream(response);
@@ -571,6 +584,7 @@ define method respond-to-get
     collect(with-xml()
               div(id => "content")
               {
+                a("tinydns.conf", href => "/tinydns"),
                 do(browse-table(<zone>, *config*.zones)),
                 do(add-form(<zone>, "Zones", *config*.zones, fill-from-request: errors))
               }
@@ -609,6 +623,11 @@ define method respond-to-get
 end;
 
 define function main () => ()
+  *users*["hannes"] := make(<user>,
+                            username: "hannes",
+                            password: "fnord",
+                            admin: #t,
+                            email: "hannes@mehnert.org");
   block()
     start-server();
   exception (e :: <condition>)

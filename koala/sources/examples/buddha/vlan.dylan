@@ -1,7 +1,7 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define web-class <vlan> (<object>)
+define web-class <vlan> (<reference-object>)
   data number :: <integer>;
   data vlan-name :: <string>;
   data description :: <string>;

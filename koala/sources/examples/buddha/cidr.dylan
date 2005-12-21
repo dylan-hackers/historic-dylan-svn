@@ -78,8 +78,8 @@ define method cidr-in-cidr? (smaller :: <cidr>, bigger :: <cidr>)
 end;
 
 define method split-cidr (cidr :: <cidr>, bitmask :: <integer>)
-  if (cidr.cidr-netmask < bitmask)
-    let result = make(<stretchy-vector>);
+  let result = make(<stretchy-vector>);
+  if (cidr.cidr-netmask <= bitmask)
     block(return)
       let cur-cidr = make(<cidr>,
                           network-address: cidr.cidr-network-address,
@@ -87,19 +87,21 @@ define method split-cidr (cidr :: <cidr>, bitmask :: <integer>)
       while (cidr-in-cidr?(cur-cidr, cidr))
         result := add!(result, cur-cidr);
         cur-cidr := make(<cidr>,
-                         network-address: cur-cidr.network-address + ash(2, 32 - bitmask),
+                         network-address: cur-cidr.network-address + ash(2, 31 - bitmask),
                          netmask: bitmask);
       end;
-      return(result);
     end;
   end;
+  result;
 end;
 
 define method cidr-to-reverse-zone (cidr :: <cidr>)
   => (zone-name :: <string>)
   let res = "";
   for (i from 2 to 0 by -1)
-    res := concatenate(res, cidr.cidr-network-address[i], ".")
+    res := concatenate(res,
+                       integer-to-string(cidr.cidr-network-address[i]),
+                       ".")
   end;
   concatenate(res, "in-addr.arpa.");
 end;

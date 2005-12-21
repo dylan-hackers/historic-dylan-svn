@@ -1,6 +1,10 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
+define class <reference-object> (<object>)
+  slot visible? :: <boolean> = #t, init-keyword: visible?:;
+end;
+
 define web-class <config> (<object>)
   data config-name :: <string>;
   has-many vlan;
@@ -41,6 +45,10 @@ define method fits?-aux (network :: <network>, list :: <collection>)
                 (broadcast-address(cidr(x)) < broadcast-address(network.cidr)))
          end,
          list);
+end;
+
+define method fixup (object :: <object>)
+  #t;
 end;
 
 define method check (zone :: <zone>)
@@ -103,8 +111,10 @@ define method check (network :: <network>)
     network.cidr.cidr-network-address := base-network-address(network.cidr);
   end;
   if (fits?(network))
-    //add reverse delegated zones...
-    add-reverse-zones(network);
+    if (network.reverse-dns?)
+      //add reverse delegated zones...
+      add-reverse-zones(network);
+    end;
     #t;
   else
     signal(make(<buddha-form-error>,

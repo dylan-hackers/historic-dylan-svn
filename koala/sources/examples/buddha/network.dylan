@@ -1,12 +1,22 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define web-class <network> (<object>)
+define web-class <network> (<reference-object>)
   data cidr :: <cidr>;
   data dhcp? :: <boolean>;
   data dhcp-default-lease-time :: <integer>;
   data dhcp-max-lease-time :: <integer>;
+  data reverse-dns? :: <boolean>;
   has-many dhcp-option :: <string>;
+end;
+
+define method initialize (net :: <network>,
+                          #rest rest, #key, #all-keys)
+  next-method();
+  net.reverse-dns? := #f;
+  net.dhcp? := #t;
+  net.dhcp-default-lease-time := 600;
+  net.dhcp-max-lease-time := 7200;
 end;
 
 define method \< (a :: <network>, b :: <network>)

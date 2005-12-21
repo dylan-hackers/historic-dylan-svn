@@ -1,20 +1,54 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define class <cname> (<object>)
-  slot source :: <string>, init-keyword: source:;
-  slot target :: <string>, init-keyword: target:;
+define web-class <cname> (<object>)
+  data source :: <string>;
+  data target :: <string>;
 end;
 
-define class <mail-exchange> (<object>)
-  slot mx-name :: <string>, init-keyword: mx-name:;
-  slot priority :: <integer>, init-keyword: priority:;
+define method print-object (cname :: <cname>, stream :: <stream>)
+ => ();
+  format(stream, "CNAME: %s\n", as(<string>, cname));
+end method;
+
+define method as (class == <string>, cname :: <cname>)
+ => (res :: <string>)
+  concatenate(cname.source, " => ", cname.target);
 end;
 
-define web-class <zone> (<object>)
+define web-class <mail-exchange> (<object>)
+  data mx-name :: <string>;
+  data priority :: <integer>;
+end;
+
+define method print-object (mx :: <mail-exchange>, stream :: <stream>)
+ => ();
+  format(stream, "MX: %s\n", as(<string>, mx));
+end method;
+
+define method as (class == <string>, mx :: <mail-exchange>)
+ => (res :: <string>)
+  concatenate(mx.mx-name, ":", integer-to-string(mx.priority));
+end;
+
+define web-class <nameserver> (<object>)
+  data ns-name :: <string>;
+end;
+
+define method print-object (ns :: <nameserver>, stream :: <stream>)
+ => ();
+  format(stream, "NS: %s\n", as(<string>, ns));
+end method;
+
+define method as (class == <string>, ns :: <nameserver>)
+ => (res :: <string>)
+  ns.ns-name;
+end;
+
+define web-class <zone> (<reference-object>)
   data zone-name :: <string>;
   data reverse? :: <boolean>;
-  has-many cname;
+  has-many cname :: <cname>;
   data hostmaster :: <string>;
   data serial :: <integer>;
   data refresh :: <integer>;
@@ -22,9 +56,24 @@ define web-class <zone> (<object>)
   data expire :: <integer>;
   data time-to-live :: <integer>;
   data minimum :: <integer>;
-  has-many nameserver :: <string>;
+  has-many nameserver :: <nameserver>;
   has-many mail-exchange :: <mail-exchange>;
-  has-many text :: <string>;
+  //has-many text :: <string>;
+end;
+
+define method initialize (zone :: <zone>,
+                          #rest rest, #key, #all-keys)
+  next-method();
+  zone.hostmaster := *hostmaster*;
+  zone.serial := 0;
+  zone.refresh := *refresh*;
+  zone.retry := *retry*;
+  zone.expire := *expire*;
+  zone.time-to-live := *time-to-live*;
+  zone.minimum := *minimum*;
+  for (ele in *nameserver*)
+    zone.nameservers := add!(zone.nameservers, ele);
+  end;
 end;
 
 define method print-object (zone :: <zone>, stream :: <stream>)
@@ -41,6 +90,7 @@ define method \< (a :: <zone>, b :: <zone>) => (res :: <boolean>)
   a.zone-name < b.zone-name
 end;
 
+/*
 define method print-bind-zone-file (print-zone :: <zone>, stream :: <stream>)
   format(stream, "@\tIN\tSOA\t%s.\t%s. (\n",
          print-zone.nameservers[0],
@@ -82,18 +132,19 @@ define method print-bind-zone-file (print-zone :: <zone>, stream :: <stream>)
        end, print-zone.cnames);
   end;
 end;
+*/
 
 define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
   //Zfqdn:mname:rname:ser:ref:ret:exp:min:ttl:timestamp:lo
-  format(stream, "Z%s:%s:%s:%d:%d:%d:%d:%d:%d\n",
-         print-zone.zone-name, print-zone.nameservers[0],
-         print-zone.hostmaster, print-zone.serial,
-         print-zone.refresh, print-zone.retry,
-         print-zone.expire, print-zone.minimum,
-         print-zone.time-to-live);
+  format(stream, "Z%s:%s.:%s.\n", //:%d:%d:%d:%d:%d:%d\n",
+         print-zone.zone-name, print-zone.nameservers[0].ns-name,
+         print-zone.hostmaster); //, print-zone.serial,
+//         print-zone.refresh, print-zone.retry,
+//         print-zone.expire, print-zone.minimum,
+//         print-zone.time-to-live);
   //nameserver
   do(method(x)
-         format(stream, "&%s::%s\n", print-zone.zone-name, x)
+         format(stream, "&%s::%s.\n", print-zone.zone-name, x.ns-name)
      end, print-zone.nameservers);
   if (print-zone.reverse?)
     //PTR
@@ -107,10 +158,10 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
                    end, *config*.hosts));
   else
     //MX
-    do(method(x)
-           format(stream, "@%s::%s:%d\n",
-                  print-zone.zone-name, tail(x), head(x));
-       end, print-zone.mail-exchanges);
+    //do(method(x)
+    //       format(stream, "@%s::%s:%d\n",
+    //              print-zone.zone-name, tail(x), head(x));
+    //   end, print-zone.mail-exchanges);
     //A
     do(method(x)
            format(stream, "+%s:%s\n",
@@ -133,24 +184,17 @@ define method parse-cidr (zone-name :: <string>) => (network :: <network>)
   let network-string
     = concatenate(parts[2], ".", parts[1], ".", parts[0], ".0");
   make(<network>, cidr: make(<cidr>,
-                             network-address: network-string,
+                             network-address: make(<ip-address>, data: network-string),
                              netmask: 24));
 end;
 
 define method add-reverse-zones (network :: <network>) => ()
   //XXX: add hostmaster, mx, nameserver,...
   for (subnet in split-cidr(network.cidr, 24))
-    *config*.zones := add!(*config*.zones,
-                           make(<zone>,
-                                reverse?: #t,
-                                zone-name: cidr-to-reverse-zone(subnet),
-                                nameserver: *nameserver*,
-                                hostmaster: *hostmaster*,
-                                serial: 0,
-                                refresh: *refresh*,
-                                retry: *retry*,
-                                expire: *expire*,
-                                time-to-live: *time-to-live*,
-                                minimum: *minimum*));
+    let zone = make(<zone>,
+                    reverse?: #t,
+                    zone-name: cidr-to-reverse-zone(subnet),
+                    visible?: #f);
+    *config*.zones := add!(*config*.zones, zone);
   end;
 end;
