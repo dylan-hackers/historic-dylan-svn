@@ -143,6 +143,14 @@ define method add-reverse-zones (network :: <network>) => ()
     *config*.zones := add!(*config*.zones,
                            make(<zone>,
                                 reverse?: #t,
-                                name: cidr-to-reverse-zone(subnet)));
+                                zone-name: cidr-to-reverse-zone(subnet),
+                                nameserver: *nameserver*,
+                                hostmaster: *hostmaster*,
+                                serial: 0,
+                                refresh: *refresh*,
+                                retry: *retry*,
+                                expire: *expire*,
+                                time-to-live: *time-to-live*,
+                                minimum: *minimum*));
   end;
 end;

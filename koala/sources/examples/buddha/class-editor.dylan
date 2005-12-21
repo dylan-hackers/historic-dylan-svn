@@ -86,7 +86,8 @@ end;
 define method add-form (object-type :: subclass(<object>),
                         name :: <string>,
                         parent :: <object>,
-                        #key fill-from-request) => (foo) // :: <list> ?
+                        #key fill-from-request,
+                        refer) => (foo) // :: <list> ?
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
@@ -155,7 +156,7 @@ define method add-form (object-type :: subclass(<object>),
               value => get-reference(object-type)),
         input(type => "hidden",
               name => "refer-to",
-              value => get-url-from-type(object-type)),
+              value => if (refer) refer else get-url-from-type(object-type) end),
         input(type => "hidden",
               name => "action",
               value => "add-object"),

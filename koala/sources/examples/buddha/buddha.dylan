@@ -20,6 +20,15 @@ define variable *directory* = "www/buddha/";
 
 define thread variable *user* = #f;
 
+define variable *nameserver* = #("ns.congress.ccc.de", "ns2.congress.ccc.de");
+define variable *hostmaster* = "hostmaster.congress.ccc.de";
+define variable *refresh* = 180;
+define variable *retry* = 300;
+define variable *expire* = 600;
+define variable *time-to-live* = 1800;
+define variable *minimum* = 300;
+
+
 define sideways method process-config-element
     (node :: <xml-element>, name == #"buddha")
   let cdir = get-attr(node, #"content-directory");
@@ -29,6 +38,39 @@ define sideways method process-config-element
     *directory* := cdir;
   end;
   log-info("Buddha content directory = %s", *directory*);
+end;
+
+define method initial-responder (request :: <request>, response :: <response>)
+  block(return)
+    dynamic-bind(*user* = make(<user>,
+                               username: "admin",
+                               password: "foo",
+                               email: "buddhaadmin@local",
+                               admin: #t))
+      if (request.request-method = #"post")
+        respond-to-post(#"edit", request, response);
+        return();
+      end;
+      let stream = output-stream(response);
+      let page = with-xml-builder()
+html(xmlns => "http://www.w3.org/1999/xhtml") {
+  head {
+    title("Buddha - Please create initial user!"),
+    link(rel => "stylesheet", href => "/buddha.css")
+  },
+  body {
+        h1("Welcome to buddha, please create an initial admin-user!"),
+        div(id => "content") { 
+          do(add-form(<user>, "Users", *users*, refer: "login")),
+          b("Please set the admin flag!")
+        }
+  }
+}
+end;
+      format(stream, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+      format(stream, "%=", page);
+    end;
+  end;
 end;
 
 define generic respond-to-get (page,
@@ -41,6 +83,12 @@ define macro page-definer
     => { define responder ?name ## "-responder" ("/" ## ?"name")
            (request, response)
            block(return)
+             if (*users*.size = 0)
+                 initial-responder(request, response);
+                 return();
+             end;
+             //dns, dhcp shouldn't need a valid user
+             //(to get it working with wget and stuff, without needing cookies)
              unless (logged-in(request))
                login(request);
                unless (logged-in(request))
@@ -64,8 +112,26 @@ end;
 
 define responder default-responder ("/")
   (request, response)
-  respond-to-get(#"login", request, response);
+  if (*users*.size = 0)
+    initial-responder(request, response);
+  else
+    respond-to-get(#"login", request, response);
+  end;
 end;
+
+/*
+define responder dood-responder ("/dood")
+  (request, response)
+  let dood = make(<dood>,
+                  locator: concatenate(*directory*, base64-encode(filename)),
+                  direction: #"output",
+                  if-exists: #"replace");
+  dood-root(dood) := make(<buddha>);
+  dood-commit(dood);
+  dood-close(dood);
+  
+end;
+*/
 
 define page network end;
 define page subnet end;
@@ -143,7 +209,7 @@ define method respond-to-get (page == #"adduser",
                 div(id => "content")
                   {
                    do(browse-table(<user>, *users*)),
-                   do(add-form(<user>, "Users", *users*, fill-from-request: errors))
+                   do(add-form(<user>, "Users", *users*, fill-from-request: errors, refer: "adduser"))
                      }
               end)
     end;
@@ -387,7 +453,6 @@ define method respond-to-get
   let network = get-object(get-query-value("obj"));
   set-content-type(response, "text/plain");
   print-isc-dhcpd-file(network, output-stream(response));
-  #f; //we don't want the default page!
 end;
 
 define method respond-to-get
@@ -544,11 +609,6 @@ define method respond-to-get
 end;
 
 define function main () => ()
-  *users*["hannes"] := make(<user>,
-                            username: "hannes",
-                            password: "fnord",
-                            email: "hannes@mehnert.org",
-                            admin?: #t);
   block()
     start-server();
   exception (e :: <condition>)

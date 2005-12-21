@@ -71,23 +71,19 @@ end;
 define method cidr-in-cidr? (smaller :: <cidr>, bigger :: <cidr>)
   ((base-network-address(bigger) < base-network-address(smaller))
    | (base-network-address(bigger) = base-network-address(smaller)))
-  & ((broadcast-address(bigger) < base-network-address(smaller))
-      | (broadcast-address(bigger) = base-network-address(smaller)))
+  & ((base-network-address(smaller) < broadcast-address(bigger))
+      | (base-network-address(smaller) = broadcast-address(bigger)))
   & ((broadcast-address(smaller) < broadcast-address(bigger))
       | (broadcast-address(smaller) = broadcast-address(bigger)))
 end;
 
 define method split-cidr (cidr :: <cidr>, bitmask :: <integer>)
-  if (cidr.cidr-netmask > bitmask)
+  if (cidr.cidr-netmask < bitmask)
     let result = make(<stretchy-vector>);
     block(return)
       let cur-cidr = make(<cidr>,
                           network-address: cidr.cidr-network-address,
                           netmask: bitmask);
-      let last-cidr = make(<cidr>,
-                           network-address: broadcast-address(cidr),
-                           netmask: bitmask);
-      last-cidr.cidr-network-address := base-network-address(last-cidr);
       while (cidr-in-cidr?(cur-cidr, cidr))
         result := add!(result, cur-cidr);
         cur-cidr := make(<cidr>,
