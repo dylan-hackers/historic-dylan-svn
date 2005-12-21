@@ -17,6 +17,12 @@ define web-class <subnet> (<network>)
   data dhcp-router :: <ip-address>;
 end;
 
+define method fixup (subnet :: <subnet>)
+  subnet.dhcp-start := base-network-address(subnet.cidr) + 2;
+  subnet.dhcp-end := broadcast-address(subnet.cidr) - 1;
+  subnet.dhcp-router := base-network-address(subnet.cidr) + 1;
+end;
+
 define method print-object (subnet :: <subnet>, stream :: <stream>)
  => ()
   format(stream, "Subnet %s\n", as(<string>, subnet));

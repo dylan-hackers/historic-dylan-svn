@@ -132,17 +132,19 @@ define method add-form (object-type :: subclass(<object>),
              collect(with-xml()
                        \select(name => slot.slot-name)
                        { do(for (ele in slot.slot-global-list(*config*))
-                              if (fill-from-request & (ele = value))
-                                collect(with-xml()
-                                          option(as(<string>, ele),
-                                                 value => get-reference(ele),
-                                                 selected => "selected")
-                                        end);
-                              else
-                                collect(with-xml()
-                                          option(as(<string>, ele),
-                                                 value => get-reference(ele))
-                                        end);
+                              if (visible?(ele))
+                                if (fill-from-request & (ele = value))
+                                  collect(with-xml()
+                                            option(as(<string>, ele),
+                                                   value => get-reference(ele),
+                                                   selected => "selected")
+                                          end);
+                                else
+                                  collect(with-xml()
+                                            option(as(<string>, ele),
+                                                   value => get-reference(ele))
+                                          end);
+                                end;
                               end;
                             end)
                        }
@@ -321,14 +323,14 @@ end;
 
 define method parse (name, type)
   let value = get-query-value(name);
-  if (type = <string>)
-    value;
-  elseif (type = <boolean>)
+  if (type = <boolean>)
     if (value = name)
       #t;
     else
       #f;
     end;
+  elseif (type = <string>)
+    value;
   elseif (type = <integer>)
     string-to-integer(value)
   else
