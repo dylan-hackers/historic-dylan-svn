@@ -103,6 +103,8 @@ define method check (network :: <network>)
     network.cidr.cidr-network-address := base-network-address(network.cidr);
   end;
   if (fits?(network))
+    //add reverse delegated zones...
+    add-reverse-zones(network);
     #t;
   else
     signal(make(<buddha-form-error>,
