@@ -96,26 +96,15 @@ define method add-form (object-type :: subclass(<object>),
              //here we should have at least a seperation between integer,
              //strings and lists... or should we implement all lists with
              //has-many?
-             let value = get-query-value(slot.slot-name);
+             let value = default(slot);
+             if (fill-from-request)
+               value := get-query-value(slot.slot-name);
+             end;
              if (slot.slot-type = <boolean>)
-               if (fill-from-request & value)
-                 collect(with-xml() input(type => "checkbox",
-                                          name => slot.slot-name,
-                                          value => slot.slot-name,
-                                          checked => "checked")
-                         end);
-               else
-                 collect(with-xml() input(type => "checkbox",
-                                          name => slot.slot-name,
-                                          value => slot.slot-name)
-                         end);
-               end;
+               collect(edit-slot(value, slot.slot-name));
              else
-               if (fill-from-request & value)
-                 collect(with-xml() input(type => "text",
-                                          name => slot.slot-name,
-                                          value => value)
-                         end);
+               if (value)
+                 collect(edit-slot(value, slot.slot-name));
                else
                  collect(with-xml() input(type => "text",
                                           name => slot.slot-name)
@@ -249,7 +238,7 @@ define method respond-to-post
     = method(e :: <buddha-form-warning>, next-handler :: <function>)
           errors := add!(errors, e)
       end;
-  block(return)
+  //block(return)
     //add, save, remove... we may not need this here...
     unless (object)
       signal(make(<buddha-form-error>,
@@ -263,14 +252,14 @@ define method respond-to-post
                                error: concatenate("Unknown action: ",
                                                   as(<string>, action))));
       end select;
-  exception (e :: <buddha-form-error>)
+  /* exception (e :: <buddha-form-error>)
     errors := add!(errors, e);
     return();
   exception (e :: <error>)
     errors := add!(errors, make(<buddha-form-error>,
                                 error: format-to-string("%=", e)));
     return();
-  end;
+  end; */
   let referer = if (get-query-value("refer-to"))
                   as(<symbol>, get-query-value("refer-to"));
                 else
@@ -294,6 +283,13 @@ define method add-object (parent-object :: <object>, request :: <request>)
     for (slot in data-slots(object-type))
       let value = parse(slot.slot-name, slot.slot-type);
       //then set slots of object
+      unless ((slot.slot-type = <boolean>) | value)
+        value := slot.default-function(object);
+        unless (value)
+          signal(make(<buddha-form-error>,
+                      error-string: concatenate("Please specify ", slot.slot-name, " correctly!")));
+        end unless;
+      end;
       slot.slot-setter-method(value, object);
     end;
     for (slot in reference-slots(object-type))
@@ -329,12 +325,18 @@ define method parse (name, type)
     else
       #f;
     end;
-  elseif (type = <string>)
-    value;
-  elseif (type = <integer>)
-    string-to-integer(value)
   else
-    as(type, value);
+    if (value & (value ~= ""))
+      if (type = <string>)
+        value;
+      elseif (type = <integer>)
+        string-to-integer(value)
+      else
+        as(type, value);
+      end;
+    else
+      #f;
+    end;
   end;
 end;
 

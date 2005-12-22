@@ -49,13 +49,13 @@ define web-class <zone> (<reference-object>)
   data zone-name :: <string>;
   data reverse? :: <boolean>;
   has-many cname :: <cname>;
-  data hostmaster :: <string>;
-  data serial :: <integer>;
-  data refresh :: <integer>;
-  data retry :: <integer>;
-  data expire :: <integer>;
-  data time-to-live :: <integer>;
-  data minimum :: <integer>;
+  data hostmaster :: <string> = "hostmaster.congress.ccc.de";
+  data serial :: <integer> = 0;
+  data refresh :: <integer> = 180;
+  data retry :: <integer> = 300;
+  data expire :: <integer> = 600;
+  data time-to-live :: <integer> = 1800;
+  data minimum :: <integer> = 300;
   has-many nameserver :: <nameserver>;
   has-many mail-exchange :: <mail-exchange>;
   //has-many text :: <string>;
@@ -63,14 +63,6 @@ end;
 
 define method initialize (zone :: <zone>,
                           #rest rest, #key, #all-keys)
-  next-method();
-  zone.hostmaster := *hostmaster*;
-  zone.serial := 0;
-  zone.refresh := *refresh*;
-  zone.retry := *retry*;
-  zone.expire := *expire*;
-  zone.time-to-live := *time-to-live*;
-  zone.minimum := *minimum*;
   for (ele in *nameserver*)
     zone.nameservers := add!(zone.nameservers, ele);
   end;
@@ -149,8 +141,9 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
   if (print-zone.reverse?)
     //PTR
     do(method(x)
-           format(stream, "^%s:%s\n",
+           format(stream, "^%s.%s:%s\n",
                   x.host-name,
+                  x.zone.zone-name,
                   as(<string>, x.ipv4-address));
        end, choose(method(x)
                        ip-in-net?(parse-cidr(print-zone.zone-name),
@@ -158,14 +151,15 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
                    end, *config*.hosts));
   else
     //MX
-    //do(method(x)
-    //       format(stream, "@%s::%s:%d\n",
-    //              print-zone.zone-name, tail(x), head(x));
-    //   end, print-zone.mail-exchanges);
+    do(method(x)
+           format(stream, "@%s::%s.%s:%d\n",
+                  print-zone.zone-name, mx-name(x), print-zone.zone-name, priority(x));
+       end, print-zone.mail-exchanges);
     //A
     do(method(x)
-           format(stream, "+%s:%s\n",
+           format(stream, "+%s.%s:%s\n",
                   x.host-name,
+                  x.zone.zone-name,
                   as(<string>, x.ipv4-address));
        end, choose(method(x)
                        x.zone = print-zone

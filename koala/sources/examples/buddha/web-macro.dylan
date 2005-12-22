@@ -7,6 +7,9 @@ define class <slot> (<object>)
   constant slot slot-getter-method :: <function>, init-keyword: getter:;
   constant slot slot-setter-method :: <function>, init-keyword: setter:;
   constant slot slot-global-list :: <object>, init-keyword: global-list:;
+  constant slot default :: <object> = #f, init-keyword: default:;
+  constant slot default-function :: <function> = method(x :: <object>) #f end,
+    init-keyword: default-function:;
 end;
 
 define generic list-reference-slots
@@ -78,12 +81,26 @@ define macro web-data
 
     slots:
     { } => { }
-    { data ?slot-name:name \:: ?slot-type:*; ... }
+    { data ?slot-name:name \:: ?slot-type:name; ... }
     => { make(<slot>,
               name: ?"slot-name",
               type: ?slot-type,
               getter: ?slot-name,
               setter: ?slot-name ## "-setter"), ... }
+    { data ?slot-name:name \:: ?slot-type:name, ?default-function:expression ; ... }
+    => { make(<slot>,
+              name: ?"slot-name",
+              type: ?slot-type,
+              getter: ?slot-name,
+              setter: ?slot-name ## "-setter",
+              default-function: method (?=object :: <object>) ?default-function end), ... }
+    { data ?slot-name:name \:: ?slot-type:name = ?default:expression; ... }
+    => { make(<slot>,
+              name: ?"slot-name",
+              type: ?slot-type,
+              getter: ?slot-name,
+              setter: ?slot-name ## "-setter",
+              default: ?default), ... }
     { ?other:*; ... }
     => { ... }
 end;

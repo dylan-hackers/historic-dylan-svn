@@ -24,13 +24,6 @@ define variable *nameserver* = list(make(<nameserver>,
                                          ns-name: "auth-int.congress.ccc.de"),
                                     make(<nameserver>,
                                          ns-name: "auth-ext.congress.ccc.de"));
-define variable *hostmaster* = "hostmaster.congress.ccc.de";
-define variable *refresh* = 180;
-define variable *retry* = 300;
-define variable *expire* = 600;
-define variable *time-to-live* = 1800;
-define variable *minimum* = 300;
-
 
 define sideways method process-config-element
     (node :: <xml-element>, name == #"buddha")
@@ -149,8 +142,16 @@ define page edit end;
 define page changes end;
 define page adduser end;
 define page logout end;
-define page dhcp end;
-define page tinydns end;
+
+define responder dhcp-responder ("/dhcp")
+    (request, response)
+    respond-to-get(#"dhcp", request, response);
+end;
+
+define responder tinydns-responder ("/tinydns")
+    (request, response)
+    respond-to-get(#"tinydns", request, response);
+end;
 
 define macro with-buddha-template
   { with-buddha-template(?stream:variable, ?title:expression)

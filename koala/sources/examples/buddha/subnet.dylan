@@ -12,15 +12,9 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define web-class <subnet> (<network>)
   has-a vlan;
   has-a network;
-  data dhcp-start :: <ip-address>;
-  data dhcp-end :: <ip-address>;
-  data dhcp-router :: <ip-address>;
-end;
-
-define method fixup (subnet :: <subnet>)
-  subnet.dhcp-start := base-network-address(subnet.cidr) + 2;
-  subnet.dhcp-end := broadcast-address(subnet.cidr) - 1;
-  subnet.dhcp-router := base-network-address(subnet.cidr) + 1;
+  data dhcp-start :: <ip-address>, base-network-address(object.cidr) + 2;
+  data dhcp-end :: <ip-address>, broadcast-address(object.cidr) - 1;
+  data dhcp-router :: <ip-address>, base-network-address(object.cidr) + 1;
 end;
 
 define method print-object (subnet :: <subnet>, stream :: <stream>)
