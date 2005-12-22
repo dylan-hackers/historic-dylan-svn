@@ -61,7 +61,16 @@ define method check (zone :: <zone>)
   end;
 end;
 
-define constant $bottom-subnet = make(<subnet>);
+/*define constant $default-vlan = make(<vlan>,
+                                     number: 1,
+                                     name: "default",
+                                     description: "Default VLAN");*/
+
+define constant $bottom-subnet
+  = make(<subnet>,
+         //vlan: $default-vlan,
+         dhcp?: #f,
+         reverse-dns?: #f);
 
 define method check (host :: <host>)
  => (res :: <boolean>)

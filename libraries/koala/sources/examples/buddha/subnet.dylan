@@ -24,7 +24,11 @@ end;
 
 define method as (class == <string>, subnet :: <subnet>)
  => (res :: <string>)
-  as(<string>, subnet.cidr);
+  if (subnet = $bottom-subnet)
+    ""
+  else
+    as(<string>, subnet.cidr);
+  end if;
 end;
 
 define method print-isc-dhcpd-file (print-subnet :: <subnet>, stream :: <stream>)
