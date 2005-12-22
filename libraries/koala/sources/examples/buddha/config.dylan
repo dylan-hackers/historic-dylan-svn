@@ -61,18 +61,23 @@ define method check (zone :: <zone>)
   end;
 end;
 
+define constant $bottom-subnet = make(<subnet>);
+
 define method check (host :: <host>)
  => (res :: <boolean>)
   if (any?(method(x) x.host-name = host.host-name end,
            choose(method(x) x.zone = host.zone end, *config*.hosts)))
     signal(make(<buddha-form-error>,
                 error: "Host with same name already exists in zone"));
+  elseif (host.dns-only?)
+    host.subnet = $bottom-subnet;
+    #t;
   elseif (any?(method(x) x.ipv4-address = host.ipv4-address end,
-               choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
+                 choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
     signal(make(<buddha-form-error>,
                 error: "Host with same IP address already exists in subnet"));
   elseif (any?(method(x) x.mac-address = host.mac-address end,
-               choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
+                 choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
     signal(make(<buddha-form-error>,
                 error: "Host with same MAC address already exists in subnet"));
   elseif ((host.ipv4-address = network-address(host.subnet.cidr)) |

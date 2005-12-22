@@ -34,6 +34,40 @@ define sideways method process-config-element
     *directory* := cdir;
   end;
   log-info("Buddha content directory = %s", *directory*);
+  restore-newest-database();
+end;
+
+define method split-file (file :: <string>) => (version :: <integer>)
+  let elements = split(file, '-');
+  if (elements.size = 2)
+    string-to-integer(elements[1]);
+  else
+    0
+  end;
+end;
+
+define method restore-newest-database () => ();
+  let file = "";
+  let latest-version = 0;
+  do-directory(method(directory :: <pathname>,
+                      name :: <string>,
+                      type :: <file-type>)
+                   if (type == #"file")
+                     if (split-file(name) > latest-version)
+                       file := name;
+                     end;
+                   end;
+               end, *directory*);
+  let dood = make(<dood>,
+                  locator: concatenate(*directory*, file),
+                  direction: #"input");
+  format-out("restored %= %=\n", *directory*, file);
+  let buddha = dood-root(dood);
+  dood-close(dood);
+  *config* := buddha.config;
+  *changes* := buddha.changes;
+  *users* := buddha.users;
+  *version* := buddha.version + 1;
 end;
 
 define method initial-responder (request :: <request>, response :: <response>)
@@ -142,6 +176,7 @@ define page edit end;
 define page changes end;
 define page adduser end;
 define page logout end;
+define page string end;
 
 define responder dhcp-responder ("/dhcp")
     (request, response)
@@ -198,6 +233,31 @@ end;
 
 define class <buddha-form-error> (<error>)
   constant slot error-string :: <string>, required-init-keyword: error:;
+end;
+
+define method respond-to-get (page == #"string",
+                              request :: <request>,
+                              response :: <response>,
+                              #key errors = #())
+  let object-string = get-query-value("obj-id");
+  let object = get-object(object-string);
+  let parent-object-string = get-query-value("obj-parent");
+  let parent-object = get-object(parent-object-string);
+  let out = output-stream(response);
+  with-buddha-template(out, "List")
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                do(let res = make(<stretchy-vector>);
+                   for (ele in object)
+                     res := add!(res, with-xml() li(ele) end);
+                   end;
+                   res),
+                do(add-form(<string>, "String", parent-object))
+              }
+            end);
+  end;
 end;
 
 define method respond-to-get (page == #"adduser",
