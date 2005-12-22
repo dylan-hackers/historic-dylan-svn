@@ -58,6 +58,10 @@ define method restore-newest-database () => ();
                      end;
                    end;
                end, *directory*);
+  restore-database(file);
+end;
+
+define method restore-database (file :: <string>)
   let dood = make(<dood>,
                   locator: concatenate(*directory*, file),
                   direction: #"input");
@@ -67,7 +71,11 @@ define method restore-newest-database () => ();
   *config* := buddha.config;
   *changes* := buddha.changes;
   *users* := buddha.users;
-  *version* := buddha.version + 1;
+  if (buddha.version > *version*)
+    *version* := buddha.version + 1;
+  end;
+  do(method(x) if (x.dns-only?) x.subnet := $bottom-subnet end end,
+     *config*.hosts);
 end;
 
 define method initial-responder (request :: <request>, response :: <response>)
@@ -215,7 +223,8 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
         //do(if (admin?(?=request)) a("User management", href => "/adduser") end),
         a("Recent Changes", href => "/changes"),
         text(concatenate("Logged in as ", *user*.username)),
-        a("Logout", href => "/logout")
+        a("Logout", href => "/logout"),
+        text(integer-to-string(*version*))
       }
     },
     do(?body)
@@ -491,17 +500,7 @@ end;
 define method respond-to-post
     (page == #"restore", request :: <request>, response :: <response>)
   let file = get-query-value("filename");
-  let dood = make(<dood>,
-                  locator: concatenate(*directory*, file),
-                  direction: #"input");
-  let buddha = dood-root(dood);
-  dood-close(dood);
-  *config* := buddha.config;
-  *changes* := buddha.changes;
-  *users* := buddha.users;
-  if (buddha.version > *version*)
-    *version* := buddha.version;
-  end;
+  restore-database(file);
   format(output-stream(response), "Restored %s\n", file);
   respond-to-get(page,
                  request,

@@ -287,7 +287,9 @@ define method add-object (parent-object :: <object>, request :: <request>)
         value := slot.default-function(object);
         unless (value)
           signal(make(<buddha-form-error>,
-                      error-string: concatenate("Please specify ", slot.slot-name, " correctly!")));
+                      error: concatenate("Please specify ",
+                                         slot.slot-name,
+                                         " correctly!")));
         end unless;
       end;
       slot.slot-setter-method(value, object);
