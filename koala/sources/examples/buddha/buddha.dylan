@@ -381,7 +381,7 @@ define method respond-to-get
      #key errors)
   let filename = concatenate("buddha-", integer-to-string(*version*));
   let dood = make(<dood>,
-                  locator: concatenate(*directory*, base64-encode(filename)),
+                  locator: concatenate(*directory*, filename),
                   direction: #"output",
                   if-exists: #"replace");
   dood-root(dood) := make(<buddha>);
@@ -412,10 +412,9 @@ define method respond-to-get
                                      name :: <string>,
                                      type :: <file-type>)
                                   if (type == #"file")
-                                    let b64-name = base64-decode(name);
                                     collect(with-xml()
-                                              option(b64-name,
-                                                     value => b64-name)
+                                              option(name,
+                                                     value => name)
                                             end);
                                   end if;
                               end, *directory*))
@@ -432,9 +431,8 @@ end;
 define method respond-to-post
     (page == #"restore", request :: <request>, response :: <response>)
   let file = get-query-value("filename");
-  let b64file = base64-encode(file);
   let dood = make(<dood>,
-                  locator: concatenate(*directory*, b64file),
+                  locator: concatenate(*directory*, file),
                   direction: #"input");
   let buddha = dood-root(dood);
   dood-close(dood);
@@ -624,11 +622,26 @@ define method respond-to-get
 end;
 
 define function main () => ()
-  *users*["hannes"] := make(<user>,
-                            username: "hannes",
-                            password: "fnord",
-                            admin: #t,
-                            email: "hannes@mehnert.org");
+  let dumper
+  = make(<thread>,
+         function: method()
+                       sleep(23);
+                       while(#t)
+                         let filename
+                           = concatenate("buddha-", integer-to-string(*version*));
+                         let dood
+                           = make(<dood>,
+                                  locator: concatenate(*directory*,
+                                                       filename),
+                                  direction: #"output",
+                                  if-exists: #"replace");
+                         dood-root(dood) := make(<buddha>);
+                         dood-commit(dood);
+                         dood-close(dood);
+                         *version* := *version* + 1;
+                         sleep(300);
+                       end;
+                   end);
   block()
     start-server();
   exception (e :: <condition>)
