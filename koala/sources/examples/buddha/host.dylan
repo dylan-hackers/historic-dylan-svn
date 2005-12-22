@@ -4,6 +4,7 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define web-class <host> (<object>)
   data host-name :: <string>;
   data ipv4-address :: <ip-address>;
+  data time-to-live :: <integer> = 300;
   data dns-only? :: <boolean>;
   data mac-address :: <mac-address>, if (object.dns-only?)
                                        as(<mac-address>, "00deadbeef00")

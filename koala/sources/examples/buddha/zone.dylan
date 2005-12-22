@@ -141,10 +141,11 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
   if (print-zone.reverse?)
     //PTR
     do(method(x)
-           format(stream, "^%s.%s:%s\n",
+           format(stream, "^%s.%s:%s:%d\n",
                   x.host-name,
                   x.zone.zone-name,
-                  as(<string>, x.ipv4-address));
+                  as(<string>, x.ipv4-address),
+                  x.time-to-live);
        end, choose(method(x)
                        ip-in-net?(parse-cidr(print-zone.zone-name),
                                   x.ipv4-address)
@@ -157,10 +158,11 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
        end, print-zone.mail-exchanges);
     //A
     do(method(x)
-           format(stream, "+%s.%s:%s\n",
+           format(stream, "+%s.%s:%s:%d\n",
                   x.host-name,
-                  x.zone.zone-name,
-                  as(<string>, x.ipv4-address));
+                  print-zone.zone-name,
+                  as(<string>, x.ipv4-address),
+                  x.time-to-live);
        end, choose(method(x)
                        x.zone = print-zone
                    end, *config*.hosts));
