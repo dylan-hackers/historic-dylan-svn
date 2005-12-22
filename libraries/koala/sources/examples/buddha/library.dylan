@@ -33,7 +33,9 @@ define module web-macro
     slot-type,
     slot-getter-method,
     slot-setter-method,
-    slot-global-list;
+    slot-global-list,
+    default,
+    default-function;
  
   export list-reference-slots,
     reference-slots,

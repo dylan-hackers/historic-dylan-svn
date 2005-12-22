@@ -3,20 +3,11 @@ author: Hannes Mehnert <hannes@mehnert.org>
 
 define web-class <network> (<reference-object>)
   data cidr :: <cidr>;
-  data dhcp? :: <boolean>;
-  data dhcp-default-lease-time :: <integer>;
-  data dhcp-max-lease-time :: <integer>;
+  data dhcp? :: <boolean> = #t;
+  data dhcp-default-lease-time :: <integer> = 600;
+  data dhcp-max-lease-time :: <integer> = 7200;
   data reverse-dns? :: <boolean>;
   has-many dhcp-option :: <string>;
-end;
-
-define method initialize (net :: <network>,
-                          #rest rest, #key, #all-keys)
-  next-method();
-  net.reverse-dns? := #f;
-  net.dhcp? := #t;
-  net.dhcp-default-lease-time := 600;
-  net.dhcp-max-lease-time := 7200;
 end;
 
 define method \< (a :: <network>, b :: <network>)
@@ -62,16 +53,17 @@ define method print-isc-dhcpd-file (print-network :: <network>,
   => ();
   if (print-network.dhcp?)
     if (print-network.dhcp-default-lease-time)
-      format(stream, "\tdefault-lease-time %d;\n",
+      format(stream, "default-lease-time %d;\n",
              print-network.dhcp-default-lease-time);
     end if;
     if (print-network.dhcp-max-lease-time)
-      format(stream, "\tmax-lease-time %d;\n",
+      format(stream, "max-lease-time %d;\n",
              print-network.dhcp-max-lease-time);
     end if;
     do(method(x)
-           format(stream, "\t%s;\n", x);
+           format(stream, "%s;\n", x);
        end, print-network.dhcp-options);
+    format(stream, "\n");
     do(method(x)
            print-isc-dhcpd-file(x, stream);
        end, choose(method(x)
