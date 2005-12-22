@@ -238,7 +238,7 @@ define method respond-to-post
     = method(e :: <buddha-form-warning>, next-handler :: <function>)
           errors := add!(errors, e)
       end;
-  //block(return)
+  block(return)
     //add, save, remove... we may not need this here...
     unless (object)
       signal(make(<buddha-form-error>,
@@ -252,14 +252,14 @@ define method respond-to-post
                                error: concatenate("Unknown action: ",
                                                   as(<string>, action))));
       end select;
-  /* exception (e :: <buddha-form-error>)
+  exception (e :: <buddha-form-error>)
     errors := add!(errors, e);
     return();
   exception (e :: <error>)
     errors := add!(errors, make(<buddha-form-error>,
                                 error: format-to-string("%=", e)));
     return();
-  end; */
+  end;
   let referer = if (get-query-value("refer-to"))
                   as(<symbol>, get-query-value("refer-to"));
                 else
