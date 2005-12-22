@@ -4,7 +4,12 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define web-class <host> (<object>)
   data host-name :: <string>;
   data ipv4-address :: <ip-address>;
-  data mac-address :: <mac-address>;
+  data dns-only? :: <boolean>;
+  data mac-address :: <mac-address>, if (object.dns-only?)
+                                       as(<mac-address>, "00deadbeef00")
+                                     else
+                                       #f
+                                     end;
   has-a subnet;
   has-a zone;
 end;
