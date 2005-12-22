@@ -70,7 +70,7 @@ define method check (host :: <host>)
     signal(make(<buddha-form-error>,
                 error: "Host with same name already exists in zone"));
   elseif (host.dns-only?)
-    host.subnet = $bottom-subnet;
+    host.subnet := $bottom-subnet;
     #t;
   elseif (any?(method(x) x.ipv4-address = host.ipv4-address end,
                  choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
