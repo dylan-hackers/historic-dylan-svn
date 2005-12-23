@@ -1,17 +1,6 @@
 BUGS:
-add dhcp option to a (subnet|network) redirects to edit page
-save on any form returns to edit page
 should always return to same page
-
-tell user when removing has finished successfully
-tell user when saving has finished successfully
-links from recent changes should go to detailed view
-
-mx/ns/cname editable + removable + addable
-
 error recovery for save/remove
-
-after successfull add, form fields should be reset
 
 renumbering of subnets:
  => automatically change ips of hosts

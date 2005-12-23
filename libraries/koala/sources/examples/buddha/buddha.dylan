@@ -34,7 +34,7 @@ define sideways method process-config-element
     *directory* := cdir;
   end;
   log-info("Buddha content directory = %s", *directory*);
-  restore-newest-database();
+  //restore-newest-database();
 end;
 
 define method split-file (file :: <string>) => (version :: <integer>)
@@ -627,12 +627,24 @@ define method respond-to-get
                      with-xml()
                        ul { do(map(method(x)
                                        with-xml()
-                                         li { text(x), do(remove-form(x, dnetwork, url: "network-detail")) }
+                                         li { text(x), do(remove-form(x, dnetwork.dhcp-options,
+                                                                      url: "network-detail",
+                                                                      xml: with-xml()
+                                                                             input(type => "hidden",
+                                                                                   name => "network",
+                                                                                   value => get-reference(dnetwork))
+                                                                           end)) }
                                           end
                                       end, dnetwork.dhcp-options)) }
                      end;
                    end),
-                do(add-form(<string>, "dhcp options", dnetwork.dhcp-options)),
+                do(add-form(<string>, "dhcp options", dnetwork.dhcp-options,
+                            refer: "network-detail",
+                            xml: with-xml()
+                                   input(type => "hidden",
+                                         name => "network",
+                                         value => get-reference(dnetwork))
+                                 end)),
                 //add subnet with filled-in network?!
                 h2(concatenate("Subnets in network ", show(dnetwork))),
                 table { tr { th("CIDR"), th("dhcp?") },
@@ -706,12 +718,25 @@ define method respond-to-get
                 do(if (dsubnet.dhcp-options.size > 0)
                      with-xml()
                        ul { do(map(method(x) with-xml()
-                                               li(x)
+                                               li { text(x),
+                                                    do(remove-form(x, dsubnet.dhcp-options,
+                                                                   url: "subnet-detail",
+                                                                   xml: with-xml()
+                                                                          input(type => "hidden",
+                                                                                name => "subnet",
+                                                                                value => get-reference(dsubnet))
+                                                                        end)) }
                                              end
                                    end, dsubnet.dhcp-options)) }
                      end
                    end),
-                do(add-form(<string>, "dhcp options", dsubnet.dhcp-options)),
+                do(add-form(<string>, "dhcp options", dsubnet.dhcp-options,
+                            refer: "subnet-detail",
+                            xml: with-xml()
+                                   input(type => "hidden",
+                                         name => "subnet",
+                                         value => get-reference(dsubnet))
+                                 end)),
                 h2(concatenate("Hosts in subnet ", show(dsubnet))),
                 table { tr { th("Hostname"), th("IP"), th("Mac")},
                         do(map(method(x) with-xml()
@@ -770,7 +795,7 @@ define method respond-to-get
               {
                 h1(concatenate("VLAN ", show(dvlan.number), ", Name ", dvlan.vlan-name)),
                 do(edit-form(dvlan)),
-                do(remove-form(dvlan, *config*.vlans)),
+                do(remove-form(dvlan, *config*.vlans, url: "vlan")),
                 h2(concatenate("Subnets in VLAN ", show(dvlan.number))),
                 table {
                   tr { th("CIDR"), th("dhcp?") },
@@ -896,36 +921,75 @@ define method respond-to-get
                 do(if (dzone.nameservers.size > 0)
                      with-xml()
                        ul { do(map(method(x) with-xml()
-                                               li(x.ns-name)
-                                             end
+                                               li { text(x.ns-name),
+                                                    do(remove-form(x, dzone.nameservers,
+                                                                   url: "zone-detail",
+                                                                   xml: with-xml()
+                                                                          input(type => "hidden",
+                                                                                name => "zone",
+                                                                                value => get-reference(dzone))
+                                                                        end)) }
+                                              end
                                    end, dzone.nameservers)) }
                      end
                    end),
-                do(add-form(<nameserver>, #f, dzone.nameservers)),
+                do(add-form(<nameserver>, #f, dzone.nameservers,
+                            refer: "zone-detail",
+                            xml: with-xml()
+                                   input(type => "hidden",
+                                         name => "zone",
+                                         value => get-reference(dzone))
+                                 end)),
                 h2("Mail exchange entries"),
                 do(if (dzone.mail-exchanges.size > 0)
                      with-xml()
-                       table { tr { th("Name"), th("Priority") },
+                       table { tr { th("Name"), th("Priority"), th("Remove") },
                               do(map(method(x) with-xml()
                                                  tr { td(x.mx-name),
-                                                     td(show(x.priority)) }
+                                                     td(show(x.priority)),
+                                                     td { do(remove-form(x, dzone.mail-exchanges,
+                                                                         url: "zone-detail",
+                                                                         xml: with-xml()
+                                                                           input(type => "hidden",
+                                                                                 name => "zone",
+                                                                                 value => get-reference(dzone))
+                                                                         end)) } }
                                                end
                                      end, dzone.mail-exchanges)) }
                      end
                    end),
-                do(add-form(<mail-exchange>, #f, dzone.mail-exchanges)),
+                do(add-form(<mail-exchange>, #f, dzone.mail-exchanges,
+                            refer: "zone-detail",
+                            xml: with-xml()
+                                   input(type => "hidden",
+                                         name => "zone",
+                                         value => get-reference(dzone))
+                                 end)),
                 h2("Cname records"),
                 do(if (dzone.cnames.size > 0)
                      with-xml()
-                       table { tr { th("Source"), th("Target") },
+                       table { tr { th("Source"), th("Target"), th("Remove") },
                               do(map(method(x) with-xml()
                                                  tr { td(x.source),
-                                                     td(x.target) }
+                                                     td(x.target),
+                                                     td { do(remove-form(x, dzone.cnames,
+                                                                         url: "zone-detail",
+                                                                         xml: with-xml()
+                                                                           input(type => "hidden",
+                                                                                 name => "zone",
+                                                                                 value => get-reference(dzone))
+                                                                         end)) } }
                                                end
                                      end, dzone.cnames)) }
                      end
                    end),
-                do(add-form(<cname>, #f, dzone.cnames)),
+                do(add-form(<cname>, #f, dzone.cnames,
+                            refer: "zone-detail",
+                            xml: with-xml()
+                                    input(type => "hidden",
+                                          name => "zone",
+                                          value => get-reference(dzone))
+                                  end)),
                 h2("Hosts"),
                 table { tr { th("Hostname"), th("TTL") },
                         do(map(method(x) with-xml()
@@ -971,6 +1035,7 @@ define method respond-to-get
 end;
 
 define function main () => ()
+*users*["hannes"] := make(<user>, username: "hannes", password: "fnord", admin?: #t, email: "f");
   let dumper
   = make(<thread>,
          function: method()

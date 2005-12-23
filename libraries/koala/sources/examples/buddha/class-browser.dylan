@@ -144,7 +144,8 @@ define method show (object :: <object>)
 end;
 
 define method remove-form (object :: <object>, parent :: <object>,
-                           #key url :: <string> = "edit")
+                           #key url :: <string> = "edit",
+                           xml)
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
@@ -153,7 +154,7 @@ define method remove-form (object :: <object>, parent :: <object>,
                name => "refer-to",
                value => url),
          input(type => "hidden",
-               name => "obj-id",
+               name => "parent-object",
                value => get-reference(parent)),
          input(type => "hidden",
                name => "remove-this",
@@ -161,6 +162,7 @@ define method remove-form (object :: <object>, parent :: <object>,
          input(type => "hidden",
                name => "action",
                value => "remove-object"),
+         do(if(xml) xml end),
          input(type => "submit",
                name => "remove-button",
                value => "Remove")

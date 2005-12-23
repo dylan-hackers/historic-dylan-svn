@@ -61,7 +61,9 @@ end;
 define method add-form (type == <string>,
                         name :: <string>,
                         parent :: <object>,
-                        #key fill-from-request) => (foo)
+                        #key fill-from-request,
+                        refer,
+                        xml) => (foo)
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
@@ -77,6 +79,14 @@ define method add-form (type == <string>,
         input(type => "hidden",
               name => "action",
               value => "add-object"),
+        do(if(xml) xml end),
+        do(if(refer)
+             with-xml()
+               input(type => "hidden",
+                     name => "refer-to",
+                     value => refer)
+             end
+           end),
         input(type => "submit",
               name => "add-button",
               value => concatenate("Add to ", name))
@@ -90,7 +100,8 @@ define method add-form (object-type :: subclass(<object>),
                         name :: false-or(<string>),
                         parent :: <object>,
                         #key fill-from-request,
-                        refer) => (foo) // :: <list> ?
+                        refer,
+                        xml) => (foo) // :: <list> ?
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
@@ -160,6 +171,7 @@ define method add-form (object-type :: subclass(<object>),
         input(type => "hidden",
               name => "action",
               value => "add-object"),
+        do(if(xml) xml end),
         input(type => "submit",
               name => "add-button",
               value => if (name) concatenate("Add to ", name) else "Add" end)
@@ -268,20 +280,29 @@ define method respond-to-post
     errors := add!(errors, make(<buddha-form-error>,
                                 error: format-to-string("%=", e)));
     return();
-  end;
-  if (any?(rcurry(instance?, <buddha-form-error>), errors))
-    //any input on field was wrong, return to formular
-    //XXX: this will treat remove and save wrong
-    respond-to-get(#"add", request, response, errors: errors);
-  else
-    let referer
-      = if (get-query-value("refer-to"))
-          as(<symbol>, get-query-value("refer-to"));
-        else
-          #"edit";
-        end;
+  end; 
+  let referer = get-query-value("refer-to");
+  let elements = split(referer, '-');
+  block(return)
+    unless ((elements.size = 2) & elements[1] = "detail")
+      if ((action = #"add-object")
+        & (any?(rcurry(instance?, <buddha-form-error>), errors)))
+        respond-to-get(#"add", request, response, errors: errors);
+        return();
+      end;
+    end;
+    referer := if (referer)
+                 as(<symbol>, referer);
+               else
+                 #"edit";
+               end;
     respond-to-get(referer, request, response, errors: if (errors.size > 0) errors else #f end);
   end;
+end;
+
+define method toplevel?(object :: <object>) => (res :: <boolean>)
+ ((object = *config*.hosts) | (object = *config*.subnets) | (object = *config*.networks)
+       | (object = *config*.vlans) | (object = *config*.zones))
 end;
 
 define method add-object (parent-object :: <object>, request :: <request>)
@@ -339,6 +360,10 @@ define method remove-object (parent-object :: <object>, request :: <request>)
                     command: command);
   *changes* := add!(*changes*, change);
   redo(command);
+  signal(make(<buddha-success>,
+              warning: concatenate("Removed ",
+                                   get-url-from-type(object.object-class),
+                                   ": ", as(<string>, object))));
 end;
 
 define method parse (name, type)
@@ -406,5 +431,15 @@ define method save-object (object :: <object>, request :: <request>)
                       command: command);
     *changes* := add!(*changes*, change);
     redo(command);
+    let slot-names = apply(concatenate, map(method(x)
+                                              concatenate(x.slot-name, " to ",
+                                                          as(<string>, x.new-value), "  ")
+                                            end, slots));
+    signal(make(<buddha-success>,
+                warning: concatenate("Saved ",
+                                     get-url-from-type(object.object-class),
+                                     as(<string>, object),
+                                     " changed slots: ",
+                                     slot-names)));
   end;
 end;
