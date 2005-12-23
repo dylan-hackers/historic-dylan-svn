@@ -9,7 +9,9 @@ links from recent changes should go to detailed view
 
 mx/ns/cname editable + removable + addable
 
-error recovery for save/move
+error recovery for save/remove
+
+after successfull add, form fields should be reset
 
 renumbering of subnets:
  => automatically change ips of hosts
