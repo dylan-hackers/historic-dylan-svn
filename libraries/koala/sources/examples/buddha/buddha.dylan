@@ -34,7 +34,7 @@ define sideways method process-config-element
     *directory* := cdir;
   end;
   log-info("Buddha content directory = %s", *directory*);
-  //restore-newest-database();
+  restore-newest-database();
 end;
 
 define method split-file (file :: <string>) => (version :: <integer>)
@@ -1035,7 +1035,6 @@ define method respond-to-get
 end;
 
 define function main () => ()
-*users*["hannes"] := make(<user>, username: "hannes", password: "fnord", admin?: #t, email: "f");
   let dumper
   = make(<thread>,
          function: method()
