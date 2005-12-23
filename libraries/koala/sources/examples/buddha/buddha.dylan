@@ -614,7 +614,7 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
-  let dnetwork = get-object(get-query-value("netwotk"));
+  let dnetwork = get-object(get-query-value("network"));
   let out = output-stream(response);
   with-buddha-template(out, concatenate("Network ", show(dnetwork), " detail"))
     collect(show-errors(errors));
