@@ -172,10 +172,15 @@ end;
 */
 
 define page network end;
+define page network-detail end;
 define page subnet end;
+define page subnet-detail end;
 define page vlan end;
+define page vlan-detail end;
 define page host end;
+define page host-detail end;
 define page zone end;
+define page zone-detail end;
 define page user end;
 define page save end;
 define page restore end;
@@ -185,6 +190,7 @@ define page changes end;
 define page adduser end;
 define page logout end;
 define page string end;
+define page add end;
 
 define responder dhcp-responder ("/dhcp")
     (request, response)
@@ -210,21 +216,33 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
   body {
     div(id => "header") {
       div(id => "navbar") {
-        a("Network", href => "/network"),
-        a("Subnet", href => "/subnet"),
-        a("VLAN", href => "/vlan"),
-        a("Host", href => "/host"),
-        a("Zone", href => "/zone"),
-        a("User interface", href => "/user"),
-        a("Save", href => "/save"),
-        a("Restore", href => "/restore"),
-        //a("Class browser", href => "/browse"),
-        //a("Edit", href => "/edit"),
-        //do(if (admin?(?=request)) a("User management", href => "/adduser") end),
-        a("Recent Changes", href => "/changes"),
-        text(concatenate("Logged in as ", *user*.username)),
-        a("Logout", href => "/logout"),
-        text(integer-to-string(*version*))
+        a("Vlans", href => "/vlan"),
+        a("Zones", href => "/zone"),
+        a("Hosts", href => "/host"),
+        a("Networks", href => "/network"),
+        a("Subnets", href => "/subnet"),
+        a("Changes", href => "/changes"),
+        br, br, text("Add"),
+        a("vlan", href => concatenate("/add?object-type=",
+                                      get-reference(<vlan>),
+                                      "&parent-object=",
+                                      get-reference(*config*.vlans))),
+        a("zone", href => concatenate("/add?object-type=",
+                                      get-reference(<zone>),
+                                      "&parent-object=",
+                                      get-reference(*config*.zones))),
+        a("host", href => concatenate("/add?object-type=",
+                                      get-reference(<host>),
+                                      "&parent-object=",
+                                      get-reference(*config*.hosts))),
+        a("network", href => concatenate("/add?object-type=",
+                                         get-reference(<network>),
+                                         "&parent-object=",
+                                         get-reference(*config*.networks))),
+        a("subnet", href => concatenate("/add?object-type=",
+                                        get-reference(<subnet>),
+                                        "&parent-object=",
+                                        get-reference(*config*.subnets)))
       }
     },
     do(?body)
@@ -240,10 +258,32 @@ define class <buddha-form-warning> (<condition>)
   constant slot error-string :: <string>, required-init-keyword: warning:;
 end;
 
+define class <buddha-success> (<buddha-form-warning>)
+end;
+
 define class <buddha-form-error> (<error>)
   constant slot error-string :: <string>, required-init-keyword: error:;
 end;
 
+define method respond-to-get (page == #"add",
+                              request :: <request>,
+                              response :: <response>,
+                              #key errors = #())
+  let real-type = get-object(get-query-value("object-type"));
+  let parent-object = get-object(get-query-value("parent-object"));
+  let out = output-stream(response);
+  with-buddha-template(out, concatenate("Add ", get-url-from-type(real-type)))
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                h1(concatenate("Add ", get-url-from-type(real-type))),
+                do(add-form(real-type, #f, parent-object, fill-from-request: errors))
+              }
+            end);
+  end;
+end;
+  
 define method respond-to-get (page == #"string",
                               request :: <request>,
                               response :: <response>,
@@ -512,7 +552,10 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
-  let network = get-object(get-query-value("obj"));
+  let network = get-object(get-query-value("network"));
+  unless (network)
+    network := *config*;
+  end;
   set-content-type(response, "text/plain");
   print-isc-dhcpd-file(network, output-stream(response));
 end;
@@ -526,12 +569,12 @@ define method respond-to-get
   print-tinydns-zone-file(*config*, output-stream(response));
 end;
 
+
 define method respond-to-get
     (page == #"network",
      request :: <request>,
      response :: <response>,
      #key errors)
-  //TODO: gen dhcp config
   let out = output-stream(response);
   with-buddha-template (out, "Networks")
     collect(show-errors(errors));
@@ -539,52 +582,130 @@ define method respond-to-get
               div(id => "content")
               {
                 table {
-                  tr { do(browse(<network>, to-table-header)),
-                       th("Remove"),
-                       th("Edit"),
-                       th("dhcp.conf") },
-                  do(for (ele in *config*.networks)
-                       collect(with-xml()
-                                 tr {
-                                   do(browse(<network>, rcurry(to-table, ele))),
-                                   td {
-                                     do(remove-form(ele,
-                                                    *config*.networks,
-                                                    url: get-url-from-type(<network>)))
-                                   },
-                                   td { a("Edit",
-                                          href => concatenate("/edit?obj=",
-                                                              get-reference(ele))) },
-                                   td { a("dhcpd.conf",
-                                          href => concatenate("/dhcp?obj=",
-                                                              get-reference(ele))) }
-                                 }
-                               end)
-                     end)
-                },
-                do(add-form(<network>,
-                            "Networks",
-                            *config*.networks,
-                            fill-from-request: errors))
+                  tr { th("CIDR"), th("dhcp?"), th("dhcp.conf") },
+                  do(map(method(x) with-xml()
+                                     tr { td { a(show(x.cidr),
+                                                 href => concatenate("/network-detail?network=",
+                                                                     get-reference(x))) },
+                                          td(show(x.dhcp?)),
+                                          td { a("dhcpd.conf",
+                                                 href => concatenate("/dhcp?network=",
+                                                                     get-reference(x))) }
+                                         }
+                                   end
+                         end, *config*.networks))
+/*                                         map(method(y) with-xml()
+                                     tr { td { a(show(y.cidr),
+                                                 href => concatenate("/subnet-detail?subnet=",
+                                                                     get-reference(y))) },
+                                          td(show(y.dhcp?)),
+                                          td("&nbsp;") }
+                                                       end;
+                                             end, choose(method(z) z.network = x end, *config*.subnets)))
+                         end, *config*.networks))) */
+                }
               }
             end);
   end;
 end;
 
 define method respond-to-get
+    (page == #"network-detail",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
+  let dnetwork = get-object(get-query-value("netwotk"));
+  let out = output-stream(response);
+  with-buddha-template(out, concatenate("Network ", show(dnetwork), " detail"))
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                h1(concatenate("Network ", show(dnetwork))),
+                do(edit-form(dnetwork)),
+                do(remove-form(dnetwork, *config*.networks)),
+                //dhcp options add|edit|remove
+                h2(concatenate("DHCP options for subnet ", show(dnetwork))),
+                ul { do(map(method(x) with-xml()
+                                        li(x)
+                                      end
+                            end, dnetwork.dhcp-options)) },
+                h2(concatenate("Subnets in network ", show(dnetwork))),
+                table { tr { th("CIDR"), th("dhcp?") },
+                        do(map(method(x) with-xml()
+                                           tr { td {a(show(x),
+                                                      href => concatenate("/subnet-detail?subnet=",
+                                                                          get-reference(x))) },
+                                                td(show(x.dhcp?)) }
+                                         end
+                               end, choose(method(y) y.network = dnetwork end, *config*.subnets))) }
+              }
+            end);
+  end;
+end;
+
+
+define method respond-to-get
     (page == #"subnet",
      request :: <request>,
      response :: <response>,
      #key errors)
-  //TODO: remove/edit subnet forms
   let out = output-stream(response);
   with-buddha-template(out, "Subnets")
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
               {
-                do(browse-table(<subnet>, *config*.subnets)),
-                do(add-form(<subnet>, "Subnets", *config*.subnets, fill-from-request: errors))
+                table {
+                  tr { th("CIDR"), th("dhcp?"), th("VLAN") },
+                  do(map(method(x) with-xml()
+                                     tr { td { a(show(x.cidr),
+                                                 href => concatenate("/subnet-detail?subnet=",
+                                                                     get-reference(x))) },
+                                          td(show(x.dhcp?)),
+                                          td { a(show(x.vlan),
+                                                 href => concatenate("/vlan-detail?vlan=",
+                                                                     get-reference(x.vlan))) }
+                                         }
+                                   end
+                         end, *config*.subnets))
+                }
+              }
+            end);
+  end;
+end;
+
+define method respond-to-get
+    (page == #"subnet-detail",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
+  let dsubnet = get-object(get-query-value("subnet"));
+  let out = output-stream(response);
+  with-buddha-template(out, concatenate("Subnet ", show(dsubnet), " detail"))
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                h1(concatenate("Subnet ", show(dsubnet))),
+                do(edit-form(dsubnet)),
+                do(remove-form(dsubnet, *config*.subnets)),
+                //dhcp options add|edit|remove
+                h2(concatenate("DHCP options for subnet ", show(dsubnet))),
+                ul { do(map(method(x) with-xml()
+                                        li(x)
+                                      end
+                            end, dsubnet.dhcp-options)) },
+                h2(concatenate("Hosts in subnet ", show(dsubnet))),
+                table { tr { th("Hostname"), th("IP"), th("Mac")},
+                        do(map(method(x) with-xml()
+                                           tr { td {a(x.host-name,
+                                                      href => concatenate("/host-detail?host=",
+                                                                          get-reference(x))) },
+                                                td(show(x.ipv4-address)),
+                                                td(show(x.mac-address)) }
+                                         end
+                               end, choose(method(y) y.subnet = dsubnet end, *config*.hosts))) }
               }
             end);
   end;
@@ -595,15 +716,55 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
-  //TODO: remove/edit vlan forms
   let out = output-stream(response);
   with-buddha-template(out, "VLAN")
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
               {
-                do(browse-table(<vlan>, *config*.vlans)),
-                do(add-form(<vlan>, "Vlans", *config*.vlans, fill-from-request: errors))
+                table
+                {
+                  tr { th("ID"), th("Name"), th("Description") },
+                  do(map(method(x) with-xml()
+                                     tr { td { a(show(x.number),
+                                               href => concatenate("/vlan-detail?vlan=",
+                                                                   get-reference(x))) },
+                                          td(show(x.vlan-name)),
+                                          td(show(x.description)) }
+                                   end
+                         end, *config*.vlans))
+                }
+              }
+            end);
+  end;
+end;
+
+define method respond-to-get
+    (page == #"vlan-detail",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
+  let dvlan = get-object(get-query-value("vlan"));
+  let out = output-stream(response);
+  with-buddha-template(out, concatenate("VLAN ", show(dvlan.number), " detail"))
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                h1(concatenate("VLAN ", show(dvlan.number), ", Name ", dvlan.vlan-name)),
+                do(edit-form(dvlan)),
+                do(remove-form(dvlan, *config*.vlans)),
+                h2(concatenate("Subnets in VLAN ", show(dvlan.number))),
+                table {
+                  tr { th("CIDR"), th("dhcp?") },
+                  do(map(method(x) with-xml()
+                                     tr { td { a(show(x.cidr),
+                                                 href => concatenate("/subnet-detail?subnet=",
+                                                                     get-reference(x))) },
+                                          td(show(x.dhcp?)) }
+                                   end
+                         end, choose(method(x) x.vlan = dvlan end, *config*.subnets)))
+                }
               }
             end);
   end;
@@ -614,15 +775,50 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
-  //TODO won't work this way..., needs a context
   let out = output-stream(response);
   with-buddha-template(out, "Hosts")
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
               {
-                do(browse-table(<host>, *config*.hosts)),
-                do(add-form(<host>, "Hosts", *config*.hosts, fill-from-request: errors))
+                table
+                {
+                  tr { th("Hostname"), th("IP-Address"), th("Subnet"), th("Zone") },
+                  do(map(method(x) with-xml()
+                                     tr { td { a(x.host-name,
+                                                 href => concatenate("/host-detail?host=",
+                                                                     get-reference(x))) },
+                                          td (show(x.ipv4-address)),
+                                          td { a(show(x.subnet),
+                                                 href => concatenate("/subnet-detail?subnet=",
+                                                                     get-reference(x.subnet))) },
+                                          td { a(show(x.zone),
+                                                 href => concatenate("/zone-detail?zone=",
+                                                                     get-reference(x.zone))) }
+                                     }
+                                   end
+                         end, *config*.hosts))
+                }
+              }
+            end);
+  end;
+end;
+
+define method respond-to-get
+    (page == #"host-detail",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
+  let host = get-object(get-query-value("host"));
+  let out = output-stream(response);
+  with-buddha-template(out, concatenate("Host ", host.host-name, " detail"))
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                h1(concatenate("Host ", host.host-name, " ", show(host.ipv4-address))),
+                do(edit-form(host)),
+                do(remove-form(host, *config*.hosts))
               }
             end);
   end;
@@ -633,18 +829,72 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
-
-  //      strip more infos from table
-  //      generate tinydns/bind config file
   let out = output-stream(response);
   with-buddha-template(out, "Zones")
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
               {
-                a("tinydns.conf", href => "/tinydns"),
-                do(browse-table(<zone>, *config*.zones)),
-                do(add-form(<zone>, "Zones", *config*.zones, fill-from-request: errors))
+                a("generate tinydns.conf", href => "/tinydns"),
+                table
+                {
+                  tr { th("Zone name") },
+                  do(map(method(x) with-xml()
+                                     tr { td { a(x.zone-name,
+                                           href => concatenate("/zone-detail?zone=",
+                                                               get-reference(x))) } }
+                                   end
+                         end, *config*.zones))
+                }
+              }
+            end);
+  end;
+end;
+
+define method respond-to-get
+    (page == #"zone-detail",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
+  let dzone = get-object(get-query-value("zone"));
+  let out = output-stream(response);
+  with-buddha-template(out, concatenate("Zone ", dzone.zone-name, " detail"))
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                h1(concatenate("Zone ", dzone.zone-name)),
+                do(edit-form(dzone)),
+                do(remove-form(dzone, *config*.zones)),
+                //add|edit|remove ns, mx, cname, forms, add host form
+                h2("Nameserver entries"),
+                ul { do(map(method(x) with-xml()
+                                        li(x.ns-name)
+                                      end
+                            end, dzone.nameservers)) },
+                h2("Mail exchange entries"),
+                table { tr { th("Name"), th("Priority") },
+                        do(map(method(x) with-xml()
+                                           tr { td(x.mx-name),
+                                                td(show(x.priority)) }
+                                         end
+                               end, dzone.mail-exchanges)) },
+                h2("Cname records"),
+                table { tr { th("Source"), th("Target") },
+                        do(map(method(x) with-xml()
+                                           tr { td(x.source),
+                                                td(x.target) }
+                                         end
+                               end, dzone.cnames)) },
+                h2("Hosts"),
+                table { tr { th("Hostname"), th("TTL") },
+                        do(map(method(x) with-xml()
+                                           tr { td { a(x.host-name,
+                                                       href => concatenate("/host-detail?host=",
+                                                                           get-reference(x))) },
+                                                td(show(x.time-to-live)) }
+                                         end
+                               end, choose(method(y) y.zone = dzone end, *config*.hosts))) }
               }
             end);
   end;

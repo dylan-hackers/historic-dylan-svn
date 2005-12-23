@@ -41,7 +41,7 @@ define method edit-form (object :: <object>) => (res)
                       end);
            end),
         input(type => "hidden",
-              name => "obj-id",
+              name => "parent-object",
               value => get-reference(object)),
         input(type => "hidden",
               name => "action",
@@ -66,7 +66,7 @@ define method add-form (type == <string>,
         input(type => "text",
               name => "string"),
         input(type => "hidden",
-              name => "obj-id",
+              name => "parent-object",
               value => get-reference(parent)),
         input(type => "hidden",
               name => "object-type",
@@ -84,7 +84,7 @@ end;
 
 
 define method add-form (object-type :: subclass(<object>),
-                        name :: <string>,
+                        name :: false-or(<string>),
                         parent :: <object>,
                         #key fill-from-request,
                         refer) => (foo) // :: <list> ?
@@ -97,8 +97,9 @@ define method add-form (object-type :: subclass(<object>),
              //strings and lists... or should we implement all lists with
              //has-many?
              let value = default(slot);
-             if (fill-from-request)
-               value := get-query-value(slot.slot-name);
+             let query-value = get-query-value(slot.slot-name);
+             if (fill-from-request & (query-value & query-value ~= ""))
+               value := query-value;
              end;
              if (slot.slot-type = <boolean>)
                collect(edit-slot(value, slot.slot-name));
@@ -110,6 +111,11 @@ define method add-form (object-type :: subclass(<object>),
                                           name => slot.slot-name)
                          end);
                end if;
+             end;
+             if (slot.default-help-text)
+               collect(with-xml()
+                         text(concatenate(" defaults to: ", slot.default-help-text))
+                       end);
              end;
              collect(with-xml() br end);
            end;
@@ -140,7 +146,7 @@ define method add-form (object-type :: subclass(<object>),
                       end);
            end),
         input(type => "hidden",
-              name => "obj-id",
+              name => "parent-object",
               value => get-reference(parent)),
         input(type => "hidden",
               name => "object-type",
@@ -153,7 +159,7 @@ define method add-form (object-type :: subclass(<object>),
               value => "add-object"),
         input(type => "submit",
               name => "add-button",
-              value => concatenate("Add to ", name))
+              value => if (name) concatenate("Add to ", name) else "Add" end)
       }
     }
   end;
@@ -232,7 +238,7 @@ define method respond-to-post
      response :: <response>)
   let errors = #();
   let action = as(<symbol>, get-query-value("action"));
-  let object-string = get-query-value("obj-id");
+  let object-string = get-query-value("parent-object");
   let object = get-object(object-string);
   let handler <buddha-form-warning>
     = method(e :: <buddha-form-warning>, next-handler :: <function>)
@@ -260,12 +266,19 @@ define method respond-to-post
                                 error: format-to-string("%=", e)));
     return();
   end;
-  let referer = if (get-query-value("refer-to"))
-                  as(<symbol>, get-query-value("refer-to"));
-                else
-                  #"edit";
-                end;
-  respond-to-get(referer, request, response, errors: if (errors.size > 0) errors else #f end);
+  if (any?(rcurry(instance?, <buddha-form-error>), errors))
+    //any input on field was wrong, return to formular
+    //XXX: this will treat remove and save wrong
+    respond-to-get(#"add", request, response, errors: errors);
+  else
+    let referer
+      = if (get-query-value("refer-to"))
+          as(<symbol>, get-query-value("refer-to"));
+        else
+          #"edit";
+        end;
+    respond-to-get(referer, request, response, errors: if (errors.size > 0) errors else #f end);
+  end;
 end;
 
 define method add-object (parent-object :: <object>, request :: <request>)
@@ -298,12 +311,18 @@ define method add-object (parent-object :: <object>, request :: <request>)
       let value = get-object(get-query-value(slot.slot-name));
       slot.slot-setter-method(value, object);
     end;
+    //sanity check it
+    check(object);
     let command = make(<add-command>,
                        arguments: list(object, parent-object));
     let change = make(<change>,
                       command: command);
     *changes* := add!(*changes*, change);
     redo(command);
+    signal(make(<buddha-success>,
+                warning: concatenate("Added ",
+                                     get-url-from-type(object-type),
+                                     ": ", as(<string>, object))));
   end;
 end;
 

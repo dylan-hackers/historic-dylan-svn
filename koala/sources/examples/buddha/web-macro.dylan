@@ -10,6 +10,8 @@ define class <slot> (<object>)
   constant slot default :: <object> = #f, init-keyword: default:;
   constant slot default-function :: <function> = method(x :: <object>) #f end,
     init-keyword: default-function:;
+  constant slot default-help-text :: false-or(<string>) = #f,
+    init-keyword: default-help-text:;
 end;
 
 define generic list-reference-slots
@@ -93,6 +95,7 @@ define macro web-data
               type: ?slot-type,
               getter: ?slot-name,
               setter: ?slot-name ## "-setter",
+              default-help-text: ?"default-function",
               default-function: method (?=object :: <object>) ?default-function end), ... }
     { data ?slot-name:name \:: ?slot-type:name = ?default:expression; ... }
     => { make(<slot>,
