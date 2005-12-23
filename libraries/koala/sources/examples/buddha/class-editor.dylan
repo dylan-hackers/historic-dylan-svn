@@ -5,7 +5,7 @@ define method check (object :: <object>) => (res :: <boolean>)
   #t;
 end;
 
-define method edit-form (object :: <object>) => (res)
+define method edit-form (object :: <object>, #key refer) => (res)
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
@@ -46,6 +46,9 @@ define method edit-form (object :: <object>) => (res)
         input(type => "hidden",
               name => "action",
               value => "save-object"),
+        input(type => "hidden",
+              name => "refer-to",
+              value => if (refer) refer else get-url-from-type(object.object-class) end),
         input(type => "submit",
               name => "save-button",
               value => "Save")
@@ -396,10 +399,12 @@ define method save-object (object :: <object>, request :: <request>)
                          old-value: slot.slot-getter-method(object)));
     end;
   end;
-  let command = make(<edit-command>,
-                     arguments: list(object, slots));
-  let change = make(<change>,
-                    command: command);
-  *changes* := add!(*changes*, change);
-  redo(command);
+  if (slots.size > 0)
+    let command = make(<edit-command>,
+                       arguments: list(object, slots));
+    let change = make(<change>,
+                      command: command);
+    *changes* := add!(*changes*, change);
+    redo(command);
+  end;
 end;

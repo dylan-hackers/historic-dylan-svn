@@ -189,8 +189,8 @@ define page edit end;
 define page changes end;
 define page adduser end;
 define page logout end;
-define page string end;
 define page add end;
+define page admin end;
 
 define responder dhcp-responder ("/dhcp")
     (request, response)
@@ -265,45 +265,22 @@ define class <buddha-form-error> (<error>)
   constant slot error-string :: <string>, required-init-keyword: error:;
 end;
 
-define method respond-to-get (page == #"add",
+define method respond-to-get (page == #"admin",
                               request :: <request>,
                               response :: <response>,
-                              #key errors = #())
-  let real-type = get-object(get-query-value("object-type"));
-  let parent-object = get-object(get-query-value("parent-object"));
+                              #key errors)
   let out = output-stream(response);
-  with-buddha-template(out, concatenate("Add ", get-url-from-type(real-type)))
+  with-buddha-template(out, "Admin")
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
-              {
-                h1(concatenate("Add ", get-url-from-type(real-type))),
-                do(add-form(real-type, #f, parent-object, fill-from-request: errors))
-              }
-            end);
-  end;
-end;
-  
-define method respond-to-get (page == #"string",
-                              request :: <request>,
-                              response :: <response>,
-                              #key errors = #())
-  let object-string = get-query-value("obj-id");
-  let object = get-object(object-string);
-  let parent-object-string = get-query-value("obj-parent");
-  let parent-object = get-object(parent-object-string);
-  let out = output-stream(response);
-  with-buddha-template(out, "List")
-    collect(show-errors(errors));
-    collect(with-xml()
-              div(id => "content")
-              {
-                do(let res = make(<stretchy-vector>);
-                   for (ele in object)
-                     res := add!(res, with-xml() li(ele) end);
-                   end;
-                   res),
-                do(add-form(<string>, "String", parent-object))
+              { ul {
+                  li { a("User management", href => "/adduser") },
+                  li { a("Save database", href => "/save") },
+                  li { a("Restore database", href => "/restore") },
+                  li { a("Generic browser", href => "/browse") },
+                  li { a("Generic editor", href => "/edit") }
+                }
               }
             end);
   end;
@@ -374,6 +351,26 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
 }
   end;
   format(out, "%=", page);
+end;
+
+                    
+define method respond-to-get (page == #"add",
+                              request :: <request>,
+                              response :: <response>,
+                              #key errors = #())
+  let real-type = get-object(get-query-value("object-type"));
+  let parent-object = get-object(get-query-value("parent-object"));
+  let out = output-stream(response);
+  with-buddha-template(out, concatenate("Add ", get-url-from-type(real-type)))
+    collect(show-errors(errors));
+    collect(with-xml()
+              div(id => "content")
+              {
+                h1(concatenate("Add ", get-url-from-type(real-type))),
+                do(add-form(real-type, #f, parent-object, fill-from-request: errors))
+              }
+            end);
+  end;
 end;
 
 define method respond-to-get (page == #"changes",
@@ -626,10 +623,17 @@ define method respond-to-get
                 do(remove-form(dnetwork, *config*.networks)),
                 //dhcp options add|edit|remove
                 h2(concatenate("DHCP options for subnet ", show(dnetwork))),
-                ul { do(map(method(x) with-xml()
-                                        li(x)
-                                      end
-                            end, dnetwork.dhcp-options)) },
+                do(if (dnetwork.dhcp-options.size > 0)
+                     with-xml()
+                       ul { do(map(method(x)
+                                       with-xml()
+                                         li { text(x), do(remove-form(x, dnetwork, url: "network-detail")) }
+                                          end
+                                      end, dnetwork.dhcp-options)) }
+                     end;
+                   end),
+                do(add-form(<string>, "dhcp options", dnetwork.dhcp-options)),
+                //add subnet with filled-in network?!
                 h2(concatenate("Subnets in network ", show(dnetwork))),
                 table { tr { th("CIDR"), th("dhcp?") },
                         do(map(method(x) with-xml()
@@ -690,12 +694,24 @@ define method respond-to-get
                 h1(concatenate("Subnet ", show(dsubnet))),
                 do(edit-form(dsubnet)),
                 do(remove-form(dsubnet, *config*.subnets)),
-                //dhcp options add|edit|remove
+                ul { li { text("VLAN "), a(show(dsubnet.vlan),
+                                          href => concatenate("/vlan-detail?vlan=",
+                                                              get-reference(dsubnet.vlan))) },
+                     li { text("Network "), a(show(dsubnet.network),
+                                              href => concatenate("/network-detail?network=",
+                                                                  get-reference(dsubnet.network))) }
+                },
+                //dhcp options edit|remove
                 h2(concatenate("DHCP options for subnet ", show(dsubnet))),
-                ul { do(map(method(x) with-xml()
-                                        li(x)
-                                      end
-                            end, dsubnet.dhcp-options)) },
+                do(if (dsubnet.dhcp-options.size > 0)
+                     with-xml()
+                       ul { do(map(method(x) with-xml()
+                                               li(x)
+                                             end
+                                   end, dsubnet.dhcp-options)) }
+                     end
+                   end),
+                do(add-form(<string>, "dhcp options", dsubnet.dhcp-options)),
                 h2(concatenate("Hosts in subnet ", show(dsubnet))),
                 table { tr { th("Hostname"), th("IP"), th("Mac")},
                         do(map(method(x) with-xml()
@@ -706,6 +722,7 @@ define method respond-to-get
                                                 td(show(x.mac-address)) }
                                          end
                                end, choose(method(y) y.subnet = dsubnet end, *config*.hosts))) }
+                //add host with predefined subnet (cause we have the context)?
               }
             end);
   end;
@@ -765,6 +782,7 @@ define method respond-to-get
                                    end
                          end, choose(method(x) x.vlan = dvlan end, *config*.subnets)))
                 }
+                //add subnet with pre-filled vlan?
               }
             end);
   end;
@@ -818,7 +836,14 @@ define method respond-to-get
               {
                 h1(concatenate("Host ", host.host-name, " ", show(host.ipv4-address))),
                 do(edit-form(host)),
-                do(remove-form(host, *config*.hosts))
+                do(remove-form(host, *config*.hosts)),
+                ul { li { text("Subnet "), a(show(host.subnet),
+                                             href => concatenate("/subnet-detail?subnet=",
+                                                                 get-reference(host.subnet))) },
+                     li { text("Zone "), a(show(host.zone),
+                                           href => concatenate("/zone-detail?zone=",
+                                                               get-reference(host.zone))) }
+                }
               }
             end);
   end;
@@ -866,26 +891,41 @@ define method respond-to-get
                 h1(concatenate("Zone ", dzone.zone-name)),
                 do(edit-form(dzone)),
                 do(remove-form(dzone, *config*.zones)),
-                //add|edit|remove ns, mx, cname, forms, add host form
+                //edit|remove ns, mx, cname, forms, add host form?!
                 h2("Nameserver entries"),
-                ul { do(map(method(x) with-xml()
-                                        li(x.ns-name)
-                                      end
-                            end, dzone.nameservers)) },
+                do(if (dzone.nameservers.size > 0)
+                     with-xml()
+                       ul { do(map(method(x) with-xml()
+                                               li(x.ns-name)
+                                             end
+                                   end, dzone.nameservers)) }
+                     end
+                   end),
+                do(add-form(<nameserver>, #f, dzone.nameservers)),
                 h2("Mail exchange entries"),
-                table { tr { th("Name"), th("Priority") },
-                        do(map(method(x) with-xml()
-                                           tr { td(x.mx-name),
-                                                td(show(x.priority)) }
-                                         end
-                               end, dzone.mail-exchanges)) },
+                do(if (dzone.mail-exchanges.size > 0)
+                     with-xml()
+                       table { tr { th("Name"), th("Priority") },
+                              do(map(method(x) with-xml()
+                                                 tr { td(x.mx-name),
+                                                     td(show(x.priority)) }
+                                               end
+                                     end, dzone.mail-exchanges)) }
+                     end
+                   end),
+                do(add-form(<mail-exchange>, #f, dzone.mail-exchanges)),
                 h2("Cname records"),
-                table { tr { th("Source"), th("Target") },
-                        do(map(method(x) with-xml()
-                                           tr { td(x.source),
-                                                td(x.target) }
-                                         end
-                               end, dzone.cnames)) },
+                do(if (dzone.cnames.size > 0)
+                     with-xml()
+                       table { tr { th("Source"), th("Target") },
+                              do(map(method(x) with-xml()
+                                                 tr { td(x.source),
+                                                     td(x.target) }
+                                               end
+                                     end, dzone.cnames)) }
+                     end
+                   end),
+                do(add-form(<cname>, #f, dzone.cnames)),
                 h2("Hosts"),
                 table { tr { th("Hostname"), th("TTL") },
                         do(map(method(x) with-xml()
