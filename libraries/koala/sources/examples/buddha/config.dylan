@@ -177,6 +177,15 @@ define method check (subnet :: <subnet>)
   end if;
 end;
 
+define method print-isc-dhcpd-file (config :: <config>, stream :: <stream>)
+ => ()
+  for (network in config.networks)
+    if (network.dhcp?)
+      print-isc-dhcpd-file(network, stream);
+    end;
+  end;
+end;
+
 define method print-bind-zone-file
     (config :: <config>, stream :: <stream>)
  => ()

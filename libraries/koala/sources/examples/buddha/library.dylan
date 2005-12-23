@@ -35,7 +35,8 @@ define module web-macro
     slot-setter-method,
     slot-global-list,
     default,
-    default-function;
+    default-function,
+    default-help-text;
  
   export list-reference-slots,
     reference-slots,
@@ -53,12 +54,14 @@ define module xml
     escape-html;
 end;
 
+/*
 define module changes
   use common-dylan;
   use xml;
 
   export <entry>;
 end;
+*/
 
 define module object-table
   use common-dylan;
