@@ -13,6 +13,15 @@ define method \< (a :: <cidr>, b :: <cidr>)
   a.cidr-network-address < b.cidr-network-address
 end;
 
+define method \= (a :: <cidr>, b :: <cidr>)
+ => (res :: <boolean>)
+  if (a.cidr-netmask = b.cidr-netmask)
+    a.cidr-network-address = b.cidr-network-address
+  else
+    #f;
+  end;
+end;
+
 define method print-object (cidr :: <cidr>, stream :: <stream>)
  => ()
   format(stream, "%s", as(<string>, cidr));

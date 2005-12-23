@@ -1,3 +1,16 @@
+BUGS:
+add dhcp option to a (subnet|network) redirects to edit page
+save on any form returns to edit page
+should always return to same page
+
+tell user when removing has finished successfully
+tell user when saving has finished successfully
+links from recent changes should go to detailed view
+
+mx/ns/cname editable + removable + addable
+
+error recovery for save/move
+
 renumbering of subnets:
  => automatically change ips of hosts
  => also dns records
@@ -8,8 +21,6 @@ blackhole ip-ranges
 *user management/session:
  *put obj-tables in user session objects
 
-*recent changes
-
 security:
  -prevent cross-site scripting (escape <> in all input data)
  -everyone is able to delete everything (he only has to give the
@@ -19,14 +30,7 @@ security:
 *interface to get the next /XX subnet (or the next subnet with at least Y ips)
  *javascript chosing of network when adding subnet, dhcp-start, -end, -router
 
-*default values for fields
- *when adding new ones (dhcp-start/end/...)
-
 *string and cname lists/mx user interface
-
-*links for gen-dhcp-config/gen-dns-config
-
-*reverse-zones automatically generated
 
 *caching of zones... don't increase serial if nothing changed...
 
