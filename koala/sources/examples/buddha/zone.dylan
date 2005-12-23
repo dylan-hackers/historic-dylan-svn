@@ -16,6 +16,11 @@ define method as (class == <string>, cname :: <cname>)
   concatenate(cname.source, " => ", cname.target);
 end;
 
+define method \< (a :: <cname>, b :: <cname>)
+ => (res :: <boolean>)
+  a.source < b.source
+end;
+
 define web-class <mail-exchange> (<object>)
   data mx-name :: <string>;
   data priority :: <integer>;
@@ -31,6 +36,11 @@ define method as (class == <string>, mx :: <mail-exchange>)
   concatenate(mx.mx-name, ":", integer-to-string(mx.priority));
 end;
 
+define method \< (a :: <mail-exchange>, b :: <mail-exchange>)
+ => (res :: <boolean>)
+  a.mx-name < b.mx-name;
+end;
+
 define web-class <nameserver> (<object>)
   data ns-name :: <string>;
 end;
@@ -43,6 +53,11 @@ end method;
 define method as (class == <string>, ns :: <nameserver>)
  => (res :: <string>)
   ns.ns-name;
+end;
+
+define method \< (a :: <nameserver>, b :: <nameserver>)
+ => (res :: <boolean>)
+  a.ns-name < b.ns-name;
 end;
 
 define web-class <zone> (<reference-object>)
@@ -168,8 +183,8 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
                    end, *config*.hosts));
     //CNAME
     do(method(x)
-           format(stream, "C%s:%s\n",
-                  source(x), target(x));
+           format(stream, "C%s.%s:%s.%s\n",
+                  source(x), print-zone.zone-name, target(x), print-zone.zone-name);
        end, print-zone.cnames);
   end;
 end;
