@@ -24,17 +24,19 @@ define method edit-form (object :: <object>, #key refer) => (res)
              collect(with-xml()
                        \select(name => slot.slot-name)
                        { do(for (ele in slot.slot-global-list(*config*))
-                              if (ele = slot.slot-getter-method(object))
-                                collect(with-xml()
-                                          option(as(<string>, ele),
-                                                 value => get-reference(ele),
-                                                 selected => "selected")
-                                        end);
-                              else
-                                collect(with-xml()
-                                          option(as(<string>, ele),
-                                                 value => get-reference(ele))
-                                        end)
+                              if (visible?(ele))
+                                if (ele = slot.slot-getter-method(object))
+                                  collect(with-xml()
+                                            option(as(<string>, ele),
+                                                   value => get-reference(ele),
+                                                   selected => "selected")
+                                          end);
+                                else
+                                  collect(with-xml()
+                                            option(as(<string>, ele),
+                                                   value => get-reference(ele))
+                                          end)
+                                end;
                               end if;
                             end)
                        }
@@ -300,11 +302,6 @@ define method respond-to-post
   end;
 end;
 
-define method toplevel?(object :: <object>) => (res :: <boolean>)
- ((object = *config*.hosts) | (object = *config*.subnets) | (object = *config*.networks)
-       | (object = *config*.vlans) | (object = *config*.zones))
-end;
-
 define method add-object (parent-object :: <object>, request :: <request>)
   //look what type of object needs to be generated
   let object-type = get-object(get-query-value("object-type"));
@@ -336,7 +333,7 @@ define method add-object (parent-object :: <object>, request :: <request>)
       slot.slot-setter-method(value, object);
     end;
     //sanity check it
-    check(object);
+    check-in-context(parent-object, object);
     let command = make(<add-command>,
                        arguments: list(object, parent-object));
     let change = make(<change>,
@@ -363,7 +360,7 @@ define method remove-object (parent-object :: <object>, request :: <request>)
   signal(make(<buddha-success>,
               warning: concatenate("Removed ",
                                    get-url-from-type(object.object-class),
-                                   ": ", as(<string>, object))));
+                                   ": ", show(object))));
 end;
 
 define method parse (name, type)
@@ -427,18 +424,26 @@ define method save-object (object :: <object>, request :: <request>)
   if (slots.size > 0)
     let command = make(<edit-command>,
                        arguments: list(object, slots));
+    redo(command);
+    //check world, if broken, do a rollback!
+    let handler <buddha-form-error>
+      = method(e :: <buddha-form-error>, next-handler :: <function>)
+            undo(command);
+            next-handler();
+        end;
+    check(object);
     let change = make(<change>,
                       command: command);
     *changes* := add!(*changes*, change);
-    redo(command);
     let slot-names = apply(concatenate, map(method(x)
                                               concatenate(x.slot-name, " to ",
-                                                          as(<string>, x.new-value), "  ")
+                                                          show(x.new-value), "  ")
                                             end, slots));
     signal(make(<buddha-success>,
                 warning: concatenate("Saved ",
                                      get-url-from-type(object.object-class),
-                                     as(<string>, object),
+                                     " ",
+                                     show(object),
                                      " changed slots: ",
                                      slot-names)));
   end;
