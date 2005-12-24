@@ -1,7 +1,7 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define method check (object :: <object>) => (res :: <boolean>)
+define method check (object :: <object>, #key test-result = 0) => (res :: <boolean>)
   #t;
 end;
 
@@ -343,7 +343,7 @@ define method add-object (parent-object :: <object>, request :: <request>)
     signal(make(<buddha-success>,
                 warning: concatenate("Added ",
                                      get-url-from-type(object-type),
-                                     ": ", as(<string>, object))));
+                                     ": ", show(object))));
   end;
 end;
 
@@ -431,20 +431,21 @@ define method save-object (object :: <object>, request :: <request>)
             undo(command);
             next-handler();
         end;
-    check(object);
-    let change = make(<change>,
-                      command: command);
-    *changes* := add!(*changes*, change);
-    let slot-names = apply(concatenate, map(method(x)
-                                              concatenate(x.slot-name, " to ",
-                                                          show(x.new-value), "  ")
-                                            end, slots));
-    signal(make(<buddha-success>,
-                warning: concatenate("Saved ",
-                                     get-url-from-type(object.object-class),
-                                     " ",
-                                     show(object),
-                                     " changed slots: ",
-                                     slot-names)));
+    if (check(object, test-result: 1))
+      let change = make(<change>,
+                        command: command);
+      *changes* := add!(*changes*, change);
+      let slot-names = apply(concatenate, map(method(x)
+                                                 concatenate(x.slot-name, " to ",
+                                                             show(x.new-value), "  ")
+                                               end, slots));
+      signal(make(<buddha-success>,
+                  warning: concatenate("Saved ",
+                                       get-url-from-type(object.object-class),
+                                       " ",
+                                       show(object),
+                                       " changed slots: ",
+                                       slot-names)));
+    end;
   end;
 end;

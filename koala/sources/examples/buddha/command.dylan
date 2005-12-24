@@ -63,7 +63,7 @@ define method print-xml (command :: <command>)
   let object = command.arguments[0];
   let type = get-url-from-type(object.object-class);
   with-xml()
-    a(concatenate(type, " ", as(<string>, object)),
+    a(concatenate(type, " ", show(object)),
       href => concatenate("/", type, "-detail?", type, "=", get-reference(object)))
   end;
 end;

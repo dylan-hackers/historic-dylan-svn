@@ -20,7 +20,7 @@ define method key (user :: <user>)
   user.username;
 end;
 
-define method check (user :: <user>)
+define method check (user :: <user>, #key test-result = 0)
   if (element(*users*, key(user), default: #f))
     signal(make(<buddha-form-error>,
                 error: "User with same name already exists!"))
