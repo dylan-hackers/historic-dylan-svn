@@ -1051,11 +1051,12 @@ define method respond-to-get
                                           value => get-reference(dzone))
                                   end)),
                 h2("Hosts"),
-                table { tr { th("Hostname"), th("TTL") },
+                table { tr { th("Hostname"), th("IP"), th("TTL") },
                         do(map(method(x) with-xml()
                                            tr { td { a(x.host-name,
                                                        href => concatenate("/host-detail?host=",
                                                                            get-reference(x))) },
+                                                td(show(x.ipv4-address)),
                                                 td(show(x.time-to-live)) }
                                          end
                                end, choose(method(y) y.zone = dzone end, *config*.hosts))) }
