@@ -53,7 +53,9 @@ define method restore-newest-database () => ();
                       name :: <string>,
                       type :: <file-type>)
                    if (type == #"file")
-                     if (split-file(name) > latest-version)
+                     let version = split-file(name);
+                     if (version > latest-version)
+                       latest-version := version;
                        file := name;
                      end;
                    end;
@@ -595,9 +597,15 @@ define method respond-to-get
                                                                                get-reference(x))) },
                                                    td(show(x.dhcp?)),
                                                    td(show(#f)),
-                                                   td { a("dhcpd.conf",
-                                                          href => concatenate("/dhcp?network=",
-                                                                              get-reference(x))) }
+                                                   td { do(if(x.dhcp?)
+                                                            with-xml()
+                                                              a("dhcpd.conf",
+                                                              href => concatenate("/dhcp?network=",
+                                                                                  get-reference(x)))
+                                                            end
+                                                          else
+                                                            with-xml() text(show(#f)) end
+                                                          end) }
                                                      }
                                              end);
                             res := concatenate(res,
@@ -885,7 +893,7 @@ define method respond-to-get
                                            href => concatenate("/zone-detail?zone=",
                                                                get-reference(host.zone))) }
                 },
-                h2("Add CNAME entry"),
+/*                h2("Add CNAME entry"),
                 do(add-form(<cname>, #f, host.zone.cnames,
                             fill-from-request: list(concatenate("source=", host.host-name)),
                             refer: "host-detail",
@@ -893,7 +901,7 @@ define method respond-to-get
                                    input(type => "hidden",
                                          name => "host",
                                          value => get-reference(host))
-                                 end))
+                                 end)) */
               }
             end);
   end;

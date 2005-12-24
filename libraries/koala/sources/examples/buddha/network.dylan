@@ -11,7 +11,7 @@ define web-class <network> (<reference-object>)
 end;
 
 define method \< (a :: <network>, b :: <network>)
-  => (res :: <boolean>)
+ => (res :: <boolean>)
   a.cidr < b.cidr;
 end;
 

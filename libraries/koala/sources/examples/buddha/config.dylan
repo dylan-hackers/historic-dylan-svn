@@ -24,31 +24,36 @@ define method print-object (config :: <config>, stream :: <stream>)
   format(stream, "Config:%s\n", as(<string>, config))
 end;
 
-define method fits? (network :: <network>) => (res :: <boolean>)
-  fits?-aux (network, *config*.networks)
+define method overlaps (network :: <network>) => (res :: <list>)
+  overlaps-aux(network, *config*.networks)
 end;
 
-define method fits? (subnet :: <subnet>) => (res :: <boolean>)
-  fits?-aux(subnet, *config*.subnets)
+define method overlaps (subnet :: <subnet>) => (res :: <list>)
+  overlaps-aux(subnet, *config*.subnets)
 end;
 
-define method fits?-aux (network :: <network>, list :: <collection>)
- => (res :: <boolean>)
+define method overlaps-aux (network :: <network>, list :: <collection>)
+ => (res :: <list>)
   //checks whether cidr is not used in network yet.
   //each network (network-address and broadcast address)
   //must be both greater than the network-address or
   //both smaller than broadcast-address
-  every?(method(x)
-             ((network-address(cidr(x)) > network-address(network.cidr)) &
-                (broadcast-address(cidr(x)) > network-address(network.cidr))) |
-             ((network-address(cidr(x)) < broadcast-address(network.cidr)) &
-                (broadcast-address(cidr(x)) < broadcast-address(network.cidr)))
-         end,
-         list);
-end;
-
-define method fixup (object :: <object>)
-  #t;
+  let res = make(<list>);
+  for (ele in list)
+    let (bigger, smaller)
+      = if (ele.cidr.cidr-netmask < network.cidr.cidr-netmask)
+          values(ele, network)
+        else
+          values(network, ele)
+        end;
+    let same-sized = make(<cidr>,
+                          network-address: smaller.cidr.cidr-network-address,
+                          netmask: bigger.cidr.cidr-netmask);
+    if (base-network-address(same-sized) = network-address(bigger.cidr))
+      res := add!(res, ele);
+    end;
+  end;
+  res;
 end;
 
 define method check-in-context (parent :: <object>, object :: <object>)
@@ -90,9 +95,9 @@ define method check-in-context (tzone :: <zone>, a-record :: <a-record>)
   end;
 end;
 
-define method check (zone :: <zone>)
+define method check (zone :: <zone>, #key test-result = 0)
  => (res :: <boolean>)
-  if (any?(method(x) x.zone-name = zone.zone-name end , *config*.zones))
+  if (size(choose(method(x) x.zone-name = zone.zone-name end , *config*.zones)) > test-result)
     signal(make(<buddha-form-error>,
                 error: "Zone with same name already exists"));
   else
@@ -103,26 +108,26 @@ define method check (zone :: <zone>)
   end;
 end;
 
-define method check (host :: <host>)
+define method check (host :: <host>, #key test-result = 0)
  => (res :: <boolean>)
-  if (any?(method(x) x.host-name = host.host-name end,
-           choose(method(x) x.zone = host.zone end, *config*.hosts)))
+  if (size(choose(method(x) x.host-name = host.host-name end,
+                  choose(method(x) x.zone = host.zone end, *config*.hosts))) > test-result)
     signal(make(<buddha-form-error>,
                 error: "Host with same name already exists in zone"));
-  elseif (any?(method(x) x.host-name = host.host-name end,
-               host.zone.a-records))
+  elseif (size(choose(method(x) x.host-name = host.host-name end,
+                      host.zone.a-records)) > 0)
     signal(make(<buddha-form-error>,
                 error: "A record for host already exists in zone"));
-  elseif (any?(method(x) x.target = host.host-name end,
-               host.zone.cnames))
+  elseif (size(choose(method(x) x.target = host.host-name end,
+                      host.zone.cnames)) > 0)
     signal(make(<buddha-form-error>,
                 error: "A record already exists in zone"));
-  elseif (any?(method(x) x.ipv4-address = host.ipv4-address end,
-                 choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
+  elseif (size(choose(method(x) x.ipv4-address = host.ipv4-address end,
+                      choose(method(x) x.subnet = host.subnet end, *config*.hosts))) > test-result)
     signal(make(<buddha-form-error>,
                 error: "Host with same IP address already exists in subnet"));
-  elseif (any?(method(x) x.mac-address = host.mac-address end,
-                 choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
+  elseif (size(choose(method(x) x.mac-address = host.mac-address end,
+                      choose(method(x) x.subnet = host.subnet end, *config*.hosts))) > test-result)
     signal(make(<buddha-form-error>,
                 error: "Host with same MAC address already exists in subnet"));
   elseif ((host.ipv4-address = network-address(host.subnet.cidr)) |
@@ -137,15 +142,15 @@ define method check (host :: <host>)
   end;
 end;
 
-define method check (vlan :: <vlan>)
+define method check (vlan :: <vlan>, #key test-result = 0)
  => (res :: <boolean>)
   if ((vlan.number < 0) | (vlan.number > 4095))
     signal(make(<buddha-form-error>,
                 error: "VLAN not in range 0 - 4095"));
-  elseif (any?(method(x) x.number = vlan.number end , *config*.vlans))
+  elseif (size(choose(method(x) x.number = vlan.number end , *config*.vlans)) > test-result)
     signal(make(<buddha-form-error>,
                 error: "VLAN with same number already exists"));
-  elseif (any?(method(x) x.vlan-name = vlan.vlan-name end, *config*.vlans))
+  elseif (size(choose(method(x) x.vlan-name = vlan.vlan-name end, *config*.vlans)) > test-result)
     signal(make(<buddha-form-error>,
                 error: "VLAN with same name already exists"));
   else
@@ -153,14 +158,14 @@ define method check (vlan :: <vlan>)
   end;
 end;
 
-define method check (network :: <network>)
+define method check (network :: <network>, #key test-result = 0)
  => (res :: <boolean>)
   unless (network-address(network.cidr) = base-network-address(network.cidr))
-    signal(make(<buddha-form-error>,
-                error: "Network address is not the base network address, fixing this!"));
+    signal(make(<buddha-form-warning>,
+                warning: "Network address is not the base network address, fixing this!"));
     network.cidr.cidr-network-address := base-network-address(network.cidr);
   end;
-  if (fits?(network))
+  if (every?(method(x) x = network end, overlaps(network)))
     if (network.reverse-dns?)
       //add reverse delegated zones...
       add-reverse-zones(network);
@@ -172,15 +177,15 @@ define method check (network :: <network>)
   end if;
 end;
 
-define method check (subnet :: <subnet>)
+define method check (subnet :: <subnet>, #key test-result = 0)
  => (res :: <boolean>)
   unless (network-address(subnet.cidr) = base-network-address(subnet.cidr))
-    signal(make(<buddha-form-error>,
-                error: "Network address is not the base network address, fixing this!"));
+    signal(make(<buddha-form-warning>,
+                warning: "Network address is not the base network address, fixing this!"));
     subnet.cidr.cidr-network-address := base-network-address(subnet.cidr);
   end;
-  if (fits?(subnet))
-    if (subnet-in-network? (subnet))
+  if (every?(method(x) x = subnet end, overlaps(subnet)))
+    if (subnet-in-network?(subnet))
       if (ip-in-net?(subnet, subnet.dhcp-start))
         if (ip-in-net?(subnet, subnet.dhcp-end))
           if (ip-in-net?(subnet, subnet.dhcp-router))

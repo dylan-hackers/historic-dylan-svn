@@ -34,7 +34,7 @@ end method;
 
 define method as (class == <string>, a :: <a-record>)
  => (res :: <string>)
-  concatenate(a.host-name, " ", a.ipv4-address);
+  concatenate(a.host-name, " ", as(<string>, a.ipv4-address));
 end;
 
 define method \< (a :: <a-record>, b :: <a-record>)
@@ -196,9 +196,9 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
                   x.zone.zone-name,
                   as(<string>, x.ipv4-address),
                   x.time-to-live);
-       end, choose(method(x)
+       end, choose(method(y)
                        ip-in-net?(parse-cidr(print-zone.zone-name),
-                                  x.ipv4-address)
+                                  y.ipv4-address)
                    end, *config*.hosts));
   else
     //MX
