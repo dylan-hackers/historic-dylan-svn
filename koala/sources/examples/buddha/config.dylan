@@ -51,26 +51,57 @@ define method fixup (object :: <object>)
   #t;
 end;
 
+define method check-in-context (parent :: <object>, object :: <object>)
+ => (res :: <boolean>)
+  check(object);
+end;
+
+define method check-in-context (tzone :: <zone>, tcname :: <cname>)
+ => (res :: <boolean>)
+  if (any?(method(x) x.source = tcname.source end, tzone.cnames))
+    signal(make(<buddha-form-error>,
+                error: "Same A record already exists"));
+  elseif (any?(method(x) x.host-name = tcname.source end, tzone.a-records))
+    signal(make(<buddha-form-error>,
+                error: "Same A record already exists"));
+  elseif (any?(method(x) x.host-name = tcname.source end,
+               choose(method(y) y.zone = tzone end, *config*.hosts)))
+    signal(make(<buddha-form-error>,
+                error: "Same A record already exists"));
+  else
+    #t;
+  end;
+end;
+
+define method check-in-context (tzone :: <zone>, a-record :: <a-record>) 
+ => (res :: <boolean>)
+  if (any?(method(x) x.source = a-record.host-name end, tzone.cnames))
+    signal(make(<buddha-form-error>,
+                error: "Same A record already exists"));
+  elseif (any?(method(x) x.host-name = a-record.host-name end, tzone.a-records))
+    signal(make(<buddha-form-error>,
+                error: "Same A record already exists"));
+  elseif (any?(method(x) x.host-name = a-record.host-name end,
+               choose(method(y) y.zone = tzone end, *config*.hosts)))
+    signal(make(<buddha-form-error>,
+                error: "Same A record already exists"));
+  else
+    #t;
+  end;
+end;
+
 define method check (zone :: <zone>)
  => (res :: <boolean>)
   if (any?(method(x) x.zone-name = zone.zone-name end , *config*.zones))
     signal(make(<buddha-form-error>,
                 error: "Zone with same name already exists"));
   else
+    if (zone.reverse?)
+      zone.visible? := #f;
+    end;
     #t;
   end;
 end;
-
-/*define constant $default-vlan = make(<vlan>,
-                                     number: 1,
-                                     name: "default",
-                                     description: "Default VLAN");*/
-
-define constant $bottom-subnet
-  = make(<subnet>,
-         //vlan: $default-vlan,
-         dhcp?: #f,
-         reverse-dns?: #f);
 
 define method check (host :: <host>)
  => (res :: <boolean>)
@@ -78,9 +109,14 @@ define method check (host :: <host>)
            choose(method(x) x.zone = host.zone end, *config*.hosts)))
     signal(make(<buddha-form-error>,
                 error: "Host with same name already exists in zone"));
-  elseif (host.dns-only?)
-    host.subnet := $bottom-subnet;
-    #t;
+  elseif (any?(method(x) x.host-name = host.host-name end,
+               host.zone.a-records))
+    signal(make(<buddha-form-error>,
+                error: "A record for host already exists in zone"));
+  elseif (any?(method(x) x.target = host.host-name end,
+               host.zone.cnames))
+    signal(make(<buddha-form-error>,
+                error: "A record already exists in zone"));
   elseif (any?(method(x) x.ipv4-address = host.ipv4-address end,
                  choose(method(x) x.subnet = host.subnet end, *config*.hosts)))
     signal(make(<buddha-form-error>,

@@ -21,9 +21,30 @@ define method \< (a :: <cname>, b :: <cname>)
   a.source < b.source
 end;
 
+define web-class <a-record> (<object>)
+  data host-name :: <string>;
+  data ipv4-address :: <ip-address>;
+  data time-to-live :: <integer> = 300;
+end;
+
+define method print-object (a :: <a-record>, stream :: <stream>)
+ => ();
+  format(stream, "A: %s\n", as(<string>, a));
+end method;
+
+define method as (class == <string>, a :: <a-record>)
+ => (res :: <string>)
+  concatenate(a.host-name, " ", a.ipv4-address);
+end;
+
+define method \< (a :: <a-record>, b :: <a-record>)
+ => (res :: <boolean>)
+  a.host-name < b.host-name
+end;
+
 define web-class <mail-exchange> (<object>)
   data mx-name :: <string>;
-  data priority :: <integer>;
+  data priority :: <integer> = 23;
 end;
 
 define method print-object (mx :: <mail-exchange>, stream :: <stream>)
@@ -62,7 +83,7 @@ end;
 
 define web-class <zone> (<reference-object>)
   data zone-name :: <string>;
-  data reverse? :: <boolean>;
+  data reverse? :: <boolean> = #f;
   has-many cname :: <cname>;
   data hostmaster :: <string> = "hostmaster.congress.ccc.de";
   data serial :: <integer> = 0;
@@ -73,11 +94,13 @@ define web-class <zone> (<reference-object>)
   data minimum :: <integer> = 300;
   has-many nameserver :: <nameserver>;
   has-many mail-exchange :: <mail-exchange>;
+  has-many a-record :: <a-record>;
   //has-many text :: <string>;
 end;
 
 define method initialize (zone :: <zone>,
                           #rest rest, #key, #all-keys)
+  next-method();
   for (ele in *nameserver*)
     zone.nameservers := add!(zone.nameservers, ele);
   end;
@@ -94,7 +117,19 @@ define method as (class == <string>, zone :: <zone>)
 end;
 
 define method \< (a :: <zone>, b :: <zone>) => (res :: <boolean>)
-  a.zone-name < b.zone-name
+  if (b.reverse?)
+    if (a.reverse?)
+      a.zone-name < b.zone-name
+    else
+      #t
+    end
+  else
+    if (a.reverse?)
+      #f
+    else
+      a.zone-name < b.zone-name
+    end
+  end
 end;
 
 /*
@@ -171,7 +206,7 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
            format(stream, "@%s::%s.%s:%d\n",
                   print-zone.zone-name, mx-name(x), print-zone.zone-name, priority(x));
        end, print-zone.mail-exchanges);
-    //A
+    //Hosts
     do(method(x)
            format(stream, "+%s.%s:%s:%d\n",
                   x.host-name,
@@ -181,6 +216,14 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
        end, choose(method(x)
                        x.zone = print-zone
                    end, *config*.hosts));
+    //A
+    do(method(x)
+           format(stream, "+%s.%s:%s:%d\n",
+                  x.host-name,
+                  print-zone.zone-name,
+                  as(<string>, x.ipv4-address),
+                  x.time-to-live);
+       end, print-zone.a-records);
     //CNAME
     do(method(x)
            format(stream, "C%s.%s:%s.%s\n",

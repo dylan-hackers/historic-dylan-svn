@@ -2,6 +2,10 @@ BUGS:
 should always return to same page
 error recovery for save/remove
 
+??- host braucht description
+- bei networks subnets anders highlighten
+??- add host vlan id des subnet anzeigen...
+
 renumbering of subnets:
  => automatically change ips of hosts
  => also dns records
