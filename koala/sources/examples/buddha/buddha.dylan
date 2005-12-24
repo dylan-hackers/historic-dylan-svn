@@ -405,24 +405,28 @@ define method respond-to-get (page == #"changes",
   with-buddha-template(out, "Recent Changes")
     collect(show-errors(errors));
     collect(with-xml()
-      ul {
-        do(for (change in *changes*)
-             collect(with-xml()
-                       li {
-                         do(print-xml(change)),
-                         text(" "),
-                         a("Undo",
-                           href => concatenate("/changes?do=undo&change=",
-                                               get-reference(change))) /* ,
-                         text(" "),
-                         a("Redo",
-                           href => concatenate("/changes?do=redo&change=",
-                                               get-reference(change))) */
-                       }
-                     end)
-           end)
-      }
-    end);
+              ul {
+                do(for (change in *changes*)
+                     block(ret)
+                       collect(with-xml()
+                                 li {
+                                   do(print-xml(change)),
+                                   text(" "),
+                                   a("Undo",
+                                     href => concatenate("/changes?do=undo&change=",
+                                                         get-reference(change))) /* ,
+                                   text(" "),
+                                   a("Redo",
+                                     href => concatenate("/changes?do=redo&change=",
+                                                         get-reference(change))) */
+                                 }
+                               end)
+                     exception (e :: <error>)
+                       ret()
+                     end
+                   end)
+              }
+            end);
   end;
 end;
 
@@ -973,6 +977,8 @@ define method respond-to-get
                                          name => "zone",
                                          value => get-reference(dzone))
                                  end)),
+                do(unless(dzone.reverse?)
+                     with-xml() div {
                 h2("Mail exchange entries"),
                 do(if (dzone.mail-exchanges.size > 0)
                      with-xml()
@@ -1059,7 +1065,9 @@ define method respond-to-get
                                                 td(show(x.ipv4-address)),
                                                 td(show(x.time-to-live)) }
                                          end
-                               end, choose(method(y) y.zone = dzone end, *config*.hosts))) }
+                               end, choose(method(y) y.zone = dzone end, *config*.hosts))) } }
+                     end
+                   end)
               }
             end);
   end;
