@@ -166,7 +166,7 @@ define method check (network :: <network>, #key test-result = 0)
     network.cidr.cidr-network-address := base-network-address(network.cidr);
   end;
   if (every?(method(x) x = network end, overlaps(network)))
-    if (network.reverse-dns?)
+    if (get-query-value("reverse-dns?"))
       //add reverse delegated zones...
       add-reverse-zones(network);
     end;

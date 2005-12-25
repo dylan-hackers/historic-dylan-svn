@@ -333,13 +333,12 @@ define method add-object (parent-object :: <object>, request :: <request>)
       slot.slot-setter-method(value, object);
     end;
     //sanity check it
-    check-in-context(parent-object, object);
     let command = make(<add-command>,
                        arguments: list(object, parent-object));
+    redo(command);
     let change = make(<change>,
                       command: command);
     *changes* := add!(*changes*, change);
-    redo(command);
     signal(make(<buddha-success>,
                 warning: concatenate("Added ",
                                      get-url-from-type(object-type),
@@ -426,26 +425,19 @@ define method save-object (object :: <object>, request :: <request>)
                        arguments: list(object, slots));
     redo(command);
     //check world, if broken, do a rollback!
-    let handler <buddha-form-error>
-      = method(e :: <buddha-form-error>, next-handler :: <function>)
-            undo(command);
-            next-handler();
-        end;
-    if (check(object, test-result: 1))
-      let change = make(<change>,
-                        command: command);
-      *changes* := add!(*changes*, change);
-      let slot-names = apply(concatenate, map(method(x)
-                                                 concatenate(x.slot-name, " to ",
-                                                             show(x.new-value), "  ")
-                                               end, slots));
-      signal(make(<buddha-success>,
-                  warning: concatenate("Saved ",
-                                       get-url-from-type(object.object-class),
-                                       " ",
-                                       show(object),
-                                       " changed slots: ",
-                                       slot-names)));
-    end;
+    let change = make(<change>,
+                      command: command);
+    *changes* := add!(*changes*, change);
+    let slot-names = apply(concatenate, map(method(x)
+                                                concatenate(x.slot-name, " to ",
+                                                            show(x.new-value), "  ")
+                                            end, slots));
+    signal(make(<buddha-success>,
+                warning: concatenate("Saved \"",
+                                     get-url-from-type(object.object-class),
+                                     "\", ",
+                                     show(object),
+                                     " changed slots: ",
+                                     slot-names)));
   end;
 end;

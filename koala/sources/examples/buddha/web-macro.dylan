@@ -119,6 +119,8 @@ define macro define-class
     slot:
     { data ?slot-name:name \:: ?slot-type:* }
     => { slot ?slot-name :: ?slot-type, init-keyword: ?#"slot-name" }
+    { slot ?slot-name:name \:: ?slot-type:* }
+    => { slot ?slot-name :: ?slot-type }
     { has-many ?slot-name:name }
     => { slot ?slot-name ## "s" :: <stretchy-vector> = make(<stretchy-vector>) }
     { has-many ?slot-name:name \:: ?slot-type:* }

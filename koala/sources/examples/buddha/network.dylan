@@ -6,7 +6,7 @@ define web-class <network> (<reference-object>)
   data dhcp? :: <boolean> = #t;
   data dhcp-default-lease-time :: <integer> = 600;
   data dhcp-max-lease-time :: <integer> = 7200;
-  data reverse-dns? :: <boolean>;
+  slot reverse-dns? :: <boolean>;
   has-many dhcp-option :: <string>;
 end;
 
