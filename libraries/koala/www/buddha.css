@@ -69,6 +69,22 @@ th
 }
 th, td { padding: 0.2em 0.3em }
 
+.color1
+{ background: lightgreen }
+
+.color2
+{ background: lightblue }
+
+.subnet
+{ background: orange }
+
+.red
+{ color: red }
+
+.green
+{ color: green }
+
+
 ul li { list-style-type: square }
 
 pre
