@@ -216,35 +216,44 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
     link(rel => "stylesheet", href => "/buddha.css")
   },
   body {
-    div(id => "header") {
-      div(id => "navbar") {
-        a("Vlans", href => "/vlan"),
-        a("Zones", href => "/zone"),
-        a("Hosts", href => "/host"),
-        a("Networks", href => "/network"),
-        a("Subnets", href => "/subnet"),
-        a("Changes", href => "/changes"),
-        br, br, text("Add"),
-        a("vlan", href => concatenate("/add?object-type=",
-                                      get-reference(<vlan>),
-                                      "&parent-object=",
-                                      get-reference(*config*.vlans))),
-        a("zone", href => concatenate("/add?object-type=",
-                                      get-reference(<zone>),
-                                      "&parent-object=",
-                                      get-reference(*config*.zones))),
-        a("host", href => concatenate("/add?object-type=",
-                                      get-reference(<host>),
-                                      "&parent-object=",
-                                      get-reference(*config*.hosts))),
-        a("network", href => concatenate("/add?object-type=",
-                                         get-reference(<network>),
-                                         "&parent-object=",
-                                         get-reference(*config*.networks))),
-        a("subnet", href => concatenate("/add?object-type=",
-                                        get-reference(<subnet>),
-                                        "&parent-object=",
-                                        get-reference(*config*.subnets)))
+    div(id => "buddha-menu") {
+      div(id => "buddha-title") { h1 { span(concatenate("Buddha - ", ?title)) } },
+      div(id => "buddha-view") {
+        ul {
+          li { a("Vlans", href => "/vlan") },
+          li { a("Zones", href => "/zone") },
+          li { a("Hosts", href => "/host") },
+          li { a("Networks", href => "/network") },
+          li { a("Subnets", href => "/subnet") },
+          li { a("Changes", href => "/changes") }
+        }
+      },
+      div (id => "buddha-edit") {
+        ul {
+          li("Add:"),
+          li { a("vlan", href => concatenate("/add?object-type=",
+                                             get-reference(<vlan>),
+                                             "&parent-object=",
+                                             get-reference(*config*.vlans))) },
+          li { a("zone", href => concatenate("/add?object-type=",
+                                             get-reference(<zone>),
+                                             "&parent-object=",
+                                              get-reference(*config*.zones))) },
+          li { a("host", href => concatenate("/add?object-type=",
+                                             get-reference(<host>),
+                                             "&parent-object=",
+                                             get-reference(*config*.hosts))) },
+          li { a("network", href => concatenate("/add?object-type=",
+                                                get-reference(<network>),
+                                                "&parent-object=",
+                                                get-reference(*config*.networks))) },
+          li { a("subnet", href => concatenate("/add?object-type=",
+                                               get-reference(<subnet>),
+                                               "&parent-object=",
+                                               get-reference(*config*.subnets))) }
+        },
+        ul { li{ text("Logged in as "),
+                 strong(*user*.username) } }
       }
     },
     do(?body)
@@ -342,7 +351,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
   body {
     do(show-errors(errors)),
     h1("Please login to buddha"),
-    form(action => "/network", \method => "get") {
+    form(action => "/network", \method => "post") {
       div(class => "edit") {
         text("Username "),
         input(type => "text",
@@ -376,7 +385,21 @@ define method respond-to-get (page == #"add",
               div(id => "content")
               {
                 h1(concatenate("Add ", get-url-from-type(real-type))),
-                do(add-form(real-type, #f, parent-object, fill-from-request: errors))
+                do(add-form(real-type,
+                            #f,
+                            parent-object,
+                            xml: if (real-type = <network>)
+                                   with-xml()
+                                     div { text("generate reverse zone"),
+                                           input(type => "checkbox",
+                                                 name => "reverse-dns?",
+                                                 value => "reverse-dns?")
+                                          }
+                                   end
+                                 else
+                                   #f
+                                 end,
+                            fill-from-request: errors))
               }
             end);
   end;
@@ -422,6 +445,9 @@ define method respond-to-get (page == #"changes",
                                  }
                                end)
                      exception (e :: <error>)
+                       collect(with-xml()
+                                 li("error parsing change, sorry")
+                               end);
                        ret()
                      end
                    end)
@@ -575,10 +601,21 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
+  let zone = get-object(get-query-value("zone"));
+  unless (zone)
+    zone := *config*
+  end;
   set-content-type(response, "text/plain");
-  print-tinydns-zone-file(*config*, output-stream(response));
+  print-tinydns-zone-file(zone, output-stream(response));
 end;
 
+
+define method respond-to-post
+    (page,
+     request :: <request>,
+     response :: <response>)
+  respond-to-get(page, request, response);
+end;
 
 define method respond-to-get
     (page == #"network",
@@ -592,7 +629,7 @@ define method respond-to-get
               div(id => "content")
               {
                 table {
-                  tr { th("CIDR"), th("dhcp?"), th("VLAN"), th("dhcp.conf") },
+                  tr { th("CIDR"), th("dhcp?"), th("VLAN"), th },
                   do(let res = make(<stretchy-vector>);
                      do(method(x)
                             res := add!(res, with-xml()
@@ -600,27 +637,28 @@ define method respond-to-get
                                                            href => concatenate("/network-detail?network=",
                                                                                get-reference(x))) },
                                                    td(show(x.dhcp?)),
-                                                   td(show(#f)),
+                                                   td,
                                                    td { do(if(x.dhcp?)
                                                             with-xml()
                                                               a("dhcpd.conf",
                                                               href => concatenate("/dhcp?network=",
                                                                                   get-reference(x)))
                                                             end
-                                                          else
-                                                            with-xml() text(show(#f)) end
                                                           end) }
                                                      }
                                              end);
                             res := concatenate(res,
                                                map(method(y)
                                                        with-xml()
-                                                         tr { td { a(show(y.cidr),
-                                                                     href => concatenate("/subnet-detail?subnet=",
-                                                                                         get-reference(y))) },
-                                                             td(show(y.dhcp?)),
-                                                             td(show(y.vlan.number)),
-                                                             td(show(#f)) }
+                                                         tr { 
+                                                           td { a(show(y.cidr),
+                                                                  href => concatenate("/subnet-detail?subnet=",
+                                                                                      get-reference(y))) },
+                                                           td(show(y.dhcp?)),
+                                                           td { a(show(y.vlan.number),
+                                                                  href => concatenate("/vlan-detail?vlan=",
+                                                                                      get-reference(y.vlan))) },
+                                                             td }
                                                        end;
                                                    end,
                                                    choose(method(z)
@@ -781,25 +819,44 @@ define method respond-to-get
   end;
 end;
 
+define method insert-br (list :: <collection>) => (res :: <collection>)
+  let res = make(<list>);
+  do(method(x)
+         res := add!(res, x);
+         res := add!(res, with-xml() br end);
+     end, list);
+  //remove last br
+  reverse!(tail(res));
+end;
+
 define method respond-to-get
     (page == #"vlan",
      request :: <request>,
      response :: <response>,
      #key errors)
   let out = output-stream(response);
-  with-buddha-template(out, "VLAN")
+  with-buddha-template(out, "Vlans")
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
               {
                 table
                 {
-                  tr { th("ID"), th("Name"), th("Description") },
+                  tr { th("ID"), th("Name"), th("Subnets"), th("Description") },
                   do(map(method(x) with-xml()
                                      tr { td { a(show(x.number),
                                                href => concatenate("/vlan-detail?vlan=",
                                                                    get-reference(x))) },
                                           td(show(x.vlan-name)),
+                                          td { do(insert-br(map(method(y)
+                                                                    with-xml()
+                                                                      a(show(y.cidr),
+                                                                        href => concatenate("/subnet-detail?subnet=",
+                                                                                            get-reference(y)))
+                                                                    end
+                                                                end, choose(method(z) z.vlan = x end,
+                                                                            *config*.subnets))))
+                                             },
                                           td(show(x.description)) }
                                    end
                          end, *config*.vlans))
@@ -922,14 +979,18 @@ define method respond-to-get
     collect(with-xml()
               div(id => "content")
               {
-                a("generate tinydns.conf", href => "/tinydns"),
+                a("generate complete tinydns.conf", href => "/tinydns"),
                 table
                 {
-                  tr { th("Zone name") },
+                  tr { th("Zone name"), th },
                   do(map(method(x) with-xml()
                                      tr { td { a(x.zone-name,
                                            href => concatenate("/zone-detail?zone=",
-                                                               get-reference(x))) } }
+                                                               get-reference(x))) },
+                                          td { a("tinydns",
+                                                 href => concatenate("/tinydns?zone=",
+                                                                     get-reference(x))) }
+                                      }
                                    end
                          end, *config*.zones))
                 }

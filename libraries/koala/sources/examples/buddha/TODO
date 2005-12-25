@@ -6,6 +6,29 @@ error recovery for save/remove
 - bei networks subnets anders highlighten
 ??- add host vlan id des subnet anzeigen...
 
+??* Dylan Werbung
+??* favicon.ico?
+* User interface page - only via http, not https (stunnel -> rem_ip = 127.0.0.1)
+
+* a-records mit gleichem namen? -> parent ist die liste der a-records, nicht die zone, etc. :(
+* c-name dasgleiche
+
+table coloring:
+ *next-color(object) returned naechste color (als string)
+	state pro objekt (index in farbtabelle)
+ *farbpalette: welche farben, wieviele?
+ *im css dann farbpalette => farbe (tr classes pro farbe (color1..colorN)
+
+*check for length of strings, and elements (a-record, hostname, vlan-name, mx-name, cname-name, ..)
+
+*vlan view: remove?
+*ptr records fix, auto-generated records (unknown-<IP>.congress.ccc.de, also a-records for unknown-IP.congress.ccc.de?)
+ 42.5.163.81.in-addr.arpa.:sandbenders.congress.ccc.de:300
+*if (~ subnet.dhcp?) => mac-address $bottom
+  => subnet.dhcp? nur umschaltbar, wenn keine mac-adresse bottom ist!
+
+*IPv6
+
 renumbering of subnets:
  => automatically change ips of hosts
  => also dns records

@@ -191,10 +191,11 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
   if (print-zone.reverse?)
     //PTR
     do(method(x)
-           format(stream, "^%s.%s:%s:%d\n",
+           format(stream, "^%d.%s:%s.%s:%d\n",
+                  x.ipv4-address[0],
+                  print-zone.zone-name,
                   x.host-name,
                   x.zone.zone-name,
-                  as(<string>, x.ipv4-address),
                   x.time-to-live);
        end, choose(method(y)
                        ip-in-net?(parse-cidr(print-zone.zone-name),
@@ -249,6 +250,20 @@ define method add-reverse-zones (network :: <network>) => ()
                     reverse?: #t,
                     zone-name: cidr-to-reverse-zone(subnet),
                     visible?: #f);
-    *config*.zones := add!(*config*.zones, zone);
+    block(ret)
+      check(zone);
+      let command = make(<add-command>,
+                         arguments: list(zone, *config*.zones));
+      let change = make(<change>,
+                        command: command);
+      *changes* := add!(*changes*, change);
+      redo(command);
+      signal(make(<buddha-success>,
+                  warning: concatenate("Added zone: ", show(zone))));
+    exception (e :: <buddha-form-error>)
+      signal(make(<buddha-form-warning>,
+                  warning: concatenate("Couldn't add reverse zone, error was: ", e.error-string)));
+      ret();
+    end;
   end;
 end;

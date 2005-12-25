@@ -100,8 +100,8 @@ end;
 define method print-xml (triple :: <triple>)
   with-xml()
     li { text(concatenate(triple.slot-name,
-                          " from ", show(triple.old-value),
-                          " to ", show(triple.new-value)))
+                          " from \"", show(triple.old-value),
+                          "\" to \"", show(triple.new-value), "\""))
     }
   end;
 end;
@@ -130,16 +130,26 @@ define method remove-from-list (object :: <object>, list :: <table>)
 end;
 
 define method set-slots (object :: <object>, slots :: <list>)
-  map(method(x)
-          set-slot(x.slot-name, object, x.new-value)
+  block()
+    map(method(x)
+            set-slot(x.slot-name, object, x.new-value)
       end, slots);
+    check(object, test-result: 1);
+  exception (e :: <buddha-form-error>)
+    unset-slots(object, slots)
+  end;
   //check for consistency, on error, do a rollback
 end;
 
 define method unset-slots (object :: <object>, slots :: <list>)
-  map(method(x)
-          set-slot(x.slot-name, object, x.old-value)
-      end, slots);
+  block()
+    map(method(x)
+            set-slot(x.slot-name, object, x.old-value)
+        end, slots);
+    check(object, test-result: 1);
+  exception (e :: <buddha-form-error>)
+    set-slots(object, slots)
+  end;
   //check for consistency, on error, do a rollback
 end;
 
