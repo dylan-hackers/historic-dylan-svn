@@ -5,7 +5,7 @@ define web-class <host> (<object>)
   data host-name :: <string>;
   data ipv4-address :: <ip-address>;
   data time-to-live :: <integer> = 300;
-  data mac-address :: <mac-address>;
+  data mac-address :: <mac-address> = as(<mac-address>, "00deadbeef00");
   has-a subnet;
   has-a zone;
 end;

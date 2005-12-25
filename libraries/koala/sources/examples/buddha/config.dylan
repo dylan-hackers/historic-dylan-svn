@@ -126,8 +126,10 @@ define method check (host :: <host>, #key test-result = 0)
                       choose(method(x) x.subnet = host.subnet end, *config*.hosts))) > test-result)
     signal(make(<buddha-form-error>,
                 error: "Host with same IP address already exists in subnet"));
-  elseif (size(choose(method(x) x.mac-address = host.mac-address end,
-                      choose(method(x) x.subnet = host.subnet end, *config*.hosts))) > test-result)
+  elseif (host.subnet.dhcp?
+            & size(choose(method(x) x.mac-address = host.mac-address end,
+                            choose(method(x) x.subnet = host.subnet end,
+                                     *config*.hosts))) > test-result)
     signal(make(<buddha-form-error>,
                 error: "Host with same MAC address already exists in subnet"));
   elseif ((host.ipv4-address = network-address(host.subnet.cidr)) |
