@@ -438,37 +438,48 @@ define method respond-to-get (page == #"changes",
   with-buddha-template(out, concatenate("Recent Changes - Last ", integer-to-string(count), " Changes"))
     collect(show-errors(errors));
     collect(with-xml()
-              a("All changes",
-                href => "/changes?count=all")
-            end);
-    collect(with-xml()
-              ul {
-                do(for (change in *changes*,
-                        i from 0 to count)
-                     block(ret)
-                       collect(with-xml()
-                                 li {
-                                   do(print-xml(change)),
-                                   text(" "),
-                                   a("Undo",
-                                     href => concatenate("/changes?do=undo&change=",
-                                                         get-reference(change))) /* ,
-                                   text(" "),
-                                   a("Redo",
-                                     href => concatenate("/changes?do=redo&change=",
-                                                         get-reference(change))) */
-                                 }
-                               end)
-                     exception (e :: <error>)
-                       collect(with-xml()
-                                 li("error parsing change, sorry")
-                               end);
-                       ret()
-                     end
-                   end)
-              }
+              div(id => "content") {
+                a(concatenate("View all ", integer-to-string(*changes*.size), " changes"),
+                  href => "/changes?count=all"),
+                ul {
+                  do(for (change in *changes*,
+                          i from 0 to count)
+                       block(ret)
+                         collect(with-xml()
+                                   li {
+                                       do(print-xml(change)),
+                                       text(" "),
+                                       a("Undo",
+                                         href => concatenate("/changes?do=undo&change=",
+                                                             get-reference(change))) /* ,
+                                       text(" "),
+                                       a("Redo",
+                                         href => concatenate("/changes?do=redo&change=",
+                                                             get-reference(change))) */
+                                       }
+                                 end)
+                       exception (e :: <error>)
+                         collect(with-xml()
+                                   li("error parsing change, sorry")
+                                 end);
+                         ret()
+                       end
+                     end)
+                  }
+                }
             end);
   end;
+end;
+
+define constant $colors = #("color1", "color2");
+define constant color-table = make(<string-table>);
+
+define method next-color (object :: <object>)
+ => (color :: <string>)
+  let ref = get-reference(object);
+  let result = element(color-table, ref, default: 0);
+  color-table[ref] := modulo(result + 1, $colors.size);
+  $colors[result];
 end;
 
 define method respond-to-get
@@ -524,7 +535,12 @@ define method show-errors (errors)
              {
                do(for(error in errors)
                     collect(with-xml()
-                              li(error.error-string)
+                              li(error.error-string,
+                                 class => if(instance?(error, <buddha-form-warning>))
+                                            "green"
+                                          else
+                                            "red"
+                                          end)
                             end);
                   end)
              }
@@ -648,7 +664,8 @@ define method respond-to-get
                   do(let res = make(<stretchy-vector>);
                      do(method(x)
                             res := add!(res, with-xml()
-                                               tr { td { a(show(x.cidr),
+                                               tr(class => next-color(*config*.networks))
+                                                 { td { a(show(x.cidr),
                                                            href => concatenate("/network-detail?network=",
                                                                                get-reference(x))) },
                                                    td(show(x.dhcp?)),
@@ -665,7 +682,7 @@ define method respond-to-get
                             res := concatenate(res,
                                                map(method(y)
                                                        with-xml()
-                                                         tr { 
+                                                         tr(class => "subnet") { 
                                                            td { a(show(y.cidr),
                                                                   href => concatenate("/subnet-detail?subnet=",
                                                                                       get-reference(y))) },
@@ -730,7 +747,8 @@ define method respond-to-get
                 h2(concatenate("Subnets in network ", show(dnetwork))),
                 table { tr { th("CIDR"), th("dhcp?") },
                         do(map(method(x) with-xml()
-                                           tr { td {a(show(x),
+                                           tr(class => next-color(*config*.subnets))
+                                              { td {a(show(x),
                                                       href => concatenate("/subnet-detail?subnet=",
                                                                           get-reference(x))) },
                                                 td(show(x.dhcp?)) }
@@ -756,7 +774,8 @@ define method respond-to-get
                 table {
                   tr { th("CIDR"), th("dhcp?"), th("VLAN") },
                   do(map(method(x) with-xml()
-                                     tr { td { a(show(x.cidr),
+                                     tr(class => next-color(*config*.subnets))
+                                       { td { a(show(x.cidr),
                                                  href => concatenate("/subnet-detail?subnet=",
                                                                      get-reference(x))) },
                                           td(show(x.dhcp?)),
@@ -821,7 +840,8 @@ define method respond-to-get
                 h2(concatenate("Hosts in subnet ", show(dsubnet))),
                 table { tr { th("Hostname"), th("IP"), th("Mac")},
                         do(map(method(x) with-xml()
-                                           tr { td {a(x.host-name,
+                                           tr(class => next-color(*config*.hosts))
+                                             { td {a(x.host-name,
                                                       href => concatenate("/host-detail?host=",
                                                                           get-reference(x))) },
                                                 td(show(x.ipv4-address)),
@@ -859,7 +879,8 @@ define method respond-to-get
                 {
                   tr { th("ID"), th("Name"), th("Subnets"), th("Description") },
                   do(map(method(x) with-xml()
-                                     tr { td { a(show(x.number),
+                                     tr(class => next-color(*config*.vlans))
+                                       { td { a(show(x.number),
                                                href => concatenate("/vlan-detail?vlan=",
                                                                    get-reference(x))) },
                                           td(show(x.vlan-name)),
@@ -900,7 +921,8 @@ define method respond-to-get
                 table {
                   tr { th("CIDR"), th("dhcp?") },
                   do(map(method(x) with-xml()
-                                     tr { td { a(show(x.cidr),
+                                     tr (class => next-color(*config*.subnets))
+                                       { td { a(show(x.cidr),
                                                  href => concatenate("/subnet-detail?subnet=",
                                                                      get-reference(x))) },
                                           td(show(x.dhcp?)) }
@@ -928,7 +950,8 @@ define method respond-to-get
                 {
                   tr { th("Hostname"), th("IP-Address"), th("Subnet"), th("Zone") },
                   do(map(method(x) with-xml()
-                                     tr { td { a(x.host-name,
+                                     tr(class => next-color(*config*.hosts))
+                                       { td { a(x.host-name,
                                                  href => concatenate("/host-detail?host=",
                                                                      get-reference(x))) },
                                           td (show(x.ipv4-address)),
@@ -999,7 +1022,8 @@ define method respond-to-get
                 {
                   tr { th("Zone name"), th },
                   do(map(method(x) with-xml()
-                                     tr { td { a(x.zone-name,
+                                     tr(class => next-color(*config*.zones))
+                                       { td { a(x.zone-name,
                                            href => concatenate("/zone-detail?zone=",
                                                                get-reference(x))) },
                                           td { a("tinydns",
@@ -1085,7 +1109,8 @@ define method respond-to-get
                      with-xml()
                        table { tr { th("Source"), th("Target"), th("Remove") },
                               do(map(method(x) with-xml()
-                                                 tr { td(x.source),
+                                                 tr(class => next-color(dzone.cnames))
+                                                   { td(x.source),
                                                      td(x.target),
                                                      td { do(remove-form(x, dzone.cnames,
                                                                          url: "zone-detail",
@@ -1110,7 +1135,8 @@ define method respond-to-get
                      with-xml()
                        table { tr { th("Hostname"), th("IP"), th("TTL"), th("Remove") },
                               do(map(method(x) with-xml()
-                                                 tr {
+                                                 tr(class => next-color(dzone.a-records))
+                                                   {
                                                     td(x.host-name),
                                                     td(show(x.ipv4-address)),
                                                     td(show(x.time-to-live)),
@@ -1135,7 +1161,8 @@ define method respond-to-get
                 h2("Hosts"),
                 table { tr { th("Hostname"), th("IP"), th("TTL") },
                         do(map(method(x) with-xml()
-                                           tr { td { a(x.host-name,
+                                           tr(class => next-color(*config*.hosts))
+                                             { td { a(x.host-name,
                                                        href => concatenate("/host-detail?host=",
                                                                            get-reference(x))) },
                                                 td(show(x.ipv4-address)),
