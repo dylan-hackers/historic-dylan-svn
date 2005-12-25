@@ -425,11 +425,26 @@ define method respond-to-get (page == #"changes",
       return();
     end;
   end;
-  with-buddha-template(out, "Recent Changes")
+  let count = get-query-value("count");
+  if (count & (count ~= ""))
+    if (count = "all")
+      count := *changes*.size
+    else
+      count := integer-to-string(count)
+    end
+  else
+    count := 30;
+  end;
+  with-buddha-template(out, concatenate("Recent Changes - Last ", integer-to-string(count), " Changes"))
     collect(show-errors(errors));
     collect(with-xml()
+              a("All changes",
+                href => "/changes?count=all")
+            end);
+    collect(with-xml()
               ul {
-                do(for (change in *changes*)
+                do(for (change in *changes*,
+                        i from 0 to count)
                      block(ret)
                        collect(with-xml()
                                  li {
