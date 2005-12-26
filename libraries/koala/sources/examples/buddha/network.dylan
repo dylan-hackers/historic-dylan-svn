@@ -61,7 +61,7 @@ define method print-isc-dhcpd-file (print-network :: <network>,
              print-network.dhcp-max-lease-time);
     end if;
     do(method(x)
-           format(stream, "%s;\n", x);
+           format(stream, "%s\n", x);
        end, print-network.dhcp-options);
     format(stream, "\n");
     do(method(x)
