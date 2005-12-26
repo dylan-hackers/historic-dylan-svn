@@ -176,6 +176,8 @@ define method print-bind-zone-file (print-zone :: <zone>, stream :: <stream>)
 end;
 */
 
+define variable *reverse-table* = make(<table>);
+
 define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
   //Zfqdn:mname:rname:ser:ref:ret:exp:min:ttl:timestamp:lo
   format(stream, "Z%s:%s.:%s.\n", //:%d:%d:%d:%d:%d:%d\n",
@@ -190,17 +192,20 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
      end, print-zone.nameservers);
   if (print-zone.reverse?)
     //PTR
-    do(method(x)
-           format(stream, "^%d.%s:%s.%s:%d\n",
-                  x.ipv4-address[3],
-                  print-zone.zone-name,
-                  x.host-name,
-                  x.zone.zone-name,
-                  x.time-to-live);
-       end, choose(method(y)
-                       ip-in-net?(parse-cidr(print-zone.zone-name),
-                                  y.ipv4-address)
-                   end, *config*.hosts));
+    let net = parse-cidr(print-zone.zone-name);
+    let ip = net.cidr.cidr-network-address;
+    while (ip < broadcast-address(net.cidr))
+      let reverse-name = element(*reverse-table*,
+                                 ip,
+                                 default: concatenate("hacker-", as(<string>, ip)));
+      format(stream, "^%d.%s:%s.%s:%d\n",
+             ip[3],
+             print-zone.zone-name,
+             reverse-name,
+             "congress.ccc.de",
+             300);
+      ip := ip + 1;
+    end;
   else
     //MX
     do(method(x)
@@ -208,7 +213,9 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
                   print-zone.zone-name, mx-name(x), print-zone.zone-name, priority(x));
        end, print-zone.mail-exchanges);
     //Hosts
+    *reverse-table* := make(<table>);
     do(method(x)
+           *reverse-table*[as(<string>, x.ipv4-address)] := x.host-name;
            format(stream, "+%s.%s:%s:%d\n",
                   x.host-name,
                   print-zone.zone-name,
@@ -230,6 +237,18 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
            format(stream, "C%s.%s:%s.%s\n",
                   source(x), print-zone.zone-name, target(x), print-zone.zone-name);
        end, print-zone.cnames);
+    //a records for dynamic PTR records
+    let ip = *config*.networks[0].cidr.cidr-network-address;
+    while (ip < broadcast-address(*config*.networks[0].cidr))
+      unless (element(*reverse-table*, ip, default: #f))
+        format(stream, "+%s.%s:%s:%d\n",
+               concatenate("hacker-", as(<string>, ip)),
+               print-zone.zone-name,
+               ip,
+               300);
+      end;
+      ip := ip + 1;
+    end;
   end;
 end;
 

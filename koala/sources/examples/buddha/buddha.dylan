@@ -1226,6 +1226,102 @@ define method respond-to-get
             end);
   end;
 end;
+/*
+define constant $yourname-users = make(<string-table>);
+
+define class <yourname-user> (<object>)
+  slot password :: <string>, required-init-keyword: password:;
+  slot host :: false-or(<host>) = #f;
+end;
+
+define method respond-to-post
+    (page == #"user",
+     request :: <request>,
+     response :: <response>,
+     #key errors)
+  let remote-ip = host-address(remote-host(request-socket(request)));
+  let entered-password = get-query-value("password");
+  let hostname = get-query-value("hostname");
+  let entered-mac-address = get-query-value("mac-address");
+  let user = element($yourname-users, remote-ip, default: #f);
+  let page = with-xml-builder()
+html(xmlns => "http://www.w3.org/1999/xhtml") {
+  head {
+    title("Buddha - Yourname!"),
+    link(rel => "stylesheet", href => "/buddha.css")
+  },
+  body {
+        h1("Welcome to buddha yourname service!"),
+}}
+  end;
+  if (user)
+    if (user.password = entered-password)
+      block(ret)
+        if (user.host)
+          let changes = #();
+          if (host.mac-address ~= entered-mac-address)
+            let triple = make(<triple>,
+                              old-value: host.mac-address,
+                              new-value: entered-mac-address,
+                              slot-name: "mac-address");
+            changes := add!(changes, triple);
+          end;
+          if (host.host-name ~= hostname)
+            let triple = make(<triple>,
+                              old-value: host.host-name,
+                              new-value: hostname,
+                              slot-name: "host-name");
+            changes := add!(changes, triple);
+          end;
+          if (changes.size > 0)
+            //we have to do something
+            let command = make(<edit-command>,
+                               arguments: list(user.host, changes));
+            redo(command);
+            //check world, if broken, do a rollback!
+            let change = make(<change>,
+                              command: command);
+            *changes* := add!(*changes*, change);
+            let slot-names = apply(concatenate, map(method(x)
+                                                        concatenate(x.slot-name, " to ",
+                                                                    show(x.new-value), "  ")
+                                                    end, slots));
+            signal(make(<buddha-success>,
+                        warning: concatenate("Saved \"",
+                                             get-url-from-type(object.object-class),
+                                             "\", ",
+                                             show(object),
+                                             " changed slots: ",
+                                             slot-names)));
+          end;
+        else
+          let ip = as(<ip-address>, remote-ip);
+          //create new host
+          let new-host = make(<host>,
+                              host-name: ,
+                              ipv4-address: ip,
+                              time-to-live: 300,
+                              mac-address: entered-mac-address,
+                              subnet: subnet(ip),
+                              zone: find-zone("congress.ccc.de"));
+          //add new host
+          let command = make(<add-command>,
+                             arguments: list(new-host, *config*.hosts));
+          redo(command);
+          let change = make(<change>,
+                            command: command);
+          *changes* := add!(*changes*, change);
+          signal(make(<buddha-success>,
+                      warning: concatenate("Added host: ", show(object))));
+        end;
+      end;
+    else
+      //wrong password
+      
+    end;
+    //post before get
+  end;
+end;
 
 define method respond-to-get
     (page == #"user",
@@ -1233,20 +1329,25 @@ define method respond-to-get
      response :: <response>,
      #key errors)
   let out = output-stream(response);
+  let remote-ip = host-address(remote-host(request-socket(request)));
+  let user = element($yourname-users, remote-ip, default: #f);
   with-buddha-template(out, "User Interface")
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
               {
-                //do(show-host-info()),
+               //host-address(remote-host(request-socket(req)));
                 form(action => "/user", action => "post")
                 {
                   div(class => "edit")
                   {
                     text("Hostname"),
                     input(type => "text", name => "hostname"),
-                    text("MAC"),
+                    text(".congress.ccc.de"),
+                    text("MAC-address"),
                     input(type => "text", name => "mac"),
+                   input(type => "text", name => 
+
                     input(type => "submit",
                           name => "add-host-button",
                           value => "Add Hostname")
@@ -1256,7 +1357,7 @@ define method respond-to-get
             end);
   end;
 end;
-
+*/
 define function main () => ()
   let dumper
   = make(<thread>,

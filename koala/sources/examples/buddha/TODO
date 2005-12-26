@@ -13,6 +13,8 @@ error recovery for save/remove
 * a-records mit gleichem namen? -> parent ist die liste der a-records, nicht die zone, etc. :(
 * c-name dasgleiche
 
+*reverse zones are hardcoded to be at a /24 boundary, they must be byte-bounded
+
 *check for length of strings, and elements (a-record, hostname, vlan-name, mx-name, cname-name, ..)
 
 * "" in vlan description => failure :(
