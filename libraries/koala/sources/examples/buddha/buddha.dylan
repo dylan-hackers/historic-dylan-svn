@@ -1226,7 +1226,7 @@ define method respond-to-get
             end);
   end;
 end;
-/*
+
 define constant $yourname-users = make(<string-table>);
 
 define class <yourname-user> (<object>)
@@ -1354,7 +1354,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
           input(type => "text", name => "hostname"),
           text(".congress.ccc.de"), br,
           text(" MAC-address"),
-          input(type => "text", name => "mac"), br,
+          input(type => "text", name => "mac-address"), br,
           text("Password"),
           input(type => "password", name => "password"), br,
           input(type => "submit",
@@ -1369,7 +1369,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
   format(out, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
   format(out, "%=", page);
 end;
-*/
+
 define function main () => ()
   let dumper
   = make(<thread>,
