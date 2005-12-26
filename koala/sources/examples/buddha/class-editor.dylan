@@ -5,7 +5,7 @@ define method check (object :: <object>, #key test-result = 0) => (res :: <boole
   #t;
 end;
 
-define method edit-form (object :: <object>, #key refer) => (res)
+define method edit-form (object :: <object>, #key refer, xml) => (res)
   with-xml()
     form(action => "/edit", \method => "post")
     { div(class => "edit")
@@ -51,6 +51,7 @@ define method edit-form (object :: <object>, #key refer) => (res)
         input(type => "hidden",
               name => "refer-to",
               value => if (refer) refer else get-url-from-type(object.object-class) end),
+        do(if(xml) xml end),
         input(type => "submit",
               name => "save-button",
               value => "Save")

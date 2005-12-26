@@ -188,6 +188,28 @@ define method check (subnet :: <subnet>, #key test-result = 0)
   end;
   if (every?(method(x) x = subnet end, overlaps(subnet)))
     if (subnet-in-network?(subnet))
+      if (subnet.dhcp-start > subnet.dhcp-end)
+        signal(make(<buddha-form-error>,
+                    error: "DHCP start greater than DHCP end"));
+      elseif (subnet.dhcp-start = broadcast-address(subnet.cidr))
+        signal(make(<buddha-form-error>,
+                    error: "DHCP start can't be broadcast address"))
+      elseif (subnet.dhcp-start = network-address(subnet.cidr))
+        signal(make(<buddha-form-error>,
+                    error: "DHCP start can't be network address"))
+      elseif (subnet.dhcp-end = broadcast-address(subnet.cidr))
+        signal(make(<buddha-form-error>,
+                    error: "DHCP end can't be broadcast address"))
+      elseif (subnet.dhcp-end = network-address(subnet.cidr))
+        signal(make(<buddha-form-error>,
+                    error: "DHCP end can't be network address"))
+      elseif (subnet.dhcp-router = broadcast-address(subnet.cidr))
+        signal(make(<buddha-form-error>,
+                    error: "DHCP router can't be broadcast address"))
+      elseif (subnet.dhcp-router = network-address(subnet.cidr))
+        signal(make(<buddha-form-error>,
+                    error: "DHCP router can't be network address"))
+      end;
       if (ip-in-net?(subnet, subnet.dhcp-start))
         if (ip-in-net?(subnet, subnet.dhcp-end))
           if (ip-in-net?(subnet, subnet.dhcp-router))
