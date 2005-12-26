@@ -474,6 +474,10 @@ end;
 define constant $colors = #("color1", "color2");
 define constant color-table = make(<string-table>);
 
+define method reset-color (object :: <object>)
+  color-table[get-reference(object)] := 0;
+end;
+
 define method next-color (object :: <object>)
  => (color :: <string>)
   let ref = get-reference(object);
@@ -498,7 +502,12 @@ define method respond-to-get
     collect(with-xml()
               div(id => "content")
               {
-                do(edit-form(obj)),
+                do(edit-form(obj,
+                             xml: with-xml()
+                                    input(type => "hidden",
+                                          name => "obj",
+                                          value => get-reference(obj))
+                                  end)),
                 do(list-forms(obj))
               }
             end);
@@ -654,6 +663,7 @@ define method respond-to-get
      response :: <response>,
      #key errors)
   let out = output-stream(response);
+  reset-color(*config*.networks);
   with-buddha-template (out, "Networks")
     collect(show-errors(errors));
     collect(with-xml ()
@@ -679,10 +689,11 @@ define method respond-to-get
                                                           end) }
                                                      }
                                              end);
+                            reset-color(*config*.subnets);
                             res := concatenate(res,
                                                map(method(y)
                                                        with-xml()
-                                                         tr(class => "subnet") { 
+                                                         tr(class => concatenate("foo-", next-color(*config*.subnets))) { 
                                                            td { a(show(y.cidr),
                                                                   href => concatenate("/subnet-detail?subnet=",
                                                                                       get-reference(y))) },
@@ -717,7 +728,13 @@ define method respond-to-get
               div(id => "content")
               {
                 h1(concatenate("Network ", show(dnetwork))),
-                do(edit-form(dnetwork)),
+                do(edit-form(dnetwork,
+                             refer: "network-detail",
+                             xml: with-xml()
+                                    input(type => "hidden",
+                                          name => "network",
+                                          value => get-reference(dnetwork))
+                                  end)),
                 do(remove-form(dnetwork, *config*.networks, url: "network")),
                 //dhcp options add|edit|remove
                 h2(concatenate("DHCP options for subnet ", show(dnetwork))),
@@ -746,7 +763,8 @@ define method respond-to-get
                 //add subnet with filled-in network?!
                 h2(concatenate("Subnets in network ", show(dnetwork))),
                 table { tr { th("CIDR"), th("dhcp?") },
-                        do(map(method(x) with-xml()
+                        do(reset-color(*config*.subnets);
+                           map(method(x) with-xml()
                                            tr(class => next-color(*config*.subnets))
                                               { td {a(show(x),
                                                       href => concatenate("/subnet-detail?subnet=",
@@ -773,7 +791,8 @@ define method respond-to-get
               {
                 table {
                   tr { th("CIDR"), th("dhcp?"), th("VLAN") },
-                  do(map(method(x) with-xml()
+                  do(reset-color(*config*.subnets);
+                     map(method(x) with-xml()
                                      tr(class => next-color(*config*.subnets))
                                        { td { a(show(x.cidr),
                                                  href => concatenate("/subnet-detail?subnet=",
@@ -804,7 +823,13 @@ define method respond-to-get
               div(id => "content")
               {
                 h1(concatenate("Subnet ", show(dsubnet))),
-                do(edit-form(dsubnet)),
+                do(edit-form(dsubnet,
+                             refer: "subnet-detail",
+                             xml: with-xml()
+                                    input(type => "hidden",
+                                          name => "subnet",
+                                          value => get-reference(dsubnet))
+                                  end)),
                 do(remove-form(dsubnet, *config*.subnets, url: "subnet")),
                 ul { li { text("VLAN "), a(show(dsubnet.vlan),
                                           href => concatenate("/vlan-detail?vlan=",
@@ -839,7 +864,8 @@ define method respond-to-get
                                  end)),
                 h2(concatenate("Hosts in subnet ", show(dsubnet))),
                 table { tr { th("Hostname"), th("IP"), th("Mac")},
-                        do(map(method(x) with-xml()
+                        do(reset-color(*config*.hosts);
+                           map(method(x) with-xml()
                                            tr(class => next-color(*config*.hosts))
                                              { td {a(x.host-name,
                                                       href => concatenate("/host-detail?host=",
@@ -878,7 +904,8 @@ define method respond-to-get
                 table
                 {
                   tr { th("ID"), th("Name"), th("Subnets"), th("Description") },
-                  do(map(method(x) with-xml()
+                  do(reset-color(*config*.vlans);
+                     map(method(x) with-xml()
                                      tr(class => next-color(*config*.vlans))
                                        { td { a(show(x.number),
                                                href => concatenate("/vlan-detail?vlan=",
@@ -915,12 +942,19 @@ define method respond-to-get
               div(id => "content")
               {
                 h1(concatenate("VLAN ", show(dvlan.number), ", Name ", dvlan.vlan-name)),
-                do(edit-form(dvlan)),
+                do(edit-form(dvlan,
+                             refer: "vlan-detail",
+                             xml: with-xml()
+                                    input(type => "hidden",
+                                          name => "vlan",
+                                          value => get-reference(dvlan))
+                                  end)),
                 do(remove-form(dvlan, *config*.vlans, url: "vlan")),
                 h2(concatenate("Subnets in VLAN ", show(dvlan.number))),
                 table {
                   tr { th("CIDR"), th("dhcp?") },
-                  do(map(method(x) with-xml()
+                  do(reset-color(*config*.subnets);
+                     map(method(x) with-xml()
                                      tr (class => next-color(*config*.subnets))
                                        { td { a(show(x.cidr),
                                                  href => concatenate("/subnet-detail?subnet=",
@@ -949,7 +983,8 @@ define method respond-to-get
                 table
                 {
                   tr { th("Hostname"), th("IP-Address"), th("Subnet"), th("Zone") },
-                  do(map(method(x) with-xml()
+                  do(reset-color(*config*.hosts);
+                     map(method(x) with-xml()
                                      tr(class => next-color(*config*.hosts))
                                        { td { a(x.host-name,
                                                  href => concatenate("/host-detail?host=",
@@ -983,7 +1018,13 @@ define method respond-to-get
               div(id => "content")
               {
                 h1(concatenate("Host ", host.host-name, " ", show(host.ipv4-address))),
-                do(edit-form(host)),
+                do(edit-form(host,
+                             refer: "host-detail",
+                             xml: with-xml()
+                                    input(type => "hidden",
+                                          name => "host",
+                                          value => get-reference(host))
+                                  end)),
                 do(remove-form(host, *config*.hosts, url: "host")),
                 ul { li { text("Subnet "), a(show(host.subnet),
                                              href => concatenate("/subnet-detail?subnet=",
@@ -1021,7 +1062,8 @@ define method respond-to-get
                 table
                 {
                   tr { th("Zone name"), th },
-                  do(map(method(x) with-xml()
+                  do(reset-color(*config*.zones);
+                     map(method(x) with-xml()
                                      tr(class => next-color(*config*.zones))
                                        { td { a(x.zone-name,
                                            href => concatenate("/zone-detail?zone=",
@@ -1051,7 +1093,13 @@ define method respond-to-get
               div(id => "content")
               {
                 h1(concatenate("Zone ", dzone.zone-name)),
-                do(edit-form(dzone)),
+                do(edit-form(dzone,
+                             refer: "zone-detail",
+                             xml: with-xml()
+                                    input(type => "hidden",
+                                          name => "zone",
+                                          value => get-reference(dzone))
+                                  end)),
                 do(remove-form(dzone, *config*.zones, url: "zone")),
                 //edit|remove ns, mx, cname, forms, add host form?!
                 h2("Nameserver entries"),
@@ -1108,7 +1156,8 @@ define method respond-to-get
                 do(if (dzone.cnames.size > 0)
                      with-xml()
                        table { tr { th("Source"), th("Target"), th("Remove") },
-                              do(map(method(x) with-xml()
+                              do(reset-color(dzone.cnames);
+                                 map(method(x) with-xml()
                                                  tr(class => next-color(dzone.cnames))
                                                    { td(x.source),
                                                      td(x.target),
@@ -1134,7 +1183,8 @@ define method respond-to-get
                 do(if (dzone.a-records.size > 0)
                      with-xml()
                        table { tr { th("Hostname"), th("IP"), th("TTL"), th("Remove") },
-                              do(map(method(x) with-xml()
+                              do(reset-color(dzone.a-records);
+                                 map(method(x) with-xml()
                                                  tr(class => next-color(dzone.a-records))
                                                    {
                                                     td(x.host-name),
@@ -1160,7 +1210,8 @@ define method respond-to-get
                                   end)),
                 h2("Hosts"),
                 table { tr { th("Hostname"), th("IP"), th("TTL") },
-                        do(map(method(x) with-xml()
+                        do(reset-color(*config*.hosts);
+                           map(method(x) with-xml()
                                            tr(class => next-color(*config*.hosts))
                                              { td { a(x.host-name,
                                                        href => concatenate("/host-detail?host=",

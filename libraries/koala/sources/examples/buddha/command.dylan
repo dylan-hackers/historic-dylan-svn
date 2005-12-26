@@ -130,26 +130,28 @@ define method remove-from-list (object :: <object>, list :: <table>)
 end;
 
 define method set-slots (object :: <object>, slots :: <list>)
-  block()
-    map(method(x)
-            set-slot(x.slot-name, object, x.new-value)
+  map(method(x)
+          set-slot(x.slot-name, object, x.new-value)
       end, slots);
-    check(object, test-result: 1);
-  exception (e :: <buddha-form-error>)
-    unset-slots(object, slots)
-  end;
+  let handler <buddha-form-error>
+    = method(e :: <buddha-form-error>, next-handler :: <function>)
+          unset-slots(object, slots);
+          next-handler();
+      end;
+  check(object, test-result: 1);
   //check for consistency, on error, do a rollback
 end;
 
 define method unset-slots (object :: <object>, slots :: <list>)
-  block()
-    map(method(x)
-            set-slot(x.slot-name, object, x.old-value)
-        end, slots);
-    check(object, test-result: 1);
-  exception (e :: <buddha-form-error>)
-    set-slots(object, slots)
-  end;
+  map(method(x)
+          set-slot(x.slot-name, object, x.old-value)
+      end, slots);
+  let handler <buddha-form-error>
+    = method(e :: <buddha-form-error>, next-handler :: <function>)
+          set-slots(object, slots);
+          next-handler();
+      end;
+  check(object, test-result: 1);
   //check for consistency, on error, do a rollback
 end;
 
