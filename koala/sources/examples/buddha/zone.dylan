@@ -176,9 +176,9 @@ define method print-bind-zone-file (print-zone :: <zone>, stream :: <stream>)
 end;
 */
 
-define variable *reverse-table* = make(<table>);
-
-define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
+define method print-tinydns-zone-file (print-zone :: <zone>,
+                                       stream :: <stream>,
+                                       #key reverse-table)
   //Zfqdn:mname:rname:ser:ref:ret:exp:min:ttl:timestamp:lo
   format(stream, "Z%s:%s.:%s.\n", //:%d:%d:%d:%d:%d:%d\n",
          print-zone.zone-name, print-zone.nameservers[0].ns-name,
@@ -192,19 +192,21 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
      end, print-zone.nameservers);
   if (print-zone.reverse?)
     //PTR
-    let net = parse-cidr(print-zone.zone-name);
-    let ip = net.cidr.cidr-network-address;
-    while (ip < broadcast-address(net.cidr))
-      let reverse-name = element(*reverse-table*,
-                                 ip,
-                                 default: concatenate("hacker-", as(<string>, ip)));
-      format(stream, "^%d.%s:%s.%s:%d\n",
-             ip[3],
-             print-zone.zone-name,
-             reverse-name,
-             "congress.ccc.de",
-             300);
-      ip := ip + 1;
+    if (reverse-table)
+      let net = parse-cidr(print-zone.zone-name);
+      let ip = net.cidr.cidr-network-address;
+      while (ip < broadcast-address(net.cidr))
+        let reverse-name = element(reverse-table,
+                                   as(<string>, ip),
+                                   default: concatenate("hacker-", as(<string>, ip)));
+        format(stream, "^%d.%s:%s.%s:%d\n",
+               ip[3],
+               print-zone.zone-name,
+               reverse-name,
+               "congress.ccc.de",
+               300);
+        ip := ip + 1;
+      end;
     end;
   else
     //MX
@@ -213,9 +215,8 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
                   print-zone.zone-name, mx-name(x), print-zone.zone-name, priority(x));
        end, print-zone.mail-exchanges);
     //Hosts
-    *reverse-table* := make(<table>);
     do(method(x)
-           *reverse-table*[as(<string>, x.ipv4-address)] := x.host-name;
+           if (reverse-table) reverse-table[as(<string>, x.ipv4-address)] := x.host-name end;
            format(stream, "+%s.%s:%s:%d\n",
                   x.host-name,
                   print-zone.zone-name,
@@ -239,15 +240,17 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
        end, print-zone.cnames);
     //a records for dynamic PTR records
     let ip = *config*.networks[0].cidr.cidr-network-address;
-    while (ip < broadcast-address(*config*.networks[0].cidr))
-      unless (element(*reverse-table*, ip, default: #f))
-        format(stream, "+%s.%s:%s:%d\n",
-               concatenate("hacker-", as(<string>, ip)),
-               print-zone.zone-name,
-               ip,
-               300);
+    if (reverse-table)
+      while (ip < broadcast-address(*config*.networks[0].cidr))
+        unless (element(reverse-table, as(<string>, ip), default: #f))
+          format(stream, "+%s.%s:%s:%d\n",
+                 concatenate("hacker-", as(<string>, ip)),
+                 print-zone.zone-name,
+                 ip,
+                 300);
+        end;
+        ip := ip + 1;
       end;
-      ip := ip + 1;
     end;
   end;
 end;
