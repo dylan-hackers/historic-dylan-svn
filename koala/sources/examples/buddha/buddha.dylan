@@ -1237,38 +1237,31 @@ end;
 define method respond-to-post
     (page == #"user",
      request :: <request>,
-     response :: <response>,
-     #key errors)
-  let remote-ip = host-address(remote-host(request-socket(request)));
+     response :: <response>)
+  let remote-ip = get-remote-address(request);
   let entered-password = get-query-value("password");
   let hostname = get-query-value("hostname");
   let entered-mac-address = get-query-value("mac-address");
   let user = element($yourname-users, remote-ip, default: #f);
-  let page = with-xml-builder()
-html(xmlns => "http://www.w3.org/1999/xhtml") {
-  head {
-    title("Buddha - Yourname!"),
-    link(rel => "stylesheet", href => "/buddha.css")
-  },
-  body {
-        h1("Welcome to buddha yourname service!"),
-}}
-  end;
-  if (user)
-    if (user.password = entered-password)
-      block(ret)
+  let errs = #();
+  format-out("ip %= pass %= host %= mac %= user %=\n",
+             remote-ip, entered-password, hostname, entered-mac-address, user);
+end; /*
+  block(ret)
+    if (user)
+      if (user.password = entered-password)
         if (user.host)
           let changes = #();
-          if (host.mac-address ~= entered-mac-address)
+          if (user.host.mac-address ~= entered-mac-address)
             let triple = make(<triple>,
-                              old-value: host.mac-address,
+                              old-value: user.host.mac-address,
                               new-value: entered-mac-address,
                               slot-name: "mac-address");
             changes := add!(changes, triple);
           end;
-          if (host.host-name ~= hostname)
+          if (user.host.host-name ~= hostname)
             let triple = make(<triple>,
-                              old-value: host.host-name,
+                              old-value: user.host.host-name,
                               new-value: hostname,
                               slot-name: "host-name");
             changes := add!(changes, triple);
@@ -1278,19 +1271,16 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
             let command = make(<edit-command>,
                                arguments: list(user.host, changes));
             redo(command);
-            //check world, if broken, do a rollback!
             let change = make(<change>,
                               command: command);
             *changes* := add!(*changes*, change);
             let slot-names = apply(concatenate, map(method(x)
                                                         concatenate(x.slot-name, " to ",
                                                                     show(x.new-value), "  ")
-                                                    end, slots));
+                                                    end, changes));
             signal(make(<buddha-success>,
-                        warning: concatenate("Saved \"",
-                                             get-url-from-type(object.object-class),
-                                             "\", ",
-                                             show(object),
+                        warning: concatenate("Saved Host ",
+                                             show(user.host),
                                              " changed slots: ",
                                              slot-names)));
           end;
@@ -1298,12 +1288,16 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
           let ip = as(<ip-address>, remote-ip);
           //create new host
           let new-host = make(<host>,
-                              host-name: ,
+                              host-name: hostname,
                               ipv4-address: ip,
                               time-to-live: 300,
                               mac-address: entered-mac-address,
-                              subnet: subnet(ip),
-                              zone: find-zone("congress.ccc.de"));
+                              subnet: choose(method(x)
+                                                 ip-in-net?(x, ip)
+                                             end, *config*.subnets)[0],
+                              zone: choose(method(x)
+                                               x.zone-name = "congress.ccc.de";
+                                           end, *config*.zones)[0]);
           //add new host
           let command = make(<add-command>,
                              arguments: list(new-host, *config*.hosts));
@@ -1312,16 +1306,29 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
                             command: command);
           *changes* := add!(*changes*, change);
           signal(make(<buddha-success>,
-                      warning: concatenate("Added host: ", show(object))));
+                      warning: concatenate("Added host: ", show(new-host))));
         end;
+      else
+        //wrong password
+        signal(make(<buddha-form-error>,
+                    error: "Invalid user/password"));
       end;
-    else
-      //wrong password
-      
+      //post before get
+      signal(make(<buddha-form-error>,
+                  error: "POST before GET, go away"));
     end;
-    //post before get
+  exception (e :: <condition>)
+    errs := add!(errs, e);
+    ret()
+  exception (e :: <buddha-form-error>)
+    errs := add!(errs, e);
+    ret()
+  exception (e :: <error>)
+    errs := add!(errs, e);
+    ret()
   end;
-end;
+  respond-to-get(page, request, response, errors: errs);
+end; */
 
 define method respond-to-get
     (page == #"user",
@@ -1329,33 +1336,38 @@ define method respond-to-get
      response :: <response>,
      #key errors)
   let out = output-stream(response);
-  let remote-ip = host-address(remote-host(request-socket(request)));
-  let user = element($yourname-users, remote-ip, default: #f);
-  with-buddha-template(out, "User Interface")
-    collect(show-errors(errors));
-    collect(with-xml()
-              div(id => "content")
-              {
-               //host-address(remote-host(request-socket(req)));
-                form(action => "/user", action => "post")
-                {
-                  div(class => "edit")
-                  {
-                    text("Hostname"),
-                    input(type => "text", name => "hostname"),
-                    text(".congress.ccc.de"),
-                    text("MAC-address"),
-                    input(type => "text", name => "mac"),
-                   input(type => "text", name => 
-
-                    input(type => "submit",
-                          name => "add-host-button",
-                          value => "Add Hostname")
-                  }
-                }
-              }
-            end);
+  let page = with-xml-builder()
+html(xmlns => "http://www.w3.org/1999/xhtml") {
+  head {
+    title("Buddha - Yourname service!"),
+    link(rel => "stylesheet", href => "/buddha.css")
+  },
+  body {
+    div(id => "content") {
+      h1("Welcome to Buddha"),
+      do(collect(show-errors(errors))),
+      form(action => "/user", \method => "post")
+      {
+        div(class => "edit")
+        {
+          text("Hostname"),
+          input(type => "text", name => "hostname"),
+          text(".congress.ccc.de"), br,
+          text(" MAC-address"),
+          input(type => "text", name => "mac"), br,
+          text("Password"),
+          input(type => "password", name => "password"), br,
+          input(type => "submit",
+                name => "add-host-button",
+                value => "Add Hostname")
+        }
+      }
+    }
+  }
+}
   end;
+  format(out, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+  format(out, "%=", page);
 end;
 */
 define function main () => ()
