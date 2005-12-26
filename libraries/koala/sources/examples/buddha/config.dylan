@@ -261,9 +261,10 @@ define method print-bind-zone-file
 end;
 
 define method print-tinydns-zone-file
-    (config :: <config>, stream :: <stream>)
+    (config :: <config>, stream :: <stream>, #key reverse-table)
  => ()
+  let reverse-table = make(<string-table>);
   for (zone in config.zones)
-    print-tinydns-zone-file(zone, stream)
+    print-tinydns-zone-file(zone, stream, reverse-table: reverse-table)
   end;
 end;
