@@ -130,7 +130,8 @@ define module buddha
 
   use koala, exclude: { print-object };
   use dsp, import: { set-attribute, get-attribute };
-  use sockets, import: { <tcp-socket>, <internet-address>, remote-host, host-address };
+  use sockets, import: { <tcp-socket>,
+                         <internet-address> };
 
   use dood;
   use file-system;
