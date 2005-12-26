@@ -4,7 +4,7 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define web-class <network> (<reference-object>)
   data cidr :: <cidr>;
   data dhcp? :: <boolean> = #t;
-  data dhcp-default-lease-time :: <integer> = 600;
+  data dhcp-default-lease-time :: <integer> = 1800;
   data dhcp-max-lease-time :: <integer> = 7200;
   slot reverse-dns? :: <boolean>;
   has-many dhcp-option :: <string>;
