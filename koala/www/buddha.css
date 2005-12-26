@@ -75,8 +75,10 @@ th, td { padding: 0.2em 0.3em }
 .color2
 { background: lightblue }
 
-.subnet
+.foo-color1
 { background: orange }
+.foo-color2
+{ background: darkorange }
 
 .red
 { color: red }
