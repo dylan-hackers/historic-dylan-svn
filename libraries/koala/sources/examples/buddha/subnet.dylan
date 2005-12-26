@@ -12,7 +12,7 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define web-class <subnet> (<network>)
   has-a vlan;
   has-a network;
-  data dhcp-start :: <ip-address>, base-network-address(object.cidr) + 2;
+  data dhcp-start :: <ip-address>, base-network-address(object.cidr) + 21;
   data dhcp-end :: <ip-address>, broadcast-address(object.cidr) - 1;
   data dhcp-router :: <ip-address>, base-network-address(object.cidr) + 1;
 end;
