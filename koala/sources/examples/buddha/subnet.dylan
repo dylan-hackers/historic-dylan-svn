@@ -46,7 +46,7 @@ define method print-isc-dhcpd-file (print-subnet :: <subnet>, stream :: <stream>
              print-subnet.dhcp-max-lease-time);
     end if;
     do(method(x)
-           format(stream, "\t%s;\n", x);
+           format(stream, "\t%s\n", x);
        end, print-subnet.dhcp-options);
     do(method(x)
            format(stream, "\trange %s %s;\n",
