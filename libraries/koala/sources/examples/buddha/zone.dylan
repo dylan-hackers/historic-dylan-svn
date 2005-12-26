@@ -192,7 +192,7 @@ define method print-tinydns-zone-file (print-zone :: <zone>, stream :: <stream>)
     //PTR
     do(method(x)
            format(stream, "^%d.%s:%s.%s:%d\n",
-                  x.ipv4-address[0],
+                  x.ipv4-address[3],
                   print-zone.zone-name,
                   x.host-name,
                   x.zone.zone-name,
