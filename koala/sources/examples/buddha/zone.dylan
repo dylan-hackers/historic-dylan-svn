@@ -198,7 +198,7 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
       while (ip < broadcast-address(net.cidr))
         let reverse-name = element(reverse-table,
                                    as(<string>, ip),
-                                   default: concatenate("hacker-", as(<string>, ip)));
+                                   default: concatenate("hacker-", get-ptr(ip)));
         format(stream, "^%d.%s:%s.%s:%d\n",
                ip[3],
                print-zone.zone-name,
@@ -244,7 +244,7 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
       while (ip < broadcast-address(*config*.networks[0].cidr))
         unless (element(reverse-table, as(<string>, ip), default: #f))
           format(stream, "+%s.%s:%s:%d\n",
-                 concatenate("hacker-", as(<string>, ip)),
+                 concatenate("hacker-", get-ptr(ip)),
                  print-zone.zone-name,
                  ip,
                  300);

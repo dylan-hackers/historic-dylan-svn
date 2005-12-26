@@ -23,6 +23,10 @@ define method print-object (ip :: <ip-address>,
   format(stream, "%s", as(<string>, ip));
 end;
 
+define method get-ptr (ip :: <ip-address>) => (res :: <string>)
+  concatenate(integer-to-string(ip[3]), "-", integer-to-string(ip[2]));
+end;
+
 //arithmetic operations: +(ip, int) +(int, ip) -(ip, int)
 define method \+ (a :: <ip-address>, b :: <integer>)
  => (res :: <ip-address>)
