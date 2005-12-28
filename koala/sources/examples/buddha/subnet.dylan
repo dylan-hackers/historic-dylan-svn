@@ -72,7 +72,7 @@ define method generate-dhcp-ranges (this-subnet :: <subnet>)
                           x.subnet = this-subnet
                       end, *config*.hosts))
     let host-ip = host.ipv4-address;
-    if ((host-ip > start-ip) & (host-ip < end-ip))
+    if ((host-ip > start-ip) & (host-ip <= end-ip))
       res := add!(res, pair(start-ip, host-ip - 1));
     end;
     if (host-ip >= start-ip)
