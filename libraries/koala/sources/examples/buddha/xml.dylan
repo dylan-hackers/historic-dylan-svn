@@ -2,7 +2,45 @@ module: xml
 author: Hannes Mehnert <hannes@mehnert.org>
 
 /*
-TODO: comments
+BUGS:
+*with-xml:collect only works for elements, not for lists of elements
+*passing around lists and elements is not the way to do it performant...
+*comment elements are missing
+*the following doesn't work (reference to undefined binding "collect" (but
+ collect is defined unhygienic in with-xml macro, do-clause, any ideas?
+ bug in functional-developer?)
+ define macro add-form-helper
+   { add-form-helper(?type:name) end }
+     => { define method add-form (type == ?#"type")
+            with-xml()
+              form (action => "/edit", \method => "post")
+              {
+                div (class => "edit")
+                {
+                  do(for(slot in ?type.slot-descriptors)
+                       let name = slot.slot-getter.debug-name;
+                       collect(with-xml()
+                                 text(name)
+                               end);
+                       collect(with-xml()
+                                 input(type => "text",
+                                       name => name)
+                               end);
+                       collect(with-xml() br end);
+                     end;
+                  input(type => "submit",
+                        name => "add-button",
+                        value => "Add")
+                }
+              }
+            end;
+          end; }
+ end;
+
+
+USAGE
+=====
+
 with-xml()
   html {
     head {
