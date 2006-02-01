@@ -48,7 +48,7 @@ define constant one-of
 define constant &lt;latitude-direction&gt; = one-of(#&quot;north&quot;, #&quot;south&quot;);
 define constant &lt;longitude-direction&gt; = one-of(#&quot;east&quot;, #&quot;west&quot;);
 </pre>
-<p>Some Dylan compilers will recognize the idiomatic use of <code>type-union</code> and <br /><code>singleton</code> to represent such enumerations more compactly. For instance, a compiler could represent the direction slot of a latitude or longitude as a single bit, using the getter and setter functions to translate back and forth to the appropriate symbol.</p>
+<p>Some Dylan compilers will recognize the idiomatic use of <code>type-union</code> and <code>singleton</code> to represent such enumerations more compactly. For instance, a compiler could represent the direction slot of a latitude or longitude as a single bit, using the getter and setter functions to translate back and forth to the appropriate symbol.</p>
 
 </div>
 

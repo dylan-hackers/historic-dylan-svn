@@ -18,7 +18,7 @@
 
 <div class="content" id="heading152-0">
 <h1>11.3.7   <a name="marker-9-410"></a>Using <em><a name="marker-2-411"></a>map</em> and <em>curry</em></h1>
-<p>Perhaps the easiest way to implement our simple sequence copier is to use the <code>map</code> function. The <code>map</code> function takes the same arguments as does <code>do</code>. However, instead of ignoring the return value of the function that you provide, <code>map</code> gathers into a new collection all the results of calling the provided function. The new <br />collection will be an instance of the <code>type-for-copy</code> of the first collection argument to <code>map</code>.</p>
+<p>Perhaps the easiest way to implement our simple sequence copier is to use the <code>map</code> function. The <code>map</code> function takes the same arguments as does <code>do</code>. However, instead of ignoring the return value of the function that you provide, <code>map</code> gathers into a new collection all the results of calling the provided function. The new collection will be an instance of the <code>type-for-copy</code> of the first collection argument to <code>map</code>.</p>
 <pre>
 define method my-copy-sequence 
     (old-sequence :: &lt;sequence&gt;) =&gt; (new-sequence :: &lt;sequence&gt;)

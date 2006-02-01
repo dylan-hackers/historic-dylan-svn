@@ -73,10 +73,10 @@ end class &lt;airline&gt;;
 <p>We use the <code>required keyword</code> option to make the <code>name:</code> keyword required when we create an instance of <code>&lt;vehicle-storage&gt;</code>, <code>&lt;vehicle&gt;</code>, or <code>&lt;airline&gt;</code>. If we provided an <code>init-value:</code> or <code>init-function:</code> for the <code>name</code> slot in the definition of <code>&lt;name-mix-in&gt;</code>, Dylan would ignore that option when we created an instance of any of these subclasses.</p>
 <p>We also use the <code>keyword</code> option with an <code>init-value:</code> to provide a default initial value for the <code>name:</code> initialization argument and for the <code>name</code> slot for instances of <code>&lt;airport&gt;</code>.</p>
 <p>Of course, we also have to change other code in our example to use the name <code>name</code> and the init keyword <code>name:</code> when referring to the slot.</p>
-<p>Multiple inheritance provides several advantages in solving the name <br />problem:</p>
+<p>Multiple inheritance provides several advantages in solving the name problem:</p>
 <p>1.  We localize in a single class the characteristic of having a name.</p>
 <p>2.  Subclasses can still customize aspects of the name attribute, such as what that attribute's initial value is, and whether or not it is required.</p>
-<p>3.  We can give a subclass a name attribute without redefining any of its <br />superclasses.</p>
+<p>3.  We can give a subclass a name attribute without redefining any of its superclasses.</p>
 <p>4.  The only subclasses that have a name attribute are those for which that is appropriate.</p>
 
 </div>

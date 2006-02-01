@@ -18,7 +18,7 @@
 
 <div class="content" id="heading207-0">
 <h1>13.6   <a name="marker-9-648"></a>Interc<a name="marker-2-649"></a>hange files</h1>
-<p>Source records in Dylan do not have to be stored in files. Certain environments use a database for storing source records, and a hypertextlike mechanism for exploring them. Dylan does, however, specify a portable interchange format, based on files, for exchanging Dylan source records among Dylan <br />implementations. </p>
+<p>Source records in Dylan do not have to be stored in files. Certain environments use a database for storing source records, and a hypertextlike mechanism for exploring them. Dylan does, however, specify a portable interchange format, based on files, for exchanging Dylan source records among Dylan implementations. </p>
 <p>A file in<strong> interchange format</strong> has a header and a body. The header consists of consecutive lines of keywords and values. The body consists of Dylan source records, and is separated from the header by at least one blank line. The only required keyword is one to specify to what module the source records in the file belong. Each file contains source records of a single module, although the source records of each module can be stored in any number of files. Standard keywords are also defined for author, copyright, and version, although an implementation may ignore them, or may define additional keywords.</p>
 <p>So, for instance, if we wanted to publish our library source records, we might create the files shown in the following sections.</p>
 

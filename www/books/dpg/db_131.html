@@ -18,7 +18,7 @@
 
 <div class="content" id="heading131-0">
 <h1>10.4.4   <a name="marker-9-342"></a>The <a name="marker-2-343"></a><em>init-function:</em> slot option</h1>
-<p>We can use the <code>init-function:</code> slot option to provide a function of no arguments to be called to return a default initial value for the slot. These functions are called <strong>init functions</strong>. They allow the initial value of a slot to be an arbitrary <br />computation. </p>
+<p>We can use the <code>init-function:</code> slot option to provide a function of no arguments to be called to return a default initial value for the slot. These functions are called <strong>init functions</strong>. They allow the initial value of a slot to be an arbitrary computation. </p>
 <pre>
 define class &lt;time-of-day&gt; (&lt;time&gt;)
   inherited slot total-seconds, init-function: get-current-time;

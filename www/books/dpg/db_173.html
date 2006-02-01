@@ -20,7 +20,7 @@
 <h1>12.1.6   <a name="marker-9-492"></a>Assignment</h1>
 <p>The assignment<a name="marker-2-493"></a> binary operator, <code>:=<a name="marker-2-494"></a></code>, also is implemented as a macro. An expression that includes this operator works in a special way.</p>
 <p>The operand to the <em>right</em> of the operator is evaluated first. The result is the new value to be assigned.</p>
-<p>The operand to the <em>left</em> of the operator determines the place to which the new value is assigned. This operand can have one of the following kinds of <br />syntax:</p>
+<p>The operand to the <em>left</em> of the operator determines the place to which the new value is assigned. This operand can have one of the following kinds of syntax:</p>
 <p>Variable name The variable name is not evaluated. Dylan assigns the new value to the variable.</p>
 <p>Explicit function call Dylan calls the function <em>name<code>-setter<a name="marker-2-495"></a></code></em>, where <em>name</em> is the name of the function in the function call. The first argument to <em>name<code>-setter</code></em> is the new value, and the remaining arguments are the arguments to <em>name</em> in the original function call.</p>
 <p>Slot reference Dylan first converts the slot reference to the corresponding function call. Dylan then calls the function <em>name<code>-setter<a name="marker-2-496"></a></code></em> just as it would have if the slot reference had been an explicit function call.</p>
@@ -31,7 +31,7 @@
 distance(*my-position*) := 3.0;
 distance-setter(3.0, *my-position*);
 </pre>
-<p>The first two examples return <code>3.0</code>; the second returns whatever <code>distance-<br />setter</code> returns. Usually, this value would be <code>3.0</code>. Note that, if <code>distance</code> is the name of a slot's getter, and if the slot is constant or has a setter with a name other than <code>distance-setter</code>, then the assignment operation results in an error.</p>
+<p>The first two examples return <code>3.0</code>; the second returns whatever <code>distance-setter</code> returns. Usually, this value would be <code>3.0</code>. Note that, if <code>distance</code> is the name of a slot's getter, and if the slot is constant or has a setter with a name other than <code>distance-setter</code>, then the assignment operation results in an error.</p>
 <p>Except for the order of evaluation and returned values, the following examples are equivalent:</p>
 <pre>
 vertices[2] := list(3.5, 4.5);

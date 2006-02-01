@@ -18,13 +18,13 @@
 
 <div class="content" id="heading201-0">
 <h1>13.3.3   Libraries and <a name="marker-2-632"></a>programs</h1>
-<p>Every library is in a set of libraries that can be combined into a program; <br />therefore, </p>
+<p>Every library is in a set of libraries that can be combined into a program; therefore, </p>
 <ul>
 <li><p>The library can import the exported modules of any other available library.</p></li>
 <li><p>The library's exported modules are visible to, and can be imported by, other available libraries.</p></li>
 </ul>
 <p>The Dylan implementation determines what libraries are available; how they are combined into a program; and how they are compiled, linked, and run. Consult your implementation documentation for further information.</p>
-<p>We have presented a simple hierarchical model: All Dylan code resides in source records; every <a name="marker-2-633"></a>source record resides in a module; every module resides in a library. Every module must be completely defined within its library, because the library is the Dylan unit of compilation. So that this restriction is enforced, every source record in a library must be in a module that is defined in the library; no source record can be in a module that is imported by the library. Within a library, it is possible for a name to be owned by one module and for that name's <br />definition to be provided by another module. This flexibility helps us to structure code, as we shall see in <a href="db_202.html#marker-9-634">Section 13.4</a>.</p>
+<p>We have presented a simple hierarchical model: All Dylan code resides in source records; every <a name="marker-2-633"></a>source record resides in a module; every module resides in a library. Every module must be completely defined within its library, because the library is the Dylan unit of compilation. So that this restriction is enforced, every source record in a library must be in a module that is defined in the library; no source record can be in a module that is imported by the library. Within a library, it is possible for a name to be owned by one module and for that name's definition to be provided by another module. This flexibility helps us to structure code, as we shall see in <a href="db_202.html#marker-9-634">Section 13.4</a>.</p>
 
 </div>
 

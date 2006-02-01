@@ -113,8 +113,8 @@ end method whiteness-test;
 color := white;
 whiteness-test(color);
 </pre></td></tr></table>
-<p>You can consider Dylan as always using pointers, even to objects such as integers and characters. Integers and characters are, by definition, immutable objects: There are no slots that you can change in an integer or character object. Thus, there is no danger of setting 6 to 9. Built-in immutable objects can have their pointers optimized away by the compiler: The compiler just has to arrange that <br />6 = 6 and 9 = 9, whether there is only one 6 object pointed to by all the variables with the value 6, or copies of 6 are stored in each of those variables (saving the need for a pointer).</p>
-<p>Another difficulty in the Dylan model is this potentially embarrassing <br />situation:</p>
+<p>You can consider Dylan as always using pointers, even to objects such as integers and characters. Integers and characters are, by definition, immutable objects: There are no slots that you can change in an integer or character object. Thus, there is no danger of setting 6 to 9. Built-in immutable objects can have their pointers optimized away by the compiler: The compiler just has to arrange that 6 = 6 and 9 = 9, whether there is only one 6 object pointed to by all the variables with the value 6, or copies of 6 are stored in each of those variables (saving the need for a pointer).</p>
+<p>Another difficulty in the Dylan model is this potentially embarrassing situation:</p>
 <pre>
 color := make(&lt;color&gt;, red: 2 ^ 24 - 1, green: 2 ^ 24 - 1, blue: 2 ^ 24 - 1);
 if (color = white) format-out(&quot;It's white!\n&quot;) end;
@@ -141,7 +141,7 @@ end met<code>h</code>od \=;
 <p>Now, using <code>=</code> will compare colors by checking their individual RGB components, and our whiteness test will work. </p>
 <p>Note that Dylan also provides the <code>==</code> comparison operator, which always compares pointers. This comparison is useful when you want to check object identity. But, as we have seen, it is not always the appropriate default for comparison of equality of objects. The compiler can avoid calling our <code>\=</code> method altogether if the same object is compared to itself. It can do so because, with the exception of IEEE NaNs (nonnumbers), values that are <code>==</code> must also be <code>=</code>.</p>
 <p>Another approach that you can use if your objects are immutable is to make sure that they are unique. The <code>m<a name="marker-2-929"></a>ake</code> function is not required to return a new object each time, as shown in the Dylan object example, with unique, immutable objects.</p>
-<p>This advanced use of <code>make</code> and tables ensures that there is always only one instance of each color. Thus, when we make another white, it will always be <em>the</em> white, and our whiteness test will work with the default <code>=</code> comparison. The choice of solution depends on whether you will be doing more making or more <br />comparing. </p>
+<p>This advanced use of <code>make</code> and tables ensures that there is always only one instance of each color. Thus, when we make another white, it will always be <em>the</em> white, and our whiteness test will work with the default <code>=</code> comparison. The choice of solution depends on whether you will be doing more making or more comparing. </p>
 <table><tr><th><p>Dylan object example, with unique, immutable objects. </p>
 </th></tr><tr><td><pre>
 define class &lt;color-table&gt; (&lt;table&gt;)

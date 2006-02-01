@@ -36,7 +36,7 @@ flight:
    =&gt; { make(&lt;flight&gt;, equipment: ?&quot;type&quot;, id: ?#&quot;id&quot;, ?options) }
 end macro aircraft-definer;
 </pre>
-<p>When we are processing the <code>flight</code> auxiliary rules, we would like to be able to reference the pattern variable <code>?type</code> (coercing it to a string) from the main rules, but it is not <strong>in scope</strong> &mdash; it is inaccessible to the auxiliary rules. We could have <br /><code>register-flights</code> set the <code>equipment</code> slot after the flight is created, but we would prefer to initialize the slot at the time we create the <code>&lt;flight&gt;</code> object. There is a workaround, an <strong>auxiliary macro</strong>:</p>
+<p>When we are processing the <code>flight</code> auxiliary rules, we would like to be able to reference the pattern variable <code>?type</code> (coercing it to a string) from the main rules, but it is not <strong>in scope</strong> &mdash; it is inaccessible to the auxiliary rules. We could have <code>register-flights</code> set the <code>equipment</code> slot after the flight is created, but we would prefer to initialize the slot at the time we create the <code>&lt;flight&gt;</code> object. There is a workaround, an <strong>auxiliary macro</strong>:</p>
 <pre>
 define macro aircraft-definer
   { define aircraft ?identifier:name (?type:name) ?flights:* end }
@@ -59,7 +59,7 @@ flight:
    =&gt; { id: ?#&quot;id&quot;, ?options }
 end macro flights-definer;
 </pre>
-<p>Here, we have essentially broken out the work that used to be done by the auxiliary rule <code>flights</code> into a separate definition macro. Where <code>flights</code> used points of ellipsis to walk over each flight, the definition macro uses a <strong>wildcard</strong> constraint <code>?more:*</code>, explicitly calling itself again (that is, the macro appears in the substitution, and will be expanded again), as long as there are more flights to be <br />processed.</p>
+<p>Here, we have essentially broken out the work that used to be done by the auxiliary rule <code>flights</code> into a separate definition macro. Where <code>flights</code> used points of ellipsis to walk over each flight, the definition macro uses a <strong>wildcard</strong> constraint <code>?more:*</code>, explicitly calling itself again (that is, the macro appears in the substitution, and will be expanded again), as long as there are more flights to be processed.</p>
 <p>Here is an example use of the <code>flights-definer</code> macro:</p>
 <pre>
 define aircraft UA4906H (DC10)

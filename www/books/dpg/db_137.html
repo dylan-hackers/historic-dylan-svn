@@ -25,7 +25,7 @@ define method initialize (angle :: &lt;directed-angle&gt;, #key direction: dir)	
 </em>  angle.direction := dir;	<em>//3
 </em>end method initialize;	<em>//4</em>
 </pre>
-<p>For keyword parameters, the name of the keyword that you supply to <code>make</code> is normally the same name as the parameter that is initialized within the body. In this case, we want to avoid confusion between the getter <code>direction</code> and the keyword parameter <code>direction:</code>, so we use <code>dir</code> as the name of the keyword parameter for the <code>initialize</code> method. When you call <code>make</code>, you use the <br /><code>direction:</code> keyword. However, within this method, the parameter is named <code>dir</code>. </p>
+<p>For keyword parameters, the name of the keyword that you supply to <code>make</code> is normally the same name as the parameter that is initialized within the body. In this case, we want to avoid confusion between the getter <code>direction</code> and the keyword parameter <code>direction:</code>, so we use <code>dir</code> as the name of the keyword parameter for the <code>initialize</code> method. When you call <code>make</code>, you use the <code>direction:</code> keyword. However, within this method, the parameter is named <code>dir</code>. </p>
 <p>Line 3 calls the setter for the <code>direction</code> slot. We defined the methods for <code>direction-setter</code> in <a href="db_136.html#marker-9-356">Section 10.6.2</a>. If the argument is a latitude, then method 3 is invoked to check the value. If the argument is a longitude, then method 4 is invoked to check the value.</p>
 <p>We can create a new instance of <code>&lt;absolute-position&gt;</code>. </p>
 <pre>

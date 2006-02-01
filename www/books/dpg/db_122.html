@@ -34,7 +34,7 @@ total-seconds(*my-time-of-day*) := 180;
 total-seconds-setter(180, *my-time-of-day*);
 </pre>
 <p>Each of these expressions stores the value <code>180</code> in the slot named <code>total-seconds</code> of the object that is the value of the <code>*my-time-of-day*</code> variable. </p>
-<p>Most Dylan programmers do not use the syntax of the third expression to call a setter, because it is more verbose than the first and second expressions. However, it is important to know the name of the setter, so that you can define setter methods. For example, to define a method on the setter for the <code>total-<br />seconds</code> slot, you define it on <code>total-seconds-setter</code>. For an example of a setter method, see <a href="db_124.html#marker-9-327">Section 10.2.2</a>.</p>
+<p>Most Dylan programmers do not use the syntax of the third expression to call a setter, because it is more verbose than the first and second expressions. However, it is important to know the name of the setter, so that you can define setter methods. For example, to define a method on the setter for the <code>total-seconds</code> slot, you define it on <code>total-seconds-setter</code>. For an example of a setter method, see <a href="db_124.html#marker-9-327">Section 10.2.2</a>.</p>
 <p>If you do not want Dylan to define a setter method for a slot, you can define the slot to be constant, using the <code>constant</code> slot adjective, or you can give the <code>:setter #f</code> slot option. </p>
 <p>For more information about accessing slots, see <a href="db_169.html#marker-9-452">Section 12.1.2, page 163</a>, and <a href="db_173.html#marker-9-492">Section 12.1.6, page 166</a>.</p>
 

@@ -19,7 +19,7 @@
 <div class="content" id="heading308-0">
 <h1>19.13   <a name="marker-10-797"></a><a name="marker-9-798"></a>Prim<a name="marker-2-799"></a>ary classes</h1>
 <p>Classes have one additional variation that you can use to optimize performance. A class that is defined as <code>primary</code> allows the compiler to generate the most efficient code for accessing the slots defined in the primary class (whether the accessor is applied to the primary class or to one of that class's subclasses). However, a primary class cannot be combined with any other primary class (unless one is a subclass of the other). This restriction implies that you should delay declaring a class to be primary until you are sure of your inheritance design. Also, because sealed classes are already highly optimized, the <code>primary</code> declaration is of most use for open classes.</p>
-<p>As an example, consider the class <code>&lt;sixty-unit&gt;</code>, and its slot <code>total-<br />seconds</code>, as used in this method for <code>decode-total-seconds</code>:</p>
+<p>As an example, consider the class <code>&lt;sixty-unit&gt;</code>, and its slot <code>total-seconds</code>, as used in this method for <code>decode-total-seconds</code>:</p>
 <pre>
 define method decode-total-seconds 
     (sixty-unit :: &lt;sixty-unit&gt;)
@@ -27,8 +27,8 @@ define method decode-total-seconds
   decode-total-seconds(sixty-unit.total-seconds);
 end method decode-total-seconds; 
 </pre>
-<p>Although the generic function for the slot accessor <code>total-seconds</code> is sealed, and it is trivial for the compiler to infer that its argument is a <code>&lt;sixty-unit&gt;</code> in the call <code>sixty-unit.total-seconds</code>, because <code>&lt;sixty-unit&gt;</code> is declared open, the <br />compiler cannot emit the most efficient code for that call. Because an open class could be mixed with any number of other classes, there is no guarantee that the slots of every object that is a <code>&lt;sixty-unit&gt;</code> will always be stored in the same order &mdash; there is no guarantee that <code>total-seconds</code> will always be the first slot in an object that is an indirect instance of <code>&lt;sixty-unit&gt;</code>, for instance. </p>
-<p>Declaring a class <code>primary</code> is essentially making a guarantee that the compiler can always put the primary class's slots in the same place in an instance, <br />and that any other superclasses will have to adjust:</p>
+<p>Although the generic function for the slot accessor <code>total-seconds</code> is sealed, and it is trivial for the compiler to infer that its argument is a <code>&lt;sixty-unit&gt;</code> in the call <code>sixty-unit.total-seconds</code>, because <code>&lt;sixty-unit&gt;</code> is declared open, the compiler cannot emit the most efficient code for that call. Because an open class could be mixed with any number of other classes, there is no guarantee that the slots of every object that is a <code>&lt;sixty-unit&gt;</code> will always be stored in the same order &mdash; there is no guarantee that <code>total-seconds</code> will always be the first slot in an object that is an indirect instance of <code>&lt;sixty-unit&gt;</code>, for instance. </p>
+<p>Declaring a class <code>primary</code> is essentially making a guarantee that the compiler can always put the primary class's slots in the same place in an instance, and that any other superclasses will have to adjust:</p>
 <pre>
 define abstract open primary class &lt;sixty-unit&gt; (&lt;object&gt;)
   constant slot total-seconds :: &lt;integer&gt;,
