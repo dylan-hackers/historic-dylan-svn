@@ -21,9 +21,9 @@ function end_progress_table () {
 }
 
 function short_header ($title) {
-    readfile("/usr/local/www/data/header.html");
+    readfile("/var/www/header.html");
     echo "<TITLE>Dylan: " . $title . "</TITLE><BODY>";
-    readfile("/usr/local/www/data/menu.html");
+    readfile("/var/www/menu.html");
 }
 
 function standard_header ($title) {
@@ -32,6 +32,6 @@ function standard_header ($title) {
 }
 
 function standard_footer () {
-    readfile("/usr/local/www/data/footer.html");
+    readfile("/var/www/footer.html");
 }
 ?>
