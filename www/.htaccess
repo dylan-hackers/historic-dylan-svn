@@ -2,5 +2,5 @@
   AuthName "Submit News"
   AuthType Basic
   require valid-user
-  AuthUserFile /usr/local/www/data/.htpasswd
+  AuthUserFile /etc/apache2/submit-news-htpasswd
 </Files>

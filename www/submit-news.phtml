@@ -25,7 +25,7 @@ Message body:
 } else {
     standard_header("News submitted");
 
-    $db = mysql_connect(":/tmp/mysql.sock",'www-post','gwydion-post');
+    $db = mysql_connect(":/var/run/mysqld/mysqld.sock",'www-post','gwydion-post');
     mysql_select_db("gwydion", $db);
 
     $headline = $_POST['headline'];
