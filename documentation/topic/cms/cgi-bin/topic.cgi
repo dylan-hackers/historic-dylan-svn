@@ -6,7 +6,7 @@ use CGI;
 use CGI::Carp;
 
 my $www = "/var/www";
-my $wwwdata = "$www/data";
+my $wwwdata = "$www/website";
 my $wwwtopic = "$www/topic";
 my $wwwcms = "$wwwtopic/cms";
 my $cache = "$wwwtopic/Cache";
