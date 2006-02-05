@@ -5,7 +5,7 @@ use utf8;
 use CGI;
 use CGI::Carp;
 
-my $www = "/usr/local/www";
+my $www = "/var/www";
 my $wwwdata = "$www/data";
 my $wwwtopic = "$www/topic";
 my $wwwcms = "$wwwtopic/cms";
