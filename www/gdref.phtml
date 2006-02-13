@@ -8,12 +8,9 @@ need to be written; others are written but have yet to be converted to
 DocBook format. You can find older documentation on the FTP site.</P>
 
 <P>Peter Housel has been instrumental in converting this documentation to
-SGML format. However, our DSSSL stylesheets still need some debugging, and
-occasionally omit various forms of credit (such as chapter authors). To
-ensure that credit is given where credit is due, the descriptions below
-include authorship information.</P>
+DocBook-XML format.</P>
 
-<p>All SGML-based documents are available in two forms: all on one
+<p>All DocBook-XML-based documents are available in two forms: all on one
 HTML file, or one HTML page per section.</p>
 
 <p>See also <a href="learning.phtml">learning Dylan</a>, your
@@ -26,7 +23,7 @@ language. Tutorials, introductions, articles.</p>
 <DL>
 
 <DT><STRONG><A HREF="books/drm/">Dylan Reference Manual</A></STRONG>
-[<A HREF="http://www.fun-o.com/products/books.phtml#drm">paper, US$41.95</A>] (<A href="books/drm/drm_errata.html">Errata</A>)
+ (<A href="books/drm/drm_errata.html">Errata</A>)
 
 <DD><P>The official definition of the Dylan language and standard library.</P>
 
@@ -68,20 +65,56 @@ Dylan. (Written mostly by Gwydion Group at CMU.)</P>
 
 <h3>Open Dylan Docs</h3>
 
-<DL>
+These docs still refer to "Functional Developer", which was the name
+of Open Dylan before it became open source.
 
-<DT><STRONG><A
-HREF="http://www.fun-o.com/products/doc/index.phtml">Open Dylan
-Documentation</A></STRONG>
+<dl>
+<dt>
+<strong><a HREF="documentation/opendylan/env/index.htm">Getting Started with Functional Developer</a></strong>
+<dd><p>Describes Open Dylan's interactive development environment.</p>
 
-<DD><P>The original Functional Developer documentation at Functional
-Objects' website.  This documentation still applies to Open Dylan and
-a lot of the libraries documentation also applies to Gwydion Dylan
-since GD either implements compatible APIs, such as Common Dylan and
-C-FFI, or uses the libraries provided by Open Dylan.</P>
+<dt>
+<strong><a HREF="documentation/opendylan/dguide/index.htm">Building Applications Using
+DUIM</a></strong>
+<dd><p>Describes how to use DUIM (Dylan User Interface Manager),
+the portable window programming toolkit.</p>
 
+<dt>
+<strong><a HREF="documentation/opendylan/core/index.htm">Common Dylan and Functional Extensions library reference</a></strong>
 
-</DL>
+<dd><p>Describes the Open Dylan implementation of the Dylan language, a common
+set of Dylan libraries, and a library interchange mechanism. The common libraries
+provide many language extensions, a threads interface, and object finalization.</p>
+
+<dt>
+<strong><a HREF="documentation/opendylan/io/index.htm">System and I/O library reference</a></strong>
+<dd><p>Describes Open Dylan's printing and output formatting modules,
+a streams module, a sockets module, and modules providing an interface to operating system features such as the file system, time and date information, and the host machine environment.</p>
+
+<dt>
+<strong><a HREF="documentation/opendylan/dref/index.htm">DUIM library reference</a></strong>
+<dd><p>Describes the libraries forming DUIM (Dylan User Interface Manager),
+the portable window programming toolkit. It complements
+Building Applications Using DUIM.</p>
+
+<dt>
+<strong><a HREF="documentation/opendylan/interop1/index.htm">C FFI and Win32 library
+reference</a></strong>
+<dd><p>Describes a foreign function interface library for interoperation
+with C programs, and several libraries providing a low-level interface
+to the Microsoft Win32 API.</p>
+
+<dt>
+<strong><a HREF="documentation/opendylan/interop2/index.htm">OLE, COM, ActiveX and DBMS library reference</a></strong>
+<dd><p>Describes high and low level interfaces to COM,
+OLE, and ActiveX component technology, and generic DBMS support, through
+SQL with an ODBC backend.</p>
+
+<dt>
+<strong><a HREF="documentation/opendylan/corba/index.htm">Developing Component Software with CORBA</a></strong>
+<dd><p>A tutorial and reference for CORBA interoperability using the Functional Developer ORB.</p>
+
+</dl>
 
 <H3>Older Manuals</H3>
 
