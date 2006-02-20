@@ -1,4 +1,4 @@
-module: xml
+module: simple-xml
 author: Hannes Mehnert <hannes@mehnert.org>
 
 /*

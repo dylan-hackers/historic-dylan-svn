@@ -8,7 +8,8 @@ define library xml-parser
   use io;
   use system, import: { file-system };
 
-  export xml-parser;
+  export xml-parser,
+    simple-xml;
 end library;
 
 define module xml-parser
@@ -36,6 +37,15 @@ define module xml-parser
   create node-iterator, prepare-document;
   create transform, transform-document, before-transform, <xform-state>;
 end module xml-parser;
+
+define module simple-xml
+  use common-dylan;
+  use xml-parser;
+
+  export \with-xml,
+    \with-xml-builder,
+    escape-html;
+end;
 
 define module interface
   use common-dylan, exclude: { format-to-string };

@@ -45,14 +45,6 @@ define module web-macro
   export \web-class-definer;
 end;
 
-define module xml
-  use common-dylan;
-  use xml-parser;
-  
-  export \with-xml,
-    \with-xml-builder,
-    escape-html;
-end;
 
 /*
 define module changes
@@ -99,7 +91,7 @@ end;
 
 define module class-browser
   use common-dylan;
-  use xml;
+  use simple-xml;
   use web-macro;
   use object-table;
   use format-out;
@@ -137,7 +129,7 @@ define module buddha
   use file-system;
   use xml-rpc-common, import: { base64-encode, base64-decode };
 
-  use xml;
+  use simple-xml;
   use web-macro;
   use tree;
   use object-table;

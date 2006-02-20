@@ -6,3 +6,4 @@ files:	library
 	printing
 	collect
 	productions
+	simple-xml
