@@ -2,7 +2,6 @@ library: buddha
 executable: buddha
 files: library
        util
-       tree
        web-macro
        object-table
        config

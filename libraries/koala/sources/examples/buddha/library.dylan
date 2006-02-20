@@ -16,15 +16,6 @@ define library buddha
   export buddha;
 end;
 
-define module tree
-  use common-dylan;
-
-  export <node>,
-    value,
-    add-node,
-    traverse;
-end;
-
 define module web-macro
   use common-dylan;
 
@@ -131,7 +122,6 @@ define module buddha
 
   use simple-xml;
   use web-macro;
-  use tree;
   use object-table;
   use class-browser;
 //  use class-editor;
