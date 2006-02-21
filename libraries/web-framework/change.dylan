@@ -1,5 +1,19 @@
-module: buddha
+module: web-framework
 author: Hannes Mehnert <hannes@mehnert.org>
+
+define variable *changes* = #();
+
+define method get-all-changes () => (changes :: <list>)
+  *changes*;
+end;
+
+define method set-changes (changes :: <list>) => ()
+  *changes* := changes;
+end;
+
+define method add-change (change :: <change>) => ()
+  *changes* := add!(*changes*, change);
+end;
 
 define class <change> (<object>)
   slot author :: <string>;
@@ -10,62 +24,17 @@ end;
 define method initialize (change :: <change>, #rest rest, #key, #all-keys)
   next-method();
   change.date := current-date();
-  change.author := *user*.username;
+  change.author := current-user().username;
 end;
 
 define method undo (change :: <change>)
-  //rollback to change
-  /* let redo-start =
-    block(return)
-      for (ele in *changes*,
-           i from 0)
-        if (change = ele)
-          return(i - 1);
-        else
-          undo(ele.command)
-        end;
-      end;
-    end; */
   //undo the change
   undo(change.command);
-  //redo all other changes
- /*  for (i from redo-start to 0 by -1)
-    let ele = *changes*[i];
-    redo(ele.command);
-  end; */
   //on success, make a new <change> object, add it to *changes*
   let change = make(<change>,
                     command: reverse-command(change.command));
   *changes* := add!(*changes*, change);
 end;
-
-/*
-define method redo (change :: <change>)
-  //rollback to change
-  let redo-start =
-    block(return)
-      for (ele in *changes*,
-           i from 0)
-        if (change = ele)
-          return(i - 1);
-        else
-          undo(ele.command)
-        end;
-      end;
-    end;
-  //redo the change
-  redo(change.command);
-  //redo all other changes
-  for (i from redo-start to 0 by -1)
-    let ele = *changes*[i];
-    redo(ele.command);
-  end;
-  //on success, make a new <change> object, add it to *changes*
-  let change = make(<change>,
-                    command: change.command);
-  *changes* := add!(*changes*, change);
-end;
-*/
 
 define method print-xml (date :: <date>)
   let $month-names

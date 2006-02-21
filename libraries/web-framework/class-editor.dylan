@@ -1,7 +1,29 @@
-module: buddha
+module: web-framework
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define method check (object :: <object>, #key test-result = 0) => (res :: <boolean>)
+define class <web-form-warning> (<condition>)
+  constant slot error-string :: <string>, required-init-keyword: warning:;
+end;
+
+define class <web-success> (<web-form-warning>)
+end;
+
+define class <web-error> (<error>)
+  constant slot error-string :: <string>, required-init-keyword: error:;
+end;
+
+define open generic respond-to-get
+    (page, request :: <request>, response :: <response>, #key errors);
+
+define open generic respond-to-post
+    (page, request :: <request>, response :: <response>);
+
+define open generic check (object :: <object>, #key test-result)
+ => (res :: <boolean>);
+
+
+define method check (object :: <object>, #key test-result = 0)
+ => (res :: <boolean>)
   #t;
 end;
 
@@ -50,7 +72,11 @@ define method edit-form (object :: <object>, #key refer, xml) => (res)
               value => "save-object"),
         input(type => "hidden",
               name => "refer-to",
-              value => if (refer) refer else get-url-from-type(object.object-class) end),
+              value => if (refer)
+                         refer
+                       else
+                         get-url-from-type(object.object-class)
+                       end),
         do(if(xml) xml end),
         input(type => "submit",
               name => "save-button",
@@ -183,6 +209,33 @@ define method add-form (object-type :: subclass(<object>),
   end;
 end;
 
+define method remove-form (object :: <object>, parent :: <object>,
+                           #key url :: <string> = "edit",
+                           xml)
+  with-xml()
+    form(action => "/edit", \method => "post")
+    { div(class => "edit")
+      {
+         input(type => "hidden",
+               name => "refer-to",
+               value => url),
+         input(type => "hidden",
+               name => "parent-object",
+               value => get-reference(parent)),
+         input(type => "hidden",
+               name => "remove-this",
+               value => get-reference(object)),
+         input(type => "hidden",
+               name => "action",
+               value => "remove-object"),
+         do(if(xml) xml end),
+         input(type => "submit",
+               name => "remove-button",
+               value => "Remove")
+      }
+    }
+  end;
+end;
 
 define method list-forms (obj :: <object>) => (res)
   let res = make(<stretchy-vector>);
@@ -258,29 +311,29 @@ define method respond-to-post
   let action = as(<symbol>, get-query-value("action"));
   let object-string = get-query-value("parent-object");
   let object = get-object(object-string);
-  let handler <buddha-form-warning>
-    = method(e :: <buddha-form-warning>, next-handler :: <function>)
+  let handler <web-form-warning>
+    = method(e :: <web-form-warning>, next-handler :: <function>)
           errors := add!(errors, e)
       end;
   block(return)
     //add, save, remove... we may not need this here...
     unless (object)
-      signal(make(<buddha-form-error>,
+      signal(make(<web-error>,
                   error: concatenate("Unknown object: ", object-string)));
     end;
     select (action)
       #"add-object" => add-object(object, request);
       #"remove-object" => remove-object(object, request);
       #"save-object" => save-object(object, request);
-      otherwise => signal(make(<buddha-form-error>,
+      otherwise => signal(make(<web-error>,
                                error: concatenate("Unknown action: ",
                                                   as(<string>, action))));
       end select;
-  exception (e :: <buddha-form-error>)
+  exception (e :: <web-error>)
     errors := add!(errors, e);
     return();
   exception (e :: <error>)
-    errors := add!(errors, make(<buddha-form-error>,
+    errors := add!(errors, make(<web-error>,
                                 error: format-to-string("%=", e)));
     return();
   end; 
@@ -289,7 +342,7 @@ define method respond-to-post
   block(return)
     unless ((elements.size = 2) & elements[1] = "detail")
       if ((action = #"add-object")
-        & (any?(rcurry(instance?, <buddha-form-error>), errors)))
+        & (any?(rcurry(instance?, <web-error>), errors)))
         respond-to-get(#"add", request, response, errors: errors);
         return();
       end;
@@ -321,7 +374,7 @@ define method add-object (parent-object :: <object>, request :: <request>)
       unless ((slot.slot-type = <boolean>) | value)
         value := slot.default-function(object);
         unless (value)
-          signal(make(<buddha-form-error>,
+          signal(make(<web-error>,
                       error: concatenate("Please specify ",
                                          slot.slot-name,
                                          " correctly!")));
@@ -340,7 +393,7 @@ define method add-object (parent-object :: <object>, request :: <request>)
     let change = make(<change>,
                       command: command);
     *changes* := add!(*changes*, change);
-    signal(make(<buddha-success>,
+    signal(make(<web-success>,
                 warning: concatenate("Added ",
                                      get-url-from-type(object-type),
                                      ": ", show(object))));
@@ -357,7 +410,7 @@ define method remove-object (parent-object :: <object>, request :: <request>)
                     command: command);
   *changes* := add!(*changes*, change);
   redo(command);
-  signal(make(<buddha-success>,
+  signal(make(<web-success>,
               warning: concatenate("Removed ",
                                    get-url-from-type(object.object-class),
                                    ": ", show(object))));
@@ -429,11 +482,12 @@ define method save-object (object :: <object>, request :: <request>)
     let change = make(<change>,
                       command: command);
     *changes* := add!(*changes*, change);
-    let slot-names = apply(concatenate, map(method(x)
-                                                concatenate(x.slot-name, " to ",
-                                                            show(x.new-value), "  ")
-                                            end, slots));
-    signal(make(<buddha-success>,
+    let slot-names = apply(concatenate,
+                           map(method(x)
+                                   concatenate(x.slot-name, " to ",
+                                               show(x.new-value), "  ")
+                               end, slots));
+    signal(make(<web-success>,
                 warning: concatenate("Saved \"",
                                      get-url-from-type(object.object-class),
                                      "\", ",
@@ -442,3 +496,10 @@ define method save-object (object :: <object>, request :: <request>)
                                      slot-names)));
   end;
 end;
+
+define method get-url-from-type (type) => (string :: <string>)
+  copy-sequence(type.debug-name,
+                start: 1,
+                end: type.debug-name.size - 1)
+end;
+

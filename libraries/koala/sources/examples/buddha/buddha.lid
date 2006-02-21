@@ -2,8 +2,6 @@ library: buddha
 executable: buddha
 files: library
        util
-       web-macro
-       object-table
        config
        network
        vlan
@@ -14,9 +12,4 @@ files: library
        zone
        mac
        cisco-telnet
-       class-browser
-       command
-       change
-       class-editor
-       users
        buddha

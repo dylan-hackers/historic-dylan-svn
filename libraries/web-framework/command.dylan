@@ -1,4 +1,4 @@
-module: buddha
+module: web-framework
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define abstract class <command> (<object>)
@@ -133,8 +133,8 @@ define method set-slots (object :: <object>, slots :: <list>)
   map(method(x)
           set-slot(x.slot-name, object, x.new-value)
       end, slots);
-  let handler <buddha-form-error>
-    = method(e :: <buddha-form-error>, next-handler :: <function>)
+  let handler <web-error>
+    = method(e :: <web-error>, next-handler :: <function>)
           unset-slots(object, slots);
           next-handler();
       end;
@@ -146,8 +146,8 @@ define method unset-slots (object :: <object>, slots :: <list>)
   map(method(x)
           set-slot(x.slot-name, object, x.old-value)
       end, slots);
-  let handler <buddha-form-error>
-    = method(e :: <buddha-form-error>, next-handler :: <function>)
+  let handler <web-error>
+    = method(e :: <web-error>, next-handler :: <function>)
           set-slots(object, slots);
           next-handler();
       end;

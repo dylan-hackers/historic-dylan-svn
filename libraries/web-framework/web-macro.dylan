@@ -1,5 +1,9 @@
-module: web-macro
+module: web-framework
 author: Hannes Mehnert <hannes@mehnert.org>
+
+define open class <reference-object> (<object>)
+  slot visible? :: <boolean> = #t, init-keyword: visible?:;
+end;
 
 define class <slot> (<object>)
   constant slot slot-name :: <string>, init-keyword: name:;
@@ -14,15 +18,15 @@ define class <slot> (<object>)
     init-keyword: default-help-text:;
 end;
 
-define generic list-reference-slots
+define open generic list-reference-slots
     (object :: subclass(<object>), #next next-method)
  => (res :: <list>);
 
-define generic reference-slots
+define open generic reference-slots
     (object :: subclass(<object>), #next next-method)
  => (res :: <list>);
 
-define generic data-slots
+define open generic data-slots
     (object :: subclass(<object>), #next next-method)
  => (res :: <list>);
 

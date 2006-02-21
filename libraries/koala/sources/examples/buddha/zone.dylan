@@ -278,12 +278,12 @@ define method add-reverse-zones (network :: <network>) => ()
                          arguments: list(zone, *config*.zones));
       let change = make(<change>,
                         command: command);
-      *changes* := add!(*changes*, change);
+      add-change(change);
       redo(command);
-      signal(make(<buddha-success>,
+      signal(make(<web-success>,
                   warning: concatenate("Added zone: ", show(zone))));
-    exception (e :: <buddha-form-error>)
-      signal(make(<buddha-form-warning>,
+    exception (e :: <web-error>)
+      signal(make(<web-form-warning>,
                   warning: concatenate("Couldn't add reverse zone, error was: ", e.error-string)));
       ret();
     end;

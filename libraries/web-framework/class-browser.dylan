@@ -1,4 +1,4 @@
-module: class-browser
+module: web-framework
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define method browse (object-type :: subclass(<object>),
@@ -143,31 +143,4 @@ define method show (object :: <object>)
   as(<string>, object)
 end;
 
-define method remove-form (object :: <object>, parent :: <object>,
-                           #key url :: <string> = "edit",
-                           xml)
-  with-xml()
-    form(action => "/edit", \method => "post")
-    { div(class => "edit")
-      {
-         input(type => "hidden",
-               name => "refer-to",
-               value => url),
-         input(type => "hidden",
-               name => "parent-object",
-               value => get-reference(parent)),
-         input(type => "hidden",
-               name => "remove-this",
-               value => get-reference(object)),
-         input(type => "hidden",
-               name => "action",
-               value => "remove-object"),
-         do(if(xml) xml end),
-         input(type => "submit",
-               name => "remove-button",
-               value => "Remove")
-      }
-    }
-  end;
-end;
 
