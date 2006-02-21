@@ -13,46 +13,8 @@ define library buddha
   use xml-rpc-common;
   use xml-parser;
   use dylan;
+  use web-framework;
   export buddha;
-end;
-
-define module web-macro
-  use common-dylan;
-
-  export <slot>,
-    slot-name,
-    slot-type,
-    slot-getter-method,
-    slot-setter-method,
-    slot-global-list,
-    default,
-    default-function,
-    default-help-text;
- 
-  export list-reference-slots,
-    reference-slots,
-    data-slots;
-
-  export \web-class-definer;
-end;
-
-
-/*
-define module changes
-  use common-dylan;
-  use xml;
-
-  export <entry>;
-end;
-*/
-
-define module object-table
-  use common-dylan;
-  use dylan-extensions, import: { address-of,
-                                  <string-table> };
-
-  export get-reference,
-    get-object;
 end;
 
 define module utils
@@ -64,37 +26,6 @@ define module utils
     <wrapper-sequence>,
     <mutable-wrapper-sequence>,
     data;
-end;
-
-/*
-define module class-editor
-  use common-dylan;
-  use xml;
-  use web-macro;
-  use object-table;
-  use utils;
-  export edit-form,
-    remove-form,
-    add-form,
-    check;
-end;
-*/
-
-define module class-browser
-  use common-dylan;
-  use simple-xml;
-  use web-macro;
-  use object-table;
-  use format-out;
-  use utils;
-//  use class-editor;
-  export browse-list,
-    browse-table,
-    remove-form,  //this shouldn't be here
-    show,
-    browse,
-    to-table-header,
-    to-table;
 end;
 
 define module buddha
@@ -121,9 +52,7 @@ define module buddha
   use xml-rpc-common, import: { base64-encode, base64-decode };
 
   use simple-xml;
-  use web-macro;
+  use web-framework;
   use object-table;
-  use class-browser;
-//  use class-editor;
   use utils;
 end;

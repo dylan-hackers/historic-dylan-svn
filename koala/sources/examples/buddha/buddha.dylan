@@ -4,15 +4,12 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define variable *config* = make(<config>,
                                 config-name: "config");
 
-//list containing recent changes
-define variable *changes* = #();
-
 define variable *version* = 0;
 
 define class <buddha> (<object>)
   constant slot config :: <config> = *config*;
   constant slot version :: <integer> = *version*;
-  constant slot changes = *changes*;
+  constant slot changes = get-all-changes();
   constant slot users = *users*;
 end;
 
@@ -73,7 +70,7 @@ define method restore-database (file :: <string>)
   let buddha = dood-root(dood);
   dood-close(dood);
   *config* := buddha.config;
-  *changes* := buddha.changes;
+  set-changes(buddha.changes);
   *users* := buddha.users;
   if (buddha.version > *version*)
     *version* := buddha.version + 1;
@@ -113,10 +110,6 @@ end;
   end;
 end;
 
-define generic respond-to-get (page,
-                               request :: <request>,
-                               response :: <response>,
-                               #key errors);
 
 define macro page-definer
   { define page ?:name end }
@@ -134,7 +127,7 @@ define macro page-definer
                unless (logged-in(request))
                  //error
                  respond-to-get(#"login", request, response,
-                                errors: list(make(<buddha-form-error>,
+                                errors: list(make(<web-error>,
                                                   error: "No valid user supplied\n")));
                  return();
                end;
@@ -265,17 +258,6 @@ end;
          end; }
 end;
 
-define class <buddha-form-warning> (<condition>)
-  constant slot error-string :: <string>, required-init-keyword: warning:;
-end;
-
-define class <buddha-success> (<buddha-form-warning>)
-end;
-
-define class <buddha-form-error> (<error>)
-  constant slot error-string :: <string>, required-init-keyword: error:;
-end;
-
 define method respond-to-get (page == #"admin",
                               request :: <request>,
                               response :: <response>,
@@ -288,7 +270,7 @@ define method respond-to-get (page == #"admin",
               { h2("Welcome, stranger"),
                 ul {
                   li(concatenate("Database version is ", show(*version*))),
-                  li(concatenate("There were ", show(*changes*.size), " changes")),
+                  li(concatenate("There were ", show(size(get-all-changes())), " changes")),
                   li(concatenate("There are ", show(*users*.size), " users")),
                   li{ a("User stats", href => "/koala/user-agents") }
                 },
@@ -323,7 +305,7 @@ define method respond-to-get (page == #"adduser",
               end)
     end;
   else
-    errors := add!(errors, make(<buddha-form-error>, error: "Permission denied"));
+    errors := add!(errors, make(<web-error>, error: "Permission denied"));
     respond-to-get (#"network", request, response, errors: errors);
   end;
 end;
@@ -420,7 +402,7 @@ define method respond-to-get (page == #"changes",
       elseif (action = "redo")
         redo(change)
       end
-    exception (e :: <buddha-form-error>)
+    exception (e :: <web-error>)
       errors := add!(errors, e);
       return();
     end;
@@ -428,7 +410,7 @@ define method respond-to-get (page == #"changes",
   let count = get-query-value("count");
   if (count & (count ~= ""))
     if (count = "all")
-      count := *changes*.size
+      count := size(get-all-changes())
     else
       count := integer-to-string(count)
     end
@@ -439,10 +421,10 @@ define method respond-to-get (page == #"changes",
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content") {
-                a(concatenate("View all ", integer-to-string(*changes*.size), " changes"),
+                a(concatenate("View all ", integer-to-string(size(get-all-changes())), " changes"),
                   href => "/changes?count=all"),
                 ul {
-                  do(for (change in *changes*,
+                  do(for (change in get-all-changes(),
                           i from 0 to count)
                        block(ret)
                          collect(with-xml()
@@ -545,7 +527,7 @@ define method show-errors (errors)
                do(for(error in errors)
                     collect(with-xml()
                               li(error.error-string,
-                                 class => if(instance?(error, <buddha-form-warning>))
+                                 class => if(instance?(error, <web-form-warning>))
                                             "green"
                                           else
                                             "red"
@@ -1227,6 +1209,7 @@ define method respond-to-get
   end;
 end;
 
+/*
 define constant $yourname-users = make(<string-table>);
 
 define class <yourname-user> (<object>)
@@ -1246,7 +1229,7 @@ define method respond-to-post
   let errs = #();
   format-out("ip %= pass %= host %= mac %= user %=\n",
              remote-ip, entered-password, hostname, entered-mac-address, user);
-end; /*
+end;
   block(ret)
     if (user)
       if (user.password = entered-password)
@@ -1273,12 +1256,12 @@ end; /*
             redo(command);
             let change = make(<change>,
                               command: command);
-            *changes* := add!(*changes*, change);
+            add-change(change);
             let slot-names = apply(concatenate, map(method(x)
                                                         concatenate(x.slot-name, " to ",
                                                                     show(x.new-value), "  ")
                                                     end, changes));
-            signal(make(<buddha-success>,
+            signal(make(<web-success>,
                         warning: concatenate("Saved Host ",
                                              show(user.host),
                                              " changed slots: ",
@@ -1304,23 +1287,23 @@ end; /*
           redo(command);
           let change = make(<change>,
                             command: command);
-          *changes* := add!(*changes*, change);
-          signal(make(<buddha-success>,
+          add-change(change);
+          signal(make(<web-success>,
                       warning: concatenate("Added host: ", show(new-host))));
         end;
       else
         //wrong password
-        signal(make(<buddha-form-error>,
+        signal(make(<web-error>,
                     error: "Invalid user/password"));
       end;
       //post before get
-      signal(make(<buddha-form-error>,
+      signal(make(<web-error>,
                   error: "POST before GET, go away"));
     end;
   exception (e :: <condition>)
     errs := add!(errs, e);
     ret()
-  exception (e :: <buddha-form-error>)
+  exception (e :: <web-error>)
     errs := add!(errs, e);
     ret()
   exception (e :: <error>)
