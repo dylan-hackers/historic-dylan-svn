@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE reference PUBLIC "-//IBM//DTD DITA Reference//EN" "../dtd/reference.dtd" []>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "../dtd/reference.dtd" []>
 <reference id="lid-file-keywords">
   <title>LID File Keywords</title>
 
@@ -81,7 +81,11 @@
   </reference>
 
 <!--
-In addition, the following optional keywords are provided for use where appropriate. These keywords allow a brief description of a library to be included in the LID, along with a set of relevant keywords, to enable you to browse the libraries available in the environment easily. </Body>
+In addition, the following optional keywords are provided for use
+where appropriate. These keywords allow a brief description of a
+library to be included in the LID, along with a set of relevant
+keywords, to enable you to browse the libraries available in the
+environment easily.
 -->
 
   <reference id="lid-file-keywords-synopsis">
@@ -255,10 +259,9 @@ C-Libraries: foo.lib
   </reference>
 
 <!--  
-<FM2Heading>
-Specifying compilation details </FM2Heading>
-<Body>
-The following keywords control aspects of compilation for the library.</Body>
+<FM2Heading>Specifying compilation details </FM2Heading>
+
+The following keywords control aspects of compilation for the library.
 -->
 
   <reference id="lid-file-keywords-executable">
@@ -296,7 +299,7 @@ The following keywords control aspects of compilation for the library.</Body>
         library. The <varname>address</varname> must be a hexadecimal
         value. For convenience, you can use either Dylan
         (<synph>#x<var>NNNNNNNN</var></synph>) or C
-        (<synph>0x<var>NNNNNNNN</var></synph>) notations when
+        (<synph>0x<var>NNNNNNNN</var></synph>) notation when
         specifying the address.</p>
 
         <p>This base address is ignored when building a
@@ -334,3 +337,72 @@ The following keywords control aspects of compilation for the library.</Body>
     </refbody>
   </reference>
 </reference>
+
+
+<!--
+The actual list accepted by 
+
+define constant $standard-lid-keyword = #[#"comment",
+					  #"library",
+					  #"files",
+					  #"lid",
+					  #"compilation-mode",
+					  #"loose-library-bindings",
+					  #"executable",
+					  #"base-address",
+					  #"linker-options",
+					  #"c-source-files",
+					  #"c-header-files",
+					  #"c-object-files",
+					  #"c-libraries",
+					  #"rc-files",
+					  #"major-version",
+					  #"minor-version",
+					  #"library-pack"];
+
+define constant $simple-build-keyword = #[#"executable",
+					  #"base-address",
+					  #"debug-command",
+					  #"debug-arguments",
+					  #"debug-machine",
+					  #"debug-directory",
+					  #"start-function",
+					  #"major-version",
+					  #"minor-version",
+					  #"library-pack"];
+
+
+define constant $list-build-keyword = #[#"linker-options",
+					#"c-source-files",
+					#"c-files",
+					#"c-header-files",
+					#"c-object-files",
+					#"c-libraries",
+					#"rc-files",
+					#"other-files",
+					#"broken-files"];
+
+also:
+
+  save-single-value(stream, #"executable", executable);
+  save-single-value(stream, #"base-address", 
+		    base-address-string | compute-base-address(p, #f));
+  save-single-value(stream, #"debug-command", debug-command);
+  save-single-value(stream, #"debug-arguments", debug-arguments-string);
+  save-single-value(stream, #"debug-machine", debug-machine);
+  save-single-value(stream, #"debug-directory", debug-directory);
+  save-single-value(stream, #"start-function", start-function);
+  save-list-value(stream, #"linker-options", linker-options);
+  save-list-value(stream, #"c-source-files", relative(c-source-files));
+  save-list-value(stream, #"c-header-files", relative(c-header-files));
+  save-list-value(stream, #"c-object-files", relative(c-object-files));
+  save-list-value(stream, #"c-libraries", c-libraries);
+  save-list-value(stream, #"rc-files", relative(rc-files));
+  save-single-value(stream, #"major-version", p.project-major-version);
+  save-single-value(stream, #"minor-version", p.project-minor-version);
+  save-single-value(stream, #"library-pack", p.project-library-pack);
+  save-single-value(stream, #"compilation-mode", p.project-compilation-mode);
+  save-single-value(stream, #"target-type", p.project-target-type);
+  save-list-value(stream, #"loose-library-bindings", p.project-library-loose-bindings);
+
+-->

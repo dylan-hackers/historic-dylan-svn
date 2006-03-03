@@ -1,14 +1,14 @@
 <!-- Domain entity inclusions -->
 
-<!ENTITY % ui-d-dec PUBLIC "-//IBM//ENTITIES DITA User Interface Domain//EN" "ui-domain.ent">
+<!ENTITY % ui-d-dec PUBLIC "-//OASIS//ENTITIES DITA User Interface Domain//EN" "ui-domain.ent">
   %ui-d-dec;
-<!ENTITY % hi-d-dec PUBLIC "-//IBM//ENTITIES DITA Highlight Domain//EN" "highlight-domain.ent">
+<!ENTITY % hi-d-dec PUBLIC "-//OASIS//ENTITIES DITA Highlight Domain//EN" "highlight-domain.ent">
   %hi-d-dec;
-<!ENTITY % pr-d-dec PUBLIC "-//IBM//ENTITIES DITA Programming Domain//EN" "programming-domain.ent">
+<!ENTITY % pr-d-dec PUBLIC "-//OASIS//ENTITIES DITA Programming Domain//EN" "programming-domain.ent">
   %pr-d-dec;
-<!ENTITY % sw-d-dec PUBLIC "-//IBM//ENTITIES DITA Software Domain//EN" "software-domain.ent">
+<!ENTITY % sw-d-dec PUBLIC "-//OASIS//ENTITIES DITA Software Domain//EN" "software-domain.ent">
   %sw-d-dec;
-<!ENTITY % ut-d-dec PUBLIC "-//IBM//ENTITIES DITA Utilities Domain//EN" "utilities-domain.ent">
+<!ENTITY % ut-d-dec PUBLIC "-//OASIS//ENTITIES DITA Utilities Domain//EN" "utilities-domain.ent">
   %ut-d-dec;
 <!ENTITY % api-d-dec PUBLIC "-//IBM//ENTITIES DITA API Domain//EN" "api-domain.ent">
   %api-d-dec;
@@ -30,10 +30,10 @@
 
 <!-- Structural definition inclusions -->
 
-<!ENTITY % topic-type PUBLIC "-//IBM//ELEMENTS DITA Topic//EN" "topic.mod">
+<!ENTITY % topic-type PUBLIC "-//OASIS//ELEMENTS DITA Topic//EN" "topic.mod">
   %topic-type;
 
-<!ENTITY % reference-typemod PUBLIC "-//IBM//ELEMENTS DITA Reference//EN" "reference.mod">
+<!ENTITY % reference-typemod PUBLIC "-//OASIS//ELEMENTS DITA Reference//EN" "reference.mod">
   %reference-typemod;
 
 <!ENTITY % apiRef-typemod PUBLIC "-//IBM//ELEMENTS DITA API Reference//EN" "apiRef.mod">
@@ -49,15 +49,15 @@
 
 <!-- Domain definition inclusions -->
 
-<!ENTITY % ui-d-def PUBLIC "-//IBM//ELEMENTS DITA User Interface Domain//EN" "ui-domain.mod">
+<!ENTITY % ui-d-def PUBLIC "-//OASIS//ELEMENTS DITA User Interface Domain//EN" "ui-domain.mod">
   %ui-d-def;
-<!ENTITY % hi-d-def PUBLIC "-//IBM//ELEMENTS DITA Highlight Domain//EN" "highlight-domain.mod">
+<!ENTITY % hi-d-def PUBLIC "-//OASIS//ELEMENTS DITA Highlight Domain//EN" "highlight-domain.mod">
   %hi-d-def;
-<!ENTITY % pr-d-def PUBLIC "-//IBM//ELEMENTS DITA Programming Domain//EN" "programming-domain.mod">
+<!ENTITY % pr-d-def PUBLIC "-//OASIS//ELEMENTS DITA Programming Domain//EN" "programming-domain.mod">
   %pr-d-def;
-<!ENTITY % sw-d-def PUBLIC "-//IBM//ELEMENTS DITA Software Domain//EN" "software-domain.mod">
+<!ENTITY % sw-d-def PUBLIC "-//OASIS//ELEMENTS DITA Software Domain//EN" "software-domain.mod">
   %sw-d-def;
-<!ENTITY % ut-d-def PUBLIC "-//IBM//ELEMENTS DITA Utilities Domain//EN" "utilities-domain.mod">
+<!ENTITY % ut-d-def PUBLIC "-//OASIS//ELEMENTS DITA Utilities Domain//EN" "utilities-domain.mod">
   %ut-d-def;
 <!ENTITY % api-d-def PUBLIC "-//IBM//ELEMENTS DITA API Domain//EN" "api-domain.mod">
   %api-d-def;
