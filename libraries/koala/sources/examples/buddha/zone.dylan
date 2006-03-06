@@ -154,7 +154,7 @@ define method print-bind-zone-file (print-zone :: <zone>, stream :: <stream>)
        end, choose(method(x)
                        ip-in-net?(parse-cidr(print-zone.zone-name),
                                   x.ipv4-address)
-                   end, *config*.hosts));
+                   end, storage(<host>)));
   else
     do(method(x)
            format(stream, "\tIN\tNS\t%s. \n", x)
@@ -168,7 +168,7 @@ define method print-bind-zone-file (print-zone :: <zone>, stream :: <stream>)
                   as(<string>, x.ipv4-address))
        end, choose(method(x)
                        x.zone = print-zone
-                   end, *config*.hosts));
+                   end, storage(<host>)));
     do(method(x)
            format(stream, "%s\tCNAME\t%s\n", source(x), target(x))
        end, print-zone.cnames);
@@ -224,7 +224,7 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
                   x.time-to-live);
        end, choose(method(x)
                        x.zone = print-zone
-                   end, *config*.hosts));
+                   end, storage(<host>)));
     //A
     do(method(x)
            format(stream, "+%s.%s:%s:%d\n",
@@ -239,9 +239,9 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
                   source(x), print-zone.zone-name, target(x), print-zone.zone-name);
        end, print-zone.cnames);
     //a records for dynamic PTR records
-    let ip = *config*.networks[0].cidr.cidr-network-address;
+    let ip = storage(<network>)[0].cidr.cidr-network-address;
     if (reverse-table)
-      while (ip < broadcast-address(*config*.networks[0].cidr))
+      while (ip < broadcast-address(storage(<network>)[0].cidr))
         unless (element(reverse-table, as(<string>, ip), default: #f))
           format(stream, "+%s.%s:%s:%d\n",
                  concatenate("hacker-", get-ptr(ip)),
@@ -275,10 +275,10 @@ define method add-reverse-zones (network :: <network>) => ()
     block(ret)
       check(zone);
       let command = make(<add-command>,
-                         arguments: list(zone, *config*.zones));
+                         arguments: list(zone, storage(<zone>)));
       let change = make(<change>,
                         command: command);
-      add-change(change);
+      save(change);
       redo(command);
       signal(make(<web-success>,
                   warning: concatenate("Added zone: ", show(zone))));

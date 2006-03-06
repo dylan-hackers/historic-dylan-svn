@@ -68,6 +68,6 @@ define method print-isc-dhcpd-file (print-network :: <network>,
            print-isc-dhcpd-file(x, stream);
        end, choose(method(x)
                        x.network = print-network
-                   end, *config*.subnets))
+                   end, storage(<subnet>)))
   end if;
 end;

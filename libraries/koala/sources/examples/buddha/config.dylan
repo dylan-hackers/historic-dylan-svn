@@ -1,31 +1,12 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define web-class <config> (<object>)
-  data config-name :: <string>;
-  has-many vlan;
-  has-many network;
-  has-many zone;
-  has-many subnet;
-  has-many host;
-end;
-
-define method as (class == <string>, config :: <config>)
- => (res :: <string>)
-  config.config-name
-end;
-
-define method print-object (config :: <config>, stream :: <stream>)
- => ()
-  format(stream, "Config:%s\n", as(<string>, config))
-end;
-
 define method overlaps (network :: <network>) => (res :: <list>)
-  overlaps-aux(network, *config*.networks)
+  overlaps-aux(network, storage(<network>))
 end;
 
 define method overlaps (subnet :: <subnet>) => (res :: <list>)
-  overlaps-aux(subnet, *config*.subnets)
+  overlaps-aux(subnet, storage(<subnet>))
 end;
 
 define method overlaps-aux (network :: <network>, list :: <collection>)
@@ -66,7 +47,7 @@ define method check-in-context (tzone :: <zone>, tcname :: <cname>)
     signal(make(<web-error>,
                 error: "Same A record already exists"));
   elseif (any?(method(x) x.host-name = tcname.source end,
-               choose(method(y) y.zone = tzone end, *config*.hosts)))
+               choose(method(y) y.zone = tzone end, storage(<host>))))
     signal(make(<web-error>,
                 error: "Same A record already exists"));
   else
@@ -83,7 +64,7 @@ define method check-in-context (tzone :: <zone>, a-record :: <a-record>)
     signal(make(<web-error>,
                 error: "Same A record already exists"));
   elseif (any?(method(x) x.host-name = a-record.host-name end,
-               choose(method(y) y.zone = tzone end, *config*.hosts)))
+               choose(method(y) y.zone = tzone end, storage(<host>))))
     signal(make(<web-error>,
                 error: "Same A record already exists"));
   else
@@ -93,7 +74,7 @@ end;
 
 define method check (zone :: <zone>, #key test-result = 0)
  => (res :: <boolean>)
-  if (size(choose(method(x) x.zone-name = zone.zone-name end , *config*.zones)) > test-result)
+  if (size(choose(method(x) x.zone-name = zone.zone-name end , storage(<zone>))) > test-result)
     signal(make(<web-error>,
                 error: "Zone with same name already exists"));
   else
@@ -107,7 +88,7 @@ end;
 define method check (host :: <host>, #key test-result = 0)
  => (res :: <boolean>)
   if (size(choose(method(x) x.host-name = host.host-name end,
-                  choose(method(x) x.zone = host.zone end, *config*.hosts))) > test-result)
+                  choose(method(x) x.zone = host.zone end, storage(<host>)))) > test-result)
     signal(make(<web-error>,
                 error: "Host with same name already exists in zone"));
   elseif (size(choose(method(x) x.host-name = host.host-name end,
@@ -119,13 +100,13 @@ define method check (host :: <host>, #key test-result = 0)
     signal(make(<web-error>,
                 error: "A record already exists in zone"));
   elseif (size(choose(method(x) x.ipv4-address = host.ipv4-address end,
-                      choose(method(x) x.subnet = host.subnet end, *config*.hosts))) > test-result)
+                      choose(method(x) x.subnet = host.subnet end, storage(<host>)))) > test-result)
     signal(make(<web-error>,
                 error: "Host with same IP address already exists in subnet"));
   elseif (host.subnet.dhcp?
             & size(choose(method(x) x.mac-address = host.mac-address end,
                             choose(method(x) x.subnet = host.subnet end,
-                                     *config*.hosts))) > test-result)
+                                     storage(<host>)))) > test-result)
     signal(make(<web-error>,
                 error: "Host with same MAC address already exists in subnet"));
   elseif ((host.ipv4-address = network-address(host.subnet.cidr)) |
@@ -142,13 +123,14 @@ end;
 
 define method check (vlan :: <vlan>, #key test-result = 0)
  => (res :: <boolean>)
+  let vlans = storage(<vlan>);
   if ((vlan.number < 0) | (vlan.number > 4095))
     signal(make(<web-error>,
                 error: "VLAN not in range 0 - 4095"));
-  elseif (size(choose(method(x) x.number = vlan.number end , *config*.vlans)) > test-result)
+  elseif (size(choose(method(x) x.number = vlan.number end , vlans)) > test-result)
     signal(make(<web-error>,
                 error: "VLAN with same number already exists"));
-  elseif (size(choose(method(x) x.vlan-name = vlan.vlan-name end, *config*.vlans)) > test-result)
+  elseif (size(choose(method(x) x.vlan-name = vlan.vlan-name end, vlans)) > test-result)
     signal(make(<web-error>,
                 error: "VLAN with same name already exists"));
   else
@@ -238,9 +220,9 @@ define method check (subnet :: <subnet>, #key test-result = 0)
   end if;
 end;
 
-define method print-isc-dhcpd-file (config :: <config>, stream :: <stream>)
+define method print-isc-dhcpd-file (config :: <collection>, stream :: <stream>)
  => ()
-  for (network in config.networks)
+  for (network in config)
     if (network.dhcp?)
       print-isc-dhcpd-file(network, stream);
     end;
@@ -248,19 +230,19 @@ define method print-isc-dhcpd-file (config :: <config>, stream :: <stream>)
 end;
 
 define method print-bind-zone-file
-    (config :: <config>, stream :: <stream>)
+    (config :: <collection>, stream :: <stream>)
  => ()
   //we need to print named.conf file here
-  for (zone in config.zones)
+  for (zone in config)
     print-bind-zone-file(zone, stream)
   end;
 end;
 
 define method print-tinydns-zone-file
-    (config :: <config>, stream :: <stream>, #key reverse-table)
+    (config :: <collection>, stream :: <stream>, #key reverse-table)
  => ()
   let reverse-table = make(<string-table>);
-  for (zone in config.zones)
+  for (zone in config)
     print-tinydns-zone-file(zone, stream, reverse-table: reverse-table)
   end;
 end;
