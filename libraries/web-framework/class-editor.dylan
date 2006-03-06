@@ -45,7 +45,7 @@ define method edit-form (object :: <object>, #key refer, xml) => (res)
              //of global list of elements...
              collect(with-xml()
                        \select(name => slot.slot-name)
-                       { do(for (ele in slot.slot-global-list(*config*))
+                       { do(for (ele in storage(slot.slot-type))
                               if (visible?(ele))
                                 if (ele = slot.slot-getter-method(object))
                                   collect(with-xml()
@@ -169,7 +169,7 @@ define method add-form (object-type :: subclass(<object>),
              let value = get-object(get-query-value(slot.slot-name));
              collect(with-xml()
                        \select(name => slot.slot-name)
-                       { do(for (ele in slot.slot-global-list(*config*))
+                       { do(for (ele in storage(slot.slot-type))
                               if (visible?(ele))
                                 if (fill-from-request & (ele = value))
                                   collect(with-xml()
@@ -392,7 +392,7 @@ define method add-object (parent-object :: <object>, request :: <request>)
     redo(command);
     let change = make(<change>,
                       command: command);
-    *changes* := add!(*changes*, change);
+    save(change);
     signal(make(<web-success>,
                 warning: concatenate("Added ",
                                      get-url-from-type(object-type),
@@ -408,7 +408,7 @@ define method remove-object (parent-object :: <object>, request :: <request>)
                      arguments: list(object, parent-object));
   let change = make(<change>,
                     command: command);
-  *changes* := add!(*changes*, change);
+  save(change);
   redo(command);
   signal(make(<web-success>,
               warning: concatenate("Removed ",
@@ -481,7 +481,7 @@ define method save-object (object :: <object>, request :: <request>)
     //check world, if broken, do a rollback!
     let change = make(<change>,
                       command: command);
-    *changes* := add!(*changes*, change);
+    save(change);
     let slot-names = apply(concatenate,
                            map(method(x)
                                    concatenate(x.slot-name, " to ",

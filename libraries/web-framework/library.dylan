@@ -7,10 +7,12 @@ define library web-framework
   use io;
   use koala, import: { koala, dsp };
   use xml-parser, import: { simple-xml };
-  use system, import: { date };
+  use system, import: { file-system, date };
+  use dood;
 
   export object-table,
-    web-framework;
+    web-framework,
+    storage;
 end;
 
 define module object-table
@@ -22,6 +24,21 @@ define module object-table
     get-object;
 end;
 
+define module storage
+  use common-dylan;
+  use dood;
+  use file-system;
+  use threads;
+  use format-out;
+
+  export storage,
+    dump-data,
+    dumper,
+    save,
+    restore,
+    restore-newest,
+    version;
+end;
 
 define module web-framework
   use common-dylan;
@@ -32,6 +49,8 @@ define module web-framework
   use date;
   use dsp, import: { set-attribute, get-attribute };
   use dylan-extensions, import: { debug-name };
+
+  use storage;
 
   export <reference-object>,
     visible?,
@@ -78,10 +97,7 @@ define module web-framework
     command,
     undo,
     redo,
-    print-xml,
-    get-all-changes,
-    set-changes,
-    add-change;
+    print-xml;
 
 
   //user stuff
