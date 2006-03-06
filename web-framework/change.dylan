@@ -1,24 +1,10 @@
 module: web-framework
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define variable *changes* = #();
-
-define method get-all-changes () => (changes :: <list>)
-  *changes*;
-end;
-
-define method set-changes (changes :: <list>) => ()
-  *changes* := changes;
-end;
-
-define method add-change (change :: <change>) => ()
-  *changes* := add!(*changes*, change);
-end;
-
-define class <change> (<object>)
-  slot author :: <string>;
-  slot date :: <date>;
-  slot command :: <command>, init-keyword: command:;
+define web-class <change> (<object>)
+  data author :: <string>;
+  data date :: <date>;
+  data command :: <command>;
 end;
 
 define method initialize (change :: <change>, #rest rest, #key, #all-keys)
@@ -33,14 +19,15 @@ define method undo (change :: <change>)
   //on success, make a new <change> object, add it to *changes*
   let change = make(<change>,
                     command: reverse-command(change.command));
-  *changes* := add!(*changes*, change);
+  save(change);
 end;
 
 define method print-xml (date :: <date>)
   let $month-names
     = #["Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  let (iyear, imonth, iday, ihours, iminutes, iseconds, day-of-week, time-zone-offset)
+  let (iyear, imonth, iday, ihours, iminutes,
+       iseconds, day-of-week, time-zone-offset)
     = decode-date(date);
   local method wrap0 (i :: <integer>) => (string :: <string>)
           if (i < 10)

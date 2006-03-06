@@ -10,7 +10,6 @@ define class <slot> (<object>)
   constant slot slot-type :: <object>, init-keyword: type:;
   constant slot slot-getter-method :: <function>, init-keyword: getter:;
   constant slot slot-setter-method :: <function>, init-keyword: setter:;
-  constant slot slot-global-list :: <object>, init-keyword: global-list:;
   constant slot default :: <object> = #f, init-keyword: default:;
   constant slot default-function :: <function> = method(x :: <object>) #f end,
     init-keyword: default-function:;
@@ -76,8 +75,7 @@ define macro web-reference
               name: ?"slot-name",
               type: "<" ## ?#"slot-name" ## ">",
               getter: ?slot-name,
-              setter: ?slot-name ## "-setter",
-              global-list: ?slot-name ## "s"), ... }
+              setter: ?slot-name ## "-setter"), ... }
     { ?other:*; ... }
     => { ... }
 end;
