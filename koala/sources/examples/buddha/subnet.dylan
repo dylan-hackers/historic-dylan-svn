@@ -58,7 +58,7 @@ define method print-isc-dhcpd-file (print-subnet :: <subnet>, stream :: <stream>
            print-isc-dhcpd-file(x, stream);
        end, choose(method(x)
                        x.subnet = print-subnet
-                   end, *config*.hosts))
+                   end, storage(<host>)))
 
   end if;
 end;
@@ -70,7 +70,7 @@ define method generate-dhcp-ranges (this-subnet :: <subnet>)
   let res = make(<list>);
   for (host in choose(method(x)
                           x.subnet = this-subnet
-                      end, *config*.hosts))
+                      end, storage(<host>)))
     let host-ip = host.ipv4-address;
     if ((host-ip > start-ip) & (host-ip <= end-ip))
       res := add!(res, pair(start-ip, host-ip - 1));

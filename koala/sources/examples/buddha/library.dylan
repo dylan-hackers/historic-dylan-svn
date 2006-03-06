@@ -53,6 +53,7 @@ define module buddha
 
   use simple-xml;
   use web-framework;
+  use storage;
   use object-table;
   use utils;
 end;

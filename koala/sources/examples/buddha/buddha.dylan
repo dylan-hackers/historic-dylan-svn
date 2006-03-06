@@ -1,18 +1,6 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define variable *config* = make(<config>,
-                                config-name: "config");
-
-define variable *version* = 0;
-
-define class <buddha> (<object>)
-  constant slot config :: <config> = *config*;
-  constant slot version :: <integer> = *version*;
-  constant slot changes = get-all-changes();
-  constant slot users = *users*;
-end;
-
 define variable *directory* = "www/buddha/";
 
 define thread variable *user* = #f;
@@ -21,61 +9,6 @@ define variable *nameserver* = list(make(<nameserver>,
                                          ns-name: "auth-int.congress.ccc.de"),
                                     make(<nameserver>,
                                          ns-name: "auth-ext.congress.ccc.de"));
-
-define sideways method process-config-element
-    (node :: <xml-element>, name == #"buddha")
-  let cdir = get-attr(node, #"content-directory");
-  if (~cdir)
-    log-warning("Buddha - No content-directory specified!");
-  else
-    *directory* := cdir;
-  end;
-  log-info("Buddha content directory = %s", *directory*);
-  restore-newest-database();
-end;
-
-define method split-file (file :: <string>) => (version :: <integer>)
-  let elements = split(file, '-');
-  if (elements.size = 2)
-    string-to-integer(elements[1]);
-  else
-    0
-  end;
-end;
-
-define method restore-newest-database () => ();
-  let file = #f;
-  let latest-version = 0;
-  do-directory(method(directory :: <pathname>,
-                      name :: <string>,
-                      type :: <file-type>)
-                   if (type == #"file")
-                     let version = split-file(name);
-                     if (version > latest-version)
-                       latest-version := version;
-                       file := name;
-                     end;
-                   end;
-               end, *directory*);
-  if (file)
-    restore-database(file);
-  end;
-end;
-
-define method restore-database (file :: <string>)
-  let dood = make(<dood>,
-                  locator: concatenate(*directory*, file),
-                  direction: #"input");
-  format-out("restored %= %=\n", *directory*, file);
-  let buddha = dood-root(dood);
-  dood-close(dood);
-  *config* := buddha.config;
-  set-changes(buddha.changes);
-  *users* := buddha.users;
-  if (buddha.version > *version*)
-    *version* := buddha.version + 1;
-  end;
-end;
 
 define method initial-responder (request :: <request>, response :: <response>)
   dynamic-bind(*user* = make(<user>,
@@ -116,7 +49,7 @@ define macro page-definer
     => { define responder ?name ## "-responder" ("/" ## ?"name")
            (request, response)
            block(return)
-             if (*users*.size = 0)
+             if (storage(<user>).size = 0)
                  initial-responder(request, response);
                  return();
              end;
@@ -132,7 +65,7 @@ define macro page-definer
                  return();
                end;
              end;
-             dynamic-bind(*user* = *users*[logged-in(request)])
+             dynamic-bind(*user* = current-user())
                if (request.request-method = #"get")
                  respond-to-get(as(<symbol>, ?"name"), request, response)
                elseif (request.request-method = #"post")
@@ -145,7 +78,7 @@ end;
 
 define responder default-responder ("/")
   (request, response)
-  if (*users*.size = 0)
+  if (storage(<user>).size = 0)
     initial-responder(request, response);
   else
     respond-to-get(#"login", request, response);
@@ -227,23 +160,23 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
           li { a("vlan", href => concatenate("/add?object-type=",
                                              get-reference(<vlan>),
                                              "&parent-object=",
-                                             get-reference(*config*.vlans))) },
+                                             get-reference(storage(<vlan>)))) },
           li { a("zone", href => concatenate("/add?object-type=",
                                              get-reference(<zone>),
                                              "&parent-object=",
-                                              get-reference(*config*.zones))) },
+                                              get-reference(storage(<zone>)))) },
           li { a("host", href => concatenate("/add?object-type=",
                                              get-reference(<host>),
                                              "&parent-object=",
-                                             get-reference(*config*.hosts))) },
+                                             get-reference(storage(<host>)))) },
           li { a("network", href => concatenate("/add?object-type=",
                                                 get-reference(<network>),
                                                 "&parent-object=",
-                                                get-reference(*config*.networks))) },
+                                                get-reference(storage(<network>)))) },
           li { a("subnet", href => concatenate("/add?object-type=",
                                                get-reference(<subnet>),
                                                "&parent-object=",
-                                               get-reference(*config*.subnets))) }
+                                               get-reference(storage(<subnet>)))) }
         },
         ul { li{ text("Logged in as "),
                  strong(*user*.username) } }
@@ -269,9 +202,9 @@ define method respond-to-get (page == #"admin",
               div(id => "content")
               { h2("Welcome, stranger"),
                 ul {
-                  li(concatenate("Database version is ", show(*version*))),
-                  li(concatenate("There were ", show(size(get-all-changes())), " changes")),
-                  li(concatenate("There are ", show(*users*.size), " users")),
+                  li(concatenate("Database version is ", show(version()))),
+                  li(concatenate("There were ", show(size(storage(<change>))), " changes")),
+                  li(concatenate("There are ", show(size(storage(<user>))), " users")),
                   li{ a("User stats", href => "/koala/user-agents") }
                 },
                 ul {
@@ -410,7 +343,7 @@ define method respond-to-get (page == #"changes",
   let count = get-query-value("count");
   if (count & (count ~= ""))
     if (count = "all")
-      count := size(get-all-changes())
+      count := size(storage(<change>))
     else
       count := integer-to-string(count)
     end
@@ -421,10 +354,10 @@ define method respond-to-get (page == #"changes",
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content") {
-                a(concatenate("View all ", integer-to-string(size(get-all-changes())), " changes"),
+                a(concatenate("View all ", integer-to-string(size(storage(<change>))), " changes"),
                   href => "/changes?count=all"),
                 ul {
-                  do(for (change in get-all-changes(),
+                  do(for (change in storage(<change>),
                           i from 0 to count)
                        block(ret)
                          collect(with-xml()
@@ -468,54 +401,6 @@ define method next-color (object :: <object>)
   $colors[result];
 end;
 
-define method respond-to-get
-    (page == #"edit",
-     request :: <request>,
-     response :: <response>,
-     #key errors)
-  let out = output-stream(response);
-  let obj-string = get-query-value("obj");
-  let obj = get-object(obj-string);
-  unless (obj)
-    obj := *config*;
-  end;
-  with-buddha-template(out, "Edit")
-    collect(show-errors(errors));
-    collect(with-xml()
-              div(id => "content")
-              {
-                do(edit-form(obj,
-                             xml: with-xml()
-                                    input(type => "hidden",
-                                          name => "obj",
-                                          value => get-reference(obj))
-                                  end)),
-                do(list-forms(obj))
-              }
-            end);
-  end;
-end;
-
-define method respond-to-get
-    (page == #"browse",
-     request :: <request>,
-     response :: <response>,
-     #key errors)
-  let out = output-stream(response);
-  let obj-string = get-query-value("obj-id");
-  let obj = get-object(obj-string);
-  unless (obj)
-    obj := *config*;
-  end;
-  with-buddha-template(out, "Browse")
-    with-xml()
-      div(id => "content") {
-        do(browse-list(obj))
-      }
-    end;
-  end;
-end;
-
 define method show-errors (errors)
   with-xml()
     div(id => "error")
@@ -546,16 +431,7 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
-  let filename = concatenate("buddha-", integer-to-string(*version*));
-  let dood = make(<dood>,
-                  locator: concatenate(*directory*, filename),
-                  direction: #"output",
-                  if-exists: #"replace");
-  dood-root(dood) := make(<buddha>);
-  dood-commit(dood);
-  dood-close(dood);
-  *version* := *version* + 1;
-  format(output-stream(response), "Saved %S\n", filename);
+  dump-data();
   respond-to-get(#"network",
                  request,
                  response);
@@ -598,7 +474,7 @@ end;
 define method respond-to-post
     (page == #"restore", request :: <request>, response :: <response>)
   let file = get-query-value("filename");
-  restore-database(file);
+  restore(file);
   format(output-stream(response), "Restored %s\n", file);
   respond-to-get(page,
                  request,
@@ -612,7 +488,7 @@ define method respond-to-get
      #key errors)
   let network = get-object(get-query-value("network"));
   unless (network)
-    network := *config*;
+    network := storage(<network>);
   end;
   set-content-type(response, "text/plain");
   print-isc-dhcpd-file(network, output-stream(response));
@@ -625,7 +501,7 @@ define method respond-to-get
      #key errors)
   let zone = get-object(get-query-value("zone"));
   unless (zone)
-    zone := *config*
+    zone := storage(<zone>);
   end;
   set-content-type(response, "text/plain");
   print-tinydns-zone-file(zone, output-stream(response));
@@ -645,7 +521,7 @@ define method respond-to-get
      response :: <response>,
      #key errors)
   let out = output-stream(response);
-  reset-color(*config*.networks);
+  reset-color(storage(<network>));
   with-buddha-template (out, "Networks")
     collect(show-errors(errors));
     collect(with-xml ()
@@ -656,7 +532,7 @@ define method respond-to-get
                   do(let res = make(<stretchy-vector>);
                      do(method(x)
                             res := add!(res, with-xml()
-                                               tr(class => next-color(*config*.networks))
+                                               tr(class => next-color(storage(<network>)))
                                                  { td { a(show(x.cidr),
                                                            href => concatenate("/network-detail?network=",
                                                                                get-reference(x))) },
@@ -671,11 +547,11 @@ define method respond-to-get
                                                           end) }
                                                      }
                                              end);
-                            reset-color(*config*.subnets);
+                            reset-color(storage(<subnet>));
                             res := concatenate(res,
                                                map(method(y)
                                                        with-xml()
-                                                         tr(class => concatenate("foo-", next-color(*config*.subnets))) { 
+                                                         tr(class => concatenate("foo-", next-color(storage(<subnet>)))) { 
                                                            td { a(show(y.cidr),
                                                                   href => concatenate("/subnet-detail?subnet=",
                                                                                       get-reference(y))) },
@@ -688,8 +564,8 @@ define method respond-to-get
                                                    end,
                                                    choose(method(z)
                                                               z.network = x
-                                                          end, *config*.subnets)));
-                        end, *config*.networks);
+                                                          end, storage(<subnet>))));
+                        end, storage(<network>));
                      res)
                 }
               }
@@ -717,7 +593,7 @@ define method respond-to-get
                                           name => "network",
                                           value => get-reference(dnetwork))
                                   end)),
-                do(remove-form(dnetwork, *config*.networks, url: "network")),
+                do(remove-form(dnetwork, storage(<network>), url: "network")),
                 //dhcp options add|edit|remove
                 h2(concatenate("DHCP options for subnet ", show(dnetwork))),
                 do(if (dnetwork.dhcp-options.size > 0)
@@ -745,15 +621,15 @@ define method respond-to-get
                 //add subnet with filled-in network?!
                 h2(concatenate("Subnets in network ", show(dnetwork))),
                 table { tr { th("CIDR"), th("dhcp?") },
-                        do(reset-color(*config*.subnets);
+                        do(reset-color(storage(<subnet>));
                            map(method(x) with-xml()
-                                           tr(class => next-color(*config*.subnets))
+                                           tr(class => next-color(storage(<subnet>)))
                                               { td {a(show(x),
                                                       href => concatenate("/subnet-detail?subnet=",
                                                                           get-reference(x))) },
                                                 td(show(x.dhcp?)) }
                                          end
-                               end, choose(method(y) y.network = dnetwork end, *config*.subnets))) }
+                               end, choose(method(y) y.network = dnetwork end, storage(<subnet>)))) }
               }
             end);
   end;
@@ -773,9 +649,9 @@ define method respond-to-get
               {
                 table {
                   tr { th("CIDR"), th("dhcp?"), th("VLAN") },
-                  do(reset-color(*config*.subnets);
+                  do(reset-color(storage(<subnet>));
                      map(method(x) with-xml()
-                                     tr(class => next-color(*config*.subnets))
+                                     tr(class => next-color(storage(<subnet>)))
                                        { td { a(show(x.cidr),
                                                  href => concatenate("/subnet-detail?subnet=",
                                                                      get-reference(x))) },
@@ -785,7 +661,7 @@ define method respond-to-get
                                                                      get-reference(x.vlan))) }
                                          }
                                    end
-                         end, *config*.subnets))
+                         end, storage(<subnet>)))
                 }
               }
             end);
@@ -812,7 +688,7 @@ define method respond-to-get
                                           name => "subnet",
                                           value => get-reference(dsubnet))
                                   end)),
-                do(remove-form(dsubnet, *config*.subnets, url: "subnet")),
+                do(remove-form(dsubnet, storage(<subnet>), url: "subnet")),
                 ul { li { text("VLAN "), a(show(dsubnet.vlan),
                                           href => concatenate("/vlan-detail?vlan=",
                                                               get-reference(dsubnet.vlan))) },
@@ -846,16 +722,16 @@ define method respond-to-get
                                  end)),
                 h2(concatenate("Hosts in subnet ", show(dsubnet))),
                 table { tr { th("Hostname"), th("IP"), th("Mac")},
-                        do(reset-color(*config*.hosts);
+                        do(reset-color(storage(<host>));
                            map(method(x) with-xml()
-                                           tr(class => next-color(*config*.hosts))
+                                           tr(class => next-color(storage(<host>)))
                                              { td {a(x.host-name,
                                                       href => concatenate("/host-detail?host=",
                                                                           get-reference(x))) },
                                                 td(show(x.ipv4-address)),
                                                 td(show(x.mac-address)) }
                                          end
-                               end, choose(method(y) y.subnet = dsubnet end, *config*.hosts))) }
+                               end, choose(method(y) y.subnet = dsubnet end, storage(<host>)))) }
                 //add host with predefined subnet (cause we have the context)?
               }
             end);
@@ -886,9 +762,9 @@ define method respond-to-get
                 table
                 {
                   tr { th("ID"), th("Name"), th("Subnets"), th("Description") },
-                  do(reset-color(*config*.vlans);
+                  do(reset-color(storage(<vlan>));
                      map(method(x) with-xml()
-                                     tr(class => next-color(*config*.vlans))
+                                     tr(class => next-color(storage(<vlan>)))
                                        { td { a(show(x.number),
                                                href => concatenate("/vlan-detail?vlan=",
                                                                    get-reference(x))) },
@@ -900,11 +776,11 @@ define method respond-to-get
                                                                                             get-reference(y)))
                                                                     end
                                                                 end, choose(method(z) z.vlan = x end,
-                                                                            *config*.subnets))))
+                                                                            storage(<subnet>)))))
                                              },
                                           td(show(x.description)) }
                                    end
-                         end, *config*.vlans))
+                         end, storage(<vlan>)))
                 }
               }
             end);
@@ -931,19 +807,19 @@ define method respond-to-get
                                           name => "vlan",
                                           value => get-reference(dvlan))
                                   end)),
-                do(remove-form(dvlan, *config*.vlans, url: "vlan")),
+                do(remove-form(dvlan, storage(<vlan>), url: "vlan")),
                 h2(concatenate("Subnets in VLAN ", show(dvlan.number))),
                 table {
                   tr { th("CIDR"), th("dhcp?") },
-                  do(reset-color(*config*.subnets);
+                  do(reset-color(storage(<subnet>));
                      map(method(x) with-xml()
-                                     tr (class => next-color(*config*.subnets))
+                                     tr (class => next-color(storage(<subnet>)))
                                        { td { a(show(x.cidr),
                                                  href => concatenate("/subnet-detail?subnet=",
                                                                      get-reference(x))) },
                                           td(show(x.dhcp?)) }
                                    end
-                         end, choose(method(x) x.vlan = dvlan end, *config*.subnets)))
+                         end, choose(method(x) x.vlan = dvlan end, storage(<subnet>))))
                 }
                 //add subnet with pre-filled vlan?
               }
@@ -965,9 +841,9 @@ define method respond-to-get
                 table
                 {
                   tr { th("Hostname"), th("IP-Address"), th("Subnet"), th("Zone") },
-                  do(reset-color(*config*.hosts);
+                  do(reset-color(storage(<host>));
                      map(method(x) with-xml()
-                                     tr(class => next-color(*config*.hosts))
+                                     tr(class => next-color(storage(<host>)))
                                        { td { a(x.host-name,
                                                  href => concatenate("/host-detail?host=",
                                                                      get-reference(x))) },
@@ -980,7 +856,7 @@ define method respond-to-get
                                                                      get-reference(x.zone))) }
                                      }
                                    end
-                         end, *config*.hosts))
+                         end, storage(<host>)))
                 }
               }
             end);
@@ -1007,7 +883,7 @@ define method respond-to-get
                                           name => "host",
                                           value => get-reference(host))
                                   end)),
-                do(remove-form(host, *config*.hosts, url: "host")),
+                do(remove-form(host, storage(<host>), url: "host")),
                 ul { li { text("Subnet "), a(show(host.subnet),
                                              href => concatenate("/subnet-detail?subnet=",
                                                                  get-reference(host.subnet))) },
@@ -1044,9 +920,9 @@ define method respond-to-get
                 table
                 {
                   tr { th("Zone name"), th },
-                  do(reset-color(*config*.zones);
+                  do(reset-color(storage(<zone>));
                      map(method(x) with-xml()
-                                     tr(class => next-color(*config*.zones))
+                                     tr(class => next-color(storage(<zone>)))
                                        { td { a(x.zone-name,
                                            href => concatenate("/zone-detail?zone=",
                                                                get-reference(x))) },
@@ -1055,7 +931,7 @@ define method respond-to-get
                                                                      get-reference(x))) }
                                       }
                                    end
-                         end, *config*.zones))
+                         end, storage(<zone>)))
                 }
               }
             end);
@@ -1082,7 +958,7 @@ define method respond-to-get
                                           name => "zone",
                                           value => get-reference(dzone))
                                   end)),
-                do(remove-form(dzone, *config*.zones, url: "zone")),
+                do(remove-form(dzone, storage(<zone>), url: "zone")),
                 //edit|remove ns, mx, cname, forms, add host form?!
                 h2("Nameserver entries"),
                 do(if (dzone.nameservers.size > 0)
@@ -1192,16 +1068,16 @@ define method respond-to-get
                                   end)),
                 h2("Hosts"),
                 table { tr { th("Hostname"), th("IP"), th("TTL") },
-                        do(reset-color(*config*.hosts);
+                        do(reset-color(storage(<host>));
                            map(method(x) with-xml()
-                                           tr(class => next-color(*config*.hosts))
+                                           tr(class => next-color(storage(<host>)))
                                              { td { a(x.host-name,
                                                        href => concatenate("/host-detail?host=",
                                                                            get-reference(x))) },
                                                 td(show(x.ipv4-address)),
                                                 td(show(x.time-to-live)) }
                                          end
-                               end, choose(method(y) y.zone = dzone end, *config*.hosts))) } }
+                               end, choose(method(y) y.zone = dzone end, storage(<host>)))) } }
                      end
                    end)
               }
@@ -1256,7 +1132,7 @@ end;
             redo(command);
             let change = make(<change>,
                               command: command);
-            add-change(change);
+            save(change);
             let slot-names = apply(concatenate, map(method(x)
                                                         concatenate(x.slot-name, " to ",
                                                                     show(x.new-value), "  ")
@@ -1277,17 +1153,17 @@ end;
                               mac-address: entered-mac-address,
                               subnet: choose(method(x)
                                                  ip-in-net?(x, ip)
-                                             end, *config*.subnets)[0],
+                                             end, storage(<subnet>))[0],
                               zone: choose(method(x)
                                                x.zone-name = "congress.ccc.de";
-                                           end, *config*.zones)[0]);
+                                           end, storage(<zone>))[0]);
           //add new host
           let command = make(<add-command>,
-                             arguments: list(new-host, *config*.hosts));
+                             arguments: list(new-host, storage(<host>)));
           redo(command);
           let change = make(<change>,
                             command: command);
-          add-change(change);
+          save(change);
           signal(make(<web-success>,
                       warning: concatenate("Added host: ", show(new-host))));
         end;
@@ -1354,26 +1230,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
 end;
 
 define function main () => ()
-  let dumper
-  = make(<thread>,
-         function: method()
-                       sleep(23);
-                       while(#t)
-                         let filename
-                           = concatenate("buddha-", integer-to-string(*version*));
-                         let dood
-                           = make(<dood>,
-                                  locator: concatenate(*directory*,
-                                                       filename),
-                                  direction: #"output",
-                                  if-exists: #"replace");
-                         dood-root(dood) := make(<buddha>);
-                         dood-commit(dood);
-                         dood-close(dood);
-                         *version* := *version* + 1;
-                         sleep(300);
-                       end;
-                   end);
+  dumper();
   block()
     start-server();
   exception (e :: <condition>)
