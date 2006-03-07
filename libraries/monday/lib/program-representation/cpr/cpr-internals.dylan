@@ -922,8 +922,8 @@ define sealed domain make(singleton(<C-preprocessor-state>));
 define sealed domain initialize(<C-preprocessor-state>);
             
 define class <C-preprocessor-directive> (<object>)
-  constant slot directive-grouping?,
-    init-value: #f, init-keyword: grouping?:;
+  constant slot directive-skipping-function :: <function>,
+    init-value: method (dispatcher) #f end, init-keyword: skipping-function:;
   constant slot directive-macro-replaced?,
     init-value: #f, init-keyword: macro-replaced?:;
   constant slot directive-lexical-definition
@@ -1033,7 +1033,7 @@ directive "if" [constant-expression] (dispatcher :: <C-preprocessor-token-dispat
   preprocessor-begin-conditional(dispatcher, ~zero?(constant-expression()));
               
 directive "elif" [constant-expression] (dispatcher :: <C-preprocessor-token-dispatcher>, srcloc :: <source-location>)
-    let preprocessor-state = dispatcher.token-dispatcher-state;
+  let preprocessor-state = dispatcher.token-dispatcher-state;
   let index = preprocessor-state.preprocessor-skipping?-stack.size - 1;
   if (index >= 0)
     if (preprocessor-state.preprocessor-else-seen?-stack[index])
@@ -1041,9 +1041,7 @@ directive "elif" [constant-expression] (dispatcher :: <C-preprocessor-token-disp
     end if;
     let flag
       = ~zero?(constant-expression())
-      & ~preprocessor-state.preprocessor-true-seen?-stack[index]
-      & (index = 0
-           | ~preprocessor-state.preprocessor-skipping?-stack[index - 1]);
+      & ~preprocessor-state.preprocessor-true-seen?-stack[index];
     preprocessor-state.preprocessor-skipping?-stack[index] := ~flag;
     preprocessor-state.preprocessor-skipping? := ~flag;
     if (flag)
@@ -1060,13 +1058,10 @@ directive "else" [] (dispatcher :: <C-preprocessor-token-dispatcher>, srcloc :: 
     if (preprocessor-state.preprocessor-else-seen?-stack[index])
       source-error(srcloc, "#else has already appeared in this if-section");
     end if;
-    let flag
-      = ~preprocessor-state.preprocessor-true-seen?-stack[index]
-      & (index = 0
-           | ~preprocessor-state.preprocessor-skipping?-stack[index - 1]);
-    preprocessor-state.preprocessor-skipping?-stack[index] := ~flag;
-    preprocessor-state.preprocessor-skipping? := ~flag;
-    if (flag)
+    let skipping = preprocessor-state.preprocessor-true-seen?-stack[index];
+    preprocessor-state.preprocessor-skipping?-stack[index] := skipping;
+    preprocessor-state.preprocessor-skipping? := skipping;
+    if (~skipping)
       preprocessor-state.preprocessor-true-seen?-stack[index] := #t;
     end if;
     preprocessor-state.preprocessor-else-seen?-stack[index] := #t;
@@ -1430,19 +1425,25 @@ define preprocessor-state-function sharp
         simple-parser-consume-token(parser, 0, token-value, #f,
                                     start-position, end-position);
 
-        if (directive.directive-lexical-definition
-            & ~preprocessor-state.preprocessor-skipping?)
-          token-dispatcher.token-dispatcher-scanner.scanner-lexical-definition
-            := directive.directive-lexical-definition;
-        end if;
-
-        if (preprocessor-state.preprocessor-skipping?
-            & ~directive.directive-grouping?)
-          enter-state(token-dispatcher, sharp-skipping);
-        elseif (directive.directive-macro-replaced?)
-          enter-state(token-dispatcher, sharp-directive-expanded);
+        if (preprocessor-state.preprocessor-skipping?)
+          if (~directive.directive-skipping-function(token-dispatcher))
+            enter-state(token-dispatcher, sharp-skipping);
+          elseif (directive.directive-macro-replaced?)
+            enter-state(token-dispatcher, sharp-directive-expanded);
+          else
+            enter-state(token-dispatcher, sharp-directive);
+          end if;
         else
-          enter-state(token-dispatcher, sharp-directive);
+          if (directive.directive-lexical-definition)
+            token-dispatcher.token-dispatcher-scanner.scanner-lexical-definition
+             := directive.directive-lexical-definition;
+          end if;
+
+          if (directive.directive-macro-replaced?)
+            enter-state(token-dispatcher, sharp-directive-expanded);
+          else
+            enter-state(token-dispatcher, sharp-directive);
+          end if;
         end if;
       elseif (preprocessor-state.preprocessor-skipping?)
         enter-state(token-dispatcher, sharp-skipping);
@@ -2220,30 +2221,49 @@ define function preprocessor-begin-conditional
     (token-dispatcher :: <C-preprocessor-token-dispatcher>, flag)
  => ();
   let preprocessor-state = token-dispatcher.token-dispatcher-state;
-  let flag = flag & ~preprocessor-state.preprocessor-skipping?;
   preprocessor-state.preprocessor-skipping? := ~flag;
   add!(preprocessor-state.preprocessor-skipping?-stack, ~flag);
   add!(preprocessor-state.preprocessor-true-seen?-stack, flag);
   add!(preprocessor-state.preprocessor-else-seen?-stack, #f);
 end function;
             
+define function if-skipping-function
+    (token-dispatcher :: <C-preprocessor-token-dispatcher>)
+ => (parse-directive? :: <boolean>);
+  let preprocessor-state = token-dispatcher.token-dispatcher-state;
+  add!(preprocessor-state.preprocessor-skipping?-stack, #t);
+  add!(preprocessor-state.preprocessor-true-seen?-stack, #f);
+  add!(preprocessor-state.preprocessor-else-seen?-stack, #f);
+  #f;
+end function;
+              
 define-C-preprocessor-directive($C90-C-preprocessor-dialect, "ifdef",
-                                grouping?: #t);
+                                skipping-function: if-skipping-function);
               
 define-C-preprocessor-directive($C90-C-preprocessor-dialect, "ifndef",
-                                grouping?: #t);
+                                skipping-function: if-skipping-function);
               
 define-C-preprocessor-directive($C90-C-preprocessor-dialect, "if",
-                                grouping?: #t, macro-replaced?: #t);
+                                skipping-function: if-skipping-function,
+                                macro-replaced?: #t);
+              
+define function else-skipping-function
+    (token-dispatcher :: <C-preprocessor-token-dispatcher>)
+ => (parse-directive? :: <boolean>);
+  let preprocessor-state = token-dispatcher.token-dispatcher-state;
+  let index = preprocessor-state.preprocessor-skipping?-stack.size - 1;
+  index = 0 | ~preprocessor-state.preprocessor-skipping?-stack[index - 1]
+end function;
               
 define-C-preprocessor-directive($C90-C-preprocessor-dialect, "elif",
-                                grouping?: #t, macro-replaced?: #t);
+                                skipping-function: else-skipping-function,
+                                macro-replaced?: #t);
               
 define-C-preprocessor-directive($C90-C-preprocessor-dialect, "else",
-                                grouping?: #t);
+                                skipping-function: else-skipping-function);
               
 define-C-preprocessor-directive($C90-C-preprocessor-dialect, "endif",
-                                grouping?: #t);
+                                skipping-function: method(dispatcher) #t end);
               
 define constant $C-include-directive-tokens
   = simple-lexical-definition
