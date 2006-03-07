@@ -1,0 +1,10 @@
+This directory contains a snapshot of the untangled sources from the Monday
+project.  The snapshot was taken 2006-03-05, rev. 522 of the svn repository.
+The sole purpose of this copy of the code is to allow easier usage of the
+monday sources on systems that lack the infrastructure for untangling.
+
+For documentation and original sources, please see 
+
+  http://monday.sourceforge.net.
+
+All code (c) Copyright Peter Housel, under the GNU General Public License.
