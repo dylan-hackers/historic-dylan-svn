@@ -28,7 +28,7 @@ end;
 
 define method check (user :: <user>, #key test-result = 0)
  => (res :: <boolean>)
-  if (element(*users*, key(user), default: #f))
+  if (any?(method(x) x.username = user.username end, storage(<user>)))
     signal(make(<web-error>,
                 error: "User with same name already exists!"))
   else
@@ -36,8 +36,8 @@ define method check (user :: <user>, #key test-result = 0)
   end;
 end;
 
-define method valid-user? (username :: <string>, pass :: <string>)
-  let user = element(*users*, username, default: #f);
+define method valid-user? (user-name :: <string>, pass :: <string>)
+  let user = choose(method(x) x.username = user-name end, storage(<user>))[0];
   if (user & (user.password = pass))
     #t;
   else
@@ -46,13 +46,13 @@ define method valid-user? (username :: <string>, pass :: <string>)
 end;
 
 define method login (request :: <request>)
-  let username = get-query-value("username");
+  let user-name = get-query-value("username");
   let password = get-query-value("password");
   if (username & password)
-    if (valid-user?(username, password))
+    if (valid-user?(user-name, password))
       let session = ensure-session(request);
-      *user* := *users*[username];
-      set-attribute(session, #"username", username);
+      *user* := choose(method(x) x.username = user-name end, storage(<user>))[0];
+      set-attribute(session, #"username", user-name);
     end;
   end;
 end;
@@ -61,9 +61,9 @@ define method logged-in (request :: <request>)
  => (username :: false-or(<string>))
   let session = get-session(request);
   if (session)
-    let username = get-attribute(session, #"username");
-    *user* := *users*[username];
-    username;
+    let user-name = get-attribute(session, #"username");
+    *user* := choose(method(x) x.username = user-name end, storage(<user>))[0];
+    user-name;
   end;
 end;
 

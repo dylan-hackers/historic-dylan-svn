@@ -30,6 +30,7 @@ define module storage
   use file-system;
   use threads;
   use format-out;
+  use koala;
 
   export storage,
     dump-data,

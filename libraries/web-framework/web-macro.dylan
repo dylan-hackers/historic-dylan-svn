@@ -73,7 +73,7 @@ define macro web-reference
     { has-a ?slot-name:name; ... }
     => { make(<slot>,
               name: ?"slot-name",
-              type: "<" ## ?#"slot-name" ## ">",
+              type: "<" ## ?slot-name ## ">",
               getter: ?slot-name,
               setter: ?slot-name ## "-setter"), ... }
     { ?other:*; ... }
