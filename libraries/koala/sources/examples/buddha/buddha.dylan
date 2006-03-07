@@ -31,7 +31,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
   body {
         h1("Welcome to buddha, please create an initial admin-user!"),
         div(id => "content") { 
-          do(add-form(<user>, "Users", *users*, refer: "login")),
+          do(add-form(<user>, "Users", storage(<user>), refer: "login")),
           b("Please set the admin flag!")
         }
   }
