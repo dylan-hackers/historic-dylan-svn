@@ -112,7 +112,6 @@ define page zone-detail end;
 define page user end;
 define page save end;
 define page restore end;
-define page browse end;
 define page edit end;
 define page changes end;
 define page adduser end;
@@ -210,9 +209,7 @@ define method respond-to-get (page == #"admin",
                 ul {
                   li { a("User management", href => "/adduser") },
                   li { a("Save database", href => "/save") },
-                  li { a("Restore database", href => "/restore") },
-                  li { a("Generic browser", href => "/browse") },
-                  li { a("Generic editor", href => "/edit") }
+                  li { a("Restore database", href => "/restore") }
                 }
               }
             end);
@@ -357,7 +354,7 @@ define method respond-to-get (page == #"changes",
                 a(concatenate("View all ", integer-to-string(size(storage(<change>))), " changes"),
                   href => "/changes?count=all"),
                 ul {
-                  do(for (change in storage(<change>),
+                  do(for (change in reverse!(storage(<change>)),
                           i from 0 to count)
                        block(ret)
                          collect(with-xml()
