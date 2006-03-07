@@ -1,6 +1,8 @@
 module: storage
 author: Hannes Mehnert <hannes@mehnert.org>
 
+define variable *directory* = "/";
+
 define sideways method process-config-element
     (node :: <xml-element>, name == #"web-framework")
   let cdir = get-attr(node, #"content-directory");
