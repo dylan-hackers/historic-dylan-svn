@@ -12,6 +12,12 @@
     - initial version
   12 Sep 1997, Andy Armstrong
     - first revision, adding comments on bootstrapping and QA.
+  22 Mar 2006, Peter Robisch
+    - the script 'kan-env' has been renamed to 'set-build-variables'.
+      Open ToDo replacing all HOPE entry through Subversion ones.
+      (Hope was the source control system at Harlequin, the opendylan.org
+       uses source control system Subversion.)
+      o
 
 * INTRODUCTION
 
@@ -68,7 +74,9 @@ In order to build on your PC, you'll need the following:
    long term aim should be to remove the need for this, but that may
    be a way off.
 
- Hope:
+ Hope: /** Harlequin source control system, now replace by subversion 
+        ** This paragraph needs be to be updated.    
+        **/
    The scripts verify the existence of the necessary source files in
    your build area, and if they aren't found then the scripts will use
    Hope to check them out for you. It is possible to get the sources
@@ -92,13 +100,14 @@ of the release.
 In order to run the build scripts, it is possible to use either an
 ordinary Windows Command Prompt, or to use an Emacs shell buffer.
 Before you do run anything though, you need to have invoked the script
-'kan-env' within the shell window that you will be using. This script
-can be found in the Hope compound D-admin-scripts!kan-env.bat, which
-is checked out into ~dylan/admin/scripts on Unix.
+'set-build-variables' within the shell window that you will be using. This script
+can be found in the subversion repository under 
+ /trunk/fundev/admin/builds/set-build-variables.bat, 
+which is checked out into ~dylan/admin/scripts on Unix.
 
 The arguments you supply should be as follows:
 
-  kan-env -sp <source-root> -d <dylan-system-root> -branch <branch>
+  set-build-variables -sp <source-root> -d <dylan-system-root> -branch <branch>
 
 where '-sp' sets both your system root and your personal root to point
 to the directory from which you will be building, where '-d' specifies
@@ -106,19 +115,19 @@ where to find the Dylan release containing the compiler and build
 scripts to bootstrap from, and where '-branch' specifies the Hope
 branch to use (defaults to trunk). So a typical invocation would be:
 
-  kan-env -sp c:\users\andrewa\dylan -d c:\Progra~1\Functi~1\Dylan\System
+  set-build-variables -sp c:\users\andrewa\dylan -d c:\Progra~1\Functi~1\Dylan\System
 
 Note that there are currently problems using spaces in names, so we
 use the Windows abbreviation 'Progra~1' for 'Program Files'.
 
 ** ONE-SHOT BUILDS
 
-Once you have run the kan-env script, you can now invoke any of the
-following one-shot scripts, which live in the Hope compound
-D-admin-builds, and which can be found in Unix in
-~dylan/admin/builds. Each one of these scripts checks out the admin
-area into your release area, so from then on you can also find these
-scripts there.
+Once you have run the set-build-variables script, you can now invoke any of the
+following one-shot scripts, which live in the Subversion repository under 
+  trunk/fundev/admin/builds, 
+and which can be found in Unix in ~dylan/admin/builds. 
+Each one of these scripts checks out the admin area into your release area, so 
+from then on you can also find these scripts there.
 
 The scripts are as follows:
 
@@ -222,7 +231,7 @@ optional argument which is the old branch to use - it defaults to
 D-kan which contains the last frozen compiler. Once you have this
 bootstrapped compiler then you can build a new release as normal using
 the root of the bootstrapped compiler as your Dylan release (the '-d'
-argument to kan-env).
+argument to set-build-variables).
 
 Here's an example that creates a new compiler from the trunk sources,
 but bootstrapping using an old compiler in D-kan. It puts the
@@ -230,11 +239,11 @@ bootstrap compiler into a release area c:\dylan\bootstrap, and then
 builds the new compiler into c:\dylan\release:
 
   cd <admin-scripts>
-  kan-env -sp c:\dylan\bootstrap -d c:\Progra~1\Functi~1\Dylan\System
+  set-build-variables -sp c:\dylan\bootstrap -d c:\Progra~1\Functi~1\Dylan\System
   cd <admin-builds>
   build-bootstrap-compiler
   cd <admin-scripts>
-  kan-env -sp c:\dylan\release -d c:\dylan\bootstrap
+  set-build-variables -sp c:\dylan\release -d c:\dylan\bootstrap
   cd <admin-builds>
   build-dfmc
 
