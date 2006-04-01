@@ -1,6 +1,6 @@
 # lii3eg.gmk: BUILD FOR LINUX/INTEL/EGCS PLATFORM
 #
-# $Id: //info.ravenbrook.com/project/mps/master/code/lii3eg.gmk#8 $
+# $Id: //info.ravenbrook.com/project/mps/master/code/lii3eg.gmk#9 $
 # Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
 #
 # This is the GNU makefile for platform.lii3eg.
@@ -12,7 +12,7 @@ THREADLIB = -lpthread
 
 PFMDEFS = -D_REENTRANT
 
-MPMPF = mpsliban.c mpsioan.c ${THREADSRC} vmli.c \
+MPMPF = ${THREADSRC} vmli.c \
         protli.c protlii3.c proti3.c prmci3li.c sslii3.c span.c
 SWPF = than.c vmli.c protsw.c prmcan.c ssan.c
 
