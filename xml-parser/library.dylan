@@ -44,7 +44,17 @@ define module simple-xml
 
   export \with-xml,
     \with-xml-builder,
-    escape-html;
+    escape-xml,
+    attribute,
+    elements,
+    add-attribute,
+    remove-attribute,
+    add-element,
+    remove-element,
+    import-element,
+    namespace,
+    add-namespace,
+    remove-namespace;
 end;
 
 define module interface
@@ -108,7 +118,7 @@ define module %productions
   use format;
   //use multimap;
   use anaphora;
-  use file-system, import: { with-open-file, file-exists? };
+  use file-system, import: { file-exists? };
   use print;
 
   use meta;

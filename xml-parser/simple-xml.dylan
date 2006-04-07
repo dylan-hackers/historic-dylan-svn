@@ -85,7 +85,7 @@ generates:
 </html>
 */
 
-define method escape-html (string :: <string>) => (res :: <string>)
+define method escape-xml (string :: <string>) => (res :: <string>)
   let res = "";
   for (char in string)
     if (char = '>')
@@ -179,3 +179,91 @@ define macro with-xml
                  => { make(<attribute>, name: ?"key", value: ?value), ... }
 
 end;
+
+define method add-attribute (element :: <element>, attribute :: <attribute>) 
+ => (res :: <element>)
+  // prevent equal attribute names
+  let existing-attribute = find-key(element.attributes, method (a :: <attribute>) 
+                                                          a.name = attribute.name
+                                                        end);
+  if (existing-attribute)
+    aref(element.attributes, existing-attribute) := attribute;
+  else
+    element.attributes := add(element.attributes, attribute);
+  end if;
+  element;
+end method add-attribute;
+
+define method remove-attribute (element :: <element>, attribute)
+  element.attributes := remove(element.attributes, attribute, 
+                          test: method (a :: <attribute>, b) 
+                            a.name = as(<symbol>, b);
+                          end);
+end method remove-attribute;
+
+define method attribute (element :: <element>, attribute-name)
+   => (res :: false-or(<attribute>));
+  let pos = find-key(element.attributes, method (a)
+                                          a.name = as(<symbol>, attribute-name);
+                                        end);
+  if (pos)
+    aref(element.attributes, pos);
+  else
+    #f;
+  end if;
+end method;
+
+define method elements (element :: <element>, element-name) 
+ => (res :: <sequence>);
+  choose(method (a)
+            a.name = as(<symbol>, element-name)
+          end, element.node-children);
+end method elements;
+
+define open generic add-element (element :: <element>, node :: <element>);
+define method add-element (element :: <element>, node :: <element>) 
+ => (res :: <element>);
+  element.node-children := add(element.node-children, node);
+  element;
+end method add-element;
+
+define method remove-element (element :: <element>, node-name, #key count: element-count)
+ => (res :: <element>);
+  element.node-children := remove(element.node-children, node-name, count: element-count,
+                          test: method (a :: <element>, b)            
+                                  a.name = as(<symbol>, b);
+                                end);
+  element;
+end method remove-element;
+     
+define open generic import-element (element :: <element>, node :: <element>);
+define method import-element (element :: <element>, node :: <element>)
+  for (child in node.node-children)
+    add-element(element, child);
+  end for;
+  for (attribute in node.attributes)
+    add-attribute(element, attribute);
+  end for;
+end method import-element;
+
+define method namespace (element :: <element>)
+ => (xmlns :: false-or(<string>));
+  let xmlns = attribute(element, "xmlns");
+  if (xmlns)
+    xmlns.attribute-value;
+  else
+    #f;
+  end if;
+end method namespace;
+
+define method add-namespace (element :: <element>, ns :: <string>)
+  => (res :: <element>);
+  add-attribute(element, make(<attribute>, name: "xmlns", value: ns));
+  element;
+end method add-namespace;
+
+define method remove-namespace (element :: <element>)
+ => (res :: <element>);
+  remove-attribute(element, "xmlns");
+  element;
+end method remove-namespace;
