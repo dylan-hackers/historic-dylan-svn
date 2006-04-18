@@ -7,4 +7,3 @@ files:	library
 	collect
 	productions
 	simple-xml
-  with-open-file

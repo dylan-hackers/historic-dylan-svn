@@ -118,7 +118,7 @@ define module %productions
   use format;
   //use multimap;
   use anaphora;
-  use file-system, import: { file-exists? };
+  use file-system, import: { with-open-file, file-exists? };
   use print;
 
   use meta;

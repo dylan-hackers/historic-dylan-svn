@@ -122,7 +122,7 @@ define macro with-xml
   element:
    { ?:name } => { list(make(<element>, name: ?"name")) }
    { text ( ?value:expression ) } => { list(make(<char-string>,
-                                                 text: escape-html(?value))) }
+                                                 text: escape-xml(?value))) }
    { do(?:body) }
     => { begin
            let res = make(<stretchy-vector>);
@@ -154,12 +154,12 @@ define macro with-xml
    { ?:name ( ?value:expression ) }
     => { list(make(<element>,
                    children: list(make(<char-string>,
-                                       text: escape-html(?value))),
+                                       text: escape-xml(?value))),
                    name: ?"name")) }
    { ?:name ( ?value:expression, ?attribute-list ) }
     => { list(make(<element>,
                    children: list(make(<char-string>,
-                                       text: escape-html(?value))),
+                                       text: escape-xml(?value))),
                    name: ?"name",
                    attributes: vector(?attribute-list))) }
    { ?:name ( ?attribute-list ) }
