@@ -55,5 +55,7 @@ define module buddha
   use web-framework;
   use storage;
   use object-table;
+  use users;
+  use changes;
   use utils;
 end;

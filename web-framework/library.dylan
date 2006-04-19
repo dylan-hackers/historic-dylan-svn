@@ -12,7 +12,9 @@ define library web-framework
 
   export object-table,
     web-framework,
-    storage;
+    storage,
+    users,
+    changes;
 end;
 
 define module object-table
@@ -41,44 +43,9 @@ define module storage
     version;
 end;
 
-define module web-framework
+define module web-framework-macro
   use common-dylan;
-  use object-table;
-  use simple-xml;
-  use format-out;
-  use koala;
-  use date;
-  use dsp, import: { set-attribute, get-attribute };
   use dylan-extensions, import: { debug-name };
-
-  use storage;
-
-  export <reference-object>,
-    visible?,
-    visible?-setter;
-
-  export <web-form-warning>,
-    <web-success>,
-    <web-error>,
-    error-string;
-
-  export respond-to-get,
-    respond-to-post;
-
-  export check;
-
-  export edit-form,
-    remove-form,
-    add-form,
-    list-forms;
-
-  export browse-list,
-    browse-table,
-    remove-form,
-    show,
-    browse,
-    to-table-header,
-    to-table;
 
   export list-reference-slots,
     reference-slots,
@@ -86,20 +53,42 @@ define module web-framework
 
   export \web-class-definer;
 
-  //commands
-  export <add-command>,
-    <remove-command>,
-    <edit-command>;
+  export <reference-object>,
+    visible?,
+    visible?-setter;
 
-  //changes
-  export <change>,
-    author,
-    date,
-    command,
-    undo,
-    redo,
-    print-xml;
+  export <slot>,
+    slot-name,
+    slot-type,
+    slot-getter-method,
+    slot-setter-method,
+    default,
+    default-function,
+    default-help-text;
 
+  export check,
+    key,
+    show,
+    get-url-from-type;
+
+  export <triple>,
+    slot-name,
+    old-value,
+    new-value;
+
+  export <web-form-warning>,
+    <web-success>,
+    <web-error>,
+    error-string;
+end;
+
+define module users
+  use common-dylan;
+  use dylan;
+  use dsp, import: { set-attribute, get-attribute };
+  use koala;
+  use storage;
+  use web-framework-macro;
 
   //user stuff
   export <user>,
@@ -110,18 +99,60 @@ define module web-framework
     current-user,
     valid-user?,
     login,
-    logged-in,
-    *users*;
-
+    logged-in;
 end;
 
-
-/*
 define module changes
   use common-dylan;
-  use xml;
+  use dylan;
+  use date;
+  use simple-xml;
 
-  export <entry>;
+  use object-table;
+  use storage;
+  use web-framework-macro;
+  use users;
+
+  //changes
+  export <change>,
+    author,
+    date,
+    command,
+    undo,
+    redo,
+    print-xml;
+
+  //commands
+  export <add-command>,
+    <remove-command>,
+    <edit-command>;
 end;
-*/
+
+
+define module web-framework
+  use common-dylan;
+  use object-table;
+  use simple-xml;
+  use format-out;
+  use koala;
+  
+  use web-framework-macro, export: all;
+  use storage;
+  use changes;
+
+  export respond-to-get,
+    respond-to-post;
+
+  export edit-form,
+    remove-form,
+    add-form,
+    list-forms;
+
+  export browse-list,
+    browse-table,
+    remove-form,
+    browse,
+    to-table-header,
+    to-table;
+end;
 

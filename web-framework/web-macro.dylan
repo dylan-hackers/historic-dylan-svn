@@ -1,5 +1,53 @@
-module: web-framework
+module: web-framework-macro
 author: Hannes Mehnert <hannes@mehnert.org>
+
+define class <web-form-warning> (<condition>)
+  constant slot error-string :: <string>, required-init-keyword: warning:;
+end;
+
+define class <web-success> (<web-form-warning>)
+end;
+
+define class <web-error> (<error>)
+  constant slot error-string :: <string>, required-init-keyword: error:;
+end;
+
+define open generic key (object :: <object>) => (res :: <object>);
+
+define open generic check (object :: <object>, #key test-result)
+ => (res :: <boolean>);
+
+define method show (object :: <string>)
+  object
+end;
+
+define method show (object :: <integer>)
+  integer-to-string(object)
+end;
+
+define method show (object :: <boolean>)
+  if (object)
+    "true"
+  else
+    "false"
+  end
+end;
+
+define method show (object :: <object>)
+  as(<string>, object)
+end;
+
+define method get-url-from-type (type) => (string :: <string>)
+  copy-sequence(type.debug-name,
+                start: 1,
+                end: type.debug-name.size - 1)
+end;
+
+define class <triple> (<object>)
+  constant slot old-value, init-keyword: old-value:;
+  constant slot new-value, init-keyword: new-value:;
+  constant slot slot-name, init-keyword: slot-name:;
+end;
 
 define open class <reference-object> (<object>)
   slot visible? :: <boolean> = #t, init-keyword: visible?:;
