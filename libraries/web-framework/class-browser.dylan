@@ -123,24 +123,3 @@ define method value (object :: <object>, slot :: <slot>) => (value :: <object>)
   slot.slot-getter-method(object)
 end;
 
-define method show (object :: <string>)
-  object
-end;
-
-define method show (object :: <integer>)
-  integer-to-string(object)
-end;
-
-define method show (object :: <boolean>)
-  if (object)
-    "true"
-  else
-    "false"
-  end
-end;
-
-define method show (object :: <object>)
-  as(<string>, object)
-end;
-
-

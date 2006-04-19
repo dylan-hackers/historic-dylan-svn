@@ -1,7 +1,5 @@
-module: web-framework
+module: users
 author: Hannes Mehnert <hannes@mehnert.org>
-
-define variable *users* = make(<string-table>);
 
 define web-class <user> (<object>)
   data username :: <string>;
@@ -23,6 +21,7 @@ define method current-user () => (user :: false-or(<user>))
 end;
 
 define inline-only method key (user :: <user>)
+ => (res :: <string>)
   user.username;
 end;
 

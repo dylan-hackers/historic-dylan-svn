@@ -1,4 +1,4 @@
-module: web-framework
+module: changes
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define web-class <change> (<object>)

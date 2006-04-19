@@ -1,25 +1,11 @@
 module: web-framework
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define class <web-form-warning> (<condition>)
-  constant slot error-string :: <string>, required-init-keyword: warning:;
-end;
-
-define class <web-success> (<web-form-warning>)
-end;
-
-define class <web-error> (<error>)
-  constant slot error-string :: <string>, required-init-keyword: error:;
-end;
-
 define open generic respond-to-get
     (page, request :: <request>, response :: <response>, #key errors);
 
 define open generic respond-to-post
     (page, request :: <request>, response :: <response>);
-
-define open generic check (object :: <object>, #key test-result)
- => (res :: <boolean>);
 
 
 define method check (object :: <object>, #key test-result = 0)
@@ -439,12 +425,6 @@ define method parse (name, type)
   end;
 end;
 
-define class <triple> (<object>)
-  constant slot old-value, init-keyword: old-value:;
-  constant slot new-value, init-keyword: new-value:;
-  constant slot slot-name, init-keyword: slot-name:;
-end;
-
 define method save-object (object :: <object>, request :: <request>)
   //data-slots and ref-slots may have changed...
   let slots = #();
@@ -497,9 +477,4 @@ define method save-object (object :: <object>, request :: <request>)
   end;
 end;
 
-define method get-url-from-type (type) => (string :: <string>)
-  copy-sequence(type.debug-name,
-                start: 1,
-                end: type.debug-name.size - 1)
-end;
 
