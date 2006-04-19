@@ -220,9 +220,7 @@ define method respond-to-get (page == #"adduser",
                               request :: <request>,
                               response :: <response>,
                               #key errors = #())
-  let username = logged-in(request);
-  let user = element(*users*, username, default: #f);
-  if (user & user.admin?)
+  if (*user* & *user*.admin?)
     let out = output-stream(response);
     with-buddha-template(out, "User management")
       collect(show-errors(errors));
