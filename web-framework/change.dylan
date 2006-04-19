@@ -10,7 +10,11 @@ end;
 define method initialize (change :: <change>, #rest rest, #key, #all-keys)
   next-method();
   change.date := current-date();
-  change.author := current-user().username;
+  change.author := if (current-user())
+                     current-user().username;
+                   else
+                     "foo"
+                   end;
 end;
 
 define method undo (change :: <change>)

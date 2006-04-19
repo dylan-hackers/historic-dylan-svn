@@ -17,7 +17,7 @@ define method initial-responder (request :: <request>, response :: <response>)
                              email: "buddhaadmin@local",
                              admin: #t))
     block(return)
-      if (request.request-method = #"post")
+      if (subsequence-position(as(<string>, request.request-method), "post"))
         respond-to-post(#"edit", request, response);
         return();
       end;
@@ -227,8 +227,8 @@ define method respond-to-get (page == #"adduser",
       collect(with-xml()
                 div(id => "content")
                   {
-                   do(browse-table(<user>, *users*)),
-                   do(add-form(<user>, "Users", *users*, fill-from-request: errors, refer: "adduser"))
+                   do(browse-table(<user>, storage(<user>))),
+                   do(add-form(<user>, "Users", storage(<user>), fill-from-request: errors, refer: "adduser"))
                      }
               end)
     end;
@@ -352,7 +352,7 @@ define method respond-to-get (page == #"changes",
                 a(concatenate("View all ", integer-to-string(size(storage(<change>))), " changes"),
                   href => "/changes?count=all"),
                 ul {
-                  do(for (change in reverse!(storage(<change>)),
+                  do(for (change in reverse(storage(<change>)),
                           i from 0 to count)
                        block(ret)
                          collect(with-xml()
