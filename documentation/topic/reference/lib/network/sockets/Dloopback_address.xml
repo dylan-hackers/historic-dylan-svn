@@ -14,11 +14,12 @@
 
   <dylanVariableDetail>
     <dylanVariableDef>
-      <apiType value="{complex type}"/>
+      <apiValueClassifier href="Linternet_addressG.xml">&lt;internet-address&gt;</apiValueClassifier>
     </dylanVariableDef>
 
     <apiDesc>
-      <p></p>
+      <p>An instance of <codeph>&lt;internet-address&gt;</codeph>  representing
+      the loopback address: <codeph>127.0.0.1</codeph> .</p>
     </apiDesc>
   </dylanVariableDetail>
 </dylanVariable>

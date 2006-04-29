@@ -2,7 +2,9 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-system-operating-system-Dos_version">
   <apiName>$os-version</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>Constant specifying which version of an operating system
+  the current machine is running.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,11 +16,30 @@
 
   <dylanConstantDetail>
     <dylanConstantDef>
-      <apiValueClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiValueClassifier>
+      <apiValueClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiValueClassifier>
     </dylanConstantDef>
 
     <apiDesc>
-      <p></p>
+      <p>The constant <codeph>$os-version</codeph> is a string value
+      that identifies the version of the operating system.  For
+      Windows NT, a typical value would be <codeph>"4.0.1381 Service
+      Pack 3"</codeph>. For Windows 95, a typical value would be
+      <codeph>"4.0.1212 B"</codeph>.</p>
     </apiDesc>
   </dylanConstantDetail>
+
+  <related-links>
+    <link href="Dmachine_name.xml">
+      <linktext><apiname>$machine-name</apiname></linktext>
+    </link>
+    <link href="Dos_name.xml">
+      <linktext><apiname>$os-name</apiname></linktext>
+    </link>
+    <link href="Dos_variant.xml">
+      <linktext><apiname>$os-variant</apiname></linktext>
+    </link>
+    <link href="Dplatform_name.xml">
+      <linktext><apiname>$platform-name</apiname></linktext>
+    </link>
+  </related-links>
 </dylanConstant>

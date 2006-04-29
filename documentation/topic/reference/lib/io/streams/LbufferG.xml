@@ -2,7 +2,9 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-io-streams-LbufferG">
   <apiName>&lt;buffer&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+
+  <shortdesc>The class of vectors of <apiname>&lt;byte&gt;</apiname>,
+  usable as stream buffers.</shortdesc>
 
   <prolog>
     <author></author>
@@ -59,7 +61,27 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apiname>&lt;buffer&gt;</apiname> class is a subclass of
+      <apiname>&lt;vector&gt;</apiname> whose
+      <apiname>element-type</apiname> is
+      <apiname>&lt;byte&gt;</apiname>.</p>
+
+      <p>Instances of <apiname>&lt;buffer&gt;</apiname>  contain a data vector
+      and two indices: the inclusive start and the exclusive end of valid
+      data in the buffer. The accessors for these indexes are called 
+      <apiname>buffer-next</apiname>  and <apiname>buffer-end</apiname>.</p>
+
+      <p>Note that <codeph>size:</codeph> is not taken as a suggestion
+      of the size the user would like, as with the value passed with
+      <codeph>buffer-size:</codeph> to <apiname>make</apiname> on
+      <apiname>&lt;buffered-stream&gt;</apiname>; if you supply a
+      value with the <codeph>size:</codeph> init-keyword, that size is
+      allocated, or, if that is not possible, an error is signalled,
+      as with making any vector.</p>
+
+      <!-- COMMENT: What is the error? The error on &lt;vector&gt;? BC
+        says: "Not specified, but if the DRM specifies one, ours
+        should be the same."  -->
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

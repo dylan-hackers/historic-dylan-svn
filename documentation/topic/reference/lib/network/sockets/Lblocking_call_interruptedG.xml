@@ -2,7 +2,9 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-network-sockets-Lblocking_call_interruptedG">
   <apiName>&lt;blocking-call-interrupted&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+
+  <shortdesc>The class of error conditions signalled when a blocking
+  socket call was interrupted.</shortdesc>
 
   <prolog>
     <author></author>
@@ -19,7 +21,10 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apiname>L&lt;blocking-call-interrupted&gt;</apiname> is
+      signalled when a blocking socket call, like
+      <apiname>read</apiname>, <apiname>write</apiname> or
+      <apiname>accept</apiname>, was interrupted.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

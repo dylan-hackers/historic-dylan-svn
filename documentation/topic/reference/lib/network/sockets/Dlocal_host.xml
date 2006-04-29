@@ -14,11 +14,24 @@
 
   <dylanVariableDetail>
     <dylanVariableDef>
-      <apiType value="{complex type}"/>
+      <apiValueClassifier href="Linternet_addressG.xml">&lt;internet-address&gt;</apiValueClassifier>
     </dylanVariableDef>
 
     <apiDesc>
-      <p></p>
+      <p>An instance of
+      <apiclassifier>&lt;internet-address&gt;</apiclassifier>
+      representing the host on which the application using sockets is
+      correctly running.</p>
+
+      <p>Note that this value is not necessarily the same as would be
+      created by the expression</p>
+
+      <codeblock>make (&lt;internet-address&gt;, name: "localhost")</codeblock>
+
+      <p>The address assigned to the symbolic name
+      <codeph>localhost</codeph> is dependent on the configuration of
+      DNS. In some cases this may be configured to be the loopback
+      address rather than a real address for the local host.</p>
     </apiDesc>
   </dylanVariableDetail>
 </dylanVariable>

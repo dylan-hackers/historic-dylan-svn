@@ -2,7 +2,9 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-system-operating-system-Dos_name">
   <apiName>$os-name</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>Constant specifying the operating system running on the
+  host machine.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,11 +16,59 @@
 
   <dylanConstantDetail>
     <dylanConstantDef>
-      <apiValueClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiValueClassifier>
+      <apiValueClassifier href="../../dylan/dylan/LsymbolG.xml">&lt;symbol&gt;</apiValueClassifier>
     </dylanConstantDef>
 
     <apiDesc>
-      <p></p>
+      <p>This constant is a symbol that represents the operating system
+      running on the host machine.</p>
+
+      <dl>
+	<dlentry>
+	  <dt><codeph>#"win32"</codeph></dt>
+	  <dd>The Microsoft Win32 operating system platform.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"linux"</codeph></dt>
+	  <dd>The Linux kernel.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"freebsd"</codeph></dt>
+	  <dd>The FreeBSD operating system.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"netbsd"</codeph></dt>
+	  <dd>The NetBSD operating system.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"darwin"</codeph></dt>
+	  <dd>The Darwin (Mac OS X) operating system.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"sunos"</codeph></dt>
+	  <dd>The Solaris operating system.</dd>
+	</dlentry>
+      </dl>
     </apiDesc>
   </dylanConstantDetail>
+
+  <related-links>
+    <link href="Dmachine_name.xml">
+      <linktext><apiname>$machine-name</apiname></linktext>
+    </link>
+    <link href="Dos_variant.xml">
+      <linktext><apiname>$os-variant</apiname></linktext>
+    </link>
+    <link href="Dos_version.xml">
+      <linktext><apiname>$os-version</apiname></linktext>
+    </link>
+    <link href="Dplatform_name.xml">
+      <linktext><apiname>$platform-name</apiname></linktext>
+    </link>
+  </related-links>
 </dylanConstant>

@@ -2,7 +2,9 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-system-operating-system-Dplatform_name">
   <apiName>$platform-name</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>Constant specifying the operating system running on and
+  the type of hardware installed in the host machine.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,11 +16,30 @@
 
   <dylanConstantDetail>
     <dylanConstantDef>
-      <apiValueClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiValueClassifier>
+      <apiValueClassifier href="../../dylan/dylan/LsymbolG.xml">&lt;symbol&gt;</apiValueClassifier>
     </dylanConstantDef>
 
     <apiDesc>
-      <p></p>
+      <p>This constant is a symbol that represents the both the
+      operating system running on, and the type of hardware installed
+      in, the host machine. It is a combination of the
+      <apiname>$os-name</apiname> and <apiname>$machine-name</apiname>
+      constants.</p>
     </apiDesc>
   </dylanConstantDetail>
+
+  <related-links>
+    <link href="Dos_name.xml">
+      <linktext><apiname>$os-name</apiname></linktext>
+    </link>
+    <link href="Dmachine_name.xml">
+      <linktext><apiname>$machine-name</apiname></linktext>
+    </link>
+    <link href="Dos_variant.xml">
+      <linktext><apiname>$os-variant</apiname></linktext>
+    </link>
+    <link href="Dos_version.xml">
+      <linktext><apiname>$os-version</apiname></linktext>
+    </link>
+  </related-links>
 </dylanConstant>

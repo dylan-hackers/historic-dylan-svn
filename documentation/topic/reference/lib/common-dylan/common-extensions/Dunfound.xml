@@ -20,8 +20,9 @@
     </dylanConstantDef>
 
     <apiDesc>
-      <p>A unique value that can be used to indicate that a search operation
-      failed.</p>
+      <p>The <apivalue>$unfound</apivalue> constant represents a
+      unique value that can be used to indicate that a search
+      operation failed.</p>
     </apiDesc>
   </dylanConstantDetail>
 </dylanConstant>

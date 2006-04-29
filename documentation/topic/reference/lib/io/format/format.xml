@@ -17,7 +17,8 @@
       <dylanFunctionParam>
 	<apiItemName>stream</apiItemName>
         <apiOperationClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The stream
+          to which formatted output should be sent</apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>
 	<apiItemName>control-string</apiItemName>

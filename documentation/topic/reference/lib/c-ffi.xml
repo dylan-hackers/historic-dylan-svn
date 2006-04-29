@@ -14,7 +14,24 @@
 
   <dylanLibraryDetail>
     <apiDesc>
-      <p></p>
+      <p>The C-FFI library provides a set of macros that can be used
+      to describe a C interface in a form that the the Dylan compiler
+      can understand; we call these macros the <term>C interface
+      definition language</term>.</p>
+
+      <p>The C interface definition language provides macros that
+      correspond to each of C’s type, function, variable, and constant
+      defining forms.  These macros define Dylan classes that
+      designate and encapsulate instances of C types, Dylan methods
+      through which to manipulate C variables and call out to C
+      functions, and functions with C-compatible entry points through
+      which to call in to Dylan from C.</p>
+
+      <p>In addition to the interface definition language, the C-FFI
+      library provides run-time methods and functions for allocating,
+      manipulating and destroying instances of C data structures. For
+      example, using these facilities you can allocate C structs and
+      arrays, and access and set their elements.</p>
     </apiDesc>
   </dylanLibraryDetail>
 

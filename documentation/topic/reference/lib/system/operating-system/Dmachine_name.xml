@@ -2,7 +2,9 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-system-operating-system-Dmachine_name">
   <apiName>$machine-name</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>Constant specifying the type of hardware installed in the
+  host.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,11 +16,65 @@
 
   <dylanConstantDetail>
     <dylanConstantDef>
-      <apiValueClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiValueClassifier>
+      <apiValueClassifier href="../../dylan/dylan/LsymbolG.xml">&lt;symbol&gt;</apiValueClassifier>
     </dylanConstantDef>
 
     <apiDesc>
-      <p></p>
+      <p>This constant is a symbol that represents the type of
+      central processor installed in the host machine.</p>
+
+      <p>The following values are defined for this constant.</p>
+
+      <dl>
+	<dlentry>
+	  <dt><codeph>#"x86"</codeph></dt>
+	  <dd>Intel IA-32 architecture processors</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"x86-64"</codeph></dt>
+	  <dd>AMD Opteron and Intel EM64T architecture processors.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"sparc"</codeph></dt>
+	  <dd>Sun Sparc processors.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"ppc"</codeph></dt>
+	  <dd>Motorola/IBM PowerPC processors.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"arm"</codeph></dt>
+	  <dd>ARM processors.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"mips"</codeph></dt>
+	  <dd>MIPS processors.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"alpha"</codeph></dt>
+	  <dd>Alpha processors.</dd>
+	</dlentry>
     </apiDesc>
   </dylanConstantDetail>
+
+  <related-links>
+    <link href="Dos_name.xml">
+      <linktext><apiname>$os-name</apiname></linktext>
+    </link>
+    <link href="Dos_variant.xml">
+      <linktext><apiname>$os-variant</apiname></linktext>
+    </link>
+    <link href="Dos_version.xml">
+      <linktext><apiname>$os-version</apiname></linktext>
+    </link>
+    <link href="Dplatform_name.xml">
+      <linktext><apiname>$platform-name</apiname></linktext>
+    </link>
+  </related-links>
 </dylanConstant>

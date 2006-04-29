@@ -2,7 +2,8 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-network-sockets-Labstract_socketG">
   <apiName>&lt;abstract-socket&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+
+  <shortdesc>The class of of all socket objects.</shortdesc>
 
   <prolog>
     <author></author>
@@ -25,7 +26,11 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apiname>&lt;abstract-socket&gt;</apiname> class serves
+      as the common superclass of all socket objects including
+      <apiname>&lt;socket&gt;</apiname> (IP client socket),
+      <apiname>&lt;server-socket&gt;</apiname> and
+      <apiname>&lt;socket-accessor&gt;</apiname>.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

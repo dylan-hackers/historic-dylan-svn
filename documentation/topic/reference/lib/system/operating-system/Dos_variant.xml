@@ -2,7 +2,9 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-system-operating-system-Dos_variant">
   <apiName>$os-variant</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>Constant specifying which variant of an operating system
+  the current machine is running, where relevant.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,11 +16,70 @@
 
   <dylanConstantDetail>
     <dylanConstantDef>
-      <apiValueClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiValueClassifier>
+      <apiValueClassifier href="../../dylan/dylan/LsymbolG.xml">&lt;symbol&gt;</apiValueClassifier>
     </dylanConstantDef>
 
     <apiDesc>
-      <p></p>
+      <p>This constant is a symbol value distinguishing between
+      variants of the operating system identified by
+      <apiname>$os-name</apiname>, where relevant; otherwise it has
+      the same value as <apiname>$os-name</apiname>.</p>
+
+      <p>On Windows, the possible values are:
+      <codeph>#"win3.1"</codeph>, <codeph>#"win95"</codeph>,
+      <codeph>#"win98"</codeph>, and <codeph>#"winnt"</codeph>.</p>
+
+      <dl>
+	<dlentry>
+	  <dt><codeph>#"win3.1"</codeph></dt>
+	  <dd>Windows 3.1 (via Win32s)</dd>
+	</dlentry>
+	
+	<dlentry>
+	  <dt><codeph>#"win95"</codeph></dt>
+	  <dd>Windows 95</dd>
+	</dlentry>
+	
+	<dlentry>
+	  <dt><codeph>#"win98"</codeph></dt>
+	  <dd>Windows 98</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"winme"</codeph></dt>
+	  <dd>Windows ME</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"winnt"</codeph></dt>
+	  <dd>Windows NT 4.x</dd>
+	</dlentry>
+	
+	<dlentry>
+	  <dt><codeph>#"win2000"</codeph></dt>
+	  <dd>Windows 2000</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>#"winxp"</codeph></dt>
+	  <dd>Windows XP</dd>
+	</dlentry>
+      </dl>
     </apiDesc>
   </dylanConstantDetail>
+
+  <related-links>
+    <link href="Dmachine_name.xml">
+      <linktext><apiname>$machine-name</apiname></linktext>
+    </link>
+    <link href="Dos_name.xml">
+      <linktext><apiname>$os-name</apiname></linktext>
+    </link>
+    <link href="Dos_version.xml">
+      <linktext><apiname>$os-version</apiname></linktext>
+    </link>
+    <link href="Dplatform_name.xml">
+      <linktext><apiname>$platform-name</apiname></linktext>
+    </link>
+  </related-links>
 </dylanConstant>

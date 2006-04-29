@@ -2,7 +2,9 @@
 <!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
 <dylanClass id="lib-network-sockets-Laddress_in_useG">
   <apiName>&lt;address-in-use&gt;</apiName>
-  <shortdesc>The class of .</shortdesc>
+
+  <shortdesc>The class of conditions signalled when a socket address
+  is already in use.</shortdesc>
 
   <prolog>
     <author></author>
@@ -29,7 +31,12 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apiname>&lt;address-in-use&gt;</apiname> condition is
+      signalled when a process on the machine is already bound to the
+      same fully qualified address. This condition probably occurred
+      because you were trying to use a port with an active server
+      already installed, or a process crashed without closing a
+      socket.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>
