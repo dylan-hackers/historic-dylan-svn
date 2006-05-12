@@ -9,7 +9,8 @@ define library xml-parser
   use system, import: { file-system };
 
   export xml-parser,
-    simple-xml;
+    simple-xml,
+    %productions;
 end library;
 
 define module xml-parser
@@ -54,7 +55,8 @@ define module simple-xml
     import-element,
     namespace,
     add-namespace,
-    remove-namespace;
+    remove-namespace,
+    replace-element-text;
 end;
 
 define module interface
@@ -124,5 +126,7 @@ define module %productions
   use meta;
   use interface;
   use xml-parser;
+
+  export scan-xml-decl;
 end module %productions;
 
