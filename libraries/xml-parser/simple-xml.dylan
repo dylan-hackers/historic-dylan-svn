@@ -213,6 +213,7 @@ define method attribute (element :: <element>, attribute-name)
   end if;
 end method;
 
+define open generic elements (element :: <element>, name :: <object>) => (res :: <sequence>);
 define method elements (element :: <element>, element-name) 
  => (res :: <sequence>);
   choose(method (a)
@@ -267,3 +268,15 @@ define method remove-namespace (element :: <element>)
   remove-attribute(element, "xmlns");
   element;
 end method remove-namespace;
+
+define method replace-element-text (element :: <element>, node :: <string>, text :: <string>)
+  let replace-element = #f;
+  let replace-elements = elements(element, node);
+  if (empty?(replace-elements))
+    replace-element := make(<element>, name: node);
+    add-element(element, replace-element);
+  else
+    replace-element := first(replace-elements);
+  end if;
+  replace-element.text := escape-xml(text);
+end method replace-element-text;

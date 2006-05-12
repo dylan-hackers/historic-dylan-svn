@@ -216,3 +216,10 @@ end method print-object;
 define method prepare-document(doc :: <document>, state :: <printing>, 
                                stream :: <stream>) => ()
 end method prepare-document;
+
+define method as (class == <string>, xml :: <xml>)
+ => (res :: <string>);
+  let stream = make(<string-stream>, direction: #"output");
+  print-object(xml, stream);
+  stream-contents(stream);
+end method as;
