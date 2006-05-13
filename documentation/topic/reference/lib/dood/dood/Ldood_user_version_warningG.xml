@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-dood-dood-Ldood_user_version_warningG">
+  <apiName>&lt;dood-user-version-warning&gt;</apiName>
+
+  <shortdesc>The class of conditions signaled if the specified user
+  version is different from the saved user version.</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2006"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanSuperClass href="Ldood_version_warningG.xml">&lt;dood-version-warning&gt;</dylanSuperClass>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p>signaled if specified user version is different from saved
+      user version.</p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanClass PUBLIC "-//Gwydion//DTD DITA Dylan API Class//EN" "../../../../dtd/dylanClass.dtd" []>
+<dylanClass id="lib-dood-dood-Ldood_lazy_tableG">
+  <apiName>&lt;dood-lazy-table&gt;</apiName>
+  <shortdesc>The class of .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2006"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanClassDetail>
+    <dylanClassDef>
+      <dylanSuperClass href="Ldood_mapped_and_owned_objectG.xml">&lt;dood-mapped-and-owned-object&gt;</dylanSuperClass>
+      <dylanSuperClass href="Lmutable_explicit_key_collectionG.xml">&lt;mutable-explicit-key-collection&gt;</dylanSuperClass>
+      <dylanSuperClass href="Lstretchy_collectionG.xml">&lt;stretchy-collection&gt;</dylanSuperClass>
+      <dylanInitKeyword>
+	<apiItemName>data:</apiItemName>
+        <apiOtherClassifier href="LtableG.xml">&lt;table&gt;</apiOtherClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+      <dylanInitKeyword>
+	<apiItemName>source:</apiItemName>
+        <apiType value="{complex type}"/>
+	<apiDefNote></apiDefNote>
+      </dylanInitKeyword>
+    </dylanClassDef>
+
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanClassDetail>
+</dylanClass>

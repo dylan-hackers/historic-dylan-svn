@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanMacro PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanMacro.dtd" []>
+<dylanMacro id="lib-dood-dood-dood_class_definer">
+  <apiName>dood-class-definer</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanMacroDetail>
+    <apiSyntax>
+      <apiSyntaxText></apiSyntaxText>
+    </apiSyntax>
+
+    <apiDesc>
+      <p>The <codeph>dood-class-definer</codeph> macro defines a Dylan
+      class with extra slot adjectives specifying the dumping and
+      loading behavior of the corresponding slot. The default DOOD
+      treatment of a slot, called <codeph>deep</codeph>, is that its
+      content is recursively dumped and eagerly loaded. There are
+      three dood slot adjectives that modify this behavior:
+      <codeph>lazy</codeph>, <codeph>disk</codeph>, and
+      <codeph>weak</codeph>. A <codeph>lazy</codeph> slot's content is
+      recursively dumped and lazily loaded, that is, loaded from disk
+      upon first access. A <codeph>disk</codeph> slot's content is
+      recursively dumped and is always loaded from disk when and only
+      when explicitly accessed and is never written back to the
+      slot. A <codeph>weak</codeph> slot's contents is never dumped
+      and a user can specify a<codeph>reinit-expression</codeph> to be
+      used instead during loading. A
+      <codeph>reinit-expression</codeph> must be specified even if an
+      <codeph>init-expression </codeph> is the same, otherwise
+      reinitialization will not occur and the slot will be unbound. In
+      the current version of DOOD, the
+      <codeph>reinit-expression</codeph> must appear as the first slot
+      keyword parameter if at all. Accessing <codeph>lazy</codeph>
+      slot values in a closed database will signal a <apiclassifier
+      href="Ldood_proxy_errorG.xml">&lt;dood-proxy-error&gt;</apiclassifier>.</p>
+    </apiDesc>
+  </dylanMacroDetail>
+  <example>
+    <codeblock>
+define dood-class &lt;computation&gt; (&lt;object&gt;)
+  lazy slot computation-source-location :: false-or(&lt;source-location&gt;) = #f,
+    init-keyword: source-location:;
+
+  slot computation-previous :: &lt;compution&gt;, 
+    required-init-keyword: previous:;
+
+  slot computation-next :: &lt;computation&gt;, 
+    required-init-keyword: previous:;
+
+  weak slot computation-type :: false-or(&lt;type-estimate&gt;) = #f, 
+    reinit-expression: #f;
+end dood-class;
+    </codeblock>
+
+  </example>
+</dylanMacro>

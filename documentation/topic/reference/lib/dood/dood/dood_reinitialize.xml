@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-dood-dood-dood_reinitialize">
+  <apiName>dood-reinitialize</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanGenericFunctionSealing value='open'/>
+      <dylanFunctionParam>
+	<apiItemName>dood</apiItemName>
+        <apiOperationClassifier href="LdoodG.xml">&lt;dood&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionParam>
+	<apiItemName>object</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p>For some objects the simple instantiation and slot assignment
+      approach will not produce a well-formed
+      object. <codeph>dood-initialize</codeph> gives objects a chance
+      to correct any reconstruction problems. This function is called
+      on an object immediately after the object has been loaded from
+      disk.</p>
+    </apiDesc>
+    
+    <example>
+<codeblock>
+define dood-class &lt;rectangle&gt; (&lt;object&gt;)
+  slot rectangle-height :: &lt;integer&gt;,
+    required-init-keyword: height:;
+  slot rectangle-width :: &lt;integer&gt;,
+    required-init-keyword: width:;
+  weak rectangle-area :: &lt;integer&gt;;
+end dood-class;
+
+define method dood-reinitialize (dood :: &lt;dood&gt;, object ::&lt;rectangle&gt;)
+  next-method();
+
+  rectangle-area(object) := rectange-height(object) * rectange-width(object);
+end method;
+</codeblock>
+    </example>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>

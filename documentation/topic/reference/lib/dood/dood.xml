@@ -1,0 +1,326 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
+<dylanModule id="lib-dood-dood">
+  <apiName>dood</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanModuleDetail>
+    <apiDesc>
+      <p></p>
+    </apiDesc>
+  </dylanModuleDetail>
+
+  <related-links>
+    <link href="dood/Dmax_dood_integer.xml">
+      <linktext><apiname>$max-dood-integer</apiname></linktext>
+    </link>
+    <link href="dood/Dmin_dood_integer.xml">
+      <linktext><apiname>$min-dood-integer</apiname></linktext>
+    </link>
+    <link href="dood/Tdood_debugQT.xml">
+      <linktext><apiname>*dood-debug?*</apiname></linktext>
+    </link>
+    <link href="dood/Tdood_dumpQT.xml">
+      <linktext><apiname>*dood-dump?*</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_address_proxyG.xml">
+      <linktext><apiname>&lt;dood-address-proxy&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_class_program_binding_proxyG.xml">
+      <linktext><apiname>&lt;dood-class-program-binding-proxy&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_corruption_warningG.xml">
+      <linktext><apiname>&lt;dood-corruption-warning&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_cross_proxyG.xml">
+      <linktext><apiname>&lt;dood-cross-proxy&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_disk_addressG.xml">
+      <linktext><apiname>&lt;dood-disk-address&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_disk_pointerG.xml">
+      <linktext><apiname>&lt;dood-disk-pointer&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_first_lazy_tableG.xml">
+      <linktext><apiname>&lt;dood-first-lazy-table&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_functional_segmentG.xml">
+      <linktext><apiname>&lt;dood-functional-segment&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_lazy_symbol_tableG.xml">
+      <linktext><apiname>&lt;dood-lazy-symbol-table&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_lazy_tableG.xml">
+      <linktext><apiname>&lt;dood-lazy-table&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_mapped_and_owned_objectG.xml">
+      <linktext><apiname>&lt;dood-mapped-and-owned-object&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_mapped_objectG.xml">
+      <linktext><apiname>&lt;dood-mapped-object&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_opening_warningG.xml">
+      <linktext><apiname>&lt;dood-opening-warning&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_program_binding_proxyG.xml">
+      <linktext><apiname>&lt;dood-program-binding-proxy&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_program_module_proxyG.xml">
+      <linktext><apiname>&lt;dood-program-module-proxy&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_proxy_errorG.xml">
+      <linktext><apiname>&lt;dood-proxy-error&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_proxyG.xml">
+      <linktext><apiname>&lt;dood-proxy&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_segmentG.xml">
+      <linktext><apiname>&lt;dood-segment&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_slot_value_proxyG.xml">
+      <linktext><apiname>&lt;dood-slot-value-proxy&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_typed_segmentG.xml">
+      <linktext><apiname>&lt;dood-typed-segment&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_user_version_warningG.xml">
+      <linktext><apiname>&lt;dood-user-version-warning&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_version_warningG.xml">
+      <linktext><apiname>&lt;dood-version-warning&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_worldG.xml">
+      <linktext><apiname>&lt;dood-world&gt;</apiname></linktext>
+    </link>
+    <link href="dood/Ldood_wrapper_proxyG.xml">
+      <linktext><apiname>&lt;dood-wrapper-proxy&gt;</apiname></linktext>
+    </link>
+    <link href="dood/LdoodG.xml">
+      <linktext><apiname>&lt;dood&gt;</apiname></linktext>
+    </link>
+    <link href="dood/debug.xml">
+      <linktext><apiname>debug</apiname></linktext>
+    </link>
+    <link href="dood/dood_address.xml">
+      <linktext><apiname>dood-address</apiname></linktext>
+    </link>
+    <link href="dood/dood_as_proxy.xml">
+      <linktext><apiname>dood-as-proxy</apiname></linktext>
+    </link>
+    <link href="dood/dood_buffer_size.xml">
+      <linktext><apiname>dood-buffer-size</apiname></linktext>
+    </link>
+    <link href="dood/dood_buffer_size_setter.xml">
+      <linktext><apiname>dood-buffer-size-setter</apiname></linktext>
+    </link>
+    <link href="dood/dood_class_definer.xml">
+      <linktext><apiname>dood-class-definer</apiname></linktext>
+    </link>
+    <link href="dood/dood_close.xml">
+      <linktext><apiname>dood-close</apiname></linktext>
+    </link>
+    <link href="dood/dood_commit.xml">
+      <linktext><apiname>dood-commit</apiname></linktext>
+    </link>
+    <link href="dood/dood_compute_instance_size.xml">
+      <linktext><apiname>dood-compute-instance-size</apiname></linktext>
+    </link>
+    <link href="dood/dood_compute_standard_instance_size.xml">
+      <linktext><apiname>dood-compute-standard-instance-size</apiname></linktext>
+    </link>
+    <link href="dood/dood_diff_last_two_statistics.xml">
+      <linktext><apiname>dood-diff-last-two-statistics</apiname></linktext>
+    </link>
+    <link href="dood/dood_disk_object.xml">
+      <linktext><apiname>dood-disk-object</apiname></linktext>
+    </link>
+    <link href="dood/dood_disk_object_default.xml">
+      <linktext><apiname>dood-disk-object-default</apiname></linktext>
+    </link>
+    <link href="dood/dood_disk_slot_value.xml">
+      <linktext><apiname>dood-disk-slot-value</apiname></linktext>
+    </link>
+    <link href="dood/dood_failed_dood.xml">
+      <linktext><apiname>dood-failed-dood</apiname></linktext>
+    </link>
+    <link href="dood/dood_flush.xml">
+      <linktext><apiname>dood-flush</apiname></linktext>
+    </link>
+    <link href="dood/dood_flush_all.xml">
+      <linktext><apiname>dood-flush-all</apiname></linktext>
+    </link>
+    <link href="dood/dood_flush_from.xml">
+      <linktext><apiname>dood-flush-from</apiname></linktext>
+    </link>
+    <link href="dood/dood_flush_from_if.xml">
+      <linktext><apiname>dood-flush-from-if</apiname></linktext>
+    </link>
+    <link href="dood/dood_flush_lazy_slots.xml">
+      <linktext><apiname>dood-flush-lazy-slots</apiname></linktext>
+    </link>
+    <link href="dood/dood_force_address_proxy.xml">
+      <linktext><apiname>dood-force-address-proxy</apiname></linktext>
+    </link>
+    <link href="dood/dood_force_slot_value_proxy.xml">
+      <linktext><apiname>dood-force-slot-value-proxy</apiname></linktext>
+    </link>
+    <link href="dood/dood_free_address.xml">
+      <linktext><apiname>dood-free-address</apiname></linktext>
+    </link>
+    <link href="dood/dood_initialize_walkerX.xml">
+      <linktext><apiname>dood-initialize-walker!</apiname></linktext>
+    </link>
+    <link href="dood/dood_lazy_forward_iteration_protocol.xml">
+      <linktext><apiname>dood-lazy-forward-iteration-protocol</apiname></linktext>
+    </link>
+    <link href="dood/dood_lazy_getters.xml">
+      <linktext><apiname>dood-lazy-getters</apiname></linktext>
+    </link>
+    <link href="dood/dood_lazy_slot_value.xml">
+      <linktext><apiname>dood-lazy-slot-value</apiname></linktext>
+    </link>
+    <link href="dood/dood_lazy_table_data.xml">
+      <linktext><apiname>dood-lazy-table-data</apiname></linktext>
+    </link>
+    <link href="dood/dood_lazy_table_source.xml">
+      <linktext><apiname>dood-lazy-table-source</apiname></linktext>
+    </link>
+    <link href="dood/dood_lazy_table_source_setter.xml">
+      <linktext><apiname>dood-lazy-table-source-setter</apiname></linktext>
+    </link>
+    <link href="dood/dood_lazy_valueQ.xml">
+      <linktext><apiname>dood-lazy-value?</apiname></linktext>
+    </link>
+    <link href="dood/dood_locator.xml">
+      <linktext><apiname>dood-locator</apiname></linktext>
+    </link>
+    <link href="dood/dood_make_class_program_binding_proxy.xml">
+      <linktext><apiname>dood-make-class-program-binding-proxy</apiname></linktext>
+    </link>
+    <link href="dood/dood_make_cross_proxy.xml">
+      <linktext><apiname>dood-make-cross-proxy</apiname></linktext>
+    </link>
+    <link href="dood/dood_make_program_binding_proxy.xml">
+      <linktext><apiname>dood-make-program-binding-proxy</apiname></linktext>
+    </link>
+    <link href="dood/dood_maybe_force_address_proxy.xml">
+      <linktext><apiname>dood-maybe-force-address-proxy</apiname></linktext>
+    </link>
+    <link href="dood/dood_maybe_force_slot_value_proxy.xml">
+      <linktext><apiname>dood-maybe-force-slot-value-proxy</apiname></linktext>
+    </link>
+    <link href="dood/dood_name.xml">
+      <linktext><apiname>dood-name</apiname></linktext>
+    </link>
+    <link href="dood/dood_number_of_buffers.xml">
+      <linktext><apiname>dood-number-of-buffers</apiname></linktext>
+    </link>
+    <link href="dood/dood_number_of_buffers_setter.xml">
+      <linktext><apiname>dood-number-of-buffers-setter</apiname></linktext>
+    </link>
+    <link href="dood/dood_object.xml">
+      <linktext><apiname>dood-object</apiname></linktext>
+    </link>
+    <link href="dood/dood_proxy_dood_name.xml">
+      <linktext><apiname>dood-proxy-dood-name</apiname></linktext>
+    </link>
+    <link href="dood/dood_read_onlyQ.xml">
+      <linktext><apiname>dood-read-only?</apiname></linktext>
+    </link>
+    <link href="dood/dood_reinitialize.xml">
+      <linktext><apiname>dood-reinitialize</apiname></linktext>
+    </link>
+    <link href="dood/dood_reset_walkerX.xml">
+      <linktext><apiname>dood-reset-walker!</apiname></linktext>
+    </link>
+    <link href="dood/dood_restore_proxy.xml">
+      <linktext><apiname>dood-restore-proxy</apiname></linktext>
+    </link>
+    <link href="dood/dood_root.xml">
+      <linktext><apiname>dood-root</apiname></linktext>
+    </link>
+    <link href="dood/dood_root_setter.xml">
+      <linktext><apiname>dood-root-setter</apiname></linktext>
+    </link>
+    <link href="dood/dood_size.xml">
+      <linktext><apiname>dood-size</apiname></linktext>
+    </link>
+    <link href="dood/dood_statistics.xml">
+      <linktext><apiname>dood-statistics</apiname></linktext>
+    </link>
+    <link href="dood/dood_walk.xml">
+      <linktext><apiname>dood-walk</apiname></linktext>
+    </link>
+    <link href="dood/dood_walk_from.xml">
+      <linktext><apiname>dood-walk-from</apiname></linktext>
+    </link>
+    <link href="dood/dood_watchpoint_class.xml">
+      <linktext><apiname>dood-watchpoint-class</apiname></linktext>
+    </link>
+    <link href="dood/dood_watchpoint_class_setter.xml">
+      <linktext><apiname>dood-watchpoint-class-setter</apiname></linktext>
+    </link>
+    <link href="dood/dood_watchpoint_dood.xml">
+      <linktext><apiname>dood-watchpoint-dood</apiname></linktext>
+    </link>
+    <link href="dood/dood_watchpoint_dood_setter.xml">
+      <linktext><apiname>dood-watchpoint-dood-setter</apiname></linktext>
+    </link>
+    <link href="dood/dood_weak_getters.xml">
+      <linktext><apiname>dood-weak-getters</apiname></linktext>
+    </link>
+    <link href="dood/dood_world.xml">
+      <linktext><apiname>dood-world</apiname></linktext>
+    </link>
+    <link href="dood/dood_world_default.xml">
+      <linktext><apiname>dood-world-default</apiname></linktext>
+    </link>
+    <link href="dood/dood_world_default_setter.xml">
+      <linktext><apiname>dood-world-default-setter</apiname></linktext>
+    </link>
+    <link href="dood/dood_world_find_dood.xml">
+      <linktext><apiname>dood-world-find-dood</apiname></linktext>
+    </link>
+    <link href="dood/dood_world_reset.xml">
+      <linktext><apiname>dood-world-reset</apiname></linktext>
+    </link>
+    <link href="dood/dood_wrapper_proxy_object.xml">
+      <linktext><apiname>dood-wrapper-proxy-object</apiname></linktext>
+    </link>
+    <link href="dood/dood_wrapper_proxy_object_address.xml">
+      <linktext><apiname>dood-wrapper-proxy-object-address</apiname></linktext>
+    </link>
+    <link href="dood/dump.xml">
+      <linktext><apiname>dump</apiname></linktext>
+    </link>
+    <link href="dood/key_sequence_vector.xml">
+      <linktext><apiname>key-sequence-vector</apiname></linktext>
+    </link>
+    <link href="dood/make_dood_stream.xml">
+      <linktext><apiname>make-dood-stream</apiname></linktext>
+    </link>
+    <link href="dood/no_debug.xml">
+      <linktext><apiname>no-debug</apiname></linktext>
+    </link>
+    <link href="dood/object_dood.xml">
+      <linktext><apiname>object-dood</apiname></linktext>
+    </link>
+    <link href="dood/object_dood_setter.xml">
+      <linktext><apiname>object-dood-setter</apiname></linktext>
+    </link>
+    <link href="dood/symbol_less_thanQ.xml">
+      <linktext><apiname>symbol-less-than?</apiname></linktext>
+    </link>
+    <link href="dood/with_walk_progress.xml">
+      <linktext><apiname>with-walk-progress</apiname></linktext>
+    </link>
+  </related-links>
+</dylanModule>

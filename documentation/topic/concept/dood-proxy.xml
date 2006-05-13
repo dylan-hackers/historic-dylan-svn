@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "../dtd/concept.dtd" []>
+<concept id="concept-dood-proxy">
+  <title>DOOD Proxies</title>
+
+  <conbody>
+    <p>Sometimes users need more control over how objects are dumped to
+    disk. DOOD provide a general mechanism called a proxy, which provides
+    both a disk representation of an object and a reconstruction policy.
+    The basic idea is that during the dumping process each memory object
+    is given a chance to provide a disk object (a proxy) to be used for
+    dumping and then upon loading, a loaded disk object is given a chance
+    to map back to its original memory object. Proxies can be used for mapping
+    objects back to unique runtime objects, for compressing objects, for
+    looking up objects in external databases, etc.</p>
+  </conbody>
+</concept>

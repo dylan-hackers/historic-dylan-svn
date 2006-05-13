@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanLibrary PUBLIC "-//Gwydion//DTD DITA Dylan API Library//EN" "../../dtd/dylanLibrary.dtd" []>
+<dylanLibrary id="lib-dood">
+  <apiName>dood</apiName>
+  <shortdesc></shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanLibraryDetail>
+    <apiDesc>
+      <p>The Dylan Object Oriented Database (DOOD) is a simple
+      mechanism for storing arbitrary objects and lazily loading
+      them. During dump time, DOOD traverses a graph of objects and
+      encodes the objects as a sequence of bytes. These bytes are
+      later interpreted by DOOD during load time, reconstructing an
+      isomorphic object-graph in which cyclic structures and shared
+      references are preserved. DOOD provides ways to control what
+      slots in objects should be stored, and to decide what objects
+      should be stored by proxies.</p>
+
+      <p>DOOD was meant to be a very Dylan simple object store that
+      supported:</p>
+
+      <ul>
+	<li>pay as you go</li>
+	<li>incremental loading, </li>
+	<li>flexible proxies, and</li>
+	<li>non-corrupting commits</li>
+      </ul>
+
+      <p>DOOD was not meant to provide</p>
+
+      <ul>
+	<li>multiuser support,</li>
+	<li>full-blown transaction support, </li>
+	<li>incremental writes,</li>
+	<li>schema evolution, nor</li>
+	<li>client/server support</li>
+      </ul>
+
+      <p>In order to add persistence to a program, the easiest thing
+      is to just save and load the data completely:</p>
+
+      <codeblock>
+define method dump-data (data, locator)
+  let dood = make(&lt;dood&gt;, locator: locator, direction: #"output",
+                  if-exists: #"replace");
+  dood-root(dood) := data;
+  dood-commit(dood);
+  dood-close(dood);
+end method;
+
+define method load-data (locator) =&gt; (data)
+  let dood = make(&lt;dood&gt;, locator: locator, direction: #"input");
+  let data = dood-root(dood);
+  dood-close(dood);
+  data
+end method;
+      </codeblock>
+
+      <p>This works great for simple applications. More complicated
+      applications potentially require support for data compression,
+      special reinitialization, lazy loading of data, and multiple
+      databases. Data can be compressed by being able to specify that
+      only a subset of an object's slots are saved (for example, an
+      object may cache information in a slot) or more generally by
+      dumping the object's information in a completely different
+      format on disk.
+<!--
+      The former technique is described in the schema
+      section below and the latter technique is described in the proxy
+      section below.
+  -->
+      </p>
+    </apiDesc>
+  </dylanLibraryDetail>
+
+  <related-links>
+    <link href="dood/dood.xml">
+      <linktext><apiname>dood</apiname></linktext>
+    </link>
+  </related-links>
+</dylanLibrary>

@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
+<dylanGenericFunction id="lib-dood-dood-dood_commit">
+  <apiName>dood-commit</apiName>
+  <shortdesc>Returns .</shortdesc>
+
+  <prolog>
+    <author></author>
+    <copyright>
+      <copyryear year="2005"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanGenericFunctionDetail>
+    <dylanGenericFunctionDef>
+      <dylanFunctionParam>
+	<apiItemName>dood</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionParam>
+      <dylanFunctionRestReturn>
+	<apiItemName>results</apiItemName>
+        <apiOperationClassifier href="LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
+	<apiDefNote></apiDefNote>
+      </dylanFunctionRestReturn>
+    </dylanGenericFunctionDef>
+
+    <apiDesc>
+      <p>Saves the data reachable from <codeph>dood-root</codeph>.
+      When the <codeph>backups?:</codeph> init-keyword is specified to
+      be true, the data is first written to a new file.  The new file
+      is named the same as the specified locator but with its suffix
+      changed to <filepath>.new</filepath>. Upon success, the original
+      data file is replaced with the new file. Upon failure the new
+      file is just removed and the original data file is
+      untouched.</p>
+    </apiDesc>
+  </dylanGenericFunctionDetail>
+</dylanGenericFunction>
