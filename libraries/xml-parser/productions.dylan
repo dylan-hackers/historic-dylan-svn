@@ -447,6 +447,13 @@ define meta element(elt-name, attribs, content, etag)
     ["/>", no!(*last-tag-name*), set!(content, "")] }
 end meta element;
 
+define meta start-tag (elt-name, attribs, started-new-element) => (elt-name, started-new-element)
+  scan-beginning-of-tag(elt-name, attribs), {
+    [">", set!(started-new-element, #t)],
+    ["/>", set!(started-new-element, #f)]
+  }
+end meta start-tag;
+
 // This make-element preserves capitalization of the tag-name
 define method make-element(k :: <sequence>, n :: <symbol>, a :: <sequence>,
 			   mod :: <boolean>) => (elt :: <element>)

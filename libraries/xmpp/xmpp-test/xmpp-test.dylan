@@ -4,7 +4,7 @@ author:
 copyright: 
 
 define function main(name :: <string>, #rest strings)
-
+//  let 1 = 0;
 /*
   let jid = make(<jid>, domain: "foo");
   format-out("%=, %=, %=\n", jid.node, jid.domain, jid.resource);
@@ -219,10 +219,8 @@ define function main(name :: <string>, #rest strings)
   format-out("%=\n", test-document.node-children);
   
 */
-format-out("%=\n", parse-document("<stream:stream xmlns:stream='http://etherx.jabber.org/streams' id='4463ACD5' xmlns='jabber:client' from='192.168.0.1'></stream:stream>"));
 
-//start-sockets();
-  let client = make(<xmpp-client>, jid: make(<jid>, node: "foo", domain: "192.168.0.1"));
+  let client = make(<xmpp-client>, jid: make(<jid>, node: "dylan", domain: "benkstein.net"));
   let stream = make(<xmpp-stream>, to: client.jid.domain);
   
 //  connect(client);
@@ -245,16 +243,13 @@ format-out("%=\n", parse-document("<stream:stream xmlns:stream='http://etherx.ja
   end block;
 */
   block()
-    connect(client);
+    connect(client, port: 4222);
     format-out("Connected to xmpp server at %s port: %d\n", 
       client.socket.remote-host.host-name,
       client.socket.remote-port);
-    send(client, stream);
+    send(client, start-tag(stream));
     while (#t)
-//foo
     end while;
-
-//close(client-socket);
     disconnect(client);
     format-out("Connection closed.  Bye\n");
   exception (condition :: <condition>)
@@ -291,10 +286,7 @@ format-out("%=\n", parse-document("<stream:stream xmlns:stream='http://etherx.ja
 */ 
   exit-application(0);
 end function main;
-/*
-define meta positions (space) => (space)
-  "1", scan-s(space), "2", scan-s(space), "3", scan-s(space), "4"
-end meta positions;
-*/
+
+
 // Invoke our main() function.
 main(application-name(), application-arguments());
