@@ -10,7 +10,8 @@ define library xml-parser
 
   export xml-parser,
     simple-xml,
-    %productions;
+    %productions,
+    printing;
 end library;
 
 define module xml-parser
@@ -38,26 +39,6 @@ define module xml-parser
   create node-iterator, prepare-document;
   create transform, transform-document, before-transform, <xform-state>;
 end module xml-parser;
-
-define module simple-xml
-  use common-dylan;
-  use xml-parser;
-
-  export \with-xml,
-    \with-xml-builder,
-    escape-xml,
-    attribute,
-    elements,
-    add-attribute,
-    remove-attribute,
-    add-element,
-    remove-element,
-    import-element,
-    namespace,
-    add-namespace,
-    remove-namespace,
-    replace-element-text;
-end;
 
 define module interface
   use common-dylan, exclude: { format-to-string };
@@ -99,6 +80,8 @@ define module printing
 
   use interface;
   use transform;
+  
+  create print-opening, print-attributes, print-closing;
 end module printing;
 
 define module collect
@@ -127,6 +110,33 @@ define module %productions
   use interface;
   use xml-parser;
 
-  export scan-xml-decl;
+  export scan-xml-decl, scan-name, scan-s?, scan-xml-attributes,
+    scan-start-tag;
 end module %productions;
 
+define module simple-xml
+  use common-dylan;
+  use common-extensions;
+  use streams;
+  use xml-parser;
+  use printing;
+  
+  export \with-xml,
+    \with-xml-builder,
+    escape-xml,
+    attribute,
+    elements,
+    add-attribute,
+    remove-attribute,
+    add-element,
+    remove-element,
+    import-element,
+    namespace,
+    add-namespace,
+    remove-namespace,
+    replace-element-text,
+    prefix,
+    real-name,
+    start-tag;
+    
+end module printing;

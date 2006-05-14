@@ -19,4 +19,6 @@ define module xmpp-test
   use simple-xml;
   use xmpp;
   use meta;
+  use %productions;
+  use printing;
 end module;

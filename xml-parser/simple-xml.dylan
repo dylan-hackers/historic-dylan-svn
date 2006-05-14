@@ -247,6 +247,28 @@ define method import-element (element :: <element>, node :: <element>)
   end for;
 end method import-element;
 
+define generic prefix (object :: <object>) => (res :: <string>);
+define method prefix (element :: <element>)
+ => (res :: <string>);
+  prefix(element.name);
+end method prefix;
+  
+define method prefix (name :: <string>)
+  => (res :: <string>);
+  split(name, ":")[0];
+end method prefix;
+
+define generic real-name (object :: <object>) => (res :: <string>);
+define method real-name (element :: <element>) 
+ => (res :: <string>);
+  real-name(element.name);
+end method real-name;
+
+define method real-name (name :: <string>)
+ => (res :: <string>);
+  split(name, ":")[0];
+end method real-name;
+
 define method namespace (element :: <element>)
  => (xmlns :: false-or(<string>));
   let xmlns = attribute(element, "xmlns");
@@ -280,3 +302,12 @@ define method replace-element-text (element :: <element>, node :: <string>, text
   end if;
   replace-element.text := escape-xml(text);
 end method replace-element-text;
+
+define method start-tag (e :: <element>)
+ => (tag :: <string>);
+  let stream = make(<string-stream>, direction: #"output");
+  print-opening(e, *printer-state*, stream);
+  print-attributes(e.attributes, *printer-state*, stream);
+  print-closing("", stream);
+  stream-contents(stream);
+end method start-tag; 
