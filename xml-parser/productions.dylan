@@ -443,7 +443,7 @@ define meta element(elt-name, attribs, content, etag)
                          end if, vector(content)),
                    elt-name, attribs, *modify?*))
   scan-beginning-of-tag(elt-name, attribs),
-  { [">", scan-content(content), scan-etag(etag)],
+  { [">", scan-content(content), scan-end-tag(etag)],
     ["/>", no!(*last-tag-name*), set!(content, "")] }
 end meta element;
 
@@ -533,7 +533,7 @@ define collect-value xml-attribute-value(c) () "'", "\"" => { } end;
 // 
 // [42] ETag ::= '</' Name S? '>'
 //    
-define meta etag(name, s) => (name)
+define meta end-tag(name, s) => (name)
   "</", scan-name(name),
   do(if(*last-tag-name* & *last-tag-name* ~== name)
        maybe-tag-mismatch("Close tag does not match open tag",
@@ -541,7 +541,7 @@ define meta etag(name, s) => (name)
                                            name, *last-tag-name*),
                           index, string);
      end if), no!(*last-tag-name*), scan-s?(s), ">"
-end meta etag;
+   end meta end-tag;
 
 // Content of Elements
 // 
