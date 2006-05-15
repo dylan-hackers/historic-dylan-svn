@@ -3,7 +3,7 @@ ifeq ($(OSTYPE), darwin)
  	MELANGE=melange --framework SDL --framework OpenGL --d2c
 else
 	LIDFILE=sdl.lid
-	MELANGE=melange -I/usr/local/sdl/include --d2c
+	MELANGE=melange -I/usr/local/include --d2c
 endif
 
 sdl.lib.du: $(LIDFILE) sdl.dylan
@@ -12,7 +12,7 @@ ifeq ($(OSTYPE), darwin)
 endif
 	d2c $(LIDFILE)
 
-sdl.lid: sdl-exports.dylan sdl-intr.dylan sdl-glut-intr.dylan
+sdl.lid: sdl-exports.dylan sdl.intr
 	touch $@
 
 sdl.dylan: sdl.intr
