@@ -253,9 +253,9 @@ define method prefix (element :: <element>)
   prefix(element.name);
 end method prefix;
   
-define method prefix (name :: <string>)
+define method prefix (name :: type-union(<string>, <symbol>))
   => (res :: <string>);
-  split(name, ":")[0];
+  split(as(<string>, name), ':')[0];
 end method prefix;
 
 define generic real-name (object :: <object>) => (res :: <string>);
@@ -264,9 +264,9 @@ define method real-name (element :: <element>)
   real-name(element.name);
 end method real-name;
 
-define method real-name (name :: <string>)
+define method real-name (name :: type-union(<string>, <symbol>))
  => (res :: <string>);
-  split(name, ":")[0];
+  split(as(<string>, name), ':')[1];
 end method real-name;
 
 define method namespace (element :: <element>)

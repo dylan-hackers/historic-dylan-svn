@@ -16,44 +16,104 @@ define method connect (client :: <xmpp-client>, #key port :: <integer> = 5222)
   start-sockets();
   client.socket := make(<tcp-socket>, host: client.jid.domain, port: port);
   client.state := #"connected";
+  format-out("TEST: %s\n", real-name("foo:bar"));
   make(<thread>, priority: $background-priority, function: curry(listen, client));
 end method connect;
 
 define method listen (client :: <xmpp-client>)
+
 block ()
-  let stanza-complete? = #f;
-  let parser-depth = 0;
-  while (#t)
-    let (received, found?) = read-through(client.socket, '>');
-    format-out(">>> %s\n", received);
-//XXX should strip spaces before first element!
-    if (found? & (received[0] = '<'))
-//check xml-decl
-      let (index, processing-instruction) = scan-xml-decl(received);
-      if (processing-instruction)
-        format-out("!!! %=: %s\n", object-class(processing-instruction), processing-instruction.name);
-      end if;
-// check if start
-      let (index, name, opened-element?) = scan-start-tag(received);
-      format-out("!!! %= %= %=\n", index, name, opened-element?);
-/*      if (name)
-//format-out("!!! (start) %s - (current depth) %d\n", real-name(name), *parser-depth* + 1);
-//        *parser-depth* := *parser-depth* + 1;
-        format-out("!!! started element: %=\n", name);
-        parser-depth := parser-depth + 1;
-      else
-        format-out("!!! no start element started\n");
-      end if;
-*/
-      format-out("!!! depth: %=\n", parser-depth);
-    else
-      format-out("!!! not found!");
-    end if;
+//  let parser-depth = 0;
+//  let stream-initiated? = #f;
+  let parsing-tag? = #f;
+  let parser-buffer = "";
+  
+  // keep watching that start tags match end tags
+  let tag-queue = make(<deque>);
+  
+  while (~ stream-at-end?(client.socket))
+    let received = read-element(client.socket);
+
+    block(read-next)
+        if (parsing-tag? = #f)
+          if (received = '<')
+            parsing-tag? := #t;
+            parser-buffer := add!(parser-buffer, received);
+            read-next();
+          elseif (size(tag-queue) = 0 & received ~= '\n')
+            //!!! error: not well-formed xml: chars not contained in root element
+            format-out("!!! error: not well-formed xml: chars not contained in root element\n");
+          end if;
+        else
+          if (received = '>')
+            // seems as we got an element
+            parser-buffer := add!(parser-buffer, received);
+            format-out(">>> %s\n", parser-buffer);
+
+            // could be the start tag of an element
+            let (index, start-tag, opened-element?) = scan-start-tag(parser-buffer);
+            if (start-tag & opened-element?)
+              format-out("!!! (start)  %s (%s)\n", start-tag, real-name(start-tag));
+              // should be closed later
+              push-last(tag-queue, start-tag);
+              format-out("!!! now at depth: %d\n", size(tag-queue));
+              // dispatch();
+              parser-buffer := "";
+              parsing-tag? := #f;
+              read-next();
+            elseif (start-tag & ~ opened-element?)
+              format-out("!!! (empty)  %s (%s)\n", start-tag, real-name(start-tag));
+              // dispatch();
+              parser-buffer := "";
+              parsing-tag? := #f;
+              read-next();
+            end if;
+            
+            // could be the end tag of an element
+            let (index, end-tag, opened-element?) = scan-end-tag(parser-buffer);
+            if (end-tag)
+              format-out("!!! (end)  %s (%s)\n", end-tag, real-name(end-tag));
+              // should close the last started tag
+              if (as(<symbol>, end-tag) = last(tag-queue))
+                format-out("!!! (successful end)  %s (%s)\n", end-tag, real-name(end-tag));
+                pop-last(tag-queue);  
+                format-out("!!! now at depth: %d\n", size(tag-queue));
+                // dispatch();
+                parser-buffer := "";
+                parsing-tag? := #f;
+                read-next();
+              else
+                //!!! error: not-well formed xml: start/end tag mismatch
+                format-out("!!! (WANTED end)  %s (%s)\n", last(tag-queue), real-name(last(tag-queue)));
+              end if;
+            end if;
+            
+            // could be a xml declaration
+            let (index, processing-instruction) = scan-xml-decl(parser-buffer);
+            if (processing-instruction)
+              format-out("!!! %=: %s\n", object-class(processing-instruction), processing-instruction.name);
+              parser-buffer := "";
+              parsing-tag? := #f;
+              read-next();
+            end if;
+    
+          else
+            //XXX we allow everything in a tag
+            if (received ~= '\n')
+              parser-buffer := add!(parser-buffer, received);
+            end if;
+            read-next();
+          end if;
+        end if;
+    end block;
+   
   end while;
+  format-out("!!! OOOOHHHH! NOOOOO!");
 exception (condition :: <condition>)
   disconnect(client);
   format-out("client: listen: Error: %=", condition);
 end block;
+
 end method listen;
 
 define method disconnect (client :: <xmpp-client>)
@@ -107,11 +167,12 @@ define meta start-tag (elt-name, sym-name, attribs, s) => (elt-name, atts)
 end meta start-tag;
 */
 
-
+/*
 define collector maybe-elements (c) => (c) 
-  loop([do(collect()])
+  loop([scan-maybe-element(c), do(collect(c))])
 end collector maybe-element;
 
 define collector maybe-element (c) => (c)
  "<", loop({[">", do(collect('>')), finish()], [accept(c), do(collect(c))]})
 end collector elements;
+*/

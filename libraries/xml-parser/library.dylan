@@ -111,7 +111,7 @@ define module %productions
   use xml-parser;
 
   export scan-xml-decl, scan-name, scan-s?, scan-xml-attributes,
-    scan-start-tag;
+    scan-start-tag, scan-end-tag;
 end module %productions;
 
 define module simple-xml

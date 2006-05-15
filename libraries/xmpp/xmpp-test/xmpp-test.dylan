@@ -4,7 +4,8 @@ author:
 copyright: 
 
 define function main(name :: <string>, #rest strings)
-//  let 1 = 0;
+//  format-out("%=\n", prefix("foo:bar"));
+//  format-out("%=\n", real-name("foo:bar"));
 /*
   let jid = make(<jid>, domain: "foo");
   format-out("%=, %=, %=\n", jid.node, jid.domain, jid.resource);
@@ -220,7 +221,7 @@ define function main(name :: <string>, #rest strings)
   
 */
 
-  let client = make(<xmpp-client>, jid: make(<jid>, node: "dylan", domain: "benkstein.net"));
+  let client = make(<xmpp-client>, jid: make(<jid>, node: "dylan", domain: "192.168.0.2"));
   let stream = make(<xmpp-stream>, to: client.jid.domain);
   
 //  connect(client);
@@ -243,7 +244,7 @@ define function main(name :: <string>, #rest strings)
   end block;
 */
   block()
-    connect(client, port: 4222);
+    connect(client);
     format-out("Connected to xmpp server at %s port: %d\n", 
       client.socket.remote-host.host-name,
       client.socket.remote-port);
