@@ -71,7 +71,7 @@ block ()
               end if;
               current-element := element;
               format-out("!!! (current element) %=\n", current-element);
-              if (current-element.name = #"stream:stream" & ~ stream-running?)
+              if (current-element.name = #"stream:stream" & size(tag-queue) = 1 & ~ stream-running?)
                 stream-running? := #t;
                 //!!! do something
                 current-element := #f;
@@ -83,8 +83,17 @@ block ()
             elseif (start-tag & ~ opened-element?)
               format-out("!!! (empty)  %s\n", start-tag);
               // dispatch
-
-            
+              let element = make(<element>, name: as(<string>, start-tag));
+              for (attribute in attributes)
+                add-attribute(element, attribute);
+              end for;
+              if (current-element)
+                add-element(current-element, element);
+              end if;
+              // empty stanza
+              if (size(tag-queue) = 1)
+                format-out("!!! (X) %=\n", element);
+              end if;
               // cleanup
               parser-buffer := "";
               parsing-tag? := #f;
@@ -107,7 +116,8 @@ block ()
                 else
                   format-out("!!! (-) %=\n", current-element);
                   format-out("!!! (+) %=\n", current-element.element-parent);
-                  if (~ current-element.element-parent)
+//                if (~ current-element.element-parent)
+                  if (size(tag-queue) = 1)
                     format-out("!!! (X) %=\n", current-element);
                     //!!! do something!!!
                   end if;
