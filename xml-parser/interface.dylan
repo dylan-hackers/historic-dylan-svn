@@ -67,7 +67,7 @@ end method root;
 // N.B. it is (very) preferable to use make-element instead of make
 // when working in conjuction with the xml-parser library
 define open class <element> (<attributes>, <node-mixin>, <mutable-collection>)
-  slot element-parent :: <node-mixin>, init-keyword: parent:;
+  slot element-parent :: false-or(<node-mixin>) = #f, init-keyword: parent:;
   virtual slot text;
 end class <element>;
 
