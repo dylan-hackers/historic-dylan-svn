@@ -3,6 +3,10 @@ synopsis:
 author: 
 copyright:
 
+define constant *stanza-lock* = make(<lock>);
+define constant *parsed-stanza* = make(<notification>, lock: *stanza-lock*); 
+define variable *available-stanza* :: false-or(<element>) = #f;
+  
 define class <xmpp-client> (<object>)
   slot jid :: <jid>,
     required-init-keyword: jid:;
@@ -12,50 +16,58 @@ define class <xmpp-client> (<object>)
   virtual slot password;
 end class <xmpp-client>;
 
-define method connect (client :: <xmpp-client>, #key port :: <integer> = 5222)
+define method connect (client :: <xmpp-client>, #key port :: <integer> = 5222, stream)
+ => (connected :: <boolean>);
   start-sockets();
   client.socket := make(<tcp-socket>, host: client.jid.domain, port: port);
-  client.state := #"connected";
-  format-out("TEST: %s\n", real-name("foo:bar"));
   make(<thread>, priority: $background-priority, function: curry(listen, client));
+  if (~ stream)
+    stream := make(<xmpp-stream>, to: client.jid.domain);
+  end if;
+  let answer = send(client, start-tag(stream), awaits-result?: #t);
+  if (answer.name = #"stream:stream")
+    client.state := #"connected";
+    #t;
+  else
+    client.state := #"disconnected";
+    #f;
+  end if;
 end method connect;
 
 define method listen (client :: <xmpp-client>)
 
 block ()
-//  let parser-depth = 0;
   let stream-running? = #f;
   let parsing-tag? = #f;
-  let parser-buffer = "";
+  let tag = "";
   let current-element = #f;
-  
-  // keep watching that start tags match end tags
   let tag-queue = make(<deque>);
-  
+
   while (~ stream-at-end?(client.socket))
     let received = read-element(client.socket);
-
+  
     block(read-next)
         if (parsing-tag? = #f)
           if (received = '<')
             parsing-tag? := #t;
-            parser-buffer := add!(parser-buffer, received);
+            tag := add!(tag, received);
             read-next();
-          elseif (size(tag-queue) = 0 & received ~= '\n')
+          elseif (~ stream-running? & received ~= '\n')
             //!!! error: not well-formed xml: chars not contained in root element
             format-out("!!! error: not well-formed xml: chars not contained in root element\n");
-          elseif (size(tag-queue) > 0 & current-element & received ~= '\n')
+          elseif (stream-running? & current-element & received ~= '\n')
             //!!! collect chars into text of current-element!!!
-            current-element.text := add!(current-element.text, received); 
+            current-element.text := add!(current-element.text, received);
+            read-next();
           end if;
         else
           if (received = '>')
             // seems as we got an element
-            parser-buffer := add!(parser-buffer, received);
-            format-out(">>> %s\n", parser-buffer);
+            tag := add!(tag, received);
+            format-out(">>> %s\n", tag);
 
             // could be the start tag of an element
-            let (index, start-tag, attributes, opened-element?) = scan-start-tag(parser-buffer);
+            let (index, start-tag, attributes, opened-element?) = scan-start-tag(tag);
             if (start-tag & opened-element?)
               format-out("!!! (start)  %s\n", start-tag);
               // should be closed later
@@ -71,13 +83,15 @@ block ()
               end if;
               current-element := element;
               format-out("!!! (current element) %=\n", current-element);
-              if (current-element.name = #"stream:stream" & size(tag-queue) = 1 & ~ stream-running?)
+              if (current-element.name = #"stream:stream" & ~ stream-running?)
                 stream-running? := #t;
                 //!!! do something
+                format-out("!!! (X) %=\n", current-element);
+                make(<thread>, function: curry(dispatch, current-element));
                 current-element := #f;
               end if;
               // cleanup
-              parser-buffer := "";
+              tag := "";
               parsing-tag? := #f;
               read-next();
             elseif (start-tag & ~ opened-element?)
@@ -87,21 +101,21 @@ block ()
               for (attribute in attributes)
                 add-attribute(element, attribute);
               end for;
-              if (current-element)
+              // empty stanza
+              if (size(tag-queue) < 2)
+                format-out("!!! (X) %=\n", element);
+                make(<thread>, function: curry(dispatch, element));
+              else
                 add-element(current-element, element);
               end if;
-              // empty stanza
-              if (size(tag-queue) = 1)
-                format-out("!!! (X) %=\n", element);
-              end if;
               // cleanup
-              parser-buffer := "";
+              tag := "";
               parsing-tag? := #f;
               read-next();
             end if;
             
             // could be the end tag of an element
-            let (index, end-tag, opened-element?) = scan-end-tag(parser-buffer);
+            let (index, end-tag, opened-element?) = scan-end-tag(tag);
             if (end-tag)
               format-out("!!! (end)  %s\n", end-tag);
               // should close the last started tag
@@ -110,22 +124,20 @@ block ()
                 pop-last(tag-queue);  
                 format-out("!!! now at depth: %d\n", size(tag-queue));
                 // dispatch
-                if (end-tag = "stream:stream" & ~ current-element)
-                  stream-running? := #f;
-                  //!!! shutdown
-                else
-                  format-out("!!! (-) %=\n", current-element);
-                  format-out("!!! (+) %=\n", current-element.element-parent);
-//                if (~ current-element.element-parent)
-                  if (size(tag-queue) = 1)
-                    format-out("!!! (X) %=\n", current-element);
-                    //!!! do something!!!
+                format-out("!!! (-) %=\n", current-element);
+                format-out("!!! (+) %=\n", current-element.element-parent);
+                if (size(tag-queue) < 2)
+                  format-out("!!! (X) %=\n", current-element);
+                  if (end-tag = "stream:stream" & ~ current-element)
+                    stream-running? := #f;
+                    //!!! what do do here? thread?!
+                  else
+                    make(<thread>, function: curry(dispatch, current-element));
                   end if;
-                  //@listener.receive wird ausgeführt wenn @current keinen parent hat
-                  current-element := current-element.element-parent;
                 end if;
+                current-element := current-element.element-parent;
                 // cleanup
-                parser-buffer := "";
+                tag := "";
                 parsing-tag? := #f;
                 read-next();
               else
@@ -135,10 +147,10 @@ block ()
             end if;
             
             // could be a xml declaration
-            let (index, processing-instruction) = scan-xml-decl(parser-buffer);
+            let (index, processing-instruction) = scan-xml-decl(tag);
             if (processing-instruction)
               format-out("!!! %=: %s\n", object-class(processing-instruction), processing-instruction.name);
-              parser-buffer := "";
+              tag := "";
               parsing-tag? := #f;
               read-next();
             end if;
@@ -146,7 +158,7 @@ block ()
           else
             //XXX we allow everything in a tag
             if (received ~= '\n')
-              parser-buffer := add!(parser-buffer, received);
+              tag := add!(tag, received);
             end if;
             read-next();
           end if;
@@ -167,11 +179,33 @@ define method disconnect (client :: <xmpp-client>)
   client.state := #"disconnected";
 end method disconnect;
 
-define method send (client :: <xmpp-client>, data)
+define method send (client :: <xmpp-client>, data :: type-union(<element>, <string>), #key awaits-result?)
   write-line(client.socket, as(<string>, data));
   force-output(client.socket);
   format-out("<<< %s\n", data);
+  if (awaits-result?)
+    let result = #f;
+    with-lock (*stanza-lock*) 
+      until (*available-stanza*) 
+        wait-for(*parsed-stanza*);
+      end until; 
+      result := *available-stanza*;
+      *available-stanza* := #f;
+    end with-lock;
+    result;
+  end if;
 end method send;
+
+define method send-with-id (client :: <xmpp-client>, data :: <element>, #key awaits-result?)
+  if (~ data.id)
+    data.id := "foo";
+  end if;
+
+  send(client, data, awaits-result?: awaits-result?);
+/*
+                                       if received.kind_of? XMLStanza and received.id == xml.id
+*/
+end method send-with-id;
 
 define method password-setter (password, client :: <xmpp-client>)
  => (res);
@@ -179,46 +213,28 @@ define method password-setter (password, client :: <xmpp-client>)
   password;
 end method password-setter;
 
-/*
-define meta start-of-tag(elt-name, sym-name, attribs, s) => (elt-name, attribs)
-  "<", scan-name(elt-name), scan-s?(s), scan-xml-attributes(attribs), ">"
-//  (push(*tag-name-with-proper-capitalization*, elt-name)),
-//set!(sym-name, as(<symbol>, elt-name))
-end meta start-of-tag;
+define method dispatch (element :: <element>)
+  with-lock (*stanza-lock*)
+    if (~ *available-stanza*)
+      release-all(*parsed-stanza*);
+    end if; 
+    *available-stanza* := element;
+  end with-lock;
 
-define meta start-tag
-//(name, s, attribs) => (name)
-  "<", ">"
-//, scan-name(name), scan-s?(s), scan-xml-attributes(attribs), ">"
-end meta start-tag;
+  format-out("!!! (X2) %=\n", element);
+end method dispatch;
 
-define meta end-tag (name, s) => (name)
-  "</", scan-name(name), scan-s?(s), ">"
-end meta end-tag;
-*/             
-/*
-define method valid-xmpp-data? (data :: <string>)
- => (res :: <boolean>);
-  if (parse-document(data))
-    #t;
+define method authenticate (client :: <xmpp-client>, password, #key digest = #t)
+  let authentication = #f;
+  let authentication-request = #f;
+  if (digest)
+    //!!!
   else
-    #f;
+    authentication-request := make-authentication-request(client.jid);
+    authentication := make-authentication(client.jid, password);
   end if;
-end method valid-xmpp-data?;
-*/
-
-/*
-define meta start-tag (elt-name, sym-name, attribs, s) => (elt-name, atts)
-  "<", scan-name(elt-name), scan-s?(s), scan-xml-attributes(attribs), ">"
-end meta start-tag;
-*/
-
-/*
-define collector maybe-elements (c) => (c) 
-  loop([scan-maybe-element(c), do(collect(c))])
-end collector maybe-element;
-
-define collector maybe-element (c) => (c)
- "<", loop({[">", do(collect('>')), finish()], [accept(c), do(collect(c))]})
-end collector elements;
-*/
+  //!!!
+  send-with-id(client, authentication-request, awaits-result?: #t);
+  ///!!! verify!!!
+  send-with-id(client, authentication, awaits-result?: #t);
+end method authenticate;

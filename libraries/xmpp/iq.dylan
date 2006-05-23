@@ -87,6 +87,19 @@ define method make-vcard (#key type = #"get", to: jid)
   iq;
 end method make-vcard;
 
+define method make-authentication-request (jid :: <jid>)
+ => (iq :: <iq>)
+  let iq = make(<iq>, type: #"get");
+  iq.to := jid.domain;
+  let query = with-xml()
+    query(xmlns => "jabber:iq:auth") {
+      username(jid.node)
+    }
+  end with-xml;
+  add-element(iq, query);
+  iq;
+end method make-authentication-request;
+
 define method make-authentication (jid :: <jid>, password :: <string>)
  => (iq :: <iq>);
   let iq = make(<iq>, type: #"set");
@@ -98,7 +111,7 @@ define method make-authentication (jid :: <jid>, password :: <string>)
           with-xml() resource(jid.resource) end;
         end)
     }
-  end;
+  end with-xml;
   add-element(iq, query);
   iq;
 end method make-authentication;

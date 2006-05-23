@@ -74,7 +74,7 @@ define module xmpp
   export <xmpp-client>,
     jid, socket, state,
     connect, disconnect,
-    send;
+    send, authenticate;
     
   export normalize,
     id, id-setter,

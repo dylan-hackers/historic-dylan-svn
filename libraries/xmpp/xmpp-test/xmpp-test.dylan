@@ -221,70 +221,31 @@ define function main(name :: <string>, #rest strings)
   
 */
 
-  let client = make(<xmpp-client>, jid: make(<jid>, node: "dylan", domain: "192.168.0.2"));
+  let client = make(<xmpp-client>, jid: make(<jid>, node: "foo", domain: "192.168.0.1", resource: "xmpp"));
   let stream = make(<xmpp-stream>, to: client.jid.domain);
-  
-//  connect(client);
-//  send(client, stream);
-//  listen(client);
-//  let response = read-line(client.socket, on-end-of-stream: #f);
-//  if (response) write-line(*standard-output*, response); end if;
-//  disconnect(client);
-  
-/*
-//  format-out("%=\n", object-class(parse-document("<foo>Blub</foo>")));
-  block ()
-    format-out("%=\n", object-class(parse-document("<foo>Blub")));
-//    format-out("%=\n", object-class(parse-document("<foo>Blub</fo")));
-//    format-out("%=\n", object-class(parse-document("<foo t='>Blub</foo>")));
-//    format-out("%=\n", object-class(parse-document("<foo>Blub</blub>")));
-  exception (condition :: <condition>)
-    format-out("Error: %=\n", condition);
-    format-out("%=\n", object-class(condition));
-  end block;
-*/
+    
   block()
-    connect(client);
+    if (~ connect(client))
+      exit-application(1);
+    end if;     
     format-out("Connected to xmpp server at %s port: %d\n", 
       client.socket.remote-host.host-name,
       client.socket.remote-port);
-    send(client, start-tag(stream));
+      authenticate(client, "foo", digest: #f);
+
+    let result = send(client, make(<message>, to: "foo@192.168.0.1/Psi", body: "foo"), awaits-result?: #t);
+    format-out("### (X3) %=\n", result);
+      
     while (#t)
     end while;
     disconnect(client);
     format-out("Connection closed.  Bye\n");
-  exception (condition :: <condition>)
+  cleanup
     disconnect(client);
+  exception (condition :: <condition>)
     format-out("xmpp-test: Error: %=\n", condition);
   end block;
-
-/*
-  block () 
-    format-out("%=\n", scan-xml-decl("<?xml version='1.0'?>"));
-    format-out("%=\n", scan-xml-decl("<?xml version=''?>"));
-//format-out("%=\n", scan-xml-decl("<?xml?>"));
-    format-out("%=\n", scan-xml-decl("<?xml '"));
-  exception (condition :: <condition>)
-    format-out("Error: %=: %=\n", condition);
-  end block;
-*/
-/*
-  block ()
-    let (index, element) = scan-maybe-element-data("<foo123'%>");
-    format-out("%=\n", element);
-    let (index, element) = scan-maybe-element-data("<foo123'%><foo");
-    format-out("%=\n", element);
-    let (index, element) = scan-maybe-element-data("<foo123'%><foo>");
-    format-out("%=\n", element);
-    let (index, element) = scan-maybe-element-data("a<foo123'%><foo>", start: 1);
-    format-out("%=\n", element);
-    let (index, positions) = scan-positions("1 2 3 4");
-    format-out("%=\n", positions);
-    
-  exception (condition :: <condition>)
-    format-out("Error: %=: %=\n", condition);
-  end block;
-*/ 
+  
   exit-application(0);
 end function main;
 

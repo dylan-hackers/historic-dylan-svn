@@ -225,6 +225,7 @@ define open generic add-element (element :: <element>, node :: <element>);
 define method add-element (element :: <element>, node :: <element>) 
  => (res :: <element>);
   element.node-children := add(element.node-children, node);
+  node.element-parent := element;
   element;
 end method add-element;
 
