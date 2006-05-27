@@ -12,14 +12,22 @@ define class <xmpp-client> (<object>)
     required-init-keyword: jid:;
   slot socket :: <tcp-socket>,
     init-keyword: socket:;
-  slot state :: one-of(#"disconnected", #"authenticating", #"connected");
+  slot state :: one-of(#"disconnected", #"connected") = #"disconnected";
+  slot message-callbacks :: <priority-queue> = 
+    make(<priority-queue>, comparison-function: \>);
+  slot presence-callbacks :: <priority-queue> =
+    make(<priority-queue>, comparison-function: \>);
+  slot iq-callbacks :: <priority-queue> =
+    make(<priority-queue>, comparison-function: \>);
+  slot xml-callbacks :: <priority-queue> =
+    make(<priority-queue>, comparison-function: \>);
   virtual slot password;
 end class <xmpp-client>;
 
-define method connect (client :: <xmpp-client>, #key port :: <integer> = 5222, stream)
+define method connect (client :: <xmpp-client>, #key port :: <integer> = 5222, host, stream)
  => (connected :: <boolean>);
   start-sockets();
-  client.socket := make(<tcp-socket>, host: client.jid.domain, port: port);
+  client.socket := make(<tcp-socket>, host: host | client.jid.domain, port: port);
   make(<thread>, priority: $background-priority, function: curry(listen, client));
   if (~ stream)
     stream := make(<xmpp-stream>, to: client.jid.domain);
@@ -40,6 +48,7 @@ block ()
   let stream-running? = #f;
   let parsing-tag? = #f;
   let tag = "";
+  let buffer = "";
   let current-element = #f;
   let tag-queue = make(<deque>);
 
@@ -50,14 +59,22 @@ block ()
         if (parsing-tag? = #f)
           if (received = '<')
             parsing-tag? := #t;
+            if (size(buffer) > 0 & ~ every?(method(x) x = '\n' end, buffer) & current-element)
+              //let xml-text = make(<char-string>, text: buffer);
+              format-out("||| %=          %=\n", current-element, buffer);
+              format-out("||| %=\n", current-element.node-children);         
+              current-element.node-children := concatenate(current-element.node-children, vector(make(<char-string>, text: buffer)));
+              format-out("||| %=          %=\n", current-element, buffer);
+              buffer := "";
+            end if;
             tag := add!(tag, received);
             read-next();
           elseif (~ stream-running? & received ~= '\n')
             //!!! error: not well-formed xml: chars not contained in root element
             format-out("!!! error: not well-formed xml: chars not contained in root element\n");
-          elseif (stream-running? & current-element & received ~= '\n')
+          elseif (stream-running? & current-element)
             //!!! collect chars into text of current-element!!!
-            current-element.text := add!(current-element.text, received);
+            buffer := add(buffer, received);
             read-next();
           end if;
         else
@@ -87,7 +104,7 @@ block ()
                 stream-running? := #t;
                 //!!! do something
                 format-out("!!! (X) %=\n", current-element);
-                make(<thread>, function: curry(dispatch, current-element));
+                make(<thread>, function: curry(dispatch, client, current-element));
                 current-element := #f;
               end if;
               // cleanup
@@ -104,7 +121,7 @@ block ()
               // empty stanza
               if (size(tag-queue) < 2)
                 format-out("!!! (X) %=\n", element);
-                make(<thread>, function: curry(dispatch, element));
+                make(<thread>, function: curry(dispatch, client, element));
               else
                 add-element(current-element, element);
               end if;
@@ -132,7 +149,7 @@ block ()
                     stream-running? := #f;
                     //!!! what do do here? thread?!
                   else
-                    make(<thread>, function: curry(dispatch, current-element));
+                    make(<thread>, function: curry(dispatch, client, current-element));
                   end if;
                 end if;
                 current-element := current-element.element-parent;
@@ -200,11 +217,15 @@ define method send-with-id (client :: <xmpp-client>, data :: <element>, #key awa
   if (~ data.id)
     data.id := "foo";
   end if;
-
-  send(client, data, awaits-result?: awaits-result?);
-/*
-                                       if received.kind_of? XMLStanza and received.id == xml.id
-*/
+  
+  let result = send(client, data, awaits-result?: awaits-result?);
+  if (awaits-result?)
+    if (result.id ~= data.id)
+      signal("id-missmatch");
+    else
+      result;
+    end if;
+  end if;
 end method send-with-id;
 
 define method password-setter (password, client :: <xmpp-client>)
@@ -213,15 +234,36 @@ define method password-setter (password, client :: <xmpp-client>)
   password;
 end method password-setter;
 
-define method dispatch (element :: <element>)
+define method dispatch (client :: <xmpp-client>, element :: <element>)
+//  let stanza = element;
+  format-out("!!! (X2) %=\n", element);
+  let stanza = select (element.name)
+    #"message" => as(<message>, element);
+    #"presence" => as(<presence>, element);
+    #"iq" => as(<iq>, element);
+    otherwise => element;
+  end select;
   with-lock (*stanza-lock*)
     if (~ *available-stanza*)
       release-all(*parsed-stanza*);
     end if; 
-    *available-stanza* := element;
+    *available-stanza* := stanza;
   end with-lock;
-
-  format-out("!!! (X2) %=\n", element);
+  format-out("!!! (X2) %=\n", stanza);
+  format-out("!!! (X2) %=\n", object-class(stanza));
+  let callbacks = select (stanza by instance?)
+    <message> => client.message-callbacks;
+    <presence> => client.presence-callbacks;
+    <iq> => client.iq-callbacks;
+    otherwise => client.xml-callbacks;
+  end select;
+  block (return)
+    for (callback in callbacks)
+      if (callback.handler(client, stanza))
+        return();
+      end if;
+    end for;
+  end block;
 end method dispatch;
 
 define method authenticate (client :: <xmpp-client>, password, #key digest = #t)
@@ -238,3 +280,13 @@ define method authenticate (client :: <xmpp-client>, password, #key digest = #t)
   ///!!! verify!!!
   send-with-id(client, authentication, awaits-result?: #t);
 end method authenticate;
+
+define method connected? (client :: <xmpp-client>)
+ => (res :: <boolean>)
+  client.state = #"connected"
+end method connected?;
+
+define method disconnected? (client :: <xmpp-client>)
+ => (res :: <boolean>)
+  client.state = #"disconnected"
+end method disconnected?;

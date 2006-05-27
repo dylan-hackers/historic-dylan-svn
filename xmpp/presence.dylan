@@ -116,7 +116,7 @@ end method priority;
 
 define method priority-setter (priority :: <integer>, presence :: <presence>)
  => (res :: <integer>);
-  remove-element(presence, "priority");
+  replace-element-text(presence, "priority", integer-to-string(priority));
   priority;
 end method priority-setter;
 
@@ -125,3 +125,10 @@ define method priority-setter (priority == #f, presence :: <presence>)
   remove-element(presence, "priority");
   priority;
 end method priority-setter;
+
+define method as (class == <presence>, element :: <element>)
+ => (res :: <presence>)
+  let presence = make(<presence>);
+  import-element(presence, element);
+  presence;
+end method as;
