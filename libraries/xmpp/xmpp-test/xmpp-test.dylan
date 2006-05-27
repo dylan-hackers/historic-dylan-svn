@@ -221,20 +221,46 @@ define function main(name :: <string>, #rest strings)
   
 */
 
-  let client = make(<xmpp-client>, jid: make(<jid>, node: "foo", domain: "192.168.0.1", resource: "xmpp"));
+  let callback1 = make(<callback>, reference: #"default", priority: 3, handler: method (client, message)
+    format-out("CCC (1) %= %=\n", client, message);
+    if (message.body)
+      send(client, make(<message>, to: message.from, type: #"chat", body: concatenate("You said: '", message.body, "'")));
+    end if;
+    #f;
+  end);
+
+/*
+  let callback2 = make(<callback>, reference: #"default", priority: 2, handler: method (client, element)
+    format-out("CCC (2) %= %=\n", client, element);
+    #t;
+  end);
+
+  let callback3 = make(<callback>, reference: #"default", priority: 1, handler: method (client, element)
+    format-out("CCC (3) %= %=\n", client, element);
+    #f;
+  end);
+*/
+  let client = make(<xmpp-client>, jid: make(<jid>, node: "dylan", domain: "pentabarf.org", resource: "xmpp"));
+
+  add!(client.message-callbacks, callback1);
+//  add!(client.message-callbacks, callback2);
+//  add!(client.message-callbacks, callback3);
+  
   let stream = make(<xmpp-stream>, to: client.jid.domain);
     
   block()
-    if (~ connect(client))
+    if (~ connect(client, host: "benkstein.net", port: 4222))
       exit-application(1);
     end if;     
     format-out("Connected to xmpp server at %s port: %d\n", 
       client.socket.remote-host.host-name,
       client.socket.remote-port);
-      authenticate(client, "foo", digest: #f);
-
-    let result = send(client, make(<message>, to: "foo@192.168.0.1/Psi", body: "foo"), awaits-result?: #t);
-    format-out("### (X3) %=\n", result);
+    authenticate(client, "test", digest: #f);
+    send(client, make(<presence>, priority: 23));
+    send(client, make(<message>, to: "turbo24prg@jabber.ccc.de", type: #"chat", body: "This is turbot speaking, your friendly JabberBot written in Dylan."));
+    send(client, make(<message>, to: "turbo24prg@jabber.ccc.de", type: #"chat", body: "I'll echo everything you say!"));
+//    let result = send(client, make(<message>, to: "dylan@pentabarf.org/Psi", body: "This is turbot speaking."), awaits-result?: #t);
+//    format-out("### (X3) %=\n", result);
       
     while (#t)
     end while;
@@ -245,7 +271,6 @@ define function main(name :: <string>, #rest strings)
   exception (condition :: <condition>)
     format-out("xmpp-test: Error: %=\n", condition);
   end block;
-  
   exit-application(0);
 end function main;
 

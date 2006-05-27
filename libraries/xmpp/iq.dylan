@@ -129,3 +129,10 @@ define method make-registration (#key username :: false-or(<string>), password :
   add-element(iq, query);
   iq;
 end method make-registration;
+
+define method as (class == <iq>, element :: <element>)
+ => (res :: <iq>);
+  let iq = make(<iq>);
+  import-element(iq, element);
+  iq;
+end method as;

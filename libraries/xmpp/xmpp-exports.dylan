@@ -6,6 +6,7 @@ define library xmpp
   use network;
   use xml-parser;
   use meta;
+  use priority-queue;
   
   export xmpp;
 end library;
@@ -19,7 +20,8 @@ define module xmpp
   use streams;
   use xml-parser;
   use simple-xml;
- 
+  use priority-queue;
+  
   //XXX
   use standard-io;
   use format-out;
@@ -72,10 +74,17 @@ define module xmpp
     description, description-setter; 
 
   export <xmpp-client>,
-    jid, socket, state,
+    jid, jid-setter,
+    socket, socket-setter,
+    state, state-setter,
+    message-callbacks,
+    message-callbacks-setter,
     connect, disconnect,
-    send, authenticate;
-    
+    send, authenticate,
+    connected?, disconnected?;
+   
+  export <callback>;
+
   export normalize,
     id, id-setter,
     from, from-setter,

@@ -16,3 +16,4 @@ files: xmpp-exports
   stanza-error
   connection
   client
+  callback

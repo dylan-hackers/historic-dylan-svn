@@ -145,3 +145,10 @@ define method normalize (message :: <message>)
     end if;
   end if;
 end method normalize;
+
+define method as (class == <message>, element :: <element>)
+ => (res :: <message>);
+  let message = make(<message>);
+  import-element(message, element);
+  message;
+end method as;
