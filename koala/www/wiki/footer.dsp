@@ -17,9 +17,10 @@
     </dsp:else>        
   </dsp:if>
   <a href="/wiki/recent.dsp">Recent&nbsp;Changes</a>
+  <a href="/wiki/index.dsp">Index</a>
   <span class="lastrevisions">
-    <wiki:show-revisions first="0" last="10">
-      <a class="revisionlink" href="/wiki/view.dsp?title=<wiki:show-title/>&amp;v=<wiki:version/>">[<wiki:version/>]</a>
+    <wiki:show-revisions count="10">
+      <a class="revisionlink" href="/wiki/view.dsp?title=<wiki:show-title v="false"/>&amp;v=<wiki:version/>">[<wiki:version/>]</a>
     </wiki:show-revisions>
   </span>
 </div>

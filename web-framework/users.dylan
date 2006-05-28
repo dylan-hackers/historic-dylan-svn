@@ -5,8 +5,23 @@ define web-class <user> (<object>)
   data username :: <string>;
   data password :: <string>;
   data email :: <string>;
-  //slot object-table :: <table>, init-keyword: table:;
-  data admin? :: <boolean>;
+  data access :: <integer> = 999;
+end;
+
+define method initialize (user :: <user>, #rest rest, #key, #all-keys)
+  next-method();
+  check(user);
+  $users[user.username] := user;
+end;
+define variable $users = storage(<user>);
+
+define inline-only method key (user :: <user>)
+ => (res :: <string>)
+  user.username;
+end;
+
+define method storage-type (type == <user>) => (res)
+  <string-table>;
 end;
 
 define method as (class == <string>, user :: <user>)
@@ -20,14 +35,9 @@ define method current-user () => (user :: false-or(<user>))
   *user*
 end;
 
-define inline-only method key (user :: <user>)
- => (res :: <string>)
-  user.username;
-end;
-
 define method check (user :: <user>, #key test-result = 0)
  => (res :: <boolean>)
-  if (any?(method(x) x.username = user.username end, storage(<user>)))
+  if (element($users, user.username, default: #f))
     signal(make(<web-error>,
                 error: "User with same name already exists!"))
   else
@@ -36,7 +46,7 @@ define method check (user :: <user>, #key test-result = 0)
 end;
 
 define method valid-user? (user-name :: <string>, pass :: <string>)
-  let user = choose(method(x) x.username = user-name end, storage(<user>))[0];
+  let user = element($users, user-name, default: #f);
   if (user & (user.password = pass))
     #t;
   else
@@ -50,7 +60,7 @@ define method login (request :: <request>)
   if (username & password)
     if (valid-user?(user-name, password))
       let session = ensure-session(request);
-      *user* := choose(method(x) x.username = user-name end, storage(<user>))[0];
+      *user* := $users[user-name];
       set-attribute(session, #"username", user-name);
     end;
   end;
@@ -61,7 +71,7 @@ define method logged-in (request :: <request>)
   let session = get-session(request);
   if (session)
     let user-name = get-attribute(session, #"username");
-    *user* := choose(method(x) x.username = user-name end, storage(<user>))[0];
+    *user* := $users[user-name];
     user-name;
   end;
 end;
