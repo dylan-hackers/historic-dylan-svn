@@ -40,7 +40,8 @@ define module storage
     save,
     restore,
     restore-newest,
-    version;
+    version,
+    storage-type;
 end;
 
 define module web-framework-macro
@@ -95,11 +96,11 @@ define module users
     username,
     password,
     email,
-    admin?,
     current-user,
     valid-user?,
     login,
-    logged-in;
+    logged-in,
+    access;
 end;
 
 define module changes

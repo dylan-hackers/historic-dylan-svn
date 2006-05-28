@@ -23,14 +23,22 @@ define method version () => (res :: <integer>)
   *version*;
 end;
 
-define method storage (type) => (res :: <stretchy-vector>)
+define open generic storage-type (type) => (res);
+
+define method storage-type (type) => (res)
+  <stretchy-vector>;
+end;
+
+define method storage (type) => (res)
   let res = element(*storage*, type, default: #f);
   unless (res)
-    res := make(<stretchy-vector>);
+    res := make(storage-type(type));
     *storage*[type] := res;
   end;
   res;
 end;
+
+define open generic save (object :: <object>) => ();
 
 define method save (object) => ()
   add!(storage(object.object-class), object);

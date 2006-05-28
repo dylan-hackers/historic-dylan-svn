@@ -22,6 +22,8 @@
           <br/>
           <textarea name="page-content" cols="80" rows="20"><wiki:show-content format="raw"/></textarea>
           <br/>
+          Comment: <input type="text" name="comment"/>
+          <br/>
           <input type="submit" value="Save"/>
         </div>
       </form>
