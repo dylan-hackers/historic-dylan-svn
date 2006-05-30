@@ -59,12 +59,10 @@ block ()
         if (parsing-tag? = #f)
           if (received = '<')
             parsing-tag? := #t;
-            if (size(buffer) > 0 & ~ every?(method(x) x = '\n' end, buffer) & current-element)
-              //let xml-text = make(<char-string>, text: buffer);
-              format-out("||| %=          %=\n", current-element, buffer);
-              format-out("||| %=\n", current-element.node-children);         
-              current-element.node-children := concatenate(current-element.node-children, vector(make(<char-string>, text: buffer)));
-              format-out("||| %=          %=\n", current-element, buffer);
+            if (size(buffer) > 0 & current-element)
+              if (~ every?(method(x) x = '\n' end, buffer))
+                current-element.node-children := concatenate(current-element.node-children, vector(make(<char-string>, text: buffer)));
+              end if;
               buffer := "";
             end if;
             tag := add!(tag, received);
@@ -73,7 +71,6 @@ block ()
             //!!! error: not well-formed xml: chars not contained in root element
             format-out("!!! error: not well-formed xml: chars not contained in root element\n");
           elseif (stream-running? & current-element)
-            //!!! collect chars into text of current-element!!!
             buffer := add(buffer, received);
             read-next();
           end if;
@@ -266,19 +263,20 @@ define method dispatch (client :: <xmpp-client>, element :: <element>)
   end block;
 end method dispatch;
 
-define method authenticate (client :: <xmpp-client>, password, #key digest = #t)
-  let authentication = #f;
-  let authentication-request = #f;
-  if (digest)
-    //!!!
-  else
-    authentication-request := make-authentication-request(client.jid);
-    authentication := make-authentication(client.jid, password);
-  end if;
-  //!!!
-  send-with-id(client, authentication-request, awaits-result?: #t);
-  ///!!! verify!!!
-  send-with-id(client, authentication, awaits-result?: #t);
+define generic authenticate (client :: <xmpp-client>, password, digest) => (authenticated? :: <boolean>);
+define method authenticate (client :: <xmpp-client>, password, digest == #f)
+ => (authenticated? :: <boolean>); 
+  let possibilities = send-with-id(client, make-authentication-request(client.jid), awaits-result?: #t);
+/*  if (possibilities.type = #"result" &
+      elements(possibilities.query, "username") &
+      elements(possibilities.query, "resource") &
+      elements(possibilities.query, "password"))
+
+      ...
+      
+      possibilities.query.password!!!
+*/    
+  let success = send-with-id(client, make-authentication(client.jid, password), awaits-result?: #t);
 end method authenticate;
 
 define method connected? (client :: <xmpp-client>)
