@@ -48,7 +48,7 @@ define method body (message :: <message>)
  => (res :: false-or(<string>));
   let bodies = elements(message, "body");
   if (~ empty?(bodies))
-    first(bodies).text;
+    first(bodies).unfiltered-text;
   else
     #f;
   end if;
