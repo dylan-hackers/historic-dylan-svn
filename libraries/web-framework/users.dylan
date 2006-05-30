@@ -11,9 +11,8 @@ end;
 define method initialize (user :: <user>, #rest rest, #key, #all-keys)
   next-method();
   check(user);
-  $users[user.username] := user;
+  storage(<user>)[user.username] := user;
 end;
-define variable $users = storage(<user>);
 
 define inline-only method key (user :: <user>)
  => (res :: <string>)
@@ -37,7 +36,7 @@ end;
 
 define method check (user :: <user>, #key test-result = 0)
  => (res :: <boolean>)
-  if (element($users, user.username, default: #f))
+  if (element(storage(<user>), user.username, default: #f))
     signal(make(<web-error>,
                 error: "User with same name already exists!"))
   else
@@ -46,7 +45,7 @@ define method check (user :: <user>, #key test-result = 0)
 end;
 
 define method valid-user? (user-name :: <string>, pass :: <string>)
-  let user = element($users, user-name, default: #f);
+  let user = element(storage(<user>), user-name, default: #f);
   if (user & (user.password = pass))
     #t;
   else
@@ -60,7 +59,7 @@ define method login (request :: <request>)
   if (username & password)
     if (valid-user?(user-name, password))
       let session = ensure-session(request);
-      *user* := $users[user-name];
+      *user* := storage(<user>)[user-name];
       set-attribute(session, #"username", user-name);
     end;
   end;
@@ -71,7 +70,7 @@ define method logged-in (request :: <request>)
   let session = get-session(request);
   if (session)
     let user-name = get-attribute(session, #"username");
-    *user* := $users[user-name];
+    *user* := storage(<user>)[user-name];
     user-name;
   end;
 end;
