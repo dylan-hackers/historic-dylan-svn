@@ -49,9 +49,15 @@ define class <storage> (<object>)
   constant slot table-version = *version*;
 end;
 
+define constant $filename = last(split(application-name(), '/'));
+
 define method dump-data () => ()
+  let loc = concatenate(*directory*,
+                        $filename,
+                        "-",
+                        integer-to-string(*version*));
   let dood = make(<dood>,
-                  locator: concatenate(application-name(), "-", integer-to-string(*version*)),
+                  locator: loc,
                   direction: #"output",
                   if-exists: #"replace");
   dood-root(dood) := make(<storage>);
@@ -61,6 +67,7 @@ define method dump-data () => ()
 end;
 
 define method restore (filename :: <string>) => ()
+  format-out("restoring %s\n", filename);
   let dood = make(<dood>,
                   locator: filename,
                   direction: #"input");
@@ -89,7 +96,7 @@ define method restore-newest (directory :: <string>) => ()
                    end;
                end, directory);
   if (file)
-    restore(file);
+    restore(concatenate(directory, "/", file));
   end;
 end;
 
@@ -106,7 +113,7 @@ end;
 
 define function split-file (filename :: <string>) => (version :: <integer>)
   let elements = split(filename, '-');
-  if ((elements.size = 2) & (elements[0] = application-name()))
+  if ((elements.size = 2) & (elements[0] = $filename))
     string-to-integer(elements[1]);
   else
     0
