@@ -211,7 +211,7 @@ define method send-response
     // (http://www.w3.org/Daemon/User/Config/Logging.html)
     let request = concatenate(as-uppercase(as(<string>, request-method(req))), " ",
                               request-url(req), " ",
-                              as(<string>, request-version(req)));
+                              as-uppercase(as(<string>, request-version(req)));
     let date = as-common-logfile-date(current-date());
     let remoteaddr = host-address(remote-host(request-socket(req)));
     let ext :: <string> = "";
@@ -222,8 +222,8 @@ define method send-response
     // See bug #7200.
 
     //for now, add User-Agent and Referer
-    ext := concatenate(" \"", as(<string>, get-header(req, "user-agent") | "-"),
-                       "\" \"", as(<string>, get-header(req, "referer") | "-"),
+    ext := concatenate(" \"", as(<string>, get-header(req, "referer") | "-"),
+                       "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
                        "\"");
     log-raw(activity-log-target(*virtual-host*),
             concatenate(remoteaddr, " ",
