@@ -5,6 +5,9 @@ Copyright: Copyright (c) 2001-2002 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
+define method get-remote-address(req :: <request>) => (res :: <string>)
+  host-address(remote-host(request-socket(req)))
+end;
 
 // Exported
 //
@@ -211,7 +214,7 @@ define method send-response
     // (http://www.w3.org/Daemon/User/Config/Logging.html)
     let request = concatenate(as-uppercase(as(<string>, request-method(req))), " ",
                               request-url(req), " ",
-                              as-uppercase(as(<string>, request-version(req)));
+                              as-uppercase(as(<string>, request-version(req))));
     let date = as-common-logfile-date(current-date());
     let remoteaddr = host-address(remote-host(request-socket(req)));
     let ext :: <string> = "";
