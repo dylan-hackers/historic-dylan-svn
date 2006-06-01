@@ -5,9 +5,6 @@ Copyright: Copyright (c) 2001-2002 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-define method get-remote-address(req :: <request>) => (res :: <string>)
-  host-address(remote-host(request-socket(req)))
-end;
 
 // Exported
 //
