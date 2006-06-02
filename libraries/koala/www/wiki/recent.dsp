@@ -15,9 +15,9 @@
     <ul>
     <wiki:gen-recent-changes count="50">
       <li><wiki:show-change-timestamp/> <a href="/wiki/view.dsp?title=<wiki:show-change-title/>&v=<wiki:show-change-version/>"><wiki:show-change-title/></a> version <wiki:show-change-version/> <a href="/wiki/diff.dsp?title=<wiki:show-change-title/>&version=<wiki:show-change-version/>">diff</a> by <wiki:show-change-author/> Comment <wiki:show-change-comment/>
-      <dsp:if test="admin?">
-        <a href="/wiki/worker?title=<wiki:show-change-title/>&action=undo">undo</a>
-      </dsp:if>
+      <dsp:when test="admin?">
+        <a href="/worker?title=<wiki:show-change-title/>&action=undo">revert</a>
+      </dsp:when>
       </li>
     </wiki:gen-recent-changes>
     </ul>

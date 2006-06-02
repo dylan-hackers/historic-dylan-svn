@@ -96,11 +96,10 @@ define module users
     username,
     password,
     email,
+    access,
     current-user,
-    valid-user?,
     login,
-    logged-in,
-    access;
+    logged-in?;
 end;
 
 define module changes

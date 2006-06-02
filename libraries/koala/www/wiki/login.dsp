@@ -9,7 +9,7 @@
 <body>
   <%dsp:include url="header.dsp"/>
   <div id="content">
-    <dsp:if test="logged-in?">
+    <dsp:if test="login?">
       <dsp:then>
         Logged in as <wiki:username/>. <a href="/wiki/logout.dsp">Logout</a>
       </dsp:then>

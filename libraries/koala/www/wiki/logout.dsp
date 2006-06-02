@@ -9,7 +9,7 @@
 <body>
   <%dsp:include url="header.dsp"/>
   <div id="content">
-    <dsp:if test="logged-in?">
+    <dsp:if test="login?">
       <dsp:then>
         Error logging out user!
       </dsp:then>

@@ -54,18 +54,20 @@ define method valid-user? (user-name :: <string>, pass :: <string>)
 end;
 
 define method login (request :: <request>)
+ => (username :: false-or(<string>))
   let user-name = get-query-value("username");
   let password = get-query-value("password");
-  if (username & password)
+  if (user-name & password)
     if (valid-user?(user-name, password))
       let session = ensure-session(request);
       *user* := storage(<user>)[user-name];
       set-attribute(session, #"username", user-name);
+      user-name;
     end;
   end;
 end;
 
-define method logged-in (request :: <request>)
+define method logged-in? (request :: <request>)
  => (username :: false-or(<string>))
   let session = get-session(request);
   if (session)
