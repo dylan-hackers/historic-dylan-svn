@@ -1,7 +1,7 @@
 <%dsp:taglib name="wiki"/>
 <!-- standard wiki header -->
 <div id="header">
-  <div id="logo"><a href="http://www.gwydiondylan.org/dylan-wiki.html" class="logo">Dylan Wiki</a></div>
+  <div id="logo"><a href="http://wiki.opendylan.org/" class="logo">Dylan Wiki</a></div>
   <form action="/wiki/search.dsp" method="post">
     <div class="search">
       <input type="text" name="search-terms" size="20"/>
