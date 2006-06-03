@@ -95,8 +95,11 @@ define module users
   export <user>,
     username,
     password,
+    password-setter,
     email,
+    email-setter,
     access,
+    access-setter,
     current-user,
     login,
     logged-in?;

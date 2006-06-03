@@ -13,14 +13,6 @@
     <h1>Index</h1>
     <wiki:show-index>
 	<a href="/wiki/view.dsp?title=<wiki:show-title/>"><wiki:show-title/></a>
-      <dsp:when test="admin?">
-        <a href="/worker?title=<wiki:show-title/>&action=remove">remove</a>
-        <form action="/worker" method="get">
-          <input type="hidden" name="oldtitle" value="<wiki:show-title/>">
-          <input type="hidden" name="action" value="rename">
-          rename to <input type="text" name="title"><input type="submit" value="Save"/>
-        </form>
-      </dsp:when>
       <br/>
     </wiki:show-index>
   </div>
