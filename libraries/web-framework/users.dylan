@@ -5,7 +5,7 @@ define web-class <user> (<object>)
   data username :: <string>;
   data password :: <string>;
   data email :: <string>;
-  data access :: <integer> = 999;
+  data access :: <list> = make(<list>);
 end;
 
 define method initialize (user :: <user>, #rest rest, #key, #all-keys)
