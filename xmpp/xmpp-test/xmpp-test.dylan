@@ -242,7 +242,8 @@ define function main(name :: <string>, #rest strings)
 */
   let client = make(<xmpp-client>, jid: make(<jid>, node: "foo", domain: "192.168.0.1", resource: "xmpp"));
 
-  add!(client.message-callbacks, callback1);
+  add-callback(client, <message>, callback1);
+//  add!(client.message-callbacks, callback1);
 //  add!(client.message-callbacks, callback2);
 //  add!(client.message-callbacks, callback3);
   
@@ -261,7 +262,7 @@ define function main(name :: <string>, #rest strings)
 //    send(client, make(<message>, to: "ghul@jabber.org", type: #"chat", body: "I'll echo everything you say!"));
 //    let result = send(client, make(<message>, to: "dylan@pentabarf.org/Psi", body: "This is turbot speaking."), awaits-result?: #t);
 //    format-out("### (X3) %=\n", result);
-      
+  
     while (#t)
     end while;
     disconnect(client);

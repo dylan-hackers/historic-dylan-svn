@@ -19,6 +19,7 @@ define module xmpp
   use sockets;
   use streams;
   use xml-parser;
+  use xml-stream-parser;
   use simple-xml;
   use priority-queue;
   
@@ -77,8 +78,9 @@ define module xmpp
     jid, jid-setter,
     socket, socket-setter,
     state, state-setter,
-    message-callbacks,
-    message-callbacks-setter,
+    callbacks,
+    callbacks-setter,
+    add-callback,
     connect, disconnect,
     send, authenticate,
     connected?, disconnected?;
