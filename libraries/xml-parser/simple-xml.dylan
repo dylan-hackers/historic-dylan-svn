@@ -221,11 +221,13 @@ define method elements (element :: <element>, element-name)
           end, element.node-children);
 end method elements;
 
-define open generic add-element (element :: <element>, node :: <element>);
-define method add-element (element :: <element>, node :: <element>) 
+define open generic add-element (element :: <element>, node :: <xml>);
+define method add-element (element :: <element>, node :: <xml>) 
  => (res :: <element>);
   element.node-children := add(element.node-children, node);
-  node.element-parent := element;
+  if (object-class(node) = <element>)
+    node.element-parent := element;
+  end if;
   element;
 end method add-element;
 
