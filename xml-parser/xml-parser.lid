@@ -7,3 +7,4 @@ files:	library
 	collect
 	productions
 	simple-xml
+  stream-parser

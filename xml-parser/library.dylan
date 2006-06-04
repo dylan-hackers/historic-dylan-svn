@@ -9,6 +9,7 @@ define library xml-parser
   use system, import: { file-system };
 
   export xml-parser,
+    xml-stream-parser,
     simple-xml,
     %productions,
     printing;
@@ -20,7 +21,7 @@ define module xml-parser
   create <document>, <element>, <node-mixin>, <attribute>, <xml>, <processing-instruction>,
     <entity-reference>, <add-parents>, <char-reference>, <comment>, <tag>,
     <char-string>, <dtd>, <internal-entity>, <external-entity>,
-    text, text-setter, name, name-setter, name-with-proper-capitalization,
+    text, text-setter, unfiltered-text, name, name-setter, name-with-proper-capitalization,
     root, char;
 
   create entity-value, attributes, attributes-setter, *dtd-paths*,
@@ -139,4 +140,16 @@ define module simple-xml
     real-name,
     start-tag;
     
-end module printing;
+end module simple-xml;
+
+define module xml-stream-parser
+  use common-dylan;
+  use common-extensions;
+  use streams;
+  use xml-parser;
+  use %productions;
+
+  export <xml-stream-parser>,
+    stream, stream-setter, parse;
+    
+end module xml-stream-parser;
