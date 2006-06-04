@@ -2,10 +2,6 @@ module: xmpp
 synopsis: 
 author: 
 copyright:
-
-define constant *stanza-lock* = make(<lock>);
-define constant *parsed-stanza* = make(<notification>, lock: *stanza-lock*); 
-define variable *available-stanza* :: false-or(<element>) = #f;
   
 define class <xmpp-client> (<object>)
   slot jid :: <jid>,
@@ -13,16 +9,17 @@ define class <xmpp-client> (<object>)
   slot socket :: <tcp-socket>,
     init-keyword: socket:;
   slot state :: one-of(#"disconnected", #"connected") = #"disconnected";
-  slot message-callbacks :: <priority-queue> = 
-    make(<priority-queue>, comparison-function: \>);
-  slot presence-callbacks :: <priority-queue> =
-    make(<priority-queue>, comparison-function: \>);
-  slot iq-callbacks :: <priority-queue> =
-    make(<priority-queue>, comparison-function: \>);
-  slot xml-callbacks :: <priority-queue> =
-    make(<priority-queue>, comparison-function: \>);
+  slot callbacks :: <table> = make(<table>);
   virtual slot password;
+  slot lock :: <lock> = make(<lock>);
+  slot notification :: <notification>;
+  slot available-stanza :: false-or(<element>) = #f;
 end class <xmpp-client>;
+
+define method initialize (client :: <xmpp-client>, #rest rest, #key, #all-keys)
+  next-method();
+  client.notification := make(<notification>, lock: client.lock);
+end method initialize;
 
 define method connect (client :: <xmpp-client>, #key port :: <integer> = 5222, host, stream)
  => (connected :: <boolean>);
@@ -42,150 +39,53 @@ define method connect (client :: <xmpp-client>, #key port :: <integer> = 5222, h
   end if;
 end method connect;
 
+define method add-callback (client :: <xmpp-client>, class :: <class>, callback :: <callback>)
+  unless (element(client.callbacks, class, default: #f))
+    client.callbacks[class] := make(<priority-queue>, comparison-function: \>);
+  end unless;
+  client.callbacks[class] := add!(client.callbacks[class], callback);
+end method add-callback;
+
 define method listen (client :: <xmpp-client>)
-
-block ()
-  let stream-running? = #f;
-  let parsing-tag? = #f;
-  let tag = "";
-  let buffer = "";
   let current-element = #f;
-  let tag-queue = make(<deque>);
+  let stream-initiated? = #f;
+  let parser = make(<xml-stream-parser>, stream: client.socket);
 
-  while (~ stream-at-end?(client.socket))
-    let received = read-element(client.socket);
-  
-    block(read-next)
-        if (parsing-tag? = #f)
-          if (received = '<')
-            parsing-tag? := #t;
-            if (size(buffer) > 0 & current-element)
-              if (~ every?(method(x) x = '\n' end, buffer))
-                current-element.node-children := concatenate(current-element.node-children, vector(make(<char-string>, text: buffer)));
-              end if;
-              buffer := "";
-            end if;
-            tag := add!(tag, received);
-            read-next();
-          elseif (~ stream-running? & received ~= '\n')
-            //!!! error: not well-formed xml: chars not contained in root element
-            format-out("!!! error: not well-formed xml: chars not contained in root element\n");
-          elseif (stream-running? & current-element)
-            buffer := add(buffer, received);
-            read-next();
-          end if;
-        else
-          if (received = '>')
-            // seems as we got an element
-            tag := add!(tag, received);
-            format-out(">>> %s\n", tag);
+  monitor(parser, #"start-element", method (event-name, event-attributes)
+    let element = make(<element>, name: event-name);
+    for (attribute in event-attributes)
+      add-attribute(element, attribute);
+    end for;
+    if (current-element)
+      add-element(current-element, element);
+    end if;
+    current-element := element;
 
-            // could be the start tag of an element
-            let (index, start-tag, attributes, opened-element?) = scan-start-tag(tag);
-            if (start-tag & opened-element?)
-              format-out("!!! (start)  %s\n", start-tag);
-              // should be closed later
-              push-last(tag-queue, start-tag);
-              format-out("!!! now at depth: %d\n", size(tag-queue));
-              // dispatch  
-              let element = make(<element>, name: as(<string>, start-tag));
-              for (attribute in attributes)
-                add-attribute(element, attribute);
-              end for;
-              if (current-element)
-                add-element(current-element, element);
-              end if;
-              current-element := element;
-              format-out("!!! (current element) %=\n", current-element);
-              if (current-element.name = #"stream:stream" & ~ stream-running?)
-                stream-running? := #t;
-                //!!! do something
-                format-out("!!! (X) %=\n", current-element);
-                make(<thread>, function: curry(dispatch, client, current-element));
-                current-element := #f;
-              end if;
-              // cleanup
-              tag := "";
-              parsing-tag? := #f;
-              read-next();
-            elseif (start-tag & ~ opened-element?)
-              format-out("!!! (empty)  %s\n", start-tag);
-              // dispatch
-              let element = make(<element>, name: as(<string>, start-tag));
-              for (attribute in attributes)
-                add-attribute(element, attribute);
-              end for;
-              // empty stanza
-              if (size(tag-queue) < 2)
-                format-out("!!! (X) %=\n", element);
-                make(<thread>, function: curry(dispatch, client, element));
-              else
-                add-element(current-element, element);
-              end if;
-              // cleanup
-              tag := "";
-              parsing-tag? := #f;
-              read-next();
-            end if;
-            
-            // could be the end tag of an element
-            let (index, end-tag, opened-element?) = scan-end-tag(tag);
-            if (end-tag)
-              format-out("!!! (end)  %s\n", end-tag);
-              // should close the last started tag
-              if (as(<symbol>, end-tag) = last(tag-queue))
-                format-out("!!! (successful end)  %s\n", end-tag);
-                pop-last(tag-queue);  
-                format-out("!!! now at depth: %d\n", size(tag-queue));
-                // dispatch
-                format-out("!!! (-) %=\n", current-element);
-                format-out("!!! (+) %=\n", current-element.element-parent);
-                if (size(tag-queue) < 2)
-                  format-out("!!! (X) %=\n", current-element);
-                  if (end-tag = "stream:stream" & ~ current-element)
-                    stream-running? := #f;
-                    //!!! what do do here? thread?!
-                  else
-                    make(<thread>, function: curry(dispatch, client, current-element));
-                  end if;
-                end if;
-                current-element := current-element.element-parent;
-                // cleanup
-                tag := "";
-                parsing-tag? := #f;
-                read-next();
-              else
-                //!!! error: not-well formed xml: start/end tag mismatch
-                format-out("!!! (WANTED end)  %s (%s)\n", last(tag-queue), real-name(last(tag-queue)));
-              end if;
-            end if;
-            
-            // could be a xml declaration
-            let (index, processing-instruction) = scan-xml-decl(tag);
-            if (processing-instruction)
-              format-out("!!! %=: %s\n", object-class(processing-instruction), processing-instruction.name);
-              tag := "";
-              parsing-tag? := #f;
-              read-next();
-            end if;
-    
-          else
-            //XXX we allow everything in a tag
-            if (received ~= '\n')
-              tag := add!(tag, received);
-            end if;
-            read-next();
-          end if;
-        end if;
-    end block;
-   
-  end while;
-  format-out("!!! OOOOHHHH! NOOOOO!");
-exception (condition :: <condition>)
-  disconnect(client);
-  format-out("client: listen: Error: %=", condition);
-end block;
+    if (current-element.name = #"stream:stream" & ~ stream-initiated?)
+      stream-initiated? := #t;
+      make(<thread>, function: curry(dispatch, client, current-element));
+      current-element := #f;
+    end if;
+  end);
 
+  monitor(parser, #"end-element", method (event-name)
+    if (event-name = #"stream:stream" & ~ current-element)
+      stream-initiated? := #f;
+    else
+      unless (current-element.element-parent)
+        make(<thread>, function: curry(dispatch, client, current-element));
+      end unless;
+      current-element := current-element.element-parent;
+    end if;
+  end);
+
+  monitor(parser, #"characters", method (chars)
+    if (current-element & ~ every?(method(x) x = '\n' end, chars))
+      current-element.node-children := concatenate(current-element.node-children, vector(make(<char-string>, text: chars)));
+    end if;
+  end);
+
+  parse(parser);
 end method listen;
 
 define method disconnect (client :: <xmpp-client>)
@@ -199,12 +99,12 @@ define method send (client :: <xmpp-client>, data :: type-union(<element>, <stri
   format-out("<<< %s\n", data);
   if (awaits-result?)
     let result = #f;
-    with-lock (*stanza-lock*) 
-      until (*available-stanza*) 
-        wait-for(*parsed-stanza*);
+    with-lock (client.lock) 
+      until (client.available-stanza) 
+        wait-for(client.notification);
       end until; 
-      result := *available-stanza*;
-      *available-stanza* := #f;
+      result := client.available-stanza;
+      client.available-stanza := #f;
     end with-lock;
     result;
   end if;
@@ -231,42 +131,38 @@ define method password-setter (password, client :: <xmpp-client>)
   password;
 end method password-setter;
 
-define method dispatch (client :: <xmpp-client>, element :: <element>)
-//  let stanza = element;
-  format-out("!!! (X2) %=\n", element);
-  let stanza = select (element.name)
-    #"message" => as(<message>, element);
-    #"presence" => as(<presence>, element);
-    #"iq" => as(<iq>, element);
-    otherwise => element;
+define method dispatch (client :: <xmpp-client>, received-element :: <element>)
+  format-out("!!! (X2) %=\n", received-element);
+  let stanza = select (received-element.name)
+    #"message" => as(<message>, received-element);
+    #"presence" => as(<presence>, received-element);
+    #"iq" => as(<iq>, received-element);
+    otherwise => received-element;
   end select;
-  with-lock (*stanza-lock*)
-    if (~ *available-stanza*)
-      release-all(*parsed-stanza*);
+  with-lock (client.lock)
+    if (~ client.available-stanza)
+      release-all(client.notification);
     end if; 
-    *available-stanza* := stanza;
+    client.available-stanza := stanza;
   end with-lock;
   format-out("!!! (X2) %=\n", stanza);
   format-out("!!! (X2) %=\n", object-class(stanza));
-  let callbacks = select (stanza by instance?)
-    <message> => client.message-callbacks;
-    <presence> => client.presence-callbacks;
-    <iq> => client.iq-callbacks;
-    otherwise => client.xml-callbacks;
-  end select;
   block (return)
-    for (callback in callbacks)
-      if (callback.handler(client, stanza))
-        return();
-      end if;
-    end for;
+    if (element(client.callbacks, object-class(stanza), default: #f))
+      format-out("::: %=\n", client.callbacks[object-class(stanza)]);
+      for (callback in client.callbacks[object-class(stanza)])
+        if (callback.handler(client, stanza))
+          return();
+        end if;
+      end for;
+    end if;
   end block;
 end method dispatch;
 
 define generic authenticate (client :: <xmpp-client>, password, digest) => (authenticated? :: <boolean>);
 define method authenticate (client :: <xmpp-client>, password, digest == #f)
  => (authenticated? :: <boolean>); 
-  let possibilities = send-with-id(client, make-authentication-request(client.jid), awaits-result?: #t);
+  let possibilities = send-with-id(client, make-authentication-request(client.jid));    // , awaits-result?: #t);
 /*  if (possibilities.type = #"result" &
       elements(possibilities.query, "username") &
       elements(possibilities.query, "resource") &
@@ -275,16 +171,16 @@ define method authenticate (client :: <xmpp-client>, password, digest == #f)
       ...
       
       possibilities.query.password!!!
-*/    
+*/ 
   let success = send-with-id(client, make-authentication(client.jid, password), awaits-result?: #t);
 end method authenticate;
 
 define method connected? (client :: <xmpp-client>)
  => (res :: <boolean>)
-  client.state = #"connected"
+  client.state == #"connected"
 end method connected?;
 
 define method disconnected? (client :: <xmpp-client>)
  => (res :: <boolean>)
-  client.state = #"disconnected"
+  client.state == #"disconnected"
 end method disconnected?;

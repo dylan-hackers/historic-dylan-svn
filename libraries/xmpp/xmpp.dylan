@@ -3,9 +3,9 @@ synopsis:
 author: 
 copyright:
 
-define variable *default-language* = "en";
 define variable *element-translation* = make(<table>);
-
+define class <xmpp-element> (<element>) end;
+  
 define generic normalize (element :: <element>);
 
 define generic id-setter (id :: <object>, element :: <element>) => (res :: <object>);
