@@ -150,6 +150,7 @@ define module xml-stream-parser
   use %productions;
 
   export <xml-stream-parser>,
-    stream, stream-setter, parse;
+    stream, stream-setter,
+    parse, monitor;
     
 end module xml-stream-parser;
