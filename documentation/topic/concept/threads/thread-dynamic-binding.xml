@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "../../dtd/concept.dtd">
+<concept id="concept-thread-variables">
+  <title>Dynamic binding</title>
+
+  <conbody>
+    <p>The Threads library exports a macro for dynamic binding. A
+    <term>binding</term> is a mapping between a variable and a
+    <term>value-cell</term> which holds the variable’s value. A
+    <i>dynamic </i> binding is a binding which has dynamic extent, and
+    shadows any outermost bindings. Dynamic bindings can be considered
+    to be a property of the dynamic environment. </p>
+
+    <p>Thread variables can have new dynamic bindings created for them
+    with the macro <codeph>dynamic-bind</codeph>, FIXME page
+    104. Thread variables inherently have thread-local bindings, so it
+    is possible to re-bind a thread variable dynamically using the
+    Dylan construct <codeph>block</codeph>
+    ... <codeph>cleanup</codeph>. The <codeph>dynamic-bind</codeph>
+    macro can be implemented in this way.</p>
+
+    <p>The thread-local nature of dynamically bindable variables may
+    not be optimal for all problem domains. For instance a shared,
+    global, outermost binding may be desirable, or alternatively, a
+    thread may want to inherit current bindings from the parent thread
+    at creation time, giving a “fork”-type model of state
+    inheritance. These alternatives are not pursued in this library,
+    but they might be an interesting area for future research.</p>
+  </conbody>
+</concept>

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "../../dtd/concept.dtd">
+<concept id="concept-thread-safety">
+  <title>Thread safety in client libraries</title>
+
+  <conbody>
+    <p>If an application uses multiple threads, then there may be
+    thread safety requirements for any library that can be called
+    simultaneously by multiple threads, even if the called library
+    does not use the Dylan threads facility directly.</p>
+  </conbody>
+</concept>
+

@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "../../dtd/concept.dtd">
+<concept id="concept-thread-variables">
+  <title>Thread variables</title>
+
+  <conbody>
+    <p>The Dylan threads facility provides a new type of variable: a
+     <term>thread</term> variable, also known as a
+     <term>thread-local</term> variable. These variables are similar
+     to normal module variables in the sense that they are visible
+     according to the same scoping rules and have the same semantics
+     in a single-threaded program. However, in contrast to a normal
+     variable, assignments to a thread variable in one thread are not
+     visible when evaluating the variable in another thread.</p>
+
+    <p>Whenever a thread is created, the value of each thread variable
+    is initialized to a thread-independent value resulting from a
+    once-only evaluation of the initialization expression of the
+    thread variable definition.</p>
+
+    <p>See FIXME page 103 for details of the
+    <codeph>thread</codeph> adjective to <codeph>define
+    variable</codeph>.</p>
+  </conbody>
+</concept>

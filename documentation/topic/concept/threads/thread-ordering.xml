@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "../dtd/concept.dtd" []>
+<concept id="concept-thread-ordering">
+  <title>Ordering</title>
+
+  <conbody>
+    <p>The ordering of visibility of side effects performed in other
+    threads is undefined, unless explicit synchronization is
+    used. Implementations of the library may guarantee that the
+    visibility of side-effects performed by another thread is ordered
+    according to the control flow of the other thread (<term>strong
+    ordering</term>), but multi-processor implementations might not be
+    strongly ordered. Portable code should not assume strong ordering,
+    and should use explicit synchronization where the order of side
+    effects is important. There is currently no library introspection
+    facility to determine if the implementation is strongly or weakly
+    ordered.</p>
+    
+    <p>Because of the possibility of weak ordering, the compiler is
+    free to assume that the effects of other threads may be ignored
+    between explicit synchronization points, and it may perform any
+    optimizations which preserve the semantics of a single-thread
+    model regardless of their effects on other threads&#x2014;for
+    example, common sub-expression elimination, or changing the order
+    of evaluation.</p>
+  </conbody>
+</concept>

@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "../../dtd/concept.dtd">
+<concept id="concept-thread-conditional-update">
+  <title>Conditional update</title>
+
+  <conbody>
+    <p>In addition to the synchronization primitives, the Dylan
+    threads facility provides a conditional update mechanism which is
+    not synchronized, but which tests whether the value in a variable
+    or slot has changed and atomically updates it if not. </p>
+
+    <p>By using conditional updates, a thread can confirm (or deny)
+    that there has been no interference from other threads, without
+    any need for a blocking operation. This is more efficient for
+    those circumstances where interference is not disastrous and it is
+    possible to recompute the update.</p>
+
+    <p>For example, a function which increments the value of a
+    variable might use a conditional update to store the new value
+    into place, in order to guarantee a numeric sequence for the
+    variable. In this example, the function might loop until the
+    conditional update has succeeded.</p>
+
+    <p>It is possible to achieve synchronization by looping until a
+    conditional update is successful, and then synchronizing side
+    effects. This is not recommended, because the busy-waiting state
+    during the loop may disallow other threads from running. Normally,
+    conditional update should be used only when it is expected to
+    succeed. If it is likely that the conditional update might fail
+    multiple times around the loop, then either the number of times
+    around the loop should be limited, or a blocking function from the
+    Threads library should be used within the loop.</p>
+  </conbody>
+</concept>

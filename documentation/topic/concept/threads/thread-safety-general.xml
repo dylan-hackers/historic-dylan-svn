@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "../../dtd/concept.dtd">
+<concept id="concept-thread-safety-general">
+  <title>General Thread Safety Requirements</title>
+
+  <conbody>
+    <p>A library’s designer is responsible for documenting which
+    features of the library offer built-in synchronization and which
+    do not. While there is no definitive rule that can assist
+    designers in this documentation, the following guidelines may be
+    useful.</p>
+
+    <p>If a client of the library forgets to use a synchronization
+    feature when one is necessary, the library designer should ensure
+    that the effect of the lack of synchronization is limited to a
+    small unit&#x2014;probably a single object. In cases where the
+    designer cannot guarantee that the effect will be limited, the
+    library should either implement the synchronization internally, or
+    provide a macro for clients to use instead.</p>
+
+    <p>Library implementors must ensure that the library provides
+    implicit synchronization for any hidden global state which is
+    maintained by the library. Library designers may choose whether
+    the library should offer implicit synchronization of the state of
+    objects managed by the library.  The interface is more convenient
+    if the synchronization is implicit, but it may be more efficient
+    to rely on explicit synchronization by the client. Library
+    designers should always document the choice they make.</p>
+  </conbody>
+</concept>

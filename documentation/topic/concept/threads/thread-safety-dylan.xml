@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "../../dtd/concept.dtd">
+<concept id="concept-thread-safety-general">
+  <title>Effects of Thread Safety on the Dylan Library</title>
+
+  <conbody>
+    <p>The definition of the Dylan library is not changed with the
+    addition of the Dylan threads facility. The implementation ensures
+    that all hidden global state (such as the symbol table and any
+    generic function caches) is implicitly synchronized. Those
+    functions in the Dylan library which are defined to modify the
+    state of objects are not defined to provide implicit
+    synchronization. However, implementations are expected to ensure
+    that synchronization bugs in Dylan programs will not cause obscure
+    errors that cannot be explained in terms of the semantics of Dylan
+    language constructs.</p>
+
+    <p>The library guarantees that <apiname>element</apiname> and
+    <apiname>element-setter</apiname> will be atomic for all of Dylan’s
+    non-stretchy built-in collection classes, and for
+    <apiname>&lt;table&gt;</apiname>, except for subclasses of
+    <apiname>&lt;string&gt;</apiname>, and limited collections where
+    the elements are constrained to be either of a type for which
+    slots and variables do not guarantee atomicity (see FIXME Section 4.2.1
+    on page 67) or a subtype of <apiname>&lt;character&gt;</apiname>,
+    or of a proper subtype of <apiname>&lt;integer&gt;</apiname>. This
+    design is intended to permit implementations to use efficient
+    representations for element values, which use either more or less
+    space than a normal Dylan value. It is undefined whether any of
+    the other standard Dylan functions are atomic. Where atomicity is
+    not guaranteed, clients should guard against unexpected behavior
+    by using explicit synchronization, as appropriate.</p>
+  </conbody>
+</concept>
