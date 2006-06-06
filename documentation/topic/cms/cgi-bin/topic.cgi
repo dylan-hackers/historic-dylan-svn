@@ -11,11 +11,17 @@ my $wwwtopic = "$www/topic";
 my $wwwcms = "$wwwtopic/cms";
 my $cache = "$wwwtopic/Cache";
 my $ditaot = "$www/topic/dita";
-my $uri = "http://www.gwydiondylan.org/cgi-bin/topic.cgi";
+my $urisite = "http://www.gwydiondylan.org";
+my $uri = "$urisite/cgi-bin/topic.cgi";
+my $uricms = "$urisite/cms";
+my $uricss = "$uricms/css";
+my $uriimages = "$uricms/images";
+my $urijs = "$uricms/js";
 
 my $q = new CGI;
 my $view = $q->param('view') || 'default';
 my $path = $q->path_info;
+my $map  = $q->param('map');
 
 my $parser;
 my $xslt;
@@ -33,7 +39,7 @@ if($view eq 'download') {
 	close(DOWNLOAD);
 	exit 0;
     } else {
-	&not_found;
+	&not_found($path);
 	exit 0;
     }
 } elsif($view eq 'default') {
@@ -54,45 +60,78 @@ if($view eq 'download') {
     if(&path_ok($path)
        && $path =~ /\.(xml|dita|ditamap)$/
        && -f "$wwwtopic$path") {
+	if($path =~ /\.ditamap$/) {
+	    my $mapdoc = $parser->parse_file("$wwwtopic$path");
+	    my $toc = &toc($mapdoc);
+	    my $tpath = &firsttopic($toc);
+	    print $q->redirect("$uri$tpath?map=$path");
+	    exit 0;
+	}
+
 	print $q->header(-charset => 'utf-8', -encoding => 'utf-8');
 	binmode STDOUT, ":utf8";
+	&start_html;
 	&start_head;
-	&print_links(\*STDOUT, $path);
-
 	my $stylesheet
 	    = $xslt->parse_stylesheet_file("$wwwcms/xsl/dylan-dita2cms.xsl");
 
 	my $doc = $parser->parse_file("$wwwtopic$path");
 	my $result = $stylesheet->transform($doc);
 
-	print "<title>Gwydion Dylan: ";
+	my $tocdoc = $doc;
+	if(defined $map) {
+	    $tocdoc = $parser->parse_file("$wwwtopic/$map");
+	}
+	my $toc;
+	if(defined $tocdoc) {
+	    $toc = &toc($tocdoc);
+	}
+
+	my $tocmap = {};
+	my $pathtoc = &tocnav($toc, $path, $tocmap, $map);
+
+	&print_links(\*STDOUT, $path, $toc);
+
+	print "<title>Dylan: ";
 	&print_title(\*STDOUT, $path, $stylesheet, $doc, $result);
 	print "</title>";
 	&end_head;
-	print "<body>";
-	&dump_menu;
+	&start_body;
+
+	&print_header;
+	&print_sidebar(\*STDOUT, $path, $toc);
+	&start_main;
 
 	&print_breadcrumbs(\*STDOUT, $path);
 
 	&print_body(\*STDOUT, $path, $stylesheet, $doc, $result);
+
+	&end_main;
 	&dump_foot;
+	&end_body;
+	&end_html;
 	exit 0;
     } elsif(-d "$wwwtopic$path"
 	    && !($path =~ m|/\.svn/|)) {
 	print $q->header(-charset => 'utf-8', -encoding => 'utf-8');
 	binmode STDOUT, ":utf8";
-	&start_head;
-	
-	&print_links(\*STDOUT, $path);
-	
-	print "<title>Gwydion Dylan: Topic $path</title>";
-	&end_head;
-	print "<body>";
-	&dump_menu;
 
 	unless($path =~ m|/$|) {
 	    $path .= '/';
 	}
+	
+	&start_html;
+	&start_head;
+	
+	&print_links(\*STDOUT, $path);
+	
+	print "<title>Dylan: Topic $path</title>";
+	&end_head;
+	&start_body;
+
+	&print_header;
+	&print_sidebar(\*STDOUT);
+	&start_main;
 
 	&print_breadcrumbs(\*STDOUT, $path);
 	
@@ -130,7 +169,7 @@ if($view eq 'download') {
 		= $xslt->parse_stylesheet_file("$wwwcms/xsl/dylan-dita2cmsdir.xsl");
 
 	    foreach my $file (sort @files) {
-		if($file =~ /\.(xml|dita|ditamap)$/) {
+		if($file =~ /\.(xml|dita)$/) {
 		    eval {
 			print "<tr><td><a href=\"$uri$path$file\">";
 			my ($doc, $result) =
@@ -143,15 +182,25 @@ if($view eq 'download') {
 			print '</tr>';
 		    };
 		}
+		elsif($file =~ /\.ditamap$/) {
+		    print "<tr><td><a href=\"$uri$path$file\">";
+		    print "<tt>$file</tt>";
+		    print "</a></td>";
+		    print '<td class="summary">Map</td>';
+		    print '</tr>';
+		}
 	    }
 	}
 	print "</tbody>";
 	print "</table>";
 	
+	&end_main;
 	&dump_foot;
+	&end_body;
+	&end_html;
 	exit 0;
     } else {
-	&not_found;
+	&not_found($path);
 	exit 0;
     }
 	    
@@ -168,6 +217,7 @@ sub not_found {
 	$q->header('text/html', '404 Not Found'),
 	$q->start_html('404 Not Found'),
 	$q->h1('404 Not Found'),
+	$q->p(shift),
 	$q->end_html;
 }
 
@@ -199,35 +249,189 @@ sub ensure_cache_dirs {
     return 1;    
 }
 
-sub dump {
-    my ($fh, $name) = @_;
-    open(FILE, '<', $name) || die "Couldn't open $name: $!";
-    print $fh <FILE>;
-    close(FILE);
+########################################################################
+
+sub start_html {
+    my $fh = shift || \*STDOUT;
+    print $fh <<EOF;
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-US">
+EOF
+}
+
+sub end_html {
+    my $fh = shift || \*STDOUT;
+    print $fh <<EOF;
+</html>
+EOF
 }
 
 sub start_head {
     my $fh = shift || \*STDOUT;
-    &dump($fh, "$wwwdata/header.html");
+    print $fh <<EOF;
+  <head>
+    <meta http-equiv="content-type"
+          content="application/xhtml+xml; charset=UTF-8" />
+
+    <link rel="stylesheet" type="text/css" href="$uricss/tree.css" />
+	  
+    <link rel="stylesheet" type="text/css"
+          href="$uricss/sinorca-screen.css"
+          media="screen" title="Sinorca (screen)" />
+    <link rel="stylesheet alternative" type="text/css"
+          href="$uricss/sinorca-screen-alt.css" 
+          media="screen" title="Sinorca (alternative)" />
+    <link rel="stylesheet" type="text/css"
+          href="$uricss/sinorca-print.css"
+          media="print" />
+EOF
 }
 
 sub end_head {
     my $fh = shift || \*STDOUT;
-    print $fh "</HEAD>";
+    print $fh "</head>";
 }
 
-sub dump_menu {
+sub start_body {
     my $fh = shift || \*STDOUT;
-    &dump($fh, "$wwwdata/menu.html");
+    print $fh "<body>";
+}
+
+sub end_body {
+    my $fh = shift || \*STDOUT;
+    print $fh "</body>";
+}
+
+sub print_header {
+    my $fh = shift || \*STDOUT;
+
+    print $fh <<EOF;
+    <div id="header">
+      <div class="superHeader">
+        <div class="left">
+          <a href="$uri">Home</a>
+        </div>
+        <div class="right">
+          <span class="doNotDisplay">More related sites:</span>
+          <a href="./index.html">Link 3</a> |
+          <a href="./index.html">Link 4</a> |
+          <a href="./index.html">Link 5</a> |
+          <a href="./index.html">Link 6</a> |
+          <a href="./index.html">Link 7</a>
+        </div>
+      </div>
+
+      <div class="midHeader">
+        <a href="$uri"><img src="$uriimages/dylan-8caae6.png" /></a>
+      </div>
+
+      <div class="subHeader">
+        <span class="doNotDisplay">Navigation:</span>
+        <a href="$uri" class="highlight">Language and Community</a> |
+        <a href="$uri">Gwydion Dylan</a> |
+        <a href="$uri">Open Dylan</a> |
+        <a href="$uri">Support</a>
+      </div>
+    </div>
+EOF
+}
+
+sub print_sidebar {
+    my ($fh, $path, $toc) = @_;
+    $fh = $fh || \*STDOUT;
+
+    my $program = '';
+    if($toc) {
+	my $count = 0;
+	$program = &tocprogram($toc, 'root', \$count);
+    }
+
+    print $fh <<EOF;
+    <!-- ##### Side Bar ##### -->
+
+    <div id="side-bar">
+      <div>
+        <p class="sideBarTitle">Contents</p>
+
+	<div id="contents-tree" class="sideBarTree"></div>
+      </div>
+
+      <div>
+        <p class="sideBarTitle">Related Links</p>
+
+      </div>
+    </div>
+	
+    <script type="text/javascript" src="$urijs/yahoo.js"></script>
+    <script type="text/javascript" src="$urijs/event.js"></script>
+    <script type="text/javascript" src="$urijs/treeview.js"></script>
+
+<script type="text/javascript">
+//<![CDATA[
+var tree;
+function treeInit() {
+  tree = new YAHOO.widget.TreeView("contents-tree");
+  var root = tree.getRoot();
+  $program
+  tree.draw();
+}
+YAHOO.util.Event.addListener(window, "load", treeInit);
+//]]>
+</script>
+EOF
+}
+
+sub start_main {
+    my $fh = shift || \*STDOUT;
+    print $fh <<EOF;
+    <!-- ##### Main Copy ##### -->
+
+    <div id="main-copy">
+EOF
+}
+
+sub end_main {
+    my $fh = shift || \*STDOUT;
+    print $fh <<EOF;
+    </div>
+EOF
 }
 
 sub dump_foot {
     my $fh = shift || \*STDOUT;
-    &dump($fh, "$wwwdata/footer.html");
+    print $fh <<EOF;
+    <!-- ###### Footer ###### -->
+
+    <!--UdmComment-->
+    <div id="footer">
+      <div>
+        <span class="left">
+          [<a href="mailto:gd-hackers\@gwydiondylan.org">Feedback</a>]
+        </span>
+      </div>
+
+      <br class="doNotDisplay doNotPrint" />
+
+      <div class="right">
+Copyright &copy;1998&ndash;2006 Gwydion Dylan Maintainers. All rights
+reserved.
+      </div>
+
+      <div class="right">  Created using <A
+HREF="http://www.apache.org/">Apache</A> on a machine running <A
+HREF="http://www.debian.org/">Debian</A>. Graphics by the <A
+HREF="http://www.gimp.org/">GIMP</A>. Version control by <A HREF="http://subversion.tigris.org/">Subversion</A>.
+      </div>
+    </div>
+    <!--/UdmComment-->
+EOF
 }
 
+########################################################################
+
 sub print_links {
-    my ($fh, $path) = @_;
+    my ($fh, $path, $toc) = @_;
 
     print $fh '<link rel="top" href="', $uri, '" title="Top" />';
 
@@ -394,4 +598,205 @@ sub printHTML {
 	    die $type;
 	}
     }
+}
+
+########################################################################
+
+sub toc {
+    my ($doc) = @_;
+    my ($root) = $doc->findnodes('/*');
+    my $class = $root->getAttribute('class');
+
+    if($class =~ m| map/map |) {
+	return &toc_map($root);
+    }
+    elsif($class =~ m| topic/topic |) {
+	return &toc_topic($root);
+    } else {
+	die $root->nodeName . " (class=$class)";
+    }
+}
+
+sub toc_map {
+    my ($node) = @_;
+
+    my $p = $node->baseURI;
+    $p =~ s|^$wwwtopic||;
+
+    my $self = {
+	uri => $p,
+	title => $node->getAttribute('title'),
+    };
+
+    my @children = $node->findnodes('./*');
+    if (scalar @children) {
+	my @results;
+	foreach my $element (@children) {
+	    my $class = $element->getAttribute('class');
+	    if($class =~ m| map/topicref |) {
+		push @results, &toc_topicref($element)
+	    }
+	    else {
+		die $element->nodeName . " (class=$class) in map";
+	    }
+	}
+	$self->{'children'} = \@results;
+    }
+
+    return $self;
+}
+
+sub toc_topicref {
+    my ($node) = @_;
+
+    my $self;
+    if($node->getAttribute('href')) {
+	my ($ref) = $node->findnodes('document(@href)');
+	$self = &toc($ref);
+    }
+    else {
+	$self = {};
+    }
+
+    my $title = $node->getAttribute('navtitle');
+    if ($title) {
+	$self->{'title'} = $title;
+    }
+
+    my @children = $node->findnodes('./*');
+    if (scalar @children) {
+	my @results;
+	foreach my $element (@children) {
+	    my $class = $element->getAttribute('class');
+	    if($class =~ m| map/topicref |) {
+		push @results, &toc_topicref($element)
+	    }
+	    else {
+		die $element->nodeName . " (class=$class) in topicref";
+	    }
+	}
+	if (exists $self->{'children'}) {
+	    push @{$self->{'children'}}, @results;
+	} else {
+	    $self->{'children'} = \@results;
+	}
+    }
+
+    return $self;
+}
+
+sub toc_topic {
+    my ($node) = @_;
+
+    my $p = $node->baseURI;
+    $p =~ s|^$wwwtopic||;
+
+    my (@title)
+	= $node->findnodes('/*/*[contains(@class," topic/title ")]/text()');
+    my $title = '';
+    foreach my $n (@title) { $title .= $n->data };
+
+    my $self = {
+	title => $title,
+	uri => $p,
+    };
+
+    my @children;
+    my (@subtopics)
+	= $node->findnodes('/*/*[contains(@class," topic/topic ")]');
+    foreach my $topic (@subtopics) {
+	my $id = $topic->getAttribute('id');
+
+	my (@subtitle)
+	    = $topic->findnodes('./*[contains(@class," topic/title ")]/text()');
+	my $subtitle = '';
+	foreach my $n (@subtitle) { $subtitle .= $n->data };
+	
+	push @children, { uri => "$p#$id", title => $subtitle };
+    }
+
+    if(scalar @children) {
+	$self->{'children'} = \@children;
+    }
+
+    return $self;
+}
+
+########################################################################
+
+sub tocnav {
+    my ($toc, $path, $tocmap, $map) = @_;
+
+    $tocmap->{$toc->{'uri'}} = $toc;
+    $toc->{'navuri'} = $toc->{'uri'};
+
+    if(defined $map) {
+	$toc->{'navuri'} =~ s/^([^\#]+)/$1?map=$map/;
+    }
+
+    my $pathtoc;
+    if($toc->{'children'}) {
+	my $prev = $toc;
+	foreach my $child (@{$toc->{'children'}}) {
+	    my $childpathtoc = &tocnav($child, $path, $tocmap, $map);
+	    if(defined $childpathtoc) {
+		$pathtoc = $childpathtoc;
+	    }
+	}
+    }
+
+    if($path eq $toc->{'uri'}) {
+	$pathtoc = $toc;
+    }
+
+    if(defined $pathtoc) {
+	$toc->{'expand'} = 1;
+    }
+
+    return $pathtoc;
+}
+
+# Constructs an ECMAScript program fragment to build YUI Treeview nodes
+# from a TOC.
+#
+sub tocprogram {
+    my ($toc, $parent, $rcount) = @_;
+
+    my $name = "node$$rcount";
+    ++$$rcount;
+
+    my $expand = $toc->{'expand'} ? 'true' : 'false';
+
+    my $program;
+    if(defined $toc->{'uri'}) {
+	$program = "var $name = new YAHOO.widget.TextNode({ label:'$toc->{'title'}', href:'$uri$toc->{'navuri'}' }, $parent, $expand);\n";
+    } else {
+	$program = "var $name = new YAHOO.widget.TextNode('$toc->{'title'}', $parent, $expand);\n";
+    }
+
+    if($toc->{'children'}) {
+	foreach my $child (@{$toc->{'children'}}) {
+	    $program .= &tocprogram($child, $name, $rcount);
+	}
+    }
+    
+    return $program;
+}
+
+# Returns the path of the first topic in a TOC.
+#
+sub firsttopic {
+    my ($toc) = @_;
+    my $tpath = $toc->{'uri'};
+    if($tpath =~ /\.(xml|dita)$/) {
+	return $tpath;
+    }
+
+    if($toc->{'children'}) {
+	foreach my $child (@{$toc->{'children'}}) {
+	    $tpath = &firsttopic($child);
+	    return $tpath if defined $tpath;
+	}
+    }
+    return undef;
 }
