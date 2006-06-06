@@ -33,4 +33,4 @@
 <!-- Specialization attributes -->
 
 <!ATTLIST dylanModule %global-atts; class CDATA "- topic/topic reference/reference apiRef/apiRef apiPackage/apiPackage dylanModule/dylanModule ">
-<!ATTLIST dylanModuleDetail %global-atts; class CDATA "- topic/topic reference/refbody apiRef/apiDetail dylanModule/dylanModuleDetail ">
+<!ATTLIST dylanModuleDetail %global-atts; class CDATA "- topic/body reference/refbody apiRef/apiDetail dylanModule/dylanModuleDetail ">
