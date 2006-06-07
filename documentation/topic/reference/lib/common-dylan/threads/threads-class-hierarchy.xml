@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "../dtd/reference.dtd" []>
+<reference id="reference-threads-class-hierarchy">
+  <title>Threads Class Hierarchy</title>
+
+  <refbody>
+    <section><image href="threads-class-hierarchy.svg"/></section>
+  </refbody>
+</reference>

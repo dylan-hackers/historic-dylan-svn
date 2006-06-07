@@ -65,7 +65,7 @@
       </ul>
 
       <p>The <parmname>name</parmname> keyword is a string that is
-      used as the thread’s name for convenience purposes, such for
+      used as the thread’s name for convenience purposes, such as for
       display in the debugger.</p>
     </apiDesc>
   </dylanClassDetail>

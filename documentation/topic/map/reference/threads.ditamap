@@ -15,4 +15,63 @@
     <topicref href="../../concept/threads/thread-safety-general.xml" />
     <topicref href="../../concept/threads/thread-safety-dylan.xml" />
   </topicref>
+  <topicref href="../../reference/lib/common-dylan/threads/threads-class-hierarchy.xml" />
+  <topicref href="threads-basic-features.xml">
+    <topicref navtitle="Low-level synchronization">
+      <topicref href="../../reference/lib/common-dylan/threads/sequence_point.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/synchronize_side_effects.xml"/>
+    </topicref>
+    <topicref navtitle="Operations on threads">
+      <topicref href="../../reference/lib/common-dylan/threads/LthreadG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/thread_name.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/join_thread.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/thread_yield.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/current_thread.xml"/>
+    </topicref>
+  </topicref>
+  <topicref navtitle="Synchronization protocol">
+    <topicref navtitle="Basic features">
+      <topicref href="../../reference/lib/common-dylan/threads/LsynchronizationG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/wait_for.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/release.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/synchronization_name.xml"/>
+    </topicref>
+    <topicref navtitle="Locks">
+      <topicref href="../../reference/lib/common-dylan/threads/LlockG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/with_lock.xml"/>
+    </topicref>
+    <topicref navtitle="Semaphores">
+      <topicref href="../../reference/lib/common-dylan/threads/LsemaphoreG.xml"/>
+    </topicref>
+    <topicref navtitle="Exclusive locks">
+      <topicref href="../../reference/lib/common-dylan/threads/Lexclusive_lockG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/ownedQ.xml"/>
+    </topicref>
+    <topicref navtitle="Recursive locks">
+      <topicref href="../../reference/lib/common-dylan/threads/Lrecursive_lockG.xml"/>
+    </topicref>
+    <topicref navtitle="Simple locks">
+      <topicref href="../../reference/lib/common-dylan/threads/Lsimple_lockG.xml"/>
+    </topicref>
+    <topicref navtitle="Multiple reader / single writer locks">
+      <topicref href="../../reference/lib/common-dylan/threads/Lread_write_lockG.xml"/>
+    </topicref>
+    <topicref navtitle="Notifications">
+      <topicref href="../../reference/lib/common-dylan/threads/LnotificationG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/associated_lock.xml"/>
+      <topicref href="../../reference/lib/common-dylan/threads/release_all.xml"/>
+    </topicref>
+  </topicref>
+  <topicref navtitle="Timers">
+    <topicref href="../../reference/lib/common-dylan/threads/sleep.xml"/>
+  </topicref>
+  <topicref navtitle="Thread variables">
+  </topicref>
+  <topicref navtitle="Dynamic binding">
+    <topicref href="../../reference/lib/common-dylan/threads/dynamic_bind.xml"/>
+  </topicref>
+  <topicref navtitle="Locked variables">
+  </topicref>
+  <topicref navtitle="Conditional update">
+  </topicref>
 </map>

@@ -43,9 +43,9 @@
 
       <p>Threads wait for the change of state to be notified by
       calling <apioperation
-      href="wait_for.xml">wait-for</apioperation> . Threads notify
-      other threads of the change of state by calling
-      <apioperation xref="release.xml">release</apioperation> .</p>
+      href="wait_for.xml">wait-for</apioperation>. Threads notify
+      other threads of the change of state by calling <apioperation
+      href="release.xml">release</apioperation> .</p>
     </apiDesc>
 
     <example>
