@@ -15,9 +15,7 @@
 
   <%dsp:include url="header.dsp"/>
 
-  <div id="form-notes">
   <dsp:show-form-notes/>
-  </div>
 
   <dsp:if test="login?">
     <dsp:then>

@@ -124,6 +124,18 @@ pre
   margin: 0; padding: 0
 }
 
+.form-notes
+{
+  margin: 0.2em;
+  background: #ffcccc;
+  border: 1px solid #000000;
+}
+
+.form-note-errors
+{
+  color: #ff0000
+}
+
 /*
  * content
  */

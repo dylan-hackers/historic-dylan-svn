@@ -8,10 +8,7 @@
 
 <body>
   <%dsp:include url="header.dsp"/>
-
-  <div id="form-notes">
   <dsp:show-form-notes/>
-  </div>
   <div id="content">
     <h1>Dylan Wiki Administration</h1>
     <wiki:privilege value="remove">
