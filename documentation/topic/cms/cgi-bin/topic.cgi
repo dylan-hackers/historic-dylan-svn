@@ -11,7 +11,7 @@ my $wwwtopic = "$www/topic";
 my $wwwcms = "$wwwtopic/cms";
 my $cache = "$wwwtopic/Cache";
 my $ditaot = "$www/topic/dita";
-my $urisite = "http://www.gwydiondylan.org";
+my $urisite = "http://www.opendylan.org";
 my $uri = "$urisite/cgi-bin/topic.cgi";
 my $uricms = "$urisite/cms";
 my $uricss = "$uricms/css";
@@ -199,6 +199,25 @@ if($view eq 'download') {
 	&end_body;
 	&end_html;
 	exit 0;
+    } elsif (&path_ok($path)
+	     && $path =~ /\.svg$/
+	     && -f "$wwwtopic$path") {
+	&ensure_cache_dirs($path);
+	my $png = $path;
+	$png =~ s/\.svg$/.png/;
+	if(!-f "$cache$png") {
+	    system "rsvg '$wwwtopic$path' '$cache$png'";
+	}
+	if(open(DOWNLOAD, '<:raw', "$cache$png")) {
+	    print $q->header(-type => 'image/png',
+			     -Content_length => (stat DOWNLOAD)[7]);
+	    binmode STDOUT, ':raw';
+	    print <DOWNLOAD>;
+	    close(DOWNLOAD);
+	} else {
+	    &not_found($path);
+	}
+	exit 0;
     } else {
 	&not_found($path);
 	exit 0;
@@ -234,7 +253,7 @@ sub ensure_cache_dirs {
     my ($path) = @_;
     my @components = split m|/|, $path;
     shift(@components) && die;
-    pop(@components) =~ /\.(xml|dita|ditamap)$/ || die;
+    pop(@components) =~ /\.(xml|dita|ditamap|svg|png|gif)$/ || die;
 
     my $dir = $cache;
     while(my $component = shift @components) {
@@ -767,11 +786,17 @@ sub tocprogram {
 
     my $expand = $toc->{'expand'} ? 'true' : 'false';
 
+    my $title = $toc->{'title'};
+    $title =~ s/&/&amp;/g;
+    $title =~ s/</&lt;/g;
+    $title =~ s/>/&gt;/g;
+    $title =~ s/'/&quot;/g;
+
     my $program;
     if(defined $toc->{'uri'}) {
-	$program = "var $name = new YAHOO.widget.TextNode({ label:'$toc->{'title'}', href:'$uri$toc->{'navuri'}' }, $parent, $expand);\n";
+	$program = "var $name = new YAHOO.widget.TextNode({ label:'$title', href:'$uri$toc->{'navuri'}' }, $parent, $expand);\n";
     } else {
-	$program = "var $name = new YAHOO.widget.TextNode('$toc->{'title'}', $parent, $expand);\n";
+	$program = "var $name = new YAHOO.widget.TextNode('$title', $parent, $expand);\n";
     }
 
     if($toc->{'children'}) {
