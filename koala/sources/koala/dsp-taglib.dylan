@@ -266,6 +266,7 @@ define tag show-form-notes in dsp
     let messages = choose(rcurry(instance?, <form-message>), notes);
     let errors = choose(rcurry(instance?, <form-error>), notes);
     let out = output-stream(response);
+    write(out, "<div class=\"form-notes\">\n");
     unless(empty?(messages))
       write(out, "<div class=\"form-note-message\">\n");
       do(curry(display-form-note, out), messages);
@@ -276,6 +277,7 @@ define tag show-form-notes in dsp
       do(curry(display-form-note, out), errors);
       format(out, "</ul></div>\n");
     end;
+    write(out, "</div>\n");
   end;
 end;
 
