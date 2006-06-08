@@ -411,8 +411,8 @@ define method xml$transform (node :: xml$<element>, name == #"mime-type",
     if (xml$name(child) = #"extension")
       *mime-type-map*[as(<symbol>, xml$text(child))] := mime-type;
     else
-      warn("Skipping: %s %s: not an extension node!",
-           xml$name(child), xml$text(child));
+      warn("Skipping: %s %s %s: not an extension node!",
+           mime-type, xml$name(child), xml$text(child));
     end if;
   end for;
 end method xml$transform;
