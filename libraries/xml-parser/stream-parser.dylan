@@ -22,7 +22,7 @@ end class <xml-stream-parser>;
 define method monitor (parser :: <xml-stream-parser>, event :: one-of(#"start-element", #"end-element", #"characters"), handler :: <function>)
   parser.handlers[event] := handler;
 end method monitor;
-  
+
 define method parse (parser :: <xml-stream-parser>)
   while (~ stream-at-end?(parser.stream))
     let received = read-element(parser.stream);

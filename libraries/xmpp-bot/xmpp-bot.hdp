@@ -1,0 +1,13 @@
+Format-Version:   2
+Library:          xmpp-bot
+Author:           Hannes Mehnert
+Copyright:        (C) 2006,  All rights reserved.
+Major-Version:    1
+Minor-Version:    0
+Files:            library
+	module
+	xmpp-bot
+Start-Function:   main
+Compilation-Mode: tight
+Target-Type:      executable
+

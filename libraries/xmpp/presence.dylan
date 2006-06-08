@@ -39,7 +39,7 @@ end method type-setter;
 define method type (presence :: <presence>)
  => (res :: false-or(<symbol>));
   let type = next-method();
-  if (member?(as(<symbol>, type), $presence-types))
+  if (type & member?(as(<symbol>, type), $presence-types))
     as(<symbol>, type);
   else
     #f;
