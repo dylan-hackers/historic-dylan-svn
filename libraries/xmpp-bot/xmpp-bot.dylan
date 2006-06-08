@@ -37,6 +37,7 @@ define method initialize (xmpp-bot :: <xmpp-bot>,
   end if;
   authenticate(xmpp-bot.client, xmpp-bot.password, #f);
   send(xmpp-bot.client, make(<presence>, priority: 23));
+  send(xmpp-bot.client, make(<iq>, type: #"get", query: with-xml() query(xmlns => "jabber:iq:roster") end, id: "roster"));
 end;
 
 define method auto-subscriber (xmpp-bot, client, presence)
