@@ -143,7 +143,11 @@ define function trim-string(s :: <sequence>) => (t :: <string>)
   let stop = ans.size;
   while(stop > 1 & ans[stop - 1].is-space?) stop := stop - 1; end while;
   while(start < ans.size & ans[start].is-space?) start := start + 1; end while;
-  copy-sequence(ans, start: start, end: stop);
+  if (start < stop)
+    copy-sequence(ans, start: start, end: stop);
+  else
+    ""
+  end;
 end function trim-string;
 
 // these types are not put into the <document> when processing an xml document
