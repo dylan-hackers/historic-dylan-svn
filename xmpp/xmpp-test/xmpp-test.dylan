@@ -147,13 +147,13 @@ define function main(name :: <string>, #rest strings)
   format-out("%=\n", m);
   normalize(m);
   format-out("%=\n", m);
-*/
+
   let foo-stanza = make(<message>);
   let xxx = make(<element>, name: "x");
   add-element(foo-stanza, xxx);
   format-out("%=\n", object-class(first(foo-stanza.node-children)));
   format-out("%=\n", object-class(first(elements(foo-stanza, "x"))));
-/*
+
   let test-table = make(<table>);
   test-table[#"x"] := <x>;
   format-out("%=\n", test-table[#"x"]);
@@ -240,7 +240,7 @@ define function main(name :: <string>, #rest strings)
     #f;
   end);
 */
-  let client = make(<xmpp-client>, jid: make(<jid>, node: "foo", domain: "192.168.0.1", resource: "xmpp"));
+  let client = make(<xmpp-client>, jid: make(<jid>, node: "dylan", domain: "pentabarf.org", resource: "xmpp"));
 
   add-callback(client, <message>, callback1);
 //  add!(client.message-callbacks, callback1);
@@ -250,21 +250,23 @@ define function main(name :: <string>, #rest strings)
   let stream = make(<xmpp-stream>, to: client.jid.domain);
     
   block()
-    if (~ connect(client))
+    if (~ connect(client, host: "benkstein.net", port: 4222))
       exit-application(1);
     end if;     
     format-out("Connected to xmpp server at %s port: %d\n", 
       client.socket.remote-host.host-name,
       client.socket.remote-port);
-    authenticate(client, "foo", #f);
+    authenticate(client, "test", #f);
     send(client, make(<presence>, priority: 23));
 //    send(client, make(<message>, to: "ghul@jabber.org", type: #"chat", body: "This is turbot speaking, your friendly JabberBot written in Dylan."));
 //    send(client, make(<message>, to: "ghul@jabber.org", type: #"chat", body: "I'll echo everything you say!"));
 //    let result = send(client, make(<message>, to: "dylan@pentabarf.org/Psi", body: "This is turbot speaking."), awaits-result?: #t);
 //    format-out("### (X3) %=\n", result);
-  
-    while (#t)
+/*    while (#t)
+      sleep(23);
     end while;
+*/
+    join-thread(client.listener);
     disconnect(client);
     format-out("Connection closed.  Bye\n");
   cleanup
