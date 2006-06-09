@@ -35,9 +35,9 @@
       <apiclassifier
       href="../../dylan/dylan/Lsimple_errorG.xml">&lt;simple-error&gt;</apiclassifier>,
       <apiclassifier
-      href="../../dylan/dylan/Lsimple_warningG.xml">&lt;simple-warning&gt;</apiname>,
+      href="../../dylan/dylan/Lsimple_warningG.xml">&lt;simple-warning&gt;</apiclassifier>,
       and <apiclassifier
-      href="../../dylan/dylan/Lsimple_restartG.xml">&lt;simple-restart&gt;</apiname>.</p>
+      href="../../dylan/dylan/Lsimple_restartG.xml">&lt;simple-restart&gt;</apiclassifier>.</p>
     </apiDesc>
   </dylanClassDetail>
 </dylanClass>

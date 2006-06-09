@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "../dtd/topic.dtd" []>
+<topic id='common-extensions-introduction'>
+  <title>The Common-Extensions Module</title>
+
+  <body>
+    <p>This section contains a reference entry for each item exported
+    from the <apiname>common-dylan</apiname> library’s
+    <apiname>common-extensions</apiname> module.</p>
+  </body>
+</topic>

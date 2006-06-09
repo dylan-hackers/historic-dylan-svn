@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "../dtd/map.dtd">
+<map title="The Common-Extensions Module">
+  <topicref href="common-extensions-introduction.xml">
+    <topicref navtitle="Numerics">
+      <!--
+  // Numerics
+  function integer-length (<integer>) => (<integer>);
+      -->
+    </topicref>
+
+    <topicref navtitle="Unsupplied, unfound">
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Dunsupplied.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/unsupplied.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/unsuppliedQ.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/suppliedQ.xml"/>
+      
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Dunfound.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/unfound.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/unfoundQ.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/foundQ.xml"/>
+    </topicref>
+
+    <topicref navtitle="Collections">
+      <topicref href="../../reference/lib/common-dylan/byte-vector/Lbyte_vectorG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Lobject_dequeG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Lstretchy_sequenceG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Lstretchy_object_vectorG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/concatenateX.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/position.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/split.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/remove_all_keysX.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/difference.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/fill_tableX.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/find_element.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/find_value.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/table_definer.xml"/>
+    </topicref>
+
+    <topicref navtitle="Conditions">
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Lsimple_conditionG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Lformat_string_conditionG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/condition_to_string.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Larithmetic_errorG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Ldivision_by_zero_errorG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Larithmetic_overflow_errorG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Larithmetic_underflow_errorG.xml"/>
+    </topicref>
+
+    <topicref navtitle="Assertions and Debugging">
+      <topicref href="../../reference/lib/common-dylan/common-extensions/debug_message.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/assert.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/debug_assert.xml"/>
+    </topicref>
+
+    <topicref navtitle="Types">
+      <topicref href="../../reference/lib/common-dylan/common-extensions/false_or.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/one_of.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/subclass.xml"/>
+    </topicref>
+    
+    <topicref navtitle="Ignoring">
+      <topicref href="../../reference/lib/common-dylan/common-extensions/ignorable.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/ignore.xml"/>
+    </topicref>
+
+    <topicref navtitle="Formatting">
+      <topicref href="../../reference/lib/common-dylan/common-extensions/float_to_string.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/integer_to_string.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/number_to_string.xml"/>
+
+      <topicref href="../../reference/lib/common-dylan/common-extensions/string_to_integer.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/format_to_string.xml"/>
+    </topicref>
+
+    <topicref navtitle="Control Constructs">
+      <topicref href="../../reference/lib/common-dylan/common-extensions/iterate.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/when.xml"/>
+    </topicref>
+
+    <topicref navtitle="Application Basics">
+      <topicref href="../../reference/lib/common-dylan/common-extensions/application_name.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/application_filename.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/application_arguments.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/exit_application.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/register_application_exit_function.xml"/>
+    </topicref>
+
+    <topicref navtitle="Potpourri">
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Lclosable_objectG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/streams-protocol/close.xml"/>
+      <topicref href="../../reference/lib/common-dylan/streams-protocol/LstreamG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/machine_word_to_string.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/string_to_machine_word.xml"/>
+      <topicref href="../../reference/lib/common-dylan/simple-profiling/profiling.xml"/>
+      <topicref href="../../reference/lib/common-dylan/simple-profiling/profiling_type_result.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/rest.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Lstack_overflow_errorG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/Lstring_tableG.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/tokenize_command_line.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/falseQ.xml"/>
+      <topicref href="../../reference/lib/common-dylan/common-extensions/trueQ.xml"/>
+    </topicref>
+  </topicref>
+</map>
