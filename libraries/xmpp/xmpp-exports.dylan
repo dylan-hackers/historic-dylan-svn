@@ -80,6 +80,7 @@ define module xmpp
     state, state-setter,
     callbacks,
     callbacks-setter,
+    listener,
     add-callback,
     connect, disconnect,
     send, authenticate,

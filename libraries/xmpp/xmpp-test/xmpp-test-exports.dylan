@@ -21,4 +21,5 @@ define module xmpp-test
   use meta;
   use %productions;
   use printing;
+  use threads;
 end module;

@@ -2,7 +2,7 @@ module: xmpp
 synopsis: 
 author: 
 copyright:
-  
+
 define class <xmpp-client> (<object>)
   slot jid :: <jid>,
     required-init-keyword: jid:;
@@ -14,6 +14,7 @@ define class <xmpp-client> (<object>)
   slot lock :: <lock> = make(<lock>);
   slot notification :: <notification>;
   slot available-stanza :: false-or(<element>) = #f;
+  slot listener :: <thread>;
 end class <xmpp-client>;
 
 define method initialize (client :: <xmpp-client>, #rest rest, #key, #all-keys)
@@ -25,7 +26,7 @@ define method connect (client :: <xmpp-client>, #key port :: <integer> = 5222, h
  => (connected :: <boolean>);
   start-sockets();
   client.socket := make(<tcp-socket>, host: host | client.jid.domain, port: port);
-  make(<thread>, priority: $background-priority, function: curry(listen, client));
+  client.listener := make(<thread>, priority: $background-priority, function: curry(listen, client));
   if (~ stream)
     stream := make(<xmpp-stream>, to: client.jid.domain);
   end if;
