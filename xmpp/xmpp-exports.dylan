@@ -96,5 +96,12 @@ define module xmpp
     type, type-setter,
     *default-language*,
     print-object;
-    
+
+  export xmpp-element-definer;
+  export <foo-stanza>,
+    foo-id, foo-id-setter,
+    foo-from, foo-from-setter,
+    foo-to, foo-to-setter,
+    foo-type, foo-type-setter, 
+    foo-language, foo-language-setter;
 end module;
