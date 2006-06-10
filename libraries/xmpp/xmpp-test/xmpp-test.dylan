@@ -220,7 +220,7 @@ define function main(name :: <string>, #rest strings)
   format-out("%=\n", test-document.node-children);
   
 */
-
+/*
   let callback1 = make(<callback>, reference: #"default", priority: 3, handler: method (client, message)
     format-out("CCC (1) %= %=\n", client, message);
     if (message.body)
@@ -229,7 +229,6 @@ define function main(name :: <string>, #rest strings)
     #f;
   end);
 
-/*
   let callback2 = make(<callback>, reference: #"default", priority: 2, handler: method (client, element)
     format-out("CCC (2) %= %=\n", client, element);
     #t;
@@ -239,7 +238,7 @@ define function main(name :: <string>, #rest strings)
     format-out("CCC (3) %= %=\n", client, element);
     #f;
   end);
-*/
+
   let client = make(<xmpp-client>, jid: make(<jid>, node: "dylan", domain: "pentabarf.org", resource: "xmpp"));
 
   add-callback(client, <message>, callback1);
@@ -262,10 +261,10 @@ define function main(name :: <string>, #rest strings)
 //    send(client, make(<message>, to: "ghul@jabber.org", type: #"chat", body: "I'll echo everything you say!"));
 //    let result = send(client, make(<message>, to: "dylan@pentabarf.org/Psi", body: "This is turbot speaking."), awaits-result?: #t);
 //    format-out("### (X3) %=\n", result);
-/*    while (#t)
-      sleep(23);
-    end while;
-*/
+//    while (#t)
+//      sleep(23);
+//    end while;
+
     join-thread(client.listener);
     disconnect(client);
     format-out("Connection closed.  Bye\n");
@@ -274,8 +273,31 @@ define function main(name :: <string>, #rest strings)
   exception (condition :: <condition>)
     format-out("xmpp-test: Error: %=\n", condition);
   end block;
+*/
+  let foobar42 = make(<foo-stanza>);
+  format-out("foo-id :: %=\n", object-class(foobar42.foo-id), foobar42.foo-id);
+  foobar42.foo-id := "test";
+  format-out("foo-id :: %=\n", object-class(foobar42.foo-id), foobar42.foo-id);
+
+  format-out("foo-to :: %=\n", object-class(foobar42.foo-to), foobar42.foo-to);
+  foobar42.foo-to := make(<jid>, node: "foo", domain: "bar");  
+  format-out("foo-to :: %=\n", object-class(foobar42.foo-to), foobar42.foo-to);
+  foobar42.foo-to := "foo@bar";
+  format-out("foo-to :: %=\n", object-class(foobar42.foo-to), foobar42.foo-to);
+
+  format-out("foo-type :: %=\n", object-class(foobar42.foo-type), foobar42.foo-type);
+  foobar42.foo-type := #"test";
+  format-out("foo-type :: %=\n", object-class(foobar42.foo-type), foobar42.foo-type);
+  
+  format-out("foo-language :: %=\n", object-class(foobar42.foo-language), foobar42.foo-language);
+  foobar42.foo-language := "de";
+  format-out("foo-language :: %=\n", object-class(foobar42.foo-language), foobar42.foo-language);
+
+  format-out("foobar42 = %=\n", foobar42);
+
   exit-application(0);
 end function main;
+
 
 // Invoke our main() function.
 main(application-name(), application-arguments());

@@ -17,3 +17,4 @@ files: xmpp-exports
   connection
   client
   callback
+  generator
