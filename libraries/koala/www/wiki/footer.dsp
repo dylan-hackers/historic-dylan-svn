@@ -18,6 +18,7 @@
   </dsp:if>
   <a href="/wiki/recent.dsp">Recent&nbsp;Changes</a>
   <a href="/wiki/index.dsp">Index</a>
+  <a href="/wiki/version.dsp?title=<wiki:show-title/>">History</a>
   <span class="lastrevisions">
     <wiki:show-revisions count="10">
       <a class="revisionlink" href="/wiki/view.dsp?title=<wiki:show-title v="false"/>&amp;v=<wiki:version/>">[<wiki:version/>]</a>
