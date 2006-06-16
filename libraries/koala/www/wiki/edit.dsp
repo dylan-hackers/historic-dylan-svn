@@ -37,7 +37,8 @@
           <br/>
           Comment: <input type="text" name="comment"/>
           <br/>
-          <input type="submit" value="Save"/>
+          <input type="submit" name="preview" value="Preview"/>
+          <input type="submit" name="save" value="Save"/>
         </div>
       </form>
     </dsp:then>
