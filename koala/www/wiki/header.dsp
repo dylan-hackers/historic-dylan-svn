@@ -10,7 +10,7 @@
   </form>
   <div class="navbar">
     <a href="/wiki/view.dsp?title=Home">Home</a>&nbsp;&nbsp;
-    <a href="/wiki/new.dsp">New Page</a>&nbsp;&nbsp;
+    <a href="/wiki/edit.dsp?title=new">New Page</a>&nbsp;&nbsp;
     <a href="/wiki/view.dsp?title=Markup">Wiki Markup</a>&nbsp;&nbsp;
     <a href="/wiki/backlink.dsp?title=<wiki:show-title/>">Backlinks</a>&nbsp;&nbsp;
     <dsp:when test="editable?">

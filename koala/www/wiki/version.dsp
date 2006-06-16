@@ -14,7 +14,7 @@
     <h3>Version History of <wiki:show-title/></h3>
     <ul>
     <wiki:show-versions>
-      <li><wiki:show-change-timestamp/> version <wiki:show-change-version/> <a href="/wiki/diff.dsp?title=<wiki:show-change-title/>&version=<wiki:show-change-version/>">diff</a> by <wiki:show-change-author/> Comment <wiki:show-change-comment/></li>
+      <li><wiki:show-change-timestamp/> version <wiki:show-change-version/> <a href="/wiki/diff.dsp?title=<wiki:show-change-title/>&version=<wiki:show-change-version/>">diff to previous</a> by <wiki:show-change-author/> Comment <wiki:show-change-comment/></li>
     </wiki:show-versions>
     </ul>
   </div>
