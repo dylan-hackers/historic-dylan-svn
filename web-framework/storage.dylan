@@ -19,6 +19,8 @@ define variable *storage* = make(<table>);
 
 define variable *version* :: <integer> = 0;
 
+define constant $database-lock = make(<lock>);
+
 define method version () => (res :: <integer>)
   *version*;
 end;
@@ -29,7 +31,7 @@ define method storage-type (type) => (res)
   <stretchy-vector>;
 end;
 
-define method storage (type) => (res)
+define method storage (type)
   let res = element(*storage*, type, default: #f);
   unless (res)
     res := make(storage-type(type));
@@ -38,10 +40,25 @@ define method storage (type) => (res)
   res;
 end;
 
+
+define macro with-storage
+  { with-storage (?:variable = ?type:expression)
+      ?body:body
+    end }
+ =>  { begin
+         with-lock($database-lock)
+           let ?variable = storage(?type);
+           ?body
+         end
+       end }
+end;
+
 define open generic save (object :: <object>) => ();
 
 define method save (object) => ()
-  add!(storage(object.object-class), object);
+  with-lock($database-lock)
+    add!(storage(object.object-class), object);
+  end;
 end;
 
 define class <storage> (<object>)
@@ -52,18 +69,20 @@ end;
 define constant $filename = last(split(application-name(), '/'));
 
 define method dump-data () => ()
-  let loc = concatenate(*directory*,
-                        $filename,
-                        "-",
-                        integer-to-string(*version*));
-  let dood = make(<dood>,
-                  locator: loc,
-                  direction: #"output",
-                  if-exists: #"replace");
-  dood-root(dood) := make(<storage>);
-  dood-commit(dood);
-  dood-close(dood);
-  *version* := *version* + 1;
+  with-lock ($database-lock)
+    let loc = concatenate(*directory*,
+                          $filename,
+                          "-",
+                          integer-to-string(*version*));
+    let dood = make(<dood>,
+                    locator: loc,
+                    direction: #"output",
+                    if-exists: #"replace");
+    dood-root(dood) := make(<storage>);
+    dood-commit(dood);
+    dood-close(dood);
+    *version* := *version* + 1;
+  end;
 end;
 
 define method restore (filename :: <string>) => ()
@@ -73,11 +92,13 @@ define method restore (filename :: <string>) => ()
                   direction: #"input");
   let storage = dood-root(dood);
   dood-close(dood);
-  *storage* := storage.hash-table;
-  if (storage.table-version >= *version*)
-    *version* := storage.table-version + 1;
-  else
-    *version* := *version* + 1;
+  with-lock ($database-lock)
+    *storage* := storage.hash-table;
+    if (storage.table-version >= *version*)
+      *version* := storage.table-version + 1;
+    else
+      *version* := *version* + 1;
+    end;
   end;
 end;
 
@@ -100,12 +121,15 @@ define method restore-newest (directory :: <string>) => ()
   end;
 end;
 
-define function dumper (#key interval :: <integer> = 300) => ()
+define function dumper (#key interval :: <integer> = 300, do-something :: <function>) => ()
   make(<thread>,
        function: method()
                      sleep(23);
                      while(#t)
                        dump-data();
+                       if (do-something)
+                         do-something()
+                       end;
                        sleep(interval);
                      end;
                  end);

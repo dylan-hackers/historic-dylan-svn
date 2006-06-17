@@ -35,6 +35,7 @@ define module storage
   use koala;
 
   export storage,
+    \with-storage,
     dump-data,
     dumper,
     save,
