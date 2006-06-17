@@ -11,7 +11,9 @@ end;
 define method initialize (user :: <user>, #rest rest, #key, #all-keys)
   next-method();
   check(user);
-  storage(<user>)[user.username] := user;
+  with-storage (table = <user>)
+    table[user.username] := user;
+  end;
 end;
 
 define inline-only method key (user :: <user>)
