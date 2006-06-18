@@ -121,7 +121,7 @@ define method restore-newest (directory :: <string>) => ()
   end;
 end;
 
-define function dumper (#key interval :: <integer> = 300, do-something :: <function>) => ()
+define function dumper (#key interval :: <integer> = 300, do-something :: false-or(<function>) = #f) => ()
   make(<thread>,
        function: method()
                      sleep(23);
