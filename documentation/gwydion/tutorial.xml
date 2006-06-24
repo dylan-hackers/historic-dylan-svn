@@ -1095,7 +1095,7 @@ make(&lt;vehicle&gt;, sn: 2000000, owner: &quot;Sal&quot;)
 
       <programlisting>
 owner(sample-vehicle);	// returns owner
-owner-setter(sample-vehicle, &quot;Faisal&quot;);
+owner-setter(&quot;Faisal&quot;, sample-vehicle);
       </programlisting>
 
       <para>
