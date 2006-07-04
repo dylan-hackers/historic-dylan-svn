@@ -2,7 +2,7 @@ module: xmpp
 synopsis: 
 author: 
 copyright: 
-
+    
 define element query () //("query")
 end element query;
 

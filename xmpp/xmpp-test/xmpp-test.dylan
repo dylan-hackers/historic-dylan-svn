@@ -220,7 +220,7 @@ define function main(name :: <string>, #rest strings)
   format-out("%=\n", test-document.node-children);
   
 */
-/*
+
   let callback1 = make(<callback>, reference: #"default", priority: 3, handler: method (client, message)
     format-out("CCC (1) %= %=\n", client, message);
     if (message.body)
@@ -228,7 +228,7 @@ define function main(name :: <string>, #rest strings)
     end if;
     #f;
   end);
-
+/*
   let callback2 = make(<callback>, reference: #"default", priority: 2, handler: method (client, element)
     format-out("CCC (2) %= %=\n", client, element);
     #t;
@@ -238,7 +238,7 @@ define function main(name :: <string>, #rest strings)
     format-out("CCC (3) %= %=\n", client, element);
     #f;
   end);
-
+*/
   let client = make(<xmpp-client>, jid: make(<jid>, node: "dylan", domain: "pentabarf.org", resource: "xmpp"));
 
   add-callback(client, <message>, callback1);
@@ -273,7 +273,7 @@ define function main(name :: <string>, #rest strings)
   exception (condition :: <condition>)
     format-out("xmpp-test: Error: %=\n", condition);
   end block;
-*/
+/*
   let foobar42 = make(<foo-stanza>);
   format-out("foo-id :: %=\n", object-class(foobar42.foo-id), foobar42.foo-id);
   foobar42.foo-id := "test";
@@ -294,7 +294,7 @@ define function main(name :: <string>, #rest strings)
   format-out("foo-language :: %=\n", object-class(foobar42.foo-language), foobar42.foo-language);
 
   format-out("foobar42 = %=\n", foobar42);
-
+*/
   exit-application(0);
 end function main;
 
