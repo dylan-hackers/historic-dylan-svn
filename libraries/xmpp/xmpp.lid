@@ -4,11 +4,11 @@ files: xmpp-exports
   stream
   jid
   stanza
+  query
   presence
   message
   iq
   x
-  query
   vcard
   version
   error
@@ -17,4 +17,3 @@ files: xmpp-exports
   connection
   client
   callback
-  generator
