@@ -69,7 +69,8 @@ define module utilities
     quote-html,          // Change < to &lt; etc
     register-init-function,
     run-init-functions,
-    
+    <string-trie>, find-object, add-object, <trie-error>,
+
     <expiring-mixin>,
     expired?,
     mod-time,
@@ -150,7 +151,6 @@ define module koala
     start-server,
     stop-server,
     register-url,
-    register-alias-url,
     <request>,
     *request*,                   // Holds the active request, per thread.
     request-query-values,        // get the keys/vals from the current GET or POST request
@@ -243,7 +243,6 @@ define module koala
     moved-permanently-redirectr,
     see-other-redirect;
 
-  // Not sure if these should really be exported.
   create
     http-error-code,
     unsupported-request-method-error,
@@ -251,6 +250,7 @@ define module koala
     unimplemented-error,
     internal-server-error,
     request-url,
+    request-url-tail,
     register-auto-responder;
 
   // Debugging
