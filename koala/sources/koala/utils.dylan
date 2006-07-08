@@ -189,3 +189,67 @@ end;
 define function run-init-functions ()
   do(method (f) f() end, *init-functions*);
 end;
+
+
+//// Tries who's keys are strings
+
+define class <string-trie> (<object>)
+  constant slot trie-children :: <string-table> = make(<string-table>);
+  slot trie-object :: <object>,
+    required-init-keyword: #"object";
+end;
+
+define class <trie-error> (<simple-error>)
+end;
+
+define method add-object
+    (trie :: <string-trie>, path :: <sequence>, object :: <object>,
+     #key replace?)
+  let old = ~replace? & find-object(trie, path);
+  if (old)
+    signal(make(<trie-error>,
+                format-string: "Trie already contains an object (%=) for the "
+                               "given path.",
+                format-arguments: list(old)));
+  end;
+  let current-node :: <string-trie> = trie;
+  let path-size = path.size;
+  for (name in path,
+       index from 1)
+    let child-node = element(trie-children(current-node), name, default: #f);
+    if (child-node)
+      current-node := child-node;
+    else
+      let obj = (index == path-size) & object;
+      let node = make(<string-trie>, object: obj);
+      trie-children(current-node)[name] := node;
+      current-node := node;
+    end if;
+  end for;
+end method add-object;
+
+// Find the object with the longest path, if any.  2nd return value is
+// the part of the path that came after where the object matched.
+//
+define method find-object
+    (trie :: <string-trie>, path :: <sequence>)
+  local method fob (trie :: <string-trie>, path :: <list>, obj, rest)
+          if (path = #())
+            values(obj, rest)
+          else
+            let child = element(trie.trie-children, head(path), default: #f);
+            if (child)
+              fob(child, tail(path), child.trie-object | obj,
+                  if (child.trie-object)
+                    if (tail(path) == #()) #f else tail(path) end
+                  else
+                    rest
+                  end)
+            else
+              values(obj, rest)
+            end
+          end
+        end method fob;
+  fob(trie, as(<list>, path), #f, #f)
+end method find-object;
+

@@ -45,6 +45,21 @@ define responder responder1 ("/responder1")
   end;
 end;
 
+// Responds to a single directory (i.e., prefix) URL.
+define directory responder dir1 ("/dir1")
+    (request :: <request>,
+     response :: <response>)
+  select (request-method(request))
+    #"get", #"post"
+      => format(output-stream(response),
+                "<html><body>This is a directory responder.  The part of the url after "
+                "the directory was %s."
+                "<p>Use your browser's Back button to return to the example."
+                "</body></html>",
+                request.request-url-tail);
+  end;
+end;
+
 
 
 //// Page abstraction
@@ -335,12 +350,16 @@ end;
 
 // Starts up the web server.
 define function main () => ()
+  let config-file =
+    if(application-arguments().size > 0)
+      application-arguments()[0]
+    end;
   // This is only necessary when running this example in FunDev/Linux
   // because it doesn't have load-library.  In Windows the koala-basics
   // library can be loaded at startup time by putting a
   //     <module name="koala-basics"/>
   // directive in the config file and commenting out this call to start-server.
-  start-server();
+  start-server(config-file: config-file);
 end;
 
 begin

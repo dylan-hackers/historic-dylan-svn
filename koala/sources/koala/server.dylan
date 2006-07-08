@@ -51,14 +51,15 @@ define class <server> (<sealed-constructor>)
   // RFC 2616, 5.1.1
   constant slot allowed-methods :: <sequence> = #(#"GET", #"POST", #"HEAD");
 
+  // Map from URL string to a response function.  The leading slash is removed
+  // from URLs because it's easier to use merge-locators that way.
   // TODO: this should be per vhost
   //       then 'define page' needs to specify vhost until dynamic
   //       library loading works.  (ick.)  once dynamic library loading
   //       works we use <module foo> inside <virtual-host> in the config
   //       and bind *virtual-host* while the library is loading?
-  // Map from URL string to a response function.  The leading slash is removed
-  // from URLs because it's easier to use merge-locators that way.
-  constant slot url-map :: <string-table> = make(<string-table>);
+
+  constant slot url-map :: <string-trie> = make(<string-trie>, object: #f);
 
   // pathname translations
   //slot pathname-translations :: <sequence> = #();
@@ -507,7 +508,14 @@ define class <request> (<basic-request>)
 
   // The body content of the request.  Only present for POST?
   slot request-content :: <string> = "";
-end;
+
+  slot request-responder :: false-or(<function>) = #f;
+
+  // For directory responders, this contains the part of the URL after
+  // the matched directory prefix and before the & (if any).
+  slot request-url-tail :: <string> = "";
+
+end class <request>;
 
 define method get-header
     (request :: <request>, name :: <string>) => (header :: <object>)
@@ -652,6 +660,16 @@ define function read-request-first-line
       if (epos > bpos)
         // Should this trim trailing whitespace???
         request.request-url := substring(buffer, bpos, qpos | epos);
+        let (resp, prefix?, tail) = find-responder(request.request-url);
+        // If there's a tail (i.e., we didn't match the entire url) and
+        // this isn't a directory responder, then no responder was found.
+        if (~tail | prefix?)
+          request.request-responder := resp;
+        end;
+        if (tail)
+          request.request-url-tail := join(tail, "/");
+          log-debug("Setting request-url-tail to %=", request.request-url-tail);
+        end;
         if (qpos)
           log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
           extract-query-values(buffer, qpos + 1, epos,
@@ -803,23 +821,22 @@ define method process-incoming-headers (request :: <request>)
 end;
 
 // API
-// Register a response function (or an alias) for a given URL.
-// The URL mapping directly to a function is considered the canonical URL.
-// See find-responder and register-alias-url.
+// Register a response function for a given URL.  See find-responder.
 define method register-url
-    (url :: <string>, target :: <object>, #rest args, #key replace?)
+    (url :: <string>, target :: <function>, #key replace?, prefix?)
  => ()
+  local method reg-url ()
+          register-url-now(url, target, replace?: replace?, prefix?: prefix?);
+        end;
   if (*server-running?*)
-    apply(register-url-now, url, target, args);
+    reg-url();
   else
-    register-init-function(method ()
-                             apply(register-url-now, url, target, args)
-                           end);
+    register-init-function(reg-url);
   end;
-end;
+end method register-url;
 
 define method register-url-now
-    (url :: <string>, target :: <object>, #rest args, #key replace?)
+    (url :: <string>, target :: <function>, #key replace?, prefix?)
   let server :: <server> = *server*;
   let (bpos, epos) = trim-whitespace(url, 0, size(url));
   if (bpos = epos)
@@ -827,9 +844,10 @@ define method register-url-now
                format-string: "You cannot register an empty URL: %=",
                format-arguments: list(substring(url, bpos, epos))));
   else
-    let old-target = element(server.url-map, url, default: #f);
+    let path = split(url, separator: "/");
+    let old-target = find-object(server.url-map, path);
     if (replace? | ~old-target)
-      server.url-map[url] := target;
+      add-object(server.url-map, path, pair(target, prefix?));
     else
       error(make(<koala-api-error>,
                  format-string: "There is already a target registered for URL %=",
@@ -839,31 +857,10 @@ define method register-url-now
   log-info("URL %s registered", url);
 end method register-url-now;
 
-// API
-// Just a clearer name for aliasing.
-define method register-alias-url
-    (alias :: <string>, target :: <string>, #key replace?)
-  register-url(alias, target, replace?: replace?);
-end;
-
-// Find a responder function, following alias links, if any.
-// Perhaps shouldn't have alias links...just put the responder directly on
-// several URLs.
+// Find a responder function, if any.
 define method find-responder
     (url :: <string>)
- => (responder :: false-or(<function>), canonical-url)
-  let map = url-map(*server*);
-  local method find-it (url :: <string>, seen :: <list>)
-                    => (responder, canonical-url)
-          let candidate = element(map, url, default: #f);
-          select (candidate by instance?)
-            <function> => values(candidate, url);
-            <string>   => iff(member?(candidate, seen, test: string-equal?),
-                              application-error(),  // ---TODO: "circular URL alias"
-                              find-it(candidate, pair(url, seen)));
-            otherwise  => #f;
-          end;
-        end;
+ => (responder :: false-or(<function>), #rest more)
   local method maybe-auto-register (url)
           when (*auto-register-pages?*)
             // could use safe-locator-from-url, but it's relatively expensive
@@ -877,8 +874,17 @@ define method find-responder
             end
           end
         end;
-  find-it(url, #())
-    | values(maybe-auto-register(url), url)
+  let path = split(url, separator: "/");
+  let trie = url-map(*server*);
+  let (responder, rest) = find-object(trie, path);
+  if (responder)
+    let fun = head(responder);
+    let prefix? = tail(responder);
+    log-debug("fun = %=, prefix? = %=, rest = %=", fun, prefix?, rest);
+    values(fun, prefix?, rest)
+  else
+    maybe-auto-register(url)
+  end
 end find-responder;
 
 // Register a function that will attempt to register a responder for a URL
@@ -900,13 +906,23 @@ end;
 //   format(output-stream(response), "<html><body>test</body></html>");
 // end;
 define macro responder-definer
-  { define responder ?:name (?url:expression /* allow args here */ )
+  { define responder ?:name (?url:expression)
         (?request:variable, ?response:variable)
       ?:body
-    end }
-  =>
-  { define method ?name (?request, ?response) ?body end;
-    register-url(?url, ?name /* pass args here */ ) }
+    end
+  }
+  => { define method ?name (?request, ?response) ?body end;
+         register-url(?url, ?name)
+     }
+
+  { define directory responder ?:name (?url:expression)
+        (?request:variable, ?response:variable)
+      ?:body
+    end
+  }
+  => { define method ?name (?request, ?response) ?body end;
+         register-url(?url, ?name, prefix?: #t)
+     }
 end;
 
 // Invoke the appropriate handler for the given request URL and method.
@@ -915,19 +931,17 @@ end;
 // and generate the appropriate error response.
 define method invoke-handler
     (request :: <request>) => ()
-  let url :: <string> = request-url(request);
   with-resource (headers = <header-table>)
     with-resource (response = <response>,
                    request: request,
                    headers: headers)
-      let (responder, canonical-url) = find-responder(url);
       if(request.request-keep-alive?)
         add-header(response, "Connection", "Keep-Alive");
       end if;
       dynamic-bind (*response* = response)
-        if (responder)
-          log-debug("%s handler found", url);
-          responder(request, response);
+        if (request.request-responder)
+          log-debug("%s handler found", request-url(request));
+          request.request-responder(request, response);
         else
           // generates 404 if not found
           maybe-serve-static-file(request, response);

@@ -668,7 +668,7 @@ define function register-page-urls
     for (alias in iff(instance?(alias, <string>),
                       list(alias),
                       alias))
-      register-alias-url(alias, url);
+      register-url(alias, responder);
     end;
   end;
   responder
