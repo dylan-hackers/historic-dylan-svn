@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" []>
+<reference id="reference-jam-invoked-rules">
+  <title>Automatically-invoked Jam Rules</title>
+
+  <refbody>
+    <section>
+      <p>When the build system reads a
+      <filepath>dylanmakefile.mkf</filepath> file, it invokes several
+      of the Jam rules (functions) defined in the user&apos;s build
+      script. These rules in turn register the necessary targets and
+      their dependencies with the Jam build mechanism.</p>
+
+      <p>All of the rules described below take
+      <parmname>image</parmname> as their first parameter; this is a
+      list whose first element is the library name (from the Library:
+      keyword of the <filepath>.mkf</filepath> file) and whose
+      optional second component is the base name of the executable or
+      shared library (from the <codeph>Executable</codeph>: keyword of
+      the .<filepath>mkf</filepath> file).</p>
+    </section>
+  </refbody>
+
+  <reference id="reference-jam-DylanLibrary">
+    <title>DylanLibrary</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>DylanLibrary</kwd>
+           <parmname>image</parmname>
+           <delim>:</delim>
+           <parmname>version</parmname>
+           <delim>;</delim>
+        </synph>
+      </refsyn>
+
+      <section>
+        <p>Link a Dylan library as a shared library or executable
+        image. This is always the first rule invoked for a given
+        library, and it is usually charged with establishing the
+        library target and setting global and target-specific
+        variables.</p>
+
+        <p>The <parmname>version</parmname> argument normally contains
+        two components, the first obtained from the
+        <codeph>Major-version</codeph>: keyword of the
+        <filepath>.mkf</filepath> file, and the second from the
+        <codeph>Minor-version:</codeph> keyword.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="reference-jam-DylanExecutable">
+    <title>DylanLibraryLinkerOptions</title>
+    <refbody>
+      <refsyn>
+        <synph><kwd>DylanLibraryLinkerOptions</kwd> <parmname>image</parmname> : <parmname>options</parmname> <delim>;</delim></synph>
+      </refsyn>
+
+      <section>
+        <p>Add the given options to the link command line of the
+        shared library and executable images. The link options
+        provided in the <codeph>Linker-options:</codeph> keyword of
+        the <filepath>.mkf</filepath> file are expanded using the
+        usual Jam variable expansion rules before being passed to this
+        rule. (This allows <codeph>Linker-options:</codeph> keywords
+        in LID and HDP files to refer to platform-specific variables
+        such as <codeph>$(guilflags)</codeph>).</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="reference-jam-DylanLibraryBaseAddress">
+    <title>DylanLibraryBaseAddress</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>DylanLibraryBaseAddress</kwd>
+           <parmname>image</parmname>
+           <delim>:</delim>
+           <parmname>address</parmname>
+           <delim>;</delim>
+        </synph>
+      </refsyn>
+
+      <section>
+        <p>Set the base address of the shared library. The
+        compiler-computed base addresses are probably only usable on
+        the Win32 platform.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="reference-jam-DylanLibraryCLibraries">
+    <title>DylanLibraryCLibraries</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>DylanLibraryCLibraries</kwd>
+           <parmname>image</parmname>
+           <delim>:</delim>
+           <parmname>libraries</parmname>
+           <delim>;</delim>
+        </synph>
+      </refsyn>
+      <section>
+        <p>Link C (or other externally-derived) libraries into the
+        shared library or executable. The link options provided in the
+        <codeph>C-libraries: </codeph>keyword of the
+        <filepath>.mkf</filepath> file are expanded using the usual
+        Jam variable expansion rules before being passed to this
+        rule.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="reference-jam-DylanLibraryCObjects">
+    <title>DylanLibraryCObjects</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>DylanLibraryCObjects</kwd>
+           <parmname>image</parmname>
+           <delim>:</delim>
+           <parmname>objects</parmname>
+           <delim>;</delim>
+        </synph>
+      </refsyn>
+      <section>
+        <p>Link C (or other externally-derived) object files into the
+        shared library or executable.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="reference-jam-DylanLibraryCSources">
+    <title>DylanLibraryCSources</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>DylanLibraryCSources</kwd>
+           <parmname>image</parmname>
+           <delim>:</delim>
+           <parmname>sources</parmname>
+           <delim>;</delim>
+        </synph>
+      </refsyn>
+      <section>
+        <p>Compile and link C source files into the shared library or
+        executable.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="reference-jam-DylanLibraryCHeaders">
+    <title>DylanLibraryCHeaders</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>DylanLibraryCHeaders</kwd>
+           <parmname>image</parmname>
+           <delim>:</delim>
+           <parmname>headers</parmname>
+           <delim>;</delim>
+        </synph>
+      </refsyn>
+
+      <section>
+        <p>This rule normally does nothing. The
+        <codeph>C-header-files:</codeph> HDP/LID file keyword is
+        normally used to ensure that files of various sorts (including
+        but not limited to C header files) are copied into the build
+        directory.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="reference-jam-DylanLibraryRCFiles">
+    <title>DylanLibraryRCFiles</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>DylanLibraryRCFiles</kwd>
+           <parmname>image</parmname>
+           <delim>:</delim>
+           <parmname>rcfiles</parmname>
+           <delim>;</delim>
+        </synph>
+      </refsyn>
+
+      <section>
+        <p>Compile and link the given Win32 resource files into the
+        shared library or executable.</p>
+      </section>
+    </refbody>
+  </reference>
+
+  <reference id="reference-jam-DylanLibraryJamIncludes">
+    <title>DylanLibraryJamIncludes</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>DylanLibraryJamIncludes</kwd>
+           <parmname>image</parmname>
+           <delim>:</delim>
+           <parmname>includes</parmname>
+           <delim>;</delim>
+        </synph>
+      </refsyn>
+      <section>Not yet implemented.</section>
+      <section/>
+    </refbody>
+  </reference>
+
+  <reference id="reference-jam-DylanLibraryUses">
+    <title>DylanLibraryUses</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>DylanLibraryUses</kwd>
+           <parmname>image</parmname>
+           <delim>:</delim>
+           <parmname>library</parmname>
+           <delim>:</delim>
+           <parmname>dir</parmname>
+           <delim>;</delim>
+        </synph>
+      </refsyn>
+
+      <section>
+        <p>Link other Dylan libraries into the shared library. The
+        <parmname>library</parmname> argument gives the name of the
+        other library, and the <parmname>dir</parmname> argument gives
+        the name of the other library&apos;s build directory. If
+        <parmname>dir</parmname> is <tt>system</tt>, then the library
+        is an installed system library.</p>
+       </section>
+    </refbody>
+  </reference>
+</reference>

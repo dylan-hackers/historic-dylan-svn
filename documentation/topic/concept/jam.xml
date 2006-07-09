@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd" []>
+<concept id="concept-1">
+  <title>Jam</title>
+  <conbody>
+    <p><xref href="http://www.perforce.com/jam/jam.html">Jam</xref> is
+    a build tool designed by Christopher Seiwald, founder of <xref
+    href="http://www.perforce.com/">Perforce Software</xref>. It is
+    similar in some ways to <cmdname>make</cmdname>, the traditional
+    Unix build tool. However, instead of using only simple declarative
+    rules to define build targets and the dependencies between them,
+    Jam contains a full scripting language, allowing build script
+    authors to define high-level build instructions that match
+    particular applications. The Jam program also includes Jambase, a
+    library of rules (functions) for building executables and
+    libraries from C, C++, and Fortran sources.</p>
+
+    <p>The original Jam tool is a standalone program written in C and
+    YACC. Peter Housel re-implemented the Jam language interpreter and
+    build logic as a reusable Dylan library for use in the Open Dylan
+    <codeph>build-system</codeph>.</p>
+  </conbody>
+</concept>
