@@ -126,6 +126,58 @@ define module changes
     redo,
     print-xml;
 
+  //exports
+  export generate-rss;
+  
+  //feed
+  export <feed>,
+    authors, authors-setter,
+    categories, categories-setter,
+    contributors, contributors-setter,
+    generator, generato-setter,
+    icon, icon-setter,
+    identifier, identifier-setter,
+    links, links-setter,
+    logo, logo-setter,
+    rights, rights-setter,
+    subtitle, subtitle-setter,
+    title, title-setter,
+    updated, updated-setter,
+    entries, entries-setter,
+    language, language-setter,
+    description, description-setter,
+    published, published-setter;
+  
+  //entry
+  export <entry>,
+    authors, authors-setter,
+    categories, categories-setter,
+    content, content-setter,
+    contributors, contributors-setter,
+    identifier, identifier-setter,
+    links, links-setter,
+    published, published-setter,
+    rights, rights-setter,
+    source, source-setter,
+    summary, summary-setter,
+    title, title-setter,
+    updated, updated-setter,
+    comments, comments-setter;
+
+  export <category>,
+    term, term-setter,
+    scheme, scheme-setter,
+    label, label-setter,
+    description, description-setter; 
+
+  export <generator>,
+    uri, uri-setter,
+    system-version, system-version,
+    text, text-setter;
+    
+  export <content>,
+    <raw-content>;
+    
   //commands
   export <add-command>,
     <remove-command>,

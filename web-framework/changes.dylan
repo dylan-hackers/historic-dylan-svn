@@ -3,36 +3,69 @@ author: Hannes Mehnert <hannes@mehnert.org>
 
 define class <feed> (<object>)
   /* slot CommonAttributes */
-  slot author :: <list>, init-keyword: author:;
-  slot category :: <list> = #(), init-keyword: category:;
-  slot contributor :: <list> = #(), init-keyword: contributor:;
-  slot generator :: false-or(<generator>) = #f, init-keyword: generator:;
-  slot icon :: false-or(<uri>) = #f, init-keyword: icon:;
-  slot identifier :: <uri>, init-keyword: identifier:;
-  slot link :: <list> = #(), init-keyword: link:;
-  slot logo :: false-or(<uri>) = #f, init-keyword: logo:;
-  slot rights :: false-or(<text>) = #f, init-keyword: rights:;
-  slot subtitle :: false-or(<text>) = #f, init-keyword: subtitle:;
-  slot title :: <text>, init-keyword: title:;
-  slot updated :: <date>, init-keyword: updated:;
+  slot authors :: <list>,
+    init-keyword: authors:;
+  slot categories :: <list> = #(),
+    init-keyword: categories:;
+  slot contributors :: <list> = #(),
+    init-keyword: contributors:;
+  slot generator :: false-or(<generator>) = #f,
+    init-keyword: generator:;
+  slot icon :: false-or(<uri>) = #f,
+    init-keyword: icon:;
+  slot identifier :: <uri>,
+    init-keyword: identifier:;
+  slot links :: <list> = #(),
+    init-keyword: links:;
+  slot logo :: false-or(<uri>) = #f,
+    init-keyword: logo:;
+  slot rights :: false-or(<text>) = #f,
+    init-keyword: rights:;
+  slot subtitle :: false-or(<text>) = #f,
+    init-keyword: subtitle:;
+  slot title :: <text>,
+    init-keyword: title:;
+  slot updated :: <date>,
+    init-keyword: updated:;
   /* repeated slot extensionElement */
-  slot entry :: <list> = #(), init-keyword: entry:;
+  slot entries :: <list> = #(),
+    init-keyword: entries:;
+  slot language :: <text>,
+    init-keyword: language:;
+  slot description :: <text>,
+    init-keyword: description:;
+  slot published :: <date>,
+    init-keyword: published:;
 end;
 
-define class <entry> (<object>)
+define open class <entry> (<object>)
   /* slot CommonAttributes */
-  slot author :: <list> = #(), init-keyword: author:;
-  slot category :: <list> = #(), init-keyword: category:;
-  slot content :: false-or(<content>) = #f, init-keyword: content:;
-  slot contributor :: <list> = #(), init-keyword: contributor:;
-  slot identifier :: <uri>, init-keyword: identifier:;
-  slot link :: <list> = #(), init-keyword: link:;
-  slot published :: false-or(<date>) = #f, init-keyword: published:;
-  slot rights :: false-or(<text>) = #f, init-keyword: rights:;
-  slot source :: false-or(<source>) = #f, init-keyword: source:;
-  slot summary :: false-or(<text>) = #f, init-keyword: summary:;
-  slot title :: <text>, init-keyword: title:;
-  slot updated :: <date>, init-keyword: updated:;
+  slot authors :: <list> = #(),
+    init-keyword: authors:;
+  slot categories :: <list> = #(),
+    init-keyword: categories:;
+  slot content :: false-or(<content>) = #f,
+    init-keyword: content:;
+  slot contributors :: <list> = #(),
+    init-keyword: contributors:;
+  slot identifier :: <uri>,
+    init-keyword: identifier:;
+  slot links :: <list> = #(),
+    init-keyword: links:;
+  slot published :: <date>,
+    init-keyword: published:;
+  slot rights :: false-or(<text>) = #f,
+    init-keyword: rights:;
+  slot source :: false-or(<source>) = #f,
+    init-keyword: source:;
+  slot summary :: false-or(<text>) = #f,
+    init-keyword: summary:;
+  slot title :: <text>,
+    init-keyword: title:;
+  slot updated :: false-or(<date>) = #f,
+    init-keyword: updated:;
+  slot comments :: <list> = #(),
+    init-keyword: comments:;
   /* repeated slot extensionElement */
 end;
 
@@ -42,6 +75,11 @@ define abstract class <content> (<object>)
   slot content :: <text>, init-keyword: content:;
 end;
 
+define class <raw-content> (<content>)
+  inherited slot type :: <string> = "raw";
+end class <raw-content>;
+
+/*
 define class <inline-text-content> (<content>)
   inherited slot content :: <text>, init-keyword: content:;
 end;
@@ -57,20 +95,22 @@ end;
 define class <out-of-line-content> (<content>)
   inherited slot content :: <source>, init-keyword: content:;
 end;
-
+*/
 define class <person> (<object>)
   slot person-name :: <text>, init-keyword: name:;
   slot uri :: false-or(<uri>) = #f, init-keyword: uri:;
   slot email :: false-or(<email>) = #f, init-keyword: email:;
 end;
 
-define class <date> (<object>)
-end; 
-
 define class <category> (<object>)
-  slot term :: <text>, init-keyword: term:;
-  slot scheme :: false-or(<uri>) = #f, init-keyword: scheme:;
-  slot label :: false-or(<text>) = #f, init-keyword: label:;
+  slot term :: <text>,
+    init-keyword: term:;
+  slot scheme :: false-or(<uri>) = #f,
+    init-keyword: scheme:;
+  slot label :: false-or(<text>) = #f,
+    init-keyword: label:;
+  slot description :: false-or(<text>) = #f,
+    init-keyword: description:;
 end;
 
 define constant <text> = <string>;
@@ -84,7 +124,8 @@ define constant <email> = <string>;
 
 define class <generator> (<object>)
   slot uri :: false-or(<uri>) = #f, init-keyword: uri:;
-  slot version :: false-or(<text>) = #f, init-keyword: version:;
+  slot system-version :: false-or(<text>) = #f,
+    init-keyword: version:;
   slot text :: <text>, init-keyword: text:;
 end;
 
@@ -99,12 +140,47 @@ end;
     
 define constant <source> = <feed>;
 
+// RSS
+define generic generate-rss (object :: <object>);
+define method generate-rss (feed :: <feed>)
+  with-xml-builder()
+    rss (version => "2.0") {
+      channel {
+        title(feed.title),
+        link(first(feed.links)),
+        description(feed.description),
+        language(feed.language),
+        copyright(feed.rights),
+        pubDate(as-iso8601-string(feed.published)),
+        image {
+          url(feed.logo),
+          title(feed.title),
+          link(first(feed.links))
+        },
+        do(do(method(entry) collect(generate-rss(entry)) end, feed.entries))
+      }
+    }
+  end;
+end method generate-rss;
+        
+define method generate-rss (entry :: <entry>)
+  with-xml()
+    item {
+      title(entry.title),
+      description(entry.content.content),
+      link(entry.identifier),
+      author("food00d")
+    }
+  end;       
+end method generate-rss;
+
+  
 define method generate-xhtml (feed :: <feed>)
   with-xml()
     div {
       h1(concatenate("Recent changes: ", feed.title)),
       text(feed.subtitle),
-      ul { do(do(method(x) collect(generate-xhtml(x)) end, feed.entry)) }
+      ul { do(do(method(x) collect(generate-xhtml(x)) end, feed.entries)) }
     }
   end;
 end;
@@ -114,8 +190,8 @@ define method generate-xhtml (entry :: <entry>)
     li {
       do(collect(generate-xhtml(entry.updated))),
       text(entry.title), //link to content
-      do(do(method(x) collect(generate-xhtml(x)) end, entry.author))
-      //link to each author
+//      do(do(method(x) collect(generate-xhtml(x)) end, entry.authors))
+//link to each author
     }
   end;
 end;
@@ -134,10 +210,10 @@ define method generate-atom (feed :: <feed>)
       subtitle(feed.subtitle),
       updated { do(collect(generate-atom(feed.updated))) },
       id(feed.identifier),
-      do(do(method(x) collect(generate-atom(x)) end, feed.link)),
+      do(do(method(x) collect(generate-atom(x)) end, feed.links)),
       rights(feed.rights),
       do(collect(generate-atom(feed.generator))),
-      do(do(method(x) collect(generate-atom(x)) end, feed.entry))
+      do(do(method(x) collect(generate-atom(x)) end, feed.entries))
     } //missing: category, contributor, icon, logo
   end; 
 end;
@@ -160,7 +236,7 @@ end;
 
 define method generate-atom (generator :: <generator>)
   with-xml()
-    generator (uri => generator.uri, version => generator.version)
+    generator (uri => generator.uri, version => generator.system-version)
     {
       text(generator.text)
     }
@@ -172,12 +248,12 @@ define method generate-atom (entry :: <entry>)
     entry
     {
       title(entry.title),
-      do(do(method(x) collect(generate-atom(x)) end, entry.link)),
+      do(do(method(x) collect(generate-atom(x)) end, entry.links)),
       id(entry.identifier),
       updated { do(collect(generate-atom(entry.updated))) },
       published { do(collect(generate-atom(entry.published))) },
-      do(do(method(x) collect(generate-atom(x)) end, entry.author)),
-      do(do(method(x) collect(generate-atom(x)) end, entry.contributor)),
+//      do(do(method(x) collect(generate-atom(x)) end, entry.authors)),
+//      do(do(method(x) collect(generate-atom(x)) end, entry.contributors)),
       do(collect(generate-atom(entry.content))),
     } //missing: category, summary
   end;

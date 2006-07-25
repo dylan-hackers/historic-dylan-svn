@@ -7,4 +7,5 @@ files: library
        web-macro
        command
        change
+       changes
        users
