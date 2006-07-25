@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2006  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -455,6 +455,19 @@ make(<llvm-return-instruction>, atEnd: bb)
 
 
 end;
+
+define generic emit-llvm-return(return :: <return>, result-rep, bb :: <llvm-basic-block>) => ();
+
+define method emit-llvm-return(return :: <return>, result-rep == #"doesn't-return", bb :: <llvm-basic-block>) => ();
+  error("have a return region for a function that doesn't return?");
+end;
+
+
+
+define method emit-llvm-return(return :: <return>, result-rep, bb :: <llvm-basic-block>) => ();
+  make(<llvm-return-instruction>, atEnd: bb)
+end;
+
 
 
 define variable llvm-function = #f;
