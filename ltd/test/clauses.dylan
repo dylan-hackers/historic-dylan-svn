@@ -72,10 +72,9 @@ define method print-clause-node-as-rule (node, #key s = #t)
     end for;
     tail := reverse!(tail);
     if (head) reverse := #t; end if;
-    let g153318 = head;
-    let g153317 = tail;
-    head := g153317;
-    tail := g153318;
+    let (g15971) = tail;
+    let (g15972) = head;
+    begin head := g15971; tail := g15972; end;
     #f;
   end if;
   //  Print the head
@@ -134,11 +133,11 @@ end method clause-plug;
 
 define method nclause-plug (clause, binding-list)
   // Destructively modify CLAUSE by applying BINDING-LIST
-  let list92543 = clause.clause-literals;
+  let list13156 = clause.clause-literals;
   begin
     do(method (old-lit) nliteral-plug(old-lit, binding-list); end method,
-       list92543);
-    list92543;
+       list13156);
+    list13156;
   end;
   clause.clause-literals
    := cl-remove-duplicates(clause.clause-literals, from-end: #t,

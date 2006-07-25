@@ -62,7 +62,8 @@ end method raise-abst;
 define method get-precons (ingred)
   format-out("\n----------------");
   format-out("\nGetting preconditions for %=", ingred);
-  ingred & slots->mop(list(list(#"ingred", ingred)), #(#"m-precons"), #f);
+  ingred
+   & slots->mop(bq-list(bq-list(#"ingred", ingred)), #(#"m-precons"), #f);
 end method get-precons;
 
 define method make-mop (pattern, mop)
@@ -80,17 +81,17 @@ end method make-mop;
 define method replace-slots (slots, mop)
   for (slot(in: slots))
     #"save";
-    list(slot-role(slot),
-         begin
-           let filler = slot-filler(slot);
-           if (abstp(#"m-role", filler))
-             role-filler(filler, mop);
-           elseif (abstp(#"m-path", filler))
-             path-filler(group->list(filler), mop);
-           else
-             filler;
-           end if;
-         end);
+    bq-list(slot-role(slot),
+            begin
+              let filler = slot-filler(slot);
+              if (abstp(#"m-role", filler))
+                role-filler(filler, mop);
+              elseif (abstp(#"m-path", filler))
+                path-filler(group->list(filler), mop);
+              else
+                filler;
+              end if;
+            end);
   end for;
 end method replace-slots;
 
@@ -257,8 +258,10 @@ define method generalize-repair (repair, input-roles)
   let absts = mop-absts(solution);
   for (slot(in: slots))
     #"do";
-    slots->mop(forms->slots(list(list(slot-role(slot), #"m-not",
-                                      list(#"object", slot-filler(slot))))),
+    slots->mop(forms->slots(bq-list(bq-list(slot-role(slot),
+                                            #"m-not",
+                                            bq-list(#"object",
+                                                    slot-filler(slot))))),
                absts, #t);
   end for;
   slots->mop(slots, absts, #t);
@@ -289,22 +292,25 @@ define method generalize-mop (mop, maps)
 end method generalize-mop;
 
 define method chef-explain (mop)
-  slots->mop(list(#"instance", list(#"failure", mop),
-                  list(#"cause", *bad-step*), #(#"rule", #"m-rule"),
-                  list(#"mapping",
-                       slots->mop(forms->slots(#(#(1,
-                                                   #"m-map",
-                                                   #"instance",
-                                                   #(#"abst", #"m-meat"),
-                                                   #(#"spec", #"i-m-beef")),
-                                                 #(2,
-                                                   #"m-map",
-                                                   #"instance",
-                                                   #(#"abst",
-                                                     #"m-crisp-vegetable"),
-                                                   #(#"spec",
-                                                     #"i-m-broccoli")))),
-                                  #(#"m-map-group"), #t))),
+  slots->mop(bq-list(#"instance", bq-list(#"failure", mop),
+                     bq-list(#"cause", *bad-step*), #(#"rule", #"m-rule"),
+                     bq-list(#"mapping",
+                             slots->mop(forms->slots(#(#(1,
+                                                         #"m-map",
+                                                         #"instance",
+                                                         #(#"abst",
+                                                           #"m-meat"),
+                                                         #(#"spec",
+                                                           #"i-m-beef")),
+                                                       #(2,
+                                                         #"m-map",
+                                                         #"instance",
+                                                         #(#"abst",
+                                                           #"m-crisp-vegetable"),
+                                                         #(#"spec",
+                                                           #"i-m-broccoli")))),
+                                        #(#"m-map-group"),
+                                        #t))),
              #(#"m-explanation"), #t);
 end method chef-explain;
 
@@ -336,8 +342,8 @@ end method chef2;
 
 define method chef3 ()
   *recipe-repair*
-   := chef-repair(list(list(#"solution", *bad-recipe*),
-                       list(#"explanation", *bad-recipe-explanation*)));
+   := chef-repair(bq-list(bq-list(#"solution", *bad-recipe*),
+                          bq-list(#"explanation", *bad-recipe-explanation*)));
   *good-recipe* := role-filler(#"repaired-solution", *recipe-repair*);
 end method chef3;
 

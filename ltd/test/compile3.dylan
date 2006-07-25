@@ -76,14 +76,7 @@ define method show-fn (fn, #key stream = *standard-output*, indent = 2)
   //   but in a column at least 8 spaces wide.
   //  This version handles code that has been assembled into a vector
   if (~ fn-p(fn))
-    (method (s, #rest args)
-       apply(maybe-initiate-xp-printing,
-             method (xp, #rest args)
-               using-format(xp, "~8a", pop!(args));
-               if (args) copy-sequence(args); end if;
-             end method,
-             s, args);
-     end method)(stream, fn);
+    (formatter-1("~8a"))(stream, fn);
   else
     write-element(*standard-output*, '\n');
     for (i from 0 below size(fn.fn-code))
@@ -91,26 +84,7 @@ define method show-fn (fn, #key stream = *standard-output*, indent = 2)
       if (label-p(instr))
         format(stream, "%S:", instr);
       else
-        (method (s, #rest args)
-           apply(maybe-initiate-xp-printing,
-                 method (xp, #rest args)
-                   begin
-                     pprint-tab+(line: begin
-                                       let _that = #f;
-                                       if (_that := pop!(args))
-                                       _that;
-                                       else
-                                       1;
-                                       end if;
-                                       end,
-                                 1, xp);
-                     using-format(xp, "~2d", pop!(args));
-                     write-string++(": ", xp, 0, 2);
-                   end;
-                   if (args) copy-sequence(args); end if;
-                 end method,
-                 s, args);
-         end method)(stream, indent, i);
+        (formatter-1("~VT~2d: "))(stream, indent, i);
         for (arg in instr) show-fn(arg, stream, indent + 8); end for;
         write-element(*standard-output*, '\n');
       end if;
@@ -292,7 +266,7 @@ end method scheme;
 
 define method comp-go (exp)
   // Compile and execute the expression.
-  machine(compiler(list(#"exit", exp)));
+  machine(compiler(bq-list(#"exit", exp)));
 end method comp-go;
 
 //  Peephole Optimizer
@@ -371,160 +345,4 @@ set-dispatch-macro-character('#', 't', method (#rest ignore) #t; end method,
 
 set-dispatch-macro-character('#', 'f', method (#rest ignore) #f; end method,
                              *scheme-readtable*);
-
-set-dispatch-macro-character('#', 'd',
-                             //  In both Common Lisp and Scheme,
-                             //  #x, #o and #b are hexidecimal, octal, and binary,
-                             //  e.g. #xff = #o377 = #b11111111 = 255
-                             //  In Scheme only, #d255 is decimal 255.
-                             method (stream, #rest ignore)
-                               fluid-bind (*read-base* = 10)
-                                 scheme-read(stream);
-                               end fluid-bind;
-                             end method,
-                             *scheme-readtable*);
-
-// LTD: Function SET-MACRO-CHARACTER not yet implemented.
-set-macro-character('`',
-                    method (s, ignore)
-                      list(#"quasiquote", scheme-read(s));
-                    end method,
-                    #f, *scheme-readtable*);
-
-// LTD: Function SET-MACRO-CHARACTER not yet implemented.
-set-macro-character(',',
-                    method (stream, ignore)
-                      let ch = read-element(stream, nil);
-                      if (ch = '@')
-                        list(#"unquote-splicing",
-                             // LTD: Function READ not yet implemented.
-                             read(stream));
-                      else
-                        unread-element(stream, ch);
-                        list(#"unquote",
-                             // LTD: Function READ not yet implemented.
-                             read(stream));
-                      end if;
-                    end method,
-                    #f, *scheme-readtable*);
-
-//  ==============================
-define variable *primitive-fns* =
-  #(#(#"+", 2, #"+", #"true"), #(#"-", 2, #"-", #"true"),
-    #(#"*", 2, #"*", #"true"), #(#"/", 2, #"/", #"true"), #(#"<", 2, #"<"),
-    #(#">", 2, #">"), #(#"<=", 2, #"<="), #(#">=", 2, #">="),
-    #(#"/=", 2, #"/="), #(#"=", 2, #"="), #(#"eq?", 2, #"eq"),
-    #(#"equal?", 2, #"equal"), #(#"eqv?", 2, #"eql"), #(#"not", 1, #"not"),
-    #(#"null?", 1, #"not"), #(#"car", 1, #"car"), #(#"cdr", 1, #"cdr"),
-    #(#"cadr", 1, #"cadr"), #(#"cons", 2, #"cons", #"true"),
-    #(#"list", 1, #"list1", #"true"), #(#"list", 2, #"list2", #"true"),
-    #(#"list", 3, #"list3", #"true"),
-    #(#"read", 0, #"scheme-read", #(), #"t"),
-    #(#"eof-object?", 1, #"eof-object?"), // ***
-    #(#"write", 1, #"write", #(), #"t"),
-    #(#"display", 1, #"display", #(), #"t"),
-    #(#"newline", 0, #"newline", #(), #"t"),
-    #(#"compiler", 1, #"compiler", #"t"),
-    #(#"name!", 2, #"name!", #"true", #"t"),
-    #(#"random", 1, #"random", #"true", #()));
-
-//  ==============================
-// (setf (scheme-macro 'quasiquote) 'quasi-q)
-define method quasi-q (x)
-  // Expand a quasiquote form into append, list, and cons calls.
-  if (instance?(x, <vector>))
-    list(#"apply", #"vector", quasi-q(as(<list>, x)));
-  elseif (not(instance?(x, <list>)))
-    if (constant?(x)) x; else list(#"quote", x); end if;
-  elseif (starts-with(x, #"unquote"))
-    assert(tail(x) & empty?(rest2(x)));
-    second(x);
-  elseif (starts-with(x, #"quasiquote"))
-    assert(tail(x) & empty?(rest2(x)));
-    quasi-q(quasi-q(second(x)));
-  elseif (starts-with(first(x), #"unquote-splicing"))
-    if (empty?(tail(x)))
-      second(first(x));
-    else
-      list(#"append", second(first(x)), quasi-q(tail(x)));
-    end if;
-  else
-    combine-quasiquote(quasi-q(head(x)), quasi-q(tail(x)), x);
-  end if;
-end method quasi-q;
-
-define method combine-quasiquote (left, right, x)
-  // Combine left and right (car and cdr), possibly re-using x.
-  if (constant?(left) & constant?(right))
-    if (// LTD: Function EVAL not yet implemented.
-        eval(left)
-         == first(x)
-         & // LTD: Function EVAL not yet implemented.
-           eval(right)
-            == tail(x))
-      list(#"quote", x);
-    else
-      list(#"quote",
-           pair(// LTD: Function EVAL not yet implemented.
-                eval(left),
-                // LTD: Function EVAL not yet implemented.
-                eval(right)));
-    end if;
-  elseif (empty?(right))
-    list(#"list", left);
-  elseif (starts-with(right, #"list"))
-    apply(list, #"list", left, tail(right));
-  else
-    list(#"cons", left, right);
-  end if;
-end method combine-quasiquote;
-
-//  ==============================
-define method scheme-read (#key stream = *standard-input*)
-  fluid-bind (*readtable* = *scheme-readtable*)
-    convert-numbers(// LTD: Function READ not yet implemented.
-                    read(stream, #f, eof));
-  end fluid-bind;
-end method scheme-read;
-
-define method convert-numbers (x)
-  // Replace symbols that look like Scheme numbers with their values.
-  //  Don't copy structure, make changes in place.
-  select (x by instance?)
-    cons
-       => head(x) := convert-numbers(head(x));
-           tail(x) := convert-numbers(tail(x));
-           x;
-    //  *** Bug fix, gat, 11/9/92
-    symbol
-       => convert-number(x) | x;
-    vector
-       => for (i from 0 below size(x)) x[i] := convert-numbers(x[i]); end for;
-           x;
-    //  *** Bug fix, gat, 11/9/92
-    #t
-       => x;
-  end select;
-end method convert-numbers;
-
-define method convert-number (symbol)
-  // If str looks like a complex number, return the number.
-  let str = as(<string>, symbol);
-  let pos = find-key(str, sign-p);
-  let end = size(str) - 1;
-  if (pos & char-equal?(str[end], 'i'))
-    let re
-        = // LTD: Function READ-FROM-STRING not yet implemented.
-          read-from-string(str, #f, #f, start: 0, end: pos);
-    let im
-        = // LTD: Function READ-FROM-STRING not yet implemented.
-          read-from-string(str, #f, #f, start: pos, end: end);
-    if (instance?(re, <number>) & instance?(im, <number>))
-      // LTD: Function COMPLEX not yet implemented.
-      complex(re, im);
-    end if;
-  end if;
-end method convert-number;
-
-define method sign-p (char) cl-find(char, "+-"); end method sign-p;
 

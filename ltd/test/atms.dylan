@@ -395,10 +395,8 @@ end method create-env;
 
 define method union-env (e1, e2)
   if (e1.env-count > e2.env-count)
-    let g108128 = e2;
-    let g108129 = e1;
-    e1 := g108128;
-    e2 := g108129;
+    let g15926 = e2;
+    begin e2 := e1; e1 := g15926; end;
     #f;
   end if;
   block (return)
@@ -723,40 +721,7 @@ define method env-string (e, #key stream)
     printer := atms-node-string(tms-node-atms(head(assumptions)));
   end if;
   for (a in assumptions) push!(printer(a), strings); end for;
-  (method (s, #rest args)
-     block (return)
-       apply(maybe-initiate-xp-printing,
-             method (xp, #rest args)
-               block (return)
-                 block (return)
-                   write-char++('{', xp);
-                   let args = pop!(args);
-                   block (return)
-                     block (return)
-                       block (return)
-                         local method go-l ()
-                                 if (empty?(args)) return(#f); end if;
-                                 fluid-bind (*print-escape* = #f)
-                                   write+(pop!(args), xp);
-                                 end fluid-bind;
-                                 if (empty?(args))
-                                   return-from-nil(#f);
-                                 end if;
-                                 write-char++(',', xp);
-                                 go-l();
-                               end method go-l;
-                         go-l();
-                       end block;
-                     end block;
-                   end block;
-                   write-char++('}', xp);
-                 end block;
-                 if (args) copy-sequence(args); end if;
-               end block;
-             end method,
-             s, args);
-     end block;
-   end method)(stream, sort!(strings, test: string-less?));
+  (formatter-1("{~{~A~^,~}}"))(stream, sort!(strings, test: string-less?));
 end method env-string;
 
 //  Printing global data

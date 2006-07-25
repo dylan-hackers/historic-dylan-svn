@@ -187,67 +187,17 @@ define method path-saver (successors, cost-fn, cost-left-fn)
 end method path-saver;
 
 define method print-path (path, #key stream = #t, depth)
-  (method (s, #rest args)
-     apply(maybe-initiate-xp-printing,
-           method (xp, #rest args)
-             begin
-               write-string++("#<Path to ", xp, 0, 10);
-               fluid-bind (*print-escape* = #f)
-                 write+(pop!(args), xp);
-               end fluid-bind;
-               write-string++(" cost ", xp, 0, 6);
-               using-format(xp, "~,1f", pop!(args));
-               write-char++('>', xp);
-             end;
-             if (args) copy-sequence(args); end if;
-           end method,
-           s, args);
-   end method)(stream, path.path-state, path.path-total-cost);
+  (formatter-1("#<Path to ~a cost ~,1f>"))(stream,
+                                           path.path-state,
+                                           path.path-total-cost);
 end method print-path;
 
 define method show-city-path (path, #key stream = #t)
   // Show the length of a path, and the cities along it.
-  (method (s, #rest args)
-     block (return)
-       apply(maybe-initiate-xp-printing,
-             method (xp, #rest args)
-               block (return)
-                 block (return)
-                   write-string++("#<Path ", xp, 0, 7);
-                   using-format(xp, "~,1f", pop!(args));
-                   write-string++(" km: ", xp, 0, 5);
-                   let args = pop!(args);
-                   block (return)
-                     block (return)
-                       block (return)
-                         local method go-l ()
-                                 if (empty?(args)) return(#f); end if;
-                                 begin
-                                   push-char-mode(xp, #"cap1");
-                                   fluid-bind (*print-escape* = #f)
-                                     write+(pop!(args), xp);
-                                   end fluid-bind;
-                                   pop-char-mode(xp);
-                                 end;
-                                 if (empty?(args))
-                                   return-from-nil(#f);
-                                 end if;
-                                 write-string++(" - ", xp, 0, 3);
-                                 go-l();
-                               end method go-l;
-                         go-l();
-                       end block;
-                     end block;
-                   end block;
-                   write-char++('>', xp);
-                 end block;
-                 if (args) copy-sequence(args); end if;
-               end block;
-             end method,
-             s, args);
-     end block;
-   end method)(stream, path.path-total-cost,
-               reverse(map-path(city-name, path)));
+  (formatter-1("#<Path ~,1f km: ~{~:(~a~)~^ - ~}>"))(stream,
+                                                     path.path-total-cost,
+                                                     reverse(map-path(city-name,
+                                                                      path)));
   values();
 end method show-city-path;
 

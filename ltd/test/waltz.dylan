@@ -71,24 +71,7 @@ define method print-labelings (diagram)
         end if;
   let n = size(solutions);
   if (~ (n = 1))
-    (method (s, #rest args)
-       apply(maybe-initiate-xp-printing,
-             method (xp, #rest args)
-               let init = args;
-               begin
-                 multiple-newlines1(xp, fresh: 2);
-                 write-string++("There are ", xp, 0, 10);
-                 using-format(xp, "~r", pop!(args));
-                 write-string++(" solution", xp, 0, 9);
-                 if (~ (head(backup-in-list(1, init, args)) == 1))
-                   write-char++('s', xp);
-                 end if;
-                 write-char++(':', xp);
-               end;
-               if (args) copy-sequence(args); end if;
-             end method,
-             s, args);
-     end method)(#t, n);
+    (formatter-1("~2&There are ~r solution~:p:"))(#t, n);
     begin do(show-diagram, solutions); solutions; end;
   end if;
   values();
@@ -168,42 +151,16 @@ end method print-vertex;
 define method show-vertex (vertex, #key stream = #t)
   // Print a vertex in a long form, on a new line.
   format(stream, "\n   %S %d:", vertex, vertex.vertex-type);
-  let list92543 = vertex.vertex-neighbors;
+  let list13156 = vertex.vertex-neighbors;
   begin
     do(method (neighbor, labels)
-         (method (s, #rest args)
-            apply(maybe-initiate-xp-printing,
-                  method (xp, #rest args)
-                    begin
-                      write-char++(' ', xp);
-                      fluid-bind (*print-escape* = #f)
-                        write+(pop!(args), xp);
-                      end fluid-bind;
-                      fluid-bind (*print-escape* = #f)
-                        write+(pop!(args), xp);
-                      end fluid-bind;
-                      write-string++("=[", xp, 0, 2);
-                      let args = pop!(args);
-                      block (return)
-                        local method go-l ()
-                                if (empty?(args)) return(#f); end if;
-                                fluid-bind (*print-escape* = #f)
-                                  write+(pop!(args), xp);
-                                end fluid-bind;
-                                go-l();
-                              end method go-l;
-                        go-l();
-                      end block;
-                      write-char++(']', xp);
-                    end;
-                    if (args) copy-sequence(args); end if;
-                  end method,
-                  s, args);
-          end method)(stream, vertex.vertex-name, neighbor.vertex-name,
-                      labels);
+         (formatter-1(" ~a~a=[~{~a~}]"))(stream,
+                                         vertex.vertex-name,
+                                         neighbor.vertex-name,
+                                         labels);
        end method,
-       list92543, matrix-transpose(vertex.vertex-labelings));
-    list92543;
+       list13156, matrix-transpose(vertex.vertex-labelings));
+    list13156;
   end;
   values();
 end method show-vertex;
@@ -211,29 +168,10 @@ end method show-vertex;
 define method show-diagram (diagram, #key title = "~2&Diagram:", stream = #t)
   // Print a diagram in a long form.  Include a title.
   title(stream);
-  let list92543 = diagram.diagram-vertexes;
-  begin do(show-vertex, list92543); list92543; end;
+  let list13156 = diagram.diagram-vertexes;
+  begin do(show-vertex, list13156); list13156; end;
   let n = reduce1(\*, map(number-of-labelings, diagram.diagram-vertexes));
-  if (n > 1)
-    (method (s, #rest args)
-       apply(maybe-initiate-xp-printing,
-             method (xp, #rest args)
-               let init = args;
-               begin
-                 pprint-newline+(fresh: xp);
-                 write-string++("For ", xp, 0, 4);
-                 using-format(xp, "~:d", pop!(args));
-                 write-string++(" interpretation", xp, 0, 15);
-                 if (~ (head(backup-in-list(1, init, args)) == 1))
-                   write-char++('s', xp);
-                 end if;
-                 write-char++('.', xp);
-               end;
-               if (args) copy-sequence(args); end if;
-             end method,
-             s, args);
-     end method)(stream, n);
-  end if;
+  if (n > 1) (formatter-1("~&For ~:d interpretation~:p."))(stream, n); end if;
   values();
 end method show-diagram;
 
@@ -355,24 +293,7 @@ define method check-diagram (vertex-descriptors)
     end for;
   end for;
   if (errors > 0)
-    error(method (s, #rest args)
-            apply(maybe-initiate-xp-printing,
-                  method (xp, #rest args)
-                    let init = args;
-                    begin
-                      write-string++("Inconsistent diagram.  ", xp, 0, 23);
-                      using-format(xp, "~d", pop!(args));
-                      write-string++(" total error", xp, 0, 12);
-                      if (~ (head(backup-in-list(1, init, args)) == 1))
-                        write-char++('s', xp);
-                      end if;
-                      write-char++('.', xp);
-                    end;
-                    if (args) copy-sequence(args); end if;
-                  end method,
-                  s, args);
-          end method,
-          errors);
+    error(formatter-1("Inconsistent diagram.  ~d total error~:p."), errors);
   end if;
   vertex-descriptors;
 end method check-diagram;

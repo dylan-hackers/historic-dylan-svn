@@ -748,7 +748,7 @@
       (let* ((length (length control))
              (i 0)
              (unhandled nil)
-             (result (make-array length :element-type 'string-char
+             (result (make-array length :element-type 'character
                                  :adjustable t :fill-pointer 0)))
         (flet ((emit (ch) (vector-push-extend ch result))
                (consume () (if (< i length) (prog1 (aref control i) (incf i)))))

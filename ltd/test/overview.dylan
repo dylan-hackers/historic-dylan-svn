@@ -321,8 +321,8 @@ end method sqr;
 //  ==============================
 define method eat-porridge (bear)
   assert(begin
-           let g113933 = temperature(bear-porridge(bear));
-           too-cold < g113933 & g113933 < too-hot;
+           let g15930 = temperature(bear-porridge(bear));
+           too-cold < g15930 & g15930 < too-hot;
          end);
   eat(bear-porridge(bear));
 end method eat-porridge;

@@ -9,16 +9,6 @@
 (defvar *buffer*
   (make-array 200 :element-type 'character :fill-pointer 0 :adjustable t))
 
-
-(defparameter *ltd-readtable*
-  (let ((table (copy-readtable *readtable*)))
-    (set-macro-character #\; 'collect-comments nil table)
-    (set-macro-character #\( 'ltd-read-list nil table)
-    (set-dispatch-macro-character #\# #\| 'collect-comments table)
-    (set-dispatch-macro-character #\# #\A 'read-array table)
-    (set-dispatch-macro-character #\# #\a 'read-array table)
-    table))
-
 (defstruct (com (:predicate comment?))
   ;; We spell it COM because LispWorks has a class called comment
   (comment "") (code nil))
@@ -118,6 +108,14 @@
 	 (otherwise (vector-push-extend char *buffer*))))))
   (coerce *buffer* 'string))
 
+(defparameter *ltd-readtable*
+  (let ((table (copy-readtable *readtable*)))
+    (set-macro-character #\; 'collect-comments nil table)
+    (set-macro-character #\( 'ltd-read-list nil table)
+    (set-dispatch-macro-character #\# #\| 'collect-comments table)
+    (set-dispatch-macro-character #\# #\A 'read-array table)
+    (set-dispatch-macro-character #\# #\a 'read-array table)
+    table))
 
 (defun ltd-read (&optional (stream *standard-input*))
   "Read a Lisp expression, preserving comments and file positions."

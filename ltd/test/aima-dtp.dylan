@@ -67,28 +67,11 @@ end;
 
 begin
   define variable *dtp-version* =
-    (method (s, #rest args)
-       apply(maybe-initiate-xp-printing,
-             method (xp, #rest args)
-               begin
-                 using-format(xp, "~D", pop!(args));
-                 write-char++('.', xp);
-                 using-format(xp, "~2,'0D", pop!(args));
-                 write-string++(" [", xp, 0, 2);
-                 fluid-bind (*print-escape* = #f)
-                   write+(pop!(args), xp);
-                 end fluid-bind;
-                 write-char++(',', xp);
-                 fluid-bind (*print-escape* = #f)
-                   write+(pop!(args), xp);
-                 end fluid-bind;
-                 write-char++(']', xp);
-               end;
-               if (args) copy-sequence(args); end if;
-             end method,
-             s, args);
-     end method)(#f, *dtp-major-version*, *dtp-minor-version*,
-                 *dtp-tracing-status*, *dtp-typing-status*);
+    (formatter-1("~D.~2,'0D [~A,~A]"))(#f,
+                                       *dtp-major-version*,
+                                       *dtp-minor-version*,
+                                       *dtp-tracing-status*,
+                                       *dtp-typing-status*);
   define module dtp export *dtp-version*; end module dtp;
 end;
 

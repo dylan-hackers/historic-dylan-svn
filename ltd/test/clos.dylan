@@ -79,9 +79,9 @@ end method withdraw;
 
 define method make-clause (clause)
   // Translate a message from define-class into a case clause.
-  list(first(clause),
-       list(#"function",
-            apply(list, #"lambda", second(clause), rest2(clause))));
+  bq-list(first(clause),
+          bq-list(#"function",
+                  bq-list*(#"lambda", second(clause), rest2(clause))));
 end method make-clause;
 
 define method ensure-generic-fn (message)

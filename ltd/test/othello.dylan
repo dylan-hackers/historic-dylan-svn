@@ -47,7 +47,7 @@ define constant all-squares =
   begin
     let _acc = make(<deque>);
     for (i from 11 to 88)
-      if (begin let g110706 = modulo(i, 10); 1 <= g110706 & g110706 <= 8; end)
+      if (begin let g15927 = modulo(i, 10); 1 <= g15927 & g15927 <= 8; end)
         push-last(_acc, i);
       end if;
     finally
@@ -76,7 +76,7 @@ end method count-difference;
 define method valid-p (move)
   // Valid moves are numbers in the range 11-88 that end in 1-8.
   instance?(move, <integer>) & (11 <= move & move <= 88)
-   & begin let g110803 = modulo(move, 10); (1 <= g110803 & g110803 <= 8); end;
+   & begin let g15928 = modulo(move, 10); (1 <= g15928 & g15928 <= 8); end;
 end method valid-p;
 
 define method legal-p (move, player, board)
@@ -422,28 +422,15 @@ end method get-move;
 define method print-board (#key board = *board*, clock)
   // Print a board, along with some statistics.
   //  First print the header and the current score
-  (method (s, #rest args)
-     apply(maybe-initiate-xp-printing,
-           method (xp, #rest args)
-             begin
-               multiple-newlines1(xp, fresh: 2);
-               write-string++("    a b c d e f g h   [", xp, 0, 23);
-               using-format(xp, "~c", pop!(args));
-               write-char++('=', xp);
-               using-format(xp, "~2a", pop!(args));
-               write-char++(' ', xp);
-               using-format(xp, "~c", pop!(args));
-               write-char++('=', xp);
-               using-format(xp, "~2a", pop!(args));
-               write-string++(" (", xp, 0, 2);
-               using-format(xp, "~@d", pop!(args));
-               write-string++(")]", xp, 0, 2);
-             end;
-             if (args) copy-sequence(args); end if;
-           end method,
-           s, args);
-   end method)(#t, name-of(black), cl-count(black, board), name-of(white),
-               cl-count(white, board), count-difference(black, board));
+  (formatter-1("~2&    a b c d e f g h   [~c=~2a ~c=~2a (~@d)]"))(#t,
+                                                                  name-of(black),
+                                                                  cl-count(black,
+                                                                           board),
+                                                                  name-of(white),
+                                                                  cl-count(white,
+                                                                           board),
+                                                                  count-difference(black,
+                                                                                   board));
   //  Print the board itself
   for (row from 1 to 8)
     format-out("\n  %d ", row);
@@ -454,48 +441,18 @@ define method print-board (#key board = *board*, clock)
   end for;
   //  Finally print the time remaining for each player
   if (clock)
-    (method (s, #rest args)
-       apply(maybe-initiate-xp-printing,
-             method (xp, #rest args)
-               begin
-                 write-string++("  [", xp, 0, 3);
-                 using-format(xp, "~c", pop!(args));
-                 write-char++('=', xp);
-                 fluid-bind (*print-escape* = #f)
-                   write+(pop!(args), xp);
-                 end fluid-bind;
-                 write-char++(' ', xp);
-                 using-format(xp, "~c", pop!(args));
-                 write-char++('=', xp);
-                 fluid-bind (*print-escape* = #f)
-                   write+(pop!(args), xp);
-                 end fluid-bind;
-                 write-char++(']', xp);
-                 multiple-newlines1(xp, fresh: 2);
-               end;
-               if (args) copy-sequence(args); end if;
-             end method,
-             s, args);
-     end method)(#t, name-of(black), time-string(clock[black]),
-                 name-of(white), time-string(clock[white]));
+    (formatter-1("  [~c=~a ~c=~a]~2&"))(#t,
+                                        name-of(black),
+                                        time-string(clock[black]),
+                                        name-of(white),
+                                        time-string(clock[white]));
   end if;
 end method print-board;
 
 define method time-string (time)
   // Return a string representing this internal time in min:secs.
   let (min, sec) = floor/(round/(time, $internal-time-units-per-second), 60);
-  (method (s, #rest args)
-     apply(maybe-initiate-xp-printing,
-           method (xp, #rest args)
-             begin
-               using-format(xp, "~2d", pop!(args));
-               write-char++(':', xp);
-               using-format(xp, "~2,'0d", pop!(args));
-             end;
-             if (args) copy-sequence(args); end if;
-           end method,
-           s, args);
-   end method)(#f, min, sec);
+  (formatter-1("~2d:~2,'0d"))(#f, min, sec);
 end method time-string;
 
 define method random-othello-series (strategy1, strategy2, n-pairs,
@@ -564,35 +521,9 @@ define method round-robin (strategies, n-pairs, #key n-random = 10,
   end for;
   //  Print the results
   for (i from 0 below n)
-    (method (s, #rest args)
-       apply(maybe-initiate-xp-printing,
-             method (xp, #rest args)
-               begin
-                 pprint-newline+(fresh: xp);
-                 fluid-bind (*print-escape* = #f)
-                   write+(pop!(args), xp);
-                 end fluid-bind;
-                 pprint-tab+(line: 20, 1, xp);
-                 write-char++(' ', xp);
-                 using-format(xp, "~4f", pop!(args));
-                 write-string++(": ", xp, 0, 2);
-               end;
-               if (args) copy-sequence(args); end if;
-             end method,
-             s, args);
-     end method)(#t, names[i], totals[i]);
+    (formatter-1("~&~a~20T ~4f: "))(#t, names[i], totals[i]);
     for (j from 0 below n)
-      (method (s, #rest args)
-         apply(maybe-initiate-xp-printing,
-               method (xp, #rest args)
-                 begin
-                   using-format(xp, "~4f", pop!(args));
-                   write-char++(' ', xp);
-                 end;
-                 if (args) copy-sequence(args); end if;
-               end method,
-               s, args);
-       end method)(#t, if (i = j) #"---"; else scores[i, j]; end if);
+      (formatter-1("~4f "))(#t, if (i = j) #"---"; else scores[i, j]; end if);
     end for;
   end for;
 end method round-robin;

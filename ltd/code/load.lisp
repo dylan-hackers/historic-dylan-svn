@@ -5,9 +5,10 @@
 ;;;; Common Lisp to Dylan Converter --- (Load-LTD) loads the system
 
 (defun load-ltd (&key (compile nil))
-  (mapc #'(lambda (file) (load (if compile (compile-file file) file)))
-	'("misc.lisp" "options.lisp" "read.lisp" "dpp.lisp"  
-	  "ltd.lisp" "ltd-table.lisp" "loop.lisp" "tables.lisp")))
+  (with-compilation-unit ()
+      (mapc #'(lambda (file) (load (if compile (compile-file file) file)))
+	    '("misc.lisp" "options.lisp" "read.lisp" "dpp.lisp"  
+	      "ltd.lisp" "ltd-table.lisp" "loop.lisp" "tables.lisp"))))
 
 (defun test-ltd ()
   (defpackage comp)

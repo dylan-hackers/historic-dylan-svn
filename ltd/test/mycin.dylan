@@ -78,8 +78,8 @@ define method ask-vals (parm, inst)
   // Ask the user for the value(s) of inst's parm parameter,
   //   unless this has already been asked.  Keep asking until the
   //   user types UNKNOWN (return nil) or a valid reply (return t).
-  if (~ get-db(list(#"asked", parm, inst)))
-    put-db(list(#"asked", parm, inst), #t);
+  if (~ get-db(bq-list(#"asked", parm, inst)))
+    put-db(bq-list(#"asked", parm, inst), #t);
     block (return)
       while (#t)
         let ans = prompt-and-read-vals(parm, inst);
@@ -100,21 +100,7 @@ define method ask-vals (parm, inst)
              => if (check-reply(ans, parm, inst))
                   return(#t);
                 else
-                  (method (s, #rest args)
-                     apply(maybe-initiate-xp-printing,
-                           method (xp, #rest args)
-                             begin
-                               pprint-newline+(fresh: xp);
-                               write-string++("Illegal reply.  ", xp, 0, 16);
-                               write-string++("Type ? to see legal ones.",
-                                              xp,
-                                              0,
-                                              25);
-                             end;
-                             if (args) copy-sequence(args); end if;
-                           end method,
-                           s, args);
-                   end method)(#t);
+                  (formatter-1("~&Illegal reply.  ~\n                             Type ? to see legal ones."))(#t);
                 end if;
         end select;
       end while;
@@ -160,7 +146,7 @@ define method parse-reply (reply)
   if (empty?(reply))
     #f;
   elseif (not(instance?(reply, <list>)))
-    list(list(reply, true));
+    bq-list(bq-list(reply, true));
   else
     pair(list(first(reply), second(reply)), parse-reply(rest2(reply)));
   end if;
@@ -243,8 +229,8 @@ define method find-out (parm, #key inst = get-db(#"current-instance"))
   // Find the value(s) of this parameter for this instance,
   //   unless the values are already known.
   //   Some parameters we ask first; others we use rules first.
-  get-db(list(#"known", parm, inst))
-   | put-db(list(#"known", parm, inst),
+  get-db(bq-list(#"known", parm, inst))
+   | put-db(bq-list(#"known", parm, inst),
             if (parm-ask-first(get-parm(parm)))
               (ask-vals(parm, inst) | use-rules(parm));
             else
@@ -340,11 +326,11 @@ define method get-context-data (contexts)
     let context = first(contexts);
     let inst = new-instance(context);
     put-db(#"current-rule", #"initial");
-    let list92543 = context.context-initial-data;
-    begin do(find-out, list92543); list92543; end;
+    let list13156 = context.context-initial-data;
+    begin do(find-out, list13156); list13156; end;
     put-db(#"current-rule", #"goal");
-    let list92543 = context.context-goals;
-    begin do(find-out, list92543); list92543; end;
+    let list13156 = context.context-goals;
+    begin do(find-out, list13156); list13156; end;
     report-findings(context, inst);
     get-context-data(tail(contexts));
     if (// LTD: Function Y-OR-N-P not yet implemented.
@@ -387,48 +373,13 @@ define method report-findings (context, inst)
       //  If there are any values for this goal,
       //  print them sorted by certainty factor.
       if (values)
-        (method (s, #rest args)
-           apply(maybe-initiate-xp-printing,
-                 method (xp, #rest args)
-                   begin
-                     pprint-newline+(fresh: xp);
-                     write-char++(' ', xp);
-                     fluid-bind (*print-escape* = #f)
-                       write+(pop!(args), xp);
-                     end fluid-bind;
-                     write-char++(':', xp);
-                     let args = pop!(args);
-                     block (return)
-                       local method go-l ()
-                               if (empty?(args)) return(#f); end if;
-                               let args = pop!(args);
-                               block (return)
-                                 local method go-l ()
-                                       if (empty?(args)) return(#f); end if;
-                                       write-char++(' ', xp);
-                                       fluid-bind (*print-escape* = #f)
-                                       write+(pop!(args), xp);
-                                       end fluid-bind;
-                                       write-string++(" (", xp, 0, 2);
-                                       using-format(xp, "~,3f", pop!(args));
-                                       write-string++(")  ", xp, 0, 3);
-                                       go-l();
-                                       end method go-l;
-                                 go-l();
-                               end block;
-                               go-l();
-                             end method go-l;
-                       go-l();
-                     end block;
-                   end;
-                   if (args) copy-sequence(args); end if;
-                 end method,
-                 s, args);
-         end method)(#t, goal,
-                     sort!(copy-sequence(values),
-                           test: method (x, y)
-                                   second(x) > second(y);
-                                 end method));
+        (formatter-1("~& ~a:~{~{ ~a (~,3f)  ~}~}"))(#t,
+                                                    goal,
+                                                    sort!(copy-sequence(values),
+                                                          test: method (x, y)
+                                                                second(x)
+                                                                 > second(y);
+                                                                end method));
       else
         format-out("\n %S: unknown", goal);
       end if;
@@ -453,45 +404,31 @@ end method print-conditions;
 
 define method print-condition (condition, stream, number)
   // Print a single condition in pseudo-English.
-  (method (s, #rest args)
-     apply(maybe-initiate-xp-printing,
-           method (xp, #rest args)
-             begin
-               pprint-newline+(fresh: xp);
-               write-string++("    ", xp, 0, 4);
-               using-format(xp, "~d", pop!(args));
-               write-char++(')', xp);
-               let args = pop!(args);
-               block (return)
-                 local method go-l ()
-                         if (empty?(args)) return(#f); end if;
-                         write-char++(' ', xp);
-                         fluid-bind (*print-escape* = #f)
-                           write+(pop!(args), xp);
-                         end fluid-bind;
-                         go-l();
-                       end method go-l;
-                 go-l();
-               end block;
-             end;
-             if (args) copy-sequence(args); end if;
-           end method,
-           s, args);
-   end method)(stream, number,
-               begin
-                 let parm = first(condition);
-                 let inst = second(condition);
-                 let op = third(condition);
-                 let val = condition[3];
-                 select (val)
-                   #"yes"
-                      => list(#"the", inst, op, parm);
-                   #"no"
-                      => list(#"the", inst, op, #"not", parm);
-                   otherwise
-                      => list(#"the", parm, #"of", #"the", inst, op, val);
-                 end select;
-               end);
+  (formatter-1("~&    ~d)~{ ~a~}"))(stream, number,
+                                    begin
+                                      let parm = first(condition);
+                                      let inst = second(condition);
+                                      let op = third(condition);
+                                      let val = condition[3];
+                                      select (val)
+                                        #"yes"
+                                           => bq-list(#"the", inst, op, parm);
+                                        #"no"
+                                           => bq-list(#"the",
+                                                      inst,
+                                                      op,
+                                                      #"not",
+                                                      parm);
+                                        otherwise
+                                           => bq-list(#"the",
+                                                      parm,
+                                                      #"of",
+                                                      #"the",
+                                                      inst,
+                                                      op,
+                                                      val);
+                                      end select;
+                                    end);
 end method print-condition;
 
 define method cf->english (cf)

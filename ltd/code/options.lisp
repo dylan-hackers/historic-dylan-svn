@@ -19,7 +19,7 @@
 (defstruct (option (:type list))
   name value type doc)
 
-(deftype boolean () '(member t nil))
+;(deftype boolean () '(member t nil))
 
 (defparameter *default-options*
     `(

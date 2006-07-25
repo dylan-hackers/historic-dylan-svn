@@ -249,16 +249,14 @@ define method break-loop (fn, quit, #rest args)
 end method break-loop;
 
 define method mkstr (#rest args)
-  let s
-      = // LTD: Function MAKE-STRING-OUTPUT-STREAM not yet implemented.
-        make-string-output-stream(element-type: #f);
-  block (nil)
-    begin for (a in args) print(a, s); end for; end;
-  cleanup
-    close(s);
-  end block;
-  // LTD: Function GET-OUTPUT-STREAM-STRING not yet implemented.
-  get-output-stream-string(s);
+  let s = allocate-resource(#"string-output-simple-stream");
+  #"character";
+  for (a in args) print(a, s); end for;
+  let _
+      = // LTD: Function GET-OUTPUT-STREAM-STRING not yet implemented.
+        get-output-stream-string(s);
+  deallocate-resource(#"string-output-simple-stream", s);
+  _;
 end method mkstr;
 
 define method symb (#rest args)
@@ -390,10 +388,10 @@ end method trec;
 #"condlet";
 
 define method condlet-clause (vars, cl, bodfn)
-  list(head(cl),
-       list(#"let", map(tail, vars),
-            list(#"let", condlet-binds(vars, cl),
-                 pair(bodfn, map(tail, vars)))));
+  bq-list(head(cl),
+          bq-list(#"let", map(tail, vars),
+                  bq-list(#"let", condlet-binds(vars, cl),
+                          bq-cons(bodfn, map(tail, vars)))));
 end method condlet-clause;
 
 define method condlet-binds (vars, cl)
@@ -427,9 +425,9 @@ define method >casex (g, cl)
   let key = head(cl);
   let rest = tail(cl);
   if (instance?(key, <pair>))
-    pair(apply(list, #"in", g, key), rest);
+    bq-cons(bq-list*(#"in", g, key), rest);
   elseif (inq(key, #t, otherwise))
-    pair(#t, rest);
+    bq-cons(#"t", rest);
   else
     error("bad >case clause");
   end if;
@@ -455,9 +453,9 @@ define method dt-args (len, rest, src)
            map1-n(method (n)
                     let x = m + n;
                     if (x >= len)
-                      list(#"nth", x - len, src);
+                      bq-list(#"nth", x - len, src);
                     else
-                      list(#"nth", x - 1, rest);
+                      bq-list(#"nth", x - 1, rest);
                     end if;
                   end method,
                   len);
@@ -471,19 +469,19 @@ end method dt-args;
 define method mvdo-gen (binds, rebinds, test, body)
   if (empty?(binds))
     let label = generate-symbol();
-    apply(list, #"prog", #f, label,
-          list(#"if", head(test),
-               list(#"return", pair(#"progn", tail(test)))),
-          concatenate(body, mvdo-rebind-gen(rebinds),
-                      list(list(#"go", label))));
+    bq-list*(#"prog", #(), label,
+             bq-list(#"if", head(test),
+                     bq-list(#"return", bq-cons(#"progn", tail(test)))),
+             bq-append(body, mvdo-rebind-gen(rebinds),
+                       bq-list(bq-list(#"go", label))));
   else
     let rec = mvdo-gen(tail(binds), rebinds, test, body);
     let var/s = head(head(binds));
     let expr = cadar(binds);
     if (not(instance?(var/s, <list>)))
-      list(#"let", list(list(var/s, expr)), rec);
+      bq-list(#"let", bq-list(bq-list(var/s, expr)), rec);
     else
-      list(#"multiple-value-bind", var/s, expr, rec);
+      bq-list(#"multiple-value-bind", var/s, expr, rec);
     end if;
   end if;
 end method mvdo-gen;
@@ -533,524 +531,425 @@ end method shuffle;
 #"toggle";
 
 begin
-  fluid-bind (*function-name*
-               = generate-subform-name(#"toggle2", *function-name*))
-    fluid-bind (*function-parent*
-                 = tlf-function-parent(#(#"quote", #"toggle2")))
-      record-sf-eval(compiler-eval(*function-name*),
-                     compiler-eval(*function-parent*));
-      record-sf-compile(*function-name*, *function-parent*);
-      set-macro-function(#"toggle2",
-                         method (%%macroarg%%, environment)
-                           let &whole138274 = %%macroarg%%;
-                           let (%reference)138275 = tail(&whole138274);
-                           let check-lambda-list-top-level138276
-                               = check-lambda-list-top-level(#(#"%reference"),
-                                                             &whole138274,
-                                                             (%reference)138275,
-                                                             1,
-                                                             1,
-                                                             #(),
-                                                             #"macro");
-                           let %reference = head((%reference)138275);
-                           begin
-                             #f;
-                             let (dummies, vals, newval, setter, getter)
-                                 = // LTD: Function GET-SETF-METHOD not yet implemented.
-                                   get-setf-method(%reference, environment);
-                             for (d = dummies then cdr(d),
-                                  v = vals then cdr(v),
-                                  let-list = nil then cons(list(car(d),
-                                                                car(v)),
-                                                           let-list),
-                                  until empty?(d))
-                               #f;
-                             finally
-                               values(push!(list(head(newval),
-                                                 list(#"not", getter)),
-                                            let-list),
-                                      list(#"let*",
-                                           reverse!(let-list),
-                                           setter));
-                             end for;
-                           end;
-                         end method);
-      broadcast-redefined(#"toggle2",
-                          macro: #(#(#"let*",
-                                     #(#(#"&whole138274", #"%%macroarg%%"),
-                                       #(#"(%reference)138275",
-                                         #(#"cdr", #"&whole138274")),
-                                       #(#"check-lambda-list-top-level138276",
-                                         #(#"check-lambda-list-top-level",
-                                           #(#"quote", #(#"%reference")),
-                                           #"&whole138274",
-                                           #"(%reference)138275",
-                                           1,
-                                           1,
-                                           #(#"quote", #()),
-                                           #"macro")),
-                                       #(#"%reference",
-                                         #(#"car",
-                                           #(#"the-cons",
-                                             #"(%reference)138275")))),
-                                     #(#"block",
-                                       #"toggle2",
-                                       #(),
-                                       #(#"multiple-value-bind",
-                                         #(#"dummies",
-                                           #"vals",
-                                           #"newval",
-                                           #"setter",
-                                           #"getter"),
-                                         #(#"get-setf-method",
-                                           #"%reference",
-                                           #"environment"),
-                                         #(#"do",
-                                           #(#(#"d",
-                                               #"dummies",
-                                               #(#"cdr", #"d")),
-                                             #(#"v",
-                                               #"vals",
-                                               #(#"cdr", #"v")),
-                                             #(#"let-list",
-                                               #(),
-                                               #(#"cons",
-                                                 #(#"list",
-                                                   #(#"car", #"d"),
-                                                   #(#"car", #"v")),
-                                                 #"let-list"))),
-                                           #(#(#"null", #"d"),
-                                             #(#"push",
-                                               #(#"list",
-                                                 #(#"car", #"newval"),
-                                                 #(#"list",
-                                                   #(#"quote", #"not"),
-                                                   #"getter")),
-                                               #"let-list"),
-                                             #(#"list",
-                                               #(#"quote", #"let*"),
-                                               #(#"nreverse", #"let-list"),
-                                               #"setter"))))))));
-      symbol-remove-property(#"toggle2", #"%fun-documentation");
-      flag-symbol-macro$symbol(#"toggle2");
-    end fluid-bind;
-  end fluid-bind;
+  check-lock-definitions-compile-time(#"toggle2", #"function", #"defmacro",
+                                      // LTD: Function FBOUNDP not yet implemented.
+                                      fboundp(#"toggle2"));
+  // LTD: Function MACRO-FUNCTION not yet implemented.
+  macro-function(#"toggle2")
+   := method (**macroarg**, ..environment..)
+        dt-macro-argument-check(1, 1, **macroarg**, #"macro");
+        let env = ..environment..;
+        let g15931 = tail(**macroarg**);
+        let %reference = car-fussy(g15931, #"%reference");
+        let g15932
+            = lambdascan-maxargs(0, tail(g15931),
+                                 #(#"%reference", #"&environment", #"env"));
+        #f;
+        let (dummies, vals, newvals, setter, getter)
+            = get-setf-expansion(%reference, env);
+        for (d = dummies then cdr(d), v = vals then cdr(v),
+             let-list = nil then cons(list(car(d), car(v)), let-list),
+             until empty?(d))
+          #f;
+        finally
+          bq-list(#"let*",
+                  setf-binding-list(newvals, let-list,
+                                    if (instance?(getter, <pair>)
+                                         & #"the" == head(getter))
+                                      list(#"the",
+                                           second(getter),
+                                           list(#"not", getter));
+                                    else
+                                      list(#"not", getter);
+                                    end if),
+                  setter);
+        end for;
+      end method;
+  set-func_name(// LTD: Function MACRO-FUNCTION not yet implemented.
+                macro-function(#"toggle2"),
+                #"toggle2");
+  .inv-func_formals(// LTD: Function FBOUNDP not yet implemented.
+                    fboundp(#"toggle2"),
+                    #(#"%reference"));
+  ce-putprop(#"toggle2",
+             method (**macroarg**, ..environment..)
+               dt-macro-argument-check(1, 1, **macroarg**, #"macro");
+               let env = ..environment..;
+               let g15931 = tail(**macroarg**);
+               let %reference = car-fussy(g15931, #"%reference");
+               let g15932
+                   = lambdascan-maxargs(0,
+                                        tail(g15931),
+                                        #(#"%reference",
+                                          #"&environment",
+                                          #"env"));
+               #f;
+               let (dummies, vals, newvals, setter, getter)
+                   = get-setf-expansion(%reference, env);
+               for (d = dummies then cdr(d), v = vals then cdr(v),
+                    let-list = nil then cons(list(car(d), car(v)), let-list),
+                    until empty?(d))
+                 #f;
+               finally
+                 bq-list(#"let*",
+                         setf-binding-list(newvals,
+                                           let-list,
+                                           if (instance?(getter, <pair>)
+                                                & #"the" == head(getter))
+                                           list(#"the",
+                                                second(getter),
+                                                list(#"not", getter));
+                                           else
+                                           list(#"not", getter);
+                                           end if),
+                         setter);
+               end for;
+             end method,
+             #".compile-file-macro.");
+  symbol-remove-property(#"toggle2", #"%fun-documentation");
+  record-source-file(#"toggle2");
   #"toggle2";
 end;
 
 begin
-  fluid-bind (*function-name*
-               = generate-subform-name(#"concf", *function-name*))
-    fluid-bind (*function-parent*
-                 = tlf-function-parent(#(#"quote", #"concf")))
-      record-sf-eval(compiler-eval(*function-name*),
-                     compiler-eval(*function-parent*));
-      record-sf-compile(*function-name*, *function-parent*);
-      set-macro-function(#"concf",
-                         method (%%macroarg%%, environment)
-                           let &whole138365 = %%macroarg%%;
-                           let (%reference ...)138366 = tail(&whole138365);
-                           let check-lambda-list-top-level138368
-                               = check-lambda-list-top-level(#(#"%reference",
-                                                               #"obj"),
-                                                             &whole138365,
-                                                             (%reference ...)138366,
-                                                             2,
-                                                             2,
-                                                             #(),
-                                                             #"macro");
-                           let %reference = head((%reference ...)138366);
-                           let (obj)138367 = tail((%reference ...)138366);
-                           let obj = head((obj)138367);
-                           begin
-                             #f;
-                             let (dummies, vals, newval, setter, getter)
-                                 = // LTD: Function GET-SETF-METHOD not yet implemented.
-                                   get-setf-method(%reference, environment);
-                             for (d = dummies then cdr(d),
-                                  v = vals then cdr(v),
-                                  let-list = nil then cons(list(car(d),
-                                                                car(v)),
-                                                           let-list),
-                                  until empty?(d))
-                               #f;
-                             finally
-                               values(push!(list(head(newval),
-                                                 list(#"nconc", getter, obj)),
-                                            let-list),
-                                      list(#"let*",
-                                           reverse!(let-list),
-                                           setter));
-                             end for;
-                           end;
-                         end method);
-      broadcast-redefined(#"concf",
-                          macro: #(#(#"let*",
-                                     #(#(#"&whole138365", #"%%macroarg%%"),
-                                       #(#"(%reference ...)138366",
-                                         #(#"cdr", #"&whole138365")),
-                                       #(#"check-lambda-list-top-level138368",
-                                         #(#"check-lambda-list-top-level",
-                                           #(#"quote",
-                                             #(#"%reference", #"obj")),
-                                           #"&whole138365",
-                                           #"(%reference ...)138366",
-                                           2,
-                                           2,
-                                           #(#"quote", #()),
-                                           #"macro")),
-                                       #(#"%reference",
-                                         #(#"car",
-                                           #(#"the-cons",
-                                             #"(%reference ...)138366"))),
-                                       #(#"(obj)138367",
-                                         #(#"cdr",
-                                           #(#"the-cons",
-                                             #"(%reference ...)138366"))),
-                                       #(#"obj",
-                                         #(#"car",
-                                           #(#"the-cons", #"(obj)138367")))),
-                                     #(#"block",
-                                       #"concf",
-                                       #(),
-                                       #(#"multiple-value-bind",
-                                         #(#"dummies",
-                                           #"vals",
-                                           #"newval",
-                                           #"setter",
-                                           #"getter"),
-                                         #(#"get-setf-method",
-                                           #"%reference",
-                                           #"environment"),
-                                         #(#"do",
-                                           #(#(#"d",
-                                               #"dummies",
-                                               #(#"cdr", #"d")),
-                                             #(#"v",
-                                               #"vals",
-                                               #(#"cdr", #"v")),
-                                             #(#"let-list",
-                                               #(),
-                                               #(#"cons",
-                                                 #(#"list",
-                                                   #(#"car", #"d"),
-                                                   #(#"car", #"v")),
-                                                 #"let-list"))),
-                                           #(#(#"null", #"d"),
-                                             #(#"push",
-                                               #(#"list",
-                                                 #(#"car", #"newval"),
-                                                 #(#"list",
-                                                   #(#"quote", #"nconc"),
-                                                   #"getter",
-                                                   #"obj")),
-                                               #"let-list"),
-                                             #(#"list",
-                                               #(#"quote", #"let*"),
-                                               #(#"nreverse", #"let-list"),
-                                               #"setter"))))))));
-      symbol-remove-property(#"concf", #"%fun-documentation");
-      flag-symbol-macro$symbol(#"concf");
-    end fluid-bind;
-  end fluid-bind;
+  check-lock-definitions-compile-time(#"concf", #"function", #"defmacro",
+                                      // LTD: Function FBOUNDP not yet implemented.
+                                      fboundp(#"concf"));
+  // LTD: Function MACRO-FUNCTION not yet implemented.
+  macro-function(#"concf")
+   := method (**macroarg**, ..environment..)
+        dt-macro-argument-check(2, 2, **macroarg**, #"macro");
+        let env = ..environment..;
+        let g15933 = tail(**macroarg**);
+        let %reference = car-fussy(g15933, #"%reference");
+        let obj = car-fussy(tail(g15933), #"obj");
+        let g15934
+            = lambdascan-maxargs(0, tail(tail(g15933)),
+                                 #(#"%reference", #"obj", #"&environment",
+                                   #"env"));
+        #f;
+        let (dummies, vals, newvals, setter, getter)
+            = get-setf-expansion(%reference, env);
+        for (d = dummies then cdr(d), v = vals then cdr(v),
+             let-list = nil then cons(list(car(d), car(v)), let-list),
+             until empty?(d))
+          #f;
+        finally
+          bq-list(#"let*",
+                  setf-binding-list(newvals, let-list,
+                                    if (instance?(getter, <pair>)
+                                         & #"the" == head(getter))
+                                      list(#"the",
+                                           second(getter),
+                                           list(#"nconc", getter, obj));
+                                    else
+                                      list(#"nconc", getter, obj);
+                                    end if),
+                  setter);
+        end for;
+      end method;
+  set-func_name(// LTD: Function MACRO-FUNCTION not yet implemented.
+                macro-function(#"concf"),
+                #"concf");
+  .inv-func_formals(// LTD: Function FBOUNDP not yet implemented.
+                    fboundp(#"concf"),
+                    #(#"%reference", #"obj"));
+  ce-putprop(#"concf",
+             method (**macroarg**, ..environment..)
+               dt-macro-argument-check(2, 2, **macroarg**, #"macro");
+               let env = ..environment..;
+               let g15933 = tail(**macroarg**);
+               let %reference = car-fussy(g15933, #"%reference");
+               let obj = car-fussy(tail(g15933), #"obj");
+               let g15934
+                   = lambdascan-maxargs(0,
+                                        tail(tail(g15933)),
+                                        #(#"%reference",
+                                          #"obj",
+                                          #"&environment",
+                                          #"env"));
+               #f;
+               let (dummies, vals, newvals, setter, getter)
+                   = get-setf-expansion(%reference, env);
+               for (d = dummies then cdr(d), v = vals then cdr(v),
+                    let-list = nil then cons(list(car(d), car(v)), let-list),
+                    until empty?(d))
+                 #f;
+               finally
+                 bq-list(#"let*",
+                         setf-binding-list(newvals,
+                                           let-list,
+                                           if (instance?(getter, <pair>)
+                                                & #"the" == head(getter))
+                                           list(#"the",
+                                                second(getter),
+                                                list(#"nconc", getter, obj));
+                                           else
+                                           list(#"nconc", getter, obj);
+                                           end if),
+                         setter);
+               end for;
+             end method,
+             #".compile-file-macro.");
+  symbol-remove-property(#"concf", #"%fun-documentation");
+  record-source-file(#"concf");
   #"concf";
 end;
 
 begin
-  fluid-bind (*function-name*
-               = generate-subform-name(#"conc1f", *function-name*))
-    fluid-bind (*function-parent*
-                 = tlf-function-parent(#(#"quote", #"conc1f")))
-      record-sf-eval(compiler-eval(*function-name*),
-                     compiler-eval(*function-parent*));
-      record-sf-compile(*function-name*, *function-parent*);
-      set-macro-function(#"conc1f",
-                         method (%%macroarg%%, environment)
-                           let &whole138473 = %%macroarg%%;
-                           let (%reference ...)138474 = tail(&whole138473);
-                           let check-lambda-list-top-level138476
-                               = check-lambda-list-top-level(#(#"%reference",
-                                                               #"obj"),
-                                                             &whole138473,
-                                                             (%reference ...)138474,
-                                                             2,
-                                                             2,
-                                                             #(),
-                                                             #"macro");
-                           let %reference = head((%reference ...)138474);
-                           let (obj)138475 = tail((%reference ...)138474);
-                           let obj = head((obj)138475);
-                           begin
-                             #f;
-                             let (dummies, vals, newval, setter, getter)
-                                 = // LTD: Function GET-SETF-METHOD not yet implemented.
-                                   get-setf-method(%reference, environment);
-                             for (d = dummies then cdr(d),
-                                  v = vals then cdr(v),
-                                  let-list = nil then cons(list(car(d),
-                                                                car(v)),
-                                                           let-list),
-                                  until empty?(d))
-                               #f;
-                             finally
-                               values(push!(list(head(newval),
-                                                 list(#(#"lambda",
-                                                        #(#"place", #"obj"),
-                                                        #(#"nconc",
-                                                          #"place",
-                                                          #(#"list",
-                                                            #"obj"))),
-                                                      getter,
-                                                      obj)),
-                                            let-list),
-                                      list(#"let*",
-                                           reverse!(let-list),
-                                           setter));
-                             end for;
-                           end;
-                         end method);
-      broadcast-redefined(#"conc1f",
-                          macro: #(#(#"let*",
-                                     #(#(#"&whole138473", #"%%macroarg%%"),
-                                       #(#"(%reference ...)138474",
-                                         #(#"cdr", #"&whole138473")),
-                                       #(#"check-lambda-list-top-level138476",
-                                         #(#"check-lambda-list-top-level",
-                                           #(#"quote",
-                                             #(#"%reference", #"obj")),
-                                           #"&whole138473",
-                                           #"(%reference ...)138474",
-                                           2,
-                                           2,
-                                           #(#"quote", #()),
-                                           #"macro")),
-                                       #(#"%reference",
-                                         #(#"car",
-                                           #(#"the-cons",
-                                             #"(%reference ...)138474"))),
-                                       #(#"(obj)138475",
-                                         #(#"cdr",
-                                           #(#"the-cons",
-                                             #"(%reference ...)138474"))),
-                                       #(#"obj",
-                                         #(#"car",
-                                           #(#"the-cons", #"(obj)138475")))),
-                                     #(#"block",
-                                       #"conc1f",
-                                       #(),
-                                       #(#"multiple-value-bind",
-                                         #(#"dummies",
-                                           #"vals",
-                                           #"newval",
-                                           #"setter",
-                                           #"getter"),
-                                         #(#"get-setf-method",
-                                           #"%reference",
-                                           #"environment"),
-                                         #(#"do",
-                                           #(#(#"d",
-                                               #"dummies",
-                                               #(#"cdr", #"d")),
-                                             #(#"v",
-                                               #"vals",
-                                               #(#"cdr", #"v")),
-                                             #(#"let-list",
-                                               #(),
-                                               #(#"cons",
-                                                 #(#"list",
-                                                   #(#"car", #"d"),
-                                                   #(#"car", #"v")),
-                                                 #"let-list"))),
-                                           #(#(#"null", #"d"),
-                                             #(#"push",
-                                               #(#"list",
-                                                 #(#"car", #"newval"),
-                                                 #(#"list",
-                                                   #(#"quote",
-                                                     #(#"lambda",
+  check-lock-definitions-compile-time(#"conc1f", #"function", #"defmacro",
+                                      // LTD: Function FBOUNDP not yet implemented.
+                                      fboundp(#"conc1f"));
+  // LTD: Function MACRO-FUNCTION not yet implemented.
+  macro-function(#"conc1f")
+   := method (**macroarg**, ..environment..)
+        dt-macro-argument-check(2, 2, **macroarg**, #"macro");
+        let env = ..environment..;
+        let g15935 = tail(**macroarg**);
+        let %reference = car-fussy(g15935, #"%reference");
+        let obj = car-fussy(tail(g15935), #"obj");
+        let g15936
+            = lambdascan-maxargs(0, tail(tail(g15935)),
+                                 #(#"%reference", #"obj", #"&environment",
+                                   #"env"));
+        #f;
+        let (dummies, vals, newvals, setter, getter)
+            = get-setf-expansion(%reference, env);
+        for (d = dummies then cdr(d), v = vals then cdr(v),
+             let-list = nil then cons(list(car(d), car(v)), let-list),
+             until empty?(d))
+          #f;
+        finally
+          bq-list(#"let*",
+                  setf-binding-list(newvals, let-list,
+                                    if (instance?(getter, <pair>)
+                                         & #"the" == head(getter))
+                                      list(#"the",
+                                           second(getter),
+                                           list(#(#"lambda",
+                                                  #(#"place", #"obj"),
+                                                  #(#"nconc",
+                                                    #"place",
+                                                    #(#"list", #"obj"))),
+                                                getter,
+                                                obj));
+                                    else
+                                      list(#(#"lambda",
+                                             #(#"place", #"obj"),
+                                             #(#"nconc",
+                                               #"place",
+                                               #(#"list", #"obj"))),
+                                           getter,
+                                           obj);
+                                    end if),
+                  setter);
+        end for;
+      end method;
+  set-func_name(// LTD: Function MACRO-FUNCTION not yet implemented.
+                macro-function(#"conc1f"),
+                #"conc1f");
+  .inv-func_formals(// LTD: Function FBOUNDP not yet implemented.
+                    fboundp(#"conc1f"),
+                    #(#"%reference", #"obj"));
+  ce-putprop(#"conc1f",
+             method (**macroarg**, ..environment..)
+               dt-macro-argument-check(2, 2, **macroarg**, #"macro");
+               let env = ..environment..;
+               let g15935 = tail(**macroarg**);
+               let %reference = car-fussy(g15935, #"%reference");
+               let obj = car-fussy(tail(g15935), #"obj");
+               let g15936
+                   = lambdascan-maxargs(0,
+                                        tail(tail(g15935)),
+                                        #(#"%reference",
+                                          #"obj",
+                                          #"&environment",
+                                          #"env"));
+               #f;
+               let (dummies, vals, newvals, setter, getter)
+                   = get-setf-expansion(%reference, env);
+               for (d = dummies then cdr(d), v = vals then cdr(v),
+                    let-list = nil then cons(list(car(d), car(v)), let-list),
+                    until empty?(d))
+                 #f;
+               finally
+                 bq-list(#"let*",
+                         setf-binding-list(newvals,
+                                           let-list,
+                                           if (instance?(getter, <pair>)
+                                                & #"the" == head(getter))
+                                           list(#"the",
+                                                second(getter),
+                                                list(#(#"lambda",
                                                        #(#"place", #"obj"),
                                                        #(#"nconc",
                                                          #"place",
-                                                         #(#"list",
-                                                           #"obj")))),
-                                                   #"getter",
-                                                   #"obj")),
-                                               #"let-list"),
-                                             #(#"list",
-                                               #(#"quote", #"let*"),
-                                               #(#"nreverse", #"let-list"),
-                                               #"setter"))))))));
-      symbol-remove-property(#"conc1f", #"%fun-documentation");
-      flag-symbol-macro$symbol(#"conc1f");
-    end fluid-bind;
-  end fluid-bind;
+                                                         #(#"list", #"obj"))),
+                                                     getter,
+                                                     obj));
+                                           else
+                                           list(#(#"lambda",
+                                                  #(#"place", #"obj"),
+                                                  #(#"nconc",
+                                                    #"place",
+                                                    #(#"list", #"obj"))),
+                                                getter,
+                                                obj);
+                                           end if),
+                         setter);
+               end for;
+             end method,
+             #".compile-file-macro.");
+  symbol-remove-property(#"conc1f", #"%fun-documentation");
+  record-source-file(#"conc1f");
   #"conc1f";
 end;
 
 begin
-  fluid-bind (*function-name*
-               = generate-subform-name(#"concnew", *function-name*))
-    fluid-bind (*function-parent*
-                 = tlf-function-parent(#(#"quote", #"concnew")))
-      record-sf-eval(compiler-eval(*function-name*),
-                     compiler-eval(*function-parent*));
-      record-sf-compile(*function-name*, *function-parent*);
-      set-macro-function(#"concnew",
-                         method (%%macroarg%%, environment)
-                           let &whole138581 = %%macroarg%%;
-                           let (%reference ...)138582 = tail(&whole138581);
-                           let check-lambda-list-top-level138585
-                               = check-lambda-list-top-level(#(#"%reference",
-                                                               #"obj",
-                                                               #"&rest",
-                                                               #"args"),
-                                                             &whole138581,
-                                                             (%reference ...)138582,
-                                                             2,
-                                                             2,
-                                                             #"t",
-                                                             #"macro");
-                           let %reference = head((%reference ...)138582);
-                           let (obj ...)138583 = tail((%reference ...)138582);
-                           let obj = head((obj ...)138583);
-                           let args138584 = tail((obj ...)138583);
-                           let args = args138584;
-                           begin
-                             #f;
-                             let (dummies, vals, newval, setter, getter)
-                                 = // LTD: Function GET-SETF-METHOD not yet implemented.
-                                   get-setf-method(%reference, environment);
-                             for (d = dummies then cdr(d),
-                                  v = vals then cdr(v),
-                                  let-list = nil then cons(list(car(d),
-                                                                car(v)),
-                                                           let-list),
-                                  until empty?(d))
-                               #f;
-                             finally
-                               values(push!(list(head(newval),
-                                                 apply(list,
-                                                       #(#"lambda",
-                                                         #(#"place",
-                                                           #"obj",
-                                                           #"&rest",
-                                                           #"args"),
-                                                         #(#"unless",
-                                                           #(#"apply",
-                                                             #(#"function",
-                                                               #"member"),
-                                                             #"obj",
-                                                             #"place",
-                                                             #"args"),
-                                                           #(#"nconc",
-                                                             #"place",
-                                                             #(#"list",
-                                                               #"obj")))),
-                                                       getter,
-                                                       obj,
-                                                       args)),
-                                            let-list),
-                                      list(#"let*",
-                                           reverse!(let-list),
-                                           setter));
-                             end for;
-                           end;
-                         end method);
-      broadcast-redefined(#"concnew",
-                          macro: #(#(#"let*",
-                                     #(#(#"&whole138581", #"%%macroarg%%"),
-                                       #(#"(%reference ...)138582",
-                                         #(#"cdr", #"&whole138581")),
-                                       #(#"check-lambda-list-top-level138585",
-                                         #(#"check-lambda-list-top-level",
-                                           #(#"quote",
-                                             #(#"%reference",
-                                               #"obj",
-                                               #"&rest",
-                                               #"args")),
-                                           #"&whole138581",
-                                           #"(%reference ...)138582",
-                                           2,
-                                           2,
-                                           #(#"quote", #"t"),
-                                           #"macro")),
-                                       #(#"%reference",
-                                         #(#"car",
-                                           #(#"the-cons",
-                                             #"(%reference ...)138582"))),
-                                       #(#"(obj ...)138583",
-                                         #(#"cdr",
-                                           #(#"the-cons",
-                                             #"(%reference ...)138582"))),
-                                       #(#"obj",
-                                         #(#"car",
-                                           #(#"the-cons",
-                                             #"(obj ...)138583"))),
-                                       #(#"args138584",
-                                         #(#"cdr",
-                                           #(#"the-cons",
-                                             #"(obj ...)138583"))),
-                                       #(#"args", #"args138584")),
-                                     #(#"block",
-                                       #"concnew",
-                                       #(),
-                                       #(#"multiple-value-bind",
-                                         #(#"dummies",
-                                           #"vals",
-                                           #"newval",
-                                           #"setter",
-                                           #"getter"),
-                                         #(#"get-setf-method",
-                                           #"%reference",
-                                           #"environment"),
-                                         #(#"do",
-                                           #(#(#"d",
-                                               #"dummies",
-                                               #(#"cdr", #"d")),
-                                             #(#"v",
-                                               #"vals",
-                                               #(#"cdr", #"v")),
-                                             #(#"let-list",
-                                               #(),
-                                               #(#"cons",
-                                                 #(#"list",
-                                                   #(#"car", #"d"),
-                                                   #(#"car", #"v")),
-                                                 #"let-list"))),
-                                           #(#(#"null", #"d"),
-                                             #(#"push",
-                                               #(#"list",
-                                                 #(#"car", #"newval"),
-                                                 #(#"list*",
-                                                   #(#"quote",
-                                                     #(#"lambda",
-                                                       #(#"place",
-                                                         #"obj",
-                                                         #"&rest",
-                                                         #"args"),
-                                                       #(#"unless",
-                                                         #(#"apply",
-                                                           #(#"function",
-                                                             #"member"),
-                                                           #"obj",
-                                                           #"place",
-                                                           #"args"),
-                                                         #(#"nconc",
-                                                           #"place",
-                                                           #(#"list",
-                                                             #"obj"))))),
-                                                   #"getter",
-                                                   #"obj",
-                                                   #"args")),
-                                               #"let-list"),
-                                             #(#"list",
-                                               #(#"quote", #"let*"),
-                                               #(#"nreverse", #"let-list"),
-                                               #"setter"))))))));
-      symbol-remove-property(#"concnew", #"%fun-documentation");
-      flag-symbol-macro$symbol(#"concnew");
-    end fluid-bind;
-  end fluid-bind;
+  check-lock-definitions-compile-time(#"concnew", #"function", #"defmacro",
+                                      // LTD: Function FBOUNDP not yet implemented.
+                                      fboundp(#"concnew"));
+  // LTD: Function MACRO-FUNCTION not yet implemented.
+  macro-function(#"concnew")
+   := method (**macroarg**, ..environment..)
+        dt-macro-argument-check(2, #f, **macroarg**, #"macro");
+        let env = ..environment..;
+        let g15937 = tail(**macroarg**);
+        let %reference = car-fussy(g15937, #"%reference");
+        let obj = car-fussy(tail(g15937), #"obj");
+        let args = tail(tail(g15937));
+        #f;
+        let (dummies, vals, newvals, setter, getter)
+            = get-setf-expansion(%reference, env);
+        for (d = dummies then cdr(d), v = vals then cdr(v),
+             let-list = nil then cons(list(car(d), car(v)), let-list),
+             until empty?(d))
+          #f;
+        finally
+          bq-list(#"let*",
+                  setf-binding-list(newvals, let-list,
+                                    if (instance?(getter, <pair>)
+                                         & #"the" == head(getter))
+                                      list(#"the",
+                                           second(getter),
+                                           apply(list,
+                                                 #(#"lambda",
+                                                   #(#"place",
+                                                     #"obj",
+                                                     #"&rest",
+                                                     #"args"),
+                                                   #(#"unless",
+                                                     #(#"apply",
+                                                       #(#"function",
+                                                         #"member"),
+                                                       #"obj",
+                                                       #"place",
+                                                       #"args"),
+                                                     #(#"nconc",
+                                                       #"place",
+                                                       #(#"list", #"obj")))),
+                                                 getter,
+                                                 obj,
+                                                 args));
+                                    else
+                                      apply(list,
+                                            #(#"lambda",
+                                              #(#"place",
+                                                #"obj",
+                                                #"&rest",
+                                                #"args"),
+                                              #(#"unless",
+                                                #(#"apply",
+                                                  #(#"function", #"member"),
+                                                  #"obj",
+                                                  #"place",
+                                                  #"args"),
+                                                #(#"nconc",
+                                                  #"place",
+                                                  #(#"list", #"obj")))),
+                                            getter,
+                                            obj,
+                                            args);
+                                    end if),
+                  setter);
+        end for;
+      end method;
+  set-func_name(// LTD: Function MACRO-FUNCTION not yet implemented.
+                macro-function(#"concnew"),
+                #"concnew");
+  .inv-func_formals(// LTD: Function FBOUNDP not yet implemented.
+                    fboundp(#"concnew"),
+                    #(#"%reference", #"obj", #"&rest", #"args"));
+  ce-putprop(#"concnew",
+             method (**macroarg**, ..environment..)
+               dt-macro-argument-check(2, #f, **macroarg**, #"macro");
+               let env = ..environment..;
+               let g15937 = tail(**macroarg**);
+               let %reference = car-fussy(g15937, #"%reference");
+               let obj = car-fussy(tail(g15937), #"obj");
+               let args = tail(tail(g15937));
+               #f;
+               let (dummies, vals, newvals, setter, getter)
+                   = get-setf-expansion(%reference, env);
+               for (d = dummies then cdr(d), v = vals then cdr(v),
+                    let-list = nil then cons(list(car(d), car(v)), let-list),
+                    until empty?(d))
+                 #f;
+               finally
+                 bq-list(#"let*",
+                         setf-binding-list(newvals,
+                                           let-list,
+                                           if (instance?(getter, <pair>)
+                                                & #"the" == head(getter))
+                                           list(#"the",
+                                                second(getter),
+                                                apply(list,
+                                                      #(#"lambda",
+                                                        #(#"place",
+                                                          #"obj",
+                                                          #"&rest",
+                                                          #"args"),
+                                                        #(#"unless",
+                                                          #(#"apply",
+                                                            #(#"function",
+                                                              #"member"),
+                                                            #"obj",
+                                                            #"place",
+                                                            #"args"),
+                                                          #(#"nconc",
+                                                            #"place",
+                                                            #(#"list",
+                                                              #"obj")))),
+                                                      getter,
+                                                      obj,
+                                                      args));
+                                           else
+                                           apply(list,
+                                                 #(#"lambda",
+                                                   #(#"place",
+                                                     #"obj",
+                                                     #"&rest",
+                                                     #"args"),
+                                                   #(#"unless",
+                                                     #(#"apply",
+                                                       #(#"function",
+                                                         #"member"),
+                                                       #"obj",
+                                                       #"place",
+                                                       #"args"),
+                                                     #(#"nconc",
+                                                       #"place",
+                                                       #(#"list", #"obj")))),
+                                                 getter,
+                                                 obj,
+                                                 args);
+                                           end if),
+                         setter);
+               end for;
+             end method,
+             #".compile-file-macro.");
+  symbol-remove-property(#"concnew", #"%fun-documentation");
+  record-source-file(#"concnew");
   #"concnew";
 end;
 
@@ -1130,21 +1029,22 @@ end method rbuild;
 
 define method build-call (op, fns)
   let g = generate-symbol();
-  list(#"lambda", list(g),
-       pair(op, map(method (f) list(rbuild(f), g); end method, fns)));
+  bq-list(#"lambda", bq-list(g),
+          bq-cons(op,
+                  map(method (f) bq-list(rbuild(f), g); end method, fns)));
 end method build-call;
 
 define method build-compose (fns)
   let g = generate-symbol();
-  list(#"lambda", list(g),
-       local method rec (fns)
-               if (fns)
-                 list(rbuild(head(fns)), rec(tail(fns)));
-               else
-                 g;
-               end if;
-             end method rec;
-         rec(fns));
+  bq-list(#"lambda", bq-list(g),
+          local method rec (fns)
+                  if (fns)
+                    bq-list(rbuild(head(fns)), rec(tail(fns)));
+                  else
+                    g;
+                  end if;
+                end method rec;
+            rec(fns));
 end method build-compose;
 
 // LTD: No macros.
@@ -1227,8 +1127,8 @@ end method force;
 define method anaphex (args, expr)
   if (args)
     let sym = generate-symbol();
-    list(#"let*", list(list(sym, head(args)), list(#"it", sym)),
-         anaphex(tail(args), concatenate(expr, list(sym))));
+    bq-list(#"let*", bq-list(bq-list(sym, head(args)), bq-list(#"it", sym)),
+            anaphex(tail(args), concatenate(expr, list(sym))));
   else
     expr;
   end if;
@@ -1244,21 +1144,22 @@ end method pop-symbol;
 define method anaphex1 (args, call)
   if (args)
     let sym = generate-symbol();
-    list(#"let*", list(list(sym, head(args)), list(#"it", sym)),
-         anaphex1(tail(args), concatenate(call, list(sym))));
+    bq-list(#"let*", bq-list(bq-list(sym, head(args)), bq-list(#"it", sym)),
+            anaphex1(tail(args), concatenate(call, list(sym))));
   else
     call;
   end if;
 end method anaphex1;
 
 define method anaphex2 (op, args)
-  list(#"let", list(list(#"it", head(args))),
-       apply(list, op, #"it", tail(args)));
+  bq-list(#"let", bq-list(bq-list(#"it", head(args))),
+          bq-list*(op, #"it", tail(args)));
 end method anaphex2;
 
 define method anaphex3 (op, args)
-  list(#"_f", list(#"lambda", #(#"it"), apply(list, op, #"it", tail(args))),
-       head(args));
+  bq-list(#"_f",
+          bq-list(#"lambda", #(#"it"), bq-list*(op, #"it", tail(args))),
+          head(args));
 end method anaphex3;
 
 // LTD: No macros.
@@ -1305,15 +1206,16 @@ define method destruc (pat, seq,
             #f;
           end if;
     if (rest)
-      list(list(rest, list(#"subseq", seq, n)));
+      bq-list(bq-list(rest, bq-list(#"subseq", seq, n)));
     else
       let p = head(pat);
       let rec = destruc(tail(pat), seq, atom?, n + 1);
       if (atom?(p))
-        pair(list(p, list(#"elt", seq, n)), rec);
+        pair(bq-list(p, bq-list(#"elt", seq, n)), rec);
       else
         let var = generate-symbol();
-        pair(pair(list(var, list(#"elt", seq, n)), destruc(p, var, atom?)),
+        pair(pair(bq-list(var, bq-list(#"elt", seq, n)),
+                  destruc(p, var, atom?)),
              rec);
       end if;
     end if;
@@ -1322,19 +1224,21 @@ end method destruc;
 
 define method dbind-ex (binds, body)
   if (empty?(binds))
-    pair(#"progn", body);
+    bq-cons(#"progn", body);
   else
-    list(#"let",
-         map(method (b)
-               if (instance?(head(b), <pair>)) head(b); else b; end if;
-             end method,
-             binds),
-         dbind-ex(apply(concatenate!,
-                        map(method (b)
-                              if (instance?(head(b), <pair>)) tail(b); end if;
-                            end method,
-                            binds)),
-                  body));
+    bq-list(#"let",
+            map(method (b)
+                  if (instance?(head(b), <pair>)) head(b); else b; end if;
+                end method,
+                binds),
+            dbind-ex(apply(concatenate!,
+                           map(method (b)
+                                 if (instance?(head(b), <pair>))
+                                   tail(b);
+                                 end if;
+                               end method,
+                               binds)),
+                     body));
   end if;
 end method dbind-ex;
 
@@ -1352,19 +1256,21 @@ end method dbind-ex;
 
 define method wplac-ex (binds, body)
   if (empty?(binds))
-    pair(#"progn", body);
+    bq-cons(#"progn", body);
   else
-    list(#"symbol-macrolet",
-         map(method (b)
-               if (instance?(head(b), <pair>)) head(b); else b; end if;
-             end method,
-             binds),
-         wplac-ex(apply(concatenate!,
-                        map(method (b)
-                              if (instance?(head(b), <pair>)) tail(b); end if;
-                            end method,
-                            binds)),
-                  body));
+    bq-list(#"symbol-macrolet",
+            map(method (b)
+                  if (instance?(head(b), <pair>)) head(b); else b; end if;
+                end method,
+                binds),
+            wplac-ex(apply(concatenate!,
+                           map(method (b)
+                                 if (instance?(head(b), <pair>))
+                                   tail(b);
+                                 end if;
+                               end method,
+                               binds)),
+                     body));
   end if;
 end method wplac-ex;
 
@@ -1440,26 +1346,28 @@ end method gen-match;
 define method match1 (refs, then, else)
   dbind((pat(expr))(rest), refs,
         if (gensym?(pat))
-          list(#"let", list(list(pat, expr)),
-               list(#"if",
-                    list(#"and",
-                         apply(list, #"typep", pat,
-                               #(#(#"quote", #"sequence"))),
-                         length-test(pat, rest)),
-                    then, else));
+          bq-list(#"let", bq-list(bq-list(pat, expr)),
+                  bq-list(#"if",
+                          bq-list(#"and",
+                                  bq-list*(#"typep",
+                                           pat,
+                                           #(#(#"quote", #"sequence"))),
+                                  length-test(pat, rest)),
+                          then, else));
         elseif (pat == #"_")
           then;
         elseif (var?(pat))
           begin
             let ge = generate-symbol();
-            list(#"let", list(list(ge, expr)),
-                 list(#"if",
-                      list(#"or", list(#"gensym?", pat),
-                           list(#"equal", pat, ge)),
-                      list(#"let", list(list(pat, ge)), then), else));
+            bq-list(#"let", bq-list(bq-list(ge, expr)),
+                    bq-list(#"if",
+                            bq-list(#"or", bq-list(#"gensym?", pat),
+                                    bq-list(#"equal", pat, ge)),
+                            bq-list(#"let", bq-list(bq-list(pat, ge)), then),
+                            else));
           end;
         else
-          list(#"if", list(#"equal", pat, expr), then, else);
+          bq-list(#"if", bq-list(#"equal", pat, expr), then, else);
         end if);
 end method match1;
 
@@ -1472,9 +1380,9 @@ end method gensym?;
 define method length-test (pat, rest)
   let fin = caadar(copy-sequence(rest, start: size(rest) - 1));
   if (instance?(fin, <pair>) | fin == #"elt")
-    list(#"=", list(#"length", pat), size(rest));
+    bq-list(#"=", bq-list(#"length", pat), size(rest));
   else
-    list(#">", list(#"length", pat), size(rest) - 2);
+    bq-list(#">", bq-list(#"length", pat), size(rest) - 2);
   end if;
 end method length-test;
 
@@ -1551,7 +1459,7 @@ define method compile-query (q, body)
     #"not"
        => compile-not(second(q), body);
     #"lisp"
-       => list(#"if", second(q), body);
+       => bq-list(#"if", second(q), body);
     otherwise
        => compile-simple(q, body);
   end select;
@@ -1559,8 +1467,9 @@ end method compile-query;
 
 define method compile-simple (q, body)
   let fact = generate-symbol();
-  list(#"dolist", list(fact, list(#"db-query", list(#"quote", head(q)))),
-       apply(list, #"pat-match", tail(q), fact, body, #(#())));
+  bq-list(#"dolist",
+          bq-list(fact, bq-list(#"db-query", bq-list(#"quote", head(q)))),
+          bq-list*(#"pat-match", tail(q), fact, body, #(#())));
 end method compile-simple;
 
 define method compile-and (clauses, body)
@@ -1577,19 +1486,21 @@ define method compile-or (clauses, body)
   else
     let gbod = generate-symbol();
     let vars = vars-in(body, simple?);
-    apply(list, #"labels", list(list(gbod, vars, body)),
-          map(method (cl) compile-query(cl, pair(gbod, vars)); end method,
-              clauses));
+    bq-list*(#"labels", bq-list(bq-list(gbod, vars, body)),
+             map(method (cl)
+                   compile-query(cl, bq-cons(gbod, vars));
+                 end method,
+                 clauses));
   end if;
 end method compile-or;
 
 define method compile-not (q, body)
   let tag = generate-symbol();
-  list(#"if",
-       apply(list, #"block", tag,
-             compile-query(q, apply(list, #"return-from", tag, #(#()))),
-             #(#"t")),
-       body);
+  bq-list(#"if",
+          bq-list*(#"block", tag,
+                   compile-query(q, bq-list*(#"return-from", tag, #(#()))),
+                   #(#"t")),
+          body);
 end method compile-not;
 
 *cont* := identity;
@@ -1748,7 +1659,7 @@ define method compile-cmds (cmds)
   if (empty?(cmds))
     #"regs";
   else
-    concatenate(head(cmds), list(compile-cmds(tail(cmds))));
+    bq-append(head(cmds), bq-list(compile-cmds(tail(cmds))));
   end if;
 end method compile-cmds;
 
@@ -1796,12 +1707,12 @@ end method types;
 defnode(mods, cat(n, mods/n, setr(mods, \*)));
 
 defnode(mods/n, cat(n, mods/n, pushr(mods, \*)),
-        up(list(#"n-group", getr(mods))));
+        up(bq-list(#"n-group", getr(mods))));
 
 defnode(np, cat(det, np/det, setr(det, \*)), jump(np/det, setr(det, #f)),
         cat(pron, pron, setr(n, \*)));
 
-defnode(pron, up(list(#"np", list(#"pronoun", getr(n)))));
+defnode(pron, up(bq-list(#"np", bq-list(#"pronoun", getr(n)))));
 
 defnode(np/det, down(mods, np/mods, setr(mods, \*)),
         jump(np/mods, setr(mods, #f)));
@@ -1809,21 +1720,23 @@ defnode(np/det, down(mods, np/mods, setr(mods, \*)),
 defnode(np/mods, cat(n, np/n, setr(n, \*)));
 
 defnode(np/n,
-        up(list(#"np", list(#"det", getr(det)),
-                list(#"modifiers", getr(mods)), list(#"noun", getr(n)))),
+        up(bq-list(#"np", bq-list(#"det", getr(det)),
+                   bq-list(#"modifiers", getr(mods)),
+                   bq-list(#"noun", getr(n)))),
         down(pp, np/pp, setr(pp, \*)));
 
 defnode(np/pp,
-        up(list(#"np", list(#"det", getr(det)),
-                list(#"modifiers", getr(mods)), list(#"noun", getr(n)),
-                getr(pp))));
+        up(bq-list(#"np", bq-list(#"det", getr(det)),
+                   bq-list(#"modifiers", getr(mods)),
+                   bq-list(#"noun", getr(n)), getr(pp))));
 
 defnode(pp, cat(prep, pp/prep, setr(prep, \*)));
 
 defnode(pp/prep, down(np, pp/np, setr(op, \*)));
 
 defnode(pp/np,
-        up(list(#"pp", list(#"prep", getr(prep)), list(#"obj", getr(op)))));
+        up(bq-list(#"pp", bq-list(#"prep", getr(prep)),
+                   bq-list(#"obj", getr(op)))));
 
 defnode(s, down(np, s/subj, setr(mood, #"decl"), setr(subj, \*)),
         cat(v, v, setr(mood, #"imp"),
@@ -1833,14 +1746,18 @@ defnode(s, down(np, s/subj, setr(mood, #"decl"), setr(subj, \*)),
 defnode(s/subj, cat(v, v, setr(aux, #f), setr(v, \*)));
 
 defnode(v,
-        up(list(#"s", list(#"mood", getr(mood)), list(#"subj", getr(subj)),
-                list(#"vcl", list(#"aux", getr(aux)), list(#"v", getr(v))))),
+        up(bq-list(#"s", bq-list(#"mood", getr(mood)),
+                   bq-list(#"subj", getr(subj)),
+                   bq-list(#"vcl", bq-list(#"aux", getr(aux)),
+                           bq-list(#"v", getr(v))))),
         down(np, s/obj, setr(obj, \*)));
 
 defnode(s/obj,
-        up(list(#"s", list(#"mood", getr(mood)), list(#"subj", getr(subj)),
-                list(#"vcl", list(#"aux", getr(aux)), list(#"v", getr(v))),
-                list(#"obj", getr(obj)))));
+        up(bq-list(#"s", bq-list(#"mood", getr(mood)),
+                   bq-list(#"subj", getr(subj)),
+                   bq-list(#"vcl", bq-list(#"aux", getr(aux)),
+                           bq-list(#"v", getr(v))),
+                   bq-list(#"obj", getr(obj)))));
 
 // LTD: No macros.
 #"with-inference";
@@ -1885,35 +1802,38 @@ define method gen-query (expr, #key binds)
     #"not"
        => gen-not(second(expr), binds);
     otherwise
-       => list(#"prove",
-               apply(list, #"list", list(#"quote", head(expr)),
-                     map(form, tail(expr))),
-               binds);
+       => bq-list(#"prove",
+                  bq-list*(#"list", bq-list(#"quote", head(expr)),
+                           map(form, tail(expr))),
+                  binds);
   end select;
 end method gen-query;
 
 define method gen-and (clauses, binds)
   if (empty?(clauses))
-    list(#"=values", binds);
+    bq-list(#"=values", binds);
   else
     let gb = generate-symbol();
-    list(#"=bind", list(gb), gen-query(head(clauses), binds),
-         gen-and(tail(clauses), gb));
+    bq-list(#"=bind", bq-list(gb), gen-query(head(clauses), binds),
+            gen-and(tail(clauses), gb));
   end if;
 end method gen-and;
 
 define method gen-or (clauses, binds)
-  pair(#"choose", map(method (c) gen-query(c, binds); end method, clauses));
+  bq-cons(#"choose",
+          map(method (c) gen-query(c, binds); end method, clauses));
 end method gen-or;
 
 define method gen-not (expr, binds)
   let gpaths = generate-symbol();
-  list(#"let", list(pair(gpaths, #(#"*paths*"))), #(#"setq", #"*paths*", #()),
-       list(#"choose",
-            apply(list, #"=bind", #(#"b"), gen-query(expr, binds),
-                  list(#"setq", #"*paths*", gpaths), #(#(#"fail"))),
-            list(#"progn", list(#"setq", #"*paths*", gpaths),
-                 list(#"=values", binds))));
+  bq-list(#"let", bq-list(bq-cons(gpaths, #(#"*paths*"))),
+          #(#"setq", #"*paths*", #()),
+          bq-list(#"choose",
+                  bq-list*(#"=bind", #(#"b"), gen-query(expr, binds),
+                           bq-list(#"setq", #"*paths*", gpaths),
+                           #(#(#"fail"))),
+                  bq-list(#"progn", bq-list(#"setq", #"*paths*", gpaths),
+                          bq-list(#"=values", binds))));
 end method gen-not;
 
 =defun(prove, query(binds), choose-bind(r, *rules*, =funcall(r, query, binds)));
@@ -1922,7 +1842,7 @@ define method form (pat)
   if (simple?(pat))
     pat;
   else
-    list(#"cons", form(head(pat)), form(tail(pat)));
+    bq-list(#"cons", form(head(pat)), form(tail(pat)));
   end if;
 end method form;
 
@@ -2170,42 +2090,50 @@ end method run-afters;
 
 define method build-meth (name, type, gobj, parms, body)
   let gargs = generate-symbol();
-  list(#"function",
-       list(#"lambda", list(#"&rest", gargs),
-            list(#"labels",
-                 list(list(#"call-next", #"()",
-                           if (type == #"primary" | type == #"around")
-                             list(#"cnm", gobj, list(#"quote", name),
-                                  list(#"cdr", gargs), type);
-                           else
-                             #(#"error", "Illegal call-next.");
-                           end if),
-                      list(#"next-p", #"()",
-                           select (type)
-                             #"around"
-                                => list(#"or",
-                                        apply(list,
-                                              #"rget",
-                                              gobj,
-                                              list(#"quote", name),
-                                              #(#"around", 1)),
-                                        apply(list,
-                                              #"rget",
-                                              gobj,
-                                              list(#"quote", name),
-                                              #(#"primary")));
-                             #"primary"
-                                => apply(list,
-                                         #"rget",
-                                         gobj,
-                                         list(#"quote", name),
-                                         #(#"primary", 1));
-                             otherwise
-                                => #f;
-                           end select)),
-                 list(#"apply",
-                      list(#"function", apply(list, #"lambda", parms, body)),
-                      gargs))));
+  bq-list(#"function",
+          bq-list(#"lambda", bq-list(#"&rest", gargs),
+                  bq-list(#"labels",
+                          bq-list(bq-list(#"call-next",
+                                          #(),
+                                          if (type == #"primary"
+                                               | type == #"around")
+                                          bq-list(#"cnm",
+                                                  gobj,
+                                                  bq-list(#"quote", name),
+                                                  bq-list(#"cdr", gargs),
+                                                  type);
+                                          else
+                                          #(#"error", "Illegal call-next.");
+                                          end if),
+                                  bq-list(#"next-p",
+                                          #(),
+                                          select (type)
+                                          #"around"
+                                           => bq-list(#"or",
+                                                      bq-list*(#"rget",
+                                                               gobj,
+                                                               bq-list(#"quote",
+                                                                       name),
+                                                               #(#"around",
+                                                                 1)),
+                                                      bq-list*(#"rget",
+                                                               gobj,
+                                                               bq-list(#"quote",
+                                                                       name),
+                                                               #(#"primary")));
+                                          #"primary"
+                                           => bq-list*(#"rget",
+                                                       gobj,
+                                                       bq-list(#"quote",
+                                                               name),
+                                                       #(#"primary", 1));
+                                          otherwise
+                                           => #f;
+                                          end select)),
+                          bq-list(#"apply",
+                                  bq-list(#"function",
+                                          bq-list*(#"lambda", parms, body)),
+                                  gargs))));
 end method build-meth;
 
 define method cnm (obj, name, args, type)
@@ -2241,10 +2169,10 @@ define method set-parents (obj, pars)
   for (p in parents(obj)) children(p) := remove!(children(p), obj); end for;
   obj[#"parents"] := pars;
   for (p in pars)
-    let new-value-141276 = obj;
-    let g141275 = p;
-    let g141274 = add!(new-value-141276, children(g141275));
-    "common-lisp-user" "children"(g141274, g141275);
+    let g15940 = obj;
+    let g15939 = p;
+    let g15938 = add!(g15940, children(g15939));
+    children-setter(g15938, g15939);
   end for;
   maphier(method (obj) obj[#"ancestors"] := get-ancestors(obj); end method,
           obj);
@@ -2332,66 +2260,57 @@ end method comb-or;
 
 define method udm (name, qual, specs)
   let classes
-      = map(method (s) list(#"find-class", list(#"quote", s)); end method,
+      = map(method (s)
+              bq-list(#"find-class", bq-list(#"quote", s));
+            end method,
             specs);
-  list(#"remove-method", list(#"symbol-function", list(#"quote", name)),
-       list(#"find-method", list(#"symbol-function", list(#"quote", name)),
-            list(#"quote", qual), pair(#"list", classes)));
+  bq-list(#"remove-method",
+          bq-list(#"symbol-function", bq-list(#"quote", name)),
+          bq-list(#"find-method",
+                  bq-list(#"symbol-function", bq-list(#"quote", name)),
+                  bq-list(#"quote", qual), bq-cons(#"list", classes)));
 end method udm;
 
 define method compall ()
-  let g141605 = packagify(*package*);
-  let g141611 = #"ext";
-  let g141612 = %package-internal-symbols(g141605);
-  let g141610 :: <list> = %package-shadowing-symbols(g141605);
-  let s = #f;
+  let g15941 = package-name-cvt-1(*package*);
   block (return)
-    while (#t)
-      let g141606 = #f;
-      let g141607 = #f;
-      let g141608 = #f;
-      local method go-g141613 () #f; end method go-g141613,
-            method go-g141614 ()
-              if (g141606 >= g141608) go-g141613(); end if;
-              s := g141607[g141606];
-              if (instance?(s, <symbol>))
-                let g141609
-                    = member?(symbol-name$symbol(s), g141610,
-                              test: method (x, y)
-                                      x = symbol-name$symbol(y);
-                                    end method);
-                if (~ (g141609 & ~ (head(g141609) == s)))
-                  if (// LTD: Function FBOUNDP not yet implemented.
-                      fboundp(s))
-                    if (~ instance?(s, <function>))
-                      print(s, *standard-output*);
-                      // LTD: Function COMPILE not yet implemented.
-                      compile(s);
-                    end if;
+    begin
+      begin
+        let g15943
+            = method (s, #key .do-symbols-dummy-val.)
+                if (// LTD: Function FBOUNDP not yet implemented.
+                    fboundp(s))
+                  if (~ instance?(s, <function>))
+                    print(s, *standard-output*);
+                    // LTD: Function COMPILE not yet implemented.
+                    compile(s);
                   end if;
                 end if;
-              end if;
-              g141606 := g141606 + 1;
-              go-g141614();
-              go-g141613();
-            end method go-g141614;
-      g141606 := 0;
-      g141607 := g141612;
-      g141608 := vector-size$vector(g141607);
-      go-g141614();
-      if (g141611)
-        if (g141611 == #"ext")
-          g141612 := %package-external-symbols(g141605);
-          g141611 := %package-use-list(g141605);
-        else
-          g141612 := %package-external-symbols(head(g141611));
-          g141611 := tail(g141611);
-        end if;
-      else
-        s := #f;
-        return(#f);
-      end if;
-    end while;
+              end method;
+        let syms = package-internal-symbols(g15941);
+        if (syms) do(g15943, key-sequence(syms), syms); end if;
+        let tab15015 = package-external-symbols(g15941);
+        do(g15943, key-sequence(tab15015), tab15015);
+        for (g15942 in // LTD: Function PACKAGE-USE-LIST not yet implemented.
+                       package-use-list(g15941))
+          let tab15015 = package-external-symbols(g15942);
+          do(method (.do-symbols-dummy-symbolx., .do-symbols-dummy-val.)
+               if (~ member?(.do-symbols-dummy-symbolx.,
+                             package-internal-shadowing-symbols(g15941),
+                             test: method (x, y)
+                                     (x
+                                       = (method (s)
+                                          as(<string>, s);
+                                          end method)(y));
+                                   end method))
+                 g15943(.do-symbols-dummy-symbolx.);
+               end if;
+             end method,
+             key-sequence(tab15015), tab15015);
+        end for;
+      end;
+      return(#f);
+    end;
   end block;
 end method compall;
 

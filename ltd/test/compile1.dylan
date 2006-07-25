@@ -127,15 +127,14 @@ end method gen-set;
 //  ==============================
 def-scheme-macro(define, name(&rest, body),
                  if (not(instance?(name, <list>)))
-                   list(#"name!", apply(list, #"set!", name, body),
-                        list(#"quote", name));
+                   bq-list(#"name!", bq-list*(#"set!", name, body),
+                           bq-list(#"quote", name));
                  else
-                   scheme-macro-expand(list(#"define",
-                                            first(name),
-                                            apply(list,
-                                                  #"lambda",
-                                                  tail(name),
-                                                  body)));
+                   scheme-macro-expand(bq-list(#"define",
+                                               first(name),
+                                               bq-list*(#"lambda",
+                                                        tail(name),
+                                                        body)));
                  end if);
 
 define method name! (fn, name)
@@ -156,14 +155,7 @@ define method show-fn (fn, #key stream = *standard-output*, depth = 0)
   //   If the argument is not a function, just princ it, 
   //   but in a column at least 8 spaces wide.
   if (~ fn-p(fn))
-    (method (s, #rest args)
-       apply(maybe-initiate-xp-printing,
-             method (xp, #rest args)
-               using-format(xp, "~8a", pop!(args));
-               if (args) copy-sequence(args); end if;
-             end method,
-             s, args);
-     end method)(stream, fn);
+    (formatter-1("~8a"))(stream, fn);
   else
     write-element(*standard-output*, '\n');
     inc!(depth, 8);
@@ -171,22 +163,7 @@ define method show-fn (fn, #key stream = *standard-output*, depth = 0)
       if (label-p(instr))
         format(stream, "%S:", instr);
       else
-        (method (s, #rest args)
-           apply(maybe-initiate-xp-printing,
-                 method (xp, #rest args)
-                   pprint-tab+(line: begin
-                                       let _that = #f;
-                                       if (_that := pop!(args))
-                                       _that;
-                                       else
-                                       1;
-                                       end if;
-                                     end,
-                               1, xp);
-                   if (args) copy-sequence(args); end if;
-                 end method,
-                 s, args);
-         end method)(stream, depth);
+        (formatter-1("~VT"))(stream, depth);
         for (arg in instr) show-fn(arg, stream, depth); end for;
         write-element(*standard-output*, '\n');
       end if;

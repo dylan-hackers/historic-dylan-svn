@@ -1,11 +1,6 @@
-// -----------------------------------------------------------------------------
-// Artificial Intelligence, Second Edition
-// Elaine Rich and Kevin Knight
-// McGraw Hill, 1991
-// 
-// This code may be freely copied and used for educational or research purposes.
-// All software written by Kevin Knight.
-// Comments, bugs, improvements to knight@cs.cmu.edu
+// ----------------------------------------------------------------------------
+// 		            GRAPH UNIFICATION
+// 			   "graph-unify.lisp"
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 // 		            GRAPH UNIFICATION
@@ -96,8 +91,8 @@ define method dispose-arc (arc)
 end method dispose-arc;
 
 define method dispose-graph (node)
-  let list92543 = nodes-in-graph(node);
-  begin do(dispose-graph-node, list92543); list92543; end;
+  let list13156 = nodes-in-graph(node);
+  begin do(dispose-graph-node, list13156); list13156; end;
 end method dispose-graph;
 
 //  COPIERS
@@ -191,11 +186,11 @@ end method mark-graph;
 define method mark-graph-1 (node, sym)
   if (~ (node.graph-node-mark == sym))
     node.graph-node-mark := sym;
-    let list92543 = node.graph-node-arcs;
+    let list13156 = node.graph-node-arcs;
     begin
       do(method (a) mark-graph-1(a.arc-destination, sym); end method,
-         list92543);
-      list92543;
+         list13156);
+      list13156;
     end;
   end if;
 end method mark-graph-1;
@@ -390,7 +385,7 @@ define method print->graph (dp)
     do(method (p)
          p.graph-node-mfset := #f;
          p.graph-node-class := second(p.graph-node-mark);
-         let list92543 = third(p.graph-node-mark);
+         let list13156 = third(p.graph-node-mark);
          begin
            do(method (a)
                 add-arc-in-order(p,
@@ -402,8 +397,8 @@ define method print->graph (dp)
                                                                            .graph-node-mark);
                                                                       end method)));
               end method,
-              list92543);
-           list92543;
+              list13156);
+           list13156;
          end;
        end method,
        n);
@@ -478,10 +473,10 @@ end method mf-union;
 //  UNION-FIND operations.  Each node is essentially placed into a
 //  singleton equivalence class.
 define method mf-init (x)
-  let list92543 = nodes-in-graph(x);
+  let list13156 = nodes-in-graph(x);
   begin
-    do(method (n) n.graph-node-mfset := list(n); end method, list92543);
-    list92543;
+    do(method (n) n.graph-node-mfset := list(n); end method, list13156);
+    list13156;
   end;
 end method mf-init;
 
@@ -494,13 +489,13 @@ end method mf-init;
 define method create-result-graph (classes)
   begin
     do(method (n)
-         let list92543 = n.graph-node-arcs;
+         let list13156 = n.graph-node-arcs;
          begin
            do(method (a)
                 a.arc-destination := mf-find(a.arc-destination);
               end method,
-              list92543);
-           list92543;
+              list13156);
+           list13156;
          end;
        end method,
        classes);
@@ -513,8 +508,8 @@ define method create-result-graph-1 (d)
   let nodes = nodes-in-graph(d);
   let classes = remove(nodes, complement(mf-root-class?));
   let res = create-result-graph(classes);
-  let list92543 = set-difference(nodes, classes);
-  begin do(dispose-graph-node, list92543); list92543; end;
+  let list13156 = set-difference(nodes, classes);
+  begin do(dispose-graph-node, list13156); list13156; end;
   res;
 end method create-result-graph-1;
 
@@ -527,8 +522,8 @@ define method create-result-graph-2 (d1, d2)
         end;
   let classes = remove(nodes, complement(mf-root-class?));
   let res = create-result-graph(classes);
-  let list92543 = set-difference(nodes, classes);
-  begin do(dispose-graph-node, list92543); list92543; end;
+  let list13156 = set-difference(nodes, classes);
+  begin do(dispose-graph-node, list13156); list13156; end;
   res;
 end method create-result-graph-2;
 
@@ -540,8 +535,8 @@ end method create-result-graph-2;
 // 
 //  Adds the arcs of n1 to n2.
 define method carry-labels (n1, n2)
-  let list92543 = n1.graph-node-arcs;
-  begin do(method (l) add-arc(n2, l); end method, list92543); list92543; end;
+  let list13156 = n1.graph-node-arcs;
+  begin do(method (l) add-arc(n2, l); end method, list13156); list13156; end;
 end method carry-labels;
 
 //  Functions for testing if a class is atomic or disjunctive, etc.
@@ -657,15 +652,15 @@ define method graph-unify (d1, d2)
       w := mf-union(u, v);
       w.graph-node-class := newclass;
       if (w == v) carry-labels(u, v); else carry-labels(v, u); end if;
-      let list92543
+      let list13156
           = intersection(graph-node-arc-labels(u), graph-node-arc-labels(v));
       begin
         do(method (l)
              push!(pair(graph-node-subnode(u, l), graph-node-subnode(v, l)),
                    pairs);
            end method,
-           list92543);
-        list92543;
+           list13156);
+        list13156;
       end;
     finally
       create-result-graph-2(e1, e2);

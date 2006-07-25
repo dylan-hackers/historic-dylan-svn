@@ -15,9 +15,10 @@
 
 define method make-insist-forms (fnname, exps)
   ~ empty?(exps)
-   & pair(list(#"or", head(exps),
-               list(#"error", "~S failed in ~S", list(#"quote", head(exps)),
-                    list(#"quote", fnname))),
+   & pair(bq-list(#"or", head(exps),
+                  bq-list(#"error", "~S failed in ~S",
+                          bq-list(#"quote", head(exps)),
+                          bq-list(#"quote", fnname))),
           make-insist-forms(fnname, tail(exps)));
 end method make-insist-forms;
 
@@ -56,10 +57,11 @@ define method for-expander (var-forms, when-form, body-forms)
             var-forms);
   let mapfn-body
       = (for-key(head(body-forms)))(when-form,
-                                    pair(#"progn", tail(body-forms)));
-  apply(list, head(mapfn-body),
-        list(#"function", list(#"lambda", vars, head(tail(mapfn-body)))),
-        lists);
+                                    bq-cons(#"progn", tail(body-forms)));
+  bq-list*(head(mapfn-body),
+           bq-list(#"function",
+                   bq-list(#"lambda", vars, head(tail(mapfn-body)))),
+           lists);
 end method for-expander;
 
 // LTD: No macros.
@@ -67,35 +69,39 @@ end method for-expander;
 
 define-for-key(always: test(body), #"every",
                if (test)
-                 list(#"or", list(#"not", test), body);
+                 bq-list(#"or", bq-list(#"not", test), body);
                else
                  body;
                end if);
 
 define-for-key(do: test(body), #"mapc",
-               if (test) list(#"and", test, body); else body; end if);
+               if (test) bq-list(#"and", test, body); else body; end if);
 
 define-for-key(filter: test(body), #"mapcan",
                begin
                  let fbody
-                     = apply(list, #"let", list(list(#"x", body)),
-                             #(#(#"and", #"x", #(#"list", #"x"))));
-                 if (test) list(#"and", test, fbody); else fbody; end if;
+                     = bq-list*(#"let", bq-list(bq-list(#"x", body)),
+                                #(#(#"and", #"x", #(#"list", #"x"))));
+                 if (test) bq-list(#"and", test, fbody); else fbody; end if;
                end);
 
 define-for-key(first: test(body), #"some",
-               if (test) list(#"and", test, body); else body; end if);
+               if (test) bq-list(#"and", test, body); else body; end if);
 
 define-for-key(save: test(body), if (test) #"mapcan"; else #"mapcar"; end if,
                if (test)
-                 list(#"and", test, list(#"list", body));
+                 bq-list(#"and", test, bq-list(#"list", body));
                else
                  body;
                end if);
 
 define-for-key(splice: test(body), #"mapcan",
-               list(#"copy-list",
-                    if (test) list(#"and", test, body); else body; end if));
+               bq-list(#"copy-list",
+                       if (test)
+                         bq-list(#"and", test, body);
+                       else
+                         body;
+                       end if));
 
 *mop-tables* := #f;
 
@@ -498,7 +504,7 @@ define method tree->list (mop, fn, visited)
     list(mop);
   else
     visited := pair(mop, visited);
-    pair(mop, fn(mop, visited));
+    bq-cons(mop, fn(mop, visited));
   end if;
 end method tree->list;
 

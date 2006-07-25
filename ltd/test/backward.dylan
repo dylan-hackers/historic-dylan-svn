@@ -212,14 +212,15 @@ define method make-variables-unique (rule)
                                                          "%S",
                                                          variable)[0],
                                                   inc!(*name-counter*)),
-                                           0);
+                                           0,
+                                           #f);
             block (nil)
               begin
                 // LTD: Function READ not yet implemented.
                 read(input);
               end;
             cleanup
-              close(input);
+              deallocate-resource(#"string-input-simple-stream", input);
             end block;
           end method,
           variables);

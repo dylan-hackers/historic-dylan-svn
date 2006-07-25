@@ -98,17 +98,18 @@ define method explain-result (#key *jsaint* = *jsaint*)
   if (empty?(*jsaint*.jsaint-solution))
     format-out("\n Problem not solved yet.");
   elseif (*jsaint*.jsaint-solution == #"failed-problem")
-    explore-network(get-tms-node(list(#"failed", *jsaint*.jsaint-problem),
+    explore-network(get-tms-node(bq-list(#"failed", *jsaint*.jsaint-problem),
                                  *jsaint*.jsaint-jtre));
     format-out("\n Failed to find a solution.");
   elseif (*jsaint*.jsaint-solution == #"failed-empty")
     format-out("\n Ran out of things to do.");
-    explore-network(get-tms-node(list(#"failed", *jsaint*.jsaint-problem),
+    explore-network(get-tms-node(bq-list(#"failed", *jsaint*.jsaint-problem),
                                  *jsaint*.jsaint-jtre));
   else
     format-out("\n Solved the problem:");
-    explore-network(get-tms-node(list(#"solution-of", *jsaint*.jsaint-problem,
-                                      *jsaint*.jsaint-solution),
+    explore-network(get-tms-node(bq-list(#"solution-of",
+                                         *jsaint*.jsaint-problem,
+                                         *jsaint*.jsaint-solution),
                                  *jsaint*.jsaint-jtre));
   end if;
 end method explain-result;
@@ -127,13 +128,9 @@ define method run-jsaint (*jsaint*)
                                    *jsaint*) then fetch-solution(*jsaint*
                                                                  .jsaint-problem,
                                                                  *jsaint*),
-         failure-signal = list(#"failed",
-                               list(#"integrate",
-                                    *jsaint*
-                                    .jsaint-problem)) then list(#"failed",
-                                                                list(#"integrate",
-                                                                     *jsaint*
-                                                                     .jsaint-problem)),
+         failure-signal = backquote(failed(integrate(bq-comma(*jsaint*
+                                                              .jsaint-problem)))) then backquote(failed(integrate(bq-comma(*jsaint*
+                                                                                                                           .jsaint-problem)))),
          until done?)
       if (solution)
         *jsaint*.jsaint-solution := solution;
@@ -169,28 +166,27 @@ define method process-subproblem (item)
       return-from-process-subproblem(#t);
     end if;
     if (any?(method (f) in?(f, jtre); end method, //  Already expanded
-             fetch(apply(list, #"and-subgoals", item, #(#"?subproblems")),
+             fetch(bq-list*(#"and-subgoals", item, #(#"?subproblems")),
                    jtre)))
       debugging-jsaint(*jsaint*, "~%   ..already expanded.");
       return-from-process-subproblem(#t);
     end if;
-    for (suggestion in fetch(apply(list, #"suggest-for", item,
-                                   #(#"?operator")),
+    for (suggestion in fetch(bq-list*(#"suggest-for", item, #(#"?operator")),
                              jtre))
       if (in?(suggestion, jtre))
-        queue-problem(list(#"try", third(suggestion)), item);
-        push!(list(#"try", third(suggestion)), suggestions);
+        queue-problem(bq-list(#"try", third(suggestion)), item);
+        push!(bq-list(#"try", third(suggestion)), suggestions);
       end if;
     end for;
     //  Presume extra subgoals don't come along.
-    assert!(list(#"or-subgoals", item, suggestions), or-subgoals: jtre);
+    assert!(bq-list(#"or-subgoals", item, suggestions), or-subgoals: jtre);
     run-rules(jtre);
   end block;
 end method process-subproblem;
 
 define method open-subproblem (item)
-  assert!(list(#"expanded", item), expand-agenda-item: jtre);
-  assume!(list(#"open", item), expand-agenda-item: jtre);
+  assert!(bq-list(#"expanded", item), expand-agenda-item: jtre);
+  assume!(bq-list(#"open", item), expand-agenda-item: jtre);
   //  Look for quick win, extra consequences.
   run-rules(jtre);
 end method open-subproblem;
@@ -233,8 +229,7 @@ end method max-depth;
 //  Auxiliary routines
 define method fetch-solution (problem, #key *jsaint* = *jsaint*)
   block (return-from-fetch-solution)
-    for (solution in fetch(apply(list, #"solution-of", problem,
-                                 #(#"?answer")),
+    for (solution in fetch(bq-list*(#"solution-of", problem, #(#"?answer")),
                            jtre))
       if (in?(solution, jtre))
         return-from-fetch-solution(third(solution));
@@ -279,9 +274,9 @@ define method simplifying-form-of (alg-goal)
     alg-goal;
   elseif (head(alg-goal) == #"integral")
     //  Simplify as needed
-    list(#"integral",
-         list(#"eval", list(#"simplify", quotize(second(alg-goal)))),
-         third(alg-goal));
+    bq-list(#"integral",
+            bq-list(#"eval", bq-list(#"simplify", quotize(second(alg-goal)))),
+            third(alg-goal));
   else
     pair(simplifying-form-of(head(alg-goal)),
          simplifying-form-of(tail(alg-goal)));
@@ -294,8 +289,9 @@ define method calculate-solution-rule-parts (sub-pairs, res-pairs)
             inc!(counter);
             let rvar = as(<symbol>, format(#f, "?RESULT%D", counter));
             push!(rvar, antes);
-            list(#"in", list(#"solution-of", head(subpair), head(respair)),
-                 #"var", rvar);
+            bq-list(#"in",
+                    bq-list(#"solution-of", head(subpair), head(respair)),
+                    #"var", rvar);
           end method,
           sub-pairs, res-pairs);
   values(triggers, reverse!(antes));
@@ -317,7 +313,7 @@ end method keywordize;
 define method show-problem (pr, #key *jsaint* = *jsaint*)
   format-out("\n%S:: (%D)", pr, estimate-difficulty(pr));
   with-jtre(*jsaint*.jsaint-jtre,
-            stuff := fetch(apply(list, #"parent-of", pr, #(#"?x", #"?type"))),
+            stuff := fetch(bq-list*(#"parent-of", pr, #(#"?x", #"?type"))),
             if (stuff)
               format-out("\n Parent(s): ");
               for (p in stuff)
@@ -330,13 +326,13 @@ define method show-problem (pr, #key *jsaint* = *jsaint*)
             else
               format-out("\n No parents found.");
             end if,
-            if (fetch(list(#"expanded", pr)))
+            if (fetch(bq-list(#"expanded", pr)))
               format-out("\n Expanded,");
             else
               format-out("\n Not expanded,");
             end if,
-            if (fetch(list(#"open", pr)))
-              if (in?(list(#"open", pr)))
+            if (fetch(bq-list(#"open", pr)))
+              if (in?(bq-list(#"open", pr)))
                 format-out(" open,");
               else
                 format-out(" closed,");
@@ -344,19 +340,20 @@ define method show-problem (pr, #key *jsaint* = *jsaint*)
             else
               format-out(" not opened,");
             end if,
-            if (in?(list(#"relevant", pr)))
+            if (in?(bq-list(#"relevant", pr)))
               format-out(" relevant.");
             else
               format-out(" not relevant.");
             end if,
             if (stuff := fetch-solution(pr))
               format-out("\n Solved, solution = %S", stuff);
-            elseif ((stuff := head(fetch(list(#"failed", pr)))) & in?(stuff))
+            elseif ((stuff := head(fetch(bq-list(#"failed", pr))))
+                     & in?(stuff))
               format-out("\n  Failed.");
             elseif (~ (head(pr) = #"try"))
               format-out("\n Neither solved nor failed.");
             end if,
-            ands := fetch(apply(list, #"and-subgoals", pr, #(#"?ands"))),
+            ands := fetch(bq-list*(#"and-subgoals", pr, #(#"?ands"))),
             if (ands)
               format-out("\n And subgoals:");
               for (subg in third(head(ands)))
@@ -364,7 +361,7 @@ define method show-problem (pr, #key *jsaint* = *jsaint*)
               end for;
               format-out(".");
             end if,
-            ors := fetch(apply(list, #"or-subgoals", pr, #(#"?ors"))),
+            ors := fetch(bq-list*(#"or-subgoals", pr, #(#"?ors"))),
             if (ors)
               format-out("\n Or subgoals:");
               for (subg in third(head(ors)))
@@ -407,7 +404,7 @@ define method update-ao-depth-table (now, depth, depths, path)
 end method update-ao-depth-table;
 
 define method get-children (gp, #key *jsaint* = *jsaint*)
-  for (maybe-kid in fetch(apply(list, #"parent-of", #"?x", gp, #(#"?type")),
+  for (maybe-kid in fetch(bq-list*(#"parent-of", #"?x", gp, #(#"?type")),
                           *jsaint*.jsaint-jtre))
     if (in?(maybe-kid, *jsaint*.jsaint-jtre))
       push!(second(maybe-kid), children);
