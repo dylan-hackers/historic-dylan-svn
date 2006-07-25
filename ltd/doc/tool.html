@@ -1,0 +1,614 @@
+<HTML>
+<HEAD>
+<TITLE>LTD: A Lisp to Dylan Conversion Tool</TITLE> 
+<!-- Changed by: Peter Norvig,  1-Mar-1996 -->
+</HEAD> 
+<BODY> 
+<H1>LTD: A Lisp To Dylan Conversion Tool</H1>
+
+The program <TT>LTD</TT> is a Common Lisp program to help convert
+Common Lisp programs to Dylan.  It does as much as is reasonably
+possible, aided by user-settable preferences, but there are often
+constructs that cannot be translated directly to Dylan.  These are
+left alone, but are flagged by comments so that they can be changed by
+hand.
+
+<A NAME="installation"><H2>Installing LTD</H2></A>
+
+The installation process is as follows:
+
+<OL>
+<LI> Move to a directory where you want the code to be.
+<LI> Obtain the file <TT><A HREF="../ltd.tar">ltd.tar</A></TT> .
+<LI> Unpack it with <TT>tar -xf ltd.tar</TT>; it contains <A HREF="../code/">Lisp source code</A>, <A HREF="../doc/">HTML
+documentation</A>, <A HREF="../lib/">Dylan library code</A>, and <A HREF="../test/">test files</A> (Lisp files and the corresponding translated Dylan files).
+<LI> Start Common Lisp and evaluate <TT>(load "<A HREF="../code/load.lisp">load.lisp</A>")</TT> and <TT>(load-ltd :compile t)</TT>
+<LI> Optionally save out an image with LTD installed.  In Lispworks this would be
+<TT>(lw:save-image <I>"filename"</I>)</TT>
+</OL>
+
+
+<A NAME="using"><H2>Using LTD</H2></A>
+
+First, either start Lisp and repeat step 4 from above, or start up the
+saved image from step 5 above.<p>
+
+The main entry point in <A HREF="../code/ltd.lisp">LTD</A> is the
+function <TT>ltd-files</TT>.  It operates on a list of lisp files,
+translating each one to a dylan file.  A simple call 
+is <TT>(ltd-files "~user/dir/*.lisp")</TT>.  This will convert each
+".lisp" file, creating a corresponding ".dylan" file.  A more complex
+call is <TT>(ltd-files '("a.lisp" "b.lisp") :output
+"dylan-dir/*.dylan")</TT>.  This converts the two lisp files "a" and
+"b", placing the results in the "dylan-dir" subdirectory.<p>
+
+To test your installation fully, run <TT>(test-ltd)</TT> to convert
+all 39 files in the <A HREF="../test/">test</A> directory.  As a
+simpler test example, run <TT>(ltd-files <A
+HREF="../test/TEST.lisp">"test/TEST.lisp"</A>)</TT> and see the output
+in the file <A HREF="../test/TEST.dylan">"test/TEST.dylan"</A>.
+
+
+<A NAME="options"><H2>Conversion Options</H2></A>
+
+There are a number of <A HREF="../code/options.lisp">options</A> that the user can set to change the way
+conversion is done.  Each option has a name (e.g., <TT>:tab-stop</TT>),
+s default value (e.g., <TT>2</TT>), a type (e.g., <TT>integer</TT>),
+and a description (e.g., <TT>"Number of spaces to indent for each block"</TT>.
+Each option must take on either a value of the specified type, or the constant <TT>:?</TT>, which means that the 
+Option values can be changed with the functions <TT>set-option</TT> or
+<TT>new-options</TT>.  Here are some examples:
+
+<PRE>
+;; <I>Make each new block indent 4 spaces:</I>
+(set-option :tab-stop 4)      
+
+;; <I>Change several options at once:</I>
+(new-options :tab-stop 4 :comments '/* :end-name nil)
+
+;; <I>Prompt the user for the correct way to convert each NIL:</I>
+(set-option :nil-as :?)
+
+;; <I>Prompt the user for every decision except tab stop</I>
+(new-options :? t :tab-stop 2)
+</PRE>
+
+The complete list of default options is in <A HREF="../code/options.lisp">options.lisp</A>.  
+
+
+<A NAME="inside1"><H2>Inside LTD, the Lisp to Dylan converter</H2></A>
+
+
+LTD works by first reading a Lisp s-expression with <TT>ltd-read</TT>,
+then converting it to an internal s-expression representation which represents
+a Dylan parse tree with <TT>cvt-exp</TT>, and then printing the
+internal representation with <TT>dpp-exp</TT> (DPP stands for Dylan
+Pretty-Print).  For example, calling <TT>ltd-read</TT> on the fragment
+of source file
+
+<PRE>
+;; Compute sign of x
+(cond ((&lt; x 0) -1)
+      ((&gt; x 0) 1)
+      (t 0))
+</PRE>
+results in the expression
+<PRE>
+#S(com :comment " Compute sign of x"
+       :code (cond ((&lt; x 0) -1)
+                   ((&gt; x 0) 1)
+                   (t 0)))
+</PRE>
+which gets translated by <TT>cvt-exp</TT> to the internal form
+<PRE>
+#S(com :comment " Compute sign of x"
+       :code (IF (&lt; X 0) -1 (:ELSIF (&gt; X 0) 1) (:ELSE 0)))
+</PRE>
+which then gets printed by <TT>dpp-exp</TT> as something like
+<PRE>
+// Compute sign of x
+if (x &lt; 0) -1; elsif (x &gt; 0) 1; else  0; end
+</PRE>
+or perhaps as
+<PRE>
+  /* Compute sign of x */
+  if (x &lt; 0) 
+    -1; 
+  elsif (x &gt; 0) 
+    1; 
+  else  
+    0; 
+  end
+</PRE>
+
+We cover the three main functions (<TT>ltd-read</TT>, <TT>cvt-exp</TT> and <TT>dpp-exp</TT>) in turn.
+
+<H2>LTD-READ</H2>
+
+The function <TT>ltd-read</TT> is just like <TT>read</TT>, except that
+
+
+<UL>
+<LI>The file positions of each non-atomic expression within the file is retained in
+a table, <TT>*file-position-table*</TT>, for use
+in printing error messages.
+<LI>The empty list <TT>()</TT> is read as the symbol <TT>|()|</TT>, while <TT>nil</TT> is read as <TT>nil</TT>.
+<LI>Comments in the source input are retained by wrapping a
+<TT>#S(com ...)</TT> form around the following expression.
+</UL>
+
+Note that both comments delimited by semicolon and by <TT>#|
+... |#</TT> are supported.  However, the strategy of attaching
+comments to the following expression has a problem: sometimes there is
+no following expression.  Comments that appear just before a right
+paren or a dot in a dotted list are silently ignored.<p>
+
+Note that <TT>ltd-read</TT> uses the readtable
+<TT>ltd-readtable</TT>.  If you want to convert a program that uses
+its own readmacros in its source files, then you will have to make
+sure that those readmacros are defined within <TT>*ltd-readtable*</TT>.
+<I>(We should probably provide an easy way to do this.)</I><p>
+
+<H2>CVT-EXP</H2>
+
+After a form has been read, it is converted by <TT>cvt-exp</TT> as follows:
+<UL>
+<LI>Constant variables are converted according to Dylan conventions;
+for example, <TT>pi</TT> becomes <TT>$pi</TT>, and <TT>*global*</TT> (if it is
+defined as a constant) becomes <TT>$global</TT>.  Note that LTD will only know
+that user-defined variables are defined as constants if the source code is 
+<I>loaded</I> before it is converted to Dylan.  For this and other
+reasons, we recommend loading your source code before you convert it, but good
+results can also be obtained without pre-loading the code.
+<LI>Symbols that violate Dylan lexical rules are converted.  For
+example, <TT>~3</TT> is a valid symbol in Lisp; we translate that
+to <TT>%3</TT> in Dylan.
+<LI>Other atoms are left unchanged.
+<LI>Lists that start with a symbol that has been
+given a conversion function via <TT>ltd-fn</TT> are
+converted by that function.
+<LI>Lists that start with a symbol that has a macro definition are macroexpanded,
+then converted.  (This is another reason why it can be a good idea to load the code first,
+to get the macro definitions.  However, you may prefer to write <TT>ltd-fn</TT>
+specifications for the macros, or to leave them unexpanded.)
+<LI>Lists that start with a non-symbol are converted by converting each element of the list.
+</UL>
+
+<A NAME="ltd-fn">The bulk of the work is in defining conversion functions
+via <TT>ltd-fn</TT></A>.
+Calls to this macro are of the form <TT>(ltd-fn <I>Lisp</I>
+<I>Dylan</I>)</TT>. There are three formats that this macro accepts.
+Examples are:
+
+<PRE>
+(ltd-fn  car                     head)
+(ltd-fn  ecase                   #'cvt-ecase)
+(ltd-fn (some f . x*)            `(any? ,f . ,x*))
+</PRE>
+
+The first example says that the Lisp function <TT>car</TT> corresponds
+to the Dylan function <TT>head</TT>.  This means both that
+<TT>#'car</TT> should translate to <TT>head</TT>, and that <TT>(car
+<I>x</I>)</TT> should translate to <TT>(head <I>x'</I>)</TT>, where
+<I>x'</I> is the result of converting <I>x</I>.<p>
+
+The second example says that to translate an expression of the form
+<TT>(ecase ...)</TT>, call the Lisp function <TT>cvt-ecase</TT> with the
+expression as its sole argument, and use the result as the translation.<P>
+
+The third form is more complex.  It says the following:
+<UL>
+<LI> Given a call such as <TT>(some 'evenp (rest numbers))</TT>, match (via destructuring-bind)
+<TT>f</TT> against the first argument, <TT>'evenp</TT> and <TT>x*</TT> against the rest, <TT>((rest numbers))</TT>.
+<LI> Convert the arguments to Dylan, based on their name.
+For example, the variable name
+<TT>f</TT> is always converted as a function, so it becomes <TT>even?</TT>.  
+The variable <TT>x*</TT> is converted to the list <TT>((tail numbers))</TT>.
+The exact conversion rules are below.
+
+<LI> Execute the right hand side (i.e. <TT>`(any? ,f . ,x*)</TT> in this case)
+with the variables <TT>f</TT> and <TT>x*</TT> bound.
+In addition, the variable <TT>exp</TT> is bound to
+the whole expression.  Return the result.  In this case it would be <TT>(any? even? (tail numbers))</TT>, which is printed as the Dylan expression<TT>any?(even? tail(numbers))</TT>.
+<LI> If the result is of the form <TT>(let ...)</TT>, then convert it to
+<TT>(begin (let ...))</TT>.  This is because Dylan <TT>let</TT>s must appear at
+the top level of a body, unlike Lisp <TT>let</TT>s.  (The function<TT>cvt-body</TT>
+looks for and expunges unneeded <TT>begin</TT>s.  It was more succint and less
+error-prone to make this happen automatically 
+for every call to <TT>ltd-fn</TT>, rather than 
+relying on the programmer to get each one right.)
+<LI> If the original call to the conversion function is of the form <TT>#'some</TT>,
+then something quite different happens. In this case, 
+
+</UL>
+
+The automatic conversion of variable names on the left-hand side of
+<TT>ltd-fn</TT> is tricky, and takes some getting used to, but it
+makes for very compact code.  The rules are:
+
+<UL>
+<LI> A name ending in <TT>*</TT>, such as <TT>x*</TT> in the example above, represents a list; it is expanded with <TT>cvt-exps</TT>.
+<LI> The name <TT>keys</TT> is left unconverted, except that if <TT>:test-not <I>fn</I></TT> appears in the list, it is converted to <TT>:test (complement <I>fn</I>)</TT>.
+<LI> The names <TT>f</TT> and <TT>pred</TT> are converted via <TT>cvt-fn</TT>.
+That is <TT>'car</TT> would convert to <TT>head</TT>, not <TT>#"car"</TT> if
+it were bound to a variable named <TT>f</TT>.
+<LI> The names <TT>name</TT>, <TT>ignore</TT>, and <TT>asis</TT> are not
+converted.
+<LI> The name <TT>body</TT> is converted by <TT>cvt-body</TT>, which handles
+declarations followed by a list of expressions.
+<LI> The names <TT>type</TT> and <TT>class</TT> are converted by <TT>cvt-type</TT>.
+That is, <TT>'list</TT> is converted to <TT>&lt;list&gt;</TT>, not <TT>#"list"</TT>
+when it is bound to a variable named <TT>type</TT>.
+<LI> Ther names <TT>stdin</TT> and <TT>stdout</TT> convert via <TT>cvt-exp</TT>,
+except that they have default values <TT>*standard-input*</TT> and <TT>*standard-output*</TT>, respectively.
+</UL>
+
+<H2>Dylan Parse Tree Language</H2>
+
+The complete internal parse tree language is as follows:
+
+<PRE>
+exp :=
+  (BEGIN exp*)
+  (BLOCK name exp*)
+  (CASE branch*)
+  (DEFINE-CLASS name args class-slot)
+  (DEFINE-CONSTANT bindings exp)
+  (DEFINE-GENERIC name args)
+  (DEFINE-FUNCTION name args exp*)
+  (DEFINE-METHOD name args exp*)
+  (DEFINE-VARIABLE bindings exp)
+  (DEFINE-MODULE name exp*)
+  (FLUID-BIND bindings exp)
+  (FOR for-clause* exp*)
+  (IF test exp*)
+  (LET bindings init)
+  (METHOD args exp*)
+  (LET-HANDLER exp exp exp*)
+  (LOCAL exp*)
+  (QUOTE exp)
+  (SELECT exp branch*)
+  (UNLESS test exp*)
+  (UNTIL test exp*)
+  (WHILE test exp*)
+
+  (:CLEANUP exp*)                Allowed only in BLOCK
+  (:ELSEIF test exp*)            Allowed only in IF
+  (:ELSE exp*)                   Allowed only in IF
+  (:EXCEPTION exp*)              Allowed only in BLOCK
+  (:FINALLY exp*)                Allowed only in FOR
+  (:LOCAL-METHOD name args exp*) Allowed only in :LOCAL
+  (:CLAUSE [export|use] name*)   Allowed only in DEFINE-MODULE
+  (:RETURN exp*)                 Allowed only as first exp in METHOD
+                                 E.g. (:RETURN y x)
+
+test :=
+  exp
+
+branch :=
+  (:BRANCH branch-lhs exp*)
+				
+branch-lhs :=
+  exp
+  (:LIST-BARE exp*)		This is like :LIST, but doesn't print parens.
+
+for-clause :=
+  (:FOR-CLAUSE exp*)		E.g. (:for-clause until (done? thing))
+  (:LIST-BARE for-clause*)
+
+args :=
+  (:LIST exp)			E.g. (:LIST x (|::| y &lt;number&gt;))
+
+bindings :=
+  exp				E.g. x
+  (:LIST exp*)			E.g. (:LIST x (|::| y &lt;number&gt;))
+
+class-slot :=
+  (:SLOT name exp*)
+  (:SLOT-KEYWORD name exp*)
+
+</PRE>
+
+Note that this is quite distinct from the old prefix-Dylan syntax
+defined in the 1992 Dylan manual. The rationale is that we wanted a
+representation that would be easy to print, with only local knowledge of each
+expression.  So a representation like <TT>(cond (test val) ...)</TT> is a bad
+one, becuase you have to know that the <TT>(test val)</TT> list is
+treated differently than other lists; this requires non-local
+knowledge.  The representation <TT>(case (:branch test val) ...)</TT> is a
+good one, because the <TT>:branch</TT> identifies the constituent.
+<p>
+
+Note that the choice of a good local representation means that the
+printing routines never have to "parse" the representation.  One
+pleasant result of this is that the printing routines don't have to
+worry about comments.  That is, they never have to say "if the
+following expression is a symbol, or a <TT>comment</TT> expression
+wrapped around a symbol, then ...".  There is some of this kind of logic
+inside the conversion routines, but none in the printing routines.
+<p>
+
+Actually, the LTD program and its author may have been inconsistent in the use of
+:LIST vs :ARGS; I should go back and staighten that out.  The idea is
+that a :LIST expression is printed (by <TT>dpp-list</TT>) as a comma
+separated list, while a :ARGS expression is printed (by
+<TT>dpp-args</TT>) the same, except that there is no comma between a
+keyword and a following expression.  :LIST-BARE and :ARGS-BARE are
+analagous, except they do not print the parentheses around the
+arguments.<p>
+
+To get a better understanding of this, try converting some Common Lisp
+forms with <TT>cvt-exp</TT> and looking at the output.
+
+<A NAME="inside2"><H2>Inside DPP, the Dylan pretty-printer</H2></A>
+
+The actual printing is handled by DPP (Dylan Pretty-Printer), in the
+file <A HREF="../code/dpp.lisp">dpp.lisp</A>. It has the main entry
+point <TT>dpp-exp</TT>.  The call <TT>(dpp-exp <I>x</I> :stream
+<TT>s</TT>)</TT> prints the internal s-expression <I>x</I> on the
+stream <I>s</I>.  The function <I>dpp-exp</I> accepts all the keyword
+arguments that <TT>write</TT> does. <p>
+
+There should be less need to fiddle with DPP than with LTD.  Most of
+the customization you will want to do (such as changing the number of
+spaces to indent) can be done with the <A NAME="#printing">printing
+options</A>.  However, if you really need more control over the
+output, you can make changes to the <TT>dpp</TT> entries in the file
+<A HREF="../code/dpp.lisp">dpp.lisp</A>.  Here are four example
+entries to give you an idea of how <TT>dpp</TT> works:
+
+<PRE>
+(dpp 'symbol   dpp-symbol)
+(dpp (if)      dpp-conditional)
+(dpp (:else)   dpp-unindented)
+(dpp (begin)   (format s "~@&lt;begin~W~:&gt;" `(:body (end) ,@(rest x))))
+</PRE>
+
+The first example says that all expressions of type <TT>symbol</TT> will be
+handled by calling the function <TT>dpp-symbol</TT> with two
+arguments: the stream to print on and the symbol to print.  In place
+of <TT>'symbol</TT>, you can use any (quoted) Common Lisp type specifier. <p>
+
+In the second example, <TT>(if)</TT> is used to indicate a list whose
+first element is <TT>if</TT>.  The example says that all such lists
+are printed by a function named <TT>dpp-conditional</TT>.  Again, the
+arguments are the stream and the expression. <p>
+
+The third example is very similar; its purpose is to show the
+convention that elements of the Dylan parse tree that represent parts
+of statements start with keyword symbols (such as <TT>:else</TT>),
+whereas those that represent complete statements (such as <TT>if</TT>)
+are non-keyword symbols. <p>
+
+The fourth example says that all lists that start with the symbol <TT>begin</TT>
+will be printed by calling the function
+<PRE>
+(lambda (s x) (format s "~@&lt;begin~W~:&gt;" `(:body (end) ,@(rest x))))
+</PRE>
+
+That is, the expression is called with <TT>s</TT> bound to the stream
+and <TT>x</TT> bound to the expression to print.  There are two things
+worth discussing in this example.  <p>
+
+First, the expression <TT>`(:body (end) ,@(rest x))</TT> is the
+internal parse tree representation for a body that should be followed by just an
+"end" (rather than, say, "end method" or "end method name").  <p>
+
+Second, the format string <TT>"~@&lt;begin~W~:&gt;"</TT> makes use of
+pretty-printing format directives from <a href="http://www.supelec.fr/docs/cltl/clm/node253.html#SECTION003100000000000000000">Chapter 27</a> of <i>Common Lisp
+the Language: 2nd Edition</I>.  You will need to understand this
+chapter before you can make changes to DPP. <P>
+
+Please observe the convention that printing blocks surround a whole
+statement; the <TT>dpp-body</TT> function does <I>not</I> start a new
+printing block.  Sub-parts may be put in blocks. <P>
+
+<A NAME="todo"><H2>To Do List</H2></A>
+
+LTD has been tested on about 35,000 lines (1.1MB in 39 files) of Lisp
+code (in the <A HREF="../test/">test</A> directory) taken from an
+archive of <A
+HREF="http://yoda.cis.temple.edu:8080/UGAIWWW/books/index.html">Software
+from AI books</A> and several other sources.  By "tested", I mean that
+LTD runs without crashing on two platforms (Lispworks and Lucid Common
+Lisp, on a Sparc 20 running SunOS 4.1.4), and that a quick look at the
+generated Dylan code reveals no completely obvious errors, other than
+the functions that are known to be not implemented.  It takes about 3
+minutes to translate the code.  The resulting Lisp is 42,000 lines and
+1.5MB.  The "code bloat" seems to generally run around 20% to 30% for
+Lisp to Dylan, but note that the Dylan code does not include the body
+of macros (since we don't know how to automatically translate them),
+so it is actually somewhat worse.  <P>
+
+The major problems (and potential risks) in using <TT>LTD</TT> appear to be:
+
+<OL>
+<LI> Unimplemented Common Lisp functions. DEFMACRO, READ, LOAD, SET-MACRO-CHARACTER
+and EVAL seem to be the most important ones.
+<LI> Incomplete specification of some Common Lisp functions. We know that FORMAT 
+and LOOP are not completely specified, and some others may be too.
+<LI> Possible failure to translate sub-pieces.  For "regular" functions, all the 
+arguments should be translated to Dylan, and I think this has been done properly.
+However, the translation of special forms and macros need to be
+pieced together bit by bit, and its possible we may have spliced in a raw
+Lisp portion where we should have spliced in a translated Dylan portion.  
+This is hard to test
+because trivial expressions like x or 1 are the same in Lisp and Dylan, so something
+that seems to work on a simple case may in fact be buggy.
+<LI> Run-time errors due to comments and/or the |()| symbol showing up in unexpected 
+places.  An effort was made to find these, but some more may be lurking.
+</OL>
+
+You may be interested in seeing the counts of unimplemented functions over
+the 1.1MB of Lisp test files:
+<PRE>
+> (ltd-test)
+...
+Counts of unimplmented functions:
+ 221 DEFMACRO
+  51 READ
+  34 SET-MACRO-CHARACTER
+  22 LOAD
+  22 EVAL
+  13 REQUIRE
+   8 SHADOW
+   8 READ-FROM-STRING
+   6 GET-INTERNAL-RUN-TIME
+   5 DEFSETF
+   5 PROVIDE
+   5 GET-SETF-METHOD
+   5 MERGE-PATHNAMES
+   4 FBOUNDP
+   4 DIRECTORY
+   4 PATHNAME-NAME
+   4 COMPILE
+   3 TRACE
+   3 RASSOC
+   3 MAKE-STRING-OUTPUT-STREAM
+   3 FIND-PACKAGE
+   3 GET-OUTPUT-STREAM-STRING
+   2 READ-PRESERVING-WHITESPACE
+   2 MAKE-STRING-INPUT-STREAM
+   2 BOUNDP
+   2 COPY-READTABLE
+   2 COPY-TREE
+   2 INTEGER-LENGTH
+   2 SET-EXCLUSIVE-OR
+   2 Y-OR-N-P
+   2 SYMBOL-PACKAGE
+   1 PROBE-FILE
+   1 USE-PACKAGE
+   1 PRINC-TO-STRING
+   1 GET-MACRO-CHARACTER
+   1 PROGV
+   1 PATHNAME-TYPE
+   1 MAKE-RANDOM-STATE
+   1 COMPLEX
+   1 MAKE-SYNONYM-STREAM
+   1 MAKE-PACKAGE
+   1 READ-DELIMITED-LIST
+   1 IMPORT
+   1 UNINTERN
+   1 SET
+   1 MACROEXPAND
+   1 TREE-EQUAL
+</PRE>
+
+
+Below is a list of enhancements that should be made; please let <A
+HREF="mailto:norvig@harlequin.com">Peter Norvig</A> know of additional
+problems you encounter or functionality you desire.
+
+<OL>
+<LI>Add support for the over 200 unimplemented Common Lisp functions, especially the ones listed above.
+These are mostly little-used functions, but when <I>you</I> use the function,
+its no longer little-used.
+<LI>Add an interface to the LispWorks editor and/or GNU/Xemacs to make it
+easier to take the warnings and edit the resulting code.
+<LI>Make clear what library and module some of the CL functions come from.
+Right now, we assume you will just somehow know which <A HREF="../lib/">libraries</A> to include.
+<LI>There should be a more straightforward way to load a system or set of files,
+remember all the macro definitions, constant declarations and read macros, and
+then call <TT>ltd-files</TT> on the files.
+<LI>The lexical environment should be tracked.  If you define a local function
+with <TT>flet</TT> that happens to have the same name as a global Lisp function, 
+you should get the local function when you call it from inside the body, not
+the Dylan translation of the global function.  
+<LI>We should handle name clashes that result from translation.  E.g., we translate
+<TT>car</TT> to <TT>head</TT>, but if the Lisp program defines a function named
+<TT>head</TT>, that should be translated to something else.
+<LI>We still don't handle the two/one name space problem.  That is,  
+<PRE>(let ((list '())) (list list))</PRE> 
+is legal Lisp, but 
+<PRE>begin let list = #(); list(list) end</PRE>
+which is what we would translate to, would give an error in Dylan.
+<LI>We need to deal with packages (in-package, export, import) better.  Currently,
+each EXPORT or DEFPACKAGE translates to a <TT>define module</TT>, but we really should gather information from everyehwere and combine them into one big definition.
+<LI>Support for <TT>loop</TT> is incomplete.  Jeremy would like all except package iteration.  We're close to that, but not quite.  In the 1.1MB of Lisp code tested,
+there was only one LOOP clause not handled: use of destructuring-bind in an IN clause
+<TT>(loop for (literal-list label) in literal-lists ...)</TT>.
+<LI>Support for <TT>format</TT> is incomplete.  Jeremy would especially
+like <TT>ADS[{^*</TT>, and would ultimately like all except <TT>BOX$GTP&amp;&lt;</TT>.  We convert to FORMATTER output, but that is not a great solution.
+</OL>
+
+<A NAME="done"><H2>Done List</H2></A>
+
+The following bug reports have been fixed:
+
+<OL>
+<LI><TT>(coerce x 'list)</TT> goes to <TT>as(&lt;list&gt;, x)</TT>, not <TT>as(x, &lt;list&gt;)</TT>.
+<LI><TT>new-options</TT> had an infinite loop.
+<LI>Problem with superclasses and options in <TT>defstruct</TT> fixed.
+<LI>Multiple comments with nothing to attach to cause problems.  For example:
+<LISTING>
+(
+;
+;
+)
+</LISTING>
+An even trickier case is 
+<LISTING>
+(; comment
+ #+feature x)
+</LISTING>
+Fixing this required some additional read-table hacking.
+<LI>Macro <TT>must-be-call</TT> was incorrectly used before defined.
+<LI>A CLtL1-style `loop' form (no atoms, repeat forever) does not get a
+`block(return)' generated for it.
+<LI> The following expression was translated into something with three <TT>block</TT> statements:
+<LISTING>
+(dolist (x (rest choices) nil)
+  (let ((result (stock-random-objects x put-in)))
+    (when result (return result))))
+</LISTING>
+<LI>The `ecase' form wasn't handled right -- the values are not treated as
+quoted, and a default error clause is generated which is not needed because
+Dylan `select' defaults to an error anyway.
+<LI>The reader distinguishes NIL and (), which gets converted to |()|, 
+but the code doesn't always expect a |()| where a list can appear.  Similarly,
+the code doesn't always check for possible comments.  Added functions
+null/, first/, rest/, second/, which are the same as their slash-less counterparts, 
+except that they handle |()| and comments.  Did a global replace, so these
+functions are propobably called in places where they are not really needed.
+<LI>Added &amp;allow-other-keys to new-options.
+<LI>Fixed a bug in WHEN.
+<LI>Fixed with-slots to not introduce a local variable when the argument is atomic.
+<LI>Fixed cvt-defclass to handle comments on slots.
+<LI>Fived cvt-if-not to handle #'remove-if-not as well as (remove-if-not ...).
+<LI>Added conversion functions for symbol-function and symbol-value.
+<LI>Added ACROSS, FOR ... ON, UP/DOWNFROM, UP/DOWNTO clause to loops.
+<LI>Fixed translation of (- x) and (/ x); special case for (- <number>).
+<LI>Fixed doc strings in defstructs.
+<LI>Reading #2A( ... ) gives an error when there is a comment in the ...,
+so I turned off comment reading within.
+<LI>Macroexpanding sometimes gave errors because of |()| and comments.
+Added a to-normal-lisp function to get rid of these.  Somewhat problematic.
+</OL>
+
+<A NAME="credits"><H2>Credits for LTD</H2></A>
+
+LTD was written by <A
+HREF="http://norvig.com/">Peter
+Norvig</A> as a side project in Aug/Sep 1995 and is copyright by <A
+HREF="http://www.harlequin.com">Harlequin</A>.  Much of the DPP
+pretty-printing code is adapted from the Harlequin Dylan file <tt>infixify.dylan</tt>
+in the directory <tt>~dylan/tools</TT>, written by <a href="http://www.ai.mit.edu/people/jrb/jrb.html">Jonathan Bachrach</a> and <a href="http://www.webcom.com/haahr/welcome.html">Paul
+Haahr</a>, and copyright by Harlequin Ltd (although none of that code was
+copied verbatim, since it is in Dylan, not Lisp).  Much of the LTD conversion code is adapted from
+Harlequin file <tt>lisp-to-dylan.lisp</tt>
+in the directory <tt>~swm/dylan</tt>, written by <a href="http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&c2coff=1&safe=off&q=author:swm%40attbi.com+">Scott McKay</a> and copyright by
+Harlequin. Some of that code was copied verbatim. The motivation for LTD
+was that swm's code worked by
+doing replacements in a editor buffer, and so was not portable.  Also,
+I felt the Common Lisp pretty-printing system could do a better job
+of indenting, in most cases.<P>
+
+LTD requires Common Lisp with the pretty-printer that is
+documented in  <a href="http://www.supelec.fr/docs/cltl/clm/node253.html#SECTION003100000000000000000">Chapter 27</a> of <I>Common Lisp: the Language 2nd
+Edition</I>, by Guy L. Steele Jr, Digital Press, 1990, and in even
+greater detail in MIT AI Lab Memo MIT/AIM-1102a, July 1989, and in the article "<a href="http://www.merl.com/papers/TR93-17/">Using
+the New Common Lisp Pretty Printer</a>", by
+<A HREF="http://www.merl.com/people/waters.html">Richard C. Waters</A>, <I>Lisp Pointers</I>, V, 2, 1992.
+
+</BODY> 
+</HTML>

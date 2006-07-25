@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<TITLE>Converting Common Lisp to Dylan</TITLE> 
+<!-- Changed by: Peter Norvig, 16-Feb-1996 -->
+</HEAD> 
+<BODY> 
+<i>[Historical note: I recently found this 8-year old code hidden in the attic.  Some readers might find it useful as an example of (1) <a href="../test/">40,000 lines of code in the Dylan language (almost)</a>, or (2) <a href="http://norvig.com/ltd/doc/tool.html#inside2">the
+powerful pretty-printing</a> capabilities in Common Lisp. 
+Not many people appreciate that you can produce nicely formatted output
+so easily -- here I produce Dylan code with nice indentation, to any specified
+column width, just by converting Lisp to a parse-tree syntax that is equivalent
+to Dylan, and then writing pretty-print directives for the parse-trees.  All
+the rest is handled automatically.
+<p>As I told
+swm, haahr, and jrb, finding this old code made me feel like Dorothy waking up from her dream: "And you were in it, and you, and you. Some of it was beautiful, but most of it ..." well, most of it didn't turn out the way we hoped back in 1994-95. -Peter Norvig]</i>
+
+<H1>Converting Common Lisp to Dylan</H1>
+
+This document is designed to help you convert code from Common Lisp to
+Dylan.  The first part of the document lists problems to look out for;
+the second part documents a Common Lisp program called <I>LTD</I> (for
+<I>L</I>isp <I>T</I>o <I>D</I>ylan) that helps to automate the conversion. <P>
+
+<H2> <A HREF="problems.html">Pitfalls for Lisp to Dylan Conversion</A></H2>
+<UL>
+<LI> <A HREF="problems.html#nil">NIL versus ()</A>
+<LI> <A HREF="problems.html#2names">Single versus multiple namespaces</A>
+<LI> <A HREF="problems.html#special">Special (dynamic) variables</A>
+<LI> <A HREF="problems.html#optional">Optional arguments</A>
+<LI> <A HREF="problems.html#eval">EVAL and string-to-symbol-to-value coercion</A>
+<LI> <A HREF="problems.html#macros">Macros</A>
+<LI> <A HREF="problems.html#symbols">Lexical conventions for symbols, etc.</A>
+<LI> <A HREF="problems.html#numbers">Numbers</A>
+<LI> <A HREF="problems.html#packages">Packages versus modules</A>
+<LI> <A HREF="problems.html#methods">CLOS method combination</A>
+<LI> <A HREF="problems.html#names">Functions with different names</A>
+<LI> <A HREF="problems.html#similar">Functions with similar (but different) semantics</A>
+<LI> <A HREF="problems.html#missing">Functions that do not appear in Dylan</A>
+</UL>
+
+<H2> <A HREF="tool.html">LTD: A Lisp To Dylan Conversion Tool</a></H2>
+<UL>
+<LI> <A HREF="tool.html#installation">Installing LTD</A>
+<LI> <A HREF="tool.html#using">Using LTD</A>
+<LI> <A HREF="tool.html#options">Conversion options</A>
+<LI> <A HREF="tool.html#inside1">Inside LTD, the Lisp to Dylan converter</A>
+<LI> <A HREF="tool.html#inside2">Inside DPP, the Dylan Pretty-Printer</A>
+<LI> <A HREF="tool.html#todo">To Do List</A>
+<LI> <A HREF="tool.html#done">Done List</A>
+<LI> <A HREF="tool.html#credits">Credits</A>
+</UL>
+<P>
+<HR>
+<I><A HREF="http://norvig.com/">Peter Norvig</A></I>
+</BODY>

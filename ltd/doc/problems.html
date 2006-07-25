@@ -1,0 +1,326 @@
+<HTML>
+<HEAD>
+<TITLE>Pitfalls for Lisp to Dylan Conversion</TITLE> 
+<!-- Changed by: Peter Norvig,  2-Nov-1995 -->
+</HEAD> 
+<BODY> 
+
+<H1>Pitfalls for Lisp to Dylan Conversion</H1>
+
+Dylan and Common Lisp (which we abbreviate in this document as "Lisp")
+are fairly similar languages, but it is not trivial to translate a
+Lisp program into Dylan.  That is, if you want to take a Lisp program
+"out of the box" and convert it to run 100% correctly in Dylan, you
+would essentially need either write a Lisp interpreter in Dylan, or
+write a Lisp to Dylan <I>compiler</I>, which would produce correct
+(but not always easily human-readable) code.  Instead of doing either
+of those, it would make more sense to link the Lisp code in to Dylan
+using the foreign function interface.<p>
+
+On the other hand, if you are interested in converting a Lisp program
+to Dylan so that you can then further modify it, and if you are
+willing to put in some manual work, then you want not a compiler, but
+rather a <I>translator</I> or <I>converter</I>, which produces clean,
+human-readable Dylan code, but which will need some hand editing.  The
+program <I>LTD</I> (for <I>L</I>isp <I>T</I>o <I>D</I>ylan) is just
+such a translator. <p>
+
+In the following sections we describe the areas where the translation
+can run into trouble.  
+
+<H2><A NAME="nil">NIL versus ()</A></H2>
+
+Lisp has a single object, written as either <TT>nil</TT> or
+<TT>()</TT>, which serves the role of three distinct Dylan objects:
+<TT>#f</TT> for false, <TT>#()</TT> for the empty list, and
+<TT>#"nil"</TT> for the symbol whose name is "nil".  In Dylan, only
+<TT>#f</TT> counts as false for conditional tests.  Our suggestion is
+that you edit your Lisp programs and make sure that you always use
+<TT>nil</TT> for false and <TT>()</TT> for the empty list; LTD will
+then work smoothly. You should also make sure that you consistently
+use the function <TT>null</TT> to check for the empty list, and
+<TT>not</TT> to check for false.  If you don't want to follow this
+advice, LTD provides <A HREF="tool.html#options">options</A> you can
+set.<P>
+
+There is a similar problem that <TT>t</TT> in Lisp is both a symbol and
+the canonical true value, while <TT>#t</TT> in Dylan is not a symbol.
+This does not cause as much confusion, so LTD ignores the problem.
+
+<H2><A NAME="2names">Single versus multiple namespaces</A></H2>
+
+In Dylan there is a single namespace associating variable names with
+objects of all kinds.  For example, the variable name <TT>$pi</TT>,
+the function name <TT>reverse</TT> and the class name
+<TT>&lt;list&gt;</TT> are all in this single namespace.  It is
+possible to subdivide this namespace into modules, but that is a <A
+HREF="#packages">separate issue</A>.  In Lisp, there is one name space for
+variables, another for function names, and a third for data types.
+The symbol <TT>list</TT> has one value as a function, another as a
+type, and is free to be given yet another as a variable.  <p>
+
+So there are two problems: (1) doing an analysis to tell which way
+<TT>list</TT> (or <TT>'list</TT>) is intended to be used, and (2)
+deciding what to do when <TT>list</TT> is used in what to Dylan is
+several different ways.  LTD address part of problem (1): it makes
+choices based on the function to which an expression is an argument.
+For example, consider the following conversions of <TT>list</TT> 
+done by LTD:
+
+<PRE>
+LISP                         DYLAN
+(coerce x 'list)             as(&lt;list&gt;, x)
+(mapcar 'list args)          map(list, args)
+(list 'list)                 list(#"list")
+</PRE>
+
+These are possible because LTD knows that the second argument to <TT>coerce</TT> is a type,
+and the first argument to <TT>mapcar</TT> is a funcion.<p>
+
+But there are some cases
+where conversions like this cannot be done automatically.  Consider <TT>(setq var
+'list)</TT>.  This should be translated as <TT>var := list</TT> if the
+variable is used later in <TT>(funcall var 1 2 3)</TT>; it should be
+translated as <TT>var := &lt;list&gt;</TT> if the variable is used in
+<TT>(coerce x var)</TT>, and it should be translated as <TT>var :=
+#"list"</TT> in other cases.  But in general, deciding where a
+variable will be used is undecidable.  So LTD does not even attempt to
+do non-local analysis.  By default, <TT>'list</TT> translates as the
+symbol <TT>#"list"</TT> and <TT>list</TT> translates as the variable
+<TT>list</TT>. This means that LTD will make mistakes in expressions
+such as <TT>(let ((var 'list)) (funcall var x y))</TT> or <TT>(let
+((list nil)) (list list))</TT>.
+
+<H2><A NAME="special">Special (dynamic) variables</A></H2>
+
+Lisp has special variables with dynamic scope.  Dylan does not have
+this feature.  However, Harlequin has provided an extension,
+<TT>fluid-bind</TT>, that implements variables with dynamic scope.
+LTD uses fluid-bind for all variables whose name starts and ends with
+an asterisk.
+
+<H2><A NAME="optional">Optional arguments</A></H2>
+
+Lisp allows both optional and keyword parameters.  Dylan allows only
+keyword parameters.  It is easy enough to change <TT>(defun f (x
+&amp;optional y) ...)</TT> to the Dylan equivalent of <TT>(defun f (x
+&amp;key y) ...)</TT>, and it is even possible to change calls such as
+<TT>(f 1 2)</TT> to <TT>(f 1 :y 2)</TT>, assuming that two passes
+through the code are allowed.  However, it is hard to know if anything
+needs to be done to an expression such as <TT>(apply f l)</TT>,
+because you don't know if <TT>f</TT> is a function that was defined to
+take optional arguments.  LTD handles optional arguments in built-in
+Common Lisp functions, but does not handle them for user-defined
+functions; you will need to look carefully at calls to all functions
+that take optional arguments.  Future versions of LTD may address this
+issue.
+
+<H2><A NAME="eval">EVAL and symbol-to-value coercion</A></H2>
+
+Lisp has an <TT>eval</TT> function; Dylan does not.  Furthermore, Lisp has
+other ways of getting some of the power of <TT>eval</TT>.  For
+example, in <TT>(funcall (read) x)</TT>, the user can type any symbol
+for the result of the <TT>read</TT>, and <TT>funcall</TT> will coerce
+that symbol into a function to be called.  This capability is not
+present in Dylan.  (Its absence means that one does not have to keep
+all the defined functions in a Dylan object library, which is a very
+good thing, but it does make translation difficult.)   <P>
+
+This problem shows up in Lisp expressions such as <TT>(setq f
+'nreverse)</TT>.  Whether this should translate as <TT>f :=
+#"nreverse"</TT> or <TT>f := reverse!</TT> depends on how <TT>f</TT>
+is subsequently used.  LTD takes the approach that symbols
+will not be converted to functions, unless they appear in a function
+argument position
+that is known to take only functions.  If you meant to refer to the
+function, you should write <TT>(setq f #'nreverse)</TT> in the source
+code; this will get translated as <TT>f := reverse!</TT> as expected.
+If you write <TT>(mapcar 'nreverse lists)</TT> or <TT>(funcall
+'nreverse list)</TT> then LTD will convert
+<TT>'nreverse</TT> to <TT>reverse!</TT>, but it will not do any more
+complicated data-flow analysis.
+
+<H2><A NAME="macros">Macros</A></H2>
+
+Lisp provides complex user-defined macros that can run arbitrary code
+before deciding on the expansion.  Dylan also provides a powerful
+macro facility, but it is not quite as powerful as Lisp's.  Therefore,
+it is not feasible to translate each <TT>defmacro</TT> from Lisp to
+Dylan.  LTD thus requires you to write a <A
+HREF="tool.html#ltd-fn"><TT>l2d-fn</TT></A> definition for each macro
+in your program.  Future versions of LTD may automate this, but we are
+waiting for the procedural macros to be defined.
+
+
+<H2><A NAME="symbols">Lexical conventions for symbols, etc.</A></H2>
+
+Variable names and symbols in Dylan are composed from numbers, digits,
+and the characters "<TT>!&amp;*&lt;=&gt;|^$%@_</TT>".  They may not
+start with "<TT>-+~?/</TT>".  If a variable starts with a digit, it
+must contain two consecutive letters.  LTD alters symbols that do not
+meet these conventions: it changes illegal characters to <TT>%</TT>.
+It does not check to see if such changes will result in name clashes. <p>
+
+In addition, note that in Lisp, <TT>|x|</TT> and <TT>|X|</TT> are two
+different symbols, while in Dylan, <TT>x</TT> and <TT>X</TT> are the
+same names, although <TT>#"x"</TT> and <TT>#"X"</TT> are different
+symbol literals.  LTD currently does not deal with this problem.  
+
+<H2><A NAME="numbers">Numbers</A></H2>
+
+Dylan has a simpler number type hierarchy (and syntax for number
+constants) than Lisp.  Dylan does not implement complex numbers
+(although it reserves a place for them).  LTD prints <TT>#C(1 2)</TT>
+as <TT>1 + 2 * $i</TT>, with the assumption that some library defines
+the constant <TT>$i</TT> as <TT>sqrt(-1)</TT>.  Similarly, Dylan does
+not define ratios, so LTD prints <TT>1/2</TT> as <TT>1 / 2</TT> within
+code, but as <TT>0.5</TT> within a literal.  Dylan does not provide
+the transcendental functions <TT>log</TT>, <TT>sin</TT>, etc. in the
+core language, but rather puts them in a library, which has not yet
+been specified.  LTD assumes that the function names are the same in
+Lisp and Dylan.  Perhaps most importantly, Dylan is not yet explicit
+about how bignums are used, and whether small integer arithmetic
+overflows into bignums.  LTD does not deal with this problem, but you
+may have to.
+
+<H2><A NAME="packages">Packages versus modules</A></H2>
+
+Lisp packages perform much of the same function as Dylan modules, but
+packages are more dynamic.  LTD does not attempt to deal with
+functions that access and alter packages at run time.  Future versions
+may. <p>
+
+One particular confusion is with the keyword package.  In Lisp, the
+keyword package is just another package, although with the restriction
+that all symbols in it are constants that evaluate to themselves.  But
+all symbols, keyword or not, are first class objects.  In Dylan, there
+is only one namespace of symbols, and several namespaces (modules) for
+names, which get mapped into a single namespace by importing
+assertions.  The syntax for a symbol is either <TT>#"symbol"</TT> or
+<TT>symbol:</TT>, both are equivalent.  The latter syntax makes Dylan
+symbols look like Lisp keywords (and they are used the same way in
+parameter lists), but otherwise there is no symbol/keyword distinction
+in Dylan.  Therefore, the safest thing is to convert Lisp's <TT>'(sym
+:key)</TT> to <TT>#(#"user:sym" #"key")</TT>, although LTD also gives
+you the option of converting this to <TT>#(#"sym" #"key")</TT> if you
+know there will be no package/name conflicts.
+
+<H2><A NAME="methods">CLOS method combination</A></H2>
+
+Lisp allows for a lot of lattitude in the ways methods are defined and
+combined.  One can specify the order on which parameters are tested
+for dispatch.  One can defined <TT>:before</TT>, <TT>:after</TT> and
+<TT>:around</TT> methods.  One can combine methods in customized ways.
+Dylan does not allow any of this, or rather, it forces the programmer
+to be responsible for it using <TT>call-next-method</TT>. LTD does not
+attempt to deal with this; it just flags method qualifiers with a
+warning.
+
+<H2><A NAME="names">Functions with different names</A></H2>
+
+Some functions have substantially the same definition in Lisp and
+Dylan, but just have different names.  For example, <TT>cons</TT> in
+Lisp is called <TT>pair</TT> in Dylan.  We provide a table of
+translations of this kind in the file <A
+HREF="../code/tables.lisp">tables.lisp</A>.  For example, the line
+
+<PRE>
+(ltd-fn cons pair)
+</PRE> 
+
+defines <TT>pair</TT> as the translation for the function
+<TT>cons</TT>.  You may add new entries to this table by adding lines of the form
+
+<PRE>
+(cvt-fn <I>lisp-function</I> <I>dylan-function</I>)
+</PRE> 
+
+<H2><A NAME="similar">Functions with similar (but different) semantics</A></H2>
+
+Some functions have similar semantics, but vary in minor detail.  For
+example, the Lisp function <TT>length</TT> performs much the same
+purpose as the Dylan function <TT>size</TT>, but there are
+differences.  For one thing, <TT>size</TT> can give you the size of a
+hashtable, while <TT>length</TT> will signal an error when applied to
+a hashtable.  LTD substitutes <TT>size</TT> fro <TT>length</TT>
+anyways, on the grounds that very few programs rely on signalling and
+catching an error like this.  If your program does rely on such
+behavior, you'll need to deal with it manually.  LTD always translates
+<TT>length</TT> to <TT>size</TT>, via <TT>(ltd-fn length size)</TT>.
+<p>
+
+Another example is the function <TT>+</TT>, which is limited to two
+arguments in Dylan, but takes any number in Lisp.  It is easy enough
+to translate <TT>(+ a b c)</TT> to <TT>a + b + c</TT>, but what about
+<TT>(apply #'+ args)</TT>? Currently, LTD translates this use of
+<TT>#'+</TT> to <TT>+</TT>, which won't be right if <TT>args</TT> can
+be other than a list of length two.<p>
+
+The biggest example of similar functions is in the sequence functions.
+For example, <TT>remove</TT> means much the same thing in Lisp and
+Dylan, except that Lisp's <TT>remove</TT> takes more keyword arguments.
+LTD has two approaches to handling this.  First, some calls can be
+converted to the corresponding Dylan function.  For example,
+
+<PRE>
+(remove item seq :test-not #my= :key #'slot1 :start n)
+</PRE>
+
+will be translated by LTD to
+
+<PRE>
+remove!(item, copy-subsequence(seq, start: n),
+        test: method (x, y) (complement(my=))(x, slot1(y)); end)
+</PRE>
+
+But this does not work so well in <TT>(apply #'remove args)</TT>,
+because we don't know what keywords will be in <TT>args</TT>.  To
+handle that, we have defined a library of functions that duplicate the
+Common Lisp sequence functions (except that they don't support the
+deprecated <TT>:test-not</TT> keyword).  These functions have names
+like <TT>cl-remove</TT>.<p>
+
+Another problem is <TT>error</TT>, and the other condition-signalling
+functions.  In Lisp, they take an argum that can be either a format
+string, an instance of a condition class, or the name of a condition
+class.  The corresponding Dylan functions support the first two
+options, but not the third.  LTD correctly translates <TT>(signal
+'error)</TT> to <TT>(signal (make <error>))</TT>, but it translates
+<TT>(apply #'signal args)</TT> to <TT>(apply signal args)</TT>, which
+would be incorrect if a condition class name is provided.
+
+A final problem is <TT>equalp</TT>, which has no direct equivalent in Dylan.
+LTD maps it to <TT>==</TT>, which could cause problems.<p>
+
+
+<H2><A NAME="missing">Functions that do not appear in Dylan</A></H2>
+
+Common Lisp has several hundred functions that do not appear in Dylan
+at all.  Some of these, like <TT>1+</TT> and <TT>cdar</TT> are easy
+enough to replace with a simple inline Dylan expression.  LTD does that
+with the following expressions:
+
+<PRE>
+(ltd-fn (1+ x)        `(+ ,x 1))
+(ltd-fn (cdar x)      `(tail (head ,x)))
+</PRE>
+
+Other functions, such as <TT>rassoc</TT>, could be provided for in the
+same way, or by a simple Lisp compatibility library written in Dylan.
+They will be added on an as-needed basis.
+Others, like <TT>eval</TT> or <TT>read</TT> would require an extensive
+library, which remains to be written.<p>
+
+Some functions have a half-hearted implementation in LTD.  For
+example, LTD handles some of the simpler syntactic clauses in the
+<TT>loop</TT> macro, but not all of them (there is an option to
+macroexpand complex <TT>loop</TT>s, and then convert the result).
+Similarly, LTD handles the easy format directives in format strings,
+but not the complex ones.  (One could try to "macroexpand" the format
+string using the <TT>formatter</TT> macro in Common Lisp.  LTD does
+not do this because the results often are still not usable.)
+
+</BODY> 
+</HTML>
+
+
