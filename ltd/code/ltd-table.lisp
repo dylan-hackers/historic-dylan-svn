@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
 ;;;     File: ltd-table.lisp; Date: /95
-(in-package :cl-user)
+(in-package :ltd)
 
 ;;;; Functions called from the (ltd-fn ...) table in tables.lisp
 
@@ -151,7 +151,7 @@
 	(t (cvt-exp exp))))
 
 (defun cvt-setf (exp)
-  (maybe-begin (loop for (var val) on (args exp) by 'cddr
+  (maybe-begin (loop for (var val) on (args exp) by #'cddr
 		     collect `(:= ,(cvt-exp var) ,(cvt-exp val)))))
 
 (defun binding-var (binding) (if (consp binding) (first/ binding) binding))
@@ -580,7 +580,7 @@
 (defun cvt-keys (keys)
   ;; Leave the key/value pair alone, except
   ;; replace :test-not f with :test (complement f)
-  (loop for sublist on keys by 'cddr
+  (loop for sublist on keys by #'cddr
         do (when (and (eq (first/ sublist) ':test-not) (length>1 sublist))
 	     (setf (first sublist) ':test)
              (setf (second sublist) `(complement ,(second/ sublist)))))

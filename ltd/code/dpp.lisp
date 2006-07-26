@@ -1,6 +1,6 @@
 ;;; -*- Mode: lisp; Syntax: common-lisp; -*- Author: Peter Norvig
 ;;;     File: dpp.lisp; Date: 29-Aug-95 
-(in-package :cl-user)
+(in-package :ltd)
 
 ;;;; DPP: DYLAN PRETTY-PRINTER
 

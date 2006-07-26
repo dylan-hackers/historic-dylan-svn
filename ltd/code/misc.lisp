@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
 ;;;     File: misc.lisp; Date: 8-Sep-95
-(in-package :cl-user)
+(in-package :ltd)
 
 ;;;; MISC. FUNCTIONS: UTILITY FUNCTIONS
 

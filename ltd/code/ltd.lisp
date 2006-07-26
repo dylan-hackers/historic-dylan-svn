@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
 ;;;     File: convert.lisp; Date: 28-Aug-95
-(in-package :cl-user)
+(in-package :ltd)
 
 ;;;; LTD: CONVERT FROM COMMON LISP TO DYLAN - TOP-LEVEL FUNCTION
 

@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
 ;;;     File: tables.lisp; Date: 31-Aug-95
-(in-package :cl-user)
+(in-package :ltd)
 
 ;;;; CLtL2 CONSTANTS
 

@@ -1,5 +1,5 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: User; -*-
-(in-package :cl-user)
+(in-package :ltd)
 
 ;;;; CVT-LOOP and friends
 

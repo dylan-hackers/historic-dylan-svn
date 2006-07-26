@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
 ;;;     File: options.lisp; Date: 2/Feb/95
-(in-package :cl-user)
+(in-package :ltd)
 
 ;;;; OPTIONS: FACILITY FOR DEFINING, SETTING. AND QUERYING OPTIONS
 
@@ -18,8 +18,6 @@
 
 (defstruct (option (:type list))
   name value type doc)
-
-;(deftype boolean () '(member t nil))
 
 (defparameter *default-options*
     `(
@@ -91,7 +89,7 @@
   (when ?
     (dolist (option *options*)
       (setf (option-value option) :?)))
-  (loop for (key val) on inits by 'cddr do
+  (loop for (key val) on inits by #'cddr do
 	(unless (member key '(:? :default))
 	  (set-option key val)))
   *options*)

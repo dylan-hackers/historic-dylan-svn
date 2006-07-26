@@ -1,5 +1,5 @@
 ;;;; LTD-READ: PRESERVES COMMENTS AND REMEMBERS FILE POSITIONS
-(in-package :cl-user)
+(in-package :ltd)
 
 (defvar *eof* "eof")
 (defvar *file-position-table* (make-hash-table :test #'eq))
@@ -48,6 +48,11 @@
   "Read an array using the native lisp array reader."
   (let ((*readtable* *lisp-readtable*))
     (funcall *lisp-array* stream char arg)))
+
+(defun read-char-if (stream char)
+  (if (eql (peek-char nil stream nil nil) char)
+      (read-char stream)
+      nil))
 
 (defun collect-comments (stream char &optional arg comment-so-far)
   ;; Gather up comments, then either attach to following exp
@@ -121,8 +126,3 @@
   "Read a Lisp expression, preserving comments and file positions."
   (let* ((*readtable* *ltd-readtable*))
     (record-file-positions stream (read stream nil *eof*))))
-
-(defun read-char-if (stream char)
-  (if (eql (peek-char nil stream nil nil) char)
-      (read-char stream)
-      nil))
