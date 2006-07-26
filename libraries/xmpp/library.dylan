@@ -2,6 +2,8 @@ module: dylan-user
 
 define library xmpp
   use common-dylan;
+  use system,
+    import: { date };
   use io;
   use network;
   use xml-parser;
@@ -22,6 +24,7 @@ define module xmpp
   use xml-stream-parser;
   use simple-xml;
   use priority-queue;
+  use date;
   
   //XXX
   use standard-io;

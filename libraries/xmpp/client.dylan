@@ -1,7 +1,7 @@
 module: xmpp
 synopsis: 
-author: 
-copyright:
+author: turbo24prg 
+copyright: 
 
 define class <xmpp-client> (<object>)
   slot jid :: <jid>,
@@ -11,7 +11,7 @@ define class <xmpp-client> (<object>)
   slot state :: one-of(#"disconnected", #"connected") = #"disconnected";
   slot callbacks :: <table> = make(<table>);
   virtual slot password;
-  slot lock :: <lock> = make(<lock>);
+  slot lock :: <lock>;
   slot notification :: <notification>;
   slot available-stanza :: false-or(<element>) = #f;
   slot listener :: <thread>;
@@ -19,6 +19,7 @@ end class <xmpp-client>;
 
 define method initialize (client :: <xmpp-client>, #rest rest, #key, #all-keys)
   next-method();
+  client.lock := make(<lock>); 
   client.notification := make(<notification>, lock: client.lock);
 end method initialize;
 

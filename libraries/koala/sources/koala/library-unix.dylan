@@ -23,6 +23,7 @@ define library koala
   use dylan-basics;                             // basic dylan utils
 //  use sql-odbc;
 //  use win32-kernel;
+  use base64;  
 
   export koala;
   export koala-extender;
@@ -241,7 +242,8 @@ define module koala
 
   create
     moved-permanently-redirectr,
-    see-other-redirect;
+    see-other-redirect,
+    unauthorized-error;
 
   create
     http-error-code,
@@ -267,7 +269,9 @@ end;
 define module httpi                             // http internals
   use dylan;
   use threads;               // from dylan lib
-  use common-extensions, exclude: { format-to-string, split };
+  use common-extensions,
+    rename: { split => string-split },
+    exclude: { format-to-string };
   use dylan-basics;
   use simple-random;
   use utilities,
@@ -305,6 +309,7 @@ define module httpi                             // http internals
   use xml-parser,
     prefix: "xml$";
   use xml-rpc-common;
+  use base64;
 //  use win32-kernel, import: { LoadLibrary, FreeLibrary };
 end module httpi;
 

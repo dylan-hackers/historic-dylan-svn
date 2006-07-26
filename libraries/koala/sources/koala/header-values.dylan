@@ -252,14 +252,16 @@ define function parse-authorization-value (str :: <byte-string>,
                                            epos :: <integer>)
   let dpos = whitespace-position(str, bpos, epos) | epos;
   let (b, e) = trim-whitespace(str, dpos, epos);
-  if (string-match("basic", str, b, e))
+
+  if (string-match("Basic", str, bpos, dpos))
     // base64 encoding of userid:password.  Should decode and return
     // (userid . password).  or maybe avalue with "userid"=userid, etc.
-    trimmed-substring(str, dpos, epos)
+    let username+password = string-split(base64-decode(trimmed-substring(str, dpos, epos)), ':');
+    pair(first(username+password), last(username+password));
   else
     make(<avalue>,
          value: substring(str, b, e),
-         alist: extract-attribute-value-alist(str, dpos, epos, ','))
+         alist: extract-attribute-value-alist(str, dpos, epos, ','));
   end;
 end;
 

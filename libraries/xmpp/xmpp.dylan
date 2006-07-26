@@ -77,3 +77,8 @@ define method language-setter (language, element :: <element>)
   add-attribute(element, make(<attribute>, name: "xml:lang", value: as(<string>, language)));
   language;
 end method language-setter;
+
+define function generate-id ()
+ => (id :: <string>);
+  integer-to-string(date-microseconds(current-date())); 
+end function generate-id;
