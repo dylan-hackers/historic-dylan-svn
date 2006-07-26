@@ -1,7 +1,7 @@
 module: xmpp
-synopsis: 
-author: 
-copyright:
+synopsis:  
+author: turbo24prg
+copyright: none
 
 define class <callback> (<priority-queueable-mixin>)
   slot reference :: <symbol>,

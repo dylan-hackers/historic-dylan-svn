@@ -238,7 +238,7 @@ end;
 // cf RFC 2069
 // Returns string for "basic" and <avalue> for others.
 define sealed method parse-header-value (key == #"authorization", data :: <field-type>)
-  => (credentials :: type-union(<string>, <avalue>))
+  => (credentials :: type-union(<pair>, <avalue>))
   //(define-header-keywords "realm" "nonce" "username" "uri" "response" "digest" "algorithm" "opaque"
   //			"basic" "digest")
   parse-single-header(data, parse-authorization-value)

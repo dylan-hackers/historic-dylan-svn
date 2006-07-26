@@ -1,5 +1,5 @@
 library: xmpp
-files: xmpp-exports
+files: library
   xmpp
   stream
   jid
