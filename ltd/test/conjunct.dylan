@@ -24,31 +24,22 @@ define method expand (conjunct :: <dtp-conjunct>)
       conjunct.nogoods := #f;
     end if;
     begin
-      let g15973 = conjunct.subgoal;
-      g15973;
+      let g154775 = conjunct.subgoal;
       let answer = get-next-answer(conjunct.subgoal, conjunct);
       if (answer)
-        begin
-          let g15974 = conjunct;
-          let g15975
-              = #(#"slot-value", #"conjunct", #(#"quote", #"answer-count"));
-          let g15976 = g15974.g15975 + 1;
-          .inv-slot-value(g15974, g15975, g15976);
-        end;
+        inc!(conjunct.(conjunct.answer-count));
         propagate(answer, conjunct.parent-conjunction);
       elseif (exhausted-p(conjunct.subgoal))
         propagate(not-an-answer: conjunct.parent-conjunction);
       else
         begin
-          let g15977 = g15973;
-          let g15978 = #"conjuncts-to-propagate-to";
-          let g15979 = add!(conjunct, g15973.conjuncts-to-propagate-to);
-          .inv-slot-value(g15977, g15978, g15979);
+          let new-value-154777 = conjunct;
+          let g154776
+              = add!(new-value-154777, g154775.conjuncts-to-propagate-to);
+          set-slot-value(g154775, #"conjuncts-to-propagate-to", g154776);
         end;
         if (~ cl-find(conjunct.subgoal, proof-subgoal-agenda(*proof*)))
-          #f;
           agenda-add(conjunct.subgoal);
-        elseif (nil);
         end if;
         propagate(blocked: conjunct.parent-conjunction);
       end if;
@@ -106,22 +97,13 @@ end method reset;
 define method unattach (conjunct)
   // Remove CONJUNCT from master subgoal propagate list
   if (~ (conjunct.subgoal == #"uninitialized"))
-    let g15980 = conjunct.subgoal;
-    g15980;
-    if (cl-find(conjunct, g15980.conjuncts-to-propagate-to))
-      #f;
-      begin
-        let g15981 = g15980;
-        let g15982 = #"conjuncts-to-propagate-to";
-        let g15983 = remove(g15980.conjuncts-to-propagate-to, conjunct);
-        .inv-slot-value(g15981, g15982, g15983);
-      end;
-      if (empty?(g15980.conjuncts-to-propagate-to))
-        #f;
+    let g154970 = conjunct.subgoal;
+    if (cl-find(conjunct, g154970.conjuncts-to-propagate-to))
+      g154970.conjuncts-to-propagate-to
+       := remove(g154970.conjuncts-to-propagate-to, conjunct);
+      if (empty?(g154970.conjuncts-to-propagate-to))
         agenda-remove(conjunct.subgoal);
-      elseif (nil);
       end if;
-    elseif (nil);
     end if;
   end if;
 end method unattach;

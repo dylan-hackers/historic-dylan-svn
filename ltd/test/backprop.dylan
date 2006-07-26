@@ -1,7 +1,11 @@
 // ----------------------------------------------------------------------------
-// 			BACKPROPAGATION ALGORITHM
-// 			 (SINGLE, BINARY OUTPUT)
-// 			     "backprop.lisp"
+// Artificial Intelligence, Second Edition
+// Elaine Rich and Kevin Knight
+// McGraw Hill, 1991
+// 
+// This code may be freely copied and used for educational or research purposes.
+// All software written by Kevin Knight.
+// Comments, bugs, improvements to knight@cs.cmu.edu
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 // 			BACKPROPAGATION ALGORITHM
@@ -444,9 +448,19 @@ define method feed-forward (index, set, verbose)
     #f;
   end for;
   if (verbose)
-    (formatter-1("Result = ~14,7f ...~%"))(#t,
-                                           unit-activation(output-layer
-                                                           .net-units[1]));
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               begin
+                 write-string++("Result = ", xp, 0, 9);
+                 using-format(xp, "~14,7f", pop!(args));
+                 write-string++(" ...", xp, 0, 4);
+                 pprint-newline+(unconditional: xp);
+               end;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(#t, unit-activation(output-layer.net-units[1]));
   end if;
 end method feed-forward;
 
@@ -492,15 +506,27 @@ define method back-propagate (index, temp-alpha, verbose)
             = mult(eta, hi-unit.unit-delta, low-unit.unit-activation)
                + mult(temp-alpha, the-connection.connection-delta-weight);
         if (verbose)
-          (formatter-1("Changing weight (~d ~d ~d) from ~14,7f to ~14,7f~%"))(#t,
-                                                                              l,
-                                                                              u,
-                                                                              u2,
-                                                                              the-connection
-                                                                              .connection-weight,
-                                                                              the-connection
-                                                                              .connection-weight
-                                                                               + newchange);
+          (method (s, #rest args)
+             apply(maybe-initiate-xp-printing,
+                   method (xp, #rest args)
+                     begin
+                       write-string++("Changing weight (", xp, 0, 17);
+                       using-format(xp, "~d", pop!(args));
+                       write-char++(' ', xp);
+                       using-format(xp, "~d", pop!(args));
+                       write-char++(' ', xp);
+                       using-format(xp, "~d", pop!(args));
+                       write-string++(") from ", xp, 0, 7);
+                       using-format(xp, "~14,7f", pop!(args));
+                       write-string++(" to ", xp, 0, 4);
+                       using-format(xp, "~14,7f", pop!(args));
+                       pprint-newline+(unconditional: xp);
+                     end;
+                     if (args) copy-sequence(args); end if;
+                   end method,
+                   s, args);
+           end method)(#t, l, u, u2, the-connection.connection-weight,
+                       the-connection.connection-weight + newchange);
         end if;
         the-connection.connection-weight
          := the-connection.connection-weight + newchange;
@@ -564,27 +590,67 @@ define method evaluate-training-data (epoch, infile)
     format(ifile, "EPOCH %d.  Performance on training data:\n\n", epoch);
     format(ifile, "Confidence: ");
     for (i = 0 then 1+(i), until i = 8)
-      (formatter-1("~6,2f "))(ifile, i * 0.05);
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   using-format(xp, "~6,2f", pop!(args));
+                   write-char++(' ', xp);
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(ifile, i * 0.05);
     end for;
     format(ifile, "\n");
     format(ifile, "Guessed:    ");
     for (i = 0 then 1+(i), until i = 8)
-      (formatter-1("~6d "))(ifile, round(total-guessed[i]));
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   using-format(xp, "~6d", pop!(args));
+                   write-char++(' ', xp);
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(ifile, round(total-guessed[i]));
     end for;
     format(ifile, "\n");
     format(ifile, "Correct:    ");
     for (i = 0 then 1+(i), until i = 8)
-      (formatter-1("~6d "))(ifile, round(total-right[i]));
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   using-format(xp, "~6d", pop!(args));
+                   write-char++(' ', xp);
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(ifile, round(total-right[i]));
     end for;
     format(ifile, "\n");
     format(ifile, "Percent:    ");
     for (i = 0 then 1+(i), until i = 8)
-      (formatter-1("~6,2f "))(ifile,
-                              if (total-guessed[i] > 0.5)
-                                100.0 * total-right[i] / total-guessed[i];
-                              else
-                                0.0;
-                              end if);
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   using-format(xp, "~6,2f", pop!(args));
+                   write-char++(' ', xp);
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(ifile,
+                   if (total-guessed[i] > 0.5)
+                     100.0 * total-right[i] / total-guessed[i];
+                   else
+                     0.0;
+                   end if);
     end for;
     format(ifile, "\n\n");
   end with-open-file;
@@ -613,27 +679,67 @@ define method evaluate-testing-data (epoch, infile)
     format(ifile, "EPOCH %d.  Performance on testing data:\n\n", epoch);
     format(ifile, "Confidence: ");
     for (i = 0 then 1+(i), until i = 8)
-      (formatter-1("~6,2f "))(ifile, i * 0.05);
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   using-format(xp, "~6,2f", pop!(args));
+                   write-char++(' ', xp);
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(ifile, i * 0.05);
     end for;
     format(ifile, "\n");
     format(ifile, "Guessed:    ");
     for (i = 0 then 1+(i), until i = 8)
-      (formatter-1("~6d "))(ifile, round(total-guessed[i]));
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   using-format(xp, "~6d", pop!(args));
+                   write-char++(' ', xp);
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(ifile, round(total-guessed[i]));
     end for;
     format(ifile, "\n");
     format(ifile, "Correct:    ");
     for (i = 0 then 1+(i), until i = 8)
-      (formatter-1("~6d "))(ifile, round(total-right[i]));
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   using-format(xp, "~6d", pop!(args));
+                   write-char++(' ', xp);
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(ifile, round(total-right[i]));
     end for;
     format(ifile, "\n");
     format(ifile, "Percent:    ");
     for (i = 0 then 1+(i), until i = 8)
-      (formatter-1("~6,2f "))(ifile,
-                              if (total-guessed[i] > 0.5)
-                                100.0 * total-right[i] / total-guessed[i];
-                              else
-                                0.0;
-                              end if);
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   using-format(xp, "~6,2f", pop!(args));
+                   write-char++(' ', xp);
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(ifile,
+                   if (total-guessed[i] > 0.5)
+                     100.0 * total-right[i] / total-guessed[i];
+                   else
+                     0.0;
+                   end if);
     end for;
     format(ifile, "\n\n");
   end with-open-file;
@@ -651,12 +757,8 @@ define method print-weights (infile)
       for (u = 0 then 1+(u), until u > layer.net-size)
         for (u2 = 1 then 1+(u2), until u2 > layer.net-next-layer.net-size)
           let the-connection = layer.net-connections[u, u2];
-          (formatter-1("(~d ~d ~d ~14.7f)~%"))(ifile,
-                                               k,
-                                               u,
-                                               u2,
-                                               the-connection
-                                               .connection-weight);
+          format(ifile, "(~d ~d ~d ~14.7f)~%", k, u, u2,
+                 the-connection.connection-weight);
         finally
           #f;
         end for;

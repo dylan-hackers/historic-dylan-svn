@@ -140,28 +140,76 @@ define method find-answers (unknown, tree, #key count = 1, level = 0)
   let losing-branch = #f;
   // Decide which branch has won and set variables accordingly:
   if (right-delta2 < left-delta2)
-    (formatter-1("~&~aTurn toward large numbers in dimension ~a: ~\n\t\t       ~a is closer to ~a than to ~a."))(#t,
-                                                                                                                 indent(level),
-                                                                                                                 dimension,
-                                                                                                                 projection,
-                                                                                                                 tree
-                                                                                                                 .node-right-min,
-                                                                                                                 tree
-                                                                                                                 .node-left-max);
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               begin
+                 pprint-newline+(fresh: xp);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 write-string++("Turn toward large numbers in dimension ", xp,
+                                0, 39);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 write-string++(": ", xp, 0, 2);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 write-string++(" is closer to ", xp, 0, 14);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 write-string++(" than to ", xp, 0, 9);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 write-char++('.', xp);
+               end;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(#t, indent(level), dimension, projection,
+                 tree.node-right-min, tree.node-left-max);
     begin
       threshold-delta2 := left-delta2;
       winning-branch := tree.node-right-samples;
       losing-branch := tree.node-left-samples;
     end;
   else
-    (formatter-1("~&~aTurn toward small numbers in dimension ~a: ~\n\t\t     ~a is closer to ~a than to ~a."))(#t,
-                                                                                                               indent(level),
-                                                                                                               dimension,
-                                                                                                               projection,
-                                                                                                               tree
-                                                                                                               .node-left-max,
-                                                                                                               tree
-                                                                                                               .node-right-min);
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               begin
+                 pprint-newline+(fresh: xp);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 write-string++("Turn toward small numbers in dimension ", xp,
+                                0, 39);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 write-string++(": ", xp, 0, 2);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 write-string++(" is closer to ", xp, 0, 14);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 write-string++(" than to ", xp, 0, 9);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 write-char++('.', xp);
+               end;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(#t, indent(level), dimension, projection, tree.node-left-max,
+                 tree.node-right-min);
     begin
       threshold-delta2 := right-delta2;
       winning-branch := tree.node-left-samples;
@@ -201,15 +249,56 @@ define method find-answers (unknown, tree, #key count = 1, level = 0)
   else
     // Indicate why there is more work to do:
     if (nearest-winning-distance2 <= threshold-delta2)
-      (formatter-1("~&~aTrying alternate branch because too few answers ~\n\t\t      [~a <= ~a]."))(#t,
-                                                                                                    indent(level),
-                                                                                                    size(winning-answers),
-                                                                                                    count);
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   pprint-newline+(fresh: xp);
+                   fluid-bind (*print-escape* = #f)
+                     write+(pop!(args), xp);
+                   end fluid-bind;
+                   write-string++("Trying alternate branch because too few answers ",
+                                  xp, 0, 48);
+                   write-char++('[', xp);
+                   fluid-bind (*print-escape* = #f)
+                     write+(pop!(args), xp);
+                   end fluid-bind;
+                   write-string++(" <= ", xp, 0, 4);
+                   fluid-bind (*print-escape* = #f)
+                     write+(pop!(args), xp);
+                   end fluid-bind;
+                   write-string++("].", xp, 0, 2);
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(#t, indent(level), size(winning-answers), count);
     else
-      (formatter-1("~&~aTrying other branch because worst answer ~\n\t\t    is not good enough [~a > ~a]."))(#t,
-                                                                                                             indent(level),
-                                                                                                             nearest-winning-distance2,
-                                                                                                             threshold-delta2);
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   pprint-newline+(fresh: xp);
+                   fluid-bind (*print-escape* = #f)
+                     write+(pop!(args), xp);
+                   end fluid-bind;
+                   write-string++("Trying other branch because worst answer ",
+                                  xp, 0, 41);
+                   write-string++("is not good enough [", xp, 0, 20);
+                   fluid-bind (*print-escape* = #f)
+                     write+(pop!(args), xp);
+                   end fluid-bind;
+                   write-string++(" > ", xp, 0, 3);
+                   fluid-bind (*print-escape* = #f)
+                     write+(pop!(args), xp);
+                   end fluid-bind;
+                   write-string++("].", xp, 0, 2);
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(#t, indent(level), nearest-winning-distance2,
+                   threshold-delta2);
     end if;
     // Establish best answers on the losing branch of the tree:
     losing-answers

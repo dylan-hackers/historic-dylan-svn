@@ -31,16 +31,52 @@ end class <node-index>;
 
 // ----------------------------------------------------------------------------
 define method theory-print-function (structure, stream, depth)
-  (formatter-1("<Theory ~A with ~D node~:P>"))(stream,
-                                               structure.theory-name,
-                                               size(structure.theory-nodes));
+  (method (s, #rest args)
+     apply(maybe-initiate-xp-printing,
+           method (xp, #rest args)
+             let init = args;
+             begin
+               write-string++("<Theory ", xp, 0, 8);
+               fluid-bind (*print-escape* = #f)
+                 write+(pop!(args), xp);
+               end fluid-bind;
+               write-string++(" with ", xp, 0, 6);
+               using-format(xp, "~D", pop!(args));
+               write-string++(" node", xp, 0, 5);
+               if (~ (head(backup-in-list(1, init, args)) == 1))
+                 write-char++('s', xp);
+               end if;
+               write-char++('>', xp);
+             end;
+             if (args) copy-sequence(args); end if;
+           end method,
+           s, args);
+   end method)(stream, structure.theory-name, size(structure.theory-nodes));
 end method theory-print-function;
 
 define method node-index-print-function (structure, stream, depth)
-  (formatter-1("<Index ~A with ~D node~:P>"))(stream,
-                                              structure.node-index-key,
-                                              size(structure
-                                                   .node-index-nodes));
+  (method (s, #rest args)
+     apply(maybe-initiate-xp-printing,
+           method (xp, #rest args)
+             let init = args;
+             begin
+               write-string++("<Index ", xp, 0, 7);
+               fluid-bind (*print-escape* = #f)
+                 write+(pop!(args), xp);
+               end fluid-bind;
+               write-string++(" with ", xp, 0, 6);
+               using-format(xp, "~D", pop!(args));
+               write-string++(" node", xp, 0, 5);
+               if (~ (head(backup-in-list(1, init, args)) == 1))
+                 write-char++('s', xp);
+               end if;
+               write-char++('>', xp);
+             end;
+             if (args) copy-sequence(args); end if;
+           end method,
+           s, args);
+   end method)(stream, structure.node-index-key,
+               size(structure.node-index-nodes));
 end method node-index-print-function;
 
 // ----------------------------------------------------------------------------
@@ -183,8 +219,8 @@ define method last-id-count (theory-name)
   if (theory)
     id
      := kb-node-id(first(begin
-                           let s14663 = theory.theory-nodes;
-                           copy-sequence(s14663, start: size(s14663) - 1);
+                           let s93739 = theory.theory-nodes;
+                           copy-sequence(s93739, start: size(s93739) - 1);
                          end));
     str := as(<string>, id);
     str := copy-sequence(str, size(as(<string>, theory-name)) + 1);
@@ -218,48 +254,78 @@ define method make-theory-from-sentences (theory-name, sentence-label-pairs)
             end method,
             cnf-label-pairs);
     nodes
-     := block (return)
-          let literal-list = #f;
-          let label = #f;
-          let g15984 :: <list> = literal-lists;
+     := begin
           block (return)
-            let count :: <real> = 1;
+            let literal-list = #f;
+            let label = #f;
+            let tail-156215 = literal-lists;
+            let by-156216 = #"cdr$cons";
             block (return)
-              let g15985 = list(#f);
-              let g15986 = g15985;
+              let count = 1;
+              let to-156221 = #f;
+              let by-156222 = 1;
               block (return)
-                let loop-not-first-time = #f;
+                let accumulator-156213 :: <list> = list(#f);
                 block (return)
-                  local method go-end-loop ()
-                          return-from-nil(tail(g15985));
-                        end method go-end-loop,
-                        method go-next-loop ()
-                          if (not(pair?(g15984))) go-end-loop(); end if;
-                          let loop-desetq-temp = head(g15984);
-                          (literal-list := head(loop-desetq-temp));
-                          (loop-desetq-temp := tail(loop-desetq-temp));
-                          (label := head(loop-desetq-temp));
-                          (g15984 := tail(g15984));
-                          if (loop-not-first-time)
-                            (count := count + 1);
-                          else
-                            (loop-not-first-time := #t);
-                          end if;
-                          (tail(g15986)
-                            := (g15986
-                                 := list(make-kb-node(id: make-new-id(theory-name,
-                                                                      count),
-                                                      clause: make-clause-node(literals: literal-list,
-                                                                               label: label)))));
-                          go-next-loop();
-                          go-end-loop();
-                        end method go-next-loop;
-                  go-next-loop();
+                  let aux-var-156224 = accumulator-156213;
+                  block (return)
+                    block (return)
+                      local method go-end-loop-156212 ()
+                              return-from-nil(tail(accumulator-156213));
+                            end method go-end-loop-156212,
+                            method go-begin-loop-156211 ()
+                              (aux-var-156224
+                                := begin
+                                     let s93739
+                                         = (tail(aux-var-156224)
+                                             := list(make-kb-node(id: make-new-id(theory-name,
+                                                                                  count),
+                                                                  clause: make-clause-node(literals: literal-list,
+                                                                                           label: label))));
+                                     copy-sequence(s93739,
+                                                   start: size(s93739) - 1);
+                                   end);
+                              begin
+                                if (not(pair?(tail-156215)))
+                                  go-end-loop-156212();
+                                end if;
+                                let temp-156218 = by-156216(tail-156215);
+                                let temp-156217 = car$cons(tail-156215);
+                                let destructor-156219 = temp-156217;
+                                (literal-list := head(destructor-156219));
+                                let destructor-156220
+                                    = tail(destructor-156219);
+                                (label := head(destructor-156220));
+                                #f;
+                                (tail-156215 := temp-156218);
+                              end;
+                              let temp-156223 = count + by-156222;
+                              (count := temp-156223);
+                              go-begin-loop-156211();
+                              go-end-loop-156212();
+                            end method go-begin-loop-156211;
+                      begin
+                        if (not(pair?(tail-156215)))
+                          go-end-loop-156212();
+                        end if;
+                        let temp-156218 = by-156216(tail-156215);
+                        let temp-156217 = car$cons(tail-156215);
+                        let destructor-156219 = temp-156217;
+                        (literal-list := head(destructor-156219));
+                        let destructor-156220 = tail(destructor-156219);
+                        (label := head(destructor-156220));
+                        #f;
+                        (tail-156215 := temp-156218);
+                      end;
+                      #f;
+                      go-begin-loop-156211();
+                    end block;
+                  end block;
                 end block;
               end block;
             end block;
           end block;
-        end block;
+        end;
     make-theory-from-nodes(nodes, theory-name);
     theory-name;
   end block;

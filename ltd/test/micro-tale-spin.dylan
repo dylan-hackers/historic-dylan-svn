@@ -95,15 +95,15 @@ define method init-world ()
   *all-objects*
    := concatenate(*all-locations*,
                   #(#"honey", #"berries", #"fish", #"worm", #"water"));
-  let list13156 = pair(#"world", *personae*);
+  let list92543 = pair(#"world", *personae*);
   begin
     do(method (persona)
          put(persona, #"facts", #f);
          put(persona, #"goals", #f);
          put(persona, #"demons", #f);
        end method,
-       list13156);
-    list13156;
+       list92543);
+    list92543;
   end;
   begin
     do(method (fact) now-knows(head(fact), second(fact), #t); end method,
@@ -115,16 +115,15 @@ end method init-world;
 //   The success of asking something depends upon whether the other person
 //   is honest and likes you.
 define method ask-plan (actor, agent, action)
-  bq-list(#"and",
-          bq-list(#"not",
-                  bq-list*(#"relate", bq-list(#"quote", actor),
-                           bq-list(#"quote", agent), bq-list(#"quote", actor),
-                           #(#(#"quote", #"deceive")))),
-          bq-list*(#"relate", bq-list(#"quote", actor),
-                   bq-list(#"quote", actor), bq-list(#"quote", agent),
-                   #(#(#"quote", #"like"))),
-          bq-list(#"tell", bq-list(#"quote", actor), bq-list(#"quote", agent),
-                  bq-list(#"question", bq-list(#"quote", action))));
+  list(#"and",
+       list(#"not",
+            apply(list, #"relate", list(#"quote", actor),
+                  list(#"quote", agent), list(#"quote", actor),
+                  #(#(#"quote", #"deceive")))),
+       apply(list, #"relate", list(#"quote", actor), list(#"quote", actor),
+             list(#"quote", agent), #(#(#"quote", #"like"))),
+       list(#"tell", list(#"quote", actor), list(#"quote", agent),
+            list(#"question", list(#"quote", action))));
 end method ask-plan;
 
 //   The success of bargaining with someone by giving them food depends
@@ -133,61 +132,53 @@ end method ask-plan;
 //   get the food to the other person.
 define method bargain-plan (actor, agent, action)
   let atrans-food = atrans(actor, #"food", agent, actor);
-  bq-list(#"and",
-          bq-list(#"not",
-                  bq-list*(#"relate", bq-list(#"quote", actor),
-                           bq-list(#"quote", agent), bq-list(#"quote", actor),
-                           #(#(#"quote", #"deceive")))),
-          bq-list(#"not",
-                  bq-list(#"knows", bq-list(#"quote", actor),
-                          bq-list*(#"has", bq-list(#"quote", agent),
-                                   #(#(#"quote", #"food"))))),
-          bq-list(#"not",
-                  bq-list(#"has-goal-of", bq-list(#"quote", actor),
-                          bq-list*(#"has", bq-list(#"quote", actor),
-                                   #(#(#"quote", #"food"))))),
-          bq-list(#"doit",
-                  bq-list(#"mbuild", bq-list(#"quote", actor),
-                          bq-list(#"cause", bq-list(#"quote", atrans-food),
-                                  bq-list(#"maybe",
-                                          bq-list(#"quote", action))))),
-          bq-list(#"tell", bq-list(#"quote", actor), bq-list(#"quote", agent),
-                  bq-list(#"question",
-                          bq-list(#"cause", bq-list(#"quote", atrans-food),
-                                  bq-list(#"future",
-                                          bq-list(#"quote", action))))),
-          bq-list*(#"dcont", bq-list(#"quote", actor),
-                   #(#(#"quote", #"food"))),
-          bq-list(#"dprox", bq-list(#"quote", actor),
-                  bq-list(#"quote", actor), bq-list(#"quote", agent)),
-          bq-list(#"doit", bq-list(#"quote", atrans-food)),
-          bq-list(#"is-true", bq-list(#"quote", action)));
+  list(#"and",
+       list(#"not",
+            apply(list, #"relate", list(#"quote", actor),
+                  list(#"quote", agent), list(#"quote", actor),
+                  #(#(#"quote", #"deceive")))),
+       list(#"not",
+            list(#"knows", list(#"quote", actor),
+                 apply(list, #"has", list(#"quote", agent),
+                       #(#(#"quote", #"food"))))),
+       list(#"not",
+            list(#"has-goal-of", list(#"quote", actor),
+                 apply(list, #"has", list(#"quote", actor),
+                       #(#(#"quote", #"food"))))),
+       list(#"doit",
+            list(#"mbuild", list(#"quote", actor),
+                 list(#"cause", list(#"quote", atrans-food),
+                      list(#"maybe", list(#"quote", action))))),
+       list(#"tell", list(#"quote", actor), list(#"quote", agent),
+            list(#"question",
+                 list(#"cause", list(#"quote", atrans-food),
+                      list(#"future", list(#"quote", action))))),
+       apply(list, #"dcont", list(#"quote", actor), #(#(#"quote", #"food"))),
+       list(#"dprox", list(#"quote", actor), list(#"quote", actor),
+            list(#"quote", agent)),
+       list(#"doit", list(#"quote", atrans-food)),
+       list(#"is-true", list(#"quote", action)));
 end method bargain-plan;
 
 //   The success of threatening depends upon whether you dominate
 //   the other person.
 define method threat-plan (actor, agent, action)
-  bq-list(#"and",
-          bq-list(#"not",
-                  bq-list*(#"relate", bq-list(#"quote", actor),
-                           bq-list(#"quote", agent), bq-list(#"quote", actor),
-                           #(#(#"quote", #"dominate")))),
-          bq-list(#"tell", bq-list(#"quote", actor), bq-list(#"quote", agent),
-                  bq-list(#"cause",
-                          bq-list(#"negate", bq-list(#"quote", action)),
-                          bq-list(#"future",
-                                  bq-list(#"propel",
-                                          bq-list(#"quote", actor),
-                                          #(#"quote", #"hand"),
-                                          bq-list(#"quote", agent))))),
-          bq-list(#"or", bq-list(#"is-true", bq-list(#"quote", action)),
-                  bq-list(#"and",
-                          bq-list(#"doit",
-                                  bq-list(#"propel",
-                                          bq-list(#"quote", actor),
-                                          #(#"quote", #"hand"),
-                                          bq-list(#"quote", agent))),
-                          bq-list(#"is-true", bq-list(#"quote", action)))));
+  list(#"and",
+       list(#"not",
+            apply(list, #"relate", list(#"quote", actor),
+                  list(#"quote", agent), list(#"quote", actor),
+                  #(#(#"quote", #"dominate")))),
+       list(#"tell", list(#"quote", actor), list(#"quote", agent),
+            list(#"cause", list(#"negate", list(#"quote", action)),
+                 list(#"future",
+                      list(#"propel", list(#"quote", actor),
+                           #(#"quote", #"hand"), list(#"quote", agent))))),
+       list(#"or", list(#"is-true", list(#"quote", action)),
+            list(#"and",
+                 list(#"doit",
+                      list(#"propel", list(#"quote", actor),
+                           #(#"quote", #"hand"), list(#"quote", agent))),
+                 list(#"is-true", list(#"quote", action)))));
 end method threat-plan;
 
 //   Set the storytelling in the past tense.
@@ -380,12 +371,12 @@ define method sthirst (actor)
 end method sthirst;
 
 define method sthirst-plan (actor)
-  bq-list(#"and",
-          bq-list*(#"dprox", bq-list(#"quote", actor),
-                   bq-list(#"quote", actor), #(#(#"quote", #"water"))),
-          bq-list(#"doit",
-                  bq-list*(#"ingest", bq-list(#"quote", actor),
-                           #(#(#"quote", #"water")))));
+  list(#"and",
+       apply(list, #"dprox", list(#"quote", actor), list(#"quote", actor),
+             #(#(#"quote", #"water"))),
+       list(#"doit",
+            apply(list, #"ingest", list(#"quote", actor),
+                  #(#(#"quote", #"water")))));
 end method sthirst-plan;
 
 //   To satisfy hunger, get some food and eat it.
@@ -395,12 +386,11 @@ define method shunger (actor)
 end method shunger;
 
 define method shunger-plan (actor)
-  bq-list(#"and",
-          bq-list*(#"dcont", bq-list(#"quote", actor),
-                   #(#(#"quote", #"food"))),
-          bq-list(#"doit",
-                  bq-list*(#"ingest", bq-list(#"quote", actor),
-                           #(#(#"quote", #"food")))));
+  list(#"and",
+       apply(list, #"dcont", list(#"quote", actor), #(#(#"quote", #"food"))),
+       list(#"doit",
+            apply(list, #"ingest", list(#"quote", actor),
+                  #(#(#"quote", #"food")))));
 end method shunger-plan;
 
 //   Three D-goals -- dcont, dknow, dprox:
@@ -418,22 +408,20 @@ define method dcont (actor, object)
 end method dcont;
 
 define method dcont-plan1 (actor, object, owner)
-  bq-list(#"persuade", bq-list(#"quote", actor), bq-list(#"quote", owner),
-          bq-list(#"atrans", bq-list(#"quote", owner),
-                  bq-list(#"quote", object), bq-list(#"quote", actor),
-                  bq-list(#"quote", owner)));
+  list(#"persuade", list(#"quote", actor), list(#"quote", owner),
+       list(#"atrans", list(#"quote", owner), list(#"quote", object),
+            list(#"quote", actor), list(#"quote", owner)));
 end method dcont-plan1;
 
 define method dcont-plan2 (actor, object)
-  bq-list(#"and",
-          bq-list(#"dknow", bq-list(#"quote", actor),
-                  bq-list(#"where-is", bq-list(#"quote", object))),
-          bq-list(#"dprox", bq-list(#"quote", actor),
-                  bq-list(#"quote", actor), bq-list(#"quote", object)),
-          bq-list(#"doit",
-                  bq-list*(#"atrans", bq-list(#"quote", actor),
-                           bq-list(#"quote", object),
-                           bq-list(#"quote", actor), #(#()))));
+  list(#"and",
+       list(#"dknow", list(#"quote", actor),
+            list(#"where-is", list(#"quote", object))),
+       list(#"dprox", list(#"quote", actor), list(#"quote", actor),
+            list(#"quote", object)),
+       list(#"doit",
+            apply(list, #"atrans", list(#"quote", actor),
+                  list(#"quote", object), list(#"quote", actor), #(#()))));
 end method dcont-plan2;
 
 //   To find out something: find a friend to tell you
@@ -444,22 +432,20 @@ define method dknow (actor, info)
 end method dknow;
 
 define method dknow-plan (actor, info)
-  bq-list(#"and",
-          bq-list*(#"knows-loc", bq-list(#"quote", actor),
-                   #(#(#"quote", #"agent"))),
-          bq-list(#"or",
-                  bq-list(#"is-friend-of", #(#"quote", #"agent"),
-                          bq-list(#"quote", actor)),
-                  bq-list(#"not",
-                          bq-list*(#"relate", bq-list(#"quote", actor),
-                                   #(#"quote", #"agent"),
-                                   bq-list(#"quote", actor),
-                                   #(#(#"quote", #"dominate"))))),
-          bq-list(#"persuade", bq-list(#"quote", actor),
-                  #(#"quote", #"agent"),
-                  bq-list*(#"mtrans", #(#"quote", #"agent"),
-                           bq-list(#"quote", info), bq-list(#"quote", actor),
-                           #(#(#"quote", #"agent")))));
+  list(#"and",
+       apply(list, #"knows-loc", list(#"quote", actor),
+             #(#(#"quote", #"agent"))),
+       list(#"or",
+            list(#"is-friend-of", #(#"quote", #"agent"),
+                 list(#"quote", actor)),
+            list(#"not",
+                 apply(list, #"relate", list(#"quote", actor),
+                       #(#"quote", #"agent"), list(#"quote", actor),
+                       #(#(#"quote", #"dominate"))))),
+       list(#"persuade", list(#"quote", actor), #(#"quote", #"agent"),
+            apply(list, #"mtrans", #(#"quote", #"agent"),
+                  list(#"quote", info), list(#"quote", actor),
+                  #(#(#"quote", #"agent")))));
 end method dknow-plan;
 
 //   To move an object (including yourself) to where some other
@@ -474,56 +460,45 @@ define method dprox (actor, object, new-object)
 end method dprox;
 
 define method dprox-plan1 (actor, object, new-object)
-  bq-list(#"and",
-          bq-list(#"or",
-                  bq-list(#"equal", bq-list(#"quote", actor),
-                          bq-list(#"quote", object)),
-                  bq-list(#"dprox", bq-list(#"quote", actor),
-                          bq-list(#"quote", actor),
-                          bq-list(#"quote", object))),
-          bq-list(#"dknow", bq-list(#"quote", actor),
-                  bq-list(#"where-is", bq-list(#"quote", new-object))),
-          bq-list(#"or",
-                  bq-list(#"equal", bq-list(#"quote", actor),
-                          bq-list(#"quote", object)),
-                  bq-list(#"doit",
-                          bq-list(#"grasp", bq-list(#"quote", actor),
-                                  bq-list(#"quote", object)))),
-          bq-list(#"or",
-                  bq-list(#"is-prox", bq-list(#"quote", actor),
-                          bq-list(#"loc-name-of",
-                                  bq-list(#"quote", new-object))),
-                  bq-list(#"doit",
-                          bq-list(#"ptrans", bq-list(#"quote", actor),
-                                  bq-list(#"quote", object),
-                                  bq-list(#"knows-loc",
-                                          bq-list(#"quote", actor),
-                                          bq-list(#"quote", new-object)),
-                                  bq-list(#"knows-loc",
-                                          bq-list(#"quote", actor),
-                                          bq-list(#"quote", actor))))),
-          bq-list(#"or",
-                  bq-list(#"equal", bq-list(#"quote", actor),
-                          bq-list(#"quote", object)),
-                  bq-list(#"doit",
-                          bq-list(#"un-grasp", bq-list(#"quote", actor),
-                                  bq-list(#"quote", object)))));
+  list(#"and",
+       list(#"or",
+            list(#"equal", list(#"quote", actor), list(#"quote", object)),
+            list(#"dprox", list(#"quote", actor), list(#"quote", actor),
+                 list(#"quote", object))),
+       list(#"dknow", list(#"quote", actor),
+            list(#"where-is", list(#"quote", new-object))),
+       list(#"or",
+            list(#"equal", list(#"quote", actor), list(#"quote", object)),
+            list(#"doit",
+                 list(#"grasp", list(#"quote", actor),
+                      list(#"quote", object)))),
+       list(#"or",
+            list(#"is-prox", list(#"quote", actor),
+                 list(#"loc-name-of", list(#"quote", new-object))),
+            list(#"doit",
+                 list(#"ptrans", list(#"quote", actor),
+                      list(#"quote", object),
+                      list(#"knows-loc", list(#"quote", actor),
+                           list(#"quote", new-object)),
+                      list(#"knows-loc", list(#"quote", actor),
+                           list(#"quote", actor))))),
+       list(#"or",
+            list(#"equal", list(#"quote", actor), list(#"quote", object)),
+            list(#"doit",
+                 list(#"un-grasp", list(#"quote", actor),
+                      list(#"quote", object)))));
 end method dprox-plan1;
 
 define method dprox-plan2 (actor, object, new-object)
-  bq-list(#"and",
-          bq-list(#"not",
-                  bq-list(#"equal", bq-list(#"quote", actor),
-                          bq-list(#"quote", object))),
-          bq-list*(#"member", bq-list(#"quote", object), #(#"*personae*")),
-          bq-list*(#"peruade", bq-list(#"quote", actor),
-                   bq-list(#"quote", object),
-                   bq-list(#"ptrans", bq-list(#"quote", object),
-                           bq-list(#"quote", object),
-                           bq-list(#"quote", new-object),
-                           bq-list(#"loc-name-of",
-                                   bq-list(#"quote", object))),
-                   #(#"goal")));
+  list(#"and",
+       list(#"not",
+            list(#"equal", list(#"quote", actor), list(#"quote", object))),
+       apply(list, #"member", list(#"quote", object), #(#"*personae*")),
+       apply(list, #"peruade", list(#"quote", actor), list(#"quote", object),
+             list(#"ptrans", list(#"quote", object), list(#"quote", object),
+                  list(#"quote", new-object),
+                  list(#"loc-name-of", list(#"quote", object))),
+             #(#"goal")));
 end method dprox-plan2;
 
 //   Subgoals and plans -- persuade, ask, bargain, threaten, and tell:
@@ -543,13 +518,12 @@ define method tell (actor, agent, info)
 end method tell;
 
 define method tell-plan (actor, agent, info)
-  bq-list(#"and",
-          bq-list(#"dprox", bq-list(#"quote", actor),
-                  bq-list(#"quote", actor), bq-list(#"quote", agent)),
-          bq-list(#"doit",
-                  bq-list(#"mtrans", bq-list(#"quote", actor),
-                          bq-list(#"quote", info), bq-list(#"quote", agent),
-                          bq-list(#"quote", actor))));
+  list(#"and",
+       list(#"dprox", list(#"quote", actor), list(#"quote", actor),
+            list(#"quote", agent)),
+       list(#"doit",
+            list(#"mtrans", list(#"quote", actor), list(#"quote", info),
+                 list(#"quote", agent), list(#"quote", actor))));
 end method tell-plan;
 
 //   The simulator
@@ -721,7 +695,7 @@ define method demon-check (who, event)
   put(who, #"demons",
       choose(complement(empty?),
              begin
-               let list13156 = symbol-get-property(who, #"demons");
+               let list92543 = symbol-get-property(who, #"demons");
                begin
                  do(method (demon)
                       if (unify-cds(head(demon), event))
@@ -731,8 +705,8 @@ define method demon-check (who, event)
                         demon;
                       end if;
                     end method,
-                    list13156);
-                 list13156;
+                    list92543);
+                 list92543;
                end;
              end));
 end method demon-check;
@@ -1680,8 +1654,8 @@ end method say-tense;
 //   lastchar returns that last character in x
 define method lastchar (x)
   head(begin
-         let s14663 = explode(x);
-         copy-sequence(s14663, start: size(s14663) - 1);
+         let s93739 = explode(x);
+         copy-sequence(s93739, start: size(s93739) - 1);
        end);
 end method lastchar;
 

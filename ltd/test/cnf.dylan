@@ -116,22 +116,21 @@ end method cnf-merge-lists;
 define method standardize-operators (p)
   select (car(p))
     #"=>"
-       => bq-list(#"or",
-                  bq-list(#"not",
-                          bq-cons(#"and",
-                                  begin
-                                    let l14762 = tail(p);
-                                    copy-sequence(l14762, size(l14762) - 1);
-                                  end)),
-                  head(copy-sequence(p, start: size(p) - 1)));
+       => list(#"or",
+               list(#"not",
+                    pair(#"and",
+                         begin
+                           let l93820 = tail(p);
+                           copy-sequence(l93820, size(l93820) - 1);
+                         end)),
+               head(copy-sequence(p, start: size(p) - 1)));
     #"<="
-       => bq-list(#"or", second(p),
-                  bq-list(#"not", bq-cons(#"and", tail(tail(p)))));
+       => list(#"or", second(p), list(#"not", pair(#"and", tail(tail(p)))));
     #"if"
-       => bq-list(#"or", third(p), bq-list(#"not", second(p)));
+       => list(#"or", third(p), list(#"not", second(p)));
     (#"<=>", #"iff")
-       => bq-list(#"or", bq-list(#"and", second(p), third(p)),
-                  bq-list(#"and", negate(second(p)), negate(third(p))));
+       => list(#"or", list(#"and", second(p), third(p)),
+               list(#"and", negate(second(p)), negate(third(p))));
     otherwise
        => p;
   end select;
@@ -213,16 +212,14 @@ define method normal-form (p)
        => select (*if-translation*)
             #"bc"
                => concatenate!(nf-backward(p),
-                               nf-backward(bq-list(#"if",
-                                                   bq-list(#"not", third(p)),
-                                                   bq-list(#"not",
-                                                           second(p)))));
+                               nf-backward(list(#"if",
+                                                list(#"not", third(p)),
+                                                list(#"not", second(p)))));
             #"fc"
                => concatenate!(nf-forward(p),
-                               nf-forward(bq-list(#"if",
-                                                  bq-list(#"not", third(p)),
-                                                  bq-list(#"not",
-                                                          second(p)))));
+                               nf-forward(list(#"if",
+                                               list(#"not", third(p)),
+                                               list(#"not", second(p)))));
             #"mix"
                => concatenate!(nf-backward(p), nf-forward(p));
             otherwise
@@ -244,9 +241,8 @@ define method normal-form (p)
           end select;
     #"or"
        => if (tail(tail(p)))
-            normal-form(bq-list(#"<=", second(p),
-                                bq-list(#"not",
-                                        bq-cons(#"and", tail(tail(p))))));
+            normal-form(list(#"<=", second(p),
+                             list(#"not", pair(#"and", tail(tail(p))))));
           else
             normal-form(second(p));
           end if;
@@ -266,11 +262,11 @@ end method normal-form;
 define method nf-forward (p)
   napcar(method (x)
            if (tail(x))
-             bq-cons(#"=>",
-                     bq-nconc(napcar(negate, copy-sequence(x, size(x) - 1)),
-                              bq-list(head(copy-sequence(x,
-                                                         start: size(x)
-                                                                 - 1)))));
+             pair(#"=>",
+                  concatenate!(napcar(negate, copy-sequence(x, size(x) - 1)),
+                               list(head(copy-sequence(x,
+                                                       start: size(x)
+                                                               - 1)))));
            else
              head(x);
            end if;
@@ -283,7 +279,7 @@ end method nf-forward;
 define method nf-backward (p)
   napcar(method (x)
            if (tail(x))
-             bq-list*(#"<=", head(x), napcar(negate, tail(x)));
+             apply(list, #"<=", head(x), napcar(negate, tail(x)));
            else
              head(x);
            end if;

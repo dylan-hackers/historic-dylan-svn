@@ -451,7 +451,7 @@ define method shrink-title (title-string)
   let retlist = #f;
   let astream
       = // LTD: Function MAKE-STRING-INPUT-STREAM not yet implemented.
-        make-string-input-stream(as-uppercase!(title-string), 0, #f);
+        make-string-input-stream(as-uppercase!(title-string), 0);
   block (nil)
     begin
       for (i from 0 below 20)
@@ -466,7 +466,7 @@ define method shrink-title (title-string)
       end for;
     end;
   cleanup
-    deallocate-resource(#"string-input-simple-stream", astream);
+    close(astream);
   end block;
   pair(#"book:", reverse(retlist));
 end method shrink-title;

@@ -37,9 +37,40 @@ define method print-literal-node-as-list (node,
                                           flip-negation = #f)
   if (~ (node.literal-negated-p == flip-negation)) format(s, "(not "); end if;
   format(s, "(");
-  (formatter-1("~:(~A~)"))(s, node.literal-relation);
+  (method (s, #rest args)
+     apply(maybe-initiate-xp-printing,
+           method (xp, #rest args)
+             begin
+               push-char-mode(xp, #"cap1");
+               fluid-bind (*print-escape* = #f)
+                 write+(pop!(args), xp);
+               end fluid-bind;
+               pop-char-mode(xp);
+             end;
+             if (args) copy-sequence(args); end if;
+           end method,
+           s, args);
+   end method)(s, node.literal-relation);
   if (node.literal-terms)
-    (formatter-1("~{ ~S~}"))(s, node.literal-terms);
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               let args = pop!(args);
+               block (return)
+                 local method go-l ()
+                         if (empty?(args)) return(#f); end if;
+                         write-char++(' ', xp);
+                         fluid-bind (*print-escape* = #t)
+                           write+(pop!(args), xp);
+                         end fluid-bind;
+                         go-l();
+                       end method go-l;
+                 go-l();
+               end block;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(s, node.literal-terms);
   end if;
   format(s, ")");
   if (~ (node.literal-negated-p == flip-negation)) format(s, ")"); end if;
@@ -49,53 +80,136 @@ define method print-literal-node-as-logic (node,
                                            #key s = #t,
                                            flip-negation = #f)
   if (~ (node.literal-negated-p == flip-negation)) format(s, "~"); end if;
-  (formatter-1("~:(~A~)"))(s, node.literal-relation);
+  (method (s, #rest args)
+     apply(maybe-initiate-xp-printing,
+           method (xp, #rest args)
+             begin
+               push-char-mode(xp, #"cap1");
+               fluid-bind (*print-escape* = #f)
+                 write+(pop!(args), xp);
+               end fluid-bind;
+               pop-char-mode(xp);
+             end;
+             if (args) copy-sequence(args); end if;
+           end method,
+           s, args);
+   end method)(s, node.literal-relation);
   if (node.literal-terms)
     let term-strings = #f;
     term-strings
      := map(method (term)
-              let s = allocate-resource(#"string-output-simple-stream");
-              #"character";
-              term-to-string(term, s);
-              let _
-                  = // LTD: Function GET-OUTPUT-STREAM-STRING not yet implemented.
-                    get-output-stream-string(s);
-              deallocate-resource(#"string-output-simple-stream", s);
-              _;
+              let s
+                  = // LTD: Function MAKE-STRING-OUTPUT-STREAM not yet implemented.
+                    make-string-output-stream(element-type: #f);
+              block (nil)
+                begin term-to-string(term, s); end;
+              cleanup
+                close(s);
+              end block;
+              // LTD: Function GET-OUTPUT-STREAM-STRING not yet implemented.
+              get-output-stream-string(s);
             end method,
             node.literal-terms);
-    (formatter-1("(~A~{,~A~})"))(s, head(term-strings), tail(term-strings));
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               begin
+                 write-char++('(', xp);
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 let args = pop!(args);
+                 block (return)
+                   local method go-l ()
+                           if (empty?(args)) return(#f); end if;
+                           write-char++(',', xp);
+                           fluid-bind (*print-escape* = #f)
+                             write+(pop!(args), xp);
+                           end fluid-bind;
+                           go-l();
+                         end method go-l;
+                   go-l();
+                 end block;
+                 write-char++(')', xp);
+               end;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(s, head(term-strings), tail(term-strings));
   end if;
 end method print-literal-node-as-logic;
 
 define method term-to-string (term, #key s = #t)
   // Variable terms -> lowercase string, Constant terms -> capitalized string
   if (varp(term))
-    (formatter-1("~(~A~)"))(s, variable-to-string(term));
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               begin
+                 push-char-mode(xp, #"down");
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 pop-char-mode(xp);
+               end;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(s, variable-to-string(term));
   elseif (instance?(term, <pair>))
-    (formatter-1("~:(~A~)"))(s, first(term));
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               begin
+                 push-char-mode(xp, #"cap1");
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 pop-char-mode(xp);
+               end;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(s, first(term));
     if (tail(term)) format(s, "("); end if;
     format(s, "%S",
            begin
-             let str = allocate-resource(#"string-output-simple-stream");
-             #"character";
-             for (remaining-terms = tail(term) then tail(remaining-terms),
-                  until empty?(remaining-terms),
-                  subterm = first(remaining-terms) then first(remaining-terms))
-               term-to-string(subterm, str);
-               if (tail(remaining-terms)) format(str, ","); end if;
-             end for;
-             let _
-                 = // LTD: Function GET-OUTPUT-STREAM-STRING not yet implemented.
-                   get-output-stream-string(str);
-             deallocate-resource(#"string-output-simple-stream", str);
-             _;
+             let str
+                 = // LTD: Function MAKE-STRING-OUTPUT-STREAM not yet implemented.
+                   make-string-output-stream(element-type: #f);
+             block (nil)
+               begin
+                 for (remaining-terms = tail(term) then tail(remaining-terms),
+                      until empty?(remaining-terms),
+                      subterm = first(remaining-terms) then first(remaining-terms))
+                   term-to-string(subterm, str);
+                   if (tail(remaining-terms)) format(str, ","); end if;
+                 end for;
+               end;
+             cleanup
+               close(str);
+             end block;
+             // LTD: Function GET-OUTPUT-STREAM-STRING not yet implemented.
+             get-output-stream-string(str);
            end);
     if (tail(term)) format(s, ")"); end if;
   elseif (instance?(term, <string>))
     format(s, "%=", term);
   else
-    (formatter-1("~:(~A~)"))(s, term);
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               begin
+                 push-char-mode(xp, #"cap1");
+                 fluid-bind (*print-escape* = #f)
+                   write+(pop!(args), xp);
+                 end fluid-bind;
+                 pop-char-mode(xp);
+               end;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(s, term);
   end if;
 end method term-to-string;
 

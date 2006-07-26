@@ -15,8 +15,8 @@ define constant all-squares =
           let _acc = make(<deque>);
           for (i from 11 to 88)
             if (begin
-                  let g15929 = modulo(i, 10);
-                  1 <= g15929 & g15929 <= 8;
+                  let g112164 = modulo(i, 10);
+                  1 <= g112164 & g112164 <= 8;
                 end)
               push-last(_acc, i);
             end if;

@@ -376,7 +376,7 @@ define method exponent->prefix (base, exponent)
     1
        => base;
     otherwise
-       => bq-list(#"^", base, exponent);
+       => list(#"^", base, exponent);
   end select;
 end method exponent->prefix;
 

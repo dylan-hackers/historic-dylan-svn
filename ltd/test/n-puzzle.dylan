@@ -1,6 +1,11 @@
-// ----------------------------------------------------------------------------
-// 			  N-PUZZLE DOMAIN
-// 			  "n-puzzle.lisp"
+// -----------------------------------------------------------------------------
+// Artificial Intelligence, Second Edition
+// Elaine Rich and Kevin Knight
+// McGraw Hill, 1991
+// 
+// This code may be freely copied and used for educational or research purposes.
+// All software written by Kevin Knight.
+// Comments, bugs, improvements to knight@cs.cmu.edu
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 // 			  N-PUZZLE DOMAIN
@@ -256,7 +261,14 @@ define method print-state (s, #rest ignore)
   format(*standard-output*, "#<");
   for (y from 0 below *puzzle-size*)
     for (x from 0 below *puzzle-size*)
-      (formatter-1("~3d"))(*standard-output*, tile-in-position(s, x, y));
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 using-format(xp, "~3d", pop!(args));
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(*standard-output*, tile-in-position(s, x, y));
     end for;
   end for;
   format(*standard-output*, ">");
@@ -266,7 +278,14 @@ define method print-state-alternate (s, #rest ignore)
   for (y from 0 below *puzzle-size*)
     format(*standard-output*, "\n");
     for (x from 0 below *puzzle-size*)
-      (formatter-1("~2d"))(*standard-output*, tile-in-position(s, x, y));
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 using-format(xp, "~2d", pop!(args));
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(*standard-output*, tile-in-position(s, x, y));
     end for;
   end for;
   format(*standard-output*, "\n");

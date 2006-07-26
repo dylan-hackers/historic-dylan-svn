@@ -326,20 +326,16 @@ end method check-for-contradictions;
 define method contradiction-check (jtms, flag, body)
   let jtmsv = generate-symbol();
   let old-value = generate-symbol();
-  bq-list(#"let*",
-          bq-list(bq-list(jtmsv, jtms),
-                  bq-list(old-value,
-                          bq-list(#"jtms-checking-contradictions", jtmsv))),
-          bq-list(#"unwind-protect",
-                  bq-list*(#"progn",
-                           bq-list(#"setf",
-                                   bq-list(#"jtms-checking-contradictions",
-                                           jtmsv),
-                                   flag),
-                           body),
-                  bq-list(#"setf",
-                          bq-list(#"jtms-checking-contradictions", jtmsv),
-                          old-value)));
+  list(#"let*",
+       list(list(jtmsv, jtms),
+            list(old-value, list(#"jtms-checking-contradictions", jtmsv))),
+       list(#"unwind-protect",
+            apply(list, #"progn",
+                  list(#"setf", list(#"jtms-checking-contradictions", jtmsv),
+                       flag),
+                  body),
+            list(#"setf", list(#"jtms-checking-contradictions", jtmsv),
+                 old-value)));
 end method contradiction-check;
 
 // LTD: No macros.

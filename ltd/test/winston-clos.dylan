@@ -305,11 +305,12 @@ end method process-initforms;
 define method process-precedence (class, superclasses)
   symbol-get-property(class, #"superclasses") := superclasses;
   for (s in superclasses)
-    let g15948 = class;
-    let g15944 = s;
-    let g15945 = #"downlink";
-    let g15947 = add!(g15948, symbol-get-property(g15944, g15945));
-    .inv-get(g15944, g15945, g15947);
+    let new-value-146963 = class;
+    let g146959 = s;
+    let g146960 = #"downlink";
+    let g146962
+        = add!(new-value-146963, symbol-get-property(g146959, g146960));
+    %put(g146959, g146960, g146962);
   end for;
   for (s in make-relatives-list(class, #"downlink"))
     symbol-get-property(s, #"precedence-list") := make-precedence-list(s);
@@ -322,16 +323,15 @@ define method process-accessor (class, slot-description)
   let writer = make-setf-symbol(reader);
   if (reader)
     // LTD: Function EVAL not yet implemented.
-    eval(bq-list(#"defmethod", reader, bq-list(bq-list(#"object", class)),
-                 bq-list(#"get", #"object", bq-list(#"quote", slot))));
+    eval(list(#"defmethod", reader, list(list(#"object", class)),
+              list(#"get", #"object", list(#"quote", slot))));
     // LTD: Function EVAL not yet implemented.
-    eval(bq-list(#"defmethod", writer,
-                 bq-cons(bq-list(#"object", class), #(#"value")),
-                 bq-list*(#"setf",
-                          bq-list(#"get", #"object", bq-list(#"quote", slot)),
-                          #(#"value"))));
+    eval(list(#"defmethod", writer, pair(list(#"object", class), #(#"value")),
+              apply(list, #"setf",
+                    list(#"get", #"object", list(#"quote", slot)),
+                    #(#"value"))));
     // LTD: Function EVAL not yet implemented.
-    eval(bq-list(#"defsetf", reader, writer));
+    eval(list(#"defsetf", reader, writer));
   end if;
 end method process-accessor;
 

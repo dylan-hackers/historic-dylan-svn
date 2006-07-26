@@ -163,9 +163,42 @@ end method isolate;
 
 define method print-equations (header, equations)
   // Print a list of equations.
-  (formatter-1("~%~a~{~%  ~{ ~a~}~}~%"))(#t,
-                                         header,
-                                         map(prefix->infix, equations));
+  (method (s, #rest args)
+     apply(maybe-initiate-xp-printing,
+           method (xp, #rest args)
+             begin
+               pprint-newline+(unconditional: xp);
+               fluid-bind (*print-escape* = #f)
+                 write+(pop!(args), xp);
+               end fluid-bind;
+               let args = pop!(args);
+               block (return)
+                 local method go-l ()
+                         if (empty?(args)) return(#f); end if;
+                         pprint-newline+(unconditional: xp);
+                         write-string++("  ", xp, 0, 2);
+                         let args = pop!(args);
+                         block (return)
+                           local method go-l ()
+                                   if (empty?(args)) return(#f); end if;
+                                   write-char++(' ', xp);
+                                   fluid-bind (*print-escape* = #f)
+                                     write+(pop!(args), xp);
+                                   end fluid-bind;
+                                   go-l();
+                                 end method go-l;
+                           go-l();
+                         end block;
+                         go-l();
+                       end method go-l;
+                 go-l();
+               end block;
+               pprint-newline+(unconditional: xp);
+             end;
+             if (args) copy-sequence(args); end if;
+           end method,
+           s, args);
+   end method)(#t, header, map(prefix->infix, equations));
 end method print-equations;
 
 define constant operators-and-inverses =

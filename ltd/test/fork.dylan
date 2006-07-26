@@ -104,10 +104,9 @@ end method forkable?;
 // ----------------------------------------------------------------------------
 nil(#f, nil(),
     "Return a copy of the conjunction (with some slot values copied)",
-    nil(nil(#f, #f)),
     nil(nil(), nil(#f, nil(#())), nil(nil(#f, #()), nil(nil, nil(#f, #()))),
         nil(nil(#f, #()), nil(nil(#f, #()))),
-        nil(nil(#(#(), #(), #(), #(), #(), #(), #(), #())),
+        nil(nil(#(#(), #(), #(), #(), #(), #(), #())),
             nil(nil(#f, #f), nil(#f, #f))),
         #f));
 
@@ -121,11 +120,9 @@ define method fork-specialize! (instance, original)
   let subgoal = #f;
   ac := active-conjunct(instance);
   subgoal := ac.subgoal;
-  let g15990 = ac;
-  let g15987 = subgoal;
-  let g15988 = #"conjuncts-to-propagate-to";
-  let g15989 = add!(g15990, g15987.g15988);
-  .inv-slot-value(g15987, g15988, g15989);
+  let new-value-157314 = ac;
+  let g157313 = add!(new-value-157314, subgoal.conjuncts-to-propagate-to);
+  set-slot-value(subgoal, #"conjuncts-to-propagate-to", g157313);
 end method fork-specialize!;
 
 // ----------------------------------------------------------------------------

@@ -53,94 +53,138 @@ define method binding-value (binding) tail(binding); end method binding-value;
 //  delete-bdg (x bdg-list)	remove binding for x in bdg-list
 //  get-bdg (x bdg-list)		find binding for x in bdg-list
 begin
-  check-lock-definitions-compile-time(#"popf", #"function", #"defmacro",
-                                      // LTD: Function FBOUNDP not yet implemented.
-                                      fboundp(#"popf"));
-  // LTD: Function MACRO-FUNCTION not yet implemented.
-  macro-function(#"popf")
-   := method (**macroarg**, ..environment..)
-        dt-macro-argument-check(2, #f, **macroarg**, #"macro");
-        let env = ..environment..;
-        let g15957 = tail(**macroarg**);
-        let %reference = car-fussy(g15957, #"%reference");
-        let item = car-fussy(tail(g15957), #"item");
-        let keywords = tail(tail(g15957));
-        #f;
-        let (dummies, vals, newvals, setter, getter)
-            = get-setf-expansion(%reference, env);
-        for (d = dummies then cdr(d), v = vals then cdr(v),
-             let-list = nil then cons(list(car(d), car(v)), let-list),
-             until empty?(d))
-          #f;
-        finally
-          bq-list(#"let*",
-                  setf-binding-list(newvals, let-list,
-                                    if (instance?(getter, <pair>)
-                                         & #"the" == head(getter))
-                                      list(#"the",
-                                           second(getter),
-                                           apply(list,
-                                                 #"pop-fn",
-                                                 getter,
-                                                 item,
-                                                 keywords));
-                                    else
-                                      apply(list,
-                                            #"pop-fn",
-                                            getter,
-                                            item,
-                                            keywords);
-                                    end if),
-                  setter);
-        end for;
-      end method;
-  set-func_name(// LTD: Function MACRO-FUNCTION not yet implemented.
-                macro-function(#"popf"),
-                #"popf");
-  .inv-func_formals(// LTD: Function FBOUNDP not yet implemented.
-                    fboundp(#"popf"),
-                    #(#"%reference", #"item", #"&rest", #"keywords"));
-  ce-putprop(#"popf",
-             method (**macroarg**, ..environment..)
-               dt-macro-argument-check(2, #f, **macroarg**, #"macro");
-               let env = ..environment..;
-               let g15957 = tail(**macroarg**);
-               let %reference = car-fussy(g15957, #"%reference");
-               let item = car-fussy(tail(g15957), #"item");
-               let keywords = tail(tail(g15957));
-               #f;
-               let (dummies, vals, newvals, setter, getter)
-                   = get-setf-expansion(%reference, env);
-               for (d = dummies then cdr(d), v = vals then cdr(v),
-                    let-list = nil then cons(list(car(d), car(v)), let-list),
-                    until empty?(d))
-                 #f;
-               finally
-                 bq-list(#"let*",
-                         setf-binding-list(newvals,
-                                           let-list,
-                                           if (instance?(getter, <pair>)
-                                                & #"the" == head(getter))
-                                           list(#"the",
-                                                second(getter),
-                                                apply(list,
-                                                      #"pop-fn",
-                                                      getter,
-                                                      item,
-                                                      keywords));
-                                           else
-                                           apply(list,
-                                                 #"pop-fn",
-                                                 getter,
-                                                 item,
-                                                 keywords);
-                                           end if),
-                         setter);
-               end for;
-             end method,
-             #".compile-file-macro.");
-  symbol-remove-property(#"popf", #"%fun-documentation");
-  record-source-file(#"popf");
+  fluid-bind (*function-name*
+               = generate-subform-name(#"popf", *function-name*))
+    fluid-bind (*function-parent* = tlf-function-parent(#(#"quote", #"popf")))
+      record-sf-eval(compiler-eval(*function-name*),
+                     compiler-eval(*function-parent*));
+      record-sf-compile(*function-name*, *function-parent*);
+      set-macro-function(#"popf",
+                         method (%%macroarg%%, environment)
+                           let &whole151751 = %%macroarg%%;
+                           let (%reference ...)151752 = tail(&whole151751);
+                           let check-lambda-list-top-level151755
+                               = check-lambda-list-top-level(#(#"%reference",
+                                                               #"item",
+                                                               #"&rest",
+                                                               #"keywords"),
+                                                             &whole151751,
+                                                             (%reference ...)151752,
+                                                             2,
+                                                             2,
+                                                             #"t",
+                                                             #"macro");
+                           let %reference = head((%reference ...)151752);
+                           let (item ...)151753
+                               = tail((%reference ...)151752);
+                           let item = head((item ...)151753);
+                           let keywords151754 = tail((item ...)151753);
+                           let keywords = keywords151754;
+                           begin
+                             #f;
+                             let (dummies, vals, newval, setter, getter)
+                                 = // LTD: Function GET-SETF-METHOD not yet implemented.
+                                   get-setf-method(%reference, environment);
+                             for (d = dummies then cdr(d),
+                                  v = vals then cdr(v),
+                                  let-list = nil then cons(list(car(d),
+                                                                car(v)),
+                                                           let-list),
+                                  until empty?(d))
+                               #f;
+                             finally
+                               values(push!(list(head(newval),
+                                                 apply(list,
+                                                       #"pop-fn",
+                                                       getter,
+                                                       item,
+                                                       keywords)),
+                                            let-list),
+                                      list(#"let*",
+                                           reverse!(let-list),
+                                           setter));
+                             end for;
+                           end;
+                         end method);
+      broadcast-redefined(#"popf",
+                          macro: #(#(#"let*",
+                                     #(#(#"&whole151751", #"%%macroarg%%"),
+                                       #(#"(%reference ...)151752",
+                                         #(#"cdr", #"&whole151751")),
+                                       #(#"check-lambda-list-top-level151755",
+                                         #(#"check-lambda-list-top-level",
+                                           #(#"quote",
+                                             #(#"%reference",
+                                               #"item",
+                                               #"&rest",
+                                               #"keywords")),
+                                           #"&whole151751",
+                                           #"(%reference ...)151752",
+                                           2,
+                                           2,
+                                           #(#"quote", #"t"),
+                                           #"macro")),
+                                       #(#"%reference",
+                                         #(#"car",
+                                           #(#"the-cons",
+                                             #"(%reference ...)151752"))),
+                                       #(#"(item ...)151753",
+                                         #(#"cdr",
+                                           #(#"the-cons",
+                                             #"(%reference ...)151752"))),
+                                       #(#"item",
+                                         #(#"car",
+                                           #(#"the-cons",
+                                             #"(item ...)151753"))),
+                                       #(#"keywords151754",
+                                         #(#"cdr",
+                                           #(#"the-cons",
+                                             #"(item ...)151753"))),
+                                       #(#"keywords", #"keywords151754")),
+                                     #(#"block",
+                                       #"popf",
+                                       #(),
+                                       #(#"multiple-value-bind",
+                                         #(#"dummies",
+                                           #"vals",
+                                           #"newval",
+                                           #"setter",
+                                           #"getter"),
+                                         #(#"get-setf-method",
+                                           #"%reference",
+                                           #"environment"),
+                                         #(#"do",
+                                           #(#(#"d",
+                                               #"dummies",
+                                               #(#"cdr", #"d")),
+                                             #(#"v",
+                                               #"vals",
+                                               #(#"cdr", #"v")),
+                                             #(#"let-list",
+                                               #(),
+                                               #(#"cons",
+                                                 #(#"list",
+                                                   #(#"car", #"d"),
+                                                   #(#"car", #"v")),
+                                                 #"let-list"))),
+                                           #(#(#"null", #"d"),
+                                             #(#"push",
+                                               #(#"list",
+                                                 #(#"car", #"newval"),
+                                                 #(#"list*",
+                                                   #(#"quote", #"pop-fn"),
+                                                   #"getter",
+                                                   #"item",
+                                                   #"keywords")),
+                                               #"let-list"),
+                                             #(#"list",
+                                               #(#"quote", #"let*"),
+                                               #(#"nreverse", #"let-list"),
+                                               #"setter"))))))));
+      symbol-remove-property(#"popf", #"%fun-documentation");
+      flag-symbol-macro$symbol(#"popf");
+    end fluid-bind;
+  end fluid-bind;
   #"popf";
 end;
 

@@ -73,10 +73,10 @@ end method includees;
 
 // ----------------------------------------------------------------------------
 define method decludes (theory-name)
-  let list13156 = includees(theory-name);
+  let list92543 = includees(theory-name);
   begin
-    do(method (x) unincludes(theory-name, x); end method, list13156);
-    list13156;
+    do(method (x) unincludes(theory-name, x); end method, list92543);
+    list92543;
   end;
 end method decludes;
 
@@ -125,8 +125,33 @@ end method show-theory-dag;
 
 define method show-theory-dag-internal (name, depth, already-seen)
   tab-to(depth);
-  (formatter-1("~:(~A~)"))(#t, name);
-  if (name == *theory*) (formatter-1("~20T[Active]"))(#t); end if;
+  (method (s, #rest args)
+     apply(maybe-initiate-xp-printing,
+           method (xp, #rest args)
+             begin
+               push-char-mode(xp, #"cap1");
+               fluid-bind (*print-escape* = #f)
+                 write+(pop!(args), xp);
+               end fluid-bind;
+               pop-char-mode(xp);
+             end;
+             if (args) copy-sequence(args); end if;
+           end method,
+           s, args);
+   end method)(#t, name);
+  if (name == *theory*)
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               begin
+                 pprint-tab+(line: 20, 1, xp);
+                 write-string++("[Active]", xp, 0, 8);
+               end;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(#t);
+  end if;
   format-out("\n");
   let children = includees(name);
   let new-seen = union(children, already-seen);

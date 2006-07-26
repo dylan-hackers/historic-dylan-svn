@@ -153,11 +153,10 @@ end method maybe-add;
 define method seq-ref (seq, index)
   // Return code that indexes into a sequence, using
   //   the pop-lists/aref-vectors strategy.
-  bq-list(#"if", bq-list(#"listp", seq),
-          bq-list(#"prog1", bq-list(#"first", seq),
-                  bq-list(#"setq", seq,
-                          bq-list(#"the", #"list", bq-list(#"rest", seq)))),
-          bq-list(#"aref", seq, index));
+  list(#"if", list(#"listp", seq),
+       list(#"prog1", list(#"first", seq),
+            list(#"setq", seq, list(#"the", #"list", list(#"rest", seq)))),
+       list(#"aref", seq, index));
 end method seq-ref;
 
 define method maybe-set-fill-pointer (array, new-length)
@@ -273,18 +272,31 @@ end method reduce-list;
 //  This has not been done (for compatibility with the book).  The only near-ANSI
 //  Lisp tested was Franz's Allegro EXCL, for which we allow the definition by
 //  unlocking the excl and common-lisp packages with the following form:
-#"dolist"(#"pkg"(#(#"excl", #"common-lisp")),
-          #"setf"(#"package-lock-fdefinitions"(#"find-package"(#"pkg")),
-                  #"nil"));
-
-define method symbol (#rest args)
-  // Concatenate symbols or strings to form an interned symbol
-  as(<symbol>, (formatter-1("~{~a~}"))(#f, args));
-end method symbol;
+//
+nil(#f, nil(#f), "Concatenate symbols or strings to form an interned symbol",
+    nil(nil(#f, "~{~a~}", #f)));
 
 define method new-symbol (#rest args)
   // Concatenate symbols or strings to form an uninterned symbol
-  as(<symbol>, (formatter-1("~{~a~}"))(#f, args));
+  as(<symbol>,
+     (method (s, #rest args)
+        apply(maybe-initiate-xp-printing,
+              method (xp, #rest args)
+                let args = pop!(args);
+                block (return)
+                  local method go-l ()
+                          if (empty?(args)) return(#f); end if;
+                          fluid-bind (*print-escape* = #f)
+                            write+(pop!(args), xp);
+                          end fluid-bind;
+                          go-l();
+                        end method go-l;
+                  go-l();
+                end block;
+                if (args) copy-sequence(args); end if;
+              end method,
+              s, args);
+      end method)(#f, args));
 end method new-symbol;
 
 define method last1 (list)
@@ -500,8 +512,8 @@ define method queue-nconc (q, list)
   // Add the elements of LIST to the end of the queue.
   head(q)
    := begin
-        let s14663 = (tail(head(q)) := list);
-        copy-sequence(s14663, start: size(s14663) - 1);
+        let s93739 = (tail(head(q)) := list);
+        copy-sequence(s93739, start: size(s93739) - 1);
       end;
 end method queue-nconc;
 

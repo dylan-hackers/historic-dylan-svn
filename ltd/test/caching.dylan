@@ -122,27 +122,16 @@ define method make-new-subgoal (conjunct, #key new-literal = #f)
   begin
     subgoal := make(<dtp-subgoal>, literal: new-literal);
     begin
-      let g15958 = conjunct.parent-conjunction;
-      g15958;
-      let g15959 = subgoal;
-      let g15960 = #"parent-subgoal";
-      let g15961 = g15958.parent-subgoal;
-      .inv-slot-value(g15959, g15960, g15961);
-      let g15962 = subgoal;
-      let g15963 = #"parent-conjunct";
-      let g15964 = conjunct;
-      .inv-slot-value(g15962, g15963, g15964);
-      if (g15958.parent-subgoal)
-        let g15965 = subgoal;
-        let g15966 = #"depth";
-        let g15967 = g15958.parent-subgoal.depth + 1;
-        .inv-slot-value(g15965, g15966, g15967);
-      else
-        let g15968 = subgoal;
-        let g15969 = #"depth";
-        let g15970 = 0;
-        .inv-slot-value(g15968, g15969, g15970);
-      end if;
+      let g152260 = conjunct.parent-conjunction;
+      begin
+        subgoal.(g152260.parent-subgoal) := g152260.parent-subgoal;
+        subgoal.parent-conjunct := conjunct;
+        if (g152260.parent-subgoal)
+          subgoal.depth := g152260.parent-subgoal.depth + 1;
+        else
+          subgoal.depth := 0;
+        end if;
+      end;
     end;
     subgoal;
   end;

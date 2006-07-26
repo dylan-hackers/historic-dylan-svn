@@ -47,7 +47,25 @@ define method print-with-spaces (list)
 end method print-with-spaces;
 
 define method print-with-spaces (list)
-  (formatter-1("~{~a ~}"))(#t, list);
+  (method (s, #rest args)
+     apply(maybe-initiate-xp-printing,
+           method (xp, #rest args)
+             let args = pop!(args);
+             block (return)
+               local method go-l ()
+                       if (empty?(args)) return(#f); end if;
+                       fluid-bind (*print-escape* = #f)
+                         write+(pop!(args), xp);
+                       end fluid-bind;
+                       write-char++(' ', xp);
+                       go-l();
+                     end method go-l;
+               go-l();
+             end block;
+             if (args) copy-sequence(args); end if;
+           end method,
+           s, args);
+   end method)(#t, list);
 end method print-with-spaces;
 
 //  ==============================

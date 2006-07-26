@@ -56,11 +56,41 @@ define method print-object (object :: <dtp-subgoal>, stream)
     else
       format(stream, "?");
     end if;
-    (formatter-1(" with ~D answer~:P"))(stream, size(object.answers));
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               let init = args;
+               begin
+                 write-string++(" with ", xp, 0, 6);
+                 using-format(xp, "~D", pop!(args));
+                 write-string++(" answer", xp, 0, 7);
+                 if (~ (head(backup-in-list(1, init, args)) == 1))
+                   write-char++('s', xp);
+                 end if;
+               end;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(stream, size(object.answers));
     if (instance?(object.inferences, <list>))
       if (object.inferences)
-        (formatter-1(" [~D task~:P pending]"))(stream,
-                                               size(object.inferences));
+        (method (s, #rest args)
+           apply(maybe-initiate-xp-printing,
+                 method (xp, #rest args)
+                   let init = args;
+                   begin
+                     write-string++(" [", xp, 0, 2);
+                     using-format(xp, "~D", pop!(args));
+                     write-string++(" task", xp, 0, 5);
+                     if (~ (head(backup-in-list(1, init, args)) == 1))
+                       write-char++('s', xp);
+                     end if;
+                     write-string++(" pending]", xp, 0, 9);
+                   end;
+                   if (args) copy-sequence(args); end if;
+                 end method,
+                 s, args);
+         end method)(stream, size(object.inferences));
       else
         format(stream, " [complete]");
       end if;
@@ -178,7 +208,23 @@ define method print-object (object :: <dtp-conjunct>, stream)
     else
       format(stream, "?");
     end if;
-    (formatter-1(" with ~D answer~:P>"))(stream, object.answer-count);
+    (method (s, #rest args)
+       apply(maybe-initiate-xp-printing,
+             method (xp, #rest args)
+               let init = args;
+               begin
+                 write-string++(" with ", xp, 0, 6);
+                 using-format(xp, "~D", pop!(args));
+                 write-string++(" answer", xp, 0, 7);
+                 if (~ (head(backup-in-list(1, init, args)) == 1))
+                   write-char++('s', xp);
+                 end if;
+                 write-char++('>', xp);
+               end;
+               if (args) copy-sequence(args); end if;
+             end method,
+             s, args);
+     end method)(stream, object.answer-count);
   end;
 end method print-object;
 

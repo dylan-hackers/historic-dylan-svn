@@ -334,7 +334,7 @@ define method integer-length-base-10 (x)
     integer(0, 1000000)
        => floor(log(x, 10.0)) + 1;
     integer(0, 1000000000000000)
-       => floor(log(x, 10.0d0)) + 1;
+       => floor(log(x, 10.0D0)) + 1;
     integer
        => //  rest of the cases
            begin
@@ -438,7 +438,7 @@ define method deflt-buildformat (x)
         ret_format := buildformat(head(args));
         if (not(instance?(ret_format, <list>)))
           inc!(width, atomwidth(ret_format) + 2);
-          ls := bq-list*(ret_format, ", ", ls);
+          ls := apply(list, ret_format, ", ", ls);
         else
           heightpacket := topboths(ret_format, maxtoph, maxbotmh);
           maxtoph := head(heightpacket);
@@ -446,13 +446,13 @@ define method deflt-buildformat (x)
           inc!(width, ret_format.formatstruct-width + 2);
           voffset := max(voffset, ret_format.formatstruct-voffset);
           inc!(hoffset, ret_format.formatstruct-hoffset);
-          ls := bq-list*(ret_format, ", ", ls);
+          ls := apply(list, ret_format, ", ", ls);
         end if;
       finally
         makehform(width + atomwidth(op), maxtoph + maxbotmh, hoffset, voffset,
                   op, prec(op), #"left",
-                  bq-list*(op, "[",
-                           bq-append(tail(reverse!(ls)), bq-list("]"))));
+                  apply(list, op, "[",
+                        concatenate(tail(reverse!(ls)), list("]"))));
       end for;
     end;
   end if;
@@ -474,7 +474,7 @@ define method deflt-buildformat-op (x)
     ret_format := buildformat(head(args));
     if (not(instance?(ret_format, <list>)))
       inc!(width, atomwidth(ret_format) + 2);
-      ls := bq-list*(ret_format, ", ", ls);
+      ls := apply(list, ret_format, ", ", ls);
     else
       heightpacket := topboths(ret_format, maxtoph, maxbotmh);
       maxtoph := head(heightpacket);
@@ -482,12 +482,13 @@ define method deflt-buildformat-op (x)
       inc!(width, ret_format.formatstruct-width + 2);
       voffset := max(voffset, ret_format.formatstruct-voffset);
       inc!(hoffset, ret_format.formatstruct-hoffset);
-      ls := bq-list*(ret_format, ", ", ls);
+      ls := apply(list, ret_format, ", ", ls);
     end if;
   finally
     makehform(width + op.formatstruct-width, maxtoph + maxbotmh, hoffset,
               voffset, head(x), 260, #"left", //  will 260 do??
-              bq-list*(op, "[", bq-append(tail(reverse!(ls)), bq-list("]"))));
+              apply(list, op, "[",
+                    concatenate(tail(reverse!(ls)), list("]"))));
   end for;
 end method deflt-buildformat-op;
 
@@ -509,7 +510,7 @@ define method listformatter (x)
     ret_format := buildformat(head(args));
     if (not(instance?(ret_format, <list>)))
       inc!(width, atomwidth(ret_format) + 2);
-      ls := bq-list*(ret_format, ", ", ls);
+      ls := apply(list, ret_format, ", ", ls);
     else
       heightpacket := topboths(ret_format, maxtoph, maxbotmh);
       maxtoph := head(heightpacket);
@@ -517,12 +518,12 @@ define method listformatter (x)
       inc!(width, ret_format.formatstruct-width + 2);
       voffset := max(voffset, ret_format.formatstruct-voffset);
       inc!(hoffset, ret_format.formatstruct-hoffset);
-      ls := bq-list*(ret_format, ", ", ls);
+      ls := apply(list, ret_format, ", ", ls);
     end if;
   finally
     makehform(width, maxtoph + maxbotmh, hoffset, voffset, #"sequence",
               prec(#"sequence"), #"none",
-              bq-cons("{", bq-append(tail(reverse!(ls)), bq-list("}"))));
+              pair("{", concatenate(tail(reverse!(ls)), list("}"))));
   end for;
 end method listformatter;
 
@@ -544,7 +545,7 @@ define method dotformatter (x)
     ret_format := buildformat(head(args));
     if (not(instance?(ret_format, <list>)))
       inc!(width, atomwidth(ret_format) + 3);
-      ls := bq-list*(ret_format, " . ", ls);
+      ls := apply(list, ret_format, " . ", ls);
     else
       if (lessprec(ret_format, #"dot"))
         ret_format := parenformatter(ret_format);
@@ -555,7 +556,7 @@ define method dotformatter (x)
       inc!(width, ret_format.formatstruct-width + 3);
       voffset := max(voffset, ret_format.formatstruct-voffset);
       inc!(hoffset, ret_format.formatstruct-hoffset);
-      ls := bq-list*(ret_format, " . ", ls);
+      ls := apply(list, ret_format, " . ", ls);
     end if;
   finally
     makehform(width - 3, maxtoph + maxbotmh, hoffset, voffset, #"dot",
@@ -621,7 +622,7 @@ define method genformatter (x, head)
     ret_format := buildformat(head(args));
     if (not(instance?(ret_format, <list>)))
       inc!(width, atomwidth(ret_format) + len);
-      ls := bq-list*(ret_format, sym, ls);
+      ls := apply(list, ret_format, sym, ls);
     else
       if (lessprec(ret_format, head))
         ret_format := parenformatter(ret_format);
@@ -632,7 +633,7 @@ define method genformatter (x, head)
       inc!(width, ret_format.formatstruct-width + len);
       voffset := max(voffset, ret_format.formatstruct-voffset);
       inc!(hoffset, ret_format.formatstruct-hoffset);
-      ls := bq-list*(ret_format, sym, ls);
+      ls := apply(list, ret_format, sym, ls);
     end if;
   finally
     makehform(width - len, maxtoph + maxbotmh, hoffset, voffset, head,
@@ -658,7 +659,7 @@ define method plusformatter (x)
     ret_format := buildformat(head(args));
     if (not(instance?(ret_format, <list>)))
       inc!(width, atomwidth(ret_format) + 3);
-      ls := bq-list*(ret_format, " + ", ls);
+      ls := apply(list, ret_format, " + ", ls);
       //  beware of minuses like -x
       //  case 1: if a plus exp begins with a minus exp, we do NOT
       //  change the form of that minus exp
@@ -668,7 +669,7 @@ define method plusformatter (x)
         heightpacket := topboths(ret_format, maxtoph, maxbotmh);
         maxtoph := head(heightpacket);
         maxbotmh := tail(heightpacket);
-        ls := bq-list*(ret_format, " - ", ls);
+        ls := apply(list, ret_format, " - ", ls);
       else
         begin
           let ham = second(ret_format.formatstruct-ls);
@@ -692,7 +693,7 @@ define method plusformatter (x)
             inc!(hoffset, ham.formatstruct-hoffset);
             voffset := max(voffset, ham.formatstruct-voffset);
           end if;
-          ls := bq-list*(ham, " - ", ls);
+          ls := apply(list, ham, " - ", ls);
         end;
       end if;
       //  Non-minus stuff
@@ -703,7 +704,7 @@ define method plusformatter (x)
       maxbotmh := tail(heightpacket);
       inc!(hoffset, ret_format.formatstruct-hoffset);
       voffset := max(voffset, ret_format.formatstruct-voffset);
-      ls := bq-list*(ret_format, " + ", ls);
+      ls := apply(list, ret_format, " + ", ls);
     end if;
   finally
     makehform(width - 3, //  adjust spacing
@@ -738,7 +739,7 @@ define method timesformatter (x)
       minusformatter(third(x));
     else
       //  else modify its lisp form to suit the routine
-      minusformatter(bq-list*(#"times", - cadr(x), tail(tail(x))));
+      minusformatter(apply(list, #"times", - cadr(x), tail(tail(x))));
     end if;
     //  if no negative number, proceed as usual
     else
@@ -766,7 +767,7 @@ define method timesformatter (x)
         inc!(hoffset, ret_format.formatstruct-hoffset);
         voffset := max(voffset, ret_format.formatstruct-voffset);
       end if;
-      ls := bq-list*(ret_format, " ", ls);
+      ls := apply(list, ret_format, " ", ls);
     finally
       //  if odd number of minuses is encountered in this times exp
       //  then pass to minusformatter
@@ -779,7 +780,7 @@ define method timesformatter (x)
           ret_form := parenformatter(ret_form);
         end if;
         makehform(width + 2, maxtoph + maxbotmh, hoffset, voffset, #"minus",
-                  prec(#"minus"), #"left", bq-list("-", ret_form));
+                  prec(#"minus"), #"left", list("-", ret_form));
       else
         makehform(width - 1, //  adjust spacing
                   maxtoph + maxbotmh, hoffset, voffset, #"times",
@@ -833,7 +834,7 @@ end method realformatter;
 define method parenformatter (f)
   makehform(f.formatstruct-width + 2, f.formatstruct-height, 0,
             f.formatstruct-voffset, #"sequence", prec(#"sequence"), #"none",
-            bq-list("(", f, ")"));
+            list("(", f, ")"));
 end method parenformatter;
 
 //   minusformatter:
@@ -845,14 +846,14 @@ define method minusformatter (x)
   let ret_form = buildformat(x);
   if (not(instance?(ret_form, <list>)))
     makehform(1 + atomwidth(ret_form), 1, 0, 0, #"minus", prec(#"minus"),
-              #"left", bq-list("-", ret_form));
+              #"left", list("-", ret_form));
   else
     if (prec(ret_form.formatstruct-op) < prec(#"minus"))
       ret_form := parenformatter(ret_form);
     end if;
     makehform(1 + ret_form.formatstruct-width, ret_form.formatstruct-height,
               0, ret_form.formatstruct-voffset, #"minus", prec(#"minus"),
-              #"left", bq-list("-", ret_form));
+              #"left", list("-", ret_form));
   end if;
 end method minusformatter;
 
@@ -916,7 +917,7 @@ define method divideformatter (x)
   end if;
   makevform(barwidth, 1 + formatheight(retf1) + formatheight(retf2), 0,
             formatheight(retf2), #"divide", prec(#"divide"), #"left",
-            bq-list(retf1, makerepstr(barwidth, "-"), retf2));
+            list(retf1, makerepstr(barwidth, "-"), retf2));
 end method divideformatter;
 
 //  handle complex numbers only.
@@ -929,7 +930,7 @@ define method complexnumformatter (x)
         elseif (imag-part(x) = 1)
           #"i";
         else
-          bq-list*(#"times", imag-part(x), #(#"i"));
+          apply(list, #"times", imag-part(x), #(#"i"));
         end if;
   buildformat(if (empty?(imag))
                 real-part(x);
@@ -959,7 +960,7 @@ define method setformatter (x)
     ret_format := buildformat(head(args));
     if (not(instance?(ret_format, <list>)))
       inc!(width, atomwidth(ret_format) + 3);
-      ls := bq-list*(ret_format, " = ", ls);
+      ls := apply(list, ret_format, " = ", ls);
     else
       if (lessprec(ret_format, #"set"))
         ret_format := parenformatter(ret_format);
@@ -970,7 +971,7 @@ define method setformatter (x)
       inc!(width, ret_format.formatstruct-width + 3);
       voffset := max(voffset, ret_format.formatstruct-voffset);
       inc!(hoffset, ret_format.formatstruct-hoffset);
-      ls := bq-list*(ret_format, " = ", ls);
+      ls := apply(list, ret_format, " = ", ls);
     end if;
   finally
     makehform(width - 3, maxtoph + maxbotmh, hoffset, voffset, #"set",
@@ -993,7 +994,7 @@ define method stuffspace (f, framewidth)
               f.formatstruct-voffset;
             end if,
             #"sequence", prec(#"sequence"), #"none",
-            bq-list(makerepstr(numspace, " "), f));
+            list(makerepstr(numspace, " "), f));
 end method stuffspace;
 
 //   MakeRepStr:

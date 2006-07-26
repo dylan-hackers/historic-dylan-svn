@@ -79,7 +79,7 @@ define method do-rule (triggers, body, asn?)
                      asn?);
       //  Returning this ensures that all procedure definitions
       //  are executed before any indexing occurs.
-      bq-cons(#"progn", bq-append(*rule-procedures*, bq-list(index-form)));
+      pair(#"progn", concatenate(*rule-procedures*, list(index-form)));
     end fluid-bind;
   end fluid-bind;
 end method do-rule;
@@ -91,8 +91,8 @@ define method make-nested-rule (triggers, body)
   if (empty?(triggers))
     body;
   else
-    bq-list(bq-list(#"add-internal-rule", head(triggers),
-                    make-nested-rule(tail(triggers), body)));
+    list(list(#"add-internal-rule", head(triggers),
+              make-nested-rule(tail(triggers), body)));
   end if;
 end method make-nested-rule;
 
@@ -106,28 +106,30 @@ define method build-rule (trigger, body, asn?)
   body-procedure := generate-body-procedure(pattern, var, body);
   push!(match-procedure, *rule-procedures*);
   push!(body-procedure, *rule-procedures*);
-  bq-list(#"insert-rule",
-          bq-list*(#"get-dbclass", get-trigger-dbclass(pattern),
-                   #(#"*ftre*")),
-          bq-list(#"function",
-                  if (*bound-vars*)
-                    bq-list(#"lambda", #(#"p"),
-                            bq-list*(second(match-procedure), #"p",
-                                     *bound-vars*));
-                  else
-                    second(match-procedure);
-                  end if),
-          bq-list(#"function",
-                  if (*bound-vars*)
-                    let tv = reverse!(pattern-free-variables(trigger));
-                    bq-list(#"lambda", tv,
-                            bq-cons(second(body-procedure),
-                                    bq-append(tv,
-                                              scratchout(tv, *bound-vars*))));
-                  else
-                    second(body-procedure);
-                  end if),
-          asn?);
+  list(#"insert-rule",
+       apply(list, #"get-dbclass", get-trigger-dbclass(pattern),
+             #(#"*ftre*")),
+       // return form to index rule
+       #(#"function", // the match procedure for rule
+         #(#(#","), #"if", #"*bound-vars*",
+           #(#"list", #(#"quote", #"lambda"), #(#"quote", #(#"p")),
+             #(#"list*", #(#"cadr", #"match-procedure"), #(#"quote", #"p"),
+               #"*bound-vars*")),
+           #(#"cadr", #"match-procedure"))),
+       #(#"function", // the body procedure
+         #(#(#","), #"if", #"*bound-vars*",
+           #(#"let",
+             #(#(#"tv",
+                 #(#"nreverse", #(#"pattern-free-variables", #"trigger")))),
+             #(#"list", #(#"quote", #"lambda"), #"tv",
+               #(#"cons", #(#"cadr", #"body-procedure"),
+                 #(#"append", #"tv",
+                   #(#"quote",
+                     #(// (fn-name parameters)
+                       #(#(#",@"), #"scratchout", #"tv",
+                         #"*bound-vars*"))))))),
+           #(#"cadr", #"body-procedure"))),
+       asn?);
 end method build-rule;
 
 define method parse-rule-trigger (trigger)
@@ -170,7 +172,7 @@ define method generate-body-procedure (pattern, var, body)
   if (var) push!(var, newly-bound); end if;
   body := with-pushed-variable-bindings(newly-bound, fully-expand-body(body));
   env := concatenate(newly-bound, scratchout(newly-bound, *bound-vars*));
-  bq-list*(#"defun", generate-rule-procedure-name(pattern), env, body);
+  apply(list, #"defun", generate-rule-procedure-name(pattern), env, body);
 end method generate-body-procedure;
 
 define method generate-match-procedure (pattern, var, test)
@@ -179,17 +181,17 @@ define method generate-match-procedure (pattern, var, test)
         //  That procedure will return NIL if no match,
         //    (values T <binding-spec>) if match is successful.
       generate-match-body(pattern, pattern-free-variables(pattern), test);
-  bq-list(#"defun", generate-rule-procedure-name(pattern),
-          bq-cons(#"p", *bound-vars*),
-          bq-list(#"if", bq-cons(#"and", tests),
-                  bq-list(#"values", #"t",
-                          if (empty?(var) & empty?(binding-specs))
-                            #f;
-                          else
-                            bq-cons(#"list",
-                                    bq-append(if (var) #(#"p"); end if,
-                                              reverse(binding-specs)));
-                          end if)));
+  apply(list, #"defun", generate-rule-procedure-name(pattern),
+        pair(#"p", *bound-vars*),
+        #(// first arg, P, is the pattern
+          #(#"if", #(#"and", #(#(#",@") . #"tests")),
+            #(#"values", #"t",
+              #(#(#","), #"if",
+                #(#"and", #(#"null", #"var"), #(#"null", #"binding-specs")),
+                #(),
+                #(#"cons", #(#"quote", #"list"),
+                  #(#"append", #(#"if", #"var", #(#"quote", #(#"p"))),
+                    #(#"reverse", #"binding-specs"))))))));
 end method generate-match-procedure;
 
 define method scratchout (l1, l2)
@@ -295,14 +297,14 @@ end method dequeue;
 define method show-rules (#key stream = *standard-output*)
   counter := 0;
   format(stream, "\n In global context:");
-  let tab15015 = ftre-dbclass-table(*ftre*);
+  let tab94009 = ftre-dbclass-table(*ftre*);
   do(method (key, dbclass)
        for (rule in dbclass-rules(dbclass))
          inc!(counter);
          print-rule(rule, stream);
        end for;
      end method,
-     key-sequence(tab15015), tab15015);
+     key-sequence(tab94009), tab94009);
   format(stream, "\n  %D global rules.", counter);
   if (ftre-depth(*ftre*) > 0)
     format(stream, "\n In current context:");
@@ -322,13 +324,13 @@ end method print-rule;
 
 define method get-rule (id, #key ftre = *ftre*)
   block (return-from-get-rule)
-    let tab15015 = ftre-dbclass-table(ftre);
+    let tab94009 = ftre-dbclass-table(ftre);
     do(method (key, dbclass)
          for (rule in dbclass-rules(dbclass))
            if (rule.rule-id = id) return-from-get-rule(rule); end if;
          end for;
        end method,
-       key-sequence(tab15015), tab15015);
+       key-sequence(tab94009), tab94009);
   end block;
 end method get-rule;
 

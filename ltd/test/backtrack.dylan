@@ -29,41 +29,21 @@ define method compute-nogoods (conjunction)
     if (conjunction.stack-pointer = conjunction.backtrack-pointer)
       return-from-compute-nogoods(#f);
     end if;
-    let g15949 = active-conjunct(conjunction);
-    g15949;
-    if (g15949.nogoods == #"uninitialized")
-      #f;
+    let g151404 = active-conjunct(conjunction);
+    begin
+      if (g151404.nogoods == #"uninitialized") g151404.nogoods := #f; end if;
       begin
-        let g15950 = g15949;
-        let g15951 = #"nogoods";
-        let g15952 = #f;
-        .inv-slot-value(g15950, g15951, g15952);
+        let failed-vars = literal-vars-in(g151404.literal);
+        for (conjunct-index from 0, answer in reverse(conjunction.stack))
+          if (any?(method (var) answer-binds-var-p(answer, var); end method,
+                   failed-vars))
+            let new-value-151406 = conjunct-index;
+            let g151405 = add!(new-value-151406, g151404.nogoods, test: \=);
+            set-slot-value(g151404, #"nogoods", g151405);
+          end if;
+        end for;
       end;
-    elseif (nil);
-    end if;
-    let failed-vars = literal-vars-in(g15949.literal);
-    let conjunct-index :: <real> = 0;
-    let answer = #f;
-    let g15953 :: <list> = reverse(conjunction.stack);
-    local method go-end-loop () #f; end method go-end-loop,
-          method go-next-loop ()
-            if (not(pair?(g15953))) #f; go-end-loop(); elseif (nil); end if;
-            answer := head(g15953);
-            g15953 := tail(g15953);
-            if (any?(method (var) answer-binds-var-p(answer, var); end method,
-                     failed-vars))
-              let g15954 = g15949;
-              let g15955 = #"nogoods";
-              let g15956 = add!(conjunct-index, g15949.nogoods, test: \=);
-              .inv-slot-value(g15954, g15955, g15956);
-            else
-              #f;
-            end if;
-            conjunct-index := conjunct-index + 1;
-            go-next-loop();
-            go-end-loop();
-          end method go-next-loop;
-    go-next-loop();
+    end;
   end block;
 end method compute-nogoods;
 
@@ -119,8 +99,7 @@ end method backjump;
 // 
 // ----------------------------------------------------------------------------
 nil(#f, nil(), "Unless waiting for next subgoal answer, get the next answer",
-    nil(nil(#f, #f)),
-    nil((nil(nil(#f)))(), nil(nil(nil(#f, #f), #f)),
+    nil((nil(nil(#f)))(),
         nil(#f,
             nil(nil(), #f,
                 nil(nil(nil(#f, #()), nil(#f, nil(#f, #()))), nil(#f))))));

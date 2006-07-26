@@ -8,7 +8,7 @@ requires("prologcp");
 #"rule";
 
 symbol-get-property(#"-", #"rule-function")
- := method (head, body) bq-list*(#"<-", head, body); end method;
+ := method (head, body) apply(list, #"<-", head, body); end method;
 
 define method dcg-normal-goal-p (x)
   starts-with(x, #"test") | x == #"!";
@@ -22,8 +22,8 @@ symbol-get-property(#"-->", #"rule-function") := #"make-dcg";
 
 define method make-dcg (head, body)
   let n = cl-count-if(complement(dcg-normal-goal-p), body);
-  bq-list*(#"<-", bq-append(head, bq-list(#"?s0", symbol(#"?s", n))),
-           make-dcg-body(body, 0));
+  apply(list, #"<-", concatenate(head, list(#"?s0", symbol(#"?s", n))),
+        make-dcg-body(body, 0));
 end method make-dcg;
 
 define method make-dcg-body (body, n)
@@ -40,8 +40,8 @@ define method make-dcg-body (body, n)
     elseif (dcg-normal-goal-p(goal))
       concatenate(tail(goal), make-dcg-body(tail(body), n));
     elseif (dcg-word-list-p(goal))
-      pair(bq-list(#"=", symbol(#"?s", n),
-                   bq-append(tail(goal), symbol(#"?s", n + 1))),
+      pair(list(#"=", symbol(#"?s", n),
+                concatenate(tail(goal), symbol(#"?s", n + 1))),
            make-dcg-body(tail(body), n + 1));
     else
       pair(concatenate(goal, list(symbol(#"?s", n), symbol(#"?s", n + 1))),
@@ -57,24 +57,24 @@ define method make-augmented-dcg (head, body)
   //   and automatic conjunctiontive constituents.
   if (last1(head) == #"sem")
     let ?sem = generate-symbol(#"string"("?SEM"));
-    make-augmented-dcg(bq-append(copy-sequence(head, size(head) - 1),
-                                 bq-list(?sem)),
-                       bq-append(remove(body,
-                                        sem: #"test",
-                                        method (x, y)
-                                        x == first-or-nil(y);
-                                        end method),
-                                 bq-list(bq-list(#"test",
-                                                 collect-sems(body, ?sem)))));
+    make-augmented-dcg(concatenate(copy-sequence(head, size(head) - 1),
+                                   list(?sem)),
+                       concatenate(remove(body,
+                                          sem: #"test",
+                                          method (x, y)
+                                          x == first-or-nil(y);
+                                          end method),
+                                   list(list(#"test",
+                                             collect-sems(body, ?sem)))));
   else
     //  Separate out examples from body
     let (exs, new-body)
         = partition-if(method (x) starts-with(x, #"ex"); end method, body);
-    let rule = bq-list*(#"rule", handle-conj(head), #"-->", new-body);
+    let rule = apply(list, #"rule", handle-conj(head), #"-->", new-body);
     if (empty?(exs))
       rule;
     else
-      bq-list(#"progn", bq-list*(#"ex", head, mappend(tail, exs)), rule);
+      list(#"progn", apply(list, #"ex", head, mappend(tail, exs)), rule);
     end if;
   end if;
 end method make-augmented-dcg;
@@ -97,11 +97,11 @@ define method collect-sems (body, ?sem)
         end;
   select (length(sems))
     0
-       => bq-list*(#"=", ?sem, #(#"t"));
+       => apply(list, #"=", ?sem, #(#"t"));
     1
-       => bq-list(#"=", ?sem, first(sems));
+       => list(#"=", ?sem, first(sems));
     otherwise
-       => bq-list(#"and*", sems, ?sem);
+       => list(#"and*", sems, ?sem);
   end select;
 end method collect-sems;
 
@@ -149,11 +149,11 @@ define method add-examples (category, args, examples)
   for (example in examples)
     if (instance?(example, <string>))
       let ex
-          = bq-list(example,
-                    bq-cons(category,
-                            bq-append(args,
-                                      bq-cons(string->list(remove-punctuation(example)),
-                                              #(#())))));
+          = list(example,
+                 pair(category,
+                      concatenate(args,
+                                  pair(string->list(remove-punctuation(example)),
+                                       #(#"()")))));
       if (~ member?(ex, get-examples(category), test: \=))
         *examples*[category]
                     := concatenate!(get-examples(category), list(ex));
@@ -168,13 +168,54 @@ define method run-examples (#key category)
   prolog-compile-symbols();
   if (empty?(category))
     do(method (cat, val)
-         (formatter-1("~2&Examples of ~a:~&"))(#t, cat);
+         (method (s, #rest args)
+            apply(maybe-initiate-xp-printing,
+                  method (xp, #rest args)
+                    begin
+                      multiple-newlines1(xp, fresh: 2);
+                      write-string++("Examples of ", xp, 0, 12);
+                      fluid-bind (*print-escape* = #f)
+                        write+(pop!(args), xp);
+                      end fluid-bind;
+                      write-char++(':', xp);
+                      pprint-newline+(fresh: xp);
+                    end;
+                    if (args) copy-sequence(args); end if;
+                  end method,
+                  s, args);
+          end method)(#t, cat);
          run-examples(cat);
        end method,
        key-sequence(*examples*), *examples*);
   else
     for (example in get-examples(category))
-      (formatter-1("~2&EXAMPLE: ~{~a~&~9T~a~}"))(#t, example);
+      (method (s, #rest args)
+         apply(maybe-initiate-xp-printing,
+               method (xp, #rest args)
+                 begin
+                   multiple-newlines1(xp, fresh: 2);
+                   write-string++("EXAMPLE: ", xp, 0, 9);
+                   let args = pop!(args);
+                   block (return)
+                     local method go-l ()
+                             if (empty?(args)) return(#f); end if;
+                             fluid-bind (*print-escape* = #f)
+                               write+(pop!(args), xp);
+                             end fluid-bind;
+                             pprint-newline+(fresh: xp);
+                             pprint-tab+(line: 9, 1, xp);
+                             fluid-bind (*print-escape* = #f)
+                               write+(pop!(args), xp);
+                             end fluid-bind;
+                             go-l();
+                           end method go-l;
+                     go-l();
+                   end block;
+                 end;
+                 if (args) copy-sequence(args); end if;
+               end method,
+               s, args);
+       end method)(#t, example);
       top-level-prove(tail(example));
     end for;
   end if;
