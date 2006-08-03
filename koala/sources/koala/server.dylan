@@ -1021,11 +1021,13 @@ define method extract-query-values
  => (queries :: <string-table>)
   local method extract-key/val (beg :: <integer>, fin :: <integer>)
           let eq-pos = char-position('=', buffer, beg, fin);
-          when (eq-pos & (eq-pos > beg))
+          if (eq-pos & (eq-pos > beg))
             let key = decode-url(buffer, beg, eq-pos);
             let val = decode-url(buffer, eq-pos + 1, fin);
             values(key, val)
-          end
+          else
+            values(decode-url(buffer, beg, fin), #t)
+          end if;
         end;
   iterate loop (start :: <integer> = bpos)
     when (start < epos)
