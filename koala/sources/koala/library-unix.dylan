@@ -165,7 +165,8 @@ define module koala
     do-form-values,              // A synonym for do-query-values
     count-query-values,
     count-form-values,
-    application-error;
+    application-error,
+    decode-url;
 
   // Virtual hosts
   create
