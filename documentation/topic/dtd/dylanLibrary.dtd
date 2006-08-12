@@ -1,6 +1,6 @@
 <!-- Domain entity inclusions -->
 
-<!ENTITY % ui-d-dec PUBLIC "-//OASIS//ENTITIES DITA User Interface Domain//EN" "ui-domain.ent">
+<!ENTITY % ui-d-dec PUBLIC "-//OASIS//ENTITIES DITA User Interface Domain//EN" "uiDomain.ent">
   %ui-d-dec;
 <!ENTITY % hi-d-dec PUBLIC "-//OASIS//ENTITIES DITA Highlight Domain//EN" "highlight-domain.ent">
   %hi-d-dec;
