@@ -17,41 +17,75 @@
 </div>
 
 <div class="content" id="heading107-0">
-<h1>8.4   The test file</h1>
+<h1>8.4 The test file</h1>
 <table>
 	<tr>
-		<th><p>The test file: <code>test.dylan</code>. </p></th>
+		<th>The test file: <code>test.dylan</code>.</th>
 	</tr>
 	<tr>
-		<td><p>module: timespace</p><p>format-out(&quot;Creating an instance of &lt;absolute-position&gt;:\n&quot;);</p><p>define variable *my-absolute-position* <br />  = make(&lt;absolute-position&gt;, <br />         latitude: make(&lt;latitude&gt;, <br />                        total-seconds: encode-total-seconds(42, 19, 34),<br />                        direction: &quot;North&quot;),<br />         longitude: make(&lt;longitude&gt;,<br />                         total-seconds: encode-total-seconds(70, 56, 26),<br />                         direction: &quot;West&quot;)); </p><p>say(*my-absolute-position*);</p><p>format-out(&quot;\n&quot;); </p>
-		</td>
-	</tr>
-	<tr>
-<td><p>format-out(&quot;Creating an instance of &lt;relative-position&gt;:\n&quot;);</p><p>define variable *her-relative-position* <br />  = make(&lt;relative-position&gt;,<br />         distance: 30,<br />         angle: make(&lt;angle&gt;, <br />                     total-seconds: encode-total-seconds(90, 5, 0)));</p><p>say(*her-relative-position*); </p><p>format-out(&quot;\n&quot;);</p>
-		</td>
-	</tr>
-	<tr>
-<td><p>format-out(&quot;Creating an instance of &lt;time-offset&gt; in *minus-2-hours*.\n&quot;);</p><p>define variable *minus-2-hours* <br />  = make(&lt;time-offset&gt;, total-seconds: - encode-total-seconds (2, 0, 0)); </p>
-		</td>
-	</tr>
-	<tr>
-<td><p>format-out(&quot;Creating an instance of &lt;time-offset&gt; in *plus-15-20-45*.\n&quot;);</p><p>define variable *plus-15-20-45* <br />  = make(&lt;time-offset&gt;, total-seconds: encode-total-seconds (15, 20, 45)); </p>
-		</td>
-	</tr>
-	<tr>
-<td><p>format-out(&quot;Creating an instance of &lt;time-of-day&gt; in *8-30-59*.\n&quot;);</p><p>define variable *8-30-59*<br />  = make(&lt;time-of-day&gt;, total-seconds: encode-total-seconds (8, 30, 59));</p>
-		</td>
-	</tr>
-	<tr>
-<td><p>format-out(&quot;Adding &lt;time-offset&gt; + &lt;time-offset&gt;: *minus-2-hours* + *plus-15-20-45*:\n&quot;);</p><p>decode-total-seconds(*minus-2-hours* + *plus-15-20-45*); </p>
-		</td>
-	</tr>
-	<tr>
-<td><p>format-out(&quot;Adding &lt;time-offset&gt; + &lt;time-of-day&gt;: *minus-2-hours* + *8-30-59*:\n&quot;);</p><p>decode-total-seconds(*minus-2-hours* + *8-30-59*); </p>
-		</td>
-	</tr>
-	<tr>
-<td><p>format-out(&quot;Adding &lt;time-of-day&gt; + &lt;time-offset&gt;: *8-30-59* + *minus-2-hours* :\n&quot;);</p><p>decode-total-seconds(*8-30-59* + *minus-2-hours*);</p>
+		<td>
+<pre>
+module: timespace
+
+format-out(&quot;Creating an instance of &lt;absolute-position&gt;:\n&quot;);
+
+define variable *my-absolute-position*
+  = make(&lt;absolute-position&gt;, 
+         latitude: make(&lt;latitude&gt;, 
+                        total-seconds: encode-total-seconds(42, 19, 34),
+                        direction: &quot;North&quot;),
+         longitude: make(&lt;longitude&gt;,
+                         total-seconds: encode-total-seconds(70, 56, 26),
+                         direction: &quot;West&quot;)); 
+
+say (*my-absolute-position*);
+
+format-out(&quot;\n&quot;);
+
+
+format-out(&quot;Creating an instance of &lt;relative-position&gt;:\n&quot;);
+
+define variable *her-relative-position*
+  = make(&lt;relative-position&gt;,
+         distance: 30,
+         angle: make(&lt;angle&gt;,
+                     total-seconds: encode-total-seconds(90, 5, 0)));
+say(*her-relative-position*);
+format-out(&quot;\n&quot;);
+
+
+format-out(&quot;Creating an instance of &lt;time-offset&gt; in *minus-2-hours*.\n&quot;);
+
+define variable *minus-2-hours*
+  = make(&lt;time-offset&gt;, total-seconds: - encode-total-seconds (2, 0, 0));
+
+
+format-out(&quot;Creating an instance of &lt;time-offset&gt; in *plus-15-20-45*.\n&quot;);
+
+define variable *plus-15-20-45*
+  = make(&lt;time-offset&gt;, total-seconds: encode-total-seconds (15, 20, 45));
+
+
+format-out(&quot;Creating an instance of &lt;time-of-day&gt; in *8-30-59*.\n&quot;);
+
+define variable *8-30-59*
+  = make(&lt;time-of-day&gt;, total-seconds: encode-total-seconds (8, 30, 59));
+
+
+format-out(&quot;Adding &lt;time-offset&gt; + &lt;time-offset&gt;: *minus-2-hours* + *plus-15-20-45*:\n&quot;);
+
+decode-total-seconds(*minus-2-hours* + *plus-15-20-45*);
+
+
+format-out(&quot;Adding &lt;time-offset&gt; + &lt;time-of-day&gt;: *minus-2-hours* + *8-30-59*:\n&quot;);
+
+decode-total-seconds(*minus-2-hours* + *8-30-59*);
+
+
+format-out(&quot;Adding &lt;time-of-day&gt; + &lt;time-offset&gt;: *8-30-59* + *minus-2-hours* :\n&quot;);
+
+decode-total-seconds(*8-30-59* + *minus-2-hours*);
+</pre>
 		</td>
 	</tr>
 </table>

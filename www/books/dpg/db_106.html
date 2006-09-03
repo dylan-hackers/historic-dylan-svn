@@ -8,7 +8,7 @@
 		<link rel="up" href="db_103.html" />
 		<link rel="prev" href="db_105.html" />
 		<link rel="next" href="db_107.html" />
-		<title>Dylan Programming: 8.3   The implementation file</title>
+		<title>Dylan Programming: 8.3 The implementation file</title>
 	</head>
 <body>
 
@@ -17,149 +17,218 @@
 </div>
 
 <div class="content" id="heading106-0">
-<h1>8.3   The implementation file</h1>
-<table><tr><th><p>The implementation file: <code>library-implementation.dylan</code>. </p>
-</th></tr><tr><td><pre>
+<h1>8.3 The implementation file</h1>
+<table><tr><th>The implementation file: <code>library-implementation.dylan</code>.</th></tr>
+<tr><td><pre>
 module: timespace
 <em>// The sixty-unit class</em>
 define abstract class &lt;sixty-unit&gt; (&lt;object&gt;)
   slot total-seconds :: &lt;integer&gt;, init-keyword: total-seconds:;
 end class &lt;sixty-unit&gt;;
-</pre></td></tr><tr><td><em>// decode-total-seconds</em>
+
+
+<em>// decode-total-seconds</em>
 define method decode-total-seconds 
     (sixty-unit :: &lt;sixty-unit&gt;)
  =&gt; (max-unit :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
   decode-total-seconds(abs(time.total-seconds));
 end method decode-total-seconds;
-</td></tr><tr><td>define method decode-total-seconds
+
+
+define method decode-total-seconds
     (total-seconds :: &lt;integer&gt;)
- =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)<em>	</em>  let(total-minutes, seconds) = truncate/(total-seconds, 60);
+ =&gt; (hours :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;)
+  let(total-minutes, seconds) = truncate/(total-seconds, 60);
   let(hours, minutes) = truncate/(total-minutes, 60);
   values(hours, minutes, seconds);
-end method decode-total-seconds; 
-</td></tr><tr><td><em>// encode-total-seconds</em>
+end method decode-total-seconds;
+
+
+<em>// encode-total-seconds</em>
 define method encode-total-seconds 
     (max-unit :: &lt;integer&gt;, minutes :: &lt;integer&gt;, seconds :: &lt;integer&gt;) 
  =&gt; (total-seconds :: &lt;integer&gt;)
   ((max-unit * 60) + minutes) * 60 + seconds;
 end method encode-total-seconds; 
-</td></tr><tr><td><em>// The say generic function</em>
-<em>// Given an object, print a description of the object
-</em>define generic say (any-object :: &lt;object&gt;) =&gt; (); 
-</td></tr><tr><td><em>// The time classes and methods</em>
+
+
+<em>// The say generic function</em>
+<em>// Given an object, print a description of the object</em>
+define generic say (any-object :: &lt;object&gt;) =&gt; (); 
+
+
+<em>// The time classes and methods</em>
 define abstract class &lt;time&gt; (&lt;sixty-unit&gt;)
 end class &lt;time&gt;; 
-</td></tr><tr><td>define method say (time :: &lt;time&gt;) =&gt; ()
+
+
+define method say (time :: &lt;time&gt;) =&gt; ()
   let (hours, minutes) = decode-total-seconds(time); 
   format-out
     (&quot;%d:%s%d&quot;, hours, if (minutes &lt; 10) &quot;0&quot; else &quot;&quot; end, minutes);
 end method say; 
-</td></tr><tr><td><em>// A specific time of day from 00:00 (midnight) to before 24:00 (tomorrow)
-</em>define class &lt;time-of-day&gt; (&lt;time&gt;)
+
+
+<em>// A specific time of day from 00:00 (midnight) to before 24:00 (tomorrow)</em>
+define class &lt;time-of-day&gt; (&lt;time&gt;)
 end class &lt;time-of-day&gt;; 
-</td></tr><tr><td><em>// A relative time between -24:00 and +24:00
-</em>define class &lt;time-offset&gt; (&lt;time&gt;)
+
+
+<em>// A relative time between -24:00 and +24:00</em>
+define class &lt;time-offset&gt; (&lt;time&gt;)
 end class &lt;time-offset&gt;; 
-</td></tr><tr><td><em>// Method for determining whether a time offset is in the past
-</em>define method past? (time :: &lt;time-offset&gt;) =&gt; (past? :: &lt;boolean&gt;)
+
+
+<em>// Method for determining whether a time offset is in the past</em>
+define method past? (time :: &lt;time-offset&gt;) =&gt; (past? :: &lt;boolean&gt;)
   time.total-seconds &lt; 0;
 end method past?; 
-</td></tr><tr><td>define method say (time :: &lt;time-offset&gt;)
+
+
+define method say (time :: &lt;time-offset&gt;)
   format-out(&quot;%s &quot;, if (past?(time)) &quot;minus&quot; else &quot;plus&quot; end);
   next-method();
 end method say; 
-</td></tr><tr><td><em>// Methods for adding times</em>
+
+
+<em>// Methods for adding times</em>
 define method \+ 
     (offset1 :: &lt;time-offset&gt;, offset2 :: &lt;time-offset&gt;) 
- =&gt; (sum :: &lt;time-offset&gt;)	<em> 
-</em>  let sum = offset1.total-seconds + offset2.total-seconds; 
+ =&gt; (sum :: &lt;time-offset&gt;)
+  let sum = offset1.total-seconds + offset2.total-seconds; 
   make(&lt;time-offset&gt;, total-seconds: sum); 
-end method \+;	<em> </em>
-</td></tr><tr><td>define method \+ 
+end method \+;
+
+
+define method \+ 
     (offset :: &lt;time-offset&gt;, time-of-day :: &lt;time-of-day&gt;)
  =&gt; (sum :: &lt;time-of-day&gt;)
   make(&lt;time-of-day&gt;, 
        total-seconds: offset.total-seconds + time-of-day.total-seconds);
 end method \+; 
-</td></tr><tr><td>define method \+ 
+
+
+define method \+ 
     (time-of-day :: &lt;time-of-day&gt;, offset :: &lt;time-offset&gt;)
  =&gt; (sum :: &lt;time-of-day&gt;)
   offset + time-of-day;
 end method \+; 
-</td></tr><tr><td>define method \+ (time1 :: &lt;time&gt;, time2 :: &lt;time&gt;)
+
+
+define method \+ (time1 :: &lt;time&gt;, time2 :: &lt;time&gt;)
   error(&quot;Sorry, we can't add a %s to a %s.&quot;, 
         object-class(time1), object-class(time2));
 end method \+; 
-</td></tr><tr><td><em>// Methods for comparing times</em>
+
+
+<em>// Methods for comparing times</em>
 define method \&lt; (time1 :: &lt;time-of-day&gt;, time2 :: &lt;time-of-day&gt;)
   time1.total-seconds &lt; time2.total-seconds;
 end method \&lt;; 
-</td></tr><tr><td>define method \&lt; (time1 :: &lt;time-offset&gt;, time2 :: &lt;time-offset&gt;)
+
+
+define method \&lt; (time1 :: &lt;time-offset&gt;, time2 :: &lt;time-offset&gt;)
   time1.total-seconds &lt; time2.total-seconds;
 end method \&lt;; 
-</td></tr><tr><td>define method \= (time1 :: &lt;time-of-day&gt;, time2 :: &lt;time-of-day&gt;)
+
+
+define method \= (time1 :: &lt;time-of-day&gt;, time2 :: &lt;time-of-day&gt;)
   time1.total-seconds = time2.total-seconds;
 end method \=; 
-</td></tr><tr><td>define method \= (time1 :: &lt;time-offset&gt;, time2 :: &lt;time-offset&gt;)
+
+
+define method \= (time1 :: &lt;time-offset&gt;, time2 :: &lt;time-offset&gt;)
   time1.total-seconds = time2.total-seconds;
 end method \=; 
-</td></tr><tr><td><em>// The angle classes and methods</em>
+
+
+<em>// The angle classes and methods</em>
 define abstract class &lt;angle&gt; (&lt;sixty-unit&gt;)
 end class &lt;angle&gt;; 
-</td></tr><tr><td>define method say (angle :: &lt;angle&gt;) =&gt; ()
+
+
+define method say (angle :: &lt;angle&gt;) =&gt; ()
   let(degrees, minutes, seconds) = decode-total-seconds(angle);
   format-out
     (&quot;%d degrees %d minutes %d seconds&quot;,
      degrees, minutes, seconds);
 end method say; 
-</td></tr><tr><td>define class &lt;relative-angle&gt; (&lt;angle&gt;)
+
+
+define class &lt;relative-angle&gt; (&lt;angle&gt;)
 end class &lt;relative-angle&gt;;
-</td></tr><tr><td><em>// We need to show degrees for &lt;relative-angle&gt; but we do not need to 
-// show minutes and seconds, so we override the method on &lt;angle&gt;
-</em>define method say (angle :: &lt;relative-angle&gt;) =&gt; ()
+
+
+<em>// We need to show degrees for &lt;relative-angle&gt; but we do not need to</em>
+<em>// show minutes and seconds, so we override the method on &lt;angle&gt;</em>
+define method say (angle :: &lt;relative-angle&gt;) =&gt; ()
   format-out(&quot; %d degrees&quot;, decode-total-seconds(angle));
 end method say; 
-</td></tr><tr><td>define abstract class &lt;directed-angle&gt; (&lt;angle&gt;)
+
+
+define abstract class &lt;directed-angle&gt; (&lt;angle&gt;)
   slot direction :: &lt;string&gt;, init-keyword: direction:;
 end class &lt;directed-angle&gt;; 
-</td></tr><tr><td>define method say (angle :: &lt;directed-angle&gt;) =&gt; ()
+
+
+define method say (angle :: &lt;directed-angle&gt;) =&gt; ()
   next-method();
   format-out(&quot; %s&quot;, angle.direction);
 end method say; 
-</td></tr><tr><td><em>// The latitude and longitude classes and methods</em>
+
+
+<em>// The latitude and longitude classes and methods</em>
 define class &lt;latitude&gt; (&lt;directed-angle&gt;)
 end class &lt;latitude&gt;; 
-</td></tr><tr><td>define method say (latitude :: &lt;latitude&gt;) =&gt; ()
+
+
+define method say (latitude :: &lt;latitude&gt;) =&gt; ()
   next-method();
   format-out(&quot; latitude\n&quot;);
 end method say; 
-</td></tr><tr><td>define class &lt;longitude&gt; (&lt;directed-angle&gt;)
+
+
+define class &lt;longitude&gt; (&lt;directed-angle&gt;)
 end class &lt;longitude&gt;; 
-</td></tr><tr><td>define method say (longitude :: &lt;longitude&gt;) =&gt; ()
+
+
+define method say (longitude :: &lt;longitude&gt;) =&gt; ()
   next-method();
   format-out(&quot; longitude\n&quot;);
 end method say; 
-</td></tr><tr><td><em>// The position classes and methods</em>
+
+
+<em>// The position classes and methods</em>
 define abstract class &lt;position&gt; (&lt;object&gt;)
-end class &lt;position&gt;; 
-</td></tr><tr><td>define class &lt;absolute-position&gt; (&lt;position&gt;)
+end class &lt;position&gt;;
+
+
+define class &lt;absolute-position&gt; (&lt;position&gt;)
   slot latitude :: &lt;latitude&gt;, init-keyword: latitude:;
   slot longitude :: &lt;longitude&gt;, init-keyword: longitude:;
 end class &lt;absolute-position&gt;; 
-</td></tr><tr><td>define method say (position :: &lt;absolute-position&gt;) =&gt; ()
+
+
+define method say (position :: &lt;absolute-position&gt;) =&gt; ()
   say(position.latitude);
   say(position.longitude);
-end method say; 
-</td></tr><tr><td>define class &lt;relative-position&gt; (&lt;position&gt;)
-<em>  // Distance is in miles
-</em>  slot distance :: &lt;single-float&gt;, init-keyword: distance:;
+end method say;
+
+
+define class &lt;relative-position&gt; (&lt;position&gt;)
+<em>  // Distance is in miles</em>
+  slot distance :: &lt;single-float&gt;, init-keyword: distance:;
   slot angle :: &lt;angle&gt;, init-keyword: angle:;
 end class &lt;relative-position&gt;; 
-</td></tr><tr><td><pre>define method say (position :: &lt;relative-position&gt;) =&gt; ()
+
+
+<pre>define method say (position :: &lt;relative-position&gt;) =&gt; ()
   format-out(&quot;%d miles away at heading &quot;, position.distance);
   say(position.angle);
 end method say; 
-</pre></td></tr></table>
+</pre></td>
+</tr>
+</table>
 
 </div>
 
