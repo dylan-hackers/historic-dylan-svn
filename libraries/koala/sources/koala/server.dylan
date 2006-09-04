@@ -836,7 +836,7 @@ define method register-url
 end method register-url;
 
 define method register-url-now
-    (url :: <string>, target :: <function>, #key replace?, prefix? = #())
+    (url :: <string>, target :: <function>, #key replace?, prefix?)
   let server :: <server> = *server*;
   let (bpos, epos) = trim-whitespace(url, 0, size(url));
   if (bpos = epos)
@@ -844,9 +844,7 @@ define method register-url-now
                format-string: "You cannot register an empty URL: %=",
                format-arguments: list(substring(url, bpos, epos))));
   else
-    //format(*standard-output*, "Trying to register url %s now\n", url);
-    let path = split(url, separator: "/");
-    add-object(server.url-map, path, pair(target, prefix?), replace?: replace?);
+    add-object(server.url-map, url, pair(target, prefix?), replace?: replace?);
   end;
   log-info("URL %s registered", url);
 end method register-url-now;
