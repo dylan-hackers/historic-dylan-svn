@@ -205,27 +205,27 @@ end;
 define method add-object
     (trie :: <string-trie>, path :: <sequence>, object :: <object>,
      #key replace?)
-  let old = ~replace? & find-object(trie, path);
-  if (old)
-    signal(make(<trie-error>,
-                format-string: "Trie already contains an object (%=) for the "
-                               "given path.",
-                format-arguments: list(old)));
-  end;
-  let current-node :: <string-trie> = trie;
-  let path-size = path.size;
-  for (name in path,
-       index from 1)
-    let child-node = element(trie-children(current-node), name, default: #f);
-    if (child-node)
-      current-node := child-node;
+  //format(*standard-output*, "trying to register %d %=\n", path.size, path);
+  if (path.size = 0)
+    if (trie.trie-object = #f | replace?)
+      //format(*standard-output*, "Successfully added\n");
+      trie.trie-object := object;
     else
-      let obj = (index == path-size) & object;
-      let node = make(<string-trie>, object: obj);
-      trie-children(current-node)[name] := node;
-      current-node := node;
-    end if;
-  end for;
+      signal(make(<trie-error>,
+                  format-string: "Trie already contains an object for the given path."))
+    end;
+  else
+    let first-path = path[0];
+    let rest-path = copy-sequence(path, start: 1);
+    let children = trie-children(trie);
+    let child = element(children, first-path, default: #f);
+    unless (child)
+      let node = make(<string-trie>, object: #f);
+      children[first-path] := node;
+      child := node;
+    end;
+    add-object(child, rest-path, object, replace?: replace?)
+  end;
 end method add-object;
 
 // Find the object with the longest path, if any.  2nd return value is
@@ -250,6 +250,9 @@ define method find-object
             end
           end
         end method fob;
-  fob(trie, as(<list>, path), #f, #f)
+  //let (res1, res2) = fob(trie, as(<list>, path), trie.trie-object, #f);
+  //format(*standard-output*, "res1 %= res2 %=\n", res1, res2);
+  //values(res1, res2);
+  fob(trie, as(<list>, path), trie.trie-object, #f);
 end method find-object;
 

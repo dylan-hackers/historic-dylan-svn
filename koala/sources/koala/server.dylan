@@ -836,7 +836,7 @@ define method register-url
 end method register-url;
 
 define method register-url-now
-    (url :: <string>, target :: <function>, #key replace?, prefix?)
+    (url :: <string>, target :: <function>, #key replace?, prefix? = #())
   let server :: <server> = *server*;
   let (bpos, epos) = trim-whitespace(url, 0, size(url));
   if (bpos = epos)
@@ -844,15 +844,9 @@ define method register-url-now
                format-string: "You cannot register an empty URL: %=",
                format-arguments: list(substring(url, bpos, epos))));
   else
+    //format(*standard-output*, "Trying to register url %s now\n", url);
     let path = split(url, separator: "/");
-    let old-target = find-object(server.url-map, path);
-    if (replace? | ~old-target)
-      add-object(server.url-map, path, pair(target, prefix?));
-    else
-      error(make(<koala-api-error>,
-                 format-string: "There is already a target registered for URL %=",
-                 format-arguments: list(url)));
-    end;
+    add-object(server.url-map, path, pair(target, prefix?), replace?: replace?);
   end;
   log-info("URL %s registered", url);
 end method register-url-now;
