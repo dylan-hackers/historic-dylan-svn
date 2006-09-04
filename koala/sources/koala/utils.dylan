@@ -203,29 +203,30 @@ define class <trie-error> (<simple-error>)
 end;
 
 define method add-object
-    (trie :: <string-trie>, path :: <sequence>, object :: <object>,
+    (trie :: <string-trie>, path :: <string>, object :: <object>,
      #key replace?)
-  //format(*standard-output*, "trying to register %d %=\n", path.size, path);
-  if (path.size = 0)
-    if (trie.trie-object = #f | replace?)
-      //format(*standard-output*, "Successfully added\n");
-      trie.trie-object := object;
-    else
-      signal(make(<trie-error>,
-                  format-string: "Trie already contains an object for the given path."))
-    end;
-  else
-    let first-path = path[0];
-    let rest-path = copy-sequence(path, start: 1);
-    let children = trie-children(trie);
-    let child = element(children, first-path, default: #f);
-    unless (child)
-      let node = make(<string-trie>, object: #f);
-      children[first-path] := node;
-      child := node;
-    end;
-    add-object(child, rest-path, object, replace?: replace?)
-  end;
+  local method real-add (trie :: <string-trie>, rest-path :: <sequence>)
+          if (rest-path.size = 0)
+            if (trie.trie-object = #f | replace?)
+              trie.trie-object := object;
+            else
+              signal(make(<trie-error>,
+                          format-string: format-to-string("Trie already contains an object for the given path (%=).", path)))
+            end;
+          else
+            let first-path = rest-path[0];
+            let other-path = copy-sequence(rest-path, start: 1);
+            let children = trie-children(trie);
+            let child = element(children, first-path, default: #f);
+            unless (child)
+              let node = make(<string-trie>, object: #f);
+              children[first-path] := node;
+              child := node;
+            end;
+            real-add(child, other-path)
+          end;
+        end;
+  real-add(trie, split(path, separator: "/"))
 end method add-object;
 
 // Find the object with the longest path, if any.  2nd return value is
@@ -250,9 +251,6 @@ define method find-object
             end
           end
         end method fob;
-  //let (res1, res2) = fob(trie, as(<list>, path), trie.trie-object, #f);
-  //format(*standard-output*, "res1 %= res2 %=\n", res1, res2);
-  //values(res1, res2);
   fob(trie, as(<list>, path), trie.trie-object, #f);
 end method find-object;
 
