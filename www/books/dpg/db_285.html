@@ -22,7 +22,7 @@
 <p>With multiple inheritance, the relations among superclasses and subclasses can form a <strong>graph</strong><a name="marker-2-737"></a>, which may not be a tree. We cannot always order a class and all its superclasses in terms of specificity. It is still true that a subclass is more specific than are any of its superclasses. But we cannot always order its superclasses in terms of specificity.</p>
 <p><a href="#marker-9-723">Figure 18.2</a> illustrates our current definitions of <code>&lt;vehicle&gt;</code> and of <code>&lt;vehicle&gt;</code>'s subclasses.</p>
 <table><caption>Figure 18.2   <a name="marker-9-723"></a>Graph of vehicle classes that use multiple inheritance.</caption><tr><td>
-<img alt="db28im30" src="db28im30.gif" />
+<img alt="Figure 18.2" src="figure-18.2.png" />
 </td></tr></table>
 <p>Consider <code>&lt;B707&gt;</code> and its superclasses. We can order <code>&lt;B707&gt;</code>, <code>&lt;commercial-aircraft&gt;</code>, and <code>&lt;aircraft&gt;</code> from more specific to less specific. But we cannot say that either <code>&lt;ground-vehicle&gt;</code> or <code>&lt;flying-vehicle&gt;</code> is more specific than the other, because neither class is a subclass of the other. We could order <code>&lt;B707&gt;</code> and its superclasses in two ways, from more specific to less specific:</p>
 <pre>
