@@ -7,4 +7,3 @@ Files:	module
 	macros
 	cl-sequences
 	cl-plists
-	cl-strings

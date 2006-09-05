@@ -189,7 +189,7 @@ define method cl-assoc-if
       let telt = sequence[i];
       when (telt)
         // skip null items
-        let tkey = if (key) key(car(telt)) else head(telt) end;
+        let tkey = if (key) key(head(telt)) else head(telt) end;
         when (predicate(tkey))
           return(telt)
         end
@@ -551,27 +551,33 @@ define method cl-remove-duplicates!
         index >= finish
         | if (from-end?)
             //never duplicated
-            for (tindex from start below result-index)
-              let elt = sequence[tindex];
-              let tkey = if (key) key(elt) else elt end;
-              when (test(tkey, test-key))
-                // TEST-ELEMENT is an earlier duplicate of element
-                when (replace?)
-                  sequence[tindex] := test-element
+            block (return)
+              for (tindex from start below result-index)
+                let elt = sequence[tindex];
+                let tkey = if (key) key(elt) else elt end;
+                when (test(tkey, test-key))
+                  // TEST-ELEMENT is an earlier duplicate of element
+                  when (replace?)
+                    sequence[tindex] := test-element
+                  end;
+                  return(#f)
                 end;
-                return(#f)
-              end;
-            finally return(#t);
-            end
+              finally
+                #t;
+              end
+            end block
           else
-            for (tindex from index + 1 below finish)
-              let elt = sequence[tindex];
-              let tkey = if (key) key(elt) else elt end;
-              when (test(test-key, tkey))
-                return(#f)
-              end;
-            finally return(#t);
-            end
+            block (return)
+              for (tindex from index + 1 below finish)
+                let elt = sequence[tindex];
+                let tkey = if (key) key(elt) else elt end;
+                when (test(test-key, tkey))
+                  return(#f)
+                end;
+              finally
+                #t;
+              end
+            end block
           end =>
           // Not a duplicate
           sequence[result-index] := test-element;
@@ -1360,14 +1366,15 @@ end method cl-merge;
 // Following additions by Peter Norvig
 
 define method cl-reduce-compares (op :: <function>)
-  method (args :: <list>))
+  method (args :: <list>)
     block (return)
       while (~ empty?(tail(args)))
         if (~ op(first(args),second(args)))
           return(#f)
         else
           args := tail(args)
-      end
-    end
-  end
+        end if
+      end while
+    end block
+  end method
 end method cl-reduce-compares;
