@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-transcendentals-atan">
   <apiName>atan</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Returns the arc tangent of its argument.</shortdesc>
 
   <prolog>
     <author></author>
@@ -28,7 +28,10 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the arc tangent of its argument. The floating point
+      precision of the result is given by the precision of
+      <varname>x</varname>. The result is a single-float if
+      <varname>x</varname> is an integer.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

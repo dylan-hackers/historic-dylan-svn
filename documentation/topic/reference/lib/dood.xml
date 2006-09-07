@@ -2,7 +2,7 @@
 <!DOCTYPE dylanLibrary PUBLIC "-//Gwydion//DTD DITA Dylan API Library//EN" "../../dtd/dylanLibrary.dtd" []>
 <dylanLibrary id="lib-dood">
   <apiName>dood</apiName>
-  <shortdesc></shortdesc>
+  <shortdesc>The Dylan Object Oriented Database.</shortdesc>
 
   <prolog>
     <author></author>

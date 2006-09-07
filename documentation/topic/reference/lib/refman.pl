@@ -387,7 +387,7 @@ sub do_start_functiondef {
     
     print ENTRY << "EOF"
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
+<!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Macro//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-$library-$module-$mangled">
   <apiName>$escaped</apiName>
   <shortdesc>Returns .</shortdesc>
@@ -555,7 +555,7 @@ sub do_start_macrodef {
     
     print ENTRY << "EOF"
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE dylanMacro PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanMacro.dtd" []>
+<!DOCTYPE dylanMacro PUBLIC "-//Gwydion//DTD DITA Dylan API Macro//EN" "../../../../dtd/dylanMacro.dtd" []>
 <dylanMacro id="lib-$library-$module-$mangled">
   <apiName>$escaped</apiName>
   <shortdesc></shortdesc>

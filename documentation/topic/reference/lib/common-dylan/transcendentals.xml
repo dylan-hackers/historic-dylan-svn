@@ -14,7 +14,28 @@
 
   <dylanModuleDetail>
     <apiDesc>
-      <p></p>
+      <p>The <apiname>transcendentals</apiname> module, exported from
+      the <apipackage>common-dylan</apipackage> library, provides a
+      set of open generic functions for ANSI C-like behavior over real
+      numbers. The restrictions and error cases described in this
+      chapter are intended to be the same as they are in ANSI C.</p>
+
+      <p>Because implementation of these functions might be by a
+      standard library for transcendentals accessed by a foreign
+      function interface, the exact precision and algorithms (and
+      hence, the exact results) for all of these functions is
+      explicitly unspecified. Note, however, that a program expects
+      the following, even in libraries that are implemented by calling
+      foreign libraries:</p>
+
+      <ul>
+	<li>Domain and range errors should be signalled as Dylan errors.</li>
+	
+	<li>Floating point precision <term>contagion</term> must obey
+        Dylan rules (that is, functions called on single precision
+        values return single precision results, and functions on
+        double precision values return double precision results)</li>
+      </ul>
     </apiDesc>
   </dylanModuleDetail>
 

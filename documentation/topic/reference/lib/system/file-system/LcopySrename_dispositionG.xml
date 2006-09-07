@@ -2,7 +2,9 @@
 <!DOCTYPE dylanConstant PUBLIC "-//Gwydion//DTD DITA Dylan API Constant//EN" "../../../../dtd/dylanConstant.dtd" []>
 <dylanConstant id="lib-system-file-system-LcopySrename_dispositionG">
   <apiName>&lt;copy/rename-disposition&gt;</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>The type that represents possible actions when
+  overwriting existing files.</shortdesc>
 
   <prolog>
     <author></author>

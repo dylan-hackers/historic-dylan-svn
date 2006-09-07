@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE dylanMacro PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanMacro.dtd" []>
+<!DOCTYPE dylanMacro PUBLIC "-//Gwydion//DTD DITA Dylan API Macro//EN" "../../../../dtd/dylanMacro.dtd" []>
 <dylanMacro id="lib-io-streams-with_input_buffer">
   <apiName>with-input-buffer</apiName>
   <shortdesc></shortdesc>

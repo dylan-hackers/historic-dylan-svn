@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-transcendentals-atan2">
   <apiName>atan2</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the arc tangent of one value divided by
+  another.</shortdesc>
 
   <prolog>
     <author></author>
@@ -33,7 +35,16 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the arc tangent of <varname>x</varname> divided by
+      <varname>y</varname>. The value of <varname>x</varname> may be
+      zero if <varname>y</varname> is not zero. The signs of
+      <varname>x</varname> and <varname>y</varname> are used to derive
+      in which quadrant the angle falls.</p>
+
+      <p>The floating point precision of the result is given by the
+      precision of <varname>x</varname> / <varname>y</varname>. The
+      result is a single-float if <varname>x</varname> /
+      <varname>y</varname> is an integer.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>
