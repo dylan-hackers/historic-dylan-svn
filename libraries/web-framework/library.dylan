@@ -176,12 +176,16 @@ define module changes
     text, text-setter;
     
   export <content>,
-    <raw-content>;
+    <raw-content>,
+    <textile-content>,
+    <xhtml-content>;
     
   //commands
   export <add-command>,
     <remove-command>,
     <edit-command>;
+
+  export <comment>;
 end;
 
 

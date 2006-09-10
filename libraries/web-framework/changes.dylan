@@ -40,19 +40,22 @@ end;
 
 define open class <entry> (<object>)
   /* slot CommonAttributes */
-  slot authors :: <list> = #(),
+  slot authors :: <stretchy-vector> = 
+    make(<stretchy-vector>, size: 0),
     init-keyword: authors:;
-  slot categories :: <list> = #(),
+  slot categories :: <stretchy-vector> =
+    make(<stretchy-vector>, size: 0),
     init-keyword: categories:;
   slot content :: false-or(<content>) = #f,
     init-keyword: content:;
-  slot contributors :: <list> = #(),
+  slot contributors :: <stretchy-vector> = 
+    make(<stretchy-vector>, size: 0),
     init-keyword: contributors:;
   slot identifier :: <uri>,
     init-keyword: identifier:;
   slot links :: <list> = #(),
     init-keyword: links:;
-  slot published :: <date>,
+  slot published :: <date> = current-date(),
     init-keyword: published:;
   slot rights :: false-or(<text>) = #f,
     init-keyword: rights:;
@@ -69,6 +72,15 @@ define open class <entry> (<object>)
   /* repeated slot extensionElement */
 end;
 
+define class <comment> (<object>)
+  slot commenter :: <string>,
+    init-keyword: commenter:;
+  slot email :: <email>,
+    init-keyword: email:;
+  slot content :: <content>,
+    init-keyword: content:;
+end;
+
 define abstract class <content> (<object>)
   /* slot CommonAttributes */
   slot type :: <string>, init-keyword: type:;
@@ -77,7 +89,15 @@ end;
 
 define class <raw-content> (<content>)
   inherited slot type :: <string> = "raw";
-end class <raw-content>;
+end;
+
+define class <textile-content> (<content>)
+  inherited slot type :: <string> = "textile";
+end;
+
+define class <xhtml-content> (<content>)
+  inherited slot type :: <string> = "xhtml";
+end;
 
 /*
 define class <inline-text-content> (<content>)
