@@ -512,7 +512,7 @@ define class <request> (<basic-request>)
   slot request-responder :: false-or(<function>) = #f;
 
   // For directory responders, this contains the part of the URL after
-  // the matched directory prefix and before the & (if any).
+  // the matched directory prefix and before the ? (if any).
   slot request-url-tail :: <string> = "";
 
 end class <request>;
@@ -736,9 +736,10 @@ end;
 define function process-request-content
     (request :: <request>, buffer :: <byte-string>, content-length :: <integer>)
  => (content :: <string>)
-  let content-type = get-header(request, "content-type");
-  if (instance?(content-type, <string>)
-      & string-equal?("application/x-www-form-urlencoded", content-type))
+  let header-content-type = split(get-header(request, "content-type"), separator: ";");
+  let content-type = first(header-content-type);
+  if (instance?(content-type, <string>) &
+      string-equal?("application/x-www-form-urlencoded", content-type))
     log-debug("Form query string = %=",
               copy-sequence(buffer, end: content-length));
     // Replace '+' with Space.  See RFC 1866 (HTML) section 8.2.
@@ -757,6 +758,20 @@ define function process-request-content
   elseif (member?(content-type, #["text/xml", "text/html", "text/plain"],
                   test: string-equal?))
     request-content(request) := buffer
+  elseif (instance?(content-type, <string>) & 
+          element(header-content-type, 1, default: #f) &
+          string-equal?("multipart/form-data", content-type))
+    let boundary = split(second(header-content-type), separator: "=");
+    if (element(boundary, 1, default: #f))
+      let boundary-value = second(boundary);
+      log-debug("boundary: %=", boundary-value);
+      extract-form-data(buffer, boundary-value, request);
+      // ???
+      request-content(request) := buffer
+    else
+      log-error("%=", "content-type is missing the boundary parameter");
+      unsupported-media-type-error();
+    end if
   else
     unsupported-media-type-error();
   end if;
@@ -1003,6 +1018,44 @@ define function extract-request-version (buffer :: <string>,
     unsupported-http-version-error()
   end;
 end extract-request-version;
+
+define method extract-form-data
+ (buffer :: <string>, boundary :: <string>, request :: <request>)
+  // strip everything after end-boundary
+  let buffer = first(split(buffer, separator: concatenate("--", boundary, "--")));
+  let parts = split(buffer, separator: concatenate("--", boundary));
+  for (part in parts) 
+    let part = split(part, separator: "\r\n\r\n");
+    let header = first(part);
+    let header-entries = split(header, separator: "\r\n");
+    let disposition = #f;
+    let name = #f;
+    let type = #f;
+    let filename = #f;
+    for (header-entry in header-entries)
+      let header-entry-parts = split(header-entry, separator: ";");
+      for (header-entry-part in header-entry-parts)
+        let eq-pos = char-position('=', header-entry-part, 0, size(header-entry-part));
+        let p-pos = char-position(':', header-entry-part, 0, size(header-entry-part));
+        if (p-pos & (substring(header-entry-part, 0, p-pos) = "Content-Disposition"))
+          disposition := substring(header-entry-part, p-pos + 2, size(header-entry-part));
+        elseif (p-pos & (substring(header-entry-part, 0, p-pos) = "Content-Type"))
+          type := substring(header-entry-part, p-pos + 2, size(header-entry-part));
+        elseif (eq-pos & (substring(header-entry-part, 0, eq-pos) = "name"))
+          // name unquoted
+          name := substring(header-entry-part, eq-pos + 2, size(header-entry-part) - 1);
+        elseif (eq-pos & (substring(header-entry-part, 0, eq-pos) = "filename"))
+          // filename unquoted
+          filename := substring(header-entry-part, eq-pos + 2, size(header-entry-part) - 1);
+        end if;
+      end for;
+    end for;
+    if (part.size > 1)
+      request.request-query-values[name] := substring(second(part), 0, size(second(part)) - 1);
+    end if;
+    log-debug("multipart/form-data for %=: %=, %=, %=", name, disposition, type, filename);
+  end for;
+end method extract-form-data;
 
 // Turn a string like "foo=8&bar=&baz=zzz" into a <string-table> with the "obvious" keys/vals.
 // Note that in the above example string "bar" maps to "", not #f.
