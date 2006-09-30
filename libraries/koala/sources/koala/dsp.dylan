@@ -1033,6 +1033,7 @@ define method parse-template (page :: <dylan-server-page>,
            scan-pos, end-tag);
   block (return)
     while (scan-pos < epos)
+
       let tag-start :: false-or(<integer>) = char-position('<', buffer, scan-pos, epos);
       if (~tag-start)
         // put the remainder of the buffer in the template as a string.

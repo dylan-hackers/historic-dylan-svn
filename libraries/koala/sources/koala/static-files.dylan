@@ -170,7 +170,7 @@ define method static-file-responder
     add-header(response, "Content-Type", mime-type);
     let props = file-properties(locator);
     add-header(response, "Last-Modified",
-               as-rfc-1123-date(props[#"modification-date"]));
+               as-rfc1123-string(props[#"modification-date"]));
     //---TODO: optimize this
     write(output-stream(response), stream-contents(in-stream));
   end;
@@ -214,7 +214,7 @@ define method directory-responder
           subdirectory-locator(locator-directory(locator), locator-name(locator)));
   let directory-properties = file-properties(locator);
   add-header(response, "Last-Modified",
-             as-rfc-1123-date(directory-properties[#"modification-date"]));
+             as-rfc1123-string(directory-properties[#"modification-date"]));
   let stream = output-stream(response);
   local
     method show-file-link (directory, name, type)

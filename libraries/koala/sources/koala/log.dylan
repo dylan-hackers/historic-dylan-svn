@@ -171,32 +171,6 @@ define method log-debug-if (test, format-string, #rest format-args)
   end;
 end;
 
-define method as-rfc-1123-date (date :: <date>) =>  (rfc1123-date :: <string>)
-  //Tue, 15 Nov 1994 08:12:31 GMT
-  let $month-names
-    = #["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  date-time-zone-offset-setter(0, date);
-  let (iyear, imonth, iday, ihours, iminutes, iseconds, dow) = decode-date(date);
-  local method wrap0 (int :: <integer>) => (string :: <string>)
-    if (int < 10)
-      concatenate("0", integer-to-string(int));
-    else
-      integer-to-string(int);
-    end if;
-  end;
-  let day-of-week = substring(as(<string>, dow), 0, 3);
-  day-of-week[0] := as-uppercase(day-of-week[0]);
-  let day = wrap0(iday);
-  let month = $month-names[imonth - 1];
-  let year = integer-to-string(iyear);
-  let hours = wrap0(ihours);
-  let minutes = wrap0(iminutes);
-  let seconds = wrap0(iseconds);
-  concatenate(day-of-week, ", ", day, " ", month, " ", year, " ",
-              hours, ":", minutes, ":", seconds, " GMT");
-end method as-rfc-1123-date;
-
 define method as-common-logfile-date (date :: <date>) => (common-logfile-date :: <string>)
   let $month-names
     = #["Jan", "Feb", "Mar", "Apr", "May", "Jun",

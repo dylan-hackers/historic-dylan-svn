@@ -162,7 +162,8 @@ define module changes
     summary, summary-setter,
     title, title-setter,
     updated, updated-setter,
-    comments, comments-setter;
+    comments, comments-setter,
+    comments-count;
 
   export <category>,
     term, term-setter,
@@ -185,7 +186,11 @@ define module changes
     <remove-command>,
     <edit-command>;
 
-  export <comment>;
+  export <comment>,
+    name, name-setter,
+    website, website-setter,
+    body, body-setter,
+    published, published-setter;
 end;
 
 

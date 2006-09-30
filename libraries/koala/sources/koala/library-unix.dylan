@@ -128,7 +128,7 @@ define module utilities
     log-error, log-warning, log-info, log-debug, log-debug-if, log-verbose, log-copious,
     log, log-raw,
     log-level, log-level-setter,
-    as-common-logfile-date, as-rfc-1123-date;
+    as-common-logfile-date;
     
 end module utilities;
     
