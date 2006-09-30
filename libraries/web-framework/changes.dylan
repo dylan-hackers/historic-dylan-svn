@@ -202,7 +202,7 @@ define method generate-rss (entry :: <entry>)
       description(escape-xml(entry.content.content)),
       link(entry.identifier),
       guid(entry.identifier),
-      pubDate(as-iso8601-string(entry.published)),
+      pubDate(as-rfc822-string(entry.published)),
     }
   end;       
 end method generate-rss;
