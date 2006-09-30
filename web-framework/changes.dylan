@@ -1,9 +1,9 @@
 module: changes
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define class <feed> (<object>)
+define open class <feed> (<object>)
   /* slot CommonAttributes */
-  slot authors :: <list>,
+  slot authors :: <list> = #(),
     init-keyword: authors:;
   slot categories :: <list> = #(),
     init-keyword: categories:;
@@ -28,13 +28,13 @@ define class <feed> (<object>)
   slot updated :: <date>,
     init-keyword: updated:;
   /* repeated slot extensionElement */
-  slot entries :: <list> = #(),
+  slot entries :: <string-table> = make(<string-table>),
     init-keyword: entries:;
   slot language :: <text>,
     init-keyword: language:;
   slot description :: <text>,
     init-keyword: description:;
-  slot published :: <date>,
+  slot published :: <date> = current-date(),
     init-keyword: published:;
 end;
 
@@ -67,18 +67,27 @@ define open class <entry> (<object>)
     init-keyword: title:;
   slot updated :: false-or(<date>) = #f,
     init-keyword: updated:;
-  slot comments :: <list> = #(),
+  slot comments :: <table> = make(<table>),
     init-keyword: comments:;
+  slot %comments-count :: <integer> = 0;
   /* repeated slot extensionElement */
 end;
 
+define method comments-count (entry :: <entry>)
+ => (res :: <integer>);
+  entry.%comments-count := entry.%comments-count + 1;
+  entry.%comments-count;
+end;
+
 define class <comment> (<object>)
-  slot commenter :: <string>,
-    init-keyword: commenter:;
-  slot email :: <email>,
-    init-keyword: email:;
+  slot name :: <string>,
+    required-init-keyword: name:;
+  slot website :: false-or(<uri>) = #f,
+    init-keyword: website:;
   slot content :: <content>,
-    init-keyword: content:;
+    required-init-keyword: content:;
+  slot published :: <date> = current-date(),
+    init-keyword: published:; 
 end;
 
 define abstract class <content> (<object>)
@@ -164,14 +173,17 @@ define constant <source> = <feed>;
 define generic generate-rss (object :: <object>);
 define method generate-rss (feed :: <feed>)
   with-xml-builder()
-    rss (version => "2.0") {
+    rss (version => "2.0",
+          xmlns :: content => "http://purl.org/rss/1.0/modules/content/",
+          xmlns :: wfw => "http://wellformedweb.org/CommentAPI/",
+          xmlns :: dc => "http://purl.org/dc/elements/1.1/") {
       channel {
         title(feed.title),
         link(first(feed.links)),
         description(feed.description),
         language(feed.language),
         copyright(feed.rights),
-        pubDate(as-iso8601-string(feed.published)),
+        pubDate(as-rfc822-string(feed.published)),
         image {
           url(feed.logo),
           title(feed.title),
@@ -187,9 +199,10 @@ define method generate-rss (entry :: <entry>)
   with-xml()
     item {
       title(entry.title),
-      description(entry.content.content),
+      description(escape-xml(entry.content.content)),
       link(entry.identifier),
-      author("food00d")
+      guid(entry.identifier),
+      pubDate(as-iso8601-string(entry.published)),
     }
   end;       
 end method generate-rss;

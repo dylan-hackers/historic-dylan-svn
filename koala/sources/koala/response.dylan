@@ -195,7 +195,7 @@ define method send-response
     if (generate-server-header?(*virtual-host*))
       add-header(response, "Server", $server-header-value);
     end if;
-    add-header(response, "Date", as-rfc-1123-date(current-date()));
+    add-header(response, "Date", as-rfc1123-string(current-date()));
 
     let content-length :: <string> = "0";
     unless (response.response-code == $not-modified)
