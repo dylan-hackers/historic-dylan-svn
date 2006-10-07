@@ -656,8 +656,13 @@ define macro page-definer
       end }
  => { define class "<" ## ?name ## ">" (?superclasses) ?slot-specs end;
       define variable "*" ## ?name ## "*" = make("<" ## ?name ## ">", ?make-args);
-      register-page-urls("*" ## ?name ## "*", ?make-args);
+      has-url?(?make-args) & register-page-urls("*" ## ?name ## "*", ?make-args);
     }
+end;
+
+define function has-url? (#key url :: false-or(<string>), #all-keys)
+ => (url-provided? :: <boolean>);
+  url = #t
 end;
 
 define function register-page-urls
