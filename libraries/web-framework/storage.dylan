@@ -40,6 +40,12 @@ define method storage (type)
   res;
 end;
 
+define open generic setup (class) => ();
+
+define method setup (class)
+ => ();
+  format-out(">>> no setup for: %=\n", class);
+end;
 
 define macro with-storage
   { with-storage (?:variable = ?type:expression)
@@ -100,6 +106,9 @@ define method restore (filename :: <string>) => ()
       *version* := *version* + 1;
     end;
   end;
+  for (class in key-sequence(*storage*))
+    setup(class);
+  end for;
 end;
 
 define method restore-newest (directory :: <string>) => ()
