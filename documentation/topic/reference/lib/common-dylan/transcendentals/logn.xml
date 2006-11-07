@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-transcendentals-logn">
   <apiName>logn</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the logarithm of its argument to the given
+  base.</shortdesc>
 
   <prolog>
     <author></author>
@@ -22,7 +24,7 @@
       <dylanFunctionParam>
 	<apiItemName>base</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>Must be strictly greater than 1.</apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionReturn>
 	<apiItemName>result</apiItemName>
@@ -32,7 +34,13 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the logarithm of <varname>x</varname> to the given
+      <varname>base</varname>. If <varname>x</varname> is less than or
+      equal to zero, an error is signalled. The floating point
+      precision of the result is given by the precision of
+      <varname>x</varname>. The result is a single-float if number is
+      an integer.</p>
+
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

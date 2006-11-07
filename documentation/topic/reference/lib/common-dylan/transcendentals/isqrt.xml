@@ -2,7 +2,9 @@
 <!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-common-dylan-transcendentals-isqrt">
   <apiName>isqrt</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the integer square root of its
+  argument.</shortdesc>
 
   <prolog>
     <author></author>
@@ -27,7 +29,10 @@
     </dylanFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the integer square root of <varname>x</varname>, that
+      is the greatest integer less than or equal to the exact positive
+      square root of <varname>x</varname>. If <varname>x</varname> is
+      less than zero, an error is signalled.</p>
     </apiDesc>
   </dylanFunctionDetail>
 </dylanFunction>

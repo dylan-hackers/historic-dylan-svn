@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "../dtd/topic.dtd" []>
+<topic id="transcendentals-module">
+  <title>The Transcendentals module</title>
+
+  <body>
+    <p>This section contains a reference entry for each item exported
+    from the <apiname>Common Extensions</apiname> library’s
+    <apiname>transcendentals</apiname> module.</p>
+  </body>
+</topic>

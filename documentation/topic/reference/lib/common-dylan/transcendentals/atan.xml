@@ -23,7 +23,7 @@
       <dylanFunctionReturn>
 	<apiItemName>result</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LnumberG.xml">&lt;number&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The resulting angle in radians.</apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>
 

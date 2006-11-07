@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "../dtd/map.dtd">
+<map title="The Transcendentals Module">
+  <topicref navtitle="Introduction" href="../../reference/lib/common-dylan/transcendentals.xml"/>
+  <topicref href="transcendentals.xml">
+    <topicref href="../../reference/lib/common-dylan/transcendentals/Ddouble_e.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/Ddouble_pi.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/Dsingle_e.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/Dsingle_pi.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/acos.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/acosh.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/asin.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/asinh.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/atan.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/atan2.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/atanh.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/cos.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/cosh.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/exp.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/isqrt.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/log.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/logn.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/sin.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/sinh.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/sqrt.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/tan.xml"/>
+    <topicref href="../../reference/lib/common-dylan/transcendentals/tanh.xml"/>
+  </topicref>
+</map>

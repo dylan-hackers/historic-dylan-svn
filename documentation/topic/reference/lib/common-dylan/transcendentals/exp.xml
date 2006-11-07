@@ -2,7 +2,10 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-transcendentals-exp">
   <apiName>exp</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns <codeph>e</codeph>, the base of natural
+  logarithms, raised to the power indicated by its
+  argument.</shortdesc>
 
   <prolog>
     <author></author>
@@ -28,7 +31,9 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns <codeph>e</codeph>, the base of natural logarithms,
+      raised to the power <varname>x</varname>.  The floating point
+      precision is given by the precision of <varname>x</varname>.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

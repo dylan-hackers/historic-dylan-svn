@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-common-dylan-transcendentals-log">
   <apiName>log</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns the natural logarithm of its
+  argument.</shortdesc>
 
   <prolog>
     <author></author>
@@ -28,7 +30,11 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the natural logarithm of <varname>x</varname>. If
+      <varname>x</varname> is less than or equal to zero, an error is
+      signalled. The floating point precision of the result is given
+      by the precision of <varname>x</varname>. The result is a
+      single-float if x is an integer.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>
