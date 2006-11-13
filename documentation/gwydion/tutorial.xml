@@ -674,7 +674,7 @@ end method printf;
       <programlisting>
 define method sell(car :: &lt;car&gt;, new-owner :: &lt;string&gt;) =&gt; ();
   if (credit-check(new-owner))
-    car.owner = new-owner;
+    car.owner := new-owner;
   else
     error(&quot;Bad credit!&quot;);
   end;
@@ -793,7 +793,7 @@ end;
       </para>
 
       <programlisting>
-define method build-put(string :: &lt;string&gt;) =&gt; &lt;function&gt;;
+define method build-put(string :: &lt;string&gt;) =&gt; (res :: &lt;function&gt;);
   local method string-putter()
           puts(string);
         end;
@@ -802,7 +802,7 @@ end;
 
 define method print-hello() =&gt; ();
   let f = build-put(&quot;Hello!&quot;);
-  f();				// print &quot;Hello1&quot;
+  f();				// print &quot;Hello!&quot;
 end;
       </programlisting>
 
