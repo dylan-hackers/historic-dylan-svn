@@ -1,6 +1,6 @@
 /* poollo.c: LEAF POOL CLASS
  *
- * $Id: //info.ravenbrook.com/project/mps/master/code/poollo.c#12 $
+ * $Id: //info.ravenbrook.com/project/mps/master/code/poollo.c#13 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  *
  * DESIGN
@@ -12,7 +12,7 @@
 #include "mpm.h"
 #include "mps.h"
 
-SRCID(poollo, "$Id: //info.ravenbrook.com/project/mps/master/code/poollo.c#12 $");
+SRCID(poollo, "$Id: //info.ravenbrook.com/project/mps/master/code/poollo.c#13 $");
 
 
 #define LOGen ((Serial)1)
@@ -460,7 +460,7 @@ static void LOWalk(Pool pool, Seg seg,
     }
     object = AddrAdd(object, format->headerSize);
     next = (*format->skip)(object);
-    next = AddrSub(object, format->headerSize);
+    next = AddrSub(next, format->headerSize);
     j = loIndexOfAddr(base, lo, next);
     AVER(i < j);
     (*f)(object, pool->format, pool, p, s);

@@ -1,6 +1,6 @@
 /* mpm.c: GENERAL MPM SUPPORT
  *
- * $Id: //info.ravenbrook.com/project/mps/master/code/mpm.c#10 $
+ * $Id: //info.ravenbrook.com/project/mps/master/code/mpm.c#11 $
  * Copyright (c) 2001 Ravenbrook Limited.  See end of file for license.
  *
  * .purpose: Miscellaneous support for the implementation of the MPM
@@ -15,7 +15,7 @@
 #include <float.h>
 #include <limits.h>
 
-SRCID(mpm, "$Id: //info.ravenbrook.com/project/mps/master/code/mpm.c#10 $");
+SRCID(mpm, "$Id: //info.ravenbrook.com/project/mps/master/code/mpm.c#11 $");
 
 
 #if defined(CHECK)
@@ -226,7 +226,8 @@ Bool ResIsAllocFailure(Res res)
 static Res WriteWord(mps_lib_FILE *stream, Word w, unsigned base,
                      unsigned width)
 {
-  static const char digit[16] = "0123456789ABCDEF";
+  static const char digit[16 + 1] = "0123456789ABCDEF";
+    /* + 1 for terminator: unused, but prevents compiler warning */
   static const char pad = '0'; /* padding character */
   char buf[MPS_WORD_WIDTH + 1]; /* enough for binary, */
                                 /* plus one for terminator */
