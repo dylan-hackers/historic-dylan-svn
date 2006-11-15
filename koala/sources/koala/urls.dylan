@@ -26,8 +26,30 @@ define function make-locator (netloc :: false-or(<http-server-url>),
   end;
 end make-locator;
 
+define function encode-url (url :: <byte-string>, #key reserved?)
+ => (encoded-url :: <byte-string>)
+  let result = make(<byte-string>);
+  let allowed-special = #('$', '-', '_', '.', '+', '!', '*', '\'', '(', ')');
+  let reserved = #('$', '&', '+', ',', '/', ':', ';', '=', '?', '@');
+
+  for (char in url)
+    case
+      (char >= 'a' & char <= 'z') |  
+      (char >= 'A' & char <= 'Z') |  
+      (char >= '0' & char <= '9') |
+      member?(char, allowed-special) |
+      (member?(char, reserved) & ~ reserved?) => 
+        result := add!(result, char);
+      otherwise => 
+        result := concatenate(result, 
+          "%", integer-to-string(as(<byte>, char), base: 16));
+    end case;
+  end for;
+  result;
+end;
+
 define function decode-url
-    (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
+ (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
  => (str :: <byte-string>)
   // Note: n accumulates how many chars are NOT needed in the copy.
   iterate count (pos :: <integer> = bpos, n :: <integer> = 0)
