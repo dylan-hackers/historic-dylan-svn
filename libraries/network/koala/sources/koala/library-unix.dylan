@@ -154,8 +154,6 @@ define module koala
     register-url,
     <request>,
     *request*,                   // Holds the active request, per thread.
-    current-request,             // Returns the active request of the thread.
-    current-response,            // Returns the active response of the thread.
     request-query-values,        // get the keys/vals from the current GET or POST request
     request-method,              // Returns #"get", #"post", etc
     responder-definer,
@@ -168,8 +166,7 @@ define module koala
     count-query-values,
     count-form-values,
     application-error,
-    decode-url,
-    encode-url;
+    decode-url;
 
   // Virtual hosts
   create
@@ -262,10 +259,6 @@ define module koala
   // Debugging
   create
     print-object;
-
-  // files
-  create
-    static-file-responder;
 
 end module koala;
 
@@ -363,13 +356,10 @@ define module dsp
     respond-to-post,             // Implement this for your page to handle POST requests
     respond-to-head,             // Implement this for your page to handle HEAD requests
 
-    page-source,
-    page-source-setter,
-
     <dylan-server-page>,         // Subclass this using the "define page" macro
     page-definer,                // Defines a new page class
     process-template,            // Call this (or next-method()) from respond-to-get/post if
-                                 //   you decide you want the DSP template to ibe processed.
+                                 //   you decide you want the DSP template to be processed.
     <taglib>,
     taglib-definer,
     tag-definer,            // Defines a new DSP tag function and registers it with a page

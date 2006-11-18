@@ -532,8 +532,10 @@ define thread variable *response* :: false-or(<response>) = #f;
 define thread variable *request-query-values* :: <string-table>
   = make(<string-table>);
 
-define inline function current-request  () => (request :: <request>) *request* end;
-define inline function current-response () => (response :: <response>) *response* end;
+// Is there ever any need for clients to use these?
+//define inline function current-request  () => (request :: <request>) *request* end;
+//define inline function current-response () => (response :: <response>) *response* end;
+
 
 // Called (in a new thread) each time an HTTP request is received.
 define function handler-top-level
@@ -879,7 +881,6 @@ define method find-responder
             end
           end
         end;
-  let url = decode-url(url, 0, size(url));
   let path = split(url, separator: "/");
   let trie = url-map(*server*);
   let (responder, rest) = find-object(trie, path);
