@@ -70,15 +70,15 @@ th
 th, td { padding: 0.2em 0.3em }
 
 .color1
-{ background: lightgreen }
+{ background: #f7ffde }
 
 .color2
-{ background: lightblue }
+{ background: #bddfbd }
 
 .foo-color1
-{ background: orange }
+{ background: #fff3de }
 .foo-color2
-{ background: darkorange }
+{ background: #dfd3bd }
 
 .red
 { color: red }
