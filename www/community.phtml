@@ -1,8 +1,7 @@
-<br />
-<b>Warning</b>:  readfile(/var/www/header.html) [<a href='function.readfile'>function.readfile</a>]: failed to open stream: No such file or directory in <b>D:\repos\svn-client\gwydion\www\shared.inc</b> on line <b>24</b><br />
-<TITLE>Dylan: Community Resources</TITLE><BODY><br />
-<b>Warning</b>:  readfile(/var/www/menu.html) [<a href='function.readfile'>function.readfile</a>]: failed to open stream: No such file or directory in <b>D:\repos\svn-client\gwydion\www\shared.inc</b> on line <b>26</b><br />
-<H2>Community Resources</H2>
+<?php
+require "shared.inc";
+standard_header("Community Resources");
+?>
 
 <p>Here's how Dylan hackers keep up with what's going on...</p>
 
@@ -118,5 +117,4 @@ The archived list is browsable via the
 </dl>
 
 
-<br />
-<b>Warning</b>:  readfile(/var/www/footer.html) [<a href='function.readfile'>function.readfile</a>]: failed to open stream: No such file or directory in <b>D:\repos\svn-client\gwydion\www\shared.inc</b> on line <b>35</b><br />
+<?php standard_footer(); ?>
