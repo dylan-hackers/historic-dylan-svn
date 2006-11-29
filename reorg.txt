@@ -1,0 +1,89 @@
+Here's my suggestion for how this directory should be organized.  Any changes I
+make to this directory will head in this direction.  Comments welcome.  --cgay
+
+
+libraries
+    common-dylan
+        collection-extensions
+        string-extensions
+        strings                  // Merge into string-extensions
+        ...the rest of common-dylan...
+    crypto
+        crypto-hashes
+    data-structures
+        priority-queue
+    data-formats
+        base64
+        libpdf-dylan
+        xml-parser
+    databases
+        dood
+        doss                          // defunct?
+        libpostgresql-dylan
+    graphics
+        graph-viewer
+        inertia
+        libopengl-dylan
+        libpng-dylan
+        libsdl-dylan
+    network
+        cgi
+        http-streams
+        ip-stack
+            flow
+            gui-sniffer
+            icmp-responder
+            id3v2
+            interfaces
+            layer
+            network-flow
+            packetizer
+            pcap
+            sniffer
+            tcp
+            vector-table
+        koala
+        xml-rpc-client
+        wiki
+        buddha
+        libcgi-dylan
+        web-framework
+        xmpp
+        xmpp-bot
+    math
+        complex                  // Put in common-dylan?
+        generic-arithmetic
+        matrix
+        ratio
+    multimedia
+        midi
+    programming-tools (development-tools?, language-tools?)
+        anaphora
+        c-lexer
+        cl                       // Common Lisp
+        disasm                   // i386 disassembler
+        dylan-script
+        grammar-compiler
+        jam
+        java-parser
+        meta
+        monday
+        parser-generator         // What's the difference...
+        parsergen                // ...between these two?
+    string-tools
+        regular-expressions      // Is this just for strings?
+    testing
+        testworks
+        testworks-gui
+        testworks-specs
+    user-interface
+        carbon
+        cocoa
+        command-shell
+        duim
+        gtk+
+    utilities
+        channels
+        parse-arguments          // Rename to getopt or command-line-parser
+        timer
+        commands
