@@ -30,15 +30,14 @@ libraries
         cgi
         http-streams
         ip-stack
-            flow
+            flow                   <- might be useful elsewhere, too
             gui-sniffer
-            icmp-responder
-            id3v2
             interfaces
             layer
             network-flow
             packetizer
             pcap
+            protocols
             sniffer
             tcp
             vector-table
@@ -56,6 +55,7 @@ libraries
         matrix
         ratio
     multimedia
+        id3v2
         midi
     programming-tools (development-tools?, language-tools?)
         anaphora
