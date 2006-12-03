@@ -149,8 +149,8 @@ copyright: see below
 //           synopsis print-synopsis,
 //             usage: "test [options] file...",
 //             description: "Stupid test program doing nothing with the args.";
-//        
-//           ...
+//           option verbose?, "", "Explanation", short: "v", long: "verbose";
+//           option other, "", "foo", long: "other-option";
 //         end argument-parser;
 //
 //    Then print-synopsis(parser, stream) will print something like:

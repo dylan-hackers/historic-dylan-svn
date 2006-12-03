@@ -27,7 +27,6 @@ copyright: Copyright 1998 Eric Kidd
 
 define library parse-arguments
   use common-dylan;
-//  use table-extensions;
   use io;
 
   export
@@ -69,9 +68,7 @@ end module;
 
 // Used by most programs.
 define module parse-arguments
-  use common-dylan;
-//  use extensions;
-//  use table-extensions;
+  use common-dylan, exclude: { format-to-string };
   use option-parser-protocol;
 
   export

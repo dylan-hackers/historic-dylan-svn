@@ -33,10 +33,10 @@ copyright: Copyright 1998 Eric Kidd and Jeff Dubrule
 //  absract class takes care of the details.
 
 define abstract open primary class <negative-option-parser> (<option-parser>)
-  slot negative-long-options :: <list> /* of: <string> */,
+  constant slot negative-long-options :: <list> /* of: <string> */,
     init-keyword: negative-long-options:,
     init-value: #();
-  slot negative-short-options :: <list> /* of: <string> */,
+  constant slot negative-short-options :: <list> /* of: <string> */,
     init-keyword: negative-short-options:,
     init-value: #();  
 end class <negative-option-parser>;
