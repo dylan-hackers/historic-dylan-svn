@@ -11,8 +11,8 @@ copyright:
 define class <xml-stream-parser> (<object>)
   slot stream :: <stream>,
     required-init-keyword: stream:;
-  slot handlers :: <table> = make(<table>);
-  slot opened-elements :: <deque> = make(<deque>);
+  constant slot handlers :: <table> = make(<table>);
+  constant slot opened-elements :: <deque> = make(<deque>);
   slot text-buffer :: <string> = "";
   slot tag-buffer :: <string> = "";
   slot parsing-tag? :: <boolean> = #f;
@@ -32,7 +32,7 @@ end method parse;
 
 define generic dispatch (parser :: <xml-stream-parser>, char :: <character>, in-tag? :: <boolean>, in-root? :: <boolean>) => ();
 
-define method dispatch (parser :: <xml-stream-parser>, char == '<', in-tag? == #f, in-root? :: <boolean>) => ();
+define method dispatch (parser :: <xml-stream-parser>, char == '<', in-tag? == #f, in-root? == #f) => ();
   parser.parsing-tag? := #t;
   parser.tag-buffer := add!(parser.tag-buffer, char);
 end method;
