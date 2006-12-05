@@ -1,4 +1,3 @@
-library: parse-arguments
 module: dylan-user
 author:  Eric Kidd
 copyright: Copyright 1998 Eric Kidd
@@ -25,12 +24,12 @@ copyright: Copyright 1998 Eric Kidd
 //
 //======================================================================
 
-define library parse-arguments
+define library getopt
   use common-dylan;
   use io;
 
   export
-    parse-arguments,
+    getopt,
     option-parser-protocol;
 end library;
 
@@ -67,7 +66,7 @@ define module option-parser-protocol
 end module;
 
 // Used by most programs.
-define module parse-arguments
+define module getopt
   use common-dylan, exclude: { format-to-string };
   use option-parser-protocol;
 
@@ -96,10 +95,10 @@ define module parse-arguments
 
   export
     argument-parser-definer,
-    \defargparser-rec,
-    \defargparser-aux,
-    \defargparser-class,
-    \defargparser-init,
-    \defargparser-accessors,
-    \defargparser-synopsis;
-end module parse-arguments;
+    defargparser-rec,
+    defargparser-aux,
+    defargparser-class,
+    defargparser-init,
+    defargparser-accessors,
+    defargparser-synopsis;
+end module getopt;

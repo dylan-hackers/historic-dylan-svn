@@ -1,4 +1,4 @@
-module: parse-arguments
+module: getopt
 synopsis: Interface macros for parser definition and option access.
 authors: David Lichteblau <lichteblau@fhtw-berlin.de>
 copyright: see below

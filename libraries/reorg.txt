@@ -1,6 +1,9 @@
 Here's my suggestion for how this directory should be organized.  Any changes I
 make to this directory will head in this direction.  Comments welcome.  --cgay
 
+There may be things in http://www.opendylan.org/downloads/contributions/ that
+should be qa'd and merged into trunk/libraries as well.
+
 
 libraries
     common-dylan
@@ -51,6 +54,7 @@ libraries
         xmpp-bot
     math
         complex                  // Put in common-dylan?
+        discrete-math            // from trunk/examples
         generic-arithmetic
         matrix
         ratio
