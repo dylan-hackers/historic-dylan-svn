@@ -88,6 +88,6 @@ libraries
         gtk+
     utilities
         channels
-        parse-arguments          // Rename to getopt or command-line-parser
+        getopt          // Rename to command-line-parser?
         timer
         commands
