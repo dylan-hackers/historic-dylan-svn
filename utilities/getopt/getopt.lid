@@ -1,4 +1,4 @@
-library: parse-arguments
+library: getopt
 files: getopt-exports
        getopt
        parsers

@@ -1,4 +1,4 @@
-module: parse-arguments
+module: getopt
 synopsis: Parse command-line options.
 authors: Eric Kidd
 copyright: Copyright 1998 Eric Kidd
@@ -61,10 +61,6 @@ copyright: Copyright 1998 Eric Kidd
 // todo -- There is no indication of default values in the generated synopsis,
 //         and the syntax for specifying "syntax" and docstring is bizarre at
 //         best.  --cgay 2006.11.27
-//
-// todo -- defargparser-synopsis generates code that calls "format" and if the
-//         calling module doesn't import format it gets warnings.  It probably
-//         doesn't need to be a macro.
 
 
 //======================================================================
