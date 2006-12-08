@@ -2,8 +2,8 @@ module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define web-class <cname> (<object>)
-  data source :: <string>;
-  data target :: <string>;
+  data cname-source :: <string>;
+  data cname-target :: <string>;
 end;
 
 define method print-object (cname :: <cname>, stream :: <stream>)
@@ -13,12 +13,12 @@ end method;
 
 define method as (class == <string>, cname :: <cname>)
  => (res :: <string>)
-  concatenate(cname.source, " => ", cname.target);
+  concatenate(cname.cname-source, " => ", cname.cname-target);
 end;
 
 define method \< (a :: <cname>, b :: <cname>)
  => (res :: <boolean>)
-  a.source < b.source
+  a.cname-source < b.cname-source
 end;
 
 define web-class <a-record> (<object>)
@@ -236,7 +236,7 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
     //CNAME
     do(method(x)
            format(stream, "C%s.%s:%s.%s\n",
-                  source(x), print-zone.zone-name, target(x), print-zone.zone-name);
+                  cname-source(x), print-zone.zone-name, cname-target(x), print-zone.zone-name);
        end, print-zone.cnames);
     //a records for dynamic PTR records
     let ip = storage(<network>)[0].cidr.cidr-network-address;
