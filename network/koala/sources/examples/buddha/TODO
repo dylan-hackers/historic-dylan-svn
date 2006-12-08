@@ -23,6 +23,10 @@ FEATURE REQUESTS
           list of mac-address and ip, recent changes?))
  *put obj-tables in user session objects
 
+*aaaa, srv, naptr, txt dns records
+*host-records:
+ foo.vlanx.congress.ccc.de IN MX 10 example.com.
+
 security:
  -prevent cross-site scripting (escape nearly everything in all input data,
   maybe enki's framework-stuff andreas implemented in dylan on his laptop)

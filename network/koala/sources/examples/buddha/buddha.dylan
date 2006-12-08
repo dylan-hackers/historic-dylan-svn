@@ -55,9 +55,11 @@ define macro page-definer
              end;
              //dns, dhcp shouldn't need a valid user
              //(to get it working with wget and stuff, without needing cookies)
-             unless (logged-in(request))
-               login(request);
-               unless (logged-in(request))
+             unless (logged-in?(request))
+               let username = get-query-value("username");
+               let password = get-query-value("password");
+               login(request, username, password);
+               unless (logged-in?(request))
                  //error
                  respond-to-get(#"login", request, response,
                                 errors: list(make(<web-error>,
@@ -220,7 +222,7 @@ define method respond-to-get (page == #"adduser",
                               request :: <request>,
                               response :: <response>,
                               #key errors = #())
-  if (*user* & *user*.admin?)
+  if (*user*) // & *user*.admin?)
     let out = output-stream(response);
     with-buddha-template(out, "User management")
       collect(show-errors(errors));
@@ -551,7 +553,7 @@ define method respond-to-get
                                                                   href => concatenate("/subnet-detail?subnet=",
                                                                                       get-reference(y))) },
                                                            td(show(y.dhcp?)),
-                                                           td { a(show(y.vlan.number),
+                                                           td { a(show(y.vlan.vlan-number),
                                                                   href => concatenate("/vlan-detail?vlan=",
                                                                                       get-reference(y.vlan))) },
                                                              td }
@@ -760,7 +762,7 @@ define method respond-to-get
                   do(reset-color(storage(<vlan>));
                      map(method(x) with-xml()
                                      tr(class => next-color(storage(<vlan>)))
-                                       { td { a(show(x.number),
+                                       { td { a(show(x.vlan-number),
                                                href => concatenate("/vlan-detail?vlan=",
                                                                    get-reference(x))) },
                                           td(show(x.vlan-name)),
@@ -789,12 +791,12 @@ define method respond-to-get
      #key errors)
   let dvlan = get-object(get-query-value("vlan"));
   let out = output-stream(response);
-  with-buddha-template(out, concatenate("VLAN ", show(dvlan.number), " detail"))
+  with-buddha-template(out, concatenate("VLAN ", show(dvlan.vlan-number), " detail"))
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
               {
-                h1(concatenate("VLAN ", show(dvlan.number), ", Name ", dvlan.vlan-name)),
+                h1(concatenate("VLAN ", show(dvlan.vlan-number), ", Name ", dvlan.vlan-name)),
                 do(edit-form(dvlan,
                              refer: "vlan-detail",
                              xml: with-xml()
@@ -803,7 +805,7 @@ define method respond-to-get
                                           value => get-reference(dvlan))
                                   end)),
                 do(remove-form(dvlan, storage(<vlan>), url: "vlan")),
-                h2(concatenate("Subnets in VLAN ", show(dvlan.number))),
+                h2(concatenate("Subnets in VLAN ", show(dvlan.vlan-number))),
                 table {
                   tr { th("CIDR"), th("dhcp?") },
                   do(reset-color(storage(<subnet>));
@@ -1012,8 +1014,8 @@ define method respond-to-get
                               do(reset-color(dzone.cnames);
                                  map(method(x) with-xml()
                                                  tr(class => next-color(dzone.cnames))
-                                                   { td(x.source),
-                                                     td(x.target),
+                                                   { td(x.cname-source),
+                                                     td(x.cname-target),
                                                      td { do(remove-form(x, dzone.cnames,
                                                                          url: "zone-detail",
                                                                          xml: with-xml()
