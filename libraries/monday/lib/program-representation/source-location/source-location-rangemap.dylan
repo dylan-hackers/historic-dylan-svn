@@ -31,7 +31,7 @@ local
        position :: <integer>,
        low-index :: <integer>, high-index :: <integer>)
    => (index :: <integer>);
-    if (low-index > high-index)
+    if (low-index > high-index | low-index > position | high-index < position)
       -1;
     else
       let mid = ash(low-index + high-index, -1);
