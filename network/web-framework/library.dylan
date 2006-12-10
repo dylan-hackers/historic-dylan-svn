@@ -39,6 +39,7 @@ define module storage
     dump-data,
     dumper,
     save,
+    setup,
     restore,
     restore-newest,
     version,
@@ -134,7 +135,7 @@ define module changes
     authors, authors-setter,
     categories, categories-setter,
     contributors, contributors-setter,
-    generator, generato-setter,
+    generator, generator-setter,
     icon, icon-setter,
     identifier, identifier-setter,
     links, links-setter,
@@ -189,7 +190,7 @@ define module changes
   export <comment>,
     name, name-setter,
     website, website-setter,
-    body, body-setter,
+    content, content-setter,
     published, published-setter;
 end;
 
