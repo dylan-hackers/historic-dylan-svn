@@ -7,14 +7,15 @@ define library web-framework
   use io;
   use koala, import: { koala, dsp };
   use xml-parser, import: { simple-xml };
-  use system, import: { file-system, date };
+  use system, import: { file-system, date, locators };
   use dood;
 
   export object-table,
     web-framework,
     storage,
     users,
-    changes;
+    changes,
+    change;
 end;
 
 define module object-table
@@ -33,6 +34,7 @@ define module storage
   use threads;
   use format-out;
   use koala;
+  use locators;
 
   export storage,
     \with-storage,
@@ -43,7 +45,8 @@ define module storage
     restore,
     restore-newest,
     version,
-    storage-type;
+    storage-type,
+    key;
 end;
 
 define module web-framework-macro
@@ -70,7 +73,6 @@ define module web-framework-macro
     default-help-text;
 
   export check,
-    key,
     show,
     get-url-from-type;
 
@@ -94,20 +96,25 @@ define module users
   use web-framework-macro;
 
   //user stuff
+  export <access-level>;
+
   export <user>,
     username,
+    username-setter,
     password,
     password-setter,
     email,
     email-setter,
     access,
     access-setter,
+    access-level,
+    access-level-setter,
     current-user,
     login,
     logged-in?;
 end;
 
-define module changes
+define module change
   use common-dylan;
   use dylan;
   use date;
@@ -127,6 +134,23 @@ define module changes
     redo,
     print-xml;
 
+  //commands
+  export <add-command>,
+    <remove-command>,
+    <edit-command>;
+
+end;
+define module changes
+  use common-dylan;
+  use dylan;
+  use date;
+  use simple-xml;
+
+  use object-table;
+  use storage;
+  use web-framework-macro;
+  use users;
+  use change, export: all;
   //exports
   export generate-rss;
   
@@ -182,11 +206,6 @@ define module changes
     <textile-content>,
     <xhtml-content>;
     
-  //commands
-  export <add-command>,
-    <remove-command>,
-    <edit-command>;
-
   export <comment>,
     name, name-setter,
     website, website-setter,
@@ -204,7 +223,7 @@ define module web-framework
   
   use web-framework-macro, export: all;
   use storage;
-  use changes;
+  use change;
 
   export respond-to-get,
     respond-to-post;

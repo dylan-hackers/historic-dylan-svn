@@ -1,4 +1,4 @@
-module: changes
+module: change
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define abstract class <command> (<object>)

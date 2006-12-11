@@ -2,8 +2,8 @@ module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define web-class <cname> (<object>)
-  data cname-source :: <string>;
-  data cname-target :: <string>;
+  data source :: <string>;
+  data target :: <string>;
 end;
 
 define method print-object (cname :: <cname>, stream :: <stream>)
@@ -13,12 +13,12 @@ end method;
 
 define method as (class == <string>, cname :: <cname>)
  => (res :: <string>)
-  concatenate(cname.cname-source, " => ", cname.cname-target);
+  concatenate(cname.source, " => ", cname.target);
 end;
 
 define method \< (a :: <cname>, b :: <cname>)
  => (res :: <boolean>)
-  a.cname-source < b.cname-source
+  a.source < b.source
 end;
 
 define web-class <a-record> (<object>)
@@ -236,7 +236,7 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
     //CNAME
     do(method(x)
            format(stream, "C%s.%s:%s.%s\n",
-                  cname-source(x), print-zone.zone-name, cname-target(x), print-zone.zone-name);
+                  source(x), print-zone.zone-name, target(x), print-zone.zone-name);
        end, print-zone.cnames);
     //a records for dynamic PTR records
     let ip = storage(<network>)[0].cidr.cidr-network-address;
@@ -267,7 +267,8 @@ end;
 
 define method add-reverse-zones (network :: <network>) => ()
   //XXX: add hostmaster, mx, nameserver,...
-  for (subnet in split-cidr(network.cidr, 24))
+  let rev-mask = truncate/(network.cidr.cidr-netmask, 8) * 8;
+  for (subnet in split-cidr(network.cidr, rev-mask))
     let zone = make(<zone>,
                     reverse?: #t,
                     zone-name: cidr-to-reverse-zone(subnet),
