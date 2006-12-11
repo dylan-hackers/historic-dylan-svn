@@ -1,21 +1,23 @@
 module: users
 author: Hannes Mehnert <hannes@mehnert.org>
 
+define class <access-level> (<object>)
+end;
+
 define open web-class <user> (<object>)
   data username :: <string>;
   data password :: <string>;
   data email :: <string>;
-  data access :: <list> = make(<list>);
+  slot access :: <list> = make(<list>);
+  has-a access-level;
 end;
-
+/*
 define method initialize (user :: <user>, #rest rest, #key, #all-keys)
   next-method();
   check(user);
-  with-storage (table = <user>)
-    table[user.username] := user;
-  end;
+  save(user);
 end;
-
+*/
 define inline-only method key (user :: <user>)
  => (res :: <string>)
   user.username;
