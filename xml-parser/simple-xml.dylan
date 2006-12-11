@@ -123,6 +123,8 @@ define macro with-xml
    { ?:name } => { list(make(<element>, name: ?"name")) }
    { text ( ?value:expression ) } => { list(make(<char-string>,
                                                  text: escape-xml(?value))) }
+   { !attribute(?attribute) }
+    => { list(?attribute) }
    { do(?:body) }
     => { begin
            let res = make(<stretchy-vector>);
@@ -159,7 +161,7 @@ define macro with-xml
    { ?:name ( ?value:expression, ?attribute-list ) }
     => { list(make(<element>,
                    children: list(make(<char-string>,
-                                       text: escape-xml(?value))),
+                                        text: escape-xml(?value))),
                    name: ?"name",
                    attributes: vector(?attribute-list))) }
    { ?:name ( ?attribute-list ) }
@@ -173,14 +175,18 @@ define macro with-xml
    { ?element, ... } => { ?element, ... }
 
   attribute-list:
+   { } => { }
+   { ?attribute, ... } => { ?attribute, ... }
+
+  attribute:
    { ?key:name => ?value:expression }
-                 => { make(<attribute>, name: ?"key", value: ?value) }
-   { ?key:name => ?value:expression, ... }
-                 => { make(<attribute>, name: ?"key", value: ?value), ... }
+    => { make(<attribute>, 
+          name: ?"key",
+          value: ?value) }
    { ?ns:name :: ?key:name => ?value:expression }
-                 => { make(<attribute>, name: concatenate(?"ns" ## ":", ?"key"), value: ?value) }
-   { ?ns:name :: ?key:name => ?value:expression, ... }
-                 => { make(<attribute>, name: concatenate(?"ns" ## ":", ?"key"), value: ?value), ... }
+    => { make(<attribute>, 
+          name: concatenate(?"ns" ## ":", ?"key"),
+          value: ?value) }
 end;
 
 define method add-attribute (element :: <element>, attribute :: <attribute>) 

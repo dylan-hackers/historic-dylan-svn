@@ -5,7 +5,7 @@ define open class <feed> (<object>)
   /* slot CommonAttributes */
   slot authors :: <list> = #(),
     init-keyword: authors:;
-  slot categories :: <list> = #(),
+  slot categories :: <vector> = #[],
     init-keyword: categories:;
   slot contributors :: <list> = #(),
     init-keyword: contributors:;
@@ -30,8 +30,8 @@ define open class <feed> (<object>)
   /* repeated slot extensionElement */
   slot entries :: <string-table> = make(<string-table>),
     init-keyword: entries:;
-  slot language :: <text>,
-    init-keyword: language:;
+  slot languages :: <list> = #(),
+    init-keyword: languages:;
   slot description :: <text>,
     init-keyword: description:;
   slot published :: <date> = current-date(),
@@ -40,16 +40,13 @@ end;
 
 define open class <entry> (<object>)
   /* slot CommonAttributes */
-  slot authors :: <stretchy-vector> = 
-    make(<stretchy-vector>, size: 0),
+  slot authors :: <list> = #(),
     init-keyword: authors:;
-  slot categories :: <stretchy-vector> =
-    make(<stretchy-vector>, size: 0),
+  slot categories :: <vector> = #[],
     init-keyword: categories:;
   slot content :: false-or(<content>) = #f,
     init-keyword: content:;
-  slot contributors :: <stretchy-vector> = 
-    make(<stretchy-vector>, size: 0),
+  slot contributors :: <list> = #(),
     init-keyword: contributors:;
   slot identifier :: <uri>,
     init-keyword: identifier:;
@@ -79,7 +76,7 @@ define method comments-count (entry :: <entry>)
   entry.%comments-count;
 end;
 
-define class <comment> (<object>)
+define open class <comment> (<object>)
   slot name :: <string>,
     required-init-keyword: name:;
   slot website :: false-or(<uri>) = #f,
@@ -159,15 +156,28 @@ define class <generator> (<object>)
 end;
 
 define class <link> (<object>)
-  slot href :: <uri>, init-keyword: uri:;
-  slot rel :: <uri>, init-keyword: rel:;
-  slot type :: <string>, init-keyword: type:;
-  slot hreflang :: <string>, init-keyword: hreflang:;
-  slot title :: false-or(<text>) = #f, init-keyword: title:;
-  slot length :: false-or(<text>) = #f, init-keyword: length:;
+  slot href :: <uri>,
+    required-init-keyword: href:;
+  slot rel :: false-or(<uri>) = #f,
+    init-keyword: rel:;
+  slot type :: false-or(<string>) = #f,
+    init-keyword: type:;
+  slot hreflang :: false-or(<string>) = #f,
+    init-keyword: hreflang:;
+  slot title :: false-or(<text>) = #f,
+    init-keyword: title:;
+  slot length :: false-or(<text>) = #f,
+    init-keyword: length:;
 end;
     
 define constant <source> = <feed>;
+
+define open generic permanent-link (object :: <object>, #key #all-keys) => (uri :: <uri>);
+
+define method permanent-link (entry :: <entry>, #key)
+ => (uri :: <uri>);
+  entry.identifier 
+end;
 
 // RSS
 define generic generate-rss (object :: <object>);
@@ -235,39 +245,53 @@ end;
 define method generate-xhtml (date :: <date>)
 end;
 
-define method generate-atom (feed :: <feed>)
+define open generic generate-atom (object :: <object>, #key #all-keys);
+
+define method generate-atom (feed :: <feed>, #key entries: feed-entries :: false-or(<sequence>))
   with-xml-builder()
-    feed (xmlns => "http://www.w3.org/2005/Atom")
-    {
-      title(feed.title),
-      subtitle(feed.subtitle),
-      updated { do(collect(generate-atom(feed.updated))) },
+    feed (xmlns => "http://www.w3.org/2005/Atom") {
       id(feed.identifier),
+      updated(generate-atom(feed.updated)),
+      title(feed.title),
+      do(if (feed.subtitle & feed.subtitle ~= "")
+        with-xml()
+          subtitle(feed.subtitle)
+        end;
+      end if),
       do(do(method(x) collect(generate-atom(x)) end, feed.links)),
-      rights(feed.rights),
+      do(if (feed.rights & feed.rights ~= "")
+        with-xml()
+          rights(feed.rights)
+        end;
+      end if),
       do(collect(generate-atom(feed.generator))),
-      do(do(method(x) collect(generate-atom(x)) end, feed.entries))
+      do(do(method(x) collect(generate-atom(x)) end, feed-entries | feed.entries))
     } //missing: category, contributor, icon, logo
   end; 
 end;
 
-define method generate-atom (link :: <link>)
-  with-xml()
-    link (rel => link.rel,
-          type => link.type,
-          href => link.href)
-  end //missing: title, hreflang, length
+define method generate-atom (link :: <link>, #key)
+  let element = with-xml()
+      link(href => link.href)
+    end;
+  link.rel & add-attribute(element, with-xml()
+      !attribute(rel => link.rel) 
+    end);
+  link.type & add-attribute(element, with-xml()
+      !attribute(type => link.type)
+    end);
+  //missing: title, hreflang, length
+  element;
 end;
 
-define method generate-atom (person :: <person>)
+define method generate-atom (person :: <person>, #key)
 end;
 
-define method generate-atom (date :: <date>)
-//  with-xml()
-//  end;
+define method generate-atom (date :: <date>, #key)
+  format-date("%Y-%m-%dT%H:%M:%S%:z", date);
 end;
 
-define method generate-atom (generator :: <generator>)
+define method generate-atom (generator :: <generator>, #key)
   with-xml()
     generator (uri => generator.uri, version => generator.system-version)
     {
@@ -276,15 +300,15 @@ define method generate-atom (generator :: <generator>)
   end;
 end;
 
-define method generate-atom (entry :: <entry>)
+define method generate-atom (entry :: <entry>, #key)
   with-xml()
     entry
     {
       title(entry.title),
-      do(do(method(x) collect(generate-atom(x)) end, entry.links)),
-      id(entry.identifier),
-      updated { do(collect(generate-atom(entry.updated))) },
-      published { do(collect(generate-atom(entry.published))) },
+//      do(do(method(x) collect(generate-atom(x)) end, entry.links)),
+      id(permanent-link(entry)),
+      published(generate-atom(entry.published)),
+//      updated { do(collect(generate-atom(entry.updated))) },
 //      do(do(method(x) collect(generate-atom(x)) end, entry.authors)),
 //      do(do(method(x) collect(generate-atom(x)) end, entry.contributors)),
       do(collect(generate-atom(entry.content))),
@@ -292,8 +316,10 @@ define method generate-atom (entry :: <entry>)
   end;
 end;
 
-define method generate-atom (con :: <content>)
+define method generate-atom (con :: <content>, #key)
   with-xml()
-    text(con.content)
+    content {
+      text(con.content)
+    }
   end;
 end;
