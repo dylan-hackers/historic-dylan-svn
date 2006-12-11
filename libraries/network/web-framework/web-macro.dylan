@@ -162,8 +162,8 @@ define macro web-data
 end;
 
 define macro define-class
- { define-class(?:name; ?superclass:*; ?slots:*) }
-    => { define class ?name (?superclass) ?slots end }
+ { define-class(?args:*; ?:name; ?superclass:*; ?slots:*) }
+    => { define ?args class ?name (?superclass) ?slots end }
 
     slots:
     { } => { }
@@ -184,10 +184,10 @@ define macro define-class
 end;
 
 define macro web-class-definer
-  { define web-class ?:name (?superclass:*)
+  { define ?args:* web-class ?:name (?superclass:*)
       ?class-slots:*
     end }
-    => { define-class(?name; ?superclass; ?class-slots);
+    => { define-class(?args; ?name; ?superclass; ?class-slots);
          define inline method list-reference-slots
              (object :: subclass(?name), #next next-method)
           => (res :: <list>)

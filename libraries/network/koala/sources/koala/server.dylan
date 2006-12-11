@@ -500,6 +500,8 @@ define class <request> (<basic-request>)
   // Cache, mapping keyword (requested by user) -> parsed data
   constant slot request-header-values :: <object-table> = make(<object-table>);
 
+  slot request-query-string :: <string> = "";
+
   // Query values from either the URL or the body of the POST, if Content-Type
   // is application/x-www-form-urlencoded.
   slot request-query-values :: false-or(<string-table>) = #f;
@@ -532,10 +534,8 @@ define thread variable *response* :: false-or(<response>) = #f;
 define thread variable *request-query-values* :: <string-table>
   = make(<string-table>);
 
-// Is there ever any need for clients to use these?
-//define inline function current-request  () => (request :: <request>) *request* end;
-//define inline function current-response () => (response :: <response>) *response* end;
-
+define inline function current-request  () => (request :: <request>) *request* end;
+define inline function current-response () => (response :: <response>) *response* end;
 
 // Called (in a new thread) each time an HTTP request is received.
 define function handler-top-level
@@ -671,7 +671,8 @@ define function read-request-first-line
           log-debug("Setting request-url-tail to %=", request.request-url-tail);
         end;
         if (qpos)
-          log-debug("Request query string = %s", copy-sequence(buffer, start: qpos + 1, end: epos));
+          request.request-query-string := copy-sequence(buffer, start: qpos + 1, end: epos);
+          log-debug("Request query string = %s", request.request-query-string);
           extract-query-values(buffer, qpos + 1, epos,
                                request.request-query-values)
         end;
@@ -881,6 +882,7 @@ define method find-responder
             end
           end
         end;
+  let url = decode-url(url, 0, size(url));
   let path = split(url, separator: "/");
   let trie = url-map(*server*);
   let (responder, rest) = find-object(trie, path);

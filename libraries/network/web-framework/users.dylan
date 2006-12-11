@@ -1,7 +1,7 @@
 module: users
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define web-class <user> (<object>)
+define open web-class <user> (<object>)
   data username :: <string>;
   data password :: <string>;
   data email :: <string>;
