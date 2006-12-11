@@ -30,7 +30,7 @@ define open class <feed> (<object>)
   /* repeated slot extensionElement */
   slot entries :: <string-table> = make(<string-table>),
     init-keyword: entries:;
-  slot languages :: <list> = #(),
+  slot language :: <list> = #(),
     init-keyword: languages:;
   slot description :: <text>,
     init-keyword: description:;
