@@ -347,32 +347,43 @@ define method add-object (parent-object :: <object>, request :: <request>)
   let object-type = get-object(get-query-value("object-type"));
   //XXX: hmm, make should probably only be done when all slots
   //are successfully parsed and then use init-keywords...
-  let object = make(object-type);
-  if (instance?(object, <string>))
+  //let object = make(object-type);
+  if (object-type = <string>)
     let value = get-query-value("string");
     parent-object := add!(parent-object, value);
   else
+    let init = make(<stretchy-vector>);
     //more complex objects:
     //data-slots ref-slots needs to be read and sanity checked
+    let deferred-slot-setter = make(<stretchy-vector>);
     for (slot in data-slots(object-type))
       let value = parse(slot.slot-name, slot.slot-type);
       //then set slots of object
       unless ((slot.slot-type = <boolean>) | value)
-        value := slot.default-function(object);
-        unless (value)
-          signal(make(<web-error>,
-                      error: concatenate("Please specify ",
-                                         slot.slot-name,
-                                         " correctly!")));
-        end unless;
+        add!(deferred-slot-setter, slot);
       end;
-      slot.slot-setter-method(value, object);
+      add!(init, as(<symbol>, slot.slot-name));
+      add!(init, value);
+      //slot.slot-setter-method(value, object);
     end;
     for (slot in reference-slots(object-type))
       let value = get-object(get-query-value(slot.slot-name));
+      add!(init, as(<symbol>, slot.slot-name));
+      add!(init, value);
+      //slot.slot-setter-method(value, object);
+    end;
+    let object = apply(make, object-type, as(<vector>, init));
+    for (slot in deferred-slot-setter)
+      let value = slot.default-function(object);
+      unless (value)
+        signal(make(<web-error>,
+                    error: concatenate("Please specify ",
+                                       slot.slot-name,
+                                       " correctly!")));
+      end unless;
       slot.slot-setter-method(value, object);
     end;
-    //sanity check it
+
     let command = make(<add-command>,
                        arguments: list(object, parent-object));
     redo(command);

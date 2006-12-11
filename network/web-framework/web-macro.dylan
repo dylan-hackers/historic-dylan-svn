@@ -12,8 +12,6 @@ define class <web-error> (<error>)
   constant slot error-string :: <string>, required-init-keyword: error:;
 end;
 
-define open generic key (object :: <object>) => (res :: <object>);
-
 define open generic check (object :: <object>, #key test-result)
  => (res :: <boolean>);
 
@@ -49,6 +47,11 @@ define class <triple> (<object>)
   constant slot slot-name, init-keyword: slot-name:;
 end;
 
+define generic visible? (obj :: <object>) => (res :: <boolean>);
+
+define method  visible? (obj :: <object>) => (res :: <boolean>);
+  #t;
+end;
 define open class <reference-object> (<object>)
   slot visible? :: <boolean> = #t, init-keyword: visible?:;
 end;
@@ -170,13 +173,13 @@ define macro define-class
     { data ?slot-name:name \:: ?slot-type:* }
     => { slot ?slot-name :: ?slot-type, init-keyword: ?#"slot-name" }
     { slot ?slot-name:name \:: ?slot-type:* }
-    => { slot ?slot-name :: ?slot-type }
+    => { slot ?slot-name :: ?slot-type, init-keyword: ?#"slot-name" }
     { has-many ?slot-name:name }
     => { slot ?slot-name ## "s" :: <stretchy-vector> = make(<stretchy-vector>) }
     { has-many ?slot-name:name \:: ?slot-type:* }
     => { slot ?slot-name ## "s" :: <stretchy-vector> = make(<stretchy-vector>) }
     { has-a ?slot-name:name }
-    => { slot ?slot-name :: "<" ## ?slot-name ## ">",
+    => { slot ?slot-name /* :: "<" ## ?slot-name ## ">" */,
               init-keyword: ?#"slot-name" }
 end;
 

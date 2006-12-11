@@ -1,9 +1,9 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define variable *directory* = "www/buddha/";
-
 define thread variable *user* = #f;
+
+define constant $privileges = #(#"root", #"noc", #"helpdesk", #"viewer");
 
 define variable *nameserver* = list(make(<nameserver>,
                                          ns-name: "auth-int.congress.ccc.de"),
@@ -11,18 +11,18 @@ define variable *nameserver* = list(make(<nameserver>,
                                          ns-name: "auth-ext.congress.ccc.de"));
 
 define method initial-responder (request :: <request>, response :: <response>)
-  dynamic-bind(*user* = make(<user>,
-                             username: "admin",
-                             password: "foo",
-                             email: "buddhaadmin@local",
-                             admin: #t))
-    block(return)
-      if (subsequence-position(as(<string>, request.request-method), "post"))
-        respond-to-post(#"edit", request, response);
-        return();
-      end;
-      let stream = output-stream(response);
-      let page = with-xml-builder()
+  with-storage (privs = <access-level>)
+    unless (privs.size > 0)
+      do(curry(add!, privs), $privileges);
+    end;
+  end;
+  block(return)
+    if (subsequence-position(as(<string>, request.request-method), "post"))
+      respond-to-post(#"edit", request, response);
+      return();
+    end;
+    let stream = output-stream(response);
+    let page = with-xml-builder()
 html(xmlns => "http://www.w3.org/1999/xhtml") {
   head {
     title("Buddha - Please create initial user!"),
@@ -37,9 +37,8 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
   }
 }
 end;
-      format(stream, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
-      format(stream, "%=", page);
-    end;
+    format(stream, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+    format(stream, "%=", page);
   end;
 end;
 
@@ -87,20 +86,6 @@ define responder default-responder ("/")
   end;
 end;
 
-/*
-define responder dood-responder ("/dood")
-  (request, response)
-  let dood = make(<dood>,
-                  locator: concatenate(*directory*, base64-encode(filename)),
-                  direction: #"output",
-                  if-exists: #"replace");
-  dood-root(dood) := make(<buddha>);
-  dood-commit(dood);
-  dood-close(dood);
-  
-end;
-*/
-
 define page network end;
 define page network-detail end;
 define page subnet end;
@@ -112,8 +97,6 @@ define page host-detail end;
 define page zone end;
 define page zone-detail end;
 define page user end;
-define page save end;
-define page restore end;
 define page edit end;
 define page changes end;
 define page adduser end;
@@ -155,6 +138,8 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
           li { a("Changes", href => "/changes") }
         }
       },
+      do(if(*user*.access-level = #"root" | *user*.access-level = #"noc")
+           collect(with-xml()
       div (id => "buddha-edit") {
         ul {
           li("Add:"),
@@ -178,7 +163,19 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
                                                get-reference(<subnet>),
                                                "&parent-object=",
                                                get-reference(storage(<subnet>)))) }
-        },
+        }
+        end);
+      elseif (*user*.access-level = #"helpdesk")
+           collect(with-xml()
+      div (id => "buddha-edit") {
+        ul {
+          li { a("host", href => concatenate("/add?object-type=",
+                                             get-reference(<host>),
+                                             "&parent-object=",
+                                             get-reference(storage(<host>)))) }
+        }
+      }
+        end)),
         ul { li{ text("Logged in as "),
                  strong(*user*.username) } }
       }
@@ -201,17 +198,14 @@ define method respond-to-get (page == #"admin",
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
-              { h2("Welcome, stranger"),
+              { h2("Welcome to the admin interface"),
                 ul {
-                  li(concatenate("Database version is ", show(version()))),
                   li(concatenate("There were ", show(size(storage(<change>))), " changes")),
                   li(concatenate("There are ", show(size(storage(<user>))), " users")),
                   li{ a("User stats", href => "/koala/user-agents") }
                 },
                 ul {
-                  li { a("User management", href => "/adduser") },
-                  li { a("Save database", href => "/save") },
-                  li { a("Restore database", href => "/restore") }
+                  li { a("User management", href => "/adduser") }
                 }
               }
             end);
@@ -222,7 +216,7 @@ define method respond-to-get (page == #"adduser",
                               request :: <request>,
                               response :: <response>,
                               #key errors = #())
-  if (*user*) // & *user*.admin?)
+  if (*user* & *user*.access-level = #"root")
     let out = output-stream(response);
     with-buddha-template(out, "User management")
       collect(show-errors(errors));
@@ -288,12 +282,14 @@ define method respond-to-get (page == #"add",
                               request :: <request>,
                               response :: <response>,
                               #key errors = #())
-  let real-type = get-object(get-query-value("object-type"));
-  let parent-object = get-object(get-query-value("parent-object"));
-  let out = output-stream(response);
-  with-buddha-template(out, concatenate("Add ", get-url-from-type(real-type)))
-    collect(show-errors(errors));
-    collect(with-xml()
+  let al = *user*.access-level;
+  if (sl = #"root" | al = #"noc" | al = #"helpdesk")
+    let real-type = get-object(get-query-value("object-type"));
+    let parent-object = get-object(get-query-value("parent-object"));
+    let out = output-stream(response);
+    with-buddha-template(out, concatenate("Add ", get-url-from-type(real-type)))
+      collect(show-errors(errors));
+      collect(with-xml()
               div(id => "content")
               {
                 h1(concatenate("Add ", get-url-from-type(real-type))),
@@ -314,6 +310,7 @@ define method respond-to-get (page == #"add",
                             fill-from-request: errors))
               }
             end);
+    end;
   end;
 end;
 
@@ -424,61 +421,6 @@ define method show-errors (errors)
 end;
 
 define method respond-to-get
-    (page == #"save",
-     request :: <request>,
-     response :: <response>,
-     #key errors)
-  dump-data();
-  respond-to-get(#"network",
-                 request,
-                 response);
-                              
-end;
-
-define method respond-to-get
-    (page == #"restore",
-     request :: <request>,
-     response :: <response>,
-     #key errors)
-  let out = output-stream(response);
-  with-buddha-template(out, "Restore Database")
-    collect(show-errors(errors));
-    collect(with-xml()
-      div(id => "content")
-        { form(action => "/restore", \method => "post")
-          { \select(name => "filename")
-            {
-              do(do-directory(method(directory :: <pathname>,
-                                     name :: <string>,
-                                     type :: <file-type>)
-                                  if (type == #"file")
-                                    collect(with-xml()
-                                              option(name,
-                                                     value => name)
-                                            end);
-                                  end if;
-                              end, *directory*))
-            },
-            input(type => "submit",
-                  name => "restore-button",
-                  value => "Restore")
-          }
-        }
-            end);
-  end;
-end;
-
-define method respond-to-post
-    (page == #"restore", request :: <request>, response :: <response>)
-  let file = get-query-value("filename");
-  restore(file);
-  format(output-stream(response), "Restored %s\n", file);
-  respond-to-get(page,
-                 request,
-                 response);
-end;
-
-define method respond-to-get
     (page == #"dhcp",
      request :: <request>,
      response :: <response>,
@@ -553,7 +495,7 @@ define method respond-to-get
                                                                   href => concatenate("/subnet-detail?subnet=",
                                                                                       get-reference(y))) },
                                                            td(show(y.dhcp?)),
-                                                           td { a(show(y.vlan.vlan-number),
+                                                           td { a(show(y.vlan.number),
                                                                   href => concatenate("/vlan-detail?vlan=",
                                                                                       get-reference(y.vlan))) },
                                                              td }
@@ -762,10 +704,10 @@ define method respond-to-get
                   do(reset-color(storage(<vlan>));
                      map(method(x) with-xml()
                                      tr(class => next-color(storage(<vlan>)))
-                                       { td { a(show(x.vlan-number),
+                                       { td { a(show(x.number),
                                                href => concatenate("/vlan-detail?vlan=",
                                                                    get-reference(x))) },
-                                          td(show(x.vlan-name)),
+                                          td(show(x.name)),
                                           td { do(insert-br(map(method(y)
                                                                     with-xml()
                                                                       a(show(y.cidr),
@@ -791,12 +733,12 @@ define method respond-to-get
      #key errors)
   let dvlan = get-object(get-query-value("vlan"));
   let out = output-stream(response);
-  with-buddha-template(out, concatenate("VLAN ", show(dvlan.vlan-number), " detail"))
+  with-buddha-template(out, concatenate("VLAN ", show(dvlan.number), " detail"))
     collect(show-errors(errors));
     collect(with-xml()
               div(id => "content")
               {
-                h1(concatenate("VLAN ", show(dvlan.vlan-number), ", Name ", dvlan.vlan-name)),
+                h1(concatenate("VLAN ", show(dvlan.number), ", Name ", dvlan.name)),
                 do(edit-form(dvlan,
                              refer: "vlan-detail",
                              xml: with-xml()
@@ -805,7 +747,7 @@ define method respond-to-get
                                           value => get-reference(dvlan))
                                   end)),
                 do(remove-form(dvlan, storage(<vlan>), url: "vlan")),
-                h2(concatenate("Subnets in VLAN ", show(dvlan.vlan-number))),
+                h2(concatenate("Subnets in VLAN ", show(dvlan.number))),
                 table {
                   tr { th("CIDR"), th("dhcp?") },
                   do(reset-color(storage(<subnet>));
@@ -1014,8 +956,8 @@ define method respond-to-get
                               do(reset-color(dzone.cnames);
                                  map(method(x) with-xml()
                                                  tr(class => next-color(dzone.cnames))
-                                                   { td(x.cname-source),
-                                                     td(x.cname-target),
+                                                   { td(x.source),
+                                                     td(x.target),
                                                      td { do(remove-form(x, dzone.cnames,
                                                                          url: "zone-detail",
                                                                          xml: with-xml()
@@ -1227,7 +1169,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
 end;
 
 define function main () => ()
-  dumper();
+  register-url("/buddha.css", maybe-serve-static-file);
   block()
     start-server();
   exception (e :: <condition>)

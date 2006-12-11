@@ -40,13 +40,13 @@ end;
 
 define method check-in-context (tzone :: <zone>, tcname :: <cname>)
  => (res :: <boolean>)
-  if (any?(method(x) x.source = tcname.cname-source end, tzone.cnames))
+  if (any?(method(x) x.source = tcname.source end, tzone.cnames))
     signal(make(<web-error>,
                 error: "Same A record already exists"));
-  elseif (any?(method(x) x.host-name = tcname.cname-source end, tzone.a-records))
+  elseif (any?(method(x) x.host-name = tcname.source end, tzone.a-records))
     signal(make(<web-error>,
                 error: "Same A record already exists"));
-  elseif (any?(method(x) x.host-name = tcname.cname-source end,
+  elseif (any?(method(x) x.host-name = tcname.source end,
                choose(method(y) y.zone = tzone end, storage(<host>))))
     signal(make(<web-error>,
                 error: "Same A record already exists"));
@@ -95,7 +95,7 @@ define method check (host :: <host>, #key test-result = 0)
                       host.zone.a-records)) > 0)
     signal(make(<web-error>,
                 error: "A record for host already exists in zone"));
-  elseif (size(choose(method(x) x.cname-target = host.host-name end,
+  elseif (size(choose(method(x) x.target = host.host-name end,
                       host.zone.cnames)) > 0)
     signal(make(<web-error>,
                 error: "A record already exists in zone"));
@@ -124,13 +124,13 @@ end;
 define method check (vlan :: <vlan>, #key test-result = 0)
  => (res :: <boolean>)
   let vlans = storage(<vlan>);
-  if ((vlan.vlan-number < 0) | (vlan.vlan-number > 4095))
+  if ((vlan.number < 0) | (vlan.number > 4095))
     signal(make(<web-error>,
                 error: "VLAN not in range 0 - 4095"));
-  elseif (size(choose(method(x) x.vlan-number = vlan.vlan-number end , vlans)) > test-result)
+  elseif (size(choose(method(x) x.number = vlan.number end , vlans)) > test-result)
     signal(make(<web-error>,
                 error: "VLAN with same number already exists"));
-  elseif (size(choose(method(x) x.vlan-name = vlan.vlan-name end, vlans)) > test-result)
+  elseif (size(choose(method(x) x.name = vlan.name end, vlans)) > test-result)
     signal(make(<web-error>,
                 error: "VLAN with same name already exists"));
   else

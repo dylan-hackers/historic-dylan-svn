@@ -56,6 +56,6 @@ define module buddha
   use storage;
   use object-table;
   use users;
-  use changes;
+  use change;
   use utils;
 end;

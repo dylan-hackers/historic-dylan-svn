@@ -1,3 +1,7 @@
+TEST:
+* reverse zones are hardcoded to be at a /24 boundary,
+   they should be byte-bounded
+
 BUGS:
 * a-records and c-names with same name as any host record
    -> parent is the list of a-records, not the zone
@@ -5,18 +9,17 @@ BUGS:
    (a-record, hostname, vlan-name, mx-name, cname-name, ..)
 * when using "" in vlan description it fails in edit form...
   => some more escaping needed
-* reverse zones are hardcoded to be at a /24 boundary,
-   they should be byte-bounded
 
 FEATURE REQUESTS
 
 *user management:
  *at least security levels:
-   0 admin, root
-   1 noc-user (who knows what he is doing)
-   2 noc viewer (no add/edit/remove)
-   3 nochelpdesk (add hosts to some specific subnets,
-                  view state of switchport/subnet/etc)
+   0 root
+   1 noc (who knows what he is doing), but may not change user rights
+   2 helpdesk (add hosts to some specific subnets,
+                  view everything)
+   3 viewer
+
    4 participiant (yourname)
    (5 view (no authentication, may only browse all stuff
          (apart from entered passwords,
