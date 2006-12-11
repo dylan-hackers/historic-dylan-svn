@@ -1,4 +1,4 @@
-module: changes
+module: change
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define web-class <change> (<object>)
@@ -17,6 +17,9 @@ define method initialize (change :: <change>, #rest rest, #key, #all-keys)
                    end;
 end;
 
+define method setup (change :: <change>) => ()
+  redo(change.command);
+end;
 define method undo (change :: <change>)
   //undo the change
   undo(change.command);
