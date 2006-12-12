@@ -138,9 +138,9 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
           li { a("Changes", href => "/changes") }
         }
       },
-      do(if(*user*.access-level = #"root" | *user*.access-level = #"noc")
-           collect(with-xml()
       div (id => "buddha-edit") {
+      do(if (*user*.access-level = #"root" | *user*.access-level = #"noc")
+           with-xml()
         ul {
           li("Add:"),
           li { a("vlan", href => concatenate("/add?object-type=",
@@ -164,18 +164,17 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
                                                "&parent-object=",
                                                get-reference(storage(<subnet>)))) }
         }
-        end);
-      elseif (*user*.access-level = #"helpdesk")
-           collect(with-xml()
-      div (id => "buddha-edit") {
+           end;
+         elseif (*user*.access-level = #"helpdesk")
+           with-xml()
         ul {
           li { a("host", href => concatenate("/add?object-type=",
                                              get-reference(<host>),
                                              "&parent-object=",
                                              get-reference(storage(<host>)))) }
         }
-      }
-        end)),
+           end;
+         end if),
         ul { li{ text("Logged in as "),
                  strong(*user*.username) } }
       }
@@ -283,7 +282,7 @@ define method respond-to-get (page == #"add",
                               response :: <response>,
                               #key errors = #())
   let al = *user*.access-level;
-  if (sl = #"root" | al = #"noc" | al = #"helpdesk")
+  if (al = #"root" | al = #"noc" | al = #"helpdesk")
     let real-type = get-object(get-query-value("object-type"));
     let parent-object = get-object(get-query-value("parent-object"));
     let out = output-stream(response);

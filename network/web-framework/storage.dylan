@@ -65,11 +65,11 @@ define open generic save (object :: <object>) => ();
 define method save (object) => ()
   with-lock($database-lock)
     add-object(storage(object.object-class), object);
-    if (*rev* = 100 | *version* = 0)
-      really-dump-all-data();
-    else
-      dump-single-object(object);
-    end;
+    //if (*rev* = 100 | *version* = 0)
+    //  really-dump-all-data();
+    //else
+    //  dump-single-object(object);
+    //end;
   end;
 end;
 
