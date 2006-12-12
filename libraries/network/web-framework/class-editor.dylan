@@ -289,6 +289,8 @@ define method edit-slot (object :: <boolean>, slot-name :: <string>)
   end;
 end;
 
+define constant *debug* = #t;
+
 define method respond-to-post
     (page == #"edit",
      request :: <request>,
@@ -299,7 +301,10 @@ define method respond-to-post
   let object = get-object(object-string);
   let handler <web-form-warning>
     = method(e :: <web-form-warning>, next-handler :: <function>)
-          errors := add!(errors, e)
+          errors := add!(errors, e);
+          if (*debug*)
+            break();
+          end;
       end;
   block(return)
     //add, save, remove... we may not need this here...
@@ -314,13 +319,20 @@ define method respond-to-post
       otherwise => signal(make(<web-error>,
                                error: concatenate("Unknown action: ",
                                                   as(<string>, action))));
-      end select;
+    end select;
+    dump-data(); //yes, this is a bit ugly :(
   exception (e :: <web-error>)
     errors := add!(errors, e);
+    if (*debug*)
+      break()
+    end;
     return();
   exception (e :: <error>)
     errors := add!(errors, make(<web-error>,
                                 error: format-to-string("%=", e)));
+    if (*debug*)
+      break()
+    end;
     return();
   end; 
   let referer = get-query-value("refer-to");
