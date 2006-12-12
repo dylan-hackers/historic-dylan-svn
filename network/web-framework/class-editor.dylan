@@ -302,9 +302,6 @@ define method respond-to-post
   let handler <web-form-warning>
     = method(e :: <web-form-warning>, next-handler :: <function>)
           errors := add!(errors, e);
-          if (*debug*)
-            break();
-          end;
       end;
   block(return)
     //add, save, remove... we may not need this here...
@@ -371,11 +368,12 @@ define method add-object (parent-object :: <object>, request :: <request>)
     for (slot in data-slots(object-type))
       let value = parse(slot.slot-name, slot.slot-type);
       //then set slots of object
-      unless ((slot.slot-type = <boolean>) | value)
+      if ((slot.slot-type = <boolean>) | value)
+        add!(init, as(<symbol>, slot.slot-name));
+        add!(init, value);
+      else
         add!(deferred-slot-setter, slot);
       end;
-      add!(init, as(<symbol>, slot.slot-name));
-      add!(init, value);
       //slot.slot-setter-method(value, object);
     end;
     for (slot in reference-slots(object-type))
