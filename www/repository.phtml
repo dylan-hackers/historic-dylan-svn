@@ -9,26 +9,26 @@ stored in a <a href="http://subversion.tigris.org/">Subversion</a>
 repository.  For developers, the base URI of the repository is</p>
 
 <pre>
-svn+ssh://svn.gwydiondylan.org/scm/svn/dylan
+svn+ssh://username@svn.gwydiondylan.org/scm/svn/dylan
 </pre>
 
 <p>For example, to check out <tt>src/</tt> (Gwydion Dylan) from the
 trunk, you can execute:</p>
 
 <pre>
-$ svn co svn+ssh://svn.gwydiondylan.org/scm/svn/dylan/trunk/src src
+$ svn co svn+ssh://jones@svn.gwydiondylan.org/scm/svn/dylan/trunk/src src
 </pre>
 
 <p>To check out the fundev-2-1-jam branch of Open Dylan,</p>
 
 <pre>
-$ svn co svn+ssh://svn.gwydiondylan.org/scm/svn/dylan/branches/fundev-2-1-jam/fundev fundev
+$ svn co svn+ssh://jones@svn.gwydiondylan.org/scm/svn/dylan/branches/fundev-2-1-jam/fundev fundev
 </pre>
 
-<p>You could also check out the entirity of trunk:</p>
+<p>You could also check out the entirety of trunk:</p>
 
 <pre>
-$ svn co svn+ssh://svn.gwydiondylan.org/scm/svn/dylan/trunk gd
+$ svn co svn+ssh://jones@svn.gwydiondylan.org/scm/svn/dylan/trunk gd
 </pre>
 
 <p>For non-developers, the base URI to check out is</p>
@@ -138,7 +138,7 @@ feature.  In your <tt>~/.subversion/config</tt> file you'll find
 commented-out configuration entries for enabling auto-props.  For example,
 
 <pre>
-### Section for configuring miscelleneous Subversion options.
+### Section for configuring miscellaneous Subversion options.
 [miscellany]
 ### Set enable-auto-props to 'yes' to enable automatic properties
 ### for 'svn add' and 'svn import', it defaults to 'no'.
