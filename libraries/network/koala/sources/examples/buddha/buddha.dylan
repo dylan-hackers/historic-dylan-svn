@@ -168,6 +168,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
          elseif (*user*.access-level = #"helpdesk")
            with-xml()
         ul {
+          li("Add:"),
           li { a("host", href => concatenate("/add?object-type=",
                                              get-reference(<host>),
                                              "&parent-object=",
@@ -176,7 +177,9 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
            end;
          end if),
         ul { li{ text("Logged in as "),
-                 strong(*user*.username) } }
+                 strong(*user*.username),
+                 text("   "),
+                 a("logout", href => "/logout") } }
       }
     },
     do(?body)
@@ -193,6 +196,7 @@ define method respond-to-get (page == #"admin",
                               response :: <response>,
                               #key errors)
   let out = output-stream(response);
+  if (*user*.access-level = #"root")
   with-buddha-template(out, "Admin")
     collect(show-errors(errors));
     collect(with-xml()
@@ -208,6 +212,10 @@ define method respond-to-get (page == #"admin",
                 }
               }
             end);
+    end;
+  else
+    errors := add!(errors, make(<web-error>, error: "Permission denied"));
+    respond-to-get (#"network", request, response, errors: errors);
   end;
 end;
 
