@@ -66,6 +66,26 @@ define function decode-url
   end iterate;
 end decode-url;
 
+define function encode-url (url :: <byte-string>, #key reserved?)
+ => (encoded-url :: <byte-string>);
+  let reserved-chars = "$-_.+!*'(),";
+  let encoded-url = "";
+  for (char in url)
+    if (((char >= 'a' & char <= 'z') |  
+         (char >= 'A' & char <= 'Z') |
+         (char >= '0' & char <= '9')) | 
+        (member?(char, reserved-chars) &
+         ~reserved?))
+      encoded-url := add!(encoded-url, char);
+    else
+      encoded-url := 
+        concatenate(encoded-url, "%", 
+          format-to-string("%X", as(<byte>, char)));
+    end if;
+  end for;
+  encoded-url;
+end;
+
 define function parse-request-url (str, bpos, epos)
   => (url :: <url>) // <http-url>, but that's bogus.
   parse-url(str, bpos, epos)

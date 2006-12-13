@@ -152,7 +152,7 @@ define module changes
   use users;
   use change, export: all;
   //exports
-  export generate-rss;
+  export generate-rss, generate-atom;
   
   //feed
   export <feed>,
@@ -169,7 +169,7 @@ define module changes
     title, title-setter,
     updated, updated-setter,
     entries, entries-setter,
-    language, language-setter,
+    languages, languages-setter,
     description, description-setter,
     published, published-setter;
   
@@ -211,6 +211,8 @@ define module changes
     website, website-setter,
     content, content-setter,
     published, published-setter;
+
+  export <uri>, <link>;
 end;
 
 
