@@ -39,7 +39,7 @@
     <TITLE>Introduction</TITLE>
 
     <PARA>This manual serves as a guide to the libraries included with
-    Gywdion &dylan;.  These libraries include:</PARA>
+    Gwydion &dylan;.  These libraries include:</PARA>
 
     <VARIABLELIST>
       <VARLISTENTRY>
@@ -159,7 +159,7 @@
       <PARA>For the remainder of this chapter, we shall refer to
       "Gwydion compilers" as a shorthand for "Mindy and other
       Dylan compilers that the Gwydion Project may write." It is
-      not meant as a guarentee that all future Gwydion releases will
+      not meant as a guarantee that all future Gwydion releases will
       support these extensions.</PARA>
 
       <PARA>Specific Gwydion compilers may support extensions not
@@ -221,7 +221,7 @@
 
       <PARA>Whenever possible, we have tried to keep the
       <dmodule>Dylan</dmodule> module pristine and unextended,
-      prefering to add our extensions to separate modules or
+      preferring to add our extensions to separate modules or
       libraries. However, this is not always possible, particularly
       when it involves extending the behavior of a function or macro
       that is exported from the <dmodule>Dylan</dmodule>
@@ -560,7 +560,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	      supplied methods.  The default method (on
 	      <dclass>condition</dclass>) simply prints
 	      the condition (not very descriptive).  The
-	      <dclass>format-string-condtion</dclass>
+	      <dclass>format-string-condition</dclass>
 	      (of which the simple conditions are derived) method uses
 	      the supplied format-string to output information about
 	      the cause of the condition.  The
@@ -802,7 +802,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 	can take on any value, and are similar to Common Lisp
 	"bignums."  Expressions involving
 	<dclass>extended-integer</dclass>s produce
-	<dclass>extendedinteger</dclass> results because
+	<dclass>extended-integer</dclass> results because
 	<dclass>extended-integer</dclass>s are
 	contagious. If an expression involving only
 	<dclass>integer</dclass> values would produce a
@@ -993,7 +993,7 @@ type-union(&lt;integer&gt;, singleton(#f))</PROGRAMLISTING>
 
     <AUTHORBLURB>
       <FORMALPARA>
-	<TITLE>Acknowlegements</TITLE>
+	<TITLE>Acknowledgments</TITLE>
 	<PARA>We'd like to thank the other people who
 	have been instrumental in the production of this proposal:
 	Jonathan Bachrach, Dave Berry, John Dunning, Chris Fry, Paul
@@ -1204,7 +1204,7 @@ stream-contents(stream);</PROGRAMLISTING>
       efficiently, especially for buffered streams.</PARA>
 
       <PARA>Some streams are positionable; that is, they permit random
-      access to their elements. Postionable streams allow you to set
+      access to their elements. Positionable streams allow you to set
       the position at which the stream will be accessed by the next
       operation. The following example uses positioning to return the
       character <dlit>'w'</dlit> from a stream over the string
@@ -1323,7 +1323,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
     <SECT1 id="libs-streams-ref">
       <TITLE>Streams Reference</TITLE>
 
-      <PARA>The exported streams class heterarchy is as follows:</PARA>
+      <PARA>The exported streams class hierarchy is as follows:</PARA>
 
       <FIGURE>
 	<TITLE>Streams library classes.</TITLE>
@@ -1641,7 +1641,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 		  <dname>element</dname> to resolve element access of
 		  sequences with the bracket syntax
 		  (i.e. <dlit>[</dlit> and <dlit>]</dlit>).  Results
-		  can be unpredicable when one has a local binding to
+		  can be unpredictable when one has a local binding to
 		  <dname>element</dname> and also indexes into
 		  sequences with the bracket syntax.
 		</para>
@@ -1926,7 +1926,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	  <sect5 id="libs-streams-reg-general-fns-reading-handy">
 	    <title>Convenience Reading Functions</title>
 	    <para>
-	       Conveniece functions for reading from streams.
+	       Convenience functions for reading from streams.
 	       These functions are implemented in terms of the more
 	       primitive functions defined above.
 	    </para>
@@ -1955,7 +1955,8 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	          <paramname>test</paramname>
 		  <paramtype>&lt;function&gt;</paramtype>
 		  <paramdefault>\==</paramdefault>
-		  <paramsummary>Comparator for elemnt and the stream's contents.
+		  <paramsummary>Comparator for <parameter>elemnt</parameter> and the
+		      stream's contents.
 		  </paramsummary>
                 </keyparam>
               </defparameters>
@@ -2007,7 +2008,8 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	          <paramname>test</paramname>
 		  <paramtype>&lt;function&gt;</paramtype>
 		  <paramdefault>\==</paramdefault>
-		  <paramsummary>Comparator for elemnt and the stream's contents.
+		  <paramsummary>Comparator for <parameter>elemnt</parameter> and the
+		      stream's contents.
 		  </paramsummary>
                 </keyparam>
               </defparameters>
@@ -2896,7 +2898,7 @@ old text: on page 113 in Chapter 7 of the Dylan Reference
     </itemizedlist>
     <para>
       The last format directive (%m) is specific to
-      GwydionDylan.  See the below examples for
+      Gwydion Dylan.  See the below examples for
       using some of the format directives.
     </para>
     <sect2 id="libs-format-simple-example">
@@ -3977,7 +3979,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 
   <CHAPTER ID="libs-collection-extensions">
     <docinfo>
-      <title>Collection Extentions</title>
+      <title>Collection Extensions</title>
 	<date>November 18, 2000</date>
 	<author>&person.auclair;</author>
     </docinfo>
@@ -3995,7 +3997,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	  in time, and they will likely be added to this library. This
 	  may also result in reorganizations which could force
 	  incompatible changes to the existing modules. We hope to
-	  minimize such imcompatibilities and, when forced to them,
+	  minimize such incompatibilities and, when forced to them,
 	  will include sufficient information to facilitate conversion
 	  of existing code. 
 	</para> 
@@ -4039,7 +4041,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
       </itemizedlist>
       <para>
         The Collections-Extensions Library also has some additional
-        modules added by the GwydionDylan Maintainers.  These modules
+        modules added by the Gwydion Dylan Maintainers.  These modules
         are: 
       </para>
       <itemizedlist>
@@ -4080,7 +4082,7 @@ apply(format, *standard-output*, control-string, args);</PROGRAMLISTING>
 	</para>
 	<para>
 	  Because they have a very low overhead, self-organizing lists
-	  may provide better peformance than hash tables in cases
+	  may provide better performance than hash tables in cases
 	  where references have a high degree of temporal
 	  locality. They may also be useful in situations where it is
 	  difficult to create a proper hash function.  
@@ -6714,7 +6716,7 @@ is-finder("This is a string");
 	      <paramname>marks</paramname>
 	      <paramtype>false-or(&lt;integer&gt;)</paramtype>
 	      <paramsummary>
-	        The position of the end of the matche in the string
+	        The position of the end of the match in the string
 	        (see below).
               </paramsummary>
 	    </restparam>
@@ -8616,7 +8618,7 @@ log(100000, base: 10) => 5.0
 	      <para>
 	        <dlit>parsed-day-of-year</dlit>: We change this if
 		we're asked to read in a day-of-year.  Since we can't
-		make sense of a day-of-year without knowning if it's a
+		make sense of a day-of-year without knowing if it's a
 		leap-year (and thus, knowing the year), we delay
 		processing of this information
 	      </para>
@@ -8918,7 +8920,7 @@ log(100000, base: 10) => 5.0
     <TITLE>The Matrix Library</TITLE>
     <PARA>
       This library implements some basic matrix operations. These
-      functions are not guarenteed to be stable or numerically sound,
+      functions are not guaranteed to be stable or numerically sound,
       nor are they very optimized, but for smaller applications they
       should be suitable.  
     </para>
@@ -9060,7 +9062,7 @@ let mat = matrix(#[1, 1, 2], #[3, 5, 8], #[13, 21, 34]);
         These are operations on matrices.  The include the "simple"
         arithmetic operations (\+, \-, \*), as well as other standard
         matrix operations, such as inverse, transpose, augment, and
-        gauss-jordan elimations.
+        gauss-jordan eliminations.
       </para> 
 
       <dylanmethoddef>
@@ -9268,11 +9270,11 @@ let mat = matrix(#[1, 1, 2], #[3, 5, 8], #[13, 21, 34]);
         </defreturns>
         <defdescription>
           <para>
-	    This procedure does gauss-jordan elimation on a matrix of
+	    This procedure does gauss-jordan elimination on a matrix of
 	    dimension N by N + 1.  The first N columns are the
-	    coefficents in a set of simultaneous equations, and the
+	    coefficients in a set of simultaneous equations, and the
 	    last column is a solution vector.   The matrix that is
-	    returned is an N by 1 matrix contaning the solution for
+	    returned is an N by 1 matrix containing the solution for
 	    each variable.   For example, if you have a system of
 	    equations like this: 
   	  </para>
@@ -9317,11 +9319,11 @@ let mat = matrix(#[1, 1, 2], #[3, 5, 8], #[13, 21, 34]);
 	    Finds the inverse of a matrix, by using a modified
 	    gauss-jordan elimination.  Given any matrix, if there is
 	    an inverse, the inverse will be returned, otherwise, an
-	    error will be signalled. To determine the existance of an
+	    error will be signalled. To determine the existence of an
 	    inverse, the algorithm finds the upper triangular matrix,
 	    and then multiplies all of the elements along the main
 	    diagonal.  If the result of this multiplication is zero,
-	    there is no inverse, otherwise, there is gaurenteed to be
+	    there is no inverse, otherwise, there is guaranteed to be
 	    an inverse. 
 	  </para>
         </defdescription>
@@ -9781,7 +9783,7 @@ end;
 	    </param>
 	    <restparam>
 	      <paramname>init-keys</paramname>
-	      <paramsummary>Inititialization keywords for for the new
+	      <paramsummary>Initialization keywords for for the new
 	      option parser.</paramsummary>
 	    </restparam>
 	  </defparameters>
@@ -9840,7 +9842,7 @@ add-option-parser(args-parser, opt-parser);
 		  <title>Chop individual arguments around any equals
 		  sign</title> <para>If any argument contains the character
 		  <dlit>'='</dlit>, break the argument into three strings:
-		  everything before the first occurance of the equals sign,
+		  everything before the first occurrence of the equals sign,
 		  the sign itself, and the remainder of the original
 		  string.</para>
 		</formalpara>
@@ -10046,7 +10048,7 @@ add-option-parser(args-parser, opt-parser);
 	  <para>This behavior is consistent with that of the utility
 	  <literal>rm</literal>, which allows the user to set default
 	  options with a shell alias of the form <literal>alias rm="rm
-	  -i"</literal>. Such defaults can be overriden by explicity
+	  -i"</literal>. Such defaults can be overridden by explicitly
 	  passing a flag when calling <literal>rm</literal> because the
 	  rightmost value takes precedence.</para>
 	</defdescription>
