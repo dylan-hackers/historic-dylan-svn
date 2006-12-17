@@ -100,20 +100,20 @@ define method check (host :: <host>, #key test-result = 0)
     signal(make(<web-error>,
                 error: "A record already exists in zone"));
   elseif (size(choose(method(x) x.ipv4-address = host.ipv4-address end,
-                      choose(method(x) x.subnet = host.subnet end, storage(<host>)))) > test-result)
+                      choose(method(x) x.ipv4-subnet = host.ipv4-subnet end, storage(<host>)))) > test-result)
     signal(make(<web-error>,
                 error: "Host with same IP address already exists in subnet"));
-  elseif (host.subnet.dhcp?
+  elseif (host.ipv4-subnet.dhcp?
             & size(choose(method(x) x.mac-address = host.mac-address end,
-                            choose(method(x) x.subnet = host.subnet end,
+                            choose(method(x) x.ipv4-subnet = host.ipv4-subnet end,
                                      storage(<host>)))) > test-result)
     signal(make(<web-error>,
                 error: "Host with same MAC address already exists in subnet"));
-  elseif ((host.ipv4-address = network-address(host.subnet.cidr)) |
-            (host.ipv4-address = broadcast-address(host.subnet.cidr)))
+  elseif ((host.ipv4-address = network-address(host.ipv4-subnet.cidr)) |
+            (host.ipv4-address = broadcast-address(host.ipv4-subnet.cidr)))
     signal(make(<web-error>,
                 error: "Host can't have the network or broadcast address as IP"));
-  elseif (~ ip-in-net?(host.subnet, host.ipv4-address))
+  elseif (~ ip-in-net?(host.ipv4-subnet, host.ipv4-address))
     signal(make(<web-error>,
                 error: "Host is not in specified network"))
   else
@@ -157,7 +157,7 @@ define method check (network :: <network>, #key test-result = 0)
   end if;
 end;
 
-define method check (subnet :: <subnet>, #key test-result = 0)
+define method check (subnet :: <ipv4-subnet>, #key test-result = 0)
  => (res :: <boolean>)
   unless (network-address(subnet.cidr) = base-network-address(subnet.cidr))
     signal(make(<web-form-warning>,

@@ -32,7 +32,8 @@ define method storage-type (type) => (res)
   <stretchy-vector>;
 end;
 
-define method storage (type)
+define open generic storage (type) => (res);
+define method storage (type) => (res)
   let res = element(*storage*, type, default: #f);
   unless (res)
     res := make(storage-type(type));

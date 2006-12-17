@@ -31,9 +31,12 @@ define method edit-form (object :: <object>, #key refer, xml) => (res)
              //of global list of elements...
              collect(with-xml()
                        \select(name => slot.slot-name)
-                       { do(for (ele in storage(slot.slot-type))
+                       { do(let chosen = slot.slot-getter-method(object);
+                            let sel = #f;
+                            for (ele in storage(slot.slot-type))
                               if (visible?(ele))
-                                if (ele = slot.slot-getter-method(object))
+                                if (ele = chosen)
+                                  sel := #t;
                                   collect(with-xml()
                                             option(as(<string>, ele),
                                                    value => get-reference(ele),
@@ -46,9 +49,17 @@ define method edit-form (object :: <object>, #key refer, xml) => (res)
                                           end)
                                 end;
                               end if;
+                            end;
+                            unless(sel)
+                              collect(with-xml()
+                                        option(as(<string>, chosen),
+                                               value => get-reference(chosen),
+                                               selected => "selected")
+                                      end);
                             end)
                        }
                       end);
+             collect(with-xml() br end);
            end),
         input(type => "hidden",
               name => "parent-object",
@@ -155,9 +166,11 @@ define method add-form (object-type :: subclass(<object>),
              let value = get-object(get-query-value(slot.slot-name));
              collect(with-xml()
                        \select(name => slot.slot-name)
-                       { do(for (ele in storage(slot.slot-type))
+                       { do(let sel = #t;
+                            for (ele in storage(slot.slot-type))
                               if (visible?(ele))
                                 if (fill-from-request & (ele = value))
+                                  sel := #f;
                                   collect(with-xml()
                                             option(as(<string>, ele),
                                                    value => get-reference(ele),
@@ -170,9 +183,17 @@ define method add-form (object-type :: subclass(<object>),
                                           end);
                                 end;
                               end;
+                            end;
+                            if (slot.default & sel)
+                              collect(with-xml()
+                                        option(as(<string>, slot.default),
+                                               value => get-reference(slot.default),
+                                               selected => "selected")
+                                      end);
                             end)
                        }
                       end);
+             collect(with-xml() br end);
            end),
         input(type => "hidden",
               name => "parent-object",
@@ -251,6 +272,7 @@ define generic edit-slot (object :: <object>, slot-name :: <string>);
 define method edit-slot (object :: <object>, slot-name :: <string>)
   with-xml()
     input(type => "text",
+          size => "60",
           name => slot-name,
           value => as(<string>, object))
   end;
@@ -392,6 +414,20 @@ define method add-object (parent-object :: <object>, request :: <request>)
                                        " correctly!")));
       end unless;
       slot.slot-setter-method(value, object);
+    end;
+    unless(object.object-class = object-type)
+      for (slot in data-slots(object.object-class))
+        unless(member?(as(<symbol>, slot.slot-name), init))
+          let value = slot.default | slot.default-function(object);
+          unless (slot.slot-type = <boolean> | value)
+            signal(make(<web-error>,
+                        error: concatenate("Please specify ",
+                                           slot.slot-name,
+                                           " correctly!")));
+          end unless;
+          slot.slot-setter-method(value, object);
+        end;
+      end;
     end;
 
     let command = make(<add-command>,

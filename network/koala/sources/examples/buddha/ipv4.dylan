@@ -10,7 +10,35 @@ define method make (ip-address == <ip-address>,
                     #key data,
                     #all-keys) => (res :: <ip-address>)
   if (instance?(data, <string>))
-    as(<ip-address>, data);
+    let v4-address? = split(data, '.');
+    if (v4-address?.size = 4)
+      as(<ipv4-address>, data);
+    else
+      as(<ipv6-address>, data);
+    end;
+  elseif (data.size = 4)
+    apply(make, <ipv4-address>, rest)
+  elseif (data.size = 16)
+    apply(make, <ipv6-address>, rest)
+  end;
+end;
+define class <ipv4-address> (<ip-address>)
+end;
+
+define method address-size (ip == <ipv4-address>)
+  4;
+end;
+
+define method address-size (ip :: <ipv4-address>)
+  4;
+end;
+define method make (ip-address == <ipv4-address>,
+                    #next next-method,
+                    #rest rest,
+                    #key data,
+                    #all-keys) => (res :: <ipv4-address>)
+  if (instance?(data, <string>))
+    as(<ipv4-address>, data);
   else
     apply(next-method, ip-address, rest);
   end if;
@@ -23,7 +51,7 @@ define method print-object (ip :: <ip-address>,
   format(stream, "%s", as(<string>, ip));
 end;
 
-define method get-ptr (ip :: <ip-address>) => (res :: <string>)
+define method get-ptr (ip :: <ipv4-address>) => (res :: <string>)
   concatenate(integer-to-string(ip[3]), "-", integer-to-string(ip[2]));
 end;
 
@@ -31,14 +59,14 @@ end;
 define method \+ (a :: <ip-address>, b :: <integer>)
  => (res :: <ip-address>)
   let rem :: <integer> = b;
-  let res = make(<byte-vector>, size: 4, fill: 0);
+  let res = make(<byte-vector>, size: address-size(a), fill: 0);
   for (ele in reverse(a),
-       i from 3 by -1)
+       i from address-size(a) - 1 by -1)
     let (quotient, remainder) = truncate/(ele + rem, 256);
     res[i] := remainder;
     rem := quotient;
   end;
-  res := make(<ip-address>, data: res);
+  res := make(a.object-class, data: res);
   res;
 end;
 
@@ -50,9 +78,9 @@ end;
 define method \- (a :: <ip-address>, b :: <integer>)
  => (res :: <ip-address>)
   let rem :: <integer> = b;
-  let res = make(<byte-vector>, size: 4, fill: 0);
+  let res = make(<byte-vector>, size: address-size(a), fill: 0);
   for (ele in reverse(a),
-       i from 3 by -1)
+       i from address-size(a) - 1 by -1)
     if (ele - rem < 0)
       res[i] := modulo(ele - rem, 256);
       rem := abs(truncate/(rem, 256));
@@ -61,7 +89,7 @@ define method \- (a :: <ip-address>, b :: <integer>)
       rem := 0;
     end;
   end;
-  make(<ip-address>, data: res);
+  make(a.object-class, data: res);
 end;
 
 define method \< (a :: <ip-address>, b :: <ip-address>)
@@ -94,7 +122,7 @@ end;
 
 
 // conversions (string, ip, integer)
-define method as (class == <string>, ip-address :: <ip-address>)
+define method as (class == <string>, ip-address :: <ipv4-address>)
  => (res :: <string>)
   let strings = make(<list>);
   for (ele in ip-address)
@@ -105,10 +133,10 @@ define method as (class == <string>, ip-address :: <ip-address>)
           end, reverse(strings));
 end;
 
-define method as (class == <ip-address>, netmask :: <integer>)
+define method as (class :: subclass(<ip-address>), netmask :: <integer>)
  => (res :: <ip-address>)
-  let res = make(<byte-vector>, size: 4, fill: 255);
-  for (i from 0 below 4,
+  let res = make(<byte-vector>, size: address-size(class), fill: 255);
+  for (i from 0 below address-size(class),
        mask from netmask by -8)
     if (mask < 0)
       res[i] := 0;
@@ -116,18 +144,18 @@ define method as (class == <ip-address>, netmask :: <integer>)
       res[i] := logand(255, ash(255, 8 - mask));
     end if
   end for;
-  make(<ip-address>, data: res);
+  make(class, data: res);
 end;
 
-define method as (class == <ip-address>, string :: <string>)
- => (res :: <ip-address>)
+define method as (class == <ipv4-address>, string :: <string>)
+ => (res :: <ipv4-address>)
   let numbers = split(string, '.');
   let ints = map(string-to-integer, numbers);
   let res = make(<byte-vector>, size: 4, fill: 0);
   for (i from 0 below res.size)
     res[i] := as(<byte>, ints[i]);
   end;
-  make(<ip-address>, data: res);
+  make(<ipv4-address>, data: res);
 end;
 
 
