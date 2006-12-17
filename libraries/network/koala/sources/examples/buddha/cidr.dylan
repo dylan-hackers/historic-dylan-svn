@@ -8,6 +8,13 @@ define class <cidr> (<object>)
     required-init-keyword: netmask:;
 end class;
 
+define method ip-version (cidr :: <cidr>) => (res :: <integer>)
+  if (instance?(cidr.cidr-network-address, <ipv4-address>))
+    4
+  elseif (instance?(cidr.cidr-network-address, <ipv6-address>))
+    6;
+  end;
+end;
 define method \< (a :: <cidr>, b :: <cidr>)
  => (res :: <boolean>)
   a.cidr-network-address < b.cidr-network-address
@@ -36,6 +43,9 @@ end;
 define method as(class == <cidr>, string :: <string>)
  => (res :: <cidr>)
   let address-and-mask = split(string, '/');
+  unless (address-and-mask.size = 2)
+    signal(make(<web-error>, error: "CIDR syntax wrong IP/Netmask[prefixlen]"));
+  end;
   let network-address = address-and-mask[0];
   let netmask = address-and-mask[1];
   network-address := make(<ip-address>, data: network-address);
@@ -61,7 +71,7 @@ define method broadcast-address (cidr :: <cidr>)
   let mask = map(method(x)
                      logand(255, lognot(x));
                  end, netmask-address(cidr));
-  make(<ip-address>,
+  make(cidr.cidr-network-address.object-class,
        data: map(logior,
                  network-address(cidr),
                  mask));
@@ -74,7 +84,7 @@ end;
 
 define method netmask-address (cidr :: <cidr>)
  => (ip-address :: <ip-address>)
-  as(<ip-address>, cidr.cidr-netmask);
+  as(cidr.cidr-network-address.object-class, cidr.cidr-netmask);
 end;
 
 define method cidr-in-cidr? (smaller :: <cidr>, bigger :: <cidr>)

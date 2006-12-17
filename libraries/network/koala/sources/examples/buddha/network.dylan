@@ -1,15 +1,48 @@
 module: buddha
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define web-class <network> (<reference-object>)
+define abstract web-class <network> (<reference-object>)
   data cidr :: <cidr>;
+end;
+
+define method make (class == <network>,
+                    #rest rest, #key cidr, #all-keys) => (res :: <network>)
+  let version =
+    ip-version(if (instance?(cidr, <string>)) as(<cidr>, cidr) else cidr end);
+  if (version = 4)
+    apply(make, <ipv4-network>, rest);
+  elseif (version = 6)
+    apply(make, <ipv6-network>, rest);
+  end;
+end;
+define web-class <ipv6-network> (<network>)
+end;
+
+define method collect-dhcp-into-table (n :: <ipv6-network>) => (res :: <collection>)
+  let e = with-xml() td end;
+  list(e,e,e);
+end;
+define web-class <ipv4-network> (<network>)
   data dhcp? :: <boolean> = #t;
   data dhcp-default-lease-time :: <integer> = 1800;
   data dhcp-max-lease-time :: <integer> = 7200;
-  slot reverse-dns? :: <boolean>;
   has-many dhcp-option :: <string>;
 end;
 
+define method collect-dhcp-into-table (n :: <ipv4-network>) => (res :: <collection>)
+  let res = make(<stretchy-vector>);
+  add!(res, with-xml() td(show(n.dhcp?)) end);
+  add!(res, with-xml() td end);
+  add!(res, with-xml() td { do(if(n.dhcp?)
+                                 with-xml()
+                                   a("dhcpd.conf",
+                                     href => concatenate("/dhcp?network=",
+                                                         get-reference(n)))
+                                 end
+                               end) }
+             end);
+  res;
+end;
 define method \< (a :: <network>, b :: <network>)
  => (res :: <boolean>)
   a.cidr < b.cidr;
@@ -48,7 +81,7 @@ define method print-object (network :: <network>, stream :: <stream>)
   format(stream, "Network: CIDR: %s\n", as(<string>, network));
 end;
 
-define method print-isc-dhcpd-file (print-network :: <network>,
+define method print-isc-dhcpd-file (print-network :: <ipv4-network>,
                                     stream :: <stream>)
   => ();
   if (print-network.dhcp?)

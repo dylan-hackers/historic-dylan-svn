@@ -23,7 +23,7 @@ end;
 
 define web-class <a-record> (<object>)
   data host-name :: <string>;
-  data ipv4-address :: <ip-address>;
+  data ipv4-address :: <ipv4-address>;
   data time-to-live :: <integer> = 300;
 end;
 
@@ -82,6 +82,7 @@ define method \< (a :: <nameserver>, b :: <nameserver>)
 end;
 
 define web-class <zone> (<reference-object>)
+  slot used-names :: <string-table> = make(<string-table>);
   data zone-name :: <string>;
   data reverse? :: <boolean> = #f;
   has-many cname :: <cname>;

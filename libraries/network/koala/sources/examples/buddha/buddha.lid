@@ -8,6 +8,7 @@ files: library
        subnet
        cidr
        ipv4
+       ipv6
        host
        zone
        mac

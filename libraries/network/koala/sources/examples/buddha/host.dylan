@@ -3,10 +3,12 @@ author: Hannes Mehnert <hannes@mehnert.org>
 
 define web-class <host> (<object>)
   data host-name :: <string>;
-  data ipv4-address :: <ip-address>;
-  data time-to-live :: <integer> = 300;
   data mac-address :: <mac-address> = as(<mac-address>, "00deadbeef00");
-  has-a subnet;
+  data ipv4-address :: <ipv4-address>;
+  data ipv6-address :: <ipv6-address>, autoconf-v6(object.ipv6-subnet, object.mac-address);
+  data time-to-live :: <integer> = 300;
+  has-a ipv4-subnet;
+  has-a ipv6-subnet = $bottom-v6-subnet;
   has-a zone;
 end;
 

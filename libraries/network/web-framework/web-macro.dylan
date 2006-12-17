@@ -52,7 +52,7 @@ define generic visible? (obj :: <object>) => (res :: <boolean>);
 define method  visible? (obj :: <object>) => (res :: <boolean>);
   #t;
 end;
-define open class <reference-object> (<object>)
+define abstract open class <reference-object> (<object>)
   slot visible? :: <boolean> = #t, init-keyword: visible?:;
 end;
 
@@ -127,6 +127,13 @@ define macro web-reference
               type: "<" ## ?slot-name ## ">",
               getter: ?slot-name,
               setter: ?slot-name ## "-setter"), ... }
+    { has-a ?slot-name:name = ?default:expression; ... }
+    => { make(<slot>,
+              name: ?"slot-name",
+              type: "<" ## ?slot-name ## ">",
+              getter: ?slot-name,
+              setter: ?slot-name ## "-setter",
+              default: ?default), ... }
     { ?other:*; ... }
     => { ... }
 end;
@@ -178,7 +185,7 @@ define macro define-class
     => { slot ?slot-name ## "s" :: <stretchy-vector> = make(<stretchy-vector>) }
     { has-many ?slot-name:name \:: ?slot-type:* }
     => { slot ?slot-name ## "s" :: <stretchy-vector> = make(<stretchy-vector>) }
-    { has-a ?slot-name:name }
+    { has-a ?slot-name:name ?rest:* }
     => { slot ?slot-name /* :: "<" ## ?slot-name ## ">" */,
               init-keyword: ?#"slot-name" }
 end;

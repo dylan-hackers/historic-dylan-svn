@@ -5,6 +5,8 @@ define thread variable *user* = #f;
 
 define constant $privileges = #(#"root", #"noc", #"helpdesk", #"viewer");
 
+define constant $bottom-v6-subnet = make(<bottom-v6-subnet>, cidr: as(<cidr>, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/128"));
+
 define variable *nameserver* = list(make(<nameserver>,
                                          ns-name: "auth-int.congress.ccc.de"),
                                     make(<nameserver>,
@@ -32,7 +34,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
         h1("Welcome to buddha, please create an initial admin-user!"),
         div(id => "content") { 
           do(add-form(<user>, "Users", storage(<user>), refer: "login")),
-          b("Please set the admin flag!")
+          b("Please choose root as access level to be able to add new users!")
         }
   }
 }
@@ -68,9 +70,9 @@ define macro page-definer
              end;
              dynamic-bind(*user* = current-user())
                if (request.request-method = #"get")
-                 respond-to-get(as(<symbol>, ?"name"), request, response)
+                 respond-to-get(?#"name", request, response)
                elseif (request.request-method = #"post")
-                 respond-to-post(as(<symbol>, ?"name"), request, response)
+                 respond-to-post(?#"name", request, response)
                end;
              end;
            end;
@@ -104,6 +106,23 @@ define page logout end;
 define page add end;
 define page admin end;
 
+define page ipv4-network-detail end;
+define page ipv6-network-detail end;
+define page ipv4-subnet-detail end;
+define page ipv6-subnet-detail end;
+
+define method respond-to-get (page == #"ipv4-network-detail", request :: <request>, response :: <response>, #key errors)
+   respond-to-get(#"network-detail", request, response, errors: errors);
+end;
+define method respond-to-get (page == #"ipv6-network-detail", request :: <request>, response :: <response>, #key errors)
+   respond-to-get(#"network-detail", request, response, errors: errors);
+end;
+define method respond-to-get (page == #"ipv4-subnet-detail", request :: <request>, response :: <response>, #key errors)
+   respond-to-get(#"subnet-detail", request, response, errors: errors);
+end;
+define method respond-to-get (page == #"ipv6-subnet-detail", request :: <request>, response :: <response>, #key errors)
+   respond-to-get(#"subnet-detail", request, response, errors: errors);
+end;
 define responder dhcp-responder ("/dhcp")
     (request, response)
     respond-to-get(#"dhcp", request, response);
@@ -482,16 +501,8 @@ define method respond-to-get
                                                  { td { a(show(x.cidr),
                                                            href => concatenate("/network-detail?network=",
                                                                                get-reference(x))) },
-                                                   td(show(x.dhcp?)),
-                                                   td,
-                                                   td { do(if(x.dhcp?)
-                                                            with-xml()
-                                                              a("dhcpd.conf",
-                                                              href => concatenate("/dhcp?network=",
-                                                                                  get-reference(x)))
-                                                            end
-                                                          end) }
-                                                     }
+                                                   do(collect-dhcp-into-table(x))
+                                                 }
                                              end);
                             reset-color(storage(<subnet>));
                             res := concatenate(res,
@@ -501,7 +512,11 @@ define method respond-to-get
                                                            td { a(show(y.cidr),
                                                                   href => concatenate("/subnet-detail?subnet=",
                                                                                       get-reference(y))) },
-                                                           td(show(y.dhcp?)),
+                                                           do(if(instance?(y, <ipv4-subnet>))
+                                                                 with-xml() td(show(y.dhcp?)) end;
+                                                               else
+                                                                 with-xml() td end;
+                                                               end),
                                                            td { a(show(y.vlan.number),
                                                                   href => concatenate("/vlan-detail?vlan=",
                                                                                       get-reference(y.vlan))) },
@@ -524,7 +539,14 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
-  let dnetwork = get-object(get-query-value("network"));
+  let net = get-query-value("network");
+  unless (net)
+    net := get-query-value("ipv4-network");
+  end;
+  unless (net)
+    net := get-query-value("ipv6-network");
+  end;
+  let dnetwork = get-object(net);
   let out = output-stream(response);
   with-buddha-template(out, concatenate("Network ", show(dnetwork), " detail"))
     collect(show-errors(errors));
@@ -540,30 +562,7 @@ define method respond-to-get
                                           value => get-reference(dnetwork))
                                   end)),
                 do(remove-form(dnetwork, storage(<network>), url: "network")),
-                //dhcp options add|edit|remove
-                h2(concatenate("DHCP options for subnet ", show(dnetwork))),
-                do(if (dnetwork.dhcp-options.size > 0)
-                     with-xml()
-                       ul { do(map(method(x)
-                                       with-xml()
-                                         li { text(x), do(remove-form(x, dnetwork.dhcp-options,
-                                                                      url: "network-detail",
-                                                                      xml: with-xml()
-                                                                             input(type => "hidden",
-                                                                                   name => "network",
-                                                                                   value => get-reference(dnetwork))
-                                                                           end)) }
-                                          end
-                                      end, dnetwork.dhcp-options)) }
-                     end;
-                   end),
-                do(add-form(<string>, "dhcp options", dnetwork.dhcp-options,
-                            refer: "network-detail",
-                            xml: with-xml()
-                                   input(type => "hidden",
-                                         name => "network",
-                                         value => get-reference(dnetwork))
-                                 end)),
+                do(dhcp-stuff(dnetwork)),
                 //add subnet with filled-in network?!
                 h2(concatenate("Subnets in network ", show(dnetwork))),
                 table { tr { th("CIDR"), th("dhcp?") },
@@ -573,7 +572,7 @@ define method respond-to-get
                                               { td {a(show(x),
                                                       href => concatenate("/subnet-detail?subnet=",
                                                                           get-reference(x))) },
-                                                td(show(x.dhcp?)) }
+                                                td(if (instance?(x, <ipv4-subnet>)) show(x.dhcp?) else "" end) }
                                          end
                                end, choose(method(y) y.network = dnetwork end, storage(<subnet>)))) }
               }
@@ -599,13 +598,13 @@ define method respond-to-get
                      map(method(x) with-xml()
                                      tr(class => next-color(storage(<subnet>)))
                                        { td { a(show(x.cidr),
-                                                 href => concatenate("/subnet-detail?subnet=",
-                                                                     get-reference(x))) },
-                                          td(show(x.dhcp?)),
-                                          td { a(show(x.vlan),
-                                                 href => concatenate("/vlan-detail?vlan=",
-                                                                     get-reference(x.vlan))) }
-                                         }
+                                                href => concatenate("/subnet-detail?subnet=",
+                                                                    get-reference(x))) },
+                                         do(collect-dhcp-into-table(x)),
+                                         td { a(show(x.vlan),
+                                                href => concatenate("/vlan-detail?vlan=",
+                                                                    get-reference(x.vlan))) }
+                                       }
                                    end
                          end, storage(<subnet>)))
                 }
@@ -619,8 +618,23 @@ define method respond-to-get
      request :: <request>,
      response :: <response>,
      #key errors)
-  let dsubnet = get-object(get-query-value("subnet"));
+  let sub = get-query-value("subnet");
+  unless (sub)
+    sub := get-query-value("ipv4-subnet");
+  end;
+  unless (sub)
+    sub := get-query-value("ipv6-subnet");
+  end;
+  let dsubnet = get-object(sub);
   let out = output-stream(response);
+  if (instance?(dsubnet, <bottom-v6-subnet>))
+    with-buddha-template(out, "No IPv6 for you")
+      collect(with-xml()
+                div(id => "content")
+                { h1("This page was intentionally left blank...")}
+              end);
+    end;
+  else
   with-buddha-template(out, concatenate("Subnet ", show(dsubnet), " detail"))
     collect(show-errors(errors));
     collect(with-xml()
@@ -642,30 +656,7 @@ define method respond-to-get
                                               href => concatenate("/network-detail?network=",
                                                                   get-reference(dsubnet.network))) }
                 },
-                //dhcp options edit|remove
-                h2(concatenate("DHCP options for subnet ", show(dsubnet))),
-                do(if (dsubnet.dhcp-options.size > 0)
-                     with-xml()
-                       ul { do(map(method(x) with-xml()
-                                               li { text(x),
-                                                    do(remove-form(x, dsubnet.dhcp-options,
-                                                                   url: "subnet-detail",
-                                                                   xml: with-xml()
-                                                                          input(type => "hidden",
-                                                                                name => "subnet",
-                                                                                value => get-reference(dsubnet))
-                                                                        end)) }
-                                             end
-                                   end, dsubnet.dhcp-options)) }
-                     end
-                   end),
-                do(add-form(<string>, "dhcp options", dsubnet.dhcp-options,
-                            refer: "subnet-detail",
-                            xml: with-xml()
-                                   input(type => "hidden",
-                                         name => "subnet",
-                                         value => get-reference(dsubnet))
-                                 end)),
+                do(dhcp-stuff(dsubnet)),
                 h2(concatenate("Hosts in subnet ", show(dsubnet))),
                 table { tr { th("Hostname"), th("IP"), th("Mac")},
                         do(reset-color(storage(<host>));
@@ -677,10 +668,11 @@ define method respond-to-get
                                                 td(show(x.ipv4-address)),
                                                 td(show(x.mac-address)) }
                                          end
-                               end, choose(method(y) y.subnet = dsubnet end, storage(<host>)))) }
+                               end, choose(method(y) y.ipv4-subnet = dsubnet end, storage(<host>)))) }
                 //add host with predefined subnet (cause we have the context)?
               }
             end);
+  end;
   end;
 end;
 
@@ -763,7 +755,7 @@ define method respond-to-get
                                        { td { a(show(x.cidr),
                                                  href => concatenate("/subnet-detail?subnet=",
                                                                      get-reference(x))) },
-                                          td(show(x.dhcp?)) }
+                                         do(collect-dhcp-into-table(x)) }
                                    end
                          end, choose(method(x) x.vlan = dvlan end, storage(<subnet>))))
                 }
@@ -786,7 +778,7 @@ define method respond-to-get
               {
                 table
                 {
-                  tr { th("Hostname"), th("IP-Address"), th("Subnet"), th("Zone") },
+                  tr { th("Hostname"), th("IPv4-Address"), th("IPv4-Subnet"), th("IPv6-Address"), th("IPv6-Subnet"), th("Zone") },
                   do(reset-color(storage(<host>));
                      map(method(x) with-xml()
                                      tr(class => next-color(storage(<host>)))
@@ -794,9 +786,13 @@ define method respond-to-get
                                                  href => concatenate("/host-detail?host=",
                                                                      get-reference(x))) },
                                           td (show(x.ipv4-address)),
-                                          td { a(show(x.subnet),
+                                          td { a(show(x.ipv4-subnet),
                                                  href => concatenate("/subnet-detail?subnet=",
-                                                                     get-reference(x.subnet))) },
+                                                                     get-reference(x.ipv4-subnet))) },
+                                          td (if (instance?(x.ipv6-subnet, <bottom-v6-subnet>)) "" else show(x.ipv6-address) end),
+                                          td { a(show(x.ipv6-subnet),
+                                                 href => concatenate("/subnet-detail?subnet=",
+                                                                     get-reference(x.ipv6-subnet))) },
                                           td { a(show(x.zone),
                                                  href => concatenate("/zone-detail?zone=",
                                                                      get-reference(x.zone))) }
@@ -830,9 +826,12 @@ define method respond-to-get
                                           value => get-reference(host))
                                   end)),
                 do(remove-form(host, storage(<host>), url: "host")),
-                ul { li { text("Subnet "), a(show(host.subnet),
-                                             href => concatenate("/subnet-detail?subnet=",
-                                                                 get-reference(host.subnet))) },
+                ul { li { text("IPv4 Subnet "), a(show(host.ipv4-subnet),
+                                                  href => concatenate("/subnet-detail?subnet=",
+                                                                      get-reference(host.ipv4-subnet))) },
+                     li { text("IPv6 Subnet "), a(show(host.ipv6-subnet),
+                                                  href => concatenate("/subnet-detail?subnet=",
+                                                                      get-reference(host.ipv6-subnet))) },
                      li { text("Zone "), a(show(host.zone),
                                            href => concatenate("/zone-detail?zone=",
                                                                get-reference(host.zone))) }
