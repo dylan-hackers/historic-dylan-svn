@@ -660,15 +660,20 @@ define method respond-to-get
                 h2(concatenate("Hosts in subnet ", show(dsubnet))),
                 table { tr { th("Hostname"), th("IP"), th("Mac")},
                         do(reset-color(storage(<host>));
+                           let (ref-slot, ip) = if (instance?(dsubnet, <ipv4-subnet>))
+                                                  values(ipv4-subnet, ipv4-address);
+                                                elseif (instance?(dsubnet, <ipv6-subnet>))
+                                                  values(ipv6-subnet, ipv6-address);
+                                                end;
                            map(method(x) with-xml()
                                            tr(class => next-color(storage(<host>)))
                                              { td {a(x.host-name,
                                                       href => concatenate("/host-detail?host=",
                                                                           get-reference(x))) },
-                                                td(show(x.ipv4-address)),
+                                                td(show(x.ip)),
                                                 td(show(x.mac-address)) }
                                          end
-                               end, choose(method(y) y.ipv4-subnet = dsubnet end, storage(<host>)))) }
+                               end, choose(method(y) y.ref-slot = dsubnet end, storage(<host>)))) }
                 //add host with predefined subnet (cause we have the context)?
               }
             end);
@@ -1011,8 +1016,37 @@ define method respond-to-get
                                           name => "zone",
                                           value => get-reference(dzone))
                                   end)),
+                h2("AAAA-records"),
+                do(if (dzone.aaaa-records.size > 0)
+                     with-xml()
+                       table { tr { th("Hostname"), th("IP"), th("TTL"), th("Remove") },
+                              do(reset-color(dzone.a-records);
+                                 map(method(x) with-xml()
+                                                 tr(class => next-color(dzone.aaaa-records))
+                                                   {
+                                                    td(x.host-name),
+                                                    td(show(x.ipv6-address)),
+                                                    td(show(x.time-to-live)),
+                                                    td { do(remove-form(x, dzone.a-records,
+                                                                         url: "zone-detail",
+                                                                         xml: with-xml()
+                                                                           input(type => "hidden",
+                                                                                 name => "zone",
+                                                                                 value => get-reference(dzone))
+                                                                         end)) } }
+                                               end
+                                     end, dzone.aaaa-records)) }
+                     end
+                   end),
+                do(add-form(<aaaa-record>, #f, dzone.aaaa-records,
+                            refer: "zone-detail",
+                            xml: with-xml()
+                                    input(type => "hidden",
+                                          name => "zone",
+                                          value => get-reference(dzone))
+                                  end)),
                 h2("Hosts"),
-                table { tr { th("Hostname"), th("IP"), th("TTL") },
+                table { tr { th("Hostname"), th("IPv4"), th("IPv6"), th("TTL") },
                         do(reset-color(storage(<host>));
                            map(method(x) with-xml()
                                            tr(class => next-color(storage(<host>)))
@@ -1020,6 +1054,7 @@ define method respond-to-get
                                                        href => concatenate("/host-detail?host=",
                                                                            get-reference(x))) },
                                                 td(show(x.ipv4-address)),
+                                                td(show(x.ipv6-address)),
                                                 td(show(x.time-to-live)) }
                                          end
                                end, choose(method(y) y.zone = dzone end, storage(<host>)))) } }

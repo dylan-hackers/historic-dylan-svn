@@ -42,6 +42,22 @@ define method \< (a :: <a-record>, b :: <a-record>)
   a.host-name < b.host-name
 end;
 
+define web-class <aaaa-record> (<object>)
+  data host-name :: <string>;
+  data ipv6-address :: <ipv6-address>;
+  data time-to-live :: <integer> = 300;
+end;
+
+define method as (class == <string>, a :: <aaaa-record>)
+ => (res :: <string>)
+  concatenate(a.host-name, " ", as(<string>, a.ipv6-address));
+end;
+
+define method \< (a :: <aaaa-record>, b :: <aaaa-record>)
+ => (res :: <boolean>)
+  a.host-name < b.host-name;
+end;
+
 define web-class <mail-exchange> (<object>)
   data mx-name :: <string>;
   data priority :: <integer> = 23;
@@ -96,6 +112,7 @@ define web-class <zone> (<reference-object>)
   has-many nameserver :: <nameserver>;
   has-many mail-exchange :: <mail-exchange>;
   has-many a-record :: <a-record>;
+  has-many aaaa-record :: <aaaa-record>;
   //has-many text :: <string>;
 end;
 
@@ -132,50 +149,6 @@ define method \< (a :: <zone>, b :: <zone>) => (res :: <boolean>)
     end
   end
 end;
-
-/*
-define method print-bind-zone-file (print-zone :: <zone>, stream :: <stream>)
-  format(stream, "@\tIN\tSOA\t%s.\t%s. (\n",
-         print-zone.nameservers[0],
-         print-zone.hostmaster);
-  format(stream, "\t\t%d\t; Serial\n", print-zone.serial);
-  format(stream, "\t\t%d\t; Refresh\n", print-zone.refresh);
-  format(stream, "\t\t%d\t; Retry\n", print-zone.retry);
-  format(stream, "\t\t%d\t; Expire\n", print-zone.expire);
-  format(stream, "\t\t%d )\t; Minimum\n\n", print-zone.minimum);
-  if (print-zone.reverse?)
-    do(method(x)
-           format(stream, "\tIN\tNS\t%s. \n", x)
-       end, print-zone.nameservers);
-    do(method(x)
-           format(stream, "%d\tIN\tPTR\n%s.%s.\n",
-                  x.ipv4-address[3],
-                  x.host-name,
-                  print-zone.zone-name)
-       end, choose(method(x)
-                       ip-in-net?(parse-cidr(print-zone.zone-name),
-                                  x.ipv4-address)
-                   end, storage(<host>)));
-  else
-    do(method(x)
-           format(stream, "\tIN\tNS\t%s. \n", x)
-       end, print-zone.nameservers);
-    do(method(x)
-           format(stream, "\tIN\tMX\t%d\t%s.\n", head(x), tail(x))
-       end, print-zone.mail-exchanges);
-    do(method(x)
-           format(stream, "%s\tIN\tA\t%s\n",
-                  x.host-name,
-                  as(<string>, x.ipv4-address))
-       end, choose(method(x)
-                       x.zone = print-zone
-                   end, storage(<host>)));
-    do(method(x)
-           format(stream, "%s\tCNAME\t%s\n", source(x), target(x))
-       end, print-zone.cnames);
-  end;
-end;
-*/
 
 define method print-tinydns-zone-file (print-zone :: <zone>,
                                        stream :: <stream>,
@@ -223,6 +196,13 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
                   print-zone.zone-name,
                   as(<string>, x.ipv4-address),
                   x.time-to-live);
+           unless (x.ipv6-address = $bottom-v6-address)
+             format(stream, "3%s.%s:%s:%d\n",
+                    x.host-name,
+                    print-zone.zone-name,
+                    as-dns-string(x.ipv6-address),
+                    x.time-to-live);
+           end;
        end, choose(method(x)
                        x.zone = print-zone
                    end, storage(<host>)));
@@ -234,15 +214,24 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
                   as(<string>, x.ipv4-address),
                   x.time-to-live);
        end, print-zone.a-records);
+    //AAAA
+    do(method(x)
+         format(stream, "3%s.%s:%s:%d\n",
+                x.host-name,
+                print-zone.zone-name,
+                as-dns-string(x.ipv6-address),
+                x.time-to-live);
+       end, print-zone.aaaa-records);
     //CNAME
     do(method(x)
            format(stream, "C%s.%s:%s.%s\n",
                   source(x), print-zone.zone-name, target(x), print-zone.zone-name);
        end, print-zone.cnames);
     //a records for dynamic PTR records
-    let ip = storage(<network>)[0].cidr.cidr-network-address;
+    let rev-net = storage(<network>)[0].cidr;
+    let ip = rev-net.cidr-network-address;
     if (reverse-table)
-      while (ip < broadcast-address(storage(<network>)[0].cidr))
+      while (ip < broadcast-address(rev-net))
         unless (element(reverse-table, as(<string>, ip), default: #f))
           format(stream, "+%s.%s:%s:%d\n",
                  concatenate("hacker-", get-ptr(ip)),
