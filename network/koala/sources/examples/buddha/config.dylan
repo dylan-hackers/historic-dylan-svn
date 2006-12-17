@@ -102,7 +102,12 @@ define method check (host :: <host>, #key test-result = 0)
   elseif (size(choose(method(x) x.ipv4-address = host.ipv4-address end,
                       choose(method(x) x.ipv4-subnet = host.ipv4-subnet end, storage(<host>)))) > test-result)
     signal(make(<web-error>,
-                error: "Host with same IP address already exists in subnet"));
+                error: "Host with same IPv4 address already exists in subnet"));
+  elseif (host.ipv6-address ~= $bottom-v6-address &
+          size(choose(method(x) x.ipv6-address = host.ipv6-address end,
+                      choose(method(x) x.ipv6-subnet = host.ipv6-subnet end, storage(<host>)))) > test-result)
+    signal(make(<web-error>,
+                error: "Host with same IPv6 address already exists in subnet"));
   elseif (host.ipv4-subnet.dhcp?
             & size(choose(method(x) x.mac-address = host.mac-address end,
                             choose(method(x) x.ipv4-subnet = host.ipv4-subnet end,
@@ -157,7 +162,7 @@ define method check (network :: <network>, #key test-result = 0)
   end if;
 end;
 
-define method check (subnet :: <ipv4-subnet>, #key test-result = 0)
+define method check (subnet :: <subnet>, #key test-result = 0)
  => (res :: <boolean>)
   unless (network-address(subnet.cidr) = base-network-address(subnet.cidr))
     signal(make(<web-form-warning>,
@@ -166,50 +171,7 @@ define method check (subnet :: <ipv4-subnet>, #key test-result = 0)
   end;
   if (every?(method(x) x = subnet end, overlaps(subnet)))
     if (subnet-in-network?(subnet))
-      if (subnet.dhcp-start > subnet.dhcp-end)
-        signal(make(<web-error>,
-                    error: "DHCP start greater than DHCP end"));
-      elseif (subnet.dhcp-start = broadcast-address(subnet.cidr))
-        signal(make(<web-error>,
-                    error: "DHCP start can't be broadcast address"))
-      elseif (subnet.dhcp-start = network-address(subnet.cidr))
-        signal(make(<web-error>,
-                    error: "DHCP start can't be network address"))
-      elseif (subnet.dhcp-end = broadcast-address(subnet.cidr))
-        signal(make(<web-error>,
-                    error: "DHCP end can't be broadcast address"))
-      elseif (subnet.dhcp-end = network-address(subnet.cidr))
-        signal(make(<web-error>,
-                    error: "DHCP end can't be network address"))
-      elseif (subnet.dhcp-router = broadcast-address(subnet.cidr))
-        signal(make(<web-error>,
-                    error: "DHCP router can't be broadcast address"))
-      elseif (subnet.dhcp-router = network-address(subnet.cidr))
-        signal(make(<web-error>,
-                    error: "DHCP router can't be network address"))
-      end;
-      if (ip-in-net?(subnet, subnet.dhcp-start))
-        if (ip-in-net?(subnet, subnet.dhcp-end))
-          if (ip-in-net?(subnet, subnet.dhcp-router))
-            if ((subnet.dhcp-router > subnet.dhcp-start)
-                  & (subnet.dhcp-router < subnet.dhcp-end))
-              signal(make(<web-error>,
-                          error: "Router has to be outside of dhcp-range"));
-            else
-              #t;
-            end if;
-          else
-            signal(make(<web-error>,
-                        error: "DHCP router not in subnet"));
-          end
-        else
-          signal(make(<web-error>,
-                      error: "DHCP end not in subnet"));
-        end
-      else
-        signal(make(<web-error>,
-                    error: "DHCP start not in subnet"));
-      end
+      #t;
     else
       signal(make(<web-error>,
                   error: "Subnet not in a defined network"));
@@ -218,6 +180,54 @@ define method check (subnet :: <ipv4-subnet>, #key test-result = 0)
     signal(make(<web-error>,
                 error: "Subnet overlaps with another subnet"));
   end if;
+end;
+define method check (subnet :: <ipv4-subnet>, #next next-method, #key test-result = 0)
+ => (res :: <boolean>)
+  next-method();
+  if (subnet.dhcp-start > subnet.dhcp-end)
+    signal(make(<web-error>,
+                error: "DHCP start greater than DHCP end"));
+  elseif (subnet.dhcp-start = broadcast-address(subnet.cidr))
+    signal(make(<web-error>,
+                error: "DHCP start can't be broadcast address"))
+  elseif (subnet.dhcp-start = network-address(subnet.cidr))
+    signal(make(<web-error>,
+                error: "DHCP start can't be network address"))
+  elseif (subnet.dhcp-end = broadcast-address(subnet.cidr))
+    signal(make(<web-error>,
+                error: "DHCP end can't be broadcast address"))
+  elseif (subnet.dhcp-end = network-address(subnet.cidr))
+    signal(make(<web-error>,
+                error: "DHCP end can't be network address"))
+  elseif (subnet.dhcp-router = broadcast-address(subnet.cidr))
+    signal(make(<web-error>,
+                error: "DHCP router can't be broadcast address"))
+  elseif (subnet.dhcp-router = network-address(subnet.cidr))
+    signal(make(<web-error>,
+                error: "DHCP router can't be network address"))
+  end;
+  if (ip-in-net?(subnet, subnet.dhcp-start))
+    if (ip-in-net?(subnet, subnet.dhcp-end))
+      if (ip-in-net?(subnet, subnet.dhcp-router))
+        if ((subnet.dhcp-router > subnet.dhcp-start)
+          & (subnet.dhcp-router < subnet.dhcp-end))
+          signal(make(<web-error>,
+                      error: "Router has to be outside of dhcp-range"));
+        else
+          #t;
+        end if;
+      else
+        signal(make(<web-error>,
+                    error: "DHCP router not in subnet"));
+      end
+    else
+      signal(make(<web-error>,
+                  error: "DHCP end not in subnet"));
+    end
+  else
+    signal(make(<web-error>,
+                error: "DHCP start not in subnet"));
+  end
 end;
 
 define method print-isc-dhcpd-file (config :: <collection>, stream :: <stream>)

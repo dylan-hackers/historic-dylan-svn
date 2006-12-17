@@ -71,17 +71,23 @@ define method as (class == <ipv6-address>, data :: <string>) => (res :: <ipv6-ad
   end;
 end;
 
+define method as-dns-string (ip :: <ipv6-address>) => (res)
+  let res = as(<string>, ip);
+  if (res ~= "no v6 address assigned")
+    apply(concatenate, split(res, ':'));
+  end;
+end;
 define method as (class == <string>, ip :: <ipv6-address>) => (res :: <string>)
   if (ip = $bottom-v6-address)
     "no v6 address assigned"
   else
-  let strings = make(<list>);
-  for (i from 0 below 16 by 2)
-    let count = ash(ip[i], 8) + ip[i + 1]; 
-    strings := add!(strings, integer-to-string(count, base: 16));
+    let strings = make(<list>);
+    for (i from 0 below 16 by 2)
+      let count = ash(ip[i], 8) + ip[i + 1]; 
+      strings := add!(strings, integer-to-string(count, base: 16));
+    end;
+    reduce1(method(x, y) concatenate(x, ":", y) end, reverse(strings));
   end;
-  reduce1(method(x, y) concatenate(x, ":", y) end, reverse(strings));
-end;
 end;
 
 define constant $bottom-v6-address = as(<ipv6-address>, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
