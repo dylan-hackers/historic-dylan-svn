@@ -151,10 +151,6 @@ define method check (network :: <network>, #key test-result = 0)
     network.cidr.cidr-network-address := base-network-address(network.cidr);
   end;
   if (every?(method(x) x = network end, overlaps(network)))
-    if (get-query-value("reverse-dns?"))
-      //add reverse delegated zones...
-      add-reverse-zones(network);
-    end;
     #t;
   else
     signal(make(<web-error>,
@@ -249,10 +245,7 @@ define method print-bind-zone-file
 end;
 
 define method print-tinydns-zone-file
-    (config :: <collection>, stream :: <stream>, #key reverse-table)
+    (config :: <collection>, stream :: <stream>)
  => ()
-  let reverse-table = make(<string-table>);
-  for (zone in config)
-    print-tinydns-zone-file(zone, stream, reverse-table: reverse-table)
-  end;
+  do(rcurry(print-tinydns-zone-file, stream), config)
 end;

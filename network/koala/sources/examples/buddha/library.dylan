@@ -14,6 +14,7 @@ define library buddha
   use xml-parser;
   use dylan;
   use web-framework;
+  use xmpp-bot;
   export buddha;
 end;
 
@@ -58,4 +59,5 @@ define module buddha
   use users;
   use change;
   use utils;
+  use xmpp-bot;
 end;

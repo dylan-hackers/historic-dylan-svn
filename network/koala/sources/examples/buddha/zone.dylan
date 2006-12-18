@@ -135,8 +135,7 @@ define method \< (a :: <zone>, b :: <zone>) => (res :: <boolean>)
 end;
 
 define method print-tinydns-zone-file (print-zone :: <zone>,
-                                       stream :: <stream>,
-                                       #key reverse-table)
+                                       stream :: <stream>)
   //Zfqdn:mname:rname:ser:ref:ret:exp:min:ttl:timestamp:lo
   format(stream, "Z%s:%s.:%s.\n", //:%d:%d:%d:%d:%d:%d\n",
          print-zone.zone-name, print-zone.nameservers[0].ns-name,
@@ -144,90 +143,59 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
 //         print-zone.refresh, print-zone.retry,
 //         print-zone.expire, print-zone.minimum,
 //         print-zone.time-to-live);
+  //reverse zones for networks
+  do(method(x)
+       format(stream, "Z%s:%s.:%s.\n",
+              x, print-zone.nameservers[0].ns-name, print-zone.hostmaster);
+     end, apply(concatenate, map(get-reverse-cidrs, storage(<network>))));
   //nameserver
   do(method(x)
          format(stream, "&%s::%s.\n", print-zone.zone-name, x.ns-name)
      end, print-zone.nameservers);
-  if (print-zone.reverse?)
-    //PTR
-    if (reverse-table)
-      let net = parse-cidr(print-zone.zone-name);
-      let ip = net.cidr.cidr-network-address;
-      while (ip < broadcast-address(net.cidr))
-        let reverse-name = element(reverse-table,
-                                   as(<string>, ip),
-                                   default: concatenate("hacker-", get-ptr(ip)));
-        format(stream, "^%d.%s:%s.%s:%d\n",
-               ip[3],
-               print-zone.zone-name,
-               reverse-name,
-               "congress.ccc.de",
-               300);
-        ip := ip + 1;
-      end;
-    end;
-  else
-    //MX
-    do(method(x)
-           format(stream, "@%s::%s.%s:%d\n",
-                  print-zone.zone-name, mx-name(x), print-zone.zone-name, priority(x));
-       end, print-zone.mail-exchanges);
-    //Hosts
-    do(method(x)
-           if (reverse-table) reverse-table[as(<string>, x.ipv4-address)] := x.host-name end;
-           format(stream, "=%s.%s:%s:%d\n",
-                  x.host-name,
-                  print-zone.zone-name,
-                  as(<string>, x.ipv4-address),
-                  x.time-to-live);
-           unless (x.ipv6-address = $bottom-v6-address)
-             format(stream, "6%s.%s:%s:%d\n",
-                    x.host-name,
-                    print-zone.zone-name,
-                    as-dns-string(x.ipv6-address),
-                    x.time-to-live);
-           end;
-       end, choose(method(x)
-                       x.zone = print-zone
-                   end, storage(<host>)));
-    //A
-    do(method(x)
-         unless (x.ipv4-address = $bottom-v4-address)
-           format(stream, "+%s.%s:%s:%d\n",
-                  x.host-name,
-                  print-zone.zone-name,
-                  as(<string>, x.ipv4-address),
-                  x.time-to-live);
-         end;
-         unless (x.ipv6-address = $bottom-v6-address)
-           format(stream, "3%s.%s:%s:%d\n",
-                  x.host-name,
-                  print-zone.zone-name,
-                  as-dns-string(x.ipv6-address),
-                  x.time-to-live);
-         end;
-       end, print-zone.host-records);
-    //CNAME
-    do(method(x)
-           format(stream, "C%s.%s:%s.%s\n",
-                  source(x), print-zone.zone-name, target(x), print-zone.zone-name);
-       end, print-zone.cnames);
-    //a records for dynamic PTR records
-    let rev-net = storage(<network>)[0].cidr;
-    let ip = rev-net.cidr-network-address;
-    if (reverse-table)
-      while (ip < broadcast-address(rev-net))
-        unless (element(reverse-table, as(<string>, ip), default: #f))
-          format(stream, "+%s.%s:%s:%d\n",
-                 concatenate("hacker-", get-ptr(ip)),
-                 print-zone.zone-name,
-                 ip,
-                 300);
-        end;
-        ip := ip + 1;
-      end;
-    end;
-  end;
+  //MX
+  do(method(x)
+       format(stream, "@%s::%s.%s:%d\n",
+              print-zone.zone-name, mx-name(x), print-zone.zone-name, priority(x));
+     end, print-zone.mail-exchanges);
+  //Hosts
+  do(method(x)
+       format(stream, "=%s.%s:%s:%d\n",
+              x.host-name,
+              print-zone.zone-name,
+              as(<string>, x.ipv4-address),
+              x.time-to-live);
+       unless (x.ipv6-address = $bottom-v6-address)
+         format(stream, "6%s.%s:%s:%d\n",
+                x.host-name,
+                print-zone.zone-name,
+                as-dns-string(x.ipv6-address),
+                x.time-to-live);
+       end;
+     end, choose(method(x)
+                   x.zone = print-zone
+                 end, storage(<host>)));
+  //A
+  do(method(x)
+       unless (x.ipv4-address = $bottom-v4-address)
+         format(stream, "+%s.%s:%s:%d\n",
+                x.host-name,
+                print-zone.zone-name,
+                as(<string>, x.ipv4-address),
+                x.time-to-live);
+       end;
+       unless (x.ipv6-address = $bottom-v6-address)
+         format(stream, "3%s.%s:%s:%d\n",
+                x.host-name,
+                print-zone.zone-name,
+                as-dns-string(x.ipv6-address),
+                x.time-to-live);
+       end;
+     end, print-zone.host-records);
+  //CNAME
+  do(method(x)
+       format(stream, "C%s.%s:%s.%s\n",
+              source(x), print-zone.zone-name, target(x), print-zone.zone-name);
+     end, print-zone.cnames);
 end;
 
 define method parse-cidr (zone-name :: <string>) => (network :: <network>)

@@ -184,3 +184,8 @@ define method string-to-netmask (string :: <string>)
   end block;
   mask;
 end;
+
+define method ip-address-to-string (ip :: <ipv4-address>, index :: <integer>) => (res :: <string>)
+  concatenate(integer-to-string(ip[index]), ".");
+end;
+

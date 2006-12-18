@@ -81,6 +81,14 @@ define method print-object (network :: <network>, stream :: <stream>)
   format(stream, "Network: CIDR: %s\n", as(<string>, network));
 end;
 
+define function get-reverse-cidrs (network :: <network>)
+  let mask = 8 * (ceiling/(network.cidr.cidr-netmask, 8));
+  if (mask ~= network.cidr.cidr-netmask)
+    map(cidr-to-reverse-zone, split-cidr(network.cidr, mask));
+  else
+    list(cidr-to-reverse-zone(network.cidr))
+  end;
+end;
 define method print-isc-dhcpd-file (print-network :: <ipv4-network>,
                                     stream :: <stream>)
   => ();
