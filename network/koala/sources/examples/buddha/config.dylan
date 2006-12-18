@@ -43,7 +43,7 @@ define method check-in-context (tzone :: <zone>, tcname :: <cname>)
   if (any?(method(x) x.source = tcname.source end, tzone.cnames))
     signal(make(<web-error>,
                 error: "Same A record already exists"));
-  elseif (any?(method(x) x.host-name = tcname.source end, tzone.a-records))
+  elseif (any?(method(x) x.host-name = tcname.source end, tzone.host-records))
     signal(make(<web-error>,
                 error: "Same A record already exists"));
   elseif (any?(method(x) x.host-name = tcname.source end,
@@ -55,12 +55,12 @@ define method check-in-context (tzone :: <zone>, tcname :: <cname>)
   end;
 end;
 
-define method check-in-context (tzone :: <zone>, a-record :: <a-record>) 
+define method check-in-context (tzone :: <zone>, a-record :: <host-record>) 
  => (res :: <boolean>)
   if (any?(method(x) x.source = a-record.host-name end, tzone.cnames))
     signal(make(<web-error>,
                 error: "Same A record already exists"));
-  elseif (any?(method(x) x.host-name = a-record.host-name end, tzone.a-records))
+  elseif (any?(method(x) x.host-name = a-record.host-name end, tzone.host-records))
     signal(make(<web-error>,
                 error: "Same A record already exists"));
   elseif (any?(method(x) x.host-name = a-record.host-name end,
@@ -92,7 +92,7 @@ define method check (host :: <host>, #key test-result = 0)
     signal(make(<web-error>,
                 error: "Host with same name already exists in zone"));
   elseif (size(choose(method(x) x.host-name = host.host-name end,
-                      host.zone.a-records)) > 0)
+                      host.zone.host-records)) > 0)
     signal(make(<web-error>,
                 error: "A record for host already exists in zone"));
   elseif (size(choose(method(x) x.target = host.host-name end,

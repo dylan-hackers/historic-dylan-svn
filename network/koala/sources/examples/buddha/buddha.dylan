@@ -988,46 +988,18 @@ define method respond-to-get
                                           value => get-reference(dzone))
                                   end)),
                 h2("A-records"),
-                do(if (dzone.a-records.size > 0)
+                do(if (dzone.host-records.size > 0)
                      with-xml()
-                       table { tr { th("Hostname"), th("IP"), th("TTL"), th("Remove") },
-                              do(reset-color(dzone.a-records);
+                       table { tr { th("Hostname"), th("IPv4"), th("IPv6"), th("TTL"), th("Remove") },
+                              do(reset-color(dzone.host-records);
                                  map(method(x) with-xml()
-                                                 tr(class => next-color(dzone.a-records))
+                                                 tr(class => next-color(dzone.host-records))
                                                    {
                                                     td(x.host-name),
                                                     td(show(x.ipv4-address)),
-                                                    td(show(x.time-to-live)),
-                                                    td { do(remove-form(x, dzone.a-records,
-                                                                         url: "zone-detail",
-                                                                         xml: with-xml()
-                                                                           input(type => "hidden",
-                                                                                 name => "zone",
-                                                                                 value => get-reference(dzone))
-                                                                         end)) } }
-                                               end
-                                     end, dzone.a-records)) }
-                     end
-                   end),
-                do(add-form(<a-record>, #f, dzone.a-records,
-                            refer: "zone-detail",
-                            xml: with-xml()
-                                    input(type => "hidden",
-                                          name => "zone",
-                                          value => get-reference(dzone))
-                                  end)),
-                h2("AAAA-records"),
-                do(if (dzone.aaaa-records.size > 0)
-                     with-xml()
-                       table { tr { th("Hostname"), th("IP"), th("TTL"), th("Remove") },
-                              do(reset-color(dzone.a-records);
-                                 map(method(x) with-xml()
-                                                 tr(class => next-color(dzone.aaaa-records))
-                                                   {
-                                                    td(x.host-name),
                                                     td(show(x.ipv6-address)),
                                                     td(show(x.time-to-live)),
-                                                    td { do(remove-form(x, dzone.a-records,
+                                                    td { do(remove-form(x, dzone.host-records,
                                                                          url: "zone-detail",
                                                                          xml: with-xml()
                                                                            input(type => "hidden",
@@ -1035,10 +1007,10 @@ define method respond-to-get
                                                                                  value => get-reference(dzone))
                                                                          end)) } }
                                                end
-                                     end, dzone.aaaa-records)) }
+                                     end, dzone.host-records)) }
                      end
                    end),
-                do(add-form(<aaaa-record>, #f, dzone.aaaa-records,
+                do(add-form(<host-record>, #f, dzone.host-records,
                             refer: "zone-detail",
                             xml: with-xml()
                                     input(type => "hidden",
