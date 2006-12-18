@@ -21,41 +21,26 @@ define method \< (a :: <cname>, b :: <cname>)
   a.source < b.source
 end;
 
-define web-class <a-record> (<object>)
+define web-class <host-record> (<object>)
   data host-name :: <string>;
-  data ipv4-address :: <ipv4-address>;
+  data ipv4-address :: <ipv4-address> = $bottom-v4-address;
+  data ipv6-address :: <ipv6-address> = $bottom-v6-address;
   data time-to-live :: <integer> = 300;
 end;
 
-define method print-object (a :: <a-record>, stream :: <stream>)
+define method print-object (a :: <host-record>, stream :: <stream>)
  => ();
   format(stream, "A: %s\n", as(<string>, a));
 end method;
 
-define method as (class == <string>, a :: <a-record>)
+define method as (class == <string>, a :: <host-record>)
  => (res :: <string>)
-  concatenate(a.host-name, " ", as(<string>, a.ipv4-address));
+  concatenate(a.host-name, " ", as(<string>, a.ipv4-address), " ", as(<string>, a.ipv6-address));
 end;
 
-define method \< (a :: <a-record>, b :: <a-record>)
+define method \< (a :: <host-record>, b :: <host-record>)
  => (res :: <boolean>)
   a.host-name < b.host-name
-end;
-
-define web-class <aaaa-record> (<object>)
-  data host-name :: <string>;
-  data ipv6-address :: <ipv6-address>;
-  data time-to-live :: <integer> = 300;
-end;
-
-define method as (class == <string>, a :: <aaaa-record>)
- => (res :: <string>)
-  concatenate(a.host-name, " ", as(<string>, a.ipv6-address));
-end;
-
-define method \< (a :: <aaaa-record>, b :: <aaaa-record>)
- => (res :: <boolean>)
-  a.host-name < b.host-name;
 end;
 
 define web-class <mail-exchange> (<object>)
@@ -111,8 +96,7 @@ define web-class <zone> (<reference-object>)
   data minimum :: <integer> = 300;
   has-many nameserver :: <nameserver>;
   has-many mail-exchange :: <mail-exchange>;
-  has-many a-record :: <a-record>;
-  has-many aaaa-record :: <aaaa-record>;
+  has-many host-record :: <host-record>;
   //has-many text :: <string>;
 end;
 
@@ -191,13 +175,13 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
     //Hosts
     do(method(x)
            if (reverse-table) reverse-table[as(<string>, x.ipv4-address)] := x.host-name end;
-           format(stream, "+%s.%s:%s:%d\n",
+           format(stream, "=%s.%s:%s:%d\n",
                   x.host-name,
                   print-zone.zone-name,
                   as(<string>, x.ipv4-address),
                   x.time-to-live);
            unless (x.ipv6-address = $bottom-v6-address)
-             format(stream, "3%s.%s:%s:%d\n",
+             format(stream, "6%s.%s:%s:%d\n",
                     x.host-name,
                     print-zone.zone-name,
                     as-dns-string(x.ipv6-address),
@@ -208,20 +192,21 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
                    end, storage(<host>)));
     //A
     do(method(x)
+         unless (x.ipv4-address = $bottom-v4-address)
            format(stream, "+%s.%s:%s:%d\n",
                   x.host-name,
                   print-zone.zone-name,
                   as(<string>, x.ipv4-address),
                   x.time-to-live);
-       end, print-zone.a-records);
-    //AAAA
-    do(method(x)
-         format(stream, "3%s.%s:%s:%d\n",
-                x.host-name,
-                print-zone.zone-name,
-                as-dns-string(x.ipv6-address),
-                x.time-to-live);
-       end, print-zone.aaaa-records);
+         end;
+         unless (x.ipv6-address = $bottom-v6-address)
+           format(stream, "3%s.%s:%s:%d\n",
+                  x.host-name,
+                  print-zone.zone-name,
+                  as-dns-string(x.ipv6-address),
+                  x.time-to-live);
+         end;
+       end, print-zone.host-records);
     //CNAME
     do(method(x)
            format(stream, "C%s.%s:%s.%s\n",

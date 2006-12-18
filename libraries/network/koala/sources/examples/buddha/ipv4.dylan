@@ -124,13 +124,15 @@ end;
 // conversions (string, ip, integer)
 define method as (class == <string>, ip-address :: <ipv4-address>)
  => (res :: <string>)
-  let strings = make(<list>);
-  for (ele in ip-address)
-    strings := add(strings, integer-to-string(ele));
+  if (ip-address = $bottom-v4-address)
+    "no ipv4-address"
+  else
+    let strings = make(<list>);
+    for (ele in ip-address)
+      strings := add(strings, integer-to-string(ele));
+    end;
+    reduce1(method(x, y) concatenate(x, ".", y) end, reverse(strings));
   end;
-  reduce1(method(x, y)
-              concatenate(x, ".", y)
-          end, reverse(strings));
 end;
 
 define method as (class :: subclass(<ip-address>), netmask :: <integer>)
@@ -158,6 +160,7 @@ define method as (class == <ipv4-address>, string :: <string>)
   make(<ipv4-address>, data: res);
 end;
 
+define constant $bottom-v4-address = make(<ipv4-address>, data: as(<byte-vector>, #(0, 0, 0, 0)));
 
 define method string-to-netmask (string :: <string>)
  => (netmask :: <integer>)
