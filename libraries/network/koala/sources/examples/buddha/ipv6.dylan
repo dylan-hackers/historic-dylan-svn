@@ -93,4 +93,9 @@ end;
 define constant $bottom-v6-address = as(<ipv6-address>, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
 
 
-
+define method ip-address-to-string (ip :: <ipv6-address>, index :: <integer>) => (res :: <string>)
+  let s1 = integer-to-string(ip[index], base: 16, size: 2);
+  concatenate(copy-sequence(s1, start: 1), ".",
+              copy-sequence(s1, end: 1), ".");
+end;  
+  

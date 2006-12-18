@@ -117,11 +117,15 @@ end;
 define method cidr-to-reverse-zone (cidr :: <cidr>)
   => (zone-name :: <string>)
   let res = "";
-  for (i from 2 to 0 by -1)
-    res := concatenate(res,
-                       integer-to-string(cidr.cidr-network-address[i]),
-                       ".")
+  let nums = truncate/(cidr.cidr-netmask, 8);
+  for (i from nums - 1 to 0 by -1)
+    res := concatenate(res, ip-address-to-string(cidr.cidr-network-address, i))
   end;
-  concatenate(res, "in-addr.arpa.");
+  concatenate(res, if (instance?(cidr.cidr-network-address, <ipv4-address>))
+                     "in-addr.arpa."
+                   elseif (instance?(cidr.cidr-network-address, <ipv6-address>))
+                     "ip6.arpa"
+                   end);
 end;
+
 

@@ -322,17 +322,6 @@ define method respond-to-get (page == #"add",
                 do(add-form(real-type,
                             #f,
                             parent-object,
-                            xml: if (real-type = <network>)
-                                   with-xml()
-                                     div { text("generate reverse zone"),
-                                           input(type => "checkbox",
-                                                 name => "reverse-dns?",
-                                                 value => "reverse-dns?")
-                                          }
-                                   end
-                                 else
-                                   #f
-                                 end,
                             fill-from-request: errors))
               }
             end);
@@ -1181,7 +1170,27 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
   format(out, "%=", page);
 end;
 
+/*define method save (change :: <change>) => ()
+  next-method();
+  block ()
+    broadcast-message(*xmpp-bot*, as(<string>, with-xml() html { do(print-xml(change)) } end));
+  exception (e :: <condition>)
+    xmpp-worker();
+  end;
+end;
+
+define variable *xmpp-bot* = #f;
+
+define function xmpp-worker ()
+  block()
+    *xmpp-bot* := make(<xmpp-bot>, jid: "buddha@jabber.berlin.ccc.de", password: "fnord");
+  exception (e :: <condition>)
+    *xmpp-bot* := #f
+  end;
+end; */
 define function main () => ()
+  //xmpp-worker();
+  //sleep(3);
   register-url("/buddha.css", maybe-serve-static-file);
   block()
     start-server();
