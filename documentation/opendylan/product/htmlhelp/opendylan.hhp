@@ -11,7 +11,7 @@ Language=0x409 English (United States)
 Title=Open Dylan Documentation
 
 [WINDOWS]
-hqndylan.chm=,"opendylan.hhc","opendylan.hhk","opendylan.htm","opendylan.htm",,,,,0x2520,,0x207e,[425,166,1111,668],0xb0000,,,0,,,
+opendylan.chm=,"opendylan.hhc","opendylan.hhk","opendylan.htm","opendylan.htm",,,,,0x2520,,0x207e,[425,166,1111,668],0xb0000,,,0,,,
 
 
 [FILES]
