@@ -248,7 +248,7 @@ define module koala
     <koala-api-error>;
 
   create
-    moved-permanently-redirectr,
+    moved-permanently-redirectr
     see-other-redirect,
     unauthorized-error;
 
