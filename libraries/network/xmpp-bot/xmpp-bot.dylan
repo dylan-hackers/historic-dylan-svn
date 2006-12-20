@@ -84,7 +84,7 @@ define method auto-subscriber (xmpp-bot, client, presence)
   end;
 end;
 
-define method broadcast-message (bot :: <xmpp-bot>, message :: <string>)
+define method broadcast-message (bot :: <xmpp-bot>, message :: type-union(<string>, <element>))
   do(method (user)
        send(bot.client,
             make(<message>,

@@ -230,7 +230,7 @@ end;
 define method print-isc-dhcpd-file (config :: <collection>, stream :: <stream>)
  => ()
   for (network in config)
-    if (network.dhcp?)
+    if (instance?(network, <ipv4-network>) & network.dhcp?)
       print-isc-dhcpd-file(network, stream);
     end;
   end;

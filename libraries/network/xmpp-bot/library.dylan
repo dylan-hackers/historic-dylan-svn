@@ -7,7 +7,7 @@ define library xmpp-bot
   use io;
   use system;
   use xmpp;
-  use xml-parser, import: { simple-xml };
+  use xml-parser, import: { simple-xml, xml-parser };
 
   // Add any more module exports here.
   export xmpp-bot;
