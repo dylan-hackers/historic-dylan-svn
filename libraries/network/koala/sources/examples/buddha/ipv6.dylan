@@ -72,7 +72,6 @@ define method as (class == <ipv6-address>, data :: <string>) => (res :: <ipv6-ad
 end;
 
 define method as-dns-string (ip :: <ipv6-address>) => (res)
-  format-out("ip %=\n", ip.data);
   if (ip ~= $bottom-v6-address)
     let strings = make(<list>);
     for (i from 0 below 16)
