@@ -60,6 +60,11 @@ define method body-setter (body :: <string>, message :: <message>)
   body;
 end method body-setter;
 
+define method body-setter (body :: <element>, message :: <message>)
+ => (res :: <element>)
+  remove-element(message, "body");
+  add-element(message, body);
+end;
 define method body-setter (body == #f, message :: <message>)
  => (res);
   remove-element(message, "body");

@@ -143,14 +143,6 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
 //         print-zone.refresh, print-zone.retry,
 //         print-zone.expire, print-zone.minimum,
 //         print-zone.time-to-live);
-  //reverse zones for networks
-  do(method(x)
-       format(stream, "Z%s:%s.:%s.\n",
-              x, print-zone.nameservers[0].ns-name, print-zone.hostmaster);
-       do(method(y)
-            format(stream, "&%s::%s.\n", x, y.ns-name)
-          end, print-zone.nameservers);
-     end, apply(concatenate, map(get-reverse-cidrs, storage(<network>))));
   //nameserver
   do(method(x)
          format(stream, "&%s::%s.\n", print-zone.zone-name, x.ns-name)
@@ -160,6 +152,17 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
        format(stream, "@%s::%s.%s:%d\n",
               print-zone.zone-name, mx-name(x), print-zone.zone-name, priority(x));
      end, print-zone.mail-exchanges);
+  //reverse zones for networks
+  do(method(x)
+       format(stream, "Z%s:%s.:%s.\n",
+              x, print-zone.nameservers[0].ns-name, print-zone.hostmaster);
+       do(method(y)
+            format(stream, "&%s::%s.\n", x, y.ns-name)
+          end, print-zone.nameservers);
+       if (subsequence-position(x, "in-addr.arpa"))
+         format(stream, "&%s::%s.\n", x, "ns.ripe.net")
+       end;
+     end, apply(concatenate, map(get-reverse-cidrs, storage(<network>))));
   //Hosts
   do(method(x)
        format(stream, "=%s.%s:%s:%d\n",
@@ -201,38 +204,4 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
      end, print-zone.cnames);
 end;
 
-define method parse-cidr (zone-name :: <string>) => (network :: <network>)
-  //zone-name is something like "1.2.3.in-addr.arpa." for the network 3.2.1.0/24
-  let parts = split(zone-name, '.');
-  let network-string
-    = concatenate(parts[2], ".", parts[1], ".", parts[0], ".0");
-  make(<network>, cidr: make(<cidr>,
-                             network-address: make(<ip-address>, data: network-string),
-                             netmask: 24));
-end;
 
-define method add-reverse-zones (network :: <network>) => ()
-  //XXX: add hostmaster, mx, nameserver,...
-  let rev-mask = truncate/(network.cidr.cidr-netmask, 8) * 8;
-  for (subnet in split-cidr(network.cidr, rev-mask))
-    let zone = make(<zone>,
-                    reverse?: #t,
-                    zone-name: cidr-to-reverse-zone(subnet),
-                    visible?: #f);
-    block(ret)
-      check(zone);
-      let command = make(<add-command>,
-                         arguments: list(zone, storage(<zone>)));
-      let change = make(<change>,
-                        command: command);
-      save(change);
-      redo(command);
-      signal(make(<web-success>,
-                  warning: concatenate("Added zone: ", show(zone))));
-    exception (e :: <web-error>)
-      signal(make(<web-form-warning>,
-                  warning: concatenate("Couldn't add reverse zone, error was: ", e.error-string)));
-      ret();
-    end;
-  end;
-end;

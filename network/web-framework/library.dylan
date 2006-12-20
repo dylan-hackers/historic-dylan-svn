@@ -111,7 +111,8 @@ define module users
     access-level-setter,
     current-user,
     login,
-    logged-in?;
+    logged-in?,
+    valid-user?;
 end;
 
 define module change
@@ -132,7 +133,8 @@ define module change
     command,
     undo,
     redo,
-    print-xml;
+    print-xml,
+    print-change;
 
   //commands
   export <add-command>,

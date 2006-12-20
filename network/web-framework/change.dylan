@@ -29,7 +29,13 @@ define method undo (change :: <change>)
   save(change);
 end;
 
-define method print-xml (date :: <date>)
+define method print-xml (date :: <date>, #key base-url)
+  list(with-xml()
+         text(print-change(date))
+       end);
+end;
+
+define method print-change (date :: <date>, #key base-url)
   let $month-names
     = #["Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -43,22 +49,22 @@ define method print-xml (date :: <date>)
             integer-to-string(i)
           end;
         end;
-  let printed-date
-    = concatenate(integer-to-string(iday), " ",
-                  $month-names[imonth - 1], "  ",
-                  //integer-to-string(iyear), "  ",
-                  wrap0(ihours), ":",
-                  wrap0(iminutes), ":",
-                  wrap0(iseconds));
-  list(with-xml()
-         text(printed-date)
-       end);
+  concatenate(integer-to-string(iday), " ",
+              $month-names[imonth - 1], "  ",
+              //integer-to-string(iyear), "  ",
+              wrap0(ihours), ":",
+              wrap0(iminutes), ":",
+              wrap0(iseconds));
 end;
-
-define method print-xml (change :: <change>)
+define method print-xml (change :: <change>, #key base-url)
   concatenate(print-xml(change.date),
               list(with-xml()
                      text(concatenate(" by ", change.author, ": "))
                    end),
-              print-xml(change.command));
+              print-xml(change.command, base-url: base-url));
+end;
+
+define method print-change (change :: <change>, #key base-url)
+  concatenate(print-change(change.date), " by ", change.author, ": ",
+              print-change(change.command, base-url: base-url))
 end;

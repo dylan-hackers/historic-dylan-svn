@@ -59,30 +59,43 @@ define method unexecute (command :: <edit-command>)
   unset-slots;
 end;
 
-define method print-xml (command :: <command>)
+define method print-xml (command :: <command>, #key base-url)
   let object = command.arguments[0];
   let type = get-url-from-type(object.object-class);
   with-xml()
     a(concatenate(type, " ", show(object)),
-      href => concatenate("/", type, "-detail?", type, "=", get-reference(object)))
+      href => concatenate(if (base-url) base-url else "" end, "/", type, "-detail?", type, "=", get-reference(object)))
   end;
 end;
 
-define method print-xml (command :: <add-command>)
+define method print-change (command :: <command>, #key base-url) => (res :: <string>)
+  let object = command.arguments[0];
+  let type = get-url-from-type(object.object-class);
+  concatenate(type, " ", show(object), " ",
+              if (base-url) base-url else "" end,
+              "/", type, "-detail?", type, "=", get-reference(object))
+end;
+define method print-xml (command :: <add-command>, #key base-url)
   list(with-xml()
          text("Added ")
        end,
        next-method());
 end;
 
-define method print-xml (command :: <remove-command>)
+define method print-change (command :: <add-command>, #key base-url)
+  concatenate("Added ", next-method());
+end;
+define method print-xml (command :: <remove-command>, #key base-url)
   list(with-xml()
          text("Removed ")
        end,
        next-method())
 end;
 
-define method print-xml (command :: <edit-command>)
+define method print-change (command :: <remove-command>, #key base-url)
+  concatenate("Removed ", next-method());
+end;
+define method print-xml (command :: <edit-command>, #key base-url)
   list(with-xml()
          text("Edited ")
        end,
@@ -97,13 +110,23 @@ define method print-xml (command :: <edit-command>)
        end)
 end;
 
-define method print-xml (triple :: <triple>)
+define method print-change (command :: <edit-command>, #key base-url)
+  apply(concatenate, "Edited ", next-method(), ", changed following slots:\n",
+                    map(print-change, command.arguments[1]));
+end;
+
+define method print-xml (triple :: <triple>, #key base-url)
   with-xml()
     li { text(concatenate(triple.slot-name,
                           " from \"", show(triple.old-value),
                           "\" to \"", show(triple.new-value), "\""))
     }
   end;
+end;
+
+define method print-change (triple :: <triple>, #key base-url)
+  concatenate(triple.slot-name, " from \"", show(triple.old-value),
+              "\" to \"", show(triple.new-value), "\"\n");
 end;
 
 define method add-to-list (object :: <object>, list :: <collection>)

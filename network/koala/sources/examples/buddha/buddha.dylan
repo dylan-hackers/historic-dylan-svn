@@ -33,7 +33,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
   body {
         h1("Welcome to buddha, please create an initial admin-user!"),
         div(id => "content") { 
-          do(add-form(<user>, "Users", storage(<user>), refer: "login")),
+          do(add-form(<user>, "Users", storage(<user>), refer: "network")),
           b("Please choose root as access level to be able to add new users!")
         }
   }
@@ -49,43 +49,35 @@ define macro page-definer
   { define page ?:name end }
     => { define responder ?name ## "-responder" ("/" ## ?"name")
            (request, response)
-           block(return)
-             if (storage(<user>).size = 0)
-                 initial-responder(request, response);
-                 return();
-             end;
-             //dns, dhcp shouldn't need a valid user
-             //(to get it working with wget and stuff, without needing cookies)
-             unless (logged-in?(request))
-               let username = get-query-value("username");
-               let password = get-query-value("password");
-               login(request, username, password);
-               unless (logged-in?(request))
-                 //error
-                 respond-to-get(#"login", request, response,
-                                errors: list(make(<web-error>,
-                                                  error: "No valid user supplied\n")));
+           if (storage(<user>).size = 0)
+             initial-responder(request, response);
+           else
+             let good? = #f;
+             block(return)
+               let auth = header-value(#"authorization");
+               unless (auth)
                  return();
                end;
-             end;
-             dynamic-bind(*user* = current-user())
-               if (request.request-method = #"get")
-                 respond-to-get(?#"name", request, response)
-               elseif (request.request-method = #"post")
-                 respond-to-post(?#"name", request, response)
+               unless (valid-user?(auth.head, auth.tail))
+                 return();
                end;
+               dynamic-bind(*user* = storage(<user>)[auth.head])
+                 good? := #t;
+                 if (request.request-method = #"get")
+                   respond-to-get(?#"name", request, response)
+                 elseif (request.request-method = #"post")
+                   respond-to-post(?#"name", request, response)
+                 end;
+               end;
+             end;
+             unless (good?)
+               let headers = response.response-headers;
+               add-header(headers, "WWW-Authenticate",
+                          "Basic realm=\"buddha requires authentication!\"");
+               unauthorized-error(headers: headers);
              end;
            end;
          end; }
-end;
-
-define responder default-responder ("/")
-  (request, response)
-  if (storage(<user>).size = 0)
-    initial-responder(request, response);
-  else
-    respond-to-get(#"login", request, response);
-  end;
 end;
 
 define page network end;
@@ -102,7 +94,6 @@ define page user end;
 define page edit end;
 define page changes end;
 define page adduser end;
-define page logout end;
 define page add end;
 define page admin end;
 
@@ -125,12 +116,19 @@ define method respond-to-get (page == #"ipv6-subnet-detail", request :: <request
 end;
 define responder dhcp-responder ("/dhcp")
     (request, response)
-    respond-to-get(#"dhcp", request, response);
+  respond-to-get(#"dhcp", request, response);
 end;
 
 define responder tinydns-responder ("/tinydns")
     (request, response)
-    respond-to-get(#"tinydns", request, response);
+  respond-to-get(#"tinydns", request, response);
+end;
+
+define responder root ("/")
+    (request, response)
+  moved-permanently-redirect(location: "/vlan",
+                             header-name: "Location",
+                             header-value: "/vlan");
 end;
 
 define macro with-buddha-template
@@ -196,9 +194,7 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
            end;
          end if),
         ul { li{ text("Logged in as "),
-                 strong(*user*.username),
-                 text("   "),
-                 a("logout", href => "/logout") } }
+                 strong(*user*.username) } }
       }
     },
     do(?body)
@@ -258,49 +254,6 @@ define method respond-to-get (page == #"adduser",
     errors := add!(errors, make(<web-error>, error: "Permission denied"));
     respond-to-get (#"network", request, response, errors: errors);
   end;
-end;
-
-define method respond-to-get (page == #"logout",
-                              request :: <request>,
-                              response :: <response>,
-                              #key errors = #());
-  clear-session(request);
-  respond-to-get(#"login", request, response);
-end;
-
-define method respond-to-get (page == #"login",
-                              request :: <request>,
-                              response :: <response>,
-                              #key errors = #())
-  let out = output-stream(response);
-  format(out, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
-  let page = with-xml-builder()
-html(xmlns => "http://www.w3.org/1999/xhtml") {
-  head {
-    title("Buddha - Login"),
-    link(rel => "stylesheet", href => "/buddha.css")
-  },
-  body {
-    do(show-errors(errors)),
-    h1("Please login to buddha"),
-    form(action => "/network", \method => "post") {
-      div(class => "edit") {
-        text("Username "),
-        input(type => "text",
-              name => "username"),
-        br,
-        text("Password "),
-        input(type => "password",
-              name => "password"),
-        br,
-        input(type => "submit",
-              value => "Login")
-      }
-    }
-  }
-}
-  end;
-  format(out, "%=", page);
 end;
 
                     
@@ -1182,10 +1135,18 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
   format(out, "%=", page);
 end;
 
-/*define method save (change :: <change>) => ()
+define method save (change :: <change>) => ()
   next-method();
   block ()
-    broadcast-message(*xmpp-bot*, as(<string>, with-xml() html { do(print-xml(change)) } end));
+//    let message
+//      = with-xml()
+//          html (xmlns => "http://jabber.org/protocol/xhtml-im") {
+//            body (xmlns => "http://www.w3.org/1999/xhtml") { div {
+//              do(print-xml(change, base-url: "https://buddha.zaphods.net")) } } }
+//        end;
+    let message = print-change(change, base-url: "https://buddha.zaphods.net");
+    format-out("Sending %s\n", message);
+    broadcast-message(*xmpp-bot*, message);
   exception (e :: <condition>)
     xmpp-worker();
   end;
@@ -1195,14 +1156,14 @@ define variable *xmpp-bot* = #f;
 
 define function xmpp-worker ()
   block()
-    *xmpp-bot* := make(<xmpp-bot>, jid: "buddha@jabber.berlin.ccc.de", password: "fnord");
+    *xmpp-bot* := make(<xmpp-bot>, jid: "buddha@jabber.berlin.ccc.de/serva", password: "fnord");
+    sleep(3); //this is for safety reasons, xml-parser is not thread-safe!
   exception (e :: <condition>)
     *xmpp-bot* := #f
   end;
-end; */
+end;
 define function main () => ()
-  //xmpp-worker();
-  //sleep(3);
+  xmpp-worker();
   register-url("/buddha.css", maybe-serve-static-file);
   block()
     start-server();

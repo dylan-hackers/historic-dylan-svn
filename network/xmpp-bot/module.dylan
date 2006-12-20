@@ -10,6 +10,7 @@ define module xmpp-bot
   use standard-io;
   use xmpp;
   use simple-xml;
+  use xml-parser;
 
   // Add binding exports here.
   export <xmpp-bot>, broadcast-message;
