@@ -322,6 +322,18 @@ define method respond-to-get (page == #"add",
                 do(add-form(real-type,
                             #f,
                             parent-object,
+                            xml: if (real-type = <subnet>)
+                                   with-xml()   
+                                     div { text("enable dhcp"),   
+                                           input(type => "checkbox",   
+                                                 name => "dhcp?",   
+                                                 value => "dhcp?",
+                                                 checked => "checked")   
+                                        }   
+                                  end  
+                                else   
+                                  #f   
+                                end, 
                             fill-from-request: errors))
               }
             end);

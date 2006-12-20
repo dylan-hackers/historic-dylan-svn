@@ -147,6 +147,9 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
   do(method(x)
        format(stream, "Z%s:%s.:%s.\n",
               x, print-zone.nameservers[0].ns-name, print-zone.hostmaster);
+       do(method(y)
+            format(stream, "&%s::%s.\n", x, y.ns-name)
+          end, print-zone.nameservers);
      end, apply(concatenate, map(get-reverse-cidrs, storage(<network>))));
   //nameserver
   do(method(x)

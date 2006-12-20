@@ -45,11 +45,20 @@ define method dhcp-stuff (n :: <ipv6-network>)
 end;
 
 define web-class <ipv4-subnet> (<subnet>, <ipv4-network>)
-  data dhcp-start :: <ipv4-address>, base-network-address(object.cidr) + 21;
+  data dhcp-start :: <ipv4-address>, get-reasonable-dhcp-start(object);
   data dhcp-end :: <ipv4-address>, broadcast-address(object.cidr) - 1;
   data dhcp-router :: <ipv4-address>, base-network-address(object.cidr) + 1;
 end;
 
+define function get-reasonable-dhcp-start (object :: <ipv4-subnet>)
+  if (object.cidr.cidr-netmask < 26)  
+    base-network-address(object.cidr) + 21;
+  elseif (object.cidr.cidr-netmask < 30)
+    base-network-address(object.cidr) + 3;
+  elseif (object.cidr.cidr-netmask = 30)
+    base-network-address(object.cidr) + 1;
+  end;
+end;
 define method storage (class == <ipv4-subnet>) => (res)
   choose(rcurry(instance?, <ipv4-subnet>), storage(<subnet>));
 end;
