@@ -180,6 +180,7 @@ end;
 define method check (subnet :: <ipv4-subnet>, #next next-method, #key test-result = 0)
  => (res :: <boolean>)
   next-method();
+  subnet.dhcp? := if (get-query-value("dhcp?")) #t else #f end;
   if (subnet.dhcp-start > subnet.dhcp-end)
     signal(make(<web-error>,
                 error: "DHCP start greater than DHCP end"));

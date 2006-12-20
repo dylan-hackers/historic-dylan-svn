@@ -72,9 +72,13 @@ define method as (class == <ipv6-address>, data :: <string>) => (res :: <ipv6-ad
 end;
 
 define method as-dns-string (ip :: <ipv6-address>) => (res)
-  let res = as(<string>, ip);
-  if (res ~= "no v6 address assigned")
-    apply(concatenate, split(res, ':'));
+  format-out("ip %=\n", ip.data);
+  if (ip ~= $bottom-v6-address)
+    let strings = make(<list>);
+    for (i from 0 below 16)
+      strings := add!(strings, integer-to-string(ip.data[i], base: 16, size: 2));
+    end;
+    reduce1(concatenate, reverse(strings));
   end;
 end;
 define method as (class == <string>, ip :: <ipv6-address>) => (res :: <string>)
