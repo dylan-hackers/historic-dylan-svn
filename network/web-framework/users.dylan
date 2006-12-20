@@ -38,6 +38,9 @@ define method current-user () => (user :: false-or(<user>))
   *user*
 end;
 
+define method set-current-user (user :: <user>) => (user :: <user>)
+  *user* := user;
+end;
 define method check (user :: <user>, #key test-result = 0)
  => (res :: <boolean>)
   if (element(storage(<user>), user.username, default: #f))

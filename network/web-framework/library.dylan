@@ -110,6 +110,7 @@ define module users
     access-level,
     access-level-setter,
     current-user,
+    set-current-user,
     login,
     logged-in?,
     valid-user?;

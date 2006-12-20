@@ -62,6 +62,7 @@ define macro page-definer
                  return();
                end;
                dynamic-bind(*user* = storage(<user>)[auth.head])
+                 set-current-user(*user*);
                  good? := #t;
                  if (request.request-method = #"get")
                    respond-to-get(?#"name", request, response)

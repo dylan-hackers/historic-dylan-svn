@@ -40,20 +40,18 @@ define method initialize (xmpp-bot :: <xmpp-bot>,
   send(xmpp-bot.client, make(<iq>, type: #"get", query: with-xml() query(xmlns => "jabber:iq:roster") end, id: "roster"));
 end;
 
-define constant $lock = make(<lock>);
 define method auto-subscriber (xmpp-bot, client, presence)
-  with-lock($lock)
-    if (presence.type)
-      select (presence.type)
-        #"subscribe" => begin
-                          send(client, make(<presence>,
-                                            to: presence.from,
-                                            type: #"subscribed"));
-                          send(client, make(<presence>,
-                                            to: presence.from,
-                                            type: #"subscribe"));
-                        end;
-        #"unsubscribe" =>
+  if (presence.type)
+    select (presence.type)
+      #"subscribe" => begin
+                        send(client, make(<presence>,
+                                          to: presence.from,
+                                          type: #"subscribed"));
+                        send(client, make(<presence>,
+                                          to: presence.from,
+                                          type: #"subscribe"));
+                      end;
+      #"unsubscribe" =>
                         begin
                           send(client, make(<presence>,
                                             to: presence.from,
@@ -68,33 +66,30 @@ define method auto-subscriber (xmpp-bot, client, presence)
                                                            as(<string>, presence.from),
                                                            test: subsequence-position);
                         end;
-        #"unavailable" => begin
-                            format-out("%s went offline\n", as(<string>, presence.from));
-                            xmpp-bot.online-users := remove!(xmpp-bot.online-users,
-                                                             as(<string>, presence.from),
-                                                             test: \=);
-                          end;
-         otherwise => begin
-                        format-out("Didn't know what to do with type %=\n", presence.type);
-                      end;
-      end select;
-    else
-      unless (any?(method(a) a = as(<string>, presence.from) end, xmpp-bot.online-users))
-        xmpp-bot.online-users := add!(xmpp-bot.online-users, as(<string>, presence.from));
-      end;
+      #"unavailable" => begin
+                          format-out("%s went offline\n", as(<string>, presence.from));
+                          xmpp-bot.online-users := remove!(xmpp-bot.online-users,
+                                                           as(<string>, presence.from),
+                                                           test: \=);
+                        end;
+       otherwise => begin
+                      format-out("Didn't know what to do with type %=\n", presence.type);
+                    end;
+    end select;
+  else
+    unless (any?(method(a) a = as(<string>, presence.from) end, xmpp-bot.online-users))
+      xmpp-bot.online-users := add!(xmpp-bot.online-users, as(<string>, presence.from));
     end;
   end;
 end;
 
 define method broadcast-message (bot :: <xmpp-bot>, message :: type-union(<string>, <element>))
-  with-lock($lock)
-    do(method (user)
-         send(bot.client,
-              make(<message>,
-                   type: #"chat",
-                   body: message,
-                   to: user));
-       end, bot.online-users);
-  end;
+  do(method (user)
+       send(bot.client,
+            make(<message>,
+                 type: #"chat",
+                 body: message,
+                 to: user));
+     end, bot.online-users);
 end;
 
