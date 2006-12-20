@@ -5,16 +5,16 @@ synopsis: provides a simple, controllable way to print elements
 
 // these variables provide a way to change the look of element tags in case
 // e.g. they want HTML output, instead.
-define variable *open-the-tag* :: <string> = "<";
-define variable *close-the-tag* :: <string> = ">";
-define variable *ampersand* :: <string> = "&";
+define thread variable *open-the-tag* :: <string> = "<";
+define thread variable *close-the-tag* :: <string> = ">";
+define thread variable *ampersand* :: <string> = "&";
 
 // actually, this printing module depends heavily on the transform module
 // (the printing module may be viewed as a derivative work) ... so pretty
 // printing, etc, is controlled by the transform methods and their helpers
 
 define open class <printing> (<xform-state>) end;
-define variable *printer-state* :: <printing> = make(<printing>);
+define thread variable *printer-state* :: <printing> = make(<printing>);
 
 // xml-name turns out to be a pretty powerful way of printing
 // information about the xml thing being printed

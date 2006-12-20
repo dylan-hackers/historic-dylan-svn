@@ -96,7 +96,7 @@ define class <entity-reference> (<reference>)
   constant virtual slot entity-value;
 end class <entity-reference>;
 
-define variable *entities* :: <table> = make(<table>);
+define thread variable *entities* :: <table> = make(<table>);
 
 define method entity-value(ent :: <entity-reference>) => (val :: <sequence>)
   *entities*[ent.name];

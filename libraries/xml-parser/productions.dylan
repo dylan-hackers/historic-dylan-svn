@@ -67,10 +67,10 @@ define function parse-document (doc :: <string>,
   document;
 end function parse-document;
 
-define variable *modify?* :: <boolean> = #t;
-define variable *show-warnings?* :: <boolean> = #f;
-define variable *ignore-instructions?* :: <boolean> = #t;
-define variable *dtd-paths* :: <sequence> = #(".");
+define thread variable *modify?* :: <boolean> = #t;
+define thread variable *show-warnings?* :: <boolean> = #f;
+define thread variable *ignore-instructions?* :: <boolean> = #t;
+define thread variable *dtd-paths* :: <sequence> = #(".");
 
 define meta document-helper(prolog, elemnt, misc) =>
  (make(<document>,
@@ -464,9 +464,9 @@ end method make-element;
 // Production 40 (Stag) has been removed (now handled by 39 (element)).
 
 // a little bit of checking for element-name redundancy:
-define variable *last-tag-name* :: false-or(<symbol>) = #f;
+define thread variable *last-tag-name* :: false-or(<symbol>) = #f;
 // ... and proper capitalization for tag names
-define variable *tag-name-with-proper-capitalization* = make(<deque>);
+define thread variable *tag-name-with-proper-capitalization* = make(<deque>);
 
 // Helper method for parsing opening tags; also adds attributes with
 // default values if there are ones specified in the DTD for this elt
@@ -711,7 +711,7 @@ define meta attlist-decl(s, elt-name, att-def)
   loop(scan-att-def(att-def)), scan-s?(s), ">", no!(*last-tag-name*)
 end meta attlist-decl;
 
-define variable *last-attrib* = #f;
+define thread variable *last-attrib* = #f;
 
 // [53] AttDef ::= S Name S AttType S DefaultDecl
 //
@@ -866,9 +866,9 @@ end meta reference;
 
 //-------------------------------------------------------
 // entity tables
-define variable *pe-refs* = make(<table>);
-define variable *substitute-entities?* :: <boolean> = #t;
-define variable *defining-entities?* :: <boolean> = #f;
+define thread variable *pe-refs* = make(<table>);
+define thread variable *substitute-entities?* :: <boolean> = #t;
+define thread variable *defining-entities?* :: <boolean> = #f;
 
 define generic do-expand(obj :: <xml>) => (ans :: <list>);
 define method do-expand(obj :: <xml>) => (ans :: <list>) list(obj); end;
@@ -1140,7 +1140,7 @@ define collect-value encoding-info(eq, c) () "'", "\"" => { } end;
 
 //-------------------------------------------------------
 // assigning parents
-define variable *parent* = #f;
+define thread variable *parent* = #f;
 define class <add-parents> (<xform-state>) end;
 
 define method before-transform(node :: type-union(<element>, <document>),

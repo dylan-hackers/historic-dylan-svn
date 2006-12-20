@@ -29,7 +29,7 @@ define class <collect-state> (<xform-state>)
   slot depth :: <integer> = 0;
 end class <collect-state>;
 
-define variable *original-state* :: false-or(<collect-state>) = #f;
+define thread variable *original-state* :: false-or(<collect-state>) = #f;
 
 define function copy-down(c :: <collect-state>, elt :: <element>)
  => (d :: <collect-state>)
