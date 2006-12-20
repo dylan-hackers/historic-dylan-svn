@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE dylanMacro PUBLIC "-//Gwydion//DTD DITA Dylan API Macro//EN" "../../../../dtd/dylanMacro.dtd" []>
+<dylanMacro id="lib-collections-table-extensions-table">
+  <apiName>table</apiName>
+
+  <shortdesc>Constructs a table.</shortdesc>
+
+  <prolog>
+    <author>Dustin Voss</author>
+    <copyright>
+      <copyryear year="2006"/>
+      <copyrholder>Gwydion Dylan Maintainers</copyrholder>
+    </copyright>
+  </prolog>
+
+  <dylanMacroDetail>
+    <apiSyntax>
+      <apiSyntaxText>
+        table(<apiItemName>table-class</apiItemName>, <apiItemName>key</apiItemName> => <apiItemName>value</apiItemName>, ...)
+        table(<apiItemName>key</apiItemName> => <apiItemName>value</apiItemName>, ...)
+      </apiSyntaxText>
+      <apiSyntaxItem>
+        <apiItemName>table-class</apiItemName>
+        <apiDefNote>The type of the table.</apiDefNote>
+      </apiSyntaxItem>
+      <apiSyntaxItem>
+        <apiItemName>key</apiItemName>
+        <apiDefNote>The key to associate with a collection element.</apiDefNote>
+      </apiSyntaxItem>
+      <apiSyntaxItem>
+        <apiItemName>value</apiItemName>
+        <apiDefNote>An element of the collection.</apiDefNote>
+      </apiSyntaxItem>
+    </apiSyntax>
+
+    <apiDesc>
+      <p>Instantiates and populates a table, analogous to
+      <apioperation href="../../dylan/dylan/vector.xml">vector</apioperation>
+      and <apioperation href="../../dylan/dylan/list.xml">list</apioperation>.
+      An invocation of this macro may take two forms. The first form returns
+      an instance of <parmname>table-class</parmname>, while the second form
+      returns an instance of <apiclassifier
+      href="../../dylan/dylan/LtableG.xml">&lt;table&gt;</apiclassifier>, or
+      more properly, a concrete subclass of <apiclassifier
+      href="../../dylan/dylan/LtableG.xml">&lt;table&gt;</apiclassifier>.</p>
+      
+      <p>Although intended for tables, any instance of <apiclassifier
+      href="../../dylan/dylan/Lmutable-collectionG.xml">
+      &lt;mutable-collection&gt;</apiclassifier> may be used for <parmname>
+      table-class</parmname>.</p>
+    </apiDesc>
+    
+    <example>
+let lights = table(&lt;string-table&gt;, "red" => "stop", "green" => "go");
+</example>
+  </dylanMacroDetail>
+</dylanMacro>

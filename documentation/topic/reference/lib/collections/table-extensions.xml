@@ -25,6 +25,9 @@
     <link href="../common-dylan/common-extensions/Lstring_tableG.xml">
       <linktext><apiname>&lt;string-table&gt;</apiname></linktext>
     </link>
+    <link href="table-extensions/table.xml">
+      <linktext><apiname>table</apiname></linktext>
+    </link>
     <link href="table-extensions/case_insensitive_equal.xml">
       <linktext><apiname>case-insensitive-equal</apiname></linktext>
     </link>

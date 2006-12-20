@@ -5699,6 +5699,53 @@ sublists.
   	your own table classes.
       </para>
   
+      <dylanmacrodef>
+    <defname> table </defname>
+    <defsummary>
+      Constructs an instance of <dname> &lt;table&gt; </dname> or a subclass.
+    </defsummary>
+    <defparameters>
+      <param>
+        <paramname> table-class </paramname>
+        <paramtype> &lt;mutable-collection&gt; </paramtype>
+      </param>
+      <param>
+        <paramname> key </paramname>
+        <paramtype> &lt;object&gt; </paramtype>
+      </param>
+      <param>
+        <paramname> value </paramname>
+        <paramtype> &lt;object&gt; </paramtype>
+      </param>
+    </defparameters>
+    <defdescription>
+      <para>
+        <dname> table </dname> is a function macro that instantiates and
+        populates a table, analogous to <dname> vector </dname> and
+        <dname> list </dname>. It may take two forms:
+        <programlisting>
+table(table-class, key => value, ...)
+table(key => value, ...)
+</programlisting>
+        The former returns an instance of <parameter>table-class</parameter>,
+        while the latter returns an instance of <dclass> &lt;table&gt;
+        </dclass>, or more properly, a concrete subclass of
+        <dclass> &lt;table&gt; </dclass>.
+      </para>
+      <para>
+        Although intended for tables, any instance of <dclass>
+        &lt;mutable-collection&gt; </dclass> may be used for
+        <parameter>table-class</parameter>.
+      </para>
+      <para>
+        An example of the usage of <dname> table </dname>:
+        <programlisting>
+let lights = table(&lt;string-table&gt;, "red" => "stop", "green" => "go");
+</programlisting>
+      </para>
+    </defdescription>
+      </dylanmacrodef>
+    
       <dylanclassdef>
   	<defname> &lt;case-insensitive-string-table&gt; </defname>
   	<defadjectives>
