@@ -662,7 +662,9 @@ end;
 
 define function has-url? (#key url :: false-or(<string>), #all-keys)
  => (url-provided? :: <boolean>);
-  url = #t
+  if (url)
+    #t
+  end;
 end;
 
 define function register-page-urls
