@@ -125,6 +125,8 @@ define responder tinydns-responder ("/tinydns")
   respond-to-get(#"tinydns", request, response);
 end;
 
+define page export end;
+
 define responder root ("/")
     (request, response)
   moved-permanently-redirect(location: "/vlan",
@@ -427,6 +429,14 @@ define method respond-to-get
   print-tinydns-zone-file(zone, output-stream(response));
 end;
 
+define method respond-to-get
+   (page == #"export",
+    request :: <request>,
+    response :: <response>,
+    #key errors)
+  set-content-type(response, "text/plain");
+  do(curry(print-export-summary, output-stream(response)), sort(storage(<vlan>)));
+end;
 
 define method respond-to-post
     (page,

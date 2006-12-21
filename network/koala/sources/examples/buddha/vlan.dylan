@@ -21,3 +21,17 @@ define method \< (a :: <vlan>, b :: <vlan>)
  => (res :: <boolean>)
   a.number < b.number
 end;
+
+define function print-export-summary (stream :: <stream>, dvlan :: <vlan>)
+  let subs = map(curry(as, <string>),
+                 choose(method(x)
+                   x.vlan = dvlan
+                 end, storage(<subnet>)));
+  format(stream, "%s,%s,%s,%s\n",
+         dvlan.name, dvlan.number, dvlan.description,
+         if (subs.size > 0)
+           reduce1(method(a, b) concatenate(a, ",", b) end, subs)
+         else
+           ""
+         end)
+end;
