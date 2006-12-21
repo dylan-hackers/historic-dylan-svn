@@ -9,15 +9,15 @@ define open web-class <user> (<object>)
   data password :: <string>;
   data email :: <string>;
   slot access :: <list> = make(<list>);
-  has-a access-level;
+  //slot access-level :: false-or(<access-level>) = #f;
 end;
-/*
+
+
 define method initialize (user :: <user>, #rest rest, #key, #all-keys)
   next-method();
   check(user);
   save(user);
 end;
-*/
 define inline-only method key (user :: <user>)
  => (res :: <string>)
   user.username;
