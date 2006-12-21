@@ -78,6 +78,19 @@
         </div>
       </form>
     </wiki:privilege>
+    <wiki:privilege value="remove-user">
+      <form action="/wiki/admin.dsp" method="post">
+        <div id="edit">
+          <select name="username" size="10">
+            <wiki:show-users>
+              <option><wiki:show-user/></option>
+            </wiki:show-users>
+          </select>
+          <input type="hidden" name="action" value="remove-user">
+          <input type="submit" value="remove">
+        </div>
+      </form>
+    </wiki:privilege>
   </div>
   <%dsp:include url="footer.dsp"/>
 
