@@ -85,10 +85,10 @@ end;
 define web-class <zone> (<reference-object>)
   slot used-names :: <string-table> = make(<string-table>);
   data zone-name :: <string>;
-  data reverse? :: <boolean> = #f;
+  slot reverse? :: <boolean> = #f;
   has-many cname :: <cname>;
   data hostmaster :: <string> = "hostmaster.congress.ccc.de";
-  data serial :: <string>;
+  data serial :: <string> = "0";
   data refresh :: <integer> = 16384;
   data retry :: <integer> = 2048;
   data expire :: <integer> = 1048576;
@@ -158,8 +158,12 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
      end, print-zone.mail-exchanges);
   //reverse zones for networks
   do(method(x)
-       format(stream, "Z%s:%s.:%s.\n",
-              x, print-zone.nameservers[0].ns-name, print-zone.hostmaster);
+       format(stream, "Z%s:%s.:%s.:%s:%d:%d:%d:%d:%d\n",
+              x, print-zone.nameservers[0].ns-name,
+              print-zone.hostmaster, print-zone.serial,
+              print-zone.refresh, print-zone.retry,
+              print-zone.expire, print-zone.minimum,
+              print-zone.time-to-live);
        do(method(y)
             format(stream, "&%s::%s.\n", x, y.ns-name)
           end, print-zone.nameservers);
