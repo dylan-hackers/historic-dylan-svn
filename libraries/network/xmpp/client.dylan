@@ -87,7 +87,11 @@ define method listen (client :: <xmpp-client>)
     end if;
   end);
 
-  parse(parser);
+  block()
+    parse(parser);
+  exception (e :: <condition>)
+   //just catch all errors and ignore them
+  end;
 end method listen;
 
 define method disconnect (client :: <xmpp-client>)

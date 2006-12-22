@@ -98,6 +98,7 @@ define page adduser end;
 define page add end;
 define page admin end;
 
+define page online-users end;
 define page ipv4-network-detail end;
 define page ipv6-network-detail end;
 define page ipv4-subnet-detail end;
@@ -155,7 +156,8 @@ html(xmlns => "http://www.w3.org/1999/xhtml") {
           li { a("Hosts", href => "/host") },
           li { a("Networks", href => "/network") },
           li { a("Subnets", href => "/subnet") },
-          li { a("Changes", href => "/changes") }
+          li { a("Changes", href => "/changes") },
+          li { a("Online Users", href => "/online-users") }
         }
       },
       div (id => "buddha-edit") {
@@ -209,6 +211,20 @@ end;
          end; }
 end;
 
+define method respond-to-get (page == #"online-users",
+                              request :: <request>,
+                              response :: <response>,
+                              #key errors)
+  let out = output-stream(response);
+  with-buddha-template(out, "Online Users")
+    collect(with-xml()
+              div(id => "content") {
+                h2("Online Jabber users"),
+                ul { do(map(method(x) with-xml() li(x) end end,
+                            *xmpp-bot*.online-users)) } }
+              end);
+  end;
+end;
 define method respond-to-get (page == #"admin",
                               request :: <request>,
                               response :: <response>,
@@ -1171,7 +1187,8 @@ define function xmpp-worker ()
       unless (*xmpp-bot*)
         *xmpp-bot* := make(<xmpp-bot>, jid: "buddha@jabber.berlin.ccc.de/serva", password: "fnord");
       end;
-      sleep(23345);
+      ping(*xmpp-bot*);
+      sleep(30);
     exception (e :: <condition>)
       *xmpp-bot* := #f
     end;
