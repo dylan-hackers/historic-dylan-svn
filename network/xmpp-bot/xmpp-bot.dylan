@@ -43,8 +43,16 @@ define method initialize (xmpp-bot :: <xmpp-bot>,
 end;
 
 define method broadcaster (xmpp-bot, client, message)
-  if (message.body & ~(subsequence-position(as(<string>, message.body), "?OTR")))
-    broadcast-message(xmpp-bot, concatenate(as(<string>, message.from), " wrote: ", as(<string>, message.body)));
+  block()
+    if (message.body & ~(subsequence-position(as(<string>, message.body), "?OTR")))
+      let old-msg = choose(method(x) name-with-proper-capitalization(x) = "body" end, message.node-children)[0];
+      let new-foo = make(<char-string>, text: concatenate(as(<string>, message.from), " wrote: "));
+      old-msg.node-children := reverse(add(old-msg.node-children, new-foo));
+      broadcast-message(xmpp-bot, old-msg);
+    end;
+  exception (e :: <condition>)
+    format-out("received exception %=\n", e);
+    //ignore me!
   end;
 end;
 define method auto-subscriber (xmpp-bot, client, presence)
@@ -101,3 +109,17 @@ define method broadcast-message (bot :: <xmpp-bot>, message :: type-union(<strin
      end, bot.online-users);
 end;
 
+define method unicast-message (bot :: <xmpp-bot>, message :: <string>, username :: <string>)
+  send(bot.client,
+       make(<message>,
+            type: #"chat",
+            body: message,
+            to: username));
+end;
+
+define method ping (bot :: <xmpp-bot>)
+  send(bot.client,
+       make(<message>,
+            type: #"chat",
+            to: "me"))
+end;

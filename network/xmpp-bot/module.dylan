@@ -13,5 +13,5 @@ define module xmpp-bot
   use xml-parser;
 
   // Add binding exports here.
-  export <xmpp-bot>, broadcast-message;
+  export <xmpp-bot>, broadcast-message, unicast-message, ping, online-users;
 end module xmpp-bot;
