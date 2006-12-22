@@ -88,16 +88,17 @@ define web-class <zone> (<reference-object>)
   data reverse? :: <boolean> = #f;
   has-many cname :: <cname>;
   data hostmaster :: <string> = "hostmaster.congress.ccc.de";
-  data serial :: <integer> = 0;
-  data refresh :: <integer> = 180;
-  data retry :: <integer> = 300;
-  data expire :: <integer> = 600;
+  slot serial :: <integer> = 0;
+  data refresh :: <integer> = 16384;
+  data retry :: <integer> = 2048;
+  data expire :: <integer> = 1048576;
   data time-to-live :: <integer> = 1800;
-  data minimum :: <integer> = 300;
+  data minimum :: <integer> = 2560;
   has-many nameserver :: <nameserver>;
   has-many mail-exchange :: <mail-exchange>;
   has-many host-record :: <host-record>;
   //has-many text :: <string>;
+  data zone-serial :: <string>;
 end;
 
 define method initialize (zone :: <zone>,
@@ -136,13 +137,17 @@ end;
 
 define method print-tinydns-zone-file (print-zone :: <zone>,
                                        stream :: <stream>)
+  let (year, month, days, hours, minutes, seconds) = decode-date(current-date());
+  let s2 = rcurry(integer-to-string, size: 2);
+  let ser = concatenate(integer-to-string(year, size: 4), s2(month), s2(days), s2(hours), s2(minutes));
+  print-zone.zone-serial := ser;
   //Zfqdn:mname:rname:ser:ref:ret:exp:min:ttl:timestamp:lo
-  format(stream, "Z%s:%s.:%s.\n", //:%d:%d:%d:%d:%d:%d\n",
+  format(stream, "Z%s:%s.:%s.:%s:%d:%d:%d:%d:%d\n",
          print-zone.zone-name, print-zone.nameservers[0].ns-name,
-         print-zone.hostmaster); //, print-zone.serial,
-//         print-zone.refresh, print-zone.retry,
-//         print-zone.expire, print-zone.minimum,
-//         print-zone.time-to-live);
+         print-zone.hostmaster, print-zone.zone-serial,
+         print-zone.refresh, print-zone.retry,
+         print-zone.expire, print-zone.minimum,
+         print-zone.time-to-live);
   //nameserver
   do(method(x)
          format(stream, "&%s::%s.\n", print-zone.zone-name, x.ns-name)

@@ -32,6 +32,8 @@ define method initialize (xmpp-bot :: <xmpp-bot>,
                           #rest rest, #key, #all-keys)
   let subscription-callback = make(<callback>, reference: #"default", priority: 3, handler: curry(auto-subscriber, xmpp-bot));
   add-callback(xmpp-bot.client, <presence>, subscription-callback);
+  let broadcast-callback = make(<callback>, reference: #"default", priority: 3, handler: curry(broadcaster, xmpp-bot));
+  add-callback(xmpp-bot.client, <message>, broadcast-callback);
   if (~ connect(xmpp-bot.client))
     exit-application(1);
   end if;
@@ -40,6 +42,11 @@ define method initialize (xmpp-bot :: <xmpp-bot>,
   send(xmpp-bot.client, make(<iq>, type: #"get", query: with-xml() query(xmlns => "jabber:iq:roster") end, id: "roster"));
 end;
 
+define method broadcaster (xmpp-bot, client, message)
+  if (message.body & ~(subsequence-position(as(<string>, message.body), "?OTR")))
+    broadcast-message(xmpp-bot, concatenate(as(<string>, message.from), " wrote: ", as(<string>, message.body)));
+  end;
+end;
 define method auto-subscriber (xmpp-bot, client, presence)
   if (presence.type)
     select (presence.type)
@@ -77,8 +84,9 @@ define method auto-subscriber (xmpp-bot, client, presence)
                     end;
     end select;
   else
-    unless (any?(method(a) a = as(<string>, presence.from) end, xmpp-bot.online-users))
-      xmpp-bot.online-users := add!(xmpp-bot.online-users, as(<string>, presence.from));
+    let subscriber = as(<string>, presence.from);
+    unless (any?(curry(\=, subscriber), xmpp-bot.online-users))
+      xmpp-bot.online-users := add!(xmpp-bot.online-users, subscriber);
     end;
   end;
 end;
