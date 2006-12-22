@@ -1159,22 +1159,26 @@ define method save (change :: <change>) => ()
     format-out("Sending %s\n", message);
     broadcast-message(*xmpp-bot*, message);
   exception (e :: <condition>)
-    xmpp-worker();
+    format-out("Message could not be delivered %=\n", e);
   end;
 end;
 
 define variable *xmpp-bot* = #f;
 
 define function xmpp-worker ()
-  block()
-    *xmpp-bot* := make(<xmpp-bot>, jid: "buddha@jabber.berlin.ccc.de/serva", password: "fnord");
-    sleep(3); //this is for safety reasons, xml-parser is not thread-safe!
-  exception (e :: <condition>)
-    *xmpp-bot* := #f
+  while (#t)
+    block()
+      unless (*xmpp-bot*)
+        *xmpp-bot* := make(<xmpp-bot>, jid: "buddha@jabber.berlin.ccc.de/serva", password: "fnord");
+      end;
+      sleep(23345);
+    exception (e :: <condition>)
+      *xmpp-bot* := #f
+    end;
   end;
 end;
 define function main () => ()
-  xmpp-worker();
+  make(<thread>, function: xmpp-worker);
   register-url("/buddha.css", maybe-serve-static-file);
   block()
     start-server();
