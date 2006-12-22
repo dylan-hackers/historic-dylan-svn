@@ -88,7 +88,7 @@ define web-class <zone> (<reference-object>)
   slot reverse? :: <boolean> = #f;
   has-many cname :: <cname>;
   data hostmaster :: <string> = "hostmaster.congress.ccc.de";
-  data serial :: <string> = "0";
+  data serial :: <integer> = 23;
   data refresh :: <integer> = 16384;
   data retry :: <integer> = 2048;
   data expire :: <integer> = 1048576;
@@ -134,14 +134,15 @@ define method \< (a :: <zone>, b :: <zone>) => (res :: <boolean>)
   end
 end;
 
+define variable *last-update* = current-date();
 define method print-tinydns-zone-file (print-zone :: <zone>,
                                        stream :: <stream>)
-  let (year, month, days, hours, minutes, seconds) = decode-date(current-date());
-  let s2 = rcurry(integer-to-string, size: 2);
-  let ser = concatenate(integer-to-string(year, size: 4), s2(month), s2(days), s2(hours), s2(minutes));
-  print-zone.serial := ser;
+  if (*last-update* + make(<duration>, minutes: 4) < current-date())
+    print-zone.serial := print-zone.serial + 1;
+    *last-update* := current-date();
+  end;
   //Zfqdn:mname:rname:ser:ref:ret:exp:min:ttl:timestamp:lo
-  format(stream, "Z%s:%s.:%s.:%s:%d:%d:%d:%d:%d\n",
+  format(stream, "Z%s:%s.:%s.:%d:%d:%d:%d:%d:%d\n",
          print-zone.zone-name, print-zone.nameservers[0].ns-name,
          print-zone.hostmaster, print-zone.serial,
          print-zone.refresh, print-zone.retry,
@@ -158,7 +159,7 @@ define method print-tinydns-zone-file (print-zone :: <zone>,
      end, print-zone.mail-exchanges);
   //reverse zones for networks
   do(method(x)
-       format(stream, "Z%s:%s.:%s.:%s:%d:%d:%d:%d:%d\n",
+       format(stream, "Z%s:%s.:%s.:%d:%d:%d:%d:%d:%d\n",
               x, print-zone.nameservers[0].ns-name,
               print-zone.hostmaster, print-zone.serial,
               print-zone.refresh, print-zone.retry,
