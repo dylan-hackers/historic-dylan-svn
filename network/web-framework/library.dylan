@@ -215,6 +215,11 @@ define module changes
     content, content-setter,
     published, published-setter;
 
+  export <pingback>,
+    pingback-source, pingback-source-setter,
+    content, content-setter,
+    published, published-setter;
+
   export <uri>, <link>;
 end;
 

@@ -87,6 +87,15 @@ define open class <comment> (<object>)
     init-keyword: published:; 
 end;
 
+define open class <pingback> (<object>)
+  slot pingback-source :: <uri>,
+    required-init-keyword: source:;
+  slot content :: <content>,
+    required-init-keyword: content:;
+  slot published :: <date> = current-date(),
+    init-keyword: published:; 
+end;
+
 define abstract class <content> (<object>)
   /* slot CommonAttributes */
   slot type :: <string>, init-keyword: type:;
