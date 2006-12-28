@@ -88,6 +88,8 @@ define open class <comment> (<object>)
 end;
 
 define open class <pingback> (<object>)
+  slot title :: <string>,
+    required-init-keyword: title:;
   slot pingback-source :: <uri>,
     required-init-keyword: source:;
   slot content :: <content>,
