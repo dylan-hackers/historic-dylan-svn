@@ -24,6 +24,7 @@ define library koala
   use sql-odbc;
   use win32-kernel;
   use base64;
+  use memory-manager;
   
   export koala;
   export koala-extender;
@@ -294,6 +295,7 @@ define module httpi                             // http internals
               log-error => %log-error };
   use koala;
   use koala-extender;
+  use memory-manager;
 
   use locators,
     rename: { <http-server> => <http-server-url>,

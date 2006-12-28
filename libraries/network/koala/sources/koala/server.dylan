@@ -69,6 +69,7 @@ define class <server> (<sealed-constructor>)
   slot connections-accepted :: <integer> = 0; // Connections accepted
   constant slot user-agent-stats :: <string-table> = make(<string-table>);
   constant class slot startup-date :: <date> = current-date();
+  slot listen-ip :: false-or(<string>) = #f;
 end;
 
 define sealed method make
@@ -462,6 +463,7 @@ define function do-http-listen (listener :: <listener>)
                 ignore-errors(<socket-condition>,
                               close(client.client-socket, abort: #t));
                 release-client(client);
+                collect-garbage();
               end;
             end method;
       with-lock (server-lock)
