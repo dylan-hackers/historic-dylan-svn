@@ -24,6 +24,7 @@
 #include <pthread.h>
 #include <sched.h>
 #include <signal.h>
+#include <bits/sigthread.h>
 #include <semaphore.h>
 #include <errno.h>
 #include <stdio.h>
