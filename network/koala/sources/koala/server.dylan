@@ -891,7 +891,6 @@ define method find-responder
   if (responder)
     let fun = head(responder);
     let prefix? = tail(responder);
-    log-debug("fun = %=, prefix? = %=, rest = %=", fun, prefix?, rest);
     values(fun, prefix?, rest)
   else
     maybe-auto-register(url)
