@@ -11,9 +11,9 @@
 <!-- Koala configuration file
 
      This file must be placed in <koala-executable>/../config/koala-config.xml
-     if you want Koala to find it.  For example, when running the koala-app
-     project a copy of this file should be placed in the directory
-     <koala-root>/sources/koala-app/config/
+     if you want Koala to find it without using the --config argument.  For
+     example, when running the koala-app project a copy of this file should be
+     placed in the directory <koala-root>/sources/koala-app/config/
 
      Anything directly inside the <koala> element in this file affects
      Koala's global environment or the default virtual host.  Anything
