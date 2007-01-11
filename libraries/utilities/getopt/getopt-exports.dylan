@@ -44,6 +44,7 @@ define module option-parser-protocol
     // <option-parser>
       short-option-names, short-option-names-setter,
       long-option-names, long-option-names-setter,
+      option-description, option-description-setter,
       option-default-value, option-default-value-setter,
       option-might-have-parameters?, option-might-have-parameters?-setter,
       option-value-setter,
@@ -69,6 +70,7 @@ end module;
 define module getopt
   use common-dylan, exclude: { format-to-string };
   use option-parser-protocol;
+  use standard-io;
 
   export
     <argument-list-parser>,
@@ -79,6 +81,7 @@ define module getopt
     option-parser-by-long-name,
     option-present?-by-long-name,
     option-value-by-long-name,
+    print-synopsis,
 
     <option-parser>,
       option-present?,
