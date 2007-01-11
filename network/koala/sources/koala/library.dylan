@@ -5,6 +5,7 @@ Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
+// If you update this file don't forget to update library-unix.dylan as well.
 
 define library koala
   use functional-dylan,
@@ -25,7 +26,8 @@ define library koala
   use win32-kernel;
   use base64;
   use memory-manager;
-  
+  use getopt;
+
   export koala;
   export koala-extender;
   export dsp;
@@ -271,6 +273,11 @@ define module koala
   create
     static-file-responder;
 
+  // main() function
+  create
+    koala-main,
+    *argument-list-parser*;
+
 end module koala;
 
 // Additional interface for extending the server
@@ -296,7 +303,6 @@ define module httpi                             // http internals
   use koala;
   use koala-extender;
   use memory-manager;
-
   use locators,
     rename: { <http-server> => <http-server-url>,
               <ftp-server> => <ftp-server-url>,
@@ -324,6 +330,7 @@ define module httpi                             // http internals
   use xml-rpc-common;
   use win32-kernel, import: { LoadLibrary, FreeLibrary };
   use base64;
+  use getopt;
 end module httpi;
 
 define module dsp

@@ -63,3 +63,9 @@ define variable *server-running?* :: <boolean> = #f;
 // to make logging work before vhosts are initialized.
 define variable *temp-log-target*
   = make(<stream-log-target>, stream: *standard-output*);
+
+// Command-line arguments parser.  The expectation is that libraries that use
+// and extend koala (e.g., wiki) may want to add their own <option-parser>s to
+// this before calling koala-main().
+define variable *argument-list-parser* :: <argument-list-parser>
+  = make(<argument-list-parser>);

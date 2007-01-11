@@ -2,15 +2,10 @@ Module:   koala-app
 Synopsis: Koala HTTP Server Application
 Author:   Carl Gay
 
-define function main
-    () => ()
-  let config-file =
-    if(application-arguments().size > 0)
-      application-arguments()[0]
-    end;
-  start-server(config-file: config-file);
-end;
+// It's really kind of annoying that we have to make another whole
+// library (with two files) just to call the main function.  I wonder
+// if there's a good way to fix it.
 
 begin
-  main();
+  koala-main();
 end;

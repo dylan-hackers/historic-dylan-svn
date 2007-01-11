@@ -5,13 +5,13 @@ Author:   Carl Gay
 define library koala-app
   use dylan;
   use system, import: { operating-system };
-  use koala;
+  use koala,  import: { koala };
 end;
 
 
 define module koala-app
   use dylan;
   use operating-system, import: { application-arguments };
-  use koala, import: { start-server };
+  use koala, import: { koala-main };
 end;
 

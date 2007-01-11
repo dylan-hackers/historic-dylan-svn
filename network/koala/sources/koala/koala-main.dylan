@@ -22,6 +22,17 @@ define function init-koala ()
     test-koala();
   end;
 
+  add-option-parser-by-type(*argument-list-parser*,
+                            <parameter-option-parser>,
+                            description: "Location of the koala configuration file",
+                            long-options: #("config"),
+                            short-options: #("c"));
+  add-option-parser-by-type(*argument-list-parser*,
+                            <simple-option-parser>,
+                            description: "Display this help message",
+                            long-options: #("help"),
+                            short-options: #("h"));
+
   //init-server();
 end;
 
@@ -29,3 +40,20 @@ begin
   init-koala();
 end;
 
+// This is defined here rather than in koala-app because wiki needs it too.
+define function koala-main ()
+  let parser = *argument-list-parser*;
+  parse-arguments(parser, application-arguments());
+  if (option-value-by-long-name(parser, "help")
+        | ~empty?(parser.regular-arguments))
+    let desc = "The Koala web server, a multi-threaded web server with\n"
+      "Dylan Server Pages and XML RPC, written in Dylan.";
+    print-synopsis(parser,
+                   stream: *standard-output*,
+                   usage: "koala [options]",
+                   description: desc);
+    exit-application(0);
+  else
+    start-server(config-file: option-value-by-long-name(parser, "config"));
+  end;
+end function koala-main;
