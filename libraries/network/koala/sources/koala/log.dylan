@@ -9,15 +9,25 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 /*
 How koala logging works:
 
-Each virtual host has (potentially) three different log targets:
-errors, activity, debug output.  (These target could all be the
-same.)  Each virtual host has its own applicable log level.  The
-most basic method for doing logging is log-message, which is
-passed a <log-target> and a <log-level>.  If the log-level passed
-to log-message is an instance of the active log level for the
-current virtual host the the message will be logged. Otherwise
-it'll be dropped on the floor.  <log-target>s allow for arbitrary
-backing store for logs, like files, databases, the net, etc.
+Each virtual host has (potentially) three different log targets: errors,
+activity, and debug output.  (These targets could all be the same.)  Each
+virtual host has its own applicable log level.  The most basic method for doing
+logging is log-message, which is passed a <log-target> and a <log-level>.  If
+the log-level passed to log-message is an instance of the active log level for
+the current virtual host then the message will be logged. Otherwise it'll be
+dropped on the floor.  <log-target>s allow for arbitrary backing store for
+logs, like files, databases, the net, etc.
+
+
+todo -- Thread safety?
+
+todo -- Handle errors gracefully.  e.g., if the disk fills up it may be
+        better to do nothing than to crash the web server.
+
+todo -- If this were separated out into a real logging library I'd want
+        it to support multiple log targets, a log "context" (e.g., the current
+        thread name), and more flexible formatting.
+
 */
 
 // Root of the log level hierarchy.  Logging uses a simple class
@@ -94,7 +104,7 @@ define method log
     (level :: <log-level>, target :: <log-target>, format-string :: <string>,
      #rest format-args)
   if (log-level-applicable?(level, target))
-    // TODO: Using concatenate would be more efficient that with-output-to-string.
+    // TODO: Using concatenate would be more efficient than with-output-to-string.
     let line :: <string>
       = with-output-to-string (stream)
           date-to-stream(stream, current-date());
