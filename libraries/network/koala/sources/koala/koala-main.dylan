@@ -32,6 +32,11 @@ define function init-koala ()
                             description: "Display this help message",
                             long-options: #("help"),
                             short-options: #("h"));
+  add-option-parser-by-type(*argument-list-parser*,
+                            <simple-option-parser>,
+                            description: "Enable debugging.  Causes Koala to not handle "
+                                         "most errors during request handling.",
+                            long-options: #("debug"));
 
   //init-server();
 end;
@@ -54,6 +59,9 @@ define function koala-main ()
                    description: desc);
     exit-application(0);
   else
+    if (option-value-by-long-name(parser, "debug"))
+      *debugging-server* := #t;
+    end;
     start-server(config-file: option-value-by-long-name(parser, "config"));
   end;
 end function koala-main;

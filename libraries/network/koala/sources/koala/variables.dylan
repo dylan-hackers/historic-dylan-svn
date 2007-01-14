@@ -10,8 +10,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // Whether the server should run in debug mode or not.  If this is true then
 // errors encountered while servicing HTTP requests will not be handled by the
 // server itself.  Normally the server will handle them and return an "internal
-// server error" response.  Setting this to true is the recommended way to
-// debug your Dylan Server Pages.
+// server error" response.  A good way to debug Dylan Server Pages.  Can be
+// enabled via the --debug command-line option.
 define variable *debugging-server* :: <boolean> = #f;
 
 // The top of the directory tree under which the server's configuration, error,
