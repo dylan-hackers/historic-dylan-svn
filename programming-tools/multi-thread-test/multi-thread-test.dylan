@@ -31,9 +31,14 @@ end;
 define function main () => ()
   let ts = make(<thread-server>);
   while(#t)
-    let count = counter();
-    make(<thread>, function: curry(thread-worker, ts, count));
-    format-out("Started %d thread [%d]\n", count, ts.threads.size);
+    block()
+      let count = counter();
+      make(<thread>, function: curry(thread-worker, ts, count));
+      format-out("Started %d thread [%d]\n", count, ts.threads.size);
+    exception (c :: <condition>)
+      format-out("Received condition %=\n", c);
+      sleep(1);
+    end;
   end;
 end;
 
