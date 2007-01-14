@@ -34,7 +34,9 @@ define function main () => ()
     block()
       let count = counter();
       make(<thread>, function: curry(thread-worker, ts, count));
-      format-out("Started %d thread [%d]\n", count, ts.threads.size);
+      with-lock(ts.lock)
+        format-out("Started %d thread [%d]\n", count, ts.threads.size);
+      end;
     exception (c :: <condition>)
       format-out("Received condition %=\n", c);
       sleep(1);
