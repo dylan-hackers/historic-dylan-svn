@@ -21,11 +21,12 @@ define function thread-worker (ts :: <thread-server>, count :: <integer>) => ()
   with-lock (ts.lock)
     add!(ts.threads, count)
   end;
-  sleep(1);
+  format-out("Hello from %d\n",count);
+  //collect-garbage();
+  //sleep(1);
   with-lock (ts.lock)
     remove!(ts.threads, count)
   end;
-  collect-garbage()
 end;
 
 define function main () => ()
