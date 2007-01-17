@@ -23,15 +23,12 @@ define function thread-worker (ts :: <thread-server>, count :: <integer>) => ()
   end;
   format-out("Hello from %d\n",count);
   //collect-garbage();
-  //sleep(1);
+  sleep(modulo(random(100000), 5));
   format-out("Hello from %d\n",count);
   with-lock (ts.lock)
     remove!(ts.threads, count)
   end;
   format-out("End from %d\n",count);
-  while (#t)
-    sleep(2300)
-  end;
 end;
 
 define function main () => ()
