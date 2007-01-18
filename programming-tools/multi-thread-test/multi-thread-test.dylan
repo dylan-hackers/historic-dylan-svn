@@ -22,9 +22,9 @@ define function thread-worker (ts :: <thread-server>, count :: <integer>) => ()
     add!(ts.threads, count)
   end;
   format-out("Hello from %d\n",count);
-  //collect-garbage();
-  sleep(modulo(random(100000), 5));
-  format-out("Hello from %d\n",count);
+  collect-garbage();
+  //sleep(modulo(random(100000), 5));
+  //format-out("Hello from %d\n",count);
   with-lock (ts.lock)
     remove!(ts.threads, count)
   end;
