@@ -864,7 +864,7 @@ define method register-url-now
   else
     add-object(server.url-map, url, pair(target, prefix?), replace?: replace?);
   end;
-  log-info("URL %s registered", url);
+  log-info("URL %s%s registered", url, if (prefix?) "/*" else "" end);
 end method register-url-now;
 
 // Find a responder function, if any.
