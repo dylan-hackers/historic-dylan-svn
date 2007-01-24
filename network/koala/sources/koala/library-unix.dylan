@@ -272,6 +272,15 @@ define module koala
   // files
   create
     static-file-responder;
+  
+  create <avalue>,
+    avalue-value,
+    avalue-alist;
+
+  create <http-file>,
+    http-file-filename,
+    http-file-content,
+    http-file-mime-type;
 
   // main() function
   create
