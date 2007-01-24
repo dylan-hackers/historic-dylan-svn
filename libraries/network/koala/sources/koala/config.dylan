@@ -384,13 +384,17 @@ define constant $mime-type = make(<mime-type>);
 
 define method process-config-element
     (node :: xml$<element>, name == #"mime-type-map")
+  log-info("configuring mime-type-map");
   let filename = get-attr(node, #"location");
+  log-info("mime-type-map: %s", filename);
+
+
   let mime-type-loc = as(<string>,
-                         merge-locators(as(<file-locator>,
-                                           format-to-string("%s/%s",
-                                                            $koala-config-dir,
-                                                            filename)),
-                                        *server-root*));
+    merge-locators(merge-locators(as(<file-locator>, filename),
+      as(<directory-locator>, $koala-config-dir)),
+    *server-root*));
+
+  log-info("mime-type-map-loc: %s", mime-type-loc);
     let mime-text = file-contents(mime-type-loc);
     if (mime-text)
       let mime-xml :: xml$<document> = xml$parse-document(mime-text);

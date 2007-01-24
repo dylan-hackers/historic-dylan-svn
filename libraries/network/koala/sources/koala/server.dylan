@@ -1022,6 +1022,15 @@ define function extract-request-version (buffer :: <string>,
   end;
 end extract-request-version;
 
+define class <http-file> (<object>)
+  slot http-file-filename :: <string>,
+    required-init-keyword: filename:;
+  slot http-file-content :: <byte-string>,
+    required-init-keyword: content:;
+  slot http-file-mime-type :: <string>,
+    required-init-keyword: mime-type:;
+end;
+
 define method extract-form-data
  (buffer :: <string>, boundary :: <string>, request :: <request>)
   // strip everything after end-boundary
@@ -1029,8 +1038,7 @@ define method extract-form-data
   let parts = split(buffer, separator: concatenate("--", boundary));
   for (part in parts) 
     let part = split(part, separator: "\r\n\r\n");
-    let header = first(part);
-    let header-entries = split(header, separator: "\r\n");
+    let header-entries = split(first(part), separator: "\r\n");
     let disposition = #f;
     let name = #f;
     let type = #f;
@@ -1054,7 +1062,16 @@ define method extract-form-data
       end for;
     end for;
     if (part.size > 1)
-      request.request-query-values[name] := substring(second(part), 0, size(second(part)) - 1);
+      // TODO: handle disposition = "multipart/form-data" and parse that again
+      //disposition = "multipart/form-data" => ...
+      if (disposition = "form-data")
+        let content = substring(second(part), 0, size(second(part)) - 1);
+        request.request-query-values[name] := if (filename & type)
+            make(<http-file>, filename: filename, content: content, mime-type: type);
+          else
+            content;
+          end if;
+      end if;
     end if;
     log-debug("multipart/form-data for %=: %=, %=, %=", name, disposition, type, filename);
   end for;
