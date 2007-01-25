@@ -53,7 +53,6 @@ end module self-organizing-list;
 define module subseq
   use dylan;
   use byte-vector;
-  use dylan-extensions, import: { \copy-down-method-definer };
   export subsequence, <subsequence>, <byte-vector-subsequence>;
 end module subseq;  
 
