@@ -95,14 +95,13 @@ end;
 define method process-page (page :: <page>,
                             request :: <request>,
                             response :: <response>)
-  with-resource (pc = <page-context>)
-    dynamic-bind (*page-context* = pc)
-      select (request.request-method)
-        #"POST"   => respond-to-post(page, request, response);
-        #"GET"    => respond-to-get (page, request, response);
-        #"HEAD"   => respond-to-head(page, request, response);
-        otherwise => unsupported-request-method-error();
-      end;
+  let pc = make(<page-context>);
+  dynamic-bind (*page-context* = pc)
+    select (request.request-method)
+      #"POST"   => respond-to-post(page, request, response);
+      #"GET"    => respond-to-get (page, request, response);
+      #"HEAD"   => respond-to-head(page, request, response);
+      otherwise => unsupported-request-method-error();
     end;
   end;
 end process-page;
@@ -643,7 +642,7 @@ end;
 define open primary class <dylan-server-page> (<file-page-mixin>, <page>)
   // A sequence of strings and functions.  Strings are output directly
   // to the network stream.  The functions are created by 'define tag'.
-  slot page-template :: <dsp-template>;
+  each-subclass slot page-template :: <dsp-template>;
 end;
 
 // define page my-dsp (<dylan-server-page>) (url: "/hello", source: make-locator(...), ...)
@@ -816,7 +815,7 @@ end;
 //
 define open method process-template
     (page :: <dylan-server-page>, request :: <request>, response :: <response>)
-  when (page-source-modified?(page))
+  when (page-source-modified?(page) | ~ slot-initialized?(page, page-template))
     page.mod-time := file-property(source-location(page),
                                    #"modification-date");
     page.page-template := parse-page(page);

@@ -115,16 +115,6 @@ define class <attributes-mixin> (<object>)
   constant slot attributes :: <table> = make(<table>);
 end;
 
-define method reinitialize-resource
-    (resource :: <attributes-mixin>, #rest init-args, #key)
-  remove-all-keys!(resource.attributes);
-end;
-
-define method resource-size
-    (resource :: <attributes-mixin>) => (size :: <integer>)
-  size(attributes(resource));
-end;
-
 define generic get-attribute (this :: <attributes-mixin>, key :: <object>, #key);
 define generic set-attribute (this :: <attributes-mixin>, key :: <object>, value :: <object>);
 define generic remove-attribute (this :: <attributes-mixin>, key :: <object>);
