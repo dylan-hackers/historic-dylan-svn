@@ -463,20 +463,26 @@ define function do-http-listen (listener :: <listener>)
                 ignore-errors(<socket-condition>,
                               close(client.client-socket, abort: #t));
                 release-client(client);
-                collect-garbage();
               end;
             end method;
       with-lock (server-lock)
-        wrapping-inc!(listener.connections-accepted);
-        wrapping-inc!(server.connections-accepted);
-        let thread = make(<thread>, name: "HTTP Responder",
-                          function:  do-respond);
-        client := make(<client>,
-                       server: server,
-                       listener: listener,
-                       socket: socket,
-                       thread: thread);
-        add!(server.clients, client);
+        block()
+          wrapping-inc!(listener.connections-accepted);
+          wrapping-inc!(server.connections-accepted);
+          let thread = make(<thread>, name: "HTTP Responder",
+                            function:  do-respond);
+          client := make(<client>,
+                         server: server,
+                         listener: listener,
+                         socket: socket,
+                         thread: thread);
+          add!(server.clients, client);
+        exception (e :: <error>)
+          //this should be <thread-error>, which is not yet exported
+          //needs a compiler bootstrap, so specify it sometime later
+          //hannes, 27th January 2007
+          log-info("Thread error %=", e)
+        end;
       end;
       loop();
     end when;
@@ -506,7 +512,7 @@ define class <request> (<basic-request>)
 
   // Query values from either the URL or the body of the POST, if Content-Type
   // is application/x-www-form-urlencoded.
-  slot request-query-values :: false-or(<string-table>) = #f;
+  constant slot request-query-values :: <string-table> = make(<string-table>);
 
   slot request-session :: false-or(<session>) = #f;
 
@@ -569,33 +575,27 @@ define function handler-top-level
                   end;
                 end;
                   
-            with-resource (query-values = <string-table>)
+            block ()
               block ()
-                block ()
-                  request.request-query-values := query-values;
-                  read-request(request);
-                  dynamic-bind (*request-query-values* = query-values,
-                                *virtual-host* = virtual-host(request))
-                    log-debug("Virtual host for request is '%s'", 
-                              vhost-name(*virtual-host*));
-                    invoke-handler(request);
-                  end;
-                  force-output(request.request-socket);
-                exception (c :: <http-error>)
-                  // Always handle HTTP errors, even when debugging...
-                  send-error-response(request, c);
-                  exit-inner();
+                read-request(request);
+                dynamic-bind (*request-query-values* = request.request-query-values,
+                              *virtual-host* = virtual-host(request))
+                  log-debug("Virtual host for request is '%s'", 
+                            vhost-name(*virtual-host*));
+                  invoke-handler(request);
                 end;
-              cleanup
-                request.request-query-values := #f;
-                deallocate-resource(<string-table>, query-values);
-              exception (c :: <socket-condition>)
-                // Always exit the request handler when a socket error occurs...
-                log-debug("A socket error occurred: %s",
-                          condition-to-string(c));
-                exit-request-handler();
+                force-output(request.request-socket);
+              exception (c :: <http-error>)
+                // Always handle HTTP errors, even when debugging...
+                send-error-response(request, c);
+                exit-inner();
               end;
-            end with-resource;
+            exception (c :: <socket-condition>)
+              // Always exit the request handler when a socket error occurs...
+              log-debug("A socket error occurred: %s",
+                        condition-to-string(c));
+              exit-request-handler();
+            end;
           end block;
           request.request-keep-alive? | exit-request-handler();
         end with-simple-restart;
@@ -790,20 +790,17 @@ end;
 
 define method send-error-response-internal (request :: <request>, err :: <error>)
   let headers = http-error-headers(err);
-  with-resource (response = <response>,
-                 request: request,
-                 headers: headers)
-    let one-liner = http-error-message-no-code(err);
-    unless (request-method(request) == #"head")
-      let out = output-stream(response);
-      set-content-type(response, "text/plain");
-      write(out, condition-to-string(err));
-      write(out, "\r\n");
-    end unless;
-    response.response-code    := http-error-code(err);
-    response.response-message := one-liner;
-    send-response(response);
-  end;
+  let response = make(<response>, request: request, headers: headers);
+  let one-liner = http-error-message-no-code(err);
+  unless (request-method(request) == #"head")
+    let out = output-stream(response);
+    set-content-type(response, "text/plain");
+    write(out, condition-to-string(err));
+    write(out, "\r\n");
+  end unless;
+  response.response-code    := http-error-code(err);
+  response.response-message := one-liner;
+  send-response(response);
 end method;
 
 // Do whatever we need to do depending on the incoming headers for
@@ -941,25 +938,23 @@ end;
 // and generate the appropriate error response.
 define method invoke-handler
     (request :: <request>) => ()
-  with-resource (headers = <header-table>)
-    with-resource (response = <response>,
-                   request: request,
-                   headers: headers)
-      if(request.request-keep-alive?)
-        add-header(response, "Connection", "Keep-Alive");
-      end if;
-      dynamic-bind (*response* = response)
-        if (request.request-responder)
-          log-debug("%s handler found", request-url(request));
-          request.request-responder(request, response);
-        else
-          // generates 404 if not found
-          maybe-serve-static-file(request, response);
-        end;
-      end;
-      send-response(response);
-    end with-resource;
-  end with-resource;
+  let headers = make(<header-table>);
+  let response = make(<response>,
+                      request: request,
+                      headers: headers);
+  if(request.request-keep-alive?)
+    add-header(response, "Connection", "Keep-Alive");
+  end if;
+  dynamic-bind (*response* = response)
+    if (request.request-responder)
+      log-debug("%s handler found", request-url(request));
+      request.request-responder(request, response);
+    else
+      // generates 404 if not found
+      maybe-serve-static-file(request, response);
+    end;
+  end;
+  send-response(response);
 end invoke-handler;
 
 // Read a line of input from the stream, dealing with CRLF correctly.

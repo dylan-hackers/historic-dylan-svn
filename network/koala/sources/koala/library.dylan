@@ -80,16 +80,6 @@ define module utilities
     mod-time,
     mod-time-setter,
 
-    // Resource pools
-    allocate-resource,
-    deallocate-resource,
-    new-resource,
-    reinitialize-resource,
-    resource-deallocated,
-    resource-size,
-    with-resource,
-    test-resource,
-
     // Attributes
     <attributes-mixin>,
     get-attribute,

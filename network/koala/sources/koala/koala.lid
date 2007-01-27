@@ -2,7 +2,6 @@ library: koala
 files:	library
 	log
 	utils
-	resources
 	variables
 	timer
 	substring
@@ -26,6 +25,5 @@ files:	library
 	xml-rpc-server
 	config
 	responders
-	utils-main
 	koala-main
 	dsp-main

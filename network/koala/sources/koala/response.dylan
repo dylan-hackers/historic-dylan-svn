@@ -8,9 +8,6 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 // Exported
 //
-// If you add a slot to this class you may need to reset that slot to
-// its initial value in the reinitialize-resource method below.
-//
 define open primary class <response> (<object>)
   slot get-request :: <request>, required-init-keyword: #"request";
 
@@ -27,9 +24,6 @@ define open primary class <response> (<object>)
   slot response-code    :: <integer> = 200;
   slot response-message :: <string>  = "OK";
 
-  // Whether or not the headers were allocated with allocate-resource, in which
-  // case they need to be deallocated with deallocate-resource.
-  slot headers-resourced? :: <boolean> = #f, init-keyword: #"headers-resourced?";
   slot headers-sent? :: <boolean> = #f;
 
   // Whether or not this is a buffered response.
@@ -64,7 +58,7 @@ define method output-stream
       // output stream.
       set-content-type(response, default-dynamic-content-type(*virtual-host*),
                        if-exists?: #"ignore");
-      response.%output-stream := allocate-resource(<string-stream>);
+      response.%output-stream := make(<string-stream>, direction: #"output");
     end
 end;
 
@@ -87,60 +81,6 @@ define method set-content-type
   else
     add-header(response.response-headers, "Content-Type", content-type, if-exists?: if-exists?);
   end;
-end;
-
-
-// Implements part of the resource protocol.
-//
-define method new-resource
-    (resource-class == <response>,
-     #rest initargs,
-     #key request :: <request>, headers :: false-or(<header-table>))
- => (response :: <response>)
-  make(<response>,
-       request: request,
-       headers: headers | allocate-resource(<header-table>),
-       headers-resourced?: ~headers);
-end;
-  
-
-// Implements part of the resource protocol.
-//
-define method reinitialize-resource
-    (response :: <response>,
-     #rest init-args,
-     #key request :: <request>, headers)
-  get-request(response) := request;
-  response-headers(response) := (headers | allocate-resource(<header-table>));
-  headers-resourced?(response) := ~headers;
-  response-code(response)    := 200;
-  response-message(response) := "OK";
-  // Note some reinitialization is done in the resource-deallocated method below.
-end;
-
-// Implements part of the resource protocol.
-//
-define method resource-deallocated
-    (response :: <response>)
-  let stream = %output-stream(response);
-  when (stream)
-    deallocate-resource(<string-stream>, stream);
-    response.%output-stream := #f;
-    response.headers-sent? := #f;
-    iff (response.headers-resourced?,
-         deallocate-resource(<header-table>, response.response-headers));
-  end;
-  next-method();
-end;
-
-// Implements part of the resource protocol.
-//
-define method resource-size
-    (response :: <response>) => (size :: <integer>)
-  let stream = response.%output-stream;
-  iff (stream,
-       stream-size(stream),
-       0)
 end;
 
 // The caller is telling us that either the request is complete or it's OK to
