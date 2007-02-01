@@ -1,0 +1,325 @@
+\documentstyle{slides} % -*- Dictionary: pap:papers -*- 
+
+%\nologo	% Remove the '%' at the beginning to eliminate the logo
+
+\begin{document}
+\small
+\pagestyle{headings}
+
+\begin{titlepage}
+\begin{center}
+\vspace*{2.5 cm}
+{\bf Gwydion Architecture}\\
+{\it and}\\
+{\bf Compiler Technology}\\
+
+\vspace{2 em}
+{\bf Robert A. MacLachlan}\\
+\vspace{2 em}
+\today
+\end{center}
+\end{titlepage}
+
+
+\newpage
+Overview
+
+\begin{itemize}
+\item System architecture
+\begin{itemize}
+\item Process structure
+\item Hypercode and HAPI
+\item Fast Development Cycle
+\item Dynamism/efficiency tradeoffs
+\item Compiler/Environment Integration
+\end{itemize}
+
+\item Analysis and compilation
+\begin{itemize}
+\item Why is optimization important?
+
+\item Abstraction and Dynamism
+
+\item Optimization and Tuning: accountable optimization, partial evaluation,
+profiling and method selection.
+
+\end{itemize}
+\end{itemize}
+
+
+\newpage
+Hypercode Requirements
+
+\begin{itemize}
+\item  All previous states are included. (the design record)
+
+\item Hypercode has semantically derived links that depend on non-local
+properties of a particular project-version.  For example, which function is
+called depends on which version of the defining library has been configured.
+
+\item Hypercode requires that relationships between objects meaningfully
+persist across changes to those objects.
+
+\item In addition to slicing hypercode according to relationships present at
+particular times, hypercode tools need to be able to naturally slice through
+time to develop historical insight.  Queries against past semantic information
+are very useful for re-engineering.
+\end{itemize}
+
+
+\newpage
+HAPI
+
+\begin{itemize}
+\item HAPI is the Hypercode Application Programmer's Interface.  HAPI is an
+extensible framework.
+
+\item Versioning, development branch/merge and sharing control are built into
+HAPI.
+
+\item Management policy decisions are delegated to higher-level tools.
+
+\item HAPI supports incremental update of persistent semantic information (such
+as dependencies.)  HAPI triggers inference components (such as the
+analyzer) when necessary.
+
+\item This semantic data is both indexed and versioned, allowing semantic
+slicing through time.
+\end{itemize}
+
+
+\newpage
+Fast Development Cycle
+
+\begin{itemize}
+\item Studies of the advantages of dynamic prototyping environments often
+find the fast design---implement---evaluate cycle to be the primary cause of
+improved productivity.
+
+\item Because of its quantifiable and immediate benefits, environments for
+C++, etc., are starting to adopt incremental compilation.
+
+\item Although Gwydion emphasizes support for new development paradigms such
+as evolution and high-level programming, we still believe responsive
+development tools are important.
+
+\item Gwydion advances incremental development into new areas: concurrent
+incremental design, coding, testing and documentation.  Quick transition
+between all these functions is required to avoid short-term memory loss.
+\end{itemize}
+
+
+\newpage
+Dynamism/Efficiency Tradeoffs
+
+\begin{itemize}
+\item Dynamism speeds and simplifies incremental compilation because it loosen
+linkages between components.
+
+\item If all static information is completely exploited by the compiler, the
+program will be very efficient, but incremental compilation is difficult.
+
+\item Gwydion allows the programmer to control how much static analysis
+information is exploited, so the tradeoff is made depending on the stability of
+each program component.
+\end{itemize}
+
+
+\newpage
+Compiler/Environment Integration
+
+\begin{itemize}
+\item The Gwydion compiler is highly integrated with the environment.  Rather
+than batch file I/O, the compiler uses hypercode and interactive tools.
+
+\item Semantic analysis is separated from compilation.  The analysis is both
+continuously updated and saved for future reference.
+
+\item Gwydion moves beyond traditional separate compilation.  The program is
+analyzed as a single unit, but analysis and compilation are done incrementally.
+\end{itemize}
+
+
+\newpage
+Why is Optimization Important?
+
+\begin{itemize}
+\item Standard compiler optimizations have limited use because OO programs are
+split into many small procedures.
+
+\item In effect, OOP creates new opportunities for optimization (by creating
+new inefficiencies.)
+\end{itemize}
+
+
+\newpage
+Abstraction and Dynamism
+
+OO programming depends on:
+
+\vspace{1em}
+{\bf Abstraction}
+\begin{itemize}
+\item Interface--Implementation separation, multiple implementations.
+\item Extensibility, polymorphism and subclassing allow orderly evolution.
+\item Interfaces become more general, facilitating reuse.
+\end{itemize}
+{\bf Dynamism}
+\begin{itemize}
+\item Control and data flow decisions delayed to runtime.
+\item Dynamic decisions depend on runtime data instead of explicit
+declarations.
+\item Dynamism reduces the need for the programmer to understand certain
+aspects of system behavior.
+\end{itemize}
+
+
+\newpage
+Problems with Abstraction
+
+Dynamism and abstraction both reduce efficiency and understandability:
+\begin{itemize}
+\item Dynamic decisions require runtime effort and may depend on non-obvious
+properties of the entire program.
+
+\item Abstraction barriers tend to inhibit optimization, and layers of
+irrelevant abstraction make it hard to see what a method does (object
+spaghetti.)  \end{itemize}
+
+
+\newpage
+The Gwydion/Dylan Approach
+
+Dylan is both more dynamic and more abstract than most OO languages, which both
+helps and hurts.  
+
+\vspace{1em}
+Gwydion and Dylan try to get the good without the bad:
+\begin{itemize}
+\item Everything is conceptually dynamic, maximizing flexibility, but
+\item Static mechanisms such as type declarations and sealing are also
+supported.
+
+\item Whole-program analysis helps both compilation efficiency and user
+comprehension.
+
+\item The compiler exploits static type and sealing declarations.
+
+\item Inefficiency is reduced by resolving abstraction and dynamism at compile
+time.
+\end{itemize}
+
+
+\newpage
+Optimization and Tuning
+
+In Gwydion, automatic optimization and manual tuning are integrated:
+\begin{itemize}
+\item Eliminating unnecessary dynamism requires programmer input, but
+\item The programmer doesn't understand the compiler or the complete dynamic
+behavior.
+\item Tools are needed to find and resolve efficiency problems.  The compiler
+and programmer have a persistent dialog.
+\end{itemize}
+
+
+\newpage
+Accountable Optimization
+
+Accountable optimization eliminates the need for a mental efficiency model by
+telling the programmer:
+\begin{itemize}
+\item when an inefficient implementation is chosen for non-obvious reasons,
+
+\item how serious the situation is,
+
+\item precisely what part of the program is being referred to, and
+
+\item why the inefficient choice was made (and how to enable efficient
+compilation.)
+\end{itemize}
+
+
+\newpage
+Partial Evaluation
+
+Partial evaluation is a generalization of constant folding.  It transforms
+complex statements using information about parts of the program that are
+constant.
+
+\vspace{1em}
+Partial evaluation comes into its own when programs are {\it written to be
+optimized:}
+\begin{itemize}
+\item Tuned programs written in low-level languages show little benefit from
+partial evaluation because they are already hand-optimized.
+
+\item Partial evaluation helps the efficiency of abstract programs by
+specializing abstract operations according to their context.
+
+\item Partial evaluation avoids the inefficiency of dynamism by discovering
+static properties.
+\end{itemize}
+
+
+\newpage
+Dynamic Profiling
+
+\begin{itemize}
+\item During development, a dynamic profile is built of each application.
+
+\item Profiling aids manual tuning and focuses compiler feedback.
+
+\item Even without user input, profiling can be used to guide optimization.
+
+\item The dynamic profile is maintained across program modifications.
+
+\item The profile history increases representativeness and allows detection of
+performance bugs.
+\end{itemize}
+
+
+\newpage
+Method Selection
+
+Compile-time method selection is an important form of partial evaluation, since
+static method calls:
+\begin{itemize}
+\item need no dynamic method lookup.
+
+\item are candidates for inline expansion, enabling more partial evaluation.
+
+\item allow argument and result type inference.
+
+\item can be open-coded if the method is a built-in primitive (+, etc.)
+\end{itemize}
+
+Method selection is profile-driven:
+\begin{itemize}
+
+\item Even when a method can't proven to be most applicable, profile
+information can be used to guess which method will be called.
+
+\item The most-likely method can even be inlined as long as the inline code is
+guarded.
+\end{itemize}
+
+
+\newpage
+Summary
+
+\begin{itemize}
+\item Dylan's dynamism and abstraction have the potential to significantly help
+evolution and reuse, but a sophisticated environment is needed to get the most
+from Dylan.
+
+\item Hypercode and incremental semantic analysis provide support both for new
+program-understanding tools and for new optimization techniques.  These tools
+and optimizations minimize the negative effects of greater abstraction and
+dynamism.
+
+\item Substantial efficiency benefits can be gained by allowing the compiler
+and profiler to interact with the programmer and with each other.
+\end{itemize}
+
+\end{document}
