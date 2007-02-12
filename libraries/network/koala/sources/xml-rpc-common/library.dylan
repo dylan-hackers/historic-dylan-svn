@@ -6,10 +6,21 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library xml-rpc-common
-  use common-dylan;
-  use io;
-  use system;         // for date module
-  use xml-parser;
+  use common-dylan, import: {
+    dylan,
+    common-extensions
+    };
+  use io, import: {
+    format,
+    format-out,
+    streams
+    };
+  use system, import: {
+    date
+    };
+  use xml-parser, import: {
+    xml-parser
+    };
   use dylan-basics;
   export xml-rpc-common;
 end;

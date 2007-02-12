@@ -24,7 +24,6 @@ define library koala
   use dylan-basics;                             // basic dylan utils
   use sql-odbc;
   use win32-kernel;
-  use base64;
   use memory-manager;
   use getopt;
 
@@ -65,7 +64,6 @@ define module utilities
     wrapping-inc!,
     file-contents,
     pset,                // multiple-value-setq
-    ignore-errors,
     path-element-equal?,
     parent-directory,
     date-to-stream,
@@ -129,7 +127,7 @@ define module utilities
     <rolling-file-log-target>,
     <log-error>, <log-warning>, <log-info>, <log-debug>, <log-verbose>, <log-copious>,
     log-error, log-warning, log-info, log-debug, log-debug-if, log-verbose, log-copious,
-    log, log-raw,
+    log, log-raw, *standard-output-log-target*,
     log-level, log-level-setter,
     as-common-logfile-date;
     
@@ -150,8 +148,6 @@ define module koala
 
   // Basic server stuff
   create
-    http-server,        // Get the active HTTP server object.
-    ensure-server,      // Get (or create) the active HTTP server object.
     start-server,
     stop-server,
     register-url,
@@ -230,15 +226,18 @@ define module koala
 
   // Configuration
   create
-    process-config-element,
-    get-attr;
+    load-configuration-file;
   use xml-parser,
     rename: { <element> => <xml-element> },
     export: { <xml-element> };
 
   // XML-RPC
   create
-    register-xml-rpc-method;
+    <xml-rpc-configuration>,
+    register-xml-rpc-server-url,
+    register-xml-rpc-method,
+    register-xml-rpc-test-methods,
+    register-xml-rpc-introspection-methods;
 
   // Documents
   create
@@ -267,22 +266,32 @@ define module koala
 
   // Debugging
   create
-    print-object;
+    print-object,
+    http-error-responder,
+    load-module-responder,
+    unload-module-responder;
 
-  // files
+  // Files
   create
     static-file-responder;
+
+  // Statistics
+  create
+    general-stats-responder,
+    user-agent-responder;
 
   // main() function
   create
     koala-main,
-    *argument-list-parser*;
+    *command-line-parser*;
 
 end module koala;
 
 // Additional interface for extending the server
 define module koala-extender
-  create parse-header-value;
+  create
+    parse-header-value,
+    process-config-element, get-attr;
 end;
 
 define module httpi                             // http internals
@@ -329,7 +338,6 @@ define module httpi                             // http internals
     prefix: "xml$";
   use xml-rpc-common;
   use win32-kernel, import: { LoadLibrary, FreeLibrary };
-  use base64;
   use getopt;
 end module httpi;
 

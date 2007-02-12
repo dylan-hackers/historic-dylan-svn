@@ -151,10 +151,12 @@ end;
 
 
 // Get MIME Type for file name
-define method get-mime-type (locator :: <locator>) => (mime-type :: <string>)
+define method get-mime-type
+    (config :: <http-server-configuration>, locator :: <locator>)
+ => (mime-type :: <string>)
   let extension = locator-extension(locator);
   let sym = extension & ~empty?(extension) & as(<symbol>, extension);
-  let mime-type = ((sym & element(*mime-type-map*, sym, default: #f))
+  let mime-type = ((sym & element(mime-type-map(config), sym, default: #f))
                      | default-static-content-type(*virtual-host*));
   log-debug("extension = %=, sym = %=, mime-type = %=", extension, sym, mime-type);
   mime-type;
@@ -166,7 +168,8 @@ define method static-file-responder
     (request :: <request>, response :: <response>, locator :: <locator>)
   with-open-file(in-stream = locator, direction: #"input", if-does-not-exist: #f,
                  element-type: <byte>)
-    let mime-type = get-mime-type(locator);
+    let config = *server*.configuration;
+    let mime-type = get-mime-type(config, locator);
     add-header(response, "Content-Type", mime-type);
     let props = file-properties(locator);
     add-header(response, "Last-Modified",
@@ -231,8 +234,9 @@ define method directory-responder
                    end if;
         write(stream, "\t\t\t\t<tr>\n");
         format(stream, "\t\t\t\t<td class=\"name\"><a href=\"%s\">%s</a></td>\n", link, link);
+        let config = *server*.configuration;
         let mime-type = iff(type = #"file",
-                            get-mime-type(locator),
+                            get-mime-type(config, locator),
                             "");
         format(stream, "\t\t\t\t<td class=\"mime-type\">%s</td>\n", mime-type);
         for (key in #[#"size", #"modification-date", #"author"],

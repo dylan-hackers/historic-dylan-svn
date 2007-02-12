@@ -11,7 +11,7 @@
 <!-- Koala configuration file
 
      This file must be placed in <koala-executable>/../config/koala-config.xml
-     if you want Koala to find it without using the --config argument.  For
+     if you want Koala to find it without using the "config" argument.  For
      example, when running the koala-app project a copy of this file should be
      placed in the directory <koala-root>/sources/koala-app/config/
 
@@ -76,9 +76,9 @@
      server's configuration and log files are kept.  Other pathnames are
      merged against this one, so if they're relative they will be
      relative to this.  The server-root pathname is relative to the
-     koala executable.  NOTE: This should be near the top of the config
-     file since later elements will be merged against it.
-  -->
+     current working directory.  NOTE: This should be near the top of
+     the config file since later elements will be merged against it.
+     -->
 <server-root location="." />
 
 
@@ -130,22 +130,6 @@
      be registered as Dylan Server Pages.  The default is off.
   -->
 <auto-register enabled="no" />
-
-
-<!-- XML-RPC server settings.
-     Set enable="yes" to enable, "no" to disable.
-     Set url to the URL on which the server should listen for XML-RPC requests.
-     Set internal-error-fault-code to the fault code that should be returned for
-     any otherwise unhandled errors that are thrown during the execution of an XML-RPC
-     request.  e.g., a badly formed request, or unhandled errors in user code.
-     Set debug="yes" to log the raw XML sent/received for XML-RPC calls.
-  -->
-<xml-rpc
-  url="/RPC2"
-  enable="yes"
-  internal-error-fault-code="0"
-  debug="no"
-  />
 
 
 <!-- Web Objects (needs a better name) is a way to link web forms to database

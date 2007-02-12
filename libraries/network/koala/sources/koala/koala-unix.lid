@@ -17,7 +17,6 @@ files:	library-unix
 	session
 	static-files
 	server
-	dispatch
 	dsp
 	dsp-taglib
 	xml-rpc-server

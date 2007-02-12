@@ -9,8 +9,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 // General server statistics
 //
-define responder general-stats-responder ("/koala/stats")
-    (request, response)
+define method general-stats-responder
+    (request :: <request>, response :: <response>)
   let stream = output-stream(response);
   let server = request.request-server;
   format(stream, "<html><body>");
@@ -23,8 +23,8 @@ end;
 
 // Show some stats about what user-agents have connected to the server.
 //
-define responder user-agent-responder ("/koala/user-agents")
-    (request, response)
+define method user-agent-responder
+    (request :: <request>, response :: <response>)
   let stream = output-stream(response);
   format(stream, "<html><body>");
   for (count keyed-by agent in user-agent-stats(request-server(request)))
@@ -36,8 +36,8 @@ end;
 // Return an HTTP error code, for testing purposes.
 // e.g., /koala/http-error?code=503
 //
-define responder http-error-responder ("/koala/http-error")
-    (request, response)
+define method http-error-responder
+    (request :: <request>, response :: <response>)
   let code-string = get-query-value("code");
   let code = string-to-integer(code-string);
   signal(make(<http-error>,
@@ -46,36 +46,22 @@ define responder http-error-responder ("/koala/http-error")
               format-arguments: vector(code-string)));
 end;
 
-// Shutdown the server.  You definately don't want this active in a 
-// production setting.
-//
-/*
-define responder shutdown-responder ("/koala/shutdown")
-    (request, response)
-  let stream = output-stream(response);
-  let server = request.request-server;
-  format(stream, "<html><body>Shutting down...</body></html>");
-  force-output(stream);
-  stop-server(abort: #t);
-end;
-*/
-
 // Load a module
 //
-define responder load-module-responder ("/koala/load-module")
-    (request, response)
+define method load-module-responder
+    (request :: <request>, response :: <response>)
   load/unload-module(request, response, #"load");
 end;
 
 // Unload a module
 //
-define responder unload-module-responder ("/koala/unload-module")
-    (request, response)
+define method unload-module-responder
+    (request :: <request>, response :: <response>)
   load/unload-module(request, response, #"unload");
 end;
 
 define function load/unload-module
-    (request, response, op :: one-of(#"load", #"unload"))
+    (request :: <request>, response :: <response>, op :: one-of(#"load", #"unload"))
   let stream = output-stream(response);
   let server = request.request-server;
   let module-name = get-query-value("name");
@@ -84,7 +70,7 @@ define function load/unload-module
     write(stream, "You must specify the name of a module in the URL.\n");
   else
     if (op == #"load")
-      load-module(module-name);
+      load-module(module-name, *server*.configuration.server-root);
       format(stream, "Module %s loaded.");
     else
       unload-module(module-name);

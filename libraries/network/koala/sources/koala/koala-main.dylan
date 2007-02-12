@@ -1,67 +1,62 @@
 Module:    httpi
-Synopsis:  Library initialization code
+Synopsis:  Initialization and startup
 Author:    Carl Gay
 Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-//// Testing
-
-define constant $debugging-koala :: <boolean> = #f;
-
-define function test-koala
-    () => ()
-  // Nothing yet...
-end;
-
 
 //// Initialization
 
-define function init-koala ()
-  when ($debugging-koala)
-    test-koala();
-  end;
+define argument-parser <koala-command-line-parser> ()
+    option config-file = #f,
+      "", "Location of the Koala configuration file",
+      short: "c",
+      long: "config",
+      kind: <parameter-option-parser>;
+    option display-help?,
+      "", "Display this help message",
+      short: "h",
+      long: "help";
+    option debug-koala?,
+      "", "Enabled debugging.  Causes Koala to not handle most errors during "
+          "request handling.",
+      long: "debug";
+    option listen-port,
+      "", "Port on which to listen for HTTP requests.",
+      short: "p",
+      long: "port",
+      kind: <parameter-option-parser>;
+end argument-parser <koala-command-line-parser>;
 
-  add-option-parser-by-type(*argument-list-parser*,
-                            <parameter-option-parser>,
-                            description: "Location of the koala configuration file",
-                            long-options: #("config"),
-                            short-options: #("c"));
-  add-option-parser-by-type(*argument-list-parser*,
-                            <simple-option-parser>,
-                            description: "Display this help message",
-                            long-options: #("help"),
-                            short-options: #("h"));
-  add-option-parser-by-type(*argument-list-parser*,
-                            <simple-option-parser>,
-                            description: "Enable debugging.  Causes Koala to not handle "
-                                         "most errors during request handling.",
-                            long-options: #("debug"));
+// Command-line arguments parser.  The expectation is that libraries that use
+// and extend koala (e.g., wiki) may want to add their own <option-parser>s to
+// this before calling koala-main().
+//
+define variable *command-line-parser* :: <koala-command-line-parser>
+  = make(<koala-command-line-parser>);
 
-  //init-server();
-end;
-
-begin
-  init-koala();
-end;
-
-// This is defined here rather than in koala-app because wiki needs it too.
-define function koala-main ()
-  let parser = *argument-list-parser*;
+// Parse the command line and start the server.
+//
+define function koala-main (#key description, wait? = #t)
+  let parser = *command-line-parser*;
   parse-arguments(parser, application-arguments());
-  if (option-value-by-long-name(parser, "help")
-        | ~empty?(parser.regular-arguments))
-    let desc = "The Koala web server, a multi-threaded web server with\n"
-      "Dylan Server Pages and XML RPC, written in Dylan.";
+  if (parser.display-help?
+      | ~empty?(parser.regular-arguments))
+    let desc = description | "The Koala web server, a multi-threaded web server with\n"
+                             "Dylan Server Pages and XML RPC, written in Dylan.";
     print-synopsis(parser,
                    stream: *standard-output*,
-                   usage: "koala [options]",
+                   usage: format-to-string("%s [options]", application-name()),
                    description: desc);
     exit-application(0);
   else
-    if (option-value-by-long-name(parser, "debug"))
-      *debugging-server* := #t;
-    end;
-    start-server(config-file: option-value-by-long-name(parser, "config"));
+    let config = make(<http-server-configuration>,
+                      config-file: config-file(parser),
+                      port: listen-port(parser),
+                      debug?: debug-koala?(parser));
+    let server = make(<http-server>, configuration: config);
+    start-server(server, config, wait?: #t);
   end;
 end function koala-main;
+

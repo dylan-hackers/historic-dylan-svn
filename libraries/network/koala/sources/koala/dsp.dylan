@@ -73,20 +73,27 @@ end;
 define open primary class <page> (<object>)
 end;
 
-define method print-object
-    (page :: <page>, stream)
-  format(stream, "%s", page-url(page));
-end;
-
 // The protocol every page needs to support.
-define open generic respond-to-get  (page :: <page>, request :: <request>, response :: <response>);
-define open generic respond-to-post (page :: <page>, request :: <request>, response :: <response>);
-define open generic respond-to-head (page :: <page>, request :: <request>, response :: <response>);
+define open generic respond-to-get
+    (page :: <page>, request :: <request>, response :: <response>);
+
+define open generic respond-to-post
+    (page :: <page>, request :: <request>, response :: <response>);
+
+define open generic respond-to-head
+    (page :: <page>, request :: <request>, response :: <response>);
 
 // Default methods do nothing.
-define method respond-to-get  (page :: <page>, request :: <request>, response :: <response>) end;
-define method respond-to-head (page :: <page>, request :: <request>, response :: <response>) end;
-define method respond-to-post (page :: <page>, request :: <request>, response :: <response>)
+define method respond-to-get
+    (page :: <page>, request :: <request>, response :: <response>)
+end;
+
+define method respond-to-head
+    (page :: <page>, request :: <request>, response :: <response>)
+end;
+
+define method respond-to-post
+    (page :: <page>, request :: <request>, response :: <response>)
   respond-to-get(page, request, response);
 end;
 
@@ -109,7 +116,8 @@ end process-page;
 
 // Applications should call this to register a page for a particular URL.
 define function register-page
-    (url :: <string>, page :: <page>, #key replace?, prefix?)
+    (config :: <http-server-configuration>, url :: <string>, page :: <page>,
+     #key replace?)
  => (responder :: <function>)
   bind (responder = curry(process-page, page))
     let source = source-location(page);
@@ -118,7 +126,7 @@ define function register-page
               iff(source,
                   sformat("source: %s", as(<string>, source)),
                   "dynamic"));
-    register-url(url, responder, replace?: replace?, prefix?: prefix?);
+    register-url(config, url, responder, replace?: replace?);
     *page-to-url-map*[page] := url;
     responder
   end
@@ -654,38 +662,29 @@ define macro page-definer
     { define page ?:name (?superclasses:*) (?make-args:*)
         ?slot-specs:*
       end }
- => { page-aux(?name; ?superclasses; ?make-args; ?slot-specs);
-      has-url?(?make-args) & register-page-urls("*" ## ?name ## "*", ?make-args)
+ => { define class "<" ## ?name ## ">" (?superclasses) ?slot-specs end;
+      define variable "*" ## ?name ## "*" = make("<" ## ?name ## ">", ?make-args);
+      has-url?(?make-args) & register-page-urls("*" ## ?name ## "*", ?make-args);
     }
-
-    { define directory page ?:name (?superclasses:*) (?make-args:*)
-        ?slot-specs:*
-      end }
- => { page-aux(?name; ?superclasses; ?make-args; ?slot-specs);
-      has-url?(?make-args) & register-page-urls("*" ## ?name ## "*", ?make-args, prefix?: #t)
-    }
-
 end;
 
-define macro page-aux
-  { page-aux(?:name; ?superclasses:*; ?make-args:*; ?slot-specs:*) }
-   => { define class "<" ## ?name ## ">" (?superclasses) ?slot-specs end;
-        define variable "*" ## ?name ## "*" = make("<" ## ?name ## ">", ?make-args) }
-end;
 define function has-url? (#key url :: false-or(<string>), #all-keys)
  => (url-provided? :: <boolean>);
-  url ~= #f
+  if (url)
+    #t
+  end;
 end;
 
 define function register-page-urls
-    (page :: <page>, #key url :: <string>, alias, prefix?, #all-keys)
+    (config :: <http-server-configuration>, page :: <page>, #key url :: <string>, alias,
+     #all-keys)
  => (responder :: <function>)
-  let responder = register-page(url, page, prefix?: prefix?);
+  let responder = register-page(url, page);
   when (alias)
     for (alias in iff(instance?(alias, <string>),
                       list(alias),
                       alias))
-      register-url(alias, responder);
+      register-url(config, alias, responder);
     end;
   end;
   responder

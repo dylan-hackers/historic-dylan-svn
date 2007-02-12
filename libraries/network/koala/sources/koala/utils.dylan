@@ -210,8 +210,9 @@ define method add-object
             if (trie.trie-object = #f | replace?)
               trie.trie-object := object;
             else
-              signal(make(<trie-error>,
-                          format-string: format-to-string("Trie already contains an object for the given path (%=).", path)))
+              let fmt = format-to-string("Trie already contains an object for the "
+                                         "given path (%=).", path);
+              signal(make(<trie-error>, format-string: fmt))
             end;
           else
             let first-path = rest-path[0];

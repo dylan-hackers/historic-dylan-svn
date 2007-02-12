@@ -9,28 +9,37 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // Some methods to make logging slightly more convenient by not having
 // to always pass log-target(*virtual-host*).
 define method log-copious (format-string, #rest format-args)
-  apply(%log-copious, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-copious, *standard-output-log-target* | debug-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 define method log-verbose (format-string, #rest format-args)
-  apply(%log-verbose, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-verbose, *standard-output-log-target* | debug-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 define method log-debug (format-string, #rest format-args)
-  apply(%log-debug, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-debug, *standard-output-log-target* | debug-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 define method log-info (format-string, #rest format-args)
-  apply(%log-info, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-info, *standard-output-log-target* | debug-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 define method log-warning (format-string, #rest format-args)
-  apply(%log-warning, *temp-log-target* | error-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-warning, *standard-output-log-target* | error-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 define method log-error (format-string, #rest format-args)
-  apply(%log-error, *temp-log-target* | error-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-error, *standard-output-log-target* | error-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 
 
 define class <directory-spec> (<object>)
   constant slot dirspec-pattern :: <string>,
     required-init-keyword: pattern:;
+
+  constant slot directory-parent :: false-or(<directory-spec>),
+    required-init-keyword: parent:;
 
   // TODO:
   // If this regular expression is the first to match the request URL
@@ -80,9 +89,12 @@ define class <virtual-host> (<object>)
   constant slot vhost-name :: <string>,
     required-init-keyword: name:;
 
+  constant slot http-server-configuration :: <http-server-configuration>,
+    required-init-keyword: configuration:;
+
   // The root of the web document hierarchy.  By default, this will be
-  // *server-root*/www/<vhost-name>/.  If name is the empty string then
-  // just *server-root*/www/.
+  // {config}.server-root/www/<vhost-name>/.  If name is the empty string then
+  // just {config}.server-root/www/.
   slot document-root :: <directory-locator>;
 
   // TODO: no need for this here.  Even though ports can be specified inside
@@ -109,6 +121,7 @@ define class <virtual-host> (<object>)
   // See initialize(<virtual-host>).
   constant slot root-directory-spec :: <directory-spec>
     = make(<directory-spec>,
+           parent: #f,
            pattern: "/*");
 
   // Whether or not to include a Server: header in all responses.  Most people
@@ -152,40 +165,31 @@ define class <virtual-host> (<object>)
 
   // Log targets.  If these are #f then the default virtual host's
   // log target is used.  They are never #f in $default-virtual-host.
-  slot %activity-log-target :: false-or(<log-target>) = #f,
+  slot activity-log-target :: false-or(<log-target>) = #f,
     init-keyword: #"activity-log";
-  slot %error-log-target :: false-or(<log-target>) = #f,
+  slot error-log-target :: false-or(<log-target>) = #f,
     init-keyword: #"error-log";
-  slot %debug-log-target :: false-or(<log-target>) = #f,
+  slot debug-log-target :: false-or(<log-target>) = #f,
     init-keyword: #"debug-log";
 
 end class <virtual-host>;
 
 
 define method initialize
-    (vhost :: <virtual-host>, #key name, #all-keys)
+    (vhost :: <virtual-host>, #key)
   next-method();
-  log-debug("name = %=, vhost-name = %=\n", name, vhost-name(vhost));
-  ensure-server-root();
   // This may be overridden by a <document-root> spec in the config file.
-  document-root(vhost) := subdirectory-locator(*server-root*, name);
+  let name = vhost.vhost-name;
+  let config = vhost.http-server-configuration;
+  vhost.document-root := subdirectory-locator(config.server-root, name);
   // Add a spec that matches all urls.
-  add-directory-spec(vhost, root-directory-spec(vhost));
-end;
-
-define method activity-log-target
-    (vhost :: <virtual-host>) => (target :: <log-target>)
-  vhost.%activity-log-target | $default-virtual-host.%activity-log-target
-end;
-
-define method debug-log-target
-    (vhost :: <virtual-host>) => (target :: <log-target>)
-  vhost.%debug-log-target | $default-virtual-host.%debug-log-target
-end;
-
-define method error-log-target
-    (vhost :: <virtual-host>) => (target :: <log-target>)
-  vhost.%error-log-target | $default-virtual-host.%error-log-target
+  add-directory-spec(vhost, vhost.root-directory-spec);
+  vhost.activity-log-target
+    := vhost.activity-log-target | vhost.http-server-configuration.default-virtual-host.activity-log-target;
+  vhost.error-log-target
+    := vhost.error-log-target | vhost.http-server-configuration.default-virtual-host.error-log-target;
+  vhost.debug-log-target
+    := vhost.debug-log-target | vhost.http-server-configuration.default-virtual-host.debug-log-target;
 end;
 
 define method add-directory-spec
@@ -197,50 +201,20 @@ define method add-directory-spec
                                 end));
 end;
 
-// The vhost used if the request host doesn't match any other virtual host.
-// Note that the document root may be changed when the config file is
-// processed, so don't use it except during request processing.
-//
-define constant $default-virtual-host :: <virtual-host>
-  = begin
-      let stdout-log = make(<stream-log-target>, stream: *standard-output*);
-      make(<virtual-host>,
-           name: "default",
-           activity-log: stdout-log,
-           debug-log: stdout-log,
-           error-log: make(<stream-log-target>, stream: *standard-error*))
-    end;
+//// VIRTUAL HOST ACCESS
 
-// If this is true, then requests directed at hosts that don't match any
-// explicitly named virtual host (i.e., something created with <virtual-host>
-// in the config file) will use the default vhost.  If this is #f when such a
-// request is received, a Bad Request (400) response will be returned.
-//
-define variable *fall-back-to-default-virtual-host?* :: <boolean> = #t;
+define thread variable *virtual-host* :: <virtual-host>
+  = make(<virtual-host>, configuration: make(<http-server-configuration>));
 
-// Maps host names to virtual hosts.  Any host name not found in this
-// table maps to $default-virtual-host (contingent on the value of
-// *fall-back-to-default-virtual-host?*).
-define constant $virtual-hosts :: <string-table> = make(<string-table>);
-
-define thread variable *virtual-host* :: <virtual-host> = $default-virtual-host;
-
-begin
-  *temp-log-target* := #f;
-end;
-
-define method add-virtual-host
-    (name :: <string>, vhost :: <virtual-host>)
-  $virtual-hosts[name] := vhost;
+define method virtual-host
+    (config :: <http-server-configuration>, name :: <string>)
+ => (vhost :: false-or(<virtual-host>))
+  element(config.virtual-hosts, name, default: #f)
 end;
 
 define method virtual-host
-    (name :: <string>) => (vhost :: false-or(<virtual-host>))
-  element($virtual-hosts, name, default: #f)
-end;
-
-define method virtual-host
-    (request :: <request>) => (vhost :: false-or(<virtual-host>))
+    (config :: <http-server-configuration>, request :: <request>)
+ => (vhost :: false-or(<virtual-host>))
   let host-spec = request-host(request);
   local method die ()
           bad-request(message: format-to-string("Unknown virtual host: %s",
@@ -256,26 +230,29 @@ define method virtual-host
                    log-debug("error parsing port in host spec");
                    die();
                  end;
-    let vhost = virtual-host(host) | (*fall-back-to-default-virtual-host?*
-                                        & $default-virtual-host);
+    let vhost = (virtual-host(config, host)
+                   | (config.fall-back-to-default-virtual-host?
+                        & config.default-virtual-host));
     // TODO: If this is an HTTPS request and no port is specified, make sure
     //       vhost-port(vhost) == 443
     if (vhost & ((~port & vhost-port(vhost) == 80)
                    | port == vhost-port(vhost)))
       vhost
     else
-      die();
-    end;
+      die()
+    end
   else
-    (*fall-back-to-default-virtual-host?* & $default-virtual-host)
-      | die()
+    iff (config.fall-back-to-default-virtual-host?,
+         config.default-virtual-host,
+         die())
   end
 end;
 
 define method virtual-host
-    (port :: <integer>) => (vhost :: false-or(<virtual-host>))
+    (config :: <http-server-configuration>, port :: <integer>)
+ => (vhost :: false-or(<virtual-host>))
   block (return)
-    for (vhost :: <virtual-host> keyed-by name in $virtual-hosts)
+    for (vhost :: <virtual-host> keyed-by name in config.virtual-hosts)
       if (vhost-port(vhost) == port)
         return(vhost)
       end

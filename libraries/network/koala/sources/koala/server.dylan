@@ -10,12 +10,6 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
 define constant $server-version = "0.4";
-
-
-// This may be set true by config file loading code, in which case
-// start-server will be a no-op.
-define variable *abort-startup?* :: <boolean> = #f;
-
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
 
 // This is needed to handle sockets shutdown.
@@ -27,7 +21,7 @@ begin
                                      end);
 end;
 
-define class <server> (<sealed-constructor>)
+define class <http-server> (<sealed-constructor>)
   constant slot server-lock :: <lock>,
     required-init-keyword: lock:;
   // Support for shutting down listeners.
@@ -40,6 +34,15 @@ define class <server> (<sealed-constructor>)
   constant slot listener-shutdown-timeout :: <real> = 15;
   constant slot client-shutdown-timeout :: <real> = 15;
 
+  constant slot configuration :: <http-server-configuration>
+    = make(<http-server-configuration>),
+    init-keyword: #"configuration";
+
+  // todo -- Everything below here should be moved out of this class.
+  //         Some into <http-server-configuration> and some probably
+  //         into a stats class of some sort.
+
+  // todo -- move the next 3 slots into <http-server-configuration>
   // Parameters
   slot max-listeners :: <integer> = 1;
   slot request-class :: subclass(<basic-request>) = <basic-request>;
@@ -51,20 +54,11 @@ define class <server> (<sealed-constructor>)
   // RFC 2616, 5.1.1
   constant slot allowed-methods :: <sequence> = #(#"GET", #"POST", #"HEAD");
 
-  // Map from URL string to a response function.  The leading slash is removed
-  // from URLs because it's easier to use merge-locators that way.
-  // TODO: this should be per vhost
-  //       then 'define page' needs to specify vhost until dynamic
-  //       library loading works.  (ick.)  once dynamic library loading
-  //       works we use <module foo> inside <virtual-host> in the config
-  //       and bind *virtual-host* while the library is loading?
-
-  constant slot url-map :: <string-trie> = make(<string-trie>, object: #f);
-
   // pathname translations
   //slot pathname-translations :: <sequence> = #();
 
   //// Statistics
+  // todo -- move these elsewhere
 
   slot connections-accepted :: <integer> = 0; // Connections accepted
   constant slot user-agent-stats :: <string-table> = make(<string-table>);
@@ -73,7 +67,7 @@ define class <server> (<sealed-constructor>)
 end;
 
 define sealed method make
-    (c == <server>, #rest keys, #key) => (server :: <server>)
+    (c == <http-server>, #rest keys, #key) => (server :: <http-server>)
   let lock = make(<lock>);
   let listeners-notification = make(<notification>, lock: lock);
   let clients-notification = make(<notification>, lock: lock);
@@ -86,7 +80,7 @@ end make;
 
 // Keep some stats on user-agents
 define method note-user-agent
-    (server :: <server>, user-agent :: <string>)
+    (server :: <http-server>, user-agent :: <string>)
   with-lock (server.server-lock)
     let agents = user-agent-stats(server);
     agents[user-agent] := element(agents, user-agent, default: 0) + 1;
@@ -114,7 +108,7 @@ define function release-client (client :: <client>)
 end release-client;
 
 define class <listener> (<sealed-constructor>)
-  constant slot listener-server :: <server>,
+  constant slot listener-server :: <http-server>,
     required-init-keyword: server:;
   constant slot listener-port :: <integer>,
     required-init-keyword: port:;
@@ -135,7 +129,7 @@ define class <listener> (<sealed-constructor>)
 end class <listener>;
 
 define class <client> (<sealed-constructor>)
-  constant slot client-server :: <server>,
+  constant slot client-server :: <http-server>,
     required-init-keyword: server:;
   constant slot client-listener :: <listener>,
     required-init-keyword: listener:;
@@ -167,7 +161,7 @@ define inline function request-socket (request :: <basic-request>)
 end;
 
 define inline function request-server (request :: <basic-request>)
-    => (server :: <server>)
+    => (server :: <http-server>)
   request.request-client.client-server
 end;
 
@@ -184,97 +178,110 @@ end;
 */
 
 define variable *sockets-started?* :: <boolean> = #f;
+define constant $start-sockets-lock = make(<lock>);
 
 define function ensure-sockets-started ()
-  unless (*sockets-started?*)
-    start-sockets();
-    //start-ssl-sockets();
-    *sockets-started?* := #t;
+  with-lock ($start-sockets-lock)
+    unless (*sockets-started?*)
+      start-sockets();
+      //start-ssl-sockets();
+      *sockets-started?* := #t;
+    end;
   end;
-end;
-
-define variable *server* :: <server> = make(<server>);
-define variable *server-lock* = make(<lock>); // overkill, but so what.
-
-define function ensure-server () => (server :: <server>)
-  with-lock (*server-lock*)
-    *server* | (*server* := make(<server>))
-  end
-end ensure-server;
-
-define function http-server () => (server :: <server>)
-  *server*
 end;
 
 define variable *next-listener-id* :: <integer> = 0;
+define variable *default-request-class* :: subclass(<basic-request>) = <request>;
 
-// This is called when the library is loaded (from main.dylan).
-define function init-server
-    (#key listeners :: <integer> = 1,
-     request-class :: subclass(<basic-request>)
-       = *default-request-class*,
-     config-file)
-  let server :: <server> = ensure-server();
-  server.max-listeners := listeners;
-  server.request-class := request-class;
-  configure-server(config-file);
+// API
+// This is what client libraries call to start a server.
+//
+define function start-server
+    (server :: <http-server>, config :: <http-server-configuration>,
+     #key wait? :: <boolean> = #t,
+          // todo -- move these into config
+          max-listeners :: <integer> = 1,
+          request-class :: subclass(<basic-request>) = *default-request-class*)
+ => (started? :: <boolean>)
   log-info("%s HTTP Server starting up", $server-name);
-  ensure-sockets-started();  // TODO: Can this be moved into start-server?
-  log-info("Server root directory is %s", *server-root*);
-  when (*auto-register-pages?*)
+  ensure-sockets-started();
+  server.max-listeners := max-listeners;
+  server.request-class := request-class;
+  log-info("Server root directory is %s", config.server-root);
+  when (config.auto-register-pages?)
     log-info("Auto-register enabled");
   end;
   run-init-functions();
-end init-server;
-
-// API
-// This is what client libraries call to start the server.
-//
-define function start-server
-    (#key config-file :: false-or(<string>))
- => (started? :: <boolean>)
-  if (~config-file)
-    let args = application-arguments();
-    let pos = find-key(args, method (x) as-lowercase(x) = "--config" end);
-    if (pos & (args.size > pos + 1))
-      config-file := args[pos + 1];
-    end;
-  end if;
-  init-server(config-file: config-file);
-  if (*abort-startup?*)
+  let server-started? :: <boolean> = #f;
+  if (config.abort-startup?)
     log-error("Server startup aborted due to the previous errors");
-    #f
   else
     let ports = #();
-    for (vhost keyed-by name in $virtual-hosts)
-      ports := add!(ports, vhost-port(vhost))
+    for (vhost keyed-by name in config.virtual-hosts)
+      ports := add!(ports, vhost.vhost-port)
     end;
-    if (*fall-back-to-default-virtual-host?*)
-      ports := add!(ports, vhost-port($default-virtual-host));
+    if (config.fall-back-to-default-virtual-host?)
+      ports := add!(ports, config.default-virtual-host.vhost-port);
     end;
     if (empty?(ports))
       log-error("No ports to listen on!  No virtual hosts were specified "
                 "in the config file and fallback to the default vhost is "
                 "disabled.");
-      #f
     else
       // temporary code...
       let port = ports[0];
-      while (start-http-listener(*server*, port))
-        *server-running?* := #t;
+      while (start-http-listener(server, port))
+        server-started? := #t;
       end;
-      // Apparently when the main thread dies in a FunDev Dylan application
-      // the application exits without waiting for spawned threads to die,
-      // so join-listeners keeps the main thread alive until all listeners die.
-      join-listeners(*server*);
-      *server-running?* := #f;
-      #t
-    end if
-  end if
+      if (wait?)
+        // Don't exit until all listener threads die.
+        join-listeners(server);
+      end;
+    end if;
+  end if;
+  server-started?
 end function start-server;
 
+define function start-http-listener (server :: <http-server>, port :: <integer>)
+   => (started? :: <boolean>)
+  let server-lock = server.server-lock;
+  let listener = #f;
+  local method run-listener-top-level ()
+          with-lock (server-lock) end; // Wait for setup to finish.
+          //---TODO: Include the thread name in the log message.
+          log-info("Listener starting up");
+          let listener :: <listener> = listener;
+          block ()
+            listener-top-level(listener);
+          cleanup
+            log-info("Listener on port %d shutting down", port);
+            close(listener.listener-socket, abort?: #t);
+            release-listener(listener);
+          end;
+        end method;
+  let started? = #f;
+  with-lock (server-lock)
+    let listeners = server.server-listeners;
+    when (listeners.size < server.max-listeners)
+      log-debug("Creating a new listener thread.");
+      let socket = make(<server-socket>, port: port);
+      let thread = make(<thread>,
+                        name: format-to-string("HTTP Listener #%s/%d",
+                                               *next-listener-id*, port),
+                        function: run-listener-top-level);
+      wrapping-inc!(*next-listener-id*);
+      listener := make(<listener>,
+                       server: server, port: port, socket: socket, thread: thread);
+      add!(server.server-listeners, listener);
+      started? := #t
+    end;
+  end;
+  started?
+end start-http-listener;
+
+
 define function join-listeners
-    (server :: <server>)
+    (server :: <http-server>)
   // Don't use join-thread, because no timeouts, so could hang.
   // eh?
   block (return)
@@ -289,20 +296,15 @@ define function join-listeners
   end;
 end;
 
-// If there's ever a UI, it should have a button to call this.
-//
-define function stop-server (#key abort)
-  let server = *server*;
-  when (server)
-    abort-listeners(server);
-    when (~abort)
-      join-clients(server);
-    end;
-    abort-clients(server);
+define function stop-server (server :: <http-server>, #key abort?)
+  abort-listeners(server);
+  when (~abort?)
+    join-clients(server);
   end;
+  abort-clients(server);
 end;
 
-define function abort-listeners (server :: <server>)
+define function abort-listeners (server :: <http-server>)
   iterate next ()
     let listener = with-lock (server.server-lock)
                      any?(method (listener :: <listener>)
@@ -332,7 +334,7 @@ end abort-listeners;
 
 // At this point all listeners have been shut down, so shouldn't
 // be spawning any more clients.
-define function abort-clients (server :: <server>, #key abort)
+define function abort-clients (server :: <http-server>, #key abort)
   with-lock (server.server-lock)
     for (client in server.clients)
       close(client.client-socket, abort: abort);
@@ -344,7 +346,7 @@ define function abort-clients (server :: <server>, #key abort)
   end;
 end abort-clients;
 
-define function join-clients (server :: <server>, #key timeout)
+define function join-clients (server :: <http-server>, #key timeout)
   => (clients-left :: <integer>)
   with-lock (server.server-lock)
     empty?(server.clients)
@@ -354,42 +356,6 @@ define function join-clients (server :: <server>, #key timeout)
     n
   end;
 end join-clients;
-
-define function start-http-listener (server :: <server>, port :: <integer>)
-   => (started? :: <boolean>)
-  let server-lock = server.server-lock;
-  let listener = #f;
-  local method run-listener-top-level ()
-          with-lock (server-lock) end; // Wait for setup to finish.
-          //---TODO: Include the thread name in the log message.
-          log-info("Listener starting up");
-          let listener :: <listener> = listener;
-          block ()
-            listener-top-level(listener);
-          cleanup
-            log-info("Listener on port %d shutting down", port);
-            close(listener.listener-socket, abort?: #t);
-            release-listener(listener);
-          end;
-        end method;
-  let started? = #f;
-  with-lock (server-lock)
-    let listeners = server.server-listeners;
-    when (listeners.size < server.max-listeners)
-      log-debug("Creating a new listener thread.");
-      let socket = make(<server-socket>, port: port);
-      let thread = make(<thread>,
-                        name: format-to-string("HTTP Listener #%s/%d", *next-listener-id*, port),
-                        function: run-listener-top-level);
-      wrapping-inc!(*next-listener-id*);
-      listener := make(<listener>,
-                       server: server, port: port, socket: socket, thread: thread);
-      add!(server.server-listeners, listener);
-      started? := #t
-    end;
-  end;
-  started?
-end start-http-listener;
 
 define function listener-top-level (listener :: <listener>)
   with-socket-thread (server?: #t)
@@ -428,7 +394,7 @@ end listener-top-level;
 // so that it will return from 'accept' with some error, which we should
 // catch gracefully..
 //---TODO: need to handle errors.
-// Listen and spawn handlers until listener socket gets broken.
+// Listen and spawn handlers until listener socket breaks.
 //
 define function do-http-listen (listener :: <listener>)
   let server = listener.listener-server;
@@ -457,7 +423,7 @@ define function do-http-listen (listener :: <listener>)
               let client :: <client> = client;
               block ()
                 with-socket-thread ()
-                  handler-top-level(client);
+                  handle-request-top-level(client);
                 end;
               cleanup
                 ignore-errors(<socket-condition>,
@@ -526,8 +492,7 @@ define method get-header
   element(request.request-headers, name, default: #f)
 end;
 
-define variable *default-request-class* :: subclass(<basic-request>) = <request>;
-
+define thread variable *server* :: false-or(<http-server>) = #f;
 define thread variable *request* :: false-or(<request>) = #f;
 define thread variable *response* :: false-or(<response>) = #f;
 
@@ -540,19 +505,21 @@ define inline function current-request  () => (request :: <request>) *request* e
 define inline function current-response () => (response :: <response>) *response* end;
 
 // Called (in a new thread) each time an HTTP request is received.
-define function handler-top-level
+define function handle-request-top-level
     (client :: <client>)
-  dynamic-bind (*request* = #f)
+  dynamic-bind (*request* = #f,
+                *server* = client.client-server)
     block (exit-request-handler)
       while (#t)                      // keep alive loop
         let request :: <basic-request>
           = make(client.client-server.request-class, client: client);
         *request* := request;
+        let config :: <http-server-configuration> = *server*.configuration;
         with-simple-restart("Skip this request and continue with the next")
           block (exit-inner)
             let handler <error>
               = method (c :: <error>, next-handler :: <function>)
-                  if (*debugging-server*)
+                  if (config.debugging-enabled?)
                     next-handler();  // decline to handle the error
                   else
                     send-error-response(request, c);
@@ -561,7 +528,7 @@ define function handler-top-level
                 end;
             let handler <stream-error>
               = method (c :: <error>, next-handler :: <function>)
-                  if (*debugging-server*)
+                  if (config.debugging-enabled?)
                     next-handler();  // decline to handle the error
                   else
                     log-error("A stream error occurred. %=", c);
@@ -575,7 +542,7 @@ define function handler-top-level
                   request.request-query-values := query-values;
                   read-request(request);
                   dynamic-bind (*request-query-values* = query-values,
-                                *virtual-host* = virtual-host(request))
+                                *virtual-host* = virtual-host(config, request))
                     log-debug("Virtual host for request is '%s'", 
                               vhost-name(*virtual-host*));
                     invoke-handler(request);
@@ -602,7 +569,7 @@ define function handler-top-level
       end while;
     end block;
   end dynamic-bind;
-end handler-top-level;
+end handle-request-top-level;
 
 // This method takes care of parsing the request headers and signalling any
 // errors therein.
@@ -662,7 +629,8 @@ define function read-request-first-line
       if (epos > bpos)
         // Should this trim trailing whitespace???
         request.request-url := substring(buffer, bpos, qpos | epos);
-        let (resp, prefix?, tail) = find-responder(request.request-url);
+        let config :: <http-server-configuration> = request.request-server.configuration;
+        let (resp, prefix?, tail) = find-responder(config, request.request-url);
         // If there's a tail (i.e., we didn't match the entire url) and
         // this isn't a directory responder, then no responder was found.
         if (~tail | prefix?)
@@ -836,103 +804,6 @@ define method process-incoming-headers (request :: <request>)
     agent
       & note-user-agent(request-server(request), agent);
   end;
-end;
-
-// API
-// Register a response function for a given URL.  See find-responder.
-define method register-url
-    (url :: <string>, target :: <function>, #key replace?, prefix?)
- => ()
-  local method reg-url ()
-          register-url-now(url, target, replace?: replace?, prefix?: prefix?);
-        end;
-  if (*server-running?*)
-    reg-url();
-  else
-    register-init-function(reg-url);
-  end;
-end method register-url;
-
-define method register-url-now
-    (url :: <string>, target :: <function>, #key replace?, prefix?)
-  let server :: <server> = *server*;
-  let (bpos, epos) = trim-whitespace(url, 0, size(url));
-  if (bpos = epos)
-    error(make(<koala-api-error>,
-               format-string: "You cannot register an empty URL: %=",
-               format-arguments: list(substring(url, bpos, epos))));
-  else
-    add-object(server.url-map, url, pair(target, prefix?), replace?: replace?);
-  end;
-  log-info("URL %s%s registered", url, if (prefix?) "/*" else "" end);
-end method register-url-now;
-
-// Find a responder function, if any.
-define method find-responder
-    (url :: <string>)
- => (responder :: false-or(<function>), #rest more)
-  local method maybe-auto-register (url)
-          when (*auto-register-pages?*)
-            // could use safe-locator-from-url, but it's relatively expensive
-            let len = size(url);
-            let slash = char-position-from-end('/', url, 0, len);
-            let dot = char-position-from-end('.', url, slash | 0, len);
-            when (dot & dot < len - 1)
-              let ext = substring(url, dot + 1, len);
-              let reg-fun = element(*auto-register-map*, ext, default: #f);
-              reg-fun & reg-fun(url)
-            end
-          end
-        end;
-  let url = decode-url(url, 0, size(url));
-  let path = split(url, separator: "/");
-  let trie = url-map(*server*);
-  let (responder, rest) = find-object(trie, path);
-  if (responder)
-    let fun = head(responder);
-    let prefix? = tail(responder);
-    values(fun, prefix?, rest)
-  else
-    maybe-auto-register(url)
-  end
-end find-responder;
-
-// Register a function that will attempt to register a responder for a URL
-// if the URL matches the file extension.  The function should normally call
-// register-url (or register-page for DSPs) and should return a responder.
-//
-define function register-auto-responder
-    (file-extension :: <string>, f :: <function>, #key replace? :: <boolean>)
-  if (~replace? & element(*auto-register-map*, file-extension, default: #f))
-    cerror("Replace the old auto-responder with the new one and continue.",
-           "An auto-responder is already defined for file extension %=.",
-           file-extension);
-  end;
-  *auto-register-map*[file-extension] := f;
-end;
-
-// define responder test ("/test" /* , secure?: #t */ )
-//     (request, response)
-//   format(output-stream(response), "<html><body>test</body></html>");
-// end;
-define macro responder-definer
-  { define responder ?:name (?url:expression)
-        (?request:variable, ?response:variable)
-      ?:body
-    end
-  }
-  => { define method ?name (?request, ?response) ?body end;
-         register-url(?url, ?name)
-     }
-
-  { define directory responder ?:name (?url:expression)
-        (?request:variable, ?response:variable)
-      ?:body
-    end
-  }
-  => { define method ?name (?request, ?response) ?body end;
-         register-url(?url, ?name, prefix?: #t)
-     }
 end;
 
 // Invoke the appropriate handler for the given request URL and method.
@@ -1122,19 +993,14 @@ define constant count-form-values :: <function> = count-query-values;
 define constant $module-map :: <table> = make(<string-table>);
 define constant $module-directory :: <string> = "modules";
 
-// Modules are loaded from <server-root>/modules.
-//
-define function module-pathname
-    (module-name :: <string>) => (path :: <string>)
-  as(<string>,
-     merge-locators(as(<file-locator>,
-                       format-to-string("%s/%s", $module-directory, module-name)),
-                    *server-root*))
-end;
-
 define function load-module
-    (module-name :: <string>)
-  let path = module-pathname(module-name);
+    (module-name :: <string>, module-directory :: <directory-locator>)
+  // Modules are loaded from <server-root>/modules/.
+  let path = as(<string>,
+                merge-locators(as(<file-locator>,
+                                  format-to-string("%s/%s",
+                                                   $module-directory, module-name)),
+                               module-directory));
   log-info("Loading module '%s' from %s...", module-name, path);
   // Note that the linux definition of load-library does nothing right now.
   // -cgay 2004.05.06
