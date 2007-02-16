@@ -15,7 +15,7 @@ define open class <feed> (<object>)
     init-keyword: icon:;
   slot identifier :: <uri>,
     init-keyword: identifier:;
-  slot links :: <list> = #(),
+  slot links :: <string-table> = make(<string-table>),
     init-keyword: links:;
   slot logo :: false-or(<uri>) = #f,
     init-keyword: logo:;
@@ -166,7 +166,7 @@ define class <generator> (<object>)
   slot text :: <text>, init-keyword: text:;
 end;
 
-define class <link> (<object>)
+define open class <link> (<object>)
   slot href :: <uri>,
     required-init-keyword: href:;
   slot rel :: false-or(<uri>) = #f,
@@ -179,6 +179,10 @@ define class <link> (<object>)
     init-keyword: title:;
   slot length :: false-or(<text>) = #f,
     init-keyword: length:;
+  slot description :: false-or(<text>) = #f,
+    init-keyword: description:;
+  slot categories :: <vector> = #[],
+     init-keyword: categories:;
 end;
     
 define constant <source> = <feed>;
@@ -320,7 +324,7 @@ define method generate-atom (entry :: <entry>, #key)
       id(permanent-link(entry)),
       published(generate-atom(entry.published)),
 //      updated { do(collect(generate-atom(entry.updated))) },
-//      do(do(method(x) collect(generate-atom(x)) end, entry.authors)),
+      do(do(method(x) collect(generate-atom(x)) end, entry.authors)),
 //      do(do(method(x) collect(generate-atom(x)) end, entry.contributors)),
       do(collect(generate-atom(entry.content))),
     } //missing: category, summary
