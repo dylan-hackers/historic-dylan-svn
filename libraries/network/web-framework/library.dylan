@@ -220,7 +220,10 @@ define module changes
     content, content-setter,
     published, published-setter;
 
-  export <uri>, <link>;
+  export <uri>;
+  
+  export <link>,
+    href, href-setter;
 end;
 
 
