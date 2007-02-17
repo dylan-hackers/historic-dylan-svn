@@ -789,7 +789,7 @@ define function send-error-response (request :: <request>, c :: <condition>)
 end;
 
 define method send-error-response-internal (request :: <request>, err :: <error>)
-  let headers = http-error-headers(err);
+  let headers = http-error-headers(err) | make(<header-table>);
   let response = make(<response>, request: request, headers: headers);
   let one-liner = http-error-message-no-code(err);
   unless (request-method(request) == #"head")
