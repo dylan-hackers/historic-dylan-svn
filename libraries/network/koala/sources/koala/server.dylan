@@ -49,7 +49,6 @@ define class <server> (<sealed-constructor>)
   //---TODO: response for unsupported-request-method-error MUST include
   // Allow: field...  Need an API for making sure that happens.
   // RFC 2616, 5.1.1
-  constant slot allowed-methods :: <sequence> = #(#"GET", #"POST", #"HEAD");
 
   // Map from URL string to a response function.  The leading slash is removed
   // from URLs because it's easier to use merge-locators that way.
@@ -616,7 +615,7 @@ define method read-request (request :: <request>) => ()
     pset (buffer, len) read-request-line(socket) end;
   end;
   log-info("%s", substring(buffer, 0, len));
-  read-request-first-line(request, buffer, len, server.allowed-methods);
+  read-request-first-line(request, buffer, len);
   unless (request.request-version == #"http/0.9")
     request.request-headers
       := read-message-headers(socket,
@@ -638,14 +637,14 @@ end read-request;
 // ---TODO: this code would be a lot clearer if it used regular expressions.
 //
 define function read-request-first-line
-    (request :: <request>, buffer :: <string>, eol :: <integer>, allowed-methods)
+    (request :: <request>, buffer :: <string>, eol :: <integer>)
  => ()
   let method-end = whitespace-position(buffer, 0, eol) | eol;
   if (zero?(method-end))
     invalid-request-line-error();
   else
     request.request-method
-      := extract-request-method(buffer, 0, method-end, allowed-methods);
+    := as(<symbol>, copy-sequence(buffer, start: 0, end: method-end));
     let bpos = skip-whitespace(buffer, method-end, eol);
     let epos = whitespace-position(buffer, bpos, eol) | eol;
     when (epos > bpos)
@@ -990,17 +989,6 @@ end read-request-line;
 define inline function empty-line?
     (buffer :: <byte-string>, len :: <integer>) => (empty? :: <boolean>)
   len == 1 & buffer[0] == $cr
-end;
-
-define function extract-request-method (buffer :: <string>,
-                                        bpos :: <integer>,
-                                        epos :: <integer>,
-                                        allowed-methods :: <sequence>)
-  any?(method (key :: <symbol>)
-         key-match(key, buffer, bpos, epos) & key
-       end,
-       allowed-methods)
-  | unsupported-request-method-error();
 end;
 
 define function extract-request-version (buffer :: <string>,
