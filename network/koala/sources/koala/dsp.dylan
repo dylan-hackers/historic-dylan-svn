@@ -97,14 +97,25 @@ define method process-page (page :: <page>,
                             response :: <response>)
   let pc = make(<page-context>);
   dynamic-bind (*page-context* = pc)
-    select (request.request-method)
-      #"POST"   => respond-to-post(page, request, response);
-      #"GET"    => respond-to-get (page, request, response);
-      #"HEAD"   => respond-to-head(page, request, response);
-      otherwise => unsupported-request-method-error();
-    end;
+    respond-to(request.request-method, page, request, response);
   end;
 end process-page;
+
+define method respond-to (request :: <symbol>, page :: <page>, request :: <request>, response :: <response>)
+  unsupported-request-method-error()
+end;
+
+define method respond-to (request == #"GET", page :: <page>, request :: <request>, response :: <response>)
+  respond-to-get(page, request, response);
+end;
+
+define method respond-to (request == #"POST", page :: <page>, request :: <request>, response :: <response>)
+  respond-to-post(page, request, response);                                                          
+end;
+
+define method respond-to (request == #"HEAD", page :: <page>, request :: <request>, response :: <response>)
+  respond-to-head(page, request, response);                                                          
+end;
 
 // Applications should call this to register a page for a particular URL.
 define function register-page
