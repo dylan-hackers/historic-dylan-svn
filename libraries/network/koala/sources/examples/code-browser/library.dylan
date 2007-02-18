@@ -23,7 +23,7 @@ define library code-browser
   use source-records;
   use release-info;
   use regular-expressions;
-
+//use environment-deuce;
 end;
 
 
@@ -44,5 +44,6 @@ define module code-browser
                application-filename,
                application-arguments };
   use release-info;
+//  use environment-deuce;
 end;
 

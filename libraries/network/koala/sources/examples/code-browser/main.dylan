@@ -2,14 +2,11 @@ Module:   code-browser
 Synopsis: Brwose FD environment objects
 Author:   Andreas Bogk
 
-define class <code-browser-page> (<dylan-server-page>)
-  slot project;
-end;
+define thread variable *project* = #f; 
 
-define taglib code-browser ()
-end;
+define taglib code-browser () end;
 
-define page project-page (<code-browser-page>)
+define page code-browser-page (<dylan-server-page>)
   (url: "/project",
    source: "code-browser/project.dsp")
 end;
@@ -21,30 +18,31 @@ define method respond-to-get (page :: <code-browser-page>,
   if(~project-name | project-name = "")
     project-name := "minimal-console-compiler";
   end if;
-  page.project := find-project(project-name);
-  if(page.project)
-    open-project-compiler-database(page.project, 
-                                   warning-callback: callback-handler,
-                                   error-handler: callback-handler);
-    parse-project-source(page.project);
-    next-method();
-  else
-    application-error(format-string: "No such project %s", 
-                      format-arguments: vector(project-name));
-  end if;
+  dynamic-bind(*project* = find-project(project-name))
+    if (*project*)
+      open-project-compiler-database(*project*, 
+                                     warning-callback: callback-handler,
+                                     error-handler: callback-handler);
+      parse-project-source(*project*);
+      next-method();
+    else
+      application-error(format-string: "No such project %s", 
+                        format-arguments: vector(project-name));
+    end if;
+  end;
 end method respond-to-get;
 
 
 define tag project-name in code-browser
   (page :: <code-browser-page>, response :: <response>)
   ()
-  write(output-stream(response), page.project.project-name);
+  write(output-stream(response), *project*.project-name);
 end;
 
 define tag project in code-browser
   (page :: <code-browser-page>, response :: <response>)
   ()
-  format(output-stream(response), "%=", page.project);
+  format(output-stream(response), "%=", *project*);
 end;
 
 define tag project-sources in code-browser
@@ -52,7 +50,7 @@ define tag project-sources in code-browser
   ()
   dynamic-bind(*check-source-record-date?* = #f)
     format(response.output-stream, "<pre>\n");
-    for(source in page.project.project-sources)
+    for(source in *project*.project-sources)
       block()
         format(response.output-stream,
                "<h3>%s</h3> module <strong>%s</strong>\n", 
@@ -74,25 +72,94 @@ end;
 
 define function markup-dylan-source(source :: <string>)
  => (processed-source :: <string>);
-  regexp-replace(regexp-replace(source, "&", "&amp;"), "<", "&lt;");
+  regexp-replace(regexp-replace(regexp-replace(source, "&", "&amp;"), "<", "&lt;"), ">", "&gt;");
 end function markup-dylan-source;
 
+define tag project-direct-superclasses in code-browser
+  (page :: <code-browser-page>, response :: <response>)
+  ()
+    format(response.output-stream, "<ul>\n");
+    for (superclass in class-direct-superclasses(*project*, 
+     find-environment-object(*project*, "<string>", 
+      library: project-library(*project*), module: first(library-modules(*project*, project-library(*project*))))))
+        format(response.output-stream, "<li>%s</li>\n", markup-dylan-source(environment-object-display-name(*project*, superclass, #f)));
+    end for;
+    format(response.output-stream, "</ul>\n");
+end;
 
+define tag project-direct-subclasses in code-browser
+  (page :: <code-browser-page>, response :: <response>)
+  ()
+    format(response.output-stream, "<ul>\n");
+    for (subclass in class-direct-subclasses(*project*,
+     find-environment-object(*project*, "<string>",
+      library: project-library(*project*), module: first(library-modules(*project*, project-library(*project*))))))
+        format(response.output-stream, "<li>%s</li>\n", markup-dylan-source(environment-object-display-name(*project*, subclass, #f)));
+    end for;
+    format(response.output-stream, "</ul>\n");
+end;
 
 define tag project-used-libraries in code-browser
   (page :: <code-browser-page>, response :: <response>)
   ()
+ 
   format(response.output-stream, "<ul>\n");
-  for(library in project-used-libraries(page.project, page.project))
-    let name = environment-object-display-name(page.project, library, #f);
+  for (library in project-used-libraries(*project*, *project*))
+    let name = environment-object-display-name(*project*, library, #f);
     format(response.output-stream, 
            "<li><a href=\"/project?name=%s\">%s</a></li>\n",
            name, name);
   end for;
   format(response.output-stream, "</ul>\n");
-end; 
+end;
+
+define tag project-library in code-browser
+  (page :: <code-browser-page>, response :: <response>)
+  ()
+    format(response.output-stream, "%s", environment-object-display-name(*project*, project-library(*project*), #f));
+end;
 
 
+define tag project-modules in code-browser
+  (page :: <code-browser-page>, response :: <response>)
+  ()
+    format(response.output-stream, "<ul>\n");
+    for (module in library-modules(*project*, project-library(*project*)))
+      format(response.output-stream, "<li>%s</li>\n", environment-object-display-name(*project*, module, #f));
+    end for;
+    format(response.output-stream, "</ul>\n");
+end;
+
+define tag find-section-for-definition in code-browser
+  (page :: <code-browser-page>, response :: <response>)
+  ()
+    format(response.output-stream, "%s", markup-dylan-source(source-location-string(environment-object-source-location(*project*, find-environment-object(*project*, "concatenate",
+      library: project-library(*project*), module: first(library-modules(*project*, project-library(*project*))))))));
+end;
+
+define tag generic-function-object-methods in code-browser
+  (page :: <code-browser-page>, response :: <response>)
+  ()
+    format(response.output-stream, "<ul>\n");
+    for (m in generic-function-object-methods(*project*,
+     find-environment-object(*project*, "concatenate",
+      library: project-library(*project*), module: first(library-modules(*project*, project-library(*project*)))))) 
+        format(response.output-stream, "<li>%s</li>\n", markup-dylan-source(environment-object-display-name(*project*, m, #f)));
+    end;
+    format(response.output-stream, "</ul>\n");
+end;
+
+define tag find-section-for-method in code-browser
+  (page :: <code-browser-page>, response :: <response>)
+  ()
+    format(response.output-stream, "%s", markup-dylan-source(source-location-string(
+      environment-object-source-location(*project*, first(generic-function-object-methods(*project*,
+        find-environment-object(*project*, "concatenate",
+          library: project-library(*project*), module: first(library-modules(*project*, project-library(*project*))))))))));
+end;
+
+//environment-object-source-location  source-location-string
+//source-location-source-record
 
 /// Main
 
