@@ -54,7 +54,7 @@ define function koala-main ()
     let desc = "The Koala web server, a multi-threaded web server with\n"
       "Dylan Server Pages and XML RPC, written in Dylan.";
     print-synopsis(parser,
-                   stream: *standard-output*,
+                   *standard-output*,
                    usage: "koala [options]",
                    description: desc);
     exit-application(0);

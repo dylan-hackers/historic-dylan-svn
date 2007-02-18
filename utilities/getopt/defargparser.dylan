@@ -357,7 +357,7 @@ define macro defargparser-synopsis
        (?fn:name, ?usage:expression, ?description:expression)
        ?options
       end }
-      => { define method ?fn (parser :: ?name, stream :: <stream>) => ();
+      => { define method ?fn (parser :: ?name, stream :: <stream>, #key) => ();
 	     let usage = ?usage;
 	     let desc = ?description;
 	     if (usage) format(stream, "Usage: %s\n", usage); end if;

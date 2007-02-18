@@ -70,7 +70,6 @@ end module;
 define module getopt
   use common-dylan, exclude: { format-to-string };
   use option-parser-protocol;
-  use standard-io;
 
   export
     <argument-list-parser>,
