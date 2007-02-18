@@ -1,0 +1,14 @@
+Format-Version:   2
+Library:          xsd-generator
+Synopsis:         Parse xsd to dylan classes
+Author:           Hannes Mehnert, Bastian Mueller
+Copyright:        (C) 2007,.  All rights reserved.
+Major-Version:    1
+Minor-Version:    0
+Files:            library
+	module
+	xsd-generator
+Start-Function:   main
+Compilation-Mode: loose
+Target-Type:      executable
+
