@@ -416,12 +416,14 @@ define function parse-arguments
   end block;
 end function parse-arguments;
 
+define open generic print-synopsis
+ (parser :: <argument-list-parser>, stream :: <stream>, #key);
 
 // todo -- Generate the initial "Usage: ..." line as well.
 define method print-synopsis
     (parser :: <argument-list-parser>,
-     #key stream :: <stream> = *standard-output*,
-          usage :: false-or(<string>),
+     stream :: <stream>,
+     #key usage :: false-or(<string>),
           description :: false-or(<string>))
   if (usage) format(stream, "Usage: %s\n", usage); end;
   if (description) format(stream, "%s\n", description); end;
