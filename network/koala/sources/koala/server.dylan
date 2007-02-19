@@ -702,7 +702,8 @@ define function read-request-content
     let n = kludge-read-into!(request-socket(request), content-length, buffer);
     assert(n == content-length, "Unexpected incomplete read");
     request-content(request)
-      := process-request-content(request, buffer, content-length);
+      := process-request-content(as(<symbol>, first(split(get-header(request, "content-type"), separator: ";"))),
+        request, buffer, content-length);
   end
 end read-request-content;
 
@@ -735,46 +736,59 @@ define function kludge-read-into!
   end;
 end;
 
-define function process-request-content
-    (request :: <request>, buffer :: <byte-string>, content-length :: <integer>)
+define open generic process-request-content
+ (content-type :: <symbol>, request :: <request>, buffer :: <byte-string>, content-length :: <integer>)
+  => (content :: <string>);
+
+define method process-request-content
+ (content-type :: <symbol>, request :: <request>,
+  buffer :: <byte-string>, content-length :: <integer>)
+ => (content :: <string>)
+  unsupported-media-type-error()
+end;
+
+define method process-request-content
+ (content-type == #"application/x-www-form-urlencoded", request :: <request>,
+  buffer :: <byte-string>, content-length :: <integer>)
+ => (content :: <string>)
+  log-debug("Form query string = %=",
+            copy-sequence(buffer, end: content-length));
+  // Replace '+' with Space.  See RFC 1866 (HTML) section 8.2.
+  // Must do this before calling decode-url.
+  for (i from 0 below buffer.size)
+    iff(buffer[i] == '+',
+        buffer[i] := ' ');
+  end; 
+  let content = decode-url(buffer, 0, content-length);
+  // By the time we get here request-query-values has already been bound to a <string-table>
+  // containing the URL query values.  Now we augment it with any form values.
+  extract-query-values(buffer, 0, content-length,
+                       request.request-query-values);
+  request-content(request) := content
+  // ---TODO: Deal with content types intelligently.  For now this'll have to do.
+end;
+
+define method process-request-content
+ (content-type :: one-of(#"text/xml", #"text/html", #"text/plain"), request :: <request>,
+  buffer :: <byte-string>, content-length :: <integer>)
+ => (content :: <string>)
+  request-content(request) := buffer
+end;
+
+define method process-request-content
+ (content-type == #"multipart/form-data", request :: <request>,
+  buffer :: <byte-string>, content-length :: <integer>)
  => (content :: <string>)
   let header-content-type = split(get-header(request, "content-type"), separator: ";");
-  let content-type = first(header-content-type);
-  if (instance?(content-type, <string>) &
-      string-equal?("application/x-www-form-urlencoded", content-type))
-    log-debug("Form query string = %=",
-              copy-sequence(buffer, end: content-length));
-    // Replace '+' with Space.  See RFC 1866 (HTML) section 8.2.
-    // Must do this before calling decode-url.
-    for (i from 0 below buffer.size)
-      iff(buffer[i] == '+',
-          buffer[i] := ' ');
-    end;
-    let content = decode-url(buffer, 0, content-length);
-    // By the time we get here request-query-values has already been bound to a <string-table>
-    // containing the URL query values.  Now we augment it with any form values.
-    extract-query-values(buffer, 0, content-length,
-                         request.request-query-values);
-    request-content(request) := content
-  // ---TODO: Deal with content types intelligently.  For now this'll have to do.
-  elseif (member?(content-type, #["text/xml", "text/html", "text/plain"],
-                  test: string-equal?))
+  let boundary = split(second(header-content-type), separator: "=");
+  if (element(boundary, 1, default: #f))
+    let boundary-value = second(boundary);
+    log-debug("boundary: %=", boundary-value);
+    extract-form-data(buffer, boundary-value, request);
+    // ???
     request-content(request) := buffer
-  elseif (instance?(content-type, <string>) & 
-          element(header-content-type, 1, default: #f) &
-          string-equal?("multipart/form-data", content-type))
-    let boundary = split(second(header-content-type), separator: "=");
-    if (element(boundary, 1, default: #f))
-      let boundary-value = second(boundary);
-      log-debug("boundary: %=", boundary-value);
-      extract-form-data(buffer, boundary-value, request);
-      // ???
-      request-content(request) := buffer
-    else
-      log-error("%=", "content-type is missing the boundary parameter");
-      unsupported-media-type-error();
-    end if
   else
+    log-error("%=", "content-type is missing the boundary parameter");
     unsupported-media-type-error();
   end if;
 end;

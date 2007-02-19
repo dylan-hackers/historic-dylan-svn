@@ -372,6 +372,7 @@ define module dsp
     respond-to-get,              // Implement this for your page to handle GET requests
     respond-to-post,             // Implement this for your page to handle POST requests
     respond-to-head,             // Implement this for your page to handle HEAD requests
+    respond-to,
 
     page-source,
     page-source-setter,
