@@ -99,7 +99,7 @@ define method save-page (title, content, #key comment = "")
 end;
 
 begin
-  add-option-parser-by-type(*argument-list-parser*,
+  add-option-parser-by-type(*command-line-parser*,
                             <simple-option-parser>,
                             description: "Whether to enable the XMPP bot",
                             long-options: #("xmpp"));

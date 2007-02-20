@@ -115,9 +115,14 @@
 <port value="8001" />
 
 
-<!-- location of the mime-type file -->
-<mime-type-map location="mime-type-map.xml" />
-
+<!-- MIME-TYPE-MAP specifies an XML format file that will augment the
+     default Koala mime-type mappings.  If the "clear" attribute is set
+     to a true value then the default mappings will be cleared before
+     the mappings in the file are applied.
+  -->
+<!-- Example:
+<mime-type-map location="mime-type-map.xml" clear="false"/>
+  -->
 
 <!-- unused as yet -->
 <administrator

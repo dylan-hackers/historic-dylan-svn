@@ -30,10 +30,13 @@ the document root directory.  i.e., the dynamic URL takes precedence.
 */
 
 
+define constant $http-config :: <http-server-configuration>
+  = make(<http-server-configuration>);
+
 //// Responders -- the lowest level API for responding to a URL
 
 // Responds to a single URL.
-define responder responder1 ("/responder1")
+define responder responder1 ($http-config, "/responder1")
     (request :: <request>,
      response :: <response>)
   select (request-method(request))
@@ -46,7 +49,7 @@ define responder responder1 ("/responder1")
 end;
 
 // Responds to a single directory (i.e., prefix) URL.
-define directory responder dir1 ("/dir1")
+define directory responder dir1 ($http-config, "/dir1")
     (request :: <request>,
      response :: <response>)
   select (request-method(request))
@@ -77,7 +80,8 @@ end;
 // *hello-world-page* instance.
 //
 define page hello-world-page (<page>)
-    (url: "/hello-world",
+    (config: $http-config,
+     url: "/hello-world",
      alias: "/hello")
 end;
 
@@ -132,12 +136,14 @@ define taglib demo ()
 end;
 
 define page home-page (<demo-page>)
-    (url: "/demo/home.dsp",
+    (config: $http-config,
+     url: "/demo/home.dsp",
      source: "demo/home.dsp")
 end;
 
 define page hello-page (<demo-page>)
-    (url: "/demo/hello.dsp",
+    (config: $http-config,
+     url: "/demo/hello.dsp",
      source: "demo/hello.dsp")
 end;
 
@@ -150,7 +156,8 @@ define tag hello in demo
 end;
 
 define page args-page (<demo-page>)
-    (url: "/demo/args.dsp",
+    (config: $http-config,
+     url: "/demo/args.dsp",
      source: "demo/args.dsp")
 end;
 
@@ -176,12 +183,14 @@ define named-method logged-in? in demo
 end;
 
 define page example-login-page (<demo-page>)
-    (url: "/demo/login.dsp",
+    (config: $http-config,
+     url: "/demo/login.dsp",
      source: "demo/login.dsp")
 end;
 
 define page example-logout-page (<demo-page>)
-    (url: "/demo/logout.dsp",
+    (config: $http-config,
+     url: "/demo/logout.dsp",
      source: "demo/logout.dsp")
 end;
 
@@ -196,7 +205,8 @@ end;
 
 // The login page POSTs to the welcome page...
 define page example-welcome-page (<demo-page>)
-    (url: "/demo/welcome.dsp",
+    (config: $http-config,
+     url: "/demo/welcome.dsp",
      source: "demo/welcome.dsp")
 end;
 
@@ -238,7 +248,8 @@ end;
 //// iterator
 
 define page iterator-page (<demo-page>)
-    (url: "/demo/iterator.dsp",
+    (config: $http-config,
+     url: "/demo/iterator.dsp",
      source: "demo/iterator.dsp")
 end;
 
@@ -275,7 +286,8 @@ end;
 //// table generation
 
 define page table-page (<demo-page>)
-    (url: "/demo/table.dsp",
+    (config: $http-config,
+     url: "/demo/table.dsp",
      source: "demo/table.dsp")
 end;
 
@@ -324,43 +336,31 @@ end;
 
 
 /// XML-RPC (use any XML-RPC client to call these)
-
-begin
-  register-xml-rpc-method("test.zero",
-                          method () end);
-  register-xml-rpc-method("test.one",
-                          method () 1 end);
-  register-xml-rpc-method("test.two",
-                          method () "two" end);
-  register-xml-rpc-method("test.three",
-                          method () vector(1, "two", 3.0) end);
-  register-xml-rpc-method("test.four",
-                          method ()
-                            let result = make(<table>);
-                            result["x"] := vector(vector(7), 8);
-                            result["y"] := "my <dog> has fleas";
-                            result
-                          end);
+define function configure-xml-rpc-server ()
+  let xml-rpc-config = make(<xml-rpc-configuration>, debug?: #t);
+  register-method(xml-rpc-config, "test.zero",  method () end);
+  register-method(xml-rpc-config, "test.one",   method () 1 end);
+  register-method(xml-rpc-config, "test.two",   method () "two" end);
+  register-method(xml-rpc-config, "test.three", method () vector(1, "two", 3.0) end);
+  register-method(xml-rpc-config, "test.four",
+                  method ()
+                    let result = make(<table>);
+                    result["x"] := vector(vector(7), 8);
+                    result["y"] := "my <dog> has fleas";
+                    result
+                  end);
+  register-url($http-config, "/RPC2", xml-rpc-config);
 end;
-
-
-
 
 /// Main
 
 // Starts up the web server.
-define function main () => ()
-  let config-file =
-    if(application-arguments().size > 0)
-      application-arguments()[0]
-    end;
-  // This is only necessary when running this example in FunDev/Linux
-  // because it doesn't have load-library.  In Windows the koala-basics
-  // library can be loaded at startup time by putting a
-  //     <module name="koala-basics"/>
-  // directive in the config file and commenting out this call to start-server.
-  start-server(config-file: config-file);
-end;
+define function main
+    () => ()
+  configure-xml-rpc-server();
+  let server = make(<http-server>, configuration: $http-config);
+  start-server(server, wait?: #t)
+end function main;
 
 begin
   main();

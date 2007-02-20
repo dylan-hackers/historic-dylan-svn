@@ -46,8 +46,7 @@ define method maybe-serve-static-file
     (request :: <request>, response :: <response>)
  => ()
   let url :: <string> = request-url(request);
-  let document :: false-or(<physical-locator>) 
-    = static-file-locator-from-url(url);
+  let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
   log-debug("Requested document is %s", document);
   if (~document)
     log-info("%s not found", url);
@@ -334,10 +333,6 @@ end;
 define method display-file-property
     (stream, key, property :: <string>, file-type :: <file-type>) => ()
   format(stream, property);
-end;
-
-define open method display-image-link
-    (stream :: <stream>, file-type :: <symbol>, locator :: <directory-locator>)
 end;
 
 define open method display-image-link

@@ -7,8 +7,12 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 define constant $config-directory-name :: <string> = "conf";
-define constant $log-directory-name :: <string> = "logs";
-define constant $document-directory-name :: <string> = "www";
+
+// For any time the user specifies something that would cause an invalid
+// server configuration.
+//
+define class <configuration-error> (<koala-error>)
+end;
 
 // This class holds all information that is configurable in a given Koala
 // <http-server> instance.
@@ -22,7 +26,7 @@ define class <http-server-configuration> (<object>)
   // debug Dylan Server Pages.  Can be enabled via the --debug
   // command-line option.
   slot debugging-enabled? :: <boolean> = #f,
-    init-keyword: #"debug?";
+    init-keyword: debug?:;
 
   // Map from URL string to a response function.  The leading slash is removed
   // from URLs because it's easier to use merge-locators that way.
@@ -32,70 +36,93 @@ define class <http-server-configuration> (<object>)
   //       works we use <module foo> inside <virtual-host> in the config
   //       and bind *virtual-host* while the library is loading?
 
-  constant slot url-map :: <string-trie> = make(<string-trie>, object: #f);
+  slot url-map :: <string-trie> = make(<string-trie>, object: #f),
+    init-keyword: url-map:;
 
   // The top of the directory tree under which the server's
   // configuration, error, and log files are kept.  Other pathnames are
   // merged against this one, so if they're relative they will be
   // relative to this.  The server-root pathname is  relative to the
   // current working directory, unless changed in the config file.
-  slot server-root :: <directory-locator> = as(<file-locator>, "."),
-    init-keyword: #"server-root";
+  slot server-root :: <directory-locator> = as(<directory-locator>, "."),
+    init-keyword: server-root:;
 
-  constant slot mime-type-map :: <table> = make(<table>);
-
-  // This is the "master switch" for auto-registration of URLs.  If #f
-  // then URLs will never be automatically registered based on their
-  // file types.  It defaults to #f to be safe.
-  // @see auto-register-map
-  slot auto-register-pages? :: <boolean> = #f,
-    init-keyword: #"auto-register-pages?";
-
-  // Maps from file extensions (e.g., "dsp") to functions that will
-  // register a URL responder for a URL.  If a URL matching the file
-  // extension is requested, and the URL isn't registered yet, then the
-  // function for the URL's file type extension will be called to
-  // register the URL and then the URL will be processed normally.  This
-  // mechanism is used, for example, to automatically export .dsp URLs
-  // as Dylan Server Pages so that it's not necessary to have a "define
-  // page" form for every page in a DSP application.
-  constant slot auto-register-map :: <string-table> = make(<string-table>);
+  slot mime-type-map :: <table> = shallow-copy(*default-mime-type-map*),
+    init-keyword: mime-type-map:;
 
   // The vhost used if the request host doesn't match any other virtual host.
-  // Note that the document root may be changed when the config file is
-  // processed, so don't use it except during request processing.
-  constant slot default-virtual-host :: <virtual-host>
-    = begin
-        let stdout-log = make(<stream-log-target>, stream: *standard-output*);
-        make(<virtual-host>,
-             name: "default",
-             activity-log: stdout-log,
-             debug-log: stdout-log,
-             error-log: make(<stream-log-target>, stream: *standard-error*))
-      end;
-
-  // If this is true, then requests directed at hosts that don't match any
-  // explicitly named virtual host (i.e., something created with <virtual-host>
-  // in the config file) will use the default vhost.  If this is #f when such a
-  // request is received, a Bad Request (400) response will be returned.
-  slot fall-back-to-default-virtual-host? :: <boolean> = #t;
+  slot default-virtual-host :: false-or(<virtual-host>),
+    init-keyword: default-virtual-host:;
 
   // Maps host names to virtual hosts.  Any host name not found in this
-  // table maps to default-virtual-host (contingent on the value of
-  // fall-back-to-default-virtual-host?).
-  constant slot virtual-hosts :: <string-table> = make(<string-table>);
-
-  // Since logging is done on a per-vhost basis, this hack is needed
-  // to make logging work before vhosts are initialized.
-  constant slot temp-log-target :: <log-target>
-    = make(<stream-log-target>, stream: *standard-output*);
-
-  // This may be set true by config file loading code, in which case
-  // start-server will abort startup.
-  slot abort-startup? :: <boolean> = #f;
+  // table maps to default-virtual-host.
+  slot virtual-hosts :: <string-table> = make(<string-table>),
+    init-keyword: virtual-hosts:;
 
 end class <http-server-configuration>;
 
+
+// We want the config file values to override the slot default values and the
+// "make" keyword arguments to override the config file values, so we need to
+// know how to set the slot corresponding to each make keyword argument.
+//
+// Yes, this is hacky because you need to specify the slot init-keywords in
+// two places, but it'll do until I get time to write a "define reflective-class"
+// macro or something similar, which allows asking what the slot setters and
+// init-keywords are.  It would be nice if it were possible to simply use a
+// "reflection" module and all this info were available that way.
+//
+define table *init-keyword-to-setter-map* = {
+    debug?: => debugging-enabled?-setter,
+    url-map: => url-map-setter,
+    server-root: => server-root-setter,
+    mime-type-map: => mime-type-map-setter,
+    default-virtual-host: => default-virtual-host-setter,
+    virtual-hosts: => virtual-hosts-setter
+  };
+
+define method initialize
+    (config :: <http-server-configuration>,
+     #rest args,
+     #key config-file,
+          log-level :: subclass(<log-level>) = <log-verbose>,
+     #all-keys)
+  next-method();
+  if (~slot-initialized?(config, default-virtual-host))
+    // Note that if the user wants to do something more complicated than specify
+    // a single log level for everything then they'll have to create the default
+    // virtual host themselves and pass it in.
+    config.default-virtual-host := make-default-virtual-host(make(log-level));
+  end;
+  // Config file overrides default slot values.
+  // Then init keywords override config file values.
+  if (config-file)
+    load-configuration-file(config, config-file);
+    // Now override config file settings with init-args again.
+    for (i from 0 by 2,
+         while: i < args.size - 1)
+      let keyword = args[i];
+      let setter = element(*init-keyword-to-setter-map*, keyword, default: #f);
+      if (setter)
+        setter(args[i + 1], config);
+      end;
+    end for;
+  end if;
+end method initialize;
+
+define function make-default-virtual-host
+    (log-level :: <log-level>) => (vhost :: <virtual-host>)
+  let stdout-log = make(<stream-log-target>,
+                        stream: *standard-output*,
+                        log-level: log-level);
+  make(<virtual-host>,
+       name: "default",
+       activity-log: stdout-log,
+       debug-log: stdout-log,
+       error-log: make(<stream-log-target>,
+                       stream: *standard-error*,
+                       log-level: log-level));
+end;
 
 define method get-virtual-host
     (config :: <http-server-configuration>, vhost-name :: <string>)
@@ -103,44 +130,8 @@ define method get-virtual-host
   element(config.virtual-hosts, vhost-name, default: #f)
 end;
 
-// We want the config file values to override the slot default values and the
-// "make" keyword arguments to override the config file values.  To accomplish
-// this, the config file parsing builds up a set of init arguments which are
-// appended to the make args.
-//
-define table *init-keyword-to-setter-map* = {
-    #"debug?" => debugging-enabled?-setter,
-    #"server-root" => server-root-setter,
-    #"auto-register-pages?" => auto-register-pages?-setter
-  };
-
-define method initialize
-    (config :: <http-server-configuration>, #rest args, #key config-file)
-  next-method();
-  // Config file overrides default slot values.
-  // Then init keywords override config file values.
-  if (config-file)
-    load-configuration-file(config, config-file);
-    // Now override config file settings with init-args again.
-    // Is there a better way?
-    local method argument-value (init-keyword)
-            block (return)
-              for (i from 0 by 2, while: i < args.size - 1)
-                if (args[i] == init-keyword)
-                  return(args[i + 1]);
-                end if;
-              end for;
-            end block;
-          end method argument-value;
-    for (setter keyed-by init-keyword in *init-keyword-to-setter-map*)
-      setter(argument-value(init-keyword), config);
-    end for;
-  end if;
-end method initialize;
 
 //// CONFIG FILE PROCESSING
-
-
 
 // Some variables for use during config file processing.
 define thread variable *config* = #f;
@@ -176,8 +167,8 @@ define method load-configuration-file
         process-config-node(xml);
       end;
     else
-      log-error("Server configuration file (%s) not found.", filename);
-      config.abort-startup? := #t;
+      raise(<configuration-error>,
+            "Server configuration file (%s) not found.", filename);
     end if;
   end block;
 end method load-configuration-file;
@@ -265,7 +256,7 @@ define method process-config-element
     if (get-virtual-host(*config*, name))
       warn("Ignoring duplicate virtual host %=", name);
     else
-      let vhost = make(<virtual-host>, name: name);
+      let vhost = make(<virtual-host>, name: name, server-configuration: *config*);
       *config*.virtual-hosts[name] := vhost;
       dynamic-bind(*vhost* = vhost)
         for (child in xml$node-children(node))
@@ -291,7 +282,7 @@ define method process-config-element
       *config*.virtual-hosts[name] := *vhost*;
     end;
   else
-    warn("Invalid <ALIAS> element.  The 'name' attribute must be specified.");
+    warn("Invalid <alias> element.  The 'name' attribute must be specified.");
   end;
 end;
 
@@ -300,7 +291,9 @@ define method process-config-element
   let attr = get-attr(node, #"enabled");
   when (attr)
     let enabled? = true-value?(attr);
-    *config*.fall-back-to-default-virtual-host? := enabled?;
+    if (~enabled?)
+      *config*.default-virtual-host := #f;
+    end;
     log-info("Fallback to the default virtual host is %s.",
              if (enabled?) "enabled" else "disabled" end);
   end;
@@ -339,19 +332,6 @@ define method process-config-element
 end;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"auto-register")
-  let attr = get-attr(node, #"enabled");
-  if (attr)
-    let enabled? = true-value?(attr);
-    auto-register-pages?(*vhost*) := enabled?;
-    log-info("Virtual host %s: documents will be auto-registered", vhost-name(*vhost*));
-  else
-    warn("Invalid <auto-register> spec.  "
-           "The 'enabled' attribute must be specified as true or false.");
-  end;
-end;
-
-define method process-config-element
     (node :: xml$<element>, name == #"server-root")
   let filename = get-attr(node, #"location");
   if (filename)
@@ -359,9 +339,8 @@ define method process-config-element
     server-root(*vhost*) := as(<file-locator>, loc);
     log-info("Server root set to %s", loc);
   else
-    warn("Invalid <server-root> spec.  "
-         "The 'location' attribute must be specified.");
-    *config*.abort-startup? := #t;
+    raise(<configuration-error>,
+          "Invalid <server-root> spec.  The 'location' attribute must be specified.");
   end;
 end;
 
@@ -451,11 +430,12 @@ define method process-config-element
   end;
 end;
 
-define class <mime-type> (xml$<printing>)
-end class <mime-type>;
+define class <mime-type-state> (xml$<xform-state>)
+  constant slot mime-type-map :: <table> = make(<table>);
+end class <mime-type-state>;
 
-define constant $mime-type = make(<mime-type>);
-
+// <mime-type-map location = "config/mime-type-map.xml" clear = "true" />
+//
 define method process-config-element
     (node :: xml$<element>, name == #"mime-type-map")
   let filename = get-attr(node, #"location");
@@ -463,32 +443,53 @@ define method process-config-element
     warn("<mime-type-map> element missing 'location' attribute.  Element ignored.");
   else
     let map-loc = merge-locators(as(<file-locator>, filename),
-                                 subdirectory-locator(server-root(*vhost*),
+                                 subdirectory-locator(*vhost*.server-root,
                                                       $config-directory-name));
-    let mime-text = file-contents(map-loc);
-    if (mime-text)
-      block ()
-        let mime-xml :: xml$<document> = xml$parse-document(mime-text);
-        log-info("Loading mime-type map from %s.", as(<string>, map-loc));
-        log-info("%s",
-                 with-output-to-string (stream)
-                   xml$transform-document(mime-xml, state: $mime-type, stream: stream);
-                 end);
-      exception (ex :: <error>)
-        warn("Error parsing mime-type map %s: %s", filename, ex)
+    block ()
+      let new-map = load-mime-type-file(map-loc);
+      // Only clear the default map if the mime-type file loads.
+      let clear? = get-attr(node, #"clear");
+      if (clear? & true-value?(clear?))
+        remove-all-keys!(*vhost*.mime-type-map)
       end;
-    else
-      warn("mime-type map %s not found", map-loc);
-    end if;
-  end if;
-end method;
+      let vhost-map = *vhost*.mime-type-map;
+      for (value keyed-by type in new-map)
+        vhost-map[type] := value;
+      end;
+    exception (ex :: <error>)
+      warn("Error parsing mime-type map %s: %s", filename, ex);
+    end;
+  end;
+end method process-config-element;
 
-define method xml$transform (node :: xml$<element>, name == #"mime-type",
-                             state :: <mime-type>, stream :: <stream>)
+define function load-mime-type-file
+    (file :: <locator>) => (mime-type-map :: <table>)
+  let mime-text = file-contents(file, error?: #t);
+  let mime-xml :: xml$<document> = xml$parse-document(mime-text);
+  log-info("Loading mime-type map from %s.", as(<string>, file));
+  let state = make(<mime-type-state>);
+  log-info("%s",
+           with-output-to-string (stream)
+             xml$transform-document(mime-xml, state: state, stream: stream);
+           end);
+  state.mime-type-map
+end function load-mime-type-file;
+
+/* Example document format...
+    <mime-type-map>
+        <mime-type id="application/x-gzip">
+            <extension>gz</extension>
+            <extension>tgz</extension>
+        </mime-type>
+        ...
+*/
+define method xml$transform 
+    (node :: xml$<element>, name == #"mime-type",
+     state :: <mime-type-state>, stream :: <stream>)
   let mime-type = get-attr(node, #"id");
   for (child in xml$node-children(node))
     if (xml$name(child) = #"extension")
-      let tmap = mime-type-map(*vhost*);
+      let tmap = state.mime-type-map;
       tmap[as(<symbol>, xml$text(child))] := mime-type;
     else
       warn("Skipping: %s %s %s: not an extension node!",
@@ -545,32 +546,18 @@ define /* exported */ method register-url
      #key replace?, prefix?)
   let (bpos, epos) = trim-whitespace(url, 0, size(url));
   if (bpos = epos)
-    error(make(<koala-api-error>,
-               format-string: "You cannot register an empty URL: %=",
-               format-arguments: list(substring(url, bpos, epos))));
+    raise(<koala-api-error>,
+          "You cannot register an empty URL: %=", substring(url, bpos, epos));
   else
     add-object(config.url-map, url, pair(target, prefix?), replace?: replace?);
+    log-info("Registered URL %s", url);
   end;
-  log-info("URL %s registered", url);
 end method register-url;
 
 // Find a responder function, if any.
 define method find-responder
     (config :: <http-server-configuration>, url :: <string>)
  => (responder :: false-or(<function>), #rest more)
-  local method maybe-auto-register (url)
-          when (config.auto-register-pages?)
-            // could use safe-locator-from-url, but it's relatively expensive
-            let len = size(url);
-            let slash = char-position-from-end('/', url, 0, len);
-            let dot = char-position-from-end('.', url, slash | 0, len);
-            when (dot & dot < len - 1)
-              let ext = substring(url, dot + 1, len);
-              let reg-fun = element(config.auto-register-map, ext, default: #f);
-              reg-fun & reg-fun(url)
-            end
-          end
-        end;
   let url = decode-url(url, 0, size(url));
   let path = split(url, separator: "/");
   let trie = *server*.configuration.url-map;
@@ -579,25 +566,8 @@ define method find-responder
     let fun = head(responder);
     let prefix? = tail(responder);
     values(fun, prefix?, unmatched-part-of-url)
-  else
-    maybe-auto-register(url)
   end
 end find-responder;
-
-// Register a function that will attempt to register a responder for a URL
-// if the URL matches the file extension.  The function should normally call
-// register-url (or register-page for DSPs) and should return a responder.
-//
-define function register-auto-responder
-    (config :: <http-server-configuration>, file-extension :: <string>, fn :: <function>,
-     #key replace? :: <boolean>)
-  if (~replace? & element(config.auto-register-map, file-extension, default: #f))
-    cerror("Replace the old auto-responder with the new one and continue.",
-           "An auto-responder is already defined for file extension %=.",
-           file-extension);
-  end;
-  config.auto-register-map[file-extension] := fn;
-end;
 
 // define responder test (config, "/test" /* , secure?: #t */ )
 //     (request, response)

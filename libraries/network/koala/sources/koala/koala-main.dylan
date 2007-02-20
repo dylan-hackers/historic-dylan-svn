@@ -19,8 +19,7 @@ define argument-parser <koala-command-line-parser> ()
       short: "h",
       long: "help";
     option debug-koala?,
-      "", "Enabled debugging.  Causes Koala to not handle most errors during "
-          "request handling.",
+      "", "Enables debugging.  Causes Koala to not handle most errors during request handling.",
       long: "debug";
     option listen-port,
       "", "Port on which to listen for HTTP requests.",
@@ -56,7 +55,7 @@ define function koala-main (#key description, wait? = #t)
                       port: listen-port(parser),
                       debug?: debug-koala?(parser));
     let server = make(<http-server>, configuration: config);
-    start-server(server, config, wait?: #t);
+    start-server(server, wait?: #t);
   end;
 end function koala-main;
 

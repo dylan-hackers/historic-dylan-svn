@@ -13,7 +13,7 @@ define library koala
   use common-dylan,
     import: { dylan, common-extensions, threads, simple-random };
   use io,
-    import: { format, standard-io, streams };
+    import: { format, standard-io, streams, print };
   use network,
     import: { sockets };
   use system,
@@ -148,6 +148,8 @@ define module koala
 
   // Basic server stuff
   create
+    <http-server>,
+    <http-server-configuration>,
     start-server,
     stop-server,
     register-url,
@@ -234,10 +236,11 @@ define module koala
   // XML-RPC
   create
     <xml-rpc-configuration>,
-    register-xml-rpc-server-url,
-    register-xml-rpc-method,
-    register-xml-rpc-test-methods,
-    register-xml-rpc-introspection-methods;
+    // register-url    (already exported from koala)
+    register-method,
+    register-test-methods,
+    register-introspection-methods,
+    internal-error-fault-code;
 
   // Documents
   create
@@ -261,12 +264,10 @@ define module koala
     unimplemented-error,
     internal-server-error,
     request-url,
-    request-url-tail,
-    register-auto-responder;
+    request-url-tail;
 
   // Debugging
   create
-    print-object,
     http-error-responder,
     load-module-responder,
     unload-module-responder;
@@ -326,6 +327,7 @@ define module httpi                             // http internals
               // case-insensitive-string-hash
               };
   use format;
+  use print, import: { print-object };
   use standard-io;
   use streams;
   use sockets,
@@ -377,6 +379,7 @@ define module dsp
     <page>,                      // Subclass this using the "define page" macro
     <static-page>,
     register-page,               // Register a page for a given URL
+    register-pages-as,
     url-to-page,
     respond-to-get,              // Implement this for your page to handle GET requests
     respond-to-post,             // Implement this for your page to handle POST requests

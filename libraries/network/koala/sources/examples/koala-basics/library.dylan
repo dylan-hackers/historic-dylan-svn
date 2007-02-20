@@ -20,7 +20,7 @@ define module koala-basics
   use threads;
   use common-extensions,
     exclude: { format-to-string, split };
-  use locators;
+  use locators, rename: { <http-server> => <http-server-url> };
   use format;
   use streams;
   use dsp;

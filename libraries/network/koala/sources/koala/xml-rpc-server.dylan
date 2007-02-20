@@ -15,7 +15,7 @@ define class <xml-rpc-configuration> (<object>)
   // that's received.  If users want to return a fault code they
   // should use the xml-rpc-fault method.
   // Exported
-  slot xml-rpc-internal-error-fault-code :: <integer> = 0,
+  slot internal-error-fault-code :: <integer> = 0,
     init-keyword: internal-error-fault-code:;
 
   // Maps method names to response functions.  If namespaces are used then
@@ -50,7 +50,7 @@ define method respond-to-xml-rpc-request
     let (method-name, args) = parse-xml-rpc-call(doc);
     log-debug("XML-RPC: method-name = %=, args = %=", method-name, args);
     let fun = lookup-xml-rpc-method(xml-rpc-config, method-name)
-              | xml-rpc-fault(xml-rpc-config.xml-rpc-internal-error-fault-code,
+              | xml-rpc-fault(xml-rpc-config.internal-error-fault-code,
                               "Method not found: %=",
                               method-name);
     send-xml-rpc-result(xml-rpc-config, response, apply(fun, args));
@@ -58,7 +58,7 @@ define method respond-to-xml-rpc-request
     send-xml-rpc-fault-response(xml-rpc-config, response, err);
   exception (err :: <error>)
     let fault = make(<xml-rpc-fault>,
-                     fault-code: xml-rpc-config.xml-rpc-internal-error-fault-code,
+                     fault-code: xml-rpc-config.internal-error-fault-code,
                      format-string: condition-format-string(err),
                      format-arguments: condition-format-arguments(err));
     send-xml-rpc-fault-response(xml-rpc-config, response, fault);
@@ -75,7 +75,7 @@ end;
 // todo -- xml-rpc-method-definer
 //
 // Exported
-define method register-xml-rpc-method
+define method register-method
     (xml-rpc-config :: <xml-rpc-configuration>, name :: <string>, f :: <function>,
      #key replace? :: <boolean>)
   if (~replace? & lookup-xml-rpc-method(xml-rpc-config, name))
@@ -136,24 +136,25 @@ define method parse-xml-rpc-call
 end;
 
 // Exported
-define method register-xml-rpc-server-url
+define method register-url
     (config :: <http-server-configuration>,
      url :: <string>,
      xml-rpc-config :: <xml-rpc-configuration>,
      #key replace?)
   register-url(config, url, curry(respond-to-xml-rpc-request, xml-rpc-config),
                replace?: replace?, prefix?: #f);
+  log-info("URL %s is an XML-RPC server.", url);
 end;
 
 // Exported
-define method register-xml-rpc-test-methods
+define method register-test-methods
     (xml-rpc-config :: <xml-rpc-configuration>)
-  register-xml-rpc-method(xml-rpc-config, "ping", method () #t end, replace?: #t);
-  register-xml-rpc-method(xml-rpc-config, "echo", method (#rest args) args end, replace?: #t);
+  register-method(xml-rpc-config, "ping", method () #t end, replace?: #t);
+  register-method(xml-rpc-config, "echo", method (#rest args) args end, replace?: #t);
 end;
 
 // Exported
-define method register-xml-rpc-introspection-methods
+define method register-introspection-methods
     (xml-rpc-config :: <xml-rpc-configuration>)
   // todo --
   signal(make(<xml-rpc-error>,

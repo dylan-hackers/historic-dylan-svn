@@ -197,47 +197,40 @@ define variable *default-request-class* :: subclass(<basic-request>) = <request>
 // This is what client libraries call to start a server.
 //
 define function start-server
-    (server :: <http-server>, config :: <http-server-configuration>,
+    (server :: <http-server>,
      #key wait? :: <boolean> = #t,
           // todo -- move these into config
           max-listeners :: <integer> = 1,
           request-class :: subclass(<basic-request>) = *default-request-class*)
  => (started? :: <boolean>)
+  let config :: <http-server-configuration> = server.configuration;
   log-info("%s HTTP Server starting up", $server-name);
   ensure-sockets-started();
   server.max-listeners := max-listeners;
   server.request-class := request-class;
   log-info("Server root directory is %s", config.server-root);
-  when (config.auto-register-pages?)
-    log-info("Auto-register enabled");
-  end;
   run-init-functions();
   let server-started? :: <boolean> = #f;
-  if (config.abort-startup?)
-    log-error("Server startup aborted due to the previous errors");
+  let ports = #();
+  for (vhost keyed-by name in config.virtual-hosts)
+    ports := add!(ports, vhost.vhost-port)
+  end;
+  if (config.default-virtual-host)
+    ports := add!(ports, config.default-virtual-host.vhost-port);
+  end;
+  if (empty?(ports))
+    log-error("No ports to listen on!  No virtual hosts were specified "
+              "in the config file and there is no default virtual host.");
   else
-    let ports = #();
-    for (vhost keyed-by name in config.virtual-hosts)
-      ports := add!(ports, vhost.vhost-port)
+    // todo -- fix this.  start listeners on all ports.
+    let port = ports[0];
+    while (start-http-listener(server, port))
+      server-started? := #t;
     end;
-    if (config.fall-back-to-default-virtual-host?)
-      ports := add!(ports, config.default-virtual-host.vhost-port);
+    if (wait?)
+      // Don't exit until all listener threads die.
+      join-listeners(server);
     end;
-    if (empty?(ports))
-      log-error("No ports to listen on!  No virtual hosts were specified "
-                "in the config file and fallback to the default vhost is "
-                "disabled.");
-    else
-      // temporary code...
-      let port = ports[0];
-      while (start-http-listener(server, port))
-        server-started? := #t;
-      end;
-      if (wait?)
-        // Don't exit until all listener threads die.
-        join-listeners(server);
-      end;
-    end if;
   end if;
   server-started?
 end function start-server;
@@ -544,7 +537,7 @@ define function handle-request-top-level
                   dynamic-bind (*request-query-values* = query-values,
                                 *virtual-host* = virtual-host(config, request))
                     log-debug("Virtual host for request is '%s'", 
-                              vhost-name(*virtual-host*));
+                              *virtual-host* & *virtual-host*.vhost-name);
                     invoke-handler(request);
                   end;
                   force-output(request.request-socket);

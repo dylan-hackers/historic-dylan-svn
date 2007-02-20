@@ -17,8 +17,6 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // See .../koala/sources/examples/koala-basics/ for example DSP usage.
 
 
-define variable *debugging-dsp* :: <boolean> = #f;
-
 define class <dsp-error> (<simple-error>) end;
 
 define class <dsp-parse-error> (<dsp-error>) end;
@@ -120,12 +118,6 @@ define function register-page
      #key replace?)
  => (responder :: <function>)
   bind (responder = curry(process-page, page))
-    let source = source-location(page);
-    log-debug("Registering URL %s (%s)",
-              url,
-              iff(source,
-                  sformat("source: %s", as(<string>, source)),
-                  "dynamic"));
     register-url(config, url, responder, replace?: replace?);
     *page-to-url-map*[page] := url;
     responder
@@ -144,7 +136,9 @@ end;
 // Register URLs for all files matching the given pathname spec as instances
 // of the given page class.
 define method register-pages-as
-    (path :: <locator>, page-class :: subclass(<file-page-mixin>),
+    (config :: <http-server-configuration>,
+     path :: <locator>,
+     page-class :: subclass(<file-page-mixin>),
      #key descend? = #t, file-type)
   // url-dir always ends in '/'
   local method doer (url-dir, directory, name, type)
@@ -152,9 +146,9 @@ define method register-pages-as
             #"file" =>
               let file = merge-locators(as(<file-locator>, name),
                                         as(<directory-locator>, directory));
-              register-page(name, make(page-class,
-                                       source: file,
-                                       url: concatenate(url-dir, name)));
+              register-page(config, name, make(page-class,
+                                               source: file,
+                                               url: concatenate(url-dir, name)));
             #"directory" =>
               let dir = subdirectory-locator(as(<directory-locator>, directory), name);
               when (descend?)
@@ -654,18 +648,35 @@ define open primary class <dylan-server-page> (<file-page-mixin>, <page>)
   slot page-template :: <dsp-template>;
 end;
 
-// define page my-dsp (<dylan-server-page>) (url: "/hello", source: make-locator(...), ...)
+// define page my-dsp (<dylan-server-page>)
+//     (config: my-http-server-config, url: "/hello", source: make-locator(...), ...)
 //   slot foo :: <integer> = bar;
 //   ...
 // end;
+// todo -- This whole macro is hideous, especially since the addition of the config:
+//         option, but I wanted to get something working quickly.  --cgay
 define macro page-definer
     { define page ?:name (?superclasses:*) (?make-args:*)
         ?slot-specs:*
       end }
  => { define class "<" ## ?name ## ">" (?superclasses) ?slot-specs end;
       define variable "*" ## ?name ## "*" = make("<" ## ?name ## ">", ?make-args);
-      has-url?(?make-args) & register-page-urls("*" ## ?name ## "*", ?make-args);
+      // yes yes, this is crufty
+      if (has-url?(?make-args))
+        register-page-urls(config-argument(?make-args), "*" ## ?name ## "*", ?make-args);
+      end;
     }
+end;
+
+define function config-argument
+    (#key config :: false-or(<http-server-configuration>), #all-keys)
+ => (config)
+  if (~config)
+    signal(make(<koala-api-error>,
+                format-string: "You must supply a config: keyword argument to \"define page\"."));
+  else
+    config
+  end
 end;
 
 define function has-url? (#key url :: false-or(<string>), #all-keys)
@@ -679,7 +690,7 @@ define function register-page-urls
     (config :: <http-server-configuration>, page :: <page>, #key url :: <string>, alias,
      #all-keys)
  => (responder :: <function>)
-  let responder = register-page(url, page);
+  let responder = register-page(config, url, page);
   when (alias)
     for (alias in iff(instance?(alias, <string>),
                       list(alias),
@@ -1232,15 +1243,4 @@ define method respond-to-head
     (page :: <dylan-server-page>, request :: <request>, response :: <response>)
   //---*** TODO
 end;
-
-
-//// Configuration
-
-define function auto-register-dylan-server-page
-    (url :: <string>) => (responder :: <function>)
-  // ---TODO: what if document-location returns #f here?
-  register-page(url, make(<dylan-server-page>,
-                          source: document-location(url)))
-end;
-
 

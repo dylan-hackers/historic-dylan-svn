@@ -83,26 +83,26 @@ end;
 
 // Most slots are set when the config file is processed.  A valiant attempt
 // should be made to use good defaults, in case the config file doesn't specify
-// a value.
+// a value.  Init args passed to make(<http-server-configuration>) are passed
+// through to this class when making the default-virtual-host, for user convenience.
 
 define class <virtual-host> (<object>)
   constant slot vhost-name :: <string>,
     required-init-keyword: name:;
 
-  constant slot http-server-configuration :: <http-server-configuration>,
-    required-init-keyword: configuration:;
-
-  // The root of the web document hierarchy.  By default, this will be
-  // {config}.server-root/www/<vhost-name>/.  If name is the empty string then
-  // just {config}.server-root/www/.
-  slot document-root :: <directory-locator>;
+  // The root of the web document hierarchy.  The config file loader may set this
+  // to {server-root}/www/<vhost-name>/.  The default value is set in initialize.
+  slot document-root :: <directory-locator>,
+    init-keyword: document-root:;
 
   // TODO: no need for this here.  Even though ports can be specified inside
   //       the virtual host definition in the config file, we just need a 
   //       list of virtual hosts per port.  Start up one listener per port
   //       and serve requests only for the vhosts that are registered on that
   //       port.
-  slot vhost-port :: <integer> = 80;
+  slot vhost-port :: <integer>,
+    init-value: 80,
+    init-keyword: port:;
 
   // List of <directory-spec> objects that determine how documents in
   // different directories are treated.  These are searched in order,
@@ -112,59 +112,51 @@ define class <virtual-host> (<object>)
   // precedence.  I think this will match the natural usage, where people
   // will put more general specs first in the file and more specific ones
   // later, but we might want to revisit this decision.
-  slot directory-specs :: <list>
-    = list();
+  slot directory-specs :: <list>,
+    init-value: list(),
+    init-keyword: directory-specs:;
 
   // Each vhost gets an implicitly defined spec for the vhost root directory.
   // It must, of course, match all documents under the vhost document root.
   // It should always be the last element in directory-specs(vhost).
   // See initialize(<virtual-host>).
-  constant slot root-directory-spec :: <directory-spec>
-    = make(<directory-spec>,
-           parent: #f,
-           pattern: "/*");
+  constant slot root-directory-spec :: <directory-spec>,
+    init-value: make(<directory-spec>,
+                     parent: #f,
+                     pattern: "/*"),
+    init-keyword: root-directory-spec:;
 
   // Whether or not to include a Server: header in all responses.  Most people
   // won't care either way, but some might want to hide the server type so as
   // to prevent cracking or to hide the fact that they're not using one of the
   // Chosen Few accepted technologies.  Wimps.  ;-)
-  slot generate-server-header? :: <boolean> = #t;
+  slot generate-server-header? :: <boolean>,
+    init-value: #t,
+    init-keyword: generate-server-header?:;
 
   // TODO: this should be per-dirspec.  no reason some subtree on the same
-  //       vhost shouldn't have a different set of default docs.
+  //       vhost shouldn't have a different set of default docs.  CFT.
   // The set of file names that are searched for when a directory URL is
   // requested.  They are searched in order, and the first match is chosen.
-  slot default-documents :: <list>
-    = list(as(<file-locator>, "index.html"),
-           as(<file-locator>, "index.htm"));
+  slot default-documents :: <list>,
+    init-value: list(as(<file-locator>, "index.html"),
+                     as(<file-locator>, "index.htm")),
+    init-keyword: default-documents:;
 
   // The value sent in the "Content-Type" header for static file responses if
-  // no other value is set.  See *mime-type-map*.
-  slot default-static-content-type :: <string> = "application/octet-stream";
+  // no other value is set.  See *default-mime-type-map*.
+  slot default-static-content-type :: <string>,
+    init-value: "application/octet-stream",
+    init-keyword: default-static-content-type:;
 
   // The value sent in the "Content-Type" header for dynamic responses if no
   // other value is set.
-  slot default-dynamic-content-type :: <string> = "text/html; charset=utf-8";
-
-  // This is the "master switch" for auto-registration of URLs.  If #f then
-  // URLs will never be automatically registered based on their file types.  It
-  // defaults to #f to be safe.  See auto-register-map
-  slot auto-register-pages? :: <boolean> = #f;
-
-  // Maps from file extensions (e.g., "dsp") to functions that will register a
-  // URL responder for a URL.  If a URL matching the file extension is
-  // requested, and the URL isn't registered yet, then the function for the
-  // URL's file type extension will be called to register the URL and then the
-  // URL will be processed normally.  This mechanism is used, for example, to
-  // automatically export .dsp URLs as Dylan Server Pages so that it's not
-  // necessary to have a "define page" form for every page in a DSP
-  // application.
-  // TODO: x-platform: this should be a case-sensitive string table for 
-  //       unix variants and insensitive for Windows.
-  constant slot auto-register-map :: <table> = make(<string-table>);
+  slot default-dynamic-content-type :: <string>,
+    init-value: "text/html; charset=utf-8",
+    init-keyword: default-dynamic-content-type:;
 
   // Log targets.  If these are #f then the default virtual host's
-  // log target is used.  They are never #f in $default-virtual-host.
+  // log target is used.  They are never #f for the default-virtual-host.
   slot activity-log-target :: false-or(<log-target>) = #f,
     init-keyword: #"activity-log";
   slot error-log-target :: false-or(<log-target>) = #f,
@@ -176,20 +168,42 @@ end class <virtual-host>;
 
 
 define method initialize
-    (vhost :: <virtual-host>, #key)
+    (vhost :: <virtual-host>,
+     #key server-configuration :: false-or(<http-server-configuration>))
   next-method();
-  // This may be overridden by a <document-root> spec in the config file.
-  let name = vhost.vhost-name;
-  let config = vhost.http-server-configuration;
-  vhost.document-root := subdirectory-locator(config.server-root, name);
+  if (~slot-initialized?(vhost, document-root))
+    // Set the document root here because we need access to the vhost name.
+    // This value is only used if no config file is loaded and no initial value
+    // is passed to make since the config file loader always sets the document
+    // root based on the config's server root.
+    // todo -- Should have different default for Windows and unix and I'm not
+    //         even sure this value is reasonable for unix.
+    vhost.document-root := make(<directory-locator>,
+                                path: vector("var", "www", vhost.vhost-name));
+  end if;
   // Add a spec that matches all urls.
   add-directory-spec(vhost, vhost.root-directory-spec);
-  vhost.activity-log-target
-    := vhost.activity-log-target | vhost.http-server-configuration.default-virtual-host.activity-log-target;
-  vhost.error-log-target
-    := vhost.error-log-target | vhost.http-server-configuration.default-virtual-host.error-log-target;
-  vhost.debug-log-target
-    := vhost.debug-log-target | vhost.http-server-configuration.default-virtual-host.debug-log-target;
+  // If server-configuration was supplied this isn't the default virtual host.
+  if (server-configuration)
+    // This may be overridden by a <document-root> spec in the config file.
+    vhost.document-root
+      := subdirectory-locator(server-configuration.server-root, vhost.vhost-name);
+    vhost.activity-log-target
+      := vhost.activity-log-target
+         | server-configuration.default-virtual-host.activity-log-target;
+    vhost.error-log-target
+      := vhost.error-log-target
+         | server-configuration.default-virtual-host.error-log-target;
+    vhost.debug-log-target
+      := vhost.debug-log-target
+         | server-configuration.default-virtual-host.debug-log-target;
+  end if;
+end;
+
+define method print-object
+    (vhost :: <virtual-host>, stream :: <stream>)
+ => ()
+  format(stream, "{<virtual-host>: name: %=}", vhost.vhost-name);
 end;
 
 define method add-directory-spec
@@ -203,8 +217,10 @@ end;
 
 //// VIRTUAL HOST ACCESS
 
-define thread variable *virtual-host* :: <virtual-host>
-  = make(<virtual-host>, configuration: make(<http-server-configuration>));
+// The initial value here is never used; it's just there so this doesn't
+// have to be typed as false-or(<virtual-host>).
+//
+define thread variable *virtual-host* :: false-or(<virtual-host>) = #f;
 
 define method virtual-host
     (config :: <http-server-configuration>, name :: <string>)
@@ -230,9 +246,7 @@ define method virtual-host
                    log-debug("error parsing port in host spec");
                    die();
                  end;
-    let vhost = (virtual-host(config, host)
-                   | (config.fall-back-to-default-virtual-host?
-                        & config.default-virtual-host));
+    let vhost = (virtual-host(config, host) | config.default-virtual-host);
     // TODO: If this is an HTTPS request and no port is specified, make sure
     //       vhost-port(vhost) == 443
     if (vhost & ((~port & vhost-port(vhost) == 80)
@@ -242,9 +256,7 @@ define method virtual-host
       die()
     end
   else
-    iff (config.fall-back-to-default-virtual-host?,
-         config.default-virtual-host,
-         die())
+    config.default-virtual-host | die()
   end
 end;
 
