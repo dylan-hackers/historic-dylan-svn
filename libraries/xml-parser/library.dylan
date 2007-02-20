@@ -18,11 +18,12 @@ end library;
 define module xml-parser
   create parse-document;
 
-  create <document>, <element>, <node-mixin>, <attribute>, <xml>, <processing-instruction>,
-    <entity-reference>, <add-parents>, <char-reference>, <comment>, <tag>,
-    <char-string>, <dtd>, <internal-entity>, <external-entity>,
-    text, text-setter, unfiltered-text, name, name-setter, name-with-proper-capitalization,
-    root, char;
+  create <document>, <element>, <node-mixin>, <attribute>, <xml>,
+    <processing-instruction>, <entity-reference>, <add-parents>,
+    <char-reference>, <comment>, <tag>, <char-string>, <dtd>,
+    <internal-entity>, <external-entity>, text, text-setter,
+    unfiltered-text, name, name-setter,
+    name-with-proper-capitalization, root, char;
 
   create entity-value, attributes, attributes-setter, *dtd-paths*,
     attribute-value, attribute-value-setter,
@@ -152,5 +153,5 @@ define module xml-stream-parser
   export <xml-stream-parser>,
     stream, stream-setter,
     parse, monitor;
-    
+
 end module xml-stream-parser;
