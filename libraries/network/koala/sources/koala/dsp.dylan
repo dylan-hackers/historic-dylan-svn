@@ -101,21 +101,26 @@ define method process-page (page :: <page>,
   end;
 end process-page;
 
-define open generic respond-to (request-method :: <symbol>, page :: <page>, request :: <request>, response :: <response>);
+define open generic respond-to
+    (request-method :: <symbol>, page :: <page>, request :: <request>, response :: <response>);
 
-define method respond-to (request-method :: <symbol>, page :: <page>, request :: <request>, response :: <response>)
+define method respond-to
+    (request-method :: <symbol>, page :: <page>, request :: <request>, response :: <response>)
   unsupported-request-method-error()
 end;
 
-define method respond-to (request-method == #"GET", page :: <page>, request :: <request>, response :: <response>)
+define method respond-to
+    (request-method == #"GET", page :: <page>, request :: <request>, response :: <response>)
   respond-to-get(page, request, response);
 end;
 
-define method respond-to (request-method == #"POST", page :: <page>, request :: <request>, response :: <response>)
+define method respond-to
+    (request-method == #"POST", page :: <page>, request :: <request>, response :: <response>)
   respond-to-post(page, request, response);                                                          
 end;
 
-define method respond-to (request-method == #"HEAD", page :: <page>, request :: <request>, response :: <response>)
+define method respond-to
+    (request-method == #"HEAD", page :: <page>, request :: <request>, response :: <response>)
   respond-to-head(page, request, response);                                                          
 end;
 
@@ -817,7 +822,7 @@ end;
 // process-template explicitly.
 //
 define method respond-to-get
- (page :: <dylan-server-page>, request :: <request>, response :: <response>)
+    (page :: <dylan-server-page>, request :: <request>, response :: <response>)
   process-template(page, request, response);
 end;
 

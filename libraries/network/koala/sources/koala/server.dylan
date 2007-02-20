@@ -439,7 +439,7 @@ define function do-http-listen (listener :: <listener>)
                    unless (listener.listener-exit-requested?)
                      log-info("Ready for service on port %d",
                               listener.listener-port);
-	             // use "element-type: <byte>" here?
+                     // use "element-type: <byte>" here?
                      accept(listener.listener-socket); // blocks
                    end;
                  exception (c :: <socket-condition>)
@@ -644,7 +644,7 @@ define function read-request-first-line
     invalid-request-line-error();
   else
     request.request-method
-    := as(<symbol>, copy-sequence(buffer, start: 0, end: method-end));
+      := as(<symbol>, copy-sequence(buffer, start: 0, end: method-end));
     let bpos = skip-whitespace(buffer, method-end, eol);
     let epos = whitespace-position(buffer, bpos, eol) | eol;
     when (epos > bpos)
@@ -702,8 +702,10 @@ define function read-request-content
     let n = kludge-read-into!(request-socket(request), content-length, buffer);
     assert(n == content-length, "Unexpected incomplete read");
     request-content(request)
-      := process-request-content(as(<symbol>, first(split(get-header(request, "content-type"), separator: ";"))),
-        request, buffer, content-length);
+      := process-request-content(as(<symbol>,
+                                    first(split(get-header(request, "content-type"),
+                                                separator: ";"))),
+                                 request, buffer, content-length);
   end
 end read-request-content;
 
@@ -737,19 +739,24 @@ define function kludge-read-into!
 end;
 
 define open generic process-request-content
- (content-type :: <symbol>, request :: <request>, buffer :: <byte-string>, content-length :: <integer>)
-  => (content :: <string>);
+    (content-type :: <symbol>,
+     request :: <request>,
+     buffer :: <byte-string>,
+     content-length :: <integer>)
+ => (content :: <string>);
 
 define method process-request-content
- (content-type :: <symbol>, request :: <request>,
-  buffer :: <byte-string>, content-length :: <integer>)
+    (content-type :: <symbol>,
+     request :: <request>,
+     buffer :: <byte-string>,
+     content-length :: <integer>)
  => (content :: <string>)
   unsupported-media-type-error()
 end;
 
 define method process-request-content
- (content-type == #"application/x-www-form-urlencoded", request :: <request>,
-  buffer :: <byte-string>, content-length :: <integer>)
+    (content-type == #"application/x-www-form-urlencoded", request :: <request>,
+     buffer :: <byte-string>, content-length :: <integer>)
  => (content :: <string>)
   log-debug("Form query string = %=",
             copy-sequence(buffer, end: content-length));
@@ -769,15 +776,17 @@ define method process-request-content
 end;
 
 define method process-request-content
- (content-type :: one-of(#"text/xml", #"text/html", #"text/plain"), request :: <request>,
-  buffer :: <byte-string>, content-length :: <integer>)
+    (content-type :: one-of(#"text/xml", #"text/html", #"text/plain"),
+     request :: <request>,
+     buffer :: <byte-string>,
+     content-length :: <integer>)
  => (content :: <string>)
   request-content(request) := buffer
 end;
 
 define method process-request-content
- (content-type == #"multipart/form-data", request :: <request>,
-  buffer :: <byte-string>, content-length :: <integer>)
+    (content-type == #"multipart/form-data", request :: <request>,
+     buffer :: <byte-string>, content-length :: <integer>)
  => (content :: <string>)
   let header-content-type = split(get-header(request, "content-type"), separator: ";");
   let boundary = split(second(header-content-type), separator: "=");
