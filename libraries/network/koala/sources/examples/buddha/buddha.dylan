@@ -228,7 +228,7 @@ end;
 define method respond-to-get (page == #"admin",
                               request :: <request>,
                               response :: <response>,
-                              #key errors)
+                              #key errors = make(<stretchy-vector>))
   let out = output-stream(response);
   if (*user*.access-level = #"root")
   with-buddha-template(out, "Admin")
