@@ -23,11 +23,16 @@ define method initialize (client :: <xmpp-client>, #rest rest, #key, #all-keys)
   client.notification := make(<notification>, lock: client.lock);
 end method initialize;
 
-define method connect (client :: <xmpp-client>, #key port :: <integer> = 5222, host, stream)
+define method connect (client :: <xmpp-client>,
+                       #key port :: <integer> = 5222,
+                       host,
+                       stream)
  => (connected :: <boolean>);
   start-sockets();
   client.socket := make(<tcp-socket>, host: host | client.jid.domain, port: port);
-  client.listener := make(<thread>, priority: $background-priority, function: curry(listen, client));
+  client.listener := make(<thread>,
+                          priority: $background-priority,
+                          function: curry(listen, client));
   if (~ stream)
     stream := make(<xmpp-stream>, to: client.jid.domain);
   end if;
@@ -41,7 +46,9 @@ define method connect (client :: <xmpp-client>, #key port :: <integer> = 5222, h
   end if;
 end method connect;
 
-define method add-callback (client :: <xmpp-client>, class :: <class>, callback :: <callback>)
+define method add-callback (client :: <xmpp-client>,
+                            class :: <class>,
+                            callback :: <callback>)
   unless (element(client.callbacks, class, default: #f))
     client.callbacks[class] := make(<priority-queue>, comparison-function: \>);
   end unless;
@@ -82,8 +89,10 @@ define method listen (client :: <xmpp-client>)
   end);
 
   monitor(parser, #"characters", method (chars)
-    if (current-element & ~ every?(method(x) x = '\n' end, chars))
-      current-element.node-children := concatenate(current-element.node-children, vector(make(<char-string>, text: chars)));
+    if (current-element & ~ every?(curry(\=, '\n'), chars))
+      current-element.node-children
+        := concatenate(current-element.node-children,
+                       vector(make(<char-string>, text: chars)));
     end if;
   end);
 
@@ -99,7 +108,9 @@ define method disconnect (client :: <xmpp-client>)
   client.state := #"disconnected";
 end method disconnect;
 
-define method send (client :: <xmpp-client>, data :: type-union(<element>, <string>), #key awaits-result?)
+define method send (client :: <xmpp-client>,
+                    data :: type-union(<element>, <string>),
+                    #key awaits-result?)
   write-line(client.socket, as(<string>, data));
   force-output(client.socket);
   format-out("<<< %s\n", data);
@@ -116,7 +127,9 @@ define method send (client :: <xmpp-client>, data :: type-union(<element>, <stri
   end if;
 end method send;
 
-define method send-with-id (client :: <xmpp-client>, data :: <element>, #key awaits-result?)
+define method send-with-id (client :: <xmpp-client>,
+                            data :: <element>,
+                            #key awaits-result?)
   if (~ data.id)
     data.id := "foo";
   end if;
@@ -124,7 +137,7 @@ define method send-with-id (client :: <xmpp-client>, data :: <element>, #key awa
   let result = send(client, data, awaits-result?: awaits-result?);
   if (awaits-result?)
     if (result.id ~= data.id)
-      signal("id-missmatch");
+      signal("id-mismatch");
     else
       result;
     end if;
@@ -133,7 +146,6 @@ end method send-with-id;
 
 define method password-setter (password, client :: <xmpp-client>)
  => (res);
-
   password;
 end method password-setter;
 
@@ -165,7 +177,9 @@ define method dispatch (client :: <xmpp-client>, received-element :: <element>)
   end block;
 end method dispatch;
 
-define generic authenticate (client :: <xmpp-client>, password, digest) => (authenticated? :: <boolean>);
+define generic authenticate (client :: <xmpp-client>, password, digest)
+ => (authenticated? :: <boolean>);
+
 define method authenticate (client :: <xmpp-client>, password, digest == #f)
  => (authenticated? :: <boolean>); 
   let possibilities = send-with-id(client, make-authentication-request(client.jid));    // , awaits-result?: #t);
@@ -178,7 +192,9 @@ define method authenticate (client :: <xmpp-client>, password, digest == #f)
       
       possibilities.query.password!!!
 */ 
-  let success = send-with-id(client, make-authentication(client.jid, password), awaits-result?: #t);
+  let success = send-with-id(client,
+                             make-authentication(client.jid, password),
+                             awaits-result?: #t);
 end method authenticate;
 
 define method connected? (client :: <xmpp-client>)
