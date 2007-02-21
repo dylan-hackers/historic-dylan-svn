@@ -277,6 +277,11 @@ define module koala
     koala-main,
     *argument-list-parser*;
 
+  create request-content,
+    request-content-type,
+    request-content-setter,
+    process-request-content;
+
 end module koala;
 
 // Additional interface for extending the server
