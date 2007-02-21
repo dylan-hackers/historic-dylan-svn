@@ -7,7 +7,7 @@ define library code-browser
   use common-dylan,
     import: { common-extensions };
   use io,
-    import: { format, streams };
+    import: { format, format-out, streams };
   use system,
     import: { locators, threads };
   use koala,
@@ -23,6 +23,7 @@ define library code-browser
   use source-records;
   use release-info;
   use regular-expressions;
+  use graphviz-renderer;
 //use environment-deuce;
 end;
 
@@ -31,11 +32,12 @@ define module code-browser
   use dylan;
   use threads;
   use common-extensions,
-    exclude: { format-to-string, split };
+    exclude: { format-to-string };
   use locators;
   use format;
+  use format-out;
   use streams;
-  use dsp;
+  use dsp, exclude: { split };
   use regular-expressions, import: { regexp-replace };
   use source-records;
   use source-records-implementation;
@@ -44,6 +46,7 @@ define module code-browser
                application-filename,
                application-arguments };
   use release-info;
+  use graphviz-renderer;
 //  use environment-deuce;
 end;
 
