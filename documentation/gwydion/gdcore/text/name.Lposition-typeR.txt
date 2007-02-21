@@ -1,0 +1,20 @@
+Constant: <position-type>
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+<object>
+

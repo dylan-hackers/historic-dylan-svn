@@ -1,0 +1,27 @@
+Generic: digit-to-integer
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module string-conversions#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

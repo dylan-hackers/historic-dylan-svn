@@ -1,0 +1,22 @@
+Class: <subsequence>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module subseq#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<sequence>#
+ 
+
+

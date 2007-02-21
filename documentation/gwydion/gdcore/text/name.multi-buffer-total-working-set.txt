@@ -1,0 +1,17 @@
+Function: multi-buffer-total-working-set
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+
+
+

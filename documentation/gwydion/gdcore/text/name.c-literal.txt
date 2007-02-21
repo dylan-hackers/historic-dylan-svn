@@ -1,0 +1,18 @@
+Macro: c-literal
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Definition:
+------------------------------
+:
+          function macro
+        
+
+

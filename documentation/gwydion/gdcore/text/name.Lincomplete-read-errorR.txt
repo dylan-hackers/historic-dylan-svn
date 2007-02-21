@@ -1,0 +1,23 @@
+Class: <incomplete-read-error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<end-of-stream-error>#
+ 
+
+

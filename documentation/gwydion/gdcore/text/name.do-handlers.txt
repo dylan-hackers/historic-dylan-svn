@@ -1,0 +1,24 @@
+Function: do-handlers
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

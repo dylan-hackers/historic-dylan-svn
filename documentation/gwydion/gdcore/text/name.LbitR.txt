@@ -1,0 +1,21 @@
+Constant: <bit>
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module bit-vector#
+- #Module Extensions#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+limited(<integer>, min: 0, max: 1)
+

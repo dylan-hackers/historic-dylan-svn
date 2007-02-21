@@ -1,0 +1,21 @@
+Constant: $unfound
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+unknown
+

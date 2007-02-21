@@ -1,0 +1,26 @@
+Function: unfold/tail
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+arg - An instance of #<function>#. 
+arg - An instance of #<function>#. 
+arg - An instance of #<function>#. 
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<list>#. 
+
+
+

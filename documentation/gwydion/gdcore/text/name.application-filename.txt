@@ -1,0 +1,19 @@
+Function: application-filename
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module operating-system#
+
+
+Values:
+------------------------------
+val - An instance of type-union(<string>, <false>). 
+
+
+

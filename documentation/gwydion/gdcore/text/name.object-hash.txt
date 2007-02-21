@@ -1,0 +1,31 @@
+Generic: object-hash
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<false>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+val - An instance of #<false>#. 
+
+
+

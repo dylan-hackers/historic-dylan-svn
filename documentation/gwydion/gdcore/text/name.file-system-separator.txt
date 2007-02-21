@@ -1,0 +1,17 @@
+Function: file-system-separator
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Values:
+------------------------------
+val - An instance of #<character>#. 
+
+
+

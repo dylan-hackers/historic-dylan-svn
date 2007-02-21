@@ -1,0 +1,18 @@
+Module: Module string-conversions
+==============================
+
+The string-conversions module.
+
+
+Exported from:
+------------------------------
+#Library string-extensions#
+
+
+Topic: string-conversions names
+------------------------------
+- #digit-to-integer#
+- #integer-to-digit#
+- #integer-to-string#
+- #string-to-integer#
+

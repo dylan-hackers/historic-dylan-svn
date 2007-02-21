@@ -1,0 +1,31 @@
+Module: Module bit-set
+==============================
+
+The bit-set module.
+
+
+Exported from:
+------------------------------
+#Library collections#
+
+
+Topic: bit-set names
+------------------------------
+- #<bit-set>#
+- #copy-bit-set!#
+- #empty-bit-set!#
+- #infinite?#
+- #set-add#
+- #set-add!#
+- #set-complement#
+- #set-complement!#
+- #set-difference#
+- #set-difference!#
+- #set-intersection#
+- #set-intersection!#
+- #set-remove#
+- #set-remove!#
+- #set-union#
+- #set-union!#
+- #universal-bit-set!#
+

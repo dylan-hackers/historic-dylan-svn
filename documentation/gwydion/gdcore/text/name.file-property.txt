@@ -1,0 +1,28 @@
+Generic: file-property
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of type-union(<file-system-locator>, <string>). 
+arg - An instance of #<symbol>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

@@ -1,0 +1,24 @@
+Class: <empty-list>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<list>#
+ 
+
+

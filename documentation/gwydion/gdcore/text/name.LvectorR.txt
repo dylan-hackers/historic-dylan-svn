@@ -1,0 +1,34 @@
+Class: <vector>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<array>#
+ 
+
+Subclasses:
+------------------------------
+- #<bit-vector>#
+- #<buffer>#
+- #<byte-string>#
+- #<simple-vector>#
+- #<stretchy-vector>#
+- #<unicode-string>#
+
+
+

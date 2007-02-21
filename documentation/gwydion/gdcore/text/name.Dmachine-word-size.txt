@@ -1,0 +1,21 @@
+Constant: $machine-word-size
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module Machine-words#
+- #Module Machine-words#
+
+
+Type:
+------------------------------
+#<integer>#
+
+
+Value:
+------------------------------
+32
+

@@ -1,0 +1,23 @@
+Class: <locator-error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<format-string-condition>#
+ - #<error>#
+ 
+
+

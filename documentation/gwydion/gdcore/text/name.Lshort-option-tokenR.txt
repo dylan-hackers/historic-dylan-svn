@@ -1,0 +1,22 @@
+Class: <short-option-token>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module option-parser-protocol#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<option-token>#
+ 
+
+

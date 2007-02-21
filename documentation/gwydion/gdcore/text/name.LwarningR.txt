@@ -1,0 +1,29 @@
+Class: <warning>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<condition>#
+ 
+
+Subclasses:
+------------------------------
+- #<simple-warning>#
+
+
+

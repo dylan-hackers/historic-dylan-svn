@@ -1,0 +1,32 @@
+Module: Module Introspection
+==============================
+
+The Introspection module.
+
+
+Exported from:
+------------------------------
+#Library Dylan#
+
+
+Topic: Introspection names
+------------------------------
+- #<byte-character-type>#
+- #<direct-instance>#
+- #<limited-integer>#
+- #<subclass>#
+- #<union>#
+- #class-name#
+- #direct-instance-of#
+- #function-name#
+- #general-object-at#
+- #heap-object-at#
+- #limited-integer-base-class#
+- #limited-integer-maximum#
+- #limited-integer-minimum#
+- #object-address#
+- #singleton-object#
+- #subclass-of#
+- #union-members#
+- #union-singletons#
+

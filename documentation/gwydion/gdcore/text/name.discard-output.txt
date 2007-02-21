@@ -1,0 +1,23 @@
+Generic: discard-output
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+
+
+

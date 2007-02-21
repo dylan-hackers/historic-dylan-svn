@@ -1,0 +1,28 @@
+Class: <string-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+concrete primary open
+
+
+Superclasses:
+------------------------------
+- #<sequence-stream>#
+ 
+
+Subclasses:
+------------------------------
+- #<byte-string-stream>#
+- #<unicode-string-stream>#
+
+
+

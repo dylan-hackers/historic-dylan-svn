@@ -1,0 +1,21 @@
+Constant: <hash-state>
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module table-extensions#
+
+
+Type:
+------------------------------
+#<type>#
+
+
+Value:
+------------------------------
+<false>
+

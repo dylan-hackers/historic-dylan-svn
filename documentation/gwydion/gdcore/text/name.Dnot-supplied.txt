@@ -1,0 +1,22 @@
+Constant: $not-supplied
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Type:
+------------------------------
+<not-supplied-marker>
+
+
+Value:
+------------------------------
+$not-supplied
+

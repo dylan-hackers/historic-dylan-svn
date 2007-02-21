@@ -1,0 +1,27 @@
+Generic: locator-base
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<locator>#. 
+
+
+Values:
+------------------------------
+val - An instance of type-union(<string>, <false>). 
+
+
+

@@ -1,0 +1,18 @@
+Function: write-integer
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module Cheap-IO#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<general-integer>#. 
+arg - An instance of #<integer>#. 
+
+
+

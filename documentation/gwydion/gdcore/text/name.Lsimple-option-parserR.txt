@@ -1,0 +1,22 @@
+Class: <simple-option-parser>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module getopt#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<negative-option-parser>#
+ 
+
+

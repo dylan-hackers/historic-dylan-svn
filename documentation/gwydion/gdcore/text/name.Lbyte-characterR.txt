@@ -1,0 +1,23 @@
+Constant: <byte-character>
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+- #Module streams#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+<byte-character>
+

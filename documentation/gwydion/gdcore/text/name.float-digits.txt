@@ -1,0 +1,29 @@
+Generic: float-digits
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<float>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+
+
+

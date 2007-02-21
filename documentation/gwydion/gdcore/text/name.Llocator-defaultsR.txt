@@ -1,0 +1,28 @@
+Class: <locator-defaults>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module functional-objects-extras#
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<locator>#
+
+
+

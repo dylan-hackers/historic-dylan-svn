@@ -1,0 +1,113 @@
+Class: <boolean>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<false>#
+- #<true>#
+
+
+Functions on <boolean>:
+------------------------------
+- #collection-hash#
+- #regexp-matches#
+- #split#
+
+
+Functions returning <boolean>:
+------------------------------
+- #~#
+- #~=#
+- #~==#
+- #<#
+- #<=#
+- #=#
+- #==#
+- #>#
+- #>=#
+- #alpha?#
+- #alphabetic?#
+- #alphanumeric?#
+- #argument-tokens-remaining?#
+- #byte-character?#
+- #control?#
+- #digit?#
+- #directory-empty?#
+- #do-input-available-at-source?#
+- #element-type#
+- #empty?#
+- #ensure-directories-exist#
+- #even?#
+- #every?#
+- #false?#
+- #file-exists?#
+- #found?#
+- #functional-==#
+- #function-arguments#
+- #graphic?#
+- #hex-digit?#
+- #input-available-at-source?#
+- #instance?#
+- #integral?#
+- #local-daylight-savings-time?#
+- #locator-relative?#
+- #logbit?#
+- #lowercase?#
+- #member?#
+- #negative?#
+- #odd?#
+- #option-present?-by-long-name#
+- #owned?#
+- #pair-do#
+- #parse-arguments#
+- #positive?#
+- #printable?#
+- #punctuation?#
+- #read-line#
+- #read-line-into!#
+- #read-through#
+- #read-to#
+- #remove-key!#
+- #return-allowed?#
+- #signal-application-event#
+- #singleton?#
+- #skip-through#
+- #slot-initialized?#
+- #stream-at-end?#
+- #stream-input-available?#
+- #stream-locked?#
+- #stream-open?#
+- #subtype?#
+- #supplied?#
+- #supports-list-locator?#
+- #supports-open-locator?#
+- #true?#
+- #unfound?#
+- #unsupplied?#
+- #wait-for#
+- #wait-for-application-event#
+- #whitespace?#
+- #zero?#
+
+
+

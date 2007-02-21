@@ -1,0 +1,123 @@
+Class: <sequence>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<collection>#
+ 
+
+Subclasses:
+------------------------------
+- #<mutable-sequence>#
+- #<range>#
+- #<stretchy-sequence>#
+- #<subsequence>#
+
+
+Functions on <sequence>:
+------------------------------
+- #add#
+- #add-new#
+- #add-new!#
+- #alist-copy#
+- #alist-delete#
+- #apair#
+- #assoc#
+- #choose#
+- #choose-by#
+- #concatenate#
+- #concatenate!#
+- #concatenate-as#
+- #copy-sequence#
+- #difference#
+- #do-put-property!#
+- #do-remove-property!#
+- #fill-table!#
+- #find-method#
+- #first#
+- #get-property#
+- #intersection#
+- #keyword-sequence#
+- #last#
+- #parse-arguments#
+- #partition#
+- #position#
+- #remove#
+- #remove-duplicates#
+- #remove-duplicates!#
+- #remove-keywords#
+- #replace-subsequence!#
+- #reverse#
+- #reverse!#
+- #reverse-append#
+- #second#
+- #sequence-hash#
+- #sort#
+- #sort!#
+- #split-at#
+- #subsequence-position#
+- #third#
+- #union#
+- #value-sequence#
+- #write#
+
+
+Functions returning <sequence>:
+------------------------------
+- #add#
+- #add-new#
+- #add-new!#
+- #alist-copy#
+- #apair#
+- #choose#
+- #choose-by#
+- #concatenate#
+- #concatenate!#
+- #concatenate-as#
+- #copy-sequence#
+- #difference#
+- #dimensions#
+- #do-put-property!#
+- #do-remove-property!#
+- #intersection#
+- #key-sequence#
+- #keyword-sequence#
+- #list-locator#
+- #locator-path#
+- #read-to-end#
+- #remove#
+- #remove-duplicates#
+- #remove-duplicates!#
+- #remove-keywords#
+- #replace-subsequence!#
+- #reverse#
+- #reverse!#
+- #reverse-append#
+- #root-directories#
+- #sort#
+- #sort!#
+- #split#
+- #split-at#
+- #stream-contents#
+- #stream-contents-as#
+- #tokenize-environment-variable#
+- #union#
+- #value-sequence#
+
+
+

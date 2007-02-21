@@ -1,0 +1,25 @@
+Class: <simple-warning>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<warning>#
+ - #<simple-condition>#
+ 
+
+

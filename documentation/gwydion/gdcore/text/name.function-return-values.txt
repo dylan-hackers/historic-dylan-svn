@@ -1,0 +1,25 @@
+Function: function-return-values
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<simple-object-vector>#. 
+val - An instance of type-union(<false>, <type>). 
+
+
+

@@ -1,0 +1,24 @@
+Class: <object-deque>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- <builtin-deque>
+ 
+
+

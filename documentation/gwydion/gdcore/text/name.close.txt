@@ -1,0 +1,27 @@
+Generic: close
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<closable-object>#. 
+#rest more - Instances of #<object>#. 
+#all-keys - This function accepts any keyword argument.
+
+
+

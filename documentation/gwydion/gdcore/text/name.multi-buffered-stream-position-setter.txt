@@ -1,0 +1,23 @@
+Function: multi-buffered-stream-position-setter
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<integer>#. 
+arg - An instance of #<multi-buffered-stream>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+
+
+

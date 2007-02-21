@@ -1,0 +1,26 @@
+Generic: write
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+arg - An instance of #<sequence>#. 
+start: - An instance of #<object>#. The default is #f.
+end: - An instance of #<object>#. The default is #f.
+
+
+

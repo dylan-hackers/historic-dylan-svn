@@ -1,0 +1,23 @@
+Class: <equal-table>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module table-extensions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<table>#
+ 
+
+

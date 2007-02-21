@@ -1,0 +1,49 @@
+Class: <mutable-sequence>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<mutable-collection>#
+ - #<sequence>#
+ 
+
+Subclasses:
+------------------------------
+- #<array>#
+- #<deque>#
+- #<list>#
+- #<string>#
+
+
+Functions on <mutable-sequence>:
+------------------------------
+- #copy-from-buffer!#
+- #copy-into-buffer!#
+- #first-setter#
+- #last-setter#
+- #read-into!#
+- #second-setter#
+- #third-setter#
+
+
+Functions returning <mutable-sequence>:
+------------------------------
+- #buffer-subsequence#
+
+
+

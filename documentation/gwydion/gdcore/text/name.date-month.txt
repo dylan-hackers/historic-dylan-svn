@@ -1,0 +1,27 @@
+Generic: date-month
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

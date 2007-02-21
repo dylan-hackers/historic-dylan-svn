@@ -1,0 +1,34 @@
+Class: <explicit-key-collection>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<collection>#
+ 
+
+Subclasses:
+------------------------------
+- #<mutable-explicit-key-collection>#
+
+
+Functions returning <explicit-key-collection>:
+------------------------------
+- #file-properties#
+
+
+

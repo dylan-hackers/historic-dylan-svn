@@ -1,0 +1,84 @@
+Module: Module file-system
+==============================
+
+The file-system module.
+
+
+Exported from:
+------------------------------
+#Library system#
+
+
+Topic: file-system names
+------------------------------
+- #<buffer-vector>#
+- #<byte-file-stream>#
+- #<copy/rename-disposition>#
+- #<file-does-not-exist-error>#
+- #<file-error>#
+- #<file-exists-error>#
+- #<file-stream>#
+- #<file-system-directory-locator>#
+- #<file-system-error>#
+- #<file-system-file-locator>#
+- #<file-system-locator>#
+- #<file-type>#
+- #<invalid-file-permissions-error>#
+- #<macintosh-directory-locator>#
+- #<macintosh-file-locator>#
+- #<macintosh-file-system-locator>#
+- #<macintosh-server-locator>#
+- #<macintosh-volume-locator>#
+- #<microsoft-directory-locator>#
+- #<microsoft-file-locator>#
+- #<microsoft-file-system-locator>#
+- #<microsoft-server-locator>#
+- #<microsoft-unc-locator>#
+- #<microsoft-volume-locator>#
+- #<multi-buffered-stream>#
+- #<native-file-system-locator>#
+- #<pathname>#
+- #<posix-directory-locator>#
+- #<posix-file-locator>#
+- #<posix-file-system-locator>#
+- #copy-file#
+- #create-directory#
+- #delete-directory#
+- #delete-file#
+- #directory-contents#
+- #directory-empty?#
+- #do-directory#
+- #ensure-directories-exist#
+- #expand-pathname#
+- #file-exists?#
+- #file-properties#
+- #file-property#
+- #file-property-setter#
+- #file-system-separator#
+- #file-type#
+- #home-directory#
+- #link-target#
+- #multi-buffer-bytes#
+- #multi-buffered-stream-position-setter#
+- #multi-buffer-reads#
+- #multi-buffer-total-bytes#
+- #multi-buffer-total-reads#
+- #multi-buffer-total-working-set#
+- #multi-buffer-working-set#
+- #read-4-aligned-bytes#
+- #read-4-aligned-bytes-as-word#
+- #read-8-aligned-bytes#
+- #rename-file#
+- #root-directories#
+- #shorten-pathname#
+- #stream-locator#
+- #temp-directory#
+- #type-for-file-stream#
+- #with-open-file#
+- #working-directory#
+- #working-directory-setter#
+- #writable-file-stream-position-setter#
+- #write-4-aligned-bytes#
+- #write-4-aligned-bytes-from-word#
+- #write-8-aligned-bytes#
+

@@ -1,0 +1,27 @@
+Generic: isqrt
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module transcendental#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<integer>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+
+
+

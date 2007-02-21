@@ -1,0 +1,61 @@
+Class: <float>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<real>#
+ 
+
+Subclasses:
+------------------------------
+- #<double-float>#
+- #<extended-float>#
+- #<single-float>#
+
+
+Functions on <float>:
+------------------------------
+- #decode-float#
+- #float-digits#
+- #float-precision#
+- #float-radix#
+- #integer-decode-float#
+- #scale-float#
+
+
+Functions returning <float>:
+------------------------------
+- #acos#
+- #asin#
+- #atan#
+- #atan2#
+- #cos#
+- #cosh#
+- #decode-float#
+- #exp#
+- #log#
+- #logn#
+- #scale-float#
+- #sin#
+- #sinh#
+- #sqrt#
+- #tan#
+- #tanh#
+
+
+

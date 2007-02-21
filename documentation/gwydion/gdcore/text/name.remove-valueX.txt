@@ -1,0 +1,23 @@
+Generic: remove-value!
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module settings#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<settings>#. 
+arg - An instance of #<symbol>#. 
+
+
+

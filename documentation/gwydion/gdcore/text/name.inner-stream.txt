@@ -1,0 +1,27 @@
+Generic: inner-stream
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<wrapper-stream>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<stream>#. 
+
+
+

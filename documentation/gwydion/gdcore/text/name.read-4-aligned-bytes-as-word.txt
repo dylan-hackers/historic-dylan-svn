@@ -1,0 +1,23 @@
+Function: read-4-aligned-bytes-as-word
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<multi-buffered-stream>#. 
+on-end-of-stream: - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

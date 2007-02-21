@@ -1,0 +1,19 @@
+Macro: table-definer
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+
+
+Definition:
+------------------------------
+:
+          list-style define macro
+        
+
+

@@ -1,0 +1,22 @@
+Class: <parameter-option-parser>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module getopt#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<option-parser>#
+ 
+
+

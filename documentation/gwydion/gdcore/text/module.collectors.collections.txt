@@ -1,0 +1,23 @@
+Module: Module collectors
+==============================
+
+The collectors module.
+
+
+Exported from:
+------------------------------
+#Library collections#
+
+
+Topic: collectors names
+------------------------------
+- #collect#
+- #collected#
+- #collect-first#
+- #collect-first-into#
+- #collecting#
+- #collect-into#
+- #collect-last#
+- #collect-last-into#
+- #collector-protocol#
+

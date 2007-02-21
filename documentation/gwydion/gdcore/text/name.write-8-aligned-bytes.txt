@@ -1,0 +1,25 @@
+Function: write-8-aligned-bytes
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<multi-buffered-stream>#. 
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+
+
+

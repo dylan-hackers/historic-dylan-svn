@@ -1,0 +1,34 @@
+Class: <wrapper-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- #<basic-stream>#
+ 
+
+Subclasses:
+------------------------------
+- #<concatenated-stream>#
+- #<indenting-stream>#
+
+
+Functions on <wrapper-stream>:
+------------------------------
+- #inner-stream#
+- #inner-stream-setter#
+
+
+

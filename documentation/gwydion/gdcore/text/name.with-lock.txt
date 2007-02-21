@@ -1,0 +1,20 @@
+Macro: with-lock
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Definition:
+------------------------------
+:
+          statement macro
+        
+
+

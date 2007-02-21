@@ -1,0 +1,45 @@
+Generic: print
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module print#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<stream>#. 
+level: - An instance of #<object>#. The default is #f.
+length: - An instance of #<object>#. The default is #f.
+circle?: - An instance of #<object>#. The default is #f.
+pretty?: - An instance of #<object>#. The default is #f.
+escape?: - An instance of #<object>#. The default is #f.
+
+
+
+Function: print
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module Cheap-IO#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+

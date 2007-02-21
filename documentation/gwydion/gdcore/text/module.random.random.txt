@@ -1,0 +1,22 @@
+Module: Module Random
+==============================
+
+The Random module.
+
+
+Exported from:
+------------------------------
+#Library Random#
+
+
+Topic: Random names
+------------------------------
+- #$random-bits-count#
+- #*random-state*#
+- #<random-state>#
+- #Random#
+- #random-bits#
+- #random-exponential#
+- #random-float#
+- #random-gaussian#
+

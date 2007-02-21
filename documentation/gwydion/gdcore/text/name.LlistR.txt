@@ -1,0 +1,56 @@
+Class: <list>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<mutable-sequence>#
+ 
+
+Subclasses:
+------------------------------
+- #<empty-list>#
+- #<pair>#
+
+
+Functions on <list>:
+------------------------------
+- #foldl#
+- #foldr#
+- #heads#
+- #pair-do#
+- #pair-foldl#
+- #pair-foldr#
+- #reduce-l#
+- #reduce-r#
+- #tails#
+- #xpair#
+
+
+Functions returning <list>:
+------------------------------
+- #heads#
+- #list#
+- #list*#
+- #partition#
+- #sorted-applicable-methods#
+- #unfold#
+- #unfold/tail#
+- #xpair#
+
+
+

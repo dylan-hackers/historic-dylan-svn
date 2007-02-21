@@ -1,0 +1,23 @@
+Class: <case-insensitive-byte-string-table>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module table-extensions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<value-table>#
+ 
+
+

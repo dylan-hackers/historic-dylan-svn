@@ -1,0 +1,24 @@
+Generic: debugger-message
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<debugger>#. 
+arg - An instance of #<byte-string>#. 
+#rest more - Instances of #<object>#. 
+
+
+

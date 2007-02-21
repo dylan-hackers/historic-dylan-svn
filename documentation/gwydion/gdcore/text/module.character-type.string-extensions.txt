@@ -1,0 +1,27 @@
+Module: Module character-type
+==============================
+
+The character-type module.
+
+
+Exported from:
+------------------------------
+#Library string-extensions#
+
+
+Topic: character-type names
+------------------------------
+- #alpha?#
+- #alphabetic?#
+- #alphanumeric?#
+- #byte-character?#
+- #control?#
+- #digit?#
+- #graphic?#
+- #hex-digit?#
+- #lowercase?#
+- #printable?#
+- #punctuation?#
+- #uppercase?#
+- #whitespace?#
+

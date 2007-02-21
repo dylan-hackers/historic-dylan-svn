@@ -1,0 +1,18 @@
+Macro: with-output-to-string
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Definition:
+------------------------------
+:
+          statement macro
+        
+
+

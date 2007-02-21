@@ -1,0 +1,22 @@
+Function: export-string
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<byte-string>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<raw-pointer>#. 
+
+
+

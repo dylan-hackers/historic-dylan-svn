@@ -1,0 +1,24 @@
+Function: partition
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+arg - An instance of #<sequence>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<list>#. 
+val - An instance of #<list>#. 
+
+
+

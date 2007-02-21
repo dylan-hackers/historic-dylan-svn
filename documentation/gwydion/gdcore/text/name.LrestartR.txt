@@ -1,0 +1,36 @@
+Class: <restart>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<condition>#
+ 
+
+Subclasses:
+------------------------------
+- #<abort>#
+- #<date-arithmetic-error-restart>#
+- #<simple-restart>#
+
+
+Functions on <restart>:
+------------------------------
+- #restart-query#
+
+
+

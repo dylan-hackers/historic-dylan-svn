@@ -1,0 +1,17 @@
+Function: temp-directory
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Values:
+------------------------------
+val - An instance of type-union(<file-system-locator>, <string>, <false>). 
+
+
+

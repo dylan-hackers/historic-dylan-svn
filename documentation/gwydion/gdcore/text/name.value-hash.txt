@@ -1,0 +1,30 @@
+Generic: value-hash
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module table-extensions#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<false>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+val - An instance of #<false>#. 
+
+
+

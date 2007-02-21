@@ -1,0 +1,28 @@
+Generic: atan2
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module transcendental#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<real>#. 
+arg - An instance of #<real>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<float>#. 
+
+
+

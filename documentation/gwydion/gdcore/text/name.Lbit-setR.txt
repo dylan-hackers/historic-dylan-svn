@@ -1,0 +1,29 @@
+Class: <bit-set>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module bit-set#
+
+
+Modifiers:
+------------------------------
+concrete primary sealed
+
+
+Superclasses:
+------------------------------
+- #<set>#
+ 
+
+Functions on <bit-set>:
+------------------------------
+- #copy-bit-set!#
+- #empty-bit-set!#
+- #universal-bit-set!#
+
+
+

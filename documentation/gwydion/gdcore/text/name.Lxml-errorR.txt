@@ -1,0 +1,23 @@
+Class: <xml-error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module simple-xml#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<error>#
+ - #<format-string-condition>#
+ 
+
+

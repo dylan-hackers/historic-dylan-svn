@@ -1,0 +1,19 @@
+Function: exit-application
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module operating-system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<integer>#. 
+
+
+

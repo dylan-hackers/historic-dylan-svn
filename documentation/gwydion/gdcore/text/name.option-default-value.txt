@@ -1,0 +1,27 @@
+Generic: option-default-value
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module option-parser-protocol#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

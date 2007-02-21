@@ -1,0 +1,24 @@
+Function: element-error
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module functional-extensions#
+- #Module Extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<collection>#. 
+arg - An instance of #<integer>#. 
+
+
+Values:
+------------------------------
+val - An instance of type-union(). 
+
+
+

@@ -1,0 +1,50 @@
+Module: Module sequence-utilities
+==============================
+
+The sequence-utilities module.
+
+
+Exported from:
+------------------------------
+#Library collection-extensions#
+
+
+Topic: sequence-utilities names
+------------------------------
+- #alist-copy#
+- #alist-delete#
+- #apair#
+- #assoc#
+- #choose-map#
+- #concatenate-map#
+- #drop#
+- #find#
+- #find-tail#
+- #foldl#
+- #foldr#
+- #heads#
+- #index#
+- #last-pair#
+- #list?#
+- #list*#
+- #null?#
+- #pair?#
+- #pair-do#
+- #pair-foldl#
+- #pair-foldr#
+- #partition#
+- #pop!#
+- #precedes?#
+- #push!#
+- #reduce-l#
+- #reduce-r#
+- #reverse-append#
+- #satisfies#
+- #split-at#
+- #tabulate#
+- #tails#
+- #take#
+- #unfold#
+- #unfold/tail#
+- #xpair#
+

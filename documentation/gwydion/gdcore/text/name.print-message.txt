@@ -1,0 +1,40 @@
+Generic: print-message
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module format#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<stream>#. 
+
+
+
+Function: print-message
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module Cheap-IO#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+

@@ -1,0 +1,28 @@
+Class: <file-system-error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<error>#
+ - #<simple-condition>#
+ 
+
+Subclasses:
+------------------------------
+- #<file-error>#
+
+
+

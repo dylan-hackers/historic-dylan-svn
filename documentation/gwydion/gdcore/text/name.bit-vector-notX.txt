@@ -1,0 +1,24 @@
+Function: bit-vector-not!
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module bit-vector#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<bit-vector>#. 
+pad: - An instance of limited(<integer>, min. The default is 0.
+
+
+Values:
+------------------------------
+val - An instance of #<bit-vector>#. 
+val - An instance of limited(<integer>, min. 
+
+
+

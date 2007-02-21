@@ -1,0 +1,22 @@
+Class: <buffer-vector>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete primary sealed
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+

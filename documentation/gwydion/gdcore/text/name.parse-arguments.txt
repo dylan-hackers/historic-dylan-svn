@@ -1,0 +1,23 @@
+Function: parse-arguments
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module getopt#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<argument-list-parser>#. 
+arg - An instance of #<sequence>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

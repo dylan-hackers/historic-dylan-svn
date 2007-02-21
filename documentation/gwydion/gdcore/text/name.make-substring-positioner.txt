@@ -1,0 +1,27 @@
+Generic: make-substring-positioner
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module substring-search#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

@@ -1,0 +1,20 @@
+Constant: $architecture-little-endian?
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module operating-system#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+#f
+

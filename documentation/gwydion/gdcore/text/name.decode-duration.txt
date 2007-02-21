@@ -1,0 +1,27 @@
+Generic: decode-duration
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<duration>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<integer>#. 
+
+
+

@@ -1,0 +1,15 @@
+Library: Library collections
+==============================
+
+The collections library.
+
+
+Topic: collections modules
+------------------------------
+- #Module bit-set#
+- #Module bit-vector#
+- #Module collectors#
+- #Module plists#
+- #Module set#
+- #Module table-extensions#
+

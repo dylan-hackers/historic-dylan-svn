@@ -1,0 +1,28 @@
+Class: <file-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<physical-locator>#
+ 
+
+Subclasses:
+------------------------------
+- #<file-system-file-locator>#
+- #<file-url>#
+
+
+

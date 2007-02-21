@@ -1,0 +1,35 @@
+Class: <raw-pointer>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed functional
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Functions on <raw-pointer>:
+------------------------------
+- #general-object-at#
+- #heap-object-at#
+- #import-string#
+
+
+Functions returning <raw-pointer>:
+------------------------------
+- #export-string#
+- #object-address#
+
+
+

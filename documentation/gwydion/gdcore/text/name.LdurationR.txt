@@ -1,0 +1,33 @@
+Class: <duration>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<number>#
+ 
+
+Subclasses:
+------------------------------
+- #<day/time-duration>#
+- #<year/month-duration>#
+
+
+Functions on <duration>:
+------------------------------
+- #decode-duration#
+
+
+

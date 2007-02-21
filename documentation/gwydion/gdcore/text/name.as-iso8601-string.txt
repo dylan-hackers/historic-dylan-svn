@@ -1,0 +1,23 @@
+Function: as-iso8601-string
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<date>#. 
+precision: - An instance of #<integer>#. The default is 0.
+
+
+Values:
+------------------------------
+val - An instance of #<string>#. 
+
+
+

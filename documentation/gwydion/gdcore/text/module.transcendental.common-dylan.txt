@@ -1,0 +1,34 @@
+Module: Module transcendental
+==============================
+
+The transcendental module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: transcendental names
+------------------------------
+- #^#
+- #$double-e#
+- #$double-pi#
+- #$single-e#
+- #$single-pi#
+- #acos#
+- #asin#
+- #atan#
+- #atan2#
+- #cos#
+- #cosh#
+- #exp#
+- #isqrt#
+- #log#
+- #logn#
+- #sin#
+- #sinh#
+- #sqrt#
+- #tan#
+- #tanh#
+

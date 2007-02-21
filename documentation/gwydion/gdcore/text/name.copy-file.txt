@@ -1,0 +1,24 @@
+Generic: copy-file
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of type-union(<file-system-locator>, <string>). 
+arg - An instance of type-union(<file-system-locator>, <string>). 
+if-exists: - An instance of type-union(singleton(#"signal"), singleton(#"replace")). The default is #"signal".
+
+
+

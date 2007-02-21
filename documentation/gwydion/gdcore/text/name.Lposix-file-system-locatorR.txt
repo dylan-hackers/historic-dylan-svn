@@ -1,0 +1,28 @@
+Class: <posix-file-system-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<file-system-locator>#
+ 
+
+Subclasses:
+------------------------------
+- #<posix-directory-locator>#
+- #<posix-file-locator>#
+
+
+

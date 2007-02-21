@@ -1,0 +1,16 @@
+Module: Module vector-search
+==============================
+
+The vector-search module.
+
+
+Exported from:
+------------------------------
+#Library collection-extensions#
+
+
+Topic: vector-search names
+------------------------------
+- #find-first-key#
+- #find-last-key#
+

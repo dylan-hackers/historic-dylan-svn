@@ -1,0 +1,20 @@
+Variable: *random-state*
+==============================
+
+A variable.
+
+
+Exported from:
+------------------------------
+- #Module Random#
+
+
+Type:
+------------------------------
+#<random-state>#
+
+
+Value:
+------------------------------
+unknown
+

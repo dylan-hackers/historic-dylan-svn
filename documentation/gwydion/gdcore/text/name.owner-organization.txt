@@ -1,0 +1,17 @@
+Function: owner-organization
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module operating-system#
+
+
+Values:
+------------------------------
+val - An instance of type-union(<string>, <false>). 
+
+
+

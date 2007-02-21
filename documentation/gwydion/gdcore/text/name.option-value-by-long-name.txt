@@ -1,0 +1,23 @@
+Function: option-value-by-long-name
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module getopt#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<argument-list-parser>#. 
+arg - An instance of #<string>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

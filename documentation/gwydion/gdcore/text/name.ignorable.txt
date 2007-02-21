@@ -1,0 +1,18 @@
+Function: ignorable
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+
+
+Arguments:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

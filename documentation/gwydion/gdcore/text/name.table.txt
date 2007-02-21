@@ -1,0 +1,19 @@
+Macro: table
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module table-extensions#
+
+
+Definition:
+------------------------------
+:
+          function macro
+        
+
+

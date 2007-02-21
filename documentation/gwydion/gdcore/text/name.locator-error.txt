@@ -1,0 +1,23 @@
+Function: locator-error
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+#rest more - Instances of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

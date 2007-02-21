@@ -1,0 +1,28 @@
+Generic: drop
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<integer>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

@@ -1,0 +1,36 @@
+Class: <method>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<function>#
+ 
+
+Functions on <method>:
+------------------------------
+- #add-method#
+- #remove-method#
+
+
+Functions returning <method>:
+------------------------------
+- #add-method#
+- #remove-method#
+
+
+

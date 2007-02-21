@@ -1,0 +1,25 @@
+Class: <stretchy-vector>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- #<stretchy-sequence>#
+ - #<vector>#
+ 
+
+

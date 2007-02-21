@@ -1,0 +1,35 @@
+Class: <basic-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- #<stream>#
+ 
+
+Subclasses:
+------------------------------
+- #<basic-positionable-stream>#
+- #<buffered-stream>#
+- #<wrapper-stream>#
+
+
+Functions on <basic-stream>:
+------------------------------
+- #stream-lock#
+- #stream-lock-setter#
+
+
+

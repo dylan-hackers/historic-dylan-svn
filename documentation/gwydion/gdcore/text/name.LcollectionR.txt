@@ -1,0 +1,62 @@
+Class: <collection>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<character-set>#
+- #<explicit-key-collection>#
+- #<mutable-collection>#
+- #<sequence>#
+- #<stretchy-collection>#
+
+
+Functions on <collection>:
+------------------------------
+- #any?#
+- #backward-iteration-protocol#
+- #collection-hash#
+- #do#
+- #element#
+- #element-error#
+- #empty?#
+- #every?#
+- #find-element#
+- #find-key#
+- #forward-iteration-protocol#
+- #key-sequence#
+- #key-test#
+- #map#
+- #map-as#
+- #map-into#
+- #member?#
+- #reduce#
+- #reduce1#
+- #singleton?#
+
+
+Functions returning <collection>:
+------------------------------
+- #map#
+
+
+

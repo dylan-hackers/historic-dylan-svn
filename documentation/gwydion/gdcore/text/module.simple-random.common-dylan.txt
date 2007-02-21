@@ -1,0 +1,16 @@
+Module: Module simple-random
+==============================
+
+The simple-random module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: simple-random names
+------------------------------
+- #<random-state>#
+- #Random#
+

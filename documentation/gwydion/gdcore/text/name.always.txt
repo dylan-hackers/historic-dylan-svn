@@ -1,0 +1,24 @@
+Function: always
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<function>#. 
+
+
+

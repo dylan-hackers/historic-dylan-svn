@@ -1,0 +1,26 @@
+Function: apair
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<object>#. 
+arg - An instance of #<sequence>#. 
+cons: - An instance of #<object>#. The default is pair.
+add: - An instance of #<object>#. The default is xpair.
+
+
+Values:
+------------------------------
+val - An instance of #<sequence>#. 
+
+
+

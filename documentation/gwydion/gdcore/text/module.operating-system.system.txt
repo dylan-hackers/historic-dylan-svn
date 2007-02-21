@@ -1,0 +1,40 @@
+Module: Module operating-system
+==============================
+
+The operating-system module.
+
+
+Exported from:
+------------------------------
+#Library system#
+
+
+Topic: operating-system names
+------------------------------
+- #$architecture-little-endian?#
+- #$machine-name#
+- #$os-name#
+- #$os-variant#
+- #$os-version#
+- #$platform-name#
+- #application-arguments#
+- #application-filename#
+- #application-name#
+- #command-line-option-prefix#
+- #create-application-event#
+- #environment-variable#
+- #environment-variable-setter#
+- #exit-application#
+- #load-library#
+- #login-group#
+- #login-name#
+- #on-exit#
+- #owner-name#
+- #owner-organization#
+- #run-application#
+- #signal-application-event#
+- #system-offset-definer#
+- #system-offset-value#
+- #tokenize-environment-variable#
+- #wait-for-application-event#
+

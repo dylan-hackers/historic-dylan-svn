@@ -1,0 +1,18 @@
+Macro: settings-slot-definer
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module settings#
+
+
+Definition:
+------------------------------
+:
+          body-style define macro
+        
+
+

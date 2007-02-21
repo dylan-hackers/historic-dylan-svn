@@ -1,0 +1,25 @@
+Class: <timeout-exceeded>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- <synchronization-condition>
+ - #<serious-condition>#
+ 
+
+

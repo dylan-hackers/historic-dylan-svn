@@ -1,0 +1,90 @@
+Module: Module Extensions
+==============================
+
+The Extensions module.
+
+
+Exported from:
+------------------------------
+#Library Dylan#
+
+
+Topic: Extensions names
+------------------------------
+- #$double-float-epsilon#
+- #$extended-float-epsilon#
+- #$maximum-double-float-exponent#
+- #$maximum-extended-float-exponent#
+- #$maximum-integer#
+- #$maximum-single-float-exponent#
+- #$minimum-double-float-exponent#
+- #$minimum-extended-float-exponent#
+- #$minimum-integer#
+- #$minimum-single-float-exponent#
+- #$not-supplied#
+- #$single-float-epsilon#
+- #*debugger*#
+- #*warning-output*#
+- #<bit>#
+- #<byte>#
+- #<byte-character>#
+- #<byte-vector>#
+- #<debugger>#
+- #<double-integer>#
+- #<extended-integer>#
+- #<false>#
+- #<format-string-condition>#
+- #<general-integer>#
+- #<never-returns>#
+- #<object-deque>#
+- #<object-set>#
+- #<ratio>#
+- #<set>#
+- #<simple-condition>#
+- #<simple-object-table>#
+- #<stretchy-object-vector>#
+- #<stretchy-sequence>#
+- #<true>#
+- #<value-cell>#
+- #assert#
+- #concatenate!#
+- #condition-force-output#
+- #condition-format#
+- #copy-down-method-definer#
+- #debug-assert#
+- #debugger-message#
+- #debug-message#
+- #decode-float#
+- #denominator#
+- #difference#
+- #direct-instance#
+- #element-error#
+- #element-type#
+- #exit#
+- #false-or#
+- #float-digits#
+- #float-precision#
+- #float-radix#
+- #functional-==#
+- #ignore#
+- #integer-decode-float#
+- #integer-length#
+- #invoke-debugger#
+- #key-exists?#
+- #limited-collection-definer#
+- #limited-sv-class#
+- #limited-vector-class#
+- #lsv-data-type#
+- #lsv-fill#
+- #main#
+- #numerator#
+- #one-of#
+- #on-exit#
+- #ratio#
+- #report-condition#
+- #scale-float#
+- #ssv-data#
+- #ssv-data-setter#
+- #subclass#
+- #value#
+

@@ -1,0 +1,26 @@
+Module: Module Machine-words
+==============================
+
+The Machine-words module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: Machine-words names
+------------------------------
+- #$machine-word-size#
+- #$machine-word-zero#
+- #$maximum-signed-machine-word#
+- #$maximum-unsigned-machine-word#
+- #$minimum-signed-machine-word#
+- #$minimum-unsigned-machine-word#
+- #<machine-word>#
+- #even?#
+- #negative?#
+- #odd?#
+- #positive?#
+- #zero?#
+

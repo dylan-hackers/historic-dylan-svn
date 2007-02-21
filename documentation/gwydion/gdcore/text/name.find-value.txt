@@ -1,0 +1,20 @@
+Constant: find-value
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module functional-extensions#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+find-element
+

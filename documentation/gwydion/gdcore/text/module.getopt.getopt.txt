@@ -1,0 +1,38 @@
+Module: Module getopt
+==============================
+
+The getopt module.
+
+
+Exported from:
+------------------------------
+#Library getopt#
+
+
+Topic: getopt names
+------------------------------
+- #<argument-list-parser>#
+- #<keyed-option-parser>#
+- #<optional-parameter-option-parser>#
+- #<option-parser>#
+- #<parameter-option-parser>#
+- #<repeated-parameter-option-parser>#
+- #<simple-option-parser>#
+- #add-option-parser#
+- #add-option-parser-by-type#
+- #argument-parser-definer#
+- #defargparser-accessors#
+- #defargparser-aux#
+- #defargparser-class#
+- #defargparser-init#
+- #defargparser-rec#
+- #defargparser-synopsis#
+- #option-parser-by-long-name#
+- #option-present?#
+- #option-present?-by-long-name#
+- #option-value#
+- #option-value-by-long-name#
+- #parse-arguments#
+- #print-synopsis#
+- #regular-arguments#
+

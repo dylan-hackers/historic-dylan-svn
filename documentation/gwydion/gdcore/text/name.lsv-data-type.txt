@@ -1,0 +1,27 @@
+Generic: lsv-data-type
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of <limited-stretchy-vector>. 
+
+
+Values:
+------------------------------
+val - An instance of #<class>#. 
+
+
+

@@ -1,0 +1,28 @@
+Generic: subdirectory-locator
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<directory-locator>#. 
+#rest more - Instances of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<directory-locator>#. 
+
+
+

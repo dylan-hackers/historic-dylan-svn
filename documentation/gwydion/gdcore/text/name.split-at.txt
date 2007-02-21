@@ -1,0 +1,24 @@
+Function: split-at
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<sequence>#. 
+arg - An instance of #<object>#. 
+test: - An instance of #<object>#. The default is =.
+
+
+Values:
+------------------------------
+val - An instance of #<sequence>#. 
+
+
+

@@ -1,0 +1,30 @@
+Class: <server-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module functional-objects-extras#
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<locator>#
+ 
+
+Subclasses:
+------------------------------
+- #<macintosh-server-locator>#
+- #<microsoft-server-locator>#
+- #<server-url>#
+
+
+

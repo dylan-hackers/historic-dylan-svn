@@ -1,0 +1,26 @@
+Function: bit-vector-and
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module bit-vector#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<bit-vector>#. 
+arg - An instance of #<bit-vector>#. 
+pad1: - An instance of limited(<integer>, min. The default is 0.
+pad2: - An instance of limited(<integer>, min. The default is 0.
+
+
+Values:
+------------------------------
+val - An instance of #<bit-vector>#. 
+val - An instance of limited(<integer>, min. 
+
+
+

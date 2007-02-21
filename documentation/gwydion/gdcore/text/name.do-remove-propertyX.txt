@@ -1,0 +1,29 @@
+Generic: do-remove-property!
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module plists#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<sequence>#. 
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+val - An instance of #<sequence>#. 
+
+
+

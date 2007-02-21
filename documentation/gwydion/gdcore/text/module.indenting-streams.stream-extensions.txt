@@ -1,0 +1,16 @@
+Module: Module indenting-streams
+==============================
+
+The indenting-streams module.
+
+
+Exported from:
+------------------------------
+#Library stream-extensions#
+
+
+Topic: indenting-streams names
+------------------------------
+- #<indenting-stream>#
+- #indent#
+

@@ -1,0 +1,28 @@
+Class: <debugger>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Functions on <debugger>:
+------------------------------
+- #debugger-message#
+- #invoke-debugger#
+
+
+

@@ -1,0 +1,29 @@
+Generic: pop
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<deque>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

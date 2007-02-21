@@ -1,0 +1,20 @@
+Constant: <native-file-system-locator>
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+<posix-file-system-locator>
+

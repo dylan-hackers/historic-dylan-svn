@@ -1,0 +1,27 @@
+Generic: random-float
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module Random#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

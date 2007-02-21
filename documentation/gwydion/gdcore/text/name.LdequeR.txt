@@ -1,0 +1,33 @@
+Class: <deque>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<stretchy-sequence>#
+ - #<mutable-sequence>#
+ 
+
+Functions on <deque>:
+------------------------------
+- #pop#
+- #pop-last#
+- #push#
+- #push-last#
+
+
+

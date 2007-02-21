@@ -1,0 +1,22 @@
+Class: <date-arithmetic-use-last-valid-day>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<date-arithmetic-error-restart>#
+ 
+
+

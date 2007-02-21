@@ -1,0 +1,19 @@
+Module: Module functional-objects-extras
+==============================
+
+The functional-objects-extras module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: functional-objects-extras names
+------------------------------
+- #<closable-object>#
+- #<locator-defaults>#
+- #<physical-locator>#
+- #<server-locator>#
+- #puts#
+

@@ -1,0 +1,27 @@
+Generic: stream-lock
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<basic-stream>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

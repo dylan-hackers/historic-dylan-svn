@@ -1,0 +1,31 @@
+Class: <stretchy-sequence>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<stretchy-collection>#
+ - #<sequence>#
+ 
+
+Subclasses:
+------------------------------
+- #<deque>#
+- #<stretchy-vector>#
+
+
+

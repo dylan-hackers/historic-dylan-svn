@@ -1,0 +1,17 @@
+Function: get-time-of-day
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+
+
+

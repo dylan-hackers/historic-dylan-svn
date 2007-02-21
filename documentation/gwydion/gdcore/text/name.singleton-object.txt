@@ -1,0 +1,27 @@
+Generic: singleton-object
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module Introspection#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

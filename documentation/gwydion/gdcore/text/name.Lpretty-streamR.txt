@@ -1,0 +1,22 @@
+Class: <pretty-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module pprint#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<sequence-stream>#
+ 
+
+

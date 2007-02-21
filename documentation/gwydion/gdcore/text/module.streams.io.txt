@@ -1,0 +1,123 @@
+Module: Module streams
+==============================
+
+The streams module.
+
+
+Exported from:
+------------------------------
+#Library io#
+
+
+Topic: streams names
+------------------------------
+- #<basic-positionable-stream>#
+- #<basic-stream>#
+- #<buffer>#
+- #<buffered-stream>#
+- #<buffer-index>#
+- #<byte>#
+- #<byte-character>#
+- #<byte-string-stream>#
+- #<end-of-stream-error>#
+- #<incomplete-read-error>#
+- #<incomplete-write-error>#
+- #<positionable-stream>#
+- #<position-type>#
+- #<sequence-stream>#
+- #<stream>#
+- #<stream-closed-error>#
+- #<stream-error>#
+- #<stream-not-readable>#
+- #<stream-not-writable>#
+- #<stream-position>#
+- #<stream-position-error>#
+- #<string-stream>#
+- #<unicode-string-stream>#
+- #<wrapper-stream>#
+- #adjust-stream-position#
+- #buffer-dirty?#
+- #buffer-dirty?-setter#
+- #buffer-end#
+- #buffer-end-setter#
+- #buffer-fill#
+- #buffer-next#
+- #buffer-next-setter#
+- #buffer-position#
+- #buffer-position-setter#
+- #buffer-size#
+- #buffer-start#
+- #buffer-start-setter#
+- #buffer-subsequence#
+- #close#
+- #copy-from-buffer!#
+- #copy-into-buffer!#
+- #discard-input#
+- #discard-output#
+- #do-force-output-buffers#
+- #do-get-input-buffer#
+- #do-get-output-buffer#
+- #do-input-available-at-source?#
+- #do-next-input-buffer#
+- #do-next-output-buffer#
+- #do-release-input-buffer#
+- #do-release-output-buffer#
+- #force-output#
+- #force-output-buffers#
+- #get-input-buffer#
+- #get-output-buffer#
+- #inner-stream#
+- #inner-stream-setter#
+- #input-available-at-source?#
+- #lock-stream#
+- #new-line#
+- #next-input-buffer#
+- #next-output-buffer#
+- #open-file-stream#
+- #outer-stream#
+- #outer-stream-setter#
+- #peek#
+- #read#
+- #read-character#
+- #read-element#
+- #read-into!#
+- #read-line#
+- #read-line-into!#
+- #read-text#
+- #read-text-into!#
+- #read-through#
+- #read-to#
+- #read-to-end#
+- #release-input-buffer#
+- #release-output-buffer#
+- #skip-through#
+- #stream-at-end?#
+- #stream-contents#
+- #stream-contents-as#
+- #stream-element-type#
+- #stream-error-count#
+- #stream-error-sequence#
+- #stream-error-stream#
+- #stream-input-available?#
+- #stream-limit#
+- #stream-lock#
+- #stream-locked?#
+- #stream-lock-setter#
+- #stream-open?#
+- #stream-position#
+- #stream-position-setter#
+- #stream-size#
+- #synchronize-output#
+- #type-for-sequence-stream#
+- #unlock-stream#
+- #unread-element#
+- #wait-for-io-completion#
+- #with-input-buffer#
+- #with-output-buffer#
+- #with-output-to-string#
+- #with-stream-locked#
+- #write#
+- #write-element#
+- #write-line#
+- #write-text#
+

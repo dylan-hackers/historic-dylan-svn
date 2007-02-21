@@ -1,0 +1,22 @@
+Function: control?
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module character-type#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<character>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

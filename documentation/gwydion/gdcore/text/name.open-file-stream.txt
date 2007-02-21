@@ -1,0 +1,29 @@
+Generic: open-file-stream
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+#all-keys - This function accepts any keyword argument.
+
+
+Values:
+------------------------------
+val - An instance of #<stream>#. 
+
+
+

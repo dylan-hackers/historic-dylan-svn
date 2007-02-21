@@ -1,0 +1,20 @@
+Constant: <native-file-locator>
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+<posix-file-locator>
+

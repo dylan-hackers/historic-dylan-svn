@@ -1,0 +1,29 @@
+Generic: key-exists?
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module collection-utilities#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

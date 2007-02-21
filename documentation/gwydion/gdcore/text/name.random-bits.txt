@@ -1,0 +1,22 @@
+Generic: random-bits
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module Random#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

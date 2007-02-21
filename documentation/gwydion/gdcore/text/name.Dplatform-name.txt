@@ -1,0 +1,20 @@
+Constant: $platform-name
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module operating-system#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+unknown
+

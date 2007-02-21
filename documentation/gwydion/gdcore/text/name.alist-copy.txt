@@ -1,0 +1,25 @@
+Function: alist-copy
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<sequence>#. 
+key: - An instance of #<object>#. The default is head.
+datum: - An instance of #<object>#. The default is tail.
+cons: - An instance of #<object>#. The default is pair.
+
+
+Values:
+------------------------------
+val - An instance of #<sequence>#. 
+
+
+

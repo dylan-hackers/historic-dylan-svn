@@ -1,0 +1,22 @@
+Function: object-address
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module Introspection#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<raw-pointer>#. 
+
+
+

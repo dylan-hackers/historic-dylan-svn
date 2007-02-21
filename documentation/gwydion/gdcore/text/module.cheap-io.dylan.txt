@@ -1,0 +1,18 @@
+Module: Module Cheap-IO
+==============================
+
+The Cheap-IO module.
+
+
+Exported from:
+------------------------------
+#Library Dylan#
+
+
+Topic: Cheap-IO names
+------------------------------
+- #print#
+- #print-message#
+- #puts#
+- #write-integer#
+

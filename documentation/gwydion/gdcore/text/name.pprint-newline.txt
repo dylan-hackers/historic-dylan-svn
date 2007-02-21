@@ -1,0 +1,23 @@
+Generic: pprint-newline
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module pprint#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of type-union(singleton(#"mandatory"), singleton(#"linear"), singleton(#"miser"), singleton(#"fill")). 
+arg - An instance of #<stream>#. 
+
+
+

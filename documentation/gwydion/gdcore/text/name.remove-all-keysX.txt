@@ -1,0 +1,30 @@
+Generic: remove-all-keys!
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module table-extensions#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<mutable-explicit-key-collection>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<mutable-explicit-key-collection>#. 
+
+
+

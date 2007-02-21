@@ -1,0 +1,24 @@
+Generic: format
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module format#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+arg - An instance of #<string>#. 
+#rest more - Instances of #<object>#. 
+
+
+

@@ -1,0 +1,22 @@
+Class: <designator-class>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<class>#
+ 
+
+

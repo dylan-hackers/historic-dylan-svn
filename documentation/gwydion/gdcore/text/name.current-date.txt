@@ -1,0 +1,17 @@
+Function: current-date
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Values:
+------------------------------
+val - An instance of #<date>#. 
+
+
+

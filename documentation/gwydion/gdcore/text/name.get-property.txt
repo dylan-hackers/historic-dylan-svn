@@ -1,0 +1,29 @@
+Generic: get-property
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module plists#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<sequence>#. 
+arg - An instance of #<object>#. 
+default: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

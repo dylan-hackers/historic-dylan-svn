@@ -1,0 +1,22 @@
+Module: Module string-hacking
+==============================
+
+The string-hacking module.
+
+
+Exported from:
+------------------------------
+#Library string-extensions#
+
+
+Topic: string-hacking names
+------------------------------
+- #<byte-character-table>#
+- #<case-insensitive-character-set>#
+- #<case-sensitive-character-set>#
+- #<character-set>#
+- #add-last#
+- #case-insensitive-equal#
+- #predecessor#
+- #successor#
+

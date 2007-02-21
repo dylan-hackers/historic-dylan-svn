@@ -1,0 +1,24 @@
+Class: <semaphore>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+concrete primary open
+
+
+Superclasses:
+------------------------------
+- #<lock>#
+ 
+
+

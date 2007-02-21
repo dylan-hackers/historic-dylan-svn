@@ -1,0 +1,25 @@
+Function: tail-setter
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<pair>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

@@ -1,0 +1,32 @@
+Generic: remove
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<sequence>#. 
+arg - An instance of #<object>#. 
+test: - An instance of #<object>#. The default is #f.
+count: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<sequence>#. 
+
+
+

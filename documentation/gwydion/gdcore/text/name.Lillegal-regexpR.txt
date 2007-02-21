@@ -1,0 +1,22 @@
+Class: <illegal-regexp>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module regular-expressions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<error>#
+ 
+
+

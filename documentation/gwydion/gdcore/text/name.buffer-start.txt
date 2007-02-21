@@ -1,0 +1,27 @@
+Generic: buffer-start
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<buffer>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+
+
+

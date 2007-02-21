@@ -1,0 +1,23 @@
+Function: encode-year/month-duration
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<year/month-duration>#. 
+
+
+

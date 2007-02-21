@@ -1,0 +1,15 @@
+Module: Module simple-io
+==============================
+
+The simple-io module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: simple-io names
+------------------------------
+- #format-out#
+

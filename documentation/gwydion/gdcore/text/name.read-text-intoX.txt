@@ -1,0 +1,31 @@
+Generic: read-text-into!
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+arg - An instance of #<integer>#. 
+arg - An instance of #<string>#. 
+start: - An instance of #<integer>#. Required.
+on-end-of-stream: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

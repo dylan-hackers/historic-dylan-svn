@@ -1,0 +1,36 @@
+Class: <synchronization>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<lock>#
+- #<notification>#
+
+
+Functions on <synchronization>:
+------------------------------
+- #release#
+- #wait-for#
+
+
+

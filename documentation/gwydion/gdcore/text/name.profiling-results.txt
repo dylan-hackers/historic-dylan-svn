@@ -1,0 +1,18 @@
+Macro: profiling-results
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module simple-profiling#
+
+
+Definition:
+------------------------------
+:
+          statement macro
+        
+
+

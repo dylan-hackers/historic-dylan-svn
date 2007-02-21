@@ -1,0 +1,43 @@
+Class: <condition>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<format-string-condition>#
+- #<restart>#
+- #<serious-condition>#
+- #<warning>#
+
+
+Functions on <condition>:
+------------------------------
+- #condition-to-string#
+- #default-handler#
+- #invoke-debugger#
+- #report-condition#
+- #return-allowed?#
+- #return-description#
+- #return-query#
+
+
+

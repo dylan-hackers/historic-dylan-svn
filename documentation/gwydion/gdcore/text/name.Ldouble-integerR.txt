@@ -1,0 +1,22 @@
+Class: <double-integer>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed functional
+
+
+Superclasses:
+------------------------------
+- #<general-integer>#
+ 
+
+

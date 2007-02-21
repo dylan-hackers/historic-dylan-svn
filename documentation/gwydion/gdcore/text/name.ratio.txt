@@ -1,0 +1,23 @@
+Function: ratio
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<general-integer>#. 
+arg - An instance of #<general-integer>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<ratio>#. 
+
+
+

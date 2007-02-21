@@ -1,0 +1,43 @@
+Class: <table>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- #<mutable-explicit-key-collection>#
+ - #<stretchy-collection>#
+ 
+
+Subclasses:
+------------------------------
+- #<equal-table>#
+- #<object-table>#
+- #<value-table>#
+
+
+Functions on <table>:
+------------------------------
+- #fill-table!#
+- #table-protocol#
+
+
+Functions returning <table>:
+------------------------------
+- #fill-table!#
+
+
+

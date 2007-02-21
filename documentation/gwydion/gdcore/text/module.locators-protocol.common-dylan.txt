@@ -1,0 +1,19 @@
+Module: Module locators-protocol
+==============================
+
+The locators-protocol module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: locators-protocol names
+------------------------------
+- #<locator>#
+- #list-locator#
+- #open-locator#
+- #supports-list-locator?#
+- #supports-open-locator?#
+

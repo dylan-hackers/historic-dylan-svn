@@ -1,0 +1,24 @@
+Function: pair-do
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+arg - An instance of #<list>#. 
+#rest more - Instances of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

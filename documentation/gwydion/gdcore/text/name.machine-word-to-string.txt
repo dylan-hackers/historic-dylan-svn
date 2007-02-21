@@ -1,0 +1,24 @@
+Function: machine-word-to-string
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<machine-word>#. 
+prefix: - An instance of type-union(<string>, <false>). The default is "#x".
+
+
+Values:
+------------------------------
+val - An instance of #<string>#. 
+
+
+

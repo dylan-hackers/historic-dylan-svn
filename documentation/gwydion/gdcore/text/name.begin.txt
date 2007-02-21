@@ -1,0 +1,20 @@
+Macro: begin
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Definition:
+------------------------------
+:
+          statement macro
+        
+
+

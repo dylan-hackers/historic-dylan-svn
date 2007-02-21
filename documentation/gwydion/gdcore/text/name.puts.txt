@@ -1,0 +1,18 @@
+Function: puts
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module functional-objects-extras#
+- #Module Cheap-IO#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+

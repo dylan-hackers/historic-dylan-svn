@@ -1,0 +1,26 @@
+Function: cerror
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+arg - An instance of type-union(<condition>, <string>). 
+#rest more - Instances of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<false>#. 
+
+
+

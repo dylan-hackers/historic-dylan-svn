@@ -1,0 +1,27 @@
+Function: string-to-machine-word
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+start: - An instance of #<integer>#. The default is 0.
+default: - An instance of #<object>#. The default is $not-supplied.
+end: - An instance of type-union(<false>, <integer>). The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<machine-word>#. 
+val - An instance of #<integer>#. 
+
+
+

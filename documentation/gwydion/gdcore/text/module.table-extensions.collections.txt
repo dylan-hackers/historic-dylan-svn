@@ -1,0 +1,31 @@
+Module: Module table-extensions
+==============================
+
+The table-extensions module.
+
+
+Exported from:
+------------------------------
+#Library collections#
+
+
+Topic: table-extensions names
+------------------------------
+- #<byte-string-table>#
+- #<case-insensitive-byte-string-table>#
+- #<case-insensitive-string-table>#
+- #<equal-table>#
+- #<hash-state>#
+- #<string-table>#
+- #<value-table>#
+- #case-insensitive-equal#
+- #case-insensitive-string-hash#
+- #collection-hash#
+- #equal-hash#
+- #remove-all-keys!#
+- #sequence-hash#
+- #string-hash#
+- #table#
+- #value-hash#
+- #values-hash#
+

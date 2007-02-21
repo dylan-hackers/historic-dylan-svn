@@ -1,0 +1,30 @@
+Generic: table-protocol
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<table>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<function>#. 
+val - An instance of #<function>#. 
+
+
+

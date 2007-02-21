@@ -1,0 +1,18 @@
+Function: next-output-buffer
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<buffered-stream>#. 
+bytes: - An instance of #<object>#. The default is 1.
+
+
+

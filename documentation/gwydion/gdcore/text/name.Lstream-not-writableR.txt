@@ -1,0 +1,22 @@
+Class: <stream-not-writable>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<stream-error>#
+ 
+
+

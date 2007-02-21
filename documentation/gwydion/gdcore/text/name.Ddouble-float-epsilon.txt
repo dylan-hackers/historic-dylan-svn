@@ -1,0 +1,22 @@
+Constant: $double-float-epsilon
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Type:
+------------------------------
+#<double-float>#
+
+
+Value:
+------------------------------
+unknown
+

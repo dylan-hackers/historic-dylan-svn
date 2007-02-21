@@ -1,0 +1,44 @@
+Class: <mutable-explicit-key-collection>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<mutable-collection>#
+ - #<explicit-key-collection>#
+ 
+
+Subclasses:
+------------------------------
+- #<byte-character-table>#
+- #<self-organizing-list>#
+- #<set>#
+- #<table>#
+
+
+Functions on <mutable-explicit-key-collection>:
+------------------------------
+- #remove-all-keys!#
+- #remove-key!#
+
+
+Functions returning <mutable-explicit-key-collection>:
+------------------------------
+- #remove-all-keys!#
+
+
+

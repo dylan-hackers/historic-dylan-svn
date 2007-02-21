@@ -1,0 +1,27 @@
+Generic: pprint-logical-block
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module pprint#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+column: - An instance of #<integer>#. Required.
+prefix: - An instance of type-union(<false>, <byte-string>). The default is #f.
+per-line-prefix: - An instance of type-union(<false>, <byte-string>). The default is #f.
+body: - An instance of #<function>#. Required.
+suffix: - An instance of type-union(<false>, <byte-string>). The default is #f.
+
+
+

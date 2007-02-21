@@ -1,0 +1,31 @@
+Generic: decode-float
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<float>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<float>#. 
+val - An instance of #<integer>#. 
+val - An instance of #<float>#. 
+
+
+

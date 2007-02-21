@@ -1,0 +1,22 @@
+Generic: new-line
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+
+
+

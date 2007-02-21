@@ -1,0 +1,36 @@
+Generic: forward-iteration-protocol
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<collection>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+val - An instance of #<object>#. 
+val - An instance of #<function>#. 
+val - An instance of #<function>#. 
+val - An instance of #<function>#. 
+val - An instance of #<function>#. 
+val - An instance of #<function>#. 
+val - An instance of #<function>#. 
+
+
+

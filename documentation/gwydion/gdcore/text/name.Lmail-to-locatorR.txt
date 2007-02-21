@@ -1,0 +1,22 @@
+Class: <mail-to-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<url>#
+ 
+
+

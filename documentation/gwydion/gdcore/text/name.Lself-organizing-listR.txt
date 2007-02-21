@@ -1,0 +1,23 @@
+Class: <self-organizing-list>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module self-organizing-list#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<mutable-explicit-key-collection>#
+ - #<stretchy-collection>#
+ 
+
+

@@ -1,0 +1,21 @@
+Constant: $maximum-unsigned-machine-word
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module Machine-words#
+- #Module Machine-words#
+
+
+Type:
+------------------------------
+#<machine-word>#
+
+
+Value:
+------------------------------
+unknown
+

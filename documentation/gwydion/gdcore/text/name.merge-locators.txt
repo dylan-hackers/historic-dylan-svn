@@ -1,0 +1,28 @@
+Generic: merge-locators
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<physical-locator>#. 
+arg - An instance of #<physical-locator>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<physical-locator>#. 
+
+
+

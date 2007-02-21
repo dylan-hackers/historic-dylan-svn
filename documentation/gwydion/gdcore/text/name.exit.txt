@@ -1,0 +1,22 @@
+Function: exit
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Arguments:
+------------------------------
+exit-code: - An instance of #<integer>#. The default is 0.
+
+
+Values:
+------------------------------
+val - An instance of type-union(). 
+
+
+

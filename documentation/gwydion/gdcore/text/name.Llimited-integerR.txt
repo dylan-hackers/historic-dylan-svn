@@ -1,0 +1,22 @@
+Class: <limited-integer>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module Introspection#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- <limited-type>
+ 
+
+

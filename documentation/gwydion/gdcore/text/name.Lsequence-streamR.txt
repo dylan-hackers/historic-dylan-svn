@@ -1,0 +1,28 @@
+Class: <sequence-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+concrete primary open
+
+
+Superclasses:
+------------------------------
+- #<basic-positionable-stream>#
+ 
+
+Subclasses:
+------------------------------
+- #<pretty-stream>#
+- #<string-stream>#
+
+
+

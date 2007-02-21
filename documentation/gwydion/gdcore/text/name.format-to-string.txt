@@ -1,0 +1,52 @@
+Generic: format-to-string
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module format#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+#rest more - Instances of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<string>#. 
+
+
+
+Function: format-to-string
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+#rest more - Instances of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<string>#. 
+
+
+

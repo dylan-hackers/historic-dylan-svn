@@ -1,0 +1,105 @@
+Class: <integer>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed functional
+
+
+Superclasses:
+------------------------------
+- #<general-integer>#
+ 
+
+Functions on <integer>:
+------------------------------
+- #ash#
+- #as-iso8601-string#
+- #bit-vector-word#
+- #buffer-subsequence#
+- #byte-vector-ref#
+- #byte-vector-ref-setter#
+- #copy-bytes#
+- #copy-from-buffer!#
+- #copy-into-buffer!#
+- #dimension#
+- #drop#
+- #element-error#
+- #encode-date#
+- #encode-day/time-duration#
+- #encode-year/month-duration#
+- #exit#
+- #exit-application#
+- #find-element#
+- #isqrt#
+- #logbit?#
+- #multi-buffered-stream-position-setter#
+- #position#
+- #pprint-indent#
+- #pprint-logical-block#
+- #pprint-tab#
+- #read#
+- #read-into!#
+- #read-text#
+- #read-text-into!#
+- #regexp-matches#
+- #scale-float#
+- #split#
+- #string-to-machine-word#
+- #tabulate#
+- #take#
+- #wait-for-application-event#
+- #write-4-aligned-bytes#
+- #write-8-aligned-bytes#
+- #write-integer#
+- #write-text#
+
+
+Functions returning <integer>:
+------------------------------
+- #bit-count#
+- #buffer-start#
+- #collection-hash#
+- #current-timestamp#
+- #decode-date#
+- #decode-duration#
+- #decode-float#
+- #dimension#
+- #equal-hash#
+- #float-digits#
+- #float-precision#
+- #float-radix#
+- #function-arguments#
+- #get-time-of-day#
+- #integer-decode-float#
+- #integer-length#
+- #isqrt#
+- #local-time-zone-offset#
+- #multi-buffered-stream-position-setter#
+- #multi-buffer-total-bytes#
+- #multi-buffer-total-reads#
+- #multi-buffer-total-working-set#
+- #object-hash#
+- #rank#
+- #read-4-aligned-bytes#
+- #read-8-aligned-bytes#
+- #row-major-index#
+- #run-application#
+- #sequence-hash#
+- #string-to-machine-word#
+- #system#
+- #value-hash#
+- #values-hash#
+
+
+

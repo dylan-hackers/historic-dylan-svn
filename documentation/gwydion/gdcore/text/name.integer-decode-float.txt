@@ -1,0 +1,24 @@
+Function: integer-decode-float
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<float>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<extended-integer>#. 
+val - An instance of #<integer>#. 
+val - An instance of #<integer>#. 
+
+
+

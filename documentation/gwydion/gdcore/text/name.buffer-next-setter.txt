@@ -1,0 +1,29 @@
+Generic: buffer-next-setter
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module system#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

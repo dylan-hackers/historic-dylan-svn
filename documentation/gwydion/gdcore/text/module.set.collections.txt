@@ -1,0 +1,16 @@
+Module: Module set
+==============================
+
+The set module.
+
+
+Exported from:
+------------------------------
+#Library collections#
+
+
+Topic: set names
+------------------------------
+- #<object-set>#
+- #<set>#
+

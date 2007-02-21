@@ -1,0 +1,22 @@
+Class: <delete-entry>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module sequence-diff#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<script-entry>#
+ 
+
+

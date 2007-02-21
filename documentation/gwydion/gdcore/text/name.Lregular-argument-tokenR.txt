@@ -1,0 +1,22 @@
+Class: <regular-argument-token>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module option-parser-protocol#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<argument-token>#
+ 
+
+

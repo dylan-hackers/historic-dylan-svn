@@ -1,0 +1,72 @@
+Class: <real>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<complex>#
+ 
+
+Subclasses:
+------------------------------
+- #<float>#
+- #<rational>#
+
+
+Functions on <real>:
+------------------------------
+- #acos#
+- #asin#
+- #atan#
+- #atan2#
+- #ceiling#
+- #ceiling/#
+- #cos#
+- #cosh#
+- #exp#
+- #floor#
+- #floor/#
+- #log#
+- #logn#
+- #modulo#
+- #remainder#
+- #round#
+- #round/#
+- #sin#
+- #sinh#
+- #sqrt#
+- #tan#
+- #tanh#
+- #truncate#
+- #truncate/#
+
+
+Functions returning <real>:
+------------------------------
+- #ceiling#
+- #ceiling/#
+- #floor#
+- #floor/#
+- #modulo#
+- #remainder#
+- #round#
+- #round/#
+- #truncate#
+- #truncate/#
+
+
+

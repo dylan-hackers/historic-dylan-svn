@@ -1,0 +1,85 @@
+Module: Module common-extensions
+==============================
+
+The common-extensions module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: common-extensions names
+------------------------------
+- #$double-float-epsilon#
+- #$extended-float-epsilon#
+- #$maximum-double-float-exponent#
+- #$maximum-extended-float-exponent#
+- #$maximum-single-float-exponent#
+- #$minimum-double-float-exponent#
+- #$minimum-extended-float-exponent#
+- #$minimum-single-float-exponent#
+- #$not-supplied#
+- #$single-float-epsilon#
+- #$unfound#
+- #<byte-character>#
+- #<byte-vector>#
+- #<closable-object>#
+- #<format-string-condition>#
+- #<never-returns>#
+- #<object-deque>#
+- #<simple-condition>#
+- #<stream>#
+- #<stretchy-object-vector>#
+- #<stretchy-sequence>#
+- #<string-table>#
+- #application-arguments#
+- #application-filename#
+- #application-name#
+- #assert#
+- #close#
+- #concatenate!#
+- #condition-to-string#
+- #debug-assert#
+- #debug-message#
+- #decode-float#
+- #difference#
+- #exit-application#
+- #false?#
+- #false-or#
+- #fill-table!#
+- #find-element#
+- #float-digits#
+- #float-precision#
+- #float-radix#
+- #float-to-string#
+- #format-to-string#
+- #found?#
+- #ignorable#
+- #ignore#
+- #integer-length#
+- #integer-to-string#
+- #iterate#
+- #machine-word-to-string#
+- #number-to-string#
+- #one-of#
+- #on-exit#
+- #position#
+- #profiling#
+- #profiling-type-result#
+- #remove-all-keys!#
+- #scale-float#
+- #split#
+- #string-to-float#
+- #string-to-integer#
+- #string-to-machine-word#
+- #subclass#
+- #supplied?#
+- #table-definer#
+- #true?#
+- #unfound#
+- #unfound?#
+- #unsupplied#
+- #unsupplied?#
+- #when#
+

@@ -1,0 +1,29 @@
+Class: <set>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module set#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- #<mutable-explicit-key-collection>#
+ 
+
+Subclasses:
+------------------------------
+- #<bit-set>#
+- #<object-set>#
+
+
+

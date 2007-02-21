@@ -1,0 +1,19 @@
+Function: current-thread
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Values:
+------------------------------
+val - An instance of #<thread>#. 
+
+
+

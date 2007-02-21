@@ -1,0 +1,27 @@
+Class: <extended-integer>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<general-integer>#
+ 
+
+Functions returning <extended-integer>:
+------------------------------
+- #integer-decode-float#
+
+
+

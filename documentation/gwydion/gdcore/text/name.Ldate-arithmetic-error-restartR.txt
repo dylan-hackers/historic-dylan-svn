@@ -1,0 +1,28 @@
+Class: <date-arithmetic-error-restart>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<date-arithmetic-error>#
+ - #<restart>#
+ 
+
+Subclasses:
+------------------------------
+- #<date-arithmetic-use-last-valid-day>#
+
+
+

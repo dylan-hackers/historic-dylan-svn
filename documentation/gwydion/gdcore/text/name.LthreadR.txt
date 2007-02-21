@@ -1,0 +1,35 @@
+Class: <thread>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Functions on <thread>:
+------------------------------
+- #join-thread#
+
+
+Functions returning <thread>:
+------------------------------
+- #current-thread#
+- #join-thread#
+
+
+

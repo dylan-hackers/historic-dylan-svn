@@ -1,0 +1,20 @@
+Constant: <profiling-state>
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module simple-profiling#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+<object-table>
+

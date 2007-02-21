@@ -1,0 +1,44 @@
+Module: Module date
+==============================
+
+The date module.
+
+
+Exported from:
+------------------------------
+#Library system#
+
+
+Topic: date names
+------------------------------
+- #<date>#
+- #<date-arithmetic-error>#
+- #<date-arithmetic-error-restart>#
+- #<date-arithmetic-invalid-day>#
+- #<date-arithmetic-use-last-valid-day>#
+- #<day/time-duration>#
+- #<day-of-week>#
+- #<duration>#
+- #<year/month-duration>#
+- #as-iso8601-string#
+- #current-date#
+- #current-timestamp#
+- #date-day#
+- #date-day-of-week#
+- #date-hours#
+- #date-microseconds#
+- #date-minutes#
+- #date-month#
+- #date-seconds#
+- #date-time-zone-offset#
+- #date-time-zone-offset-setter#
+- #date-year#
+- #decode-date#
+- #decode-duration#
+- #encode-date#
+- #encode-day/time-duration#
+- #encode-year/month-duration#
+- #local-daylight-savings-time?#
+- #local-time-zone-name#
+- #local-time-zone-offset#
+

@@ -1,0 +1,18 @@
+Macro: c-local-decl
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Definition:
+------------------------------
+:
+          function macro
+        
+
+

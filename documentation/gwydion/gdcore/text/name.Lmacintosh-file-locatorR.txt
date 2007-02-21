@@ -1,0 +1,23 @@
+Class: <macintosh-file-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<file-system-file-locator>#
+ - #<macintosh-file-system-locator>#
+ 
+
+

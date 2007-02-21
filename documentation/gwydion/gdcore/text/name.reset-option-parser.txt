@@ -1,0 +1,22 @@
+Generic: reset-option-parser
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module option-parser-protocol#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<option-parser>#. 
+
+
+

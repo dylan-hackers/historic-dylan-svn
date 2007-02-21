@@ -1,0 +1,47 @@
+Class: <character>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed functional
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Functions on <character>:
+------------------------------
+- #alpha?#
+- #alphabetic?#
+- #alphanumeric?#
+- #byte-character?#
+- #control?#
+- #digit?#
+- #graphic?#
+- #hex-digit?#
+- #lowercase?#
+- #printable?#
+- #punctuation?#
+- #split#
+- #whitespace?#
+
+
+Functions returning <character>:
+------------------------------
+- #command-line-option-prefix#
+- #file-system-separator#
+
+
+

@@ -1,0 +1,19 @@
+Macro: iterate
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+
+
+Definition:
+------------------------------
+:
+          statement macro
+        
+
+

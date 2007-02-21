@@ -1,0 +1,30 @@
+Generic: case-insensitive-equal
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module string-hacking#
+- #Module table-extensions#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

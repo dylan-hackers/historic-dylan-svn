@@ -1,0 +1,27 @@
+Generic: value-sequence
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module plists#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<sequence>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<sequence>#. 
+
+
+

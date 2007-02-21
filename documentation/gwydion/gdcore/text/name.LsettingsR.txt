@@ -1,0 +1,41 @@
+Class: <settings>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module settings#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<current-user-settings>#
+- #<current-user-software-settings>#
+- #<default-user-settings>#
+- #<default-user-software-settings>#
+- #<local-hardware-settings>#
+- #<local-settings>#
+- #<local-software-settings>#
+- #<site-settings>#
+- #<site-software-settings>#
+- #<system-settings>#
+
+
+Functions on <settings>:
+------------------------------
+- #remove-value!#
+
+
+

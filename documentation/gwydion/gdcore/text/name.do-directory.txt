@@ -1,0 +1,23 @@
+Generic: do-directory
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+arg - An instance of type-union(<file-system-locator>, <string>). 
+
+
+

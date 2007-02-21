@@ -1,0 +1,23 @@
+Function: environment-variable-setter
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module operating-system#
+
+
+Arguments:
+------------------------------
+arg - An instance of type-union(<false>, <byte-string>). 
+arg - An instance of #<byte-string>#. 
+
+
+Values:
+------------------------------
+val - An instance of type-union(<false>, <byte-string>). 
+
+
+

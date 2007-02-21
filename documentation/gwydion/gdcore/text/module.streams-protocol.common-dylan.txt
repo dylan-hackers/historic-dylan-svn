@@ -1,0 +1,47 @@
+Module: Module streams-protocol
+==============================
+
+The streams-protocol module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: streams-protocol names
+------------------------------
+- #<end-of-stream-error>#
+- #<incomplete-read-error>#
+- #<incomplete-write-error>#
+- #<positionable-stream>#
+- #<stream>#
+- #<stream-error>#
+- #adjust-stream-position#
+- #close#
+- #discard-input#
+- #discard-output#
+- #force-output#
+- #open-file-stream#
+- #peek#
+- #read#
+- #read-element#
+- #read-into!#
+- #stream-at-end?#
+- #stream-contents#
+- #stream-contents-as#
+- #stream-element-type#
+- #stream-error-count#
+- #stream-error-sequence#
+- #stream-error-stream#
+- #stream-input-available?#
+- #stream-open?#
+- #stream-position#
+- #stream-position-setter#
+- #stream-size#
+- #synchronize-output#
+- #unread-element#
+- #wait-for-io-completion#
+- #write#
+- #write-element#
+

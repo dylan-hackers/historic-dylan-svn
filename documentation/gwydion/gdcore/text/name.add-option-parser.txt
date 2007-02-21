@@ -1,0 +1,18 @@
+Function: add-option-parser
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module getopt#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<argument-list-parser>#. 
+arg - An instance of #<option-parser>#. 
+
+
+

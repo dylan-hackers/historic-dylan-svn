@@ -1,0 +1,21 @@
+Constant: <buffer-index>
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module system#
+- #Module streams#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+<integer>
+

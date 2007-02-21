@@ -1,0 +1,36 @@
+Class: <exclusive-lock>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<lock>#
+ 
+
+Subclasses:
+------------------------------
+- #<read-write-lock>#
+- #<recursive-lock>#
+- #<simple-lock>#
+
+
+Functions on <exclusive-lock>:
+------------------------------
+- #owned?#
+
+
+

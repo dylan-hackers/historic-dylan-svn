@@ -1,0 +1,36 @@
+Class: <argument-list-parser>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module getopt#
+
+
+Modifiers:
+------------------------------
+concrete free open
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Functions on <argument-list-parser>:
+------------------------------
+- #add-option-parser#
+- #add-option-parser-by-type#
+- #argument-tokens-remaining?#
+- #get-argument-token#
+- #option-parser-by-long-name#
+- #option-present?-by-long-name#
+- #option-value-by-long-name#
+- #parse-arguments#
+- #parse-option#
+- #peek-argument-token#
+
+
+

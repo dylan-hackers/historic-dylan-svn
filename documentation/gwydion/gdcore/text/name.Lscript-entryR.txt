@@ -1,0 +1,28 @@
+Class: <script-entry>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module sequence-diff#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<delete-entry>#
+- #<insert-entry>#
+
+
+

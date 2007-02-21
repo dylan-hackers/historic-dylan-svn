@@ -1,0 +1,22 @@
+Function: list*
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<list>#. 
+
+
+

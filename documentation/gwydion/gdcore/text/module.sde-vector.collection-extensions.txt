@@ -1,0 +1,15 @@
+Module: Module sde-vector
+==============================
+
+The sde-vector module.
+
+
+Exported from:
+------------------------------
+#Library collection-extensions#
+
+
+Topic: sde-vector names
+------------------------------
+- #<SDE-vector>#
+

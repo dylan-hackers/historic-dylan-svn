@@ -1,0 +1,32 @@
+Generic: translate
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module regular-expressions#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+arg - An instance of #<string>#. 
+arg - An instance of #<string>#. 
+delete: - An instance of #<object>#. The default is #f.
+start: - An instance of #<object>#. The default is #f.
+end: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<string>#. 
+
+
+

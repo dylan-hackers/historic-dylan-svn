@@ -1,0 +1,30 @@
+Generic: type-for-file-stream
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of type-union(<false>, <type>). 
+arg - An instance of #<object>#. 
+#all-keys - This function accepts any keyword argument.
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

@@ -1,0 +1,27 @@
+Generic: type-for-sequence-stream
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of type-union(<false>, <sequence>). 
+
+
+Values:
+------------------------------
+val - An instance of #<type>#. 
+
+
+

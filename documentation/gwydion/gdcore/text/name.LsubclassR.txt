@@ -1,0 +1,27 @@
+Class: <subclass>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module Introspection#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<type>#
+ 
+
+Functions returning <subclass>:
+------------------------------
+- #subclass#
+
+
+

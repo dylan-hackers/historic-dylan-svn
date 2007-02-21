@@ -1,0 +1,37 @@
+Module: Module settings
+==============================
+
+The settings module.
+
+
+Exported from:
+------------------------------
+#Library system#
+
+
+Topic: settings names
+------------------------------
+- #$settings-table#
+- #$uninitialized#
+- #<current-user-settings>#
+- #<current-user-software-settings>#
+- #<default-user-settings>#
+- #<default-user-software-settings>#
+- #<local-hardware-settings>#
+- #<local-settings>#
+- #<local-software-settings>#
+- #<settings>#
+- #<site-settings>#
+- #<site-software-settings>#
+- #<system-settings>#
+- #<uninitialized>#
+- #initialized?#
+- #remove-value!#
+- #settings-class-definer#
+- #settings-definer#
+- #settings-key-definer#
+- #settings-slot-definer#
+- #settings-slots-definer#
+- #uninitialized?#
+- #uninitialized-or#
+

@@ -1,0 +1,52 @@
+Class: <bit-vector>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module bit-vector#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- #<vector>#
+ 
+
+Functions on <bit-vector>:
+------------------------------
+- #bit-count#
+- #bit-vector-and#
+- #bit-vector-and!#
+- #bit-vector-andc2#
+- #bit-vector-andc2!#
+- #bit-vector-not#
+- #bit-vector-not!#
+- #bit-vector-or#
+- #bit-vector-or!#
+- #bit-vector-word#
+- #bit-vector-xor#
+- #bit-vector-xor!#
+
+
+Functions returning <bit-vector>:
+------------------------------
+- #bit-vector-and#
+- #bit-vector-and!#
+- #bit-vector-andc2#
+- #bit-vector-andc2!#
+- #bit-vector-not#
+- #bit-vector-not!#
+- #bit-vector-or#
+- #bit-vector-or!#
+- #bit-vector-xor#
+- #bit-vector-xor!#
+
+
+

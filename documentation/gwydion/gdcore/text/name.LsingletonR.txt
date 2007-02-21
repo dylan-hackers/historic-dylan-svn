@@ -1,0 +1,29 @@
+Class: <singleton>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<type>#
+ 
+
+Functions returning <singleton>:
+------------------------------
+- #singleton#
+
+
+

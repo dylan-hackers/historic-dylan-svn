@@ -1,0 +1,25 @@
+Function: on-exit
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+- #Module operating-system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

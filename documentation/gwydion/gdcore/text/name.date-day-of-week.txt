@@ -1,0 +1,22 @@
+Function: date-day-of-week
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<date>#. 
+
+
+Values:
+------------------------------
+val - An instance of type-union(singleton(#"monday"), singleton(#"thursday"), singleton(#"tuesday"), singleton(#"friday"), singleton(#"saturday"), singleton(#"wednesday"), singleton(#"sunday")). 
+
+
+

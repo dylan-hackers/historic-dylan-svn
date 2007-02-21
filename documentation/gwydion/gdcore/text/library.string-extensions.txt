@@ -1,0 +1,13 @@
+Library: Library string-extensions
+==============================
+
+The string-extensions library.
+
+
+Topic: string-extensions modules
+------------------------------
+- #Module character-type#
+- #Module string-conversions#
+- #Module string-hacking#
+- #Module substring-search#
+

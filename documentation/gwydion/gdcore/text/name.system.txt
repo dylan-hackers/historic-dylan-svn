@@ -1,0 +1,22 @@
+Function: system
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<byte-string>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+
+
+

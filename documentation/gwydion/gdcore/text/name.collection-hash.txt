@@ -1,0 +1,28 @@
+Function: collection-hash
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module table-extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+arg - An instance of #<function>#. 
+arg - An instance of #<collection>#. 
+arg - An instance of #<false>#. 
+ordered: - An instance of #<boolean>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+val - An instance of #<false>#. 
+
+
+

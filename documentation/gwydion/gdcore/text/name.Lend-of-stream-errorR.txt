@@ -1,0 +1,29 @@
+Class: <end-of-stream-error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<stream-error>#
+ 
+
+Subclasses:
+------------------------------
+- #<incomplete-read-error>#
+- #<incomplete-write-error>#
+
+
+

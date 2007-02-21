@@ -1,0 +1,29 @@
+Class: <argument-token>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module option-parser-protocol#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<equals-token>#
+- #<option-token>#
+- #<regular-argument-token>#
+
+
+

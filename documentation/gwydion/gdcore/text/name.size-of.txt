@@ -1,0 +1,27 @@
+Generic: size-of
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

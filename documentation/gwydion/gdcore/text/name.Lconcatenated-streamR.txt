@@ -1,0 +1,22 @@
+Class: <concatenated-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module concatenated-streams#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<wrapper-stream>#
+ 
+
+

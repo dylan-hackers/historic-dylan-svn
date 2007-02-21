@@ -1,0 +1,22 @@
+Constant: <never-returns>
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Type:
+------------------------------
+#<type>#
+
+
+Value:
+------------------------------
+type-union()
+

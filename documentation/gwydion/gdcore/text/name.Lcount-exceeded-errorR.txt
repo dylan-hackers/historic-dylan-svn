@@ -1,0 +1,25 @@
+Class: <count-exceeded-error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- <synchronization-condition>
+ - #<error>#
+ 
+
+

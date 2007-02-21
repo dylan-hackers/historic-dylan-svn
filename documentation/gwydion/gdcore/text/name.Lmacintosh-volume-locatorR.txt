@@ -1,0 +1,22 @@
+Class: <macintosh-volume-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<macintosh-server-locator>#
+ 
+
+

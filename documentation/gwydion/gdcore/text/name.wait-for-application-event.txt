@@ -1,0 +1,23 @@
+Function: wait-for-application-event
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module operating-system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<machine-word>#. 
+timeout: - An instance of #<integer>#. The default is -1.
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

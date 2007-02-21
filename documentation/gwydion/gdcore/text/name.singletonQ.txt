@@ -1,0 +1,27 @@
+Generic: singleton?
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module collection-utilities#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<collection>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

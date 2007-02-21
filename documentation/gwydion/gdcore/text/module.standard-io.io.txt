@@ -1,0 +1,17 @@
+Module: Module standard-io
+==============================
+
+The standard-io module.
+
+
+Exported from:
+------------------------------
+#Library io#
+
+
+Topic: standard-io names
+------------------------------
+- #*standard-error*#
+- #*standard-input*#
+- #*standard-output*#
+

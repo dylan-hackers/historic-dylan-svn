@@ -1,0 +1,22 @@
+Function: direct-instance
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<class>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<direct-instance>#. 
+
+
+

@@ -1,0 +1,31 @@
+Generic: do
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+arg - An instance of #<collection>#. 
+#rest more - Instances of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<false>#. 
+
+
+

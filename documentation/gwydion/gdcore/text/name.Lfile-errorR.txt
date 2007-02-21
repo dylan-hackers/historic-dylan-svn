@@ -1,0 +1,29 @@
+Class: <file-error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<file-system-error>#
+ 
+
+Subclasses:
+------------------------------
+- #<file-does-not-exist-error>#
+- #<file-exists-error>#
+- #<invalid-file-permissions-error>#
+
+
+

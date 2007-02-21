@@ -1,0 +1,25 @@
+Function: alist-delete
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<sequence>#. 
+key: - An instance of #<object>#. The default is head.
+test: - An instance of #<object>#. The default is =.
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

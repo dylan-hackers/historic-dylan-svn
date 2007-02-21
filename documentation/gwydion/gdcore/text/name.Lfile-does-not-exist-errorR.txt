@@ -1,0 +1,22 @@
+Class: <file-does-not-exist-error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<file-error>#
+ 
+
+

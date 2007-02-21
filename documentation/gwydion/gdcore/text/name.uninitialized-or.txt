@@ -1,0 +1,18 @@
+Macro: uninitialized-or
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module settings#
+
+
+Definition:
+------------------------------
+:
+          function macro
+        
+
+

@@ -1,0 +1,23 @@
+Generic: start-profiling-type
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module simple-profiling#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object-table>#. 
+arg - An instance of #<symbol>#. 
+
+
+

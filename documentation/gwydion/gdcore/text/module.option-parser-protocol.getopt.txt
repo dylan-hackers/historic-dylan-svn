@@ -1,0 +1,41 @@
+Module: Module option-parser-protocol
+==============================
+
+The option-parser-protocol module.
+
+
+Exported from:
+------------------------------
+#Library getopt#
+
+
+Topic: option-parser-protocol names
+------------------------------
+- #<argument-token>#
+- #<equals-token>#
+- #<long-option-token>#
+- #<negative-option-parser>#
+- #<option-token>#
+- #<regular-argument-token>#
+- #<short-option-token>#
+- #argument-tokens-remaining?#
+- #get-argument-token#
+- #long-option-names#
+- #long-option-names-setter#
+- #negative-option?#
+- #option-default-value#
+- #option-default-value-setter#
+- #option-description#
+- #option-description-setter#
+- #option-might-have-parameters?#
+- #option-might-have-parameters?-setter#
+- #option-value-setter#
+- #parse-option#
+- #peek-argument-token#
+- #reset-option-parser#
+- #short-option-names#
+- #short-option-names-setter#
+- #tightly-bound-to-next-token?#
+- #token-value#
+- #usage-error#
+

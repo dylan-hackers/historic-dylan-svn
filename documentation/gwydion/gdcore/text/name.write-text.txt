@@ -1,0 +1,25 @@
+Generic: write-text
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+arg - An instance of #<string>#. 
+start: - An instance of #<integer>#. Required.
+end: - An instance of #<integer>#. Required.
+
+
+

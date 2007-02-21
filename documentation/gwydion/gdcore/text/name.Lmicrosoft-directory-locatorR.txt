@@ -1,0 +1,23 @@
+Class: <microsoft-directory-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<file-system-directory-locator>#
+ - #<microsoft-file-system-locator>#
+ 
+
+

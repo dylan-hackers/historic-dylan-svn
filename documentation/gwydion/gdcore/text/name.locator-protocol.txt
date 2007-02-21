@@ -1,0 +1,22 @@
+Function: locator-protocol
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<web-locator>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<string>#. 
+
+
+

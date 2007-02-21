@@ -1,0 +1,37 @@
+Class: <machine-word>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module Machine-words#
+- #Module Machine-words#
+
+
+Modifiers:
+------------------------------
+concrete free sealed functional
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Functions on <machine-word>:
+------------------------------
+- #machine-word-to-string#
+- #wait-for-application-event#
+- #write-4-aligned-bytes-from-word#
+
+
+Functions returning <machine-word>:
+------------------------------
+- #bit-vector-word#
+- #create-application-event#
+- #string-to-machine-word#
+
+
+

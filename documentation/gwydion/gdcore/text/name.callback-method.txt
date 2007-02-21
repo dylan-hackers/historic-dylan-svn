@@ -1,0 +1,18 @@
+Macro: callback-method
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Definition:
+------------------------------
+:
+          statement macro
+        
+
+

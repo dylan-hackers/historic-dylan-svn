@@ -1,0 +1,34 @@
+Class: <closable-object>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module functional-objects-extras#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<stream>#
+
+
+Functions on <closable-object>:
+------------------------------
+- #close#
+
+
+

@@ -1,0 +1,29 @@
+Generic: owned?
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<exclusive-lock>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

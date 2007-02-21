@@ -1,0 +1,21 @@
+Module: Module simple-profiling
+==============================
+
+The simple-profiling module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: simple-profiling names
+------------------------------
+- #<profiling-state>#
+- #profiling#
+- #profiling-keywords#
+- #profiling-results#
+- #profiling-type-result#
+- #start-profiling-type#
+- #stop-profiling-type#
+

@@ -1,0 +1,17 @@
+Function: local-daylight-savings-time?
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

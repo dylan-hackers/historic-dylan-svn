@@ -1,0 +1,24 @@
+Function: generic-function-mandatory-keywords
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<generic-function>#. 
+
+
+Values:
+------------------------------
+val - An instance of type-union(<false>, <simple-object-vector>). 
+
+
+

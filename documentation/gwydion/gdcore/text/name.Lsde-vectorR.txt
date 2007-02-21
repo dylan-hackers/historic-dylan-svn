@@ -1,0 +1,23 @@
+Class: <SDE-vector>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module sde-vector#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<mutable-collection>#
+ - #<stretchy-collection>#
+ 
+
+

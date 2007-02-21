@@ -1,0 +1,27 @@
+Generic: directory-empty?
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of type-union(<file-system-locator>, <string>). 
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

@@ -1,0 +1,23 @@
+Constant: $minimum-integer
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+- #Module Extensions#
+
+
+Type:
+------------------------------
+#<integer>#
+
+
+Value:
+------------------------------
+-2147483648
+

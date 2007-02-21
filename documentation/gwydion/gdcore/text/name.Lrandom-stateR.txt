@@ -1,0 +1,23 @@
+Class: <random-state>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module simple-random#
+- #Module Random#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+

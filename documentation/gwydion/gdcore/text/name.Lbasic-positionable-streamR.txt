@@ -1,0 +1,29 @@
+Class: <basic-positionable-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<basic-stream>#
+ - #<positionable-stream>#
+ 
+
+Subclasses:
+------------------------------
+- #<file-stream>#
+- #<sequence-stream>#
+
+
+

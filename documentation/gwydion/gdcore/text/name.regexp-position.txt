@@ -1,0 +1,27 @@
+Function: regexp-position
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module regular-expressions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+arg - An instance of #<string>#. 
+start: - An instance of #<object>#. The default is 0.
+end: - An instance of #<object>#. The default is #f.
+case-sensitive: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of type-union(<false>, <integer>). 
+#rest more - Instances of type-union(<false>, <integer>). 
+
+
+

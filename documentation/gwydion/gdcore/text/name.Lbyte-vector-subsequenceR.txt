@@ -1,0 +1,22 @@
+Class: <byte-vector-subsequence>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module subseq#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- <vector-subsequence>
+ 
+
+

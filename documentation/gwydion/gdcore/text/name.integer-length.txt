@@ -1,0 +1,29 @@
+Generic: integer-length
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<general-integer>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+
+
+

@@ -1,0 +1,27 @@
+Class: <day/time-duration>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<duration>#
+ 
+
+Functions returning <day/time-duration>:
+------------------------------
+- #encode-day/time-duration#
+
+
+

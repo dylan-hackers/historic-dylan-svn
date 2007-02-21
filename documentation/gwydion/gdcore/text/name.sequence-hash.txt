@@ -1,0 +1,26 @@
+Function: sequence-hash
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module table-extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+arg - An instance of #<sequence>#. 
+arg - An instance of #<false>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+val - An instance of #<false>#. 
+
+
+

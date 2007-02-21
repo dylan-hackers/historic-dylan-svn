@@ -1,0 +1,18 @@
+Macro: collect-last-into
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module collectors#
+
+
+Definition:
+------------------------------
+:
+          function macro
+        
+
+

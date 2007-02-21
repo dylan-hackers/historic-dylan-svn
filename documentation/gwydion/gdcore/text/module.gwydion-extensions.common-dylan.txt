@@ -1,0 +1,15 @@
+Module: Module gwydion-extensions
+==============================
+
+The gwydion-extensions module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: gwydion-extensions names
+------------------------------
+- #float-decimal-digits#
+

@@ -1,0 +1,23 @@
+Module: Module plists
+==============================
+
+The plists module.
+
+
+Exported from:
+------------------------------
+#Library collections#
+
+
+Topic: plists names
+------------------------------
+- #do-put-property!#
+- #do-remove-property!#
+- #get-property#
+- #keyword-sequence#
+- #put-property!#
+- #remove-keywords#
+- #remove-property!#
+- #value-sequence#
+- #with-keywords-removed#
+

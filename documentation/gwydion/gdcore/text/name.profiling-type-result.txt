@@ -1,0 +1,31 @@
+Generic: profiling-type-result
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module simple-profiling#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object-table>#. 
+arg - An instance of #<symbol>#. 
+#all-keys - This function accepts any keyword argument.
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

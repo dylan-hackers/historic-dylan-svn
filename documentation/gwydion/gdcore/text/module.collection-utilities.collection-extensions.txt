@@ -1,0 +1,16 @@
+Module: Module collection-utilities
+==============================
+
+The collection-utilities module.
+
+
+Exported from:
+------------------------------
+#Library collection-extensions#
+
+
+Topic: collection-utilities names
+------------------------------
+- #key-exists?#
+- #singleton?#
+

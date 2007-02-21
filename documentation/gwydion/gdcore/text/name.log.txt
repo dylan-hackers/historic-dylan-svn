@@ -1,0 +1,28 @@
+Generic: log
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module transcendental#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<real>#. 
+base: - An instance of #<real>#. Required.
+
+
+Values:
+------------------------------
+val - An instance of #<float>#. 
+
+
+

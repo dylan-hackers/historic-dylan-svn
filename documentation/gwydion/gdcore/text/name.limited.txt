@@ -1,0 +1,29 @@
+Generic: limited
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<type>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<type>#. 
+
+
+

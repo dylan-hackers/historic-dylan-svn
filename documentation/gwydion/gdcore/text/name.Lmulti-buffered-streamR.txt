@@ -1,0 +1,33 @@
+Class: <multi-buffered-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete primary sealed
+
+
+Superclasses:
+------------------------------
+- #<file-stream>#
+ 
+
+Functions on <multi-buffered-stream>:
+------------------------------
+- #multi-buffered-stream-position-setter#
+- #read-4-aligned-bytes#
+- #read-4-aligned-bytes-as-word#
+- #read-8-aligned-bytes#
+- #write-4-aligned-bytes#
+- #write-4-aligned-bytes-from-word#
+- #write-8-aligned-bytes#
+
+
+

@@ -1,0 +1,22 @@
+Function: peek-argument-token
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module option-parser-protocol#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<argument-list-parser>#. 
+
+
+Values:
+------------------------------
+val - An instance of type-union(<false>, <argument-token>). 
+
+
+

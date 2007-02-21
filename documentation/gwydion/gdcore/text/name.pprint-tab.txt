@@ -1,0 +1,25 @@
+Generic: pprint-tab
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module pprint#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of type-union(singleton(#"section"), singleton(#"section-relative"), singleton(#"line-relative"), singleton(#"line")). 
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+arg - An instance of #<stream>#. 
+
+
+

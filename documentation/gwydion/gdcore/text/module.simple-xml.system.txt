@@ -1,0 +1,33 @@
+Module: Module simple-xml
+==============================
+
+The simple-xml module.
+
+
+Exported from:
+------------------------------
+#Library system#
+
+
+Topic: simple-xml names
+------------------------------
+- #<xml-document>#
+- #<xml-element>#
+- #<xml-error>#
+- #<xml-node>#
+- #document-element#
+- #document-element-setter#
+- #document-location#
+- #document-location-setter#
+- #node-attribute#
+- #node-attributes#
+- #node-attribute-setter#
+- #node-children#
+- #node-name#
+- #node-text#
+- #node-text-setter#
+- #read-xml-document#
+- #select-nodes#
+- #select-node-text#
+- #select-single-node#
+

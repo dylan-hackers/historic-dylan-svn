@@ -1,0 +1,31 @@
+Class: <file-system-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<physical-locator>#
+ 
+
+Subclasses:
+------------------------------
+- #<file-system-directory-locator>#
+- #<file-system-file-locator>#
+- #<macintosh-file-system-locator>#
+- #<microsoft-file-system-locator>#
+- #<posix-file-system-locator>#
+
+
+

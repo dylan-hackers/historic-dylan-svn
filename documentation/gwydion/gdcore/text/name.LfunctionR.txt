@@ -1,0 +1,94 @@
+Class: <function>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<generic-function>#
+- #<method>#
+
+
+Functions on <function>:
+------------------------------
+- #any?#
+- #apply#
+- #choose#
+- #choose-by#
+- #collection-hash#
+- #complement#
+- #compose#
+- #conjoin#
+- #curry#
+- #disjoin#
+- #do#
+- #do-directory#
+- #do-handlers#
+- #every?#
+- #find-element#
+- #find-key#
+- #foldl#
+- #foldr#
+- #function-arguments#
+- #function-return-values#
+- #map#
+- #map-as#
+- #map-into#
+- #on-exit#
+- #pair-do#
+- #pair-foldl#
+- #pair-foldr#
+- #partition#
+- #position#
+- #pprint-logical-block#
+- #rcurry#
+- #reduce#
+- #reduce1#
+- #reduce-l#
+- #reduce-r#
+- #replace-elements!#
+- #sequence-hash#
+- #tabulate#
+- #unfold#
+- #unfold/tail#
+- #values-hash#
+
+
+Functions returning <function>:
+------------------------------
+- #always#
+- #backward-iteration-protocol#
+- #collector-protocol#
+- #compose#
+- #conjoin#
+- #curry#
+- #disjoin#
+- #forward-iteration-protocol#
+- #key-test#
+- #make-regexp-positioner#
+- #make-regexp-replacer#
+- #make-splitter#
+- #make-translator#
+- #rcurry#
+- #table-protocol#
+
+
+

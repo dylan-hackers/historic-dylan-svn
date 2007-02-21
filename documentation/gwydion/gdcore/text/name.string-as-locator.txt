@@ -1,0 +1,28 @@
+Generic: string-as-locator
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of subclass(<locator>). 
+arg - An instance of #<string>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<locator>#. 
+
+
+

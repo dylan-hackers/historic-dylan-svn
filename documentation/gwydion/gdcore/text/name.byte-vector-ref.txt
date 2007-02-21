@@ -1,0 +1,23 @@
+Function: byte-vector-ref
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module byte-vector#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<byte-vector>#. 
+arg - An instance of #<integer>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

@@ -1,0 +1,29 @@
+Class: <complex>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<number>#
+ 
+
+Subclasses:
+------------------------------
+- #<real>#
+
+
+

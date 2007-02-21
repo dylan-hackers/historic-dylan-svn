@@ -1,0 +1,22 @@
+Class: <site-settings>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module settings#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<settings>#
+ 
+
+

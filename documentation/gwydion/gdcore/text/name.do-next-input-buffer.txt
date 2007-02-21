@@ -1,0 +1,29 @@
+Generic: do-next-input-buffer
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+wait?: - An instance of #<object>#. The default is #f.
+bytes: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of type-union(<false>, <buffer>). 
+
+
+

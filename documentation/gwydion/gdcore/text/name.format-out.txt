@@ -1,0 +1,46 @@
+Generic: format-out
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module format-out#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+#rest more - Instances of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+
+Function: format-out
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module simple-io#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+#rest more - Instances of #<object>#. 
+
+
+

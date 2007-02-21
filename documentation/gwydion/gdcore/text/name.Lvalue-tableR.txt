@@ -1,0 +1,31 @@
+Class: <value-table>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module table-extensions#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<table>#
+ 
+
+Subclasses:
+------------------------------
+- #<byte-string-table>#
+- #<case-insensitive-byte-string-table>#
+- #<case-insensitive-string-table>#
+- #<string-table>#
+
+
+

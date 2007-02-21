@@ -1,0 +1,27 @@
+Generic: read-xml-document
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module simple-xml#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

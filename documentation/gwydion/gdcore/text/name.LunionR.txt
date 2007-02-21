@@ -1,0 +1,22 @@
+Class: <union>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module Introspection#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<type>#
+ 
+
+

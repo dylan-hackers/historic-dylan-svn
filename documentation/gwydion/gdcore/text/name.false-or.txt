@@ -1,0 +1,24 @@
+Function: false-or
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<type>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<type>#. 
+
+
+

@@ -1,0 +1,31 @@
+Generic: read-through
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+arg - An instance of #<object>#. 
+on-end-of-stream: - An instance of #<object>#. 
+test: - An instance of #<object>#. The default is ==.
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+val - An instance of #<boolean>#. 
+
+
+

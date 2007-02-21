@@ -1,0 +1,59 @@
+Generic: split
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+arg - An instance of #<character>#. 
+start: - An instance of #<integer>#. Required.
+end: - An instance of #<integer>#. Required.
+trim?: - An instance of #<boolean>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<sequence>#. 
+
+
+
+Function: split
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module regular-expressions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+arg - An instance of #<string>#. 
+count: - An instance of #<object>#. The default is #f.
+remove-empty-items: - An instance of #<object>#. The default is #t.
+start: - An instance of #<object>#. The default is 0.
+end: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+#rest more - Instances of #<string>#. 
+
+
+

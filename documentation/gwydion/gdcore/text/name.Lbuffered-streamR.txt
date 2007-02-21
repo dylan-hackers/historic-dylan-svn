@@ -1,0 +1,33 @@
+Class: <buffered-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- #<basic-stream>#
+ 
+
+Functions on <buffered-stream>:
+------------------------------
+- #get-input-buffer#
+- #get-output-buffer#
+- #input-available-at-source?#
+- #next-input-buffer#
+- #next-output-buffer#
+- #release-input-buffer#
+- #release-output-buffer#
+
+
+

@@ -1,0 +1,23 @@
+Generic: print-object
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module print#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<stream>#. 
+
+
+

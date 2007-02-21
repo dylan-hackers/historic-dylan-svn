@@ -1,0 +1,22 @@
+Constant: $low-priority
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+-2
+

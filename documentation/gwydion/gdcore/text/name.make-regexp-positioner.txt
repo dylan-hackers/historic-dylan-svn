@@ -1,0 +1,26 @@
+Function: make-regexp-positioner
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module regular-expressions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+byte-characters-only: - An instance of #<object>#. The default is #f.
+need-marks: - An instance of #<object>#. The default is #t.
+maximum-compile: - An instance of #<object>#. The default is #f.
+case-sensitive: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<function>#. 
+
+
+

@@ -1,0 +1,29 @@
+Generic: node-attribute-setter
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module simple-xml#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<object>#. 
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

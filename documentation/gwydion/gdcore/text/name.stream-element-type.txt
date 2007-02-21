@@ -1,0 +1,28 @@
+Generic: stream-element-type
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<type>#. 
+
+
+

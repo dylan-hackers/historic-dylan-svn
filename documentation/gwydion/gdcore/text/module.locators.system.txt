@@ -1,0 +1,69 @@
+Module: Module locators
+==============================
+
+The locators module.
+
+
+Exported from:
+------------------------------
+#Library system#
+
+
+Topic: locators names
+------------------------------
+- #<cgi-url>#
+- #<directory-locator>#
+- #<directory-url>#
+- #<file-index-url>#
+- #<file-locator>#
+- #<file-server>#
+- #<file-url>#
+- #<ftp-server>#
+- #<http-server>#
+- #<https-server>#
+- #<locator>#
+- #<locator-defaults>#
+- #<locator-error>#
+- #<mail-to-locator>#
+- #<native-directory-locator>#
+- #<native-file-locator>#
+- #<physical-locator>#
+- #<server-locator>#
+- #<server-url>#
+- #<url>#
+- #<web-locator>#
+- #file-parser#
+- #ftp-parser#
+- #http-parser#
+- #https-parser#
+- #list-locator#
+- #locator-address#
+- #locator-as-string#
+- #locator-base#
+- #locator-cgi-string#
+- #locator-default-port#
+- #locator-directory#
+- #locator-error#
+- #locator-extension#
+- #locator-file#
+- #locator-host#
+- #locator-index#
+- #locator-name#
+- #locator-password#
+- #locator-path#
+- #locator-port#
+- #locator-protocol#
+- #locator-relative?#
+- #locator-server#
+- #locator-username#
+- #locator-volume#
+- #mailto-parser#
+- #merge-locators#
+- #open-locator#
+- #relative-locator#
+- #simplify-locator#
+- #string-as-locator#
+- #subdirectory-locator#
+- #supports-list-locator?#
+- #supports-open-locator?#
+

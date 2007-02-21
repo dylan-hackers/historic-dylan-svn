@@ -1,0 +1,17 @@
+Library: Library collection-extensions
+==============================
+
+The collection-extensions library.
+
+
+Topic: collection-extensions modules
+------------------------------
+- #Module collection-utilities#
+- #Module heap#
+- #Module sde-vector#
+- #Module self-organizing-list#
+- #Module sequence-diff#
+- #Module sequence-utilities#
+- #Module subseq#
+- #Module vector-search#
+

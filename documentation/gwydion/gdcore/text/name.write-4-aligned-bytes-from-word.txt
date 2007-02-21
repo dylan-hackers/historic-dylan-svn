@@ -1,0 +1,18 @@
+Function: write-4-aligned-bytes-from-word
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<multi-buffered-stream>#. 
+arg - An instance of #<machine-word>#. 
+
+
+

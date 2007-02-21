@@ -1,0 +1,30 @@
+Class: <file-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- <single-buffered-stream>
+ - <external-stream>
+ - #<basic-positionable-stream>#
+ 
+
+Subclasses:
+------------------------------
+- #<byte-file-stream>#
+- #<multi-buffered-stream>#
+
+
+

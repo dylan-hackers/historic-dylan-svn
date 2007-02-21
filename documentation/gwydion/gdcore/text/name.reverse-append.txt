@@ -1,0 +1,28 @@
+Generic: reverse-append
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<sequence>#. 
+arg - An instance of #<sequence>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<sequence>#. 
+
+
+

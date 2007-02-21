@@ -1,0 +1,37 @@
+Class: <pair>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<list>#
+ 
+
+Functions on <pair>:
+------------------------------
+- #head-setter#
+- #last-pair#
+- #tail-setter#
+
+
+Functions returning <pair>:
+------------------------------
+- #last-pair#
+- #pair#
+
+
+

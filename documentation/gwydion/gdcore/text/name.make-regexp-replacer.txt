@@ -1,0 +1,24 @@
+Function: make-regexp-replacer
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module regular-expressions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+replace-with: - An instance of #<object>#. The default is #f.
+case-sensitive: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<function>#. 
+
+
+

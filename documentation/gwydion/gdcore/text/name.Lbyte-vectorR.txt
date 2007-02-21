@@ -1,0 +1,31 @@
+Class: <byte-vector>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module byte-vector#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<simple-vector>#
+ 
+
+Functions on <byte-vector>:
+------------------------------
+- #byte-vector-ref#
+- #byte-vector-ref-setter#
+
+
+

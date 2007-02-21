@@ -1,0 +1,20 @@
+Constant: $single-pi
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module transcendental#
+
+
+Type:
+------------------------------
+#<single-float>#
+
+
+Value:
+------------------------------
+3.1415925
+

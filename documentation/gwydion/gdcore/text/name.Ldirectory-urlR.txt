@@ -1,0 +1,23 @@
+Class: <directory-url>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<directory-locator>#
+ - #<url>#
+ 
+
+

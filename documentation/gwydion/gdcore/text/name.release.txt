@@ -1,0 +1,24 @@
+Generic: release
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<synchronization>#. 
+
+
+

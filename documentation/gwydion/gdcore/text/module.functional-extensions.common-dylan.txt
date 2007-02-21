@@ -1,0 +1,20 @@
+Module: Module functional-extensions
+==============================
+
+The functional-extensions module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: functional-extensions names
+------------------------------
+- #copy-down-method-definer#
+- #element-error#
+- #element-range-check#
+- #find-value#
+- #with-bounds-checks#
+- #without-bounds-checks#
+

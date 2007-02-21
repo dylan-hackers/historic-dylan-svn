@@ -1,0 +1,35 @@
+Class: <date>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<number>#
+ 
+
+Functions on <date>:
+------------------------------
+- #as-iso8601-string#
+- #date-day-of-week#
+- #decode-date#
+
+
+Functions returning <date>:
+------------------------------
+- #current-date#
+- #encode-date#
+
+
+

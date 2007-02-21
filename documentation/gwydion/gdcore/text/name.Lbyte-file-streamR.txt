@@ -1,0 +1,28 @@
+Class: <byte-file-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete free open
+
+
+Make keywords:
+------------------------------
+encoding: - An instance of #<object>#. 
+
+
+Superclasses:
+------------------------------
+- #<file-stream>#
+ - <byte-element-stream>
+ 
+
+

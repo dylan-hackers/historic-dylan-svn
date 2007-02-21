@@ -1,0 +1,17 @@
+Function: release-input-buffer
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<buffered-stream>#. 
+
+
+

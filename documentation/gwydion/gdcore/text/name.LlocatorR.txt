@@ -1,0 +1,52 @@
+Class: <locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module locators-protocol#
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<locator-defaults>#
+ 
+
+Subclasses:
+------------------------------
+- #<physical-locator>#
+- #<server-locator>#
+- #<web-locator>#
+
+
+Functions on <locator>:
+------------------------------
+- #list-locator#
+- #locator-as-string#
+- #locator-base#
+- #locator-directory#
+- #locator-extension#
+- #locator-host#
+- #locator-path#
+- #locator-relative?#
+- #locator-server#
+- #locator-volume#
+- #open-locator#
+- #supports-list-locator?#
+- #supports-open-locator?#
+
+
+Functions returning <locator>:
+------------------------------
+- #string-as-locator#
+
+
+

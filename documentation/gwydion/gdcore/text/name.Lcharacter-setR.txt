@@ -1,0 +1,28 @@
+Class: <character-set>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module string-hacking#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<collection>#
+ 
+
+Subclasses:
+------------------------------
+- #<case-insensitive-character-set>#
+- #<case-sensitive-character-set>#
+
+
+

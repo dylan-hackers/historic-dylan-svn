@@ -1,0 +1,23 @@
+Class: <posix-file-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<file-system-file-locator>#
+ - #<posix-file-system-locator>#
+ 
+
+

@@ -1,0 +1,19 @@
+Macro: dynamic-bind
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module threads#
+
+
+Definition:
+------------------------------
+:
+          statement macro
+        
+
+

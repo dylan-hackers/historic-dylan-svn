@@ -1,0 +1,33 @@
+Generic: print-to-string
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module print#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+#rest more - Instances of #<object>#. 
+level: - An instance of #<object>#. The default is #f.
+length: - An instance of #<object>#. The default is #f.
+circle?: - An instance of #<object>#. The default is #f.
+pretty?: - An instance of #<object>#. The default is #f.
+escape?: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<string>#. 
+
+
+

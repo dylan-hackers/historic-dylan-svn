@@ -1,0 +1,22 @@
+Class: <xml-element>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module simple-xml#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<xml-node>#
+ 
+
+

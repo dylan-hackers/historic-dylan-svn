@@ -1,0 +1,99 @@
+Class: <stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<closable-object>#
+ 
+
+Subclasses:
+------------------------------
+- #<basic-stream>#
+- #<positionable-stream>#
+
+
+Functions on <stream>:
+------------------------------
+- #adjust-stream-position#
+- #discard-input#
+- #discard-output#
+- #do-force-output-buffers#
+- #do-get-input-buffer#
+- #do-get-output-buffer#
+- #do-input-available-at-source?#
+- #do-next-input-buffer#
+- #do-next-output-buffer#
+- #do-release-input-buffer#
+- #do-release-output-buffer#
+- #force-output#
+- #force-output-buffers#
+- #format#
+- #inner-stream-setter#
+- #lock-stream#
+- #new-line#
+- #peek#
+- #pprint-indent#
+- #pprint-logical-block#
+- #pprint-newline#
+- #pprint-tab#
+- #print#
+- #print-message#
+- #print-object#
+- #read#
+- #read-character#
+- #read-element#
+- #read-into!#
+- #read-line#
+- #read-line-into!#
+- #read-text#
+- #read-text-into!#
+- #read-through#
+- #read-to#
+- #read-to-end#
+- #skip-through#
+- #stream-at-end?#
+- #stream-contents#
+- #stream-contents-as#
+- #stream-element-type#
+- #stream-input-available?#
+- #stream-limit#
+- #stream-locked?#
+- #stream-open?#
+- #stream-position#
+- #stream-position-setter#
+- #stream-size#
+- #synchronize-output#
+- #unlock-stream#
+- #unread-element#
+- #wait-for-io-completion#
+- #write#
+- #write-element#
+- #write-line#
+- #write-text#
+
+
+Functions returning <stream>:
+------------------------------
+- #inner-stream#
+- #inner-stream-setter#
+- #open-file-stream#
+- #open-locator#
+
+
+

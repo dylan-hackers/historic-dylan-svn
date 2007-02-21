@@ -1,0 +1,25 @@
+Class: <string-table>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module table-extensions#
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module table-extensions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<value-table>#
+ 
+
+

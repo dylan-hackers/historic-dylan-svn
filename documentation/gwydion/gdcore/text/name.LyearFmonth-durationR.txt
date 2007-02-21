@@ -1,0 +1,27 @@
+Class: <year/month-duration>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<duration>#
+ 
+
+Functions returning <year/month-duration>:
+------------------------------
+- #encode-year/month-duration#
+
+
+

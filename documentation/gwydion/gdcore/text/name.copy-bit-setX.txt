@@ -1,0 +1,18 @@
+Function: copy-bit-set!
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module bit-set#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<bit-set>#. 
+arg - An instance of #<bit-set>#. 
+
+
+

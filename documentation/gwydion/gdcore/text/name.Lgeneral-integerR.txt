@@ -1,0 +1,61 @@
+Class: <general-integer>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<rational>#
+ 
+
+Subclasses:
+------------------------------
+- #<double-integer>#
+- #<extended-integer>#
+- #<integer>#
+
+
+Functions on <general-integer>:
+------------------------------
+- #ash#
+- #gcd#
+- #integer-length#
+- #lcm#
+- #logbit?#
+- #lognot#
+- #ratio#
+- #write-integer#
+
+
+Functions returning <general-integer>:
+------------------------------
+- #ash#
+- #ceiling#
+- #ceiling/#
+- #floor#
+- #floor/#
+- #gcd#
+- #lcm#
+- #logand#
+- #logior#
+- #lognot#
+- #logxor#
+- #round#
+- #round/#
+- #truncate#
+- #truncate/#
+
+
+

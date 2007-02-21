@@ -1,0 +1,15 @@
+Module: Module concatenated-streams
+==============================
+
+The concatenated-streams module.
+
+
+Exported from:
+------------------------------
+#Library stream-extensions#
+
+
+Topic: concatenated-streams names
+------------------------------
+- #<concatenated-stream>#
+

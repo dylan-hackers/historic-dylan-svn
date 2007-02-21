@@ -1,0 +1,21 @@
+Module: Module sequence-diff
+==============================
+
+The sequence-diff module.
+
+
+Exported from:
+------------------------------
+#Library collection-extensions#
+
+
+Topic: sequence-diff names
+------------------------------
+- #<delete-entry>#
+- #<insert-entry>#
+- #<script-entry>#
+- #dest-index#
+- #element-count#
+- #sequence-diff#
+- #source-index#
+

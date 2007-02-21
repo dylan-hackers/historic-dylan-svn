@@ -1,0 +1,31 @@
+Class: <simple-object-vector>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<simple-vector>#
+ 
+
+Functions returning <simple-object-vector>:
+------------------------------
+- #application-arguments#
+- #function-return-values#
+- #vector#
+
+
+

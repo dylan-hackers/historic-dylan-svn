@@ -1,0 +1,17 @@
+Function: login-group
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module operating-system#
+
+
+Values:
+------------------------------
+val - An instance of type-union(<string>, <false>). 
+
+
+

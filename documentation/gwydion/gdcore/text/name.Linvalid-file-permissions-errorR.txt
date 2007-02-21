@@ -1,0 +1,22 @@
+Class: <invalid-file-permissions-error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<file-error>#
+ 
+
+

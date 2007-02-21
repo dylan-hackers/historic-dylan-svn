@@ -1,0 +1,24 @@
+Generic: condition-format
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<string>#. 
+#rest more - Instances of #<object>#. 
+
+
+

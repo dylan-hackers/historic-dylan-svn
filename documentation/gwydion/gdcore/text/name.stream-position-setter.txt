@@ -1,0 +1,29 @@
+Generic: stream-position-setter
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<stream>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

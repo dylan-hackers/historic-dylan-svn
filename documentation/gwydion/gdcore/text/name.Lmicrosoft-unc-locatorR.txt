@@ -1,0 +1,22 @@
+Class: <microsoft-unc-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<microsoft-server-locator>#
+ 
+
+

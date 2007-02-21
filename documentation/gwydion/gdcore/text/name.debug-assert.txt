@@ -1,0 +1,20 @@
+Macro: debug-assert
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Definition:
+------------------------------
+:
+          function macro
+        
+
+

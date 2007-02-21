@@ -1,0 +1,43 @@
+Class: <option-parser>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module getopt#
+
+
+Modifiers:
+------------------------------
+abstract primary open
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<keyed-option-parser>#
+- #<negative-option-parser>#
+- #<optional-parameter-option-parser>#
+- #<parameter-option-parser>#
+- #<repeated-parameter-option-parser>#
+
+
+Functions on <option-parser>:
+------------------------------
+- #add-option-parser#
+- #parse-option#
+- #reset-option-parser#
+
+
+Functions returning <option-parser>:
+------------------------------
+- #option-parser-by-long-name#
+
+
+

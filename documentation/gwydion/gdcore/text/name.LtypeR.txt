@@ -1,0 +1,60 @@
+Class: <type>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Subclasses:
+------------------------------
+- #<byte-character-type>#
+- #<class>#
+- #<direct-instance>#
+- #<singleton>#
+- #<subclass>#
+- #<union>#
+
+
+Functions on <type>:
+------------------------------
+- #as#
+- #check-type#
+- #concatenate-as#
+- #false-or#
+- #instance?#
+- #limited#
+- #make#
+- #map-as#
+- #stream-contents-as#
+- #subtype?#
+
+
+Functions returning <type>:
+------------------------------
+- #element-type#
+- #false-or#
+- #limited#
+- #one-of#
+- #stream-element-type#
+- #type-for-copy#
+- #type-for-sequence-stream#
+- #type-union#
+
+
+

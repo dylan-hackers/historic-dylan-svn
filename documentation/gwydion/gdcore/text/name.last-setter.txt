@@ -1,0 +1,30 @@
+Generic: last-setter
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<mutable-sequence>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

@@ -1,0 +1,32 @@
+Generic: find-key
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<collection>#. 
+arg - An instance of #<function>#. 
+skip: - An instance of #<object>#. The default is #f.
+failure: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

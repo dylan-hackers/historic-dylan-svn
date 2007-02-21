@@ -1,0 +1,79 @@
+Class: <string>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<mutable-sequence>#
+ 
+
+Subclasses:
+------------------------------
+- #<byte-string>#
+- #<unicode-string>#
+
+
+Functions on <string>:
+------------------------------
+- #cerror#
+- #condition-format#
+- #create-application-event#
+- #create-directory#
+- #format#
+- #format-out#
+- #format-to-string#
+- #load-library#
+- #locator-error#
+- #make-regexp-positioner#
+- #make-regexp-replacer#
+- #make-splitter#
+- #make-translator#
+- #option-parser-by-long-name#
+- #option-present?-by-long-name#
+- #option-value-by-long-name#
+- #read-line-into!#
+- #read-text-into!#
+- #regexp-matches#
+- #regexp-position#
+- #regexp-replace#
+- #run-application#
+- #signal-application-event#
+- #split#
+- #string-as-locator#
+- #string-to-machine-word#
+- #tokenize-environment-variable#
+- #translate#
+- #write-line#
+- #write-text#
+
+
+Functions returning <string>:
+------------------------------
+- #as-iso8601-string#
+- #format-to-string#
+- #local-time-zone-name#
+- #locator-as-string#
+- #locator-protocol#
+- #machine-word-to-string#
+- #number-to-string#
+- #print-to-string#
+- #regexp-replace#
+- #split#
+- #translate#
+
+
+

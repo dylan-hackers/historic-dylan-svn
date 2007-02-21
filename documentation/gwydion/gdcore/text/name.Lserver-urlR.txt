@@ -1,0 +1,36 @@
+Class: <server-url>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<server-locator>#
+ - #<url>#
+ 
+
+Subclasses:
+------------------------------
+- #<file-server>#
+- #<ftp-server>#
+- #<http-server>#
+- #<https-server>#
+
+
+Functions on <server-url>:
+------------------------------
+- #locator-default-port#
+
+
+

@@ -1,0 +1,30 @@
+Generic: buffer-subsequence
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<buffer>#. 
+arg - An instance of subclass(<mutable-sequence>). 
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<mutable-sequence>#. 
+
+
+

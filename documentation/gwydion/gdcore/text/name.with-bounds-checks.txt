@@ -1,0 +1,18 @@
+Macro: with-bounds-checks
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module functional-extensions#
+
+
+Definition:
+------------------------------
+:
+          statement macro
+        
+
+

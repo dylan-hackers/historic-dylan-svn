@@ -1,0 +1,22 @@
+Function: heap-object-at
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module Introspection#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<raw-pointer>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

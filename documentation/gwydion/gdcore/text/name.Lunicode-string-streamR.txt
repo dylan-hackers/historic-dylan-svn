@@ -1,0 +1,22 @@
+Class: <unicode-string-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<string-stream>#
+ 
+
+

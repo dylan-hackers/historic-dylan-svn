@@ -1,0 +1,22 @@
+Class: <simple-object-table>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<object-table>#
+ 
+
+

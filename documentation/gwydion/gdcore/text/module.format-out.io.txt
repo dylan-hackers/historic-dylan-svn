@@ -1,0 +1,15 @@
+Module: Module format-out
+==============================
+
+The format-out module.
+
+
+Exported from:
+------------------------------
+#Library io#
+
+
+Topic: format-out names
+------------------------------
+- #format-out#
+

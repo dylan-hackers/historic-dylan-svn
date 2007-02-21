@@ -1,0 +1,18 @@
+Function: current-timestamp
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+val - An instance of #<integer>#. 
+
+
+

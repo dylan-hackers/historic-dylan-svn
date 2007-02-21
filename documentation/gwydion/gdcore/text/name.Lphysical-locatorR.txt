@@ -1,0 +1,45 @@
+Class: <physical-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module functional-objects-extras#
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<locator>#
+ 
+
+Subclasses:
+------------------------------
+- #<directory-locator>#
+- #<file-locator>#
+- #<file-system-locator>#
+- #<url>#
+
+
+Functions on <physical-locator>:
+------------------------------
+- #merge-locators#
+- #relative-locator#
+- #simplify-locator#
+
+
+Functions returning <physical-locator>:
+------------------------------
+- #merge-locators#
+- #relative-locator#
+- #simplify-locator#
+
+
+

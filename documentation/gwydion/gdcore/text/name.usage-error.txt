@@ -1,0 +1,12 @@
+Function: usage-error
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module option-parser-protocol#
+
+
+

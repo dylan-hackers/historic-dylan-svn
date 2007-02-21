@@ -1,0 +1,20 @@
+Constant: <day-of-week>
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module date#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+type-union(singleton(#"monday"), singleton(#"thursday"), singleton(#"tuesday"), singleton(#"friday"), singleton(#"saturday"), singleton(#"wednesday"), singleton(#"sunday"))
+

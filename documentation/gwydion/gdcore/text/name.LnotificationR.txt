@@ -1,0 +1,29 @@
+Class: <notification>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<synchronization>#
+ 
+
+Functions on <notification>:
+------------------------------
+- #release-all#
+
+
+

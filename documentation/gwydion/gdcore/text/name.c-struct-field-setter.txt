@@ -1,0 +1,18 @@
+Macro: c-struct-field-setter
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Definition:
+------------------------------
+:
+          function macro
+        
+
+

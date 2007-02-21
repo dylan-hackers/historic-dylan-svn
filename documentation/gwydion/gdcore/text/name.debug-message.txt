@@ -1,0 +1,20 @@
+Function: debug-message
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<byte-string>#. 
+#rest more - Instances of #<object>#. 
+
+
+

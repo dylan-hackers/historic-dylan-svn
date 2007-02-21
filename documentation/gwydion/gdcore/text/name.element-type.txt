@@ -1,0 +1,28 @@
+Generic: element-type
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<type>#. 
+val - An instance of #<boolean>#. 
+
+
+

@@ -1,0 +1,31 @@
+Generic: truncate/
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<real>#. 
+arg - An instance of #<real>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<general-integer>#. 
+val - An instance of #<real>#. 
+
+
+

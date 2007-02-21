@@ -1,0 +1,39 @@
+Class: <error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<serious-condition>#
+ 
+
+Subclasses:
+------------------------------
+- #<count-exceeded-error>#
+- #<date-arithmetic-error>#
+- #<file-system-error>#
+- #<illegal-regexp>#
+- #<locator-error>#
+- #<not-owned-error>#
+- #<sealed-object-error>#
+- #<simple-error>#
+- #<stream-error>#
+- #<type-error>#
+- #<xml-error>#
+
+
+

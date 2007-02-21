@@ -1,0 +1,28 @@
+Generic: condition-to-string
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<condition>#. 
+
+
+Values:
+------------------------------
+val - An instance of type-union(<string>, <false>). 
+
+
+

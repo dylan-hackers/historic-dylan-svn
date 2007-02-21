@@ -1,0 +1,22 @@
+Constant: $minimum-single-float-exponent
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Type:
+------------------------------
+#<integer>#
+
+
+Value:
+------------------------------
+-125
+

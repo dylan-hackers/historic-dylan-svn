@@ -1,0 +1,33 @@
+Class: <stream-error>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+concrete free open
+
+
+Superclasses:
+------------------------------
+- #<error>#
+ - #<format-string-condition>#
+ 
+
+Subclasses:
+------------------------------
+- #<end-of-stream-error>#
+- #<stream-closed-error>#
+- #<stream-not-readable>#
+- #<stream-not-writable>#
+- #<stream-position-error>#
+
+
+

@@ -1,0 +1,39 @@
+Class: <array>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<mutable-sequence>#
+ 
+
+Subclasses:
+------------------------------
+- #<vector>#
+
+
+Functions on <array>:
+------------------------------
+- #aref#
+- #aref-setter#
+- #dimension#
+- #dimensions#
+- #rank#
+- #row-major-index#
+
+
+

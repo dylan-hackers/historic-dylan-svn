@@ -1,0 +1,34 @@
+Class: <generic-function>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<function>#
+ 
+
+Functions on <generic-function>:
+------------------------------
+- #add-method#
+- #find-method#
+- #generic-function-mandatory-keywords#
+- #remove-method#
+- #slot-initialized?#
+- #sorted-applicable-methods#
+
+
+

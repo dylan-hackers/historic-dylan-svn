@@ -1,0 +1,23 @@
+Function: xpair
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<list>#. 
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<list>#. 
+
+
+

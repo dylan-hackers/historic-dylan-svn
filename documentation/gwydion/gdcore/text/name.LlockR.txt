@@ -1,0 +1,30 @@
+Class: <lock>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<synchronization>#
+ 
+
+Subclasses:
+------------------------------
+- #<exclusive-lock>#
+- #<semaphore>#
+
+
+

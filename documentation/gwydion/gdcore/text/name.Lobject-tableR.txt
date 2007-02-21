@@ -1,0 +1,36 @@
+Class: <object-table>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<table>#
+ 
+
+Subclasses:
+------------------------------
+- #<simple-object-table>#
+
+
+Functions on <object-table>:
+------------------------------
+- #profiling-type-result#
+- #start-profiling-type#
+- #stop-profiling-type#
+
+
+

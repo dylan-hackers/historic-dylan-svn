@@ -1,0 +1,22 @@
+Function: heads
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<list>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<list>#. 
+
+
+

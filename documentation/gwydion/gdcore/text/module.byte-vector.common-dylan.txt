@@ -1,0 +1,20 @@
+Module: Module byte-vector
+==============================
+
+The byte-vector module.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+Topic: byte-vector names
+------------------------------
+- #<byte>#
+- #<byte-vector>#
+- #byte-vector-fill#
+- #byte-vector-ref#
+- #byte-vector-ref-setter#
+- #copy-bytes#
+

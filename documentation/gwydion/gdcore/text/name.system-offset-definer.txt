@@ -1,0 +1,18 @@
+Macro: system-offset-definer
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module operating-system#
+
+
+Definition:
+------------------------------
+:
+          list-style define macro
+        
+
+

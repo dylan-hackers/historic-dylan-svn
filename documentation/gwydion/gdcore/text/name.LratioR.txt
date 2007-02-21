@@ -1,0 +1,27 @@
+Class: <ratio>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed functional
+
+
+Superclasses:
+------------------------------
+- #<rational>#
+ 
+
+Functions returning <ratio>:
+------------------------------
+- #ratio#
+
+
+

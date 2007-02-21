@@ -1,0 +1,22 @@
+Class: <indenting-stream>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module indenting-streams#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<wrapper-stream>#
+ 
+
+

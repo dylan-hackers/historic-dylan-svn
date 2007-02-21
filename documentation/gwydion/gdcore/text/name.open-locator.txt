@@ -1,0 +1,29 @@
+Generic: open-locator
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module locators-protocol#
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<locator>#. 
+#all-keys - This function accepts any keyword argument.
+
+
+Values:
+------------------------------
+val - An instance of #<stream>#. 
+
+
+

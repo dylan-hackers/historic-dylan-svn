@@ -1,0 +1,19 @@
+Macro: copy-down-method-definer
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module functional-extensions#
+- #Module Extensions#
+
+
+Definition:
+------------------------------
+:
+          list-style define macro
+        
+
+

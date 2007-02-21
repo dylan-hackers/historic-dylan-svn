@@ -1,0 +1,30 @@
+Function: read-8-aligned-bytes
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module file-system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<multi-buffered-stream>#. 
+on-end-of-stream: - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+val - An instance of #<integer>#. 
+val - An instance of #<integer>#. 
+val - An instance of #<integer>#. 
+val - An instance of #<integer>#. 
+val - An instance of #<integer>#. 
+val - An instance of #<integer>#. 
+val - An instance of #<integer>#. 
+
+
+

@@ -1,0 +1,22 @@
+Function: signal-application-event
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module operating-system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

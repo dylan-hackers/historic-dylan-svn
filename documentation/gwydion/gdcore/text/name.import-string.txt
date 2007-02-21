@@ -1,0 +1,22 @@
+Function: import-string
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<raw-pointer>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<byte-string>#. 
+
+
+

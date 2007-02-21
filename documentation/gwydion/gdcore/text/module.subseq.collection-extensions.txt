@@ -1,0 +1,17 @@
+Module: Module subseq
+==============================
+
+The subseq module.
+
+
+Exported from:
+------------------------------
+#Library collection-extensions#
+
+
+Topic: subseq names
+------------------------------
+- #<byte-vector-subsequence>#
+- #<subsequence>#
+- #subsequence#
+

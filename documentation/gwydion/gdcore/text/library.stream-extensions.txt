@@ -1,0 +1,12 @@
+Library: Library stream-extensions
+==============================
+
+The stream-extensions library.
+
+
+Topic: stream-extensions modules
+------------------------------
+- #Module concatenated-streams#
+- #Module indenting-streams#
+- #Module stream-extensions#
+

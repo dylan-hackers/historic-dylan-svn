@@ -1,0 +1,30 @@
+Generic: last
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<sequence>#. 
+default: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

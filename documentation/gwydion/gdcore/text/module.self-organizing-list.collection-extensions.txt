@@ -1,0 +1,15 @@
+Module: Module self-organizing-list
+==============================
+
+The self-organizing-list module.
+
+
+Exported from:
+------------------------------
+#Library collection-extensions#
+
+
+Topic: self-organizing-list names
+------------------------------
+- #<self-organizing-list>#
+

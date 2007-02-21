@@ -1,0 +1,28 @@
+Generic: element-range-check
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module functional-extensions#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

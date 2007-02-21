@@ -1,0 +1,38 @@
+Class: <directory-locator>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<physical-locator>#
+ 
+
+Subclasses:
+------------------------------
+- #<directory-url>#
+- #<file-system-directory-locator>#
+
+
+Functions on <directory-locator>:
+------------------------------
+- #subdirectory-locator#
+
+
+Functions returning <directory-locator>:
+------------------------------
+- #subdirectory-locator#
+
+
+

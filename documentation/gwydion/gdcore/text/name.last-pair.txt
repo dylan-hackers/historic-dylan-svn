@@ -1,0 +1,22 @@
+Function: last-pair
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module sequence-utilities#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<pair>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<pair>#. 
+
+
+

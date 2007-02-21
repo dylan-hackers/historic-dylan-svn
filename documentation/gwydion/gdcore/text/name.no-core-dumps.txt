@@ -1,0 +1,12 @@
+Function: no-core-dumps
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+

@@ -1,0 +1,47 @@
+Class: <mutable-collection>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<collection>#
+ 
+
+Subclasses:
+------------------------------
+- #<mutable-explicit-key-collection>#
+- #<mutable-sequence>#
+- #<SDE-vector>#
+
+
+Functions on <mutable-collection>:
+------------------------------
+- #element-setter#
+- #fill!#
+- #map-into#
+- #replace-elements!#
+
+
+Functions returning <mutable-collection>:
+------------------------------
+- #fill!#
+- #map-as#
+- #map-into#
+- #replace-elements!#
+
+
+

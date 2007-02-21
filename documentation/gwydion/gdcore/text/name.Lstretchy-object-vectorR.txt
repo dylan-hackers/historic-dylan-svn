@@ -1,0 +1,24 @@
+Class: <stretchy-object-vector>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- <builtin-stretchy-vector>
+ 
+
+

@@ -1,0 +1,20 @@
+Constant: $uninitialized
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module settings#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+{a <pair>}
+

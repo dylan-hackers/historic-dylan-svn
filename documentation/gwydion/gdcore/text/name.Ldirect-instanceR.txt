@@ -1,0 +1,27 @@
+Class: <direct-instance>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module Introspection#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<type>#
+ 
+
+Functions returning <direct-instance>:
+------------------------------
+- #direct-instance#
+
+
+

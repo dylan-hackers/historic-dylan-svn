@@ -1,0 +1,26 @@
+Function: function-arguments
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<function>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+val - An instance of #<boolean>#. 
+val - An instance of type-union(singleton(#f), <simple-object-vector>, singleton(#"all")). 
+
+
+

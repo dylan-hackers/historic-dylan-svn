@@ -1,0 +1,20 @@
+Constant: $os-variant
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module operating-system#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+unknown
+

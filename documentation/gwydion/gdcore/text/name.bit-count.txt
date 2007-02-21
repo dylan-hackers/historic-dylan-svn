@@ -1,0 +1,23 @@
+Function: bit-count
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module bit-vector#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<bit-vector>#. 
+bit-value: - An instance of limited(<integer>, min. The default is 1.
+
+
+Values:
+------------------------------
+val - An instance of #<integer>#. 
+
+
+

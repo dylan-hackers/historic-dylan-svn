@@ -1,0 +1,18 @@
+Module: Module substring-search
+==============================
+
+The substring-search module.
+
+
+Exported from:
+------------------------------
+#Library string-extensions#
+
+
+Topic: substring-search names
+------------------------------
+- #make-substring-positioner#
+- #make-substring-replacer#
+- #substring-position#
+- #substring-replace#
+

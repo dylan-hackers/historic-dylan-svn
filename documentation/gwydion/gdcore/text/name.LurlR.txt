@@ -1,0 +1,33 @@
+Class: <url>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+abstract free sealed
+
+
+Superclasses:
+------------------------------
+- #<web-locator>#
+ - #<physical-locator>#
+ 
+
+Subclasses:
+------------------------------
+- #<cgi-url>#
+- #<directory-url>#
+- #<file-index-url>#
+- #<file-url>#
+- #<mail-to-locator>#
+- #<server-url>#
+
+
+

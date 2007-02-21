@@ -1,0 +1,60 @@
+Class: <buffer>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<simple-vector>#
+ 
+
+Functions on <buffer>:
+------------------------------
+- #buffer-start#
+- #buffer-subsequence#
+- #copy-from-buffer!#
+- #copy-into-buffer!#
+
+
+
+Class: <buffer>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+concrete primary sealed
+
+
+Superclasses:
+------------------------------
+- #<vector>#
+ 
+
+Functions on <buffer>:
+------------------------------
+- #buffer-start#
+- #buffer-subsequence#
+- #copy-from-buffer!#
+- #copy-into-buffer!#
+
+
+

@@ -1,0 +1,29 @@
+Generic: stream-contents
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+clear-contents?: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<sequence>#. 
+
+
+

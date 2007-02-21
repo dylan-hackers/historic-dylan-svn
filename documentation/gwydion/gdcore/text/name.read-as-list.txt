@@ -1,0 +1,27 @@
+Generic: read-as-list
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module stream-extensions#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

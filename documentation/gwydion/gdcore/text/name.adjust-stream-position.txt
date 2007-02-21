@@ -1,0 +1,30 @@
+Generic: adjust-stream-position
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module streams-protocol#
+- #Module streams#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<stream>#. 
+arg - An instance of #<object>#. 
+from: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+
+
+

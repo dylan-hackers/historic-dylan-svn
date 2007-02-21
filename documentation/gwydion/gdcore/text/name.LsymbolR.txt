@@ -1,0 +1,34 @@
+Class: <symbol>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<object>#
+ 
+
+Functions on <symbol>:
+------------------------------
+- #file-property#
+- #file-property-setter#
+- #profiling-type-result#
+- #remove-value!#
+- #start-profiling-type#
+- #stop-profiling-type#
+
+
+

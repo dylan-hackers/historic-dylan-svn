@@ -1,0 +1,20 @@
+Macro: profiling
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module simple-profiling#
+
+
+Definition:
+------------------------------
+:
+          statement macro
+        
+
+

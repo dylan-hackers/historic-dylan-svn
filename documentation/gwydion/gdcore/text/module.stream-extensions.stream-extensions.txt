@@ -1,0 +1,15 @@
+Module: Module stream-extensions
+==============================
+
+The stream-extensions module.
+
+
+Exported from:
+------------------------------
+#Library stream-extensions#
+
+
+Topic: stream-extensions names
+------------------------------
+- #read-as-list#
+

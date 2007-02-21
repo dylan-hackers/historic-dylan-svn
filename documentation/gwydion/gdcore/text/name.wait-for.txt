@@ -1,0 +1,30 @@
+Generic: wait-for
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<synchronization>#. 
+timeout: - An instance of type-union(<false>, <real>). The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

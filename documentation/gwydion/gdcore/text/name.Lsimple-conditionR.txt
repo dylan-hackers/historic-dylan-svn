@@ -1,0 +1,32 @@
+Class: <simple-condition>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<format-string-condition>#
+ 
+
+Subclasses:
+------------------------------
+- #<file-system-error>#
+- #<simple-error>#
+- #<simple-restart>#
+- #<simple-warning>#
+
+
+

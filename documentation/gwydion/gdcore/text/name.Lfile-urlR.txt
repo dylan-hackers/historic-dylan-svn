@@ -1,0 +1,23 @@
+Class: <file-url>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<file-locator>#
+ - #<url>#
+ 
+
+

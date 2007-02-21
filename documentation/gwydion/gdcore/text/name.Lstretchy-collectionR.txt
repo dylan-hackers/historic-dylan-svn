@@ -1,0 +1,32 @@
+Class: <stretchy-collection>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<collection>#
+ 
+
+Subclasses:
+------------------------------
+- #<SDE-vector>#
+- #<self-organizing-list>#
+- #<stretchy-sequence>#
+- #<table>#
+
+
+

@@ -1,0 +1,28 @@
+Generic: list-locator
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module locators-protocol#
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<locator>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<sequence>#. 
+
+
+

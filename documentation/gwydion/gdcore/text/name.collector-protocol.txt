@@ -1,0 +1,32 @@
+Generic: collector-protocol
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module collectors#
+
+
+Modifiers:
+------------------------------
+open
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<object>#. 
+val - An instance of #<function>#. 
+val - An instance of #<function>#. 
+val - An instance of #<function>#. 
+val - An instance of #<function>#. 
+val - An instance of #<function>#. 
+
+
+

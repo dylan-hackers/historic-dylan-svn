@@ -1,0 +1,22 @@
+Constant: $single-float-epsilon
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Type:
+------------------------------
+#<single-float>#
+
+
+Value:
+------------------------------
+unknown
+

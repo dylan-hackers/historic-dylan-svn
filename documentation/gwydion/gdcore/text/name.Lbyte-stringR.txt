@@ -1,0 +1,44 @@
+Class: <byte-string>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<string>#
+ - #<vector>#
+ 
+
+Functions on <byte-string>:
+------------------------------
+- #debugger-message#
+- #debug-message#
+- #environment-variable#
+- #environment-variable-setter#
+- #export-string#
+- #getenv#
+- #join#
+- #system#
+
+
+Functions returning <byte-string>:
+------------------------------
+- #application-name#
+- #import-string#
+- #join#
+
+
+

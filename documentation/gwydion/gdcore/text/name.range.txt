@@ -1,0 +1,29 @@
+Function: range
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Arguments:
+------------------------------
+from: - An instance of #<object>#. The default is 0.
+by: - An instance of #<object>#. The default is 1.
+to: - An instance of #<object>#. The default is #f.
+above: - An instance of #<object>#. The default is #f.
+below: - An instance of #<object>#. The default is #f.
+size: - An instance of #<object>#. The default is #f.
+
+
+Values:
+------------------------------
+val - An instance of <builtin-range>. 
+
+
+

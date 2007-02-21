@@ -1,0 +1,23 @@
+Function: get-output-buffer
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module streams#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<buffered-stream>#. 
+bytes: - An instance of #<object>#. The default is 1.
+
+
+Values:
+------------------------------
+val - An instance of type-union(<false>, <buffer>). 
+
+
+

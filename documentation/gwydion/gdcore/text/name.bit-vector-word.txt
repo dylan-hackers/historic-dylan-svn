@@ -1,0 +1,28 @@
+Generic: bit-vector-word
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
+- #Module bit-vector#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of #<bit-vector>#. 
+arg - An instance of #<integer>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<machine-word>#. 
+
+
+

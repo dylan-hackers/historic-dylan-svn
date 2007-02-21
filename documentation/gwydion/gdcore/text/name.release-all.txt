@@ -1,0 +1,19 @@
+Function: release-all
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<notification>#. 
+
+
+

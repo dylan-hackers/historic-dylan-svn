@@ -1,0 +1,22 @@
+Function: make-splitter
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module regular-expressions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<string>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<function>#. 
+
+
+

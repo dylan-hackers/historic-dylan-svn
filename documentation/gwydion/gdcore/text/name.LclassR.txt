@@ -1,0 +1,43 @@
+Class: <class>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<type>#
+ 
+
+Subclasses:
+------------------------------
+- #<designator-class>#
+
+
+Functions on <class>:
+------------------------------
+- #add-option-parser-by-type#
+- #direct-instance#
+- #functional-==#
+- #subclass#
+
+
+Functions returning <class>:
+------------------------------
+- #lsv-data-type#
+- #object-class#
+
+
+

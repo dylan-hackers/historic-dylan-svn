@@ -1,0 +1,23 @@
+Function: unfound?
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<boolean>#. 
+
+
+

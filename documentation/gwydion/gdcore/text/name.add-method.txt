@@ -1,0 +1,26 @@
+Function: add-method
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<generic-function>#. 
+arg - An instance of #<method>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<method>#. 
+val - An instance of type-union(<method>, <false>). 
+
+
+

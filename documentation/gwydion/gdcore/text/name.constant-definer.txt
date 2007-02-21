@@ -1,0 +1,20 @@
+Macro: constant-definer
+==============================
+
+A macro.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module Dylan#
+- #Module Dylan#
+
+
+Definition:
+------------------------------
+:
+          list-style define macro
+        
+
+

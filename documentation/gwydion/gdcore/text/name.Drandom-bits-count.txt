@@ -1,0 +1,20 @@
+Constant: $random-bits-count
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module Random#
+
+
+Type:
+------------------------------
+#<integer>#
+
+
+Value:
+------------------------------
+unknown
+

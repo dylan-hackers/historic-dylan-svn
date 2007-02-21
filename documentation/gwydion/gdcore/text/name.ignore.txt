@@ -1,0 +1,19 @@
+Function: ignore
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Arguments:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

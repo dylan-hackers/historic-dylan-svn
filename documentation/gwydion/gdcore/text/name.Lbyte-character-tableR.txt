@@ -1,0 +1,22 @@
+Class: <byte-character-table>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module string-hacking#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<mutable-explicit-key-collection>#
+ 
+
+

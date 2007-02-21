@@ -1,0 +1,23 @@
+Class: <object-set>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module set#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+concrete primary sealed
+
+
+Superclasses:
+------------------------------
+- #<set>#
+ 
+
+

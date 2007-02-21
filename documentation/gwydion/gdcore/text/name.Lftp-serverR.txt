@@ -1,0 +1,22 @@
+Class: <ftp-server>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module locators#
+
+
+Modifiers:
+------------------------------
+concrete free sealed
+
+
+Superclasses:
+------------------------------
+- #<server-url>#
+ 
+
+

@@ -1,0 +1,22 @@
+Constant: $background-priority
+==============================
+
+A constant.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+-1
+

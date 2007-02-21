@@ -1,0 +1,19 @@
+Function: add-option-parser-by-type
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module getopt#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<argument-list-parser>#. 
+arg - An instance of #<class>#. 
+#rest more - Instances of #<object>#. 
+
+
+

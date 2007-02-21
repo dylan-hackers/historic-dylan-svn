@@ -1,0 +1,24 @@
+Function: byte-vector-ref-setter
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module byte-vector#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<object>#. 
+arg - An instance of #<byte-vector>#. 
+arg - An instance of #<integer>#. 
+
+
+Values:
+------------------------------
+#rest more - Instances of #<object>#. 
+
+
+

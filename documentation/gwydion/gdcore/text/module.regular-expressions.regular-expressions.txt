@@ -1,0 +1,25 @@
+Module: Module regular-expressions
+==============================
+
+The regular-expressions module.
+
+
+Exported from:
+------------------------------
+#Library regular-expressions#
+
+
+Topic: regular-expressions names
+------------------------------
+- #<illegal-regexp>#
+- #join#
+- #make-regexp-positioner#
+- #make-regexp-replacer#
+- #make-splitter#
+- #make-translator#
+- #regexp-matches#
+- #regexp-position#
+- #regexp-replace#
+- #split#
+- #translate#
+

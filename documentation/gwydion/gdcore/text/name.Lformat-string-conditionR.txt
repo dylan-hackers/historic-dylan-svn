@@ -1,0 +1,32 @@
+Class: <format-string-condition>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
+- #Module common-dylan#
+- #Module common-extensions#
+- #Module Extensions#
+
+
+Modifiers:
+------------------------------
+abstract free open
+
+
+Superclasses:
+------------------------------
+- #<condition>#
+ 
+
+Subclasses:
+------------------------------
+- #<locator-error>#
+- #<simple-condition>#
+- #<stream-error>#
+- #<xml-error>#
+
+
+

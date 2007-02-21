@@ -1,0 +1,26 @@
+Function: join-thread
+==============================
+
+A function.
+
+
+Exported from:
+------------------------------
+- #Module threads#
+- #Module Runtime-Threads#
+- #Module threads#
+
+
+Arguments:
+------------------------------
+arg - An instance of #<thread>#. 
+#rest more - Instances of #<object>#. 
+
+
+Values:
+------------------------------
+val - An instance of #<thread>#. 
+#rest more - Instances of #<object>#. 
+
+
+
