@@ -178,6 +178,55 @@ define function main () => ()
 end;
 
 begin
-  main();
+  main()
+end;
+
+/*
+begin
+  let class-graph = generate-class-graph("<string>");
+  let filename = generate-graph(class-graph, find-node(class-graph, "<object>"));
+  format-out("filename %s\n", filename);
+end;
+*/
+
+define function generate-class-graph (class-name :: <string>) => (res :: <graph>)
+  let project = find-project("code-browser");
+  open-project-compiler-database(project, 
+                                 warning-callback: callback-handler,
+                                 error-handler: callback-handler);
+  parse-project-source(project);
+
+  let library-object = project-library(project);
+  let module-object
+    = first(library-modules(project, project-library(project)));
+  let class
+    = find-environment-object(project, class-name, library: library-object, module: module-object);
+  let todo = make(<deque>);
+  let visited = make(<stretchy-vector>);
+  push(todo, class);
+  let graph = make(<graph>);
+
+  local method get-class-name (class)
+          split(environment-object-display-name(project, class, #f), ':')[0];
+        end;
+  while (todo.size > 0)
+    let class = pop(todo);
+    let class-name = get-class-name(class);
+    let class-node = find-node(graph, class-name);
+    unless (class-node)
+      format-out("class node for %s was not found, creating\n", class-name);
+      class-node := create-node(graph, label: class-name);
+    end;
+    add!(visited, class);
+    let superclasses
+      = class-direct-superclasses(project, class);
+    format-out("superclasses for %s %=\n",
+               class-name, map(get-class-name, superclasses));
+    add-successors(class-node, map(get-class-name, superclasses));
+    do(curry(push-last, todo),
+       choose(method(x) ~ member?(x, visited) & ~ member?(x, todo) end,
+              superclasses))
+  end;
+  graph;
 end;
 
