@@ -263,10 +263,24 @@ define module koala
   create
     static-file-responder;
 
+  create <avalue>,
+    avalue-value,
+    avalue-alist;
+
+  create <http-file>,
+    http-file-filename,
+    http-file-content,
+    http-file-mime-type;
+
   // main() function
   create
     koala-main,
     *argument-list-parser*;
+
+  create request-content,
+    request-content-type,
+    request-content-setter,
+    process-request-content;
 
 end module koala;
 

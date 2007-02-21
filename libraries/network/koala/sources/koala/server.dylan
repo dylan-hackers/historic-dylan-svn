@@ -702,13 +702,16 @@ define function read-request-content
     let n = kludge-read-into!(request-socket(request), content-length, buffer);
     assert(n == content-length, "Unexpected incomplete read");
     request-content(request)
-      := process-request-content(as(<symbol>,
-                                    first(split(get-header(request, "content-type"),
-                                                separator: ";"))),
-                                 request, buffer, content-length);
+      := process-request-content(request-content-type(request), buffer, content-length);
   end
 end read-request-content;
 
+define inline function request-content-type (request :: <request>)
+  let content-type-header = get-header(request, "content-type");
+  as(<symbol>, if (content-type-header)
+      first(split(content-type-header, separator: ";"))
+    else "" end if)
+end;
 
 // Gary, in the trunk sources (1) below should now be fixed.  (read was passing the
 // wrong arguments to next-method).
