@@ -708,9 +708,12 @@ end read-request-content;
 
 define inline function request-content-type (request :: <request>)
   let content-type-header = get-header(request, "content-type");
-  as(<symbol>, if (content-type-header)
-      first(split(content-type-header, separator: ";"))
-    else "" end if)
+  as(<symbol>,
+     if (content-type-header)
+       first(split(content-type-header, separator: ";"))
+     else
+       ""
+     end if)
 end;
 
 // Gary, in the trunk sources (1) below should now be fixed.  (read was passing the
