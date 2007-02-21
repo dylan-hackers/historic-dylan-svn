@@ -132,7 +132,7 @@ define module koala
   // Do these really need to be exported?
   create
     <header-table>,
-    *hmax-single-header-size*,
+    *max-single-header-size*,
     *header-buffer-growth-amount*,
     // read-message-headers(stream) => header-table
     read-message-headers,
@@ -262,7 +262,7 @@ define module koala
   // files
   create
     static-file-responder;
-  
+
   create <avalue>,
     avalue-value,
     avalue-alist;
@@ -405,12 +405,12 @@ define module dsp
     current-row-number,          // dsp:table
 
     note-form-error,             // for any error encountered while processing a web form
-    note-form-message;           // for informative messages in response to processing a web form
+    note-form-message,           // for informative messages in response to processing a web form
+    note-field-error;            // for errors related to processing a specific form field
 
 /*
   // Persistence layer maps database records <-> web pages.
   export
-    note-field-error,            // for errors related to processing a specific form field
     with-database-connection,
     <database-record>,
     <modifiable-record>,
