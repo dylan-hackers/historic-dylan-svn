@@ -406,12 +406,12 @@ define module dsp
     current-row-number,          // dsp:table
 
     note-form-error,             // for any error encountered while processing a web form
-    note-form-message,           // for informative messages in response to processing a web form
-    note-field-error;            // for errors related to processing a specific form field
+    note-form-message;           // for informative messages in response to processing a web form
+
 
   // Persistence layer maps database records <-> web pages.
   export
-    with-database-connection,
+    note-field-error,            // for errors related to processing a specific form field    with-database-connection,
     <database-record>,
     <modifiable-record>,
     initialize-record,
