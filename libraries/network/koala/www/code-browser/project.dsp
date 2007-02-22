@@ -12,6 +12,10 @@
 	<code-browser:project-modules/>	
 	<h2>Used libraries</h2>
 	<code-browser:project-used-libraries/>
+	<h2>Used definitions</h2>
+	<code-browser:used-definitions/>
+	<h2>Clients</h2>
+	<code-browser:clients/>
 	<h2>Superclasses of &lt;string&gt;</h2>
 	<code-browser:project-direct-superclasses/>
 	<h2>Subclasses of &lt;string&gt;</h2>
@@ -22,6 +26,8 @@
 	<code-browser:find-section-for-method/>
 	<h2>Definition of generic concatenate</h2>
 	<code-browser:find-section-for-definition/>
+	<h2>Warnings</h2>
+	<code-browser:project-warnings/>
 	<h2>Source Code</h2>
 	<code-browser:project-sources/>
 </body>

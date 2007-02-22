@@ -54,7 +54,7 @@ define function parse-document (doc :: <string>,
 			        print-warnings? = #f,
 				dtd-paths = #f,
  			        ignore-instructions? = #f)
- => (stripped-tree :: <document>)
+ => (stripped-tree :: false-or(<document>))
   initialize-latin1-entities();
   *show-warnings?* := print-warnings?;
   *defining-entities?* := #f;
@@ -63,8 +63,10 @@ define function parse-document (doc :: <string>,
   *substitute-entities?* := substitute-entities?;
   if(dtd-paths) *dtd-paths* := dtd-paths; end if;
   let (index, document) = scan-document-helper(doc, start: start, end: stop);
-  transform-document(document, state: make(<add-parents>));
-  document;
+  if (document)
+    transform-document(document, state: make(<add-parents>));
+    document;
+  end if;
 end function parse-document;
 
 define thread variable *modify?* :: <boolean> = #t;

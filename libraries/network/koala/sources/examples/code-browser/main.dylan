@@ -158,8 +158,36 @@ define tag find-section-for-method in code-browser
           library: project-library(*project*), module: first(library-modules(*project*, project-library(*project*))))))))));
 end;
 
-//environment-object-source-location  source-location-string
-//source-location-source-record
+
+define tag used-definitions in code-browser
+  (page :: <code-browser-page>, response :: <response>)
+  ()
+    format(response.output-stream, "<ul>\n");
+    for (used-definition in source-form-used-definitions(*project*, project-library(*project*)))
+      format(response.output-stream, "<li>%s</li>", markup-dylan-source(environment-object-display-name(*project*, used-definition, #f)))
+    end for;
+    format(response.output-stream, "</ul>\n");
+end;
+
+define tag clients in code-browser
+  (page :: <code-browser-page>, response :: <response>)
+  ()
+    format(response.output-stream, "<ul>\n");
+    for (used-definition in source-form-clients(*project*, project-library(*project*)))
+      format(response.output-stream, "<li>%s</li>", markup-dylan-source(environment-object-display-name(*project*, used-definition, #f)))
+    end for;
+    format(response.output-stream, "</ul>\n");
+end;
+
+define tag project-warnings in code-browser
+  (page :: <code-browser-page>, response :: <response>)
+  ()
+    format(response.output-stream, "<ul>\n");
+    for (warning in project-warnings(*project*))
+      format(response.output-stream, "<li>%s</li>", markup-dylan-source(environment-object-display-name(*project*, warning, #f)))
+    end for;
+    format(response.output-stream, "</ul>\n");
+end;
 
 /// Main
 
