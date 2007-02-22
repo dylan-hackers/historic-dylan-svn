@@ -100,7 +100,7 @@ end;
 
 define abstract class <content> (<object>)
   /* slot CommonAttributes */
-  slot type :: <string>, init-keyword: type:;
+  slot type :: <string> = "text", init-keyword: type:;
   slot content :: <text>, init-keyword: content:;
 end;
 
@@ -206,7 +206,7 @@ define method generate-rss (feed :: <feed>)
         title(feed.title),
         link(first(feed.links)),
         description(feed.description),
-        language(feed.language),
+//        language(feed.language),
         copyright(feed.rights),
         pubDate(as-rfc822-string(feed.published)),
         image {
@@ -333,8 +333,25 @@ end;
 
 define method generate-atom (con :: <content>, #key)
   with-xml()
-    content {
+    content(type => con.type) {
       text(con.content)
     }
+  end
+end;
+
+define method generate-atom (con :: <xhtml-content>, #key)
+  let document = parse-document(concatenate("<div>", con.content, "</div>"));
+  if (document)
+    let atom-content = with-xml()
+      content(type => con.type) {
+        div (xmlns :: xhtml => "http://www.w3.org/1999/xhtml")
+      }
+    end;
+    atom-content.node-children[0].xml-name := "xhtml:div";
+    atom-content.node-children[0].node-children :=
+      root(document).node-children;
+    atom-content;
+  else
+    next-method();
   end;
 end;

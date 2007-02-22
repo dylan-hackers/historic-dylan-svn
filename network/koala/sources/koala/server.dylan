@@ -702,7 +702,7 @@ define function read-request-content
     let n = kludge-read-into!(request-socket(request), content-length, buffer);
     assert(n == content-length, "Unexpected incomplete read");
     request-content(request)
-      := process-request-content(request-content-type(request), buffer, content-length);
+      := process-request-content(request-content-type(request), request, buffer, content-length);
   end
 end read-request-content;
 

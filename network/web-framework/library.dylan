@@ -6,7 +6,7 @@ define library web-framework
   use dylan;
   use io;
   use koala, import: { koala, dsp };
-  use xml-parser, import: { simple-xml };
+  use xml-parser;
   use system, import: { file-system, date, locators };
   use dood;
 
@@ -147,6 +147,10 @@ define module changes
   use common-dylan;
   use dylan;
   use date;
+  use xml-parser,
+    import: { node-children, node-children-setter,
+              parse-document, root,
+              name-setter => xml-name-setter};
   use simple-xml;
 
   use object-table;
