@@ -1,12 +1,13 @@
 Constant: $single-pi
 ==============================
 
-A constant.
+The approximation of π for single-precision floating-point arithmetic. This π is a truncated value of #$double-pi#.
 
 
 Exported from:
 ------------------------------
 - #Module transcendental#
+- #Module transcendentals#
 
 
 Type:

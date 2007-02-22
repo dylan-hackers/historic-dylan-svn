@@ -1,13 +1,12 @@
 Class: <real>
 ==============================
 
-A class.
+The class of real numbers.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

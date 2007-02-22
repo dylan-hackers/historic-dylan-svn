@@ -1,13 +1,22 @@
 Generic: type-for-copy
 ==============================
 
-A generic function.
+Returns an appropriate type for creating mutable copies of its argument.
+
+The #type-for-copy# value of a collection must be an instantiable subtype of
+#<mutable-collection>#. For collections that are themselves mutable, the
+collection's actual class is generally the most appropriate (assuming it is
+instantiable). The #type-for-copy# value for a sequence should be a subtype of
+#<sequence>#, and the #type-for-copy# value of an explicit key collection
+should be a subtype of #<explicit-key-collection>#.
+
+The method on #<object># returns the result of calling #object-class# on the
+object.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +27,19 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<type>#. 
+type - An instance of #<type>#. 
 
 
+
+Methods: type-for-copy
+==============================
+type-for-copy - The method on #<mutable-collection># returns the result of
+                calling #object-class# on the mutable collection.
+                
+type-for-copy - The method on #<range># returns #<list>#.
 

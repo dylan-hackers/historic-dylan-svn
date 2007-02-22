@@ -1,24 +1,30 @@
 Function: one-of
 ==============================
 
-A function.
+Creates a class that is one of the supplied arguments. This function takes any number of objects, and returns the type that is the #type-union# of the singletons of those objects. For example, the expression
+
+: one-of(#"foo", #"bar", #"baz")
+
+is equivalent to
+
+: type-union(singleton(#"foo"), singleton(#"bar"), singleton(#"baz"))
 
 
 Exported from:
 ------------------------------
+- #Module Extensions#
 - #Module common-dylan#
 - #Module common-extensions#
-- #Module Extensions#
 
 
 Arguments:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest things - Instances of #<object>#. The allowable classes.
 
 
 Values:
 ------------------------------
-val - An instance of #<type>#. 
+res - An instance of #<type>#. The resulting type from the supplied classes.
 
 
 

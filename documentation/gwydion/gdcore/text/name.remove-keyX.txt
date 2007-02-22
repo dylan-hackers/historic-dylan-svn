@@ -1,13 +1,16 @@
 Generic: remove-key!
 ==============================
 
-A generic function.
+Modifies _collection_ so that it no longer has a key equal to _key_. Equality
+is determined by _collection_'s #key-test# function.
+
+The _boolean_ return value will be #t if the key was present and removed, or
+#f if the key was not present and hence not removed.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +21,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<mutable-explicit-key-collection>#. 
-arg - An instance of #<object>#. 
+collection - An instance of #<mutable-explicit-key-collection>#. 
+key        - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
 
 
 

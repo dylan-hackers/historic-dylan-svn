@@ -1,7 +1,21 @@
 Class: <simple-option-parser>
 ==============================
 
-A class.
+Parses options without any parameters. Simple options have no parameters, and
+may appear in both positive and negative forms. When parsing a list of
+arguments, _option-value_ is first set to the default. As the command line is
+then scanned from left to right, each positive option sets the value to #t and
+each negative option sets it to #f.
+
+This behavior is consistent with that of the utility rm, which allows the
+user to set default options with a shell alias of the form alias rm="rm -i".
+Such defaults can be overridden by explicitly passing a flag when calling rm
+because the rightmost value takes precedence.
+
+
+Example option forms:
+------------------------------
+-q, --quiet, -v, --verbose
 
 
 Exported from:
@@ -12,6 +26,32 @@ Exported from:
 Modifiers:
 ------------------------------
 concrete free sealed
+
+
+Make keywords:
+------------------------------
+default:	              - An instance of #<boolean>#. Specifies the value
+                          returned by this option parser if no applicable
+                          options appear on the command line. Defaults to #f.
+
+negative-long-options:  - An instance of #<list>#. Specifies the negative long
+                          options handled by this parser, represented as
+                          strings. Defaults to #().
+
+negative-short-options: - An instance of #<list>#. Specifies the negative
+                          short options handled by this parser, represented as
+                          strings. Defaults to #().
+
+long-options:           - An instance of #<list>#. Specifies the long
+                          options handled by this parser, represented as
+                          strings. Defaults to #().
+
+short-options:          - An instance of #<list>#. Specifies the short options
+                          handled by this parser, represented as strings.
+                          Defaults to #().
+
+description:            - An instance of #<string>#. A description of the
+                          options handled by this parser. Defaults to "".
 
 
 Superclasses:

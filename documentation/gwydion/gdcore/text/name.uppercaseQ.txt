@@ -1,7 +1,7 @@
 Generic: uppercase?
 ==============================
 
-A generic function.
+Returns #t if the character is in [A-Z].
 
 
 Exported from:

@@ -1,13 +1,24 @@
 Class: <stretchy-collection>
 ==============================
 
-A class.
+The class of collections that may grow or shrinking to accommodate adding or
+removing elements.
+
+Stretchy collections allow #element-setter# to be called with a key that is
+not present in the collection, expanding the collection as necessary to add a
+new element in that case. Each concrete subclass of <stretchy-collection> must
+provide or inherit a method for #element-setter# the behaves as follows when
+there is not already an element present for the indicated key:
+- If the class is a subclass of #<explicit-key-collection>#, adds a new
+  element to the collection with the indicated key.
+- If the class is a subclass of #<sequence>#, first calls #size-setter# on the
+  key + 1 and the collection to expand the sequence. The key must be a
+  non-negative integer.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

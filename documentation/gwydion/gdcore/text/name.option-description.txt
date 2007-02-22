@@ -1,7 +1,7 @@
 Generic: option-description
 ==============================
 
-A generic function.
+Returns the description associated with an option.
 
 
 Exported from:
@@ -16,12 +16,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+parser - An instance of #<option-parser>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+description - An instance of #<string>#. 
 
 
 

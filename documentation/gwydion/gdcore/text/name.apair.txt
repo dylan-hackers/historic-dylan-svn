@@ -1,7 +1,7 @@
 Function: apair
 ==============================
 
-A function.
+Adds an association to a sequence. See #Associative lists#.
 
 
 Exported from:
@@ -11,16 +11,18 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<sequence>#. 
-cons: - An instance of #<object>#. The default is pair.
-add: - An instance of #<object>#. The default is xpair.
+key   - An instance of #<object>#. The key element of the association.
+datum - An instance of #<object>#. The value element of the association.
+aseq  - An instance of #<sequence>#. An associative list.
+cons: - An instance of #<function># used to create the association from the
+        _key_ and _datum_ parameters. The default is #pair#.
+add:  - An instance of #<function>#. The function used to add the association
+        onto the sequence. The default is #xpair#.
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+new-aseq - An instance of #<sequence>#. The new associative list. 
 
 
 

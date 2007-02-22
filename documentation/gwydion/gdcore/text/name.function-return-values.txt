@@ -1,25 +1,37 @@
 Function: function-return-values
 ==============================
 
-A function.
+Returns information about the values returned by a function. Two values are
+returned:
+
+- _return-value-types_ is a sequence of the types of values returned by the
+  function. The length of the sequence equals the number of required return
+  values of the function. The first element of the sequence is the type of the
+  first return value, the second is the type of the second return value, etc.
+  This sequence returned should never be destructively modified. Doing so may
+  cause unpredictable behavior.
+
+- _rest-return-value_ indicates whether the function returns a variable number
+  of values and, if so, the type of values that may be returned after the
+  required return values. If the function does not return a variable number of
+  values, #f is returned; otherwise a type is returned.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
+function - An instance of #<function>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<simple-object-vector>#. 
-val - An instance of type-union(<false>, <type>). 
+return-value-types - An instance of #<simple-object-vector>#. 
+rest-return-value  - An instance of type-union(<false>, <type>). 
 
 
 

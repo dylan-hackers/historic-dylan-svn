@@ -1,7 +1,7 @@
 Generic: find
 ==============================
 
-A generic function.
+Find an element satisfying a predicate.
 
 
 Exported from:
@@ -16,13 +16,15 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+pred     - An instance of #<function>#. 
+seq      - An instance of #<sequence>#. 
+failure: - An instance of #<object>#. The value returned if a matching element
+           is not found. Defaults to #f.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+obj - An instance of #<object>#. The found element, or the _failure_ value.
 
 
 

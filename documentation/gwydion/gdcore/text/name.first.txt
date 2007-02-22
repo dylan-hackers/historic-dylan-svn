@@ -1,13 +1,15 @@
 Generic: first
 ==============================
 
-A generic function.
+Returns the first element of a sequence.
+
+Note that because #element# is zero-based, first(seq) is equivalent to
+element(seq, 0) and seq[0].
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,7 +20,7 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
+sequence - An instance of #<sequence>#. 
 default: - An instance of #<object>#. The default is #f.
 
 

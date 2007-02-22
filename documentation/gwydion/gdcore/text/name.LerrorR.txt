@@ -1,13 +1,16 @@
 Class: <error>
 ==============================
 
-A class.
+The class of conditions that represent something invalid about the program.
+
+#<error># is distinct from #<serious-condition># so one can establish a
+handler for errors that does not also trap unpredictable environmental
+exceptions such as network problems.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

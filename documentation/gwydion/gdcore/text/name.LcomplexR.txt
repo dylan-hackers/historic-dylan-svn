@@ -1,13 +1,12 @@
 Class: <complex>
 ==============================
 
-A class.
+The class of complex numbers, including real numbers. Many built-in functions are defined to have methods on <complex>.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

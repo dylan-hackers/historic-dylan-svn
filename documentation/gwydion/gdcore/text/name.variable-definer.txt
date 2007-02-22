@@ -1,20 +1,49 @@
 Macro: variable-definer
 ==============================
 
-A macro.
+Defines and initializes a variable binding in the current module.
+
+The values returned by _init_ are used to initialize the bindings. The first
+value returned is bound to the first variable, the second value to the second
+variable, etc. The last variable may be preceded by #rest, in which case it is
+bound to a sequence containing all the remaining values.
+
+If more than one binding is defined, the _variables_ are enclosed in
+parentheses and separated by commas.
+
+: define variable *elapsed-time* = 0;
+: define variable (*whole-part*, *remainder*) = truncate(*amount*);
+: define variable (*first-value*, #rest *rest-values*)
+:                  = get-initial-orders(); 
+
+Module bindings may be specialized. This ensures that their value will always
+be of a given type. An attempt to initialize or assign the binding to a value
+not of that type will signal an error of type #<type-error>#.
+
+: define variable *elapsed-time* :: <integer> = 0;
+: define variable *front-window* :: type-union (<window>, singleton(#f))
+:                  = initial-front-window();
+: define variable (*whole-part* :: <integer>, *remainder* :: <real>)
+:                  = truncate(*amount*);
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          list-style define macro
+: define (adjectives) variable (variables) = (init)
         
+
+Arguments:
+------------------------------
+adjectives - Gwydion Dylan allows the adjective "thread". The adjective is
+             optional. See #Define adjectives#.
+variables  - A variable or variable list declaration.
+init       - An expression returning a value or values.
+
 
 

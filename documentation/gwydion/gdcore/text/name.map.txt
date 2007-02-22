@@ -1,13 +1,24 @@
 Generic: map
 ==============================
 
-A generic function.
+Iterates over one or more collections and collects the results in a freshly
+allocated collection. If all the collections are sequences, processing is
+performed in the natural order.
+
+#map# returns a collection whose value is an instance of the #type-for-copy#
+value of _collection_. The new collection is created by calling #make# on that
+type, with a size: initialization argument whose value is the number of
+corresponding elements in the collections.
+
+> map (\+,
+>      #(100, 100, 200, 200),
+>      #(1, 2, 3, 4))
+>  ⇒  #(101, 102, 203, 204)
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +29,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<collection>#. 
-#rest more - Instances of #<object>#. 
+function               - An instance of #<function>#. 
+collection             - An instance of #<collection>#. 
+#rest more-collections - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<collection>#. 
+new-collection - An instance of #<collection>#. 
 
 
 

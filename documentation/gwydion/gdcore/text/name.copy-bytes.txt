@@ -6,6 +6,32 @@ A generic function.
 
 Exported from:
 ------------------------------
+- #Module system#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+arg - An instance of type-union(<buffer>, <byte-vector>, <unicode-string>, <byte-string>). 
+arg - An instance of #<integer>#. 
+arg - An instance of type-union(<buffer>, <byte-vector>, <unicode-string>, <byte-string>). 
+arg - An instance of #<integer>#. 
+arg - An instance of #<integer>#. 
+
+
+
+Generic: copy-bytes
+==============================
+
+A generic function.
+
+
+Exported from:
+------------------------------
 - #Module byte-vector#
 
 
@@ -21,32 +47,6 @@ arg - An instance of #<object>#.
 arg - An instance of #<object>#. 
 arg - An instance of #<object>#. 
 arg - An instance of #<object>#. 
-
-
-
-Generic: copy-bytes
-==============================
-
-A generic function.
-
-
-Exported from:
-------------------------------
-- #Module system#
-
-
-Modifiers:
-------------------------------
-sealed
-
-
-Arguments:
-------------------------------
-arg - An instance of type-union(<buffer>, <byte-vector>, <byte-string>, <unicode-string>). 
-arg - An instance of #<integer>#. 
-arg - An instance of type-union(<buffer>, <byte-vector>, <byte-string>, <unicode-string>). 
-arg - An instance of #<integer>#. 
-arg - An instance of #<integer>#. 
 
 
 

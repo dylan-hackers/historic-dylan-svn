@@ -1,7 +1,25 @@
 Function: regexp-replace
 ==============================
 
-A function.
+Replace information in a string.
+
+This replaces all occurrences of _regexp_ in _input_ with _new-substring_. If
+_count:_ is specified, it replaces only the first _count_ occurrences of
+_regexp_. (This is different from Perl, which replaces only the first
+occurrence unless /g is specified) _New-substring_ can contain back-references
+to the regexp. For instance,
+
+: regexp-replace("The rain in Spain and some other text",
+:                "the (.*) in (\\w*\\b)", "\\2 has its \\1")
+
+returns "Spain has its rain and some other text". If the subgroup referred to
+by the back-reference was not matched, the reference is interpreted as the
+null string. For instance,
+
+: regexp-replace("Hi there", "Hi there(, Bert)?",
+:                "What do you think\\1?")
+	    
+returns "What do you think?" because ", Bert" wasn't found.
 
 
 Exported from:
@@ -11,18 +29,29 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
-arg - An instance of #<string>#. 
-arg - An instance of #<string>#. 
-count: - An instance of #<object>#. The default is #f.
-case-sensitive: - An instance of #<object>#. The default is #f.
-start: - An instance of #<object>#. The default is 0.
-end: - An instance of #<object>#. The default is #f.
+input           - An instance of #<string>#. The string to parse and replace
+                  pieces of.
+                  
+regexp          - An instance of #<string>#. 
+
+new-substring   - An instance of #<string>#. The replacement string.
+
+count:          - An instance of #<integer># or #f. If supplied, number of
+                  substitutions to make. The default is #f.
+                  
+case-sensitive: - An instance of #<object>#. If true, match case in _regexp_
+                  while parsing. The default is #f.
+
+start:          - An instance of #<integer>#. Where to start parsing the
+                  string. The default is 0.
+                  
+end:            - An instance of #<integer># or #f. If defined, where to stop
+                  parsing the string. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<string>#. 
+changed-string - An instance of #<string>#. 
 
 
 

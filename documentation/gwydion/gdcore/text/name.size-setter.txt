@@ -1,13 +1,30 @@
 Generic: size-setter
 ==============================
 
-A generic function.
+Sets the size of an object. _object_ is modified by this operation.
+
+Methods are provided for stretchy sequences; that is, for collections that are
+instances both of #<stretchy-collection># and of #<sequence>#.
+
+#size-setter# sets the size of a stretchy sequence to be _new-size_. The
+stretchy sequence is modified by this operation. If _new-size_ is less than or
+equal to the original size of the stretchy sequence, then the first _new-size_
+elements of the stretchy sequence are retained at the same positions. If
+_new-size_ is greater than the original size of the stretchy sequence, then
+the previous elements of the stretchy sequence are retained at the same
+positions, and enough new elements are added to reach the new size. The value
+of each new element is the same as would have been used if the stretchy
+sequence had been created with #make#, specifying size: _new-size_ but not
+fill:.
+
+It is not specified how #size-setter# adds new elements to the stretchy
+sequence. In particular, it is not required to call #add!# or any other
+predefined function.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +35,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+new-size - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+new-size - An instance of #<object>#. 
 
 
 

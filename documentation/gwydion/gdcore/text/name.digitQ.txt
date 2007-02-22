@@ -1,7 +1,7 @@
 Function: digit?
 ==============================
 
-A function.
+Returns #t if the character is a numeric digit [0-9].
 
 
 Exported from:

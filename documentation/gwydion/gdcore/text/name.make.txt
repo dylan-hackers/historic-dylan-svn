@@ -1,13 +1,27 @@
 Generic: make
 ==============================
 
-A generic function.
+Returns a general instance of its first argument.
+
+The instance returned is guaranteed to be a general instance of _type_ but not
+necessarily a direct instance of _type_. This liberality allows make to be
+called on an abstract class or other type; it can instantiate and return a
+direct instance of one of the concrete subtypes of the abstract class or type.
+
+The instance returned may or may not be newly allocated. If a new instance is
+allocated, make will call #initialize# on the instance before returning it.
+
+Programmers may customize make for particular classes by defining methods
+specialized by singleton specializers. These methods may obtain the default
+make behavior, if desired, by calling #next-method#.
+
+Note that the #<class># method on make returns a newly allocated direct
+instance of its first argument.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +32,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<type>#. 
-#rest more - Instances of #<object>#. 
-#all-keys - This function accepts any keyword argument.
+type                     - An instance of #<type>#. 
+#rest supplied-init-args - Keyword/argument pairs. See each class for keys
+                           applicable to that class.
+#all-keys                - This function accepts any keyword argument.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+instance - An #<object>#, which must be a general instance of _type_.
 
 
 

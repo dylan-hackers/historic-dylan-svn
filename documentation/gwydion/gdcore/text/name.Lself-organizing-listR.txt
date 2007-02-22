@@ -1,7 +1,12 @@
 Class: <self-organizing-list>
 ==============================
 
-A class.
+The class of self-organizing lists.
+
+Because they have a very low overhead, self-organizing lists may provide
+better performance than hash tables in cases where references have a high
+degree of temporal locality. They may also be useful in situations where it is
+difficult to create a proper hash function.
 
 
 Exported from:
@@ -14,10 +19,15 @@ Modifiers:
 concrete free sealed
 
 
+Make keywords:
+------------------------------
+test: - An instance of #<function>#. Defaults to /==.
+
+
 Superclasses:
 ------------------------------
 - #<mutable-explicit-key-collection>#
- - #<stretchy-collection>#
+- #<stretchy-collection>#
  
 
 

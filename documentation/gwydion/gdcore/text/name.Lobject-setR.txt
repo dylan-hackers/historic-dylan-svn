@@ -6,8 +6,8 @@ A class.
 
 Exported from:
 ------------------------------
-- #Module set#
 - #Module Extensions#
+- #Module set#
 
 
 Modifiers:

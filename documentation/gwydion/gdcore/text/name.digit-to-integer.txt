@@ -1,7 +1,9 @@
 Generic: digit-to-integer
 ==============================
 
-A generic function.
+Convert a character to the integer it denotes. '0' through '9' convert to 0 to
+9, and 'a' through 'z' convert to 10 to 35. An error is signaled if the
+character is not in this range.
 
 
 Exported from:
@@ -16,12 +18,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+character - An instance of #<character>#. An error is signaled if it is not
+            alphanumeric.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+integer - An instance of #<integer># between 0 and 35 inclusive.
 
 
 

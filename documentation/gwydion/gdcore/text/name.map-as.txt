@@ -1,13 +1,27 @@
 Generic: map-as
 ==============================
 
-A generic function.
+Iterates over one or more collections and collects the results in a freshly
+allocated collection of a specified type.
+
+Creates a freshly allocated collection of type _type_ whose elements are
+obtained by applying _function_ to corresponding elements of the collection
+arguments. _type_ must be acceptable as the first argument to #make#. size:
+with a non-negative integer value must be an acceptable init-keyword for
+#make# of _type_. _new-collection_ is created by calling #make# on _type_,
+with a size: initialization argument whose value is the number of
+corresponding elements in the collections. If all the collections are
+sequences (including new-collection), processing is done in the natural order.
+
+> map-as (<vector>, \+,
+>         #(100, 100, 200, 200),
+>         #(1, 2, 3, 4))
+>  ⇒  #[101, 102, 203, 204]
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,15 +32,16 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<type>#. 
-arg - An instance of #<function>#. 
-arg - An instance of #<collection>#. 
-#rest more - Instances of #<object>#. 
+type                   - An instance of #<type>#. It must be an instantiable
+                         subtype of #<mutable-collection>#.
+function               - An instance of #<function>#. 
+collection             - An instance of #<collection>#. 
+#rest more-collections - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<mutable-collection>#. 
+new-collection - An instance of #<mutable-collection>#. 
 
 
 

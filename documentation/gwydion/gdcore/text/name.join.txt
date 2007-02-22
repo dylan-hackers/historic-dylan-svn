@@ -1,7 +1,18 @@
 Function: join
 ==============================
 
-A function.
+Does the opposite of #split#.
+
+This is like Perl's _join_ function. This is not really any more efficient
+than #concatenate-as#, but it's more convenient.
+
+: join(":", word1, word2, word3)
+	    
+is equivalent to
+
+: concatenate(word1, ":", word2, ":", word3)
+	    
+(and is no more efficient).
 
 
 Exported from:
@@ -11,13 +22,13 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<byte-string>#. 
-#rest more - Instances of #<object>#. 
+delimiter     - An instance of #<byte-string>#. 
+#rest strings - Instances of #<byte-string>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<byte-string>#. 
+big-string - An instance of #<byte-string>#. 
 
 
 

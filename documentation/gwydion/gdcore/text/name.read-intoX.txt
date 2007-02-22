@@ -1,7 +1,12 @@
 Generic: read-into!
 ==============================
 
-A generic function.
+Reads a group of elements from a stream into a collection.
+
+Reads in _n_ elements from the stream starting from the the stream's current
+position and places those elements into _sequence_. _sequence_ must be mutable
+to allow it to expand should the streamed-in elements be larger than its
+original size. Handles end-of-stream conditions just as #read-element# does.
 
 
 Exported from:
@@ -17,16 +22,20 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
-arg - An instance of #<integer>#. 
-arg - An instance of #<mutable-sequence>#. 
-start: - An instance of #<object>#. The default is #f.
-on-end-of-stream: - An instance of #<object>#. The default is #f.
+stream            - An instance of #<stream>#. 
+n                 - An instance of #<integer>#. Number of elements to read.
+sequence          - An instance of #<mutable-sequence>#. This sequence must
+                    allow for changes in its size.
+start:            - An instance of #<integer>#. What index to start writing
+                    into the sequence. The default is 0.
+on-end-of-stream: - An instance of #<object>#. Value returned if reading past
+                    the stream. The default is #$not-supplied#.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+count-or-eof - An instance of #<integer># or the value _on-end-of-stream:_.
+               The number of elements transferred.
 
 
 

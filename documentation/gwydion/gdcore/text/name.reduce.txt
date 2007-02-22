@@ -1,13 +1,30 @@
 Generic: reduce
 ==============================
 
-A generic function.
+Returns the result of combining the elements of _collection_ and
+_initial-value_ according to _function_.
+
+If _collection_ is empty, #reduce# returns _initial-value_; otherwise,
+_function_ is applied to _initial-value_ and the first element of _collection_
+to produce a new value. If more elements remain in the collection, then
+_function_ is called again, this time with the value from the previous
+application and the next element from _collection_. This process continues
+until all elements of _collection_ have been processed.
+
+_function_ is a binary function used to combine all the elements of
+_collection_ into a single value. Processing is always done in the natural
+order for _collection_.
+
+> define variable high-score = 10
+> reduce (max, high-score, #(3, 1, 4, 1, 5, 9))
+>  ⇒  10
+> reduce (max, high-score, #(3, 12, 9, 8, 8, 6))
+>  ⇒  12
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +35,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<collection>#. 
+function      - An instance of #<function>#. 
+initial-value - An instance of #<object>#. 
+collection    - An instance of #<collection>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+value - An instance of #<object>#. 
 
 
 

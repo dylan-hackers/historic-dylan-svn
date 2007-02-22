@@ -1,7 +1,7 @@
 Generic: null?
 ==============================
 
-A generic function.
+Check whether this sequence is the empty list.
 
 
 Exported from:
@@ -21,7 +21,7 @@ arg - An instance of #<object>#.
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+ans - An instances of #<boolean>#. 
 
 
 

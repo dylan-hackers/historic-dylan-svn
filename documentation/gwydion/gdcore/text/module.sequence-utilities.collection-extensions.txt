@@ -1,12 +1,27 @@
 Module: Module sequence-utilities
 ==============================
 
-The sequence-utilities module.
+Sequence-Utilities, written by Matthias Hölzl, provides common or oft-used
+operations performed on #<sequence>#s. The whole module is rather Lispy in
+flavor, and has the feel of an elegant hack by the way functions use predicate
+functions to manipulate lists.
 
 
 Exported from:
 ------------------------------
 #Library collection-extensions#
+
+
+Topic: Associative lists
+------------------------------
+Those familiar with Lisp will feel at home here. Associative lists are
+#<list>#s that contain #<pair>#s of entries in a #(key . value) format. Much
+like #<table>#s, one looks up the key to obtain the value information.
+Functions dealing with associative lists are:
+- #alist-copy#
+- #alist-delete#
+- #apair#
+- #assoc#
 
 
 Topic: sequence-utilities names

@@ -1,13 +1,22 @@
 Generic: ==
 ==============================
 
-A generic function.
+Compares two objects for identity. Returns true if _object1_ and _object2_ are
+identical. Otherwise, it returns false.
+
+Objects are considered identical if they are computationally equivalent. That
+is, there is no way for any possible Dylan program to distinguish them.
+
+At an implementation level, this will usually mean that the objects are
+pointers to the same storage or are the same immediate value. An extension is
+made for built-in number classes and characters. Because these objects are not
+mutable (_i.e._, cannot be changed), two of the same class with the same value
+will always be the same (and will thus be indistinguishable to programs).
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +27,18 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+object1 - An instance of #<object>#. 
+object2 - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
+
+
+See also:
+------------------------------
+- #Equality and Comparison#
 
 
 

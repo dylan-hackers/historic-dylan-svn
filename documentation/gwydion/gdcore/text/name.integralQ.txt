@@ -1,13 +1,14 @@
 Generic: integral?
 ==============================
 
-A generic function.
+Returns true if its argument is an integer.
+
+A method is defined for the class #<object># that returns #f.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +19,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
 
 
 
+Methods: integral?
+==============================
+integral? - The method on #<real># is equivalent to _real_ = round(_real_).

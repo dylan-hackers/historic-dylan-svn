@@ -1,28 +1,39 @@
 Function: collection-hash
 ==============================
 
-A function.
+A function for building hash functions that test collection equivalence. Two
+collections will yield the same hash id if each of their key/element pairs
+hash to the same value. It is only safe to set the _ordered:_ keyword argument
+to #t if the collection has a natural iteration order.
 
 
 Exported from:
 ------------------------------
 - #Module table-extensions#
-- #Module table-extensions#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<function>#. 
-arg - An instance of #<collection>#. 
-arg - An instance of #<false>#. 
-ordered: - An instance of #<boolean>#. The default is #f.
+key-hash      - An instance of #<function>#. Computes hash ids for the keys.
+                It takes an object and a #<hash-state># as an argument, and
+                returns a hash id and a hash state.
+
+element-hash  - An instance of #<function>#. Computes hash ids for the
+                elements. It takes an object and a #<hash-state># as an
+                argument, and returns a hash id and a hash state.
+
+col           - An instance of #<collection>#. 
+
+initial-state - An instance of #<hash-state>#. 
+
+ordered:      - An instance of #<boolean>#. Whether or not to do an ordered
+                merge of the key/element hash codes. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
-val - An instance of #<false>#. 
+hash-id    - An instance of #<integer>#. 
+hash-state - An instance of #<hash-state>#. 
 
 
 

@@ -1,25 +1,35 @@
 Function: curry
 ==============================
 
-A function.
+Returns a function that applies _function_ to _curried-args_ plus its own
+arguments, in that order. For example curry(\>, 6) is a predicate that returns
+true for values less than 6; curry(\=, "x") is a predicate that tests for
+equality with the string "x"; curry(\+, 1) is an incrementing function;
+curry(concatenate, "set-") is a function that concatenates the string "set-"
+to any additional sequences it is passed.
 
+> define constant all-odd? = curry(every?, odd?)
+> all-odd?(list(1, 3, 5))
+>  ⇒ #t
+> define constant less-than-10? = curry(\>, 10)
+> less-than-10?(4)
+>  ⇒ #t
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-#rest more - Instances of #<object>#. 
+function           - An instance of #<function>#. 
+#rest curried-args - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<function>#. 
+new-function - An instance of #<function>#. 
 
 
 

@@ -1,13 +1,31 @@
 Generic: reverse!
 ==============================
 
-A generic function.
+Returns a sequence containing the same elements as a source sequence, but in
+reverse order. The _result-sequence_ is generally of the same class as the
+_source-sequence_.
+
+The _source-sequence_ may be modified by this operation. The _result-sequence_
+may or may not be freshly allocated. The _source-sequence_ and the
+_result-sequence_ may or may not be ==. Programs should never rely on this
+operation performing a side-effect on an existing sequence, but should instead
+use the value returned by the function.
+
+The consequences are undefined if the _source-sequence_ is unbounded (circular
+or infinite).
+
+> define variable *x* = list("bim", "bam", "boom")
+> *x*
+>   ⇒  #("bim", "bam", "boom")
+> reverse!(*x*)
+>   ⇒  #("boom", "bam", "bim")
+> *x*
+>   ⇒  {undefined}
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +36,16 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
+source-sequence - An instance of #<sequence>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+result-sequence - An instance of #<sequence>#. 
 
 
 
+Methods: reverse
+==============================
+reverse - The result of #reverse!# on a #<range># is == to the _range_
+          argument. An unbounded range cannot be reversed.

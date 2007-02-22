@@ -1,13 +1,22 @@
 Class: <sequence>
 ==============================
 
-A class.
+The class of collections whose keys are consecutive integers starting from
+zero.
+
+Sequences must be stable under iteration, and the iteration order must match
+the order of keys. Thus, the key associated with a sequence's iteration state
+can be determined by keeping a counter in parallel with the iteration state.
+
+The default methods for #add#, #add-new#, #remove#, #choose#, #choose-by#,
+#intersection#, #union#, #remove-duplicates#, #copy-sequence#, #concatenate#,
+#reverse#, and #sort# all return new sequences that are instances of the
+#type-for-copy# of their primary sequence argument.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -40,23 +49,31 @@ Functions on <sequence>:
 - #assoc#
 - #choose#
 - #choose-by#
+- #choose-map#
 - #concatenate#
 - #concatenate!#
 - #concatenate-as#
+- #concatenate-map#
+- #copy-bytes#
 - #copy-sequence#
 - #difference#
 - #do-put-property!#
 - #do-remove-property!#
+- #drop#
 - #fill-table!#
+- #find#
 - #find-method#
+- #find-tail#
 - #first#
 - #get-property#
+- #index#
 - #intersection#
 - #keyword-sequence#
 - #last#
 - #parse-arguments#
 - #partition#
 - #position#
+- #precedes?#
 - #remove#
 - #remove-duplicates#
 - #remove-duplicates!#
@@ -65,13 +82,16 @@ Functions on <sequence>:
 - #reverse#
 - #reverse!#
 - #reverse-append#
+- #satisfies#
 - #second#
 - #sequence-hash#
 - #sort#
 - #sort!#
 - #split-at#
 - #subsequence-position#
+- #take#
 - #third#
+- #type-for-sequence-stream#
 - #union#
 - #value-sequence#
 - #write#
@@ -83,23 +103,33 @@ Functions returning <sequence>:
 - #add-new#
 - #add-new!#
 - #alist-copy#
+- #all-superclasses#
 - #apair#
 - #choose#
 - #choose-by#
+- #choose-map#
 - #concatenate#
 - #concatenate!#
 - #concatenate-as#
+- #concatenate-map#
+- #condition-format-arguments#
 - #copy-sequence#
 - #difference#
 - #dimensions#
+- #direct-subclasses#
+- #direct-superclasses#
 - #do-put-property!#
 - #do-remove-property!#
+- #drop#
+- #function-specializers#
+- #generic-function-methods#
 - #intersection#
 - #key-sequence#
 - #keyword-sequence#
 - #list-locator#
 - #locator-path#
 - #read-to-end#
+- #regular-arguments#
 - #remove#
 - #remove-duplicates#
 - #remove-duplicates!#
@@ -115,6 +145,7 @@ Functions returning <sequence>:
 - #split-at#
 - #stream-contents#
 - #stream-contents-as#
+- #take#
 - #tokenize-environment-variable#
 - #union#
 - #value-sequence#

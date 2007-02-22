@@ -1,13 +1,12 @@
 Generic: abs
 ==============================
 
-A generic function.
+Returns the absolute value of its argument.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +17,17 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+object1 - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+object2 - An instance of #<object>#. 
 
 
+
+Methods: abs
+==============================
+abs - The method on #<complex># returns an instance of #<real>#.
+abs - Not real.
 

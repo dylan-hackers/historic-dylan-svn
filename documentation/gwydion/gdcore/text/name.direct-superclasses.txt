@@ -1,13 +1,21 @@
 Generic: direct-superclasses
 ==============================
 
-A generic function.
+Returns the direct superclasses of a class. These are the classes that were
+passed as arguments to #make# or define class (see #class-definer#) when the
+class was created. The order of the classes in the _sequence_ is the same as
+the order in which they were passed to define class or #make# when _class_ was
+created.
+
+The result _sequence_ should never be destructively modified. Doing so may
+cause unpredictable behavior. If class is sealed, an implementation may choose
+to signal an error of type #<sealed-object-error># rather than returning the
+direct superclasses.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +26,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+class - An instance of #<class>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+sequence - Instances of #<sequence>#. Each element in the sequence is an
+           instance of #<class>#.
 
 
 

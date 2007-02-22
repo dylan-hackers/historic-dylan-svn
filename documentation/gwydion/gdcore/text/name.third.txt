@@ -1,13 +1,12 @@
 Generic: third
 ==============================
 
-A generic function.
+Returns the third element of a sequence.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,7 +17,7 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
+sequence - An instance of #<sequence>#. 
 default: - An instance of #<object>#. The default is #f.
 
 

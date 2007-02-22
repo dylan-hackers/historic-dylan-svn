@@ -1,7 +1,7 @@
 Class: <illegal-regexp>
 ==============================
 
-A class.
+Signaled when a function receives an illegal regular expression.
 
 
 Exported from:
@@ -12,6 +12,11 @@ Exported from:
 Modifiers:
 ------------------------------
 concrete free sealed
+
+
+Make keywords:
+------------------------------
+regexp: - An instance of #<string>#. The regexp that caused the error.
 
 
 Superclasses:

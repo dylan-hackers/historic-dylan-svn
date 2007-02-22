@@ -1,8 +1,12 @@
 Function: foldl
 ==============================
 
-A function.
+#foldr# in reverse. This function rebuilds a list by recursively applying a function over the list. For example:
 
+> foldl(method(x, y) pair(factorial(x), y) end, #f, #(1, 2, 3, 4, 5))
+>  ⇒ #(120, 24, 6, 2, 1 . #f)
+
+Note: the ugly dotted pair at the end is what occurs when _nil_ is not #().
 
 Exported from:
 ------------------------------
@@ -11,14 +15,16 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<list>#. 
+cons - An instance of #<function>#. The signature of the function is
+       (#<list>#, #<list>#) => (#<pair>#).
+nil -  An instance of #<object>#. Value returned if the list is empty. In most
+       cases this should be #().
+lst -  An instance of #<list>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+result - An instance of #<list>#. 
 
 
 

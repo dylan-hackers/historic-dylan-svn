@@ -13,7 +13,7 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of type-union(<string>, <false>). 
+val - An instance of type-union(<false>, <string>). 
 
 
 

@@ -1,7 +1,7 @@
 Module: Module Cheap-IO
 ==============================
 
-The Cheap-IO module.
+This module exports some basic, unextendable input and output functionality.
 
 
 Exported from:

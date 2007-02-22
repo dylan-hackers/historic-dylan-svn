@@ -1,7 +1,13 @@
 Generic: drop
 ==============================
 
-A generic function.
+Returns elements of a sequence except those from either end. If _k_ >= 0
+return a new sequence consisting of all but the first _k_ elements of _seq_,
+otherwise return a new sequence consisting of all but the last _k_ elements of
+_seq_. For example:
+
+> drop(#(0, 5, 10, 15, 20, 25, 30), 5)  ⇒ #(25, 30)
+> drop(#(0, 3,  6,  9, 12, 15, 18), -3) ⇒ #(0, 3, 6, 9)
 
 
 Exported from:
@@ -16,13 +22,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<integer>#. 
+seq - An instance of #<sequence>#. 
+k   - An instance of #<integer>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-sequence - An instance of #<sequence>#. 
 
 
 

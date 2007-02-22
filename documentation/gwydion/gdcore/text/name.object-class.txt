@@ -1,24 +1,23 @@
 Function: object-class
 ==============================
 
-A function.
+Returns the class of which _object_ is a direct instance.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<class>#. 
+class - An instance of #<class>#. 
 
 
 

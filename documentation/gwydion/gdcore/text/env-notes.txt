@@ -1,0 +1,26 @@
+Title: Environment Notes
+========================
+
+This page discusses how Gwydion Dylan interacts with an operating system.
+
+
+
+Topic: Debugger customizations
+==============================
+
+A note on terminology: We use the term "debugger" here in the loose, Dylan
+sense of anything that handles an uncaught error. In Mindy, this debugger is
+indeed a full fledged debugger, but in other Gwydion compilers it may not be.
+
+The debugger uses the function #report-condition# to print conditions as error
+messages to users; for example, this is the function that implements the %S
+format-string directive for conditions. The debugger also uses the #format#
+function exported from #Module format# to process format strings, and it
+prints directly to the Unix STDOUT.
+
+You can extend how the debugger prints conditions, change what formatting
+function it uses, and direct where debugger output goes with the following:
+- #report-condition#
+- #condition-format#
+- #condition-force-output#
+- #*warning-output*#

@@ -1,24 +1,23 @@
 Function: logior
 ==============================
 
-A function.
+Returns the bitwise _inclusive or_ of its arguments.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest objects - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<general-integer>#. 
+integer - An instance of #<general-integer>#. 
 
 
 

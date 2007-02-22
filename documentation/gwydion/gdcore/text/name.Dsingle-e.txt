@@ -1,12 +1,13 @@
 Constant: $single-e
 ==============================
 
-A constant.
+The approximation of ℯ for single-precision arithmetic. This ℯ is a truncated value of #$double-e#.
 
 
 Exported from:
 ------------------------------
 - #Module transcendental#
+- #Module transcendentals#
 
 
 Type:

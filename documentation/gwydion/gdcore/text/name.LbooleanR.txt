@@ -1,13 +1,16 @@
 Class: <boolean>
 ==============================
 
-A class.
+The class of boolean values.
+
+The literal constants #t and #f are general instances of <boolean>. Note that
+for the purposes of conditional expressions, all objects besides #f count as
+true.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -30,6 +33,10 @@ Subclasses:
 Functions on <boolean>:
 ------------------------------
 - #collection-hash#
+- #integer-to-digit#
+- #integer-to-string#
+- #print#
+- #print-to-string#
 - #regexp-matches#
 - #split#
 
@@ -48,8 +55,10 @@ Functions returning <boolean>:
 - #alpha?#
 - #alphabetic?#
 - #alphanumeric?#
+- #applicable-method?#
 - #argument-tokens-remaining?#
 - #byte-character?#
+- #case-insensitive-equal#
 - #control?#
 - #digit?#
 - #directory-empty?#
@@ -69,18 +78,24 @@ Functions returning <boolean>:
 - #input-available-at-source?#
 - #instance?#
 - #integral?#
+- #key-exists?#
+- #list?#
 - #local-daylight-savings-time?#
 - #locator-relative?#
 - #logbit?#
 - #lowercase?#
 - #member?#
 - #negative?#
+- #null?
 - #odd?#
+- #option-present?#
 - #option-present?-by-long-name#
 - #owned?#
+- #pair?#
 - #pair-do#
 - #parse-arguments#
 - #positive?#
+- #precedes?#
 - #printable?#
 - #punctuation?#
 - #read-line#

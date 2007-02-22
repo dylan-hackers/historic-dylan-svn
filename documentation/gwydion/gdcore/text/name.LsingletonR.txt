@@ -1,19 +1,25 @@
 Class: <singleton>
 ==============================
 
-A class.
+The class of singletons.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Modifiers:
 ------------------------------
 concrete free sealed
+
+
+Make keywords:
+------------------------------
+object: - An instance of #<object>#. The object that the singleton indicates.
+          There is no default for this argument. If it is not supplied, an
+          error will be signaled.
 
 
 Superclasses:

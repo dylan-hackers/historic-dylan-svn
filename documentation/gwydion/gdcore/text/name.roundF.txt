@@ -1,13 +1,16 @@
 Generic: round/
 ==============================
 
-A generic function.
+Rounds off the quotient of two numbers. Divides _real2_ into _real1_ and
+rounds the result toward the nearest mathematical integer. The integer part of
+the result is returned as _integer_, the remainder is returned as _real3_. If
+the result of the division is exactly between two integers, then the result
+_integer_ will be a multiple of two.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +21,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<real>#. 
-arg - An instance of #<real>#. 
+real1 - An instance of #<real>#. 
+real2 - An instance of #<real>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<general-integer>#. 
-val - An instance of #<real>#. 
+integer - An instance of #<general-integer>#. 
+real3 - An instance of #<real>#. 
 
 
 

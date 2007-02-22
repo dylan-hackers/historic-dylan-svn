@@ -1,7 +1,10 @@
 Variable: *print-level*
 ==============================
 
-A variable.
+Gives how far down recursively to print. If a number is given, #print# prints
+a '#' when it reached the level. Users should have little use for this
+function because #print# takes care to call #print-object# only when the print
+level has not been exhausted.
 
 
 Exported from:
@@ -11,7 +14,7 @@ Exported from:
 
 Type:
 ------------------------------
-type-union(<false>, <integer>)
+type-union(<integer>, <false>)
 
 
 Value:

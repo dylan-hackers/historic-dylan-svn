@@ -1,7 +1,7 @@
 Generic: option-value-setter
 ==============================
 
-A generic function.
+Changes the option value of an #<option-parser>#.
 
 
 Exported from:
@@ -16,13 +16,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+new-value - An instance of #<object>#. 
+parser    - An instance of #<option-parser>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-value - An instance of #<object>#.
 
 
 

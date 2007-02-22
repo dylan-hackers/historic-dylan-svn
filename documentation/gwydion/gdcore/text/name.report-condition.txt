@@ -1,7 +1,30 @@
 Generic: report-condition
 ==============================
 
-A generic function.
+Writes a condition to a stream.
+
+This is the function that is used to print condition variables as error
+messages to users. The internal #format# function used by Gwydion Dylan uses
+#report-condition# for condition arguments to the %S format directive. The
+Format module's #print-message# method for conditions calls
+#report-condition#.
+
+If you are writing a module that does no output but still provides
+#report-condition# methods, you should use #condition-format# to format
+output. Using #condition-format# makes your module more flexible for users of
+your module. If you call the Format module's #format# function, then your
+module will require the Format, Print, and Streams modules; therefore, users
+of your module may ultimately load these other modules needlessly. Of course,
+if you want to make use of the extended functionality of the Format module's
+format control strings, then you only have one choice anyway, and there's no
+reason to use #condition-format#.
+
+#report-condition# has several supplied methods. The default method (on
+#<condition>#) simply prints the condition (not very descriptive). The
+#<format-string-condition># (from which the simple conditions are derived)
+method uses the supplied format string to output information about the cause
+of the condition. The #<type-error># method gives the expected and actual
+types, and the #<abort># method just prints the supplied description.
 
 
 Exported from:
@@ -16,8 +39,9 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<condition>#. 
-arg - An instance of #<object>#. 
+condition - An instance of #<condition>#. 
+stream    - An instance of #<object>#. As we don't know the underlying output
+            system, we'll accept any object.
 
 
 

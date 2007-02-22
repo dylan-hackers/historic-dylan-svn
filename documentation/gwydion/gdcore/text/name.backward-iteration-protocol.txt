@@ -1,13 +1,19 @@
 Generic: backward-iteration-protocol
 ==============================
 
-A generic function.
+Returns eight values used to implement reverse iteration over the _collection_
+argument.
+
+Some collection classes that are stable under iteration support the ability to
+iterate in the reverse of the natural order, by providing a method on the
+generic function #backward-iteration-protocol#. The eight values returned by
+this function are analogous to the corresponding values returned by
+#forward-iteration-protocol#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,19 +24,19 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<collection>#. 
+collection - An instance of #<collection>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
-val - An instance of #<object>#. 
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
+initial-state          - An instance of #<object>#. 
+limit                  - An instance of #<object>#. 
+next-state             - An instance of #<function>#. 
+finished-state?        - An instance of #<function>#. 
+current-key            - An instance of #<function>#. 
+current-element        - An instance of #<function>#. 
+current-element-setter - An instance of #<function>#. 
+copy-state             - An instance of #<function>#. 
 
 
 

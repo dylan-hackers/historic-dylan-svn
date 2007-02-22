@@ -1,12 +1,11 @@
 Generic: string-hash
 ==============================
 
-A generic function.
+A convenient function for hashing strings. Used by #<string-table>#.
 
 
 Exported from:
 ------------------------------
-- #Module table-extensions#
 - #Module table-extensions#
 
 
@@ -17,13 +16,20 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+s             - An instance of #<string>#. 
+initial-state - An instance of #<hash-state>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+hash-id    - An instance of #<integer>#. 
+hash-state - An instance of #<hash-state>#. 
 
 
+
+Methods: string-hash
+==============================
+string-hash - The method on #<string># simply calls #sequence-hash#, so it is
+              not a proper #equal-hash#.
+string-hash - The method on #<byte-string># is a proper #equal-hash#.
 

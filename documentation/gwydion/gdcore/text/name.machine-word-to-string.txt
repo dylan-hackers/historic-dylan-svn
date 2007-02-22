@@ -13,7 +13,7 @@ Exported from:
 Arguments:
 ------------------------------
 arg - An instance of #<machine-word>#. 
-prefix: - An instance of type-union(<string>, <false>). The default is "#x".
+prefix: - An instance of type-union(<false>, <string>). The default is "#x".
 
 
 Values:

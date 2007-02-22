@@ -1,7 +1,9 @@
 Generic: reverse-append
 ==============================
 
-A generic function.
+Prepend a reversed sequence to another sequence.
+
+> reverse-append(#[5, 4, 3, 2, 1], #[6, 7, 8]) ⇒ #[1, 2, 3, 4, 5, 6, 7, 8]
 
 
 Exported from:
@@ -16,13 +18,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-arg - An instance of #<sequence>#. 
+reversed-head	- An instance of #<sequence>#. A sequence to be reversed and
+                prepended to _tail_.
+tail          - An instance of #<sequence>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+new-sequence - An instance of #<sequence>#. 
 
 
 

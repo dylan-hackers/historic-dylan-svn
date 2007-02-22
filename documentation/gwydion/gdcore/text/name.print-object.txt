@@ -1,7 +1,40 @@
 Generic: print-object
 ==============================
 
-A generic function.
+The default way to print objects. Users should never call #print-object#
+directly.
+
+Provides the printed object representation for #print# and for the "%=" format
+directive (see #Format Directives#). Default #print-object# methods exist for
+instances of:
+
+- #<object>#
+- #<character>#
+- #<string>#
+- #<list>#
+- #<vector>#
+- #<sequence>#
+- #<array>#
+- #<table>#
+- #<range>#
+- #<function>#
+- #<singleton>#
+- #<limited-integer>#
+- #<union>#
+- #<symbol>#
+- #<general-integer>#
+- #<integer>#
+- #<ratio>#
+- #<single-float>#
+- #<double-float>#
+- #<extended-float>#
+- #<class>#
+- #t
+- #f
+
+Users may choose to modify the printed representation of an object in two
+ways: override the #print-object# method for that instance's type, or provide
+a printing function to the "%m" directive for #format# or #format-out#.
 
 
 Exported from:
@@ -16,8 +49,8 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<stream>#. 
+object - An instance of #<object>#. 
+stream - An instance of #<stream>#. 
 
 
 

@@ -1,7 +1,7 @@
 Variable: *random-state*
 ==============================
 
-A variable.
+An instance that maintains the random state. Used, by default, to compute random integers and series of bits.
 
 
 Exported from:

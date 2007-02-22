@@ -1,14 +1,16 @@
 Constant: <byte-character>
 ==============================
 
-A constant.
+An ASCII character. Characters of this type represent the ASCII character set
+(or extensions to ASCII such as ISO 8859). Note, in Gwydion compilers the
+#<character># class is equivalent to Unicode characters.
 
 
 Exported from:
 ------------------------------
+- #Module Extensions#
 - #Module common-dylan#
 - #Module common-extensions#
-- #Module Extensions#
 - #Module streams#
 
 

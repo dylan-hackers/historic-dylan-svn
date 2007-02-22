@@ -1,7 +1,11 @@
 Variable: *print-miser-width*
 ==============================
 
-A variable.
+Controls miser mode for pretty printing. Whenever a logical block (see
+#pprint-logical-block#) begins in a column of output that is greater than
+#*default-line-length*# - #*print-miser-width*#, then pretty printing is in
+miser mode. The value must be an integer or #f (the default). #f indicates
+that the pretty printer should never enter miser mode.
 
 
 Exported from:
@@ -11,7 +15,7 @@ Exported from:
 
 Type:
 ------------------------------
-type-union(<false>, <integer>)
+type-union(<integer>, <false>)
 
 
 Value:

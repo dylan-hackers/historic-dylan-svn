@@ -1,13 +1,25 @@
 Generic: concatenate-as
 ==============================
 
-A generic function.
+Returns the concatenation of one or more sequences in a sequence of a
+specified type.
+
+The _result-sequence_ will be an instance of _type_. It may or may not be
+freshly allocated.
+
+_type_ must be a subtype of #<mutable-sequence># and acceptable as the first
+argument to #make#. size: with a non-negative integer value must be an
+acceptable init-keyword for #make# of _type_. The _result-sequence_ may be
+created by calling #make# on _type_, with a size: initialization argument
+whose value is the sum of the sizes of the arguments.
+
+> concatenate-as (<string>, #('n', 'o', 'n'), #('f', 'a', 't'))
+>  ⇒  "nonfat"
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +30,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<type>#. 
-arg - An instance of #<sequence>#. 
-#rest more - Instances of #<object>#. 
+type                 - An instance of #<type>#. 
+first-sequence       - An instance of #<sequence>#. 
+#rest more-sequences - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+result-sequence - An instance of #<sequence>#. 
 
 
 

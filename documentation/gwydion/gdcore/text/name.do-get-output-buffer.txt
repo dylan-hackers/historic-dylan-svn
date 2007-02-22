@@ -22,7 +22,7 @@ bytes: - An instance of #<object>#. The default is #f.
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <buffer>). 
+val - An instance of type-union(<buffer>, <false>). 
 
 
 

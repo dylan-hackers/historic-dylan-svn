@@ -1,7 +1,7 @@
 Function: alist-copy
 ==============================
 
-A function.
+Copies an associative list. See #Associative lists#.
 
 
 Exported from:
@@ -11,15 +11,18 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-key: - An instance of #<object>#. The default is head.
-datum: - An instance of #<object>#. The default is tail.
-cons: - An instance of #<object>#. The default is pair.
+alist  - An instance of #<sequence>#. An associative list.
+key:   - An instance of #<function># used to obtain a key element from an
+         association. The default is #head#.
+datum: - An instance of #<function># used to obtain a value element from an
+         association. The default is #tail#.
+cons:  - An instance of #<function># used to create an association from a
+         key and datum argument. The default is #pair#.
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+new-aseq - An instance of #<sequence>#. The new associative list.
 
 
 

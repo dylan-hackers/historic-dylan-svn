@@ -1,15 +1,14 @@
 Constant: $maximum-integer
 ==============================
 
-A constant.
+Holds the largest positive #<integer>#.
 
 
 Exported from:
 ------------------------------
+- #Module Extensions#
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
-- #Module Extensions#
 
 
 Type:

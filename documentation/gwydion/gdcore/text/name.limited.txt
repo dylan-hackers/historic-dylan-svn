@@ -1,13 +1,19 @@
 Generic: limited
 ==============================
 
-A generic function.
+Returns a limited subtype of a class. The available keyword arguments depend
+on the class. Not all classes support limited; those that do are documented in
+the method descriptions below.
+
+Note that an implementation is not required to implement limited as a generic
+function, and so the behavior embodied in the following method descriptions
+need not actually be implemented by separate methods. The behavior is
+described as a set of methods for convenience of presentation only.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +24,368 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<type>#. 
+class - An instance of #<type>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<type>#. 
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+Returns a limited integer type, which is a subtype of #<integer># whose
+instances are integers greater than or equal to _min_ (if min: is specified)
+and less than or equal to _max_ (if max: is specified). If no keyword
+arguments are specified, the result type is equivalent to #<integer>#. Limited
+integer types are not instantiable.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<integer>). 
+min:  - An instance of #<integer>#.
+max:  - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns an uninstantiable limited #<collection># type.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<collection>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns an uninstantiable limited #<explicit-key-collection>#
+type.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<explicit-key-collection>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns an uninstantiable limited #<mutable-collection># type.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<mutable-collection>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns an uninstantiable limited #<stretchy-collection># type.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<stretchy-collection>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns an uninstantiable limited
+#<mutable-explicit-key-collection># type.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<mutable-explicit-key-collection>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns an uninstantiable limited #<sequence># type.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<sequence>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns an uninstantiable limited #<mutable-sequence># type.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<mutable-sequence>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns a limited #<table># type.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<table>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns a limited #<object-table># type.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<object-table>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns a type that supports dimensions: and fill: initialization
+keywords with the same behavior as #<array>#. The default for _fill_ is #f so
+if instance?(#f, _of_) is not true and the product of the _dimensions_ is
+nonzero, the fill: initialization keyword is required because the default
+would cause a type error.
+
+Instantiating _type_ with a value of _dimensions_ that has one element will
+return an instance of limited(#<simple-vector>#, of: _of_).
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<array>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+dimensions: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns the same types as the method on
+singleton(<simple-vector>).
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<vector>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns a type that supports size: and fill: initialization
+keywords with the same behavior as #<simple-vector>#. The default for _fill_
+is #f so if instance?(#f, _of_) is not true and _size_ is nonzero, the fill:
+initialization keyword is required because the default would cause a type
+error.
+
+All general instances of #<simple-vector># provide a constant time implementation of #element# and #element-setter#.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<simple-vector>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns a type that supports size: and fill: initialization
+keywords with the same behavior as #<stretchy-vector>#. The default for _fill_
+is #f so if instance?(#f, _of_) is not true and _size_ is nonzero, the fill:
+initialization keyword is required because the default would cause a type
+error.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<stretchy-vector>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns a type that supports size: and fill: initialization
+keywords with the same behavior as #<deque>#. The default for _fill_ is #f so
+if instance?(#f, _of_) is not true and _size_ is nonzero, the fill:
+initialization keyword is required because the default would cause a type
+error.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<deque>). 
+of:   - An instance of #<type>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns a type that supports size: and fill: initialization keywords with the same behavior as #<string>#. The _of_ argument must be a subtype of #<character>#. The default for fill: is ' ' so if instance?(' ', _of_) is not true and _size_ is nonzero, the fill: initialization keyword is required because the default would cause a type error.
+
+There are no specified subtypes of #<character>#, except for unions of singletons, which makes this method rather useless for portable programs. However, the method is provided because there might be useful subtypes of #<character># in a particular implementation or in future versions of Dylan.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<string>). 
+of:   - An instance of #<character>#.
+size: - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
+
+
+
+Method: limited
+==============================
+
+This method returns a type that supports from:, to:, below:, above:, by:, and
+size: initialization keywords with the same behavior as #<range>#. The _of_
+argument must be a subtype of #<real>#. Make of this type signals a
+#<type-error># if any element of the range is not an instance of _of_.
+
+
+Arguments:
+------------------------------
+class - An instance of singleton(<string>). 
+of:   - An instance of #<real>#.
+
+
+Values:
+------------------------------
+type - An instance of #<type>#. 
 
 
 

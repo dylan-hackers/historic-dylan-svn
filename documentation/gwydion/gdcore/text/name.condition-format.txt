@@ -1,7 +1,16 @@
 Generic: condition-format
 ==============================
 
-A generic function.
+This function serves as a firewall between the condition system and the
+Streams and Format modules. Methods on #report-condition# should use
+#condition-format# to do their formatting. Users will generally use
+#*warning-output*# for the _stream_ argument, but this is not required.
+
+The Extensions module supplies a method for when _stream_ is #"Cheap-Err" or
+#"Cheap-IO". The Gwydion Format module supplies a method for when _stream_ is
+a subclass of #<stream>#. If you are implementing your own streams or format
+libraries, you will need to define a method on #condition-format# for your
+type of stream.
 
 
 Exported from:
@@ -16,9 +25,11 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<string>#. 
-#rest more - Instances of #<object>#. 
+stream          - An instance of #<object>#. As we don't know the underlying
+                  output system, we'll accept any object.
+control-string  - An instance of #<string>#. The format string to print the
+                  condition.
+#rest arguments - Instances of #<object>#. Arguments for _control-string_.
 
 
 

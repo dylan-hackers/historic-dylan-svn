@@ -1,7 +1,7 @@
 Generic: close
 ==============================
 
-A generic function.
+Closes a #<closable-object>#.
 
 
 Exported from:
@@ -19,9 +19,16 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<closable-object>#. 
+arg        - An instance of #<closable-object>#. 
 #rest more - Instances of #<object>#. 
-#all-keys - This function accepts any keyword argument.
+#all-keys  - This function accepts any keyword argument.
 
 
 
+Methods: close
+==============================
+close - The method on #<basic-stream># closes a stream. Streams are
+        automatically opened when created, and closed when they go out of
+        scope. But, sometimes it is necessary to close a stream immediately
+        (for example, to open another one over the same sequence but in the
+        opposite direction). This function provides for that necessity.

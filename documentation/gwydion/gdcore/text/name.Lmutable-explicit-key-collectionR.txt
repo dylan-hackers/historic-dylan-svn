@@ -1,13 +1,12 @@
 Class: <mutable-explicit-key-collection>
 ==============================
 
-A class.
+The class of explicit key collections that can have elements replaced.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

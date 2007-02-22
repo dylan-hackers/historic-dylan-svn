@@ -1,7 +1,9 @@
 Generic: option-present?
 ==============================
 
-A generic function.
+Tests whether an option was present on the command-line. Returns #t if and
+only if #parse-arguments# found at least one corresponding option on the
+command line. Returns #f if #parse-arguments# has not been called.
 
 
 Exported from:
@@ -16,12 +18,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+parser - An instance of #<option-parser>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+present? - An instance of #<boolean>#. 
 
 
 

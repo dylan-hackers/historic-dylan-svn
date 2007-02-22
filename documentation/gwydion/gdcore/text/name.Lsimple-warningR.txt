@@ -1,13 +1,13 @@
 Class: <simple-warning>
 ==============================
 
-A class.
+A default class of warnings that are described by a warning string. The
+recovery protocol is that any value can be returned and will be ignored.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -16,10 +16,19 @@ Modifiers:
 concrete free sealed
 
 
+Make keywords:
+------------------------------
+format-string:    - An instance of #<string>#. A format string describing the
+                    warning.
+
+format-arguments: - An instance of #<sequence>#. Format arguments to splice
+                    into the format string to describe the warning.
+
+
 Superclasses:
 ------------------------------
 - #<warning>#
- - #<simple-condition>#
+- #<simple-condition>#
  
 
 

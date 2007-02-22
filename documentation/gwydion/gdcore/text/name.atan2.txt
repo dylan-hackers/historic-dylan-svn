@@ -1,12 +1,15 @@
 Generic: atan2
 ==============================
 
-A generic function.
+Returns the arc-tangent of a pair of real numbers. Given the height (AB) as
+_y_ and the base (BC) as _x_, the arc-tangent gives θ as _z_. This is a value
+in radians.
 
 
 Exported from:
 ------------------------------
 - #Module transcendental#
+- #Module transcendentals#
 
 
 Modifiers:
@@ -16,13 +19,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<real>#. 
-arg - An instance of #<real>#. 
+y - An instance of #<real>#. The height, or opposite side from θ.
+x - An instance of #<real>#. The base, or adjacent side to θ.
 
 
 Values:
 ------------------------------
-val - An instance of #<float>#. 
+z - An instance of #<float>#. 
 
 
 

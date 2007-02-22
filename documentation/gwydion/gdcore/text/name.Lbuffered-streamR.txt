@@ -1,7 +1,16 @@
 Class: <buffered-stream>
 ==============================
 
-A class.
+The class of streams that can access multiple elements with a single
+read/write command. These streams support the stream extension and buffer
+access protocols.
+
+Streams of this class support the _buffer-size:_ init-keyword, which can be
+used to suggest the size of the stream's buffer. However, the instantiated
+stream might not use this value: it is taken purely as a suggested value. For
+example, a stream that uses a specific device's hardware buffer might use a
+fixed buffer size regardless of the value passed with the _buffer-size:_
+init-keyword.
 
 
 Exported from:

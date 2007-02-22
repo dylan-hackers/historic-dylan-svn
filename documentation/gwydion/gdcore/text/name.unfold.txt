@@ -1,7 +1,14 @@
 Function: unfold
 ==============================
 
-A function.
+This function is dual to #reduce#; instead of taking some functions and a list
+and producing a value, it takes a value and some functions and produces a
+list.
+
+This function will return #() if pred(seed) is true. Otherwise it builds a
+pair of the form pair(f(seed), unfold(pred, f, g, g(seed) )) .
+
+Thus, this function will always return a proper list, if it terminates at all.
 
 
 Exported from:
@@ -11,15 +18,19 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<function>#. 
-arg - An instance of #<function>#. 
-arg - An instance of #<object>#. 
+pred - An instance of #<function>#. This function takes a seed value and
+       returns #t to terminate the sequence of recursive calls building the
+       list.
+f    - An instance of #<function>#. This function takes a seed value and
+       produces a list element.
+g    - An instance of #<function>#. This function takes a seed value and
+       returns a new seed value.
+seed - An instance of #<object>#. The initial seed value.
 
 
 Values:
 ------------------------------
-val - An instance of #<list>#. 
+new-list - An instance of #<list>#. 
 
 
 

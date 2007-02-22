@@ -1,13 +1,18 @@
 Generic: first-setter
 ==============================
 
-A generic function.
+Sets the first element of a mutable sequence.
+
+This function calls #element-setter# with the supplied arguments and
+corresponding index.
+
+Note that because #element-setter# is zero-based, first-setter(val, seq) is
+equivalent to element-setter(val, seq, 0) and seq[0] := val.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +23,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<mutable-sequence>#. 
+new-value - An instance of #<object>#. 
+sequence  - An instance of #<mutable-sequence>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+new-value - An instance of #<object>#. 
 
 
 

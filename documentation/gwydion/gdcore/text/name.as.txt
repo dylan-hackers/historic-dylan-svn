@@ -1,13 +1,19 @@
 Generic: as
 ==============================
 
-A generic function.
+Coerces an object to a type. That is, it returns an instance of _type_ that
+has the same contents as _object_. If _object_ is already an instance of
+_type_, it is returned unchanged. In general, the value returned may or may
+not be freshly allocated.
+
+Predefined methods allow coercion between integers and characters, between
+strings and symbols, and between collection types. No methods are predefined
+for other classes. Programs may define additional methods.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +24,129 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<type>#. 
-arg - An instance of #<object>#. 
+type - An instance of #<type>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+instance - An instance of #<object>#. 
+
+
+
+Method: as
+==============================
+
+#as# is defined for #<sequence>#s. When converting between collection types,
+the return value will have the same number of elements as _collection_. If the
+_collection_ is an instance of #<sequence># and the _collection-type_ is a
+subtype of #<sequence>#, the elements will be in the same order. The
+individual elements may also undergo some conversion.
+
+
+Arguments:
+------------------------------
+collection-type - An instance of #<type>#.
+collection - An instance of #<sequence>#.
+
+
+Values:
+------------------------------
+instance-of-collection-type - An instance of _collection-type_.
+
+
+
+Method: as
+==============================
+
+This method on #<integer>#, #<character># returns a numeric equivalent for the
+character. The integer returned is implementation dependent.
+
+
+Arguments:
+------------------------------
+type - An instance of singleton(<integer>).
+character - An instance of #<character>#.
+
+
+Values:
+------------------------------
+integer - An instance of #<integer>#.
+
+
+
+Method: as
+==============================
+
+This method on #<character>#, #<integer># returns the character equivalent of
+the integer.
+
+
+Arguments:
+------------------------------
+type - An instance of singleton(<character>).
+integer - An instance of #<integer>#.
+
+
+Values:
+------------------------------
+character - An instance of #<character>#.
+
+
+
+Method: as
+==============================
+
+This method on #as# returns the symbol that has the name _string_. If the
+symbol does not yet exist, it is created. This method on #as# will always
+return the same symbol for strings of the same characters, without regard to
+alphabetic case.
+
+> as(<symbol>, "foo")
+>  ⇒  #"foo"
+> #"FOO" == as(<symbol>, "foo")
+>  ⇒  #t
+> #"Foo"
+>  ⇒  #"foo"
+
+
+Arguments:
+------------------------------
+type - An instance of singleton(<symbol>).
+string - An instance of #<string>#.
+
+
+Values:
+------------------------------
+symbol - An instance of #<symbol>#.
+
+
+
+Method: as
+==============================
+
+This method on #as# returns the name of the symbol, which will be a string.
+
+> as(<string>, #"Foo")
+>  ⇒  "Foo"
+
+
+Arguments:
+------------------------------
+type - An instance of singleton(<string>).
+symbol - An instance of #<symbol>#.
+
+
+Values:
+------------------------------
+symbol - An instance of #<string>#.
+
+
+
+Method: as
+==============================
+The method on #<string>#, #<character># creates a string of length 1,
+containing the character.
 
 
 

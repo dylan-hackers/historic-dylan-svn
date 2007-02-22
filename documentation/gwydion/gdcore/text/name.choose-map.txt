@@ -1,7 +1,10 @@
 Generic: choose-map
 ==============================
 
-A generic function.
+Maps a function over a sequence, then chooses selected elements. _func_ is
+applied to corresponding elements of _seq_ and _seqs_ to yield a sequence.
+_pred_ is applied to elements of that sequence, and those elements for which
+_pred_ is true are returned in a new sequence.
 
 
 Exported from:
@@ -16,15 +19,15 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-#rest more - Instances of #<object>#. 
+pred       - An instance of #<function>#. 
+func       - An instance of #<function>#. 
+seq        - An instance of #<sequence>#. 
+#rest seqs - Instances of #<sequence>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-sequence - Instances of #<sequence>#. 
 
 
 

@@ -1,7 +1,17 @@
 Generic: condition-force-output
 ==============================
 
-A generic function.
+Flushes the condition output stream. #condition-force-output# forces any
+pending output from _stream_'s buffer to _stream_'s destination. This function
+is invoked by the debugger after a condition has been reported and before it
+pauses for user input. Unless you are writing a debugger, you do not need to
+call #condition-force-output# yourself.
+
+The Extensions module supplies a method for when _stream_ is #"Cheap-IO" or
+#"Cheap-Err". The Gwydion Format module supplies a method for when _stream_ is
+a subclass of #<stream>#. If you are implementing your own streams or format
+libraries, you will need to define a method on #condition-force-output# for
+your type of stream.
 
 
 Exported from:
@@ -16,7 +26,8 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+stream - An instance of #<object>#. As we don't know the underlying output
+         system, we'll accept any object.
 
 
 

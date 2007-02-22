@@ -1,19 +1,27 @@
 Function: break
 ==============================
 
-A function.
+Invokes the debugger.
+
+This function obtains a condition in the same way as #signal# but then invokes
+the debugger immediately without signaling first. #break# establishes a
+#<simple-restart># so the debugger can continue execution. This is useful for
+breakpoints. #break# always returns #f. With no arguments, a default message
+string is used.
+
+The behavior of the debugger is implementation-defined.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest more - An instance of #<condition>#, or an instances of #<string>#
+             followed by instances of #<object>#.
 
 
 Values:

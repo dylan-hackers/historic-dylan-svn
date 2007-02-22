@@ -1,7 +1,10 @@
 Function: heads
 ==============================
 
-A function.
+In a list of lists, this function returns a list of the first elements of each
+of the lists.
+
+> heads(#(#(1, 5, 10), #(2, 4, 6), #(3, 6, 9))) ⇒ #(1, 2, 3)
 
 
 Exported from:
@@ -11,12 +14,12 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<list>#. 
+lists - An instance of #<list>#. A list of lists.
 
 
 Values:
 ------------------------------
-val - An instance of #<list>#. 
+new-list - An instance of #<list>#. 
 
 
 

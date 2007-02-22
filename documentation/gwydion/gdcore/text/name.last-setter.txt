@@ -1,13 +1,30 @@
 Generic: last-setter
 ==============================
 
-A generic function.
+Replaces the last element of a mutable sequence with a new value.
+_mutable-sequence_ is modified by this operation.
+
+_new-value_ must obey any type restrictions for elements of
+_mutable-sequence_. An error is signaled if _mutable-sequence_ is empty or
+unbounded.
+
+> define variable my-list = list (1, 2, 3)
+> my-list
+>  ⇒  #(1, 2, 3)
+> last (my-list) := 4
+>  ⇒  4
+> my-list
+>  ⇒  #(1, 2, 4)
+> define variable my-empty-vector = vector()
+> my-empty-vector
+>  ⇒  #[]
+> last (my-empty-vector) := 4
+> {error}
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +35,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<mutable-sequence>#. 
+new-value        - An instance of #<object>#. 
+mutable-sequence - An instance of #<mutable-sequence>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+new-value - An instance of #<object>#. 
 
 
 

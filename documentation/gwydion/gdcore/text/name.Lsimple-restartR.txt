@@ -1,13 +1,13 @@
 Class: <simple-restart>
 ==============================
 
-A class.
+A default class of restarts. Typical implementations will use the format
+string and format arguments to produce a description of the restart.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -16,10 +16,19 @@ Modifiers:
 concrete free sealed
 
 
+Make keywords:
+------------------------------
+format-string:    - An instance of #<string>#. A format string describing the
+                    restart.
+
+format-arguments: - An instance of #<sequence>#. Format arguments to splice
+                    into the format string to describe the restart.
+
+
 Superclasses:
 ------------------------------
 - #<restart>#
- - #<simple-condition>#
+- #<simple-condition>#
  
 
 

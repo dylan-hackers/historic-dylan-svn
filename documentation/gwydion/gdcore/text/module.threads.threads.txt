@@ -6,7 +6,8 @@ The threads module.
 
 Exported from:
 ------------------------------
-#Library threads#
+- #Library threads#
+- #Library common-dylan#
 
 
 Topic: threads names

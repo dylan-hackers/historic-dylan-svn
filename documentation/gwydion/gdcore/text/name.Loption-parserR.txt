@@ -1,7 +1,11 @@
 Class: <option-parser>
 ==============================
 
-A class.
+Parses a single command-line option and any parameters.
+
+Different types of command-line options are parsed according to different rules. An #<option-parser># knows how to handle one type of option. The _long-options:_ and _short-options:_ keywords are used to specify which option names should be handled by a given parser.
+
+An option parser can be connected to an #<argument-list-parser># via #add-option-parser#.
 
 
 Exported from:
@@ -12,6 +16,16 @@ Exported from:
 Modifiers:
 ------------------------------
 abstract primary open
+
+
+Make keywords:
+------------------------------
+long-options:  - An instance of #<list>#. Specifies the long options handled
+                 by this parser, represented as strings. Defaults to #().
+short-options: - An instance of #<list>#. Specifies the short options handled
+                 by this parser, represented as strings. Defaults to #().
+description:   - An instance of #<string>#. A description of the options
+                 handled by this parser. Defaults to "".
 
 
 Superclasses:
@@ -31,6 +45,11 @@ Subclasses:
 Functions on <option-parser>:
 ------------------------------
 - #add-option-parser#
+- #description#
+- #description-setter#
+- #option-present?#
+- #option-value#
+- #option-value-setter#
 - #parse-option#
 - #reset-option-parser#
 

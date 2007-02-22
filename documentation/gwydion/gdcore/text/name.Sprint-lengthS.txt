@@ -1,7 +1,8 @@
 Variable: *print-length*
 ==============================
 
-A variable.
+The current length value for the print request. See the #print# function for
+details.
 
 
 Exported from:
@@ -11,7 +12,7 @@ Exported from:
 
 Type:
 ------------------------------
-type-union(<false>, <integer>)
+type-union(<integer>, <false>)
 
 
 Value:

@@ -1,13 +1,25 @@
 Generic: merge-hash-ids
 ==============================
 
-A generic function.
+Returns a hash id created from the merging of two argument hash ids. This can
+be used, for example, to generate a hash id for an object by combining hash
+ids of some of its parts.
+
+_id1_, _id2_, and _merged-id_ are all integers. _ordered_ is a boolean and
+determines whether the algorithm used to perform the merge is permitted to be
+order dependent. If false, which is the default, then the merged result must
+be independent of the order in which the argument pairs are provided. If true,
+then the order of the argument pairs matters because the algorithm used need
+not be either commutative or associative. It is best to provide a true value
+for ordered when possible, as this may result in a better distribution of hash
+ids. However, ordered must only be true if this will not cause the hash
+function to violate the second constraint on hash functions, described on page
+123 of the _Dylan Reference Manual_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +30,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+id1      - An instance of #<integer>#. 
+id2      - An instance of #<integer>#.
+ordered: - An instance of #<object>#. The default is #f.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+merged-id - An instance of #<integer>#. 
 
 
 

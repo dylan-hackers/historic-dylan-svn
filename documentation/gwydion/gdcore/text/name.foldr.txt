@@ -1,7 +1,12 @@
 Function: foldr
 ==============================
 
-A function.
+Rebuilds a list by applying a function over it. For example, to copy a list,
+one would write:
+
+> foldr(pair, #(), #(1, 2, 3, 4, 5)) ⇒ #(1, 2, 3, 4, 5)
+	    
+Exercise: what is the result when you replace pair with list?
 
 
 Exported from:
@@ -11,14 +16,16 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<list>#. 
+cons - An instance of #<function>#. The signature of the function is
+       (#<list>#, #<list>#) => (#<pair>#).
+nil -  An instance of #<object>#. Value returned if the list is empty. In most
+       cases this should be #().
+lst -  An instance of #<list>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+result - An instance of #<list>#. 
 
 
 

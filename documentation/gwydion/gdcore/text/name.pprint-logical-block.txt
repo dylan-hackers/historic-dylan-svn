@@ -1,7 +1,37 @@
 Generic: pprint-logical-block
 ==============================
 
-A generic function.
+Start a logical block, creating a #<pretty-stream># if necessary.
+
+This function groups printing into a logical block. The logical block provides
+boundaries for new levels of indentation, affects #"linear" newlines, and so
+on.
+
+_prefix_ is a string to print at the beginning of the logical block. The
+block's indentation is automatically set to be one character position greater
+than the column in which _prefix_ ends. Alternatively, _per-line-prefix_ is a
+string to print on every line of the logical block. This function signals an
+error if it is called with both _prefix_ and _per-line-prefix_ supplied.
+
+_suffix_ is a string to print at the end of the logical block.
+
+_column_ advises the pretty printer as to the current column of the output
+stream. The _column_ argument may be ignored entirely by some methods, and it
+may be ignored in some cases by methods that can better determine the stream's
+current output column.
+
+_body_ must be a #<function># that can take one argument, and this argument is
+a #<stream>#. The _body_ function should use the stream argument passed to it;
+the _body_ function should not close over the stream argument to
+#pprint-logical-block#.
+
+#pprint-logical-block# wraps _stream_ with a pretty printing stream when
+_stream_ is any other kind of stream. If _stream_ is already a pretty printing
+stream, then the _body_ function is called on _stream_.
+
+All #print-object# methods that are written to do pretty printing must call
+the other pretty printing functions within the dynamic scope of a call to
+#pprint-logical-block#; otherwise, the pretty printing functions are no-ops.
 
 
 Exported from:
@@ -16,12 +46,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
-column: - An instance of #<integer>#. Required.
-prefix: - An instance of type-union(<false>, <byte-string>). The default is #f.
-per-line-prefix: - An instance of type-union(<false>, <byte-string>). The default is #f.
-body: - An instance of #<function>#. Required.
-suffix: - An instance of type-union(<false>, <byte-string>). The default is #f.
+stream           - An instance of #<stream>#. 
+column:          - An instance of #<integer>#. Required.
+prefix:          - An instance of type-union(<false>, <byte-string>). The
+                   default is #f.
+per-line-prefix: - An instance of type-union(<false>, <byte-string>). The
+                   default is #f.
+body:            - An instance of #<function>#. Required.
+suffix:          - An instance of type-union(<false>, <byte-string>). The
+                   default is #f.
 
 
 

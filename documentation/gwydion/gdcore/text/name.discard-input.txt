@@ -1,7 +1,12 @@
 Generic: discard-input
 ==============================
 
-A generic function.
+Discards the elements from the stream.
+
+"Reads" in all the elements, and then discards them. The actual action depends
+on which method of this function does the work. The default implementation
+does nothing, other implementations advance the stream's position to the end
+of the collection.
 
 
 Exported from:
@@ -17,7 +22,7 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
+stream - An instance of #<stream>#. 
 
 
 

@@ -1,7 +1,8 @@
 Function: xpair
 ==============================
 
-A function.
+Puts an element at the head of a list. Occasionally useful as a value to be
+passed to a fold or other higher-order procedure.
 
 
 Exported from:
@@ -11,13 +12,13 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<list>#. 
-arg - An instance of #<object>#. 
+list - An instance of #<list>#. 
+elt  - An instance of #<object>#. The element to add to the front of the list.
 
 
 Values:
 ------------------------------
-val - An instance of #<list>#. 
+new-list - An instance of #<list>#. 
 
 
 

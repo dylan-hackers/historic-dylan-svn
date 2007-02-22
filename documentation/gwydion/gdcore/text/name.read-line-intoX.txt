@@ -1,7 +1,15 @@
 Generic: read-line-into!
 ==============================
 
-A generic function.
+Reads a line of elements from a stream into a collection.
+
+Reads in a line of elements from the stream starting from the the stream's
+current position and places those elements into _sequence_. _Sequence_ must be
+mutable to allow it to expand should the streamed in elements be larger than
+its original size when _grow?:_ is #t. Handles end-of-stream conditions just
+as #read-element# does.
+
+The end of line may be '\r', '\n', or '\r\n'.
 
 
 Exported from:
@@ -16,17 +24,21 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
-arg - An instance of #<string>#. 
-start: - An instance of #<object>#. The default is #f.
-on-end-of-stream: - An instance of #<object>#. The default is #f.
-grow?: - An instance of #<object>#. The default is #f.
+stream            - An instance of #<stream>#. 
+string            - An instance of #<string>#. This sequence must allow for
+                    changes in its size when _grow?:_ is #t.
+start:            - An instance of #<integer>#. What index to start writing
+                    into the sequence. Defaults to 0.
+on-end-of-stream: - An instance of #<object>#. Value returned if reading past
+                    the stream. The default is #$not-supplied#.
+grow?:            - An instance of #<object>#. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
-val - An instance of #<boolean>#. 
+sequence-or-eof - An instance of #<sequence># or the _on-end-of-stream:_
+                  value. 
+newline?        - An instance of #<boolean>#. 
 
 
 

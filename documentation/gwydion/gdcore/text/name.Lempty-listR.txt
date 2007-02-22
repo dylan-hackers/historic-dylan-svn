@@ -1,13 +1,14 @@
 Class: <empty-list>
 ==============================
 
-A class.
+The class with only one instance, the empty list. The empty list is a direct
+instance of <empty-list> and an indirect instance of #<list>#. Note that
+<empty-list> is not == to singleton(#()).
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

@@ -1,25 +1,29 @@
 Function: find-method
 ==============================
 
-A function.
+Returns the method in a generic function that has particular specializers. The
+specializers must match exactly for a method to be returned.
+
+If _generic-function_ is sealed, an implementation may choose to signal an
+error of type #<sealed-object-error># rather than return a value.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<generic-function>#. 
-arg - An instance of #<sequence>#. 
+generic-function - An instance of #<generic-function>#. 
+specializers     - An instance of #<sequence>#. Elements of the sequence are
+                   instances of #<type>#.
 
 
 Values:
 ------------------------------
-val - An instance of type-union(<method>, <false>). 
+found-method - An instance of type-union(<false>, <method>). 
 
 
 

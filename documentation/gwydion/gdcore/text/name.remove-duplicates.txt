@@ -1,13 +1,28 @@
 Generic: remove-duplicates
 ==============================
 
-A generic function.
+Returns a sequence without duplicates.
+
+_test_ is the function used to determine whether one element is a duplicate of
+another. The test argument may be non-commutative; it will always be called
+with its arguments in the same order as they appear in _source-sequence_.
+
+The _result-sequence_ may or may not be freshly allocated. However, the
+_source-sequence_ will not be modified by this operation.
+
+> remove-duplicates (#("spam", "eggs", "spam", 
+>                      "sausage", "spam", "spam"),
+>                     test: \=)
+>  ⇒  #("spam", "eggs", "sausage")
+> or
+>  ⇒  #("eggs", "spam", "sausage")
+> or
+>  ⇒  #("eggs", "sausage", "spam")
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +33,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-test: - An instance of #<object>#. The default is #f.
+source-sequence - An instance of #<sequence>#. 
+test:           - An instance of #<function>#. The default is #==#.
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+result-sequence - An instance of #<sequence>#. 
 
 
 

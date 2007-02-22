@@ -1,26 +1,44 @@
 Function: add-method
 ==============================
 
-A function.
+Adds a method to a generic function.
+
+Programs do not commonly call #add-method# directly. It is called by define
+method (see #method-definer#).
+
+If you add a method to a generic function, and the generic function already
+has a method with the exact same specializers, then the old method is replaced
+with the new one.
+
+A single method may be added to any number of generic functions.
+
+#add-method# returns two values. The first is the new _method_. The second
+will be either the method in _generic-function_ that is being replaced by
+_method_, or it will be #f if no method is being replaced.
+
+#add-method# may signal an error of type #<sealed-object-error># if adding the
+method or replacing an existing method would cause a sealing violation.
+
+If _generic-function_ is sealed, or if _method_ is in a sealed domain of
+_generic-function_, then an error of type #<sealed-object-error># is signaled.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<generic-function>#. 
-arg - An instance of #<method>#. 
+generic-function - An instance of #<generic-function>#. 
+method - An instance of #<method>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<method>#. 
-val - An instance of type-union(<method>, <false>). 
+new-method - An instance of #<method>#. 
+old-method - An instance of type-union(<false>, <method>). 
 
 
 

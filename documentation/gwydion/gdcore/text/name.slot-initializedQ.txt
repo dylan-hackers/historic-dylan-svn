@@ -1,13 +1,23 @@
 Generic: slot-initialized?
 ==============================
 
-A generic function.
+Tests whether a slot has been initialized.
+
+Returns true if the slot in _instance_ that would be accessed by the _getter_
+generic function is initialized. If the slot is not initialized, then false is
+returned.
+
+slot-initialized? will signal an error if the _getter_ does not access a slot
+in the _instance_.
+
+To support slot-initialized? for a virtual slot, programmers must define a
+method for slot-initialized? that shares a protocol with the getter of the
+slot.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +28,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<generic-function>#. 
+instance - An instance of #<object>#. 
+getter   - An instance of #<generic-function>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
 
 
 

@@ -1,25 +1,35 @@
 Function: rcurry
 ==============================
 
-A function.
+Returns a function that applies _function_ to _curried-args_ plus its own arguments, with the _curried-args_ occurring last.
+
+#rcurry# ("right" curry) operates just like #curry#, except it allows the rightmost arguments of function to be specified in advance, rather than the leftmost arguments. For example, rcurry(\>, 6) is a predicate that returns true for values greater than 6.
+
+> define constant number? = rcurry(instance?, <number>)
+> number?(4) 
+>  ⇒ #t
+> number?("string")
+>  ⇒ #f
+> define constant greater-than-10? = rcurry(\>, 10)
+> greater-than-10?(4)
+>  ⇒ #f
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-#rest more - Instances of #<object>#. 
+function           - An instance of #<function>#. 
+#rest curried-args - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<function>#. 
+new-function - An instance of #<function>#. 
 
 
 

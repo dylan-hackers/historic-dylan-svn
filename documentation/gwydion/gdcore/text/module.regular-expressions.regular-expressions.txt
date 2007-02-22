@@ -1,7 +1,18 @@
 Module: Module regular-expressions
 ==============================
 
-The regular-expressions module.
+Parsing a regexp is not cheap, so we cache the parsed regexps and only parse a
+string if we haven't seen it before. Because in practice almost all regexp
+strings are string literals, we're free to choose #==# or #=# depending on
+whatever is fastest. However, because a string is parsed differently depending
+on whether the search is case sensitive or not, we also have to keep track of
+that information as well. (The case dependent parse boils down to the parse
+creating a #<character-set>#, which must be either case sensitive or case
+insensitive).
+
+Note: Currently, only #regexp-position# uses this cache, because the other
+functions are still using #make-regexp-positioner# internally. With caching,
+that #make-regexp-whatever# stuff should probably go.
 
 
 Exported from:

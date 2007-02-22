@@ -1,7 +1,40 @@
 Generic: translate
 ==============================
 
-A generic function.
+Does a character by character translation. This is equivalent to Perl's tr///
+construct. _From-string_ is a string specification of a character set, and
+_to-string_ is another character set. #translate# converts _input_ character
+by character, according to the sets. For instance,
+
+: translate("any string", "a-z", "A-Z")
+	    
+will convert "any string" to all uppercase: "ANY STRING".
+
+Like Perl, character ranges are not allowed to be "backwards". The following
+is not legal:
+
+translate("any string", "a-z", "z-a")
+
+Unlike Perl's tr///, #translate# doesn't return the number of characters
+translated.
+
+If _delete:_ is #t, any characters in the _from-string_ that don't have
+matching characters in the _to-string_ are deleted. The following will remove
+all vowels from a string and convert periods to commas:
+
+: translate("any string", ".aeiou", ",", delete: #t)
+
+_Delete:_ is #f by default. If _delete:_ is #f and there aren't enough
+characters in the _to-string_, the last character in the _to-string_ is reused
+as many times as necessary. The following converts several punctuation
+characters into spaces:
+
+: translate("any string", ",./:;[]{}()", " ");
+
+_Start:_ and _end:_ indicate which part of _input_ to translate. They default
+to the entire string.
+
+Note: #translate# is always case sensitive.
 
 
 Exported from:
@@ -16,17 +49,21 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
-arg - An instance of #<string>#. 
-arg - An instance of #<string>#. 
-delete: - An instance of #<object>#. The default is #f.
-start: - An instance of #<object>#. The default is #f.
-end: - An instance of #<object>#. The default is #f.
+input    - An instance of #<string>#. The string to translate.
+from-set - An instance of #<string>#. String specification of a character set.
+to-set   - An instance of #<string>#. Another character set.
+delete:  - An instance of #<object>#. If true, any characters in the
+           _from-string_ that don't have matching characters in the
+           _to-string_ are deleted. The default is #f.
+start:   - An instance of #<integer>#. Where to start parsing the string. The
+           default is 0.
+end:     - An instance of #<integer># or #f. If defined, where to stop parsing
+           the string. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<string>#. 
+output - An instance of #<string>#. 
 
 
 

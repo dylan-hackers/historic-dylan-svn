@@ -1,13 +1,22 @@
 Generic: key-sequence
 ==============================
 
-A generic function.
+Returns a sequence containing the keys of its collection argument.
+
+Although elements may be duplicated in a collection, keys, by their nature,
+must be unique; two different elements in a collection may not share a common
+key, even though distinct keys may yield identical elements.
+
+The order in which the keys from _collection_ appear in the key sequence is
+unspecified if _collection_ is unstable under iteration. In particular,
+different calls to #key-sequence# with the same argument may yield differently
+ordered key sequences. If _collection_ is stable under iteration, however, the
+resulting sequence of keys will be in the natural order for _collection_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +27,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<collection>#. 
+collection - An instance of #<collection>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+keys - An instance of #<sequence># containing the keys of _collection_. 
 
 
 

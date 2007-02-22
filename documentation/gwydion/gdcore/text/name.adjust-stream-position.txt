@@ -1,7 +1,8 @@
 Generic: adjust-stream-position
 ==============================
 
-A generic function.
+Sets the relative position of a stream. The position is relative to the
+current position or from either end of the stream.
 
 
 Exported from:
@@ -17,14 +18,19 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
-arg - An instance of #<object>#. 
-from: - An instance of #<object>#. The default is #f.
+stream - An instance of #<stream>#. 
+delta  - An instance of #<integer>#. The distance to move.
+from:  - One of #"current", #"start", #"end". The position from where to move.
+         The default is #"current".
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+new-position - An instance of type-union( <stream-position>, <integer> ). 
 
 
+
+Methods: adjust-stream-position
+==============================
+adjust-stream-position - A method on #<basic-positionable-stream>#.
 

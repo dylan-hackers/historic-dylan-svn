@@ -1,13 +1,13 @@
 Class: <general-integer>
 ==============================
 
-A class.
+Parent class of all integers.
 
 
 Exported from:
 ------------------------------
-- #Module common-dylan#
 - #Module Extensions#
+- #Module common-dylan#
 
 
 Modifiers:

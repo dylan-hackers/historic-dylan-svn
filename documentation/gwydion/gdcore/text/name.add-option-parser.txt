@@ -1,7 +1,9 @@
 Function: add-option-parser
 ==============================
 
-A function.
+Attaches an #<option-parser># to an #<argument-list-parser>#. It is an error
+to attach an #<option-parser># more than once, and no mechanism is provided to
+detach one.
 
 
 Exported from:
@@ -11,8 +13,8 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<argument-list-parser>#. 
-arg - An instance of #<option-parser>#. 
+args-parser   - An instance of #<argument-list-parser>#. 
+option-parser - An instance of #<option-parser>#. 
 
 
 

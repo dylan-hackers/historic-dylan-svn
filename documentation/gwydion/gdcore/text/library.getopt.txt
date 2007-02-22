@@ -1,7 +1,137 @@
 Library: Library getopt
 ==============================
 
-The getopt library.
+The getopt library provides a simple and flexible way to parse the
+command-line arguments of a Dylan program. It provides support for the most
+common types of command-line options, and can be extended to suit the needs of
+a particular application.
+
+To parse a command-line, you create a new #<argument-list-parser>#, connect a
+number of individual #<option-parser>#s, call #parse-arguments#, and use the
+resulting information.
+
+
+Topic: getopt terminology
+------------------------------
+
+The getopt library uses a standard set of terminology for representing the
+tokens which might appear on a command line, for example
+
+: $ sample-app -v --repeat -n=10 foo.txt -- bar.txt
+
+application name:
+The application name appears first on the command line. Under Unix-like
+systems, the application name is passed to the program exactly as typed. In
+particular, it may be the name of a symlink or include one or more directory
+components.
+
+command-line arguments:
+Everything appearing after the application name is a command-line argument.
+
+regular argument:
+In the above example, foo.txt and bar.txt are regular arguments.
+
+option:
+Options are also known as flags and switches. They control the behavior of the
+application, and may appear in one of two forms. Short options always appear
+after a single dash, but several of them may be grouped together (e.g. -tzvf
+in GNU tar). In the example, -v and -n are both short options. Long options
+such as --repeat consist of entire words and are always preceded by two
+dashes.
+
+parameter:
+Parameters modify the behavior of an option. In the example, the 10 following
+-n is a parameter. Note that the equals sign may be surrounded by white space
+or omitted entirely where unambiguous.
+
+option terminator:
+The double dash without an option name is called an option terminator. Any
+arguments appearing after the terminator are automatically regular arguments,
+even if they begin with a dash.
+
+
+Topic: A simple example of using getopt
+---------------------------------------
+
+These listings demonstrate how to use the getopt library in a simple
+application.
+
+: Module: dylan-user
+: 
+: define library sample-application
+:   use dylan;
+:   use format-out;
+:   use getopt;
+: end library;
+: 
+: define module sample-application
+:   use dylan;
+:   use extensions;
+:   use format-out;
+:   use getopt;
+: end module;
+
+: Module: sample-application
+: 
+: define argument-parser <sample-parser> ()
+:   option verbose?, long: "verbose", short: "v";
+:   option logfile, kind: <parameter-option-parser>, long: "logfile", short: "L";
+:   regular-arguments file-names;
+: end;
+: 
+: define method main(program-name :: <string>, #rest arguments)
+:   let parser = make(<sample-parser>);
+: 
+:   unless (parse-arguments(parser, arguments))
+:     format-out("Usage: %s [-v] [-Llogfile] files...\n", program-name);
+:     exit(exit-code: 1);
+:   end;
+: 
+:   // Body of program.
+: end;
+
+In the above listing, the variable _parser.verbose?_ will be set to #t if
+either --verbose or -v appears on the command line. Otherwise, it will be set
+to #f. Similarly, if -Lfilename or --logfile=filename appears on the command
+line, the variable _parser.logfile_ will be set the string "filename".
+Otherwise, it too will be set to #f.
+
+Any other arguments will be collected and placed in the variable
+_parser.file-names_.
+
+The next listing shows how to use the getopt library without using the _define
+argument-parser_ macro. Here the various arguments are added manually, and
+accessed using the #option-value-by-long-name# method.
+
+: Module: sample-application
+: 
+: define method main(program-name :: <string>, #rest arguments)
+:   let parser = make(<argument-list-parser>);
+:   add-option-parser-by-type(parser,
+:                             <simple-option-parser>,
+:                             long-options: #("verbose"),
+:                             short-options: #("v"));
+:   add-option-parser-by-type(parser,
+:                             <parameter-option-parser>,
+:                             long-options: #("logfile"),
+:                             short-options: #("L"));
+: 
+:   unless (parse-arguments(parser, arguments))
+:     format-out("Usage: sample-application [-v] [-Llogfile] files...\n");
+:     exit(exit-code: 1);
+:   end;
+: 
+:   let verbose? = option-value-by-long-name(parser, "verbose");
+:   let logfile = option-value-by-long-name(parser, "logfile");
+:   let file-names = parser.regular-arguments;
+: 
+:   // Body of program.
+: end;
+
+Using the _define argument-parser_ macro is the preferred way of using the
+getopt library. It is both more convenient and more readable. The manual way
+is documented for advanced users who wish to extend the functionality of the
+option parsers.
 
 
 Topic: getopt modules

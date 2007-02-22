@@ -1,24 +1,24 @@
 Function: list
 ==============================
 
-A function.
+Creates and returns a freshly allocated list. The list contains the
+_arguments_, in order.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest arguments - The elements of the #<list>#. Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<list>#. 
+list - A freshly allocated instance of #<list>#. 
 
 
 

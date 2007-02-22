@@ -1,12 +1,13 @@
 Generic: tan
 ==============================
 
-A generic function.
+Returns the tangent of a real number.
 
 
 Exported from:
 ------------------------------
 - #Module transcendental#
+- #Module transcendentals#
 
 
 Modifiers:
@@ -16,12 +17,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<real>#. 
+x - An instance of #<real>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<float>#. 
+y - An instance of #<float>#. 
 
 
 

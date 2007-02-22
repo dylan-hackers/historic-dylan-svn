@@ -1,11 +1,35 @@
 Library: Library Dylan
 ==============================
 
-The Dylan library.
+In the process of working with Dylan, the Gwydion Project has come up with
+numerous extensions to the Dylan language. Some of them form entire libraries,
+like Collection-Extensions or String-Extensions libraries. Others have been
+added to the Dylan library, in such modules as Extensions and System.
+
+We continue to make no claims about future support for our extensions.
+However, some extensions are more likely than others to make it into our
+future compilers. This file documents those extensions which we think will be
+included in our compiler's Dylan library.
+
+Extensions which go in separate libraries are documented in their own files;
+extensions which are part of the Mindy Dylan library but which have a less
+certain future are documented in the Mindy documentation.
+
+For the remainder of this chapter, we shall refer to "Gwydion compilers" as a
+shorthand for "Mindy and other Dylan compilers that the Gwydion Project may
+write." It is not meant as a guarantee that all future Gwydion releases will
+support these extensions.
+
+Specific Gwydion compilers may support extensions not listed here; see their
+documentation for details.
 
 
 Topic: Dylan modules
 ------------------------------
+In addition to containing the Dylan module, the Dylan library contains a
+variety of modules which provide extensions. Gwydion compilers export the
+following modules from the Dylan library:
+
 - #Module Cheap-IO#
 - #Module Dylan#
 - #Module Extensions#
@@ -14,3 +38,17 @@ Topic: Dylan modules
 - #Module Runtime-Threads#
 - #Module system#
 
+The Extensions module exports useful extensions to the Dylan language.
+Ultimately, there will be several, more logically separate libraries that
+extend Dylan or provide an application framework for users. For now, we put
+any commonly used utilities in the Extensions module.
+
+The System module exports an interface to operating system calls and special,
+low-level functionality.
+
+The Introspection module exports reflective operations for examining classes,
+functions, and so on.
+
+The Cheap-IO module exports some basic, unextendable input and output
+functionality. For all but the most trivial applications, it is better to use
+the IO library instead.

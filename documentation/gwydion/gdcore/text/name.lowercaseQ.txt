@@ -1,7 +1,7 @@
 Function: lowercase?
 ==============================
 
-A function.
+Returns #t if the character is in [a-z].
 
 
 Exported from:

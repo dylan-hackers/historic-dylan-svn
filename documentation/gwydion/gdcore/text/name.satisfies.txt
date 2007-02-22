@@ -1,7 +1,8 @@
 Generic: satisfies
 ==============================
 
-A generic function.
+Serves the same purpose as #find-key#. Locates an element in _seq_ that
+returns a true value from _pred_, and returns its key.
 
 
 Exported from:
@@ -16,13 +17,16 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+pred     - An instance of #<function>#. The test function to find an element.
+seq      - An instance of #<sequence>#. 
+failure: - An instance of #<object>#. The value returned if no matching
+           element is found. Defaults to #f.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+index - An instance of #<integer># or the _failure_ value. The index of the
+        found element.
 
 
 

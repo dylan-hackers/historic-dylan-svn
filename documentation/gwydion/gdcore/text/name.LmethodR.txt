@@ -1,13 +1,12 @@
 Class: <method>
 ==============================
 
-A class.
+The class of functions that are applicable to arguments of a specified type.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

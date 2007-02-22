@@ -1,7 +1,14 @@
 Generic: read-to
 ==============================
 
-A generic function.
+Reads in a group of elements from a stream up to but not including a marker
+element.
+
+Reads in as many elements from the stream starting from the the stream's
+current position until it reaches _elemnt_. Returns the matching sequence and
+#t if _elemnt_ was in the stream. If #read-to# does not find _elemnt_ (using
+the function supplied to _test:_), it will handle end-of-stream conditions as
+#read-element#.
 
 
 Exported from:
@@ -16,16 +23,19 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
-arg - An instance of #<object>#. 
-on-end-of-stream: - An instance of #<object>#. 
-test: - An instance of #<object>#. The default is ==.
+stream            - An instance of #<stream>#. 
+elemnt            - An instance of #<object>#. The element to read up to.
+on-end-of-stream: - An instance of #<object>#. Value returned if reading past
+                    the stream. Defaults to #$not-supplied#.
+test:             - An instance of #<function>#. Comparator for _elemnt_ and
+                    the stream's contents. The default is #==#.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
-val - An instance of #<boolean>#. 
+sequence-or-eof - An instance of #<sequence># or the _on-end-of-stream:_
+                  value. 
+found?          - An instance of #<boolean>#.
 
 
 

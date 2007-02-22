@@ -1,20 +1,48 @@
 Macro: constant-definer
 ==============================
 
-A macro.
+Defines and initializes a constant binding in the current module.
+
+The values returned by _init_ are used to initialize the constant bindings.
+The first value returned is bound to the first constant, the second value to
+the second constant, etc. The last constant may be preceded by #rest, in which
+case it is bound to a sequence containing all the remaining values.
+
+If more than one constant is defined, the constants are enclosed in
+parentheses and separated by commas.
+
+: define constant $start-time = get-current-time();
+: define constant $pi = 3.14159;
+: define constant ($whole-pie, $piece-pie) = truncate($pi); 
+
+Module constants may be specialized. This ensures that their value is of a
+given type. An attempt to initialize the constant to a value not of that type
+will signal an error of type #<type-error>#.
+
+: define constant $start-time :: <integer> = get-current-time(); 
+
+A constant binding cannot be assigned a new value. However, the object that is
+the value of the constant binding is not necessarily itself immutable. For
+example, if a constant binding contains a sequence, the elements of the
+sequence may be settable.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          list-style define macro
+: define (adjectives) constant (constants) = _init_
+        
+
+Arguments:
+------------------------------
+adjectives - Gwydion Dylan does not allow any adjectives.
+constants  - A constant or constant list declaration.
+init       - An expression returning a value or values.
         
 
 

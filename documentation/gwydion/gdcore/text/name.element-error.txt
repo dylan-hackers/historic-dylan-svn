@@ -6,8 +6,8 @@ A function.
 
 Exported from:
 ------------------------------
-- #Module functional-extensions#
 - #Module Extensions#
+- #Module functional-extensions#
 
 
 Arguments:

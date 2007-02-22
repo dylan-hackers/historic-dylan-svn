@@ -1,25 +1,29 @@
 Function: >
 ==============================
 
-A function.
+Returns true if its first operand is greater than its second operand.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+object1 - An instance of #<object>#. 
+object2 - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
+
+
+See also:
+------------------------------
+- #Equality and Comparison#
 
 
 

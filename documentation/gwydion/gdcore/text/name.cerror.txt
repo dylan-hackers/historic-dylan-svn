@@ -1,26 +1,29 @@
 Function: cerror
 ==============================
 
-A function.
+Signals a correctable error.
+
+#cerror# is the same as #error# but first establishes a handler for #<simple-restart>#, with a format string of #restart-description# and format arguments of a sequence containing the #arguments#.
+
+If the restart handler is invoked, #cerror# returns #f; otherwise, #cerror# never returns. If #cerror# returns, the program should take the corrective actions promised in the #restart-description#. #cerror# is the standard way to signal correctable errors when no special class of restart condition is required.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
-arg - An instance of type-union(<condition>, <string>). 
-#rest more - Instances of #<object>#. 
+restart-description - An instance of #<string>#. 
+condition-or-string - An instance of type-union(<string>, <condition>). 
+#rest arguments     - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<false>#. 
+false - An instance of #<false>#. 
 
 
 

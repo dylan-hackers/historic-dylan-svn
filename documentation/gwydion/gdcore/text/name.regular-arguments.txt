@@ -1,7 +1,9 @@
 Generic: regular-arguments
 ==============================
 
-A generic function.
+Returns the regular arguments found by parsing an argument list. After calling
+#parse-arguments#, this function can be used to find all of the regular
+arguments that weren't consumed by any option parser.
 
 
 Exported from:
@@ -16,12 +18,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+parser - An instance of #<argument-list-parser>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+arguments - An instance of #<sequence>#, containing #<string>#.
 
 
 

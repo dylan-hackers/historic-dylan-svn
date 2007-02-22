@@ -1,25 +1,28 @@
 Function: remove-method
 ==============================
 
-A function.
+Removes a method from a generic function. This operation modifies the
+_generic-function_.
+
+If _generic-function_ is sealed, or if _method_ is in a sealed domain of
+_generic-function_, then an error of type #<sealed-object-error># is signaled.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<generic-function>#. 
-arg - An instance of #<method>#. 
+generic-function - An instance of #<generic-function>#. 
+method           - An instance of #<method>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<method>#. 
+method - An instance of #<method>#. The same method passed in as an argument.
 
 
 

@@ -1,7 +1,7 @@
 Generic: stream-contents
 ==============================
 
-A generic function.
+Returns the contents of a stream.
 
 
 Exported from:
@@ -17,13 +17,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
-clear-contents?: - An instance of #<object>#. The default is #f.
+stream           - An instance of #<stream>#. 
+clear-contents?: - An instance of #<object>#. If true, clear the stream after
+                   returning the contents. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+contents - An instance of #<sequence>#. 
 
 
 

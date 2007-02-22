@@ -1,13 +1,14 @@
 Class: <deque>
 ==============================
 
-A class.
+The class of double-ended queues. This class supports efficient forward and
+backward iteration, and efficient addition and removal of elements from the
+beginning or end of the sequence.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -16,10 +17,19 @@ Modifiers:
 abstract free open
 
 
+Make keywords:
+------------------------------
+size: - An instance of #<integer># specifying the size of the deque. The
+        default value is 0.
+        
+fill: - An instance of #<object># specifying an initial value for each element
+        of the deque. The default value is #f.
+
+
 Superclasses:
 ------------------------------
 - #<stretchy-sequence>#
- - #<mutable-sequence>#
+- #<mutable-sequence>#
  
 
 Functions on <deque>:

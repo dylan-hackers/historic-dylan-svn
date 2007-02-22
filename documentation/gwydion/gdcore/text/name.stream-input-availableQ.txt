@@ -1,7 +1,7 @@
 Generic: stream-input-available?
 ==============================
 
-A generic function.
+Checks if the stream is available for reading.
 
 
 Exported from:
@@ -17,12 +17,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
+stream - An instance of #<stream>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+input-available? - An instance of #<boolean>#. 
 
 
 

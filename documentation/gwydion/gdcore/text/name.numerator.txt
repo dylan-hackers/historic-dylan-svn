@@ -1,7 +1,7 @@
 Generic: numerator
 ==============================
 
-A generic function.
+Returns the numerator of a ratio.
 
 
 Exported from:
@@ -16,12 +16,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+ratio - An instance of #<ratio>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+num - An instance of #<extended-integer>#. 
 
 
 

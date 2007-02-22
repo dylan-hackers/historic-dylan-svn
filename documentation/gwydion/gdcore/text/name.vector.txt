@@ -1,24 +1,24 @@
 Function: vector
 ==============================
 
-A function.
+Creates and returns a freshly allocated vector. The vector's elements are the
+_arguments_, in order.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest arguments - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<simple-object-vector>#. 
+vector - A freshly allocated instance of #<simple-object-vector>#. 
 
 
 

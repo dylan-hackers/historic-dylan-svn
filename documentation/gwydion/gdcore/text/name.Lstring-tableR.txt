@@ -1,7 +1,8 @@
 Class: <string-table>
 ==============================
 
-A class.
+A #<table># class keyed by strings. This class implements a #<table># class
+that is keyed by #=# on #<string># instances.
 
 
 Exported from:
@@ -9,13 +10,20 @@ Exported from:
 - #Module table-extensions#
 - #Module common-dylan#
 - #Module common-extensions#
-- #Module table-extensions#
 
 
 Modifiers:
 ------------------------------
 concrete free sealed
 
+
+Make keywords:
+------------------------------
+size: - An instance of #<integer>#. If specified, this value provides a hint
+        to the implementation as to the expected number of elements to be
+        stored in the table, which is be used to control how much space to
+        initially allocate for the table.
+        
 
 Superclasses:
 ------------------------------

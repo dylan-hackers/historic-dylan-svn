@@ -1,19 +1,33 @@
 Class: <vector>
 ==============================
 
-A class.
+The class of arrays of rank one (_i.e._, exactly one dimension).
+
+#<vector># has no direct instances; calling #make# on #<vector># returns an
+instance of #<simple-object-vector>#.
+
+Each concrete subclass of #<vector># must either provide or inherit an
+implementation of #size# that shadows the method provided by #<array>#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Modifiers:
 ------------------------------
 abstract free open
+
+
+Make keywords:
+------------------------------
+size: - An instance of #<integer># specifying the size of the vector. The
+        default value is 0.
+        
+fill: - An instance of #<object># specifying an initial value for each element
+        of the vector. The default value is #f.
 
 
 Superclasses:
@@ -31,4 +45,8 @@ Subclasses:
 - #<unicode-string>#
 
 
+Methods on <vector>:
+------------------------------
+- #find-first-key#
+- #find-last-key#
 

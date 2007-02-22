@@ -1,25 +1,35 @@
 Function: conjoin
 ==============================
 
-A function.
+Returns a function that expresses the conjunction of one or more predicates.
+This function is termed the conjunction of its argument functions. The
+conjunction accepts any number of arguments and operates by applying the
+predicates, in order, to the arguments. If any of the predicates returns #f,
+the remaining predicates (if any) are not applied and #f is immediately
+returned. Otherwise, all the predicates will be applied, and the result of the
+last application is returned.
+
+A conjunction is similar to an #&# expression of calls to the predicates.
+
+> choose(conjoin(positive?, integral?), #(-1, -3, 5, -3.7, 3.5, 7))
+>   ⇒ #(5, 7)
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-#rest more - Instances of #<object>#. 
+predicate1 - An instance of #<function>#. 
+#rest more-predicates - Instances of #<function>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<function>#. 
+function - An instance of #<function>#. 
 
 
 

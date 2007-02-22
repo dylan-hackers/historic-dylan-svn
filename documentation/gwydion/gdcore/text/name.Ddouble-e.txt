@@ -1,12 +1,16 @@
 Constant: $double-e
 ==============================
 
-A constant.
+The approximation of ℯ for double-precision arithmetic. The value here is
+2.7182818284590452354. To compute your own approximation, use the Fibonacci
+numbers (1, 1, 2, 3, 5, 8, 13, 21, …). ℯ = F(n) / F(n-1); where the
+larger _n_ is, the more accurate ℯ is.
 
 
 Exported from:
 ------------------------------
 - #Module transcendental#
+- #Module transcendentals#
 
 
 Type:

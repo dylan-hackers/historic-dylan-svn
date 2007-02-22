@@ -1,7 +1,7 @@
 Class: <basic-stream>
 ==============================
 
-A class.
+The basic instantiable stream class.
 
 
 Exported from:
@@ -12,6 +12,18 @@ Exported from:
 Modifiers:
 ------------------------------
 abstract primary open
+
+
+Make keywords:
+------------------------------
+outer-stream: - An instance of #<stream># or #f. Defaults to this instance.
+direction:    - One of #"input", #"output", #"input-output". The default is
+                #"input". This indicates whether the string is readable or
+                writable or both.
+element-type: - An instance of #<type>#. The type of each data element of the
+                stream. The default is #<object>#.
+start:        - ?
+end:          - ?
 
 
 Superclasses:

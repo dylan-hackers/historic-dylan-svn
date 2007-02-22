@@ -1,7 +1,9 @@
 Function: byte-character?
 ==============================
 
-A function.
+Returns #t if the character is an ASCII character. It currently returns true
+if the character's integer value is less than 256, so it is not Unicode or
+character-set aware.
 
 
 Exported from:

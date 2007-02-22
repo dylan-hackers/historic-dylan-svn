@@ -1,7 +1,15 @@
 Function: list*
 ==============================
 
-A function.
+Creates a proper or improper list. This differs from #list# in that the tail
+of the list's final pair is the final element of _rest_, rather than an
+explicit empty list. If the final element of _rest_ is a proper list, then
+this function results in a proper list, otherwise it results in an improper
+list.
+
+> list*(1, 2, 3, 4, 5)    ⇒ #(1, 2, 3, 4 . 5)
+> list*(1, 2, #(3, 4), 5) ⇒ #(1, 2, #(3, 4) . 5)
+> list*(1, 2, 3, #(4, 5)) ⇒ #(1, 2, 3, 4, 5)
 
 
 Exported from:
@@ -11,12 +19,12 @@ Exported from:
 
 Arguments:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest rest - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<list>#. 
+list - An instance of #<list>#. 
 
 
 

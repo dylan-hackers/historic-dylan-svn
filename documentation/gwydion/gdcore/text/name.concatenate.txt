@@ -1,13 +1,26 @@
 Generic: concatenate
 ==============================
 
-A generic function.
+Returns a sequence containing all the elements of all the sequences, in order.
+
+The _result-sequence_ will be an instance of the #type-for-copy# value for
+_first-sequence_. It may or may not be freshly allocated. The
+_result-sequence_ may be created by calling #make# on the indicated type, with
+a size: initialization argument whose value is the sum of the sizes of the
+argument sequences. (For this reason, the #type-for-copy# value of
+_first-sequence_ must support the size: init-keyword.)
+
+_result-sequence_ may share structure with any of the argument sequences, but
+it is not guaranteed to do so. The argument sequences will not be modified by
+this operation.
+
+> concatenate ("low-", "calorie")
+>  ⇒  "low-calorie"
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +31,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-#rest more - Instances of #<object>#. 
+first-sequence       - An instance of #<sequence>#. 
+#rest more-sequences - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+result-sequence - An instance of #<sequence>#. 
 
 
 

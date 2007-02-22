@@ -1,7 +1,15 @@
 Library: Library collection-extensions
 ==============================
 
-The collection-extensions library.
+The various modules in this library contain a few new types and operations
+which are compatible with the collection types specified in the _Dylan
+Reference Manual_, but which are not part of that specification.
+
+It is to be expected that more collection types will appear in time, and they
+will likely be added to this library. This may also result in reorganizations
+which could force incompatible changes to the existing modules. We hope to
+minimize such incompatibilities and, when forced to them, will include
+sufficient information to facilitate conversion of existing code.
 
 
 Topic: collection-extensions modules
@@ -14,4 +22,30 @@ Topic: collection-extensions modules
 - #Module sequence-utilities#
 - #Module subseq#
 - #Module vector-search#
+
+
+#Module heap# was supposed to implement a priority queue, but because of
+conflicts with #<deque># methods, heap is currently empty.
+
+#Module self-organizing-list# provides _self-organizing lists_, also known as
+_skip lists_. These explicit key collections provide roughly the semantics of
+hash tables, but use a probabilistic implementation which provides O(n) worst
+case performance but can provide very fast constant time access in the best
+case.
+
+#Module sequence-diff# implements the Unix diff utility algorithm.
+
+#Module sequence-utilities# provides useful methods on collections, written by
+Matthias Hölzl.
+
+#Module subseq# provides _subsequences_, which represent an aliased reference
+to some part of an existing sequence. These are analogous to slices (in Ada or
+Perl) or displaced arrays (in Common Lisp). Subsequences are themselves
+subclasses of #<sequence>#, and can therefore be passed any #<collection># or
+#<sequence># operation.
+
+#Module vector-search# provides a small assortment of specialized operations
+for searching and modifying #<vector>#s. These operations are analogous to
+existing collection operations but provide keywords and efficiency
+improvements which are meaningful only within the more limited domain.
 

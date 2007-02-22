@@ -1,7 +1,26 @@
 Generic: pprint-newline
 ==============================
 
-A generic function.
+This function announces a conditional newline to the pretty printer. The
+pretty printer emits a newline depending on the kind and the state of the
+pretty printer's current line buffer. The _kind_ argument has roughly the
+following meanings:
+
+#"fill" - Emit a newline if the current section of output does not fit on one
+line.
+
+#"linear" - Emit a newline if any #"linear" newline in the current section
+needs to be emitted. That is, if a current section of output cannot fit on one
+line, and any one of the #"linear" newlines in the section needs to be
+emitted, then emit them all.
+
+#"miser" - Emit a newline as if it were a #"linear" newline, but only when
+miser mode is in effect. Miser style is in effect when a logical block starts
+past a particular column of output.
+
+#"mandatory" - Emit a newline always. Establish that any containing sections
+cannot be printed on a single line so that #"linear" and #"miser" newlines
+will be emitted as appropriate.
 
 
 Exported from:
@@ -16,8 +35,8 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of type-union(singleton(#"mandatory"), singleton(#"linear"), singleton(#"miser"), singleton(#"fill")). 
-arg - An instance of #<stream>#. 
+kind   - One of #"mandatory", #"miser", #"fill", #"linear". 
+stream - An instance of #<stream>#. 
 
 
 

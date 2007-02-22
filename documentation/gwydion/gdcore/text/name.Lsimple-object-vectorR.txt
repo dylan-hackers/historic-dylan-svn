@@ -1,19 +1,28 @@
 Class: <simple-object-vector>
 ==============================
 
-A class.
+The class of simple vectors that may have elements of any type. It provides a
+constant time implementation for the #element# and #element-setter# functions.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Modifiers:
 ------------------------------
 concrete free sealed
+
+
+Make keywords:
+------------------------------
+size: - An instance of #<integer># specifying the size of the vector. The
+        default value is 0.
+        
+fill: - An instance of #<object># specifying an initial value for each element
+        of the vector. The default value is #f.
 
 
 Superclasses:

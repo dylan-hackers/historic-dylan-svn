@@ -1,13 +1,12 @@
 Generic: negative
 ==============================
 
-A generic function.
+Returns the negation of its argument. The unary minus operator is equivalent to a call to #negative# in the current binding environment.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +17,16 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+negation - An instance of #<object>#. 
 
 
 
+Methods: negative
+==============================
+negative - The method on #<real># returns the additive inverse of the real
+           number.

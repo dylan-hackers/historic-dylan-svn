@@ -1,24 +1,29 @@
 Function: values
 ==============================
 
-A function.
+Returns its arguments as multiple values.
+
+> values(1, 2, 3)
+>  ⇒ 1    // first value returned
+>    2    // second value returned
+>    3    // third value returned
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest args - Zero or more instances of #<object>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest values - Zero or more instances of #<object>#; the objects that were
+               passed as arguments.
 
 
 

@@ -22,7 +22,7 @@ val - An instance of #<integer>#.
 val - An instance of #<integer>#. 
 val - An instance of #<integer>#. 
 val - An instance of #<integer>#. 
-val - An instance of type-union(singleton(#"monday"), singleton(#"thursday"), singleton(#"tuesday"), singleton(#"friday"), singleton(#"saturday"), singleton(#"wednesday"), singleton(#"sunday")). 
+val - An instance of type-union(singleton(#"monday"), singleton(#"wednesday"), singleton(#"friday"), singleton(#"saturday"), singleton(#"sunday"), singleton(#"thursday"), singleton(#"tuesday")). 
 val - An instance of #<integer>#. 
 
 

@@ -1,7 +1,7 @@
 Class: <negative-option-parser>
 ==============================
 
-A class.
+Parses command-line options which may appear in positive and negative forms, such as "--verbose" and "--quiet". This class provides internal support for creating parsers to handle such options. It cannot be instantiated.
 
 
 Exported from:
@@ -13,6 +13,28 @@ Modifiers:
 ------------------------------
 abstract primary open
 
+
+Make keywords:
+------------------------------
+negative-long-options:  - An instance of #<list>#. Specifies the negative long
+                          options handled by this parser, represented as
+                          strings. Defaults to #().
+
+negative-short-options: - An instance of #<list>#. Specifies the negative
+                          short options handled by this parser, represented as
+                          strings. Defaults to #().
+
+long-options:           - An instance of #<list>#. Specifies the long
+                          options handled by this parser, represented as
+                          strings. Defaults to #().
+
+short-options:          - An instance of #<list>#. Specifies the short options
+                          handled by this parser, represented as strings.
+                          Defaults to #().
+
+description:            - An instance of #<string>#. A description of the
+                          options handled by this parser. Defaults to "".
+                          
 
 Superclasses:
 ------------------------------

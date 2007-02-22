@@ -1,7 +1,7 @@
 Function: alphabetic?
 ==============================
 
-A function.
+Returns #t if the character is in [a-zA-Z].
 
 
 Exported from:

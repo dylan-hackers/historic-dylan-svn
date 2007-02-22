@@ -1,13 +1,19 @@
 Class: <abort>
 ==============================
 
-A class.
+The class of conditions used to terminate a computation.
+
+Handlers are expected to terminate execution of the current application
+command, or similar unit of execution, and return control to something like an
+application command loop. This is comparable to command-period on the
+Macintosh. The exact details of this feature depend on the particular
+environment, of course, but signaling an instance of <abort> is a uniform way
+to "get out."
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

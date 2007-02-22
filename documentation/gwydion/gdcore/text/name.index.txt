@@ -1,7 +1,7 @@
 Generic: index
 ==============================
 
-A generic function.
+Find an element and return its index.
 
 
 Exported from:
@@ -16,13 +16,18 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+elt      - An instance of #<object>#. Passed as the first argument to _test_.
+seq      - An instance of #<sequence>#. 
+test:    - An instance of #<function>#. The test function to find an element.
+           Its signature is (_elt_, <object>) => (<object>). Defaults to #=#.
+failure: - An instance of #<object>#. The value returned if no matching
+           element is found. Defaults to #f.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+index - An instance of #<integer># or the _failure_ value. The index of the
+        found element.
 
 
 

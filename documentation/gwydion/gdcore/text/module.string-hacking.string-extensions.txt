@@ -1,7 +1,7 @@
 Module: Module string-hacking
 ==============================
 
-The string-hacking module.
+This module contains some random, possibly-useful functions to munge strings.
 
 
 Exported from:

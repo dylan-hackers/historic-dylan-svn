@@ -1,13 +1,18 @@
 Generic: error
 ==============================
 
-A generic function.
+Signals a nonrecoverable error.
+
+#error# is similar to #signal# but never returns; if a handler returns,
+#error# invokes the debugger immediately. #error# is used to make it clear
+that a program does not expect to receive control again after signaling a
+condition and might enable the compiler to generate slightly more compact
+code.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +23,25 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-#rest more - Instances of #<object>#. 
+arg - An instance of #<condition>#. 
 
 
 Values:
 ------------------------------
-val - An instance of type-union(). 
+None. #error# will never return.
+
+
+
+Method: signal
+==============================
+
+This form signals a condition of type #<simple-warning>#.
+
+
+Arguments:
+------------------------------
+string          - An instance of #<string>#. 
+#rest arguments - Instances of #<object>#. 
 
 
 

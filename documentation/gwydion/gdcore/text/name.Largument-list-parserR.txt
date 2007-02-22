@@ -1,7 +1,16 @@
 Class: <argument-list-parser>
 ==============================
 
-A class.
+Describes how to parse an argument list, and contains the data found when
+parsing one.
+
+An #<argument-list-parser># represents both a description of the data to be
+found in an argument list, and the results of parsing a particular argument
+list for that data.
+
+Prior to calling #parse-arguments# for the first time, no useful information
+can be extracted from an argument list parser. Subsequent calls to
+#parse-arguments# will update the data contained within the parser.
 
 
 Exported from:
@@ -31,6 +40,7 @@ Functions on <argument-list-parser>:
 - #parse-arguments#
 - #parse-option#
 - #peek-argument-token#
+- #regular-arguments#
 
 
 

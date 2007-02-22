@@ -1,7 +1,23 @@
 Module: Module print
 ==============================
 
-The print module.
+This module provides an interface that outputs an object in Dylan literal
+syntax if the object can be represented as a Dylan literal, and otherwise,
+outputs the object in an implementation-dependent manner.
+
+There are essentially two functions, #print# and #print-object#. The #print#
+function accepts keyword arguments that form a print request, controlling
+features such as circular printing, how deep within a data structure to print,
+how many elements in long sequences to print before using an ellipsis
+notation, whether pretty printing is desired, and so on.
+
+Users extend #print#'s ability to print various objects by adding methods to
+the #print-object# function. The #print# function handles most of the overhead
+to satisfy special print requests, outputting any special notations required,
+and it only calls #print-object# when it is necessary to print objects. Users
+should always call the #print# function to output objects, especially
+recursively from within #print-object# methods to output an object's
+components. Users should never call #print-object# directly.
 
 
 Exported from:

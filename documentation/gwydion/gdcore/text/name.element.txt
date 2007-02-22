@@ -1,13 +1,18 @@
 Generic: element
 ==============================
 
-A generic function.
+Returns the _collection_ element associated with a particular _key_.
+
+If no element is associated with _key_, then the behavior of #element# depends
+on whether it was called with a _default_ argument: if a _default_ argument
+was passed, its value is returned; otherwise, an error is signaled.
+
+All collections are required to implement #element#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +23,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<collection>#. 
-arg - An instance of #<object>#. 
+collection - An instance of #<collection>#. 
+key - An instance of #<object>#. 
 default: - An instance of #<object>#. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+element - An instance of #<object>#. 
 
 
 

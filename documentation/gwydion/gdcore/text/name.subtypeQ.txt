@@ -1,13 +1,12 @@
 Generic: subtype?
 ==============================
 
-A generic function.
+Returns true if _type1_ is a subtype of _type2_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +17,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<type>#. 
-arg - An instance of #<type>#. 
+type1 - An instance of #<type>#. 
+type2 - An instance of #<type>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
 
 
 

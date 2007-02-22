@@ -1,12 +1,30 @@
 Generic: equal-hash
 ==============================
 
-A generic function.
+Computes hash ids for objects such that two objects that are #=#-equal have
+the same hash id.
+
+Methods on #equal-hash# should return hash ids such that the _id_ for two
+#=#-equal objects are the same. There is a default method defined on all
+instances of #<object>#, and it returns a valid hash id in all cases. However,
+performance _will_ suck horribly (algorithmically, even) if you don't define
+better methods for your own objects that will live in #<equal-table>#
+instances.
+
+Good methods for #equal-hash# are defined
+for:
+- #<integer>#
+- #<float>#
+- #<symbol>#
+- #<type>#
+- #<function>#
+- #<boolean>#
+- #<condition>#
+- #<collection># (Note that #<collection># is a supertype of #<string>#.)
 
 
 Exported from:
 ------------------------------
-- #Module table-extensions#
 - #Module table-extensions#
 
 
@@ -17,14 +35,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<false>#. 
+object     - An instance of #<object>#. 
+hash-state - An instance of #<hash-state>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
-val - An instance of #<false>#. 
+hash-id    - An instance of #<integer>#. 
+hash-state - An instance of #<hash-state>#. 
 
 
 

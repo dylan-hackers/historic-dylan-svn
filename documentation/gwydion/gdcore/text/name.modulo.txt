@@ -1,13 +1,12 @@
 Generic: modulo
 ==============================
 
-A generic function.
+Returns the second value of #floor/#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +17,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<real>#. 
-arg - An instance of #<real>#. 
+real1 - An instance of #<real>#. 
+real2 - An instance of #<real>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<real>#. 
+real3 - An instance of #<real>#. 
 
 
 

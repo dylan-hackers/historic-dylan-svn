@@ -1,7 +1,20 @@
+Title: print-message
+==============================
+
+There are two unrelated #print-message# functions.
+
+
 Generic: print-message
 ==============================
 
-A generic function.
+This method is called to format objects for the "%s" and "%c" format
+directives, in a form suitable for human readers.
+
+This generic function is intended to define the human-readable printing
+behavior of a Dylan object, as opposed to their representation as literal
+syntax. Calling this function on #<condition># should result in an error
+message, rather than the name of the instance and its class, for example.
+(Contrast this behavior with the #print# function in the Print module.)
 
 
 Exported from:
@@ -16,15 +29,23 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<stream>#. 
+object - An instance of #<object>#. 
+stream - An instance of #<stream>#. 
+
+
+Methods: print-message
+==============================
+print-message - A method on #<string>#.
+print-message - A method on #<character>#.
+print-message - A method on #<condition>#.
+print-message - A method on #<symbol>#.
 
 
 
 Function: print-message
 ==============================
 
-A function.
+Prints a string to STDOUT. 
 
 
 Exported from:
@@ -34,7 +55,7 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+arg - An instance of #<byte-string>#, #<symbol>#, or #<condition>#. 
 
 
 

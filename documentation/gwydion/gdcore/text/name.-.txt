@@ -1,13 +1,12 @@
 Generic: -
 ==============================
 
-A generic function.
+Returns the difference of its arguments.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +17,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+object1 - An instance of #<object>#. 
+object2 - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest objects - Instances of #<object>#. 
 
 
 

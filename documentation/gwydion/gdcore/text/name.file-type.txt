@@ -21,7 +21,7 @@ arg - An instance of type-union(<file-system-locator>, <string>).
 
 Values:
 ------------------------------
-val - An instance of type-union(singleton(#"directory"), singleton(#"link"), singleton(#"file")). 
+val - An instance of type-union(singleton(#"file"), singleton(#"link"), singleton(#"directory")). 
 
 
 

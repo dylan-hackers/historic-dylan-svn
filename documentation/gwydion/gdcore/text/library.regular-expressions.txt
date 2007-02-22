@@ -1,7 +1,56 @@
 Library: Library regular-expressions
 ==============================
 
-The regular-expressions library.
+The Regular-expressions library exports the Regular-expressions module, which
+contains various functions that deal with regular expressions (abbreviated to
+"regexps"). The module is based on Perl (version 4), and has the same
+semantics unless otherwise noted. The syntax for Perl-style regular
+expressions can be found in _Perl 5 Desktop Reference_.
+
+There are some differences in the way this library handles regular expressions
+compared to Perl. The biggest difference is that regular expressions in Dylan
+are case insensitive by default. Also, when given an unparsable regexp, this
+library will produce undefined behavior while Perl would give an error
+message.
+
+A regular expression that is grammatically correct may still be illegal if it
+contains an infinitely quantified sub-regexp that may match the empty string.
+That is, if R is a regexp that can match the empty string, then any regexp
+containing R*, R+, and R{n,} is illegal. In this case, the Regular-expressions
+library will signal an #<illegal-regexp># error when the regexp is parsed.
+Note: Perl also has this restriction, although it isn't mentioned in _Perl 5
+Desktop Reference_.
+
+In previous versions of the regular-expressions library, each basic function
+had a companion function that would pre-compute some information needed to use
+the regular expression. By using the companion function, one could avoid
+recomputing the same information. In the present version, the
+regular-expressions library caches this information, so the companion
+functions are no longer necessary and should be considered obsolete. However,
+they have been kept for backwards compatibility.
+
+Companion functions differ in details, but they all essentially return curried
+versions of their corresponding basic function. For example, the following two
+pieces of code yield the same result:
+
+: regexp-position("This is a string", "is");
+    
+or
+
+: let is-finder = make-regexp-positioner("is");
+: is-finder("This is a string");
+    
+Both pieces of code should have roughly the same performance, even if the code
+is inside a loop. The first is the preferred method of using regexps.
+
+
+Known Bugs:
+------------------------------
+The regular expression parser does a very poor job with syntactically invalid regular expressions. Depending on the expression, the parser may signal an error, improperly parse it, or simply crash.
+
+A regular expression that matches a large enough substring can produce a stack overflow. This can happen in as few as two dozen lines of 80 column text under d2c for Windows.
+
+Note: As the regular-expressions library is used to create d2c, it appears to be stable enough for most Dylan tasks—even under Cygnus on Windows.
 
 
 Topic: regular-expressions modules

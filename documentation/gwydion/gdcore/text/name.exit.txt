@@ -1,7 +1,7 @@
 Function: exit
 ==============================
 
-A function.
+Causes the application to quit with a return code of _exit-code_.
 
 
 Exported from:
@@ -16,7 +16,10 @@ exit-code: - An instance of #<integer>#. The default is 0.
 
 Values:
 ------------------------------
-val - An instance of type-union(). 
+None. This function does not return.
 
 
 
+See also:
+------------------------------
+- #on-exit#

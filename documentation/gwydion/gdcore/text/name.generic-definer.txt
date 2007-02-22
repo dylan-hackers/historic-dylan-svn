@@ -1,20 +1,70 @@
 Macro: generic-definer
 ==============================
 
-A macro.
+Defines a constant binding in the current module and initializes it to a new
+generic function.
+
+It defines a constant module binding with the name _name_, and initializes it
+to a new generic function described by the _adjectives_, _parameters_,
+_values_, and _options_.
+
+The _adjectives_ specify whether the generic function is sealed. A complete
+description of generic function sealing is given in "Declaring Characteristics
+of Generic Functions" on page 135 of the _Dylan Reference Manual_.
+
+The _parameters_ and _values_ specify the parameters and return values of the
+generic function and thereby constrains which methods may be added to it. For
+a complete description of these constraints, see "Parameter List Congruency"
+on page 93 of the _Dylan Reference Manual_. A generic function parameter list
+may not include a next-method parameter, and its keyword parameters may
+include neither type specializers nor default initial values.
+
+The _options_ are alternating keywords and values. No options are defined by
+the language. They may be supplied by individual implementations.
+
+The following example defines a generic function of two required arguments and
+one return value. All methods added to the generic function must also take two
+arguments and return one value. The first argument will always be specialized
+to a subtype of <animal>, the second argument will always be specialized to a
+subtype of <number>, and the return value will always be specialized to a
+subtype of <number>.
+
+: define generic cut-hair (subject :: <animal>, new-length :: <number>)
+:                           => (new-length :: <number>) 
+
+The use of the same name for a parameter and return value indicates that the
+parameter is returned as the value. This is only a convention; it is not
+enforced by the language.
+
+The following example defines a generic function with one required parameter
+and one mandatory keyword parameter, strength:. Methods added to the generic
+function must have one required parameter, they must accept keyword arguments,
+and they must recognize the keyword argument strength:.
+
+: define generic brew (brand :: <coffee-brand>, #key strength)
+:                              => (coffee :: <coffee>)
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          list-style define macro
+: define (adjectives) generic (name) (parameters) => (values) (options)
+        
+
+Arguments:
+------------------------------
+adjectives - Gwydion Dylan allows the following adjectives: sealed, open,
+             movable, flushable, sideways. The default is sealed. See #Define
+             adjectives#.
+name       - A binding name.
+parameters - A parameter list. May be empty.
+values     - A value list. May be omitted.
+options    - Gwydion Dylan does not allow any options.
         
 
 

@@ -1,7 +1,8 @@
 Module: Module string-conversions
 ==============================
 
-The string-conversions module.
+This module contains some handy functions to convert numbers to strings and
+vice-versa, as well some #<character># to #<string># conversions.
 
 
 Exported from:

@@ -1,12 +1,12 @@
 Generic: case-insensitive-string-hash
 ==============================
 
-A generic function.
+The default hash function for case-insensitive strings. It is returned as the
+#table-protocol# method's second value for #<case-insensitive-string-table>#.
 
 
 Exported from:
 ------------------------------
-- #Module table-extensions#
 - #Module table-extensions#
 
 
@@ -17,13 +17,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+s             - An instance of #<string>#. 
+initial-state - An instance of #<hash-state>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
-
-
+id         - An instance of #<integer>#.
+hash-state - An instance of #<hash-state>#. 
 

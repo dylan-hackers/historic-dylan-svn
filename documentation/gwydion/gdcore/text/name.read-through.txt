@@ -1,7 +1,9 @@
 Generic: read-through
 ==============================
 
-A generic function.
+Reads in a group of elements from a stream up to and including a marker
+element. Just as #read-to#, but this function also returns the marker element
+as part of the sequence returned.
 
 
 Exported from:
@@ -16,16 +18,19 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
-arg - An instance of #<object>#. 
-on-end-of-stream: - An instance of #<object>#. 
-test: - An instance of #<object>#. The default is ==.
+stream            - An instance of #<stream>#. 
+elemnt            - An instance of #<object>#. The element to read up to.
+on-end-of-stream: - An instance of #<object>#. Value returned if reading past
+                    the stream. Defaults to #$not-supplied#.
+test:             - An instance of #<function>#. Comparator for _elemnt_ and
+                    the stream's contents. The default is #==#.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
-val - An instance of #<boolean>#. 
+sequence-or-eof - An instance of #<sequence># or the _on-end-of-stream:_
+                  value. 
+found?          - An instance of #<boolean>#.
 
 
 

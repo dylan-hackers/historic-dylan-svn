@@ -1,24 +1,25 @@
 Function: always
 ==============================
 
-A function.
+Returns a function that always returns a particular object. The function can
+be called with any number of arguments. The function ignores its arguments and
+always returns _object_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<function>#. 
+function - An instance of #<function>#. 
 
 
 

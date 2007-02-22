@@ -1,13 +1,12 @@
 Class: <pair>
 ==============================
 
-A class.
+The class of lists that can have new values assigned to their heads and tails.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

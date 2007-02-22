@@ -1,24 +1,33 @@
 Function: generic-function-mandatory-keywords
 ==============================
 
-A function.
+Returns the mandatory keywords of a generic function, if any.
+
+If _generic-function_ accepts keyword arguments,
+#generic-function-mandatory-keywords# returns a collection of the mandatory
+keywords for _generic-function_. This collection will be empty if the generic
+function accepts keywords but does not have any mandatory keywords.
+#generic-function-mandatory-keywords# returns #f if _generic-function_ does
+not accept keyword arguments.
+
+The collection returned should never be destructively modified. Doing so may
+cause unpredictable behavior.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<generic-function>#. 
+generic-function - An instance of #<generic-function>#. 
 
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <simple-object-vector>). 
+keywords - An instance of type-union(<simple-object-vector>, <false>). 
 
 
 

@@ -1,7 +1,8 @@
 Generic: stream-position
 ==============================
 
-A generic function.
+Returns the position of a stream. This safely returns the stream's position,
+even if it is locked.
 
 
 Exported from:
@@ -17,12 +18,16 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
+stream - An instance of #<stream>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+position - An instance of type-union( #<stream-position>#, #<integer># ). 
 
 
+
+Methods: stream-position
+==============================
+stream-position - A method on #<basic-positionable-stream>#.
 

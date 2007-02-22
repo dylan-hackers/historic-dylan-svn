@@ -1,13 +1,17 @@
 Generic: key-exists?
 ==============================
 
-A generic function.
+Returns #t if a key is in a collection. If the _key_ is in the _collection_,
+then the second value is the element associated with _key_; otherwise, the
+second return value is an undefined value.
 
 
 Exported from:
 ------------------------------
-- #Module collection-utilities#
 - #Module Extensions#
+- #Module collection-utilities#
+
+These two implementations are distinct, but have the same effect.
 
 
 Modifiers:
@@ -17,13 +21,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+collection - An instance of #<collection>#. 
+key        - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+key-exists? - An instance of #<boolean>#.
+value       - An instance of #<object>#. The associated datum for the key.
 
 
 

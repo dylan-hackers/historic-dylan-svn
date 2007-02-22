@@ -1,13 +1,12 @@
 Class: <character>
 ==============================
 
-A class.
+The class of characters.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -29,6 +28,7 @@ Functions on <character>:
 - #byte-character?#
 - #control?#
 - #digit?#
+- #digit-to-integer#
 - #graphic?#
 - #hex-digit?#
 - #lowercase?#
@@ -42,6 +42,7 @@ Functions returning <character>:
 ------------------------------
 - #command-line-option-prefix#
 - #file-system-separator#
+- #integer-to-digit#
 
 
 

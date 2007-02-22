@@ -7,7 +7,6 @@ A macro.
 Exported from:
 ------------------------------
 - #Module threads#
-- #Module threads#
 
 
 Definition:

@@ -1,7 +1,9 @@
 Generic: type-for-file-stream
 ==============================
 
-A generic function.
+Returns the kind of file-stream class to instantiate for a given file. #make#
+on #<file-stream># calls this function to determine the class of which it
+should create an instance.
 
 
 Exported from:
@@ -16,15 +18,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of type-union(<false>, <type>). 
-arg - An instance of #<object>#. 
-#all-keys - This function accepts any keyword argument.
+locator      - An instance of #<object>#. The file over which to stream.
+element-type - An instance of type-union(<false>, <type>). The kind of file.
+encoding     - An instance of #<object>#. 
+#all-keys    - This function accepts any keyword argument.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+type - An instance of a subclass of #<file-stream>#. The file-stream type.
 
 
 

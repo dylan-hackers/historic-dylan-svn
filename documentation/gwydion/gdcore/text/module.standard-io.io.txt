@@ -1,7 +1,8 @@
 Module: Module standard-io
 ==============================
 
-The standard-io module.
+The Standard-IO module exports three names for the standard input, output, and
+error streams.
 
 
 Exported from:

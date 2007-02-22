@@ -26,7 +26,7 @@ count: - An instance of #<object>#. The default is #f.
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <integer>). 
+val - An instance of type-union(<integer>, <false>). 
 
 
 

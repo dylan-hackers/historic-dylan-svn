@@ -1,13 +1,25 @@
 Generic: subsequence-position
 ==============================
 
-A generic function.
+Returns the position where a pattern appears in a sequence.
+
+Searches _big_ for a subsequence that is element-for-element equal to
+_pattern_, as determined by the _test_ argument.
+
+_test_ is applied to elements of successive subsequences of _big_ and
+corresponding elements of the _pattern_ to determine whether a match has
+occurred. If a subsequence is found, #subsequence-position# returns the index
+at which the subsequence starts; otherwise, it returns #f. If there is more
+than one match, _count_ determines which subsequence is selected. A _count_ of
+1 (the default) indicates that the first match should be returned.
+
+> subsequence-position ("Ralph Waldo Emerson", "Waldo")
+>  ⇒  6
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,15 +30,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-arg - An instance of #<sequence>#. 
-test: - An instance of #<object>#. The default is #f.
-count: - An instance of #<object>#. The default is #f.
+big     - An instance of #<sequence>#. 
+pattern - An instance of #<sequence>#. 
+test:   - An instance of #<function>#. The default is #==#.
+count:  - An instance of #<integer>#. The default is 1.
 
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <integer>). 
+index - An instance of type-union(<integer>, <false>). 
 
 
 

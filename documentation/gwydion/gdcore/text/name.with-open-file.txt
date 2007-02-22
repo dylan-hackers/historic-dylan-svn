@@ -1,7 +1,27 @@
 Macro: with-open-file
 ==============================
 
-A macro.
+A convenience macro for working on an open file.
+
+Opens a file named _name_, giving the variable _stream_ to _body_ to perform the stream operations. It then closes the file when _body_ finishes. Only the _stream_ variable is visible to _body_. _Body_ sees neither _name_ nor _parameters_.
+
+For example, the below code snippet looks for someone with Dylan in their resume:
+
+: let line = "";
+: let dylan-experience = #f;
+:  
+: with-open-file(file = "resume.txt")
+:   while(line & ~ dylan-experience)
+:     dylan-experience := regexp-position(line, "dylan");
+:     line := read-line(file, on-end-of-stream: #f);
+:   end while;
+: end;
+:  
+: format-out(if(dylan-experience) 
+:             "Hire this person now!\n" 
+:            else 
+:             "Try someone else\n"
+:            end if);
 
 
 Exported from:
@@ -9,10 +29,20 @@ Exported from:
 - #Module file-system#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          statement macro
-        
+: with-open-file ( (stream) = (locator), (keys) )
+:   (body)
+: end
+
+
+Arguments:
+------------------------------
+stream     - A variable name. This will be bound to an instance of
+             #<file-stream>#.
+name       - An instance of #<file-locator># or #<string>#.
+parameters - Make keywords used when creating _stream_.
+body       - A series of semicolon-separated expressions.
+      
 
 

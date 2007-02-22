@@ -1,13 +1,12 @@
 Class: <collection>
 ==============================
 
-A class.
+The class of collections, aggregate data structures.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -43,6 +42,7 @@ Functions on <collection>:
 - #find-element#
 - #find-key#
 - #forward-iteration-protocol#
+- #key-exists?#
 - #key-sequence#
 - #key-test#
 - #map#

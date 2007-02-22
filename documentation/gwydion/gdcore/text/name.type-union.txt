@@ -1,24 +1,30 @@
 Function: type-union
 ==============================
 
-A function.
+Returns the union of two or more types. The instances of the returned type are the instances of all the _types_. The type returned is not instantiable.
+
+: define constant $my-enumerated-type = 
+:                     type-union(singleton(#"one"),
+:                                singleton(#"two"),
+:                                singleton(#"three"),
+:                                singleton(#"four"),
+:                                singleton(#"five"))
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest types - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<type>#. 
+type - An instance of #<type>#. 
 
 
 

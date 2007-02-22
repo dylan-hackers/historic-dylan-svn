@@ -1,13 +1,20 @@
 Generic: head
 ==============================
 
-A generic function.
+Returns the head of a list.
+
+If _list_ is a pair, #head# returns the value of the head slot. If _list_ is
+the empty list, #head# returns the empty list.
+
+> head (#(4, 5, 6))
+>  ⇒  4
+> head (#())
+>  ⇒  #()
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +25,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+list - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest objects - Instances of #<object>#. 
 
 
 

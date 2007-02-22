@@ -1,12 +1,16 @@
 Class: <equal-table>
 ==============================
 
-A class.
+Implements a class which compares keys using \=.
+
+#<equal-table># implements a #<table># class whose keys are compared with #=#
+rather than #==#. So for example, two instances of list that don't have object
+identity, but did contain references to the same object, would be considered
+equivalent keys by #<equal-table>#.
 
 
 Exported from:
 ------------------------------
-- #Module table-extensions#
 - #Module table-extensions#
 
 
@@ -14,6 +18,14 @@ Modifiers:
 ------------------------------
 concrete free sealed
 
+
+Make keywords:
+------------------------------
+size: - An instance of #<integer>#. If specified, this value provides a hint
+        to the implementation as to the expected number of elements to be
+        stored in the table, which is be used to control how much space to
+        initially allocate for the table.
+        
 
 Superclasses:
 ------------------------------

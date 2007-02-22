@@ -7,7 +7,6 @@ A class.
 Exported from:
 ------------------------------
 - #Module table-extensions#
-- #Module table-extensions#
 
 
 Modifiers:

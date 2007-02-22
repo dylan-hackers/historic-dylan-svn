@@ -1,13 +1,18 @@
 Class: <symbol>
 ==============================
 
-A class.
+The class of symbols.
+
+The <symbol> class provides a built-in, non-case-sensitive dictionary that
+associates a string with a unique immutable object that can be compared with
+#==# (which should be faster than calling a string-comparison routine). This
+dictionary is accessed through the #as# function: as(<symbol>, _string_) and
+as(<string>, _symbol_). Any string can be used.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

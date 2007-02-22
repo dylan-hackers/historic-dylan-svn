@@ -1,13 +1,32 @@
 Generic: element-setter
 ==============================
 
-A generic function.
+Sets the collection element associated with a particular key.
+
+Alters _mutable-collection_ so that the value associated with _key_ will
+subsequently be _new-value_. If _mutable-collection_ is stretchy,
+#element-setter# may also change its size (for example, by adding new keys
+with values).
+
+An error is signaled if a program calls #element-setter# with a key that is
+not already a key to the collection, unless the collection is stretchy.
+
+Stretchy collections allow #element-setter# to be called with a key that is
+not present in the collection, expanding the collection as necessary to add a
+new element in that case. Each concrete subclass of #<stretchy-collection>#
+must provide or inherit a method for #element-setter# that behaves as follows
+when there is not already an element present for the indicated key:
+
+- If the class is a subclass of #<explicit-key-collection>#, adds a new
+  element to the collection with the indicated key.
+- If the class is a subclass of #<sequence>#, first calls #size-setter# on the
+  key + 1 and the collection to expand the sequence. The key must be a
+  non-negative integer.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +37,23 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<mutable-collection>#. 
-arg - An instance of #<object>#. 
+new-value          - An instance of #<object>#. 
+mutable-collection - An instance of #<mutable-collection>#. 
+key                - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+new-value - An instance of #<object>#. 
+
+
+
+Methods: element-setter
+==============================
+element-setter - The class #<table># provides an implementation of
+                 #element-setter# for use by its subclasses. If no element
+                 with the given key exists, #element-setter# will add the
+                 _key_ and _new-value_ to the table.
 
 
 

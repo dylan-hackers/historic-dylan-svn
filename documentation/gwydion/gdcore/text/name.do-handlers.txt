@@ -1,24 +1,28 @@
 Function: do-handlers
 ==============================
 
-A function.
+Applies a function to all dynamically active handlers, the most recently
+established first. _function_ receives four arguments: _type_, _test_,
+_function_, and _init-arguments_. The arguments describe a dynamically active
+handler. All arguments have dynamic extent and must not be modified. _test_
+defaults to a function that always returns #t. _init-arguments_ will be an
+empty sequence if it was not supplied by the handler.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
+function - An instance of #<function>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+false - The value #f.
 
 
 

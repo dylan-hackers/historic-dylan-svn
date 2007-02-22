@@ -1,13 +1,23 @@
 Generic: do
 ==============================
 
-A generic function.
+Iterates over one or more collections for side effect.
+
+Applies _function_ to corresponding elements of all the collections and returns #f. If all the collections are sequences, #do# guarantees that they will be processed in their natural order.
+
+> do (method (a b) print (a + b) end,
+>     #(100, 100, 200, 200),
+>     #(1, 2, 3, 4))
+> 101
+> 102
+> 203
+> 204
+>  ⇒  #f
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +28,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<collection>#. 
-#rest more - Instances of #<object>#. 
+function - An instance of #<function>#. 
+collection - An instance of #<collection>#. 
+#rest more-collections - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<false>#. 
+false - The value #f. 
 
 
 

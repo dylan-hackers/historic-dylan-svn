@@ -1,7 +1,12 @@
 Generic: string-to-integer
 ==============================
 
-A generic function.
+Read a sequence of characters as an integer. The characters are the digits of
+the string representation, and must lie between '0' and 'z', with a maximum
+depending on the base. For example, octal (base 8) digits must be in [0-7],
+decimal digits must be in [0-9], and hexadecimal digits must be in [0-9] or
+[a-f]. An error is signaled if this constraint is violated. (Start negative
+integers with a '-', so "-36" would become -36.)
 
 
 Exported from:
@@ -18,12 +23,17 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+string - An instance of #<sequence>#. Any #<sequence># of #<character>#
+         objects are acceptable. This is typically but not necessarily a
+         #<string>#.
+base:  - An instance of #<integer># between 2 and 36, inclusive, denoting the
+         base to read integers in. An error is signaled if _base_ is not in
+         this range. Defaults to 10.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+integer - An instance of #<integer>#. 
 
 
 

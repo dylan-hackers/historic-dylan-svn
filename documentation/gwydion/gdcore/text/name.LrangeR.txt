@@ -1,19 +1,56 @@
 Class: <range>
 ==============================
 
-A class.
+The class of arithmetic sequences.
+
+The class <range> is used for creating sequences of numbers. Ranges may be
+infinite in size, and may run from higher numbers to lower numbers.
+
+If size: is specified and none of to:, above: or below: is specified, then the
+size: argument determines the size of the range.
+
+If size: is specified and one of to:, above: or below: is specified, than it
+is an error if the number of elements implied by the to:, above: or below:
+argument (and the by: argument, if present) does not agree with the number of
+elements specified by the size: argument.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Modifiers:
 ------------------------------
 abstract primary open
+
+
+Make keywords:
+------------------------------
+from:  - An instance of #<real># specifying the first value in the range. The
+         default value is 0.
+
+by:    - An instance of #<real># specifying the step between consecutive
+         elements of the range. The default value is 1.
+
+to:    - An instance of #<real># specifying an inclusive bound for the range.
+         If by: is positive, the range will include numbers up to and
+         including this value. If by: is negative, the range will include
+         numbers down to to and including this value. to: cannot be specified
+         with above: or below:.
+
+above: - An instance of #<real># specifying an exclusive lower bound for the
+         range. The range will only include numbers above this value,
+         regardless of the sign of by:. above: cannot be specified with to: or
+         below:.
+
+below: - An instance of #<real># specifying an exclusive upper bound for the
+         range. The range will only include numbers below this value,
+         regardless of the sign of by:. below: cannot be specified with to: or
+         above:.
+
+size:  - An instance of #<integer># specifying the size of the range.
 
 
 Superclasses:

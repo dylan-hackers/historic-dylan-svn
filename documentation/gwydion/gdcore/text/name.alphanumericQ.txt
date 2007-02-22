@@ -1,7 +1,7 @@
 Function: alphanumeric?
 ==============================
 
-A function.
+Returns #t if the character is alphabetic or a digit.
 
 
 Exported from:

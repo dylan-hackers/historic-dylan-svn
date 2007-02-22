@@ -1,0 +1,68 @@
+Library: Library transcendental
+==============================
+
+The Transcendental library contains functions on numbers. It includes commonly
+used numbers, such as π and ℯ, and the transcendental functions, including
+sine, cosine, and tangent, and their inverse (arc) and hyperbolic
+counterparts. Also included are the logarithmic family of functions (the
+various log functions and exp), and the square-root and power (^) functions.
+
+
+Sin, cosine, tangent, and their inverse (arc) functions:
+--------------------------------------------------------
+To understand the transcendental functions (particularly, sine, cosine, and
+tangent, and their friends), one must know about the relationships for a right
+triangle. The discussion will use the below reference figure:
+
+: A
+: |\
+: | \
+: |  \
+: |__θ\
+: B    C
+
+Sine, cosine, and tangent are used when you know an angle and a length of one
+of the sides of a right triangle, and you want to know the length of another
+side. For these functions, the angle (θ) is in radians, not degrees. Using the
+reference diagram above, for sine, you work with the hypotenuse (AC) and the
+height (AB), for cosine, you work with the hypotenuse (AC) and the base length
+(BC), and for tangent, you work with the base and the height.
+
+The next question that comes up is if you have two sides of the right
+triangle, and you need to know the angle. The arc functions of sine, cosine
+and tangent resolve this issue. Let's use the same reference diagram for the
+following discussion.
+
+The arc-sine function (#asin#, also known as the inverse sine) gives θ (the
+angle in radians) from the height (AB) over the hypotenuse (AC). The other arc
+functions, #acos# and #atan#, behave as their more-familiar counterparts. So,
+the arc-cosine gives θ from the base (BC) and the hypotenuse (AC); the
+arc-tangent, from the height (AB) and the base (BC).
+
+
+The π and ℯ constants:
+----------------------
+So, perhaps you are used to thinking in degrees, not radians. How do you
+convert between the two when you use the above functions? That's as easy as
+pi! If you have the angle in degrees and one of side lengths, first multiple
+that angle by π / 180.0 (either #$double-pi# or #$single-pi#) to get radians,
+and then use that resulting θ in the appropriate function.
+
+There are several engrossing exercises for computing π, and several novel
+approaches. The most widely-known approach is to compute the value of the
+series 4 - 4/3 + 4/5 - 4/7 ... (which takes a very large number of terms to
+get close to Chuck Moore's find; see #$double-pi#). Another is to use the
+Fibonacci numbers (see the article on computing π using arc-tangents at
+http://www.mcs.surrey.ac.uk/Personal/R.Knott/Fibonacci/fibpi.html) which
+become usable in about ten terms.
+
+I will leave aside the temptation to find mathematical similarities between π
+and ℯ, with the exception of stating that both can use the Fibonacci numbers
+to find close approximations of their values. ℯ finds use in logarithmic and
+exponential calculations.
+
+
+Topic: threads modules
+------------------------------
+- #Module transcendental#
+

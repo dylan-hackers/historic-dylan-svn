@@ -1,7 +1,10 @@
 Variable: *print-pretty?*
 ==============================
 
-A variable.
+Specifies whether pretty printing is on. If on, prints object indented with
+proper line breaks, according to the formatting specifications given to
+#pprint-logical-block#. Users should have little use for this function. See
+#Module pprint# for details.
 
 
 Exported from:

@@ -1,19 +1,50 @@
 Class: <list>
 ==============================
 
-A class.
+The class of linked lists.
+
+Lists are constructed by linking together instances of #<pair>#. The head of a
+list contains an element, and the tail of the list contains a pointer to the
+next pair on the list. The list ends when the tail of a pair contains
+something besides another pair.
+
+A _proper list_ has a final pair with a tail containing the empty list.
+
+An _improper list_ does not have a final pair with a tail containing the empty
+list, either because the tail of its final pair is not the empty list, or
+because the list is circular and thus does not have a final pair. Except when
+their behavior on improper lists is documented explicitly, collection or
+sequence functions are not guaranteed to return an answer when an improper
+list is used as a collection or sequence. These functions may return the
+correct result, signal a #<type-error>#, or (in the case of a circular list)
+fail to return.
+
+When treated as a collection, the elements of a list are the heads of
+successive pairs in the list.
+
+The <list> class is partitioned into two concrete subclasses, #<pair># and
+#<empty-list>#. Calling #make# on <list> will return a linked list made from
+pairs and terminated with the empty list.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Modifiers:
 ------------------------------
 abstract free sealed
+
+
+Make keywords:
+------------------------------
+size: - An instance of #<integer># specifying the size of the list. The
+        default value is 0.
+        
+fill: - An instance of #<object># specifying an initial value for each element
+        of the list. The default value is #f.
 
 
 Superclasses:
@@ -43,13 +74,18 @@ Functions on <list>:
 
 Functions returning <list>:
 ------------------------------
+- #foldl#
+- #foldr#
 - #heads#
 - #list#
 - #list*#
+- #pair-foldl#
+- #pair-foldr#
 - #partition#
 - #sorted-applicable-methods#
 - #unfold#
 - #unfold/tail#
+- #tails#
 - #xpair#
 
 

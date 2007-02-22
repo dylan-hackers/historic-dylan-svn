@@ -1,13 +1,15 @@
 Class: <mutable-collection>
 ==============================
 
-A class.
+The class of collections that may be modified.
+
+Every mutable collection is required to allow modification by implementing
+#element-setter#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

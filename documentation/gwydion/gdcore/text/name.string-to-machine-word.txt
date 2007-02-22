@@ -15,7 +15,7 @@ Arguments:
 arg - An instance of #<string>#. 
 start: - An instance of #<integer>#. The default is 0.
 default: - An instance of #<object>#. The default is $not-supplied.
-end: - An instance of type-union(<false>, <integer>). The default is #f.
+end: - An instance of type-union(<integer>, <false>). The default is #f.
 
 
 Values:

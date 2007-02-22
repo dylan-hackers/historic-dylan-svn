@@ -1,7 +1,7 @@
 Function: whitespace?
 ==============================
 
-A function.
+Returns #t if the character is whitespace (space, tab, linefeed, or newline).
 
 
 Exported from:

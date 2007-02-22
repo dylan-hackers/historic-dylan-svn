@@ -1,7 +1,12 @@
 Generic: make-translator
 ==============================
 
-A generic function.
+Creates a function that translates a string.
+
+
+Deprecated:
+------------------------------
+Use #translate# instead.
 
 
 Exported from:

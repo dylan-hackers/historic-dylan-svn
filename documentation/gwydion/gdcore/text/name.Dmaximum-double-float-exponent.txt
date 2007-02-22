@@ -6,9 +6,9 @@ A constant.
 
 Exported from:
 ------------------------------
+- #Module Extensions#
 - #Module common-dylan#
 - #Module common-extensions#
-- #Module Extensions#
 
 
 Type:

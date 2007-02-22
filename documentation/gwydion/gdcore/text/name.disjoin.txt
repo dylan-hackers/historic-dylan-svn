@@ -1,25 +1,31 @@
 Function: disjoin
 ==============================
 
-A function.
+Returns a function that expresses the disjunction of one or more predicates.
+This function is termed the disjunction of its argument functions. The disjunction accepts any number of arguments and operates by applying the predicates, in order, to the arguments. If any of the predicates returns true, the remaining predicates (if any) are not applied, and the true result is returned. Otherwise, all the predicates will be applied, and #f returned.
+
+A disjunction is similar to an #|# expression of calls to the predicates.
+
+> define constant nonzero? = disjoin(positive?, negative?);
+> nonzero?(4)
+>  ⇒  #t
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-#rest more - Instances of #<object>#. 
+predicate1            - An instance of #<function>#. 
+#rest more-predicates - Instances of #<function>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<function>#. 
+function - An instance of #<function>#. 
 
 
 

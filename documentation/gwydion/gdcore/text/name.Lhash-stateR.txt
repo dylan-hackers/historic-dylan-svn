@@ -1,12 +1,12 @@
 Constant: <hash-state>
 ==============================
 
-A constant.
+The type of hash states. #<hash-state># is the type of the hash state returned
+as the second value of hash functions.
 
 
 Exported from:
 ------------------------------
-- #Module table-extensions#
 - #Module table-extensions#
 
 
@@ -17,5 +17,28 @@ Type:
 
 Value:
 ------------------------------
-<false>
+#<false>#
 
+
+Functions on <hash-state>:
+------------------------------
+- #case-insensitive-string-hash#
+- #collection-hash#
+- #equal-hash#
+- #object-hash#
+- #sequence-hash#
+- #string-hash#
+- #value-hash#
+- #values-hash#
+
+
+Functions returning <hash-state>:
+------------------------------
+- #case-insensitive-string-hash#
+- #collection-hash#
+- #equal-hash#
+- #object-hash#
+- #sequence-hash#
+- #string-hash#
+- #value-hash#
+- #values-hash#

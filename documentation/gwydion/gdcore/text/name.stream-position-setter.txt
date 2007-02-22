@@ -1,7 +1,7 @@
 Generic: stream-position-setter
 ==============================
 
-A generic function.
+Sets a stream's position to a new absolute position. Allows #"start", #"end", a #<stream-position>#, or an #<integer># as the position.
 
 
 Exported from:
@@ -17,13 +17,17 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<stream>#. 
+pos    - An instance of type-union( #<stream-position>#, #<integer>#,
+         one-of(#"start", #"end") ). 
+stream - An instance of #<stream>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+new-position - An instance of type-union( #<stream-position>#, #<integer># ). 
 
 
 
+Methods: stream-position-setter
+==============================
+stream-position-setter - A method on #<basic-positionable-stream>#.

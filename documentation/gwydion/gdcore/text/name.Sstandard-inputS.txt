@@ -1,7 +1,9 @@
 Variable: *standard-input*
 ==============================
 
-A variable.
+The standard input stream. Usually, this stream reads from the terminal for
+its data; however most UNIX-like operating systems permit the standard input
+stream to be redirected at the command line.
 
 
 Exported from:
@@ -11,7 +13,7 @@ Exported from:
 
 Type:
 ------------------------------
-#<object>#
+#<file-stream>#
 
 
 Value:

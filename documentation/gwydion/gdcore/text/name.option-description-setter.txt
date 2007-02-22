@@ -1,7 +1,7 @@
 Generic: option-description-setter
 ==============================
 
-A generic function.
+Sets the description associated with an option.
 
 
 Exported from:
@@ -16,13 +16,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+new-description - An instance of #<string>#. 
+parser          - An instance of #<option-parser>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-description - An instance of #<string>#. 
 
 
 

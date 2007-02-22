@@ -1,0 +1,15 @@
+Module: Module transcendentals
+==============================
+
+This is the re-named and re-exported #Module transcendental# of #Library
+transcendental#.
+
+
+Exported from:
+------------------------------
+#Library common-dylan#
+
+
+See:
+------------------------------
+#Module transcendental#

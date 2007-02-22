@@ -1,25 +1,25 @@
 Function: check-type
 ==============================
 
-A function.
+Checks an object to ensure that it is an instance of a specified type. If it
+is not, signal an error of type #<type-error>#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<type>#. 
+value - An instance of #<object>#. 
+type - An instance of #<type>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+value - An instance of #<object>#. 
 
 
 

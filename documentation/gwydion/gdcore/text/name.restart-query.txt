@@ -1,13 +1,20 @@
 Generic: restart-query
 ==============================
 
-A generic function.
+Called to query the user and restart. 
+
+Engages the interactive user in a dialog and stores the results in slots of
+_restart_.
+
+This function is designed to be called from a handler, after making a restart
+and before signaling it. The debugger uses #restart-query#, for example.
+
+The default method does nothing.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,7 +25,7 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<restart>#. 
+restart - An instance of #<restart>#. 
 
 
 Values:

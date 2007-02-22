@@ -1,13 +1,25 @@
 Generic: table-protocol
 ==============================
 
-A generic function.
+Returns the _test-function_ and _hash-function_ for the #<table>#. These
+functions are in turn used to implement the other collection operations on
+#<table>#.
+
+The method for #<object-table># returns #==# as the _test-function_ and
+#object-hash# as the _hash-function_.
+
+The method for #<object-table># could be written as
+
+: define method table-protocol (table :: <object-table>)
+:       => test-function :: <function>, 
+:          hash-function :: <function>;
+:   values(\==, object-hash);
+: end method table-protocol;
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +30,24 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<table>#. 
+table - An instance of #<table>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
+test-function - An instance of #<function>#. Its signature is
+                test-function(_key1_, _key2_) ⇒ _boolean_.
 
+              - _test-function_ is used to compare keys. It returns true if
+                the keys are members of the same equivalence class according
+                to the table's equivalence predicate.
+
+hash-function - An instance of #<function>#. Its signature is
+                hash-function(_key_) ⇒ (_id_, _state_)
+
+              - _hash-function_ computes the hash code of the _key_, using the
+                hash function associated with the table's equivalence
+                predicate. The hash code is returned as two values, _id_ (an
+                integer) and _state_ (a hash state).
 
 

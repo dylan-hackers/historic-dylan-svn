@@ -1,19 +1,69 @@
 Class: <generic-function>
 ==============================
 
-A class.
+The class of functions that are made up of a number of individual methods.
+
+The arguments describe the shape of the generic function's parameter list, and
+thereby control which methods can be added to the generic function.
+
+An error is signaled if the value of rest?: is true and the value of key: is a
+collection. While a method parameter list may specify both #rest and #key, a
+generic function parameter list cannot.
+
+An error is signaled if the value of all-keys?: is true and the value of
+key: is #f.
+
+A new generic function initially has no methods. An error will be signaled if
+a generic function is called before methods are added to it. Once a generic
+function is created, you can give it behavior by adding methods to it with
+#add-method# or define method (see #method-definer#).
+
+Generic functions are not usually created by calling #make# directly. Most
+often they are created by define generic (see #generic-definer#) or implicitly
+by define method.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Modifiers:
 ------------------------------
 concrete free sealed
+
+
+Make keywords:
+------------------------------
+required:  - An instance of #<number># or #<sequence>#.
+           
+           - This argument represents the required arguments that the generic
+             function accepts. If a sequence is supplied, the size of the
+             sequence is the number of required arguments, and the elements of
+             the sequence are the specializers. If a number is supplied, it is
+             the number of required arguments, and the specializers default to
+             #<object>#. If the argument is not supplied, or the supplied
+             argument is neither a sequence nor a non-negative integer, an
+             error is signaled.
+           
+rest?:     - An instance of #<boolean>#.
+           
+           - A true value indicates that the generic function accepts a
+             variable number of arguments. The default value is #f.
+           
+key:       - #f or an instance of #<collection># whose elements are keywords.
+           
+           - If the value is a collection, then the generic function accepts
+             keyword arguments, and the collection specifies the set of
+             mandatory keywords for the generic function. A value of #f
+             indicates that the generic function does not accept keyword
+             arguments. The default value is #f.
+
+all-keys?: - An instance of #<boolean>#.
+
+           - A true value indicates that the generic function accepts all
+             keyword arguments. The default value is #f.
 
 
 Superclasses:
@@ -26,6 +76,7 @@ Functions on <generic-function>:
 - #add-method#
 - #find-method#
 - #generic-function-mandatory-keywords#
+- #generic-function-methods#
 - #remove-method#
 - #slot-initialized?#
 - #sorted-applicable-methods#

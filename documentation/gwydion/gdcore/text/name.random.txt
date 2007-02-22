@@ -1,7 +1,8 @@
 Generic: Random
 ==============================
 
-A generic function.
+Generates a random integer. Returns a random integer between 0 (inclusive) and
+_arg_ (exclusive). We return the same kind of integer that _arg_ is.
 
 
 Exported from:
@@ -17,12 +18,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+arg    - An instance of #<integer>#. Maximum number generated.
+state: - An instance of #<random-state>#. The state used to generate the
+         random number. Defaults to #*random-state*#.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+random-number - An instance of #<integer>#. 
 
 
 

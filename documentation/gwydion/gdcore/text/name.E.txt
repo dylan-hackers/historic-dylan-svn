@@ -1,13 +1,34 @@
 Generic: =
 ==============================
 
-A generic function.
+Compares two objects for equality. Returns true if _object1_ and _object2_ are
+equal. Otherwise, it returns false.
+
+Programmers may define methods for #=# specialized on classes they define. A
+programmer may be required to provide an #=# method when defining subclasses
+of some predefined classes in order to fulfill the protocol of the class, as
+described below. For objects that do not have a more specific #=# method, #=#
+returns the same as #==#.
+
+#=# is not guaranteed to return. For example, it may not return when called on
+circular structures or otherwise unbounded structures.
+
+In addition to the sealed domains specified by the methods below, = is sealed
+over the following domains:
+
+- #<object>#, #<symbol>#
+- #<symbol>#, #<object>#
+- #<object>#, #<character>#
+- #<character>#, #<object>#
+- #<object>#, #<boolean>#
+- #<boolean>#, #<object>#
+
+The default method on #=# calls #==# and returns the result returned by #==#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +39,39 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+object1 - An instance of #<object>#. 
+object2 - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
+
+
+See also:
+------------------------------
+- #Equality and Comparison#
 
 
 
+Methods: =
+==============================
+= - Two instances of #<complex># are equal if they have the same mathematical
+    value.
+
+= - Two instances of #<collection># are equal if they have identical
+    #key-test# functions, they have the same keys (as determined by their
+    #key-test# functions), the elements at corresponding keys are =, and
+    neither collection is a dotted list.
+
+= - For instances of #<sequence>#, #=# returns true if _sequence1_ and
+    _sequence2_ have the same size and elements with = keys are =, and returns
+    false otherwise.
+
+= - For instances of #<list>#, #=# returns true if the two lists are the same
+    size, corresponding elements of _list1_ and _list2_ are = and the final
+    tails are =. It returns false otherwise.
+
+= - For mixed lists and sequences, #=# returns true if the _list_ is not a
+    dotted list, both have the same size, and elements with = keys are =. It
+    returns false otherwise.

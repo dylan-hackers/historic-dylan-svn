@@ -1,13 +1,12 @@
 Function: identity
 ==============================
 
-A function.
+Returns its argument.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,7 +17,7 @@ arg - An instance of #<object>#.
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+val - An instance of #<object>#; the same object that was passed in as _arg_. 
 
 
 

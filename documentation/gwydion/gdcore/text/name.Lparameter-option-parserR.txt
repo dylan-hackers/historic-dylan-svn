@@ -1,7 +1,15 @@
 Class: <parameter-option-parser>
 ==============================
 
-A class.
+Parses options which have a parameter and which may appear only once.
+#option-value# on #<parameter-option-parser># returns either #f or a
+#<string>#. If the option appears more than once on the command line, the
+rightmost value is used.
+
+
+Example option forms:
+------------------------------
+-cred, -c red, -c=red, -c = red, --color red, --color=red, --color = red
 
 
 Exported from:
@@ -12,6 +20,16 @@ Exported from:
 Modifiers:
 ------------------------------
 concrete free sealed
+
+
+Make keywords:
+------------------------------
+long-options:  - An instance of #<list>#. Specifies the long options handled
+                 by this parser, represented as strings. Defaults to #().
+short-options: - An instance of #<list>#. Specifies the short options handled
+                 by this parser, represented as strings. Defaults to #().
+description:   - An instance of #<string>#. A description of the options
+                 handled by this parser. Defaults to "".
 
 
 Superclasses:

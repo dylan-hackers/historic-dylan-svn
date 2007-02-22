@@ -1,7 +1,8 @@
 Variable: *default-line-length*
 ==============================
 
-A variable.
+This is the line length used by the pretty printer to determine how much
+output will fit on a single line. It defaults to 80.
 
 
 Exported from:

@@ -1,13 +1,28 @@
 Generic: find-key
 ==============================
 
-A generic function.
+Returns the key in a collection such that the corresponding collection element
+satisfies a predicate. If no element in _collection_ satisfies _predicate_,
+#find-key# returns failure.
+
+The _skip_ argument indicates that the first _skip_ matching elements should
+be ignored. If _skip_ or fewer elements of _collection_ satisfy _predicate_,
+then _failure_ is returned. If _collection_ is not stable under iteration,
+then _skip_ is only useful for finding out whether _collection_ contains at
+least _skip_ elements which satisfy _predicate_; it is not useful for finding
+a particular element.
+
+> flavors
+>  ⇒  #(#"vanilla", #"pistachio", #"ginger")
+> find-key (flavors, has-nuts?)
+>  ⇒  1
+> flavors[1]
+>  ⇒  #"pistachio"
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,15 +33,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<collection>#. 
-arg - An instance of #<function>#. 
-skip: - An instance of #<object>#. The default is #f.
-failure: - An instance of #<object>#. The default is #f.
+collection - An instance of #<collection>#. 
+predicate  - An instance of #<function>#. 
+skip:      - An instance of #<integer>#. The default is 0.
+failure:   - An instance of #<object>#. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+key - An instance of #<object>#. 
 
 
 

@@ -1,13 +1,18 @@
 Generic: return-allowed?
 ==============================
 
-A generic function.
+Returns true if a condition's recovery protocol allows returning values.
+
+There is a default method for #<condition># that returns #f. Programs which
+define condition classes whose recovery protocol allows returning values
+should ensure that there is an appropriate method for this function defined on
+or inherited by the condition class.
 
 
 Exported from:
 ------------------------------
-- #Module common-dylan#
 - #Module Dylan#
+- #Module common-dylan#
 - #Module Dylan#
 
 
@@ -18,12 +23,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<condition>#. 
+condition - An instance of #<condition>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
 
 
 

@@ -1,7 +1,8 @@
 Generic: ^
 ==============================
 
-A generic function.
+Raises an object to a specified power. Returns _object1_ raised to the power
+_object2_. An error is signaled if both arguments are zero.
 
 
 Exported from:
@@ -9,7 +10,7 @@ Exported from:
 - #Module common-dylan#
 - #Module Dylan#
 - #Module transcendental#
-- #Module Dylan#
+- #Module transcendentals#
 
 
 Modifiers:
@@ -19,13 +20,17 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+object1 - An instance of #<object>#. 
+object2 - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+object3 - An instance of #<object>#. 
 
 
 
+Methods: ^
+==============================
+^ - The method on #<complex>#, #<integer># raises a complex number to an
+    integral power and returns the result.

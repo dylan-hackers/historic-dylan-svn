@@ -1,7 +1,7 @@
 Class: <extended-integer>
 ==============================
 
-A class.
+An integer of any size. An extended integer is just a vector of digits.
 
 
 Exported from:
@@ -21,7 +21,9 @@ Superclasses:
 
 Functions returning <extended-integer>:
 ------------------------------
+- #denominator#
 - #integer-decode-float#
+- #numerator#
 
 
 

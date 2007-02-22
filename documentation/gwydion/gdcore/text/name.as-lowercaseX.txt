@@ -1,13 +1,13 @@
 Generic: as-lowercase!
 ==============================
 
-A generic function.
+Coerces an object to lowercase in place. _arg_ may be modified by this
+operation, and the result will be == to the _arg_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -27,3 +27,7 @@ Values:
 
 
 
+Methods: as-lowercase!
+==============================
+as-lowercase! - The method on #<string># is equivalent to
+                map-into(_string_, as-lowercase, _string_).

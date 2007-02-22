@@ -1,7 +1,11 @@
 Function: option-present?-by-long-name
 ==============================
 
-A function.
+Determine whether an option was present, given a corresponding option name.
+This function provides an easy way to determine whether a given option parser
+found anything in an argument list. If an option has multiple names, any one
+of them can be used as the argument to this function without changing the
+result.
 
 
 Exported from:
@@ -11,13 +15,13 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<argument-list-parser>#. 
-arg - An instance of #<string>#. 
+parser    - An instance of #<argument-list-parser>#. 
+long-name - An instance of #<string>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+present? - An instance of #<boolean>#. 
 
 
 

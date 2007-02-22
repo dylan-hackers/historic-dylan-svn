@@ -1,7 +1,22 @@
 Generic: pprint-tab
 ==============================
 
-A generic function.
+This function announces a tab to the pretty printer. _Colnum_ and _colinc_
+have meaning based on the value of _kind_:
+
+#"line" - Tab to output column _colnum_. If the output is already at or beyond
+_colnum_, then add _colinc_ to _colnum_ until printing can continue at a
+column beyond the end of the output already on the line.
+
+#"line-relative" - Output _colnum_ spaces. Then output enough spaces to tab to
+a column that is a multiple of _colinc_ from the beginning of the line.
+
+#"section" - This is similar to #"line", but column counting is relative to
+the beginning of the current section rather than the beginning of the line.
+
+#"section-relative" - This is similar to #"line-relative", but column counting
+is relative to the beginning of the current section rather than the beginning
+of the line.
 
 
 Exported from:
@@ -16,10 +31,10 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of type-union(singleton(#"section"), singleton(#"section-relative"), singleton(#"line-relative"), singleton(#"line")). 
-arg - An instance of #<integer>#. 
-arg - An instance of #<integer>#. 
-arg - An instance of #<stream>#. 
+kind   - One of #"line-relative", #"section-relative", #"section", #"line". 
+colnum - An instance of #<integer>#. 
+colinc - An instance of #<integer>#. 
+stream - An instance of #<stream>#. 
 
 
 

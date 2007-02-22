@@ -1,13 +1,12 @@
 Class: <mutable-sequence>
 ==============================
 
-A class.
+The class of sequences that may be modified.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -19,7 +18,7 @@ abstract free open
 Superclasses:
 ------------------------------
 - #<mutable-collection>#
- - #<sequence>#
+- #<sequence>#
  
 
 Subclasses:
@@ -44,6 +43,7 @@ Functions on <mutable-sequence>:
 Functions returning <mutable-sequence>:
 ------------------------------
 - #buffer-subsequence#
+- #tabulate#
 
 
 

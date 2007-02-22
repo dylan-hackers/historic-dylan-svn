@@ -1,14 +1,14 @@
 Generic: case-insensitive-equal
 ==============================
 
-A generic function.
+Tests whether two objects have the same string value aside from case.
+Comparisons to non-#<string># or #<character># instances return #f.
 
 
 Exported from:
 ------------------------------
 - #Module table-extensions#
 - #Module string-hacking#
-- #Module table-extensions#
 
 
 Modifiers:
@@ -18,13 +18,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+arg1 - An instance of #<object>#. 
+arg2 - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+result - An instance of #<boolean>#. 
 
 
 

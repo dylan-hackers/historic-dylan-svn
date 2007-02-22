@@ -1,13 +1,26 @@
 Generic: any?
 ==============================
 
-A generic function.
+Returns the first true value obtained by iterating over one or more
+collections.
+
+Applies _function_ to groups of corresponding elements of _collection_ and
+_more-collections_. If an application of _function_ returns true, then #any?#
+returns that true value. Otherwise _function_ returns #f when applied to every
+such group, and #any?# returns #f.
+
+If all the collections are sequences, #any?# operates in natural order. In all
+cases, #any?# stops on the first true value returned by _function_.
+
+> any? (\>, #(1, 2, 3 ,4), #(5, 4, 3, 2))
+>  ⇒  #t
+> any? (even?, #(1, 3, 5, 7))
+>  ⇒  #f
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +31,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<collection>#. 
-#rest more - Instances of #<object>#. 
+function - An instance of #<function>#. 
+collection - An instance of #<collection>#. 
+#rest more-collections - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+value - An instance of #<object>#. 
 
 
 

@@ -1,24 +1,30 @@
 Function: false-or
 ==============================
 
-A function.
+Creates a class that is either #f or the supplied class. This function is useful in type expressions. It captures the common idiom of returning an instance of a particular type or the value #f. The expression
+
+: false-or(<integer>)
+
+is equivalent to the expression
+
+: type-union(<integer>, singleton(#f))
 
 
 Exported from:
 ------------------------------
+- #Module Extensions#
 - #Module common-dylan#
 - #Module common-extensions#
-- #Module Extensions#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<type>#. 
+arg - An instance of #<type>#. The alternate type.
 
 
 Values:
 ------------------------------
-val - An instance of #<type>#. 
+val - An instance of #<type>#. The resulting type-union.
 
 
 

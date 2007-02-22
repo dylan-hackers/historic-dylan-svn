@@ -1,13 +1,12 @@
 Generic: second-setter
 ==============================
 
-A generic function.
+Sets the second element of a mutable sequence.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +17,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<mutable-sequence>#. 
+new-value - An instance of #<object>#. 
+sequence  - An instance of #<mutable-sequence>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+new-value - An instance of #<object>#. 
 
 
 

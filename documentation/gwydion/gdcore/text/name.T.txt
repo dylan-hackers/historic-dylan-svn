@@ -1,24 +1,24 @@
 Function: ~
 ==============================
 
-A function.
+Logical negation. Returns true if its argument is false; otherwise returns
+false.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+thing - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
 
 
 

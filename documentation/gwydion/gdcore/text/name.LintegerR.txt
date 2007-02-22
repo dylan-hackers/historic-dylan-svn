@@ -1,13 +1,14 @@
 Class: <integer>
 ==============================
 
-A class.
+The class of integers.
+
+Gwydion Dylan integers have 32 or 64 bits of precision. The #/# function on two integers returns a #<ratio>#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -23,10 +24,12 @@ Superclasses:
 
 Functions on <integer>:
 ------------------------------
+- #adjust-stream-position#
 - #ash#
 - #as-iso8601-string#
 - #bit-vector-word#
 - #buffer-subsequence#
+- #byte-vector-fill#
 - #byte-vector-ref#
 - #byte-vector-ref-setter#
 - #copy-bytes#
@@ -41,6 +44,10 @@ Functions on <integer>:
 - #exit#
 - #exit-application#
 - #find-element#
+- #find-first-key#
+- #find-last-key#
+- #integer-to-digit#
+- #integer-to-string#
 - #isqrt#
 - #logbit?#
 - #multi-buffered-stream-position-setter#
@@ -48,16 +55,24 @@ Functions on <integer>:
 - #pprint-indent#
 - #pprint-logical-block#
 - #pprint-tab#
+- #print#
+- #print-to-string#
+- #random#
 - #read#
 - #read-into!#
 - #read-text#
 - #read-text-into!#
 - #regexp-matches#
+- #regexp-position#
+- #regexp-replace#
 - #scale-float#
 - #split#
+- #stream-position-setter#
+- #string-to-integer#
 - #string-to-machine-word#
 - #tabulate#
 - #take#
+- #translate#
 - #wait-for-application-event#
 - #write-4-aligned-bytes#
 - #write-8-aligned-bytes#
@@ -67,13 +82,16 @@ Functions on <integer>:
 
 Functions returning <integer>:
 ------------------------------
+- #adjust-stream-position#
 - #bit-count#
 - #buffer-start#
+- #case-insensitive-string-hash#
 - #collection-hash#
 - #current-timestamp#
 - #decode-date#
 - #decode-duration#
 - #decode-float#
+- #digit-to-integer#
 - #dimension#
 - #equal-hash#
 - #float-digits#
@@ -90,12 +108,21 @@ Functions returning <integer>:
 - #multi-buffer-total-reads#
 - #multi-buffer-total-working-set#
 - #object-hash#
+- #random#
+- #random-bits#
 - #rank#
 - #read-4-aligned-bytes#
 - #read-8-aligned-bytes#
+- #read-into!#
+- #read-line-into!#
+- #regexp-position#
 - #row-major-index#
 - #run-application#
 - #sequence-hash#
+- #string-hash#
+- #stream-position#
+- #stream-position-setter#
+- #string-to-integer#
 - #string-to-machine-word#
 - #system#
 - #value-hash#

@@ -1,13 +1,18 @@
 Generic: copy-sequence
 ==============================
 
-A generic function.
+Creates a freshly allocated sequence containing the elements of _source_ between _start_ and _end_.
+
+> define constant hamlet = #("to", "be", "or", "not", "to", "be")
+> hamlet == copy-sequence (hamlet)
+>  ⇒  #f
+> copy-sequence (hamlet, start: 2, end: 4)
+>  ⇒  #("or", "not")
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +23,19 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-start: - An instance of #<object>#. The default is #f.
-end: - An instance of #<object>#. The default is #f.
+source - An instance of #<sequence>#. 
+start: - An instance of #<integer>#. The default is 0.
+end:   - An instance of #<integer>#. The default is the size of _source_.
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+val - A freshly allocated instance of #<sequence>#. 
 
 
 
+Methods: copy-sequence
+==============================
+copy-sequence - When applied to a #<range>#, #copy-sequence# returns another
+                range, even though the #type-for-copy# of a range is the
+                #<list># class.

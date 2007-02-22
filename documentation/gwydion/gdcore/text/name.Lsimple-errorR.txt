@@ -1,19 +1,29 @@
 Class: <simple-error>
 ==============================
 
-A class.
+The class of error conditions that consist of just an error message
+constructed from a format string and arguments. The recovery protocol of
+<simple-error> is empty.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Modifiers:
 ------------------------------
 concrete free sealed
+
+
+Make keywords:
+------------------------------
+format-string:    - An instance of #<string>#. A format string describing the
+                    error.
+
+format-arguments: - An instance of #<sequence>#. Format arguments to splice
+                    into the format string to describe the error.
 
 
 Superclasses:

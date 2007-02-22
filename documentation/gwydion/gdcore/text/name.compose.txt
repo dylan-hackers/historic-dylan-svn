@@ -1,25 +1,39 @@
 Function: compose
 ==============================
 
-A function.
+Returns the composition of one or more functions.
+
+When called with just a single argument, #compose# returns that argument.
+
+When called with two arguments, #compose# returns a function that applies the
+second function to its arguments and then applies the first function to the
+(single) result value.
+
+With three or more arguments, #compose# composes pairs of argument functions,
+until a single composite function is obtained. (It doesn't matter if the
+pairings are done from the left or from the right, as long as the order of
+application is preserved.)
+
+: define constant number-of-methods =
+:   compose(size, generic-function-methods)
+: define constant root-position = compose(position, root-view)
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-#rest more - Instances of #<object>#. 
+function1 - An instance of #<function>#. 
+#rest more-functions - Instances of #<function>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<function>#. 
+function - An instance of #<function>#. 
 
 
 

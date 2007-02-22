@@ -1,13 +1,14 @@
 Generic: default-handler
 ==============================
 
-A generic function.
+Called if no dynamic handler handles a condition.
+
+The method on #<condition># simply returns #f.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +19,22 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<condition>#. 
+condition - An instance of #<condition>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest values - Instances of #<object>#. 
 
 
 
+Methods: default-handler
+==============================
+default-handler - The method on #<serious-condition># invokes an
+                  implementation-defined debugger. It does not return.
+
+default-handler - The method on #<warning># prints the warning's message in an
+                  implementation-defined way and then returns #f.
+
+default-handler - The method on #<restart># signals an error. It does not
+                  return.

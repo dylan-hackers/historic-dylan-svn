@@ -1,19 +1,16 @@
 Function: abort
 ==============================
 
-A function.
+Aborts and never returns. Performs error(make(<abort>)).
+
+This function is provided as a convenient shortcut. The call is to #error#,
+rather than to #signal#, to guarantee that #abort# will never return.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
-
-
-Values:
-------------------------------
-val - An instance of type-union(). 
 
 
 

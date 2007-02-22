@@ -1,13 +1,23 @@
 Generic: row-major-index
 ==============================
 
-A generic function.
+Returns the row-major index position of an array element.
+
+Computes the position according to the row-major ordering of _array_ for the
+element that is specified by _subscripts_, and returns the position of that
+element.
+
+An error is signaled if the number of subscripts is not equal to the rank of
+the array. An error is signaled if any of the subscripts are out of bounds for
+array.
+
+The method for #<array># computes the _index_ using the _subscripts_ and the
+result of calling #dimensions# on the _array_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +28,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<array>#. 
-#rest more - Instances of #<object>#. 
+array - An instance of #<array>#. 
+#rest subscripts - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
+index - An instance of #<integer>#. 
 
 
 

@@ -1,13 +1,16 @@
 Generic: shallow-copy
 ==============================
 
-A generic function.
+Returns a new object that has the same contents as its argument. The contents
+are not copied but are the same objects contained in _arg_.
+
+There is a predefined method for instances of #<collection>#. For other
+classes, the programmer must provide a method.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -25,5 +28,12 @@ Values:
 ------------------------------
 val - An instance of #<object>#. 
 
+
+
+Methods: shallow-copy
+==============================
+shallow-copy - The method on #<collection># creates a new object by calling
+               #make# on the #type-for-copy# of _collection_ and filling it
+               with the same elements as _collection_.
 
 

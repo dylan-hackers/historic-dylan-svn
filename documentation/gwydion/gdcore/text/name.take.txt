@@ -1,8 +1,13 @@
 Generic: take
 ==============================
 
-A generic function.
+Returns elements from either end of a sequence. If _k_ >= 0 return a new
+sequence consisting of the first _k_ elements of _seq_, otherwise return a new
+sequence consisting of the last _k_ elements of _seq_. For example:
 
+> take(#(0, 5, 10, 15, 20, 25, 30), 5)  ⇒ #(0, 5, 10, 15, 20, 25)
+> take(#(0, 3,  6,  9, 12, 15, 18), -3) ⇒ #(12, 15, 18)
+ 
 
 Exported from:
 ------------------------------
@@ -16,13 +21,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<integer>#. 
+seq - An instance of #<sequence>#. 
+k   - An instance of #<integer>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-sequence - An instance of #<sequence>#. 
 
 
 

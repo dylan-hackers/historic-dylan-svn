@@ -1,13 +1,16 @@
 Generic: size
 ==============================
 
-A generic function.
+Returns the size of its argument.
+
+When called on a collection, size returns the numbers of keys in the
+collection. This default method simply counts while iterating through the
+collection. size may return #f for collections of unbounded size.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -23,7 +26,17 @@ arg - An instance of #<object>#.
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <integer>). 
+val - An instance of type-union(<integer>, <false>). 
 
 
 
+Methods: size
+==============================
+size - The method on #<array># is equivalent to
+       reduce(\*, 1, dimensions (array)).
+
+size - The method on circular #<list>#s is guaranteed to terminate and return
+       #f. For noncircular lists, #size# returns an integer size value.
+
+size - The method on unbounded #<range>#s always terminates and returns #f.
+       For finite ranges, #size# returns an integer.

@@ -6,8 +6,8 @@ A constant.
 
 Exported from:
 ------------------------------
-- #Module byte-vector#
 - #Module Extensions#
+- #Module byte-vector#
 - #Module streams#
 
 

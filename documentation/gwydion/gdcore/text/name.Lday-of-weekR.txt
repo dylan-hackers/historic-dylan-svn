@@ -16,5 +16,5 @@ Type:
 
 Value:
 ------------------------------
-type-union(singleton(#"monday"), singleton(#"thursday"), singleton(#"tuesday"), singleton(#"friday"), singleton(#"saturday"), singleton(#"wednesday"), singleton(#"sunday"))
+type-union(singleton(#"monday"), singleton(#"wednesday"), singleton(#"friday"), singleton(#"saturday"), singleton(#"sunday"), singleton(#"thursday"), singleton(#"tuesday"))
 

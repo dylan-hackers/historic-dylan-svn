@@ -1,13 +1,21 @@
 Generic: replace-elements!
 ==============================
 
-A generic function.
+Replaces those elements of _mutable-collection_ for which _predicate_ returns
+true. The elements are replaced with the value of calling _new-value-fn_ on
+the existing element. If _count_ is #f, all of the matching elements are
+replaced. Otherwise, no more than _count_ elements are replaced.
+
+_mutable-collection_ may be modified by this operation.
+
+> define variable numbers = list (10, 13, 16, 19)
+> replace-elements! (numbers, odd?, double)
+>  ⇒  #(10, 26, 16, 38)
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,15 +26,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<mutable-collection>#. 
-arg - An instance of #<function>#. 
-arg - An instance of #<function>#. 
-count: - An instance of #<object>#. The default is #f.
+mutable-collection - An instance of #<mutable-collection>#. 
+predicate          - An instance of #<function>#. 
+new-value-fn       - An instance of #<function>#. 
+count:             - An instance of #<integer># or #f. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<mutable-collection>#. 
+mutable-collection - An instance of #<mutable-collection>#. 
 
 
 

@@ -1,13 +1,15 @@
 Generic: logbit?
 ==============================
 
-A generic function.
+Tests the value of a particular bit in its argument. Returns true if the
+_index_'th bit in _integer_ is a one-bit; otherwise it returns false.
+
+Negative integers are treated as if they were in two's-complement notation.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +20,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<integer>#. 
-arg - An instance of #<general-integer>#. 
+index - An instance of #<integer>#. 
+integer - An instance of #<general-integer>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
 
 
 

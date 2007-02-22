@@ -1,7 +1,8 @@
 Function: graphic?
 ==============================
 
-A function.
+Returns #t if the character is a graphic character (a printing, non-whitespace
+character).
 
 
 Exported from:

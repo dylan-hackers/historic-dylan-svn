@@ -1,13 +1,29 @@
 Class: <array>
 ==============================
 
-A class.
+The class of sequences whose elements are arranged according to a Cartesian
+coordinate system.
+
+An array element is referred to by a (possibly empty) series of indices. The
+length of the series must equal the range of the array. Each index must be a
+non-negative integer less than the corresponding dimension. An array element
+may alternatively be referred to by an integer, which is interpreted as a
+row-major index.
+
+Arrays typically use space efficient representations, and the average time
+required to access a randomly chosen element is typically sublinear to the
+number of elements.
+
+When a single-dimensional array is created, the array created will be an
+instance of #<vector>#.
+
+Each concrete subclass of <array> must either provide or inherit
+implementations of the functions element, element-setter, and dimensions.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -15,6 +31,17 @@ Modifiers:
 ------------------------------
 abstract free open
 
+
+Make keywords:
+------------------------------
+dimensions: - An instance of #<sequence># with elements that are instances of
+              #<integer>#. This argument specifies the dimensions of the
+              array. The size of the sequence specifies the rank (number of
+              dimensions) of the array, and each integer in the sequence
+              specifies the size of a dimension. This argument is required.
+
+fill:       - An instance of #<object># specifying an initial value for each
+              element of the array. The default value is #f.
 
 Superclasses:
 ------------------------------

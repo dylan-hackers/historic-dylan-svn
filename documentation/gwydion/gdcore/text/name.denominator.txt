@@ -1,7 +1,7 @@
 Generic: denominator
 ==============================
 
-A generic function.
+Returns the denominator of a ratio.
 
 
 Exported from:
@@ -16,12 +16,9 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+ratio - An instance of #<ratio>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
-
-
-
+denom - An instance of #<extended-integer>#. 

@@ -1,7 +1,8 @@
 Class: <random-state>
 ==============================
 
-A class.
+Used to compute a random number. The #<random-state># has slots that maintain
+a seed state so that a new random number can be generated.
 
 
 Exported from:
@@ -20,4 +21,7 @@ Superclasses:
 - #<object>#
  
 
-
+Functions on <random-state>:
+------------------------------
+- #random#
+- #random-bits#

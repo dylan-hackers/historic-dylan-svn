@@ -1,7 +1,7 @@
 Module: Module format
 ==============================
 
-The format module.
+The Format module provides a way to control output to a stream.
 
 
 Exported from:
@@ -15,3 +15,160 @@ Topic: format names
 - #format-to-string#
 - #print-message#
 
+
+Topic: Format Directives
+==============================
+
+%d - Accepts an instance of #<integer>#. Formats it as a decimal number.
+
+%b - Accepts an instance of #<integer>#. Formats it as a binary number.
+
+%o - Accepts an instance of #<integer>#. Formats it as an octal number.
+
+%x - Accepts an instance of #<integer>#. Formats it as a hexadecimal number.
+
+%e - Accepts an instance of #<float>#. Formats it as a floating-point number
+     with exponent (_e.g._ 1.234e+5).
+     
+%f - Accepts an instance of #<float>#. Formats it as a fixed-point number
+     (_e.g._ 1.234).
+     
+%g - Accepts an instance of #<float>#. Formats it as a floating-point number
+     with exponent or a fixed-point number, as needed.
+
+%c - As %s.
+
+%s - Accepts an instance of #<object>#. Formats it as specified by
+     #print-message# on the object. This is generally a "friendly" form. If
+     the argument is a #<condition>#, this is the condition message. If the
+     argument is a #<string>#, this is the string without quotes.
+
+%= - Accepts an instance of #<object>#. Formats it as specified by
+     #print-object# on the object. This is generally a form useful to
+     developers.
+
+%% - Does not accept an argument. Formats as a literal '%'.
+
+%m - Accepts an instance of #<function>#. The function is applied to the
+     stream to perform user-defined operations on the stream. This directive
+     is specific to Gwydion Dylan.
+     
+Format directives may also include optional flags, width, and precision
+specifiers between the percent sign and the specifier. The general syntax is:
+
+: %(flags)(width).(precision)(specifier)
+
+Possible _flags_ and their effects
+are:
+
+minus (-) - Left-justify the argument within the _width_. By default, the
+            argument is right-justified.
+plus (+)  - Format positive numbers with a preceding + sign. By default,
+            positive numbers are not preceded by a sign.
+space ( ) - Format positive numbers with a preceding space. By default,
+            positive numbers are not preceded by a space.
+hash (#)  - Formats floating-point numbers with a decimal point or trailing
+            zeros. By default, these are removed if possible.
+zero (0)  - When formatting numbers to a _width_ or _precision_, use 0 instead
+            of space to fill the alloted space.
+
+If _width_ is specified, the argument is formatted with extra spaces to
+achieve a minimum width.
+
+If _precision_ is specified, floating-point numbers are formatted with this
+number of digits after the decimal point (for %e or %f) or significant digits
+(for %g). The formatting of integers and other objects is not affected.
+
+
+Simple Example:
+---------------
+Here we use three format directives to print the following
+message:
+
+: Hello, my name is Doug Auclair, and I'm 33 years old.
+      
+The code to generate the above message
+is:
+
+: format(*standard-output*, "Hello, my name is %s, and I'm %d years old.%c",
+:        "Doug Auclair", 33, '\n');
+
+Sending the new-line character ('\n') works as expected on supported
+platforms, but some systems that require a "\r\n" or a "\n\r" pair for a
+new-line command may have problems. The preferred way to write the above code
+is:
+
+: format(*standard-output*, "Hello, my name is %s, and I'm %d years old.\n",
+:        "Doug Auclair", 33);
+      
+      
+Simple Example Using the %m Directive:
+--------------------------------------
+Instead of feeding the (in some cases, troublesome) '\n' character to the %c
+directive, let us explicitly use the #new-line# function (exported from the
+Streams module) in concert with the %m directive, like this:
+
+: format(*standard-output*, "Hello, my name is %s, and I'm %d years old.%m",
+:        "Doug Auclair", 33, new-line);
+
+The above code produces the same output as the simple example given
+previously.
+
+Interestingly, Dylan automatically converts '\n' characters in the control
+string to calls to #new-line#. (So, neither "%m" => new-line nor "%c" => '\n'
+mappings are necessary … Dylan takes care of that).
+
+
+Complex Example Using the %m Directive:
+---------------------------------------
+Here we generate almost the same message, this time with a little more
+information (the current time in Washington D.C.) using the "%m" format
+directive. The new message is:
+
+: Hello, my name is Doug Auclair, and as of
+: now, November 17, 2000 09:28 PM, I'm 33 years old.
+        
+To get the above message, we must first create a function that manipulates a
+<decoded-time> (exported from the Time and Time-IO modules) as we desire for
+the output:
+
+: define function human-readable-time(stream :: <stream>,  
+:                                     time :: <decoded-time>)
+:  => ()
+:     format-time(stream, "%B %d, %Y %H:%M %p", time);
+: end function human-readable-time;
+        
+Then we use that function as an argument to the %m directive to produce the
+message:
+
+: format(*standard-output*, "Hello, my name is %s, and as of\n"
+:                           "now, %m, I'm %d years old\n",
+:        "Doug Auclair", 
+:        rcurry(human-readable-time, get-current-time(timezone: 5 * 3600)),
+:        33);
+        
+There are several things of note in the above example.
+
+First, a short-hand for format(*standard-output*, …) is the #format-out#
+function exported from #Module format-out#.
+
+Second, two strings placed side-by-side (no commas) are concatenated, so
+
+: format(*standard-output*, "%s " "was " "here.\n", "Doug");
+            
+is the same as
+
+: format(*standard-output*, "%s was here.\n", "Doug");
+
+Third, #rcurry# is a function that takes a function and various arguments to
+create a new function. In this case, #rcurry# takes the function we created
+(_human-readable-time_) and the result of _get-current-time_ (a function in
+the Time module, that, here, sets the timezone to Z+5 (hours), or Eastern
+Standard Time) as an argument that creates a new function that expects a
+#<stream># instance to do its work.
+
+Fourth, note that in the control string I use '\n' characters. This is the
+preferred, and simplest, way to request a new-line.
+
+With the above points in mind, one can use the %m directive to integrate
+complex stream manipulation with the #format# function.

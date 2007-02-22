@@ -1,12 +1,72 @@
 Module: Module Dylan
 ==============================
 
-The Dylan module.
+Whenever possible, we have tried to keep the Dylan module pristine and
+unextended, preferring to add our extensions to separate modules or libraries.
+However, this is not always possible, particularly when it involves extending
+the behavior of a function or macro that is exported from the Dylan module.
+Currently, Gwydion compilers support these extensions to the Dylan module as
+described below.
+
+Keyed-by clause:
+
+Gwydion compilers support keyed-by clauses in #for# statements. The format of
+such a clause is "_var_ keyed-by _key_ in _collection_". _var_ is bound to
+each element in collection, and _key_ is bound to the element's key value.
+
+Using clause:
+
+Gwydion compilers support using clauses in #for# statements. The format of
+such a clause is "_var_ in _collection_ using _protocol_". The protocol will
+be used instead of #forward-iteration-protocol#. The protocol argument must be
+a variable name, not an expression. These using clauses may be used together
+with keyed-by: "_var_ keyed-by _key_ in _collection_ using _protocol_".
+
+Define function:
+
+Gwydion compilers have an additional type of top level definition, "define
+function" (see #function-definer#), which creates a constant binding in the
+current module and initializes it to a new function. The usage of define
+function is similar to that of define method (see #method-definer#). The
+following is an example:
+
+: define function cube (x)
+:   x * x * x;
+: end function cube;
+
+A similar result might be had by writing
+
+: define constant cube = method (x)
+:                          x * x * x;
+:                        end method;
+
+or
+
+: define method cube (x)
+:   x * x * x;
+: end method cube;
+
+Subclass specializers:
+
+Gwydion compilers supports subclass specializers via the #limited# function. A
+subclass specializer causes a method to be invoked whenever the generic
+function was called on a value that is the specified class or any subclass of
+the specified class. The method is never invoked on a value that is an
+instance (direct or indirect) of the specified class, only when the value is a
+subclass of the specified class. The following is an example:
+
+: define method make
+:     (result-class :: limited(<class>, subclass-of: <my-class>));
+:   let x = next-method();
+:   do-special-logging-or-something(x);
+:   x;
+: end method;
 
 
 Exported from:
 ------------------------------
-#Library Dylan#
+- #Library common-dylan#
+- #Library Dylan#
 
 
 Topic: Dylan names

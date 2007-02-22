@@ -7,7 +7,6 @@ A class.
 Exported from:
 ------------------------------
 - #Module Machine-words#
-- #Module Machine-words#
 
 
 Modifiers:

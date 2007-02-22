@@ -1,7 +1,11 @@
 Function: pair-do
 ==============================
 
-A function.
+Like #do#, except that it takes multiple argument lists. This function takes a
+n-ary function, and n instances of #<list># as arguments. It then applies
+_func_ to all of the lists, and then recursively applies _func_ to all of the
+sublists of the lists. Contrast this with the #do# function, which is applied
+to each set of elements of the arguments rather to sublists.
 
 
 Exported from:
@@ -11,14 +15,16 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<list>#. 
-#rest more - Instances of #<object>#. 
+func        - An instance of #<function>#. The signature is
+              (<list>, #rest <list>).
+lst         - An instance of #<list>#. A list of values that will be used as
+              the first argument to _func_.
+#rest lists - Instances of #<list>#.
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+false - The value #f. 
 
 
 

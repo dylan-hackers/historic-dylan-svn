@@ -1,7 +1,7 @@
 Generic: find-last-key
 ==============================
 
-A generic function.
+Like #find-first-key#, but searches the sequence from _end_ to _start_.
 
 
 Exported from:
@@ -16,13 +16,20 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+seq      - An instance of #<vector>#. 
+pred?    - An instance of #<function># that returns #t for a matching
+           condition. 
+start:   - An instance of #<integer># from which element to start the search.
+           Defaults to 0.
+end:     - An instance of #<integer># at which to end the search. Defaults to
+           the size of _seq_.
+failure: - An instance of #<object>#. Returned if no match found. Defaults to
+           #f.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+key-or-failure - An instance of #<integer># or the _failure_ value. 
 
 
 

@@ -18,7 +18,7 @@ Arguments:
 ------------------------------
 arg - An instance of type-union(<file-system-locator>, <string>). 
 arg - An instance of type-union(<file-system-locator>, <string>). 
-if-exists: - An instance of type-union(singleton(#"signal"), singleton(#"replace")). The default is #"signal".
+if-exists: - An instance of type-union(singleton(#"replace"), singleton(#"signal")). The default is #"signal".
 
 
 

@@ -1,7 +1,7 @@
 Function: hex-digit?
 ==============================
 
-A function.
+Returns #t if the character is a hexadecimal digit.
 
 
 Exported from:

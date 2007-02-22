@@ -1,26 +1,41 @@
 Function: sorted-applicable-methods
 ==============================
 
-A function.
+Returns all the methods in a generic function that are applicable to sample
+arguments, sorted in order of specificity.
+
+Returns two sequences that, taken together, contain the methods in
+_generic-function_ that are applicable to the _sample-args_. _sorted-methods_
+contains methods that are more specific than every method that follows them.
+_unsorted-methods_ begins at the first point of ambiguity; it contains the
+methods that cannot be sorted.
+
+The sequences returned should never be destructively modified. Doing so may
+cause unpredictable behavior.
+
+If _generic-function_ is sealed, an implementation may choose not to return
+two sequences of methods, but instead signal an error of type
+#<sealed-object-error>#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<generic-function>#. 
-#rest more - Instances of #<object>#. 
+generic-function - An instance of #<generic-function>#. 
+#rest sample-args - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<list>#. 
-val - An instance of #<list>#. 
+sorted-methods   - An instance of #<list>#. Elements of the list are instances
+                   of <method>.
+unsorted-methods - An instance of #<list>#. Elements of the list are instances
+                   of <method>.
 
 
 

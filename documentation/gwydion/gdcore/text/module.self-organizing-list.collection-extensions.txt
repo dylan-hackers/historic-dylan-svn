@@ -1,7 +1,24 @@
 Module: Module self-organizing-list
 ==============================
 
-The self-organizing-list module.
+The self-organizing list, or skip list, is a poor man's hash table. More
+precisely, #<self-organizing-list># is a subclass of
+#<mutable-explicit-key-collection># and #<stretchy-collection># for which
+addition and retrieval are both linear in the worst case, but which use a
+probabilistic strategy which yields nearly constant time in the best case.
+
+Because they have a very low overhead, self-organizing lists may provide
+better performance than hash tables in cases where references have a high
+degree of temporal locality. They may also be useful in situations where it is
+difficult to create a proper hash function.
+
+Instantiate #<self-organizing-list>#s with
+
+: make(<self-organizing-list>, test: test)
+
+_Test_ is expected to be an equality function. In particular, it is expected
+to satisfy the identity and transitivity requirements as described in the
+_Dylan Reference Manual_. If not specified, test defaults to \==.
 
 
 Exported from:

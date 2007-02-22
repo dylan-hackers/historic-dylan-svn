@@ -1,7 +1,12 @@
 Generic: read
 ==============================
 
-A generic function.
+Reads in a group of elements from a stream.
+
+Reads in _n_ elements from the stream starting from the the stream's current
+position. The type of the collection returned depends on the collection
+underlying the stream. Handles end-of-stream conditions just as #read-element#
+does.
 
 
 Exported from:
@@ -17,14 +22,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
-arg - An instance of #<integer>#. 
-on-end-of-stream: - An instance of #<object>#. The default is #f.
+stream            - An instance of #<stream>#. 
+n                 - An instance of #<integer>#. 
+on-end-of-stream: - An instance of #<object>#. The default is #$not-supplied#.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+sequence-or-eof - An instance of #<sequence># or the value
+                  _on-end-of-stream:_.
 
 
 

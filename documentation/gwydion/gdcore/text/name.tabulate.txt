@@ -1,7 +1,29 @@
 Function: tabulate
 ==============================
 
-A function.
+Make a sequence by performing a function on the index.
+
+This function makes a sequence of type _type_ whose i-th element is func(i)
+for 0 <= i < _length_. _Type_ must be a subtype of #<mutable-sequence>#.
+
+For example, I want a vector of the annual worth of an account of $10000
+earning 10 percent annually. The below code creates that vector:
+
+: tabulate(10, method(x) 10000 * exp(x * .1) end, type: <vector>)
+              
+Or, to create a list of factorials, one could write
+this:
+
+: define function factorial(x :: limited(<integer>, min: 0))
+: => (y :: <integer>)
+:   if(x == 0)
+:     1;
+:   else
+:     reduce1(\*, tabulate(x, curry(\+, 1)));
+:   end if;
+: end function factorial;
+: 
+: tabulate(6, factorial);
 
 
 Exported from:
@@ -11,14 +33,16 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<integer>#. 
-arg - An instance of #<function>#. 
-type: - An instance of #<object>#. The default is <list>.
+length - An instance of #<integer>#. 
+func   - An instance of #<function>#. The signature of _func_ is
+         (#<integer>#) => (#<object>#).
+type:  - An instance of #<type>#, a subclass of #<mutable-sequence>#. The
+         default is #<list>#.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+list - An instance of #<mutable-sequence>#. 
 
 
 

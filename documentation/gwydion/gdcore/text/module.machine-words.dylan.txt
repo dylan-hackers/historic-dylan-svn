@@ -6,7 +6,8 @@ The Machine-words module.
 
 Exported from:
 ------------------------------
-#Library Dylan#
+- #Library Dylan#
+- #Library common-dylan#
 
 
 Topic: Machine-words names

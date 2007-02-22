@@ -1,19 +1,31 @@
 Macro: table
 ==============================
 
-A macro.
+Table constructor.
+
+: let my-table = table("red"=>"stop", "green"=>"go");
+: let my-table = table(<string-table>, "red"=>"stop", "green"=>"go");
 
 
 Exported from:
 ------------------------------
 - #Module table-extensions#
-- #Module table-extensions#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
-        
+: table( (table-class), (key) => (element), ... )
 
+
+Arguments:
+------------------------------
+table-class - A subclass of #<explicit-key-collection>#. Optional. Defaults to
+              #<table>#.
+key         - An instance of #<object>#. The key for _element_.
+element     - An instance of #<object>#.
+
+
+Values:
+------------------------------
+table - An instance of _table-class_ containing _keys_ and _elements_.
 

@@ -1,7 +1,7 @@
 Generic: list?
 ==============================
 
-A generic function.
+Check whether this sequence is a #<list>#.
 
 
 Exported from:
@@ -21,7 +21,7 @@ arg - An instance of #<object>#.
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest more - Instances of #<boolean>#. 
 
 
 

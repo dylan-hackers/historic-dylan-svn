@@ -1,26 +1,44 @@
 Function: function-arguments
 ==============================
 
-A function.
+Returns information about the arguments accepted by a function. This function
+returns three values:
+
+- _required-number_ is the number of required arguments accepted by the
+  function.
+
+- _rest-boolean_ indicates whether the function accepts a variable number of
+  arguments.
+
+- _kwd-sequence_ indicates whether the function accepts keyword arguments. If
+  the value is #f then the function does not accept keyword arguments.
+  Otherwise, the function does accept keyword arguments, and the value is
+  either a collection of the keywords that are permissible for any call to the
+  function, or the symbol #"all" if all keywords are permitted by the
+  function.
+
+Note that particular calls to a generic function may accept additional
+keywords not included in the third value returned by #function-arguments#, by
+virtue of their being recognized by applicable methods.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
+function - An instance of #<function>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
-val - An instance of #<boolean>#. 
-val - An instance of type-union(singleton(#f), <simple-object-vector>, singleton(#"all")). 
+required-number - An instance of #<integer>#. 
+rest-boolean    - An instance of #<boolean>#. 
+kwd-sequence    - An instance of type-union(<simple-object-vector>,
+                  singleton(#f), singleton(#"all")). 
 
 
 

@@ -9,6 +9,205 @@ Exported from:
 #Library io#
 
 
+Acknowledgments:
+------------------------------
+We'd like to thank the other people who have been
+instrumental in the production of this proposal: Jonathan Bachrach, Dave
+Berry, John Dunning, Chris Fry, Paul Haahr, William Lott, Rob Maclachlan, Tim
+McNerney, Tony Mann, Keith Playford, Robert Stockton, and Tucker Withington.
+
+
+
+Topic: Goals of the Streams module
+----------------------------------
+
+The Dylan Streams module aims to provide
+
+- A generic, easy-to-use interface for streaming over sequences and files. The
+  same high-level interface for consuming or producing is available
+  irrespective of the type of stream, or the types of the elements being
+  streamed over.
+
+- Efficiency, especially for the common case of file I/O.
+
+- Access to an underlying buffer management protocol.
+
+- An extensible framework. Other areas of functionality that require a stream
+  interface should be easy to integrate with the library.
+
+This design of the Streams module meets these goals using Dylan's built-in
+sequences and a buffered disk file interface.
+
+
+
+Topic: Concepts of the Streams module
+-------------------------------------
+
+A stream provides sequential access to an aggregate of data, such as a Dylan
+sequence or a disk file. Streams grant this access according to a metaphor of
+reading and writing: elements can be read from streams or written to them.
+
+Streams are represented as Dylan objects, and all are general instances of the
+class #<stream>#, which the Streams module defines.
+
+We say that a stream is established over the data aggregate. Hence, a stream
+providing access to the string "hello world" is said to be a stream over the
+string "hello world".
+
+Streams permitting reading operations are called input streams. Input streams
+allow elements from the underlying data aggregate to be consumed. Conversely,
+streams permitting writing operations are called output streams. Output
+streams allow elements to be written to the underlying data aggregate. Streams
+permitting both kinds of operations are called input-output streams.
+
+The library provides a set of functions for reading elements from an input
+stream. These functions hide the details of indexing, buffering, and so on.
+For instance, the function #read-element# reads a single data element from an
+input stream.
+
+The following expression binds _stream_ to an input stream over the string
+"hello world":
+
+: let stream = make(<string-stream>, contents: "hello world");
+
+The first invocation of #read-element# on _stream_ returns the character 'h',
+the next invocation 'e', and so on. Once a stream has been used to consume all
+the elements of the data, the stream is said to be at its end. This condition
+can be tested with the function #stream-at-end?#. The following code fragment
+applies _function_ to all elements of the sequence:
+
+: let stream = make(<sequence-stream>, contents: seq);
+: while (~stream-at-end?(stream)) 
+: 	function(read-element(stream));
+: end;
+
+When all elements of a stream have been read, further calls to #read-element#
+result in the #<end-of-stream-error># condition being signaled. An alternative
+end-of-stream behavior is to have a distinguished end-of-stream value
+returned. You can supply such an end-of-stream value as a keyword argument to
+the various read functions; the value can be any object. Supplying an
+end-of-stream value to a read function is more efficient than asking whether a
+stream is at its end on every iteration of a loop.
+
+The library also provides a set of functions for writing data elements to an
+output stream. Like the functions that operate upon input streams, these
+functions hide the details of indexing, growing an underlying sequence,
+buffering for a file, and so on. For instance, the function #write-element#
+writes a single data element to an output stream.
+
+The following forms bind _stream_ to an output stream over an empty string and
+create the string "I see!", using the function #stream-contents# to access all
+of the stream's elements.
+
+: let stream = make(<byte-string-stream>, direction: #"output");
+: write-element(stream, 'I');
+: write-element(stream, ' ');
+: write(stream, "see");
+: write-element(stream, '!');
+: stream-contents(stream);
+
+Calling #write# on a sequence has the same effect as calling #write-element#
+on all the elements of the sequence. However, it is not required that #write#
+be implemented directly in terms of #write-element#; it might be implemented
+more efficiently, especially for buffered streams.
+
+Some streams are positionable; that is, they permit random access to their
+elements. Positionable streams allow you to set the position at which the
+stream will be accessed by the next operation. The following example uses
+positioning to return the character 'w' from a stream over the string "hello
+world":
+
+: let stream = make(<string-stream>, contents: "hello world");
+: stream-position(stream) := 6;
+: read-element(stream);
+
+The following example returns a string, but the contents of the first ten
+characters are undefined:
+
+: let stream = make(<string-stream>, direction: #"output");
+: adjust-stream-position(stream, 10); 
+: write(stream, "whoa!");
+: stream-contents(stream);
+
+You can request a sequence containing all of the elements of a positionable
+stream by calling #stream-contents# on it. The sequence returned never shares
+structure with any underlying sequence that might be used in future by the
+stream. For instance, the string returned by calling #stream-contents# on an
+output #<string-stream># will not be the same string as that being used to
+represent the string stream.
+
+When making an input #<string-stream>#, you can cause the stream to produce
+elements from any subsequence of the supplied string. For example:
+
+: read-to-end(make(<string-stream>, 
+:                  contents: "hello there, world",
+:                  start: 6, 
+:                  end: 11));
+
+This example evaluates to "there". The interval (_start_, _end_) includes the
+index _start_ but excludes the index _end_. This is consistent with standard
+Dylan functions over sequences, such as #copy-sequence#. The #read-to-end#
+function is one of a number of convenient utility functions for operating on
+streams and returns all the elements up to the end of the stream from the
+stream's current position.
+
+
+
+Topic: Streams, growing sequences, and object identity
+------------------------------------------------------
+
+When writing to output streams over sequences, Dylan may from time to time
+need to grow the underlying sequence that it is using to represent the stream
+data.
+
+Consider the example of an output stream instantiated over an empty string. As
+soon as a write operation is performed on the stream, it is necessary to
+replace the string object used in the representation of the string stream. As
+well as incurring the cost of creating a new string, the replacement operation
+can affect the integrity of other references to the string within the program.
+
+To guarantee that alias references to a sequence used in an output
+#<sequence-stream># will have access to any elements written to the sequence
+via the stream, supply a #<stretchy-vector># to #make#. A stream over a
+stretchy vector will use the same stretchy vector throughout the stream's
+existence.
+
+For example,
+
+: let sv = make(<stretchy-vector>);
+: let stream = make(<sequence-stream>, 
+:                   contents: sv, 
+:                   direction: #"output");
+: write(stream, #(1, 2, 3, 4, 5, 6, 7, 8, 9));
+: write(stream, "ABCDEF");
+: values(sv, stream-contents(stream));
+
+The example returns two values. Each value is the same (==) stretchy vector.
+
+: #[1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F']
+
+If a stretchy vector is not supplied, the result is different.
+
+: let v = make(<vector>, size: 5);
+: let stream = make(<sequence-stream>,
+:                   contents: v, 
+:                   direction: #"output");
+: write(stream, #(1, 2, 3, 4, 5, 6, 7, 8, 9));
+: write(stream, "ABCDEF");
+: values(v, stream-contents(stream));
+
+This example returns as its first value the original vector, whose contents are undefined, but the second value is a new vector.
+
+: #[1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F']
+
+This difference arises because the output stream in the second example does
+not use a stretchy vector to hold the stream data. A vector of at least 15
+elements is necessary to accommodate the elements written to the stream, but
+the vector supplied, _v_, can hold only 5. Since the stream cannot change
+_v_'s size, it must allocate a new vector each time it grows.
+
+
+
 Topic: streams names
 ------------------------------
 - #<basic-positionable-stream>#

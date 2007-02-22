@@ -1,20 +1,28 @@
 Class: <byte-vector>
 ==============================
 
-A class.
+A #<vector># that holds integers between 0 and 255 inclusively. An efficient
+vector for byte-storage.
 
 
 Exported from:
 ------------------------------
+- #Module Extensions#
 - #Module common-dylan#
 - #Module common-extensions#
 - #Module byte-vector#
-- #Module Extensions#
 
 
 Modifiers:
 ------------------------------
 concrete free sealed
+
+
+Make keywords:
+------------------------------
+fill: - An instance of #<byte>#. The default value of each element. Defaults
+        to 0.
+size: - An instance of #<object>#. The size of the vector. Defaults to 0.
 
 
 Superclasses:
@@ -24,8 +32,10 @@ Superclasses:
 
 Functions on <byte-vector>:
 ------------------------------
+- #byte-vector-fill#
 - #byte-vector-ref#
 - #byte-vector-ref-setter#
+- #copy-bytes#
 
 
 

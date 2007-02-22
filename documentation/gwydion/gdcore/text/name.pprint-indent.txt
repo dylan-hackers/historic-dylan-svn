@@ -1,7 +1,11 @@
 Generic: pprint-indent
 ==============================
 
-A generic function.
+This function specifies the indentation to use within the current logical
+block. When _relative-to_ is #"block", then #pprint-indent# sets the
+indentation to the column of the first character of the logical block plus
+_n_. When _relative-to_ is #"current", then #pprint-indent# sets the
+indentation to the current column plus _n_.
 
 
 Exported from:
@@ -16,9 +20,9 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of type-union(singleton(#"current"), singleton(#"block")). 
-arg - An instance of #<integer>#. 
-arg - An instance of #<stream>#. 
+relative-to - One of #"current", #"block". 
+n           - An instance of #<integer>#. 
+stream      - An instance of #<stream>#. 
 
 
 

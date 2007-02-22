@@ -1,7 +1,9 @@
 Class: <string-stream>
 ==============================
 
-A class.
+The superclass of the byte and unicode string implementation classes.
+
+#make# on #<string-stream># may return a subclass of #<string-stream>#.
 
 
 Exported from:
@@ -12,6 +14,19 @@ Exported from:
 Modifiers:
 ------------------------------
 concrete primary open
+
+
+Make keywords:
+------------------------------
+contents:     - An instance of #<sequence>#. Defaults to an empty #<string>#.
+direction:    - One of #"input", #"output", #"input-output". The default is
+                #"input". This indicates whether the string is readable or
+                writable or both.
+element-type: - An instance of #<type>#. The type of each data element of the
+                stream. The default is #<object>#.
+start:        - An instance of #<object>#. The default is 0.
+end:          - An instance of #<object>#.
+outer-stream: - An instance of #<stream>#. Defaults to this instance.
 
 
 Superclasses:

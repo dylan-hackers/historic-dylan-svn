@@ -1,13 +1,20 @@
 Generic: signal
 ==============================
 
-A generic function.
+Signals a condition.
+
+The function tries each active dynamic handler, the most recent first. If all
+dynamic handlers decline, #signal# calls #default-handler# on _condition_. If
+a handler returns, all the values that it returned are returned from #signal#.
+If #signal# returns when _condition_'s recovery protocol does not allow
+returning, some handler has violated protocol; #signal# does not check for
+this error. If _condition_ is a restart, the caller of #signal# should always
+assume that it might return.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +25,25 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-#rest more - Instances of #<object>#. 
+arg - An instance of #<condition>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest values - Instances of #<object>#. 
+
+
+
+Method: signal
+==============================
+
+This form signals a condition of type #<simple-warning>#.
+
+
+Arguments:
+------------------------------
+string          - An instance of #<string>#. 
+#rest arguments - Instances of #<object>#. 
 
 
 

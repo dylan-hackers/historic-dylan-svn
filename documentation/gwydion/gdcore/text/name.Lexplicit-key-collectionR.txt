@@ -1,13 +1,12 @@
 Class: <explicit-key-collection>
 ==============================
 
-A class.
+The class of all collections that are not sequences.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

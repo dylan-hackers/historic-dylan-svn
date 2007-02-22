@@ -1,7 +1,11 @@
 Generic: option-value
 ==============================
 
-A generic function.
+Returns the value found by an option parser after processing the command line.
+
+This function returns the value calculated by _parser_ after running #parse-arguments#. Returns #f if #parse-arguments# has not been called.
+
+The exact type of _value_ will vary depending on the class of the option parser.
 
 
 Exported from:
@@ -16,12 +20,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+parser - An instance of #<option-parser>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+value - An instance of #<object>#. 
 
 
 

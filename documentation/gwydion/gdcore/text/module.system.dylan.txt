@@ -1,7 +1,8 @@
 Module: Module system
 ==============================
 
-The system module.
+The System module exports an interface to operating system calls and special,
+low-level functionality.
 
 
 Exported from:

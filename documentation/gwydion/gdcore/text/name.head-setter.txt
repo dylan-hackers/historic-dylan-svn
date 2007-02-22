@@ -1,25 +1,31 @@
 Function: head-setter
 ==============================
 
-A function.
+Sets the head of a pair to contain an object and returns the object. _pair_ is
+modified by this operation. Note that #<list># is a subclass of #<pair>#.
+
+> define variable x = list (4, 5, 6)
+> head (x) := 9
+>  ⇒ 9
+> x
+>  ⇒ #(9, 5, 6)
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<pair>#. 
+object - An instance of #<object>#. 
+pair - An instance of #<pair>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 

@@ -1,7 +1,8 @@
 Generic: precedes?
 ==============================
 
-A generic function.
+Verifies that one element comes before another in a sequence. Returns #t if
+_elt-2_ follows _elt-1_.
 
 
 Exported from:
@@ -16,14 +17,17 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+elt-1      - An instance of #<object>#. The preceding element.
+elt-2      - An instance of #<object>#. The following element.
+seq        - An instance of #<sequence>#. 
+test:      - An instance of #<function>#. Defaults to #=#.
+not-found: - An instance of #<object>#. The value returned if either element
+             is not found. Defaults to #f.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+precedes? - An instance of #<boolean>#. 
 
 
 

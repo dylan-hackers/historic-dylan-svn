@@ -1,13 +1,12 @@
 Class: <type>
 ==============================
 
-A class.
+The class of all types, including classes and other types.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -43,6 +42,8 @@ Functions on <type>:
 - #map-as#
 - #stream-contents-as#
 - #subtype?#
+- #tabulate#
+- #type-for-file-stream#
 
 
 Functions returning <type>:
@@ -52,7 +53,9 @@ Functions returning <type>:
 - #limited#
 - #one-of#
 - #stream-element-type#
+- #type-error-expected-type#
 - #type-for-copy#
+- #type-for-file-stream#
 - #type-for-sequence-stream#
 - #type-union#
 

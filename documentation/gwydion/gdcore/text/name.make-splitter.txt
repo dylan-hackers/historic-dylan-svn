@@ -1,7 +1,12 @@
 Function: make-splitter
 ==============================
 
-A function.
+Creates a function that splits a string.
+
+
+Deprecated:
+------------------------------
+Use #split# instead.
 
 
 Exported from:

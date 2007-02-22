@@ -1,13 +1,12 @@
 Class: <number>
 ==============================
 
-A class.
+The class of all numbers. The built-in numeric operations do not provide default implementations for <number>, but for #<complex>#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

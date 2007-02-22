@@ -1,7 +1,7 @@
 Function: alist-delete
 ==============================
 
-A function.
+Deletes associations from the associative list. See #Associative lists#.
 
 
 Exported from:
@@ -11,15 +11,17 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<sequence>#. 
-key: - An instance of #<object>#. The default is head.
-test: - An instance of #<object>#. The default is =.
+elt   - An instance of #<object>#. The key element of an association to
+        remove.
+alist - An instance of #<sequence>#. An associative list.
+key:  - An instance of #<function>#, used to obtain a key element from an
+        association. The default is #head#.
+test: - An instance of #<function>#, used to compare keys. The default is #=#.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-alist	- An instance of #<sequence>#. The new associative list. 
 
 
 

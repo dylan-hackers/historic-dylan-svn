@@ -1,13 +1,13 @@
 Class: <function>
 ==============================
 
-A class.
+The class of objects that can be applied to arguments. All functions are
+instances of <function>.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -29,13 +29,20 @@ Subclasses:
 
 Functions on <function>:
 ------------------------------
+- #alist-copy#
+- #alist-delete#
 - #any?#
+- #apair#
+- #applicable-method?#
 - #apply#
+- #assoc#
 - #choose#
 - #choose-by#
+- #choose-map#
 - #collection-hash#
 - #complement#
 - #compose#
+- #concatenate-map#
 - #conjoin#
 - #curry#
 - #disjoin#
@@ -43,12 +50,18 @@ Functions on <function>:
 - #do-directory#
 - #do-handlers#
 - #every?#
+- #find#
 - #find-element#
+- #find-first-key#
 - #find-key#
+- #find-last-key#
+- #find-tail#
 - #foldl#
 - #foldr#
 - #function-arguments#
 - #function-return-values#
+- #function-specializers#
+- #index#
 - #map#
 - #map-as#
 - #map-into#
@@ -59,12 +72,14 @@ Functions on <function>:
 - #partition#
 - #position#
 - #pprint-logical-block#
+- #precedes?#
 - #rcurry#
 - #reduce#
 - #reduce1#
 - #reduce-l#
 - #reduce-r#
 - #replace-elements!#
+- #satisfies#
 - #sequence-hash#
 - #tabulate#
 - #unfold#
@@ -77,6 +92,7 @@ Functions returning <function>:
 - #always#
 - #backward-iteration-protocol#
 - #collector-protocol#
+- #complement#
 - #compose#
 - #conjoin#
 - #curry#

@@ -1,7 +1,7 @@
 Class: <stream>
 ==============================
 
-A class.
+The superclass of all stream classes.
 
 
 Exported from:
@@ -30,6 +30,11 @@ Subclasses:
 
 Functions on <stream>:
 ------------------------------
+Many methods on #<stream># are part of a stream protocols. These methods may
+not be defined for a given general instance of #<stream># if that general
+instance does not support that protocol. See #Module streams-protocol# for
+details.
+
 - #adjust-stream-position#
 - #discard-input#
 - #discard-output#

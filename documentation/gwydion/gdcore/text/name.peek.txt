@@ -1,7 +1,7 @@
 Generic: peek
 ==============================
 
-A generic function.
+Reads the next element from the stream but does not advance the stream's position. Handles end-of-stream conditions just as #read-element# does.
 
 
 Exported from:
@@ -17,13 +17,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
-on-end-of-stream: - An instance of #<object>#. The default is #f.
+stream            - An instance of #<stream>#. 
+on-end-of-stream: - An instance of #<object>#. The default is #$not-supplied#.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+element-or-eof - An instance of #<object># or the value _on-end-of-stream:_. 
 
 
 

@@ -1,25 +1,25 @@
 Function: max
 ==============================
 
-A function.
+Returns the greatest of its arguments. #max# operates by calling #<#, and
+therefore is applicable to any objects for which #<# is defined.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-#rest more - Instances of #<object>#. 
+object1 - An instance of #<object>#. 
+#rest objects - Zero or more instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+object2 - An instance of #<object>#. 
 
 
 

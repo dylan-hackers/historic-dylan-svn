@@ -1,13 +1,32 @@
 Generic: remove
 ==============================
 
-A generic function.
+Removes an element from a sequence.
+
+Returns a sequence consisting of the elements of _source-sequence_ not equal
+to _value_. The _result-sequence_ may or may not be freshly allocated.
+However, the _source-sequence_ is never modified by #remove#.
+
+_test_ is a function that determines whether an element is equal to _value_.
+The test function may be non-commutative: it is always called with an element
+from _source-sequence_ as its first argument and _value_ as its second
+argument.
+
+If _count_ is #f, then all copies of value are removed. Otherwise, no more
+than _count_ copies of value are removed (so additional elements equal to
+_value_ might remain in _result-sequence_).
+
+> define variable *old-list* = list(1, 2, 3)
+> define variable *new-list* = remove(*old-list*, 1)
+> *new-list*
+>   ⇒  #(2, 3)
+> *new-list* == tail(*old-list*)
+>   ⇒  {undefined}
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,15 +37,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-arg - An instance of #<object>#. 
-test: - An instance of #<object>#. The default is #f.
-count: - An instance of #<object>#. The default is #f.
+source-sequence - An instance of #<sequence>#. 
+value           - An instance of #<object>#. 
+test:           - An instance of #<function>#. The default is #==#.
+count:          - An instance of #<integer># or #f. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+result-sequence - An instance of #<sequence>#. 
 
 
 

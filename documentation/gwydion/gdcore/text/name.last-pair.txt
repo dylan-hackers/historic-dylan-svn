@@ -1,7 +1,12 @@
 Function: last-pair
 ==============================
 
-A function.
+Return the final pair or last element of a non-empty list. Fails if the list
+is improper.
+
+> last-pair(1, 2, 3, 4, 5)    ⇒ #(5)
+> last-pair(1, 2, 3, #(4, 5)) ⇒ #(#(4, 5))
+> last-pair(1, 2, 3, 4 . 5)   ⇒ fails
 
 
 Exported from:

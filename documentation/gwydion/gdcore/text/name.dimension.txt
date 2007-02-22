@@ -1,13 +1,19 @@
 Generic: dimension
 ==============================
 
-A generic function.
+Returns the size of a specified dimension of an array.
+
+Returns the axis dimension of array. _axis_ must be a non-negative integer
+less than the rank of array. An error is signaled if _axis_ is out of bounds
+for _array_.
+
+The method for #<array># calls #element# on the result of calling #dimensions#
+on the _array_, using the _axis_ number as the key.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +24,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<array>#. 
-arg - An instance of #<integer>#. 
+array - An instance of #<array>#. 
+axis - An instance of #<integer>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
+dimension - An instance of #<integer>#. 
 
 
 

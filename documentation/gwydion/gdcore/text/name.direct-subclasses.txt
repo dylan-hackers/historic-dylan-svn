@@ -1,13 +1,19 @@
 Generic: direct-subclasses
 ==============================
 
-A generic function.
+Returns the direct subclasses of a class. These are the classes that have
+_class_ as a direct superclass. The order of the classes in the sequence is
+not significant.
+
+The result _sequence_ should never be destructively modified. Doing so may
+cause unpredictable behavior. If class is sealed, an implementation may choose
+to signal an error of type #<sealed-object-error># rather than returning the
+direct subclasses.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +24,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+class - An instance of #<class>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+sequence - Instances of #<sequence>#. 
 
 
 

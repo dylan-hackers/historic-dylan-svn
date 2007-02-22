@@ -1,7 +1,8 @@
 Function: punctuation?
 ==============================
 
-A function.
+Returns #t if the character is punctuation (a graphic, non-alphanumeric
+character).
 
 
 Exported from:

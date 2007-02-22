@@ -1,12 +1,18 @@
 Class: <value-table>
 ==============================
 
-A class.
+This class is intended to be an abstract superclass of user-defined #<table>#
+classes, with user-defined key comparison and hash functions. The hash
+functions cannot involve physical addresses; #value-hash# meets this
+requirement.
+
+In contrast, #<equal-table># uses #=# for key comparison and #equal-hash# as a
+hash function, and #<object-table># uses #==# for key comparison and
+#object-hash# as a hash function.
 
 
 Exported from:
 ------------------------------
-- #Module table-extensions#
 - #Module table-extensions#
 
 
@@ -14,6 +20,14 @@ Modifiers:
 ------------------------------
 abstract free open
 
+
+Make keywords:
+------------------------------
+size: - An instance of #<integer>#. If specified, this value provides a hint
+        to the implementation as to the expected number of elements to be
+        stored in the table, which is be used to control how much space to
+        initially allocate for the table.
+        
 
 Superclasses:
 ------------------------------

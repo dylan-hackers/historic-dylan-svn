@@ -1,13 +1,26 @@
 Generic: reduce1
 ==============================
 
-A generic function.
+Returns the combination of the elements of _collection_ according to
+_function_.
+
+An error is signaled if _collection_ is empty.
+
+#reduce1# is similar to #reduce#, except that the first element of
+_collection_ is taken as the initial value, and all the remaining elements of
+_collection_ are processed as if by #reduce#. (In other words, the first value
+isn't used twice.)
+
+For unstable collections, "first" element effectively means "an element chosen
+at random." Processing is done in the natural order for _collection_.
+
+> reduce1 (\+, #(1, 2, 3, 4, 5))
+>  ⇒  15
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +31,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<collection>#. 
+function   - An instance of #<function>#. 
+collection - An instance of #<collection>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+value - An instance of #<object>#. 
 
 
 

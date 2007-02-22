@@ -1,13 +1,32 @@
 Generic: forward-iteration-protocol
 ==============================
 
-A generic function.
+Returns eight values used to implement iteration over the _collection_
+argument.
+
+Only the _collection_ argument this function was called with may be used as
+the _collection_ argument to functions returned by this function. Only the
+_initial-state_ object and state objects returned by the _next-state_ and
+_copy-state_ functions may be used as the _state_ argument to functions
+returned by this function. Only the _limit_ object may be used as the _limit_
+argument to the _finished-state?_ function.
+
+An example of the use of the iteration protocol is the following definition of
+a single-argument version of the #do# function:
+
+> define method do1 (f :: <function>, c :: <collection>)
+>   let (init, limit, next, end?, key, elt) =
+>                      forward-iteration-protocol(c);
+>   for (state = init then next(c, state),
+>      until: end?(c, state, limit))
+>     f(elt(c, state));
+>   end for;
+> end method do1;
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,19 +37,71 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<collection>#. 
+collection - An instance of #<collection>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
-val - An instance of #<object>#. 
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
-val - An instance of #<function>#. 
+initial-state   - An instance of #<object>#. The initial iteration state
+                  object.
+
+limit           - An instance of #<object># that is used by the
+                  _finished-state?_ function to determine whether the
+                  iteration has been completed.
+                
+next-state      - An instance of #<function>#. Its signature is
+                  next-state(_collection_, _state_) ⇒ _new-state_.
+                
+                - This function steps the iteration by producing a new state
+                  from the associated _collection_ and _state_. The
+                  _next-state_ function may or may not modify the _state_
+                  argument; it is an error to use a state value after it has
+                  been passed to the associated _next-state_ function. The
+                  _copy-state_ function provides a mechanism for saving a
+                  particular state in an iteration for later resumption.
+
+finished-state? - An instance of #<function>#. Its signature is
+                  finished-state?(_collection_, _state_, _limit_) ⇒ _boolean_.
+
+                - This function returns #t if the iteration of the collection
+                  has been completed, _i.e._, there are no other elements of
+                  the collection to consider. It returns #f otherwise. It is
+                  an error to use a finished state in a call to the associated
+                  _next-state_, _current-element_, _current-key_ or
+                  _current-element-setter_ functions.
+
+current-key     - An instance of #<function>#. Its signature is
+                  current-key(_collection_, _state_) ⇒ _key_.
+
+                - This function returns the unique key associated with _state_
+                  in the _collection_. If the _current-key_ function were
+                  called once with each _state_ value produced during an
+                  iteration over a collection, the resulting sequence of
+                  values would contain every key from the collection exactly
+                  once; it would be the #key-sequence# of the collection.
+
+current-element - An instance of #<function>#. Its signature is
+                  current-element(_collection_, _state_) ⇒ _element_.
+
+                - This function returns the element of _collection_ currently
+                  indicated by _state_.
+
+current-element-setter - An instance of #<function>#. Its signature is
+                  current-element-setter(_value_, _collection_, _state_) ⇒
+                  _value_.
+
+                - This function sets the element of _collection_ indicated by
+                  _state_ to _value_ and returns _value_. If _collection_ is
+                  not an instance of #<mutable-collection>#, or if the _value_
+                  is not of a type acceptable to the _collection_, an error is
+                  signaled.
+
+copy-state      - An instance of #<function>#. Its signature is
+                  copy-state(_collection_, _state_) ⇒ _new-state_.
+
+                - This function returns a state that represents the same point
+                  in the iteration over _collection_ as is represented by
+                  _state_.
 
 
 

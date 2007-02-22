@@ -16,5 +16,5 @@ Type:
 
 Value:
 ------------------------------
-type-union(singleton(#"signal"), singleton(#"replace"))
+type-union(singleton(#"replace"), singleton(#"signal"))
 

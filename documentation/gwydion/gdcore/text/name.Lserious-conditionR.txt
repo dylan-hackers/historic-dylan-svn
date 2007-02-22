@@ -1,13 +1,12 @@
 Class: <serious-condition>
 ==============================
 
-A class.
+The class of conditions that cannot be safely ignored.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

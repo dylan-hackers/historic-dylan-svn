@@ -1,7 +1,14 @@
 Generic: format
 ==============================
 
-A generic function.
+Format a string and write it to a stream.
+
+The #format# function takes a control string, formats according to the format
+directives embedded in the string, and then writes the result to the _stream_
+argument.
+
+The format codes accepted by #format# are described in the #Format Directives#
+section.
 
 
 Exported from:
@@ -16,9 +23,10 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
-arg - An instance of #<string>#. 
-#rest more - Instances of #<object>#. 
+stream         - An instance of #<stream>#. 
+control-string - An instance of #<string>#. 
+#rest args     - Instances of #<object>#. The objects to substitute for the
+                 format fields in _control-string_.
 
 
 

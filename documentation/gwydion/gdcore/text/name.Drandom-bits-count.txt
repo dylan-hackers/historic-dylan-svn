@@ -1,7 +1,9 @@
 Constant: $random-bits-count
 ==============================
 
-A constant.
+Number of bits returned by #random-bits#. The computation of this constant
+takes the upper bound integer (a number larger than 1e+9) bit size and adjusts
+to avoid loss of randomness near the limit.
 
 
 Exported from:

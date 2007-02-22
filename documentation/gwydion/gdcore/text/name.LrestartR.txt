@@ -1,13 +1,16 @@
 Class: <restart>
 ==============================
 
-A class.
+The class of conditions used to correct an unusual situation.
+
+There is a default handler for <restart> that signals an error reporting an
+attempt to use a restart for which no restart handler was established. The
+recovery protocol concept is not applicable to restarts.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -15,6 +18,14 @@ Modifiers:
 ------------------------------
 abstract free open
 
+
+Make keywords:
+------------------------------
+condition: - #f or an instance of #<condition>#. This argument is accepted and
+             ignored by <restart>. Some subclasses save the value of this
+             initialization argument and use it to associate a restart with a
+             particular condition from which the restart can recover. Other
+             restarts do not care; they can recover from any condition.
 
 Superclasses:
 ------------------------------

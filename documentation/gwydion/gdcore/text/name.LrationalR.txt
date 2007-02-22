@@ -1,13 +1,12 @@
 Class: <rational>
 ==============================
 
-A class.
+The class of rational numbers.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

@@ -1,13 +1,22 @@
 Generic: return-description
 ==============================
 
-A generic function.
+Returns a description of a condition's returned values.
+
+If the recovery protocol of this condition allows returning values,
+#return-description# returns a description of the meaning of returning values.
+
+This description can be a restart, a string, or #f. #return-description#
+should not be called if #return-allowed?# returns #f. If you define your own
+condition class whose recovery protocol allows returning values, you need to
+define a method for #return-description# unless the inherited method is
+suitable.
 
 
 Exported from:
 ------------------------------
-- #Module common-dylan#
 - #Module Dylan#
+- #Module common-dylan#
 - #Module Dylan#
 
 
@@ -18,12 +27,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<condition>#. 
+condition - An instance of #<condition>#. 
 
 
 Values:
 ------------------------------
-val - An instance of type-union(<string>, <false>, <restart>). 
+description - An instance of type-union(<false>, <string>, <restart>). 
 
 
 

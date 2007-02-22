@@ -1,7 +1,8 @@
 Variable: *print-escape?*
 ==============================
 
-A variable.
+Specifies whether strings and characters are printed with quotes and visible
+escape characters.
 
 
 Exported from:

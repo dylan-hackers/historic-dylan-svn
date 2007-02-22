@@ -1,7 +1,10 @@
 Variable: *print-circle?*
 ==============================
 
-A variable.
+Specifies whether circular printing is on. Users should have little use for
+this function because #print# takes care to detect circularities, tag multiply
+referenced objects, and emit tags rather than descending into objects to
+repeatedly print them.
 
 
 Exported from:

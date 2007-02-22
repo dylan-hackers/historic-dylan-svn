@@ -11,7 +11,7 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of type-union(<file-system-locator>, <string>, <false>). 
+val - An instance of type-union(<false>, <file-system-locator>, <string>). 
 
 
 

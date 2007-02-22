@@ -1,7 +1,12 @@
 Function: make-regexp-replacer
 ==============================
 
-A function.
+Creates a function that replaces information in a string.
+
+
+Deprecated:
+------------------------------
+Use #regexp-replace# instead
 
 
 Exported from:

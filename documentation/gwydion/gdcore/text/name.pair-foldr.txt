@@ -1,7 +1,11 @@
 Function: pair-foldr
 ==============================
 
-A function.
+This function is like #foldr# but works on sublists. That is, its recursion
+scheme is as follows: if _lst_ is #(e1, e2, ..., en), then this function
+returns
+
+: cons(#(e1, ..., en), cons(#(e2,...en), cons(..., cons(#(en), nil) ...)))
 
 
 Exported from:
@@ -11,14 +15,16 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<list>#. 
+cons - An instance of #<function>#. The signature of the function is
+       (#<list>#, #<list>#) => (#<pair>#).
+nil  - An instance of #<object>#. Value returned if the list is empty. In most
+       cases this should be #().
+lst  - An instance of #<list>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+result - An instance of #<list>#. 
 
 
 

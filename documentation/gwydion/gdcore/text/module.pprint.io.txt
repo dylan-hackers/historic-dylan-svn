@@ -1,7 +1,20 @@
 Module: Module pprint
 ==============================
 
-The pprint module.
+This module and the Print module implement most of the pretty printing
+technology described by Richard C. Waters in _Common Lisp the Language_,
+second edition. This section only summarizes the pretty printing functionality
+to provide a quick reference for users of the Print module, and readers should
+refer to the Common Lisp manual for more details.
+
+When writing #print-object# methods, users can ignore whether pretty printing
+is in effect. If you write your #print-object# method using pretty printing
+functions, then when pretty printing is in effect, the output will be pretty
+printed. When pretty printing is not in effect, your method will produce
+output as though you had not written it to use pretty printing. All
+#print-object# methods that are written to do pretty printing must call the
+pretty printing functions within the dynamic scope of a call to
+#pprint-logical-block#; otherwise, the pretty printing functions are no-ops.
 
 
 Exported from:

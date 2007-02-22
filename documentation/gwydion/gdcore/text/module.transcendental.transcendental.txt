@@ -6,7 +6,7 @@ The transcendental module.
 
 Exported from:
 ------------------------------
-#Library common-dylan#
+#Library transcendental#
 
 
 Topic: transcendental names

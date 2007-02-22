@@ -1,7 +1,7 @@
 Generic: stream-size
 ==============================
 
-A generic function.
+Returns the size of the stream. The default implementation return #f.
 
 
 Exported from:
@@ -17,12 +17,18 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
+stream - An instance of #<stream>#. 
 
 
 Values:
 ------------------------------
-val - An instance of type-union(<general-integer>, <false>). 
+size - An instance of type-union(<general-integer>, <false>). #f indicates the
+       stream has no size.
 
 
 
+Methods: stream-size
+==============================
+stream-size - A method on #<file-stream>#.
+stream-size - A method on #<sequence-stream>#.
+stream-size - A method on #<wrapper-stream>#.

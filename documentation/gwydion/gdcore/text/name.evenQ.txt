@@ -1,16 +1,14 @@
 Generic: even?
 ==============================
 
-A generic function.
+Returns true if its argument is an even number.
 
 
 Exported from:
 ------------------------------
+- #Module Machine-words#
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Machine-words#
-- #Module Dylan#
-- #Module Machine-words#
 
 
 Modifiers:
@@ -20,12 +18,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
 
 
 

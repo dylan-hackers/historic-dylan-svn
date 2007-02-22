@@ -1,13 +1,12 @@
 Generic: lcm
 ==============================
 
-A generic function.
+Returns the least common multiple of its two arguments.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +17,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<general-integer>#. 
-arg - An instance of #<general-integer>#. 
+integer1 - An instance of #<general-integer>#. 
+integer2 - An instance of #<general-integer>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<general-integer>#. 
+integer3 - An instance of #<general-integer>#. 
 
 
 

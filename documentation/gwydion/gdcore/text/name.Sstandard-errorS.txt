@@ -1,7 +1,9 @@
 Variable: *standard-error*
 ==============================
 
-A variable.
+The standard error stream. This usually represents the terminal; however most
+UNIX-like operating systems permit the standard error stream to be redirected
+at the command line.
 
 
 Exported from:
@@ -11,7 +13,7 @@ Exported from:
 
 Type:
 ------------------------------
-#<object>#
+#<file-stream>#
 
 
 Value:

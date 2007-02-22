@@ -1,7 +1,34 @@
+Title: split
+==============================
+
+There are two unrelated functions named #split#.
+
+
 Generic: split
 ==============================
 
-A generic function.
+Splits a string around a given separator character.
+
+> split("The summer chair / rocking by itself / in the blizzard", '/')
+>   ⇒  #("The summer chair ",
+>        " rocking by itself ",
+>        " in the blizzard")
+
+_trim?:_ specifies whether spaces surrounding _character_ should be removed.
+
+> split("The summer chair / rocking by itself / in the blizzard",
+>       '/', trim?: #t)
+>   ⇒  #("The summer chair",
+>        "rocking by itself",
+>        "in the blizzard")
+
+Consecutive separator characters result in empty strings.
+
+> split("Who are you?  Who am I?!", ' ')
+>   ⇒  #("Who", "are", "you?", "", "Who", "am", "I?!")
+
+The only defined method is on #<byte-string>#. This method defaults _trim:?_
+to #t.
 
 
 Exported from:
@@ -17,11 +44,11 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
-arg - An instance of #<character>#. 
-start: - An instance of #<integer>#. Required.
-end: - An instance of #<integer>#. Required.
-trim?: - An instance of #<boolean>#. The default is #f.
+collection - An instance of #<string>#. 
+character  - An instance of #<character>#. 
+start:     - An instance of #<integer>#. Required.
+end:       - An instance of #<integer>#. Required.
+trim?:     - An instance of #<boolean>#. The default is #f.
 
 
 Values:
@@ -33,7 +60,41 @@ val - An instance of #<sequence>#.
 Function: split
 ==============================
 
-A function.
+Breaks up a string along boundary characters matching a regular expression.
+This is like Perl's _split_ function. It searches _input_ for occurrences of
+_pattern_, and returns substrings that were delimited by that regexp. For
+instance,
+
+: split("-", "long-dylan-identifier")
+
+returns values("long", "dylan", "identifier"). Note that what matched the
+regexp is left out. _Remove-empty-items_, which defaults to true, magically
+skips over empty items, so that
+
+: split("-", "long--with--multiple-dashes")
+
+returns values("long", "with", "multiple", "dashes"). _Count_ is the maximum
+number of strings to return. If there are _n_ strings and _count_ is
+specified, the first _count_ - 1 strings are returned as usual, and the
+_count_th string is the remainder, unsplit. So
+
+: split("-", "really-long-dylan-identifier", count: 3)
+
+returns values("really", "long", "dylan-identifier"). If _remove-empty-items_
+is #t, empty items aren't counted.
+
+_Start:_ and _end:_ indicate what part of _input_ should be looked at for
+delimiters. They default to the entire string. For instance,
+
+: split("-", "really-long-dylan-identifier", start: 8)
+	    
+returns values("really-long", "dylan", "identifier").
+
+Note: Unlike Perl, empty regular expressions are never legal regular
+expressions, so there is no way to split a string into a bunch of single
+character strings. Of course, in Dylan this is not a useful thing to do (as
+one can get each character of the string by iteration or by indexing), so this
+is not really a problem.
 
 
 Exported from:
@@ -43,17 +104,22 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
-arg - An instance of #<string>#. 
-count: - An instance of #<object>#. The default is #f.
-remove-empty-items: - An instance of #<object>#. The default is #t.
-start: - An instance of #<object>#. The default is 0.
-end: - An instance of #<object>#. The default is #f.
+pattern             - An instance of #<string>#. The regexp to split on.
+input               - An instance of #<string>#. The string to parse and
+                      replace pieces of.
+count:              - An instance of #<integer># or #f. If supplied, maximum
+                      number of strings to return. The default is #f.
+remove-empty-items: - An instance of #<object>#. Magically skips empty items
+                      when true. The default is #t.
+start:              - An instance of #<integer>#. Where to start parsing the
+                      string. The default is 0.
+end:                - An instance of #<integer># or #f. If defined, where to
+                      stop parsing the string. The default is #f.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<string>#. 
+whole-bunch-of-strings - Instances of #<string>#. 
 
 
 

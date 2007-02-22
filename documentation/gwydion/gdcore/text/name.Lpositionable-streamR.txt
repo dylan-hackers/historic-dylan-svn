@@ -1,7 +1,8 @@
 Class: <positionable-stream>
 ==============================
 
-A class.
+A stream that supports the positionable stream protocol. Positionable streams
+allow one to specify from where in the stream to read or to write.
 
 
 Exported from:

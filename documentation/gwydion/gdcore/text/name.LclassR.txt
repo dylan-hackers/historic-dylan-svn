@@ -1,19 +1,23 @@
 Class: <class>
 ==============================
 
-A class.
+The class of all Dylan classes.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Modifiers:
 ------------------------------
 concrete free sealed
+
+
+Make keywords:
+------------------------------
+See the _Dylan Reference Manual_.
 
 
 Superclasses:
@@ -29,7 +33,10 @@ Subclasses:
 Functions on <class>:
 ------------------------------
 - #add-option-parser-by-type#
+- #all-superclasses#
 - #direct-instance#
+- #direct-subclasses#
+- #direct-superclasses#
 - #functional-==#
 - #subclass#
 

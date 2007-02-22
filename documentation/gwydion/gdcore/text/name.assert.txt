@@ -1,20 +1,32 @@
 Macro: assert
 ==============================
 
-A macro.
+Signals an error if assumption is incorrect.
+
+This macro signals an error if _value_ is #f. Otherwise, it does nothing. It
+may or may not evaluate its argument exactly once. So, it goes to follow that
+users of #assert# should not have side-effects in the expression that is
+passed to #assert# because if we ever turn assertions off, that would mean the
+program runs differently in debug mode than it does in release mode.
 
 
 Exported from:
 ------------------------------
+- #Module Extensions#
 - #Module common-dylan#
 - #Module common-extensions#
-- #Module Extensions#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
-        
+: assert ( (expr), (message), (values) )
+
+
+Arguments:
+------------------------------
+expr    - An expression which should be true.
+message - A format string to display if _expr_ is false. Optional.
+values  - Values to insert into _message_. Optional.
+
 
 

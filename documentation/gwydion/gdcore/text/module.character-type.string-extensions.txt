@@ -1,7 +1,9 @@
 Module: Module character-type
 ==============================
 
-The character-type module.
+This module contains a set of methods for testing various properties of
+#<character># this will work 100% correctly only with ASCII English
+characters.
 
 
 Exported from:

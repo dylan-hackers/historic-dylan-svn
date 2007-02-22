@@ -1,7 +1,10 @@
 Generic: integer-to-digit
 ==============================
 
-A generic function.
+Convert an integer to the corresponding digit. If the integer is outside the
+range a single digit in the specified base can represent, an error is
+signaled. Digits for values of 10 or higher are represented with the letters
+'a' through 'z', with 'a' for 10 and 'z' for 35.
 
 
 Exported from:
@@ -16,12 +19,19 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+digit      - An instance of #<integer>#. 
+base:      - An instance of #<integer>#. Between 2 and 35, inclusive,
+             representing the radix of the digit to return. The default base
+             is 10.
+uppercase: - An instance of #<boolean>#. For #t, returns uppercase letters for
+             digits greater than 10, and for #f, lowercase letters. The
+             default is #f.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+digit - An instance of #<character>#. The returned digit is an alphanumeric
+        character.
 
 
 

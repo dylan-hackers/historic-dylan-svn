@@ -1,7 +1,14 @@
 Function: unfold/tail
 ==============================
 
-A function.
+This function is similar to #unfold#, except that it can also be used to build
+an improper list.
+
+This function will return e(seed) if pred(seed) is true. Otherwise it builds a
+pair of the form pair(f(seed), unfold(pred, f, g, g(seed) )) .
+
+If _e_ always returns #() then #unfold/tail# has the same behavior as
+#unfold#.
 
 
 Exported from:
@@ -11,16 +18,26 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<function>#. 
-arg - An instance of #<function>#. 
-arg - An instance of #<function>#. 
-arg - An instance of #<object>#. 
+pred - An instance of #<function>#. This function takes a seed value and
+       returns #t to terminate the sequence of recursive calls building the
+       list.
+       
+f    - An instance of #<function>#. This function takes a seed value and
+       produces a list element.
+       
+g    - An instance of #<function>#. This function takes a seed value and
+       returns a new seed value.
+       
+e    - An instance of #<function>#. When _pred_ returns #t this function is
+       called on the seed to return the value of the tail of the last pair
+       of the list.
+       
+seed - An instance of #<object>#. The initial seed value.
 
 
 Values:
 ------------------------------
-val - An instance of #<list>#. 
+new-list - An instance of #<list>#. 
 
 
 

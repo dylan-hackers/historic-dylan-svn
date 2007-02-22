@@ -1,7 +1,10 @@
 Function: tails
 ==============================
 
-A function.
+In a list of lists, this function returns a list of the all but first elements of each of the lists.
+
+> tails(#(#(1, 5, 10), #(2, 4, 6), #(3, 6, 9)))
+>  ⇒ #(#(5, 10), #(4, 6), #(6, 9))
 
 
 Exported from:
@@ -11,12 +14,12 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<list>#. 
+lists - An instance of #<list>#. A list of lists.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-list - An instance of #<list>#. 
 
 
 

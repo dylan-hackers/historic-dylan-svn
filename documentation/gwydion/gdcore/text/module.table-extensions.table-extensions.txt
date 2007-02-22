@@ -6,7 +6,8 @@ The table-extensions module.
 
 Exported from:
 ------------------------------
-#Library table-extensions#
+- #Library table-extensions#
+- #Library collections#
 
 
 Topic: table-extensions names

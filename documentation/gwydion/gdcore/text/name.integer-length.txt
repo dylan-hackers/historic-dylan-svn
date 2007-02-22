@@ -6,9 +6,9 @@ A generic function.
 
 Exported from:
 ------------------------------
+- #Module Extensions#
 - #Module common-dylan#
 - #Module common-extensions#
-- #Module Extensions#
 
 
 Modifiers:

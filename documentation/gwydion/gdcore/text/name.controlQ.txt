@@ -1,7 +1,7 @@
 Function: control?
 ==============================
 
-A function.
+Returns #t if the character is not printable.
 
 
 Exported from:

@@ -1,13 +1,17 @@
 Generic: key-test
 ==============================
 
-A generic function.
+Returns the function used by its collection argument to compare keys.
+
+All collection classes must provide or inherit a method that returns a result
+consistent with their iteration protocol and element methods. A given method
+for #key-test# must return the same value (compared with ==) each time it is
+called.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +22,19 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<collection>#. 
+collection - An instance of #<collection>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<function>#. 
+test-function - An instance of #<function>#. The function used by the
+                collection to compare keys.
 
 
 
+Methods: key-test
+==============================
+key-test - The method on #<sequence># returns the function #==#.
+
+key-test - The method on #<table># returns the first value of
+           table-protocol(_table_).

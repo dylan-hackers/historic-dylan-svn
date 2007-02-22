@@ -6,8 +6,8 @@ A macro.
 
 Exported from:
 ------------------------------
-- #Module functional-extensions#
 - #Module Extensions#
+- #Module functional-extensions#
 
 
 Definition:

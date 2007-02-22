@@ -1,7 +1,12 @@
 Library: Library Random
 ==============================
 
-The Random library.
+The Random library provides random number support in several random number
+distributions. This is a replacement for David Pierce's Random library. This
+one is strongly based on Common Lisp. Much of the implementation has been
+translated from CMUCL's rand.lisp, which was written by David Adam. Code that
+turns a uniform random distribution into Gaussian and exponential
+distributions has been adapted from David Pierce's library.
 
 
 Topic: Random modules

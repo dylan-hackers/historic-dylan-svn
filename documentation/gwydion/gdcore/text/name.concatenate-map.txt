@@ -1,7 +1,8 @@
 Generic: concatenate-map
 ==============================
 
-A generic function.
+Concatenates sequences then maps a function over the resulting sequence. The
+order of function applications is unspecified.
 
 
 Exported from:
@@ -16,14 +17,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-#rest more - Instances of #<object>#. 
+func       - An instance of #<function>#.
+seq        - An instance of #<sequence>#. 
+#rest seqs - Instances of #<sequence>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-sequence - Instances of #<sequence>#. 
 
 
 

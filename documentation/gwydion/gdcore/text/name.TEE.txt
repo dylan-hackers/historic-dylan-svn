@@ -1,25 +1,32 @@
 Function: ~==
 ==============================
 
-A function.
+Compares two objects for nonidentity. Returns true if _object1_ and _object2_
+are not identical. It returns false if they are identical.
+
+The floating-point behavior of this function is platform-dependent.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+object1 - An instance of #<object>#. 
+object2 - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
+
+
+See also:
+------------------------------
+- #Equality and Comparison#
 
 
 

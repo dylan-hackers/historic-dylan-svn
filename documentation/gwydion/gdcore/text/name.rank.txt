@@ -1,13 +1,12 @@
 Generic: rank
 ==============================
 
-A generic function.
-
+Returns the number of dimensions of an array. The method for #<array>#
+computes _rank_ by calling #size# on the dimensions of _array_.
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +17,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<array>#. 
+array - An instance of #<array>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
+rank - An instance of #<integer>#. 
 
 
 

@@ -1,7 +1,9 @@
 Library: Library table-extensions
 ==============================
 
-The table-extensions library.
+This library contains a number of useful additional table classes, and a
+number of functions that could be useful in constructing your own table
+classes.
 
 
 Topic: table-extensions modules

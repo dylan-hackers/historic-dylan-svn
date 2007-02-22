@@ -1,13 +1,14 @@
 Generic: all-superclasses
 ==============================
 
-A generic function.
+Returns the class precedence list of a class. This is an ordered sequence of _class_ and all its superclasses, as described in the _Dylan Reference Manual_ on page 54.
+
+The result _sequence_ should never be destructively modified. Doing so may cause unpredictable behavior. If class is sealed, an implementation may choose to signal an error of type #<sealed-object-error># rather than returning the sequence of all superclasses.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +19,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+class - An instance of #<class>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+sequence - An instance of #<sequence>#. Each element in the sequence is an
+           instance of #<class>#.
 
 
 

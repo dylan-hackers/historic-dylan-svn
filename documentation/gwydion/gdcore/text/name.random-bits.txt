@@ -1,7 +1,9 @@
 Generic: random-bits
 ==============================
 
-A generic function.
+Generates a random series of bits. Returns a fixed integer that has
+#$random-bits-count# random bits. This function is the fastest way to get a
+random series of bits.
 
 
 Exported from:
@@ -14,9 +16,15 @@ Modifiers:
 sealed
 
 
+Arguments:
+------------------------------
+state: - An instance of #<random-state>#. The state used to generate the
+         random number. Defaults to #*random-state*#.
+
+
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+bits - An instance of #<integer>#. 
 
 
 

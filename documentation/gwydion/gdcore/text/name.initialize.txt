@@ -1,13 +1,27 @@
 Generic: initialize
 ==============================
 
-A generic function.
+Performs instance initialization that cannot be specified declaratively by a
+class definition.
+
+This function provides a way for users to handle initialization of instances
+which cannot be expressed simply by init specifications. This is typically
+needed when a computation requires inputs from multiple initialization
+arguments or slot values, or a single computation needs to be used to
+initialize multiple slots.
+
+By convention, all initialize methods should call #next-method# very early, to
+make sure that any initializations from less specific classes are performed
+first.
+
+The initialize generic function permits all keywords and requires none. It
+does this because the keyword argument checking is performed by the default
+method on #make#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +32,28 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-#rest more - Instances of #<object>#. 
+instance  - An instance of #<object>#. 
 #all-keys - This function accepts any keyword argument.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest objects - Instances of #<object>#. The return values are ignored by
+                #make#.
+                
+
+
+Method: initialize
+==============================
+
+This method does nothing. It is present so that it is always safe for
+initialize methods to call #next-method#, and so that it is safe for the
+default #make# method to call initialize.
+
+
+Arguments:
+------------------------------
+instance  - An instance of #<object>#. 
 
 
 

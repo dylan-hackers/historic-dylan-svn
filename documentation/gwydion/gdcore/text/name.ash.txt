@@ -1,13 +1,23 @@
 Generic: ash
 ==============================
 
-A generic function.
+Performs an arithmetic shift on the binary representation of its first argument.
+
+#ash# shifts _integer1_ arithmetically left by _count_ bit positions if _count_ is positive, or right _count_ bit positions if _count_ is negative. The shifted value of the same sign as _integer1_ is returned.
+
+When #ash# moves bits to the left, it adds zero-bits at the right. When it moves them to the right, it discards bits.
+
+#ash# is defined to behave as if _integer1_ were represented in two's complement form, regardless of how integers are actually represented.
+
+> ash(8, 1)
+>  ⇒  16
+> ash(32, -1)
+>  ⇒  16
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +28,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<general-integer>#. 
-arg - An instance of #<integer>#. 
+integer1 - An instance of #<general-integer>#. 
+count - An instance of #<integer>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<general-integer>#. 
+integer2 - An instance of #<general-integer>#. 
 
 
 

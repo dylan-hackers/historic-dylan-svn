@@ -1,19 +1,38 @@
 Class: <simple-vector>
 ==============================
 
-A class.
+The class of simple and efficient vectors.
+
+The class #<simple-vector># provides a constant time implementation for the
+#element# and #element-setter# functions. This property is shared by all
+subtypes of #<simple-vector>#.
+
+Calling #make# on a #<simple-vector># returns an instance of
+#<simple-object-vector>#. The size of a simple vector cannot be changed after
+the simple vector has been created.
+
+Vector literals (created with the #[…] syntax) are general instances of
+#<simple-vector>#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Modifiers:
 ------------------------------
 abstract free sealed
+
+
+Make keywords:
+------------------------------
+size: - An instance of #<integer># specifying the size of the vector. The
+        default value is 0.
+        
+fill: - An instance of #<object># specifying an initial value for each element
+        of the vector. The default value is #f.
 
 
 Superclasses:

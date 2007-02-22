@@ -1,13 +1,12 @@
 Generic: object-hash
 ==============================
 
-A generic function.
+Returns a hash-code for _object_ that corresponds to the equivalence predicate ==. It is made available as a tool for writing hash functions in which the object identity of some component of a key is to be used in computing the hash code. It returns a hash id (an integer) and associated hash state for the object, computed in some implementation dependent manner. The values returned by #object-hash# when called repeatedly on the same object might not be the same for each call. If the _hash-id_ value changes then the _hash-state_ value will also change.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +17,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<false>#. 
+key           - An instance of #<object>#. 
+initial-state - An instance of #<hash-state>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
-val - An instance of #<false>#. 
+hash-id    - An instance of #<integer>#. 
+hash-state - An instance of #<hash-state>#. 
 
 
 

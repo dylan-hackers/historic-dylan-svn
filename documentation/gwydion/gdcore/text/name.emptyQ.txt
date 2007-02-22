@@ -1,13 +1,12 @@
 Generic: empty?
 ==============================
 
-A generic function.
+Returns true if its argument is empty. Otherwise returns #f.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

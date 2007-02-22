@@ -1,13 +1,43 @@
 Generic: map-into
 ==============================
 
-A generic function.
+Iterates over one or more collections and collects the results in an existing
+mutable collection.
+
+Returns the _mutable-collection_ argument after modifying it by replacing its
+elements with the results of applying _function_ to corresponding elements of
+_collection_ and _more-collections_.
+
+If _mutable-collection_ and all the other collections are sequences,
+processing is done in the natural order.
+
+When _mutable-collection_ is an instance of #<stretchy-collection>#, the usual
+alignment requirement (described in "Collection Alignment" in the _Dylan
+Reference Manual_) is relaxed. In this case, the key sequence of
+_mutable-collection_ is not considered during alignment. Rather, only the key
+sequences for the source collections are aligned, with function called on the
+corresponding elements. The result of each call to function is then stored
+into _mutable-collection_ with the corresponding key (possibly stretching
+_mutable-collection_ in the process), using #element-setter#. Other keys in
+_mutable-collection_ remain undisturbed.
+
+_mutable-collection_ may be the same object as _collection_ or any of the
+_more-collections_.
+
+An error is signaled if _mutable-collection_ does not have the same #key-test#
+function as the rest of the collections. This is true even if it is a
+#<stretchy-collection># and therefore does not get aligned.
+
+> define variable x = list (10, 9, 8, 7)
+> map-into (x, \+, #(1, 2, 3, 4), #(100, 100, 200, 200))
+>  ⇒  #(101, 102, 203, 204)
+> x
+>  ⇒  #(101, 102, 203, 204)
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,15 +48,15 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<mutable-collection>#. 
-arg - An instance of #<function>#. 
-arg - An instance of #<collection>#. 
-#rest more - Instances of #<object>#. 
+mutable-collection     - An instance of #<mutable-collection>#. 
+function               - An instance of #<function>#. 
+collection             - An instance of #<collection>#. 
+#rest more-collections - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<mutable-collection>#. 
+mutable-collection - An instance of #<mutable-collection>#. 
 
 
 

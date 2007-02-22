@@ -1,7 +1,31 @@
 Function: regexp-position
 ==============================
 
-A function.
+Find the position of a regular expression inside a string. If the regexp is
+not found, return #f, otherwise return a variable number of marks.
+
+This function returns the index of the start of the regular expression in the
+_big-string_, or #f if the regular expression is not found. As a second value,
+it returns the index of the end of the regular expression in the _big-string_
+(assuming it was found; otherwise there is no second value). These values are
+called marks, and they come in pairs, a start-mark and an end-mark. If there
+are groups in the regular expression, #regexp-position# will return an
+additional pair of marks (a start and an end) for each group. If the group is
+matched, these marks will be integers; if the group is not matched, the marks
+will be #f. So
+
+: regexp-position("This is a string", "is");
+	    
+returns values(2, 4) and
+
+: regexp-position("This is a string", "(is)(.*)ing");
+	    
+returns values(2, 16, 2, 4, 4, 13), while
+
+: regexp-position("This is a string", "(not found)(.*)ing");
+
+returns #f. Marks are always given relative to the start of _big-string_, not
+relative to the _start:_ keyword.
 
 
 Exported from:
@@ -11,17 +35,30 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
-arg - An instance of #<string>#. 
-start: - An instance of #<object>#. The default is 0.
-end: - An instance of #<object>#. The default is #f.
-case-sensitive: - An instance of #<object>#. The default is #f.
+big-string      - An instance of #<string>#. The string to parse.
+regexp          - An instance of #<string>#. 
+start:          - An instance of #<integer>#. Where to start parsing the
+                  string. The default is 0.
+end:            - An instance of #<integer># or #f. If defined, where to stop
+                  parsing the string. The default is #f.
+case-sensitive: - An instance of #<object>#. If true, match case in regexp
+                  while parsing. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <integer>). 
-#rest more - Instances of type-union(<false>, <integer>). 
+regexp-start      - An instance of type-union(<integer>, <false>). If #f, a
+                    match was not found. Otherwise, the index of the start of
+                    the match.
+                    
+regexp-end        - An instance of #<integer>#. The index of the end of the
+                    match. Not present if no match found.
+                 
+#rest group-marks - Instances of type-union(<integer>, <false>). The indices
+                    of the start and end of each group's match. If a group is
+                    not matched, its corresponding index values will be #f,
+                    #f. None of these values will be present if a match to
+                    the the regexp as a whole was not found.
 
 
 

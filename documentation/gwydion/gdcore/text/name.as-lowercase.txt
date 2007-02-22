@@ -1,13 +1,13 @@
 Generic: as-lowercase
 ==============================
 
-A generic function.
+Coerces an object to lowercase and returns the resulting new object. _arg_ is
+not modified by this operation.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -24,6 +24,17 @@ arg - An instance of #<object>#.
 Values:
 ------------------------------
 #rest more - Instances of #<object>#. 
+
+
+
+Methods: as-lowercase
+==============================
+as-lowercase - The method on #<character># returns the lowercase equivalent
+               for _character_. If _character_ already is lowercase or does
+               not exist in two cases, it is returned unchanged.
+               
+as-lowercase - The method on #<string># is equivalent to
+               map(as-lowercase, _string_).
 
 
 

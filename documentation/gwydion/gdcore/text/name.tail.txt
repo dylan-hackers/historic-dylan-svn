@@ -1,13 +1,20 @@
 Generic: tail
 ==============================
 
-A generic function.
+Returns the tail of a list.
+
+If _list_ is a pair, #tail# returns the value of the tail slot. If _list_ is
+the empty list, #tail# returns the empty list.
+
+> tail (#(4, 5, 6))
+>  ⇒ #(5, 6)
+> tail (#())
+>  ⇒ #()
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +25,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+list - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest objects - Instances of #<object>#. 
 
 
 

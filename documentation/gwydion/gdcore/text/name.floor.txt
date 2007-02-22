@@ -1,13 +1,13 @@
 Generic: floor
 ==============================
 
-A generic function.
+Truncates a real number toward negative infinity. The integer part is returned
+as _integer_, the remainder is returned as _real2_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +18,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<real>#. 
+real1 - An instance of #<real>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<general-integer>#. 
-val - An instance of #<real>#. 
+integer - An instance of #<general-integer>#. 
+real2 - An instance of #<real>#. 
 
 
 

@@ -1,13 +1,17 @@
 Class: <warning>
 ==============================
 
-A class.
+The class of conditions that are interesting to users but can safely be
+ignored.
+
+There is a default handler for #<warning># that displays the warning in a
+user-interface dependent way and then returns #f. The recovery protocol is
+that any value can be returned and will be ignored.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

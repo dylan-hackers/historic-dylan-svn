@@ -1,7 +1,12 @@
 Function: option-value-by-long-name
 ==============================
 
-A function.
+Find the value of an option, given a corresponding option name. This function
+provides an easy way to find the value of a particular option parser. If an
+option has multiple names, any one of them can be used as the argument to this
+function without changing the result.
+
+If the option was not present, returns #f.
 
 
 Exported from:
@@ -11,13 +16,13 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<argument-list-parser>#. 
-arg - An instance of #<string>#. 
+parser    - An instance of #<argument-list-parser>#. 
+long-name - An instance of #<string>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+value - An instance of #<object># or #f. 
 
 
 

@@ -1,13 +1,20 @@
 Generic: member?
 ==============================
 
-A generic function.
+Returns true if _collection_ contains _value_ as determined by _test_. Otherwise returns false.
+
+The _test_ function may be non-commutative: it is always called with _value_ as its first argument and an element from _collection_ as its second argument.
+
+> define constant flavors = #(#"vanilla", #"pistachio", #"ginger")
+> member? (#"vanilla", flavors)      
+>  ⇒  #t                                   
+> member? (#"banana", flavors)
+>  ⇒  #f
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +25,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<collection>#. 
-test: - An instance of #<object>#. The default is #f.
+value      - An instance of #<object>#. 
+collection - An instance of #<collection>#. 
+test:      - An instance of #<function>#. The default is #==#.
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
 
 
 

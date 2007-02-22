@@ -1,13 +1,16 @@
 Generic: dimensions
 ==============================
 
-A generic function.
+Returns the dimensions of an array, as a sequence of integers. The
+consequences are undefined if the resulting sequence is modified. This
+function forms the basis for all the other array operations. Each concrete
+subclass of #<array># must either provide or inherit an implementation of this
+function.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +21,19 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<array>#. 
+array - An instance of #<array>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+sequence - An instance of #<sequence>#. The elements of this sequence will be 
+           instances of #<integer>#.
 
+
+
+Methods: dimensions
+==============================
+dimensions - The method on #<vector># returns a sequence whose single element
+             is the size of the vector.
 
 

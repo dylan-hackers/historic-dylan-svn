@@ -1,12 +1,17 @@
 Constant: $double-pi
 ==============================
 
-A constant.
+The approximation of π for double-precision floating-point arithmetic. The
+value here is 3.14159265358979323846. Chuck Moore, the inventor of the
+programming language Forth, chose instead to use 355 / 113 as π (which is
+accurate to 3e-7), as computers at the time processed floating point
+operations too slowly for use in real-time applications.
 
 
 Exported from:
 ------------------------------
 - #Module transcendental#
+- #Module transcendentals#
 
 
 Type:

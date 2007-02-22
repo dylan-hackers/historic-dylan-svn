@@ -1,7 +1,10 @@
 Generic: stream-element-type
 ==============================
 
-A generic function.
+Returns the type of elements streamed over. For most streams, that are
+type-declarative (e.g. #<byte-string-stream>#), this simply returns the
+underlying element type. For generic #<sequence>#s, the sequence must have at
+least one element (the first) to return a type.
 
 
 Exported from:
@@ -17,12 +20,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
+stream - An instance of #<stream>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<type>#. 
+type - An instance of #<type>#. 
 
 
 

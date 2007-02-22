@@ -1,7 +1,12 @@
 Function: make-regexp-positioner
 ==============================
 
-A function.
+Creates a function that finds the index of a regexp in a string.
+
+
+Deprecated:
+------------------------------
+Use #regexp-position# instead.
 
 
 Exported from:

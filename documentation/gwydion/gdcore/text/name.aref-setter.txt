@@ -1,13 +1,24 @@
 Generic: aref-setter
 ==============================
 
-A generic function.
+Sets the array element indicated by a set of indices.
+
+Sets the element of _array_ indicated by _indices_ to the _new-value_ and
+returns the _new-value_. _array_ is modified by this operation.
+
+An error is signaled if the number of indices is not equal to the rank of the
+array. An error is signaled if any of the indices are out of bounds for array.
+An error is signaled if the array is limited to hold objects of a particular
+type and the new value is not an instance of that type.
+
+The method for #<array># calls #element-setter# on the array and new value,
+using as the key the result of applying #row-major-index# to the array and
+indices.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +29,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<array>#. 
-#rest more - Instances of #<object>#. 
+new-value     - An instance of #<object>#. 
+array         - An instance of #<array>#. 
+#rest indices - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+new-value - An instance of #<object>#. 
 
 
 

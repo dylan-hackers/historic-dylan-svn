@@ -21,5 +21,5 @@ Topic: common-dylan modules
 - #Module simple-random#
 - #Module streams-protocol#
 - #Module threads#
-- #Module transcendental#
+- #Module transcendentals#
 

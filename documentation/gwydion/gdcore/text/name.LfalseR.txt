@@ -19,27 +19,11 @@ Superclasses:
 - #<boolean>#
  
 
-Functions on <false>:
-------------------------------
-- #collection-hash#
-- #equal-hash#
-- #object-hash#
-- #sequence-hash#
-- #value-hash#
-- #values-hash#
-
-
 Functions returning <false>:
 ------------------------------
 - #break#
 - #cerror#
-- #collection-hash#
 - #do#
-- #equal-hash#
-- #object-hash#
-- #sequence-hash#
-- #value-hash#
-- #values-hash#
 
 
 

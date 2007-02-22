@@ -1,13 +1,15 @@
 Generic: ~=
 ==============================
 
-A generic function.
+Compares two objects for inequality. Returns true if _object1_ and _object2_
+are not equal. It returns false if they are equal.
+
+The floating-point behavior of this function is platform-dependent.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -25,6 +27,11 @@ arg - An instance of #<object>#.
 Values:
 ------------------------------
 val - An instance of #<boolean>#. 
+
+
+See also:
+------------------------------
+- #Equality and Comparison#
 
 
 

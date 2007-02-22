@@ -6,7 +6,6 @@ A function.
 
 Exported from:
 ------------------------------
-- #Module threads#
 - #Module Runtime-Threads#
 - #Module threads#
 

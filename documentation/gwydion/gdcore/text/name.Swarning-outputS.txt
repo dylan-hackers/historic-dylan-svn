@@ -1,7 +1,7 @@
 Variable: *warning-output*
 ==============================
 
-A variable.
+#default-handler# for #<warning># uses #*warning-output*# to print warning messages. This variable must be either a #<stream># from the Streams module, or #"Cheap-Err" (the default). When this variable is #"Cheap-Err", the output goes to STDERR. When the variable is #"Cheap-IO", the output goes to STDOUT.
 
 
 Exported from:

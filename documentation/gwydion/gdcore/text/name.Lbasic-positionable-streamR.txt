@@ -14,16 +14,36 @@ Modifiers:
 abstract free open
 
 
+Make keywords:
+------------------------------
+direction:    - One of #"input", #"output", #"input-output". The default is
+                #"input". This indicates whether the string is readable or
+                writable or both.
+element-type: - An instance of #<type>#. The type of each data element of the
+                stream. The default is #<object>#.
+start:        - ?
+end:          - ?
+outer-stream: - An instance of #<stream>#. Defaults to this instance.
+
+
 Superclasses:
 ------------------------------
 - #<basic-stream>#
- - #<positionable-stream>#
+- #<positionable-stream>#
  
 
 Subclasses:
 ------------------------------
 - #<file-stream>#
 - #<sequence-stream>#
+
+
+Methods on <basic-positionable-stream>:
+------------------------------
+- #adjust-stream-position#
+- #stream-limit#
+- #stream-position#
+- #stream-position-setter#
 
 
 

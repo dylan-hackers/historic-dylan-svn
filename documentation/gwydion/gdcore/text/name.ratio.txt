@@ -1,7 +1,7 @@
 Function: ratio
 ==============================
 
-A function.
+Makes a ratio from two integers.
 
 
 Exported from:
@@ -11,8 +11,8 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<general-integer>#. 
-arg - An instance of #<general-integer>#. 
+num   - An instance of #<general-integer>#. 
+denom - An instance of #<general-integer>#. 
 
 
 Values:

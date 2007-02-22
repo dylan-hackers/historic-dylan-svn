@@ -1,13 +1,12 @@
 Class: <stretchy-vector>
 ==============================
 
-A class.
+The class of vectors that are stretchy.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -16,10 +15,19 @@ Modifiers:
 abstract primary open
 
 
+Make keywords:
+------------------------------
+size: - An instance of #<integer># specifying the size of the vector. The
+        default value is 0.
+        
+fill: - An instance of #<object># specifying an initial value for each element
+        of the vector. The default value is #f.
+
+
 Superclasses:
 ------------------------------
 - #<stretchy-sequence>#
- - #<vector>#
+- #<vector>#
  
 
 

@@ -1,0 +1,99 @@
+Title: Language Notes
+=====================
+
+This page contains information that is not specific to a certain class or
+method.
+
+
+
+Topic: Equality and Comparison
+==============================
+
+Dylan provides an identity function, as well as a group of equality and
+magnitude comparison functions that can be extended for user classes. The
+functions #~=#, #~==#, #>#, #<=#, #>=#, #min# and #max# are defined in terms
+of #==# or #=# and #<#. By extending the behavior of #=# and #<#, programs can
+extend the behavior of the other functions.
+
+For the protocol to work, user-defined methods on #=# and #<# must preserve
+the following properties:
+
+Identity:
+If (a = b), then (b = a).
+
+Transitivity:
+If (a < b) and (b < c), then (a < c).
+
+If (a = b) and (b = c), then (a = c).
+
+Trichotomy:
+Exactly one of: (a < b), (a = b), (b < a) always holds (on the assumption that
+these two operations are defined for the objects in question).
+
+
+
+Topic: Define adjectives
+========================
+
+The various -definer macros may be used with a number of adjectives. Some are defined by the Dylan language, others by Gwydion Dylan.
+
+
+Variables:
+thread - The variable's value is specific to each thread.
+
+
+Methods:
+open   - The generic method may be given additional methods.
+sealed - The generic method may not be given additional methods.
+
+
+Classes:
+abstract   - The class may not be instantiated.
+concrete   - The class may be instantiated.
+free       - The class is not restricted to a single inheritance chain.
+functional - The class only has constant slots. Equality is defined by slot
+             value and object class.
+open       - The class may be subclassed.
+primary    - The class forms a single inheritance chain with other primary
+             classes.  
+sealed     - The class may not be subclassed.
+
+
+Slots:
+class         - The slot's storage is shared by all classes and subclasses.
+constant      - The slot's value may not be changed.
+each-subclass - The slot's storage is shared within each subclass.
+instance      - The slot's storage is unique to each instance of the class.
+virtual       - The slot has no storage.
+
+
+Call optimization:
+default-inline - The function is inlined normally.
+flushable      - The function's value depends on global state, but it does not
+                 change global state.
+inline         - The function's body is duplicated at each call site.
+inline-only    - ?
+may-inline     - ?
+movable        - The function's value does not depend on global state. The
+                 value only depends on the function's arguments.
+not-inline     - The function is never inlined.
+sideways       - ?
+
+
+
+Topic: Integers
+===============
+
+Gwydion compilers have an abstract class #<general-integer># which has two
+concrete subclasses, #<integer># and #<extended-integer>#. #<integer>#s have a
+limited range of values, and #<integer># arithmetic uses the computer's
+underlying integer facilities. #<extended-integer>#s can take on any value,
+and are similar to Common Lisp "bignums." Expressions involving
+#<extended-integer>#s produce #<extended-integer># results because
+#<extended-integer>#s are contagious. If an expression involving only
+#<integer># values would produce a result that does not fit in an #<integer>#,
+then the Gwydion compiler will signal an overflow error. You can use the #as#
+function to convert back and forth between #<integer>#s and
+#<extended-integer>#s. #as# signals an error when converting an
+#<extended-integer># to a #<integer>#, and the value does not fit in a
+#<integer>#.

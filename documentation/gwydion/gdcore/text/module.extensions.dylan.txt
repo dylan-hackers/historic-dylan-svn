@@ -1,7 +1,9 @@
 Module: Module Extensions
 ==============================
 
-The Extensions module.
+Ultimately, there will be several, more logically separate libraries that
+extend Dylan or provide an application framework for users. For now, we put
+any commonly used utilities in the Extensions module.
 
 
 Exported from:

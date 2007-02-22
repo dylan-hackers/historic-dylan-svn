@@ -1,13 +1,18 @@
 Generic: choose-by
 ==============================
 
-A generic function.
+Returns those elements of a sequence that correspond to those in another
+sequence that satisfy a predicate. The _result-sequence_ may or may not be
+freshly allocated.
 
+> choose-by (even?, range (from: 1),
+>              #("a", "b", "c", "d", "e", "f", "g", "h", "i"))
+>   ⇒  #("b", "d", "f", "h")
+  
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +23,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<sequence>#. 
-arg - An instance of #<sequence>#. 
+predicate      - An instance of #<function>#. 
+test-sequence  - An instance of #<sequence>#. 
+value-sequence - An instance of #<sequence>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+result-sequence - An instance of #<sequence>#. 
 
 
 

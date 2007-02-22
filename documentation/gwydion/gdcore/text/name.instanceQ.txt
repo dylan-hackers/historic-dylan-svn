@@ -1,25 +1,24 @@
 Function: instance?
 ==============================
 
-A function.
+Returns true if _object_ is a general instance of _type_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<type>#. 
+object - An instance of #<object>#. 
+type - An instance of #<type>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
 
 
 

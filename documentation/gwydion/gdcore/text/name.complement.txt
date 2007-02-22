@@ -1,24 +1,29 @@
 Function: complement
 ==============================
 
-A function.
+Returns a function that expresses the complement of a predicate. The function
+applies _predicate_ to its arguments. If the _predicate_ returns #f, the
+complement returns #t; otherwise, the complement returns #f. For example,
+#odd?# could be defined as complement(even?).
+
+> choose(complement(zero?), #(1, 3, 0, 4, 0, 0, 3))
+>   ⇒  #(1, 3, 4, 3)
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
+predicate - An instance of #<function>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+function - An instance of #<function>#. 
 
 
 

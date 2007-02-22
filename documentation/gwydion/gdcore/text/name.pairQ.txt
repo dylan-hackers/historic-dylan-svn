@@ -1,7 +1,7 @@
 Generic: pair?
 ==============================
 
-A generic function.
+Check whether this sequence is a #<pair>#.
 
 
 Exported from:
@@ -21,7 +21,7 @@ arg - An instance of #<object>#.
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+ans - An instance of #<boolean>#. 
 
 
 

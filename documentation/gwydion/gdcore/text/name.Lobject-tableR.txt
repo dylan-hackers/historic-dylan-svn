@@ -1,13 +1,13 @@
 Class: <object-table>
 ==============================
 
-A class.
+The class of tables that compare keys using #==#. Calling #make# on #<table>#
+will return a general instance of <object-table>.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

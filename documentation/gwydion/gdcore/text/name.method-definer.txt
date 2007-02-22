@@ -8,13 +8,26 @@ Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          body-style define macro
+: define (adjectives) method (name) (parameters) => (values) (options)
+:   (body)
+: end method (name)
+        
+
+Arguments:
+------------------------------
+adjectives - Gwydion Dylan allows the following adjectives: sealed, open,
+             not-inline, default-inline, may-inline, inline, inline-only,
+             movable, flushable, sideways. The default is sealed. See #Define
+             adjectives#.
+name       - A binding name.
+parameters - A parameter list. May be empty.
+values     - A value list. May be omitted.
+options    - Gwydion Dylan does not allow any options.
+body       - A method body; a series of semicolon-separated expressions.
         
 
 

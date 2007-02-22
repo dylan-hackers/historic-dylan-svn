@@ -1,7 +1,7 @@
 Function: assoc
 ==============================
 
-A function.
+Looks up a value given a key. See #Associative lists#.
 
 
 Exported from:
@@ -11,15 +11,17 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<sequence>#. 
-key: - An instance of #<object>#. The default is head.
-test: - An instance of #<object>#. The default is =.
+elt   - An instance of #<object>#. The key element to find the value element.
+seq   - An instance of #<sequence>#. An associative list.
+key:  - An instance of #<function>#. The function used to obtain the key of an
+        element in the associative list. The default is #head#.
+test: - An instance of #<function>#. The function used to compare keys. The
+        default is #=#.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+found - An instance of #<object>#. 
 
 
 

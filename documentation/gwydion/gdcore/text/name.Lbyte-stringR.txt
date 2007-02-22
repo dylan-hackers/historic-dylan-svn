@@ -1,13 +1,13 @@
 Class: <byte-string>
 ==============================
 
-A class.
+The class of vectors with elements that are eight-bit characters. It provides
+constant time #element# and #element-setter# methods.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -16,10 +16,19 @@ Modifiers:
 concrete free sealed
 
 
+Make keywords:
+------------------------------
+size: - An instance of #<integer># specifying the size of the string. The
+        default value is 0.
+
+fill: - An instance of #<character># specifying the initial value for each
+        element. The default value is ' ' (space).
+        
+
 Superclasses:
 ------------------------------
 - #<string>#
- - #<vector>#
+- #<vector>#
  
 
 Functions on <byte-string>:
@@ -31,6 +40,7 @@ Functions on <byte-string>:
 - #export-string#
 - #getenv#
 - #join#
+- #pprint-logical-block#
 - #system#
 
 

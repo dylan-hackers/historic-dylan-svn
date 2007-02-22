@@ -1,25 +1,35 @@
 Function: tail-setter
 ==============================
 
-A function.
+Sets the tail of a pair to contain an object and returns the object. _pair_ is
+modified by this operation.
+
+> define variable x = list (4, 5, 6)
+> tail (x) := #(9, 8, 7)
+>  ⇒  #(9, 8, 7)
+> x
+>  ⇒  #(4, 9, 8, 7)
+> tail (x) := "dot"
+>  ⇒  "dot"
+> x
+>  ⇒  #(4 . "dot")
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<pair>#. 
+object - An instance of #<object>#. 
+pair   - An instance of #<pair>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 

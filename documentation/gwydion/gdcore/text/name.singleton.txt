@@ -1,24 +1,26 @@
 Function: singleton
 ==============================
 
-A function.
+Creates and returns a singleton. singleton(_object_) is equivalent to
+make(<singleton>, object: _object_). If a singleton for the specified object
+already exists, implementations are free to return it rather than allocate a
+new singleton.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<singleton>#. 
+singleton - An instance of #<singleton>#. The singleton for _object_.
 
 
 

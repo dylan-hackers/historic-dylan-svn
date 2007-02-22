@@ -1,13 +1,19 @@
 Generic: aref
 ==============================
 
-A generic function.
+Returns the _array_ element indicated by a set of _indices_.
+
+An error is signaled if the number of _indices_ is not equal to the rank of
+the _array_. An error is signaled if any of the _indices_ are out of bounds
+for the _array_.
+
+The method for #<array># calls #element# on the _array_, using as the key the
+result of applying #row-major-index# to the _array_ and _indices_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +24,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<array>#. 
-#rest more - Instances of #<object>#. 
+array         - An instance of #<array>#. 
+#rest indices - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+element - An instance of #<object>#. 
 
 
 

@@ -7,7 +7,6 @@ A function.
 Exported from:
 ------------------------------
 - #Module table-extensions#
-- #Module table-extensions#
 
 
 Arguments:

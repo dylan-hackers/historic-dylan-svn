@@ -1,12 +1,22 @@
 Generic: value-hash
 ==============================
 
-A generic function.
+Computes hash ids for objects such that two objects that are #=#-equal have
+the same hash id. This function is similar to #equal-hash#, but does not
+involve physical addresses, thus making this a suitable hash function for
+subclasses of #<value-table>#.
+
+Methods are defined for the following classes:
+
+- #<general-integer>#
+- #<float>#
+- #<character>#
+- #<symbol>#
+- #<boolean>#
 
 
 Exported from:
 ------------------------------
-- #Module table-extensions#
 - #Module table-extensions#
 
 
@@ -17,14 +27,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<false>#. 
+thing         - An instance of #<object>#. 
+initial-state - An instance of #<hash-state>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
-val - An instance of #<false>#. 
+hash-id    - An instance of #<integer>#. 
+hash-state - An instance of #<false>#. 
 
 
 

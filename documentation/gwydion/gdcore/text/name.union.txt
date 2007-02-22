@@ -1,13 +1,30 @@
 Generic: union
 ==============================
 
-A generic function.
+Returns the union of two sequences, a sequence containing every element of
+_sequence1_ and _sequence2_.
+
+If the same element appears in both argument sequences, this will not cause it
+to appear twice in the result sequence. However, if the same element appears
+more than once in a single argument sequence, it may appear more than once in
+the result sequence.
+
+_test_ is used for all comparisons. It is always called with an element from
+_sequence1_ as its first argument and an element from _sequence2_ as its
+second argument. The order of elements in the _new-sequence_ is not specified.
+
+_new-sequence_ may or may not share structure with _sequence1_ or _sequence2_.
+
+> union (#("butter", "flour", "sugar", "salt", "eggs"),
+>        #("eggs", "butter", "mushrooms", "onions", "salt"),
+>        test: \=)
+>  ⇒  #("salt", "butter", "flour", "sugar", "eggs",
+>        "mushrooms", "onions")
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +35,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-arg - An instance of #<sequence>#. 
-test: - An instance of #<object>#. The default is #f.
+sequence1 - An instance of #<sequence>#. 
+sequence2 - An instance of #<sequence>#. 
+test:     - An instance of #<function>#. The default is #==#.
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+new-sequence - An instance of #<sequence>#. 
 
 
 

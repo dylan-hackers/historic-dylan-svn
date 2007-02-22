@@ -1,13 +1,21 @@
 Generic: intersection
 ==============================
 
-A generic function.
+Returns the intersection of two sequences, a new sequence containing only those elements of _sequence1_ that also appear in _sequence2_.
+
+_test_ is used to determine whether an element appears in _sequence2_. It is always called with an element of _sequence1_ as its first argument and an element from _sequence2_ as its second argument. The order of elements in the result sequence is not specified.
+
+_new-sequence_ may or may not share structure with the _sequence1_ and _sequence2_.
+
+> ? intersection (#("john", "paul", "george", "ringo"),
+>                 #("richard", "george", "edward", "charles"),
+>                 test: \=)
+> #("george")
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +26,21 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-arg - An instance of #<sequence>#. 
-test: - An instance of #<object>#. The default is #f.
+sequence1 - An instance of #<sequence>#. 
+sequence2 - An instance of #<sequence>#. 
+test:     - An instance of #<function>#. The default is #==#.
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+new-sequence - An instance of #<sequence>#. 
 
 
 
+Methods: intersection
+==============================
+intersection - #intersection# applied to two ranges and a test of == (the
+               default) will produce another range as its result, even though
+               the #type-for-copy# of a range is not #<range>#. If either
+               _range1_ or _range2_ is unbounded, this method is guaranteed to
+               terminate only if the test is ==.

@@ -1,7 +1,14 @@
 Function: add-option-parser-by-type
 ==============================
 
-A function.
+Create an #<option-parser># and add it to an #<argument-list-parser>#. This
+function is equivalent to calling:
+
+: let opt-parser =
+:   apply(make, option-parser-type, init-keys);
+: add-option-parser(args-parser, opt-parser);
+
+Most programs will use this function instead of #add-option-parser#.
 
 
 Exported from:
@@ -11,9 +18,11 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<argument-list-parser>#. 
-arg - An instance of #<class>#. 
-#rest more - Instances of #<object>#. 
+args-parser        - An instance of #<argument-list-parser>#. 
+option-parser-type - An instance of #<class>#. The class for the new option
+                     parser.
+#rest init-keys    - Instances of #<object>#. Initialization keywords for the
+                     new option parser.
 
 
 

@@ -1,7 +1,8 @@
 Module: Module format-out
 ==============================
 
-The format-out module.
+The Format-Out module exports a single function as a simple interface to the
+Format and Standard-IO modules.
 
 
 Exported from:

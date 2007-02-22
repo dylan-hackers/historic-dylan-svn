@@ -1,13 +1,12 @@
 Generic: fill!
 ==============================
 
-A generic function.
+Fills a collection with a specified value.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +17,41 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<mutable-collection>#. 
-arg - An instance of #<object>#. 
+mutable-collection - An instance of #<mutable-collection>#. 
+value              - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<mutable-collection>#. 
+mutable-collection - An instance of #<mutable-collection>#. 
+
+
+
+Method: fill!
+==============================
+
+If applied to a #<mutable-sequence>#, then _start_ and _end_ keywords may be
+specified to indicate that only a part of the sequence should be filled.
+_start_ is considered an inclusive bound and defaults to 0; _end_ is an
+exclusive bound and defaults to the length of the sequence.
+
+> define variable numbers = list (10, 13, 16, 19)
+> fill! (numbers, 3, start: 2)
+>  ⇒  #(10, 13, 3, 3)
+
+
+Arguments:
+------------------------------
+sequence - An instance of #<mutable-sequence>#. 
+value    - An instance of #<object>#.
+start:   - An instance of #<integer>#. The default is 0.
+end:     - An instance of #<integer>#. The default is the length of
+           _sequence_. 
+
+
+Values:
+------------------------------
+sequence - An instance of #<mutable-sequence>#. 
 
 
 

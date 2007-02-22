@@ -1,7 +1,8 @@
 Generic: remove-all-keys!
 ==============================
 
-A generic function.
+Remove all keys from a table. This function iterates through all the keys and
+calls #remove-key!# on each one.
 
 
 Exported from:
@@ -9,7 +10,6 @@ Exported from:
 - #Module table-extensions#
 - #Module common-dylan#
 - #Module common-extensions#
-- #Module table-extensions#
 
 
 Modifiers:
@@ -19,12 +19,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<mutable-explicit-key-collection>#. 
+coll - An instance of #<mutable-explicit-key-collection>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<mutable-explicit-key-collection>#. 
+coll - An instance of #<mutable-explicit-key-collection>#. 
 
 
 

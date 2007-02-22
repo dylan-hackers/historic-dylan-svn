@@ -1,7 +1,17 @@
 Class: <ratio>
 ==============================
 
-A class.
+An exact fractional number.
+
+A ratio has two slots: _numerator_ and _denominator_. It is normalized so that
+it has a positive denominator, and the greatest common divisor of the
+numerator and the denominator is one. Ratios are never automatically converted
+to integers. For example, ratio(4, 2) would return 2/1.
+
+A numeric operation involving two ratios produces a normalized ratio result. A
+numeric operation involving a ratio and an integer produced a normalized ratio
+result. A numeric operation involving a ratio and a float produces a float
+result.
 
 
 Exported from:
@@ -14,14 +24,28 @@ Modifiers:
 concrete free sealed functional
 
 
+Make keywords:
+------------------------------
+numerator:   - An instance of #<extended-integer>#.
+denominator: - An instance of #<extended-integer>#. Guaranteed positive.
+
+
 Superclasses:
 ------------------------------
 - #<rational>#
  
 
+Functions on <ratio>:
+------------------------------
+- #numerator#
+- #denominator#
+- Arithmetic functions
+
+
 Functions returning <ratio>:
 ------------------------------
 - #ratio#
+- Arithmetic functions
 
 
 

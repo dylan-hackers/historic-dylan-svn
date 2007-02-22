@@ -1,13 +1,22 @@
 Generic: return-query
 ==============================
 
-A generic function.
+Queries the user for values to return.
+
+If the recovery protocol of _condition_ allows returning values, this engages
+the program user in a dialog and returns the results as any number of values,
+which the handler should return.
+
+#return-query# should not be called if #return-allowed?# returns #f. Programs
+that define condition classes whose recovery protocol allows returning values
+should ensure that there is an appropriate method for this function defined on
+or inherited by the condition class.
 
 
 Exported from:
 ------------------------------
-- #Module common-dylan#
 - #Module Dylan#
+- #Module common-dylan#
 - #Module Dylan#
 
 
@@ -18,12 +27,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<condition>#. 
+condition - An instance of #<condition>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest values - Instances of #<object>#. 
 
 
 

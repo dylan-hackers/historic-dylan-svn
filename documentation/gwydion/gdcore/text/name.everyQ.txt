@@ -1,13 +1,26 @@
 Generic: every?
 ==============================
 
-A generic function.
+Returns true if a predicate returns true when applied to all corresponding
+elements of a set of collections.
+
+Applies _function_ to groups of corresponding elements of _collection_ and
+_more-collections_. If an application of _function_ returns false, then
+#every?# returns #f. Otherwise _function_ returns a true value when applied to
+every such group, and #every?# returns #t.
+
+If all the collections are sequences, #every?# operates in natural order. In
+all cases, #every?# stops on the first false value returned by _function_.
+
+> every? (\>, #(1, 2, 3, 4), #(5, 4, 3, 2))
+>  ⇒  #f
+> every? (odd?, #(1, 3, 5, 7))
+>  ⇒  #t
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +31,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<collection>#. 
-#rest more - Instances of #<object>#. 
+function - An instance of #<function>#. 
+collection - An instance of #<collection>#. 
+#rest more-collections - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+value - An instance of #<boolean>#. 
 
 
 

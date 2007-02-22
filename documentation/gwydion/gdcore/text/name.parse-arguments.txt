@@ -1,7 +1,31 @@
 Function: parse-arguments
 ==============================
 
-A function.
+Parses a list of command-line arguments. This routine does most of the work in
+the getopt library. It performs a number of different steps:
+
+1. Split the argument list. If the string "--" appears in the argument list,
+discard it, and set aside everything to right for later processing.
+
+2. Chop individual arguments around any equals sign. If any argument contains
+the character '=', break the argument into three strings: everything before
+the first occurrence of the equals sign, the sign itself, and the remainder of
+the original string.
+
+3. Tokenize the argument list. Convert the argument list into a series of
+tokens.
+
+4. Process the argument list from left to right. For each option token, invoke
+the appropriate option parser (which may consume additional tokens). Record
+all regular argument tokens for later use. If any other kinds of tokens appear
+in the argument list, they must be consumed by an option parser or the entire
+process will fail.
+
+5. Collect the regular arguments. Take the regular arguments found while
+parsing, and append any arguments set aside in the first step.
+
+If an error occurs during this process, parsing will stop immediately and
+#parse-arguments# will return #f. Otherwise, it will return #t.
 
 
 Exported from:
@@ -11,13 +35,14 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<argument-list-parser>#. 
-arg - An instance of #<sequence>#. 
+parser        - An instance of #<argument-list-parser>#. 
+argument-list - An instance of #<sequence>#. The strings to be parsed.
+                Typically the values of #application-arguments#.
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+success? - An instance of #<boolean>#. 
 
 
 

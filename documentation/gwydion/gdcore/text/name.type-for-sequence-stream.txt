@@ -1,7 +1,8 @@
 Generic: type-for-sequence-stream
 ==============================
 
-A generic function.
+Returns a stream type depending on the sequence. Called by #make# on
+#<sequence-stream>#.
 
 
 Exported from:
@@ -16,12 +17,26 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of type-union(<false>, <sequence>). 
+seq - An instance of type-union(<false>, <sequence>).
 
 
 Values:
 ------------------------------
-val - An instance of #<type>#. 
+sequence-stream-type - An instance of #<type>#. 
 
 
 
+Methods: type-for-sequence-stream
+==============================
+type-for-sequence-stream - The method on #f returns #<sequence-stream>#.
+
+type-for-sequence-stream - The method on #<sequence># returns
+                           #<sequence-stream>#.
+
+type-for-sequence-stream - The method on #<string># returns #<string-stream>#.
+
+type-for-sequence-stream - The method on #<byte-string># returns
+                           #<byte-string-stream>#.
+
+type-for-sequence-stream - The method on #<unicode-string># returns
+                           #<unicode-string-stream>#.

@@ -1,7 +1,10 @@
 Generic: stream-at-end?
 ==============================
 
-A generic function.
+Checks to see if the stream is at the end of its contents.
+
+It is a bit faster to supply a value to the _on-end-of-stream:_ key for read
+or write than to use this function in a loop.
 
 
 Exported from:
@@ -17,12 +20,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
+stream - An instance of #<stream>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+at-end? - An instance of #<boolean>#. 
 
 
 

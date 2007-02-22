@@ -1,13 +1,14 @@
 Generic: ceiling/
 ==============================
 
-A generic function.
+Returns the ceiling of the quotient of two numbers. Divides _real2_ into
+_real1_ and truncates the result toward positive infinity. The integer part of
+the result is returned as _integer_, the remainder is returned as _real3_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +19,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<real>#. 
-arg - An instance of #<real>#. 
+real1 - An instance of #<real>#. 
+real2 - An instance of #<real>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<general-integer>#. 
-val - An instance of #<real>#. 
+integer - An instance of #<general-integer>#. 
+real3 - An instance of #<real>#. 
 
 
 

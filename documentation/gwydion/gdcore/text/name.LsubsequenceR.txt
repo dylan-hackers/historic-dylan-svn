@@ -1,7 +1,22 @@
 Class: <subsequence>
 ==============================
 
-A class.
+A subsequence represents an aliased reference to some part of an existing
+sequence.
+
+Because subsequences are aliased references into other sequences, several
+properties must be remembered:
+
+- The contents of a subsequence are undefined after any destructive operation
+  upon the source sequence.
+
+- Destructive operations upon subsequences may be reflected in the source. The
+  results of #reverse!# and #sort!# should be expected to affect the source
+  sequence for vector subsequences.
+
+If the source sequences are instances of #<vector># or #<string>#, then the
+implementation will use subclasses of #<subsequence># which are also
+subclasses of #<vector># or #<string>#.
 
 
 Exported from:
@@ -14,9 +29,14 @@ Modifiers:
 abstract free sealed
 
 
+Make keywords:
+------------------------------
+source: - An instance of #<sequence>#. Required.
+start:  - An instance of #<integer>#. Required.
+end:    - An instance of #<integer>#. Required.
+
+
 Superclasses:
 ------------------------------
 - #<sequence>#
- 
-
 

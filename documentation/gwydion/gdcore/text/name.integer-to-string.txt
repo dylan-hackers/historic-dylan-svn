@@ -1,7 +1,10 @@
 Generic: integer-to-string
 ==============================
 
-A generic function.
+Converts an integer to a string value. String representations for radixes
+above 10 use the letters 'a' through 'z' for the digits from 10 to 35. So
+hexadecimal numbers would use [0-9] and [a-f], and base 20 would use [0-9] and
+[a-j], and base 36 would use all the alphanumeric characters.
 
 
 Exported from:
@@ -18,12 +21,18 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+digit      - An instance of #<integer>#. 
+base:      - An instance of #<integer>#. Between 2 and 35, inclusive,
+             representing the radix of the string representation. The default
+             base is 10.
+uppercase: - An instance of #<boolean>#. For #t, returns uppercase letters for
+             digits greater than 10, and for #f, lowercase letters. The
+             default is #f.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+number - An instance of #<string>#. 
 
 
 

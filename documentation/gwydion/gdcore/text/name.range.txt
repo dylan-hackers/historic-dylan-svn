@@ -1,13 +1,13 @@
 Function: range
 ==============================
 
-A function.
+Creates and returns a range. The arguments correspond to the initialization
+arguments of #<range>#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -23,7 +23,7 @@ size: - An instance of #<object>#. The default is #f.
 
 Values:
 ------------------------------
-val - An instance of <builtin-range>. 
+range - An instance of #<range>#. 
 
 
 

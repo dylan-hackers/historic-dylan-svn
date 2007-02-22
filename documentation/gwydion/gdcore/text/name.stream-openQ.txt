@@ -1,7 +1,8 @@
 Generic: stream-open?
 ==============================
 
-A generic function.
+Checks to see if a stream is open. If there is content available for the
+stream, then it is open.
 
 
 Exported from:
@@ -17,12 +18,12 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
+stream - An instance of #<stream>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+open? - An instance of #<boolean>#. 
 
 
 

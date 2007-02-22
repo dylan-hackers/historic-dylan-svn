@@ -1,7 +1,52 @@
 Module: Module subseq
 ==============================
 
-The subseq module.
+#<subsequence># is a new subclass of #<sequence>#. A subsequence represents an
+aliased reference to some part of an existing sequence. Although they may be
+created by #make# (with required keywords _source:_, _start:_ and _end:_) on
+one of the instantiable subclasses, they are more often created by calls of
+the form
+
+: subsequence(sequence, start: 0, end: 3)
+
+where _start:_ and _end:_ are optional keywords which default to the beginning
+and end, respectively, of the source sequence. No other new operations are
+defined for subsequences, since all necessary operations are inherited from
+#<sequence>#.
+
+Because subsequences are aliased references into other sequences, several
+properties must be remembered:
+
+- The contents of a subsequence are undefined after any destructive operation
+  upon the source sequence.
+
+- Destructive operations upon subsequences may be reflected in the source. The
+  results of #reverse!# and #sort!# should be expected to affect the source
+  sequence for vector subsequences.
+
+If the source sequences are instances of #<vector># or #<string>#, then the
+implementation will use subclasses of #<subsequence># which are also
+subclasses of #<vector># or #<string>#.
+
+Efficiency notes:
+
+The implementation tries to insure that subsequences of subsequences can be
+accessed as efficiently as the original subsequence. (For example, the result
+of
+
+: subsequence(subsequence(source, start: 1), start: 2)
+
+would produce a subsequence identical to the one produced by
+
+: subsequence(source, start: 3)
+
+Vector subsequences, like all other vectors, implement constant time element
+access.
+
+Non-vector subsequences may take non-constant time to create, but will provide
+constant-time access to the first element. This should produce the best
+performance provided some element of the subsequence is accessed at least
+once.
 
 
 Exported from:

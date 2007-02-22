@@ -1,13 +1,14 @@
 Class: <string>
 ==============================
 
-A class.
+The class of sequences with elements that are characters. <string> has no
+direct instances; calling make on <string> will return an instance of a
+concrete subclass of <string>.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -15,6 +16,15 @@ Modifiers:
 ------------------------------
 abstract free open
 
+
+Make keywords:
+------------------------------
+size: - An instance of #<integer># specifying the size of the string. The
+        default value is 0.
+
+fill: - An instance of #<character># specifying the initial value for each
+        element. The default value is ' ' (space).
+        
 
 Superclasses:
 ------------------------------
@@ -29,10 +39,13 @@ Subclasses:
 
 Functions on <string>:
 ------------------------------
+- #break#
+- #case-insensitive-string-hash#
 - #cerror#
 - #condition-format#
 - #create-application-event#
 - #create-directory#
+- #error#
 - #format#
 - #format-out#
 - #format-to-string#
@@ -42,6 +55,7 @@ Functions on <string>:
 - #make-regexp-replacer#
 - #make-splitter#
 - #make-translator#
+- #option-description-setter#
 - #option-parser-by-long-name#
 - #option-present?-by-long-name#
 - #option-value-by-long-name#
@@ -51,9 +65,12 @@ Functions on <string>:
 - #regexp-position#
 - #regexp-replace#
 - #run-application#
+- #signal#
 - #signal-application-event#
 - #split#
 - #string-as-locator#
+- #string-hash#
+- #string-to-integer#
 - #string-to-machine-word#
 - #tokenize-environment-variable#
 - #translate#
@@ -64,12 +81,16 @@ Functions on <string>:
 Functions returning <string>:
 ------------------------------
 - #as-iso8601-string#
+- #condition-format-string#
 - #format-to-string#
+- #integer-to-string#
 - #local-time-zone-name#
 - #locator-as-string#
 - #locator-protocol#
 - #machine-word-to-string#
 - #number-to-string#
+- #option-description#
+- #option-description-setter#
 - #print-to-string#
 - #regexp-replace#
 - #split#

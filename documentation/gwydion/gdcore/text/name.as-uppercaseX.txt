@@ -1,13 +1,13 @@
 Generic: as-uppercase!
 ==============================
 
-A generic function.
+Coerces an object to uppercase in place. _object_ may be modified by this
+operation, and the result will be == to the _object_.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +18,16 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+#rest objects - Instances of #<object>#. 
 
 
 
+Methods: as-uppercase!
+==============================
+as-uppercase - The method on #<string># is equivalent to
+               map-into(_string_, as-uppercase, _string_).

@@ -1,13 +1,18 @@
 Generic: generic-function-methods
 ==============================
 
-A generic function.
+Returns the methods of a generic function. The order of the methods in the
+_sequence_ is not significant. The _sequence_ returned should never be
+destructively modified. Doing so may cause unpredictable behavior.
+
+If _generic-function_ is sealed, an implementation may choose not to return a
+sequence of methods, but instead signal an error of type
+#<sealed-object-error>#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +23,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+generic-function - An instance of #<generic-function>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+sequence - An instance of #<sequence>#. 
 
 
 

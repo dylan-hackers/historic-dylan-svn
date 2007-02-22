@@ -1,7 +1,14 @@
+Title: format-out
+==============================
+
+There are two unrelated #format-out# functions.
+
+
 Generic: format-out
 ==============================
 
-A generic function.
+Formats arguments to #*standard-output*#. This function uses #format# exported
+from #Module format#.
 
 
 Exported from:
@@ -16,20 +23,17 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-#rest more - Instances of #<object>#. 
-
-
-Values:
-------------------------------
-#rest more - Instances of #<object>#. 
+control-string - An instance of #<string>#. 
+#rest args     - Instances of #<object>#. The objects to substitute for the
+                 format specifiers of _control-string_.
 
 
 
 Function: format-out
 ==============================
 
-A function.
+Formats arguments to STDOUT. This function uses #format-to-string# exported
+from #Module common-extensions#.
 
 
 Exported from:
@@ -39,8 +43,9 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
-#rest more - Instances of #<object>#. 
+control-string - An instance of #<string>#. 
+#rest args     - Instances of #<object>#. The objects to substitute for the
+                 format specifiers of _control-string_.
 
 
 

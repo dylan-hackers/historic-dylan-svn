@@ -1,25 +1,26 @@
 Function: on-exit
 ==============================
 
-A function.
+Adds a function to be called just before quitting.
+
+Arranges for the #exit# function to call the argument function. The argument
+function must take no required arguments. Users may call #on-exit# multiple
+times to install more than one function for #exit# to call, but the order in
+which #exit# invokes the functions is undefined. Calling #on-exit# on the same
+function repeatedly installs that function multiple times.
 
 
 Exported from:
 ------------------------------
+- #Module Extensions#
 - #Module common-dylan#
 - #Module common-extensions#
-- #Module Extensions#
 - #Module operating-system#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-
-
-Values:
-------------------------------
-#rest more - Instances of #<object>#. 
+function - An instance of #<function>#. A function to execute before quitting.
 
 
 

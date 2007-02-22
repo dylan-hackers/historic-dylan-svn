@@ -1,7 +1,19 @@
+Title: format-to-string
+==============================
+
+There are two unrelated #format-to-string# functions.
+
+
+==============================
+Group: format-to-string from #Module format#
+==============================
+
+
 Generic: format-to-string
 ==============================
 
-A generic function.
+Process a format string and return the result as another string. This function
+effectively calls #format# and returns the _result_ as a string.
 
 
 Exported from:
@@ -16,20 +28,39 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
-#rest more - Instances of #<object>#. 
+control-string - An instance of #<string>#. 
+#rest args     - Instances of #<object>#. The objects to substitute for the
+                 format fields in _control-string_.
 
 
 Values:
 ------------------------------
-val - An instance of #<string>#. 
+result - An instance of #<string>#. 
 
+
+
+==============================
+Group: format-to-string from #Module common-extensions#
+==============================
 
 
 Function: format-to-string
 ==============================
 
-A function.
+Process a simple format string and return the result as another string. This
+is a more limited version of #format# exported by #Module format#. It supports
+the following format directives (see #Format Directives#):
+
+%d - As #format#.
+%b - As #format#.
+%o - As #format#.
+%x - As #format#.
+%c - As #format#.
+%s - Formats its argument as a simple string if possible. Otherwise, as %=.
+%= - Formats its argument in a form useful for developers.
+%% - As #format#.
+
+These format directives cannot include flags, precision, or width specifiers.
 
 
 Exported from:

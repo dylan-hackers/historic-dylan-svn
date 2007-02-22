@@ -1,13 +1,34 @@
 Generic: sort
 ==============================
 
-A generic function.
+Returns a sequence containing the elements of a source sequence sorted into
+ascending order. The _result-sequence_ may or may not be freshly allocated.
+The _source-sequence_ is not modified by this operation.
+
+#sort# determines the relationship between two elements by giving elements to
+the _test_. The first argument to the _test_ function is one element of
+_source-sequence_; the second argument is another element of
+_source-sequence_. _test_ should return true if and only if the first argument
+is strictly less than the second (in some appropriate sense). If the first
+argument is greater than or equal to the second (in the appropriate sense),
+then the _test_ should return #f.
+
+If _stable_ is supplied and not #f, a possibly slower algorithm will be used
+that will leave in their original order any two elements, _x_ and _y_, such
+that test(x, y) and test(y, x) are both false.
+
+> define variable *numbers* = vector(3, 1, 4, 1, 5, 9)
+> *numbers*
+>   ⇒ #[3, 1, 4, 1, 5, 9]
+> sort (*numbers*)
+>   ⇒  #[1, 1, 3, 4, 5, 9]
+> *numbers*
+>   ⇒  #[3, 1, 4, 1, 5, 9]
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,14 +39,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-test: - An instance of #<object>#. The default is #f.
-stable: - An instance of #<object>#. The default is #f.
+source-sequence - An instance of #<sequence>#. 
+test:           - An instance of #<function>#. The default is #<#.
+stable:         - An instance of #<object>#, treated as a #<boolean>#. The
+                  default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+result-sequence - An instance of #<sequence>#. 
 
 
 

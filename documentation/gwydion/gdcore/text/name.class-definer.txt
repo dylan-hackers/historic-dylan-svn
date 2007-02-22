@@ -1,20 +1,77 @@
 Macro: class-definer
 ==============================
 
-A macro.
+Defines a constant binding in the current module and initializes it to a new
+class.
+
+The _class-adjectives_ provide sealing information about the class. Among the adjectives, abstract and concrete are mutually exclusive, primary and free are mutually exclusive, and sealed and open are mutually exclusive.
+
+The _superclasses_ are the classes from which the new class directly inherits.
+
+The _init-expr_ and the init-keyword:, required-init-keyword:, init-value:, and init-function: options are all mutually exclusive in a single _slot_, _init-arg_, or _inherited-slot_.
+
+Each _slot_ describes a slot specification in the class.
+
+Each _init-arg_ describes the handling of an initialization argument specification of the class.
+
+Each _inherited-slot_ describes an inherited slot specification of the class.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
-Definition:
+Macro call:
 ------------------------------
+: define (class-adjectives) class (class-name) ( (superclasses) )
+:   (slots)
+:   (init-args)
+:   (inherited-slots)
+: end class (class-name)
 :
-          body-style define macro
+: slots:
+:   (slot-adjectives) slot (slot-name) :: (slot-type) = (init-expr),
+:       (slot-options)
+:
+: inits-args:
+:   keyword (symbol) (init-expr), (init-arg-options)
+:   required keyword (symbol) = (init-expr), (init-arg-options)
+:
+: inherited-slots:
+:   inherited slot (slot-name) = (init-expr), (inh-slot-options)
+        
+
+Arguments:
+------------------------------
+class-adjectives - Gwydion Dylan allows the following class adjectives:
+                   abstract, concrete, primary, free, sealed, open,
+                   functional. These are optional. See #Define adjectives#.
+
+class-name       - A binding name.
+
+superclasses     - A list of direct superclasses.
+
+slot-adjectives  - Gwydion Dylan allows the following slot adjectives:
+                   constant, sealed, instance, class, each-subclass, virtual.
+                   See #Define adjectives#.
+                   
+slot-name        - Slot name.
+
+slot-type        - Slot type specialization.
+
+init-expr        - An expression for the initial value of the slot or init
+                   argument. Optional.
+
+symbol           - Keyword symbol.
+
+slot-options     - Zero or more of setter:, init-keyword:,
+                   required-init-keyword:, init-value:, init-function:, type:.
+
+init-arg-options - Zero or more of init-value:, init-function:, type:.
+                   
+inh-slot-options - Zero or more of init-value:, init-function:.
         
 
 

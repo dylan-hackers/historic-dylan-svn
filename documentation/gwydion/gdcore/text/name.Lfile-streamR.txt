@@ -1,7 +1,93 @@
 Class: <file-stream>
 ==============================
 
-A class.
+The class of streams over disk files.
+
+When you instantiate this class, an implementation-dependent, indirect
+instance of it is created (from a call to #type-for-file-stream#). The file
+being streamed over is opened immediately upon creating the stream.
+
+File streams are intended only for accessing the contents of files. They are
+not intended to provide a general file handling facility of renaming,
+deleting, moving, parsing directory names and so on. If you wish to do these
+kinds of operations, use the File-System module.
+
+If an implementation checks file permissions when creating and opening file
+streams, and it detects an attempt to read a file for which the user has no
+read permission, or to write a file for which the user has no write
+permission, then an #<invalid-file-permissions-error># condition is signaled
+at the time the file stream is created.
+
+Because creating a file stream always involves an attempt to open the
+underlying file, the aforementioned error conditions will occur during file
+stream instance initialization.
+
+The _element-type_ init-keyword specifies the type of the elements in the file
+named by _locator_. This allows file elements to be represented abstractly;
+for instance, contiguous elements could be treated as a single database
+record. This init-keyword defaults to something useful, potentially based on
+the properties of the file; #<byte-character># and #<unicode-character># are
+likely choices.
+
+The optional _if-exists:_ init-keyword allows you to specify an action to take
+if the file named by _locator_ already exists. The options are:
+
+#f             - No action. This is the default when the stream's _direction_
+                 is #"input" or #"input-output".
+
+#"new-version" - If the underlying file system supports file versioning, a
+                 new version of the file is created. This is the default when
+                 the stream's _direction_ is #"output". If the file system
+                 does not support file versioning, the implementation should
+                 substitute one of the other _if-exists:_ behaviors; the
+                 #"replace" behavior is a good choice.
+
+#"overwrite"   - Set the stream's position to the beginning of the file, but
+                 preserve the current contents of the file. This is useful
+                 when the _direction_ is #"input-output" and you want to
+                 overwrite an existing file.
+
+#"replace"     - Delete or rename the existing file and create a new file.
+
+#"append"      - Set the stream's initial position to the end of the existing
+                 file so that all new output occurs at the end of the file.
+
+#"truncate"    - If the file exists, it is truncated, setting the size of the
+                 file to 0. If the file does not exist, create a new file.
+
+#"signal"      - Signal a #<file-exists-error># condition.
+
+The optional _if-does-not-exist:_ init-keyword allows you to specify an action
+to take if the file named by _locator_ does not exist. The options are:
+
+#f        - No action.
+
+#"signal" - Signal a #<file-does-not-exist-error># condition. This is the
+            default when the stream's direction is #"input".
+
+#"create" - Create a new zero-length file. This is the default when the
+            stream's direction is #"output" or #"input-output".
+
+Ideally, _element-type_ could be any valid Dylan type such as
+limited(#<integer>#, min: 0, max: 255). This approach may make it possible to
+implement a potentially inefficient but general set of file streams.
+Unfortunately the current language definition does not include adequate
+support for this approach, so we specify instead an interim minimum set of
+three element types. The element types are for the time being exported from
+the Streams module.
+
+The three possible element types
+are:
+
+<byte-character>    - The file is accessed as a sequence of 8-bit characters.
+
+<unicode-character> - The file is accessed as a sequence of 16-bit Unicode
+                      characters.
+
+<byte>              - The file is accessed as a sequence of unsigned 8-bit
+                      integers.
+
+Portable code can count on the existence of these three element types, but implementations are free to provide more.
 
 
 Exported from:
@@ -14,11 +100,30 @@ Modifiers:
 abstract primary open
 
 
+Make keywords:
+------------------------------
+locator:           - An instance of #<string># or #<locator>#. Required.
+if-exists:         - One of #f, #"new-version", #"overwrite", #"replace",
+                     #"append", #"truncate", #"signal". Optional.
+if-does-not-exist: - One of #f, #"signal", #"create". Optional.
+buffer:            - An instance of #<buffer># or #f. Defaults to #f.
+buffer-size:       - An instance of #<integer># or #f. Defaults to #f.
+encoding:          - ?
+outer-stream:      - An instance of #<stream># or #f. Defaults to this
+                     instance.
+direction:         - One of #"input", #"output", #"input-output". The default
+                     is #"input". This indicates whether the string is
+                     readable or writable or both.
+element-type:      - An instance of #<type>#. The type of each data element of
+                     the stream. The default is #<object>#.
+accessor:          - ?
+start:             - ?
+end:               - ?
+
+
 Superclasses:
 ------------------------------
-- <single-buffered-stream>
- - <external-stream>
- - #<basic-positionable-stream>#
+- #<basic-positionable-stream>#
  
 
 Subclasses:

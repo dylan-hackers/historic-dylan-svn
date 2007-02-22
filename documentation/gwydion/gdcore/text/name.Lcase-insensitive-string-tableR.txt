@@ -1,14 +1,31 @@
 Class: <case-insensitive-string-table>
 ==============================
 
-A class.
+Implements a #<table># class, keyed by strings keyed without regard for case.
+
+#<case-insensitive-string-table># implements a #<table># class whose keys are
+instances of #<string>#. However, instead of using #=# for the equivalence
+relation, strings which are the same aside from case are considered
+equivalent.
+
+Note that the case-insensitivity is true in general only for English strings —
+non-English characters have their case "normalized" by subtracting the
+difference in integer code for the character 'a' and 'A'. This works only for
+ASCII and Unicode, and only for English.
 
 
 Exported from:
 ------------------------------
 - #Module table-extensions#
-- #Module table-extensions#
 
+
+Make keywords:
+------------------------------
+size: - An instance of #<integer>#. If specified, this value provides a hint
+        to the implementation as to the expected number of elements to be
+        stored in the table, which is be used to control how much space to
+        initially allocate for the table.
+        
 
 Modifiers:
 ------------------------------

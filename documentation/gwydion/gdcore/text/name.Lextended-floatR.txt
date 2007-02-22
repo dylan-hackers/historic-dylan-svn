@@ -1,13 +1,12 @@
 Class: <extended-float>
 ==============================
 
-A class.
+The class of extended-precision floating-point numbers.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 

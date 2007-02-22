@@ -6,7 +6,6 @@ A class.
 
 Exported from:
 ------------------------------
-- #Module threads#
 - #Module Runtime-Threads#
 - #Module threads#
 

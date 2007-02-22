@@ -1,13 +1,15 @@
 Generic: round
 ==============================
 
-A generic function.
+Rounds a real number toward the nearest mathematical integer. The integer part
+is returned as _integer_, the remainder is returned as _real2_. If _real1_ is
+exactly between two integers, then the result _integer_ will be a multiple of
+two.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +20,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<real>#. 
+real1 - An instance of #<real>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<general-integer>#. 
-val - An instance of #<real>#. 
+integer - An instance of #<general-integer>#. 
+real2 - An instance of #<real>#. 
 
 
 

@@ -1,13 +1,14 @@
 Generic: <
 ==============================
 
-A generic function.
+Returns true if its first operand is less than its second operand.
+
+The floating-point behavior of this function is platform-dependent.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +19,31 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+object1 - An instance of #<object>#. 
+object2 - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+boolean - An instance of #<boolean>#. 
+
+
+See also:
+------------------------------
+- #Equality and Comparison#
 
 
 
+Methods: <
+==============================
+< - Built-in #<real># numbers are compared by mathematical value.
+
+< - The method on #<character># compares the ordinal value of the characters'
+    underlying character set. Character case is significant.
+
+< - The method on #<string># compares strings by comparing elements from left
+    to right, using #<# and #=# on corresponding elements, and stopping when
+    the elements are not =. If one string is a strict prefix of the other, the
+    shorter string is considered the smaller one. For variations on string
+    comparison (such as comparisons that ignore case), different comparison
+    operators must be used.

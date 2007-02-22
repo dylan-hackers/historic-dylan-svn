@@ -1,13 +1,12 @@
 Class: <object>
 ==============================
 
-A class.
+The class of all Dylan objects.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -69,15 +68,11 @@ Functions on <object>:
 - #add-new#
 - #add-new!#
 - #add-option-parser-by-type#
-- #adjust-stream-position#
 - #alignment-of#
-- #alist-copy#
 - #alist-delete#
-- #all-superclasses#
 - #always#
 - #any?#
 - #apair#
-- #applicable-method?#
 - #apply#
 - #aref#
 - #aref-setter#
@@ -101,14 +96,10 @@ Functions on <object>:
 - #buffer-position-setter#
 - #buffer-size#
 - #buffer-start-setter#
-- #byte-vector-fill#
-- #byte-vector-ref-setter#
 - #callback-entry#
 - #case-insensitive-equal#
-- #case-insensitive-string-hash#
 - #cerror#
 - #check-type#
-- #choose-map#
 - #class-name#
 - #close#
 - #collector-protocol#
@@ -116,11 +107,8 @@ Functions on <object>:
 - #concatenate#
 - #concatenate!#
 - #concatenate-as#
-- #concatenate-map#
 - #condition-force-output#
 - #condition-format#
-- #condition-format-arguments#
-- #condition-format-string#
 - #conjoin#
 - #copy-bytes#
 - #copy-from-buffer!#
@@ -138,13 +126,9 @@ Functions on <object>:
 - #date-year#
 - #debugger-message#
 - #debug-message#
-- #denominator#
 - #dest-index#
 - #difference#
-- #digit-to-integer#
 - #direct-instance-of#
-- #direct-subclasses#
-- #direct-superclasses#
 - #disjoin#
 - #do#
 - #document-element#
@@ -158,7 +142,6 @@ Functions on <object>:
 - #do-printing-object#
 - #do-put-property!#
 - #do-remove-property!#
-- #drop#
 - #element#
 - #element-count#
 - #element-range-check#
@@ -191,8 +174,6 @@ Functions on <object>:
 - #ftp-parser#
 - #functional-==#
 - #function-name#
-- #function-specializers#
-- #generic-function-methods#
 - #get-input-buffer#
 - #get-output-buffer#
 - #get-property#
@@ -209,11 +190,8 @@ Functions on <object>:
 - #initialize#
 - #initialized?#
 - #instance?#
-- #integer-to-digit#
-- #integer-to-string#
 - #integral?#
 - #intersection#
-- #join#
 - #join-thread#
 - #key-exists?#
 - #last#
@@ -269,7 +247,6 @@ Functions on <object>:
 - #node-text#
 - #node-text-setter#
 - #null?#
-- #numerator#
 - #object-address#
 - #object-class#
 - #object-hash#
@@ -278,18 +255,13 @@ Functions on <object>:
 - #open-file-stream#
 - #option-default-value#
 - #option-default-value-setter#
-- #option-description#
-- #option-description-setter#
 - #option-might-have-parameters?#
 - #option-might-have-parameters?-setter#
-- #option-present?#
-- #option-value#
 - #option-value-setter#
 - #outer-stream#
 - #outer-stream-setter#
 - #pair#
 - #pair?#
-- #pair-do#
 - #pair-foldl#
 - #pair-foldr#
 - #peek#
@@ -305,7 +277,6 @@ Functions on <object>:
 - #push#
 - #push-last#
 - #puts#
-- #Random#
 - #random-float#
 - #range#
 - #rcurry#
@@ -330,7 +301,6 @@ Functions on <object>:
 - #referenced-type#
 - #regexp-position#
 - #regexp-replace#
-- #regular-arguments#
 - #remove#
 - #remove!#
 - #remove-duplicates#
@@ -384,10 +354,7 @@ Functions on <object>:
 - #stream-error-stream#
 - #stream-locator#
 - #stream-lock-setter#
-- #stream-position-setter#
-- #string-hash#
 - #string-to-float#
-- #string-to-integer#
 - #string-to-machine-word#
 - #subclass-of#
 - #subdirectory-locator#
@@ -397,10 +364,8 @@ Functions on <object>:
 - #substring-replace#
 - #successor#
 - #supplied?#
-- #tabulate#
 - #tail#
 - #tail-setter#
-- #take#
 - #third#
 - #third-setter#
 - #thread-name#
@@ -408,9 +373,7 @@ Functions on <object>:
 - #token-value#
 - #translate#
 - #true?#
-- #type-error-expected-type#
 - #type-error-location#
-- #type-error-value#
 - #type-for-copy#
 - #type-for-file-stream#
 - #type-union#
@@ -448,12 +411,9 @@ Functions returning <object>:
 - #+#
 - #abs#
 - #add-last#
-- #adjust-stream-position#
 - #alignment-of#
-- #alist-delete#
 - #all-superclasses#
 - #any?#
-- #applicable-method?#
 - #apply#
 - #aref#
 - #aref-setter#
@@ -477,20 +437,10 @@ Functions returning <object>:
 - #buffer-position-setter#
 - #buffer-size#
 - #buffer-start-setter#
-- #byte-vector-fill#
-- #byte-vector-ref#
-- #byte-vector-ref-setter#
 - #callback-entry#
-- #case-insensitive-equal#
-- #case-insensitive-string-hash#
 - #check-type#
-- #choose-map#
 - #class-name#
 - #collector-protocol#
-- #complement#
-- #concatenate-map#
-- #condition-format-arguments#
-- #condition-format-string#
 - #date-day#
 - #date-hours#
 - #date-microseconds#
@@ -501,9 +451,7 @@ Functions returning <object>:
 - #date-time-zone-offset-setter#
 - #date-year#
 - #default-handler#
-- #denominator#
 - #dest-index#
-- #digit-to-integer#
 - #direct-instance-of#
 - #direct-subclasses#
 - #direct-superclasses#
@@ -511,10 +459,8 @@ Functions returning <object>:
 - #document-element-setter#
 - #document-location#
 - #document-location-setter#
-- #do-handlers#
 - #do-printing-object#
 - #do-remove-property!#
-- #drop#
 - #element#
 - #element-count#
 - #element-range-check#
@@ -532,15 +478,11 @@ Functions returning <object>:
 - #first-setter#
 - #float-decimal-digits#
 - #float-to-string#
-- #foldl#
-- #foldr#
 - #format-out#
 - #forward-iteration-protocol#
 - #ftp-parser#
 - #function-name#
-- #function-specializers#
 - #general-object-at#
-- #generic-function-methods#
 - #get-property#
 - #head#
 - #head-setter#
@@ -553,8 +495,6 @@ Functions returning <object>:
 - #infinite?#
 - #initialize#
 - #initialized?#
-- #integer-to-digit#
-- #integer-to-string#
 - #invoke-debugger#
 - #join-thread#
 - #key-exists?#
@@ -563,7 +503,6 @@ Functions returning <object>:
 - #limited-integer-base-class#
 - #limited-integer-maximum#
 - #limited-integer-minimum#
-- #list?#
 - #load-library#
 - #locator-address#
 - #locator-cgi-string#
@@ -597,35 +536,23 @@ Functions returning <object>:
 - #node-name#
 - #node-text#
 - #node-text-setter#
-- #null?#
-- #numerator#
-- #on-exit#
 - #option-default-value#
 - #option-default-value-setter#
-- #option-description#
-- #option-description-setter#
 - #option-might-have-parameters?#
 - #option-might-have-parameters?-setter#
-- #option-present?#
 - #option-value#
 - #option-value-by-long-name#
 - #option-value-setter#
 - #outer-stream#
 - #outer-stream-setter#
-- #pair?#
-- #pair-foldl#
-- #pair-foldr#
 - #peek#
 - #pop#
 - #pop-last#
-- #precedes?#
 - #predecessor#
 - #print-synopsis#
 - #profiling-type-result#
 - #push#
 - #push-last#
-- #Random#
-- #random-bits#
 - #random-exponential#
 - #random-float#
 - #random-gaussian#
@@ -648,7 +575,6 @@ Functions returning <object>:
 - #reduce-r#
 - #referenced-type#
 - #regexp-matches#
-- #regular-arguments#
 - #restart-query#
 - #return-query#
 - #satisfies#
@@ -687,30 +613,21 @@ Functions returning <object>:
 - #stream-locator#
 - #stream-lock#
 - #stream-lock-setter#
-- #stream-position#
-- #stream-position-setter#
-- #string-hash#
 - #string-to-float#
-- #string-to-integer#
 - #subclass-of#
 - #subsequence#
 - #substring-position#
 - #substring-replace#
 - #successor#
-- #tabulate#
 - #tail#
-- #tails#
 - #tail-setter#
-- #take#
 - #third#
 - #third-setter#
 - #thread-name#
 - #tightly-bound-to-next-token?#
 - #token-value#
-- #type-error-expected-type#
 - #type-error-location#
 - #type-error-value#
-- #type-for-file-stream#
 - #uninitialized?#
 - #union-members#
 - #union-singletons#

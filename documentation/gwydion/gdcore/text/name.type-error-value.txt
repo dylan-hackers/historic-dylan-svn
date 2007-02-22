@@ -1,13 +1,13 @@
 Generic: type-error-value
 ==============================
 
-A generic function.
+Returns the value that was not of the expected type, and thereby led to the
+type error.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +18,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+type-error - An instance of #<type-error>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+object - An instance of #<object>#. 
 
 
 

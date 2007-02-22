@@ -1,7 +1,9 @@
 Class: <pretty-stream>
 ==============================
 
-A class.
+Stream used for pretty printing. This is a working class for pretty-printing
+objects. Use an instance of this class when doing a great deal of pretty
+printing.
 
 
 Exported from:
@@ -12,6 +14,35 @@ Exported from:
 Modifiers:
 ------------------------------
 concrete free sealed
+
+
+Make keywords:
+------------------------------
+target:       - An instance of #<stream>#. The stream where the output is
+                finally going to go. Required.
+                
+line-length:  - An instance of #<integer>#. The line length for this stream.
+                Defaults to #*default-line-length*#.
+                
+column:       - An instance of #<integer>#. The column the first character in
+                the buffer will appear in. Normally zero, but if we end up
+                with a very long line with no breaks in it we might have to
+                output part of it. Then this will no longer be zero. Defaults
+                to 0.
+                
+contents:     - An instance of #<sequence>#. Defaults to an empty #<vector>#.
+                
+outer-stream: - An instance of #<stream># or #f. Defaults to this instance.
+
+direction:    - One of #"input", #"output", #"input-output". The default is
+                #"input". This indicates whether the string is readable or
+                writable or both.
+                
+element-type: - An instance of #<type>#. The type of each data element of the
+                stream. The default is #<object>#.
+                
+start:        - ?
+end:          - ?
 
 
 Superclasses:

@@ -1,13 +1,16 @@
 Generic: choose
 ==============================
 
-A generic function.
+Returns those elements of a sequence that satisfy a predicate. The
+_result-sequence_ may or may not be freshly allocated.
+
+> choose (even?, #(3, 1, 4, 1, 5, 8, 9))
+>   ⇒  #(4, 8)
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +21,13 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<sequence>#. 
+predicate       - An instance of #<function>#. 
+source-sequence - An instance of #<sequence>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+result-sequence - An instance of #<sequence>#. 
 
 
 

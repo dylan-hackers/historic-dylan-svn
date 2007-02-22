@@ -1,7 +1,8 @@
 Class: <stream-position>
 ==============================
 
-A class.
+A class representing a location in a #<positionable-stream>#. However, most
+streams use an #<integer># to represent location.
 
 
 Exported from:
@@ -19,4 +20,13 @@ Superclasses:
 - #<object>#
  
 
+Functions on <stream-position>:
+------------------------------
+- #adjust-stream-position#
+- #stream-position-setter#
 
+
+Functions returning <stream-position>:
+------------------------------
+- #adjust-stream-position#
+- #stream-position#

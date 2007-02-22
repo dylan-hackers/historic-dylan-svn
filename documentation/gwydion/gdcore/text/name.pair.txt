@@ -1,25 +1,43 @@
 Function: pair
 ==============================
 
-A function.
+Creates and returns a freshly allocated pair. The pair's head value is _object1_ and its tail value is _object2_.
+
+> pair (1, 2)
+>   ⇒ #(1 . 2)
+> pair (1, #(2, 3, 4, 5))
+>   ⇒ #(1, 2, 3, 4, 5)
+
+Note that while the pair returned by pair is freshly allocated, it may be the beginning of a list, portions of which are not freshly allocated.
+
+> define variable *preexisting-list* = list(2, 3, 4)
+> define variable *new-list* = pair(1, *preexisting-list*)
+> *new-list*
+>   ⇒ #(1, 2, 3, 4)
+> tail(*new-list*) == *preexisting-list*
+>   ⇒ #t
+> third(*new-list*) := 'x'
+> *new-list*
+>   ⇒ #(1, 2, x, 4)
+> *preexisting-list*
+>   ⇒ #(2, x, 4)
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
 - #Module Dylan#
-- #Module Dylan#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+object1 - An instance of #<object>#. 
+object2 - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<pair>#. 
+pair - A freshly allocated instance of #<pair>#. 
 
 
 

@@ -1,26 +1,33 @@
 Function: sequence-hash
 ==============================
 
-A function.
+Like #collection-hash#, only a more efficient version just for sequences. This
+is similar to an #equal-hash# for the collection, except that it hashes things
+with _ordered:_ #t and ignores the sequence keys.
+
+_USE_WITH_CAUTION_: This isn't a proper #equal-hash# because two collections
+of different types but identical key/element pairs won't generate the same
+hash id, even though the two collections are =.
 
 
 Exported from:
 ------------------------------
 - #Module table-extensions#
-- #Module table-extensions#
 
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<sequence>#. 
-arg - An instance of #<false>#. 
+element-hash  - An instance of #<function>#. Computes hash ids for the
+                elements. It takes an object and a #<hash-state># as the
+                arguments, and returns a hash id and a hash state.
+seq           - An instance of #<sequence>#. 
+initial-state - An instance of #<hash-state>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
-val - An instance of #<false>#. 
+hash-id    - An instance of #<integer>#. 
+hash-state - An instance of #<hash-state>#. 
 
 
 

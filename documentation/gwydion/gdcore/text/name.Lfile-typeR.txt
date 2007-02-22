@@ -16,5 +16,5 @@ Type:
 
 Value:
 ------------------------------
-type-union(singleton(#"directory"), singleton(#"link"), singleton(#"file"))
+type-union(singleton(#"file"), singleton(#"link"), singleton(#"directory"))
 

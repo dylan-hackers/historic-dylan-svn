@@ -1,13 +1,25 @@
 Generic: applicable-method?
 ==============================
 
-A generic function.
+Tests if a function is applicable to sample arguments. Returns true if
+_function_ is a method that would be applicable to _sample-args_ or if it is a
+generic function that contains a method that would be applicable to
+_sample-args_.
+
+Note that if _function_ is a generic function, then calling it with the
+_sample-args_ may still signal an error, even if #applicable-method?# returns
+true. This is because the generic function may contain methods that are
+ambiguous relative to the _sample-args_. See "Method Specificity" on page 96
+of the _Dylan Reference Manual_ for a complete description of ambiguous
+methods.
+
+If _function_ is a sealed generic function, #applicable-method?# may signal an
+error of type #<sealed-object-error>#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,13 +30,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-#rest more - Instances of #<object>#. 
+function          - An instance of #<function>#. 
+#rest sample-args - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+boolean - An instance of #<boolean>#. 
 
 
 

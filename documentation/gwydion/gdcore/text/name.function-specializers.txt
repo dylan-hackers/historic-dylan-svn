@@ -1,13 +1,14 @@
 Generic: function-specializers
 ==============================
 
-A generic function.
+Returns the specializers of a function. The length of the sequence will equal the number of required arguments of _function_. The first element of the sequence will be the specializer of the first argument of _function_, the second will be the specializer of the second argument, and so on.
+
+The sequence returned should never be destructively modified. Doing so may cause unpredictable behavior.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -18,12 +19,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+function - An instance of #<function>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+sequence - An instance of #<sequence>#. 
 
 
 

@@ -1,7 +1,9 @@
 Variable: *standard-output*
 ==============================
 
-A variable.
+The standard output stream. This usually represents the terminal (just like
+#*standard-error*#); however most UNIX-like operating systems permit the
+standard output stream to be redirected at the command line.
 
 
 Exported from:
@@ -11,7 +13,7 @@ Exported from:
 
 Type:
 ------------------------------
-#<object>#
+#<file-stream>#
 
 
 Value:

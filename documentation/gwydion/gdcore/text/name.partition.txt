@@ -1,7 +1,9 @@
 Function: partition
 ==============================
 
-A function.
+Takes a list and returns two lists: one that satisfies a predicate, and one
+that doesn't. This is very much like #choose#, except this function also
+returns the elements that did not match the predicate.
 
 
 Exported from:
@@ -11,14 +13,14 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<sequence>#. 
+pred - An instance of #<function>#. 
+seq  - An instance of #<sequence>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<list>#. 
-val - An instance of #<list>#. 
+winners - An instance of #<list>#. The list of elements that satisfy _pred_.
+losers  - An instance of #<list>#. The list of elements that do not.
 
 
 

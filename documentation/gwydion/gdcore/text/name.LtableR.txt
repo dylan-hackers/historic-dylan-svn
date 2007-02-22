@@ -1,13 +1,22 @@
 Class: <table>
 ==============================
 
-A class.
+The class of tables (also known as hash tables).
+
+A table is an unordered mapping between arbitrary keys and elements. Tables
+are the only collections that are unstable under iteration.
+
+Tables are stretchy in that they allow the addition and removal of keys.
+<table> and its subclasses are the only classes that are stretchy but are not
+stretchy sequences.
+
+<table> has no direct instances; calling #make# on <table> will return an
+instance of #<object-table>#.
 
 
 Exported from:
 ------------------------------
 - #Module common-dylan#
-- #Module Dylan#
 - #Module Dylan#
 
 
@@ -16,10 +25,18 @@ Modifiers:
 abstract primary open
 
 
+Make keywords:
+------------------------------
+size: - An instance of #<integer>#. If specified, this value provides a hint
+        to the implementation as to the expected number of elements to be
+        stored in the table, which is be used to control how much space to
+        initially allocate for the table.
+
+
 Superclasses:
 ------------------------------
 - #<mutable-explicit-key-collection>#
- - #<stretchy-collection>#
+- #<stretchy-collection>#
  
 
 Subclasses:

@@ -1,7 +1,15 @@
 Generic: read-line
 ==============================
 
-A generic function.
+Reads in one line of elements from the stream starting from the stream's
+current position. The type of the collection returned depends on the
+collection underlying the stream. Handles end-of-stream conditions just as
+#read-element# does.
+
+The second return value will be #f when the end of the stream is discovered
+before a newline, and #t otherwise.
+
+The newline may be '\r', '\n', or '\r\n'.
 
 
 Exported from:
@@ -16,14 +24,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<stream>#. 
+stream            - An instance of #<stream>#. 
 on-end-of-stream: - An instance of #<object>#. The default is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
-val - An instance of #<boolean>#. 
+sequence-or-eof - An instance of #<sequence># or the _on-end-of-stream:_
+                  value. 
+newline?        - An instance of #<boolean>#. 
 
 
 
