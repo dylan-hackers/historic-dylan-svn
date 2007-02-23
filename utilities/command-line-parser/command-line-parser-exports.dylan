@@ -24,12 +24,12 @@ copyright: Copyright 1998 Eric Kidd
 //
 //======================================================================
 
-define library getopt
+define library command-line-parser
   use common-dylan;
   use io;
 
   export
-    getopt,
+    command-line-parser,
     option-parser-protocol;
 end library;
 
@@ -67,7 +67,7 @@ define module option-parser-protocol
 end module;
 
 // Used by most programs.
-define module getopt
+define module command-line-parser
   use common-dylan, exclude: { format-to-string };
   use option-parser-protocol;
 
@@ -103,4 +103,4 @@ define module getopt
     defargparser-init,
     defargparser-accessors,
     defargparser-synopsis;
-end module getopt;
+end module;

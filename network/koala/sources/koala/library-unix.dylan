@@ -26,7 +26,7 @@ define library koala
 //  use win32-kernel;
   use base64;
   use memory-manager;
-  use getopt;
+  use command-line-parser;
 
   export koala;
   export koala-extender;
@@ -333,7 +333,7 @@ define module httpi                             // http internals
     prefix: "xml$";
   use xml-rpc-common;
   use base64;
-  use getopt;
+  use command-line-parser;
 end module httpi;
 
 define module dsp

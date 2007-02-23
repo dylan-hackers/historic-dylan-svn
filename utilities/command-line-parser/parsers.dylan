@@ -1,4 +1,4 @@
-module: getopt
+module: command-line-parser
 synopsis: Individual option parsers.
 authors: Eric Kidd, Jeff Dubrule <igor@pobox.com>
 copyright: Copyright 1998 Eric Kidd and Jeff Dubrule
