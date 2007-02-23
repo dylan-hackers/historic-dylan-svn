@@ -149,7 +149,7 @@ define module changes
   use date;
   use xml-parser,
     import: { node-children, node-children-setter,
-              parse-document, root,
+              parse-document, root, <element>,
               name-setter => xml-name-setter};
   use simple-xml;
 
