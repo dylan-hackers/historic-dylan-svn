@@ -9,7 +9,7 @@ define library xml-test
   use io;
   use xml-parser;
   use system;
-  use getopt;
+  use command-line-parser;
   use collection-extensions;
 end library xml-test;
 
@@ -42,6 +42,6 @@ define module xml-test
   use html-xform;
   use streams;
 //  use date;
-  use getopt;
+  use command-line-parser;
   use sequence-utilities;
 end module xml-test;

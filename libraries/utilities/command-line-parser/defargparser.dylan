@@ -1,4 +1,4 @@
-module: getopt
+module: command-line-parser
 synopsis: Interface macros for parser definition and option access.
 authors: David Lichteblau <lichteblau@fhtw-berlin.de>
 copyright: see below
@@ -30,8 +30,8 @@ copyright: see below
 // ============
 //
 // defargparser is a set of macros designed to work on top of Eric Kidd's
-// getopt library.  The idea is to provide a more readable interface for
-// parser definition and option access.
+// command-line-parser library.  The idea is to provide a more readable
+// interface for parser definition and option access.
 //
 //
 // Examples

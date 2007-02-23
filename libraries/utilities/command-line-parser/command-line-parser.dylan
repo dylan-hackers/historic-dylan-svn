@@ -1,4 +1,4 @@
-module: getopt
+module: command-line-parser
 synopsis: Parse command-line options.
 authors: Eric Kidd
 copyright: Copyright 1998 Eric Kidd

@@ -1,5 +1,5 @@
-module: getopt-test-suite
-synopsis: Test suite for the getopt (command-line parser) library.
+module: command-line-parser-test-suite
+synopsis: Test suite for the command-line-parser  library.
 
 //======================================================================
 //
@@ -27,8 +27,10 @@ synopsis: Test suite for the getopt (command-line parser) library.
 // defargparser.  Moved from src/tests to libraries/getopt/tests.
 // 2006.11.29
 
+// Now in libraries/utilities/command-line-parser/tests
+// Hannes Mehnert 2007.02.23
 
-define suite getopt-test-suite 
+define suite command-line-parser-test-suite 
   (/* setup-function: foo, cleanup-function: bar */)
   test argument-list-parser-test;
   test defargparser-test;
