@@ -21,14 +21,18 @@ define function thread-worker (ts :: <thread-server>, count :: <integer>) => ()
   with-lock (ts.lock)
     add!(ts.threads, count)
   end;
+  //let barf = format-to-string("%s", "FOOOO");
   format-out("Hello from %d\n",count);
-  collect-garbage();
-  //sleep(modulo(random(100000), 5));
-  //format-out("Hello from %d\n",count);
+  //sleep(modulo(random(100000), 3));
+  //format(*standard-output*, "Hello from\n");
+  format-out("Hello from\n"); //,count);
+  //write(*standard-output*, "foobar\n");
+  //collect-garbage();
+  //sleep(1);
   with-lock (ts.lock)
     remove!(ts.threads, count)
   end;
-  format-out("End from %d\n",count);
+  //format-out("End from %d\n",count);
 end;
 
 define function main () => ()
@@ -41,7 +45,7 @@ define function main () => ()
         format-out("Started %d thread [%d]\n", count, ts.threads.size);
       end;
     exception (c :: <condition>)
-      format-out("Received condition %=\n", c);
+      //write(*standard-output*, "Received condition\n");
       sleep(1);
     end;
   end;
@@ -49,4 +53,30 @@ end;
 
 begin
   main();
+/*  for(i from 0 below 10000000)
+    lock-stream(*standard-output*);
+    unlock-stream(*standard-output*);
+    end */
 end;
+
+define open generic spawn-thread(i);
+
+define method spawn-thread(i) => ()
+  make(<thread>, function: method() sleep(i) end);
+  values();
+end;
+/*
+begin
+  while(#t)
+    block()
+      spawn-thread(1);
+      collect-garbage();
+    exception (c :: <condition>)
+      sleep(1);
+    end;
+  end
+//  main();
+end;
+
+
+*/

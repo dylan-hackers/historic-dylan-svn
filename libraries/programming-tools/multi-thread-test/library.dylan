@@ -14,4 +14,7 @@ define module multi-thread-test
   use threads;
   use format-out;
   use simple-random;
+  use standard-io;
+  use streams;
+  use format;
 end;
