@@ -340,6 +340,14 @@ define method generate-atom (con :: <content>, #key)
 end;
 
 define method generate-atom (con :: <xhtml-content>, #key)
+  local method change-prefix (elements :: <sequence>)
+      for (element in elements)
+        element.prefix := "xhtml";
+        if (element.node-children.size > 0)
+          change-prefix(choose(rcurry(instance?, <element>), element.node-children));
+        end if;
+      end for;
+    end;
   let document = parse-document(concatenate("<div>", con.content, "</div>"));
   if (document)
     let atom-content = with-xml()
@@ -350,6 +358,7 @@ define method generate-atom (con :: <xhtml-content>, #key)
     atom-content.node-children[0].xml-name := "xhtml:div";
     atom-content.node-children[0].node-children :=
       root(document).node-children;
+    change-prefix(choose(rcurry(instance?, <element>), atom-content.node-children[0].node-children));  
     atom-content;
   else
     next-method();
