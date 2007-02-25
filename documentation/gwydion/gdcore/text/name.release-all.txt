@@ -1,7 +1,9 @@
 Function: release-all
 ==============================
 
-A function.
+Release a notification to all the threads that are blocked and waiting for it.
+Those threads will then necessarily have to compete for the lock associated
+with the notification.
 
 
 Exported from:
@@ -12,7 +14,7 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<notification>#. 
+notification - An instance of #<notification>#. 
 
 
 

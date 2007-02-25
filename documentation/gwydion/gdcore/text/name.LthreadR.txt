@@ -1,7 +1,32 @@
 Class: <thread>
 ==============================
 
-A class.
+The class representing a thread of control executing a function.
+
+The function is called with no arguments in the empty dynamic environment of
+the new thread. The thread terminates when the function returns.
+
+The function is executable immediately. You can suspend a new thread (almost)
+immediately on creation by arranging for it to synchronize on an unavailable
+resource upon entry to the function.
+
+The optional _priority_ keyword provides a scheduling priority for the thread.
+The higher the value, the greater the priority. The default value is zero,
+which is also the value of the constant #$normal-priority#, one of several
+constants that correspond to useful priority levels. The library offers no way
+to change the priority of a thread dynamically.
+
+The following constants, listed in order of increasing value, may be useful as
+values for the optional priority keyword.
+
+- #$low-priority#
+- #$background-priority#
+- #$normal-priority#
+- #$interactive-priority#
+- #$high-priority#
+
+The _name_ keyword is a string that is used as the function's name for
+convenience purposes, such as debugging.
 
 
 Exported from:
@@ -15,6 +40,14 @@ Modifiers:
 concrete free sealed
 
 
+Make keywords:
+------------------------------
+function - An instance of #<function>#. Required. The function must not have
+           any required arguments.
+name     - An instance of #<string># or #f. The default is #f.
+priority - An instance of #<integer>#. The default is #$normal-priority#.
+
+
 Superclasses:
 ------------------------------
 - #<object>#
@@ -23,6 +56,7 @@ Superclasses:
 Functions on <thread>:
 ------------------------------
 - #join-thread#
+- #thread-name#
 
 
 Functions returning <thread>:

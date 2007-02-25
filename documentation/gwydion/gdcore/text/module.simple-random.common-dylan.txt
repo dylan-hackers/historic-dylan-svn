@@ -1,7 +1,7 @@
 Module: Module simple-random
 ==============================
 
-The simple-random module.
+A simple facility for generating pseudo-random integers.
 
 
 Exported from:

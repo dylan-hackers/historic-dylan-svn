@@ -33,6 +33,7 @@ Functions on <float>:
 - #float-digits#
 - #float-precision#
 - #float-radix#
+- #float-to-string#
 - #integer-decode-float#
 - #scale-float#
 

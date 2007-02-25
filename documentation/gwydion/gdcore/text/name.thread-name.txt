@@ -1,7 +1,7 @@
 Generic: thread-name
 ==============================
 
-A generic function.
+Returns the name of a thread.
 
 
 Exported from:
@@ -17,12 +17,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+thread - An instance of #<thread>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+name-or-false - An instances of #<string># or #f. 
 
 
 

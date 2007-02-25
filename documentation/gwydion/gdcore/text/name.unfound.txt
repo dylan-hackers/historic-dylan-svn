@@ -1,7 +1,8 @@
 Function: unfound
 ==============================
 
-A function.
+Returns the unique "unfound" value, #$unfound#. Useful to indicate that a
+search has failed.
 
 
 Exported from:
@@ -12,7 +13,11 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of <unfound-marker>. 
+val - The value #$unfound#. 
 
 
-
+See also:
+------------------------------
+- #found?#
+- #unfound?#
+- #$unfound#

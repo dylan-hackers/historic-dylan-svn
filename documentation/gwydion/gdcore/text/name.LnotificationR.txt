@@ -1,7 +1,66 @@
 Class: <notification>
 ==============================
 
-A class.
+The class of objects that can be used to notify threads of a change of state
+elsewhere in the program. Notifications are used in association with locks,
+and are sometimes called condition variables. They may be used to support the
+sharing of data between threads using monitors. Each #<notification># is
+permanently associated with a #<simple-lock>#, although the same lock may be
+associated with many notifications.
+
+The required lock is associated with the notification, and it is only possible
+to wait for, or release, the notification if the lock is owned.
+
+Threads wait for the change of state to be notified by calling #wait-for#.
+Threads notify other threads of the change of state by calling #release#.
+
+
+Example:
+------------------------------
+This example shows how to use a notification and an associated lock to
+implement a queue. The variable _*queue*_ is the actual queue object (a
+#<deque>#). Queue access is performed by interlocking pushes and pops on the
+#<deque>#. The _*queue*_ variable can be a constant, since it is the #<deque>#
+which is mutated and not the value of _*queue*_.
+
+: define constant *queue* = make(<deque>);
+
+The variable _*lock*_ is used to isolate access to the queue
+
+: define constant *lock* = make(<lock>);
+
+The variable _*something-queued*_ is a notification which is used to notify
+other threads that an object is being put onto an empty queue.
+
+: define constant *something-queued* =
+:   make(<notification>, lock: *lock*);
+
+The function _put-on-queue_ pushes an object onto the queue. If the queue was
+initially empty, then all threads which are waiting for the queue to fill are
+notified that there is a new entry.
+
+: define method put-on-queue (object) => ()
+:   with-lock (*lock*)
+:     if (*queue*.empty?)
+:       release-all(*something-queued*)
+:     end;
+:     push(*queue*, object)
+:   end with-lock
+: end method;
+
+The _get-from-queue_ function returns an object from the queue. If no object
+is immediately available, then it blocks until it receives a notification that
+the queue is no longer empty. After receiving the notification it tests again
+to see if an object is present, in case it was popped by another thread.
+
+: define method get-from-queue () => (object)
+:   with-lock (*lock*)
+:     while (*queue*.empty?) 
+:       wait-for(*something-queued*) 
+:     end;
+:     pop(*queue*)
+:   end with-lock
+: end method;
 
 
 Exported from:
@@ -15,6 +74,11 @@ Modifiers:
 concrete free sealed
 
 
+Make keyword:
+------------------------------
+lock: - An instance of #<simple-lock>#. Required.
+
+
 Superclasses:
 ------------------------------
 - #<synchronization>#
@@ -22,6 +86,7 @@ Superclasses:
 
 Functions on <notification>:
 ------------------------------
+- #associated-lock#
 - #release-all#
 
 

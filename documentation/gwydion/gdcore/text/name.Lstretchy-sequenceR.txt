@@ -1,7 +1,7 @@
 Class: <stretchy-sequence>
 ==============================
 
-A class.
+The class of stretchy sequences.
 
 
 Exported from:
@@ -19,7 +19,7 @@ abstract free open
 Superclasses:
 ------------------------------
 - #<stretchy-collection>#
- - #<sequence>#
+- #<sequence>#
  
 
 Subclasses:

@@ -1,7 +1,7 @@
 Macro: debug-assert
 ==============================
 
-A macro.
+Identical to #assert#.
 
 
 Exported from:
@@ -11,10 +11,6 @@ Exported from:
 - #Module common-extensions#
 
 
-Definition:
+See:
 ------------------------------
-:
-          function macro
-        
-
-
+#assert#

@@ -1,8 +1,9 @@
 Function: subclass
 ==============================
 
-A function.
-
+Returns a type representing a class and its subclasses. Without #subclass#,
+methods on generic functions (such as #make# and #as#) that take types as
+arguments are impossible to reuse without resorting to ad hoc techniques.
 
 Exported from:
 ------------------------------
@@ -13,12 +14,14 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<class>#. 
+class - An instance of #<class>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<subclass>#. 
+subclass-type - An instance of #<subclass>#. 
 
 
-
+See also:
+------------------------------
+#Subclass relationships#

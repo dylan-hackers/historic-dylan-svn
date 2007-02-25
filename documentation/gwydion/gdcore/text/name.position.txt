@@ -1,7 +1,15 @@
 Generic: position
 ==============================
 
-A generic function.
+Returns the key at which a particular value occurs in a sequence.
+
+If _predicate_ is supplied, #position# uses it as an equivalence predicate for
+comparing _sequence_'s elements to _value_. It should take two objects and
+return a boolean. The default predicate used is #==#.
+
+The _skip_ argument is interpreted as it is by Dylan's #find-key# function.
+#position# ignores the first _skip_ elements that match _value_, and if _skip_
+or fewer elements satisfy _predicate_, it returns #f.
 
 
 Exported from:
@@ -17,16 +25,15 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-arg - An instance of #<object>#. 
-predicate: - An instance of #<function>#. Required.
-skip: - An instance of #<integer>#. Required.
-count: - An instance of #<object>#. The default is #f.
+sequence - An instance of #<sequence>#. 
+value - An instance of #<object>#. 
+predicate: - An instance of #<function>#. Defaults to #==#.
+skip: - An instance of #<integer>#. Defaults to 0.
 
 
 Values:
 ------------------------------
-val - An instance of type-union(<integer>, <false>). 
+key - An instance of type-union(<integer>, <false>). 
 
 
 

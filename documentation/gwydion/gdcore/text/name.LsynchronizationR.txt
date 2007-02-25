@@ -1,7 +1,16 @@
 Class: <synchronization>
 ==============================
 
-A class.
+The class of objects that are used for inter-thread synchronization.
+
+There is no explicit mechanism in the library to block on a number of
+synchronization objects simultaneously, until synchronization can be achieved
+with one of them. This mechanism can be implemented by creating a new thread
+to wait for each synchronization object, and arranging for each thread to
+release a notification once synchronization has been achieved.
+
+The _name_ keyword is a string that is used as the synchronization object's
+name for convenience purposes, such as debugging.
 
 
 Exported from:
@@ -13,6 +22,11 @@ Exported from:
 Modifiers:
 ------------------------------
 abstract free open
+
+
+Make keywords:
+------------------------------
+name: - An instance of #<string>#. Optional.
 
 
 Superclasses:

@@ -1,7 +1,17 @@
 Function: fill-table!
 ==============================
 
-A function.
+Fills a table with the keys and elements supplied.
+
+This function interprets _keys-and-elements_ as key-element pairs, that is, it
+treats the first element as a table key, the second as the table element
+corresponding to that key, and so on. The keys and elements should be suitable
+for table.
+
+Because _keys-and-elements_ is treated as a sequence of paired key-element
+values, it should contain an even number of elements; if it contains an odd
+number of elements, #fill-table!# ignores the last element (which would have
+been treated as a key).
 
 
 Exported from:
@@ -12,13 +22,14 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<table>#. 
-arg - An instance of #<sequence>#. 
+table             - An instance of #<table>#. 
+keys-and-elements - An instance of #<sequence>#, containing alternate keys and
+                    elements.
 
 
 Values:
 ------------------------------
-val - An instance of #<table>#. 
+table - An instance of #<table>#. 
 
 
 

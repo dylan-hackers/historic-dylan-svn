@@ -1,7 +1,12 @@
 Macro: table-definer
 ==============================
 
-A macro.
+Defines a constant binding in the current module and initializes it to a new table object. If the argument _type_ is supplied, the new table created is an instance of that type. Therefore type must be #<table># or a subclass thereof. If _type_ is not supplied, the new table created is an instance of a concrete subclass of #<table>#.
+
+: define table $colors :: <object-table>
+:   = { #"red"    => $red,
+:       #"green"  => $green,
+:       #"blue"   => $blue };
 
 
 Exported from:
@@ -10,10 +15,16 @@ Exported from:
 - #Module common-extensions#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          list-style define macro
-        
+: define table (name) :: (type) = { (key) => (element), ... }
+
+
+Arguments:
+------------------------------
+name    - A variable name.
+type    - A class. Optional. Defaults to #<table>#.
+key     - An expression for the key of the element.
+element - An expression for an element
 
 

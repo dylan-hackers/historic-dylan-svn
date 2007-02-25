@@ -1,7 +1,7 @@
 Constant: $maximum-signed-machine-word
 ==============================
 
-A constant.
+The largest machine word, when interpreted as a signed integer value.
 
 
 Exported from:

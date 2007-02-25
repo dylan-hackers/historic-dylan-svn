@@ -1,7 +1,8 @@
 Class: <timeout-exceeded>
 ==============================
 
-A class.
+This is signaled when #with-lock# did not succeed in claiming a lock within
+the timeout period.
 
 
 Exported from:
@@ -17,8 +18,7 @@ concrete free sealed
 
 Superclasses:
 ------------------------------
-- <synchronization-condition>
- - #<serious-condition>#
+- #<serious-condition>#
  
 
 

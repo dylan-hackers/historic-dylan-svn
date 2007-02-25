@@ -36,14 +36,15 @@ table - An instance of #<table>#.
 Values:
 ------------------------------
 test-function - An instance of #<function>#. Its signature is
-                test-function(_key1_, _key2_) ⇒ _boolean_.
+                test-function( _key1_, _key2_ ) ⇒ _boolean_.
 
               - _test-function_ is used to compare keys. It returns true if
                 the keys are members of the same equivalence class according
                 to the table's equivalence predicate.
 
 hash-function - An instance of #<function>#. Its signature is
-                hash-function(_key_) ⇒ (_id_, _state_)
+                hash-function( _key_, _initial-state_ ) ⇒
+                ( _id_, _result-state_ )
 
               - _hash-function_ computes the hash code of the _key_, using the
                 hash function associated with the table's equivalence

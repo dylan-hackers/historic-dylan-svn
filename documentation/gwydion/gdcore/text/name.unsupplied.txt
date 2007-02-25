@@ -1,7 +1,8 @@
 Function: unsupplied
 ==============================
 
-A function.
+Returns the unique "unsupplied" value. Useful as a default value for keyword
+arguments.
 
 
 Exported from:
@@ -15,4 +16,7 @@ Values:
 val - An instance of #<object>#. 
 
 
-
+See also:
+------------------------------
+- #supplied?#
+- #unsupplied?#

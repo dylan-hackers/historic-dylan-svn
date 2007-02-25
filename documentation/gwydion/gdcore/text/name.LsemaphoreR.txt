@@ -1,7 +1,18 @@
 Class: <semaphore>
 ==============================
 
-A class.
+The class of traditional counting semaphores. An instance of #<semaphore>#
+contains a counter in its internal state. Calling #release# on a semaphore
+increments the internal count. Calling #wait-for# on a semaphore decrements
+the internal count, unless it is zero, in which case the thread blocks until
+another thread releases the semaphore.
+
+Semaphores are less efficient than exclusive locks, but they have asynchronous
+properties which may be useful (for example for managing queues or pools of
+shared resources). Semaphores may be released by any thread, so there is no
+built-in concept of a thread owning a semaphore. It is not necessary for a
+thread to release a semaphore after waiting for it -- although semaphores may
+be used as locks if they do.
 
 
 Exported from:
@@ -14,6 +25,18 @@ Modifiers:
 ------------------------------
 concrete primary open
 
+
+Make keywords:
+------------------------------
+initial-count - An instance of #<integer>#. This is a non-negative value
+                corresponding to the initial state of the internal counter.
+                The default value is 0.
+
+maximum-count - An instance of #<integer>#. This is a non-negative value
+                corresponding to the maximum permitted value of the internal
+                counter. The default value is the largest value supported by
+                the implementation, not be smaller than 10000.
+                
 
 Superclasses:
 ------------------------------

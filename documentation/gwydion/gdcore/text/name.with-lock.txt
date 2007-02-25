@@ -1,7 +1,12 @@
 Macro: with-lock
 ==============================
 
-A macro.
+Holds a lock while executing a body of code. If a _failure_ clause is
+supplied, then it will be evaluated and its values returned from #with-lock#
+if the lock cannot be claimed (because a timeout occurred). The default, if no
+_failure_ clause is supplied, is to signal an exception of class
+#<timeout-exceeded>#. If there is no failure, #with-lock# returns the results
+of evaluating the body.
 
 
 Exported from:
@@ -10,10 +15,19 @@ Exported from:
 - #Module threads#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          statement macro
-        
+: with-lock ( (lock), (keys) )
+:   (body)
+: failure (failure)
+: end
+
+
+Arguments:
+------------------------------
+lock    - An instance of #<lock>#. The lock to claim.
+keys    - Optional keyword parameters to #with-lock#.
+body    - A series of semicolon-separated expressions.
+failure - An optional value to return if the _lock_ cannot be claimed.        
 
 

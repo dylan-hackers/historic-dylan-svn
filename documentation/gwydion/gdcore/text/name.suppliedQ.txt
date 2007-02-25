@@ -1,7 +1,7 @@
 Function: supplied?
 ==============================
 
-A function.
+Returns true if its argument, the keyword argument of a function, is not the unique "unsupplied" value, and false if it is.
 
 
 Exported from:
@@ -12,12 +12,15 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+object - An instance of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+supplied? - An instance of #<boolean>#. 
 
 
-
+See also:
+------------------------------
+- #unsupplied#
+- #unsupplied?#

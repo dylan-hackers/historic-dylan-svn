@@ -1,7 +1,10 @@
 Class: <recursive-lock>
 ==============================
 
-A class.
+The class of locks that can be locked recursively. A thread can lock a
+#<recursive-lock># multiple times, recursively, but the lock must later be
+released the same number of times. The lock will be freed on the last of these
+releases.
 
 
 Exported from:

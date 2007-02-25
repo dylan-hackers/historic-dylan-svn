@@ -1,7 +1,7 @@
 Module: Module functional-extensions
 ==============================
 
-The functional-extensions module.
+Provided for backward compatibility.
 
 
 Exported from:

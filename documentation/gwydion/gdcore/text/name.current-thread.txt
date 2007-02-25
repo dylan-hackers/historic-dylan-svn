@@ -1,7 +1,7 @@
 Function: current-thread
 ==============================
 
-A function.
+Returns the current thread.
 
 
 Exported from:
@@ -12,7 +12,7 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of #<thread>#. 
+thread - An instance of #<thread>#. 
 
 
 

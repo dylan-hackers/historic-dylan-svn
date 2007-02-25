@@ -1,7 +1,26 @@
 Macro: function-definer
 ==============================
 
-A macro.
+Defines a constant binding in the current module and initializes it to a new
+function.
+
+The following functions return the same values as they would if the function
+had been defined as a bare method with the same signature:
+
+- #function-specializers#
+- #function-arguments#
+- #function-return-values# 
+
+Calling some of the following reflective operations on a function defined with
+_define function_ may be an error:
+
+- #generic-function-methods#
+- #add-method#
+- #generic-function-mandatory-keywords#
+- #sorted-applicable-methods#
+- #find-method#
+- #remove-method#
+- #applicable-method?#
 
 
 Exported from:
@@ -10,10 +29,23 @@ Exported from:
 - #Module Dylan#
 
 
-Definition:
+Macro Call:
 ------------------------------
-:
-          body-style define macro
+: define (adjectives) function (name) (parameters) => (values) (options)
+:   (body)
+: end function (name)
+
+
+Arguments:
+------------------------------
+adjectives - Gwydion Dylan allows the following adjectives: not-inline,
+             default-inline, may-inline, inline, inline-only, movable,
+             flushable. The default is sealed. See #Define adjectives#.
+name       - A binding name.
+parameters - A parameter list. May be empty.
+values     - A value list. May be omitted.
+body       - A method body; a series of semicolon-separated expressions.
+
         
 
 

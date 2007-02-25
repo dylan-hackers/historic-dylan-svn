@@ -1,7 +1,7 @@
 Function: debug-message
 ==============================
 
-A function.
+Formats a string and outputs it to the debugger. Calls #debugger-message#.
 
 
 Exported from:
@@ -13,8 +13,9 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<byte-string>#. 
-#rest more - Instances of #<object>#. 
+format-string     - An instance of #<byte-string>#. 
+#rest format-args - Instances of #<object>#. Parameters to substitute for
+                    format directives in _format-string_.
 
 
 

@@ -80,7 +80,6 @@ Functions on <object>:
 - #as-lowercase#
 - #as-lowercase!#
 - #assoc#
-- #associated-lock#
 - #as-uppercase#
 - #as-uppercase!#
 - #break#
@@ -127,7 +126,6 @@ Functions on <object>:
 - #debugger-message#
 - #debug-message#
 - #dest-index#
-- #difference#
 - #direct-instance-of#
 - #disjoin#
 - #do#
@@ -164,7 +162,6 @@ Functions on <object>:
 - #first#
 - #first-setter#
 - #float-decimal-digits#
-- #float-to-string#
 - #foldl#
 - #foldr#
 - #format#
@@ -192,7 +189,6 @@ Functions on <object>:
 - #instance?#
 - #integral?#
 - #intersection#
-- #join-thread#
 - #key-exists?#
 - #last#
 - #last-setter#
@@ -368,7 +364,6 @@ Functions on <object>:
 - #tail-setter#
 - #third#
 - #third-setter#
-- #thread-name#
 - #tightly-bound-to-next-token?#
 - #token-value#
 - #translate#
@@ -421,7 +416,6 @@ Functions returning <object>:
 - #as-lowercase#
 - #as-lowercase!#
 - #assoc#
-- #associated-lock#
 - #as-uppercase#
 - #as-uppercase!#
 - #backward-iteration-protocol#
@@ -477,7 +471,6 @@ Functions returning <object>:
 - #first#
 - #first-setter#
 - #float-decimal-digits#
-- #float-to-string#
 - #format-out#
 - #forward-iteration-protocol#
 - #ftp-parser#
@@ -623,7 +616,6 @@ Functions returning <object>:
 - #tail-setter#
 - #third#
 - #third-setter#
-- #thread-name#
 - #tightly-bound-to-next-token?#
 - #token-value#
 - #type-error-location#

@@ -1,7 +1,7 @@
 Function: found?
 ==============================
 
-A function.
+Returns true if an object is not equal to #$unfound#, and false otherwise.
 
 
 Exported from:

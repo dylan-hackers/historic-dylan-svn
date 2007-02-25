@@ -1,7 +1,28 @@
 Class: <read-write-lock>
 ==============================
 
-A class.
+The class of locks that can have multiple readers but only one writer.
+
+The #<read-write-lock># class can be locked in either of two modes, _read_ and
+_write_. A _write_ lock is exclusive, and implies ownership of the lock.
+However, a _read_ lock is non-exclusive, and an instance can be locked
+multiple times in read mode, whether by multiple threads, recursively by a
+single thread, or a combination of both.
+
+A #<read-write-lock># can only be locked in _write_ mode if the lock is free,
+and the operation will block if necessary. It can only be freed by the thread
+that owns it.
+
+A #<read-write-lock># can be locked in _read_ mode provided that it is not
+owned with a _write_ lock. The operation will block while the lock is owned.
+Each time it is locked in _read_ mode, an internal counter is incremented.
+This counter is decremented each time a read-mode lock is released. The lock
+is freed when the counter becomes zero.
+
+The #<read-write-lock># class is less efficient than the other lock classes
+defined in the Threads library. However, it provides an efficient and
+convenient means to protect data that is frequently read and may occasionally
+be written by multiple concurrent threads.
 
 
 Exported from:

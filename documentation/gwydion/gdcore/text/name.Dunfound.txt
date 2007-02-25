@@ -1,7 +1,7 @@
 Constant: $unfound
 ==============================
 
-A constant.
+A unique value that can be used to indicate that a search operation failed.
 
 
 Exported from:
@@ -19,3 +19,9 @@ Value:
 ------------------------------
 unknown
 
+
+See also:
+------------------------------
+- #found?#
+- #unfound?#
+- #unfound#

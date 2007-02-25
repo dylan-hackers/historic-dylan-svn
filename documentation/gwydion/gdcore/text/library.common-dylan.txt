@@ -10,7 +10,6 @@ Topic: common-dylan modules
 - #Module common-dylan#
 - #Module common-extensions#
 - #Module Dylan#
-- #Module finalization#
 - #Module functional-extensions#
 - #Module functional-objects-extras#
 - #Module gwydion-extensions#

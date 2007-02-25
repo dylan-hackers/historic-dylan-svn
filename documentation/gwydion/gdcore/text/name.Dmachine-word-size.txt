@@ -1,7 +1,7 @@
 Constant: $machine-word-size
 ==============================
 
-A constant.
+The number of bits in the representation of a #<machine-word>#.
 
 
 Exported from:

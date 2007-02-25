@@ -12,7 +12,7 @@ be independent of the order in which the argument pairs are provided. If true,
 then the order of the argument pairs matters because the algorithm used need
 not be either commutative or associative. It is best to provide a true value
 for ordered when possible, as this may result in a better distribution of hash
-ids. However, ordered must only be true if this will not cause the hash
+ids. However, _ordered_ must only be true if this will not cause the hash
 function to violate the second constraint on hash functions, described on page
 123 of the _Dylan Reference Manual_.
 

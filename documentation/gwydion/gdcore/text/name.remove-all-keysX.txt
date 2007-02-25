@@ -4,6 +4,9 @@ Generic: remove-all-keys!
 Remove all keys from a table. This function iterates through all the keys and
 calls #remove-key!# on each one.
 
+_Note_: To empty collections that are not instances of
+#<mutable-explicit-key-collection>#, use #size-setter#.
+
 
 Exported from:
 ------------------------------

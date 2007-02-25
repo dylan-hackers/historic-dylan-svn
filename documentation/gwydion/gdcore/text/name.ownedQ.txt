@@ -1,7 +1,7 @@
 Generic: owned?
 ==============================
 
-A generic function.
+Tests whether an exclusive lock has been claimed by the current thread.
 
 
 Exported from:
@@ -17,12 +17,16 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<exclusive-lock>#. 
+object - An instance of #<exclusive-lock>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+owned? - An instance of #<boolean>#. 
 
 
 
+Methods: owned?
+==============================
+owned? - The method on #<read-write-lock># returns true if the current thread
+         owns the lock in write mode.

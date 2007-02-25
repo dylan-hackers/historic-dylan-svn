@@ -1,7 +1,10 @@
 Class: <simple-lock>
 ==============================
 
-A class.
+A simple and efficient lock. The #<simple-lock># class represents the most
+simple and efficient mutual exclusion synchronization primitive. It is an
+error to lock a #<simple-lock># recursively. An attempt to do so might result
+in an error being signaled, or deadlock occurring.
 
 
 Exported from:
@@ -20,4 +23,6 @@ Superclasses:
 - #<exclusive-lock>#
  
 
-
+Functions returning <simple-lock>:
+------------------------------
+- #associated-lock#

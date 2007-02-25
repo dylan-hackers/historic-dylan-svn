@@ -1,7 +1,20 @@
 Class: <lock>
 ==============================
 
-A class.
+The class of locks. Locks are synchronization objects which change state when
+they are _claimed_ (using #wait-for#), and revert state when _released_ (using
+#release#).
+
+It is normally necessary for programs to ensure that locks are released,
+otherwise there is the possibility of deadlock. Locks may be used to restrict
+the access of other threads to shared resources between the synchronization
+and the release. It is common for a protected operation to be performed by a
+body of code which is evaluated in a single thread between synchronization and
+release. A macro #with-lock# is provided for this purpose. When a thread uses
+a lock for mutual exclusion in this way, the thread is said to _own the lock_.
+
+#<lock># has no direct instances; calling #make# on #<lock># returns an
+instance of #<simple-lock>#.
 
 
 Exported from:

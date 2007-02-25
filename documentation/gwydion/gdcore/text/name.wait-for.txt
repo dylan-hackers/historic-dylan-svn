@@ -1,7 +1,15 @@
 Generic: wait-for
 ==============================
 
-A generic function.
+Blocks until a synchronization object is available.
+
+This function is the basic blocking primitive of the Threads library. It
+blocks until _object_ is available and synchronization can be achieved, or the
+timeout interval has expired. A non-blocking synchronization may be attempted
+by specifying a timeout of zero. Individual methods may adjust the state of
+the synchronization object on synchronization. The function returns #t if
+synchronization is achieved before the timeout interval elapses; otherwise it
+returns #f.
 
 
 Exported from:
@@ -17,13 +25,38 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<synchronization>#. 
-timeout: - An instance of type-union(<false>, <real>). The default is #f.
+object   - An instance of #<synchronization>#. 
+timeout: - An instance of type-union(<false>, <real>). Time-out interval. If
+           #f, the time-out interval never elapses. Otherwise, the #<real>#
+           value corresponds to the desired interval in seconds. The default
+           is #f.
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+success - An instance of #<boolean>#. 
 
 
 
+Method: wait-for
+==============================
+
+Claims a read-write lock, blocking if necessary. The behavior depends on the value of _mode_:
+
+#"read"  - If there is a write lock, blocks until the lock becomes free. Then
+           claims the lock by incrementing its internal read-lock counter.
+
+#"write" - First waits until the lock becomes free, by blocking if necessary.
+           Then claims exclusive ownership of the lock in write mode. If the
+           claim is successful, this method returns true; otherwise it returns
+           false.
+           
+
+Arguments:
+------------------------------
+object   - An instance of #<read-write-lock>#. 
+timeout: - An instance of type-union(<false>, <real>). Time-out interval. If
+           #f, the time-out interval never elapses. Otherwise, the #<real>#
+           value corresponds to the desired interval in seconds. The default
+           is #f.
+mode:    - One of #"read", #"write". The default is #"read".

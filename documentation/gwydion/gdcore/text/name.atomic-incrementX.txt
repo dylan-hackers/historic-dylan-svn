@@ -1,7 +1,15 @@
 Macro: atomic-increment!
 ==============================
 
-A macro.
+Atomically increments a variable containing a numeric value. The value of the
+variable is evaluated one or more times to determine the initial value. A new
+value is computed from this value by adding 1 using #+#. The new value is
+atomically stored back into _var_. The macro returns the new value of _var_.
+
+The following example atomically increments _*number-detected*_ by 1, and
+returns the incremented value.
+
+: atomic-increment!(*number-detected*);
 
 
 Exported from:
@@ -9,10 +17,13 @@ Exported from:
 - #Module threads#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
-        
+: atomic-increment!( (var) )
+
+
+Arguments:
+------------------------------
+var - A variable name.
 
 

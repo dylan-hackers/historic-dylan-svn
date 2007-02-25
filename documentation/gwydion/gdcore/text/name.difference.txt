@@ -1,8 +1,11 @@
 Generic: difference
 ==============================
 
-A generic function.
+Returns a sequence containing the elements of one sequence that are not
+members of a second. You can supply a membership test function as _test_.
 
+> difference(#(1,2,3), #(2,3,4)); 
+>   ⇒ #(1)
 
 Exported from:
 ------------------------------
@@ -18,14 +21,14 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<sequence>#. 
-arg - An instance of #<sequence>#. 
-test: - An instance of #<object>#. The default is #f.
+sequence-1 - An instance of #<sequence>#. 
+sequence-2 - An instance of #<sequence>#. 
+test:      - An instance of #<function>#. The default is #==#.
 
 
 Values:
 ------------------------------
-val - An instance of #<sequence>#. 
+result-sequence - An instance of #<sequence>#. 
 
 
 

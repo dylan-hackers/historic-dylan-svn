@@ -1,7 +1,23 @@
 Function: join-thread
 ==============================
 
-A function.
+Waits for another, existing, thread to terminate, by blocking if necessary,
+and then returns the values of its function. The function returns the thread
+object that was joined, along with any values its function returns.
+
+If more than one thread is passed to #join-thread#, the current thread blocks
+until the first of those threads terminates. The values returned are those of
+the first thread to terminate.
+
+If one or more of the multiple threads has already terminated at the time of
+the call, then one of those terminated threads is joined. When more than one
+thread has already terminated, it is undefined which of those threads the
+implementation will join.
+
+It is an error to pass a thread to #join-thread# if it has already been joined
+in a previous call to #join-thread#. It is an error to pass a thread to
+#join-thread# if that thread is also being processed by another simultaneous
+call to #join-thread# from another thread.
 
 
 Exported from:
@@ -12,14 +28,15 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<thread>#. 
-#rest more - Instances of #<object>#. 
+thread        - An instance of #<thread>#. A thread to join.
+#rest threads - Instances of #<thread>#. More threads to join.
 
 
 Values:
 ------------------------------
-val - An instance of #<thread>#. 
-#rest more - Instances of #<object>#. 
+thread-joined - An instance of #<thread>#. The thread that was joined.
+#rest more    - Zero or more instances of #<object>#. The values returned from
+                the thread that was joined.
 
 
 

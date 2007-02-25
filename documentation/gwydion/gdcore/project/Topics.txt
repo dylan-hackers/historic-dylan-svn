@@ -6,7 +6,7 @@ Format: 1.35
 # instead.
 
 
-Ignore Keywords: key, note
+Ignore Keywords: key, note, object, target
 
 
 #-------------------------------------------------------------------------------

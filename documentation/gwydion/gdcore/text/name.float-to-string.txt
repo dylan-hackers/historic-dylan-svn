@@ -1,7 +1,8 @@
 Generic: float-to-string
 ==============================
 
-A generic function.
+Formats a floating-point number to a string. It uses scientific notation where
+necessary.
 
 
 Exported from:
@@ -17,12 +18,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+float - An instance of #<float>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+string - An instance of #<string>#. 
 
 
 

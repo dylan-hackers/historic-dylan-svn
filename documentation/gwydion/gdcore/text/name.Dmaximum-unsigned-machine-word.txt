@@ -1,7 +1,7 @@
 Constant: $maximum-unsigned-machine-word
 ==============================
 
-A constant.
+The largest machine word, when interpreted as an unsigned integer value.
 
 
 Exported from:

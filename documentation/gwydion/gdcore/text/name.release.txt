@@ -1,7 +1,10 @@
 Generic: release
 ==============================
 
-A generic function.
+Releases a synchronization object, potentially making it available to other
+threads. Individual methods describe what this means for each class of
+synchronization. This function does not block for any of the subclasses of
+#<synchronization># provided by the library.
 
 
 Exported from:
@@ -17,7 +20,7 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<synchronization>#. 
+object - An instance of #<synchronization>#. 
 
 
 

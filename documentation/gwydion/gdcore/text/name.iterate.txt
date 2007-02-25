@@ -1,7 +1,13 @@
 Macro: iterate
 ==============================
 
-A macro.
+Defines a function that can be used to iterate over a body. It is similar to
+#for#, but allows you to control when iteration will occur.
+
+It creates a function called _name_ which will perform a single step of the
+iteration at a time; _body_ can call _name_ whenever it wants to iterate
+another step. The form evaluates by calling the new function with the initial
+values specified.
 
 
 Exported from:
@@ -10,10 +16,18 @@ Exported from:
 - #Module common-extensions#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          statement macro
+: iterate (name) ( (argument) = (init-value), ... )
+:   (body)
+: end iterate
         
 
+Arguments:
+------------------------------
+name       - Name of a function to be defined.
+argument   - An argument for _name_. Optional.
+init-value - Optional initial value for _argument_.
+body       - Iteration body. May call the _name_ function with _arguments_ to
+             repeat.
 

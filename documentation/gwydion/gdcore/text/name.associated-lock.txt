@@ -1,7 +1,7 @@
 Generic: associated-lock
 ==============================
 
-A generic function.
+Returns the lock associated with a notification object.
 
 
 Exported from:
@@ -17,12 +17,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+notification - An instance of #<notification>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+lock - An instance of #<simple-lock>#. 
 
 
 

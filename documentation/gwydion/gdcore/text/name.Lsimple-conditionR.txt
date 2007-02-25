@@ -1,7 +1,7 @@
 Class: <simple-condition>
 ==============================
 
-A class.
+The class of simple conditions.
 
 
 Exported from:

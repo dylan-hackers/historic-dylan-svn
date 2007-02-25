@@ -1,7 +1,7 @@
 Module: Module common-extensions
 ==============================
 
-The common-extensions module.
+Miscellaneous extensions to the Dylan language.
 
 
 Exported from:

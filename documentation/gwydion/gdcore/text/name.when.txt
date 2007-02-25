@@ -1,7 +1,14 @@
 Macro: when
 ==============================
 
-A macro.
+Executes a body if a test expression is true, and does nothing if the test is
+false. This macro behaves identically to Dylan's standard #if# statement
+macro, except that there is no alternative flow of execution when the test is
+false.
+
+: when (x < 0)
+:   ~ x;
+: end;
 
 
 Exported from:
@@ -10,10 +17,15 @@ Exported from:
 - #Module common-extensions#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          statement macro
-        
+: when ( (test) )
+:   (consequent)
+: end when
 
+        
+Arguments:
+------------------------------
+test       - An expression.
+consequent - A body; a series of semicolon-separated expressions.
 

@@ -1,7 +1,8 @@
 Class: <not-owned-error>
 ==============================
 
-A class.
+This may be signaled when an attempt is made to release a notification when
+the associated lock is not owned by the current thread.
 
 
 Exported from:
@@ -17,8 +18,7 @@ concrete free sealed
 
 Superclasses:
 ------------------------------
-- <synchronization-condition>
- - #<error>#
+- #<error>#
  
 
 

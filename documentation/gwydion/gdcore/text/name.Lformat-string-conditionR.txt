@@ -1,7 +1,7 @@
 Class: <format-string-condition>
 ==============================
 
-A class.
+The class of conditions that take a format string.
 
 
 Exported from:
@@ -29,4 +29,6 @@ Subclasses:
 - #<xml-error>#
 
 
-
+See also:
+------------------------------
+#Module format#

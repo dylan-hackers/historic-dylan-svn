@@ -1,7 +1,7 @@
 Constant: $minimum-signed-machine-word
 ==============================
 
-A constant.
+The smallest machine word, when interpreted as a signed integer value.
 
 
 Exported from:

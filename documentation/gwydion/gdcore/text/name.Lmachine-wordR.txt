@@ -1,7 +1,11 @@
 Class: <machine-word>
 ==============================
 
-A class.
+The class #<machine-word># represents a limited range of integral values. The
+representation used has the natural size suggested by the implementation
+architecture. On the PC, a #<machine-word># is 32 bits wide. The class
+#<machine-word># is disjoint from all other classes specified by the Dylan
+language.
 
 
 Exported from:

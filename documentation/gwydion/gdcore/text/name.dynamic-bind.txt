@@ -1,7 +1,35 @@
 Macro: dynamic-bind
 ==============================
 
-A macro.
+Executes a body of code in a context in which variables are dynamically
+rebound.
+
+This macro executes _body_ with the specified _variables_ rebound in the
+dynamic environment, each variable being initialized to the results of
+evaluating the _initialization_ expressions. In other words, the variables are
+initialized to new values on entry to the body but restored to their old
+values once the body has finished executing, whether because it finishes
+normally, or because of a non-local transfer of control. The _variables_ must
+be the name of a thread variable in the module scope.
+
+An alternative form calls a function to perform the actual re-binding. This
+function is named x-dynamic-binder, where _x_ is _binder-name_. This function
+is analogous to the x-setter functions used in expressions like x := 3. The
+function takes the _initialization_ value, the _body_, and optional additional
+arguments.
+
+The alternative form will work with the "." and "[]" syntaxes for function
+calls. For example,
+
+: dynamic-bind (object.a-slot = new-slot-val())
+:   inner-body(object)
+: end;
+
+expands into code equivalent to
+
+: a-slot-dynamic-binder(new-slot-val(),
+:             method () inner-body(object) end,
+:             object)
 
 
 Exported from:
@@ -9,10 +37,27 @@ Exported from:
 - #Module threads#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          statement macro
-        
+: dynamic-bind ( (variable) = (initialization), ... )
+:   (body)
+: end
 
+: dynamic-bind ( (binder-name) ( (args) ) = (initialization), ... )
+:   (body)
+: end
+
+
+Arguments:
+------------------------------
+variable       - A thread variable name.
+
+binder-name    - Part of a function name. The full function name is
+                 (binder-name)-dynamic-binder. The function's signature is
+                 ( _initialization_, _body_, _args_ ) => ().
+
+initialization - An expression, whose value is assigned to _variable_ in
+                 _body_ or passed to the _binder-name_ function.
+
+body           - A series of semicolon-separated expressions.
 

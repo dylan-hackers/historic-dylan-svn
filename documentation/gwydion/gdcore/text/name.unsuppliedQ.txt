@@ -1,7 +1,7 @@
 Function: unsupplied?
 ==============================
 
-A function.
+Returns true if its argument is equal to the unique "unsupplied" value, and false if it is not.
 
 
 Exported from:
@@ -20,4 +20,7 @@ Values:
 val - An instance of #<boolean>#. 
 
 
-
+See also:
+------------------------------
+- #supplied?#
+- #unsupplied#

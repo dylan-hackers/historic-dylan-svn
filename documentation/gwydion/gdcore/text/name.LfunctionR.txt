@@ -45,6 +45,7 @@ Functions on <function>:
 - #concatenate-map#
 - #conjoin#
 - #curry#
+- #difference#
 - #disjoin#
 - #do#
 - #do-directory#

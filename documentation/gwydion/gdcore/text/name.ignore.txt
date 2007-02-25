@@ -1,7 +1,8 @@
 Function: ignore
 ==============================
 
-A function.
+A compiler directive that tells the compiler it must not issue a warning if
+its argument is bound but not referenced.
 
 
 Exported from:
@@ -16,4 +17,6 @@ Arguments:
 #rest more - Instances of #<object>#. 
 
 
-
+See also:
+------------------------------
+#ignorable#

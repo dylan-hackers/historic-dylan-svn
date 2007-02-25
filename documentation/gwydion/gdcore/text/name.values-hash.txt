@@ -1,7 +1,14 @@
 Function: values-hash
 ==============================
 
-A function.
+Hashes the values passed to it. This function hashes every object in
+_arguments_ using _elem-hash-function_, and merges the resulting hash codes in
+order.
+
+The function _elem-hash-function_ must be suitable for use as a hash function.
+See page 123 of the _Dylan Reference Manual_.
+
+The _ordered_ keyword is passed on to #merge-hash-ids#.
 
 
 Exported from:
@@ -11,15 +18,15 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<function>#. 
-arg - An instance of #<false>#. 
-#rest more - Instances of #<object>#. 
+elem-hash-function - An instance of #<function>#. 
+initial-state      - An instance of #<hash-state>#. 
+#rest arguments    - Instances of #<object>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
-val - An instance of #<false>#. 
+hash-id      - An instance of #<integer>#. 
+result-state - An instance of #<hash-state>#. 
 
 
 

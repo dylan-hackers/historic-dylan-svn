@@ -1,7 +1,10 @@
 Generic: find-element
 ==============================
 
-A generic function.
+Returns an element from a collection such that the element satisfies a
+predicate. This function is identical to #find-key#, but it returns the
+element that satisfies _predicate_ rather than the key that corresponds to the
+element.
 
 
 Exported from:
@@ -17,10 +20,10 @@ open
 
 Arguments:
 ------------------------------
-arg - An instance of #<collection>#. 
-arg - An instance of #<function>#. 
-skip: - An instance of #<integer>#. Required.
-failure: - An instance of #<object>#. The default is #f.
+collection - An instance of #<collection>#. 
+predicate  - An instance of #<function>#. 
+skip:      - An instance of #<integer>#. The default is 0.
+failure:   - An instance of #<object>#. The default is #f.
 
 
 Values:

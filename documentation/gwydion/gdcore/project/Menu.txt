@@ -66,7 +66,6 @@ Group: Modules  {
    File: Dylan  (no auto-title, module.dylan.dylan.txt)
    File: Extensions  (no auto-title, module.extensions.dylan.txt)
    File: file-system  (no auto-title, module.file-system.system.txt)
-   File: finalization  (no auto-title, module.finalization.common-dylan.txt)
    File: format  (no auto-title, module.format.io.txt)
    File: format-out  (no auto-title, module.format-out.io.txt)
    File: functional-extensions  (no auto-title, module.functional-extensions.common-dylan.txt)

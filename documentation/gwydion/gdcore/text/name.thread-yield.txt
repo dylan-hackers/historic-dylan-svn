@@ -1,7 +1,10 @@
 Function: thread-yield
 ==============================
 
-A function.
+Force the current thread to yield control to the part of the implementation
+responsible for scheduling threads. Doing so may have the effect of allowing
+other threads to run, and may be essential to avoid deadlock in a co-operative
+scheduling environment.
 
 
 Exported from:

@@ -82,6 +82,7 @@ Functions returning <string>:
 ------------------------------
 - #as-iso8601-string#
 - #condition-format-string#
+- #float-to-string#
 - #format-to-string#
 - #integer-to-string#
 - #local-time-zone-name#
@@ -94,6 +95,7 @@ Functions returning <string>:
 - #print-to-string#
 - #regexp-replace#
 - #split#
+- #thread-name#
 - #translate#
 
 
