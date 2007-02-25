@@ -6,7 +6,7 @@ A generic function.
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Modifiers:

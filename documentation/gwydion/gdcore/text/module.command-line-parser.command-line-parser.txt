@@ -1,15 +1,15 @@
-Module: Module getopt
+Module: Module command-line-parser
 ==============================
 
-The getopt module.
+The command-line-parser module.
 
 
 Exported from:
 ------------------------------
-#Library getopt#
+#Library command-line-parser#
 
 
-Topic: getopt names
+Topic: command-line-parser names
 ------------------------------
 - #<argument-list-parser>#
 - #<keyed-option-parser>#

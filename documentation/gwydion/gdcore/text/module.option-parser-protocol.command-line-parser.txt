@@ -6,7 +6,7 @@ The option-parser-protocol module.
 
 Exported from:
 ------------------------------
-#Library getopt#
+#Library command-line-parser#
 
 
 Topic: option-parser-protocol names

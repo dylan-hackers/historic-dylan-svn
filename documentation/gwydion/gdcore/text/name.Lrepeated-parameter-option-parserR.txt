@@ -14,7 +14,7 @@ Example option forms:
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Modifiers:

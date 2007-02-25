@@ -15,7 +15,7 @@ can be extracted from an argument list parser. Subsequent calls to
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Modifiers:

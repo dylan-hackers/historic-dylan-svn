@@ -8,7 +8,7 @@ used to recover an option parser previously attached to an
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Arguments:

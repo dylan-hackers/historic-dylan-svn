@@ -8,7 +8,7 @@ arguments that weren't consumed by any option parser.
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Modifiers:

@@ -10,7 +10,7 @@ An option parser can be connected to an #<argument-list-parser># via #add-option
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Modifiers:

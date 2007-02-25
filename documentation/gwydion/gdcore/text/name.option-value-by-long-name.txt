@@ -11,7 +11,7 @@ If the option was not present, returns #f.
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Arguments:

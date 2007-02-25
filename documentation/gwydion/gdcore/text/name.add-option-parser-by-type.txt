@@ -13,7 +13,7 @@ Most programs will use this function instead of #add-option-parser#.
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Arguments:

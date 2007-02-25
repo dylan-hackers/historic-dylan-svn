@@ -8,7 +8,7 @@ command line. Returns #f if #parse-arguments# has not been called.
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Modifiers:

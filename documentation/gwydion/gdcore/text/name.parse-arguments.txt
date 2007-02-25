@@ -2,7 +2,7 @@ Function: parse-arguments
 ==============================
 
 Parses a list of command-line arguments. This routine does most of the work in
-the getopt library. It performs a number of different steps:
+the command-line-parser library. It performs a number of different steps:
 
 1. Split the argument list. If the string "--" appears in the argument list,
 discard it, and set aside everything to right for later processing.
@@ -30,7 +30,7 @@ If an error occurs during this process, parsing will stop immediately and
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Arguments:

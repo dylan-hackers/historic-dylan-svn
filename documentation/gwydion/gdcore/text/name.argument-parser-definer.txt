@@ -6,7 +6,7 @@ A macro.
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Definition:

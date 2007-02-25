@@ -10,7 +10,7 @@ The exact type of _value_ will vary depending on the class of the option parser.
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Modifiers:

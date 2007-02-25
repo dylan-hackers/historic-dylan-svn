@@ -10,7 +10,7 @@ result.
 
 Exported from:
 ------------------------------
-- #Module getopt#
+- #Module command-line-parser#
 
 
 Arguments:
