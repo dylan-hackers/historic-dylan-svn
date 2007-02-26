@@ -5,20 +5,14 @@ standard_header("Ports");
 
 <h3>Open Dylan</h3>
 
-<p>Open Dylan generates native code so porting it to different hardware
-architectures is non-trivial. It currently supports x86 machines running
-Windows or Linux. There is a partially written PowerPC backend. The
-development environment only runs on Windows until the GTK+ backend to DUIM
-is completed.</p>
+<p>The Open Dylan command-line compiler is supported on Windows XP, Linux,
+FreeBSD, and OS X.  However, Windows XP is the only platform on which there is
+GUI support (e.g., the IDE) and full debugging support.  GUI support on
+non-Windows platforms needs a gtk+ backend for DUIM.  Debugging support on
+non-Windows platforms needs a debugger nub.  Until then debugging on
+non-Windows platforms is accomplished with gdb and/or printf.</p>
 
 <h3>Gwydion Dylan</h3>
-
-<p>Several developers have volunteered to help out as soon as Gwydion is
-supported on their architecture. Porting Gwydion to a new species of Unix
-requires the new platform, an internet connection, and a few days work.
-Faster machines and network connections and a currently-supported platform
-handy nearby make the job easier but it's been done on isolated sub-100 MHz
-machines with a 56k modem.</p>
 
 <p>Currently supported platforms are</p>
 
