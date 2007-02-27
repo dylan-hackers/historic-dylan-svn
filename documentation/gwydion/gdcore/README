@@ -1,0 +1,712 @@
+This README covers the conventions I've been using when creating the gdcore
+documentation, and some instruction on how to format text files to produce
+correct HTML pages.
+
+  - Scope
+  - Organization and Pages
+  - Text File Format
+  - Titles
+  - Links and Headings
+  - API Headings
+  - Body Formatting
+  - Class API Layout
+  - Constant/Variable API Layout
+  - Function API Layout
+  - Generic API Layout
+  - Method API Layout
+  - Library and Module API Layout
+  - Macro API Layout
+  - Other Conventions
+
+
+=====
+Scope
+=====
+
+The gdcore docs cover the "core libraries," a term I've coined to describe the
+public non-domain-specific libraries included in a GD release. These are
+libraries that are useful to most applications. These do not include the
+libraries from trunk/libs, and do not cover matrices or testworks. The
+transcendentals libraries wouldn't be covered either, but since common-dylan
+includes transcendentals, the gdcore docs do too.
+
+I had removed everything with a % in the name. I saw these as internal APIs
+that were exposed as an implementation detail. Though it turns out that I
+should probably have left the machine-words stuff alone.
+
+I would prefer that any matrix, testworks, or trunk/libs documentation go in
+their respective directories, or in a parallel documentation directory.
+
+
+======================
+Organization and Pages
+======================
+
+This is mostly API reference documentation. I've included more general info in
+lang-notes.txt and env-notes.txt, mostly related to GD-specific extensions of
+the DRM. More conceptual pages can be added easily, and I've no objection if
+others were to do so. If much more gets added, it should probably be put in a
+new group in Menu.txt, and perhaps in a new subdirectory of gdcore/text.
+
+Each exported binding name gets its own page. In some cases, a binding name is
+used in different places to mean slightly different things. These have to go
+on the same page even so, because links are by display text only. If two HTML
+links are both to be named "foo", there can only be one "foo" as a target. You
+can't show "foo" but link to "foo (macro)" or "foo (function)" depending.
+
+
+================
+Text File Format
+================
+
+The text files should be in UTF-8. I word-wrap to 78 columns wide.
+
+Text files can freely include hyphen lines. A hyphen line is an ASCII
+horizontal rule or underline made of hyphens or equals, such as what I've been
+using to mark headings in this README. NaturalDocs treats these as blank
+lines.
+
+
+======
+Titles
+======
+
+The module and library pages are named "Module X" and "Library X." This is
+awkward, but intentional: the "Everything" index can show modules and libraries
+alphabetically by X by stripping off the "Module" and "Library" prefixes, yet
+still show the "Module" or "Library" prefix in the left margin. That makes for
+quick scanning.
+
+As far as capitalization policy goes, I've named pages in title case, but
+headings within a page have only the initial letter capitalized. Binding names
+are shown as stored in the .lib.du files (that makes most of them lowercase).
+
+In body text, some library or module names are capitalized. For example, the
+streams module docs refer to the "Streams module" not the "streams module." I
+left that alone, and where a heading referred to "Streams module," I left that
+alone too. This is inconsistent; either all references to module or library
+names should be capitalized, or none should.
+
+
+==================
+Links and Headings
+==================
+
+In body text, NaturalDocs offers the following heading hierarchy:
+
+  Title
+   Section
+    Subsection
+     Topic
+      Subheading
+
+All of these but headings create a link target to the heading text. The format
+for the title, section, subsection, and topic headings is:
+
+  Title: Cabbages and kings
+  Section: Cabbages and kings
+  etc.
+
+These create a link target, which you can link to by saying #Cabbages and
+kings#. The link target is case-sensitive, but the "Topic" etc. words are not.
+
+The format for subheadings is simply:
+
+  Cabbages and kings:
+
+These two formats ("X: X" and "X:") are only recognized after a blank or
+hyphen line.
+
+I haven't had occasion to use Section or Subsection.
+
+
+============
+API Headings
+============
+
+NaturalDocs offers the following API-type headings, and synonyms:
+
+  Class
+  Constant
+  Exception / Error
+  Function / Method
+  Generic / Generic Function
+  Library / Package
+  Macro
+  Module / Namespace
+  Property / Getter / Getter Method / Setter / Setter Method
+  Type / Singleton / Limited Type / Type Union
+  Variable / Slot
+
+These are formatted like Topic headings (e.g. "Function: choose"), and show up
+like topics that in the generated HTML as well. These all create link targets.
+
+If one of these is the first line in the text file, it will be formatted like
+a title. That is generally what I do, rather than using an explicit Title
+heading. But I use an explicit Title heading if there are two Generics with
+the same name, so I don't give primacy to one or the other.
+
+I have not used Exception, Property, Type, or any of the synonyms, but there
+is no harm in doing so.
+
+I detail the layout of each API reference below.
+
+
+===============
+Body Formatting
+===============
+
+NaturalDocs does not offer much in the way of formatting. Here are your
+choices.
+
+  Italics
+  Bullet lists
+  Term/definition lists
+  Code blocks and preformatted text
+  Headings
+  Links
+  
+Inside regular text, your only options are italics or links. I've chosen to
+use italics for technical vocabulary, arguments and variables, and define
+macro names. Other than the above, I leave things that would normally be in a
+code font in plain text.
+
+Bullet lists cannot be nested, and numbered lists have to be done by hand. A
+bulleted item can only be one paragraph long, but term/definition lists can be
+hacked to show multiple paragraphs for an item.
+
+To separate paragraphs, use a blank line:
+
+   ...and that's that.
+   
+   Now, on to other things...
+
+To italicize, surround the text with underscores:
+
+  The _Dylan Reference Manual_ says...
+
+  Call abs( _val_ ) for an absolute value.
+
+Note that I added spaces around the underscores above. That is because
+otherwise NaturalDocs might not recognize that it should italicize "var."
+
+To make a bullet item, start a line with a bullet character like - or o:
+
+  - This is a bullet point
+  - Here is another bullet point,
+    with a hanging indent to make the text file easier to read.
+    
+  o A blank line between makes no difference in the HTML, but is another way
+  to improve readability.
+
+To make a term/definition list, put a hyphen with spaces around it:
+
+  red    - a color of the rainbow.
+  blue   - another color of the rainbow,
+           with more energy. Again, the hanging indent is for text-file
+           readability.
+  green  - the third of the triad.
+  
+To add an extra paragraph to a definition, make like a new term, but use the
+Unicode no-break space character (00A0) for the term. In the HTML output, it
+will show up like a new paragraph without breaking the definition indentation:
+
+  red    - a color of the rainbow.
+         - There is a no-break space underneath the "r", so this is still part
+           of the "red" definition.
+           
+To make a code-block or preformatted text, begin each line with a ":", ">", or
+"|" character, or do a call-out:
+
+  : This is a code block
+  : and here is the next line.
+  
+  > This is also a code block.
+  
+  (code)
+  Here is a lengthier code block.
+  (end)
+  
+  (diagram)
+     A
+    / \
+   B   C
+  (end)
+  
+Other call-outs are (example) and (table). You can say (start code) or (begin
+code) or (end code) or (finish) or whatever.
+
+Some of the examples in the DRM use the ⇒ character. This is the Unicode
+rightwards double arrow character (21D2).
+
+To make a link, surround the link target text with "#":
+
+  See also #concatenate#.
+  
+NaturalDocs can handle things like "#<sequence>#s" or "#<character>#'s."
+
+
+================
+Class API Layout
+================
+
+This is the template layout for a class entry:
+
+  Class: <my-class>
+  ==============================
+  
+  Description.
+  
+  
+  Exported from:
+  ------------------------------
+  - #Module X#
+  - #Module Y#
+  
+  
+  Modifiers:
+  ------------------------------
+  open free sealed functional
+  
+  
+  Make keywords:
+  ------------------------------
+  alpha: - An instance of #<object>#. Means something. Required.
+  
+  beta:  - One of #"hello", #"goodbye". Optional. Defaults to #"hello".
+  
+  
+  Superclasses:
+  ------------------------------
+  - #<superclass-1>#
+  - #<superclass-2>#
+  
+  
+  Subclasses:
+  ------------------------------
+  - #<subclass-1>#
+  - #<subclass-2>#
+  
+  
+  Functions on <my-class>:
+  ------------------------------
+  - #function-1#
+  - #function-2#
+  
+  
+  Functions returning <my-class>:
+  ------------------------------
+  - #function-3#
+  - #function-4#
+  
+  
+  See also:
+  ------------------------------
+  - #Greek# for a discussion of Greek letters.
+
+The make keywords should include this class and its superclasses. Keywords can
+be hard to track down. Based on what pages 64 and 67 of the DRM say, you need
+to check in all of the following places to ensure you get all the keywords:
+
+  "define class" for init-keyword: and required-init-keyword:. The former are
+  optional keywords, and generally default to #f unless otherwise specified.
+  The latter are required.
+  
+  "define class" for any superclasses.
+  
+  "make" specialized on the class. "make" can set defaults for required init
+  keywords specified in "define class," or redefine the default values of
+  optional init keywords. It can also hard-code the value of an init keyword,
+  effectively removing it from the class's keyword list, as far as users are
+  concerned.
+  
+  If "make" on the class calls next-method(), check for "make" specialized on
+  subclass() of any superclasses.
+  
+  "initialize" on the class. "initialize" can add or alter keywords just as
+  "make" can.
+
+  If "initialize" calls next-method(), check "initialize" on any superclasses.
+  
+If more than one place defines a value for a keyword, use the first of:
+
+  initialize on the class
+  initialize on superclasses
+  make on the class
+  make on superclasses
+  define class
+
+For the functions on the class, list all functions with an argument of the
+class's type, or a type-union, limited, or subclass involving the class. If a
+function takes <object> but actually expects <my-class>, include it under
+<my-class> and not <object>. Do not include functions on superclasses, or
+every "Functions on" list will look like the one for <object>.
+
+For the functions returning the class, likewise.
+
+
+============================
+Constant/Variable API Layout
+============================
+
+This is the template for constant or variable entries:
+
+  Constant [or Variable]: $my-const
+  ==============================
+
+  Description.
+
+
+  Exported from:
+  ------------------------------
+  - #Module X#
+  - #Module Y#
+
+
+  Type:
+  ------------------------------
+  #<integer>#
+
+
+  Value:
+  ------------------------------
+  42 [or unknown]
+
+
+  See also:
+  ------------------------------
+  - #Greek# for a discussion of Greek letters.
+
+For constants or variables where the value is a class or a function, you may
+want to mimic the class or function layouts.
+
+
+===================
+Function API Layout
+===================
+
+This is the template for functions that aren't generics or methods of a
+generic:
+
+  Function: my-func
+  ==============================
+
+  Description.
+
+
+  Exported from:
+  ------------------------------
+  - #Module X#
+  - #Module Y#
+
+
+  Arguments:
+  ------------------------------
+  arg1       - An instance of #<object>#. Description.
+  arg2       - An instance of #<object>#. Description.
+  keyword1:  - An instance of #<object>#. Description. Required.
+  keyword2:  - An instance of #<object># or #f. Description. Default is #f.
+  #rest more - Instances of #<object#>. Description.
+
+
+  Values:
+  ------------------------------
+  value1       - An instance of #<object>#. Description.
+  value2       - An instance of #<object>#. Description.
+  #rest values - Instances of #<object>#. Description.
+
+
+  See also:
+  ------------------------------
+  - #Greek# for a discussion of Greek letters.
+
+If you can be more specific about the argument/value types than what the
+automatically-generated docs show, please do so. Often, code doesn't include
+specializations, and whatever specializations the compiler may infer are not
+reflected in the .lib.du file.
+
+
+==================
+Generic API Layout
+==================
+
+Generics can be troublesome. A generic is simply a specification, without any
+implementation of its own. Theoretically, one should document how methods of a
+generic are supposed to behave, and have an entry for each method of the
+generic that describes its arguments, values, and behavior, which may differ
+from those of the generic.
+
+In practice, this often isn't necessary, because all the methods adhere to the
+specified behavior and don't have any differences in arguments, keywords, or
+values, except that they take or return general instances of what the generic
+specifies. In such cases, I simply document the generic and don't list any of
+its methods separately.
+
+However, when a method does differ in keywords, or has behavioral differences
+worth mentioning, I think it best to document it as a separate method, or to
+call out the the method in the generic's documentation.
+
+Some generics are sealed and use <object> as argument or value types, but have
+methods that are more specialized. In such cases, the user can't define any
+more methods on it, so it doesn't matter to them what the generic's contract
+is. They can only be interested in the existing methods. In such cases, I
+think it is best to list the methods using the lowest common superclass for
+its argument or value types.
+
+For example, if the class hierarchy is like so:
+
+      <A>
+      / \
+    <B>  …
+    / \
+  <C> <D>
+
+and the applicable methods are like so:
+
+  Sealed generic on <A>
+  Method 1 on <C>
+  Method 2 on <D>
+  
+and <B> has no other subclasses, I think it best shows the developer's intent
+to document the methods as a single method on <B> and document nothing on <A>,
+<C>, or <D>.
+  
+Here is the template for generics:
+
+  Generic: my-func
+  ==============================
+  
+  Description.
+  
+  
+  Exported from:
+  ------------------------------
+  - #Module X#
+  - #Module Y#
+  
+  
+  Modifiers:
+  ------------------------------
+  open
+  
+  
+  [Arguments, Values, etc. same as Functions]
+
+
+
+  [Methods of the generic]
+
+
+=================
+Method API Layout
+=================
+
+Methods offer a couple of challenges.
+
+The first challenge is that they are all named the same. How can one
+distinguish between them? In the first sentence of the description, I usually
+say something like "This method on #<character># …." This shows up in the
+synopsis at the top of each page, so the reader can see which methods of a
+generic are specially documented. I'm not especially happy about having a
+bunch of identical synopsis entries on a page, distinguished only the opening
+sentence, but I don't know a better solution.
+
+The second challenge is how much information to include in the methods'
+documentation. If the only thing a method needs is a bit of extra discussion,
+I make a method list like so:
+
+  Methods: my-method
+  ==============================
+  my-method - This method on #<string># is case-insensitive.
+  my-method - This method on #<character>#, #<integer># only works with ASCII.
+  
+Note the use of the plural "Methods." NaturalDocs expands this shorthand into
+a series of method entries. See "type-for-copy" for an example of what this
+looks like.
+
+But if a method has different keywords from its generic or is exported from a
+different module, or its arguments or values need additional documentation, I
+create a separate Method entry. This entry is structured like a Function
+entry, except that I use the Method heading instead of the Function heading,
+and I keep it as short as possible by removing the "Exported from:" part (if
+the module is the same).
+
+
+=============================
+Library and Module API Layout
+=============================
+
+Libraries and modules get more free-form pages. I feel that these are good
+pages for conceptual information relevant to the module or library.
+
+I generally structure library pages as follows:
+
+  Library: Library my-lib
+  ==============================
+  
+  Brief description.
+  
+  Discussion.
+  
+  
+  Topic: Something of interest
+  ----------------------------
+  
+  Discussion.
+  
+  
+  Topic: Another thing of interest
+  ----------------------------
+  
+  More discussion.
+  
+  
+  Topic: my-lib modules
+  ----------------------------
+  - #Module first-module#
+  - #Module second-module#
+  
+  #Module first-module# deals with things of a modular nature.
+  
+  #Module second-module# deals with things of the Buddha nature.
+  
+I prefer to structure module pages as follows:
+
+  Module: Module my-module
+  ==============================
+
+  Brief description.
+  
+  Discussion.
+  
+  
+  Exported from:
+  ------------------------------
+  - #Library x#
+  - #Library y#
+
+
+  Topic: Something of interest
+  ----------------------------
+
+  Discussion.
+
+
+  Topic: Another thing of interest
+  ----------------------------
+
+  More discussion.
+  
+
+  Topic: my-lib names
+  ----------------------------
+  - #<a-class>#
+  - #a-method#
+
+Note the addition of the "Exported from:" heading.
+
+
+================
+Macro API Layout
+================
+
+Macros are all pretty unique. With a function you can get away with just
+providing an argument and value list, because the reader knows what a function
+call looks like and can fill in the necessary punctuation himself. This is not
+true of a macro. You have to provide the full syntax of the call, or at least
+enough so the reader can fill in the details himself. I strived to keep macro
+descriptions manageable.
+
+Here is the template:
+
+  Macro: thingy
+  ==============================
+  
+  Description.
+  
+  
+  Example:
+  ------------------------------
+  
+  A complex example.
+  
+  
+  Exported from:
+  ------------------------------
+  - #Module X#
+  - #Module Y#
+  
+  
+  Macro call:
+  ------------------------------
+  Form 1
+  
+  : define thingy ( (thingy-info) )
+  :   color (a-color) :: (a-type);
+  :   size (a-size);
+  : end thingy
+  
+  Form 2
+  
+  : define thingy
+  :   (body)
+  : end thingy
+  
+  Form 3
+  
+  : thingy ( (arg1), (arg2) )
+  
+  
+  Arguments:
+  ------------------------------
+  thingy-info - A list of class names.
+  a-color     - An instance of #<color>#.
+  a-type      - An instance of #<class>#. The type of _a-color_. Optional.
+                Defaults to #<color>#.
+  a-size      - One of #"small" or #"large". Optional. Defaults to #"large".
+  body        - A series of semicolon-separated expressions.
+  arg1        - An instance of #<object>#.
+  arg2        - An instance of #<object>#. Optional. Defaults to #f.
+  
+  
+  Values (Form 3 only):
+  -------------------------------
+  result - An instance of #<object>#.
+    
+  
+  See also:
+  -------------------------------
+  - #<color>#
+  
+I include three forms in this example. In a case like this, though, it is
+probably wiser to make three separate Macro entries.
+
+Since NaturalDocs does not support italicization in code blocks, I indicate
+parameters using parentheses. Literal parentheses are isolated by spaces. If
+something is optional, I note it in the argument list.
+
+I do not note every little variation in syntax. For example, while I note that
+"a-type" is optional, I say nothing about the "::" preceding it. I assume that
+the reader knows the two go together; if he does not specify "a-type," he need
+not type "::". Likewise, I assume that if he does not specify "a-size," he
+knows that he does not need to type the preceding "size." And finally, he may
+well choose to type "end" instead of "end thingy." Most macros can handle
+both; I don't explicitly say it is allowed.
+
+I do NOT assume the reader knows the BNF syntax. For example, I spelled out
+what a "body" is in plain terms.
+
+
+=================
+Other Conventions
+=================
+
+When an argument is of type <function>, I usually include the signature of the
+function like so:
+
+  func - An instance of #<function>#. The signature of _func_ is
+         ( _arg1_, _arg2_, count: _arg3_ ) => ( _item_ ).
+         _arg1_ is the source #<string>#. _arg2_ is an #<integer>#. _arg3_ is
+         another #<integer>#. The function returns _item_, a #<character>#.
+
+

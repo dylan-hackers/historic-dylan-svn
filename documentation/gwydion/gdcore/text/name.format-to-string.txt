@@ -4,11 +4,6 @@ Title: format-to-string
 There are two unrelated #format-to-string# functions.
 
 
-==============================
-Group: format-to-string from #Module format#
-==============================
-
-
 Generic: format-to-string
 ==============================
 
@@ -37,11 +32,6 @@ Values:
 ------------------------------
 result - An instance of #<string>#. 
 
-
-
-==============================
-Group: format-to-string from #Module common-extensions#
-==============================
 
 
 Function: format-to-string

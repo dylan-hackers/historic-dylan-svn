@@ -36,9 +36,9 @@ Group: Libraries  {
 
    File: collection-extensions  (no auto-title, library.collection-extensions.txt)
    File: collections  (no auto-title, library.collections.txt)
+   File: command-line-parser  (no auto-title, library.command-line-parser.txt)
    File: common-dylan  (no auto-title, library.common-dylan.txt)
    File: Dylan  (no auto-title, library.dylan.txt)
-   File: getopt  (no auto-title, library.getopt.txt)
    File: io  (no auto-title, library.io.txt)
    File: Random  (no auto-title, library.random.txt)
    File: regular-expressions  (no auto-title, library.regular-expressions.txt)
@@ -59,6 +59,7 @@ Group: Modules  {
    File: Cheap-IO  (no auto-title, module.cheap-io.dylan.txt)
    File: collection-utilities  (no auto-title, module.collection-utilities.collection-extensions.txt)
    File: collectors  (no auto-title, module.collectors.collections.txt)
+   File: command-line-parser  (no auto-title, module.command-line-parser.command-line-parser.txt)
    File: common-dylan  (no auto-title, module.common-dylan.common-dylan.txt)
    File: common-extensions  (no auto-title, module.common-extensions.common-dylan.txt)
    File: concatenated-streams  (no auto-title, module.concatenated-streams.stream-extensions.txt)
@@ -70,7 +71,6 @@ Group: Modules  {
    File: format-out  (no auto-title, module.format-out.io.txt)
    File: functional-extensions  (no auto-title, module.functional-extensions.common-dylan.txt)
    File: functional-objects-extras  (no auto-title, module.functional-objects-extras.common-dylan.txt)
-   File: getopt  (no auto-title, module.getopt.getopt.txt)
    File: gwydion-extensions  (no auto-title, module.gwydion-extensions.common-dylan.txt)
    File: heap  (no auto-title, module.heap.collection-extensions.txt)
    File: indenting-streams  (no auto-title, module.indenting-streams.stream-extensions.txt)
@@ -79,7 +79,7 @@ Group: Modules  {
    File: locators-protocol  (no auto-title, module.locators-protocol.common-dylan.txt)
    File: Machine-words  (no auto-title, module.machine-words.dylan.txt)
    File: operating-system  (no auto-title, module.operating-system.system.txt)
-   File: option-parser-protocol  (no auto-title, module.option-parser-protocol.getopt.txt)
+   File: option-parser-protocol  (no auto-title, module.option-parser-protocol.command-line-parser.txt)
    File: plists  (no auto-title, module.plists.collections.txt)
    File: pprint  (no auto-title, module.pprint.io.txt)
    File: print  (no auto-title, module.print.io.txt)
@@ -1001,7 +1001,6 @@ Group: Bindings  {
       File: write-text  (name.write-text.txt)
       File: xpair  (name.xpair.txt)
       File: zero?  (name.zeroQ.txt)
-      File: Introduction  (introduction.txt)
       }  # Group: Functions
 
    Group: Constants and Variables  {
@@ -1179,6 +1178,5 @@ Group: Indexes  {
    Constant Index: Constants
    Dylan Class Index: Classes
    Macro Index: Macros
-   Build Target Index: Build Targets
    }  # Group: Indexes
 
