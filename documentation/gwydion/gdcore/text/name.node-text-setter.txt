@@ -1,7 +1,7 @@
 Generic: node-text-setter
 ==============================
 
-A generic function.
+Sets the character data of an #<xml-element>#.
 
 
 Exported from:
@@ -16,13 +16,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+text    - An instance of #<string>#. 
+element - An instance of #<xml-element>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+text - An instance of #<string>#. The _text_ argument.
 
 
 

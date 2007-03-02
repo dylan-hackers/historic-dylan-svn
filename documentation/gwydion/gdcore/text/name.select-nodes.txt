@@ -1,7 +1,38 @@
 Generic: select-nodes
 ==============================
 
-A generic function.
+Returns nodes matching a path. _path_ is a string of the form "name" or
+"name/name/name…" and denotes a series of child nodes relative to _node_. _path_ should not begin or end with '/'.
+
+#select-nodes# follows _node_'s children down the first child of every subnode
+that matches the corresponding _name_. If the last _name_ in the path matches
+more than one element, all are returned.
+
+(example)
+<population>
+  <pack id="1">
+    <name>Scar</name>
+    <name>Notch</name>
+  </pack>
+  <pack id="2">
+    <leader>Rex</leader>
+    <name>Spotty</name>
+  </pack>
+</population>
+(end)
+
+Given the above example document, #select-nodes# behaves as follows.
+
+(code)
+select-nodes(rootNode, "pack")
+ ⇒ #[ {pack id="1"}, {pack id="2"} ]
+ 
+select-nodes(rootNode, "pack/name")
+ ⇒ #[ {name "Scar"}, {name "Notch"} ]
+ 
+select-nodes(rootNode, "pack/leader")
+ ⇒ #[]
+(end code)
 
 
 Exported from:
@@ -16,13 +47,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+node - An instance of #<xml-element>#. 
+path - An instance of #<string>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
-
+nodes - An instance of #<vector># containing #<xml-element># objects.
 
 

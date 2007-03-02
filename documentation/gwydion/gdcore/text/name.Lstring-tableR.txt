@@ -30,4 +30,6 @@ Superclasses:
 - #<value-table>#
  
 
-
+Functions returning <string-table>:
+------------------------------
+- #node-attributes#

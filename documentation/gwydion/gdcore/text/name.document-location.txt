@@ -1,7 +1,7 @@
 Generic: document-location
 ==============================
 
-A generic function.
+Returns the file location of an #<xml-document>#.
 
 
 Exported from:
@@ -16,12 +16,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+document - An instance of #<xml-document>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+locator - An instance of #<file-locator>#. 
 
 
 

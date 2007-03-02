@@ -1,7 +1,8 @@
 Generic: document-location-setter
 ==============================
 
-A generic function.
+Sets the file location of an #<xml-document>#. This does not cause the
+document to be re-parsed.
 
 
 Exported from:
@@ -16,13 +17,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+locator  - An instance of #<file-locator>#. 
+document - An instance of #<xml-document>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+locator  - An instance of #<file-locator>#. The _locator_ argument.
 
 
 

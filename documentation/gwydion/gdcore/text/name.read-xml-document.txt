@@ -1,7 +1,8 @@
 Generic: read-xml-document
 ==============================
 
-A generic function.
+Reads a simple XML file and returns an #<xml-document>#. If the file cannot be
+parsed, this function signals an #<xml-error>#.
 
 
 Exported from:
@@ -16,12 +17,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+file - An instance of #<file-locator>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+page - An instance of #<xml-document>#.
 
 
 

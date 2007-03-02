@@ -1,7 +1,7 @@
 Generic: document-element
 ==============================
 
-A generic function.
+Returns the root element of an #<xml-document>#.
 
 
 Exported from:
@@ -16,12 +16,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+document - An instance of #<xml-document>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+element - An instance of #<xml-element>#, or #f. 
 
 
 

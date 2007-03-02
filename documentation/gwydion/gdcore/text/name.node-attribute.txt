@@ -1,7 +1,7 @@
 Generic: node-attribute
 ==============================
 
-A generic function.
+Returns the value of an attribute of an #<xml-element>#.
 
 
 Exported from:
@@ -16,13 +16,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+element   - An instance of #<xml-element>#. 
+attribute - An instance of #<string>#. The name of an attribute.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+value     - An instances of #<string># or #f if the _attribute_ is not present
+            in the _element_.
 
 
 

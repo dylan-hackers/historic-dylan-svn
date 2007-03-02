@@ -1,7 +1,7 @@
 Class: <xml-error>
 ==============================
 
-A class.
+The class of XML parsing errors.
 
 
 Exported from:
@@ -17,7 +17,7 @@ concrete free sealed
 Superclasses:
 ------------------------------
 - #<error>#
- - #<format-string-condition>#
+- #<format-string-condition>#
  
 
 

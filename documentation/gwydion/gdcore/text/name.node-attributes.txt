@@ -1,7 +1,8 @@
 Generic: node-attributes
 ==============================
 
-A generic function.
+Returns all the attributes of an #<xml-element># in a table. The table may be
+modified safely.
 
 
 Exported from:
@@ -16,12 +17,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+element - An instance of #<xml-element>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+attributes - An instance of #<string-table>#. 
 
 
 

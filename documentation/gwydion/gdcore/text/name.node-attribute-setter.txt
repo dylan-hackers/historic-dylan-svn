@@ -1,7 +1,9 @@
 Generic: node-attribute-setter
 ==============================
 
-A generic function.
+Sets the value of an attribute of an #<xml-element>#. This function does not
+follow the normal -setter syntax. If _attribute_ is not present in _element_,
+it is added.
 
 
 Exported from:
@@ -16,14 +18,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+value     - An instance of #<string>#. The new value of the attribute.
+element   - An instance of #<xml-element>#.
+attribute - An instance of #<string>#. The name of the attribute.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
-
+value - An instance of #<string>#. The _value_ argument.
 
 

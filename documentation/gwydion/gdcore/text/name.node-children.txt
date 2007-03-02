@@ -1,7 +1,7 @@
 Generic: node-children
 ==============================
 
-A generic function.
+Returns the child elements of an #<xml-element>#.
 
 
 Exported from:
@@ -16,12 +16,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+element - An instance of #<xml-element>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+children - An instance of #<stretchy-object-vector># containing instances of
+           #<xml-element>#. 
 
 
 

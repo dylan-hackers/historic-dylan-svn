@@ -55,6 +55,9 @@ Functions on <string>:
 - #make-regexp-replacer#
 - #make-splitter#
 - #make-translator#
+- #node-attribute#
+- #node-attribute-setter#
+- #node-text-setter#
 - #option-description-setter#
 - #option-parser-by-long-name#
 - #option-present?-by-long-name#
@@ -65,6 +68,9 @@ Functions on <string>:
 - #regexp-position#
 - #regexp-replace#
 - #run-application#
+- #select-node-text#
+- #select-nodes#
+- #select-single-node#
 - #signal#
 - #signal-application-event#
 - #split#
@@ -92,6 +98,11 @@ Functions returning <string>:
 - #login-group#
 - #login-name#
 - #machine-word-to-string#
+- #node-attribute#
+- #node-attribute-setter#
+- #node-name#
+- #node-text#
+- #node-text-setter#
 - #number-to-string#
 - #option-description#
 - #option-description-setter#
@@ -99,6 +110,7 @@ Functions returning <string>:
 - #owner-organization#
 - #print-to-string#
 - #regexp-replace#
+- #select-node-text#
 - #split#
 - #thread-name#
 - #translate#

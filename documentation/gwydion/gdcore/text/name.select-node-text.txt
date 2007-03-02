@@ -1,7 +1,30 @@
 Generic: select-node-text
 ==============================
 
-A generic function.
+Returns the character data of the first XML element matching a path. This
+function calls #select-nodes# with _node_ and _path_ and returns the character
+data for the first element. See #select-nodes# for more about _path_.
+
+(example)
+<population>
+  <pack id="1">
+    <name>Scar</name>
+    <name>Notch</name>
+  </pack>
+  <pack id="2">
+    <leader>Rex</leader>
+    <name>Spotty</name>
+  </pack>
+</population>
+(end)
+
+Given the above example document, #select-node-text# behaves as follows.
+
+(code)
+select-node-text(rootNode, "pack/name")
+ ⇒ "Scar"
+(end code)
+
 
 
 Exported from:
@@ -16,13 +39,15 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+node     - An instance of #<xml-element>#. 
+path     - An instance of #<string>#. 
+default: - An instance of #<string>#. A string to return if a matching XML
+           element is not found. Defaults to "".
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+text - An instance of #<string>#. 
 
 
 

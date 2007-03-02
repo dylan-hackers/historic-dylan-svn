@@ -1,7 +1,7 @@
 Generic: document-element-setter
 ==============================
 
-A generic function.
+Sets the root element of an #<xml-document>#.
 
 
 Exported from:
@@ -16,13 +16,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+element  - An instance of #<xml-element># or #f. 
+document - An instance of #<xml-document>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+element - The _element_ argument.
 
 
 

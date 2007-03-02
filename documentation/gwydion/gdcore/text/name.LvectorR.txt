@@ -50,3 +50,7 @@ Methods on <vector>:
 - #find-first-key#
 - #find-last-key#
 
+
+Methods returning <vector>:
+------------------------------
+- #select-nodes#

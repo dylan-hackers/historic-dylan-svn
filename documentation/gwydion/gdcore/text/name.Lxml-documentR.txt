@@ -1,7 +1,7 @@
 Class: <xml-document>
 ==============================
 
-A class.
+A class representing an XML document.
 
 
 Exported from:
@@ -14,9 +14,26 @@ Modifiers:
 concrete free sealed
 
 
+Make keywords:
+------------------------------
+location: - An instance of #<file-locator>#. Required.
+element:  - An instance of #<xml-element>#. The document element. Optional.
+
+
 Superclasses:
 ------------------------------
 - #<object>#
  
 
+Functions on <xml-document>:
+------------------------------
+- #document-element#
+- #document-element-setter#
+- #document-location#
+- #document-location-setter#
+
+
+Functions returning <xml-document>:
+------------------------------
+- #read-xml-document#
 

@@ -1,7 +1,7 @@
 Class: <xml-element>
 ==============================
 
-A class.
+A class representing an XML element.
 
 
 Exported from:
@@ -14,9 +14,37 @@ Modifiers:
 concrete free sealed
 
 
+Make keywords:
+------------------------------
+name:       - An instance of #<string>#. Required.
+attributes: - An instance of #<string-table>#. Optional.
+text:       - An instance of #<string>#. Defaults to "".
+
+
 Superclasses:
 ------------------------------
 - #<xml-node>#
  
 
+Functions on <xml-element>:
+------------------------------
+- #document-element-setter#
+- #node-attribute#
+- #node-attribute-setter#
+- #node-attributes#
+- #node-children#
+- #node-name#
+- #node-text#
+- #node-text-setter#
+- #select-node-text#
+- #select-nodes#
+- #select-single-node#
 
+
+Functions returning <xml-element>:
+------------------------------
+- #document-element#
+- #document-element-setter#
+- #node-children#
+- #select-nodes#
+- #select-single-node#

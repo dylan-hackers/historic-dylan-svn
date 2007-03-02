@@ -25,4 +25,13 @@ Subclasses:
 - #<file-url>#
 
 
+Functions on <file-locator>:
+------------------------------
+- #document-location-setter#
+- #read-xml-document#
 
+
+Functions returning <file-locator>:
+------------------------------
+- #document-location#
+- #document-location-setter#

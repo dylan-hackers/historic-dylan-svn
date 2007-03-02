@@ -1,7 +1,15 @@
 Module: Module simple-xml
 ==============================
 
-The simple-xml module.
+The simple-xml module provides basic XML parsing and navigation. It only
+supports character data and start, end, and empty-element tags. The module
+does _not_ support entities, comments, CDATA sections, or processing
+instructions. Entities are treated as literal character data, and any other
+markup will likely produce an error.
+
+Therefore, this module can parse some _well-formed_ XML documents, but cannot
+parse any _valid_ XML documents, as valid documents contain a document type
+declaration.
 
 
 Exported from:

@@ -1,7 +1,8 @@
 Generic: node-text
 ==============================
 
-A generic function.
+Returns the character data of an #<xml-element>#. This does not include child
+elements' character data.
 
 
 Exported from:
@@ -16,12 +17,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+element - An instance of #<xml-element>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+text - An instance of #<string>#. 
 
 
 

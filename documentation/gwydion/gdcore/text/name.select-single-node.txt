@@ -1,7 +1,30 @@
 Generic: select-single-node
 ==============================
 
-A generic function.
+Returns the first XML element matching a path. This function calls
+#select-nodes# with _node_ and _path_ and returns the first element found. See
+#select-nodes# for more about _path_.
+
+(example)
+<population>
+  <pack id="1">
+    <name>Scar</name>
+    <name>Notch</name>
+  </pack>
+  <pack id="2">
+    <leader>Rex</leader>
+    <name>Spotty</name>
+  </pack>
+</population>
+(end)
+
+Given the above example document, #select-single-node# behaves as follows.
+
+(code)
+select-nodes(rootNode, "pack/name")
+ ⇒ {name "Scar"}
+(end code)
+
 
 
 Exported from:
@@ -16,13 +39,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+node - An instance of #<xml-element>#. 
+path - An instance of #<string>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+found-node - An instance of #<xml-element>#, or #f if no matching XML element
+             was found.
 
 
 
