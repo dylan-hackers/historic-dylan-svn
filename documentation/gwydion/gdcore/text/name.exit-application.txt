@@ -1,7 +1,8 @@
 Function: exit-application
 ==============================
 
-A function.
+Causes the application to quit with a return code of _exit-code_. This
+function simply calls #exit#.
 
 
 Exported from:
@@ -13,7 +14,7 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<integer>#. 
+exit-code - An instance of #<integer>#. 
 
 
 

@@ -38,6 +38,7 @@ Functions on <boolean>:
 - #print#
 - #print-to-string#
 - #regexp-matches#
+- #run-application#
 - #split#
 
 

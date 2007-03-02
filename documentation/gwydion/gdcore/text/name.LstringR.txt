@@ -80,6 +80,7 @@ Functions on <string>:
 
 Functions returning <string>:
 ------------------------------
+- #application-filename#
 - #as-iso8601-string#
 - #condition-format-string#
 - #float-to-string#
@@ -88,10 +89,14 @@ Functions returning <string>:
 - #local-time-zone-name#
 - #locator-as-string#
 - #locator-protocol#
+- #login-group#
+- #login-name#
 - #machine-word-to-string#
 - #number-to-string#
 - #option-description#
 - #option-description-setter#
+- #owner-name#
+- #owner-organization#
 - #print-to-string#
 - #regexp-replace#
 - #split#

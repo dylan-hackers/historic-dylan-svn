@@ -1,7 +1,14 @@
 Function: run-application
 ==============================
 
-A function.
+Runs an application in a separate process. Under Windows, the application's
+output may be retrieved piecemeal via the _outputter_ argument.
+
+The _outputter_ argument is a function with the signature
+(buffer :: #<byte-string>#, end: :: #<integer>#) => ().
+It is called repeatedly with output from the process. _buffer_ contains the
+output, and _end_ indicates the extent of _buffer_ that contains the output.
+The contents of _buffer_ are not preserved between invocations of _outputter_.
 
 
 Exported from:
@@ -9,15 +16,38 @@ Exported from:
 - #Module operating-system#
 
 
-Arguments:
+Arguments (Windows):
 ------------------------------
-arg - An instance of #<string>#. 
-#all-keys - This function accepts any keyword argument.
+command           - An instance of #<string>#. A shell command line.
+
+under-shell?:     - An instance of #<boolean>#, specifying whether to execute
+                    the command line in a new shell. Defaults to #f.
+                   
+inherit-console?: - An instance of #<boolean>#, specifying whether the new
+                    process should inherit existing handles. Defaults to #t.
+                   
+activate?:        - An instance of #<boolean>#, specifying whether to bring
+                    the new process's window to the foreground. Defaults to
+                    #t.
+                   
+minimize?:        - An instance of #<boolean>#, specifying whether to minimize
+                    the new process's window. Defaults to #f.
+                    
+outputter:        - An instance of #<function># or #f. A function to deal with
+                    the process's output.
+                    
+asynchronous?:    - An instance of #<boolean>#. If false, wait for the process
+                    to terminate before continuing execution. Defaults to #f.
+
+
+Arguments (Unix):
+------------------------------
+command           - An instance of #<string>#. A shell command line.
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
+status-code - An instance of #<integer>#. The application's exit status code.
 
 
 

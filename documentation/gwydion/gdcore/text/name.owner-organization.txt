@@ -1,7 +1,7 @@
 Function: owner-organization
 ==============================
 
-A function.
+Returns the registered owner's organization
 
 
 Exported from:
@@ -11,7 +11,6 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <string>). 
-
-
+org - An instance of #<string>#, or #f if the registered owner's organization
+       could not be determined.
 

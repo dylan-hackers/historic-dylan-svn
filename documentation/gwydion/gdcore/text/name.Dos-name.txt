@@ -1,7 +1,9 @@
 Constant: $os-name
 ==============================
 
-A constant.
+A constant indicating the current OS. For Microsoft Windows, the value is
+#"win32"; for Unix operating systems, the value of this constant is determined
+at run-time from the uname function.
 
 
 Exported from:
@@ -11,10 +13,10 @@ Exported from:
 
 Type:
 ------------------------------
-#<object>#
+#<symbol>#
 
 
 Value:
 ------------------------------
-unknown
+platform-specific
 

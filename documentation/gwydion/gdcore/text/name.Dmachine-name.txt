@@ -1,7 +1,8 @@
 Constant: $machine-name
 ==============================
 
-A constant.
+A constant indicating the target CPU of a given build of Gwydion Dylan.
+Values include #"powerpc" and #"x86".
 
 
 Exported from:
@@ -11,10 +12,10 @@ Exported from:
 
 Type:
 ------------------------------
-#<object>#
+#<symbol>#
 
 
 Value:
 ------------------------------
-#"powerpc"
+platform-specific
 

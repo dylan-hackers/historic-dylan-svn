@@ -1,7 +1,9 @@
 Constant: $architecture-little-endian?
 ==============================
 
-A constant.
+A constant indicating the endianness of a given build of Gwydion Dylan. If
+built on a little-endian machine, the value of this variable will be #t,
+otherwise, #f.
 
 
 Exported from:
@@ -11,10 +13,10 @@ Exported from:
 
 Type:
 ------------------------------
-#<object>#
+#<boolean>#
 
 
 Value:
 ------------------------------
-#f
+platform-specific
 

@@ -1,7 +1,8 @@
 Constant: $platform-name
 ==============================
 
-A constant.
+A constant indicating the CPU and OS. This constant is set to the combination
+of #$machine-name# and #$os-name#, for example, #"x86-win32" or #"powerpc-Darwin".
 
 
 Exported from:
@@ -11,10 +12,10 @@ Exported from:
 
 Type:
 ------------------------------
-#<object>#
+#<symbol>#
 
 
 Value:
 ------------------------------
-unknown
+platform-specific
 

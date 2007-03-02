@@ -1,7 +1,8 @@
 Function: application-name
 ==============================
 
-A function.
+The name of the application as specified on the command line; in C terms,
+argv[0].
 
 
 Exported from:
@@ -13,7 +14,7 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of #<byte-string>#. 
+name - An instance of #<byte-string>#. 
 
 
 

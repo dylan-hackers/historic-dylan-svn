@@ -1,7 +1,7 @@
 Function: application-filename
 ==============================
 
-A function.
+Returns an application's filename. 
 
 
 Exported from:
@@ -13,7 +13,8 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <string>). 
+filename - An instance of type-union(<false>, <string>). If the filename can't
+           be determined, the value is #f.
 
 
 

@@ -1,7 +1,8 @@
 Function: create-application-event
 ==============================
 
-A function.
+A function that creates an event handle suitable for inter-thread
+synchronization.
 
 
 Exported from:
@@ -11,12 +12,15 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
+name - An instance of #<string>#. A name for the event.
 
 
 Values:
 ------------------------------
-val - An instance of #<machine-word>#. 
+handle - An instance of #<machine-word>#. An event handle.
 
 
-
+See also:
+------------------------------
+- #signal-application-event#
+- #wait-for-application-event#

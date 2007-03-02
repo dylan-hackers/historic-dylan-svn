@@ -1,7 +1,7 @@
 Function: application-arguments
 ==============================
 
-A function.
+Returns an application's command-line arguments; in C terms, argv[1..n].
 
 
 Exported from:
@@ -13,7 +13,8 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of #<simple-object-vector>#. 
+strings - An instance of #<simple-object-vector>#. Each element is a
+          #<string>#.
 
 
 

@@ -1,7 +1,7 @@
 Function: environment-variable
 ==============================
 
-A function.
+Returns the value of an environment variable.
 
 
 Exported from:
@@ -11,12 +11,15 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<byte-string>#. 
+name - An instance of #<byte-string>#. 
 
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <byte-string>). 
+value - An instance of #<byte-string>#, or #f if the environment variable
+        _name_ does not exist.
 
 
-
+See also:
+------------------------------
+#environment-variable-setter#

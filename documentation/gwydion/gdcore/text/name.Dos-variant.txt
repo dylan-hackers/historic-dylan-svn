@@ -1,7 +1,18 @@
 Constant: $os-variant
 ==============================
 
-A constant.
+A constant indicating the current OS variation. For Unix operating systems,
+the value is identical to #$os-name#. For Microsoft Windows operating systems,
+the value of this constant is determined at run-time and includes the
+following:
+
+- #"win3.1"
+- #"win95"
+- #"win98"
+- #"winme"
+- #"winnt"
+- #"win2000"
+- #"winxp"
 
 
 Exported from:
@@ -11,10 +22,10 @@ Exported from:
 
 Type:
 ------------------------------
-#<object>#
+#<symbol>#
 
 
 Value:
 ------------------------------
-unknown
+platform-specific
 

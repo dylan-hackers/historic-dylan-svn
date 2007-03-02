@@ -1,7 +1,7 @@
 Function: environment-variable-setter
 ==============================
 
-A function.
+Sets the value of an environment variable.
 
 
 Exported from:
@@ -11,13 +11,16 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of type-union(<false>, <byte-string>). 
-arg - An instance of #<byte-string>#. 
+value - An instance of #<byte-string>#, or #f to remove the environment
+        variable from the environment.
+name  - An instance of #<byte-string>#. The name of an environment variable. 
 
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <byte-string>). 
+value - The same _value_ passed as an argument.
 
 
-
+See also:
+------------------------------
+#environment-variable#

@@ -1,7 +1,18 @@
 Module: Module operating-system
 ==============================
 
-The operating-system module.
+The operating-system module contains functions for dealing with environment
+variables, the current user, and processes.
+
+Note that the following functions are only effective under Windows operating
+systems:
+
+- #owner-name#
+- #owner-organization#
+- #create-application-event#
+- #wait-for-application-event#
+- #signal-application-event#
+- #load-library#
 
 
 Exported from:

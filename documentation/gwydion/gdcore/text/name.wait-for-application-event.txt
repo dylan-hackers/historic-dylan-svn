@@ -1,7 +1,7 @@
 Function: wait-for-application-event
 ==============================
 
-A function.
+Halt the current thread until an event is signaled or a timeout expires.
 
 
 Exported from:
@@ -11,13 +11,17 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<machine-word>#. 
-timeout: - An instance of #<integer>#. The default is -1.
+handle   - An instance of #<machine-word>#. The event handle.
+timeout: - An instance of #<integer>#. If not supplied, the timeout is
+           infinite.
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+success? - An instance of #<boolean>#. True if the event was signaled.
 
 
-
+See also:
+------------------------------
+- #create-application-event#
+- #signal-application-event#

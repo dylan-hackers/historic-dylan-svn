@@ -1,7 +1,7 @@
 Function: signal-application-event
 ==============================
 
-A function.
+A function that signals an event created by #create-application-event#.
 
 
 Exported from:
@@ -11,12 +11,15 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
+name - An instance of #<string>#. The name of the event to signal.
 
 
 Values:
 ------------------------------
-val - An instance of #<boolean>#. 
+success? - An instance of #<boolean>#. 
 
 
-
+See also:
+------------------------------
+- #create-application-event#
+- #wait-for-application-event#

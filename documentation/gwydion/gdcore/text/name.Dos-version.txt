@@ -1,7 +1,9 @@
 Constant: $os-version
 ==============================
 
-A constant.
+A constant indicating the version of the current OS. The value is determined
+at run-time from the uname (for Unix) or GetVersionExA (for Windows)
+functions.
 
 
 Exported from:
@@ -16,5 +18,5 @@ Type:
 
 Value:
 ------------------------------
-unknown
+platform-specific
 

@@ -1,7 +1,9 @@
 Function: login-group
 ==============================
 
-A function.
+Returns the group of the currently logged-in user account. Under Windows, this
+is the account's domain name. Under Unix, this is the name of the account's
+GID.
 
 
 Exported from:
@@ -11,7 +13,11 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of type-union(<false>, <string>). 
+group - An instance of #<string>#, or #f if unable to determine the group or
+        domain.
 
 
+See also:
+------------------------------
+#login-name#
 

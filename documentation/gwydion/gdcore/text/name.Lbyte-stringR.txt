@@ -47,6 +47,8 @@ Functions on <byte-string>:
 Functions returning <byte-string>:
 ------------------------------
 - #application-name#
+- #environment-variable#
+- #environment-variable-setter#
 - #import-string#
 - #join#
 

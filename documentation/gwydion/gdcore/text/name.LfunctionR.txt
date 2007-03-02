@@ -80,6 +80,7 @@ Functions on <function>:
 - #reduce-l#
 - #reduce-r#
 - #replace-elements!#
+- #run-application#
 - #satisfies#
 - #sequence-hash#
 - #tabulate#

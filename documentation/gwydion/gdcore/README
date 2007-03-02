@@ -336,13 +336,20 @@ If more than one place defines a value for a keyword, use the first of:
   make on superclasses
   define class
 
-For the functions on the class, list all functions with an argument of the
-class's type, or a type-union, limited, or subclass involving the class. If a
-function takes <object> but actually expects <my-class>, include it under
-<my-class> and not <object>. Do not include functions on superclasses, or
-every "Functions on" list will look like the one for <object>.
+For the functions on the class or returning the class, list all functions with
+an argument or value of the class's type, or a type-union, limited, or
+subclass involving the class. The skeletal docs will often have this wrong.
 
-For the functions returning the class, likewise.
+In particular, functions that return or take a type-union, limited, or
+subclass type aren't correctly categorized. A function returning
+type-union(<integer>, <string>), for example, should be listed under both the
+<integer> and <string> classes.
+
+If a function takes <object> but actually expects <my-class>, include it under
+<my-class> and not <object>.
+
+Do not include functions on or returning superclasses, or every "Functions on"
+list will look like the one for <object>.
 
 
 ============================

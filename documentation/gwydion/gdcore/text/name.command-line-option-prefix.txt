@@ -1,7 +1,9 @@
 Function: command-line-option-prefix
 ==============================
 
-A function.
+Returns the character that traditionally indicates a command-line option.
+Under Microsoft Windows, this will be '/'. Under a Unix-based operating
+system, this will be '-'.
 
 
 Exported from:
@@ -11,7 +13,7 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of #<character>#. 
+prefix - An instance of #<character>#. 
 
 
 

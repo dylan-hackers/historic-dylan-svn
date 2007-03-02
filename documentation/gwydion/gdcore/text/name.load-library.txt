@@ -1,7 +1,8 @@
 Function: load-library
 ==============================
 
-A function.
+Loads a dynamic library into the application's memory space. See the Win32
+function _LoadLibrary_.
 
 
 Exported from:
@@ -11,12 +12,13 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<string>#. 
+name - An instance of #<string>#. The path and filename of the library.
 
 
 Values:
 ------------------------------
-val - An instance of #<object>#. 
+module - An instance of #<object>#. A handle to the loaded library, if
+         successful.
 
 
 
