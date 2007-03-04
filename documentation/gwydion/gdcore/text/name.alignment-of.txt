@@ -1,7 +1,7 @@
 Generic: alignment-of
 ==============================
 
-A generic function.
+Returns the alignment of a C type.
 
 
 Exported from:
@@ -16,12 +16,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+arg - An instance of #<designator-class># for a C type.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+val - An instance of #<integer>#, a power of 2 in sizeof units.
 
 
 

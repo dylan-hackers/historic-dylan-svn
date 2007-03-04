@@ -1,7 +1,12 @@
 Macro: callback-method
 ==============================
 
-A macro.
+Creates and returns a C-callable Dylan function. Used like the method statement.
+
+: define constant my-callback =
+:     callback-method (i :: <integer>) => (s :: <string>)
+:       ...
+:     end;
 
 
 Exported from:
@@ -9,10 +14,22 @@ Exported from:
 - #Module system#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          statement macro
-        
+: callback-method (parameters) => (values)
+:   (body)
+: end
+
+
+Arguments:
+------------------------------
+parameters - A parameter list. May be empty.
+values     - A value list. May be empty.
+body       - A method body; a series of semicolon-separated expressions.
+
+
+Values:
+------------------------------
+callback - An indirect instance of #<function>#.
 
 

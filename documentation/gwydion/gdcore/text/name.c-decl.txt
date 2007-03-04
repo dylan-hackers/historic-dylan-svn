@@ -1,7 +1,8 @@
 Macro: c-decl
 ==============================
 
-A macro.
+Create a global C declaration. If used inside a Dylan function, the
+declaration will be created after the Dylan function in the compiler output.
 
 
 Exported from:
@@ -9,10 +10,14 @@ Exported from:
 - #Module system#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
+: c-decl ( (decl) )
+
+
+Arguments:
+------------------------------
+decl - A literal instance of #<string>#. A global C declaration.
         
 
 

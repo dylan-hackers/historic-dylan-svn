@@ -68,7 +68,6 @@ Functions on <object>:
 - #add-new#
 - #add-new!#
 - #add-option-parser-by-type#
-- #alignment-of#
 - #alist-delete#
 - #always#
 - #any?#
@@ -86,16 +85,14 @@ Functions on <object>:
 - #buffer-address#
 - #buffer-dirty?#
 - #buffer-dirty?-setter#
-- #buffer-end#
-- #buffer-end-setter#
 - #buffer-fill#
-- #buffer-next#
-- #buffer-next-setter#
 - #buffer-position#
 - #buffer-position-setter#
 - #buffer-size#
 - #buffer-start-setter#
-- #callback-entry#
+- #c-expr#
+- #c-struct-field-setter#
+- #call-out#
 - #case-insensitive-equal#
 - #cerror#
 - #check-type#
@@ -250,6 +247,7 @@ Functions on <object>:
 - #pair-foldl#
 - #pair-foldr#
 - #peek#
+- #pointer-deref-setter#
 - #position#
 - #positive?#
 - #precedes?#
@@ -282,7 +280,6 @@ Functions on <object>:
 - #reduce#
 - #reduce-l#
 - #reduce-r#
-- #referenced-type#
 - #regexp-position#
 - #regexp-replace#
 - #remove#
@@ -317,7 +314,6 @@ Functions on <object>:
 - #singleton#
 - #singleton-object#
 - #size#
-- #size-of#
 - #size-setter#
 - #skip-through#
 - #slot-initialized?#
@@ -372,7 +368,6 @@ Functions on <object>:
 - #values#
 - #values-hash#
 - #vector#
-- #vector-elements-address#
 - #word-size#
 - #writable-file-stream-position-setter#
 - #write#
@@ -391,7 +386,6 @@ Functions returning <object>:
 - #+#
 - #abs#
 - #add-last#
-- #alignment-of#
 - #all-superclasses#
 - #any?#
 - #apply#
@@ -407,16 +401,15 @@ Functions returning <object>:
 - #buffer-address#
 - #buffer-dirty?#
 - #buffer-dirty?-setter#
-- #buffer-end#
-- #buffer-end-setter#
 - #buffer-fill#
-- #buffer-next#
-- #buffer-next-setter#
 - #buffer-position#
 - #buffer-position-setter#
 - #buffer-size#
 - #buffer-start-setter#
-- #callback-entry#
+- #c-expr#
+- #c-struct-field#
+- #c-struct-field-setter#
+- #call-out#
 - #check-type#
 - #class-name#
 - #collector-protocol#
@@ -513,6 +506,7 @@ Functions returning <object>:
 - #outer-stream#
 - #outer-stream-setter#
 - #peek#
+- #pointer-deref#
 - #pop#
 - #pop-last#
 - #predecessor#
@@ -539,7 +533,6 @@ Functions returning <object>:
 - #reduce1#
 - #reduce-l#
 - #reduce-r#
-- #referenced-type#
 - #regexp-matches#
 - #restart-query#
 - #return-query#
@@ -564,7 +557,6 @@ Functions returning <object>:
 - #short-option-names-setter#
 - #signal#
 - #singleton-object#
-- #size-of#
 - #size-setter#
 - #source-index#
 - #ssv-data#
@@ -598,7 +590,6 @@ Functions returning <object>:
 - #uppercase?#
 - #value#
 - #values#
-- #vector-elements-address#
 - #word-size#
 - #writable-file-stream-position-setter#
 

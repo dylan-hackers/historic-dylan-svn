@@ -62,15 +62,15 @@ sealed - The generic method may not be given additional methods.
 
 
 Classes:
-abstract   - The class may not be instantiated.
-concrete   - The class may be instantiated.
-free       - The class is not restricted to a single inheritance chain.
-functional - The class only has constant slots. Equality is defined by slot
-             value and object class.
-open       - The class may be subclassed.
-primary    - The class forms a single inheritance chain with other primary
-             classes.  
-sealed     - The class may not be subclassed.
+abstract     - The class may not be instantiated.
+concrete     - The class may be instantiated.
+free         - The class is not restricted to a single inheritance chain.
+functional   - The class only has constant slots. Equality is defined by slot
+               value and object class.
+open         - The class may be subclassed.
+primary      - The class forms a single inheritance chain with other primary
+               classes.  
+sealed       - The class may not be subclassed.
 
 
 Slots:

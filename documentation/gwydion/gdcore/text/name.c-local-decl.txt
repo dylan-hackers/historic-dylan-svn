@@ -1,7 +1,8 @@
 Macro: c-local-decl
 ==============================
 
-A macro.
+Create a local C declaration in the current compiler output function. The
+declaration is placed at the beginning of the function.
 
 
 Exported from:
@@ -9,10 +10,11 @@ Exported from:
 - #Module system#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
-        
+: c-local-decl ( (decl) )
 
 
+Arguments:
+------------------------------
+decl - An literal instance of #<string>#. A local C declaration.

@@ -1,7 +1,8 @@
 Macro: call-out
 ==============================
 
-A macro.
+Calls a C function and returns its value. The function must have a fixed
+number of arguments; it cannot be variadic (_e.g._ like printf).
 
 
 Exported from:
@@ -9,10 +10,27 @@ Exported from:
 - #Module system#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
-        
+: call-out ( (C-func), (return-type),
+:                      (arg-type), (arg-value),
+:                      (arg-type), (arg-value), ... )
 
 
+Arguments:
+------------------------------
+C-func      - A literal instance of #<string>#, or a #<raw-pointer>#. The name
+              or address of a C function.
+
+return-type - A literal instance of #<symbol>#. One of the #C type symbols#.
+              The C type returned by _C-func_.
+
+arg-type    - A literal instance of #<symbol>#. One of the #C type symbols#.
+              The intended C type of the following _arg-value_.
+
+arg-value   - An instance of #<object>#. An argument for _C-func_.
+
+
+Values:
+------------------------------
+return-value - An instance of #<object>#. The value returned by _C-func_.

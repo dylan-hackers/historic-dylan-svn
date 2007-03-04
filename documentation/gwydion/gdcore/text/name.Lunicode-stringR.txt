@@ -31,4 +31,6 @@ Superclasses:
 - #<vector>#
  
 
-
+Functions on <unicode-string>:
+------------------------------
+- #copy-bytes#

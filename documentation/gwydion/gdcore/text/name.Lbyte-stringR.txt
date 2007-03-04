@@ -33,6 +33,7 @@ Superclasses:
 
 Functions on <byte-string>:
 ------------------------------
+- #copy-bytes#
 - #debugger-message#
 - #debug-message#
 - #environment-variable#
@@ -49,6 +50,7 @@ Functions returning <byte-string>:
 - #application-name#
 - #environment-variable#
 - #environment-variable-setter#
+- #getenv#
 - #import-string#
 - #join#
 

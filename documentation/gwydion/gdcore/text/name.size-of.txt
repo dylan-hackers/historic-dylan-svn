@@ -1,7 +1,7 @@
 Generic: size-of
 ==============================
 
-A generic function.
+Returns the size of a C type in sizeof units.
 
 
 Exported from:
@@ -16,12 +16,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+c-type - An instance of #<designator-class>#.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+size - An instance of #<integer>#.
 
 
 

@@ -26,6 +26,7 @@ Functions on <character>:
 - #alphabetic?#
 - #alphanumeric?#
 - #byte-character?#
+- #c-literal#
 - #control?#
 - #digit?#
 - #digit-to-integer#
@@ -40,6 +41,7 @@ Functions on <character>:
 
 Functions returning <character>:
 ------------------------------
+- #c-literal#
 - #command-line-option-prefix#
 - #file-system-separator#
 - #integer-to-digit#

@@ -1,7 +1,9 @@
 Class: <designator-class>
 ==============================
 
-A class.
+A designator class carries the essential properties of a C type such as its
+size and alignment. Designator classes are best constructed via
+#designator-class-definer#.
 
 
 Exported from:
@@ -14,9 +16,33 @@ Modifiers:
 concrete free sealed
 
 
+Make keywords:
+------------------------------
+size:             - An instance of #<integer>#. Required. The C type's size in
+                    sizeof units.
+                    
+alignment:        - An instance of #<integer>#. Required. The C type's
+                    required alignment, a power of 2 in sizeof units.
+                    
+referenced-type:  - An instance of #<designator-class># or #f if the C type
+                    is not a pointer type. The designator class for what this
+                    pointer C type refers to. Defaults to #f.
+
+
 Superclasses:
 ------------------------------
 - #<class>#
  
 
+Functions on <designator-class>:
+------------------------------
+- #alignment-of#
+- #referenced-type#
+- #size-of#
+
+
+Functions returning <designator-class>#:
+------------------------------
+- #designator-class-definer#
+- #referenced-type#
 

@@ -1,7 +1,7 @@
 Macro: pointer-deref
 ==============================
 
-A macro.
+Returns the C value that a #<raw-pointer># points to.
 
 
 Exported from:
@@ -9,10 +9,21 @@ Exported from:
 - #Module system#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
+: pointer-deref ( (kind), (ptr), (offset) )
         
 
+Arguments:
+------------------------------
+kind   - A literal #<symbol>#, one of the #C type symbols#. The C type found
+         at _ptr_ + _offset_.
+         
+ptr    - An instance of #<raw-pointer>#.
 
+offset - An instance of #<integer>#. A byte offset from the _ptr_ address.
+
+
+Values:
+------------------------------
+value - An instance of #<object>#.

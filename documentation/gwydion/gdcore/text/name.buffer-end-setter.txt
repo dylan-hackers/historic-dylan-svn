@@ -1,3 +1,39 @@
+Title: buffer-end-setter
+==============================
+
+There are two unrelated functions named #buffer-end-setter#. The one exported
+from #Module system# relates to a memory buffer. The one exported from #Module
+streams# relates to a stream buffer.
+
+
+Generic: buffer-end-setter
+==============================
+
+Sets the "end" mark of a buffer.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+end - An instance of #<buffer-index>#. 
+buf - An instance of #<buffer>#. 
+
+
+Values:
+------------------------------
+end - An instance of #<buffer-index>#. The _end_ argument.
+
+
+
 Generic: buffer-end-setter
 ==============================
 
@@ -6,7 +42,6 @@ A generic function.
 
 Exported from:
 ------------------------------
-- #Module system#
 - #Module streams#
 
 

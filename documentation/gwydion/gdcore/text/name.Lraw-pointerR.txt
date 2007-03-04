@@ -1,7 +1,7 @@
 Class: <raw-pointer>
 ==============================
 
-A class.
+A class representing a memory address. An instance of #<raw-pointer># is created via #as# on an #<integer>#.
 
 
 Exported from:
@@ -21,15 +21,22 @@ Superclasses:
 
 Functions on <raw-pointer>:
 ------------------------------
+- #c-struct-field#
+- #c-struct-field-setter#
+- #call-out#
 - #general-object-at#
 - #heap-object-at#
 - #import-string#
+- #pointer-deref#
+- #pointer-deref-setter#
 
 
 Functions returning <raw-pointer>:
 ------------------------------
+- #callback-entry#
 - #export-string#
 - #object-address#
+- #vector-elements-address#
 
 
 

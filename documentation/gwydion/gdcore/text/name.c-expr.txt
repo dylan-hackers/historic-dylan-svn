@@ -1,7 +1,7 @@
 Macro: c-expr
 ==============================
 
-A macro.
+Evaluate a C expression at this point.
 
 
 Exported from:
@@ -9,10 +9,19 @@ Exported from:
 - #Module system#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
-        
+: c-expr ( (type), (expr) )
+
+
+Arguments:
+------------------------------
+type - A literal instance of #<symbol>#. One of the #C type symbols#.
+expr - A literal instance of #<string>#. The C expression to evaluate.
+
+
+Values:
+------------------------------
+result - An instance of #<object>#. The result of _expr_.
 
 

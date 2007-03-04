@@ -1,7 +1,7 @@
 Generic: buffer-address
 ==============================
 
-A generic function.
+Returns the address of the start of a memory buffer.
 
 
 Exported from:
@@ -16,12 +16,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+buf - An instance of #<buffer># (from the system module). 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+ptr - An instance of #<raw-pointer>#. 
 
 
 

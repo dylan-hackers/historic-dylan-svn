@@ -1,7 +1,7 @@
 Macro: c-literal
 ==============================
 
-A macro.
+Returns the Dylan value of a C literal. I cannot fathom a use for this macro.
 
 
 Exported from:
@@ -9,10 +9,16 @@ Exported from:
 - #Module system#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
+: c-literal ( (lit) )
         
 
+Arguments:
+------------------------------
+lit - A literal #<integer># or #<character>#.
 
+
+Values:
+------------------------------
+lit - An #<integer># or #<character>#. The _lit_ argument.

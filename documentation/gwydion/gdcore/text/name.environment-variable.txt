@@ -2,6 +2,7 @@ Function: environment-variable
 ==============================
 
 Returns the value of an environment variable.
+Equivalent but not identical to #getenv#.
 
 
 Exported from:

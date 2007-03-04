@@ -2,7 +2,8 @@ Function: run-application
 ==============================
 
 Runs an application in a separate process. Under Windows, the application's
-output may be retrieved piecemeal via the _outputter_ argument.
+output may be retrieved piecemeal via the _outputter_ argument. Under Unix,
+equivalent but not identical to #system#.
 
 The _outputter_ argument is a function with the signature
 (buffer :: #<byte-string>#, end: :: #<integer>#) => ().

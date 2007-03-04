@@ -1,7 +1,8 @@
 Function: system
 ==============================
 
-A function.
+Runs an application or command. Equivalent but not identical to
+#run-application# on Unix platforms.
 
 
 Exported from:
@@ -11,12 +12,12 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<byte-string>#. 
+command - An instance of #<byte-string>#. The command to run.
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
+exit-code - An instance of #<integer>#. The command's exit code.
 
 
 

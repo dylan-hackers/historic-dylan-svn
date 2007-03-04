@@ -1,8 +1,7 @@
 Generic: referenced-type
 ==============================
 
-A generic function.
-
+Returns the designator class that a pointer's designator class points to.
 
 Exported from:
 ------------------------------
@@ -16,12 +15,14 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+pointer-class - An instance of #<designator-class>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+deref'd-pointer-class - An instance of #<designator-class># or #f if
+                        _pointer-class_ is not the designator class for a
+                        pointer type. 
 
 
 

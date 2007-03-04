@@ -1,7 +1,7 @@
 Function: no-core-dumps
 ==============================
 
-A function.
+On Unix operating systems, prevents core dump files.
 
 
 Exported from:

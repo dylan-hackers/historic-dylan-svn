@@ -1,7 +1,7 @@
 Constant: $maximum-buffer-size
 ==============================
 
-A constant.
+The maximum size of a #<buffer>#.
 
 
 Exported from:
@@ -11,7 +11,7 @@ Exported from:
 
 Type:
 ------------------------------
-#<object>#
+#<integer>#
 
 
 Value:

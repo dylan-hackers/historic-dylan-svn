@@ -1,7 +1,7 @@
 Generic: callback-entry
 ==============================
 
-A generic function.
+Returns the entry point of a C-callable Dylan function.
 
 
 Exported from:
@@ -16,12 +16,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+callback - A general instance of #<function>#. A C-callable function created
+           by #callback-method#.
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+address - An instance of #<raw-pointer>#. 
 
 
 

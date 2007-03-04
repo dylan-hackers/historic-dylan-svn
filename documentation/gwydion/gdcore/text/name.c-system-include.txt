@@ -1,7 +1,7 @@
 Macro: c-system-include
 ==============================
 
-A macro.
+Includes a C header file using the <> syntax.
 
 
 Exported from:
@@ -9,10 +9,12 @@ Exported from:
 - #Module system#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
-        
+: c-system-include ( (file) )
 
+
+Arguments:
+------------------------------        
+file - A literal instance of #<string>#. A C header file.
 

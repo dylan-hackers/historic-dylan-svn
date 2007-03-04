@@ -36,6 +36,7 @@ Functions on <function>:
 - #applicable-method?#
 - #apply#
 - #assoc#
+- #callback-entry#
 - #choose#
 - #choose-by#
 - #choose-map#

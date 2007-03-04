@@ -40,6 +40,14 @@ Subclasses:
 Functions on <string>:
 ------------------------------
 - #break#
+- #c-decl#
+- #c-expr#
+- #c-include#
+- #c-local-decl#
+- #c-struct-field#
+- #c-struct-field-setter#
+- #c-system-include#
+- #call-out#
 - #case-insensitive-string-hash#
 - #cerror#
 - #condition-format#

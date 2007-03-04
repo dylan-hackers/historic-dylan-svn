@@ -1,12 +1,55 @@
+Title: <buffer-index>
+==============================
+
+There are two unrelated types named #<buffer-index>#. The one exported from
+#Module system# represents a byte index. The one exported from #Module
+streams# represents an element index.
+
+
 Constant: <buffer-index>
 ==============================
 
-A constant.
+A class representing an byte index within a #<buffer>#.
 
 
 Exported from:
 ------------------------------
 - #Module system#
+
+
+Type:
+------------------------------
+#<object>#
+
+
+Value:
+------------------------------
+#<integer>#
+
+
+Functions on <buffer-index>:
+------------------------------
+- #buffer-end-setter#
+- #buffer-next-setter#
+
+
+Functions returning <buffer-index>:
+------------------------------
+- #buffer-end#
+- #buffer-end-setter#
+- #buffer-next#
+- #buffer-next-setter#
+
+
+
+Constant: <buffer-index>
+==============================
+
+A class.
+
+
+Exported from:
+------------------------------
 - #Module streams#
 
 
@@ -17,5 +60,20 @@ Type:
 
 Value:
 ------------------------------
-<integer>
+#<integer>#
+
+
+Functions on <buffer-index>:
+------------------------------
+- #buffer-end-setter#
+- #buffer-next-setter#
+
+
+Functions returning <buffer-index>:
+------------------------------
+- #buffer-end#
+- #buffer-end-setter#
+- #buffer-next#
+- #buffer-next-setter#
+
 

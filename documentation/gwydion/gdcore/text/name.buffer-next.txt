@@ -1,3 +1,38 @@
+Title: buffer-next
+==============================
+
+There are two unrelated functions named #buffer-next#. The one exported
+from #Module system# relates to a memory buffer. The one exported from #Module
+streams# relates to a stream buffer.
+
+
+Generic: buffer-next
+==============================
+
+Returns a buffer's "next" mark.
+
+
+Exported from:
+------------------------------
+- #Module system#
+
+
+Modifiers:
+------------------------------
+sealed
+
+
+Arguments:
+------------------------------
+buf - An instance of #<buffer>#. 
+
+
+Values:
+------------------------------
+next - An instance of #<buffer-index>#. 
+
+
+
 Generic: buffer-next
 ==============================
 
@@ -6,7 +41,6 @@ A generic function.
 
 Exported from:
 ------------------------------
-- #Module system#
 - #Module streams#
 
 

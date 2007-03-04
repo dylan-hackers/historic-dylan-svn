@@ -1,12 +1,16 @@
 Generic: copy-bytes
 ==============================
 
-A generic function.
+Copies bytes from one byte collection to another, or copies bytes within a
+byte collection. _Count_ bytes are copied starting from _src-index_ in
+_src-coll_ to _dest-index_ in _dest_coll_. The destination byte range may
+overlap with the source byte range.
 
 
 Exported from:
 ------------------------------
 - #Module system#
+- #Module byte-vector#
 
 
 Modifiers:
@@ -16,37 +20,19 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of type-union(<buffer>, <byte-vector>, <unicode-string>, <byte-string>). 
-arg - An instance of #<integer>#. 
-arg - An instance of type-union(<buffer>, <byte-vector>, <unicode-string>, <byte-string>). 
-arg - An instance of #<integer>#. 
-arg - An instance of #<integer>#. 
+dest-coll  - An instance of #<buffer>#, #<byte-vector>#, #<unicode-string>#,
+             or #<byte-string>#.
+             
+dest-index - An instance of #<integer>#.
+
+src-coll   - An instance of #<buffer>#, #<byte-vector>#, #<unicode-string>#,
+             or #<byte-string>#. 
+             
+src-index  - An instance of #<integer>#.
+ 
+count      - An instance of #<integer>#. 
 
 
-
-Generic: copy-bytes
-==============================
-
-A generic function.
-
-
-Exported from:
+See also:
 ------------------------------
-- #Module byte-vector#
-
-
-Modifiers:
-------------------------------
-open
-
-
-Arguments:
-------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-
-
-
+#<buffer-index>#, which is identical to #<integer>#.

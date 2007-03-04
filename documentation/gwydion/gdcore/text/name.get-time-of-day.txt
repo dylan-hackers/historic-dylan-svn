@@ -1,7 +1,8 @@
 Function: get-time-of-day
 ==============================
 
-A function.
+Returns the number of seconds that have passed since 00:00:00 GMT January 1,
+1970.
 
 
 Exported from:
@@ -11,7 +12,7 @@ Exported from:
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
+seconds - An instance of #<integer>#. 
 
 
 

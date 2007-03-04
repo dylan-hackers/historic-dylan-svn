@@ -49,6 +49,7 @@ Methods on <vector>:
 ------------------------------
 - #find-first-key#
 - #find-last-key#
+- #vector-elements-address#
 
 
 Methods returning <vector>:

@@ -1,7 +1,7 @@
 Generic: vector-elements-address
 ==============================
 
-A generic function.
+Returns the address at which a #<vector>#'s elements begin.
 
 
 Exported from:
@@ -16,12 +16,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+vec - An instance of #<vector>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+addr - An instance of #<raw-pointer>#. 
 
 
 

@@ -1,13 +1,38 @@
 Module: Module system
 ==============================
 
-The System module exports an interface to operating system calls and special,
-low-level functionality.
+The System module exports an interface to the C language (the C-FFI) and
+certain operating system calls.
 
 
 Exported from:
 ------------------------------
 #Library Dylan#
+
+
+Topic: C type symbols
+------------------------------
+Several macros use the following symbols to represent C
+types:
+
+#"boolean"        - int
+#"byte"           - char
+#"char"           - char
+#"double"         - double
+#"float"          - float
+#"int"            - int
+#"long"           - long
+#"long-double"    - long double
+#"long-long"      - long long
+#"ptr"            - void *
+#"short"          - short
+#"ubyte"          - unsigned char
+#"uint"           - unsigned int
+#"unsigned-char"  - unsigned char
+#"unsigned-int"   - unsigned int
+#"unsigned-short" - unsigned short
+#"ushort"         - unsigned short
+#"void"           - void, for return types only
 
 
 Topic: system names

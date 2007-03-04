@@ -1,7 +1,7 @@
 Macro: c-struct-field-setter
 ==============================
 
-A macro.
+Sets the value of a field of a C struct.
 
 
 Exported from:
@@ -9,10 +9,18 @@ Exported from:
 - #Module system#
 
 
-Definition:
+Macro call:
 ------------------------------
-:
-          function macro
+: c-struct-field ( (new-val), (kind), (ptr), (struct), (field) )
+
         
+Arguments:
+------------------------------
+new-val - An instance of #<object>#. The new value for the field.
+kind    - A literal instance of #<symbol>#. One of the #C type symbols#. The
+          C type of the field.
+ptr     - An instance of #<raw-pointer>#. The address of the structure.
+struct  - A literal instance of #<string>#. The name of the C struct type.
+field   - A literal instance of #<string>#. A field of _struct_.
 
 

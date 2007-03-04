@@ -1114,7 +1114,7 @@ Group: Bindings  {
       File: defargparser-init  (name.defargparser-init.txt)
       File: defargparser-rec  (name.defargparser-rec.txt)
       File: defargparser-synopsis  (name.defargparser-synopsis.txt)
-      File: designator-class-definer  (name.designator-class-definer.txt)
+      File: name.designator-class-definer.txt  (name.designator-class-definer.txt)
       File: domain-definer  (name.domain-definer.txt)
       File: dynamic-bind  (name.dynamic-bind.txt)
       File: for  (name.for.txt)
@@ -1178,5 +1178,6 @@ Group: Indexes  {
    Constant Index: Constants
    Dylan Class Index: Classes
    Macro Index: Macros
+   Property Index: Properties
    }  # Group: Indexes
 

@@ -32,6 +32,7 @@ Functions on <integer>:
 - #byte-vector-fill#
 - #byte-vector-ref#
 - #byte-vector-ref-setter#
+- #c-literal#
 - #copy-bytes#
 - #copy-from-buffer!#
 - #copy-into-buffer!#
@@ -51,6 +52,8 @@ Functions on <integer>:
 - #isqrt#
 - #logbit?#
 - #multi-buffered-stream-position-setter#
+- #pointer-deref#
+- #pointer-deref-setter#
 - #position#
 - #pprint-indent#
 - #pprint-logical-block#
@@ -83,8 +86,10 @@ Functions on <integer>:
 Functions returning <integer>:
 ------------------------------
 - #adjust-stream-position#
+- #alignment-of#
 - #bit-count#
 - #buffer-start#
+- #c-literal#
 - #case-insensitive-string-hash#
 - #collection-hash#
 - #current-timestamp#
@@ -119,6 +124,7 @@ Functions returning <integer>:
 - #row-major-index#
 - #run-application#
 - #sequence-hash#
+- #size-of#
 - #string-hash#
 - #stream-position#
 - #stream-position-setter#

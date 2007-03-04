@@ -1,7 +1,7 @@
 Macro: designator-class-definer
 ==============================
 
-A macro.
+Constructs and returns a #<designator-class>#.
 
 
 Exported from:
@@ -9,10 +9,151 @@ Exported from:
 - #Module system#
 
 
-Definition:
+Macro call:
 ------------------------------
+: define (class-adjectives) designator-class (class-name) ( (superclasses) )
+: options (c-type-options)
+:   (struct-slots)
+:   (slots)
+:   (init-args)
+:   (inherited-slots)
+: end class (class-name)
 :
-          body-style define macro
+: struct-slots:
+:   (struct-adjectives) struct slot (slot-name) :: (slot-type),
+:       (struct-options)
+:
+: slots:
+:   (slot-adjectives) slot (slot-name) :: (slot-type) = (init-expr),
+:       (slot-options)
+:
+: inits-args:
+:   keyword (symbol) (init-expr), (init-arg-options)
+:   required keyword (symbol) = (init-expr), (init-arg-options)
+:
+: inherited-slots:
+:   inherited slot (slot-name) = (init-expr), (inh-slot-options)
         
+
+Arguments:
+------------------------------
+class-adjectives  - Gwydion Dylan allows the following class adjectives:
+                    abstract, concrete, primary, free, sealed, open,
+                    functional, instantiable. These are optional. The defaults
+                    are abstract, primary, sealed, functional, instantiable.
+                    See #Define adjectives# and "Designator class adjectives"
+                    above.
+                  
+class-name        - A binding name.
+                  
+superclasses      - A list of direct superclasses.
+                  
+c-type-options    - This is a list of keys and values. See "Designator class
+                    options" below.
+                    
+struct-adjectives - A series of optional adjectives. See "Struct slot
+                    adjectives" below.
+                    
+struct-options    - This is a list of keys and values. See "Struct slot
+                    options" below.
+                  
+slot-adjectives   - Gwydion Dylan allows the following slot adjectives:
+                    constant, sealed, instance, class, each-subclass, virtual.
+                    See #Define adjectives#.
+                    
+slot-name         - Slot name.
+                  
+slot-type         - Slot type specialization.
+                  
+init-expr         - An expression for the initial value of the slot or init
+                    argument. Optional.
+                  
+symbol            - Keyword symbol.
+                  
+slot-options      - A series of optional keys and values. Keys are
+                    setter:, init-keyword:, required-init-keyword:,
+                    init-value:, init-function:, type:.
+                  
+init-arg-options  - A series of optional keys and values. Keys are
+                    init-value:, init-function:, type:.
+                    
+inh-slot-options  - A series optional of keys and values. Keys are
+                    init-value:, init-function:.
+        
+
+Designator class adjectives:
+------------------------------
+instantiable - The class can be instantiated.
+
+
+Designator class options:
+------------------------------
+These are all optional.
+
+c-name:                  - The C type as a string, for documentation purposes.
+
+referenced-type:         - For pointer types, the C type that the pointer
+                           references. A #<designator-class>#.
+
+pack:                    - For structs, indicates that the struct has the
+                           packing semantics of Microsoft's #pragma pack(n).
+
+c-rep:                   - The C type. One of the #C type symbols#.
+
+import-type:             - A Dylan type conceptually equivalent to the _c-rep_
+                           type. The C type is converted into this type.
+
+export-type:             - A Dylan type conceptually equivalent to the _c-rep_
+                           type. This type is converted into the C type.
+
+import-function:         - A function taking a Dylan object corresponding to
+                           the _c-rep_ C type and returning an instance of
+                           _import-type_.
+
+export-function:         - A function taking an instance of _export-type_ and
+                           returning a Dylan object corresponding to the
+                           _c-rep_ C type.
+
+pointer-type-name:       - For structs, a Dylan variable that will be bound to
+                           the designator class for pointers to the struct.
+
+pointer-type-superclass: - ?
+indirect-getter:         - ?
+indirect-setter:         - ?
+pointer-value-getter-function: - ?
+pointer-value-setter-function: - ?
+
+
+Struct slot adjectives:
+------------------------------
+constant - Prevents a setter method from being created for the slot.
+
+sealed   - Ensures the created setter and getter functions are sealed. [?]
+
+bitmap   - Indicates the slot maps to a C bitfield. The width: option is
+           required. The c-type: option describes the C type of the bitfield,
+           and is one of the #C type symbols#.
+
+array    - Indicates the slot maps to a C array. The dimensions: option is
+           is required. The slot accessors take extra index argument(s).
+
+
+Struct slot options:
+------------------------------
+c-type:         - The field's C type, one of the #C type symbols#. Required.
+setter:         - A generic method to which the slot setter will be added.
+                  Optional. Defaults to slot-name-setter.
+
+address-getter: - A function that can be used to return a pointer to the data
+                  in the C field. It must return a #<raw-pointer># object that
+                  points to a C type. Optional.
+
+c-name:         - The field's C name as a string. Optional.
+
+width:          - The width in bits of a C bitfield.
+
+dimensions:     - The dimension or dimensions of a C array. An integer or a
+                  vector of integers (one integer per axis).
+
 
 

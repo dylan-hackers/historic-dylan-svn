@@ -1,7 +1,16 @@
+Title: <buffer>
+==============================
+
+There are two unrelated #<buffer># classes. The one exported from #Module
+system# represents an in-memory buffer, and the one exported from #Module
+streams# represents a stream buffer that is owned by a stream and contains
+arbitrary types.
+
+
 Class: <buffer>
 ==============================
 
-A class.
+The class of memory buffers.
 
 
 Exported from:
@@ -14,6 +23,16 @@ Modifiers:
 concrete free sealed
 
 
+Make keywords:
+------------------------------
+next: - An instance of #<buffer-index>#. Defaults to 0.
+end:  - An instance of #<buffer-index>#. Defaults to 0.
+fill: - An instance of #<byte># specifying an initial value for every byte of
+        the buffer. Defaults to 0x00.
+size: - An instance of #<integer># specifying the size of the vector.  The
+        default value is 0.
+
+
 Superclasses:
 ------------------------------
 - #<simple-vector>#
@@ -21,10 +40,12 @@ Superclasses:
 
 Functions on <buffer>:
 ------------------------------
-- #buffer-start#
-- #buffer-subsequence#
-- #copy-from-buffer!#
-- #copy-into-buffer!#
+- #buffer-address#
+- #buffer-end#
+- #buffer-end-setter#
+- #buffer-next#
+- #buffer-next-setter#
+- #copy-bytes#
 
 
 
@@ -51,6 +72,10 @@ Superclasses:
 
 Functions on <buffer>:
 ------------------------------
+- #buffer-end#
+- #buffer-end-setter#
+- #buffer-next#
+- #buffer-next-setter#
 - #buffer-start#
 - #buffer-subsequence#
 - #copy-from-buffer!#

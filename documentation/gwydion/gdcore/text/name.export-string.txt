@@ -1,7 +1,7 @@
 Function: export-string
 ==============================
 
-A function.
+Returns a C string from a Dylan string.
 
 
 Exported from:
@@ -11,12 +11,12 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<byte-string>#. 
+dylan-string - An instance of #<byte-string>#. 
 
 
 Values:
 ------------------------------
-val - An instance of #<raw-pointer>#. 
+c-string - An instance of #<raw-pointer>#. 
 
 
 
