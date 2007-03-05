@@ -270,6 +270,13 @@ define method prefix (name :: type-union(<string>, <symbol>))
   split(as(<string>, name), ':')[0];
 end method prefix;
 
+define method prefix-setter (prefix :: <string>, element :: <element>) 
+  if (~member?(':', as(<string>, element.name)))
+    element.name := as(<symbol>, concatenate(prefix, ":", as(<string>, element.name)));
+  end if;
+  element;
+end;
+
 define generic real-name (object :: <object>) => (res :: <string>);
 define method real-name (element :: <element>) 
  => (res :: <string>);
