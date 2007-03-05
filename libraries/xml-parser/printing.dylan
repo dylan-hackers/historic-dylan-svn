@@ -184,7 +184,7 @@ end method print-object;
 
 define method print-safe-string(str :: <string>, s :: <stream>) => ()
   for(ch in str)
-    format(s, check-char(ch));
+    format(s, "%s", check-char(ch));
   end for;
 end method print-safe-string;
 
