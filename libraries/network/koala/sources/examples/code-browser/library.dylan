@@ -14,7 +14,7 @@ define library code-browser
     import: { dsp };
 
   use environment-protocols;
-  use environment-reports;
+  //use environment-reports;
   use environment-manager;
   use source-control-manager;
 
