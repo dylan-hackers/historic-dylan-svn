@@ -30,6 +30,14 @@ define function process-node (node :: <node>, output :: <stream>) => ()
           write(output, concatenate("  \"", node.label, "\" -> \"",
                                     target.label, "\"\n"));
         end;
+  if (node.attributes.size > 0)
+    let attrs = make(<stretchy-vector>);
+    for (ele in key-sequence(node.attributes))
+      add!(attrs, concatenate(ele, " = \"", node.attributes[ele], "\""));
+    end;
+    attrs := reduce1(method(x, y) concatenate(x, ",", y) end, attrs);
+    write(output, concatenate("  \"", node.label, "\" [", attrs, "]\n"))
+  end;
   do(print-edge, node.successors);
 end;
 

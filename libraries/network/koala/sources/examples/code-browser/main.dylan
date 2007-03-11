@@ -328,6 +328,9 @@ define function generate-class-graph (class-name :: <string>) => (res :: <graph>
       format-out("class node for %s was not found, creating\n", class-name);
       class-node := create-node(graph, label: class-name);
     end;
+    class-node.attributes["URL"] := "http://www.foo.com";
+    class-node.attributes["fillcolor"] := "red";
+    class-node.attributes["style"] := "filled";
     add!(visited, class);
     let superclasses
       = class-direct-superclasses(project, class);

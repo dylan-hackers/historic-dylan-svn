@@ -13,6 +13,7 @@ define sealed class <node> (<object>)
   constant slot label :: <string> = "", init-keyword: label:;
   constant slot outgoing-edges :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot incoming-edges :: <stretchy-vector> = make(<stretchy-vector>);
+  constant slot attributes :: <string-table> = make(<string-table>);
 end;
 
 define sealed class <edge> (<object>)
