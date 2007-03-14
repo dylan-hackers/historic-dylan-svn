@@ -41,6 +41,32 @@ define directory responder symbol-responder ("/symbol")
   end;
 end;
 
+define thread variable *results* = #f;
+
+define responder search-responder ("/search")
+ (request, response)
+  let search-string = get-query-value("search");
+  let results = element($all-symbols, search-string, default: #f);
+  dynamic-bind(*results* = results| #())
+    process-template(*result-page*, request, response);
+  end;
+end;
+define page result-page (<code-browser-page>)
+  (source: "results.dsp")
+end;
+
+define body tag results in code-browser
+ (page :: <code-browser-page>, response :: <response>, do-body :: <function>)
+ ()
+  for (result in *results*)
+    dynamic-bind(*project* = result.symbol-entry-project)
+      dynamic-bind(*environment-object* = result.symbol-entry-name)
+        do-body()
+      end;
+    end;
+  end;
+end;
+
 define page raw-source-page (<code-browser-page>)
   (source: "raw-source.dsp")
 end;
@@ -101,13 +127,17 @@ end;
 define method do-canonical-link (symbol)
   let name-object = environment-object-home-name(*project*, symbol);
   if (name-object)
-    let module-object = name-namespace(*project*, name-object);
-    let module-name-object = environment-object-home-name(*project*, module-object);
-    let library-object = name-namespace(*project*, module-name-object);
-    concatenate("/symbol/", dylan-name(library-object),
-                "/", dylan-name(module-object),
-                "/", dylan-name(symbol));
+    do-canonical-link(name-object)
   end;
+end;
+
+define method do-canonical-link (name-object :: <name-object>)
+  let module-object = name-namespace(*project*, name-object);
+  let module-name-object = environment-object-home-name(*project*, module-object);
+  let library-object = name-namespace(*project*, module-name-object);
+  concatenate("/symbol/", dylan-name(library-object),
+              "/", dylan-name(module-name-object),
+              "/", dylan-name(name-object));
 end;
 
 define method do-canonical-link (slot :: <slot-object>)
@@ -288,8 +318,74 @@ define function main () => ()
   start-server(config-file: config-file);
 end;
 
+define function collect-projects () => (res :: <collection>)
+  let res = make(<stretchy-vector>);
+  local method collect-project (dir :: <pathname>, filename :: <string>, type :: <file-type>)
+          if (type == #"file" & filename ~= "Open-Source-License.txt")
+            add!(res, filename);
+          end;
+        end;
+  let regs = find-registries("x86", "win32");
+  let reg-paths = map(registry-location, regs);
+  for (reg-path in reg-paths)
+    if (file-exists?(reg-path))
+      do-directory(collect-project, reg-path);
+    end;
+  end;
+  res;
+end;
+
+define class <symbol-entry> (<object>)
+  constant slot symbol-entry-name, required-init-keyword: name:;
+  constant slot symbol-entry-project, required-init-keyword: project:;
+end;
+
+define constant $all-symbols = make(<string-table>);
+
+define method add-symbol(project, name-object :: <binding-name-object>)
+  *project* := project;
+  if (name-exported?(project, name-object))
+    let symbol-entry = make(<symbol-entry>, name: name-object, project: project);
+    let symbol-name = get-environment-object-primitive-name(project, name-object);
+    let symbol-entries = element($all-symbols, symbol-name, default: make(<stretchy-vector>));
+    $all-symbols[symbol-name] := add!(symbol-entries, symbol-entry);
+  end;
+end;
+
 begin
-  main()
+  populate-symbol-table();
+//  for (ele in key-sequence($all-symbols))
+//    format-out("%s %d\n", ele, $all-symbols[ele].size);
+//  end;
+  main();
+end;
+
+define function populate-symbol-table ()
+  let projs = collect-projects();
+  format-out("Found %d projects: %=\n", projs.size, projs);
+  for (project-name in projs)
+    block()
+      format-out("Project %s\n", project-name);
+      let project = find-project(project-name);
+      open-project-compiler-database(project, 
+                                     warning-callback: callback-handler,
+                                     error-handler: callback-handler);
+      parse-project-source(project);
+      format-out("%=\n", project);
+      do-namespace-names
+        (method(module-name :: <module-name-object>)
+           if (name-exported?(project, module-name))
+             do-namespace-names(curry(add-symbol, project), project, 
+                                name-value(project, module-name))
+           end
+         end,
+         project, project-library(project));
+    exception (e :: <condition>)
+      format-out("Received exception %= in project %s\n", e, project-name);
+    end;
+  end;
+  
+  //main()
 end;
 
 /*
