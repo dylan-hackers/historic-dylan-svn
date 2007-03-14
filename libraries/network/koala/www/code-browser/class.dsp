@@ -5,6 +5,9 @@
   <title>Class: <code-browser:display-name/></title>
 </head>
 <body>
+  <form method="get" action="/search">
+   <input field type=string name=search></input>
+  </form>
   Superclasses:
   <ul>
   <code-browser:direct-superclasses>

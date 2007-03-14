@@ -9,7 +9,7 @@ define library code-browser
   use io,
     import: { format, format-out, streams };
   use system,
-    import: { locators, threads };
+    import: { locators, threads, file-system };
   use koala,
     import: { dsp };
 
@@ -19,6 +19,8 @@ define library code-browser
   use source-control-manager;
 
   use dfmc-environment-projects;
+ 
+  use registry-projects;
 
   use source-records;
   use release-info;
@@ -37,6 +39,7 @@ define module code-browser
   use format;
   use format-out;
   use streams;
+  use file-system;
   use dsp, exclude: { split };
   use regular-expressions, import: { regexp-replace };
   use source-records;
@@ -46,6 +49,7 @@ define module code-browser
                application-filename,
                application-arguments };
   use release-info;
+  use registry-projects;
   use graphviz-renderer;
 //  use environment-deuce;
 end;
