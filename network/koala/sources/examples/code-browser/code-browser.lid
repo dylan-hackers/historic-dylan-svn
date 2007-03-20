@@ -1,3 +1,7 @@
 library: code-browser
 files: library
-       main
+       main       
+       search
+       class
+       library-objects
+       module

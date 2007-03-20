@@ -18,54 +18,39 @@ define directory responder symbol-responder ("/symbol")
  (request, response)
   let suffix = split(request.request-url-tail, '/');
   //format-out("hit /: %= %d\n", suffix, suffix.size);
-  if (suffix.size = 3)
+  if (suffix.size > 0)
     let library-name = suffix[0];
-    let module-name = suffix[1];
-    let symbol-name = suffix[2];
     let project = find-project(library-name);
     open-project-compiler-database(project, 
                                    warning-callback: callback-handler,
                                    error-handler: callback-handler);
     parse-project-source(project);
-    let library = project.project-library;
-    let module = find-module(project, module-name, library: library);
-    let symbol = find-environment-object(project,
-                                         symbol-name,
-                                         library: library,
-                                         module: module);
     dynamic-bind(*project* = project)
-      dynamic-bind(*environment-object* = symbol)
-        process-template(environment-object-page(*environment-object*), request, response);
+      let library = project.project-library;
+      if (suffix.size > 1)
+        let module-name = suffix[1];
+        let module = find-module(project, module-name, library: library);
+        if (suffix.size = 3)
+          let symbol-name = suffix[2];
+          let symbol
+            = find-environment-object(project, symbol-name, library: library, module: module);
+          dynamic-bind(*environment-object* = symbol)
+            process-template(environment-object-page(*environment-object*), request, response);
+          end;
+        else
+          dynamic-bind(*environment-object* = module)
+            process-template(environment-object-page(*environment-object*), request, response);
+          end;
+        end;
+      else
+        dynamic-bind(*environment-object* = library)
+          process-template(environment-object-page(*environment-object*), request, response);
+        end;
       end;
     end;
   end;
 end;
 
-define thread variable *results* = #f;
-
-define responder search-responder ("/search")
- (request, response)
-  let search-string = get-query-value("search");
-  let results = element($all-symbols, search-string, default: #f);
-  dynamic-bind(*results* = results| #())
-    process-template(*result-page*, request, response);
-  end;
-end;
-define page result-page (<code-browser-page>)
-  (source: "results.dsp")
-end;
-
-define body tag results in code-browser
- (page :: <code-browser-page>, response :: <response>, do-body :: <function>)
- ()
-  for (result in *results*)
-    dynamic-bind(*project* = result.symbol-entry-project)
-      dynamic-bind(*environment-object* = result.symbol-entry-name)
-        do-body()
-      end;
-    end;
-  end;
-end;
 
 define page raw-source-page (<code-browser-page>)
   (source: "raw-source.dsp")
@@ -140,14 +125,19 @@ define method do-canonical-link (name-object :: <name-object>)
               "/", dylan-name(name-object));
 end;
 
-define method do-canonical-link (slot :: <slot-object>)
-  do-canonical-link(slot-type(*project*, slot))
+define method do-canonical-link (module-object :: <module-object>)
+  let module-name-object = environment-object-home-name(*project*, module-object);
+  let library-object = name-namespace(*project*, module-name-object);
+  concatenate("/symbol/", dylan-name(library-object),
+              "/", dylan-name(module-name-object));
 end;
 
-define body tag slots in code-browser
- (page :: <code-browser-page>, response :: <response>, do-body :: <function>)
- ()
-  do-all-slots(method(x) dynamic-bind(*environment-object* = x) do-body() end end, *project*, *environment-object*);
+define method do-canonical-link (library-object :: <library-object>)
+  concatenate("/symbol/", dylan-name(library-object))
+end;
+
+define method do-canonical-link (slot :: <slot-object>)
+  do-canonical-link(slot-type(*project*, slot))
 end;
 
 define function dylan-name
@@ -170,40 +160,6 @@ define tag display-name in code-browser
   (page :: <code-browser-page>, response :: <response>)
   ()
     format(response.output-stream, "%s", html-name(*environment-object*));
-end;
-define body tag direct-superclasses in code-browser
-  (page :: <code-browser-page>, response :: <response>, do-body :: <function>)
-  ()
-  for (superclass in class-direct-superclasses(*project*, *environment-object*))
-    dynamic-bind(*environment-object* = superclass)
-      do-body()
-    end;
-  end for;
-end;
-
-
-define body tag direct-subclasses in code-browser
- (page :: <code-browser-page>, response :: <response>, do-body :: <function>)
- ()
-  for (subclass in class-direct-subclasses(*project*, *environment-object*))
-    dynamic-bind(*environment-object* = subclass)
-      do-body()
-    end;
-  end for;
-end;
-
-define tag slot-name in code-browser
- (page :: <code-browser-page>, response :: <response>)
- ()
-   format(output-stream(response), "%s",
-          html-name(slot-getter(*project*, *environment-object*)));
-end;
-
-define tag slot-type in code-browser
- (page :: <code-browser-page>, response :: <response>)
- ()
-  format(output-stream(response), "%s",
-         html-name(slot-type(*project*, *environment-object*)));
 end;
 define body tag used-definitions in code-browser
  (page :: <code-browser-page>, response :: <response>, do-body :: <function>)
@@ -352,18 +308,18 @@ define method add-symbol(project, name-object :: <binding-name-object>)
   end;
 end;
 
-begin
-  populate-symbol-table();
+//begin
+//  populate-symbol-table();
 //  for (ele in key-sequence($all-symbols))
 //    format-out("%s %d\n", ele, $all-symbols[ele].size);
 //  end;
-  main();
-end;
+//  main();
+//end;
 
 define function populate-symbol-table ()
   let projs = collect-projects();
   format-out("Found %d projects: %=\n", projs.size, projs);
-  for (project-name in projs)
+  for (project-name in #("dylan")) //projs)
     block()
       format-out("Project %s\n", project-name);
       let project = find-project(project-name);
