@@ -624,7 +624,8 @@ define method read-request (request :: <request>) => ()
                               headers: request.request-headers);
   end;
   process-incoming-headers(request);
-  if (request.request-method == #"post")
+  if (request.request-method == #"post" |
+      request.request-method == #"put")
     read-request-content(request);
   end;
 end read-request;

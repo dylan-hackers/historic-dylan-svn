@@ -251,6 +251,7 @@ define module koala
     resource-not-found-error,
     unimplemented-error,
     internal-server-error,
+    bad-request,
     request-url,
     request-url-tail,
     register-auto-responder;
