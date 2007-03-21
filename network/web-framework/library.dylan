@@ -152,7 +152,7 @@ define module changes
               parse-document, root, <element>,
               name-setter => xml-name-setter};
   use simple-xml;
-
+  use koala;
   use object-table;
   use storage;
   use web-framework-macro;
