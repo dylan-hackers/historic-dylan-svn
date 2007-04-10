@@ -27,6 +27,7 @@ define library code-browser
   use regular-expressions;
   use graphviz-renderer;
 //use environment-deuce;
+  export code-browser;
 end;
 
 
@@ -52,5 +53,7 @@ define module code-browser
   use registry-projects;
   use graphviz-renderer;
 //  use environment-deuce;
+
+  export $foo;
 end;
 
