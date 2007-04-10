@@ -271,7 +271,15 @@ define function main () => ()
     if(application-arguments().size > 0)
       application-arguments()[0]
     end;
-  start-server(config-file: config-file);
+  populate-symbol-table();
+  let foo = $all-symbols["$foo"][0];
+  format-out("var-type %s name-type %s\n",
+             variable-type(foo.symbol-entry-project,
+                           name-value(foo.symbol-entry-project,
+                                      foo.symbol-entry-name)),
+             name-type(foo.symbol-entry-project,
+                       foo.symbol-entry-name));
+  //start-server(config-file: config-file);
 end;
 
 define function collect-projects () => (res :: <collection>)
@@ -316,10 +324,12 @@ end;
 //  main();
 //end;
 
+define variable $foo :: false-or(<integer>) = 23;
+
 define function populate-symbol-table ()
   let projs = collect-projects();
   format-out("Found %d projects: %=\n", projs.size, projs);
-  for (project-name in #("dylan")) //projs)
+  for (project-name in #("dylan", "code-browser")) //projs)
     block()
       format-out("Project %s\n", project-name);
       let project = find-project(project-name);
