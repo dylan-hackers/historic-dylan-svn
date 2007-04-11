@@ -44,8 +44,6 @@ define class <server> (<sealed-constructor>)
   slot max-listeners :: <integer> = 1;
   slot request-class :: subclass(<basic-request>) = <basic-request>;
 
-  //---TODO: Need to define an API for extending this, and then have a
-  // request-method-definer macro..
   //---TODO: response for unsupported-request-method-error MUST include
   // Allow: field...  Need an API for making sure that happens.
   // RFC 2616, 5.1.1
@@ -68,7 +66,6 @@ define class <server> (<sealed-constructor>)
   slot connections-accepted :: <integer> = 0; // Connections accepted
   constant slot user-agent-stats :: <string-table> = make(<string-table>);
   constant class slot startup-date :: <date> = current-date();
-  slot listen-ip :: false-or(<string>) = #f;
 end;
 
 define sealed method make
@@ -117,6 +114,8 @@ define class <listener> (<sealed-constructor>)
     required-init-keyword: server:;
   constant slot listener-port :: <integer>,
     required-init-keyword: port:;
+  constant slot listener-host :: false-or(<string>),
+    required-init-keyword: host:;
   constant slot listener-thread :: <thread>,
     required-init-keyword: thread:;
   slot listener-socket :: <server-socket>,
@@ -259,7 +258,8 @@ define function start-server
     else
       // temporary code...
       let port = ports[0];
-      while (start-http-listener(*server*, port))
+      let ip = vhost-ip($default-virtual-host);
+      while (start-http-listener(*server*, port, ip))
         *server-running?* := #t;
       end;
       // Apparently when the main thread dies in a FunDev Dylan application
@@ -354,7 +354,7 @@ define function join-clients (server :: <server>, #key timeout)
   end;
 end join-clients;
 
-define function start-http-listener (server :: <server>, port :: <integer>)
+define function start-http-listener (server :: <server>, port :: <integer>, ip :: <string>)
    => (started? :: <boolean>)
   let server-lock = server.server-lock;
   let listener = #f;
@@ -376,13 +376,17 @@ define function start-http-listener (server :: <server>, port :: <integer>)
     let listeners = server.server-listeners;
     when (listeners.size < server.max-listeners)
       log-debug("Creating a new listener thread.");
-      let socket = make(<server-socket>, port: port);
+      let socket = make(<server-socket>, host: ip, port: port);
       let thread = make(<thread>,
                         name: format-to-string("HTTP Listener #%s/%d", *next-listener-id*, port),
                         function: run-listener-top-level);
       wrapping-inc!(*next-listener-id*);
       listener := make(<listener>,
-                       server: server, port: port, socket: socket, thread: thread);
+                       server: server,
+                       port: port,
+                       socket: socket,
+                       host: ip,
+                       thread: thread);
       add!(server.server-listeners, listener);
       started? := #t
     end;
@@ -406,7 +410,9 @@ define function listener-top-level (listener :: <listener>)
                          ~listener.listener-exit-requested? &
                          listeners.size <= server.max-listeners)
                      listener.listener-socket
-                       := make(<server-socket>, port: listener.listener-port);
+                       := make(<server-socket>,
+                               host: listener.listener-host,
+                               port: listener.listener-port);
                      inc!(listener.total-restarts);
                      #t
                    end;

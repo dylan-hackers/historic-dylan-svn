@@ -92,6 +92,8 @@ define class <virtual-host> (<object>)
   //       port.
   slot vhost-port :: <integer> = 80;
 
+  slot vhost-ip :: <string> = "0.0.0.0";
+
   // List of <directory-spec> objects that determine how documents in
   // different directories are treated.  These are searched in order,
   // and the first one to match the requested URL is used.  Items are
