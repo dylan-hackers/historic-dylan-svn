@@ -205,6 +205,17 @@ define method process-config-element
 end;
 
 define method process-config-element
+    (node :: xml$<element>, name == #"listen-ip")
+  let attr = get-attr(node, #"value");
+  if (attr)
+    vhost-ip(active-vhost()) := attr;
+    log-info("VHost '%s': listen ip = %s", vhost-name(active-vhost()), attr);
+  else
+    warn("Invalid <listen-ip> spec.  The 'value' attribute must be specified.");
+  end;
+end;
+
+define method process-config-element
     (node :: xml$<element>, name == #"port")
   let attr = get-attr(node, #"value");
   if (attr)

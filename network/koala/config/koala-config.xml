@@ -114,6 +114,8 @@
   -->
 <port value="8001" />
 
+<!-- Listen IP on which to listen for HTTP requests. Same as port -->
+<!-- <listen-ip value="192.168.42.23" /> -->
 
 <!-- location of the mime-type file -->
 <mime-type-map location="mime-type-map.xml" />
