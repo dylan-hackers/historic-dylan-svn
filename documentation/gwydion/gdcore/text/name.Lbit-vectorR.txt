@@ -1,7 +1,18 @@
 Class: <bit-vector>
 ==============================
 
-A class.
+A vector that contains #<bit>#s. The vector may be treated as a series of
+32-bit words, and may have Boolean operations performed over all its contents
+at once.
+
+When treated as a series of words, each word is structured as follows:
+
+(diagram)
+Element  0  1  ...  30 31 32 33 ... 62 63 64 65 ...
+         +---------------+---------------+----------
+Word     | LSB   0   MSB | LSB   1   MSB | LSB   2
+         +---------------+---------------+----------
+(end)
 
 
 Exported from:
@@ -11,7 +22,26 @@ Exported from:
 
 Modifiers:
 ------------------------------
-abstract primary open
+abstract primary open instantiable
+
+
+Make keywords:
+------------------------------
+size:           - An instance of #<integer># specifying the size of the bit
+                  vector in bits. The default is 0.
+               
+fill:           - An instance of #<bit># specifying an initial value for each
+                  element of the bit vector. The default is 0.
+        
+round-up-size?: - An instance of #<boolean>#. If true, the bit vector is sized
+                  in 32-bit increments, sufficient to contain _size_ bits. For
+                  example, a _size_ of 40 would result in a vector of 64 bits.
+                  If false, the vector is sized to _size_ bits exactly. The
+                  default is #f.
+
+copy-from:      - An instance of #<bit-vector># that is copied to the new
+                  instance. If the _copy-from_ instance is shorter than this
+                  instance, remaining bits are filled as specified by _fill_.
 
 
 Superclasses:
@@ -33,6 +63,7 @@ Functions on <bit-vector>:
 - #bit-vector-word#
 - #bit-vector-xor#
 - #bit-vector-xor!#
+- #word-size#
 
 
 Functions returning <bit-vector>:

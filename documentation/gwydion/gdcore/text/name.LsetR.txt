@@ -1,7 +1,15 @@
 Class: <set>
 ==============================
 
-A class.
+The class of sets. Sets may contain or not contain a given key. Each key has
+itself as its value.
+
+In the following code, #t is ignored, but the set will subsequently contain
+#"red".
+
+: set[#"red"] := #t;
+
+#make# on #<set># returns an instance of #<object-set>#.
 
 
 Exported from:

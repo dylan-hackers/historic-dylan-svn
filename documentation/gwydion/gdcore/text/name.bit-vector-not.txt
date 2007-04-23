@@ -1,7 +1,7 @@
 Function: bit-vector-not
 ==============================
 
-A function.
+Returns the complement of a bit vector.
 
 
 Exported from:
@@ -11,14 +11,14 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<bit-vector>#. 
-pad: - An instance of limited(<integer>, min. The default is 0.
+vector - An instance of #<bit-vector>#. 
+pad:   - An instance of #<bit>#. The default is 0.
 
 
 Values:
 ------------------------------
-val - An instance of #<bit-vector>#. 
-val - An instance of limited(<integer>, min. 
+result     - An instance of #<bit-vector>#. 
+result-pad - An instance of #<bit>#. The complement of _pad_.
 
 
 

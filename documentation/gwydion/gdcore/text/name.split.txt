@@ -11,24 +11,24 @@ Splits a string around a given separator character.
 
 > split("The summer chair / rocking by itself / in the blizzard", '/')
 >   ⇒  #("The summer chair ",
->        " rocking by itself ",
->        " in the blizzard")
+>         " rocking by itself ",
+>         " in the blizzard")
 
 _trim?:_ specifies whether spaces surrounding _character_ should be removed.
 
 > split("The summer chair / rocking by itself / in the blizzard",
 >       '/', trim?: #t)
 >   ⇒  #("The summer chair",
->        "rocking by itself",
->        "in the blizzard")
+>         "rocking by itself",
+>         "in the blizzard")
 
 Consecutive separator characters result in empty strings.
 
 > split("Who are you?  Who am I?!", ' ')
 >   ⇒  #("Who", "are", "you?", "", "Who", "am", "I?!")
 
-The only defined method is on #<byte-string>#. This method defaults _trim:?_
-to #t.
+_Note:_ The only defined method is on #<byte-string>#, and it defaults
+_trim:?_ to #t.
 
 
 Exported from:
@@ -44,11 +44,11 @@ open
 
 Arguments:
 ------------------------------
-collection - An instance of #<string>#. 
-character  - An instance of #<character>#. 
-start:     - An instance of #<integer>#. Required.
-end:       - An instance of #<integer>#. Required.
-trim?:     - An instance of #<boolean>#. The default is #f.
+string    - An instance of #<string>#. The string to split.
+character - An instance of #<character>#. The character to split around.
+start:    - An instance of #<integer>#. Required.
+end:      - An instance of #<integer>#. Required.
+trim?:    - An instance of #<boolean>#. The default is #f.
 
 
 Values:
@@ -76,7 +76,7 @@ skips over empty items, so that
 returns values("long", "with", "multiple", "dashes"). _Count_ is the maximum
 number of strings to return. If there are _n_ strings and _count_ is
 specified, the first _count_ - 1 strings are returned as usual, and the
-_count_th string is the remainder, unsplit. So
+_count_ th string is the remainder, unsplit. So
 
 : split("-", "really-long-dylan-identifier", count: 3)
 
@@ -90,7 +90,11 @@ delimiters. They default to the entire string. For instance,
 	    
 returns values("really-long", "dylan", "identifier").
 
-Note: Unlike Perl, empty regular expressions are never legal regular
+The values returned can be stored in a collection as follows.
+
+: let (#rest parts) = split(...)
+
+_Note:_ Unlike Perl, empty regular expressions are never legal regular
 expressions, so there is no way to split a string into a bunch of single
 character strings. Of course, in Dylan this is not a useful thing to do (as
 one can get each character of the string by iteration or by indexing), so this

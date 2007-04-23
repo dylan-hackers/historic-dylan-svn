@@ -1,7 +1,16 @@
 Function: bit-vector-and
 ==============================
 
-A function.
+Returns the bitwise AND of two bit vectors. The two vectors need not be the
+same size; the shorter vector is brought up to the length of the longer vector
+by virtually padding the shorter vector with bits set to _pad1_ or _pad2_.
+
+(code)
+let bv1 = as(<bit-vector>, #(1, 1));
+let bv2 = as(<bit-vector>, #(1, 1, 1, 0));
+bit-vector-and(bv1, bv2, pad1: 1);
+  ⇒ #(1, 1, 1, 0)
+(end)
 
 
 Exported from:
@@ -11,16 +20,19 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<bit-vector>#. 
-arg - An instance of #<bit-vector>#. 
-pad1: - An instance of limited(<integer>, min. The default is 0.
-pad2: - An instance of limited(<integer>, min. The default is 0.
+vector1 - An instance of #<bit-vector>#. 
+vector2 - An instance of #<bit-vector>#. 
+pad1:   - An instance of #<bit>#, used if needed to expand the effective size
+          of _vector1_. The default is 0.
+pad2:   - An instance of #<bit>#, used if needed to expand the effective size
+          of _vector2_. The default is 0.
 
 
 Values:
 ------------------------------
-val - An instance of #<bit-vector>#. 
-val - An instance of limited(<integer>, min. 
+result - An instance of #<bit-vector>#. 
+pad    - An instance of #<bit>#. Any bits past the size of _result_ would have
+         this value.
 
 
 

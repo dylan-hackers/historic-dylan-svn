@@ -1,7 +1,7 @@
 Constant: <bit>
 ==============================
 
-A constant.
+An integer with a value of 0 or 1.
 
 
 Exported from:
@@ -12,10 +12,38 @@ Exported from:
 
 Type:
 ------------------------------
-#<object>#
+#<type>#
 
 
 Value:
 ------------------------------
 limited(<integer>, min: 0, max: 1)
 
+
+Functions on <bit>:
+------------------------------
+- #bit-count#
+- #bit-vector-and#
+- #bit-vector-and!#
+- #bit-vector-andc2#
+- #bit-vector-andc2!#
+- #bit-vector-not#
+- #bit-vector-not!#
+- #bit-vector-or#
+- #bit-vector-or!#
+- #bit-vector-xor#
+- #bit-vector-xor!#
+
+
+Function returning <bit>:
+------------------------------
+- #bit-vector-and#
+- #bit-vector-and!#
+- #bit-vector-andc2#
+- #bit-vector-andc2!#
+- #bit-vector-not#
+- #bit-vector-not!#
+- #bit-vector-or#
+- #bit-vector-or!#
+- #bit-vector-xor#
+- #bit-vector-xor!#

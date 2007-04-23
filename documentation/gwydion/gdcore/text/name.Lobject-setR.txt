@@ -1,7 +1,12 @@
 Class: <object-set>
 ==============================
 
-A class.
+The class of sets of objects. Sets may contain or not contain a given key. Each key has itself as its value.
+
+In the following code, #t is ignored, but the set will subsequently contain
+#"red".
+
+: set[#"red"] := #t;
 
 
 Exported from:

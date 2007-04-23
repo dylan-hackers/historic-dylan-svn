@@ -17,6 +17,10 @@ correct HTML pages.
   - Library and Module API Layout
   - Macro API Layout
   - Other Conventions
+  
+Scanning the NaturalDocs pages at http://naturaldocs.org might clear up any
+confusion I cause below. The documentation kit is downloadable from
+http://homepage.mac.com/d_j_v/FileSharing5.html.
 
 
 =====
@@ -139,7 +143,7 @@ NaturalDocs offers the following API-type headings, and synonyms:
   Variable / Slot
 
 These are formatted like Topic headings (e.g. "Function: choose"), and show up
-like topics that in the generated HTML as well. These all create link targets.
+like topics in the generated HTML as well. These all create link targets.
 
 If one of these is the first line in the text file, it will be formatted like
 a title. That is generally what I do, rather than using an explicit Title
@@ -162,7 +166,7 @@ choices.
   Italics
   Bullet lists
   Term/definition lists
-  Code blocks and preformatted text
+  Code blocks and pre-formatted text
   Headings
   Links
   
@@ -197,7 +201,7 @@ To make a bullet item, start a line with a bullet character like - or o:
     with a hanging indent to make the text file easier to read.
     
   o A blank line between makes no difference in the HTML, but is another way
-  to improve readability.
+  to improve readability in the text file itself.
 
 To make a term/definition list, put a hyphen with spaces around it:
 

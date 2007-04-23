@@ -133,6 +133,7 @@ Functions returning <integer>:
 - #system#
 - #value-hash#
 - #values-hash#
+- #word-size#
 
 
 

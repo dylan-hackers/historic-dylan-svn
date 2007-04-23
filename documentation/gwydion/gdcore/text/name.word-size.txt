@@ -1,7 +1,8 @@
 Generic: word-size
 ==============================
 
-A generic function.
+Treating a bit vector as 32-bit words, returns the number of words in the
+vector.
 
 
 Exported from:
@@ -16,12 +17,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+vector - An instance of #<bit-vector>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+size - An instance of #<integer>#.
 
 
 

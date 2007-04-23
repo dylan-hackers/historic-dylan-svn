@@ -368,7 +368,6 @@ Functions on <object>:
 - #values#
 - #values-hash#
 - #vector#
-- #word-size#
 - #writable-file-stream-position-setter#
 - #write#
 - #write-element#
@@ -590,7 +589,6 @@ Functions returning <object>:
 - #uppercase?#
 - #value#
 - #values#
-- #word-size#
 - #writable-file-stream-position-setter#
 
 

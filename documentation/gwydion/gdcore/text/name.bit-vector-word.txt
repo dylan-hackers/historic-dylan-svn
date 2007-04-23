@@ -1,7 +1,8 @@
 Generic: bit-vector-word
 ==============================
 
-A generic function.
+Returns a word of the bit vector. See #<bit-vector># for the mapping between
+elements and words.
 
 
 Exported from:
@@ -16,13 +17,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<bit-vector>#. 
-arg - An instance of #<integer>#. 
+vector - An instance of #<bit-vector>#. 
+index  - An instance of #<integer>#. The index of a word in _vector_.
 
 
 Values:
 ------------------------------
-val - An instance of #<machine-word>#. 
+word - An instance of #<machine-word>#. 
 
 
 

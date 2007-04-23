@@ -1,7 +1,7 @@
 Function: bit-count
 ==============================
 
-A function.
+Returns the number of bits set to 0 or 1 in a #<bit-vector>#.
 
 
 Exported from:
@@ -11,13 +11,14 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<bit-vector>#. 
-bit-value: - An instance of limited(<integer>, min. The default is 1.
+vector     - An instance of #<bit-vector>#. 
+bit-value: - An instance of #<bit># specifying whether 0 bits or 1 bits should
+             be counted. The default is 1.
 
 
 Values:
 ------------------------------
-val - An instance of #<integer>#. 
+count - An instance of #<integer>#. 
 
 
 

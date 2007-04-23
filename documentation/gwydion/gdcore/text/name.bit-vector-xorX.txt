@@ -1,7 +1,7 @@
 Function: bit-vector-xor!
 ==============================
 
-A function.
+As #bit-vector-xor#, but _vector1_ may be modified.
 
 
 Exported from:
@@ -11,16 +11,19 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<bit-vector>#. 
-arg - An instance of #<bit-vector>#. 
-pad1: - An instance of limited(<integer>, min. The default is 0.
-pad2: - An instance of limited(<integer>, min. The default is 0.
+vector1 - An instance of #<bit-vector>#. 
+vector2 - An instance of #<bit-vector>#. 
+pad1:   - An instance of #<bit>#, used if needed to expand the effective size
+          of _vector1_. The default is 0.
+pad2:   - An instance of #<bit>#, used if needed to expand the effective size
+          of _vector2_. The default is 0.
 
 
 Values:
 ------------------------------
-val - An instance of #<bit-vector>#. 
-val - An instance of limited(<integer>, min. 
+result - An instance of #<bit-vector>#. 
+pad    - An instance of #<bit>#. Any bits past the size of _result_ would have
+         this value.
 
 
 
