@@ -76,6 +76,7 @@ Functions returning <boolean>:
 - #function-arguments#
 - #graphic?#
 - #hex-digit?#
+- #infinite?#
 - #input-available-at-source?#
 - #instance?#
 - #integral?#

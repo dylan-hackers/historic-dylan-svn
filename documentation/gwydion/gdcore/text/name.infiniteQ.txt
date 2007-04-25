@@ -1,7 +1,8 @@
 Generic: infinite?
 ==============================
 
-A generic function.
+Returns true if a bit set is assumed to include any indices not explicitly
+removed.
 
 
 Exported from:
@@ -16,12 +17,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+set - An instance of #<bit-set>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+result - An instance of #<boolean>#.
 
 
 

@@ -1,7 +1,15 @@
 Generic: set-difference
 ==============================
 
-A generic function.
+Returns the difference between two bit sets.
+
+: let a = make(<bit-set>, members: #(1, 2, 3));
+: let b = make(<bit-set>, members: #(3, 4, 5));
+: set-difference(a, b);
+
+This function employs the difference operation of set theory. The result of
+the above code is a set containing 1 and 2 rather than 1, 2, 4, and 5 as might
+otherwise be assumed.
 
 
 Exported from:
@@ -16,13 +24,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+set1 - An instance of #<bit-set>#. 
+set2 - An instance of #<bit-set>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-set - An instance of #<bit-set>#. 
 
 
 

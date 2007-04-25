@@ -20,7 +20,7 @@ Exported from:
 
 Modifiers:
 ------------------------------
-abstract primary open
+abstract primary open instantiable
 
 
 Superclasses:

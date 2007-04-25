@@ -5,7 +5,8 @@ A vector that contains #<bit>#s. The vector may be treated as a series of
 32-bit words, and may have Boolean operations performed over all its contents
 at once.
 
-When treated as a series of words, each word is structured as follows:
+When treated as a series of words, each word is structured as
+follows:
 
 (diagram)
 Element  0  1  ...  30 31 32 33 ... 62 63 64 65 ...

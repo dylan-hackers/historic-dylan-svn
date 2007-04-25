@@ -1,7 +1,7 @@
 Function: copy-bit-set!
 ==============================
 
-A function.
+Replaces the contents of one bit set with the contents of another.
 
 
 Exported from:
@@ -11,8 +11,8 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<bit-set>#. 
-arg - An instance of #<bit-set>#. 
+set1 - An instance of #<bit-set>#. The destination.
+set2 - An instance of #<bit-set>#. The source.
 
 
 

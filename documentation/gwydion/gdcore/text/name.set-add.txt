@@ -1,7 +1,7 @@
 Generic: set-add
 ==============================
 
-A generic function.
+Adds an index to a bit set.
 
 
 Exported from:
@@ -16,13 +16,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+set - An instance of #<bit-set>#. 
+arg - An instance of #<integer>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-set - An instance of #<bit-set>#. 
 
 
 

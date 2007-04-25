@@ -1,7 +1,7 @@
 Generic: set-complement!
 ==============================
 
-A generic function.
+As #set-complement#, but modifies _set_.
 
 
 Exported from:
@@ -16,12 +16,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+set - An instance of #<bit-set>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+set - An instance of #<bit-set>#. 
 
 
 

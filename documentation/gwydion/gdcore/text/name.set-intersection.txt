@@ -1,7 +1,7 @@
 Generic: set-intersection
 ==============================
 
-A generic function.
+Returns the intersection of two bit sets.
 
 
 Exported from:
@@ -16,13 +16,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+set1 - An instance of #<bit-set>#. 
+set2 - An instance of #<bit-set>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-set - An instance of #<bit-set>#. 
 
 
 

@@ -1,7 +1,7 @@
 Generic: set-remove!
 ==============================
 
-A generic function.
+As #set-remove#, but _set_ may be modified.
 
 
 Exported from:
@@ -16,13 +16,13 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
+set - An instance of #<bit-set>#. 
+arg - An instance of #<integer>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+set - An instance of #<bit-set>#. 
 
 
 

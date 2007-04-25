@@ -69,6 +69,10 @@ Functions on <integer>:
 - #regexp-position#
 - #regexp-replace#
 - #scale-float#
+- #set-add#
+- #set-add!#
+- #set-remove#
+- #set-remove!#
 - #split#
 - #stream-position-setter#
 - #string-to-integer#

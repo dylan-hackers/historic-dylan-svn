@@ -1,7 +1,17 @@
 Class: <bit-set>
 ==============================
 
-A class.
+A collection of bit indices. Each index present in the set is assumed to have
+a bit value of 1. All other indices are assumed to have a bit value of _pad_,
+unless explicitly removed from the set, in which case they have a value of 0.
+
+#element-setter# behavior differs from that of #<set>#. Setting a key to
+itself adds the index to the set. Setting a key to any other value removes it.
+In the following code, the first line adds the index and the others remove it.
+
+: bitset[3] := 3;   /* Adds */
+: bitset[3] := #f;  /* Removes */
+: bitset[3] := 17;  /* Removes */
 
 
 Exported from:
@@ -14,6 +24,27 @@ Modifiers:
 concrete primary sealed
 
 
+Make keywords:
+------------------------------
+member-vector:    - An instance of #<bit-vector>#. The backing store for the
+                    set. Optional.
+                    
+pad:              - An instance of #<bit>#. This is the value assumed for all
+                    bits not added to or removed from the set. Ignored if
+                    _all-members-from_ is supplied. The default value is 0.
+
+upper-bound-hint: - An instance of #<integer># indicating the highest index
+                    typically added to the set. The default value is 0.
+
+members:          - An instance of #<collection># containing #<integer>#
+                    values. These values are indices added to the set.
+                    Optional.
+                    
+all-members-from: - An instance of #<integer>#. All indices higher than the
+                    specified value are assumed to be included in the set.
+                    Optional.
+
+
 Superclasses:
 ------------------------------
 - #<set>#
@@ -23,7 +54,34 @@ Functions on <bit-set>:
 ------------------------------
 - #copy-bit-set!#
 - #empty-bit-set!#
+- #infinite?#
+- #set-add#
+- #set-add!#
+- #set-complement#
+- #set-complement!#
+- #set-difference#
+- #set-difference!#
+- #set-intersection#
+- #set-intersection!#
+- #set-remove#
+- #set-remove!#
+- #set-union#
+- #set-union!#
 - #universal-bit-set!#
 
 
+Functions returning <bit-set>:
+------------------------------
+- #set-add#
+- #set-add!#
+- #set-complement#
+- #set-complement!#
+- #set-difference#
+- #set-difference!#
+- #set-intersection#
+- #set-intersection!#
+- #set-remove#
+- #set-remove!#
+- #set-union#
+- #set-union!#
 

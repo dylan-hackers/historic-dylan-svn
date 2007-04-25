@@ -1,7 +1,8 @@
 Generic: set-complement
 ==============================
 
-A generic function.
+Complement the indices of a bit set. All indices in the set are removed, and
+all indices not in the set are added.
 
 
 Exported from:
@@ -16,12 +17,12 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
+set - An instance of #<bit-set>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+new-set - An instance of #<bit-set>#. 
 
 
 
