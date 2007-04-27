@@ -34,7 +34,7 @@
           </select>
           <input type="hidden" name="action" value="rename">
           rename to <input type="text" name="title">
-          <input type="submit" value="Save"/>
+          <input type="submit" value="Rename"/>
         </div>
       </form>
     </wiki:privilege>
