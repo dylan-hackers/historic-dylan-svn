@@ -13,14 +13,13 @@ general:
 *search:
   display project-name instead of library name!
   display project, library and module where the symbol was found!
+*constant/variable:
+  value is always #f (because we have no application running?!)
 
 implement dsp and tags for
- *constant
  *domain
  *generic-function
  *method
  *simple-function
- *macro
- *module-variable
 
 draw nice graphs! (module/library deps|call deps|class graphs|...)
