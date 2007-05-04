@@ -28,7 +28,7 @@ end;
 define function process-node (node :: <node>, output :: <stream>) => ()
   local method print-edge (target :: <node>)
           write(output, concatenate("  \"", node.label, "\" -> \"",
-                                    target.label, "\"\n"));
+                                    target.label, "\";\n"));
         end;
   if (node.attributes.size > 0)
     let attrs = make(<stretchy-vector>);
@@ -36,7 +36,7 @@ define function process-node (node :: <node>, output :: <stream>) => ()
       add!(attrs, concatenate(ele, " = \"", node.attributes[ele], "\""));
     end;
     attrs := reduce1(method(x, y) concatenate(x, ",", y) end, attrs);
-    write(output, concatenate("  \"", node.label, "\" [", attrs, "]\n"))
+    write(output, concatenate("  \"", node.label, "\" [", attrs, "];\n"))
   end;
   do(print-edge, node.successors);
 end;
