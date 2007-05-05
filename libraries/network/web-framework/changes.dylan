@@ -64,8 +64,7 @@ define open class <entry> (<object>)
     init-keyword: title:;
   slot updated :: false-or(<date>) = #f,
     init-keyword: updated:;
-  slot comments :: <table> = make(<table>),
-    init-keyword: comments:;
+  slot comments :: <table> = make(<table>);
   slot %comments-count :: <integer> = 0;
   /* repeated slot extensionElement */
 end;
@@ -74,6 +73,15 @@ define method comments-count (entry :: <entry>)
  => (res :: <integer>);
   entry.%comments-count := entry.%comments-count + 1;
   entry.%comments-count;
+end;
+
+define method initialize (entry :: <entry>, #key comments)
+  next-method();
+  if (comments)
+    for (comment in comments)
+      entry.comments[entry.comments-count] := comment;
+    end for;
+  end if;
 end;
 
 define open class <comment> (<object>)

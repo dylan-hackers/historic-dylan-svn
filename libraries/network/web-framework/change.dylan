@@ -10,8 +10,8 @@ end;
 define method initialize (change :: <change>, #rest rest, #key, #all-keys)
   next-method();
   change.date := current-date();
-  change.author := if (current-user())
-                     current-user().username;
+  change.author := if (authenticated-user())
+                     authenticated-user().username;
                    else
                      "foo"
                    end;

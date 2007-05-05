@@ -46,7 +46,6 @@ define open generic setup (class) => ();
 
 define method setup (class)
  => ();
-  format-out(">>> no setup for: %=\n", class);
 end;
 
 define macro with-storage
@@ -118,7 +117,6 @@ define method dump-data () => ()
 end;
 
 define method restore (directory :: <string>, filename :: <string>) => ()
-  format-out("restoring %s/%s\n", directory, filename);
   let dood = make(<dood>,
                   locator: merge-locators(as(<file-locator>, filename),
                                           as(<directory-locator>, directory)),
