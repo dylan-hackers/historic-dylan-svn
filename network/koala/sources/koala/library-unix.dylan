@@ -168,8 +168,10 @@ define module koala
 
   // Virtual hosts
   create
-    <virtual-host>, *virtual-host*,
-    document-root, vhost-name,
+    <virtual-host>,
+    *virtual-host*,
+    document-root,
+    vhost-name,
     locator-below-document-root?;
 
   // Responses
@@ -264,11 +266,13 @@ define module koala
   create
     static-file-responder;
 
-  create <avalue>,
+  create
+    <avalue>,
     avalue-value,
     avalue-alist;
 
-  create <http-file>,
+  create
+    <http-file>,
     http-file-filename,
     http-file-content,
     http-file-mime-type;
@@ -278,7 +282,8 @@ define module koala
     koala-main,
     *argument-list-parser*;
 
-  create request-content,
+  create
+    request-content,
     request-content-type,
     request-content-setter,
     process-request-content;
