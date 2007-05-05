@@ -164,7 +164,8 @@ define module koala
     count-form-values,
     application-error,
     decode-url,
-    encode-url;
+    encode-url,
+    redirect-to;
 
   // Virtual hosts
   create
