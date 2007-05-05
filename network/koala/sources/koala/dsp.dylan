@@ -124,6 +124,16 @@ define method respond-to
   respond-to-head(page, request, response);                                                          
 end;
 
+// convenience
+
+define method post (page :: <page>)
+    respond-to(#"post", page, current-request(), current-response());
+end;
+
+define method get (page :: <page>)
+    respond-to(#"get", page, current-request(), current-response());
+end;
+
 // Applications should call this to register a page for a particular URL.
 define function register-page
     (url :: <string>, page :: <page>, #key replace?, prefix?)
@@ -1027,7 +1037,7 @@ define function parse-taglib-directive
     iff(~tlib,
         parse-error("Invalid taglib directive in template %=.  "
                     "The tag library named %= was not found.",
-                    tlib-name),
+                    page.source-location, tlib-name),
         add!(taglibs, pair(tlib-prefix | tlib-name, tlib)));
   end;
   body-start

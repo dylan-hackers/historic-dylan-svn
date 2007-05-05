@@ -122,7 +122,7 @@ define module utilities
     log, log-raw,
     log-level, log-level-setter,
     as-common-logfile-date;
-    
+  
 end module utilities;
     
 
@@ -163,8 +163,10 @@ define module koala
     count-query-values,
     count-form-values,
     application-error,
+    current-url,
     decode-url,
-    encode-url;
+    encode-url,
+    redirect-to;
 
   // Virtual hosts
   create
@@ -380,10 +382,13 @@ define module dsp
     <static-page>,
     register-page,               // Register a page for a given URL
     url-to-page,
-    respond-to-get,              // Implement this for your page to handle GET requests
-    respond-to-post,             // Implement this for your page to handle POST requests
-    respond-to-head,             // Implement this for your page to handle HEAD requests
-    respond-to,
+    respond-to-get,              // outdated
+    respond-to-post,             // outdated
+    respond-to-head,             // outdated
+    respond-to,                  // Implement this for you page to handle a request
+    get, post,                   // convenience
+
+
 
     page-source,
     page-source-setter,

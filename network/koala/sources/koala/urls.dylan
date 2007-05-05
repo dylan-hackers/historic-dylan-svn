@@ -31,6 +31,11 @@ define function decode-url
  => (str :: <byte-string>)
   // Note: n accumulates how many chars are NOT needed in the copy.
   iterate count (pos :: <integer> = bpos, n :: <integer> = 0)
+    let plus-position = char-position('+', str, pos, epos);
+    if (plus-position)
+      str[plus-position] := ' ';
+    end if;
+    
     let pos = char-position('%', str, pos, epos);
     if (pos)
       if (pos + 3 <= epos)
@@ -117,7 +122,18 @@ define function parse-url (str, str-beg, str-end)
     #f
   end;
 end parse-url;
-
+  
+define function current-url (#key escaped?)
+ => (uri :: <string>);
+ let request = current-request();
+  concatenate(if (escaped?) 
+      encode-url(request.request-url, reserved?: #t)
+    else
+      current-request().request-url
+    end if, if (~empty?(request.request-query-string))
+      concatenate("?", request.request-query-string)
+    else "" end if);
+end;
 
 define function parse-http-server (str :: <byte-string>,
                                    net-beg :: <integer>,
@@ -168,4 +184,11 @@ define function parse-url-path
   end iterate;
 end parse-url-path;
 
+define open generic redirect-to (object :: <object>, #key);
+
+define method redirect-to (url :: <string>, #key #all-keys)
+  let headers = current-response().response-headers;
+  add-header(headers, "Location", url);
+  see-other-redirect(headers: headers);
+end;
 

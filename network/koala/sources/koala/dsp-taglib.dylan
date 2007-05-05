@@ -164,6 +164,15 @@ define tag row-number in dsp
   end;
 end;
 
+define tag show-query-value in dsp
+    (page :: <dylan-server-page>, response :: <response>)
+    (name :: <string>)
+  let value = get-query-value(name);
+  if (value)
+    format(output-stream(response), "%s", value);
+  end if;
+end;
+
 
 //// Date Tags
 
