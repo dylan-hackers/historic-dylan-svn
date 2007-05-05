@@ -9,13 +9,15 @@ define library web-framework
   use xml-parser;
   use system, import: { file-system, date, locators };
   use dood;
+  use regular-expressions;
 
   export object-table,
     web-framework,
     storage,
     users,
     changes,
-    change;
+    change,
+    permission;
 end;
 
 define module object-table
@@ -32,7 +34,6 @@ define module storage
   use dood;
   use file-system;
   use threads;
-  use format-out;
   use koala;
   use locators;
 
@@ -105,14 +106,13 @@ define module users
     password-setter,
     email,
     email-setter,
-    access,
-    access-setter,
-    access-level,
-    access-level-setter,
-    current-user,
-    set-current-user,
+    additional-information,
+    additional-information-setter,
+    authenticated-user,
+    find-user,
+    authenticate,
     login,
-    logged-in?,
+    logout,
     valid-user?;
 end;
 
@@ -230,31 +230,39 @@ define module changes
     href, href-setter;
 end;
 
+define module permission
+  use common-dylan;
+
+  export <permission-error>,
+    <authentication-error>;
+  export permitted?;
+end;
 
 define module web-framework
   use common-dylan;
   use object-table;
   use simple-xml;
-  use format-out;
   use koala;
-  
+  use dsp;
+  use format;
+  use regular-expressions;
+
   use web-framework-macro, export: all;
   use storage;
   use change;
+  use users;
+  use permission;
 
-  export respond-to-get,
-    respond-to-post;
+  export *errors*,
+    *action*,
+    *form*;
 
-  export edit-form,
-    remove-form,
-    add-form,
-    list-forms;
+  export action-test-definer,
+    action-tests-definer,
+    object-test-definer,
+    object-tests-definer,
+    error-test-definer,
+    error-tests-definer;
 
-  export browse-list,
-    browse-table,
-    remove-form,
-    browse,
-    to-table-header,
-    to-table;
+  export printable;
 end;
-
