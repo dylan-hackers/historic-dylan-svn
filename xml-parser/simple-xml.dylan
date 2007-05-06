@@ -85,7 +85,11 @@ generates:
 </html>
 */
 
-define function escape-xml (string :: <string>) => (res :: <string>)
+define method escape-xml (symbol :: <symbol>) => (res :: <symbol>)
+  as(<symbol>, escape-xml(as(<string>, symbol)))
+end;
+
+define method escape-xml (string :: <string>) => (res :: <string>)
   let res = "";
   for (char in string)
     if (char = '>')
