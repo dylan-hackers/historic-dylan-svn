@@ -773,12 +773,6 @@ define method process-request-content
  => (content :: <string>)
   log-debug("Form query string = %=",
             copy-sequence(buffer, end: content-length));
-  // Replace '+' with Space.  See RFC 1866 (HTML) section 8.2.
-  // Must do this before calling decode-url.
-  for (i from 0 below buffer.size)
-    iff(buffer[i] == '+',
-        buffer[i] := ' ');
-  end; 
   let content = decode-url(buffer, 0, content-length);
   // By the time we get here request-query-values has already been bound to a <string-table>
   // containing the URL query values.  Now we augment it with any form values.

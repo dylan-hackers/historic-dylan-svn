@@ -29,13 +29,13 @@ end make-locator;
 define function decode-url
     (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
  => (str :: <byte-string>)
+  // Replace '+' with Space.  See RFC 1866 (HTML) section 8.2.
+  for (i from 0 below str.size)
+    iff(str[i] == '+',
+        str[i] := ' ');
+  end;
   // Note: n accumulates how many chars are NOT needed in the copy.
   iterate count (pos :: <integer> = bpos, n :: <integer> = 0)
-    let plus-position = char-position('+', str, pos, epos);
-    if (plus-position)
-      str[plus-position] := ' ';
-    end if;
-    
     let pos = char-position('%', str, pos, epos);
     if (pos)
       if (pos + 3 <= epos)
