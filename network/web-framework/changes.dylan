@@ -339,9 +339,11 @@ define method generate-atom (entry :: <entry>, #key)
   end;
 end;
 
+
+// provide more specific method for each content type
 define method generate-atom (con :: <content>, #key)
   with-xml()
-    content(type => con.type) {
+    content(type => "text") {
       text(con.content)
     }
   end
