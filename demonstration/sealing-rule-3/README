@@ -1,0 +1,13 @@
+
+These three libraries demonstrate rule 3 of the sealing rules as specified in the DRM.
+
+<put real explanation here>
+
+to compile:
+
+pushd a; make; popd;
+pushd b; make; popd;
+pushd c; make; popd;
+
+If compiling C fails, the dylan compiler correctly enforces rule 3.
+If it compiles and runs, the compiler does not enforce rule 3.
