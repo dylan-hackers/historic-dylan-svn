@@ -26,6 +26,7 @@ format-out(&quot;Hello, world\n&quot;);
 <table><tr><th><p>The program file: <code>hello.dylan</code>.</p>
 </th></tr><tr><td><pre>
 module: hello
+
 format-out(&quot;Hello, world\n&quot;); 
 </pre></td></tr></table>
 <p>The <code>hello.dylan</code> file is the top-level file; you can think of it as the program itself. When you run this program, Dylan executes all the expressions in the file in the order that they appear in the file. There is only one expression in this program &mdash; the call to <code>format-out</code>.</p>
@@ -33,6 +34,7 @@ format-out(&quot;Hello, world\n&quot;);
 <table><tr><th><p>The library file: <code>library.dylan</code>.</p>
 </th></tr><tr><td><pre>
 module: dylan-user						
+
 define library hello
   use dylan; 
   use format-out;

@@ -30,6 +30,7 @@ files:   library
 <table><tr><th><p>The library file: <code>library.dylan</code>. </p>
 </th></tr><tr><td><pre>
 module: dylan-user
+
 define library time
   use dylan; 
   use format-out;
@@ -90,6 +91,7 @@ end method say;</pre>
 <table><tr><th><p>The test file: <code>test.dylan</code>.</p>
 </th></tr><tr><td><pre>
 module: time
+
 define variable *my-time-offset* :: &lt;time-offset&gt; 
   = make(&lt;time-offset&gt;, total-seconds: encode-total-seconds(15, 20, 10));
 define variable *your-time-offset* :: &lt;time-offset&gt; 
