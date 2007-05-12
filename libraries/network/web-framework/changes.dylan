@@ -120,6 +120,10 @@ define class <textile-content> (<content>)
   inherited slot type :: <string> = "textile";
 end;
 
+define class <markup-content> (<content>)
+  inherited slot type :: <string> = "markup";
+end;
+
 define class <xhtml-content> (<content>)
   inherited slot type :: <string> = "xhtml";
 end;

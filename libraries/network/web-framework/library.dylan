@@ -210,8 +210,10 @@ define module changes
     
   export <content>,
     <raw-content>,
+    <markup-content>,
     <textile-content>,
-    <xhtml-content>;
+    <xhtml-content>,
+    type;
     
   export <comment>,
     name, name-setter,
