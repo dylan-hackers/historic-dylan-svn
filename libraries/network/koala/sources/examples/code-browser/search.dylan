@@ -1,5 +1,5 @@
 module: code-browser
-Synopsis: Brwose Open Dylan environment objects
+Synopsis: Browse Open Dylan environment objects
 Author:   Andreas Bogk, Bastian Mueller, Hannes Mehnert
 
 

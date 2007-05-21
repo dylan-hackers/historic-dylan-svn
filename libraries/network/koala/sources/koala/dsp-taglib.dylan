@@ -164,13 +164,15 @@ define tag row-number in dsp
   end;
 end;
 
+// ---TODO: Define a tag to replace the HTML <input> tag, that will automatically take
+//          care of defaulting the value correctly if the form is redisplayed due to
+//          error, and will allow CSS to display the input tag in a unique way.
+//
 define tag show-query-value in dsp
     (page :: <dylan-server-page>, response :: <response>)
     (name :: <string>)
-  let value = get-query-value(name);
-  if (value)
-    format(output-stream(response), "%s", value);
-  end if;
+  let qv = get-query-value(name);
+  qv & write(output-stream(response), qv);
 end;
 
 

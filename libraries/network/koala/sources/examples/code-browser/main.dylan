@@ -1,5 +1,5 @@
 Module:   code-browser
-Synopsis: Brwose Open Dylan environment objects
+Synopsis: Browse Open Dylan environment objects
 Author:   Andreas Bogk, Bastian Mueller, Hannes Mehnert
 
 define thread variable *project* = #f; 
@@ -279,7 +279,7 @@ define function main () => ()
                                       foo.symbol-entry-name)),
              name-type(foo.symbol-entry-project,
                        foo.symbol-entry-name));
-  //start-server(config-file: config-file);
+  start-server(config-file: config-file);
 end;
 
 define function collect-projects () => (res :: <collection>)
