@@ -6,11 +6,8 @@ byte collection. _Count_ bytes are copied starting from _src-index_ in
 _src-coll_ to _dest-index_ in _dest_coll_. The destination byte range may
 overlap with the source byte range.
 
-
-Exported from:
-------------------------------
-- #Module system#
-- #Module byte-vector#
+There are two separate sets of methods on #copy-bytes#. They differ in
+applicable classes.
 
 
 Modifiers:
@@ -18,21 +15,50 @@ Modifiers:
 sealed
 
 
+
+Method: copy-bytes
+==============================
+
+Exported from:
+------------------------------
+- #Module system#
+
+
 Arguments:
 ------------------------------
-dest-coll  - An instance of #<buffer>#, #<byte-vector>#, #<unicode-string>#,
-             or #<byte-string>#.
+dest-coll  - An instance of #<byte-vector>#, #<unicode-string>#,
+             #<byte-string>#, or #<buffer># from #Module system#.
              
 dest-index - An instance of #<integer>#.
 
-src-coll   - An instance of #<buffer>#, #<byte-vector>#, #<unicode-string>#,
-             or #<byte-string>#. 
-             
+src-coll   - An instance of #<byte-vector>#, #<unicode-string>#,
+             #<byte-string>#, or #<buffer># from #Module system#.
+
 src-index  - An instance of #<integer>#.
  
 count      - An instance of #<integer>#. 
 
 
-See also:
+
+Method: copy-bytes
+==============================
+
+Exported from:
 ------------------------------
-#<buffer-index>#, which is identical to #<integer>#.
+- #Module byte-vector#
+
+
+Arguments:
+------------------------------
+dest-coll  - An instance of #<sequence>#, #<vector>#, #<string>#,
+             #<simple-object-vector>#, or #<buffer># from #Module streams#.
+
+dest-index - An instance of #<integer>#.
+
+src-coll   - An instance of #<sequence>#, #<vector>#, #<string>#,
+             #<simple-object-vector>#, or #<buffer># from #Module streams#.
+             
+src-index  - An instance of #<integer>#.
+ 
+count      - An instance of #<integer>#. 
+
