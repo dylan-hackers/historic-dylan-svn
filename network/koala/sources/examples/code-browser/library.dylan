@@ -1,5 +1,5 @@
 Module:   dylan-user
-Synopsis: Brwose FD environment objects
+Synopsis: Browse FD environment objects
 Author:   Andreas Bogk
 
 define library code-browser

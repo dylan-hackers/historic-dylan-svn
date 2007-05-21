@@ -226,14 +226,3 @@ define method note-field-error
               format-string: "Invalid form field."));
 end;
 
-// ---TODO: Define a tag to replace the HTML <input> tag, that will automatically take
-//          care of defaulting the value correctly if the form is redisplayed due to
-//          error, and will display the input tag in a different background color.
-//
-define tag show-query-value in dsp
-    (page :: <dylan-server-page>, response :: <response>)
-    (name :: <string>)
-  let qv = get-query-value(name);
-  qv & write(output-stream(response), qv);
-end;
-
