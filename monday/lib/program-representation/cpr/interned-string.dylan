@@ -88,7 +88,7 @@ end for;
   bucket-value := modulo(hash-value, *interned-string-buckets*.size);
 end if;
 let new-string = make(<byte-string>, size: _end - start);
-copy-bytes(name, start, new-string, 0, _end - start);
+copy-bytes(new-string, 0, name, start, _end - start);
 let new-entry = make(<interned-string-entry>,
                      interned-string: new-string,
                      hash: hash-value,
