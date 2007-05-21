@@ -576,7 +576,7 @@ preprocessor-state.preprocessor-directive-parser
   iterate buf-loop (buf :: false-or(<buffer>) = buf)
     if (buf)
       let text-size :: <integer> = buf.buffer-end - buf.buffer-next;
-      copy-bytes(buf, buf.buffer-next, text, 0, text-size);
+      copy-bytes(text, 0, buf, buf.buffer-next, text-size);
       
 iterate char-loop (start :: <buffer-index> = 0,
                    i :: <buffer-index> = 0)
@@ -660,7 +660,7 @@ define function extract-action
      token-end :: <integer>)
  => (result :: <byte-string>);
   let result = make(<byte-string>, size: token-end - token-start);
-  copy-bytes(token-string, token-start, result, 0, token-end - token-start);
+  copy-bytes(result, 0, token-string, token-start, token-end - token-start);
   result
 end;
             

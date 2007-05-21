@@ -35,8 +35,8 @@ end;
 
 /*
 define open method copy-bytes
-    (src :: <substring>, src-start :: <integer>, dst :: <byte-string>,
-     dst-start :: <integer>, n :: <integer>)
+    (dst :: <byte-string>, dst-start :: <integer>, 
+     src :: <substring>, src-start :: <integer>, n :: <integer>)
  => ()
   for (i :: <integer> from 0 below n)
     dst[dst-start + i] := src[src-start + i]

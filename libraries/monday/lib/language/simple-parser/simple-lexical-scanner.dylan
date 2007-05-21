@@ -133,10 +133,10 @@ if (token-start < 0)
   let new-saved-size = saved-size + (text-end - text-start);
   let new-saved-text :: <byte-string>
     = make(<byte-string>, size: new-saved-size);
-  copy-bytes(scanner.scanner-saved-text, saved-size + token-start,
-             new-saved-text, 0, saved-size);
-  copy-bytes(text, text-start,
-             new-saved-text, saved-size, text-end - text-start);
+  copy-bytes(new-saved-text, 0, 
+             scanner.scanner-saved-text, saved-size + token-start, saved-size);
+  copy-bytes(new-saved-text, saved-size, 
+             text, text-start, text-end - text-start);
   scanner.scanner-saved-text := new-saved-text;
   scanner.scanner-source-position
     := scanner.scanner-source-position + new-saved-size;
@@ -144,7 +144,7 @@ elseif (token-start ~= text-end)
   let new-saved-size = text-end - token-start;
   let new-saved-text :: <byte-string>
     = make(<byte-string>, size: new-saved-size);
-  copy-bytes(text, token-start, new-saved-text, 0, text-end - token-start);
+  copy-bytes(new-saved-text, 0, text, token-start, text-end - token-start);
   scanner.scanner-saved-text := new-saved-text;
   scanner.scanner-source-position
     := scanner.scanner-source-position + new-saved-size;
@@ -218,8 +218,8 @@ let (semantic-value, accept-text-size)
         let accept-text-size = saved-size + (accepting-index - text-start);
         let accept-text :: <byte-string>
           = make(<byte-string>, size: accept-text-size);
-        copy-bytes(scanner.scanner-saved-text, 0, accept-text, 0, saved-size);
-        copy-bytes(text, text-start, accept-text, saved-size,
+        copy-bytes(accept-text, 0, scanner.scanner-saved-text, 0, saved-size);
+        copy-bytes(accept-text, saved-size, text, text-start, 
                    accept-text-size - saved-size);
         scanner.scanner-saved-text := "";
         values(token-semantic-value-function(accept-text, 0, accept-text-size),
