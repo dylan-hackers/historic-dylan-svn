@@ -52,8 +52,8 @@ define module regular-expressions
   use substring-search;
   export
     regexp-position, make-regexp-positioner,
-    regexp-match, regexp-matches,
     regexp-replace, make-regexp-replacer,
+    regexp-match, regexp-matches,
     translate, make-translator,
     split, make-splitter,
     join,
