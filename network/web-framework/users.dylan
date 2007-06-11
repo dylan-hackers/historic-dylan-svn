@@ -58,7 +58,7 @@ end;
 define function find-user (name :: <string>)
  => (user :: false-or(<user>))
   element(storage(<user>), name, default: #f);
-end method check;
+end;
 
 define method login ()
   let redirect-url = get-query-value("redirect");
