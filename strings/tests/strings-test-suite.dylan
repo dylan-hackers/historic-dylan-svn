@@ -1,12 +1,12 @@
-Module:    strings-tests
+Module:    strings-test-suite
 Synopsis:  Test suite for strings library
 Author:    Carl Gay
 
 
 // Note: Inputs to all mutating (!) functions are copied with copy-sequence
-// before being passed to the function because string literals are supposed
-// to be immutable.  Functional Developer doesn't actually enfore that yet,
-// which showed up some funky bugs.
+// before being passed to the function because string literals are supposed to
+// be immutable.  Open Dylan doesn't actually enforce that yet, which showed up
+// some funky bugs.  (todo -- Reverify this statement.)
 
 
 define constant fmt = format-to-string;
@@ -16,70 +16,92 @@ define library-spec strings ()
 end library-spec strings;
 
 define module-spec strings ()
-  open generic-function capitalize (<string>, #"key", #"start", #"end") => (<string>);
-  open generic-function capitalize! (<string>, #"key", #"start", #"end") => (<string>);
-  function downcase! (<string>) => (<string>);
-  function downcase (<string>) => (<string>);
-  function upcase! (<string>) => (<string>);
-  function upcase (<string>) => (<string>);
-  open generic-function integer-to-digit (<integer>) => (<character>);
-  open generic-function digit-to-integer (<character>) => (<integer>);
+  sealed generic-function byte-string? (<object>) => (<boolean>);
 
-  open generic-function trim
-    (<string>, #"key", #"test", #"side", #"start", #"end") => (<string>);
+  open generic-function alphabetic?   (<character>) => (<boolean>);
+  open generic-function digit?        (<character>) => (<boolean>);
+  open generic-function alphanumeric? (<character>) => (<boolean>);
+  open generic-function whitespace?   (<character>) => (<boolean>);
+  open generic-function uppercase?    (<character>) => (<boolean>);
+  open generic-function lowercase?    (<character>) => (<boolean>);
+  open generic-function graphic?      (<character>) => (<boolean>);
+  open generic-function printable?    (<character>) => (<boolean>);
+  open generic-function control?      (<character>) => (<boolean>);
 
-  open generic-function join
-    (<sequence>, <string>, #"key", #"conjunction") => (<string>);
 
-  open generic-function split
-    (<string>, #"key", #"separator", #"start", #"end", #"trim?", #"max",
-     #"allow-empty-strings?") => (<sequence>);
-
-  open generic-function replace
-    (<string>, <string>, <string>, #"key", #"start", #"end", #"test", #"max")
-    => (<string>, <integer>);
-
-  open generic-function greater?
+  open generic-function equal?
     (<string>, <string>, #"key", #"start1", #"start2", #"end1", #"end2" #"test")
     => (<boolean>);
   open generic-function less?
     (<string>, <string>, #"key", #"start1", #"start2", #"end1", #"end2" #"test")
     => (<boolean>);
-  open generic-function equal?
+  open generic-function greater?
     (<string>, <string>, #"key", #"start1", #"start2", #"end1", #"end2" #"test")
     => (<boolean>);
 
-  open generic-function case-insensitive-greater?
+  open generic-function case-insensitive-equal?
     (<string>, <string>, #"key", #"start1", #"start2", #"end1", #"end2" #"test")
     => (<boolean>);
   open generic-function case-insensitive-less?
     (<string>, <string>, #"key", #"start1", #"start2", #"end1", #"end2" #"test")
     => (<boolean>);
-  open generic-function case-insensitive-equal?
+  open generic-function case-insensitive-greater?
     (<string>, <string>, #"key", #"start1", #"start2", #"end1", #"end2" #"test")
     => (<boolean>);
 
-  open generic-function control? (<character>) => (<boolean>);
-  open generic-function printable? (<character>) => (<boolean>);
-  open generic-function graphic? (<character>) => (<boolean>);
-  open generic-function lowercase? (<character>) => (<boolean>);
-  open generic-function uppercase? (<character>) => (<boolean>);
-  open generic-function whitespace? (<character>) => (<boolean>);
-  open generic-function alphanumeric? (<character>) => (<boolean>);
-  open generic-function digit? (<character>) => (<boolean>);
-  open generic-function alphabetic? (<character>) => (<boolean>);
-
-  open generic-function count-occurrances
-    (<string>, <string>, #"key", #"test", #"start", #"end") => (<integer>);
-
   open generic-function index-of
     (<string>, <string>, #"key", #"test", #"start", #"end", #"from-end?") => (<integer>);
+  open generic-function count-matches
+    (<string>, <string>, #"key", #"test", #"start", #"end") => (<integer>);
+
+
+  open generic-function join
+    (<sequence>, <string>, #"key", #"conjunction") => (<string>);
+
+  function split
+    (<string>, #"key", #"separator", #"start", #"end", #"trim?", #"max",
+     #"allow-empty-strings?") => (<sequence>);
+
+  open generic-function trim
+    (<string>, #"key", #"test", #"side", #"start", #"end") => (<string>);
+
+  open generic-function replace
+    (<string>, <string>, <string>, #"key", #"start", #"end", #"test", #"max")
+    => (<string>, <integer>);
+
+  open generic-function replace!
+    (<string>, <string>, <string>, #"key", #"start", #"end", #"test", #"max")
+    => (<string>, <integer>);
+
+  open generic-function uppercase  (<string>) => (<string>);
+  open generic-function uppercase! (<string>) => (<string>);
+  open generic-function lowercase  (<string>) => (<string>);
+  open generic-function lowercase! (<string>) => (<string>);
+  open generic-function capitalize  (<string>, #"key", #"start", #"end") => (<string>);
+  open generic-function capitalize! (<string>, #"key", #"start", #"end") => (<string>);
+  open generic-function pluralize (<string>, #"key", #"count") => (<string>);
+  open generic-function a-or-an (<string>) => (<string>);
+
+
+  open generic-function integer-to-digit (<integer>) => (<character>);
+  open generic-function digit-to-integer (<character>) => (<integer>);
 
 end module-spec strings;
 
 
+define strings function-test byte-string? ()
+  for (item in list(#("", #t),
+                    #(5, #f),
+                    list(as(<unicode-string>, ""), #f)))
+    let (val, expected-result) = apply(values, item);
+    check-equal(fmt("byte-string?(%=) => %=", val, expected-result),
+                byte-string?(val),
+                expected-result);
+  end for;
+end function-test byte-string?;
+
+
 define strings function-test capitalize ()
-  test-output(concatenate("capitlize ", "A", "\n"));
   for (item in #(#("", ""),
                  #("x", "X"),
                  #("abc", "Abc"),
@@ -91,11 +113,9 @@ define strings function-test capitalize ()
                 capitalize(before),
                 after);
   end;
-  test-output(concatenate("capitlize ", "A", "\n"));
 end function-test capitalize;
 
 define strings function-test capitalize! ()
-  test-output(concatenate("capitalize! ", "A", "\n"));
   for (item in #(#("", ""),
                  #("a", "A"),
                  #("abc", "Abc"),
@@ -109,11 +129,17 @@ define strings function-test capitalize! ()
     check-true(fmt("capitalize! %= retains identity", before),
                capitalize!(before) == before);
   end;
-  test-output(concatenate("capitalize! ", "A", "\n"));
 end function-test capitalize!;
 
-define strings function-test downcase! ()
-  test-output(concatenate("downcase! ", "A", "\n"));
+define strings function-test pluralize ()
+  //---*** Fill this in...
+end function-test pluralize;
+
+define strings function-test a-or-an ()
+  //---*** Fill this in...
+end function-test a-or-an;
+
+define strings function-test lowercase! ()
   for (item in #(#("", ""),
                  #("a", "a"),
                  #("E", "e"),
@@ -121,15 +147,13 @@ define strings function-test downcase! ()
                  #("ONE TWO", "one two"),
                  #("_oNe,Two", "_one,two")))
     let (before, after) = apply(values, map(copy-sequence, item));
-    check-equal(fmt("downcase! %=", before), downcase!(before), after);
-    check-true(fmt("downcase! %= retains identity", before),
-               downcase!(before) == before);
+    check-equal(fmt("lowercase! %=", before), lowercase!(before), after);
+    check-true(fmt("lowercase! %= retains identity", before),
+               lowercase!(before) == before);
   end;
-  test-output(concatenate("downcase! ", "A", "\n"));
-end function-test downcase!;
+end function-test lowercase!;
 
-define strings function-test downcase ()
-  test-output(concatenate("downcase ", "A", "\n"));
+define strings function-test lowercase ()
   for (item in #(#("", ""),
                  #("a", "a"),
                  #("A", "a"),
@@ -137,13 +161,11 @@ define strings function-test downcase ()
                  #("ONE TWO", "one two"),
                  #("_oNe,Two", "_one,two")))
     let (before, after) = apply(values, item);
-    check-equal(fmt("downcase %=", before), downcase(before), after);
+    check-equal(fmt("lowercase %=", before), lowercase(before), after);
   end;
-  test-output(concatenate("downcase ", "A", "\n"));
-end function-test downcase;
+end function-test lowercase;
 
-define strings function-test upcase! ()
-  test-output(concatenate("upcase! ", "A", "\n"));
+define strings function-test uppercase! ()
   for (item in #(#("", ""),
                  #("A", "A"),
                  #("a", "A"),
@@ -151,15 +173,13 @@ define strings function-test upcase! ()
                  #("one two", "ONE TWO"),
                  #("_oNe,Two", "_ONE,TWO")))
     let (before, after) = apply(values, map(copy-sequence, item));
-    check-equal(fmt("upcase! %=", before), upcase!(before), after);
-    check-true(fmt("upcase! %= retains identity", before),
-               upcase!(before) == before);
+    check-equal(fmt("uppercase! %=", before), uppercase!(before), after);
+    check-true(fmt("uppercase! %= retains identity", before),
+               uppercase!(before) == before);
   end;
-  test-output(concatenate("upcase! ", "A", "\n"));
-end function-test upcase!;
+end function-test uppercase!;
 
-define strings function-test upcase ()
-  test-output(concatenate("upcase ", "A", "\n"));
+define strings function-test uppercase ()
   for (item in #(#("", ""),
                  #("a", "A"),
                  #("A", "A"),
@@ -167,10 +187,9 @@ define strings function-test upcase ()
                  #("one two", "ONE TWO"),
                  #("_oNe,Two", "_ONE,TWO")))
     let (before, after) = apply(values, item);
-    check-equal(fmt("upcase %=", before), upcase(before), after);
+    check-equal(fmt("uppercase %=", before), uppercase(before), after);
   end;
-  test-output(concatenate("upcase ", "A", "\n"));
-end function-test upcase;
+end function-test uppercase;
 
 define strings function-test trim ()
   for (item in list(#("", ""),
@@ -192,8 +211,10 @@ end function-test trim;
 define strings function-test join ()
   for (item in list(list(list("", "-"), ""),
                     list(list(#("a", "b", "c"), "-"), "a-b-c"),
-                    list(list(#("a", "b", "c"), ", ", conjunction:, " and "), "a, b and c"),
-                    list(list("abc", ", ", conjunction:, " and ", key:, upcase), "A, B and C")))
+                    list(list(#("a", "b", "c"), ", ", conjunction:, " and "),
+                         "a, b and c"),
+                    list(list("abc", ", ", conjunction:, " and ", key:, uppercase),
+                         "A, B and C")))
     let (join-args, expected-result) = apply(values, item);
     let test-name = fmt("join(%s)",
                         join(join-args, ", ", key: method (x) fmt("%=", x) end));
@@ -210,13 +231,51 @@ define strings function-test digit-to-integer ()
 end function-test digit-to-integer;
 
 define strings function-test split ()
-    check-equal("empty string", "", split(""));
-    check-equal("", #["a", "b", "c"], split("a b c"));
+    check-equal("split empty string", #[], split(""));
+    check-equal("whitespace trimmed? 1", #[], split(" "));
+    check-equal("whitespace trimmed? 2", #["."], split(" . "));
+    check-equal("split \"a b c\"", #["a", "b", "c"], split("a b c"));
 end function-test split;
 
+define function replacement-test (mutating?)
+  for (item in list(list("", "", "", "", #[]),
+                    list("", "", "", "replacement", #[]),
+                    list("b", "a", "a", "b", #[]),
+                    list("a", "a", "a", "b", #[#"end", 0]),
+                    list("ac", "abc", "b", "", #[]),
+                    list("axxc", "abc", "b", "xx", #[]),
+                    list("abc", "abc", "b", "xx", #[#"start", 2])
+                    /*
+                    list("abc", "abc", "b", "xx", #[#"end", 1]),
+                    list("xxa", "aaa", "a", "x", #[#"max", 2]),
+                    list("AxA", "AaA", "a", "x", #[]),
+                    list("xxx", "AaA", "a", "x", vector(#"test", case-insensitive-equal?))
+                      */
+                      ))
+    let (expected, original, pattern, replacement, kwargs) = apply(values, item);
+    let original = copy-sequence(original);
+    let test-name = fmt("replace%s(%=, %=, %=, %=)",
+                        if (mutating?) "!" else "" end,
+                        original, pattern, replacement, kwargs);
+    let result = block ()
+                   apply(replace!, original, pattern, replacement, kwargs);
+                 exception (e :: <error>)
+                   #f
+                 end;
+    check-equal(test-name, original, result);
+    if (pattern.size == replacement.size)
+      check-true(fmt("%s identity", test-name), result == original);
+    end;
+  end for;
+end function replacement-test;
+
 define strings function-test replace ()
-  //---*** Fill this in...
+  replacement-test(#f);
 end function-test replace;
+
+define strings function-test replace! ()
+  replacement-test(#t);
+end function-test replace!;
 
 define strings function-test less? ()
   //---*** Fill this in...
@@ -262,9 +321,9 @@ define strings function-test alphabetic? ()
   //---*** Fill this in...
 end function-test alphabetic?;
 
-define strings function-test count-occurrances ()
+define strings function-test count-matches ()
   //---*** Fill this in...
-end function-test count-occurrances;
+end function-test count-matches;
 
 define strings function-test index-of ()
   //---*** Fill this in...
@@ -285,6 +344,10 @@ end function-test case-insensitive-less?;
 define strings function-test case-insensitive-greater? ()
   //---*** Fill this in...
 end function-test case-insensitive-greater?;
+
+define strings function-test substring ()
+  //---*** Fill this in...
+end function-test substring;
 
 
 define method main () => ()

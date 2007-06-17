@@ -6,13 +6,31 @@ Copyright: This code is in the public domain.
 
 define library strings
   use common-dylan;
-  use io, import: { streams };
+  use io,
+    import: { streams };
+  use string-extensions,
+    import: { string-hacking };
+  use regular-expressions;
   export strings;
 end;
 
+// Interface module
+//
 define module strings
-  use common-dylan, exclude: { split };
-  use streams, import: { with-output-to-string, write, write-element };
+
+  // Possible addtions...
+  // translate
+  // make-translation-table
+  // center
+  // justify
+  // fill-paragraph
+  // substring
+  // starts-with?
+  // ends-with?
+
+  // String predicates
+  create
+    byte-string?;
 
   // Character predicates
   create
@@ -35,35 +53,56 @@ define module strings
     case-insensitive-less?,
     case-insensitive-greater?,
     index-of,
-    count-occurrances;
+    count-matches;
 
-  // Creation/modification:
+  // Creation/modification/conversion
   create
+    substring,
     join,
-    trim,  // or strip?
-    split,
+    split, splitf,
+    trim,
     replace,
-    //replace!,  is it worth having this?  old/new must be same size
-    upcase,
-    upcase!,
-    downcase,
-    downcase!,
+    replace!,
+    uppercase,
+    uppercase!,
+    lowercase,
+    lowercase!,
     capitalize,
     capitalize!,
     pluralize,
-    a-or-an;
-
-  // Conversion
-  create
-    //as(<string>, <character>)
-    //as(<integer>, <string>)
-    //as(<string>, <integer>)
-    //as(<float>, <string>)
-    //as(<string>, <float>)
-    //as(<double-float>, <string>)
-    //as(<string>, <double-float>)
-    digit-to-integer,              // base:
-    integer-to-digit;              // base:
+    a-or-an,
+    digit-to-integer,
+    integer-to-digit;
+    /* Should have all these basic conversion functions in common-dylan 
+    character-to-string,
+    string-to-integer, integer-to-string,
+    string-to-float, float-to-string,
+    */
 
 end module strings;
 
+
+// Implementation module
+//
+define module strings-implementation
+
+  use strings;            // Use API module
+  use common-dylan,
+    exclude: { split };
+  use streams,
+    import: { \with-output-to-string,
+              write,
+              write-element };
+  use string-hacking,
+    import: { // predecessor,
+              // successor,
+              // add-last,
+              <character-set>,
+              <case-sensitive-character-set>,
+              <case-insensitive-character-set>,
+              <byte-character-table> };
+  use regular-expressions,
+    exclude: { split,
+               join };
+
+end module strings-implementation;
