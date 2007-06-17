@@ -1,5 +1,5 @@
-Module:    strings
-Synopsis:  String manipulation functions
+Module:    strings-implementation
+Synopsis:  String manipulation library
 Author:    Carl Gay
 Copyright: This code is in the public domain.
 
@@ -12,6 +12,7 @@ Copyright: This code is in the public domain.
     as(<string>, <float>)
     as(<double-float>, <string>)
     as(<string>, <double-float>)
+    format(stream, "%(foo)s %(bar)d", table);
 */
 
 //--------------------------------------------------------------------
@@ -22,15 +23,18 @@ define open generic a-or-an (string :: <string>) => (article :: <string>);
 define open generic pluralize (string :: <string>, #key) => (new-string :: <string>);
 
 define open generic capitalize  (string :: <string>, #key) => (new-string :: <string>);
-define open generic capitalize! (string :: <string>, #key) => (string :: <string>);
+define open generic capitalize! (string :: <string>, #key) => (string     :: <string>);
 
-define open generic downcase  (string :: <string>, #key) => (new-string :: <string>);
-define open generic downcase! (string :: <string>, #key) => (string :: <string>);
+// uppercase and lowercase are provided only because as-uppercase/as-lowercase
+// don't provide start: and end: keyword arguments.  I think it's of questionable
+// utility.  --cgay
+define open generic lowercase  (object :: <object>, #key) => (new-object :: <object>);
+define open generic lowercase! (object :: <object>, #key) => (object     :: <object>);
 
-define open generic upcase  (string :: <string>, #key) => (new-string :: <string>);
-define open generic upcase! (string :: <string>, #key) => (string :: <string>);
+define open generic uppercase  (object :: <object>, #key) => (new-object :: <object>);
+define open generic uppercase! (object :: <object>, #key) => (object     :: <object>);
 
-define open generic integer-to-digit (i :: <integer>, #key) => (c :: <character>);
+define open generic integer-to-digit (i :: <integer>, #key)   => (c :: <character>);
 define open generic digit-to-integer (c :: <character>, #key) => (i :: <integer>);
 
 define open generic trim (string :: <string>, #key) => (new-string :: <string>);
@@ -38,11 +42,16 @@ define open generic trim (string :: <string>, #key) => (new-string :: <string>);
 define open generic join
     (items :: <sequence>, separator :: <string>, #key) => (new-string :: <string>);
 
-define open generic split (string :: <string>, #key) => (words :: <sequence>);
+define open generic splitf
+    (string :: <string>, separator :: <object>, #key) => (parts :: <sequence>);
 
 define open generic replace
-    (source :: <string>, old :: <string>, new :: <string>, #key)
+    (original :: <string>, pattern :: <object>, replacement :: <string>, #key)
  => (new-string :: <string>, num-replacements :: <integer>);
+
+define open generic replace!
+    (original :: <string>, pattern :: <object>, replacement :: <string>, #key)
+ => (string :: <string>, num-replacements :: <integer>);
 
 // These three are much like their counterparts (=, >, <) but they provide
 // for keyword args.
@@ -58,8 +67,6 @@ define open generic less?
 // the above three methods, but it seems common enough to want to pass these
 // to other functions (e.g., sort) that it's worth the convenience.
 
-// Is there a better name for these?
-
 define open generic case-insensitive-equal?
     (o1 :: <object>, o2 :: <object>, #key, #all-keys) => (equal? :: <boolean>);
 define open generic case-insensitive-greater?
@@ -68,22 +75,38 @@ define open generic case-insensitive-less?
     (o1 :: <object>, o2 :: <object>, #key, #all-keys) => (less? :: <boolean>);
 
 
-define open generic control?    (c :: <character>) => (well? :: <boolean>);
-define open generic printable?  (c :: <character>) => (well? :: <boolean>);
-define open generic graphic?    (c :: <character>) => (well? :: <boolean>);
-define open generic lowercase?  (c :: <character>) => (well? :: <boolean>);
-define open generic uppercase?  (c :: <character>) => (well? :: <boolean>);
-define open generic whitespace? (c :: <character>) => (well? :: <boolean>);
-define open generic alphanumeric? (c :: <character>) => (well? :: <boolean>);
-define open generic digit?      (c :: <character>, #key) => (well? :: <boolean>);
-define open generic alphabetic? (c :: <character>) => (well? :: <boolean>);
+// Is it worth the cost (I assume there's a cost) of having open generics for
+// these instead of just inlining methods on <byte-string> and eventually
+// <unicode-string>?  I.e., are there different types of unicode strings that
+// would have different methods for these?
 
-define open generic count-occurrances
-    (source :: <string>, pattern :: <string>, #key) => (n :: <integer>);
+define open generic control?    (c :: <character>) => (result :: <boolean>);
+define open generic printable?  (c :: <character>) => (result :: <boolean>);
+define open generic graphic?    (c :: <character>) => (result :: <boolean>);
+define open generic lowercase?  (c :: <character>) => (result :: <boolean>);
+define open generic uppercase?  (c :: <character>) => (result :: <boolean>);
+define open generic whitespace? (c :: <character>) => (result :: <boolean>);
+define open generic alphanumeric? (c :: <character>) => (result :: <boolean>);
+define open generic digit?      (c :: <character>, #key) => (result :: <boolean>);
+define open generic alphabetic? (c :: <character>) => (result :: <boolean>);
 
+define open generic count-matches
+    (source :: <string>, pattern :: <object>, #key) => (n :: <integer>);
+
+// I would like to define a method on common-dylan:position instead, but
+// the required keyword args aren't compatible.  I think we should change
+// common-dylan:position.
 define open generic index-of
-    (source :: <string>, pattern :: <string>, #key)
+    (source :: <string>, pattern :: <object>, #key)
  => (index :: false-or(<integer>));
+
+
+// The main purpose of functions like this is to make callers easier to find.
+define sealed generic byte-string? (object :: <object>) => (result :: <boolean>);
+
+define open generic substring 
+    (string :: <string>, start :: <integer>, #key) => (substring :: <string>);
+
 
 //--------------------------------------------------------------------
 
@@ -98,7 +121,7 @@ define macro without-bounds-checks
 end;
 
 // Temporary
-define class <invalid-index-error> (<simple-error>) end;
+define class <invalid-key-error> (<simple-error>) end;
 
 // Temporary
 define function element-range-error
@@ -107,9 +130,9 @@ define function element-range-error
   // We don't embed the collection in the condition as it will prevent the
   // collection having dynamic extent.  A debugger should be able to display
   // the collection.
-  error(make(<invalid-index-error>,
-             format-string: "ELEMENT outside of range: %=",
-             format-arguments: list(key)))
+  error(make(<invalid-key-error>,
+             format-string: "Invalid key (%=) for collection of class %= and size %d.",
+             format-arguments: list(key, object-class(collection), collection.size)))
 end;
 
 
@@ -138,6 +161,18 @@ define inline function lowercase-code?
     (code :: <integer>) => (true? :: <boolean>)
   as(<integer>, 'a') <= code & code <= as(<integer>, 'z')
 end;
+
+
+define sealed inline method byte-string?
+    (object :: <object>) => (result :: <boolean>)
+  #f
+end;
+
+define sealed inline method byte-string?
+    (object :: <byte-string>) => (result :: <boolean>)
+  #t
+end;
+
 
 // default method
 define method case-insensitive-less?
@@ -420,21 +455,22 @@ define sealed method graphic?
   as(<integer>, ' ') <= code & code <= as(<integer>, '~')
 end;
 
-// isprint
+// C function = isprint
 //
 define sealed method printable?
     (c :: <character>) => (printable? :: <boolean>)
   graphic?(c) | whitespace?(c);
 end;
 
-// ispunct
+// C function = ispunct
 //
 define sealed method punctuation?
     (c :: <byte-character>) => (punct? :: <boolean>)
   select (c)
-    '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*',
-    '+', ',', '-', '.', '/', ':', ';', '<', '=', '>',
-    '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~'
+    '!', '"', '#', '$', '%', '&', '(', ')',
+    '*', '+', ',', '-', '.', '/', ':', ';',
+    '<', '=', '>', '?', '@', '[', '\'', '\\',
+    ']', '^', '_', '`', '{', '|', '}', '~'
       => #t;
     otherwise => #f;
   end select;
@@ -494,35 +530,45 @@ define sealed method capitalize!
   string
 end method capitalize!;
 
-define sealed method upcase
+define sealed inline method uppercase
+    (char :: <byte-character>, #key) => (char :: <byte-character>)
+  as-uppercase(char)
+end method uppercase;
+
+define sealed method uppercase
     (string :: <byte-string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string))
  => (string :: <byte-string>)
   do-string!(copy-sequence(string, start: _start, end: _end),
              as-uppercase, _start, _end)
-end method upcase;
+end method uppercase;
 
-define sealed method upcase!
+define sealed method uppercase!
     (string :: <byte-string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = string.size)
  => (string :: <byte-string>)
   do-string!(string, as-uppercase, _start, _end)
-end method upcase!;
+end method uppercase!;
 
-define sealed method downcase
+define sealed inline method lowercase
+    (char :: <byte-character>, #key) => (char :: <byte-character>)
+  as-lowercase(char)
+end method lowercase;
+
+define sealed method lowercase
     (string :: <byte-string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = string.size)
  => (string :: <byte-string>)
   do-string!(copy-sequence(string, start: _start, end: _end),
              as-lowercase, _start, _end)
-end method downcase;
+end method lowercase;
 
-define sealed method downcase!
+define sealed method lowercase!
     (string :: <byte-string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string))
  => (string :: <byte-string>)
   do-string!(string, as-lowercase, _start, _end)
-end method downcase!;
+end method lowercase!;
 
 define sealed method do-string!
     (string :: <byte-string>, fun :: <function>, _start :: <integer>, _end :: <integer>)
@@ -635,6 +681,7 @@ define method a-or-an
   end if
 end method a-or-an;
 
+// todo -- replace with position(<string>, <character-set>)?
 // Find any of the given characters within a string
 define method string-search-set
     (string :: <byte-string>, char-set :: <sequence>,
@@ -675,12 +722,6 @@ define method string-search-set
     end without-bounds-checks
   end block
 end method string-search-set;
-
-
-define sideways method as
-    (the-class == <string>, c :: <character>) => (c :: <string>)
-  make(<string>, size: 1, fill: c)
-end;
 
 
 define function check-base
@@ -753,7 +794,7 @@ end method digit-to-integer;
 define method join
     (seq :: <sequence>, separator :: <string>,
      #key key :: <function> = identity,
-         conjunction :: false-or(<string>))
+          conjunction :: false-or(<string>))
  => (result :: <string>)
   with-output-to-string (out)
     let len-1 :: <integer> = seq.size - 1;
@@ -776,99 +817,137 @@ define method join
 end method join;
 
 
-
-// Hopefully this can replace 'split' in common-extensions.
-
-define method split
-    (string :: <byte-string>,
-     #key separator :: false-or(<byte-string>),
+define function split
+    (string :: <string>,
+     #key separator,
           start :: <integer> = 0,
           end: _end :: <integer> = string.size,
-          trim? :: <boolean> = #t,
-          max: max-splits :: false-or(<integer>),
-          allow-empty-strings? :: <boolean>)
+          max: _max :: <integer> = -1)
  => (strings :: <stretchy-object-vector>)
-  local method separator? (pos :: <integer>)
-          block (return)
-            for (i :: <integer> from pos, c in separator)
-              if (i >= _end | string[i] ~== c)
-                return(#f);
-              end;
-            end;
-            #t
-          end
-        end,
-        method is-white? (pos :: <integer>)
-          whitespace?(string[pos])
+  local method is-white? (index)
+          whitespace?(string[index])
         end;
-  splitf(string,
-         if (separator) separator? else is-white? end,
-         if (separator) size(separator) else 1 end,
-         start: start,
-         end: _end,
-         trim?: trim?,
-         max: max-splits,
-         allow-empty-strings?: allow-empty-strings?)
-end method split;
-           
+  splitf(string, separator | is-white?, start: start, end: _end, max: _max)
+end function split;
+
+// <byte-string> separators
 define method splitf
-    (string :: <byte-string>, separator? :: <function>, separator-size :: <integer>,
+    (string :: <byte-string>, separator :: <byte-string>, #rest kwargs, #key)
+ => (parts :: <sequence>)
+  local method separator? (index)
+          values(looking-at?(separator, string, index),
+                 separator.size)
+        end;
+  apply(next-method, string, separator?, kwargs)
+end method splitf;
+
+/* todo -- <character-set>
+define method splitf
+    (string :: <byte-string>, separator :: <character-set>, #rest kwargs, #key)
+ => (parts :: <sequence>)
+  local method separator? (str, index)
+          member?(str[index], separator)
+        end;
+  apply(next-method, string, separator?, kwargs)
+end method splitf;
+*/
+
+// <regexp> separators
+//
+// Due to limitations in the regular-expressions library a <regexp> separator
+// must be anchored (i.e., must start with ^) to be useful because there is no
+// way to request a match starting at a specific index.
+//
+// Ideally the regular-expressions library should "use strings;" and implement
+// this method.  
+/* Not yet
+define method splitf
+    (string :: <byte-string>, separator :: <regexp>, #rest kwargs, #key)
+ => (parts :: <sequence>)
+  local method separator? (index)
+          // todo -- pass end: arg to regexp-position
+          //         how to enforce the match to be anchored at index?
+          let match = regexp-position(string, separator, start: index);
+          values(match & #t,
+                 match & match.size)
+        end;
+  apply(next-method, string, separator?, kwargs)
+end method splitf;
+*/
+
+// <function> separators (the most general)
+define method splitf
+    (string :: <byte-string>, separator? :: <function>,
      #key start :: <integer> = 0, 
-          end: epos :: <integer> = size(string),
-          trim? :: <boolean> = #t,
-          max: max-splits :: false-or(<integer>),
-          allow-empty-strings? :: <boolean>)
-  let bpos :: <integer> = start;
-  let new-pos :: <integer> = bpos;
+          end: _end :: <integer> = string.size,
+          max: _max :: <integer> = -1)
+ => (parts :: <sequence>)
+
+  // The separator? parameter accepts one argument, the index into the input
+  // string, and returns two values: whether or not we're looking at a
+  // separator and either #f or how long the separator is.  If the second value
+  // is #f, the separator is assumed to be of length 1.  This is presumably the
+  // common case, and this way you don't have to worry about it when writing a
+  // separator? function.
+
   let parts :: <stretchy-vector> = make(<stretchy-vector>);
-  local method add-substring
-                   (start :: <integer>, _end :: <integer>)
-	  if (trim?)
-	    while (start < _end & whitespace?(string[start]))
-	      start := start + 1
-	    end;
-	    while (start < _end & whitespace?(string[_end - 1]))
-	      _end := _end - 1
-	    end
-	  end;
-	  if (allow-empty-strings? | start ~== _end)
-	    add!(parts, copy-sequence(string, start: start, end: _end))
-	  end
-	end method add-substring;
-  let splits :: <integer> = 0;
-  while (new-pos < epos & (~max-splits | splits < max-splits))
-    if (separator?(new-pos))
-      add-substring(bpos, new-pos);
-      if (allow-empty-strings?)
-        new-pos := new-pos + separator-size;
+  let bpos :: <integer> = start;
+  let curr :: <integer> = bpos;
+  let num-splits :: <integer> = 0;
+  let seen-non-separator? = #f;
+  while (curr < _end & (_max == -1 | num-splits < _max))
+    let (looking-at-separator?, sep-len) = separator?(curr);
+    if (looking-at-separator?)
+      if (seen-non-separator?)
+        add!(parts, copy-sequence(string, start: bpos, end: curr));
+        num-splits := num-splits + 1;
+      end;
+      if (sep-len)
+        // The separator function told us how big the separator is.
+        curr := curr + sep-len;
       else
-        // skip consecutive separators
-        while (new-pos < epos & separator?(new-pos))
-          new-pos := new-pos + separator-size;
+        curr := curr + 1;
+        while (curr < _end & separator?(curr))
+          curr := curr + 1;
         end;
       end;
-      bpos := new-pos;
-      splits := splits + 1;
-    else
-      new-pos := new-pos + 1;
+      bpos := curr;
+    else // not looking at a separator
+      if (~seen-non-separator?)
+        // If all characters up to here have been separator characters, then
+        // they should be ignored.
+        seen-non-separator? := #t;
+        bpos := curr;
+      end;
+      curr := curr + 1;
     end if;
   end while;
-  add-substring(bpos, epos);
+  // Stuff the rest of the string into the result.
+  if (bpos < string.size)
+    add!(parts, copy-sequence(string, start: bpos));
+  end;
   parts
 end method splitf;
 
-//split("1,2,,4", separator: ",", allow-empty-strings?: #t);
+//split("1,2,,4", separator: ",");
 
 
-/*
-define sealed method looking-at?
-    (pat :: <byte-string>, buf :: <byte-string>, bpos :: <integer>, epos :: <integer>)
-  let pend = bpos + pat.size;
-  pend <= epos & string-match(pat, buf, bpos, pend)
-end looking-at?;
-*/
+// todo -- should this be exported?
+define method looking-at?
+    (pattern :: <byte-string>, big :: <byte-string>, bpos :: <integer>)
+ => (result :: <boolean>)
+  block (return)
+    let len :: <integer> = big.size;
+    for (char in pattern, pos from bpos)
+      if (pos >= len | char ~== big[pos])
+        return(#f)
+      end if;
+    end for;
+    #t
+  end
+end method looking-at?;
 
-define sealed method count-occurrances
+define sealed method count-matches
     (source :: <byte-string>, pattern :: <byte-string>,
      #key test :: <function> = \==,
           start :: <integer> = 0,
@@ -886,7 +965,7 @@ define sealed method count-occurrances
     end;
   end;
   occurrances
-end method count-occurrances;
+end method count-matches;
 
 define sealed method trim
     (string :: <byte-string>,
@@ -932,37 +1011,76 @@ define sealed method index-of
   end block
 end method index-of;
 
+
 define sealed method replace
-    (source :: <byte-string>, old :: <byte-string>, new :: <byte-string>,
+    (original :: <byte-string>, pattern :: <byte-string>, replacement :: <byte-string>,
      #key start :: <integer> = 0,
-          end: _end :: <integer> = source.size,
+          end: _end :: <integer> = original.size,
           test :: <function> = \==,
-          max: max-replacements :: false-or(<integer>) = #f)
+          max: _max :: <integer> = -1)
  => (string :: <byte-string>, num-replacements :: <integer>)
-  let osize :: <integer> = old.size;
-  let nsize :: <integer> = new.size;
+  let psize :: <integer> = pattern.size;
+  let substrings :: <stretchy-vector> = make(<stretchy-vector>);
   let bpos :: <integer> = start;
-  let saved-pos :: <integer> = bpos;
   let num-replacements :: <integer> = 0;
-  values(with-output-to-string (stream)
-           while (bpos + osize <= _end & num-replacements < max-replacements)
-             if (equal?(source, old, start1: bpos, end1: bpos + osize, test: test))
-               if (saved-pos < bpos)
-                 // TODO: get rid of call to copy-sequence.  Might benchmark using count-occurrances,
-                 //       then pre-allocating a string of the correct size.
-                 write(stream, copy-sequence(source, start: saved-pos, end: bpos));
-               end;
-               write(stream, new);
-               bpos := bpos + osize;
-               saved-pos := bpos;
-             else
-               bpos := bpos + 1;
-             end if;
-           end while;
-           if (saved-pos < _end)
-             write(stream, copy-sequence(source, start: saved-pos, end: _end))
-           end;
-         end with-output-to-string,
-         num-replacements)
+  let copy-from :: <integer> = 0;
+  if (psize ~== 0)
+    while (bpos <= _end - psize
+             & (_max == -1 | num-replacements < _max))
+      if (equal?(original, pattern, start1: bpos, end1: _end, test: test))
+        if (copy-from ~== bpos)
+          add!(substrings, copy-sequence(original, start: copy-from, end: bpos));
+        end;
+        add!(substrings, replacement);
+        num-replacements := num-replacements + 1;
+        bpos := bpos + psize;
+        copy-from := bpos;
+      else
+        bpos := bpos + 1;
+      end if;
+    end while;
+  end if;
+  if (copy-from < original.size | empty?(substrings))
+    add!(substrings, copy-sequence(original, start: copy-from));
+  end;
+  values(apply(concatenate, substrings), num-replacements)
 end method replace;
 
+define sealed method replace!
+    (original :: <byte-string>, pattern :: <byte-string>, replacement :: <byte-string>,
+     #key start :: <integer> = 0,
+          end: _end :: <integer> = original.size,
+          test :: <function> = \==,
+          max: _max :: <integer> = -1)
+ => (string :: <byte-string>, num-replacements :: <integer>)
+  let psize :: <integer> = pattern.size;
+  if (psize ~== replacement.size)
+    replace(original, pattern, replacement,
+            start: start, end: _end, test: test, max: _max)
+  else
+    let bpos :: <integer> = start;
+    let epos :: <integer> = _end - psize;
+    let num-replacements :: <integer> = 0;
+    if (psize ~== 0)                                   // prevent infinite loop
+      while (bpos <= _end - psize
+               & (_max == -1 | num-replacements < _max))
+        if (equal?(original, pattern, start1: bpos, end1: _end, test: test))
+          for (i from bpos, char in replacement)
+            original[i] := char;
+          end;
+          num-replacements := num-replacements + 1;
+          bpos := bpos + psize;
+        end if;
+      end while;
+    end if;
+    values(original, num-replacements)
+  end if
+end method replace!;
+
+
+define method substring
+    (string :: <byte-string>, start :: <integer>,
+     #key end: _end :: <integer> = string.size)
+ => (substring :: <byte-string>)
+  copy-sequence(string, start: start, end: _end)
+end;
