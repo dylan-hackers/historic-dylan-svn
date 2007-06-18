@@ -1,4 +1,4 @@
-module:   regular-expressions
+module:   regular-expressions-impl
 author:   Nick Kramer (nkramer@cs.cmu.edu)
 synopsis: This takes a parsed regular expression and tries to find a match
           for it.

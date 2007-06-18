@@ -1,4 +1,4 @@
-module: regular-expressions
+module: regular-expressions-impl
 author: Nick Kramer (nkramer@cs.cmu.edu)
 copyright: see below
 
@@ -98,11 +98,34 @@ define class <parsed-backreference> (<parsed-atom>)
   constant slot group-number :: <integer>, required-init-keyword: #"group"; 
 end class <parsed-backreference>;
 
+// Note: I'm pretty sure <simple-error> won't work in GD.  --cgay
+define class <regex-error> (<simple-error>)
+end class <regex-error>;
+
+define class <illegal-regexp> (<regex-error>)
+  constant slot regexp-pattern :: <string>, 
+    required-init-keyword: #"pattern";
+end class <illegal-regexp>;
+
+define sealed domain make (singleton(<illegal-regexp>));
+define sealed domain initialize (<illegal-regexp>);
+
+define function parse-error
+    (pattern :: <string>, format-string :: <string>, #rest format-args)
+  let msg = apply(format-to-string, format-string, format-args);
+  signal(make(<illegal-regexp>,
+              format-string: "Invalid regular expression: %=.  %s",
+              format-arguments: list(pattern, msg),
+              pattern: pattern));
+end function parse-error;
+
 // <parse-info> contains some information about the current regexp
 // being parsed.  Using a structure is slightly nicer than having
 // global variables..
 //
 define class <parse-info> (<object>)
+  // Name this has-backreferences, for consistency with the other slots?
+  // Add ? to all the has-* slots.  --cgay
   slot backreference-used :: <boolean>, init-value: #f;
      // Whether or not the function includes \1, \2, etc in the regexp.
      // This is different from return-marks, which determines whether the
@@ -113,36 +136,42 @@ define class <parse-info> (<object>)
   constant slot set-type :: <class>, required-init-keyword: #"set-type";
 end class <parse-info>;
 
-define class <illegal-regexp> (<error>)
-  constant slot regular-expression :: <string>, 
-    required-init-keyword: #"regexp";
-end class <illegal-regexp>;
+define function make-parse-info
+    (#key case-sensitive  :: <boolean> = #t,
+          verbose         :: <boolean> = #f,
+          multi-line      :: <boolean> = #f,
+          dot-matches-all :: <boolean> = #f)
+ => (info :: <parse-info>)
+  local method nyi (option-name)
+          signal(make(<regex-error>,
+                      format-string: "The '%s' option is not yet implemented.",
+                      format-arguments: list(option-name)));
+        end;
+  verbose & nyi("verbose");
+  multi-line & nyi("multi-line");
+  dot-matches-all & nyi("dot-matches-all");
+  let char-set-type
+   = if (case-sensitive)
+       <case-sensitive-character-set>
+     else
+       <case-insensitive-character-set>
+     end;
+  make(<parse-info>, set-type: char-set-type)
+end function make-parse-info;
 
-define sealed domain make (singleton(<illegal-regexp>));
-define sealed domain initialize (<illegal-regexp>);
-
-// cgay todo
-/* KJP: Doesn't work this way in Functional Developer.
-define sealed method report-condition (cond :: <illegal-regexp>, stream) => ();
-  condition-format(stream, "Illegal regular expression: \n"
-		     "A sub-regexp that matches the empty string has"
-		     " been quantified in\n   %s",
-		   cond.regular-expression);
-end method report-condition;
-*/
-//ignorable(regular-expression);
-
-define method parse (regexp :: <string>, character-set-type :: <class>)
- => (parsed-regexp :: <parsed-regexp>, last-group :: <integer>,
-     backrefs? :: <boolean>, alternatives? :: <boolean>, 
-     quantifiers? :: <boolean>);
-  let parse-info = make(<parse-info>, set-type: character-set-type);
+define method parse
+    (regexp :: <string>, parse-info :: <parse-info>)
+ => (parsed-regexp :: <parsed-regexp>,
+     last-group :: <integer>,
+     backrefs? :: <boolean>,
+     alternatives? :: <boolean>, 
+     quantifiers? :: <boolean>)
   let parse-string = make(<parse-string>, string: regexp);
   let parse-tree = make(<mark>, group: 0, 
 			child: parse-regexp(parse-string, parse-info));
   let optimized-regexp = optimize(parse-tree);
   if (optimized-regexp.pathological?)
-    signal(make(<illegal-regexp>, regexp: regexp));
+    parse-error(regexp, "A sub-regexp that matches the empty string was quantified.");
   else
     values(optimized-regexp,
 	   parse-info.current-group-number,
@@ -155,7 +184,9 @@ end method parse;
 define method parse-regexp (s :: <parse-string>, info :: <parse-info>)
  => parsed-regexp :: <parsed-regexp>;
   let alternative = parse-alternative(s, info);
-  if (lookahead(s) = '|')
+  if (~alternative)
+    parse-error(s.parse-string, "");
+  elseif (lookahead(s) = '|')
     info.has-alternatives := #t;
     make(<union>, left: alternative, right: parse-regexp(consume(s), info));
   else
@@ -163,8 +194,9 @@ define method parse-regexp (s :: <parse-string>, info :: <parse-info>)
   end if;
 end method parse-regexp;
 
-define method parse-alternative (s :: <parse-string>, info :: <parse-info>)
- => parsed-regexp :: <parsed-regexp>;
+define method parse-alternative
+    (s :: <parse-string>, info :: <parse-info>)
+ => (re :: false-or(<parsed-regexp>))
   let term = parse-quantified-atom(s, info);
   if (member?(lookahead(s), #(#f, '|', ')')))
     term;
@@ -174,7 +206,7 @@ define method parse-alternative (s :: <parse-string>, info :: <parse-info>)
 end method parse-alternative;
 
 define method parse-quantified-atom (s :: <parse-string>, info :: <parse-info>)
- => parsed-regexp :: false-or(<parsed-regexp>);
+ => (result :: false-or(<parsed-regexp>))
   let atom = parse-atom(s, info);
   let char = lookahead(s);
   select (char by \=)
@@ -196,53 +228,52 @@ define method parse-quantified-atom (s :: <parse-string>, info :: <parse-info>)
     '{' =>
       info.has-quantifiers := #t;
       consume(s);
-      let first-string = make(<deque>);
-      let second-string = make(<deque>);
-      let has-comma = #f;
-      for (c = lookahead(s) then lookahead(s), until: c = '}')
-	consume(s);
-	if (c = ',')  
-	  has-comma := #t;
-	elseif (has-comma)  
-	  push-last(second-string, c);
-	else 
-	  push-last(first-string, c);
-	end if;
-      end for;
-      consume(s);         // Eat closing brace
-      let first-num = string-to-integer(as(<byte-string>, first-string));
-      make(<quantified-atom>, atom: atom, 
-	   min: first-num,
-	   max:  if (~has-comma)    
-		   first-num
-		 elseif (empty?(second-string))   
-		   #f
-		 else
-		   string-to-integer(as(<byte-string>, second-string))
-		 end if);
+      parse-minmax-quantifier(atom, s);
 
     otherwise =>
       atom;
   end select;
 end method parse-quantified-atom;
 
+// {m,n}, {m,}, {,n}, {m}, {}, and {,} are all valid.
+// m defaults to 0 and n defaults to #f (unlimited).
+define method parse-minmax-quantifier
+    (atom :: <parsed-regexp>, s :: <parse-string>) => (qatom :: <quantified-atom>)
+  local method parse-integer () => (int :: false-or(<integer>))
+          let digits = make(<deque>);
+          while (lookahead(s) & digit?(lookahead(s)))
+            push-last(digits, lookahead(s));
+            consume(s);
+          end;
+          ~empty?(digits) & string-to-integer(as(<byte-string>, digits));
+        end method parse-integer;
+  let qmin = parse-integer() | 0;
+  let qmax = #f;
+  if (lookahead(s) = ',')
+    consume(s);
+    qmax := parse-integer();
+  else
+    qmax := qmin;
+  end;
+  if (lookahead(s) ~= '}')
+    parse-error(s.parse-string,
+                "Close brace expected in {m,n} quantifier (index = %s).",
+                s.parse-index);
+  end;
+  consume(s);
+  make(<quantified-atom>, atom: atom, min: qmin, max: qmax);
+end method parse-minmax-quantifier;
+
 define method parse-atom (s :: <parse-string>, info :: <parse-info>)
- => parsed-regexp :: false-or(<parsed-regexp>);
+ => (regexp :: false-or(<parsed-regexp>))
   let char = lookahead(s);
   select (char)
     '(' =>
       consume(s);   // Consume beginning paren
-      info.current-group-number := info.current-group-number + 1;
-      let this-group = info.current-group-number;
-      let regexp = parse-regexp(s, info);
-      if (lookahead(s) ~= ')')
-	error("Unbalanced parens in regexp");
-      end if;
-      consume(s);   // Consume end paren
-      make(<mark>, child: regexp, group: this-group);
+      parse-group(s, info);
 
     ')' =>
-      #f;             // Need something to terminate upon seeing a close paren
+      #f;              // Need something to terminate upon seeing a close paren
 
     #f  =>
       #f;   // Signal error?  (end of stream)
@@ -252,29 +283,13 @@ define method parse-atom (s :: <parse-string>, info :: <parse-info>)
 
     '\\' =>
       consume(s);        // Consume the backslash
+      // Perhaps add support for a different escape character to aid readability.
+      // The escape character could be specified in the <parse-info>.  --cgay
       parse-escaped-character(s, info);
 
     '[' =>
       consume(s);        // Eat the opening brace
-      let set-string = make(<deque>);      // Need something that'll 
-                                           // preserve the right ordering
-      for (char = lookahead(s) then lookahead(s), until: char == ']')
-	consume(s);                    // eat char
-	if (char ~== '\\')
-	  push-last(set-string, char);
-	else
-	  let char2 = lookahead(s);
-	  consume(s);  // Eat escaped char
-	  if (char2 == ']')
-	    push-last(set-string, ']');
-	  else
-	    push-last(set-string, '\\');
-	    push-last(set-string, char2);
-	  end if;
-	end if;
-      end for;
-      consume(s);     // Eat ending brace
-      make(<parsed-set>, set: make(info.set-type, description: set-string));
+      parse-character-set(s, info);
 
     '.' =>
       consume(s);
@@ -297,10 +312,57 @@ define method parse-atom (s :: <parse-string>, info :: <parse-info>)
   end select;
 end method parse-atom;
 
+define inline function parse-group
+    (s :: <parse-string>, info :: <parse-info>)
+ => (mark :: <mark>)
+  info.current-group-number := info.current-group-number + 1;
+  let this-group = info.current-group-number;
+  let regexp = parse-regexp(s, info);
+  if (lookahead(s) = ')')
+    consume(s);   // Consume ')'
+    make(<mark>, child: regexp, group: this-group)
+  else
+    parse-error(s.parse-string, "Unbalanced parens in regexp (index = %s).",
+                s.parse-index);
+  end;
+end function parse-group;
+
+// This just does a quick scan to find the closing ] and then lets
+// make(<character-set>) do the real parsing.
+//
+define inline function parse-character-set
+    (s :: <parse-string>, info :: <parse-info>)
+ => (set :: <parsed-set>)
+  let set-string = make(<deque>);      // Need something that'll 
+                                       // preserve the right ordering
+  let start-index = s.parse-index;
+  for (char = lookahead(s) then lookahead(s),
+       until: char == ']')
+    consume(s);                    // eat char
+    if (~char)
+      parse-error(s.parse-string,
+                  "Unterminated character set at index %d.",start-index);
+    elseif (char ~== '\\')
+      push-last(set-string, char);
+    else
+      let char2 = lookahead(s);
+      consume(s);  // Eat escaped char
+      if (char2 == ']')
+        push-last(set-string, ']');
+      else
+        push-last(set-string, '\\');
+        push-last(set-string, char2);
+      end if;
+    end if;
+  end for;
+  consume(s);     // Eat ending brace
+  make(<parsed-set>, set: make(info.set-type, description: set-string));
+end function parse-character-set;
+
 define constant any-char 
   = make(<case-sensitive-character-set>, description: "^\n");
 
-// The useful definitions of all these is in as(<character-set>)
+// The useful definitions of all these are in as(<character-set>).
 //
 define constant digit-chars
   = make(<case-sensitive-character-set>, description: "\\d");
@@ -328,12 +390,20 @@ define method parse-escaped-character
     (s :: <parse-string>, info :: <parse-info>)
  => parsed-regexp :: <parsed-regexp>;
   let next-char = lookahead(s);
+  if (~next-char)
+    parse-error(s.parse-string,
+                "Unterminated escape sequence at index %d.",
+                s.parse-index - 1)
+  end;
   consume(s);
   select (next-char)
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' =>
       info.backreference-used := #t;
       make(<parsed-backreference>, group: digit-to-integer(next-char));
-
+      
+    // Hmm.  Why would you write \\n in your regex instead of \n?  It has the
+    // same effect.  Also, what about the rest of the Dylan character escapes?
+    // --cgay
     'n' =>   make(<parsed-character>, character: '\n');   // Newline
     't' =>   make(<parsed-character>, character: '\t');   // Tab
     'f' =>   make(<parsed-character>, character: '\f');   // Formfeed

@@ -1,4 +1,4 @@
-module:   regular-expressions
+module:   regular-expressions-impl
 author:   Nick Kramer (nkramer@cs.cmu.edu)
 synopsis: This provides a useable interface for users. Functions 
 	  defined outside this file are really too strange and quirky 
@@ -58,6 +58,11 @@ copyright: see below
 // parse creating a <character-set>, which must be either case
 // sensitive or case insensitive)
 //
+
+// This caching scheme fails if we later introduce the ability to change
+// attributes such as case-sensitivity mid-parse, the way (I believe) perl
+// does?  --cgay
+
 // ### Currently, only regexp-position uses this cache, because the
 // other functions are still using make-regexp-positioner.  With
 // caching, that make-regexp-whatever stuff should probably go.
@@ -101,23 +106,23 @@ define method table-protocol (table :: <regexp-cache>)
  => (equal? :: <function>, hash :: <function>);
   values(method (key1 :: <cache-key>, key2 :: <cache-key>) // equal?
 	  => res :: <boolean>;
-	   key1.regexp-string = key2.regexp-string
+	   key1.regexp-string == key2.regexp-string
 	     & key1.character-set-type == key2.character-set-type;
 	 end method,
-	 method (key :: <cache-key>, initial-state)
-	  => (id :: <integer>, state); // hash()
-	   let (string-id, string-state)
-	     = string-hash(key.regexp-string, initial-state);
+	 method (key :: <cache-key>, initial-state) => (id :: <integer>, state); // hash()
+	   let (string-id, string-state) = object-hash(key.regexp-string, initial-state);
 	   let (set-type-id, set-type-state) 
 	     = object-hash(key.character-set-type, string-state);
-	   let id = merge-hash-ids(string-id, set-type-id, ordered: #t);
-	   values(id, set-type-state);
+	   values(merge-hash-ids(string-id, set-type-id, ordered: #t), set-type-state);
 	 end method);
 end method table-protocol;
 
 // *regexp-cache* -- internal
 //
 // The only instance of <regexp-cache>.  ### Not threadsafe.
+// 
+// Technically not thread safe, but does it matter?  Worst case seems to
+// be a duplicated regexp parse.  --cgay
 //
 define constant *regexp-cache* = make(<regexp-cache>);
 
@@ -127,16 +132,17 @@ define constant *regexp-cache* = make(<regexp-cache>);
 // parses it and adds it to the cache.
 //
 define inline function parse-or-use-cached 
-    (regexp :: <string>, character-set-type :: <class>) 
+    (regexp :: <string>, parse-info :: <parse-info>)
  => (parsed-regexp :: <parsed-regexp>, last-group :: <integer>);
   let key = make(<cache-key>, regexp-string: regexp, 
-		 character-set-type: character-set-type); 
+		 character-set-type: parse-info.set-type); 
   let cached-value = element(*regexp-cache*, key, default: #f);
   if (cached-value)
     values(cached-value.parse-tree, cached-value.last-group);
   else
-    let (parsed-regexp, last-group) = parse(regexp, character-set-type);
-    *regexp-cache*[key] := make(<cache-element>, parse-tree: parsed-regexp,
+    let (parsed-regexp, last-group) = parse(regexp, parse-info);
+    *regexp-cache*[key] := make(<cache-element>,
+                                parse-tree: parsed-regexp,
 				last-group: last-group);
     values(parsed-regexp, last-group);
   end if;
@@ -155,13 +161,8 @@ define function regexp-position
  => (regexp-start :: false-or(<integer>), #rest marks :: false-or(<integer>));
   let substring = make(<substring>, string: big, start: big-start,
 		       end: big-end | big.size);
-  let char-set-class = if (case-sensitive) 
-			 <case-sensitive-character-set>;
-		       else
-			 <case-insensitive-character-set>;
-		       end if;
   let (parsed-regexp, last-group) 
-    = parse-or-use-cached(regexp, char-set-class);
+    = parse-or-use-cached(regexp, make-parse-info(case-sensitive: case-sensitive));
 
   let (matched, marks)
     = if (parsed-regexp.is-anchored?)
@@ -220,6 +221,8 @@ define method regexp-match(big :: <string>, regex :: <string>) => (#rest results
   apply(values, result)
 end;
 
+// #if (have-free-time)
+/*
 // regexp-matches -- exported
 //
 // A more convenient form of regexp-position.  Usually you want
@@ -232,28 +235,47 @@ define function regexp-matches
     (big :: <string>, regexp :: <string>,
      #key start: start-index :: <integer> = 0,
           end: end-index :: false-or(<integer>),
-          case-sensitive :: <boolean> = #f)
-
-  let (regexp-start, lemon, #rest marks)
+          case-sensitive :: <boolean> = #f,
+          groups :: false-or(<sequence>))
+ => (#rest group-strings :: false-or(<string>));
+  if (~groups)
+    error("Mandatory keyword groups: not used in call to regexp-matches");
+  end if;
+  let (#rest marks)
     = regexp-position(big, regexp, start: start-index, end: end-index, 
 		      case-sensitive: case-sensitive);
+  let return-val = make(<vector>, size: groups.size, fill: #f);
+  for (index from 0 below return-val.size)
+    let group-start = groups[index] * 2;
+    let group-end = group-start + 1;
+    if (element(marks, group-start, default: #f))
+      return-val[index] := copy-sequence(big, start: 
 
-  let return-size = floor/(marks.size, 2);
-  let return = make(<vector>, size: return-size, fill: #f);
-  if (regexp-start)
-    // all groups associate by index in the result
-
-    for (index from 0 below return-size)
-      let pos = index * 2;
-      if (element(marks, pos, default: #f))
-        // "14 0", "4 5", "7 8", "9 10" for "this is a test"
-        //return[index] := concatenate(integer-to-string(marks[pos]), concatenate(" ", integer-to-string(marks[pos + 1])));
-        return[index] := copy-sequence(big, start: marks[pos], end: marks[pos + 1]);
-      end if;
+  let sz = floor/(marks.size, 2);
+  let return = make(<vector>, size: sz, fill: #f);
+  for (index from 0 below sz)
+    let pos = index * 2;
+    if (element(marks, pos, default: #f))
+      return[index] := copy-sequence(big, start: marks[pos],
+				     end: marks[pos + 1]);
+    end if;
+  end for;
+  if (matches)
+    let return = make(<vector>, size: matches.size * 2);
+    for (raw-pos in matches, index from 0)
+      let src-pos = raw-pos * 2;
+      let dest-pos = index * 2;
+      return[dest-pos] := element(marks, src-pos, default: #f);
+      return[dest-pos + 1] := element(marks, src-pos + 1, default: #f);
     end for;
+    apply(values, return);
+  else
+    
+    apply(values, marks);
   end if;
-  apply(values, return);
-end function;
+
+// #endif
+*/
 
 
 // Functions based on regexp-position
@@ -446,7 +468,7 @@ define inline function make-splitter
   end method;
 end function make-splitter;
 
-// Used by split.  Not exported.
+// Used by split.  Not exported.  (Yes it is.  --cgay)
 //
 define function split-string
     (positioner :: <function>, input :: <string>, start :: <integer>, 

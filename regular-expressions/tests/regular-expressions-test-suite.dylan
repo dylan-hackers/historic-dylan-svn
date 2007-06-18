@@ -8,6 +8,10 @@ define function re/position (string, pattern, #rest args)
 end function re/position;
 
 define test atom-test ()
+  // In current code the empty string is an illegal regex, but Python
+  // (and probably perl?) allow it, so I think we should consider that
+  // a bug.  --cgay
+  check-no-errors("atom-0", re/position("", ""));
   check-equal("atom-1", re/position("a", "a"),      #[0, 1]);
   check-equal("atom-2", re/position("a", "[a]"),    #[0, 1]);
   check-equal("atom-3", re/position("ab", "(a)b"),  #[0, 2, 0, 1]);
@@ -26,7 +30,7 @@ define test atom-test ()
   check-condition("atom-F", <illegal-regexp>, re/position("", "a{,"));
   check-condition("atom-G", <illegal-regexp>, re/position("", "[a"));
   check-condition("atom-H", <illegal-regexp>, re/position("", "\\"));
-  check-equal("atom-tan", "\<65>", "A");
+  //check-equal("atom-tan", "\<44>\<79>\<6c>\<61>\<6e>", "Dylan");
 end;
 
 
