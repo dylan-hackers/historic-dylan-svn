@@ -32,32 +32,57 @@ copyright: see below
 //======================================================================
 
 
+// Added regex module with new API.  --cgay, June 2007
+
 define library regular-expressions
-  use dylan;
-  use collection-extensions;
+  use common-dylan;
   use string-extensions;
   use table-extensions;
   export
-    regular-expressions;
+    regex,                                             // new API
+    regular-expressions;                               // old API
 end library regular-expressions;
 
-define module regular-expressions
-  use dylan;
-  use extensions;
-  use string-conversions;
-  use character-type;
-  use string-hacking;
-  use subseq;
-  use %do-replacement;
-  use %parse-string;
-  use substring-search;
-  use table-extensions, import: { string-hash };
-  export
+define module regex                  // new API module
+  create
+    compile-regex,
+    regex-search,
+    <regex>,
+    <invalid-regex>,
+      invalid-regex-pattern,
+    <regex-match>,                   // results of a successful search
+      regex-match-group,
+      regex-match-group-count,
+      group-start,
+      group-end,
+      group-text,
+      <invalid-match-group>;
+end module regex;
+
+define module regular-expressions    // old API module
+  create
     regexp-position, make-regexp-positioner,
+    regexp-match,
     regexp-replace, make-regexp-replacer,
-    regexp-match, regexp-matches,
     translate, make-translator,
     split, make-splitter,
     join,
-    <illegal-regexp>;
+    <illegal-regexp>,
+      regexp-pattern;
+
+  create
+    split-string;
 end module regular-expressions;
+
+define module regular-expressions-impl
+  use common-dylan,
+    exclude: { split };
+  use string-conversions;
+  use character-type;
+  use string-hacking;
+  use %do-replacement;
+  use %parse-string;
+  use substring-search;
+  use regular-expressions;                             // API module
+  use regex;
+end module regular-expressions-impl;
