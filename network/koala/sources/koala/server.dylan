@@ -923,6 +923,12 @@ define method find-responder
   end
 end find-responder;
 
+define open generic remove-responder (object :: <object>);
+
+define method remove-responder (url :: <string>)
+  remove-object(*server*.url-map, url)
+end;
+
 // Register a function that will attempt to register a responder for a URL
 // if the URL matches the file extension.  The function should normally call
 // register-url (or register-page for DSPs) and should return a responder.

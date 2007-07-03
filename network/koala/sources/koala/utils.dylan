@@ -219,6 +219,27 @@ define method add-object
   real-add(trie, split(path, separator: "/"))
 end method add-object;
 
+define method remove-object (trie :: <string-trie>, path :: <string>)
+  let path = split(path, separator: "/");
+  let nodes = #[];
+  let node = reduce(method (a, b)
+      nodes := add!(nodes, a);
+      a.trie-children[b]
+    end, trie, path);
+  let object = node.trie-object;
+  node.trie-object := #f;
+  block (stop)
+    for (node in reverse(nodes), child in reverse(path))
+      if (size(node.trie-children[child].trie-children) = 0 & ~node.trie-object)
+        remove-key!(node.trie-children, child);
+      else
+        stop()
+      end if;
+    end for;
+  end;
+  object;
+end;
+
 // Find the object with the longest path, if any.  2nd return value is
 // the part of the path that came after where the object matched.
 //
