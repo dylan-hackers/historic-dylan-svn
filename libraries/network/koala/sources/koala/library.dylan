@@ -73,7 +73,14 @@ define module utilities
     quote-html,          // Change < to &lt; etc
     register-init-function,
     run-init-functions,
-    <string-trie>, find-object, add-object, <trie-error>,
+
+    <string-trie>, 
+    find-object, 
+    add-object, 
+    remove-object,
+    trie-children,
+    trie-object,
+    <trie-error>,
 
     <expiring-mixin>,
     expired?,
@@ -145,6 +152,7 @@ define module koala
     start-server,
     stop-server,
     register-url,
+    remove-responder,
     <request>,
     *request*,                   // Holds the active request, per thread.
     current-request,             // Returns the active request of the thread.
@@ -386,6 +394,7 @@ define module dsp
     respond-to-post,             // Implement this for your page to handle POST requests
     respond-to-head,             // Implement this for your page to handle HEAD requests
     respond-to,
+    get, post,                   // convenience
 
     page-source,
     page-source-setter,
