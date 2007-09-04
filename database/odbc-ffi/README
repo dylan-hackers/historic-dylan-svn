@@ -1,0 +1,14 @@
+This is the Gwydion Dylan version of Open Dylan's ODBC-FFI library. It uses
+the following C libraries and header files:
+
+ - libodbc.a
+ - libiodbcinst.a
+ - sql.h
+ - sqlext.h
+ - sqltypes.h
+ - iodbcext.h
+
+Documentation is included in the docs/html.zip file. The html_source.zip file
+contains NaturalDocs files which comprised the HTML files.
+
+-- Dustin Voss, 2007.
