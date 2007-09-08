@@ -8,7 +8,9 @@ the following C libraries and header files:
  - sqltypes.h
  - iodbcext.h
 
-Documentation is included in the docs/html.zip file. The html_source.zip file
-contains NaturalDocs files which comprised the HTML files.
+NaturalDocs files that comprise the HTML documentation are included in the 
+docs/html_source.zip file. The HTML documentation itself is viewable at 
+http://www.opendylan.org/~agent/odbc-ffi/ and downloadable at 
+http://www.opendylan.org/~agent/odbc-ffi.zip.
 
 -- Dustin Voss, 2007.
