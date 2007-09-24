@@ -14,7 +14,8 @@ define module odbc-ffi
     $SQL-NULL-HDESC,
     $SQL-NULL-HENV,
     $SQL-NULL-HSTMT,
-    <intval>
+    <intval>,
+    <SQLUINTEGER*>
 end module;
 
   

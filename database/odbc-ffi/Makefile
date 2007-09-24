@@ -9,5 +9,4 @@ module-odbc-ffi-melange.dylan: odbc-ffi.intr
 
 clean:
 	-rm -f *.o *.s *.a *.c *.mak *.el *~ odbc-ffi.lib.du
-	-rm -rf .libs
 	-rm -f *-melange.dylan
