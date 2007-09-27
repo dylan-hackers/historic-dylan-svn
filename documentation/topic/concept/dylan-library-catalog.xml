@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd" []>
+<concept id="dylan-library-catalog">
+  <title>Dylan Library Catalog</title>
+  <conbody>
+    <p>A Dylan Library Catalog is a collection of XML files containing
+    metadata concerning software libraries written in the Dylan
+    programming language.  The metadata includes information useful to
+    both the compiler and to human users, and includes:</p>
+    <ul>
+      <li>Human-readable short titles and long descriptions.</li>
+
+      <li>Copyright and redistribution license information.</li>
+
+      <li>Library taxonomy information, placing libraries into
+      conceptual categories.</li>
+
+      <li>Specifications of where the compiler and development
+      environment can locate databases and compiled libraries for
+      binary-only projects.</li>
+
+      <li>Specifications of where the compiler can locate project
+      files (and sources) for libraries it opens.  </li>
+
+      <li>Specifications of where the compiler and development
+      environment should place intermediate build files, compiler
+      databases, compiled libraries, and profiling information for
+      libraries built from source code.</li>
+
+      <li>Specifications of whether certain libraries should be
+      treated as “system” libraries (treated as read-only, and for
+      which certain types of information should be hidden) or “user”
+      libraries (subject to recompilation when necessary).</li>
+    </ul>
+
+    <p>A Dylan Library Catalog file can incorporate another catalog by
+    reference, optionally overriding its settings with its own.  This
+    allows users to control excactly which libraries the compiler sees
+    and how it treats them according to their own preferences.</p>
+
+    <p>Additionally, a Dylan Library Catalog file can refer to a
+    library catalog retrieved from a remote URI.  This allows a Dylan
+    compiler to, at the user&apos;s option, automatically retrieve and
+    install Dylan libraries as they are needed for compilation.</p>
+
+    <p>The Dylan Library Catalog facility was designed as a
+    replacement for the Registry and Dylan Library Pack facilities of
+    the Open Dylan compiler, and to alleviate the extensive use of
+    <option>-L</option> options with the Gwydion Dylan
+    <cmdname>d2c</cmdname> compiler.</p>
+  </conbody>
+</concept>
