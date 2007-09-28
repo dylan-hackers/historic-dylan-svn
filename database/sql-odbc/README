@@ -1,0 +1,18 @@
+This is the Gwydion Dylan version of the Open Dylan sql and sql-odbc
+libraries. This library resolves incompatibilities between OD and GD in the
+realms of garbage collection and C-FFI. The exposed API should be identical to
+that of Open Dylan's sql and sql-odbc libraries, except for the following
+changes:
+
+  *trace-odbc-functions* is defined, but doesn't do anything.
+
+  close-dbms(<dbms>) and close-statement(<database-statement>) were added.
+  Finalization is not implemented in GD. Be sure to call close-dbms,
+  disconnect, or close-statement when done with the relevant objects.
+
+What still needs to be done:
+
+  Testing. Neither the Gwydion Dylan nor the Open Dylan versions of the sql
+  and sql-odbc seem to work with MySQL, yet MySQL is all I have. So, this
+  library needs to be tested against a database with which the Open Dylan
+  version is known to work.
