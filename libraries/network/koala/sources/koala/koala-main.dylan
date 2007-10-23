@@ -57,7 +57,6 @@ define function koala-main ()
                    *standard-output*,
                    usage: "koala [options]",
                    description: desc);
-    exit-application(0);
   else
     if (option-value-by-long-name(parser, "debug"))
       *debugging-server* := #t;

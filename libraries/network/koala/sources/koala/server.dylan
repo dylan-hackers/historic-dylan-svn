@@ -62,6 +62,7 @@ define class <server> (<sealed-constructor>)
   //slot pathname-translations :: <sequence> = #();
 
   //// Statistics
+  // todo -- move these elsewhere
 
   slot connections-accepted :: <integer> = 0; // Connections accepted
   constant slot user-agent-stats :: <string-table> = make(<string-table>);
@@ -433,7 +434,7 @@ end listener-top-level;
 // so that it will return from 'accept' with some error, which we should
 // catch gracefully..
 //---TODO: need to handle errors.
-// Listen and spawn handlers until listener socket gets broken.
+// Listen and spawn handlers until listener socket breaks.
 //
 define function do-http-listen (listener :: <listener>)
   let server = listener.listener-server;
@@ -1085,11 +1086,12 @@ define method extract-form-data
       //disposition = "multipart/form-data" => ...
       if (disposition = "form-data")
         let content = substring(second(part), 0, size(second(part)) - 1);
-        request.request-query-values[name] := if (filename & type)
-            make(<http-file>, filename: filename, content: content, mime-type: type);
-          else
-            content;
-          end if;
+        request.request-query-values[name]
+          := if (filename & type)
+               make(<http-file>, filename: filename, content: content, mime-type: type);
+             else
+               content;
+             end if;
       end if;
     end if;
     log-debug("multipart/form-data for %=: %=, %=, %=", name, disposition, type, filename);

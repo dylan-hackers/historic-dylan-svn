@@ -9,22 +9,28 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // Some methods to make logging slightly more convenient by not having
 // to always pass log-target(*virtual-host*).
 define method log-copious (format-string, #rest format-args)
-  apply(%log-copious, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-copious, *temp-log-target* | debug-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 define method log-verbose (format-string, #rest format-args)
-  apply(%log-verbose, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-verbose, *temp-log-target* | debug-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 define method log-debug (format-string, #rest format-args)
-  apply(%log-debug, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-debug, *temp-log-target* | debug-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 define method log-info (format-string, #rest format-args)
-  apply(%log-info, *temp-log-target* | debug-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-info, *temp-log-target* | debug-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 define method log-warning (format-string, #rest format-args)
-  apply(%log-warning, *temp-log-target* | error-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-warning, *temp-log-target* | error-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 define method log-error (format-string, #rest format-args)
-  apply(%log-error, *temp-log-target* | error-log-target(*virtual-host*), format-string, format-args);
+  apply(%log-error, *temp-log-target* | error-log-target(*virtual-host*),
+        format-string, format-args);
 end;
 
 
@@ -92,6 +98,8 @@ define class <virtual-host> (<object>)
   //       port.
   slot vhost-port :: <integer> = 80;
 
+  // I'd like to rename this to vhost-bind-address or maybe vhost-listen-ip-address,
+  // and probably use a constant for INADDR_ANY.  --cgay
   slot vhost-ip :: <string> = "0.0.0.0";
 
   // List of <directory-spec> objects that determine how documents in

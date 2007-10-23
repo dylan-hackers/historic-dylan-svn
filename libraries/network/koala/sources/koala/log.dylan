@@ -73,7 +73,7 @@ define constant $log-error :: <log-error> = make(<log-error>);
 // backend targets such as streams, files, databases, etc.
 //
 define abstract class <log-target> (<closable-object>)
-  slot log-level :: <log-level> = $log-info,
+  slot log-level :: <log-level> = $log-verbose,
     init-keyword: #"log-level";
 end;
 

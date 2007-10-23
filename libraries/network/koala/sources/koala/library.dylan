@@ -65,7 +65,6 @@ define module utilities
     wrapping-inc!,
     file-contents,
     pset,                // multiple-value-setq
-    ignore-errors,
     path-element-equal?,
     parent-directory,
     date-to-stream,

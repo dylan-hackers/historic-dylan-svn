@@ -125,15 +125,19 @@ end parse-url;
   
 define function current-url (#key escaped?)
  => (uri :: <string>);
- let request = current-request();
-  concatenate(if (escaped?) 
-      encode-url(request.request-url, reserved?: #t)
-    else
-      current-request().request-url
-    end if, if (~empty?(request.request-query-string))
-      concatenate("?", request.request-query-string)
-    else "" end if);
-end;
+  let request = current-request();
+  let path = if (escaped?) 
+                encode-url(request.request-url, reserved?: #t)
+              else
+                current-request().request-url
+              end if;
+  let query-string = if (~empty?(request.request-query-string))
+                       concatenate("?", request.request-query-string)
+                     else
+                       ""
+                     end if;
+  concatenate(path, query-string)
+end current-url;
 
 define function parse-http-server (str :: <byte-string>,
                                    net-beg :: <integer>,
