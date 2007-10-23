@@ -46,20 +46,6 @@ define responder http-error-responder ("/koala/http-error")
               format-arguments: vector(code-string)));
 end;
 
-// Shutdown the server.  You definately don't want this active in a 
-// production setting.
-//
-/*
-define responder shutdown-responder ("/koala/shutdown")
-    (request, response)
-  let stream = output-stream(response);
-  let server = request.request-server;
-  format(stream, "<html><body>Shutting down...</body></html>");
-  force-output(stream);
-  stop-server(abort: #t);
-end;
-*/
-
 // Load a module
 //
 define responder load-module-responder ("/koala/load-module")
@@ -75,7 +61,7 @@ define responder unload-module-responder ("/koala/unload-module")
 end;
 
 define function load/unload-module
-    (request, response, op :: one-of(#"load", #"unload"))
+    (request :: <request>, response :: <response>, op :: one-of(#"load", #"unload"))
   let stream = output-stream(response);
   let server = request.request-server;
   let module-name = get-query-value("name");

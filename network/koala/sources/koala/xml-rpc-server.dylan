@@ -66,6 +66,7 @@ define constant $xml-rpc-methods :: <string-table> = make(<string-table>);
 define method lookup-xml-rpc-method
     (method-name :: <string>)
  => (f :: false-or(<function>))
+  // todo -- Implement namespaces (methods named x.y.z)
   element($xml-rpc-methods, method-name, default: #f)
 end;
 
@@ -104,7 +105,6 @@ define method send-xml-rpc-result
   *debugging-xml-rpc*
     & log-debug("Sending XML: %=", xml);
   write(stream, xml);
-  //to-xml(result, stream);
   write(stream, "</value></param></params></methodResponse>\r\n");
 end;
 

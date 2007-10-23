@@ -40,17 +40,22 @@ end expired?;
 
 
 define function file-contents
-    (filename :: <pathname>) => (contents :: false-or(<string>))
+    (filename :: <pathname>, #key error? :: <boolean>)
+ => (contents :: false-or(<string>))
   // In FD 2.0 SP1 if-does-not-exist: #f still signals an error if the file doesn't exist.
   // Remove this block when fixed.  (Reported to Fun-O August 2001.)
   block ()
     with-open-file(input-stream = filename,
                    direction: #"input",
-                   if-does-not-exist: #f)
+                   if-does-not-exist: if (error?) #"error" else #f end)
       read-to-end(input-stream)
     end
-  exception (<file-does-not-exist-error>)
-    #f
+  exception (ex :: <file-does-not-exist-error>)
+    if (error?)
+      signal(ex)
+    else
+      #f
+    end
   end
 end file-contents;
 
@@ -200,8 +205,9 @@ define method add-object
             if (trie.trie-object = #f | replace?)
               trie.trie-object := object;
             else
-              signal(make(<trie-error>,
-                          format-string: format-to-string("Trie already contains an object for the given path (%=).", path)))
+              let fmt = format-to-string("Trie already contains an object for the "
+                                         "given path (%=).", path);
+              signal(make(<trie-error>, format-string: fmt))
             end;
           else
             let first-path = rest-path[0];

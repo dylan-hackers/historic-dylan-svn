@@ -73,11 +73,6 @@ end;
 define open primary class <page> (<object>)
 end;
 
-define method print-object
-    (page :: <page>, stream)
-  format(stream, "%s", page-url(page));
-end;
-
 // The protocol every page needs to support.
 define open generic respond-to-get  (page :: <page>, request :: <request>, response :: <response>);
 define open generic respond-to-post (page :: <page>, request :: <request>, response :: <response>);
@@ -124,6 +119,8 @@ define method respond-to
   respond-to-head(page, request, response);                                                          
 end;
 
+// What do these two methods buy us?  It's hard to find callers
+// of such short method names too.  --cgay
 define method post (page :: <page>)
   respond-to(#"post", page, current-request(), current-response());
 end;
@@ -689,7 +686,6 @@ define macro page-definer
  => { page-aux(?name; ?superclasses; ?make-args; ?slot-specs);
       has-url?(?make-args) & register-page-urls("*" ## ?name ## "*", ?make-args, prefix?: #t)
     }
-
 end;
 
 define macro page-aux
@@ -699,7 +695,9 @@ define macro page-aux
 end;
 define function has-url? (#key url :: false-or(<string>), #all-keys)
  => (url-provided? :: <boolean>);
-  url ~= #f
+  if (url)
+    #t
+  end;
 end;
 
 define function register-page-urls
