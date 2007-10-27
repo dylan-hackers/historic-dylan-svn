@@ -57,6 +57,12 @@ define class <mark> (<parsed-regexp>)
   constant slot group-number :: <integer>, required-init-keyword: #"group";
 end class <mark>;
 
+// The root of the parsed regexp
+define class <regexp> (<mark>)
+  constant slot regexp-pattern :: <string>, required-init-keyword: #"pattern";
+  constant slot regexp-group-count :: <integer>, required-init-keyword: #"group-count";
+end class <regexp>;
+
 define class <union> (<parsed-regexp>)          //    |
   slot left  :: <parsed-regexp>, required-init-keyword: #"left";
   slot right :: <parsed-regexp>, required-init-keyword: #"right";
@@ -99,10 +105,10 @@ define class <parsed-backreference> (<parsed-atom>)
 end class <parsed-backreference>;
 
 // Note: I'm pretty sure <simple-error> won't work in GD.  --cgay
-define class <regex-error> (<simple-error>)
-end class <regex-error>;
+define class <regexp-error> (<simple-error>)
+end class <regexp-error>;
 
-define class <illegal-regexp> (<regex-error>)
+define class <illegal-regexp> (<regexp-error>)
   constant slot regexp-pattern :: <string>, 
     required-init-keyword: #"pattern";
 end class <illegal-regexp>;
@@ -143,7 +149,7 @@ define function make-parse-info
           dot-matches-all :: <boolean> = #f)
  => (info :: <parse-info>)
   local method nyi (option-name)
-          signal(make(<regex-error>,
+          signal(make(<regexp-error>,
                       format-string: "The '%s' option is not yet implemented.",
                       format-arguments: list(option-name)));
         end;
@@ -167,8 +173,12 @@ define method parse
      alternatives? :: <boolean>, 
      quantifiers? :: <boolean>)
   let parse-string = make(<parse-string>, string: regexp);
-  let parse-tree = make(<mark>, group: 0, 
-			child: parse-regexp(parse-string, parse-info));
+  let child = parse-regexp(parse-string, parse-info);
+  let parse-tree = make(<regexp>,
+                        pattern: regexp,
+                        group-count: parse-info.current-group-number + 1,
+                        group: 0,
+			child: child);
   let optimized-regexp = optimize(parse-tree);
   if (optimized-regexp.pathological?)
     parse-error(regexp, "A sub-regexp that matches the empty string was quantified.");

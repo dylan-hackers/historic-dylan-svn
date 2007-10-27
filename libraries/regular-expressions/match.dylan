@@ -108,7 +108,7 @@ define method match-root?
 	      descend-re(re, target, case-sensitive?, index,
 			 marks, fail, list(up-proc));
 	      error("A regexp should either match or not match. Why did it "
-		      "reach this piece of code?");
+                    "reach this piece of code?");
 	    end block;
 	  end for;
 	  values(#f);      // Failure
