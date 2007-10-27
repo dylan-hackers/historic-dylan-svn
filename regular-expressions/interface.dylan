@@ -106,8 +106,8 @@ define method table-protocol (table :: <regexp-cache>)
  => (equal? :: <function>, hash :: <function>);
   values(method (key1 :: <cache-key>, key2 :: <cache-key>) // equal?
 	  => res :: <boolean>;
-	   key1.regexp-string == key2.regexp-string
-	     & key1.character-set-type == key2.character-set-type;
+           key1.regexp-string = key2.regexp-string
+             & key1.character-set-type == key2.character-set-type;
 	 end method,
 	 method (key :: <cache-key>, initial-state) => (id :: <integer>, state); // hash()
 	   let (string-id, string-state) = object-hash(key.regexp-string, initial-state);
