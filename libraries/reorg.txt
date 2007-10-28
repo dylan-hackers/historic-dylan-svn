@@ -44,6 +44,9 @@ libraries
             sniffer
             tcp
             vector-table
+	    state-machines
+	       tcp
+	       dhcp
         koala
         xml-rpc-client
         wiki
@@ -88,6 +91,7 @@ libraries
         gtk+
     utilities
         channels
-        getopt          // Rename to command-line-parser?
+        command-line-parser
         timer
         commands
+	state-machine
