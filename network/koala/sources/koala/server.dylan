@@ -950,20 +950,18 @@ end;
 // end;
 define macro responder-definer
   { define responder ?:name (?url:expression)
-        (?request:variable, ?response:variable)
       ?:body
     end
   }
-  => { define method ?name (?request, ?response) ?body end;
+  => { define method ?name () ?body end;
          register-url(?url, ?name)
      }
 
   { define directory responder ?:name (?url:expression)
-        (?request:variable, ?response:variable)
       ?:body
     end
   }
-  => { define method ?name (?request, ?response) ?body end;
+  => { define method ?name () ?body end;
          register-url(?url, ?name, prefix?: #t)
      }
 end;
@@ -984,10 +982,10 @@ define method invoke-handler
   dynamic-bind (*response* = response)
     if (request.request-responder)
       log-debug("%s handler found", request-url(request));
-      request.request-responder(request, response);
+      request.request-responder();
     else
       // generates 404 if not found
-      maybe-serve-static-file(request, response);
+      maybe-serve-static-file();
     end;
   end;
   send-response(response);

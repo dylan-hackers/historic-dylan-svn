@@ -21,7 +21,6 @@ files:	library
 	dsp-taglib
 	database
 	records
-	pages
 	xml-rpc-server
 	config
 	responders
