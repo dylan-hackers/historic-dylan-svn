@@ -74,59 +74,23 @@ define open primary class <page> (<object>)
 end;
 
 // The protocol every page needs to support.
-define open generic respond-to-get  (page :: <page>, request :: <request>, response :: <response>);
-define open generic respond-to-post (page :: <page>, request :: <request>, response :: <response>);
-define open generic respond-to-head (page :: <page>, request :: <request>, response :: <response>);
-
-// Default methods do nothing.
-define method respond-to-get  (page :: <page>, request :: <request>, response :: <response>) end;
-define method respond-to-head (page :: <page>, request :: <request>, response :: <response>) end;
-define method respond-to-post (page :: <page>, request :: <request>, response :: <response>)
-  respond-to-get(page, request, response);
-end;
-
 // This is the method registered as the response function for all <page>s.
 // See register-page.
-define method process-page (page :: <page>,
-                            request :: <request>,
-                            response :: <response>)
-  let pc = make(<page-context>);
-  dynamic-bind (*page-context* = pc)
-    respond-to(request.request-method, page, request, response);
+define method process-page (page :: <page>)
+  let page-context = make(<page-context>);
+  dynamic-bind (*page-context* = page-context)
+    respond-to(current-request().request-method, page);
   end;
 end process-page;
 
-define open generic respond-to
-    (request-method :: <symbol>, page :: <page>, request :: <request>, response :: <response>);
+define open generic respond-to (request-method :: <symbol>, page :: <page>);
 
-define method respond-to
-    (request-method :: <symbol>, page :: <page>, request :: <request>, response :: <response>)
-  unsupported-request-method-error()
-end;
+define method respond-to (request-method :: one-of(#"get", #"post"), page :: <page>)
+  process-template(page);
+end; 
 
-define method respond-to
-    (request-method == #"GET", page :: <page>, request :: <request>, response :: <response>)
-  respond-to-get(page, request, response);
-end;
-
-define method respond-to
-    (request-method == #"POST", page :: <page>, request :: <request>, response :: <response>)
-  respond-to-post(page, request, response);                                                          
-end;
-
-define method respond-to
-    (request-method == #"HEAD", page :: <page>, request :: <request>, response :: <response>)
-  respond-to-head(page, request, response);                                                          
-end;
-
-// What do these two methods buy us?  It's hard to find callers
-// of such short method names too.  --cgay
-define method post (page :: <page>)
-  respond-to(#"post", page, current-request(), current-response());
-end;
-
-define method get (page :: <page>)
-  respond-to(#"get", page, current-request(), current-response());
+define method respond-to (request-method :: <symbol>, page :: <page>)
+  unsupported-request-method-error();
 end;
 
 // Applications should call this to register a page for a particular URL.
@@ -256,19 +220,18 @@ end;
 define open primary class <static-page> (<file-page-mixin>, <page>)
 end;
 
-define method respond-to-get
-    (page :: <static-page>, request :: <request>, response :: <response>)
+define method respond-to (request-method == #"get", page :: <static-page>)
   if (page-source-modified?(page))
     page.mod-time := file-property(source-location(page),
                                    #"modification-date");
     page.contents := file-contents(source-location(page));
   end if;
   if (page.contents)
-    let stream = output-stream(response);
+    let stream = output-stream(current-response());
     write(stream, page.contents);
     force-output(stream);
   else
-    resource-not-found-error(url: request-url(request));
+    resource-not-found-error(url: current-request().request-url);
   end;
 end;
 
@@ -590,17 +553,16 @@ define function get-tag-call-attribute
   end;
 end;
 
-define method execute
-    (call :: <tag-call>, page, request, response);
+define method execute (call :: <tag-call>, page);
   let tag :: <tag> = call.tag;
   // Might consider wrapping do-body in a method that logs a warning if the tag
   // isn't supposed to allow a body but one was supplied.
   let do-body
     = iff(call.body,
-          curry(display-template, call.body, page, request, response),
+          curry(display-template, call.body, page),
           method () end);
   dynamic-bind (*tag-call* = call)
-    apply(tag.tag-function, page, response, do-body, call.arguments);
+    apply(tag.tag-function, page, do-body, call.arguments);
   end;
 end;
 
@@ -686,6 +648,7 @@ define macro page-definer
  => { page-aux(?name; ?superclasses; ?make-args; ?slot-specs);
       has-url?(?make-args) & register-page-urls("*" ## ?name ## "*", ?make-args, prefix?: #t)
     }
+
 end;
 
 define macro page-aux
@@ -725,21 +688,21 @@ define macro tag-definer
   // not display the body (if there is one), which might be very hard to debug, or
   // to make the user remember to deal with the body in each tag.
   { define tag ?tag:name ?taglib-spec
-        (?page:variable, ?response:variable) (?tag-parameters:*)
+        (?page:variable) (?tag-parameters:*)
       ?:body
     end }
   => { define tag-aux #f ?tag ?taglib-spec
-           (?page, ?response, _do-body) (?tag-parameters)
+           (?page, _do-body) (?tag-parameters)
          ?body;       // semicolon is needed even when ?body ends in semicolon.
          _do-body();  // process the tag body
        end
      }
   { define body tag ?tag:name ?taglib-spec
-        (?page:variable, ?response:variable, ?do-body:variable) (?tag-parameters:*)
+        (?page:variable, ?do-body:variable) (?tag-parameters:*)
       ?:body
     end }
   => { define tag-aux #t ?tag ?taglib-spec
-           (?page, ?response, ?do-body) (?tag-parameters)
+           (?page, ?do-body) (?tag-parameters)
          ?body
        end
      }
@@ -753,11 +716,11 @@ end tag-definer;
 
 define macro tag-aux-definer
   { define tag-aux ?allow-body:expression ?tag:name ?taglib:name
-        (?page:variable, ?response:variable, ?do-body:variable)
+        (?page:variable, ?do-body:variable)
         (?tag-parameters:*)
       ?:body
     end }
-  => { define method ?tag ## "-tag" (?page, ?response, ?do-body, #key ?tag-parameters, #all-keys)
+  => { define method ?tag ## "-tag" (?page, ?do-body, #key ?tag-parameters, #all-keys)
          ?body
        end;
        register-tag(make(<tag>,
@@ -805,9 +768,9 @@ define macro snarf-tag-parameter-types
 end;
 
 define body tag %%placeholder-for-unparsable-tags in dsp
-    (page :: <dylan-server-page>, response :: <response>, process-body :: <function>)
+    (page :: <dylan-server-page>, process-body :: <function>)
     ()
-  format(output-stream(response), " TAG PARSE ERROR ");
+  format(current-response().output-stream, " TAG PARSE ERROR ");
   process-body();
 end;
 
@@ -827,43 +790,35 @@ end;
 // the result.  Subclasses can either call this with next-method() or call
 // process-template explicitly.
 //
-define method respond-to-get
-    (page :: <dylan-server-page>, request :: <request>, response :: <response>)
-  process-template(page, request, response);
-end;
 
 // Subclasses of <dylan-server-page> can call this in their respond-to-get/post
 // methods if they decide they want the DSP template to be processed.  (They
 // may also skip template processing by calling some other respond-to-get/post
 // method, throwing an exception, etc.
 //
-define open method process-template
-    (page :: <dylan-server-page>, request :: <request>, response :: <response>)
+define open method process-template (page :: <dylan-server-page>)
   when (page-source-modified?(page) | ~ slot-initialized?(page, page-template))
     page.mod-time := file-property(source-location(page),
                                    #"modification-date");
     page.page-template := parse-page(page);
   end;
-  display-template(page.page-template, page, request, response);
+  display-template(page.page-template, page);
 end;
 
-define method display-template (tmplt :: <dsp-template>,
-                                page :: <dylan-server-page>,
-                                request :: <request>,
-                                response :: <response>)
+define method display-template (tmplt :: <dsp-template>, page :: <dylan-server-page>)
   log-debug("Displaying template %=", tmplt);
-  let stream = output-stream(response);
+  let stream = current-response().output-stream;
   for (item in tmplt.entries)
     select (item by instance?)
       <string>
         => write(stream, item);
       // A subtemplate is created for tag bodies and for the "include" directive.
       <dsp-template>
-        => display-template(item, page, request, response);
+        => display-template(item, page);
       <function>
-        => item(page, request, response);
+        => item(page);
       <tag-call>
-        => execute(item, page, request, response);
+        => execute(item, page);
       otherwise
         => signal(make(<dsp-error>,
                        format-string: "Invalid DSP template element"));
@@ -1252,11 +1207,6 @@ define method extract-tag-args
   end iterate
 end extract-tag-args;
 
-define method respond-to-head
-    (page :: <dylan-server-page>, request :: <request>, response :: <response>)
-  //---*** TODO
-end;
-
 
 //// Configuration
 
@@ -1266,5 +1216,3 @@ define function auto-register-dylan-server-page
   register-page(url, make(<dylan-server-page>,
                           source: document-location(url)))
 end;
-
-

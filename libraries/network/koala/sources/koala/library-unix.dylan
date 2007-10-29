@@ -390,12 +390,7 @@ define module dsp
     <static-page>,
     register-page,               // Register a page for a given URL
     url-to-page,
-    respond-to-get,              // Implement this for your page to handle GET requests
-    respond-to-post,             // Implement this for your page to handle POST requests
-    respond-to-head,             // Implement this for your page to handle HEAD requests
-    respond-to,                  // Implement this for other request methods
-    get,                         // convenience
-    post,                        // convenience
+    respond-to,                  // Implement this for you page to handle a request
 
     page-source,
     page-source-setter,

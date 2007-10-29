@@ -42,9 +42,9 @@ define method document-location
   end block
 end document-location;
 
-define method maybe-serve-static-file
-    (request :: <request>, response :: <response>)
- => ()
+define method maybe-serve-static-file ()
+  let request = current-request();
+  let response = current-response();
   let url :: <string> = request-url(request);
   let document :: false-or(<physical-locator>) 
     = static-file-locator-from-url(url);
@@ -96,9 +96,9 @@ define method maybe-serve-static-file
             end;
           end;
         end;
-        static-file-responder(request, response, target);
+        static-file-responder(target);
       otherwise =>
-        static-file-responder(request, response, document);
+        static-file-responder(document);
     end select;
   end if;
 end method maybe-serve-static-file;
@@ -162,8 +162,8 @@ end method;
 
 
 // Serves up a static file
-define method static-file-responder
-    (request :: <request>, response :: <response>, locator :: <locator>)
+define method static-file-responder (locator :: <locator>)
+  let response = current-response();
   with-open-file(in-stream = locator, direction: #"input", if-does-not-exist: #f,
                  element-type: <byte>)
     let mime-type = get-mime-type(locator);
@@ -172,7 +172,7 @@ define method static-file-responder
     add-header(response, "Last-Modified",
                as-rfc1123-string(props[#"modification-date"]));
     //---TODO: optimize this
-    write(output-stream(response), stream-contents(in-stream));
+    write(response.output-stream, stream-contents(in-stream));
   end;
 end;
 
