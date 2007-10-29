@@ -1,9 +1,8 @@
 module: permission
 author: turbo24prg
 
-/*
 define macro with-permission
- { with-permission(?action:*)
+ { with-permission (?action:*)
     ?:body
    end }
  =>
@@ -11,16 +10,19 @@ define macro with-permission
        permitted?(?action);
        ?body
      exception (condition :: <permission-error>)
-       get(*unprivileged-page*);
+       permission-error(?action)
      exception (condition :: <authentication-error>)
-       get(*not-logged-in-page*);
+       authentication-error(?action);
      end block }
 end;
-*/
+
+define open generic authentication-error (action :: <object>, #key #all-keys);
+define open generic permission-error (action :: <object>, #key #all-keys);
+
 define class <permission-error> (<error>) end;
 define class <authentication-error> (<error>) end;
 
-define generic permitted? (action :: <symbol>, #key #all-keys)
+define open generic permitted? (action :: <object>, #key #all-keys)
  => (permitted? :: <boolean>);
 
 define method permitted? (action :: <symbol>, #key)

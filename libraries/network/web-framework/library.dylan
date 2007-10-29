@@ -235,9 +235,12 @@ end;
 define module permission
   use common-dylan;
 
-  export <permission-error>,
-    <authentication-error>;
-  export permitted?;
+  export with-permission,
+    <permission-error>,
+    <authentication-error>,
+    permitted?,
+    permission-error,
+    authentication-error;
 end;
 
 define module web-framework

@@ -11,23 +11,26 @@ define thread variable *action* = #f;
 // sent values
 define thread variable *form* = #f;
 
-
-define tag show-login-url in web-framework
- (page :: <dylan-server-page>, response :: <response>)
- ()
-  format(output-stream(response),
-    "/?login&amp;redirect=%s", current-url(escaped?: #t));
+define tag show-login-url in web-framework (page :: <dylan-server-page>)
+ (redirect :: type-union(<string>, <boolean>), current :: <boolean>)
+  format(current-response().output-stream, "/?login%s",
+    if (redirect)
+      format-to-string("&amp;redirect=%s",
+        encode-url(if (current) current-url() else redirect end if, reserved?: #t));
+    else "" end);
 end;
 
-define tag show-logout-url in web-framework
- (page :: <dylan-server-page>, response :: <response>)
- ()
-  format(output-stream(response),
-    "/?logout&amp;redirect=%s", current-url(escaped?: #t));
+define tag show-logout-url in web-framework (page :: <dylan-server-page>)
+ (redirect :: type-union(<string>, <boolean>), current :: <boolean>)
+  format(current-response().output-stream, "/?logout%s",
+    if (redirect)
+      format-to-string("&amp;redirect=%s",
+        encode-url(if (current) current-url() else redirect end if, reserved?: #t));
+    else "" end);
 end;
 
-define named-method authenticated? in web-framework
- (page :: <dylan-server-page>, request :: <request>)
+
+define named-method authenticated? in web-framework (page :: <dylan-server-page>)
   authenticated-user()
 end;
 
@@ -51,12 +54,12 @@ define macro action-test-definer
  { define action-test ( ?:name ) in ?taglib:name end }
   => { 
        define named-method ?name ## "?" in ?taglib
-        (page :: <dylan-server-page>, request :: <request>)
+        (page :: <dylan-server-page>)
          *action* = ?#"name"
        end;
 
        define named-method ?name ## "-permitted?" in ?taglib
-        (page :: <dylan-server-page>, request :: <request>)
+        (page :: <dylan-server-page>)
          block ()
            permitted?(?#"name");
            #t;
@@ -89,7 +92,7 @@ define macro object-test-definer
       define thread variable "*" ## ?name ## "*" = #f;
 
       define named-method ?name ## "?" in ?taglib
-       (page :: <dylan-server-page>, request :: <request>)
+       (page :: <dylan-server-page>)
         "*" ## ?name ## "*"
       end 
     }
@@ -115,7 +118,7 @@ define macro error-test-definer
  { define error-test (?:name) in ?taglib:name end }
   => { 
        define named-method ?name ## "-error?" in ?taglib
-        (page :: <dylan-server-page>, request :: <request>)
+        (page :: <dylan-server-page>)
          member?(?#"name", *errors*)
        end 
      }

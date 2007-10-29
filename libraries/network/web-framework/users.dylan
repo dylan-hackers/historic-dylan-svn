@@ -124,3 +124,9 @@ define function require-authorization (#key realm :: <string> = "koala")
   add-header(headers, "WWW-Authenticate", concatenate("Basic realm=\"", realm, "\""));
   unauthorized-error(headers: headers);
 end;
+
+define method \= (user1 :: <user>, user2 :: <user>)
+ => (equal? :: <boolean>);
+  user1.username = user2.username
+end;
+
