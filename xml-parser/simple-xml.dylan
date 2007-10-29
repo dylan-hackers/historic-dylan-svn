@@ -205,14 +205,14 @@ define method add-attribute (element :: <element>, attribute :: <attribute>)
     element.attributes := add(element.attributes, attribute);
   end if;
   element;
-end method add-attribute;
+end;
 
 define method remove-attribute (element :: <element>, attribute)
   element.attributes := remove(element.attributes, attribute, 
                           test: method (a :: <attribute>, b) 
                             a.name = as(<symbol>, b);
                           end);
-end method remove-attribute;
+end;
 
 define method attribute (element :: <element>, attribute-name)
    => (res :: false-or(<attribute>));
@@ -224,17 +224,21 @@ define method attribute (element :: <element>, attribute-name)
   else
     #f;
   end if;
-end method;
+end;
+
 
 define open generic elements (element :: <element>, name :: <object>) => (res :: <sequence>);
+
 define method elements (element :: <element>, element-name) 
  => (res :: <sequence>);
   choose(method (a)
             a.name = as(<symbol>, element-name)
           end, element.node-children);
-end method elements;
+end;
+
 
 define open generic add-element (element :: <element>, node :: <xml>);
+
 define method add-element (element :: <element>, node :: <xml>) 
  => (res :: <element>);
   element.node-children := add(element.node-children, node);
@@ -242,7 +246,7 @@ define method add-element (element :: <element>, node :: <xml>)
     node.element-parent := element;
   end if;
   element;
-end method add-element;
+end;
 
 define method remove-element (element :: <element>, node-name, #key count: element-count)
  => (res :: <element>);
@@ -251,9 +255,11 @@ define method remove-element (element :: <element>, node-name, #key count: eleme
                                   a.name = as(<symbol>, b);
                                 end);
   element;
-end method remove-element;
+end;
      
+
 define open generic import-element (element :: <element>, node :: <element>);
+
 define method import-element (element :: <element>, node :: <element>)
   for (child in node.node-children)
     add-element(element, child);
@@ -261,18 +267,19 @@ define method import-element (element :: <element>, node :: <element>)
   for (attribute in node.attributes)
     add-attribute(element, attribute);
   end for;
-end method import-element;
+end;
 
 define generic prefix (object :: <object>) => (res :: <string>);
+
 define method prefix (element :: <element>)
  => (res :: <string>);
   prefix(element.name);
-end method prefix;
+end;
   
 define method prefix (name :: type-union(<string>, <symbol>))
   => (res :: <string>);
   split(as(<string>, name), ':')[0];
-end method prefix;
+end;
 
 define method prefix-setter (prefix :: <string>, element :: <element>) 
   if (~member?(':', as(<string>, element.name)))
@@ -281,38 +288,36 @@ define method prefix-setter (prefix :: <string>, element :: <element>)
   element;
 end;
 
+
 define generic real-name (object :: <object>) => (res :: <string>);
+
 define method real-name (element :: <element>) 
  => (res :: <string>);
   real-name(element.name);
-end method real-name;
+end;
 
 define method real-name (name :: type-union(<string>, <symbol>))
  => (res :: <string>);
   split(as(<string>, name), ':')[1];
-end method real-name;
+end;
 
 define method namespace (element :: <element>)
  => (xmlns :: false-or(<string>));
   let xmlns = attribute(element, "xmlns");
-  if (xmlns)
-    xmlns.attribute-value;
-  else
-    #f;
-  end if;
-end method namespace;
+  xmlns & xmlns.attribute-value;
+end;
 
 define method add-namespace (element :: <element>, ns :: <string>)
   => (res :: <element>);
   add-attribute(element, make(<attribute>, name: "xmlns", value: ns));
   element;
-end method add-namespace;
+end;
 
 define method remove-namespace (element :: <element>)
  => (res :: <element>);
   remove-attribute(element, "xmlns");
   element;
-end method remove-namespace;
+end;
 
 define method replace-element-text (element :: <element>, node :: <string>, text :: <string>)
   let replace-element = #f;
@@ -324,13 +329,23 @@ define method replace-element-text (element :: <element>, node :: <string>, text
     replace-element := first(replace-elements);
   end if;
   replace-element.text := escape-xml(text);
-end method replace-element-text;
+end;
 
-define method start-tag (e :: <element>)
+define method start-tag (element :: <element>)
  => (tag :: <string>);
   let stream = make(<string-stream>, direction: #"output");
-  print-opening(e, *printer-state*, stream);
-  print-attributes(e.attributes, *printer-state*, stream);
+  print-opening(element, *printer-state*, stream);
+  print-attributes(element.attributes, *printer-state*, stream);
   print-closing("", stream);
   stream-contents(stream);
-end method start-tag; 
+end;
+
+define function parents (element :: <element>) => (element-parents :: <sequence>);
+  let element :: false-or(<element>) = element;
+  let parents = #();
+  while (element)
+    element := instance?(element.element-parent, <element>) & element.element-parent;
+    element & (parents := add!(parents, element));
+  end while;
+  parents;
+end;
