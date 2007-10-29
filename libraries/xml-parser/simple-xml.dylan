@@ -87,7 +87,7 @@ generates:
 
 define method escape-xml (symbol :: <symbol>) => (res :: <symbol>)
   as(<symbol>, escape-xml(as(<string>, symbol)))
-end;
+end method escape-xml;
 
 define method escape-xml (string :: <string>) => (res :: <string>)
   let res = "";
@@ -103,7 +103,7 @@ define method escape-xml (string :: <string>) => (res :: <string>)
     end;
   end;
   res;
-end;
+end method escape-xml;
 
 define macro with-xml-builder
   { with-xml-builder ()
@@ -115,7 +115,7 @@ define macro with-xml-builder
           transform-document(doc, state: make(<add-parents>));
           doc;
         end; }
-end;
+end macro with-xml-builder;
 
 define macro with-xml
   { with-xml () ?element end }
@@ -191,7 +191,7 @@ define macro with-xml
     => { make(<attribute>, 
           name: concatenate(?"ns" ## ":", ?"key"),
           value: ?value) }
-end;
+end macro with-xml;
 
 define method add-attribute (element :: <element>, attribute :: <attribute>) 
  => (res :: <element>)
@@ -205,14 +205,14 @@ define method add-attribute (element :: <element>, attribute :: <attribute>)
     element.attributes := add(element.attributes, attribute);
   end if;
   element;
-end;
+end method add-attribute;
 
 define method remove-attribute (element :: <element>, attribute)
   element.attributes := remove(element.attributes, attribute, 
                           test: method (a :: <attribute>, b) 
                             a.name = as(<symbol>, b);
                           end);
-end;
+end method remove-attribute;
 
 define method attribute (element :: <element>, attribute-name)
    => (res :: false-or(<attribute>));
@@ -224,7 +224,7 @@ define method attribute (element :: <element>, attribute-name)
   else
     #f;
   end if;
-end;
+end method attribute;
 
 
 define open generic elements (element :: <element>, name :: <object>) => (res :: <sequence>);
@@ -234,7 +234,7 @@ define method elements (element :: <element>, element-name)
   choose(method (a)
             a.name = as(<symbol>, element-name)
           end, element.node-children);
-end;
+end method elements;
 
 
 define open generic add-element (element :: <element>, node :: <xml>);
@@ -246,7 +246,7 @@ define method add-element (element :: <element>, node :: <xml>)
     node.element-parent := element;
   end if;
   element;
-end;
+end method add-element;
 
 define method remove-element (element :: <element>, node-name, #key count: element-count)
  => (res :: <element>);
@@ -255,7 +255,7 @@ define method remove-element (element :: <element>, node-name, #key count: eleme
                                   a.name = as(<symbol>, b);
                                 end);
   element;
-end;
+end  method remove-element;
      
 
 define open generic import-element (element :: <element>, node :: <element>);
@@ -267,26 +267,26 @@ define method import-element (element :: <element>, node :: <element>)
   for (attribute in node.attributes)
     add-attribute(element, attribute);
   end for;
-end;
+end method import-element;
 
 define generic prefix (object :: <object>) => (res :: <string>);
 
 define method prefix (element :: <element>)
  => (res :: <string>);
   prefix(element.name);
-end;
+end method prefix;
   
 define method prefix (name :: type-union(<string>, <symbol>))
   => (res :: <string>);
   split(as(<string>, name), ':')[0];
-end;
+end method prefix;
 
 define method prefix-setter (prefix :: <string>, element :: <element>) 
   if (~member?(':', as(<string>, element.name)))
     element.name := as(<symbol>, concatenate(prefix, ":", as(<string>, element.name)));
   end if;
   element;
-end;
+end method prefix-setter;
 
 
 define generic real-name (object :: <object>) => (res :: <string>);
@@ -294,30 +294,30 @@ define generic real-name (object :: <object>) => (res :: <string>);
 define method real-name (element :: <element>) 
  => (res :: <string>);
   real-name(element.name);
-end;
+end method real-name;
 
 define method real-name (name :: type-union(<string>, <symbol>))
  => (res :: <string>);
   split(as(<string>, name), ':')[1];
-end;
+end method real-name;
 
 define method namespace (element :: <element>)
  => (xmlns :: false-or(<string>));
   let xmlns = attribute(element, "xmlns");
   xmlns & xmlns.attribute-value;
-end;
+end method namespace;
 
 define method add-namespace (element :: <element>, ns :: <string>)
   => (res :: <element>);
   add-attribute(element, make(<attribute>, name: "xmlns", value: ns));
   element;
-end;
+end method add-namespace;
 
 define method remove-namespace (element :: <element>)
  => (res :: <element>);
   remove-attribute(element, "xmlns");
   element;
-end;
+end method remove-namespace;
 
 define method replace-element-text (element :: <element>, node :: <string>, text :: <string>)
   let replace-element = #f;
@@ -329,7 +329,7 @@ define method replace-element-text (element :: <element>, node :: <string>, text
     replace-element := first(replace-elements);
   end if;
   replace-element.text := escape-xml(text);
-end;
+end method replace-element-text;
 
 define method start-tag (element :: <element>)
  => (tag :: <string>);
@@ -338,7 +338,7 @@ define method start-tag (element :: <element>)
   print-attributes(element.attributes, *printer-state*, stream);
   print-closing("", stream);
   stream-contents(stream);
-end;
+end method start-tag;
 
 define function parents (element :: <element>) => (element-parents :: <sequence>);
   let element :: false-or(<element>) = element;
@@ -348,4 +348,4 @@ define function parents (element :: <element>) => (element-parents :: <sequence>
     element & (parents := add!(parents, element));
   end while;
   parents;
-end;
+end function parents;
