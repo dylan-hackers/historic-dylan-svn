@@ -141,7 +141,8 @@ define module simple-xml
     replace-element-text,
     prefix, prefix-setter,
     real-name,
-    start-tag;
+    start-tag,
+    parents;
     
 end module simple-xml;
 
