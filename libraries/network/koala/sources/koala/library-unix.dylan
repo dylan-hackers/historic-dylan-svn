@@ -73,7 +73,7 @@ define module utilities
     quote-html,          // Change < to &lt; etc
     register-init-function,
     run-init-functions,
-    
+
     <string-trie>, 
     find-object, 
     add-object, 
@@ -129,7 +129,6 @@ define module utilities
     log, log-raw,
     log-level, log-level-setter,
     as-common-logfile-date;
-  
 end module utilities;
     
 
@@ -390,7 +389,7 @@ define module dsp
     <static-page>,
     register-page,               // Register a page for a given URL
     url-to-page,
-    respond-to,                  // Implement this for you page to handle a request
+    respond-to,                  // Implement this for your page to handle a request
 
     page-source,
     page-source-setter,

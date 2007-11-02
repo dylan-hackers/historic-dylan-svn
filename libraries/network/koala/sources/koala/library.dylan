@@ -65,6 +65,7 @@ define module utilities
     wrapping-inc!,
     file-contents,
     pset,                // multiple-value-setq
+    ignore-errors,
     path-element-equal?,
     parent-directory,
     date-to-stream,
@@ -128,7 +129,6 @@ define module utilities
     log, log-raw,
     log-level, log-level-setter,
     as-common-logfile-date;
-    
 end module utilities;
     
 
@@ -170,6 +170,7 @@ define module koala
     count-query-values,
     count-form-values,
     application-error,
+    current-url,
     decode-url,
     encode-url,
     redirect-to;
@@ -270,7 +271,7 @@ define module koala
   create
     print-object;
 
-  // files
+  // Files
   create
     static-file-responder;
 
@@ -389,11 +390,7 @@ define module dsp
     <static-page>,
     register-page,               // Register a page for a given URL
     url-to-page,
-    respond-to-get,              // Implement this for your page to handle GET requests
-    respond-to-post,             // Implement this for your page to handle POST requests
-    respond-to-head,             // Implement this for your page to handle HEAD requests
-    respond-to,
-    get, post,                   // convenience
+    respond-to,                  // Implement this for your page to handle a request
 
     page-source,
     page-source-setter,
