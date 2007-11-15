@@ -6,13 +6,16 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 // Users of this library may respond to HTTP requests in two ways:
-// (1) Use "define responder" to register a response function for a given URL.  The function
-//     will be passed a <request> and a <response>.
-// (2) Define a subclass of <page> and implement the methods respond-to-post, respond-to-get,
-//     and respond-to-head.  Use "define page", specifying <page> as a superclass to register
-//     a page to be used for a particular URL.
-// (3) Use "define page", specifying <dylan-server-page> as a superclass and define any "tags"
-//     you need with "define tag".  Create a .dsp file that calls the tags with <dsp:my-tag .../>
+// (1) Use "define responder" to register a response function for a
+//     given URL.  The function will be passed a <request> and a <response>.
+//
+// (2) Define a subclass of <page> and implement the method respond-to.
+//     Use "define page", specifying <page> as a superclass to register a
+//     page to be used for a particular URL.
+//
+// (3) Use "define page", specifying <dylan-server-page> as a superclass
+//     and define any "tags" you need with "define tag".  Create a .dsp
+//     file that calls the tags with <dsp:my-tag .../>
 //
 // See .../koala/sources/examples/koala-basics/ for example DSP usage.
 
@@ -786,14 +789,14 @@ define function make-dummy-tag-call
 end;
 
 
-// Default method on respond-to-get processes the DSP template and displays
+// Default method on respond-to processes the DSP template and displays
 // the result.  Subclasses can either call this with next-method() or call
 // process-template explicitly.
 //
 
-// Subclasses of <dylan-server-page> can call this in their respond-to-get/post
+// Subclasses of <dylan-server-page> can call this in their respond-to
 // methods if they decide they want the DSP template to be processed.  (They
-// may also skip template processing by calling some other respond-to-get/post
+// may also skip template processing by calling some other respond-to
 // method, throwing an exception, etc.
 //
 define open method process-template (page :: <dylan-server-page>)
@@ -806,7 +809,7 @@ define open method process-template (page :: <dylan-server-page>)
 end;
 
 define method display-template (tmplt :: <dsp-template>, page :: <dylan-server-page>)
-  log-debug("Displaying template %=", tmplt);
+  log-debug("Displaying template %s", as(<string>, tmplt.source));
   let stream = current-response().output-stream;
   for (item in tmplt.entries)
     select (item by instance?)

@@ -11,9 +11,9 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define thread variable *if-tag-test-result* = #"unbound";
 
-// <dsp:if> exists so that if the test function is expensive, it need only be executed
-// once, whereas using <dsp:when> and <dsp:unless> it would have to be executed twice
-// (or cached).
+// <dsp:if> exists so that if the test function is expensive, it need
+// only be executed once, whereas using <dsp:when> and <dsp:unless>
+// it would have to be executed twice (or cached).
 //
 // <dsp:if test="foo">
 //   <dsp:then>foo then</dsp:then>
@@ -72,9 +72,10 @@ end;
 
 
 
-// ---TODO: Define a tag to replace the HTML <input> tag, that will automatically take
-//          care of defaulting the value correctly if the form is redisplayed due to
-//          error, and will allow CSS to display the input tag in a unique way.
+// ---TODO: Define a tag to replace the HTML <input> tag, that will
+//          automatically take care of defaulting the value correctly
+//          if the form is redisplayed due to error, and will allow
+//          CSS to display the input tag in a unique way.
 //
 define tag show-query-value in dsp (page :: <dylan-server-page>)
  (name :: <string>)
@@ -85,9 +86,9 @@ end;
 
 //// Date Tags
 
-// Display a date.  If a key is given, it will be looked up in the given scope
-// and should be a <date>, which will then be displayed according to timezone
-// and style.
+// Display a date.  If a key is given, it will be looked up in the
+// given scope and should be a <date>, which will then be displayed
+// according to timezone and style.
 // @see parse-tag-arg(<string>, <date>)
 //
 define tag show-date in dsp (page :: <dylan-server-page>)
