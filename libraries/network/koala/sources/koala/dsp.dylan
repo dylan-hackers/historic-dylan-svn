@@ -809,7 +809,7 @@ define open method process-template (page :: <dylan-server-page>)
 end;
 
 define method display-template (tmplt :: <dsp-template>, page :: <dylan-server-page>)
-  log-debug("Displaying template %s", as(<string>, tmplt.source));
+  log-debug("Displaying template %s", tmplt.source | "not set");
   let stream = current-response().output-stream;
   for (item in tmplt.entries)
     select (item by instance?)
