@@ -1113,12 +1113,30 @@ define method extract-query-values
             values(decode-url(buffer, beg, fin), #t)
           end if;
         end;
+        method insert-key/val (key :: <string>, val :: <string>)
+          let hashtable-value = element(queries, key, default: #f);
+          if (hashtable-value)
+            //for multiple selection option boxes, arguments are passed this way:
+            // "foo=2&foo=3&foo=4", that's why we first do a lookup in the hash-table
+            // and generate a <stretchy-vector> on the fly -- hannes, 17.11.2007
+            if (instance?(hashtable-value, <string>))
+              let vec = make(<stretchy-vector>);
+              add!(vec, hashtable-value);
+              add!(vec, val);
+              queries[key] := vec;
+            else
+              add!(hashtable-value, val);
+            end;
+          else
+            queries[key] := val;
+          end;
+        end;
   iterate loop (start :: <integer> = bpos)
     when (start < epos)
       let _end = char-position('&', buffer, start, epos) | epos;
       let (key, val) = extract-key/val(start, _end);
       when (key & val)
-        queries[key] := val;
+        insert-key/val(key, val);
       end;
       loop(_end + 1);
     end;

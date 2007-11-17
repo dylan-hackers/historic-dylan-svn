@@ -13,7 +13,9 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // Make it largish though, since cookies come in via a header
 define variable *max-single-header-size* :: false-or(<integer>) = 16384;
 
-// Grow header buffer by this much
+// Grow header buffer by this much -- is this chosen arbitrary? is there
+// any reasoning behing the 1024? I'd expect a bigger number to lower the
+// amount of copying the whole header around -- Hannes 16.11.2007
 define variable *header-buffer-growth-amount* :: limited(<integer>, min: 1) = 1024;
 
 // Max size of data in a POST.
