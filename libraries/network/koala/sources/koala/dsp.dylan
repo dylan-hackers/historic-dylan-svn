@@ -630,7 +630,7 @@ end;
 define open primary class <dylan-server-page> (<file-page-mixin>, <page>)
   // A sequence of strings and functions.  Strings are output directly
   // to the network stream.  The functions are created by 'define tag'.
-  each-subclass slot page-template :: <dsp-template>;
+  each-subclass slot page-template :: false-or(<dsp-template>) = #f;
 end;
 
 // define page my-dsp (<dylan-server-page>) (url: "/hello", source: make-locator(...), ...)
@@ -800,7 +800,7 @@ end;
 // method, throwing an exception, etc.
 //
 define open method process-template (page :: <dylan-server-page>)
-  when (page-source-modified?(page) | ~ slot-initialized?(page, page-template))
+  when (page-source-modified?(page) | ~ page.page-template)
     page.mod-time := file-property(source-location(page),
                                    #"modification-date");
     page.page-template := parse-page(page);
