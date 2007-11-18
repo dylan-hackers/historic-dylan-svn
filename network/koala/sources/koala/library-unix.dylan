@@ -393,6 +393,8 @@ define module dsp
 
     page-source,
     page-source-setter,
+    page-template,
+    page-template-setter,
 
     <dylan-server-page>,         // Subclass this using the "define page" macro
     page-definer,                // Defines a new page class
