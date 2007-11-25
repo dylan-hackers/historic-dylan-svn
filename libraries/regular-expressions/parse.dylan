@@ -52,16 +52,16 @@ copyright: see below
 define abstract class <parsed-regexp> (<object>)
 end class <parsed-regexp>;
 
-define class <mark> (<parsed-regexp>)
-  slot child :: <parsed-regexp>,  required-init-keyword: #"child";
-  constant slot group-number :: <integer>, required-init-keyword: #"group";
-end class <mark>;
-
-// The root of the parsed regexp
+// The root of the parsed regexp, i.e., this is what's returned by the parser.
 define class <regexp> (<mark>)
   constant slot regexp-pattern :: <string>, required-init-keyword: #"pattern";
   constant slot regexp-group-count :: <integer>, required-init-keyword: #"group-count";
 end class <regexp>;
+
+define class <mark> (<parsed-regexp>)
+  slot child :: <parsed-regexp>,  required-init-keyword: #"child";
+  constant slot group-number :: <integer>, required-init-keyword: #"group";
+end class <mark>;
 
 define class <union> (<parsed-regexp>)          //    |
   slot left  :: <parsed-regexp>, required-init-keyword: #"left";

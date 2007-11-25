@@ -970,18 +970,18 @@ end method count-matches;
 define sealed method trim
     (string :: <byte-string>,
      #key test :: <function> = whitespace?,
-          side :: one-of(#"left", #"right", #"both") = #"both",
+          from :: one-of(#"left", #"right", #"both") = #"both",
           start :: <integer> = 0,
           end: _end :: <integer> = string.size)
  => (trimmed-string :: <byte-string>)
   let bpos :: <integer> = start;
   let epos :: <integer> = _end;
-  if (side == #"both" | side == #"left")
+  if (from == #"both" | from == #"left")
     while (bpos < epos & test(string[bpos]))
       bpos := bpos + 1;
     end;
   end;
-  if (side == #"both" | side == #"right")
+  if (from == #"both" | from == #"right")
     while (bpos < (epos - 1) & test(string[epos - 1]))
       epos := epos - 1;
     end;
