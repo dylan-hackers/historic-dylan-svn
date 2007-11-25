@@ -47,14 +47,17 @@ define module regexp                  // new API module
     compile-regexp,
     regexp-search,
     <regexp>,
+    <regexp-error>,
     <invalid-regexp>,
-      invalid-regexp-pattern,
+      regexp-pattern,
     <regexp-match>,                   // results of a successful search
       regexp-match-group,
       regexp-match-groups,
       group-start,
       group-end,
       group-text,
+      groups-by-position,
+      groups-by-name,
       <invalid-match-group>;
 end module regexp;
 
@@ -67,16 +70,16 @@ define module regular-expressions    // old API module
     translate, make-translator,
     split, make-splitter,
     join,
-    <illegal-regexp>,
-      regexp-pattern,
-    <regexp-error>;
+    <illegal-regexp>;
   create
     split-string;
 end module regular-expressions;
 
 define module regular-expressions-impl
   use common-dylan,
-    exclude: { split };
+    exclude: {
+      split
+    };
   use string-conversions;
   use character-type;
   use string-hacking;

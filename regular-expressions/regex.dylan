@@ -5,12 +5,11 @@ Synopsis: A new API for the regular-expressions library
 
 // Rename a few things...
 define constant <invalid-regexp> = <illegal-regexp>;
-define constant invalid-regexp-pattern = regexp-pattern;
 
 
 // Compile the given string into an optimized regular expression.
 //
-// @param case-sensitive -- Whether to be case sensivite.
+// @param case-sensitive -- Whether to be case sensitive.
 // @param verbose -- If true, allows you to write regular expressions that
 //   are easier to read by including whitespace and comments in them that
 //   will be ignored.
@@ -21,7 +20,7 @@ define constant invalid-regexp-pattern = regexp-pattern;
 //   preceding each newline). By default, "^" matches only at the beginning of
 //   the string, and "$" only at the end of the string.
 //
-// @param dot-matches-newline -- Normally '.' matches any character except for
+// @param dot-matches-all -- Normally '.' matches any character except for
 //   newline.  If this parameter is true '.' matches newline as well.
 //
 // This function signals <invalid-regexp> if the regular expression is invalid.
@@ -79,7 +78,7 @@ define method regexp-search
           end: _end :: <integer> = big.size)
  => (match :: false-or(<regexp-match>))
   regexp-search(big, compile-regexp(pattern),
-               anchored: anchored, start: start, end: _end)
+                anchored: anchored, start: start, end: _end)
 end method regexp-search;
 
 define method regexp-search
@@ -105,16 +104,21 @@ define method regexp-search
         match-root?(pattern, substring, case-sensitive?, num-groups, searcher);
       end if;
   if (matched?)
-    let regexp-match = make(<regexp-match>);
+    let regexp-match = make(<regexp-match>, regular-expression: pattern);
     for (index from 0 below marks.size by 2)
       let bpos = marks[index];
       let epos = marks[index + 1];
-      // It would be nice to make <substring> a real sequence, and possibly unify
-      // it with the substring implementation in Koala.
-      let text = copy-sequence(substring.entire-string,
-                               start: substring.start-index + bpos,
-                               end: substring.start-index + epos);
-      add-group(regexp-match, make(<match-group>, text: text, start: bpos, end: epos));
+      if (bpos & epos)
+        // It would be nice to make <substring> a real sequence, and possibly unify
+        // it with the substring implementation in Koala.
+        let text = copy-sequence(substring.entire-string,
+                                 start: substring.start-index + bpos,
+                                 end: substring.start-index + epos);
+        add-group(regexp-match, make(<match-group>, text: text, start: bpos, end: epos));
+      else
+        // This group wasn't matched.
+        add-group(regexp-match, #f)
+      end;
     end;
     regexp-match
   else
@@ -152,11 +156,14 @@ end class <match-group>;
 define sealed class <regexp-match> (<object>)
   // Groups by position.  Zero is the entire match.
   constant slot groups-by-position :: <stretchy-vector> = make(<stretchy-vector>);
-  constant slot groups-by-name :: <string-table> = make(<string-table>);
+  // Named groups, if any.  Initial size 0 on the assumption that most regular
+  // expressions won't use named groups.
+  constant slot groups-by-name :: <string-table> = make(<string-table>, size: 0);
+  constant slot regular-expression :: <regexp>, required-init-keyword: regular-expression:;
 end class <regexp-match>;
 
 define method add-group
-    (match :: <regexp-match>, group :: <match-group>,
+    (match :: <regexp-match>, group :: false-or(<match-group>),
      #key name :: false-or(<string>))
  => (match :: <regexp-match>)
   add!(match.groups-by-position, group);
@@ -176,11 +183,22 @@ define method regexp-match-group
      end-index :: false-or(<integer>))
   if (0 <= group-number & group-number < match.groups-by-position.size)
     let group = match.groups-by-position[group-number];
-    values(group.group-text, group.group-start, group.group-end)
+    if (group)
+      values(group.group-text, group.group-start, group.group-end)
+    else
+      values(#f, #f, #f)
+    end
   else
+    let ng = match.groups-by-position.size;
     signal(make(<invalid-match-group>,
-                format-string: "Match group index %d out of bounds.  Max group index is %d.",
-                format-arguments: list(group-number, match.groups-by-position.size - 1)));
+                format-string: "Group index %d is out of bounds for regex %s match.  %s",
+                format-arguments: list(group-number,
+                                       match.regular-expression.regexp-pattern,
+                                       if (ng == 1)
+                                         "There is only 1 group."
+                                       else
+                                         format-to-string("There are %d groups.", ng)
+                                       end)));
   end;
 end method regexp-match-group;
 
