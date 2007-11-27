@@ -316,7 +316,6 @@ define method parse-atom (s :: <parse-string>, info :: <parse-info>)
       // Insert more special characters here
 
     otherwise =>
-      let char = lookahead(s);
       consume(s);
       make(<parsed-character>, character: char);
   end select;
@@ -343,30 +342,39 @@ end function parse-group;
 define inline function parse-character-set
     (s :: <parse-string>, info :: <parse-info>)
  => (set :: <parsed-set>)
-  let set-string = make(<deque>);      // Need something that'll 
-                                       // preserve the right ordering
+  let set-string = make(<deque>);
   let start-index = s.parse-index;
-  for (char = lookahead(s) then lookahead(s),
-       until: char == ']')
-    consume(s);                    // eat char
-    if (~char)
-      parse-error(s.parse-string,
-                  "Unterminated character set at index %d.",start-index);
-    elseif (char ~== '\\')
-      push-last(set-string, char);
-    else
-      let char2 = lookahead(s);
-      consume(s);  // Eat escaped char
-      if (char2 == ']')
-        push-last(set-string, ']');
+  local method peek ()
+          lookahead(s)
+            | parse-error(s.parse-string,
+                          "Unterminated character set starting at at index %d.",
+                          start-index);
+        end;
+  block (done)
+    for (char = peek() then peek(),
+         charset-index from 0)
+      consume(s);
+      if (char == ']')
+        if (charset-index == 0)
+          push-last(set-string, char);  // e.g., []] is the set containing ']'.
+        else
+          done();
+        end;
+      elseif (char == '\\')
+        let char2 = peek();
+        consume(s);  // Eat escaped char
+        if (char2 == ']')
+          push-last(set-string, ']');
+        else
+          push-last(set-string, '\\');
+          push-last(set-string, char2);
+        end if;
       else
-        push-last(set-string, '\\');
-        push-last(set-string, char2);
+        push-last(set-string, char);
       end if;
-    end if;
-  end for;
-  consume(s);     // Eat ending brace
-  make(<parsed-set>, set: make(info.set-type, description: set-string));
+    end for;
+  end block;
+  make(<parsed-set>, set: make(info.set-type, description: set-string))
 end function parse-character-set;
 
 define constant any-char 
