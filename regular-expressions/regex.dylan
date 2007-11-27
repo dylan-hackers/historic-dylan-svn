@@ -2,8 +2,11 @@ Module: regular-expressions-impl
 Author: Carl Gay
 Synopsis: A new API for the regular-expressions library
 
+// todo -- Improve error message for <invalid-match-group> errors.
+//         Make %s and %= display the regex elided if it's too long.
 
-// Rename a few things...
+
+
 define constant <invalid-regexp> = <illegal-regexp>;
 
 
@@ -191,7 +194,7 @@ define method regexp-match-group
   else
     let ng = match.groups-by-position.size;
     signal(make(<invalid-match-group>,
-                format-string: "Group index %d is out of bounds for regex %s match.  %s",
+                format-string: "Group number %d is out of bounds for regex %s match.  %s",
                 format-arguments: list(group-number,
                                        match.regular-expression.regexp-pattern,
                                        if (ng == 1)

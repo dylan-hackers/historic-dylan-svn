@@ -56,8 +56,6 @@ define module regexp                  // new API module
       group-start,
       group-end,
       group-text,
-      groups-by-position,
-      groups-by-name,
       <invalid-match-group>;
 end module regexp;
 

@@ -25,12 +25,12 @@ define function run-pcre-checks
                                   lines: lines,
                                   start-line-number: line-number - lines.size));
           lines := make(<stretchy-vector>);
-        elseif (lines.size > 0) // a section never begins with a blank line
-          test-output("Line %d: lines.size = %d, matches = %s, prev = %s\n",
-                      line-number,
-                      lines.size,
-                      regexp-search(lines[lines.size - 1], $group-regexp),
-                      lines[lines.size - 1]);
+        elseif (lines.size < 3)
+          // A section must have a regex, a test string and one group result to make
+          // any sense.  Note we don't add the line to the section here.
+          test-output("Line %d: empty line in first 3 lines of a section.\n",
+                      line-number);
+        else
           add!(lines, line);
         end;
       else
@@ -56,6 +56,11 @@ define method consume-line
   end
 end method consume-line;
 
+define method line-number
+    (section :: <section>) => (line-number :: <integer>)
+  section.start-line-number + section.%index
+end method line-number;
+
 define method peek-line
     (section :: <section>) => (line :: false-or(<string>))
   if (section.%index < section.section-lines.size)
@@ -74,44 +79,48 @@ end method peek-line;
 define function check-pcre-section
     (section :: <section>)
   let regexp = parse-pcre-regexp(section);
-  while (peek-line(section))
-    let test-string = consume-line(section);
-    //test-output("  test string: %s\n", test-string);
-    let group-strings = make(<stretchy-vector>);
-    block (done-with-this-test-string)
-      while (#t)
-        let line = peek-line(section);
-        let match = line & regexp-search(line, $group-regexp);
-        if (match)
-          consume-line(section);
-          let group-text = regexp-match-group(match, $group-index-of-what-pcre-matched);
-          //test-output("   pcre group: %s\n", group-text | "No match");
-          if (group-text)
-            add!(group-strings, group-text);
+  // If the section has fewer than 3 lines (a regex, a test string and at least
+  // one group result) then all we do is try to compile it (above).
+  if (section.section-lines.size >= 3)
+    while (peek-line(section))
+      let test-string = consume-line(section);
+      //test-output("  test string: %s\n", test-string);
+      let group-strings = make(<stretchy-vector>);
+      block (done-with-this-test-string)
+        while (#t)
+          let line = peek-line(section);
+          let match = line & regexp-search(line, $group-regexp);
+          if (match)
+            consume-line(section);
+            let group-text = regexp-match-group(match, $group-index-of-what-pcre-matched);
+            //test-output("   pcre group: %s\n", group-text | "No match");
+            if (group-text)
+              add!(group-strings, group-text);
+            else
+              assert(regexp-match-group(match, 0) = "No match",
+                     "previous line was 'No match'");
+              done-with-this-test-string();
+            end;
           else
-            assert(regexp-match-group(match, 0) = "No match",
-                   "previous line was 'No match'");
             done-with-this-test-string();
           end;
-        else
-          done-with-this-test-string();
         end;
       end;
-    end;
-    if (regexp)
-      check-no-errors(format-to-string("search for %s in %s",
-                                       test-string, regexp.regexp-pattern),
-                      regexp-search(test-string, regexp));
-      let match = block ()
-                    regexp-search(test-string, regexp)
-                  exception (ex :: <error>)
-                    #f
-                  end;
-      if (match)
-        compare-to-pcre-results(regexp.regexp-pattern, test-string, match, group-strings);
-      end;
-    end if;
-  end while;
+      if (regexp)
+        check-no-errors(format-to-string("search for %s in %s",
+                                         test-string, regexp.regexp-pattern),
+                        regexp-search(test-string, regexp));
+        let match = block ()
+                      regexp-search(test-string, regexp)
+                    exception (ex :: <error>)
+                      #f
+                    end;
+        if (match)
+          compare-to-pcre-results(regexp.regexp-pattern, test-string, match, group-strings);
+        end;
+      end if;
+    end while;
+  end if;
 end function check-pcre-section;
 
 define function parse-pcre-regexp
@@ -185,11 +194,16 @@ define function compare-to-pcre-results
   if (match)
     check-equal(format-to-string("Match %s against %s -- same # of groups",
                                  test-string, pattern),
-                match.groups-by-position.size,
+                size(regexp-match-groups(match)),
                 pcre-groups.size);
     for (group-number from 0,
          pcre-group in pcre-groups)
-      let our-group = regexp-match-group(match, group-number);
+      // Adding block/exception here causes an infinite loop.
+      // Could it be related to using the Visual Studio 8 linker?
+      // The if also causes an infinite loop.  Hmmm.
+      let our-group = /* if (group-number < size(regexp-match-groups(match))) */
+                        regexp-match-group(match, group-number)
+                      /* end */;
       check-equal(format-to-string("Match %s against %s -- group %d is the same",
                                    test-string, pattern, group-number),
                   our-group,
@@ -202,7 +216,7 @@ define function compare-to-pcre-results
                 pcre-groups.size);
   end if;
 end function compare-to-pcre-results;
-      
+
 define test pcre-test ()
   let source-directory = environment-variable("OPEN_DYLAN_USER_SOURCES");
   if (source-directory)
