@@ -197,9 +197,13 @@ end;
 
 define function split-file (filename :: <string>) => (version :: <integer>)
   let elements = split(filename, '.');
-  if ((elements.size = 2) & (elements[0] = $filename))
-    string-to-integer(elements[1]);
-  else
+  block()
+    if ((elements.size = 2) & (elements[0] = $filename))
+      string-to-integer(elements[1]);
+    else
+      0;
+    end;
+  exception (e :: <error>)
     0
   end;
 end;
