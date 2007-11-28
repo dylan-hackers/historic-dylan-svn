@@ -1,0 +1,22 @@
+/[]]/
+    ]
+ 0: ]
+    a
+No match
+
+/[]a-z]+/
+    a]z
+ 0: a]z
+    abcD
+ 0: abc
+    ABC
+No match
+
+/^[^]a]+$/
+    bbb
+ 0: bbb
+    bab
+No match
+    b]b
+No match
+

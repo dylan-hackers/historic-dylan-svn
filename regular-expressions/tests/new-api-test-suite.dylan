@@ -224,9 +224,9 @@ define test pcre-test ()
                                    "libraries",
                                    "regular-expressions",
                                    "tests");
-    run-pcre-checks(make(<file-locator>,
-                         directory: dir,
-                         name: "pcre-testoutput1.txt"));
+    for (filename in #("pcre-testoutput1.txt", "regression-tests.txt"))
+      run-pcre-checks(make(<file-locator>, directory: dir, name: filename));
+    end;
   else
     signal(make(<simple-error>,
                 format-string: "pcre-test requires the OPEN_DYLAN_USER_SOURCES environment "
