@@ -52,16 +52,16 @@ copyright: see below
 define abstract class <parsed-regexp> (<object>)
 end class <parsed-regexp>;
 
+define class <mark> (<parsed-regexp>)
+  slot child :: <parsed-regexp>,  required-init-keyword: #"child";
+  constant slot group-number :: <integer>, required-init-keyword: #"group";
+end class <mark>;
+
 // The root of the parsed regexp, i.e., this is what's returned by the parser.
 define class <regexp> (<mark>)
   constant slot regexp-pattern :: <string>, required-init-keyword: #"pattern";
   constant slot regexp-group-count :: <integer>, required-init-keyword: #"group-count";
 end class <regexp>;
-
-define class <mark> (<parsed-regexp>)
-  slot child :: <parsed-regexp>,  required-init-keyword: #"child";
-  constant slot group-number :: <integer>, required-init-keyword: #"group";
-end class <mark>;
 
 define class <union> (<parsed-regexp>)          //    |
   slot left  :: <parsed-regexp>, required-init-keyword: #"left";
@@ -340,38 +340,45 @@ end function parse-group;
 // make(<character-set>) do the real parsing.
 //
 define inline function parse-character-set
-    (s :: <parse-string>, info :: <parse-info>)
+    (str :: <parse-string>, info :: <parse-info>)
  => (set :: <parsed-set>)
   let set-string = make(<deque>);
-  let start-index = s.parse-index;
+  let start-index = str.parse-index;
   local method peek ()
-          lookahead(s)
-            | parse-error(s.parse-string,
+          lookahead(str)
+            | parse-error(str.parse-string,
                           "Unterminated character set starting at at index %d.",
                           start-index);
         end;
   block (done)
     for (char = peek() then peek(),
          charset-index from 0)
-      consume(s);
-      if (char == ']')
-        if (charset-index == 0)
-          push-last(set-string, char);  // e.g., []] is the set containing ']'.
-        else
-          done();
-        end;
-      elseif (char == '\\')
-        let char2 = peek();
-        consume(s);  // Eat escaped char
-        if (char2 == ']')
-          push-last(set-string, ']');
-        else
-          push-last(set-string, '\\');
-          push-last(set-string, char2);
-        end if;
-      else
-        push-last(set-string, char);
-      end if;
+      consume(str);
+      select (char)
+        ']' =>
+          if (charset-index == 0)
+            push-last(set-string, char);  // e.g., []] is the set containing ']'
+          else
+            done();
+          end;
+        '^' =>
+          push-last(set-string, '^');
+          if (peek() == ']')
+            consume(str);
+            push-last(set-string, ']');  // e.g., [^]] is the set without ']'
+          end;
+        '\\' =>
+          let char2 = peek();
+          consume(str);  // Eat escaped char
+          if (char2 == ']')
+            push-last(set-string, ']');
+          else
+            push-last(set-string, '\\');
+            push-last(set-string, char2);
+          end if;
+        otherwise =>
+          push-last(set-string, char);
+      end select
     end for;
   end block;
   make(<parsed-set>, set: make(info.set-type, description: set-string))
