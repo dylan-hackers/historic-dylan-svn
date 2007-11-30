@@ -40,7 +40,11 @@ copyright: see below
 //      <quantifier> ::= * | + | ? | {n} | {n,} | {n, m}
 //            (where n and m are decimal integers)
 //
-//      <atom> ::= (<regexp>) | <extended-character>
+//      <atom> ::= <subpattern> | <extended-character>
+//
+//      <subpattern> ::= (<options> <regexp>)
+//
+//      <options> ::= ?: | ?P<name> | ?P=name | ?# | etc
 //
 // See "Programming perl", p. 103-104 for more details.
 //
@@ -59,8 +63,16 @@ end class <mark>;
 
 // The root of the parsed regexp, i.e., this is what's returned by the parser.
 define class <regexp> (<mark>)
-  constant slot regexp-pattern :: <string>, required-init-keyword: #"pattern";
-  constant slot regexp-group-count :: <integer>, required-init-keyword: #"group-count";
+  // exported
+  constant slot regexp-pattern :: <string>,
+    required-init-keyword: pattern:;
+  // exported
+  constant slot regexp-group-count :: <integer>,
+    required-init-keyword: group-count:;
+  // internal.  This is only needed when making a <regexp-match> after
+  // a successful search.
+  constant slot group-number-to-name :: <table>,
+    required-init-keyword: group-number-to-name:;
 end class <regexp>;
 
 define class <union> (<parsed-regexp>)          //    |
@@ -125,20 +137,30 @@ define function parse-error
               pattern: pattern));
 end function parse-error;
 
+define function not-yet-implemented (thing, #rest format-args)
+  let thing = if (~empty?(format-args))
+                apply(format-to-string, thing, format-args)
+              else
+                thing
+              end;
+  signal(make(<regexp-error>,
+              format-string: "The %s is not yet implemented.",
+              format-arguments: list(thing)));
+end;
+
 // <parse-info> contains some information about the current regexp
-// being parsed.  Using a structure is slightly nicer than having
-// global variables..
+// being parsed.
 //
 define class <parse-info> (<object>)
-  // Name this has-backreferences, for consistency with the other slots?
+  // Whether or not the function includes \1, \2, etc in the regexp.
+  // Name this has-backreferences, for consistency with the other slots.
   // Add ? to all the has-* slots.  --cgay
+  // Also, not sure why anyone cares about these three things.
   slot backreference-used :: <boolean>, init-value: #f;
-     // Whether or not the function includes \1, \2, etc in the regexp.
-     // This is different from return-marks, which determines whether the
-     // user wants to know about the marks.
   slot has-alternatives :: <boolean>, init-value: #f;
   slot has-quantifiers :: <boolean>, init-value: #f;
   slot current-group-number :: <integer>, init-value: 0;
+  constant slot group-number-to-name :: <table>, init-value: make(<table>);
   constant slot set-type :: <class>, required-init-keyword: #"set-type";
 end class <parse-info>;
 
@@ -148,14 +170,9 @@ define function make-parse-info
           multi-line      :: <boolean> = #f,
           dot-matches-all :: <boolean> = #f)
  => (info :: <parse-info>)
-  local method nyi (option-name)
-          signal(make(<regexp-error>,
-                      format-string: "The '%s' option is not yet implemented.",
-                      format-arguments: list(option-name)));
-        end;
-  verbose & nyi("verbose");
-  multi-line & nyi("multi-line");
-  dot-matches-all & nyi("dot-matches-all");
+  verbose & not-yet-implemented("'verbose' option");
+  multi-line & not-yet-implemented("'multi-line' option");
+  dot-matches-all & not-yet-implemented("'dot-matches-all' option");
   let char-set-type
    = if (case-sensitive)
        <case-sensitive-character-set>
@@ -164,6 +181,18 @@ define function make-parse-info
      end;
   make(<parse-info>, set-type: char-set-type)
 end function make-parse-info;
+
+define method has-named-group?
+    (info :: <parse-info>, name :: <string>)
+  block (return)
+    for (group-name in info.group-number-to-name)
+      if (name = group-name)
+        return(#t)
+      end;
+    end;
+    #f
+  end;
+end;
 
 define method parse
     (regexp :: <string>, parse-info :: <parse-info>)
@@ -176,12 +205,13 @@ define method parse
   let child = parse-regexp(parse-string, parse-info);
   let parse-tree = make(<regexp>,
                         pattern: regexp,
-                        group-count: parse-info.current-group-number + 1,
                         group: 0,
+                        group-count: parse-info.current-group-number + 1,
+                        group-number-to-name: parse-info.group-number-to-name,
 			child: child);
   let optimized-regexp = optimize(parse-tree);
   if (optimized-regexp.pathological?)
-    parse-error(regexp, "A sub-regexp that matches the empty string was quantified.");
+    parse-error(regexp, "A subpattern that matches the empty string was quantified.");
   else
     values(optimized-regexp,
 	   parse-info.current-group-number,
@@ -217,6 +247,9 @@ end method parse-alternative;
 
 define method parse-quantified-atom (s :: <parse-string>, info :: <parse-info>)
  => (result :: false-or(<parsed-regexp>))
+  // I think this breaks when parse-atom returns #f and then we quantify that.
+  // I added some regexes to regression-tests.txt starting with /a()b/ that I
+  // hope will exercise that case.  --cgay
   let atom = parse-atom(s, info);
   let char = lookahead(s);
   select (char by \=)
@@ -321,20 +354,118 @@ define method parse-atom (s :: <parse-string>, info :: <parse-info>)
   end select;
 end method parse-atom;
 
+// Parse a subpattern, a.k.a. "group".  i.e., something delimited by parens.
+// The parse string is pointing at the character after the '('.
+//
 define inline function parse-group
-    (s :: <parse-string>, info :: <parse-info>)
- => (mark :: <mark>)
-  info.current-group-number := info.current-group-number + 1;
-  let this-group = info.current-group-number;
-  let regexp = parse-regexp(s, info);
-  if (lookahead(s) = ')')
-    consume(s);   // Consume ')'
-    make(<mark>, child: regexp, group: this-group)
+    (str :: <parse-string>, info :: <parse-info>)
+ => (mark :: false-or(<parsed-regexp>))
+  let char = lookahead(str);
+  if (char == '?')
+    consume(str);
+    parse-extended-group(str, info)
   else
-    parse-error(s.parse-string, "Unbalanced parens in regexp (index = %s).",
-                s.parse-index);
-  end;
+    parse-simple-group(str, info, #t, #f)
+  end
 end function parse-group;
+
+// Just saw "(?" so we need to parse a group with extended options.
+//
+define inline function parse-extended-group
+    (str :: <parse-string>, info :: <parse-info>)
+ => (mark :: false-or(<parsed-regexp>))
+  let char = lookahead(str);
+  consume(str);
+  select (char)
+    'P' =>                    // (?P named group constructs
+      let char = lookahead(str);
+      consume(str);
+      if (char == '=')
+        not-yet-implemented("(?P=name) construct");
+      elseif (char = '<')
+        parse-simple-group(str, info, #t, parse-group-name(str, info))
+      else
+        parse-error(str.parse-string,
+                    "Invalid named group syntax (index = %s).",
+                    str.parse-index);
+      end;
+
+    ':' =>                    // (?: doesn't save the group
+      parse-simple-group(str, info, #f, #f);
+
+    '#' =>                    // (?# for comments
+      while (lookahead(str) & lookahead(str) ~== ')')
+        consume(str);
+      end;
+      if (~ lookahead(str))
+        parse-error(str.parse-string, "Unterminated (?# comment.");
+      else
+        #f
+      end;
+
+    otherwise =>
+      // See the Python re docs for what all these do.
+      if (member?(char, "iLmsux#=!<("))
+        not-yet-implemented("'(?%c' subpattern construct", lookahead(str));
+      else
+        parse-error(str.parse-string, "Invalid (? construct at index %s.",
+                    str.parse-index);
+      end;
+  end select
+end function parse-extended-group;
+
+// Just saw "(?P<", so parse the name of this named group.
+//
+define function parse-group-name
+    (str :: <parse-string>, info :: <parse-info>)
+ => (name :: <string>)
+  let start-index = str.parse-index;
+  while (lookahead(str) & lookahead(str) ~== '>')
+    consume(str);
+  end;
+  if (lookahead(str) == '>')
+    consume(str);
+    copy-sequence(str.parse-string, start: start-index, end: str.parse-index - 1)
+  else
+    parse-error(str.parse-string, "Unterminated named group name at index %s.",
+                str.parse-index);
+  end
+end function parse-group-name;
+
+// Parse a group/subpattern, possibly after having already parsed any
+// options given via "(?...".
+//
+define inline function parse-simple-group
+    (str :: <parse-string>,
+     info :: <parse-info>,
+     save-group? :: <boolean>,
+     group-name :: false-or(<string>))
+ => (mark :: false-or(<parsed-regexp>))
+  if (save-group?)
+    info.current-group-number := info.current-group-number + 1;
+  end;
+  let regexp = parse-regexp(str, info);
+  if (lookahead(str) ~== ')')
+    parse-error(str.parse-string, "Unbalanced parens in regexp (index = %s).",
+                str.parse-index);
+  else
+    consume(str);
+    if (~ save-group?)
+      regexp
+    else
+      if (group-name)
+        if (has-named-group?(info, group-name))
+          parse-error(str.parse-string,
+                      "Duplicate group name (%s) at index %s.",
+                      group-name, str.parse-index);
+        else
+          info.group-number-to-name[info.current-group-number] := group-name;
+        end;
+      end;
+      make(<mark>, child: regexp, group: info.current-group-number)
+    end
+  end
+end function parse-simple-group;
 
 // This just does a quick scan to find the closing ] and then lets
 // make(<character-set>) do the real parsing.
@@ -542,8 +673,8 @@ end method optimize;
 // pathological regexp:
 //
 // First, realize that pathological regexps stem from infinitely
-// quantifying subregexps that could match the empty string.  So what
-// we do is find this subregexps, and perform the following
+// quantifying subpatterns that could match the empty string.  So what
+// we do is find this subpattern, and perform the following
 // transformation:
 //
 //  case (type of regexp)
