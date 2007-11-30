@@ -20,3 +20,9 @@ No match
     b]b
 No match
 
+/a()b/
+
+/a()+b/
+
+/a(#blah)b/
+

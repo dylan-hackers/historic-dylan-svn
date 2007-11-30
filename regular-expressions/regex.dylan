@@ -108,7 +108,10 @@ define method regexp-search
       end if;
   if (matched?)
     let regexp-match = make(<regexp-match>, regular-expression: pattern);
+    let group-number-to-name :: <table> = pattern.group-number-to-name;
     for (index from 0 below marks.size by 2)
+      let group-number = floor/(index, 2);
+      let group-name = element(group-number-to-name, group-number, default: #f);
       let bpos = marks[index];
       let epos = marks[index + 1];
       if (bpos & epos)
@@ -117,10 +120,12 @@ define method regexp-search
         let text = copy-sequence(substring.entire-string,
                                  start: substring.start-index + bpos,
                                  end: substring.start-index + epos);
-        add-group(regexp-match, make(<match-group>, text: text, start: bpos, end: epos));
+        add-group(regexp-match,
+                  make(<match-group>, text: text, start: bpos, end: epos),
+                  group-name);
       else
         // This group wasn't matched.
-        add-group(regexp-match, #f)
+        add-group(regexp-match, #f, group-name);
       end;
     end;
     regexp-match
@@ -166,8 +171,9 @@ define sealed class <regexp-match> (<object>)
 end class <regexp-match>;
 
 define method add-group
-    (match :: <regexp-match>, group :: false-or(<match-group>),
-     #key name :: false-or(<string>))
+    (match :: <regexp-match>,
+     group :: false-or(<match-group>),
+     name :: false-or(<string>))
  => (match :: <regexp-match>)
   add!(match.groups-by-position, group);
   if (name)
@@ -210,12 +216,12 @@ define method regexp-match-group
  => (text :: false-or(<string>),
      start-index :: false-or(<integer>),
      end-index :: false-or(<integer>))
-  let index :: <integer> = element(match.groups-by-name, group, default: #f);
-  if (index)
-    regexp-match-group(match, index)
+  let group = element(match.groups-by-name, group, default: #f);
+  if (group)
+    values(group.group-text, group.group-start, group.group-end)
   else
     signal(make(<invalid-match-group>,
                 format-string: "There is no group named %=.",
                 format-arguments: list(group)));
-  end;
+  end
 end method regexp-match-group;
