@@ -3,6 +3,8 @@ author: Hannes Mehnert <hannes@mehnert.org>
 
 define variable *directory* = "/";
 
+define constant $database-lock = make(<recursive-lock>);
+
 define sideways method process-config-element
     (node :: <xml-element>, name == #"web-framework")
   let cdir = get-attr(node, #"content-directory");
@@ -15,12 +17,64 @@ define sideways method process-config-element
   restore-newest(*directory*);
 end;
 
+define macro getter-and-setter
+ { getter-and-setter(?:name; constant ?args:* slot ?slot-name:name :: ?slot-type:expression ?rest:*; ?slots:*) }
+    => { define method ?slot-name (object :: ?name) => (res :: ?slot-type)
+           //format-out("accessing constant slot of %s\n", object.object-class);
+           with-lock($database-lock)
+             "%" ## ?slot-name(object);
+           end;
+         end;
+         getter-and-setter(?name; ?slots);
+        }
+ { getter-and-setter(?:name; ?args:* slot ?slot-name:name :: ?slot-type:expression ?rest:*; ?slots:*) }
+    => { define method ?slot-name (object :: ?name) => (res :: ?slot-type)
+           //format-out("reading slot of %s\n", object.object-class);
+           with-lock($database-lock)
+             "%" ## ?slot-name(object);
+           end;
+         end;
+         define method ?slot-name ## "-setter" (new-val :: ?slot-type, object :: ?name) => (res :: ?slot-type)
+             //format-out("writing slot of %s\n", object.object-class);
+
+             with-lock($database-lock)
+               "%" ## ?slot-name ## "-setter"(new-val, object);
+             end;
+         end;
+         getter-and-setter(?name; ?slots);
+       }
+    { getter-and-setter(?:name) } => { }
+end;
+
+
+define macro storage-class-definer
+ { define storage-class ?:name (?superclasses:expression)
+     ?slots:*
+   end } =>
+  { define-class(?name; ?superclasses; ?slots);
+    getter-and-setter(?name; ?slots) }
+end;
+
+define macro define-class
+{ define-class(?:name; ?superclasses:expression; ?slots:*) }
+    => { define class ?name (?superclasses)
+           ?slots;
+         end }
+        
+  slots:
+    { } => { }
+    { ?slot:* ; ... } => { ?slot ; ... }
+
+  slot:
+    { } => { }
+    { ?args:* slot ?:name :: ?slot-type:expression ?rest:* } => { ?args slot "%" ## ?name :: ?slot-type ?rest }
+end;
+
 define variable *storage* = make(<table>);
 
 define variable *version* :: <integer> = 0;
 
 define variable *rev* :: <integer> = 0;
-define constant $database-lock = make(<recursive-lock>);
 
 define open generic storage-type (type) => (res);
 
@@ -58,6 +112,14 @@ define macro with-storage
            ?body
          end
        end }
+   { with-storage ()
+       ?body:body
+     end }
+ => { begin
+         with-lock($database-lock)
+           ?body;
+         end;
+      end }
 end;
 
 define open generic save (object :: <object>) => ();
@@ -65,11 +127,6 @@ define open generic save (object :: <object>) => ();
 define method save (object) => ()
   with-lock($database-lock)
     add-object(storage(object.object-class), object);
-    //if (*rev* = 100 | *version* = 0)
-    //  really-dump-all-data();
-    //else
-    //  dump-single-object(object);
-    //end;
   end;
 end;
 
@@ -92,15 +149,6 @@ define inline function generate-filename () => (res :: <string>)
   concatenate(*directory*, $filename, ".", integer-to-string(*version*));
 end;
 
-define function dump-single-object (object :: <object>) => ()
-  let loc = concatenate(generate-filename(), ".", integer-to-string(*rev*));
-  let dood = make(<dood>, locator: loc, direction: #"output", if-exists: #"replace");
-  dood-root(dood) := object;
-  dood-commit(dood);
-  dood-close(dood);
-  *rev* := *rev* + 1;
-end;
-
 define function really-dump-all-data () => ()
   *version* := *version* + 1;
   let loc = generate-filename();
@@ -110,6 +158,7 @@ define function really-dump-all-data () => ()
   dood-close(dood);
   *rev* := 0;
 end;
+
 define method dump-data () => ()
   with-lock ($database-lock)
     really-dump-all-data();
@@ -123,47 +172,15 @@ define method restore (directory :: <string>, filename :: <string>) => ()
                   direction: #"input");
   let storage-root = dood-root(dood);
   dood-close(dood);
-  let major = split-file(filename);
   with-lock ($database-lock)
     *storage* := storage-root.hash-table;
     *version* := storage-root.table-version;
-    //ok, restored major version, now restore all patches!
-    let minor-list = make(<vector>, size: 100, fill: #f);
-    do-directory(method (dir :: <pathname>, fname :: <string>, type :: <file-type>)
-                   if (type == #"file")
-                     let min = minor-version?(major, fname);
-                     if (min)
-                       minor-list[min] := fname;
-                     end;
-                   end;
-                 end, directory);
-    for (minor in minor-list, i from 1)
-      if (minor)
-        let d = make(<dood>, locator: concatenate(directory, minor), direction: #"input");
-        let obj = dood-root(d);
-        dood-close(d);
-        add-object(storage(obj.object-class), obj);
-        //setup(obj);
-        *rev* := i;
-      end;
-    end;
   end;
   for (class in key-sequence(*storage*))
     setup(class);
   end for;
 end;
 
-define inline function minor-version? (major :: <integer>, minor :: <string>)
- => (res :: false-or(<integer>))
-  let filename-elements = split(minor, '.');
-  if ((filename-elements.size = 3)
-      & (filename-elements[0] = $filename)
-      & (string-to-integer(filename-elements[1]) = major))
-    string-to-integer(filename-elements[2]);
-  else
-    #f;
-  end;
-end;
 define method restore-newest (directory :: <string>) => ()
   let file = #f;
   let latest-version = 0;
