@@ -35,10 +35,12 @@ define module storage
   use file-system;
   use threads;
   use koala;
+  use format-out;
   use locators;
 
   export storage,
     \with-storage,
+    \storage-class-definer,
     dump-data,
     dumper,
     save,
