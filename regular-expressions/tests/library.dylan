@@ -6,11 +6,7 @@ define library regular-expressions-test-suite
     import: {
       streams
     };
-  use regular-expressions,
-    import: {
-      regular-expressions,
-      regexp
-    };
+  use regular-expressions;
   use system,
     import: {
       file-system,
@@ -23,24 +19,12 @@ define library regular-expressions-test-suite
     regular-expressions-test-suite;
 end library regular-expressions-test-suite;
 
-define module old-api-test-suite
-  use common-dylan,
-    exclude: { 
-      split
-    };
-  use regular-expressions;
-  use testworks;
-  export
-    //pcre-test-suite,
-    old-api-test-suite;
-end module old-api-test-suite;
-
-define module new-api-test-suite
+define module regular-expressions-test-suite
   use common-dylan,
     exclude: {
       split
     };
-  use regexp;
+  use regular-expressions;
   use file-system;
   use locators,
     import: {
@@ -58,14 +42,6 @@ define module new-api-test-suite
     import: {
       trim
     };
-  export
-    new-api-test-suite;
-end module new-api-test-suite;
-
-define module regular-expressions-test-suite
-  use testworks;
-  use old-api-test-suite;
-  use new-api-test-suite;
   export regular-expressions-test-suite;
 end module regular-expressions-test-suite;
 

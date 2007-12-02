@@ -1,4 +1,4 @@
-module:   regular-expressions-impl
+module:   regular-expressions
 author:   Nick Kramer (nkramer@cs.cmu.edu)
 synopsis: This takes a parsed regular expression and tries to find a match
           for it.
@@ -36,7 +36,7 @@ define constant <non-local-exit> = <function>;
 // Details of match:
 
 // This whole thing is rather hairy.  Basically, it creates a "path"
-// through the regexp parse tree that corresponds to a match of the
+// through the regex parse tree that corresponds to a match of the
 // string.  A path is a round trip through a parse tree that starts
 // and ends at the root. The part of the path already travelled is the
 // call stack, and hints about the untravelled part of the path are
@@ -58,10 +58,10 @@ define constant <non-local-exit> = <function>;
 // its own non-local exit so that it can try to match its part
 // differently.
 
-// As an example, a <union> is "regexp #1 or regexp #2".  When
+// As an example, a <union> is "regex #1 or regex #2".  When
 // descend-re(<union>...) is called, it'll set up a non-local exit and
-// then descend-re on regexp #1.  If someone backtracks out of regexp
-// #1, descend-re(<union>) will try regexp #2.  If someone backtracks
+// then descend-re on regex #1.  If someone backtracks out of regex
+// #1, descend-re(<union>) will try regex #2.  If someone backtracks
 // out of that, descend-re(<union>) will give up and backtrack itself.
 
 // When this chain of functions completes a match, it'll stumble upon
@@ -80,7 +80,7 @@ define sealed domain initialize(<substring>);
 // Match-root?: Set things up and call descend-re.
 //
 define method match-root?
-    (re :: <parsed-regexp>, target :: <substring>,
+    (re :: <parsed-regex>, target :: <substring>,
      case-sensitive? :: <boolean>, num-groups :: <integer>,
      searcher :: false-or(<function>))
  => (answer :: <boolean>, marks :: <sequence>);
@@ -107,7 +107,7 @@ define method match-root?
 	    block (fail)
 	      descend-re(re, target, case-sensitive?, index,
 			 marks, fail, list(up-proc));
-	      error("A regexp should either match or not match. Why did it "
+	      error("A regex should either match or not match. Why did it "
                     "reach this piece of code?");
 	    end block;
 	  end for;
@@ -117,7 +117,7 @@ define method match-root?
 	    block (fail)
 	      descend-re(re, target, case-sensitive?, index,
 			 marks, fail, list(up-proc));
-	      error("A regexp should either match or not match. Why did "
+	      error("A regex should either match or not match. Why did "
 		      "it reach this piece of code?");
 	    end block;
 	  end for;
@@ -131,7 +131,7 @@ end method match-root?;
 // starts with "^".
 //
 define method anchored-match-root?
-    (re :: <parsed-regexp>, target :: <substring>,
+    (re :: <parsed-regex>, target :: <substring>,
      case-sensitive? :: <boolean>, num-groups :: <integer>,
      searcher :: false-or(<function>))
  => (answer :: <boolean>, marks :: <sequence>);
@@ -147,7 +147,7 @@ define method anchored-match-root?
 	block (fail)
 	  descend-re(re, target, case-sensitive?, target.start-index,
 		     marks, fail, list(up-proc));
-	  error("A regexp should either match or not match. Why did it "
+	  error("A regex should either match or not match. Why did it "
 		  "reach this piece of code?");
 	end block;
 	values(#f);      // Failure
@@ -156,7 +156,7 @@ define method anchored-match-root?
 end method anchored-match-root?;
 
 define generic descend-re
-    (re :: false-or(<parsed-regexp>), target :: <substring>,
+    (re :: false-or(<parsed-regex>), target :: <substring>,
      case-sensitive? :: <boolean>, start-index :: <integer>,
      marks :: <mutable-sequence>, backtrack-past-me :: <non-local-exit>,
      up-list :: <list> /* of <non-local-exit> */) => ();
@@ -269,7 +269,7 @@ define method descend-re
      marks :: <mutable-sequence>, backtrack-past-me :: <non-local-exit>,
      up-list :: <list>) => ();
   local method descend-and-quantify (min :: <integer>, max, 
-				     re :: <parsed-regexp>, index :: <integer>,
+				     re :: <parsed-regex>, index :: <integer>,
 				     backtrack-past-me :: <non-local-exit>,
 				     up-list)
 
