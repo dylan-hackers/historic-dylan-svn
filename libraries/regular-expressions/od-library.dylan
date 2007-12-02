@@ -31,52 +31,19 @@ copyright: see below
 //
 //======================================================================
 
-
-// Added regex module with new API.  --cgay, June 2007
+// Revamped.  --cgay Dec 2007
 
 define library regular-expressions
   use common-dylan;
   use string-extensions;
   export
-    regexp,                                            // new API
-    regular-expressions;                               // old API
-end library regular-expressions;
+    regular-expressions;
+end;
 
-define module regexp                  // new API module
-  create
-    compile-regexp,
-    regexp-search,
-    <regexp>,
-    <regexp-error>,
-    <invalid-regexp>,
-      regexp-pattern,
-    <regexp-match>,                   // results of a successful search
-      regexp-match-group,
-      regexp-match-groups,
-      group-start,
-      group-end,
-      group-text,
-      <invalid-match-group>;
-end module regexp;
-
-define module regular-expressions    // old API module
-  create
-    regexp-position, make-regexp-positioner,
-    regexp-match,
-    regexp-replace, make-regexp-replacer,
-    regexp-group-count,
-    translate, make-translator,
-    split, make-splitter,
-    join,
-    <illegal-regexp>;
-  create
-    split-string;
-end module regular-expressions;
-
-define module regular-expressions-impl
+define module regular-expressions
   use common-dylan,
     exclude: {
-      split
+      split    // todo -- just add a method to this one
     };
   use string-conversions;
   use character-type;
@@ -84,7 +51,32 @@ define module regular-expressions-impl
   use %do-replacement;
   use %parse-string;
   use substring-search;
-  use regular-expressions;                      // old API module
-  use regexp;                                   // new API module
-end module regular-expressions-impl;
+  export
+    compile-regex,
+    <regex>,
+      regex-search,
+      regex-group-count,
+      regex-position,
+      make-regex-positioner,
+      regex-match,  // todo -- rename to regex-search-strings?
+      regex-replace,
+      make-regex-replacer,
+    <regex-error>,
+    <invalid-regex>,
+      regex-pattern,
+    <regex-match>,                   // results of a successful search
+      <match-group>,
+      match-group,
+      match-groups,
+      group-start,
+      group-end,
+      group-text,
+      <invalid-match-group>,
+
+    split,
+    make-splitter,
+    join;
+  export
+    split-string;   // ???
+end module regular-expressions;
 

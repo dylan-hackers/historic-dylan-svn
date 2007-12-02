@@ -1,4 +1,4 @@
-module: regular-expressions-impl
+module: regular-expressions
 author: Nick Kramer (nkramer@cs.cmu.edu)
 copyright: see below
 
@@ -31,7 +31,7 @@ copyright: see below
 
 // This is a program to parse regular expressions. The grammar I'm using is:
 //
-//      <regexp> ::= <alternative> | <alternative>|<regexp>
+//      <regex> ::= <alternative> | <alternative>|<regex>
 //
 //      <alternative> ::= <quantified-atom> | <quantified-atom><alternative>
 //
@@ -42,7 +42,7 @@ copyright: see below
 //
 //      <atom> ::= <subpattern> | <extended-character>
 //
-//      <subpattern> ::= (<options> <regexp>)
+//      <subpattern> ::= (<options> <regex>)
 //
 //      <options> ::= ?: | ?P<name> | ?P=name | ?# | etc
 //
@@ -53,51 +53,51 @@ copyright: see below
 // expression component.  Match.dylan could go into an infinite loop
 // if given this.
 
-define abstract class <parsed-regexp> (<object>)
-end class <parsed-regexp>;
+define abstract class <parsed-regex> (<object>)
+end class <parsed-regex>;
 
-define class <mark> (<parsed-regexp>)
-  slot child :: <parsed-regexp>,  required-init-keyword: #"child";
+define class <mark> (<parsed-regex>)
+  slot child :: <parsed-regex>,  required-init-keyword: #"child";
   constant slot group-number :: <integer>, required-init-keyword: #"group";
 end class <mark>;
 
-// The root of the parsed regexp, i.e., this is what's returned by the parser.
-define class <regexp> (<mark>)
+// The root of the parsed regex, i.e., this is what's returned by the parser.
+define class <regex> (<mark>)
   // exported
-  constant slot regexp-pattern :: <string>,
+  constant slot regex-pattern :: <string>,
     required-init-keyword: pattern:;
   // exported
-  constant slot regexp-group-count :: <integer>,
+  constant slot regex-group-count :: <integer>,
     required-init-keyword: group-count:;
-  // internal.  This is only needed when making a <regexp-match> after
+  // internal.  This is only needed when making a <regex-match> after
   // a successful search.
   constant slot group-number-to-name :: <table>,
     required-init-keyword: group-number-to-name:;
-end class <regexp>;
+end class <regex>;
 
-define class <union> (<parsed-regexp>)          //    |
-  slot left  :: <parsed-regexp>, required-init-keyword: #"left";
-  slot right :: <parsed-regexp>, required-init-keyword: #"right";
+define class <union> (<parsed-regex>)          //    |
+  slot left  :: <parsed-regex>, required-init-keyword: #"left";
+  slot right :: <parsed-regex>, required-init-keyword: #"right";
 end class <union>;
 
-define class <alternative> (<parsed-regexp>)    // concatenation
-  slot left :: <parsed-regexp>,  required-init-keyword: #"left";
-  slot right :: <parsed-regexp>, required-init-keyword: #"right";
+define class <alternative> (<parsed-regex>)    // concatenation
+  slot left :: <parsed-regex>,  required-init-keyword: #"left";
+  slot right :: <parsed-regex>, required-init-keyword: #"right";
 end class <alternative>;
 
-define class <parsed-assertion> (<parsed-regexp>)
+define class <parsed-assertion> (<parsed-regex>)
   constant slot asserts :: <symbol>, required-init-keyword: #"assertion";
 end class <parsed-assertion>;
 
-define class <quantified-atom> (<parsed-regexp>)
-  slot atom :: <parsed-regexp>, required-init-keyword: #"atom";
+define class <quantified-atom> (<parsed-regex>)
+  slot atom :: <parsed-regex>, required-init-keyword: #"atom";
   constant slot min-matches :: <integer>, init-value: 0,
     init-keyword: #"min";
   constant slot max-matches :: false-or(<integer>), init-value: #f, 
     init-keyword: #"max";
 end class <quantified-atom>;
 
-define abstract class <parsed-atom> (<parsed-regexp>)
+define abstract class <parsed-atom> (<parsed-regex>)
 end class <parsed-atom>;
 
 define class <parsed-character> (<parsed-atom>)
@@ -117,21 +117,21 @@ define class <parsed-backreference> (<parsed-atom>)
 end class <parsed-backreference>;
 
 // Note: I'm pretty sure <simple-error> won't work in GD.  --cgay
-define class <regexp-error> (<simple-error>)
-end class <regexp-error>;
+define class <regex-error> (<simple-error>)
+end class <regex-error>;
 
-define class <illegal-regexp> (<regexp-error>)
-  constant slot regexp-pattern :: <string>, 
+define class <illegal-regex> (<regex-error>)
+  constant slot regex-pattern :: <string>, 
     required-init-keyword: #"pattern";
-end class <illegal-regexp>;
+end class <illegal-regex>;
 
-define sealed domain make (singleton(<illegal-regexp>));
-define sealed domain initialize (<illegal-regexp>);
+define sealed domain make (singleton(<illegal-regex>));
+define sealed domain initialize (<illegal-regex>);
 
 define function parse-error
     (pattern :: <string>, format-string :: <string>, #rest format-args)
   let msg = apply(format-to-string, format-string, format-args);
-  signal(make(<illegal-regexp>,
+  signal(make(<illegal-regex>,
               format-string: "Invalid regular expression: %=.  %s",
               format-arguments: list(pattern, msg),
               pattern: pattern));
@@ -143,16 +143,16 @@ define function not-yet-implemented (thing, #rest format-args)
               else
                 thing
               end;
-  signal(make(<regexp-error>,
+  signal(make(<regex-error>,
               format-string: "The %s is not yet implemented.",
               format-arguments: list(thing)));
 end;
 
-// <parse-info> contains some information about the current regexp
+// <parse-info> contains some information about the current regex
 // being parsed.
 //
 define class <parse-info> (<object>)
-  // Whether or not the function includes \1, \2, etc in the regexp.
+  // Whether or not the function includes \1, \2, etc in the regex.
   // Name this has-backreferences, for consistency with the other slots.
   // Add ? to all the has-* slots.  --cgay
   // Also, not sure why anyone cares about these three things.
@@ -184,36 +184,29 @@ end function make-parse-info;
 
 define method has-named-group?
     (info :: <parse-info>, name :: <string>)
-  block (return)
-    for (group-name in info.group-number-to-name)
-      if (name = group-name)
-        return(#t)
-      end;
-    end;
-    #f
-  end;
+  member?(name, info.group-number-to-name, test: \=)
 end;
 
 define method parse
-    (regexp :: <string>, parse-info :: <parse-info>)
- => (parsed-regexp :: <parsed-regexp>,
+    (regex :: <string>, parse-info :: <parse-info>)
+ => (parsed-regex :: <parsed-regex>,
      last-group :: <integer>,
      backrefs? :: <boolean>,
      alternatives? :: <boolean>, 
      quantifiers? :: <boolean>)
-  let parse-string = make(<parse-string>, string: regexp);
-  let child = parse-regexp(parse-string, parse-info);
-  let parse-tree = make(<regexp>,
-                        pattern: regexp,
+  let parse-string = make(<parse-string>, string: regex);
+  let child = parse-regex(parse-string, parse-info);
+  let parse-tree = make(<regex>,
+                        pattern: regex,
                         group: 0,
                         group-count: parse-info.current-group-number + 1,
                         group-number-to-name: parse-info.group-number-to-name,
 			child: child);
-  let optimized-regexp = optimize(parse-tree);
-  if (optimized-regexp.pathological?)
-    parse-error(regexp, "A subpattern that matches the empty string was quantified.");
+  let optimized-regex = optimize(parse-tree);
+  if (optimized-regex.pathological?)
+    parse-error(regex, "A subpattern that matches the empty string was quantified.");
   else
-    values(optimized-regexp,
+    values(optimized-regex,
 	   parse-info.current-group-number,
 	   parse-info.backreference-used,
 	   parse-info.has-alternatives,
@@ -221,22 +214,22 @@ define method parse
   end if;
 end method parse;
 
-define method parse-regexp (s :: <parse-string>, info :: <parse-info>)
- => parsed-regexp :: <parsed-regexp>;
+define method parse-regex (s :: <parse-string>, info :: <parse-info>)
+ => parsed-regex :: <parsed-regex>;
   let alternative = parse-alternative(s, info);
   if (~alternative)
     parse-error(s.parse-string, "");
   elseif (lookahead(s) = '|')
     info.has-alternatives := #t;
-    make(<union>, left: alternative, right: parse-regexp(consume(s), info));
+    make(<union>, left: alternative, right: parse-regex(consume(s), info));
   else
     alternative;
   end if;
-end method parse-regexp;
+end method parse-regex;
 
 define method parse-alternative
     (s :: <parse-string>, info :: <parse-info>)
- => (re :: false-or(<parsed-regexp>))
+ => (re :: false-or(<parsed-regex>))
   let term = parse-quantified-atom(s, info);
   if (member?(lookahead(s), #(#f, '|', ')')))
     term;
@@ -246,7 +239,7 @@ define method parse-alternative
 end method parse-alternative;
 
 define method parse-quantified-atom (s :: <parse-string>, info :: <parse-info>)
- => (result :: false-or(<parsed-regexp>))
+ => (result :: false-or(<parsed-regex>))
   // I think this breaks when parse-atom returns #f and then we quantify that.
   // I added some regexes to regression-tests.txt starting with /a()b/ that I
   // hope will exercise that case.  --cgay
@@ -281,7 +274,7 @@ end method parse-quantified-atom;
 // {m,n}, {m,}, {,n}, {m}, {}, and {,} are all valid.
 // m defaults to 0 and n defaults to #f (unlimited).
 define method parse-minmax-quantifier
-    (atom :: <parsed-regexp>, s :: <parse-string>) => (qatom :: <quantified-atom>)
+    (atom :: <parsed-regex>, s :: <parse-string>) => (qatom :: <quantified-atom>)
   local method parse-integer () => (int :: false-or(<integer>))
           let digits = make(<deque>);
           while (lookahead(s) & digit?(lookahead(s)))
@@ -308,7 +301,7 @@ define method parse-minmax-quantifier
 end method parse-minmax-quantifier;
 
 define method parse-atom (s :: <parse-string>, info :: <parse-info>)
- => (regexp :: false-or(<parsed-regexp>))
+ => (regex :: false-or(<parsed-regex>))
   let char = lookahead(s);
   select (char)
     '(' =>
@@ -359,7 +352,7 @@ end method parse-atom;
 //
 define inline function parse-group
     (str :: <parse-string>, info :: <parse-info>)
- => (mark :: false-or(<parsed-regexp>))
+ => (mark :: false-or(<parsed-regex>))
   let char = lookahead(str);
   if (char == '?')
     consume(str);
@@ -373,7 +366,7 @@ end function parse-group;
 //
 define inline function parse-extended-group
     (str :: <parse-string>, info :: <parse-info>)
- => (mark :: false-or(<parsed-regexp>))
+ => (mark :: false-or(<parsed-regex>))
   let char = lookahead(str);
   consume(str);
   select (char)
@@ -398,18 +391,18 @@ define inline function parse-extended-group
         consume(str);
       end;
       if (~ lookahead(str))
-        parse-error(str.parse-string, "Unterminated (?# comment.");
+        parse-error(str.parse-string, "Unterminated subpattern commend (?#....");
       else
         #f
       end;
 
     otherwise =>
       // See the Python re docs for what all these do.
-      if (member?(char, "iLmsux#=!<("))
-        not-yet-implemented("'(?%c' subpattern construct", lookahead(str));
+      if (member?(char, "iLmsux=!<("))
+        not-yet-implemented("'(?%c' subpattern construct", char);
       else
-        parse-error(str.parse-string, "Invalid (? construct at index %s.",
-                    str.parse-index);
+        parse-error(str.parse-string, "Invalid subpattern construct (?%c...) at index %s.",
+                    char, str.parse-index);
       end;
   end select
 end function parse-extended-group;
@@ -440,18 +433,18 @@ define inline function parse-simple-group
      info :: <parse-info>,
      save-group? :: <boolean>,
      group-name :: false-or(<string>))
- => (mark :: false-or(<parsed-regexp>))
+ => (mark :: false-or(<parsed-regex>))
   if (save-group?)
     info.current-group-number := info.current-group-number + 1;
   end;
-  let regexp = parse-regexp(str, info);
+  let regex = parse-regex(str, info);
   if (lookahead(str) ~== ')')
-    parse-error(str.parse-string, "Unbalanced parens in regexp (index = %s).",
+    parse-error(str.parse-string, "Unbalanced parens in regex (index = %s).",
                 str.parse-index);
   else
     consume(str);
     if (~ save-group?)
-      regexp
+      regex
     else
       if (group-name)
         if (has-named-group?(info, group-name))
@@ -462,7 +455,7 @@ define inline function parse-simple-group
           info.group-number-to-name[info.current-group-number] := group-name;
         end;
       end;
-      make(<mark>, child: regexp, group: info.current-group-number)
+      make(<mark>, child: regex, group: info.current-group-number)
     end
   end
 end function parse-simple-group;
@@ -544,7 +537,7 @@ define constant dot-star = make(<quantified-atom>, min: 0, max: #f,
 //
 define method parse-escaped-character 
     (s :: <parse-string>, info :: <parse-info>)
- => parsed-regexp :: <parsed-regexp>;
+ => parsed-regex :: <parsed-regex>;
   let next-char = lookahead(s);
   if (~next-char)
     parse-error(s.parse-string,
@@ -583,36 +576,36 @@ define method parse-escaped-character
   end select;
 end method parse-escaped-character;
 
-define method is-anchored? (regexp :: <parsed-regexp>)
+define method is-anchored? (regex :: <parsed-regex>)
  => (result :: <boolean>);
-  select (regexp by instance?)
-    <mark> => is-anchored?(regexp.child);
-    <alternative> => is-anchored?(regexp.left);
-    <parsed-assertion> => regexp.asserts == #"beginning-of-string";
+  select (regex by instance?)
+    <mark> => is-anchored?(regex.child);
+    <alternative> => is-anchored?(regex.left);
+    <parsed-assertion> => regex.asserts == #"beginning-of-string";
     otherwise => #f;
   end select;
 end method is-anchored?;
 
-define method initial-substring (regexp :: <parsed-regexp>)
+define method initial-substring (regex :: <parsed-regex>)
  => (result :: <string>);
   let result = make(<deque>);
-  local method init (regexp :: <parsed-regexp>, result :: <deque>)
-	  select (regexp by instance?)
+  local method init (regex :: <parsed-regex>, result :: <deque>)
+	  select (regex by instance?)
 	    <alternative> =>
-	      init(regexp.left, result) & init(regexp.right, result);
+	      init(regex.left, result) & init(regex.right, result);
 	    <parsed-character> =>
-	      push-last(result, regexp.character);
+	      push-last(result, regex.character);
 	    <parsed-string> =>
-	      for (ch in regexp.string) push-last(result, ch) end for;
+	      for (ch in regex.string) push-last(result, ch) end for;
 	    <mark> =>
-	      init(regexp.child, result);
+	      init(regex.child, result);
 	    <parsed-assertion> =>
 	      #t;
 	    otherwise =>
 	      #f;
 	  end select;
 	end method init;
-  init(regexp, result);
+  init(regex, result);
   as(<byte-string>, result);
 end method initial-substring;
 
@@ -620,17 +613,17 @@ end method initial-substring;
 // Currently the only optimization is merging adjacent characters into
 // a string.
 //
-define method optimize (regexp :: <parsed-regexp>)
- => (regexp :: <parsed-regexp>);
-  select (regexp by instance?)
+define method optimize (regex :: <parsed-regex>)
+ => (regex :: <parsed-regex>);
+  select (regex by instance?)
     <mark> =>
-      regexp.child := optimize(regexp.child);
-      regexp;
+      regex.child := optimize(regex.child);
+      regex;
     <alternative> =>
-      if (instance?(regexp.left, <parsed-character>))
+      if (instance?(regex.left, <parsed-character>))
 	let result-str = make(<deque>);
-	push-last(result-str, regexp.left.character);
-	for (next = regexp.right then next.right,
+	push-last(result-str, regex.left.character);
+	for (next = regex.right then next.right,
 	     while: (instance?(next, <alternative>)
 		       & instance?(next.left, <parsed-character>)))
 	  push-last(result-str, next.left.character)
@@ -639,8 +632,8 @@ define method optimize (regexp :: <parsed-regexp>)
 	    push-last(result-str, next.character);
 	    make(<parsed-string>, string: as(<string>, result-str));
 	  elseif (result-str.size = 1)
-	    regexp.right := optimize(regexp.right);
-	    regexp;
+	    regex.right := optimize(regex.right);
+	    regex;
 	  else
 	    make(<alternative>,
 		 left: make(<parsed-string>, string: as(<string>, result-str)),
@@ -648,36 +641,36 @@ define method optimize (regexp :: <parsed-regexp>)
 	  end if;
 	end for;
       else
-	regexp.left := optimize(regexp.left);
-	regexp.right := optimize(regexp.right);
-	regexp;
+	regex.left := optimize(regex.left);
+	regex.right := optimize(regex.right);
+	regex;
       end if;
     <union> =>
-      regexp.left := optimize(regexp.left);
-      regexp.right := optimize(regexp.right);
-      regexp;
+      regex.left := optimize(regex.left);
+      regex.right := optimize(regex.right);
+      regex;
     <quantified-atom> =>
-      regexp.atom := optimize(regexp.atom);
-      regexp;
+      regex.atom := optimize(regex.atom);
+      regex;
     otherwise =>
-      regexp;
+      regex;
   end select;
 end method optimize;
 
 // We have to somehow deal with pathological regular expressions like
 // ".**".  Perl simply signals an error in this case.  We *could* in
-// fact match these pathological regexps using the formulation below,
+// fact match these pathological regexs using the formulation below,
 // but it doesn't seem worth the trouble.  Frankly, I doubt anyone has
-// ever tried to use such a pathological regexp and *not* have done it
+// ever tried to use such a pathological regex and *not* have done it
 // by mistake.  But in case I'm wrong, here's how to fix a
-// pathological regexp:
+// pathological regex:
 //
-// First, realize that pathological regexps stem from infinitely
+// First, realize that pathological regexs stem from infinitely
 // quantifying subpatterns that could match the empty string.  So what
 // we do is find this subpattern, and perform the following
 // transformation:
 //
-//  case (type of regexp)
+//  case (type of regex)
 //    r1r2 => r1'r2|r2'
 //    r1|r2 => r1'|r2'
 //    r1{0,n} => r1'{1,n}
@@ -685,90 +678,90 @@ end method optimize;
 //    atom => atom
 //    assertion => can't be done
 //
-// This transformation turns a might-match-emptystring regexp into a
-// regexp that matches the same set of strings minus the empty string.
+// This transformation turns a might-match-emptystring regex into a
+// regex that matches the same set of strings minus the empty string.
 // If this transformation can't be done, remember that "$*" is
 // equivalent to "always true and consumes no input".
 
 
-define generic matches-empty-string? (regexp :: <parsed-regexp>)
+define generic matches-empty-string? (regex :: <parsed-regex>)
  => answer :: <boolean>;
 
-define method matches-empty-string? (regexp :: <parsed-atom>)
+define method matches-empty-string? (regex :: <parsed-atom>)
  => answer :: <boolean>;
   #f;
 end method matches-empty-string?;
 
-define method matches-empty-string? (regexp :: <parsed-assertion>)
+define method matches-empty-string? (regex :: <parsed-assertion>)
  => answer :: <boolean>;
   #t;
 end method matches-empty-string?;
 
-define method matches-empty-string? (regexp :: <mark>)
+define method matches-empty-string? (regex :: <mark>)
  => answer :: <boolean>;
-  regexp.child.matches-empty-string?;
+  regex.child.matches-empty-string?;
 end method matches-empty-string?;
 
-define method matches-empty-string? (regexp :: <union>)
+define method matches-empty-string? (regex :: <union>)
  => answer :: <boolean>;
-  regexp.left.matches-empty-string? | regexp.right.matches-empty-string?;
+  regex.left.matches-empty-string? | regex.right.matches-empty-string?;
 end method matches-empty-string?;
 
-define method matches-empty-string? (regexp :: <alternative>)
+define method matches-empty-string? (regex :: <alternative>)
  => answer :: <boolean>;
-  regexp.left.matches-empty-string? & regexp.right.matches-empty-string?;
+  regex.left.matches-empty-string? & regex.right.matches-empty-string?;
 end method matches-empty-string?;
 
-define method matches-empty-string? (regexp :: <quantified-atom>)
+define method matches-empty-string? (regex :: <quantified-atom>)
  => answer :: <boolean>;
-   regexp.min-matches == 0 | regexp.atom.matches-empty-string?;
+   regex.min-matches == 0 | regex.atom.matches-empty-string?;
 end method matches-empty-string?;
 
 
-define generic pathological? (regexp :: <parsed-regexp>)
+define generic pathological? (regex :: <parsed-regex>)
  => answer :: <boolean>;
 
-define method pathological? (regexp :: <parsed-atom>)
+define method pathological? (regex :: <parsed-atom>)
  => answer :: <boolean>;
   #f;
 end method pathological?;
 
-define method pathological? (regexp :: <parsed-assertion>)
+define method pathological? (regex :: <parsed-assertion>)
  => answer :: <boolean>;
   #f;
 end method pathological?;
 
-define method pathological? (regexp :: <mark>)
+define method pathological? (regex :: <mark>)
  => answer :: <boolean>;
-  regexp.child.pathological?;
+  regex.child.pathological?;
 end method pathological?;
 
-define method pathological? (regexp :: <union>)
+define method pathological? (regex :: <union>)
  => answer :: <boolean>;
-  regexp.left.pathological? | regexp.right.pathological?;
+  regex.left.pathological? | regex.right.pathological?;
 end method pathological?;
 
-define method pathological? (regexp :: <alternative>)
+define method pathological? (regex :: <alternative>)
  => answer :: <boolean>;
-  regexp.left.pathological? | regexp.right.pathological?;
+  regex.left.pathological? | regex.right.pathological?;
 end method pathological?;
 
-define method pathological? (regexp :: <quantified-atom>)
+define method pathological? (regex :: <quantified-atom>)
  => answer :: <boolean>;
-  regexp.max-matches == #f & regexp.atom.matches-empty-string?;
+  regex.max-matches == #f & regex.atom.matches-empty-string?;
 end method pathological?;
 
 // Seals for file parse.dylan
 
-// <mark> -- subclass of <parsed-regexp>
+// <mark> -- subclass of <parsed-regex>
 define sealed domain make(singleton(<mark>));
-// <union> -- subclass of <parsed-regexp>
+// <union> -- subclass of <parsed-regex>
 define sealed domain make(singleton(<union>));
-// <alternative> -- subclass of <parsed-regexp>
+// <alternative> -- subclass of <parsed-regex>
 define sealed domain make(singleton(<alternative>));
-// <parsed-assertion> -- subclass of <parsed-regexp>
+// <parsed-assertion> -- subclass of <parsed-regex>
 define sealed domain make(singleton(<parsed-assertion>));
-// <quantified-atom> -- subclass of <parsed-regexp>
+// <quantified-atom> -- subclass of <parsed-regex>
 define sealed domain make(singleton(<quantified-atom>));
 // <parsed-character> -- subclass of <parsed-atom>
 define sealed domain make(singleton(<parsed-character>));

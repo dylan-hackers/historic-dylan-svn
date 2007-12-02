@@ -1,9 +1,9 @@
-Module: new-api-test-suite
-Author: Carl Gay
+module: regular-expressions-test-suite
 
+//// Tests based on PCRE test output files
 
 // todo -- why does this fail to match anything if it has a leading space???
-define constant $group-regexp = compile-regexp("[0-9]: (.*)|No match");
+define constant $group-regex = compile-regex("[0-9]: (.*)|No match");
 define constant $group-index-of-what-pcre-matched = 1;
 
 define function run-pcre-checks
@@ -20,7 +20,7 @@ define function run-pcre-checks
         // Some multi-line regular expression patterns have empty lines and we
         // don't want to think that's the end of the section.
         if (lines.size > 0
-              & regexp-search(lines[lines.size - 1], $group-regexp))
+              & regex-search(lines[lines.size - 1], $group-regex))
           check-pcre-section(make(<section>,
                                   lines: lines,
                                   start-line-number: line-number - lines.size));
@@ -56,10 +56,12 @@ define method consume-line
   end
 end method consume-line;
 
+/* Was going to be used for better check names.
 define method line-number
     (section :: <section>) => (line-number :: <integer>)
   section.start-line-number + section.%index
 end method line-number;
+*/
 
 define method peek-line
     (section :: <section>) => (line :: false-or(<string>))
@@ -78,7 +80,7 @@ end method peek-line;
 */
 define function check-pcre-section
     (section :: <section>)
-  let regexp = parse-pcre-regexp(section);
+  let regex = parse-pcre-regex(section);
   // If the section has fewer than 3 lines (a regex, a test string and at least
   // one group result) then all we do is try to compile it (above).
   if (section.section-lines.size >= 3)
@@ -89,15 +91,15 @@ define function check-pcre-section
       block (done-with-this-test-string)
         while (#t)
           let line = peek-line(section);
-          let match = line & regexp-search(line, $group-regexp);
+          let match = line & regex-search(line, $group-regex);
           if (match)
             consume-line(section);
-            let group-text = regexp-match-group(match, $group-index-of-what-pcre-matched);
+            let group-text = match-group(match, $group-index-of-what-pcre-matched);
             //test-output("   pcre group: %s\n", group-text | "No match");
             if (group-text)
               add!(group-strings, group-text);
             else
-              assert(regexp-match-group(match, 0) = "No match",
+              assert(match-group(match, 0) = "No match",
                      "previous line was 'No match'");
               done-with-this-test-string();
             end;
@@ -106,26 +108,26 @@ define function check-pcre-section
           end;
         end;
       end;
-      if (regexp)
+      if (regex)
         check-no-errors(format-to-string("search for %s in %s",
-                                         test-string, regexp.regexp-pattern),
-                        regexp-search(test-string, regexp));
+                                         test-string, regex.regex-pattern),
+                        regex-search(test-string, regex));
         let match = block ()
-                      regexp-search(test-string, regexp)
+                      regex-search(test-string, regex)
                     exception (ex :: <error>)
                       #f
                     end;
         if (match)
-          compare-to-pcre-results(regexp.regexp-pattern, test-string, match, group-strings);
+          compare-to-pcre-results(regex.regex-pattern, test-string, match, group-strings);
         end;
       end if;
     end while;
   end if;
 end function check-pcre-section;
 
-define function parse-pcre-regexp
+define function parse-pcre-regex
     (section :: <section>)
- => (regexp :: false-or(<regexp>))
+ => (regex :: false-or(<regex>))
   local method find-last (string, char)
           // position(string, char, from-end: #t)
           block (break)
@@ -138,8 +140,8 @@ define function parse-pcre-regexp
         end method find-last;
   // This is imprecise.  If the pattern spans multiple lines this will fail
   // if any but the first and last lines contain the regex delimiter character.
-  // Might be nice to add a function to the regexp module to parse aread a perl
-  // style regexp from a stream.
+  // Might be nice to add a function to the regular-expressions module to read
+  // a perl regexp from a stream.
   local method read-pattern-and-flags ()
           let pnf = consume-line(section);
           let delim = pnf[0];
@@ -165,44 +167,44 @@ define function parse-pcre-regexp
                member?(flag, "ixms"));
   end for;
   block ()
-    compile-regexp(pattern,
-                   case-sensitive: ~ member?('i', flags),
-                   verbose: member?('x', flags),
-                   multi-line: member?('m', flags),
-                   dot-matches-all: member?('s', flags))
-  // Unfortunately we can't catch <regexp-error> here because the charset
+    compile-regex(pattern,
+                  case-sensitive: ~ member?('i', flags),
+                  verbose: member?('x', flags),
+                  multi-line: member?('m', flags),
+                  dot-matches-all: member?('s', flags))
+  // Unfortunately we can't catch <regex-error> here because the charset
   // parser is in string-extensions and signals <invalid-character-set-description>
-  // which isn't related to <regexp-error> (and isn't even exported).
+  // which isn't related to <regex-error> (and isn't even exported).
   exception (ex :: <error>)
     check-true(format-to-string("can compile regex %s", pattern), #f);
     //test-output("  ERROR: %s\n", ex);
     #f
   end block
-end function parse-pcre-regexp;
+end function parse-pcre-regex;
   
 /*
  * pcre-groups is a sequence of strings where the nth element represents
- * the nth group in the pcre regexp match.  If pcre-groups is empty then
+ * the nth group in the pcre regex match.  If pcre-groups is empty then
  * there was no match.
  */
 define function compare-to-pcre-results
     (pattern :: <string>,
      test-string :: <string>,
-     match :: false-or(<regexp-match>),
+     match :: false-or(<regex-match>),
      pcre-groups :: <sequence>)
  => ()
   if (match)
     check-equal(format-to-string("Match %s against %s -- same # of groups",
                                  test-string, pattern),
-                size(regexp-match-groups(match)),
+                size(match-groups(match)),
                 pcre-groups.size);
     for (group-number from 0,
          pcre-group in pcre-groups)
       // Adding block/exception here causes an infinite loop.
       // Could it be related to using the Visual Studio 8 linker?
       // The if also causes an infinite loop.  Hmmm.
-      let our-group = /* if (group-number < size(regexp-match-groups(match))) */
-                        regexp-match-group(match, group-number)
+      let our-group = /* if (group-number < size(match-groups(match))) */
+                        match-group(match, group-number)
                       /* end */;
       check-equal(format-to-string("Match %s against %s -- group %d is the same",
                                    test-string, pattern, group-number),
@@ -217,24 +219,20 @@ define function compare-to-pcre-results
   end if;
 end function compare-to-pcre-results;
 
-define test pcre-test ()
+define function make-pcre-locator
+    (filename :: <string>) => (locator :: <file-locator>)
   let source-directory = environment-variable("OPEN_DYLAN_USER_SOURCES");
   if (source-directory)
     let dir = subdirectory-locator(as(<directory-locator>, source-directory),
                                    "libraries",
                                    "regular-expressions",
                                    "tests");
-    for (filename in #("pcre-testoutput1.txt", "regression-tests.txt"))
-      run-pcre-checks(make(<file-locator>, directory: dir, name: filename));
-    end;
+    make(<file-locator>, directory: dir, name: filename)
   else
     signal(make(<simple-error>,
                 format-string: "pcre-test requires the OPEN_DYLAN_USER_SOURCES environment "
                                "variable to be set to the root of your Dylan sources."));
-  end;
-end test pcre-test;
+  end
+end function make-pcre-locator;
 
-define suite new-api-test-suite ()
-  test pcre-test;
-end suite new-api-test-suite;
 

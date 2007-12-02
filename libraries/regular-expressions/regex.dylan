@@ -1,4 +1,4 @@
-Module: regular-expressions-impl
+Module: regular-expressions
 Author: Carl Gay
 Synopsis: A new API for the regular-expressions library
 
@@ -7,7 +7,7 @@ Synopsis: A new API for the regular-expressions library
 
 
 
-define constant <invalid-regexp> = <illegal-regexp>;
+define constant <invalid-regex> = <illegal-regex>;
 
 
 // Compile the given string into an optimized regular expression.
@@ -26,77 +26,77 @@ define constant <invalid-regexp> = <illegal-regexp>;
 // @param dot-matches-all -- Normally '.' matches any character except for
 //   newline.  If this parameter is true '.' matches newline as well.
 //
-// This function signals <invalid-regexp> if the regular expression is invalid.
+// This function signals <invalid-regex> if the regular expression is invalid.
 //
-define sealed generic compile-regexp
+define sealed generic compile-regex
     (string :: <string>,
      #key case-sensitive  :: <boolean> = #t,
           verbose         :: <boolean> = #f,
           multi-line      :: <boolean> = #f,
           dot-matches-all :: <boolean> = #f)
- => (regexp :: <regexp>);
+ => (regex :: <regex>);
 
-define method compile-regexp
+define method compile-regex
     (string :: <string>,
      #key case-sensitive  :: <boolean> = #t,
           verbose         :: <boolean> = #f,
           multi-line      :: <boolean> = #f,
           dot-matches-all :: <boolean> = #f)
- => (regexp :: <regexp>)
+ => (regex :: <regex>)
   parse(string,
         make-parse-info(case-sensitive: case-sensitive,
                         verbose: verbose,
                         multi-line: multi-line,
                         dot-matches-all: dot-matches-all))
-end method compile-regexp;
+end method compile-regex;
 
 
-// Returns a <regexp-match> containing info about a successful match, or #f if
+// Returns a <regex-match> containing info about a successful match, or #f if
 // no match was found.
 //
 // @param big -- The string in which to search.
-// @param pattern -- The pattern to search for.  If not a <regexp>, it will be
-//   compiled first with compile-regexp (implying that <invalid-regexp> may be
+// @param pattern -- The pattern to search for.  If not a <regex>, it will be
+//   compiled first with compile-regex (implying that <invalid-regex> may be
 //   signalled), using the defaults for the keyword arguments.  If you wish
-//   to override them, call compile-regexp directly.
+//   to override them, call compile-regex directly.
 // @param anchored -- Whether or not the search should be anchored at the start
 //   position.  This is useful because "^..." will only match at the beginning
-//   of a string, or after \n if the regexp was compiled with multi-line = #t.
+//   of a string, or after \n if the regex was compiled with multi-line = #t.
 // @param start -- Where to begin the search.
 // @param end -- Where to stop searching.
 //
 // todo -- Should $ anchor at the provided end position or at the end of the string?
 //
-define sealed generic regexp-search
+define sealed generic regex-search
     (big :: <string>, pattern :: <object>,
      #key anchored  :: <boolean> = #f,
           start     :: <integer> = 0,
           end: _end :: <integer> = big.size)
- => (match :: false-or(<regexp-match>));
+ => (match :: false-or(<regex-match>));
 
-define method regexp-search
+define method regex-search
     (big :: <string>, pattern :: <string>,
      #key anchored  :: <boolean> = #f,
           start     :: <integer> = 0,
           end: _end :: <integer> = big.size)
- => (match :: false-or(<regexp-match>))
-  regexp-search(big, compile-regexp(pattern),
+ => (match :: false-or(<regex-match>))
+  regex-search(big, compile-regex(pattern),
                 anchored: anchored, start: start, end: _end)
-end method regexp-search;
+end method regex-search;
 
-define method regexp-search
-    (big :: <string>, pattern :: <regexp>,
+define method regex-search
+    (big :: <string>, pattern :: <regex>,
      #key anchored :: <boolean> = #f,
           start    :: <integer> = 0,
           end: _end :: <integer> = big.size)
- => (match :: false-or(<regexp-match>))
-  // Copied from regexp-position with some mods to match our interface.
-  // Unlike regexp-position there is no caching.  If you don't want to
-  // recompile your regexp each time, compile it explicitly with compile-regexp
+ => (match :: false-or(<regex-match>))
+  // Copied from regex-position with some mods to match our interface.
+  // Unlike regex-position there is no caching.  If you don't want to
+  // recompile your regex each time, compile it explicitly with compile-regex
   // and save it.
   let substring = make(<substring>, string: big, start: start, end: _end);
   let case-sensitive? = #t;
-  let num-groups = pattern.regexp-group-count;
+  let num-groups = pattern.regex-group-count;
   let (matched?, marks)
     = if (pattern.is-anchored?)
         anchored-match-root?(pattern, substring, case-sensitive?, num-groups, #f);
@@ -107,7 +107,7 @@ define method regexp-search
         match-root?(pattern, substring, case-sensitive?, num-groups, searcher);
       end if;
   if (matched?)
-    let regexp-match = make(<regexp-match>, regular-expression: pattern);
+    let regex-match = make(<regex-match>, regular-expression: pattern);
     let group-number-to-name :: <table> = pattern.group-number-to-name;
     for (index from 0 below marks.size by 2)
       let group-number = floor/(index, 2);
@@ -120,35 +120,27 @@ define method regexp-search
         let text = copy-sequence(substring.entire-string,
                                  start: substring.start-index + bpos,
                                  end: substring.start-index + epos);
-        add-group(regexp-match,
+        add-group(regex-match,
                   make(<match-group>, text: text, start: bpos, end: epos),
                   group-name);
       else
         // This group wasn't matched.
-        add-group(regexp-match, #f, group-name);
+        add-group(regex-match, #f, group-name);
       end;
     end;
-    regexp-match
+    regex-match
   else
     #f
   end
-end method regexp-search;
-
-// This has methods for group :: <string> and group :: <integer>.
-// Group zero is always the entire match.
-define sealed generic regexp-match-group
-    (match :: <regexp-match>, group :: <object>)
- => (text :: false-or(<string>),
-     start-index :: false-or(<integer>),
-     end-index :: false-or(<integer>));
+end method regex-search;
 
 // Get the groups for the match.  There will always be at least one; the entire match.
 //
-define sealed generic regexp-match-groups
-    (match :: <regexp-match>) => (groups :: <sequence>);
+define sealed generic match-groups
+    (match :: <regex-match>) => (groups :: <sequence>);
 
-define method regexp-match-groups
-    (match :: <regexp-match>) => (groups :: <sequence>)
+define method match-groups
+    (match :: <regex-match>) => (groups :: <sequence>)
   map-as(<simple-object-vector>, identity, match.groups-by-position)
 end;
 
@@ -161,20 +153,20 @@ define sealed class <match-group> (<object>)
     required-init-keyword: end:;
 end class <match-group>;
 
-define sealed class <regexp-match> (<object>)
+define sealed class <regex-match> (<object>)
   // Groups by position.  Zero is the entire match.
   constant slot groups-by-position :: <stretchy-vector> = make(<stretchy-vector>);
   // Named groups, if any.  Initial size 0 on the assumption that most regular
   // expressions won't use named groups.
   constant slot groups-by-name :: <string-table> = make(<string-table>, size: 0);
-  constant slot regular-expression :: <regexp>, required-init-keyword: regular-expression:;
-end class <regexp-match>;
+  constant slot regular-expression :: <regex>, required-init-keyword: regular-expression:;
+end class <regex-match>;
 
 define method add-group
-    (match :: <regexp-match>,
+    (match :: <regex-match>,
      group :: false-or(<match-group>),
      name :: false-or(<string>))
- => (match :: <regexp-match>)
+ => (match :: <regex-match>)
   add!(match.groups-by-position, group);
   if (name)
     match.groups-by-name[name] := group;
@@ -182,11 +174,19 @@ define method add-group
   match
 end;
 
-define sealed class <invalid-match-group> (<regexp-error>)
+define sealed class <invalid-match-group> (<regex-error>)
 end class <invalid-match-group>;
 
-define method regexp-match-group
-    (match :: <regexp-match>, group-number :: <integer>)
+// This has methods for group :: <string> and group :: <integer>.
+// Group zero is always the entire match.
+define sealed generic match-group
+    (match :: <regex-match>, group :: <object>)
+ => (text :: false-or(<string>),
+     start-index :: false-or(<integer>),
+     end-index :: false-or(<integer>));
+
+define method match-group
+    (match :: <regex-match>, group-number :: <integer>)
  => (text :: false-or(<string>),
      start-index :: false-or(<integer>),
      end-index :: false-or(<integer>))
@@ -202,17 +202,17 @@ define method regexp-match-group
     signal(make(<invalid-match-group>,
                 format-string: "Group number %d is out of bounds for regex %s match.  %s",
                 format-arguments: list(group-number,
-                                       match.regular-expression.regexp-pattern,
+                                       match.regular-expression.regex-pattern,
                                        if (ng == 1)
                                          "There is only 1 group."
                                        else
                                          format-to-string("There are %d groups.", ng)
                                        end)));
   end;
-end method regexp-match-group;
+end method match-group;
 
-define method regexp-match-group
-    (match :: <regexp-match>, group :: <string>)
+define method match-group
+    (match :: <regex-match>, group :: <string>)
  => (text :: false-or(<string>),
      start-index :: false-or(<integer>),
      end-index :: false-or(<integer>))
@@ -224,4 +224,4 @@ define method regexp-match-group
                 format-string: "There is no group named %=.",
                 format-arguments: list(group)));
   end
-end method regexp-match-group;
+end method match-group;
