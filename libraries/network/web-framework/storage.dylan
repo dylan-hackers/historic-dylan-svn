@@ -199,28 +199,25 @@ define method restore-newest (directory :: <string>) => ()
   end;
 end;
 
-define variable *dump?* = #f;
+define constant $dump? = make(<lock>);
+define constant $dump-notification
+  = make(<notification>, lock: $dump?);
 
 define function query-dump ()
-  *dump?* := #t;
+  with-lock($dump?)
+    release($dump-notification);
+  end;
 end;
 
 define function do-dump ()
   make(<thread>,
        function: method()
-                     sleep(4);
-                     let i :: <integer> = 0;
                      while(#t)
-                       if (i > 60)
-                         *dump?* := #t;
-                         i := 0;
+                       with-lock($dump?)
+                         wait-for($dump-notification)
                        end;
-                       if (*dump?*)
-                         dump-data();
-                         *dump?* := #f;
-                       end;
-                       i := i + 1;
-                       sleep(60);
+                       dump-data();
+                       sleep(10); //maximal dump every 10 seconds
                      end
                  end);
 end;
