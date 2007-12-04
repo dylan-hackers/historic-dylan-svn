@@ -176,6 +176,7 @@ define method restore (directory :: <string>, filename :: <string>) => ()
     *storage* := storage-root.hash-table;
     *version* := storage-root.table-version;
   end;
+  format-out("Restored %= %=\n", directory, filename);
   for (class in key-sequence(*storage*))
     setup(class);
   end for;
@@ -196,6 +197,32 @@ define method restore-newest (directory :: <string>) => ()
   if (file)
     restore(directory, file);
   end;
+end;
+
+define variable *dump?* = #f;
+
+define function query-dump ()
+  *dump?* := #t;
+end;
+
+define function do-dump ()
+  make(<thread>,
+       function: method()
+                     sleep(4);
+                     let i :: <integer> = 0;
+                     while(#t)
+                       if (i > 60)
+                         *dump?* := #t;
+                         i := 0;
+                       end;
+                       if (*dump?*)
+                         dump-data();
+                         *dump?* := #f;
+                       end;
+                       i := i + 1;
+                       sleep(60);
+                     end
+                 end);
 end;
 
 define function dumper (#key interval :: <integer> = 300, do-something :: false-or(<function>) = #f) => ()

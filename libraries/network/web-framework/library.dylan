@@ -43,6 +43,8 @@ define module storage
     \storage-class-definer,
     dump-data,
     dumper,
+    query-dump,
+    do-dump,
     save,
     setup,
     restore,
