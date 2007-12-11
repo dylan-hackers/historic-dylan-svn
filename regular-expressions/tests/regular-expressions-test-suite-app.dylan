@@ -1,3 +1,9 @@
 Module: regular-expressions-test-suite-app
 
-run-test-application(regular-expressions-test-suite);
+define function main
+    () => ()
+  run-test-application(regular-expressions-test-suite);
+end;
+
+main();
+

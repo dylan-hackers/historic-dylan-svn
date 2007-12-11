@@ -437,13 +437,13 @@ define method assertion-true? (assertion :: <symbol>, target :: <substring>,
     #"end-of-string"       => index >= target.end-index;
     #"word-boundary"       =>
       index = 0 | index >= target.end-index
-	| (member?(target.entire-string[index], word-chars) 
-	     ~== member?(target.entire-string[index - 1], word-chars));
+	| (member?(target.entire-string[index], $word-chars) 
+	     ~== member?(target.entire-string[index - 1], $word-chars));
 
     #"not-word-boundary"   =>
       index ~== 0 & index < target.end-index
-	& (member?(target.entire-string[index], word-chars)
-	     == member?(target.entire-string[index - 1], word-chars));
+	& (member?(target.entire-string[index], $word-chars)
+	     == member?(target.entire-string[index - 1], $word-chars));
 
     otherwise              => 
       error("Unknown assertion %=", assertion);
