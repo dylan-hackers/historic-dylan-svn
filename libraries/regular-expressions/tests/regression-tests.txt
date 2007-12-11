@@ -20,6 +20,18 @@ No match
     b]b
 No match
 
+/./
+    a
+ 0: a
+    \n
+No match
+
+/./s
+    a
+ 0: a
+    \n
+ 0: \n
+
 /a()b/
 
 /a()+b/

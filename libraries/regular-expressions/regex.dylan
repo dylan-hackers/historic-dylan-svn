@@ -29,7 +29,7 @@ define constant <invalid-regex> = <illegal-regex>;
 // This function signals <invalid-regex> if the regular expression is invalid.
 //
 define sealed generic compile-regex
-    (string :: <string>,
+    (pattern :: <string>,
      #key case-sensitive  :: <boolean> = #t,
           verbose         :: <boolean> = #f,
           multi-line      :: <boolean> = #f,
@@ -37,13 +37,13 @@ define sealed generic compile-regex
  => (regex :: <regex>);
 
 define method compile-regex
-    (string :: <string>,
+    (pattern :: <string>,
      #key case-sensitive  :: <boolean> = #t,
           verbose         :: <boolean> = #f,
           multi-line      :: <boolean> = #f,
           dot-matches-all :: <boolean> = #f)
  => (regex :: <regex>)
-  parse(string,
+  parse(pattern,
         make-parse-info(case-sensitive: case-sensitive,
                         verbose: verbose,
                         multi-line: multi-line,
@@ -68,33 +68,33 @@ end method compile-regex;
 // todo -- Should $ anchor at the provided end position or at the end of the string?
 //
 define sealed generic regex-search
-    (big :: <string>, pattern :: <object>,
+    (pattern :: <object>, string :: <string>,
      #key anchored  :: <boolean> = #f,
           start     :: <integer> = 0,
           end: _end :: <integer> = big.size)
  => (match :: false-or(<regex-match>));
 
 define method regex-search
-    (big :: <string>, pattern :: <string>,
+    (pattern :: <string>, string :: <string>,
      #key anchored  :: <boolean> = #f,
           start     :: <integer> = 0,
-          end: _end :: <integer> = big.size)
+          end: _end :: <integer> = string.size)
  => (match :: false-or(<regex-match>))
-  regex-search(big, compile-regex(pattern),
-                anchored: anchored, start: start, end: _end)
+  regex-search(compile-regex(pattern),
+               string,
+               anchored: anchored, start: start, end: _end)
 end method regex-search;
 
 define method regex-search
-    (big :: <string>, pattern :: <regex>,
+    (pattern :: <regex>, string :: <string>,
      #key anchored :: <boolean> = #f,
           start    :: <integer> = 0,
-          end: _end :: <integer> = big.size)
+          end: _end :: <integer> = string.size)
  => (match :: false-or(<regex-match>))
-  // Copied from regex-position with some mods to match our interface.
   // Unlike regex-position there is no caching.  If you don't want to
   // recompile your regex each time, compile it explicitly with compile-regex
   // and save it.
-  let substring = make(<substring>, string: big, start: start, end: _end);
+  let substring = make(<substring>, string: string, start: start, end: _end);
   let case-sensitive? = #t;
   let num-groups = pattern.regex-group-count;
   let (matched?, marks)

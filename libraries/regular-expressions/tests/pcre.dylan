@@ -20,14 +20,14 @@ define function run-pcre-checks
         // Some multi-line regular expression patterns have empty lines and we
         // don't want to think that's the end of the section.
         if (lines.size > 0
-              & regex-search(lines[lines.size - 1], $group-regex))
+              & regex-search($group-regex, lines[lines.size - 1]))
           check-pcre-section(make(<section>,
                                   lines: lines,
                                   start-line-number: line-number - lines.size));
           lines := make(<stretchy-vector>);
         elseif (lines.size < 3)
-          // A section must have a regex, a test string and one group result to make
-          // any sense.  Note we don't add the line to the section here.
+          // A section must have a regex, a test string and one group result to
+          // make any sense.  Note we don't add the line to the section here.
           test-output("Line %d: empty line in first 3 lines of a section.\n",
                       line-number);
         else
@@ -41,8 +41,10 @@ define function run-pcre-checks
 end function run-pcre-checks;
 
 define class <section> (<object>)
-  constant slot section-lines :: <sequence>, required-init-keyword: #"lines";
-  constant slot start-line-number :: <integer>, required-init-keyword: #"start-line-number";
+  constant slot section-lines :: <sequence>,
+    required-init-keyword: #"lines";
+  constant slot start-line-number :: <integer>,
+    required-init-keyword: #"start-line-number";
   slot %index :: <integer> = 0;
 end class <section>;
 
@@ -91,10 +93,11 @@ define function check-pcre-section
       block (done-with-this-test-string)
         while (#t)
           let line = peek-line(section);
-          let match = line & regex-search(line, $group-regex);
+          let match = line & regex-search($group-regex, line);
           if (match)
             consume-line(section);
-            let group-text = match-group(match, $group-index-of-what-pcre-matched);
+            let group-text = match-group(match,
+                                         $group-index-of-what-pcre-matched);
             //test-output("   pcre group: %s\n", group-text | "No match");
             if (group-text)
               add!(group-strings, group-text);
@@ -109,16 +112,17 @@ define function check-pcre-section
         end;
       end;
       if (regex)
-        check-no-errors(format-to-string("search for %s in %s",
-                                         test-string, regex.regex-pattern),
-                        regex-search(test-string, regex));
+        check-no-errors(sprintf("search for %s in %s",
+                                test-string, regex.regex-pattern),
+                        regex-search(regex, test-string));
         let match = block ()
-                      regex-search(test-string, regex)
+                      regex-search(regex, test-string)
                     exception (ex :: <error>)
                       #f
                     end;
         if (match)
-          compare-to-pcre-results(regex.regex-pattern, test-string, match, group-strings);
+          compare-to-pcre-results(regex.regex-pattern, test-string, match,
+                                  group-strings);
         end;
       end if;
     end while;
@@ -162,8 +166,7 @@ define function parse-pcre-regex
   let (pattern, flags) = read-pattern-and-flags();
   //test-output("pattern: %s (flags = %s)\n", pattern, flags);
   for (flag in flags)
-    check-true(format-to-string("For regex %s, flag %s is recognized",
-                                pattern, flag),
+    check-true(sprintf("For regex %s, flag %s is recognized", pattern, flag),
                member?(flag, "ixms"));
   end for;
   block ()
@@ -173,10 +176,11 @@ define function parse-pcre-regex
                   multi-line: member?('m', flags),
                   dot-matches-all: member?('s', flags))
   // Unfortunately we can't catch <regex-error> here because the charset
-  // parser is in string-extensions and signals <invalid-character-set-description>
-  // which isn't related to <regex-error> (and isn't even exported).
+  // parser is in string-extensions and signals
+  // <invalid-character-set-description> which isn't related to <regex-error>
+  // (and isn't even exported).
   exception (ex :: <error>)
-    check-true(format-to-string("can compile regex %s", pattern), #f);
+    check-true(sprintf("can compile regex %s", pattern), #f);
     //test-output("  ERROR: %s\n", ex);
     #f
   end block
@@ -194,8 +198,8 @@ define function compare-to-pcre-results
      pcre-groups :: <sequence>)
  => ()
   if (match)
-    check-equal(format-to-string("Match %s against %s -- same # of groups",
-                                 test-string, pattern),
+    check-equal(sprintf("Match %s against %s -- same # of groups",
+                        test-string, pattern),
                 size(match-groups(match)),
                 pcre-groups.size);
     for (group-number from 0,
@@ -206,14 +210,14 @@ define function compare-to-pcre-results
       let our-group = /* if (group-number < size(match-groups(match))) */
                         match-group(match, group-number)
                       /* end */;
-      check-equal(format-to-string("Match %s against %s -- group %d is the same",
-                                   test-string, pattern, group-number),
+      check-equal(sprintf("Match %s against %s -- group %d is the same",
+                          test-string, pattern, group-number),
                   our-group,
                   pcre-group);
     end;
   else
-    check-equal(format-to-string("Pattern %s doesn't match test string %s",
-                                 pattern, test-string),
+    check-equal(sprintf("Pattern %s doesn't match test string %s",
+                        pattern, test-string),
                 0,
                 pcre-groups.size);
   end if;

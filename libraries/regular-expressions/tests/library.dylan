@@ -4,6 +4,7 @@ define library regular-expressions-test-suite
   use common-dylan;
   use io,
     import: {
+      format-out,    // for debugging only
       streams
     };
   use regular-expressions;
@@ -21,6 +22,9 @@ end library regular-expressions-test-suite;
 
 define module regular-expressions-test-suite
   use common-dylan,
+    rename: {
+      format-to-string => sprintf    // to long for 80 chars per line
+    },
     exclude: {
       split
     };
@@ -37,6 +41,7 @@ define module regular-expressions-test-suite
       environment-variable
     };
   use testworks;
+  use format-out;    // for debugging only
   use streams;
   use strings,
     import: {

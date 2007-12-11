@@ -153,7 +153,7 @@ end function parse-or-use-cached;
 // of marks.
 //
 define function regex-position
-    (big :: <string>, regex :: <string>, #key start: big-start = 0,
+    (regex :: <string>, big :: <string>, #key start: big-start = 0,
      end: big-end = #f, case-sensitive = #f)
  => (regex-start :: false-or(<integer>), #rest marks :: false-or(<integer>));
   let substring = make(<substring>, string: big, start: big-start,
@@ -193,16 +193,17 @@ define inline function make-regex-positioner
 	  end: big-end = #f)
    => (regex-start :: false-or(<integer>), 
        #rest marks :: false-or(<integer>));
-    regex-position(big, regex, case-sensitive: case-sensitive, 
+    regex-position(regex, big, case-sensitive: case-sensitive, 
 		    start: big-start, end: big-end);
   end method;
 end function make-regex-positioner;
 
 // returns #f if no match, the matching string on match, and another string or #f
 // for each group in the regex.
+/*
 define method regex-match
     (big :: <string>, regex :: <string>) => (#rest results);
-  let (#rest marks) = regex-position(big, regex);
+  let (#rest marks) = regex-position(regex, big);
   let result = make(<stretchy-vector>);
 
   if(marks[0])
@@ -218,6 +219,7 @@ define method regex-match
   end;
   apply(values, result)
 end;
+*/
 
 // #if (have-free-time)
 /*

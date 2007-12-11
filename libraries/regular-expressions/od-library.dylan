@@ -36,6 +36,8 @@ copyright: see below
 define library regular-expressions
   use common-dylan;
   use string-extensions;
+  use io,
+    import: { format-out };  // for debugging only
   export
     regular-expressions;
 end;
@@ -45,6 +47,7 @@ define module regular-expressions
     exclude: {
       split    // todo -- just add a method to this one
     };
+  use format-out;  // for debugging only
   use string-conversions;
   use character-type;
   use string-hacking;

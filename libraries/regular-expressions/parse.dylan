@@ -148,6 +148,32 @@ define function not-yet-implemented (thing, #rest format-args)
               format-arguments: list(thing)));
 end;
 
+define constant $empty-string :: <parsed-string>
+  = make(<parsed-string>, string: "");
+
+// The useful definitions of all these are in as(<character-set>).
+//
+define constant $any-char
+  = make(<case-sensitive-character-set>, description: "[\<00>-\<FF>]");
+define constant $any-char-except-newline
+  = make(<case-sensitive-character-set>, description: "^\n");
+define constant $digit-chars
+  = make(<case-sensitive-character-set>, description: "\\d");
+define constant $not-digit-chars
+  = make(<case-sensitive-character-set>, description: "^\\d");
+define constant $word-chars
+  = make(<case-sensitive-character-set>, description: "\\w");
+define constant $not-word-chars
+  = make(<case-sensitive-character-set>, description: "^\\w");
+define constant $whitespace-chars
+  = make(<case-sensitive-character-set>, description: "\\s");
+define constant $not-whitespace-chars
+  = make(<case-sensitive-character-set>, description: "^\\s");
+define constant $dot
+  = make(<parsed-set>, set: $any-char-except-newline);
+define constant
+    $dot-all = make(<parsed-set>, set: $any-char);
+
 // <parse-info> contains some information about the current regex
 // being parsed.
 //
@@ -156,13 +182,30 @@ define class <parse-info> (<object>)
   // Name this has-backreferences, for consistency with the other slots.
   // Add ? to all the has-* slots.  --cgay
   // Also, not sure why anyone cares about these three things.
-  slot backreference-used :: <boolean>, init-value: #f;
-  slot has-alternatives :: <boolean>, init-value: #f;
-  slot has-quantifiers :: <boolean>, init-value: #f;
-  slot current-group-number :: <integer>, init-value: 0;
-  constant slot group-number-to-name :: <table>, init-value: make(<table>);
-  constant slot set-type :: <class>, required-init-keyword: #"set-type";
+  slot backreference-used :: <boolean> = #f;
+  slot has-alternatives :: <boolean> = #f;
+  slot has-quantifiers :: <boolean> = #f;
+  slot current-group-number :: <integer> = 0;
+  constant slot group-number-to-name :: <table> = make(<table>);
+  constant slot set-type :: <class>,
+    required-init-keyword: #"set-type";
+  slot dot-matches-all? :: <boolean>,
+    required-init-keyword: #"dot-matches-all";
+  slot verbose? :: <boolean>,
+    required-init-keyword: #"verbose";
+  slot multi-line? :: <boolean>,
+    required-init-keyword: #"multi-line";
 end class <parse-info>;
+
+// These setters will be used eventually, when we implement the ability to change
+// them via subpatterns like (?i).  Until then, this prevents warnings.
+begin
+  dot-matches-all?-setter;
+  verbose?;
+  verbose?-setter;
+  multi-line?;
+  multi-line?-setter;
+end;
 
 define function make-parse-info
     (#key case-sensitive  :: <boolean> = #t,
@@ -172,14 +215,16 @@ define function make-parse-info
  => (info :: <parse-info>)
   verbose & not-yet-implemented("'verbose' option");
   multi-line & not-yet-implemented("'multi-line' option");
-  dot-matches-all & not-yet-implemented("'dot-matches-all' option");
-  let char-set-type
-   = if (case-sensitive)
-       <case-sensitive-character-set>
-     else
-       <case-insensitive-character-set>
-     end;
-  make(<parse-info>, set-type: char-set-type)
+  let char-set-type = if (case-sensitive)
+                        <case-sensitive-character-set>
+                      else
+                        <case-insensitive-character-set>
+                      end;
+  make(<parse-info>,
+       set-type: char-set-type,
+       verbose: verbose,
+       multi-line: multi-line,
+       dot-matches-all: dot-matches-all)
 end function make-parse-info;
 
 define method has-named-group?
@@ -189,7 +234,7 @@ end;
 
 define method parse
     (regex :: <string>, parse-info :: <parse-info>)
- => (parsed-regex :: <parsed-regex>,
+ => (regex :: <parsed-regex>,
      last-group :: <integer>,
      backrefs? :: <boolean>,
      alternatives? :: <boolean>, 
@@ -211,60 +256,59 @@ define method parse
 	   parse-info.backreference-used,
 	   parse-info.has-alternatives,
 	   parse-info.has-quantifiers);
-  end if;
+  end if
 end method parse;
 
-define method parse-regex (s :: <parse-string>, info :: <parse-info>)
- => parsed-regex :: <parsed-regex>;
-  let alternative = parse-alternative(s, info);
+define method parse-regex
+    (str :: <parse-string>, info :: <parse-info>)
+ => (regex :: <parsed-regex>)
+  let alternative = parse-alternative(str, info);
   if (~alternative)
-    parse-error(s.parse-string, "");
-  elseif (lookahead(s) = '|')
+    parse-error(str.parse-string, "");
+  elseif (lookahead(str) = '|')
     info.has-alternatives := #t;
-    make(<union>, left: alternative, right: parse-regex(consume(s), info));
+    make(<union>, left: alternative, right: parse-regex(consume(str), info))
   else
-    alternative;
-  end if;
+    alternative
+  end if
 end method parse-regex;
 
 define method parse-alternative
-    (s :: <parse-string>, info :: <parse-info>)
+    (str :: <parse-string>, info :: <parse-info>)
  => (re :: false-or(<parsed-regex>))
-  let term = parse-quantified-atom(s, info);
-  if (member?(lookahead(s), #(#f, '|', ')')))
-    term;
+  let term = parse-quantified-atom(str, info);
+  if (member?(lookahead(str), #(#f, '|', ')')))
+    term
   else
-    make(<alternative>, left: term, right: parse-alternative(s, info));
-  end if;
+    make(<alternative>, left: term, right: parse-alternative(str, info))
+  end
 end method parse-alternative;
 
-define method parse-quantified-atom (s :: <parse-string>, info :: <parse-info>)
+define method parse-quantified-atom
+    (str :: <parse-string>, info :: <parse-info>)
  => (result :: false-or(<parsed-regex>))
-  // I think this breaks when parse-atom returns #f and then we quantify that.
-  // I added some regexes to regression-tests.txt starting with /a()b/ that I
-  // hope will exercise that case.  --cgay
-  let atom = parse-atom(s, info);
-  let char = lookahead(s);
+  let atom = parse-atom(str, info);
+  let char = lookahead(str);
   select (char by \=)
     '*' =>
       info.has-quantifiers := #t;
-      consume(s);
+      consume(str);
       make(<quantified-atom>, min: 0, atom: atom);
 
     '+' =>
       info.has-quantifiers := #t;
-      consume(s);
+      consume(str);
       make(<quantified-atom>, min: 1, atom: atom);
 
     '?' =>
       info.has-quantifiers := #t;
-      consume(s);
+      consume(str);
       make(<quantified-atom>, min: 0, max: 1, atom: atom);
 
     '{' =>
       info.has-quantifiers := #t;
-      consume(s);
-      parse-minmax-quantifier(atom, s);
+      consume(str);
+      parse-minmax-quantifier(atom, str);
 
     otherwise =>
       atom;
@@ -274,75 +318,83 @@ end method parse-quantified-atom;
 // {m,n}, {m,}, {,n}, {m}, {}, and {,} are all valid.
 // m defaults to 0 and n defaults to #f (unlimited).
 define method parse-minmax-quantifier
-    (atom :: <parsed-regex>, s :: <parse-string>) => (qatom :: <quantified-atom>)
+    (atom :: <parsed-regex>, str :: <parse-string>)
+ => (qatom :: <quantified-atom>)
   local method parse-integer () => (int :: false-or(<integer>))
           let digits = make(<deque>);
-          while (lookahead(s) & digit?(lookahead(s)))
-            push-last(digits, lookahead(s));
-            consume(s);
+          while (lookahead(str) & digit?(lookahead(str)))
+            push-last(digits, lookahead(str));
+            consume(str);
           end;
           ~empty?(digits) & string-to-integer(as(<byte-string>, digits));
         end method parse-integer;
   let qmin = parse-integer() | 0;
   let qmax = #f;
-  if (lookahead(s) = ',')
-    consume(s);
+  if (lookahead(str) = ',')
+    consume(str);
     qmax := parse-integer();
   else
     qmax := qmin;
   end;
-  if (lookahead(s) ~= '}')
-    parse-error(s.parse-string,
+  if (lookahead(str) ~= '}')
+    parse-error(str.parse-string,
                 "Close brace expected in {m,n} quantifier (index = %s).",
-                s.parse-index);
+                str.parse-index);
   end;
-  consume(s);
+  consume(str);
   make(<quantified-atom>, atom: atom, min: qmin, max: qmax);
 end method parse-minmax-quantifier;
 
-define method parse-atom (s :: <parse-string>, info :: <parse-info>)
+define method parse-atom (str :: <parse-string>, info :: <parse-info>)
  => (regex :: false-or(<parsed-regex>))
-  let char = lookahead(s);
+  let char = lookahead(str);
   select (char)
     '(' =>
-      consume(s);   // Consume beginning paren
-      parse-group(s, info);
-
-    ')' =>
-      #f;              // Need something to terminate upon seeing a close paren
+      consume(str);   // Consume beginning paren
+      // If parse-group returns #f it's because it parsed a (?#...) comment,
+      // so just ignore the comment and try to parse another atom (if there's
+      // anything left in str).  This means comments can't immediately precede
+      // |, ), or EOI.  Should fix this.
+      parse-group(str, info)
+        | (lookahead(str) & parse-atom(str, info));
 
     #f  =>
-      #f;   // Signal error?  (end of stream)
+      // Handle valid patterns like "" and "a|"
+      $empty-string;
 
-    '*', '|', '+' =>
+    '*', '|', '+', ')' =>
       #f;
 
     '\\' =>
-      consume(s);        // Consume the backslash
+      consume(str);        // Consume the backslash
       // Perhaps add support for a different escape character to aid readability.
       // The escape character could be specified in the <parse-info>.  --cgay
-      parse-escaped-character(s, info);
+      parse-escaped-character(str, info);
 
     '[' =>
-      consume(s);        // Eat the opening brace
-      parse-character-set(s, info);
+      consume(str);        // Eat the opening brace
+      parse-character-set(str, info);
 
     '.' =>
-      consume(s);
-      dot;
+      consume(str);
+      if (info.dot-matches-all?)
+        $dot-all
+      else
+        $dot
+      end;
 
     '^' =>
-      consume(s);
+      consume(str);
       make(<parsed-assertion>, assertion: #"beginning-of-string");
 
     '$' =>
-      consume(s);
+      consume(str);
       make(<parsed-assertion>, assertion: #"end-of-string");
   
       // Insert more special characters here
 
     otherwise =>
-      consume(s);
+      consume(str);
       make(<parsed-character>, character: char);
   end select;
 end method parse-atom;
@@ -390,18 +442,21 @@ define inline function parse-extended-group
       while (lookahead(str) & lookahead(str) ~== ')')
         consume(str);
       end;
-      if (~ lookahead(str))
-        parse-error(str.parse-string, "Unterminated subpattern commend (?#....");
-      else
+      if (lookahead(str) == ')')
+        consume(str);
         #f
+      else
+        parse-error(str.parse-string, "Unterminated subpattern comment (?#....");
       end;
 
     otherwise =>
       // See the Python re docs for what all these do.
+      // See "INTERNAL OPTION SETTING" in pcre.txt doc as well.
       if (member?(char, "iLmsux=!<("))
         not-yet-implemented("'(?%c' subpattern construct", char);
       else
-        parse-error(str.parse-string, "Invalid subpattern construct (?%c...) at index %s.",
+        parse-error(str.parse-string,
+                    "Invalid subpattern construct (?%c...) at index %s.",
                     char, str.parse-index);
       end;
   end select
@@ -420,13 +475,14 @@ define function parse-group-name
     consume(str);
     copy-sequence(str.parse-string, start: start-index, end: str.parse-index - 1)
   else
-    parse-error(str.parse-string, "Unterminated named group name at index %s.",
+    parse-error(str.parse-string,
+                "Unterminated named group name at index %s.",
                 str.parse-index);
   end
 end function parse-group-name;
 
-// Parse a group/subpattern, possibly after having already parsed any
-// options given via "(?...".
+// Parse a group/subpattern.  The open paren and any subpattern options given
+// via "(?..." have already been consumed.
 //
 define inline function parse-simple-group
     (str :: <parse-string>,
@@ -437,27 +493,30 @@ define inline function parse-simple-group
   if (save-group?)
     info.current-group-number := info.current-group-number + 1;
   end;
-  let regex = parse-regex(str, info);
-  if (lookahead(str) ~== ')')
-    parse-error(str.parse-string, "Unbalanced parens in regex (index = %s).",
-                str.parse-index);
+  let regex = if (lookahead(str) == ')')
+                consume(str);
+                $empty-string
+              else
+                let re = parse-regex(str, info);
+                if (lookahead(str) == ')')
+                  consume(str)
+                end;
+                re
+              end;
+  if (~save-group?)
+    regex
   else
-    consume(str);
-    if (~ save-group?)
-      regex
-    else
-      if (group-name)
-        if (has-named-group?(info, group-name))
-          parse-error(str.parse-string,
-                      "Duplicate group name (%s) at index %s.",
-                      group-name, str.parse-index);
-        else
-          info.group-number-to-name[info.current-group-number] := group-name;
-        end;
+    if (group-name)
+      if (has-named-group?(info, group-name))
+        parse-error(str.parse-string,
+                    "Duplicate group name (%s) at index %s.",
+                    group-name, str.parse-index);
+      else
+        info.group-number-to-name[info.current-group-number] := group-name;
       end;
-      make(<mark>, child: regex, group: info.current-group-number)
-    end
-  end
+    end;
+    make(<mark>, child: regex, group: info.current-group-number)
+  end if
 end function parse-simple-group;
 
 // This just does a quick scan to find the closing ] and then lets
@@ -508,43 +567,19 @@ define inline function parse-character-set
   make(<parsed-set>, set: make(info.set-type, description: set-string))
 end function parse-character-set;
 
-define constant any-char 
-  = make(<case-sensitive-character-set>, description: "^\n");
-
-// The useful definitions of all these are in as(<character-set>).
-//
-define constant digit-chars
-  = make(<case-sensitive-character-set>, description: "\\d");
-define constant not-digit-chars
-  = make(<case-sensitive-character-set>, description: "^\\d");
-define constant word-chars
-  = make(<case-sensitive-character-set>, description: "\\w");
-define constant not-word-chars
-  = make(<case-sensitive-character-set>, description: "^\\w");
-define constant whitespace-chars
-  = make(<case-sensitive-character-set>, description: "\\s");
-define constant not-whitespace-chars
-  = make(<case-sensitive-character-set>, description: "^\\s");
-
-define constant dot = make(<parsed-set>, set: any-char);
-/* KJP: Not used.
-define constant dot-star = make(<quantified-atom>, min: 0, max: #f,
-				atom: dot);
-*/
-
 // This only handles escaped characters *outside* of a character
 // set. Inside of a character set is a whole different story.
 //
 define method parse-escaped-character 
-    (s :: <parse-string>, info :: <parse-info>)
+    (str :: <parse-string>, info :: <parse-info>)
  => parsed-regex :: <parsed-regex>;
-  let next-char = lookahead(s);
+  let next-char = lookahead(str);
   if (~next-char)
-    parse-error(s.parse-string,
+    parse-error(str.parse-string,
                 "Unterminated escape sequence at index %d.",
-                s.parse-index - 1)
+                str.parse-index - 1)
   end;
-  consume(s);
+  consume(str);
   select (next-char)
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' =>
       info.backreference-used := #t;
@@ -560,14 +595,14 @@ define method parse-escaped-character
 
     'b' =>   make(<parsed-assertion>, assertion: #"word-boundary");
     'B' =>   make(<parsed-assertion>, assertion: #"not-word-boundary");
-       // Beginning and end of string are not escaped
+    // Beginning and end of string are not escaped
 
-    'd' =>   make(<parsed-set>, set: digit-chars);
-    'D' =>   make(<parsed-set>, set: not-digit-chars);
-    'w' =>   make(<parsed-set>, set: word-chars);
-    'W' =>   make(<parsed-set>, set: not-word-chars);
-    's' =>   make(<parsed-set>, set: whitespace-chars);
-    'S' =>   make(<parsed-set>, set: not-whitespace-chars);
+    'd' =>   make(<parsed-set>, set: $digit-chars);
+    'D' =>   make(<parsed-set>, set: $not-digit-chars);
+    'w' =>   make(<parsed-set>, set: $word-chars);
+    'W' =>   make(<parsed-set>, set: $not-word-chars);
+    's' =>   make(<parsed-set>, set: $whitespace-chars);
+    'S' =>   make(<parsed-set>, set: $not-whitespace-chars);
 
     // Insert more escaped characters here
 
