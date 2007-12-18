@@ -1113,7 +1113,7 @@ define method extract-query-values
             values(decode-url(buffer, beg, fin), #t)
           end if;
         end;
-  local method insert-key/val (key :: <string>, val :: <string>)
+  local method insert-key/val (key :: <string>, val :: type-union(<string>, <boolean>))
           let hashtable-value = element(queries, key, default: #f);
           if (hashtable-value)
             //for multiple selection option boxes, arguments are passed this way:
