@@ -195,7 +195,7 @@
 		      (special? (bracketed-with (string var) #\*)))
 		 (setf code
 		       (if special?
-			   `((fluid-bind
+			   `((dynamic-bind
 			      (= ,(add-type-declaration var declarations)
 				 ,val) ,@code))
 			 `((let ,(add-type-declaration var declarations)

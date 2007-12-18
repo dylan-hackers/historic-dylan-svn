@@ -261,7 +261,7 @@
 (ltd-fn  asinh                   asinh)
 (ltd-fn  acosh                   acosh)
 (ltd-fn  atanh                   atanh)
-(ltd-fn (float x &opt y)         `(as ,x ,(ifd y `(class-of ,y) '<float>)))
+(ltd-fn (float x &opt y)         `(as ,(ifd y `(class-of ,y) '<float>) ,x))
 (ltd-fn (rational x)             `(as <rational> ,x))
 (ltd-fn  rationalize             rationalize)
 (ltd-fn  numerator               numerator)

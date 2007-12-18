@@ -83,7 +83,7 @@
 (dpp (define-variable)#'dpp-define-variable)
 (dpp (define-module)  #'dpp-define-module)
 (dpp (element)        #'dpp-element)
-(dpp (fluid-bind)     #'dpp-conditional)
+(dpp (dynamic-bind)   #'dpp-conditional)
 (dpp (for)            #'dpp-conditional)
 (dpp (if)             #'dpp-conditional)
 (dpp (let)            #'dpp-let)
