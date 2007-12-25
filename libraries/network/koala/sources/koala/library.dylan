@@ -133,6 +133,8 @@ end module utilities;
     
 
 define module koala
+  //needed for last-modified stuff
+  create get-header, request-method-setter, not-modified;
 
   // Headers
   // Do these really need to be exported?
