@@ -164,9 +164,9 @@ define function parse-pcre-regex
           values(pattern, flags)
         end method read-pattern-and-flags;
   let (pattern, flags) = read-pattern-and-flags();
-  //test-output("pattern: %s (flags = %s)\n", pattern, flags);
+  //test-output("pattern: '%s' (flags = '%s')\n", pattern, flags);
   for (flag in flags)
-    check-true(sprintf("For regex %s, flag %s is recognized", pattern, flag),
+    check-true(sprintf("For regex '%s', flag '%s' is recognized", pattern, flag),
                member?(flag, "ixms"));
   end for;
   block ()
@@ -180,7 +180,7 @@ define function parse-pcre-regex
   // <invalid-character-set-description> which isn't related to <regex-error>
   // (and isn't even exported).
   exception (ex :: <error>)
-    check-true(sprintf("can compile regex %s", pattern), #f);
+    check-true(sprintf("can compile regex '%s'", pattern), #f);
     //test-output("  ERROR: %s\n", ex);
     #f
   end block
@@ -198,7 +198,7 @@ define function compare-to-pcre-results
      pcre-groups :: <sequence>)
  => ()
   if (match)
-    check-equal(sprintf("Match %s against %s -- same # of groups",
+    check-equal(sprintf("Match '%s' against regex '%s' -- same # of groups",
                         test-string, pattern),
                 size(match-groups(match)),
                 pcre-groups.size);
@@ -210,13 +210,13 @@ define function compare-to-pcre-results
       let our-group = /* if (group-number < size(match-groups(match))) */
                         match-group(match, group-number)
                       /* end */;
-      check-equal(sprintf("Match %s against %s -- group %d is the same",
+      check-equal(sprintf("Match '%s' against regex '%s' -- group %d is the same",
                           test-string, pattern, group-number),
                   our-group,
                   pcre-group);
     end;
   else
-    check-equal(sprintf("Pattern %s doesn't match test string %s",
+    check-equal(sprintf("Regex '%s' doesn't match test string '%s'",
                         pattern, test-string),
                 0,
                 pcre-groups.size);

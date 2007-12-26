@@ -4270,10 +4270,6 @@ No match
 No match
     b
 No match
-    
-
-/a*/
-    
 
 /([abc])*d/
     abbbcd
@@ -4829,9 +4825,6 @@ No match
  0: CDE
 
 /abc/i
-
-/a*/i
-    
 
 /([abc])*d/i
     ABBBCD

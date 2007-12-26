@@ -132,7 +132,7 @@ define inline function parse-or-use-cached
     (regex :: <string>, parse-info :: <parse-info>)
  => (parsed-regex :: <parsed-regex>, last-group :: <integer>);
   let key = make(<cache-key>, regex-string: regex, 
-		 character-set-type: parse-info.set-type); 
+		 character-set-type: parse-info.character-set-type); 
   let cached-value = element(*regex-cache*, key, default: #f);
   if (cached-value)
     values(cached-value.parse-tree, cached-value.last-group);

@@ -178,21 +178,24 @@ define constant
 // being parsed.
 //
 define class <parse-info> (<object>)
-  // Whether or not the function includes \1, \2, etc in the regex.
-  // Name this has-backreferences, for consistency with the other slots.
-  // Add ? to all the has-* slots.  --cgay
-  // Also, not sure why anyone cares about these three things.
-  slot backreference-used :: <boolean> = #f;
-  slot has-alternatives :: <boolean> = #f;
-  slot has-quantifiers :: <boolean> = #f;
+  slot has-back-references? :: <boolean> = #f;
+  slot has-alternatives? :: <boolean> = #f;
+  slot has-quantifiers? :: <boolean> = #f;
   slot current-group-number :: <integer> = 0;
   constant slot group-number-to-name :: <table> = make(<table>);
-  constant slot set-type :: <class>,
+  constant slot character-set-type :: <class>,
     required-init-keyword: #"set-type";
+
+  // If true then . matches \n.  (?s) /s
   slot dot-matches-all? :: <boolean>,
     required-init-keyword: #"dot-matches-all";
-  slot verbose? :: <boolean>,
+
+  // Ignore whitespace and comments within a regex pattern. (?x) /x
+  slot extended? :: <boolean>,
     required-init-keyword: #"verbose";
+
+  // If multi-line? is true then ^ and $ match and \n boundaries as well as
+  // at the beginning and end of the subject string.  (?m) /m
   slot multi-line? :: <boolean>,
     required-init-keyword: #"multi-line";
 end class <parse-info>;
@@ -201,8 +204,8 @@ end class <parse-info>;
 // them via subpatterns like (?i).  Until then, this prevents warnings.
 begin
   dot-matches-all?-setter;
-  verbose?;
-  verbose?-setter;
+  extended?;
+  extended?-setter;
   multi-line?;
   multi-line?-setter;
 end;
@@ -253,9 +256,9 @@ define method parse
   else
     values(optimized-regex,
 	   parse-info.current-group-number,
-	   parse-info.backreference-used,
-	   parse-info.has-alternatives,
-	   parse-info.has-quantifiers);
+	   parse-info.has-back-references?,
+	   parse-info.has-alternatives?,
+	   parse-info.has-quantifiers?);
   end if
 end method parse;
 
@@ -266,7 +269,7 @@ define method parse-regex
   if (~alternative)
     parse-error(str.parse-string, "");
   elseif (lookahead(str) = '|')
-    info.has-alternatives := #t;
+    info.has-alternatives? := #t;
     make(<union>, left: alternative, right: parse-regex(consume(str), info))
   else
     alternative
@@ -291,22 +294,22 @@ define method parse-quantified-atom
   let char = lookahead(str);
   select (char by \=)
     '*' =>
-      info.has-quantifiers := #t;
+      info.has-quantifiers? := #t;
       consume(str);
       make(<quantified-atom>, min: 0, atom: atom);
 
     '+' =>
-      info.has-quantifiers := #t;
+      info.has-quantifiers? := #t;
       consume(str);
       make(<quantified-atom>, min: 1, atom: atom);
 
     '?' =>
-      info.has-quantifiers := #t;
+      info.has-quantifiers? := #t;
       consume(str);
       make(<quantified-atom>, min: 0, max: 1, atom: atom);
 
     '{' =>
-      info.has-quantifiers := #t;
+      info.has-quantifiers? := #t;
       consume(str);
       parse-minmax-quantifier(atom, str);
 
@@ -564,7 +567,7 @@ define inline function parse-character-set
       end select
     end for;
   end block;
-  make(<parsed-set>, set: make(info.set-type, description: set-string))
+  make(<parsed-set>, set: make(info.character-set-type, description: set-string))
 end function parse-character-set;
 
 // This only handles escaped characters *outside* of a character
@@ -581,10 +584,12 @@ define method parse-escaped-character
   end;
   consume(str);
   select (next-char)
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' =>
-      info.backreference-used := #t;
-      make(<parsed-backreference>, group: digit-to-integer(next-char));
-      
+    // not yet
+    //'0' =>
+    //  parse-octal-escape(str, info);
+    '1', '2', '3', '4', '5', '6', '7', '8', '9' =>
+      parse-back-reference(str, info);
+
     // Hmm.  Why would you write \\n in your regex instead of \n?  It has the
     // same effect.  Also, what about the rest of the Dylan character escapes?
     // --cgay
@@ -610,6 +615,34 @@ define method parse-escaped-character
       make(<parsed-character>, character: next-char);
   end select;
 end method parse-escaped-character;
+
+define function parse-back-reference
+    (str :: <parse-string>, info :: <parse-info>)
+ => (backref :: <parsed-backreference>)
+  // We've just parsed '\' and a digit between '1' and '9'.
+  let start-index = str.parse-index - 1;   // include the char we already read
+  let end-index = str.parse-index;
+  while (member?(lookahead(str), $digit-chars))
+    end-index := end-index + 1;
+    consume(str);
+  end;
+  let group = string-to-integer(copy-sequence(str.parse-string,
+                                              start: start-index,
+                                              end: end-index));
+  // todo -- If I understand the PCRE doc correctly it's not an error for a
+  // backref to be a forward ref if it is between 1 and 9, which implies we
+  // need to do a separate pass AFTER the entire parse is done, so we can
+  // verify that there are enough groups.  Does a forward reference ever work???
+  // Maybe only if numbering the groups the way perl 6 does it rather than
+  // strictly left to right?
+  if (group >= info.current-group-number)
+    parse-error(str.parse-string,
+                "Invalid back reference at index %d",
+                str.parse-index);
+  end if;
+  info.has-back-references? := #t;
+  make(<parsed-backreference>, group: group)
+end function parse-back-reference;
 
 define method is-anchored? (regex :: <parsed-regex>)
  => (result :: <boolean>);
