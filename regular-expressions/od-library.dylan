@@ -61,7 +61,6 @@ define module regular-expressions
       regex-group-count,
       regex-position,
       make-regex-positioner,
-      regex-match,  // todo -- rename to regex-search-strings?
       regex-replace,
       make-regex-replacer,
     <regex-error>,

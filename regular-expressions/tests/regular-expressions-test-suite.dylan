@@ -52,15 +52,18 @@ define function check-matches
   end;
 end function check-matches;
 
-// These are to cover the basics, as I add new features to the code.
-// The PCRE tests should cover a lot of the more esoteric cases, I hope.
+// These are to cover the basics, as I add new features to the code or
+// read through the pcrepattern docs.  The PCRE tests should cover a lot
+// of the more esoteric cases, I hope.
 //
 define test ad-hoc-regex-test ()
+  //args: check-matches(regex, string, group1, group2, ..., flag1: x, flag2: y, ...)
   check-matches("", "abc", "");
   check-matches("a()b", "ab", "ab", "");
   check-matches("a(?#blah)b", "ab", "ab"); // comments shouldn't create a group
   check-matches(".", "x", "x");
   check-matches(".", "\n", "\n", dot-matches-all: #t);
+  check-matches("[a-]", "-", "-");
 end test ad-hoc-regex-test;
 
 // All these regexes should signal <invalid-regex> on compilation.
@@ -68,7 +71,8 @@ end test ad-hoc-regex-test;
 define test invalid-regex-test ()
   let patterns = #(
     "(?P<name>x)(?P<name>y)",         // can't use same name twice
-    "(?@abc)"                         // invalid extended character '@'
+    "(?@abc)",                        // invalid extended character '@'
+    "(a)\\2"                          // invalid back reference
     );
   for (pattern in patterns)
     check-condition(sprintf("Compiling '%s' gets an error", pattern),
