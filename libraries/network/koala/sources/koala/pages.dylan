@@ -80,7 +80,7 @@ define method respond-to-get-edit-record (page :: <edit-record-page>,
                                           request :: <request>,
                                           response :: <response>,
                                           record :: <database-record>)
-  process-template(page, request, response);
+  process-template(page);
 end;
 
 define open generic respond-to-post-edit-record
@@ -111,9 +111,8 @@ define function return-to-origin
   end;
 end;
 
-define method respond-to-post (page :: <edit-record-page>,
-                               request :: <request>,
-                               response :: <response>)
+define method respond-to (request-method == #"post", page :: <edit-record-page>)
+  let request :: <request> = current-request();
   let record :: <database-record> = get-edit-record(request);
   let slots = slot-descriptors(object-class(record));
   let bindings = make(<string-table>); // maps form input name to parsed value
@@ -142,6 +141,7 @@ define method respond-to-post (page :: <edit-record-page>,
         */
       end;
     end;
+    let response :: <response> = current-response();
     dynamic-bind (*record* = record)
       respond-to-post-edit-record(page, request, response, record);
     end;
@@ -159,20 +159,20 @@ define method respond-to-post (page :: <edit-record-page>,
 end;
 
 define tag show-id in dsp
-    (page :: <dylan-server-page>, response :: <response>)
+    (page :: <dylan-server-page>)
     (key)
   let record = select (key by \=)
                  "row"     => current-row();
                  "record"  => *record*;
                  otherwise => current-row() | *record*;
                end;
-  format(output-stream(response), "%s", record-id(record));
+  format(output-stream(current-response()), "%s", record-id(record));
 end;
 
 define tag show-hidden-fields in dsp
-    (page :: <dylan-server-page>, response :: <response>)
+    (page :: <dylan-server-page>)
     ()
-  display-hidden-fields(page, output-stream(response));
+  display-hidden-fields(page, output-stream(current-response()));
 end;
 
 // Methods on display-hidden-fields can call this.
