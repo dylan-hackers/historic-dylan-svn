@@ -3,7 +3,7 @@ author: Hannes Mehnert <hannes@mehnert.org>
 
 define variable *directory* = "/";
 
-define constant $database-lock = make(<recursive-lock>);
+define constant $database-lock = make(<read-write-lock>);
 
 define sideways method process-config-element
     (node :: <xml-element>, name == #"web-framework")
@@ -21,25 +21,29 @@ define macro getter-and-setter
  { getter-and-setter(?:name; constant ?args:* slot ?slot-name:name :: ?slot-type:expression ?rest:*; ?slots:*) }
     => { define method ?slot-name (object :: ?name) => (res :: ?slot-type)
            //format-out("accessing constant slot of %s\n", object.object-class);
-           with-lock($database-lock)
-             "%" ## ?slot-name(object);
-           end;
+           let res = #f;
+           wait-for($database-lock, mode: #"read");
+           res := "%" ## ?slot-name(object);
+           release($database-lock);
+           res;
          end;
          getter-and-setter(?name; ?slots);
         }
  { getter-and-setter(?:name; ?args:* slot ?slot-name:name :: ?slot-type:expression ?rest:*; ?slots:*) }
     => { define method ?slot-name (object :: ?name) => (res :: ?slot-type)
            //format-out("reading slot of %s\n", object.object-class);
-           with-lock($database-lock)
-             "%" ## ?slot-name(object);
-           end;
+           let res = #f;
+           wait-for($database-lock, mode: #"read");
+           res := "%" ## ?slot-name(object);
+           release($database-lock);
+           res;
          end;
          define method ?slot-name ## "-setter" (new-val :: ?slot-type, object :: ?name) => (res :: ?slot-type)
              //format-out("writing slot of %s\n", object.object-class);
-
-             with-lock($database-lock)
-               "%" ## ?slot-name ## "-setter"(new-val, object);
-             end;
+             wait-for($database-lock, mode: #"write");
+             "%" ## ?slot-name ## "-setter"(new-val, object);
+             release($database-lock);
+             new-val;
          end;
          getter-and-setter(?name; ?slots);
        }
@@ -107,35 +111,38 @@ define macro with-storage
       ?body:body
     end }
  =>  { begin
-         with-lock($database-lock)
-           let ?variable = storage(?type);
-           ?body
-         end
+         wait-for($database-lock, mode: #"read");
+         let ?variable = storage(?type);
+         ?body;
+         release($database-lock);
        end }
    { with-storage ()
        ?body:body
      end }
  => { begin
-         with-lock($database-lock)
-           ?body;
-         end;
+         wait-for ($database-lock, mode: #"read");
+         ?body;
+         release($database-lock);
       end }
 end;
 
 define open generic save (object :: <object>) => ();
 
 define method save (object) => ()
-  with-lock($database-lock)
-    add-object(storage(object.object-class), object);
-  end;
+  add-object(storage(object.object-class), object);
 end;
 
 define method add-object (list :: <collection>, ele :: <object>)
+  wait-for($database-lock, mode: #"write");
   *storage*[ele.object-class] := add!(list, ele);
+  release($database-lock);
 end;
 
 define method add-object (table :: <table>, ele :: <object>)
-  table[ele.key] := ele
+  let key = ele.key;
+  wait-for($database-lock, mode: #"write");
+  table[key] := ele;
+  release($database-lock);
 end;
 
 define class <storage> (<object>)
@@ -160,9 +167,9 @@ define function really-dump-all-data () => ()
 end;
 
 define method dump-data () => ()
-  with-lock ($database-lock)
-    really-dump-all-data();
-  end;
+  wait-for ($database-lock, mode: #"write");
+  really-dump-all-data();
+  release($database-lock);
 end;
 
 define method restore (directory :: <string>, filename :: <string>) => ()
@@ -172,10 +179,10 @@ define method restore (directory :: <string>, filename :: <string>) => ()
                   direction: #"input");
   let storage-root = dood-root(dood);
   dood-close(dood);
-  with-lock ($database-lock)
-    *storage* := storage-root.hash-table;
-    *version* := storage-root.table-version;
-  end;
+  wait-for ($database-lock, mode: #"write");
+  *storage* := storage-root.hash-table;
+  *version* := storage-root.table-version;
+  release($database-lock);
   format-out("Restored %= %=\n", directory, filename);
   for (class in key-sequence(*storage*))
     setup(class);
