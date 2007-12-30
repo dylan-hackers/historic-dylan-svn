@@ -49,5 +49,5 @@ define module gobject-tool
   use ansi-c;
   use c-parser;
   use output-melange;
-  use regular-expressions, import: { regexp-position };
+  use regular-expressions, import: { regex-position };
 end module;
