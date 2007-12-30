@@ -7,7 +7,6 @@ define library xml-parser
   use meta;
   use io;
   use system, import: { file-system };
-  use regular-expressions;
 
   export xml-parser,
     xml-stream-parser,
@@ -123,7 +122,6 @@ define module simple-xml
   use streams;
   use xml-parser;
   use printing;
-  use regular-expressions, import: { regexp-replace };
 
   export \with-xml,
     \with-xml-builder,
