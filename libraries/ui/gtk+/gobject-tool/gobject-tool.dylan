@@ -55,8 +55,11 @@ define method main(name, arguments)
   end unless;
 
   let platform-name = option-value-by-long-name(arg-parser, "platform");
+  local method same-platform? (string, regex)
+          regex-position(regex, string)
+        end;
   let platform
-    = select(platform-name by regexp-position)
+    = select(platform-name by same-platform?)
         "^x86-linux-gcc" =>
           $i386-linux-platform;
         "^ppc-linux-gcc" =>
