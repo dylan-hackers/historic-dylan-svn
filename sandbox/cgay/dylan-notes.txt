@@ -1,0 +1,229 @@
+.. contents::
+
+Dylan Language
+==============
+
++ It appears that if you define a sideways method (e.g., as(<string>, <character>))
+  there is no way to avoid importing the definition if you use the library (note:
+  not the module) that defines it?  I tried not using string-conversions, which
+  defines it.  Is this an Open Dylan bug?
+
++ What's the reasoning behind not having format-string and format-arguments
+  slots in <error>, but rather putting them in <simple-error>?  This is a wart
+  on the language.  (And why not just make it error-message instead of two
+  separate slots?  You probably don't want to risk caching the format arguments
+  anyway, most of the time.  [later] Is it to prevent everyone from having to
+  import format-to-string?)
+
++ How do you create Unicode string constants if they only contain characters
+  that can be expressed in a <byte-string>?  e.g., in Python u"foo".  Does
+  "\<60>" create a unicode string or a byte string?  Is this even useful?  How
+  about #u"..."?
+
++ For writing code with a lot of regular expressions in it, Python's r"..."
+  syntax is very nice.  What about adding something similar to Dylan?  e.g.,
+  #r"...".
+
+
+testworks
+=========
+
++ It would be cool if there were support for not-yet-implemented in testworks-specs.
+  I.e., when a module spec is first generated it could fill in each test with a call
+  to test-not-implemented(test-name) so you could see in the results what percentage
+  of the spec is covered (roughly).  Or perhaps it could automatically do this if the
+  body of the test is empty (i.e., only hase "// Fill me in ...").
+
++ Needs a way to save results and compare with previous results.
+
+
+common-dylan
+============
+
++ Has float-to-string but no string-to-float.
+  Has number-to-string but no string-to-number.
+
++ Add key-exists? or has-key? g.f.?
+
++ What's the reasoning behind the 'skip' parameter to some sequence functions,
+  like 'position'?  It seems like it would be less efficient to use than
+  'start' and 'end' parameters since the implementation would have to start
+  from the beginning each time.  I don't like it being a mandatory keyword in
+  the 'position' generic function.  (Other functions that have it:
+  find-element, find-value.)
+
+
+String Hacking
+==============
+
++ Make "strings" library re-export most stuff from string-extensions and some
+  things from common-dylan.  Once it's in good shape, propose adding it to
+  common-dylan.
+
++ Unify the "split" definitions.  I like the signature in the strings library
+  except that separator should be able to be a string OR regex.  (Anything
+  else?)
+
++ Various string conversion functions in common-dylan, and "split".
+
++ I don't like the way the string-extensions library is broken up into modules.
+  I don't see the need for more than one module there, and their names are odd.
+  Could just add a string-extensions module that uses all the others and
+  exports all.
+
++ The OD and GD string-extensions libraries have diverged enough to be
+  disturbing.  Re-unify them?
+
++ Would there be any name conflicts if common-dylan exported all the
+  string-extensions bindings?
+
++ Write some tests for parse-[character-set-]description in string-hacking.dylan
+
+
+regular-expressions
+===================
+
+This library needs a complete rewrite.  The API is strange and impoverished.  I
+would much rather see a <regex-match> object returned than the current multiple
+mark values.  Look at the Python doc for the Match objects returned from a
+regex match for examples of useful stuff that you might want to query about.
+
+The regular-expressions library API is weird to me, and there are a lot of nice
+RE features that aren't implemented.  It probably wouldn't hurt to wrap PCRE in
+addition, and I could use the experience writing C-code wrappers.  Another
+alternative would be to copy Python's RE implementation, which is full-featured
+but probably slow.  [later] The Python implementation looks really crappy.
+
+The code says::
+
+    // See "Programming perl", p. 103-104 for more details.
+
+so I suspect this implementation is directly from that book.  Check it.
+
++ Rewrite parse-character-set to do a quick scan to find the end of the
+  character set and then call string-extensions:parse-description (which
+  needs to be exported with a better name (from an "internal" module)).
+
+
+Differences:
+
+* OD caching uses ==, GD uses =
+* key-exists? needs to be in common-dylan?  Not sure where it's coming from in
+  GD, and OD defined it directly in regular-expressions.
+
+
+Koala
+=====
+
++ Hannes' comments re new config option to define-page et al...
+  http://ircbrowse.com/channel/dylan/20070220
+
++ Look at the Allegro web app package more.  (name?)  It has some nice ideas
+  about sessions and apps.
+
++ define-responder takes an optional application: keyword argument, whos value
+  is a string::
+
+    define page table-page (<demo-page>)
+        (url: "/demo/table.dsp",
+         source: "demo/table.dsp")
+    end;
+
+  With the application: keyword argument the same thing happens, but the
+  responder may be moved to a specific vhost::
+
+    define page table-page (<demo-page>)
+        (application: "koala-demo",
+         url: "/demo/table.dsp",
+         source: "demo/table.dsp")
+    end;
+
+  servers per vm
+
+  types of web app:
+
+    - fully dynamic (no .dsp files, no config file)
+    - fully static (koala-app)
+
+
+General
+=======
+
++ Is there a good way to browse the DRM directly from the source?  It links to
+  pages without ".html" appended.
+
+
+Projects
+========
+
+Things I'd like to work on if time permits.
+
++ Logging library.  Generalize the Koala logging code and separate it out.
+
++ Rename some locators classes::
+
+      use locators,
+        rename: {<http-server> => <http-server-url>,
+                 <ftp-server> => <ftp-server-url>,
+                 <file-server> => <file-server-url>};
+
++ Improve the Dylan wiki parser.  (Then maybe I could keep this file on the
+  wiki, for example.)
+
+
+Naming
+======
+
+Group
+-----
+
+Dylan Conservancy
+Dylan Engineering Group
+Dylan Evolution Group
+Dylan Hackers
+Dylan Lab
+Dylan Labs
+Dylan Language Group
+Dylan Software Foundation
+Dylan Software Group
+Dylan Software Lab
+Dylan Software Labs
+Dylan Software Project
+Open Dylan Foundation
+Open Dylan Group
+The Dylan Module
+
+
+Open Dylan
+----------
+
+DylanWorks [1]
+HFO Dylan
+HQ Dylan (proposed as a pair with GW Dylan)
+Harlequin Dylan [1]
+Open Dylan
+OpenDylan
+
+
+Gwydion Dylan
+-------------
+
+Gwydion Dylan
+GW Dylan (proposed as a pair with HQ Dylan)
+
+
+Domain Name
+-----------
+
+(assume we'll get both the hyphenated and non- domain)
+
+dylan-foundation.org
+dylan-group.org
+dylan-labs.org
+dylan-language.org
+open-dylan.org
+make-dylan.org
+dylan-module.org
+
+
+[1] People have raised the possibility of trademark issues for these names.
