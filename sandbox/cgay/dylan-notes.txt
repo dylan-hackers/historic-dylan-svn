@@ -45,6 +45,21 @@ common-dylan
   Has number-to-string but no string-to-number.
 
 + Add key-exists? or has-key? g.f.?
+  There is key-exists? in gwydion/common/collection-extensions/collection-utils.dylan
+  but it's broken.  A fixed version would be::
+
+    define method key-exists?
+        (collection :: <collection>, key)
+     => (key-exists? :: <boolean>, value :: <object>);
+      let result = element(collection, key, default: $not-found);
+      if (result == $not-found)
+        values(#f, #f);
+      else
+        values(#t, result);
+      end if;
+    end method key-exists?;
+
+  but for some reason I get "Authorization denied" when I try to commit it.
 
 + What's the reasoning behind the 'skip' parameter to some sequence functions,
   like 'position'?  It seems like it would be less efficient to use than
