@@ -16,7 +16,6 @@ files:	library
 	session
 	static-files
 	server
-	dispatch
 	dsp
 	dsp-taglib
 	database
