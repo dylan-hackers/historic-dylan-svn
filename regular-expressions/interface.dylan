@@ -198,86 +198,7 @@ define inline function make-regex-positioner
   end method;
 end function make-regex-positioner;
 
-// returns #f if no match, the matching string on match, and another string or #f
-// for each group in the regex.
-/*
-define method regex-match
-    (big :: <string>, regex :: <string>) => (#rest results);
-  let (#rest marks) = regex-position(regex, big);
-  let result = make(<stretchy-vector>);
 
-  if(marks[0])
-    for(i from 0 below marks.size by 2)
-      if(marks[i] & marks[i + 1])
-        result := add!(result, copy-sequence(big, 
-                                             start: marks[i], 
-                                             end: marks[i + 1]))
-      else
-        result := add!(result, #f)
-      end
-    end
-  end;
-  apply(values, result)
-end;
-*/
-
-// #if (have-free-time)
-/*
-// regex-matches -- exported
-//
-// A more convenient form of regex-position.  Usually you want
-// substrings that were matched by a group rather than the marks for
-// the group.  How you use this is you give the group numbers you
-// want, and it'll give you the strings.  (#f if that group wasn't
-// matched)
-//
-define function regex-matches
-    (big :: <string>, regex :: <string>,
-     #key start: start-index :: <integer> = 0,
-          end: end-index :: false-or(<integer>),
-          case-sensitive :: <boolean> = #f,
-          groups :: false-or(<sequence>))
- => (#rest group-strings :: false-or(<string>));
-  if (~groups)
-    error("Mandatory keyword groups: not used in call to regex-matches");
-  end if;
-  let (#rest marks)
-    = regex-position(big, regex, start: start-index, end: end-index, 
-		      case-sensitive: case-sensitive);
-  let return-val = make(<vector>, size: groups.size, fill: #f);
-  for (index from 0 below return-val.size)
-    let group-start = groups[index] * 2;
-    let group-end = group-start + 1;
-    if (element(marks, group-start, default: #f))
-      return-val[index] := copy-sequence(big, start: 
-
-  let sz = floor/(marks.size, 2);
-  let return = make(<vector>, size: sz, fill: #f);
-  for (index from 0 below sz)
-    let pos = index * 2;
-    if (element(marks, pos, default: #f))
-      return[index] := copy-sequence(big, start: marks[pos],
-				     end: marks[pos + 1]);
-    end if;
-  end for;
-  if (matches)
-    let return = make(<vector>, size: matches.size * 2);
-    for (raw-pos in matches, index from 0)
-      let src-pos = raw-pos * 2;
-      let dest-pos = index * 2;
-      return[dest-pos] := element(marks, src-pos, default: #f);
-      return[dest-pos + 1] := element(marks, src-pos + 1, default: #f);
-    end for;
-    apply(values, return);
-  else
-    
-    apply(values, marks);
-  end if;
-
-// #endif
-*/
-
-
 // Functions based on regex-position
 
 define function regex-replace

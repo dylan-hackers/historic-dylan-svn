@@ -58,6 +58,7 @@ define module regular-expressions
     compile-regex,
     <regex>,
       regex-search,
+      regex-search-strings,
       regex-group-count,
       regex-position,
       make-regex-positioner,

@@ -47,6 +47,7 @@ define module regex                  // new API module
   create
     compile-regex,
     regex-search,
+    regex-search-strings,
     <regex>,
     <invalid-regex>,
       invalid-regex-pattern,

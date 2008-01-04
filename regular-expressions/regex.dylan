@@ -134,6 +134,41 @@ define method regex-search
   end
 end method regex-search;
 
+define sealed generic regex-search-strings
+    (pattern :: <object>, string :: <string>,
+     #key anchored  :: <boolean> = #f,
+     start     :: <integer> = 0,
+     end: _end :: <integer> = big.size)
+ => (#rest strings :: false-or(<string>));
+
+define method regex-search-strings
+    (pattern :: <string>, string :: <string>,
+     #key anchored  :: <boolean> = #f,
+     start     :: <integer> = 0,
+     end: _end :: <integer> = string.size)
+ => (#rest strings :: false-or(<string>))
+  regex-search-strings(compile-regex(pattern),
+                       string,
+		       anchored: anchored, start: start, end: _end)
+end method regex-search-strings;
+
+define method regex-search-strings
+    (pattern :: <regex>, string :: <string>,
+     #key anchored :: <boolean> = #f,
+     start    :: <integer> = 0,
+     end: _end :: <integer> = string.size,)
+ => (#rest strings :: false-or(<string>))
+  let match = regex-search(pattern,
+			   string, 
+			   anchored: anchored, start: start, end: _end);
+  if (match)
+    apply(values, map(method (group) group & group.group-text end,
+                      match.groups-by-position))
+  else
+    values(match)
+  end if;
+end method regex-search-strings;
+
 // Get the groups for the match.  There will always be at least one; the entire match.
 //
 define sealed generic match-groups
