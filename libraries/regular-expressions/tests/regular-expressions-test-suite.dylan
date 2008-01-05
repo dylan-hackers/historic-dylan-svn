@@ -29,11 +29,17 @@ define test atom-test ()
   check-equal("atom-tan", "\<44>\<79>\<6c>\<61>\<6e>", "Dylan");
 end;
 
+// Note that flags must come at the end of groups-and-flags.
 define function check-matches
     (pattern, input-string, #rest groups-and-flags) => ()
   let string? = rcurry(instance?, <string>);
-  let groups = choose(string?, groups-and-flags);
-  let flags = choose(complement(string?), groups-and-flags);
+  let groups = groups-and-flags;
+  let flags = #[];
+  let flags-start = find-key(groups-and-flags, rcurry(instance?, <symbol>));
+  if (flags-start)
+    flags := copy-sequence(groups-and-flags, start: flags-start);
+    groups := copy-sequence(groups-and-flags, end: flags-start);
+  end;
   let regex = apply(compile-regex, pattern, flags);
   let match = regex-search(regex, input-string);
   if (empty?(groups))
@@ -64,6 +70,13 @@ define test ad-hoc-regex-test ()
   check-matches(".", "x", "x");
   check-matches(".", "\n", "\n", dot-matches-all: #t);
   check-matches("[a-]", "-", "-");
+  check-matches("(x)y", "xy", "xy", "x");
+  check-matches("((x)y)", "xy", "xy", "xy", "x");
+  check-matches("^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\\?([^#]*))?(#(.*))?",
+                "http://localhost/",
+                // groups...
+                "http://localhost/", "http:", "http", "//localhost", "localhost",
+                #f, #f, "localhost", #f, #f, "/", #f, #f, #f)
 end test ad-hoc-regex-test;
 
 // All these regexes should signal <invalid-regex> on compilation.
