@@ -496,6 +496,9 @@ define inline function parse-simple-group
   if (save-group?)
     info.current-group-number := info.current-group-number + 1;
   end;
+  // Save the group number since it might be incremented while parsing
+  // the regex contained in this group.
+  let this-group-number = info.current-group-number;
   let regex = if (lookahead(str) == ')')
                 consume(str);
                 $empty-string
@@ -518,7 +521,7 @@ define inline function parse-simple-group
         info.group-number-to-name[info.current-group-number] := group-name;
       end;
     end;
-    make(<mark>, child: regex, group: info.current-group-number)
+    make(<mark>, child: regex, group: this-group-number)
   end if
 end function parse-simple-group;
 
