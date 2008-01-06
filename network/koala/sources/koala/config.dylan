@@ -58,11 +58,18 @@ define method configure-server
                               return();
                             end;
                           end method;
-    log-info("Loading server configuration from %s.", config-loc);
     let text = file-contents(config-loc);
     if (text)
-      let xml :: xml$<document> = xml$parse-document(text);
-      process-config-node(xml);
+      log-info("Loading server configuration from %s.", config-loc);
+      // --todo: Fix parse-document to give a reasonable error message
+      // instead of just returning #f.
+      let xml :: false-or(xml$<document>) = xml$parse-document(text);
+      if (xml)
+        process-config-node(xml);
+      else
+        log-error("Unable to parse config file!");
+        *abort-startup?* := #t;
+      end
     else
       log-error("Server configuration file (%s) not found.", config-loc);
       *abort-startup?* := #t;
@@ -104,6 +111,7 @@ define method process-config-node (node :: xml$<document>) => ()
 end;
 
 define method process-config-node (node :: xml$<element>) => ()
+  log-debug("Processing config element %=", xml$name(node));
   process-config-element(node, xml$name(node));
 end;
 
@@ -295,22 +303,22 @@ define method process-config-element
   else
     let location = get-attr(node, #"location");
     let max-size = get-attr(node, #"max-size");
+    let default-size = 20 * 1024 * 1024;
     block ()
       max-size := string-to-integer(max-size);
-    exception (e :: <error>)
+    exception (ex :: <error>)
       warn("<LOG> element has invalid max-size attribute (%s).  "
-           "The default (%d) will be used.", max-size);
+           "The default (%d) will be used.", max-size, default-size);
     end;
     let log = iff(location,
                   make(<rolling-file-log-target>,
                        file: merge-locators(as(<file-locator>, location),
                                             *server-root*),
-                       max-size: max-size | 20000000),
+                       max-size: max-size | default-size),
                   make(<stream-log-target>,
                        stream: iff(string-equal?(type, "error"),
                                    *standard-error*,
                                    *standard-output*)));
-
     select (type by string-equal?)
       "error", "errors"
         => %error-log-target(active-vhost()) := log;

@@ -34,11 +34,9 @@ the document root directory.  i.e., the dynamic URL takes precedence.
 
 // Responds to a single URL.
 define responder responder1 ("/responder1")
-    (request :: <request>,
-     response :: <response>)
-  select (request-method(request))
+  select (request-method(current-request()))
     #"get", #"post"
-      => format(output-stream(response),
+      => format(output-stream(current-response()),
                 "<html><body>This is the output of a 'define responder' form."
                 "<p>Use your browser's Back button to return to the example."
                 "</body></html>");
@@ -47,11 +45,10 @@ end;
 
 // Responds to a single directory (i.e., prefix) URL.
 define directory responder dir1 ("/dir1")
-    (request :: <request>,
-     response :: <response>)
-  select (request-method(request))
+  let request = current-request();
+  select (request.request-method)
     #"get", #"post"
-      => format(output-stream(response),
+      => format(output-stream(current-response()),
                 "<html><body>This is a directory responder.  The part of the url after "
                 "the directory was %s."
                 "<p>Use your browser's Back button to return to the example."
@@ -67,9 +64,9 @@ end;
 // Slightly higher level than responders.  Gives you the convenience of not
 // having to figure out whether it's a GET, POST, HEAD, request, and the ability
 // to dispatch on your own page classes.  Just define methods for
-// respond-to-get, respond-to-post, and/or respond-to-head that dispatch on your
-// page class.  Note that the default methods for GET and HEAD do nothing and
-// the default method for POST calls the method for GET.
+// respond-to that dispatch on your page class.  Note that the default methods
+// for GET and HEAD do nothing and the default method for POST calls the method
+// for GET.
 
 // This defines a <hello-world-page> class which is a subclass of <page>, and a
 // variable called *hello-world-page* which is an instance of
@@ -85,13 +82,14 @@ end;
 // find all the values passed in the URL (e.g., /hello?foo=1&bar=2).  You can
 // also use get-query-value to get a specific query value, and
 // count-query-values can be used to find out how many there are.  Note that
-// respond-to-post automatically calls respond-to-get, unless you override it.
+// respond-to(#"post", ...) automatically calls respond-to(#"get", unless you
+// override it.
 //
-define method respond-to-get (page :: <hello-world-page>,
-                              request :: <request>,
-                              response :: <response>)
-  let stream :: <stream> = output-stream(response);
-  format(stream, "<html>\n<head><title>Hello World</title></head>\n<body>Hello there.<p>");
+define method respond-to
+    (request-method == #"get", page :: <hello-world-page>)
+  let stream :: <stream> = output-stream(current-response());
+  format(stream, "<html>\n<head><title>Hello World</title></head>\n"
+                 "<body>Hello there.<p>");
   format(stream, "%s<br>", if (count-query-values() > 0)
                              "Query values are:"
                            else
@@ -108,7 +106,7 @@ end;
 
 // Dylan Server Pages are also defined with the "define page" macro, but you
 // also specify the source: argument which is a file that contains normal
-// HTML plus DSP tags.  The default method for respond-to-get parses the DSP
+// HTML plus DSP tags.  The default method for respond-to GET parses the DSP
 // source file and displays it.  Any HTML is output directly to the output
 // stream, and tags invoke the corresponding tag definition code.
 
@@ -144,9 +142,9 @@ end;
 // Defines a tag that looks like <demo:hello/> in the DSP source file.  i.e.,
 // it has no body.
 define tag hello in demo
-    (page :: <demo-page>, response :: <response>)
+    (page :: <demo-page>)
     ()
-  format(output-stream(response), "Hello, world!");
+  format(output-stream(current-response()), "Hello, world!");
 end;
 
 define page args-page (<demo-page>)
@@ -161,17 +159,17 @@ end;
 // parse-tag-arg generic.
 //
 define tag show-keys in demo
-    (page :: <demo-page>, response :: <response>)
+    (page :: <demo-page>)
     (arg1 :: <integer>, arg2)
-  format(output-stream(response),
+  format(output-stream(current-response()),
          "The value of arg1 + 1 is %=.  The value of arg2 is %=.",
          arg1 + 1, arg2);
 end;
 
 
 define named-method logged-in? in demo
-    (page, request)
-  let session = get-session(request);
+    (page :: <demo-page>)
+  let session = get-session(current-request());
   session & get-attribute(session, #"username");
 end;
 
@@ -185,10 +183,9 @@ define page example-logout-page (<demo-page>)
      source: "demo/logout.dsp")
 end;
 
-define method respond-to-get (page :: <example-logout-page>,
-                              request :: <request>,
-                              response :: <response>)
-  let session = get-session(request);
+define method respond-to
+    (request-method == #"get", page :: <example-logout-page>)
+  let session = get-session(current-request());
   remove-attribute(session, #"username");
   remove-attribute(session, #"password");
   next-method();  // Must call this if you want the DSP template to be processed.
@@ -201,33 +198,33 @@ define page example-welcome-page (<demo-page>)
 end;
 
 // ...so handle the POST by storing the form values in the session.
-define method respond-to-post (page :: <example-welcome-page>,
-                               request :: <request>,
-                               response :: <response>)
+define method respond-to
+    (request-method == #"post", page :: <example-welcome-page>)
   let username = get-query-value("username");
   let password = get-query-value("password");
   let username-supplied? = username & username ~= "";
   let password-supplied? = password & password ~= "";
   if (username-supplied? & password-supplied?)
-    let session = get-session(request);
+    let session = get-session(current-request());
     set-attribute(session, #"username", username);
     set-attribute(session, #"password", password);
     next-method();  // process the DSP template for the welcome page.
   else
     note-form-error("You must supply <b>both</b> a username and password.");
-    // ---*** TODO: Calling respond-to-get probably isn't quite right.
+    // ---*** TODO: Calling respond-to(#"get", ...) probably isn't quite right.
     // If we're redirecting to another page should the query/form values
     // be cleared first?  Probably want to call process-page instead,
     // but with the existing request?
-    respond-to-get(*example-login-page*, request, response);
+    respond-to(#"get", *example-login-page*);
   end;
 end;
 
 // Note this tag is defined on <demo-page> so it can be accessed from any
 // page in this example web application.
 define tag current-username in demo
-    (page :: <demo-page>, response :: <response>)
+    (page :: <demo-page>)
     ()
+  let response = current-response();
   let username
     = get-form-value("username")
       | get-attribute(get-session(get-request(response)), #"username");
@@ -254,7 +251,7 @@ define thread variable *repetition-number* = 0;
 // See iterator.dsp for how this tag is invoked.
 //
 define body tag repeat in demo
-    (page :: <demo-page>, response :: <response>, do-body :: <function>)
+    (page :: <demo-page>, do-body :: <function>)
     ()
   let n-str = get-query-value("n");
   let n = (n-str & string-to-integer(n-str)) | 5;
@@ -266,9 +263,9 @@ define body tag repeat in demo
 end;
 
 define tag display-iteration-number in demo
-    (page :: <demo-page>, response :: <response>)
+    (page :: <demo-page>)
     ()
-  format(output-stream(response), "%d", *repetition-number*);
+  format(output-stream(current-response()), "%d", *repetition-number*);
 end;
 
 
@@ -295,30 +292,30 @@ define named-method no-rows-generator in demo
 end;
 
 define tag english-word in demo
-    (page :: <demo-page>, response :: <response>)
+    (page :: <demo-page>)
     ()
   let row = current-row();
-  format(output-stream(response), "%s", row[0]);
+  format(output-stream(current-response()), "%s", row[0]);
 end;
 
 define tag spanish-word in demo
-    (page :: <demo-page>, response :: <response>)
+    (page :: <demo-page>)
     ()
   let row = current-row();
-  format(output-stream(response), "%s", row[1]);
+  format(output-stream(current-response()), "%s", row[1]);
 end;
 
 define tag pinyin-word in demo
-    (page :: <demo-page>, response :: <response>)
+    (page :: <demo-page>)
     ()
   let row = current-row();
-  format(output-stream(response), "%s", row[2]);
+  format(output-stream(current-response()), "%s", row[2]);
 end;
 
 define tag row-bgcolor in demo
-    (page :: <demo-page>, response :: <response>)
+    (page :: <demo-page>)
     ()
-  write(output-stream(response),
+  write(output-stream(current-response()),
         if(even?(current-row-number())) "#EEEEEE" else "#FFFFFF" end);
 end;
 
@@ -348,21 +345,10 @@ end;
 
 /// Main
 
-// Starts up the web server.
-define function main () => ()
-  let config-file =
-    if(application-arguments().size > 0)
-      application-arguments()[0]
-    end;
-  // This is only necessary when running this example in FunDev/Linux
-  // because it doesn't have load-library.  In Windows the koala-basics
-  // library can be loaded at startup time by putting a
-  //     <module name="koala-basics"/>
-  // directive in the config file and commenting out this call to start-server.
-  start-server(config-file: config-file);
-end;
-
 begin
-  main();
+  // If you don't need to add any new command-line arguments you can just
+  // call koala-main directly.  It requires that you pass --config <filename>
+  // on the command line.
+  koala-main();
 end;
 

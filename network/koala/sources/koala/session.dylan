@@ -13,6 +13,8 @@ define variable *sessions* :: <table> = make(<table>);
 // #f means no max-age is transmitted, which means "until the user agent exits".
 define variable *session-max-age* :: false-or(<integer>) = #f;
 
+define constant $koala-session-id :: <byte-string> = "koala_session_id";
+
 // API
 // This doesn't affect any cookies set previously.
 define method set-session-max-age
@@ -72,7 +74,7 @@ define method clear-session
   if (session)
     remove-key!(*sessions*, session.session-id);
     request.request-session := #f;
-    add-cookie(*response*, "koala_session_id", -1,
+    add-cookie(*response*, $koala-session-id, -1,
                max-age: *session-max-age*,
                path: "/",
                // domain: ??? ---TODO
@@ -85,22 +87,23 @@ end;
 define method current-session
     (request :: <request>) => (session :: false-or(<session>))
   let cookies = request-header-value(request, #"cookie");
-  when (cookies)
-    block (return)
-      for (cookie in cookies)
-        when (cookie-name(cookie) = "koala_session_id")
-          let session-id = string-to-integer(cookie-value(cookie));
-          return(element(*sessions*, session-id, default: #f));
-        end;
-      end;
-    end;
-  end;
-end;
+  let cookie =
+    cookies & find-element(cookies,
+                           method (cookie)
+                             cookie-name(cookie) = $koala-session-id
+                           end);
+  if (cookie)
+    let session-id = string-to-integer(cookie-value(cookie));
+    element(*sessions*, session-id, default: #f) | new-session(request)
+  else
+    new-session(request)
+  end
+end method current-session;
 
 define method new-session
     (request :: <request>) => (session :: <session>)
   let id = next-session-id();
-  add-cookie(*response*, "koala_session_id", id,
+  add-cookie(*response*, $koala-session-id, id,
              max-age: *session-max-age*,
              path: "/",
              // domain: ??? ---TODO

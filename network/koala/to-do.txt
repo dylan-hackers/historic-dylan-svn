@@ -1,9 +1,16 @@
 Koala To-Do List
 ----------------
 
+* Make koala as easy to use as an HTTP server in Python.  Something like this:
+    use koala;
+    let config = make(<config>, locator: "/tmp/koala-config.xml");  // optional
+    let server = make(<http-server>, config: config);
+    register-url("/foo", method (request, response) ... end;
+    start-server(server, in-new-thread?: #f);
+
 * Ability to bind to a specific IP address.
 
-* Thread pool.  Can be expensive to allocate/deallocate a threads.
+* Thread pool.  Can be expensive to allocate/deallocate threads.
 
 * Fix security issues...
 

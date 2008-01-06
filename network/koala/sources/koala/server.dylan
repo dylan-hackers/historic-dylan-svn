@@ -945,7 +945,6 @@ define function register-auto-responder
 end;
 
 // define responder test ("/test" /* , secure?: #t */ )
-//     (request, response)
 //   format(output-stream(response), "<html><body>test</body></html>");
 // end;
 define macro responder-definer
