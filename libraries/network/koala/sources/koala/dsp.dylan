@@ -101,12 +101,6 @@ define function register-page
     (url :: <string>, page :: <page>, #key replace?, prefix?)
  => (responder :: <function>)
   bind (responder = curry(process-page, page))
-    let source = source-location(page);
-    log-debug("Registering URL %s (%s)",
-              url,
-              iff(source,
-                  sformat("source: %s", as(<string>, source)),
-                  "dynamic"));
     register-url(url, responder, replace?: replace?, prefix?: prefix?);
     *page-to-url-map*[page] := url;
     responder
@@ -681,8 +675,8 @@ define function register-page-urls
 end;
 
 
-// define tag foo in tlib (page, response) () do-stuff end
-// define body tag foo in tlib (page, response, do-body) (foo, bar :: <integer>) do-stuff end
+// define tag foo in tlib (page) () do-stuff end
+// define body tag foo in tlib (page, do-body) (foo, bar :: <integer>) do-stuff end
 //
 define macro tag-definer
   // There are two syntaxes (one with the "body" modifier and one without) so that
