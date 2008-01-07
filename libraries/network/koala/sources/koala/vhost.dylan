@@ -58,6 +58,12 @@ define class <directory-spec> (<object>)
   // TODO:
   //slot allow-cgi?, etc ...
   
+end class <directory-spec>;
+
+// prevent warnings until these are used by the config stuff
+begin
+  follow-symlinks?-setter;
+  allow-directory-listing?-setter;
 end;
 
 
@@ -171,6 +177,15 @@ define class <virtual-host> (<object>)
 
 end class <virtual-host>;
 
+// prevent warnings until these are used by the config stuff
+begin
+  default-documents-setter;
+  default-static-content-type-setter;
+  default-dynamic-content-type-setter;
+  generate-server-header?-setter;
+  auto-register-pages?;
+  auto-register-pages?-setter;
+end;
 
 define method initialize
     (vhost :: <virtual-host>, #key name, #all-keys)

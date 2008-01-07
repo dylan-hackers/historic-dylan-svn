@@ -7,9 +7,12 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library xml-rpc-common
   use common-dylan;
-  use io;
-  use system;         // for date module
-  use xml-parser;
+  use io,
+    import: { streams, format };
+  use system,
+    import: { date };
+  use xml-parser,
+    import: { xml-parser };
   use dylan-basics;
   export xml-rpc-common;
 end;
@@ -18,7 +21,6 @@ define module xml-rpc-common
   use dylan;
   use common-extensions, exclude: { format-to-string };
   use format;
-  use format-out;  // for debugging only
   use streams;
   use date,
     import: { <date>, as-iso8601-string };

@@ -436,11 +436,12 @@ end;
 define method parse-tag-arg
     (name, arg :: <string>, type == <boolean>) => (value :: <boolean>)
   select (arg by string-equal?)
-    "true", "yes", "#t" => #t;
-    "false", "no", "#f" => #f;
+    "true", "yes", "on", "#t" => #t;
+    "false", "no", "off", "#f" => #f;
     otherwise =>
       log-warning("Tag call argument %= should be a boolean value such as"
-                  " true/false or yes/no.  false will be used.", arg);
+                  " true/false, yes/no, or on/off.  false will be used.",
+                  arg);
       #f;
   end;
 end;
@@ -537,10 +538,11 @@ define function show-tag-call-attributes
                                 format(stream, " %s", name))
                           end,
                           exclude: exclude);
-end;
+end function show-tag-call-attributes;
 
 define function get-tag-call-attribute
-    (attr :: <object>, #key as: type :: <type>, test = \=) => (attribute-value :: <object>)
+    (attr :: <object>, #key as: type :: <type>, test = \=)
+ => (attribute-value :: <object>)
   block (return)
     map-tag-call-attributes(method (name, value)
                               if (test(name, attr))
@@ -584,7 +586,8 @@ define method register-tag
 end;
 
 define method as
-    (class :: subclass(<string>), call :: <tag-call>) => (s :: <string>)
+    (class :: subclass(<string>), call :: <tag-call>)
+ => (s :: <string>)
   with-output-to-string(out)
     format(out, "<%s:%s", call.prefix, call.name);
     for (arg in call.arguments,
@@ -608,8 +611,8 @@ define class <dsp-template> (<object>)
   // This is as-yet unused.
   // Pretty sure it was originally put here for error reporting purposes.
   constant slot source :: false-or(<locator>) = #f, init-keyword: #"source";
-  //         slot mod-date;  ---*** TODO
-end;
+  //       slot mod-date;  ---*** TODO
+end class <dsp-template>;
 
 define method add-entry!
     (tmplt :: <dsp-template>, entry :: <object>)

@@ -9,7 +9,9 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // Exported
 //
 define open primary class <response> (<object>)
-  slot get-request :: <request>, required-init-keyword: #"request";
+
+  constant slot get-request :: <request>,
+    required-init-keyword: #"request";
 
   // The output stream is created lazily so that the user has the opportunity to
   // set properties such as stream type (e.g., binary or text) and buffering
@@ -19,7 +21,8 @@ define open primary class <response> (<object>)
 
   // Headers to send with the response.
   // @see add-header
-  slot response-headers :: <header-table>, required-init-keyword: #"headers";
+  constant slot response-headers :: <header-table>,
+    required-init-keyword: #"headers";
 
   slot response-code    :: <integer> = 200;
   slot response-message :: <string>  = "OK";
@@ -28,13 +31,15 @@ define open primary class <response> (<object>)
 
   // Whether or not this is a buffered response.
   // @see output-stream
-  constant slot buffered? :: <boolean> = #t;
-end;
+  constant slot response-buffered? :: <boolean> = #t;
+
+end class <response>;
 
 // Exported
 //
 define method add-header
-    (response :: <response>, header :: <string>, value :: <object>, #key if-exists? = #"append")
+    (response :: <response>, header :: <string>, value :: <object>,
+     #key if-exists? = #"append")
   if (headers-sent?(response))
     raise(<koala-api-error>,
           "Attempt to add a %s header after headers have already been sent.",
@@ -53,12 +58,15 @@ end;
 define method output-stream
     (response :: <response>) => (stream :: <stream>)
   response.%output-stream
-  | begin
+  | if (response-buffered?(response))
       // The user can override this if they do it before writing to the
       // output stream.
       set-content-type(response, default-dynamic-content-type(*virtual-host*),
                        if-exists?: #"ignore");
       response.%output-stream := make(<string-stream>, direction: #"output");
+    else
+      signal(make(<koala-error>,
+                  format-string: "unbuffered responses aren't supported yet."));
     end
 end;
 
@@ -79,7 +87,8 @@ define method set-content-type
     raise(<koala-api-error>,
           "Attempt to set the Content-Type header after reply has begun to be sent.");
   else
-    add-header(response.response-headers, "Content-Type", content-type, if-exists?: if-exists?);
+    add-header(response.response-headers, "Content-Type", content-type,
+               if-exists?: if-exists?);
   end;
 end;
 
