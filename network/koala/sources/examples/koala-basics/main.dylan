@@ -29,11 +29,28 @@ the document root directory.  i.e., the dynamic URL takes precedence.
 
 */
 
+//// URLs
+
+// Using relative URLs in a web application strikes me as asking for trouble
+// in general.  For example, if you register an alias URL "/demo" for a page
+// "/demo/home.dsp" then URLs that appear in the home.dsp template would be
+// relative to / when the page is processed, rather than relative to /demo/.
+// So always use absolute URLs.
+
+define constant $demo-base-url :: <byte-string> = "/demo";
+
+// This is used throughout this file to create absolute URLs.
+define function demo-url
+    (url :: <byte-string>) => (absolute-url :: <byte-string>)
+  concatenate($demo-base-url, url)
+end;
+
+
 
 //// Responders -- the lowest level API for responding to a URL
 
 // Responds to a single URL.
-define responder responder1 ("/responder1")
+define responder responder1 (demo-url("/responder1"))
   select (request-method(current-request()))
     #"get", #"post"
       => format(output-stream(current-response()),
@@ -74,8 +91,8 @@ end;
 // *hello-world-page* instance.
 //
 define page hello-world-page (<page>)
-    (url: "/hello-world",
-     alias: "/hello")
+    (url: demo-url("/hello-world"),
+     alias: demo-url("/hello"))
 end;
 
 // Respond to a GET for <hello-world-page>.  Note the use of do-query-values to
@@ -102,7 +119,7 @@ define method respond-to
 end;
 
 
-/// Dylan Server Pages
+//// Dylan Server Pages
 
 // Dylan Server Pages are also defined with the "define page" macro, but you
 // also specify the source: argument which is a file that contains normal
@@ -129,13 +146,20 @@ end;
 define taglib demo ()
 end;
 
+define tag base-url in demo
+    (page :: <demo-page>)
+    ()
+  format(output-stream(current-response()), $demo-base-url);
+end;
+
 define page home-page (<demo-page>)
-    (url: "/demo/home.dsp",
+    (url: demo-url("/home.dsp"),
+     alias: "/demo/",
      source: "demo/home.dsp")
 end;
 
 define page hello-page (<demo-page>)
-    (url: "/demo/hello.dsp",
+    (url: demo-url("/hello.dsp"),
      source: "demo/hello.dsp")
 end;
 
@@ -148,7 +172,7 @@ define tag hello in demo
 end;
 
 define page args-page (<demo-page>)
-    (url: "/demo/args.dsp",
+    (url: demo-url("/args.dsp"),
      source: "demo/args.dsp")
 end;
 
@@ -174,12 +198,12 @@ define named-method logged-in? in demo
 end;
 
 define page example-login-page (<demo-page>)
-    (url: "/demo/login.dsp",
+    (url: demo-url("/login.dsp"),
      source: "demo/login.dsp")
 end;
 
 define page example-logout-page (<demo-page>)
-    (url: "/demo/logout.dsp",
+    (url: demo-url("/logout.dsp"),
      source: "demo/logout.dsp")
 end;
 
@@ -193,7 +217,7 @@ end;
 
 // The login page POSTs to the welcome page...
 define page example-welcome-page (<demo-page>)
-    (url: "/demo/welcome.dsp",
+    (url: demo-url("/welcome.dsp"),
      source: "demo/welcome.dsp")
 end;
 
@@ -235,7 +259,7 @@ end;
 //// iterator
 
 define page iterator-page (<demo-page>)
-    (url: "/demo/iterator.dsp",
+    (url: demo-url("/iterator.dsp"),
      source: "demo/iterator.dsp")
 end;
 
@@ -272,7 +296,7 @@ end;
 //// table generation
 
 define page table-page (<demo-page>)
-    (url: "/demo/table.dsp",
+    (url: demo-url("/table.dsp"),
      source: "demo/table.dsp")
 end;
 
@@ -320,7 +344,8 @@ define tag row-bgcolor in demo
 end;
 
 
-/// XML-RPC (use any XML-RPC client to call these)
+
+//// XML-RPC (use any XML-RPC client to call these)
 
 begin
   register-xml-rpc-method("test.zero",

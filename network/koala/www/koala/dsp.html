@@ -62,7 +62,7 @@ contend that it's only ok for one-off hacks and small one-person
 projects.  This isn't necessary in DSP because with Dylan's powerful
 language features writing custom tags is trivial and concise compared
 to JSP.  And with <a
-href="http://www.functionalobjects.com/">Functional Developer</a>, you
+href="http://www.opendylan.com/">Open Dylan</a>, you
 often don't even need to restart your application to compile new
 custom tags and try them out.)</font>
 
@@ -70,8 +70,7 @@ custom tags and try them out.)</font>
 uses the Koala HTTP server library.  This effectively means that each
 DSP application has to run on a different Koala server and therefore on
 a different HTTP port.  (The plan is to eventually fix Koala to load DSP
-application libraries at runtime, based on configuration files, or
-better, to implement mod_dylan for Apache.)
+application libraries at runtime, based on configuration files.)
 
 
 <a name="content-authoring"></a>
@@ -92,7 +91,7 @@ directives</a> defined that couldn't easily have been defined by the
 user.  DSP directives use the same syntax as other tags, but they use
 the special tag library name <strong>%dsp</strong>.  For example, the <a
 href="#include"><strong>include</strong></a> directive might look like
-this: &lt;%dsp:include url=&quot;foo.dsp&quot;/&gt;.
+this: &lt;%dsp:include location=&quot;foo.dsp&quot;/&gt;.
 
 <p> Each top-level template file must have a corresponding instance
 of &lt;dylan-server-page&gt; associated with it.  This is accomplished
@@ -117,11 +116,13 @@ directives:
   <dt><a name="include"></a><strong>%dsp:include</strong></dt>
   <dd>Includes another DSP template (or plain HTML file) in the current page.
     Example usage:
-      <pre>&lt;%dsp:include url="header.dsp"/&gt;</pre>
+      <pre>&lt;%dsp:include location="header.dsp"/&gt;</pre>
 
-    Note that if the url given is absolute (i.e., begins with a slash) then the document
-    is looked up relative to the document root directory.  Otherwise it is looked up
-    relative to the directory containing the current document.
+    Note that if the location given is absolute (i.e., begins with a slash)
+    then the document is looked up relative to the document root directory.
+    Otherwise it is looked up relative to the directory containing the current
+    document.
+
     <p>
   </dd>
 
@@ -250,9 +251,9 @@ Tags are defined with the "define tag" macro.  The syntax is:
 The following example tag should clear things up a bit:
   <pre>
     define tag current-time in demo
-        (page :: &lt;dylan-server-page&gt;, response :: &lt;response&gt;)
+        (page :: &lt;dylan-server-page&gt;)
         (style)
-      write(output-stream(response), current-time(style));
+      write(output-stream(current-response()), current-time(style));
     end;
   </pre>
 
@@ -271,10 +272,8 @@ Note that <code>style</code> defines a parameter for the tag call
 such that the <code>style</code> variable is bound to the value of
 that parameter in the body of the tag definition.
 
-<p>The tag functon must always accept two arguments, <code>page</code>
-and <code>response</code>.  The first argument will be an instance of
-<code>&lt;dylan-server-page&gt;</code> and the second will be an
-instance of <code>&lt;response&gt;</code>.
+<p>The tag functon must always accept one argument: <code>page</code>, an
+instance of <code>&lt;dylan-server-page&gt;</code>.
 
 
 <a name="techref"></a>
@@ -360,15 +359,17 @@ instance of <code>&lt;response&gt;</code>.
   <tr>
     <td width="2%">&nbsp;</td>
     <td width="98%">
-      Each tag definition creates a method that will be called when the tag is invoked.
-      This is the parameter list for that method.  The basic form of the parameter list is
-      (<span class="param">page</span>, <span class="param">response</span> [, <span
-      class="param">process-body</span>]).  <span class="param">page</span> is an instance
-      of <code>&lt;dylan-server-page&gt;</code>.  <span class="param">response</span> is
-      an instance of <code>&lt;response&gt;</code>.  <span
-      class="param">process-body</span> is an instance of <code>&lt;function&gt;</code>.
-      The <span class="param">process-body</span> argument should be specified if and 
+
+      Each tag definition creates a method that will be called when the tag is
+      invoked.  This is the parameter list for that method.  The basic form of
+      the parameter list is (<span class="param">page</span>[, <span
+      class="param">process-body</span>]).  <span class="param">page</span> is
+      an instance of <code>&lt;dylan-server-page&gt;</code>.  <span
+      class="param">process-body</span> is an instance of
+      <code>&lt;function&gt;</code>.  The <span
+      class="param">process-body</span> argument should be specified if and
       only if the <code>body</code> modifier is supplied.
+
       <p>
     </td>
   </tr>
@@ -436,9 +437,9 @@ instance of <code>&lt;response&gt;</code>.
 
   <code><pre>
     define tag hello in demo
-        (page :: &lt;dylan-server-page&gt;, response :: &lt;response&gt;)
+        (page :: &lt;dylan-server-page&gt;)
         ()
-      format(output-stream(response), "Hello, world!");
+      format(output-stream(current-response()), "Hello, world!");
     end;
   </pre></code>
 
@@ -448,7 +449,6 @@ instance of <code>&lt;response&gt;</code>.
   <code><pre>
     define body tag three-times in demo
         (page :: &lt;dylan-server-page&gt;,
-         response :: &lt;response&gt;,
          do-body :: &lt;function&gt;)
         ()
       for (i from 1 to 3)

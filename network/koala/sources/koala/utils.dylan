@@ -252,14 +252,14 @@ end;
 define method find-object
     (trie :: <string-trie>, path :: <sequence>)
   local method fob (trie :: <string-trie>, path :: <list>, obj, rest)
-          if (path = #())
+          if (empty?(path))
             values(obj, rest)
           else
             let child = element(trie.trie-children, head(path), default: #f);
             if (child)
               fob(child, tail(path), child.trie-object | obj,
                   if (child.trie-object)
-                    if (tail(path) == #()) #f else tail(path) end
+                    if (empty?(tail(path))) #f else tail(path) end
                   else
                     rest
                   end)

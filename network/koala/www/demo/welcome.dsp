@@ -6,13 +6,13 @@
 </head>
 
 <body>
-  <%dsp:include url="header.dsp"/>
-  <%dsp:include url="body-wrapper-start.dsp"/>
+  <%dsp:include location="header.dsp"/>
+  <%dsp:include location="body-wrapper-start.dsp"/>
 
   <h2>Welcome, <demo:current-username/>!</h2>
 
-  <%dsp:include url="body-wrapper-end.dsp"/>
-  <%dsp:include url="footer.dsp"/>
+  <%dsp:include location="body-wrapper-end.dsp"/>
+  <%dsp:include location="footer.dsp"/>
 
 </body>
 </html>
