@@ -66,8 +66,7 @@ define class <server> (<sealed-constructor>)
 
   slot connections-accepted :: <integer> = 0; // Connections accepted
   constant slot user-agent-stats :: <string-table> = make(<string-table>);
-  constant class slot startup-date :: <date> = current-date();
-end;
+end class <server>;
 
 define sealed method make
     (c == <server>, #rest keys, #key) => (server :: <server>)

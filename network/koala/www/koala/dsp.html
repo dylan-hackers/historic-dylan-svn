@@ -237,14 +237,19 @@ and its tags would then be used like this:
 
   <pre>&lt;xyz:tag-one/&gt;</pre>
 
+Note that <code>prefix</code> is optional, and defaults to the value
+of <code>name</code>.
+
 
 <a name="tags"></a>
 <h3>Tags</h3>
 
 Tags are defined with the "define tag" macro.  The syntax is:
   <pre>
-    define tag tag-name [in taglib-name] (method-parameters) (tag-parameters)
-      tag-body
+    define [body] tag tag-name [in taglib-name]
+        (method-parameters)
+        (tag-parameters)
+      ...code...
     end;
   </pre>
 
@@ -350,8 +355,7 @@ instance of <code>&lt;dylan-server-page&gt;</code>.
   <tr>
     <td width="2%">&nbsp;</td>
     <td width="98%">
-      The name of the taglib the tag should be added to.  If not specified, it
-      defaults to <code>&quot;dsp&quot;</code>.
+      The name of the taglib the tag should be added to.
       <p>
     </td>
   </tr>
@@ -415,19 +419,24 @@ instance of <code>&lt;dylan-server-page&gt;</code>.
 
 <span class="defheader">Description</span>
 <blockquote>
-  Defines a new tag named <span class="param">tag-name</span> in the <span
-  class="param">taglib-name</span> tag library. For simple DSP tags with no body
-  elements, the <span class="param">body</span> code normally just does output to the
-  current output stream, generating dynamic output in place of the literal tag call in the
-  source file.  Tags that have body elements may additionally want to setup state for
-  nested tags to use.  This may be done, for example, through the use of dynamically bound
-  thread variables or storing information in the session or page context.
+  Defines a new tag named <span class="param">tag-name</span> in the
+  <span class="param">taglib-name</span> tag library. For simple DSP
+  tags with no body elements, the <span class="param">body</span> code
+  normally just does output to the output stream of the current
+  response, generating dynamic output in place of the literal tag call
+  in the source file.  Tags that have body elements may additionally
+  want to setup state for nested tags to use.  This may be done, for
+  example, through the use of dynamically bound thread variables or
+  storing information in the session or page context.
 
   <p>
-  When the DSP engine invokes the tag to generate dynamic content it passes arguments that
-  match <span class="param">method-parameters</span>.  <span
-  class="param">tag-call-parameters</span> receive arguments specified in the tag call, in
-  the DSP source file, after they have been parsed to the specified types.
+  When the DSP engine invokes the tag to generate dynamic content it
+  passes arguments that match <span
+  class="param">method-parameters</span>.  <span
+  class="param">tag-call-parameters</span> receive arguments specified
+  in the tag call, in the DSP source file, after they have been parsed
+  to the specified types.
+
 </blockquote>
 
 <span class="defheader">Examples</span>
