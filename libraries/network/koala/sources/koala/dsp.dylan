@@ -636,14 +636,18 @@ define macro page-definer
         ?slot-specs:*
       end }
  => { page-aux(?name; ?superclasses; ?make-args; ?slot-specs);
-      has-url?(?make-args) & register-page-urls("*" ## ?name ## "*", ?make-args)
+      if (has-url?(?make-args))
+        register-page-urls("*" ## ?name ## "*", ?make-args)
+      end
     }
 
     { define directory page ?:name (?superclasses:*) (?make-args:*)
         ?slot-specs:*
       end }
  => { page-aux(?name; ?superclasses; ?make-args; ?slot-specs);
-      has-url?(?make-args) & register-page-urls("*" ## ?name ## "*", ?make-args, prefix?: #t)
+      if (has-url?(?make-args))
+        register-page-urls("*" ## ?name ## "*", ?make-args, prefix?: #t)
+      end
     }
 
 end;
@@ -653,6 +657,7 @@ define macro page-aux
    => { define class "<" ## ?name ## ">" (?superclasses) ?slot-specs end;
         define variable "*" ## ?name ## "*" = make("<" ## ?name ## ">", ?make-args) }
 end;
+
 define function has-url? (#key url :: false-or(<string>), #all-keys)
  => (url-provided? :: <boolean>);
   if (url)
@@ -900,9 +905,13 @@ define function parse-include-directive
                 as(<string>, call), as(<string>, page.source-location), tag-start);
     log-warning("The include directive doesn't allow a body; it should end in '/>'.");
   end;
-  let url = get-arg(call, #"url") | get-arg(call, #"uri") | get-arg(call, #"location");
+  // #"location" is preferred here because URL and URI can be misleading.  This
+  // is relative to the source location of the page template, not relative to the
+  // requested URL
+  let url = get-arg(call, #"location") | get-arg(call, #"uri") | get-arg(call, #"url");
   if (~url)
-    parse-error("In template %=, '%%dsp:include' directive must have a 'url' attribute.",
+    parse-error("In template %=, '%%dsp:include' directive must have a "
+                  "'location' attribute.",
                 as(<string>, page.source-location));
   end;
   let source = document-location(url, context: page-directory(page));

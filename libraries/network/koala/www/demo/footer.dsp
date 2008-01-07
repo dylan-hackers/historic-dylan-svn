@@ -1,4 +1,4 @@
-<%dsp:taglib name="demo" prefix="demo"/>
+<%dsp:taglib name="demo"/>
 
 <hr noshade width="90%" align="center">
 <table width="90%" align="center">
@@ -13,7 +13,7 @@
       </dsp:if>
     </td>
     <td width="50%" align="right">
-      <a href="home.dsp">Go back to demo home</a>
+      <a href="<demo:base-url/>/home.dsp">Go back to demo home</a>
     </td>
   </tr>
 </table>

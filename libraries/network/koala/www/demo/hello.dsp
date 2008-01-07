@@ -7,15 +7,15 @@
 
 <body>
 
-  <%dsp:include url="header.dsp"/>
-  <%dsp:include url="body-wrapper-start.dsp"/>
+  <%dsp:include location="header.dsp"/>
+  <%dsp:include location="body-wrapper-start.dsp"/>
 
   <p>This page demonstrates a simple tag call that displays &quot;hello world&quot;.
 
   <p><demo:hello/>
 
-  <%dsp:include url="body-wrapper-end.dsp"/>
-  <%dsp:include url="footer.dsp"/>
+  <%dsp:include location="body-wrapper-end.dsp"/>
+  <%dsp:include location="footer.dsp"/>
 
 </body>
 </html>

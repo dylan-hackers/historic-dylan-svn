@@ -5,11 +5,11 @@
 
 <body>
 
-  <%dsp:include url="header.dsp"/>
+  <%dsp:include location="header.dsp"/>
 
   <h2 align="center">ok, you're logged out.</h2>
 
-  <%dsp:include url="footer.dsp"/>
+  <%dsp:include location="footer.dsp"/>
 
 </body>
 </html>

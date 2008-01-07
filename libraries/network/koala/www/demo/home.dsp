@@ -5,39 +5,43 @@
 
 <body>
 
-  <%dsp:include url="header.dsp"/>
-  <%dsp:include url="body-wrapper-start.dsp"/>
+  <%dsp:include location="header.dsp"/>
+  <%dsp:include location="body-wrapper-start.dsp"/>
+  <%dsp:taglib name="demo"/>
 
   <h2>Home</h2>
 
-  Each page of this demo demonstrates at least one different feature of
-  Dylan Server Pages.  There's no preset order to the pages; just click
-  on one to see what happens and then look at the Dylan source (koala-basics.dylan)
-  to see how it's implemented.  There are comments in the source that
-  should be helpful.
+  Each page of this demo demonstrates at least one different feature
+  of Dylan Server Pages.  There's no preset order to the pages; just
+  click on one to see what happens and then look at the Dylan source
+  code to see how it's implemented.  There are comments in the source
+  that should be helpful.
 
   <p>
   <h3>Contents</h3>
 
   <ol>
-    <li><a href="hello.dsp">Hello World</a></li>
-    <li><a href="args.dsp">A tag with arguments</a></li>
-    <li><a href="login.dsp">Login (demonstrates sessions)</a></li>
-    <li><a href="logout.dsp">Logout (demonstrates sessions)</a></li>
-    <li><a href="iterator.dsp?n=3">Iterator (demonstrates query values and body tags)</a></li>
-    <li><a href="table.dsp">Table Generation</a></li>
+    <li><a href="<demo:base-url/>/hello.dsp">Hello World</a></li>
+    <li><a href="<demo:base-url/>/args.dsp">A tag with arguments</a></li>
+    <li><a href="<demo:base-url/>/login.dsp">Login (demonstrates sessions)</a></li>
+    <li><a href="<demo:base-url/>/logout.dsp">Logout (demonstrates sessions)</a></li>
+    <li><a href="<demo:base-url/>/iterator.dsp?n=3">Iterator (demonstrates query
+             values and body tags)</a></li>
+    <li><a href="<demo:base-url/>/table.dsp">Table Generation</a></li>
   </ol>
 
   <p>
   <h3>Low-level Koala API</h3>
   
   <ol>
-    <li><a href="/responder1">A responder (the most basic way to respond to a URL)</a></li>
-    <li><a href="/hello?a=1&b=2">Hello World (a non-DSP page)</a></li>
+    <li><a href="<demo:base-url/>/responder1">
+	  A responder (the most basic way to respond to a URL)
+	</a></li>
+    <li><a href="<demo:base-url/>/hello?a=1&b=2">Hello World (a non-DSP page)</a></li>
   </ol>
 
-  <%dsp:include url="body-wrapper-end.dsp"/>
-  <%dsp:include url="footer.dsp"/>
+  <%dsp:include location="body-wrapper-end.dsp"/>
+  <%dsp:include location="footer.dsp"/>
 
 </body>
 </html>
