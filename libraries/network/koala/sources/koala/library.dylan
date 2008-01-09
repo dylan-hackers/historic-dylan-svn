@@ -347,9 +347,7 @@ define module httpi                             // http internals
   //use ssl-sockets;
   use xml-parser,
     prefix: "xml$";
-  use xml-rpc-common,
-    // TODO: remove base64 code from xml-rpc-common
-    exclude: { base64-decode, base64-encode };
+  use xml-rpc-common;
   use win32-kernel,
     import: { LoadLibrary, FreeLibrary };
   use base64;

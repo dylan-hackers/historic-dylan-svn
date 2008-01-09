@@ -14,20 +14,25 @@ define library xml-rpc-common
   use xml-parser,
     import: { xml-parser };
   use dylan-basics;
+  use base64;
   export xml-rpc-common;
 end;
 
 define module xml-rpc-common
   use dylan;
-  use common-extensions, exclude: { format-to-string };
+  use common-extensions,
+    exclude: { format-to-string };
   use format;
   use streams;
   use date,
-    import: { <date>, as-iso8601-string };
+    import: { <date>,
+              as-iso8601-string };
   use xml-parser,
     prefix: "xml$";
-  use dylan-basics, exclude: { split };
-
+  use dylan-basics,
+    exclude: { split };
+  use base64,
+    import: { base64-decode };
   export
     <xml-rpc-error>,
     <xml-rpc-parse-error>, xml-rpc-parse-error,
@@ -37,8 +42,6 @@ define module xml-rpc-common
     find-child,
     *debugging-xml-rpc*,
     set-strict-mode,
-    base64-encode,
-    base64-decode;
 end;
 
 
