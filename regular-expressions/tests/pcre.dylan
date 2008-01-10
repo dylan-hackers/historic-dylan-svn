@@ -43,8 +43,9 @@ end function run-pcre-checks;
 define class <section> (<object>)
   constant slot section-lines :: <sequence>,
     required-init-keyword: #"lines";
-  constant slot start-line-number :: <integer>,
-    required-init-keyword: #"start-line-number";
+  // not used yet...
+  // constant slot start-line-number :: <integer>,
+  //  required-init-keyword: #"start-line-number";
   slot %index :: <integer> = 0;
 end class <section>;
 

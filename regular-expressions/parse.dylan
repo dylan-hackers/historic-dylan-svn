@@ -116,8 +116,7 @@ define class <parsed-backreference> (<parsed-atom>)
   constant slot group-number :: <integer>, required-init-keyword: #"group"; 
 end class <parsed-backreference>;
 
-// Note: I'm pretty sure <simple-error> won't work in GD.  --cgay
-define class <regex-error> (<simple-error>)
+define class <regex-error> (<format-string-condition>, <error>)
 end class <regex-error>;
 
 define class <illegal-regex> (<regex-error>)
