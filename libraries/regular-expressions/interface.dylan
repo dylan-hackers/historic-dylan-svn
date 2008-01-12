@@ -238,7 +238,7 @@ end function make-regex-replacer;
 define function split
     (pattern :: <string>, input :: <string>, 
      #key count = #f, remove-empty-items = #t, start = 0, end: input-end = #f)
- => (#rest whole-bunch-of-strings :: <string>);
+ => (strings :: <sequence>);
   let positioner = make-regex-positioner(pattern);
   split-string(positioner, input, start, input-end | size(input),
 	       count, remove-empty-items);
@@ -261,7 +261,7 @@ define function split-string
     (positioner :: <function>, input :: <string>, start :: <integer>, 
      input-end :: <integer>, count :: false-or(<integer>), 
      remove-empty-items :: <object>)
- => (#rest whole-bunch-of-strings :: <string>);
+ => (strings :: <sequence>);
   let strings = make(<deque>);
   block (done)
     let end-of-last-match = 0;
@@ -292,9 +292,9 @@ define function split-string
     end while;
   end block;
   if (remove-empty-items)
-    apply(values, remove!(strings, #f, test: method (a, b) a.empty? end));
+    remove!(strings, #f, test: method (a, b) a.empty? end);
   else
-    apply(values, strings);
+    strings
   end if;
 end function split-string;
 
