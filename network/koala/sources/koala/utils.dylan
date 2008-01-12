@@ -194,7 +194,7 @@ define class <string-trie> (<object>)
     required-init-keyword: #"object";
 end;
 
-define class <trie-error> (<simple-error>)
+define class <trie-error> (<format-string-condition>, <error>)
 end;
 
 define method add-object

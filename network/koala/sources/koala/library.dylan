@@ -46,6 +46,7 @@ define module utilities
               // make-symbol,
               // case-insensitive-equal,
               // case-insensitive-string-hash
+              <format-string-condition>
               };
   use file-system,
     import: { with-open-file, <file-does-not-exist-error> };

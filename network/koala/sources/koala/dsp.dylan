@@ -22,7 +22,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define variable *debugging-dsp* :: <boolean> = #f;
 
-define class <dsp-error> (<simple-error>) end;
+define class <dsp-error> (<format-string-condition>, <error>) end;
 
 define class <dsp-parse-error> (<dsp-error>) end;
 

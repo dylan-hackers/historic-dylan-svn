@@ -12,9 +12,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 // See RFC 2616, 6.1.1
 
-// I make everything a simple error so the stupid debugger can understand it.
-//
-define class <koala-error> (<simple-error>)
+define class <koala-error> (<format-string-condition>, <error>)
 end;
 
 // Signalled when a library uses the Koala API incorrectly. i.e., user
