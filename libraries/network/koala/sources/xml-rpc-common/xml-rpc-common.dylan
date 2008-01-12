@@ -28,7 +28,7 @@ end;
 
 // All XML-RPC errors inherit from this class.
 //
-define class <xml-rpc-error> (<simple-error>)
+define class <xml-rpc-error> (<format-string-condition>, <error>)
 end;
 
 // An error of this type will be thrown if a valid <fault> response
