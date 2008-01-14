@@ -139,14 +139,14 @@ define sealed generic regex-search-strings
      #key anchored  :: <boolean> = #f,
      start     :: <integer> = 0,
      end: _end :: <integer> = big.size)
- => (#rest strings :: false-or(<string>));
+ => (#rest strings);
 
 define method regex-search-strings
     (pattern :: <string>, string :: <string>,
      #key anchored  :: <boolean> = #f,
      start     :: <integer> = 0,
      end: _end :: <integer> = string.size)
- => (#rest strings :: false-or(<string>))
+ => (#rest strings)
   regex-search-strings(compile-regex(pattern),
                        string,
 		       anchored: anchored, start: start, end: _end)
@@ -157,7 +157,7 @@ define method regex-search-strings
      #key anchored :: <boolean> = #f,
      start    :: <integer> = 0,
      end: _end :: <integer> = string.size,)
- => (#rest strings :: false-or(<string>))
+ => (#rest strings)
   let match = regex-search(pattern,
 			   string, 
 			   anchored: anchored, start: start, end: _end);

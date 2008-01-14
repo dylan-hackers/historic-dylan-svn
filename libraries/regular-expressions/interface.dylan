@@ -236,7 +236,7 @@ end function make-regex-replacer;
 // Like Perl's split function
 //
 define function split
-    (pattern :: <string>, input :: <string>, 
+    (input :: <string>, pattern :: <string>, 
      #key count = #f, remove-empty-items = #t, start = 0, end: input-end = #f)
  => (strings :: <sequence>);
   let positioner = make-regex-positioner(pattern);
