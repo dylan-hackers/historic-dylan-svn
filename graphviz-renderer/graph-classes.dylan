@@ -6,6 +6,7 @@ Copyright: (C) 2005,  All rights reversed.
 define sealed class <graph> (<object>)
   constant slot nodes :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot edges :: <stretchy-vector> = make(<stretchy-vector>);
+  constant slot attributes :: <string-table> = make(<string-table>);
 end;
 
 define sealed class <node> (<object>)
@@ -65,12 +66,12 @@ define function find-node (graph :: <graph>, name :: <string>)
   end;
 end;
 
-define function add-predecessors (node :: <node>, pres :: <collection>) => ()
+define function add-successors (node :: <node>, pres :: <collection>) => ()
   let nodes-to-connect = maybe-create-nodes(node.graph, pres);
   map(curry(create-edge, node.graph, node), nodes-to-connect);
 end;
 
-define function add-successors (node :: <node>, succs :: <collection>) => ()
+define function add-predecessors (node :: <node>, succs :: <collection>) => ()
   let nodes-to-connect = maybe-create-nodes(node.graph, succs);
   map(rcurry(curry(create-edge, node.graph), node), nodes-to-connect);
 end;

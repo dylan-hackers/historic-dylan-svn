@@ -6,6 +6,11 @@ define function generate-dot
  (graph :: <graph>, output :: <stream>, #key top-node) => ()
   let top-node = top-node | graph.nodes[0];
   write(output, "digraph G {\n");
+  if (graph.attributes.size > 0)
+    for (value keyed-by name in graph.attributes)
+      write(output, concatenate("  ", name, " = \"", value ,"\";\n"));
+    end for;
+  end if;
   process-nodes(top-node, output);
   write(output, "}\n");
 end;
@@ -14,6 +19,7 @@ define function process-nodes
     (top-node :: <node>, output :: <stream>) => ()
   let nodes-queue = make(<deque>);
   push(nodes-queue, top-node);
+  do(curry(push-last, nodes-queue), predecessors(top-node));
   let visited = make(<stretchy-vector>);
   while (nodes-queue.size > 0)
     let node = nodes-queue.pop;
