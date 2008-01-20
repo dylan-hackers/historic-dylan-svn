@@ -59,8 +59,7 @@ define module-spec strings ()
     (<sequence>, <string>, #"key", #"conjunction") => (<string>);
 
   function split
-    (<string>, #"key", #"separator", #"start", #"end", #"trim?", #"max",
-     #"allow-empty-strings?") => (<sequence>);
+    (<string>, #"key", #"separator", #"start", #"end", #"count") => (<sequence>);
 
   open generic-function trim
     (<string>, #"key", #"test", #"side", #"start", #"end") => (<string>);
@@ -231,10 +230,41 @@ define strings function-test digit-to-integer ()
 end function-test digit-to-integer;
 
 define strings function-test split ()
-    check-equal("split empty string", #[], split(""));
-    check-equal("whitespace trimmed? 1", #[], split(" "));
-    check-equal("whitespace trimmed? 2", #["."], split(" . "));
-    check-equal("split \"a b c\"", #["a", "b", "c"], split("a b c"));
+  // Tests for basic functionality with no keyword args
+  check-equal("split empty string with another string",
+              split("", "-"),
+              #[""]);
+  check-equal("split empty sequence",
+              split(#(), #t),
+              #[#()]);
+  check-equal("basic split on string separator",
+              split("a b c", " "),
+              #["a", "b", "c"]);
+  check-equal("basic split on object separator",
+              split("a b c", ' '),
+              #["a", "b", "c"]);
+  check-equal("back-to-back separators",
+              split("a  b", ' '),
+              #["a", "", "b"]);
+  check-equal("separators on the ends",
+              split(" x ", ' '),
+              #["", "x", ""]);
+
+  // Tests for the count argument.
+  check-equal("basic count test",
+              split("a,b,c,d", ',', count: 1),
+              #["a", "b,c,d"]);
+  check-equal("basic count test",
+              split("a,b,c,d", ',', count: 2),
+              #["a", "b", "c,d"]);
+
+  // Tests for the start and end arguments
+  check-equal("basic start/end test",
+              split("a b c d", ' ', start: 1, end: 6),
+              #["", "b", "c", ""]);
+  check-equal("basic start/end test",
+              split("a b c d", ' ', start: 1),
+              #["", "b", "c", "d"]);
 end function-test split;
 
 define function replacement-test (mutating?)

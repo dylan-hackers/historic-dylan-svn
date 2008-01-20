@@ -58,7 +58,7 @@ define module strings
   create
     substring,
     join,
-    split, splitf,
+    split,
     trim,
     replace,
     replace!,
