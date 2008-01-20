@@ -42,9 +42,6 @@ define open generic trim (string :: <string>, #key) => (new-string :: <string>);
 define open generic join
     (items :: <sequence>, separator :: <string>, #key) => (new-string :: <string>);
 
-define open generic splitf
-    (string :: <string>, separator :: <object>, #key) => (parts :: <sequence>);
-
 define open generic replace
     (original :: <string>, pattern :: <object>, replacement :: <string>, #key)
  => (new-string :: <string>, num-replacements :: <integer>);
@@ -817,119 +814,148 @@ define method join
 end method join;
 
 
-define function split
-    (string :: <string>,
-     #key separator,
-          start :: <integer> = 0,
-          end: _end :: <integer> = string.size,
-          max: _max :: <integer> = -1)
- => (strings :: <stretchy-object-vector>)
-  local method is-white? (index)
-          whitespace?(string[index])
-        end;
-  splitf(string, separator | is-white?, start: start, end: _end, max: _max)
-end function split;
-
-// <byte-string> separators
-define method splitf
-    (string :: <byte-string>, separator :: <byte-string>, #rest kwargs, #key)
- => (parts :: <sequence>)
-  local method separator? (index)
-          values(looking-at?(separator, string, index),
-                 separator.size)
-        end;
-  apply(next-method, string, separator?, kwargs)
-end method splitf;
-
-/* todo -- <character-set>
-define method splitf
-    (string :: <byte-string>, separator :: <character-set>, #rest kwargs, #key)
- => (parts :: <sequence>)
-  local method separator? (str, index)
-          member?(str[index], separator)
-        end;
-  apply(next-method, string, separator?, kwargs)
-end method splitf;
-*/
-
-// <regexp> separators
+// In common-dylan library...
+// Split a sequence into parts at each occurrance of the 'separator'
+// and return a sequence containing the parts.  The sequence is
+// searched from beginning to end for the given 'separator' and stops
+// when it reaches the end of 'sequence' or when the size of the
+// result reaches 'count' elements.  The meaning of the 'start' and
+// 'end' parameters may differ for different methods, but the intent
+// is that it be the same as if you passed in the subsequence delimited
+// by 'start' and 'end'.  See the individual methods for details.
 //
-// Due to limitations in the regular-expressions library a <regexp> separator
-// must be anchored (i.e., must start with ^) to be useful because there is no
-// way to request a match starting at a specific index.
-//
-// Ideally the regular-expressions library should "use strings;" and implement
-// this method.  
-/* Not yet
-define method splitf
-    (string :: <byte-string>, separator :: <regexp>, #rest kwargs, #key)
+define generic split
+    (sequence :: <sequence>, separator :: <object>,
+     #key start :: <integer> = 0,
+          end: _end :: false-or(<integer>),
+          count :: false-or(<integer>))
+ => (parts :: <sequence>);
+
+// In common-dylan library
+
+// This is in some sense the most basic method, since others can be
+// implemented in terms of it.  The 'separator' function must accept
+// three arguments: (1) the sequence in which to search for a
+// separator, (2) the start index in that sequence at which to begin
+// searching, and (3) the index at which to stop searching, or #f to
+// search the entire sequence.  The 'separator' function must return
+// #f to indicate that no separator was found, or two values: the
+// start and end indices of the separator in the given sequence.  The
+// initial start and end indices passed to the 'separator' function
+// are the same as the 'start' and 'end' arguments passed to this
+// method.  The 'separator' function should stay within the given
+// bounds whenever possible.  (In particular it may not always be
+// possible when the separator is a regex.)
+define method split
+    (seq :: <sequence>, separator :: <function>,
+     #key start :: <integer> = 0,
+          end: _end :: false-or(<integer>),
+          count :: false-or(<integer>))
  => (parts :: <sequence>)
-  local method separator? (index)
-          // todo -- pass end: arg to regexp-position
-          //         how to enforce the match to be anchored at index?
-          let match = regexp-position(string, separator, start: index);
-          values(match & #t,
-                 match & match.size)
-        end;
-  apply(next-method, string, separator?, kwargs)
-end method splitf;
-*/
-
-// <function> separators (the most general)
-define method splitf
-    (string :: <byte-string>, separator? :: <function>,
-     #key start :: <integer> = 0, 
-          end: _end :: <integer> = string.size,
-          max: _max :: <integer> = -1)
- => (parts :: <sequence>)
-
-  // The separator? parameter accepts one argument, the index into the input
-  // string, and returns two values: whether or not we're looking at a
-  // separator and either #f or how long the separator is.  If the second value
-  // is #f, the separator is assumed to be of length 1.  This is presumably the
-  // common case, and this way you don't have to worry about it when writing a
-  // separator? function.
-
-  let parts :: <stretchy-vector> = make(<stretchy-vector>);
-  let bpos :: <integer> = start;
-  let curr :: <integer> = bpos;
-  let num-splits :: <integer> = 0;
-  let seen-non-separator? = #f;
-  while (curr < _end & (_max == -1 | num-splits < _max))
-    let (looking-at-separator?, sep-len) = separator?(curr);
-    if (looking-at-separator?)
-      if (seen-non-separator?)
-        add!(parts, copy-sequence(string, start: bpos, end: curr));
-        num-splits := num-splits + 1;
-      end;
-      if (sep-len)
-        // The separator function told us how big the separator is.
-        curr := curr + sep-len;
-      else
-        curr := curr + 1;
-        while (curr < _end & separator?(curr))
-          curr := curr + 1;
-        end;
-      end;
-      bpos := curr;
-    else // not looking at a separator
-      if (~seen-non-separator?)
-        // If all characters up to here have been separator characters, then
-        // they should be ignored.
-        seen-non-separator? := #t;
-        bpos := curr;
-      end;
-      curr := curr + 1;
-    end if;
+  let bpos = start;
+  let epos :: <integer> = _end | seq.size;
+  let parts = list();           // likely to be short
+  // The use of epos below is an efficiency hack, but having more than
+  // epos splits is impossible so it works.
+  let max-parts :: <integer> = count | epos;
+  let num-parts :: <integer> = 0;
+  let separator-end = #f;
+  while (bpos & bpos < epos & num-parts < max-parts)
+    let (sep-start, sep-end) = separator(seq, bpos, epos);
+    if (sep-start)
+      parts := add!(parts, copy-sequence(seq, start: bpos, end: sep-start));
+      separator-end := sep-end;
+      num-parts := num-parts + 1;
+    end;
+    bpos := sep-end;  // may be #f and terminate loop
   end while;
-  // Stuff the rest of the string into the result.
-  if (bpos < string.size)
-    add!(parts, copy-sequence(string, start: bpos));
-  end;
-  parts
-end method splitf;
+  parts := add!(parts, if (separator-end)
+                         copy-sequence(seq, start: separator-end, end: epos)
+                       else
+                         seq
+                       end);
+  reverse!(parts)
+end method split;
 
-//split("1,2,,4", separator: ",");
+// In common-dylan library
+// Splits seq around occurrances of the separator subsequence.
+// Works for the relatively common case where seq and separator
+// are both <string>s.
+define method split
+    (seq :: <sequence>, separator :: <sequence>,
+     #key start :: <integer> = 0,
+          end: _end :: false-or(<integer>),
+          count :: false-or(<integer>))
+ => (parts :: <sequence>)
+  local method find-string (seq :: <sequence>,
+                            bpos :: <integer>,
+                            epos :: false-or(<integer>))
+          // Note that this only splits on the separator sequence if it is
+          // entirely contained between the start and end positions.
+          let epos :: <integer> = epos | seq.size;
+          let max-separator-start :: <integer> = epos - separator.size;
+          block (exit-loop)
+            for (seq-index from bpos below max-separator-start)
+              if (looking-at?(separator, seq, seq-index))
+                exit-loop(seq-index, seq-index + separator.size);
+              end;
+            end;
+            #f      // separator not found
+          end
+        end;
+  split(seq, find-string, start: start, end: _end, count: count);
+end method split;
+
+// In common-dylan library
+// Split on a given object.
+// Covers the (<string>, <character>) case, for example.
+define method split
+    (seq :: <sequence>, separator :: <object>,
+     #key start :: <integer> = 0,
+          end: _end :: false-or(<integer>),
+          count :: false-or(<integer>))
+ => (parts :: <sequence>)
+  local method find-pos (seq :: <sequence>,
+                         bpos :: <integer>,
+                         epos :: false-or(<integer>))
+          // Unfortunately common-dylan's position function doesn't accept
+          // start and end parameters so we have to write our own.
+          block (exit-loop)
+            for (i from bpos below epos)
+              // Should this use = or ==?
+              // How should we provide case-insensitive comparisons?
+              if (seq[i] = separator)
+                exit-loop(i, i + 1)
+              end;
+            end;
+            #f
+          end block
+        end method;
+  split(seq, find-pos, start: start, end: _end, count: count);
+end method split;
+
+// In regular-expressions library
+/*
+define method split
+    (seq :: <string>, separator :: <regex>,
+     #key start :: <integer> = 0,
+          end: _end :: false-or(<integer>),
+          count :: false-or(<integer>))
+ => (parts :: <sequence>)
+  local method find-regex (seq :: <string>,
+                           bpos :: <integer>,
+                           epos :: false-or(<integer>))
+          let match = regex-search(separator, seq, start: bpos, end: epos);
+          if (match)
+            let group0 = match-group(match, 0);
+            values(group0.group-start, group0.group-end);
+          else
+            #f
+          end
+        end method find-regex;
+  split(seq, find-regex, start: start, end: _end, count: count);
+end method split;
+*/
 
 
 // todo -- should this be exported?
@@ -970,18 +996,18 @@ end method count-matches;
 define sealed method trim
     (string :: <byte-string>,
      #key test :: <function> = whitespace?,
-          from :: one-of(#"left", #"right", #"both") = #"both",
+          side :: one-of(#"left", #"right", #"both") = #"both",
           start :: <integer> = 0,
           end: _end :: <integer> = string.size)
  => (trimmed-string :: <byte-string>)
   let bpos :: <integer> = start;
   let epos :: <integer> = _end;
-  if (from == #"both" | from == #"left")
+  if (side == #"both" | side == #"left")
     while (bpos < epos & test(string[bpos]))
       bpos := bpos + 1;
     end;
   end;
-  if (from == #"both" | from == #"right")
+  if (side == #"both" | side == #"right")
     while (bpos < (epos - 1) & test(string[epos - 1]))
       epos := epos - 1;
     end;
