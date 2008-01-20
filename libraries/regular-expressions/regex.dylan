@@ -115,13 +115,11 @@ define method regex-search
       let bpos = marks[index];
       let epos = marks[index + 1];
       if (bpos & epos)
-        // It would be nice to make <substring> a real sequence, and possibly unify
-        // it with the substring implementation in Koala.
-        let text = copy-sequence(substring.entire-string,
-                                 start: substring.start-index + bpos,
-                                 end: substring.start-index + epos);
         add-group(regex-match,
-                  make(<match-group>, text: text, start: bpos, end: epos),
+                  make(<match-group>,
+                       text: copy-sequence(string, start: bpos, end: epos),
+                       start: bpos,
+                       end: epos),
                   group-name);
       else
         // This group wasn't matched.

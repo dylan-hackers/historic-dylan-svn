@@ -10,6 +10,7 @@ define library strings
     import: { streams };
   use string-extensions,
     import: { string-hacking };
+  use regular-expressions;
   export strings;
 end;
 
@@ -84,7 +85,6 @@ end module strings;
 // Implementation module
 //
 define module strings-implementation
-
   use strings;            // Use API module
   use common-dylan,
     exclude: { split };
@@ -100,4 +100,10 @@ define module strings-implementation
               <case-sensitive-character-set>,
               <case-insensitive-character-set>,
               <byte-character-table> };
+  use regular-expressions,
+    import: { <regex>,
+              regex-search,
+              match-group,
+              group-start,
+              group-end };
 end module strings-implementation;
