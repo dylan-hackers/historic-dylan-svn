@@ -813,7 +813,6 @@ define method join
   end
 end method join;
 
-
 // In common-dylan library...
 // Split a sequence into parts at each occurrance of the 'separator'
 // and return a sequence containing the parts.  The sequence is
@@ -935,7 +934,6 @@ define method split
 end method split;
 
 // In regular-expressions library
-/*
 define method split
     (seq :: <string>, separator :: <regex>,
      #key start :: <integer> = 0,
@@ -947,15 +945,14 @@ define method split
                            epos :: false-or(<integer>))
           let match = regex-search(separator, seq, start: bpos, end: epos);
           if (match)
-            let group0 = match-group(match, 0);
-            values(group0.group-start, group0.group-end);
+            let (ignore, match-start, match-end) = match-group(match, 0);
+            values(match-start, match-end)
           else
             #f
           end
         end method find-regex;
   split(seq, find-regex, start: start, end: _end, count: count);
 end method split;
-*/
 
 
 // todo -- should this be exported?

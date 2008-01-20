@@ -76,7 +76,16 @@ define test ad-hoc-regex-test ()
                 "http://localhost/",
                 // groups...
                 "http://localhost/", "http:", "http", "//localhost", "localhost",
-                #f, #f, "localhost", #f, #f, "/", #f, #f, #f)
+                #f, #f, "localhost", #f, #f, "/", #f, #f, #f);
+  check-equal("start: works?",
+              regex-search("a", "a b c", start: 1),
+              #f);
+  check-equal("end: works?",
+              regex-search("c", "a b c", end: 4),
+              #f);
+  check-equal("start: and end: work?",
+              regex-search("a", "a b a", start: 1, end: 4),
+              #f);
 end test ad-hoc-regex-test;
 
 // All these regexes should signal <invalid-regex> on compilation.

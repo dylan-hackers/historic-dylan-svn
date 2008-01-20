@@ -265,6 +265,12 @@ define strings function-test split ()
   check-equal("basic start/end test",
               split("a b c d", ' ', start: 1),
               #["", "b", "c", "d"]);
+
+  // Tests for splitting on regular expressions
+  check-equal("basic regex split",
+              split("a b c", compile-regex(" ")),
+              #["a", "b", "c"]);
+
 end function-test split;
 
 define function replacement-test (mutating?)
