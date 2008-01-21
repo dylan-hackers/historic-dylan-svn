@@ -39,9 +39,6 @@ define open generic digit-to-integer (c :: <character>, #key) => (i :: <integer>
 
 define open generic trim (string :: <string>, #key) => (new-string :: <string>);
 
-define open generic join
-    (items :: <sequence>, separator :: <string>, #key) => (new-string :: <string>);
-
 define open generic replace
     (original :: <string>, pattern :: <object>, replacement :: <string>, #key)
  => (new-string :: <string>, num-replacements :: <integer>);
@@ -783,35 +780,62 @@ define method digit-to-integer
 end method digit-to-integer;
 
 // ----------------------------------------------------------------------
+define open generic join
+    (items :: <sequence>, separator :: <sequence>, #key key, conjunction)
+ => (joined :: <sequence>);
+
 // join(range(from: 1, to: 3), ", ",
 //      key: integer-to-string,
 //      conjunction: " and ");
 // => "1, 2 and 3"
 
 define method join
-    (seq :: <sequence>, separator :: <string>,
+    (sequences :: <sequence>, separator :: <sequence>,
      #key key :: <function> = identity,
-          conjunction :: false-or(<string>))
- => (result :: <string>)
-  with-output-to-string (out)
-    let len-1 :: <integer> = seq.size - 1;
-    for (i :: <integer> from 1,
-         item in seq)
-      let v = key(item);
-      select (v by instance?)
-        <string> => write(out, v);
-        <character> => write-element(out, v);
-        otherwise => write(out, as(<string>, v));
-      end;
-      //write(out, as(<string>, key(item)));
-      if (i < len-1)
-        write(out, separator);
-      elseif (i == len-1)
-        write(out, conjunction | separator);
-      end;
+          conjunction :: false-or(<sequence>))
+ => (joined :: <sequence>)
+  let length :: <integer> = sequences.size;
+  if (length == 0)
+    error("Attempt to join an empty sequence.")
+  elseif (length == 1)
+    key(sequences[0])
+  else
+    let result-size :: <integer>
+      = (reduce(method (len, seq)
+                  len + seq.size
+                end,
+                0,
+                sequences)
+           + (separator.size * (length - 1))
+           + if (conjunction)
+               // the last separator is replaced by the conjunction
+               conjunction.size - separator.size
+             else
+               0
+             end);
+    let first = key(sequences[0]);   // don't call key > once on sequences[0]
+    let result = make(object-class(first), size: result-size);
+    let result-index :: <integer> = 0;
+    local method copy-to-result (seq :: <sequence>)
+            result := replace-subsequence!(result, seq, start: result-index);
+            result-index := result-index + seq.size;
+          end;
+    copy-to-result(first);
+    let max-index :: <integer> = length - 1;
+    for (i :: <integer> from 1 to max-index)
+      let seq :: <sequence> = sequences[i];
+      copy-to-result(if(conjunction & i == max-index)
+                       conjunction
+                     else
+                       separator
+                     end);
+      copy-to-result(key(seq));
     end;
-  end
+    result
+  end if
 end method join;
+    
+
 
 // In common-dylan library...
 // Split a sequence into parts at each occurrance of the 'separator'
