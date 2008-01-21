@@ -208,17 +208,19 @@ define strings function-test trim ()
 end function-test trim;
 
 define strings function-test join ()
-  for (item in list(list(list("", "-"), ""),
-                    list(list(#("a", "b", "c"), "-"), "a-b-c"),
-                    list(list(#("a", "b", "c"), ", ", conjunction:, " and "),
-                         "a, b and c"),
-                    list(list("abc", ", ", conjunction:, " and ", key:, uppercase),
-                         "A, B and C")))
-    let (join-args, expected-result) = apply(values, item);
-    let test-name = fmt("join(%s)",
-                        join(join-args, ", ", key: method (x) fmt("%=", x) end));
-    check-equal(test-name, apply(join, join-args), expected-result);
-  end for;
+  let abc = #["a", "b", "c"];
+  check-equal("join one element", join(#["foo"], "-"), "foo");
+  check-equal("join with empty separator", join(abc, ""), "abc");
+  check-equal("join with non-empty separator", join(abc, "-"), "a-b-c");
+  check-equal("join with conjunction",
+              join(abc, ", ", conjunction: " and "),
+              "a, b and c");
+  check-equal("join with conjunction and key",
+              join(abc, ", ", conjunction: " and ", key: uppercase),
+              "A, B and C");
+  check-condition("join an empty sequence is an error",
+                  <error>,
+                  join(#[], "-"));
 end function-test join;
 
 define strings function-test integer-to-digit ()
