@@ -94,8 +94,8 @@ define strings function-test byte-string? ()
                     list(as(<unicode-string>, ""), #f)))
     let (val, expected-result) = apply(values, item);
     check-equal(fmt("byte-string?(%=) => %=", val, expected-result),
-                byte-string?(val),
-                expected-result);
+                expected-result,
+                byte-string?(val));
   end for;
 end function-test byte-string?;
 
@@ -107,10 +107,10 @@ define strings function-test capitalize ()
                  #("Abc", "Abc"),
                  #("one two", "One Two"),
                  #("_one,two", "_One,Two")))
-    let (before, after) = apply(values, item);
+    let (before, expected) = apply(values, item);
     check-equal(fmt("capitalize %=", before),
-                capitalize(before),
-                after);
+                expected,
+                capitalize(before));
   end;
 end function-test capitalize;
 
@@ -121,10 +121,10 @@ define strings function-test capitalize! ()
                  #("Abc", "Abc"),
                  #("one two", "One Two"),
                  #("_one,two", "_One,Two")))
-    let (before, after) = apply(values, map(copy-sequence, item));
+    let (before, expected) = apply(values, map(copy-sequence, item));
     check-equal(fmt("capitalize! %=", before),
-                capitalize!(before),
-                after);
+                expected,
+                capitalize!(before));
     check-true(fmt("capitalize! %= retains identity", before),
                capitalize!(before) == before);
   end;
@@ -145,8 +145,8 @@ define strings function-test lowercase! ()
                  #("ABC", "abc"),
                  #("ONE TWO", "one two"),
                  #("_oNe,Two", "_one,two")))
-    let (before, after) = apply(values, map(copy-sequence, item));
-    check-equal(fmt("lowercase! %=", before), lowercase!(before), after);
+    let (before, expected) = apply(values, map(copy-sequence, item));
+    check-equal(fmt("lowercase! %=", before), expected, lowercase!(before));
     check-true(fmt("lowercase! %= retains identity", before),
                lowercase!(before) == before);
   end;
@@ -159,8 +159,8 @@ define strings function-test lowercase ()
                  #("ABC", "abc"),
                  #("ONE TWO", "one two"),
                  #("_oNe,Two", "_one,two")))
-    let (before, after) = apply(values, item);
-    check-equal(fmt("lowercase %=", before), lowercase(before), after);
+    let (before, expected) = apply(values, item);
+    check-equal(fmt("lowercase %=", before), expected, lowercase(before));
   end;
 end function-test lowercase;
 
@@ -171,8 +171,8 @@ define strings function-test uppercase! ()
                  #("abc", "ABC"),
                  #("one two", "ONE TWO"),
                  #("_oNe,Two", "_ONE,TWO")))
-    let (before, after) = apply(values, map(copy-sequence, item));
-    check-equal(fmt("uppercase! %=", before), uppercase!(before), after);
+    let (before, expected) = apply(values, map(copy-sequence, item));
+    check-equal(fmt("uppercase! %=", before), expected, uppercase!(before));
     check-true(fmt("uppercase! %= retains identity", before),
                uppercase!(before) == before);
   end;
@@ -185,8 +185,8 @@ define strings function-test uppercase ()
                  #("abc", "ABC"),
                  #("one two", "ONE TWO"),
                  #("_oNe,Two", "_ONE,TWO")))
-    let (before, after) = apply(values, item);
-    check-equal(fmt("uppercase %=", before), uppercase(before), after);
+    let (before, expected) = apply(values, item);
+    check-equal(fmt("uppercase %=", before), expected, uppercase(before));
   end;
 end function-test uppercase;
 
@@ -200,24 +200,30 @@ define strings function-test trim ()
                     list(" a ", " a ", test:, method (c) #f end),
                     list("o", "xox", test:, method (c) c == 'x' end)
                     ))
-    let (after, before, #rest trim-args) = apply(values, item);
+    let (expected, before, #rest trim-args) = apply(values, item);
     check-equal(fmt("trim %=", before),
-                apply(trim, before, trim-args),
-                after);
+                expected,
+                apply(trim, before, trim-args));
   end for;
 end function-test trim;
 
 define strings function-test join ()
   let abc = #["a", "b", "c"];
-  check-equal("join one element", join(#["foo"], "-"), "foo");
-  check-equal("join with empty separator", join(abc, ""), "abc");
-  check-equal("join with non-empty separator", join(abc, "-"), "a-b-c");
+  check-equal("join one element",
+              "foo",
+              join(#["foo"], "-"));
+  check-equal("join with empty separator",
+              "abc",
+              join(abc, ""));
+  check-equal("join with non-empty separator",
+              "a-b-c",
+              join(abc, "-"));
   check-equal("join with conjunction",
-              join(abc, ", ", conjunction: " and "),
-              "a, b and c");
+              "a, b and c",
+              join(abc, ", ", conjunction: " and "));
   check-equal("join with conjunction and key",
-              join(abc, ", ", conjunction: " and ", key: uppercase),
-              "A, B and C");
+              "A, B and C",
+              join(abc, ", ", conjunction: " and ", key: uppercase));
   check-condition("join an empty sequence is an error",
                   <error>,
                   join(#[], "-"));
@@ -234,45 +240,62 @@ end function-test digit-to-integer;
 define strings function-test split ()
   // Tests for basic functionality with no keyword args
   check-equal("split empty string with another string",
-              split("", "-"),
-              #[""]);
+              #[""],
+              split("", "-"));
   check-equal("split empty sequence",
-              split(#(), #t),
-              #[#()]);
+              #[#()],
+              split(#(), #t));
   check-equal("basic split on string separator",
-              split("a b c", " "),
-              #["a", "b", "c"]);
+              #["a", "b", "c"],
+              split("a b c", " "));
   check-equal("basic split on object separator",
-              split("a b c", ' '),
-              #["a", "b", "c"]);
+              #["a", "b", "c"],
+              split("a b c", ' '));
   check-equal("back-to-back separators",
-              split("a  b", ' '),
-              #["a", "", "b"]);
+              #["a", "", "b"],
+              split("a  b", ' '));
   check-equal("separators on the ends",
-              split(" x ", ' '),
-              #["", "x", ""]);
+              #["", "x", ""],
+              split(" x ", ' '));
+  check-equal("split on entire string",
+              #["", ""],
+              split("abc", "abc"));
+  check-equal("split on a unfound separator",
+              #["abc"],
+              split("abc", "-"));
+  check-equal("split on something longer than entire string",
+              #["abc"],
+              split("abc", "abcd"));
 
   // Tests for the count argument.
   check-equal("basic count test",
-              split("a,b,c,d", ',', count: 1),
-              #["a", "b,c,d"]);
+              #["a", "b,c,d"],
+              split("a,b,c,d", ',', count: 1));
   check-equal("basic count test",
-              split("a,b,c,d", ',', count: 2),
-              #["a", "b", "c,d"]);
+              #["a", "b", "c,d"],
+              split("a,b,c,d", ',', count: 2));
 
   // Tests for the start and end arguments
   check-equal("basic start/end test",
-              split("a b c d", ' ', start: 1, end: 6),
-              #["", "b", "c", ""]);
+              #["", "b", "c", ""],
+              split("a b c d", ' ', start: 1, end: 6));
   check-equal("basic start/end test",
-              split("a b c d", ' ', start: 1),
-              #["", "b", "c", "d"]);
+              #["", "b", "c", "d"],
+              split("a b c d", ' ', start: 1));
 
   // Tests for splitting on regular expressions
   check-equal("basic regex split",
-              split("a b c", compile-regex(" ")),
-              #["a", "b", "c"]);
-
+              #["a", "b", "c"],
+              split("a b c", compile-regex(" ")));
+  check-equal("split on whitespace regex",
+              #["a", "b", "c"],
+              split("a  b\t\n\fc", compile-regex("\\s+")));
+  check-equal("split on unfound regex",
+              #["abc"],
+              split("abc", compile-regex(" ")));
+  check-equal("split on entire string found by regex",
+              #["", ""],
+              split("abc", compile-regex("^.*$")));
 end function-test split;
 
 define function replacement-test (mutating?)

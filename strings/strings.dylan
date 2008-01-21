@@ -870,7 +870,7 @@ define generic split
 // bounds whenever possible.  (In particular it may not always be
 // possible when the separator is a regex.)
 define method split
-    (seq :: <sequence>, separator :: <function>,
+    (seq :: <sequence>, find-separator :: <function>,
      #key start :: <integer> = 0,
           end: _end :: false-or(<integer>),
           count :: false-or(<integer>))
@@ -884,7 +884,7 @@ define method split
   let num-parts :: <integer> = 0;
   let separator-end = #f;
   while (bpos & bpos < epos & num-parts < max-parts)
-    let (sep-start, sep-end) = separator(seq, bpos, epos);
+    let (sep-start, sep-end) = find-separator(seq, bpos, epos);
     if (sep-start)
       parts := add!(parts, copy-sequence(seq, start: bpos, end: sep-start));
       separator-end := sep-end;
@@ -918,7 +918,7 @@ define method split
           let epos :: <integer> = epos | seq.size;
           let max-separator-start :: <integer> = epos - separator.size;
           block (exit-loop)
-            for (seq-index from bpos below max-separator-start)
+            for (seq-index from bpos to max-separator-start)
               if (looking-at?(separator, seq, seq-index))
                 exit-loop(seq-index, seq-index + separator.size);
               end;
@@ -975,9 +975,8 @@ define method split
             #f
           end
         end method find-regex;
-  split(seq, find-regex, start: start, end: _end, count: count);
+  split(seq, find-regex, start: start, end: _end, count: count)
 end method split;
-
 
 // todo -- should this be exported?
 define method looking-at?
