@@ -14,7 +14,8 @@ Dylan Language
   on the language.  (And why not just make it error-message instead of two
   separate slots?  You probably don't want to risk caching the format arguments
   anyway, most of the time.  [later] Is it to prevent everyone from having to
-  import format-to-string?)
+  import format-to-string?  Or to prevent having to do the formatting unless the
+  error is actually signalled?)
 
 + How do you create Unicode string constants if they only contain characters
   that can be expressed in a <byte-string>?  e.g., in Python u"foo".  Does
@@ -35,8 +36,7 @@ testworks
   of the spec is covered (roughly).  Or perhaps it could automatically do this if the
   body of the test is empty (i.e., only hase "// Fill me in ...").
 
-+ Needs a way to save results and compare with previous results.
-
++ my-test-suite-app --list-tests and/or --list-suites and/or --list-all  
 
 common-dylan
 ============
@@ -66,7 +66,13 @@ common-dylan
   'start' and 'end' parameters since the implementation would have to start
   from the beginning each time.  I don't like it being a mandatory keyword in
   the 'position' generic function.  (Other functions that have it:
-  find-element, find-value.)
+  find-element, find-value, find-key.)
+
+  subsequence-position uses 'count', but it really means 'skip'.  Need to do
+  an exhaustive review of all the sequence functions.
+
+  find-key has a 'failure' keyword argument which it seems should be
+  called 'default' or at least 'on-failure'.
 
 
 String Hacking
@@ -75,10 +81,6 @@ String Hacking
 + Make "strings" library re-export most stuff from string-extensions and some
   things from common-dylan.  Once it's in good shape, propose adding it to
   common-dylan.
-
-+ Unify the "split" definitions.  I like the signature in the strings library
-  except that separator should be able to be a string OR regex.  (Anything
-  else?)
 
 + Various string conversion functions in common-dylan, and "split".
 
@@ -131,8 +133,11 @@ Differences:
 Koala
 =====
 
-+ Hannes' comments re new config option to define-page et al...
-  http://ircbrowse.com/channel/dylan/20070220
++ Koala config cleanup changes that I never finished::
+
+    svn diff -r11142:11193 svn+ssh://cgay@svn.gwydiondylan.org/scm/svn/dylan/branches/koala-config-cleanup
+
++ Hannes' comments re the above: http://ircbrowse.com/channel/dylan/20070220
 
 + Look at the Allegro web app package more.  (name?)  It has some nice ideas
   about sessions and apps.
