@@ -9,4 +9,3 @@ files: library
        users
        dsp
        permission
-       utils
