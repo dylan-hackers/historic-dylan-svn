@@ -9,7 +9,7 @@ define library web-framework
   use xml-parser;
   use system, import: { file-system, date, locators };
   use dood;
-  use regular-expressions;
+  use uri;
 
   export object-table,
     web-framework,
@@ -254,7 +254,7 @@ define module web-framework
   use koala;
   use dsp;
   use format;
-  use regular-expressions;
+  use uri;
 
   use web-framework-macro, export: all;
   use storage;
@@ -273,5 +273,4 @@ define module web-framework
     error-test-definer,
     error-tests-definer;
 
-  export printable;
 end;

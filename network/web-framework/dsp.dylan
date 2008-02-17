@@ -11,22 +11,37 @@ define thread variable *action* = #f;
 // sent values
 define thread variable *form* = #f;
 
+define url-map
+  url "/login",
+    action get () => (login);
+  url "/logout",
+    action get () => (logout);
+end;
+
 define tag show-login-url in web-framework (page :: <dylan-server-page>)
  (redirect :: type-union(<string>, <boolean>), current :: <boolean>)
-  format(current-response().output-stream, "/?login%s",
-    if (redirect)
-      format-to-string("&amp;redirect=%s",
-        encode-url(if (current) current-url() else redirect end if, reserved?: #t));
-    else "" end);
+  let url = parse-url("/login");
+  if (redirect)
+    url.uri-query["redirect"] := if (current) 
+        build-uri(current-url())
+      else 
+        redirect 
+      end if;
+  end if;
+  output("%s", url);
 end;
 
 define tag show-logout-url in web-framework (page :: <dylan-server-page>)
  (redirect :: type-union(<string>, <boolean>), current :: <boolean>)
-  format(current-response().output-stream, "/?logout%s",
-    if (redirect)
-      format-to-string("&amp;redirect=%s",
-        encode-url(if (current) current-url() else redirect end if, reserved?: #t));
-    else "" end);
+  let url = parse-url("/logout");
+  if (redirect)
+    url.uri-query["redirect"] := if (current) 
+        build-uri(current-url()) 
+      else 
+        redirect 
+      end if;
+  end if;
+  output("%s", url);
 end;
 
 
