@@ -69,6 +69,8 @@ define module regular-expressions
       regex-pattern,
     <regex-match>,                   // results of a successful search
       <match-group>,
+        groups-by-position,
+        groups-by-name,
       match-group,
       match-groups,
       group-start,
