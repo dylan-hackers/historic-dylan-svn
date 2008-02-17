@@ -181,35 +181,12 @@ define method log-debug-if (test, format-string, #rest format-args)
   end;
 end;
 
-define method as-common-logfile-date (date :: <date>) => (common-logfile-date :: <string>)
-  let $month-names
-    = #["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+define method as-common-logfile-date
+    (date :: <date>)
+ => (common-logfile-date :: <string>)
   //Common Logfile Format Date: "28/Mar/2004:04:47:19 +0200"
   //http://www.w3.org/Daemon/User/Config/Logging.html
-  let (iyear, imonth, iday, ihours, iminutes, iseconds, day-of-week, time-zone-offset)
-    = decode-date(date);
-  local method wrap0 (int :: <integer>) => (string :: <string>)
-    if (int < 10)
-      concatenate("0", integer-to-string(int));
-    else
-      integer-to-string(int);
-    end if;
-  end;
-
-  let day = wrap0(iday);
-  let month = $month-names[imonth - 1];
-  let year = integer-to-string(iyear);
-  let hours = wrap0(ihours);
-  let minutes = wrap0(iminutes);
-  let seconds = wrap0(iseconds);
-  let tzprefix = iff(negative?(time-zone-offset), "-", "+");
-  let tzoff :: <integer> = abs(time-zone-offset);
-  concatenate(day, "/", month, "/", year, ":", hours, ":", minutes,
-              ":", seconds, " ",
-              tzprefix,
-              wrap0(floor/(tzoff, 60)),
-              wrap0(modulo(tzoff, 60)))
+  format-date("%d/%b/%Y:%T %z", date);
 end method as-common-logfile-date;
 
 

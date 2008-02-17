@@ -27,6 +27,7 @@ define library koala
   use base64;
   use memory-manager;
   use command-line-parser;
+  use regular-expressions;
 
   export koala;
   export koala-extender;
@@ -66,7 +67,6 @@ define module utilities
     wrapping-inc!,
     file-contents,
     pset,                // multiple-value-setq
-    path-element-equal?,
     parent-directory,
     date-to-stream,
     kludge-read-into!,   // work around bug in read-into! in FD 2.0
@@ -153,6 +153,9 @@ define module koala
     start-server,
     stop-server,
     register-url,
+    <responder>,
+    responder-map,
+    add-responder,
     remove-responder,
     <request>,
     *request*,                   // Holds the active request, per thread.
@@ -353,6 +356,7 @@ define module httpi                             // http internals
     import: { LoadLibrary, FreeLibrary };
   use base64;
   use command-line-parser;
+  use regular-expressions;
 end module httpi;
 
 define module dsp

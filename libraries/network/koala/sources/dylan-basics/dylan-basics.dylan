@@ -262,48 +262,6 @@ end;
 
 
 
-// This should replace 'split' in common-extensions.
-define open generic split
-    (string :: <string>,
-     #key separator :: false-or(<string>),
-          start: bpos :: <integer>, 
-          end: epos :: <integer>,
-          trim? :: <boolean>,
-          max :: false-or(<integer>),
-          allow-empty-strings? :: <boolean>)
- => (strings :: <sequence>);
-
-define method split
-    (string :: <byte-string>,
-     #key separator :: false-or(<byte-string>),
-          start :: <integer> = 0, 
-          end: _end :: <integer> = size(string),
-          trim? :: <boolean> = #t,
-          max: max-splits :: false-or(<integer>),
-          allow-empty-strings? :: <boolean>)
- => (strings :: <stretchy-object-vector>)
-  local method separator? (pos :: <integer>)
-          block (return)
-            for (i :: <integer> from pos, c in separator)
-              if (i >= _end | string[i] ~== c)
-                return(#f);
-              end;
-            end;
-            #t
-          end
-        end,
-        method is-white? (pos :: <integer>)
-          whitespace?(string[pos])
-        end;
-  splitf(string,
-         if (separator) separator? else is-white? end,
-         if (separator) size(separator) else 1 end,
-         start: start,
-         end: _end,
-         trim?: trim?,
-         max: max-splits,
-         allow-empty-strings?: allow-empty-strings?)
-end method split;
            
 define method splitf
     (string :: <byte-string>, separator? :: <function>, separator-size :: <integer>,

@@ -6,10 +6,191 @@ Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
+
+define class <responder> (<object>)
+  slot responder-map :: <table> = make(<table>),
+    init-keyword: map:;
+end;
+
+define open generic add-responder
+    (url :: <object>, responder :: <responder>, #key replace?)
+ => ();
+
+define method add-responder
+    (url :: <string>, responder :: <responder>, #key replace?)
+ => ();
+  add-responder(parse-url(url), responder, replace?: replace?);
+end;
+
+define method add-responder
+    (url :: <url>, responder :: <responder>, #key replace?)
+ => ();
+  local method responder-registration ()
+          if (empty?(url.uri-path))
+            error(make(<koala-api-error>,
+                       format-string: "You can't add a responder with an empty URL: %s",
+                       format-arguments: list(url)));
+          else
+            add-object(*server*.url-map, url.uri-path, responder, replace?: replace?);
+            log-info("responder on %s registered", url);
+          end if;
+        end;
+  if (*server-running?*)
+    responder-registration();
+  else
+    register-init-function(responder-registration);
+  end;
+end method add-responder;
+
+define open generic find-responder
+    (url :: <object>)
+ => (responder :: false-or(<responder>),
+	            rest-path :: false-or(<sequence>));
+
+define method find-responder
+    (url :: <string>)
+ => (responder :: false-or(<responder>),
+	            rest-path :: false-or(<sequence>));
+  find-responder(parse-url(url));
+end method find-responder;
+
+define method find-responder
+    (url :: <url>)
+ => (responder :: false-or(<responder>),
+	            rest-path :: false-or(<sequence>));
+  find-object(*server*.url-map, url.uri-path);
+end method find-responder;
+
+
+define open generic remove-responder (object :: <object>);
+
+define method remove-responder (url :: <string>)
+  remove-responder(parse-url(url));
+end;
+
+define method remove-responder (url :: <url>)
+  remove-object(*server*.url-map, url.uri-path);
+end;
+
+
+define macro url-map-definer
+  { define url-map
+      ?urls
+    end }
+   => { ?urls }
+
+  urls:
+    { } => { }
+    { ?url ; ... } => { ?url ; ... }
+
+  url:
+    { url ?location:expression , ?definitions }
+     => { begin
+            let responder = make(<responder>);
+            ?definitions ;
+            ?location ;
+          end }
+    { url ( ?locations ) , ?definitions }
+      => { begin
+            let responder = make(<responder>);
+            ?definitions ;
+            ?locations ;
+           end }
+
+  locations:
+    { } => { }
+    { ?location , ...  } => { ?location ; ... }
+
+  location: 
+    { ?uri:expression } => { add-responder( ?uri , responder) }
+
+  definitions:
+    { } => { }
+    { ?definition , ... } => { ?definition ; ... }
+
+  definition:
+    { action ( ?request-methods ) ( ?regex ) => ?action:name }
+      => { begin
+             let regex = compile-regex(?regex);
+             let actions = list(?action);
+             ?request-methods
+           end }
+    { action ?request-method:name ( ?regex ) => ?action:name }
+      => { begin
+             let regex = compile-regex(?regex);
+             let actions = list(?action);
+             ?request-method
+           end }
+    { action ( ?request-methods ) ( ?regex ) => ( ?action-sequence:* ) }
+      => { begin
+             let regex = compile-regex(?regex);
+             let actions = list(?action-sequence);
+             ?request-methods
+           end }
+    { action ?request-method:name ( ?regex ) => ( ?action-sequence:* ) }
+      => { begin
+             let regex = compile-regex(?regex);
+             let actions = list(?action-sequence);
+             ?request-method
+           end }
+
+  request-methods:
+    { } => { }
+    { ?request-method , ...  } => { ?request-method ; ... }
+
+  request-method:
+    { ?:name }
+     => { begin
+            let map = element(responder.responder-map,
+                              ?#"name",
+		              default: #f);
+            unless (map)
+              map := make(<table>);
+              responder.responder-map[?#"name"] := map;
+            end unless;
+            map[regex] := actions
+          end }
+
+  regex:
+    { } => { "^$" }
+    { * } => { ".*" }
+    { ?pattern:expression } => { ?pattern }
+
+end macro url-map-definer;
+
+// define responder test ("/test" /* , secure?: #t */ )
+//   format(output-stream(response), "<html><body>test</body></html>");
+// end;
+define macro responder-definer
+  { define responder ?:name (?url:expression)
+      ?:body
+    end
+  }
+  => { define method ?name () ?body end;
+         register-url(?url, ?name)
+     }
+
+  { define directory responder ?:name (?url:expression)
+      ?:body
+    end
+  }
+  => { define method ?name () ?body end;
+         register-url(?url, ?name, prefix?: #t)
+     }
+end;
+
+/*
+define (get, post) responder foo-responder ("/foo", "/bar")
+  ("^(?P<name>\\w+)/?$")
+  (#key name)
+  ...
+end;
+*/
+
 /*
 // General server statistics
 //
-define responder general-stats-responder ("/koala/stats")
+define responder general-stats-responder ("/koala/stats") 
   let stream = current-response().output-stream;
   let server = current-request().request-server;
   format(stream, "<html><body>");

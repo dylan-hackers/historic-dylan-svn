@@ -96,6 +96,7 @@ define class <virtual-host> (<object>)
   // *server-root*/www/<vhost-name>/.  If name is the empty string then
   // just *server-root*/www/.
   slot document-root :: <directory-locator>;
+  slot dsp-root :: <directory-locator>;
 
   // TODO: no need for this here.  Even though ports can be specified inside
   //       the virtual host definition in the config file, we just need a 
@@ -193,7 +194,8 @@ define method initialize
   log-debug("name = %=, vhost-name = %=\n", name, vhost-name(vhost));
   ensure-server-root();
   // This may be overridden by a <document-root> spec in the config file.
-  document-root(vhost) := subdirectory-locator(*server-root*, name);
+  vhost.document-root := subdirectory-locator(*server-root*, name);
+  vhost.dsp-root := subdirectory-locator(*server-root*, name);
   // Add a spec that matches all urls.
   add-directory-spec(vhost, root-directory-spec(vhost));
 end;
@@ -298,15 +300,16 @@ define method virtual-host
 end;
 
 define method virtual-host
-    (port :: <integer>) => (vhost :: false-or(<virtual-host>))
+    (port :: <integer>)
+ => (vhost :: false-or(<virtual-host>))
   block (return)
     for (vhost :: <virtual-host> keyed-by name in $virtual-hosts)
       if (vhost-port(vhost) == port)
         return(vhost)
-      end
-    end
+      end if;
+    end for;
   end
-end;
+end method virtual-host;
 
 define method directory-spec-matching
     (vhost :: <virtual-host>, url :: <string>)
@@ -322,7 +325,7 @@ define method directory-spec-matching
       iff(dirspec-matches?(spec, url),
           spec,
           loop(tail(specs)));
-    end;
+    end if;
   end;
-end;
+end method directory-spec-matching;
 

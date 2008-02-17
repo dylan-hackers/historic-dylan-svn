@@ -17,7 +17,7 @@ end;
 //// Initialization
 
 begin
-  register-auto-responder("dsp", auto-register-dylan-server-page);
+//  register-auto-responder("dsp", auto-register-dylan-server-page);
   when (*debugging-dsp*)
     test-dsp();
   end;
