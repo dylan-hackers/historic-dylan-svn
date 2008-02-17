@@ -6,11 +6,9 @@ Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-
 define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
 define constant $server-version = "0.4";
-
 
 // This may be set true by config file loading code, in which case
 // start-server will be a no-op.
@@ -498,7 +496,7 @@ end do-http-listen;
 define class <request> (<basic-request>)
   slot request-method :: <symbol> = #"unknown";
   slot request-version :: <symbol> = #"unknown";
-  slot request-url :: <string> = "";
+  slot request-url :: false-or(<url>) = #f;
 
   // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
   slot request-host :: false-or(<string>) = #f;
@@ -513,8 +511,6 @@ define class <request> (<basic-request>)
   // Cache, mapping keyword (requested by user) -> parsed data
   constant slot request-header-values :: <object-table> = make(<object-table>);
 
-  slot request-query-string :: <string> = "";
-
   // Query values from either the URL or the body of the POST, if Content-Type
   // is application/x-www-form-urlencoded.
   constant slot request-query-values :: <string-table> = make(<string-table>);
@@ -524,11 +520,10 @@ define class <request> (<basic-request>)
   // The body content of the request.  Only present for POST?
   slot request-content :: <string> = "";
 
-  slot request-responder :: false-or(<function>) = #f;
+  slot request-responder :: false-or(<responder>) = #f;
 
-  // For directory responders, this contains the part of the URL after
-  // the matched directory prefix and before the ? (if any).
-  slot request-url-tail :: <string> = "";
+  // contains the relative URL after the matched responder
+  slot request-tail-url :: false-or(<url>) = #f;
 
 end class <request>;
 
@@ -541,11 +536,6 @@ define variable *default-request-class* :: subclass(<basic-request>) = <request>
 
 define thread variable *request* :: false-or(<request>) = #f;
 define thread variable *response* :: false-or(<response>) = #f;
-
-// Holds the map of query keys/vals in the "?x=1&y=2" part of the URL (for GET method)
-// or form keys/vals for the POST method.
-define thread variable *request-query-values* :: <string-table>
-  = make(<string-table>);
 
 define inline function current-request  () => (request :: <request>) *request* end;
 define inline function current-response () => (response :: <response>) *response* end;
@@ -583,8 +573,7 @@ define function handler-top-level
             block ()
               block ()
                 read-request(request);
-                dynamic-bind (*request-query-values* = request.request-query-values,
-                              *virtual-host* = virtual-host(request))
+                dynamic-bind (*virtual-host* = virtual-host(request))
                   log-debug("Virtual host for request is '%s'", 
                             vhost-name(*virtual-host*));
                   invoke-handler(request);
@@ -621,76 +610,57 @@ define method read-request (request :: <request>) => ()
     pset (buffer, len) read-request-line(socket) end;
   end;
   log-info("%s", substring(buffer, 0, len));
-  read-request-first-line(request, buffer, len);
+  read-request-first-line(request, buffer);
   unless (request.request-version == #"http/0.9")
     request.request-headers
       := read-message-headers(socket,
                               buffer: buffer,
                               start: len,
                               headers: request.request-headers);
-  end;
+  end unless;
   process-incoming-headers(request);
-  if (request.request-method == #"post" |
-      request.request-method == #"put")
-    read-request-content(request);
-  end;
-end read-request;
+  select (request.request-method by \==)
+    #"post", #"put" => read-request-content(request);
+    otherwise => #f;
+  end select;
+end method read-request;
 
 
 // Read first line of the HTTP request.  RFC 2068 Section 5.1
-//
-//   Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
-//
-// ---TODO: this code would be a lot clearer if it used regular expressions.
-//
+
 define function read-request-first-line
-    (request :: <request>, buffer :: <string>, eol :: <integer>)
+    (request :: <request>, buffer :: <string>)
  => ()
-  let method-end = whitespace-position(buffer, 0, eol) | eol;
-  if (zero?(method-end))
-    invalid-request-line-error();
+  let (match, http-method, url, http-version) =
+     regex-search-strings("^([!#$%&'\\*\\+-\\./0-9A-Z^_`a-z\\|~]+) "
+        "(\\S+) "
+        "(HTTP/\\d+\\.\\d+)", buffer);
+  log-debug("%= %= %=", http-method, url, http-version);
+  if (match)
+    request.request-method := as(<symbol>, http-method);
+    let url = parse-url(url);
+    // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
+    // Absolute URLs in the request line take precedence over Host header.
+    if (absolute?(url))
+      request.request-host := url.uri-host;   
+    end if;
+    request.request-url := url;
+    let (responder, tail) = find-responder(request.request-url);
+    log-debug("Responder: %=", responder);
+    request.request-responder := responder;
+    if (tail)
+      request.request-tail-url := make(<url>, path: as(<deque>, tail));
+      log-debug("Setting request-tail-url to %s", request.request-tail-url);
+    end if;
+    for (value keyed-by key in url.uri-query)
+      request.request-query-values[key] := value;
+    end for;
+    request.request-version := extract-request-version(http-version);
   else
-    request.request-method
-      := as(<symbol>, copy-sequence(buffer, start: 0, end: method-end));
-    let bpos = skip-whitespace(buffer, method-end, eol);
-    let epos = whitespace-position(buffer, bpos, eol) | eol;
-    when (epos > bpos)
-      let qpos = char-position('?', buffer, bpos, epos);
-      
-      if (looking-at?("http://", buffer, bpos, qpos | epos))
-        // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
-        // Absolute URLs in the request line take precedence over Host header.
-        bpos := bpos + 7;
-        let host-end = char-position('/', buffer, bpos, qpos | epos);
-        request.request-host := substring(buffer, bpos, host-end | epos);
-        bpos := host-end;
-      end if;
-      if (epos > bpos)
-        // Should this trim trailing whitespace???
-        request.request-url := substring(buffer, bpos, qpos | epos);
-        let (resp, prefix?, tail) = find-responder(request.request-url);
-        // If there's a tail (i.e., we didn't match the entire url) and
-        // this isn't a directory responder, then no responder was found.
-        if (~tail | prefix?)
-          request.request-responder := resp;
-        end;
-        if (tail)
-          request.request-url-tail := join(tail, "/");
-          log-debug("Setting request-url-tail to %=", request.request-url-tail);
-        end;
-        if (qpos)
-          request.request-query-string := copy-sequence(buffer, start: qpos + 1, end: epos);
-          log-debug("Request query string = %s", request.request-query-string);
-          extract-query-values(buffer, qpos + 1, epos,
-                               request.request-query-values)
-        end;
-        let bpos = skip-whitespace(buffer, epos, eol);
-        let vpos = whitespace-position(buffer, bpos, eol) | eol;
-        request.request-version := extract-request-version(buffer, bpos, vpos);
-      end if;
-    end;
-  end;
-end;
+    invalid-request-line-error();
+  end if;
+end function read-request-first-line;
+
 
 define function read-request-content
     (request :: <request>)
@@ -717,11 +687,12 @@ define inline function request-content-type (request :: <request>)
   let content-type-header = get-header(request, "content-type");
   as(<symbol>,
      if (content-type-header)
-       first(split(content-type-header, separator: ";"))
+       first(split(content-type-header, ";"))
      else
        ""
      end if)
 end;
+
 
 // Gary, in the trunk sources (1) below should now be fixed.  (read was passing the
 // wrong arguments to next-method).
@@ -751,6 +722,7 @@ define function kludge-read-into!
   end;
 end;
 
+
 define open generic process-request-content
     (content-type :: <symbol>,
      request :: <request>,
@@ -768,19 +740,23 @@ define method process-request-content
 end;
 
 define method process-request-content
-    (content-type == #"application/x-www-form-urlencoded", request :: <request>,
-     buffer :: <byte-string>, content-length :: <integer>)
+    (content-type == #"application/x-www-form-urlencoded",
+     request :: <request>,
+     buffer :: <byte-string>,
+     content-length :: <integer>)
  => (content :: <string>)
-  log-debug("Form query string = %=",
-            copy-sequence(buffer, end: content-length));
-  let content = decode-url(buffer, 0, content-length);
-  // By the time we get here request-query-values has already been bound to a <string-table>
-  // containing the URL query values.  Now we augment it with any form values.
-  extract-query-values(buffer, 0, content-length,
-                       request.request-query-values);
-  request-content(request) := content
-  // ---TODO: Deal with content types intelligently.  For now this'll have to do.
-end;
+  let query = copy-sequence(buffer, end: content-length);
+  log-debug("Form query string = %=", query);
+  // By the time we get here request-query-values has already
+  // been bound to a <string-table> containing the URL query
+  // values. Now we augment it with any form values.
+  for (value keyed-by key in split-query(query))
+    request.request-query-values[key] := value; 
+  end for;
+  request-content(request) := query;
+  // ---TODO: Deal with content types intelligently.
+  // For now this'll have to do.
+end method process-request-content;
 
 define method process-request-content
     (content-type :: one-of(#"text/xml", #"text/html", #"text/plain"),
@@ -791,12 +767,15 @@ define method process-request-content
   request-content(request) := buffer
 end;
 
+/* REWRITE
 define method process-request-content
-    (content-type == #"multipart/form-data", request :: <request>,
-     buffer :: <byte-string>, content-length :: <integer>)
+    (content-type == #"multipart/form-data",
+     request :: <request>,
+     buffer :: <byte-string>,
+     content-length :: <integer>)
  => (content :: <string>)
-  let header-content-type = split(get-header(request, "content-type"), separator: ";");
-  let boundary = split(second(header-content-type), separator: "=");
+  let header-content-type = split(get-header(request, "content-type"), ";");
+  let boundary = split(second(header-content-type), "=");
   if (element(boundary, 1, default: #f))
     let boundary-value = second(boundary);
     log-debug("boundary: %=", boundary-value);
@@ -807,7 +786,8 @@ define method process-request-content
     log-error("%=", "content-type is missing the boundary parameter");
     unsupported-media-type-error();
   end if;
-end;
+end method process-request-content;
+*/
 
 define function send-error-response (request :: <request>, c :: <condition>)
   block ()
@@ -816,6 +796,7 @@ define function send-error-response (request :: <request>, c :: <condition>)
     log-error("An error occurred while sending error response. %=", e);
   end;
 end;
+
 
 define method send-error-response-internal (request :: <request>, err :: <error>)
   let headers = http-error-headers(err) | make(<header-table>);
@@ -830,7 +811,8 @@ define method send-error-response-internal (request :: <request>, err :: <error>
   response.response-code    := http-error-code(err);
   response.response-message := one-liner;
   send-response(response);
-end method;
+end method send-error-response-internal;
+
 
 // Do whatever we need to do depending on the incoming headers for
 // this request.  e.g., handle "Connection: Keep-alive", store
@@ -864,70 +846,7 @@ define method process-incoming-headers (request :: <request>)
   end;
 end;
 
-// API
-// Register a response function for a given URL.  See find-responder.
-define method register-url
-    (url :: <string>, target :: <function>, #key replace?, prefix?)
- => ()
-  local method reg-url ()
-          register-url-now(url, target, replace?: replace?, prefix?: prefix?);
-        end;
-  if (*server-running?*)
-    reg-url();
-  else
-    register-init-function(reg-url);
-  end;
-end method register-url;
-
-define method register-url-now
-    (url :: <string>, target :: <function>, #key replace?, prefix?)
-  let server :: <server> = *server*;
-  let (bpos, epos) = trim-whitespace(url, 0, size(url));
-  if (bpos = epos)
-    error(make(<koala-api-error>,
-               format-string: "You cannot register an empty URL: %=",
-               format-arguments: list(substring(url, bpos, epos))));
-  else
-    add-object(server.url-map, url, pair(target, prefix?), replace?: replace?);
-  end;
-  log-info("URL %s%s registered", url, if (prefix?) "/*" else "" end);
-end method register-url-now;
-
-// Find a responder function, if any.
-define method find-responder
-    (url :: <string>)
- => (responder :: false-or(<function>), #rest more)
-  local method maybe-auto-register (url)
-          when (*auto-register-pages?*)
-            // could use safe-locator-from-url, but it's relatively expensive
-            let len = size(url);
-            let slash = char-position-from-end('/', url, 0, len);
-            let dot = char-position-from-end('.', url, slash | 0, len);
-            when (dot & dot < len - 1)
-              let ext = substring(url, dot + 1, len);
-              let reg-fun = element(*auto-register-map*, ext, default: #f);
-              reg-fun & reg-fun(url)
-            end
-          end
-        end;
-  let url = decode-url(url, 0, size(url));
-  let path = split(url, separator: "/");
-  let trie = url-map(*server*);
-  let (responder, rest) = find-object(trie, path);
-  if (responder)
-    let fun = head(responder);
-    let prefix? = tail(responder);
-    values(fun, prefix?, rest)
-  else
-    maybe-auto-register(url)
-  end
-end find-responder;
-
-define open generic remove-responder (object :: <object>);
-
-define method remove-responder (url :: <string>)
-  remove-object(*server*.url-map, url)
-end;
+/* REMOVE
 
 // Register a function that will attempt to register a responder for a URL
 // if the URL matches the file extension.  The function should normally call
@@ -943,51 +862,73 @@ define function register-auto-responder
   *auto-register-map*[file-extension] := f;
 end;
 
-// define responder test ("/test" /* , secure?: #t */ )
-//   format(output-stream(response), "<html><body>test</body></html>");
-// end;
-define macro responder-definer
-  { define responder ?:name (?url:expression)
-      ?:body
-    end
-  }
-  => { define method ?name () ?body end;
-         register-url(?url, ?name)
-     }
+*/
 
-  { define directory responder ?:name (?url:expression)
-      ?:body
-    end
-  }
-  => { define method ?name () ?body end;
-         register-url(?url, ?name, prefix?: #t)
-     }
-end;
+
 
 // Invoke the appropriate handler for the given request URL and method.
 // Have to buffer up the entire response since the web app needs a chance to
 // set headers, etc.  And if the web app signals an error we need to catch it
 // and generate the appropriate error response.
-define method invoke-handler
-    (request :: <request>) => ()
+define method invoke-handler (request :: <request>) => ()
   let headers = make(<header-table>);
   let response = make(<response>,
                       request: request,
                       headers: headers);
-  if(request.request-keep-alive?)
+  if (request.request-keep-alive?)
     add-header(response, "Connection", "Keep-Alive");
   end if;
   dynamic-bind (*response* = response)
     if (request.request-responder)
-      log-debug("%s handler found", request-url(request));
-      request.request-responder();
+     let url = request.request-url;
+     log-debug("Responder found for %s", url);
+     let map = request.request-responder.responder-map;
+     let responders = element(map, request.request-method, default: #f);
+     // find the appropriate action sequence
+     let (action-sequence, match) = if (responders)
+         block (return)
+           for (action-sequence keyed-by regex in responders)
+             let tail = build-path(request.request-tail-url);
+             log-debug("? %= <=> %=", regex.regex-pattern, tail);
+             let match = regex-search(regex, tail);
+             if (match)
+               return(action-sequence, match)
+             end if;
+           end for;
+         end block;
+       end if;
+     log-debug("Action sequence: %=", action-sequence);
+     log-debug("Responder match: %=", match);
+     if (action-sequence)
+       //
+       let arguments = make(<stretchy-vector>);
+       for (group keyed-by name in match.groups-by-name)
+         add!(arguments, as(<symbol>, name));
+         add!(arguments, group.group-text);
+       end for;
+       do(method (action)
+           select (action by instance?)
+             <function> => apply(action, arguments);
+             <dylan-server-page> => 
+               respond-to(request.request-method, action);
+             otherwise => 
+	       log-warning("Unknown action %= in action sequence.", action);
+	   end select
+	 end, action-sequence);
+     else
+       resource-not-found-error(url: url);
+     end if;
     else
+      log-debug("Maybe serve static file");
       // generates 404 if not found
       maybe-serve-static-file();
-    end;
+    end if;
   end;
   send-response(response);
-end invoke-handler;
+end method invoke-handler;
+
+//define class <action-sequence-error> (<error>) 
+//end;
 
 // Read a line of input from the stream, dealing with CRLF correctly.
 //
@@ -1024,19 +965,15 @@ define inline function empty-line?
   len == 1 & buffer[0] == $cr
 end;
 
-define function extract-request-version (buffer :: <string>,
-                                         bpos :: <integer>,
-                                         epos :: <integer>)
-  if (bpos == epos)
-    #"HTTP/0.9"
-  elseif (string-match("HTTP/1.0", buffer, bpos, epos))
-    #"HTTP/1.0"
-  elseif (string-match("HTTP/1.1", buffer, bpos, epos))
-    #"HTTP/1.1"
-  else
-    unsupported-http-version-error()
-  end;
-end extract-request-version;
+define function extract-request-version 
+    (buffer :: <string>)
+ => (version :: <symbol>)
+  let version = as(<symbol>, buffer);    
+  select (version) 
+    #"HTTP/0.9", #"HTTP/1.0", #"HTTP/1.1" => version;
+    otherwise => unsupported-http-version-error();
+  end select;
+end;
 
 define class <http-file> (<object>)
   slot http-file-filename :: <string>,
@@ -1047,20 +984,21 @@ define class <http-file> (<object>)
     required-init-keyword: mime-type:;
 end;
 
+/* REWRITE
 define method extract-form-data
  (buffer :: <string>, boundary :: <string>, request :: <request>)
   // strip everything after end-boundary
-  let buffer = first(split(buffer, separator: concatenate("--", boundary, "--")));
-  let parts = split(buffer, separator: concatenate("--", boundary));
+  let buffer = first(split(buffer, concatenate("--", boundary, "--")));
+  let parts = split(buffer, concatenate("--", boundary));
   for (part in parts) 
-    let part = split(part, separator: "\r\n\r\n");
-    let header-entries = split(first(part), separator: "\r\n");
+    let part = split(part, "\r\n\r\n");
+    let header-entries = split(first(part), "\r\n");
     let disposition = #f;
     let name = #f;
     let type = #f;
     let filename = #f;
     for (header-entry in header-entries)
-      let header-entry-parts = split(header-entry, separator: ";");
+      let header-entry-parts = split(header-entry, ";");
       for (header-entry-part in header-entry-parts)
         let eq-pos = char-position('=', header-entry-part, 0, size(header-entry-part));
         let p-pos = char-position(':', header-entry-part, 0, size(header-entry-part));
@@ -1093,121 +1031,10 @@ define method extract-form-data
     log-debug("multipart/form-data for %=: %=, %=, %=", name, disposition, type, filename);
   end for;
 end method extract-form-data;
+*/
 
-// Turn a string like "foo=8&bar=&baz=zzz" into a <string-table> with the "obvious" keys/vals.
-// Note that in the above example string "bar" maps to "", not #f.
-//---TODO: Find out if the query keys are case-sensitive in the HTTP spec and make sure this
-//         does the right thing.
-define method extract-query-values
-    (buffer :: <string>, bpos :: <integer>, epos :: <integer>, queries :: <string-table>)
- => (queries :: <string-table>)
-  local method extract-key/val (beg :: <integer>, fin :: <integer>)
-          let eq-pos = char-position('=', buffer, beg, fin);
-          if (eq-pos & (eq-pos > beg))
-            let key = decode-url(buffer, beg, eq-pos);
-            let val = decode-url(buffer, eq-pos + 1, fin);
-            values(key, val)
-          else
-            values(decode-url(buffer, beg, fin), #t)
-          end if;
-        end;
-  local method insert-key/val (key :: <string>, val :: type-union(<string>, <boolean>))
-          let hashtable-value = element(queries, key, default: #f);
-          if (hashtable-value)
-            //for multiple selection option boxes, arguments are passed this way:
-            // "foo=2&foo=3&foo=4", that's why we first do a lookup in the hash-table
-            // and generate a <stretchy-vector> on the fly -- hannes, 17.11.2007
-            if (instance?(hashtable-value, <string>))
-              let vec = make(<stretchy-vector>);
-              add!(vec, hashtable-value);
-              add!(vec, val);
-              queries[key] := vec;
-            else
-              add!(hashtable-value, val);
-            end;
-          else
-            queries[key] := val;
-          end;
-        end;
-  iterate loop (start :: <integer> = bpos)
-    when (start < epos)
-      let _end = char-position('&', buffer, start, epos) | epos;
-      let (key, val) = extract-key/val(start, _end);
-      when (key & val)
-        insert-key/val(key, val);
-      end;
-      loop(_end + 1);
-    end;
-  end;
-  queries
-end extract-query-values;
-
-define method get-query-value
-    (key :: <string>, #key as: as-type :: false-or(<type>)) => (val :: <object>)
-  let value = element(*request-query-values*, key, default: #f);
-  iff (as-type & value,
-       as(as-type, value),
-       value)
+define inline function get-query-value
+    (key :: <string>)
+ => (value :: <object>)
+  element(*request*.request-query-values, key, default: #f);
 end;
-
-define method count-query-values
-    () => (n :: <integer>)
-  size(*request-query-values*)
-end;
-
-define method do-query-values
-    (f :: <function>)
-  for (val keyed-by key in *request-query-values*)
-    f(key, val);
-  end;
-end;
-
-// Is there any need to maintain POSTed values separately from GET query values?
-// Don't think so, so this should be ok.
-define constant get-form-value :: <function> = get-query-value;
-define constant do-form-values :: <function> = do-query-values;
-define constant count-form-values :: <function> = count-query-values;
-
-
-/// Modules
-
-define constant $module-map :: <table> = make(<string-table>);
-define constant $module-directory :: <string> = "modules";
-
-// Modules are loaded from <server-root>/modules.
-//
-define function module-pathname
-    (module-name :: <string>) => (path :: <string>)
-  as(<string>,
-     merge-locators(as(<file-locator>,
-                       format-to-string("%s/%s", $module-directory, module-name)),
-                    *server-root*))
-end;
-
-define function load-module
-    (module-name :: <string>)
-  let path = module-pathname(module-name);
-  log-info("Loading module '%s' from %s...", module-name, path);
-  // Note that the linux definition of load-library does nothing right now.
-  // -cgay 2004.05.06
-  let handle = load-library(path);
-  $module-map[module-name] := handle;
-end;
-
-define function unload-module
-    (module-name :: <string>)
-  /*
-   * unload-library isn't implemented yet in the operating-system module,
-   * and since there's no real need for this method I'm commenting it out
-   * for now.  -cgay 2004.05.06
-  let handle = element($module-map, module-name, default: #f);
-  if (handle)
-    log-info("Unloading module %s...", module-name);
-    FreeLibrary(handle);
-  else
-    log-info("Couldn't unload module '%s'.  Module not found.", module-name);
-  end;
-   */
-  log-warning("Unloading modules is not yet implemented.");
-end;
-

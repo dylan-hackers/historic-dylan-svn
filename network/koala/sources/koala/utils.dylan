@@ -20,6 +20,7 @@ end;
 
 
 // Things that expire.
+
 define class <expiring-mixin> (<object>)
   constant slot duration :: <day/time-duration>
     = encode-day/time-duration(0, 1, 0, 0, 0),      // 1 hour
@@ -29,13 +30,13 @@ define class <expiring-mixin> (<object>)
 end;
 
 define method expired?
-    (thing :: <expiring-mixin>) => (expired? :: <boolean>)
-  thing.mod-time == #f
-  | begin
+    (thing :: <expiring-mixin>)
+ => (expired? :: <boolean>);
+  thing.mod-time == #f | begin
       let now = current-date();
       (now - thing.mod-time) < thing.duration
-    end
-end expired?;
+    end;
+end method expired?;
 
 
 
@@ -84,18 +85,6 @@ sets:
 end;
 
 
-
-// Compare two locator-path elements.
-//---*** TODO: portability - This isn't portable.
-define method path-element-equal?
-    (elem1 :: <object>, elem2 :: <object>) => (equal? :: <boolean>)
-  elem1 = elem2
-end;
-
-define method path-element-equal?
-    (elem1 :: <string>, elem2 :: <string>) => (equal? :: <boolean>)
-  string-equal?(elem1, elem2)
-end;
 
 define sideways method locator-path
     (locator :: <file-locator>) => (path :: <sequence>)
@@ -191,24 +180,26 @@ end;
 define class <string-trie> (<object>)
   constant slot trie-children :: <string-table> = make(<string-table>);
   slot trie-object :: <object>,
-    required-init-keyword: #"object";
+    required-init-keyword: object:;
 end;
 
 define class <trie-error> (<format-string-condition>, <error>)
 end;
 
 define method add-object
-    (trie :: <string-trie>, path :: <string>, object :: <object>,
+    (trie :: <string-trie>, path :: <sequence>, object :: <object>,
      #key replace?)
-  local method real-add (trie :: <string-trie>, rest-path :: <sequence>)
+ => ();
+  local method real-add (trie, rest-path)
           if (rest-path.size = 0)
             if (trie.trie-object = #f | replace?)
               trie.trie-object := object;
             else
-              let fmt = format-to-string("Trie already contains an object for the "
-                                         "given path (%=).", path);
-              signal(make(<trie-error>, format-string: fmt))
-            end;
+              signal(make(<trie-error>, 
+			   format-string: "Trie already contains an object for the "
+			                  "given path (%=).",
+			   format-arguments: list(path)));
+            end if;
           else
             let first-path = rest-path[0];
             let other-path = copy-sequence(rest-path, start: 1);
@@ -221,12 +212,13 @@ define method add-object
             end;
             real-add(child, other-path)
           end;
-        end;
-  real-add(trie, split(path, separator: "/"))
+        end method real-add;
+  real-add(trie, path)
 end method add-object;
 
-define method remove-object (trie :: <string-trie>, path :: <string>)
-  let path = split(path, separator: "/");
+define method remove-object
+    (trie :: <string-trie>, path :: <sequence>)
+ => ();
   let nodes = #[];
   let node = reduce(method (a, b)
       nodes := add!(nodes, a);
@@ -246,28 +238,31 @@ define method remove-object (trie :: <string-trie>, path :: <string>)
   object;
 end;
 
-// Find the object with the longest path, if any.  2nd return value is
-// the part of the path that came after where the object matched.
-//
+
+// Find the object with the longest path, if any.
+// 2nd return value is the part of the path that
+// came after where the object matched.
+
 define method find-object
     (trie :: <string-trie>, path :: <sequence>)
-  local method fob (trie :: <string-trie>, path :: <list>, obj, rest)
+ => (object :: <object>, rest-path :: <sequence>);
+  local method real-find (trie, path, object, rest)
           if (empty?(path))
-            values(obj, rest)
+            values(object, rest)
           else
             let child = element(trie.trie-children, head(path), default: #f);
             if (child)
-              fob(child, tail(path), child.trie-object | obj,
+              real-find(child, tail(path), child.trie-object | object,
                   if (child.trie-object)
-                    if (empty?(tail(path))) #f else tail(path) end
+                    tail(path)
                   else
                     rest
-                  end)
+                  end if);
             else
-              values(obj, rest)
+              values(object, rest);
             end
           end
-        end method fob;
-  fob(trie, as(<list>, path), trie.trie-object, #f);
+        end method real-find;
+  real-find(trie, as(<list>, path), trie.trie-object, #());
 end method find-object;
 

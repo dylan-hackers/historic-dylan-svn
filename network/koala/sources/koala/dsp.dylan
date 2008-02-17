@@ -164,21 +164,42 @@ define method initialize
   end;
 end;
 
+
+define generic root-directory
+    (page :: <object>)
+ => (root :: <directory-locator>);
+
+define method root-directory
+    (page :: <file-page-mixin>)
+ => (root :: <directory-locator>)
+  *virtual-host*.document-root;
+end;
+
+define method root-directory
+    (page :: <dylan-server-page>)
+ => (root :: <directory-locator>)
+  *virtual-host*.dsp-root;
+end;
+
+
 define generic source-location
-    (x :: <object>) => (location :: false-or(<locator>));
+    (x :: <object>)
+ => (location :: false-or(<locator>));
 
 define method source-location
-    (page :: <page>) => (location :: false-or(<locator>))
+    (page :: <page>)
+ => (location :: false-or(<locator>))
   #f
 end;
 
 define method source-location 
-    (page :: <file-page-mixin>) => (location :: false-or(<locator>))
+    (page :: type-union(<file-page-mixin>, <dylan-server-page>))
+ => (location :: false-or(<locator>))
   let loc :: <locator> = page.page-source;
   if (locator-relative?(loc))
-    let newloc = simplify-locator(merge-locators(loc, document-root(*virtual-host*)));
+    let newloc = simplify-locator(merge-locators(loc, root-directory(page)));
     log-debug("source-location: newloc = %s", as(<string>, newloc));
-    if (locator-below-document-root?(newloc))
+    if (locator-below-root?(newloc, root-directory(page)))
       newloc
     else
       log-debug("Attempt to access a document outside the document root: %s",
@@ -191,7 +212,8 @@ define method source-location
 end;
 
 define method page-directory
-    (page :: <file-page-mixin>) => (locator :: <directory-locator>)
+    (page :: type-union(<file-page-mixin>, <dylan-server-page>))
+ => (locator :: <directory-locator>)
   locator-directory(source-location(page))
 end;
 
@@ -698,7 +720,10 @@ define macro tag-definer
     end }
   => { define tag-aux #f ?tag ?taglib-spec
            (?page, _do-body) (?tag-parameters)
-         ?body;       // semicolon is needed even when ?body ends in semicolon.
+	 begin
+	   let ?=output = curry(format, current-response().output-stream);
+           ?body;       // semicolon is needed even when ?body ends in semicolon.
+	 end;
          _do-body();  // process the tag body
        end
      }
@@ -708,7 +733,10 @@ define macro tag-definer
     end }
   => { define tag-aux #t ?tag ?taglib-spec
            (?page, ?do-body) (?tag-parameters)
-         ?body
+         begin
+	   let ?=output = curry(format, current-response().output-stream);
+	   ?body;
+	 end;
        end
      }
 
@@ -918,6 +946,7 @@ define function parse-include-directive
                 as(<string>, page.source-location));
   end;
   let source = document-location(url, context: page-directory(page));
+  log-debug("source: %s", source);
   let contents = source & file-contents(source);
   if (contents)
     let subtemplate = make(<dsp-template>,

@@ -33,7 +33,7 @@ define method document-location
         if (locator-name(loc) = "..")
           loc := locator-directory(locator-directory(loc));
         end;
-        locator-below-document-root?(loc) & loc
+        locator-below-root?(loc, context) & loc
       end if
     end if
   exception (ex :: <locator-error>)
@@ -45,7 +45,7 @@ end document-location;
 define method maybe-serve-static-file ()
   let request = current-request();
   let response = current-response();
-  let url :: <string> = request-url(request);
+  let url = build-uri(request.request-url);
   let document :: false-or(<physical-locator>) 
     = static-file-locator-from-url(url);
   log-debug("Requested document is %s", document);
@@ -134,20 +134,34 @@ define method find-default-document
   end;
 end;
 
-define method locator-below-document-root?
-    (locator :: <physical-locator>) => (below? :: <boolean>)
-  let relative = relative-locator(locator, document-root(*virtual-host*));
-  locator-relative?(relative)  // do they at least share a common ancestor?
-    & begin
-        let relative-parent = locator-directory(relative);
-        ~relative-parent       // is it a file directly in the root dir?
-          | begin
-              let relative-path = locator-path(relative-parent);
-              empty?(relative-path)  // again, is it directly in the root dir?
-                | relative-path[0] ~= #"parent"  // does it start with ".."?
-            end
-      end
+define method locator-below-document-root? 
+    (locator :: <physical-locator>)
+ => (below? :: <boolean>)
+  locator-below-root?(locator, *virtual-host*.document-root)
 end;
+
+define method locator-below-dsp-root?
+    (locator :: <physical-locator>)
+ => (below? :: <boolean>)
+  locator-below-root?(locator, *virtual-host*.dsp-root)
+end;
+
+define method locator-below-root?
+    (locator :: <physical-locator>, root :: <directory-locator>)
+ => (below? :: <boolean>)
+  let relative = relative-locator(locator, root);
+  // do they at least share a common ancestor?
+  if (locator-relative?(relative))
+    let relative-parent = locator-directory(relative);
+    // is it a file directly in the root dir?
+    ~relative-parent | begin
+      let relative-path = locator-path(relative-parent);
+      // again, is it directly in the root dir?
+      empty?(relative-path) | 
+        relative-path[0] ~= #"parent"  // does it start with ".."?
+    end;
+  end if;
+end method locator-below-root?;
 
 
 // Get MIME Type for file name
@@ -176,7 +190,9 @@ define method static-file-responder (locator :: <locator>)
   end;
 end;
 
-define method etag (locator :: <locator>) => (etag :: <string>, weak? :: <boolean>)
+define method etag 
+    (locator :: <locator>)
+ => (etag :: <string>, weak? :: <boolean>)
   //generate an etag (use modification date and size)
   // --TODO: algorithm should be changed (md5?), because a file can
   //changes more than once per second without changing size.

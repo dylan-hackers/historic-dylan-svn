@@ -27,6 +27,8 @@ define library koala
   use base64;
   use memory-manager;
   use command-line-parser;
+  use uri;
+  use regular-expressions;
 
   export koala;
   export koala-extender;
@@ -65,7 +67,6 @@ define module utilities
     wrapping-inc!,
     file-contents,
     pset,                // multiple-value-setq
-    path-element-equal?,
     parent-directory,
     date-to-stream,
     kludge-read-into!,   // work around bug in read-into! in FD 2.0
@@ -151,7 +152,9 @@ define module koala
     ensure-server,      // Get (or create) the active HTTP server object.
     start-server,
     stop-server,
-    register-url,
+    <responder>,
+    responder-map,
+    add-responder,
     remove-responder,
     <request>,
     *request*,                   // Holds the active request, per thread.
@@ -162,6 +165,7 @@ define module koala
     request-method,              // Returns #"get", #"post", etc
     request-host,
     responder-definer,
+    url-map-definer,
 
     // Form/query values.  (Is there a good name that covers both of these?)
     get-query-value,             // Get a query value that was passed in a URL or a form
@@ -181,8 +185,11 @@ define module koala
     <virtual-host>,
     *virtual-host*,
     document-root,
+    dsp-root,
     vhost-name,
-    locator-below-document-root?;
+    locator-below-document-root?,
+    locator-below-dsp-root?,
+    locator-below-root?;
 
   // Responses
   create
@@ -265,7 +272,7 @@ define module koala
     internal-server-error,
     bad-request,
     request-url,
-    request-url-tail,
+    request-tail-url,
     register-auto-responder;
 
   // Debugging
@@ -304,53 +311,6 @@ end module koala;
 define module koala-extender
   create parse-header-value;
 end;
-
-define module httpi                             // http internals
-  use dylan;
-  use threads;               // from dylan lib
-  use common-extensions,
-    rename: { split => string-split },
-    exclude: { format-to-string };
-  use dylan-basics;
-  use simple-random;
-  use utilities,
-    rename: { log-copious => %log-copious,
-              log-verbose => %log-verbose,
-              log-debug => %log-debug,
-              log-info => %log-info,
-              log-warning => %log-warning,
-              log-error => %log-error };
-  use koala;
-  use koala-extender;
-  use memory-manager;
-  use locators,
-    rename: { <http-server> => <http-server-url>,
-              <ftp-server> => <ftp-server-url>,
-              <file-server> => <file-server-url> };
-  use dylan-extensions,
-    import: { element-no-bounds-check,
-              element-no-bounds-check-setter,
-              element-range-check,
-              element-range-error,
-              // make-symbol,
-              // case-insensitive-equal,
-              // case-insensitive-string-hash
-              };
-  use format;
-  use standard-io;
-  use streams;
-  use sockets,
-    rename: { start-server => start-socket-server };
-  use date;                    // from system lib
-  use file-system;             // from system lib
-  use operating-system;        // from system lib
-  //use ssl-sockets;
-  use xml-parser,
-    prefix: "xml$";
-  use xml-rpc-common;
-  use base64;
-  use command-line-parser;
-end module httpi;
 
 define module dsp
   use dylan;
@@ -467,4 +427,55 @@ define module dsp
     record-table-name;
 */
 end module dsp;
+
+define module httpi                             // http internals
+  use dylan;
+  use threads;               // from dylan lib
+  use common-extensions,
+    rename: { split => string-split },
+    exclude: { format-to-string };
+  use dylan-basics;
+  use simple-random;
+  use utilities,
+    rename: { log-copious => %log-copious,
+              log-verbose => %log-verbose,
+              log-debug => %log-debug,
+              log-info => %log-info,
+              log-warning => %log-warning,
+              log-error => %log-error };
+  use koala;
+  use koala-extender;
+  use memory-manager;
+  use locators,
+    rename: { <http-server> => <http-server-url>,
+              <ftp-server> => <ftp-server-url>,
+              <file-server> => <file-server-url> };
+  use dylan-extensions,
+    import: { element-no-bounds-check,
+              element-no-bounds-check-setter,
+              element-range-check,
+              element-range-error,
+              // make-symbol,
+              // case-insensitive-equal,
+              // case-insensitive-string-hash
+              };
+  use format;
+  use standard-io;
+  use streams;
+  use sockets,
+    rename: { start-server => start-socket-server };
+  use date;                    // from system lib
+  use file-system;             // from system lib
+  use operating-system;        // from system lib
+  //use ssl-sockets;
+  use xml-parser,
+    prefix: "xml$";
+  use xml-rpc-common;
+  use base64;
+  use command-line-parser;
+  use uri;
+  use regular-expressions;
+
+  use dsp;
+end module httpi;
 

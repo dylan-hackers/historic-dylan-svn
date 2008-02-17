@@ -21,5 +21,6 @@ files:	library-unix
 	xml-rpc-server
 	config
 	responders
+	modules
 	koala-main
 	dsp-main

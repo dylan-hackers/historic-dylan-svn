@@ -85,13 +85,22 @@
 <server-root location="." />
 
 
-<!-- DOCUMENT-ROOT is the root of the web document hierarchy.
+<!-- DOCUMENT-ROOT is the root of the static web documents.
      It is relative to SERVER-ROOT, so in this case the document root
      is SERVER-ROOT/www.  If the document root isn't specified for a given
      virtual host, it defaults to SERVER-ROOT/<vhost-name>.  The name
      of the default virtual host is "default".
   -->
 <document-root location="www" />
+
+<!-- DSP-ROOT is the root of all Dylan Server Pages. They won't get
+     served as plain text files.
+     It is relative to SERVER-ROOT, so in this case the document root
+     is SERVER-ROOT/www.  If the document root isn't specified for a given
+     virtual host, it defaults to SERVER-ROOT/<vhost-name>.  The name
+     of the default virtual host is "default".
+  -->
+<dsp-root location="dsp" />
 
 
 <!-- DIRECTORY elements can be used to grant or deny access to specific

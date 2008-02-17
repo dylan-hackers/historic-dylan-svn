@@ -278,18 +278,35 @@ end;
 define method process-config-element
     (node :: xml$<element>, name == #"document-root")
   bind (loc = get-attr(node, #"location"))
-    if(loc)
+    if (loc)
       let vhost = active-vhost();
       document-root(vhost)
         := merge-locators(as(<directory-locator>, loc), *server-root*);
       log-info("VHost '%s': document root = %s.",
                vhost-name(vhost), document-root(vhost));
     else
-      warn("Invalid <DOCUMENT-ROOT> spec.  "
-             "The 'location' attribute must be specified.");
-    end;
+      warn("Invalid <DOCUMENT-ROOT> spec."
+           "The 'location' attribute must be specified.");
+    end if;
   end;
 end;
+
+define method process-config-element
+    (node :: xml$<element>, name == #"dsp-root")
+  bind (loc = get-attr(node, #"location"))
+    if (loc)
+      let vhost = active-vhost();
+      vhost.dsp-root := merge-locators(as(<directory-locator>, loc), 
+                                       *server-root*);
+      log-info("VHost '%s': document root = %s.",
+	       vhost-name(vhost), document-root(vhost));
+    else
+      warn("Invalid <DSP-ROOT> spec."
+	   "The 'location' attribute must be specified.");
+    end if;
+  end;
+end;
+
 
 define method process-config-element
     (node :: xml$<element>, name == #"log")

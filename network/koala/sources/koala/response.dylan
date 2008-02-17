@@ -159,7 +159,7 @@ define method send-response
     // Log in Common Logfile Format
     // (http://www.w3.org/Daemon/User/Config/Logging.html)
     let request = concatenate(as-uppercase(as(<string>, request-method(req))), " ",
-                              request-url(req), " ",
+                              build-uri(request-url(req)), " ",
                               as-uppercase(as(<string>, request-version(req))));
     let date = as-common-logfile-date(current-date());
     let remoteaddr = host-address(remote-host(request-socket(req)));
@@ -190,6 +190,7 @@ define method send-response
     // Send the body (or what there is of it so far).
     write(stream, contents);
   end unless;
+  log-debug("Send response.");
 end;
 
 // Exported
