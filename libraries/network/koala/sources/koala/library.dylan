@@ -152,7 +152,6 @@ define module koala
     ensure-server,      // Get (or create) the active HTTP server object.
     start-server,
     stop-server,
-    register-url,
     <responder>,
     responder-map,
     add-responder,
@@ -166,6 +165,7 @@ define module koala
     request-method,              // Returns #"get", #"post", etc
     request-host,
     responder-definer,
+    url-map-definer,
 
     // Form/query values.  (Is there a good name that covers both of these?)
     get-query-value,             // Get a query value that was passed in a URL or a form
@@ -185,8 +185,11 @@ define module koala
     <virtual-host>,
     *virtual-host*,
     document-root,
+    dsp-root,
     vhost-name,
-    locator-below-document-root?;
+    locator-below-document-root?,
+    locator-below-dsp-root?,
+    locator-below-root?;
 
   // Responses
   create
@@ -269,7 +272,7 @@ define module koala
     internal-server-error,
     bad-request,
     request-url,
-    request-url-tail,
+    request-tail-url,
     register-auto-responder;
 
   // Debugging
