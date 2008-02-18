@@ -1,4 +1,4 @@
-module: regular-expressions
+module: regex-implementation
 author: Nick Kramer (nkramer@cs.cmu.edu)
 copyright: see below
 
@@ -119,18 +119,18 @@ end class <parsed-backreference>;
 define class <regex-error> (<format-string-condition>, <error>)
 end class <regex-error>;
 
-define class <illegal-regex> (<regex-error>)
+define class <invalid-regex> (<regex-error>)
   constant slot regex-pattern :: <string>, 
     required-init-keyword: #"pattern";
-end class <illegal-regex>;
+end class <invalid-regex>;
 
-define sealed domain make (singleton(<illegal-regex>));
-define sealed domain initialize (<illegal-regex>);
+define sealed domain make (singleton(<invalid-regex>));
+define sealed domain initialize (<invalid-regex>);
 
 define function parse-error
     (pattern :: <string>, format-string :: <string>, #rest format-args)
   let msg = apply(format-to-string, format-string, format-args);
-  signal(make(<illegal-regex>,
+  signal(make(<invalid-regex>,
               format-string: "Invalid regular expression: %=.  %s",
               format-arguments: list(pattern, msg),
               pattern: pattern));
@@ -182,8 +182,12 @@ define class <parse-info> (<object>)
   slot has-quantifiers? :: <boolean> = #f;
   slot current-group-number :: <integer> = 0;
   constant slot group-number-to-name :: <table> = make(<table>);
-  constant slot character-set-type :: <class>,
-    required-init-keyword: #"set-type";
+
+  // Currently this is only used for character sets (e.g., [a-zA-z]).
+  // It could also be used to generate case-insensitive parsed-characters
+  // and parsed-strings, but right now you get that by passing
+  // case-insensitive: #t to the match function.
+  slot case-sensitive? :: <boolean> = #t;
 
   // If true then . matches \n.  (?s) /s
   slot dot-matches-all? :: <boolean>,
@@ -202,6 +206,7 @@ end class <parse-info>;
 // These setters will be used eventually, when we implement the ability to change
 // them via subpatterns like (?i).  Until then, this prevents warnings.
 begin
+  case-sensitive?-setter;
   dot-matches-all?-setter;
   extended?;
   extended?-setter;
@@ -217,17 +222,21 @@ define function make-parse-info
  => (info :: <parse-info>)
   verbose & not-yet-implemented("'verbose' option");
   multi-line & not-yet-implemented("'multi-line' option");
-  let char-set-type = if (case-sensitive)
-                        <case-sensitive-character-set>
-                      else
-                        <case-insensitive-character-set>
-                      end;
   make(<parse-info>,
-       set-type: char-set-type,
+       case-sensitive: case-sensitive,
        verbose: verbose,
        multi-line: multi-line,
        dot-matches-all: dot-matches-all)
 end function make-parse-info;
+
+define inline method character-set-type
+    (info :: <parse-info>) => (set-type :: subclass(<character-set>))
+  if (info.case-sensitive?)
+    <case-sensitive-character-set>
+  else
+    <case-insensitive-character-set>
+  end
+end method character-set-type;
 
 define method has-named-group?
     (info :: <parse-info>, name :: <string>)

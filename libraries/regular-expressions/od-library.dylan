@@ -31,57 +31,58 @@ copyright: see below
 //
 //======================================================================
 
-// Revamped.  --cgay Dec 2007
-
 define library regular-expressions
+  use dylan;
   use common-dylan;
   use string-extensions;
-  use io,
-    import: { format-out };  // for debugging only
   export
-    regular-expressions;
-end;
+    regular-expressions,
+    regex-implementation;
+end library regular-expressions;
 
 define module regular-expressions
-  use common-dylan,
-    exclude: {
-      split    // todo -- just add a method to this one
-    };
-  use format-out;  // for debugging only
+  create
+    <regex>,
+    <regex-match>,
+    <match-group>,
+    <regex-error>,
+    <invalid-regex>,
+    <invalid-match-group>,
+
+    // Compiling and accessing regex info
+    compile-regex,
+    regex-group-count,
+    regex-pattern,
+
+    // Search and replace
+    regex-search,
+    regex-search-strings,
+    regex-position,
+    regex-replace,
+
+    // Accessing match groups and individual group info
+    match-group,
+    groups-by-position,
+    groups-by-name,
+    group-text,
+    group-start,
+    group-end;
+end module regular-expressions;
+
+define module regex-implementation
+  use common-dylan;
+  use dylan-extensions,
+    import: { values-hash, string-hash, gefiltafishk };
   use string-conversions;
   use character-type;
   use string-hacking;
   use %do-replacement;
   use %parse-string;
   use substring-search;
+  use regular-expressions,
+    export: all;
   export
-    compile-regex,
-    <regex>,
-      regex-search,
-      regex-search-strings,
-      regex-group-count,
-      regex-position,
-      make-regex-positioner,
-      regex-replace,
-      make-regex-replacer,
-    <regex-error>,
-    <invalid-regex>,
-      regex-pattern,
-    <regex-match>,                   // results of a successful search
-      <match-group>,
-        groups-by-position,
-        groups-by-name,
-      match-group,
-      match-groups,
-      group-start,
-      group-end,
-      group-text,
-      <invalid-match-group>,
-
-    split,
-    make-splitter,
-    join;
-  export
-    split-string;   // ???
-end module regular-expressions;
-
+    // extra exports for the test suite to use
+    <mark>,
+    *regex-cache*;
+end module regex-implementation;

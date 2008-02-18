@@ -1,14 +1,13 @@
-module:   regular-expressions
+module:   regex-implementation
 author:   Nick Kramer (nkramer@cs.cmu.edu)
-synopsis: This provides a useable interface for users. Functions 
-	  defined outside this file are really too strange and quirky 
-          to be of use to people.
+          Carl Gay (changed everything except regex-position)
+synopsis: The regular-expressions API, insofar as it can be separated into one file.
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1994  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
+// Copyright (c) 1998-2008  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -32,302 +31,447 @@ copyright: see below
 //
 //======================================================================
 
-// There are quite a few make-fooer functions hanging around.  Now
-// that regex-position does caching, these are basically useless, but
-// we've kept them around for backwards compatibility.  Unfortunately,
-// internally most of the functions are implemented in terms of
-// make-regex-positioner.  To minimize the amount of rewriting, I've
-// liberally applied seals and inline declarations so that
-// make-regex-positioner won't clobber all type information.  The
-// downside, of course, is that everything's sealed, but hey, no one
-// ever subclassed regex-position anyway.
+//// Caching
 
-
-// Caching
-//
 // Parsing a regex is not cheap, so we cache the parsed regexs and
 // only parse a string if we haven't seen it before.  Because in
 // practice almost all regex strings are string literals, we're free
 // to choose == or = depending on whatever's fastest.  However,
-// because a string is parsed differently depending on whether the
-// search is case sensitive or not, we also have to keep track of that
-// information as well.  (The case dependent parse boils down to the
-// parse creating a <character-set>, which must be either case
-// sensitive or case insensitive)
+// because a string is parsed differently depending on the arguments
+// passed to compile-regex, we also have to keep track of that
+// information as well.
 //
 
-// This caching scheme fails if we later introduce the ability to change
-// attributes such as case-sensitivity mid-parse, the way (I believe) perl
-// does?  --cgay
-
-// ### Currently, only regex-position uses this cache, because the
-// other functions are still using make-regex-positioner.  With
-// caching, that make-regex-whatever stuff should probably go.
-
-// <cache-key> -- internal
-//
-// What we use for keys in the *regex-cache*.
-//
-define class <cache-key> (<object>)
-  constant slot regex-string :: <string>, 
-    required-init-keyword: #"regex-string";
-  constant slot character-set-type :: <class>, 
-    required-init-keyword: #"character-set-type";
-end class <cache-key>;
-
-// <cache-element> -- internal
-//
-// What we use for elements in a *regex-cache*
-//
-define class <cache-element> (<object>)
-  constant slot parse-tree :: <parsed-regex>,
-    required-init-keyword: #"parse-tree";
-  constant slot last-group :: <integer>,
-    required-init-keyword: #"last-group";
-end class <cache-element>;
-
-// <regex-cache> -- internal
-//
-// Maps <cache-key> to <cache-element>.  ### Ideally, we'd be using
-// weak pointers to these strings.  In practice, however, most of the
-// regex strings are literals, so this isn't usually a drawback.
-//
-// This used to compare strings with == rather than =, but this leaks
-// lots of memory
-// 
 define class <regex-cache> (<table>) end;
 
-// table-protocol{<regex-cache>} -- method on imported G.F.
-//
-define method table-protocol (table :: <regex-cache>) 
- => (equal? :: <function>, hash :: <function>);
-  values(method (key1 :: <cache-key>, key2 :: <cache-key>) // equal?
-	  => res :: <boolean>;
-           key1.regex-string = key2.regex-string
-             & key1.character-set-type == key2.character-set-type;
-	 end method,
-	 method (key :: <cache-key>, initial-state) => (id :: <integer>, state); // hash()
-	   let (string-id, string-state) = object-hash(key.regex-string, initial-state);
-	   let (set-type-id, set-type-state) 
-	     = object-hash(key.character-set-type, string-state);
-	   values(merge-hash-ids(string-id, set-type-id, ordered: #t), set-type-state);
-	 end method);
+define method table-protocol
+    (table :: <regex-cache>)
+ => (equal? :: <function>, hash :: <function>)
+ local method hash (key :: <list>, initial-state)
+                => (id :: <integer>, state)
+         let (id, state) = string-hash(head(key), initial-state);
+         for (boolean in tail(key))
+           let (next-id, next-state) = object-hash(boolean, state);
+           id := merge-hash-ids(id, next-id, ordered: #t);
+           state := next-state;
+         end;
+         values(id, state)
+       end;
+  values(\=, hash)
 end method table-protocol;
 
-// *regex-cache* -- internal
-//
-// The only instance of <regex-cache>.  ### Not threadsafe.
-// 
 // Technically not thread safe, but does it matter?  Worst case seems to
 // be a duplicated regex parse.  --cgay
 //
 define constant *regex-cache* = make(<regex-cache>);
 
-// parse-or-use-cached -- internal
+// Compile the given string into an optimized regular expression.
 //
-// Tries to use the cached version of the regex, and if not possible,
-// parses it and adds it to the cache.
+// @param case-sensitive -- Whether to be case sensitive when matching character
+//   sets (e.g., [a-z]).  This does not affect other character/string matching yet.
+//   TODO -- but it should
 //
-define inline function parse-or-use-cached 
-    (regex :: <string>, parse-info :: <parse-info>)
- => (parsed-regex :: <parsed-regex>, last-group :: <integer>);
-  let key = make(<cache-key>, regex-string: regex, 
-		 character-set-type: parse-info.character-set-type); 
-  let cached-value = element(*regex-cache*, key, default: #f);
-  if (cached-value)
-    values(cached-value.parse-tree, cached-value.last-group);
-  else
-    let (parsed-regex, last-group) = parse(regex, parse-info);
-    *regex-cache*[key] := make(<cache-element>,
-                                parse-tree: parsed-regex,
-				last-group: last-group);
-    values(parsed-regex, last-group);
-  end if;
-end function parse-or-use-cached;
+// @param verbose -- If true, allows you to write regular expressions that
+//   are easier to read by including whitespace and comments in them that
+//   will be ignored.
+//
+// @param multi-line -- If true, '^' matches at the beginning of the string and
+//   at the beginning of each line (immediately following each newline); and '$'
+//   matches at the end of the string and at the end of each line (immediately
+//   preceding each newline). By default, "^" matches only at the beginning of
+//   the string, and "$" only at the end of the string.
+//
+// @param dot-matches-all -- Normally '.' matches any character except for
+//   newline.  If this parameter is true '.' matches newline as well.
+//
+// @param use-cache -- If true then check for a regex in the cache matching
+//   the given set of arguments.  If not found in the cache, compile it and
+//   then add it to the cache (and return it).
+//
+// This function signals <invalid-regex> if the regular expression is invalid.
+//
+define sealed generic compile-regex
+    (pattern :: <string>,
+     #key case-sensitive :: <boolean> = #t,
+          verbose :: <boolean> = #f,
+          multi-line :: <boolean> = #f,
+          dot-matches-all :: <boolean> = #f,
+          use-cache :: <boolean> = #t)
+ => (regex :: <regex>);
 
-
-// regex positioner stuff
+define method compile-regex
+    (pattern :: <string>,
+     #key case-sensitive  :: <boolean> = #t,
+          verbose         :: <boolean> = #f,
+          multi-line      :: <boolean> = #f,
+          dot-matches-all :: <boolean> = #f,
+          use-cache       :: <boolean> = #t)
+ => (regex :: <regex>)
+  if (use-cache)
+    let cache-key = list(pattern, case-sensitive, verbose, multi-line,
+                         dot-matches-all);
+    element(*regex-cache*, cache-key, default: #f)
+    | begin
+        *regex-cache*[cache-key]
+          := compile-regex(pattern,
+                           case-sensitive: case-sensitive,
+                           verbose: verbose,
+                           dot-matches-all: dot-matches-all,
+                           use-cache: #f);
+       end
+  else
+    parse(pattern,
+          make-parse-info(case-sensitive: case-sensitive,
+                          verbose: verbose,
+                          multi-line: multi-line,
+                          dot-matches-all: dot-matches-all))
+  end
+end method compile-regex;
 
 // Find the position of a regular expression inside a string.  If the
 // regex is not found, return #f, otherwise return a variable number
-// of marks.
+// of marks.  This is a low-level API, returning indices marking the
+// start and end of groups.  Use regex-search if you want to get a
+// <regex-match> object back.
 //
-define function regex-position
-    (regex :: <string>, big :: <string>, #key start: big-start = 0,
-     end: big-end = #f, case-sensitive = #f)
- => (regex-start :: false-or(<integer>), #rest marks :: false-or(<integer>));
-  let substring = make(<substring>, string: big, start: big-start,
-		       end: big-end | big.size);
-  let (parsed-regex, last-group) 
-    = parse-or-use-cached(regex, make-parse-info(case-sensitive: case-sensitive));
+define generic regex-position
+    (regex :: <object>, big :: <string>,
+     #key start :: <integer>,
+          end: epos :: <integer>,
+          case-sensitive :: <boolean>)
+ => (regex-start :: false-or(<integer>), #rest marks);
 
+define method regex-position
+    (pattern :: <string>, string :: <string>,
+     #key start :: <integer> = 0,
+          end: epos :: <integer> = string.size,
+          case-sensitive :: <boolean> = #t)
+ => (regex-start :: false-or(<integer>), #rest marks :: false-or(<integer>))
+  regex-position(compile-regex(pattern), string, start: start, end: epos,
+                 case-sensitive: case-sensitive)
+end method regex-position;
+
+define method regex-position
+    (regex :: <regex>, string :: <string>,
+     #key start :: <integer> = 0,
+          end: epos :: <integer> = string.size,
+          case-sensitive :: <boolean> = #t)
+ => (regex-start :: false-or(<integer>), #rest marks :: false-or(<integer>))
+  let substring = make(<substring>, string: string, start: start, end: epos);
   let (matched, marks)
-    = if (parsed-regex.is-anchored?)
-	anchored-match-root?(parsed-regex, substring, case-sensitive,
-			     last-group + 1, #f);
+    = if (regex.is-anchored?)
+        let searcher = #f;
+	anchored-match-root?(regex, substring, case-sensitive,
+			     regex.regex-group-count, searcher);
       else
-	let initial = parsed-regex.initial-substring;
+	let initial = regex.initial-substring;
 	let searcher = ~initial.empty?
 	  & make-substring-positioner(initial, case-sensitive: case-sensitive);
-	match-root?(parsed-regex, substring, case-sensitive, last-group + 1,
+	match-root?(regex, substring, case-sensitive, regex.regex-group-count,
 		    searcher);
       end if;
   if (matched)  
-    apply(values, marks);
+    apply(values, marks)
   else
-    #f  
-  end if;
-end function regex-position;
+    #f
+  end
+end method regex-position;
 
-// Once upon a time, this was how you interfaced to the NFA stuff
-// (maximum-compile: #t).  That's gone.  Now it's just here for
-// backwards compatibility.  All keywords except case-sensitive are
-// now ignored.
+// Deprecated.  Use curry(regex-position, regex) or a local method instead.
 //
 define inline function make-regex-positioner
-    (regex :: <string>, 
-     #key byte-characters-only = #f, need-marks = #t, maximum-compile = #f,
-     case-sensitive = #f)
- => regex-positioner :: <function>;
-  method (big :: <string>, #key start: big-start = 0,
-	  end: big-end = #f)
+    (regex :: type-union(<string>, <regex>), 
+     #key case-sensitive :: <boolean> = #t)
+ => (regex-positioner :: <function>)
+  method (string :: <string>,
+          #key start :: <integer> = 0,
+               end: epos :: <integer> = string.size)
    => (regex-start :: false-or(<integer>), 
-       #rest marks :: false-or(<integer>));
-    regex-position(regex, big, case-sensitive: case-sensitive, 
-		    start: big-start, end: big-end);
+       #rest marks :: false-or(<integer>))
+    regex-position(regex, string,
+                   case-sensitive: case-sensitive, 
+                   start: start,
+                   end: epos);
   end method;
 end function make-regex-positioner;
 
+define generic regex-replace
+    (regex :: <object>, big :: <string>, new-substring :: <string>,
+     #key start :: <integer>,
+          end: epos :: <integer>,
+          count :: false-or(<integer>),
+          case-sensitive :: <boolean>)
+ => (new-string :: <string>);
 
-// Functions based on regex-position
+define method regex-replace
+    (regex :: <string>, big :: <string>, new-substring :: <string>,
+     #key count :: false-or(<integer>),
+          start :: <integer> = 0,
+          end: epos :: <integer> = big.size,
+          case-sensitive :: <boolean> = #t)
+ => (new-string :: <string>)
+  regex-replace(compile-regex(regex), big, new-substring,
+                start: start,
+                end: epos,
+                count: count,
+                case-sensitive: case-sensitive)
+end method regex-replace;
 
-define function regex-replace
-    (input :: <string>, regex :: <string>, new-substring :: <string>,
-     #key count = #f, case-sensitive = #f, start = 0, end: input-end = #f)
- => changed-string :: <string>;
+define method regex-replace
+    (regex :: <regex>, big :: <string>, new-substring :: <string>,
+     #key count :: false-or(<integer>),
+          start :: <integer> = 0,
+          end: epos :: <integer> = big.size,
+          case-sensitive :: <boolean> = #t)
+ => (new-string :: <string>)
   let positioner
     = make-regex-positioner(regex, case-sensitive: case-sensitive);
-  do-replacement(positioner, new-substring, input, start, 
-		 input-end, count, #t);
-end function regex-replace;
+  do-replacement(positioner, new-substring, big, start,
+		 epos, count, #t);
+end method regex-replace;
 
-define inline function make-regex-replacer 
-    (regex :: <string>, #key replace-with, case-sensitive = #f)
- => replacer :: <function>;
-  let positioner
-    = make-regex-positioner(regex, case-sensitive: case-sensitive);
-  if (replace-with)
-    method (input :: <string>, #key count: count, 
-	    start = 0, end: input-end = #f)
-     => string :: <string>;
-      do-replacement(positioner, replace-with, input, start, 
-		     input-end, count, #t);
-    end method;
-  else
-    method (input :: <string>, new-substring :: <string>, 
-	    #key count = #f, start = 0, end: input-end = #f)
-     => string :: <string>;
-      do-replacement(positioner, new-substring, input, 
-		     start, input-end, count, #t);
-    end method;
-  end if;
-end function make-regex-replacer;
+// todo -- Improve error message for <invalid-match-group> errors.
+//         Make %s and %= display the regex elided if it's too long.
 
-// Like Perl's split function
+
+
+// Returns a <regex-match> containing info about a successful match, or #f if
+// no match was found.
 //
-define function split
-    (input :: <string>, pattern :: <string>, 
-     #key count = #f, remove-empty-items = #t, start = 0, end: input-end = #f)
- => (strings :: <sequence>);
-  let positioner = make-regex-positioner(pattern);
-  split-string(positioner, input, start, input-end | size(input),
-	       count, remove-empty-items);
-end function split;
-
-define inline function make-splitter
-    (pattern :: <string>) => splitter :: <function>;
-  let positioner = make-regex-positioner(pattern);
-  method (string :: <string>, #key count = #f,
-	  remove-empty-items = #t, start = 0, end: input-end = #f)
-   => (#rest whole-bunch-of-strings :: <string>);
-    split-string(positioner, string, start, input-end | size(string), 
-		 count, remove-empty-items);
-  end method;
-end function make-splitter;
-
-// Used by split.  Not exported.  (Yes it is.  --cgay)
+// @param big -- The string in which to search.
+// @param pattern -- The pattern to search for.  If not a <regex>, it will be
+//   compiled first with compile-regex (implying that <invalid-regex> may be
+//   signalled), using the defaults for the keyword arguments.  If you wish
+//   to override them, call compile-regex directly.
+// @param anchored -- Whether or not the search should be anchored at the start
+//   position.  This is useful because "^..." will only match at the beginning
+//   of a string, or after \n if the regex was compiled with multi-line = #t.
+// @param start -- Where to begin the search.
+// @param end -- Where to stop searching.
+// @param case-sensitive -- Whether to be case-sensitive while matching.  Default
+//   is #t.  (I don't believe this affects character set (e.g., [a-z]) matching.
+//   Check it.)
 //
-define function split-string
-    (positioner :: <function>, input :: <string>, start :: <integer>, 
-     input-end :: <integer>, count :: false-or(<integer>), 
-     remove-empty-items :: <object>)
- => (strings :: <sequence>);
-  let strings = make(<deque>);
-  block (done)
-    let end-of-last-match = 0;
-    let start-of-where-to-look = start;
-    let string-number = 1;    // Since count: starts at 1, so 
-                              // should string-number
-    while (#t)
-      let (substring-start, substring-end)
-	= positioner(input, start: start-of-where-to-look, end: input-end);
-      if (~substring-start | (count & (count <= string-number)))
-	push-last(strings, copy-sequence(input, start: end-of-last-match));
-	done(); 
-      elseif ((substring-start = start-of-where-to-look)
-		&  remove-empty-items)
-	      // delimited item is empty
-	end-of-last-match := substring-end;
-	start-of-where-to-look := end-of-last-match;
+// todo -- Should $ anchor at the provided end position or at the end of the string?
+//
+define sealed generic regex-search
+    (pattern :: <object>, string :: <string>,
+     #key anchored :: <boolean>,
+          start :: <integer>,
+          end: epos :: <integer>,
+          case-sensitive :: <boolean>)
+ => (match :: false-or(<regex-match>));
+
+define method regex-search
+    (pattern :: <string>, string :: <string>,
+     #key anchored  :: <boolean> = #f,
+          start     :: <integer> = 0,
+          end: epos :: <integer> = string.size,
+          case-sensitive :: <boolean> = #t)
+ => (match :: false-or(<regex-match>))
+  regex-search(compile-regex(pattern), string,
+               anchored: anchored,
+               start: start,
+               end: epos,
+               case-sensitive: case-sensitive)
+end method regex-search;
+
+define method regex-search
+    (pattern :: <regex>, string :: <string>,
+     #key anchored :: <boolean> = #f,
+          start    :: <integer> = 0,
+          end: epos :: <integer> = string.size,
+          case-sensitive :: <boolean> = #t)
+ => (match :: false-or(<regex-match>))
+  let substring = make(<substring>, string: string, start: start, end: epos);
+  let num-groups = pattern.regex-group-count;
+  let (matched?, marks)
+    = if (pattern.is-anchored?)
+        anchored-match-root?(pattern, substring, case-sensitive, num-groups, #f);
       else
-	let new-string = copy-sequence(input, start: end-of-last-match, 
-				       end: substring-start);
-	if (~new-string.empty? | ~remove-empty-items)
-	  push-last(strings, new-string);
-	  string-number := string-number + 1;
-	  end-of-last-match := substring-end;
-	  start-of-where-to-look := end-of-last-match;
-	end if;
+        let initial = pattern.initial-substring;
+        let searcher = ~initial.empty?
+          & make-substring-positioner(initial, case-sensitive: case-sensitive);
+        match-root?(pattern, substring, case-sensitive, num-groups, searcher);
       end if;
-    end while;
-  end block;
-  if (remove-empty-items)
-    remove!(strings, #f, test: method (a, b) a.empty? end);
+  if (matched?)
+    let regex-match = make(<regex-match>, regular-expression: pattern);
+    let group-number-to-name :: <table> = pattern.group-number-to-name;
+    for (index from 0 below marks.size by 2)
+      let group-number = floor/(index, 2);
+      let group-name = element(group-number-to-name, group-number, default: #f);
+      let bpos = marks[index];
+      let epos = marks[index + 1];
+      if (bpos & epos)
+        add-group(regex-match,
+                  make(<match-group>,
+                       text: copy-sequence(string, start: bpos, end: epos),
+                       start: bpos,
+                       end: epos),
+                  group-name);
+      else
+        // This group wasn't matched.
+        add-group(regex-match, #f, group-name);
+      end;
+    end;
+    regex-match
   else
-    strings
-  end if;
-end function split-string;
+    #f
+  end
+end method regex-search;
 
-// join--like Perl's join
-//
-// This is not really any more efficient than concatenate-as, but it's
-// more convenient.
-//
-define function join (delimiter :: <byte-string>, #rest strings)
- => big-string :: <byte-string>;
-  let length = max(0, (strings.size - 1 ) * delimiter.size);
-  for (string in strings)
-    length := length + string.size;
-  end for;
-  let big-string = make(<byte-string>, size: length);
-  let big-index = 0;
-  for (i from 0 to strings.size - 2)  // Don't iterate over the last string
-    let string = strings[i];
-    let new-index = big-index + string.size;
-    big-string := replace-subsequence!(big-string, string, 
-				       start: big-index, end: new-index);
-    big-index := new-index;
-    let new-index = big-index + delimiter.size;
-    big-string := replace-subsequence!(big-string, delimiter, 
-				       start: big-index, end: new-index);
-    big-index := new-index;
-  end for;
-  if (strings.size > 0)
-    big-string 
-      := replace-subsequence!(big-string, strings.last, 
-			      start: big-index, end: big-string.size);
-  end if;
-  big-string;
-end function join;
+// Like regex-search, but returns a string or #f for each group in the regular
+// expression, instead of a <regex-match>.
+define sealed generic regex-search-strings
+    (pattern :: <object>, string :: <string>,
+     #key anchored :: <boolean>,
+          start :: <integer>,
+          end: epos :: <integer>,
+          case-sensitive :: <boolean>)
+ => (#rest strings);
 
+define method regex-search-strings
+    (pattern :: <string>, string :: <string>,
+     #key anchored  :: <boolean> = #f,
+          start     :: <integer> = 0,
+          end: epos :: <integer> = string.size,
+          case-sensitive :: <boolean> = #t)
+ => (#rest strings)
+  regex-search-strings(compile-regex(pattern), string,
+		       anchored: anchored,
+                       start: start,
+                       end: epos,
+                       case-sensitive: case-sensitive)
+end method regex-search-strings;
+
+define method regex-search-strings
+    (pattern :: <regex>, string :: <string>,
+     #key anchored :: <boolean> = #f,
+          start    :: <integer> = 0,
+          end: epos :: <integer> = string.size,
+          case-sensitive :: <boolean> = #t)
+ => (#rest strings)
+  let match = regex-search(pattern, string,
+			   anchored: anchored,
+                           start: start,
+                           end: epos,
+                           case-sensitive: case-sensitive);
+  if (match)
+    apply(values, map(method (group) group & group.group-text end,
+                      match.groups-by-position))
+  else
+    #f
+  end
+end method regex-search-strings;
+
+define sealed class <match-group> (<object>)
+  constant slot group-text :: <string>,
+    required-init-keyword: text:;
+  constant slot group-start :: <integer>,
+    required-init-keyword: start:;
+  constant slot group-end :: <integer>,
+    required-init-keyword: end:;
+end class <match-group>;
+
+define sealed class <regex-match> (<object>)
+  // Groups by position.  Zero is the entire match.
+  constant slot groups-by-position :: <stretchy-vector> = make(<stretchy-vector>);
+  // Named groups, if any.  Initial size 0 on the assumption that most regular
+  // expressions won't use named groups.
+  constant slot groups-by-name :: <string-table> = make(<string-table>, size: 0);
+  constant slot regular-expression :: <regex>, required-init-keyword: regular-expression:;
+end class <regex-match>;
+
+define method add-group
+    (match :: <regex-match>,
+     group :: false-or(<match-group>),
+     name :: false-or(<string>))
+ => (match :: <regex-match>)
+  add!(match.groups-by-position, group);
+  if (name)
+    match.groups-by-name[name] := group;
+  end;
+  match
+end;
+
+define sealed class <invalid-match-group> (<regex-error>)
+end class <invalid-match-group>;
+
+// This has methods for group :: <string> and group :: <integer>.
+// Group zero is always the entire match.
+//
+define sealed generic match-group
+    (match :: <regex-match>, group :: <object>)
+ => (text :: false-or(<string>),
+     start-index :: false-or(<integer>),
+     end-index :: false-or(<integer>));
+
+define method match-group
+    (match :: <regex-match>, group-number :: <integer>)
+ => (text :: false-or(<string>),
+     start-index :: false-or(<integer>),
+     end-index :: false-or(<integer>))
+  if (0 <= group-number & group-number < match.groups-by-position.size)
+    let group = match.groups-by-position[group-number];
+    if (group)
+      values(group.group-text, group.group-start, group.group-end)
+    else
+      values(#f, #f, #f)
+    end
+  else
+    let ng = match.groups-by-position.size;
+    signal(make(<invalid-match-group>,
+                format-string: "Group number %d is out of bounds for regex %s match.  %s",
+                format-arguments: list(group-number,
+                                       match.regular-expression.regex-pattern,
+                                       if (ng == 1)
+                                         "There is only 1 group."
+                                       else
+                                         format-to-string("There are %d groups.", ng)
+                                       end)));
+  end;
+end method match-group;
+
+define method match-group
+    (match :: <regex-match>, group :: <string>)
+ => (text :: false-or(<string>),
+     start-index :: false-or(<integer>),
+     end-index :: false-or(<integer>))
+  let group = element(match.groups-by-name, group, default: #f);
+  if (group)
+    values(group.group-text, group.group-start, group.group-end)
+  else
+    signal(make(<invalid-match-group>,
+                format-string: "There is no group named %=.",
+                format-arguments: list(group)));
+  end
+end method match-group;
+
+
+//// Utilities
+
+// The split method is exported from the common-dylan module.
+//
+define method split
+    (string :: <string>, separator :: <regex>,
+     #key start :: <integer> = 0,
+          end: epos :: <integer> = string.size,
+          count :: <integer> = epos + 1,
+          case-sensitive :: <boolean> = #t,
+          remove-if-empty :: <boolean> = #f)
+ => (parts :: <sequence>)
+  local method find-regex (string :: <string>,
+                           bpos :: <integer>,
+                           epos :: false-or(<integer>))
+          let match = regex-search(separator, string, start: bpos, end: epos);
+          if (match)
+            let (ignore, match-start, match-end) = match-group(match, 0);
+            values(match-start, match-end)
+          else
+            #f
+          end
+        end method find-regex;
+  split(string, find-regex, start: start, end: epos, count: count,
+        remove-if-empty: remove-if-empty)
+end method split;
 
