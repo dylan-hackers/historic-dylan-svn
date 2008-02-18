@@ -31,59 +31,53 @@ copyright: see below
 //
 //======================================================================
 
-
-// Added regex module with new API.  --cgay, June 2007
-
 define library regular-expressions
   use common-dylan;
   use string-extensions;
   use table-extensions;
   export
-    regex,                                             // new API
-    regular-expressions;                               // old API
+    regular-expressions,
+    regex-implementation;
 end library regular-expressions;
 
-define module regex                  // new API module
+define module regular-expressions
   create
+    <regex>,
+    <regex-match>,
+    <match-group>,
+    <regex-error>,
+    <invalid-regex>,
+    <invalid-match-group>,
+
+    // Compiling and accessing regex info
     compile-regex,
+    regex-group-count,
+    regex-pattern,
+
+    // Search and replace
     regex-search,
     regex-search-strings,
-    <regex>,
-    <invalid-regex>,
-      invalid-regex-pattern,
-    <regex-match>,                   // results of a successful search
-      regex-match-group,
-      regex-match-group-count,
-      group-start,
-      group-end,
-      group-text,
-      <invalid-match-group>;
-end module regex;
+    regex-position,
+    regex-replace,
 
-define module regular-expressions    // old API module
-  create
-    regexp-position, make-regexp-positioner,
-    regexp-match,
-    regexp-replace, make-regexp-replacer,
-    translate, make-translator,
-    split, make-splitter,
-    join,
-    <illegal-regexp>,
-      regexp-pattern;
-
-  create
-    split-string;
+    // Accessing match groups and individual group info
+    match-group,
+    match-groups,
+    group-text,
+    group-start,
+    group-end;
 end module regular-expressions;
 
-define module regular-expressions-impl
-  use common-dylan,
-    exclude: { split };
+define module regex-implementation
+  use common-dylan;
   use string-conversions;
   use character-type;
   use string-hacking;
   use %do-replacement;
   use %parse-string;
   use substring-search;
-  use regular-expressions;                             // API module
-  use regex;
-end module regular-expressions-impl;
+  use regular-expressions,
+    export: all;
+  export
+    <mark>;
+end module regex-implementation;

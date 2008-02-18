@@ -201,14 +201,14 @@ define function compare-to-pcre-results
   if (match)
     check-equal(sprintf("Match '%s' against regex '%s' -- same # of groups",
                         test-string, pattern),
-                size(match-groups(match)),
+                size(groups-by-position(match)),
                 pcre-groups.size);
     for (group-number from 0,
          pcre-group in pcre-groups)
       // Adding block/exception here causes an infinite loop.
       // Could it be related to using the Visual Studio 8 linker?
       // The if also causes an infinite loop.  Hmmm.
-      let our-group = /* if (group-number < size(match-groups(match))) */
+      let our-group = /* if (group-number < size(groups-by-position(match))) */
                         match-group(match, group-number)
                       /* end */;
       check-equal(sprintf("Match '%s' against regex '%s' -- group %d is the same",

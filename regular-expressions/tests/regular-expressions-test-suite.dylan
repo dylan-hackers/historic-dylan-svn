@@ -1,34 +1,7 @@
 Module: regular-expressions-test-suite
 Author: Carl Gay
 
-define function re/position (pattern, string, #rest args)
-  let (#rest marks) = apply(regex-position, pattern, string, args);
-  marks
-end function re/position;
-
-define test atom-test ()
-  check-no-errors("atom-0", re/position("", ""));
-  check-equal("atom-1", re/position("a", "a"),      #[0, 1]);
-  check-equal("atom-2", re/position("[a]", "a"),    #[0, 1]);
-  check-equal("atom-3", re/position("(a)b", "ab"),  #[0, 2, 0, 1]);
-  check-equal("atom-4", re/position("\\w", "a"),    #[0, 1]);
-  check-equal("atom-5", re/position(".", "a"),      #[0, 1]);
-  check-equal("atom-6", re/position("a{0}", "a"),   #[0, 0]);
-  check-equal("atom-7", re/position("a{2}", "aa"),  #[0, 2]);
-  check-equal("atom-8", re/position("a{1,}", "aa"), #[0, 2]);
-  check-equal("atom-9", re/position("a{1,8}", "aaa"), #[0, 3]);
-  check-equal("atom-A", re/position("a{,}", ""),   #[0, 0]);
-  check-equal("atom-A1", re/position("a{,}", "aaaaaa"),   #[0, 6]);
-  check-condition("atom-B", <invalid-regex>, re/position("a{m,n}", ""));
-  check-condition("atom-C", <invalid-regex>, re/position("a{m,}", ""));
-  check-condition("atom-D", <invalid-regex>, re/position("a{,n}", ""));
-  check-condition("atom-E", <invalid-regex>, re/position("a{m}", ""));
-  check-condition("atom-F", <invalid-regex>, re/position("a{,", ""));
-  check-condition("atom-G", <invalid-regex>, re/position("[a", ""));
-  check-condition("atom-H", <invalid-regex>, re/position("\\", ""));
-  check-equal("atom-tan", "\<44>\<79>\<6c>\<61>\<6e>", "Dylan");
-end;
-
+// Helper function, e.g., check-matches("a(b|c)", "abc", "ab", "b")
 // Note that flags must come at the end of groups-and-flags.
 define function check-matches
     (pattern, input-string, #rest groups-and-flags) => ()
@@ -58,6 +31,44 @@ define function check-matches
   end;
 end function check-matches;
 
+define test split-test ()
+  let big-string = "The rain in spain and some other text";
+  check-equal("split #1",
+              split(big-string, compile-regex("\\s")),
+              #("The", "rain", "in", "spain", "and", "some", "other", "text"));
+  check-equal("split #2",
+              split(big-string, compile-regex("\\s"), count: 3),
+              #("The", "rain", "in spain and some other text"));
+  check-equal("split #3",
+              split(big-string, compile-regex("\\s"), start: 12),
+              #("spain", "and", "some", "other", "text"));
+  check-equal("split #4",
+              split(" Some   text with   lots of spaces  ",
+                    compile-regex("\\s"),
+                    count: 3),
+              #("", "Some", "  text with   lots of spaces  "));
+  check-equal("split #5",
+              split(" Some   text with   lots of spaces  ",
+                    compile-regex("\\s+")),
+              #("", "Some", "text", "with", "lots", "of", "spaces", ""));
+end test split-test;
+
+define test atom-test ()
+  check-matches("", "", "");
+  check-matches("a", "a", "a");
+  check-matches("[a]", "a", "a");
+  check-matches("(a)b", "ab", "ab", "a");
+  check-matches("\\w", "a", "a");
+  check-matches(".", "a", "a");
+  check-matches("a{0}", "a", "");
+  check-matches("a{2}", "aa", "aa");
+  check-matches("a{1,}", "aa", "aa");
+  check-matches("a{1,8}", "aaa", "aaa");
+  check-matches("a{1,2}", "aaa", "aa");
+  check-matches("a{,}", "", "");
+  check-matches("a{,}", "aaaaaa", "aaaaaa");
+end test atom-test;
+
 // These are to cover the basics, as I add new features to the code or
 // read through the pcrepattern docs.  The PCRE tests should cover a lot
 // of the more esoteric cases, I hope.
@@ -86,15 +97,25 @@ define test ad-hoc-regex-test ()
   check-equal("start: and end: work?",
               regex-search("a", "a b a", start: 1, end: 4),
               #f);
+  check-equal("atom-tan", "\<44>\<79>\<6c>\<61>\<6e>", "Dylan");
 end test ad-hoc-regex-test;
 
 // All these regexes should signal <invalid-regex> on compilation.
 //
 define test invalid-regex-test ()
   let patterns = #(
-    "(?P<name>x)(?P<name>y)",         // can't use same name twice
+    "(?P<foo>x)(?P<foo>y)",           // can't use same group name twice
     "(?@abc)",                        // invalid extended character '@'
-    "(a)\\2"                          // invalid back reference
+    "(a)\\2",                         // invalid back reference
+    "a{m,n}",
+    "a{m,}",
+    "a{,n}",
+    "a{m}",
+    "a{,",
+    "[a",
+    "(",
+    "(()",
+    "((a)b|"
     );
   for (pattern in patterns)
     check-condition(sprintf("Compiling '%s' gets an error", pattern),
@@ -116,10 +137,18 @@ define test regressions-test ()
 end;
 
 define suite regular-expressions-test-suite ()
+  test split-test;
   test atom-test;
   test ad-hoc-regex-test;
   test invalid-regex-test;
   test regressions-test;
+
+  // I've changed lots of things that make the gdref documentation
+  // out-of-date, but it still might be useful to look it over for
+  // test ideas.
+  //test gdref-documentation-test;
+
+  suite regular-expressions-api-test-suite;
   // It's sometimes useful to use -ignore-suite to skip this one because it's so noisy.
   suite pcre-test-suite;
 end;
