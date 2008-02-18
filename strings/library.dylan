@@ -58,8 +58,6 @@ define module strings
   // Creation/modification/conversion
   create
     substring,
-    join,
-    split,
     trim,
     replace,
     replace!,
@@ -86,8 +84,7 @@ end module strings;
 //
 define module strings-implementation
   use strings;            // Use API module
-  use common-dylan,
-    exclude: { split };
+  use common-dylan;
   use streams,
     import: { \with-output-to-string,
               write,
@@ -100,10 +97,4 @@ define module strings-implementation
               <case-sensitive-character-set>,
               <case-insensitive-character-set>,
               <byte-character-table> };
-  use regular-expressions,
-    import: { <regex>,
-              regex-search,
-              match-group,
-              group-start,
-              group-end };
 end module strings-implementation;
