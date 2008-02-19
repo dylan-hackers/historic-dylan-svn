@@ -687,7 +687,7 @@ define inline function request-content-type (request :: <request>)
   let content-type-header = get-header(request, "content-type");
   as(<symbol>,
      if (content-type-header)
-       first(split(content-type-header, ";"))
+       first(split(content-type-header, ';'))
      else
        ""
      end if)
@@ -774,8 +774,8 @@ define method process-request-content
      buffer :: <byte-string>,
      content-length :: <integer>)
  => (content :: <string>)
-  let header-content-type = split(get-header(request, "content-type"), ";");
-  let boundary = split(second(header-content-type), "=");
+  let header-content-type = split(get-header(request, "content-type"), ';');
+  let boundary = split(second(header-content-type), '=');
   if (element(boundary, 1, default: #f))
     let boundary-value = second(boundary);
     log-debug("boundary: %=", boundary-value);
@@ -998,7 +998,7 @@ define method extract-form-data
     let type = #f;
     let filename = #f;
     for (header-entry in header-entries)
-      let header-entry-parts = split(header-entry, ";");
+      let header-entry-parts = split(header-entry, ';');
       for (header-entry-part in header-entry-parts)
         let eq-pos = char-position('=', header-entry-part, 0, size(header-entry-part));
         let p-pos = char-position(':', header-entry-part, 0, size(header-entry-part));

@@ -42,7 +42,7 @@ define module code-browser
   use streams;
   use file-system;
   use dsp, exclude: { split };
-  use regular-expressions, import: { regexp-replace };
+  use regular-expressions, import: { regex-replace };
   use source-records;
   use source-records-implementation;
   use environment-protocols,

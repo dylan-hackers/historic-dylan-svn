@@ -38,7 +38,7 @@ end library koala;
 define module utilities
   use dylan;
   use common-extensions,
-    exclude: { format-to-string, split };
+    exclude: { format-to-string };
   use dylan-extensions,
     import: { element-no-bounds-check,
               element-no-bounds-check-setter,
@@ -316,7 +316,6 @@ define module httpi                             // http internals
   use dylan;
   use threads;               // from dylan lib
   use common-extensions,
-    rename: { split => string-split },
     exclude: { format-to-string };
   use dylan-basics;
   use simple-random;
@@ -364,8 +363,7 @@ end module httpi;
 
 define module dsp
   use dylan;
-  use common-extensions,
-    exclude: { split };
+  use common-extensions;
   use dylan-basics;
   use koala,
     export: all;
@@ -404,6 +402,8 @@ define module dsp
 
     page-source,
     page-source-setter,
+    page-template,
+    page-template-setter,
 
     <dylan-server-page>,         // Subclass this using the "define page" macro
     page-definer,                // Defines a new page class

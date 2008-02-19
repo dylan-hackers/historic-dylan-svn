@@ -77,8 +77,6 @@ libraries
         monday
         parser-generator         // What's the difference...
         parsergen                // ...between these two?
-    string-tools
-        regular-expressions      // Is this just for strings?
     testing
         testworks
         testworks-gui
@@ -92,6 +90,7 @@ libraries
     utilities
         channels
         command-line-parser
+        regular-expressions
         timer
         commands
 	state-machine
