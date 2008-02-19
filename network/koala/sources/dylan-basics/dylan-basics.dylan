@@ -223,93 +223,10 @@ end method float-to-formatted-string;
 
 
 
-// ----------------------------------------------------------------------
-// join(range(from: 1, to: 3), ", ",
-//      key: integer-to-string,
-//      conjunction: " and ");
-// => "1, 2 and 3"
-
-define open generic join
-    (sequence :: <sequence>, separator :: <string>,
-     #key key :: <function> = identity,
-          conjunction :: false-or(<string>))
- => (result :: <string>);
-
-define method join
-    (seq :: <sequence>, separator :: <string>,
-     #key key :: <function> = identity,
-         conjunction :: false-or(<string>))
- => (result :: <string>)
-  with-output-to-string (out)
-    let len-1 :: <integer> = seq.size - 1;
-    for (i :: <integer> from 1,
-         item in seq)
-      write(out, key(item));
-      if (i < len-1)
-        write(out, separator);
-      elseif (i == len-1)
-        write(out, conjunction | separator);
-      end;
-    end;
-  end
-end;
-
-
 define inline-only function whitespace?
     (ch :: <character>) => (white? :: <boolean>)
   member?(ch, #[' ', '\t', '\n'])
 end;
-
-
-
-           
-define method splitf
-    (string :: <byte-string>, separator? :: <function>, separator-size :: <integer>,
-     #key start :: <integer> = 0, 
-          end: epos :: <integer> = size(string),
-          trim? :: <boolean> = #t,
-          max: max-splits :: false-or(<integer>),
-          allow-empty-strings? :: <boolean>)
-  let bpos :: <integer> = start;
-  let new-pos :: <integer> = bpos;
-  let results :: <stretchy-vector> = make(<stretchy-vector>);
-  local method add-substring
-                   (start :: <integer>, _end :: <integer>)
-	  if (trim?)
-	    while (start < _end & whitespace?(string[start]))
-	      start := start + 1
-	    end;
-	    while (start < _end & whitespace?(string[_end - 1]))
-	      _end := _end - 1
-	    end
-	  end;
-	  if (allow-empty-strings? | start ~== _end)
-	    add!(results, copy-sequence(string, start: start, end: _end))
-	  end
-	end method add-substring;
-  let splits :: <integer> = 0;
-  while (new-pos < epos & (~max-splits | splits < max-splits))
-    if (separator?(new-pos))
-      add-substring(bpos, new-pos);
-      if (allow-empty-strings?)
-        new-pos := new-pos + separator-size;
-      else
-        // skip consecutive separators
-        while (new-pos < epos & separator?(new-pos))
-          new-pos := new-pos + separator-size;
-        end;
-      end;
-      bpos := new-pos;
-      splits := splits + 1;
-    else
-      new-pos := new-pos + 1;
-    end
-  end;
-  add-substring(bpos, epos);
-  results
-end method splitf;
-
-//split("1,2,,4", separator: ",", allow-empty-strings?: #t);
 
 // ----------------------------------------------------------------------
 // For removing certain keyword/value pairs from argument lists before

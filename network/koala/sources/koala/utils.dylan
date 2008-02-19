@@ -189,7 +189,7 @@ end;
 define method add-object
     (trie :: <string-trie>, path :: <sequence>, object :: <object>,
      #key replace?)
- => ();
+ => ()
   local method real-add (trie, rest-path)
           if (rest-path.size = 0)
             if (trie.trie-object = #f | replace?)
@@ -218,7 +218,7 @@ end method add-object;
 
 define method remove-object
     (trie :: <string-trie>, path :: <sequence>)
- => ();
+ => ()
   let nodes = #[];
   let node = reduce(method (a, b)
       nodes := add!(nodes, a);

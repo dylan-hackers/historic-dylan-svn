@@ -26,7 +26,6 @@ define module dylan-basics
     // float-to-string, but decided to keep it with a different name.
     // --cgay
     float-to-formatted-string,
-    join,
     remove-keys,        // For removing keywords from #rest arglists.
     raise,
     ignore-errors,
