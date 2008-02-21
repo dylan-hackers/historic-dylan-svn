@@ -55,12 +55,6 @@ define module-spec strings ()
     (<string>, <string>, #"key", #"test", #"start", #"end") => (<integer>);
 
 
-  open generic-function join
-    (<sequence>, <string>, #"key", #"conjunction") => (<string>);
-
-  function split
-    (<string>, #"key", #"separator", #"start", #"end", #"count") => (<sequence>);
-
   open generic-function trim
     (<string>, #"key", #"test", #"side", #"start", #"end") => (<string>);
 
@@ -237,67 +231,6 @@ define strings function-test digit-to-integer ()
   //---*** Fill this in...
 end function-test digit-to-integer;
 
-define strings function-test split ()
-  // Tests for basic functionality with no keyword args
-  check-equal("split empty string with another string",
-              #[""],
-              split("", "-"));
-  check-equal("split empty sequence",
-              #[#()],
-              split(#(), #t));
-  check-equal("basic split on string separator",
-              #["a", "b", "c"],
-              split("a b c", " "));
-  check-equal("basic split on object separator",
-              #["a", "b", "c"],
-              split("a b c", ' '));
-  check-equal("back-to-back separators",
-              #["a", "", "b"],
-              split("a  b", ' '));
-  check-equal("separators on the ends",
-              #["", "x", ""],
-              split(" x ", ' '));
-  check-equal("split on entire string",
-              #["", ""],
-              split("abc", "abc"));
-  check-equal("split on a unfound separator",
-              #["abc"],
-              split("abc", "-"));
-  check-equal("split on something longer than entire string",
-              #["abc"],
-              split("abc", "abcd"));
-
-  // Tests for the count argument.
-  check-equal("basic count test",
-              #["a", "b,c,d"],
-              split("a,b,c,d", ',', count: 1));
-  check-equal("basic count test",
-              #["a", "b", "c,d"],
-              split("a,b,c,d", ',', count: 2));
-
-  // Tests for the start and end arguments
-  check-equal("basic start/end test",
-              #["", "b", "c", ""],
-              split("a b c d", ' ', start: 1, end: 6));
-  check-equal("basic start/end test",
-              #["", "b", "c", "d"],
-              split("a b c d", ' ', start: 1));
-
-  // Tests for splitting on regular expressions
-  check-equal("basic regex split",
-              #["a", "b", "c"],
-              split("a b c", compile-regex(" ")));
-  check-equal("split on whitespace regex",
-              #["a", "b", "c"],
-              split("a  b\t\n\fc", compile-regex("\\s+")));
-  check-equal("split on unfound regex",
-              #["abc"],
-              split("abc", compile-regex(" ")));
-  check-equal("split on entire string found by regex",
-              #["", ""],
-              split("abc", compile-regex("^.*$")));
-end function-test split;
-
 define function replacement-test (mutating?)
   for (item in list(list("", "", "", "", #[]),
                     list("", "", "", "replacement", #[]),
@@ -319,7 +252,12 @@ define function replacement-test (mutating?)
                         if (mutating?) "!" else "" end,
                         original, pattern, replacement, kwargs);
     let result = block ()
-                   apply(replace!, original, pattern, replacement, kwargs);
+                   apply(if (mutating?)
+                           replace!
+                         else
+                           replace
+                         end,
+                         original, pattern, replacement, kwargs);
                  exception (e :: <error>)
                    #f
                  end;
