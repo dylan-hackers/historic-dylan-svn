@@ -687,7 +687,7 @@ define inline function request-content-type (request :: <request>)
   let content-type-header = get-header(request, "content-type");
   as(<symbol>,
      if (content-type-header)
-       first(split(content-type-header, ';'))
+       first(split(content-type-header, ";"))
      else
        ""
      end if)
