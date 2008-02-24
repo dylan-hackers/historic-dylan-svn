@@ -18,13 +18,13 @@ define open generic add-responder
 
 define method add-responder
     (url :: <string>, responder :: <responder>, #key replace?)
- => ();
+ => ()
   add-responder(parse-url(url), responder, replace?: replace?);
 end;
 
 define method add-responder
     (url :: <url>, responder :: <responder>, #key replace?)
- => ();
+ => ()
   local method responder-registration ()
           if (empty?(url.uri-path))
             error(make(<koala-api-error>,
@@ -50,14 +50,14 @@ define open generic find-responder
 define method find-responder
     (url :: <string>)
  => (responder :: false-or(<responder>),
-	            rest-path :: false-or(<sequence>));
-  find-responder(parse-url(url));
+	            rest-path :: false-or(<sequence>))
+  find-responder(parse-url(url))
 end method find-responder;
 
 define method find-responder
     (url :: <url>)
  => (responder :: false-or(<responder>),
-	            rest-path :: false-or(<sequence>));
+	            rest-path :: false-or(<sequence>))
   find-object(*server*.url-map, url.uri-path);
 end method find-responder;
 

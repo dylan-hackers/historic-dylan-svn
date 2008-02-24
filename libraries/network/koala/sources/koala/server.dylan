@@ -627,16 +627,18 @@ end method read-request;
 
 
 // Read first line of the HTTP request.  RFC 2068 Section 5.1
+define constant $request-line-regex :: <regex>
+  = compile-regex("^([!#$%&'\\*\\+-\\./0-9A-Z^_`a-z\\|~]+) "
+                  "(\\S+) "
+                  "(HTTP/\\d+\\.\\d+)");
 
 define function read-request-first-line
     (request :: <request>, buffer :: <string>)
  => ()
-  let (match, http-method, url, http-version) =
-     regex-search-strings("^([!#$%&'\\*\\+-\\./0-9A-Z^_`a-z\\|~]+) "
-        "(\\S+) "
-        "(HTTP/\\d+\\.\\d+)", buffer);
+  let (entire-match, http-method, url, http-version) =
+     regex-search-strings($request-line-regex, buffer);
   log-debug("%= %= %=", http-method, url, http-version);
-  if (match)
+  if (entire-match)
     request.request-method := as(<symbol>, http-method);
     let url = parse-url(url);
     // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
@@ -1061,7 +1063,13 @@ end method extract-form-data;
 */
 
 define inline function get-query-value
-    (key :: <string>)
+    (key :: <string>, #key as: as-type :: false-or(<type>))
  => (value :: <object>)
-  element(*request*.request-query-values, key, default: #f);
-end;
+  let val = element(*request*.request-query-values, key, default: #f);
+  if (as-type & val)
+    as(as-type, val)
+  else
+    val
+  end
+end function get-query-value;
+

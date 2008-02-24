@@ -285,7 +285,7 @@ define method process-config-element
       log-info("VHost '%s': document root = %s.",
                vhost-name(vhost), document-root(vhost));
     else
-      warn("Invalid <DOCUMENT-ROOT> spec."
+      warn("Invalid <DOCUMENT-ROOT> spec.  "
            "The 'location' attribute must be specified.");
     end if;
   end;
@@ -298,11 +298,11 @@ define method process-config-element
       let vhost = active-vhost();
       vhost.dsp-root := merge-locators(as(<directory-locator>, loc), 
                                        *server-root*);
-      log-info("VHost '%s': document root = %s.",
-	       vhost-name(vhost), document-root(vhost));
+      log-info("VHost '%s': DSP root = %s.",
+               vhost-name(vhost), document-root(vhost));
     else
-      warn("Invalid <DSP-ROOT> spec."
-	   "The 'location' attribute must be specified.");
+      warn("Invalid <DSP-ROOT> spec.  "
+           "The 'location' attribute must be specified.");
     end if;
   end;
 end;

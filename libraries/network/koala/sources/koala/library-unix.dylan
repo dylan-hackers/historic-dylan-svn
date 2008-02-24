@@ -39,7 +39,7 @@ end library koala;
 define module utilities
   use dylan;
   use common-extensions,
-    exclude: { format-to-string, split };
+    exclude: { format-to-string };
   use dylan-extensions,
     import: { element-no-bounds-check,
               element-no-bounds-check-setter,
@@ -48,6 +48,7 @@ define module utilities
               // make-symbol,
               // case-insensitive-equal,
               // case-insensitive-string-hash
+              <format-string-condition>
               };
   use file-system,
     import: { with-open-file, <file-does-not-exist-error> };
@@ -156,6 +157,7 @@ define module koala
     responder-map,
     add-responder,
     remove-responder,
+    find-responder,
     <request>,
     *request*,                   // Holds the active request, per thread.
     current-request,             // Returns the active request of the thread.
@@ -314,8 +316,7 @@ end;
 
 define module dsp
   use dylan;
-  use common-extensions,
-    exclude: { split };
+  use common-extensions;
   use dylan-basics;
   use koala,
     export: all;
@@ -386,8 +387,7 @@ define module dsp
 /*
   // Persistence layer maps database records <-> web pages.
   export
-    note-field-error,            // for errors related to processing a specific form field
-    with-database-connection,
+    note-field-error,            // for errors related to processing a specific form field    with-database-connection,
     <database-record>,
     <modifiable-record>,
     initialize-record,
@@ -432,7 +432,6 @@ define module httpi                             // http internals
   use dylan;
   use threads;               // from dylan lib
   use common-extensions,
-    rename: { split => string-split },
     exclude: { format-to-string };
   use dylan-basics;
   use simple-random;
