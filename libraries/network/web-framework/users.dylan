@@ -52,6 +52,7 @@ end;
 
 define function authenticated-user ()
  => (user :: false-or(<user>));
+  authenticate();
   *authenticated-user*
 end;
 
