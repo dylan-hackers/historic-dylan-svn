@@ -108,14 +108,25 @@ define method split-path (path :: <string>) => (parts :: <sequence>);
   split(path, "/", remove-empty-items: #f);
 end;
 
-define method split-query (query :: <string>) => (parts :: <string-table>);
+define method split-query
+    (query :: <string>, #key replacements :: false-or(<sequence>))
+ => (parts :: <string-table>);
   let parts = split(query, "&");
   let table = make(<string-table>); 
   for (part in parts)
-    let (key, value) = apply(values, split(part, "=", remove-empty-items: #f));
-    unless (value)
+    let (key, value) = apply(values, 
+      split(part, "=", remove-empty-items: #f));
+    if (value)
+      if (replacements)
+        for (replacement in replacements)
+          value := regex-replace(value,
+            head(replacement), tail(replacement));
+        end for;
+      end if;
+      value := percent-decode(value);
+    else
       value := #t;
-    end unless;
+    end if;
     table[key] := value;
   end for;
   table;
@@ -324,6 +335,8 @@ end;
 
 begin
 /*
+  format-out("%s\n", split-query("foo=bar+blub&baz", replacements: list(pair("\\+", " ")))["foo"]);
+
   let uri = parse-uri("http://foo:bar@baz.blub:23/path/test/../page?fo%20=ba+r&q1=q2&q3=&q4#extra");
   let url = parse-url("http://foo:bar@baz.blub:23/path/test/../page?fo%20o=b+r&q1=q2&q3=&q4#extra");
   format-out("%=\n", uri.uri-query);
@@ -336,6 +349,7 @@ begin
   format-out("%=\n", percent-decode("%rg"));
 */
 end;
+
 
 /*
 let uri = parse-uri("http://foo:bar@baz.blub:23/path/test/../page?foo=bar&q1=q2#extra");

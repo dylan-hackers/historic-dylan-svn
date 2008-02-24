@@ -33,4 +33,5 @@ define module uri
     split-path, split-query;
   export absolute?, relative?;
   export print-message;
+  export percent-decode;
 end module;
