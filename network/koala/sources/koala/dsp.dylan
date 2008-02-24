@@ -86,14 +86,16 @@ define method process-page (page :: <page>)
   end;
 end process-page;
 
-define open generic respond-to (request-method :: <symbol>, page :: <page>);
+define open generic respond-to 
+ (request-method :: <symbol>, page :: <page>);
 
-define method respond-to (request-method :: one-of(#"get", #"post"), page :: <page>)
-  process-template(page);
-end; 
-
-define method respond-to (request-method :: <symbol>, page :: <page>)
-  unsupported-request-method-error();
+define method respond-to 
+ (request-method :: <symbol>, page :: <page>)
+  if (member?(request-method, #(#"get", #"post")))
+    process-template(page);
+  else  
+    unsupported-request-method-error();
+  end if;
 end;
 
 // Applications should call this to register a page for a particular URL.

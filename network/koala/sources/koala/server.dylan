@@ -750,9 +750,11 @@ define method process-request-content
   // By the time we get here request-query-values has already
   // been bound to a <string-table> containing the URL query
   // values. Now we augment it with any form values.
-  for (value keyed-by key in split-query(query))
+  let parsed-query = split-query(query, replacements: list(pair("\\+", " ")));
+  for (value keyed-by key in parsed-query)
     request.request-query-values[key] := value; 
   end for;
+  log-debug("Form query = %s", request.request-query-values);
   request-content(request) := query;
   // ---TODO: Deal with content types intelligently.
   // For now this'll have to do.
@@ -903,17 +905,13 @@ define method invoke-handler (request :: <request>) => ()
        //
        let arguments = make(<stretchy-vector>);
        for (group keyed-by name in match.groups-by-name)
-         add!(arguments, as(<symbol>, name));
-         add!(arguments, group.group-text);
+         if (group)
+           add!(arguments, as(<symbol>, name));
+           add!(arguments, group.group-text);
+         end if;
        end for;
        do(method (action)
-           select (action by instance?)
-             <function> => apply(action, arguments);
-             <dylan-server-page> => 
-               respond-to(request.request-method, action);
-             otherwise => 
-	       log-warning("Unknown action %= in action sequence.", action);
-	   end select
+            invoke-action(request, action, arguments);
 	 end, action-sequence);
      else
        resource-not-found-error(url: url);
@@ -927,8 +925,37 @@ define method invoke-handler (request :: <request>) => ()
   send-response(response);
 end method invoke-handler;
 
-//define class <action-sequence-error> (<error>) 
-//end;
+
+define generic invoke-action
+    (request :: <request>,
+     action :: <object>,
+     arguments :: <sequence>)
+ => ();
+
+define method invoke-action
+    (request :: <request>,
+     action :: <object>,
+     arguments :: <sequence>)
+ => ()
+  log-warning("Unknown action %= in action sequence.", action);
+end;
+
+define method invoke-action
+    (request :: <request>,
+     action :: <dylan-server-page>,
+     arguments :: <sequence>)
+ => ()
+  respond-to(request.request-method, action);
+end;
+  
+define method invoke-action
+    (request :: <request>,
+     action :: <function>,
+     arguments :: <sequence>)
+ => ()
+  apply(action, arguments)
+end;
+
 
 // Read a line of input from the stream, dealing with CRLF correctly.
 //
