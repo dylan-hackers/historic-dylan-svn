@@ -190,8 +190,7 @@ define method send-response
     // Send the body (or what there is of it so far).
     write(stream, contents);
   end unless;
-  log-debug("Send response.");
-end;
+end method send-response;
 
 // Exported
 // Convenience.  Seems common to want to add a numeric cookie value.
@@ -218,4 +217,5 @@ define method add-cookie
                domain  & format(s, "; Domain=%s", domain);
                comment & format(s, "; Comment=\"%s\"", comment);
              end);
-end;
+end method add-cookie;
+

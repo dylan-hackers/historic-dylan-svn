@@ -6,7 +6,7 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-define inline function current-url () => (url :: <url>);
+define inline function current-url () => (url :: <url>)
   *request*.request-url
 end;
 

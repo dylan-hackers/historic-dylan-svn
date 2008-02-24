@@ -31,13 +31,13 @@ end;
 
 define method expired?
     (thing :: <expiring-mixin>)
- => (expired? :: <boolean>);
-  thing.mod-time == #f | begin
+ => (expired? :: <boolean>)
+  thing.mod-time == #f
+  | begin
       let now = current-date();
       (now - thing.mod-time) < thing.duration
-    end;
+    end
 end method expired?;
-
 
 
 define function file-contents
@@ -236,7 +236,7 @@ define method remove-object
     end for;
   end;
   object;
-end;
+end method remove-object;
 
 
 // Find the object with the longest path, if any.

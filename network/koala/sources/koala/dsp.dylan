@@ -722,10 +722,10 @@ define macro tag-definer
     end }
   => { define tag-aux #f ?tag ?taglib-spec
            (?page, _do-body) (?tag-parameters)
-	 begin
-	   let ?=output = curry(format, current-response().output-stream);
+         begin
+           let ?=output = curry(format, current-response().output-stream);
            ?body;       // semicolon is needed even when ?body ends in semicolon.
-	 end;
+         end;
          _do-body();  // process the tag body
        end
      }
@@ -736,9 +736,9 @@ define macro tag-definer
   => { define tag-aux #t ?tag ?taglib-spec
            (?page, ?do-body) (?tag-parameters)
          begin
-	   let ?=output = curry(format, current-response().output-stream);
-	   ?body;
-	 end;
+           let ?=output = curry(format, current-response().output-stream);
+           ?body;
+         end;
        end
      }
 
@@ -948,7 +948,6 @@ define function parse-include-directive
                 as(<string>, page.source-location));
   end;
   let source = document-location(url, context: page-directory(page));
-  log-debug("source: %s", source);
   let contents = source & file-contents(source);
   if (contents)
     let subtemplate = make(<dsp-template>,

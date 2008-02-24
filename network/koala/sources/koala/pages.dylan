@@ -122,7 +122,7 @@ define method respond-to (request-method == #"post", page :: <edit-record-page>)
     // Update the record with values from the page.
     for (slot in slots)
       field-name := slot-column-name(slot);
-      field-value := get-form-value(field-name, as: slot-type(slot));
+      field-value := get-query-value(field-name, as: slot-type(slot));
       if (field-value)
         validate-record-field(page, record, slot, field-value);
         let f = slot-setter(slot);
