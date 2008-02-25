@@ -321,7 +321,8 @@ define method regex-search
 end method regex-search;
 
 // Like regex-search, but returns a string or #f for each group in the regular
-// expression, instead of a <regex-match>.
+// expression, instead of a <regex-match>.  Note that group 0, the entire match,
+// is included as the first value.
 define sealed generic regex-search-strings
     (pattern :: <object>, string :: <string>,
      #key anchored :: <boolean>,
