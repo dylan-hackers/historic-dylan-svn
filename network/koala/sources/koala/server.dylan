@@ -850,26 +850,6 @@ define method process-incoming-headers (request :: <request>)
   end;
 end;
 
-/* REMOVE
-
-// Register a function that will attempt to register a responder for a URL
-// if the URL matches the file extension.  The function should normally call
-// register-url (or register-page for DSPs) and should return a responder.
-//
-define function register-auto-responder
-    (file-extension :: <string>, f :: <function>, #key replace? :: <boolean>)
-  if (~replace? & element(*auto-register-map*, file-extension, default: #f))
-    cerror("Replace the old auto-responder with the new one and continue.",
-           "An auto-responder is already defined for file extension %=.",
-           file-extension);
-  end;
-  *auto-register-map*[file-extension] := f;
-end;
-
-*/
-
-
-
 // Invoke the appropriate handler for the given request URL and method.
 // Have to buffer up the entire response since the web app needs a chance to
 // set headers, etc.  And if the web app signals an error we need to catch it
@@ -886,35 +866,28 @@ define method invoke-handler (request :: <request>) => ()
     if (request.request-responder)
      let url = request.request-url;
      log-debug("Responder found for %s", url);
-     let map = request.request-responder.responder-map;
-     let responders = element(map, request.request-method, default: #f);
-     // find the appropriate action sequence
-     let (action-sequence, match) = if (responders)
-         block (return)
-           for (action-sequence keyed-by regex in responders)
-             let tail = build-path(request.request-tail-url);
-             log-debug("? %= <=> %=", regex.regex-pattern, tail);
-             let match = regex-search(regex, tail);
-             if (match)
-               return(action-sequence, match)
-             end if;
-           end for;
-         end block;
-       end if;
-     log-debug("Action sequence: %=", action-sequence);
+     let (actions, match) = find-actions(request);
+     log-debug("Action sequence: %=", actions);
      log-debug("Responder match: %=", match);
-     if (action-sequence)
-       //
-       let arguments = make(<stretchy-vector>);
-       for (group keyed-by name in match.groups-by-name)
-         if (group)
-           add!(arguments, as(<symbol>, name));
-           add!(arguments, group.group-text);
-         end if;
-       end for;
+     if (actions)
+       // Invoke each action function with keyword arguments matching the names
+       // of the named groups in the first regular expression that matches the
+       // tail of the url, if any.
+       let arguments = #[];
+       if (match)
+         arguments := make(<simple-object-vector>,
+                           size: 2 * match.groups-by-name.size);
+         for (group keyed-by name in match.groups-by-name)
+           if (group)
+             add!(arguments, as(<symbol>, name));
+             add!(arguments, group.group-text);
+           end if;
+         end for;
+       end if;
        do(method (action)
             invoke-action(request, action, arguments);
-	 end, action-sequence);
+          end,
+          actions);
      else
        resource-not-found-error(url: url);
      end if;
@@ -927,6 +900,24 @@ define method invoke-handler (request :: <request>) => ()
   send-response(response);
 end method invoke-handler;
 
+define inline function find-actions
+    (request :: <request>)
+ => (actions, match :: false-or(<regex-match>))
+  let rmap = request.request-responder.responder-map;
+  let responders = element(rmap, request.request-method, default: #f);
+  if (responders)
+    block (return)
+      let url-tail = build-path(request.request-tail-url);
+      for (actions keyed-by regex in responders)
+        log-debug("? %= <=> %=", regex.regex-pattern, url-tail);
+        let match = regex-search(regex, url-tail);
+        if (match)
+          return(actions, match)
+        end if;
+      end for;
+    end block;
+  end if;
+end function find-actions;
 
 define generic invoke-action
     (request :: <request>,
@@ -1005,11 +996,11 @@ define function extract-request-version
 end;
 
 define class <http-file> (<object>)
-  slot http-file-filename :: <string>,
+  constant slot http-file-filename :: <string>,
     required-init-keyword: filename:;
-  slot http-file-content :: <byte-string>,
+  constant slot http-file-content :: <byte-string>,
     required-init-keyword: content:;
-  slot http-file-mime-type :: <string>,
+  constant slot http-file-mime-type :: <string>,
     required-init-keyword: mime-type:;
 end;
 

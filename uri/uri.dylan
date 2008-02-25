@@ -11,9 +11,10 @@ define class <uri> (<object>)
     init-keyword: host:;
   slot uri-port :: false-or(<integer>) = #f,
     init-keyword: port:;
-  slot uri-path :: <deque> = make(<deque>),
+  // Do you really want this to be a mutable type?
+  slot uri-path :: <sequence> = make(<deque>),
     init-keyword: path:;
-  // keys without vaule are #t
+  // keys without values are #t
   slot uri-query :: <string-table> = make(<string-table>),
     init-keyword: query:;
   slot uri-fragment :: <string> = "",
@@ -166,11 +167,17 @@ end;
 
 define open generic build-path (path :: <object>, #key) => (encoded-path :: <string>);
 
-define method build-path (uri :: <uri>, #key include :: <sequence> = #()) => (encoded-path :: <string>);    
-  if (empty?(uri.uri-path)) "" else  
-    apply(join, "/", map(method (segment)
-        percent-encode(#"segment", segment, include: include)
-      end, uri.uri-path));
+define method build-path
+    (uri :: <uri>, #key include :: <sequence> = #())
+ => (encoded-path :: <string>)
+  if (empty?(uri.uri-path))
+    ""
+  else  
+    join(map(method (segment)
+               percent-encode(#"segment", segment, include: include)
+             end,
+             uri.uri-path),
+         "/")
   end if;
 end;
 
@@ -189,7 +196,7 @@ define method build-query (uri :: <uri>, #key include :: <sequence> = #()) => (e
           concatenate(key, "=", percent-encode(#"query", value, include: include));
         end if);
     end for;
-    apply(join, "&", parts);
+    join(parts, "&")
   end if; 
 end;
 
@@ -250,7 +257,7 @@ define generic remove-dot-segments (path :: <object>) => (result :: <object>);
 define method remove-dot-segments (path :: <string>) => (result :: <string>);
   let path = split(path, "/", remove-empty-items: #f);
   path := remove-dot-segments(path);
-  apply(join, "/", path);
+  join(path, "/")
 end;
 
 define method remove-dot-segments (path :: <sequence>) => (result :: <sequence>);

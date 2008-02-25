@@ -131,8 +131,7 @@ end;
 define function init-xml-rpc-server
     () => ()
   when (*xml-rpc-enabled?*)
-    register-url(*xml-rpc-server-url*, respond-to-xml-rpc-request);
-
+    add-responder(*xml-rpc-server-url*, respond-to-xml-rpc-request);
     // Provide a basic way to test the server.
     register-xml-rpc-method("ping", method () #t end, replace?: #t);
     register-xml-rpc-method("echo", method (#rest args) args end, replace?: #t);

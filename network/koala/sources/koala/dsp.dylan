@@ -87,10 +87,10 @@ define method process-page (page :: <page>)
 end process-page;
 
 define open generic respond-to 
- (request-method :: <symbol>, page :: <page>);
+    (request-method :: <symbol>, page :: <page>);
 
 define method respond-to 
- (request-method :: <symbol>, page :: <page>)
+    (request-method :: <symbol>, page :: <page>)
   if (member?(request-method, #(#"get", #"post")))
     process-template(page);
   else  
@@ -100,10 +100,10 @@ end;
 
 // Applications should call this to register a page for a particular URL.
 define function register-page
-    (url :: <string>, page :: <page>, #key replace?, prefix?)
+    (url :: <string>, page :: <page>, #key replace?)
  => (responder :: <function>)
   bind (responder = curry(process-page, page))
-    register-url(url, responder, replace?: replace?, prefix?: prefix?);
+    add-responder(url, responder, replace?: replace?);
     *page-to-url-map*[page] := url;
     responder
   end
@@ -693,14 +693,14 @@ define function has-url? (#key url :: false-or(<string>), #all-keys)
 end;
 
 define function register-page-urls
-    (page :: <page>, #key url :: <string>, alias, prefix?, #all-keys)
+    (page :: <page>, #key url :: <string>, alias, #all-keys)
  => (responder :: <function>)
-  let responder = register-page(url, page, prefix?: prefix?);
+  let responder = register-page(url, page);
   when (alias)
     for (alias in iff(instance?(alias, <string>),
                       list(alias),
                       alias))
-      register-url(alias, responder);
+      add-responder(alias, responder);
     end;
   end;
   responder
