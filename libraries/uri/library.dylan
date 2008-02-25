@@ -10,7 +10,8 @@ end library;
 
 define module uri
   use common-dylan;
-  use common-extensions;
+  use common-extensions,
+    exclude: { format-to-string };
   use vector-search;
   use subseq;
   use format;
@@ -25,7 +26,7 @@ define module uri
     uri-path, uri-path-setter, 
     uri-query, uri-query-setter,
     uri-fragment, uri-fragment-setter,
-    uri-authority, uri-authority-setter;
+    uri-authority /* not defined --cgay   uri-authority-setter */;
   export parse-uri, parse-url,
     build-uri, transform-uris, 
     build-path, build-query;

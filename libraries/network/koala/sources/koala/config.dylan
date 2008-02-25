@@ -299,7 +299,7 @@ define method process-config-element
       vhost.dsp-root := merge-locators(as(<directory-locator>, loc), 
                                        *server-root*);
       log-info("VHost '%s': DSP root = %s.",
-               vhost-name(vhost), document-root(vhost));
+               vhost-name(vhost), dsp-root(vhost));
     else
       warn("Invalid <DSP-ROOT> spec.  "
            "The 'location' attribute must be specified.");
