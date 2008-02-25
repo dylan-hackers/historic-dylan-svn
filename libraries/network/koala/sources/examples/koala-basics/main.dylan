@@ -250,7 +250,7 @@ define tag current-username in demo
     ()
   let response = current-response();
   let username
-    = get-form-value("username")
+    = get-query-value("username")
       | get-attribute(get-session(get-request(response)), #"username");
   username & write(output-stream(response), username);
 end;

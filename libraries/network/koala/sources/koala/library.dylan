@@ -171,15 +171,10 @@ define module koala
 
     // Form/query values.  (Is there a good name that covers both of these?)
     get-query-value,             // Get a query value that was passed in a URL or a form
-    get-form-value,              // A synonym for get-query-value
     do-query-values,             // Call f(key, val) for each query in the URL or form
-    do-form-values,              // A synonym for do-query-values
     count-query-values,
-    count-form-values,
     application-error,
     current-url,
-    decode-url,
-    encode-url,
     redirect-to;
 
   // Virtual hosts
@@ -274,8 +269,7 @@ define module koala
     internal-server-error,
     bad-request,
     request-url,
-    request-tail-url,
-    register-auto-responder;
+    request-tail-url;
 
   // Debugging
   create
