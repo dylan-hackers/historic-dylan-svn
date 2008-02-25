@@ -884,10 +884,9 @@ define method invoke-handler (request :: <request>) => ()
            end if;
          end for;
        end if;
-       do(method (action)
-            invoke-action(request, action, arguments);
-          end,
-          actions);
+       for (action in actions)
+         invoke-action(request, action, arguments)
+       end;
      else
        resource-not-found-error(url: url);
      end if;
@@ -1064,3 +1063,14 @@ define inline function get-query-value
   end
 end function get-query-value;
 
+define function count-query-values
+    () => (count :: <integer>)
+  *request*.request-query-values.size
+end;
+
+define method do-query-values
+    (f :: <function>)
+  for (val keyed-by key in *request*.request-query-values)
+    f(key, val);
+  end;
+end;

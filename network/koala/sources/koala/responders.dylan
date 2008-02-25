@@ -54,7 +54,7 @@ define method add-responder
      #key replace?,
           request-methods = #(#"get", #"put"))
   let table = make(<table>, size: 1);
-  table[compile-regex("^$")] := response-function;
+  table[compile-regex("^$")] := list(response-function);
   add-responder(url, table,
                 replace?: replace?,
                 request-methods: request-methods)
@@ -67,11 +67,13 @@ define method add-responder
     (url :: <url>, regex-map :: <table>,
      #key replace?,
           request-methods = #(#"get", #"put"))
-  for (response keyed-by regex in regex-map)
-    assert(instance?(response, <function>) & instance?(regex, <regex>),
+  for (responses keyed-by regex in regex-map)
+    assert(instance?(regex, <regex>)
+             & instance?(responses, <sequence>)
+             & every?(rcurry(instance?, <function>), responses),
            "The regex-map argument to add-responder must be a table "
-           "mapping <regex> to <function>.  Found %= -> %=.",
-           regex, response);
+           "mapping <regex> to a sequence of functions.  Found %= -> %=.",
+           regex, responses);
   end;
   let responder = make(<responder>);
   for (request-method in request-methods)
@@ -221,13 +223,14 @@ end function add-responder-map-entry;
 // define responder test ("/test" /* , secure?: #t */ )
 //   format(output-stream(response), "<html><body>test</body></html>");
 // end;
+// This is just minimally working after the switch to "define url-map" 
 define macro responder-definer
   { define responder ?:name (?url:expression)
       ?:body
     end
   }
   => { define method ?name () ?body end;
-         add-responder(?url, ?name)
+       add-responder(?url, ?name)
      }
 end macro responder-definer;
 
