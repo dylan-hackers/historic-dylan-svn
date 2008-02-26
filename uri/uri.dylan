@@ -121,22 +121,25 @@ define method split-query
     (query :: <string>, #key replacements :: false-or(<sequence>))
  => (parts :: <string-table>);
   let parts = split(query, "&");
-  let table = make(<string-table>); 
+  let table = make(<string-table>, size: parts.size);
   for (part in parts)
-    let (key, value) = apply(values, 
-      split(part, "=", remove-empty-items: #f));
-    if (value)
+    let (qname, qvalue) = apply(values, split(part, "=",
+                                              remove-if-empty: #f,
+                                              count: 2));
+    // Right now "&foo=&" is different from &foo&.  The former sets the
+    // qvalue to "" and the latter sets it to #t.  Does it matter?  Is
+    // &foo& even valid?
+    if (qvalue)
       if (replacements)
         for (replacement in replacements)
-          value := regex-replace(value,
-            head(replacement), tail(replacement));
+          qvalue := regex-replace(head(replacement), qvalue, tail(replacement));
         end for;
       end if;
-      value := percent-decode(value);
+      qvalue := percent-decode(qvalue);
     else
-      value := #t;
+      qvalue := #t;
     end if;
-    table[key] := value;
+    table[qname] := qvalue;
   end for;
   table;
 end method split-query;
