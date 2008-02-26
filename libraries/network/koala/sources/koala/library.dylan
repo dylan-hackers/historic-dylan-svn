@@ -346,6 +346,8 @@ define module dsp
     register-page,               // Register a page for a given URL
     url-to-page,
     respond-to,                  // Implement this for your page to handle a request
+    respond-to-get,              // Convenience.
+    respond-to-post,             // Convenience.
 
     page-source,
     page-source-setter,
