@@ -907,8 +907,9 @@ define inline function find-actions
   if (responders)
     block (return)
       let url-tail = build-path(request.request-tail-url);
+      log-debug("url-tail: %=", url-tail);
       for (actions keyed-by regex in responders)
-        log-debug("? %= <=> %=", regex.regex-pattern, url-tail);
+        log-debug("regex -> actions:  %= -> %=", regex.regex-pattern, actions);
         let match = regex-search(regex, url-tail);
         if (match)
           return(actions, match)

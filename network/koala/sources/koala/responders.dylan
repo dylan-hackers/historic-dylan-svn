@@ -23,12 +23,16 @@ define open generic add-responder
 // Convenience method to convert first arg to <url>.
 //
 define method add-responder
-    (url :: <string>, responder :: <object>, #key replace?)
-  add-responder(parse-url(url), responder, replace?: replace?);
+    (url :: <string>, responder :: <object>,
+     #key replace?, request-methods = #(#"GET", #"POST"))
+  add-responder(parse-url(url), responder,
+                replace?: replace?,
+                request-methods: request-methods);
 end;
 
 define method add-responder
-    (url :: <url>, responder :: <responder>, #key replace?)
+    (url :: <url>, responder :: <responder>,
+     #key replace?, request-methods = #(#"GET", #"POST"))
   local method register-responder ()
           if (empty?(url.uri-path))
             error(make(<koala-api-error>,
@@ -52,12 +56,12 @@ end method add-responder;
 define method add-responder
     (url :: <url>, response-function :: <function>,
      #key replace?,
-          request-methods = #(#"get", #"put"))
+          request-methods = #(#"GET", #"POST"))
   let table = make(<table>, size: 1);
   table[compile-regex("^$")] := list(response-function);
   add-responder(url, table,
                 replace?: replace?,
-                request-methods: request-methods)
+                request-methods: request-methods);
 end method add-responder;
 
 // Use this if you want a prefix URL and different behaviour depending on
@@ -66,7 +70,7 @@ end method add-responder;
 define method add-responder
     (url :: <url>, regex-map :: <table>,
      #key replace?,
-          request-methods = #(#"get", #"put"))
+          request-methods = #(#"GET", #"POST"))
   for (responses keyed-by regex in regex-map)
     assert(instance?(regex, <regex>)
              & instance?(responses, <sequence>)
@@ -80,7 +84,9 @@ define method add-responder
     //todo -- validate-request-method(request-method)
     responder.responder-map[request-method] := regex-map;
   end;
-  add-responder(url, responder, replace?: replace?)
+  add-responder(url, responder,
+                replace?: replace?,
+                request-methods: request-methods);
 end method add-responder;
 
 define open generic find-responder
