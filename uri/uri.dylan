@@ -141,13 +141,10 @@ define method split-query
   table;
 end method split-query;
 
-define function relative? (uri :: <uri>) => (is-relative? :: <boolean>);
-  empty?(uri.uri-scheme);
-end;
-
-define function absolute? (uri :: <uri>) => (is-absolute? :: <boolean>);
-  ~relative?(uri);
-end;
+define method as
+    (class == <string>, uri :: <uri>) => (result :: <string>)
+  build-uri(uri)
+end method as;
 
 // build-uri 
 
@@ -393,4 +390,7 @@ format-out("uri3 (built): %=\n", build-uri(uri3));
 
 //format-out("%s\n", build-uri(transform-uris(parse-uri("http://foo.bar/test"), make(<uri>, path: "../foo/../../bar"))));
 //format-out("%s\n", build-uri(transform-uris(parse-uri("http://foo.bar/test"), make(<uri>, path: "/foo/bar"))));
+
+format-out("as: %s\n", as(<string>, parse-uri("http://foo?a=1&b=2#anchor")));
 */
+
