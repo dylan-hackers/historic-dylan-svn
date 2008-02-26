@@ -59,14 +59,18 @@ define constant $uri-segment = $uri-pchar;
 $uri-parts[#"segment"] := $uri-segment;
 define constant $uri-fragment = $uri-query;
 
+define constant $uri-regex :: <regex>
+    = compile-regex("^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)"
+                    "(\\?([^#]*))?(#(.*))?");
+
 define method parse-uri-as (class :: subclass(<uri>), uri :: <string>) => (result :: <uri>);
-  let (uri, _scheme, scheme, _authority, authority, 
+  let (uri, _scheme, scheme, _authority, authority,
        _userinfo, userinfo, host, _port, port,
-       path, _query, query, _fragment, fragment) = 
-    regex-search-strings("^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\\?([^#]*))?(#(.*))?", uri);
+       path, _query, query, _fragment, fragment)
+    = regex-search-strings($uri-regex, uri);
   // inside generic method to save code duplication
   if (class == <url> & query)
-    query := regex-replace(query, "\\+", " ");
+    query := regex-replace("\\+", query, " ");
   end if;
   let (scheme, userinfo, host, path, query, fragment)
     = apply(values, map(method (slot)
@@ -76,9 +80,13 @@ define method parse-uri-as (class :: subclass(<uri>), uri :: <string>) => (resul
 			    slot 
 			  end if;
 			end,
-      list(scheme, userinfo, host, path, query, fragment)));
-  let uri = make(class, scheme: scheme | "", userinfo: userinfo | "", host: host | "", 
-    port: port & string-to-integer(port), fragment: fragment | "");
+                        list(scheme, userinfo, host, path, query, fragment)));
+  let uri = make(class,
+                 scheme: scheme | "",
+                 userinfo: userinfo | "",
+                 host: host | "", 
+                 port: port & string-to-integer(port),
+                 fragment: fragment | "");
   if (~empty?(path))
     uri.uri-path := split-path(path);
   end if;
