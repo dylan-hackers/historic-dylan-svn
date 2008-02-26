@@ -9,8 +9,7 @@ define library uri
 end library;
 
 define module uri
-  use common-dylan;
-  use common-extensions,
+  use common-dylan,
     exclude: { format-to-string };
   use vector-search;
   use subseq;
@@ -33,6 +32,5 @@ define module uri
   export remove-dot-segments,
     split-path, split-query;
   export absolute?, relative?;
-  export print-message;
   export percent-decode;
 end module;
