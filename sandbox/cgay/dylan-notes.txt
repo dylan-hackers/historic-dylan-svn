@@ -36,7 +36,10 @@ testworks
   of the spec is covered (roughly).  Or perhaps it could automatically do this if the
   body of the test is empty (i.e., only hase "// Fill me in ...").
 
+  Housel suggests marking a test unimplemented if it executes no checks.
+
 + my-test-suite-app --list-tests and/or --list-suites and/or --list-all  
+
 
 common-dylan
 ============
@@ -132,6 +135,12 @@ Differences:
 
 Koala
 =====
+
++ Interesting discussion about URL query values:
+  http://lists.w3.org/Archives/Public/ietf-http-wg/2004JulSep/0009.html
+
++ Hannes' comments re new config option to define-page et al...
+  http://ircbrowse.com/channel/dylan/20070220
 
 + Koala config cleanup changes that I never finished::
 
