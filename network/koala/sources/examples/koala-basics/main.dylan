@@ -81,9 +81,11 @@ end;
 // Slightly higher level than responders.  Gives you the convenience of not
 // having to figure out whether it's a GET, POST, HEAD, request, and the ability
 // to dispatch on your own page classes.  Just define methods for
-// respond-to that dispatch on your page class.  Note that the default methods
-// for GET and HEAD do nothing and the default method for POST calls the method
-// for GET.
+// respond-to that dispatch on your page class.
+
+// Note that you may override respond-to-get and respond-to-post instead of
+// overriding respond-to(== #"get") and respond-to(== #"post") as a convenience
+// since these are by far the most common request methods.
 
 // This defines a <hello-world-page> class which is a subclass of <page>, and a
 // variable called *hello-world-page* which is an instance of
@@ -98,12 +100,10 @@ end;
 // Respond to a GET for <hello-world-page>.  Note the use of do-query-values to
 // find all the values passed in the URL (e.g., /hello?foo=1&bar=2).  You can
 // also use get-query-value to get a specific query value, and
-// count-query-values can be used to find out how many there are.  Note that
-// respond-to(#"post", ...) automatically calls respond-to(#"get", unless you
-// override it.
+// count-query-values can be used to find out how many there are.
 //
-define method respond-to
-    (request-method == #"get", page :: <hello-world-page>)
+define method respond-to-get
+    (page :: <hello-world-page>)
   let stream :: <stream> = output-stream(current-response());
   format(stream, "<html>\n<head><title>Hello World</title></head>\n"
                  "<body>Hello there.<p>");
@@ -115,33 +115,42 @@ define method respond-to
   do-query-values(method (key, val)
                     format(stream, "key = %s, val = %s<br>\n", key, val);
                   end);
-  format(stream, "<p>Use your browser's Back button to return to the demo.</body></html>");
+  format(stream,
+         "<p>Use your browser's Back button to return to the "
+         "demo.</body></html>");
 end;
 
 
 //// Dylan Server Pages
 
-// Dylan Server Pages are also defined with the "define page" macro, but you
-// also specify the source: argument which is a file that contains normal
-// HTML plus DSP tags.  The default method for respond-to GET parses the DSP
-// source file and displays it.  Any HTML is output directly to the output
-// stream, and tags invoke the corresponding tag definition code.
+// Dylan Server Pages are also usually defined with the "define page"
+// macro, but you must also specify the source: argument which is a
+// file that contains normal content plus DSP tags.
 
-// Note that the .dsp source file doesn't have to be under the *document-root*
-// directory.
+// In general you will define respond-to-get/post methods for your
+// <dylan-server-page>s that do some processing based on the query
+// values in the request and then call next-method() to process the
+// template for the page or call process-template on some other page
+// to display its output instead (e.g., an error template).
 
-// Define a class that will be used for all our example pages.  It must be a
-// subclass of <dylan-server-page> so that all the template parsing will happen.
-// If we define all our tags to be specialized on this class they can be used
-// in any example page.
+// Any plain content is output directly to the output stream, and
+// tags invoke the corresponding tag definition.
+
+// Note that the .dsp source file doesn't have to be under the
+// *document-root* directory.
+
+// This defines a class that will be used for all our example pages.
+// It must be a subclass of <dylan-server-page> so that all the
+// template parsing will happen.  If we define all our tags to be
+// specialized on this class they can be used in any example page.
 //
 define class <demo-page> (<dylan-server-page>)
 end;
 
-// Define a tag library in which to put all tag definitions.  This isn't
-// strictly necessary; tag defs can go in the existing 'dsp' tag library
-// but then you run the risk of overriding built-in DSP tags or other
-// user-defined tags in the dsp taglib.
+// Define a tag library in which to put all tag definitions.  This
+// isn't strictly necessary; tag defs can go in the existing 'dsp'
+// tag library but then you run the risk of overriding built-in DSP
+// tags or other user-defined tags in the dsp taglib.
 //
 define taglib demo ()
 end;
@@ -163,12 +172,14 @@ define page hello-page (<demo-page>)
      source: "demo/hello.dsp")
 end;
 
-// Defines a tag that looks like <demo:hello/> in the DSP source file.  i.e.,
-// it has no body.
+// Defines a tag that looks like <demo:hello/> in the DSP source
+// file.  i.e., it has no body.  Note that the "output" function is
+// defined by the "define tag" macro and could be defined as
+// curry(format, output-stream(current-response))
 define tag hello in demo
     (page :: <demo-page>)
     ()
-  format(output-stream(current-response()), "Hello, world!");
+  output("Hello, world!");
 end;
 
 define page args-page (<demo-page>)
@@ -207,8 +218,8 @@ define page example-logout-page (<demo-page>)
      source: "demo/logout.dsp")
 end;
 
-define method respond-to
-    (request-method == #"get", page :: <example-logout-page>)
+define method respond-to-get
+    (page :: <example-logout-page>)
   let session = get-session(current-request());
   remove-attribute(session, #"username");
   remove-attribute(session, #"password");
@@ -222,8 +233,8 @@ define page example-welcome-page (<demo-page>)
 end;
 
 // ...so handle the POST by storing the form values in the session.
-define method respond-to
-    (request-method == #"post", page :: <example-welcome-page>)
+define method respond-to-post
+    (page :: <example-welcome-page>)
   let username = get-query-value("username");
   let password = get-query-value("password");
   let username-supplied? = username & username ~= "";
@@ -232,16 +243,17 @@ define method respond-to
     let session = get-session(current-request());
     set-attribute(session, #"username", username);
     set-attribute(session, #"password", password);
-    next-method();  // process the DSP template for the welcome page.
+    // process the DSP template for the welcome page.
+    next-method();
   else
     note-form-error("You must supply <b>both</b> a username and password.");
     // ---*** TODO: Calling respond-to(#"get", ...) probably isn't quite right.
     // If we're redirecting to another page should the query/form values
     // be cleared first?  Probably want to call process-page instead,
     // but with the existing request?
-    respond-to(#"get", *example-login-page*);
+    respond-to-get(*example-login-page*);
   end;
-end;
+end method respond-to-post;
 
 // Note this tag is defined on <demo-page> so it can be accessed from any
 // page in this example web application.

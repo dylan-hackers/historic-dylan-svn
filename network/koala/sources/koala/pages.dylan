@@ -43,10 +43,8 @@ end;
 // in the session and is redirected to the login page.  If there is no 'id'
 // query parameter, the record to edit is already in the session.
 //
-define method respond-to-get (page :: <edit-record-page>,
-                              request :: <request>,
-                              response :: <response>)
-  let session = get-session(request);
+define method respond-to-get (page :: <edit-record-page>)
+  let session = get-session(current-request());
   let record-id = get-query-value("id");
   let record-type = get-query-value("type");
   let record = select (record-id by \=)
@@ -66,9 +64,12 @@ define method respond-to-get (page :: <edit-record-page>,
                         format-arguments: list(record-id, record-type));
   set-attribute(session, $edit-record-key, record);
   dynamic-bind (*record* = record)
-    respond-to-get-edit-record(page, request, response, record);
+    respond-to-get-edit-record(page,
+                               current-request(),
+                               current-response(),
+                               record);
   end;
-end;
+end method respond-to-get;
 
 define open generic respond-to-get-edit-record
     (page :: <object>,
@@ -107,11 +108,11 @@ define function return-to-origin
   bind (origin = get-query-value("origin"),
         // It may be common to forget to use a leading / since it's not required...
         page = origin & (url-to-page(origin) | url-to-page(concatenate("/", origin))))
-    respond-to-get(page | default, request, response);
+    respond-to-get(page | default);
   end;
 end;
 
-define method respond-to (request-method == #"post", page :: <edit-record-page>)
+define method respond-to-post (page :: <edit-record-page>)
   let request :: <request> = current-request();
   let record :: <database-record> = get-edit-record(request);
   let slots = slot-descriptors(object-class(record));

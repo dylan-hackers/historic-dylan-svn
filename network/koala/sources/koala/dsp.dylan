@@ -7,7 +7,9 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 // Users of this library may respond to HTTP requests in two ways:
 // (1) Use "define responder" to register a response function for a
-//     given URL.  The function will be passed a <request> and a <response>.
+//     given URL.  The function can access the active <request> object
+//     via current-request().  It can access the active <response> object
+//     via current-response().
 //
 // (2) Define a subclass of <page> and implement the method respond-to.
 //     Use "define page", specifying <page> as a superclass to register a
@@ -15,7 +17,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 //
 // (3) Use "define page", specifying <dylan-server-page> as a superclass
 //     and define any "tags" you need with "define tag".  Create a .dsp
-//     file that calls the tags with <dsp:my-tag .../>
+//     file that calls the tags with <dsp:my-tag .../>.  Tags can generate
+//     output via output(format-string, #rest format-args).
 //
 // See .../koala/sources/examples/koala-basics/ for example DSP usage.
 
@@ -45,7 +48,8 @@ define class <tag-argument-parse-error> (<dsp-parse-error>) end;
 // Gives the user a place to store values that will have a lifetime
 // equal to the duration of the page processing (i.e., during process-page).  The
 // name is stolen from JSP's PageContext class, but it's not intended to serve the
-// same purpose.
+// same purpose.  Use set-attribute(page-context, key, val) to store attributes
+// for the page and get-attribute(page-context, key) to retrieve them.
 
 define class <page-context> (<attributes-mixin>)
 end;
@@ -76,29 +80,58 @@ end;
 define open primary class <page> (<object>)
 end;
 
-// The protocol every page needs to support.
 // This is the method registered as the response function for all <page>s.
 // See register-page.
 define method process-page (page :: <page>)
-  let page-context = make(<page-context>);
-  dynamic-bind (*page-context* = page-context)
+  dynamic-bind (*page-context* = make(<page-context>))
     respond-to(current-request().request-method, page);
   end;
 end process-page;
 
+// The protocol every page needs to support.
 define open generic respond-to 
     (request-method :: <symbol>, page :: <page>);
 
+// Default
 define method respond-to 
     (request-method :: <symbol>, page :: <page>)
-  if (member?(request-method, #(#"get", #"post")))
-    process-template(page);
-  else  
-    unsupported-request-method-error();
-  end if;
+  unsupported-request-method-error();
 end;
 
-// Applications should call this to register a page for a particular URL.
+define method respond-to
+    (request-method == #"GET", page :: <page>)
+  respond-to-get(page)
+end method respond-to;
+
+define method respond-to
+    (request-method == #"POST", page :: <page>)
+  respond-to-post(page)
+end method respond-to;
+
+// These are by far the most common cases and it's more succinct
+// and readable than respond-to.
+//
+define open generic respond-to-get (page :: <page>);
+define open generic respond-to-post (page :: <page>);
+
+define method respond-to-get
+    (page :: <page>)
+  unsupported-request-method-error()
+end method respond-to-get;
+
+// This is a common case and it's more succinct and readable than respond-to.
+define method respond-to-post
+    (page :: <page>)
+  respond-to-get(page);
+end method respond-to-post;
+
+define method respond-to-get
+    (page :: <dylan-server-page>)
+  process-template(page);
+end method respond-to-get;
+
+// Applications should call this (usually via the "define page" macro) to
+// register a page for a particular URL.
 define function register-page
     (url :: <string>, page :: <page>, #key replace?)
  => (responder :: <function>)
@@ -107,15 +140,18 @@ define function register-page
     *page-to-url-map*[page] := url;
     responder
   end
-end;
+end function register-page;
 
 define function url-to-page
     (url :: <string>)
   block (return)
     for (uri keyed-by page in *page-to-url-map*)
       if (uri = url)
-        return(page); end if; end for; end block;
-end;
+        return(page);
+      end if;
+    end for;
+  end block;
+end function url-to-page;
 
 // ---TODO: Test this and export it.
 // Register URLs for all files matching the given pathname spec as instances
@@ -1255,3 +1291,4 @@ define function auto-register-dylan-server-page
   register-page(url, make(<dylan-server-page>,
                           source: document-location(url)))
 end;
+
