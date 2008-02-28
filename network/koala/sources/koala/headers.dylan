@@ -47,13 +47,13 @@ define method add-header
      #key if-exists? :: <symbol> = #"append")
   let old = element(headers, key, default: #f);
   // typically there is only one header for given key, so favor that.
-  if (~old | if-exists? == #"replace")
+  if (~old | if-exists? = #"replace")
     headers[key] := data;
-  elseif (if-exists? == #"append")
+  elseif (if-exists? = #"append")
     headers[key] := iff(instance?(old, <pair>),
                         concatenate!(old, list(data)),
                         list(old, data));
-  elseif (if-exists? == #"error")
+  elseif (if-exists? = #"error")
     error("Attempt to add header %= which has already been added", key);
   end;
 end add-header;

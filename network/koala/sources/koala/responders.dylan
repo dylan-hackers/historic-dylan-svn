@@ -123,10 +123,19 @@ end;
 /* Example usage
 define url-map
   url "/wiki",
-    action GET () => show-page,
-    action GET () => show-page;
+    action get () => show-page,
+    action get () => show-page;
+  url "/wiki/login"
+    action post ("/(?<name>:\\w+") => login;
+  url
 end;
 */
+// It might be nice to add a prefix clause to this.  e.g.,
+//    prefix: "/demo"
+// so that all urls are prefixed with that string.  But that might
+// be better handled by "define web-application", which perhaps this
+// macro can be expanded to at some point.
+//
 define macro url-map-definer
   { define url-map
       ?urls
@@ -138,13 +147,13 @@ define macro url-map-definer
     { ?url ; ... } => { ?url ; ... }
 
   url:
-    { url ?location:expression , ?definitions }
+    { url ?location:expression ?definitions }
      => { begin
             let responder = make(<responder>);
             ?definitions ;
             ?location ;
           end }
-    { url ( ?locations ) , ?definitions }
+    { url ( ?locations ) ?definitions }
       => { begin
             let responder = make(<responder>);
             ?definitions ;
@@ -162,14 +171,16 @@ define macro url-map-definer
     { } => { }
     { ?definition , ... } => { ?definition ; ... }
 
+  // I'd like to get rid of the parens around ?request-methods.
+  // Not quite sure how yet though.  --cgay
   definition:
-    { action ( ?request-methods ) ( ?regex ) => ?action:name }
+    { action ( ?request-methods ) ( ?regex ) => ?action:expression }
       => { begin
              let regex = compile-regex(?regex, use-cache: #t);
              let actions = list(?action);
              ?request-methods
            end }
-    { action ?request-method:name ( ?regex ) => ?action:name }
+    { action ?request-method:name ( ?regex ) => ?action:expression }
       => { begin
              let regex = compile-regex(?regex);
              let actions = list(?action);
@@ -177,7 +188,7 @@ define macro url-map-definer
            end }
     { action ( ?request-methods ) ( ?regex ) => ( ?action-sequence:* ) }
       => { begin
-             let regex = compile-regex(?regex);
+             let regex = compile-regex(?regex, use-cache: #t);
              let actions = list(?action-sequence);
              ?request-methods
            end }
@@ -187,7 +198,6 @@ define macro url-map-definer
              let actions = list(?action-sequence);
              ?request-method
            end }
-
   request-methods:
     { } => { }
     { ?request-method , ...  } => { ?request-method ; ... }

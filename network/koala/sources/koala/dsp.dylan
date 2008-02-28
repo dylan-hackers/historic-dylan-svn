@@ -80,6 +80,16 @@ end;
 define open primary class <page> (<object>)
 end;
 
+// Method on generic defined in server.dylan
+define method invoke-responder
+    (request :: <request>,
+     action :: <page>,
+     arguments :: <sequence>)
+ => ()
+  // todo -- Decide how to pass arguments to the page respond-to* methods?
+  process-page(action)
+end method invoke-responder;
+  
 // This is the method registered as the response function for all <page>s.
 // See register-page.
 define method process-page (page :: <page>)
@@ -152,32 +162,6 @@ define function url-to-page
     end for;
   end block;
 end function url-to-page;
-
-// ---TODO: Test this and export it.
-// Register URLs for all files matching the given pathname spec as instances
-// of the given page class.
-define method register-pages-as
-    (path :: <locator>, page-class :: subclass(<file-page-mixin>),
-     #key descend? = #t, file-type)
-  // url-dir always ends in '/'
-  local method doer (url-dir, directory, name, type)
-          select (type)
-            #"file" =>
-              let file = merge-locators(as(<file-locator>, name),
-                                        as(<directory-locator>, directory));
-              register-page(name, make(page-class,
-                                       source: file,
-                                       url: concatenate(url-dir, name)));
-            #"directory" =>
-              let dir = subdirectory-locator(as(<directory-locator>, directory), name);
-              when (descend?)
-                do-directory(curry(doer, concatenate(url-dir, name, "/")),
-                             dir);
-              end;
-          end;
-        end;
-  do-directory(curry(doer, "/"), path);
-end;
 
 //
 // Page mixin classes and related methods
@@ -684,64 +668,21 @@ end;
 // Dylan Server Pages
 //
 
+// The only required init arg for this class is source:, which should
+// be the location of the top-level template.
+//
 define open primary class <dylan-server-page> (<file-page-mixin>, <page>)
   // A sequence of strings and functions.  Strings are output directly
   // to the network stream.  The functions are created by 'define tag'.
-  each-subclass slot page-template :: false-or(<dsp-template>) = #f;
+  slot page-template :: false-or(<dsp-template>) = #f;
 end;
 
-// define page my-dsp (<dylan-server-page>) (url: "/hello", source: make-locator(...), ...)
-//   slot foo :: <integer> = bar;
-//   ...
-// end;
-define macro page-definer
-    { define page ?:name (?superclasses:*) (?make-args:*)
-        ?slot-specs:*
-      end }
- => { page-aux(?name; ?superclasses; ?make-args; ?slot-specs);
-      if (has-url?(?make-args))
-        register-page-urls("*" ## ?name ## "*", ?make-args)
-      end
-    }
-
-    { define directory page ?:name (?superclasses:*) (?make-args:*)
-        ?slot-specs:*
-      end }
- => { page-aux(?name; ?superclasses; ?make-args; ?slot-specs);
-      if (has-url?(?make-args))
-        register-page-urls("*" ## ?name ## "*", ?make-args, prefix?: #t)
-      end
-    }
-
+// For convenience in responders, tags, named-methods, etc.
+//
+define function output
+    (format-string, #rest format-args)
+  apply(format, output-stream(current-response()), format-string, format-args)
 end;
-
-define macro page-aux
-  { page-aux(?:name; ?superclasses:*; ?make-args:*; ?slot-specs:*) }
-   => { define class "<" ## ?name ## ">" (?superclasses) ?slot-specs end;
-        define variable "*" ## ?name ## "*" = make("<" ## ?name ## ">", ?make-args) }
-end;
-
-define function has-url? (#key url :: false-or(<string>), #all-keys)
- => (url-provided? :: <boolean>);
-  if (url)
-    #t
-  end;
-end;
-
-define function register-page-urls
-    (page :: <page>, #key url :: <string>, alias, #all-keys)
- => (responder :: <function>)
-  let responder = register-page(url, page);
-  when (alias)
-    for (alias in iff(instance?(alias, <string>),
-                      list(alias),
-                      alias))
-      add-responder(alias, responder);
-    end;
-  end;
-  responder
-end;
-
 
 // define tag foo in tlib (page) () do-stuff end
 // define body tag foo in tlib (page, do-body) (foo, bar :: <integer>) do-stuff end
@@ -758,10 +699,7 @@ define macro tag-definer
     end }
   => { define tag-aux #f ?tag ?taglib-spec
            (?page, _do-body) (?tag-parameters)
-         begin
-           let ?=output = curry(format, current-response().output-stream);
-           ?body;       // semicolon is needed even when ?body ends in semicolon.
-         end;
+         ?body;       // semicolon is needed even when ?body ends in semicolon.
          _do-body();  // process the tag body
        end
      }
@@ -771,10 +709,7 @@ define macro tag-definer
     end }
   => { define tag-aux #t ?tag ?taglib-spec
            (?page, ?do-body) (?tag-parameters)
-         begin
-           let ?=output = curry(format, current-response().output-stream);
-           ?body;
-         end;
+         ?body
        end
      }
 
@@ -876,7 +811,8 @@ define open method process-template (page :: <dylan-server-page>)
   display-template(page.page-template, page);
 end;
 
-define method display-template (tmplt :: <dsp-template>, page :: <dylan-server-page>)
+define method display-template
+    (tmplt :: <dsp-template>, page :: <dylan-server-page>)
   log-debug("Displaying template %s", tmplt.source | "not set");
   let stream = current-response().output-stream;
   for (item in tmplt.entries)

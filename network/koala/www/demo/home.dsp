@@ -21,22 +21,24 @@
   <h3>Contents</h3>
 
   <ol>
-    <li><a href="<demo:base-url/>/hello.dsp">Hello World</a></li>
-    <li><a href="<demo:base-url/>/args.dsp">A tag with arguments</a></li>
-    <li><a href="<demo:base-url/>/login.dsp">Login (demonstrates sessions)</a></li>
-    <li><a href="<demo:base-url/>/logout.dsp">Logout (demonstrates sessions)</a></li>
-    <li><a href="<demo:base-url/>/iterator.dsp?n=3">Iterator (demonstrates query
+    <li><a href="<demo:base-url/>/hello">Hello World</a></li>
+    <li><a href="<demo:base-url/>/args">A tag with arguments</a></li>
+    <li><a href="<demo:base-url/>/login">Login (demonstrates sessions)</a></li>
+    <li><a href="<demo:base-url/>/logout">Logout (demonstrates sessions)</a></li>
+    <li><a href="<demo:base-url/>/iterator?n=3">Iterator (demonstrates query
              values and body tags)</a></li>
-    <li><a href="<demo:base-url/>/table.dsp">Table Generation</a></li>
+    <li><a href="<demo:base-url/>/table">Table Generation</a></li>
   </ol>
 
   <p>
   <h3>Low-level Koala API</h3>
-  
+
   <ol>
     <li><a href="<demo:base-url/>/responder1">
 	  A responder (the most basic way to respond to a URL)
 	</a></li>
+    <li><a href="<demo:base-url/>/prefix1/one/two/three">A prefix responder.
+        Same as above, but matches any url starting with /prefix1.</a></li>
     <li><a href="<demo:base-url/>/hello?a=1&b=2">Hello World (a non-DSP page)</a></li>
   </ol>
 
