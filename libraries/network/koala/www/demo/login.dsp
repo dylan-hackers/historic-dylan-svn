@@ -12,7 +12,7 @@
 
   <dsp:show-form-notes/>
 
-  <form action="<demo:base-url/>/welcome.dsp"
+  <form action="<demo:base-url/>/welcome"
         method="post"
         enctype="application/x-www-form-urlencoded">
 

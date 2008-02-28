@@ -66,7 +66,7 @@ define method output-stream
       response.%output-stream := make(<string-stream>, direction: #"output");
     else
       signal(make(<koala-error>,
-                  format-string: "unbuffered responses aren't supported yet."));
+                  format-string: "Unbuffered responses aren't supported yet."));
     end
 end;
 
@@ -81,11 +81,13 @@ end;
 // Exported
 //
 define method set-content-type
-    (response :: <response>, content-type :: <object>, #key if-exists? = #"replace")
+    (response :: <response>, content-type :: <object>,
+     #key if-exists? = #"replace")
   let out = response.%output-stream;
   if (out & stream-size(out) ~= 0)
     raise(<koala-api-error>,
-          "Attempt to set the Content-Type header after reply has begun to be sent.");
+          "Attempt to set the Content-Type header after some content "
+          "has already been generated.");
   else
     add-header(response.response-headers, "Content-Type", content-type,
                if-exists?: if-exists?);

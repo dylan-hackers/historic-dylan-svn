@@ -147,23 +147,20 @@ define class <basic-request> (<sealed-constructor>)
     required-init-keyword: client:;
 end;
 
-define generic read-request (request :: <basic-request>);
-define generic invoke-handler (request :: <basic-request>);
-
-define generic request-keep-alive? (request :: <basic-request>) => (well? :: <boolean>);
-
 define method initialize (request :: <basic-request>, #key, #all-keys)
   next-method();
   request.request-client.client-request := request;
 end;
 
-define inline function request-socket (request :: <basic-request>)
-    => (socket :: <tcp-socket>)
+define inline function request-socket
+    (request :: <basic-request>)
+ => (socket :: <tcp-socket>)
   request.request-client.client-socket
 end;
 
-define inline function request-server (request :: <basic-request>)
-    => (server :: <server>)
+define inline function request-server
+    (request :: <basic-request>)
+ => (server :: <server>)
   request.request-client.client-server
 end;
 
@@ -872,11 +869,14 @@ define method invoke-handler (request :: <request>) => ()
      if (actions)
        // Invoke each action function with keyword arguments matching the names
        // of the named groups in the first regular expression that matches the
-       // tail of the url, if any.
+       // tail of the url, if any.  Also pass the entire match as the match:
+       // argument so unnamed groups and the entire match can be accessed.
        let arguments = #[];
        if (match)
-         arguments := make(<simple-object-vector>,
-                           size: 2 * match.groups-by-name.size);
+         arguments := make(<stretchy-vector>,
+                           size: 2 * (match.groups-by-name.size + 1));
+         add!(arguments, #"match");
+         add!(arguments, match);
          for (group keyed-by name in match.groups-by-name)
            if (group)
              add!(arguments, as(<symbol>, name));
@@ -885,7 +885,7 @@ define method invoke-handler (request :: <request>) => ()
          end for;
        end if;
        for (action in actions)
-         invoke-action(request, action, arguments)
+         invoke-responder(request, action, arguments)
        end;
      else
        resource-not-found-error(url: url);
@@ -901,7 +901,7 @@ end method invoke-handler;
 
 define inline function find-actions
     (request :: <request>)
- => (actions, match :: false-or(<regex-match>))
+ => (actions, match)
   let rmap = request.request-responder.responder-map;
   let responders = element(rmap, request.request-method, default: #f);
   if (responders)
@@ -911,6 +911,7 @@ define inline function find-actions
       for (actions keyed-by regex in responders)
         log-debug("regex -> actions:  %= -> %=", regex.regex-pattern, actions);
         let match = regex-search(regex, url-tail);
+        log-debug("find-actions: match: %=", match);
         if (match)
           return(actions, match)
         end if;
@@ -919,13 +920,15 @@ define inline function find-actions
   end if;
 end function find-actions;
 
-define generic invoke-action
+// Clients can override this to create other types of responders.
+// 
+define open generic invoke-responder
     (request :: <request>,
      action :: <object>,
      arguments :: <sequence>)
  => ();
 
-define method invoke-action
+define method invoke-responder
     (request :: <request>,
      action :: <object>,
      arguments :: <sequence>)
@@ -933,15 +936,7 @@ define method invoke-action
   log-warning("Unknown action %= in action sequence.", action);
 end;
 
-define method invoke-action
-    (request :: <request>,
-     action :: <dylan-server-page>,
-     arguments :: <sequence>)
- => ()
-  respond-to(request.request-method, action);
-end;
-  
-define method invoke-action
+define method invoke-responder
     (request :: <request>,
      action :: <function>,
      arguments :: <sequence>)
