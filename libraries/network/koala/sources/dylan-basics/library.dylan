@@ -10,7 +10,7 @@ end;
 
 define module dylan-basics
   use dylan;
-  use common-extensions, exclude: { split };
+  use common-extensions;
   use streams, import: { write, with-output-to-string };
 
   export

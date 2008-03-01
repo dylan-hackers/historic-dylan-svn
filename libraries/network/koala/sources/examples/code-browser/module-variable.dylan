@@ -3,25 +3,25 @@ Synopsis: Browse Open Dylan environment objects
 Author:   Andreas Bogk, Bastian Mueller, Hannes Mehnert
 
 define tag variable-value in code-browser
- (page :: <code-browser-page>, response :: <response>)
- ()
+    (page :: <code-browser-page>)
+    ()
   let value = variable-value(*project*, *environment-object*);
-  format(output-stream(response), "%=", value);
+  output("%=", value);
 end;
 
 define tag variable-type in code-browser
- (page :: <code-browser-page>, response :: <response>)
- ()
+    (page :: <code-browser-page>)
+    ()
   let type = variable-type(*project*, *environment-object*);
-  format(output-stream(response), "<a href=\"%s\">%s</a>",
+  output("<a href=\"%s\">%s</a>",
          do-canonical-link(type),
          html-name(type));
 end;
 
 define tag thread-variable in code-browser
- (page :: <code-browser-page>, response :: <response>)
- ()
+    (page :: <code-browser-page>)
+    ()
   if (instance?(*environment-object*, <thread-variable-object>))
-    format(output-stream(response), "thread");
+    output("thread");
   end
 end; 

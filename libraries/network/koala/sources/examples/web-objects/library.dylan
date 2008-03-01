@@ -10,8 +10,7 @@ define library web-objects-example
 end;
 
 define module web-objects-example
-  use common-dylan,
-    exclude: { split };
+  use common-dylan;
   use streams,
     import: { write };
   use dsp;           // from the koala library

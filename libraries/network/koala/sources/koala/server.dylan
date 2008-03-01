@@ -873,14 +873,13 @@ define method invoke-handler (request :: <request>) => ()
        // argument so unnamed groups and the entire match can be accessed.
        let arguments = #[];
        if (match)
-         arguments := make(<stretchy-vector>,
-                           size: 2 * (match.groups-by-name.size + 1));
-         add!(arguments, #"match");
-         add!(arguments, match);
+         arguments := make(<deque>);
+         push-last(arguments, #"match");
+         push-last(arguments, match);
          for (group keyed-by name in match.groups-by-name)
            if (group)
-             add!(arguments, as(<symbol>, name));
-             add!(arguments, group.group-text);
+             push-last(arguments, as(<symbol>, name));
+             push-last(arguments, group.group-text);
            end if;
          end for;
        end if;
@@ -906,7 +905,14 @@ define inline function find-actions
   let responders = element(rmap, request.request-method, default: #f);
   if (responders)
     block (return)
-      let url-tail = build-path(request.request-tail-url);
+      let tail-path = request.request-tail-url.uri-path;
+      // This isn't using build-path:uri:uri because we don't want it
+      // percent encoded.
+      let url-tail = if (empty?(tail-path))
+                       ""
+                     else
+                       join(tail-path, "/")
+                     end;
       log-debug("url-tail: %=", url-tail);
       for (actions keyed-by regex in responders)
         log-debug("regex -> actions:  %= -> %=", regex.regex-pattern, actions);
