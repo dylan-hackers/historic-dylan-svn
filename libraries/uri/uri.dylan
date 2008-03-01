@@ -70,7 +70,7 @@ define method parse-uri-as (class :: subclass(<uri>), uri :: <string>) => (resul
     = regex-search-strings($uri-regex, uri);
   // inside generic method to save code duplication
   if (class == <url> & query)
-    query := regex-replace("\\+", query, " ");
+    query := regex-replace(query, "\\+", " ");
   end if;
   if (scheme) scheme := percent-decode(scheme); end;
   if (userinfo) userinfo := percent-decode(userinfo); end;
@@ -127,7 +127,9 @@ define method split-query
     if (qvalue)
       if (replacements)
         for (replacement in replacements)
-          qvalue := regex-replace(head(replacement), qvalue, tail(replacement));
+          let old = head(replacement);
+          let new = tail(replacement);
+          qvalue := regex-replace(qvalue, old, new);
         end for;
       end if;
       qvalue := percent-decode(qvalue);
