@@ -58,14 +58,6 @@ define module-spec strings ()
   open generic-function trim
     (<string>, #"key", #"test", #"side", #"start", #"end") => (<string>);
 
-  open generic-function replace
-    (<string>, <string>, <string>, #"key", #"start", #"end", #"test", #"max")
-    => (<string>, <integer>);
-
-  open generic-function replace!
-    (<string>, <string>, <string>, #"key", #"start", #"end", #"test", #"max")
-    => (<string>, <integer>);
-
   open generic-function uppercase  (<string>) => (<string>);
   open generic-function uppercase! (<string>) => (<string>);
   open generic-function lowercase  (<string>) => (<string>);
@@ -188,9 +180,9 @@ define strings function-test trim ()
   for (item in list(#("", ""),
                     #("a", "a"),
                     #("a", " a "),
-                    #("a", " a ", side:, #"both"),  // same
-                    #("a ", " a ", side:, #"left"),
-                    #(" a", " a ", side:, #"right"),
+                    #("a", " a ", from:, #"both"),  // same
+                    #("a ", " a ", from:, #"left"),
+                    #(" a", " a ", from:, #"right"),
                     list(" a ", " a ", test:, method (c) #f end),
                     list("o", "xox", test:, method (c) c == 'x' end)
                     ))
@@ -231,57 +223,30 @@ define strings function-test digit-to-integer ()
   //---*** Fill this in...
 end function-test digit-to-integer;
 
-define function replacement-test (mutating?)
-  for (item in list(list("", "", "", "", #[]),
-                    list("", "", "", "replacement", #[]),
-                    list("b", "a", "a", "b", #[]),
-                    list("a", "a", "a", "b", #[#"end", 0]),
-                    list("ac", "abc", "b", "", #[]),
-                    list("axxc", "abc", "b", "xx", #[]),
-                    list("abc", "abc", "b", "xx", #[#"start", 2])
-                    /*
-                    list("abc", "abc", "b", "xx", #[#"end", 1]),
-                    list("xxa", "aaa", "a", "x", #[#"max", 2]),
-                    list("AxA", "AaA", "a", "x", #[]),
-                    list("xxx", "AaA", "a", "x", vector(#"test", case-insensitive-equal?))
-                      */
-                      ))
-    let (expected, original, pattern, replacement, kwargs) = apply(values, item);
-    let original = copy-sequence(original);
-    let test-name = fmt("replace%s(%=, %=, %=, %=)",
-                        if (mutating?) "!" else "" end,
-                        original, pattern, replacement, kwargs);
-    let result = block ()
-                   apply(if (mutating?)
-                           replace!
-                         else
-                           replace
-                         end,
-                         original, pattern, replacement, kwargs);
-                 exception (e :: <error>)
-                   #f
-                 end;
-    check-equal(test-name, original, result);
-    if (pattern.size == replacement.size)
-      check-true(fmt("%s identity", test-name), result == original);
-    end;
-  end for;
-end function replacement-test;
-
-define strings function-test replace ()
-  replacement-test(#f);
-end function-test replace;
-
-define strings function-test replace! ()
-  replacement-test(#t);
-end function-test replace!;
-
 define strings function-test less? ()
   //---*** Fill this in...
 end function-test less?;
 
 define strings function-test equal? ()
-  //---*** Fill this in...
+  local method e (s1, s2, #rest args)
+          check-true(fmt("equal?(%=, %=, ,@%=)", s1, s2, args),
+                     apply(equal?, s1, s2, args))
+        end;
+  e("", "");
+  e("abc", "abc");
+  e("xaaax", "yaaay", start1: 1, end1: 4, start2: 1, end2: 4);
+  e("a", "", end1: 0);
+  e("a", "", start1: 1);
+  e("", "a", end2: 0);
+  e("", "a", start2: 1);
+  e("abcd", "ab", end1: 2);
+  e("abcd", "ab", end1: 1, end2: 1);
+  e("abcd", "bc", start1: 1, end1: 3);
+  e("abcd", "cd", start1: 2);
+  e("ab", "abcd", end2: 2);
+  e("ab", "abcd", end1: 1, end2: 1);
+  e("bc", "abcd", start2: 1, end2: 3);
+  e("cd", "abcd", start2: 2);
 end function-test equal?;
 
 define strings function-test control? ()

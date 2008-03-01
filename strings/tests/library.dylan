@@ -13,8 +13,7 @@ define library strings-test-suite
 end;
 
 define module strings-test-suite
-  use common-dylan,
-    exclude: { split };
+  use common-dylan;
   use strings;
   use testworks;
   use testworks-specs;
