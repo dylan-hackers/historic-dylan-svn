@@ -7,7 +7,8 @@ Copyright: This code is in the public domain.
 define library strings
   use common-dylan;
   use io,
-    import: { streams };
+    import: { streams,
+              format-out };
   use string-extensions,
     import: { string-hacking };
   use regular-expressions;
@@ -59,8 +60,6 @@ define module strings
   create
     substring,
     trim,
-    replace,
-    replace!,
     uppercase,
     uppercase!,
     lowercase,
@@ -85,6 +84,7 @@ end module strings;
 define module strings-implementation
   use strings;            // Use API module
   use common-dylan;
+  use format-out;
   use streams,
     import: { \with-output-to-string,
               write,

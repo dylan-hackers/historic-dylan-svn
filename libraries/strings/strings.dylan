@@ -39,14 +39,6 @@ define open generic digit-to-integer (c :: <character>, #key) => (i :: <integer>
 
 define open generic trim (string :: <string>, #key) => (new-string :: <string>);
 
-define open generic replace
-    (original :: <string>, pattern :: <object>, replacement :: <string>, #key)
- => (new-string :: <string>, num-replacements :: <integer>);
-
-define open generic replace!
-    (original :: <string>, pattern :: <object>, replacement :: <string>, #key)
- => (string :: <string>, num-replacements :: <integer>);
-
 // These three are much like their counterparts (=, >, <) but they provide
 // for keyword args.
 
@@ -261,6 +253,8 @@ define method equal?
   o1 = o2
 end;
 
+// Note that if one of the strings "runs out" before the other
+// the result is #t.
 define sealed method equal?
     (string1 :: <byte-string>, string2 :: <byte-string>,
      #key start1 :: <integer> = 0, end1 :: <integer> = string1.size,
@@ -717,7 +711,6 @@ define method string-search-set
   end block
 end method string-search-set;
 
-
 define function check-base
     (base :: <integer>) => ();
   if (base < 2 | base > 36)
@@ -802,18 +795,18 @@ end method count-matches;
 define sealed method trim
     (string :: <byte-string>,
      #key test :: <function> = whitespace?,
-          side :: one-of(#"left", #"right", #"both") = #"both",
+          from :: one-of(#"left", #"right", #"both") = #"both",
           start :: <integer> = 0,
           end: _end :: <integer> = string.size)
  => (trimmed-string :: <byte-string>)
   let bpos :: <integer> = start;
   let epos :: <integer> = _end;
-  if (side == #"both" | side == #"left")
+  if (from == #"both" | from == #"left")
     while (bpos < epos & test(string[bpos]))
       bpos := bpos + 1;
     end;
   end;
-  if (side == #"both" | side == #"right")
+  if (from == #"both" | from == #"right")
     while (bpos < (epos - 1) & test(string[epos - 1]))
       epos := epos - 1;
     end;
@@ -842,72 +835,6 @@ define sealed method index-of
     #f
   end block
 end method index-of;
-
-
-define sealed method replace
-    (original :: <byte-string>, pattern :: <byte-string>, replacement :: <byte-string>,
-     #key start :: <integer> = 0,
-          end: _end :: <integer> = original.size,
-          test :: <function> = \==,
-          max: _max :: <integer> = -1)
- => (string :: <byte-string>, num-replacements :: <integer>)
-  let psize :: <integer> = pattern.size;
-  let substrings :: <stretchy-vector> = make(<stretchy-vector>);
-  let bpos :: <integer> = start;
-  let num-replacements :: <integer> = 0;
-  let copy-from :: <integer> = 0;
-  if (psize ~== 0)
-    while (bpos <= _end - psize
-             & (_max == -1 | num-replacements < _max))
-      if (equal?(original, pattern, start1: bpos, end1: _end, test: test))
-        if (copy-from ~== bpos)
-          add!(substrings, copy-sequence(original, start: copy-from, end: bpos));
-        end;
-        add!(substrings, replacement);
-        num-replacements := num-replacements + 1;
-        bpos := bpos + psize;
-        copy-from := bpos;
-      else
-        bpos := bpos + 1;
-      end if;
-    end while;
-  end if;
-  if (copy-from < original.size | empty?(substrings))
-    add!(substrings, copy-sequence(original, start: copy-from));
-  end;
-  values(apply(concatenate, substrings), num-replacements)
-end method replace;
-
-define sealed method replace!
-    (original :: <byte-string>, pattern :: <byte-string>, replacement :: <byte-string>,
-     #key start :: <integer> = 0,
-          end: _end :: <integer> = original.size,
-          test :: <function> = \==,
-          max: _max :: <integer> = -1)
- => (string :: <byte-string>, num-replacements :: <integer>)
-  let psize :: <integer> = pattern.size;
-  if (psize ~== replacement.size)
-    replace(original, pattern, replacement,
-            start: start, end: _end, test: test, max: _max)
-  else
-    let bpos :: <integer> = start;
-    let epos :: <integer> = _end - psize;
-    let num-replacements :: <integer> = 0;
-    if (psize ~== 0)                                   // prevent infinite loop
-      while (bpos <= _end - psize
-               & (_max == -1 | num-replacements < _max))
-        if (equal?(original, pattern, start1: bpos, end1: _end, test: test))
-          for (i from bpos, char in replacement)
-            original[i] := char;
-          end;
-          num-replacements := num-replacements + 1;
-          bpos := bpos + psize;
-        end if;
-      end while;
-    end if;
-    values(original, num-replacements)
-  end if
-end method replace!;
 
 
 define method substring
