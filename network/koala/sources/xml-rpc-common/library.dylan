@@ -29,8 +29,7 @@ define module xml-rpc-common
               as-iso8601-string };
   use xml-parser,
     prefix: "xml$";
-  use dylan-basics,
-    exclude: { split };
+  use dylan-basics;
   use base64,
     import: { base64-decode };
   export

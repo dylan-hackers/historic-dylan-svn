@@ -18,7 +18,7 @@ end;
 
 
 define module xml-rpc-client
-  use common-dylan, exclude: { format-to-string, split };
+  use common-dylan, exclude: { format-to-string };
   use format;
   use format-out;  // for debugging only
   use sockets;

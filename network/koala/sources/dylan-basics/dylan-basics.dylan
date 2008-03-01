@@ -223,11 +223,6 @@ end method float-to-formatted-string;
 
 
 
-define inline-only function whitespace?
-    (ch :: <character>) => (white? :: <boolean>)
-  member?(ch, #[' ', '\t', '\n'])
-end;
-
 // ----------------------------------------------------------------------
 // For removing certain keyword/value pairs from argument lists before
 // passing them along with apply or next-method.

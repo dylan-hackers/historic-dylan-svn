@@ -245,7 +245,7 @@ define macro responder-definer
       ?:body
     end
   }
-  => { define method ?name () ?body end;
+  => { define function ?name (#key) ?body end;
        add-responder(?url, ?name)
      }
 end macro responder-definer;

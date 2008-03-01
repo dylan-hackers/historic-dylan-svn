@@ -11,7 +11,7 @@ define class <uri> (<object>)
     init-keyword: host:;
   slot uri-port :: false-or(<integer>) = #f,
     init-keyword: port:;
-  // Do you really want this to be a mutable type?
+  // Do you really want this to be a stretchy type?
   slot uri-path :: <sequence> = make(<deque>),
     init-keyword: path:;
   // keys without values are #t
@@ -72,15 +72,10 @@ define method parse-uri-as (class :: subclass(<uri>), uri :: <string>) => (resul
   if (class == <url> & query)
     query := regex-replace("\\+", query, " ");
   end if;
-  let (scheme, userinfo, host, path, query, fragment)
-    = apply(values, map(method (slot)
-			  if (instance?(slot, <string>)) 
-			    percent-decode(slot) 
-			  else 
-			    slot 
-			  end if;
-			end,
-                        list(scheme, userinfo, host, path, query, fragment)));
+  if (scheme) scheme := percent-decode(scheme); end;
+  if (userinfo) userinfo := percent-decode(userinfo); end;
+  if (host) host := percent-decode(host); end;
+  if (fragment) fragment := percent-decode(fragment); end;
   let uri = make(class,
                  scheme: scheme | "",
                  userinfo: userinfo | "",
@@ -88,10 +83,10 @@ define method parse-uri-as (class :: subclass(<uri>), uri :: <string>) => (resul
                  port: port & string-to-integer(port),
                  fragment: fragment | "");
   if (~empty?(path))
-    uri.uri-path := split-path(path);
+    uri.uri-path := split-path(percent-decode(path));
   end if;
   if (query)
-    uri.uri-query := split-query(query);
+    uri.uri-query := split-query(percent-decode(query));
   end if;
   if (absolute?(uri))
     uri.uri-path := remove-dot-segments(uri.uri-path);
@@ -114,7 +109,7 @@ define constant absolute? = complement(relative?);
 // split parts 
 
 define method split-path (path :: <string>) => (parts :: <sequence>);
-  split(path, "/", remove-empty-items: #f);
+  split(path, "/", remove-if-empty: #f);
 end;
 
 define method split-query
@@ -199,10 +194,10 @@ define method build-query (uri :: <uri>, #key include :: <sequence> = #()) => (e
     for (value keyed-by key in uri.uri-query)
       key := percent-encode(#"query", key, include: include);
       add!(parts, if (value == #t)
-          key
-        else
-          concatenate(key, "=", percent-encode(#"query", value, include: include));
-        end if);
+                    key
+                  else
+                    concatenate(key, "=", percent-encode(#"query", value, include: include));
+                  end if);
     end for;
     join(parts, "&")
   end if; 
@@ -220,7 +215,10 @@ define method percent-encode (part, unencoded :: <byte-string>, #key include :: 
   let encoded = "";
   for (char in unencoded)
     encoded := concatenate(encoded, if (member?(char, $uri-parts[part]) & ~member?(char, include))
-      list(char) else percent-encode(part, char) end if);
+                                      list(char)
+                                    else
+                                      percent-encode(part, char)
+                                    end if);
   end for;
   encoded;
 end method percent-encode;
@@ -263,7 +261,7 @@ end method percent-decode;
 define generic remove-dot-segments (path :: <object>) => (result :: <object>);
 
 define method remove-dot-segments (path :: <string>) => (result :: <string>);
-  let path = split(path, "/", remove-empty-items: #f);
+  let path = split(path, "/", remove-if-empty: #f);
   path := remove-dot-segments(path);
   join(path, "/")
 end;

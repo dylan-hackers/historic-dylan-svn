@@ -41,8 +41,8 @@ define module code-browser
   use format-out;
   use streams;
   use file-system;
-  use dsp, exclude: { split };
-  use regular-expressions, import: { regex-replace };
+  use dsp;
+  use regular-expressions;
   use source-records;
   use source-records-implementation;
   use environment-protocols,

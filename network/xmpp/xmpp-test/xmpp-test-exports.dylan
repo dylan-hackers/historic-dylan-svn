@@ -10,7 +10,7 @@ define library xmpp-test
 end library;
 
 define module xmpp-test
-  use common-dylan, exclude: { split };
+  use common-dylan;
   use format-out;
   use sockets;
   use streams;

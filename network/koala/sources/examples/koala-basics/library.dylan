@@ -19,7 +19,7 @@ define module koala-basics
   use dylan;
   use threads;
   use common-extensions,
-    exclude: { format-to-string, split };
+    exclude: { format-to-string };
   use locators;
   use format;
   use streams;
