@@ -196,7 +196,7 @@ define inline function make-regex-positioner
 end function make-regex-positioner;
 
 define generic regex-replace
-    (regex :: <object>, big :: <string>, new-substring :: <string>,
+    (big :: <string>, old :: <object>, new :: <string>,
      #key start :: <integer>,
           end: epos :: <integer>,
           count :: false-or(<integer>),
@@ -204,13 +204,13 @@ define generic regex-replace
  => (new-string :: <string>);
 
 define method regex-replace
-    (regex :: <string>, big :: <string>, new-substring :: <string>,
+    (big :: <string>, old :: <string>, new :: <string>,
      #key count :: false-or(<integer>),
           start :: <integer> = 0,
           end: epos :: <integer> = big.size,
           case-sensitive :: <boolean> = #t)
  => (new-string :: <string>)
-  regex-replace(compile-regex(regex), big, new-substring,
+  regex-replace(big, compile-regex(old), new,
                 start: start,
                 end: epos,
                 count: count,
@@ -218,15 +218,15 @@ define method regex-replace
 end method regex-replace;
 
 define method regex-replace
-    (regex :: <regex>, big :: <string>, new-substring :: <string>,
+    (big :: <string>, old :: <regex>, new :: <string>,
      #key count :: false-or(<integer>),
           start :: <integer> = 0,
           end: epos :: <integer> = big.size,
           case-sensitive :: <boolean> = #t)
  => (new-string :: <string>)
   let positioner
-    = make-regex-positioner(regex, case-sensitive: case-sensitive);
-  do-replacement(positioner, new-substring, big, start,
+    = make-regex-positioner(old, case-sensitive: case-sensitive);
+  do-replacement(positioner, new, big, start,
 		 epos, count, #t);
 end method regex-replace;
 

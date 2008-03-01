@@ -25,7 +25,7 @@ define module-spec regular-expressions ()
       (<object>, <string>, #"key", #"start", #"end", #"case-sensitive")
       => (false-or(<string>), #"rest");
   sealed generic-function regex-replace
-      (<object>, <string>, <string>, #"key", #"start", #"end", #"case-sensitive", #"count")
+      (<string>, <object>, <string>, #"key", #"start", #"end", #"case-sensitive", #"count")
       => (<string>);
   sealed generic-function regex-search
       (<object>, <string>, #"key", #"anchored", #"start", #"end")
@@ -137,20 +137,20 @@ end function-test regex-position;
 define regular-expressions function-test regex-replace ()
   let big-string = "The rain in spain and some other text";
   check-no-errors("regex-replace with regex pattern",
-                  regex-replace(compile-regex("the (.*) in (\\w*\\b)"),
-                                big-string,
+                  regex-replace(big-string,
+                                compile-regex("the (.*) in (\\w*\\b)"),
                                 "\\2 has its \\1"));
   check-equal("regex-replace #1",
-              regex-replace("the (.*) in (\\w*\\b)", big-string, "\\2 has its \\1"),
-              "spain has its rain and some other text");
+              regex-replace("a or b", "(o)(r)", "\\2\\1"),
+              "a ro b");
   check-equal("regex-replace #2",
-              regex-replace("in", big-string, "out"),
+              regex-replace(big-string, "in", "out"),
               "The raout out spaout and some other text");
   check-equal("regex-replace #3",
-              regex-replace("in", big-string, "out", count: 2),
+              regex-replace(big-string, "in", "out", count: 2),
               "The raout out spain and some other text");
   check-equal("regex-replace #4",
-              regex-replace("in", big-string, "out", start: 8, end: 15),
+              regex-replace(big-string, "in", "out", start: 8, end: 15),
               "The rain out spain and some other text");
 end function-test regex-replace;
 
@@ -226,9 +226,13 @@ define regular-expressions function-test group-start ()
   //---*** Fill this in...
 end function-test group-start;
 
-define regular-expressions function-test match-groups ()
+define regular-expressions function-test groups-by-name ()
   //---*** Fill this in...
-end function-test match-groups;
+end function-test groups-by-name;
+
+define regular-expressions function-test groups-by-position ()
+  //---*** Fill this in...
+end function-test groups-by-position;
 
 define regular-expressions function-test match-group ()
   //---*** Fill this in...
