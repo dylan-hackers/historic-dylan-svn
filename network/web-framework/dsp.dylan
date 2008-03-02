@@ -12,9 +12,9 @@ define thread variable *action* = #f;
 define thread variable *form* = #f;
 
 define url-map
-  url "/login",
+  url "/login"
     action get () => (login);
-  url "/logout",
+  url "/logout"
     action get () => (logout);
 end;
 
