@@ -15,12 +15,8 @@ end;
 
 define generic environment-object-page (obj :: <environment-object>) => (res :: <code-browser-page>);
 
-define function symbol-responder (#key match :: <regex-match>)
-  let tail = match-group(match, 0);
-  let suffix = split(tail, '/');
-  //format-out("hit /: %= %d\n", suffix, suffix.size);
-  if (suffix.size > 0)
-    let library-name = suffix[0];
+define function symbol-responder (#key library-name, module-name, symbol-name)
+  if (library-name)
     let project = find-project(library-name);
     open-project-compiler-database(project, 
                                    warning-callback: callback-handler,
@@ -28,11 +24,9 @@ define function symbol-responder (#key match :: <regex-match>)
     parse-project-source(project);
     dynamic-bind(*project* = project)
       let library = project.project-library;
-      if (suffix.size > 1)
-        let module-name = suffix[1];
+      if (module-name)
         let module = find-module(project, module-name, library: library);
-        if (suffix.size = 3)
-          let symbol-name = suffix[2];
+        if (symbol-name)
           let symbol
             = find-environment-object(project, symbol-name,
                                       library: library,
@@ -56,7 +50,8 @@ end;
 
 define url-map
   url "/symbol"
-    action GET ("^.*$") => symbol-responder;
+    action GET ("^(?P<library-name>[^/]+)(/(?P<module-name>[^/]+)(/(?P<symbol-name>[^/]+)/?)?)?$") => 
+      symbol-responder;
 end;
 
 
@@ -64,7 +59,7 @@ define class <raw-source-page> (<code-browser-page>)
 end;
 
 define variable *raw-source-page*
-  = make(<raw-source-page>, source: "code-browser/raw-source.dsp");
+  = make(<raw-source-page>, source: "raw-source.dsp");
 
 define method environment-object-page (object :: <environment-object>)
  => (res :: <code-browser-page>)
@@ -81,7 +76,7 @@ define macro code-browser-pages-definer
         end;
         define variable "*" ## ?page ## "-page*"
           = make("<" ## ?page ## "-page>",
-                 source: "code-browser/" ## ?"page" ## ".dsp");
+                 source: ?"page" ## ".dsp");
         define method environment-object-page
          (object :: "<" ## ?page ## "-object>") => (res :: "<" ## ?page ## "-page>")
            "*" ## ?page ## "-page*";

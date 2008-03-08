@@ -874,8 +874,6 @@ define method invoke-handler (request :: <request>) => ()
        let arguments = #[];
        if (match)
          arguments := make(<deque>);
-         push-last(arguments, #"match");
-         push-last(arguments, match);
          for (group keyed-by name in match.groups-by-name)
            if (group)
              push-last(arguments, as(<symbol>, name));
@@ -947,6 +945,7 @@ define method invoke-responder
      action :: <function>,
      arguments :: <sequence>)
  => ()
+  log-debug("Invoking action %= with %=.", action, arguments);
   apply(action, arguments)
 end;
 
