@@ -83,10 +83,10 @@ define method parse-uri-as (class :: subclass(<uri>), uri :: <string>) => (resul
                  port: port & string-to-integer(port),
                  fragment: fragment | "");
   if (~empty?(path))
-    uri.uri-path := split-path(percent-decode(path));
+    uri.uri-path := split-path(path);
   end if;
   if (query)
-    uri.uri-query := split-query(percent-decode(query));
+    uri.uri-query := split-query(query);
   end if;
   if (absolute?(uri))
     uri.uri-path := remove-dot-segments(uri.uri-path);
@@ -109,7 +109,8 @@ define constant absolute? = complement(relative?);
 // split parts 
 
 define method split-path (path :: <string>) => (parts :: <sequence>);
-  split(path, "/", remove-if-empty: #f);
+  let parts = split(path, "/", remove-if-empty: #f);
+  map(percent-decode, parts);
 end;
 
 define method split-query
@@ -121,6 +122,7 @@ define method split-query
     let (qname, qvalue) = apply(values, split(part, "=",
                                               remove-if-empty: #f,
                                               count: 2));
+    qname := percent-decode(qname);
     // Right now "&foo=&" is different from &foo&.  The former sets the
     // qvalue to "" and the latter sets it to #t.  Does it matter?  Is
     // &foo& even valid?
@@ -349,6 +351,9 @@ end;
 
 
 begin
+  let foo = parse-url("http://baz.blub/pat%2fh/test?fo%20o=ba%2f%20r");
+  format-out("%s, %=,%s\n", foo.uri-query, foo.uri-path, foo);
+
 /*
   format-out("%s\n", split-query("foo=bar+blub&baz", replacements: list(pair("\\+", " ")))["foo"]);
 
