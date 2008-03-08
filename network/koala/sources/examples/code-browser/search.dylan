@@ -17,7 +17,7 @@ define class <result-page> (<code-browser-page>)
 end;
 
 define variable *result-page*
-  = make(<result-page>, source: "code-browser/results.dsp");
+  = make(<result-page>, source: "results.dsp");
   
 define body tag results in code-browser
     (page :: <code-browser-page>, do-body :: <function>)
