@@ -903,14 +903,7 @@ define inline function find-actions
   let responders = element(rmap, request.request-method, default: #f);
   if (responders)
     block (return)
-      let tail-path = request.request-tail-url.uri-path;
-      // This isn't using build-path:uri:uri because we don't want it
-      // percent encoded.
-      let url-tail = if (empty?(tail-path))
-                       ""
-                     else
-                       join(tail-path, "/")
-                     end;
+      let url-tail = build-path(request.request-tail-url);
       log-debug("url-tail: %=", url-tail);
       for (actions keyed-by regex in responders)
         log-debug("regex -> actions:  %= -> %=", regex.regex-pattern, actions);
