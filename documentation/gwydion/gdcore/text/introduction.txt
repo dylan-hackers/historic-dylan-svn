@@ -3,6 +3,14 @@ Title: Introduction
 
 These pages serve as a guide to the libraries included with Gwydion Dylan™.
 
+Skeleton pages were created using the Dylan-to-NaturalDocs toolkit at
+http://homepage.mac.com/d_j_v/FileSharing5.html and Dustin Voss filled in the
+details by hand consulting source code and other references.
+
+To contribute, edit the text files found in the Dylan Subversion repository at
+trunk/documentation/gwydion/gdcore. Upon check-in, these pages should
+regenerate automatically.
+
 
 Topic: Gwydion Dylan license
 ============================
