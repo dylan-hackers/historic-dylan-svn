@@ -23,7 +23,9 @@ end;
 
 define class <url> (<uri>) end;
 
-define method uri-authority (uri :: <uri>) => (result :: <string>);
+define method uri-authority
+    (uri :: <uri>)
+ => (result :: <string>);
   let result = "";
   unless (empty?(uri.uri-userinfo))
     result := concatenate(result, percent-encode(#"userinfo", uri.uri-userinfo), "@");
@@ -63,7 +65,9 @@ define constant $uri-regex :: <regex>
     = compile-regex("^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)"
                     "(\\?([^#]*))?(#(.*))?");
 
-define method parse-uri-as (class :: subclass(<uri>), uri :: <string>) => (result :: <uri>);
+define method parse-uri-as
+    (class :: subclass(<uri>), uri :: <string>)
+ => (result :: <uri>);
   let (uri, _scheme, scheme, _authority, authority,
        _userinfo, userinfo, host, _port, port,
        path, _query, query, _fragment, fragment)
@@ -100,7 +104,9 @@ define constant parse-url = curry(parse-uri-as, <url>);
 
 // relative / absolute
 
-define function relative? (uri :: <uri>) => (result :: <boolean>);
+define function relative?
+    (uri :: <uri>)
+ => (result :: <boolean>);
   empty?(uri.uri-scheme)
 end;
 
@@ -108,7 +114,9 @@ define constant absolute? = complement(relative?);
 
 // split parts 
 
-define method split-path (path :: <string>) => (parts :: <sequence>);
+define method split-path
+    (path :: <string>)
+ => (parts :: <sequence>);
   let parts = split(path, "/", remove-if-empty: #f);
   map(percent-decode, parts);
 end;
@@ -138,21 +146,32 @@ define method split-query
     else
       qvalue := #t;
     end if;
-    table[qname] := qvalue;
+    if (element(table, qname, default: #f))
+      table[qname] := if (instance?(table[qname], <string>))
+                        list(table[qname], qvalue);
+                      else
+                        pair(qvalue, table[qname]);
+                      end if;
+    else
+      table[qname] := qvalue;
+    end if;
   end for;
   table;
 end method split-query;
 
 define method as
-    (class == <string>, uri :: <uri>) => (result :: <string>)
+    (class == <string>, uri :: <uri>)
+ => (result :: <string>)
   build-uri(uri)
 end method as;
 
 // build-uri 
 
-define open generic build-uri (uri :: <uri>) => (result :: <string>); 
+define open generic build-uri (uri :: <uri>)  => (result :: <string>); 
 
-define method build-uri (uri :: <uri>) => (result :: <string>);
+define method build-uri
+    (uri :: <uri>)
+ => (result :: <string>);
   let result :: <string> = "";
   unless (empty?(uri.uri-scheme))
     result := concatenate(result, uri.uri-scheme, ":");
@@ -192,16 +211,14 @@ end;
 
 define open generic build-query (query :: <object>, #key) => (encoded-query :: <string>);
 
-define method build-query (uri :: <uri>, #key include :: <sequence> = #()) => (encoded-query :: <string>);
+define method build-query
+     (uri :: <uri>, #key include :: <sequence> = #())
+  => (encoded-query :: <string>);
   if (empty?(uri.uri-query)) "" else 
     let parts = make(<stretchy-vector>);
     for (value keyed-by key in uri.uri-query)
       key := percent-encode(#"query", key, include: include);
-      add!(parts, if (value == #t)
-                    key
-                  else
-                    concatenate(key, "=", percent-encode(#"query", value, include: include));
-                  end if);
+      add-key-value(parts, key, value, include: include);
     end for;
     join(parts, "&")
   end if; 
@@ -210,6 +227,32 @@ end;
 define method build-query (url :: <url>, #key) => (encoded-query :: <string>);
   next-method(url, include: #('+'));
 end;
+
+
+define method add-key-value
+    (parts :: <stretchy-vector>, key :: <string>, value :: <string>,
+     #key include :: <sequence> = #())
+ => (parts :: <stretchy-vector>);
+  add!(parts, concatenate(key, "=", percent-encode(#"query", value, include: include)));
+end;
+
+define method add-key-value
+    (parts :: <stretchy-vector>, key :: <string>, value == #t,
+     #key #all-keys)
+ => (parts :: <stretchy-vector>);
+  add!(parts, key);
+end;
+
+define method add-key-value
+    (parts :: <stretchy-vector>, key :: <string>, values :: <list>,
+     #key include :: <sequence> = #())	   
+ => (parts :: <stretchy-vector>);
+  for (value in values)
+    add-key-value(parts, key, value, include: include);
+  end for;
+  parts;
+end;
+
 
 // percent-encode
 
@@ -351,10 +394,14 @@ end;
 
 
 begin
+  let bar = "/foo?users=admin&users=1&users=2&members=3&members=4&comment=&add=Add";
+  let foo = parse-url(bar);
+  format-out("%=, %=\n", foo.uri-query["users"], foo.uri-query["members"]);
+  format-out("%s\n%s\n", bar, foo);
+/*
   let foo = parse-url("http://baz.blub/pat%2fh/test?fo%20o=ba%2f%20r");
   format-out("%s, %=,%s\n", foo.uri-query, foo.uri-path, foo);
 
-/*
   format-out("%s\n", split-query("foo=bar+blub&baz", replacements: list(pair("\\+", " ")))["foo"]);
 
   let uri = parse-uri("http://foo:bar@baz.blub:23/path/test/../page?fo%20=ba+r&q1=q2&q3=&q4#extra");
