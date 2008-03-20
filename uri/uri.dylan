@@ -392,13 +392,16 @@ define method print-message (uri :: <uri>, stream :: <stream>) => ();
   format(stream, "%s", build-uri(uri))
 end;
 
+/* 
+
+// example / usage / testing
 
 begin
   let bar = "/foo?users=admin&users=1&users=2&members=3&members=4&comment=&add=Add";
   let foo = parse-url(bar);
   format-out("%=, %=\n", foo.uri-query["users"], foo.uri-query["members"]);
   format-out("%s\n%s\n", bar, foo);
-/*
+
   let foo = parse-url("http://baz.blub/pat%2fh/test?fo%20o=ba%2f%20r");
   format-out("%s, %=,%s\n", foo.uri-query, foo.uri-path, foo);
 
@@ -408,44 +411,37 @@ begin
   let url = parse-url("http://foo:bar@baz.blub:23/path/test/../page?fo%20o=b+r&q1=q2&q3=&q4#extra");
   format-out("%=\n", uri.uri-query);
   format-out("%=\n", url.uri-query);
-*/
-/*
+
   format-out("%=\n", percent-decode("foo%20bar"));
   format-out("%=\n", percent-decode("%2"));
   format-out("%=\n", percent-decode("%"));
   format-out("%=\n", percent-decode("%rg"));
-*/
+
+  let uri = parse-uri("http://foo:bar@baz.blub:23/path/test/../page?foo=bar&q1=q2#extra");
+  format-out("%s\n", build-uri(uri)); 
+  uri := make(<uri>, scheme: "http", userinfo: "foo@bar:blub");
+  format-out("%s\n", build-uri(uri));
+  uri := make(<uri>, scheme: "http", host: "foobar", path: "/p1/p2/p3", query: "k1=v1&k2=v2");
+  last(uri.uri-path) := "foo/bar+baz";
+  format-out("%s\n", build-uri(uri));
+  let url = make(<url>, scheme: "http", host: "foobar", path: "/p1/p2/p3", query: "k1=v1&k2=v2");
+  last(url.uri-path) := "foo/bar+baz";
+  format-out("%s\n", build-uri(url));
+
+  let uri1 = parse-uri("http://foo.bar/test");
+  format-out("uri1: %=\n", uri);
+  format-out("uri1 (built): %=\n", build-uri(uri1));
+  let uri2 = make(<uri>, path: "../foo/../../bar");
+  format-out("uri2: %=\n", uri2);
+  format-out("uri2 (built): %=\n", build-uri(uri2));
+  let uri3 = transform-uris(uri1, uri2);
+  format-out("uri3: %=\n", uri3);
+  format-out("uri3 (built): %=\n", build-uri(uri3));
+
+  format-out("%s\n", build-uri(transform-uris(parse-uri("http://foo.bar/test"), make(<uri>, path: "../foo/../../bar"))));
+  format-out("%s\n", build-uri(transform-uris(parse-uri("http://foo.bar/test"), make(<uri>, path: "/foo/bar"))));
+
+  format-out("as: %s\n", as(<string>, parse-uri("http://foo?a=1&b=2#anchor")));
 end;
-
-
-/*
-let uri = parse-uri("http://foo:bar@baz.blub:23/path/test/../page?foo=bar&q1=q2#extra");
-format-out("%s\n", build-uri(uri)); 
-uri := make(<uri>, scheme: "http", userinfo: "foo@bar:blub");
-format-out("%s\n", build-uri(uri));
-uri := make(<uri>, scheme: "http", host: "foobar", path: "/p1/p2/p3", query: "k1=v1&k2=v2");
-last(uri.uri-path) := "foo/bar+baz";
-format-out("%s\n", build-uri(uri));
-let url = make(<url>, scheme: "http", host: "foobar", path: "/p1/p2/p3", query: "k1=v1&k2=v2");
-last(url.uri-path) := "foo/bar+baz";
-format-out("%s\n", build-uri(url));
-
-let uri1 = parse-uri("http://foo.bar/test");
-format-out("\n");
-format-out("uri1: %=\n", uri);
-format-out("uri1 (built): %=\n", build-uri(uri1));
-let uri2 = make(<uri>, path: "../foo/../../bar");
-format-out("\n");
-format-out("uri2: %=\n", uri2);
-format-out("uri2 (built): %=\n", build-uri(uri2));
-let uri3 = transform-uris(uri1, uri2);
-format-out("\n");
-format-out("uri3: %=\n", uri3);
-format-out("uri3 (built): %=\n", build-uri(uri3));
-
-//format-out("%s\n", build-uri(transform-uris(parse-uri("http://foo.bar/test"), make(<uri>, path: "../foo/../../bar"))));
-//format-out("%s\n", build-uri(transform-uris(parse-uri("http://foo.bar/test"), make(<uri>, path: "/foo/bar"))));
-
-format-out("as: %s\n", as(<string>, parse-uri("http://foo?a=1&b=2#anchor")));
 */
 
