@@ -102,7 +102,7 @@ define method print-s-expression (stream :: <stream>, expression :: <string>)
   format(stream, "%=", expression);
 end;
 
-define method print-s-expression (stream :: <stream>, expression :: <list>)
+define method print-s-expression (stream :: <stream>, expression :: <collection>)
   format(stream, "(");
   for (e in expression)
     print-s-expression(stream, e);
