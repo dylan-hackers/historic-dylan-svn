@@ -21,3 +21,15 @@ end method redirect-to;
 define method redirect-to (url :: <url>)
   redirect-to(build-uri(url));
 end;
+
+define open generic redirect-temporarily-to (object :: <object>);
+
+define method redirect-temporarily-to (url :: <string>)
+  let headers = current-response().response-headers;
+  add-header(headers, "Location", url);
+  moved-temporarily-redirect(headers: headers);
+end method redirect-to;
+
+define method redirect-temporarily-to (url :: <url>)
+  redirect-to(build-uri(url));
+end;

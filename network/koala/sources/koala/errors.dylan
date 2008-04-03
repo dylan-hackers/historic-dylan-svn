@@ -136,6 +136,11 @@ define http-error moved-permanently-redirect (<http-redirect-error>)
     "The requested document has moved permanently to %s",
     location;
 
+define http-error moved-temporarily-redirect (<http-redirect-error>)
+    302
+    "The document has moved temporarily to %s",
+    loction;
+
 define http-error see-other-redirect (<http-redirect-error>)
     303 "See Other";
 

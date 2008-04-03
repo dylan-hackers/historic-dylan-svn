@@ -176,7 +176,8 @@ define module koala
     count-query-values,
     application-error,
     current-url,
-    redirect-to;
+    redirect-to,
+    redirect-temporarily-to;
 
   // Virtual hosts
   create
@@ -260,6 +261,7 @@ define module koala
 
   create
     moved-permanently-redirect,
+    moved-temporarily-redirect,
     see-other-redirect,
     unauthorized-error;
 
