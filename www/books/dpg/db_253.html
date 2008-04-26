@@ -32,7 +32,7 @@ define class &lt;sorted-sequence&gt; (&lt;sequence&gt;)
   // smaller than another comparison value</em>
   constant slot comparison-function :: &lt;function&gt; = \&lt;,
     init-keyword: comparison-function:;
-    end class &lt;sorted-sequence&gt;; </pre></td></tr></table>
+end class &lt;sorted-sequence&gt;; </pre></td></tr></table>
 <p>Because is there is a well-defined ordering of the elements of sorted sequences, we choose <code>&lt;sequence&gt;</code> to be the superclass of <code>&lt;sorted-sequence&gt;</code>. We use the built-in collection class called <code>&lt;stretchy-vector&gt;</code> to store the elements of our sorted sequence, because we want to be able to have the sorted sequence grow to any size in a convenient way.</p>
 <p>The slots <code>comparison-function</code> and <code>value-function</code> are constant slots, because we intend to have clients specify these functions only when they create the sorted sequence. If we had decided to let clients change the value of these slots, we would have made the slots virtual, so that we could reorder the data vector after either function had changed. </p>
 <p>Now that we have covered the structure and initialization of the sorted sequence data structure, we can define basic collection methods.</p>
