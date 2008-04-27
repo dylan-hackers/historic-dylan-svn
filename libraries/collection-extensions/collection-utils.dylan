@@ -55,9 +55,9 @@ define method key-exists?
     (collection :: <collection>, key)
  => (key-exists? :: <boolean>, value :: <object>);
   let result = element(collection, key, default: $not-found);
-  if (result)
-    values(#t, result);
+  if (result == $not-found)
+    values(#f, #f);
   else
-    values(#f, result);
+    values(#t, result);
   end if;
 end method key-exists?;
