@@ -29,20 +29,3 @@ diff -u -r1.305 viewcvs.py
    return html
  
  def format_log(log):
-@@ -978,7 +982,7 @@
-     # version 1.6.2.
-     enscript_cmd = [os.path.normpath(os.path.join(cfg.options.enscript_path,
-                                                   'enscript')),
--                    '--color', '--language=html', '--pretty-print=' + lang,
-+                    '--color', '--language=html', '-E' + lang,
-                     '-o', self.temp_file, '-']
-     try:
-       copy_stream(fp, popen.pipe_cmds([enscript_cmd]))
-@@ -1113,6 +1117,7 @@
-   '.cxx' : 'cpp',
-   '.diff' : 'diffu',
-   '.dpr' : 'delphi',
-+  '.dylan' : 'dylan',
-   '.el' : 'elisp',
-   '.eps' : 'postscript',
-   '.f' : 'fortran',
