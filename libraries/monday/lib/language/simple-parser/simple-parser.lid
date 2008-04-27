@@ -1,7 +1,7 @@
 Library: simple-parser
 Unique-ID-Base: 24120
-Files: Dylan-user.dylan
-       simple-lexical-definition.dylan
-       simple-lexical-scanner.dylan
-       simple-parser-automaton.dylan
-       simple-parser-implementation.dylan
+Files: Dylan-user
+       simple-lexical-definition
+       simple-lexical-scanner
+       simple-parser-automaton
+       simple-parser-implementation

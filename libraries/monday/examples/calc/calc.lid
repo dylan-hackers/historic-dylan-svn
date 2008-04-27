@@ -1,4 +1,4 @@
 Library: calc
 Executable: calc
-Files: calc-exports.dylan
-       calc.dylan
+Files: calc-exports
+       calc

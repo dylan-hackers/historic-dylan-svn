@@ -1,9 +1,9 @@
 Library: simple-compiler
 Executable: simple-compiler
-Files: Dylan-user.dylan
-       p2k-lexer.dylan
-       p2k-rep.dylan
-       p2k-parser.dylan
-       p2k-cse.dylan
-       p2k-regalloc.dylan
-       p2k-test.dylan
+Files: Dylan-user
+       p2k-lexer
+       p2k-rep
+       p2k-parser
+       p2k-cse
+       p2k-regalloc
+       p2k-test
