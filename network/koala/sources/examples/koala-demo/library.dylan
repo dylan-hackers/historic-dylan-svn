@@ -2,7 +2,7 @@ Module:   dylan-user
 Synopsis: Koala example code
 Author:   Carl Gay
 
-define library koala-basics
+define library koala-demo
   use dylan;
   use common-dylan,
     import: { common-extensions };
@@ -15,7 +15,7 @@ define library koala-basics
 end;
 
 
-define module koala-basics
+define module koala-demo
   use dylan;
   use threads;
   use common-extensions,

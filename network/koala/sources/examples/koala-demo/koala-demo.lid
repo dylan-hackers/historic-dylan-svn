@@ -1,3 +1,3 @@
-library: koala-basics
+library: koala-demo
 files: library
        main

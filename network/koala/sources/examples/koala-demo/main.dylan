@@ -1,4 +1,4 @@
-Module:    koala-basics
+Module:    koala-demo
 Synopsis:  Examples of how to use the Koala HTTP server
 Author:    Carl Gay
 
@@ -10,9 +10,9 @@ You will probably have to fix the config file to make the dsp-root setting
 point at the directory containing the "demo" directory that has all the
 .dsp template files in it.
 
-Each page demonstrates a feature of Dylan Server Pages.  You should be able
-to find the code corresponding to a particular URL by searching for that
-URL in this file.  Some XML-RPC methods are defined near the bottom.
+Each page demonstrates a feature of Koala or Dylan Server Pages.  You should
+be able to find the code corresponding to a particular URL by searching for
+that URL in this file.  Some XML-RPC methods are defined near the bottom.
 
 Note that any URLs registered for dynamic pages hide URLs corresponding to
 files in the document root directory.  i.e., the dynamic URL takes precedence.
