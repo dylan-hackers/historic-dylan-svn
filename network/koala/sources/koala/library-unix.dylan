@@ -149,8 +149,7 @@ define module koala
 
   // Basic server stuff
   create
-    http-server,        // Get the active HTTP server object.
-    ensure-server,      // Get (or create) the active HTTP server object.
+    <http-server>,
     start-server,
     stop-server,
     <responder>,
@@ -163,7 +162,6 @@ define module koala
     *request*,                   // Holds the active request, per thread.
     current-request,             // Returns the active request of the thread.
     current-response,            // Returns the active response of the thread.
-    request-query-string,
     request-query-values,        // get the keys/vals from the current GET or POST request
     request-method,              // Returns #"get", #"post", etc
     request-host,
@@ -274,10 +272,6 @@ define module koala
     bad-request,
     request-url,
     request-tail-url;
-
-  // Debugging
-  create
-    print-object;
 
   // Files
   create
@@ -447,7 +441,9 @@ define module httpi                             // http internals
   use locators,
     rename: { <http-server> => <http-server-url>,
               <ftp-server> => <ftp-server-url>,
-              <file-server> => <file-server-url> };
+              <file-server> => <file-server-url>
+            },
+    exclude: { <url> };  // this comes from the uri library now.
   use dylan-extensions,
     import: { element-no-bounds-check,
               element-no-bounds-check-setter,
@@ -473,7 +469,6 @@ define module httpi                             // http internals
   use command-line-parser;
   use uri;
   use regular-expressions;
-
   use dsp;
 end module httpi;
 

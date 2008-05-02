@@ -20,7 +20,8 @@ define module koala-basics
   use threads;
   use common-extensions,
     exclude: { format-to-string };
-  use locators;
+  use locators,
+    exclude: { <http-server> };  // badly named
   use format;
   use streams;
   use dsp;

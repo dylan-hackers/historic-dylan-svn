@@ -591,6 +591,7 @@ end method precedes?;
 
 // SPLIT-AT -- split a sequence at a token.
 //
+// Replace with common-dylan:split.  --cgay
 define function split-at
     (sequence :: <sequence>, token, #key test = \=)
  => split-sequence :: <sequence>;

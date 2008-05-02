@@ -21,6 +21,14 @@ define class <uri> (<object>)
     init-keyword: fragment:;
 end;
 
+// FIXME -- Implement the following restrictions in the initialize method
+//          for the <uri> class...
+//   The scheme and path components are required, though the path may be
+//   empty (no characters).  When authority is present, the path must
+//   either be empty or begin with a slash ("/") character.  When
+//   authority is not present, the path cannot begin with two slash
+//   characters ("//").
+
 define class <url> (<uri>) end;
 
 define method uri-authority
@@ -178,7 +186,7 @@ define method build-uri
   end;
   unless (empty?(uri.uri-authority))
     result := concatenate(result, "//", uri.uri-authority);
-  end; 
+  end;
   result := concatenate(result, build-path(uri));
   unless (empty?(uri.uri-query))
     result := concatenate(result, "?", build-query(uri));

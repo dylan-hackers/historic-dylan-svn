@@ -18,23 +18,8 @@ define variable *debugging-server* :: <boolean> = #f;
 // and log files are kept.  Other pathnames are merged against this one, so if
 // they're relative they will be relative to this.  The server-root pathname is
 // relative to the koala executable, unless changed in the config file.
-define variable *server-root* :: false-or(<directory-locator>) = #f;
-
-define function ensure-server-root ()
-  when (~*server-root*)
-    let exe-dir = locator-directory(as(<file-locator>, application-filename()));
-    *server-root* := parent-directory(exe-dir);
-  end;
-end;
-
-define function init-server-root (#key location)
-  ensure-server-root();
-  when (location)
-    *server-root* := merge-locators(as(<directory-locator>, location),
-                                    *server-root*);
-  end;
-end;
-
+define variable *server-root* :: <directory-locator>
+  = parent-directory(locator-directory(as(<file-locator>, application-filename())));
 
 // TODO: The follow 3 should probably be per vhost.
 

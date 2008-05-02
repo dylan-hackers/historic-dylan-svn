@@ -149,8 +149,7 @@ define module koala
 
   // Basic server stuff
   create
-    http-server,        // Get the active HTTP server object.
-    ensure-server,      // Get (or create) the active HTTP server object.
+    <http-server>,
     start-server,
     stop-server,
     <responder>,
@@ -175,7 +174,8 @@ define module koala
     count-query-values,
     application-error,
     current-url,
-    redirect-to;
+    redirect-to,
+    redirect-temporarily-to;
 
   // Virtual hosts
   create
@@ -259,6 +259,7 @@ define module koala
 
   create
     moved-permanently-redirect,
+    moved-temporarily-redirect,
     see-other-redirect,
     unauthorized-error;
 
@@ -439,7 +440,9 @@ define module httpi                             // http internals
   use locators,
     rename: { <http-server> => <http-server-url>,
               <ftp-server> => <ftp-server-url>,
-              <file-server> => <file-server-url> };
+              <file-server> => <file-server-url>
+            },
+    exclude: { <url> };  // this comes from the uri library now.
   use dylan-extensions,
     import: { element-no-bounds-check,
               element-no-bounds-check-setter,
@@ -465,7 +468,6 @@ define module httpi                             // http internals
   use command-line-parser;
   use uri;
   use regular-expressions;
-
   use dsp;
 end module httpi;
 

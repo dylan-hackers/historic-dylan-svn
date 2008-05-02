@@ -5,7 +5,6 @@ Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-
 /*
  * TODO: Should warn when unrecognized attributes are used.
  *       Makes debugging your config file much easier sometimes.
@@ -14,13 +13,15 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define constant $koala-config-dir :: <string> = "config";
 define constant $koala-config-filename :: <string> = "koala-config.xml";
 
+define thread variable %dir = #f;
+
 // Holds the current vhost while config elements are being processed.
-define thread variable %vhost = $default-virtual-host;
+define thread variable %vhost = #f;
 
 define inline function active-vhost
     () => (vhost :: <virtual-host>)
-  if (%vhost == $default-virtual-host
-      & ~ *fall-back-to-default-virtual-host?*)
+  if (%vhost == default-virtual-host(*server*)
+        & ~ *fall-back-to-default-virtual-host?*)
     error("While processing the config file there was an attempt "
           "to set a value for the default virtual host, but fallback "
           "to the default virtual host is disabled so this is useless.  "
@@ -31,9 +32,6 @@ define inline function active-vhost
   end
 end;
 
-define thread variable %dir = root-directory-spec($default-virtual-host);
-
-
 // Process the server config file, config.xml.
 // Assume a user directory structure like:
 // koala/
@@ -42,13 +40,13 @@ define thread variable %dir = root-directory-spec($default-virtual-host);
 // koala/config            // koala-config.xml etc
 define method configure-server
     (config-file :: false-or(<string>))
-  init-server-root();
-  let defaults = merge-locators(merge-locators(as(<file-locator>, $koala-config-filename),
-                                               as(<directory-locator>, $koala-config-dir)),
-                                *server-root*);
-  let config-loc = as(<string>,
-                      merge-locators(as(<file-locator>, config-file | defaults),
-                                     defaults));
+  let defaults
+    = merge-locators(merge-locators(as(<file-locator>, $koala-config-filename),
+                                    as(<directory-locator>, $koala-config-dir)),
+                     *server-root*);
+  let config-loc
+    = as(<string>, merge-locators(as(<file-locator>, config-file | defaults),
+                                  defaults));
   block (return)
     let handler <error> = method (c :: <error>, next-handler :: <function>)
                             if (*debugging-server*)
@@ -65,7 +63,10 @@ define method configure-server
       // instead of just returning #f.
       let xml :: false-or(xml$<document>) = xml$parse-document(text);
       if (xml)
-        process-config-node(xml);
+        dynamic-bind (%vhost = default-virtual-host(*server*),
+                      %dir = root-directory-spec(default-virtual-host(*server*)))
+          process-config-node(xml);
+        end;
       else
         log-error("Unable to parse config file!");
         *abort-startup?* := #t;
@@ -100,7 +101,7 @@ end;
 
 // I think the XML parser's class hierarchy is broken.  It seems <tag>
 // should inherit from <node-mixin> so that one can descend the node
-// hierarchy seemlessly.
+// hierarchy seamlessly.
 define method process-config-node (node :: xml$<tag>) => ()
 end;
 
@@ -174,12 +175,11 @@ define method process-config-element
     (node :: xml$<element>, name == #"alias")
   let name = get-attr(node, #"name");
   if (name)
-    if ($virtual-hosts[name])
-      warn("There is already a virtual host named '%s'.  "
-             "Ignoring <ALIAS> element.");
-    else
+    block ()
       add-virtual-host(name, active-vhost());
-    end
+    exception (err :: <koala-api-error>)
+      warn("Invalid <ALIAS> element.  %s", err);
+    end;
   else
     warn("Invalid <ALIAS> element.  The 'name' attribute must be specified.");
   end;
@@ -224,26 +224,6 @@ define method process-config-element
 end;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"port")
-  let attr = get-attr(node, #"value");
-  if (attr)
-    block ()
-      let port = string-to-integer(attr);
-      if (port & positive?(port))
-        vhost-port(active-vhost()) := port;
-        log-info("VHost '%s': port = %d", vhost-name(active-vhost()), port);
-      else
-        error("jump to the exception clause :-)");
-      end;
-    exception (<error>)
-      warn("VHost '%s': Invalid port %=", vhost-name(active-vhost()), attr);
-    end;
-  else
-    warn("Invalid <PORT> spec.  The 'value' attribute must be specified.");
-  end;
-end;
-
-define method process-config-element
     (node :: xml$<element>, name == #"auto-register")
   bind (attr = get-attr(node, #"enabled"))
     iff(attr,
@@ -258,10 +238,10 @@ define method process-config-element
   // Note use of %vhost directly rather than active-vhost() here.
   // Don't want to blow out while setting *server-root* just because
   // the config doesn't allow fallback to the default vhost.
-  if (%vhost == $default-virtual-host)
+  if (%vhost == default-virtual-host(*server*))
     let loc = get-attr(node, #"location");
     if (loc)
-      init-server-root(location: loc);
+      *server-root* := merge-locators(as(<directory-locator>, loc), *server-root*);
       log-info("Server root set to %s", loc);
     else
       warn("Invalid <SERVER-ROOT> spec.  "

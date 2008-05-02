@@ -12,6 +12,6 @@ end;
 define module koala-app
   use dylan;
   use operating-system, import: { application-arguments };
-  use koala, import: { koala-main };
+  use koala, import: { koala-main, <http-server> };
 end;
 

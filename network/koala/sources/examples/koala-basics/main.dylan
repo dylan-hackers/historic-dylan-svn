@@ -359,8 +359,10 @@ end;
 
 begin
   // If you don't need to add any new command-line arguments you can just
-  // call koala-main directly.  It requires that you pass --config <filename>
-  // on the command line.
+  // call koala-main directly.  It allows you to pass --config <filename>
+  // and other args on the command line.  Use --help to see options.
+  // start-server can also be used directly if you want to do your own
+  // command-line parsing.
   koala-main();
 end;
 
