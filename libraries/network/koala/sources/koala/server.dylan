@@ -12,6 +12,7 @@ define constant $server-version = "0.4";
 
 // This may be set true by config file loading code, in which case
 // start-server will be a no-op.
+// todo -- Just raise an exception instead (or at least make this a thread variable).
 define variable *abort-startup?* :: <boolean> = #f;
 
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
@@ -64,19 +65,53 @@ define class <server> (<sealed-constructor>)
 
   slot connections-accepted :: <integer> = 0; // Connections accepted
   constant slot user-agent-stats :: <string-table> = make(<string-table>);
+
+  // The vhost used if the request host doesn't match any other virtual host.
+  // Note that the document root may be changed when the config file is
+  // processed, so don't use it except during request processing.
+  //
+  constant slot default-virtual-host :: <virtual-host>,
+    required-init-keyword: #"default-virtual-host";
+
 end class <server>;
 
 define sealed method make
-    (c == <server>, #rest keys, #key) => (server :: <server>)
+    (class == <server>, #rest keys, #key) => (server :: <server>)
   let lock = make(<lock>);
   let listeners-notification = make(<notification>, lock: lock);
   let clients-notification = make(<notification>, lock: lock);
-  apply(next-method, c,
+  let stdout-log = make(<stream-log-target>, stream: *standard-output*);
+  let vhost = make(<virtual-host>,
+                   name: "default",
+                   activity-log: stdout-log,
+                   debug-log: stdout-log,
+                   error-log: make(<stream-log-target>, stream: *standard-error*));
+  apply(next-method, class,
         lock: lock,
         listeners-notification: listeners-notification,
         clients-notification: clients-notification,
+        default-virtual-host: vhost,
         keys)
-end make;
+end method make;
+
+// API
+// The user instantiates this class directly, passing configuration options
+// as init args.  Using an alias for now instead of renaming <server>.  We'll
+// see how things progress.
+//
+define constant <http-server> = <server>;
+
+// API
+define method initialize
+    (server :: <http-server>,
+     #rest keys,
+     #key document-root: doc-root)
+  apply(next-method, remove-keys(keys, #"document-root"));
+  let vhost :: <virtual-host> = default-virtual-host(server);
+  if (doc-root)
+    document-root(vhost) := as(<directory-locator>, doc-root);
+  end;
+end;
 
 // Keep some stats on user-agents
 define method note-user-agent
@@ -176,6 +211,7 @@ define inline function request-port (request :: <basic-request>)
 end;
 */
 
+// todo -- make thread safe
 define variable *sockets-started?* :: <boolean> = #f;
 
 define function ensure-sockets-started ()
@@ -186,31 +222,23 @@ define function ensure-sockets-started ()
   end;
 end;
 
-define variable *server* :: <server> = make(<server>);
-define variable *server-lock* = make(<lock>); // overkill, but so what.
+define thread variable *server* :: false-or(<server>) = #f;
 
-define function ensure-server () => (server :: <server>)
-  with-lock (*server-lock*)
-    *server* | (*server* := make(<server>))
-  end
-end ensure-server;
-
-define function http-server () => (server :: <server>)
-  *server*
-end;
-
+// make thread variable
 define variable *next-listener-id* :: <integer> = 0;
 
 // This is called when the library is loaded (from main.dylan).
 define function init-server
-    (#key listeners :: <integer> = 1,
-     request-class :: subclass(<basic-request>)
-       = *default-request-class*,
-     config-file)
-  let server :: <server> = ensure-server();
+    (server :: <http-server>,
+     #key listeners :: <integer> = 1,
+          request-class :: subclass(<basic-request>) = *default-request-class*,
+          config-file :: false-or(<string>))
   server.max-listeners := listeners;
   server.request-class := request-class;
-  configure-server(config-file);
+  *server* := server;
+  if (config-file)
+    configure-server(config-file);
+  end;
   log-info("%s HTTP Server starting up", $server-name);
   ensure-sockets-started();  // TODO: Can this be moved into start-server?
   log-info("Server root directory is %s", *server-root*);
@@ -224,48 +252,44 @@ end init-server;
 // This is what client libraries call to start the server.
 //
 define function start-server
-    (#key config-file :: false-or(<string>))
+    (server :: <http-server>,
+     #key config-file :: false-or(<string>),
+          port :: false-or(<integer>),
+          background :: <boolean> = #f,
+          debug :: <boolean> = #f)
  => (started? :: <boolean>)
-  if (~config-file)
-    let args = application-arguments();
-    let pos = find-key(args, method (x) as-lowercase(x) = "--config" end);
-    if (pos & (args.size > pos + 1))
-      config-file := args[pos + 1];
-    end;
-  end if;
-  init-server(config-file: config-file);
+  *debugging-server* := debug;
+  init-server(server, config-file: config-file);
   if (*abort-startup?*)
     log-error("Server startup aborted due to the previous errors");
     #f
   else
-    let ports = #();
-    for (vhost keyed-by name in $virtual-hosts)
-      ports := add!(ports, vhost-port(vhost))
-    end;
-    if (*fall-back-to-default-virtual-host?*)
-      ports := add!(ports, vhost-port($default-virtual-host));
-    end;
-    if (empty?(ports))
-      log-error("No ports to listen on!  No virtual hosts were specified "
-                "in the config file and fallback to the default vhost is "
-                "disabled.");
-      #f
+    let listen-ip = vhost-ip(default-virtual-host(server));
+    local method start-server-internal ()
+            http-server-top-level(server, listen-ip, port | 80);
+          end;
+    if (background)
+      make(<thread>, function: start-server-internal, name: "HTTP Server");
     else
-      // temporary code...
-      let port = ports[0];
-      let ip = vhost-ip($default-virtual-host);
-      while (start-http-listener(*server*, port, ip))
-        *server-running?* := #t;
-      end;
-      // Apparently when the main thread dies in a FunDev Dylan application
-      // the application exits without waiting for spawned threads to die,
-      // so join-listeners keeps the main thread alive until all listeners die.
-      join-listeners(*server*);
-      *server-running?* := #f;
-      #t
-    end if
+      start-server-internal()
+    end;
+    #t
   end if
 end function start-server;
+
+define function http-server-top-level
+    (server :: <http-server>, listen-ip :: <string>, listen-port :: <integer>)
+  dynamic-bind (*server* = server)
+    while (start-http-listener(*server*, listen-port, listen-ip))
+      *server-running?* := #t;
+    end;
+    // Apparently when the main thread dies in an Open Dylan application
+    // the application exits without waiting for spawned threads to die,
+    // so join-listeners keeps the main thread alive until all listeners die.
+    join-listeners(*server*);
+    *server-running?* := #f;
+  end;
+end function http-server-top-level;
 
 define function join-listeners
     (server :: <server>)
@@ -283,18 +307,15 @@ define function join-listeners
   end;
 end;
 
-// If there's ever a UI, it should have a button to call this.
-//
-define function stop-server (#key abort)
-  let server = *server*;
-  when (server)
-    abort-listeners(server);
-    when (~abort)
-      join-clients(server);
-    end;
-    abort-clients(server);
+// API
+define function stop-server
+    (server :: <http-server>, #key abort)
+  abort-listeners(server);
+  when (~abort)
+    join-clients(server);
   end;
-end;
+  abort-clients(server);
+end function stop-server;
 
 define function abort-listeners (server :: <server>)
   iterate next ()
@@ -349,8 +370,9 @@ define function join-clients (server :: <server>, #key timeout)
   end;
 end join-clients;
 
-define function start-http-listener (server :: <server>, port :: <integer>, ip :: <string>)
-   => (started? :: <boolean>)
+define function start-http-listener
+    (server :: <server>, port :: <integer>, ip :: <string>)
+ => (started? :: <boolean>)
   let server-lock = server.server-lock;
   let listener = #f;
   local method run-listener-top-level ()
@@ -373,7 +395,8 @@ define function start-http-listener (server :: <server>, port :: <integer>, ip :
       log-debug("Creating a new listener thread.");
       let socket = make(<server-socket>, host: ip, port: port);
       let thread = make(<thread>,
-                        name: format-to-string("HTTP Listener #%s/%d", *next-listener-id*, port),
+                        name: format-to-string("HTTP Listener #%s/%d",
+                                               *next-listener-id*, port),
                         function: run-listener-top-level);
       wrapping-inc!(*next-listener-id*);
       listener := make(<listener>,
@@ -532,6 +555,29 @@ end;
 define variable *default-request-class* :: subclass(<basic-request>) = <request>;
 
 define thread variable *request* :: false-or(<request>) = #f;
+
+define method virtual-host
+    (request :: <request>) => (vhost :: false-or(<virtual-host>))
+  let host-spec = request-host(request);
+  if (host-spec)
+    let colon = char-position(':', host-spec, 0, size(host-spec));
+    let host = iff(colon, substring(host-spec, 0, colon), host-spec);
+    let vhost = virtual-host(host)
+                  | (*fall-back-to-default-virtual-host?*
+                       & default-virtual-host(*server*));
+    if (vhost)
+      vhost
+    else
+      // todo -- see if the spec says what error to return here.
+      resource-not-found-error(url: request.request-url);
+    end;
+  elseif (*fall-back-to-default-virtual-host?*)
+    default-virtual-host(*server*)
+  else
+    resource-not-found-error(url: request.request-url);
+  end
+end;
+
 define thread variable *response* :: false-or(<response>) = #f;
 
 define inline function current-request  () => (request :: <request>) *request* end;
@@ -540,7 +586,8 @@ define inline function current-response () => (response :: <response>) *response
 // Called (in a new thread) each time an HTTP request is received.
 define function handler-top-level
     (client :: <client>)
-  dynamic-bind (*request* = #f)
+  dynamic-bind (*request* = #f,
+                *server* = client.client-server)
     block (exit-request-handler)
       while (#t)                      // keep alive loop
         let request :: <basic-request>
@@ -602,11 +649,18 @@ define method read-request (request :: <request>) => ()
   let socket = request.request-socket;
   let server = request.request-server;
   let (buffer, len) = read-request-line(socket);
-  when (empty-line?(buffer, len))
-    // RFC 2616, 4.1 - Servers SHOULD ignore an empty line if received before any headers.
+
+  // RFC 2616, 4.1 - "Servers SHOULD ignore an empty line(s) received where a
+  // Request-Line is expected."  Clearly you have to give up at some point so
+  // we arbitrarily allow 5 blank lines.
+  let line-count :: <integer> = 0;
+  while (empty-line?(buffer, len))
+    if (line-count > 5)
+      bad-request(message: "No Request-Line received.");
+    end;
     pset (buffer, len) read-request-line(socket) end;
   end;
-  log-info("%s", substring(buffer, 0, len));
+
   read-request-first-line(request, buffer);
   unless (request.request-version == #"http/0.9")
     request.request-headers
@@ -622,24 +676,25 @@ define method read-request (request :: <request>) => ()
   end select;
 end method read-request;
 
-
-// Read first line of the HTTP request.  RFC 2068 Section 5.1
+// FIXME: It seems like a bad idea to me to use a regex here as it will allocate
+// a lot and is probably much slower than the direct approach.  --cgay
 define constant $request-line-regex :: <regex>
   = compile-regex("^([!#$%&'\\*\\+-\\./0-9A-Z^_`a-z\\|~]+) "
                   "(\\S+) "
                   "(HTTP/\\d+\\.\\d+)");
 
+// Read the Request-Line.  RFC 2616 Section 5.1
+//
 define function read-request-first-line
     (request :: <request>, buffer :: <string>)
  => ()
-  let (entire-match, http-method, url, http-version) =
-     regex-search-strings($request-line-regex, buffer);
-  log-debug("%= %= %=", http-method, url, http-version);
+  let (entire-match, http-method, url, http-version)
+    = regex-search-strings($request-line-regex, buffer);
   if (entire-match)
     request.request-method := as(<symbol>, http-method);
     let url = parse-url(url);
-    // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
-    // Absolute URLs in the request line take precedence over Host header.
+    // RFC 2616, 5.2 -- absolute URLs in the request line take precedence
+    // over Host header.
     if (absolute?(url))
       request.request-host := url.uri-host;   
     end if;
@@ -656,7 +711,8 @@ define function read-request-first-line
     end for;
     request.request-version := extract-request-version(http-version);
   else
-    invalid-request-line-error();
+    // Using regex means this error message has to be vague.
+    bad-request(message: "Invalid request line");
   end if;
 end function read-request-first-line;
 
@@ -829,16 +885,14 @@ define method process-incoming-headers (request :: <request>)
   end;
   bind (host = get-header(request, "Host"))
     if (~host & request.request-version == #"HTTP/1.1")
-      // HTTP/1.1 requests MUST include a Host header.
-      // http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.6.1.1
+      // RFC 2616, 19.6.1.1 -- HTTP/1.1 requests MUST include a Host header.
       bad-request(message: "HTTP/1.1 requests must include a Host header.");
     end;
-    // If request host is already set then there was an absolute URL in the request
-    // line, which takes precedence, so ignore Host header here.
-    // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
+    // RFC 2616, 5.2 -- If request host is already set then there was an absolute
+    // URL in the request line, which takes precedence, so ignore Host header here.
     if (host & ~request.request-host)
       request.request-host := host;
-      log-debug("Request host is '%s'", request.request-host);
+      log-debug("Request host set from Host header to: %s", request.request-host);
     end;
   end;
   bind (agent = request-header-value(request, #"user-agent"))
@@ -888,7 +942,6 @@ define method invoke-handler (request :: <request>) => ()
        resource-not-found-error(url: url);
      end if;
     else
-      log-debug("Maybe serve static file");
       // generates 404 if not found
       maybe-serve-static-file();
     end if;
@@ -1068,3 +1121,4 @@ define method do-query-values
     f(key, val);
   end;
 end;
+

@@ -337,8 +337,11 @@ define function parse-http-date (str :: <byte-string>,
     let pos = token-end-position(str, bpos, epos) | epos;
     unless (pos == bpos | i == 8)
       v[i] := string->integer(str, bpos, pos) | substring(str, bpos, pos);
-      let bpos = if (pos == epos | str[pos] == ';') epos
-                 else skip-whitespace(str, pos + 1, epos) end;
+      let bpos = if (pos == epos | str[pos] == ';')
+                   epos
+                 else
+                   skip-whitespace(str, pos + 1, epos)
+                 end;
       if (bpos ~== epos)
         loop(bpos, i + 1)
       else

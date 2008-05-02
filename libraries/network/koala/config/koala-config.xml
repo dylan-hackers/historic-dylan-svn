@@ -121,12 +121,8 @@
 <default-virtual-host enabled="yes"/>
 
 
-<!-- Port on which to listen for HTTP requests.  Note that at top-level,
-     the <port> element applies to the default virtual host.
-  -->
-<port value="8001" />
-
-<!-- Listen IP on which to listen for HTTP requests. Same as port -->
+<!-- Listen IP on which to listen for HTTP requests. Note that at
+     top-level the <port> element applies to the default virtual host. -->
 <!-- <listen-ip value="192.168.42.23" /> -->
 
 <!-- location of the mime-type file -->
@@ -190,11 +186,6 @@
 
     <document-root location = "www/127.0.0.1" />
 
-    <!-- For now, all virtual hosts must share the same port, so the
-         port here has to match the port for the default vhost.
-         This will eventually be fixed. -->
-
-    <port value="8001" />
     <directory pattern = "/"
                allow-directory-listing = "no" />
 

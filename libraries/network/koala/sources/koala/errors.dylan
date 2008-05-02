@@ -7,9 +7,6 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-// TODO: I cannot stand the http-error-definer macro.  Ditch it or fix it.
-//       Also, most of the error classes should be exported.
-
 // See RFC 2616, 6.1.1
 
 define class <koala-error> (<format-string-condition>, <error>)
@@ -61,37 +58,25 @@ define method http-error-code (e :: <error>)
   $application-error-code
 end;
 
-// NOTE: It's important that condition-to-string return a string with no CRLF in it
-// since this string will be sent directly back to the client in the response line.
-define method http-error-message (e :: <error>)
-  $application-error-message
-end;
-
-define method http-error-message (e :: <http-error>)
-  let msg = condition-to-string(e);
-  let pos = char-position($cr, msg, 0, size(msg)) | char-position($lf, msg, 0, size(msg));
-  iff(pos,
-      substring(msg, 0, pos),
-      msg)
-end;
-
 // This is for sending to the client
 define method http-error-message-no-code
-    (e :: <http-error>) => (msg :: false-or(<string>))
-  apply(format-to-string, condition-format-string(e), condition-format-arguments(e))
+    (error :: <http-error>) => (msg :: false-or(<string>))
+  apply(format-to-string,
+        condition-format-string(error),
+        condition-format-arguments(error))
 end;
 
 define method http-error-message-no-code
-    (e :: <error>) => (msg :: <string>)
+    (error :: <error>) => (msg :: <string>)
   "An unhandled application error was encountered."
 end method http-error-message-no-code;
 
 // This is for logging.
 define method condition-to-string
-    (e :: <http-error>) => (s :: <string>)
+    (error :: <http-error>) => (s :: <string>)
   format-to-string("%d %s",
-                   http-error-code(e),
-                   http-error-message-no-code(e))
+                   http-error-code(error),
+                   http-error-message-no-code(error))
 end;
 
 // Error codes 3xx
@@ -139,7 +124,7 @@ define http-error moved-permanently-redirect (<http-redirect-error>)
 define http-error moved-temporarily-redirect (<http-redirect-error>)
     302
     "The document has moved temporarily to %s",
-    loction;
+    location;
 
 define http-error see-other-redirect (<http-redirect-error>)
     303 "See Other";
@@ -159,18 +144,8 @@ define http-error bad-request (<http-parse-error>)
     400 "Bad request: %s",
     message;
 
-define http-error invalid-url-error (<http-parse-error>)
-    400 "Invalid request url: %=",
-    url;
-
-define http-error invalid-url-encoding-error (<http-parse-error>)
-    400 "Invalid digits following %% in urlencoded string";
-
 define http-error bad-header-error (<http-parse-error>)
     400 "Malformed syntax in message header";
-
-define http-error invalid-request-line-error (<http-parse-error>)
-    400 "Malformed syntax in request line";
 
 // Response MUST include WWW-Authenticate header
 define http-error unauthorized-error (<http-client-error>)

@@ -49,7 +49,7 @@ define module storage
     setup,
     restore,
     restore-newest,
-    version,
+    //version,
     storage-type,
     key;
 end;
@@ -101,7 +101,7 @@ define module users
   use web-framework-macro;
 
   //user stuff
-  export <access-level>;
+  //export <access-level>;
 
   export <user>,
     username,
@@ -116,8 +116,8 @@ define module users
     find-user,
     authenticate,
     login,
-    logout,
-    valid-user?;
+    logout;
+    //valid-user?;
 end;
 
 define module change
@@ -248,7 +248,8 @@ define module permission
 end;
 
 define module web-framework
-  use common-dylan;
+  use common-dylan,
+    exclude: { format-to-string };
   use object-table;
   use simple-xml;
   use koala;

@@ -113,19 +113,19 @@ define abstract class <content> (<object>)
 end;
 
 define class <raw-content> (<content>)
-  inherited slot type :: <string> = "raw";
+  inherited slot type = "raw";
 end;
 
 define class <textile-content> (<content>)
-  inherited slot type :: <string> = "textile";
+  inherited slot type = "textile";
 end;
 
 define class <markup-content> (<content>)
-  inherited slot type :: <string> = "markup";
+  inherited slot type = "markup";
 end;
 
 define class <xhtml-content> (<content>)
-  inherited slot type :: <string> = "xhtml";
+  inherited slot type = "xhtml";
 end;
 
 /*

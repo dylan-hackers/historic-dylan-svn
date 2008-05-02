@@ -67,7 +67,7 @@ end test split-string-2;
 define test split-string-3
     (description: "Split a string with trailing comma")
   let result = split-at("a,bc,def,", ',');
-  check-equal("Split contains three elements", 4, result.size);
+  check-equal("Split contains four elements", 4, result.size);
   check-equal("First string is \"a\"", "a", result[0]);
   check-equal("Second string is \"bc\"", "bc", result[1]);
   check-equal("Thrid string is \"def\"", "def", result[2]);

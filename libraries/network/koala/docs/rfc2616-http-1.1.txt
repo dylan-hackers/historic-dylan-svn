@@ -1,4 +1,7 @@
+[---*** cgay
 
+I'm adding comments to this as I go.  Each will be marked like the
+above, with ---*** and the commenter's name, inside square brackets.]
 
 
 
@@ -1363,6 +1366,11 @@ RFC 2616                        HTTP/1.1                       June 1999
    client.
 
 3.6.1 Chunked Transfer Coding
+
+[---*** cgay
+I think this means we can have a pool of fixed-size buffers for the output
+stream and send data in chunks to any client that claims to support
+chunked xfer.  Currently we buffer everything, no matter how big.]
 
    The chunked encoding modifies the body of a message in order to
    transfer it as a series of chunks, each with its own size indicator,

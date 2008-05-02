@@ -45,9 +45,9 @@ end document-location;
 define method maybe-serve-static-file ()
   let request = current-request();
   let response = current-response();
-  let url = build-uri(request.request-url);
-  let document :: false-or(<physical-locator>) 
-    = static-file-locator-from-url(url);
+  // Just use the path, not the host, query, or fragment.
+  let url = build-path(request.request-url);
+  let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
   log-debug("Requested document is %s", document);
   if (~document)
     log-info("%s not found", url);
@@ -103,8 +103,8 @@ define method maybe-serve-static-file ()
   end if;
 end method maybe-serve-static-file;
 
-// @returns the appropriate locator for the given URL, or #f if the URL is 
-// invalid (for example it doesn't name an existing file below the document root).
+// Returns the appropriate locator for the given URL, or #f if the URL doesn't
+// name an existing file below the document root.
 // If the URL names a directory this checks for an appropriate default document
 // such as index.html and returns a locator for that, if found.
 //

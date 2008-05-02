@@ -1,5 +1,7 @@
 Module:    utilities
-Synopsis:  String utilities
+Synopsis:  Low-level string utilities for HTTP request parsing etc.
+           These should be as fast as possible.  In general we're dealing
+           with the US ASCII charset for HTTP so <byte-string> suffices.
 Author:    Gail Zacharias, Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
            Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
@@ -101,21 +103,31 @@ define function trim
   end;
 end;
 
+// RFC 2616, 2.2
+define constant $token-character-map
+  = begin
+      let vec = make(<vector>, size: 128, fill: #t);
+      let separator-chars = "()<>@,;:\\\"/[]?={} \t";
+      for (char in separator-chars)
+        vec[as(<integer>, char)] := #f;
+      end;
+      // US ASCII control characters...
+      for (code from 0 to 32)
+        vec[code] := #f;
+      end;
+      vec[127] := #f;   // DEL
+      vec
+    end;
 
-// Ugh. should look up in a table...
-define inline function non-token-char? (ch :: <byte-character>)
-  let c = as(<integer>, ch);
-  c <= 32 | c >= 127 |
-  c == as(<integer>, '"') |
-  c == as(<integer>, '(') |
-  c == as(<integer>, ')') |
-  c == as(<integer>, ',') |
-  c == as(<integer>, '/') |
-  c == as(<integer>, '/') |
-  c == as(<integer>, '{') |
-  c == as(<integer>, '}') |
-  (as(<integer>, ':') <= c & c <= as(<integer>, '@')) |  // ":;<=>?@"
-  (as(<integer>, '[') <= c & c <= as(<integer>, ']'))   // "[\]"
+define inline function token-char?
+    (char :: <byte-character>) => (token-char? :: <boolean>)
+  let code :: <integer> = as(<integer>, char);
+  code <= 127 & $token-character-map[code]
+end;
+
+define inline function non-token-char?
+    (char :: <byte-character>) => (non-token-char? :: <boolean>)
+  ~token-char?(char)
 end;
 
 define function token-end-position (buf :: <byte-string>,

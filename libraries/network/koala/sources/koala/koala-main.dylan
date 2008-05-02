@@ -5,28 +5,19 @@ Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-//// Testing
-
-define constant $debugging-koala :: <boolean> = #f;
-
-define function test-koala
-    () => ()
-  // Nothing yet...
-end;
-
-
 //// Initialization
 
 define function init-koala ()
-  when ($debugging-koala)
-    test-koala();
-  end;
-
   add-option-parser-by-type(*argument-list-parser*,
                             <parameter-option-parser>,
                             description: "Location of the koala configuration file",
                             long-options: #("config"),
                             short-options: #("c"));
+  add-option-parser-by-type(*argument-list-parser*,
+                            <parameter-option-parser>,
+                            description: "Port number on which to listen",
+                            long-options: #("port"),
+                            short-options: #("p"));
   add-option-parser-by-type(*argument-list-parser*,
                             <simple-option-parser>,
                             description: "Display this help message",
@@ -37,16 +28,22 @@ define function init-koala ()
                             description: "Enable debugging.  Causes Koala to not handle "
                                          "most errors during request handling.",
                             long-options: #("debug"));
-
-  //init-server();
 end;
 
 begin
   init-koala();
 end;
 
+// A "main" function for web apps that want to start up Koala in the foreground
+// with a standardized command-line.
 // This is defined here rather than in koala-app because wiki needs it too.
-define function koala-main ()
+//
+define function koala-main
+    (#key server :: false-or(<http-server>),
+          debug :: <boolean>,
+          port :: false-or(<integer>),
+          config-file :: false-or(<string>))
+ => ()
   let parser = *argument-list-parser*;
   parse-arguments(parser, application-arguments());
   if (option-value-by-long-name(parser, "help")
@@ -58,9 +55,11 @@ define function koala-main ()
                    usage: "koala [options]",
                    description: desc);
   else
-    if (option-value-by-long-name(parser, "debug"))
-      *debugging-server* := #t;
-    end;
-    start-server(config-file: option-value-by-long-name(parser, "config"));
+    start-server(server | make(<http-server>),
+                 config-file: option-value-by-long-name(parser, "config"),
+                 port: string-to-integer(option-value-by-long-name(parser, "port")
+                                         | "80"),
+                 debug: option-value-by-long-name(parser, "debug"));
   end;
 end function koala-main;
+

@@ -28,7 +28,7 @@ define method redirect-temporarily-to (url :: <string>)
   let headers = current-response().response-headers;
   add-header(headers, "Location", url);
   moved-temporarily-redirect(headers: headers);
-end method redirect-to;
+end method redirect-temporarily-to;
 
 define method redirect-temporarily-to (url :: <url>)
   redirect-to(build-uri(url));
