@@ -1,2 +1,2 @@
-<h1 align="center">Dylan Server Pages Demo</h1>
+<h1 align="center">Koala Demo</h1>e
 <hr noshade width="90%">
