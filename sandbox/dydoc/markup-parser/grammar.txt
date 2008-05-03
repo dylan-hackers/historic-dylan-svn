@@ -1,0 +1,332 @@
+http://en.wikipedia.org/wiki/Parsing_expression_grammar
+
+Primitive tokens are:
+  SOL         - Start of line. Doesn't consume any characters.
+  SOL-IND     - A number of spaces equal to the current indent level.
+  NEW-SOL-IND - A number of spaces, setting a new indent level.
+  EOS         - End of stream
+  LS          - Unicode LS/PS, CR, LF, CRLF
+  CHAR        - Any character, including LS characters
+  NUMBER      - One or more digits
+  ORDINAL     - Character in a progressive sequence (i.e. "a..z")
+
+All tabs should be converted to spaces before parsing. Strings are
+case-insensitive. There are no escape sequences; use '...' [unq] for that
+effect.
+
+Parsing constraints that I can't (or won't) express in the grammar:
+  - Tables.
+  - Some quote options are ignored in titles or other places.
+  - Link names, words, and phrases could be further specified into topic
+    titles, nicknames, and URLs.
+    
+Note that literal strings should be sorted from largest to smallest to reflect
+the greedy parsing.
+
+
+markup-block:
+  ( topic / flush-content )+ SPC-OR-LS* EOS
+
+topic:
+  topic-directive / titled-topic
+topic-directive:
+  topic-directive-spec topic-content?
+titled-topic:
+  topic-title topic-content?
+
+topic-directive-spec:
+  ascii-overline? SOL-IND ascii-line? topic-directive-spec-text ':' SPC* 
+  text-til-spc-ascii-ls ascii-line? SPC-LS ascii-underline?
+
+topic-title:
+  topic-title-style-midline-style / topic-title-bare-style
+topic-title-style-midline-style:
+  ascii-overline?
+  ( title-midline-line* title-midline-nickname-line / title-midline-line )
+  ascii-underline?
+topic-title-bare-style:
+  ascii-overline?
+  ( title-bare-line* title-bare-nickname-line / title-bare-line )
+  ascii-underline
+title-midline-line:
+  !title-midline-nickname-line
+  SOL-IND ascii-line SPC+ ( !ascii-line !SPC-LS title-word SPC* )+ ascii-line? SPC-LS
+title-bare-line:
+  !title-bare-nickname-line
+  SOL-IND ( !SPC-LS title-word SPC* )+ SPC-LS
+title-midline-nickname-line:
+  SOL-IND ascii-line SPC+ ( !ascii-line !'[' title-word SPC* )*
+  ( ascii-line SPC+ )? [-SPC nickname-word SPC-] SPC-LS
+title-bare-nickname-line:
+  SOL-IND ( !'[' title-word SPC* )* [-SPC nickname-word SPC-] SPC-LS
+
+topic-content:
+  ( section-directive / flush-content / footnote )+
+section-directive:
+  paragraph-directive / link-directive / links-directive /
+  indented-directive / null-directive
+footnote:
+  SOL-IND [-SPC ( NUMBER / ORDINAL ) ( SPC-] ':' / ':' SPC-] )
+  SPC+ markup-words? LS flush-content?
+
+flush-content:
+  flush-content-at-level+
+flush-content-at-level:
+  &NEW-SOL-IND? lines-content
+indented-content:
+  &NEW-SOL-IND flush-content
+
+lines-content:
+  line-content+
+line-content: 
+  !eos !topic-directive-spec !topic-title !section-directive !footnote
+  ( blank-lines / marginal-code-block / marginal-verbatim-block /
+  figure-ref-line / content-ref-line / ditto-ref-line / bracketed-raw-block /
+  table / bullet-list / numeric-list / hyphenated-list / phrase-list /
+  paragraph )
+paragraph:
+  paragraph-line+
+paragraph-til-null-directive:
+  ( !null-directive-spec paragraph-line )+
+bracketed-line:
+  &'[' ( figure-ref-line / content-ref-line / ditto-ref-line /
+  bracket-raw-block-start-line )
+  
+marginal-code-block:
+  marginal-code-block-line+
+marginal-verbatim-block:
+  marginal-verbatim-block-line+
+bullet-list:
+  bullet-list-first-item ( blank-lines? bullet-list-item )*
+numeric-list:
+  numeric-list-first-item ( blank-lines? numeric-list-item )*
+phrase-list:
+  phrase-list-item ( blank-lines? phrase-list-item )*
+hyphenated-list:
+  hyphenated-list-item ( blank-lines? hyphenated-list-item )*
+table:
+  table-header table-row* table-footer
+figure-ref-line:
+  SOL-IND [-SPC "FIG" SPC-OR-LS+ filename ( SPC-OR-LS+
+  ( perc-scale / mult-scale ) )? SPC-] text-til-spc-ls? SPC-LS
+content-ref-line:
+  SOL-IND [-SPC "CONTENTS" ( SPC-OR-LS+ "OF" SPC-OR-LS+ link-til-end-brack )?
+  SPC-] SPC-LS
+ditto-ref-line:
+  SOL-IND [-SPC "DITTO" SPC-OR-LS+ link-til-end-brack SPC-] SPC-LS
+api-list-ref-line:
+  SOL-IND [-SPC "LIST" SPC-OR-LS+ "OF" SPC-OR-LS+ api-list-spec-text SPC-] SPC-LS
+bracketed-raw-block:
+  bracketed-raw-block-start-line
+  ( SOL-IND !bracketed-raw-block-end-line raw-line )*
+  bracketed-raw-block-end-line
+blank-lines:
+  ( SOL SPC-LS )+
+
+bullet-list-item:
+  bullet-list-line indented-content?
+bullet-list-item:
+  bullet-list-line indented-content?
+numeric-list-first-item:
+  numeric-list-first-line indented-content?
+numeric-list-item:
+  numeric-list-line indented-content?
+hyphenated-list-item:
+  hyphenated-list-line indented-content?
+phrase-list-item:
+  phrase-list-label indented-content
+  
+paragraph-line:
+  !blank-lines !bracketed-line !marginal-code-block !marginal-verbatim-block
+  !bullet-list-line !numeric-list-first-line !hyphenated-list-line
+  SOL-IND markup-words SPC-LS
+paragraph-line-til-hyphen-spc-ls:
+  !blank-lines !bracketed-line !marginal-code-block !marginal-verbatim-block
+  !bullet-list-line !numeric-list-first-line !hyphenated-list-line
+  SOL-IND ( !( '-' SPC-LS ) markup-word spaces )+ ( &'-' / LS )
+
+bracketed-raw-block-start-line:
+  SOL-IND [-SPC bracketed-raw-block-spec-text SPC-] SPC-LS
+bracketed-raw-block-end-line:
+  SOL-IND [-SPC "END" ( SPC-OR-LS+ bracketed-raw-block-spec-text )? SPC-] SPC-LS
+table-header:
+  SOL-IND ...
+table-row:
+  SOL-IND ...
+table-footer:
+  SOL-IND ...
+
+marginal-code-block-line:
+  SOL-IND ':' SPC raw-line
+marginal-verbatim-block-line:
+  SOL-IND ( '>' / '|' ) SPC raw-line
+bullet-list-line:
+  SOL-IND bullet-char SPC+ markup-words LS
+numeric-list-first-line:
+  SOL-IND ( NUMBER / ORDINAL ) ( ':' / ')' / '.' ) SPC+ markup-words LS
+numeric-list-line:
+  SOL-IND ( NUMBER / ORDINAL / '#' ) ( ':' / ')' / '.' ) SPC+ markup-words LS
+hyphenated-list-line:
+  SOL-IND markup-word SPC+ '-' spaces markup-words LS
+phrase-list-label:
+  !topic-directive-spec !topic-title !section-directive !footnote
+  paragraph-line-til-hyphen-spc-ls+ hyphen SPC-LS
+  
+raw-line:
+  ( !raw-line-end CHAR )* raw-line-end
+raw-line-end:
+  line-marker? SPC-LS
+line-marker:
+  '[' ':' ( NUMBER / ORDINAL ) ']'
+perc-scale:
+  NUMBER '%'
+mult-scale:
+  NUMBER 'X'
+
+paragraph-directive:
+  paragraph-directive-spec markup-words? SPC-LS paragraph-til-null-directive?
+link-directive:
+  link-directive-spec link-til-spc-ls SPC-LS
+links-directive:
+  links-directive-spec link-words* SPC-LS indented-link-words?
+indented-directive:
+  indented-directive-spec markup-words? SPC-LS indented-content?
+null-directive:
+  null-directive-spec markup-words? SPC-LS flush-content?
+
+paragraph-directive-spec:
+  ascii-overline? SOL-IND paragraph-directive-spec-text ':' SPC*
+  ( LS ascii-underline )?
+link-directive-spec:
+  ascii-overline? SOL-IND link-directive-spec-text ':' SPC*
+  ( LS ascii-underline )?
+links-directive-spec:
+  ascii-overline? SOL-IND links-directive-spec-text ':' SPC*
+  ( LS ascii-underline )?
+indented-directive-spec:
+  ascii-overline? SOL-IND indented-directive-spec-text ':' SPC*
+  ( LS ascii-underline )?
+null-directive-spec:
+  ascii-overline? SOL-IND null-directive-spec-text ':' SPC*
+  ( LS ascii-underline )?
+
+markup-words:
+  ( markup-word SPC* )+
+markup-word:
+  title-word / api-ref / marker-ref / synopsis-ref
+title-word:
+  image-ref / quote / bracketed-render-block / text-til-spc-or-ls
+
+ascii-overline:
+  SOL-IND ascii-line SPC-LS
+ascii-underline:
+  SOL-IND ascii-line SPC-LS
+ascii-line:
+  SOL-IND ascii-line-char ascii-line-char ascii-line-char+ SPC-LS
+image-ref:
+  [-SPC "IMG" SPC-OR-LS+ filename ( SPC-OR-LS+ text-til-spc-cls-brack )? SPC-]
+marker-ref:
+  [-SPC ( NUMBER / ORDINAL ) SPC-]
+bracketed-render-block:
+  bracketed-render-block-start
+  ( !bracketed-render-block-end CHAR )*
+  bracketed-render-block-end
+bracketed-render-block-start:
+  [-SPC bracketed-render-block-spec-text SPC-]
+bracketed-render-block-end:
+  [-SPC "END" ( SPC-OR-LS+ bracketed-render-block-spec-text )? SPC-]
+synopsis-ref:
+  [-SPC "SYNOPSIS" SPC-OR-LS+ "OF" SPC-OR-LS+ link-til-end-brack SPC-]
+api-ref:
+  ...
+
+topic-directive-spec-text:
+  "FUNCTION" / "VARIABLE" / ( "GENERIC" spaces "FUNCTION" ) / "LIBRARY" /
+  "MODULE" / "CLASS" / "MACRO"
+paragraph-directive-spec-text:
+  "SYNOPSIS" / "SYN"
+link-directive-spec-text:
+  "SECTION"
+links-directive-spec-text:
+  "RELEVANT" spaces "TO" / "SEE" spaces "ALSO"
+indented-directive-spec-text:
+  "INIT-KEYWORDS" / "CONDITIONS" / "EXCEPTIONS" / "ARGUMENTS" / "KEYWORDS" /
+  "SIGNALS" / "WARNING" / "ERRORS" / "VALUES" / "ARGS" /
+  ( "MAKE" spaces "KEYWORDS" ) / "NOTE" / user-defined
+null-directive-spec-text:
+  "DISCUSSION"
+api-list-spec-text:
+  "FUNCTIONS" / "LIBRARIES" / "VARIABLES" / "BINDINGS" / "CLASSES" / "MODULES" / "MACROS"
+bracketed-raw-block-spec-text:
+  "VERBATIM" / "DIAGRAM" / "EXAMPLE" / "CODE"
+bracketed-render-block-spec-text:
+  "DITA" / "HTML"
+
+indented-link-words:
+  &NEW-SOL-IND link-word-lines
+link-word-lines:
+  ( SOL-IND link-words SPC-LS )+
+link-words:
+  link-word ( spaces link-word )*
+link-word:
+  start-quote text-til-end-quote end-quote / text-til-spc-or-ls
+link-til-spc-ls:
+  text-til-spc-ls
+link-til-end-brack:
+  text-til-spc-cls-brack
+filename:
+  start-quote text-til-end-quote end-quote
+nickname-word:
+  ( !SPC !']' CHAR )+
+
+quote:
+  quoted-words ( SPC-OR-LS+ quote-spec )?
+quoted-words:
+  ( '(' / '[' / '{' / '<' )* start-quote text-til-end-quote? end-quote
+  text-til-spc-or-ls?
+start-quote:
+  ''' / '"' / '`' / user-defined
+end-quote:
+  ''' / '"' / '`' / user-defined
+quote-spec:
+  [-SPC ( quote-spec-option SPC-OR-LS* )* quote-spec-link-option? SPC-]
+quote-spec-option:
+  "CODE" / "TERM" / "BIB" / "SIC" / "TOC" / "UNQ" / "EM" / "QQ" / "QV" /
+  "B" / "I" / "U" / "Q"
+quote-spec-link-option:
+  ( "TOC" / "QV" ) SPC-OR-LS+ text-til-spc-cls-brack
+
+text-til-spc:
+  ( !SPC CHAR )+
+text-til-ls:
+  ( !LS CHAR )+
+text-til-spc-ls:
+  ( !SPC-LS CHAR )+
+text-til-spc-ascii-ls:
+  ( !( SPC* ( LS / ascii-line ) ) CHAR )+
+text-til-spc-cls-brack:
+  ( !SPC-] CHAR )+
+text-til-end-quote:
+  ( !end-quote CHAR )+
+text-til-spc-or-ls:
+  ( !SPC !LS CHAR )+
+spaces:
+  SPC+
+opt-spaces:
+  SPC*
+  
+SPC:
+  ' '
+SPC-LS:
+  SPC* LS
+SPC-OR-LS:
+  SPC / LS
+[-SPC:
+  '[' SPC-OR-LS*
+SPC-]:
+  SPC-OR-LS* ']'
+
+ascii-line-char:
+  '=' / '-' / ':' / '.' / '~' / '^' / '_' / '*' / '+' / '#' / user-defined
+bullet-char:
+  '-' / '*' / '+' / 'o' / user-defined
