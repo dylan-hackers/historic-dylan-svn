@@ -1,16 +1,33 @@
 module: http-client-test-suite
 
+define variable *http-server-port* :: <integer> = 8080;
+
+define variable *url-prefix* :: <byte-string> = "/http-test";
+
+// Make a full URL for making HTTP requests.
+define function full-url
+    (url :: <string>, #key secure = #f) => (url :: <string>)
+  format-to-string("http://localhost:%d%s",
+                   *http-server-port*, short-url(url))
+end;
+
+// Make URLs for registering with the server (i.e., just a path)
+define function short-url
+    (url :: <string>) => (url :: <string>)
+  format-to-string("%s%s", *url-prefix*, url)
+end;
+
 define suite http-client-test-suite ()
   test test-simple-http-get;
 end suite http-client-test-suite;
 
-define responder hello ("/http-test/hello")
+define responder hello (short-url("/hello"))
   output("hello")
 end;
 
 define test test-simple-http-get ()
   check-equal("GET of /hello returns \"hello\"?",
-              simple-http-get("http://localhost:8080/http-test/hello"),
+              simple-http-get(full-url("/hello")),
               "hello");
 end test test-simple-http-get;
 
@@ -23,7 +40,7 @@ define function main ()
                             short-options: #("d"));
   add-option-parser-by-type(parser,
                             <parameter-option-parser>,
-                            description: "Koala port number to use",
+                            description: "Server port number",
                             long-options: #("port"),
                             short-options: #("p"));
   add-option-parser-by-type(parser,

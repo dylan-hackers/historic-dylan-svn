@@ -49,7 +49,7 @@ define method configure-server
                                   defaults));
   block (return)
     let handler <error> = method (c :: <error>, next-handler :: <function>)
-                            if (*debugging-server*)
+                            if (debugging-enabled?(*server*))
                               next-handler();  // decline to handle the error
                             else
                               log-error("Error loading config file: %=", c);
@@ -204,10 +204,11 @@ define method process-config-element
     (node :: xml$<element>, name == #"debug-server")
   bind (attr = get-attr(node, #"value"))
     when (attr)
-      *debugging-server* := true-value?(attr);
+      debugging-enabled?(*server*) := true-value?(attr);
     end;
-    when (*debugging-server*)
-      warn("Server debugging is enabled.  Server may crash if not run inside an IDE!");
+    when (debugging-enabled?(*server*))
+      warn("Server debugging is enabled.  "
+           "Server may crash if not run inside an IDE!");
     end;
   end;
 end;
@@ -220,16 +221,6 @@ define method process-config-element
     log-info("VHost '%s': listen ip = %s", vhost-name(active-vhost()), attr);
   else
     warn("Invalid <listen-ip> spec.  The 'value' attribute must be specified.");
-  end;
-end;
-
-define method process-config-element
-    (node :: xml$<element>, name == #"auto-register")
-  bind (attr = get-attr(node, #"enabled"))
-    iff(attr,
-        auto-register-pages?(active-vhost()) := true-value?(attr),
-        warn("Invalid <AUTO-REGISTER> spec.  "
-               "The 'enabled' attribute must be specified as true or false."));
   end;
 end;
 
@@ -400,32 +391,33 @@ define constant $mime-type = make(<mime-type>);
 
 define method process-config-element
     (node :: xml$<element>, name == #"mime-type-map")
-  log-info("configuring mime-type-map");
   let filename = get-attr(node, #"location");
-  log-info("mime-type-map: %s", filename);
+  let mime-type-loc
+    = as(<string>,
+         merge-locators(merge-locators(as(<file-locator>, filename),
+                                       as(<directory-locator>, $koala-config-dir)),
+                        *server-root*));
 
+  log-info("Loading mime-type map from %s", mime-type-loc);
+  let mime-text = file-contents(mime-type-loc);
+  if (mime-text)
+    let mime-xml :: xml$<document> = xml$parse-document(mime-text);
+    log-info("Transforming mime-type map...");
+    log-info("%s",
+             with-output-to-string (stream)
+               // Transforming the document side-effects *mime-type-map*.
+               xml$transform-document(mime-xml, state: $mime-type, stream: stream);
+             end);
+  else
+    warn("mime-type map %s not found", mime-type-loc);
+  end if;
+end method process-config-element;
 
-  let mime-type-loc = as(<string>,
-    merge-locators(merge-locators(as(<file-locator>, filename),
-      as(<directory-locator>, $koala-config-dir)),
-    *server-root*));
-
-  log-info("mime-type-map-loc: %s", mime-type-loc);
-    let mime-text = file-contents(mime-type-loc);
-    if (mime-text)
-      let mime-xml :: xml$<document> = xml$parse-document(mime-text);
-      log-info("Loading mime-type map from %s.", mime-type-loc);
-      log-info("%s",
-               with-output-to-string (stream)
-                 xml$transform-document(mime-xml, state: $mime-type, stream: stream);
-               end);
-    else
-      warn("mime-type map %s not found", mime-type-loc);
-    end if;
-end method;
-
-define method xml$transform (node :: xml$<element>, name == #"mime-type",
-                             state :: <mime-type>, stream :: <stream>)
+define method xml$transform
+    (node :: xml$<element>,
+     name == #"mime-type",
+     state :: <mime-type>,
+     stream :: <stream>)
   let mime-type = get-attr(node, #"id");
   for (child in xml$node-children(node))
     if (xml$name(child) = #"extension")

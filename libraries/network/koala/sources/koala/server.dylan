@@ -27,6 +27,14 @@ begin
 end;
 
 define class <server> (<sealed-constructor>)
+  // Whether the server should run in debug mode or not.  If this is true then
+  // errors encountered while servicing HTTP requests will not be handled by the
+  // server itself.  Normally the server will handle them and return an "internal
+  // server error" response.  A good way to debug Dylan Server Pages.  Can be
+  // enabled via the --debug command-line option.
+  slot debugging-enabled? :: <boolean> = #f,
+    init-keyword: #"debug";
+
   constant slot server-lock :: <lock>,
     required-init-keyword: lock:;
   // Support for shutting down listeners.
@@ -39,7 +47,6 @@ define class <server> (<sealed-constructor>)
   constant slot listener-shutdown-timeout :: <real> = 15;
   constant slot client-shutdown-timeout :: <real> = 15;
 
-  // Parameters
   slot max-listeners :: <integer> = 1;
   slot request-class :: subclass(<basic-request>) = <basic-request>;
 
@@ -49,12 +56,7 @@ define class <server> (<sealed-constructor>)
 
   // Map from URL string to a response function.  The leading slash is removed
   // from URLs because it's easier to use merge-locators that way.
-  // TODO: this should be per vhost
-  //       then 'define page' needs to specify vhost until dynamic
-  //       library loading works.  (ick.)  once dynamic library loading
-  //       works we use <module foo> inside <virtual-host> in the config
-  //       and bind *virtual-host* while the library is loading?
-
+  // todo -- this should be per vhost
   constant slot url-map :: <string-trie> = make(<string-trie>, object: #f);
 
   // pathname translations
@@ -106,7 +108,7 @@ define method initialize
     (server :: <http-server>,
      #rest keys,
      #key document-root: doc-root)
-  apply(next-method, remove-keys(keys, #"document-root"));
+  apply(next-method, server, remove-keys(keys, #"document-root"));
   let vhost :: <virtual-host> = default-virtual-host(server);
   if (doc-root)
     document-root(vhost) := as(<directory-locator>, doc-root);
@@ -145,18 +147,25 @@ end release-client;
 define class <listener> (<sealed-constructor>)
   constant slot listener-server :: <server>,
     required-init-keyword: server:;
+
   constant slot listener-port :: <integer>,
     required-init-keyword: port:;
+
   constant slot listener-host :: false-or(<string>),
     required-init-keyword: host:;
+
   constant slot listener-thread :: <thread>,
     required-init-keyword: thread:;
+
   slot listener-socket :: <server-socket>,
     required-init-keyword: socket:;
+
   // Maybe should hold some mark of who requested it..
   slot listener-exit-requested? :: <boolean> = #f;
+
   // The time when server entered 'accept', so we can
   // abort it if it's hung...
+  // This gets set but is otherwise unused so far.
   slot listener-listen-start :: false-or(<date>) = #f;
 
   // Statistics
@@ -168,12 +177,16 @@ end class <listener>;
 define class <client> (<sealed-constructor>)
   constant slot client-server :: <server>,
     required-init-keyword: server:;
+
   constant slot client-listener :: <listener>,
     required-init-keyword: listener:;
+
   constant slot client-socket :: <tcp-socket>,
     required-init-keyword: socket:;
+
   constant slot client-thread :: <thread>,
     required-init-keyword: thread:;
+
   slot client-request :: <basic-request>;
 end;
 
@@ -235,16 +248,12 @@ define function init-server
           config-file :: false-or(<string>))
   server.max-listeners := listeners;
   server.request-class := request-class;
-  *server* := server;
   if (config-file)
     configure-server(config-file);
   end;
   log-info("%s HTTP Server starting up", $server-name);
   ensure-sockets-started();  // TODO: Can this be moved into start-server?
   log-info("Server root directory is %s", *server-root*);
-  when (*auto-register-pages?*)
-    log-info("Auto-register enabled");
-  end;
   run-init-functions();
 end init-server;
 
@@ -255,11 +264,11 @@ define function start-server
     (server :: <http-server>,
      #key config-file :: false-or(<string>),
           port :: false-or(<integer>),
-          background :: <boolean> = #f,
-          debug :: <boolean> = #f)
+          background :: <boolean> = #f)
  => (started? :: <boolean>)
-  *debugging-server* := debug;
-  init-server(server, config-file: config-file);
+  dynamic-bind (*server* = server)
+    init-server(server, config-file: config-file);
+  end;
   if (*abort-startup?*)
     log-error("Server startup aborted due to the previous errors");
     #f
@@ -281,13 +290,11 @@ define function http-server-top-level
     (server :: <http-server>, listen-ip :: <string>, listen-port :: <integer>)
   dynamic-bind (*server* = server)
     while (start-http-listener(*server*, listen-port, listen-ip))
-      *server-running?* := #t;
     end;
     // Apparently when the main thread dies in an Open Dylan application
     // the application exits without waiting for spawned threads to die,
     // so join-listeners keeps the main thread alive until all listeners die.
     join-listeners(*server*);
-    *server-running?* := #f;
   end;
 end function http-server-top-level;
 
@@ -597,7 +604,7 @@ define function handler-top-level
           block (exit-inner)
             let handler <error>
               = method (c :: <error>, next-handler :: <function>)
-                  if (*debugging-server*)
+                  if (debugging-enabled?(*server*))
                     next-handler();  // decline to handle the error
                   else
                     send-error-response(request, c);
@@ -606,7 +613,7 @@ define function handler-top-level
                 end;
             let handler <stream-error>
               = method (c :: <error>, next-handler :: <function>)
-                  if (*debugging-server*)
+                  if (debugging-enabled?(*server*))
                     next-handler();  // decline to handle the error
                   else
                     log-error("A stream error occurred. %=", c);

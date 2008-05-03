@@ -1218,13 +1218,3 @@ define method extract-tag-args
   end iterate
 end extract-tag-args;
 
-
-//// Configuration
-
-define function auto-register-dylan-server-page
-    (url :: <string>) => (responder :: <function>)
-  // ---TODO: what if document-location returns #f here?
-  register-page(url, make(<dylan-server-page>,
-                          source: document-location(url)))
-end;
-

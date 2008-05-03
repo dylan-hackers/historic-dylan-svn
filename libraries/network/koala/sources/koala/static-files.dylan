@@ -348,15 +348,4 @@ define method display-file-property
   format(stream, property);
 end;
 
-define open method display-image-link
-    (stream :: <stream>, file-type :: <symbol>, locator :: <directory-locator>)
-end;
-
-define open method display-image-link
-    (stream :: <stream>, file-type :: <symbol>, locator :: <file-locator>)
-  //---TODO: Somehow display the icon that the Windows explorer displays
-  //         next to each file.  (On Windows only, of course.)
-end;
-
-
 
