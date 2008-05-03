@@ -43,7 +43,7 @@ define method add-responder
             log-info("responder on %s registered", url);
           end if;
         end;
-  if (*server-running?*)
+  if (*server*)
     register-responder();
   else
     register-init-function(register-responder);

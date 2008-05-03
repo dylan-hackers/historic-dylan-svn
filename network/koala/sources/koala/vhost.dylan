@@ -142,23 +142,6 @@ define class <virtual-host> (<object>)
   // other value is set.
   slot default-dynamic-content-type :: <string> = "text/html; charset=utf-8";
 
-  // This is the "master switch" for auto-registration of URLs.  If #f then
-  // URLs will never be automatically registered based on their file types.  It
-  // defaults to #f to be safe.  See auto-register-map
-  slot auto-register-pages? :: <boolean> = #f;
-
-  // Maps from file extensions (e.g., "dsp") to functions that will register a
-  // URL responder for a URL.  If a URL matching the file extension is
-  // requested, and the URL isn't registered yet, then the function for the
-  // URL's file type extension will be called to register the URL and then the
-  // URL will be processed normally.  This mechanism is used, for example, to
-  // automatically export .dsp URLs as Dylan Server Pages so that it's not
-  // necessary to have a "define page" form for every page in a DSP
-  // application.
-  // TODO: x-platform: this should be a case-sensitive string table for 
-  //       unix variants and insensitive for Windows.
-  constant slot auto-register-map :: <table> = make(<string-table>);
-
   // Log targets.  If these are #f then the default virtual host's
   // log target is used.  They are never #f in the default virtual host.
   slot %activity-log-target :: false-or(<log-target>) = #f,
@@ -176,8 +159,6 @@ begin
   default-static-content-type-setter;
   default-dynamic-content-type-setter;
   generate-server-header?-setter;
-  auto-register-pages?;
-  auto-register-pages?-setter;
 end;
 
 define method initialize
@@ -231,8 +212,7 @@ define variable *fall-back-to-default-virtual-host?* :: <boolean> = #t;
 // Maps host names to virtual hosts.
 define constant $virtual-hosts :: <string-table> = make(<string-table>);
 
-define thread variable *virtual-host* :: <virtual-host>
-  = make(<virtual-host>, name: "temporary");  // this value will be replaced.
+define thread variable *virtual-host* :: false-or(<virtual-host>) = #f;
 
 define method add-virtual-host
     (name :: <string>, vhost :: <virtual-host>)

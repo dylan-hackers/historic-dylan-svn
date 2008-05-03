@@ -228,20 +228,19 @@ end method float-to-formatted-string;
 // passing them along with apply or next-method.
 //
 define method remove-keys
-    (arglist :: <sequence>, #rest keys) => (x :: <list>)
+    (arglist :: <sequence>, #rest keys-to-remove) => (x :: <list>)
   let result :: <list> = #();
   let last-pair = #f;
-  for (arg in arglist, i from 0)
-    if (even?(i))
-      if (~ member?(arg, keys))
-        if (last-pair)
-          tail(last-pair) := list(arg);
-        else
-          result := list(arg);
-          last-pair := result;
-        end;
-        tail(last-pair) := list(arglist[i + 1]);
-        last-pair := tail(last-pair);
+  for (i from 0 below arglist.size by 2)
+    let arg = arglist[i];
+    if (~member?(arg, keys-to-remove))
+      if (last-pair)
+        let key-val = list(arg, arglist[i + 1]);
+        tail(last-pair) := key-val;
+        last-pair := tail(key-val);
+      else
+        result := list(arg, arglist[i + 1]);
+        last-pair := tail(result);
       end;
     end;
   end;

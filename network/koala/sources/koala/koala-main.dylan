@@ -39,11 +39,7 @@ end;
 // This is defined here rather than in koala-app because wiki needs it too.
 //
 define function koala-main
-    (#key server :: false-or(<http-server>),
-          debug :: <boolean>,
-          port :: false-or(<integer>),
-          config-file :: false-or(<string>))
- => ()
+    () => ()
   let parser = *argument-list-parser*;
   parse-arguments(parser, application-arguments());
   if (option-value-by-long-name(parser, "help")
@@ -55,11 +51,12 @@ define function koala-main
                    usage: "koala [options]",
                    description: desc);
   else
-    start-server(server | make(<http-server>),
+    let server = make(<http-server>,
+                      debug: option-value-by-long-name(parser, "debug"));
+    start-server(server,
                  config-file: option-value-by-long-name(parser, "config"),
                  port: string-to-integer(option-value-by-long-name(parser, "port")
-                                         | "80"),
-                 debug: option-value-by-long-name(parser, "debug"));
+                                         | "80"));
   end;
 end function koala-main;
 
