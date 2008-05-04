@@ -23,8 +23,6 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // See .../koala/sources/examples/koala-basics/ for example DSP usage.
 
 
-define variable *debugging-dsp* :: <boolean> = #f;
-
 define class <dsp-error> (<format-string-condition>, <error>) end;
 
 define class <dsp-parse-error> (<dsp-error>) end;
