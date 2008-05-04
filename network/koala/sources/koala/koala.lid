@@ -3,7 +3,6 @@ files:	library
 	log
 	utils
 	variables
-	timer
 	substring
 	avalue
 	string-utils
@@ -26,4 +25,3 @@ files:	library
 	responders
 	modules
 	koala-main
-	dsp-main
