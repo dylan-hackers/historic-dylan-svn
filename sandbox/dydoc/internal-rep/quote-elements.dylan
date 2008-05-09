@@ -5,11 +5,12 @@ synopsis: Intermediate elements from quote directives.
 define class <xref> (<interm-element>)
    // If the target is <topic>, <footnote>, <ph-marker>, or <section>, the DITA
    // xref tag will have a format attr of "dita," else based on the URL; the 
-   // scope attr will be "local," else "external."
+   // scope attr will be "local," else "external." If the text is <conref>,
+   // its style must be #"title" and the target's title is used as the text.
    slot target :: type-union(<topic>, <footnote>, <section>, <ph-marker>, <url>,
-                             <target-placeholder>),
+                             <target-placeholder>, <marker-placeholder>),
          init-keyword: #"target";
-   slot text :: type-union(<api-name>, <parm-name>, <string>),
+   slot text :: type-union(<api-name>, <parm-name>, <string>, <conref>),
          init-keyword: #"text";
 end class;
 

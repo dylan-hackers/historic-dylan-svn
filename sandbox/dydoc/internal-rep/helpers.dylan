@@ -21,8 +21,8 @@ end method;
 
 /// Synopsis: Converts a title to a string. This can be done without resolving
 /// anything.
-define method stringify-title (title :: <title>) => (title :: <string>)
-   stringify-title-part(title.content)
+define method stringify-title (title :: <title-seq>) => (title :: <string>)
+   stringify-title-part(title)
 end method;
 
 define method stringify-title-part (string :: <string>) => (string :: <string>)
@@ -34,7 +34,7 @@ define method stringify-title-part (char :: <character>) => (string :: <string>)
 end method;
 
 define method stringify-title-part (img :: <inline-image>) => (string :: <string>)
-   img.alt-text | "[img]"
+   concatenate("[", img.alt-text | "img", "]")
 end method;
 
 define method stringify-title-part

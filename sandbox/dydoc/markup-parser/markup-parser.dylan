@@ -24,7 +24,10 @@ define method parse-markup (text :: <file-stream>) => (contents :: <sequence>)
    let context = make(<markup-context>);
    let markup-block-contents = parse-markup-block(text, context);
    log-object("Markup", markup-block-contents);
-   visit-token-sources(markup-block-contents, rcurry(token-source-setter, text));
+   visit-token-sources(markup-block-contents,
+                       method (tok :: <token-source>) => ()
+                          tok.token-source := text;
+                       end);
    markup-block-contents
 end method;
 

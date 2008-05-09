@@ -5,8 +5,11 @@ define method print-object (o :: <topic>, s :: <stream>) => ()
           o.title, o.id, o.parent, o.content);
 end method;
 
-define method print-object (o :: <title>, s :: <stream>) => ()
-   print-object(o.content, s);
+define method print-object
+   (o :: type-union(<title-seq>, <markup-seq>, <content-seq>, <topic-content-seq>),
+    s :: <stream>)
+=> ()
+   print-object(as(<stretchy-vector>, o), s);
 end method;
 
 define method print-object (o :: <paragraph>, s :: <stream>) => ()

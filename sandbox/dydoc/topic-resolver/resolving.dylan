@@ -26,24 +26,22 @@ define method resolve-topic-placeholders (topics :: <sequence>)
 => (resolved-topics :: <sequence>)
    let defined-ids = topics-by-id(topics);
    let (defined-titles, dup-titles) = topics-by-title(topics);
-   let unknown-links = #();
-   visit-placeholders(topics,
-         method (placeholder)
-            when (instance?(placeholder, <target-placeholder>))
-               unknown-links := add!(unknown-links, placeholder)
-            end when
-         end method);
-   
-   for (link in unknown-links)
-      let topic = resolve-link(link, defined-titles, defined-ids);
-      if (topic)
-         fix-link(link, topic)
-      elseif (~member?(link.target, dup-titles, test: case-insensitive-equal))
-         error("Topic or tag \"%s\" not found in link at %s",
-               link.target, link.element-source);
-      end if;
-   end for;
-   topics
+   // resolve-placeholders(topics, setter: #f,
+   //                      id-topics: defined-ids,
+   //                      title-topics: defined-titles,
+   //                      dup-titles: dupe-titles);
+   visit-placeholders(
+         topics,
+         method (link :: <target-placeholder>, #key setter) => ()
+            let topic = resolve-link(link, defined-titles, defined-ids);
+            if (topic)
+               setter(topic)
+            elseif (~member?(link.target, dup-titles, test: case-insensitive-equal))
+               error("Topic or tag \"%s\" not found in link at %s",
+                     link.target, link.element-source);
+            end if;
+         end);
+   topics;
 end method;
 
 
@@ -91,31 +89,157 @@ define method topics-by-title (topics :: <sequence>)
 end method;
 
 
-/// General function: fix-link
-/// Synopsis: Replaces a <target-placeholder> with a real target.
-define generic fix-link (object :: <interm-element>, topic :: <topic>, #key) => ();
+/*
+/// Generic Function: resolve-placeholders
+/// Synopsis: Replaces <target-placeholder>s in objects with a real topic.
+/// Arguments:
+///   object        - A object in which to resolve <target-placeholder>s.
+///   setter:       - A function taking one argument that can replace the
+///                   <target-placeholder> with another object.
+///   id-topics:    - A table of <topic> keyed by id string.   
+///   title-topics: - A table of <topic> keyed by title string.
+///   dup-titles:   - A sequence of title strings used in more that one place.
+///
+define generic resolve-placeholders
+   (object, #key setter, id-topics, title-topics, dup-titles)
+=> ();
 
-/// This method is the basic callee.
-define method fix-link (link :: <target-placeholder>, topic :: <topic>, #key) => ()
-   fix-link(link.element-owner, topic, link: link)
+/// Actually do the resolution.
+define method resolve-placeholders
+   (link :: <target-placeholder>, #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   let topic = resolve-link(link, title-topics, id-topics);
+   if (topic)
+      setter(topic)
+   elseif (~member?(link.target, dup-titles, test: case-insensitive-equal))
+      error("Topic or tag \"%s\" not found in link at %s",
+            link.target, link.element-source);
+   end if;
 end method;
 
-/// This method is for all intermediate elements that have a 'target' slot
-/// containing the link.
-define method fix-link (owner :: <interm-element>, topic :: <topic>, #key link) => ()
-   owner.target := topic
+/// Recurses into sequences, markup sequences, and arrays. <title-markup> won't
+/// have any <target-placeholder>s.
+define method resolve-placeholders
+   (seq :: <collection>, #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   for (o keyed-by i in seq)
+      resolve-placeholders(o, setter: rcurry(element-setter, seq, i),
+                           id-topics, title-topics, dup-titles);
+   end for;
 end method;
 
-/// <topic> doesn't have a 'target' slot, but has 'relevant-to', 'see-also',
-/// and 'parent'. See which of them has the placeholder.
-define method fix-link (owner :: <topic>, topic :: <topic>, #key link) => ()
-   let parent? = (owner.parent = link);
-   let see-also-key = find-key(owner.see-also, curry(\=, link));
-   let relevant-to-key = find-key(owner.relevant-to, curry(\=, link));
-   if (parent?) owner.parent := topic end if;
-   if (see-also-key) owner.see-also[see-also-key] := topic end if;
-   if (relevant-to-key) owner.relevant-to[relevant-to-key] := topic end if;
+/// Nothing to do for most objects.
+define method resolve-placeholders
+   (obj :: <object>, #key setter, id-topics, title-topics, dup-titles)
+=> ()
 end method;
+
+define method resolve-placeholders
+   (topic :: <topic>, #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   resolve-placeholders(topic.content, setter: rcurry(content-setter, topic),
+                        id-topics, title-topics, dup-titles);
+   resolve-placeholders(topic.shortdesc, setter: rcurry(shortdesc-setter, topic),
+                        id-topics, title-topics, dup-titles);
+   resolve-placeholders(topic.parent, setter: rcurry(parent-setter, topic),
+                        id-topics, title-topics, dup-titles);
+   resolve-placeholders(topic.see-also, setter: rcurry(see-also-setter, topic),
+                        id-topics, title-topics, dup-titles);
+   resolve-placeholders(topic.relevant-to, setter: rcurry(relevant-to-setter, topic),
+                        id-topics, title-topics, dup-titles);
+end method;
+
+define method resolve-placeholders
+   (topic :: <class-doc>, #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   next-method();
+   resolve-placeholders(topic.keywords-section,
+                        setter: rcurry(keywords-section-setter, topic),
+                        id-topics, title-topics, dup-titles);
+end method;
+
+define method resolve-placeholders
+   (topic :: <function-doc>, #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   next-method();
+   resolve-placeholders(topic.args-section,
+                        setter: rcurry(args-section-setter, topic),
+                        id-topics, title-topics, dup-titles);
+   resolve-placeholders(topic.vals-section,
+                        setter: rcurry(vals-section-setter, topic),
+                        id-topics, title-topics, dup-titles);
+   resolve-placeholders(topic.conds-section,
+                        setter: rcurry(conds-section-setter, topic),
+                        id-topics, title-topics, dup-titles);
+end method;
+
+define method resolve-placeholders
+   (topic :: <function-doc>, #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   next-method();
+   resolve-placeholders(topic.args-section,
+                        setter: rcurry(args-section-setter, topic),
+                        id-topics, title-topics, dup-titles);
+   resolve-placeholders(topic.vals-section,
+                        setter: rcurry(vals-section-setter, topic),
+                        id-topics, title-topics, dup-titles);
+end method;
+
+/// Recurses into quote elements.
+define method resolve-placeholders
+   (obj :: type-union(<bold>, <cite>, <code-phrase>, <emphasis>, <italic>,
+                      <term-style>, <term>, <underline>),
+    #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   resolve-placeholders(obj.text, setter: rcurry(text-setter, obj),
+                        id-topics, title-topics, dup-titles);
+end method;
+
+/// Recurses into list elements.
+define method resolve-placeholders
+   (obj :: type-union(<defn-list>, <ordered-list>, <unordered-list>),
+    #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   resolve-placeholders(obj.items, setter: rcurry(items-setter, obj),
+                        id-topics, title-topics, dup-titles);
+end method;
+
+define method resolve-placeholders
+   (obj :: <simple-table>, #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   resolve-placeholders(obj.headings, setter: rcurry(headings-setter, obj),
+                        id-topics, title-topics, dup-titles);
+   resolve-placeholders(obj.items, setter: rcurry(items-setter, obj),
+                        id-topics, title-topics, dup-titles);
+end method;
+
+/// Recurses into elements with targets (except for <target-placeholder>).
+define method resolve-placeholders
+   (obj :: type-union(<conref>, <ditto-placeholder>, <toc-xref>),
+    #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   resolve-placeholders(obj.target, setter: rcurry(target-setter, obj),
+                        id-topics, title-topics, dup-titles);
+end method;
+
+/// Recurses into elements with content.
+define method resolve-placeholders
+   (obj :: type-union(<paragraph>, <footnote>),
+    #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   resolve-placeholders(obj.content, setter: rcurry(content-setter, obj),
+                        id-topics, title-topics, dup-titles);
+end method;
+
+define method resolve-placeholders
+   (obj :: <section>, #key setter, id-topics, title-topics, dup-titles)
+=> ()
+   resolve-placeholders(obj.title, setter: rcurry(title-setter, obj),
+                        id-topics, title-topics, dup-titles);
+   resolve-placeholders(obj.content, setter: rcurry(content-setter, obj),
+                        id-topics, title-topics, dup-titles);
+end method;
+*/
 
 
 /// Synopsis: Determines what topic a link refers to.
@@ -147,3 +271,42 @@ define method resolve-link
    end if;
    topic
 end method;
+
+
+/// Generic Function: visit-placeholders
+/// Synopsis: Visits a <topic> and its nested elements that can contain
+/// <target-placeholder> objects.
+///
+/// Arguments:
+///   element     - The <interm-element> to visit.
+///   operation   - A <function> on 'element'. The function is passed a
+///                 setter: argument.
+
+define collection-recursive slot-visitor visit-placeholders
+   <bold>,                 text;
+   <cite>,                 text;
+   <class-doc>,            content, shortdesc, parent, see-also, relevant-to,
+                           keywords-section;
+   <code-phrase>,          text;
+   <conref>,               target;
+   <defn-list>,            items;
+   <ditto-placeholder>,    target;
+   <emphasis>,             text;
+   <footnote>,             content;
+   <function-doc>,         content, shortdesc, parent, see-also, relevant-to,
+                           args-section, vals-section, conds-section;
+   <italic>,               text;
+   <macro-doc>,            content, shortdesc, parent, see-also, relevant-to,
+                           args-section, vals-section;
+   <ordered-list>,         items;
+   <paragraph>,            content;
+   <section>,              title, content;
+   <simple-table>,         headings, items;
+   <target-placeholder>,   ;
+   <term-style>,           text;
+   <term>,                 text;
+   <toc-xref>,             target;
+   <topic>,                content, shortdesc, parent, see-also, relevant-to;
+   <underline>,            text;
+   <unordered-list>,       items;
+end slot-visitor;

@@ -2,14 +2,6 @@ module: markup-translator
 synopsis: Code to integrate sections and intermediate objects into the greater whole.
 
 
-/// Synopsis: References to markers that have yet to be assigned. Scope limited
-/// to a file/comment block.
-/// Discussion: This table contains actual <ph-marker> instances, but their
-/// owners are not defined. When the marker is placed, it is not made anew, but
-/// rather retrieved from this table and its owner set.
-define constant $block-markers = make(<object-table>);
-
-
 /// IDs can have any character except space, "/", "[", "]".
 define inline method check-topic-id (id :: <string>) => ()
    when (member?(' ', id) | member?('/', id) | member?('[', id) | member?(']', id))
@@ -25,7 +17,7 @@ end method;
 /// Titles (in string form) cannot have leading colon. I say string form,
 /// because that is the one used in links, and this restriction is to avoid
 /// ambuiguous links.
-define inline method check-topic-title (title :: <title>) => ()
+define inline method check-topic-title (title :: <title-seq>) => ()
    when (title.stringify-title.first = ':')
       error("Title cannot have leading colon.")
    end when;
@@ -36,14 +28,15 @@ end method;
 /// is used to check within a single topic; this is also checked across multiple
 /// topics when merging [TODO].
 define inline method check-no-shortdesc (topic :: <topic>) => ()
-   when (slot-initialized?(topic, shortdesc))
+   when (topic.shortdesc)
       error("Only one synopsis in a topic.")
    end when;
 end method;
 
 
 define method check-quote-specifiers
-   (quote :: <quote-token>, default-specs :: <table>, #key for-title) => ()
+   (quote :: <quote-token>, default-specs :: <table>, #key for-title)
+=> (specs :: <sequence>)
    let specs = remove-duplicates(
          if (quote.quote-spec.empty?)
             default-specs[quote.open-quote]
@@ -61,7 +54,8 @@ define method check-quote-specifiers
       error("Titles can't have qv or toc specifiers.")
    end when;
 
-   // A quote can basically be a qv/toc, bib, or term. Former trumps latter.
+   // A quote can basically be a qv/toc, bib, or term. The other stuff is
+   // decorative. Former trumps latter.
    when (member?(#"qv", specs) | member?(#"toc", specs))
       specs := remove!(specs, #"bib");
       specs := remove!(specs, #"term");
@@ -69,6 +63,7 @@ define method check-quote-specifiers
    when (member?(#"bib", specs))
       specs := remove!(specs, #"term");
    end when;
+   specs;
 end method;
 
 
@@ -137,16 +132,4 @@ define method non-section-topic? (token :: <titled-topic-token>)
                     under: token.ascii-underline?, mid: token.ascii-midline?,
                     over: token.ascii-overline?);
    style ~= $section-style
-end method;
-
-
-//
-//
-//
-
-
-define method ensure-marker (index :: type-union(<character>, <integer>))
-=> (marker :: <ph-marker>)
-   element($block-markers, index, default: #f) | 
-         ($block-markers[index] := make(<ph-marker>, index: index))
 end method;

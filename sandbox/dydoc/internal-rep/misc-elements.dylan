@@ -1,10 +1,9 @@
 module: internal-rep
 synopsis: Placeholders that are replaced by actual elements after all is read.
 
+/// Subclasses of <interm-element> have slots, but these are not initialized.
 define class <interm-element> (<object>)
-   // False for topics; topics' parents are indicated by parent slot.
-   slot element-owner :: false-or(<interm-element>), init-keyword: #"owner";
-   slot element-source = #f;
+   slot element-source = #f; // TODO: Make mandatory keyword.
 end class;
 
 /// Synopsis: Used when the target is unknown. May generally refer to a topic,
@@ -24,5 +23,14 @@ define class <api-list-placeholder> (<interm-element>)
 end class;
 
 define class <ditto-placeholder> (<interm-element>)
-   slot target :: type-union(<topic>, <target-placeholder>);
+   slot target :: type-union(<topic>, <target-placeholder>),
+      init-keyword: #"target";
+end class;
+
+define class <marker-placeholder> (<interm-element>)
+   slot index :: type-union(<integer>, <character>), init-keyword: #"index";
+end class;
+
+/// Synopsis: Placeholder for contents of current topic, i.e. "[CONTENTS]".
+define class <toc-placeholder> (<interm-element>)
 end class;

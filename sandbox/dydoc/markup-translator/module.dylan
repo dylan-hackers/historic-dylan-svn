@@ -4,7 +4,8 @@ synopsis: This module converts from tokens to intermediate markup (the DITA-styl
 
 define module markup-translator
    use common;
-   use markup-parser, rename: { content => token-content };
+   use markup-parser,
+      rename: { content => token-content, index => token-index };
    use internal-rep;
    use ordered-tree;
    use configs;

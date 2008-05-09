@@ -9,37 +9,61 @@ synopsis: Classes comprising documentation.
 ///   api-ref        - Basically converts to an API qv.
 ///   marker-ref     - An <xref> to a <footnote> or <ph-marker>.
 ///   synopsis-ref   - <conref> with the #"title" or #"shortdesc" style.
-define constant <markup-deque> = limited(<deque>,
+///
+define constant <markup-seq> = limited(<stretchy-vector>,
       of: type-union(<string>, <character>, <inline-image>, <html-content>,
-                     <dita-content>, <conref>, <xref>, <toc-xref>, <api-name>,
-                     <parm-name>, <term>, <term-style>, <code-phrase>, <entity>,
-                     <cite>, <bold>, <italic>, <underline>, <emphasis>));
+                     <dita-content>, <conref>, <xref>, <api-name>,
+                     <parm-name>, <term>, <term-style>, <code-phrase>,
+                     <entity>, <cite>, <bold>, <italic>, <underline>,
+                     <emphasis>));
+                     
+/// Synopsis: List of elements corresponding to lines-content grammar.
+///   marginal-code-block  - <code-block>
+///   marginal-verbatim-block - <pre>
+///   figure-ref-line      - <fig>
+///   content-ref-line     - <conref> with the #"toc" style.
+///   ditto-ref-line       - <ditto-placeholder>
+///   api-list-ref-line    - <api-list-placeholder>
+///   bracketed-raw-block  - <code-block> or <pre>
+///   table                - <simple-table>
+///   bullet-list          - <unordered-list>
+///   numeric-list         - <ordered-list>
+///   hyphenated-list      - <one-line-defn-list>
+///   phrase-list          - <two-line-defn-list>
+///   paragraph            - <paragraph>
+///
+define constant <content-seq> = limited(<stretchy-vector>,
+   of: type-union(<code-block>, <pre>, <fig>, <conref>, <ditto-placeholder>,
+                  <api-list-placeholder>, <simple-table>, <unordered-list>,
+                  <ordered-list>, <defn-list>, <paragraph>));
 
 define class <section> (<interm-element>)
-   slot id :: false-or(<string>);
-   slot title = make(<title-deque>);
-   slot content = make(<deque>);
+   slot id :: false-or(<string>) = #f;
+   slot title = make(<title-seq>);
+   slot content = make(<content-seq>);
 end class;
 
 define class <footnote> (<interm-element>)
-   slot number;
-   slot content = make(<deque>);
+   slot index :: type-union(<character>, <integer>), init-keyword: #"index";
+   slot content = make(<content-seq>);
 end class;
 
 define class <paragraph> (<interm-element>)
-   slot content = make(<markup-deque>);
+   slot content = make(<markup-seq>);
 end class;
 
 define class <note> (<interm-element>)
-   slot content;
+   slot content = make(<content-seq>);
 end class;
 
 define class <warning-note> (<note>)
 end class;
 
 define class <conref> (<interm-element>)
-   slot target :: type-union(<topic>, <target-placeholder>);
-   slot style :: one-of(#"title", #"shortdesc", #"toc");
+   slot target :: type-union(<topic>, <target-placeholder>),
+      init-keyword: #"target";
+   slot style :: one-of(#"title", #"shortdesc", #"toc"),
+      init-keyword: #"style";
 end class;
 
 /// This will be rendered as an empty DITA <ph> or HTML anchor. Technically,
@@ -47,22 +71,21 @@ end class;
 /// Don't want to include content in the tag in case DITA processors won't consider
 /// it as code in a code block.
 define class <ph-marker> (<interm-element>)
-   slot index :: false-or(type-union(<integer>, <character>)),
-         init-keyword: #"index";
+   slot index :: type-union(<integer>, <character>), init-keyword: #"index";
 end class;
 
 define class <ordered-list> (<interm-element>)
-   slot style :: one-of(#"num", #"alpha");
-   slot start :: <integer> = 1;
-   slot items;
+   slot start :: type-union(<integer>, <character>), init-keyword: #"start";
+   slot items :: <vector> /* of <content-seq> */;
 end class;
 
 define class <unordered-list> (<interm-element>)
-   slot items;
+   slot items :: <vector> /* of <content-seq> */;
 end class;
 
 define class <defn-list> (<interm-element>)
-   slot items :: <array>;
+   slot items :: <array> /* 2-by-n, first col of <markup-seq>,
+                            second col of <content-seq> */;
 end class;
 
 define class <one-line-defn-list> (<defn-list>)
@@ -72,30 +95,37 @@ define class <two-line-defn-list> (<defn-list>)
 end class;
 
 define class <fig> (<interm-element>)
-   slot image;
-   slot abs-size :: false-or(<integer>);
-   slot rel-size :: false-or(<integer>);
+   slot image-name :: <string>;
+   slot abs-size :: false-or(<integer>) = #f;
+   slot rel-size :: false-or(<integer>) = #f;
    slot title :: <string>;
 end class;
 
 define class <inline-image> (<interm-element>)
-   slot image, init-keyword: #"image";
+   slot image-name :: <string>, init-keyword: #"image";
    slot alt-text :: <string>, init-keyword: #"alt-text";
 end class;
 
 define class <pre> (<interm-element>)
-   slot content;
+   slot content = make(<stretchy-vector>) /* of <string>, <ph-marker> */;
 end class;
 
 define class <simple-table> (<interm-element>)
-   slot headings;
+   slot headings :: <vector>;
    slot items :: <array>;
 end class;
 
 define class <code-block> (<pre>)
 end class;
 
-define class <parm-list> (<defn-list>)
+/// Mixin class for <defn-list> indicating an argument or value list.
+define class <parm-list> (<object>)
+end class;
+
+define class <one-line-parm-list> (<one-line-defn-list>, <parm-list>)
+end class;
+
+define class <two-line-parm-list> (<two-line-defn-list>, <parm-list>)
 end class;
 
 define class <html-content> (<interm-element>)

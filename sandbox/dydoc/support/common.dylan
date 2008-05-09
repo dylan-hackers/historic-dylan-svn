@@ -15,14 +15,42 @@ define function log-object (label :: <string>, obj)
 end function;
 
 
+/// Synopsis: Define methods to visit objects and their slots.
+///
+/// Use as follows, where braces indicate optional items:
+/// : define {collection-recursive} slot-visitor NAME
+/// :   CLASS {, SLOT}... ;
+/// :   {CLASS {, SLOT}... ;}...
+/// : end {slot-visitor {NAME}}
+///
+/// This defines a set of visitor methods called NAME. The methods have this
+/// signature:
+/// : NAME (object :: CLASS, action :: <function>, #key KEY, ...) => ()
+/// 
+/// The method visits all SLOTS then the object itself, performing the action.
+/// The action should have this signature:
+/// : (object {:: TYPE}, #key setter, KEY, ...) => ()
+///
+/// The action is called on the object or slot value. If the TYPE doesn't match,
+/// the action is not performed. The setter key is a function by which the action
+/// can replace replace the object or slot value. ALL-KEYS passed to each NAME
+/// function is also passed to the ACTION.
+///
 define macro slot-visitor-definer
    { define collection-recursive slot-visitor ?:name ?classes:* end }
    => {
-         define method ?name (collection :: <collection>, operation :: <function>)
-            do(rcurry(?name, operation), collection);
+         define method ?name
+            (col :: <collection>, f :: <function>, #rest keys, #key, #all-keys)
+         => ()
+            for (o keyed-by i in col)
+               apply(?name, o, f, #"setter", rcurry(element-setter, col, i),
+                     keys);
+            end for;
          end method;
 
-         define method ?name (collection :: <object>, operation :: <function>)
+         define method ?name
+            (o :: <object>, f :: <function>, #key, #all-keys)
+         => ()
          end method;
 
          define slot-visitor ?name ?classes end;
@@ -39,11 +67,18 @@ define macro class-visitors
    
    { class-visitors(?:name; ?class-name:name, ?slots; ?more:*) }
    => {
-         define method ?name (object :: ?class-name, operation :: <function>)
-            for (slot in vector(?slots))
-               ?name(object.slot, operation)
+         define method ?name
+            (object :: ?class-name, action :: <function>, #rest keys, #key, #all-keys)
+         => ()
+            for (slot in vector(?slots),
+                 setter in setters-vector(?slots))
+               apply(?name, object.slot, action,
+                     #"setter", rcurry(setter, object), keys)
             end for;
-            operation(object);
+
+            when (instance?(object, action.function-specializers.first))
+               apply(action, object, keys);
+            end when;
          end method;
          
          class-visitors(?name; ?more)
@@ -51,5 +86,15 @@ define macro class-visitors
 
 slots:
    { ?:name, ... } => { ?name, ... }
+   { } => { }
+end macro;
+
+
+define macro setters-vector
+   { setters-vector(?getters) } => { vector(?getters) }
+   { setters-vector() } => { }
+
+getters:
+   { ?:name, ... } => { ?name ## "-setter", ... }
    { } => { }
 end macro;

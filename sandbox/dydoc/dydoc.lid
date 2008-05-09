@@ -26,7 +26,8 @@ files:	    support/library
             markup-parser/rule-tokenizers
             markup-translator/module
             markup-translator/check-helpers
-            markup-translator/token-processing
+            markup-translator/topic-processing
+            markup-translator/content-processing
             topic-resolver/module
             topic-resolver/arranging
             topic-resolver/merging

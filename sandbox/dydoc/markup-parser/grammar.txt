@@ -81,9 +81,9 @@ lines-content:
 line-content: 
   !eos !topic-directive-spec !topic-title !section-directive !footnote
   ( blank-lines / marginal-code-block / marginal-verbatim-block /
-  figure-ref-line / content-ref-line / ditto-ref-line / bracketed-raw-block /
-  table / bullet-list / numeric-list / hyphenated-list / phrase-list /
-  paragraph )
+  figure-ref-line / content-ref-line / ditto-ref-line / api-list-ref-line /
+  bracketed-raw-block / table / bullet-list / numeric-list / hyphenated-list /
+  phrase-list / paragraph )
 paragraph:
   paragraph-line+
 paragraph-til-null-directive:
