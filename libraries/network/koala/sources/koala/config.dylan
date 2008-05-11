@@ -18,6 +18,16 @@ define thread variable %dir = #f;
 // Holds the current vhost while config elements are being processed.
 define thread variable %vhost = #f;
 
+/*
+define variable *options* = make(<table>);
+
+define function append-option
+    (key :: <symbol>, option, #key type = <stretchy-vector>)
+  let val = element(*options*, key, default: make(type));
+  *options*[key] := add!(val, setting);
+end;
+*/
+
 define inline function active-vhost
     () => (vhost :: <virtual-host>)
   if (%vhost == default-virtual-host(*server*)
@@ -154,6 +164,34 @@ end method process-config-element;
 
 
 define method process-config-element
+    (node :: xml$<element>, name == #"listener")
+  let address = get-attr(node, #"address");
+  let port = get-attr(node, #"port");
+  if (address | port)
+    block ()
+      let port = string-to-integer(port);
+      if (active-vhost() = default-virtual-host(*server*))
+        log-info("Adding listener for %s:%d", address, port);
+        add!(server-listeners(*server*),
+             make-listener(format-to-string("%s:%d", address, port)));
+      else
+        // Maybe later we'll add a way to specify what listeners correspond
+        // to what virtual hosts.  Apache apparently does this, but I'm not
+        // sure how useful it is.
+        log-warning("<listener> (%s) specified inside %s virtual host element.  "
+                    "It will be ignored.  Port must be specified at top level.",
+                    node, vhost-name(active-vhost()));
+      end;
+    exception (<error>)
+      warn("Invalid port (%=) specified in listener element.", port);
+    end;
+  else
+    warn("Invalid <LISTENER> specification.  You must specify either the "
+         "'address' or 'port' attribute.");
+  end;
+end method process-config-element;
+
+define method process-config-element
     (node :: xml$<element>, name == #"virtual-host")
   let name = get-attr(node, #"name");
   if (name)
@@ -210,17 +248,6 @@ define method process-config-element
       warn("Server debugging is enabled.  "
            "Server may crash if not run inside an IDE!");
     end;
-  end;
-end;
-
-define method process-config-element
-    (node :: xml$<element>, name == #"listen-ip")
-  let attr = get-attr(node, #"value");
-  if (attr)
-    vhost-ip(active-vhost()) := attr;
-    log-info("VHost '%s': listen ip = %s", vhost-name(active-vhost()), attr);
-  else
-    warn("Invalid <listen-ip> spec.  The 'value' attribute must be specified.");
   end;
 end;
 

@@ -33,12 +33,13 @@ define class <server> (<sealed-constructor>)
   // server error" response.  A good way to debug Dylan Server Pages.  Can be
   // enabled via the --debug command-line option.
   slot debugging-enabled? :: <boolean> = #f,
-    init-keyword: #"debug";
+    init-keyword: debug:;
 
-  constant slot server-lock :: <lock>,
+  constant slot server-lock :: <recursive-lock>,
     required-init-keyword: lock:;
   // Support for shutting down listeners.
-  constant slot server-listeners :: <stretchy-vector> = make(<stretchy-vector>);
+  constant slot server-listeners :: <stretchy-vector>,
+    required-init-keyword: listeners:;
   constant slot server-listeners-notification :: <notification>,
     required-init-keyword: listeners-notification:;
   constant slot clients :: <stretchy-vector> = make(<stretchy-vector>);
@@ -47,7 +48,6 @@ define class <server> (<sealed-constructor>)
   constant slot listener-shutdown-timeout :: <real> = 15;
   constant slot client-shutdown-timeout :: <real> = 15;
 
-  slot max-listeners :: <integer> = 1;
   slot request-class :: subclass(<basic-request>) = <basic-request>;
 
   //---TODO: response for unsupported-request-method-error MUST include
@@ -73,13 +73,23 @@ define class <server> (<sealed-constructor>)
   // processed, so don't use it except during request processing.
   //
   constant slot default-virtual-host :: <virtual-host>,
-    required-init-keyword: #"default-virtual-host";
+    required-init-keyword: default-virtual-host:;
 
 end class <server>;
 
+// API
+// The user instantiates this class directly, passing configuration options
+// as init args.  Using an alias for now instead of renaming <server>.  We'll
+// see how things progress.
+//
+define constant <http-server> = <server>;
+
 define sealed method make
-    (class == <server>, #rest keys, #key) => (server :: <server>)
-  let lock = make(<lock>);
+    (class == <server>, #rest keys, #key listeners :: <sequence>)
+ => (server :: <server>)
+  // listeners is a sequence of <listener>s, or strings in the form "addr:port".
+  let listeners = map-as(<stretchy-vector>, make-listener, listeners);
+  let lock = make(<recursive-lock>);
   let listeners-notification = make(<notification>, lock: lock);
   let clients-notification = make(<notification>, lock: lock);
   let stdout-log = make(<stream-log-target>, stream: *standard-output*);
@@ -90,18 +100,12 @@ define sealed method make
                    error-log: make(<stream-log-target>, stream: *standard-error*));
   apply(next-method, class,
         lock: lock,
+        listeners: listeners,
         listeners-notification: listeners-notification,
         clients-notification: clients-notification,
         default-virtual-host: vhost,
         keys)
 end method make;
-
-// API
-// The user instantiates this class directly, passing configuration options
-// as init args.  Using an alias for now instead of renaming <server>.  We'll
-// see how things progress.
-//
-define constant <http-server> = <server>;
 
 // API
 define method initialize
@@ -124,8 +128,8 @@ define method note-user-agent
   end;
 end;
 
-define function release-listener (listener :: <listener>)
-  let server = listener.listener-server;
+define function release-listener
+    (server :: <server>, listener :: <listener>)
   with-lock (server.server-lock)
     remove!(server.server-listeners, listener);
     when (empty?(server.server-listeners))
@@ -145,20 +149,15 @@ define function release-client (client :: <client>)
 end release-client;
 
 define class <listener> (<sealed-constructor>)
-  constant slot listener-server :: <server>,
-    required-init-keyword: server:;
-
   constant slot listener-port :: <integer>,
     required-init-keyword: port:;
 
   constant slot listener-host :: false-or(<string>),
     required-init-keyword: host:;
 
-  constant slot listener-thread :: <thread>,
-    required-init-keyword: thread:;
-
-  slot listener-socket :: <server-socket>,
-    required-init-keyword: socket:;
+  slot listener-socket :: false-or(<server-socket>),
+    init-value: #f,
+    init-keyword: socket:;
 
   // Maybe should hold some mark of who requested it..
   slot listener-exit-requested? :: <boolean> = #f;
@@ -173,6 +172,31 @@ define class <listener> (<sealed-constructor>)
   slot total-restarts :: <integer> = 0;             // Listener restarts
 
 end class <listener>;
+
+define method make-listener
+    (listener :: <listener>) => (listener :: <listener>)
+  listener
+end;
+
+define method make-listener
+    (listener :: <string>) => (listener :: <listener>)
+  let parts = split(listener, ':');
+  if (parts.size ~= 2)
+    error(make(<koala-api-error>,
+               format-string: "Invalid listener spec: %s",
+               format-arguments: list(listener)))
+  else
+    let (host, port) = apply(values, parts);
+    let port = string-to-integer(port);
+    make(<listener>, host: host, port: port)
+  end
+end method make-listener;
+
+define method listener-name
+    (listener :: <listener>) => (name :: <string>)
+  format-to-string("HTTP Listener for %s:%d",
+                   listener.listener-host, listener.listener-port)
+end;
 
 define class <client> (<sealed-constructor>)
   constant slot client-server :: <server>,
@@ -237,21 +261,15 @@ end;
 
 define thread variable *server* :: false-or(<server>) = #f;
 
-// make thread variable
-define variable *next-listener-id* :: <integer> = 0;
-
 // This is called when the library is loaded (from main.dylan).
 define function init-server
     (server :: <http-server>,
-     #key listeners :: <integer> = 1,
-          request-class :: subclass(<basic-request>) = *default-request-class*,
+     #key request-class :: subclass(<basic-request>) = *default-request-class*,
           config-file :: false-or(<string>))
-  server.max-listeners := listeners;
   server.request-class := request-class;
   if (config-file)
     configure-server(config-file);
   end;
-  log-info("%s HTTP Server starting up", $server-name);
   ensure-sockets-started();  // TODO: Can this be moved into start-server?
   log-info("Server root directory is %s", *server-root*);
   run-init-functions();
@@ -259,13 +277,18 @@ end init-server;
 
 // API
 // This is what client libraries call to start the server.
-//
+// Returns #f if there is an error during startup; otherwise #t.
+// If background is #t then run the server in a thread and return
+// immediately.  Otherwise wait until all listeners have shut down.
+// If wait is #t then don't return until all listeners are ready.
+// 
 define function start-server
     (server :: <http-server>,
      #key config-file :: false-or(<string>),
-          port :: false-or(<integer>),
-          background :: <boolean> = #f)
+          background :: <boolean> = #f,
+          wait :: <boolean> = #t)
  => (started? :: <boolean>)
+  log-info("Starting %s HTTP Server", $server-name);
   dynamic-bind (*server* = server)
     init-server(server, config-file: config-file);
   end;
@@ -273,30 +296,55 @@ define function start-server
     log-error("Server startup aborted due to the previous errors");
     #f
   else
-    let listen-ip = vhost-ip(default-virtual-host(server));
-    local method start-server-internal ()
-            http-server-top-level(server, listen-ip, port | 80);
-          end;
-    if (background)
-      make(<thread>, function: start-server-internal, name: "HTTP Server");
-    else
-      start-server-internal()
+    for (listener in server.server-listeners)
+      start-http-listener(server, listener)
+    end;
+    if (wait)
+      wait-for-listeners-to-start(server.server-listeners);
+    end;
+    if (~background)
+      // Apparently when the main thread dies in an Open Dylan application
+      // the application exits without waiting for spawned threads to die,
+      // so join-listeners keeps the main thread alive until all listeners die.
+      join-listeners(server);
     end;
     #t
   end if
 end function start-server;
 
-define function http-server-top-level
-    (server :: <http-server>, listen-ip :: <string>, listen-port :: <integer>)
-  dynamic-bind (*server* = server)
-    while (start-http-listener(*server*, listen-port, listen-ip))
-    end;
-    // Apparently when the main thread dies in an Open Dylan application
-    // the application exits without waiting for spawned threads to die,
-    // so join-listeners keeps the main thread alive until all listeners die.
-    join-listeners(*server*);
-  end;
-end function http-server-top-level;
+define function wait-for-listeners-to-start
+    (listeners :: <sequence>)
+  // Either make a connection to each listener or signal an error.
+  for (listener in listeners)
+    // Geez, this date code feels inefficient...wish I could just use an
+    // integer and get-universal-time.
+    let start :: <date> = current-date();
+    let max-wait = make(<duration>, days: 0, hours: 0, minutes: 0, seconds: 1,
+                        microseconds: 0);
+    block (exit-while)
+      while (#t)
+        let socket = #f;
+        block ()
+          let host = listener.listener-host;
+          socket := make(<tcp-socket>,
+                         // hack hack
+                         host: iff(host = "0.0.0.0", "localhost", host),
+                         port: listener.listener-port);
+          // If we made a connection we're done.
+          exit-while();
+        cleanup
+          socket & close(socket);
+        exception (ex :: <connection-failed>)
+          if (current-date() - start > max-wait)
+            signal(ex)
+          else
+            sleep(0.1);
+          end;
+        end block;
+      end while;
+    end block;
+  end for;
+end function wait-for-listeners-to-start;
 
 define function join-listeners
     (server :: <server>)
@@ -322,6 +370,7 @@ define function stop-server
     join-clients(server);
   end;
   abort-clients(server);
+  log-info("%s HTTP server stopped", $server-name);
 end function stop-server;
 
 define function abort-listeners (server :: <server>)
@@ -329,20 +378,24 @@ define function abort-listeners (server :: <server>)
     let listener = with-lock (server.server-lock)
                      any?(method (listener :: <listener>)
                             ~listener.listener-exit-requested? & listener
-                          end, server.server-listeners);
+                          end,
+                          server.server-listeners);
                    end;
     when (listener)
       listener.listener-exit-requested? := #t; // don't restart
       synchronize-side-effects();
-      close(listener.listener-socket, abort?: #t);
+      if (listener.listener-socket)
+        close(listener.listener-socket, abort?: #t);
+      end;
       next();
     end;
   end iterate;
   // Don't use join-thread, because no timeouts, so could hang.
   let n = with-lock (server.server-lock)
-            empty?(server.server-listeners) |
+            if (~empty?(server.server-listeners))
               wait-for(server.server-listeners-notification,
                        timeout: server.listener-shutdown-timeout);
+            end;
             let n = server.server-listeners.size;
             server.server-listeners.size := 0;
             n
@@ -378,62 +431,45 @@ define function join-clients (server :: <server>, #key timeout)
 end join-clients;
 
 define function start-http-listener
-    (server :: <server>, port :: <integer>, ip :: <string>)
- => (started? :: <boolean>)
+    (server :: <server>, listener :: <listener>)
   let server-lock = server.server-lock;
-  let listener = #f;
   local method run-listener-top-level ()
           with-lock (server-lock) end; // Wait for setup to finish.
-          //---TODO: Include the thread name in the log message.
-          log-info("Listener starting up");
-          let listener :: <listener> = listener;
+          log-info("%s starting", listener.listener-name);
           block ()
-            listener-top-level(listener);
+            listener-top-level(server, listener);
           cleanup
-            log-info("Listener on port %d shutting down", port);
             close(listener.listener-socket, abort?: #t);
-            release-listener(listener);
+            release-listener(server, listener);
           end;
         end method;
-  let started? = #f;
   with-lock (server-lock)
-    let listeners = server.server-listeners;
-    when (listeners.size < server.max-listeners)
-      log-debug("Creating a new listener thread.");
-      let socket = make(<server-socket>, host: ip, port: port);
-      let thread = make(<thread>,
-                        name: format-to-string("HTTP Listener #%s/%d",
-                                               *next-listener-id*, port),
-                        function: run-listener-top-level);
-      wrapping-inc!(*next-listener-id*);
-      listener := make(<listener>,
-                       server: server,
-                       port: port,
-                       socket: socket,
-                       host: ip,
-                       thread: thread);
-      add!(server.server-listeners, listener);
-      started? := #t
-    end;
+    let handler <socket-condition>
+      = method (cond :: <socket-condition>, next-handler :: <function>)
+          log-error("Error creating socket for %s: %s",
+                    listener.listener-name, cond);
+          release-listener(server, listener);
+          next-handler(); // decline to handle the error
+        end;
+    listener.listener-socket := make(<server-socket>,
+                                     host: listener.listener-host,
+                                     port: listener.listener-port);
+    make(<thread>,
+         name: listener.listener-name,
+         function: run-listener-top-level);
   end;
-  started?
 end start-http-listener;
 
-define function listener-top-level (listener :: <listener>)
+define function listener-top-level
+    (server :: <server>, listener :: <listener>)
   with-socket-thread (server?: #t)
     // loop spawning clients until listener socket gets broken.
-    do-http-listen(listener);
+    do-http-listen(server, listener);
   end;
   // Kill or reuse thread
-  let server = listener.listener-server;
   let restart? = with-lock (server.server-lock)
-                   let listeners = server.server-listeners;
-                   when (*exiting-application*)
-                     server.max-listeners := 0
-                   end;
                    when (~*exiting-application* &
-                         ~listener.listener-exit-requested? &
-                         listeners.size <= server.max-listeners)
+                         ~listener.listener-exit-requested?)
                      listener.listener-socket
                        := make(<server-socket>,
                                host: listener.listener-host,
@@ -442,12 +478,11 @@ define function listener-top-level (listener :: <listener>)
                      #t
                    end;
                  end;
-  let name = listener.listener-thread.thread-name;
   if (restart?)
-    log-info("Restarting %s", name);
-    listener-top-level(listener);
+    log-info("%s restarting", listener.listener-name);
+    listener-top-level(server, listener);
   else
-    log-info("Shutting down %s", name);
+    log-info("%s shutting down", listener.listener-name);
   end;
 end listener-top-level;
 
@@ -460,21 +495,27 @@ end listener-top-level;
 //---TODO: need to handle errors.
 // Listen and spawn handlers until listener socket breaks.
 //
-define function do-http-listen (listener :: <listener>)
-  let server = listener.listener-server;
+define function do-http-listen
+    (server :: <server>, listener :: <listener>)
   let server-lock = server.server-lock;
+  log-info("%s ready for service", listener.listener-name);
   iterate loop ()
     // Let outsiders know when we've blocked...
     listener.listener-listen-start := current-date();
     let socket = block ()
                    unless (listener.listener-exit-requested?)
-                     log-info("Ready for service on port %d",
-                              listener.listener-port);
                      // use "element-type: <byte>" here?
-                     accept(listener.listener-socket); // blocks
+                     accept(listener.listener-socket) // blocks
+                   end
+                 exception (error :: <blocking-call-interrupted>)
+                   // Usually this means we're shutting down so we closed the
+                   // connection with close(s, abort: #t)
+                   unless (listener.listener-exit-requested?)
+                     log-error("Error accepting connections: %s", error);
                    end;
-                 exception (c :: <socket-condition>)
-                   log-error("%=", c);
+                   #f
+                 exception (error :: <socket-condition>)
+                   log-error("Error accepting connections: %s", error);
                    #f
                  end;
     synchronize-side-effects();
@@ -507,11 +548,11 @@ define function do-http-listen (listener :: <listener>)
                          socket: socket,
                          thread: thread);
           add!(server.clients, client);
-        exception (e :: <error>)
+        exception (ex :: <error>)
           //this should be <thread-error>, which is not yet exported
           //needs a compiler bootstrap, so specify it sometime later
           //hannes, 27th January 2007
-          log-info("Thread error %=", e)
+          log-info("Thread error %=", ex)
         end;
       end;
       loop();
@@ -625,8 +666,6 @@ define function handler-top-level
               block ()
                 read-request(request);
                 dynamic-bind (*virtual-host* = virtual-host(request))
-                  log-debug("Virtual host for request is '%s'", 
-                            vhost-name(*virtual-host*));
                   invoke-handler(request);
                 end;
                 force-output(request.request-socket);
@@ -707,11 +746,9 @@ define function read-request-first-line
     end if;
     request.request-url := url;
     let (responder, tail) = find-responder(request.request-url);
-    log-debug("Responder: %=", responder);
     request.request-responder := responder;
     if (tail)
       request.request-tail-url := make(<url>, path: as(<deque>, tail));
-      log-debug("Setting request-tail-url to %s", request.request-tail-url);
     end if;
     for (value keyed-by key in url.uri-query)
       request.request-query-values[key] := value;
@@ -808,7 +845,6 @@ define method process-request-content
      content-length :: <integer>)
  => (content :: <string>)
   let query = copy-sequence(buffer, end: content-length);
-  log-debug("Form query string = %=", query);
   // By the time we get here request-query-values has already
   // been bound to a <string-table> containing the URL query
   // values. Now we augment it with any form values.
@@ -816,7 +852,6 @@ define method process-request-content
   for (value keyed-by key in parsed-query)
     request.request-query-values[key] := value; 
   end for;
-  log-debug("Form query = %s", request.request-query-values);
   request-content(request) := query;
   // ---TODO: Deal with content types intelligently.
   // For now this'll have to do.
@@ -842,7 +877,6 @@ define method process-request-content
   let boundary = split(second(header-content-type), '=');
   if (element(boundary, 1, default: #f))
     let boundary-value = second(boundary);
-    log-debug("boundary: %=", boundary-value);
     extract-form-data(buffer, boundary-value, request);
     // ???
     request-content(request) := buffer
@@ -923,10 +957,7 @@ define method invoke-handler (request :: <request>) => ()
   dynamic-bind (*response* = response)
     if (request.request-responder)
      let url = request.request-url;
-     log-debug("Responder found for %s", url);
      let (actions, match) = find-actions(request);
-     log-debug("Action sequence: %=", actions);
-     log-debug("Responder match: %=", match);
      if (actions)
        // Invoke each action function with keyword arguments matching the names
        // of the named groups in the first regular expression that matches the
@@ -964,11 +995,8 @@ define inline function find-actions
   if (responders)
     block (return)
       let url-tail = build-path(request.request-tail-url);
-      log-debug("url-tail: %=", url-tail);
       for (actions keyed-by regex in responders)
-        log-debug("regex -> actions:  %= -> %=", regex.regex-pattern, actions);
         let match = regex-search(regex, url-tail);
-        log-debug("find-actions: match: %=", match);
         if (match)
           return(actions, match)
         end if;
@@ -998,7 +1026,6 @@ define method invoke-responder
      action :: <function>,
      arguments :: <sequence>)
  => ()
-  log-debug("Invoking action %= with %=.", action, arguments);
   apply(action, arguments)
 end;
 
@@ -1101,7 +1128,6 @@ define method extract-form-data
              end if;
       end if;
     end if;
-    log-debug("multipart/form-data for %=: %=, %=, %=", name, disposition, type, filename);
   end for;
 end method extract-form-data;
 */

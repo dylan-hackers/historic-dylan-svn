@@ -97,10 +97,6 @@ define class <virtual-host> (<object>)
   slot document-root :: <directory-locator>;
   slot dsp-root :: <directory-locator>;
 
-  // I'd like to rename this to vhost-bind-address or maybe vhost-listen-ip-address,
-  // and probably use a constant for INADDR_ANY.  --cgay
-  slot vhost-ip :: <string> = "0.0.0.0";
-
   // List of <directory-spec> objects that determine how documents in
   // different directories are treated.  These are searched in order,
   // and the first one to match the requested URL is used.  Items are

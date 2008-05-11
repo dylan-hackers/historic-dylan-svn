@@ -1,13 +1,18 @@
 Module:    httpi
-Synopsis:  Library initialization code
+Synopsis:  A command-line interface to start Koala as an application.
 Author:    Carl Gay
-Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2008 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 //// Initialization
 
-define function init-koala ()
+begin
+  add-option-parser-by-type(*argument-list-parser*,
+                            <repeated-parameter-option-parser>,
+                            description: "ipaddr:port on which to listen for requests",
+                            long-options: #("listen"),
+                            short-options: #("l"));
   add-option-parser-by-type(*argument-list-parser*,
                             <parameter-option-parser>,
                             description: "Location of the koala configuration file",
@@ -30,12 +35,6 @@ define function init-koala ()
                             long-options: #("debug"));
 end;
 
-begin
-  init-koala();
-end;
-
-// A "main" function for web apps that want to start up Koala in the foreground
-// with a standardized command-line.
 // This is defined here rather than in koala-app because wiki needs it too.
 //
 define function koala-main
@@ -51,12 +50,16 @@ define function koala-main
                    usage: "koala [options]",
                    description: desc);
   else
+    let port-string = option-value-by-long-name(parser, "port") | "80";
+    let listeners = option-value-by-long-name(parser, "listen");
     let server = make(<http-server>,
-                      debug: option-value-by-long-name(parser, "debug"));
+                      listeners: iff(empty?(listeners),
+                                     #["0.0.0.0:80"],
+                                     listeners),
+                      debug: option-value-by-long-name(parser, "debug"),
+                      port: string-to-integer(port-string));
     start-server(server,
-                 config-file: option-value-by-long-name(parser, "config"),
-                 port: string-to-integer(option-value-by-long-name(parser, "port")
-                                         | "80"));
+                 config-file: option-value-by-long-name(parser, "config"));
   end;
 end function koala-main;
 

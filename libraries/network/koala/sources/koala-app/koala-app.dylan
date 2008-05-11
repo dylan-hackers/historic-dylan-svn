@@ -7,5 +7,5 @@ Author:   Carl Gay
 // if there's a good way to fix it.
 
 begin
-  koala-main(make(<http-server>));
+  koala-main();
 end;

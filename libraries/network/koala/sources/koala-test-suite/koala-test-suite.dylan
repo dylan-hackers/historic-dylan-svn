@@ -2,43 +2,110 @@ Module: koala-test-suite
 
 define constant fmt = format-to-string;
 
+define variable *test-port* :: <integer> = 8080;
+
+define function make-listener
+    (address :: <string>) => (listener :: <string>)
+  format-to-string("%s:%d", address, *test-port*)
+end;
+
+define constant $listener-any = make-listener("0.0.0.0");
+define constant $listener-127 = make-listener("127.0.0.1");
+
+define function make-server
+    (#rest keys, #key listeners, #all-keys)
+  apply(make, <http-server>,
+        listeners: listeners | list($listener-any),
+        keys)
+end;
+
+define function connect-and-close
+    (addr, #key port = *test-port*)
+  block ()
+    with-http-stream(stream to addr, port: port)
+      #t
+    end;
+  exception (ex :: <connection-failed>)
+    #f
+  end;
+end function connect-and-close;
+
+// todo -- define macro with-server ...
+
+
+define test start-stop-basic-test ()
+  let server = make-server();
+  check-equal("start-server returns #t",
+              start-server(server, background: #t, wait: #t),
+              #t);
+  stop-server(server);
+end;
+
+// Make sure there are no timing problems related to threads and
+// starting and stopping the server.
+define test repeated-start-stop-test ()
+  for (i from 1 to 5)
+    let server = make-server();
+    check-equal("start-server returns #t",
+                start-server(server, background: #t, wait: #t),
+                #t);
+    stop-server(server);
+  end;
+end;
+
+define test conflicting-listener-ips-test ()
+  let server = make-server(listeners: list($listener-127, $listener-127));
+  check-condition("start-server with conflicting listener-ips",
+                  <address-in-use>,
+                  start-server(server, background: #t, wait: #t));
+  stop-server(server);
+end;
+
+// Make sure we can bind specific IP addresses.
+define test bind-interface-test ()
+  let host-addresses = map(host-address, all-addresses($local-host));
+  for (addrs in list(#["127.0.0.1"],
+                     concatenate(host-addresses, #["127.0.0.1"]),
+                     #["0.0.0.0"]))
+
+    log-debug("STARTING SERVER WITH ADDRS = %s", addrs);
+    let server = make-server(listeners: map(make-listener, addrs));
+    check-equal(fmt("start-server with addrs %s returns #t", addrs),
+                start-server(server,
+                             background: #t,
+                             wait: #t),
+                #t);
+    
+    for (addr in concatenate(host-addresses, #("127.0.0.1")))
+      if (member?(addr, addrs, test: \=) | addrs = #["0.0.0.0"])
+        check-true(fmt("address %s is listening for bound = %s", addr, addrs),
+                   connect-and-close(addr));
+      else
+        check-false(fmt("address %s is NOT listening for bound = %s", addr, addrs),
+                    connect-and-close(addr));
+      end;
+    end for;
+    stop-server(server);
+  end for;
+end test bind-interface-test;
+
+define suite start-stop-test-suite ()
+  test start-stop-basic-test;
+  test repeated-start-stop-test;
+  test bind-interface-test;
+  test conflicting-listener-ips-test;
+end suite start-stop-test-suite;
+
 define suite koala-test-suite ()
-    suite header-test-suite;
+  suite start-stop-test-suite;
 end suite koala-test-suite;
 
-define suite header-test-suite ()
-  test test-date-header-parsing;
-end suite header-test-suite;
-
-define test test-date-header-parsing ()
-  // RFC 2616 - 3.3.1
-  // HTTP/1.1 clients and servers that parse the date value MUST accept
-  // all three formats (for compatibility with HTTP/1.0), though they MUST
-  // only generate the RFC 1123 format for representing HTTP-date values
-  // in header fields. See section 19.3 for further information.
-  //    Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
-  //    Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
-  //    Sun Nov  6 08:49:37 1994       ; ANSI C's asctime() format
-  let date = encode-date(1994, 11, 06, 08, 49, 37, time-zone-offset: 0);
-  let test-dates = #(
-    "Tue, 15 Nov 1994 12:45:26 GMT",  // rfc1123
-    "Sun, 06 Nov 1994 08:49:37 GMT",  // rfc1123
-    "Sunday, 06-Nov-94 08:49:37 GMT", // rfc850
-    "Sun Nov  6 08:49:37 1994"        // ANSI C asctime (GMT)
-    );
-  for (test-date in test-dates)
-    check-equal(fmt("Date %s parses correctly", test-date),
-                date,
-                parse-http-date(test-date, 0, test-date.size));
-  end;
-end test test-date-header-parsing;
-
 define function main ()
+  start-sockets();
   run-test-application(koala-test-suite);
 end;
 
 begin
   main();
 end;
-
 
