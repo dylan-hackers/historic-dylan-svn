@@ -121,9 +121,11 @@
 <default-virtual-host enabled="yes"/>
 
 
-<!-- Listen IP on which to listen for HTTP requests. Note that at
-     top-level the <port> element applies to the default virtual host. -->
-<!-- <listen-ip value="192.168.42.23" /> -->
+<!-- LISTENER elements are used to add an ip-addr/port pair on which
+     to listen for HTTP requests.  Use 0.0.0.0 to listen on all
+     interfaces.  There may be multiple listener specs.  The default
+     is to listen on 0.0.0.0:80 if not specified.  -->
+<listener address="0.0.0.0" port="80" />
 
 <!-- location of the mime-type file -->
 <mime-type-map location="mime-type-map.xml" />

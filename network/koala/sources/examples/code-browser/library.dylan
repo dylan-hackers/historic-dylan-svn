@@ -36,7 +36,8 @@ define module code-browser
   use threads;
   use common-extensions,
     exclude: { format-to-string };
-  use locators;
+  use locators,
+    exclude: { <http-server> };
   use format;
   use format-out;
   use streams;
