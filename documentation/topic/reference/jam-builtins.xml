@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" []>
+<reference id="reference-1">
+  <title>Additional Built-In Jam Rules</title>
+  <refbody>
+    <section>
+      <p>The build system defines the following built-in rules in addition to the ones described in <xref href="http://public.perforce.com/public/jam/src/Jam.html">the Jam manual page</xref>.</p>
+    </section>
+  </refbody>
+  <reference id="reference-jam-builtins-DFMCMangle">
+    <title>DFMCMangle</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>DFMCMangle</kwd>
+           <parmname>name</parmname>
+           <delim>;</delim>
+        </synph>
+       </refsyn>
+      <section>
+        <p>Mangle the given <parmname>name</parmname> according to the Open Dylan compiler&apos;s name mangling rules. If <parmname>name</parmname> has a single component, it is considered to be a <q>raw</q> name; if there are three components they correspond to the variable-name, module-name, and library-name respectively.</p>
+      </section>
+    </refbody>
+  </reference>
+  <reference id="jam-builtin-IncludeMKF">
+    <title>IncludeMKF</title>
+    <refbody>
+      <refsyn>
+        <synph>
+          <kwd>IncludeMKF</kwd>
+           <parmname>includes</parmname>
+           <delim>;</delim>
+        </synph>
+      </refsyn>
+      <section>
+        <p>Read each of the given <filepath>.mkf</filepath> files and invoke Jam rules as described <xref href="jam-invoked-rules.xml">here</xref>.</p>
+      </section>
+    </refbody>
+  </reference>
+</reference>

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" []>
+<reference id="reference-jam-pseudo-targets">
+  <title>Build System Pseudo-targets</title>
+
+  <refbody>
+    <section>
+      <p>The Open Dylan compiler expects the build script to define
+      the following pseudo (<codeph>NotFile</codeph>) targets:</p>
+
+      <dl>
+        <dlentry>
+          <dt>exports</dt>
+          <dd>Not currently implemented.</dd>
+        </dlentry>
+        <dlentry>
+          <dt>unify-dll</dt>
+          <dd>Link the project as a dynamically-linked library, with some of the dependent libraries included as part of the same library image. Not currently implemented.</dd>
+        </dlentry>
+        <dlentry>
+          <dt>dll</dt>
+          <dd>Link the project as a dynamically-linked library.</dd>
+        </dlentry>
+        <dlentry>
+          <dt>unify-exe</dt>
+          <dd>Link the project as an executable program, with selected dependent libraries included as part of the same executable image. Not currently implemented.</dd>
+        </dlentry>
+        <dlentry>
+          <dt>exe</dt>
+          <dd>Link the project as an executable program.</dd>
+        </dlentry>
+        <dlentry>
+          <dt>release</dt>
+          <dd>Not currently implemented.</dd>
+        </dlentry>
+        <dlentry>
+          <dt>clean-all</dt>
+          <dd>Remove build products in the top-level project, and in all of the non-system libraries that it uses.</dd>
+        </dlentry>
+        <dlentry>
+          <dt>clean</dt>
+          <dd>Remove build products in the top-level project.</dd>
+        </dlentry>
+      </dl>
+    </section>
+  </refbody>
+</reference>

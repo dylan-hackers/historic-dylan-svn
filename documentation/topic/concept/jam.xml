@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd" []>
-<concept id="concept-1">
+<concept id="jam">
   <title>Jam</title>
   <conbody>
     <p><xref href="http://www.perforce.com/jam/jam.html">Jam</xref> is
