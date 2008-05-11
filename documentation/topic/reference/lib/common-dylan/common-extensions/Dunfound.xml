@@ -20,7 +20,7 @@
     </dylanConstantDef>
 
     <apiDesc>
-      <p>The <apivalue>$unfound</apivalue> constant represents a
+      <p>The <apiname>$unfound</apiname> constant represents a
       unique value that can be used to indicate that a search
       operation failed.</p>
     </apiDesc>

@@ -16,7 +16,8 @@
     <dylanGenericFunctionDef>
       <dylanFunctionParam>
 	<apiItemName>type</apiItemName>
-        <apiOperationClassifier href="../internal/Lmutable_sequence_typeG.xml">&lt;mutable-sequence-type&gt;</apiOperationClassifier>
+	<!-- &lt;mutable-sequence-type&gt; -->
+        <apiOperationClassifier href="LtypeG.xml">&lt;type&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>

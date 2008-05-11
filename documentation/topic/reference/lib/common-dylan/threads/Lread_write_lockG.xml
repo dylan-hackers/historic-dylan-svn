@@ -22,7 +22,7 @@
     </dylanClassDef>
 
     <apiDesc>
-      <p>The <apiname>&lt;;read-write-lock&gt;</apiname> class
+      <p>The <apiname>&lt;read-write-lock&gt;</apiname> class
       represents locks that can have multiple readers but only one
       writer.</p>
 

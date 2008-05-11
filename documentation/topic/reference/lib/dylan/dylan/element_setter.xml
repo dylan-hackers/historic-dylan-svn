@@ -22,7 +22,7 @@
       </dylanFunctionParam>
       <dylanFunctionParam>
 	<apiItemName>collection</apiItemName>
-        <apiOperationClassifier href="../dylan-extensions/Lmutable_object_with_elementsG.xml">&lt;mutable-object-with-elements&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../dylan-extensions/Lmutable_collection.xml">&lt;mutable-collection&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>

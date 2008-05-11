@@ -14,7 +14,7 @@
 
   <dylanClassDetail>
     <dylanClassDef>
-      <dylanSuperClass href="../../common-dylan/common-extensions/Labstract_integerG.xml">&lt;abstract-integer&gt;</dylanSuperClass>
+      <dylanSuperClass href="../../c-ffi/c-ffi/Labstract_integerG.xml">&lt;abstract-integer&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

@@ -15,10 +15,12 @@
   <dylanModuleDetail>
     <apiDesc>
       <p>The <apiname>transcendentals</apiname> module, exported from
-      the <apipackage>common-dylan</apipackage> library, provides a
-      set of open generic functions for ANSI C-like behavior over real
-      numbers. The restrictions and error cases described in this
-      chapter are intended to be the same as they are in ANSI C.</p>
+      the <apipackage
+      href="../common-dylan.xml">common-dylan</apipackage> library,
+      provides a set of open generic functions for ANSI C-like
+      behavior over real numbers. The restrictions and error cases
+      described in this chapter are intended to be the same as they
+      are in ANSI C.</p>
 
       <p>Because implementation of these functions might be by a
       standard library for transcendentals accessed by a foreign

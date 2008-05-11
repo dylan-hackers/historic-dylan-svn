@@ -2,7 +2,9 @@
 <!DOCTYPE dylanMacro PUBLIC "-//Gwydion//DTD DITA Dylan API Macro//EN" "../../../../dtd/dylanMacro.dtd" []>
 <dylanMacro id="lib-dylan-dylan-function_definer">
   <apiName>function-definer</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>Defines a constant binding in the current module and
+  initializes it to a new function.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,11 +16,68 @@
 
   <dylanMacroDetail>
     <apiSyntax>
-      <apiSyntaxText></apiSyntaxText>
+      <apiSyntaxText>define {<apiItemName>adjective</apiItemName>}* function <apiItemName>name</apiItemName> <apiItemName>parameter-list</apiItemName>
+  [ <apiItemName>body</apiItemName> ]
+end [ function ] [ <apiItemName>name</apiItemName> ]</apiSyntaxText>
+      <apiSyntaxItem>
+	<apiItemName>adjective</apiItemName>
+	<apiDefNote>A Dylan unreserved-name.</apiDefNote>
+      </apiSyntaxItem>
+      <apiSyntaxItem>
+	<apiItemName>name</apiItemName>
+	<apiDefNote>A Dylan variable-name.</apiDefNote>
+      </apiSyntaxItem>
+      <apiSyntaxItem>
+	<apiItemName>parameter-list</apiItemName>
+	<apiDefNote>A Dylan parameter-list.</apiDefNote>
+      </apiSyntaxItem>
+      <apiSyntaxItem>
+	<apiItemName>body</apiItemName>
+	<apiDefNote>A Dylan body.</apiDefNote>
+      </apiSyntaxItem>
     </apiSyntax>
 
     <apiDesc>
-      <p></p>
+      <p>Creates a constant module binding with the name
+      <apiname>name</apiname>, and initializes it to a new function
+      described by <apiname>parameter-list</apiname>,
+      <apiname>options</apiname>, and any
+      <apiname>adjectives</apiname>.</p>
+
+      <p>The adjectives permitted depend on the implementation. </p>
+
+      <p>The <apiname>parameter-list</apiname> describes the number
+      and types of the function’s arguments and return values. It is
+      an error to supply <codeph>#next</codeph> in the parameter list,
+      and there is no implicit <codeph>#next</codeph> parameter.</p>
     </apiDesc>
+
+    <section>
+      <title>Operations</title>
+
+      <p>The following functions return the same values as they would
+      if the function had been defined as a bare method with the same
+      signature:</p>
+
+      <ul>
+	<li><apioperation href="function_specializers.xml">function-specializers</apioperation></li>
+	<li><apioperation href="function_arguments.xml">function-arguments</apioperation></li>
+	<li><apioperation href="function_return_values.xml">function-return-values</apioperation></li>
+      </ul>
+
+      <p>Calling some of the following reflective operations on a
+      function defined with <codeph>define function</codeph> may be an
+      error:</p>
+
+      <ul>
+	<li><apioperation href="generic_function_methods.xml">generic-function-methods</apioperation></li>
+	<li><apioperation href="add_method.xml">add-method</apioperation></li>
+	<li><apioperation href="generic_function_mandatory_keywords.xml">generic-function-mandatory-keywords</apioperation></li>
+	<li><apioperation href="sorted_applicable_methods.xml">sorted-applicable-methods</apioperation></li>
+	<li><apioperation href="find_method.xml">find-method</apioperation></li>
+	<li><apioperation href="remove_method.xml">remove-method</apioperation></li>
+	<li><apioperation href="applicable_methodQ.xml">applicable-method?</apioperation></li>
+      </ul>
+    </section>
   </dylanMacroDetail>
 </dylanMacro>

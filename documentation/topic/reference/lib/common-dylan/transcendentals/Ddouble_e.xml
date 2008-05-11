@@ -20,7 +20,7 @@
     </dylanConstantDef>
 
     <apiDesc>
-      <p>The value of <codeph>e</codeph>, the base of natural
+      <p>The value of <i>e</i>, the base of natural
       logarithms, as a double precision floating point number.</p>
     </apiDesc>
   </dylanConstantDetail>

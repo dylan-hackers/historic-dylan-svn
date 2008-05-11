@@ -19,7 +19,7 @@
       <dylanSuperClass href="LvectorG.xml">&lt;vector&gt;</dylanSuperClass>
       <dylanInitKeyword>
 	<apiItemName>fill:</apiItemName>
-        <apiOtherClassifier href="../dylan-extensions/Lunicode_characterG.xml">&lt;unicode-character&gt;</apiOtherClassifier>
+        <apiOtherClassifier href="../../io/streams/Lunicode_characterG.xml">&lt;unicode-character&gt;</apiOtherClassifier>
 	<apiDefNote></apiDefNote>
       </dylanInitKeyword>
     </dylanClassDef>

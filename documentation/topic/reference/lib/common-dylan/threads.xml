@@ -15,8 +15,8 @@
   <dylanModuleDetail>
     <apiDesc>
       <p>The <apipackage>threads</apipackage> module of the
-      <apipackage>common-dylan</apipackage> library provides a
-      portable threads interface for Dylan.  The
+      <apipackage href="../common-dylan.xml">common-dylan</apipackage>
+      library provides a portable threads interface for Dylan.  The
       <apipackage>threads</apipackage> module is designed to map
       easily and efficiently onto the threads facilities provided by
       all common operating systems. </p>

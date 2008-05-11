@@ -3,7 +3,7 @@
 <dylanFunction id="lib-common-dylan-threads-sequence_point">
   <apiName>sequence-point</apiName>
 
-  <shortdesc>>Tells the compiler that it must consider the possibility
+  <shortdesc>Tells the compiler that it must consider the possibility
   of visible side effects from other threads at the point of the
   call</shortdesc>
 

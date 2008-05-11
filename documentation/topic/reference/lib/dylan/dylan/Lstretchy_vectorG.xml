@@ -16,8 +16,8 @@
     <dylanClassDef>
       <dylanOpenClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
-      <dylanSuperClass href="../dylan-extensions/Lstretchy_sequenceG.xml">&lt;stretchy-sequence&gt;</dylanSuperClass>
       <dylanSuperClass href="LvectorG.xml">&lt;vector&gt;</dylanSuperClass>
+      <dylanSuperClass href="Lstretchy_collectionG.xml">&lt;stretchy-collection&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>

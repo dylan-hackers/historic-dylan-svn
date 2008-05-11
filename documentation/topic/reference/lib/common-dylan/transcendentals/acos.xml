@@ -33,10 +33,12 @@
       precision of the result is given by the precision of
       <varname>x</varname>. The result is a
       <apiclassifier>&lt;single-float&gt;</apiclassifier> if
-      <varname>x</varname> is an
-      <apiclassifier>&lt;integer&gt;</apiclassifier>.</p>
+      <varname>x</varname> is an <apiclassifier
+      href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiclassifier>.
+      </p>
     </apiDesc>
   </dylanGenericFunctionDetail>
+  
   <related-links>
     <link href="asin.xml">
       <linktext>The <apiname>asin</apiname> function</linktext>

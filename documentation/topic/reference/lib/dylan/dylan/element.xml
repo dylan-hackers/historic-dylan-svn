@@ -17,7 +17,7 @@
       <dylanGenericFunctionSealing value='open'/>
       <dylanFunctionParam>
 	<apiItemName>collection</apiItemName>
-        <apiOperationClassifier href="../dylan-extensions/Lobject_with_elementsG.xml">&lt;object-with-elements&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="LcollectionG.xml">&lt;collection&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>

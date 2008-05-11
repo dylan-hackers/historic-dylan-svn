@@ -69,16 +69,17 @@
       which is used to notify other threads that an object is being put
       onto an empty queue.</p>
 
-      <pre>define constant *something-queued* =</pre>
-
-      <pre>make(&lt;notification&gt;, lock: *lock*);</pre>
+<codeblock>
+define constant *something-queued* = 
+  make(&lt;notification&gt;, lock: *lock*);
+</codeblock>
 
       <p>The function <codeph>put-on-queue</codeph>  pushes an object onto
       the queue. If the queue was initially empty, then all threads which
       are waiting for the queue to fill are notified that there is a new
       entry.</p>
 
-      <codeblock>
+<codeblock>
 define method put-on-queue (object) =&gt; ()
   with-lock (*lock*)
     if (*queue*.empty?)
@@ -96,7 +97,7 @@ end method;
       again to see if an object is present, in case it was popped by
       another thread.</p>
 
-      <codeblock>
+<codeblock>
 define method get-from-queue () =&gt; (object)
   with-lock (*lock*)
     while (*queue*.empty?) 

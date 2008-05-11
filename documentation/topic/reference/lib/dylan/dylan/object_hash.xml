@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-dylan-dylan-object_hash">
   <apiName>object-hash</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns a hash code corresponding to the equivalence
+  predicate <apiname>==</apiname>.</shortdesc>
 
   <prolog>
     <author></author>
@@ -37,7 +39,17 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns a hash code for <parmname>object</parmname> that
+      corresponds to the equivalence predicate <apioperation
+      href="EE.xml">==</apioperation>.</p>
+
+      <p>This function can be called from hash functions in which the
+      object identity of some component of a key is to be used in
+      computing the hash code. </p>
+
+      <p>It returns a hash ID (an integer) and the result of merging
+      the initial state with the associated hash state for the object,
+      computed in an implementation-dependent manner. </p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

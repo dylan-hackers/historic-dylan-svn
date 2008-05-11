@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-dylan-dylan-table_protocol">
   <apiName>table-protocol</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns functions used to implement the iteration
+  protocol for tables.</shortdesc>
 
   <prolog>
     <author></author>
@@ -16,7 +18,7 @@
     <dylanGenericFunctionDef>
       <dylanGenericFunctionSealing value='open'/>
       <dylanFunctionParam>
-	<apiItemName>t</apiItemName>
+	<apiItemName>table</apiItemName>
         <apiOperationClassifier href="LtableG.xml">&lt;table&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
@@ -33,7 +35,41 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Returns the functions used to iterate over tables. These
+      functions are in turn used to implement the other collection
+      operations on <apiclassifier
+      href="lTableG.xml">&lt;table&gt;</apiclassifier>.</p>
+
+      <p>The <parmname>test-function</parmname> argument is for the
+      table test function, which is used to compare table keys. It
+      returns true if, according to the table’s equivalence predicate,
+      the keys are members of the same equivalence class. Its
+      signature must be:</p>
+
+
+      <codeblock>test-function <parmname>key1</parmname> <parmname>key2</parmname> =&gt; <parmname>boolean</parmname></codeblock>
+
+      <p>The <parmname>hash-function</parmname> argument is for the table hash
+      function, which computes the hash code of a key. Its signature
+      must be:</p>
+
+      <codeblock>hash-function <parmname>key</parmname> <parmname>initial-state</parmname> =&gt; <parmname>id</parmname> <parmname>result-state</parmname></codeblock>
+
+      <p>In this signature, <parmname>initial-state</parmname> is an
+      instance of <apiclassifier
+      href="../../collections/table-extensions/Lhash_stateG.xml">&lt;hash-state&gt;</apiclassifier>. The
+      hash function computes the hash code of
+      <parmname>key</parmname>, using the hash function that is
+      associated with the table’s equivalence predicate. The hash code
+      is returned as two values: an integer <parmname>id</parmname>
+      and a hash-state <parmname>result-state</parmname>. This
+      <parmname>result-state</parmname> is obtained by merging the
+      <parmname>initial-state</parmname> with the hash-state that
+      results from hashing <parmname>key</parmname>. The
+      <parmname>result-state</parmname> may or may not be == to
+      <parmname>initial-state</parmname>. The
+      <parmname>initial-state</parmname> could be modified by this
+      operation. </p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

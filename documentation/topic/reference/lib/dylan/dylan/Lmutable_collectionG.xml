@@ -17,7 +17,6 @@
       <dylanOpenClass/>
       <dylanAbstractClass value="abstract-uninstantiable"/>
       <dylanSuperClass href="LcollectionG.xml">&lt;collection&gt;</dylanSuperClass>
-      <dylanSuperClass href="../dylan-extensions/Lmutable_object_with_elementsG.xml">&lt;mutable-object-with-elements&gt;</dylanSuperClass>
     </dylanClassDef>
 
     <apiDesc>
