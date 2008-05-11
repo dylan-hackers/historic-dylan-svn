@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE bookmap PUBLIC "-//OASIS//DTD DITA BookMap//EN" "../dtd/bookmap.dtd">
+<bookmap id="core">
+  <booktitle>
+    <booklibrary>Open Dylan</booklibrary>
+    <mainbooktitle>Library Reference: Core Features</mainbooktitle>
+  </booktitle>
+
+  <bookmeta>
+    <bookid>
+      <maintainer>
+	<organization>Gwydion Dylan Maintainers</organization>
+      </maintainer>
+    </bookid>
+    <bookrights>
+      <copyrfirst>
+	<year>1997</year>
+      </copyrfirst>
+      <copyrlast>
+	<year>2004</year>
+      </copyrlast>
+      <bookowner>
+	<organization>Functional Objects, Inc.</organization>
+      </bookowner>
+      <summary></summary>
+    </bookrights>
+
+    <bookrights>
+      <copyrfirst>
+	<year>2004</year>
+      </copyrfirst>
+      <copyrlast>
+	<year>2008</year>
+      </copyrlast>
+      <bookowner>
+	<organization>Gwydion Dylan Maintainers</organization>
+      </bookowner>
+    </bookrights>
+  </bookmeta>
+  
+  <frontmatter>
+    <booklists>
+      <toc/>
+    </booklists>
+  </frontmatter>
+
+  <chapter navtitle="Dylan Language Extensions">
+    <topicref navtitle="Introduction"/>
+    <topicref navtitle="Using Open Dylan Language Extensions"/>
+    <topicref href="../../../map/reference/core-extensions.ditamap" format='ditamap'/>
+    <topicref href="../../../map/reference/language-differences.ditamap" format='ditamap'/>
+  </chapter>
+
+  <chapter navtitle="The Common Dylan Library">
+    <topicref navtitle="Introduction"/>
+    <topicref navtitle="General Language Extensions"/>
+    <topicref navtitle="Simple Random Number Generation"/>
+    <topicref navtitle="Finalization"/>
+
+    <topicref href="../../../map/reference/common-extensions.ditamap" format='ditamap'/>
+  </chapter>
+
+  <chapter navtitle="The Collections Library">
+  </chapter>
+
+  <chapter href="../../../map/reference/threads.ditamap" format='ditamap'/>
+
+  <chapter navtitle="Integers">
+  </chapter>
+
+  <chapter navtitle="The Machine Words Module">
+    <topichead navtitle="Introduction"/>
+    <topichead navtitle="Introduction"/>
+    <topichead navtitle="Useful functions from the Dylan module"/>
+  </chapter>
+  
+  <chapter href="../../../map/reference/transcendentals.ditamap" format='ditamap'/>
+
+  <chapter navtitle="Library Interchange">
+    <topicref href="../../../concept/lid-files.xml"/>
+  </chapter>
+
+  <backmatter>
+    <booklists>
+      <!--
+        <topicref href="otherbooks.dita" navtitle="Related Books"/>
+        <topicref href="trademarks.dita" navtitle="Trademarks"/>
+        <topicref href="glossary.dita navtitle="Glossary"/>
+      -->
+      <indexlist/>
+    </booklists>
+  </backmatter> 
+</bookmap>
