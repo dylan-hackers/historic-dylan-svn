@@ -157,16 +157,6 @@ begin
   generate-server-header?-setter;
 end;
 
-define method initialize
-    (vhost :: <virtual-host>, #key name, #all-keys)
-  next-method();
-  // This may be overridden by a <document-root> spec in the config file.
-  vhost.document-root := subdirectory-locator(*server-root*, name);
-  vhost.dsp-root := subdirectory-locator(*server-root*, name);
-  // Add a spec that matches all urls.
-  add-directory-spec(vhost, root-directory-spec(vhost));
-end;
-
 define method activity-log-target
     (vhost :: <virtual-host>) => (target :: <log-target>)
   vhost.%activity-log-target

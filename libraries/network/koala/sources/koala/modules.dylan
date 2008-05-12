@@ -12,7 +12,7 @@ define function module-pathname
  => (path :: <string>)
   let module = as(<file-locator>, 
     format-to-string("%s/%s", $module-directory, module-name));
-  as(<string>, merge-locators(module, *server-root*))
+  as(<string>, merge-locators(module, server-root(*server*)))
 end function module-pathname;
 
 define function load-module
