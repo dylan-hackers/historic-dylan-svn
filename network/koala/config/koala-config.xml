@@ -127,8 +127,10 @@
      is to listen on 0.0.0.0:80 if not specified.  -->
 <listener address="0.0.0.0" port="80" />
 
-<!-- location of the mime-type file -->
-<mime-type-map location="mime-type-map.xml" />
+<!-- Location of the mime-type file.  By default the contents of the
+     file augment Koala's default mime-type map.  If clear is enabled
+     then the defaults will be removed first.-->
+<mime-type-map location="mime-type-map.xml" clear="no" />
 
 
 <!-- unused as yet -->

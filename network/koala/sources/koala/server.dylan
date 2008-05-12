@@ -82,6 +82,8 @@ define class <server> (<sealed-constructor>)
   slot server-root :: <directory-locator>
     = parent-directory(locator-directory(as(<file-locator>, application-filename())));
 
+  constant slot server-mime-type-map :: <table> = make(<table>);
+
 end class <server>;
 
 // API
@@ -124,6 +126,11 @@ define method initialize
   if (doc-root)
     document-root(default-virtual-host(server))
       := as(<directory-locator>, doc-root);
+  end;
+  // Copy mime type map in, since it may be modified when config loaded.
+  let tmap :: <table> = server.server-mime-type-map;
+  for (mime-type keyed-by extension in $default-mime-type-map)
+    tmap[extension] := mime-type;
   end;
 end method initialize;
 

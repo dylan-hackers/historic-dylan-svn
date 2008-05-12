@@ -164,11 +164,11 @@ define method locator-below-root?
 end method locator-below-root?;
 
 
-// Get MIME Type for file name
-define method get-mime-type (locator :: <locator>) => (mime-type :: <string>)
+define method get-mime-type
+    (locator :: <locator>) => (mime-type :: <string>)
   let extension = locator-extension(locator);
   let sym = extension & ~empty?(extension) & as(<symbol>, extension);
-  let mime-type = ((sym & element(*mime-type-map*, sym, default: #f))
+  let mime-type = ((sym & element(server-mime-type-map(*server*), sym, default: #f))
                      | default-static-content-type(*virtual-host*));
   log-debug("extension = %=, sym = %=, mime-type = %=", extension, sym, mime-type);
   mime-type;
