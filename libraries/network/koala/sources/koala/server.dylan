@@ -8,13 +8,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
-define constant $server-version = "0.4";
-
-// This may be set true by config file loading code, in which case
-// start-server will be a no-op.
-// todo -- Just raise an exception instead (or at least make this a thread variable).
-define variable *abort-startup?* :: <boolean> = #f;
-
+define constant $server-version = "0.9";
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
 
 // This is needed to handle sockets shutdown.
@@ -307,24 +301,19 @@ define function start-server
   dynamic-bind (*server* = server)
     init-server(server, config-file: config-file);
   end;
-  if (*abort-startup?*)
-    log-error("Server startup aborted due to the previous errors");
-    #f
-  else
-    for (listener in server.server-listeners)
-      start-http-listener(server, listener)
-    end;
-    if (wait)
-      wait-for-listeners-to-start(server.server-listeners);
-    end;
-    if (~background)
-      // Apparently when the main thread dies in an Open Dylan application
-      // the application exits without waiting for spawned threads to die,
-      // so join-listeners keeps the main thread alive until all listeners die.
-      join-listeners(server);
-    end;
-    #t
-  end if
+  for (listener in server.server-listeners)
+    start-http-listener(server, listener)
+  end;
+  if (wait)
+    wait-for-listeners-to-start(server.server-listeners);
+  end;
+  if (~background)
+    // Apparently when the main thread dies in an Open Dylan application
+    // the application exits without waiting for spawned threads to die,
+    // so join-listeners keeps the main thread alive until all listeners die.
+    join-listeners(server);
+  end;
+  #t
 end function start-server;
 
 define function wait-for-listeners-to-start
