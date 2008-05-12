@@ -18,6 +18,16 @@ define thread variable %dir = #f;
 // Holds the current vhost while config elements are being processed.
 define thread variable %vhost = #f;
 
+define class <configuration-error> (<koala-api-error>)
+end;
+
+define function config-error
+    (format-string :: <string>, #rest format-args)
+  signal(make(<configuration-error>,
+              format-string: format-string,
+              format-arguments: format-args))
+end;
+
 /*
 define variable *options* = make(<table>);
 
@@ -58,14 +68,6 @@ define method configure-server
     = as(<string>, merge-locators(as(<file-locator>, config-file | defaults),
                                   defaults));
   block (return)
-    let handler <error> = method (c :: <error>, next-handler :: <function>)
-                            if (debugging-enabled?(*server*))
-                              next-handler();  // decline to handle the error
-                            else
-                              log-error("Error loading config file: %=", c);
-                              return();
-                            end;
-                          end method;
     let text = file-contents(config-loc);
     if (text)
       log-info("Loading server configuration from %s.", config-loc);
@@ -78,12 +80,12 @@ define method configure-server
           process-config-node(xml);
         end;
       else
-        log-error("Unable to parse config file!");
-        *abort-startup?* := #t;
+        config-error("Unable to parse config file!");
       end
-    else
-      log-error("Server configuration file (%s) not found.", config-loc);
-      *abort-startup?* := #t;
+    elseif (config-file)
+      // Only blow out if user specified a config file, not if they're taking
+      // the default config file.
+      config-error("Server configuration file (%s) not found.", config-loc);
     end if;
   end block;
 end method configure-server;
@@ -263,9 +265,8 @@ define method process-config-element
         := merge-locators(as(<directory-locator>, loc), server-root(*server*));
       log-info("Server root set to %s", loc);
     else
-      warn("Invalid <SERVER-ROOT> spec.  "
-           "The 'location' attribute must be specified.");
-      *abort-startup?* := #t;
+      config-error("Invalid <SERVER-ROOT> spec.  "
+                   "The 'location' attribute must be specified.");
     end;
   else
     warn("The <SERVER-ROOT> element is only valid at top-level "

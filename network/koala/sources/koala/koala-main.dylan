@@ -50,16 +50,20 @@ define function koala-main
                    usage: "koala [options]",
                    description: desc);
   else
-    let port-string = option-value-by-long-name(parser, "port") | "80";
-    let listeners = option-value-by-long-name(parser, "listen");
-    let server = make(<http-server>,
-                      listeners: iff(empty?(listeners),
-                                     #["0.0.0.0:80"],
-                                     listeners),
-                      debug: option-value-by-long-name(parser, "debug"),
-                      port: string-to-integer(port-string));
-    start-server(server,
-                 config-file: option-value-by-long-name(parser, "config"));
-  end;
+    block ()
+      let port-string = option-value-by-long-name(parser, "port") | "80";
+      let listeners = option-value-by-long-name(parser, "listen");
+      let server = make(<http-server>,
+                        listeners: iff(empty?(listeners),
+                                       #["0.0.0.0:80"],
+                                       listeners),
+                        debug: option-value-by-long-name(parser, "debug"),
+                        port: string-to-integer(port-string));
+      start-server(server,
+                   config-file: option-value-by-long-name(parser, "config"));
+    exception (ex :: <error>)
+      format(*standard-error*, "Error: %s\n", ex)
+    end;
+  end if;
 end function koala-main;
 
