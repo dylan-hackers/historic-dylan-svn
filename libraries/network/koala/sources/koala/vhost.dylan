@@ -131,7 +131,7 @@ define class <virtual-host> (<object>)
            as(<file-locator>, "index.htm"));
 
   // The value sent in the "Content-Type" header for static file responses if
-  // no other value is set.  See *mime-type-map*.
+  // no other value is set.  See server-mime-type-map.
   slot default-static-content-type :: <string> = "application/octet-stream";
 
   // The value sent in the "Content-Type" header for dynamic responses if no

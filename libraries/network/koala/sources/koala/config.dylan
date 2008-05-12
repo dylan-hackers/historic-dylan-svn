@@ -425,17 +425,19 @@ define method process-config-element
          merge-locators(merge-locators(as(<file-locator>, filename),
                                        as(<directory-locator>, $koala-config-dir)),
                         server-root(*server*)));
-
   log-info("Loading mime-type map from %s", mime-type-loc);
   let mime-text = file-contents(mime-type-loc);
   if (mime-text)
     let mime-xml :: xml$<document> = xml$parse-document(mime-text);
-    log-info("Transforming mime-type map...");
-    log-info("%s",
-             with-output-to-string (stream)
-               // Transforming the document side-effects *mime-type-map*.
-               xml$transform-document(mime-xml, state: $mime-type, stream: stream);
-             end);
+    let clear = get-attr(node, #"clear");
+    if (clear & true-value?(clear))
+      log-info("Clearing default mime type mappings.");
+      remove-all-keys!(server-mime-type-map(*server*));
+    end;
+    with-output-to-string (stream)
+      // Transforming the document side-effects the server's mime type map.
+      xml$transform-document(mime-xml, state: $mime-type, stream: stream);
+    end;
   else
     warn("mime-type map %s not found", mime-type-loc);
   end if;
@@ -447,9 +449,10 @@ define method xml$transform
      state :: <mime-type>,
      stream :: <stream>)
   let mime-type = get-attr(node, #"id");
+  let mime-type-map = server-mime-type-map(*server*);
   for (child in xml$node-children(node))
     if (xml$name(child) = #"extension")
-      *mime-type-map*[as(<symbol>, xml$text(child))] := mime-type;
+      mime-type-map[as(<symbol>, xml$text(child))] := mime-type;
     else
       warn("Skipping: %s %s %s: not an extension node!",
            mime-type, xml$name(child), xml$text(child));
