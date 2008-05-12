@@ -53,7 +53,7 @@ define method configure-server
   let defaults
     = merge-locators(merge-locators(as(<file-locator>, $koala-config-filename),
                                     as(<directory-locator>, $koala-config-dir)),
-                     *server-root*);
+                     server-root(*server*));
   let config-loc
     = as(<string>, merge-locators(as(<file-locator>, config-file | defaults),
                                   defaults));
@@ -195,7 +195,7 @@ define method process-config-element
     (node :: xml$<element>, name == #"virtual-host")
   let name = get-attr(node, #"name");
   if (name)
-    let vhost = make(<virtual-host>, name: trim(name));
+    let vhost = make-virtual-host(*server*, name: trim(name));
     add-virtual-host(name, vhost);
     dynamic-bind (%vhost = vhost,
                   %dir = root-directory-spec(vhost))
@@ -254,12 +254,13 @@ end;
 define method process-config-element
     (node :: xml$<element>, name == #"server-root")
   // Note use of %vhost directly rather than active-vhost() here.
-  // Don't want to blow out while setting *server-root* just because
+  // Don't want to blow out while setting server-root just because
   // the config doesn't allow fallback to the default vhost.
   if (%vhost == default-virtual-host(*server*))
     let loc = get-attr(node, #"location");
     if (loc)
-      *server-root* := merge-locators(as(<directory-locator>, loc), *server-root*);
+      server-root(*server*)
+        := merge-locators(as(<directory-locator>, loc), server-root(*server*));
       log-info("Server root set to %s", loc);
     else
       warn("Invalid <SERVER-ROOT> spec.  "
@@ -279,7 +280,7 @@ define method process-config-element
     if (loc)
       let vhost = active-vhost();
       document-root(vhost)
-        := merge-locators(as(<directory-locator>, loc), *server-root*);
+        := merge-locators(as(<directory-locator>, loc), server-root(*server*));
       log-info("VHost '%s': document root = %s.",
                vhost-name(vhost), document-root(vhost));
     else
@@ -295,7 +296,7 @@ define method process-config-element
     if (loc)
       let vhost = active-vhost();
       vhost.dsp-root := merge-locators(as(<directory-locator>, loc), 
-                                       *server-root*);
+                                       server-root(*server*));
       log-info("VHost '%s': DSP root = %s.",
                vhost-name(vhost), dsp-root(vhost));
     else
@@ -328,7 +329,7 @@ define method process-config-element
     let log = iff(location,
                   make(<rolling-file-log-target>,
                        file: merge-locators(as(<file-locator>, location),
-                                            *server-root*),
+                                            server-root(*server*)),
                        max-size: max-size | default-size),
                   make(<stream-log-target>,
                        stream: iff(string-equal?(type, "error"),
@@ -423,7 +424,7 @@ define method process-config-element
     = as(<string>,
          merge-locators(merge-locators(as(<file-locator>, filename),
                                        as(<directory-locator>, $koala-config-dir)),
-                        *server-root*));
+                        server-root(*server*)));
 
   log-info("Loading mime-type map from %s", mime-type-loc);
   let mime-text = file-contents(mime-type-loc);

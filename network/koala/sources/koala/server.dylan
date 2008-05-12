@@ -72,8 +72,15 @@ define class <server> (<sealed-constructor>)
   // Note that the document root may be changed when the config file is
   // processed, so don't use it except during request processing.
   //
-  constant slot default-virtual-host :: <virtual-host>,
-    required-init-keyword: default-virtual-host:;
+  slot default-virtual-host :: <virtual-host>,
+    init-keyword: default-virtual-host:;
+
+  // The top of the directory tree under which the server's configuration, error,
+  // and log files are kept.  Other pathnames are merged against this one, so if
+  // they're relative they will be relative to this.  The server-root pathname is
+  // relative to the koala executable, unless changed in the config file.
+  slot server-root :: <directory-locator>
+    = parent-directory(locator-directory(as(<file-locator>, application-filename())));
 
 end class <server>;
 
@@ -92,32 +99,33 @@ define sealed method make
   let lock = make(<recursive-lock>);
   let listeners-notification = make(<notification>, lock: lock);
   let clients-notification = make(<notification>, lock: lock);
-  let stdout-log = make(<stream-log-target>, stream: *standard-output*);
-  let vhost = make(<virtual-host>,
-                   name: "default",
-                   activity-log: stdout-log,
-                   debug-log: stdout-log,
-                   error-log: make(<stream-log-target>, stream: *standard-error*));
   apply(next-method, class,
         lock: lock,
         listeners: listeners,
         listeners-notification: listeners-notification,
         clients-notification: clients-notification,
-        default-virtual-host: vhost,
         keys)
 end method make;
 
-// API
+// API (in the sense that its args are passed directly by the user)
 define method initialize
     (server :: <http-server>,
      #rest keys,
      #key document-root: doc-root)
   apply(next-method, server, remove-keys(keys, #"document-root"));
-  let vhost :: <virtual-host> = default-virtual-host(server);
+  let stdout-log = make(<stream-log-target>, stream: *standard-output*);
+  let stderr-log = make(<stream-log-target>, stream: *standard-error*);
+  default-virtual-host(server)
+    := make-virtual-host(server,
+                         name: "default",
+                         activity-log: stdout-log,
+                         debug-log: stdout-log,
+                         error-log: stderr-log);
   if (doc-root)
-    document-root(vhost) := as(<directory-locator>, doc-root);
+    document-root(default-virtual-host(server))
+      := as(<directory-locator>, doc-root);
   end;
-end;
+end method initialize;
 
 // Keep some stats on user-agents
 define method note-user-agent
@@ -271,7 +279,7 @@ define function init-server
     configure-server(config-file);
   end;
   ensure-sockets-started();  // TODO: Can this be moved into start-server?
-  log-info("Server root directory is %s", *server-root*);
+  log-info("Server root directory is %s", server-root(server));
   run-init-functions();
 end init-server;
 
@@ -603,6 +611,25 @@ end;
 define variable *default-request-class* :: subclass(<basic-request>) = <request>;
 
 define thread variable *request* :: false-or(<request>) = #f;
+
+// Making a virtual hosts requires an instantiated server to do some
+// initialization, so use this instead of calling make(<virtual-host>).
+//
+define method make-virtual-host
+    (server :: <server>,
+     #rest args, #key name, document-root, dsp-root, #all-keys)
+ => (vhost :: <virtual-host>)
+  let vhost :: <virtual-host>
+    = apply(make, <virtual-host>,
+            document-root:
+              document-root | subdirectory-locator(server.server-root, name),
+            dsp-root:
+              dsp-root | subdirectory-locator(server.server-root, name),
+            args);
+  // Add a spec that matches all urls.
+  add-directory-spec(vhost, root-directory-spec(vhost));
+  vhost
+end;
 
 define method virtual-host
     (request :: <request>) => (vhost :: false-or(<virtual-host>))
