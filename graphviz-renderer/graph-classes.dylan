@@ -22,6 +22,7 @@ define sealed class <edge> (<object>)
   constant slot label :: <string> = "", init-keyword: label:;
   constant slot source :: <node>, required-init-keyword: source:;
   constant slot target :: <node>, required-init-keyword: target:;
+  constant slot attributes :: <string-table> = make(<string-table>);
 end;
 
 define function create-node (graph :: <graph>, #key label)
@@ -41,6 +42,7 @@ define function create-edge
                   source: source,
                   target: target,
                   label: label | integer-to-string(graph.edges.size));
+  edge.attributes["label"] := label;
   add!(graph.edges, edge);
   add!(source.outgoing-edges, edge);
   add!(target.incoming-edges, edge);
@@ -64,6 +66,10 @@ define function find-node (graph :: <graph>, name :: <string>)
   if (res & res.size = 1)
     res[0];
   end;
+end;
+
+define function find-node! (graph :: <graph>, name :: <string>) => (res :: <node>)
+  find-node(graph, name) | create-node(graph, label: name)
 end;
 
 define function add-successors (node :: <node>, pres :: <collection>) => ()
