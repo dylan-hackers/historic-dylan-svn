@@ -81,7 +81,7 @@ define method add-responder
   end;
   let responder = make(<responder>);
   for (request-method in request-methods)
-    //todo -- validate-request-method(request-method)
+    // todo -- validate-request-method(request-method)
     responder.responder-map[request-method] := regex-map;
   end;
   add-responder(url, responder,

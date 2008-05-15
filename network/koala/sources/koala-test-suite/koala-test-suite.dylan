@@ -98,6 +98,7 @@ end suite start-stop-test-suite;
 
 define suite koala-test-suite ()
   suite start-stop-test-suite;
+  suite configuration-test-suite;
 end suite koala-test-suite;
 
 define function main ()

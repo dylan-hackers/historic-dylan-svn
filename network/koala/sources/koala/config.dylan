@@ -38,20 +38,6 @@ define function append-option
 end;
 */
 
-define inline function active-vhost
-    () => (vhost :: <virtual-host>)
-  if (%vhost == default-virtual-host(*server*)
-        & ~ *fall-back-to-default-virtual-host?*)
-    error("While processing the config file there was an attempt "
-          "to set a value for the default virtual host, but fallback "
-          "to the default virtual host is disabled so this is useless.  "
-          "Either enable fallback to the default virtual host or move "
-          "all settings inside a <virtual-host></virtual-host> element.");
-  else
-    %vhost
-  end
-end;
-
 // Process the server config file, config.xml.
 // Assume a user directory structure like:
 // koala/
@@ -59,11 +45,11 @@ end;
 // koala/www               // default web document root
 // koala/config            // koala-config.xml etc
 define method configure-server
-    (config-file :: false-or(<string>))
+    (server :: <http-server>, config-file :: false-or(<string>))
   let defaults
     = merge-locators(merge-locators(as(<file-locator>, $koala-config-filename),
                                     as(<directory-locator>, $koala-config-dir)),
-                     server-root(*server*));
+                     server.server-root);
   let config-loc
     = as(<string>, merge-locators(as(<file-locator>, config-file | defaults),
                                   defaults));
@@ -71,17 +57,7 @@ define method configure-server
     let text = file-contents(config-loc);
     if (text)
       log-info("Loading server configuration from %s.", config-loc);
-      // --todo: Fix parse-document to give a reasonable error message
-      // instead of just returning #f.
-      let xml :: false-or(xml$<document>) = xml$parse-document(text);
-      if (xml)
-        dynamic-bind (%vhost = default-virtual-host(*server*),
-                      %dir = root-directory-spec(default-virtual-host(*server*)))
-          process-config-node(xml);
-        end;
-      else
-        config-error("Unable to parse config file!");
-      end
+      configure-from-string(server, text);
     elseif (config-file)
       // Only blow out if user specified a config file, not if they're taking
       // the default config file.
@@ -89,6 +65,23 @@ define method configure-server
     end if;
   end block;
 end method configure-server;
+
+// This is separated out so it can be used by the test suite.
+//
+define method configure-from-string
+    (server :: <http-server>, text :: <string>)
+  // --todo: Fix parse-document to give a reasonable error message
+  // instead of just returning #f.
+  let xml :: false-or(xml$<document>) = xml$parse-document(text);
+  if (xml)
+    dynamic-bind (%vhost = server.default-virtual-host,
+                  %dir = root-directory-spec(server.default-virtual-host))
+      process-config-node(server, xml);
+    end;
+  else
+    config-error("Unable to parse config file!");
+  end;
+end method configure-from-string;
 
 define function warn
     (format-string, #rest format-args)
@@ -114,18 +107,21 @@ end;
 // I think the XML parser's class hierarchy is broken.  It seems <tag>
 // should inherit from <node-mixin> so that one can descend the node
 // hierarchy seamlessly.
-define method process-config-node (node :: xml$<tag>) => ()
+define method process-config-node
+    (server :: <http-server>, node :: xml$<tag>) => ()
 end;
 
-define method process-config-node (node :: xml$<document>) => ()
+define method process-config-node
+    (server :: <http-server>, node :: xml$<document>) => ()
   for (child in xml$node-children(node))
-    process-config-node(child);
+    process-config-node(server, child);
   end;
 end;
 
-define method process-config-node (node :: xml$<element>) => ()
+define method process-config-node
+    (server :: <http-server>, node :: xml$<element>) => ()
   log-debug("Processing config element %=", xml$name(node));
-  process-config-element(node, xml$name(node));
+  process-config-element(server, node, xml$name(node));
 end;
 
 // Exported.
@@ -133,19 +129,20 @@ end;
 // Note that the previous comment about the XML parser's class hierarchy
 // applies here as well.  Otherwise this would specialize node more tightly.
 //
-define open generic process-config-element (node :: <object>, name :: <object>);
+define open generic process-config-element
+    (server :: <http-server>, node :: <object>, name :: <object>);
 
 define method process-config-element
-    (node :: xml$<element>, name :: <object>)
+    (server :: <http-server>, node :: xml$<element>, name :: <object>)
   warn("Unrecognized configuration setting: %=.  Processing child nodes anyway.",
        name);
   for (child in xml$node-children(node))
-    process-config-node(child);
+    process-config-node(server, child);
   end;
 end;
 
 define method process-config-element
-    (node :: xml$<comment>, name :: <object>)
+    (server :: <http-server>, node :: xml$<comment>, name :: <object>)
 end;
 
 define function true-value?
@@ -158,23 +155,23 @@ end;
 //// koala-config.xml elements.  One method for each element name.
 
 define method process-config-element
-    (node :: xml$<element>, name == #"koala")
+    (server :: <http-server>, node :: xml$<element>, name == #"koala")
   for (child in xml$node-children(node))
-    process-config-node(child);
+    process-config-node(server, child);
   end;
 end method process-config-element;
 
 
 define method process-config-element
-    (node :: xml$<element>, name == #"listener")
+    (server :: <http-server>, node :: xml$<element>, name == #"listener")
   let address = get-attr(node, #"address");
   let port = get-attr(node, #"port");
   if (address | port)
     block ()
       let port = string-to-integer(port);
-      if (active-vhost() = default-virtual-host(*server*))
+      if (%vhost = server.default-virtual-host)
         log-info("Adding listener for %s:%d", address, port);
-        add!(server-listeners(*server*),
+        add!(server.server-listeners,
              make-listener(format-to-string("%s:%d", address, port)));
       else
         // Maybe later we'll add a way to specify what listeners correspond
@@ -182,7 +179,7 @@ define method process-config-element
         // sure how useful it is.
         log-warning("<listener> (%s) specified inside %s virtual host element.  "
                     "It will be ignored.  Port must be specified at top level.",
-                    node, vhost-name(active-vhost()));
+                    node, vhost-name(%vhost));
       end;
     exception (<error>)
       warn("Invalid port (%=) specified in listener element.", port);
@@ -194,15 +191,15 @@ define method process-config-element
 end method process-config-element;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"virtual-host")
+    (server :: <http-server>, node :: xml$<element>, name == #"virtual-host")
   let name = get-attr(node, #"name");
   if (name)
-    let vhost = make-virtual-host(*server*, name: trim(name));
+    let vhost = make-virtual-host(server, name: trim(name));
     add-virtual-host(name, vhost);
     dynamic-bind (%vhost = vhost,
                   %dir = root-directory-spec(vhost))
       for (child in xml$node-children(node))
-        process-config-element(child, xml$name(child))
+        process-config-element(server, child, xml$name(child))
       end;
     end;
   else
@@ -212,11 +209,11 @@ define method process-config-element
 end;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"alias")
+    (server :: <http-server>, node :: xml$<element>, name == #"alias")
   let name = get-attr(node, #"name");
   if (name)
     block ()
-      add-virtual-host(name, active-vhost());
+      add-virtual-host(name, %vhost);
     exception (err :: <koala-api-error>)
       warn("Invalid <ALIAS> element.  %s", err);
     end;
@@ -229,7 +226,7 @@ end;
 // top-level <koala> element, but then it's impossible to turn on
 // logging first in a general way.
 define method process-config-element
-    (node :: xml$<element>, name == #"default-virtual-host")
+    (server :: <http-server>, node :: xml$<element>, name == #"default-virtual-host")
   bind (attr = get-attr(node, #"enabled"))
     when (attr)
       *fall-back-to-default-virtual-host?* := true-value?(attr)
@@ -241,12 +238,12 @@ define method process-config-element
 end;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"debug-server")
+    (server :: <http-server>, node :: xml$<element>, name == #"debug-server")
   bind (attr = get-attr(node, #"value"))
     when (attr)
-      debugging-enabled?(*server*) := true-value?(attr);
+      server.debugging-enabled? := true-value?(attr);
     end;
-    when (debugging-enabled?(*server*))
+    when (server.debugging-enabled?)
       warn("Server debugging is enabled.  "
            "Server may crash if not run inside an IDE!");
     end;
@@ -254,15 +251,12 @@ define method process-config-element
 end;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"server-root")
-  // Note use of %vhost directly rather than active-vhost() here.
-  // Don't want to blow out while setting server-root just because
-  // the config doesn't allow fallback to the default vhost.
-  if (%vhost == default-virtual-host(*server*))
+    (server :: <http-server>, node :: xml$<element>, name == #"server-root")
+  if (%vhost == server.default-virtual-host)
     let loc = get-attr(node, #"location");
     if (loc)
-      server-root(*server*)
-        := merge-locators(as(<directory-locator>, loc), server-root(*server*));
+      server.server-root
+        := merge-locators(as(<directory-locator>, loc), server.server-root);
       log-info("Server root set to %s", loc);
     else
       config-error("Invalid <SERVER-ROOT> spec.  "
@@ -276,14 +270,13 @@ define method process-config-element
 end;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"document-root")
+    (server :: <http-server>, node :: xml$<element>, name == #"document-root")
   bind (loc = get-attr(node, #"location"))
     if (loc)
-      let vhost = active-vhost();
-      document-root(vhost)
-        := merge-locators(as(<directory-locator>, loc), server-root(*server*));
+      document-root(%vhost)
+        := merge-locators(as(<directory-locator>, loc), server.server-root);
       log-info("VHost '%s': document root = %s.",
-               vhost-name(vhost), document-root(vhost));
+               vhost-name(%vhost), document-root(%vhost));
     else
       warn("Invalid <DOCUMENT-ROOT> spec.  "
            "The 'location' attribute must be specified.");
@@ -292,14 +285,13 @@ define method process-config-element
 end;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"dsp-root")
+    (server :: <http-server>, node :: xml$<element>, name == #"dsp-root")
   bind (loc = get-attr(node, #"location"))
     if (loc)
-      let vhost = active-vhost();
-      vhost.dsp-root := merge-locators(as(<directory-locator>, loc), 
-                                       server-root(*server*));
+      %vhost.dsp-root := merge-locators(as(<directory-locator>, loc), 
+                                        server.server-root);
       log-info("VHost '%s': DSP root = %s.",
-               vhost-name(vhost), dsp-root(vhost));
+               vhost-name(%vhost), dsp-root(%vhost));
     else
       warn("Invalid <DSP-ROOT> spec.  "
            "The 'location' attribute must be specified.");
@@ -309,7 +301,7 @@ end;
 
 
 define method process-config-element
-    (node :: xml$<element>, name == #"log")
+    (server :: <http-server>, node :: xml$<element>, name == #"log")
   let type = get-attr(node, #"type");
   if (~type)
     warn("<LOG> element missing 'type' attribute.");
@@ -330,7 +322,7 @@ define method process-config-element
     let log = iff(location,
                   make(<rolling-file-log-target>,
                        file: merge-locators(as(<file-locator>, location),
-                                            server-root(*server*)),
+                                            server.server-root),
                        max-size: max-size | default-size),
                   make(<stream-log-target>,
                        stream: iff(string-equal?(type, "error"),
@@ -338,11 +330,11 @@ define method process-config-element
                                    *standard-output*)));
     select (type by string-equal?)
       "error", "errors"
-        => %error-log-target(active-vhost()) := log;
+        => %error-log-target(%vhost) := log;
       "activity"
-        => %activity-log-target(active-vhost()) := log;
+        => %activity-log-target(%vhost) := log;
       "debug"
-        => %debug-log-target(active-vhost()) := log;
+        => %debug-log-target(%vhost) := log;
            let level = get-attr(node, #"level") | "info";
            let unrecognized = #f;
            let class = select (level by string-equal?)
@@ -368,12 +360,12 @@ define method process-config-element
 end method process-config-element;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"administrator")
+    (server :: <http-server>, node :: xml$<element>, name == #"administrator")
   // ---TODO
 end;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"xml-rpc")
+    (server :: <http-server>, node :: xml$<element>, name == #"xml-rpc")
   let enable? = get-attr(node, #"enable");
   if (enable? & true-value?(enable?))
     bind (url = get-attr(node, #"url"))
@@ -405,7 +397,7 @@ define method process-config-element
 end;
 
 define method process-config-element
-    (node :: xml$<element>, name == #"module")
+    (server :: <http-server>, node :: xml$<element>, name == #"module")
   bind (name = get-attr(node, #"name"))
     if (name)
       load-module(name);
@@ -419,13 +411,13 @@ end class <mime-type>;
 define constant $mime-type = make(<mime-type>);
 
 define method process-config-element
-    (node :: xml$<element>, name == #"mime-type-map")
+    (server :: <http-server>, node :: xml$<element>, name == #"mime-type-map")
   let filename = get-attr(node, #"location");
   let mime-type-loc
     = as(<string>,
          merge-locators(merge-locators(as(<file-locator>, filename),
                                        as(<directory-locator>, $koala-config-dir)),
-                        server-root(*server*)));
+                        server.server-root));
   log-info("Loading mime-type map from %s", mime-type-loc);
   let mime-text = file-contents(mime-type-loc);
   if (mime-text)
@@ -433,11 +425,13 @@ define method process-config-element
     let clear = get-attr(node, #"clear");
     if (clear & true-value?(clear))
       log-info("Clearing default mime type mappings.");
-      remove-all-keys!(server-mime-type-map(*server*));
+      remove-all-keys!(server.server-mime-type-map);
     end;
     with-output-to-string (stream)
-      // Transforming the document side-effects the server's mime type map.
-      xml$transform-document(mime-xml, state: $mime-type, stream: stream);
+      dynamic-bind (*server* = server)
+        // Transforming the document side-effects the server's mime type map.
+        xml$transform-document(mime-xml, state: $mime-type, stream: stream);
+      end;
     end;
   else
     warn("mime-type map %s not found", mime-type-loc);
@@ -467,7 +461,7 @@ end method xml$transform;
 //             follow-symlinks = "yes"
 // />
 define method process-config-element
-    (node :: xml$<element>, name == #"directory")
+    (server :: <http-server>, node :: xml$<element>, name == #"directory")
   let pattern = get-attr(node, #"pattern");
   if (~pattern)
     warn("Invalid <DIRECTORY> spec.  "
@@ -475,7 +469,7 @@ define method process-config-element
   else
     let dirlist? = get-attr(node, #"allow-directory-listing");
     let follow? = get-attr(node, #"follow-symlinks");
-    let root-spec = root-directory-spec(active-vhost());
+    let root-spec = root-directory-spec(%vhost);
     // TODO: the default value for these should really
     //       be taken from the parent dirspec rather than from root-spec.
     let spec = make(<directory-spec>,
@@ -486,10 +480,10 @@ define method process-config-element
                     allow-directory-listing?: iff(dirlist?,
                                                   true-value?(dirlist?),
                                                   allow-directory-listing?(root-spec)));
-    add-directory-spec(active-vhost(), spec);
+    add-directory-spec(%vhost, spec);
     dynamic-bind (%dir = spec)
       for (child in xml$node-children(node))
-        process-config-element(child, xml$name(child));
+        process-config-element(server, child, xml$name(child));
       end;
     end;
   end;

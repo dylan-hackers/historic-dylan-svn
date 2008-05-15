@@ -9,7 +9,7 @@ define library koala-test-suite
   use system,
     import: { date };
   use koala,
-    import: { koala };
+    import: { koala, koala-unit };
   use http-client;
   use network,
     import: { sockets };
@@ -23,6 +23,7 @@ define module koala-test-suite
   use date;
   use testworks;
   use koala;
+  use koala-unit;
   use http-client;
   use sockets,
     import: { <connection-failed>,
