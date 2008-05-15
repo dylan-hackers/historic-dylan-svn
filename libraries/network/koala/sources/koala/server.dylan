@@ -88,10 +88,11 @@ end class <server>;
 define constant <http-server> = <server>;
 
 define sealed method make
-    (class == <server>, #rest keys, #key listeners :: <sequence>)
+    (class == <server>, #rest keys, #key listeners)
  => (server :: <server>)
-  // listeners is a sequence of <listener>s, or strings in the form "addr:port".
-  let listeners = map-as(<stretchy-vector>, make-listener, listeners);
+  // listeners, if specified, is a sequence of <listener>s, or strings in
+  // the form "addr:port".
+  let listeners = map-as(<stretchy-vector>, make-listener, listeners | #[]);
   let lock = make(<recursive-lock>);
   let listeners-notification = make(<notification>, lock: lock);
   let clients-notification = make(<notification>, lock: lock);
@@ -277,7 +278,7 @@ define function init-server
           config-file :: false-or(<string>))
   server.request-class := request-class;
   if (config-file)
-    configure-server(config-file);
+    configure-server(server, config-file);
   end;
   ensure-sockets-started();  // TODO: Can this be moved into start-server?
   log-info("Server root directory is %s", server-root(server));

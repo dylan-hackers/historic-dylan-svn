@@ -32,6 +32,7 @@ define library koala
 
   export koala;
   export koala-extender;
+  export koala-unit;
   export dsp;
 end library koala;
 
@@ -306,6 +307,11 @@ define module koala-extender
   create parse-header-value;
 end;
 
+// Additional interface for unit tests.
+define module koala-unit
+  create configure-from-string
+end module koala-unit;
+
 define module dsp
   use dylan;
   use common-extensions;
@@ -436,6 +442,7 @@ define module httpi                             // http internals
               log-error => %log-error };
   use koala;
   use koala-extender;
+  use koala-unit;
   use memory-manager;
   use locators,
     rename: { <http-server> => <http-server-url>,
