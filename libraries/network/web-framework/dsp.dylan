@@ -23,7 +23,7 @@ define tag show-login-url in web-framework (page :: <dylan-server-page>)
   let url = parse-url("/login");
   if (redirect)
     url.uri-query["redirect"] := if (current) 
-        build-uri(current-url())
+        build-uri(request-url(current-request()))
       else 
         redirect 
       end if;
@@ -36,7 +36,7 @@ define tag show-logout-url in web-framework (page :: <dylan-server-page>)
   let url = parse-url("/logout");
   if (redirect)
     url.uri-query["redirect"] := if (current) 
-        build-uri(current-url()) 
+        build-uri(request-url(current-request())) 
       else 
         redirect 
       end if;
