@@ -138,50 +138,46 @@ define module koala
   //needed for last-modified stuff
   create get-header, request-method-setter, not-modified;
 
-  // Headers
-  // Do these really need to be exported?
-  create
-    <header-table>,
-    *max-single-header-size*,
-    *header-buffer-growth-amount*,
-    // read-message-headers(stream) => header-table
-    read-message-headers,
-    header-value;
-
-  // Basic server stuff
+  // Server startup/shutdown
   create
     <http-server>,
     start-server,
     stop-server,
+    koala-main,
+    *argument-list-parser*;
+
+  // Requests
+  create
+    <request>,
+    current-request,             // Returns the active request of the thread.
+    request-method,              // Returns #"get", #"post", etc
+    request-host,
+    request-url,
+    request-tail-url,
+    request-query-values,        // get the keys/vals from the current GET or POST request
+      get-query-value,           // Get a query value that was passed in a URL or a form
+      do-query-values,           // Call f(key, val) for each query in the URL or form
+      count-query-values,
+    request-content,
+    request-content-type,
+    request-content-setter,
+    process-request-content;
+
+  // Responders
+  create
     <responder>,
+    responder-definer,
     responder-map,
     add-responder,
     remove-responder,
     find-responder,
     invoke-responder,
-    <request>,
-    *request*,                   // Holds the active request, per thread.
-    current-request,             // Returns the active request of the thread.
-    current-response,            // Returns the active response of the thread.
-    request-query-values,        // get the keys/vals from the current GET or POST request
-    request-method,              // Returns #"get", #"post", etc
-    request-host,
-    responder-definer,
-    url-map-definer,
-
-    // Form/query values.  (Is there a good name that covers both of these?)
-    get-query-value,             // Get a query value that was passed in a URL or a form
-    do-query-values,             // Call f(key, val) for each query in the URL or form
-    count-query-values,
-    application-error,
-    current-url,
-    redirect-to,
-    redirect-temporarily-to;
+    url-map-definer;
 
   // Virtual hosts
   create
     <virtual-host>,
-    *virtual-host*,
+    virtual-host,                // Return virtual host of current request.
     document-root,
     dsp-root,
     vhost-name,
@@ -192,9 +188,10 @@ define module koala
   // Responses
   create
     <response>,
+    current-response,            // Returns the active response of the thread.
+    output,
     output-stream,
     clear-output,
-    output,
     set-content-type,
     add-header,
     add-cookie,
@@ -240,9 +237,6 @@ define module koala
   create
     process-config-element,
     get-attr;
-  use xml-parser,
-    rename: { <element> => <xml-element> },
-    export: { <xml-element> };
 
   // XML-RPC
   create
@@ -253,26 +247,27 @@ define module koala
     maybe-serve-static-file,
     document-location;
 
-  // Errors
+  // Redirection
   create
-    access-forbidden-error,
-    <koala-api-error>;
-
-  create
+    redirect-to,
+    redirect-temporarily-to,
     moved-permanently-redirect,
     moved-temporarily-redirect,
     see-other-redirect,
     unauthorized-error;
 
+  // Errors
   create
+    <koala-api-error>,
     http-error-code,
+    http-error-headers,
+    access-forbidden-error,
+    application-error,
     unsupported-request-method-error,
     resource-not-found-error,
     unimplemented-error,
     internal-server-error,
-    bad-request,
-    request-url,
-    request-tail-url;
+    bad-request;
 
   // Files
   create
@@ -289,16 +284,15 @@ define module koala
     http-file-content,
     http-file-mime-type;
 
-  // main() function
+  // Headers
+  // Do these really need to be exported?
   create
-    koala-main,
-    *argument-list-parser*;
-
-  create
-    request-content,
-    request-content-type,
-    request-content-setter,
-    process-request-content;
+    <header-table>,
+    *max-single-header-size*,
+    *header-buffer-growth-amount*,
+    // read-message-headers(stream) => header-table
+    read-message-headers,
+    header-value;
 
 end module koala;
 

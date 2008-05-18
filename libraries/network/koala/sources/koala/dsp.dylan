@@ -192,13 +192,13 @@ define generic root-directory
 define method root-directory
     (page :: <file-page-mixin>)
  => (root :: <directory-locator>)
-  *virtual-host*.document-root;
+  document-root(virtual-host(current-request()))
 end;
 
 define method root-directory
     (page :: <dylan-server-page>)
  => (root :: <directory-locator>)
-  *virtual-host*.dsp-root;
+  dsp-root(virtual-host(current-request()))
 end;
 
 

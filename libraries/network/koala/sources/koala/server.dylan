@@ -593,6 +593,8 @@ define class <request> (<basic-request>)
   // The body content of the request.  Only present for POST?
   slot request-content :: <string> = "";
 
+  // todo -- This is only stored in the request for internal modularity
+  //         reasons.  It should be removed.
   slot request-responder :: false-or(<responder>) = #f;
 
   // contains the relative URL after the matched responder
@@ -606,8 +608,6 @@ define method get-header
 end;
 
 define variable *default-request-class* :: subclass(<basic-request>) = <request>;
-
-define thread variable *request* :: false-or(<request>) = #f;
 
 // Making a virtual hosts requires an instantiated server to do some
 // initialization, so use this instead of calling make(<virtual-host>).
@@ -650,10 +650,19 @@ define method virtual-host
   end
 end;
 
+define thread variable *request* :: false-or(<request>) = #f;
+
+define inline function current-request
+    () => (request :: <request>)
+  *request*
+end;
+
 define thread variable *response* :: false-or(<response>) = #f;
 
-define inline function current-request  () => (request :: <request>) *request* end;
-define inline function current-response () => (response :: <response>) *response* end;
+define inline function current-response
+    () => (response :: <response>)
+  *response*
+end;
 
 // Called (in a new thread) each time an HTTP request is received.
 define function handler-top-level
