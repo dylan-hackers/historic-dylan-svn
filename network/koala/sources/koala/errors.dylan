@@ -29,7 +29,8 @@ end;
 
 define class <http-error> (<koala-error>)
   constant slot http-error-code :: <integer>, required-init-keyword: code:;
-  constant slot http-error-headers :: false-or(<header-table>) = #f, init-keyword: headers:;
+  constant slot http-error-headers :: false-or(<header-table>) = #f,
+    init-keyword: headers:;
 end;
 
 define constant $application-error-code = 599;
@@ -43,7 +44,8 @@ define function application-error (#key format-string, format-arguments)
   signal(make(<http-server-error>,
               code: $application-error-code,
               format-string: iff(format-string,
-                                 concatenate($application-error-message, " -- ", format-string),
+                                 concatenate($application-error-message,
+                                             " -- ", format-string),
                                  $application-error-message),
               format-arguments: format-arguments | #[]));
 end;
