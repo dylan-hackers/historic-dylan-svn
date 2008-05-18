@@ -252,6 +252,8 @@ define module web-framework
     exclude: { format-to-string };
   use object-table;
   use simple-xml;
+  use xml-parser,
+    rename: { <element> => <xml-element> };
   use koala;
   use dsp;
   use format;
