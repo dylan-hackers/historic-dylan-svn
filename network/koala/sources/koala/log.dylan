@@ -153,8 +153,10 @@ end;
 
 define method date-to-stream
     (stream :: <stream>, date :: <date>)
-  let (year, month, day, hours, minutes, seconds, day-of-week, time-zone-offset) = decode-date(date);
-  format(stream, "%d-%s%d-%s%d %s%d:%s%d:%s%d %s%s%d%s%d",
+  let (year, month, day, hours, minutes, seconds, day-of-week, time-zone-offset)
+    = decode-date(date);
+  let millis = round/(date-microseconds(date), 1000);
+  format(stream, "%d-%s%d-%s%d %s%d:%s%d:%s%d.%s%s%d %s%s%d%s%d",
          year,
          iff(month < 10, "0", ""),
          month,
@@ -166,9 +168,10 @@ define method date-to-stream
          minutes,
          iff(seconds < 10, "0", ""),
          seconds,
-         iff(zero?(time-zone-offset),
-             "",
-             iff(positive?(time-zone-offset), "+", "-")),
+         iff(millis < 100, "0", ""),
+         iff(millis < 10, "0", ""),
+         millis,
+         iff(negative?(time-zone-offset), "-", "+"),  // +0000
          iff(abs(floor/(time-zone-offset, 60)) < 10, "0", ""),
          abs(floor/(time-zone-offset, 60)),
          iff(modulo(time-zone-offset, 60) < 10, "0", ""),
