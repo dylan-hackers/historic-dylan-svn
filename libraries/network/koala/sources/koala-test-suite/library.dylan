@@ -9,10 +9,12 @@ define library koala-test-suite
   use system,
     import: { date };
   use koala,
-    import: { koala, koala-unit };
+    import: { koala,
+              koala-unit };
   use http-client;
   use network,
     import: { sockets };
+  use xml-rpc-client;
   use testworks;
   export koala-test-suite;
 end library koala-test-suite;
@@ -25,6 +27,7 @@ define module koala-test-suite
   use koala;
   use koala-unit;
   use http-client;
+  use xml-rpc-client;
   use sockets,
     import: { <connection-failed>,
               <address-in-use>,

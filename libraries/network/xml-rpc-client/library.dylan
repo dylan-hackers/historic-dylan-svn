@@ -29,6 +29,7 @@ define module xml-rpc-client
     export: {
       <xml-rpc-error>, <xml-rpc-parse-error>,
       <xml-rpc-fault>, xml-rpc-fault,
+      fault-code,
       base64-encode, base64-decode,
     };
   use dylan-basics;

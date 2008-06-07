@@ -6,83 +6,142 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-// Determines whether the server will respond to XML-RPC requests.
-// This variable is configurable in koala-config.xml
-//
-define variable *xml-rpc-enabled?* :: <boolean> = #t;
+// Usage:
+//   let xml-rpc-server = make(<xml-rpc-server>, ...);
+//   register-xml-rpc-method(xml-rpc-server, "my.method.name", my-method);
+//   ...
+//   add-responder($default-xml-rpc-url, xml-rpc-server);
 
-// This variable is configurable in koala-config.xml
-//
-define variable *xml-rpc-server-url* :: <string> = "/RPC2";
+// API
+define constant $default-xml-rpc-url :: <string> = "/RPC2";
 
-// This is the fault code that will be returned to the caller if
-// any error other than <xml-rpc-fault> is thrown during the execution
-// of the RPC.  For example, if there's a parse error in the XML
-// that's received.  If users want to return a fault code they
-// should use the xml-rpc-fault method.
-//
-// This variable is configurable in koala-config.xml
-//
-define variable *xml-rpc-internal-error-fault-code* :: <integer> = 0;
+// API
+define class <xml-rpc-server> (<object>)
 
-// This is the registered XML-RPC responder function.
-// ---TODO: Shouldn't really even register the responder if XML-RPC is disabled.
-//
+  // API
+  // This is the fault code that will be returned to the caller if
+  // any error other than <xml-rpc-fault> is thrown during the execution
+  // of the RPC.  For example, if there's a parse error in the XML
+  // that's received.  If users want to return a fault code they
+  // should use the xml-rpc-fault method.
+  slot error-fault-code :: <integer> = 0,
+    init-keyword: error-fault-code:;
+
+  // Maps method names to response functions.  If namespaces are used then
+  // the value may be another <string-table> containing the mapping for that
+  // namespace.
+  constant slot xml-rpc-methods :: <string-table> = make(<string-table>),
+    init-keyword: methods:;
+
+  // API
+  slot debugging-enabled? :: <boolean> = #f,
+    init-keyword: debug:;
+
+end class <xml-rpc-server>;
+
+// API
+define method add-responder
+    (url :: <url>, xml-rpc-server :: <xml-rpc-server>,
+     #key replace?,
+          request-methods = #(#"POST"),
+          server :: false-or(<http-server>))
+  add-responder(url, curry(respond-to-xml-rpc-request, xml-rpc-server),
+                replace?: replace?,
+                request-methods: request-methods,
+                server: server);
+end method add-responder;
+
 define function respond-to-xml-rpc-request
-    (request :: <request>, response :: <response>)
-  when (*xml-rpc-enabled?*)
-    set-content-type(response, "text/xml");
-    // All responses start with a valid XML document header.
-    write(output-stream(response),
-          "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>");
-    block ()
-      let xml = request-content(request);
-      when (*debugging-xml-rpc*)
-        log-debug("Received XML-RPC call:\n   %s", xml);
-      end;
-      let doc = xml$parse-document(xml);
-      let (method-name, args) = parse-xml-rpc-call(doc);
-      log-debug("method-name = %=, args = %=", method-name, args);
-      let fun = lookup-xml-rpc-method(method-name)
-        | xml-rpc-fault(*xml-rpc-internal-error-fault-code*,
-                        "Method not found: %=",
-                        method-name);
-      send-xml-rpc-result(response, apply(fun, args));
-    exception (err :: <xml-rpc-fault>)
-      send-xml-rpc-fault-response(response, err);
-    exception (err :: <error>)
-      send-xml-rpc-fault-response
-        (response,
-         make(<xml-rpc-fault>,
-              fault-code: *xml-rpc-internal-error-fault-code*,
-              format-string: condition-format-string(err),
-              format-arguments: condition-format-arguments(err)));
+    (xml-rpc-server :: <xml-rpc-server>)
+  let response :: <response> = current-response();
+  let request :: <request> = current-request();
+  set-content-type(response, "text/xml");
+  // All responses start with a valid XML document header.
+  write(output-stream(response),
+        "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>");
+  block ()
+    let xml = request-content(request);
+    when (debugging-enabled?(xml-rpc-server))
+      log-debug("Received XML-RPC call:\n   %s", xml);
     end;
- end when;
-end;
-
-define constant $xml-rpc-methods :: <string-table> = make(<string-table>);
+    let doc = xml$parse-document(xml);
+    let (method-name, args) = parse-xml-rpc-call(doc);
+    when (debugging-enabled?(xml-rpc-server))
+      log-debug("method-name = %=, args = %=", method-name, args);
+    end;
+    let fun = lookup-xml-rpc-method(xml-rpc-server, method-name)
+      | xml-rpc-fault(error-fault-code(xml-rpc-server),
+                      "Method not found: %=",
+                      method-name);
+    send-xml-rpc-result(xml-rpc-server, response, apply(fun, args));
+  exception (err :: <xml-rpc-fault>)
+    send-xml-rpc-fault-response(response, err);
+  exception (err :: <error>)
+    let error = make(<xml-rpc-fault>,
+                     fault-code: error-fault-code(xml-rpc-server),
+                     format-string: condition-format-string(err),
+                     format-arguments: condition-format-arguments(err));
+    send-xml-rpc-fault-response(response, error);
+  end;
+end function respond-to-xml-rpc-request;
 
 define method lookup-xml-rpc-method
-    (method-name :: <string>)
+    (xml-rpc-server :: <xml-rpc-server>, method-name :: <string>)
  => (f :: false-or(<function>))
-  // todo -- Implement namespaces (methods named x.y.z)
-  element($xml-rpc-methods, method-name, default: #f)
-end;
+  let path = split(method-name, '.');
+  let table = xml-rpc-methods(xml-rpc-server);
+  let the-method = #f;
+  for (name in path,
+       i from path.size to 1 by -1,
+       while: table)
+    let thing = element(table, name, default: #f);
+    select (thing by instance?)
+      <function> =>
+        if (i == 1)
+          the-method := thing;
+        else
+          table := #f;   // exit loop
+        end;
+      <table> =>
+        table := thing;
+    end select;
+  end for;
+  the-method
+end method lookup-xml-rpc-method;
 
-// ---TODO: xml-rpc-method-definer
-//
+// API
 define method register-xml-rpc-method
-    (name :: <string>, f :: <function>, #key replace? :: <boolean>)
-  if (~replace? & lookup-xml-rpc-method(name))
-    signal(make(<xml-rpc-error>,
-                format-string: "An XML-RPC method named %= already exists.",
-                format-arguments: vector(name)))
-  else
-    $xml-rpc-methods[name] := f;
-    log-info("XML-RPC method registered: %=", name);
-  end;
-end;
+    (xml-rpc-server :: <xml-rpc-server>, method-name :: <string>, fn :: <function>)
+  let path = split(method-name, '.');
+  let table = xml-rpc-methods(xml-rpc-server);
+  for (name in path,
+       i from path.size to 1 by -1)
+    let thing = element(table, name, default: #f);
+    select (thing by instance?)
+      <function> =>
+        signal(make(<xml-rpc-error>,
+                    format-string: "Cannot store method %s because it conflicts with "
+                      "an existing method for this XML RPC server",
+                    format-arguments: list(method-name)));
+      <table> =>
+        if (i == 1)
+          signal(make(<xml-rpc-error>,
+                      format-string: "Cannot store method %s which conflicts with a "
+                        "a namespace by the same name for XML RPC server",
+                      format-arguments: list(method-name)));
+        else
+          table := thing;
+        end;
+      singleton(#f) =>
+        if (i == 1)
+          table[name] := fn;
+        else
+          table[name] := make(<string-table>);
+          table := table[name];
+        end;
+    end select;
+  end for;
+end method register-xml-rpc-method;
 
 define method send-xml-rpc-fault-response
     (response :: <response>, fault :: <xml-rpc-fault>)
@@ -93,20 +152,21 @@ define method send-xml-rpc-fault-response
   write(stream, "<methodResponse><fault><value>");
   to-xml(value, stream);
   write(stream, "</value></fault></methodResponse>\r\n");
-end;
+end method send-xml-rpc-fault-response;
 
 define method send-xml-rpc-result
-    (response :: <response>, result :: <object>)
+    (xml-rpc-server :: <xml-rpc-server>, response :: <response>, result :: <object>)
   let stream = output-stream(response);
   write(stream, "<methodResponse><params><param><value>");
   let xml = with-output-to-string(s)
               to-xml(result, s);
             end;
-  *debugging-xml-rpc*
-    & log-debug("Sending XML: %=", xml);
+  if (debugging-enabled?(xml-rpc-server))
+    log-debug("Sending XML: %=", xml);
+  end;
   write(stream, xml);
   write(stream, "</value></param></params></methodResponse>\r\n");
-end;
+end method send-xml-rpc-result;
 
 define method parse-xml-rpc-call
     (node :: xml$<document>)
@@ -126,16 +186,39 @@ define method parse-xml-rpc-call
                     end,
                     xml$node-children(params-node));
   values(method-name, args)
-end;
+end method parse-xml-rpc-call;
 
-define function init-xml-rpc-server
-    () => ()
-  when (*xml-rpc-enabled?*)
-    add-responder(*xml-rpc-server-url*, respond-to-xml-rpc-request);
-    // Provide a basic way to test the server.
-    register-xml-rpc-method("ping", method () #t end, replace?: #t);
-    register-xml-rpc-method("echo", method (#rest args) args end, replace?: #t);
-  end;
-end;
+define macro xml-rpc-server-definer
+  { define xml-rpc-server ?:name (?url:expression on ?http-server:expression)
+        (?initargs:*)
+      ?the-methods:*
+    end }
+    => { define xml-rpc-server ?name () (?initargs) ?the-methods end;
+         add-responder(?url, _xml-rpc-server, server: ?http-server); }
 
+  { define xml-rpc-server ?:name ()
+        (?initargs:*)
+      ?functions
+    end }
+    => { define constant ?name = make(<xml-rpc-server>, ?initargs);
+         let _xml-rpc-server = ?name;   // ref'd in ?functions too
+         ?functions }
+
+  functions:
+    { } => { }
+    { ?function; ... } => { ?function; ... }
+
+  function:
+    { ?function-name:expression => ?fun:expression }
+    => { register-xml-rpc-method(_xml-rpc-server, ?function-name, ?fun) }
+
+end macro xml-rpc-server-definer;
+
+/* Example usage
+define xml-rpc-server server ("/RPC2" on foo)
+    (error-fault-code: 1)
+  "echo" => method (#rest args) args end;
+  "ping" => method () "ack" end;
+end xml-rpc-server;
+*/
 

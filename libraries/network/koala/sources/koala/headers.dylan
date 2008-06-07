@@ -47,6 +47,7 @@ define method add-header
      #key if-exists? :: <symbol> = #"append")
   let old = element(headers, key, default: #f);
   // typically there is only one header for given key, so favor that.
+  log-copious("Adding header %s: %s", key, data);
   if (~old | if-exists? = #"replace")
     headers[key] := data;
   elseif (if-exists? = #"append")

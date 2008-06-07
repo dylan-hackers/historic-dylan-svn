@@ -21,7 +21,8 @@ end;
 // xml-rpc-call-2("192.168.26.73", 8502, "/RPC2", "psapi.getAvailableAgentSlas", 10);
 //
 define function xml-rpc-call-2
-    (host :: <string>, port :: <integer>, url :: <string>, method-name :: <string>, #rest args)
+    (host :: <string>, port :: <integer>, url :: <string>, method-name :: <string>,
+     #rest args)
  => (response :: <object>)
   let xml = apply(create-method-call-xml, method-name, args);
   when (*debugging-xml-rpc*)

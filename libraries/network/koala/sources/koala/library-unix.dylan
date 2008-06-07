@@ -238,9 +238,15 @@ define module koala
     process-config-element,
     get-attr;
 
-  // XML-RPC
+  // XML RPC
   create
-    register-xml-rpc-method;
+    <xml-rpc-server>,
+    error-fault-code,
+    error-fault-code-setter,
+    debugging-enabled?,
+    debugging-enabled?-setter,
+    register-xml-rpc-method,
+    $default-xml-rpc-url;
 
   // Documents
   create
