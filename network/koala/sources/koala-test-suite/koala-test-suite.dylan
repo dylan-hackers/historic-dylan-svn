@@ -4,7 +4,7 @@ define constant fmt = format-to-string;
 
 define variable *test-port* :: <integer> = 8080;
 
-define function make-listener
+define method make-listener
     (address :: <string>) => (listener :: <string>)
   format-to-string("%s:%d", address, *test-port*)
 end;
@@ -30,36 +30,44 @@ define function connect-and-close
   end;
 end function connect-and-close;
 
-// todo -- define macro with-server ...
-
 
 define test start-stop-basic-test ()
   let server = make-server();
-  check-equal("start-server returns #t",
-              start-server(server, background: #t, wait: #t),
-              #t);
-  stop-server(server);
-end;
+  block ()
+    check-equal("start-stop-basic-test check #1",
+                start-server(server, background: #t, wait: #t),
+                #t);
+  cleanup
+    stop-server(server);
+  end;
+end test start-stop-basic-test;
 
 // Make sure there are no timing problems related to threads and
 // starting and stopping the server.
 define test repeated-start-stop-test ()
   for (i from 1 to 5)
     let server = make-server();
-    check-equal("start-server returns #t",
-                start-server(server, background: #t, wait: #t),
-                #t);
-    stop-server(server);
+    block ()
+      check-equal(fmt("repeated-start-stop-test check #%d", i),
+                  start-server(server, background: #t, wait: #t),
+                  #t);
+    cleanup
+      stop-server(server);
+    end;
   end;
-end;
+end test repeated-start-stop-test;
 
 define test conflicting-listener-ips-test ()
   let server = make-server(listeners: list($listener-127, $listener-127));
-  check-condition("start-server with conflicting listener-ips",
-                  <address-in-use>,
-                  start-server(server, background: #t, wait: #t));
-  stop-server(server);
-end;
+  block ()
+    check-condition("start-server with conflicting listener-ips",
+                    <address-in-use>,
+                    start-server(server, background: #t, wait: #t));
+  cleanup
+    // Note that listener threads are still running.
+    stop-server(server);
+  end;
+end test conflicting-listener-ips-test;
 
 // Make sure we can bind specific IP addresses.
 define test bind-interface-test ()
@@ -69,23 +77,17 @@ define test bind-interface-test ()
                      #["0.0.0.0"]))
 
     log-debug("STARTING SERVER WITH ADDRS = %s", addrs);
-    let server = make-server(listeners: map(make-listener, addrs));
-    check-equal(fmt("start-server with addrs %s returns #t", addrs),
-                start-server(server,
-                             background: #t,
-                             wait: #t),
-                #t);
-    
-    for (addr in concatenate(host-addresses, #("127.0.0.1")))
-      if (member?(addr, addrs, test: \=) | addrs = #["0.0.0.0"])
-        check-true(fmt("address %s is listening for bound = %s", addr, addrs),
-                   connect-and-close(addr));
-      else
-        check-false(fmt("address %s is NOT listening for bound = %s", addr, addrs),
-                    connect-and-close(addr));
-      end;
-    end for;
-    stop-server(server);
+    with-http-server(server = make-server(listeners: map(make-listener, addrs)))
+      for (addr in concatenate(host-addresses, #("127.0.0.1")))
+        if (member?(addr, addrs, test: \=) | addrs = #["0.0.0.0"])
+          check-true(fmt("address %s is listening for bound = %s", addr, addrs),
+                     connect-and-close(addr));
+        else
+          check-false(fmt("address %s is NOT listening for bound = %s", addr, addrs),
+                      connect-and-close(addr));
+        end;
+      end for;
+    end with-http-server;
   end for;
 end test bind-interface-test;
 
@@ -99,6 +101,7 @@ end suite start-stop-test-suite;
 define suite koala-test-suite ()
   suite start-stop-test-suite;
   suite configuration-test-suite;
+  suite xml-rpc-test-suite;
 end suite koala-test-suite;
 
 define function main ()

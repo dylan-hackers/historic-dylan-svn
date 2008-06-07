@@ -18,21 +18,27 @@ define class <responder> (<object>)
 end;
 
 define open generic add-responder
-    (url :: <object>, responder :: <object>, #key replace?);
+    (url :: <object>, responder :: <object>,
+     #key replace?, request-methods, server);
 
 // Convenience method to convert first arg to <url>.
 //
 define method add-responder
     (url :: <string>, responder :: <object>,
-     #key replace?, request-methods = #(#"GET", #"POST"))
+     #key replace?,
+          request-methods = #(#"GET", #"POST"),
+          server :: false-or(<http-server>))
   add-responder(parse-url(url), responder,
                 replace?: replace?,
-                request-methods: request-methods);
+                request-methods: request-methods,
+                server: server)
 end;
 
 define method add-responder
     (url :: <url>, responder :: <responder>,
-     #key replace?, request-methods = #(#"GET", #"POST"))
+     #key replace?,
+          request-methods = #(#"GET", #"POST"),
+          server :: false-or(<http-server>) = *server*)
   local method register-responder ()
           if (empty?(url.uri-path))
             error(make(<koala-api-error>,
@@ -43,8 +49,10 @@ define method add-responder
             log-info("responder on %s registered", url);
           end if;
         end;
-  if (*server*)
-    register-responder();
+  if (server)
+    dynamic-bind(*server* = server)
+      register-responder();
+    end;
   else
     register-init-function(register-responder);
   end;
@@ -56,12 +64,14 @@ end method add-responder;
 define method add-responder
     (url :: <url>, response-function :: <function>,
      #key replace?,
-          request-methods = #(#"GET", #"POST"))
+          request-methods = #(#"GET", #"POST"),
+          server :: false-or(<http-server>))
   let table = make(<table>, size: 1);
   table[compile-regex("^$")] := list(response-function);
   add-responder(url, table,
                 replace?: replace?,
-                request-methods: request-methods);
+                request-methods: request-methods,
+                server: server);
 end method add-responder;
 
 // Use this if you want a prefix URL and different behaviour depending on
@@ -70,7 +80,8 @@ end method add-responder;
 define method add-responder
     (url :: <url>, regex-map :: <table>,
      #key replace?,
-          request-methods = #(#"GET", #"POST"))
+          request-methods = #(#"GET", #"POST"),
+          server :: false-or(<http-server>))
   for (responses keyed-by regex in regex-map)
     assert(instance?(regex, <regex>)
              & instance?(responses, <sequence>)
@@ -86,7 +97,8 @@ define method add-responder
   end;
   add-responder(url, responder,
                 replace?: replace?,
-                request-methods: request-methods);
+                request-methods: request-methods,
+                server: server);
 end method add-responder;
 
 define open generic find-responder

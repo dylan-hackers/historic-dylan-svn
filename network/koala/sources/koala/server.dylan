@@ -306,6 +306,7 @@ define function start-server
     start-http-listener(server, listener)
   end;
   if (wait)
+    // Connect to each listener or signal error.
     wait-for-listeners-to-start(server.server-listeners);
   end;
   if (~background)
@@ -321,8 +322,6 @@ define function wait-for-listeners-to-start
     (listeners :: <sequence>)
   // Either make a connection to each listener or signal an error.
   for (listener in listeners)
-    // Geez, this date code feels inefficient...wish I could just use an
-    // integer and get-universal-time.
     let start :: <date> = current-date();
     let max-wait = make(<duration>, days: 0, hours: 0, minutes: 0, seconds: 1,
                         microseconds: 0);
@@ -333,7 +332,7 @@ define function wait-for-listeners-to-start
           let host = listener.listener-host;
           socket := make(<tcp-socket>,
                          // hack hack
-                         host: iff(host = "0.0.0.0", "localhost", host),
+                         host: iff(host = "0.0.0.0", $local-host, host),
                          port: listener.listener-port);
           // If we made a connection we're done.
           exit-while();

@@ -365,38 +365,6 @@ define method process-config-element
 end;
 
 define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"xml-rpc")
-  let enable? = get-attr(node, #"enable");
-  if (enable? & true-value?(enable?))
-    bind (url = get-attr(node, #"url"))
-      if (url)
-        *xml-rpc-server-url* := url;
-        log-info("XML-RPC URL set to %s.", url);
-      end;
-    end;
-    bind (fault-code = get-attr(node, #"internal-error-fault-code"))
-      if (fault-code)
-        block ()
-          let int-code = string-to-integer(fault-code);
-          int-code & (*xml-rpc-internal-error-fault-code* := int-code);
-          log-info("XML-RPC internal error fault code set to %d.", int-code);
-        exception (<error>)
-          warn("Invalid XML-RPC fault code, %=, specified.  Must be an integer.",
-               fault-code);
-        end;
-      end if;
-    end;
-    bind (debug = get-attr(node, #"debug"))
-      *debugging-xml-rpc* := (debug & true-value?(debug));
-      *debugging-xml-rpc* & log-info("XML-RPC debugging enabled.");
-    end;
-    init-xml-rpc-server();
-  else
-    log-info("XML-RPC disabled");
-  end if;
-end;
-
-define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"module")
   bind (name = get-attr(node, #"name"))
     if (name)
