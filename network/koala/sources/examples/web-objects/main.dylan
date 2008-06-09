@@ -15,20 +15,18 @@ define primary record <message-record> (<modifiable-record>)
     column-number: 4;
 end;
 
-
 define taglib msg-taglib ()
 end;
 
-define page edit-message-page (<edit-record-page>)
-    (url: "/edit-message.dsp",
-     source: document-location("edit-message.dsp"))
+define class <edit-message-page> (<edit-record-page>)
 end;
 
-define method respond-to-post (page :: <edit-message-page>,
-                               request :: <request>,
-                               response :: <response>)
-  if (get-form-value("new-record") = "true")
-    let msg = get-form-value("message");
+define variable $edit-message-page
+  = make(<edit-message-page>, source: "edit-message.dsp");
+
+define method respond-to-post (page :: <edit-message-page>)
+  if (get-query-value("new-record") = "true")
+    let msg = get-query-value("message");
     msg & (msg := trim(msg));
     if (msg & msg ~= "")
       *warning* := #f;
@@ -41,17 +39,21 @@ define method respond-to-post (page :: <edit-message-page>,
 end;
 
 define tag show-message in msg-taglib
-    (page :: <edit-message-page>, response :: <response>)
+    (page :: <edit-message-page>)
     ()
-  log-debug("writing message output");
-  write(output-stream(response), message(*record*));
+  output(message(*record*));
+end;
+
+define url-map /* for $http-server */
+  url "/web-objects/edit-message"
+    action GET () => $edit-message-page;
 end;
 
 // This is just used during development, since it's easier to debug a project
 // when run as an executable rather than as a dynamically loaded Koala module.
 // Don't call this (below) when linking as a DLL.
 define method main () => ()
-  start-server();
+  start-server(make(<http-server>));
 end;
 
 begin
