@@ -10,19 +10,16 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 begin
   add-option-parser-by-type(*argument-list-parser*,
                             <repeated-parameter-option-parser>,
-                            description: "ipaddr:port on which to listen for requests",
+                            description: "IP:PORT on which to listen for requests.  "
+                                         "[default: 0.0.0.0:80]",
                             long-options: #("listen"),
                             short-options: #("l"));
   add-option-parser-by-type(*argument-list-parser*,
                             <parameter-option-parser>,
-                            description: "Location of the koala configuration file",
+                            description: "Location of the koala configuration file.  "
+                                         "[default: None]",
                             long-options: #("config"),
                             short-options: #("c"));
-  add-option-parser-by-type(*argument-list-parser*,
-                            <parameter-option-parser>,
-                            description: "Port number on which to listen",
-                            long-options: #("port"),
-                            short-options: #("p"));
   add-option-parser-by-type(*argument-list-parser*,
                             <simple-option-parser>,
                             description: "Display this help message",
@@ -30,7 +27,7 @@ begin
                             short-options: #("h"));
   add-option-parser-by-type(*argument-list-parser*,
                             <simple-option-parser>,
-                            description: "Enable debugging.  Causes Koala to not handle "
+                            description: "Enable debug mode.  Causes Koala to not handle "
                                          "most errors during request handling.",
                             long-options: #("debug"));
 end;
@@ -38,7 +35,8 @@ end;
 // This is defined here rather than in koala-app because wiki needs it too.
 //
 define function koala-main
-    () => ()
+    (#key server :: false-or(<http-server>))
+ => ()
   let parser = *argument-list-parser*;
   parse-arguments(parser, application-arguments());
   if (option-value-by-long-name(parser, "help")
@@ -51,15 +49,20 @@ define function koala-main
                    description: desc);
   else
     block ()
-      let port-string = option-value-by-long-name(parser, "port") | "80";
+      let _server = server | make(<http-server>);
+
+      // Setup listeners
       let listeners = option-value-by-long-name(parser, "listen");
-      let server = make(<http-server>,
-                        listeners: iff(empty?(listeners),
-                                       #["0.0.0.0:80"],
-                                       listeners),
-                        debug: option-value-by-long-name(parser, "debug"),
-                        port: string-to-integer(port-string));
-      start-server(server,
+      if (empty?(listeners))
+        listeners := #["0.0.0.0:80"];
+      end;
+      for (listener in listeners)
+        add!(_server.server-listeners, make-listener(listener));
+      end;
+
+      _server.debugging-enabled? := option-value-by-long-name(parser, "debug");
+
+      start-server(_server,
                    config-file: option-value-by-long-name(parser, "config"));
     exception (ex :: <error>)
       format(*standard-error*, "Error: %s\n", ex)

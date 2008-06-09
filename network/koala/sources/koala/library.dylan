@@ -22,7 +22,6 @@ define library koala
   use xml-parser;
   use xml-rpc-common;
   use dylan-basics;                             // basic dylan utils
-  use sql-odbc;
   use win32-kernel;
   use base64;
   use memory-manager;
@@ -342,8 +341,6 @@ define module dsp
   use file-system;
   use operating-system;
   //use ssl-sockets;
-  use sql-odbc,
-    prefix: "sql$";
 
   export
     <page>,                      // Subclass this using the "define page" macro
@@ -382,48 +379,6 @@ define module dsp
 
     note-form-error,             // for any error encountered while processing a web form
     note-form-message;           // for informative messages in response to processing a web form
-
-
-  // Persistence layer maps database records <-> web pages.
-  export
-    note-field-error,            // for errors related to processing a specific form field    with-database-connection,
-    <database-record>,
-    <modifiable-record>,
-    initialize-record,
-    record-id,
-    next-record-id,              // ---TODO: don't export this.
-    record-definer,
-    load-record,
-    load-records,                // Load all records of a given record class, matching a query string.
-    load-all-records,            // Load all records of a given record class
-    save-record,
-    class-prototype,
-    initialize-database,         // for doing any initialization when the database is first initialized.
-    query-db,
-    query-integer,
-    update-db,
-    <edit-record-page>,
-    get-edit-record,
-    respond-to-get-edit-record,
-    respond-to-post-edit-record,
-    *record*,
-    validate-record-field,       // define methods on this to validate record page form fields
-    display-hidden-field,
-    *default-origin-page*,       // Return to this page when a record is submitted, if no origin page
-                                 // was specified in the link to the edit-record page.
-
-    // Consider renaming to field-descriptor?  or column-descriptor?
-    <slot-descriptor>,
-    slot-getter,
-    slot-setter,
-    slot-column-number,
-    slot-column-name,
-    slot-type,
-    slot-database-type,
-    slot-init-keyword,
-    slot-required?,
-    db-type-to-slot-type,
-    record-table-name;
 
 end module dsp;
 

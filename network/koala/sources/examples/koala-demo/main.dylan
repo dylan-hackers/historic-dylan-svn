@@ -330,29 +330,22 @@ define url-map
     action GET () => make(<demo-page>, source: "demo/table.dsp");
 end url-map;
 
-
+define constant $http-server = make(<http-server>);
 
 //// XML-RPC (use any XML-RPC client to call these)
-
-begin
-  register-xml-rpc-method("test.zero",
-                          method () end);
-  register-xml-rpc-method("test.one",
-                          method () 1 end);
-  register-xml-rpc-method("test.two",
-                          method () "two" end);
-  register-xml-rpc-method("test.three",
-                          method () vector(1, "two", 3.0) end);
-  register-xml-rpc-method("test.four",
-                          method ()
-                            let result = make(<table>);
-                            result["x"] := vector(vector(7), 8);
-                            result["y"] := "my <dog> has fleas";
-                            result
-                          end);
-end;
-
-
+define xml-rpc-server $xml-rpc-server ("/RPC2" on $http-server)
+    ()
+  "test.zero" => method () end;
+  "test.one"  => method () 1 end;
+  "test.two"  => method () "two" end;
+  "test.three" => method () vector(1, "two", 3.0) end;
+  "test.four" => method ()
+                   let result = make(<table>);
+                   result["x"] := vector(vector(7), 8);
+                   result["y"] := "my <dog> has fleas";
+                   result
+                 end;
+end xml-rpc-server $xml-rpc-server;
 
 
 /// Main
@@ -363,6 +356,6 @@ begin
   // and other args on the command line.  Use --help to see options.
   // start-server can also be used directly if you want to do your own
   // command-line parsing.
-  koala-main();
+  koala-main(server: $http-server);
 end;
 

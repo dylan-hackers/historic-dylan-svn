@@ -148,6 +148,11 @@ end;
 // be better handled by "define web-application", which perhaps this
 // macro can be expanded to at some point.
 //
+// This should have a way of specifying the server for which the urls
+// will be defined.  Maybe "define url-map for server ... end".
+// Predictably, trying to add that syntax results in a mysterious and
+// unhelpful error message.
+//
 define macro url-map-definer
   { define url-map
       ?urls
@@ -160,24 +165,20 @@ define macro url-map-definer
 
   url:
     { url ?location:expression ?definitions }
-     => { begin
-            let responder = make(<responder>);
-            ?definitions ;
-            ?location ;
-          end }
+     => { let _responder = make(<responder>);
+          ?definitions ;
+          ?location }
     { url ( ?locations ) ?definitions }
-      => { begin
-            let responder = make(<responder>);
-            ?definitions ;
-            ?locations ;
-           end }
+      => { let _responder = make(<responder>);
+           ?definitions ;
+           ?locations }
 
   locations:
     { } => { }
     { ?location , ...  } => { ?location ; ... }
 
   location: 
-    { ?uri:expression } => { add-responder( ?uri , responder) }
+    { ?uri:expression } => { add-responder( ?uri , _responder) }
 
   definitions:
     { } => { }
@@ -187,36 +188,28 @@ define macro url-map-definer
   // Not quite sure how yet though.  --cgay
   definition:
     { action ( ?request-methods ) ( ?regex ) => ?action:expression }
-      => { begin
-             let regex = compile-regex(?regex, use-cache: #t);
-             let actions = list(?action);
-             ?request-methods
-           end }
+      => { let regex = compile-regex(?regex, use-cache: #t);
+           let actions = list(?action);
+           ?request-methods }
     { action ?request-method:name ( ?regex ) => ?action:expression }
-      => { begin
-             let regex = compile-regex(?regex);
-             let actions = list(?action);
-             ?request-method
-           end }
+      => { let regex = compile-regex(?regex);
+           let actions = list(?action);
+           ?request-method }
     { action ( ?request-methods ) ( ?regex ) => ( ?action-sequence:* ) }
-      => { begin
-             let regex = compile-regex(?regex, use-cache: #t);
-             let actions = list(?action-sequence);
-             ?request-methods
-           end }
+      => { let regex = compile-regex(?regex, use-cache: #t);
+           let actions = list(?action-sequence);
+           ?request-methods }
     { action ?request-method:name ( ?regex ) => ( ?action-sequence:* ) }
-      => { begin
-             let regex = compile-regex(?regex);
-             let actions = list(?action-sequence);
-             ?request-method
-           end }
+      => { let regex = compile-regex(?regex);
+           let actions = list(?action-sequence);
+           ?request-method }
   request-methods:
     { } => { }
     { ?request-method , ...  } => { ?request-method ; ... }
 
   request-method:
     { ?:name }
-     => { add-responder-map-entry(responder, ?#"name", regex, actions) }
+     => { add-responder-map-entry(_responder, ?#"name", regex, actions) }
 
   regex:
     { } => { "^$" }

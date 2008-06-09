@@ -194,7 +194,8 @@ define macro xml-rpc-server-definer
       ?the-methods:*
     end }
     => { define xml-rpc-server ?name () (?initargs) ?the-methods end;
-         add-responder(?url, _xml-rpc-server, server: ?http-server); }
+         let _xml-rpc-server = ?name;
+         add-responder(?url, ?name, server: ?http-server); }
 
   { define xml-rpc-server ?:name ()
         (?initargs:*)
