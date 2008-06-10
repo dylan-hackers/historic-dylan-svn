@@ -5,8 +5,6 @@ Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-// If you update this file don't forget to update library-unix.dylan as well.
-
 define library koala
   use functional-dylan,
     import: { dylan-extensions };
@@ -22,7 +20,6 @@ define library koala
   use xml-parser;
   use xml-rpc-common;
   use dylan-basics;                             // basic dylan utils
-  use win32-kernel;
   use base64;
   use memory-manager;
   use command-line-parser;
