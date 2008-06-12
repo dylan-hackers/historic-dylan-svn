@@ -14,13 +14,20 @@ define function configure
     (configuration :: <string>)
  => (server :: <http-server>)
   let server = make(<http-server>);
-  configure-from-string(server, configuration);
+  configure-from-string(server, configuration, "<no-file>");
   server
-end;
+end function configure;
   
 define test basic-configuration-test ()
-  check-no-errors("empty file",
-                  configure(""));
+  let texts = #("",
+                "<barbaloot>",
+                "<koala>gubbish</koala>",
+                "&!*#)!^%");
+  for (text in texts)
+    check-condition(fmt("Invalid config (%=) causes <configuration-error>", text),
+                    <configuration-error>,
+                    configure(text));
+  end for;
   check-no-errors("Empty <koala> element",
                   configure(koala-doc("")));
   check-no-errors("Unknown element ignored",

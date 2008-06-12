@@ -262,6 +262,7 @@ define module koala
   // Errors
   create
     <koala-api-error>,
+    <configuration-error>,
     http-error-code,
     http-error-headers,
     access-forbidden-error,
