@@ -57,7 +57,7 @@ define method configure-server
     let text = file-contents(config-loc);
     if (text)
       log-info("Loading server configuration from %s.", config-loc);
-      configure-from-string(server, text);
+      configure-from-string(server, text, config-loc);
     elseif (config-file)
       // Only blow out if user specified a config file, not if they're taking
       // the default config file.
@@ -69,7 +69,7 @@ end method configure-server;
 // This is separated out so it can be used by the test suite.
 //
 define method configure-from-string
-    (server :: <http-server>, text :: <string>)
+    (server :: <http-server>, text :: <string>, filename :: <string>)
   // --todo: Fix parse-document to give a reasonable error message
   // instead of just returning #f.
   let xml :: false-or(xml$<document>) = xml$parse-document(text);
@@ -79,7 +79,7 @@ define method configure-from-string
       process-config-node(server, xml);
     end;
   else
-    config-error("Unable to parse config file!");
+    config-error("Unable to parse config file %s", filename);
   end;
 end method configure-from-string;
 
@@ -122,6 +122,11 @@ define method process-config-node
     (server :: <http-server>, node :: xml$<element>) => ()
   log-debug("Processing config element %=", xml$name(node));
   process-config-element(server, node, xml$name(node));
+end;
+
+define method process-config-node
+    (server :: <http-server>, node :: xml$<xml>) => ()
+  config-error("Unexpected XML document element: %s", xml$name(node));
 end;
 
 // Exported.

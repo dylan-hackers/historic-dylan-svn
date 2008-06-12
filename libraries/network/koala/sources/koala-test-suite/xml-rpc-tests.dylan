@@ -51,23 +51,23 @@ define xml-rpc-server $test-server-1 ()
 end;
 
 define test xml-rpc-server-definer-test ()
-  let http-server = make-server();
-  start-server(http-server, background: #t, wait: #t);
-  let url = "/xml-rpc-server-definer-test";
-  add-responder(url, $test-server-1, server: http-server);
-  check-equal("xml-rpc-server-definer echo",
-              xml-rpc-call-2("localhost", *test-port*, url, "echo", "foo"),
-              #["foo"]);
-  check-equal("xml-rpc-server-definer ping",
-              xml-rpc-call-2("localhost", *test-port*, url, "ping"),
-              "ack");
-  check-equal("xml-rpc-server-definer error",
-              block ()
-                xml-rpc-call-2("localhost", *test-port*, url, "error")
-              exception (ex :: <xml-rpc-fault>)
-                fault-code(ex)
-              end,
-              123);
+  with-http-server (http-server = make-server())
+    let url = "/xml-rpc-server-definer-test";
+    add-responder(url, $test-server-1, server: http-server);
+    check-equal("xml-rpc-server-definer echo",
+                xml-rpc-call-2("localhost", *test-port*, url, "echo", "foo"),
+                #["foo"]);
+    check-equal("xml-rpc-server-definer ping",
+                xml-rpc-call-2("localhost", *test-port*, url, "ping"),
+                "ack");
+    check-equal("xml-rpc-server-definer error",
+                block ()
+                  xml-rpc-call-2("localhost", *test-port*, url, "error")
+                exception (ex :: <xml-rpc-fault>)
+                  fault-code(ex)
+                end,
+                123);
+  end with-http-server;
 end test xml-rpc-server-definer-test;
 
 define suite xml-rpc-test-suite ()
