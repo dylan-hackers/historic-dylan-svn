@@ -5,6 +5,8 @@ Copyright: Copyright (c) 2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
+define thread variable *virtual-host* :: false-or(<virtual-host>) = #f;
+
 // Some methods to make logging slightly more convenient by not having
 // to always pass log-target(*virtual-host*).
 define method log-copious (format-string, #rest format-args)
@@ -185,39 +187,6 @@ define method add-directory-spec
                           test: method (s1, s2)
                                   dirspec-pattern(s1) = dirspec-pattern(s2)
                                 end));
-end;
-
-// todo: move into <server>
-// If this is true, then requests directed at hosts that don't match any
-// explicitly named virtual host (i.e., something created with <virtual-host>
-// in the config file) will use the default vhost.  If this is #f when such a
-// request is received, a Bad Request (400) response will be returned.
-//
-define variable *fall-back-to-default-virtual-host?* :: <boolean> = #t;
-
-// Maps host names to virtual hosts.
-define constant $virtual-hosts :: <string-table> = make(<string-table>);
-
-define thread variable *virtual-host* :: false-or(<virtual-host>) = #f;
-
-define method add-virtual-host
-    (name :: <string>, vhost :: <virtual-host>)
-  let low-name = as-lowercase(name);
-  if (element($virtual-hosts, low-name, default: #f))
-    signal(make(<koala-api-error>,
-                format-string: "Virtual host (%s) already exists.",
-                format-arguments: list(low-name)));
-  else
-    $virtual-hosts[low-name] := vhost;
-  end;
-end;
-
-define generic virtual-host
-    (thing :: <object>) => (vhost :: false-or(<virtual-host>));
-
-define method virtual-host
-    (name :: <string>) => (vhost :: false-or(<virtual-host>))
-  element($virtual-hosts, as-lowercase(name), default: #f)
 end;
 
 define method directory-spec-matching

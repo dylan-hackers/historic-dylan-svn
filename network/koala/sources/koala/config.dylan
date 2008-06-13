@@ -200,7 +200,7 @@ define method process-config-element
   let name = get-attr(node, #"name");
   if (name)
     let vhost = make-virtual-host(server, name: trim(name));
-    add-virtual-host(name, vhost);
+    add-virtual-host(server, vhost, name);
     dynamic-bind (%vhost = vhost,
                   %dir = root-directory-spec(vhost))
       for (child in xml$node-children(node))
@@ -218,7 +218,7 @@ define method process-config-element
   let name = get-attr(node, #"name");
   if (name)
     block ()
-      add-virtual-host(name, %vhost);
+      add-virtual-host(server, %vhost, name);
     exception (err :: <koala-api-error>)
       warn("Invalid <ALIAS> element.  %s", err);
     end;
@@ -234,9 +234,9 @@ define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"default-virtual-host")
   bind (attr = get-attr(node, #"enabled"))
     when (attr)
-      *fall-back-to-default-virtual-host?* := true-value?(attr)
+      server.fall-back-to-default-virtual-host? := true-value?(attr)
     end;
-    when (*fall-back-to-default-virtual-host?*)
+    when (server.fall-back-to-default-virtual-host?)
       log-info("Fallback to the default virtual host is enabled.");
     end;
   end;
