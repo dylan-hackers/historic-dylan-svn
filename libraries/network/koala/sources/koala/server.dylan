@@ -62,12 +62,22 @@ define class <server> (<sealed-constructor>)
   slot connections-accepted :: <integer> = 0; // Connections accepted
   constant slot user-agent-stats :: <string-table> = make(<string-table>);
 
+  // Maps host names to virtual hosts.
+  constant slot virtual-hosts :: <string-table> = make(<string-table>);
+
   // The vhost used if the request host doesn't match any other virtual host.
   // Note that the document root may be changed when the config file is
   // processed, so don't use it except during request processing.
   //
   slot default-virtual-host :: <virtual-host>,
     init-keyword: default-virtual-host:;
+
+  // If this is true, then requests directed at hosts that don't match any
+  // explicitly named virtual host (i.e., something created with <virtual-host>
+  // in the config file) will use the default vhost.  If this is #f when such a
+  // request is received, a Bad Request (400) response will be returned.
+  //
+  slot fall-back-to-default-virtual-host? :: <boolean> = #t;
 
   // The top of the directory tree under which the server's configuration, error,
   // and log files are kept.  Other pathnames are merged against this one, so if
@@ -627,23 +637,45 @@ define method make-virtual-host
   vhost
 end;
 
+define method add-virtual-host
+    (server :: <http-server>, vhost :: <virtual-host>, name :: <string>)
+  let low-name = as-lowercase(name);
+  if (element(server.virtual-hosts, low-name, default: #f))
+    signal(make(<koala-api-error>,
+                format-string: "Virtual host (%s) already exists.",
+                format-arguments: list(low-name)));
+  else
+    server.virtual-hosts[low-name] := vhost;
+  end;
+end method add-virtual-host;
+
+define generic virtual-host
+    (thing :: <object>) => (vhost :: false-or(<virtual-host>));
+
 define method virtual-host
-    (request :: <request>) => (vhost :: false-or(<virtual-host>))
+    (name :: <string>)
+ => (vhost :: false-or(<virtual-host>))
+  element(*server*.virtual-hosts, as-lowercase(name), default: #f)
+end;
+
+define method virtual-host
+    (request :: <request>)
+ => (vhost :: false-or(<virtual-host>))
   let host-spec = request-host(request);
   if (host-spec)
     let colon = char-position(':', host-spec, 0, size(host-spec));
     let host = iff(colon, substring(host-spec, 0, colon), host-spec);
     let vhost = virtual-host(host)
-                  | (*fall-back-to-default-virtual-host?*
-                       & default-virtual-host(*server*));
+                  | (*server*.fall-back-to-default-virtual-host?
+                       & *server*.default-virtual-host);
     if (vhost)
       vhost
     else
       // todo -- see if the spec says what error to return here.
       resource-not-found-error(url: request.request-url);
     end;
-  elseif (*fall-back-to-default-virtual-host?*)
-    default-virtual-host(*server*)
+  elseif (*server*.fall-back-to-default-virtual-host?)
+    *server*.default-virtual-host
   else
     resource-not-found-error(url: request.request-url);
   end
