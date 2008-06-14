@@ -17,12 +17,13 @@ define class <responder> (<object>)
     init-keyword: map:;
 end;
 
+// API
 define open generic add-responder
     (url :: <object>, responder :: <object>,
      #key replace?, request-methods, server);
 
-// Convenience method to convert first arg to <url>.
-//
+// Convenience method to convert first arg to <url>.  All other methods
+// should specialize the first arg on (a subclass of) <url>.
 define method add-responder
     (url :: <string>, responder :: <object>,
      #key replace?,
@@ -32,7 +33,7 @@ define method add-responder
                 replace?: replace?,
                 request-methods: request-methods,
                 server: server)
-end;
+end method add-responder;
 
 define method add-responder
     (url :: <url>, responder :: <responder>,

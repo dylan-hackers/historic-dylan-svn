@@ -7,8 +7,9 @@ Author:    Carl Gay
 To use this example web application (if I may glorify it with that name),
 compile this library and invoke the executable with --config <filename>.
 You will probably have to fix the config file to make the dsp-root setting
-point at the directory containing the "demo" directory that has all the
-.dsp template files in it.
+point at the directory containing the demo .dsp template files:
+
+    libraries/network/koala/www/demo
 
 Each page demonstrates a feature of Koala or Dylan Server Pages.  You should
 be able to find the code corresponding to a particular URL by searching for

@@ -62,23 +62,16 @@ end;
 
 
 
-//// URL mapping
-
-// Maps page objects to their canonical URLs.
-define variable *page-to-url-map* :: <table> = make(<table>);
-
-define method page-url
-    (page :: <page>) => (url :: false-or(<string>))
-  element(*page-to-url-map*, page, default: #f)
-end;
-
-
 //// <page>
 
 define open primary class <page> (<object>)
 end;
 
-// Method on generic defined in server.dylan
+// Method on generic defined in server.dylan.  Makes it possible to use
+// DSPs directly in "define url-map" calls.  I.e., a <page> ends up being
+// the "action" passed to invoke-responder in that case.
+// add-responder(<url>, <page>) works too.
+// 
 define method invoke-responder
     (request :: <request>,
      action :: <page>,
@@ -138,29 +131,16 @@ define method respond-to-get
   process-template(page);
 end method respond-to-get;
 
-// Applications should call this (usually via the "define page" macro) to
-// register a page for a particular URL.
-define function register-page
-    (url :: <string>, page :: <page>, #key replace?)
- => (responder :: <function>)
-  bind (responder = curry(process-page, page))
-    add-responder(url, responder, replace?: replace?);
-    *page-to-url-map*[page] := url;
-    responder
-  end
-end function register-page;
-
-define function url-to-page
-    (url :: <string>)
-  block (return)
-    for (uri keyed-by page in *page-to-url-map*)
-      if (uri = url)
-        return(page);
-      end if;
-    end for;
-  end block;
-end function url-to-page;
-
+define method add-responder
+    (url :: <url>, responder :: <page>,
+     #key replace?,
+          request-methods = #(#"GET", #"POST"),
+          server :: false-or(<http-server>))
+  add-responder(url, curry(process-page, responder),
+                replace?: replace?,
+                request-methods: request-methods,
+                server: server)
+end method add-responder;
 //
 // Page mixin classes and related methods
 //
@@ -844,7 +824,7 @@ define method parse-page
   pt-debug("Parsing page %s", as(<string>, source-location(page)));
   let string = file-contents(source-location(page));
   if (~string)
-    resource-not-found-error(url: page-url(page));
+    resource-not-found-error(url: current-request().request-url);
   else
     page.contents := string;
     page.mod-time := file-property(source-location(page),
