@@ -42,7 +42,8 @@ define class <server> (<sealed-constructor>)
   constant slot listener-shutdown-timeout :: <real> = 15;
   constant slot client-shutdown-timeout :: <real> = 15;
 
-  slot request-class :: subclass(<basic-request>) = <basic-request>;
+  constant slot request-class :: subclass(<basic-request>) = <request>,
+    init-keyword: request-class:;
 
   //---TODO: response for unsupported-request-method-error MUST include
   // Allow: field...  Need an API for making sure that happens.
@@ -284,9 +285,7 @@ define thread variable *server* :: false-or(<server>) = #f;
 // This is called when the library is loaded (from main.dylan).
 define function init-server
     (server :: <http-server>,
-     #key request-class :: subclass(<basic-request>) = *default-request-class*,
-          config-file :: false-or(<string>))
-  server.request-class := request-class;
+     #key config-file :: false-or(<string>))
   if (config-file)
     configure-server(server, config-file);
   end;
@@ -615,8 +614,6 @@ define method get-header
     (request :: <request>, name :: <string>) => (header :: <object>)
   element(request.request-headers, name, default: #f)
 end;
-
-define variable *default-request-class* :: subclass(<basic-request>) = <request>;
 
 // Making a virtual hosts requires an instantiated server to do some
 // initialization, so use this instead of calling make(<virtual-host>).
