@@ -39,7 +39,6 @@ define class <xml-rpc-server> (<object>)
 
 end class <xml-rpc-server>;
 
-// API
 define method add-responder
     (url :: <url>, xml-rpc-server :: <xml-rpc-server>,
      #key replace?,

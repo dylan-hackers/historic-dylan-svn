@@ -324,11 +324,15 @@ define module dsp
               log-warning => %log-warning,
               log-error => %log-error },
     export: all;
-
   use locators,
-    rename: {<http-server> => <http-server-url>,
-             <ftp-server> => <ftp-server-url>,
-             <file-server> => <file-server-url>};
+    import: { <locator>,
+              <file-locator>,
+              <directory-locator>,
+              locator-relative?,
+              simplify-locator,
+              merge-locators,
+              locator-directory };
+  use uri;
   use format,
     rename: { format-to-string => sformat };
   use threads;
@@ -343,8 +347,6 @@ define module dsp
   export
     <page>,                      // Subclass this using the "define page" macro
     <static-page>,
-    register-page,               // Register a page for a given URL
-    url-to-page,
     respond-to,                  // Implement this for your page to handle a request
     respond-to-get,              // Convenience.
     respond-to-post,             // Convenience.
