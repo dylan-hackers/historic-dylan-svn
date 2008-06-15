@@ -103,7 +103,7 @@ begin
                             <simple-option-parser>,
                             description: "Whether to enable the XMPP bot",
                             long-options: #("xmpp"));
-  register-url("/wiki/wiki.css", maybe-serve-static-file);
+  add-responder("/wiki/wiki.css", maybe-serve-static-file);
   register-init-function(xmpp-worker);
   koala-main();
 end;
