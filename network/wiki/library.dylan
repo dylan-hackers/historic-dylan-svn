@@ -39,7 +39,7 @@ define module wiki
   //use meta;
   use dsp;
   use regular-expressions,
-    import: { regex-position };
+    import: { compile-regex, regex-position };
   use xml-rpc-common,
     import: { base64-encode, base64-decode };
   use strings, import: { index-of, case-insensitive-equal? };

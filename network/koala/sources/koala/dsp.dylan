@@ -5,22 +5,7 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-// Users of this library may respond to HTTP requests in two ways:
-// (1) Use "define responder" to register a response function for a
-//     given URL.  The function can access the active <request> object
-//     via current-request().  It can access the active <response> object
-//     via current-response().
-//
-// (2) Define a subclass of <page> and implement the method respond-to.
-//     Use "define page", specifying <page> as a superclass to register a
-//     page to be used for a particular URL.
-//
-// (3) Use "define page", specifying <dylan-server-page> as a superclass
-//     and define any "tags" you need with "define tag".  Create a .dsp
-//     file that calls the tags with <dsp:my-tag .../>.  Tags can generate
-//     output via output(format-string, #rest format-args).
-//
-// See .../koala/sources/examples/koala-basics/ for example DSP usage.
+// See .../koala/sources/examples/koala-demo/ for example DSP usage.
 
 
 define class <dsp-error> (<format-string-condition>, <error>) end;
@@ -132,14 +117,12 @@ define method respond-to-get
 end method respond-to-get;
 
 define method add-responder
-    (url :: <url>, responder :: <page>,
+    (server :: <http-server>, url :: <url>, responder :: <page>,
      #key replace?,
-          request-methods = #(#"GET", #"POST"),
-          server :: false-or(<http-server>))
-  add-responder(url, curry(process-page, responder),
+          request-methods = #(#"GET", #"POST"))
+  add-responder(server, url, curry(process-page, responder),
                 replace?: replace?,
-                request-methods: request-methods,
-                server: server)
+                request-methods: request-methods)
 end method add-responder;
 //
 // Page mixin classes and related methods

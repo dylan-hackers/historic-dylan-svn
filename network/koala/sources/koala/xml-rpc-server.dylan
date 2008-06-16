@@ -7,10 +7,16 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 // Usage:
+//   define xml-rpc-server $xml-rpc-server ("/RPC2" on http-server)
+//     "my.method.name" => my-method;
+//     ...
+//   end;
+// or
 //   let xml-rpc-server = make(<xml-rpc-server>, ...);
 //   register-xml-rpc-method(xml-rpc-server, "my.method.name", my-method);
 //   ...
-//   add-responder($default-xml-rpc-url, xml-rpc-server);
+//   add-responder(http-server, "/RPC2", xml-rpc-server);
+
 
 // API
 define constant $default-xml-rpc-url :: <string> = "/RPC2";
@@ -40,14 +46,12 @@ define class <xml-rpc-server> (<object>)
 end class <xml-rpc-server>;
 
 define method add-responder
-    (url :: <url>, xml-rpc-server :: <xml-rpc-server>,
+    (server :: <http-server>, url :: <url>, xml-rpc-server :: <xml-rpc-server>,
      #key replace?,
-          request-methods = #(#"POST"),
-          server :: false-or(<http-server>))
-  add-responder(url, curry(respond-to-xml-rpc-request, xml-rpc-server),
+          request-methods = #(#"POST"))
+  add-responder(server, url, curry(respond-to-xml-rpc-request, xml-rpc-server),
                 replace?: replace?,
-                request-methods: request-methods,
-                server: server);
+                request-methods: request-methods);
 end method add-responder;
 
 define function respond-to-xml-rpc-request
@@ -194,7 +198,7 @@ define macro xml-rpc-server-definer
     end }
     => { define xml-rpc-server ?name () (?initargs) ?the-methods end;
          let _xml-rpc-server = ?name;
-         add-responder(?url, ?name, server: ?http-server); }
+         add-responder(?http-server, ?url, ?name, server: ?http-server); }
 
   { define xml-rpc-server ?:name ()
         (?initargs:*)

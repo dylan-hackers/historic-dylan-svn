@@ -103,7 +103,11 @@ begin
                             <simple-option-parser>,
                             description: "Whether to enable the XMPP bot",
                             long-options: #("xmpp"));
-  add-responder("/wiki/wiki.css", maybe-serve-static-file);
-  register-init-function(xmpp-worker);
-  koala-main();
+  let server = make(<http-server>);
+  add-responder(server, "/wiki/wiki.css", maybe-serve-static-file);
+  // This is untested, due to other brokenness, but presumably it starts
+  // its own thread.  It used to be called after the server started up,
+  // via register-init-function.
+  xmpp-worker();
+  koala-main(server: server);
 end;
