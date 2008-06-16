@@ -69,8 +69,6 @@ define module utilities
     date-to-stream,
     kludge-read-into!,   // work around bug in read-into! in FD 2.0
     quote-html,          // Change < to &lt; etc
-    register-init-function,
-    run-init-functions,
 
     <string-trie>, 
     find-object, 
@@ -345,7 +343,7 @@ define module dsp
   //use ssl-sockets;
 
   export
-    <page>,                      // Subclass this using the "define page" macro
+    <page>,
     <static-page>,
     respond-to,                  // Implement this for your page to handle a request
     respond-to-get,              // Convenience.

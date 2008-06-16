@@ -253,6 +253,8 @@ define class <search-result> (<object>)
   constant slot search-result-summary :: <string>, required-init-keyword: #"summary";
 end;
 
+define constant $whitespace :: <regex> = compile-regex("[\t ]+");
+
 // Search all the wiki pages for the given words.
 // Returns an ordered collection of lists, each of which contains all
 // matched versions of a given page title.
@@ -260,7 +262,7 @@ end;
 define method do-search
     (search-string :: <collection>, #key include-old-versions?)
  => (results :: <collection>)
-  let words = concatenate(list(search-string), split(search-string));
+  let words = concatenate(list(search-string), split(search-string, $whitespace));
   let matches = make(<string-table>);
   local method maybe-add (string, version, title, title-weight)
           let (weight, summary) = search-text(string, words);

@@ -19,70 +19,55 @@ end;
 
 // API
 define open generic add-responder
-    (url :: <object>, responder :: <object>,
-     #key replace?, request-methods, server);
+    (server :: <http-server>, url :: <object>, responder :: <object>,
+     #key replace?, request-methods);
 
 // Convenience method to convert first arg to <url>.  All other methods
 // should specialize the first arg on (a subclass of) <url>.
 define method add-responder
-    (url :: <string>, responder :: <object>,
+    (server :: <http-server>, url :: <string>, responder :: <object>,
      #key replace?,
-          request-methods = #(#"GET", #"POST"),
-          server :: false-or(<http-server>))
-  add-responder(parse-url(url), responder,
+          request-methods = #(#"GET", #"POST"))
+  add-responder(server, parse-url(url), responder,
                 replace?: replace?,
-                request-methods: request-methods,
-                server: server)
+                request-methods: request-methods)
 end method add-responder;
 
 define method add-responder
-    (url :: <url>, responder :: <responder>,
+    (server :: <http-server>, url :: <url>, responder :: <responder>,
      #key replace?,
-          request-methods = #(#"GET", #"POST"),
-          server :: false-or(<http-server>) = *server*)
-  local method register-responder ()
-          if (empty?(url.uri-path))
-            error(make(<koala-api-error>,
-                       format-string: "You can't add a responder with an empty URL: %s",
-                       format-arguments: list(url)));
-          else
-            add-object(*server*.url-map, url.uri-path, responder, replace?: replace?);
-            log-info("responder on %s registered", url);
-          end if;
-        end;
-  if (server)
-    dynamic-bind(*server* = server)
-      register-responder();
-    end;
+          request-methods = #(#"GET", #"POST"))
+  if (empty?(url.uri-path))
+    error(make(<koala-api-error>,
+               format-string: "You can't add a responder with an empty URL: %s",
+               format-arguments: list(url)));
   else
-    register-init-function(register-responder);
-  end;
+    add-object(server.url-map, url.uri-path, responder, replace?: replace?);
+    log-info("responder on %s registered", url);
+  end if;
 end method add-responder;
 
 // The simple case where you just want an exact URL to map to a function.
 // This takes care of the messy details of building a <responder> object.
 //
 define method add-responder
-    (url :: <url>, response-function :: <function>,
+    (server :: <http-server>, url :: <url>, response-function :: <function>,
      #key replace?,
-          request-methods = #(#"GET", #"POST"),
-          server :: false-or(<http-server>))
+          request-methods = #(#"GET", #"POST"))
   let table = make(<table>, size: 1);
   table[compile-regex("^$")] := list(response-function);
-  add-responder(url, table,
+  add-responder(server, url, table,
                 replace?: replace?,
-                request-methods: request-methods,
-                server: server);
+                request-methods: request-methods);
 end method add-responder;
 
 // Use this if you want a prefix URL and different behaviour depending on
 // which regex matches the URL tail.
 //
 define method add-responder
-    (url :: <url>, regex-map :: <table>,
+    (server :: <http-server>, url :: <url>, regex-map :: <table>,
      #key replace?,
-          request-methods = #(#"GET", #"POST"),
-          server :: false-or(<http-server>))
+          request-methods = #(#"GET", #"POST"))
   for (responses keyed-by regex in regex-map)
     assert(instance?(regex, <regex>)
              & instance?(responses, <sequence>)
@@ -96,40 +81,42 @@ define method add-responder
     // todo -- validate-request-method(request-method)
     responder.responder-map[request-method] := regex-map;
   end;
-  add-responder(url, responder,
+  add-responder(server, url, responder,
                 replace?: replace?,
-                request-methods: request-methods,
-                server: server);
+                request-methods: request-methods);
 end method add-responder;
 
 define open generic find-responder
-    (url :: <object>)
+    (server :: <http-server>, url :: <object>)
  => (responder :: false-or(<responder>),
      rest-path :: false-or(<sequence>));
 
 define method find-responder
-    (url :: <string>)
+    (server :: <http-server>, url :: <string>)
  => (responder :: false-or(<responder>),
      rest-path :: false-or(<sequence>))
-  find-responder(parse-url(url))
+  find-responder(server, parse-url(url))
 end method find-responder;
 
 define method find-responder
-    (url :: <url>)
+    (server :: <http-server>, url :: <url>)
  => (responder :: false-or(<responder>),
      rest-path :: false-or(<sequence>))
-  find-object(*server*.url-map, url.uri-path);
+  find-object(server.url-map, url.uri-path);
 end method find-responder;
 
 
-define open generic remove-responder (object :: <object>);
+define open generic remove-responder
+    (server :: <http-server>, object :: <object>);
 
-define method remove-responder (url :: <string>)
-  remove-responder(parse-url(url));
+define method remove-responder
+    (server :: <http-server>, url :: <string>)
+  remove-responder(server, parse-url(url));
 end;
 
-define method remove-responder (url :: <url>)
-  remove-object(*server*.url-map, url.uri-path);
+define method remove-responder
+    (server :: <http-server>, url :: <url>)
+  remove-object(server.url-map, url.uri-path);
 end;
 
 
@@ -155,10 +142,11 @@ end;
 // unhelpful error message.
 //
 define macro url-map-definer
-  { define url-map
+  { define url-map on ?http-server:expression
       ?urls
     end }
-   => { ?urls }
+   => { let _http-server :: <http-server> = ?http-server;
+        ?urls }
 
   urls:
     { } => { }
@@ -179,7 +167,7 @@ define macro url-map-definer
     { ?location , ...  } => { ?location ; ... }
 
   location: 
-    { ?uri:expression } => { add-responder( ?uri , _responder) }
+    { ?uri:expression } => { add-responder( _http-server, ?uri , _responder) }
 
   definitions:
     { } => { }

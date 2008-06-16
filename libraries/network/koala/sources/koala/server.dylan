@@ -291,7 +291,6 @@ define function init-server
   end;
   ensure-sockets-started();  // TODO: Can this be moved into start-server?
   log-info("Server root directory is %s", server-root(server));
-  run-init-functions();
 end init-server;
 
 // API
@@ -768,7 +767,7 @@ define method read-request (request :: <request>) => ()
     pset (buffer, len) read-request-line(socket) end;
   end;
 
-  read-request-first-line(request, buffer);
+  read-request-first-line(server, request, buffer);
   unless (request.request-version == #"http/0.9")
     request.request-headers
       := read-message-headers(socket,
@@ -793,7 +792,7 @@ define constant $request-line-regex :: <regex>
 // Read the Request-Line.  RFC 2616 Section 5.1
 //
 define function read-request-first-line
-    (request :: <request>, buffer :: <string>)
+    (server :: <http-server>, request :: <request>, buffer :: <string>)
  => ()
   let (entire-match, http-method, url, http-version)
     = regex-search-strings($request-line-regex, buffer);
@@ -806,7 +805,7 @@ define function read-request-first-line
       request.request-host := url.uri-host;   
     end if;
     request.request-url := url;
-    let (responder, tail) = find-responder(request.request-url);
+    let (responder, tail) = find-responder(server, request.request-url);
     request.request-responder := responder;
     if (tail)
       request.request-tail-url := make(<url>, path: as(<deque>, tail));
