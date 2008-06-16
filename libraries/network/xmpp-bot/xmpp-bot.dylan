@@ -3,8 +3,6 @@ Author:    Hannes Mehnert
 Copyright: (C) 2006,  All rights reserved.
 
 
-define variable *online-users* = make(<list>);
-
 define class <xmpp-bot> (<object>)
   slot online-users :: <list> = make(<list>);
   slot client :: <xmpp-client>, init-keyword: client:;

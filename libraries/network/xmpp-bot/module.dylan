@@ -3,7 +3,8 @@ Author:    Hannes Mehnert
 Copyright: (C) 2006,  All rights reserved.
 
 define module xmpp-bot
-  use common-dylan;
+  use common-dylan,
+    exclude: { format-out };
   use threads;
   use format;
   use format-out;
