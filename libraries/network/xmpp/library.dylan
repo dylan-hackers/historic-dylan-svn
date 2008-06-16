@@ -97,6 +97,5 @@ define module xmpp
     to, to-setter,
     language, language-setter,
     type, type-setter,
-    *default-language*,
     print-object;
 end module;

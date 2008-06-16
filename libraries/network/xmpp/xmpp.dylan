@@ -4,7 +4,6 @@ author:
 copyright:
 
 define variable *element-translation* = make(<table>);
-define class <xmpp-element> (<element>) end;
   
 define generic normalize (element :: <element>);
 
@@ -78,7 +77,3 @@ define method language-setter (language, element :: <element>)
   language;
 end method language-setter;
 
-define function generate-id ()
- => (id :: <string>);
-  integer-to-string(date-microseconds(current-date())); 
-end function generate-id;
