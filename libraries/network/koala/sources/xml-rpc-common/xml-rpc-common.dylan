@@ -25,6 +25,11 @@ define function set-strict-mode
   *strict?* := strict?
 end;
 
+define function strict-mode?
+    () => (strict? :: <boolean>)
+  *strict?*
+end;
+
 
 // All XML-RPC errors inherit from this class.
 //
@@ -71,7 +76,8 @@ define generic to-xml
 
 // Default method
 define method to-xml (arg :: <object>, stream :: <stream>) => ()
-  xml-rpc-parse-error("The type of %= couldn't be converted to a valid XML-RPC parameter type.",
+  xml-rpc-parse-error("The type of %= couldn't be converted to a valid XML-RPC"
+                        "parameter type.",
                       arg);
 end;
 
@@ -139,7 +145,7 @@ define function find-child (node :: xml$<node-mixin>, name :: <symbol>)
 end;
 
 
-
+// Convert an XML response into a Dylan object.
 define generic from-xml
     (node :: <object>, name :: <object>)
  => (object :: <object>);

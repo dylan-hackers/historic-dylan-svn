@@ -7,7 +7,7 @@ define test xml-rpc-registration-test ()
     let xml-rpc-server = make(<xml-rpc-server>);
     register-xml-rpc-method(xml-rpc-server, "foo", method () "bar" end);
     let url = "/xml-rpc-registration-test";
-    add-responder(url, xml-rpc-server, server: http-server);
+    add-responder(http-server, url, xml-rpc-server);
     check-equal("Register and call a simple XML RPC method",
                 xml-rpc-call-2("localhost", *test-port*, url, "foo"),
                 "bar");
@@ -24,7 +24,7 @@ define test xml-rpc-data-types-test ()
     let xml-rpc-server = make(<xml-rpc-server>);
     register-xml-rpc-method(xml-rpc-server, "echo", method (arg) arg end);
     let url = "/xml-rpc-data-types-test";
-    add-responder(url, xml-rpc-server, server: http-server);
+    add-responder(http-server, url, xml-rpc-server);
     for (val in vector(-1,
                        0,
                        1,
@@ -53,7 +53,7 @@ end;
 define test xml-rpc-server-definer-test ()
   with-http-server (http-server = make-server())
     let url = "/xml-rpc-server-definer-test";
-    add-responder(url, $test-server-1, server: http-server);
+    add-responder(http-server, url, $test-server-1);
     check-equal("xml-rpc-server-definer echo",
                 xml-rpc-call-2("localhost", *test-port*, url, "echo", "foo"),
                 #["foo"]);
@@ -70,9 +70,32 @@ define test xml-rpc-server-definer-test ()
   end with-http-server;
 end test xml-rpc-server-definer-test;
 
+// Make sure fault codes other than the default get propagated correctly.
+define test xml-rpc-fault-test ()
+  with-http-server (http-server = make-server())
+    let xml-rpc-server = make(<xml-rpc-server>);
+    register-xml-rpc-method(xml-rpc-server, "error", xml-rpc-fault);
+    let url = "/xml-rpc-fault-test";
+    add-responder(http-server, url, xml-rpc-server);
+    for (code in #(-1, 0, 1, 123))
+      let message = fmt("fault code %d", code);
+      check-equal(message,
+                  block ()
+                    xml-rpc-call-2("localhost", *test-port*, url,
+                                   "error", code, message)
+                  exception (ex :: <xml-rpc-fault>)
+                    fault-code(ex)
+                  end,
+                  code);
+    end;
+  end with-http-server;
+end test xml-rpc-fault-test;
+
+
 define suite xml-rpc-test-suite ()
   test xml-rpc-registration-test;
   test xml-rpc-namespace-test;
   test xml-rpc-data-types-test;
   test xml-rpc-server-definer-test;
+  test xml-rpc-fault-test;
 end;
