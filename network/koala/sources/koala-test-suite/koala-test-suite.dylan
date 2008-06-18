@@ -31,6 +31,17 @@ define function connect-and-close
 end function connect-and-close;
 
 
+// Test creating <http-server>s with various settings.
+//
+/*
+define test server-creation-test ()
+  let server = make(<http-server>,
+                    // how do i get the (or a) root directory
+                    // in a platform independent way?
+                    dsp-root: as(<directory-locator>, 
+end test server-creation-test;
+*/
+
 define test start-stop-basic-test ()
   let server = make-server();
   block ()

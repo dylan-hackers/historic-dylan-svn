@@ -94,8 +94,8 @@ define class <virtual-host> (<object>)
     required-init-keyword: name:;
 
   // The root of the web document hierarchy.  By default, this will be
-  // *server-root*/www/<vhost-name>/.  If name is the empty string then
-  // just *server-root*/www/.
+  // <server-root>/www/<vhost-name>/.  If name is the empty string then
+  // just <server-root>/www/.
   slot document-root :: <directory-locator>;
   slot dsp-root :: <directory-locator>;
 

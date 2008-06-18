@@ -21,7 +21,10 @@ end;
 // xml-rpc-call-2("192.168.26.73", 8502, "/RPC2", "psapi.getAvailableAgentSlas", 10);
 //
 define function xml-rpc-call-2
-    (host :: <string>, port :: <integer>, url :: <string>, method-name :: <string>,
+    (host :: <string>,
+     port :: <integer>,
+     url :: <string>,
+     method-name :: <string>,
      #rest args)
  => (response :: <object>)
   let xml = apply(create-method-call-xml, method-name, args);
@@ -39,8 +42,7 @@ define function xml-rpc-call-2
   write(stream, xml);
   force-output(stream);
   read-response(stream)
-end;
-
+end function xml-rpc-call-2;
 
 
 define table $html-quote-map
@@ -67,7 +69,7 @@ define function quote-html
           write-element(stream, translation));
     end;
   end;
-end quote-html;
+end function quote-html;
 
 define function create-method-call-xml
     (method-name :: <string>, #rest args)
@@ -83,7 +85,7 @@ define function create-method-call-xml
     end;
     write(s, "</params></methodCall>");
   end
-end;
+end function create-method-call-xml;
 
 
 // Quick and dirty.  Should import the string utils from Koala instead.
@@ -100,7 +102,7 @@ define function read-response
   let cl = "Content-length: ";
   let line :: false-or(<string>) = #f;
   while ((line := read-line(stream, on-end-of-stream: #f))
-         & ~zero?(size(line)))
+         & ~empty?(line))
     when (*debugging-xml-rpc*)
       format-out("%s\n", line);
     end;
@@ -113,13 +115,11 @@ define function read-response
     signal(make(<xml-rpc-error>,
                 format-string: "No Content-Length header was received."));
   else
-    // TODO: signal <xml-rpc-error> on end of stream.
-    //let xml = read(stream, content-length);
-    let xml = make(<byte-string>, size: content-length, fill: ' ');
-
+    /*
     // kludge to work around hideous bug in the read method.  This is 
     // fixed in the FunDev sources, so the fix should be in the next
     // release after 2.0 SP1.
+    let xml = make(<byte-string>, size: content-length, fill: ' ');
     block (continue)
       for (i from 0 below content-length)
         let elem = read-element(stream, on-end-of-stream: #f);
@@ -130,10 +130,18 @@ define function read-response
         end;
       end;
     end block;
-
-    parse-response(xml)
-  end if;
-end;
+    */
+    let xml = read(stream, content-length);
+    if (strict-mode?() & xml.size < content-length)
+      signal(make(<xml-rpc-error>,
+                  format-string: "Content was shorter than expected.  "
+                    "Content-length header: %d, actual length: %d",
+                  format-arguments: list(content-length, xml.size)))
+    else
+      parse-response(xml)
+    end
+  end
+end function read-response;
 
 define function parse-response
     (xml :: <string>)
@@ -143,9 +151,10 @@ define function parse-response
   end;
   let doc :: xml$<document> = xml$parse-document(xml);
   parse-xml-rpc-response(doc);
-end;
+end function parse-response;
 
-define method parse-xml-rpc-response (node :: xml$<document>)
+define method parse-xml-rpc-response
+    (node :: xml$<document>)
   let method-response = find-child(node, #"methodresponse")
     | xml-rpc-parse-error("Bad method response, no <methodResponse> node found");
   let params = find-child(method-response, #"params");
@@ -162,17 +171,18 @@ define method parse-xml-rpc-response (node :: xml$<document>)
     xml-rpc-parse-error("Bad method response, neither params nor fault found.");
   end;
   // signal an error here if more than one value present?
-  value
-    | xml-rpc-parse-error("Bad method response, no value element found.");
+  if (~value)
+    xml-rpc-parse-error("Bad method response, no value element found.");
+  end;
   let result = from-xml(value, xml$name(value));
   if (fault)
     let code = element(result, "faultCode", default: 0);
+    let fault-string = element(result, "faultString",
+                               default: "<no explanation provided>");
     signal(make(<xml-rpc-fault>,
                 fault-code: code,
-                format-string: "XML-RPC error (code = %d): %=",
-                format-arguments: vector(code,
-                                         element(result, "faultString",
-                                                 default: "<no explanation provided>"))))
+                format-string: "XML-RPC error (fault code = %d): %=",
+                format-arguments: vector(code, fault-string)))
   else
     result
   end
@@ -185,5 +195,3 @@ end;
 begin
   init-xml-rpc();
 end;
-
-

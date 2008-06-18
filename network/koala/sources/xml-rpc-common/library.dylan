@@ -40,7 +40,6 @@ define module xml-rpc-common
     from-xml,
     find-child,
     *debugging-xml-rpc*,
-    set-strict-mode,
-end;
-
-
+    strict-mode?,
+    set-strict-mode;
+end module xml-rpc-common;
