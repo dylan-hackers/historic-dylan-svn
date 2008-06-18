@@ -72,7 +72,7 @@ end module regular-expressions;
 define module regex-implementation
   use common-dylan;
   use dylan-extensions,
-    import: { values-hash, string-hash, gefiltafishk };
+    import: { string-hash };
   use string-conversions;
   use character-type;
   use string-hacking;
