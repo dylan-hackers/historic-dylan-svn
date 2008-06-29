@@ -12,20 +12,29 @@ Make keywords:
    end-of-line  - Canonical end-of-line sequence. Defaults to "\n".
 */
 
-define class <canonical-text-stream> (<basic-wrapper-stream>)
+define class <canonical-text-stream> (<basic-wrapper-stream>, <positionable-stream>)
    constant slot tabstop-size :: <integer> = 8, init-keyword: #"tabstop-size";
    constant slot eol :: <string> = "\n", init-keyword: #"end-of-line";
    constant slot line-positions = make(<stretchy-vector>);
    slot tabstop-fillers :: <vector>;
    slot unchecked-position :: <integer> = 0;
+   slot checked-final-eol? :: <boolean> = #f;
+   keyword inner-stream:, type: <positionable-stream>;
 end class;
+
+
+define method make (cts-class == <canonical-text-stream>, #rest keys, 
+                    #key inner-stream)
+=> (object :: <object>)
+   let replacing-stream = make(<replacing-stream>, inner-stream: inner-stream);
+   apply(next-method, cts-class, inner-stream:, replacing-stream, keys);
+end method;
 
 
 define method initialize (cts :: <canonical-text-stream>, #key) => ()
    next-method();
    assert(subtype?(cts.inner-stream.stream-element-type, <character>),
           "Element type of inner stream must be <character>");
-   cts.inner-stream := make(<replacing-stream>, inner-stream: cts.inner-stream);
    cts.line-positions[0] := 0;
    cts.tabstop-fillers := make(<vector>, size: cts.tabstop-size);
    for (i from 0 below cts.tabstop-size)
@@ -37,34 +46,34 @@ end method;
 
 define method read-element
    (cts :: <canonical-text-stream>, #rest keys, #key on-end-of-stream)
-=> (elem :: <character>)
+=> (elem :: <object>)
    check-elements-to-stream-position(cts);
-   next-method();
+   apply(read-element, cts.inner-stream, keys);
 end method;
 
 
 define method peek
    (cts :: <canonical-text-stream>, #rest keys, #key on-end-of-stream)
-=> (elem :: <character>)
+=> (elem :: <object>)
    check-elements-to-stream-position(cts);
-   next-method();
+   apply(peek, cts.inner-stream, keys);
 end method;
 
 
 define method write-element (cts :: <canonical-text-stream>, elem :: <object>)
 => ()
    check-elements-to-stream-position(cts);
-   next-method();
+   write-element(cts.inner-stream, elem);
 end method;
 
 
 define method stream-position-setter
    (position :: <integer>, cts :: <canonical-text-stream>)
 => (position :: <integer>)
-   next-method();
+   cts.inner-stream.stream-position := position;
    let new-pos = check-elements-to-stream-position(cts);
    if (position ~= new-pos)
-      next-method();
+      cts.inner-stream.stream-position := position;
    else
       position;
    end if;
@@ -89,17 +98,42 @@ define method adjust-stream-position
    (cts :: <canonical-text-stream>, delta :: <integer>,
     #key from :: one-of(#"current", #"start", #"end") = #"current")
 => (new-position :: <integer>)
-   next-method();
+   adjust-stream-position(cts.inner-stream, delta, from: from);
    check-elements-to-stream-position(cts);
 end method;
 
 
-/// Synopsis: Returns current row and column position, counting from 1.
-define method row-col-position (cts :: <canonical-text-stream>)
-=> (row :: <integer>, col :: <integer>)
-   let pos = check-elements-to-stream-position(cts);
-   let row = find-last-key(cts.line-positions, rcurry(\<=, pos));
-   values(row + 1, pos - cts.line-positions[row] + 1)
+/// Synopsis: Returns current line and column position.
+/// Arguments:
+///   cts   - An instance of <canonical-text-stream>.
+///   at:   - An instance of false or <integer>. The line and column of the
+///           current (if false) or given (if <integer>) stream position will
+///           be returned. Defaults to #f.
+/// Values:
+///   line  - An instance of <integer>. Line number, starting with 1.
+///   col   - An instance of <integer>. Column number, starting with 1.
+define method line-col-position
+   (cts :: <canonical-text-stream>, #key at :: false-or(<integer>) = #f)
+=> (line :: <integer>, col :: <integer>)
+
+   local method current-line-col-position (cts :: <canonical-text-stream>)
+         => (line :: <integer>, col :: <integer>)
+            let pos = check-elements-to-stream-position(cts);
+            let line = find-last-key(cts.line-positions, rcurry(\<=, pos));
+            values(line + 1, pos - cts.line-positions[line] + 1);
+         end method;
+
+   if (at)
+      let saved-pos = cts.stream-position;
+      block ()
+         cts.stream-position := at;
+         cts.current-line-col-position;
+      cleanup
+         cts.stream-position := saved-pos;
+      end block;
+   else
+      cts.current-line-col-position;
+   end if;
 end method;
 
 
@@ -160,13 +194,18 @@ define function check-elements-to-stream-position (cts :: <canonical-text-stream
       end while;
       
       // If we scanned to end of stream, ensure that it has a preceding eol.
-      when (inner.stream-at-end?)
+      // We cannot reasonably check the last few bytes of the stream, and we
+      // cannot rely on unchecked-position because eos always qualifies as a
+      // position to check and thus eol would always be added, so we just use
+      // a flag to indicate we already checked it and it is good.
+      when (~cts.checked-final-eol? & inner.stream-at-end?)
          let needs-eol = replacements.empty? |
                ~(replacements.last[2] == cts.eol &
                  replacements.last[1] == inner.stream-limit);
          when (needs-eol)
-            add-replacement(inner.stream-limit, inner.stream-limit, cts.eol)
+            add-replacement(inner.stream-limit, inner.stream-limit, cts.eol);
          end when;
+         cts.checked-final-eol? := #t;
       end when;
       
       // Do replacements in a batch. Update line positions and track cumulative

@@ -33,6 +33,8 @@ define module replacing-stream
    use common-extensions, exclude: { format-to-string };
    // from io
    use streams;
+   // from collection-extensions
+   use vector-search;
 
    export
       <replacing-stream>,
@@ -53,5 +55,5 @@ define module canonical-text-stream
 
    export
       <canonical-text-stream>,
-      tabstop-size, row-col-position;
+      tabstop-size, line-col-position;
 end module;

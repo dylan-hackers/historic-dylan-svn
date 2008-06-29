@@ -16,7 +16,13 @@ define test cts-works ()
    
    stream.stream-position := #"start";
    read-through(stream, '.'); // Stream is now positioned after '.'
-   let (row, col) = stream.row-col-position;
-   check-equal("row check", 2, row);
+   let (line, col) = stream.line-col-position;
+   check-equal("line check", 2, line);
    check-equal("col check", 15, col);
+   
+   stream.stream-position := 20;
+   let (line, col) = line-col-position(stream, at: 3);
+   check-equal("expl line check", 1, line);
+   check-equal("expl col check", 4, col);
+   check-equal("expl pos unchanged", 20, stream.stream-position);
 end test;
