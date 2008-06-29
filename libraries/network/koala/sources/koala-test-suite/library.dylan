@@ -7,7 +7,8 @@ define library koala-test-suite
     import: { common-dylan,
               threads };
   use system,
-    import: { date };
+    import: { date,
+              locators };
   use koala,
     import: { koala,
               koala-unit };
@@ -23,6 +24,8 @@ define module koala-test-suite
   use common-dylan;
   use threads;
   use date;
+  use locators,
+    import: { <directory-locator> };
   use testworks;
   use koala;
   use koala-unit;

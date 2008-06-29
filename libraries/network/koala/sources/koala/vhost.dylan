@@ -96,8 +96,12 @@ define class <virtual-host> (<object>)
   // The root of the web document hierarchy.  By default, this will be
   // <server-root>/www/<vhost-name>/.  If name is the empty string then
   // just <server-root>/www/.
-  slot document-root :: <directory-locator>;
-  slot dsp-root :: <directory-locator>;
+  slot document-root :: <directory-locator>,
+    required-init-keyword: document-root:;
+
+  // This defaults to the value of document-root.
+  slot dsp-root :: <directory-locator>,
+    init-keyword: dsp-root:;
 
   // List of <directory-spec> objects that determine how documents in
   // different directories are treated.  These are searched in order,
@@ -158,6 +162,14 @@ begin
   default-dynamic-content-type-setter;
   generate-server-header?-setter;
 end;
+
+define method initialize
+    (vhost :: <virtual-host>, #key dsp-root, #all-keys)
+  next-method();
+  if (~dsp-root)
+    vhost.dsp-root := vhost.document-root;
+  end;
+end method initialize;
 
 define method activity-log-target
     (vhost :: <virtual-host>) => (target :: <log-target>)

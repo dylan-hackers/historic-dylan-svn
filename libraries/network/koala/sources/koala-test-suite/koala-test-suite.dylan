@@ -113,6 +113,7 @@ define suite koala-test-suite ()
   suite start-stop-test-suite;
   suite configuration-test-suite;
   suite xml-rpc-test-suite;
+  suite vhost-test-suite;
 end suite koala-test-suite;
 
 define function main ()

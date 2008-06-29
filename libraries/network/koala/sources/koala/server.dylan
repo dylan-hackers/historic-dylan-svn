@@ -29,18 +29,26 @@ define class <server> (<sealed-constructor>)
   slot debugging-enabled? :: <boolean> = #f,
     init-keyword: debug:;
 
-  constant slot server-lock :: <recursive-lock>,
+  constant slot server-lock :: <simple-lock>,
     required-init-keyword: lock:;
-  // Support for shutting down listeners.
+
+  // Next 6 slots are to support clean server shutdown.
+
   constant slot server-listeners :: <stretchy-vector>,
     required-init-keyword: listeners:;
-  constant slot server-listeners-notification :: <notification>,
-    required-init-keyword: listeners-notification:;
-  constant slot clients :: <stretchy-vector> = make(<stretchy-vector>);
-  constant slot clients-notification :: <notification>,
-    required-init-keyword: clients-notification:;
+
+  constant slot server-clients :: <stretchy-vector>,
+    init-value: make(<stretchy-vector>);
+
+  constant slot listeners-shutdown-notification :: <notification>,
+    required-init-keyword: listeners-shutdown-notification:;
+
+  constant slot clients-shutdown-notification :: <notification>,
+    required-init-keyword: clients-shutdown-notification:;
+
   constant slot listener-shutdown-timeout :: <real> = 15;
   constant slot client-shutdown-timeout :: <real> = 15;
+
 
   constant slot request-class :: subclass(<basic-request>) = <request>,
     init-keyword: request-class:;
@@ -53,9 +61,6 @@ define class <server> (<sealed-constructor>)
   // from URLs because it's easier to use merge-locators that way.
   // todo -- this should be per vhost
   constant slot url-map :: <string-trie> = make(<string-trie>, object: #f);
-
-  // pathname translations
-  //slot pathname-translations :: <sequence> = #();
 
   //// Statistics
   // todo -- move these elsewhere
@@ -104,14 +109,14 @@ define sealed method make
   // listeners, if specified, is a sequence of <listener>s, or strings in
   // the form "addr:port".
   let listeners = map-as(<stretchy-vector>, make-listener, listeners | #[]);
-  let lock = make(<recursive-lock>);
+  let lock = make(<simple-lock>);
   let listeners-notification = make(<notification>, lock: lock);
   let clients-notification = make(<notification>, lock: lock);
   apply(next-method, class,
         lock: lock,
         listeners: listeners,
-        listeners-notification: listeners-notification,
-        clients-notification: clients-notification,
+        listeners-shutdown-notification: listeners-notification,
+        clients-shutdown-notification: clients-notification,
         keys)
 end method make;
 
@@ -149,22 +154,12 @@ define method note-user-agent
   end;
 end;
 
-define function release-listener
-    (server :: <server>, listener :: <listener>)
-  with-lock (server.server-lock)
-    remove!(server.server-listeners, listener);
-    when (empty?(server.server-listeners))
-      release-all(server.server-listeners-notification);
-    end;
-  end;
-end release-listener;
-
 define function release-client (client :: <client>)
   let server = client.client-server;
   with-lock (server.server-lock)
-    remove!(server.clients, client);
-    when (empty?(server.clients))
-      release-all(server.clients-notification);
+    remove!(server.server-clients, client);
+    when (empty?(server.server-clients))
+      release-all(server.clients-shutdown-notification);
     end;
   end;
 end release-client;
@@ -405,7 +400,7 @@ define function abort-listeners (server :: <server>)
   // Don't use join-thread, because no timeouts, so could hang.
   let n = with-lock (server.server-lock)
             if (~empty?(server.server-listeners))
-              wait-for(server.server-listeners-notification,
+              wait-for(server.listeners-shutdown-notification,
                        timeout: server.listener-shutdown-timeout);
             end;
             let n = server.server-listeners.size;
@@ -421,7 +416,7 @@ end abort-listeners;
 // be spawning any more clients.
 define function abort-clients (server :: <server>, #key abort)
   with-lock (server.server-lock)
-    for (client in server.clients)
+    for (client in server.server-clients)
       close(client.client-socket, abort: abort);
     end;
   end;
@@ -434,10 +429,10 @@ end abort-clients;
 define function join-clients (server :: <server>, #key timeout)
   => (clients-left :: <integer>)
   with-lock (server.server-lock)
-    empty?(server.clients)
-      | wait-for(server.clients-notification, timeout: timeout);
-    let n = server.clients.size;
-    server.clients.size := 0;
+    empty?(server.server-clients)
+      | wait-for(server.clients-shutdown-notification, timeout: timeout);
+    let n = server.server-clients.size;
+    server.server-clients.size := 0;
     n
   end;
 end join-clients;
@@ -445,6 +440,12 @@ end join-clients;
 define function start-http-listener
     (server :: <server>, listener :: <listener>)
   let server-lock = server.server-lock;
+  local method release-listener ()
+    remove!(server.server-listeners, listener);
+    when (empty?(server.server-listeners))
+      release-all(server.listeners-shutdown-notification);
+    end;
+  end;
   local method run-listener-top-level ()
           with-lock (server-lock) end; // Wait for setup to finish.
           log-info("%s starting", listener.listener-name);
@@ -452,7 +453,9 @@ define function start-http-listener
             listener-top-level(server, listener);
           cleanup
             close(listener.listener-socket, abort?: #t);
-            release-listener(server, listener);
+            with-lock (server-lock)
+              release-listener();
+            end;
           end;
         end method;
   with-lock (server-lock)
@@ -460,7 +463,7 @@ define function start-http-listener
       = method (cond :: <socket-condition>, next-handler :: <function>)
           log-error("Error creating socket for %s: %s",
                     listener.listener-name, cond);
-          release-listener(server, listener);
+          release-listener();
           next-handler(); // decline to handle the error
         end;
     listener.listener-socket := make(<server-socket>,
@@ -559,7 +562,7 @@ define function do-http-listen
                          listener: listener,
                          socket: socket,
                          thread: thread);
-          add!(server.clients, client);
+          add!(server.server-clients, client);
         exception (ex :: <error>)
           //this should be <thread-error>, which is not yet exported
           //needs a compiler bootstrap, so specify it sometime later
