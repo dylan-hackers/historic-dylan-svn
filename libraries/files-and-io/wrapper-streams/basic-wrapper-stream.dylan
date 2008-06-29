@@ -6,6 +6,9 @@ Class: <basic-wrapper-stream>
 -----------------------------
 Synopsis: A <wrapper-stream> with implementations for several methods.
 
+Note: This class is only necessary because Common Dylan I/O convenience
+methods do not call primitive methods on outer-stream. See bug #7385.
+
 Several I/O methods can be written in terms of a simpler subset of methods.
 This class provides implementations for the following methods that act as
 described by the "Functional Developer System and I/O Reference": [bib]
@@ -48,7 +51,7 @@ define method read
 => (elements-or-eof :: <object>)
    let results = make(sequence-type-for-inner-stream(wrapper), size: n);
    block (done)
-      let read-count = read-into!(wrapper, n, results);
+      let read-count = read-into!(wrapper.outer-stream, n, results);
       if (read-count < n)
          copy-sequence(results, end: read-count)
       else
@@ -107,8 +110,8 @@ define method read-to
    // We use read-through instead of coding read-to behavior directly because
    // this function is exactly like read-through but drops the terminator, and
    // I didn't want to screw around with EOS logic.
-   let (elements, found?) =
-         read-through(wrapper, to-elem, test: test, on-end-of-stream: #f);
+   let (elements, found?) = read-through(wrapper.outer-stream, to-elem,
+                                         test: test, on-end-of-stream: #f);
    case
       elements =>
          let elements = copy-sequence(elements,
@@ -182,8 +185,8 @@ define method read-line
    // next '\n' if necessary.
 
    // Read to line ending.
-   let (elements, found?) =
-         read-through(wrapper, "\r\n", test: member?, on-end-of-stream: #f);
+   let (elements, found?) = read-through(wrapper.outer-stream, "\r\n",
+                                         test: member?, on-end-of-stream: #f);
    case
       elements =>
          // Remove LF of CRLF.
@@ -212,7 +215,7 @@ define method read-line-into!
     #key start :: <integer> = 0, grow? :: <boolean> = #f,
          on-end-of-stream = unsupplied())
 => (string-or-eof :: <object>, newline? :: <boolean>)
-   let (line, found?) = read-line(wrapper, on-end-of-stream: #f);
+   let (line, found?) = read-line(wrapper.outer-stream, on-end-of-stream: #f);
    case
       line =>
          // Grow dest string if necessary.
@@ -249,7 +252,8 @@ define method read-text
 => (elements-or-eof :: <object>)
    let string-type = wrapper.string-type-for-inner-stream;
    let results = make(string-type, size: n);
-   let read-count = read-text-into!(wrapper, n, results, on-end-of-stream: #f);
+   let read-count = read-text-into!(wrapper.outer-stream, n, results,
+                                    on-end-of-stream: #f);
    case
       read-count =>
          if (read-count < n)
@@ -302,14 +306,14 @@ define method write-line
     #key start: start-pos = 0, end: end-pos = elements.size)
 => ()
    with-stream-locked (wrapper)
-      write(wrapper, elements, start: start-pos, end: end-pos);
-      new-line(wrapper)
+      write(wrapper.outer-stream, elements, start: start-pos, end: end-pos);
+      new-line(wrapper.outer-stream)
    end with-stream-locked;
 end method;
 
 
 define method new-line (wrapper :: <basic-wrapper-stream>) => ()
-   write-element(wrapper, '\n');
+   write-element(wrapper.outer-stream, '\n');
 end method;
 
 

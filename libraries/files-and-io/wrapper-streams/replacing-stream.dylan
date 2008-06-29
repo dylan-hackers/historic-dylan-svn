@@ -29,7 +29,7 @@ replacement segments be inserted between existing replacements. The "content"
 assuming the replacement sequence is mutable, of course.
 */
 
-define open class <replacing-stream> (<basic-wrapper-stream>)
+define open class <replacing-stream> (<basic-wrapper-stream>, <positionable-stream>)
 
    // Elements of 'inner-stream-limits', 'segment-contents', and 'segment-limits'
    // correspond. 'inner-stream-limits' are the base stream positions just past
@@ -49,6 +49,7 @@ define open class <replacing-stream> (<basic-wrapper-stream>)
       make(<stretchy-vector> /* of <integer> */);
    slot current-segment :: <integer> = 1;
    slot current-offset :: <integer> = 0;
+   keyword inner-stream:, type: <positionable-stream>;
 end class;
 
 
@@ -112,8 +113,8 @@ define method add-replacement-contents
    
    assert(start-pos <= end-pos,
           "Start position %= comes after end position %=", start-pos, end-pos);
-   assert(every?(curry(\>=, start-pos), seg-limits),
-          "Replacement already defined for position %=", start-pos);
+   assert(start-pos >= seg-limits.last,
+          "Replacements follow position %=", start-pos);
    assert(~instance?(replacement, <stretchy-collection>),
           "Replacement cannot be stretchy");
    assert(inner.stream-element-type = <object> |
@@ -216,7 +217,8 @@ define method unread-element
    if (cur-seg < seg-count & seg-contents[cur-seg])
       elem := seg-contents[cur-seg][cur-off];
    else
-      elem := unread-element(inner, expected-elem);
+      adjust-inner-stream-position(wrapper);
+      elem := peek(inner);
    end if;
    
    if (elem ~== expected-elem)
@@ -402,7 +404,9 @@ end method;
 
 define method stream-size (wrapper :: <replacing-stream>)
 => (sz :: <integer>)
-   wrapper.inner-stream.stream-position := #"end";
+   // Would prefer to use #"end" instead of stream-size, but apparently that
+   // needs a stream limit, which is something almost all streams lack.
+   wrapper.inner-stream.stream-position := wrapper.inner-stream.stream-size;
    let last-seg-start = as(<integer>, wrapper.inner-stream-limits.last);
    let last-seg-end = as(<integer>, wrapper.inner-stream.stream-position);
    wrapper.segment-limits.last + (last-seg-end - last-seg-start)
@@ -473,11 +477,9 @@ end method;
 //
 
 
-define method initialize (wrapper :: <replacing-stream>, #key inner-stream)
+define method initialize (wrapper :: <replacing-stream>, #key)
 => ()
    next-method();
-   assert(instance?(inner-stream, <positionable-stream>),
-          "Inner stream must be instance of <positionable-stream>");
    clear-contents(wrapper);
 end method;
 
@@ -498,9 +500,9 @@ define function segment-from-position
    (wrapper :: <replacing-stream>, position :: <integer>)
 => (segment :: <integer>, offset :: <integer>)
    let seg-limits = wrapper.segment-limits;
-   let seg = find-key(seg-limits, rcurry(\>, position), failure: seg-limits.size);
-   let off = position - seg-limits[seg - 1];
-   values(seg, off)
+   let prev-seg = find-last-key(seg-limits, rcurry(\<=, position));
+   let off = position - seg-limits[prev-seg];
+   values(prev-seg + 1, off)
 end function;
 
 
