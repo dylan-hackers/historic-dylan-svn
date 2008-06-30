@@ -32,7 +32,8 @@ define class <server> (<sealed-constructor>)
   constant slot server-lock :: <simple-lock>,
     required-init-keyword: lock:;
 
-  // Next 6 slots are to support clean server shutdown.
+
+  //// Next 6 slots are to support clean server shutdown.
 
   constant slot server-listeners :: <stretchy-vector>,
     required-init-keyword: listeners:;
@@ -93,6 +94,23 @@ define class <server> (<sealed-constructor>)
     = parent-directory(locator-directory(as(<file-locator>, application-filename())));
 
   constant slot server-mime-type-map :: <table> = make(<table>);
+
+
+  //// Next 3 slots are for sessions
+
+  // Maps session-id to session object.
+  constant slot server-sessions :: <table>,
+    init-value: make(<table>);
+
+  // The number of seconds this cookie should be stored in the user agent, in seconds.
+  // #f means no max-age is transmitted, which means "until the user agent exits".
+  constant slot session-max-age :: false-or(<integer>),
+    init-value: #f,
+    init-keyword: session-max-age:;
+
+  constant slot server-session-id :: <byte-string>,
+    init-value: "koala_session_id",
+    init-keyword: session-id:;
 
 end class <server>;
 

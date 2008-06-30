@@ -6,22 +6,6 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-// Maps session-id to session object.
-define variable *sessions* :: <table> = make(<table>);
-
-// The number of seconds this cookie should be stored in the user agent, in seconds.
-// #f means no max-age is transmitted, which means "until the user agent exits".
-define variable *session-max-age* :: false-or(<integer>) = #f;
-
-define constant $koala-session-id :: <byte-string> = "koala_session_id";
-
-// API
-// This doesn't affect any cookies set previously.
-define method set-session-max-age
-    (age :: false-or(<integer>))
-  *session-max-age* := age
-end;
-
 define open primary class <session> (<attributes-mixin>)
   constant slot session-id :: <integer>, required-init-keyword: #"id";
   // ---TODO: 
@@ -30,33 +14,33 @@ define open primary class <session> (<attributes-mixin>)
 end;
 
 define method initialize
-    (session :: <session>, #key id :: <integer>, #all-keys)
+    (session :: <session>, #key id :: <integer>, server :: <http-server>, #all-keys)
   next-method();
-  if (element(*sessions*, id, default: #f))
+  if (element(server.server-sessions, id, default: #f))
     error("Attempt to create a session with a duplicate session id, %d", id);
   else
-    *sessions*[id] := session;
+    server.server-sessions[id] := session;
   end;
-end;
+end method initialize;
 
 // ---TODO: Should probably vary the session id in a true random way.
 //          And make it persistent across server reboots.
 
 define function next-session-id
-    () => (id :: <integer>)
+    (server :: <http-server>) => (id :: <integer>)
   let id = random($maximum-integer);
-  if (element(*sessions*, id, default: #f))
-    next-session-id();
+  if (element(server.server-sessions, id, default: #f))
+    next-session-id(server);
   end if;
-  id;
-end;
+  id
+end function next-session-id;
 
 // API
 // This is the only way for user code to get the session object.
 define method get-session
     (request :: <request>) => (session :: false-or(<session>))
   request.request-session
-  | (request.request-session := current-session(request))
+    | (request.request-session := current-session(request))
 end;
 
 define method ensure-session
@@ -72,17 +56,17 @@ define method clear-session
     (request :: <request>) => ();
   let session = get-session(request);
   if (session)
-    remove-key!(*sessions*, session.session-id);
+    remove-key!(*server*.server-sessions, session.session-id);
     request.request-session := #f;
-    add-cookie(*response*, $koala-session-id, -1,
-               max-age: *session-max-age*,
+    add-cookie(*response*, *server*.server-session-id, -1,
+               max-age: *server*.session-max-age,
                path: "/",
                // domain: ??? ---TODO
                comment: "This cookie assigns a unique number to your browser "
                  "so that we can remember who you are as you move from page "
                  "to page within our site.");
   end if;
-end;
+end method clear-session;
 
 define method current-session
     (request :: <request>) => (session :: false-or(<session>))
@@ -90,11 +74,11 @@ define method current-session
   let cookie =
     cookies & find-element(cookies,
                            method (cookie)
-                             cookie-name(cookie) = $koala-session-id
+                             cookie-name(cookie) = *server*.server-session-id
                            end);
   if (cookie)
     let session-id = string-to-integer(cookie-value(cookie));
-    element(*sessions*, session-id, default: #f) | new-session(request)
+    element(*server*.server-sessions, session-id, default: #f) | new-session(request)
   else
     new-session(request)
   end
@@ -102,9 +86,9 @@ end method current-session;
 
 define method new-session
     (request :: <request>) => (session :: <session>)
-  let id = next-session-id();
-  add-cookie(*response*, $koala-session-id, id,
-             max-age: *session-max-age*,
+  let id = next-session-id(*server*);
+  add-cookie(*response*, *server*.server-session-id, id,
+             max-age: *server*.session-max-age,
              path: "/",
              // domain: ??? ---TODO
              comment: "This cookie assigns a unique number to your browser so "
@@ -112,5 +96,5 @@ define method new-session
                "to page within our site.");
   let session = make(<session>, id: id);
   request.request-session := session
-end;
+end method new-session;
 
