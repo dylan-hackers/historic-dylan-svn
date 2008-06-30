@@ -211,11 +211,10 @@ define module koala
     <session>,
     get-session,
     ensure-session,
-    clear-session,
+    clear-session;
     //get-attribute,
     //set-attribute,
     //remove-attribute,
-    set-session-max-age;
 
   // Logging
   create

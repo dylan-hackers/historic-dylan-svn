@@ -12,9 +12,9 @@ files:	library
 	urls
 	vhost
 	response
-	session
 	static-files
 	server
+	session
 	dsp
 	dsp-taglib
 	xml-rpc-server
