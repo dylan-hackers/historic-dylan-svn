@@ -94,7 +94,7 @@ define method new-session
              comment: "This cookie assigns a unique number to your browser so "
                "that we can remember who you are as you move from page "
                "to page within our site.");
-  let session = make(<session>, id: id);
+  let session = make(<session>, id: id, server: *server*);
   request.request-session := session
 end method new-session;
 
