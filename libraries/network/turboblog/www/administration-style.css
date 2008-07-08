@@ -1,0 +1,161 @@
+body {
+  font: 0.9em Georgia, Times, serif;
+  margin: 2em;
+}
+
+hr {
+  border: none;
+  border-bottom: 1px solid #ccc;
+}
+
+h1 {
+  margin-bottom: 1.3em;
+  font-size: 1.6em;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid #ccc;
+  display: block;
+}
+
+h1 a {
+  color: #333;
+  text-decoration: none;
+}
+
+h1 a:hover {
+  color: #000;
+}
+
+h1 em {
+  font-style: normal;
+}
+
+h2 {
+  color: #444;
+  font-size: 0.7;
+}
+
+form, .group {
+  margin: 1em;
+  margin-left: 3%;
+}
+
+fieldset {
+  border: none;
+  border-right: 1px solid #ccc;
+  padding: 1em;
+  margin: 0;
+  vertical-align: top;
+  padding-top: 0;
+}
+
+fieldset.splitted {
+  width: 45%;
+  display: inline;
+}
+
+fieldset legend {
+  padding: 0 0.4em;
+  font-weight: bold;
+}
+
+label {
+  font-style: italic;
+  font-weight: bold;
+  display: block;
+}
+
+input[type=checkbox] {
+  margin: 0 1em 0 0;
+  display: inline;
+}
+
+input + label {
+  display: inline;
+}
+
+fieldset ol {
+  border-top: 1px solid #ccc;
+  list-style-type: none;
+  margin: 0;
+  padding: 1em;
+}
+
+fieldset li {
+  margin-bottom: 0.7em;
+}
+
+ul ul li, ul ul {
+  display: inline;
+  list-style-type: none;
+  padding: 0 0.2em;
+}
+
+
+fieldset input, fieldset textarea, 
+fieldset span, fieldset select {
+  margin-left: 1em;
+}
+
+form fieldset fieldset {
+  border: none;
+}
+
+#navigation, #sub-navigation {
+  list-style-type: none;
+  margin:  1em;
+  padding: 0 1em;
+  border-bottom : 2px solid #888;
+}
+
+#sub-navigation {
+  margin: 1.5em;
+}
+
+#navigation li, #navigation ul,
+#sub-navigation li, #sub-navigation ul {
+  padding: 0;
+  display: inline;
+}
+
+#navigation ul,
+#sub-navigation ul {
+  margin-left: 1em;
+}
+
+#navigation li a,
+#sub-navigation li a {
+  color: #888;
+  padding: 0.3em 0.8em 1px 0.8em;
+  border: 1px solid #888;
+  text-decoration: none;
+}
+
+#navigation li.active a,
+#sub-navigation li.active a {
+  color: #666;
+  font-weight: bold;
+  padding: 0.5em 0.8em 0 0.8em;
+  border: 2px solid #888;
+  border-bottom: 2px solid #fff;
+}
+
+#navigation li.user {
+  float: right;
+}
+
+#navigation li.user a {
+  padding: 0;
+  border: none;
+}
+
+#footer {
+  margin-left: 1em;
+  padding: 0;
+  font-size: 0.8em;
+  list-style-type: none;
+}
+
+a {
+  text-decoration: none;
+  color: #777;
+}

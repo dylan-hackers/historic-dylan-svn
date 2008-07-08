@@ -1,0 +1,418 @@
+body {
+  margin: 0;
+  padding: 0;
+  color: #777;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Verdana, Arial, sans-serif;
+  font-size: 0.7em;  
+  background-color: #a1a1a1;  
+}
+
+a {
+  color: #9f9f9f;
+  text-decoration: none;
+}
+
+hr.separator {
+  clear: both;
+  visibility: hidden;
+}
+
+blockquote {
+  border-left: 2px solid #ccc;
+  color: #bbb;
+  margin-left: 1em;
+  padding-left: 1em;
+}
+
+p.error {
+  color: #f00;
+  margin: 0;
+  padding: 0;
+}
+
+input.error {
+  border-color: #f00;
+}
+
+.header,
+.body,
+.footer,
+.ancillary {
+  padding: 2em 6em;
+}
+
+.header,
+.body {
+  background: #fff;
+}
+
+.ancillary, .footer {
+  color: #efefef;
+}
+
+/* -- Header -- */
+.header {
+  padding-bottom: 5em;
+}
+
+.header h1 {
+  vertical-align: middle;
+  display: inline;
+  padding: 0.5em 0.5em 0.5em 0;
+  margin: 0;
+  border-right: 1px solid #aaa;
+  text-shadow: 3px 3px 3px #ccc;
+}
+
+.header p {
+  margin: 0;
+  line-height: 2em;
+  padding-left: 1em;
+  display: inline;
+  vertical-align: middle;
+}
+
+#query-tags {
+  float: right;
+  list-style-type: square;
+  list-style-image: url("tagged.png");
+  margin: 0 0 0 1em;
+  padding: 0 2em;
+}
+
+#query-tags li {
+  padding-bottom: 0.5em;
+  margin: 0;
+}
+
+.header form {
+  float: right;
+  display: inline;
+}
+
+.header form li {
+  list-style-image: url(search.png);
+}
+
+/* -- Body -- */
+.body {
+  display: block;
+}
+
+.story {
+  width: 48%;
+  margin: 0;
+  float: right;
+}
+.story pre {
+  word-wrap: break-word;
+}
+
+.story:first-child { 
+  float: left;
+}
+
+.entry h2 {
+ 	font-size: 1.15em;
+  margin: 0 0 1.5em 0;
+  text-shadow: 3px 3px 3px #ddd;
+}
+
+.entry p,
+.entry form textarea {
+	line-height: 1.7em;
+  color: #777;
+}
+
+.entry .details {
+  margin-top: 1em;
+  border-top: 1px solid #aaa;
+  padding: 0.5em 0;
+  font-size: 0.8em;
+  text-align: right;
+}
+
+.entry .details .date,
+.entry .details .comments {
+  border-left: 1px dotted #aaa;
+}
+
+.entry .details .date:first-child,
+.entry .details .comments:first-child {
+  border-left: none;
+}
+
+.entry .details .date,
+.entry .details .comments,
+.entry .details .categories { 
+  padding: 0 0.5em;
+}
+
+.entry small:after {
+  content: url(images/readon.png);
+}
+
+.entry small {
+  float: right;	
+}
+
+.entry small a,
+.entry .details a{
+  color: #777;
+  text-decoration: none;
+  border: none;
+}
+
+.entry small a {
+  font-style: italic;
+}
+	
+.entry h2 a {
+  color: #aaa;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.23em;
+}
+
+.body a {
+  border-bottom: 1px dotted #666;
+}
+
+/* -- Ancillary -- */
+.ancillary {
+  clear: both;
+  display: block;
+}
+
+.ancillary hr.separator {
+  visibility: visible;
+  color: transparent;
+  width: 100%;
+  padding-top: 2em;
+  border: none;
+  margin: 0;
+  border-bottom: 1px solid #d3d3d3;
+}
+
+.ancillary .three > *,
+.ancillary .two > * {
+  margin: 0 0 2em 1em;
+}
+
+.ancillary .three:first-child > *,
+.ancillary .two:first-child > * {
+  margin: 0 0 2em 0;
+}
+
+
+.ancillary .three {
+  float: right;
+  width: 33%;
+  margin: 0;
+}
+
+.ancillary .three:first-child + .three {
+  float: left;
+}
+
+.ancillary .three:first-child {
+  float: left;
+}
+  
+.ancillary .two {
+  width: 60%;
+  margin: 0;
+  float: right;
+}
+
+.ancillary .two:first-child {
+  float: left;
+  width: 40%;
+}
+
+.ancillary .two label {
+  display: block; 
+}
+
+.ancillary .two input,
+.ancillary .two textarea {
+  margin-left: 1em;
+}
+
+.ancillary h2 {
+  font-size: 1.15em;
+}
+
+.ancillary p {
+  line-height: 1.6em;
+}
+
+.ancillary ul {
+  list-style-type: none;
+  padding: 0;
+  margin-left: 1em;
+  border-top: 1px solid #d3d3d3;
+}
+
+.ancillary ul li {
+  list-style-type: none;
+  margin: 0;
+  padding: 0.5em;
+  border-bottom: 1px solid #d3d3d3;
+}
+
+.ancillary ul li .date {
+  margin: 0 0.5em 0 0;
+}
+
+.ancillary ul li .date:after {
+  content: ":";
+}
+
+.ancillary ul li a {
+  color: #fff;   
+  text-decoration: none;
+}
+
+.ancillary ul li a:hover {
+  font-weight: bold;
+}
+
+.ancillary ul li .count:before {
+  content: "(";
+}
+
+.ancillary ul li .count:after {
+  content: ")";
+}
+
+.ancillary a {
+  color: #ddd;
+}
+
+.ancillary ul li p {
+  margin: 0.5em 0 0.3em 1em;
+  font-style: oblique;
+}
+
+/* -- Footer -- */
+.footer {
+  padding-top: 0;
+  clear: both;
+}
+
+.footer ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8em;
+}
+
+.footer ul li {
+  display: inline;
+}
+
+.footer a {
+  font-weight: bold;
+  text-decoration: none;
+  color: #fff;   
+}
+
+.footer .button {
+  margin: 0 0.2em;
+  float: right;
+  padding: 0 0.5em;
+  border-bottom: 1px solid #777;
+  border-right: 1px solid #777;
+  border-top: 1px solid #fff;
+  border-left: 1px solid #fff;
+}
+
+.footer .button:hover {
+  border-bottom: 1px solid #fff;
+  border-right: 1px solid #fff;
+  border-top: 1px solid #777;
+  border-left: 1px solid #777;
+}
+
+#comments, #pingbacks {
+  list-style-type: none;
+  margin: 2em 0;
+  padding: 0;
+}
+
+#comments li,
+#pingbacks li {
+  list-style-type: none;
+  margin: 2em 0;
+  padding: 0;
+}
+
+#comments .content,
+#pingbacks .content {
+  display: -moz-inline-block;
+  display: inline-block;
+  border-left: 1px solid #ccc;
+  margin: 0 0 1em 1em;
+  padding-left: 1em;
+  width: 60%;
+  vertical-align: top;
+}
+
+#comments .content h3,
+#pingbacks .content h3 {
+  font-size: 1em;
+  margin: 0;
+}
+
+#comments .content p,
+#pingbacks .content p {
+  margin: 0 0 1em 0;
+}
+
+#comments cite .author,
+#pingbacks cite .title {
+  font-size: 1.2em;
+  display: block;
+  color: #fff;
+}
+
+#comments cite .author a,
+#pingbacks cite .title a {
+  color: #fff;
+}
+
+#comments cite,
+#pingbacks cite {
+  width: 30%;
+  font-style: normal;
+  display: -moz-inline-block;
+  display: inline-block;
+  vertical-align: top;
+  text-align: right;
+  font-size: 1em;
+}
+
+form fieldset {
+  border: none;
+}
+
+form ol, form ul {
+  margin: 0;
+  padding: 0;
+}
+
+form ol li, form ul li  {
+  list-style-type: none;
+}
+
+form li label {
+  width: 5em;
+  vertical-align: top;
+  display: -moz-inline-block;
+  display: inline-block;
+}
+
+.categories {
+  display: block;
+}
