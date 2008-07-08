@@ -1,0 +1,495 @@
+#-----------------------------------------------------------------------
+# WebMaker, a FrameMaker to WWW converter
+# 
+# Copyright (C) 1995 by The Harlequin Group Limited
+#-----------------------------------------------------------------------
+#
+#     This file contains definitions of nodes with images for buttons
+#     for a web with external table of contents and index.
+#
+#-----------------------------------------------------------------------
+#
+# Contains definition of:
+#     
+#          VARIABLE       @NavPanel
+#          VARIABLE       @Hqn
+#          NODE           FirstPage
+#          NODE           LevelOne
+#          NODE           LevelTwo
+#          NODE           TOCNode
+#          NODE           IndexNodeS
+#          NODE           IndexNodeL
+#          NODE           IndexNodeN
+#          NODE           IndexNode
+#
+# This node package should only be used if an external table of contents
+# and an index are to be generated, as the navigation panels of all 
+# other nodes are pointing to these pages.
+
+#-----------------------------------------------------------------------
+#
+# Define variables.
+#
+VARIABLE @NavPanel
+VARIABLE @Hqn
+VARIABLE @Order
+VARIABLE @Copyright
+
+#-----------------------------------------------------------------------
+#
+#  Define the entry page of the generated web.
+#
+NODE FirstPage
+{
+  TITLE maintitle()
+  HEADER
+  {
+    @NavPanel=concatenate(
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("content.gif",BOTTOM),
+                     filename(TOC),
+                     image("contentg.gif",BOTTOM))," ", 
+              button(
+                     image("index.gif",BOTTOM),
+                     filename(INDEX),
+                     image("indexg.gif",BOTTOM))
+              );
+
+    write(*,paragraph(@NavPanel));
+  }
+  FOOTER
+  {
+    write(*,toc(1,local));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker&#174;","http://www.harlequin.com/webmaker")
+                    );
+    @Order=concatenate(
+			"You can order a ", 
+	button("bound copy", "http://www.harlequin.com/products/ads/dylan/purchase.shtml"),
+                         " of this book from Harlequin."
+                    );
+    @Copyright=concatenate(
+                     "Copyright Apple Computer, Inc. 1996. Apple&#174; and the Apple logo are registered trademarks of Apple Computer, Inc. Used with permission. All Rights Reserved."
+                    );
+    write(*,paragraph(@Copyright));
+    write(*,paragraph(@Order));
+    write(*,paragraph(@Hqn));
+  }
+}
+
+
+#-------------------------------------------------------------------------
+#
+#  Define other lower level nodes. 
+#
+NODE LevelOne
+{
+  TITLE concatenate(headingnumber()," ",headingtext())
+  HEADER
+  {
+    @NavPanel=concatenate( 
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("prev.gif",BOTTOM),
+                     filename(previous),
+                     image("prevg.gif",BOTTOM))," ", 
+              button(
+                     image("top.gif",BOTTOM),
+                     filename(top),
+                     image("top.gif",BOTTOM))," ", 
+              button(
+                     image("content.gif",BOTTOM),
+                     filename(TOC),
+                     image("contentg.gif",BOTTOM))," ", 
+              button(
+                     image("index.gif",BOTTOM),
+                     filename(INDEX),
+                     image("indexg.gif",BOTTOM))
+              );
+
+    write(*,paragraph(@NavPanel));
+    write(*,paragraph(maintitle()));
+  }
+  FOOTER
+  {
+    write(*,toc(1,local));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker&#174;","http://www.harlequin.com/webmaker")
+                    );
+    @Order=concatenate(
+			"You can order a ", 
+	button("bound copy", "http://www.harlequin.com/products/ads/dylan/purchase.shtml"),
+                         " of this book from Harlequin."
+                    );
+    @Copyright=concatenate(
+                     "Copyright Apple Computer, Inc. 1996. Apple&#174; and the Apple logo are registered trademarks of Apple Computer, Inc. Used with permission. All Rights Reserved."
+                    );
+    write(*,paragraph(@Copyright));
+    write(*,paragraph(@Order));
+    write(*,paragraph(@Hqn));
+  }
+}
+
+
+NODE LevelTwo
+{
+  TITLE concatenate(headingnumber()," ",headingtext())
+  HEADER
+  {
+    @NavPanel=concatenate( 
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("prev.gif",BOTTOM),
+                     filename(previous),
+                     image("prevg.gif",BOTTOM))," ", 
+              button(
+                     image("up.gif",BOTTOM),
+                     filename(up),
+                     image("upg.gif",BOTTOM))," ", 
+              button(
+                     image("top.gif",BOTTOM),
+                     filename(top),
+                     image("top.gif",BOTTOM))," ", 
+              button(
+                     image("content.gif",BOTTOM),
+                     filename(TOC),
+                     image("contentg.gif",BOTTOM))," ", 
+              button(
+                     image("index.gif",BOTTOM),
+                     filename(INDEX),
+                     image("indexg.gif",BOTTOM))
+              );
+    write(*,paragraph(@NavPanel));
+    write(*,paragraph(concatenate(headingnumber(up)," ",headingtext(up))));
+  }
+  FOOTER
+  {
+    write(*,toc(1,local));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker&#174;","http://www.harlequin.com/webmaker")
+                    );
+    @Order=concatenate(
+			"You can order a ", 
+	button("bound copy", "http://www.harlequin.com/products/ads/dylan/purchase.shtml"),
+                         " of this book from Harlequin."
+                    );
+    @Copyright=concatenate(
+                     "Copyright Apple Computer, Inc. 1996. Apple&#174; and the Apple logo are registered trademarks of Apple Computer, Inc. Used with permission. All Rights Reserved."
+                    );
+    write(*,paragraph(@Copyright));
+    write(*,paragraph(@Order));
+    write(*,paragraph(@Hqn));
+  }
+}
+
+
+#-------------------------------------------------------------------------
+#
+#  Define node for the external global Table of Contents.
+#
+NODE TOCNode
+{
+  TITLE headingtext()
+  HEADER
+  {  
+    @NavPanel=concatenate( 
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("prev.gif",BOTTOM),
+                     filename(previous),
+                     image("prevg.gif",BOTTOM))," ", 
+              button(
+                     image("top.gif",BOTTOM),
+                     filename(top),
+                     image("top.gif",BOTTOM))," ", 
+              button(
+                     image("index.gif",BOTTOM),
+                     filename(INDEX),
+                     image("indexg.gif",BOTTOM))
+              );
+    write(*,paragraph(@NavPanel));
+    write(*,paragraph(maintitle()));
+  }
+  FOOTER
+  {
+    write(*,toc(4,global));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker&#174;","http://www.harlequin.com/webmaker")
+                    );
+    @Order=concatenate(
+			"You can order a ", 
+	button("bound copy", "http://www.harlequin.com/products/ads/dylan/purchase.shtml"),
+                         " of this book from Harlequin."
+                    );
+    @Copyright=concatenate(
+                     "Copyright Apple Computer, Inc. 1996. Apple&#174; and the Apple logo are registered trademarks of Apple Computer, Inc. Used with permission. All Rights Reserved."
+                    );
+    write(*,paragraph(@Copyright));
+    write(*,paragraph(@Order));
+    write(*,paragraph(@Hqn));
+  }
+}
+
+#-------------------------------------------------------------------------
+#
+#  Define nodes for the index.
+#
+#-------------------------------------------------------------------------
+#
+#  Index node, simple. Index entries are sorted alphabetically and displayed
+#  without headers dividing entries into sections.
+#
+NODE IndexNodeS
+{
+  TITLE headingtext()
+  HEADER
+  {  
+    @NavPanel=concatenate( 
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("prev.gif",BOTTOM),
+                     filename(previous),
+                     image("prevg.gif",BOTTOM))," ", 
+              button(
+                     image("top.gif",BOTTOM),
+                     filename(top),
+                     image("top.gif",BOTTOM))," ", 
+              button(
+                     image("content.gif",BOTTOM),
+                     filename(TOC),
+                     image("contentg.gif",BOTTOM))
+              );
+
+    write(*,paragraph(@NavPanel));
+    write(*,paragraph(maintitle()));
+  }
+  FOOTER
+  {
+    write(*,index(Index,simple));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker&#174;","http://www.harlequin.com/webmaker")
+                    );
+    @Order=concatenate(
+			"You can order a ", 
+	button("bound copy", "http://www.harlequin.com/products/ads/dylan/purchase.shtml"),
+                         " of this book from Harlequin."
+                    );
+    @Copyright=concatenate(
+                     "Copyright Apple Computer, Inc. 1996. Apple&#174; and the Apple logo are registered trademarks of Apple Computer, Inc. Used with permission. All Rights Reserved."
+                    );
+    write(*,paragraph(@Copyright));
+    write(*,paragraph(@Order));
+    write(*,paragraph(@Hqn));
+  }
+}
+
+#-------------------------------------------------------------------------
+#
+#  Index node, letter. Index entries are sorted alphabetically and displayed
+#  with headers dividing entries into sections.
+#
+NODE IndexNodeL
+{
+  TITLE headingtext()
+  HEADER
+  {  
+    @NavPanel=concatenate( 
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("prev.gif",BOTTOM),
+                     filename(previous),
+                     image("prevg.gif",BOTTOM))," ", 
+              button(
+                     image("top.gif",BOTTOM),
+                     filename(top),
+                     image("top.gif",BOTTOM))," ", 
+              button(
+                     image("content.gif",BOTTOM),
+                     filename(TOC),
+                     image("contentg.gif",BOTTOM))
+              );
+
+    write(*,paragraph(@NavPanel));
+    write(*,paragraph(maintitle()));
+  }
+  FOOTER
+  {
+    write(*,index(Index,letter));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker&#174;","http://www.harlequin.com/webmaker")
+                    );
+    @Order=concatenate(
+			"You can order a ", 
+	button("bound copy", "http://www.harlequin.com/products/ads/dylan/purchase.shtml"),
+                         " of this book from Harlequin."
+                    );
+    @Copyright=concatenate(
+                     "Copyright Apple Computer, Inc. 1996. Apple&#174; and the Apple logo are registered trademarks of Apple Computer, Inc. Used with permission. All Rights Reserved."
+                    );
+    write(*,paragraph(@Copyright));
+    write(*,paragraph(@Order));
+    write(*,paragraph(@Hqn));
+  }
+}
+
+#-------------------------------------------------------------------------
+#
+#  Index node, multiple nodes. Index entries are sorted alphabetically and
+#  displayed with a separate node for each letter section.
+#
+NODE IndexNodeN
+{
+  TITLE headingtext()
+  HEADER
+  {  
+    @NavPanel=concatenate( 
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("prev.gif",BOTTOM),
+                     filename(previous),
+                     image("prevg.gif",BOTTOM))," ", 
+              button(
+                     image("top.gif",BOTTOM),
+                     filename(top),
+                     image("top.gif",BOTTOM))," ", 
+              button(
+                     image("content.gif",BOTTOM),
+                     filename(TOC),
+                     image("contentg.gif",BOTTOM))
+              );
+
+    write(*,paragraph(@NavPanel));
+    write(*,paragraph(maintitle()));
+  }
+  FOOTER
+  {
+    write(*,index(Index,node));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker&#174;","http://www.harlequin.com/webmaker")
+                    );
+    @Order=concatenate(
+			"You can order a ", 
+	button("bound copy", "http://www.harlequin.com/products/ads/dylan/purchase.shtml"),
+                         " of this book from Harlequin."
+                    );
+    @Copyright=concatenate(
+                     "Copyright Apple Computer, Inc. 1996. Apple&#174; and the Apple logo are registered trademarks of Apple Computer, Inc. Used with permission. All Rights Reserved."
+                    );
+    write(*,paragraph(@Copyright));
+    write(*,paragraph(@Order));
+    write(*,paragraph(@Hqn));
+  }
+}
+
+
+#-------------------------------------------------------------------------
+#
+#  Index node. Identical to Index node, letter. Index entries are sorted 
+#  alphabetically and displayed with headers dividing entries into sections.
+#
+NODE IndexNode
+{
+  TITLE headingtext()
+  HEADER
+  {  
+    @NavPanel=concatenate( 
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("prev.gif",BOTTOM),
+                     filename(previous),
+                     image("prevg.gif",BOTTOM))," ", 
+              button(
+                     image("top.gif",BOTTOM),
+                     filename(top),
+                     image("topg.gif",BOTTOM))," ", 
+              button(
+                     image("content.gif",BOTTOM),
+                     filename(TOC),
+                     image("contentg.gif",BOTTOM))
+              );
+
+    write(*,paragraph(@NavPanel));
+    write(*,paragraph(maintitle()));
+  }
+  FOOTER
+  {
+    write(*,index(Index,letter));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker&#174;","http://www.harlequin.com/webmaker")
+                    );
+    @Order=concatenate(
+			"You can order a ", 
+	button("bound copy", "http://www.harlequin.com/products/ads/dylan/purchase.shtml"),
+                         " of this book from Harlequin."
+                    );
+    @Copyright=concatenate(
+                     "Copyright Apple Computer, Inc. 1996. Apple&#174; and the Apple logo are registered trademarks of Apple Computer, Inc. Used with permission. All Rights Reserved."
+                    );
+    write(*,paragraph(@Copyright));
+    write(*,paragraph(@Order));
+    write(*,paragraph(@Hqn));
+  }
+}
+
+
+
+
+
+

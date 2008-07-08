@@ -1,0 +1,527 @@
+
+
+
+INCLUDE "nodesBTI.wml" 
+
+
+INCLUDE <headings.wml> 
+
+
+INCLUDE <lists.wml> 
+
+
+INCLUDE <normals.wml> 
+
+
+# Level 2 in the hierarchy.
+# Term and definition are plain text.
+PARAGRAPH "L2GlossaryItem-1" TYPE List
+	{
+  LEVEL 2
+  KIND Glossary
+  ACTIONS
+  {
+     write(*,concatenate(
+                 glossterm(text(current,1,1)),
+                 glossdescription(paragraph(text(current,2,*)))));
+  }
+} 
+
+
+# Level 3 in the hierarchy.
+# Term and definition are plain text.
+PARAGRAPH "L3GlossaryItem-1" TYPE List
+{
+  LEVEL 3
+  KIND Glossary
+  ACTIONS
+  {
+     write(*,concatenate(
+                 glossterm(text(current,1,1)),
+                 glossdescription(paragraph(text(current,2,*)))));
+  }
+} 
+
+
+PARAGRAPH "H1.Heading1" TYPE Heading
+{
+  USES "L2H1-NodeLower"
+} 
+
+
+PARAGRAPH "H2.Heading2" TYPE Heading
+{
+  USES "L3H2"
+} 
+
+
+PARAGRAPH "H4.Heading4" TYPE Heading
+{
+  USES "L4H3HR"
+} 
+
+
+PARAGRAPH "ChT.ChapterTitle" TYPE Heading
+{
+  USES "L1H1-NodeTop"
+} 
+
+
+PARAGRAPH "Cliche" TYPE List
+{
+  USES "L1GlossaryItem-1"
+} 
+
+
+PARAGRAPH "Note" TYPE Normal
+{
+  USES "InListSimple"
+} 
+
+
+PARAGRAPH "RP.RoutineParam" TYPE List
+{
+  USES "L2GlossaryItem-1"
+} 
+
+
+PARAGRAPH "RP2.RoutineParam2" TYPE List
+{
+  USES "L3GlossaryItem-1"
+} 
+
+
+PARAGRAPH "T0.Text0" TYPE Normal
+{
+  USES "InListSimple"
+} 
+
+
+PARAGRAPH "T1.Text1" TYPE Normal
+{
+  USES "InListSimple"
+} 
+
+
+PARAGRAPH "B1.Bullet1" TYPE List { USES "L1BulletItem" } 
+
+
+PARAGRAPH "B2.Bullet2" TYPE List
+{
+  USES "L2BulletItem"
+} 
+
+
+PARAGRAPH "H5.Heading5" TYPE Heading
+{
+  USES "L4H4"
+} 
+
+
+PARAGRAPH "H3.Heading3" TYPE Heading
+{
+  USES "L4H3"
+} 
+
+
+PARAGRAPH "Cv.Code" TYPE Normal
+{
+  USES "PreformattedText"
+} 
+
+
+PARAGRAPH "Cv.CodeMore" TYPE Normal
+{
+  USES "PreformattedText"
+} 
+
+
+PARAGRAPH "WWW-TOC" TYPE Heading
+{
+  USES "ExtTOCHeading-TocNode"
+} 
+
+
+PARAGRAPH "N.NList" TYPE Normal
+{
+  USES "InListSimple"
+} 
+
+
+PARAGRAPH "N/.NList=1" TYPE Normal
+{
+  USES "InListSimple"
+} 
+
+
+PARAGRAPH "SD.ShortDescription" TYPE Normal
+{
+  USES "InListSimple"
+} 
+
+
+PARAGRAPH "UH.UserHd" TYPE Normal
+{
+  USES "InListSimple"
+} 
+
+
+CHARACTER { TAG "IMPORTANT" MAP Bold } 
+
+
+CHARACTER { TAG "cv" MAP CODE } 
+
+
+CHARACTER { TAG "bold" MAP Bold } 
+
+
+CHARACTER { TAG "Parameter" MAP Italic } 
+
+
+CHARACTER { TAG "Code" MAP Code } 
+
+
+CHARACTER { TAG "Emphasis" MAP Emphasise } 
+
+
+CHARACTER { TAG "definition" MAP Emphasise } 
+
+
+CHARACTER { TAG "Term" MAP Emphasise } 
+
+
+CHARACTER { TAG "variable" MAP Italic } 
+
+
+CHARACTER { TAG "Symbol" MAP Emphasise } 
+
+
+CHARACTER { TAG "Bold" MAP BOLD } 
+
+
+CHARACTER { TAG "italics" MAP ITALIC } 
+
+
+CHARACTER { TAG "indexpagenum" MAP EMPHASISE } 
+
+
+CHARACTER { TAG "Superscript" MAP EMPHASISE } 
+
+
+CHARACTER { TAG "BNF" MAP CODE } 
+
+
+CHARACTER { TAG "MetaSyntax" MAP CODE } 
+
+
+CHARACTER { TAG "Subscript" MAP EMPHASISE } 
+
+
+CHARACTER { TAG "Underline" MAP UNDERLINE } 
+
+
+CHARACTER { TAG "pagenum" MAP EMPHASISE } 
+
+
+CHARACTER { TAG "Chapter#" MAP EMPHASISE } 
+
+
+CHARACTER {  ANGLE "Italic"   MAP Italic } 
+
+
+CHARACTER {  FAMILY "Courier"  MAP Code } 
+
+
+CHARACTER {  WEIGHT "Bold"  MAP Bold } 
+
+
+PARAGRAPH "ApT.ApdxTitleTOC" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "BackT.BackTitleTOC" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "ChT.ChapterTitleTOC" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "ChT.ChapterTitleTOCTOC" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "Fg.Figure" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "Glossary" TYPE List
+{
+  USES "L1GlossaryItem-2"
+}
+ 
+
+
+PARAGRAPH "GroupTitlesIX" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "H1.Heading1TOC" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "H2.Heading2TOC" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "Level1IX" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "WWW-IX" TYPE Heading
+{
+  USES "IndexHeadingL-IndexNodeL"
+} 
+
+
+PARAGRAPH "WWW-Author" TYPE Normal
+{
+  USES "Default"
+}
+ 
+
+
+PARAGRAPH "WWW-contributor" TYPE Normal
+{
+  USES "Default"
+}
+ 
+
+
+PARAGRAPH "ApT.ApdxTitle" TYPE Heading
+{
+  USES "L1H1-NodeTop"
+} 
+
+
+PARAGRAPH "PrT.PrefaceTitle" TYPE Heading
+{
+  USES "L1H1-NodeTop"
+} 
+
+
+PARAGRAPH "PrT.PrefaceTitleTOC" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "XFg.Restart" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "XList.Restart" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "XTb.Restart" TYPE Normal
+{
+  USES "Ignore"
+} 
+
+
+PARAGRAPH "Warranty" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "BackT.BackTitle" TYPE Heading
+{
+  USES "L1H1-NodeTop"
+} 
+
+
+PARAGRAPH "BookTitle" TYPE Normal
+{
+  USES "FMDocumentTitle"
+} 
+
+
+PARAGRAPH "CT.ColophonTitle" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "VolumeTitle" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "T1i.Text1italic" TYPE Normal
+{
+  USES "InListSimple"
+} 
+
+
+PARAGRAPH "SubTitle" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "SeriesTitle" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "N2.NList2" TYPE Normal
+{
+  USES "InListSimple"
+} 
+
+
+PARAGRAPH "0copyright" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "1copyright" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "Editionw/Models" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "learn" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "Modelsw/Sub" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "CN.ColophonName" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "Anchor" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "Cliche2" TYPE List
+{
+  USES "L1GlossaryItem-1"
+} 
+
+
+PARAGRAPH "Copyright-title" TYPE Heading
+{
+  USES "L1H1-NodeTop"
+} 
+
+
+PARAGRAPH "Colophon-title" TYPE Heading
+{
+  USES "L1H1HR-NodeTop"
+} 
+
+
+PARAGRAPH "GB.Glossary Body" TYPE Normal
+{
+  USES "InListSimple"
+} 
+
+
+PARAGRAPH "CT.CopyrightTitle" TYPE Heading
+{
+  USES "L1H1-NodeTop"
+} 
+
+
+PARAGRAPH "Level2IX" TYPE Normal
+{
+  USES "Ignore"
+}
+ 
+
+
+PARAGRAPH "CT.copyrightTitle" TYPE Heading
+{
+  USES "L1H1-NodeTop"
+}
+ 
+
+
+PARAGRAPH "Level3IX" TYPE Normal
+{
+  USES "Ignore"
+}
+ 
+
+
+PARAGRAPH "NE.NameEntry" TYPE Normal
+{
+  USES "PreformattedText"
+}
+ 
+
+
+PARAGRAPH "NF.NameEntryFirst" TYPE Normal
+{
+  USES "PreformattedText"
+}
+ 
+
+
+PARAGRAPH "RP3.RoutineParam" TYPE List
+{
+  USES "L2GlossaryItem-1"
+}
+ 
+
+
+PARAGRAPH "T2.Text2" TYPE Normal
+{
+  USES "InListSimple"
+}
+ 

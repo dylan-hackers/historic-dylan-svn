@@ -1,0 +1,617 @@
+
+
+
+# standard library files
+INCLUDE "/u/ldisk2/skeene/db-web-site/src/nodesB.wml" 
+
+
+INCLUDE "headings.wml" 
+
+
+INCLUDE "normals.wml" 
+
+
+INCLUDE "lists.wml" 
+
+
+# L1BulletItem specifies level 1 bulleted list item.
+PARAGRAPH "L1BulletItem-short" TYPE List
+{
+  LEVEL 1
+  KIND Bullet
+  ACTIONS
+  {
+    write(*,listitem(text()));
+  }
+} 
+
+
+# Level 1 in the hierarchy.
+# Heading 1 display size.
+# Top level node with navigation to next, previous, and top. 
+PARAGRAPH "L1H1-NodeTop-TOC" TYPE Heading
+{
+  LEVEL 1
+  NEWNODE LevelOneTOC
+  ACTIONS
+  {
+    write(*,heading(1,concatenate(number()," ",text())));
+  }
+} 
+
+
+# Level 2 in the hierarchy.
+# Term and definition are plain text.
+PARAGRAPH "L2GlossaryItem-short-1" TYPE List
+	{
+  LEVEL 2
+  KIND Glossary
+  ACTIONS
+  {
+     write(*,concatenate(
+                 glossterm(text(current,1,1)),
+                 glossdescription(text(current,2,*))));
+  }
+} 
+
+
+# Level 2 in the hierarchy.
+# Term and definition are plain text.
+PARAGRAPH "L2GlossaryItem-1" TYPE List
+	{
+  LEVEL 2
+  KIND Glossary
+  ACTIONS
+  {
+     write(*,concatenate(
+                 glossterm(text(current,1,1)),
+                 glossdescription(paragraph(text(current,2,*)))));
+  }
+} 
+
+
+# Level 3 in the hierarchy.
+# Term and definition are plain text.
+PARAGRAPH "L3GlossaryItem-1" TYPE List
+{
+  LEVEL 3
+  KIND Glossary
+  ACTIONS
+  {
+     write(*,concatenate(
+                 glossterm(text(current,1,1)),
+                 glossdescription(paragraph(text(current,2,*)))));
+  }
+} 
+
+
+PARAGRAPH "Code-last" TYPE Normal
+{
+  CONTEXT Preformatted
+  ACTIONS
+  {
+    write(*,text());
+    write(*,paragraph(""));
+  }
+} 
+
+
+PARAGRAPH "Interface" TYPE Normal
+{
+  ACTIONS
+  {
+     write(*,strong(text()));
+  }
+} 
+
+
+PARAGRAPH "Interface-type" TYPE Normal
+{
+  ACTIONS
+   {
+      write(*,paragraph(variable(text())));
+   }
+} 
+
+
+# Paragraph formats that use FMDocumentTitle
+PARAGRAPH "Booktitle" TYPE Normal { USES "FMDocumentTitle" } 
+
+
+# Paragraph formats that start a NODE
+PARAGRAPH "Glossary" TYPE Heading { USES "L1H1-NodeTop" } 
+
+
+PARAGRAPH "Preface" TYPE Heading { USES "L1H1-NodeTop" } 
+
+
+PARAGRAPH "Copyright-title" TYPE Heading { USES "L1H1-NodeTop" } 
+
+
+PARAGRAPH "Chapter" TYPE Heading { USES "L1H1-NodeTop" } 
+
+
+PARAGRAPH "Appendix" TYPE Heading { USES "L1H1-NodeTop" } 
+
+
+PARAGRAPH "Glossary" TYPE Heading { USES "L1H1-NodeTop" } 
+
+
+PARAGRAPH "1Heading" TYPE Heading { USES "L2H1-NodeLower" } 
+
+
+PARAGRAPH "2Heading" TYPE Heading { USES "L3H1-NodeLower" } 
+
+
+PARAGRAPH "3Heading" TYPE Heading { USES "L4H1-NodeLower" } 
+
+
+PARAGRAPH "Pref-Heading" TYPE Heading { USES "L2H1-NodeLower" } 
+
+
+PARAGRAPH "App-1Heading" TYPE Heading { USES "L2H1-NodeLower" } 
+
+
+PARAGRAPH "App-2Heading" TYPE Heading { USES "L3H1-NodeLower" } 
+
+
+PARAGRAPH "1Heading-App" TYPE Heading { USES "L2H1-NodeLower" } 
+
+
+PARAGRAPH "2Heading-App" TYPE Heading { USES "L3H1-NodeLower" } 
+
+
+PARAGRAPH "Interface-2" TYPE Heading { USES "L4H1-NodeLower" } 
+
+
+PARAGRAPH "Interface&Type" TYPE Heading { USES "L3H1-NodeLower" } 
+
+
+PARAGRAPH "Glossary-entry" TYPE List
+{
+  USES "L2GlossaryItem-short-1"
+} 
+
+
+# Paragraph formats that trigger TOC and Indx
+PARAGRAPH "WWW-TOC" TYPE Heading { USES "ExtTOCHeading-TocNode" } 
+
+
+PARAGRAPH "XIndex" TYPE List
+{
+  USES "L2GlossaryItem-short-1"
+} 
+
+
+# Paragraph formats IGNORED
+PARAGRAPH "XHeader" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "XRightFooter" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "AppendixTOC" TYPE List
+{
+  USES "L2GlossaryItem-short-1"
+} 
+
+
+PARAGRAPH "TitleTOC" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "1HeadingTOC" TYPE List
+{
+  USES "L3GlossaryItem-1"
+} 
+
+
+PARAGRAPH "ChapterTOC" TYPE List
+{
+  USES "L2GlossaryItem-short-1"
+} 
+
+
+PARAGRAPH "1Heading-TopTOC" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "Chapter-Number" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "Appendix-Number" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "XIndexTOC" TYPE List
+{
+  USES "L1AutonumberItem"
+} 
+
+
+PARAGRAPH "1headingTOC" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "PrefaceTOC" TYPE List
+{
+  USES "L1GlossaryItem-1"
+} 
+
+
+PARAGRAPH "2HeadingTOC" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "GlossaryTOC" TYPE List
+{
+  USES "L2GlossaryItem-short-1"
+} 
+
+
+PARAGRAPH "MajorPartTOC" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "TOCTitle" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "3HeadingTOC" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "ActiveTOC" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "XHead-chap" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "XLeftFooter" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "XChapterFooter" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "RightFooter" TYPE Normal { USES "Ignore" } 
+
+
+# Paragraph formats using PREFORMATTEDTEXT
+PARAGRAPH "Code-body" TYPE Normal { USES "PreformattedText" } 
+
+
+PARAGRAPH "Code-line" TYPE Normal { USES "PreformattedText" } 
+
+
+PARAGRAPH "Code-first" TYPE Normal { USES "PreformattedText" } 
+
+
+# Paragraph formats using LISTS
+PARAGRAPH "Bullet" TYPE List
+{
+  USES "L1BulletItem"
+}
+ 
+
+
+PARAGRAPH "Description" TYPE List { USES "L1GlossaryItem-1" } 
+
+
+PARAGRAPH "Description-Item" TYPE List { USES "L1GlossaryItem-1" } 
+
+
+PARAGRAPH "Bullet-C" TYPE Normal { USES "InListSimple" } 
+
+
+PARAGRAPH "Description-C" TYPE Normal { USES "InListSimple" } 
+
+
+PARAGRAPH "Step-C" TYPE Normal { USES "InListSimple" } 
+
+
+# Paragraph formats using Default
+PARAGRAPH "1Step" TYPE Normal { USES "Default" } 
+
+
+PARAGRAPH "Step-1" TYPE List
+{
+  USES "L1AutonumberItem"
+} 
+
+
+PARAGRAPH "Step" TYPE List
+{
+  USES "L1AutonumberItem"
+} 
+
+
+PARAGRAPH "Figure" TYPE Normal { USES "Default" } 
+
+
+PARAGRAPH "Table" TYPE Normal { USES "Default" } 
+
+
+# Paragraph formats using SimpleBody
+PARAGRAPH "Glossary-definition" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Exec-summary" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Copyrighttext" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Edition" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Subtitle" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Pubcities" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Body" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Body-across" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Body-Indent" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Copyrighttext-small" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Body-Next" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Code-Indented" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "CellHeading" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Contents" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "company-name" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Callout" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "CellBody-small" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "CDescription" TYPE Normal { USES "SimpleBody" } 
+
+
+# Paragraph formats for the index:
+PARAGRAPH "GroupTitlesIX" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "Level3IX" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "IndexIX" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "Level1IX" TYPE Normal { USES "Ignore" } 
+
+
+PARAGRAPH "Level2IX" TYPE Normal { USES "Ignore" } 
+
+
+# Paragraph formats NOT used but contained in the paragraph catalog(s).
+PARAGRAPH "Off" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Code" TYPE Normal
+{
+  USES "PreformattedText"
+} 
+
+
+PARAGRAPH "Title" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Description-Left" TYPE Heading { USES "L4H3HR" } 
+
+
+PARAGRAPH "On" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Author" TYPE Heading
+{
+  USES "L3H3"
+} 
+
+
+PARAGRAPH "TitleBody" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "CStep" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "CBullet" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "XAbove2LineTitle" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Code-cell" TYPE Normal { USES "SimpleBody" } 
+
+
+# Paragraph formats used but NOT contained in the paragraph catalog(s).
+PARAGRAPH "ActiveIX" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "IgnoreCharsIX" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Key-title" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "SortSpecIX" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Like-an-entry" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Margin-note" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "FigureLOF" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "SortOrderIX" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Key-table" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "Paragraph" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "TableLOT" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "*Codebody" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "SeparatorsIX" TYPE Normal { USES "SimpleBody" } 
+
+
+PARAGRAPH "SpecIX" TYPE Normal { USES "SimpleBody" } 
+
+
+# Character formats used AND contained in the character catalog(s).
+CHARACTER { TAG "Italic" MAP Italic } 
+
+
+CHARACTER { TAG "Code" MAP Code } 
+
+
+CHARACTER { TAG "Bold" MAP Bold } 
+
+
+CHARACTER { TAG "Variable" MAP Italic } 
+
+
+CHARACTER { TAG "Button" MAP Keyboard } 
+
+
+CHARACTER { TAG "Default" MAP Emphasise } 
+
+
+CHARACTER { TAG "Emphasis" MAP Emphasise } 
+
+
+CHARACTER { TAG "Body" MAP Emphasise } 
+
+
+CHARACTER { TAG "Symbol" MAP Emphasise } 
+
+
+CHARACTER { TAG "Subtitle-small" MAP Emphasise } 
+
+
+# Character formats NOT used but contained in the character catalog(s).
+CHARACTER { TAG "XNum-chap" MAP Emphasise } 
+
+
+CHARACTER { TAG "EquationVariables" MAP Emphasise } 
+
+
+CHARACTER { TAG "Callout" MAP Emphasise } 
+
+
+CHARACTER { TAG "MenuItem" MAP Emphasise } 
+
+
+CHARACTER { TAG "Chapter #" MAP Emphasise } 
+
+
+CHARACTER { TAG "Chapter #TOC" MAP Emphasise } 
+
+
+CHARACTER { TAG "Page#TOC" MAP Emphasise } 
+
+
+CHARACTER { TAG "Issue" MAP Emphasise } 
+
+
+CHARACTER { TAG "XWhite" MAP Emphasise } 
+
+
+CHARACTER { TAG "XText-Chap" MAP Emphasise } 
+
+
+PARAGRAPH "3Heading-App" TYPE Heading
+{
+  USES "L4H1-NodeLower"
+} 
+
+
+PARAGRAPH "1Heading-no-rhTOC" TYPE List
+{
+  USES "L3GlossaryItem-1"
+} 
+
+
+PARAGRAPH "Body-First" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "Box-anchor" TYPE Normal
+{
+  USES "PreformattedText"
+} 
+
+
+PARAGRAPH "Cahpter-no-num" TYPE Heading
+{
+  USES "L1H1-NodeTop"
+} 
+
+
+PARAGRAPH "Chapter-no-num" TYPE Heading
+{
+  USES "L1H1-NodeTop"
+} 
+
+
+PARAGRAPH "Copyright" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "PublisherBook" TYPE Normal
+{
+  USES "Default"
+} 
+
+
+PARAGRAPH "TitleBook" TYPE Normal
+{
+  USES "FMDocumentTitle"
+} 
+
+
+PARAGRAPH "PartTOC" TYPE Heading
+{
+  USES "L3H3"
+} 
+
+
+CHARACTER { TAG "Code-heading1" MAP CODE } 
+
+
+CHARACTER { TAG "Code-Comment" MAP ITALIC } 
+
+
+CHARACTER { TAG "Code-Italic" MAP ITALIC } 
+
+
+CHARACTER { TAG "Code-Italic-in-text" MAP ITALIC } 
+
+
+PARAGRAPH "TOC" TYPE Heading
+{
+  USES "L1H1-NodeTop-TOC"
+} 

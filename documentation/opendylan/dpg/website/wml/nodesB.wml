@@ -1,0 +1,241 @@
+#-----------------------------------------------------------------------
+# WebMaker, a FrameMaker to WWW converter
+# 
+# Copyright (C) 1995 by The Harlequin Group Limited
+#-----------------------------------------------------------------------
+#
+#     This file contains definitions of nodes with images for buttons
+#     for a web with no external table of contents or index.
+#
+#-----------------------------------------------------------------------
+#
+# Contains definition of:
+#     
+#          VARIABLE       @NavPanel
+#          VARIABLE       @Hqn
+#          NODE           FirstPage
+#          NODE           LevelOne
+#          NODE           LevelTwo
+
+
+#-----------------------------------------------------------------------
+#
+# Define variables.
+#
+VARIABLE @NavPanel
+VARIABLE @COPYRT
+VARIABLE @Hqn
+
+
+#-----------------------------------------------------------------------
+#
+# Define the entry page of the generated web.
+#
+NODE FirstPage
+{
+  TITLE maintitle()
+  HEADER
+  {
+    @NavPanel=concatenate(
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))
+              );
+    write(*,paragraph(@NavPanel));
+  }
+  FOOTER
+  {
+#   write(*,toc(1,local));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+
+
+    @COPYRT=concatenate("N Feinberg/S E Keene/R Mathews/P Tucker Withington, 
+                        DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. 
+                        Reproduced by permission of Addison-Wesley Longman 
+                        Publishing Company, Inc.  All rights reserved. No further 
+                        copying, downloading or transmitting of this material
+                        is allowed without the prior written permission of the
+                        publisher."
+                     );	
+    write(*,paragraph(@COPYRT));
+
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker","http://www.harlequin.com/webmaker")
+                    );
+    write(*,paragraph(@Hqn));
+  }
+}
+
+
+#-----------------------------------------------------------------------
+#
+# Define other lower level nodes
+#
+NODE LevelOne
+{
+  TITLE concatenate(headingnumber()," ",headingtext())
+  HEADER
+  {
+    @NavPanel=concatenate( 
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("prev.gif",BOTTOM),
+                     filename(previous),
+                     image("prevg.gif",BOTTOM))," ", 
+              button(
+                     image("top.gif",BOTTOM),
+                     filename(top),
+                     image("topg.gif",BOTTOM))
+                         );
+    write(*,paragraph(@NavPanel));
+    write(*,paragraph(maintitle()));
+  }
+  FOOTER
+  {
+    write(*,toc(1,local));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @COPYRT=concatenate("N Feinberg/S E Keene/R Mathews/P Tucker Withington, 
+                        DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. 
+                        Reproduced by permission of Addison-Wesley Longman 
+                        Publishing Company, Inc.  All rights reserved. No further 
+                        copying, downloading or transmitting of this material
+                        is allowed without the prior written permission of the
+                        publisher."
+                     );	
+    write(*,paragraph(@COPYRT));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker","http://www.harlequin.com/webmaker")
+                    );
+    write(*,paragraph(@Hqn));
+  }
+}
+
+#-----------------------------------------------------------------------
+#
+# Define other lower level nodes
+#
+NODE LevelOneTOC
+{
+  TITLE concatenate(headingnumber()," ",headingtext())
+  HEADER
+  {
+    @NavPanel=concatenate( 
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("prev.gif",BOTTOM),
+                     filename(previous),
+                     image("prevg.gif",BOTTOM))," ", 
+              button(
+                     image("top.gif",BOTTOM),
+                     filename(top),
+                     image("topg.gif",BOTTOM))
+                         );
+    write(*,paragraph(@NavPanel));
+    write(*,paragraph(maintitle()));
+  }
+  FOOTER
+  {
+#   write(*,toc(1,local));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @COPYRT=concatenate("N Feinberg/S E Keene/R Mathews/P Tucker Withington, 
+                        DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. 
+                        Reproduced by permission of Addison-Wesley Longman 
+                        Publishing Company, Inc.  All rights reserved. No further 
+                        copying, downloading or transmitting of this material
+                        is allowed without the prior written permission of the
+                        publisher."
+                     );	
+    write(*,paragraph(@COPYRT));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker","http://www.harlequin.com/webmaker")
+                    );
+    write(*,paragraph(@Hqn));
+  }
+}
+
+
+
+NODE LevelTwo
+{
+  TITLE concatenate(headingnumber()," ",headingtext())
+  HEADER
+  {
+    @NavPanel=concatenate( 
+              button(
+                     image("next.gif",BOTTOM),
+                     filename(next),
+                     image("nextg.gif",BOTTOM))," ", 
+              button(
+                     image("prev.gif",BOTTOM),
+                     filename(previous),
+                     image("prevg.gif",BOTTOM))," ", 
+              button(
+                     image("up.gif",BOTTOM),
+                     filename(up),
+                     image("upg.gif",BOTTOM))," ", 
+              button(
+                     image("top.gif",BOTTOM),
+                     filename(top),
+                     image("topg.gif",BOTTOM))
+                         );
+    write(*,paragraph(@NavPanel));
+    write(*,paragraph(concatenate(headingnumber(up)," ",headingtext(up))));
+  }
+  FOOTER
+  {
+    write(*,toc(1,local));
+    write(*,hrule());
+    write(*,address(concatenate(maintitle()," - ",date())));
+    write(*,paragraph(@NavPanel));
+    @COPYRT=concatenate("N Feinberg/S E Keene/R Mathews/P Tucker Withington, 
+                        DYLAN PROGRAMMING, (c) 1997 Harlequin Inc. 
+                        Reproduced by permission of Addison-Wesley Longman 
+                        Publishing Company, Inc.  All rights reserved. No further 
+                        copying, downloading or transmitting of this material
+                        is allowed without the prior written permission of the
+                        publisher."
+                     );	
+    write(*,paragraph(@COPYRT));
+    @Hqn=concatenate(
+                     "Generated with ",
+         button("Harlequin WebMaker","http://www.harlequin.com/webmaker")
+                    );
+    write(*,paragraph(@Hqn));
+  }
+}
+
+#-----------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

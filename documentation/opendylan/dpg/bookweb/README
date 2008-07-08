@@ -1,0 +1,50 @@
+12 April 1999
+Ken Jackson
+
+Bookweb is derived from the Dylan Programming sources for the book
+published by Addison-Wesley in 1997 for HTML publication with Dylan
+2.0 in April 1999. Work was started by Sonya Keene and completed by
+Ken Jackson.
+
+Source files have been modified for this conversion. This is a
+separate set of sources since we do not expect to print a revised
+edition of the book. Some is derived from the website created for
+Harlequin and A-W at the time of publication of the book.
+
+In the sources some small changes have been made to improve conversion
+to HTML. The first page is not the title page of the book; it's from
+the website. The TOC is generated. A section on Source Code before
+Appendix A is derived from the website but made to refewrence the
+website rather than directly link to sources. Appendix A is updated,
+cutting most mention of Apple and Gwydion.
+
+Sources are converted to MIF using ~doc/share/src/directory_to_mif
+name-of-src-directory.
+
+The WML used for this WebMaker conversion is db-new.wml. It generates
+an error tha @hqn is an undefined variable. No bad effect. The
+nodes.wml cuts the "Generated with Harlequin Webmaker" text from each
+footer by undefining this variable but leaves some code in
+place. Mapping for numbered lists to an autonumber rule generated two
+lines for number and text so this db-new.wml uses a mapping for step-1
+and step that we do not use in other Harlequin conversion.
+
+The generated HTML is post-processed (to make background white and fix
+a few character conversions) with ~doc/share/src/doc_html -verbose
+-hyp -nbsp -bg *.HTM.
+
+Finally, individual HTML files are edited to make the following changes:
+
+1. _1.HTM trademark in title made smaller with addition of
+<small><small><small>TM</small></small></small>.
+
+2. The four "Part" pages have "Part 1" etc. added in front of part
+name. This could easily be fixed in source if I were willing to
+process one more time.
+
+3. The index is cut and pasted to organize all the Symbols (heading
+added) at the top of the index, as in the printed book.
+
+
+The HTM and GIFs are tarred into one file for Hope: 
+tar -cvf dyprog.tar -C /directory .
