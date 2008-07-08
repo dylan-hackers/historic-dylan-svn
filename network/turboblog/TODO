@@ -1,0 +1,14 @@
+x remove default-languages
+x  -> each post has a language => blog.languages
+x fix administration stylesheet
+- all actions only visible if possible
+x reimplement permissions
+x provide a nice and intuitive interface for permissions
+- make administration interface internationalized
+- make themes internationalized
+- what to do with " / " in keys? urls don't support them
+x file upload for each blog
+  -> think about directories and permissions
+- AtomAPI
+  -> care for If-Unmodified-Since
+- remove requested-url
