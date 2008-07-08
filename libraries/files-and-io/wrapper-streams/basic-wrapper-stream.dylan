@@ -317,6 +317,7 @@ define method new-line (wrapper :: <basic-wrapper-stream>) => ()
 end method;
 
 
+/// Synopsis: Returns sequence type appropriate for inner stream's element type.
 define method sequence-type-for-inner-stream
    (wrapper :: <basic-wrapper-stream>)
 => (sequence-type :: <type>)
@@ -328,12 +329,16 @@ define method sequence-type-for-inner-stream
 end method;
 
 
+/// Synopsis: Returns string type appropriate for inner stream's element type.
+/// Conditions: Signals error if element type isn't allowed in a string.
 define method string-type-for-inner-stream
    (wrapper :: <basic-wrapper-stream>)
 => (sequence-type :: <type>)
    select (wrapper.inner-stream.stream-element-type by subtype?)
       <byte-character> => <byte-string>;
-      otherwise => <string>;
+      <character> => <string>;
+      otherwise =>
+         error("Inner stream element type is not subtype of <character>.");
    end select
 end method;
 

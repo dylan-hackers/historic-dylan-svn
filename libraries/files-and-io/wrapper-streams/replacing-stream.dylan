@@ -60,9 +60,9 @@ Synopsis: Replaces inner stream content of a <replacing-stream>.
 
 'Start' and 'end' are 'wrapper' stream positions but correspond to inner
 stream positions. The inner stream is grown if necessary to ensure these
-positions exist. It is not necessary to grow the inner stream if 'start' and
-'end' correspond to the inner stream's end-of-stream position. If the inner
-stream cannot be grown, an error is signaled.
+positions exist. The inner stream is not grown if if 'start' and 'end'
+correspond to the inner stream's end-of-stream position. If the inner stream
+cannot be grown, an error is signaled.
 
 The current 'wrapper' stream position is left effectively unchanged (pointing
 to the same current element) if possible.
@@ -389,8 +389,8 @@ define method adjust-stream-position
       end if;
    end while;
    
-   // Ensure cur-seg, cur-off has something there or is at end of stream, even
-   // if delta was 0.
+   // Even if delta was 0, ensure cur-seg/cur-off is a valid position or is at
+   // end of stream, i.e., not past the end of a segment and not in empty segment.
    while (cur-seg < seg-count & cur-off >= segment-size(wrapper, cur-seg))
       cur-seg := cur-seg + 1;
       cur-off := 0;
@@ -404,9 +404,7 @@ end method;
 
 define method stream-size (wrapper :: <replacing-stream>)
 => (sz :: <integer>)
-   // Would prefer to use #"end" instead of stream-size, but apparently that
-   // needs a stream limit, which is something almost all streams lack.
-   wrapper.inner-stream.stream-position := wrapper.inner-stream.stream-size;
+   adjust-stream-position(wrapper.inner-stream, 0, from: #"end");
    let last-seg-start = as(<integer>, wrapper.inner-stream-limits.last);
    let last-seg-end = as(<integer>, wrapper.inner-stream.stream-position);
    wrapper.segment-limits.last + (last-seg-end - last-seg-start)
@@ -470,6 +468,8 @@ end method;
 
 
 // TODO: stream-limit-setter or stream-size-setter?
+// TODO: Could provide more efficient read and write implementations than the
+// character-by-character implementation on <basic-wrapper-stream>.
 
 
 //
