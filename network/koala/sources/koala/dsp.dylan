@@ -735,7 +735,8 @@ define class <dsp-template> (<object>)
   // is fixed, nuke these two slots.
   constant slot content-start :: <integer>, required-init-keyword: #"content-start";
            slot content-end   :: <integer>, required-init-keyword: #"content-end";
-  constant slot entries :: <stretchy-vector> = make(<stretchy-vector>);
+  constant slot entries :: <stretchy-vector>,
+    init-function: curry(make, <stretchy-vector>);
   // This is as-yet unused.
   // Pretty sure it was originally put here for error reporting purposes.
   constant slot source :: false-or(<locator>) = #f, init-keyword: #"source";

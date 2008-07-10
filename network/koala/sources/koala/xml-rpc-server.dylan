@@ -36,7 +36,8 @@ define class <xml-rpc-server> (<object>)
   // Maps method names to response functions.  If namespaces are used then
   // the value may be another <string-table> containing the mapping for that
   // namespace.
-  constant slot xml-rpc-methods :: <string-table> = make(<string-table>),
+  constant slot xml-rpc-methods :: <string-table>,
+    init-function: curry(make, <string-table>),
     init-keyword: methods:;
 
   // API

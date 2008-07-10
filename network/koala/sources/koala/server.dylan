@@ -39,7 +39,7 @@ define class <server> (<sealed-constructor>)
     required-init-keyword: listeners:;
 
   constant slot server-clients :: <stretchy-vector>,
-    init-value: make(<stretchy-vector>);
+    init-function: curry(make, <stretchy-vector>);
 
   constant slot listeners-shutdown-notification :: <notification>,
     required-init-keyword: listeners-shutdown-notification:;
@@ -61,16 +61,19 @@ define class <server> (<sealed-constructor>)
   // Map from URL string to a response function.  The leading slash is removed
   // from URLs because it's easier to use merge-locators that way.
   // todo -- this should be per vhost
-  constant slot url-map :: <string-trie> = make(<string-trie>, object: #f);
+  constant slot url-map :: <string-trie>,
+    init-function: curry(make, <string-trie>, object: #f);
 
   //// Statistics
   // todo -- move these elsewhere
 
   slot connections-accepted :: <integer> = 0; // Connections accepted
-  constant slot user-agent-stats :: <string-table> = make(<string-table>);
+  constant slot user-agent-stats :: <string-table>,
+    init-function: curry(make, <string-table>);
 
   // Maps host names to virtual hosts.
-  constant slot virtual-hosts :: <string-table> = make(<string-table>);
+  constant slot virtual-hosts :: <string-table>,
+    init-function: curry(make, <string-table>);
 
   // The vhost used if the request host doesn't match any other virtual host.
   // Note that the document root may be changed when the config file is
@@ -93,14 +96,15 @@ define class <server> (<sealed-constructor>)
   slot server-root :: <directory-locator>
     = parent-directory(locator-directory(as(<file-locator>, application-filename())));
 
-  constant slot server-mime-type-map :: <table> = make(<table>);
+  constant slot server-mime-type-map :: <table>,
+    init-function: curry(make, <table>);
 
 
   //// Next 3 slots are for sessions
 
   // Maps session-id to session object.
   constant slot server-sessions :: <table>,
-    init-value: make(<table>);
+    init-function: curry(make, <table>);
 
   // The number of seconds this cookie should be stored in the user agent, in seconds.
   // #f means no max-age is transmitted, which means "until the user agent exits".
@@ -607,14 +611,17 @@ define class <request> (<basic-request>)
   // The actual headers, mapping string -> raw data
   // (The header names are not interned to avoid permanent wedgedness
   //  by invalid headers).
-  slot request-headers :: <header-table> = make(<header-table>);
+  slot request-headers :: <header-table>,
+    init-function: curry(make, <header-table>);
 
   // Cache, mapping keyword (requested by user) -> parsed data
-  constant slot request-header-values :: <object-table> = make(<object-table>);
+  constant slot request-header-values :: <object-table>,
+    init-function: curry(make, <object-table>);
 
   // Query values from either the URL or the body of the POST, if Content-Type
   // is application/x-www-form-urlencoded.
-  constant slot request-query-values :: <string-table> = make(<string-table>);
+  constant slot request-query-values :: <string-table>,
+    init-function: curry(make, <string-table>);
 
   slot request-session :: false-or(<session>) = #f;
 
