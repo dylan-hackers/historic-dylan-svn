@@ -261,7 +261,8 @@ define class <rolling-file-log-target> (<file-log-target>)
 
   // Date when the underlying file was created.  When it gets closed
   // it will be renamed with this date in the name.
-  slot file-creation-date :: <date> = current-date();
+  slot file-creation-date :: <date>,
+    init-function: current-date;
 
   // Number of bytes written since the current inner-stream was opened.
   slot bytes-written :: <integer> = 0;

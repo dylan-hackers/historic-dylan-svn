@@ -13,7 +13,8 @@ define class <responder> (<object>)
   // url (i.e., the part following the base url on which this responder was
   // registered) the functions are called in order.  They should raise an exception
   // (of what type?) to abort the chain.
-  constant slot responder-map :: <table> = make(<table>),
+  constant slot responder-map :: <table>,
+    init-function: curry(make, <table>),
     init-keyword: map:;
 end;
 
