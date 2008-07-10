@@ -130,6 +130,26 @@ end;
 define taglib demo ()
 end;
 
+
+// You may also define tags and actions directly in the taglib definition...
+define taglib example ()
+  prefix "x";
+
+  tag hello (page :: <demo-page>) (arg)
+    output(arg);
+
+  body tag repeat (page :: <demo-page>, process-body) (n :: <integer>)
+    for (i from 1 to n)
+      process-body()
+    end;
+
+  action logged-in?;
+
+  action word-list (page :: <demo-page>)
+    #("a", "b", "c");
+end taglib example;
+
+
 // <demo:base-url/> tag, so templates don't have to hard-code absolute urls.
 //
 define tag base-url in demo

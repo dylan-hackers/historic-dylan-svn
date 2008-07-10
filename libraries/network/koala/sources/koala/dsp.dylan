@@ -243,73 +243,184 @@ end;
 //
 
 define class <taglib> (<object>)
-  constant slot name :: <string>, required-init-keyword: #"name";
-  constant slot default-prefix :: <string>, required-init-keyword: #"prefix";
-  constant slot tag-map :: <string-table> = make(<string-table>);
-  constant slot named-method-map :: <string-table> = make(<string-table>);
-end;
+  constant slot name :: <string>,
+    required-init-keyword: name:;
+  slot default-prefix :: <string>,
+    init-keyword: prefix:;
+  constant slot tag-map :: <string-table>,
+    init-function: curry(make, <string-table>);
+  constant slot named-method-map :: <string-table>,
+    init-function: curry(make, <string-table>);
+end class <taglib>;
 
-//define taglib example ()
-//  default-prefix: "ex";
-//  named-methods: logged-in?,
-//                 table-has-rows?,
-//                 row-generator;
-//end;
+// Make the prefix default to the taglib name.
+//
+define method make
+    (class == <taglib>, #key name, prefix)
+ => (taglib :: <taglib>)
+  next-method(class, name: name, prefix: prefix | name)
+end method make;
 
-// This can probably use #key to only allow true property lists in the callers?
 define macro taglib-definer
-  { define taglib ?:name () ?properties:* end }
-  => { register-taglib(taglib-aux1(?"name", ?properties),
-                       taglib-aux2(?"name", ?properties));
-       taglib-aux3(?"name", ?properties); }
+  { define taglib ?:name ()
+      ?properties
+    end }
+    => { begin
+           let _taglib = make(<taglib>, name: ?"name");
+           ?properties ;
+           register-taglib(?"name", _taglib);
+         end }
+
+  properties:
+    { } => { }
+
+    // Prefix
+    { prefix ?:expression; ... }
+      => { default-prefix(_taglib) := ?expression; ... }
+
+    // Actions
+
+    { action ?:name; ... }
+      => { register-named-method(_taglib, ?"name", ?name); ... }
+    { action ?:name (?args:*) ?:body; ... }
+      => { register-named-method(_taglib, ?"name", method (?args) ?body ; end); ... }
+
+    // Tags
+    // There are two syntaxes (one with the "body" modifier and one without) so that
+    // we can ensure that if the tag isn't supposed to have a body the body will be
+    // processed once and only once.  It sounds weird, but the alternative is to simply
+    // not display the body (if there is one), which might be very hard to debug, or
+    // to make the user remember to deal with the body in each tag.
+
+    { tag ?tag:name (?page:variable)
+          (?tag-parameters:*)
+        ?:body ;
+      ... }
+      => { local method ?tag ## "-tag" (?page, _do-body, #key ?tag-parameters, #all-keys)
+                   ?body;
+                   _do-body();  // process the tag body, if any, exactly once
+                 end;
+           register-tag(make(<tag>,
+                             name: ?"tag",
+                             function: ?tag ## "-tag",
+                             allow-body?: #f,
+                             parameter-names: snarf-tag-parameter-names(?tag-parameters),
+                             parameter-types: snarf-tag-parameter-types(?tag-parameters)),
+                        _taglib);
+           ... }
+    { body tag ?tag:name (?page:variable, ?do-body:variable)
+          (?tag-parameters:*)
+        ?:body ;
+      ... }
+      => { local method ?tag ## "-tag" (?page, ?do-body, #key ?tag-parameters, #all-keys)
+                   ?body
+                 end;
+           register-tag(make(<tag>,
+                             name: ?"tag",
+                             function: ?tag ## "-tag",
+                             allow-body?: #t,
+                             parameter-names: snarf-tag-parameter-names(?tag-parameters),
+                             parameter-types: snarf-tag-parameter-types(?tag-parameters)),
+                        _taglib);
+           ... }
+end macro taglib-definer;
+
+// define tag foo in tlib (page) () do-stuff end
+// define body tag foo in tlib (page, do-body) (foo, bar :: <integer>) do-stuff end
+//
+define macro tag-definer
+  // There are two syntaxes (one with the "body" modifier and one without) so that
+  // we can ensure that if the tag isn't supposed to have a body the body will be
+  // processed once and only once.  It sounds weird, but the alternative is to simply
+  // not display the body (if there is one), which might be very hard to debug, or
+  // to make the user remember to deal with the body in each tag.
+  { define tag ?tag:name ?taglib-spec
+        (?page:variable) (?tag-parameters:*)
+      ?:body
+    end }
+  => { define tag-aux #f ?tag ?taglib-spec
+           (?page, _do-body) (?tag-parameters)
+         ?body;       // semicolon is needed even when ?body ends in semicolon.
+         _do-body();  // process the tag body
+       end
+     }
+  { define body tag ?tag:name ?taglib-spec
+        (?page:variable, ?do-body:variable) (?tag-parameters:*)
+      ?:body
+    end }
+  => { define tag-aux #t ?tag ?taglib-spec
+           (?page, ?do-body) (?tag-parameters)
+         ?body
+       end
+     }
+
+  taglib-spec:
+    /* { } => { dsp } */
+    { in ?taglib:name } => { ?taglib }
+
+end tag-definer;
+
+
+define macro tag-aux-definer
+  { define tag-aux ?allow-body:expression ?tag:name ?taglib:name
+        (?page:variable, ?do-body:variable)
+        (?tag-parameters:*)
+      ?:body
+    end }
+  => { define method ?tag ## "-tag" (?page, ?do-body, #key ?tag-parameters, #all-keys)
+         ?body
+       end;
+       register-tag(make(<tag>,
+                         name: ?"tag",
+                         function: ?tag ## "-tag",
+                         allow-body?: ?allow-body,
+                         parameter-names: snarf-tag-parameter-names(?tag-parameters),
+                         parameter-types: snarf-tag-parameter-types(?tag-parameters)),
+                    ?"taglib");
+     }
+end tag-aux-definer;
+
+// snarf-tag-parameter-names(v1, v2 = t1, v3 :: t2, v4 :: t3 = d1)
+// TODO: accept "keyword: name :: type = default" parameter specs.
+define macro snarf-tag-parameter-names
+  { snarf-tag-parameter-names(?params) }
+    => { vector(?params) }
+  params:
+    { } => { }
+    { ?param, ... }
+      => { ?param, ... }
+  param:
+    { ?var:name ?rest:* }
+      => { ?#"var" }
 end;
 
-// This just strips out everything except "name: foo;"
-define macro taglib-aux1
-  { taglib-aux1(?name:expression, ?props) }
-  => { begin ?props end | ?name }
-props:
-  { }
-  => { #f }
-  { name: ?val:expression; ... }
-  => { ?val; ... }
-  // ---*** TODO: LHS should only allow a keyword.  Is that doable?
-  { ?key:expression ?val:*; ... }
-  => { ... }
+// snarf-tag-parameter-types(v1, v2 = t1, v3 :: t2, v4 :: t3 = d1)
+// TODO: accept "keyword: name :: type = default" parameter specs.
+define macro snarf-tag-parameter-types
+  { snarf-tag-parameter-types(?params) }
+    => { vector(?params) }
+  params:
+    { } => { }
+    { ?param, ... }
+      => { ?param, ... }
+  param:
+    { ?var:name }
+      => { <object> }
+    { ?var:name = ?default:expression }
+      => { <object> }
+    { ?var:name :: ?type:expression }
+      => { ?type }
+    { ?var:name :: ?type:expression = ?default:expression }
+      => { ?type }
 end;
 
-// This just strips out everything except "default-prefix: foo;"
-define macro taglib-aux2
-  { taglib-aux2(?name:expression, ?props) }
-  => { begin ?props end | ?name }
-props:
-  { }
-  => { #f }
-  { default-prefix: ?val:expression; ... }
-  => { ?val; ... }
-  { ?key:expression ?val:*; ... }
-  => { ... }
-end;
-
-// This just strips out everything except "named-methods: foo ...;"
-define macro taglib-aux3
-  { taglib-aux3(?taglib:expression, ?props) }
-  => { let _taglib = find-taglib(?taglib);
-       ?props }
-props:
-  { }
-  => { }
-  { named-methods: ?funs; ... }
-  => { ?funs; ... }
-  { ?key:expression ?val:expression; ... }
-  => { ... }
-funs:
-  { }
-  => { }
-  { ?fun:name, ... }
-  => { define named-method ?fun in _taglib; ... }
-  { ?fun:name = ?val:expression, ... }
-  => { define named-method ?fun in _taglib = ?val; ... }
+define function make-dummy-tag-call
+    (prefix :: <string>, name :: <string>) => (call :: <tag-call>)
+  make(<tag-call>,
+       name: name,
+       prefix: prefix,
+       tag: $placeholder-tag,
+       taglibs: #[])
 end;
 
 define method find-tag
@@ -343,12 +454,24 @@ define method register-taglib
 end;
 
 // All pages automatically have access to the following two taglibs.
-// These defs must follow the register-taglib def.
 define taglib %dsp () end;
 define constant $%dsp-taglib :: <taglib> = find-taglib("%dsp");
 
-define taglib dsp () end;
+define taglib dsp ()
+  body tag %%placeholder-for-unparsable-tags
+      (page :: <dylan-server-page>, process-body :: <function>)
+      ()
+    // todo -- allow user to configure whether this output is displayed.
+    //         e.g., you don't want it in a production setting.
+    begin
+      output(" TAG PARSE ERROR ");
+      process-body();
+    end;
+end taglib dsp;
+
 define constant $dsp-taglib :: <taglib> = find-taglib("dsp");
+
+define constant $placeholder-tag = find-tag($dsp-taglib, "%%placeholder-for-unparsable-tags");
 
 
 //// Named methods
@@ -643,113 +766,6 @@ end;
 define function output
     (format-string, #rest format-args)
   apply(format, output-stream(current-response()), format-string, format-args)
-end;
-
-// define tag foo in tlib (page) () do-stuff end
-// define body tag foo in tlib (page, do-body) (foo, bar :: <integer>) do-stuff end
-//
-define macro tag-definer
-  // There are two syntaxes (one with the "body" modifier and one without) so that
-  // we can ensure that if the tag isn't supposed to have a body the body will be
-  // processed once and only once.  It sounds weird, but the alternative is to simply
-  // not display the body (if there is one), which might be very hard to debug, or
-  // to make the user remember to deal with the body in each tag.
-  { define tag ?tag:name ?taglib-spec
-        (?page:variable) (?tag-parameters:*)
-      ?:body
-    end }
-  => { define tag-aux #f ?tag ?taglib-spec
-           (?page, _do-body) (?tag-parameters)
-         ?body;       // semicolon is needed even when ?body ends in semicolon.
-         _do-body();  // process the tag body
-       end
-     }
-  { define body tag ?tag:name ?taglib-spec
-        (?page:variable, ?do-body:variable) (?tag-parameters:*)
-      ?:body
-    end }
-  => { define tag-aux #t ?tag ?taglib-spec
-           (?page, ?do-body) (?tag-parameters)
-         ?body
-       end
-     }
-
-  taglib-spec:
-    /* { } => { dsp } */
-    { in ?taglib:name } => { ?taglib }
-
-end tag-definer;
-
-
-define macro tag-aux-definer
-  { define tag-aux ?allow-body:expression ?tag:name ?taglib:name
-        (?page:variable, ?do-body:variable)
-        (?tag-parameters:*)
-      ?:body
-    end }
-  => { define method ?tag ## "-tag" (?page, ?do-body, #key ?tag-parameters, #all-keys)
-         ?body
-       end;
-       register-tag(make(<tag>,
-                         name: ?"tag",
-                         function: ?tag ## "-tag",
-                         allow-body?: ?allow-body,
-                         parameter-names: snarf-tag-parameter-names(?tag-parameters),
-                         parameter-types: snarf-tag-parameter-types(?tag-parameters)),
-                    ?"taglib");
-     }
-end tag-aux-definer;
-
-// snarf-tag-parameter-names(v1, v2 = t1, v3 :: t2, v4 :: t3 = d1)
-// TODO: accept "keyword: name :: type = default" parameter specs.
-define macro snarf-tag-parameter-names
-  { snarf-tag-parameter-names(?params) }
-    => { vector(?params) }
-  params:
-    { } => { }
-    { ?param, ... }
-      => { ?param, ... }
-  param:
-    { ?var:name ?rest:* }
-      => { ?#"var" }
-end;
-
-// snarf-tag-parameter-types(v1, v2 = t1, v3 :: t2, v4 :: t3 = d1)
-// TODO: accept "keyword: name :: type = default" parameter specs.
-define macro snarf-tag-parameter-types
-  { snarf-tag-parameter-types(?params) }
-    => { vector(?params) }
-  params:
-    { } => { }
-    { ?param, ... }
-      => { ?param, ... }
-  param:
-    { ?var:name }
-      => { <object> }
-    { ?var:name = ?default:expression }
-      => { <object> }
-    { ?var:name :: ?type:expression }
-      => { ?type }
-    { ?var:name :: ?type:expression = ?default:expression }
-      => { ?type }
-end;
-
-define body tag %%placeholder-for-unparsable-tags in dsp
-    (page :: <dylan-server-page>, process-body :: <function>)
-    ()
-  format(current-response().output-stream, " TAG PARSE ERROR ");
-  process-body();
-end;
-
-define constant $placeholder-tag = find-tag($dsp-taglib, "%%placeholder-for-unparsable-tags");
-
-define function make-dummy-tag-call
-    (prefix :: <string>, name :: <string>) => (call :: <tag-call>)
-  make(<tag-call>,
-       name: name,
-       prefix: prefix,
-       tag: $placeholder-tag,
-       taglibs: #[])
 end;
 
 

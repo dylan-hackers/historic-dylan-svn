@@ -89,6 +89,8 @@ define body tag table in dsp
   write(stream, "<table");
   show-tag-call-attributes(stream, exclude: #[#"generator"]);
   write(stream, ">\n");
+  // Generator functions must return rows, but start-index and row-count
+  // are optional.
   let (rows, start-index, row-count) = generator(page);
   let len = size(rows);
   if (len == 0 | row-count == 0)
@@ -188,11 +190,12 @@ end;
 
 // Display a date.  If a key is given, it will be looked up in the
 // given scope and should be a <date>, which will then be displayed
-// according to timezone and style.
+// according to the given format (a la strftime).
+//
 // @see parse-tag-arg(<string>, <date>)
 //
 define tag show-date in dsp (page :: <dylan-server-page>)
- (timezone, style, date :: <date> = current-date(), key, scope)
+ (date :: <date> = current-date(), format, key, scope)
   //---TODO: Finish this.  For now it can only show the current date.
   date-to-stream(current-response().output-stream, date);
 end;
