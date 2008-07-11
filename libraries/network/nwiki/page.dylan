@@ -100,10 +100,11 @@ define method save-page
   end;
   let version-number :: <integer> = size(page.versions) + 1;
   if (version-number = 1 | (content ~= page.latest-text) | tags ~= page.latest-tags)
-    let version = make(<wiki-page-version>, content: 
-                       make(<raw-content>, content: content),
+    let version = make(<wiki-page-version>,
+                       content: make(<raw-content>, content: content),
                        authors: list(authenticated-user()),
-                       version: version-number, page: page,
+                       version: version-number,
+                       page: page,
 		       categories: tags & as(<vector>, tags));
     let comment = make(<comment>, name: as(<string>, action),
                        authors: list(authenticated-user().username),
@@ -114,8 +115,11 @@ define method save-page
     with-storage (pages = <wiki-page>)
       page.versions := add!(page.versions, version);
     end;
-    let change = make(<wiki-page-change>, title: title, version: version-number, 
-      action: action, authors: list(authenticated-user().username));
+    let change = make(<wiki-page-change>,
+                      title: title,
+                      version: version-number, 
+                      action: action,
+                      authors: list(authenticated-user().username));
     change.comments[0] := comment;
     save(page);
     save(change);
@@ -123,7 +127,7 @@ define method save-page
   
     generate-connections-graph(page);
   end if;
-end;
+end method save-page;
 
 define method generate-connections-graph (page :: <wiki-page>) => ();
   let graph = make(<graph>);
@@ -144,7 +148,7 @@ define method generate-connections-graph (page :: <wiki-page>) => ();
   if (file-exists?(graph-file))
     let destination = merge-locators(as(<file-locator>, 
 					concatenate("graphs/", page.title, ".svg")),
-  				     document-root(*virtual-host*));
+  				     document-root(virtual-host(current-request())));
     rename-file(graph-file, destination, if-exists: #"replace");
   end if;
 end;

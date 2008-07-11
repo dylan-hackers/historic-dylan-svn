@@ -6,7 +6,7 @@ define variable *directory* = "/";
 define constant $database-lock = make(<read-write-lock>);
 
 define sideways method process-config-element
-    (node :: <xml-element>, name == #"web-framework")
+    (server :: <http-server>, node :: <xml-element>, name == #"web-framework")
   let cdir = get-attr(node, #"content-directory");
   if (~cdir)
     log-warning("Web Framework - No content-directory specified!");
