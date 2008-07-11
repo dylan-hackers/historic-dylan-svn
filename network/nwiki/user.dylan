@@ -5,7 +5,8 @@ define thread variable *user-username* = #f;
 
 // class
 
-define constant <wiki-user> = <user>;
+define class <wiki-user> (<user>)
+end;
 
 define object-test (user) in wiki end;
 
@@ -75,28 +76,32 @@ define method save-user
   dump-data();
 end;
 
-define method rename-user
-    (username :: <string>, new-username :: <string>,
-     #key comment :: <string> = "")
+define generic rename-user
+    (user :: <object>, new-name :: <string>, #key comment :: false-or(<string>))
  => ();
-  let user = find-user(username);
-  if (user)
-    rename-user(user, new-username, comment: comment)
-  end if;
-end;
 
 define method rename-user
-    (user :: <wiki-user>, new-username :: <string>,
-     #key comment :: <string> = "")
- => ();
-  let comment = concatenate("was: ", user.username, ". ", comment);
+    (name :: <string>, new-name :: <string>,
+     #key comment :: false-or(<string>))
+ => ()
+  let user = find-user(name);
+  if (user)
+    rename-user(user, new-name, comment: comment)
+  end if;
+end method rename-user;
+
+define method rename-user
+    (user :: <wiki-user>, new-name :: <string>,
+     #key comment :: false-or(<string>))
+ => ()
+  let comment = concatenate("was: ", user.username, ". ", comment | "");
   remove-key!(storage(<wiki-user>), user.username);
-  user.username := new-username;
-  storage(<wiki-user>)[new-username] := user;
-  save-change(<wiki-user-change>, new-username, #"renaming", comment);
+  user.username := new-name;
+  storage(<wiki-user>)[new-name] := user;
+  save-change(<wiki-user-change>, new-name, #"renaming", comment);
   save(user);
   dump-data();
-end;
+end method rename-user;
 
 define method remove-user
     (user :: <wiki-user>,
@@ -164,7 +169,8 @@ define method do-save-user (#key username)
   let new-username = get-query-value("username");
   let password = get-query-value("password");
   let email = get-query-value("email");
-  let user = find-user(username);  
+  let user = find-user(username);
+  let comment = get-query-value("comment");
   let errors = #();
   
   if (~ instance?(username, <string>) | username = "" |

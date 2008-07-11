@@ -233,6 +233,9 @@ define module changes
     content, content-setter,
     published, published-setter;
 
+  // why is this being exported from a module named "changes"?  It conflicts
+  // with <uri> from the uri library, and it's really just <string> anyway.
+  // --cgay
   export <uri>;
   
   export <link>,
@@ -257,9 +260,9 @@ define module web-framework
   use simple-xml;
   use xml-parser,
     rename: { <element> => <xml-element> };
-  use koala,
+  use koala;
+  use dsp,
     exclude: { remove-attribute };
-  use dsp;
   use format;
   use uri;
 
