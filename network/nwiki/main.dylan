@@ -85,14 +85,6 @@ define url-map
     action get () => *main-page*;
 end;
 
-define function main () => ()
-  let config-file = if (application-arguments().size > 0)
-                      application-arguments()[0]
-                    end;
-  start-sockets();
-  start-server(config-file: config-file);
-end;
-
 begin
-  main()
+  koala-main()
 end;

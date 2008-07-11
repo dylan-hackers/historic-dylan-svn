@@ -4,9 +4,7 @@ define method do-feed ()
   let changes = sort(wiki-changes(), test: method (first, second)
 				             first.published > second.published
 					   end);
-  let feed-updated = if (size(changes) > 0)
-      first(changes).published
-    end if;
+  let feed-updated = ~empty?(changes) & first(changes).published;
   let feed-authors = #[];
   for (change in changes)
     for (author in change.authors)
@@ -14,19 +12,19 @@ define method do-feed ()
     end for;
   end for;
   let feed = make(<feed>,
-    generator: $generator,
-    title: "TITLE",
-    subtitle: "SUBTITLE",
-    updated: feed-updated | current-date(),
-    author: feed-authors,
-    categories: #[]);
-  let url = build-uri(current-url());
+                  generator: $generator,
+                  title: "TITLE",
+                  subtitle: "SUBTITLE",
+                  updated: feed-updated | current-date(),
+                  author: feed-authors,
+                  categories: #[]);
+  let url = build-uri(current-request().request-url);
   feed.identifier := url;
   feed.links["self"] := make(<link>, rel: "self", href: url);
 
   set-content-type(current-response(), "application/atom+xml");
-  format(output-stream(current-response()), "%s", generate-atom(feed, entries: changes));
-end;
+  output("%s", generate-atom(feed, entries: changes));
+end method do-feed;
 
 define method generate-atom (change :: <wiki-change>, #key)
   let author = find-user(first(change.authors));

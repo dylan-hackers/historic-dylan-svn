@@ -271,7 +271,7 @@ define method do-save-group-members (#key name)
                          map(find-user, member-list));
     do(rcurry(remove-member, group, comment:, comment), members);
   end if;
-  redirect-to(current-url());
+  redirect-to(request-url(current-request()));
 end method do-save-group-members;
 
 define method do-save-group-authorization (#key name)
@@ -287,7 +287,7 @@ define method do-save-group-authorization (#key name)
   save-change(<wiki-group-change>, name, #"edit", comment);
   save(group);
   dump-data();
-  redirect-to(current-url());
+  redirect-to(request-url(current-request()));
 end method do-save-group-authorization;
 
 define method do-save-group (#key name)

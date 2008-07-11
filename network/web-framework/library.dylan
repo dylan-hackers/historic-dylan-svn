@@ -36,7 +36,10 @@ define module storage
   use threads;
   use koala;
   use format-out;
-  use locators;
+  use locators,
+    exclude: { <http-server> };
+  use xml-parser,
+    rename: { <element> => <xml-element> };
 
   export storage,
     \with-storage,
@@ -254,7 +257,8 @@ define module web-framework
   use simple-xml;
   use xml-parser,
     rename: { <element> => <xml-element> };
-  use koala;
+  use koala,
+    exclude: { remove-attribute };
   use dsp;
   use format;
   use uri;
