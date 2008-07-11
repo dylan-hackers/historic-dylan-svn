@@ -975,24 +975,39 @@ define method process-request-content
 end method process-request-content;
 */
 
-define function send-error-response (request :: <request>, c :: <condition>)
+define function send-error-response
+    (request :: <request>, cond :: <condition>)
   block ()
-    send-error-response-internal(request, c);
-  exception (e :: <condition>)
-    log-error("An error occurred while sending error response. %=", e);
+    send-error-response-internal(request, cond);
+  exception (error :: <condition>)
+    log-error("An error occurred while sending error response. %=", error);
   end;
 end;
 
 
-define method send-error-response-internal (request :: <request>, err :: <error>)
+define method send-error-response-internal
+    (request :: <request>, err :: <error>)
   let headers = http-error-headers(err) | make(<header-table>);
-  let response = make(<response>, request: request, headers: headers);
+  let response = make(<response>,
+                      request: request,
+                      headers: headers);
   let one-liner = http-error-message-no-code(err);
   unless (request-method(request) == #"head")
     let out = output-stream(response);
     set-content-type(response, "text/plain");
-    write(out, condition-to-string(err));
+
+    // todo -- Display a pretty error page.
+    write(out, one-liner);
     write(out, "\r\n");
+
+    // Don't show internal error messages to the end user unless the server
+    // is being debugged.  It can give away too much information, such as the
+    // full path to a missing file on the server.
+    if (debugging-enabled?(*server*))
+      // todo -- display a backtrace
+      write(out, condition-to-string(err));
+      write(out, "\r\n");
+    end;
   end unless;
   response.response-code    := http-error-code(err);
   response.response-message := one-liner;
