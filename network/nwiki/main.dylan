@@ -88,5 +88,6 @@ define url-map on $wiki-http-server
 end url-map;
 
 begin
-  koala-main(server: $wiki-http-server)
+  koala-main(server: $wiki-http-server,
+             description: "Dylan wiki")
 end;
