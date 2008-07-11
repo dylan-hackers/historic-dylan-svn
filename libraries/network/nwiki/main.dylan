@@ -11,7 +11,9 @@ define function sort-table
     end);
 end function sort-table;
 
-define url-map
+define constant $wiki-http-server = make(<http-server>);
+
+define url-map on $wiki-http-server
   url "/recent-changes"
     action get () => *recent-changes-page*,
     action get ("^feed/?$") => do-feed;
@@ -83,7 +85,7 @@ define url-map
 
   url "/"
     action get () => *main-page*;
-end;
+end url-map;
 
 begin
   koala-main()

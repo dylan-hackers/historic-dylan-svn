@@ -130,20 +130,20 @@ define method save-page
 end method save-page;
 
 define method generate-connections-graph (page :: <wiki-page>) => ();
-  let graph = make(<graph>);
-  let node = create-node(graph, label: page.title);
+  let graph = make(gvr/<graph>);
+  let node = gvr/create-node(graph, label: page.title);
   let backlinks = find-backlinks(page);
   backlinks := map(title, backlinks);
-  add-predecessors(node, backlinks);
-  add-successors(node, last(page.versions).references);
-  for (node in graph.nodes)
-    node.attributes["URL"] := build-uri(page-permanent-link(node.label));
-    node.attributes["color"] := "blue";
-    node.attributes["style"] := "filled";
-    node.attributes["fontname"] := "Verdana"; 
-    node.attributes["shape"] := "note";
+  gvr/add-predecessors(node, backlinks);
+  gvr/add-successors(node, last(page.versions).references);
+  for (node in gvr/nodes(graph))
+    node.xml/attributes["URL"] := build-uri(page-permanent-link(node.label));
+    node.xml/attributes["color"] := "blue";
+    node.xml/attributes["style"] := "filled";
+    node.xml/attributes["fontname"] := "Verdana"; 
+    node.xml/attributes["shape"] := "note";
   end for;
-  let temporary-graph = generate-graph(graph, node, format: "svg");
+  let temporary-graph = gvr/generate-graph(graph, node, format: "svg");
   let graph-file = as(<file-locator>, temporary-graph);
   if (file-exists?(graph-file))
     let destination = merge-locators(as(<file-locator>, 

@@ -199,11 +199,11 @@ define named-method change-action=removal? in wiki (page :: <wiki-dsp>)
   *change* & *change*.change-action = #"removal";
 end;
 
-define method permission-error (action, #key)
+define sideways method permission-error (action, #key)
 //  respond-to(#"get", *not-logged-in-page*);  
 end;
 
-define method authentication-error (action, #key)
+define sideways method authentication-error (action, #key)
   respond-to(#"get", *not-logged-in-page*);
 end;
 

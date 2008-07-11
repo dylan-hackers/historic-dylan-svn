@@ -33,28 +33,30 @@ define module wiki
   use threads;
   use common-extensions,
     exclude: { format-to-string };
-  use locators;
+  use locators,
+    import: { <file-locator>,
+              merge-locators };
   use file-system;
   use date;
   use format;
   use format-out;
   use table-extensions;
-  use sockets;
   use streams;
-  use character-type;
   use substring-search;
-  use strings, import: { index-of, case-insensitive-equal? };
+  use strings,
+    import: { index-of };
   use regular-expressions;
-  use dsp, exclude: { join };
-  use web-framework, exclude: { slot-type };
+  use dsp,
+    exclude: { remove-attribute };
+  use web-framework,
+    exclude: { slot-type };
   use users;
   use storage;
-  use changes;
+  use changes,
+    exclude: { <uri> };
   use permission;
-  use xml-parser, 
-    rename: { <comment> => <xml-comment>, 
-              name => xml-name, 
-              name-setter => xml-name-setter };
+  use xml-parser,
+    prefix: "xml/";
   use simple-xml;
   use xml-rpc-client;
   use uri;
@@ -65,5 +67,7 @@ define module wiki
   use grammar;
   use simple-lexical-scanner;
 
-  use graphviz-renderer;
-end;
+  use graphviz-renderer,
+    prefix: "gvr/";
+end module wiki;
+
