@@ -15,9 +15,11 @@ define function count-chars
    tstart :: <integer>,
    tend :: <integer>)
  => (res :: <integer>)
- tend - tstart
+  tend - tstart
 end;
+
 define constant $base-url = "/wiki/view.dsp?title=";
+
 define constant $wiki-tokens
   = simple-lexical-definition
       token EOF;
