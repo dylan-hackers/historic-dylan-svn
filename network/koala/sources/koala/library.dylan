@@ -135,6 +135,7 @@ define module koala
   // Server startup/shutdown
   create
     <http-server>,
+    configure-server,
     start-server,
     stop-server,
     koala-main,
