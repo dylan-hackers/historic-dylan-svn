@@ -299,17 +299,6 @@ end;
 
 define thread variable *server* :: false-or(<server>) = #f;
 
-// This is called when the library is loaded (from main.dylan).
-define function init-server
-    (server :: <http-server>,
-     #key config-file :: false-or(<string>))
-  if (config-file)
-    configure-server(server, config-file);
-  end;
-  ensure-sockets-started();  // TODO: Can this be moved into start-server?
-  log-info("Server root directory is %s", server-root(server));
-end init-server;
-
 // API
 // This is what client libraries call to start the server.
 // Returns #f if there is an error during startup; otherwise #t.
@@ -319,14 +308,12 @@ end init-server;
 // 
 define function start-server
     (server :: <http-server>,
-     #key config-file :: false-or(<string>),
-          background :: <boolean> = #f,
+     #key background :: <boolean> = #f,
           wait :: <boolean> = #t)
  => (started? :: <boolean>)
   log-info("Starting %s HTTP Server", $server-name);
-  dynamic-bind (*server* = server)
-    init-server(server, config-file: config-file);
-  end;
+  ensure-sockets-started();
+  log-info("Server root directory is %s", server-root(server));
   for (listener in server.server-listeners)
     start-http-listener(server, listener)
   end;

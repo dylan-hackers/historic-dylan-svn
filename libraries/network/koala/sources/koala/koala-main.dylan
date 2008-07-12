@@ -53,9 +53,15 @@ define function koala-main
     block ()
       let _server = server | make(<http-server>);
 
-      // Setup listeners
+      // Configure first so that command-line argument override config settings.
+      let config-file = option-value-by-long-name(parser, "config");
+      if (config-file)
+        configure-server(server, config-file);
+      end;
+
+      // Setup listeners.
       let listeners = option-value-by-long-name(parser, "listen");
-      if (empty?(listeners))
+      if (empty?(listeners) & ~config-file)
         listeners := #["0.0.0.0:80"];
       end;
       for (listener in listeners)
@@ -63,9 +69,8 @@ define function koala-main
       end;
 
       _server.debugging-enabled? := option-value-by-long-name(parser, "debug");
+      start-server(_server);
 
-      start-server(_server,
-                   config-file: option-value-by-long-name(parser, "config"));
     exception (ex :: <error>)
       format(*standard-error*, "Error: %s\n", ex)
     end;

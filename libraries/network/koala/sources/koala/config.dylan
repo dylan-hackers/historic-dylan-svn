@@ -13,6 +13,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define constant $koala-config-dir :: <string> = "config";
 define constant $koala-config-filename :: <string> = "koala-config.xml";
 
+define thread variable %server = #f;
+
 define thread variable %dir = #f;
 
 // Holds the current vhost while config elements are being processed.
@@ -38,6 +40,7 @@ define function append-option
 end;
 */
 
+// API
 // Process the server config file, config.xml.
 // Assume a user directory structure like:
 // koala/
@@ -401,7 +404,7 @@ define method process-config-element
       remove-all-keys!(server.server-mime-type-map);
     end;
     with-output-to-string (stream)
-      dynamic-bind (*server* = server)
+      dynamic-bind (%server = server)
         // Transforming the document side-effects the server's mime type map.
         xml$transform-document(mime-xml, state: $mime-type, stream: stream);
       end;
@@ -417,7 +420,7 @@ define method xml$transform
      state :: <mime-type>,
      stream :: <stream>)
   let mime-type = get-attr(node, #"id");
-  let mime-type-map = server-mime-type-map(*server*);
+  let mime-type-map = server-mime-type-map(%server);
   for (child in xml$node-children(node))
     if (xml$name(child) = #"extension")
       mime-type-map[as(<symbol>, xml$text(child))] := mime-type;
