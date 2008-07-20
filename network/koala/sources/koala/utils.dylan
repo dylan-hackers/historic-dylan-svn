@@ -26,16 +26,16 @@ define class <expiring-mixin> (<object>)
     init-value: encode-day/time-duration(0, 1, 0, 0, 0),      // 1 hour
     init-keyword: #"duration";
   // When the object was last modified (e.g., loaded from a file).
-  slot mod-time :: false-or(<date>) = #f;
+  slot date-modified :: false-or(<date>) = #f;
 end;
 
 define method expired?
     (thing :: <expiring-mixin>)
  => (expired? :: <boolean>)
-  thing.mod-time == #f
+  thing.date-modified == #f
   | begin
       let now = current-date();
-      (now - thing.mod-time) < thing.duration
+      (now - thing.date-modified) < thing.duration
     end
 end method expired?;
 
