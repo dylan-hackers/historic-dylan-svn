@@ -36,6 +36,13 @@
 <debug-server value="on" />
 
 
+<!-- Controls whether to check template modification dates each time
+     the template is displayed, and reparse if necessary.  Obviously
+     when enabled this will slow down page rendering.  The default is
+     OFF.  -->
+<development-mode enabled="false" />
+
+
 <!-- There are three kinds of log file: debug, activity, and error.  The
      error log contains only actual error conditions encountered by the
      server.  The activity log is for logging information useful for
@@ -101,6 +108,13 @@
      of the default virtual host is "default".
   -->
 <dsp-root location="dsp" />
+
+
+<!-- Controls whether to check template modification dates each time
+     the template is displayed, and reparse if necessary.  Obviously
+     when enabled this will slow down page rendering.  The default is
+     OFF.  -->
+<development-mode enabled="false" />
 
 
 <!-- DIRECTORY elements can be used to grant or deny access to specific

@@ -798,14 +798,16 @@ end;
 // method, throwing an exception, etc.
 //
 define open method process-template (page :: <dylan-server-page>)
-  when (modified?(page)
-        | ~page-template(page)
-        | modified?(page-template(page)))
-    page.date-modified := file-property(source-location(page), #"modification-date");
+  when (~page-template(page)
+        | (development-mode?(current-server())
+           & (modified?(page) | modified?(page-template(page)))))
+    let source = source-location(page);
+    log-debug("Reparsing modified page %s", source);
+    page.date-modified := file-property(source, #"modification-date");
     page.page-template := parse-page(page);
   end;
   display-template(page.page-template, page);
-end;
+end method process-template;
 
 define method display-template
     (tmplt :: <dsp-template>, page :: <dylan-server-page>)

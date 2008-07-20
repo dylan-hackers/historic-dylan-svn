@@ -20,7 +20,12 @@ begin
                                      end);
 end;
 
-define class <server> (<sealed-constructor>)
+// API
+// The user instantiates this class directly, passing configuration options
+// as init args.  Using an alias for now instead of renaming <server>.  We'll
+// see how things progress.
+//
+define class <http-server> (<sealed-constructor>)
   // Whether the server should run in debug mode or not.  If this is true then
   // errors encountered while servicing HTTP requests will not be handled by the
   // server itself.  Normally the server will handle them and return an "internal
@@ -116,14 +121,16 @@ define class <server> (<sealed-constructor>)
     init-value: "koala_session_id",
     init-keyword: session-id:;
 
-end class <server>;
+  // Should be #f in a production setting.  So far only controls whether
+  // to check DSP template modification dates and reparse if needed.
+  slot development-mode? :: <boolean>,
+    init-value: #f,
+    init-keyword: development-mode:;
 
-// API
-// The user instantiates this class directly, passing configuration options
-// as init args.  Using an alias for now instead of renaming <server>.  We'll
-// see how things progress.
-//
-define constant <http-server> = <server>;
+end class <http-server>;
+
+// get rid of this eventually.  <http-server> is the new name.
+define constant <server> = <http-server>;
 
 define sealed method make
     (class == <server>, #rest keys, #key listeners)
@@ -297,7 +304,12 @@ define function ensure-sockets-started ()
   end;
 end;
 
-define thread variable *server* :: false-or(<server>) = #f;
+define thread variable *server* :: false-or(<http-server>) = #f;
+
+define inline function current-server
+    () => (server :: <http-server>)
+  *server*
+end function current-server;
 
 // API
 // This is what client libraries call to start the server.
