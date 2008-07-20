@@ -308,6 +308,19 @@ define method process-config-element
 end;
 
 
+// The main thing this controls right now is whether check template modification
+// dates and reparse them if needed.
+//
+define method process-config-element
+    (server :: <http-server>, node :: xml$<element>, name == #"development-mode")
+  let enabled? = get-attr(node, #"enabled");
+  let enabled? = enabled? & true-value?(enabled?);
+  server.development-mode? := enabled?;
+  log-info("Development mode is %s.",
+           if (enabled?) "on" else "off" end)
+end method process-config-element;
+
+
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"log")
   let type = get-attr(node, #"type");

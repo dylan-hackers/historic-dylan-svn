@@ -130,7 +130,10 @@ end module utilities;
 
 define module koala
   //needed for last-modified stuff
-  create get-header, request-method-setter, not-modified;
+  create
+    get-header,
+    request-method-setter,
+    not-modified;
 
   // Server startup/shutdown
   create
@@ -140,6 +143,11 @@ define module koala
     stop-server,
     koala-main,
     *argument-list-parser*;
+
+  // Servers
+  create
+    current-server,
+    development-mode?;
 
   // Requests
   create
