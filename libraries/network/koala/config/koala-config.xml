@@ -180,17 +180,10 @@
 
 </virtual-host>
 
-<!-- For the wiki example project.  Set the content-directory
-     to wherever you want the content of the wiki pages to be
-     stored. -->
-<!--
-<wiki content-directory = "www/wiki/content" />
--->
 
-<!-- For the buddha example project.  Set the content-directory
-     to wherever you want the dood-dumps of buddha to be stored. -->
-<!--
-<buddha content-directory = "www/buddha/" />
--->
+<!-- For the web-framework library and its clients, e.g. wiki.
+     Set the content-directory to wherever you want content (e.g.,
+     wiki pages, user database, etc to be stored. -->
+<web-framework content-directory = "www/wiki" />
 
 </koala>

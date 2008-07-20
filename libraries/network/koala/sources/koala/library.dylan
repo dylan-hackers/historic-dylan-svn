@@ -80,8 +80,8 @@ define module utilities
 
     <expiring-mixin>,
     expired?,
-    mod-time,
-    mod-time-setter,
+    date-modified,
+    date-modified-setter,
 
     // Attributes
     <attributes-mixin>,

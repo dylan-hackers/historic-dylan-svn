@@ -181,18 +181,17 @@ define method source-location
   let loc :: <locator> = page.page-source;
   if (locator-relative?(loc))
     let newloc = simplify-locator(merge-locators(loc, root-directory(page)));
-    log-debug("source-location: newloc = %s", as(<string>, newloc));
     if (locator-below-root?(newloc, root-directory(page)))
       newloc
     else
-      log-debug("Attempt to access a document outside the document root: %s",
-                as(<string>, newloc));
+      log-warning("Attempt to access a document outside the document root: %s",
+                  as(<string>, newloc));
       access-forbidden-error(); // 403
     end
   else
     loc
   end
-end;
+end method source-location;
 
 define method page-directory
     (page :: type-union(<file-page-mixin>, <dylan-server-page>))
@@ -200,11 +199,11 @@ define method page-directory
   locator-directory(source-location(page))
 end;
 
-define method page-source-modified?
+define method modified?
     (page :: <file-page-mixin>) => (modified? :: <boolean>)
   block ()
-    ~ page.mod-time
-      | file-property(source-location(page), #"modification-date") > page.mod-time
+    ~date-modified(page)
+      | file-property(source-location(page), #"modification-date") > page.date-modified
   exception (e :: <error>)
     #t  // i figure we want an error to occur if, say, the file was deleted.
   end
@@ -223,9 +222,8 @@ define open primary class <static-page> (<file-page-mixin>, <page>)
 end;
 
 define method respond-to (request-method == #"get", page :: <static-page>)
-  if (page-source-modified?(page))
-    page.mod-time := file-property(source-location(page),
-                                   #"modification-date");
+  if (modified?(page))
+    page.date-modified := file-property(source-location(page), #"modification-date");
     page.contents := file-contents(source-location(page));
   end if;
   if (page.contents)
@@ -727,20 +725,25 @@ define method as
 end;
 
         
-
 // A <dsp-template> represents the items in a parsed .dsp file, or part thereof.
+//
 define class <dsp-template> (<object>)
-  constant slot contents :: <string>, required-init-keyword: #"contents";
+  constant slot contents :: <string>,
+    required-init-keyword: contents:;
   // When the the bug that prevents the <substring> class from working
   // is fixed, nuke these two slots.
-  constant slot content-start :: <integer>, required-init-keyword: #"content-start";
-           slot content-end   :: <integer>, required-init-keyword: #"content-end";
+  constant slot content-start :: <integer>,
+    required-init-keyword: content-start:;
+  slot content-end :: <integer>,
+    required-init-keyword: content-end:;
   constant slot entries :: <stretchy-vector>,
     init-function: curry(make, <stretchy-vector>);
-  // This is as-yet unused.
-  // Pretty sure it was originally put here for error reporting purposes.
-  constant slot source :: false-or(<locator>) = #f, init-keyword: #"source";
-  //       slot mod-date;  ---*** TODO
+  constant slot source :: false-or(<locator>),
+    init-value: #f,
+    init-keyword: source:;
+  slot date-modified :: false-or(<date>),
+    init-value: #f,
+    init-keyword: date-modified:;
 end class <dsp-template>;
 
 define method add-entry!
@@ -748,6 +751,20 @@ define method add-entry!
   add!(tmplt.entries, entry);
 end;
 
+// A template is considered modified if its source has been updated or
+// any of its subtemplates have been modified.
+//
+define method modified?
+    (tmplt :: <dsp-template>) => (modified? :: <boolean>)
+  (tmplt.source
+   & (~tmplt.date-modified
+      | file-property(tmplt.source, #"modification-date") > tmplt.date-modified))
+  | any?(method (entry)
+           instance?(entry, <dsp-template>) & modified?(entry)
+         end,
+         tmplt.entries)
+end method modified?;
+  
 
 //
 // Dylan Server Pages
@@ -781,9 +798,10 @@ end;
 // method, throwing an exception, etc.
 //
 define open method process-template (page :: <dylan-server-page>)
-  when (page-source-modified?(page) | ~ page.page-template)
-    page.mod-time := file-property(source-location(page),
-                                   #"modification-date");
+  when (modified?(page)
+        | ~page-template(page)
+        | modified?(page-template(page)))
+    page.date-modified := file-property(source-location(page), #"modification-date");
     page.page-template := parse-page(page);
   end;
   display-template(page.page-template, page);
@@ -791,7 +809,9 @@ end;
 
 define method display-template
     (tmplt :: <dsp-template>, page :: <dylan-server-page>)
-  log-debug("Displaying template %s", tmplt.source | "not set");
+  if (tmplt.source)
+    log-debug("Displaying template %s", tmplt.source);
+  end;
   let stream = current-response().output-stream;
   for (item in tmplt.entries)
     select (item by instance?)
@@ -827,13 +847,13 @@ define method parse-page
     resource-not-found-error(url: current-request().request-url);
   else
     page.contents := string;
-    page.mod-time := file-property(source-location(page),
-                                   #"modification-date");
+    page.date-modified := file-property(source-location(page), #"modification-date");
     let tmplt = make(<dsp-template>,
                      contents: string,
                      content-start: 0,
                      content-end: size(string),
-                     source: source-location(page));
+                     source: source-location(page),
+                     date-modified: current-date());
     parse-template(page, tmplt, initial-taglibs-for-parse-template(), list());
     tmplt
   end;
@@ -904,7 +924,8 @@ define function parse-include-directive
                            source: source,
                            contents: contents,
                            content-start: 0,
-                           content-end: size(contents));
+                           content-end: size(contents),
+                           date-modified: current-date());
     parse-template(page, subtemplate, initial-taglibs-for-parse-template(), tag-stack);
     add-entry!(tmplt, subtemplate);
   else
@@ -983,7 +1004,7 @@ define function parse-taglib-directive
   body-start
 end;
 
-define constant $debugging-templates :: <boolean> = #t;
+define constant $debugging-templates :: <boolean> = #f;
 
 define function pt-debug
     (format-string, #rest args)
@@ -1017,7 +1038,6 @@ define method parse-template (page :: <dylan-server-page>,
            scan-pos, end-tag);
   block (return)
     while (scan-pos < epos)
-
       let tag-start :: false-or(<integer>) = char-position('<', buffer, scan-pos, epos);
       if (~tag-start)
         // put the remainder of the buffer in the template as a string.
