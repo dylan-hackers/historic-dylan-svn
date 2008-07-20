@@ -30,16 +30,18 @@ Dylan Language
 testworks
 =========
 
-+ It would be cool if there were support for not-yet-implemented in testworks-specs.
-  I.e., when a module spec is first generated it could fill in each test with a call
-  to test-not-implemented(test-name) so you could see in the results what percentage
-  of the spec is covered (roughly).  Or perhaps it could automatically do this if the
-  body of the test is empty (i.e., only hase "// Fill me in ...").
-
-  Housel suggests marking a test unimplemented if it executes no checks.
-
 + my-test-suite-app --list-tests and/or --list-suites and/or --list-all  
 
++ [Not really testworks, but...]
+  Export Test Suite Skeleton can generate invalid module specs.  The one it generated
+  for regular-expressions had a bad ')' in  ::
+
+      constant <invalid-regex> :: <object>);
+
+  which is defined as ::
+
+      defne constant <invalid-regex> = <illegal-regex>;
+      
 
 common-dylan
 ============
@@ -135,6 +137,9 @@ Differences:
 
 Koala
 =====
+
++ Should probably be using <internet-address>es instead of <string>s, at least
+  for the <listener> class.
 
 + Interesting discussion about URL query values:
   http://lists.w3.org/Archives/Public/ietf-http-wg/2004JulSep/0009.html
@@ -257,3 +262,11 @@ dylan-module.org
 
 
 [1] People have raised the possibility of trademark issues for these names.
+
+
+Other Dylan Sources
+===================
+
+http://www.turbolent.com/~turbo24prg/projects/turboblog
+
+new wiki, blog software
