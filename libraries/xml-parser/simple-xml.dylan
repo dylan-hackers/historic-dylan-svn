@@ -140,12 +140,12 @@ define macro with-xml
    { ?:name ( ?value:expression ) }
     => { list(make(<element>,
                    children: list(make(<char-string>,
-                                       text: escape-xml(?value))),
+                                       text: ?value)),
                    name: ?"name")) }
    { ?:name ( ?value:expression, ?attribute-list ) }
     => { list(make(<element>,
                    children: list(make(<char-string>,
-                                        text: escape-xml(?value))),
+                                        text: ?value)),
                    name: ?"name",
                    attributes: vector(?attribute-list))) }
    { ?:name ( ?attribute-list ) }
