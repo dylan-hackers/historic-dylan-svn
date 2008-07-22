@@ -4,7 +4,6 @@ files:	library
 	latin1-entities
 	transform
 	printing
-	collect
 	productions
 	simple-xml
   stream-parser

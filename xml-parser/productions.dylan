@@ -64,7 +64,7 @@ define function parse-document (doc :: <string>,
   if(dtd-paths) *dtd-paths* := dtd-paths; end if;
   let (index, document) = scan-document-helper(doc, start: start, end: stop);
   if (document)
-    transform-document(document, state: make(<add-parents>));
+    transform(document, make(<add-parents>));
     document;
   end if;
 end function parse-document;
@@ -292,7 +292,7 @@ end collector cd-sect;
 define collector prolog(decl, misc, doctype) => (str)
   {[scan-xml-decl(decl), do(collect(decl))], []},
   {[scan-miscs(misc), do(do(collect, misc))], []},
-  {scan-doctypedecl(doctype), []},
+  {[scan-doctypedecl(doctype), do(collect(doctype))], []},
   {[scan-miscs(misc), do(do(collect, misc))], []}, []
 end collector prolog;
 
@@ -353,7 +353,8 @@ end meta decl-sep;
 //
 // we'll add a returned dtd after developing the element-decl's etc.
 // => (make(<dtd>, name: name, sys-id: sys-id, pub-id: pub-id, sys/pub: which))
-define meta doctypedecl(s, name, sys-id, pub-id, which, markup)
+define meta doctypedecl(s, name, sys-id, pub-id, which, markup) 
+ => (make(<dtd>, name: name, sys-id: sys-id, pub-id: pub-id, sys/pub: which))
   "<!DOCTYPE", scan-s(s), scan-name(name), 
   yes!(*defining-entities?*),
   {[scan-s(s), scan-external-id(sys-id, which, pub-id),
@@ -868,7 +869,7 @@ end meta reference;
 
 //-------------------------------------------------------
 // entity tables
-define thread variable *pe-refs* = make(<table>);
+define thread variable *pe-refs* = make(<string-table>);
 define thread variable *substitute-entities?* :: <boolean> = #t;
 define thread variable *defining-entities?* :: <boolean> = #f;
 
@@ -1145,15 +1146,13 @@ define collect-value encoding-info(eq, c) () "'", "\"" => { } end;
 define thread variable *parent* = #f;
 define class <add-parents> (<xform-state>) end;
 
-define method before-transform(node :: type-union(<element>, <document>),
-                               state :: <add-parents>,
-                               rep :: <integer>, str :: <stream>)
-  *parent* := node;
-end method before-transform;
+define method transform(node :: <document>, state :: <add-parents>)
+  *parent* := node.root;
+end method transform;
 
-define method transform(elt :: <element>, tag-name :: <symbol>,
-                        state :: <add-parents>, str :: <stream>)
+define method transform(elt :: <element>, state :: <add-parents>)
   elt.element-parent := *parent*;
-  *parent* := elt;  // is this rebind superfluous?  Seems to work okay
-  next-method();
+  dynamic-bind(*parent* = elt)
+    next-method();
+  end;
 end method transform;

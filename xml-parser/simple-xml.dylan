@@ -85,26 +85,6 @@ generates:
 </html>
 */
 
-define method escape-xml (symbol :: <symbol>) => (res :: <symbol>)
-  as(<symbol>, escape-xml(as(<string>, symbol)))
-end method escape-xml;
-
-define method escape-xml (string :: <string>) => (res :: <string>)
-  let res = "";
-  for (char in string)
-    if (char = '>')
-      res := concatenate(res, "&gt;");
-    elseif (char = '<')
-      res := concatenate(res, "&lt;");
-    elseif (char = '&')
-      res := concatenate(res, "&amp;");
-    else
-      res := add!(res, char)
-    end;
-  end;
-  res;
-end method escape-xml;
-
 define macro with-xml-builder
   { with-xml-builder ()
       ?body:*
@@ -112,7 +92,7 @@ define macro with-xml-builder
    => { begin
           let doc = make(<document>,
                          children: list(with-xml() ?body end));
-          transform-document(doc, state: make(<add-parents>));
+          transform(doc, make(<add-parents>));
           doc;
         end; }
 end macro with-xml-builder;
@@ -126,7 +106,7 @@ define macro with-xml
   element:
    { ?:name } => { list(make(<element>, name: ?"name")) }
    { text ( ?value:expression ) } => { list(make(<char-string>,
-                                                 text: escape-xml(?value))) }
+                                                 text: ?value)) }
    { !attribute(?attribute) }
     => { list(?attribute) }
    { do(?:body) }
@@ -328,15 +308,16 @@ define method replace-element-text (element :: <element>, node :: <string>, text
   else
     replace-element := first(replace-elements);
   end if;
-  replace-element.text := escape-xml(text);
+  replace-element.text := text;
 end method replace-element-text;
 
 define method start-tag (element :: <element>)
  => (tag :: <string>);
   let stream = make(<string-stream>, direction: #"output");
-  print-opening(element, *printer-state*, stream);
-  print-attributes(element.attributes, *printer-state*, stream);
-  print-closing("", stream);
+  let state = make(<printing>, stream: stream);
+  print-opening(element, stream);
+  print-attributes(element.attributes, state);
+  print-closing(element, stream);
   stream-contents(stream);
 end method start-tag;
 

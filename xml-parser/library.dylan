@@ -6,7 +6,7 @@ define library xml-parser
   //use multimap;
   use meta;
   use io;
-  use system, import: { file-system };
+  use system, import: { file-system, threads };
 
   export xml-parser,
     xml-stream-parser,
@@ -34,12 +34,9 @@ define module xml-parser
     expansion, expansion-setter, comment, comment-setter;
 
   // for printing
-  create <printing>, xml-name,
-    *xml-depth*, *open-the-tag*, *close-the-tag*, *ampersand*, *printer-state*;
+  create <printing>, xml-name, escape-xml;
 
-    // for iteration
-  create node-iterator, prepare-document;
-  create transform, transform-document, before-transform, <xform-state>;
+  create transform, <xform-state>;
 end module xml-parser;
 
 define module interface
@@ -76,7 +73,9 @@ define module printing
   use streams;
   use format;
   use print;
+  use pprint;
   use anaphora;
+  use threads;
 
   use xml-parser;
 
@@ -85,16 +84,6 @@ define module printing
   
   create print-opening, print-attributes, print-closing;
 end module printing;
-
-define module collect
-  use common-dylan, exclude: { format-to-string };
-  use streams;
-  use format;
-  use anaphora;
-  use xml-parser, rename: { attribute-value => value,
-                           attribute-value-setter => value-setter };
-  use interface;
-end module collect;
 
 define module %productions
   use common-dylan, exclude: { format-to-string };
@@ -107,6 +96,7 @@ define module %productions
   use anaphora;
   use file-system, import: { with-open-file, file-exists? };
   use print;
+  use threads;
 
   use meta;
   use interface;
@@ -120,12 +110,11 @@ define module simple-xml
   use common-dylan;
   use common-extensions;
   use streams;
-  use xml-parser;
+  use xml-parser, export: { escape-xml };
   use printing;
 
   export \with-xml,
     \with-xml-builder,
-    escape-xml,
     attribute,
     elements,
     add-attribute,
