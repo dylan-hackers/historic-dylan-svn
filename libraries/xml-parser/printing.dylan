@@ -210,6 +210,10 @@ define method escape-xml (string :: <string>) => (res :: <string>)
       res := concatenate(res, "&lt;");
     elseif (char = '&')
       res := concatenate(res, "&amp;");
+    elseif (char = '\'')
+      res := concatenate(res, "&apos;");      
+    elseif (char = '"')
+      res := concatenate(res, "&quot;");      
     else
       res := add!(res, char)
     end;
@@ -223,13 +227,7 @@ end method print-object;
 
 define function print-escaped-quotes(string :: <string>, stream :: <stream>) => ()
   write-element(stream, '"');
-  for(ch in string)
-    if (ch == '"')
-      write(stream, "\\\"");
-    else
-      write-element(stream, ch);
-    end;
-  end;
+  write(stream, escape-xml(string));
   write-element(stream, '"');
 end;
 
