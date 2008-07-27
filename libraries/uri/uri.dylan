@@ -19,7 +19,7 @@ define class <uri> (<object>)
     init-keyword: query:;
   slot uri-fragment :: <string> = "",
     init-keyword: fragment:;
-end;
+end class <uri>;
 
 // FIXME -- Implement the following restrictions in the initialize method
 //          for the <uri> class...
@@ -27,13 +27,23 @@ end;
 //   empty (no characters).  When authority is present, the path must
 //   either be empty or begin with a slash ("/") character.  When
 //   authority is not present, the path cannot begin with two slash
-//   characters ("//").
+//   characters ("//").  When authority is present it must have a host
+//   component.
+//   Need an error class for these.  e.g., <invalid-uri-error>
 
 define class <url> (<uri>) end;
 
+define method has-authority-part?
+    (uri :: <uri>) => (has-it? :: <boolean>)
+  ~empty?(uri.uri-userinfo) | ~empty?(uri.uri-host) | (uri.uri-port ~= #f)
+end method has-authority-part?;
+
+
+// RFC 3986, Section 3.2
+//       authority   = [ userinfo "@" ] host [ ":" port ]
 define method uri-authority
     (uri :: <uri>)
- => (result :: <string>);
+ => (result :: <string>)
   let result = "";
   unless (empty?(uri.uri-userinfo))
     result := concatenate(result, percent-encode(#"userinfo", uri.uri-userinfo), "@");
@@ -43,8 +53,10 @@ define method uri-authority
     result := concatenate(result, ":", integer-to-string(uri.uri-port));  
   end if;
   result;
-end;
+end method uri-authority;
 
+// Could use alpha?() and digit?() from string-extensions.
+// Why are these not strings?
 define constant $alpha =
   #('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -75,7 +87,7 @@ define constant $uri-regex :: <regex>
 
 define method parse-uri-as
     (class :: subclass(<uri>), uri :: <string>)
- => (result :: <uri>);
+ => (result :: <uri>)
   let (uri, _scheme, scheme, _authority, authority,
        _userinfo, userinfo, host, _port, port,
        path, _query, query, _fragment, fragment)
@@ -104,7 +116,7 @@ define method parse-uri-as
     uri.uri-path := remove-dot-segments(uri.uri-path);
   end if;
   uri;
-end;
+end method parse-uri-as;
 
 define constant parse-uri = curry(parse-uri-as, <uri>);
 
@@ -179,23 +191,27 @@ define open generic build-uri (uri :: <uri>)  => (result :: <string>);
 
 define method build-uri
     (uri :: <uri>)
- => (result :: <string>);
-  let result :: <string> = "";
+ => (result :: <string>)
+  let parts :: <stretchy-vector> = make(<stretchy-vector>);
   unless (empty?(uri.uri-scheme))
-    result := concatenate(result, uri.uri-scheme, ":");
+    add!(parts, uri.uri-scheme);
+    add!(parts, ":")
   end;
-  unless (empty?(uri.uri-authority))
-    result := concatenate(result, "//", uri.uri-authority);
+  if (has-authority-part?(uri))
+    add!(parts, "//");
+    add!(parts, uri.uri-authority);
   end;
-  result := concatenate(result, build-path(uri));
+  add!(parts, build-path(uri));
   unless (empty?(uri.uri-query))
-    result := concatenate(result, "?", build-query(uri));
+    add!(parts, "?");
+    add!(parts, build-query(uri));
   end;
   unless (empty?(uri.uri-fragment))
-    result := concatenate(result, "#", uri.uri-fragment);
+    add!(parts, "#");
+    add!(parts, uri.uri-fragment);
   end;
-  result;
-end;
+  join(parts, "")
+end method build-uri;
 
 // build-path
 
@@ -343,58 +359,66 @@ define method remove-dot-segments (path :: <sequence>) => (result :: <sequence>)
   output;
 end;
 
-define method transform-uris (base :: <uri>, reference :: <uri>, 
- #key as :: subclass(<uri>) = <uri>) => (target :: <uri>);
+// Why is this called transform-uris?  It seems mork like a merge.
+// It could use some documentation.  --cgay
+//
+define method transform-uris
+    (base :: <uri>, reference :: <uri>, 
+     #key as :: subclass(<uri>) = <uri>)
+ => (target :: <uri>)
   local method merge (base, reference)
-      if (~empty?(base.uri-authority) & empty?(base.uri-path))
+      if (has-authority-part?(base) & empty?(base.uri-path))
+        // what's this about?  --cgay
         concatenate(#(""), reference.uri-path);
       else
-	concatenate(copy-sequence(base.uri-path, end: base.uri-path.size - 1), reference.uri-path)
+	concatenate(copy-sequence(base.uri-path, end: base.uri-path.size - 1),
+                    reference.uri-path)
       end if;
     end;
   let target = make(as);
   if (~empty?(reference.uri-scheme))
     target.uri-scheme := reference.uri-scheme;
-    // target.uri-authority = reference.uri-authority;
-      target.uri-userinfo := reference.uri-userinfo;
-      target.uri-host := reference.uri-host;
-      target.uri-port := reference.uri-port;
+    target.uri-userinfo := reference.uri-userinfo;
+    target.uri-host := reference.uri-host;
+    target.uri-port := reference.uri-port;
     target.uri-path := remove-dot-segments(reference.uri-path);
     target.uri-query := reference.uri-query;
   else
-    if (~empty?(reference.uri-authority))
-      // target.uri-authority = reference.uri-authority;
-        target.uri-userinfo := reference.uri-userinfo;
-        target.uri-host := reference.uri-host;
-        target.uri-port := reference.uri-port;
+    if (has-authority-part?(reference))
+      target.uri-userinfo := reference.uri-userinfo;
+      target.uri-host := reference.uri-host;
+      target.uri-port := reference.uri-port;
       target.uri-path := remove-dot-segments(reference.uri-path);
       target.uri-query := reference.uri-query;
     else
+      // reference's scheme and authority were both empty...
       if (empty?(reference.uri-path))
         target.uri-path := base.uri-path;
-        if (~empty?(reference.uri-query))
-          target.uri-query := reference.uri-query;
-        else
-          target.uri-query := base.uri-query;
-        end if;
+        target.uri-query := if (empty?(reference.uri-query))
+                              base.uri-query
+                            else
+                              reference.uri-query
+                            end;
       else
-        if (~empty?(reference.uri-path) & first(reference.uri-path) = "")
-          target.uri-path := remove-dot-segments(reference.uri-path);
-        else
-          target.uri-path := remove-dot-segments(merge(base, reference));  
-	end if;
+        target.uri-path := if (~empty?(reference.uri-path)
+                                 // what's this for???  --cgay
+                                 & first(reference.uri-path) = "")
+                             remove-dot-segments(reference.uri-path)
+                           else
+                             remove-dot-segments(merge(base, reference))
+                           end;
         target.uri-query := reference.uri-query;
       end if;
-      // target.uri-authority = base.uri-authority;
-        target.uri-userinfo := base.uri-userinfo;
-        target.uri-host := base.uri-host;    
-        target.uri-port := base.uri-port;
+      target.uri-userinfo := base.uri-userinfo;
+      target.uri-host := base.uri-host;    
+      target.uri-port := base.uri-port;
     end if;
     target.uri-scheme := base.uri-scheme;
   end if;
+  // Why is the reference fragment used unconditionally?  --cgay
   target.uri-fragment := reference.uri-fragment;
   target;
-end;
+end method transform-uris;
 
 define method print-message (uri :: <uri>, stream :: <stream>) => ();
   format(stream, "%s", build-uri(uri))
