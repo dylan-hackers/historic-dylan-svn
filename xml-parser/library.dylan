@@ -29,7 +29,7 @@ define module xml-parser
     attribute-value, attribute-value-setter,
     node-children, node-children-setter, 
     element-parent, element-parent-setter,
-    collect-elements, make-element, sys-id, pub-id, sys/pub,
+    make-element, sys-id, pub-id, sys/pub,
     internal-declarations, internal-declarations-setter,
     expansion, expansion-setter, comment, comment-setter;
 
