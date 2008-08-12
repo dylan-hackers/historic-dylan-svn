@@ -802,7 +802,9 @@ define open method process-template (page :: <dylan-server-page>)
         | (development-mode?(current-server())
            & (modified?(page) | modified?(page-template(page)))))
     let source = source-location(page);
-    log-debug("Reparsing modified page %s", source);
+    if (page-template(page))
+      log-debug("Reparsing modified page %s", source);
+    end;
     page.date-modified := file-property(source, #"modification-date");
     page.page-template := parse-page(page);
   end;
