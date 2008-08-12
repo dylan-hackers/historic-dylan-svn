@@ -202,7 +202,7 @@ define module changes
     title, title-setter,
     updated, updated-setter,
     comments, comments-setter,
-    comments-count;
+    inc-comments-count!;
 
   export <category>,
     term, term-setter,

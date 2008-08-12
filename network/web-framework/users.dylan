@@ -112,13 +112,15 @@ define function authenticate ()
   let authorization = header-value(#"authorization");
   if (authorization)
     let user = find-user(head(authorization));
-    *authenticated-user* := if (user & user.password = tail(authorization) &
-        ~member?(user, *ignore-authorizations*, test: \=) &
-        ~member?(user, *ignore-logins*, test: \=)) //???
-          user;
-      end if;
-  end if;
-end;
+    *authenticated-user*
+      := if (user
+               & user.password = tail(authorization)
+               & ~member?(user, *ignore-authorizations*, test: \=)
+               & ~member?(user, *ignore-logins*, test: \=)) //???
+           user
+         end;
+  end
+end function authenticate;
 
 define function require-authorization (#key realm :: <string> = "koala")
   let headers = current-response().response-headers;

@@ -1,7 +1,7 @@
 module: storage
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define variable *directory* = "/";
+define variable *content-directory* = #f;
 
 define constant $database-lock = make(<read-write-lock>);
 
@@ -11,10 +11,10 @@ define sideways method process-config-element
   if (~cdir)
     log-warning("Web Framework - No content-directory specified!");
   else
-    *directory* := cdir;
+    *content-directory* := cdir;
   end;
-  log-info("Web framework content directory = %s", *directory*);
-  restore-newest(*directory*);
+  log-info("Web framework content directory = %s", *content-directory*);
+  restore-newest(*content-directory*);
 end;
 
 define macro getter-and-setter
@@ -71,7 +71,8 @@ define macro define-class
 
   slot:
     { } => { }
-    { ?args:* slot ?:name :: ?slot-type:expression ?rest:* } => { ?args slot "%" ## ?name :: ?slot-type ?rest }
+    { ?args:* slot ?:name :: ?slot-type:expression ?rest:* }
+    => { ?args slot "%" ## ?name :: ?slot-type ?rest }
 end;
 
 define variable *storage* = make(<table>);
@@ -150,10 +151,10 @@ define class <storage> (<object>)
   constant slot table-version = *version*;
 end;
 
-define constant $filename = last(split(application-name(), '/'));
+define constant $filename = last(split(application-name(), file-system-separator()));
 
 define inline function generate-filename () => (res :: <string>)
-  concatenate(*directory*, $filename, ".", integer-to-string(*version*));
+  concatenate(*content-directory*, $filename, ".", integer-to-string(*version*));
 end;
 
 define function really-dump-all-data () => ()
@@ -229,7 +230,9 @@ define function do-dump ()
                  end);
 end;
 
-define function dumper (#key interval :: <integer> = 300, do-something :: false-or(<function>) = #f) => ()
+define function dumper
+    (#key interval :: <integer> = 300, do-something :: false-or(<function>) = #f)
+ => ()
   make(<thread>,
        function: method()
                      sleep(23);
