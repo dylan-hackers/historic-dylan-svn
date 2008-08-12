@@ -59,10 +59,13 @@ define method output-stream
     (response :: <response>) => (stream :: <stream>)
   response.%output-stream
   | if (response-buffered?(response))
-      // The user can override this if they do it before writing to the
-      // output stream.
-      set-content-type(response, default-dynamic-content-type(*virtual-host*),
-                       if-exists?: #"ignore");
+      // If no virtual host then this is an error response.
+      if (*virtual-host*)
+        // The user can override this if they do it before writing to the
+        // output stream.
+        set-content-type(response, default-dynamic-content-type(*virtual-host*),
+                         if-exists?: #"ignore");
+      end;
       response.%output-stream := make(<string-stream>, direction: #"output");
     else
       signal(make(<koala-error>,
@@ -127,23 +130,28 @@ define method send-headers
   headers-sent?(response) := #t;
 end;
 
+// Send a response back to the client.  This is used for sending error
+// responses as well as normal responses.  For error responses we can't
+// assume there was a valid request.
+//
 define method send-response
     (response :: <response>) => ()
   let stream :: <stream> = request-socket(get-request(response));
   let req :: <request> = get-request(response);
   unless (headers-sent?(response))
     // Send the response line
-    let response-line
-      = format-to-string("%s %d %s\r\n",
-                         $http-version, 
-                         response.response-code, 
-                         response.response-message | "OK");
-    unless (req.request-version == #"http/0.9")
+    let response-line = format-to-string("%s %d %s\r\n",
+                                         $http-version, 
+                                         response.response-code, 
+                                         response.response-message | "OK");
+    unless (req.request-version == #"HTTP/0.9")
       log-copious("-->%s", response-line);
       write(stream, response-line);
-    end unless;
+    end;
 
-    if (generate-server-header?(*virtual-host*))
+    // *virtual-host* may be #f if the request was invalid and
+    // we're sending an error response.
+    if (*virtual-host* & generate-server-header?(*virtual-host*))
       add-header(response, "Server", $server-header-value);
     end if;
     add-header(response, "Date", as-rfc1123-string(current-date()));
@@ -153,46 +161,54 @@ define method send-response
       content-length := integer-to-string(stream-size(output-stream(response)));
       // Add required headers
       add-header(response, "Content-Length", content-length);
-    end unless;
-    unless (req.request-version == #"http/0.9")
+    end;
+    unless (req.request-version == #"HTTP/0.9")
       send-headers(response, stream);
-    end unless;
+    end;
 
-    // Log in Common Logfile Format
-    // (http://www.w3.org/Daemon/User/Config/Logging.html)
-    let request = concatenate(as-uppercase(as(<string>, request-method(req))), " ",
-                              build-uri(request-url(req)), " ",
-                              as-uppercase(as(<string>, request-version(req))));
-    let date = as-common-logfile-date(current-date());
-    let remoteaddr = host-address(remote-host(request-socket(req)));
-    let ext :: <string> = "";
-
-    // TODO: make the logfile format configurable.  e.g., the user
-    //       specifies a string like this:
-    //   "{ip} {hostname} [{date}] '{url}' {user-agent} {referer}"
-    // See bug #7200.
-
-    //for now, add User-Agent and Referer
-    ext := concatenate(" \"", as(<string>, get-header(req, "referer") | "-"),
-                       "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
-                       "\"");
-    log-raw(activity-log-target(*virtual-host*),
-            concatenate(remoteaddr, " ",
-                        "-", " ",
-                        "-", " ",
-                        "[", date, "] ",
-                        "\"", request, "\" ",
-                        integer-to-string(response.response-code), " ",
-                        content-length,
-                        ext));
-  end unless;
+    // Don't try to log the request if it couldn't be parsed.
+    unless (response.response-code == $bad-request)
+      log-request(req, response.response-code, content-length);
+    end;
+  end unless; // headers already sent
 
   let contents = stream-contents(output-stream(response), clear-contents?: #t);
-  unless (request-method(req) == #"head")
+  unless (req.request-method == #"HEAD")
     // Send the body (or what there is of it so far).
     write(stream, contents);
-  end unless;
+  end;
 end method send-response;
+
+define inline function log-request
+    (req :: <request>, response-code :: <integer>, content-length :: <string>)
+  // Log in Common Logfile Format
+  // (http://www.w3.org/Daemon/User/Config/Logging.html)
+  let request = concatenate(as-uppercase(as(<string>, request-method(req))),
+                            " ",
+                            request-raw-url-string(req),
+                            " ",
+                            as-uppercase(as(<string>, req.request-version)));
+  let date = as-common-logfile-date(current-date());
+  let remoteaddr = host-address(remote-host(request-socket(req)));
+
+  // TODO: make the logfile format configurable.  e.g., the user
+  //       specifies a string like this:
+  //   "{ip} {hostname} [{date}] '{url}' {user-agent} {referer}"
+  // See bug #7200.
+
+  log-raw(activity-log-target(*virtual-host*),
+          concatenate(remoteaddr, " ",
+                      "-", " ",
+                      "-", " ",
+                      "[", date, "] ",
+                      "\"", request, "\" ",
+                      integer-to-string(response-code), " ",
+                      content-length,
+                      // for now, add User-Agent and Referer
+                      " \"", as(<string>, get-header(req, "referer") | "-"),
+                      "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
+                      "\""));
+end function log-request;
 
 // Exported
 // Convenience.  Seems common to want to add a numeric cookie value.
