@@ -69,7 +69,7 @@ define open class <entry> (<object>)
   /* repeated slot extensionElement */
 end;
 
-define method comments-count (entry :: <entry>)
+define method inc-comments-count! (entry :: <entry>)
  => (res :: <integer>);
   entry.%comments-count := entry.%comments-count + 1;
   entry.%comments-count;
@@ -79,7 +79,7 @@ define method initialize (entry :: <entry>, #key comments)
   next-method();
   if (comments)
     for (comment in comments)
-      entry.comments[entry.comments-count] := comment;
+      entry.comments[entry.inc-comments-count!] := comment;
     end for;
   end if;
 end;
