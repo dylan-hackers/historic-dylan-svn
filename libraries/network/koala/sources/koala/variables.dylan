@@ -7,6 +7,8 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
+define constant $default-http-port :: <integer> = 80;
+
 // TODO: The follow 3 should probably be per vhost.
 
 // Entries in this table may be overridden by entries in the mime-type-map
@@ -202,3 +204,4 @@ define variable *temp-log-target*
 // this before calling koala-main().
 define variable *argument-list-parser* :: <argument-list-parser>
   = make(<argument-list-parser>);
+

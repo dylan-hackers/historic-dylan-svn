@@ -44,7 +44,7 @@ define method add-responder
                format-arguments: list(url)));
   else
     add-object(server.url-map, url.uri-path, responder, replace?: replace?);
-    log-info("responder on %s registered", url);
+    log-info("Responder: %s ", url);
   end if;
 end method add-responder;
 

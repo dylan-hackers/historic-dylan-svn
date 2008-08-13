@@ -11,7 +11,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
  */
 
 define constant $koala-config-dir :: <string> = "config";
-define constant $koala-config-filename :: <string> = "koala-config.xml";
+define constant $default-config-filename :: <string> = "koala-config.xml";
 
 define thread variable %server = #f;
 
@@ -50,7 +50,7 @@ end;
 define method configure-server
     (server :: <http-server>, config-file :: false-or(<string>))
   let defaults
-    = merge-locators(merge-locators(as(<file-locator>, $koala-config-filename),
+    = merge-locators(merge-locators(as(<file-locator>, $default-config-filename),
                                     as(<directory-locator>, $koala-config-dir)),
                      server.server-root);
   let config-loc
@@ -89,7 +89,7 @@ end method configure-from-string;
 define function warn
     (format-string, #rest format-args)
   log-warning("%s: %s",
-              $koala-config-filename,
+              $default-config-filename,
               apply(format-to-string, format-string, format-args));
 end;
 
@@ -123,7 +123,6 @@ end;
 
 define method process-config-node
     (server :: <http-server>, node :: xml$<element>) => ()
-  log-debug("Processing config element %=", xml$name(node));
   process-config-element(server, node, xml$name(node));
 end;
 
@@ -176,25 +175,18 @@ define method process-config-element
   let port = get-attr(node, #"port");
   if (address | port)
     block ()
-      let port = string-to-integer(port);
-      if (%vhost = server.default-virtual-host)
-        log-info("Adding listener for %s:%d", address, port);
-        add!(server.server-listeners,
-             make-listener(format-to-string("%s:%d", address, port)));
-      else
-        // Maybe later we'll add a way to specify what listeners correspond
-        // to what virtual hosts.  Apache apparently does this, but I'm not
-        // sure how useful it is.
-        log-warning("<listener> (%s) specified inside %s virtual host element.  "
-                    "It will be ignored.  Port must be specified at top level.",
-                    node, vhost-name(%vhost));
-      end;
+      let port = iff(port,
+                     string-to-integer(port),
+                     $default-http-port);
+      log-info("Adding listener for %s:%d", address, port);
+      add!(server.server-listeners,
+           make-listener(format-to-string("%s:%d", address, port)));
     exception (<error>)
-      warn("Invalid port (%=) specified in listener element.", port);
+      warn("Invalid listener spec: %s", xml$text(node));
     end;
   else
-    warn("Invalid <LISTENER> specification.  You must specify either the "
-         "'address' or 'port' attribute.");
+    warn("Invalid <LISTENER> specification.  You must specify at least one "
+         "of 'address' or 'port'.");
   end;
 end method process-config-element;
 
@@ -283,7 +275,7 @@ define method process-config-element
     if (loc)
       document-root(%vhost)
         := merge-locators(as(<directory-locator>, loc), server.server-root);
-      log-info("VHost '%s': document root = %s.",
+      log-info("Document root for virtual host %s: %s",
                vhost-name(%vhost), document-root(%vhost));
     else
       warn("Invalid <DOCUMENT-ROOT> spec.  "
@@ -298,7 +290,7 @@ define method process-config-element
     if (loc)
       %vhost.dsp-root := merge-locators(as(<directory-locator>, loc), 
                                         server.server-root);
-      log-info("VHost '%s': DSP root = %s.",
+      log-info("DSP root for virtual host %s: %s",
                vhost-name(%vhost), dsp-root(%vhost));
     else
       warn("Invalid <DSP-ROOT> spec.  "
@@ -316,8 +308,8 @@ define method process-config-element
   let enabled? = get-attr(node, #"enabled");
   let enabled? = enabled? & true-value?(enabled?);
   server.development-mode? := enabled?;
-  log-info("Development mode is %s.",
-           if (enabled?) "on" else "off" end)
+  log-warning("Development mode is %s.",
+              if (enabled?) "on" else "off" end);
 end method process-config-element;
 
 
@@ -394,10 +386,29 @@ define method process-config-element
   end;
 end;
 
-define class <mime-type> (xml$<printing>)
+define class <mime-type> (xml$<xform-state>)
+  constant slot mime-type-map :: <table>,
+    required-init-keyword: mime-type-map:;
 end class <mime-type>;
 
-define constant $mime-type = make(<mime-type>);
+define method xml$transform
+    (node :: xml$<element>, state :: <mime-type>)
+  if (xml$name(node) = #"mime-type")
+    let mime-type = get-attr(node, #"id");
+    let mime-type-map = state.mime-type-map;
+    for (child in xml$node-children(node))
+      if (xml$name(child) = #"extension")
+        mime-type-map[as(<symbol>, xml$text(child))] := mime-type;
+      else
+        warn("Skipping: %s %s %s: not an extension node!",
+             mime-type, xml$name(child), xml$text(child));
+      end if;
+    end for;
+  else
+    next-method();
+  end if;
+end method xml$transform;
+
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"mime-type-map")
@@ -419,31 +430,15 @@ define method process-config-element
     with-output-to-string (stream)
       dynamic-bind (%server = server)
         // Transforming the document side-effects the server's mime type map.
-        xml$transform-document(mime-xml, state: $mime-type, stream: stream);
+        xml$transform(mime-xml, make(<mime-type>,
+                                     stream: stream,
+                                     mime-type-map: server.server-mime-type-map));
       end;
     end;
   else
     warn("mime-type map %s not found", mime-type-loc);
   end if;
 end method process-config-element;
-
-define method xml$transform
-    (node :: xml$<element>,
-     name == #"mime-type",
-     state :: <mime-type>,
-     stream :: <stream>)
-  let mime-type = get-attr(node, #"id");
-  let mime-type-map = server-mime-type-map(%server);
-  for (child in xml$node-children(node))
-    if (xml$name(child) = #"extension")
-      mime-type-map[as(<symbol>, xml$text(child))] := mime-type;
-    else
-      warn("Skipping: %s %s %s: not an extension node!",
-           mime-type, xml$name(child), xml$text(child));
-    end if;
-  end for;
-end method xml$transform;
-
 
 // <directory  location = "/"
 //             allow-directory-listing = "yes"
