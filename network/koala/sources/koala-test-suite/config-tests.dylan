@@ -3,7 +3,7 @@ Module: koala-test-suite
 define constant $header :: <string> = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
 
 // Make an XML document string that contains the given string.
-define function koala-doc
+define function koala-document
     (content :: <string>) => (doc :: <string>)
   concatenate($header, "<koala>\n", content, "\n</koala>\n")
 end;
@@ -18,7 +18,7 @@ define function configure
   server
 end function configure;
   
-define test basic-configuration-test ()
+define test basic-config-test ()
   let texts = #("",
                 "<barbaloot>",
                 "<koala>gubbish</koala>",
@@ -29,13 +29,29 @@ define test basic-configuration-test ()
                     configure(text));
   end for;
   check-no-errors("Empty <koala> element",
-                  configure(koala-doc("")));
+                  configure(koala-document("")));
   check-no-errors("Unknown element ignored",
-                  configure(koala-doc("<unknown></unknown>")));
-end test basic-configuration-test;
+                  configure(koala-document("<unknown></unknown>")));
+end test basic-config-test;
+
+define test listener-config-test ()
+  let texts = #(// valid
+                "<listener address=\"123.45.67.89\" port=\"2222\" />",
+                "<listener address=\"123.45.67.89\" />",
+                "<listener port=\"2222\" />",
+                // invalid
+                // ideally i'd like these to signal a specific error.
+                "<listener address=\"123.45.67.89\" port=\"xxx\" />",
+                "<listener />",
+                "<listener address=\"xxx\" port=\"2222\" />");
+  for (text in texts)
+    check-no-errors(text, configure(koala-document(text)));
+  end;
+end test listener-config-test;
 
 define suite configuration-test-suite ()
-  test basic-configuration-test;
+  test basic-config-test;
+  test listener-config-test;
 end;
 
 

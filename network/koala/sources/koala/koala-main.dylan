@@ -10,8 +10,10 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 begin
   add-option-parser-by-type(*argument-list-parser*,
                             <repeated-parameter-option-parser>,
-                            description: "IP:PORT on which to listen for requests.  "
-                                         "[default: 0.0.0.0:80]",
+                            description: format-to-string("ipaddr:port on which to "
+                                                          "listen for requests.  "
+                                                          "[default: 0.0.0.0:%d]",
+                                                          $default-http-port),
                             long-options: #("listen"),
                             short-options: #("l"));
   add-option-parser-by-type(*argument-list-parser*,
@@ -62,13 +64,16 @@ define function koala-main
       // Setup listeners.
       let listeners = option-value-by-long-name(parser, "listen");
       if (empty?(listeners) & ~config-file)
-        listeners := #["0.0.0.0:80"];
+        listeners := vector(format-to-string("0.0.0.0:%d", $default-http-port));
       end;
       for (listener in listeners)
         add!(_server.server-listeners, make-listener(listener));
       end;
 
       _server.debugging-enabled? := option-value-by-long-name(parser, "debug");
+      if (_server.debugging-enabled?)
+        log-warning("Debug mode enabled via command line.");
+      end;
       start-server(_server);
 
     exception (ex :: <error>)
