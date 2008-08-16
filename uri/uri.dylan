@@ -46,7 +46,7 @@ define method uri-authority
  => (result :: <string>)
   let result = "";
   unless (empty?(uri.uri-userinfo))
-    result := concatenate(result, percent-encode(#"userinfo", uri.uri-userinfo), "@");
+    result := concatenate(result, percent-encode($uri-userinfo, uri.uri-userinfo), "@");
   end;
   result := concatenate(result, uri.uri-host | "");
   if (uri.uri-port)
@@ -64,22 +64,18 @@ define constant $alpha =
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
 define constant $digit = #('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
-define constant $uri-parts :: <table> = make(<table>);
-
-define constant $uri-scheme = concatenate($alpha, $digit, #('+', '-', '.'));
-define constant $uri-gen-delims = #(':', '/', '?', '#', '[', ']', '@');
+//define constant $uri-scheme = concatenate($alpha, $digit, #('+', '-', '.'));
+//define constant $uri-gen-delims = #(':', '/', '?', '#', '[', ']', '@');
 define constant $uri-sub-delims = #('!', '$', '&', '\'', '(', ')',  '*', '+', ',', ';', '=');
-define constant $uri-reserved = concatenate($uri-gen-delims, $uri-sub-delims);
+//define constant $uri-reserved = concatenate($uri-gen-delims, $uri-sub-delims);
 define constant $uri-unreserved = concatenate($alpha, $digit, #('-', '.', '_', '~'));
 define constant $uri-pchar = concatenate($uri-unreserved, $uri-sub-delims, #(':', '@'));
 define constant $uri-userinfo = concatenate($uri-unreserved, $uri-sub-delims, #(':'));
-$uri-parts[#"userinfo"] := $uri-userinfo;
 define constant $uri-query = concatenate($uri-pchar, #('/', '?'));
-$uri-parts[#"query"] := $uri-query;
-define constant $uri-port = $digit;
+define constant $uri-query-no-plus = remove($uri-query, '+');
+//define constant $uri-port = $digit;
 define constant $uri-segment = $uri-pchar;
-$uri-parts[#"segment"] := $uri-segment;
-define constant $uri-fragment = $uri-query;
+//define constant $uri-fragment = $uri-query;
 
 define constant $uri-regex :: <regex>
     = compile-regex("^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)"
@@ -187,6 +183,7 @@ end method as;
 
 // build-uri 
 
+// turn a uri into a string
 define open generic build-uri (uri :: <uri>)  => (result :: <string>); 
 
 define method build-uri
@@ -215,17 +212,13 @@ end method build-uri;
 
 // build-path
 
-define open generic build-path (path :: <object>, #key) => (encoded-path :: <string>);
-
 define method build-path
-    (uri :: <uri>, #key include :: <sequence> = #())
+    (uri :: <uri>)
  => (encoded-path :: <string>)
   if (empty?(uri.uri-path))
     ""
   else  
-    join(map(method (segment)
-               percent-encode(#"segment", segment, include: include)
-             end,
+    join(map(curry(percent-encode, $uri-segment),
              uri.uri-path),
          "/")
   end if;
@@ -233,46 +226,48 @@ end;
 
 // build-query
 
-define open generic build-query (query :: <object>, #key) => (encoded-query :: <string>);
+define method build-query
+    (uri :: <uri>) => (encoded-query :: <string>)
+  build-query-internal(uri, $uri-query)
+end;
 
 define method build-query
-     (uri :: <uri>, #key include :: <sequence> = #())
-  => (encoded-query :: <string>);
-  if (empty?(uri.uri-query)) "" else 
+    (url :: <url>) => (encoded-query :: <string>)
+  build-query-internal(url, $uri-query-no-plus)
+end;
+
+define method build-query-internal
+    (uri :: <uri>, chars-not-to-encode :: <sequence>)
+ => (encoded-query :: <string>)
+  if (empty?(uri.uri-query))
+    ""
+  else 
     let parts = make(<stretchy-vector>);
     for (value keyed-by key in uri.uri-query)
-      key := percent-encode(#"query", key, include: include);
-      add-key-value(parts, key, value, include: include);
+      key := percent-encode(chars-not-to-encode, key);
+      add-key-value(parts, key, value);
     end for;
     join(parts, "&")
   end if; 
-end;
-
-define method build-query (url :: <url>, #key) => (encoded-query :: <string>);
-  next-method(url, include: #('+'));
-end;
-
+end method build-query-internal;
 
 define method add-key-value
-    (parts :: <stretchy-vector>, key :: <string>, value :: <string>,
-     #key include :: <sequence> = #())
+    (parts :: <stretchy-vector>, key :: <string>, value :: <string>)
  => (parts :: <stretchy-vector>);
-  add!(parts, concatenate(key, "=", percent-encode(#"query", value, include: include)));
+  add!(parts, concatenate(key, "=", percent-encode($uri-query, value)));
 end;
 
 define method add-key-value
-    (parts :: <stretchy-vector>, key :: <string>, value == #t,
-     #key #all-keys)
- => (parts :: <stretchy-vector>);
+    (parts :: <stretchy-vector>, key :: <string>, value == #t)
+ => (parts :: <stretchy-vector>)
   add!(parts, key);
 end;
 
 define method add-key-value
-    (parts :: <stretchy-vector>, key :: <string>, values :: <list>,
-     #key include :: <sequence> = #())	   
+    (parts :: <stretchy-vector>, key :: <string>, values :: <list>)
  => (parts :: <stretchy-vector>);
   for (value in values)
-    add-key-value(parts, key, value, include: include);
+    add-key-value(parts, key, value);
   end for;
   parts;
 end;
@@ -280,23 +275,19 @@ end;
 
 // percent-encode
 
-define generic percent-encode (part :: <object>, unencoded :: <object>, #key) => (encoded :: <string>);
-
-define method percent-encode (part, unencoded :: <byte-string>, #key include :: <sequence> = #()) => (encoded :: <string>);
+define method percent-encode
+    (chars :: <sequence>, unencoded :: <byte-string>)
+ => (encoded :: <string>)
   let encoded = "";
   for (char in unencoded)
-    encoded := concatenate(encoded, if (member?(char, $uri-parts[part]) & ~member?(char, include))
+    encoded := concatenate(encoded, if (member?(char, chars))
                                       list(char)
                                     else
-                                      percent-encode(part, char)
+                                      format-to-string("%%%X", as(<byte>, char))
                                     end if);
   end for;
   encoded;
 end method percent-encode;
-
-define method percent-encode (part, unencoded :: <character>, #key) => (encoded :: <string>);
-  format-to-string("%%%X", as(<byte>, unencoded));
-end;
 
 // percent-decode
 
