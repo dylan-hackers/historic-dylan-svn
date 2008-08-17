@@ -25,7 +25,7 @@ end;
 // as init args.  Using an alias for now instead of renaming <server>.  We'll
 // see how things progress.
 //
-define class <http-server> (<sealed-constructor>)
+define class <http-server> (<object>)
   // Whether the server should run in debug mode or not.  If this is true then
   // errors encountered while servicing HTTP requests will not be handled by the
   // server itself.  Normally the server will handle them and return an "internal
@@ -149,6 +149,8 @@ define sealed method make
         keys)
 end method make;
 
+define sealed domain make (subclass(<http-server>));
+
 // API (in the sense that its args are passed directly by the user)
 define method initialize
     (server :: <http-server>,
@@ -174,6 +176,8 @@ define method initialize
   end;
 end method initialize;
 
+define sealed domain initialize (<http-server>);
+
 // Keep some stats on user-agents
 define method note-user-agent
     (server :: <server>, user-agent :: <string>)
@@ -193,7 +197,7 @@ define function release-client (client :: <client>)
   end;
 end release-client;
 
-define class <listener> (<sealed-constructor>)
+define class <listener> (<object>)
   constant slot listener-port :: <integer>,
     required-init-keyword: port:;
 
@@ -243,7 +247,7 @@ define method listener-name
                    listener.listener-host, listener.listener-port)
 end;
 
-define class <client> (<sealed-constructor>)
+define class <client> (<object>)
   constant slot client-server :: <server>,
     required-init-keyword: server:;
 
@@ -259,7 +263,7 @@ define class <client> (<sealed-constructor>)
   slot client-request :: <basic-request>;
 end;
 
-define class <basic-request> (<sealed-constructor>)
+define class <basic-request> (<object>)
   constant slot request-client :: <client>,
     required-init-keyword: client:;
 end;
@@ -332,6 +336,7 @@ define function start-server
   if (wait)
     // Connect to each listener or signal error.
     wait-for-listeners-to-start(server.server-listeners);
+    log-info("%s %s ready for service", $server-name, $server-version);
   end;
   if (~background)
     // Apparently when the main thread dies in an Open Dylan application
@@ -358,7 +363,7 @@ define function wait-for-listeners-to-start
                          // hack hack
                          host: iff(host = "0.0.0.0", $local-host, host),
                          port: listener.listener-port);
-          // If we made a connection we're done.
+          log-info("Connection to %s successful", listener.listener-name);
           exit-while();
         cleanup
           socket & close(socket);
@@ -469,7 +474,6 @@ define function start-http-listener
   end;
   local method run-listener-top-level ()
           with-lock (server-lock) end; // Wait for setup to finish.
-          log-info("%s starting", listener.listener-name);
           block ()
             listener-top-level(server, listener);
           cleanup
@@ -601,6 +605,7 @@ define class <request> (<basic-request>)
   slot request-method :: <symbol> = #"unknown";
   slot request-version :: <symbol> = #"unknown";
   slot request-url :: false-or(<url>) = #f;
+  slot request-raw-url-string :: false-or(<string>) = #f;
 
   // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
   slot request-host :: false-or(<string>) = #f;
@@ -718,62 +723,62 @@ define inline function current-response
   *response*
 end;
 
-// Called (in a new thread) each time an HTTP request is received.
+// Called (in a new thread) each time a new connection is opened.
+// If keep-alive is requested, wait for more requests on the same
+// connection.
+//
 define function handler-top-level
     (client :: <client>)
   dynamic-bind (*request* = #f,
-                *server* = client.client-server)
-    block (exit-request-handler)
+                *server* = client.client-server,
+                *virtual-host* = #f)  // set after read-request called
+    block (exit-handler-top-level)
       while (#t)                      // keep alive loop
         let request :: <basic-request>
           = make(client.client-server.request-class, client: client);
         *request* := request;
         with-simple-restart("Skip this request and continue with the next")
-          block (exit-inner)
-            let handler <error>
-              = method (c :: <error>, next-handler :: <function>)
-                  if (debugging-enabled?(*server*))
-                    next-handler();  // decline to handle the error
-                  else
-                    send-error-response(request, c);
-                    exit-inner();
-                  end;
-                end;
+          block (finish-request)
             let handler <stream-error>
-              = method (c :: <error>, next-handler :: <function>)
-                  if (debugging-enabled?(*server*))
-                    next-handler();  // decline to handle the error
-                  else
-                    log-error("A stream error occurred. %=", c);
-                    exit-inner();
-                  end;
-                end;
-                  
-            block ()
-              block ()
-                read-request(request);
-                dynamic-bind (*virtual-host* = virtual-host(request))
-                  invoke-handler(request);
-                end;
-                force-output(request.request-socket);
-              exception (c :: <http-error>)
-                // Always handle HTTP errors, even when debugging...
-                send-error-response(request, c);
-                exit-inner();
-              end;
-            exception (c :: <socket-condition>)
-              // Always exit the request handler when a socket error occurs...
-              log-debug("A socket error occurred: %s",
-                        condition-to-string(c));
-              exit-request-handler();
-            end;
-          end block;
-          request.request-keep-alive? | exit-request-handler();
+              = rcurry(htl-error-handler, exit-handler-top-level,
+                       send-response: #f,
+                       decline-if-debugging: #f);
+            let handler <socket-condition>
+              = rcurry(htl-error-handler, exit-handler-top-level,
+                       send-response: #f,
+                       decline-if-debugging: #f);
+            let handler <http-error> = rcurry(htl-error-handler, finish-request);
+            let handler <error> = rcurry(htl-error-handler, finish-request);
+
+            read-request(request);
+            *virtual-host* := virtual-host(request);
+            invoke-handler(request);
+            force-output(request.request-socket);
+          end block; // finish-request
+          if (~request-keep-alive?(request))
+            exit-handler-top-level();
+          end;
         end with-simple-restart;
       end while;
-    end block;
+    end block; // exit-handler-top-level
   end dynamic-bind;
-end handler-top-level;
+end function handler-top-level;
+
+define function htl-error-handler
+    (cond :: <condition>, next-handler :: <function>, exit-function :: <function>,
+     #key decline-if-debugging = #t, log = #t, send-response = #t, format-string)
+  if (log)
+    log-debug(format-string | "Error handling request: %s", cond);
+  end;
+  if (send-response)
+    send-error-response(*request*, cond);
+  end;
+  if (decline-if-debugging & debugging-enabled?(*server*))
+    next-handler()
+  else
+    exit-function()
+  end;
+end function htl-error-handler;
 
 // This method takes care of parsing the request headers and signalling any
 // errors therein.
@@ -825,11 +830,12 @@ define function read-request-first-line
     = regex-search-strings($request-line-regex, buffer);
   if (entire-match)
     request.request-method := as(<symbol>, http-method);
+    request.request-raw-url-string := url;
     let url = parse-url(url);
     // RFC 2616, 5.2 -- absolute URLs in the request line take precedence
     // over Host header.
     if (absolute?(url))
-      request.request-host := url.uri-host;   
+      request.request-host := url.uri-host;
     end if;
     request.request-url := url;
     let (responder, tail) = find-responder(server, request.request-url);
@@ -976,12 +982,19 @@ end method process-request-content;
 
 define function send-error-response
     (request :: <request>, cond :: <condition>)
-  block ()
+  block (exit)
+    let handler <error>
+      = method (cond, next-handler)
+          if (debugging-enabled?(request.request-server))
+            next-handler();
+          else
+            log-debug("An error occurred while sending error response. %s", cond);
+            exit();
+          end;
+        end;
     send-error-response-internal(request, cond);
-  exception (error :: <condition>)
-    log-error("An error occurred while sending error response. %=", error);
   end;
-end;
+end function send-error-response;
 
 
 define method send-error-response-internal
@@ -992,10 +1005,9 @@ define method send-error-response-internal
                       headers: headers);
   let one-liner = http-error-message-no-code(err);
   unless (request-method(request) == #"head")
-    let out = output-stream(response);
-    set-content-type(response, "text/plain");
-
     // todo -- Display a pretty error page.
+    set-content-type(response, "text/plain");
+    let out = output-stream(response);
     write(out, one-liner);
     write(out, "\r\n");
 
@@ -1035,14 +1047,13 @@ define method process-incoming-headers (request :: <request>)
     // URL in the request line, which takes precedence, so ignore Host header here.
     if (host & ~request.request-host)
       request.request-host := host;
-      log-debug("Request host set from Host header to: %s", request.request-host);
+      log-debug("Request host set from Host header: %s", request.request-host);
     end;
   end;
   bind (agent = request-header-value(request, #"user-agent"))
-    agent
-      & note-user-agent(request-server(request), agent);
+    agent & note-user-agent(request-server(request), agent);
   end;
-end;
+end method process-incoming-headers;
 
 // Invoke the appropriate handler for the given request URL and method.
 // Have to buffer up the entire response since the web app needs a chance to

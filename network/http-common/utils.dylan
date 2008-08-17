@@ -1,4 +1,4 @@
-Module:    utilities
+Module:    http-common
 Synopsis:  Various small utilities
 Author:    Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
@@ -21,7 +21,15 @@ end;
 
 // Things that expire.
 
-define class <expiring-mixin> (<object>)
+define open generic date-modified
+    (object :: <object>)
+ => (date :: false-or(<date>));
+
+define open generic date-modified-setter
+    (new-date :: false-or(<date>), object :: <object>)
+ => (new-date :: false-or(<date>));
+
+define open class <expiring-mixin> (<object>)
   constant slot duration :: <day/time-duration>,
     init-value: encode-day/time-duration(0, 1, 0, 0, 0),      // 1 hour
     init-keyword: #"duration";
@@ -105,7 +113,7 @@ end;
 
 //// Attributes
 
-define class <attributes-mixin> (<object>)
+define open class <attributes-mixin> (<object>)
   constant slot attributes :: <table>,
     init-function: curry(make, <table>);
 end;

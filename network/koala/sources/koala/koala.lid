@@ -1,11 +1,7 @@
 library: koala
 files:	library
-	log
-	utils
 	variables
-	substring
 	avalue
-	string-utils
 	errors
 	header-values
 	headers

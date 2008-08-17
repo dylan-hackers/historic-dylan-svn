@@ -1,12 +1,7 @@
-Module:   dylan-basics
-Synopsis: Basic dylan utilities
-Author:   many authors
-
-
-// This library is a collection of utilities that are generally useful
-// for Dylan programming, but aren't big enough to have a library all
-// their own.  These were written by various authors and shamelessly
-// stolen (or written) by me (Carl Gay).
+Module:   uncommon-dylan
+Synopsis: Some definitions of general use that could be considered for
+          inclusion in common-dylan if they stand the test of time.
+Author:   Carl Gay
 
 
 // ---TODO: Add an equal? method, that is like = but does case insensitive

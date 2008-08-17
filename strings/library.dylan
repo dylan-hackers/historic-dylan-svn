@@ -6,9 +6,10 @@ Copyright: This code is in the public domain.
 
 define library strings
   use common-dylan;
+  use functional-dylan,
+    import: { dylan-extensions };
   use io,
-    import: { streams,
-              format-out };
+    import: { streams, format-out };
   use string-extensions,
     import: { string-hacking };
   use regular-expressions;
@@ -58,7 +59,6 @@ define module strings
 
   // Creation/modification/conversion
   create
-    substring,
     trim,
     uppercase,
     uppercase!,
@@ -76,6 +76,40 @@ define module strings
     string-to-float, float-to-string,
     */
 
+  // Substrings
+  create
+    <substring>,
+    <small-substring>,
+    substring,
+    substring-start,
+    substring-end;
+
+  // Fast byte string API
+  create
+    $cr,
+    $lf,
+    char-position,
+    char-position-from-end,
+    char-position-if,
+    whitespace?,
+    whitespace-position,
+    skip-whitespace,
+    trim-whitespace,
+    looking-at?,
+    key-match,
+    string-match,
+    string-position,
+    string-equal?,
+    digit-weight;
+
+  // Non-copying substring
+  create
+    <substring>,
+    substring,
+    substring-base,
+    substring-start,
+    string-extent;
+    
 end module strings;
 
 
@@ -97,4 +131,15 @@ define module strings-implementation
               <case-sensitive-character-set>,
               <case-insensitive-character-set>,
               <byte-character-table> };
+  use dylan-extensions,
+    import: { element-no-bounds-check,
+              element-no-bounds-check-setter,
+              element-range-check,
+              element-range-error,
+              // make-symbol,
+              // case-insensitive-equal,
+              // case-insensitive-string-hash
+              <format-string-condition>
+              };
 end module strings-implementation;
+

@@ -6,15 +6,15 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library base64
   use common-dylan;
-  use dylan-basics;
   use io;
+  use uncommon-dylan;
   export base64;
 end;
 
 define module base64
   use dylan;
   use common-extensions, exclude: { format-to-string };
-  use dylan-basics, exclude: { split };
+  use uncommon-dylan, exclude: { split };
   use streams;
   export
     base64-encode,

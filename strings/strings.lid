@@ -1,3 +1,5 @@
-library:	strings
-files:	library
-	strings
+library: strings
+files: library
+       strings
+       substring
+       byte-string

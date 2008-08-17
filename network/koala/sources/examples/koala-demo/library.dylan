@@ -3,27 +3,29 @@ Synopsis: Koala example code
 Author:   Carl Gay
 
 define library koala-demo
-  use dylan;
   use common-dylan,
     import: { common-extensions };
+  use dylan;
+  use http-common;
   use io,
     import: { format, streams };
-  use system,
-    import: { locators, threads };
   use koala,
     import: { dsp };
+  use system,
+    import: { locators, threads };
 end;
 
 
 define module koala-demo
-  use dylan;
-  use threads;
   use common-extensions,
     exclude: { format-to-string };
+  use dsp;
+  use dylan;
+  use format;
+  use http-common;
   use locators,
     exclude: { <http-server> };  // badly named
-  use format;
   use streams;
-  use dsp;
+  use threads;
 end;
 

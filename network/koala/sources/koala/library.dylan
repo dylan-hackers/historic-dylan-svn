@@ -6,127 +6,34 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library koala
-  use functional-dylan,
-    import: { dylan-extensions };
+  use base64;
+  use command-line-parser;
   use common-dylan,
     import: { dylan, common-extensions, threads, simple-random };
+  use functional-dylan,
+    import: { dylan-extensions };
+  use http-common;
   use io,
     import: { format, standard-io, streams };
+  use logging;
+  use memory-manager;
   use network,
     import: { sockets };
+  use regular-expressions;
+  use strings;
   use system,
     import: { date, file-system, locators, operating-system };
-  //use ssl-sockets;  // until integrated into FD?
+  use uncommon-dylan;
+  use uri;
   use xml-parser;
   use xml-rpc-common;
-  use dylan-basics;                             // basic dylan utils
-  use base64;
-  use memory-manager;
-  use command-line-parser;
-  use uri;
-  use regular-expressions;
 
-  export koala;
+  export dsp;
   export koala-extender;
   export koala-unit;
-  export dsp;
+  export koala;
 end library koala;
 
-
-define module utilities
-  use dylan;
-  use common-extensions,
-    exclude: { format-to-string };
-  use dylan-extensions,
-    import: { element-no-bounds-check,
-              element-no-bounds-check-setter,
-              element-range-check,
-              element-range-error,
-              // make-symbol,
-              // case-insensitive-equal,
-              // case-insensitive-string-hash
-              <format-string-condition>
-              };
-  use file-system,
-    import: { with-open-file, <file-does-not-exist-error> };
-  use date;
-  use streams;
-  use locators;
-  use standard-io;
-  use file-system;
-  use format;
-  use threads;
-  use dylan-basics,
-    export: all;
-
-  export
-    // General one-off utilities
-    <sealed-constructor>,
-    wrapping-inc!,
-    file-contents,
-    pset,                // multiple-value-setq
-    parent-directory,
-    date-to-stream,
-    kludge-read-into!,   // work around bug in read-into! in FD 2.0
-    quote-html,          // Change < to &lt; etc
-
-    <string-trie>, 
-    find-object, 
-    add-object, 
-    remove-object,
-    trie-children,
-    trie-object,
-    <trie-error>,
-
-    <expiring-mixin>,
-    expired?,
-    date-modified,
-    date-modified-setter,
-
-    // Attributes
-    <attributes-mixin>,
-    get-attribute,
-    set-attribute,
-    remove-attribute,
-
-    // Strings
-    $cr,
-    $lf,
-    char-position-if,
-    char-position,
-    char-position-from-end,
-    whitespace?,
-    whitespace-position,
-    skip-whitespace,
-    trim-whitespace,
-    trim,
-    looking-at?,
-    key-match,
-    string-match,
-    string-position,
-    string-equal?,
-    digit-weight,
-    token-end-position,
-
-    // Non-copying substring
-    <substring>,
-    substring,
-    substring-base,
-    substring-start,
-    string-extent,
-    string->integer,
-
-    // Logging
-    <log-level>,
-    <log-target>, <null-log-target>, <stream-log-target>, <file-log-target>,
-    <rolling-file-log-target>,
-    <log-error>, <log-warning>, <log-info>, <log-debug>, <log-verbose>, <log-copious>,
-    log-error, log-warning, log-info, log-debug, log-debug-if, log-verbose, log-copious,
-    log, log-raw,
-    log-level, log-level-setter,
-    as-common-logfile-date;
-end module utilities;
-    
 
 define module koala
   //needed for last-modified stuff
@@ -221,13 +128,10 @@ define module koala
     get-session,
     ensure-session,
     clear-session;
-    //get-attribute,
-    //set-attribute,
-    //remove-attribute,
 
   // Logging
   create
-    // These are wrappers for the defs by the same name in the utilities module.
+    // These are wrappers for the defs by the same name in the logging library.
     log-copious,
     log-verbose,
     log-debug,
@@ -317,18 +221,14 @@ define module koala-unit
 end module koala-unit;
 
 define module dsp
-  use dylan;
   use common-extensions;
-  use dylan-basics;
+  use date;
+  use dylan;
+  use file-system;
+  use format,
+    rename: { format-to-string => sformat };
+  use http-common;
   use koala,
-    export: all;
-  use utilities,
-    rename: { log-copious => %log-copious,
-              log-verbose => %log-verbose,
-              log-debug => %log-debug,
-              log-info => %log-info,
-              log-warning => %log-warning,
-              log-error => %log-error },
     export: all;
   use locators,
     import: { <locator>,
@@ -338,17 +238,21 @@ define module dsp
               simplify-locator,
               merge-locators,
               locator-directory };
-  use uri;
-  use format,
-    rename: { format-to-string => sformat };
-  use threads;
+  use logging,
+    rename: { log-copious => %log-copious,
+              log-verbose => %log-verbose,
+              log-debug => %log-debug,
+              log-info => %log-info,
+              log-warning => %log-warning,
+              log-error => %log-error },
+    export: all;
+  use operating-system;
   use standard-io;
   use streams;
-  //use sockets, rename: { start-server => start-socket-server };
-  use date;
-  use file-system;
-  use operating-system;
-  //use ssl-sockets;
+  use strings;
+  use threads;
+  use uncommon-dylan;
+  use uri;
 
   export
     <page>,
@@ -389,29 +293,13 @@ define module dsp
 end module dsp;
 
 define module httpi                             // http internals
-  use dylan;
-  use threads;               // from dylan lib
+  use base64;
+  use command-line-parser;
   use common-extensions,
     exclude: { format-to-string };
-  use dylan-basics;
-  use simple-random;
-  use utilities,
-    rename: { log-copious => %log-copious,
-              log-verbose => %log-verbose,
-              log-debug => %log-debug,
-              log-info => %log-info,
-              log-warning => %log-warning,
-              log-error => %log-error };
-  use koala;
-  use koala-extender;
-  use koala-unit;
-  use memory-manager;
-  use locators,
-    rename: { <http-server> => <http-server-url>,
-              <ftp-server> => <ftp-server-url>,
-              <file-server> => <file-server-url>
-            },
-    exclude: { <url> };  // this comes from the uri library now.
+  use date;                    // from system lib
+  use dsp;
+  use dylan;
   use dylan-extensions,
     import: { element-no-bounds-check,
               element-no-bounds-check-setter,
@@ -421,22 +309,39 @@ define module httpi                             // http internals
               // case-insensitive-equal,
               // case-insensitive-string-hash
               };
+  use file-system;             // from system lib
   use format;
-  use standard-io;
-  use streams;
+  use http-common;
+  use koala;
+  use koala-extender;
+  use koala-unit;
+  use locators,
+    rename: { <http-server> => <http-server-url>,
+              <ftp-server> => <ftp-server-url>,
+              <file-server> => <file-server-url>
+            },
+    exclude: { <url> };  // this comes from the uri library now.
+  use logging,
+    rename: { log-copious => %log-copious,
+              log-verbose => %log-verbose,
+              log-debug => %log-debug,
+              log-info => %log-info,
+              log-warning => %log-warning,
+              log-error => %log-error };
+  use memory-manager;
+  use operating-system;        // from system lib
+  use regular-expressions;
+  use simple-random;
   use sockets,
     rename: { start-server => start-socket-server };
-  use date;                    // from system lib
-  use file-system;             // from system lib
-  use operating-system;        // from system lib
-  //use ssl-sockets;
+  use standard-io;
+  use streams;
+  use strings;
+  use threads;               // from dylan lib
+  use uncommon-dylan;
+  use uri;
   use xml-parser,
     prefix: "xml$";
   use xml-rpc-common;
-  use base64;
-  use command-line-parser;
-  use uri;
-  use regular-expressions;
-  use dsp;
 end module httpi;
 

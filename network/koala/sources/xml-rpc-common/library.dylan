@@ -6,6 +6,7 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library xml-rpc-common
+  use base64;
   use common-dylan;
   use io,
     import: { streams, format };
@@ -13,25 +14,24 @@ define library xml-rpc-common
     import: { date };
   use xml-parser,
     import: { xml-parser };
-  use dylan-basics;
-  use base64;
+  use uncommon-dylan;
   export xml-rpc-common;
 end;
 
 define module xml-rpc-common
-  use dylan;
+  use base64,
+    import: { base64-decode };
   use common-extensions,
     exclude: { format-to-string };
-  use format;
-  use streams;
   use date,
     import: { <date>,
               as-iso8601-string };
+  use dylan;
+  use format;
+  use streams;
+  use uncommon-dylan;
   use xml-parser,
     prefix: "xml$";
-  use dylan-basics;
-  use base64,
-    import: { base64-decode };
   export
     <xml-rpc-error>,
     <xml-rpc-parse-error>, xml-rpc-parse-error,
