@@ -6,7 +6,7 @@ GETTING STARTED
 
 Not much here yet.  Best bet for learning how to develop a web
 application is to look at one of the existing examples.  The
-koala-basics library is probably the best one to start with.
+koala-demo library is probably the best one to start with.
 
 
 
