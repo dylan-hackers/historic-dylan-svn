@@ -90,10 +90,6 @@ define open generic index-of
 // The main purpose of functions like this is to make callers easier to find.
 define sealed generic byte-string? (object :: <object>) => (result :: <boolean>);
 
-define open generic substring 
-    (string :: <string>, start :: <integer>, #key) => (substring :: <string>);
-
-
 //--------------------------------------------------------------------
 
 
@@ -105,22 +101,6 @@ define macro without-bounds-checks
     { without-bounds-checks ?:body end }
  => { begin ?body end }
 end;
-
-// Temporary
-define class <invalid-key-error> (<simple-error>) end;
-
-// Temporary
-define function element-range-error
-    (collection :: <collection>, key)
- => (will-never-return :: <bottom>)
-  // We don't embed the collection in the condition as it will prevent the
-  // collection having dynamic extent.  A debugger should be able to display
-  // the collection.
-  error(make(<invalid-key-error>,
-             format-string: "Invalid key (%=) for collection of class %= and size %d.",
-             format-arguments: list(key, object-class(collection), collection.size)))
-end;
-
 
 // Temporary
 define inline function range-check
@@ -835,11 +815,3 @@ define sealed method index-of
     #f
   end block
 end method index-of;
-
-
-define method substring
-    (string :: <byte-string>, start :: <integer>,
-     #key end: _end :: <integer> = string.size)
- => (substring :: <byte-string>)
-  copy-sequence(string, start: start, end: _end)
-end;

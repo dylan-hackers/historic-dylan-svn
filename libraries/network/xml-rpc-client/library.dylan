@@ -9,7 +9,7 @@ define library xml-rpc-client
   use common-dylan;
   use io;
   use network;
-  use dylan-basics;        // dylan survival kit
+  use uncommon-dylan;
   use xml-parser;
   use xml-rpc-common;
 
@@ -23,6 +23,7 @@ define module xml-rpc-client
   use format-out;  // for debugging only
   use sockets;
   use streams;
+  use uncommon-dylan;
   use xml-parser,
     prefix: "xml$";
   use xml-rpc-common,
@@ -32,11 +33,8 @@ define module xml-rpc-client
       fault-code,
       base64-encode, base64-decode,
     };
-  use dylan-basics;
 
   export
     xml-rpc-call,      // standard interface
     xml-rpc-call-2;    // accepts port and url arguments
 end;
-
-

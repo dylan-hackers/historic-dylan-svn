@@ -1,18 +1,18 @@
-Module:    utilities
+Module:    strings-implementation
 Synopsis:  Non-copying substrings.
 Author:    Gail Zacharias, Carl Gay
-Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
-           Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
-License:   Functional Objects Library Public License Version 1.0
-Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-define class <small-substring> (<string>, <sealed-constructor>)
+
+define class <small-substring> (<string>)
   constant slot substring-base :: <byte-string>,
     required-init-keyword: base:;
   // Encodes start-pos in upper bits and length in lower bits.
   constant slot substring-range :: <integer>,
     required-init-keyword: range:;
 end class;
+
+define sealed domain make (subclass(<small-substring>));
+define sealed domain initialize (<small-substring>);
 
 // Some day, might support big substrings with non-integer range...
 define constant <substring> = <small-substring>;
@@ -74,10 +74,12 @@ end;
 // format(my-string-stream, "%s", my-substring)
 define method substring
     (str :: <byte-string>, begp :: <integer>, endp :: <integer>)
-  iff(begp == 0 & endp == str.size,
-      str,
-      copy-sequence(str, start: begp, end: endp))
-end;
+  if(begp == 0 & endp == str.size)
+    str
+  else
+    copy-sequence(str, start: begp, end: endp)
+  end
+end method substring;
 
 /* TODO: see comment above
 define sealed method substring

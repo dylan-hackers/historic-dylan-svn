@@ -1,32 +1,28 @@
-Module:    utilities
+Module:    logging
 Author:    Carl Gay
-Synopsis:  Simple logging mechanism
-Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
-License:   Functional Objects Library Public License Version 1.0
-Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
+Synopsis:  Simplistic logging mechanism
 
 
-/*
-How koala logging works:
+/* 
 
-Each virtual host has (potentially) three different log targets: errors,
-activity, and debug output.  (These targets could all be the same.)  Each
-virtual host has its own applicable log level.  The most basic method for doing
-logging is log-message, which is passed a <log-target> and a <log-level>.  If
-the log-level passed to log-message is an instance of the active log level for
-the current virtual host then the message will be logged. Otherwise it'll be
-dropped on the floor.  <log-target>s allow for arbitrary backing store for
-logs, like files, databases, the net, etc.
-
+The most basic method for doing logging is log-message, which is
+passed a <log-target> and a <log-level>.  If the log-level passed to
+log-message is an instance of the active log level for the current
+virtual host then the message will be logged. Otherwise it'll be
+dropped on the floor.  <log-target>s allow for arbitrary backing
+store for logs, like files, databases, the net, etc.
 
 todo -- Thread safety?
 
 todo -- Handle errors gracefully.  e.g., if the disk fills up it may be
-        better to do nothing than to crash the web server.
+        better to do nothing than to err.
 
-todo -- If this were separated out into a real logging library I'd want
-        it to support multiple log targets, a log "context" (e.g., the current
-        thread name), and more flexible formatting.
+todo -- Improved formatting control.
+
+todo -- A log target that rolls the file when either a max size or a max
+        time is reached, whichever comes first.  Should make it possible
+        for users to override roll-log-file? and roll-log-file-name
+        methods if they want to roll their own.
 
 */
 

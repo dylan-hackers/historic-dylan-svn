@@ -1,12 +1,9 @@
-Module:    utilities
-Synopsis:  Low-level string utilities for HTTP request parsing etc.
-           These should be as fast as possible.  In general we're dealing
-           with the US ASCII charset for HTTP so <byte-string> suffices.
+Module:    strings-implementation
 Author:    Gail Zacharias, Carl Gay
-Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
-           Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
-License:   Functional Objects Library Public License Version 1.0
-Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
+Synopsis:  Low-level string utilities designed to be as fast as possible.
+           This code assumes <byte-string>s only.  It was originally written
+           for use in the HTTP server.  (Note that a different definition of
+           whitespace is used in this file.)
 
 
 define constant $cr = as(<character>, 13);  // \r
@@ -48,7 +45,7 @@ end char-position-from-end;
 // Note that this doesn't check for stray cr's or lf's, because
 // those are just random control chars, proper crlf's got
 // eliminated during header reading.
-define inline function whitespace? (ch :: <byte-character>)
+define inline function %whitespace? (ch :: <byte-character>)
   ch == '\t' | ch == ' '
 end;
 
@@ -56,7 +53,7 @@ define function whitespace-position (buf :: <byte-string>,
                                      bpos :: <integer>,
                                      epos :: <integer>)
   => (pos :: false-or(<integer>))
-  char-position-if(whitespace?, buf, bpos, epos);
+  char-position-if(%whitespace?, buf, bpos, epos);
 end whitespace-position;
 
 define function skip-whitespace (buffer :: <byte-string>,
@@ -64,7 +61,7 @@ define function skip-whitespace (buffer :: <byte-string>,
                                  epos :: <integer>)
   => (pos :: <integer>)
   iterate fwd (pos :: <integer> = bpos)
-    if (pos >= epos | ~whitespace?(buffer[pos]))
+    if (pos >= epos | ~%whitespace?(buffer[pos]))
       pos
     else
       fwd(pos + 1)
@@ -83,7 +80,7 @@ define function trim-whitespace (buffer :: <byte-string>,
          else
            iterate bwd (epos :: <integer> = endp)
              let last = epos - 1;
-             if (last >= start & whitespace?(buffer[last]))
+             if (last >= start & %whitespace?(buffer[last]))
                bwd(last)
              else
                epos
@@ -92,7 +89,8 @@ define function trim-whitespace (buffer :: <byte-string>,
          end)
 end trim-whitespace;
 
-define function trim
+/*
+define function %trim
     (string :: <byte-string>) => (trimmed-string :: <byte-string>)
   let len :: <integer> = size(string);
   let (bpos, epos) = trim-whitespace(string, 0, len);
@@ -102,39 +100,7 @@ define function trim
     copy-sequence(string, start: bpos, end: epos)
   end;
 end;
-
-// RFC 2616, 2.2
-define constant $token-character-map
-  = begin
-      let vec = make(<vector>, size: 128, fill: #t);
-      let separator-chars = "()<>@,;:\\\"/[]?={} \t";
-      for (char in separator-chars)
-        vec[as(<integer>, char)] := #f;
-      end;
-      // US ASCII control characters...
-      for (code from 0 to 32)
-        vec[code] := #f;
-      end;
-      vec[127] := #f;   // DEL
-      vec
-    end;
-
-define inline function token-char?
-    (char :: <byte-character>) => (token-char? :: <boolean>)
-  let code :: <integer> = as(<integer>, char);
-  code <= 127 & $token-character-map[code]
-end;
-
-define inline function non-token-char?
-    (char :: <byte-character>) => (non-token-char? :: <boolean>)
-  ~token-char?(char)
-end;
-
-define function token-end-position (buf :: <byte-string>,
-                                    bpos :: <integer>,
-                                    epos :: <integer>)
-  char-position-if(non-token-char?, buf, bpos, epos)
-end;
+*/
 
 define inline function looking-at? 
     (pat :: <byte-string>, buf :: <byte-string>, bpos :: <integer>, epos :: <integer>)
@@ -205,36 +171,13 @@ end string-equal-2;
 define function digit-weight (ch :: <byte-character>) => (n :: false-or(<integer>))
   when (ch >= '0')
     let n = logior(as(<integer>, ch), 32) - as(<integer>, '0');
-    if (n <= 9) n
+    if (n <= 9)
+      n
     else
       let n = n - (as(<integer>, 'a') - as(<integer>, '0') - 10);
       10 <= n & n <= 15 & n
     end;
   end;
 end digit-weight;
-
-//define constant ($maximum-integer-q, $maximum-integer-r) = floor/($maximum-integer, 10);
-
-// Returns #f if the string is empty, or there are any non-digits in string, or
-// if value would exceed an <integer>.  Maybe should return $maximum-integer
-// in the latter case?
-define function string->integer
-    (buf :: <byte-string>, bpos :: <integer>, epos :: <integer>)
- => (value :: false-or(<integer>));
-  /*
-  iterate loop (pos :: <integer> = bpos, value :: <integer> = 0)
-    if (pos == epos)
-      bpos ~== epos & value
-    else
-      let n = as(<integer>, buf[pos]) - as(<integer>, '0');
-      when (0 <= n & ((value < $maximum-integer-q & n <= 9) |
-                        (value == $maximum-integer-q & n <= $maximum-integer-r)))
-        loop(pos + 1, value * 10 + n);
-      end;
-    end;
-  end iterate;
-  */
-  string-to-integer(buf, start: bpos, end: epos, default: #f)
-end string->integer;
 
 

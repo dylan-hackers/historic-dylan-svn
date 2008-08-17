@@ -1,14 +1,15 @@
 Module:   dylan-user
-Synopsis: Dylan utilities I can't live without
+Synopsis: Some definitions of general use that could be considered for
+          inclusion in common-dylan if they stand the test of time.
 Author:   Carl Gay
 
-define library dylan-basics
+define library uncommon-dylan
   use common-dylan;
   use io;
-  export dylan-basics;
+  export uncommon-dylan;
 end;
 
-define module dylan-basics
+define module uncommon-dylan
   use dylan;
   use common-extensions;
   use streams, import: { write, with-output-to-string };
@@ -31,6 +32,5 @@ define module dylan-basics
     ignore-errors,
     table-keys,
     table-values;
-end;
-
+  end module uncommon-dylan;
 

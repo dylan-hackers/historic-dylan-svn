@@ -13,6 +13,12 @@ define inline function trimmed-substring (str :: <byte-string>,
   b < e & substring(str, b, e)
 end;
 
+define inline function string->integer
+    (buf :: <byte-string>, bpos :: <integer>, epos :: <integer>)
+ => (value :: false-or(<integer>))
+  string-to-integer(buf, start: bpos, end: epos, default: #f)
+end string->integer;
+
 define inline function trimmed-string->integer
     (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
   let (b, e) = trim-whitespace(str, bpos, epos);

@@ -27,12 +27,18 @@ define function rev-as-alist (pairs :: <list>)
 end;
 
 // <tagged-element>?
-define class <avalue> (<explicit-key-collection>, <sealed-constructor>)
+define class <avalue> (<explicit-key-collection>)
   constant slot avalue-value :: <object>,
     required-init-keyword: value:;
   constant slot avalue-alist :: <alist>,
     required-init-keyword: alist:;
 end;
+
+define sealed domain make (subclass(<avalue>));
+define sealed domain initialize (<avalue>);
+
+
+
 
 //define constant $empty-avalue = make(<avalue>, value: #f, alist: #[]);
 
