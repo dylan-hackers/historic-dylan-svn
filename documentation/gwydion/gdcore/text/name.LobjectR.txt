@@ -90,6 +90,7 @@ Functions on <object>:
 - #buffer-position-setter#
 - #buffer-size#
 - #buffer-start-setter#
+- #byte-vector-ref-setter#
 - #c-expr#
 - #c-struct-field-setter#
 - #call-out#

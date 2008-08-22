@@ -1,7 +1,7 @@
 Function: byte-vector-ref-setter
 ==============================
 
-A function.
+Identical to #element-setter# on #<byte-vector>#.
 
 
 Exported from:
@@ -11,9 +11,9 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<byte-vector>#. 
-arg - An instance of #<integer>#. 
+value       - An instance of #<object># castable to #<integer>#.
+byte-vector - An instance of #<byte-vector>#. 
+index       - An instance of #<integer>#. 
 
 
 Values:

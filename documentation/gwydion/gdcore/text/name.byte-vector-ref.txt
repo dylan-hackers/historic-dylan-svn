@@ -1,7 +1,7 @@
 Function: byte-vector-ref
 ==============================
 
-A function.
+Identical to #element# on #<byte-vector>#.
 
 
 Exported from:
@@ -11,13 +11,13 @@ Exported from:
 
 Arguments:
 ------------------------------
-arg - An instance of #<byte-vector>#. 
-arg - An instance of #<integer>#. 
+byte-vector - An instance of #<byte-vector>#. 
+index       - An instance of #<integer>#. 
 
 
 Values:
 ------------------------------
-#rest more - Instances of #<object>#. 
+byte - An instance of #<byte>#. 
 
 
 

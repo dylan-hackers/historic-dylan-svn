@@ -23,3 +23,7 @@ Value:
 ------------------------------
 <byte-character>
 
+
+Functions on <byte-character>:
+------------------------------
+- #byte-vector-fill#

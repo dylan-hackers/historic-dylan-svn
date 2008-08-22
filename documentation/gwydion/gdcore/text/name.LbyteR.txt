@@ -20,3 +20,7 @@ Value:
 ------------------------------
 limited(<integer>, min: 0, max: 255)
 
+
+Functions returning <byte>:
+------------------------------
+- #byte-vector-ref#

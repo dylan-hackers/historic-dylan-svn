@@ -1,7 +1,7 @@
 Generic: byte-vector-fill
 ==============================
 
-A generic function.
+Replaces some or all the elements of a byte vector.
 
 
 Exported from:
@@ -16,13 +16,11 @@ sealed
 
 Arguments:
 ------------------------------
-arg - An instance of #<object>#. 
-arg - An instance of #<object>#. 
-
-
-Values:
-------------------------------
-#rest more - Instances of #<object>#. 
+target - An instance of #<byte-vector>#. 
+value  - An instance of #<integer># or #<byte-character>#.
+start: - An instance of #<integer>#. Defaults to 0.
+end:   - An instance of #<integer>#, or #f. The upper exclusive limit
+         of the operation. Defaults to #f.
 
 
 
