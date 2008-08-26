@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd /var/www/service-hooks
+svn up
