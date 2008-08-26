@@ -1,6 +1,7 @@
 module: tcp-command-server
 
 define variable *working-directory* = #f;
+define variable *logfile* = "tcp-command.log";
 
 define function main(name, arguments)
   start-sockets();
@@ -51,35 +52,39 @@ define function duration-to-string (duration :: <day/time-duration>) => (res :: 
 end;
 
 define function reply-to-request (socket :: <socket>)
-  block(ret)
-    let now = current-date();
-    format-out("%s host %s ",
-	       format-date("%d/%b/%Y:%T %z", now),
-	       as(<string>, host-address(remote-host(socket))));
+  with-open-file(log = *logfile*, direction: #"output", if-exists: #"append")
+    block(ret)
+      let now = current-date();
+      format(log, "%s host %s ",
+	     format-date("%d/%b/%Y:%T %z", now),
+	     as(<string>, host-address(remote-host(socket))));
 
-    let command =
-      block ()
-	let line = read-line(socket);
-	close(socket);
-	line;
-      exception (e :: <error>)
-	format-out("communication error %=\n", e);
-	ret();
-      end;
+      let command =
+	block ()
+	  let line = read-line(socket);
+	  close(socket);
+	  line;
+	exception (e :: <error>)
+	  format(log, "communication error %=\n", e);
+	  ret();
+	end;
     
-    format-out("\"%s\" ", command);
-    let exec = as(<file-locator>,
-		  concatenate(as(<string>, *working-directory*), command));
-    if (file-exists?(exec)
-	  & locator-below-root?(exec, *working-directory*))
-      let exit = run-application(as(<string>, exec));
-      format-out("succeeded with %= in %s\n",
-		 exit, duration-to-string(current-date() - now));
-    else
-      format-out("unknown command\n");
-    end;
-  exception (e :: <error>)
-    format-out("got exception %=\n", e);
+      format(log, "\"%s\" ", command);
+      let exec = as(<file-locator>,
+		    concatenate(as(<string>, *working-directory*), command));
+      if (file-exists?(exec)
+	    & file-type(exec) == #"file"
+	    & locator-below-root?(exec, *working-directory*)
+	    & file-property(exec, #"executable?"))
+	let exit = run-application(as(<string>, exec));
+	format(log, "succeeded with %= in %s\n",
+	       exit, duration-to-string(current-date() - now));
+      else
+	format(log, "unknown command\n");
+      end;
+    exception (e :: <error>)
+      format(log, "got exception %=\n", e);
+    end
   end
 end;
 
