@@ -10,6 +10,7 @@ end library;
 define module tcp-command-server
   use common-dylan;
   use format-out;
+  use format;
   use sockets;
   use date;
   use operating-system;
