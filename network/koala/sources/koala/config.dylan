@@ -182,10 +182,10 @@ define method process-config-element
       add!(server.server-listeners,
            make-listener(format-to-string("%s:%d", address, port)));
     exception (<error>)
-      warn("Invalid listener spec: %s", xml$text(node));
+      warn("Invalid <listener> spec: %=", xml$text(node));
     end;
   else
-    warn("Invalid <LISTENER> specification.  You must specify at least one "
+    warn("Invalid <listener> spec.  You must supply at least one "
          "of 'address' or 'port'.");
   end;
 end method process-config-element;

@@ -29,7 +29,6 @@ define library koala
   use xml-rpc-common;
 
   export dsp;
-  export koala-extender;
   export koala-unit;
   export koala;
 end library koala;
@@ -38,9 +37,7 @@ end library koala;
 define module koala
   //needed for last-modified stuff
   create
-    get-header,
-    request-method-setter,
-    not-modified;
+    request-method-setter;
 
   // Server startup/shutdown
   create
@@ -103,7 +100,6 @@ define module koala
     output-stream,
     clear-output,
     set-content-type,
-    add-header,
     add-cookie,
     get-request,
     response-code,
@@ -112,22 +108,17 @@ define module koala
     response-message-setter,
     response-headers;
 
-  // Cookies
-  create
-    cookie-name,
-    cookie-value,
-    cookie-domain,
-    cookie-path,
-    cookie-max-age,
-    cookie-comment,
-    cookie-version;
-
   // Sessions
   create
     <session>,
     get-session,
     ensure-session,
     clear-session;
+
+  // Redirect
+  create
+    redirect-to,
+    redirect-temporarily-to;
 
   // Logging
   create
@@ -160,37 +151,14 @@ define module koala
     maybe-serve-static-file,
     document-location;
 
-  // Redirection
-  create
-    redirect-to,
-    redirect-temporarily-to,
-    moved-permanently-redirect,
-    moved-temporarily-redirect,
-    see-other-redirect,
-    unauthorized-error;
-
   // Errors
   create
     <koala-api-error>,
-    <configuration-error>,
-    http-error-code,
-    http-error-headers,
-    access-forbidden-error,
-    application-error,
-    unsupported-request-method-error,
-    resource-not-found-error,
-    unimplemented-error,
-    internal-server-error,
-    bad-request;
+    <configuration-error>;
 
   // Files
   create
     static-file-responder;
-
-  create
-    <avalue>,
-    avalue-value,
-    avalue-alist;
 
   create
     <http-file>,
@@ -198,22 +166,7 @@ define module koala
     http-file-content,
     http-file-mime-type;
 
-  // Headers
-  // Do these really need to be exported?
-  create
-    <header-table>,
-    *max-single-header-size*,
-    *header-buffer-growth-amount*,
-    // read-message-headers(stream) => header-table
-    read-message-headers,
-    header-value;
-
 end module koala;
-
-// Additional interface for extending the server
-define module koala-extender
-  create parse-header-value;
-end;
 
 // Additional interface for unit tests.
 define module koala-unit
@@ -313,7 +266,6 @@ define module httpi                             // http internals
   use format;
   use http-common;
   use koala;
-  use koala-extender;
   use koala-unit;
   use locators,
     rename: { <http-server> => <http-server-url>,

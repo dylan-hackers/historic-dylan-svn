@@ -1,6 +1,4 @@
 Module:    httpi
-Synopsis:  Some globals that don't belong anywhere else in particular.
-           Most are configurable in the koala-config.xml file.
 Author:    Carl Gay
 Copyright: Copyright (c) 2001-2008 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
@@ -8,8 +6,6 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 define constant $default-http-port :: <integer> = 80;
-
-// TODO: The follow 3 should probably be per vhost.
 
 // Entries in this table may be overridden by entries in the mime-type-map
 // file specified in the Koala config file, if any.
@@ -204,4 +200,8 @@ define variable *temp-log-target*
 // this before calling koala-main().
 define variable *argument-list-parser* :: <argument-list-parser>
   = make(<argument-list-parser>);
+
+
+// Max size of data in a POST.
+define variable *max-post-size* :: false-or(<integer>) = 16 * 1024 * 1024;
 

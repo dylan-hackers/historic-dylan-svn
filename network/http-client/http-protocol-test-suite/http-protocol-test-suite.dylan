@@ -5,7 +5,30 @@ Author: Carl Gay
 define suite http-protocol-test-suite ()
   suite method-test-suite;
   suite header-test-suite;
+  suite bad-request-suite;
 end suite http-protocol-test-suite;
+
+define suite bad-request-suite ()
+  test test-bad-requests;
+end;
+
+define test test-bad-GET-requests ()
+  for (request-line in list("",
+                            "GET",
+                            "GET /foo",
+                            "garbage in garbage out"
+                            ))
+    check-condition(fmt("Send bad request: %s", request-line),
+                    <bad-request-error>,
+                    with-http-stream (http-stream)
+                      format(http-stream, "%s\r\n", request-line);
+                      // Host header is required for http 1.1.
+                      // Do we care about 0.9?...
+                      format(http-stream, "Host: localhost\r\n");
+                      format(http-stream, "\r\n");
+                    end);
+  end for;
+end test test-bad-requests;
 
 define suite method-test-suite ()
   test test-get-method;

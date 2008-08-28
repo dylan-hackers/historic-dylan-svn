@@ -1,10 +1,7 @@
 library: koala
 files:	library
 	variables
-	avalue
 	errors
-	header-values
-	headers
 	urls
 	vhost
 	response

@@ -194,18 +194,20 @@ end;
 //
 // @see parse-tag-arg(<string>, <date>)
 //
-define tag show-date in dsp (page :: <dylan-server-page>)
- (date :: <date> = current-date(), format, key, scope)
+define tag show-date in dsp
+    (page :: <dylan-server-page>)
+    (date :: <date> = current-date(), format, key, scope)
   //---TODO: Finish this.  For now it can only show the current date.
   date-to-stream(current-response().output-stream, date);
 end;
 
 //// HTTP Header Tags
 
-define tag show-referer in dsp (page :: <dylan-server-page>)
- ()
+define tag show-referer in dsp
+    (page :: <dylan-server-page>)
+    ()
   format(current-response().output-stream, "%s",
-         header-value(#"Referer"));
+         get-header(current-request(), "Referer"));
 end;
 
 //// Internationalization tags

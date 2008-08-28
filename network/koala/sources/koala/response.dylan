@@ -38,7 +38,7 @@ end class <response>;
 // Exported
 //
 define method add-header
-    (response :: <response>, header :: <string>, value :: <object>,
+    (response :: <response>, header :: <byte-string>, value :: <object>,
      #key if-exists? = #"append")
   if (headers-sent?(response))
     raise(<koala-api-error>,
@@ -156,18 +156,17 @@ define method send-response
     end if;
     add-header(response, "Date", as-rfc1123-string(current-date()));
 
-    let content-length :: <string> = "0";
+    let content-length :: <byte-string> = "0";
     unless (response.response-code == $not-modified)
       content-length := integer-to-string(stream-size(output-stream(response)));
-      // Add required headers
       add-header(response, "Content-Length", content-length);
     end;
     unless (req.request-version == #"HTTP/0.9")
       send-headers(response, stream);
     end;
-
-    // Don't try to log the request if it couldn't be parsed.
-    unless (response.response-code == $bad-request)
+    // If sending an error response vhost may be #f, in which case we
+    // have no log target.
+    if (*virtual-host*)
       log-request(req, response.response-code, content-length);
     end;
   end unless; // headers already sent
@@ -185,7 +184,8 @@ define inline function log-request
   // (http://www.w3.org/Daemon/User/Config/Logging.html)
   let request = concatenate(as-uppercase(as(<string>, request-method(req))),
                             " ",
-                            request-raw-url-string(req),
+                            // Can happen e.g. when client sends no data.
+                            request-raw-url-string(req) | "-",
                             " ",
                             as-uppercase(as(<string>, req.request-version)));
   let date = as-common-logfile-date(current-date());
@@ -196,18 +196,19 @@ define inline function log-request
   //   "{ip} {hostname} [{date}] '{url}' {user-agent} {referer}"
   // See bug #7200.
 
-  log-raw(activity-log-target(*virtual-host*),
-          concatenate(remoteaddr, " ",
-                      "-", " ",
-                      "-", " ",
-                      "[", date, "] ",
-                      "\"", request, "\" ",
-                      integer-to-string(response-code), " ",
-                      content-length,
-                      // for now, add User-Agent and Referer
-                      " \"", as(<string>, get-header(req, "referer") | "-"),
-                      "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
-                      "\""));
+  let log-entry
+    = concatenate(remoteaddr, " ",
+                  "-", " ",
+                  "-", " ",
+                  "[", date, "] ",
+                  "\"", request, "\" ",
+                  integer-to-string(response-code), " ",
+                  content-length,
+                  // for now, add User-Agent and Referer
+                  " \"", as(<string>, get-header(req, "referer") | "-"),
+                  "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
+                  "\"");
+  log-raw(activity-log-target(*virtual-host*), log-entry);
 end function log-request;
 
 // Exported

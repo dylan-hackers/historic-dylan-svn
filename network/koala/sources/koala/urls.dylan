@@ -27,5 +27,5 @@ define method redirect-temporarily-to (url :: <string>)
 end method redirect-temporarily-to;
 
 define method redirect-temporarily-to (url :: <url>)
-  redirect-to(build-uri(url));
+  redirect-temporarily-to(build-uri(url));
 end;

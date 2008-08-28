@@ -31,6 +31,21 @@ define test test-simple-http-get ()
               "hello");
 end test test-simple-http-get;
 
+define test test-request-object ()
+  let request = make(<http-request>,
+                     method: #"get",
+                     url: "http://www.google.com");
+  let response = send-http-request(#"get", "http://www.google.com",
+                                   // the rest are defaults
+                                   version: #"http/1.1",
+                                   data: #f,
+                                   background: #f)
+  if (response.http-status-code == 200)
+    
+  exception (ex :: <http-error>)
+    ...
+  end;
+
 define function main ()
   let parser = make(<argument-list-parser>);
   add-option-parser-by-type(parser,

@@ -1,4 +1,4 @@
-Module:    httpi
+Module:    http-common
 Synopsis:  header fields values parsing
 Author:    Gail Zacharias
 Copyright: Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.

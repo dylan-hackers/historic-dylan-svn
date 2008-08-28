@@ -1,4 +1,4 @@
-Module:    httpi
+Module:    http-common
 Synopsis:  Request header parsing
 Author:    Gail Zacharias
 Copyright: Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
@@ -18,15 +18,13 @@ define variable *max-single-header-size* :: false-or(<integer>) = 16384;
 // amount of copying the whole header around -- Hannes 16.11.2007
 define variable *header-buffer-growth-amount* :: limited(<integer>, min: 1) = 1024;
 
-// Max size of data in a POST.
-define variable *max-post-size* :: false-or(<integer>) = 16*1024*1024;
-
 // The buffer/epos values are for internal use, wouldn't expect to doc 'em.
-define function read-message-headers (stream :: <stream>,
-                                      #key buffer :: <byte-string> = grow-header-buffer("", 0),
-                                           start :: <integer> = 0,
-                                           headers :: <header-table> = make(<header-table>))
-  => (headers :: <header-table>, buffer :: <byte-string>, epos :: <integer>)
+define function read-message-headers
+    (stream :: <stream>,
+     #key buffer :: <byte-string> = grow-header-buffer("", 0),
+          start :: <integer> = 0,
+          headers :: <header-table> = make(<header-table>))
+ => (headers :: <header-table>, buffer :: <byte-string>, epos :: <integer>)
   iterate loop (buffer :: <byte-string> = buffer,
                 bpos :: <integer> = start,
                 peek-ch :: false-or(<character>) = #f)
@@ -36,28 +34,43 @@ define function read-message-headers (stream :: <stream>,
     else
       let (key, data) = split-header(buffer, bpos, epos);
       add-header(headers, key, data);
-      log-copious("<--%s: %s", key, data);
+      // TODO: we don't have access to the log target anymore now that this code
+      //       is in http-common.  Need to fix the logging library.
+      //log-copious("<--%s: %s", key, data);
       loop(buffer, epos, peek-ch);
     end if;
   end iterate;
 end read-message-headers;
 
+define open generic add-header
+    (object :: <object>, header :: <byte-string>, value :: <object>,
+     #key if-exists? :: <symbol>);
+
 define method add-header
-    (headers :: <header-table>, key :: <string>, data,
+    (headers :: <header-table>, header-name :: <byte-string>, value,
      #key if-exists? :: <symbol> = #"append")
-  let old = element(headers, key, default: #f);
-  // typically there is only one header for given key, so favor that.
-  log-copious("Adding header %s: %s", key, data);
+  let old = element(headers, header-name, default: #f);
+  // Typically there is only one header for given key, so favor that.
   if (~old | if-exists? = #"replace")
-    headers[key] := data;
+    headers[header-name] := value;
   elseif (if-exists? = #"append")
-    headers[key] := iff(instance?(old, <pair>),
-                        concatenate!(old, list(data)),
-                        list(old, data));
+    headers[header-name] := iff(instance?(old, <pair>),
+                                concatenate!(old, list(value)),
+                                list(old, value));
   elseif (if-exists? = #"error")
-    error("Attempt to add header %= which has already been added", key);
+    error("Attempt to add header %= which has already been added", header-name);
   end;
-end add-header;
+end method add-header;
+
+define open generic get-header
+    (object :: <object>, header-name :: <byte-string>, #key parsed :: <boolean>)
+ => (header-value :: <object>);
+
+define method get-header
+    (table :: <table>, header-name :: <byte-string>, #key parsed :: <boolean>)
+ => (header-value :: <object>)
+  element(table, header-name, default: #f)
+end method get-header;
 
 define function grow-header-buffer (old :: <byte-string>, len :: <integer>)
   if (*max-single-header-size* & len >= *max-single-header-size*)
@@ -77,13 +90,15 @@ end grow-header-buffer;
 
 // Read a header line, including continuation if any.  Grows buffer as needed.
 // Removes all crlf's, just leaves the text of line itself.
-define function read-header-line (stream :: <stream>,
-                                  buffer :: <byte-string>,
-                                  bpos :: <integer>,
-                                  peek-ch :: false-or(<byte-character>))
-    => (buffer :: <byte-string>,
-        bpos :: <integer>, epos :: <integer>,
-        peek-ch :: false-or(<byte-character>))
+define function read-header-line
+    (stream :: <stream>,
+     buffer :: <byte-string>,
+     bpos :: <integer>,
+     peek-ch :: false-or(<byte-character>))
+ => (buffer :: <byte-string>,
+     bpos :: <integer>,
+     epos :: <integer>,
+     peek-ch :: false-or(<byte-character>))
   iterate loop (buffer :: <byte-string> = buffer,
                 bpos :: <integer> = bpos,
                 epos :: <integer> = buffer.size,
@@ -177,27 +192,6 @@ define inline function string-hash-2 (s :: <byte-string>,
     hash
   end;
 end string-hash-2;
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// header-value(symbol)
-//
-
-define function header-value (key :: <symbol>)
-  request-header-value(*request*, key)
-end;
-
-define function request-header-value (request :: <request>, key :: <symbol>)
-  let cache = request.request-header-values;
-  let cached = element(cache, key, default: $unfound);
-  if (found?(cached))
-    cached
-  else
-    let raw-data = element(request.request-headers, as(<string>, key),
-                           default: #f);
-    cache[key] := (raw-data & parse-header-value(key, raw-data))
-  end
-end request-header-value;
 
 define constant <field-type> = type-union(<list>, <string>);
 

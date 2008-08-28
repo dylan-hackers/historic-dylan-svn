@@ -81,7 +81,7 @@ define open generic respond-to
 // Default
 define method respond-to 
     (request-method :: <symbol>, page :: <page>)
-  unsupported-request-method-error();
+  method-not-allowed(request-method: request-method);
 end;
 
 define method respond-to
@@ -102,7 +102,8 @@ define open generic respond-to-post (page :: <page>);
 
 define method respond-to-get
     (page :: <page>)
-  unsupported-request-method-error()
+  // TODO: include Allow header in response.
+  method-not-allowed(request-method: "GET");
 end method respond-to-get;
 
 // This is a common case and it's more succinct and readable than respond-to.
@@ -231,7 +232,7 @@ define method respond-to (request-method == #"get", page :: <static-page>)
     write(stream, page.contents);
     force-output(stream);
   else
-    resource-not-found-error(url: current-request().request-url);
+    resource-not-found-error(url: as(<string>, current-request().request-url));
   end;
 end;
 
@@ -848,7 +849,7 @@ define method parse-page
   pt-debug("Parsing page %s", as(<string>, source-location(page)));
   let string = file-contents(source-location(page));
   if (~string)
-    resource-not-found-error(url: current-request().request-url);
+    resource-not-found-error(url: as(<string>, current-request().request-url));
   else
     page.contents := string;
     page.date-modified := file-property(source-location(page), #"modification-date");

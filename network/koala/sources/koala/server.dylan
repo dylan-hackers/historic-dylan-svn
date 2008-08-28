@@ -602,25 +602,27 @@ define function do-http-listen
 end do-http-listen;
 
 define class <request> (<basic-request>)
+  // todo -- RFC 2616, 5.1.1 -- The request method is case-sensitive.
+  //         So it shouldn't be a <symbol>.
   slot request-method :: <symbol> = #"unknown";
   slot request-version :: <symbol> = #"unknown";
   slot request-url :: false-or(<url>) = #f;
-  slot request-raw-url-string :: false-or(<string>) = #f;
+  slot request-raw-url-string :: false-or(<byte-string>) = #f;
+  // contains the relative URL following the matched responder
+  slot request-tail-url :: false-or(<url>) = #f;
 
   // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
   slot request-host :: false-or(<string>) = #f;
 
   slot request-keep-alive? :: <boolean> = #f;
 
-  // The actual headers, mapping string -> raw data
-  // (The header names are not interned to avoid permanent wedgedness
-  //  by invalid headers).
-  slot request-headers :: <header-table>,
+  // Raw headers, mapping case-insensitive-header-name to unparsed header value.
+  slot request-raw-headers :: <header-table>,
     init-function: curry(make, <header-table>);
 
-  // Cache, mapping keyword (requested by user) -> parsed data
-  constant slot request-header-values :: <object-table>,
-    init-function: curry(make, <object-table>);
+  // Parsed headers.  Header values are parsed on demand only.
+  constant slot request-parsed-headers :: <header-table>,
+    init-function: curry(make, <header-table>);
 
   // Query values from either the URL or the body of the POST, if Content-Type
   // is application/x-www-form-urlencoded.
@@ -636,15 +638,27 @@ define class <request> (<basic-request>)
   //         reasons.  It should be removed.
   slot request-responder :: false-or(<responder>) = #f;
 
-  // contains the relative URL after the matched responder
-  slot request-tail-url :: false-or(<url>) = #f;
-
 end class <request>;
 
 define method get-header
-    (request :: <request>, name :: <string>) => (header :: <object>)
-  element(request.request-headers, name, default: #f)
-end;
+    (request :: <request>, name :: <byte-string>, #key parsed :: <boolean>)
+ => (header :: <object>)
+  if (parsed)
+    let cache = request.request-parsed-headers;
+    let cached = element(cache, name, default: $unfound);
+    if (found?(cached))
+      cached
+    else
+      let raw-value = get-header(request.request-raw-headers, name);
+      // It's okay to intern the header name as a symbol since it's being
+      // requested explicitly.
+      cache[name] := (raw-value & parse-header-value(as(<symbol>, name), raw-value))
+    end
+  else
+    get-header(request.request-raw-headers, name)
+  end
+end method get-header;
+
 
 // Making a virtual hosts requires an instantiated server to do some
 // initialization, so use this instead of calling make(<virtual-host>).
@@ -700,12 +714,12 @@ define method virtual-host
       vhost
     else
       // todo -- see if the spec says what error to return here.
-      resource-not-found-error(url: request.request-url);
+      resource-not-found-error(url: as(<string>, request.request-url));
     end;
   elseif (*server*.fall-back-to-default-virtual-host?)
     *server*.default-virtual-host
   else
-    resource-not-found-error(url: request.request-url);
+    resource-not-found-error(url: as(<string>, request.request-url));
   end
 end;
 
@@ -713,14 +727,14 @@ define thread variable *request* :: false-or(<request>) = #f;
 
 define inline function current-request
     () => (request :: <request>)
-  *request*
+  *request* | application-error(message: "There is no active HTTP request.")
 end;
 
 define thread variable *response* :: false-or(<response>) = #f;
 
 define inline function current-response
     () => (response :: <response>)
-  *response*
+  *response* | application-error(message: "There is no active HTTP response.")
 end;
 
 // Called (in a new thread) each time a new connection is opened.
@@ -739,6 +753,8 @@ define function handler-top-level
         *request* := request;
         with-simple-restart("Skip this request and continue with the next")
           block (finish-request)
+            // More recently installed handlers take precedence...
+            let handler <error> = rcurry(htl-error-handler, finish-request);
             let handler <stream-error>
               = rcurry(htl-error-handler, exit-handler-top-level,
                        send-response: #f,
@@ -748,7 +764,6 @@ define function handler-top-level
                        send-response: #f,
                        decline-if-debugging: #f);
             let handler <http-error> = rcurry(htl-error-handler, finish-request);
-            let handler <error> = rcurry(htl-error-handler, finish-request);
 
             read-request(request);
             *virtual-host* := virtual-host(request);
@@ -801,11 +816,11 @@ define method read-request (request :: <request>) => ()
 
   read-request-first-line(server, request, buffer);
   unless (request.request-version == #"http/0.9")
-    request.request-headers
+    request.request-raw-headers
       := read-message-headers(socket,
                               buffer: buffer,
                               start: len,
-                              headers: request.request-headers);
+                              headers: request.request-raw-headers);
   end unless;
   process-incoming-headers(request);
   select (request.request-method by \==)
@@ -826,10 +841,10 @@ define constant $request-line-regex :: <regex>
 define function read-request-first-line
     (server :: <http-server>, request :: <request>, buffer :: <string>)
  => ()
-  let (entire-match, http-method, url, http-version)
+  let (entire-match, req-method, url, http-version)
     = regex-search-strings($request-line-regex, buffer);
   if (entire-match)
-    request.request-method := as(<symbol>, http-method);
+    request.request-method := validate-request-method(as(<symbol>, req-method));
     request.request-raw-url-string := url;
     let url = parse-url(url);
     // RFC 2616, 5.2 -- absolute URLs in the request line take precedence
@@ -854,14 +869,26 @@ define function read-request-first-line
 end function read-request-first-line;
 
 
+define method validate-request-method
+    (request-method :: <symbol>)
+ => (request-method :: <symbol>)
+  if (member?(request-method, #[#"GET", #"HEAD", #"POST"]))
+    request-method
+  else
+    not-implemented-error(what: format-to-string("Request method %s", request-method),
+                          header-name: "Allow",
+                          header-value: "GET, HEAD, POST");
+  end
+end method validate-request-method;
+
+
 define function read-request-content
     (request :: <request>)
  => (content :: <byte-string>)
   // ---TODO: Should probably try to continue here even if Content-Length
   //          not supplied.  Or have a "strict" option.
-  let content-length
-    = request-header-value(request, #"content-length")
-      | content-length-required-error();
+  let content-length = get-header(request, "Content-Length", parsed: #t)
+                       | content-length-required-error();
   if (*max-post-size* & content-length > *max-post-size*)
     //---TODO: the server MAY close the connection to prevent the client from
     // continuing the request.
@@ -869,9 +896,15 @@ define function read-request-content
   else
     let buffer :: <byte-string> = make(<byte-string>, size: content-length);
     let n = kludge-read-into!(request-socket(request), content-length, buffer);
-    assert(n == content-length, "Unexpected incomplete read");
+    if (n ~== content-length)
+      // RFC 2616, 4.4
+      bad-request(message: format-to-string("Request content size (%d) does not "
+                                            "match Content-Length header (%d)",
+                                            n, content-length));
+    end;
     request-content(request)
-      := process-request-content(request-content-type(request), request, buffer, content-length);
+      := process-request-content(request-content-type(request),
+                                 request, buffer, content-length);
   end
 end read-request-content;
 
@@ -1031,14 +1064,15 @@ end method send-error-response-internal;
 // "User-agent" statistics, etc.
 //
 define method process-incoming-headers (request :: <request>)
-  bind (conn-values :: <sequence> = request-header-value(request, #"connection") | #())
+  bind (conn-values :: <sequence> = get-header(request, "Connection", parsed: #t) | #())
     if (member?("Close", conn-values, test: string-equal?))
       request-keep-alive?(request) := #f
     elseif (member?("Keep-Alive", conn-values, test: string-equal?))
       request-keep-alive?(request) := #t
     end;
   end;
-  bind (host = get-header(request, "Host"))
+  bind (host/port = get-header(request, "Host", parsed: #t))
+    let (host, port) = host/port & values(head(host/port), tail(host/port));
     if (~host & request.request-version == #"HTTP/1.1")
       // RFC 2616, 19.6.1.1 -- HTTP/1.1 requests MUST include a Host header.
       bad-request(message: "HTTP/1.1 requests must include a Host header.");
@@ -1050,7 +1084,7 @@ define method process-incoming-headers (request :: <request>)
       log-debug("Request host set from Host header: %s", request.request-host);
     end;
   end;
-  bind (agent = request-header-value(request, #"user-agent"))
+  bind (agent = get-header(request, "User-Agent"))
     agent & note-user-agent(request-server(request), agent);
   end;
 end method process-incoming-headers;
@@ -1090,7 +1124,7 @@ define method invoke-handler (request :: <request>) => ()
          invoke-responder(request, action, arguments)
        end;
      else
-       resource-not-found-error(url: url);
+       resource-not-found-error(url: as(<string>, url));
      end if;
     else
       // generates 404 if not found
@@ -1181,9 +1215,11 @@ end;
 define function extract-request-version 
     (buffer :: <string>)
  => (version :: <symbol>)
-  let version = as(<symbol>, buffer);    
-  select (version) 
-    #"HTTP/0.9", #"HTTP/1.0", #"HTTP/1.1" => version;
+  // Take care not to intern arbitrary symbols...
+  select (buffer by string-equal?)
+    "HTTP/0.9" => #"HTTP/0.9";
+    "HTTP/1.0" => #"HTTP/1.0";
+    "HTTP/1.1" => #"HTTP/1.1";
     otherwise => unsupported-http-version-error();
   end select;
 end;

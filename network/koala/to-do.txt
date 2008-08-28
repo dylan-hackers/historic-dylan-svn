@@ -1,16 +1,39 @@
 Koala To-Do List
 ----------------
 
-* Make koala as easy to use as an HTTP server in Python.  Something like this:
-    use koala;
-    let config = make(<config>, locator: "/tmp/koala-config.xml");  // optional
-    let server = make(<http-server>, config: config);
-    register-url("/foo", method (request, response) ... end;
-    start-server(server, in-new-thread?: #f);
-
-* Ability to bind to a specific IP address.
-
 * Thread pool.  Can be expensive to allocate/deallocate threads.
+
+* The request-method is case sensivite yet we intern it as a symbol.
+  Probably want to define a class for it just to intern them and to
+  continue to be able to dispatch on them.
+
+* resource-not-found-error is annoying in that it requires converting
+  the url to a string before each call and the argument is untyped so
+  it's not found until runtime.  Maybe add resource-not-found method
+  on <request> that DTRTs.  I still don't like the errors.dylan code.
+  At the very least the macro should generate 'define method' rather
+  than 'define function' so that other methods can be added to the gf.
+
+* Review all uses of as(<symbol>, x) to make sure we're not vulnerable
+  to memory leaks.
+
+* Review all uses of <string> and replace with <byte-string> where
+  appropriate.
+
+* Test whether rcurry does the right thing with keyword args.  Not
+  sure the code in handler-top-level that uses that has actually
+  been exercised.
+
+* xml-rpc-client sends Host header?
+
+* Change add-header to default to #"error", but figure out what's currently
+  breaking first.
+
+* Make xml-rpc-client use http-client.
+
+* Make a combined test suite for all libraries that use http-common (directly
+  or indirectly) so that it's possible to verify in one shot that you didn't
+  break anything when changing http-common.
 
 * Fix security issues...
 
