@@ -739,6 +739,7 @@ define function handler-top-level
         *request* := request;
         with-simple-restart("Skip this request and continue with the next")
           block (finish-request)
+            let handler <error> = rcurry(htl-error-handler, finish-request);
             let handler <stream-error>
               = rcurry(htl-error-handler, exit-handler-top-level,
                        send-response: #f,
@@ -748,7 +749,6 @@ define function handler-top-level
                        send-response: #f,
                        decline-if-debugging: #f);
             let handler <http-error> = rcurry(htl-error-handler, finish-request);
-            let handler <error> = rcurry(htl-error-handler, finish-request);
 
             read-request(request);
             *virtual-host* := virtual-host(request);
