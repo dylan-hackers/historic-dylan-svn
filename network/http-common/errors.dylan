@@ -16,8 +16,10 @@ define method http-error-headers
 end;
 
 define class <http-error> (<format-string-condition>, <error>)
-  constant slot http-error-code :: <integer>, required-init-keyword: code:;
-  constant slot http-error-headers :: false-or(<header-table>) = #f,
+  constant slot http-error-code :: <integer>,
+    required-init-keyword: code:;
+  constant slot http-error-headers :: false-or(<header-table>),
+    init-value: #f,
     init-keyword: headers:;
 end;
 

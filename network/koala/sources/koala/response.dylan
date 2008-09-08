@@ -8,24 +8,13 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 // Exported
 //
-define open primary class <response> (<object>)
-
-  constant slot get-request :: <request>,
-    required-init-keyword: #"request";
+define open primary class <response> (<base-http-response>)
 
   // The output stream is created lazily so that the user has the opportunity to
   // set properties such as stream type (e.g., binary or text) and buffering
   // characteristics.
   // @see output-stream
   slot %output-stream :: false-or(<stream>) = #f;
-
-  // Headers to send with the response.
-  // @see add-header
-  constant slot response-headers :: <header-table>,
-    required-init-keyword: #"headers";
-
-  slot response-code    :: <integer> = 200;
-  slot response-message :: <string>  = "OK";
 
   slot headers-sent? :: <boolean> = #f;
 
@@ -136,14 +125,14 @@ end;
 //
 define method send-response
     (response :: <response>) => ()
-  let stream :: <stream> = request-socket(get-request(response));
-  let req :: <request> = get-request(response);
+  let stream :: <stream> = request-socket(response-request(response));
+  let req :: <request> = response-request(response);
   unless (headers-sent?(response))
     // Send the response line
     let response-line = format-to-string("%s %d %s\r\n",
                                          $http-version, 
                                          response.response-code, 
-                                         response.response-message | "OK");
+                                         response.response-reason-phrase | "OK");
     unless (req.request-version == #"HTTP/0.9")
       log-copious("-->%s", response-line);
       write(stream, response-line);

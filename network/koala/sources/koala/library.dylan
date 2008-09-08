@@ -35,10 +35,6 @@ end library koala;
 
 
 define module koala
-  //needed for last-modified stuff
-  create
-    request-method-setter;
-
   // Server startup/shutdown
   create
     <http-server>,
@@ -55,19 +51,16 @@ define module koala
 
   // Requests
   create
+    // See also: the methods for requests in http-common
     <request>,
     current-request,             // Returns the active request of the thread.
-    request-method,              // Returns #"get", #"post", etc
     request-host,
-    request-url,
     request-tail-url,
     request-query-values,        // get the keys/vals from the current GET or POST request
       get-query-value,           // Get a query value that was passed in a URL or a form
       do-query-values,           // Call f(key, val) for each query in the URL or form
       count-query-values,
-    request-content,
     request-content-type,
-    request-content-setter,
     process-request-content;
 
   // Responders
@@ -95,18 +88,13 @@ define module koala
   // Responses
   create
     <response>,
+    // See also: methods on <base-http-response> in common-dylan.
     current-response,            // Returns the active response of the thread.
     output,
     output-stream,
     clear-output,
     set-content-type,
-    add-cookie,
-    get-request,
-    response-code,
-    response-code-setter,
-    response-message,
-    response-message-setter,
-    response-headers;
+    add-cookie;
 
   // Sessions
   create

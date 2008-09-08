@@ -249,11 +249,11 @@ define method find-object
             let child = element(trie.trie-children, head(path), default: #f);
             if (child)
               real-find(child, tail(path), child.trie-object | object,
-                  if (child.trie-object)
-                    tail(path)
-                  else
-                    rest
-                  end if);
+                        if (child.trie-object)
+                          tail(path)
+                        else
+                          rest
+                        end if);
             else
               values(object, rest);
             end

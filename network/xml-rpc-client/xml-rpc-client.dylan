@@ -3,27 +3,18 @@ Author:    Carl Gay
 Synopsis:  XML RPC client library
 Copyright: (C) 2002, Carl L Gay.  All rights reserved.
 
-// The usual interface for making an XML-RPC call.
-// (Maybe add a way to specify headers.)
-//
-define function xml-rpc-call
-    (host :: <string>, method-name :: <string>,
-     #rest args,
-     #key port :: <integer> = 80,
-          url :: <byte-string> = "/RPC2")
+define generic xml-rpc-call
+    (url :: <object>, method-name :: <string>, #rest args)
+ => (response :: <object>);
+
+define method xml-rpc-call
+    (url :: <string>, method-name :: <string>, #rest args)
  => (response :: <object>)
-  %xml-rpc-call(host, port, url, method-name, remove-keys(args, port:, url:))
+  apply(xml-rpc-call, parse-url(url), method-name, args)
 end;
 
-// The way to make an XML-RPC call if args needs to contain keywords that
-// are accepted and filtered out by xml-rpc-call.  (I couldn't think of
-// a better API.  Anyone?)
-define function %xml-rpc-call
-    (host :: <string>,
-     port :: <integer>,
-     url :: <string>,
-     method-name :: <string>,
-     args :: <sequence>)
+define method xml-rpc-call
+    (url :: <url>, method-name :: <string>, #rest args)
  => (response :: <object>)
   let xml = apply(create-method-call-xml, method-name, args);
   when (*debugging-xml-rpc*)
@@ -32,17 +23,14 @@ define function %xml-rpc-call
   let request = make(<http-request>,
                      method: "POST",
                      url: url,
-                     host: host,
-                     port: port,
                      http-version: #"http/1.0");
-  add-headers(request,
-              "User-Agent", "Koala XML-RPC client",
-              "Content-Type", "text/xml",
-              "Content-Length", integer-to-string(xml.size),
-              "Pragma", "no-cache");
-  let response :: <response> = send-request(request);
-  parse-response(response.response-content)
-end function xml-rpc-call-2;
+  add-header(request, "User-Agent", "Koala XML-RPC client");
+  add-header(request, "Content-Type", "text/xml");
+  add-header(request, "Content-Length", integer-to-string(xml.size));
+  add-header(request, "Pragma", "no-cache");
+  let response :: <http-response> = send-http-request(request);
+  parse-xml-rpc-response(response.response-content)
+end method xml-rpc-call;
 
 
 define table $html-quote-map
@@ -51,25 +39,6 @@ define table $html-quote-map
       '&' => "&amp;",
       '"' => "&quot;"
       };
-
-// This is copied from Koala's utils.dylan.  If you fix it here, fix
-// it there.
-// I'm sure this could use a lot of optimization.
-define function quote-html
-    (text :: <string>, #key stream)
-  if (~stream)
-    with-output-to-string (s)
-      quote-html(text, stream: s)
-    end
-  else
-    for (char in text)
-      let translation = element($html-quote-map, char, default: char);
-      iff(instance?(translation, <sequence>),
-          write(stream, translation),
-          write-element(stream, translation));
-    end;
-  end;
-end function quote-html;
 
 define function create-method-call-xml
     (method-name :: <string>, #rest args)
@@ -131,12 +100,12 @@ define function read-response
                   ex.stream-error-sequence
                 end
               end;
-    parse-response(seq)
+    parse-xml-rpc-response(seq)
   end
 end function read-response;
 */
 
-define function parse-response
+define method parse-xml-rpc-response
     (xml :: <string>)
  => (response :: <object>)
   when (*debugging-xml-rpc*)
@@ -144,7 +113,7 @@ define function parse-response
   end;
   let doc :: xml$<document> = xml$parse-document(xml);
   parse-xml-rpc-response(doc);
-end function parse-response;
+end method parse-xml-rpc-response;
 
 define method parse-xml-rpc-response
     (node :: xml$<document>)

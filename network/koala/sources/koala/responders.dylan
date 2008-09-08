@@ -13,6 +13,11 @@ define class <responder> (<object>)
   // url (i.e., the part following the base url on which this responder was
   // registered) the functions are called in order.  They should raise an exception
   // (of what type?) to abort the chain.
+
+  // This doesn't make much sense to me.  Since the regular expressions are in a
+  // table there's no guaranteed order in which they'll be searched so you could
+  // get an arbitrary result.  --cgay Sep 2008
+
   constant slot responder-map :: <table>,
     init-function: curry(make, <table>),
     init-keyword: map:;
@@ -103,7 +108,7 @@ define method find-responder
     (server :: <http-server>, url :: <url>)
  => (responder :: false-or(<responder>),
      rest-path :: false-or(<sequence>))
-  find-object(server.url-map, url.uri-path);
+  find-object(server.url-map, url.uri-path)
 end method find-responder;
 
 
@@ -125,7 +130,7 @@ end;
 define url-map
   url "/wiki",
     action get () => show-page,
-    action get () => show-page;
+    action post () => edit-page;
   url "/wiki/login"
     action post ("/(?<name>:\\w+") => login;
   url
@@ -154,13 +159,13 @@ define macro url-map-definer
     { ?url ; ... } => { ?url ; ... }
 
   url:
-    { url ?location:expression ?definitions }
+    { url ?location:expression ?actions }
      => { let _responder = make(<responder>);
-          ?definitions ;
+          ?actions ;
           ?location }
-    { url ( ?locations ) ?definitions }
+    { url ( ?locations ) ?actions }
       => { let _responder = make(<responder>);
-           ?definitions ;
+           ?actions ;
            ?locations }
 
   locations:
@@ -170,13 +175,13 @@ define macro url-map-definer
   location: 
     { ?uri:expression } => { add-responder( _http-server, ?uri , _responder) }
 
-  definitions:
+  actions:
     { } => { }
-    { ?definition , ... } => { ?definition ; ... }
+    { ?action-definition , ... } => { ?action-definition ; ... }
 
   // I'd like to get rid of the parens around ?request-methods.
   // Not quite sure how yet though.  --cgay
-  definition:
+  action-definition:
     { action ( ?request-methods ) ( ?regex ) => ?action:expression }
       => { let regex = compile-regex(?regex, use-cache: #t);
            let actions = list(?action);

@@ -29,20 +29,20 @@ define module http-client
   use uri;
 
   export
+    // Requests   (see also the methods on <base-http-request> in http-common)
     <http-request>,
+
+    // Responses  (see also the methods on <base-http-request> in http-common)
     <http-response>,
+    response-content,
+    response-content-setter,
     send-http-request,
     simple-http-get,
 
-    <http-error>,
-    http-error-message,
-    
     // Low level APIs
     open-http-stream,
     with-http-stream,
     read-http-response,
     close-http-stream,
-    write-http-get,
-    read-http-response-header,
-    read-http-response-header-as;
+    write-http-get;
 end module http-client;

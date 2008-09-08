@@ -131,7 +131,10 @@ define function string-position
     let len = size(small);
     for (i from bpos to (epos - len))
       when (string-equal-2(big, i, len, small, 0, len))
-        return(i); end; end; end;
+        return(i);
+      end;
+    end;
+  end
 end string-position;
 
 define method string-equal? (s1 :: <substring>, s2 :: <substring>)

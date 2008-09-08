@@ -14,6 +14,7 @@ define library http-common
     import: { date, file-system, locators, operating-system };
   use strings;
   use uncommon-dylan;
+  use uri;
   export http-common;
 end library http-common;
 
@@ -38,13 +39,21 @@ define module http-common
               <file-does-not-exist-error>,
               <pathname> };
   use format;
-  use locators;
+  use locators,
+    import: { <locator>,
+              <file-locator>,
+              <directory-locator>,
+              locator-directory,
+              simplify-locator,
+              subdirectory-locator
+              };
   use logging;
   use standard-io;
   use streams;
   use strings;
   use threads;
   use uncommon-dylan;
+  use uri;
 
   export
     //// --------- move this to uncommon-dylan ---------->
@@ -76,11 +85,36 @@ define module http-common
     //// <--------- move this to uncommon-dylan ----------
 
 
+    // Request objects
+    <base-http-request>,
+    request-content,
+    request-content-setter,
+    request-method,
+    request-method-setter,          // todo -- remove this export
+    request-parsed-headers,
+    request-raw-headers,
+    request-raw-url-string,
+    request-raw-url-string-setter,  // todo -- remove this export
+    request-url,
+    request-url-setter,             // todo -- remove this export
+    request-version,
+    request-version-setter,         // todo -- remove this export
+
+    // Response objects
+    <base-http-response>,
+    response-code,
+    response-code-setter,
+    response-headers,
+    response-reason-phrase,
+    response-reason-phrase-setter,
+    response-request,
+
     // Errors and redirects
     <http-error>,
     <http-redirect-error>, // 3xx
     <http-client-error>,   // 4xx
     <http-server-error>,   // 5xx
+      <internal-server-error>, // 500
     http-error-code,
     http-error-headers,
     http-error-message-no-code,   // get rid of this, use condition-to-string
@@ -106,14 +140,18 @@ define module http-common
 
     // Parsing
     token-end-position,
+    validate-http-version,
+    validate-http-status-code,
 
     // Headers
     <header-table>,
     add-header,  // should probably be set-header, for symmetry with get-header.
     get-header,
     read-message-headers,
+
     // lower level header APIs...
     read-header-line,
+    read-http-line,
     parse-header-value,
     grow-header-buffer,
 

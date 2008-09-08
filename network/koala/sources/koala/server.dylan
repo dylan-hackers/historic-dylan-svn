@@ -10,6 +10,11 @@ define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
 define constant $server-version = "0.9";
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
+define constant $allowed-request-methods :: <list>
+  = #(#"get", #"head", #"options", #"post");
+define constant $allowed-request-methods-string :: <byte-string>
+    = join($allowed-request-methods, ", ",
+           key: method (x) as-uppercase(as(<byte-string>, x)) end);
 
 // This is needed to handle sockets shutdown.
 define variable *exiting-application* = #f;
@@ -63,7 +68,11 @@ define class <http-server> (<object>)
   // Allow: field...  Need an API for making sure that happens.
   // RFC 2616, 5.1.1
 
-  // Map from URL string to a response function.  The leading slash is removed
+  // In the url-map trie, each URL path leads to a <responder> object.
+  // The <responder> has a responder-map table that maps request methods
+  // (currently symbols like #"get") to yet another table which maps
+  // regular expressions to lists of objects that have an invoke-responder
+  // method defined on them.  (Weeee!)  The leading slash is removed
   // from URLs because it's easier to use merge-locators that way.
   // todo -- this should be per vhost
   constant slot url-map :: <string-trie>,
@@ -601,42 +610,30 @@ define function do-http-listen
   close(listener.listener-socket, abort: #t);
 end do-http-listen;
 
-define class <request> (<basic-request>)
-  // todo -- RFC 2616, 5.1.1 -- The request method is case-sensitive.
-  //         So it shouldn't be a <symbol>.
-  slot request-method :: <symbol> = #"unknown";
-  slot request-version :: <symbol> = #"unknown";
-  slot request-url :: false-or(<url>) = #f;
-  slot request-raw-url-string :: false-or(<byte-string>) = #f;
+define class <request> (<basic-request>, <base-http-request>)
   // contains the relative URL following the matched responder
-  slot request-tail-url :: false-or(<url>) = #f;
+  slot request-tail-url :: false-or(<url>),
+    init-value: #f;
 
   // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
-  slot request-host :: false-or(<string>) = #f;
-
-  slot request-keep-alive? :: <boolean> = #f;
-
-  // Raw headers, mapping case-insensitive-header-name to unparsed header value.
-  slot request-raw-headers :: <header-table>,
-    init-function: curry(make, <header-table>);
-
-  // Parsed headers.  Header values are parsed on demand only.
-  constant slot request-parsed-headers :: <header-table>,
-    init-function: curry(make, <header-table>);
+  slot request-host :: false-or(<string>),
+    init-value: #f;
 
   // Query values from either the URL or the body of the POST, if Content-Type
   // is application/x-www-form-urlencoded.
   constant slot request-query-values :: <string-table>,
     init-function: curry(make, <string-table>);
 
-  slot request-session :: false-or(<session>) = #f;
+  slot request-keep-alive? :: <boolean>,
+    init-value: #f;
 
-  // The body content of the request.  Only present for POST?
-  slot request-content :: <string> = "";
+  slot request-session :: false-or(<session>),
+    init-value: #f;
 
   // todo -- This is only stored in the request for internal modularity
   //         reasons.  It should be removed.
-  slot request-responder :: false-or(<responder>) = #f;
+  slot request-responder :: false-or(<responder>),
+    init-value: #f;
 
 end class <request>;
 
@@ -801,7 +798,7 @@ end function htl-error-handler;
 define method read-request (request :: <request>) => ()
   let socket = request.request-socket;
   let server = request.request-server;
-  let (buffer, len) = read-request-line(socket);
+  let (buffer, len) = read-http-line(socket);
 
   // RFC 2616, 4.1 - "Servers SHOULD ignore an empty line(s) received where a
   // Request-Line is expected."  Clearly you have to give up at some point so
@@ -811,16 +808,15 @@ define method read-request (request :: <request>) => ()
     if (line-count > 5)
       bad-request(message: "No Request-Line received.");
     end;
-    pset (buffer, len) read-request-line(socket) end;
+    pset (buffer, len) read-http-line(socket) end;
   end;
 
   read-request-first-line(server, request, buffer);
   unless (request.request-version == #"http/0.9")
-    request.request-raw-headers
-      := read-message-headers(socket,
-                              buffer: buffer,
-                              start: len,
-                              headers: request.request-raw-headers);
+    read-message-headers(socket,
+                         buffer: buffer,
+                         start: len,
+                         headers: request.request-raw-headers);
   end unless;
   process-incoming-headers(request);
   select (request.request-method by \==)
@@ -829,22 +825,24 @@ define method read-request (request :: <request>) => ()
   end select;
 end method read-request;
 
-// FIXME: It seems like a bad idea to me to use a regex here as it will allocate
-// a lot and is probably much slower than the direct approach.  --cgay
-define constant $request-line-regex :: <regex>
-  = compile-regex("^([!#$%&'\\*\\+-\\./0-9A-Z^_`a-z\\|~]+) "
-                  "(\\S+) "
-                  "(HTTP/\\d+\\.\\d+)");
-
 // Read the Request-Line.  RFC 2616 Section 5.1
 //
 define function read-request-first-line
     (server :: <http-server>, request :: <request>, buffer :: <string>)
  => ()
-  let (entire-match, req-method, url, http-version)
-    = regex-search-strings($request-line-regex, buffer);
-  if (entire-match)
-    request.request-method := validate-request-method(as(<symbol>, req-method));
+  let eol = string-position(buffer, "\r\n", 0, buffer.size) | buffer.size;
+  let epos1 = eol & whitespace-position(buffer, 0, eol);
+  let bpos2 = epos1 & skip-whitespace(buffer, epos1, eol);
+  let epos2 = bpos2 & whitespace-position(buffer, bpos2, eol);
+  let bpos3 = epos2 & skip-whitespace(buffer, epos2, eol);
+  let epos3 = bpos3 & whitespace-position(buffer, bpos3, eol) | eol;
+  if (~bpos3)
+    bad-request(message: "Invalid request line");
+  else
+    let req-method = substring(buffer, 0, epos1);
+    let url = substring(buffer, bpos2, epos2);
+    let http-version = substring(buffer, bpos3, epos3);
+    request.request-method := validate-request-method(req-method);
     request.request-raw-url-string := url;
     let url = parse-url(url);
     // RFC 2616, 5.2 -- absolute URLs in the request line take precedence
@@ -861,23 +859,20 @@ define function read-request-first-line
     for (value keyed-by key in url.uri-query)
       request.request-query-values[key] := value;
     end for;
-    request.request-version := extract-request-version(http-version);
-  else
-    // Using regex means this error message has to be vague.
-    bad-request(message: "Invalid request line");
+    request.request-version := validate-http-version(http-version);
   end if;
 end function read-request-first-line;
 
-
 define method validate-request-method
-    (request-method :: <symbol>)
+    (request-method :: <byte-string>)
  => (request-method :: <symbol>)
-  if (member?(request-method, #[#"GET", #"HEAD", #"POST"]))
-    request-method
+  if (member?(request-method, #["GET", "HEAD", "OPTIONS", "POST"], test: \=))
+    // todo -- The request method should be case sensitive, so it shouldn't be a symbol.
+    as(<symbol>, request-method)
   else
     not-implemented-error(what: format-to-string("Request method %s", request-method),
                           header-name: "Allow",
-                          header-value: "GET, HEAD, POST");
+                          header-value: $allowed-request-methods-string);
   end
 end method validate-request-method;
 
@@ -1053,8 +1048,8 @@ define method send-error-response-internal
       write(out, "\r\n");
     end;
   end unless;
-  response.response-code    := http-error-code(err);
-  response.response-message := one-liner;
+  response.response-code := http-error-code(err);
+  response.response-reason-phrase := one-liner;
   send-response(response);
 end method send-error-response-internal;
 
@@ -1101,36 +1096,48 @@ define method invoke-handler (request :: <request>) => ()
   if (request.request-keep-alive?)
     add-header(response, "Connection", "Keep-Alive");
   end if;
-  dynamic-bind (*response* = response)
-    if (request.request-responder)
-     let url = request.request-url;
-     let (actions, match) = find-actions(request);
-     if (actions)
-       // Invoke each action function with keyword arguments matching the names
-       // of the named groups in the first regular expression that matches the
-       // tail of the url, if any.  Also pass the entire match as the match:
-       // argument so unnamed groups and the entire match can be accessed.
-       let arguments = #[];
-       if (match)
-         arguments := make(<deque>);
-         for (group keyed-by name in match.groups-by-name)
-           if (group)
-             push-last(arguments, as(<symbol>, name));
-             push-last(arguments, group.group-text);
-           end if;
-         end for;
+
+  if (request.request-method == #"OPTIONS")
+    if (request.request-raw-url-string = "*")
+      add-header(response, "Allow", $allowed-request-methods-string);
+    elseif (request.request-responder)
+      let methods = find-request-methods(request);
+      if (~empty?(methods))
+        add-header(response, "Allow", join(methods, ", ", key: as-uppercase))
+      end;
+    end;
+  else
+    dynamic-bind (*response* = response)
+      if (request.request-responder)
+       let url = request.request-url;
+       let (actions, match) = find-actions(request);
+       if (actions)
+         // Invoke each action function with keyword arguments matching the names
+         // of the named groups in the first regular expression that matches the
+         // tail of the url, if any.  Also pass the entire match as the match:
+         // argument so unnamed groups and the entire match can be accessed.
+         let arguments = #[];
+         if (match)
+           arguments := make(<deque>);
+           for (group keyed-by name in match.groups-by-name)
+             if (group)
+               push-last(arguments, as(<symbol>, name));
+               push-last(arguments, group.group-text);
+             end if;
+           end for;
+         end if;
+         for (action in actions)
+           invoke-responder(request, action, arguments)
+         end;
+       else
+         resource-not-found-error(url: as(<string>, url));
        end if;
-       for (action in actions)
-         invoke-responder(request, action, arguments)
-       end;
-     else
-       resource-not-found-error(url: as(<string>, url));
-     end if;
-    else
-      // generates 404 if not found
-      maybe-serve-static-file();
-    end if;
-  end;
+      else
+        // generates 404 if not found
+        maybe-serve-static-file();
+      end if;
+    end dynamic-bind;
+  end if;
   send-response(response);
 end method invoke-handler;
 
@@ -1151,6 +1158,31 @@ define inline function find-actions
     end block;
   end if;
 end function find-actions;
+
+// Return a list of request methods that apply for the given URL.
+// Used for the OPTIONS request method.
+//
+define inline function find-request-methods
+    (request :: <request>)
+ => (request-methods :: <sequence>)
+  let rmap = request.request-responder.responder-map;
+  let url-tail = build-path(request.request-tail-url);
+  let methods = #();
+  for (req-method in $allowed-request-methods)
+    let responders = element(rmap, req-method, default: #f);
+    if (responders)
+      block (return)
+        for (actions keyed-by regex in responders)
+          let match = regex-search(regex, url-tail);
+          if (match)
+            methods := pair(req-method, methods);
+          end if;
+        end for;
+      end block;
+    end if;
+  end for;
+  methods
+end function find-request-methods;
 
 // Clients can override this to create other types of responders.
 // 
@@ -1177,51 +1209,9 @@ define method invoke-responder
 end;
 
 
-// Read a line of input from the stream, dealing with CRLF correctly.
-//
-define function read-request-line
-    (stream :: <stream>) => (buffer :: <byte-string>, len :: <integer>)
-  let buffer = grow-header-buffer("", 0);
-  iterate loop (buffer :: <byte-string> = buffer,
-                len :: <integer> = buffer.size,
-                pos :: <integer> = 0,
-                peek-ch :: false-or(<character>) = #f)
-    if (pos == len)
-      let buffer = grow-header-buffer(buffer, len);
-      loop(buffer, buffer.size, pos, peek-ch)
-    else
-      let ch :: <byte-character> = peek-ch | read-element(stream);
-      if (ch == $cr)
-        let ch = read-element(stream);
-        if (ch == $lf)
-          values(buffer, pos)
-        else
-          buffer[pos] := $cr;
-          loop(buffer, len, pos + 1, ch)
-        end;
-      else
-        buffer[pos] := ch;
-        loop(buffer, len, pos + 1, #f)
-      end if;
-    end;
-  end iterate;
-end read-request-line;
-
 define inline function empty-line?
     (buffer :: <byte-string>, len :: <integer>) => (empty? :: <boolean>)
   len == 1 & buffer[0] == $cr
-end;
-
-define function extract-request-version 
-    (buffer :: <string>)
- => (version :: <symbol>)
-  // Take care not to intern arbitrary symbols...
-  select (buffer by string-equal?)
-    "HTTP/0.9" => #"HTTP/0.9";
-    "HTTP/1.0" => #"HTTP/1.0";
-    "HTTP/1.1" => #"HTTP/1.1";
-    otherwise => unsupported-http-version-error();
-  end select;
 end;
 
 define class <http-file> (<object>)

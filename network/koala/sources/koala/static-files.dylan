@@ -51,7 +51,7 @@ define method maybe-serve-static-file ()
   log-debug("Requested document is %s", document);
   if (~document)
     log-info("%s not found", url);
-    resource-not-found-error(url: request-url(request));  // 404
+    resource-not-found-error(url: request-raw-url-string(request));  // 404
   end;
 
   let (etag, weak?) = etag(document);

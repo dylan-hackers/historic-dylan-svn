@@ -7,27 +7,6 @@ define variable *debug-http* :: <boolean> = #t;
 define constant $default-http-port :: <integer> = 80;
 
 
-/// Conditions
-
-define class <http-error> (<error>)
-  constant slot http-error-message :: <string>, 
-    required-init-keyword: #"message";
-  constant slot http-error-code :: <string>,
-    init-value: #f,
-    init-keyword: #"code";
-end class <http-error>;
-
-// FIXME: This doesn't change the way the error message is displayed in the IDE.
-//        Why not?
-define method condition-to-string
-    (cond :: <http-error>) => (string :: <string>)
-  if (cond.http-error-code)
-    format-to-string("%s - %s", cond.http-error-code, cond.http-error-message)
-  else
-    cond.http-error-message
-  end
-end method condition-to-string;
-
 /// Session-level interface.
 
 // API
@@ -79,33 +58,23 @@ end method write-http-get;
 define method simple-http-get
     (raw-url :: <byte-string>) => (content :: <string>)
   let url :: <url> = parse-uri(raw-url);
-/*
-  if (~instance?(url, <server-url>))
-    error("You must specify the remote host in the URL.");
-  end;
-  let request-uri = locator-path(url);
-  if (instance?(url, <cgi-url>))
-    request-uri := concatenate(request-uri, "?", locator-cgi-string(url));
-  end;
-  if (instance?(url, <file-index-url>))
-    request-uri := concatenate(request-uri, "#", locator-index);
-  end;
-*/
   let host = uri-host(url);
   with-http-stream(stream to host, port: uri-port(url))
     write-http-get(stream, host, uri-path(url));
     let (http-version, status, reason-phrase) = read-http-status-line(stream);
-    if (status[0] == '2')
+    if (status == 200)
       read-http-response-header(stream);
       read-to-end(stream)
-    elseif (member?(status[0], "45"))
-      error(make(<http-error>, message: reason-phrase, code: status));
+    elseif (status >= 400 & status <= 599)
+      error(make(<http-error>,
+                 format-string: reason-phrase,
+                 code: status));
     else
       error(make(<http-error>,
-                 message: format-to-string("HTTP response code %s not yet implemented",
-                                           status),
+                 format-string: "HTTP response code %s not yet implemented",
+                 format-arguments: list(status),
                  code: status));
-    end
+    end if
   end
 end method simple-http-get;
 
@@ -117,49 +86,36 @@ define method format-http-line
   end;
   apply(format, stream, template, args);
   write(stream, "\r\n");
-end method;
+end method format-http-line;
 
 
-/*
 // Represents an HTTP request.  Make one of these and pass it to
 // send-http-request.
 //
-define class <http-request> (<object>)
-  constant slot request-url :: <url>,
-    required-init-keyword: url:;
-  constant slot request-http-version :: <symbol>,
-    init-value: #"http/1.1",
-    init-keyword: http-version:;
-  constant slot request-method :: <symbol>,
-    init-value: #"GET",
-    init-keyword: method:;
-  constant slot request-headers :: <table>,
-    init-value: make(<table>),
-    init-keyword: headers:;
-  constant slot request-data :: false-or(<byte-string>),
-    init-value: #f,
-    init-keyword: data:;
+define open class <http-request> (<base-http-request>)
 end class <http-request>;
 
-define method initialize
-    (request :: <http-request>, #key url)
-  // todo -- remove url fragment part
-end;
+define open class <http-response> (<base-http-response>)
+  slot response-content :: <byte-string>,
+    init-value: "",
+    init-keyword: content:;
+end class <http-response>;
 
 define method send-http-request
     (request :: <http-request>,
      #key background :: <boolean>,
           follow-redirects :: <boolean>)
  => (response :: <http-response>)
-  let host = uri-host(url);
-  // todo -- is the port always set in the <uri> class?
+  let url :: <url> = request.request-url;
+  let host = uri-host(url) | "localhost";
   let port :: <integer> = uri-port(url) | $default-http-port;
   with-http-stream (http-stream to host, port: port)
     format(http-stream, "%s %s %s\r\n",
            as-uppercase(as(<byte-string>, request.request-method)),
            url,
-           as-uppercase(as(<byte-string>, request.request-http-version)));
+           as-uppercase(as(<byte-string>, request.request-version)));
 
+    let content :: <string> = request.request-content;
     // Send headers...
     // Host: header is required for HTTP 1.1 requests.
     // todo -- Verify that it is accepted/ignored for older protocol versions.
@@ -167,24 +123,20 @@ define method send-http-request
     //         general-header fields first, followed by request-header or response-
     //         header fields, and ending with the entity-header fields.
     add-header(request, "Host", host, replace: #f);
-    add-header(request,
-               "Content-Length",
-               if (data) "0" else integer-to-string(data.size) end,
+    add-header(request, "Content-Length", integer-to-string(content.size),
                replace: #t);
-    for (header-value keyed-by header in request.request-headers)
-      format(http-stream, "%s: %s\r\n", header, header-value)
+    for (header-value keyed-by header in request.request-raw-headers)
+      format(http-stream, "%s: %s\r\n", header, header-value);
     end;
 
     // Blank line separates request headers from message body.
     write(http-stream, "\r\n");
 
-    // Send request body, if any.
-    if (data)
-      write(http-stream, data)
-    end;
+    // todo -- preprocess content based on content-type.  e.g., form data
+    write(http-stream, content);
 
     force-output(http-stream);
-    let response :: <http-response> = read-http-response(http-stream);
+    let response :: <http-response> = read-http-response(request, http-stream);
     response
 
     // todo -- manage connections...keep-alive.
@@ -193,9 +145,67 @@ define method send-http-request
 end method send-http-request;
 
 define method read-http-response
-    (http-stream :: <stream>) => (response :: <http-response>)
-  let 
-*/
+    (request :: <http-request>, stream :: <stream>)
+ => (response :: <http-response>)
+  let (version, code, reason-phrase) = read-http-status-line(stream);
+  let response = make(<http-response>,
+                      request: request,
+                      code: code,
+                      version: version,
+                      reason-phrase: reason-phrase);
+  read-message-headers(stream);
+  read-response-content(response, stream);
+  response
+end method read-http-response;
+
+// Read the status line from the response.  Signal <internal-server-error>
+// (code 500) if that status line is not valid.
+//
+// Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+//
+define method read-http-status-line
+    (stream :: <stream>)
+ => (version :: <symbol>,
+     status-code :: <integer>,
+     reason-phrase :: <string>)
+  let entire-line = read-http-line(stream);
+  let parts = split(entire-line, ' ', remove-if-empty: #t);
+  if (parts.size ~== 3)
+    // The rationale for 500 here is that if the server sent us an incomplete
+    // status line it is completely hosed.
+    signal(make(<internal-server-error>,
+                format-string: "Invalid status line in HTTP response: %=",
+                format-arguments: list(entire-line),
+                code: 500));
+  else
+    let (version-string, status-string, reason-phrase) = apply(values, parts);
+    let version :: <symbol> = validate-http-version(version-string);
+    let status-code :: <integer> = validate-http-status-code(status-string);
+    values(version, status-code, reason-phrase)
+  end
+end method read-http-status-line;
+
+define method read-response-content
+    (response :: <http-response>, stream :: <stream>)
+ => (content :: <byte-string>)
+  // ---TODO: Should probably try to continue here even if Content-Length
+  //          not supplied.  Or have a "strict" option.
+  let content-length = get-header(response, "Content-Length", parsed: #t)
+                       | content-length-required-error();
+  let buffer :: <byte-string> = make(<byte-string>, size: content-length);
+  // todo -- What if we're not at end-of-stream after the read?
+  //         Should we signal an error?
+  let bytes-read = read-into!(stream, content-length, buffer);
+  if (bytes-read == content-length)
+    response-content(response) := buffer
+  else
+    // RFC 2616, 4.4
+    bad-request(message: format-to-string("Request content size (%d) does not "
+                                          "match Content-Length header (%d)",
+                                          bytes-read, content-length));
+  end
+end method read-response-content;
+
 // API
 define method read-http-response-header
     (stream :: <stream>) => ()
@@ -215,73 +225,4 @@ define method read-http-response-header-as
     end;
   end;
 end method;
-
-/*
-// okay, i'm an idiot...i should probably move Koala's header parsing stuff
-// into http-common instead, but this will do for now.
-//
-define method read-http-response-headers
-    (stream :: <stream>) => (headers :: <string-table>)
-  let headers :: <string-table> = make(<string-table>);
-
-  local method consume-header (header-lines)
-          // Construct a header/value pair out of multiple header lines (i.e., if
-          // there were continuation lines) and store it in the headers table.
-          // Note that this prefers later headers if there are duplicates.
-          if (~empty?(header-lines))
-            let header-lines = map(trim-whitespace, header-lines);
-            let parts = split(join(header-lines, " "), ':', count: 2);
-            if (parts.size < 2)
-              if (*debug-http*)
-                format-out("Ignoring bad response header: %s\n", header-lines);
-              end;
-            else
-              let header-name = parts[0];
-              let header-value = parts[1];
-              headers[header-name] = header-value;
-            end;
-          end;
-        end method consume-header;
-
-  let current-header-lines = make(<stretchy-vector>);
-  block (exit-block)
-    while (#t)
-      let line = read-line(stream);
-      if (line = "")
-        consume-header(current-header-lines);
-        exit-block();
-      end;
-      if (~member?(line[0], " \t"))
-        // new header starting, not a continuation line
-        consume-header(current-header-lines);
-        current-header-lines := make(<stretchy-vector>);
-      end;
-      add!(current-header-lines, line);
-    end while;
-  end block;
-  headers
-end method read-http-response-headers;
-*/
-
-// RFC 2616, 6.6.1
-define function read-http-status-line
-    (stream :: <stream>)
- => (http-version :: <symbol>, status-code :: <byte-string>, reason :: <byte-string>)
-  let status-line = read-line(stream);
-  when (*debug-http*)
-    format-out("%s\n", status-line);
-  end;
-  let parts = split(status-line, ' ', count: 3);
-  if (parts.size ~== 3)
-    signal(make(<http-error>,
-                format-string: "Invalid HTTP status line received: %=",
-                format-argument: list(status-line)));
-  else
-    let (http-version, status-code, reason-phrase) = apply(values, parts);
-    values(as(<symbol>, http-version),
-           status-code,
-           reason-phrase)
-  end
-end function read-http-status-line;
-
 

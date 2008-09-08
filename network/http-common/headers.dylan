@@ -18,7 +18,10 @@ define variable *max-single-header-size* :: false-or(<integer>) = 16384;
 // amount of copying the whole header around -- Hannes 16.11.2007
 define variable *header-buffer-growth-amount* :: limited(<integer>, min: 1) = 1024;
 
-// The buffer/epos values are for internal use, wouldn't expect to doc 'em.
+// Read message headers into a <header-table> and return it.
+// If the "headers" argument is supplied then it is side-effected.
+// Otherwise a new <header-table> is created and returned.
+//
 define function read-message-headers
     (stream :: <stream>,
      #key buffer :: <byte-string> = grow-header-buffer("", 0),
@@ -90,6 +93,8 @@ end grow-header-buffer;
 
 // Read a header line, including continuation if any.  Grows buffer as needed.
 // Removes all crlf's, just leaves the text of line itself.
+// See also: read-http-line
+//
 define function read-header-line
     (stream :: <stream>,
      buffer :: <byte-string>,
