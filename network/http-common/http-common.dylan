@@ -73,7 +73,7 @@ define open class <base-http-request> (<object>)
   // should not be a problem.
 
   /* constant */ slot request-url :: false-or(<url>),
-    required-init-keyword: url:;
+    /* required- */ init-keyword: url:;
 
   /* constant */ slot request-raw-url-string :: false-or(<byte-string>),
     init-keyword: raw-url:;
@@ -107,9 +107,10 @@ end class <base-http-request>;
 define method make
     (request :: subclass(<base-http-request>), #rest args, #key url)
  => (request :: subclass(<base-http-request>))
-  if (~instance?(url, <uri>))
+  if (instance?(url, <string>))
     apply(next-method, request, raw-url: url, url: parse-uri(url), args)
   else
+    // url is a <url> or #f
     next-method()
   end
 end method make;
