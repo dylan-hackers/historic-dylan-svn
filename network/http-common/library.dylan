@@ -91,8 +91,6 @@ define module http-common
     request-content-setter,
     request-method,
     request-method-setter,          // todo -- remove this export
-    request-parsed-headers,
-    request-raw-headers,
     request-raw-url-string,
     request-raw-url-string-setter,  // todo -- remove this export
     request-url,
@@ -104,7 +102,6 @@ define module http-common
     <base-http-response>,
     response-code,
     response-code-setter,
-    response-headers,
     response-reason-phrase,
     response-reason-phrase-setter,
     response-request,
@@ -148,6 +145,8 @@ define module http-common
     add-header,  // should probably be set-header, for symmetry with get-header.
     get-header,
     read-message-headers,
+    raw-headers,
+    parsed-headers,
 
     // lower level header APIs...
     read-header-line,

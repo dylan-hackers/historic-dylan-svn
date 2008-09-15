@@ -59,7 +59,7 @@ define function respond-to-xml-rpc-request
     (xml-rpc-server :: <xml-rpc-server>)
   let response :: <response> = current-response();
   let request :: <request> = current-request();
-  set-content-type(response, "text/xml");
+  add-header(response, "Content-Type", "text/xml");
   // All responses start with a valid XML document header.
   write(output-stream(response),
         "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>");

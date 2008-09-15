@@ -65,7 +65,7 @@ end method validate-http-status-code;
 
 ///////////// Requests ////////////
 
-define open class <base-http-request> (<object>)
+define open primary class <base-http-request> (<message-headers-mixin>)
 
   // todo -- url, raw-url, method, and version (everything that comes in the request
   // line) should be constant slots.  The server needs to be updated to read the
@@ -87,15 +87,6 @@ define open class <base-http-request> (<object>)
   /* constant */ slot request-version :: <symbol>,
     init-keyword: version:,
     init-value: #"http/1.1";
-
-  // Raw headers, mapping case-insensitive-header-name to unparsed header value.
-  constant slot request-raw-headers :: <header-table>,
-    init-keyword: headers:,
-    init-function: curry(make, <header-table>);
-
-  // Parsed headers.  Header values are parsed on demand only.
-  constant slot request-parsed-headers :: <header-table>,
-    init-function: curry(make, <header-table>);
 
   // The body content of the request.  Only present for POST?
   slot request-content :: <string>,
@@ -150,15 +141,10 @@ end method read-http-line;
 
 ///////////// Responses ///////////////
 
-define open class <base-http-response> (<object>)
+define open primary class <base-http-response> (<message-headers-mixin>)
 
   constant slot response-request :: <base-http-request>,
     required-init-keyword: #"request";
-
-  // Headers received in (or to send with) the response.
-  // @see add-header
-  constant slot response-headers :: <header-table>,
-    required-init-keyword: #"headers";
 
   slot response-code :: <integer>,
     init-keyword: code:,
@@ -169,6 +155,5 @@ define open class <base-http-response> (<object>)
     init-value: "OK";
 
 end class <base-http-response>;
-
 
 

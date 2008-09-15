@@ -92,10 +92,10 @@ end method format-http-line;
 // Represents an HTTP request.  Make one of these and pass it to
 // send-http-request.
 //
-define open class <http-request> (<base-http-request>)
+define open primary class <http-request> (<base-http-request>)
 end class <http-request>;
 
-define open class <http-response> (<base-http-response>)
+define open primary class <http-response> (<base-http-response>)
   slot response-content :: <byte-string>,
     init-value: "",
     init-keyword: content:;
@@ -122,10 +122,9 @@ define method send-http-request
     // todo -- RFC 2616, 4.2: it is "good practice" to send
     //         general-header fields first, followed by request-header or response-
     //         header fields, and ending with the entity-header fields.
-    add-header(request, "Host", host, replace: #f);
-    add-header(request, "Content-Length", integer-to-string(content.size),
-               replace: #t);
-    for (header-value keyed-by header in request.request-raw-headers)
+    add-header(request, "Host", host);
+    add-header(request, "Content-Length", integer-to-string(content.size));
+    for (header-value keyed-by header in request.raw-headers)
       format(http-stream, "%s: %s\r\n", header, header-value);
     end;
 
@@ -153,7 +152,7 @@ define method read-http-response
                       code: code,
                       version: version,
                       reason-phrase: reason-phrase);
-  read-message-headers(stream);
+  read-message-headers(stream, headers: response.raw-headers);
   read-response-content(response, stream);
   response
 end method read-http-response;
@@ -169,7 +168,8 @@ define method read-http-status-line
      status-code :: <integer>,
      reason-phrase :: <string>)
   let entire-line = read-http-line(stream);
-  let parts = split(entire-line, ' ', remove-if-empty: #t);
+  let parts = split(entire-line, ' ', count: 3, remove-if-empty: #t);
+  log-debug($stdout-log-target, "status line parts: %s", parts);
   if (parts.size ~== 3)
     // The rationale for 500 here is that if the server sent us an incomplete
     // status line it is completely hosed.

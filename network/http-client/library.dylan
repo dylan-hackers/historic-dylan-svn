@@ -7,6 +7,7 @@ define library http-client
     import: { format,
               format-out,
               streams };
+  use logging;
   use network,
     import: { sockets };
   //use system,
@@ -22,10 +23,10 @@ define module http-client
   use format;
   use format-out;
   use http-common;
+  use logging;
   use sockets,
     exclude: { start-server };
   use streams;
-  //use locators;
   use uri;
 
   export

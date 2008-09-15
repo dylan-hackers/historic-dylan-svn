@@ -3,7 +3,7 @@ Module: dylan-user
 define library logging
   use common-dylan;
   use io,
-    import: { format, streams };
+    import: { format, standard-io, streams };
   use system,
     import: { date, file-system, locators, threads };
   use uncommon-dylan;
@@ -22,6 +22,7 @@ define module logging
               <file-locator>,
               locator-name,
               merge-locators };
+  use standard-io;
   use streams;
   use threads;
   use uncommon-dylan,
@@ -36,6 +37,8 @@ define module logging
     <rolling-file-log-target>,
     log-level,
     log-level-setter,
+    $stdout-log-target,
+    $stderr-log-target,
 
     // Log levels
     <log-level>,

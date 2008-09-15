@@ -28,17 +28,15 @@ end class <response>;
 //
 define method add-header
     (response :: <response>, header :: <byte-string>, value :: <object>,
-     #key if-exists? = #"append")
+     #key if-exists? = #"replace")
   if (headers-sent?(response))
     raise(<koala-api-error>,
           "Attempt to add a %s header after headers have already been sent.",
           header);
-  elseif (string-equal?(header, "content-type"))
-    set-content-type(response, value)
   else
-    add-header(response.response-headers, header, value, if-exists?: if-exists?)
+    next-method()
   end;
-end;
+end method add-header;
 
 // Exported
 //
@@ -52,8 +50,9 @@ define method output-stream
       if (*virtual-host*)
         // The user can override this if they do it before writing to the
         // output stream.
-        set-content-type(response, default-dynamic-content-type(*virtual-host*),
-                         if-exists?: #"ignore");
+        add-header(response, "Content-Type",
+                   default-dynamic-content-type(*virtual-host*),
+                   if-exists?: #"ignore");
       end;
       response.%output-stream := make(<string-stream>, direction: #"output");
     else
@@ -68,22 +67,6 @@ define method clear-output
     (response :: <response>) => ()
   let out = response.%output-stream;
   out & stream-contents(out, clear-contents?: #t)
-end;
-
-// Exported
-//
-define method set-content-type
-    (response :: <response>, content-type :: <object>,
-     #key if-exists? = #"replace")
-  let out = response.%output-stream;
-  if (out & stream-size(out) ~= 0)
-    raise(<koala-api-error>,
-          "Attempt to set the Content-Type header after some content "
-          "has already been generated.");
-  else
-    add-header(response.response-headers, "Content-Type", content-type,
-               if-exists?: if-exists?);
-  end;
 end;
 
 // The caller is telling us that either the request is complete or it's OK to
@@ -111,7 +94,7 @@ end;
 define method send-headers
     (response :: <response>, stream :: <stream>)
   // Send the headers
-  let headers :: <header-table> = response-headers(response);
+  let headers :: <header-table> = raw-headers(response);
   for (val keyed-by name in headers)
     send-header(stream, name, val);
   end;

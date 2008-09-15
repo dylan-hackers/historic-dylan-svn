@@ -7,7 +7,7 @@ define test xml-rpc-registration-test ()
   with-http-server (http-server = make-server())
     let xml-rpc-server = make(<xml-rpc-server>);
     register-xml-rpc-method(xml-rpc-server, "foo", method () "bar" end);
-    let url = "http://localhost/xml-rpc-registration-test";
+    let url = make-test-url("/xml-rpc-registration-test");
     add-responder(http-server, url, xml-rpc-server);
     check-equal("Register and call a simple XML RPC method",
                 xml-rpc-call(url, "foo"),
@@ -24,7 +24,7 @@ define test xml-rpc-data-types-test ()
   with-http-server (http-server = make-server())
     let xml-rpc-server = make(<xml-rpc-server>);
     register-xml-rpc-method(xml-rpc-server, "echo", method (arg) arg end);
-    let url = "http://localhost/xml-rpc-data-types-test";
+    let url = make-test-url("/xml-rpc-data-types-test");
     add-responder(http-server, url, xml-rpc-server);
     for (val in vector(-1,
                        0,
@@ -53,7 +53,7 @@ end;
 
 define test xml-rpc-server-definer-test ()
   with-http-server (http-server = make-server())
-    let url = "http://localhost/xml-rpc-server-definer-test";
+    let url = make-test-url("/xml-rpc-server-definer-test");
     add-responder(http-server, url, $test-server-1);
     check-equal("xml-rpc-server-definer echo",
                 xml-rpc-call(url, "echo", "foo"),
@@ -76,7 +76,7 @@ define test xml-rpc-fault-test ()
   with-http-server (http-server = make-server())
     let xml-rpc-server = make(<xml-rpc-server>);
     register-xml-rpc-method(xml-rpc-server, "error", xml-rpc-fault);
-    let url = "http://localhost/xml-rpc-fault-test";
+    let url = make-test-url("/xml-rpc-fault-test");
     add-responder(http-server, url, xml-rpc-server);
     for (code in #(-1, 0, 1, 123))
       let message = fmt("fault code %d", code);

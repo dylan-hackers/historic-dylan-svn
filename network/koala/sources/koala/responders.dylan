@@ -45,11 +45,11 @@ define method add-responder
           request-methods = #(#"GET", #"POST"))
   if (empty?(url.uri-path))
     error(make(<koala-api-error>,
-               format-string: "You can't add a responder with an empty URL: %s",
+               format-string: "You can't add a responder for a URL with no path: %s",
                format-arguments: list(url)));
   else
     add-object(server.url-map, url.uri-path, responder, replace?: replace?);
-    log-info("Responder: %s ", url);
+    log-info("Responder: %s ", build-path(url));
   end if;
 end method add-responder;
 
@@ -129,10 +129,10 @@ end;
 /* Example usage
 define url-map
   url "/wiki",
-    action get () => show-page,
-    action post () => edit-page;
+    action GET () => show-page,
+    action POST () => edit-page;
   url "/wiki/login"
-    action post ("/(?<name>:\\w+") => login;
+    action POST ("/(?<name>:\\w+") => login;
   url
 end;
 */
@@ -235,28 +235,6 @@ define inline function add-responder-map-entry
   table[regex] := actions
 end function add-responder-map-entry;
 
-
-// define responder test ("/test" /* , secure?: #t */ )
-//   format(output-stream(response), "<html><body>test</body></html>");
-// end;
-// This is just minimally working after the switch to "define url-map" 
-define macro responder-definer
-  { define responder ?:name (?url:expression)
-      ?:body
-    end
-  }
-  => { define function ?name (#key) ?body end;
-       add-responder(?url, ?name)
-     }
-end macro responder-definer;
-
-/*
-define (get, post) responder foo-responder ("/foo", "/bar")
-  ("^(?P<name>\\w+)/?$")
-  (#key name)
-  ...
-end;
-*/
 
 /*
 // General server statistics

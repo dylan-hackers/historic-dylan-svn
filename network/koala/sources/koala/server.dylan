@@ -610,7 +610,7 @@ define function do-http-listen
   close(listener.listener-socket, abort: #t);
 end do-http-listen;
 
-define class <request> (<basic-request>, <base-http-request>)
+define open primary class <request> (<basic-request>, <base-http-request>)
   // contains the relative URL following the matched responder
   slot request-tail-url :: false-or(<url>),
     init-value: #f;
@@ -636,26 +636,6 @@ define class <request> (<basic-request>, <base-http-request>)
     init-value: #f;
 
 end class <request>;
-
-define method get-header
-    (request :: <request>, name :: <byte-string>, #key parsed :: <boolean>)
- => (header :: <object>)
-  if (parsed)
-    let cache = request.request-parsed-headers;
-    let cached = element(cache, name, default: $unfound);
-    if (found?(cached))
-      cached
-    else
-      let raw-value = get-header(request.request-raw-headers, name);
-      // It's okay to intern the header name as a symbol since it's being
-      // requested explicitly.
-      cache[name] := (raw-value & parse-header-value(as(<symbol>, name), raw-value))
-    end
-  else
-    get-header(request.request-raw-headers, name)
-  end
-end method get-header;
-
 
 // Making a virtual hosts requires an instantiated server to do some
 // initialization, so use this instead of calling make(<virtual-host>).
@@ -811,12 +791,12 @@ define method read-request (request :: <request>) => ()
     pset (buffer, len) read-http-line(socket) end;
   end;
 
-  read-request-first-line(server, request, buffer);
+  parse-request-line(server, request, buffer);
   unless (request.request-version == #"http/0.9")
     read-message-headers(socket,
                          buffer: buffer,
                          start: len,
-                         headers: request.request-raw-headers);
+                         headers: request.raw-headers);
   end unless;
   process-incoming-headers(request);
   select (request.request-method by \==)
@@ -827,7 +807,7 @@ end method read-request;
 
 // Read the Request-Line.  RFC 2616 Section 5.1
 //
-define function read-request-first-line
+define function parse-request-line
     (server :: <http-server>, request :: <request>, buffer :: <string>)
  => ()
   let eol = string-position(buffer, "\r\n", 0, buffer.size) | buffer.size;
@@ -861,7 +841,7 @@ define function read-request-first-line
     end for;
     request.request-version := validate-http-version(http-version);
   end if;
-end function read-request-first-line;
+end function parse-request-line;
 
 define method validate-request-method
     (request-method :: <byte-string>)
@@ -907,6 +887,9 @@ define inline function request-content-type (request :: <request>)
   let content-type-header = get-header(request, "content-type");
   as(<symbol>,
      if (content-type-header)
+       // this looks broken.  why ignore everything else?
+       // besides, one should just use: get-header(request, "content-type")
+       // which should return the parsed content type.
        first(split(content-type-header, ";"))
      else
        ""
@@ -995,6 +978,9 @@ define method process-request-content
      content-length :: <integer>)
  => (content :: <string>)
   let header-content-type = split(get-header(request, "content-type"), ';');
+  if (header-content-type.size < 2)
+    bad-request(...)
+  end;
   let boundary = split(second(header-content-type), '=');
   if (element(boundary, 1, default: #f))
     let boundary-value = second(boundary);
@@ -1002,8 +988,7 @@ define method process-request-content
     // ???
     request-content(request) := buffer
   else
-    log-error("%=", "content-type is missing the boundary parameter");
-    unsupported-media-type-error();
+    bad-request(...)
   end if;
 end method process-request-content;
 */
@@ -1034,7 +1019,7 @@ define method send-error-response-internal
   let one-liner = http-error-message-no-code(err);
   unless (request-method(request) == #"head")
     // todo -- Display a pretty error page.
-    set-content-type(response, "text/plain");
+    add-header(response, "Content-Type", "text/plain");
     let out = output-stream(response);
     write(out, one-liner);
     write(out, "\r\n");

@@ -66,7 +66,6 @@ define module koala
   // Responders
   create
     <responder>,
-    responder-definer,
     responder-map,
     add-responder,
     remove-responder,
@@ -93,7 +92,6 @@ define module koala
     output,
     output-stream,
     clear-output,
-    set-content-type,
     add-cookie;
 
   // Sessions

@@ -138,6 +138,12 @@ define class <stream-log-target> (<log-target>)
     required-init-keyword: #"stream";
 end;
 
+define constant $stdout-log-target
+  = make(<stream-log-target>, stream: *standard-output*);
+
+define constant $stderr-log-target
+  = make(<stream-log-target>, stream: *standard-error*);
+
 define method log-raw
     (target :: <stream-log-target>, line :: <string>)
  => ()

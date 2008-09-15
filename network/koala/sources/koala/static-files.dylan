@@ -63,7 +63,7 @@ define method maybe-serve-static-file ()
   let client-etag = get-header(request, "If-None-Match");
   if (etag = client-etag)
     request.request-method := #"head";
-    not-modified(headers: response.response-headers);
+    not-modified(headers: response.raw-headers);
   else
     let spec :: <directory-spec>
       = directory-spec-matching(*virtual-host*, url);

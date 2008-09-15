@@ -6,17 +6,28 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-//// Headers
-
+define variable *debug-headers?* :: <boolean> = #t;
 
 // Put a total limit on header size, so don't get wedged reading bogus headers.
 // Make it largish though, since cookies come in via a header
 define variable *max-single-header-size* :: false-or(<integer>) = 16384;
 
-// Grow header buffer by this much -- is this chosen arbitrary? is there
+// Grow header buffer by this much -- is this chosen arbitrarily? is there
 // any reasoning behing the 1024? I'd expect a bigger number to lower the
 // amount of copying the whole header around -- Hannes 16.11.2007
 define variable *header-buffer-growth-amount* :: limited(<integer>, min: 1) = 1024;
+
+define abstract class <message-headers-mixin> (<object>)
+  // Raw headers, mapping case-insensitive-header-name to unparsed header value.
+  constant slot raw-headers :: <header-table>,
+    init-keyword: headers:,
+    init-function: curry(make, <header-table>);
+
+  // Parsed headers.  Header values are parsed on demand only.
+  constant slot parsed-headers :: <header-table>,
+    init-function: curry(make, <header-table>);
+
+end class <message-headers-mixin>;
 
 // Read message headers into a <header-table> and return it.
 // If the "headers" argument is supplied then it is side-effected.
@@ -47,22 +58,51 @@ end read-message-headers;
 
 define open generic add-header
     (object :: <object>, header :: <byte-string>, value :: <object>,
-     #key if-exists? :: <symbol>);
+     #key if-exists? :: one-of(#"replace", #"append", #"ignore", #"error"));
 
 define method add-header
     (headers :: <header-table>, header-name :: <byte-string>, value,
-     #key if-exists? :: <symbol> = #"append")
+     #key if-exists? :: <symbol> = #"replace")
   let old = element(headers, header-name, default: #f);
-  // Typically there is only one header for given key, so favor that.
-  if (~old | if-exists? = #"replace")
+  if (old)
+    log-debug($stdout-log-target, "add-header: Previous value for %s: %s",
+              header-name, old);
+  end;
+  if (~old)
+    if (*debug-headers?*)
+      log-debug($stdout-log-target, "add-header: New %s: %s",
+                header-name, value);
+    end;
+    headers[header-name] := value;
+  elseif (if-exists? = #"replace")
+    if (*debug-headers?*)
+      log-debug($stdout-log-target, "add-header: Replaced %s: %s -> %s",
+                header-name, old, value);
+    end;
     headers[header-name] := value;
   elseif (if-exists? = #"append")
+    if (*debug-headers?*)
+      log-debug($stdout-log-target, "add-header: Appended to %s: %s",
+                header-name, headers[header-name]);
+    end;
     headers[header-name] := iff(instance?(old, <pair>),
                                 concatenate!(old, list(value)),
                                 list(old, value));
   elseif (if-exists? = #"error")
     error("Attempt to add header %= which has already been added", header-name);
+  else
+    if (*debug-headers?*)
+      log-debug($stdout-log-target, "add-header: Ignoring %s: %s",
+                header-name, value);
+    end;
+    assert(if-exists? == #"ignore");
   end;
+end method add-header;
+
+define method add-header
+    (message :: <message-headers-mixin>, header :: <byte-string>, value :: <object>,
+     #key if-exists? = #"replace")
+  add-header(message.raw-headers, header, value, if-exists?: if-exists?)
 end method add-header;
 
 define open generic get-header
@@ -73,6 +113,28 @@ define method get-header
     (table :: <table>, header-name :: <byte-string>, #key parsed :: <boolean>)
  => (header-value :: <object>)
   element(table, header-name, default: #f)
+end method get-header;
+
+define method get-header
+    (message :: <message-headers-mixin>, name :: <byte-string>,
+     #key parsed :: <boolean>)
+ => (header :: <object>)
+  if (parsed)
+    let cache = message.parsed-headers;
+    let cached = element(cache, name, default: $unfound);
+    if (found?(cached))
+      cached
+    else
+      let raw-value = get-header(message.raw-headers, name);
+      if (raw-value)
+        // It's okay to intern the header name as a symbol since it's being
+        // requested explicitly.
+        cache[name] := (raw-value & parse-header-value(as(<symbol>, name), raw-value))
+      end
+    end
+  else
+    get-header(message.raw-headers, name)
+  end
 end method get-header;
 
 define function grow-header-buffer (old :: <byte-string>, len :: <integer>)
