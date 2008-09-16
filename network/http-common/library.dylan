@@ -56,34 +56,19 @@ define module http-common
   use uri;
 
   export
-    //// --------- move this to uncommon-dylan ---------->
-    // General one-off utilities
-    wrapping-inc!,
-    file-contents,
-    pset,                // multiple-value-setq
-    parent-directory,
-    quote-html,          // Change < to &lt; etc
-
-    <string-trie>,
-    find-object,
-    add-object,
-    remove-object,
-    trie-children,
-    trie-object,
-    <trie-error>,
-
+    // Things that expire
     <expiring-mixin>,
     expired?,
     date-modified,
     date-modified-setter,
 
-    // Attributes
+    // Thing with attributes
     <attributes-mixin>,
     get-attribute,
     set-attribute,
     remove-attribute,
-    //// <--------- move this to uncommon-dylan ----------
 
+    quote-html,
 
     // Request objects
     <base-http-request>,

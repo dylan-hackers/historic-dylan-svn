@@ -1,6 +1,14 @@
 Koala To-Do List
 ----------------
 
+* http-client: status line needs to be rstripped.
+
+* Add a command-line option to enable/disable different kinds of debugging.
+  --debug [headers,static-files,...]
+  --enable-debug-api could register responders that would allow
+  debugging options to be changed at runtime.  This requires support from
+  the logging library.
+
 * Thread pool.  Can be expensive to allocate/deallocate threads.
 
 * The request-method is case sensivite yet we intern it as a symbol.

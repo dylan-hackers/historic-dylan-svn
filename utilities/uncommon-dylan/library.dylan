@@ -31,6 +31,18 @@ define module uncommon-dylan
     raise,
     ignore-errors,
     table-keys,
-    table-values;
+    table-values,
+
+    wrapping-inc!,
+    pset,                // multiple-value-setq
+
+    <string-trie>,
+    find-object,
+    add-object,
+    remove-object,
+    trie-children,
+    trie-object,
+    <trie-error>;
+
   end module uncommon-dylan;
 

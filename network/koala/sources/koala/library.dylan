@@ -135,16 +135,14 @@ define module koala
   // Documents
   create
     maybe-serve-static-file,
-    document-location;
+    document-location,
+    static-file-responder,
+    file-contents;
 
   // Errors
   create
     <koala-api-error>,
     <configuration-error>;
-
-  // Files
-  create
-    static-file-responder;
 
   create
     <http-file>,

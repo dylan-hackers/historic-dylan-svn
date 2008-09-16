@@ -3,7 +3,7 @@ Author:    Carl Gay
 Copyright: Copyright (c) 2001-2008 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
-
+Synopsis:  Variables and utilities 
 
 define constant $default-http-port :: <integer> = 80;
 
@@ -204,4 +204,35 @@ define variable *argument-list-parser* :: <argument-list-parser>
 
 // Max size of data in a POST.
 define variable *max-post-size* :: false-or(<integer>) = 16 * 1024 * 1024;
+
+
+define function file-contents
+    (filename :: <pathname>, #key error? :: <boolean>)
+ => (contents :: false-or(<string>))
+  // In FD 2.0 SP1 if-does-not-exist: #f still signals an error if the file doesn't exist.
+  // Remove this block when fixed.  (Reported to Fun-O August 2001.)
+  block ()
+    with-open-file(input-stream = filename,
+                   direction: #"input",
+                   if-does-not-exist: if (error?) #"error" else #f end)
+      read-to-end(input-stream)
+    end
+  exception (ex :: <file-does-not-exist-error>)
+    if (error?)
+      signal(ex)
+    else
+      #f
+    end
+  end
+end function file-contents;
+
+define method parent-directory
+    (dir :: <locator>, #key levels = 1) => (dir :: <directory-locator>)
+  for (i from 1 to levels)
+    // is there a better way to get the containing directory?
+    dir := simplify-locator(subdirectory-locator(dir, ".."));
+  end;
+  dir
+end;
+
 
