@@ -332,7 +332,7 @@ define method process-config-element
       warn("<LOG> element has invalid max-size attribute (%s).  "
            "The default (%d) will be used.", max-size, default-size);
     end;
-    let log = iff(location,
+    let tgt = iff(location,
                   make(<rolling-file-log-target>,
                        file: merge-locators(as(<file-locator>, location),
                                             server.server-root),
@@ -341,29 +341,27 @@ define method process-config-element
                        stream: iff(string-equal?(type, "error"),
                                    *standard-error*,
                                    *standard-output*)));
+    let logger :: <logger> = make(<logger>, target: tgt);
     select (type by string-equal?)
       "error", "errors"
-        => %error-log-target(%vhost) := log;
+        => %error-logger(%vhost) := logger;
       "activity"
-        => %activity-log-target(%vhost) := log;
+        => %activity-logger(%vhost) := logger;
       "debug"
-        => %debug-log-target(%vhost) := log;
+        => %debug-logger(%vhost) := logger;
            let level = get-attr(node, #"level") | "info";
            let unrecognized = #f;
-           let class = select (level by string-equal?)
-                         "copious" => <log-copious>;
-                         "verbose" => <log-verbose>;
-                         "debug"   => <log-debug>;
-                         "info"    => <log-info>;
-                         "warning", "warnings" => <log-warning>;
-                         "error", "errors" => <log-error>;
+           let level = select (level by string-equal?)
+                         "trace" => $trace-level;
+                         "debug"   => $debug-level;
+                         "info"    => $info-level;
+                         "warn", "warning", "warnings" => $warn-level;
+                         "error", "errors" => $error-level;
                          otherwise =>
-                           begin
-                             unrecognized := #t;
-                             <log-info>;
-                           end;
-                         end;
-           log-level(log) := make(class);
+                           unrecognized := #t;
+                           $info-level;
+                       end;
+           log-level(logger) := level;
            if (unrecognized)
              warn("Unrecognized log level: %=", level);
            end;

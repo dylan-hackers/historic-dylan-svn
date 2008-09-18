@@ -26,39 +26,58 @@ define module logging
   use streams;
   use threads;
   use uncommon-dylan,
-    import: { iff, inc!, <singleton-object> };
+    import: { iff,
+              inc!,
+              <singleton-object>,
+              <string-trie>, add-object, find-object };
 
   export
-    // Log targets
+    // Loggers
+    <logger>,
+    log-level,
+    log-level-setter,
+    logger-name,
+    get-logger,
+    get-root-logger,
+
+    // Levels
+    <log-level>,
+    <trace-level>, $trace-level,
+    <debug-level>, $debug-level,
+    <info-level>,  $info-level,
+    <warn-level>,  $warn-level,
+    <error-level>, $error-level,
+    level-name,
+
+    // Targets
     <log-target>,
     <null-log-target>,
     <stream-log-target>,
     <file-log-target>,
     <rolling-file-log-target>,
-    log-level,
-    log-level-setter,
     $stdout-log-target,
     $stderr-log-target,
 
-    // Log levels
-    <log-level>,
-    <log-error>,
-    <log-warning>,
-    <log-info>,
-    <log-debug>,
-    <log-verbose>,
-    <log-copious>,
-
-    // Logging functions
-    log-error,
-    log-warning,
-    log-info,
+    // Functions
+    log-trace,
     log-debug,
     log-debug-if,
-    log-verbose,
-    log-copious,
+    log-info,
+    log-warning,
+    log-error,
+
+    // Formatters
+    <log-formatter>,
+    format-to-stream,
+
+    // Errors
+    <log-error>,
+
+    // Mainly for extending the logging library
+    log-to-target,
     log,
-    log-raw,
+    current-log-object,
+    current-log-args,
 
     // Misc
     date-to-stream,           // questionable

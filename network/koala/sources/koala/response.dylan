@@ -88,7 +88,7 @@ end;
 define method send-header
     (stream :: <stream>, name :: <string>, val :: <object>)
   format(stream, "%s: %s\r\n", name, val);
-  log-copious("-->%s: %s", name, val);
+  log-trace("-->%s: %s", name, val);
 end;
 
 define method send-headers
@@ -117,7 +117,7 @@ define method send-response
                                          response.response-code, 
                                          response.response-reason-phrase | "OK");
     unless (req.request-version == #"HTTP/0.9")
-      log-copious("-->%s", response-line);
+      log-trace("-->%s", response-line);
       write(stream, response-line);
     end;
 
@@ -180,7 +180,7 @@ define inline function log-request
                   " \"", as(<string>, get-header(req, "referer") | "-"),
                   "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
                   "\"");
-  log-raw(activity-log-target(*virtual-host*), log-entry);
+  log-to-target(log-target(activity-logger(*virtual-host*)), log-entry);
 end function log-request;
 
 // Exported

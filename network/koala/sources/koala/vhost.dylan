@@ -7,30 +7,26 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define thread variable *virtual-host* :: false-or(<virtual-host>) = #f;
 
-// Some methods to make logging slightly more convenient by not having
-// to always pass log-target(*virtual-host*).
-define method log-copious (format-string, #rest format-args)
-  apply(%log-copious, *temp-log-target* | debug-log-target(*virtual-host*),
-        format-string, format-args);
-end;
-define method log-verbose (format-string, #rest format-args)
-  apply(%log-verbose, *temp-log-target* | debug-log-target(*virtual-host*),
+define constant %root-logger :: <logger> = get-root-logger();
+
+define method log-trace (format-string, #rest format-args)
+  apply(%log-trace, %root-logger | debug-logger(*virtual-host*),
         format-string, format-args);
 end;
 define method log-debug (format-string, #rest format-args)
-  apply(%log-debug, *temp-log-target* | debug-log-target(*virtual-host*),
+  apply(%log-debug, %root-logger | debug-logger(*virtual-host*),
         format-string, format-args);
 end;
 define method log-info (format-string, #rest format-args)
-  apply(%log-info, *temp-log-target* | debug-log-target(*virtual-host*),
+  apply(%log-info, %root-logger | debug-logger(*virtual-host*),
         format-string, format-args);
 end;
 define method log-warning (format-string, #rest format-args)
-  apply(%log-warning, *temp-log-target* | error-log-target(*virtual-host*),
+  apply(%log-warning, %root-logger | error-logger(*virtual-host*),
         format-string, format-args);
 end;
 define method log-error (format-string, #rest format-args)
-  apply(%log-error, *temp-log-target* | error-log-target(*virtual-host*),
+  apply(%log-error, %root-logger | error-logger(*virtual-host*),
         format-string, format-args);
 end;
 
@@ -144,14 +140,17 @@ define class <virtual-host> (<object>)
   // other value is set.
   slot default-dynamic-content-type :: <string> = "text/html; charset=utf-8";
 
-  // Log targets.  If these are #f then the default virtual host's
-  // log target is used.  They are never #f in the default virtual host.
-  slot %activity-log-target :: false-or(<log-target>) = #f,
-    init-keyword: #"activity-log";
-  slot %error-log-target :: false-or(<log-target>) = #f,
-    init-keyword: #"error-log";
-  slot %debug-log-target :: false-or(<log-target>) = #f,
-    init-keyword: #"debug-log";
+  slot %activity-logger :: <logger>,
+    init-value: get-root-logger(),
+    init-keyword: activity-log:;
+
+  slot %error-logger :: <logger>,
+    init-value: get-root-logger(),
+    init-keyword: error-log:;
+
+  slot %debug-logger :: <logger>,
+    init-value: get-root-logger(),
+    init-keyword: debug-log:;
 
 end class <virtual-host>;
 
@@ -171,25 +170,22 @@ define method initialize
   end;
 end method initialize;
 
-define method activity-log-target
-    (vhost :: <virtual-host>) => (target :: <log-target>)
-  vhost.%activity-log-target
-    | (*server* & default-virtual-host(*server*).%activity-log-target)
-    | *temp-log-target*
+define method activity-logger
+    (vhost :: <virtual-host>) => (target :: <logger>)
+  vhost.%activity-logger
+    | (*server* & default-virtual-host(*server*).%activity-logger)
 end;
 
-define method debug-log-target
-    (vhost :: <virtual-host>) => (target :: <log-target>)
-  vhost.%debug-log-target
-    | (*server* & default-virtual-host(*server*).%debug-log-target)
-    | *temp-log-target*
+define method debug-logger
+    (vhost :: <virtual-host>) => (target :: <logger>)
+  vhost.%debug-logger
+    | (*server* & default-virtual-host(*server*).%debug-logger)
 end;
 
-define method error-log-target
-    (vhost :: <virtual-host>) => (target :: <log-target>)
-  vhost.%error-log-target
-    | (*server* & default-virtual-host(*server*).%error-log-target)
-    | *temp-log-target*
+define method error-logger
+    (vhost :: <virtual-host>) => (target :: <logger>)
+  vhost.%error-logger
+    | (*server* & default-virtual-host(*server*).%error-logger)
 end;
 
 define method add-directory-spec

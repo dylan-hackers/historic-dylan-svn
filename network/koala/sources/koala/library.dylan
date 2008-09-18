@@ -109,8 +109,7 @@ define module koala
   // Logging
   create
     // These are wrappers for the defs by the same name in the logging library.
-    log-copious,
-    log-verbose,
+    log-trace,
     log-debug,
     log-info,
     log-warning,
@@ -176,8 +175,7 @@ define module dsp
               merge-locators,
               locator-directory };
   use logging,
-    rename: { log-copious => %log-copious,
-              log-verbose => %log-verbose,
+    rename: { log-trace => %log-trace,
               log-debug => %log-debug,
               log-info => %log-info,
               log-warning => %log-warning,
@@ -258,8 +256,7 @@ define module httpi                             // http internals
             },
     exclude: { <url> };  // this comes from the uri library now.
   use logging,
-    rename: { log-copious => %log-copious,
-              log-verbose => %log-verbose,
+    rename: { log-trace => %log-trace,
               log-debug => %log-debug,
               log-info => %log-info,
               log-warning => %log-warning,
