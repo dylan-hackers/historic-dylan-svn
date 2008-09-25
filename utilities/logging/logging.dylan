@@ -1,21 +1,32 @@
-Module:    logging
+Module:    logging-impl
 Author:    Carl Gay
 Synopsis:  Simple logging mechanism.  Some ideas taken from log4j.
 
 
 /* 
 
-todo -- documentation, tests
+todo -- current-process-id is a stub
 
-todo -- add-target, remove-target
+todo -- <file-log-target> should accept a string for the filename
+        to avoid making people import locators.  God I hate the
+        locators library.
 
-todo -- Long format controls, e.g. %{thread}
+todo -- configuration parser
+
+todo -- use <double-integer> for elapsed-milliseconds.
+
+todo -- documentation
+
+todo -- tests
+
+todo -- Handle errors gracefully.  e.g., if the disk fills up it may be
+        better to do nothing than to err.  Catch errors in user code when
+        logging a message and log "*** error generating log message ***",
+        for example.  If logging to stream/file fails, log to stderr as
+        a fallback.  (e.g., someone forks and closes all fds)
 
 todo -- Add a way to extend the set of format directives from outside
         the library.
-
-todo -- Handle errors gracefully.  e.g., if the disk fills up it may be
-        better to do nothing than to err.
 
 todo -- A log target that rolls the file when either a max size or a max
         time is reached, whichever comes first.  Should make it possible
@@ -30,51 +41,104 @@ todo -- A log target that rolls the file when either a max size or a max
 */
 
 
-////
+///////////////////////////////////////////////////////////
 //// Loggers
 ////
 
-define class <logger> (<object>)
+define variable $root-logger :: false-or(<logger>) = #f;
+
+define abstract class <abstract-logger> (<object>)
   // A dotted path name.  All parent loggers in the path must already exist.
   constant slot logger-name :: <string>,
     required-init-keyword: name:;
 
+  slot logger-parent :: false-or(<abstract-logger>),
+    init-value: #f,
+    init-keyword: parent:;
+
+  constant slot logger-children :: <string-table>,
+    init-keyword: children:,
+    init-function: curry(make, <string-table>);
+
+  // If this is #t then log messages sent to this logger will be passed up
+  // the hierarchy to parent loggers as well, until it reaches a logger
+  // whos additivity is #f.  Terminology stolen from log4j.
+  //
+  slot logger-additive? :: <boolean>,
+    init-keyword: additive:,
+    init-value: #t;
+
+  // If disabled, no messages will be logged to this logger's targets.
+  // The value of logger-additive? will still be respected.  In other
+  // words, logging to a disabled logger will still log to ancestor
+  // loggers if they are themselves enabled.
+  //
+  slot logger-enabled? :: <boolean>,
+    init-keyword: enabled:,
+    init-value: #t;
+
+end class <abstract-logger>;
+
+define method initialize
+    (logger :: <abstract-logger>, #key name :: <string>)
+  next-method();
+  if ($root-logger)
+    add-logger($root-logger, logger, as(<list>, split(name, '.')), name);
+  end;
+end method initialize;
+
+// Instances of this class are used as placeholders in the logger hierarchy when
+// a logger is created before its parents are created.  i.e., if the first logger
+// created is named "x.y.z" then both x and x.y will be <placeholder-logger>s.
+// (If x.y is later created as a real logger then the placeholder will be replaced.)
+//
+define open class <placeholder-logger> (<abstract-logger>)
+end;
+
+define open class <logger> (<abstract-logger>)
   slot log-level :: <log-level>,
     init-keyword: level:,
     init-value: $trace-level;
 
-  constant slot log-targets :: <sequence>,
+  constant slot log-targets :: <stretchy-vector>,
     init-keyword: targets:,
-    init-function: curry(list, $stdout-log-target);
+    init-function: curry(make, <stretchy-vector>);
 
   constant slot log-formatter :: <log-formatter>,
     init-keyword: formatter:,
     init-value: $default-log-formatter;
 
-  // Child loggers, by dotted name component
-  constant slot logger-children :: <string-table>,
-    init-keyword: children:,
-    init-function: curry(make, <string-table>);
-
-/*
-  // If disabled then logging requests will be ignored for this logger
-  // and its ancestors (if any, and if additivity is enabled).
-  slot enabled? :: <boolean>,
-    init-keyword: enabled:,
-    init-value: #t;
-*/
 end class <logger>;
 
-define method initialize
-    (logger :: <logger>, #key name :: <string>)
-  next-method();
-  add-logger($root-logger, logger, as(<list>, split(name, '.')), name);
+define method make
+    (class :: subclass(<abstract-logger>),
+     #rest args,
+     #key targets :: false-or(<sequence>))
+ => (logger)
+  // Make sure targets is a <stretchy-vector>.  It's convenient for users
+  // to be able to pass list(make(<target> ...)) though.
+  apply(next-method, class, targets: as(<stretchy-vector>, targets | #[]), args)
 end;
 
-define open class <log-error> (<error>, <format-string-condition>)
+define method add-target
+    (logger :: <logger>, target :: <log-target>)
+  add-new!(logger.log-targets, target)
 end;
 
-define constant $root-logger = make(<logger>, name: "root" /*, enabled: #f */);
+define method remove-target
+    (logger :: <logger>, target :: <log-target>)
+  remove!(logger.log-targets, target);
+end;
+
+define open class <logging-error> (<error>, <format-string-condition>)
+end;
+
+define function logging-error
+    (control-string, #rest args)
+  signal(make(<logging-error>,
+              format-string: control-string,
+              format-arguments: args))
+end;
 
 define method get-root-logger
     () => (logger :: <logger>)
@@ -82,51 +146,59 @@ define method get-root-logger
 end;
 
 define method get-logger
-    (name :: <string>) => (logger :: false-or(<logger>))
-  local method find-logger (path, logger)
-          if (empty?(path))
-            logger
-          else
-            let child = element(logger.logger-children, first(path), default: #f);
-            if (child)
-              find-logger(rest(path), child)
-            else
-              signal(make(<log-error>,
-                          format-string: "Logger %s not found",
-                          format-arguments: list(name)));
-            end
-          end
-        end;
-  find-logger(as(<list>, split(name, '.')), $root-logger)
-end method get-logger;
+    (name :: <string>) => (logger :: false-or(<abstract-logger>))
+  %get-logger($root-logger, as(<list>, split(name, '.')), name)
+end;
 
-// todo -- log4j doesn't require that parent loggers be created before child
-//         loggers, and I think that's a nice feature to add here.
-//
+define method %get-logger
+    (logger :: <abstract-logger>, path :: <list>, original-name :: <string>)
+  if (empty?(path))
+    logger
+  else
+    %get-logger(element(logger.logger-children, first(path), default: #f),
+                rest(path),
+                original-name)
+  end
+end method %get-logger;
+
+define method %get-logger
+    (logger :: <placeholder-logger>, path :: <list>, original-name :: <string>)
+  iff(empty?(path),
+      logging-error("Logger not found: %s", original-name),
+      next-method())
+end method %get-logger;
+
+define method %get-logger
+    (logger == #f, path :: <list>, original-name :: <string>)
+  logging-error("Logger not found: %s", original-name);
+end method %get-logger;
+
+
 define method add-logger
-    (parent :: <logger>, new-logger :: <logger>, path :: <list>,
+    (parent :: <abstract-logger>, new :: <abstract-logger>, path :: <list>,
      original-name :: <string>)
   let name :: <string> = first(path);
   let child = element(parent.logger-children, name, default: #f);
+  if (child & (path.size == 1 | instance?(child, <logger>)))
+    logging-error("Invalid logger name, %s.  A child named %s already exists.",
+                  original-name, name);
+  end;
   if (path.size == 1)
-    if (child)
-      signal(make(<log-error>,
-                  format-string: "Invalid logger name, %s.  A child named %s already exists.",
-                  format-arguments: list(original-name, name)));
-    else
-      parent.logger-children[name] := new-logger;
-    end;
-  elseif (child)
-    add-logger(child, new-logger, rest(path), original-name);
+    parent.logger-children[name] := new;
+    new.logger-parent := parent;
   else
-    signal(make(<log-error>,
-                format-string: "Invalid logger name, %s.  No child logger named %s found.",
-                format-arguments: list(original-name, name)));
+    if (~child)
+      child := make(<placeholder-logger>, name: name, parent: parent);
+      parent.logger-children[name] := child;
+    end;
+    add-logger(child, new, rest(path), original-name);
   end;
 end method add-logger;
 
 
-////
+
+
+///////////////////////////////////////////////////////////
 //// Log levels
 ////
 
@@ -173,7 +245,7 @@ end;
 
 
 
-////
+///////////////////////////////////////////////////////////
 //// Logging messages
 ////
 
@@ -191,30 +263,46 @@ define function current-log-args
   *current-log-args*
 end;
 
-define thread variable *current-log-level* = #f;
+define thread variable *current-log-level* :: false-or(<log-level>) = #f;
+
+define thread variable *current-log-target* :: false-or(<log-target>) = #f;
 
 // This is generally called via log-info, log-error, etc, which simply curry
 // the first argument.
 //
-define function log
+define method log-message
     (given-level :: <log-level>, logger :: <logger>, object :: <object>, #rest args)
-  if (log-level-applicable?(given-level, logger.log-level))
+  if (logger.logger-enabled?
+        & log-level-applicable?(given-level, logger.log-level))
     dynamic-bind (*current-log-object* = object,
                   *current-log-args* = args,
                   *current-log-level* = given-level)
       for (target :: <log-target> in logger.log-targets)
-        apply(log-to-target, target, logger.log-formatter, object, args);
+        dynamic-bind (*current-log-target* = target)
+          apply(log-to-target, target, logger.log-formatter, object, args);
+        end;
       end;
     end;
   end;
-end function log;
+  if (logger.logger-additive?)
+    apply(log-message, given-level, logger.logger-parent, object, args);
+  end;
+end method log-message;
+
+define method log-message
+    (given-level :: <log-level>, logger :: <placeholder-logger>, object :: <object>,
+     #rest args)
+  if (logger.logger-additive?)
+    apply(log-message, given-level, logger.logger-parent, object, args)
+  end;
+end;
 
 // I'm not sure log-trace is a useful distinction from log-debug.
 // I copied it from log4j terminology.  I dropped log-fatal.
 
-define constant log-trace = curry(log, $trace-level);
+define constant log-trace = curry(log-message, $trace-level);
 
-define constant log-debug = curry(log, $debug-level);
+define constant log-debug = curry(log-message, $debug-level);
 
 define method log-debug-if
     (test, logger :: <logger>, object, #rest args)
@@ -223,14 +311,14 @@ define method log-debug-if
   end;
 end;
 
-define constant log-info = curry(log, $info-level);
+define constant log-info = curry(log-message, $info-level);
 
-define constant log-warning = curry(log, $warn-level);
+define constant log-warning = curry(log-message, $warn-level);
 
-define constant log-error = curry(log, $error-level);
+define constant log-error = curry(log-message, $error-level);
 
 
-////
+///////////////////////////////////////////////////////////
 //// Targets
 ////
 
@@ -249,6 +337,13 @@ define open generic log-to-target
     (target :: <log-target>, formatter :: <log-formatter>, object :: <object>,
      #rest args);
 
+// Override this if you want to use a normal formatter string but
+// want to write objects to the log stream instead of strings.
+//
+define open generic write-message
+    (target :: <log-target>, object :: <object>, #rest args);
+
+
 // Note that there is no default method on "object :: <object>".
 
 define method close
@@ -258,14 +353,12 @@ define method close
 end;
 
 // A log target that simply discards its output.
-define class <null-log-target> (<log-target>)
+define sealed class <null-log-target> (<log-target>)
 end;
 
 define method log-to-target
     (target :: <null-log-target>,
-     formatter :: <log-formatter>,
-     format-string :: <string>,
-     #rest args)
+     formatter :: <log-formatter>, format-string :: <string>, #rest args)
   // do nothing
 end;
 
@@ -273,7 +366,7 @@ end;
 // A log target that outputs directly to a stream.
 // e.g., make(<stream-log-target>, stream: *standard-output*)
 //
-define class <stream-log-target> (<log-target>)
+define open class <stream-log-target> (<log-target>)
   constant slot target-stream :: <stream>,
     required-init-keyword: #"stream";
 end;
@@ -286,16 +379,19 @@ define constant $stderr-log-target
 
 define method log-to-target
     (target :: <stream-log-target>,
-     formatter :: <log-formatter>,
-     format-string :: <string>,
-     #rest args)
+     formatter :: <log-formatter>, format-string :: <string>, #rest args)
   let stream :: <stream> = target.target-stream;
   with-stream-locked (stream)
-    format-to-stream(formatter, stream);
+    pattern-to-stream(formatter, stream);
     write(stream, "\n");
     force-output(stream);
   end;
 end method log-to-target;
+
+define method write-message
+    (target :: <stream-log-target>, format-string :: <string>, #rest args)
+  apply(format, target.target-stream, format-string, args);
+end;
 
 define method date-to-stream
     (stream :: <stream>, date :: <date>)
@@ -362,16 +458,19 @@ end;
 
 define method log-to-target
     (target :: <file-log-target>,
-     formatter :: <log-formatter>,
-     format-string :: <string>,
-     #rest format-args)
+     formatter :: <log-formatter>, format-string :: <string>, #rest format-args)
   let stream :: <stream> = target.target-stream;
   with-stream-locked (stream)
-    format-to-stream(formatter, stream);
+    pattern-to-stream(formatter, stream);
     write(stream, "\n");
     force-output(stream);
   end;
 end method log-to-target;
+
+define method write-message
+    (target :: <file-log-target>, format-string :: <string>, #rest args)
+  apply(format, target.target-stream, format-string, args);
+end;
 
 define method close
     (target :: <file-log-target>, #key abort?)
@@ -395,7 +494,8 @@ end;
 define class <rolling-file-log-target> (<file-log-target>)
 
   constant slot max-file-size :: <integer>,
-    required-init-keyword: #"max-size";
+    init-keyword: #"max-size",
+    init-value: 20 * 1024 * 1024;
 
   // TODO: not yet implemented
   // If this is #f then all versions are kept.
@@ -417,9 +517,7 @@ define constant $log-roller-lock :: <lock> = make(<lock>);
 
 define method log-to-target
     (target :: <rolling-file-log-target>,
-     formatter :: <log-formatter>,
-     format-string :: <string>,
-     #rest format-args)
+     formatter :: <log-formatter>, format-string :: <string>, #rest format-args)
   next-method();
   // todo -- calling stream-size may be very slow?  Maybe log-to-target should
   // return the number of bytes written, but that could be inefficient (e.g.,
@@ -448,7 +546,7 @@ define method roll-log-file
 end method roll-log-file;
 
 
-////
+///////////////////////////////////////////////////////////
 //// Formatting
 ////
 
@@ -471,16 +569,23 @@ end;
 
 // Should be called with the stream locked.
 //
-define method format-to-stream
+define method pattern-to-stream
     (formatter :: <log-formatter>, stream :: <stream>)
   for (item in formatter.parsed-pattern)
     if (instance?(item, <string>))
       write(stream, item);
     else
-      write(stream, item());
+      // This is a little hokey, but it was easier to allow some
+      // formatter functions to just return a string and others
+      // to write to the underlying stream, so if the function
+      // returns #f it means "i already did my output".
+      let result = item();
+      if (result)
+        write(stream, result);
+      end;
     end;
   end;
-end method format-to-stream;
+end method pattern-to-stream;
 
 // Parse a string of the form "%{r} blah %{m} ..." into a list of functions
 // and/or strings.  The functions can be called with no arguments and return
@@ -502,15 +607,19 @@ define method parse-formatter-pattern
     let control-size :: <integer> = pattern.size;
     local method next-char () => (char :: <character>)
             if (index >= control-size)
-              signal(make(<log-error>,
-                          format-string: "Log format control string ended prematurely: %s",
-                          format-arguments: list(pattern)));
+              logging-error("Log format control string ended prematurely: %s",
+                            pattern);
             else
               let char = pattern[index];
               inc!(index);
               char
             end
           end method;
+    local method peek-char () => (char :: false-or(<character>))
+            if (index < control-size)
+              pattern[index]
+            end
+          end;
     while (index < control-size)
       // Skip to dispatch char.
       for (i :: <integer> = index then (i + 1),
@@ -534,8 +643,8 @@ define method parse-formatter-pattern
         align := #"left";
         char := next-char();
       end;
-      if (digit?(char))
-        let (wid, idx) = string-to-integer(pattern, start: index);
+      if (member?(char, "0123456789"))
+        let (wid, idx) = string-to-integer(pattern, start: index - 1);
         width := wid;
         index := idx;
         char := next-char();
@@ -553,20 +662,49 @@ define method parse-formatter-pattern
                 end
               end
             end method;
+      local method parse-long-format-control ()
+              let bpos = index;
+              while (~member?(peek-char(), ":}")) next-char() end;
+              let word = copy-sequence(pattern, start: bpos, end: index);
+              let arg = #f;
+              if (pattern[index] == ':')
+                next-char();
+                let start = index;
+                while(peek-char() ~= '}') next-char() end;
+                arg := copy-sequence(pattern, start: start, end: index);
+              end;
+              next-char();   // eat '}'
+              select (word by \=)
+                "date" => method () pad(format-date(arg, current-date())) end;
+                "level" => method () pad(level-name(*current-log-level*)) end;
+                "message" =>
+                  method ()
+                    apply(write-message, *current-log-target*, *current-log-object*,
+                          *current-log-args*);
+                    #f
+                  end;
+                "pid" => compose(pad, integer-to-string, current-process-id);
+                "millis" => compose(pad, integer-to-string, elapsed-milliseconds);
+                "thread" => compose(pad, thread-name, current-thread);
+                otherwise =>
+                  // Unknown control string.  Just output the text we've seen...
+                  copy-sequence(pattern, start: start, end: index);
+              end select;
+            end method;
       add!(result,
            select (char)
-             '{' =>
-               error("Long format controls (e.g., %{foo}) not yet implemented.");
+             '{' => parse-long-format-control();
              'd' => compose(pad, as-iso8601-string, current-date);
              'l', 'L' => method ()
                            pad(level-name(*current-log-level*))
                          end;
              'm' => method ()
-                      apply(write-object, *current-log-target*, *current-log-object*,
+                      apply(write-message, *current-log-target*, *current-log-object*,
                             *current-log-args*);
+                      #f
                     end;
              'p' => compose(pad, integer-to-string, current-process-id);
-             'r' => compose(pad, elapsed-milliseconds);
+             'r' => compose(pad, integer-to-string, elapsed-milliseconds);
              't' => compose(pad, thread-name, current-thread);
              '%' => pad("%");
              otherwise =>
@@ -580,4 +718,48 @@ end method parse-formatter-pattern;
 
 define constant $default-log-formatter :: <log-formatter>
   = make(<log-formatter>, pattern: "%d %-5L [%t] %m");
+
+// stub -- not sure if getpid exists yet.
+//         it's not in the operating-system module at least.
+//
+define function current-process-id
+    () => (pid :: <integer>)
+  0
+end;
+
+define constant $application-start-date :: <date> = current-date();
+
+// todo -- need to use double integers here.  OD integers only hold 6 days
+//         worth of millis.
+//
+define function elapsed-milliseconds
+    () => (millis :: <integer>)
+  let duration :: <duration> = current-date() - $application-start-date;
+  let (days, hours, minutes, seconds, microseconds) = decode-duration(duration);
+  microseconds / 1000.0
+  + seconds * 1000
+  + minutes * 60000
+  + hours * 3600000
+  + days * 86400000
+end function elapsed-milliseconds;
+
+
+/////////////////////////////////////////////////////
+//// For use by the test suite
+////
+
+define function reset-logging
+    ()
+  // maybe should close existing log targets?
+  $root-logger := make(<logger>, name: "root", additive: #f, enabled: #f);
+end;
+
+/////////////////////////////////////////////////////
+//// Initialize
+////
+
+begin
+  reset-logging();
+end;
+
 
