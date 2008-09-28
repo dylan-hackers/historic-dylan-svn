@@ -5,7 +5,7 @@ define library logging-test-suite
   use io;
   use logging;
   use system,
-    import: { date };
+    import: { date, file-system, locators };
   use testworks;
   use testworks-specs;
   use uncommon-dylan;
@@ -18,6 +18,9 @@ define module logging-test-suite
   use logging;
   use logging-impl;
   use streams;
+  use file-system;
+    //import: { <pathname>, with-open-file };
+  use locators;
   use testworks;
   use testworks-specs;
   use uncommon-dylan;

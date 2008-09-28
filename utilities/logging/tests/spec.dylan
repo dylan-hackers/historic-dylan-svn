@@ -74,11 +74,14 @@ end class-test <debug-level>;
 define logging class-test <error-level> ()
 end class-test <error-level>;
 
-define logging class-test <file-log-target> ()
-end class-test <file-log-target>;
-
 define logging class-test <info-level> ()
 end class-test <info-level>;
+
+define logging class-test <trace-level> ()
+end class-test <trace-level>;
+
+define logging class-test <warn-level> ()
+end class-test <warn-level>;
 
 define logging class-test <log-formatter> ()
 end class-test <log-formatter>;
@@ -86,8 +89,8 @@ end class-test <log-formatter>;
 define logging class-test <log-level> ()
 end class-test <log-level>;
 
-define logging class-test <log-target> ()
-end class-test <log-target>;
+define logging class-test <placeholder-logger> ()
+end class-test <placeholder-logger>;
 
 define logging class-test <logger> ()
 end class-test <logger>;
@@ -95,23 +98,38 @@ end class-test <logger>;
 define logging class-test <logging-error> ()
 end class-test <logging-error>;
 
+define logging class-test <log-target> ()
+end class-test <log-target>;
+
 define logging class-test <null-log-target> ()
 end class-test <null-log-target>;
-
-define logging class-test <placeholder-logger> ()
-end class-test <placeholder-logger>;
-
-define logging class-test <rolling-file-log-target> ()
-end class-test <rolling-file-log-target>;
 
 define logging class-test <stream-log-target> ()
 end class-test <stream-log-target>;
 
-define logging class-test <trace-level> ()
-end class-test <trace-level>;
+define logging constant-test $stderr-log-target ()
+end constant-test $stderr-log-target;
 
-define logging class-test <warn-level> ()
-end class-test <warn-level>;
+define logging constant-test $stdout-log-target ()
+end constant-test $stdout-log-target;
+
+define logging class-test <file-log-target> ()
+  let locator = temp-locator("file-log-target-test.log");
+  let target = make(<file-log-target>, pathname: locator);
+  let log = make(<logger>,
+                 name: "file-log-target-test",
+                 targets: list(target),
+                 formatter: $message-only-formatter);
+  log-info(log, "test");
+  close(target);
+  with-open-file (stream = locator, direction: #"input")
+    check-equal("file-log-target has expected contents",
+                read-to-end(stream), "test\n");
+  end;
+end class-test <file-log-target>;
+
+define logging class-test <rolling-file-log-target> ()
+end class-test <rolling-file-log-target>;
 
 define logging constant-test $debug-level ()
 end constant-test $debug-level;
@@ -121,12 +139,6 @@ end constant-test $error-level;
 
 define logging constant-test $info-level ()
 end constant-test $info-level;
-
-define logging constant-test $stderr-log-target ()
-end constant-test $stderr-log-target;
-
-define logging constant-test $stdout-log-target ()
-end constant-test $stdout-log-target;
 
 define logging constant-test $trace-level ()
 end constant-test $trace-level;
@@ -194,6 +206,30 @@ define logging function-test log-to-target ()
 end function-test log-to-target;
 
 define logging function-test logger-additive? ()
+  // Make sure non-additive logger DOESN'T pass it on to parent.
+  let logger1 = make-test-logger("aaa");
+  let logger2 = make-test-logger("aaa.bbb", additive: #f);
+  log-error(logger2, "xxx");
+  check-equal("non-additivity respected for target1",
+              stream-contents(logger1.log-targets[0].target-stream),
+              "");
+  check-equal("non-additivity respected for target2",
+              stream-contents(logger2.log-targets[0].target-stream),
+              "xxx\n");
+
+  // Make sure additive logger DOES pass it on to parent.
+  let logger1 = make-test-logger("xxx");
+  let logger2 = make-test-logger("xxx.yyy", additive: #t);
+  log-error(logger2, "xxx");
+  check-equal("additivity respected for target1",
+              stream-contents(logger1.log-targets[0].target-stream),
+              "xxx\n");
+  check-equal("additivity respected for target2",
+              stream-contents(logger2.log-targets[0].target-stream),
+              "xxx\n");
+
+  // Even if a logger is disabled, additivity should be respected.
+  
 end function-test logger-additive?;
 
 define logging function-test logger-additive?-setter ()
@@ -218,6 +254,7 @@ define logging function-test write-message ()
 end function-test write-message;
 
 begin
+  ensure-directories-exist($temp-directory);
   run-test-application(logging-test-suite)
 end;
 

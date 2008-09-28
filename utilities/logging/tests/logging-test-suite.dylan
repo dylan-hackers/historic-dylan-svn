@@ -2,6 +2,19 @@ Module: logging-test-suite
 
 define constant fmt = format-to-string;
 
+// No tempfile library, so this'll have to do.
+//
+define constant $temp-directory :: <directory-locator>
+  = subdirectory-locator(temp-directory(),
+                         format-date("%Y%m%d%H%M%S", current-date()));
+
+define function temp-locator
+    (filename :: <string>) => (temp-locator :: <file-locator>)
+  // locators are a freakin' nightmare...falling back to strings.
+  as(<file-locator>,
+     concatenate(as(<string>, $temp-directory), "/", filename))
+end;
+
 // This class serves two testing purposes: it's an easy way to get the
 // results of logging to a stream and it tests the ability to create
 // new types of log targets from outside the logging library.
@@ -19,6 +32,18 @@ end;
 
 define constant $message-only-formatter
   = make(<log-formatter>, pattern: "%{message}");
+
+// Make the most common type of logger for testing.
+//
+define function make-test-logger
+    (name :: <string>, #rest init-args)
+ => (logger :: <logger>)
+  apply(make, <logger>,
+        name: name,
+        targets: list(make(<string-log-target>)),
+        formatter: $message-only-formatter,
+        init-args)
+end;
 
 define constant $log-levels
   = list($trace-level, $debug-level, $info-level, $warn-level, $error-level);

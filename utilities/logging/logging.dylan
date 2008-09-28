@@ -179,7 +179,7 @@ define method add-logger
      original-name :: <string>)
   let name :: <string> = first(path);
   let child = element(parent.logger-children, name, default: #f);
-  if (child & (path.size == 1 | instance?(child, <logger>)))
+  if (child & path.size == 1)
     logging-error("Invalid logger name, %s.  A child named %s already exists.",
                   original-name, name);
   end;
@@ -433,8 +433,8 @@ end method as-common-logfile-date;
 // (Why is this not a subclass of <stream-log-target>?)
 //
 define class <file-log-target> (<log-target>)
-  constant slot target-file :: <locator>,
-    required-init-keyword: file:;
+  constant slot target-pathname :: <pathname>,
+    required-init-keyword: pathname:;
   slot target-stream :: false-or(<file-stream>),
     init-value: #f;
 end;
@@ -445,11 +445,14 @@ define method initialize
   target.target-stream := open-target-stream(target);
 end;
 
+define open generic open-target-stream
+    (target :: <file-log-target>) => (stream :: <stream>);
+
 define method open-target-stream
     (target :: <file-log-target>)
  => (stream :: <file-stream>)
   make(<file-stream>,
-       locator: target.target-file,
+       locator: target.target-pathname,
        element-type: <character>,
        direction: #"output",
        if-exists: #"append",
@@ -491,6 +494,9 @@ end;
 // given that I want to roll the log if the file exists when I
 // first attempt to open it.  It leads to various special cases.
 //
+// Attempt to re-open the file if logging to it gets (the equivalent
+// of) bad file descriptor?
+//
 define class <rolling-file-log-target> (<file-log-target>)
 
   constant slot max-file-size :: <integer>,
@@ -515,6 +521,15 @@ end class <rolling-file-log-target>;
 
 define constant $log-roller-lock :: <lock> = make(<lock>);
 
+
+define method initialize
+    (target :: <rolling-file-log-target>, #key roll :: <boolean> = #t)
+  if (roll & file-exists?(target.target-pathname))
+    roll-log-file(target);
+  end;
+  next-method();
+end method initialize;
+
 define method log-to-target
     (target :: <rolling-file-log-target>,
      formatter :: <log-formatter>, format-string :: <string>, #rest format-args)
@@ -535,7 +550,7 @@ define method roll-log-file
       close(target.target-stream);
     end;
     let date = as-iso8601-string(target.file-creation-date);
-    let oldloc = target.target-file;
+    let oldloc = as(<file-locator>, target.target-pathname);
     let newloc = merge-locators(as(<file-locator>,
                                    concatenate(locator-name(oldloc), ".", date)),
                                 oldloc);

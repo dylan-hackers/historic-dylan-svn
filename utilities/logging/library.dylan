@@ -67,9 +67,11 @@ end library logging;
 define module logging
   create
     // Loggers
+    // Maybe rename to <log> and log-*
     <logger>,
     log-level,
     log-level-setter,
+    log-targets,
     logger-name,
     logger-additive?,
     logger-additive?-setter,
@@ -95,7 +97,8 @@ define module logging
     <stream-log-target>,
       target-stream,
     <file-log-target>,
-      target-file,
+      target-pathname,
+      open-target-stream,
     <rolling-file-log-target>,
     $stdout-log-target,
     $stderr-log-target,
@@ -134,8 +137,8 @@ define module logging-impl
   use common-dylan,
     exclude: { format-to-string };
   use date;
-  use file-system,
-    import: { <file-stream>, rename-file };
+  use file-system;
+    //import: { <file-stream>, <pathname>, rename-file };
   use format;
   use locators,
     import: { <locator>,
