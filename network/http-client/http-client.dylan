@@ -6,6 +6,11 @@ define variable *debug-http* :: <boolean> = #t;
 
 define constant $default-http-port :: <integer> = 80;
 
+// temporary
+define constant $log
+  = make(<logger>,
+         name: "http-client",
+         targets: list($stdout-log-target));
 
 /// Session-level interface.
 
@@ -169,7 +174,7 @@ define method read-http-status-line
      reason-phrase :: <string>)
   let entire-line = read-http-line(stream);
   let parts = split(entire-line, ' ', count: 3, remove-if-empty: #t);
-  log-debug($stdout-log-target, "status line parts: %s", parts);
+  log-debug($log, "status line parts: %s", parts);
   if (parts.size ~== 3)
     // The rationale for 500 here is that if the server sent us an incomplete
     // status line it is completely hosed.
