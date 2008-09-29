@@ -70,17 +70,29 @@
      so debugging statements emitted during config file parsing can be
      displayed.
   -->
-<log type="debug"
-     location="debug.log"
-     level="debug"
-     max-size="20000000" />
-<log type="activity"
-     location="activity.log"
-     max-size="20000000" />
-<log type="error"
-     location="error.log"
-     max-size="20000000" />
+<debug-log location="debug.log" level="debug" max-size="20000000" />
 
+<request-log location="activity.log" max-size="20000000" />
+
+<error-log location="error.log" max-size="20000000" />
+
+<!-- soon...
+<error-log name="error">
+  <formatter pattern="%{date}..." />
+  <target type="rolling-file"
+          filename="koala.log"
+          max-size="20MB" />
+  <target type="stdout" />
+</error-log>
+
+<request-log name="request">
+</request-log>
+
+<debug-log name="error.debug">
+  ...
+  <logger name="debug.headers">
+</debug-log>
+-->
 
 <!-- SERVER-ROOT is the top of the directory tree under which the
      server's configuration and log files are kept.  Other pathnames are

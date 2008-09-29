@@ -168,16 +168,11 @@ define method initialize
   apply(next-method,
         server,
         remove-keys(keys, #"document-root", #"dsp-root"));
-  let stdout-log = make(<stream-log-target>, stream: *standard-output*);
-  let stderr-log = make(<stream-log-target>, stream: *standard-error*);
   default-virtual-host(server)
     := make-virtual-host(server,
                          name: "default",
                          document-root: document-root,
-                         dsp-root: dsp-root,
-                         activity-log: stdout-log,
-                         debug-log: stdout-log,
-                         error-log: stderr-log);
+                         dsp-root: dsp-root);
   // Copy mime type map in, since it may be modified when config loaded.
   let tmap :: <table> = server.server-mime-type-map;
   for (mime-type keyed-by extension in $default-mime-type-map)

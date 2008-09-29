@@ -60,29 +60,36 @@ define open generic add-header
     (object :: <object>, header :: <byte-string>, value :: <object>,
      #key if-exists? :: one-of(#"replace", #"append", #"ignore", #"error"));
 
+// temporary
+define constant $header-logger :: <logger>
+  = make(<logger>,
+         name: "koala.debug.headers",
+         targets: list($stdout-log-target),
+         additive: #t);
+
 define method add-header
     (headers :: <header-table>, header-name :: <byte-string>, value,
      #key if-exists? :: <symbol> = #"replace")
   let old = element(headers, header-name, default: #f);
   if (old)
-    log-debug($stdout-log-target, "add-header: Previous value for %s: %s",
+    log-debug($header-logger, "add-header: Previous value for %s: %s",
               header-name, old);
   end;
   if (~old)
     if (*debug-headers?*)
-      log-debug($stdout-log-target, "add-header: New %s: %s",
+      log-debug($header-logger, "add-header: New %s: %s",
                 header-name, value);
     end;
     headers[header-name] := value;
   elseif (if-exists? = #"replace")
     if (*debug-headers?*)
-      log-debug($stdout-log-target, "add-header: Replaced %s: %s -> %s",
+      log-debug($header-logger, "add-header: Replaced %s: %s -> %s",
                 header-name, old, value);
     end;
     headers[header-name] := value;
   elseif (if-exists? = #"append")
     if (*debug-headers?*)
-      log-debug($stdout-log-target, "add-header: Appended to %s: %s",
+      log-debug($header-logger, "add-header: Appended to %s: %s",
                 header-name, headers[header-name]);
     end;
     headers[header-name] := iff(instance?(old, <pair>),
@@ -92,7 +99,7 @@ define method add-header
     error("Attempt to add header %= which has already been added", header-name);
   else
     if (*debug-headers?*)
-      log-debug($stdout-log-target, "add-header: Ignoring %s: %s",
+      log-debug($header-logger, "add-header: Ignoring %s: %s",
                 header-name, value);
     end;
     assert(if-exists? == #"ignore");

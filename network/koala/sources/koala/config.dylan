@@ -314,61 +314,79 @@ end method process-config-element;
 
 
 define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"log")
-  let type = get-attr(node, #"type");
-  if (~type)
-    warn("<LOG> element missing 'type' attribute.");
-  elseif (~member?(type, #("debug", "activity", "error"),
-                   test: string-equal?))
-    warn("Log type %= not recognized.  Should be 'debug', 'activity', "
-         "or 'error'.", type);
-  else
-    let location = get-attr(node, #"location");
-    let max-size = get-attr(node, #"max-size");
-    let default-size = 20 * 1024 * 1024;
-    block ()
-      max-size := string-to-integer(max-size);
-    exception (ex :: <error>)
-      warn("<LOG> element has invalid max-size attribute (%s).  "
-           "The default (%d) will be used.", max-size, default-size);
-    end;
-    let tgt = iff(location,
-                  make(<rolling-file-log-target>,
-                       file: merge-locators(as(<file-locator>, location),
-                                            server.server-root),
-                       max-size: max-size | default-size),
-                  make(<stream-log-target>,
-                       stream: iff(string-equal?(type, "error"),
-                                   *standard-error*,
-                                   *standard-output*)));
-    let logger :: <logger> = make(<logger>, target: tgt);
-    select (type by string-equal?)
-      "error", "errors"
-        => %error-logger(%vhost) := logger;
-      "activity"
-        => %activity-logger(%vhost) := logger;
-      "debug"
-        => %debug-logger(%vhost) := logger;
-           let level = get-attr(node, #"level") | "info";
-           let unrecognized = #f;
-           let level = select (level by string-equal?)
-                         "trace" => $trace-level;
-                         "debug"   => $debug-level;
-                         "info"    => $info-level;
-                         "warn", "warning", "warnings" => $warn-level;
-                         "error", "errors" => $error-level;
-                         otherwise =>
-                           unrecognized := #t;
-                           $info-level;
-                       end;
-           log-level(logger) := level;
-           if (unrecognized)
-             warn("Unrecognized log level: %=", level);
-           end;
-           log-info("Added log level %=", level);
-    end select;
-  end if;
+    (server :: <http-server>, node :: xml$<element>, name == #"error-log")
+  let format-control = get-attr(node, #"format");
+  let name = get-attr(node, #"name") | "koala.error";
+  let logger = process-log-config-element(server, node, format-control, name,
+                                          $stderr-log-target);
+  error-logger(%vhost) := logger;
 end method process-config-element;
+
+define method process-config-element
+    (server :: <http-server>, node :: xml$<element>, name == #"debug-log")
+  let format-control = get-attr(node, #"format");
+  let name = get-attr(node, #"name") | "koala.debug";
+  let logger = process-log-config-element(server, node, format-control, name,
+                                          $stdout-log-target);
+  debug-logger(%vhost) := logger;
+end method process-config-element;
+
+define method process-config-element
+    (server :: <http-server>, node :: xml$<element>, name == #"request-log")
+  let format-control = get-attr(node, #"format") | "%{message}";
+  let name = get-attr(node, #"name") | "koala.request";
+  let logger = process-log-config-element(server, node, format-control, name,
+                                          $stdout-log-target);
+  request-logger(%vhost) := logger;
+end method process-config-element;
+
+define function process-log-config-element
+    (server :: <http-server>, node :: xml$<element>,
+     format-control, logger-name :: <string>, default-log-target :: <log-target>)
+ => (logger :: <logger>)
+  let additive? = true-value?(get-attr(node, #"additive"));
+  let location = get-attr(node, #"location");
+  let max-size = get-attr(node, #"max-size");
+  let default-size = 20 * 1024 * 1024;
+  block ()
+    max-size := string-to-integer(max-size);
+  exception (ex :: <error>)
+    warn("<LOG> element has invalid max-size attribute (%s).  "
+         "The default (%d) will be used.", max-size, default-size);
+    max-size := default-size;
+  end;
+  let target = iff(location,
+                   make(<rolling-file-log-target>,
+                        pathname: merge-locators(as(<file-locator>, location),
+                                                 server.server-root),
+                        max-size: max-size),
+                   default-log-target);
+  let logger :: <logger>
+    = make(<logger>,
+           name: logger-name,
+           targets: list(target),
+           additive: additive?,
+           formatter: make(<log-formatter>, pattern: format-control));
+
+  let level = get-attr(node, #"level") | "info";
+  let unrecognized = #f;
+  let level = select (level by string-equal?)
+                "trace" => $trace-level;
+                "debug" => $debug-level;
+                "info"  => $info-level;
+                "warn", "warning", "warnings" => $warn-level;
+                "error", "errors" => $error-level;
+                otherwise =>
+                  unrecognized := #t;
+                  $info-level;
+              end;
+   log-level(logger) := level;
+   if (unrecognized)
+     warn("Unrecognized log level: %=", level);
+   end;
+   log-info("Added log level %=", level);
+   logger
+end function process-log-config-element;
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"administrator")

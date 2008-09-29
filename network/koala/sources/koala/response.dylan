@@ -180,7 +180,7 @@ define inline function log-request
                   " \"", as(<string>, get-header(req, "referer") | "-"),
                   "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
                   "\"");
-  log-to-target(log-target(activity-logger(*virtual-host*)), log-entry);
+  %log-info(request-logger(*virtual-host*), log-entry);
 end function log-request;
 
 // Exported

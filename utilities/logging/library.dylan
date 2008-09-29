@@ -113,6 +113,7 @@ define module logging
 
     // Formatters
     <log-formatter>,
+    $default-log-formatter,
 
     // Errors
     <logging-error>,

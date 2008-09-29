@@ -7,26 +7,46 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define thread variable *virtual-host* :: false-or(<virtual-host>) = #f;
 
-define constant %root-logger :: <logger> = get-root-logger();
+// Logger used if no other loggers are configured.
+//
+define constant %root-logger :: <logger>
+  = make(<logger>,
+         name: "koala",
+         targets: list($stdout-log-target));
 
 define method log-trace (format-string, #rest format-args)
-  apply(%log-trace, %root-logger | debug-logger(*virtual-host*),
+  apply(%log-trace,
+        iff(*virtual-host*,
+            debug-logger(*virtual-host*),
+            %root-logger),
         format-string, format-args);
 end;
 define method log-debug (format-string, #rest format-args)
-  apply(%log-debug, %root-logger | debug-logger(*virtual-host*),
+  apply(%log-debug,
+        iff(*virtual-host*,
+            debug-logger(*virtual-host*),
+            %root-logger),
         format-string, format-args);
 end;
 define method log-info (format-string, #rest format-args)
-  apply(%log-info, %root-logger | debug-logger(*virtual-host*),
+  apply(%log-info,
+        iff(*virtual-host*,
+            debug-logger(*virtual-host*),
+            %root-logger),
         format-string, format-args);
 end;
 define method log-warning (format-string, #rest format-args)
-  apply(%log-warning, %root-logger | error-logger(*virtual-host*),
+  apply(%log-warning,
+        iff(*virtual-host*,
+            error-logger(*virtual-host*),
+            %root-logger),
         format-string, format-args);
 end;
 define method log-error (format-string, #rest format-args)
-  apply(%log-error, %root-logger | error-logger(*virtual-host*),
+  apply(%log-error,
+        iff(*virtual-host*,
+            error-logger(*virtual-host*),
+            %root-logger),
         format-string, format-args);
 end;
 
@@ -140,17 +160,17 @@ define class <virtual-host> (<object>)
   // other value is set.
   slot default-dynamic-content-type :: <string> = "text/html; charset=utf-8";
 
-  slot %activity-logger :: <logger>,
-    init-value: get-root-logger(),
-    init-keyword: activity-log:;
+  slot request-logger :: <logger>,
+    init-value: %root-logger,
+    init-keyword: request-logger:;
 
-  slot %error-logger :: <logger>,
-    init-value: get-root-logger(),
-    init-keyword: error-log:;
+  slot error-logger :: <logger>,
+    init-value: %root-logger,
+    init-keyword: error-logger:;
 
-  slot %debug-logger :: <logger>,
-    init-value: get-root-logger(),
-    init-keyword: debug-log:;
+  slot debug-logger :: <logger>,
+    init-value: %root-logger,
+    init-keyword: debug-logger:;
 
 end class <virtual-host>;
 
@@ -169,24 +189,6 @@ define method initialize
     vhost.dsp-root := vhost.document-root;
   end;
 end method initialize;
-
-define method activity-logger
-    (vhost :: <virtual-host>) => (target :: <logger>)
-  vhost.%activity-logger
-    | (*server* & default-virtual-host(*server*).%activity-logger)
-end;
-
-define method debug-logger
-    (vhost :: <virtual-host>) => (target :: <logger>)
-  vhost.%debug-logger
-    | (*server* & default-virtual-host(*server*).%debug-logger)
-end;
-
-define method error-logger
-    (vhost :: <virtual-host>) => (target :: <logger>)
-  vhost.%error-logger
-    | (*server* & default-virtual-host(*server*).%error-logger)
-end;
 
 define method add-directory-spec
     (vhost :: <virtual-host>, spec :: <directory-spec>)

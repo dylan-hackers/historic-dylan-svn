@@ -179,11 +179,11 @@ define method add-logger
      original-name :: <string>)
   let name :: <string> = first(path);
   let child = element(parent.logger-children, name, default: #f);
-  if (child & path.size == 1)
-    logging-error("Invalid logger name, %s.  A child named %s already exists.",
-                  original-name, name);
-  end;
   if (path.size == 1)
+    if (child & ~instance?(child, <placeholder-logger>))
+      logging-error("Invalid logger name, %s.  A child logger named %s "
+                    "already exists.", original-name, name);
+    end;
     parent.logger-children[name] := new;
     new.logger-parent := parent;
   else
@@ -609,9 +609,6 @@ end method pattern-to-stream;
 // wonder which would be faster, concatenation or multiple stream writes.
 // Might be worth benchmarking at some point.)
 //
-// "%{date:%Y%M%d:%H%M%S%z} - %{level} - %{pid} - %{elapsed} %{thread} -- verbatim %{message}"
-// "%-5L" = "%-5{level}"
-//
 define method parse-formatter-pattern
     (pattern :: <string>)
  => (parsed :: <sequence>)
@@ -690,7 +687,10 @@ define method parse-formatter-pattern
               end;
               next-char();   // eat '}'
               select (word by \=)
-                "date" => method () pad(format-date(arg, current-date())) end;
+                "date" => method ()
+                            pad(format-date(arg | "%Y-%m-%dT%H:%M:%S%Z",
+                                            current-date()))
+                          end;
                 "level" => method () pad(level-name(*current-log-level*)) end;
                 "message" =>
                   method ()
