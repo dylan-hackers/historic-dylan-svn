@@ -56,17 +56,15 @@ define method configure-server
   let config-loc
     = as(<string>, merge-locators(as(<file-locator>, config-file | defaults),
                                   defaults));
-  block (return)
-    let text = file-contents(config-loc);
-    if (text)
-      log-info("Loading server configuration from %s.", config-loc);
-      configure-from-string(server, text, config-loc);
-    elseif (config-file)
-      // Only blow out if user specified a config file, not if they're taking
-      // the default config file.
-      config-error("Server configuration file (%s) not found.", config-loc);
-    end if;
-  end block;
+  let text = file-contents(config-loc);
+  if (text)
+    log-info("Loading server configuration from %s.", config-loc);
+    configure-from-string(server, text, config-loc);
+  elseif (config-file)
+    // Only blow out if user specified a config file, not if they're taking
+    // the default config file.
+    config-error("Server configuration file (%s) not found.", config-loc);
+  end if;
 end method configure-server;
 
 // This is separated out so it can be used by the test suite.
@@ -344,7 +342,7 @@ define function process-log-config-element
     (server :: <http-server>, node :: xml$<element>,
      format-control, logger-name :: <string>, default-log-target :: <log-target>)
  => (logger :: <logger>)
-  let additive? = true-value?(get-attr(node, #"additive"));
+  let additive? = true-value?(get-attr(node, #"additive") | "yes");
   let location = get-attr(node, #"location");
   let max-size = get-attr(node, #"max-size");
   let default-size = 20 * 1024 * 1024;
@@ -361,12 +359,14 @@ define function process-log-config-element
                                                  server.server-root),
                         max-size: max-size),
                    default-log-target);
+  let default-log-format = "%{date} %-5{level} [%{thread}] %{message}";
   let logger :: <logger>
     = make(<logger>,
            name: logger-name,
            targets: list(target),
            additive: additive?,
-           formatter: make(<log-formatter>, pattern: format-control));
+           formatter: make(<log-formatter>,
+                           pattern: format-control | default-log-format));
 
   let level = get-attr(node, #"level") | "info";
   let unrecognized = #f;
