@@ -4,6 +4,7 @@ Module: logging-test-suite
 //
 define library-spec logging ()
   module logging;
+  test test-elapsed-milliseconds;
 end library-spec logging;
 
 // Defines suite logging-module-test-suite.

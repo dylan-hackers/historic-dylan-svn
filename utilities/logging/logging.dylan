@@ -7,13 +7,7 @@ Synopsis:  Simple logging mechanism.  Some ideas taken from log4j.
 
 todo -- current-process-id is a stub
 
-todo -- <file-log-target> should accept a string for the filename
-        to avoid making people import locators.  God I hate the
-        locators library.
-
 todo -- configuration parser
-
-todo -- use <double-integer> for elapsed-milliseconds.
 
 todo -- documentation
 
@@ -25,13 +19,18 @@ todo -- Handle errors gracefully.  e.g., if the disk fills up it may be
         for example.  If logging to stream/file fails, log to stderr as
         a fallback.  (e.g., someone forks and closes all fds)
 
+todo -- <file-log-target> should accept a string for the filename to
+        avoid making people import locators.  God I hate the locators
+        library.  Should also have option to compress on roll.
+
+todo -- <rolling-file-log-target>: Should roll the file when either a
+        max size or a max time is reached, whichever comes first.
+        Should make it possible for users to override roll-log-file?
+        and roll-log-file-name methods if they want to roll their
+        own.
+
 todo -- Add a way to extend the set of format directives from outside
         the library.
-
-todo -- A log target that rolls the file when either a max size or a max
-        time is reached, whichever comes first.  Should make it possible
-        for users to override roll-log-file? and roll-log-file-name
-        methods if they want to roll their own.
 
 ??? -- Is there a reasonable use case where you might not want \n at the
        end of each log entry?  Rather than hard-coding the \n one could
@@ -485,8 +484,7 @@ end;
 
 // A log target that is backed by a file and ensures that the file
 // only grows to a certain size, after which it is renamed to
-// filename.<date-when-file-was-opened>.  (TODO: optionally compress
-// the old log files as well.)
+// filename.<date-when-file-was-opened>.
 //
 // I investigated making this a subclass of <wrapper-stream> but it
 // didn't work well due to the need to create the inner-stream
@@ -524,7 +522,9 @@ define constant $log-roller-lock :: <lock> = make(<lock>);
 
 define method initialize
     (target :: <rolling-file-log-target>, #key roll :: <boolean> = #t)
-  if (roll & file-exists?(target.target-pathname))
+  if (roll
+        & file-exists?(target.target-pathname)
+        & file-property(target.target-pathname, #"size") > 0)
     roll-log-file(target);
   end;
   next-method();
@@ -549,7 +549,9 @@ define method roll-log-file
     if (target.target-stream)  // may be #f first time
       close(target.target-stream);
     end;
-    let date = as-iso8601-string(target.file-creation-date);
+    // todo -- make the archived log filename accept %{date:fmt} and
+    //         %{version} escapes.  e.g., "foo.log.%{version}"
+    let date = format-date("%Y%m%dT%H%M%S", target.file-creation-date);
     let oldloc = as(<file-locator>, target.target-pathname);
     let newloc = merge-locators(as(<file-locator>,
                                    concatenate(locator-name(oldloc), ".", date)),
@@ -699,7 +701,7 @@ define method parse-formatter-pattern
                     #f
                   end;
                 "pid" => compose(pad, integer-to-string, current-process-id);
-                "millis" => compose(pad, integer-to-string, elapsed-milliseconds);
+                "millis" => compose(pad, number-to-string, elapsed-milliseconds);
                 "thread" => compose(pad, thread-name, current-thread);
                 otherwise =>
                   // Unknown control string.  Just output the text we've seen...
@@ -719,7 +721,7 @@ define method parse-formatter-pattern
                       #f
                     end;
              'p' => compose(pad, integer-to-string, current-process-id);
-             'r' => compose(pad, integer-to-string, elapsed-milliseconds);
+             'r' => compose(pad, number-to-string, elapsed-milliseconds);
              't' => compose(pad, thread-name, current-thread);
              '%' => pad("%");
              otherwise =>
@@ -744,18 +746,14 @@ end;
 
 define constant $application-start-date :: <date> = current-date();
 
-// todo -- need to use double integers here.  OD integers only hold 6 days
-//         worth of millis.
-//
 define function elapsed-milliseconds
-    () => (millis :: <integer>)
+    () => (millis :: <double-integer>)
   let duration :: <duration> = current-date() - $application-start-date;
   let (days, hours, minutes, seconds, microseconds) = decode-duration(duration);
-  microseconds / 1000.0
-  + seconds * 1000
-  + minutes * 60000
-  + hours * 3600000
-  + days * 86400000
+  plus(div(microseconds, 1000.0),
+       plus(mul(seconds, 1000),
+            plus(mul(minutes, 60000),
+                 plus(mul(hours, 3600000), mul(days, 86400000)))))
 end function elapsed-milliseconds;
 
 

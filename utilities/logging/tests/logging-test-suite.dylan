@@ -75,3 +75,14 @@ define function test-log-level
   end;
 end function test-log-level;
 
+// elapsed-milliseconds uses double integers.  This test just tries to
+// make sure that number-to-string (should be integer-to-string) doesn't
+// blow up.
+//
+define test test-elapsed-milliseconds ()
+  // $maximum-integer is the standard value, not from the generic-arithmetic module.
+  let int :: <double-integer> = plus($maximum-integer, 1);
+  check-no-errors("number-to-string(<double-integer>)",
+                  number-to-string(int));
+end;
+

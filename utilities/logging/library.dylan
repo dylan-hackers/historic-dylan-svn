@@ -52,6 +52,8 @@ Log to a file::
 
 define library logging
   use common-dylan;
+  use big-integers;
+  use generic-arithmetic;
   use io,
     import: { format, standard-io, streams };
   use system,
@@ -141,6 +143,11 @@ define module logging-impl
   use file-system;
     //import: { <file-stream>, <pathname>, rename-file };
   use format;
+  use generic-arithmetic,
+    import: { <integer> => <double-integer>,
+              + => plus,
+              * => mul,
+              / => div };
   use locators,
     import: { <locator>,
               <file-locator>,
@@ -158,6 +165,7 @@ define module logging-impl
 
   export
     // for test suite
+    elapsed-milliseconds,
     reset-logging;
 
 end module logging-impl;
