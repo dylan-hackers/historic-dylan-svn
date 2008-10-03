@@ -119,6 +119,19 @@ define method make
   apply(next-method, class, targets: as(<stretchy-vector>, targets | #[]), args)
 end;
 
+define method print-object
+    (logger :: <logger>, stream :: <stream>)
+ => ()
+  if (*print-escape?*)
+    next-method();
+  else
+    write(stream, logger.logger-name);
+    for (target in logger.log-targets)
+      format(stream, " %s", target)
+    end;
+  end;
+end method print-object;
+
 define method add-target
     (logger :: <logger>, target :: <log-target>)
   add-new!(logger.log-targets, target)
@@ -370,6 +383,16 @@ define open class <stream-log-target> (<log-target>)
     required-init-keyword: #"stream";
 end;
 
+define method print-object
+    (target :: <stream-log-target>, stream :: <stream>)
+ => ()
+  if (*print-escape?*)
+    next-method();
+  else
+    write(stream, "stream target");
+  end;
+end method print-object;
+
 define constant $stdout-log-target
   = make(<stream-log-target>, stream: *standard-output*);
 
@@ -441,8 +464,18 @@ end;
 define method initialize
     (target :: <file-log-target>, #key)
   next-method();
-  target.target-stream := open-target-stream(target);
+  open-target-stream(target);
 end;
+
+define method print-object
+    (target :: <file-log-target>, stream :: <stream>)
+ => ()
+  if (*print-escape?*)
+    next-method();
+  else
+    format(stream, "file %s", as(<string>, target.target-pathname));
+  end;
+end method print-object;
 
 define open generic open-target-stream
     (target :: <file-log-target>) => (stream :: <stream>);
@@ -450,12 +483,12 @@ define open generic open-target-stream
 define method open-target-stream
     (target :: <file-log-target>)
  => (stream :: <file-stream>)
-  make(<file-stream>,
-       locator: target.target-pathname,
-       element-type: <character>,
-       direction: #"output",
-       if-exists: #"append",
-       if-does-not-exist: #"create")
+  target.target-stream := make(<file-stream>,
+                               locator: target.target-pathname,
+                               element-type: <character>,
+                               direction: #"output",
+                               if-exists: #"append",
+                               if-does-not-exist: #"create")
 end;
 
 define method log-to-target
@@ -530,6 +563,16 @@ define method initialize
   next-method();
 end method initialize;
 
+define method print-object
+    (target :: <rolling-file-log-target>, stream :: <stream>)
+ => ()
+  if (*print-escape?*)
+    next-method();
+  else
+    format(stream, "rolling file %s", as(<string>, target.target-pathname));
+  end;
+end method print-object;
+
 define method log-to-target
     (target :: <rolling-file-log-target>,
      formatter :: <log-formatter>, format-string :: <string>, #rest format-args)
@@ -558,7 +601,7 @@ define method roll-log-file
                                 oldloc);
     rename-file(oldloc, newloc);
     target.file-creation-date := current-date();
-    target.target-stream := open-target-stream(target);
+    open-target-stream(target);
   end with-lock;
 end method roll-log-file;
 

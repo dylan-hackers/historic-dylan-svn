@@ -11,6 +11,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
  */
 
 define constant $koala-config-dir :: <string> = "config";
+
 define constant $default-config-filename :: <string> = "koala-config.xml";
 
 define thread variable %server = #f;
@@ -86,9 +87,9 @@ end method configure-from-string;
 
 define function warn
     (format-string, #rest format-args)
-  log-warning("%s: %s",
-              $default-config-filename,
-              apply(format-to-string, format-string, format-args));
+  apply(log-warning,
+        concatenate("CONFIG: ", format-string),
+        format-args);
 end;
 
 // Exported
@@ -349,8 +350,9 @@ define function process-log-config-element
   block ()
     max-size := string-to-integer(max-size);
   exception (ex :: <error>)
-    warn("<LOG> element has invalid max-size attribute (%s).  "
-         "The default (%d) will be used.", max-size, default-size);
+    warn("<%s> element has invalid max-size attribute (%s).  "
+         "The default (%d) will be used.",
+         xml$name(node), max-size, default-size);
     max-size := default-size;
   end;
   let target = iff(location,
@@ -368,9 +370,9 @@ define function process-log-config-element
            formatter: make(<log-formatter>,
                            pattern: format-control | default-log-format));
 
-  let level = get-attr(node, #"level") | "info";
   let unrecognized = #f;
-  let level = select (level by string-equal?)
+  let level-name = get-attr(node, #"level") | "info";
+  let level = select (level-name by string-equal?)
                 "trace" => $trace-level;
                 "debug" => $debug-level;
                 "info"  => $info-level;
@@ -384,7 +386,7 @@ define function process-log-config-element
    if (unrecognized)
      warn("Unrecognized log level: %=", level);
    end;
-   log-info("Added log level %=", level);
+   log-info("Logger created: %s", logger);
    logger
 end function process-log-config-element;
 

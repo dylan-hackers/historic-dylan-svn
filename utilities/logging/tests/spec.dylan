@@ -130,6 +130,30 @@ define logging class-test <file-log-target> ()
 end class-test <file-log-target>;
 
 define logging class-test <rolling-file-log-target> ()
+  // Make sure the file rolls when it reaches max size
+  let locator = temp-locator("rolling-log-file.log");
+  if (file-exists?(locator))
+    delete-file(locator)
+  end;
+  let target = make(<rolling-file-log-target>,
+                    pathname: locator,
+                    max-size: 10);
+  let logger = make(<logger>,
+                    name: "rolling-file-test",
+                    targets: list(target),
+                    formatter: $message-only-formatter);
+  // I figure this could log 8 or 9 characters, including CR and/or LF.
+  log-info(logger, "1234567");
+  close(target);  // can't read file on Windows unless it's closed
+  check-equal("log doesn't roll when below max size",
+              file-contents(locator),
+              "1234567\n");
+  open-target-stream(target);
+  log-info(logger, "890");
+  close(target);  // can't read file on Windows unless it's closed
+  check-equal("log rolls when max size exceeded",
+              file-contents(locator),
+              "");
 end class-test <rolling-file-log-target>;
 
 define logging constant-test $debug-level ()
@@ -228,9 +252,6 @@ define logging function-test logger-additive? ()
   check-equal("additivity respected for target2",
               stream-contents(logger2.log-targets[0].target-stream),
               "xxx\n");
-
-  // Even if a logger is disabled, additivity should be respected.
-  
 end function-test logger-additive?;
 
 define logging function-test logger-additive?-setter ()
@@ -240,6 +261,22 @@ define logging function-test logger-enabled? ()
 end function-test logger-enabled?;
 
 define logging function-test logger-enabled?-setter ()
+  // Make sure disabled logger doesn't do output
+  let logger = make-test-logger("logger-enabled-test");
+  logger-enabled?(logger) := #f;
+  log-info(logger, "xxx");
+  check-equal("disabled logger does no output",
+              stream-contents(logger.log-targets[0].target-stream),
+              "");
+
+  // Make sure disabled logger still respects additivity.
+  let parent = make-test-logger("parent");
+  let child = make-test-logger("parent.child");
+  logger-enabled?(child) := #f;
+  log-info(child, "xxx");
+  check-equal("additivity respected for disabled logger",
+              stream-contents(parent.log-targets[0].target-stream),
+              "xxx\n");
 end function-test logger-enabled?-setter;
 
 define logging function-test logger-name ()

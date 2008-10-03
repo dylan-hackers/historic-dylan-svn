@@ -6,13 +6,21 @@ define constant fmt = format-to-string;
 //
 define constant $temp-directory :: <directory-locator>
   = subdirectory-locator(temp-directory(),
-                         format-date("%Y%m%d%H%M%S", current-date()));
+                         format-date("logging-%Y%m%d%H%M%S", current-date()));
 
 define function temp-locator
     (filename :: <string>) => (temp-locator :: <file-locator>)
   // locators are a freakin' nightmare...falling back to strings.
   as(<file-locator>,
      concatenate(as(<string>, $temp-directory), "/", filename))
+end;
+
+define function file-contents
+    (pathname :: <pathname>)
+ => (text :: <string>)
+  with-open-file(stream = pathname)
+    read-to-end(stream)
+  end
 end;
 
 // This class serves two testing purposes: it's an easy way to get the

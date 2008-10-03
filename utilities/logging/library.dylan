@@ -55,7 +55,7 @@ define library logging
   use big-integers;
   use generic-arithmetic;
   use io,
-    import: { format, standard-io, streams };
+    import: { format, print, standard-io, streams };
   use system,
     import: { date, file-system, locators, threads };
   use uncommon-dylan;
@@ -154,6 +154,7 @@ define module logging-impl
               locator-name,
               merge-locators };
   use logging;
+  use print;
   use standard-io;
   use streams;
   use threads;
