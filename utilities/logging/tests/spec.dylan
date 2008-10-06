@@ -94,6 +94,10 @@ define logging class-test <placeholder-logger> ()
 end class-test <placeholder-logger>;
 
 define logging class-test <logger> ()
+  check-no-errors("make a logger with a <string> formatter",
+                  make(<logger>,
+                       name: "<logger>-test",
+                       formatter: "foo"));
 end class-test <logger>;
 
 define logging class-test <logging-error> ()

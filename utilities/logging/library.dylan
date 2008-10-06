@@ -1,55 +1,5 @@
 Module: dylan-user
 
-/*
-Logging
-~~~~~~~
-
-Basic Usage
-===========
-
-Define a primary logger that will 
-
-  define constant $log = make(<logger>, name: "my-app");
-  add-target($log, $stdout-log-target);
-  log-info($log, "My-app starting with args %s", application-arguments());
-
-Make another logger for debugging server requests::
-
-  define constant $request-log = make(<logger>, name: "my-app.debug.request");
-
-There are several things to notice about the above setup::
-
-  * Loggers have no log targets by default.  The simplest way to add a target
-    is to add a pre-existing target such as $stdout-log-target or 
-    $stderr-log-target.
-
-  * Different loggers are associated by name.  In this example the logger
-    named "my-app" is a parent of the one named "my-app.debug.request"
-    because the first dotted name component matches.
-
-  * No targets were added to the my-app.debug.request logger.  Since all
-    log messages sent to a child are also sent to its ancestors (but see
-    logger-additive?-setter), anything logged to the my-app.debug.request
-    logger will be logged to stdout via the my-app logger.
-
-    So what's the benefit of having both loggers?  You can enabled/disable
-    them separately at runtime.  Also, if for example you wanted to log
-    debug messages to a separate file  you could add a target to the
-    my-app.debug logger.
-
-    (todo -- this implies morphing placeholders into loggers if targets are
-    added.  Also, should we attempt to eliminate duplicates if the user
-    specifies two loggers in an ancestor relationship that have the same
-    log target?)
-
-Log to a file::
-
-  add-target(my-logger, make(<rolling-file-log-target>,
-                             file: "/var/log/my-app.log",
-                             max-file-size: 10000000))  // optional
-                             
-*/
-
 define library logging
   use common-dylan;
   use big-integers;

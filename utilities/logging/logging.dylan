@@ -9,9 +9,9 @@ todo -- current-process-id is a stub
 
 todo -- configuration parser
 
-todo -- documentation
+todo -- more documentation
 
-todo -- tests
+todo -- more tests
 
 todo -- Handle errors gracefully.  e.g., if the disk fills up it may be
         better to do nothing than to err.  Catch errors in user code when
@@ -21,16 +21,16 @@ todo -- Handle errors gracefully.  e.g., if the disk fills up it may be
 
 todo -- <file-log-target> should accept a string for the filename to
         avoid making people import locators.  God I hate the locators
-        library.  Should also have option to compress on roll.
+        library.
 
 todo -- <rolling-file-log-target>: Should roll the file when either a
         max size or a max time is reached, whichever comes first.
         Should make it possible for users to override roll-log-file?
         and roll-log-file-name methods if they want to roll their
-        own.
+        own.  Should also have option to compress on roll.
 
 todo -- Add a way to extend the set of format directives from outside
-        the library.
+        the library.  Get rid of code duplication in formatter parsing.
 
 ??? -- Is there a reasonable use case where you might not want \n at the
        end of each log entry?  Rather than hard-coding the \n one could
@@ -112,12 +112,19 @@ end class <logger>;
 define method make
     (class :: subclass(<abstract-logger>),
      #rest args,
-     #key targets :: false-or(<sequence>))
+     #key formatter, targets :: false-or(<sequence>))
  => (logger)
+  // Formatter may be specified as a string for convenience.
+  if (instance?(formatter, <string>))
+    formatter := make(<log-formatter>, pattern: formatter);
+  end;
   // Make sure targets is a <stretchy-vector>.  It's convenient for users
   // to be able to pass list(make(<target> ...)) though.
-  apply(next-method, class, targets: as(<stretchy-vector>, targets | #[]), args)
-end;
+  apply(next-method, class,
+        targets: as(<stretchy-vector>, targets | #[]),
+        formatter: formatter | $default-log-formatter,
+        args)
+end method make;
 
 define method print-object
     (logger :: <logger>, stream :: <stream>)
