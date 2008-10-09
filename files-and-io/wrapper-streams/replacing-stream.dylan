@@ -60,7 +60,7 @@ Synopsis: Replaces inner stream content of a <replacing-stream>.
 
 'Start' and 'end' are 'wrapper' stream positions but correspond to inner
 stream positions. The inner stream is grown if necessary to ensure these
-positions exist. The inner stream is not grown if if 'start' and 'end'
+positions exist. The inner stream is not grown if 'start' and 'end'
 correspond to the inner stream's end-of-stream position. If the inner stream
 cannot be grown, an error is signaled.
 
@@ -148,8 +148,11 @@ define method add-replacement-contents
       // inner-limits. So we advance the stream position by one more element
       // after the adjust using read-element.
       inner.stream-position := inner-limits.last;
-      adjust-stream-position(inner, max(end-pos - start-pos - 1, 0));
-      read-element(inner, on-end-of-stream: #f);
+      let end-pos-adj = end-pos - start-pos;
+      if (end-pos-adj > 0)
+         adjust-stream-position(inner, max(end-pos-adj - 1, 0));
+         read-element(inner, on-end-of-stream: #f)
+      end if;
       add!(inner-limits, inner.stream-position);
       add!(seg-limits, start-pos + replacement.size);
       add!(seg-contents, replacement);
@@ -172,6 +175,127 @@ define method add-replacement-contents
    end if
 end method;
    
+
+/**
+Method: inner-stream-position
+-----------------------------
+Synopsis: Inner stream position corresponding to given stream position.
+
+Each 'wrapper' stream element may come from the inner stream or from
+replacement content. If the element comes from an the inner stream element, or
+it comes from replacement content but there is a one-to-one correspondence
+with an inner stream element, the position of the element in the inner stream
+is returned. Otherwise, if there is not a one-to-one correspondence with an
+inner stream element, extra elements are considered to have been removed from
+or added to the beginning of the replacement content and the remaining inner
+stream elements are the corresponding elements. A flag indicating whether
+the position was inserted into the stream and does not correspond to a real
+inner stream position is returned.
+
+In the following examples, stream elements ("Elt") are shown with their
+corresponding stream positions ("Pos"), inner stream positions ("ISP") and
+insertion flag values ("Ins"). Only the one's place is shown.
+
+- The inner stream's "?" characters are replaced by "x" characters.
+  : Elt  VM-38?? => VM-38xx
+  : Pos  0123456    0123456
+  : ISP             0123456
+  : Ins             fffffff
+
+- The "and/" in the inner stream's "and/or" is deleted.
+  : Elt  This and/or that => This or that
+  : Pos  0123456789012345    012345678901
+  : ISP                      012349012345
+  : Ins                      ffffffffffff
+
+- The phrase "et cetera" is replaced by "etc."
+  : Elt  Red, et cetera, => Red, etc.,
+  : Pos  012345678901234    0123456789
+  : ISP                     0123401234
+  : Ins                     ffffffffff
+
+- The "-" is replaced by the word "through."
+  : Elt  A-Z => A through Z
+  : Pos  012    01234567890
+  : ISP         01111111112
+  : Ins         fttttttttff
+
+- The text "[sic]" is inserted immediately after "ain't" in "ain't nothing."
+  : Elt  ain't nothing => ain't [sic] nothing
+  : Pos  0123456789012    0123456789012345678
+  : ISP                   0123455555556789012
+  : Ins                   fffffttttttffffffff
+
+- The "Mr." in the inner stream's "Mr./Mrs." is replaced by "Mister."
+  : Elt  Mr./Mrs. => Mister/Mrs.
+  : Pos  01234567    01234567890
+  : ISP              00001234567
+  : Ins              tttffffffff
+
+- The inner stream's text is double-parenthesized. Note that the inner stream
+  positions of the last characters of the wrapper stream are end-of-stream
+  positions.
+  : Elt  Budget => ((Budget))
+  : Pos  012345 => 0123456789
+  : ISP            0001234566
+  : Ins            ttfffffftt
+   
+Arguments:
+
+   wrapper - An instance of <replacing-stream>.
+           
+   at:     - An instance of <integer> representing a position in 'wrapper'.
+             Defaults to 'wrapper''s current stream position.
+
+Values:
+
+   inner-pos - An instance of <integer> or <stream-position> representing a
+               position in or just beyond the end of 'wrapper''s inner stream.
+             
+   inserted? - An instance of <boolean>, indicating if the element at the 'at:'
+               position was inserted into the inner stream before the 'inner-pos'
+               position.
+*/
+
+define method inner-stream-position
+   (wrapper :: <replacing-stream>, #key at: at-pos :: false-or(<integer>) = #f)
+=> (inner-pos :: type-union(<integer>, <stream-position>), inserted? :: <boolean>)
+   let inner = wrapper.inner-stream;
+   let inner-limits = wrapper.inner-stream-limits;
+   let seg-count = inner-limits.size;
+   let (seg, off) =
+         if (at-pos)
+            segment-from-position(wrapper, at-pos);
+         else
+            values(wrapper.current-segment, wrapper.current-offset);
+         end if;
+
+   let inner-seg-start = inner-limits[seg - 1];
+   if (seg < seg-count)
+      // Match corresponding inner and wrapper stream positions by counting
+      // back from end of inner and wrapper stream segment until reaching start
+      // of inner stream segment. This method doesn't require knowing size of
+      // inner stream segment, just the start position and position equality.
+      let seg-size = segment-size(wrapper, seg);
+      let adjs-to-reach-off = seg-size - off;
+      let inner-limit = inner-limits[seg];
+      inner.stream-position := inner-limit;
+      let (inner-pos, remaining-adjs) =
+            for (remaining-adjs from adjs-to-reach-off above 0 by -1,
+                 inner-pos = inner-limit then adjust-stream-position(inner, -1),
+                 while: inner-pos ~= inner-seg-start)
+            finally
+               values(inner-pos, remaining-adjs)
+            end for;
+      let corresponds? = (remaining-adjs = 0);
+      values(inner-pos, ~corresponds?);
+   else
+      // Return corresponding inner stream position at end of inner stream.
+      inner.stream-position := inner-seg-start;
+      values(adjust-stream-position(inner, off), #f);
+   end if;
+end method;
+
 
 define method read-element
    (wrapper :: <replacing-stream>, #rest keys, #key on-end-of-stream)

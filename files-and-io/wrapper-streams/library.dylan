@@ -38,7 +38,7 @@ define module replacing-stream
 
    export
       <replacing-stream>,
-      add-replacement-contents;
+      add-replacement-contents, inner-stream-position;
 end module;
 
 
