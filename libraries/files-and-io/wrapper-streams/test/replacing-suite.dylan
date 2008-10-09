@@ -31,10 +31,35 @@ define test replace-past-end ()
    // grow to cover start/end.
 
    let stream = make(<replacing-stream>, inner-stream: $base-stream);
-   add-replacement-contents(stream, "xx",
-                            start: stream.stream-size, end: stream.stream-size);
+   add-replacement-contents(stream, "xx", start: stream.stream-size);
    let result = read(stream, 16);
    check-equal("expected data check", "aabbccddeeffggxx", result);
+end test;
+
+
+define test insert-at-start ()
+   let stream = make(<replacing-stream>, inner-stream: $base-stream);
+   add-replacement-contents(stream, "x", start: 0, end: 0);
+   stream.stream-position := #"start"; // Position will have been shifted.
+   let result = read(stream, 5);
+   check-equal("expected data check", "xaabb", result);
+end test;
+
+
+define test insert-in-middle ()
+   let stream = make(<replacing-stream>, inner-stream: $base-stream);
+   add-replacement-contents(stream, "x", start: 4, end: 4);
+   let result = read(stream, 9);
+   check-equal("expected data check", "aabbxccdd", result);
+end test;
+
+
+define test insert-past-end ()
+   let stream = make(<replacing-stream>, inner-stream: $base-stream);
+   add-replacement-contents(stream, "x",
+                            start: stream.stream-size, end: stream.stream-size);
+   let result = read-to-end(stream);
+   check-equal("expected data check", "aabbccddeeffggx", result);
 end test;
 
 

@@ -51,6 +51,7 @@ define suite replacing-stream-suite ()
    suite replacing-suite;
    suite reading-suite;
    suite position-suite;
+   suite inner-position-suite;
 end suite;
 
 define suite replacing-suite ()
@@ -58,6 +59,9 @@ define suite replacing-suite ()
    test replace-in-middle;
    test replace-at-end;
    test replace-past-end;
+   test insert-at-start;
+   test insert-in-middle;
+   test insert-past-end;
    test sequential-replacements;
    test empty-replacements;
    test no-stretchy-replacements;
@@ -92,6 +96,20 @@ define suite position-suite ()
    test inc-position-across-boundary;
    test inc-position-across-empties;
    test dec-position-across-empties;
+end suite;
+
+define suite inner-position-suite ()
+   test one-to-one-inner-pos;
+   test one-to-many-inner-pos;
+   test zero-to-many-inner-pos;
+   test zero-to-many-at-start-inner-pos;
+   test zero-to-many-past-end-inner-pos;
+   test many-to-one-inner-pos;
+   test many-to-zero-inner-pos;
+   test many-to-zero-at-end-inner-pos;
+   test before-replacement-inner-pos;
+   test between-replacement-inner-pos;
+   test after-replacement-inner-pos;
 end suite;
 
 define suite canonical-text-stream-suite ()
