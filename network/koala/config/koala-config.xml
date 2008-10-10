@@ -43,56 +43,68 @@
 <development-mode enabled="false" />
 
 
-<!-- There are three kinds of log file: debug, activity, and error.  The
-     error log contains only actual error conditions encountered by the
-     server.  The activity log is for logging information useful for
-     gathering statistics such as what URLs are requested, what response
-     code was returned, bytes sent, etc.  The debug log is for all other
-     log messages.
+<!-- Log messages come in three types: HTTP requests, errors, and
+     debug/info messages.  Where these log messages are stored is
+     determined by the <request-log>, <error-log> and <debug-log>
+     configuration settings, respectively.  Logging can be configured
+     to send all messages to the same place, or to separate them out
+     into different files.  The request-log messages follow a
+     specific format like that of other web servers which can be
+     parsed by automated tools.  Errors and debug info are more free
+     form.
 
-     All three types of log accept the following attributes:
+     Each virtual host has its own request, error, and debug log
+     targets, but by default they all forward their log messages to
+     the log targets set for the default virtual host, which in turn
+     defaults to logging to stdout/stderr.
+
+     The following options are recognized for each of the three
+     logging configuration options:
+
+       name     - Loggers are arranged in a hierarchy based on their
+                  names.  This can be used, along with additivity
+                  (below), to flexibly arrange logging to either
+                  multiple files or just one, and to combine different
+                  types of log messages together or separately.
+
+       additive - Whether the logger should pass log messages on to
+                  its parent logger.  Default is off.
 
        location - A filename relative to the server root directory.
                   If not specified, stderr will be used for the error
                   log and stdout will be used for everything else.
-       max-size - The maximum size in bytes before the log is rotated.
-       
-     The 'debug' log type additionally accepts the 'level' attribute,
-     which determines what types of log messages to display.  There are
-     six possible settings, from least verbose to most verbose:
 
-       error warning info debug verbose copious
+       max-size - The maximum size in bytes before the log is
+                  rotated.  Only useful if location is specified.
 
-     The 'copious' log level is currently only used by Koala to display 
-     HTTP headers and content.
+       format   - A format control string that determines what each
+                  log line will look like.  The default value is:
+                  "%{date} %-5{level} [%{thread}] %{message}"
+                  Other options are %{millis} and %{pid}.  You get
+                  the idea.
 
-     The log levels should be added near the beginning of this config file
-     so debugging statements emitted during config file parsing can be
-     displayed.
+     The logs should be configured near the beginning of this config
+     file so debugging statements emitted during config file parsing
+     can be displayed.
   -->
-<debug-log location="debug.log" level="debug" max-size="20000000" />
+<debug-log
+   name="koala"
+   location="logs/koala.log"
+   level="trace" />
 
-<request-log location="activity.log" max-size="20000000" />
+<!-- log errors to the same place as debug messages -->
+<error-log
+   name="koala.debug"
+   additive="yes" />
 
-<error-log location="error.log" max-size="20000000" />
+<!-- request lines go to a separate log -->
+<!-- format defaults to "%{message}" for the request log -->
+<request-log
+   name="koala.requests"
+   additive="no"
+   location="logs/request.log"
+   max-size="20000000" />
 
-<!-- soon...
-<error-log name="error">
-  <formatter pattern="%{date}..." />
-  <target type="rolling-file"
-          filename="koala.log"
-          max-size="20MB" />
-  <target type="stdout" />
-</error-log>
-
-<request-log name="request">
-</request-log>
-
-<debug-log name="error.debug">
-  ...
-  <logger name="debug.headers">
-</debug-log>
--->
 
 <!-- SERVER-ROOT is the top of the directory tree under which the
      server's configuration and log files are kept.  Other pathnames are
