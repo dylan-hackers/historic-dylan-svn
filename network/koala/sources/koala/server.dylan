@@ -168,11 +168,18 @@ define method initialize
   apply(next-method,
         server,
         remove-keys(keys, #"document-root", #"dsp-root"));
-  default-virtual-host(server)
-    := make-virtual-host(server,
-                         name: "default",
-                         document-root: document-root,
-                         dsp-root: dsp-root);
+
+  let name = "default";
+  let vhost = make(<virtual-host>,
+                   name: name,
+                   document-root:
+                   document-root | subdirectory-locator(server.server-root, name),
+                   dsp-root:
+                     dsp-root | subdirectory-locator(server.server-root, name));
+  default-virtual-host(server) := vhost;
+  // Add a spec that matches all urls.
+  add-directory-spec(vhost, root-directory-spec(vhost));
+
   // Copy mime type map in, since it may be modified when config loaded.
   let tmap :: <table> = server.server-mime-type-map;
   for (mime-type keyed-by extension in $default-mime-type-map)
@@ -320,7 +327,9 @@ define inline function current-server
 end function current-server;
 
 // API
-// This is what client libraries call to start the server.
+// This is what client libraries call to start the server, which is
+// assumed to have been already configured via configure-server.
+// (Client applications might want to call koala-main instead.)
 // Returns #f if there is an error during startup; otherwise #t.
 // If background is #t then run the server in a thread and return
 // immediately.  Otherwise wait until all listeners have shut down.
@@ -331,23 +340,31 @@ define function start-server
      #key background :: <boolean> = #f,
           wait :: <boolean> = #t)
  => (started? :: <boolean>)
-  log-info("Starting %s HTTP Server", $server-name);
-  ensure-sockets-started();
-  log-info("Server root directory is %s", server-root(server));
-  for (listener in server.server-listeners)
-    start-http-listener(server, listener)
-  end;
-  if (wait)
-    // Connect to each listener or signal error.
-    wait-for-listeners-to-start(server.server-listeners);
-    log-info("%s %s ready for service", $server-name, $server-version);
-  end;
-  if (~background)
-    // Apparently when the main thread dies in an Open Dylan application
-    // the application exits without waiting for spawned threads to die,
-    // so join-listeners keeps the main thread alive until all listeners die.
-    join-listeners(server);
-  end;
+  // Binding these to the default vhost loggers here isn't quite right.
+  // It means that log messages that don't pertain to a specific vhost
+  // go in the default vhost logs.  Maybe have a separate log for the
+  // server proper...
+  dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
+                *error-logger* = server.default-virtual-host.error-logger,
+                *request-logger* = server.default-virtual-host.request-logger)
+    log-info("Starting %s HTTP Server", $server-name);
+    ensure-sockets-started();
+    log-info("Server root directory is %s", server-root(server));
+    for (listener in server.server-listeners)
+      start-http-listener(server, listener)
+    end;
+    if (wait)
+      // Connect to each listener or signal error.
+      wait-for-listeners-to-start(server.server-listeners);
+      log-info("%s %s ready for service", $server-name, $server-version);
+    end;
+    if (~background)
+      // Apparently when the main thread dies in an Open Dylan application
+      // the application exits without waiting for spawned threads to die,
+      // so join-listeners keeps the main thread alive until all listeners die.
+      join-listeners(server);
+    end;
+  end dynamic-bind;
   #t
 end function start-server;
 
@@ -477,15 +494,19 @@ define function start-http-listener
     end;
   end;
   local method run-listener-top-level ()
-          with-lock (server-lock) end; // Wait for setup to finish.
-          block ()
-            listener-top-level(server, listener);
-          cleanup
-            close(listener.listener-socket, abort?: #t);
-            with-lock (server-lock)
-              release-listener();
+          dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
+                        *error-logger* = server.default-virtual-host.error-logger,
+                        *request-logger* = server.default-virtual-host.request-logger)
+            with-lock (server-lock) end; // Wait for setup to finish.
+            block ()
+              listener-top-level(server, listener);
+            cleanup
+              close(listener.listener-socket, abort?: #t);
+              with-lock (server-lock)
+                release-listener();
+              end;
             end;
-          end;
+          end dynamic-bind;
         end method;
   with-lock (server-lock)
     let handler <socket-condition>
@@ -637,7 +658,12 @@ end class <request>;
 //
 define method make-virtual-host
     (server :: <server>,
-     #rest args, #key name, document-root, dsp-root, #all-keys)
+     #rest args,
+     #key name, document-root, dsp-root,
+          request-logger: req-logger,
+          error-logger: err-logger,
+          debug-logger: dbg-logger,
+     #all-keys)
  => (vhost :: <virtual-host>)
   let vhost :: <virtual-host>
     = apply(make, <virtual-host>,
@@ -645,6 +671,12 @@ define method make-virtual-host
               document-root | subdirectory-locator(server.server-root, name),
             dsp-root:
               dsp-root | subdirectory-locator(server.server-root, name),
+            request-logger:
+              req-logger | server.default-virtual-host.request-logger,
+            error-logger:
+              err-logger | server.default-virtual-host.error-logger,
+            debug-logger:
+              dbg-logger | server.default-virtual-host.debug-logger,
             args);
   // Add a spec that matches all urls.
   add-directory-spec(vhost, root-directory-spec(vhost));
@@ -717,7 +749,10 @@ define function handler-top-level
     (client :: <client>)
   dynamic-bind (*request* = #f,
                 *server* = client.client-server,
-                *virtual-host* = #f)  // set after read-request called
+                *virtual-host* = #f,  // set after read-request called
+                *debug-logger* = *server*.default-virtual-host.debug-logger,
+                *error-logger* = *server*.default-virtual-host.error-logger,
+                *request-logger* = *server*.default-virtual-host.request-logger)
     block (exit-handler-top-level)
       while (#t)                      // keep alive loop
         let request :: <basic-request>
@@ -738,7 +773,12 @@ define function handler-top-level
             let handler <http-error> = rcurry(htl-error-handler, finish-request);
 
             read-request(request);
+
             *virtual-host* := virtual-host(request);
+            *debug-logger* := *virtual-host*.debug-logger;
+            *error-logger* := *virtual-host*.error-logger;
+            *request-logger* := *virtual-host*.request-logger;
+
             invoke-handler(request);
             force-output(request.request-socket);
           end block; // finish-request

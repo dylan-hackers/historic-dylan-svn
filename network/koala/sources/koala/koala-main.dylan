@@ -61,29 +61,31 @@ define function koala-main
             format(*standard-output*, "Error: %s\n", cond);
           end;
         end;
-    let _server = server | make(<http-server>);
-    _server.debugging-enabled? := debug?;
-    if (_server.debugging-enabled?)
-      log-warning("*** DEBUGGING ENABLED ***  Error conditions will "
-                  "cause server to enter debugger (or exit).");
-    end;
+    // We want to bind *server* early so that log output goes to the
+    // right place (the server's default virtual host's logs).
+    dynamic-bind (*server* = server | make(<http-server>))
+      *server*.debugging-enabled? := debug?;
+      if (*server*.debugging-enabled?)
+        log-warning("*** DEBUGGING ENABLED ***  Error conditions will "
+                    "cause server to enter debugger (or exit).");
+      end;
 
-    // Configure first so that command-line argument override config settings.
-    let config-file = option-value-by-long-name(parser, "config");
-    if (config-file)
-      configure-server(server, config-file);
-    end;
+      // Configure first so that command-line argument override config settings.
+      let config-file = option-value-by-long-name(parser, "config");
+      if (config-file)
+        configure-server(server, config-file);
+      end;
 
-    // Setup listeners.
-    let listeners = option-value-by-long-name(parser, "listen");
-    if (empty?(listeners) & ~config-file)
-      listeners := vector(format-to-string("0.0.0.0:%d", $default-http-port));
-    end;
-    for (listener in listeners)
-      add!(_server.server-listeners, make-listener(listener));
-    end;
-
-    start-server(_server);
+      // Setup listeners.
+      let listeners = option-value-by-long-name(parser, "listen");
+      if (empty?(listeners) & ~config-file)
+        listeners := vector(format-to-string("0.0.0.0:%d", $default-http-port));
+      end;
+      for (listener in listeners)
+        add!(*server*.server-listeners, make-listener(listener));
+      end;
+      start-server(*server*);
+    end dynamic-bind;
   end if;
 end function koala-main;
 

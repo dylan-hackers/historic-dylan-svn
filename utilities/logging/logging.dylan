@@ -230,15 +230,15 @@ define open abstract primary class <log-level> (<singleton-object>)
 end;
 
 define open class <trace-level> (<log-level>)
-  inherited slot level-name = "TRACE";
+  inherited slot level-name = "trace";
 end;
 
 define open class <debug-level> (<trace-level>)
-  inherited slot level-name = "DEBUG";
+  inherited slot level-name = "debug";
 end;
 
 define open class <info-level> (<debug-level>)
-  inherited slot level-name = "INFO";
+  inherited slot level-name = "info";
 end;
 
 define open class <warn-level> (<info-level>)

@@ -319,6 +319,7 @@ define method process-config-element
   let logger = process-log-config-element(server, node, format-control, name,
                                           $stderr-log-target);
   error-logger(%vhost) := logger;
+  *error-logger* := logger;
 end method process-config-element;
 
 define method process-config-element
@@ -328,6 +329,7 @@ define method process-config-element
   let logger = process-log-config-element(server, node, format-control, name,
                                           $stdout-log-target);
   debug-logger(%vhost) := logger;
+  *debug-logger* := logger;
 end method process-config-element;
 
 define method process-config-element
@@ -337,13 +339,14 @@ define method process-config-element
   let logger = process-log-config-element(server, node, format-control, name,
                                           $stdout-log-target);
   request-logger(%vhost) := logger;
+  *request-logger* := logger;
 end method process-config-element;
 
 define function process-log-config-element
     (server :: <http-server>, node :: xml$<element>,
      format-control, logger-name :: <string>, default-log-target :: <log-target>)
  => (logger :: <logger>)
-  let additive? = true-value?(get-attr(node, #"additive") | "yes");
+  let additive? = true-value?(get-attr(node, #"additive") | "no");
   let location = get-attr(node, #"location");
   let max-size = get-attr(node, #"max-size");
   let default-size = 20 * 1024 * 1024;
@@ -369,7 +372,6 @@ define function process-log-config-element
            additive: additive?,
            formatter: make(<log-formatter>,
                            pattern: format-control | default-log-format));
-
   let unrecognized = #f;
   let level-name = get-attr(node, #"level") | "info";
   let level = select (level-name by string-equal?)

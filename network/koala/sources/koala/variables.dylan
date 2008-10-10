@@ -231,3 +231,45 @@ define method parent-directory
 end;
 
 
+// These loggers are used if no other loggers are configured.
+// Usually that's should only happen very early during startup when
+// *server* isn't bound, if at all.
+
+// These are thread variables for efficiency.  They can be bound once
+// per request rather than figuring out which logger to use each time
+// one of the log-* methods below is called.  That would be slow due
+// to the need for two levels of fallback:
+//   ((*virtual-host* & *virtual-host*.debug-logger)
+//    | (*server* & *server*.default-virtual-host.debug-logger)
+//    | *debug-logger*)
+
+define thread variable *debug-logger* :: <logger>
+  = make(<logger>,
+         name: "koala.stdout",
+         targets: list($stdout-log-target));
+
+define thread variable *error-logger* :: <logger>
+  = make(<logger>,
+         name: "koala.stderr",
+         targets: list($stderr-log-target));
+
+define thread variable *request-logger* :: <logger>
+  = *debug-logger*;
+
+define method log-trace (format-string, #rest format-args)
+  apply(%log-trace, *debug-logger*, format-string, format-args);
+end;
+define method log-debug (format-string, #rest format-args)
+  apply(%log-debug, *debug-logger*, format-string, format-args);
+end;
+define method log-info (format-string, #rest format-args)
+  apply(%log-info, *debug-logger*, format-string, format-args);
+end;
+define method log-warning (format-string, #rest format-args)
+  apply(%log-warning, *error-logger*, format-string, format-args);
+end;
+define method log-error (format-string, #rest format-args)
+  apply(%log-error, *error-logger*,  format-string, format-args);
+end;
+
+

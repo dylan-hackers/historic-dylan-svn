@@ -7,50 +7,9 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define thread variable *virtual-host* :: false-or(<virtual-host>) = #f;
 
-// Logger used if no other loggers are configured.
+
+// todo -- rename this to <access-policy>
 //
-define constant %root-logger :: <logger>
-  = make(<logger>,
-         name: "koala",
-         targets: list($stdout-log-target));
-
-define method log-trace (format-string, #rest format-args)
-  apply(%log-trace,
-        iff(*virtual-host*,
-            debug-logger(*virtual-host*),
-            %root-logger),
-        format-string, format-args);
-end;
-define method log-debug (format-string, #rest format-args)
-  apply(%log-debug,
-        iff(*virtual-host*,
-            debug-logger(*virtual-host*),
-            %root-logger),
-        format-string, format-args);
-end;
-define method log-info (format-string, #rest format-args)
-  apply(%log-info,
-        iff(*virtual-host*,
-            debug-logger(*virtual-host*),
-            %root-logger),
-        format-string, format-args);
-end;
-define method log-warning (format-string, #rest format-args)
-  apply(%log-warning,
-        iff(*virtual-host*,
-            error-logger(*virtual-host*),
-            %root-logger),
-        format-string, format-args);
-end;
-define method log-error (format-string, #rest format-args)
-  apply(%log-error,
-        iff(*virtual-host*,
-            error-logger(*virtual-host*),
-            %root-logger),
-        format-string, format-args);
-end;
-
-
 define class <directory-spec> (<object>)
   constant slot dirspec-pattern :: <string>,
     required-init-keyword: pattern:;
@@ -161,15 +120,15 @@ define class <virtual-host> (<object>)
   slot default-dynamic-content-type :: <string> = "text/html; charset=utf-8";
 
   slot request-logger :: <logger>,
-    init-value: %root-logger,
+    init-value: *request-logger*,
     init-keyword: request-logger:;
 
   slot error-logger :: <logger>,
-    init-value: %root-logger,
+    init-value: *error-logger*,
     init-keyword: error-logger:;
 
   slot debug-logger :: <logger>,
-    init-value: %root-logger,
+    init-value: *debug-logger*,
     init-keyword: debug-logger:;
 
 end class <virtual-host>;
