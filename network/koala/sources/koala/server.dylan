@@ -60,7 +60,6 @@ define class <http-server> (<object>)
   constant slot listener-shutdown-timeout :: <real> = 15;
   constant slot client-shutdown-timeout :: <real> = 15;
 
-
   constant slot request-class :: subclass(<basic-request>) = <request>,
     init-keyword: request-class:;
 
@@ -136,6 +135,20 @@ define class <http-server> (<object>)
     init-value: #f,
     init-keyword: development-mode:;
 
+  //// Logging
+
+  slot request-logger :: <logger>,
+    init-value: *request-logger*,
+    init-keyword: request-logger:;
+
+  slot error-logger :: <logger>,
+    init-value: *error-logger*,
+    init-keyword: error-logger:;
+
+  slot debug-logger :: <logger>,
+    init-value: *debug-logger*,
+    init-keyword: debug-logger:;
+
 end class <http-server>;
 
 // get rid of this eventually.  <http-server> is the new name.
@@ -164,18 +177,20 @@ define sealed domain make (subclass(<http-server>));
 define method initialize
     (server :: <http-server>,
      #rest keys,
-     #key document-root, dsp-root)
+     #key document-root, dsp-root,
+          request-logger: req-log, debug-logger: dbg-log, error-logger: err-log)
   apply(next-method,
         server,
         remove-keys(keys, #"document-root", #"dsp-root"));
-
   let name = "default";
   let vhost = make(<virtual-host>,
                    name: name,
                    document-root:
                    document-root | subdirectory-locator(server.server-root, name),
-                   dsp-root:
-                     dsp-root | subdirectory-locator(server.server-root, name));
+                   dsp-root: dsp-root | subdirectory-locator(server.server-root, name),
+                   request-logger: req-log | server.request-logger,
+                   debug-logger: dbg-log | server.debug-logger,
+                   error-logger: err-log | server.error-logger);
   default-virtual-host(server) := vhost;
   // Add a spec that matches all urls.
   add-directory-spec(vhost, root-directory-spec(vhost));

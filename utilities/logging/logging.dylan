@@ -740,8 +740,9 @@ define method parse-formatter-pattern
               next-char();   // eat '}'
               select (word by \=)
                 "date" => method ()
-                            pad(format-date(arg | "%Y-%m-%dT%H:%M:%S%Z",
-                                            current-date()))
+                            pad(iff(arg,
+                                    format-date(arg, current-date()),
+                                    as-iso8601-string(current-date())))
                           end;
                 "level" => method () pad(level-name(*current-log-level*)) end;
                 "message" =>

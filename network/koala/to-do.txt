@@ -1,6 +1,11 @@
 Koala To-Do List
 ----------------
 
+* Add command-line option --log so that Koala can be started up
+  without doing any logging to stdout.  This should also be the
+  place we log messages that are related to the server and not
+  any particular vhost.
+
 * http-client: status line needs to be rstripped.
 
 * Add a command-line option to enable/disable different kinds of debugging.

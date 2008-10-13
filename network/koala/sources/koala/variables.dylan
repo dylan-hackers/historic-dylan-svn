@@ -232,8 +232,19 @@ end;
 
 
 // These loggers are used if no other loggers are configured.
-// Usually that's should only happen very early during startup when
+// Usually that should only happen very early during startup when
 // *server* isn't bound, if at all.
+
+// Logger used as last resort if no other loggers are defined.
+// This is the initial value used for the *request-logger*, *debug-logger*, and
+// *error-logger* variables, which in turn are used as the default loggers for
+// each <http-server>, which in turn are used as the default loggers for
+// each <virtua-host> on that server.
+//
+define constant $default-logger
+  = make(<logger>,
+         name: $server-name,
+         targets: list($stdout-log-target));
 
 // These are thread variables for efficiency.  They can be bound once
 // per request rather than figuring out which logger to use each time
@@ -243,18 +254,11 @@ end;
 //    | (*server* & *server*.default-virtual-host.debug-logger)
 //    | *debug-logger*)
 
-define thread variable *debug-logger* :: <logger>
-  = make(<logger>,
-         name: "koala.stdout",
-         targets: list($stdout-log-target));
+define thread variable *debug-logger* :: <logger> = $default-logger;
 
-define thread variable *error-logger* :: <logger>
-  = make(<logger>,
-         name: "koala.stderr",
-         targets: list($stderr-log-target));
+define thread variable *error-logger* :: <logger> = $default-logger;
 
-define thread variable *request-logger* :: <logger>
-  = *debug-logger*;
+define thread variable *request-logger* :: <logger> = $default-logger;
 
 define method log-trace (format-string, #rest format-args)
   apply(%log-trace, *debug-logger*, format-string, format-args);

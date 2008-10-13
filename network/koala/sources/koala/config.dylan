@@ -348,30 +348,34 @@ define function process-log-config-element
  => (logger :: <logger>)
   let additive? = true-value?(get-attr(node, #"additive") | "no");
   let location = get-attr(node, #"location");
-  let max-size = get-attr(node, #"max-size");
   let default-size = 20 * 1024 * 1024;
-  block ()
-    max-size := string-to-integer(max-size);
-  exception (ex :: <error>)
-    warn("<%s> element has invalid max-size attribute (%s).  "
-         "The default (%d) will be used.",
-         xml$name(node), max-size, default-size);
+  let max-size = get-attr(node, #"max-size");
+  if (max-size)
+    block ()
+      max-size := string-to-integer(max-size);
+    exception (ex :: <error>)
+      warn("<%s> element has invalid max-size attribute (%s).  "
+           "The default (%d) will be used.",
+           xml$name(node), max-size, default-size);
+      max-size := default-size;
+    end;
+  else
     max-size := default-size;
-  end;
+  end if;
   let target = iff(location,
                    make(<rolling-file-log-target>,
                         pathname: merge-locators(as(<file-locator>, location),
                                                  server.server-root),
                         max-size: max-size),
                    default-log-target);
-  let default-log-format = "%{date} %-5{level} [%{thread}] %{message}";
   let logger :: <logger>
     = make(<logger>,
            name: logger-name,
            targets: list(target),
            additive: additive?,
-           formatter: make(<log-formatter>,
-                           pattern: format-control | default-log-format));
+           formatter: iff(format-control,
+                          make(<log-formatter>, pattern: format-control),
+                          $default-log-formatter));
   let unrecognized = #f;
   let level-name = get-attr(node, #"level") | "info";
   let level = select (level-name by string-equal?)
