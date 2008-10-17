@@ -63,21 +63,16 @@ end;
 
 define method login ()
   let redirect-url = get-query-value("redirect");
-  let authorization = header-value(#"authorization");
   let user = check-authorization();
-  if (~authorization | ~user)
+  if (~user)
     require-authorization();
-  elseif (user &
-      member?(user, *ignore-authorizations*, test: \=) &
-      member?(user, *ignore-logins*, test: \=))
-    *ignore-authorizations* :=
-      remove!(*ignore-authorizations*, user);
-    require-authorization();
-  elseif (user &
-          ~member?(user, *ignore-authorizations*, test: \=) &
+  elseif (member?(user, *ignore-authorizations*, test: \=) &
           member?(user, *ignore-logins*, test: \=))
-    *ignore-logins* :=
-      remove!(*ignore-logins*, user);
+    *ignore-authorizations* := remove!(*ignore-authorizations*, user);
+    require-authorization();
+  elseif (~member?(user, *ignore-authorizations*, test: \=) &
+          member?(user, *ignore-logins*, test: \=))
+    *ignore-logins* := remove!(*ignore-logins*, user);
     redirect-url & redirect-to(redirect-url);
   else
     redirect-url & redirect-to(redirect-url);
@@ -98,7 +93,7 @@ end;
 
 define function check-authorization ()
  => (user :: false-or(<user>));
-  let authorization = header-value(#"authorization");
+  let authorization = get-header(current-request(), "Authorization", parsed: #t);
   if (authorization)
     let user = find-user(head(authorization));
     if (user & user.password = tail(authorization))
@@ -109,7 +104,7 @@ end;
 
 define function authenticate ()
  => (user :: false-or(<user>));
-  let authorization = header-value(#"authorization");
+  let authorization = get-header(current-request(), "Authorization", parsed: #t);
   if (authorization)
     let user = find-user(head(authorization));
     *authenticated-user*
@@ -123,7 +118,7 @@ define function authenticate ()
 end function authenticate;
 
 define function require-authorization (#key realm :: <string> = "koala")
-  let headers = current-response().response-headers;
+  let headers = current-response().raw-headers;
   add-header(headers, "WWW-Authenticate", concatenate("Basic realm=\"", realm, "\""));
   unauthorized-error(headers: headers);
 end;

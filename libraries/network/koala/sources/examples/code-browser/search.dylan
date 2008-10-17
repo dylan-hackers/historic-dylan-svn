@@ -5,12 +5,17 @@ Author:   Andreas Bogk, Bastian Mueller, Hannes Mehnert
 
 define thread variable *results* = #f;
 
-define responder search-responder ("/search")
+define function search-responder ()
   let search-string = get-query-value("search");
   let results = element($all-symbols, search-string, default: #());
   dynamic-bind(*results* = results)
     process-template(*result-page*);
   end;
+end;
+
+define url-map on $http-server
+  url "/search"
+    action GET () => search-responder;
 end;
 
 define class <result-page> (<code-browser-page>)

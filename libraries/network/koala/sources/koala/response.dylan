@@ -8,24 +8,13 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 // Exported
 //
-define open primary class <response> (<object>)
-
-  constant slot get-request :: <request>,
-    required-init-keyword: #"request";
+define open primary class <response> (<base-http-response>)
 
   // The output stream is created lazily so that the user has the opportunity to
   // set properties such as stream type (e.g., binary or text) and buffering
   // characteristics.
   // @see output-stream
   slot %output-stream :: false-or(<stream>) = #f;
-
-  // Headers to send with the response.
-  // @see add-header
-  constant slot response-headers :: <header-table>,
-    required-init-keyword: #"headers";
-
-  slot response-code    :: <integer> = 200;
-  slot response-message :: <string>  = "OK";
 
   slot headers-sent? :: <boolean> = #f;
 
@@ -38,18 +27,16 @@ end class <response>;
 // Exported
 //
 define method add-header
-    (response :: <response>, header :: <string>, value :: <object>,
-     #key if-exists? = #"append")
+    (response :: <response>, header :: <byte-string>, value :: <object>,
+     #key if-exists? = #"replace")
   if (headers-sent?(response))
     raise(<koala-api-error>,
           "Attempt to add a %s header after headers have already been sent.",
           header);
-  elseif (string-equal?(header, "content-type"))
-    set-content-type(response, value)
   else
-    add-header(response.response-headers, header, value, if-exists?: if-exists?)
+    next-method()
   end;
-end;
+end method add-header;
 
 // Exported
 //
@@ -63,8 +50,9 @@ define method output-stream
       if (*virtual-host*)
         // The user can override this if they do it before writing to the
         // output stream.
-        set-content-type(response, default-dynamic-content-type(*virtual-host*),
-                         if-exists?: #"ignore");
+        add-header(response, "Content-Type",
+                   default-dynamic-content-type(*virtual-host*),
+                   if-exists?: #"ignore");
       end;
       response.%output-stream := make(<string-stream>, direction: #"output");
     else
@@ -79,22 +67,6 @@ define method clear-output
     (response :: <response>) => ()
   let out = response.%output-stream;
   out & stream-contents(out, clear-contents?: #t)
-end;
-
-// Exported
-//
-define method set-content-type
-    (response :: <response>, content-type :: <object>,
-     #key if-exists? = #"replace")
-  let out = response.%output-stream;
-  if (out & stream-size(out) ~= 0)
-    raise(<koala-api-error>,
-          "Attempt to set the Content-Type header after some content "
-          "has already been generated.");
-  else
-    add-header(response.response-headers, "Content-Type", content-type,
-               if-exists?: if-exists?);
-  end;
 end;
 
 // The caller is telling us that either the request is complete or it's OK to
@@ -116,13 +88,13 @@ end;
 define method send-header
     (stream :: <stream>, name :: <string>, val :: <object>)
   format(stream, "%s: %s\r\n", name, val);
-  log-copious("-->%s: %s", name, val);
+  log-trace("-->%s: %s", name, val);
 end;
 
 define method send-headers
     (response :: <response>, stream :: <stream>)
   // Send the headers
-  let headers :: <header-table> = response-headers(response);
+  let headers :: <header-table> = raw-headers(response);
   for (val keyed-by name in headers)
     send-header(stream, name, val);
   end;
@@ -136,16 +108,16 @@ end;
 //
 define method send-response
     (response :: <response>) => ()
-  let stream :: <stream> = request-socket(get-request(response));
-  let req :: <request> = get-request(response);
+  let stream :: <stream> = request-socket(response-request(response));
+  let req :: <request> = response-request(response);
   unless (headers-sent?(response))
     // Send the response line
     let response-line = format-to-string("%s %d %s\r\n",
                                          $http-version, 
                                          response.response-code, 
-                                         response.response-message | "OK");
+                                         response.response-reason-phrase | "OK");
     unless (req.request-version == #"HTTP/0.9")
-      log-copious("-->%s", response-line);
+      log-trace("-->%s", response-line);
       write(stream, response-line);
     end;
 
@@ -156,18 +128,17 @@ define method send-response
     end if;
     add-header(response, "Date", as-rfc1123-string(current-date()));
 
-    let content-length :: <string> = "0";
+    let content-length :: <byte-string> = "0";
     unless (response.response-code == $not-modified)
       content-length := integer-to-string(stream-size(output-stream(response)));
-      // Add required headers
       add-header(response, "Content-Length", content-length);
     end;
     unless (req.request-version == #"HTTP/0.9")
       send-headers(response, stream);
     end;
-
-    // Don't try to log the request if it couldn't be parsed.
-    unless (response.response-code == $bad-request)
+    // If sending an error response vhost may be #f, in which case we
+    // have no log target.
+    if (*virtual-host*)
       log-request(req, response.response-code, content-length);
     end;
   end unless; // headers already sent
@@ -185,7 +156,8 @@ define inline function log-request
   // (http://www.w3.org/Daemon/User/Config/Logging.html)
   let request = concatenate(as-uppercase(as(<string>, request-method(req))),
                             " ",
-                            request-raw-url-string(req),
+                            // Can happen e.g. when client sends no data.
+                            request-raw-url-string(req) | "-",
                             " ",
                             as-uppercase(as(<string>, req.request-version)));
   let date = as-common-logfile-date(current-date());
@@ -196,18 +168,19 @@ define inline function log-request
   //   "{ip} {hostname} [{date}] '{url}' {user-agent} {referer}"
   // See bug #7200.
 
-  log-raw(activity-log-target(*virtual-host*),
-          concatenate(remoteaddr, " ",
-                      "-", " ",
-                      "-", " ",
-                      "[", date, "] ",
-                      "\"", request, "\" ",
-                      integer-to-string(response-code), " ",
-                      content-length,
-                      // for now, add User-Agent and Referer
-                      " \"", as(<string>, get-header(req, "referer") | "-"),
-                      "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
-                      "\""));
+  let log-entry
+    = concatenate(remoteaddr, " ",
+                  "-", " ",
+                  "-", " ",
+                  "[", date, "] ",
+                  "\"", request, "\" ",
+                  integer-to-string(response-code), " ",
+                  content-length,
+                  // for now, add User-Agent and Referer
+                  " \"", as(<string>, get-header(req, "referer") | "-"),
+                  "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
+                  "\"");
+  %log-info(request-logger(*virtual-host*), log-entry);
 end function log-request;
 
 // Exported

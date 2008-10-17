@@ -13,6 +13,11 @@ define class <responder> (<object>)
   // url (i.e., the part following the base url on which this responder was
   // registered) the functions are called in order.  They should raise an exception
   // (of what type?) to abort the chain.
+
+  // This doesn't make much sense to me.  Since the regular expressions are in a
+  // table there's no guaranteed order in which they'll be searched so you could
+  // get an arbitrary result.  --cgay Sep 2008
+
   constant slot responder-map :: <table>,
     init-function: curry(make, <table>),
     init-keyword: map:;
@@ -40,11 +45,11 @@ define method add-responder
           request-methods = #(#"GET", #"POST"))
   if (empty?(url.uri-path))
     error(make(<koala-api-error>,
-               format-string: "You can't add a responder with an empty URL: %s",
+               format-string: "You can't add a responder for a URL with no path: %s",
                format-arguments: list(url)));
   else
     add-object(server.url-map, url.uri-path, responder, replace?: replace?);
-    log-info("Responder: %s ", url);
+    log-info("Responder: %s ", build-path(url));
   end if;
 end method add-responder;
 
@@ -103,7 +108,7 @@ define method find-responder
     (server :: <http-server>, url :: <url>)
  => (responder :: false-or(<responder>),
      rest-path :: false-or(<sequence>))
-  find-object(server.url-map, url.uri-path);
+  find-object(server.url-map, url.uri-path)
 end method find-responder;
 
 
@@ -124,10 +129,10 @@ end;
 /* Example usage
 define url-map
   url "/wiki",
-    action get () => show-page,
-    action get () => show-page;
+    action GET () => show-page,
+    action POST () => edit-page;
   url "/wiki/login"
-    action post ("/(?<name>:\\w+") => login;
+    action POST ("/(?<name>:\\w+") => login;
   url
 end;
 */
@@ -154,13 +159,13 @@ define macro url-map-definer
     { ?url ; ... } => { ?url ; ... }
 
   url:
-    { url ?location:expression ?definitions }
+    { url ?location:expression ?actions }
      => { let _responder = make(<responder>);
-          ?definitions ;
+          ?actions ;
           ?location }
-    { url ( ?locations ) ?definitions }
+    { url ( ?locations ) ?actions }
       => { let _responder = make(<responder>);
-           ?definitions ;
+           ?actions ;
            ?locations }
 
   locations:
@@ -170,13 +175,13 @@ define macro url-map-definer
   location: 
     { ?uri:expression } => { add-responder( _http-server, ?uri , _responder) }
 
-  definitions:
+  actions:
     { } => { }
-    { ?definition , ... } => { ?definition ; ... }
+    { ?action-definition , ... } => { ?action-definition ; ... }
 
   // I'd like to get rid of the parens around ?request-methods.
   // Not quite sure how yet though.  --cgay
-  definition:
+  action-definition:
     { action ( ?request-methods ) ( ?regex ) => ?action:expression }
       => { let regex = compile-regex(?regex, use-cache: #t);
            let actions = list(?action);
@@ -230,28 +235,6 @@ define inline function add-responder-map-entry
   table[regex] := actions
 end function add-responder-map-entry;
 
-
-// define responder test ("/test" /* , secure?: #t */ )
-//   format(output-stream(response), "<html><body>test</body></html>");
-// end;
-// This is just minimally working after the switch to "define url-map" 
-define macro responder-definer
-  { define responder ?:name (?url:expression)
-      ?:body
-    end
-  }
-  => { define function ?name (#key) ?body end;
-       add-responder(?url, ?name)
-     }
-end macro responder-definer;
-
-/*
-define (get, post) responder foo-responder ("/foo", "/bar")
-  ("^(?P<name>\\w+)/?$")
-  (#key name)
-  ...
-end;
-*/
 
 /*
 // General server statistics

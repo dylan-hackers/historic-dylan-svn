@@ -29,19 +29,12 @@ define library koala
   use xml-rpc-common;
 
   export dsp;
-  export koala-extender;
   export koala-unit;
   export koala;
 end library koala;
 
 
 define module koala
-  //needed for last-modified stuff
-  create
-    get-header,
-    request-method-setter,
-    not-modified;
-
   // Server startup/shutdown
   create
     <http-server>,
@@ -58,25 +51,21 @@ define module koala
 
   // Requests
   create
+    // See also: the methods for requests in http-common
     <request>,
     current-request,             // Returns the active request of the thread.
-    request-method,              // Returns #"get", #"post", etc
     request-host,
-    request-url,
     request-tail-url,
     request-query-values,        // get the keys/vals from the current GET or POST request
       get-query-value,           // Get a query value that was passed in a URL or a form
       do-query-values,           // Call f(key, val) for each query in the URL or form
       count-query-values,
-    request-content,
     request-content-type,
-    request-content-setter,
     process-request-content;
 
   // Responders
   create
     <responder>,
-    responder-definer,
     responder-map,
     add-responder,
     remove-responder,
@@ -98,29 +87,12 @@ define module koala
   // Responses
   create
     <response>,
+    // See also: methods on <base-http-response> in common-dylan.
     current-response,            // Returns the active response of the thread.
     output,
     output-stream,
     clear-output,
-    set-content-type,
-    add-header,
-    add-cookie,
-    get-request,
-    response-code,
-    response-code-setter,
-    response-message,
-    response-message-setter,
-    response-headers;
-
-  // Cookies
-  create
-    cookie-name,
-    cookie-value,
-    cookie-domain,
-    cookie-path,
-    cookie-max-age,
-    cookie-comment,
-    cookie-version;
+    add-cookie;
 
   // Sessions
   create
@@ -129,11 +101,15 @@ define module koala
     ensure-session,
     clear-session;
 
+  // Redirect
+  create
+    redirect-to,
+    redirect-temporarily-to;
+
   // Logging
   create
     // These are wrappers for the defs by the same name in the logging library.
-    log-copious,
-    log-verbose,
+    log-trace,
     log-debug,
     log-info,
     log-warning,
@@ -158,39 +134,14 @@ define module koala
   // Documents
   create
     maybe-serve-static-file,
-    document-location;
-
-  // Redirection
-  create
-    redirect-to,
-    redirect-temporarily-to,
-    moved-permanently-redirect,
-    moved-temporarily-redirect,
-    see-other-redirect,
-    unauthorized-error;
+    document-location,
+    static-file-responder,
+    file-contents;
 
   // Errors
   create
     <koala-api-error>,
-    <configuration-error>,
-    http-error-code,
-    http-error-headers,
-    access-forbidden-error,
-    application-error,
-    unsupported-request-method-error,
-    resource-not-found-error,
-    unimplemented-error,
-    internal-server-error,
-    bad-request;
-
-  // Files
-  create
-    static-file-responder;
-
-  create
-    <avalue>,
-    avalue-value,
-    avalue-alist;
+    <configuration-error>;
 
   create
     <http-file>,
@@ -198,22 +149,7 @@ define module koala
     http-file-content,
     http-file-mime-type;
 
-  // Headers
-  // Do these really need to be exported?
-  create
-    <header-table>,
-    *max-single-header-size*,
-    *header-buffer-growth-amount*,
-    // read-message-headers(stream) => header-table
-    read-message-headers,
-    header-value;
-
 end module koala;
-
-// Additional interface for extending the server
-define module koala-extender
-  create parse-header-value;
-end;
 
 // Additional interface for unit tests.
 define module koala-unit
@@ -239,8 +175,7 @@ define module dsp
               merge-locators,
               locator-directory };
   use logging,
-    rename: { log-copious => %log-copious,
-              log-verbose => %log-verbose,
+    rename: { log-trace => %log-trace,
               log-debug => %log-debug,
               log-info => %log-info,
               log-warning => %log-warning,
@@ -313,7 +248,6 @@ define module httpi                             // http internals
   use format;
   use http-common;
   use koala;
-  use koala-extender;
   use koala-unit;
   use locators,
     rename: { <http-server> => <http-server-url>,
@@ -322,8 +256,7 @@ define module httpi                             // http internals
             },
     exclude: { <url> };  // this comes from the uri library now.
   use logging,
-    rename: { log-copious => %log-copious,
-              log-verbose => %log-verbose,
+    rename: { log-trace => %log-trace,
               log-debug => %log-debug,
               log-info => %log-info,
               log-warning => %log-warning,

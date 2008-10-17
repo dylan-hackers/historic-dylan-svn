@@ -52,8 +52,23 @@ define function koala-main
                    usage: "koala [options]",
                    description: desc);
   else
-    block ()
-      let _server = server | make(<http-server>);
+    let debug? :: <boolean> = option-value-by-long-name(parser, "debug");
+    let handler <error>
+      = method (cond :: <error>, next-handler :: <function>)
+          if (debug?)
+            next-handler()  // decline to handle it
+          else
+            format(*standard-output*, "Error: %s\n", cond);
+          end;
+        end;
+    // We want to bind *server* early so that log output goes to the
+    // right place (the server's default virtual host's logs).
+    dynamic-bind (*server* = server | make(<http-server>))
+      *server*.debugging-enabled? := debug?;
+      if (*server*.debugging-enabled?)
+        log-warning("*** DEBUGGING ENABLED ***  Error conditions will "
+                    "cause server to enter debugger (or exit).");
+      end;
 
       // Configure first so that command-line argument override config settings.
       let config-file = option-value-by-long-name(parser, "config");
@@ -67,18 +82,10 @@ define function koala-main
         listeners := vector(format-to-string("0.0.0.0:%d", $default-http-port));
       end;
       for (listener in listeners)
-        add!(_server.server-listeners, make-listener(listener));
+        add!(*server*.server-listeners, make-listener(listener));
       end;
-
-      _server.debugging-enabled? := option-value-by-long-name(parser, "debug");
-      if (_server.debugging-enabled?)
-        log-warning("Debug mode enabled via command line.");
-      end;
-      start-server(_server);
-
-    exception (ex :: <error>)
-      format(*standard-error*, "Error: %s\n", ex)
-    end;
+      start-server(*server*);
+    end dynamic-bind;
   end if;
 end function koala-main;
 
