@@ -6,31 +6,29 @@ define library koala-test-suite
   use common-dylan,
     import: { common-dylan,
               threads };
-  use system,
-    import: { date,
-              locators };
+  use http-client;
   use koala,
     import: { koala,
               koala-unit };
-  use http-client;
   use network,
     import: { sockets };
-  use xml-rpc-client;
+  use system,
+    import: { date,
+              locators };
   use testworks;
+  use uri;
+  use xml-rpc-client;
   export koala-test-suite;
 end library koala-test-suite;
 
 define module koala-test-suite
   use common-dylan;
-  use threads;
   use date;
-  use locators,
-    import: { <directory-locator> };
-  use testworks;
+  use http-client;
   use koala;
   use koala-unit;
-  use http-client;
-  use xml-rpc-client;
+  use locators,
+    import: { <directory-locator> };
   use sockets,
     import: { <connection-failed>,
               <address-in-use>,
@@ -38,5 +36,9 @@ define module koala-test-suite
               host-address,
               start-sockets,
               $local-host };
+  use testworks;
+  use threads;
+  use uri;
+  use xml-rpc-client;
 end module koala-test-suite;
 

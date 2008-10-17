@@ -48,10 +48,10 @@ define macro with-restart
       ?:body
     end }
     => { block ()
-	   ?body
-	 exception (?condition, init-arguments: vector(?initargs))
-	   values(#f, #t)
-	 end }
+           ?body
+         exception (?condition, init-arguments: vector(?initargs))
+           values(#f, #t)
+         end }
 end macro with-restart;
 
 // with-simple-restart("Retry opening file") ... end
@@ -61,9 +61,9 @@ define macro with-simple-restart
       ?:body
     end }
     => { with-restart (<simple-restart>,
-		       format-string: ?format-string,
-		       format-arguments: vector(?format-args))
-	   ?body
+                       format-string: ?format-string,
+                       format-arguments: vector(?format-args))
+           ?body
          end }
 end macro with-simple-restart;
 
@@ -101,6 +101,16 @@ define macro dec!
   { dec! (?place:expression) }
     => { ?place := ?place - 1; }
 end macro dec!;
+
+define macro wrapping-inc!
+  { wrapping-inc! (?place:expression) }
+    => { let n :: <integer> = ?place;
+         ?place := if (n == $maximum-integer)
+                     0
+                   else
+                     n + 1
+                   end; }
+end;
 
 
 // ----------------------------------------------------------------------
@@ -293,3 +303,120 @@ define method table-keys
   v
 end;
 
+
+//// multiple-value-setq
+
+//define macro mset
+//  { mset(?:expression, ?vars:*) } => { do-mset(?expression, ?vars) ?vars end }
+//end macro mset;
+
+define macro pset
+  { pset (?vars:*) ?:expression end }
+    => { do-mset(?expression, ?vars) ?vars end }
+end;
+
+define macro do-mset
+  { do-mset(?:expression, ?bind-vars) ?sets end }
+    => { let (?bind-vars) = ?expression; ?sets }
+bind-vars:
+  { } => { }
+  { ?:name, ... } => { "bind-" ## ?name ## "", ... }
+sets:
+  { } => { }
+  { ?:name, ... } => { ?name := "bind-" ## ?name ## "" ; ... }
+end;
+
+
+//// Tries who's keys are strings
+
+// This should be fixed not to be specifically for strings.
+
+define class <string-trie> (<object>)
+  constant slot trie-children :: <string-table>,
+    init-function: curry(make, <string-table>);
+  slot trie-object :: <object>,
+    required-init-keyword: object:;
+end;
+
+define class <trie-error> (<format-string-condition>, <error>)
+end;
+
+define method add-object
+    (trie :: <string-trie>, path :: <sequence>, object :: <object>,
+     #key replace?)
+ => ()
+  local method real-add (trie, rest-path)
+          if (rest-path.size = 0)
+            if (trie.trie-object = #f | replace?)
+              trie.trie-object := object;
+            else
+              signal(make(<trie-error>, 
+                          format-string: "Trie already contains an object for the "
+                                         "given path (%=).",
+                          format-arguments: list(path)));
+            end if;
+          else
+            let first-path = rest-path[0];
+            let other-path = copy-sequence(rest-path, start: 1);
+            let children = trie-children(trie);
+            let child = element(children, first-path, default: #f);
+            unless (child)
+              let node = make(<string-trie>, object: #f);
+              children[first-path] := node;
+              child := node;
+            end;
+            real-add(child, other-path)
+          end;
+        end method real-add;
+  real-add(trie, path)
+end method add-object;
+
+define method remove-object
+    (trie :: <string-trie>, path :: <sequence>)
+ => ()
+  let nodes = #[];
+  let node = reduce(method (a, b)
+      nodes := add!(nodes, a);
+      a.trie-children[b]
+    end, trie, path);
+  let object = node.trie-object;
+  node.trie-object := #f;
+  block (stop)
+    for (node in reverse(nodes), child in reverse(path))
+      if (size(node.trie-children[child].trie-children) = 0 & ~node.trie-object)
+        remove-key!(node.trie-children, child);
+      else
+        stop()
+      end if;
+    end for;
+  end;
+  object;
+end method remove-object;
+
+
+// Find the object with the longest path, if any.
+// 2nd return value is the part of the path that
+// came after where the object matched.
+//
+define method find-object
+    (trie :: <string-trie>, path :: <sequence>)
+ => (object :: <object>, rest-path :: <sequence>);
+  local method real-find (trie, path, object, rest)
+          if (empty?(path))
+            values(object, rest)
+          else
+            let child = element(trie.trie-children, head(path), default: #f);
+            if (child)
+              real-find(child, tail(path), child.trie-object | object,
+                        if (child.trie-object)
+                          tail(path)
+                        else
+                          rest
+                        end if);
+            else
+              values(object, rest);
+            end
+          end
+        end method real-find;
+  real-find(trie, as(<list>, path), trie.trie-object, #());
+end method find-object;

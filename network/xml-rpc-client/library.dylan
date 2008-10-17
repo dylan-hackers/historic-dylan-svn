@@ -7,9 +7,12 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library xml-rpc-client
   use common-dylan;
+  use http-client;
+  use http-common;
   use io;
   use network;
   use uncommon-dylan;
+  use uri;
   use xml-parser;
   use xml-rpc-common;
 
@@ -21,9 +24,12 @@ define module xml-rpc-client
   use common-dylan, exclude: { format-to-string };
   use format;
   use format-out;  // for debugging only
+  use http-client;
+  use http-common;
   use sockets;
   use streams;
   use uncommon-dylan;
+  use uri;
   use xml-parser,
     prefix: "xml$";
   use xml-rpc-common,
@@ -35,6 +41,5 @@ define module xml-rpc-client
     };
 
   export
-    xml-rpc-call,      // standard interface
-    xml-rpc-call-2;    // accepts port and url arguments
+    xml-rpc-call;
 end;

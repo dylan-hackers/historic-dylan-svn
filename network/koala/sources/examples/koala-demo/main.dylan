@@ -238,7 +238,7 @@ define tag current-username in demo
   let response = current-response();
   let username
     = get-query-value("username")
-      | get-attribute(get-session(get-request(response)), #"username");
+      | get-attribute(get-session(response.response-request), #"username");
   username & output(username);
 end;
 

@@ -3,13 +3,14 @@ author: Hannes Mehnert <hannes@mehnert.org>
 
 define library web-framework
   use common-dylan;
+  use dood;
   use dylan;
+  use http-common;
   use io;
   use koala, import: { koala, dsp };
-  use xml-parser;
   use system, import: { file-system, date, locators };
-  use dood;
   use uri;
+  use xml-parser;
 
   export object-table,
     web-framework,
@@ -33,11 +34,12 @@ define module storage
   use common-dylan;
   use dood;
   use file-system;
-  use threads;
+  use http-common;
   use koala;
   use format-out;
   use locators,
     exclude: { <http-server> };
+  use threads;
   use xml-parser,
     rename: { <element> => <xml-element> };
 
@@ -99,6 +101,7 @@ define module users
   use common-dylan;
   use dylan;
   use dsp, import: { set-attribute, get-attribute };
+  use http-common;
   use koala;
   use storage;
   use web-framework-macro;
@@ -254,33 +257,35 @@ define module permission
 end;
 
 define module web-framework
+  use change;
   use common-dylan,
     exclude: { format-to-string };
+  use http-common,
+    exclude: { remove-attribute };
+  use dsp;
+  use format;
+  use koala;
   use object-table;
+  use permission;
   use simple-xml;
+  use storage;
+  use uri;
+  use users;
+  use web-framework-macro, export: all;
   use xml-parser,
     rename: { <element> => <xml-element> };
-  use koala;
-  use dsp,
-    exclude: { remove-attribute };
-  use format;
-  use uri;
 
-  use web-framework-macro, export: all;
-  use storage;
-  use change;
-  use users;
-  use permission;
-
-  export *errors*,
+  export
+    *errors*,
     *action*,
     *form*;
 
-  export action-test-definer,
+  export
+    action-test-definer,
     action-tests-definer,
     object-test-definer,
     object-tests-definer,
     error-test-definer,
     error-tests-definer;
 
-end;
+end module web-framework;

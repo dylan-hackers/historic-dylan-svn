@@ -11,6 +11,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
  */
 
 define constant $koala-config-dir :: <string> = "config";
+
 define constant $default-config-filename :: <string> = "koala-config.xml";
 
 define thread variable %server = #f;
@@ -56,17 +57,15 @@ define method configure-server
   let config-loc
     = as(<string>, merge-locators(as(<file-locator>, config-file | defaults),
                                   defaults));
-  block (return)
-    let text = file-contents(config-loc);
-    if (text)
-      log-info("Loading server configuration from %s.", config-loc);
-      configure-from-string(server, text, config-loc);
-    elseif (config-file)
-      // Only blow out if user specified a config file, not if they're taking
-      // the default config file.
-      config-error("Server configuration file (%s) not found.", config-loc);
-    end if;
-  end block;
+  let text = file-contents(config-loc);
+  if (text)
+    log-info("Loading server configuration from %s.", config-loc);
+    configure-from-string(server, text, config-loc);
+  elseif (config-file)
+    // Only blow out if user specified a config file, not if they're taking
+    // the default config file.
+    config-error("Server configuration file (%s) not found.", config-loc);
+  end if;
 end method configure-server;
 
 // This is separated out so it can be used by the test suite.
@@ -88,9 +87,9 @@ end method configure-from-string;
 
 define function warn
     (format-string, #rest format-args)
-  log-warning("%s: %s",
-              $default-config-filename,
-              apply(format-to-string, format-string, format-args));
+  apply(log-warning,
+        concatenate("CONFIG: ", format-string),
+        format-args);
 end;
 
 // Exported
@@ -182,10 +181,10 @@ define method process-config-element
       add!(server.server-listeners,
            make-listener(format-to-string("%s:%d", address, port)));
     exception (<error>)
-      warn("Invalid listener spec: %s", xml$text(node));
+      warn("Invalid <listener> spec: %=", xml$text(node));
     end;
   else
-    warn("Invalid <LISTENER> specification.  You must specify at least one "
+    warn("Invalid <listener> spec.  You must supply at least one "
          "of 'address' or 'port'.");
   end;
 end method process-config-element;
@@ -314,63 +313,88 @@ end method process-config-element;
 
 
 define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"log")
-  let type = get-attr(node, #"type");
-  if (~type)
-    warn("<LOG> element missing 'type' attribute.");
-  elseif (~member?(type, #("debug", "activity", "error"),
-                   test: string-equal?))
-    warn("Log type %= not recognized.  Should be 'debug', 'activity', "
-         "or 'error'.", type);
-  else
-    let location = get-attr(node, #"location");
-    let max-size = get-attr(node, #"max-size");
-    let default-size = 20 * 1024 * 1024;
+    (server :: <http-server>, node :: xml$<element>, name == #"error-log")
+  let format-control = get-attr(node, #"format");
+  let name = get-attr(node, #"name") | "koala.error";
+  let logger = process-log-config-element(server, node, format-control, name,
+                                          $stderr-log-target);
+  error-logger(%vhost) := logger;
+  *error-logger* := logger;
+end method process-config-element;
+
+define method process-config-element
+    (server :: <http-server>, node :: xml$<element>, name == #"debug-log")
+  let format-control = get-attr(node, #"format");
+  let name = get-attr(node, #"name") | "koala.debug";
+  let logger = process-log-config-element(server, node, format-control, name,
+                                          $stdout-log-target);
+  debug-logger(%vhost) := logger;
+  *debug-logger* := logger;
+end method process-config-element;
+
+define method process-config-element
+    (server :: <http-server>, node :: xml$<element>, name == #"request-log")
+  let format-control = get-attr(node, #"format") | "%{message}";
+  let name = get-attr(node, #"name") | "koala.request";
+  let logger = process-log-config-element(server, node, format-control, name,
+                                          $stdout-log-target);
+  request-logger(%vhost) := logger;
+  *request-logger* := logger;
+end method process-config-element;
+
+define function process-log-config-element
+    (server :: <http-server>, node :: xml$<element>,
+     format-control, logger-name :: <string>, default-log-target :: <log-target>)
+ => (logger :: <logger>)
+  let additive? = true-value?(get-attr(node, #"additive") | "no");
+  let location = get-attr(node, #"location");
+  let default-size = 20 * 1024 * 1024;
+  let max-size = get-attr(node, #"max-size");
+  if (max-size)
     block ()
       max-size := string-to-integer(max-size);
     exception (ex :: <error>)
-      warn("<LOG> element has invalid max-size attribute (%s).  "
-           "The default (%d) will be used.", max-size, default-size);
+      warn("<%s> element has invalid max-size attribute (%s).  "
+           "The default (%d) will be used.",
+           xml$name(node), max-size, default-size);
+      max-size := default-size;
     end;
-    let log = iff(location,
-                  make(<rolling-file-log-target>,
-                       file: merge-locators(as(<file-locator>, location),
-                                            server.server-root),
-                       max-size: max-size | default-size),
-                  make(<stream-log-target>,
-                       stream: iff(string-equal?(type, "error"),
-                                   *standard-error*,
-                                   *standard-output*)));
-    select (type by string-equal?)
-      "error", "errors"
-        => %error-log-target(%vhost) := log;
-      "activity"
-        => %activity-log-target(%vhost) := log;
-      "debug"
-        => %debug-log-target(%vhost) := log;
-           let level = get-attr(node, #"level") | "info";
-           let unrecognized = #f;
-           let class = select (level by string-equal?)
-                         "copious" => <log-copious>;
-                         "verbose" => <log-verbose>;
-                         "debug"   => <log-debug>;
-                         "info"    => <log-info>;
-                         "warning", "warnings" => <log-warning>;
-                         "error", "errors" => <log-error>;
-                         otherwise =>
-                           begin
-                             unrecognized := #t;
-                             <log-info>;
-                           end;
-                         end;
-           log-level(log) := make(class);
-           if (unrecognized)
-             warn("Unrecognized log level: %=", level);
-           end;
-           log-info("Added log level %=", level);
-    end select;
+  else
+    max-size := default-size;
   end if;
-end method process-config-element;
+  let target = iff(location,
+                   make(<rolling-file-log-target>,
+                        pathname: merge-locators(as(<file-locator>, location),
+                                                 server.server-root),
+                        max-size: max-size),
+                   default-log-target);
+  let logger :: <logger>
+    = make(<logger>,
+           name: logger-name,
+           targets: list(target),
+           additive: additive?,
+           formatter: iff(format-control,
+                          make(<log-formatter>, pattern: format-control),
+                          $default-log-formatter));
+  let unrecognized = #f;
+  let level-name = get-attr(node, #"level") | "info";
+  let level = select (level-name by string-equal?)
+                "trace" => $trace-level;
+                "debug" => $debug-level;
+                "info"  => $info-level;
+                "warn", "warning", "warnings" => $warn-level;
+                "error", "errors" => $error-level;
+                otherwise =>
+                  unrecognized := #t;
+                  $info-level;
+              end;
+   log-level(logger) := level;
+   if (unrecognized)
+     warn("Unrecognized log level: %=", level);
+   end;
+   log-info("Logger created: %s", logger);
+   logger
+end function process-log-config-element;
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"administrator")

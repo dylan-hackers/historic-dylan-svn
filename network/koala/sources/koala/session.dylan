@@ -70,7 +70,7 @@ end method clear-session;
 
 define method current-session
     (request :: <request>) => (session :: false-or(<session>))
-  let cookies = request-header-value(request, #"cookie");
+  let cookies = get-header(request, "cookie", parsed: #t);
   let cookie =
     cookies & find-element(cookies,
                            method (cookie)

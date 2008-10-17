@@ -7,34 +7,9 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define thread variable *virtual-host* :: false-or(<virtual-host>) = #f;
 
-// Some methods to make logging slightly more convenient by not having
-// to always pass log-target(*virtual-host*).
-define method log-copious (format-string, #rest format-args)
-  apply(%log-copious, *temp-log-target* | debug-log-target(*virtual-host*),
-        format-string, format-args);
-end;
-define method log-verbose (format-string, #rest format-args)
-  apply(%log-verbose, *temp-log-target* | debug-log-target(*virtual-host*),
-        format-string, format-args);
-end;
-define method log-debug (format-string, #rest format-args)
-  apply(%log-debug, *temp-log-target* | debug-log-target(*virtual-host*),
-        format-string, format-args);
-end;
-define method log-info (format-string, #rest format-args)
-  apply(%log-info, *temp-log-target* | debug-log-target(*virtual-host*),
-        format-string, format-args);
-end;
-define method log-warning (format-string, #rest format-args)
-  apply(%log-warning, *temp-log-target* | error-log-target(*virtual-host*),
-        format-string, format-args);
-end;
-define method log-error (format-string, #rest format-args)
-  apply(%log-error, *temp-log-target* | error-log-target(*virtual-host*),
-        format-string, format-args);
-end;
 
-
+// todo -- rename this to <access-policy>
+//
 define class <directory-spec> (<object>)
   constant slot dirspec-pattern :: <string>,
     required-init-keyword: pattern:;
@@ -144,14 +119,17 @@ define class <virtual-host> (<object>)
   // other value is set.
   slot default-dynamic-content-type :: <string> = "text/html; charset=utf-8";
 
-  // Log targets.  If these are #f then the default virtual host's
-  // log target is used.  They are never #f in the default virtual host.
-  slot %activity-log-target :: false-or(<log-target>) = #f,
-    init-keyword: #"activity-log";
-  slot %error-log-target :: false-or(<log-target>) = #f,
-    init-keyword: #"error-log";
-  slot %debug-log-target :: false-or(<log-target>) = #f,
-    init-keyword: #"debug-log";
+  slot request-logger :: <logger>,
+    init-value: *request-logger*,
+    init-keyword: request-logger:;
+
+  slot error-logger :: <logger>,
+    init-value: *error-logger*,
+    init-keyword: error-logger:;
+
+  slot debug-logger :: <logger>,
+    init-value: *debug-logger*,
+    init-keyword: debug-logger:;
 
 end class <virtual-host>;
 
@@ -170,27 +148,6 @@ define method initialize
     vhost.dsp-root := vhost.document-root;
   end;
 end method initialize;
-
-define method activity-log-target
-    (vhost :: <virtual-host>) => (target :: <log-target>)
-  vhost.%activity-log-target
-    | (*server* & default-virtual-host(*server*).%activity-log-target)
-    | *temp-log-target*
-end;
-
-define method debug-log-target
-    (vhost :: <virtual-host>) => (target :: <log-target>)
-  vhost.%debug-log-target
-    | (*server* & default-virtual-host(*server*).%debug-log-target)
-    | *temp-log-target*
-end;
-
-define method error-log-target
-    (vhost :: <virtual-host>) => (target :: <log-target>)
-  vhost.%error-log-target
-    | (*server* & default-virtual-host(*server*).%error-log-target)
-    | *temp-log-target*
-end;
 
 define method add-directory-spec
     (vhost :: <virtual-host>, spec :: <directory-spec>)

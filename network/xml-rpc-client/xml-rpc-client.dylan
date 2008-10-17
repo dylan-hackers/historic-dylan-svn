@@ -1,48 +1,36 @@
 Module:    xml-rpc-client
 Author:    Carl Gay
+Synopsis:  XML RPC client library
 Copyright: (C) 2002, Carl L Gay.  All rights reserved.
 
-// An XML-RPC client.
-//
-// Status:
-// There are a few TODO items left to complete here (search for "TODO" below)
-// but I have tested it against a Java XML-RPC server with no problems so far.
+define generic xml-rpc-call
+    (url :: <object>, method-name :: <string>, #rest args)
+ => (response :: <object>);
 
-
-define thread variable *xml-rpc-port* :: <integer> = 80;
-define thread variable *xml-rpc-url* :: <string> = "/RPC2";
-
-define function xml-rpc-call
-    (host :: <string>, method-name :: <string>, #rest args)
+define method xml-rpc-call
+    (url :: <string>, method-name :: <string>, #rest args)
  => (response :: <object>)
-  apply(xml-rpc-call-2, host, *xml-rpc-port*, *xml-rpc-url*, method-name, args)
+  apply(xml-rpc-call, parse-url(url), method-name, args)
 end;
 
-// xml-rpc-call-2("192.168.26.73", 8502, "/RPC2", "psapi.getAvailableAgentSlas", 10);
-//
-define function xml-rpc-call-2
-    (host :: <string>,
-     port :: <integer>,
-     url :: <string>,
-     method-name :: <string>,
-     #rest args)
+define method xml-rpc-call
+    (url :: <url>, method-name :: <string>, #rest args)
  => (response :: <object>)
   let xml = apply(create-method-call-xml, method-name, args);
   when (*debugging-xml-rpc*)
     format-out("%s\n\n", xml);
   end;
-  let stream = make(<TCP-socket>, host: host,  port: port);
-  format(stream, "POST %s HTTP/1.0\r\n", url);
-  format(stream, "Host: %s\r\n", host);
-  write (stream, "User-Agent: Koala XML-RPC client\r\n");
-  write (stream, "Content-Type: text/xml\r\n");
-  format(stream, "Content-Length: %d\r\n", xml.size);
-  write(stream, "Pragma: no-cache\r\n");
-  write(stream, "\r\n");
-  write(stream, xml);
-  force-output(stream);
-  read-response(stream)
-end function xml-rpc-call-2;
+  let request = make(<http-request>,
+                     method: #"POST",
+                     url: url,
+                     http-version: #"http/1.0",
+                     content: xml);
+  add-header(request, "User-Agent", "Koala XML-RPC client");
+  add-header(request, "Content-Type", "text/xml");
+  add-header(request, "Pragma", "no-cache");
+  let response :: <http-response> = send-http-request(request);
+  parse-xml-rpc-response(response.response-content)
+end method xml-rpc-call;
 
 
 define table $html-quote-map
@@ -51,25 +39,6 @@ define table $html-quote-map
       '&' => "&amp;",
       '"' => "&quot;"
       };
-
-// This is copied from Koala's utils.dylan.  If you fix it here, fix
-// it there.
-// I'm sure this could use a lot of optimization.
-define function quote-html
-    (text :: <string>, #key stream)
-  if (~stream)
-    with-output-to-string (s)
-      quote-html(text, stream: s)
-    end
-  else
-    for (char in text)
-      let translation = element($html-quote-map, char, default: char);
-      iff(instance?(translation, <sequence>),
-          write(stream, translation),
-          write-element(stream, translation));
-    end;
-  end;
-end function quote-html;
 
 define function create-method-call-xml
     (method-name :: <string>, #rest args)
@@ -88,13 +57,16 @@ define function create-method-call-xml
 end function create-method-call-xml;
 
 
+/*
 // Quick and dirty.  Should import the string utils from Koala instead.
 //
 define function char-equal?
     (c1 :: <character>, c2 :: <character>) => (b :: <boolean>)
   as-lowercase(c1) = as-lowercase(c2)
 end;
+*/
 
+/*
 define function read-response
     (stream :: <tcp-socket>)
  => (response :: <object>)
@@ -115,35 +87,25 @@ define function read-response
     signal(make(<xml-rpc-error>,
                 format-string: "No Content-Length header was received."));
   else
-    /*
-    // kludge to work around hideous bug in the read method.  This is 
-    // fixed in the FunDev sources, so the fix should be in the next
-    // release after 2.0 SP1.
-    let xml = make(<byte-string>, size: content-length, fill: ' ');
-    block (continue)
-      for (i from 0 below content-length)
-        let elem = read-element(stream, on-end-of-stream: #f);
-        if (elem)
-          xml[i] := elem;
-        else
-          continue();
-        end;
-      end;
-    end block;
-    */
-    let xml = read(stream, content-length);
-    if (strict-mode?() & xml.size < content-length)
-      signal(make(<xml-rpc-error>,
-                  format-string: "Content was shorter than expected.  "
-                    "Content-length header: %d, actual length: %d",
-                  format-arguments: list(content-length, xml.size)))
-    else
-      parse-response(xml)
-    end
+    let seq = block ()
+                read(stream, content-length)
+              exception (ex :: <incomplete-read-error>)
+                if (strict-mode?())
+                  signal(make(<xml-rpc-error>,
+                              format-string: "Content was shorter than expected.  "
+                                "Content-length header: %d, actual length: %d",
+                              format-arguments: list(content-length,
+                                                     ex.stream-error-count)))
+                else
+                  ex.stream-error-sequence
+                end
+              end;
+    parse-xml-rpc-response(seq)
   end
 end function read-response;
+*/
 
-define function parse-response
+define method parse-xml-rpc-response
     (xml :: <string>)
  => (response :: <object>)
   when (*debugging-xml-rpc*)
@@ -151,7 +113,7 @@ define function parse-response
   end;
   let doc :: xml$<document> = xml$parse-document(xml);
   parse-xml-rpc-response(doc);
-end function parse-response;
+end method parse-xml-rpc-response;
 
 define method parse-xml-rpc-response
     (node :: xml$<document>)

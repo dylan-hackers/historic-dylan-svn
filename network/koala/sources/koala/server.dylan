@@ -10,6 +10,11 @@ define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
 define constant $server-version = "0.9";
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
+define constant $allowed-request-methods :: <list>
+  = #(#"get", #"head", #"options", #"post");
+define constant $allowed-request-methods-string :: <byte-string>
+    = join($allowed-request-methods, ", ",
+           key: method (x) as-uppercase(as(<byte-string>, x)) end);
 
 // This is needed to handle sockets shutdown.
 define variable *exiting-application* = #f;
@@ -55,7 +60,6 @@ define class <http-server> (<object>)
   constant slot listener-shutdown-timeout :: <real> = 15;
   constant slot client-shutdown-timeout :: <real> = 15;
 
-
   constant slot request-class :: subclass(<basic-request>) = <request>,
     init-keyword: request-class:;
 
@@ -63,7 +67,11 @@ define class <http-server> (<object>)
   // Allow: field...  Need an API for making sure that happens.
   // RFC 2616, 5.1.1
 
-  // Map from URL string to a response function.  The leading slash is removed
+  // In the url-map trie, each URL path leads to a <responder> object.
+  // The <responder> has a responder-map table that maps request methods
+  // (currently symbols like #"get") to yet another table which maps
+  // regular expressions to lists of objects that have an invoke-responder
+  // method defined on them.  (Weeee!)  The leading slash is removed
   // from URLs because it's easier to use merge-locators that way.
   // todo -- this should be per vhost
   constant slot url-map :: <string-trie>,
@@ -127,6 +135,20 @@ define class <http-server> (<object>)
     init-value: #f,
     init-keyword: development-mode:;
 
+  //// Logging
+
+  slot request-logger :: <logger>,
+    init-value: *request-logger*,
+    init-keyword: request-logger:;
+
+  slot error-logger :: <logger>,
+    init-value: *error-logger*,
+    init-keyword: error-logger:;
+
+  slot debug-logger :: <logger>,
+    init-value: *debug-logger*,
+    init-keyword: debug-logger:;
+
 end class <http-server>;
 
 // get rid of this eventually.  <http-server> is the new name.
@@ -155,20 +177,24 @@ define sealed domain make (subclass(<http-server>));
 define method initialize
     (server :: <http-server>,
      #rest keys,
-     #key document-root, dsp-root)
+     #key document-root, dsp-root,
+          request-logger: req-log, debug-logger: dbg-log, error-logger: err-log)
   apply(next-method,
         server,
         remove-keys(keys, #"document-root", #"dsp-root"));
-  let stdout-log = make(<stream-log-target>, stream: *standard-output*);
-  let stderr-log = make(<stream-log-target>, stream: *standard-error*);
-  default-virtual-host(server)
-    := make-virtual-host(server,
-                         name: "default",
-                         document-root: document-root,
-                         dsp-root: dsp-root,
-                         activity-log: stdout-log,
-                         debug-log: stdout-log,
-                         error-log: stderr-log);
+  let name = "default";
+  let vhost = make(<virtual-host>,
+                   name: name,
+                   document-root:
+                   document-root | subdirectory-locator(server.server-root, name),
+                   dsp-root: dsp-root | subdirectory-locator(server.server-root, name),
+                   request-logger: req-log | server.request-logger,
+                   debug-logger: dbg-log | server.debug-logger,
+                   error-logger: err-log | server.error-logger);
+  default-virtual-host(server) := vhost;
+  // Add a spec that matches all urls.
+  add-directory-spec(vhost, root-directory-spec(vhost));
+
   // Copy mime type map in, since it may be modified when config loaded.
   let tmap :: <table> = server.server-mime-type-map;
   for (mime-type keyed-by extension in $default-mime-type-map)
@@ -316,7 +342,9 @@ define inline function current-server
 end function current-server;
 
 // API
-// This is what client libraries call to start the server.
+// This is what client libraries call to start the server, which is
+// assumed to have been already configured via configure-server.
+// (Client applications might want to call koala-main instead.)
 // Returns #f if there is an error during startup; otherwise #t.
 // If background is #t then run the server in a thread and return
 // immediately.  Otherwise wait until all listeners have shut down.
@@ -327,23 +355,31 @@ define function start-server
      #key background :: <boolean> = #f,
           wait :: <boolean> = #t)
  => (started? :: <boolean>)
-  log-info("Starting %s HTTP Server", $server-name);
-  ensure-sockets-started();
-  log-info("Server root directory is %s", server-root(server));
-  for (listener in server.server-listeners)
-    start-http-listener(server, listener)
-  end;
-  if (wait)
-    // Connect to each listener or signal error.
-    wait-for-listeners-to-start(server.server-listeners);
-    log-info("%s %s ready for service", $server-name, $server-version);
-  end;
-  if (~background)
-    // Apparently when the main thread dies in an Open Dylan application
-    // the application exits without waiting for spawned threads to die,
-    // so join-listeners keeps the main thread alive until all listeners die.
-    join-listeners(server);
-  end;
+  // Binding these to the default vhost loggers here isn't quite right.
+  // It means that log messages that don't pertain to a specific vhost
+  // go in the default vhost logs.  Maybe have a separate log for the
+  // server proper...
+  dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
+                *error-logger* = server.default-virtual-host.error-logger,
+                *request-logger* = server.default-virtual-host.request-logger)
+    log-info("Starting %s HTTP Server", $server-name);
+    ensure-sockets-started();
+    log-info("Server root directory is %s", server-root(server));
+    for (listener in server.server-listeners)
+      start-http-listener(server, listener)
+    end;
+    if (wait)
+      // Connect to each listener or signal error.
+      wait-for-listeners-to-start(server.server-listeners);
+      log-info("%s %s ready for service", $server-name, $server-version);
+    end;
+    if (~background)
+      // Apparently when the main thread dies in an Open Dylan application
+      // the application exits without waiting for spawned threads to die,
+      // so join-listeners keeps the main thread alive until all listeners die.
+      join-listeners(server);
+    end;
+  end dynamic-bind;
   #t
 end function start-server;
 
@@ -473,15 +509,19 @@ define function start-http-listener
     end;
   end;
   local method run-listener-top-level ()
-          with-lock (server-lock) end; // Wait for setup to finish.
-          block ()
-            listener-top-level(server, listener);
-          cleanup
-            close(listener.listener-socket, abort?: #t);
-            with-lock (server-lock)
-              release-listener();
+          dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
+                        *error-logger* = server.default-virtual-host.error-logger,
+                        *request-logger* = server.default-virtual-host.request-logger)
+            with-lock (server-lock) end; // Wait for setup to finish.
+            block ()
+              listener-top-level(server, listener);
+            cleanup
+              close(listener.listener-socket, abort?: #t);
+              with-lock (server-lock)
+                release-listener();
+              end;
             end;
-          end;
+          end dynamic-bind;
         end method;
   with-lock (server-lock)
     let handler <socket-condition>
@@ -601,57 +641,44 @@ define function do-http-listen
   close(listener.listener-socket, abort: #t);
 end do-http-listen;
 
-define class <request> (<basic-request>)
-  slot request-method :: <symbol> = #"unknown";
-  slot request-version :: <symbol> = #"unknown";
-  slot request-url :: false-or(<url>) = #f;
-  slot request-raw-url-string :: false-or(<string>) = #f;
+define open primary class <request> (<basic-request>, <base-http-request>)
+  // contains the relative URL following the matched responder
+  slot request-tail-url :: false-or(<url>),
+    init-value: #f;
 
   // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
-  slot request-host :: false-or(<string>) = #f;
-
-  slot request-keep-alive? :: <boolean> = #f;
-
-  // The actual headers, mapping string -> raw data
-  // (The header names are not interned to avoid permanent wedgedness
-  //  by invalid headers).
-  slot request-headers :: <header-table>,
-    init-function: curry(make, <header-table>);
-
-  // Cache, mapping keyword (requested by user) -> parsed data
-  constant slot request-header-values :: <object-table>,
-    init-function: curry(make, <object-table>);
+  slot request-host :: false-or(<string>),
+    init-value: #f;
 
   // Query values from either the URL or the body of the POST, if Content-Type
   // is application/x-www-form-urlencoded.
   constant slot request-query-values :: <string-table>,
     init-function: curry(make, <string-table>);
 
-  slot request-session :: false-or(<session>) = #f;
+  slot request-keep-alive? :: <boolean>,
+    init-value: #f;
 
-  // The body content of the request.  Only present for POST?
-  slot request-content :: <string> = "";
+  slot request-session :: false-or(<session>),
+    init-value: #f;
 
   // todo -- This is only stored in the request for internal modularity
   //         reasons.  It should be removed.
-  slot request-responder :: false-or(<responder>) = #f;
-
-  // contains the relative URL after the matched responder
-  slot request-tail-url :: false-or(<url>) = #f;
+  slot request-responder :: false-or(<responder>),
+    init-value: #f;
 
 end class <request>;
-
-define method get-header
-    (request :: <request>, name :: <string>) => (header :: <object>)
-  element(request.request-headers, name, default: #f)
-end;
 
 // Making a virtual hosts requires an instantiated server to do some
 // initialization, so use this instead of calling make(<virtual-host>).
 //
 define method make-virtual-host
     (server :: <server>,
-     #rest args, #key name, document-root, dsp-root, #all-keys)
+     #rest args,
+     #key name, document-root, dsp-root,
+          request-logger: req-logger,
+          error-logger: err-logger,
+          debug-logger: dbg-logger,
+     #all-keys)
  => (vhost :: <virtual-host>)
   let vhost :: <virtual-host>
     = apply(make, <virtual-host>,
@@ -659,6 +686,12 @@ define method make-virtual-host
               document-root | subdirectory-locator(server.server-root, name),
             dsp-root:
               dsp-root | subdirectory-locator(server.server-root, name),
+            request-logger:
+              req-logger | server.default-virtual-host.request-logger,
+            error-logger:
+              err-logger | server.default-virtual-host.error-logger,
+            debug-logger:
+              dbg-logger | server.default-virtual-host.debug-logger,
             args);
   // Add a spec that matches all urls.
   add-directory-spec(vhost, root-directory-spec(vhost));
@@ -700,12 +733,12 @@ define method virtual-host
       vhost
     else
       // todo -- see if the spec says what error to return here.
-      resource-not-found-error(url: request.request-url);
+      resource-not-found-error(url: as(<string>, request.request-url));
     end;
   elseif (*server*.fall-back-to-default-virtual-host?)
     *server*.default-virtual-host
   else
-    resource-not-found-error(url: request.request-url);
+    resource-not-found-error(url: as(<string>, request.request-url));
   end
 end;
 
@@ -713,14 +746,14 @@ define thread variable *request* :: false-or(<request>) = #f;
 
 define inline function current-request
     () => (request :: <request>)
-  *request*
+  *request* | application-error(message: "There is no active HTTP request.")
 end;
 
 define thread variable *response* :: false-or(<response>) = #f;
 
 define inline function current-response
     () => (response :: <response>)
-  *response*
+  *response* | application-error(message: "There is no active HTTP response.")
 end;
 
 // Called (in a new thread) each time a new connection is opened.
@@ -731,7 +764,10 @@ define function handler-top-level
     (client :: <client>)
   dynamic-bind (*request* = #f,
                 *server* = client.client-server,
-                *virtual-host* = #f)  // set after read-request called
+                *virtual-host* = #f,  // set after read-request called
+                *debug-logger* = *server*.default-virtual-host.debug-logger,
+                *error-logger* = *server*.default-virtual-host.error-logger,
+                *request-logger* = *server*.default-virtual-host.request-logger)
     block (exit-handler-top-level)
       while (#t)                      // keep alive loop
         let request :: <basic-request>
@@ -739,6 +775,7 @@ define function handler-top-level
         *request* := request;
         with-simple-restart("Skip this request and continue with the next")
           block (finish-request)
+            // More recently installed handlers take precedence...
             let handler <error> = rcurry(htl-error-handler, finish-request);
             let handler <stream-error>
               = rcurry(htl-error-handler, exit-handler-top-level,
@@ -751,7 +788,12 @@ define function handler-top-level
             let handler <http-error> = rcurry(htl-error-handler, finish-request);
 
             read-request(request);
+
             *virtual-host* := virtual-host(request);
+            *debug-logger* := *virtual-host*.debug-logger;
+            *error-logger* := *virtual-host*.error-logger;
+            *request-logger* := *virtual-host*.request-logger;
+
             invoke-handler(request);
             force-output(request.request-socket);
           end block; // finish-request
@@ -786,7 +828,7 @@ end function htl-error-handler;
 define method read-request (request :: <request>) => ()
   let socket = request.request-socket;
   let server = request.request-server;
-  let (buffer, len) = read-request-line(socket);
+  let (buffer, len) = read-http-line(socket);
 
   // RFC 2616, 4.1 - "Servers SHOULD ignore an empty line(s) received where a
   // Request-Line is expected."  Clearly you have to give up at some point so
@@ -796,16 +838,15 @@ define method read-request (request :: <request>) => ()
     if (line-count > 5)
       bad-request(message: "No Request-Line received.");
     end;
-    pset (buffer, len) read-request-line(socket) end;
+    pset (buffer, len) read-http-line(socket) end;
   end;
 
-  read-request-first-line(server, request, buffer);
+  parse-request-line(server, request, buffer);
   unless (request.request-version == #"http/0.9")
-    request.request-headers
-      := read-message-headers(socket,
-                              buffer: buffer,
-                              start: len,
-                              headers: request.request-headers);
+    read-message-headers(socket,
+                         buffer: buffer,
+                         start: len,
+                         headers: request.raw-headers);
   end unless;
   process-incoming-headers(request);
   select (request.request-method by \==)
@@ -814,22 +855,24 @@ define method read-request (request :: <request>) => ()
   end select;
 end method read-request;
 
-// FIXME: It seems like a bad idea to me to use a regex here as it will allocate
-// a lot and is probably much slower than the direct approach.  --cgay
-define constant $request-line-regex :: <regex>
-  = compile-regex("^([!#$%&'\\*\\+-\\./0-9A-Z^_`a-z\\|~]+) "
-                  "(\\S+) "
-                  "(HTTP/\\d+\\.\\d+)");
-
 // Read the Request-Line.  RFC 2616 Section 5.1
 //
-define function read-request-first-line
+define function parse-request-line
     (server :: <http-server>, request :: <request>, buffer :: <string>)
  => ()
-  let (entire-match, http-method, url, http-version)
-    = regex-search-strings($request-line-regex, buffer);
-  if (entire-match)
-    request.request-method := as(<symbol>, http-method);
+  let eol = string-position(buffer, "\r\n", 0, buffer.size) | buffer.size;
+  let epos1 = eol & whitespace-position(buffer, 0, eol);
+  let bpos2 = epos1 & skip-whitespace(buffer, epos1, eol);
+  let epos2 = bpos2 & whitespace-position(buffer, bpos2, eol);
+  let bpos3 = epos2 & skip-whitespace(buffer, epos2, eol);
+  let epos3 = bpos3 & whitespace-position(buffer, bpos3, eol) | eol;
+  if (~bpos3)
+    bad-request(message: "Invalid request line");
+  else
+    let req-method = substring(buffer, 0, epos1);
+    let url = substring(buffer, bpos2, epos2);
+    let http-version = substring(buffer, bpos3, epos3);
+    request.request-method := validate-request-method(req-method);
     request.request-raw-url-string := url;
     let url = parse-url(url);
     // RFC 2616, 5.2 -- absolute URLs in the request line take precedence
@@ -846,12 +889,22 @@ define function read-request-first-line
     for (value keyed-by key in url.uri-query)
       request.request-query-values[key] := value;
     end for;
-    request.request-version := extract-request-version(http-version);
-  else
-    // Using regex means this error message has to be vague.
-    bad-request(message: "Invalid request line");
+    request.request-version := validate-http-version(http-version);
   end if;
-end function read-request-first-line;
+end function parse-request-line;
+
+define method validate-request-method
+    (request-method :: <byte-string>)
+ => (request-method :: <symbol>)
+  if (member?(request-method, #["GET", "HEAD", "OPTIONS", "POST"], test: \=))
+    // todo -- The request method should be case sensitive, so it shouldn't be a symbol.
+    as(<symbol>, request-method)
+  else
+    not-implemented-error(what: format-to-string("Request method %s", request-method),
+                          header-name: "Allow",
+                          header-value: $allowed-request-methods-string);
+  end
+end method validate-request-method;
 
 
 define function read-request-content
@@ -859,9 +912,8 @@ define function read-request-content
  => (content :: <byte-string>)
   // ---TODO: Should probably try to continue here even if Content-Length
   //          not supplied.  Or have a "strict" option.
-  let content-length
-    = request-header-value(request, #"content-length")
-      | content-length-required-error();
+  let content-length = get-header(request, "Content-Length", parsed: #t)
+                       | content-length-required-error();
   if (*max-post-size* & content-length > *max-post-size*)
     //---TODO: the server MAY close the connection to prevent the client from
     // continuing the request.
@@ -869,9 +921,15 @@ define function read-request-content
   else
     let buffer :: <byte-string> = make(<byte-string>, size: content-length);
     let n = kludge-read-into!(request-socket(request), content-length, buffer);
-    assert(n == content-length, "Unexpected incomplete read");
+    if (n ~== content-length)
+      // RFC 2616, 4.4
+      bad-request(message: format-to-string("Request content size (%d) does not "
+                                            "match Content-Length header (%d)",
+                                            n, content-length));
+    end;
     request-content(request)
-      := process-request-content(request-content-type(request), request, buffer, content-length);
+      := process-request-content(request-content-type(request),
+                                 request, buffer, content-length);
   end
 end read-request-content;
 
@@ -879,6 +937,9 @@ define inline function request-content-type (request :: <request>)
   let content-type-header = get-header(request, "content-type");
   as(<symbol>,
      if (content-type-header)
+       // this looks broken.  why ignore everything else?
+       // besides, one should just use: get-header(request, "content-type")
+       // which should return the parsed content type.
        first(split(content-type-header, ";"))
      else
        ""
@@ -967,6 +1028,9 @@ define method process-request-content
      content-length :: <integer>)
  => (content :: <string>)
   let header-content-type = split(get-header(request, "content-type"), ';');
+  if (header-content-type.size < 2)
+    bad-request(...)
+  end;
   let boundary = split(second(header-content-type), '=');
   if (element(boundary, 1, default: #f))
     let boundary-value = second(boundary);
@@ -974,8 +1038,7 @@ define method process-request-content
     // ???
     request-content(request) := buffer
   else
-    log-error("%=", "content-type is missing the boundary parameter");
-    unsupported-media-type-error();
+    bad-request(...)
   end if;
 end method process-request-content;
 */
@@ -1006,7 +1069,7 @@ define method send-error-response-internal
   let one-liner = http-error-message-no-code(err);
   unless (request-method(request) == #"head")
     // todo -- Display a pretty error page.
-    set-content-type(response, "text/plain");
+    add-header(response, "Content-Type", "text/plain");
     let out = output-stream(response);
     write(out, one-liner);
     write(out, "\r\n");
@@ -1020,8 +1083,8 @@ define method send-error-response-internal
       write(out, "\r\n");
     end;
   end unless;
-  response.response-code    := http-error-code(err);
-  response.response-message := one-liner;
+  response.response-code := http-error-code(err);
+  response.response-reason-phrase := one-liner;
   send-response(response);
 end method send-error-response-internal;
 
@@ -1031,14 +1094,15 @@ end method send-error-response-internal;
 // "User-agent" statistics, etc.
 //
 define method process-incoming-headers (request :: <request>)
-  bind (conn-values :: <sequence> = request-header-value(request, #"connection") | #())
+  bind (conn-values :: <sequence> = get-header(request, "Connection", parsed: #t) | #())
     if (member?("Close", conn-values, test: string-equal?))
       request-keep-alive?(request) := #f
     elseif (member?("Keep-Alive", conn-values, test: string-equal?))
       request-keep-alive?(request) := #t
     end;
   end;
-  bind (host = get-header(request, "Host"))
+  bind (host/port = get-header(request, "Host", parsed: #t))
+    let (host, port) = host/port & values(head(host/port), tail(host/port));
     if (~host & request.request-version == #"HTTP/1.1")
       // RFC 2616, 19.6.1.1 -- HTTP/1.1 requests MUST include a Host header.
       bad-request(message: "HTTP/1.1 requests must include a Host header.");
@@ -1050,7 +1114,7 @@ define method process-incoming-headers (request :: <request>)
       log-debug("Request host set from Host header: %s", request.request-host);
     end;
   end;
-  bind (agent = request-header-value(request, #"user-agent"))
+  bind (agent = get-header(request, "User-Agent"))
     agent & note-user-agent(request-server(request), agent);
   end;
 end method process-incoming-headers;
@@ -1067,36 +1131,48 @@ define method invoke-handler (request :: <request>) => ()
   if (request.request-keep-alive?)
     add-header(response, "Connection", "Keep-Alive");
   end if;
-  dynamic-bind (*response* = response)
-    if (request.request-responder)
-     let url = request.request-url;
-     let (actions, match) = find-actions(request);
-     if (actions)
-       // Invoke each action function with keyword arguments matching the names
-       // of the named groups in the first regular expression that matches the
-       // tail of the url, if any.  Also pass the entire match as the match:
-       // argument so unnamed groups and the entire match can be accessed.
-       let arguments = #[];
-       if (match)
-         arguments := make(<deque>);
-         for (group keyed-by name in match.groups-by-name)
-           if (group)
-             push-last(arguments, as(<symbol>, name));
-             push-last(arguments, group.group-text);
-           end if;
-         end for;
+
+  if (request.request-method == #"OPTIONS")
+    if (request.request-raw-url-string = "*")
+      add-header(response, "Allow", $allowed-request-methods-string);
+    elseif (request.request-responder)
+      let methods = find-request-methods(request);
+      if (~empty?(methods))
+        add-header(response, "Allow", join(methods, ", ", key: as-uppercase))
+      end;
+    end;
+  else
+    dynamic-bind (*response* = response)
+      if (request.request-responder)
+       let url = request.request-url;
+       let (actions, match) = find-actions(request);
+       if (actions)
+         // Invoke each action function with keyword arguments matching the names
+         // of the named groups in the first regular expression that matches the
+         // tail of the url, if any.  Also pass the entire match as the match:
+         // argument so unnamed groups and the entire match can be accessed.
+         let arguments = #[];
+         if (match)
+           arguments := make(<deque>);
+           for (group keyed-by name in match.groups-by-name)
+             if (group)
+               push-last(arguments, as(<symbol>, name));
+               push-last(arguments, group.group-text);
+             end if;
+           end for;
+         end if;
+         for (action in actions)
+           invoke-responder(request, action, arguments)
+         end;
+       else
+         resource-not-found-error(url: as(<string>, url));
        end if;
-       for (action in actions)
-         invoke-responder(request, action, arguments)
-       end;
-     else
-       resource-not-found-error(url: url);
-     end if;
-    else
-      // generates 404 if not found
-      maybe-serve-static-file();
-    end if;
-  end;
+      else
+        // generates 404 if not found
+        maybe-serve-static-file();
+      end if;
+    end dynamic-bind;
+  end if;
   send-response(response);
 end method invoke-handler;
 
@@ -1117,6 +1193,31 @@ define inline function find-actions
     end block;
   end if;
 end function find-actions;
+
+// Return a list of request methods that apply for the given URL.
+// Used for the OPTIONS request method.
+//
+define inline function find-request-methods
+    (request :: <request>)
+ => (request-methods :: <sequence>)
+  let rmap = request.request-responder.responder-map;
+  let url-tail = build-path(request.request-tail-url);
+  let methods = #();
+  for (req-method in $allowed-request-methods)
+    let responders = element(rmap, req-method, default: #f);
+    if (responders)
+      block (return)
+        for (actions keyed-by regex in responders)
+          let match = regex-search(regex, url-tail);
+          if (match)
+            methods := pair(req-method, methods);
+          end if;
+        end for;
+      end block;
+    end if;
+  end for;
+  methods
+end function find-request-methods;
 
 // Clients can override this to create other types of responders.
 // 
@@ -1143,49 +1244,9 @@ define method invoke-responder
 end;
 
 
-// Read a line of input from the stream, dealing with CRLF correctly.
-//
-define function read-request-line
-    (stream :: <stream>) => (buffer :: <byte-string>, len :: <integer>)
-  let buffer = grow-header-buffer("", 0);
-  iterate loop (buffer :: <byte-string> = buffer,
-                len :: <integer> = buffer.size,
-                pos :: <integer> = 0,
-                peek-ch :: false-or(<character>) = #f)
-    if (pos == len)
-      let buffer = grow-header-buffer(buffer, len);
-      loop(buffer, buffer.size, pos, peek-ch)
-    else
-      let ch :: <byte-character> = peek-ch | read-element(stream);
-      if (ch == $cr)
-        let ch = read-element(stream);
-        if (ch == $lf)
-          values(buffer, pos)
-        else
-          buffer[pos] := $cr;
-          loop(buffer, len, pos + 1, ch)
-        end;
-      else
-        buffer[pos] := ch;
-        loop(buffer, len, pos + 1, #f)
-      end if;
-    end;
-  end iterate;
-end read-request-line;
-
 define inline function empty-line?
     (buffer :: <byte-string>, len :: <integer>) => (empty? :: <boolean>)
   len == 1 & buffer[0] == $cr
-end;
-
-define function extract-request-version 
-    (buffer :: <string>)
- => (version :: <symbol>)
-  let version = as(<symbol>, buffer);    
-  select (version) 
-    #"HTTP/0.9", #"HTTP/1.0", #"HTTP/1.1" => version;
-    otherwise => unsupported-http-version-error();
-  end select;
 end;
 
 define class <http-file> (<object>)
