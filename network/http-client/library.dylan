@@ -10,8 +10,7 @@ define library http-client
   use logging;
   use network,
     import: { sockets };
-  //use system,
-  //  import: { locators };
+  use strings;
   use uri;
 
   export http-client;
@@ -27,6 +26,7 @@ define module http-client
   use sockets,
     exclude: { start-server };
   use streams;
+  use strings;
   use uri;
 
   export
