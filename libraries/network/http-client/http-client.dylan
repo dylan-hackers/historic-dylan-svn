@@ -172,21 +172,29 @@ define method read-http-status-line
  => (version :: <symbol>,
      status-code :: <integer>,
      reason-phrase :: <string>)
-  let entire-line = read-http-line(stream);
-  let parts = split(entire-line, ' ', count: 3, remove-if-empty: #t);
-  log-debug($log, "status line parts: %s", parts);
-  if (parts.size ~== 3)
+  let (buffer, eol) = read-http-line(stream);
+  let epos1 = whitespace-position(buffer, 0, eol);
+  let bpos2 = epos1 & skip-whitespace(buffer, epos1, eol);
+  let epos2 = bpos2 & whitespace-position(buffer, bpos2, eol);
+  let bpos3 = epos2 & skip-whitespace(buffer, epos2, eol);
+
+  let version-string = epos1 & copy-sequence(buffer, end: epos1);
+  let status-string = epos2 & copy-sequence(buffer, start: bpos2, end: epos2);
+  let reason-phrase = bpos3 & copy-sequence(buffer, start: bpos3, end: eol);
+
+  log-debug($log, "Status-Line: version = %s, status = %s, reason = %s",
+            version-string, status-string, reason-phrase);
+  if (version-string & status-string & reason-phrase)
+    let version :: <symbol> = validate-http-version(version-string);
+    let status-code :: <integer> = validate-http-status-code(status-string);
+    values(version, status-code, reason-phrase)
+  else
     // The rationale for 500 here is that if the server sent us an incomplete
     // status line it is completely hosed.
     signal(make(<internal-server-error>,
                 format-string: "Invalid status line in HTTP response: %=",
-                format-arguments: list(entire-line),
+                format-arguments: list(copy-sequence(buffer, end: eol)),
                 code: 500));
-  else
-    let (version-string, status-string, reason-phrase) = apply(values, parts);
-    let version :: <symbol> = validate-http-version(version-string);
-    let status-code :: <integer> = validate-http-status-code(status-string);
-    values(version, status-code, reason-phrase)
   end
 end method read-http-status-line;
 
