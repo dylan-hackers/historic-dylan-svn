@@ -5,8 +5,6 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 Synopsis:  Variables and utilities 
 
-define constant $default-http-port :: <integer> = 80;
-
 // Entries in this table may be overridden by entries in the mime-type-map
 // file specified in the Koala config file, if any.
 //

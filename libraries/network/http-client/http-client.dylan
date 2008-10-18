@@ -1,17 +1,5 @@
 Module: http-client
 
-/// Parameters.
-
-define variable *debug-http* :: <boolean> = #t;
-
-define constant $default-http-port :: <integer> = 80;
-
-// temporary
-define constant $log
-  = make(<logger>,
-         name: "http-client",
-         targets: list($stdout-log-target));
-
 /// Session-level interface.
 
 // API
@@ -85,10 +73,6 @@ end method simple-http-get;
 
 define method format-http-line 
     (stream :: <stream>, template :: <string>, #rest args) => ()
-  when (*debug-http*)
-    apply(format-out, template, args);
-    format-out("\n");
-  end;
   apply(format, stream, template, args);
   write(stream, "\r\n");
 end method format-http-line;
@@ -182,8 +166,6 @@ define method read-http-status-line
   let status-string = epos2 & copy-sequence(buffer, start: bpos2, end: epos2);
   let reason-phrase = bpos3 & copy-sequence(buffer, start: bpos3, end: eol);
 
-  log-debug($log, "Status-Line: version = %s, status = %s, reason = %s",
-            version-string, status-string, reason-phrase);
   if (version-string & status-string & reason-phrase)
     let version :: <symbol> = validate-http-version(version-string);
     let status-code :: <integer> = validate-http-status-code(status-string);
@@ -231,9 +213,6 @@ define method read-http-response-header-as
   with-output-to-string (string-stream)
     let line = #f;
     while ((line := read-line(stream)) ~= "")
-      if (*debug-http*)
-        format-out("%s\n", line);
-      end;
       write-line(string-stream, line);
     end;
   end;

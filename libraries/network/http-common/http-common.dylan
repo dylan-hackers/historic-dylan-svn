@@ -1,6 +1,10 @@
 Module: http-common
 Synopsis: Code shared by HTTP client and server.
 
+define constant $default-http-port :: <integer> = 80;
+
+
+
 /////////////// Parsing //////////////
 
 
@@ -107,6 +111,9 @@ define method make
 end method make;
 
 // Read a line of input from the stream, dealing with CRLF correctly.
+// The string returned does not include the CRLF.  Second return value
+// is the end-of-line index.
+//
 // See also: read-header-line
 //
 define method read-http-line
