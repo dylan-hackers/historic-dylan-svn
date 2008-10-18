@@ -56,6 +56,8 @@ define module http-common
   use uri;
 
   export
+    $default-http-port,
+
     // Things that expire
     <expiring-mixin>,
     expired?,

@@ -841,7 +841,7 @@ define method read-request (request :: <request>) => ()
     pset (buffer, len) read-http-line(socket) end;
   end;
 
-  parse-request-line(server, request, buffer);
+  parse-request-line(server, request, buffer, len);
   unless (request.request-version == #"http/0.9")
     read-message-headers(socket,
                          buffer: buffer,
@@ -856,12 +856,13 @@ define method read-request (request :: <request>) => ()
 end method read-request;
 
 // Read the Request-Line.  RFC 2616 Section 5.1
+//      Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
 //
 define function parse-request-line
-    (server :: <http-server>, request :: <request>, buffer :: <string>)
+    (server :: <http-server>, request :: <request>,
+     buffer :: <string>, eol :: <integer>)
  => ()
-  let eol = string-position(buffer, "\r\n", 0, buffer.size) | buffer.size;
-  let epos1 = eol & whitespace-position(buffer, 0, eol);
+  let epos1 = whitespace-position(buffer, 0, eol);
   let bpos2 = epos1 & skip-whitespace(buffer, epos1, eol);
   let epos2 = bpos2 & whitespace-position(buffer, bpos2, eol);
   let bpos3 = epos2 & skip-whitespace(buffer, epos2, eol);
