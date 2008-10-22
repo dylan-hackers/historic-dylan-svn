@@ -10,6 +10,7 @@ define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
 define constant $server-version = "0.9";
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
+
 define constant $allowed-request-methods :: <list>
   = #(#"get", #"head", #"options", #"post");
 define constant $allowed-request-methods-string :: <byte-string>
@@ -809,16 +810,20 @@ end function handler-top-level;
 define function htl-error-handler
     (cond :: <condition>, next-handler :: <function>, exit-function :: <function>,
      #key decline-if-debugging = #t, log = #t, send-response = #t, format-string)
-  if (log)
-    log-debug(format-string | "Error handling request: %s", cond);
-  end;
-  if (send-response)
-    send-error-response(*request*, cond);
-  end;
   if (decline-if-debugging & debugging-enabled?(*server*))
     next-handler()
   else
-    exit-function()
+    block ()
+      if (log)
+        log-debug(format-string | "Error handling request: %s", cond);
+      end;
+      if (send-response)
+        send-error-response(*request*, cond);
+      end;
+    cleanup
+      exit-function()
+    exception (ex :: <error>)
+    end;
   end;
 end function htl-error-handler;
 
@@ -871,11 +876,11 @@ define function parse-request-line
     bad-request(message: "Invalid request line");
   else
     let req-method = substring(buffer, 0, epos1);
-    let url = substring(buffer, bpos2, epos2);
+    let url-string = substring(buffer, bpos2, epos2);
     let http-version = substring(buffer, bpos3, epos3);
     request.request-method := validate-request-method(req-method);
-    request.request-raw-url-string := url;
-    let url = parse-url(url);
+    request.request-raw-url-string := url-string;
+    let url = parse-url(url-string);
     // RFC 2616, 5.2 -- absolute URLs in the request line take precedence
     // over Host header.
     if (absolute?(url))
@@ -891,6 +896,7 @@ define function parse-request-line
       request.request-query-values[key] := value;
     end for;
     request.request-version := validate-http-version(http-version);
+    log-trace("<-- %s %s %s", req-method, url-string, http-version);
   end if;
 end function parse-request-line;
 
@@ -1086,7 +1092,7 @@ define method send-error-response-internal
   end unless;
   response.response-code := http-error-code(err);
   response.response-reason-phrase := one-liner;
-  send-response(response);
+  finish-response(response);
 end method send-error-response-internal;
 
 
@@ -1128,7 +1134,8 @@ define method invoke-handler (request :: <request>) => ()
   let headers = make(<header-table>);
   let response = make(<response>,
                       request: request,
-                      headers: headers);
+                      headers: headers,
+                      direction: #"output");
   if (request.request-keep-alive?)
     add-header(response, "Connection", "Keep-Alive");
   end if;
@@ -1174,7 +1181,7 @@ define method invoke-handler (request :: <request>) => ()
       end if;
     end dynamic-bind;
   end if;
-  send-response(response);
+  finish-response(response);
 end method invoke-handler;
 
 define inline function find-actions
