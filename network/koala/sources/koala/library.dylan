@@ -14,7 +14,7 @@ define library koala
     import: { dylan-extensions };
   use http-common;
   use io,
-    import: { format, standard-io, streams };
+    import: { format, standard-io, streams, streams-internals };
   use logging;
   use memory-manager;
   use network,
@@ -91,7 +91,6 @@ define module koala
     current-response,            // Returns the active response of the thread.
     output,
     output-stream,
-    clear-output,
     add-cookie;
 
   // Sessions
@@ -269,6 +268,7 @@ define module httpi                             // http internals
     rename: { start-server => start-socket-server };
   use standard-io;
   use streams;
+  use streams-internals;
   use strings;
   use threads;               // from dylan lib
   use uncommon-dylan;

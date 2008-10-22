@@ -87,6 +87,8 @@ define module http-common
 
     // Response objects
     <base-http-response>,
+    response-chunked?,
+    response-chunked?-setter,
     response-code,
     response-code-setter,
     response-reason-phrase,

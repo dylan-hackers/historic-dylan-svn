@@ -148,7 +148,7 @@ end method read-http-line;
 
 ///////////// Responses ///////////////
 
-define open primary class <base-http-response> (<message-headers-mixin>)
+define open class <base-http-response> (<message-headers-mixin>)
 
   constant slot response-request :: <base-http-request>,
     required-init-keyword: #"request";
@@ -160,6 +160,12 @@ define open primary class <base-http-response> (<message-headers-mixin>)
   slot response-reason-phrase :: <string>,
     init-keyword: reason-phrase:,
     init-value: "OK";
+
+  // Chunked transfer encoding.  RFC 2616, 3.6.1
+  // 
+  slot response-chunked? :: <boolean>,
+    init-keyword: chunked:,
+    init-value: #t;
 
 end class <base-http-response>;
 
