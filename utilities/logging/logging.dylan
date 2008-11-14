@@ -5,6 +5,10 @@ Synopsis:  Simple logging mechanism.  Some ideas taken from log4j.
 
 /* 
 
+todo -- implement keep-versions in <rolling-file-log-target>
+
+todo -- implement compress-on-close? in <rolling-file-log-target>
+
 todo -- current-process-id is a stub
 
 todo -- configuration parser
@@ -36,6 +40,15 @@ todo -- Add a way to extend the set of format directives from outside
        end of each log entry?  Rather than hard-coding the \n one could
        specify it in the formatter's control string.  The worry is that
        everyone would forget to add it every time they write a new formatter.
+
+idea -- There's often a tension between the level of logging you want
+        to retain permanently and the level of logging you need for
+        debugging.  Could support writing different log levels to
+        additional targets.  Then one could log debug messages to a
+        separate file and set them to roll every 5 minutes, with a
+        small number of revisions, and you have essentially a circular
+        buffer of recent debug info.  Log to RAMdisk...even better, to
+        avoid disk contention.  :-)
 
 */
 
