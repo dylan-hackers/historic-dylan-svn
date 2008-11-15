@@ -3,9 +3,9 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require "shared.inc";
 
 function short_code_header ($title) {
-   readfile("/var/www/header.html");
+   readfile("/var/www/website/header.html");
    echo "<title>12 Dylan Fragments: " . $title . "</title><body>";
-   readfile("/var/www/menu.html");
+   readfile("/var/www/website/menu.html");
 }
 
 function code_header ($title) {
