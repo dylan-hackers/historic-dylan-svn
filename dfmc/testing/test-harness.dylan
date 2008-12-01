@@ -171,7 +171,7 @@ define function run-test (name, #key safely?   = #t,
   // If safely?: is given, then catch all errors & mark that test as a flamer.
   // Otherwise, let the signal happen so you can figure out why it's flaming.
   when (progress?)                   // Progress note, for ssslooowww tests
-    format(progress?, "// Testing %s\n", as-lowercase(as(<string>, name)))
+    format(progress?, "\n// Testing %s\n", as-lowercase(as(<string>, name)))
   end;
   let test = *tests*[name];          // Get the test out of test registry
   let result =
