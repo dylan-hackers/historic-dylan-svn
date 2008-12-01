@@ -57,6 +57,7 @@ end method;
 
 define method delete-useless-computations (c :: <computation>)
   if (useless?(c))
+    format-out("deleting %=\n", c);
     really-delete-useless-computations(c)
   end if
 end method delete-useless-computations;

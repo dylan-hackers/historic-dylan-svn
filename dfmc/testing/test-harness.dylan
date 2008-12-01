@@ -22,7 +22,8 @@ end;
 define function compile-library-until-optimized (lib)
   block()
     compile-library-from-definitions(lib, force?: #t, skip-link?: #t,
-                                     compile-if-built?: #t, skip-heaping?: #t);
+                                     compile-if-built?: #t, skip-heaping?: #t,
+				     compile-until-type-inferred?: #t);
   exception (e :: <abort-compilation>)
   end
 end function;

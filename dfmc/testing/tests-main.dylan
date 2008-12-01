@@ -9,7 +9,7 @@ define function main()
                                  warning-callback: callback-handler,
                                  error-handler: callback-handler);
 
-  run-typist-algebra-tests(safely?: #f);
+//  run-typist-algebra-tests(safely?: #f);
   run-typist-inference-tests(safely?: #f);
 end;
 
