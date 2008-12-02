@@ -202,7 +202,7 @@ define typist-inference-test typist-constants
   "#();"     TYPE: fixed: vector(class-te(#"<empty-list>")),           rest: #f;
   "#(1);"    TYPE: fixed: vector(class-te(#"<pair>")),                 rest: #f
 end;
-
+/*
 // *** ??: Warning: Reference to undefined binding values // undefined.
 define typist-inference-test typist-values
   // Can we figure out multiple values properly?
@@ -333,3 +333,4 @@ define typist-inference-test typist-raw-constants
              rest: #f
 end;
 
+*/
