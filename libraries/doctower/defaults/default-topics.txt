@@ -1,0 +1,204 @@
+=================================
+Library Reference    [:Libraries]
+=================================
+This package includes the following libraries:
+
+[LIST OF LIBRARIES]
+
+
+============================
+Xxx Library          [::xxx]
+============================
+
+Synopsis: The Xxx library.
+
+--- Definition ---
+(define library declaration)
+
+--- Modules ---
+[LIST OF MODULES]
+
+
+================================
+Xxx Module           [::xxx:xxx]
+================================
+
+Synopsis: The Xxx module.
+
+--- Origin ---
+Exported from '::xxx library'. [qv ::xxx]
+
+--- Classes ---
+[CONTENTS OF :Classes(xxx:xxx)]
+
+--- Functions ---
+[CONTENTS OF :Functions(xxx:xxx)]
+
+--- Variables ---
+[CONTENTS OF :Variables(xxx:xxx)]
+
+--- Macros ---
+[CONTENTS OF :Macros(xxx:xxx)]
+
+
+=====================================
+Xxx Classes       [:Classes(xxx:xxx)]
+=====================================
+Section: ::xxx:xxx
+
+The Xxx module exports these classes:
+
+[LIST OF CLASSES]
+
+
+=======================================
+Xxx Functions     [:Functions(xxx:xxx)]
+=======================================
+Section: ::xxx:xxx
+
+The Xxx module exports these functions:
+
+[LIST OF FUNCTIONS]
+
+
+=======================================
+Xxx Variables     [:Variables(xxx:xxx)]
+=======================================
+Section: ::xxx:xxx
+
+The Xxx module exports these variables:
+
+[LIST OF VARIABLES]
+
+
+===================================
+Xxx Macros       [:Macros(xxx:xxx)]
+===================================
+Section: ::xxx:xxx
+
+The Xxx module exports these macros:
+
+[LIST OF MACROS]
+
+
+================================
+Xxx              [::xxx:xxx:xxx]
+================================
+
+Synopsis: The Xxx class.
+
+--- Origin ---
+Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
+
+--- Modifiers ---
+(class modifiers)
+
+--- Make keywords ---
+(keyword list)
+
+--- Slots ---
+(getters list)
+
+--- Superclasses ---
+(superclass list)
+
+--- Subclasses ---
+(subclass list)
+
+--- Functions on xxx: ---
+(function list)
+
+--- Functions returning xxx: ---
+(function list)
+
+--- See also ---
+(see also list)
+
+
+================================
+Xxx              [::xxx:xxx:xxx]
+================================
+
+Synopsis: The Xxx generic function.
+
+--- Origin ---
+Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
+
+--- Modifiers ---
+(class modifiers)
+
+--- Arguments ---
+(arguments list)
+
+--- Values ---
+(values list)
+
+--- Conditions ---
+(list of conditions)
+
+--- Methods ---
+[CONTENTS]
+
+--- See also ---
+(see also list)
+
+
+================================
+Xxx              [::xxx:xxx:xxx]
+================================
+
+Synopsis: The Xxx function.
+
+--- Origin ---
+Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
+
+--- Modifiers ---
+(class modifiers)
+
+--- Arguments ---
+(arguments list)
+
+--- Values ---
+(values list)
+
+--- Conditions ---
+(list of conditions)
+
+--- See also ---
+(see also list)
+
+
+================================
+Xxx              [::xxx:xxx:xxx]
+================================
+
+Synopsis: The Xxx variable.
+
+--- Origin ---
+Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
+
+--- Type/value ---
+Type  - (type)
+Value - (value)
+
+--- See also ---
+(see also list)
+
+
+================================
+Xxx              [::xxx:xxx:xxx]
+================================
+
+Synopsis: The Xxx macro.
+
+--- Origin ---
+Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
+
+--- Arguments ---
+(argument list)
+
+--- Values ---
+(values list)
+
+--- See also ---
+(see also list)

@@ -1,0 +1,31 @@
+Quotes:
+' ' - [qv]
+" " - [qq]
+` ` - [code]
+
+List quotes:
+' ' - [qv]
+" " - [unq]
+` ` - [code]
+
+Section style:
+'-' on sides
+
+Tab size: 2
+
+#
+# Other configs - one line
+#
+
+Package Title:
+HTML Stylesheet:
+
+#
+# Other configs - multiple lines
+#
+
+Contents:
+# List of titles or tags with hyphens indicating depth, e.g.
+# - Introduction
+# -- About Us
+# - api_ref

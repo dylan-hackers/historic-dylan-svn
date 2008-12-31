@@ -1,0 +1,260 @@
+Based on my current ideas, here's what we're looking at.
+
+Documentation is conceptually DITA, but a different markup style. Docs can be
+in comments in source code files, or in separate doc files.
+
+Content can't be "free." It has to be associated with an API element or topic
+of some kind.
+
+The DocTower tool creates output from various inputs. The compiler (opendylan or
+d2c) must create a file containing type inferences. The tool takes that file,
+the source code .lid file(s), and an option/toc file. The option/toc file
+includes doc files and images. The .lid file is used to grab the sources to scan
+(with an eye towards extracting comments).
+
+
+Directive-style markup
+======================
+
+Directive-style markup looks like
+
+  SYNOPSIS: text
+  Additional text.
+
+The directive is case-insensitive and may contain spaces. Directives are
+predefined. They are analogous and eventually turned into DITA <topics> or
+<properties> or whatever. Directive sections don't lexically contain other
+directives; that would be too confusing. But they can be scoped to a
+preceding, containing directive section.
+
+The content of a directive is restricted. The content goes until it violates
+the format; if using nested text, until the nesting ends; or until the next
+directive or directive-ending markup.
+
+TODO: Directives have synonyms and can be pluralized or singularized.
+
+
+Automatic classification
+========================
+
+A comment block can be associated with a documentable code element, such as a
+method, constant, or argument. In scanning a source code file, the system will
+track what docs aren't associated with a code element, and which code elements
+don't have any docs. Un-associated docs can have free content; it is assumed
+that the free content will be pinned down once the comment block is associated
+with a code element.
+
+Doc comments for an element can precede or follow the element itself, or both,
+depending on the element in question. Once associated, the docs for that
+element might be moved to the docs for a parent element. Several elements of
+that kind might have to preserve their relative declaration order when moved
+to the parent.
+
+The comment block itself is assumed tagged as a certain type. If the comment
+block contains content that violates the rules of that type, while the content
+is lexically part of that block, it isn't part of the block's implicitly
+classified content. The extra content is still processed and included in the
+output, though.
+
+
+Documenting class slots
+=======================
+
+A comment block associated with a slot is used to generated getter and setter
+function documentation, and init-keyword documentation. These comment blocks
+can only have general directives like "Synopsis" and "See also." Separate
+getter and setter functions will override the generated documentation.
+
+
+Overriding documentation
+========================
+
+API documentation topics can be implicitly-generated or explicitly-generated.
+These coexist until the stage in which they are merged and all topics and
+sections are made explicit.
+
+TODO: Think about [ditto] in the context of API documentation.
+
+
+API names and titles
+====================
+
+API names referenced in '...' markup, or any markup really, may be partial or
+have some idiosyncratic format, e.g., 'make', 'make(singleton(<table>))',
+'make(table)', 'make( t == <table>)', 'make( == <table>)'. Not all these are
+valid. The canonical forms of API names are as follows. The first letter of
+each word is capitalized.
+
+  Classes            - The name of the class.
+  Types              - A type expression like "Singleton(<Type>)." This will
+                       only be used if a type expression needs to be made
+                       canonical; it will never be a topic title.
+  Generic functions  - The bare name of the generic function.
+  Member methods     - The name of the method followed by required argument
+                       types, e.g. "As(<Integer>, <Float>)."
+  Other functions    - The bare name of the function.
+  Libraries          - Like "Format-io Library."
+  Modules            - Like "Format-io Module."
+  Macros, variables  - The bare name of the API element.
+
+Conceptual APIs (such as "rule functions" in the PEG Parser library) may be
+documented.
+
+
+Titles and identifiers
+======================
+
+DITA IDs may have the [-_.!~*'();?:@&=+$,A-Za-z0-9/] characters or "%xx"
+escape codes. DITA topic IDs are different than XML IDs but identical to HTML
+anchors, and are specified by the "fragment" grammar in RFC 2396. Our rules
+are a little more restrictive than that, though. IDs can have any UTF-8
+character (escaped if necessary) except for space, "/", "[", "]".
+
+  - "/" is used to distinguish content within a topic.
+  - "[" and "]" are not included so that "]" can be used to stop an ID.
+  - Space is not included to help distinguish IDs from titles and to eliminate
+    the need to handle quoted IDs.
+    
+Only tool-assigned topic IDs start with ":". User-defined IDs cannot have a
+":" in the first position. The user cannot explicitly escape a character, e.g.
+an ID of "%20" will be saved as "%2520".
+
+IDs cannot duplicate a topic title or another ID (case is ignored). If a
+tool-defined ID overlaps with a user-defined title (which will necessarily
+begin with ":"), the title is invalid and must be changed. These are the only
+disallowed titles, aside from what falls out from the grammar.
+
+The tool assigns IDs to API topics and other generated topics as follows. The
+first letter of each word is capitalized and spaces are removed from member
+method canonical names (i.e. "As(<Integer>, <Float>)" becomes
+"As(<Integer>,<Float>)"). An API name can have a "/"; in the ID, this is
+replaced by the non-name character ".".
+
+Conceptual API topics do not have tool-assigned IDs.
+
+  Each class, function,
+  macro, or variable  - ::Dylan:Dylan:<Integer>
+  Each member method  - ::Dylan:Dylan:As(<Integer>,<Float>)
+  Each library        - ::Dylan
+  Each module         - ::Dylan:Dylan
+  "All Libraries"     - :Libraries
+  "All Modules"       - :Modules
+  "All Bindings"      - :Bindings
+  "All Classes"       - :Classes
+  "All Functions"     - :Functions
+  "All Variables"     - :Variables
+  "All Macros"        - :Macros
+  Library members     - :Modules(Dylan), :Bindings(Dylan), etc.
+  Module members      - :Bindings(Dylan:Dylan), :Classes(Dylan:Dylan), etc.
+  Other topics        - :Topic:nnn
+  Other topic titles  - :Title(Topic):nnn
+  Other sections      - :Sect:nnn
+  Other sect. titles  - :Title(Sect):nnn
+
+
+Intermediate format
+===================
+
+While scanning is going on, the system will need to be collating data. Though
+the system will follow DITA rules, it won't be producing DITA directly -- that
+happens at the end in the same way that the system would produce HTML.
+
+Properties follow:
+
+  topic family
+    related topics...
+
+  doc file (linkable)  [TODO: get rid of this?]
+    title
+    synopsis
+    sections
+    parent topic
+    child topics...
+
+  conceptual topic (linkable)
+    title
+    synopsis
+    parent topic
+    sections
+    child topics... (ordered)
+
+  general function (linkable)
+    name
+    synopsis
+    parent topic
+    syntax
+    owner
+    definer
+    attributes
+    full description
+    arguments (ordered)
+      name
+      types...
+      default value
+      description
+    values (ordered)
+      name
+      types...
+      description
+    methods (ordered, collated, linkable)
+      name
+      synopsis
+      parent topic
+      syntax
+      definer
+      attributes
+      full description
+      arguments...
+      values...
+
+  class (linkable)
+    name
+    synopsis
+    parent topic
+    owner
+    definer
+    attributes
+    full description
+    general functions...
+    superclasses...
+    subclasses... (collated)
+    make keywords
+      name
+      types...
+      default/required value
+      description
+    slots
+      name
+      types...
+      description
+      
+  constants and variables (linkable)
+    name
+    synopsis
+    parent topic
+    owner
+    definer
+    attributes
+    full description
+    value or types...
+    
+  macros (linkable)
+    name
+    synopsis
+    parent topic
+    syntax
+    owner
+    definer
+    type of macro
+    arguments...
+    values...
+    full description
+
+"Ordered" means the order from the source code should be preserved. "Collated"
+means that documentation added to a system-wide set could add additional
+properties of that type. "Linkable" means that the element can be linked to.
+Linkable items can have nav titles and are topics.
+
+Constants may determined at run-time. A constant that is simply an alias to
+one of the other API elements or a method isn't a constant at all, but is
+instead a binding to that element.
