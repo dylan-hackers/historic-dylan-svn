@@ -23,7 +23,7 @@ end class;
 
 
 /**
-Synopsis: Declares a dynamic scope and bindings accessible within that scope.
+Synopsis: Defines a dynamic scope and bindings accessible within that scope.
 
 The bindings created are accessible within BODY and all code executed within
 BODY. The bindings created are only accessible via the 'dynamic-binding' and
@@ -35,7 +35,7 @@ BODY. The bindings created are only accessible via the 'dynamic-binding' and
 : end
 
 --- Arguments: ---
-BINDING  - A binding declaration, e.g. "count :: <integer> = 0". The name and
+BINDING  - A binding definition, e.g. "count :: <integer> = 0". The name and
            initial value are required, but the type is not.
 BODY     - A body.
 
@@ -50,8 +50,8 @@ define macro with-dynamic-bindings
 bindings:
    { ?:name :: ?type:expression = ?init:expression, ... }
    => {  // I rename the variable here so it is not accessible from calling code
-         // in GC. For consistency, I want the only access to be through the
-         // dynamic-binding macro.
+         // under Gwydion Dylan. For consistency, I want the only access to be
+         // through the dynamic-binding macro.
          let ?name ## "-dyn-bind" :: ?type = ?init;
          let handler
                (<dynamic-binding-access>,
