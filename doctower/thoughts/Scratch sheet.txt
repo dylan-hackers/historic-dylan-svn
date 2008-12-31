@@ -1,0 +1,298 @@
+This here would be a DITA-centric workflow. Any advantage would lie in having
+the DITA topics and structure available for custom processing, and the
+inherent capabilities offered by DITA. The former could, for example, enable
+the publication of an end-user Dylan reference tome.
+
+DITA doesn't need to be the actual intermediate form, either. We'd just need a
+form that adheres to DITA semantics and can be saved as the appropriate XML
+output.
+
+[ Doc-comments + Doc-pages ]
+                        
+Text -> DITA markup transformer
+
+Some sort of cross-ref engine,    } Yes, DITA's own cross-ref engine is Java,
+does DITA really need this?         so we'll have to roll our own.
+
+Indexer?
+
+[ DITA topics + DITA structure ]    Dita doesn't actually offer much in the
+                                    way of structure, just basic reftopics.
+HTML builder
+
+Indexer?
+
+[ HTML pages ]
+
+----------------------------
+
+I could destructure the entries a bit more:
+
+  /// Given a format string and values, makes a new string.
+  define method format-out 
+      (string :: <string>,   /// Yo, like, a string or something.
+       #rest args) =>        /// A series of things for the string.
+      (out :: <string>)      /// The resulting string.
+    blah blah blah
+  end method
+
+One way to make this work would be to track documentable elements like args
+or methods. Each type of documentable element can have a specifier saying if
+it can be documented before of after the element is 'declared,' and a default field
+for unlabeled doc comment text. When a doc comment is found, and a post-documentable
+element was just made, set the element's doc to the contents of the comment. 
+If there is no element done (or the element wasn't post-documentable), add the
+doc comment to the next documentable element (if the next element is
+pre-documentable).
+
+But this process is linear. Don't know how well syntax can be parsed linearly.
+
+----------------------------
+
+So, how the links should work is, if there is no clarifier, they should attempt
+to find one-and-only-one reference (ignoring closing punctuation and maybe plurals) 
+and error if they can't, or else choose the innermost reference of the multiple
+references found. If there is a clarifier, the quotes can contain whatever
+you like.
+
+  …A flag of \'a' means append, described on the 'File Modes' table.…
+  …A flag of 'a' means append, described on the `File Modes` table.…
+
+I don't like the backquote syntax; that's not something that people type naturally.
+Plus, I was thinking of reserving that for inline code format.
+
+A footnote/see also format could be like so:
+
+  …The 'format' string is a standard sprintf-style format string [1]. …
+  …
+  [1]: See 'http://www.cspec.com/format_strings'.
+  [2]: See 'Encryption algorithms'.
+
+But is the footnote thing useful? Well, yeah, it can be used to comment things
+in more detail; it doesn't necessarily have to be a hyperlink to somewhere.
+
+----------------------------
+
+How to provide link targets? Could be automatically linked, or given a ref.
+like so:
+
+  Encryption Algorithms
+  =====================
+  
+  <string>, #rest <object> [format(string, objects)]
+  ==================================================
+ 
+Though, really, with section discrimination, I'm not sure how useful renaming
+a link on creation would be. The best application of the technique would be to
+rename a topic that would conflict with the [] options given for a link.
+
+One thing that can happen is an anonymous function might need to be documented,
+i.e.
+
+  define get-iterator (…) => (iterator :: <function>)
+    local method (a, b) => (c)
+      …
+    end
+  end
+
+In this case, the return value should be listed like
+
+  iterator - An instance of 'get-iterator function'.
+
+and 'get-iterator function' should be defined as a separate reference topic,
+though perhaps on the same page as 'get-iterator.' But the 'get-iterator function'
+topic needs to be created.
+
+This could be done in a separate document, but should likely be done in the
+reference doc comments for the 'get-iterator' function, nested.
+
+  /// SYNOPSIS: yadda yadda. The synopsis continues
+  ///   on the next line.
+  ///
+  /// Here is some non-synopsis body text in a new paragraph.
+  /// And another paragraph.
+  ///
+  /// VALUES: An instance of 'iterator function'.
+  ///
+  /// METHOD: iterator function
+  ///
+  /// ARGUMENTS:
+  ///   a - An object.
+  ///   b - Another object.
+  /// VALUES:
+  ///   c - The return value.
+  define get-iterator (…) => (iterator :: <function>)
+    local method (a, b) => (c)
+      …
+    end
+  end
+
+Here, the METHOD tag introduces a new API element and topic. The new topic is
+not a subtopic of get-iterator.
+
+----------------------------
+
+How to provide hierarchy for the documentation? My options are:
+
+- a toc file
+- directives
+- implicit
+
+An implicit hierarchy is decided by the topics in a file. A file can contain
+peer topics, but each topic can also have subtopics. The subtopic ids will have
+file scope, but can imply hierarchy.
+
+An additional source of hierarchy could be a subpage directive
+similar to Doxygen's. This would put the referenced page and its topics below
+the referencing page in the hierarchy. In the absence of a toc file or
+directives, a config would have to be used to specify the main page.
+
+A directive on the subpage might also be used to add that topic as a subtopic
+of the parent.
+
+A toc-based system would also serve as a manifest, and maps most directly to
+DITA. Here a file would specify the table of contents. To ease its creation,
+each entry may or may not automatically show its subtopics.
+
+This whole subtopic thing must be orthogonal to "see also" references. Those
+can be circular; tocs cannot.
+
+Topics can't be put in more than one place unless I duplicate and customize
+pages so that the "Next/Previous/Parent Topic" links are correct for each place.
+I don't really want to do that, in absence of a compelling reason for duplication.
+
+  /// Synopsis: Given a format string and values, makes a new string.
+  ///
+  /// Not the same as 'format' [io/streams/format] from the 'io' module.
+  /// Here is a big discussion. 
+  ///
+  /// Section: I/O Functions
+  ///
+  /// Arguments:
+  ///  string - Yo, like, a string or something.
+  ///  args - A series of things for the thing.
+  ///
+  /// Values:
+  ///  out - The resulting string
+  ///
+  define method format-out (string :: <string>, #rest args) => (out :: <string>)
+    blah blah blah
+  end method
+
+
+  Intro to Standard Library
+  =========================
+
+  The standard Dylan library is quite complete.
+  It includes:
+  
+  'I/O functions' [vi]
+    [synopsis of I/O functions]
+  'GUI functions' [vi]
+    [synopsis of gui functions]
+    
+   - 'I/O functions' [vi]
+   - 'GUI functions' [vi]
+   
+  [contents]
+   - 'I/O functions'
+   - 'GUI functions'
+  [end]
+
+----------------------------
+
+On a larger scale than the above, how to render a list of all a topic's subtopics?
+Should there be a way to render it manually? Yes, topics should be able to
+list their contents, and this should be under the writer's control.
+
+  Streams module
+  ==============
+  
+  The Streams module is very useful.
+  
+  Bindings
+  --------
+  [contents as list]
+  
+  .BINDINGS
+  [contents as synopses]
+
+----------------------------
+
+We'll need a separate settings file containing image directories, user-defined
+stuff, doc files, etc. This could be combined with a ToC file, but doesn't have
+to be. Topics can be arranged by any of the following:
+
+  - section: directives
+  - vi quotes
+  - toc file
+  - topic hierarchy in a doc file or comment block
+
+The default ToC would look like this:
+
+  <Conceptual topic>
+  Libraries
+  Modules
+  Bindings
+    Classes and Types
+    Functions
+      <General function>
+        <Method>
+    Constants and Variables
+    Macros
+
+How to resolve these? And how is chunking managed?
+
+First, a nested topic is fixed. A section directive, vi quote, or toc file that moves it
+is in error. There can *be* a section directive, a vi quote, and a toc file entry for it,
+but they all have to agree. The topic is chunked with its parent topic. Note
+that a nested topic can be moved after another topic that isn't nested, though
+under the same parent topic, by a toc file.
+
+Second, a top-level topic in a doc file does not automatically have a parent.
+It may be given a parent through an arranging method. Multiple
+top-level topics in a doc file or comment block are not chunked together.
+
+Third, APIs have an implied parent. Any arranging method overrides this. APIs
+without an arranging method go into the default ToC above. The default ToC is
+always present if there is something to go in it. General functions & methods are
+chunked, nothing else is.
+
+The default ToC pages have tool-generated nicknames
+that aren't addressable by users; users can use the page titles. The default pages
+should be removed before links to them are resolved; there won't be a "Libraries"
+page to link to if there aren't any libraries.
+
+But then, how can the user do efficient large-scale organization of APIs, for
+example, to put them all under an "API Reference" topic, or to group APIs within modules
+and modules within libraries?
+
+----------------------------
+
+Literate programming is basically just like a normal code file, except that
+the default mode is documentation and the alternate mode is code, in contrast
+to normal programming, which is code except when it comes to doc comments. It
+would be useful if the doc processor allowed for this enhancement and did not
+*need* to be in code comments, and could in fact do the same sort of
+auto-detection used in code files, except do them in doc files with code
+blocks or something. Probably the best way to do this is to treat the whole
+thing as a comment block in a code file, regardless of whether it is a code
+file or a doc file.
+
+Unfortunately, this doesn't seem like it would interact well with automatic
+association of doc comments with code elements; if the writer interrupts his
+discourse to show a chunk of code, the automatic system would likely try to
+interpret one of the discourse blocks as being a code comment associated with
+whatever the code happened to declare.
+
+Instead, the style could be supported by putting a verbatim reference to the
+code under discussion.
+
+----------------------------
+
+Maintainer-mode documentation is basically unpublished doc comments/files. Of
+limited use, except for two cases: a) the case of a method or whatever left
+open for extension by anyone, in which the maintainer-mode docs describe
+assumptions that extensions must adhere to; and b) comments on a single method
+or whatever exported by an internal and external module, where the internal
+comments describe the method's relationships with with other internal modules.

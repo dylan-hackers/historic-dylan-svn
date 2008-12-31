@@ -1,0 +1,430 @@
+Types of markup
+===============
+
+Plain text
+  Blank lines separate paragraphs. Paragraphs continue until reaching a block,
+  list, or bracket directive. In particular, section directives need to be
+  preceded by a blank line to be recognized after a paragraph.
+
+Blocks & lists
+  These are plain text, but use hyphens, indentation, and other elements to
+  make lists and blocks of various sorts.
+
+Headings
+  These are words with ASCII underlines or overlines. They indicate sections
+  and sub-sections.
+                
+Section directives
+  These are words at the beginning of a line and ending in a colon. They
+  indicate special sections or properties of the current section.
+
+Bracket directives and options
+  These are bracketed text. They refer to images, footnotes, and text defined
+  elsewhere, or specify options or tags for sections.
+
+Quoted phrase
+  These are words in double-quotes, single-quotes, or back-ticks. They are
+  used to format phrases and hyperlinks.
+
+Configuration
+  This is a special file that sets options and can specify a table of
+  contents.
+
+The content of a section, sub-section, or footnote must be indented at the
+level of the first line or deeper. Outdented content is not included in the
+section. Changing the indentation begins a new paragraph (except where
+expected, such as a NOTE directive). For example:
+
+  This is a broken
+    paragraph, so
+    don't do this.
+
+This will be rendered as two paragraphs:
+
+  This is a broken
+  
+  paragraph, so don't
+  do this.
+
+
+Quoted words
+============
+
+Quoted words can be followed by bracket options, but does not have to be. The
+quotes and default processing is:
+
+  "..." - Smart quotes. Default options are [qq].
+  '...' - Linked text. Default options are [qv].
+  `...` - Inline code. Default options are [code].
+  
+When followed by bracket options, the default processing is not done. Instead,
+the processing specified in the brackets is done. Bracket options are:
+
+  unq     - A do-nothing option. Having only this is like having no options at
+            all. The quotes are removed and no other processing is done unless
+            other options are present.
+  sic     - Do not remove quotes.
+  q       - Surround text with typographical single quotes.
+  qq      - Surround text with typographical double quotes.
+  code    - Use code font.
+  term    - Indicate a technical term being defined.
+  bib     - Indicates a book or article title.
+  em	    - Use general emphasis font.
+  b       - Use bold font.
+  i       - Use italic font.
+  u       - Use underline.
+  qv      - The quoted text will link to the section or URL specified by the
+            text. The text is replaced by the actual section title.
+  vi      - Same as "qv", but the linked item is also marked as a sub-topic if
+            appropriate. From the Latin "vide infra," meaning "see below."
+  qv ...  - The quoted text will link to the specified section or URL, or at
+            least render in an appropriate font. The text is not changed. This
+            option must be last.
+  vi ...  - Same as "qv ...", but the linked item is also marked as a
+            sub-topic if appropriate. This option must be last.
+  
+For example,
+
+  This is "important" [em] information!
+
+renders the word "important" in a emphasized font style and removes the
+double-quotes.
+
+Unless "sic" is specified, the original quotes are removed from around the
+text.
+
+The quoted text is not interpreted any further.
+
+  "[contents]"
+  
+is rendered as 
+  
+  [contents]
+  
+not as a list of sub-topics.
+
+The quoted text can be surrounded with other characters:
+  
+  ... "object"s [i] are ...
+  ... ("object"s [i] are ...
+  ... ("object"s, [i] "setting"s, [i] and others ...
+
+
+Blocks and Lists
+================
+
+Blocks are made with special characters at the flush-left position of a file
+or comment.
+
+: ...
+  This style of block has the same effect as a [CODE] directive.
+
+> ...
+| ...
+  These styles of block has the same effect as a [EXAMPLE] or [VERBATIM]
+  directive.
+
+Lists are made of items that follow patterns. The extent of a list item is
+determined with indentation (initial indentation is shown with '_' for
+clarity). Blank lines between list items are optional. For all lists but the
+labeled multi-column list, the list continues until it reaches a paragraph
+that does not follow the list format (not including paragraphs nested inside
+an item).
+
+- text
+_text continued
+  Bullet list. Other bullet characters are '*', '+', 'o'.
+
+n. text
+#. text
+_text continued
+  Numbered list. If a number is given, numbering starts there. Letters can be
+  used by typing 'a' instead of '1', for example. Other characters that can be
+  used in place of a period are ':', ')'. Each list must begin with a number;
+  the hash sign continues numbering within a list.
+ 
+phrase -
+_definition
+_definition continued
+phrase - definition
+_def'n continued
+  A definition list. The definition continues until indentation ends. A hyphen
+  can be included in the term by quoting the term or hyphen.
+  
+
+term   column
+-----  -----------
+item1  defn
+       defn cont
+
+item2  defn
+
+item3  defn
+-----  ------------
+  A titled n-column list. Blank lines separate items in the list. The list
+  continues until the second hyphen line.
+
+
+Headings and links
+==================
+
+Headings mark the start of sections. Each section should ideally stand on its
+own as a complete topic. Headings have ASCII-art underlines, overlines, or
+midlines as follows:
+
+  ===============      ===========
+  === Heading ===  or  === Heading
+  ===============      ===========
+  
+  ===============      ===========
+  === Heading ===  or  === Heading
+
+  === Heading ===  or  === Heading
+  ===============      ===========
+
+  === Heading ===  or  === Heading
+
+  =======
+  Heading
+  =======
+
+  Heading
+  =======
+
+The trailing midline is optional, and the overline, midline, and underline can
+be any length but must be at least 3 characters long. The following characters
+can be used for over-, mid-, and underlines:
+
+  = - : . ~ ^ _ * + #
+
+A new style (a style is the presence or absence of each line, as well as the
+character used) encountered in a file or comment block creates a new,
+inferior, section level. One style must be chosen to indicate the sub-section
+level. By default, this is a midline of "=".
+
+The heading (and trailing midline, if any) may be followed by a bracket option
+that specifies a section tag.
+
+Suppose we have a doc file with the following content:
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  About the Wonderland Library	 [about]
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ...
+ 
+  === Where to Download ===   [download]
+  ...
+
+  Installation
+  ~~~~~~~~~~~~
+  ...
+ 
+  === About Us ===
+  ...
+ 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Required Libraries	           [req]
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ...
+ 
+  Installation
+  ~~~~~~~~~~~~
+  ...
+ 
+  ### Rabbit ###
+  ...
+ 
+  === Where to Download ===   [download]
+  ...
+
+In this example, "About the Wonderland Library" and "Required Libraries" are
+the highest-level sections, the "Installation" sections are inferior to them,
+and the "Rabbit" section is inferior to the second "Installation" section.
+Both "Where to Download" sections are actually sub-sections.
+
+To link to a section, use a quoted phrase containing the section's title or
+tag. To link to a subsection, you must use either the subsection's unique
+title or the tag of the subsection's containing section followed by a "/" and
+the subsection's tag. This means that if you want to link to a sub-section,
+you must ensure its containing section has a tag.
+
+ - 'About the Wonderland Library' and 'about' link to the same section.
+
+ - 'about' is rendered as a hyperlink to "About the Wonderland Library."
+
+ - 'required libraries', 'Required Libraries', 'req', and 'REQ' all link to
+   the same section and all are rendered as "Required Libraries."
+
+ - 'Rabbit' is a valid link. DocTower would first search for a section with a
+   tag of "rabbit," and after that fails it would search for a section with
+   the title of "Rabbit."
+
+ - 'Installation' is not a valid link. There are two sections with that title.
+   Duplicate section titles are not an error, but you would have to assign a
+   tag to the section of interest and use it to disambiguate the link.
+
+ - 'About Us' is a valid link. There is only one sub-section with that title.
+ 
+ - 'Where to Download' is not a valid link. There are two sub-sections with
+   that title, so you must specify 'about/download' instead. The link is
+   rendered as "Where to Download."
+
+ - You cannot link to the "Where to Download" sub-section of the "Rabbit"
+   section because that section does not have a section tag. If you were to try
+   'Rabbit/Where to Download' or 'Rabbit/download', DocTower would look for
+   sections with those titles; since those sections don't exist, it would fail.
+
+ - "...install the 'required libraries' [qv], then..." would render the link
+   as "Required Libraries," but "...install the 'required libraries' [qv req],
+   then..." would render the link as "required libraries."
+
+
+Section Tags
+============
+
+Section tags are not case sensitive. They cannot include spaces.
+
+
+Section Directives
+==================
+
+These are words that start in the leftmost column and end with a colon.
+
+The scope of the NOTE and WARNING directives is determined by indentation. The
+scope of the SYNOPSIS directive is one paragraph; indentation is allowed but
+ignored. The scope of the DISCUSSION, ARGUMENTS, CONDITIONS, VALUES, and
+KEYWORDS directives is until the next section. The scope of the GENERIC
+FUNCTION etc. directives is until the next topic. The other tags end after one
+line.
+
+Underlines and overlines are allowed but ignored; they will not affect topic
+structure like headers do. If used, underlines must appear on the next line
+after the directive itself, and the content of the directive must still be
+indented if necessary.
+
+GENERIC FUNCTION|METHOD|CLASS|MACRO...: title
+  Start a new reference topic of that type. This new topic is set at the same
+  level as the previous topic.
+  
+SYN|SYNOPSIS: paragraph
+  A brief description of the topic.
+
+DISCUSSION: content
+  This directive starts or continues the main body of a topic. It may be used
+  to end a synopsis after one line without using a blank line to explicitly
+  end the paragraph.
+
+SECTION: section
+  Marks the topic as a child of the specified section.
+
+RELEVANT TO: "title" | tag ...
+  Adds this topic to the "See Also" sections of the specified topics. The
+  topics may be specified by title or tag. The quotation here is strictly for
+  the purposes of escaping spaces; the quote options cannot be used.
+
+SEE ALSO: "title" | tag | URL ...
+  Adds the specified topics or URLs to the "See Also" section of this topic.
+  Topics may be specified by title or tag. The quotation here is strictly for
+  the purposes of escaping spaces; the quote options cannot be used.
+
+ARGS|ARGUMENTS|VALUES:
+_content
+  An argument or value list. May include paragraphs and other content. Term or
+  phrase definition lists are recognized as argument or value names. Only in
+  reference topics.
+  
+CONDITIONS|SIGNALS|ERRORS|EXCEPTIONS:
+_content
+  A list of signals raised by a function. May include paragraphs and other
+  content. The official link tag for this section is "conditions". Only in
+  reference topics.
+
+INIT-|MAKE? KEYWORDS:
+_content
+  A keyword list. Similar to ARGUMENTS. The official link tag for this
+  section is "keywords". Only in reference topics.
+
+NOTE|WARNING: content
+_content
+  Shows the text in a note or warning box. The text can have the normal markup
+  elements.
+
+
+Bracket Directives
+==================
+
+Some directives must be on a line of their own, others can be included inline.
+Bracket directives are case-insensitive. In the syntaxes shown below,
+lower-case words are parameters.
+
+... [IMG "imagename" alttext?] ...
+  Include an image inline. Scaled to line size. The quotation here is strictly
+  for the purposes of escaping spaces and special characters; the quote
+  options cannot be used.
+  
+[FIG "imagename" scale%|linesX?] caption?
+  Include a centered image. The quotation here is strictly for the purposes of
+  escaping spaces and special characters; the quote options cannot be used.
+  
+[n]: ...
+  Create a footnote. The content may begin on the next line and extends until
+  the next section or footnote. The scope of "n" is the current comment block
+  or file.
+  
+... [n] ...
+  Refer to the corresponding footnote. The scope of "n" is the current comment
+  block or file.
+  
+... [:n]
+  Create a reference target for the preceding line. Only recognized at the end
+  of verbatim or code block lines. The scope of "n" is the current comment
+  block or file.
+  
+... [:n] ...
+  Refer to the corresponding reference target. Recognized outside of verbatim
+  or code block lines. The scope of "n" is the current comment block or file.
+  
+[CODE]
+text
+[END CODE?]
+  Render "text" as code. Any documented elements in the code are made into
+  links if possible. "[:n]" directives are recognized.
+  
+[VERBATIM|EXAMPLE|DIAGRAM]
+text
+[END VERBATIM|EXAMPLE|DIAGRAM?]
+  Render "text" as plain ASCII in a monospace font. No links are made. "[:n]"
+  directives are recognized.
+  
+... [SYNOPSIS OF topic|"title"] ...
+  Shows the synopsis of a topic or documented item. The quotation here is
+  strictly for the purposes of escaping spaces; the quote options cannot be
+  used.
+  
+[CONTENTS OF topic|"title"?]
+  Shows the subtopics of the current or specified topic. The quotation here is
+  strictly for the purposes of escaping spaces; the quote options cannot be
+  used.
+
+[LIST OF LIBRARIES|MODULES|BINDINGS|CLASSES|FUNCTIONS|VARIABLES|MACROS]
+  Shows all libraries, modules, etc. If this directive occurs in a sub-topic
+  of a topic containing a "[LIST OF LIBRARIES]" or "[LIST OF MODULES]"
+  directive, the list is restricted to that library or module.
+
+  This directive adds the listed items as sub-topics. There can only be one
+  "[LIST OF LIBRARIES]" directive. Of the other directives, there can be one
+  per library or one per module, and one that is global. If no global
+  directive is given and one is needed, it is created automatically. There
+  cannot be both a "[LIST OF BINDINGS]" and a "[LIST OF CLASSES etc.]"
+  directive globally or in a single module or library.
+  
+[DITTO topic|"title"]
+  Make identical to another topic as much as possible. The quotation here is
+  strictly for the purposes of escaping spaces; the quote options cannot be
+  used.
+  
+...[HTML] html markup [END HTML?]...
+  HTML is rendered exactly. Only applies to HTML output.
+  
+...[DITA] dita markup [END DITA?]...
+  DITA markup is rendered exactly. Only applies to DITA output.

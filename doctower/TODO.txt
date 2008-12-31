@@ -1,0 +1,98 @@
+==========
+Need to Do
+==========
+
+Most of the things marked with TODO in a comment are need-to-do items.
+
+------
+
+Stripping out the left, top, and bottom margins of comment blocks before handing
+them off to the markup parser. Currently, these are not removed and the comment
+block starts at the opening comment delimiter, so that we type the following
+
+  /// //////////////////
+  /// This is a two-line comment block
+  /// with top & bottom margins.
+  /// ////////////////
+  
+  /**
+   * Function: hello
+   *
+   * Here is documentation.
+   **/
+
+the markup parser would see the slashes, hyphens, and leading whitespace (except
+for the leading whitespace before the comment actually begins). This is bad. The
+parser should see the content without all the decorations. The first and last
+lines should be treated specially, and the rest of the lines should have common
+opening elements removed. This means the indentation level might be different
+between the first and second line, even though they look aligned to the eye. Not
+sure if there is a way to fix that.
+
+This could be implemented with a <replacing-stream> that strips out the extras.
+Whatever solution we choose, it needs to be able to trace markup to the
+underlying file and line/column.
+
+Also, need to decide whether "/************" starts a doc comment or not. I'm
+inclined towards "not."
+
+-----
+
+API recognition. If you type "use the <integer> class," the code should figure
+out that you want to link to the class. This relies on cues within the name, of
+course. If you type "use the stream-location function," I doubt the code can
+guess that you want to link to the function -- though maybe if an adjacent word
+is "function" and the word is the name of a document function, that might work.
+
+-----
+
+Generating DITA and HTML from the internal data structure. This includes
+generating indices.
+
+I'm thinking the user won't be able to extensively customize the generated HTML
+document. Probably just CSS styles, maybe a logo or common header or footer. We
+should offer a couple of different layout styles. For anything more extensive,
+the user should generate DITA output and use XSLT or a DITA processing system.
+
+
+==========
+Want to Do
+==========
+
+Tables. The table syntax requires that the code figures out table columns before
+tokenizing words -- actual character boundaries matter.
+
+------
+
+Figure out how to turn "--" into an em-dash automatically. This won't interfere
+with ASCII lines because an ASCII line needs *three* consecutive characters.
+
+------
+
+Rewrite <ordered-tree>. I recently learned of something called a "zipper." This
+is a data structure that acts much like a tree, but is based around a pointer to
+a current node. This is what I was trying to do when I wrote the <ordered-tree>
+class, but I expect the zipper will be faster and more efficient. It would be
+good to replace the current <ordered-tree> implementation with a zipper-based
+one.
+
+
+============
+Bonus Points
+============ 
+
+Figure out how to do something like the abbreviated syntax shown at
+http://naturaldocs.org/documenting/walkthrough.html#AbbreviatedSyntax.
+
+--------
+
+Interconnect separate documentation packages, e.g. the Koala package can connect
+to the main Dylan package so that references to "<integer>" in Koala link to the
+Dylan documentation.
+
+This requires some sort of repository. The user should be able to set this up
+wherever he likes; it should be a strictly optional feature. The HTML or DITA
+output (or maybe the internal representation saved to a file) will need to have
+hooks recognizable and replacable by the system. To keep the main application
+from being overburdened with purposes and options, a separate tool should manage
+the user's document collections and interconnections.

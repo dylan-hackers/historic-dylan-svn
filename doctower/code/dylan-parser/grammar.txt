@@ -1,0 +1,369 @@
+The Dylan parser isn't a full Dylan parser. Its purpose is to recognize
+documentation comments and top-level definitions. It assumes all definitions
+start in column 1 and ignores bodies and anything that isn't a definition or
+documentation comment.
+
+Outside a definition, the parser scans on a line-by-line basis until it
+recognizes something parsable. Inside a definition, the parser follows normal
+Dylan tokenization rules (while keeping documentation comments) except if it
+cannot parse an expression. Expressions are handled correctly so long as the
+standard BEGIN-WORDs are used. Otherwise, the remainder of the expression is
+skipped.
+
+If nonstandard BEGIN-WORDs are used, the expression may successfully parse as a
+simple expression (e.g., a function call), followed by gibberish. The parser
+should not return the supposed expression. Instead, it should skip both the
+expression and the gibberish, advancing to the next known syntax boundary.
+
+When transitioning from parsing a definition or documentation comment to
+scanning for the next parsable, the parser treats a partial line following the
+definition or documentation comment as if it were the start of the next line.
+
+The parser will associate documentation comments with the adjacent API element
+at the following locations. Other documentation comments within class,
+library, module, and macro definitions are added to that topic's main
+discussion. Documentation comments found elsewhere require an opening topic
+header.
+
+/** x */
+define variable/constant x :: <type> = value;
+
+/** x */
+define generic/function/method x
+   (/** p1 */  p1 :: <t1>,
+    /** p2 */  p2 :: <t2>,
+    /** k1 */  #key k1,
+    /** k2 */  #"k2" k2 :: <t2> = 8,
+    /** r */   #rest r) =>
+   (/** v1 */  v1 :: <t1>,
+    /** v2 */  v2 :: <t2>)
+
+/** <x> */
+define class <x> (<y>)
+   /** s1 */ slot s1 :: <t1>, setter: #f, init-keyword: #"s1";
+   /** s2 */ inherited slot s2 :: <t2>;
+   /** k1 */ keyword #"k1" = 17;
+   /** k2 */ required keyword #"k2"; 
+end;
+
+/** x */
+define module x
+   ...
+end;
+
+/** x */
+define library x
+   ...
+end;
+
+/** x */
+define macro x
+   ...
+end;
+
+___________________
+__ Source record __
+
+source-record:
+   ( lines-til-parsable? ( definition / doc-block ))* lines-til-parsable?
+   
+lines-til-parsable:
+   ( !definition !doc-block LINE )+
+
+_____________________
+__ Lexical grammar __
+
+DEFINE:
+   whitespace? "DEFINE" &word-sep
+
+VARIABLE:
+   whitespace? "VARIABLE" &word-sep
+
+CONSTANT:
+   whitespace? "CONSTANT" &word-sep
+
+GENERIC:
+   whitespace? "GENERIC" &word-sep
+
+METHOD:
+   whitespace? "METHOD" &word-sep
+
+FUNCTION:
+   whitespace? "FUNCTION" &word-sep
+
+CLASS:
+   whitespace? "CLASS" &word-sep
+
+MODULE:
+   whitespace? "MODULE" &word-sep
+
+LIBRARY:
+   whitespace? "LIBRARY" &word-sep
+
+MACRO:
+   whitespace? "MACRO" &word-sep
+   
+SEALED:
+   whitespace? "SEALED" &word-sep
+   
+DOMAIN:
+   whitespace? "DOMAIN" &word-sep
+   
+END:
+   whitespace? "END" &word-sep
+
+LF-PAREN:
+   whitespace? "(" &lf-paren-sep
+
+RT-PAREN:
+   whitespace? ")" &rt-paren-sep
+
+EQL:
+   whitespace? "=" &equal-sep
+
+NAME:
+   (per Dylan lexical grammar)
+
+UNRESERVED-NAME:
+   (per Dylan lexical grammar)
+
+ORDINARY-NAME: 
+   (per Dylan lexical grammar)
+   
+whitespace:
+   ( SPC / EOL / doc-block / comment )+
+
+______________
+__ Comments __
+
+comment:
+   delim-comment / eol-comment
+
+delim-comment:
+   "/*" ( delim-comment / delim-comment-text )* "*/"
+
+eol-comment:
+   "//" eol-comment-text? EOL
+
+doc-block:
+   delim-doc-comment / eol-doc-comments
+
+delim-doc-comment:
+   SPC* "/**" SPC ( delim-comment / delim-comment-text )* "*/"
+
+eol-doc-comments:
+   ( SPC* eol-doc-comment )+
+
+eol-doc-comment:
+   "///" ( SPC eol-comment-text )? eol
+
+delim-comment-text:
+   ( !"*/" CHAR )+
+   
+eol-comment-text:
+   ( !EOL CHAR )+
+
+_________________
+__ Definitions __
+   
+definition:
+   DEFINE
+   ( variable-definer / constant-definer / generic-definer / method-definer
+   / function-definer / class-definer / module-definer / library-definer
+   / domain-definer / macro-definer )
+
+adjectives:
+   UNRESERVED-NAME+
+
+variable-name:
+   (per Dylan grammar)
+
+expression:
+   (per Dylan grammar)
+
+til-rt-paren:
+   ( !RT-PAREN ( LT-PAREN til-rt-paren / CHAR ) )+
+
+til-class-clause:
+   ( !( EOL END ) !class-clause CHAR )+
+
+_______________
+__ Variables __
+
+variable-definer:
+   adjectives? VARIABLE ( variable / LT-PAREN variable-list RT-PAREN )
+   EQL expression
+   
+constant-definer:
+   adjectives? CONSTANT ( variable / LT-PAREN variable-list RT-PAREN )
+   EQL expression
+
+variable:
+   (per Dylan grammar. If type fails to parse, skip to rt-paren.)
+
+variable-list:
+   (per Dylan grammar)
+
+_______________
+__ Functions __
+
+generic-definer:
+   adjectives? GENERIC variable-name generic-parameter-list generic-options
+   
+method-definer:
+   adjectives? METHOD variable-name parameter-list
+   
+function-definer:
+   adjectives? FUNCTION variable-name parameter-list
+
+parameter-list:
+   (per Dylan grammar. If type fails to parse, skip to rt-paren.)   
+
+generic-parameter-list:
+   LF-PAREN parameters? RT-PAREN ( ARROW generic-values )?
+
+generic-values:
+   variable / LF-PAREN values-list? RT-PAREN
+
+generic-options:
+   comma-property-list
+
+_____________
+__ Classes __
+
+class-definer:
+   adjectives? CLASS variable-name LT-PAREN superclasses RT-PAREN
+   class-clauses? END
+
+superclasses:
+   expression ( COMMA expression )* COMMA?
+
+class-clauses:
+   class-clause ( SEMICOLON class-clause )* SEMICOLON?
+
+class-clause:
+   init-arg-spec / inherited-slot-spec / slot-spec
+   
+init-arg-spec:
+   REQUIRED? KEYWORD SYMBOL init-expression? ( COMMA init-arg-option )* COMMA?
+
+inherited-slot-spec:
+   INHERITED SLOT variable-name init-expression?
+   ( COMMA inherited-option )* COMMA?
+
+slot-spec:
+   slot-adjectives? SLOT variable init-expression?
+   ( COMMA slot-option )* COMMA?
+
+slot-adjectives:
+   ( !SLOT UNRESERVED-NAME )+
+
+init-expression:
+   EQUAL expression
+
+slot-option:
+   setter-option / init-keyword-option / required-init-keyword-option /
+   type-option / init-value-option / init-function-option
+
+init-arg-option:
+   type-option / init-value-option / init-function-option
+
+inherited-option:
+   init-value-option / init-function-option
+
+setter-option:
+   SETTER ( variable-name / FALSE )
+
+init-keyword-option:
+   INIT-KEYWORD SYMBOL
+
+required-init-keyword-option:
+   REQUIRED-INIT-KEYWORD SYMBOL
+   
+init-value-option:
+   INIT-VALUE expression
+
+init-function-option:
+   INIT-FUNCTION expression
+
+type-option:
+   TYPE expression
+
+___________________________
+__ Modules and libraries __
+
+module-definer:
+   MODULE NAME module-clauses? END
+   
+library-definer:
+   LIBRARY NAME library-clauses? END
+
+module-clauses:
+   module-clause ( SEMICOLON module-clause )* SEMICOLON?
+
+module-clause:
+   export-clause / create-clause / use-clause
+
+library-clauses:
+   library-clause ( SEMICOLON library-clause )* SEMICOLON?
+
+library-clause:
+   export-clause / use-clause
+
+export-clause:
+   EXPORT ORDINARY-NAME ( COMMA ORDINARY-NAME )* COMMA?
+
+create-clause:
+   CREATE ORDINARY-NAME ( COMMA ORDINARY-NAME )* COMMA?
+
+use-clause:
+   USE ORDINARY-NAME ( COMMA use-option )* COMMA?
+
+use-option:
+   import-option / exclude-option / prefix-option / rename-option /
+   export-option
+
+import-option:
+   IMPORT ( ALL / LT-BRACE var-mod-list? RT-BRACE )
+
+var-mod-list:
+   var-mod-spec ( COMMA var-mod-spec )* COMMA?
+   
+var-mod-spec:
+   NAME ( ARROW NAME )?
+   
+exclude-option:
+   EXCLUDE LT-BRACE name-list? RT-BRACE
+
+name-list:
+   NAME ( COMMA NAME )* COMMA?
+
+prefix-option:
+   PREFIX string-literal
+
+rename-option:
+   RENAME LT-BRACE renaming-list? RT-BRACE
+
+renaming-list:
+   renaming ( COMMA renaming )* COMMA?
+
+renaming:
+   NAME ARROW NAME
+
+export-option:
+   EXPORT ( ALL / LT-BRACE name-list? RT-BRACE )
+
+___________________
+__ Sealed domain __
+
+domain-definer:
+   SEALED DOMAIN variable-name LT-PAREN type-list? RT-PAREN
+
+type-list:
+   expression ( COMMA expression ) COMMA?
+
+___________
+__ Macro __
+
+macro-definer:
+   MACRO NAME
