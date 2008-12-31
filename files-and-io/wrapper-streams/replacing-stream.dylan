@@ -535,8 +535,11 @@ define method stream-size (wrapper :: <replacing-stream>)
 end method;
 
 
-/// Not sure what a stream limit is, but I think it is supposed to be the
-/// stream position at #"end".
+/**
+Not sure what a stream limit is, but I think it is supposed to be the stream
+position at #"end".
+*/
+
 define inline method stream-limit (wrapper :: <replacing-stream>)
 => (limit :: <integer>)
    wrapper.stream-size
@@ -565,7 +568,7 @@ define method stream-contents-as
    for (content in seg-contents, seg-num from 0)
       if (content)
          // Get content from replacement sequence.
-         contents-sequences := add!(contents-sequences, content);
+         contents-sequences := add!(contents-sequences, copy-sequence(content));
       else
          // Get content from inner stream.
          let cont-start = as(<integer>, inner-limits[max(seg-num - 1, 0)]);
@@ -593,7 +596,7 @@ end method;
 
 // TODO: stream-limit-setter or stream-size-setter?
 // TODO: Could provide more efficient read and write implementations than the
-// character-by-character implementation on <basic-wrapper-stream>.
+// character-by-character implementation in <basic-wrapper-stream>.
 
 
 //

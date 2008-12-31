@@ -7,6 +7,9 @@ Class: <canonical-text-stream>
 
 A text stream that detabs, standardizes line endings, and tracks row and column.
 
+NOTE: 'inner-stream' will return a <replacing-stream>. That stream's inner stream
+will be the 'inner-stream'.
+
 Make keywords:
    tabstop-size - Size of a tab stop. Defaults to 8.
    end-of-line  - Canonical end-of-line sequence. Defaults to "\n".
@@ -26,6 +29,8 @@ end class;
 define method make (cts-class == <canonical-text-stream>, #rest keys, 
                     #key inner-stream)
 => (object :: <object>)
+   // TODO: I shouldn't really do this. The inner-stream returned by <c-t-s>
+   // won't be what the user expects.
    let replacing-stream = make(<replacing-stream>, inner-stream: inner-stream);
    apply(next-method, cts-class, inner-stream:, replacing-stream, keys);
 end method;
@@ -100,6 +105,38 @@ define method adjust-stream-position
 => (new-position :: <integer>)
    adjust-stream-position(cts.inner-stream, delta, from: from);
    check-elements-to-stream-position(cts);
+end method;
+
+
+define method stream-size (cts :: <canonical-text-stream>)
+=> (sz :: <integer>)
+   let saved = cts.stream-position;
+   cts.stream-position := #"end";
+   let sz = next-method();
+   cts.stream-position := saved;
+   sz
+end method;
+
+
+define method stream-contents
+   (cts :: <canonical-text-stream>, #key clear-contents?)
+=> (contents :: <sequence>)
+   let saved = cts.stream-position;
+   cts.stream-position := #"end";
+   let cont = next-method();
+   cts.stream-position := saved;
+   cont
+end method;
+
+
+define method stream-contents-as
+   (type :: <type>, cts :: <canonical-text-stream>, #key clear-contents?)
+=> (contents :: <sequence>)
+   let saved = cts.stream-position;
+   cts.stream-position := #"end";
+   let cont = next-method();
+   cts.stream-position := saved;
+   cont
 end method;
 
 
