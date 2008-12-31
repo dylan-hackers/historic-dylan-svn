@@ -8,5 +8,6 @@ clean:
 	-rm -rf .libs
 
 test:
+	make -C test clean
 	make -C test
 	test/wrapper-streams-tester

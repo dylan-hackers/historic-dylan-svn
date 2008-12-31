@@ -32,17 +32,22 @@ implemented on subclasses, or left delegated to the inner stream:
    - peek
    - write-element
    - stream-at-end?
-   - stream-locked?
-   - lock-stream
-   - unlock-stream
 
 Other methods such as 'unread-element' or 'stream-position' are not used by
 methods on this class, but should probably be implemented on subclasses
 anyway.
+
+Additionally, the following method is implemented on this class to keep it
+from being delegated to the inner stream:
+   - close
 */
 
 define open class <basic-wrapper-stream> (<wrapper-stream>)
 end class;
+
+
+define method close (wrapper :: <basic-wrapper-stream>, #key, #all-keys) => ()
+end method;
 
 
 define method read
@@ -305,10 +310,8 @@ define method write-line
    (wrapper :: <basic-wrapper-stream>, elements :: <string>,
     #key start: start-pos = 0, end: end-pos = elements.size)
 => ()
-   with-stream-locked (wrapper)
-      write(wrapper.outer-stream, elements, start: start-pos, end: end-pos);
-      new-line(wrapper.outer-stream)
-   end with-stream-locked;
+   write(wrapper.outer-stream, elements, start: start-pos, end: end-pos);
+   new-line(wrapper.outer-stream)
 end method;
 
 
