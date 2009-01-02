@@ -3,14 +3,14 @@ synopsis: Common code for dylan-parser and markup-parser.
 
 
 /// Synopsis: A token that has a user-identifiable origin.
-define class <source-location-token> (<token>)
+define open class <source-location-token> (<token>)
    slot source-location :: <source-location> = make(<unknown-source-location>);
 end class;
 
 
 /// Synopsis: Parse context that includes information required to generate a
 /// source location.
-define class <file-parse-context> (<parse-context>)
+define open class <file-parse-context> (<parse-context>)
    slot file-locator :: <file-locator>,
       required-init-keyword: #"file-locator";
    slot line-col-position :: <function>,

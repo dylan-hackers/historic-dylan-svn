@@ -1,31 +1,61 @@
 all: doctower
 
-src =	common/*.dylan \
-	conditions/*.dylan \
-	ordered-tree/*.dylan \
-	internal-rep/*.dylan \
-	configs/*.dylan \
-	dylan-parser/*.dylan \
-	dylan-translator/*.dylan \
-	source-files/*.dylan \
-	markup-parser/*.dylan \
-	markup-translator/*.dylan \
-	topic-resolver/*.dylan \
-	tasks/*.dylan \
-	tool/*.dylan \
-	parser-common/*.dylan
+SOURCES = \
+	support-lib/support-library.lid \
+	markup-parser-lib/markup-parser-library.lid \
+	dylan-parser-lib/dylan-parser-library.lid \
+	main-lib/doctower-library.lid
 
 BASE_LIBDIR = ../..
 
-libs =	-L$(BASE_LIBDIR)/utilities/command-line-parser \
-	-L$(BASE_LIBDIR)/utilities/peg-parser \
-	-L$(BASE_LIBDIR)/utilities/dynamic-binding \
-	-L$(BASE_LIBDIR)/monday/lib/program-representation/source-location \
-	-L$(BASE_LIBDIR)/files-and-io/wrapper-streams
+LIBRARIES = \
+	$(BASE_LIBDIR)/utilities/command-line-parser \
+	$(BASE_LIBDIR)/utilities/peg-parser \
+	$(BASE_LIBDIR)/utilities/dynamic-binding \
+	$(BASE_LIBDIR)/monday/lib/program-representation/source-location \
+	$(BASE_LIBDIR)/files-and-io/wrapper-streams
 
-doctower: doctower.lid $(src) 
-	d2c -g $(libs) doctower.lid
+libraries = $(abspath $(LIBRARIES))
+sources = $(abspath $(SOURCES))
+libflags = $(addprefix -L,$(libraries)) $(addprefix -L,$(dir $(sources)))
+
+.PHONY: all
+.PHONY: clean
+
+ifneq ($(MAKECMDGOALS),clean)
+-include $(SOURCES:.lid=.dep)
+endif
+
+doctower : main-lib/doctower-library.lib.du
+	cp main-lib/doctower doctower
+
+support-lib/support-library.lib.du : \
+	support-lib/support-library.lid
+
+markup-parser-lib/markup-parser-library.lib.du : \
+	markup-parser-lib/markup-parser-library.lid
+
+dylan-parser-lib/dylan-parser-library.lib.du : \
+	dylan-parser-lib/dylan-parser-library.lid
+
+main-lib/doctower-library.lib.du : \
+	main-lib/doctower-library.lid
+
+%.dep %.lib.du : %.lid
+	cd $(dir $<) ; d2c -gM $(libflags) $(notdir $<)
+	@sed -i "~" -e "1s'.*:'$*.dep $*.lib.du:'" $*.dep
 
 clean:
-	-rm -f *.o *.s *.a *.c *.du *.el *.mak doctower *~
-	-rm -rf .libs
+	-find . \( -name "doctower" -or \
+		   -name "*.o" -or \
+		   -name "*.s" -or \
+		   -name "*.a" -or \
+		   -name "*.c" -or \
+		   -name "*.du" -or \
+		   -name "*.el" -or \
+		   -name "*.mak" -or \
+		   -name "*.mak-temp" -or \
+		   -name "*.dep" -or \
+		   -name "*~" -or \
+		   -name ".libs" \) \
+		-delete

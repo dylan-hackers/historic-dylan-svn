@@ -29,8 +29,8 @@ TODO file and source-code comments, or ask me, |Agent, on IRC.
 
 ### Directories ###
 
-code      - Source code. Each directory is a module. DocTower has only the one
-            library currently.
+code      - Source code. Each directory is a library, and the directories within
+            those are modules.
 thoughts  - What passes for design documents. These contain some of my thought
             processes. I also have a notebook, which I cannot really upload.
 defaults  - Prototype designs for HTML, CSS, and various generated elements.
