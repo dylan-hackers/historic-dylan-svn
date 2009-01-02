@@ -84,8 +84,12 @@ end method;
 // define method print-object (o :: <property-token>, s :: <stream>) => ()
 // end method;
 
+define method print-object (o :: <interchange-file-token>, s :: <stream>) => ()
+   format(s, "{interchange headers %= record %=}", o.headers, o.source-record);
+end method;
+
 define method print-object (o :: <source-record-token>, s :: <stream>) => ()
-   format(s, "{source-record hdrs %= defns %=", o.headers, o.definitions);
+   format(s, "{source-record defs %=", o.definitions);
    unless (o.unscoped-docs.empty?)
       format(s, " docs %=", o.unscoped-docs)
    end unless;

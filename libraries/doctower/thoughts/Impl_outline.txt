@@ -6,7 +6,7 @@ in comments in source code files, or in separate doc files.
 Content can't be "free." It has to be associated with an API element or topic
 of some kind.
 
-The DocTower tool creates output from various inputs. The compiler (opendylan or
+The Doctower tool creates output from various inputs. The compiler (opendylan or
 d2c) must create a file containing type inferences. The tool takes that file,
 the source code .lid file(s), and an option/toc file. The option/toc file
 includes doc files and images. The .lid file is used to grab the sources to scan

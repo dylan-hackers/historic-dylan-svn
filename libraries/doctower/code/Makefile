@@ -1,4 +1,4 @@
-all: doctower.out
+all: doctower
 
 src =	common/*.dylan \
 	conditions/*.dylan \
@@ -23,9 +23,9 @@ libs =	-L$(BASE_LIBDIR)/utilities/command-line-parser \
 	-L$(BASE_LIBDIR)/monday/lib/program-representation/source-location \
 	-L$(BASE_LIBDIR)/files-and-io/wrapper-streams
 
-doctower.out: doctower.lid $(src) 
+doctower: doctower.lid $(src) 
 	d2c -g $(libs) doctower.lid
 
 clean:
-	-rm -f *.o *.s *.a *.c *.du *.el *.mak *.out *~
+	-rm -f *.o *.s *.a *.c *.du *.el *.mak doctower *~
 	-rm -rf .libs

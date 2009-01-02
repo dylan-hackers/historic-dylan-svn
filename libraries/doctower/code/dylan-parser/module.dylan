@@ -24,6 +24,7 @@ define module dylan-parser
       <header-token>,
       <method-definer-token>,
       <property-token>,
+      <interchange-file-token>,
       <source-record-token>,
       <text-token>,
       <variable-definer-token>;
@@ -75,5 +76,6 @@ define module dylan-parser
       slot-name,
       slot-setter,
       slot-type,
+      source-record,
       unscoped-docs;
 end module;

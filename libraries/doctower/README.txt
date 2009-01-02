@@ -1,7 +1,8 @@
 ##################
-###  DocTower  ###
+###  Doctower  ###
+##################
 
-DocTower is a documentation generator. It can scan Dylan source files and
+Doctower is a documentation generator. It can scan Dylan source files and
 automatically generate skeletal documentation and various indices. You can add
 more specific documentation to the Dylan source files directly, or write
 separate text files and various overview topics as desired.
@@ -11,7 +12,7 @@ tables, and very nice organizational tools (including dedicated table of
 contents files). The markup is very unobtrusive, following common text-file
 conventions where possible.
 
-DocTower can output documentation in DITA XML format or in HTML format, and
+Doctower can output documentation in DITA XML format or in HTML format, and
 can include raw DITA or HTML markup within each topic.
 
 

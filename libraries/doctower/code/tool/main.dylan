@@ -4,13 +4,13 @@ module: main
 
 define argument-parser <my-arg-parser> ()
    regular-arguments files;
-   option toc-pattern = "*.toc", long: "toc", short: "t",
+   option toc-pattern = "toc", long: "toc", short: "t",
       kind: <optional-parameter-option-parser>,
       description: "Extension of table of contents files";
-   option cfg-pattern = "*.cfg", long: "cfg", short: "c",
+   option cfg-pattern = "cfg", long: "cfg", short: "c",
       kind: <optional-parameter-option-parser>,
       description: "Extension of configuration files";
-   option doc-pattern = "*.txt", long: "doc", short: "d",
+   option doc-pattern = "txt", long: "doc", short: "d",
       kind: <optional-parameter-option-parser>,
       description: "Extension of documentation text files";
    option title = "Untitled", long: "title",
@@ -38,18 +38,24 @@ define function main(name, arguments)
       exit-application(0);
    end;
 
+   // TODO: Expand wildcards in args.files.
    let toc-files = make(<stretchy-vector>);
    let doc-files = make(<stretchy-vector>);
    let src-files = make(<stretchy-vector>);
    for (filename in args.files)
       let loc = as(<file-locator>, filename);
-      let file = make(<file-stream>, locator: loc, if-does-not-exist: #"signal");
-      select (loc.locator-extension by case-insensitive-equal?)
-         "txt" => doc-files := add!(doc-files, file);
-         "toc" => toc-files := add!(toc-files, file);
-         ("dylan", "dyl") => src-files := add!(src-files, file);
-         otherwise => close(file);
-      end select;
+      block ()
+         // if-does-not-exist: #f would be preferable, but not implemented.
+         let file = make(<file-stream>, locator: loc, if-does-not-exist: #"signal");
+         select (loc.locator-extension by case-insensitive-equal?)
+            args.doc-pattern => doc-files := add!(doc-files, file);
+            args.toc-pattern => toc-files := add!(toc-files, file);
+            ("dylan", "dyl", "lid") => src-files := add!(src-files, file);
+            otherwise => close(file);
+         end select;
+      exception (err :: <file-does-not-exist-error>)
+         file-not-found(#f, filename: filename)
+      end block;
    end for;
 
    block ()
@@ -67,5 +73,13 @@ define function main(name, arguments)
 end function main;
 
 
-// Invoke our main() function.
-main(application-name(), application-arguments());
+// Invoke our main() function with error handlers.
+begin
+   let handler <user-visible-error> =
+         method (cond, next)
+            report-condition(cond, *standard-error*);
+            new-line(*standard-error*);
+            exit-application(cond.error-code);
+         end;
+   main(application-name(), application-arguments());
+end

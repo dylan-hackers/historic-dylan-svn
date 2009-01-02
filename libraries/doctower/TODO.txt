@@ -54,6 +54,12 @@ document. Probably just CSS styles, maybe a logo or common header or footer. We
 should offer a couple of different layout styles. For anything more extensive,
 the user should generate DITA output and use XSLT or a DITA processing system.
 
+-------
+
+Right now, I generate <file-streams> pretty early. We should defer this and work
+with <file-locators> as much as possible to simplify closing issues. Currently,
+.dylan files referenced by a .lid file aren't explicitly closed.
+
 
 ==========
 Want to Do

@@ -6,7 +6,7 @@ synopsis: Parser manager.
 /// Conditions: Throws <parse-failure> if stream has syntax error.
 define method parse-dylan-file
    (text :: <canonical-text-stream>, locator :: <file-locator>)
-=> (source-token :: <source-record-token>)
+=> (file-token :: <interchange-file-token>)
    // *parser-trace* := *standard-output*;
    // *parser-cache-hits* := #t;
 
@@ -18,15 +18,15 @@ define method parse-dylan-file
                line-col-position(text, at: pos)
             end);
             
-   let (source-token, success?, failure) = parse-source-file(text, context);
+   let (file-token, success?, failure) = parse-interchange-file(text, context);
 
    // for (e keyed-by k in context.parser-cache-hits)
    //    if (e > 1) log("%5d %s", e, k) end;
    // end for;
 
    if (success?)
-      log-object("Source Record", source-token);
-      source-token;
+      // log-object("Interchange file", file-token);
+      file-token;
    else
       error(failure);
    end if;
