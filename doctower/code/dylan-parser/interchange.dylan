@@ -13,12 +13,13 @@ end;
 // Dylan Interchange Format
 //
 
-define parser source-file :: false-or(<source-record-token>)
+define parser interchange-file (<source-location-token>)
    rule seq(many(header), opt-seq(hdr-eol, source-record), not-next(char))
    => tokens;
-   yield tokens[1][1];
+   slot headers = tokens[0];
+   slot source-record = tokens[1] & tokens[1][1];
 afterwards (context, tokens, value, start-pos, end-pos)
-   value.headers := tokens[0];
+   note-source-location(context, value);
 end parser;
 
 define parser header (<source-location-token>)
@@ -41,7 +42,7 @@ end parser;
 define parser hdr-value :: <string>
    rule seq(opt-many(seq(not-next(hdr-eol), char)), hdr-eol)
    => tokens;
-   yield apply(concatenate, collect-subelements(tokens[0], 1));
+   yield apply(concatenate, "", collect-subelements(tokens[0], 1));
 end parser;
 
 define parser hdr-addl-value :: <string>

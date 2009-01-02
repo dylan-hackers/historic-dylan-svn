@@ -10,7 +10,7 @@ define method concatenated-strings (s :: <string>) => (s :: <string>)
 end method;
 
 define method concatenated-strings (s :: <sequence>) => (s :: <string>)
-   apply(concatenate, s)
+   apply(concatenate, "", s)
 end method;
 
 define method translate-escape-char (s :: <string>) => (s :: <string>)

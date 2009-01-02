@@ -3,11 +3,11 @@ synopsis: Summary of exported token accessors. Not actually used, because I don'
    want to do all the slot type specifications, but these are what they should be.
 
 /// Synopsis: File headers.
-define generic headers (token :: <source-file-token>)
+define generic headers (token :: <interchange-file-token>)
 => (seq :: <sequence> /* of <header-token> */);
 
 /// Synopsis: File source record.
-define generic source-record (token :: <source-file-token>)
+define generic source-record (token :: <interchange-file-token>)
 => (rec :: false-or(<source-record-token>));
 
 /// Synopsis: File header keyword.

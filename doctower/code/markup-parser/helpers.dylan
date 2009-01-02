@@ -143,7 +143,7 @@ Synopsis: Get topic title from topic- or section-title-bare-style or
 */
 define function extract-title (tokens) => (title :: <sequence>)
    let flattened-tokens = choose(true?, integrate-sequences(tokens));
-   apply(concatenate, map(content, flattened-tokens));
+   apply(concatenate, #[], map(content, flattened-tokens));
 end function;
 
 

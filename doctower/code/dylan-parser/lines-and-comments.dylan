@@ -22,7 +22,6 @@ define parser source-record (<source-location-token>)
    rule seq(opt-many(seq(opt(lines-til-parsable), choice(definition, doc-block))),
             opt(lines-til-parsable))
    => tokens;
-   slot headers;  // Supplied by source-file parser.
    slot definitions = source-record-definitions(tokens[0] | #[]);
    slot unscoped-docs = attr(scoped-docs);
 attributes

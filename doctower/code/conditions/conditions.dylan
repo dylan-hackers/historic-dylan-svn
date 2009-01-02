@@ -2,99 +2,15 @@ module: conditions
 synopsis: Condition support and error handling.
 
 /**
-Synopsis: Indicates an special request for a list of locations.
+Synopsis: Indicates a request for a list of locations matching a given
+specifier.
 
-Recovery protocol is for handler to return list of <source-location>s.
+Recovery protocol is for handler to return an appropriate list of
+<source-location>s.
 **/
 define class <need-locations> (<condition>)
    constant slot specifier-for-locations = #f, init-keyword: #"specifier";
 end class;
-
-
-/** Synopsis: Conditions that may be displayed for the user. **/
-define abstract class <user-visible-condition>
-      (<source-location-mixin>, <format-string-condition>)
-   constant slot error-code, required-init-keyword: #"error-code";
-end class;
-
-
-/**
-Synopsis: Indicates illegal options or syntax.
-
-Recovery protocol is handler cannot return values, but can signal
-<simple-restart>.
-**/
-define class <syntax-error> (<serious-condition>, <user-visible-condition>)
-end class;
-
-define method make
-   (cls == <syntax-error>,
-    #key format-string, format-arguments, error-code, source-location)
-=> (inst :: <syntax-error>)
-   let (prefix-string, prefix-args) =
-         if (instance?(source-location, <unknown-source-location>))
-            values("Error: ", #[])
-         else
-            values("%s: Error: ", vector(source-location))
-         end if;
-   let (postfix-string, postfix-args) = values(" (%2d)", vector(error-code));
-   next-method(cls, error-code: error-code, source-location: source-location,
-         format-string: concatenate(prefix-string, format-string, postfix-string),
-         format-arguments: concatenate(prefix-args, format-arguments, postfix-args))
-end method;
-
-
-/**
-Synopsis: Indicates an issue with topic layout or content.
-
-Recovery protocol is handler cannot return values, but can signal
-<simple-restart>.
-**/
-define class <design-error> (<serious-condition>, <user-visible-condition>)
-end class;
-
-define method make
-   (cls == <design-error>,
-    #key format-string, format-arguments, error-code, source-location)
-=> (inst :: <design-error>)
-   let (prefix-string, prefix-args) =
-         if (instance?(source-location, <unknown-source-location>))
-            values("Error: ", #[])
-         else
-            values("%s: Error: ", vector(source-location))
-         end if;
-   let (postfix-string, postfix-args) = values(" (%2d)", vector(error-code));
-   next-method(cls, error-code: error-code, source-location: source-location,
-         format-string: concatenate(prefix-string, format-string, postfix-string),
-         format-arguments: concatenate(prefix-args, format-arguments, postfix-args))
-end method;
-
-
-/**
-Synopsis: Indicates unparsable syntax. User may want to look into it, but
-processing can continue.
-
-Recovery protocol is handler can return any value (which is ignored), but cannot
-signal <simple-restart>.
-**/
-define class <syntax-warning> (<warning>, <user-visible-condition>)
-end class;
-
-define method make
-   (cls == <syntax-warning>,
-    #key format-string, format-arguments, error-code, source-location)
-=> (inst :: <syntax-warning>)
-   let (prefix-string, prefix-args) =
-         if (instance?(source-location, <unknown-source-location>))
-            values("Warning: ", #[])
-         else
-            values("%s: Warning: ", vector(source-location))
-         end if;
-   let (postfix-string, postfix-args) = values(" (%2d)", vector(error-code));
-   next-method(cls, error-code: error-code, source-location: source-location,
-         format-string: concatenate(prefix-string, format-string, postfix-string),
-         format-arguments: concatenate(prefix-args, format-arguments, postfix-args))
-end method;
 
 
 define macro errors-definer
@@ -103,10 +19,10 @@ define macro errors-definer
          ?more:*
       end
    }
-   => {  define function ?name (location :: <source-location>, #key ?format-args)
+   => {  define function ?name (location, #key ?format-args)
             signal(make(?class,
                         error-code: ?code,
-                        source-location: location,
+                        error-location: location,
                         format-string: ?format-string,
                         format-arguments: vector(?format-args)));
          end;
@@ -116,11 +32,71 @@ define macro errors-definer
    { define errors (?class:expression) end } => { }
 end macro;
 
+define abstract class <user-visible-condition> (<format-string-condition>)
+   constant slot error-location ::
+         type-union(<source-location>, <file-locator>, singleton(#f)),
+      required-init-keyword: #"error-location";
+   constant slot error-code :: <integer>,
+      required-init-keyword: #"error-code";
+end class;
+
+define method make
+   (cls :: subclass(<user-visible-condition>),
+    #key format-string, format-arguments, error-code, error-location,
+         error-class :: <string>)
+=> (inst :: <user-visible-condition>)
+   let (prefix-string, prefix-args) =
+         if (~error-location | instance?(error-location, <unknown-source-location>))
+            values("%s: ", vector(error-class))
+         else
+            values("%s: %s: ", vector(error-location, error-class))
+         end if;
+   let (postfix-string, postfix-args) = values(" (%2d)", vector(error-code));
+   next-method(cls, error-code: error-code, error-location: error-location,
+         format-string: concatenate(prefix-string, format-string, postfix-string),
+         format-arguments: concatenate(prefix-args, format-arguments, postfix-args))
+end method;
+
+
+/**
+Synopsis: Conditions that may be displayed for the user and end execution.
+
+Recovery protocol is handler cannot return values, but can signal
+<simple-restart> to, e.g., a restart handler that will skip a troublesome file.
+**/
+define abstract class <user-visible-error> (<user-visible-condition>, <serious-condition>)
+end class;
+
+define method make
+   (cls :: subclass(<user-visible-error>), #rest keys, #key, #all-keys)
+=> (inst :: <user-visible-error>)
+   apply(next-method, cls, #"error-class", "Error", keys);
+end method;
+
+
+/**
+Synopsis: Conditions that are informative for the user.
+
+Recovery protocol is handler can return values (which are ignored).
+**/
+define abstract class <user-visible-warning> (<user-visible-condition>, <warning>)
+end class;
+
+define method make
+   (cls :: subclass(<user-visible-warning>), #rest keys, #key, #all-keys)
+=> (inst :: <user-visible-warning>)
+   apply(next-method, cls, #"error-class", "Warning", keys);
+end method;
+
+
+/**
+Synopsis: Indicates unparsable syntax. User may want to look into it, but
+processing can continue.
+**/
+define class <syntax-warning> (<user-visible-warning>)
+end class;
 
 define errors (<syntax-warning>)
-   00 nonspecific-syntax-warning
-      "Syntax warning";
-      
    01 unparsable-expression-in-code
       "Skipping unparsable expression";
    
@@ -129,10 +105,10 @@ define errors (<syntax-warning>)
 end errors;
 
 
-define errors (<syntax-error>)
-   20 nonspecific-syntax-error
-      "Syntax error";
+/** Synopsis: Indicates illegal options or syntax. **/
+define class <syntax-error> (<user-visible-error>) end;
 
+define errors (<syntax-error>)
    21 illegal-character-in-id
       "Tags may not include space, slash, open bracket, or close bracket characters";
 
@@ -162,10 +138,10 @@ define errors (<syntax-error>)
 end errors;
 
 
-define errors (<design-error>)
-   40 nonspecific-design-error
-      "Semantic error";
+/** Synopsis: Indicates an issue with topic layout or content. **/
+define class <design-error> (<user-visible-error>) end;
 
+define errors (<design-error>)
    41 no-context-topic-in-block
       "Topic for content cannot be inferred";
 
@@ -183,4 +159,13 @@ define errors (<design-error>)
 
    46 conflicting-locations-in-tree
       "Topic is placed ambiguously by %s", arranger-locations;
+end errors;
+
+
+/** Synopsis: Indicates some other error that can be ignored. */
+define class <general-warning> (<user-visible-warning>) end;
+
+define errors (<general-warning>)
+   61 file-not-found
+      "File \"%s\" not found", filename;
 end errors;

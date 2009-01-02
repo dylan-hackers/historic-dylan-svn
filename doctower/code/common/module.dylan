@@ -2,7 +2,7 @@ module: dylan-user
 
 define module common
    // from dylan
-   use extensions, import: { report-condition, <set> }, export: all;
+   use extensions, import: { <set> }, export: all;
    // from common-dylan
    use dylan, export: all;
    use common-extensions, export: all,
@@ -16,7 +16,7 @@ define module common
    use sequence-utilities, export: { partition };
    // from system
    use file-system, import: { <file-stream>, stream-locator }, export: all;
-   use locators, import: { <file-locator>, locator-extension }, export: all;
+   use locators, import: { <file-locator> }, export: all;
    // from io
    use streams, export: all;
    use format, export: all;

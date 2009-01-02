@@ -211,7 +211,7 @@ define caching parser quoted-words (<token>)
       begin
          if (tokens[0])
             let strings = map(method (sym) as(<string>, sym) end, tokens[0]);
-            apply(concatenate, strings);
+            apply(concatenate, "", strings);
          end if
       end;
    slot open-quote :: <string> = tokens[1];

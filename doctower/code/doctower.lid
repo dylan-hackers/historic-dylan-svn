@@ -1,5 +1,5 @@
 library:    doctower
-executable: doctower.out
+executable: doctower
 files:	    tool/library
 	    common/module
 	    common/common

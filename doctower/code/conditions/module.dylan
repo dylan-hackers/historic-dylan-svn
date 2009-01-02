@@ -4,7 +4,8 @@ define module conditions
    use common;
    
    export
-      <syntax-warning>, <syntax-error>, <design-error>, error-code,
+      <user-visible-warning>, <user-visible-error>, error-code, error-location,
+      <syntax-warning>, <syntax-error>, <design-error>,
       <need-locations>, specifier-for-locations;
    
    export
@@ -14,7 +15,6 @@ define module conditions
       duplicate-id-in-topics, id-matches-topic-title, ambiguous-title-in-link,
       conflicting-locations-in-tree, bad-syntax-in-toc-file,
       skipped-level-in-toc-file, unparsable-expression-in-code,
-      unsupported-syntax-in-code, nonspecific-syntax-error,
-      nonspecific-syntax-warning, nonspecific-design-error
+      unsupported-syntax-in-code, file-not-found
       ;
 end module;

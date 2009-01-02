@@ -255,7 +255,7 @@ you must ensure its containing section has a tag.
  - 'required libraries', 'Required Libraries', 'req', and 'REQ' all link to
    the same section and all are rendered as "Required Libraries."
 
- - 'Rabbit' is a valid link. DocTower would first search for a section with a
+ - 'Rabbit' is a valid link. Doctower would first search for a section with a
    tag of "rabbit," and after that fails it would search for a section with
    the title of "Rabbit."
 
@@ -271,7 +271,7 @@ you must ensure its containing section has a tag.
 
  - You cannot link to the "Where to Download" sub-section of the "Rabbit"
    section because that section does not have a section tag. If you were to try
-   'Rabbit/Where to Download' or 'Rabbit/download', DocTower would look for
+   'Rabbit/Where to Download' or 'Rabbit/download', Doctower would look for
    sections with those titles; since those sections don't exist, it would fail.
 
  - "...install the 'required libraries' [qv], then..." would render the link

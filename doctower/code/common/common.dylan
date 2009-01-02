@@ -26,6 +26,12 @@ define function item-string-list (items :: <collection>)
 end function;
 
 
+// TODO: Not needed if we defer <file-stream> creation and only compare <file-locators>.
+define method \= (f1 :: <file-stream>, f2 :: <file-stream>) => (equal? :: <boolean>)
+   f1.stream-locator = f2.stream-locator
+end method;
+
+
 /// Synopsis: Define methods to visit objects and their slots.
 ///
 /// Use as follows, where braces indicate optional items:

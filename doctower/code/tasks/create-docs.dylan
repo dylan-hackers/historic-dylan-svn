@@ -1,4 +1,4 @@
-module: workflows
+module: tasks
 
 
 define method create-doc-tree
@@ -8,12 +8,10 @@ define method create-doc-tree
    let tocs = map(toc-from-file, toc-files);
    // log-object("Table of contents", tocs);
 
-   // Collect explicit and implicit topics. Each map returns a list containing
-   // lists (one per file) of topics. The apply removes the per-file layer.
-   let topics-per-doc-file = map(topics-from-markup-file, doc-files);
-   let topics-per-source-file = map(topics-from-dylan-file, source-files);
-   let topics-per-file = concatenate(topics-per-doc-file, topics-per-source-file);
-   let topics = apply(concatenate, topics-per-file);
+   // Collect explicit and implicit topics.
+   let doc-file-topics = topics-from-markup-files(doc-files);
+   let src-file-topics = topics-from-dylan-files(source-files);
+   let topics = concatenate(doc-file-topics, src-file-topics);
    
    // Combine API topic fragments.
    // TODO: Combine topics that have same API name, type, library, and module.
