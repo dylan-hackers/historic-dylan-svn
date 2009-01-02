@@ -3868,9 +3868,9 @@ define method ^top-level-eval-type (fragment, #key on-failure = #f, type-variabl
       end;
   if (result == on-failure)
     on-failure
-  elseif (~instance?(result, <&type>))
-    // Put a warning here.
-    on-failure
+ // elseif (~instance?(result, <&type>))
+ //   // Put a warning here.
+ //   on-failure
   else
     result
   end;  
@@ -3893,6 +3893,8 @@ end method;
 define function parse-parameters-into
     (env :: <environment>, lambda-env :: <lambda-lexical-environment>, 
      sig-spec :: <signature-spec>)
+  let type-vars
+    = spec-type-variables(sig-spec);
   let required-specs
     = spec-argument-required-variable-specs(sig-spec);
   let key-specs
@@ -3902,7 +3904,7 @@ define function parse-parameters-into
   let spec-key?      
     = spec-argument-key?(sig-spec);
   let keys-start =
-    size(required-specs)
+    size(required-specs) + size(type-vars)
       + if (spec-rest? | spec-key?) 1 else 0 end;
   let variables
     = make(<simple-object-vector>, size: keys-start + size(key-specs));
@@ -3922,6 +3924,17 @@ define function parse-parameters-into
 			      name: name,
 			      environment: lambda-env));
 	end;
+  for (var-spec in type-vars)
+    let name = spec-variable-name(var-spec);
+    push-variable!(name,
+		   make(<lexical-required-type-variable>,
+			name:
+			  name,
+			environment: 
+			  lambda-env,
+			specializer: 
+			  spec-type-expression(var-spec)));
+  end;
   for (var-spec in required-specs)
     let name = spec-variable-name(var-spec);
     push-variable!(name,
