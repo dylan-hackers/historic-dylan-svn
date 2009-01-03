@@ -42,7 +42,7 @@ There are several things to notice about the above setup:
     logger-additive?-setter), anything logged to the my-app.debug.request
     logger will be passed along to the my-app logger.
 
-    So what's the benefit of having both loggers?  You can enabled/disable
+    So what's the benefit of having both loggers?  You can enable/disable
     them separately at runtime.  Also, if for example you wanted to log
     debug messages to a separate file  you could add a target to the
     my-app.debug logger.

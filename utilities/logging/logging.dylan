@@ -30,8 +30,9 @@ todo -- <file-log-target> should accept a string for the filename to
 todo -- <rolling-file-log-target>: Should roll the file when either a
         max size or a max time is reached, whichever comes first.
         Should make it possible for users to override roll-log-file?
-        and roll-log-file-name methods if they want to roll their
-        own.  Should also have option to compress on roll.
+        and rolled-log-file-name methods if they want to roll their
+        own.  Should also have option to compress on roll.  Should also
+        be able to specify that it roll "daily at midnight" etc.
 
 todo -- Add a way to extend the set of format directives from outside
         the library.  Get rid of code duplication in formatter parsing.
@@ -99,6 +100,12 @@ define method initialize
   end;
 end method initialize;
 
+define method local-name
+    (logger :: <abstract-logger>)
+ => (local-name :: <string>)
+  last(split(logger.logger-name, '.'))
+end;
+
 // Instances of this class are used as placeholders in the logger hierarchy when
 // a logger is created before its parents are created.  i.e., if the first logger
 // created is named "x.y.z" then both x and x.y will be <placeholder-logger>s.
@@ -123,7 +130,7 @@ define open class <logger> (<abstract-logger>)
 end class <logger>;
 
 define method make
-    (class :: subclass(<abstract-logger>),
+    (class :: subclass(<logger>),
      #rest args,
      #key formatter, targets :: false-or(<sequence>))
  => (logger)
@@ -133,10 +140,14 @@ define method make
   end;
   // Make sure targets is a <stretchy-vector>.  It's convenient for users
   // to be able to pass list(make(<target> ...)) though.
-  apply(next-method, class,
-        targets: as(<stretchy-vector>, targets | #[]),
-        formatter: formatter | $default-log-formatter,
-        args)
+  let targets = as(<stretchy-vector>, targets | #[]);
+  let logger
+    = apply(next-method, class,
+            targets: targets,
+            formatter: formatter | $default-log-formatter,
+            args);
+  log-info(logger, "Logger %s created", logger);
+  logger
 end method make;
 
 define method print-object
@@ -145,10 +156,14 @@ define method print-object
   if (*print-escape?*)
     next-method();
   else
-    write(stream, logger.logger-name);
-    for (target in logger.log-targets)
-      format(stream, " %s", target)
-    end;
+    format(stream, "%s (%sadditive, level: %s, targets: %s)",
+           logger.logger-name,
+           iff(logger.logger-additive?, "", "non-"),
+           logger.log-level.level-name,
+           iff(empty?(logger.log-targets),
+               "None",
+               join(logger.log-targets, ", ",
+                    key: curry(format-to-string, "%s"))));
   end;
 end method print-object;
 
@@ -212,9 +227,18 @@ define method add-logger
   let name :: <string> = first(path);
   let child = element(parent.logger-children, name, default: #f);
   if (path.size == 1)
-    if (child & ~instance?(child, <placeholder-logger>))
-      logging-error("Invalid logger name, %s.  A child logger named %s "
-                    "already exists.", original-name, name);
+    if (child)
+      if (instance?(child, <placeholder-logger>))
+        // Copy the placeholder's children into the new logger that
+        // is replacing it.
+        for (grandchild in child.logger-children)
+          new.logger-children[local-name(grandchild)] := grandchild;
+          grandchild.logger-parent := new;
+        end;
+      else
+        logging-error("Invalid logger name, %s.  A child logger named %s "
+                      "already exists.", original-name, name);
+      end;
     end;
     parent.logger-children[name] := new;
     new.logger-parent := parent;
