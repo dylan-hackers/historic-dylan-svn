@@ -263,7 +263,9 @@ end;
 
 // ----------------------------------------------------------------------
 // raise(<my-error>, "%s broke", foo)
-
+// (This is a bit pointless since it only works for conditions that
+// don't require other keyword arguments.)
+//
 define method raise
     (class :: subclass(<condition>), format-string, #rest args)
   signal(make(class,
@@ -283,6 +285,8 @@ end;
 
 
 // ----------------------------------------------------------------------
+// Would value-sequence and key-sequence be better names for thes?
+
 define method table-values
     (table :: <table>) => (collection :: <collection>)
   let v :: <vector> = make(<vector>, size: table.size);
@@ -303,6 +307,12 @@ define method table-keys
   v
 end;
 
+define method has-key?
+    (table :: <table>, key :: <object>) => (has-it? :: <boolean>)
+  element(table, key, default: $unfound) = $unfound
+end method has-key?;
+
+// copy-table?
 
 //// multiple-value-setq
 
@@ -420,3 +430,4 @@ define method find-object
         end method real-find;
   real-find(trie, as(<list>, path), trie.trie-object, #());
 end method find-object;
+
