@@ -183,18 +183,21 @@ end method as;
 
 // build-uri 
 
-// turn a uri into a string
-define open generic build-uri (uri :: <uri>)  => (result :: <string>); 
+// Turn a uri into a string
+define open generic build-uri
+    (uri :: <uri>, #key include-scheme, include-authority)
+ => (result :: <string>); 
 
 define method build-uri
-    (uri :: <uri>)
+    (uri :: <uri>,
+     #key include-scheme = #t, include-authority = #t)
  => (result :: <string>)
   let parts :: <stretchy-vector> = make(<stretchy-vector>);
-  unless (empty?(uri.uri-scheme))
+  if (include-scheme & ~empty?(uri.uri-scheme))
     add!(parts, uri.uri-scheme);
     add!(parts, ":")
   end;
-  if (has-authority-part?(uri))
+  if (include-authority & has-authority-part?(uri))
     add!(parts, "//");
     add!(parts, uri.uri-authority);
   end;

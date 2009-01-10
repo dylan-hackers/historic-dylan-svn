@@ -127,7 +127,7 @@ end;
 
 
 /* Example usage
-define url-map
+define url-map on my-http-server
   url "/wiki",
     action GET () => show-page,
     action POST () => edit-page;

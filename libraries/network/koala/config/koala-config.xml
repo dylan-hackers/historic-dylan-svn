@@ -88,19 +88,19 @@
      can be displayed.
   -->
 <debug-log
-   name="koala"
+   name="http.server"
    location="logs/koala.log"
    level="trace" />
 
 <!-- log errors to the same place as debug messages -->
 <error-log
-   name="koala.debug"
+   name="http.server.debug"
    additive="yes" />
 
 <!-- request lines go to a separate log -->
 <!-- format defaults to "%{message}" for the request log -->
 <request-log
-   name="koala.requests"
+   name="http.server.requests"
    additive="no"
    location="logs/request.log"
    max-size="20000000" />

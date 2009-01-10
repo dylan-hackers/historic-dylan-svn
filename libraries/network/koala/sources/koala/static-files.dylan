@@ -63,7 +63,7 @@ define method maybe-serve-static-file ()
   let client-etag = get-header(request, "If-None-Match");
   if (etag = client-etag)
     request.request-method := #"head";
-    not-modified(headers: response.raw-headers);
+    not-modified-redirect(headers: response.raw-headers);
   else
     let spec :: <directory-spec>
       = directory-spec-matching(*virtual-host*, url);
@@ -79,7 +79,7 @@ define method maybe-serve-static-file ()
                                        header-value: new-location);
           end if;
         else
-          access-forbidden-error();  // 403
+          forbidden-error();  // 403
         end if;
       #"link" =>
         let target = link-target(document);

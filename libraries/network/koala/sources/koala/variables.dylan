@@ -241,7 +241,7 @@ end;
 //
 define constant $default-logger
   = make(<logger>,
-         name: $server-name,
+         name: "http.server",
          targets: list($stdout-log-target));
 
 // These are thread variables for efficiency.  They can be bound once
@@ -261,15 +261,19 @@ define thread variable *request-logger* :: <logger> = $default-logger;
 define method log-trace (format-string, #rest format-args)
   apply(%log-trace, *debug-logger*, format-string, format-args);
 end;
+
 define method log-debug (format-string, #rest format-args)
   apply(%log-debug, *debug-logger*, format-string, format-args);
 end;
+
 define method log-info (format-string, #rest format-args)
   apply(%log-info, *debug-logger*, format-string, format-args);
 end;
+
 define method log-warning (format-string, #rest format-args)
   apply(%log-warning, *error-logger*, format-string, format-args);
 end;
+
 define method log-error (format-string, #rest format-args)
   apply(%log-error, *error-logger*,  format-string, format-args);
 end;
