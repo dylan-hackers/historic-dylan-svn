@@ -4,14 +4,22 @@ Synopsis: Code shared by HTTP client and server
 define library http-common
   use base64;
   use common-dylan,
-    import: { dylan, common-extensions, threads, simple-random };
+    import: { dylan,
+              common-extensions,
+              threads,
+              simple-random };
   use functional-dylan,
     import: { dylan-extensions };
   use io,
-    import: { format, standard-io, streams };
+    import: { format,
+              standard-io,
+              streams };
   use logging;
   use system,
-    import: { date, file-system, locators, operating-system };
+    import: { date,
+              file-system,
+              locators,
+              operating-system };
   use strings;
   use uncommon-dylan;
   use uri;
@@ -56,6 +64,7 @@ define module http-common
   use uri;
 
   export
+    $http-version,
     $default-http-port,
 
     // Things that expire
@@ -96,33 +105,119 @@ define module http-common
     response-request,
 
     // Errors and redirects
-    <http-error>,
-    <http-redirect-error>, // 3xx
-    <http-client-error>,   // 4xx
-    <http-server-error>,   // 5xx
-      <internal-server-error>, // 500
-    http-error-code,
+    <http-error>,                            // Any client or server error
+    <http-protocol-condition>,               // Any client or server protocol condition
+
+    <http-redirect-condition>,               // Superclass of all redirects
+    <moved-permanently-redirect>,            // 301
+    $moved-permanently-redirect,
+    moved-permanently-redirect,
+    <found-redirect>,                        // 302 (compare 307)
+    $found-redirect,
+    found-redirect,
+    <see-other-redirect>,                    // 303
+    $see-other-redirect,
+    see-other-redirect,
+    <not-modified-redirect>,                 // 304
+    $not-modified-redirect,
+    not-modified-redirect,
+    <use-proxy-redirect>,                    // 305
+    $use-proxy-redirect,
+    use-proxy-redirect,
+                                             // 306 unused
+    <moved-temporarily-redirect>,            // 307 (compare 302)
+    $moved-temporarily-redirect,
+    moved-temporarily-redirect,
+
+    <http-client-protocol-error>,            // Superclass of all client errors
+    <bad-request-error>,                     // 400
+    $bad-request-error,
+    bad-request-error,
+    <header-too-large-error>,                // 400
+    $header-too-large-error,
+    header-too-large-error,
+    <bad-header-error>,                      // 400
+    $bad-header-error,
+    bad-header-error,
+    <unauthorized-error>,                    // 401
+    $unauthorized-error,
+    unauthorized-error,
+    <payment-required-error>,                // 402
+    $payment-required-error,
+    payment-required-error,
+    <forbidden-error>,                       // 403
+    $forbidden-error,
+    forbidden-error,
+    <resource-not-found-error>,              // 404
+    $resource-not-found-error,
+    resource-not-found-error,
+    <method-not-allowed-error>,              // 405
+    $method-not-allowed-error,
+    method-not-allowed-error,
+    <not-acceptable-error>,                  // 406
+    $not-acceptable-error,
+    not-acceptable-error,
+    <proxy-authentication-required-error>,   // 407
+    $proxy-authentication-required-error,
+    proxy-authentication-required-error,
+    <request-timeout-error>,                 // 408
+    $request-timeout-error,
+    request-timeout-error,
+    <conflict-error>,                        // 409
+    $conflict-error,
+    conflict-error,
+    <gone-error>,                            // 410
+    $gone-error,
+    gone-error,
+    <content-length-required-error>,         // 411
+    $content-length-required-error,
+    content-length-required-error,
+    <precondition-failed-error>,             // 412
+    $precondition-failed-error,
+    precondition-failed-error,
+    <request-entity-too-large-error>,        // 413
+    $request-entity-too-large-error,
+    request-entity-too-large-error,
+    <request-uri-too-long-error>,            // 414
+    $request-uri-too-long-error,
+    request-uri-too-long-error,
+    <unsupported-media-type-error>,          // 415
+    $unsupported-media-type-error,
+    unsupported-media-type-error,
+    <requested-range-not-satisfiable-error>, // 416
+    $requested-range-not-satisfiable-error,
+    requested-range-not-satisfiable-error,
+    <expectation-failed-error>,              // 417
+    $expectation-failed-error,
+    expectation-failed-error,
+
+    <http-server-protocol-error>,            // Superclass of all server errors
+    <internal-server-error>,                 // 500
+    $internal-server-error,
+    internal-server-error,
+    <not-implemented-error>,                 // 501
+    $not-implemented-error,
+    not-implemented-error,
+    <bad-gateway-error>,                     // 502
+    $bad-gateway-error,
+    bad-gateway-error,
+    <service-unavailable-error>,             // 503
+    $service-unavailable-error,
+    service-unavailable-error,
+    <gateway-timeout-error>,                 // 504
+    $gateway-timeout-error,
+    gateway-timeout-error,
+    <http-version-not-supported-error>,      // 505
+    $http-version-not-supported-error,
+    http-version-not-supported-error,
+    <application-error>,                     // 599  (local extension)
+    $application-error,
+    application-error,
+
+    condition-class-for-status-code,
+    http-status-code,
     http-error-headers,
     http-error-message-no-code,   // get rid of this, use condition-to-string
-
-    access-forbidden-error,           $access-forbidden-error,
-    application-error,                $application-error,
-    bad-header-error,                 $bad-header-error,
-    bad-request,                      $bad-request,
-    content-length-required-error,    $content-length-required-error,
-    header-too-large-error,           $header-too-large-error,
-    internal-server-error,            $internal-server-error,
-    method-not-allowed,               $method-not-allowed,
-    moved-permanently-redirect,       $moved-permanently-redirect,
-    moved-temporarily-redirect,       $moved-temporarily-redirect,
-    not-implemented-error,            $not-implemented-error,
-    not-modified,                     $not-modified,
-    request-entity-too-large-error,   $request-entity-too-large-error,
-    resource-not-found-error,         $resource-not-found-error,
-    see-other-redirect,               $see-other-redirect,
-    unauthorized-error,               $unauthorized-error,
-    unsupported-http-version-error,   $unsupported-http-version-error,
-    unsupported-media-type-error,     $unsupported-media-type-error,
 
     // Parsing
     token-end-position,
@@ -136,6 +231,10 @@ define module http-common
     read-message-headers,
     raw-headers,
     parsed-headers,
+    <avalue>,
+    avalue-value,
+    avalue-alist,
+    chunked-transfer-encoding?,
 
     // lower level header APIs...
     read-header-line,

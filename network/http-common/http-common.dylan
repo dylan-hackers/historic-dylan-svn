@@ -1,12 +1,22 @@
 Module: http-common
 Synopsis: Code shared by HTTP client and server.
 
+define constant $http-version :: <byte-string> = "HTTP/1.1";
+
 define constant $default-http-port :: <integer> = 80;
 
+// These have no log targets by default.  If someone wants to enable logging
+// for this library they can add one.  For example,
+//   add-target(get-logger("http.common"), $stdout-log-target)
+//
+define constant $log :: <logger>
+  = make(<logger>, name: "http.common");
+
+define constant $header-log :: <logger>
+  = make(<logger>, name: "http.common.headers");
 
 
 /////////////// Parsing //////////////
-
 
 // RFC 2616, 2.2
 define constant $token-character-map
@@ -49,7 +59,7 @@ define method validate-http-version
     "HTTP/0.9" => #"HTTP/0.9";
     "HTTP/1.0" => #"HTTP/1.0";
     "HTTP/1.1" => #"HTTP/1.1";
-    otherwise => unsupported-http-version-error();
+    otherwise => http-version-not-supported-error(version: version);
   end select;
 end method validate-http-version;
 
@@ -110,6 +120,23 @@ define method make
   end
 end method make;
 
+define method chunked-transfer-encoding?
+    (headers :: <header-table>)
+ => (chunked? :: <boolean>)
+  let xfer-encoding = get-header(headers, "Transfer-encoding", parsed: #t);
+  xfer-encoding
+    & member?("chunked", xfer-encoding,
+              test: method (x, y)
+                      string-equal?(x, avalue-value(y))
+                    end)
+end method chunked-transfer-encoding?;
+
+define method chunked-transfer-encoding?
+    (request :: <base-http-request>)
+ => (chunked? :: <boolean>)
+  chunked-transfer-encoding?(request.raw-headers)
+end method chunked-transfer-encoding?;
+
 // Read a line of input from the stream, dealing with CRLF correctly.
 // The string returned does not include the CRLF.  Second return value
 // is the end-of-line index.
@@ -150,8 +177,10 @@ end method read-http-line;
 
 define open class <base-http-response> (<message-headers-mixin>)
 
+  // todo -- Move this slot into the server.  Client doesn't need this.
+  //         For now I just made it optional.
   constant slot response-request :: <base-http-request>,
-    required-init-keyword: #"request";
+    /* required- */ init-keyword: #"request";
 
   slot response-code :: <integer>,
     init-keyword: code:,

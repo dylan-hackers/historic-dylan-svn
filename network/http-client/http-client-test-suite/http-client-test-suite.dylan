@@ -1,14 +1,36 @@
-module: http-client-test-suite
+Module: http-client-test-suite
 
-define variable *http-server-port* :: <integer> = 8080;
+/*
+tests to write:
+* send chunks of size 1, chunk-size, chunk-size - 1, and chunk-size + 1
+  and verify that the correct content is received.  need an echo server.
+* chunked and non-chunked requests and responses
+* verify that adding a method on stream-sequence-class has the intended
+  effect.  (i.e., read-to-end gives me a <byte-string> not a <vector>)
+* verify error semantics for requests/responses with incorrect size or
+  bad chunk size.
+*/
+
+///////////////////////////
+// Utilities and responders
+///////////////////////////
+
+define constant $log :: <logger>
+  = make(<logger>, name: "http.client.test-suite");
+
+define variable *test-server* :: false-or(<http-server>) = #f;
+
+define variable *test-port* :: <integer> = 7000;
+
+define variable *test-host* :: <string> = "localhost";
 
 define variable *url-prefix* :: <byte-string> = "/http-test";
 
-// Make a full URL for making HTTP requests.
+// Make a full URL for HTTP requests.
 define function full-url
     (url :: <string>, #key secure = #f) => (url :: <string>)
-  format-to-string("http://localhost:%d%s",
-                   *http-server-port*, short-url(url))
+  format-to-string("http://%s:%d%s",
+                   *test-host*, *test-port*, short-url(url))
 end;
 
 // Make URLs for registering with the server (i.e., just a path)
@@ -17,70 +39,207 @@ define function short-url
   format-to-string("%s%s", *url-prefix*, url)
 end;
 
-define suite http-client-test-suite ()
-  test test-simple-http-get;
-end suite http-client-test-suite;
 
-define responder hello (short-url("/hello"))
-  output("hello")
+define function x-responder ()
+  let n = get-query-value("n", as: <integer>);
+  output(make(<byte-string>, size: n, fill: 'x'))
 end;
 
-define test test-simple-http-get ()
-  check-equal("GET of /hello returns \"hello\"?",
-              simple-http-get(full-url("/hello")),
-              "hello");
-end test test-simple-http-get;
+define function make-x-url
+    (n :: <integer>)
+ => (url)
+  full-url(format-to-string("/x?n=%d", n))
+end function make-x-url;
 
+// Responder that echos the message body back verbatim to the response.
+//
+define function echo-responder ()
+  // should eventually be output(read-to-end(current-request()))
+  output(request-content(current-request()))
+end;
+
+define function register-test-responders
+    (server :: <http-server>)
+  add-responder(server, short-url("/x"),
+                table(compile-regex("^.*$") => list(x-responder)));
+  add-responder(server, short-url("/echo"),
+                table(compile-regex("^.*$") => list(echo-responder)));
+end function register-test-responders;
+
+define variable *test-suite-initialized?* = #f;
+
+define function initialize-http-client-test-suite
+    ()
+  if (~*test-suite-initialized?*)
+    add-target(get-logger("http.common"), $stdout-log-target);
+    add-target(get-logger("http.client"), $stdout-log-target);
+    //logger-enabled?(get-logger("http.common.headers")) := #f;
+    start-test-server();
+    *test-suite-initialized?* := #t;
+  end;
+end function initialize-http-client-test-suite;
+
+define function start-test-server
+    (#key host = *test-host*, port = *test-port*)
+  *test-server* := make(<http-server>,
+                        listeners: list(list(host, port)));
+  register-test-responders(*test-server*);
+  start-server(*test-server*, background: #t, wait: #t);
+end function start-test-server;
+
+
+/////////////////////////////
+// Tests
+/////////////////////////////
+
+
+// Test GETs with responses of various sizes.  For Koala, the largest
+// one causes a chunked response.
+//
+define test test-http-get ()
+  for (n in list(0, 1, 2, 8192, 100000))
+    check-equal(format-to-string("GET %d-byte string of 'x's", n),
+                http-get(make-x-url(n)),
+                make(<byte-string>, size: n, fill: 'x'));
+  end;
+end test test-http-get;
+
+// Test http-get with output done to a stream.
+//
+define test test-http-get-to-stream ()
+  check-equal("http-get to a stream",
+              "xxxx",
+              with-output-to-string(stream)
+                http-get(make-x-url(4), stream: stream)
+              end);
+end test test-http-get-to-stream;
+
+define test test-encode-form-data ()
+end test test-encode-form-data;
+
+define test test-http-connections ()
+end test test-http-connections;
+
+define test test-with-http-connection ()
+end test test-with-http-connection;
+
+define test test-reuse-http-connection ()
+  // The explicit headers here should be temporary.  I want to make
+  // with-http-connection and send-request coordinate better to do
+  // the keep-alive.
+  with-http-connection (conn = *test-host*, port: *test-port*)
+    send-request(conn, "GET", make-x-url(2),
+                 headers: #[#["Connection", "Keep-alive"]]);
+    let response :: <http-response> = read-response(conn);
+    check-equal("first response is xx", response.response-content, "xx");
+
+    send-request(conn, "GET", make-x-url(5),
+                 headers: #[#["Connection", "Keep-alive"]]);
+    let response :: <http-response> = read-response(conn);
+    check-equal("second response is xxxxx", response.response-content, "xxxxx");
+  end;
+    // todo -- 
+    // be sure to check what happens if we write more data to the request
+    // stream than specified by Content-Length, and if the server sends
+    // more data than specified by its Content-Length header.  i.e., do
+    // we need to flush/discard the extra data to make the connection 
+    // usable again...presumably.
+end test test-reuse-http-connection;
+
+define test test-streaming-request ()
+  with-http-connection(conn = *test-host*, port: *test-port*)
+    // This uses a content-length header because currently Koala doesn't
+    // support requests with chunked encoding.
+    start-request(conn, #"post", short-url("/echo"),
+                  headers: #[#["Content-Length", "7"],
+                             #["Content-Type", "text/plain"]]);
+    write(conn, "abcdefg");
+    finish-request(conn);
+    check-equal("Streamed request data sent correctly",
+                "abcdefg",
+                response-content(read-response(conn)));
+  end;
+end test test-streaming-request;
+
+define test test-streaming-response ()
+end test test-streaming-response;
+
+define test test-chunked-request ()
+end test test-chunked-request;
+
+define test test-chunked-response ()
+end test test-chunked-response;
+
+define test test-non-chunked-request ()
+end test test-non-chunked-request;
+
+define test test-non-chunked-response ()
+end test test-non-chunked-response;
+
+define test test-resource-not-found-error ()
+  check-condition("<resource-not-found-error> (404) signaled",
+                  <resource-not-found-error>,
+                  http-get(full-url("/no-such-url")));
+end test test-resource-not-found-error;
+
+define test test-invalid-response-chunk-sizes ()
+end test test-invalid-response-chunk-sizes;
+
+define test test-invalid-response-content-lengths ()
+end test test-invalid-response-content-lengths;
+
+define test test-invalid-request-content-lengths ()
+end test test-invalid-request-content-lengths;
+
+define test test-read-from-response-after-done ()
+  with-http-connection(conn = *test-host*, port: *test-port*)
+    send-request(conn, #"get", make-x-url(3));
+    let response = read-response(conn, read-content: #t);
+    check-condition("Reading past end of response raises <end-of-stream-error>",
+                    <end-of-stream-error>,
+                    read-element(response));
+  end;
+end test test-read-from-response-after-done;
+
+define suite http-client-test-suite ()
+  test test-http-get;
+  test test-http-get-to-stream;
+  test test-encode-form-data;
+  test test-with-http-connection;
+  test test-http-connections;
+  test test-reuse-http-connection;
+  test test-streaming-request;
+  test test-streaming-response;
+
+  test test-chunked-request;
+  test test-chunked-response;
+  test test-non-chunked-request;
+  test test-non-chunked-response;
+
+  test test-resource-not-found-error;
+  test test-invalid-response-chunk-sizes;
+  test test-invalid-response-content-lengths;
+  test test-invalid-request-content-lengths;
+
+  test test-read-from-response-after-done;
+  // todo -- test the reaction to server errors
+
+end suite http-client-test-suite;
+
+
+// todo -- move into a separate application
 define function main ()
-  let parser = make(<argument-list-parser>);
-  add-option-parser-by-type(parser,
-                            <parameter-option-parser>,
-                            description: "Document root for the HTTP client test pages",
-                            long-options: #("document-root"),
-                            short-options: #("d"));
-  add-option-parser-by-type(parser,
-                            <parameter-option-parser>,
-                            description: "Server port number",
-                            long-options: #("port"),
-                            short-options: #("p"));
-  add-option-parser-by-type(parser,
-                            <simple-option-parser>,
-                            description: "Display this help message",
-                            long-options: #("help"),
-                            short-options: #("h"));
-  add-option-parser-by-type(parser,
-                            <simple-option-parser>,
-                            description: "Enable debugging.  Causes Koala to not handle "
-                                         "most errors during request handling.",
-                            long-options: #("debug"));
-
-  parse-arguments(parser, application-arguments());
-  if (option-value-by-long-name(parser, "help")
-        | ~empty?(parser.regular-arguments))
-    print-synopsis(parser,
-                   *standard-output*,
-                   usage: format-to-string("%s [options]", application-name()),
-                   description: application-name());
-  else
-    let port = string-to-integer(option-value-by-long-name(parser, "port") | "8080");
-    let docroot = option-value-by-long-name(parser, "document-root")
-                    // Change default to /var/www/http-test or something
-                    | "c:/cgay/dylan/trunk/libraries/network/http-client/tests/www";
-    let http-server = make(<http-server>,
-                           document-root: docroot);
-    // The following shouldn't return until ready for service.
-    start-server(http-server,
-                 port: port,
-                 background: #t,
-                 debug: option-value-by-long-name(parser, "debug"));
-    // The above returns immediately (for now), so give it time to start up.
-    sleep(2);
+  initialize-http-client-test-suite();
+  block ()
     run-test-application(http-client-test-suite);
-    stop-server(http-server);
+  cleanup
+    if (*test-server*)
+      stop-server(*test-server*);
+    end;
   end;
 end function main;
 
 begin
-  main();
+  main()
 end;
 

@@ -115,11 +115,17 @@ define function parse-comma-separated-values (data, parse-function :: <function>
             let lim = iterate find-end (pos = bpos, quoted? = #f)
                         // note that pos > epos is possible from the '\\' case.
                         let ch = pos < epos & str[pos];
-                        if (~quoted? & (ch == ',' | ch == #f)) pos
-                        elseif (quoted? & ch == '\\') find-end(pos + 2, #t)
-                        elseif (ch == '"') find-end(pos + 1, ~quoted?)
-                        elseif (ch) find-end(pos + 1, quoted?)
-                        else bad-header-error() end;
+                        if (~quoted? & (ch == ',' | ch == #f))
+                          pos
+                        elseif (quoted? & ch == '\\')
+                          find-end(pos + 2, #t)
+                        elseif (ch == '"')
+                          find-end(pos + 1, ~quoted?)
+                        elseif (ch)
+                          find-end(pos + 1, quoted?)
+                        else
+                          bad-header-error()
+                        end;
                       end;
             let (b, e) = trim-whitespace(str, bpos, lim);
             when (b < e)

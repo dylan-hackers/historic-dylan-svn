@@ -81,7 +81,7 @@ define open generic respond-to
 // Default
 define method respond-to 
     (request-method :: <symbol>, page :: <page>)
-  method-not-allowed(request-method: request-method);
+  method-not-allowed-error(request-method: request-method);
 end;
 
 define method respond-to
@@ -103,7 +103,7 @@ define open generic respond-to-post (page :: <page>);
 define method respond-to-get
     (page :: <page>)
   // TODO: include Allow header in response.
-  method-not-allowed(request-method: "GET");
+  method-not-allowed-error(request-method: "GET");
 end method respond-to-get;
 
 // This is a common case and it's more succinct and readable than respond-to.
@@ -187,7 +187,7 @@ define method source-location
     else
       log-warning("Attempt to access a document outside the document root: %s",
                   as(<string>, newloc));
-      access-forbidden-error(); // 403
+      forbidden-error(); // 403
     end
   else
     loc
@@ -232,7 +232,7 @@ define method respond-to (request-method == #"get", page :: <static-page>)
     write(stream, page.contents);
     force-output(stream);
   else
-    resource-not-found-error(url: as(<string>, current-request().request-url));
+    resource-not-found-error(url: current-request().request-url);
   end;
 end;
 
@@ -849,7 +849,7 @@ define method parse-page
   pt-debug("Parsing page %s", as(<string>, source-location(page)));
   let string = file-contents(source-location(page));
   if (~string)
-    resource-not-found-error(url: as(<string>, current-request().request-url));
+    resource-not-found-error(url: current-request().request-url);
   else
     page.contents := string;
     page.date-modified := file-property(source-location(page), #"modification-date");

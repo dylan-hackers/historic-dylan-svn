@@ -6,8 +6,6 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-define variable *debug-headers?* :: <boolean> = #t;
-
 // Put a total limit on header size, so don't get wedged reading bogus headers.
 // Make it largish though, since cookies come in via a header
 define variable *max-single-header-size* :: false-or(<integer>) = 16384;
@@ -47,10 +45,8 @@ define function read-message-headers
       values(headers, buffer, epos)
     else
       let (key, data) = split-header(buffer, bpos, epos);
+      log-trace($log, "<-- %s: %s", key, data);
       add-header(headers, key, data);
-      // TODO: we don't have access to the log target anymore now that this code
-      //       is in http-common.  Need to fix the logging library.
-      //log-copious("<--%s: %s", key, data);
       loop(buffer, epos, peek-ch);
     end if;
   end iterate;
@@ -60,48 +56,27 @@ define open generic add-header
     (object :: <object>, header :: <byte-string>, value :: <object>,
      #key if-exists? :: one-of(#"replace", #"append", #"ignore", #"error"));
 
-// temporary
-define constant $header-logger :: <logger>
-  = make(<logger>,
-         name: "koala.debug.headers",
-         targets: list($stdout-log-target),
-         additive: #t);
-
 define method add-header
     (headers :: <header-table>, header-name :: <byte-string>, value,
      #key if-exists? :: <symbol> = #"replace")
+  // todo -- validate the header.  at least check that it doesn't contain CRLF
+  //         unless it's a valid continuation line.
   let old = element(headers, header-name, default: #f);
-  if (old)
-    log-debug($header-logger, "add-header: Previous value for %s: %s",
-              header-name, old);
-  end;
   if (~old)
-    if (*debug-headers?*)
-      log-debug($header-logger, "add-header: New %s: %s",
-                header-name, value);
-    end;
     headers[header-name] := value;
   elseif (if-exists? = #"replace")
-    if (*debug-headers?*)
-      log-debug($header-logger, "add-header: Replaced %s: %s -> %s",
-                header-name, old, value);
-    end;
+    log-debug($header-log, "Replacing header %s: %s -> %s",
+              header-name, old, value);
     headers[header-name] := value;
   elseif (if-exists? = #"append")
-    if (*debug-headers?*)
-      log-debug($header-logger, "add-header: Appended to %s: %s",
-                header-name, headers[header-name]);
-    end;
+    log-debug($header-log, "Appending to header %s: %s", header-name, value);
     headers[header-name] := iff(instance?(old, <pair>),
                                 concatenate!(old, list(value)),
                                 list(old, value));
   elseif (if-exists? = #"error")
     error("Attempt to add header %= which has already been added", header-name);
   else
-    if (*debug-headers?*)
-      log-debug($header-logger, "add-header: Ignoring %s: %s",
-                header-name, value);
-    end;
+    log-debug($header-log, "Ignoring header %s: %s", header-name, value);
     assert(if-exists? == #"ignore");
   end;
 end method add-header;
@@ -119,7 +94,11 @@ define open generic get-header
 define method get-header
     (table :: <table>, header-name :: <byte-string>, #key parsed :: <boolean>)
  => (header-value :: <object>)
-  element(table, header-name, default: #f)
+  let raw-value = element(table, header-name, default: #f);
+  raw-value
+    & iff(parsed,
+          parse-header-value(as(<symbol>, header-name), raw-value),
+          raw-value)
 end method get-header;
 
 define method get-header
@@ -132,15 +111,10 @@ define method get-header
     if (found?(cached))
       cached
     else
-      let raw-value = get-header(message.raw-headers, name);
-      if (raw-value)
-        // It's okay to intern the header name as a symbol since it's being
-        // requested explicitly.
-        cache[name] := (raw-value & parse-header-value(as(<symbol>, name), raw-value))
-      end
+      cache[name] := get-header(message.raw-headers, name, parsed: #t)
     end
   else
-    get-header(message.raw-headers, name)
+    get-header(message.raw-headers, name, parsed: #f)
   end
 end method get-header;
 
@@ -158,7 +132,7 @@ define function grow-header-buffer (old :: <byte-string>, len :: <integer>)
     end;
     new
   end;
-end grow-header-buffer;
+end function grow-header-buffer;
 
 // Read a header line, including continuation if any.  Grows buffer as needed.
 // Removes all crlf's, just leaves the text of line itself.

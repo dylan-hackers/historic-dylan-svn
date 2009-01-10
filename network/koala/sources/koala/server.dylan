@@ -6,13 +6,15 @@ Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-define constant $http-version = "HTTP/1.1";
 define constant $server-name = "Koala";
+
 define constant $server-version = "0.9";
+
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
 
 define constant $allowed-request-methods :: <list>
   = #(#"get", #"head", #"options", #"post");
+
 define constant $allowed-request-methods-string :: <byte-string>
     = join($allowed-request-methods, ", ",
            key: method (x) as-uppercase(as(<byte-string>, x)) end);
@@ -254,18 +256,26 @@ define method make-listener
   listener
 end;
 
+// #(host, port)
 define method make-listener
-    (listener :: <string>) => (listener :: <listener>)
-  let parts = split(listener, ':');
-  if (parts.size ~= 2)
+    (host-and-port :: <sequence>) => (listener :: <listener>)
+  if (host-and-port.size = 2)
+    let (host, port) = apply(values, host-and-port);
+    if (instance?(port, <string>))
+      port := string-to-integer(port);
+    end;
+    make(<listener>, host: host, port: port)
+  else
     error(make(<koala-api-error>,
                format-string: "Invalid listener spec: %s",
-               format-arguments: list(listener)))
-  else
-    let (host, port) = apply(values, parts);
-    let port = string-to-integer(port);
-    make(<listener>, host: host, port: port)
+               format-arguments: list(host-and-port)));
   end
+end method make-listener;
+
+// "host:port"
+define method make-listener
+    (listener :: <string>) => (listener :: <listener>)
+  make-listener(split(listener, ':'));
 end method make-listener;
 
 define method listener-name
@@ -734,12 +744,12 @@ define method virtual-host
       vhost
     else
       // todo -- see if the spec says what error to return here.
-      resource-not-found-error(url: as(<string>, request.request-url));
+      resource-not-found-error(url: request.request-url);
     end;
   elseif (*server*.fall-back-to-default-virtual-host?)
     *server*.default-virtual-host
   else
-    resource-not-found-error(url: as(<string>, request.request-url));
+    resource-not-found-error(url: request.request-url);
   end
 end;
 
@@ -809,20 +819,19 @@ end function handler-top-level;
 
 define function htl-error-handler
     (cond :: <condition>, next-handler :: <function>, exit-function :: <function>,
-     #key decline-if-debugging = #t, log = #t, send-response = #t, format-string)
+     #key decline-if-debugging = #t, send-response = #t, format-string)
   if (decline-if-debugging & debugging-enabled?(*server*))
     next-handler()
   else
     block ()
-      if (log)
-        log-debug(format-string | "Error handling request: %s", cond);
-      end;
+      log-debug(format-string | "Error handling request: %s", cond);
       if (send-response)
         send-error-response(*request*, cond);
       end;
     cleanup
       exit-function()
     exception (ex :: <error>)
+      // nothing
     end;
   end;
 end function htl-error-handler;
@@ -841,7 +850,7 @@ define method read-request (request :: <request>) => ()
   let line-count :: <integer> = 0;
   while (empty-line?(buffer, len))
     if (line-count > 5)
-      bad-request(message: "No Request-Line received.");
+      bad-request-error(reason: "No Request-Line received");
     end;
     pset (buffer, len) read-http-line(socket) end;
   end;
@@ -873,7 +882,7 @@ define function parse-request-line
   let bpos3 = epos2 & skip-whitespace(buffer, epos2, eol);
   let epos3 = bpos3 & whitespace-position(buffer, bpos3, eol) | eol;
   if (~bpos3)
-    bad-request(message: "Invalid request line");
+    bad-request-error(reason: "Invalid request line");
   else
     let req-method = substring(buffer, 0, epos1);
     let url-string = substring(buffer, bpos2, epos2);
@@ -930,9 +939,9 @@ define function read-request-content
     let n = kludge-read-into!(request-socket(request), content-length, buffer);
     if (n ~== content-length)
       // RFC 2616, 4.4
-      bad-request(message: format-to-string("Request content size (%d) does not "
-                                            "match Content-Length header (%d)",
-                                            n, content-length));
+      bad-request-error(reason: format-to-string("Request content size (%d) does not "
+                                                 "match Content-Length header (%d)",
+                                                 n, content-length));
     end;
     request-content(request)
       := process-request-content(request-content-type(request),
@@ -1036,7 +1045,7 @@ define method process-request-content
  => (content :: <string>)
   let header-content-type = split(get-header(request, "content-type"), ';');
   if (header-content-type.size < 2)
-    bad-request(...)
+    bad-request-error(...)
   end;
   let boundary = split(second(header-content-type), '=');
   if (element(boundary, 1, default: #f))
@@ -1045,7 +1054,7 @@ define method process-request-content
     // ???
     request-content(request) := buffer
   else
-    bad-request(...)
+    bad-request-error(...)
   end if;
 end method process-request-content;
 */
@@ -1077,30 +1086,31 @@ define method send-error-response-internal
   unless (request-method(request) == #"head")
     // todo -- Display a pretty error page.
     add-header(response, "Content-Type", "text/plain");
-    let out = output-stream(response);
-    write(out, one-liner);
-    write(out, "\r\n");
-
+    write(response, one-liner);
+    write(response, "\r\n");
     // Don't show internal error messages to the end user unless the server
     // is being debugged.  It can give away too much information, such as the
     // full path to a missing file on the server.
     if (debugging-enabled?(*server*))
       // todo -- display a backtrace
-      write(out, condition-to-string(err));
-      write(out, "\r\n");
+      write(response, condition-to-string(err));
+      write(response, "\r\n");
     end;
   end unless;
-  response.response-code := http-error-code(err);
+  response.response-code := http-status-code(err);
   response.response-reason-phrase := one-liner;
   finish-response(response);
 end method send-error-response-internal;
-
 
 // Do whatever we need to do depending on the incoming headers for
 // this request.  e.g., handle "Connection: Keep-alive", store
 // "User-agent" statistics, etc.
 //
 define method process-incoming-headers (request :: <request>)
+  // This should be implemented Real Soon Now...
+  if (chunked-transfer-encoding?(request))
+    not-implemented-error(what: "Chunked transfer-encoding")
+  end;
   bind (conn-values :: <sequence> = get-header(request, "Connection", parsed: #t) | #())
     if (member?("Close", conn-values, test: string-equal?))
       request-keep-alive?(request) := #f
@@ -1112,7 +1122,7 @@ define method process-incoming-headers (request :: <request>)
     let (host, port) = host/port & values(head(host/port), tail(host/port));
     if (~host & request.request-version == #"HTTP/1.1")
       // RFC 2616, 19.6.1.1 -- HTTP/1.1 requests MUST include a Host header.
-      bad-request(message: "HTTP/1.1 requests must include a Host header.");
+      bad-request-error(reason: "HTTP/1.1 requests must include a Host header");
     end;
     // RFC 2616, 5.2 -- If request host is already set then there was an absolute
     // URL in the request line, which takes precedence, so ignore Host header here.
@@ -1134,8 +1144,7 @@ define method invoke-handler (request :: <request>) => ()
   let headers = make(<header-table>);
   let response = make(<response>,
                       request: request,
-                      headers: headers,
-                      direction: #"output");
+                      headers: headers);
   if (request.request-keep-alive?)
     add-header(response, "Connection", "Keep-Alive");
   end if;
@@ -1173,7 +1182,7 @@ define method invoke-handler (request :: <request>) => ()
            invoke-responder(request, action, arguments)
          end;
        else
-         resource-not-found-error(url: as(<string>, url));
+         resource-not-found-error(url: url);
        end if;
       else
         // generates 404 if not found

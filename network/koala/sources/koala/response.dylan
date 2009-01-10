@@ -29,7 +29,7 @@ sending the response in full.
 // requests....  Perhaps also make it configurable, so one could tune the
 // server for serving large files or small pages.
 //
-define constant $chunk-size :: <integer> = 64 * 1024;
+define constant $chunk-size :: <integer> = 16384;
 
 // Exported
 //
@@ -45,8 +45,8 @@ define constant $chunk-size :: <integer> = 64 * 1024;
 //
 define open primary class <response> (<string-stream>, <base-http-response>)
 
-  inherited slot stream-sequence,
-    init-value: make(<byte-string>, size: $chunk-size, fill: ' ');
+  inherited slot stream-sequence
+    = make(<byte-string>, size: $chunk-size, fill: ' ');
 
   // Transfer length as defined in RFC 2616, Section 4.4.
   // If this is > 0 then chunks have already been sent.
@@ -62,8 +62,12 @@ define open primary class <response> (<string-stream>, <base-http-response>)
 end class <response>;
 
 define method initialize
-    (response :: <response>, #key)
-  next-method();
+    (response :: <response>, #rest args, #key direction = #"output")
+  if (direction ~= #"output")
+    error("<response> streams are output only.  You may not specify direction: %=",
+          direction)
+  end;
+  apply(next-method, response, direction: #"output", args);
   if (member?(response.response-request.request-version,
               #[#"http/0.9", #"http/1.0"]))
     response-chunked?(response) := #f;
@@ -75,8 +79,8 @@ end method initialize;
 define method write-element
     (response :: <response>, char :: <byte-character>)
  => ()
-  maybe-send-chunk(response, 1);
   next-method();
+  maybe-send-chunk(response);
 end method write-element;
     
 
@@ -88,17 +92,16 @@ define method write
  => ()
   let epos :: <integer> = epos | chars.size;
   let count :: <integer> = epos - bpos;
-  maybe-send-chunk(response, count);
   // Let the method on <string-stream> do it's thing.
   next-method();
+  maybe-send-chunk(response);
 end method write;
 
 define method maybe-send-chunk
-    (response :: <response>, count :: <integer>)
+    (response :: <response>)
   // response-chunked? returns #f if this is http/0.9 or http/1.0
   // or if the Content-Length header was set.
-  if (response-chunked?(response)
-      & (response.stream-position + count) > $chunk-size)
+  if (response-chunked?(response) & response.stream-position >= $chunk-size)
     send-chunk(response);
   end;
 end method maybe-send-chunk;
@@ -109,6 +112,7 @@ end method maybe-send-chunk;
 //
 define method send-chunk
     (response :: <response>)
+ => (byte-count :: <integer>)
   let socket :: <stream> = response.response-request.request-socket;
   if (~headers-sent?(response))
     add-header(response, "Transfer-encoding", "chunked", if-exists?: #"ignore");
@@ -118,21 +122,23 @@ define method send-chunk
   let count :: <integer> = response.stream-size;
   write(socket, integer-to-string(count, base: 16));
   write(socket, "\r\n");
-  write(socket, response.stream-sequence, start: 0, end: count);
+  write(socket, response.stream-sequence, end: count);
   write(socket, "\r\n");
   // Reset the response buffer.
   clear-contents(response);
   inc!(response.response-transfer-length, count);
+  count
 end method send-chunk;
 
 define method send-response-line
     (response :: <response>, socket :: <tcp-socket>)
-  let response-line = format-to-string("%s %d %s\r\n",
+  let response-line = format-to-string("%s %d %s",
                                        $http-version, 
                                        response.response-code, 
                                        response.response-reason-phrase | "OK");
   log-trace("-->%s", response-line);
   write(socket, response-line);
+  write(socket, "\r\n");
 end method send-response-line;
 
 // temp backward compat
@@ -217,9 +223,11 @@ define method finish-response
 
   if (response.response-transfer-length > 0)
     // Already sent headers and some chunks...
-    send-chunk(response);  // send remaining chunk
-    send-chunk(response);  // send empty chunk to terminate message
-    write(socket, "\r\n");
+    let byte-count :: <integer> = send-chunk(response);
+    if (byte-count > 0)
+      // send empty chunk to terminate message
+      send-chunk(response);
+    end;
     content-length := integer-to-string(response.response-transfer-length);
   else
     // Not a chunked response...
@@ -227,7 +235,7 @@ define method finish-response
     // RFC 2616, 4.3
     let send-body? = ~((rcode >= 100 & rcode <= 199)
                        | rcode == 204  // no content
-                       | rcode == $not-modified);
+                       | rcode == $not-modified-redirect);
     unless (headers-sent?(response) | http-version == #"http/0.9")
       if (send-body?)
         content-length := integer-to-string(response.stream-size);

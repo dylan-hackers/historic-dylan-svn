@@ -315,7 +315,7 @@ end method process-config-element;
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"error-log")
   let format-control = get-attr(node, #"format");
-  let name = get-attr(node, #"name") | "koala.error";
+  let name = get-attr(node, #"name") | "http.server.error";
   let logger = process-log-config-element(server, node, format-control, name,
                                           $stderr-log-target);
   error-logger(%vhost) := logger;
@@ -325,7 +325,7 @@ end method process-config-element;
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"debug-log")
   let format-control = get-attr(node, #"format");
-  let name = get-attr(node, #"name") | "koala.debug";
+  let name = get-attr(node, #"name") | "http.server.debug";
   let logger = process-log-config-element(server, node, format-control, name,
                                           $stdout-log-target);
   debug-logger(%vhost) := logger;
@@ -335,7 +335,7 @@ end method process-config-element;
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"request-log")
   let format-control = get-attr(node, #"format") | "%{message}";
-  let name = get-attr(node, #"name") | "koala.request";
+  let name = get-attr(node, #"name") | "http.server.request";
   let logger = process-log-config-element(server, node, format-control, name,
                                           $stdout-log-target);
   request-logger(%vhost) := logger;
