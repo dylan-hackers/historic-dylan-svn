@@ -24,11 +24,6 @@ define macro uri-reference-test-definer
   }
 end macro;
 
-define suite uri-suite ()
-  suite uri-transform-suite;
-  suite uri-normalization-suite;
-end;
-
 define suite uri-transform-suite ()
   test uri-base-test;
   suite uri-transform-normal-suite;
@@ -258,6 +253,9 @@ define test uri-path-segment-normalization-test ()
   check-equal("path", "b/c", remove-dot-segments("a/../../../b/c"));
 end;
 
-begin
-  run-test-application(uri-suite); //, arguments: #("-debug"));
+// exported
+define suite uri-test-suite ()
+  suite uri-transform-suite;
+  suite uri-normalization-suite;
 end;
+

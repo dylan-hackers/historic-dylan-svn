@@ -1,4 +1,5 @@
 Module: dylan-user
+Author: Carl Gay
 
 define library logging-test-suite
   use common-dylan;
@@ -10,6 +11,7 @@ define library logging-test-suite
   use testworks;
   use testworks-specs;
   use uncommon-dylan;
+
   export logging-test-suite;
 end;
 
@@ -27,6 +29,8 @@ define module logging-test-suite
   use testworks;
   use testworks-specs;
   use uncommon-dylan;
+
+  export logging-test-suite;
 end;
 
 
