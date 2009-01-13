@@ -2,8 +2,14 @@ Module: dylan-user
 
 define library http-common-test-suite
   use common-dylan;
-end library http-common;
+  use testworks;
+
+  export http-common-test-suite;
+end;
 
 define module http-common-test-suite
   use common-dylan;
-end module http-common-test-suite;
+  use testworks;
+
+  export http-common-test-suite;
+end;

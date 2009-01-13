@@ -223,6 +223,7 @@ define module http-common
     token-end-position,
     validate-http-version,
     validate-http-status-code,
+    parse-http-date,
 
     // Headers
     <header-table>,

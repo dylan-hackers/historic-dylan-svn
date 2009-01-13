@@ -17,19 +17,18 @@ define method xml-rpc-call
     (url :: <url>, method-name :: <string>, #rest args)
  => (response :: <object>)
   let xml = apply(create-method-call-xml, method-name, args);
-  when (*debugging-xml-rpc*)
-    format-out("%s\n\n", xml);
-  end;
-  let request = make(<http-request>,
-                     method: #"POST",
-                     url: url,
-                     http-version: #"http/1.0",
-                     content: xml);
-  add-header(request, "User-Agent", "Koala XML-RPC client");
-  add-header(request, "Content-Type", "text/xml");
-  add-header(request, "Pragma", "no-cache");
-  let response :: <http-response> = send-http-request(request);
-  parse-xml-rpc-response(response.response-content)
+  with-http-connection(conn = url)
+    when (*debugging-xml-rpc*)
+      format-out("%s\n\n", xml);
+    end;
+    let headers = #[#["User-Agent", "Koala XML-RPC client"],
+                    #["Content-Type", "text/xml"],
+                    #["Pragma", "no-cache"]];
+    let response :: <http-response> = send-request(conn, #"post", url,
+                                                   content: xml,
+                                                   headers: headers);
+    parse-xml-rpc-response(response.response-content)
+  end with-http-connection
 end method xml-rpc-call;
 
 

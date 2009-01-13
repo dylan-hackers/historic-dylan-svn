@@ -3,7 +3,7 @@ Module: koala-test-suite
 define function connect-and-close
     (addr, #key port = *test-port*)
   block ()
-    with-http-stream(stream to addr, port: port)
+    with-http-connection(conn = addr, port: port)
       #t
     end;
   exception (ex :: <connection-failed>)
@@ -90,19 +90,12 @@ define suite start-stop-test-suite ()
   test conflicting-listener-ips-test;
 end suite start-stop-test-suite;
 
-define suite koala-test-suite ()
+// exported
+define suite koala-test-suite
+    (setup-function: start-sockets)
   suite start-stop-test-suite;
   suite configuration-test-suite;
   suite xml-rpc-test-suite;
   suite vhost-test-suite;
 end suite koala-test-suite;
-
-define function main ()
-  start-sockets();
-  run-test-application(koala-test-suite);
-end;
-
-begin
-  main();
-end;
 
