@@ -9,7 +9,8 @@ end library-spec logging;
 
 // Defines suite logging-module-test-suite.
 //
-define module-spec logging ()
+define module-spec logging
+    (setup-function: curry(ensure-directories-exist, $temp-directory))
   class <abstract-logger> (<object>);
   class <file-log-target> (<log-target>);
   class <log-formatter> (<object>);
@@ -294,9 +295,4 @@ end function-test remove-target;
 
 define logging function-test write-message ()
 end function-test write-message;
-
-begin
-  ensure-directories-exist($temp-directory);
-  run-test-application(logging-test-suite)
-end;
 
