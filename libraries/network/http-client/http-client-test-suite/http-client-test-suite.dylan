@@ -68,7 +68,7 @@ end function register-test-responders;
 
 define variable *test-suite-initialized?* = #f;
 
-define function initialize-http-client-test-suite
+define function setup-http-client-test-suite
     ()
   if (~*test-suite-initialized?*)
     add-target(get-logger("http.common"), $stdout-log-target);
@@ -77,7 +77,14 @@ define function initialize-http-client-test-suite
     start-test-server();
     *test-suite-initialized?* := #t;
   end;
-end function initialize-http-client-test-suite;
+end function setup-http-client-test-suite;
+
+define function cleanup-http-client-test-suite
+    ()
+  if (*test-server*)
+    stop-server(*test-server*)
+  end
+end function cleanup-http-client-test-suite;
 
 define function start-test-server
     (#key host = *test-host*, port = *test-port*)
@@ -162,6 +169,7 @@ define test test-streaming-request ()
 end test test-streaming-request;
 
 define test test-streaming-response ()
+  
 end test test-streaming-response;
 
 define test test-chunked-request ()
@@ -201,7 +209,9 @@ define test test-read-from-response-after-done ()
   end;
 end test test-read-from-response-after-done;
 
-define suite http-client-test-suite ()
+define suite http-client-test-suite
+    (setup-function: setup-http-client-test-suite,
+     cleanup-function: cleanup-http-client-test-suite)
   test test-http-get;
   test test-http-get-to-stream;
   test test-encode-form-data;
@@ -225,21 +235,4 @@ define suite http-client-test-suite ()
   // todo -- test the reaction to server errors
 
 end suite http-client-test-suite;
-
-
-// todo -- move into a separate application
-define function main ()
-  initialize-http-client-test-suite();
-  block ()
-    run-test-application(http-client-test-suite);
-  cleanup
-    if (*test-server*)
-      stop-server(*test-server*);
-    end;
-  end;
-end function main;
-
-begin
-  main()
-end;
 

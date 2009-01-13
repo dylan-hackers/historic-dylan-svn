@@ -18,6 +18,7 @@ define library koala-test-suite
   use testworks;
   use uri;
   use xml-rpc-client;
+
   export koala-test-suite;
 end library koala-test-suite;
 
@@ -40,5 +41,7 @@ define module koala-test-suite
   use threads;
   use uri;
   use xml-rpc-client;
+
+  export koala-test-suite;
 end module koala-test-suite;
 

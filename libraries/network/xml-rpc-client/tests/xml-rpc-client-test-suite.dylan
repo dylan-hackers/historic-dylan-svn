@@ -1,9 +1,13 @@
-Module:   xml-rpc-test
+Module:   xml-rpc-client-test-suite
 Synopsis: Tests the xml-rpc-client library
 Author:   Carl Gay
 
 
-define method main () => ()
+define suite xml-rpc-client-test-suite ()
+  test test-basic-types;
+end;
+
+define test test-basic-types ()
   let host = "localhost";
   let port = 7020;
   let url = "/RPC2";
@@ -20,17 +24,10 @@ define method main () => ()
                        t
                      end))
     // "echo" returns its argument(s) in an array...
-    let result = xml-rpc-call-2(host, port, "/RPC2", "echo", val);
+    let url = parse-uri(host, port, "/RPC2");
+    let result = xml-rpc-call(url, "echo", val);
     let val2 = result[0];
-    format-out("%sSent: %=, Received: %=\n",
-               if (val = val2) "" else "ERROR: " end, val, val2);
+    check-equal(format-to-string("Sent value %= = received value %=", val, val2),
+                val, val2);
   end;
-  let s = "my dog has fleas";
-  if (s ~= base64-decode(base64-encode(s)))
-    format-out("base64 encoding/decoding is broken.\n");
-  end;
-end;
-
-begin
-  main();
-end;
+end test test-basic-types;

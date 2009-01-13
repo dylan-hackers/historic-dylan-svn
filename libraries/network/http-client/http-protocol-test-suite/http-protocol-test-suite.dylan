@@ -19,7 +19,7 @@ end;
 
 define test test-get-method ()
   check-equal("GET /hello yields \"hello\"",
-              simple-http-get(test-url("hello")),
+              http-get(full-url("hello")),
               "hello");
 end test test-get-method;
 
@@ -64,7 +64,7 @@ define test test-date-header-parsing ()
     "Sun Nov  6 08:49:37 1994"        // ANSI C asctime (GMT)
     );
   for (test-date in test-dates)
-    check-equal(fmt("Date %s parses correctly", test-date),
+    check-equal(format-to-string("Date %s parses correctly", test-date),
                 date,
                 parse-http-date(test-date, 0, test-date.size));
   end;
@@ -78,15 +78,8 @@ define variable *test-host* :: <string> = "localhost";
 
 define variable *test-port* :: <integer> = 80;
 
-define variable *test-url-base-directory* :: <string> = "/http-test/";
-
 define function full-url
     (url :: <string>) => (full-url :: <url>)
-  parse-url(concatenate("http://", *test-host*, ":", *test-port*,
-                        *test-url-prefix*, url))
+  parse-url(concatenate("http://", *test-host*, ":", *test-port*, url))
 end function full-url;
-
-begin
-  run-test-application(http-protocol-test-suite);
-end;
 
