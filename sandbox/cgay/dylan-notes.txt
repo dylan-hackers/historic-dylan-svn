@@ -1,6 +1,46 @@
 .. contents::
 
 
+Open Dylan
+==========
+
+What defines a 1.0 release?
+---------------------------
+
+I think the main concentration should be on the Linux port.  The
+Windows port is mostly good enough to call a 1.0 but I would make
+one fix to the project manager:
+
+Windows
+~~~~~~~
+
++ I love using registry projects because they seem to be much less
+  broken than non-registry projects and they allow for easily hacking
+  on OD itself.  The major drawback for me is that they don't seem to
+  support loose/development mode very well.  (Do some experiments to
+  figure out exactly what DOES happen...I've been working around it
+  for so long I can't quite remember.)
+
+  I'd be happy with one Big Red Switch that set the default
+  compilation mode for everything.
+
+Linux
+~~~~~
+
++ All warnings should be displayed during compilation, even those of
+  sub-projects.  I don't care if this is done in the compiler or if
+  we provide a script that will display them.  (It would have to be
+  a bit smart about which sub-projects were actually used, I guess.)
+  This works in the IDE so I would imagine it's not a deep problem.
+
++ It should be possible to get a Dylan-level backtrace.  I'm not
+  talking about interactive debugging here, just the ability to
+  display a readable backtrace when an error is signalled.  e.g.,
+  Python's default behavior is to display a backtrace before it
+  exits if there's an unhandled exception.
+
+
+
 Dylan Language
 ==============
 
@@ -25,6 +65,13 @@ Dylan Language
 + For writing code with a lot of regular expressions in it, Python's r"..."
   syntax is very nice.  What about adding something similar to Dylan?  e.g.,
   #r"...".
+
+
+Gwydion
+=======
+
+format-out("%f", 1.0) core dumps in 2.4.  Same for %g.
+This makes it difficult to do some of the shootout programs.
 
 
 testworks
@@ -87,7 +134,7 @@ String Hacking
   things from common-dylan.  Once it's in good shape, propose adding it to
   common-dylan.
 
-+ Various string conversion functions in common-dylan, and "split".
++ Various string conversion functions in common-dylan.
 
 + I don't like the way the string-extensions library is broken up into modules.
   I don't see the need for more than one module there, and their names are odd.
@@ -106,33 +153,8 @@ String Hacking
 regular-expressions
 ===================
 
-This library needs a complete rewrite.  The API is strange and impoverished.  I
-would much rather see a <regex-match> object returned than the current multiple
-mark values.  Look at the Python doc for the Match objects returned from a
-regex match for examples of useful stuff that you might want to query about.
-
-The regular-expressions library API is weird to me, and there are a lot of nice
-RE features that aren't implemented.  It probably wouldn't hurt to wrap PCRE in
-addition, and I could use the experience writing C-code wrappers.  Another
-alternative would be to copy Python's RE implementation, which is full-featured
-but probably slow.  [later] The Python implementation looks really crappy.
-
-The code says::
-
-    // See "Programming perl", p. 103-104 for more details.
-
-so I suspect this implementation is directly from that book.  Check it.
-
-+ Rewrite parse-character-set to do a quick scan to find the end of the
-  character set and then call string-extensions:parse-description (which
-  needs to be exported with a better name (from an "internal" module)).
-
-
-Differences:
-
-* OD caching uses ==, GD uses =
-* key-exists? needs to be in common-dylan?  Not sure where it's coming from in
-  GD, and OD defined it directly in regular-expressions.
+* Mainly is just missing features now.  First step is probably to
+  implement the verbose: and multi-line: parameters to compile-regex.
 
 
 Koala
@@ -146,12 +168,6 @@ Koala
 
 + Hannes' comments re new config option to define-page et al...
   http://ircbrowse.com/channel/dylan/20070220
-
-+ Koala config cleanup changes that I never finished::
-
-    svn diff -r11142:11193 svn+ssh://cgay@svn.gwydiondylan.org/scm/svn/dylan/branches/koala-config-cleanup
-
-+ Hannes' comments re the above: http://ircbrowse.com/channel/dylan/20070220
 
 + Look at the Allegro web app package more.  (name?)  It has some nice ideas
   about sessions and apps.
@@ -184,8 +200,11 @@ Koala
 General
 =======
 
-+ Is there a good way to browse the DRM directly from the source?  It links to
-  pages without ".html" appended.
++ Is there a good way to browse the DRM directly from the source?  It
+  links to pages without ".html" appended.
+
++ Implement Bruce Hoult's idea to make Dylan "scripts" work by having
+  a wrapper script that compiles the project first if necessary.
 
 
 Projects
@@ -193,7 +212,7 @@ Projects
 
 Things I'd like to work on if time permits.
 
-+ Logging library.  Generalize the Koala logging code and separate it out.
++ Logging library.  Still has a long to-do list.
 
 + Rename some locators classes::
 
@@ -263,10 +282,3 @@ dylan-module.org
 
 [1] People have raised the possibility of trademark issues for these names.
 
-
-Other Dylan Sources
-===================
-
-http://www.turbolent.com/~turbo24prg/projects/turboblog
-
-new wiki, blog software
