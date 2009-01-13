@@ -189,11 +189,7 @@ end;
 define method send-headers
     (response :: <response>, socket :: <tcp-socket>)
   unless (response.response-request.request-version == #"http/0.9")
-    // *virtual-host* may be #f if the request was invalid and
-    // we're sending an error response.
-    if (*virtual-host* & generate-server-header?(*virtual-host*))
-      add-header(response, "Server", $server-header-value);
-    end if;
+    add-header(response, "Server", *server*.server-header);
     add-header(response, "Date", as-rfc1123-string(current-date()));
 
     let headers :: <header-table> = raw-headers(response);

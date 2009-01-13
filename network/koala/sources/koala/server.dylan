@@ -42,6 +42,10 @@ define class <http-server> (<object>)
   slot debugging-enabled? :: <boolean> = #f,
     init-keyword: debug:;
 
+  // Value to send as 'Server' header.
+  slot server-header :: <byte-string>,
+    init-value: $server-header-value;
+
   constant slot server-lock :: <simple-lock>,
     required-init-keyword: lock:;
 
