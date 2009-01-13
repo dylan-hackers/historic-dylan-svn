@@ -495,7 +495,24 @@ define method process-config-element
       end;
     end;
   end;
-end;
+end method process-config-element;
+
+
+// RFC 2616 Section 15.1.2
+// Implementors SHOULD make the Server header field a configurable option.
+define method process-config-element
+    (server :: <http-server>,
+     node :: xml$<element>,
+     name == #"server-header")
+  let value = get-attr(node, #"value");
+  if (~value)
+    warn("Invalid <server-header> spec.  The 'value' attribute "
+           "must be specified.");
+  else
+    server-header(server) := value;
+  end;
+end method process-config-element;
+    
 
 
 // TODO:

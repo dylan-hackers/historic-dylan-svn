@@ -97,12 +97,6 @@ define class <virtual-host> (<object>)
     = make(<directory-spec>,
            pattern: "/*");
 
-  // Whether or not to include a Server: header in all responses.  Most people
-  // won't care either way, but some might want to hide the server type so as
-  // to prevent cracking or to hide the fact that they're not using one of the
-  // Chosen Few accepted technologies.  Wimps.  ;-)
-  slot generate-server-header? :: <boolean> = #t;
-
   // TODO: this should be per-dirspec.  no reason some subtree on the same
   //       vhost shouldn't have a different set of default docs.
   // The set of file names that are searched for when a directory URL is
@@ -138,7 +132,6 @@ begin
   default-documents-setter;
   default-static-content-type-setter;
   default-dynamic-content-type-setter;
-  generate-server-header?-setter;
 end;
 
 define method initialize
