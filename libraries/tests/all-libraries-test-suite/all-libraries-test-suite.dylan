@@ -41,12 +41,12 @@ define suite all-libraries-test-suite ()
   //suite tests-test-suite;
   //suite timer-test-suite;
   //suite ui-test-suite;
-  suite uri-test;
+  suite uri-test-suite;
   //suite utilities-test-suite;
-  suite command-line-parse-test-suite;
+  suite command-line-parser-test-suite;
   suite logging-test-suite;
   //suite vector-table-test-suite;
-  //suite xml-parser-test-suite;
+  //suite xml-parser-test-suite;  // convert to testworks
   //suite xsd-generator-test-suite;
   //suite zlib-test-suite;
-end;
+end suite all-libraries-test-suite;

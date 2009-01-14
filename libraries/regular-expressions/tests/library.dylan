@@ -14,8 +14,7 @@ define library regular-expressions-test-suite
   use regular-expressions,
     import: { regex-implementation };
 
-  export
-    regular-expressions-test-suite;
+  export regular-expressions-test-suite;
 end library regular-expressions-test-suite;
 
 define module regular-expressions-test-suite
@@ -34,6 +33,7 @@ define module regular-expressions-test-suite
   use streams;
   use strings,
     import: { trim };
+
   export regular-expressions-test-suite;
 end module regular-expressions-test-suite;
 
