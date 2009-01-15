@@ -4,11 +4,15 @@ Author: Carl Gay
 define suite all-libraries-test-suite ()
   //suite anaphora-test-suite;
   //suite base64-test-suite;
-  suite collection-extensions-test-suite; // rename from collection-extensions-test
+  suite collection-extensions-suite; // rename to collection-extensions-test-suite
   //suite crypto-hashes-test-suite;
-  suite sql-odbc-test-suite; // rename from sql-odbc-test (in database/)
+
+  // The SQL-ODBC test suite appears to require inputs and test database.
+  // It also runs as an app.
+  //suite sql-odbc-test-suite; // rename from sql-odbc-test (in database/)
+
   //suite doctower-test-suite;
-  suite wrapper-streams-test-suite; // rename from wrapper-streams-tester
+  //suite wrapper-streams-test-suite; // rename from wrapper-streams-tester.  needs an -app
   //suite flow-test-suite;
   //suite flow-printer-test-suite;
   //suite graph-viewer-test-suite;

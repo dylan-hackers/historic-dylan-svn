@@ -47,4 +47,6 @@ define module collection-extensions-test
   use sequence-diff;
   use collection-utilities;
   use sequence-utilities;
+
+  export collection-extensions-suite;
 end module collection-extensions-test;
