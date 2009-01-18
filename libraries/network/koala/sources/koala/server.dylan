@@ -64,8 +64,8 @@ define class <http-server> (<object>)
   constant slot clients-shutdown-notification :: <notification>,
     required-init-keyword: clients-shutdown-notification:;
 
-  constant slot listener-shutdown-timeout :: <real> = 15;
-  constant slot client-shutdown-timeout :: <real> = 15;
+  constant slot listener-shutdown-timeout :: <real> = 5;
+  constant slot client-shutdown-timeout :: <real> = 5;
 
   constant slot request-class :: subclass(<basic-request>) = <request>,
     init-keyword: request-class:;
@@ -87,7 +87,7 @@ define class <http-server> (<object>)
   //// Statistics
   // todo -- move these elsewhere
 
-  slot connections-accepted :: <integer> = 0; // Connections accepted
+  slot connections-accepted :: <integer> = 0;
   constant slot user-agent-stats :: <string-table>,
     init-function: curry(make, <string-table>);
 
@@ -451,7 +451,7 @@ define function stop-server
     (server :: <http-server>, #key abort)
   abort-listeners(server);
   when (~abort)
-    join-clients(server);
+    join-clients(server, timeout: server.client-shutdown-timeout);
   end;
   abort-clients(server);
   log-info("%s HTTP server stopped", $server-name);
@@ -477,8 +477,10 @@ define function abort-listeners (server :: <server>)
   // Don't use join-thread, because no timeouts, so could hang.
   let n = with-lock (server.server-lock)
             if (~empty?(server.server-listeners))
-              wait-for(server.listeners-shutdown-notification,
-                       timeout: server.listener-shutdown-timeout);
+              if (~wait-for(server.listeners-shutdown-notification,
+                            timeout: server.listener-shutdown-timeout))
+                log-info("Timed out waiting for listeners to shut down.");
+              end;
             end;
             let n = server.server-listeners.size;
             server.server-listeners.size := 0;
@@ -503,11 +505,16 @@ define function abort-clients (server :: <server>, #key abort)
   end;
 end abort-clients;
 
-define function join-clients (server :: <server>, #key timeout)
-  => (clients-left :: <integer>)
+define function join-clients
+    (server :: <server>, #key timeout)
+ => (clients-left :: <integer>)
   with-lock (server.server-lock)
-    empty?(server.server-clients)
-      | wait-for(server.clients-shutdown-notification, timeout: timeout);
+    if (~empty?(server.server-clients))
+      if (~wait-for(server.clients-shutdown-notification,
+                    timeout: timeout))
+        log-info("Timed out waiting for clients to shut down.");
+      end;
+    end;
     let n = server.server-clients.size;
     server.server-clients.size := 0;
     n
@@ -518,11 +525,11 @@ define function start-http-listener
     (server :: <server>, listener :: <listener>)
   let server-lock = server.server-lock;
   local method release-listener ()
-    remove!(server.server-listeners, listener);
-    when (empty?(server.server-listeners))
-      release-all(server.listeners-shutdown-notification);
-    end;
-  end;
+          remove!(server.server-listeners, listener);
+          when (empty?(server.server-listeners))
+            release-all(server.listeners-shutdown-notification);
+          end;
+        end;
   local method run-listener-top-level ()
           dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
                         *error-logger* = server.default-virtual-host.error-logger,
@@ -561,7 +568,6 @@ define function listener-top-level
     // loop spawning clients until listener socket gets broken.
     do-http-listen(server, listener);
   end;
-  // Kill or reuse thread
   let restart? = with-lock (server.server-lock)
                    when (~*exiting-application* &
                          ~listener.listener-exit-requested?)
@@ -635,7 +641,9 @@ define function do-http-listen
         block()
           wrapping-inc!(listener.connections-accepted);
           wrapping-inc!(server.connections-accepted);
-          let thread = make(<thread>, name: "HTTP Responder",
+          let thread = make(<thread>,
+                            name: format-to-string("HTTP Responder %d",
+                                                   server.connections-accepted),
                             function:  do-respond);
           client := make(<client>,
                          server: server,
@@ -644,10 +652,10 @@ define function do-http-listen
                          thread: thread);
           add!(server.server-clients, client);
         exception (ex :: <error>)
-          //this should be <thread-error>, which is not yet exported
-          //needs a compiler bootstrap, so specify it sometime later
-          //hannes, 27th January 2007
-          log-info("Thread error %=", ex)
+          // This should be <thread-error>, which is not yet exported
+          // needs a compiler bootstrap, so specify it sometime later
+          // hannes, 27th January 2007
+          log-error("Thread error while making responder thread: %=", ex)
         end;
       end;
       loop();
@@ -823,12 +831,12 @@ end function handler-top-level;
 
 define function htl-error-handler
     (cond :: <condition>, next-handler :: <function>, exit-function :: <function>,
-     #key decline-if-debugging = #t, send-response = #t, format-string)
+     #key decline-if-debugging = #t, send-response = #t)
   if (decline-if-debugging & debugging-enabled?(*server*))
     next-handler()
   else
     block ()
-      log-debug(format-string | "Error handling request: %s", cond);
+      log-debug("Error handling request: %s", cond);
       if (send-response)
         send-error-response(*request*, cond);
       end;
@@ -1132,7 +1140,6 @@ define method process-incoming-headers (request :: <request>)
     // URL in the request line, which takes precedence, so ignore Host header here.
     if (host & ~request.request-host)
       request.request-host := host;
-      log-debug("Request host set from Host header: %s", request.request-host);
     end;
   end;
   bind (agent = get-header(request, "User-Agent"))

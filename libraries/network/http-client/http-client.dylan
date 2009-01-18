@@ -746,7 +746,7 @@ define macro with-http-connection
            ?body
          cleanup
            if (_conn)
-             close(_conn)
+             close(_conn, abort?: #t)
            end;
          end }
 end macro with-http-connection;
