@@ -4,6 +4,7 @@ define function connect-and-close
     (addr, #key port = *test-port*)
   block ()
     with-http-connection(conn = addr, port: port)
+      log-debug("Connected to %s:%s", addr, port);
       #t
     end;
   exception (ex :: <connection-failed>)

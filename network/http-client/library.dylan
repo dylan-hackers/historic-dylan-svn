@@ -25,6 +25,7 @@ define module http-client
   create
     <http-connection>,
     with-http-connection,
+    make-http-connection,
     connection-host,
     connection-port,
     outgoing-chunk-size,
