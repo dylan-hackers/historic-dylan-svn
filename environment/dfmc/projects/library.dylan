@@ -77,4 +77,6 @@ define module dfmc-environment-projects
 
   export <native-project-object>,
          <dfmc-project-object>;
+
+  export \with-progress-reporting;
 end module dfmc-environment-projects;

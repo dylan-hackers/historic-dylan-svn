@@ -145,6 +145,8 @@ define constant $default-progress-message = "";
 
 define variable *warning-callback* :: false-or(<function>) = #f;
 define variable *progress-callback* :: false-or(<function>) = #f;
+define variable *visualization-callback* :: false-or(<function>) = #f;
+
 define variable *progress-section* :: <string> = "";
 define variable *progress-message* :: <string> = "";
 define variable *progress-internal?* :: <boolean> = #f;
@@ -153,6 +155,12 @@ define variable *progress-range* :: <integer> = 100;
 
 // Switch off all compiler messages
 show-compiler-messages?() := #f;
+
+define sealed sideways method visualization-report (key :: <symbol>, data)
+  if (*visualization-callback*)
+    *visualization-callback*(key, data);
+  end;
+end;
 
 define function update-project-progress () => ()
   *progress-callback*
@@ -212,7 +220,25 @@ define sealed sideways method project-progress-report
   update-project-progress()
 end method project-progress-report;
 
-define function start-progress-reporting
+define method start-progress-reporting
+    (project :: <project>, 
+     progress-callback :: false-or(<function>),
+     #key section :: false-or(<string>),
+          warning-callback :: false-or(<function>),
+          visualization-callback :: false-or(<function>))
+ => ()
+  *warning-callback*  := warning-callback;
+  *progress-callback* := progress-callback;
+  *visualization-callback* := visualization-callback;
+  *progress-position* := 0;
+  *progress-range*    := 100;
+  if (section)
+    *progress-section* := section
+  end;
+  project-progress-text(project, $default-progress-message)
+end method start-progress-reporting;
+
+define method start-progress-reporting
     (project-object :: <project-object>, 
      progress-callback :: false-or(<function>),
      #key section :: false-or(<string>),
@@ -227,7 +253,7 @@ define function start-progress-reporting
     *progress-section* := section
   end;
   project-progress-text(project, $default-progress-message)
-end function start-progress-reporting;
+end method start-progress-reporting;
 
 define function stop-progress-reporting () => ()
   *warning-callback*  := #f;
