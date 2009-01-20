@@ -8,7 +8,7 @@ if (!isset($id)) {
   $query = "select id,name,version,DATE_FORMAT(update_time, '%a %b %d %h:%m:%s %Y'),description from softmap where id = " . intval($id);
   $res = mysql_query($query, $db);
   if ($err = mysql_error()) {
-    echo "MySQL error occurred. Please notify <a href=mailto:igor@pobox.com>Jeff Dubrule</a>.";
+    echo "MySQL error occurred. Please notify <a href=mailto:hackers@lists.opendylan.org>the maintainers</a>.";
   } else {
     list ($id, $name, $version, $update_time, $description) = 
 	mysql_fetch_row($res);

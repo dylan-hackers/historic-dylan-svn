@@ -23,7 +23,7 @@ can be built with Gwydion Dylan.</p>
   $res = mysql_query($query, $db);
   $err = mysql_error();
   if ($err) {
-    echo "MySQL error occurred. Please notify <a href=mailto:igor@pobox.com>Jeff Dubrule</a>.";
+    echo "MySQL error occurred. Please notify <a href=mailto:hackers@lists.opendylan.org>the maintainers</a>.";
   } else {
     while ($row = mysql_fetch_row($res)) {
       list($id, $name, $version, $update_time, $description) = $row;
