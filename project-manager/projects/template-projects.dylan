@@ -51,6 +51,7 @@ define constant $scratch-lib+mod-bv
        "define module scratch-module\n"
        "  use dylan;\n"
        "  use dylan-extensions;\n"
+       "  use threads;\n"
        "  use dylan-c-ffi;\n"
        "end;\n");
 
