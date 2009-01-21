@@ -405,28 +405,27 @@ define function wait-for-listeners-to-start
     let start :: <date> = current-date();
     let max-wait = make(<duration>, days: 0, hours: 0, minutes: 0, seconds: 1,
                         microseconds: 0);
-    block (exit-while)
-      while (#t)
-        let socket = #f;
-        block ()
-          let host = listener.listener-host;
-          socket := make(<tcp-socket>,
-                         // hack hack
-                         host: iff(host = "0.0.0.0", $local-host, host),
-                         port: listener.listener-port);
-          log-info("Connection to %s successful", listener.listener-name);
-          exit-while();
-        cleanup
-          socket & close(socket);
-        exception (ex :: <connection-failed>)
-          if (current-date() - start > max-wait)
-            signal(ex)
-          else
-            sleep(0.1);
-          end;
-        end block;
-      end while;
-    end block;
+    iterate loop ()
+      let socket = #f;
+      block ()
+        let host = listener.listener-host;
+        socket := make(<tcp-socket>,
+                       // hack hack
+                       host: iff(host = "0.0.0.0", $local-host, host),
+                       port: listener.listener-port);
+        log-info("Connection to %s successful", listener.listener-name);
+      cleanup
+        socket & close(socket);
+      exception (ex :: <connection-failed>)
+        if (current-date() - start > max-wait)
+          signal(ex)
+        end;
+        sleep(0.1);
+        loop();
+      exception (ex :: <error>)
+        log-error("Error connecting to %s", listener.listener-name);
+      end block;
+    end;
   end for;
 end function wait-for-listeners-to-start;
 
@@ -546,19 +545,17 @@ define function start-http-listener
           end dynamic-bind;
         end method;
   with-lock (server-lock)
-    let handler <socket-condition>
-      = method (cond :: <socket-condition>, next-handler :: <function>)
-          log-error("Error creating socket for %s: %s",
-                    listener.listener-name, cond);
-          release-listener();
-          next-handler(); // decline to handle the error
-        end;
-    listener.listener-socket := make(<server-socket>,
-                                     host: listener.listener-host,
-                                     port: listener.listener-port);
-    make(<thread>,
-         name: listener.listener-name,
-         function: run-listener-top-level);
+    block ()
+      listener.listener-socket := make(<server-socket>,
+                                       host: listener.listener-host,
+                                       port: listener.listener-port);
+      make(<thread>,
+           name: listener.listener-name,
+           function: run-listener-top-level);
+    exception (ex :: <socket-condition>)
+      log-error("Error creating socket for %s: %s", listener.listener-name, ex);
+      release-listener();
+    end block;
   end;
 end start-http-listener;
 
