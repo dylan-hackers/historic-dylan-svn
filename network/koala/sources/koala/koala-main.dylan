@@ -10,9 +10,10 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 begin
   add-option-parser-by-type(*argument-list-parser*,
                             <repeated-parameter-option-parser>,
-                            description: format-to-string("ipaddr:port on which to "
-                                                          "listen for requests.  "
-                                                          "[default: 0.0.0.0:%d]",
+                            description: format-to-string("host:port on which to "
+                                                            "listen.  Option may be "
+                                                            "repeated. "
+                                                            "[default: 0.0.0.0:%d]",
                                                           $default-http-port),
                             long-options: #("listen"),
                             short-options: #("l"));
