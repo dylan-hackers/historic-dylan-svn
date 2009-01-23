@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+e<?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!-- TODO: 
      * When koala is a bit more prime-time (e.g., when it has at least one
@@ -132,13 +132,6 @@
      of the default virtual host is "default".
   -->
 <dsp-root location="dsp" />
-
-
-<!-- Controls whether to check template modification dates each time
-     the template is displayed, and reparse if necessary.  Obviously
-     when enabled this will slow down page rendering.  The default is
-     OFF.  -->
-<development-mode enabled="false" />
 
 
 <!-- DIRECTORY elements can be used to grant or deny access to specific
