@@ -45,7 +45,7 @@ other people's code.
 <H4>enscript</H4>
 <p>This powerful GNU program can format source code, convert between various
 page formats, and render HTML-ized versions of source code.  We wrote a
-<a href="http://www.opendylan.org/downloads/contributions/dylan.st">
+<a href="/downloads/contributions/dylan.st">
 template</a> so that Enscript can render Dylan sources.  We use this plugin
 behind the scenes to power our installation of <a href="http://viewcvs.sourceforge.net">
 ViewCVS</a>.</p>

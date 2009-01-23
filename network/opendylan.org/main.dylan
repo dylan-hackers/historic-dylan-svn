@@ -74,11 +74,21 @@ define constant $menu-page :: <od-page>
 
 define taglib od ()
 
-  body tag standard-header (page :: <od-page>, process-body) ()
+  body tag short-header (page :: <od-page>, process-body) ()
     begin // this begin/end shouldn't be necessary, but the macro barfs
       process-template($header-page);
+      output("<title>");
       process-body();
+      output("</title>");
       process-template($menu-page);
+    end;
+
+  body tag standard-header (page :: <od-page>, process-body) ()
+    begin // this begin/end shouldn't be necessary, but the macro barfs
+      short-header-tag(page, process-body);
+      output("<h2>");
+      process-body();
+      output("</h2>\n");
     end;
 
   tag standard-footer (page :: <od-page>) ()

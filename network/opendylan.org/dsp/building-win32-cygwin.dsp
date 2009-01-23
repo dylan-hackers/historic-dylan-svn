@@ -49,7 +49,7 @@ make install</pre>
 <p>These instructions assume you will place the Gwydion Dylan source code in the directory <code>~/gd/src</code></p>
 
 <p>You have two options for obtaining the Gwydion Dylan source code:
-downloading a <a href="http://www.opendylan.org/downloads/src/tar/">tarball</a>
+downloading a <a href="/downloads/src/tar/">tarball</a>
 of the source code, or alternatively, by retrieving the Gwydion Dylan source code from
 the repository using the CVS version control system.</p>
 
