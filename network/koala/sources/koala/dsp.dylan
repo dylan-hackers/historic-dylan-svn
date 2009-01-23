@@ -118,7 +118,7 @@ define method respond-to-get
 end method respond-to-get;
 
 define method add-responder
-    (server :: <http-server>, url :: <url>, responder :: <page>,
+    (server :: <http-server>, url :: <uri>, responder :: <page>,
      #key replace?,
           request-methods = #(#"GET", #"POST"))
   add-responder(server, url, curry(process-page, responder),

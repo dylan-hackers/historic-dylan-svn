@@ -40,7 +40,7 @@ define method add-responder
 end method add-responder;
 
 define method add-responder
-    (server :: <http-server>, url :: <url>, responder :: <responder>,
+    (server :: <http-server>, url :: <uri>, responder :: <responder>,
      #key replace?,
           request-methods = #(#"GET", #"POST"))
   if (empty?(url.uri-path))
@@ -57,7 +57,7 @@ end method add-responder;
 // This takes care of the messy details of building a <responder> object.
 //
 define method add-responder
-    (server :: <http-server>, url :: <url>, response-function :: <function>,
+    (server :: <http-server>, url :: <uri>, response-function :: <function>,
      #key replace?,
           request-methods = #(#"GET", #"POST"))
   let table = make(<table>, size: 1);
@@ -71,7 +71,7 @@ end method add-responder;
 // which regex matches the URL tail.
 //
 define method add-responder
-    (server :: <http-server>, url :: <url>, regex-map :: <table>,
+    (server :: <http-server>, url :: <uri>, regex-map :: <table>,
      #key replace?,
           request-methods = #(#"GET", #"POST"))
   for (responses keyed-by regex in regex-map)

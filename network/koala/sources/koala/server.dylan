@@ -189,6 +189,12 @@ define method initialize
   apply(next-method,
         server,
         remove-keys(keys, #"document-root", #"dsp-root"));
+  if (instance?(document-root, <string>))
+    document-root := as(<directory-locator>, document-root);
+  end;
+  if (instance?(dsp-root, <string>))
+    dsp-root := as(<directory-locator>, dsp-root);
+  end;
   let name = "default";
   let vhost = make(<virtual-host>,
                    name: name,
