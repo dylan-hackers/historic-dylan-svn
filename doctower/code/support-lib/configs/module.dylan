@@ -2,7 +2,7 @@ module: dylan-user
 
 define module configs
    use common;
-   use internal-rep, import: { <topic-level-style> }, export: all;
+   use markup-rep, import: { <topic-level-style> }, export: all;
    
    export
       $ascii-line-chars, $bullet-chars, $open-quote-chars, $close-quote-chars,

@@ -13,6 +13,6 @@ define library support-library
    // from Monday project
    use source-location;
 
-   export common, conditions, configs, parser-common, internal-rep, api-rep,
+   export common, conditions, configs, parser-common, markup-rep, dylan-rep,
           ordered-tree;
 end library;

@@ -1,4 +1,4 @@
-module: internal-rep
+module: markup-rep
 synopsis: Classes comprising API reference topics.
 
 /**
@@ -27,7 +27,7 @@ define constant <topic-content-seq> = limited(<stretchy-vector>,
                      <ordered-list>, <defn-list>, <paragraph>, <note>, <section>,
                      <footnote>, singleton(#f)));
 
-define class <topic> (<interm-element>)
+define class <topic> (<markup-element>)
    // No placeholder needed for fixed-parent, because the parent is known from
    // topic nesting markup.
    slot fixed-parent :: false-or(<topic>) = #f;

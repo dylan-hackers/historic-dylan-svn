@@ -1,7 +1,7 @@
 module: dylan-user
 synopsis: Internal representation of documentation.
 
-define module internal-rep
+define module markup-rep
    use common;
    use ordered-tree;
    
@@ -14,7 +14,7 @@ define module internal-rep
       <content-seq>, <defn-list>, <dita-content>, <ditto-placeholder>,
       <emphasis>, <entity>, <fig>, <footnote>, <footnote-placeholder>,
       <function-doc>, <generic-doc>, <html-content>, <inline-image>,
-      <interm-element>, <italic>, <library-doc>, <macro-doc>,
+      <markup-element>, <italic>, <library-doc>, <macro-doc>,
       <many-line-defn-list>, <line-marker-placeholder>, <markup-seq>,
       <module-doc>, <note>, <one-line-defn-list>, <ordered-list>, <paragraph>,
       <parm-list>, <parm-name>, <ph-marker>, <pre>, <ref-topic>, <section>,

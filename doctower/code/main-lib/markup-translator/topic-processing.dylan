@@ -82,15 +82,15 @@ Arguments:
    tokens - The token or tokens to process and add to 'owner'.
 **/
 define generic process-tokens
-   (owner :: type-union(<interm-element>, <content-seq>, <markup-seq>,
+   (owner :: type-union(<markup-element>, <content-seq>, <markup-seq>,
                         <title-seq>, <topic-content-seq>),
     tokens :: type-union(<token>, <sequence>, singleton(#f)))
 => ();
 
 
-/** A sequence of tokens is added to <interm-element>s individually. **/
+/** A sequence of tokens is added to <markup-element>s individually. **/
 define method process-tokens
-   (owner :: type-union(<interm-element>, <content-seq>, <markup-seq>,
+   (owner :: type-union(<markup-element>, <content-seq>, <markup-seq>,
                         <title-seq>, <topic-content-seq>),
     tokens :: <sequence>)
 => ()
@@ -100,7 +100,7 @@ end method;
 
 /** #f is ignored. **/
 define method process-tokens
-   (owner :: type-union(<interm-element>, <content-seq>, <markup-seq>,
+   (owner :: type-union(<markup-element>, <content-seq>, <markup-seq>,
                         <title-seq>, <topic-content-seq>),
     token == #f)
 => ()
