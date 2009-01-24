@@ -44,30 +44,18 @@ define function main(name, arguments)
    let src-files = make(<stretchy-vector>);
    for (filename in args.files)
       let loc = as(<file-locator>, filename);
-      block ()
-         // if-does-not-exist: #f would be preferable, but not implemented.
-         let file = make(<file-stream>, locator: loc, if-does-not-exist: #"signal");
-         select (loc.locator-extension by case-insensitive-equal?)
-            args.doc-pattern => doc-files := add!(doc-files, file);
-            args.toc-pattern => toc-files := add!(toc-files, file);
-            ("dylan", "dyl", "lid") => src-files := add!(src-files, file);
-            otherwise => close(file);
-         end select;
-      exception (err :: <file-does-not-exist-error>)
-         file-not-found(#f, filename: filename)
-      end block;
+      select (loc.locator-extension by case-insensitive-equal?)
+         args.doc-pattern => doc-files := add!(doc-files, loc);
+         args.toc-pattern => toc-files := add!(toc-files, loc);
+         ("dylan", "dyl", "lid") => src-files := add!(src-files, loc);
+         otherwise => file-type-not-known(#f, filename: filename);
+      end select;
    end for;
 
-   block ()
-      let doc-tree = create-doc-tree(toc-files, doc-files, src-files);
-      // TODO: Write doc-tree as HTML or DITA.
-      // TODO: For now, just output it.
-      print(doc-tree, *standard-output*, pretty?: #t);
-   cleanup
-      do(close, toc-files);
-      do(close, doc-files);
-      do(close, src-files);
-   end block;
+   let doc-tree = create-doc-tree(toc-files, doc-files, src-files);
+   // TODO: Write doc-tree as HTML or DITA.
+   // TODO: For now, just output it.
+   print(doc-tree, *standard-output*, pretty?: #t);
 
    exit-application(0);
 end function main;

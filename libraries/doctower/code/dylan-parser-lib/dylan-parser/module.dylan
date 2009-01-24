@@ -17,16 +17,22 @@ define module dylan-parser
    export
       <class-definer-token>,
       <constant-definer-token>,
+      <create-clause-token>,
       <definition-token>,
       <doc-comment-token>,
+      <export-clause-token>,
       <function-definer-token>,
       <generic-definer-token>,
       <header-token>,
-      <method-definer-token>,
-      <property-token>,
       <interchange-file-token>,
+      <library-definer-token>,
+      <method-definer-token>,
+      <module-definer-token>,
+      <property-token>,
+      <renaming-token>,
       <source-record-token>,
       <text-token>,
+      <use-clause-token>,
       <variable-definer-token>;
       
    export
@@ -52,7 +58,9 @@ define module dylan-parser
       class-keywords,
       class-slots,
       class-supers,
+      create-names,
       definitions,
+      export-names,
       func-options,
       func-params,
       func-values,
@@ -64,6 +72,7 @@ define module dylan-parser
       keyword-name,
       keyword-required?,
       keyword-type,
+      namespace-clauses,
       param-default,
       param-doc,
       param-instance,
@@ -77,5 +86,11 @@ define module dylan-parser
       slot-setter,
       slot-type,
       source-record,
-      unscoped-docs;
+      unscoped-docs,
+      use-exclusions,
+      use-exports,
+      use-imports,
+      use-name,
+      use-prefix,
+      use-renamings;
 end module;

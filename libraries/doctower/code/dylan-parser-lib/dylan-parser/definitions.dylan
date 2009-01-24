@@ -299,6 +299,7 @@ end;
 define parser module-definer (<definition-token>)
    rule seq(lex-MODULE, lex-NAME, opt(module-clauses), lex-END) => tokens;
    slot api-name = tokens[1].value;
+   slot namespace-clauses = tokens[2] | #[];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value);
 end;
@@ -306,6 +307,7 @@ end;
 define parser library-definer (<definition-token>)
    rule seq(lex-LIBRARY, lex-NAME, opt(library-clauses), lex-END) => tokens;
    slot api-name = tokens[1].value;
+   slot namespace-clauses = tokens[2] | #[];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value);
 end;
@@ -334,74 +336,117 @@ define parser library-clause :: <token>
    yield token;
 end;
 
-define parser export-clause ()
+define parser export-clause (<token>)
    rule seq(lex-EXPORT, lex-ORDINARY-NAME, opt-many(seq(lex-COMMA, lex-ORDINARY-NAME)),
             opt(lex-COMMA))
    => tokens;
+   slot export-names = map(value, list-from-tokens(copy-sequence(tokens, start: 1)));
 end;
 
-define parser create-clause ()
+define parser create-clause (<token>)
    rule seq(lex-CREATE, lex-ORDINARY-NAME, opt-many(seq(lex-COMMA, lex-ORDINARY-NAME)),
             opt(lex-COMMA))
    => tokens;
+   slot create-names = map(value, list-from-tokens(copy-sequence(tokens, start: 1)));
 end;
 
-define parser use-clause ()
+define parser use-clause (<token>)
    rule seq(lex-USE, lex-ORDINARY-NAME, opt-many(seq(lex-COMMA, use-option)),
             opt(lex-COMMA))
    => tokens;
+   slot use-name = tokens[1].value;
+   slot use-imports = #f;
+   slot use-exclusions = #f;
+   slot use-prefix = #f;
+   slot use-renamings = #f;
+   slot use-exports = #f;
+afterwards (context, tokens, value, start-pos, end-pos)
+   let options = collect-subelements(tokens[2], 1);
+   for (option in options)
+      select (option.object-class)
+         <import-option-token> => value.use-imports := option.import-renamings;
+         <exclude-option-token> => value.use-exclusions := option.exclude-names;
+         <prefix-option-token> => value.use-prefix := option.prefix-text;
+         <rename-option-token> => value.use-renamings := option.rename-renamings;
+         <export-option-token> => value.use-exports := option.export-names;
+      end select;
+   end for;
 end;
 
-define parser use-option ()
+define parser use-option :: <token>
    rule choice(import-option, exclude-option, prefix-option, rename-option, 
                export-option)
    => token;
+   yield token;
 end;
 
-define parser import-option ()
+define parser import-option (<token>)
    rule seq(lex-IMPORT,
-            choice(lex-ALL, seq(lex-LF-BRACE, opt(var-mod-list), lex-RT-BRACE)))
+            choice(seq(nil(#"all"), lex-ALL),
+                   seq(nil(#"list"), lex-LF-BRACE, opt(var-mod-list), lex-RT-BRACE)))
    => tokens;
+   slot import-renamings :: type-union(singleton(#"all"), <sequence>) =
+      select (tokens[1][0])
+         #"all" => #"all";
+         #"list" => tokens[1][2];
+      end select;
 end;
 
-define parser var-mod-list ()
+define parser var-mod-list :: <sequence> /* of <renaming-token> */
    rule seq(var-mod-spec, opt-many(seq(lex-COMMA, var-mod-spec)), opt(lex-COMMA))
    => tokens;
+   yield list-from-tokens(tokens);
 end;
 
-define parser var-mod-spec ()
+define parser var-mod-spec (<renaming-token>)
    rule seq(lex-NAME, opt-seq(lex-ARROW, lex-NAME)) => tokens;
+   inherited slot import-name = tokens[0].value;
+   inherited slot local-name = tokens[1] & tokens[1][1].value;
 end;
 
-define parser exclude-option ()
+define parser exclude-option (<token>)
    rule seq(lex-EXCLUDE, lex-LF-BRACE, opt(name-list), lex-RT-BRACE) => tokens;
+   slot exclude-names = tokens[2];
 end;
 
-define parser name-list ()
+define parser name-list :: <sequence> /* of <string> */
    rule seq(lex-NAME, opt-many(seq(lex-COMMA, lex-NAME)), opt(lex-COMMA))
    => tokens;
+   yield map(value, list-from-tokens(tokens));
 end;
 
-define parser prefix-option ()
+define parser prefix-option (<token>)
    rule seq(lex-PREFIX, string-literal) => tokens;
+   slot prefix-text = tokens[1].value;
 end;
 
-define parser rename-option ()
+define parser rename-option (<token>)
    rule seq(lex-RENAME, lex-LF-BRACE, opt(renaming-list), lex-RT-BRACE) => tokens;
+   slot rename-renamings = tokens[2];
 end;
 
-define parser renaming-list ()
+define parser renaming-list :: <sequence> /* of <renaming-token> */
    rule seq(renaming, opt-many(seq(lex-COMMA, renaming)), opt(lex-COMMA))
    => tokens;
+   yield list-from-tokens(tokens);
 end;
 
-define parser renaming ()
+define parser renaming (<token>)
    rule seq(lex-NAME, lex-ARROW, lex-NAME) => tokens;
+   slot import-name = tokens[0].value;
+   slot local-name = tokens[2].value;
 end;
 
-define parser export-option ()
-   rule seq(lex-EXPORT, choice(lex-ALL, seq(lex-LF-BRACE, opt(name-list), lex-RT-BRACE)))
+define parser export-option (<token>)
+   rule seq(lex-EXPORT,
+            choice(seq(nil(#"all"), lex-ALL),
+                   seq(nil(#"list"), lex-LF-BRACE, opt(name-list), lex-RT-BRACE)))
    => tokens;
+   slot export-names :: type-union(singleton(#"all"), <sequence>) =
+      select (tokens[1][0])
+         #"all" => #"all";
+         #"list" => tokens[1][2];
+      end select;
 end;
 
 //

@@ -43,6 +43,9 @@ define class <topic> (<interm-element>)
          
    slot title = make(<title-seq>);
    slot shortdesc :: false-or(<paragraph>) = #f;
+
+   // Main topic content, including sections but excluding templated sections
+   // such as "Arguments" or "Superclasses".
    slot content = make(<topic-content-seq>);
    
    slot title-source-loc :: <source-location>;
@@ -54,9 +57,6 @@ define class <topic> (<interm-element>)
                                               or <target-placeholder> */;
    slot relevant-to = make(<stretchy-vector>) /* of <topic-ref> to <topic> or
                                                  <target-placeholder> */;
-
-   // see-also-section is filled in later after all see-alsos are resolved.
-   slot see-also-section :: false-or(<section>) = #f;
 end class;
 
 define class <ref-topic> (<topic>)
@@ -91,12 +91,6 @@ define class <class-doc> (<api-doc>)
    slot funcs-returning-section :: false-or(<section>) = #f;
 end class;
 
-define class <slot-doc> (<api-doc>)
-   slot setter-name :: false-or(<string>);
-   slot getter-name :: false-or(<string>);
-   slot keyword-name :: false-or(<string>);
-end class;
-
 define class <variable-doc> (<api-doc>)
    slot export-section :: false-or(<section>) = #f;
    slot type-section :: false-or(<section>) = #f;
@@ -113,7 +107,8 @@ end class;
 define class <generic-doc> (<function-doc>)
    slot modifiers-section :: false-or(<section>) = #f;
    
-   // TODO: Is this redundant to the method's fixed-parent slot?
+   // TODO: Is this redundant to the method's fixed-parent slot? Depends on if
+   // methods are always children of their generic function.
    slot method-topics = make(<stretchy-vector>) /* of <function-doc> */;
 end class;
 

@@ -2,26 +2,26 @@ module: source-files
 synopsis: Gets doc markup out of doc files or comment blocks.
 
 
-define method topics-from-dylan-files (file-seq :: <sequence>)
+define method topics-from-dylan-files (locator-seq :: <sequence>)
 => (topic-seq :: <sequence>)
-   let (lid-files, dylan-files) = partition(
-         method (file :: <file-stream>) => (bool)
-            case-insensitive-equal?("lid", file.stream-locator.locator-extension)
+   let (lid-locators, dylan-locators) = partition(
+         method (loc :: <file-locator>) => (bool)
+            case-insensitive-equal?("lid", loc.locator-extension)
          end method,
-         file-seq);
+         locator-seq);
 
    // Collect any .lid files' referenced files into a library set.
-   let library-sets = map(dylan-files-from-lid-file, lid-files);
+   let library-sets = map(dylan-files-from-lid-file, lid-locators);
 
    // Collect remaining .dyl or .dylan files into another library set.
    for (library-set in library-sets)
       for (file in library-set)
-         dylan-files := remove!(dylan-files, file, test: \=)
+         dylan-locators := remove!(dylan-locators, file, test: \=)
       end for;
    end for;
 
-   unless (dylan-files.empty?)
-      library-sets := add(library-sets, dylan-files);
+   unless (dylan-locators.empty?)
+      library-sets := add(library-sets, dylan-locators);
    end unless;
 
    // Process them.
@@ -29,11 +29,9 @@ define method topics-from-dylan-files (file-seq :: <sequence>)
 end method;
 
 
-define method dylan-files-from-lid-file (lid-file :: <file-stream>)
+define method dylan-files-from-lid-file (lid-locator :: <file-locator>)
 => (file-seq :: <sequence>)
-   let lid-locator = lid-file.stream-locator;
-   
-   local method file-from-filename (filename :: <string>)
+   local method locator-from-filename (filename :: <string>)
          => (file :: false-or(<file-stream>))
             let filenames = vector(filename,
                                    concatenate(filename, ".dylan"),
@@ -51,6 +49,7 @@ define method dylan-files-from-lid-file (lid-file :: <file-stream>)
                         exception (err :: <file-does-not-exist-error>)
                         end block;
                   if (stream)
+                     close(stream);
                      found-file(stream);
                   end if;
                end for;
@@ -59,10 +58,14 @@ define method dylan-files-from-lid-file (lid-file :: <file-stream>)
             end block;
          end method;
 
-   let interchange = parse-file(lid-file);
-   let filenames = filenames-from-headers(interchange);
-   let file-seq = choose(true?, map(file-from-filename, filenames));
-   remove-duplicates(file-seq, test: \=)
+   let interchange = parse-file(lid-locator);
+   if (interchange)
+      let filenames = filenames-from-headers(interchange);
+      let locator-seq = choose(true?, map(locator-from-filename, filenames));
+      remove-duplicates(locator-seq, test: \=)
+   else
+      #()
+   end if;
 end method;
 
 
@@ -78,28 +81,37 @@ define method filenames-from-headers (token :: <interchange-file-token>)
 end method;
 
 
-define method topics-from-library-set (files :: <sequence>)
+define method topics-from-library-set (locators :: <sequence>)
 => (topics :: <sequence>)
-   log-object("Library file set",
-         map(method (file) as(<string>, file.stream-locator) end, files));
+   log-object("Library file set", map(curry(as, <string>), locators));
 
-   // Read source code.
+   // Read and model source code.
+   let ichange-files = choose(true?, map(parse-file, locators));
+   let lib-model = organize-apis(ichange-files);
+   
    // Generate implicit topics and sections.
-   // Associate comments to topics and sections.
-   // Read and parse comments.
    // Generate explicit topics, sections, and placeholders.
    #()
 end method;
 
 
-define method parse-file (file :: <file-stream>)
-=> (token :: <interchange-file-token>)
-   let text = make(<canonical-text-stream>, inner-stream: file);
-   block ()
-      parse-dylan-file(text, file.stream-locator);
-   cleanup
-      text.close;
-   end block;
+define method parse-file (locator :: <file-locator>)
+=> (token :: false-or(<interchange-file-token>))
+   with-open-file (file = locator)
+      let text = make(<canonical-text-stream>, inner-stream: file);
+      block ()
+         parse-dylan-file(text, file.stream-locator);
+      cleanup
+         text.close;
+      exception (fail :: <parse-failure>)
+         let (line, col) = line-col-position(text, at: fail.failure-position);
+         let loc = make(<file-source-location>,
+                        file: text.inner-stream.inner-stream.stream-locator,
+                        start-line: line, start-column: col,
+                        end-line: line, end-col: col);
+         parse-error-in-dylan(loc, expected: fail.parse-expected);
+      end block;
+   end with-open-file
 end method;
 
 

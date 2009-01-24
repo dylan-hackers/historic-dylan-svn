@@ -42,7 +42,8 @@ API recognition. If you type "use the <integer> class," the code should figure
 out that you want to link to the class. This relies on cues within the name, of
 course. If you type "use the stream-location function," I doubt the code can
 guess that you want to link to the function -- though maybe if an adjacent word
-is "function" and the word is the name of a document function, that might work.
+is "function" and the word is the name of a documented function, that might
+work.
 
 -----
 
@@ -53,12 +54,6 @@ I'm thinking the user won't be able to extensively customize the generated HTML
 document. Probably just CSS styles, maybe a logo or common header or footer. We
 should offer a couple of different layout styles. For anything more extensive,
 the user should generate DITA output and use XSLT or a DITA processing system.
-
--------
-
-Right now, I generate <file-streams> pretty early. We should defer this and work
-with <file-locators> as much as possible to simplify closing issues. Currently,
-.dylan files referenced by a .lid file aren't explicitly closed.
 
 
 ==========

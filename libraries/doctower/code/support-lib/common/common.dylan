@@ -26,10 +26,23 @@ define function item-string-list (items :: <collection>)
 end function;
 
 
-// TODO: Not needed if we defer <file-stream> creation and only compare <file-locators>.
-define method \= (f1 :: <file-stream>, f2 :: <file-stream>) => (equal? :: <boolean>)
-   f1.stream-locator = f2.stream-locator
-end method;
+define macro with-open-file
+   {  with-open-file (?:name = ?locator:expression, #rest ?keys:expression)
+         ?:body
+      end }
+   => {  block ()
+            let ?name = make(<file-stream>, locator: ?locator, ?keys);
+            block ()
+               ?body
+            cleanup
+               close(?name)
+            end block
+         exception (err :: <file-does-not-exist-error>)
+            file-not-found(#f, filename: ?locator)
+         exception (err :: <file-system-error>)
+            file-error(#f, filename: ?locator, error: condition-to-string(err))
+         end block }
+end macro;
 
 
 /// Synopsis: Define methods to visit objects and their slots.
