@@ -233,7 +233,7 @@ end method;
 /// objects.
 ///
 /// Arguments:
-///   element     - The <interm-element> to visit.
+///   element     - The <markup-element> to visit.
 ///   operation   - A <function> on 'element'.
 ///   #rest keys  - A set of keys passed to 'operation'.
 

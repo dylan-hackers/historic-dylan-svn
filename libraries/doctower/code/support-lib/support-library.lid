@@ -8,16 +8,16 @@ files:   support-library
          common/locations
          ordered-tree/module
          ordered-tree/ordered-tree
-         internal-rep/module
-         internal-rep/body-elements
-         internal-rep/helpers
-         internal-rep/misc-elements
-         internal-rep/printers
-         internal-rep/quote-elements
-         internal-rep/toc-nav-elements
-         internal-rep/topic-elements
-         api-rep/module
-         api-rep/api-rep
+         markup-rep/module
+         markup-rep/body-elements
+         markup-rep/helpers
+         markup-rep/misc-elements
+         markup-rep/printers
+         markup-rep/quote-elements
+         markup-rep/toc-nav-elements
+         markup-rep/topic-elements
+         dylan-rep/module
+         dylan-rep/dylan-rep
          configs/module
          configs/configs
          parser-common/module

@@ -4,7 +4,7 @@ define module source-files
    use common;
    use conditions;
    use ordered-tree;
-   use internal-rep;
+   use markup-rep;
    use markup-parser, import: { parse-markup };
    use dylan-parser, import: all, exclude: { source-location };
    use markup-translator;

@@ -1,6 +1,6 @@
 module: dylan-user
 
-define module api-rep
+define module dylan-rep
    use common;
 
    // from peg-parser

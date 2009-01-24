@@ -1,4 +1,4 @@
-module: internal-rep
+module: markup-rep
 
 
 /// Synopsis: Records the characteristics of a topic level style.

@@ -1,8 +1,8 @@
-module: internal-rep
+module: markup-rep
 synopsis: Intermediate elements from quote directives.
 
 
-define class <xref> (<interm-element>)
+define class <xref> (<markup-element>)
    // If the target is <topic>, <footnote>, <ph-marker>, or <section>, the DITA
    // xref tag will have a format attr of "dita," else based on the URL; the 
    // scope attr will be "local," else "external." If the text is <conref>,
@@ -21,15 +21,15 @@ define class <vi-xref> (<xref>)
    inherited slot target /* :: type-union(<topic>, <target-placeholder>) */;
 end class;
 
-define class <api-name> (<interm-element>)
+define class <api-name> (<markup-element>)
    slot text :: <string>;
 end class;
 
-define class <parm-name> (<interm-element>)
+define class <parm-name> (<markup-element>)
    slot text :: <string>;
 end class;
 
-define class <term> (<interm-element>)
+define class <term> (<markup-element>)
    slot text;
 end class;
 
@@ -37,34 +37,34 @@ end class;
 /// italic, whatever. It is associated with a <term>, but is separate to allow
 /// for typographical quotes that are appropriately styled but not part of the
 /// actual term.
-define class <term-style> (<interm-element>)
+define class <term-style> (<markup-element>)
    slot text;
 end class;
 
-define class <code-phrase> (<interm-element>)
+define class <code-phrase> (<markup-element>)
    slot text;
 end class;
 
-define class <entity> (<interm-element>)
+define class <entity> (<markup-element>)
    slot code :: <integer>, init-keyword: #"code";
 end class;
 
-define class <cite> (<interm-element>)
+define class <cite> (<markup-element>)
    slot text;
 end class;
 
-define class <bold> (<interm-element>)
+define class <bold> (<markup-element>)
    slot text;
 end class;
 
-define class <italic> (<interm-element>)
+define class <italic> (<markup-element>)
    slot text;
 end class;
 
-define class <underline> (<interm-element>)
+define class <underline> (<markup-element>)
    slot text;
 end class;
 
-define class <emphasis> (<interm-element>)
+define class <emphasis> (<markup-element>)
    slot text;
 end class;

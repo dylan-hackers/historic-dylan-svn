@@ -6,8 +6,8 @@ define module dylan-translator
    use dylan-parser,
       rename: { source-location => token-src-loc, local-name => token-local-name,
                 import-name => token-import-name };
-   use api-rep;
-   use internal-rep;
+   use dylan-rep;
+   use markup-rep;
    use configs;
    
    export organize-apis;

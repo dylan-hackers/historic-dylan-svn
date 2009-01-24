@@ -4,7 +4,7 @@ synopsis: Merges implicit and explicit topics and resolves links.
 define module topic-resolver
    use common;
    use conditions;
-   use internal-rep;
+   use markup-rep;
    use ordered-tree;
    
    export

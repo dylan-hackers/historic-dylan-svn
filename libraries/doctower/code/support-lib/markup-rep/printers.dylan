@@ -1,4 +1,4 @@
-module: internal-rep
+module: markup-rep
 
 define method print-object (o :: <topic>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")

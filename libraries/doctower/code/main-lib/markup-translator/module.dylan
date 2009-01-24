@@ -9,7 +9,7 @@ define module markup-translator
       rename: { content => token-content, index => token-index,
                 text => token-text, topics => token-topics,
                 source-location => token-src-loc };
-   use internal-rep;
+   use markup-rep;
    use configs;
    
    export topics-from-markup;

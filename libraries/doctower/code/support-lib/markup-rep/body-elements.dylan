@@ -1,4 +1,4 @@
-module: internal-rep
+module: markup-rep
 synopsis: Classes comprising documentation.
 
 /**
@@ -40,7 +40,7 @@ define constant <content-seq> = limited(<stretchy-vector>,
                   <api-list-placeholder>, <simple-table>, <unordered-list>,
                   <ordered-list>, <defn-list>, <paragraph>, singleton(#f)));
 
-define class <section> (<interm-element>)
+define class <section> (<markup-element>)
    slot id :: false-or(<string>) = #f;
    slot title = make(<title-seq>);
    slot content = make(<content-seq>);
@@ -53,23 +53,23 @@ end class;
 In DITA, footnotes are done with the <fn> tag. In HTML, they are rendered at
 the end of the topic before sub-topics.
 **/
-define class <footnote> (<interm-element>)
+define class <footnote> (<markup-element>)
    slot index :: type-union(<character>, <integer>), init-keyword: #"index";
    slot content = make(<content-seq>);
 end class;
 
-define class <paragraph> (<interm-element>)
+define class <paragraph> (<markup-element>)
    slot content = make(<markup-seq>);
 end class;
 
-define class <note> (<interm-element>)
+define class <note> (<markup-element>)
    slot content = make(<content-seq>);
 end class;
 
 define class <warning-note> (<note>)
 end class;
 
-define class <conref> (<interm-element>)
+define class <conref> (<markup-element>)
    slot target :: type-union(<topic>, <target-placeholder>),
       init-keyword: #"target";
    slot style :: one-of(#"title", #"shortdesc", #"toc"),
@@ -80,20 +80,20 @@ end class;
 /// DITA <codeph> is a sub-class of <ph>, but I'm not using them at all the same.
 /// Don't want to include content in the tag in case DITA processors won't consider
 /// it as code in a code block.
-define class <ph-marker> (<interm-element>)
+define class <ph-marker> (<markup-element>)
    slot index :: type-union(<integer>, <character>), init-keyword: #"index";
 end class;
 
-define class <ordered-list> (<interm-element>)
+define class <ordered-list> (<markup-element>)
    slot start :: type-union(<integer>, <character>), init-keyword: #"start";
    slot items :: <vector> /* of <content-seq> */;
 end class;
 
-define class <unordered-list> (<interm-element>)
+define class <unordered-list> (<markup-element>)
    slot items :: <vector> /* of <content-seq> */;
 end class;
 
-define class <defn-list> (<interm-element>)
+define class <defn-list> (<markup-element>)
    slot items :: <array> /* 2-by-n, first col of <markup-seq>,
                             second col of <content-seq> */;
 end class;
@@ -104,23 +104,23 @@ end class;
 define class <many-line-defn-list> (<defn-list>)
 end class;
 
-define class <fig> (<interm-element>)
+define class <fig> (<markup-element>)
    slot image-name :: <string>;
    slot abs-size :: false-or(<integer>) = #f;
    slot rel-size :: false-or(<integer>) = #f;
    slot title :: <string>;
 end class;
 
-define class <inline-image> (<interm-element>)
+define class <inline-image> (<markup-element>)
    slot image-name :: <string>, init-keyword: #"image";
    slot alt-text :: <string>, init-keyword: #"alt-text";
 end class;
 
-define class <pre> (<interm-element>)
+define class <pre> (<markup-element>)
    slot content = make(<stretchy-vector>) /* of <string>, <ph-marker> */;
 end class;
 
-define class <simple-table> (<interm-element>)
+define class <simple-table> (<markup-element>)
    slot headings :: <vector>;
    slot items :: <array>;
 end class;
@@ -138,10 +138,10 @@ end class;
 define class <many-line-parm-list> (<many-line-defn-list>, <parm-list>)
 end class;
 
-define class <html-content> (<interm-element>)
+define class <html-content> (<markup-element>)
    slot content :: <string>, init-keyword: #"content";
 end class;
 
-define class <dita-content> (<interm-element>)
+define class <dita-content> (<markup-element>)
    slot content :: <string>, init-keyword: #"content";
 end class;

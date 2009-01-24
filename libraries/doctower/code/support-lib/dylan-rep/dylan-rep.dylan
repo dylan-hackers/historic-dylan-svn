@@ -1,4 +1,4 @@
-module: api-rep
+module: dylan-rep
 synopsis: Representation of API elements extracted from source code.
 
 //
