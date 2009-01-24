@@ -5,7 +5,11 @@ synopsis: Representation of API elements extracted from source code.
 // Root stuff
 //
 
-define class <library-info> (<object>)
+define abstract class <explicit-api> (<object>)
+   slot source-token :: false-or(<token>), required-init-keyword: #"source-token";
+end class;
+
+define class <library> (<explicit-api>)
    slot local-name :: <string>;
    constant slot used-libraries = make(<stretchy-vector> /* of <used-library> */);
    constant slot modules = make(<stretchy-vector> /* of <module> */);
@@ -18,16 +22,20 @@ end class;
 //
 
 define class <used-library> (<object>)
-   slot import-name :: <string>;
+   slot import-name :: <string>, init-keyword: #"import-name";
 end class;
+
+define method \= (lib1 :: <used-library>, lib2 :: <used-library>) => (equal? :: <boolean>)
+   lib1 == lib2 | case-insensitive-equal?(lib1.import-name, lib2.import-name)
+end method;
 
 
 //
 // Modules
 //
 
-define abstract class <module> (<object>)
-   slot local-name :: <string>;
+define abstract class <module> (<explicit-api>)
+   slot local-name :: <string>, init-keyword: #"local-name";
    constant slot bindings = make(<stretchy-vector> /* of <binding> */);
 end class;
 
@@ -46,6 +54,20 @@ end class;
 
 define class <internal-module> (<module>)
 end class;
+
+/** For modules original to the current library. **/
+define method \= (mod1 :: <module>, mod2 :: <module>) => (equal? :: <boolean>)
+   mod1 == mod2 | case-insensitive-equal?(mod1.local-name, mod2.local-name)
+end method;
+
+/** For module imported from another library. **/
+define method \=
+   (mod1 :: type-union(<imported-module>, <reexported-module>),
+    mod2 :: type-union(<imported-module>, <reexported-module>))
+=> (equal? :: <boolean>)
+   mod1 == mod2 | (mod1.used-library = mod2.used-library &
+                   case-insensitive-equal?(mod1.import-name, mod2.import-name))
+end method;
 
 
 //
@@ -114,7 +136,7 @@ end class;
 // Classes
 //
 
-define class <explicit-class-defn> (<imp/exp-definition>)
+define class <explicit-class-defn> (<imp/exp-definition>, <explicit-api>)
    constant slot adjs
       = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
    constant slot direct-supers
@@ -185,7 +207,7 @@ define abstract class <func/gen-definition> (<imp/exp-definition>)
    slot inferred-param-list :: false-or(<parameter-list>);
 end class;
 
-define class <explicit-generic-defn> (<func/gen-definition>)
+define class <explicit-generic-defn> (<func/gen-definition>, <explicit-api>)
    slot vendor-options = make(<stretchy-vector> /* of <vendor-option> */);
    slot sealed-domains = make(<stretchy-vector> /* of <sealed-domain> */);
 end class;
@@ -194,7 +216,7 @@ define class <implicit-generic-defn> (<func/gen-definition>)
    slot warn-sealed-domain? :: <boolean>;
 end class;
 
-define class <explicit-function-defn> (<func/gen-definition>)
+define class <explicit-function-defn> (<func/gen-definition>, <explicit-api>)
 end class;
 
 define class <vendor-option> (<object>)
@@ -273,10 +295,10 @@ define abstract class <const/var-defn> (<imp/exp-definition>)
    slot value :: <computed-constant>;
 end class;
 
-define class <explicit-constant-defn> (<const/var-defn>)
+define class <explicit-constant-defn> (<const/var-defn>, <explicit-api>)
 end class;
 
-define class <explicit-variable-defn> (<const/var-defn>)
+define class <explicit-variable-defn> (<const/var-defn>, <explicit-api>)
 end class;
 
 
@@ -284,7 +306,7 @@ end class;
 // Macros
 //
 
-define abstract class <explicit-macro-defn> (<imp/exp-definition>)
+define abstract class <explicit-macro-defn> (<imp/exp-definition>, <explicit-api>)
    constant slot main-rules = make(<stretchy-vector> /* of <rule> */);
    constant slot aux-rules = make(<stretchy-vector> /* of <aux-rules> */);
 end class;
@@ -301,12 +323,12 @@ end class;
 define class <explicit-func-macro-defn> (<explicit-macro-defn>)
 end class;
 
-define class <aux-rules>
+define class <aux-rules> (<object>)
    slot symbol :: <string>;
    constant slot rules = make(<stretchy-vector> /* of <rule> */);
 end class;
 
-define class <rule>
+define class <rule> (<object>)
    slot pattern :: <pattern>;
    slot template :: <template>;
 end class;
@@ -422,3 +444,12 @@ end class;
 // Fragments
 //
 
+define class <fragment> (<object>)
+   slot content :: <string>;
+end class;
+
+define class <computed-constant> (<fragment>)
+end class;
+
+define class <code-fragment> (<fragment>)
+end class;

@@ -9,5 +9,6 @@ define library doctower-library
    use wrapper-streams;
    use io;
    use command-line-parser;
+   use peg-parser;
    use dylan;
 end library;

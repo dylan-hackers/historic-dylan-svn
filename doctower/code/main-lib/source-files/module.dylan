@@ -8,11 +8,14 @@ define module source-files
    use markup-parser, import: { parse-markup };
    use dylan-parser, import: all, exclude: { source-location };
    use markup-translator;
+   use dylan-translator;
    
    // from regular-expressions
    use regular-expressions, import: { regexp-position };
    // from wrapper-streams
    use canonical-text-stream;
+   // from peg-parser
+   use peg-parser, import: { <parse-failure>, parse-expected, failure-position };
    // from system
    use file-system, import: { <file-does-not-exist-error> };
    use locators, import: { locator-extension, merge-locators };

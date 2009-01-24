@@ -51,7 +51,7 @@ define method make
          else
             values("%s: %s: ", vector(error-location, error-class))
          end if;
-   let (postfix-string, postfix-args) = values(" (%2d)", vector(error-code));
+   let (postfix-string, postfix-args) = values(" (%02d)", vector(error-code));
    next-method(cls, error-code: error-code, error-location: error-location,
          format-string: concatenate(prefix-string, format-string, postfix-string),
          format-arguments: concatenate(prefix-args, format-arguments, postfix-args))
@@ -131,10 +131,16 @@ define errors (<syntax-error>)
       "Titles may not include quoted phrase options \"qv\" or \"vi\"";
 
    28 bad-syntax-in-toc-file
-      "Incorrect syntax in table of contents file";
+      "Incorrect syntax";
    
    29 skipped-level-in-toc-file
-      "Over-indented title or tag in table of contents file";
+      "Over-indented title or tag";
+   
+   30 parse-error-in-markup
+      "Unparsable markup, expected %s", expected;
+
+   31 parse-error-in-dylan
+      "Unparsable syntax, expected %s", expected;
 end errors;
 
 
@@ -159,13 +165,34 @@ define errors (<design-error>)
 
    46 conflicting-locations-in-tree
       "Topic is placed ambiguously by %s", arranger-locations;
+   
+   47 multiple-libraries-in-fileset
+      "Library files include multiple library definitions at %s", defn-locations;
+   
+   48 no-library-in-fileset
+      "No library definition found in library files %s", filenames;
+   
+   49 no-modules-in-fileset
+      "No module definitions found in library files %s", filenames;
 end errors;
 
 
-/** Synopsis: Indicates some other error that can be ignored. */
+/** Synopsis: Indicates some other error that does not prevent processing. */
 define class <general-warning> (<user-visible-warning>) end;
 
 define errors (<general-warning>)
    61 file-not-found
       "File \"%s\" not found", filename;
+   
+   62 file-type-not-known
+      "File \"%s\" is not of a known file type", filename;
+end errors;
+
+
+/** Synopsis: Indicates some other error that prevents processing. */
+define class <general-error> (<user-visible-error>) end;
+
+define errors (<general-error>)
+   81 file-error
+      "File error with \"%s\": %s", filename, error;
 end errors;

@@ -140,3 +140,40 @@ define generic param-instance (param :: <required-singleton-argument>)
 /// Synopsis: Function keyword parameter default value, if present & parsable.
 define generic param-default (param :: <func-param>)
 => (def :: false-or(<text-token>));
+
+/// Synopsis: Library/module clauses.
+define generic namespace-clauses
+   (token :: type-union(<library-definer-token>, <module-definer-token>))
+=> (clauses :: <sequence> /* of <use-clause-token>, <export-clause-token>, <create-clause-token> */);
+
+define generic export-names (token :: <export-clause-token>)
+=> (names :: <sequence> /* of <string> */);
+
+define generic create-names (token :: <create-clause-token>)
+=> (names :: <sequence> /* of <string> */);
+
+define generic use-name (token :: <use-clause-token>)
+=> (name :: <string>);
+
+define generic use-imports (token :: <use-clause-token>)
+=> (renamings :: type-union(singleton(#f), singleton(#"all"),
+                            <sequence> /* of <renaming-token> */));
+
+define generic use-exclusions (token :: <use-clause-token>)
+=> (names :: false-or(<sequence> /* of <string> */));
+
+define generic use-prefix (token :: <use-clause-token>)
+=> (text :: false-or(<string>));
+
+define generic use-renamings (token :: <use-clause-token>)
+=> (renamings :: false-or(<sequence> /* of <renaming-token> */));
+
+define generic use-exports (token :: <use-clause-token>)
+=> (names :: type-union(singleton(#f), singleton(#"all"),
+                        <sequence> /* of <string> */));
+
+define generic import-name (token :: <renaming-token>)
+=> (name :: <string>);
+
+define generic local-name (token :: <renaming-token>)
+=> (name :: false-or(<string>));
