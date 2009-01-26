@@ -62,7 +62,7 @@ define compiler-sideways method print-object (o :: <temporary>, stream :: <strea
         if (o.rest-values?) ",#rest" else "" end)
     end if;
     let te = type-estimate(o);
-    format(stream, "::%=", te);
+    format(stream, ":: %=", te);
   exception (<error>)
   end block;
 end method;
