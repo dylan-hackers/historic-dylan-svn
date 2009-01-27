@@ -5,6 +5,7 @@ Module: logging-test-suite
 define library-spec logging ()
   module logging;
   test test-elapsed-milliseconds;
+  test test-process-id;
 end library-spec logging;
 
 // Defines suite logging-module-test-suite.
@@ -295,4 +296,3 @@ end function-test remove-target;
 
 define logging function-test write-message ()
 end function-test write-message;
-
