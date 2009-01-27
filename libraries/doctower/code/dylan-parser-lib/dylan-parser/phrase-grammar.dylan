@@ -450,7 +450,7 @@ define parser keyword-parameter (<token>)
    rule seq(opt(lex-SYMBOL), variable, opt(default)) => tokens;
    slot key-doc :: false-or(<doc-comment-token>) =
          (tokens[0] & tokens[0].lexeme-doc) | tokens[1].var-doc;
-   slot key-symbol :: false-or(<string>) = tokens[0];
+   slot key-symbol :: false-or(<string>) = tokens[0] & tokens[0].value;
    slot key-var :: <variable-token> = tokens[1];
    slot key-default :: false-or(<text-token>) = tokens[2];
 attributes
@@ -472,9 +472,9 @@ attributes
    type-skipper = parse-til-parsable
 end;
 
-define parser enclosed-values-list :: <values-list-token>
+define parser enclosed-values-list :: false-or(<values-list-token>)
    rule seq(lex-LF-PAREN, opt(values-list), lex-RT-PAREN) => tokens;
-   yield tokens[2];
+   yield tokens[1];
 end;
 
 define parser values-list (<token>)

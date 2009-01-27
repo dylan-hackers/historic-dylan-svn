@@ -13,6 +13,6 @@ define module dylan-rep
 
    export
       local-name, local-name-setter, import-name, import-name-setter,
-      used-libraries
+      used-libraries, source-token
       ;
 end module;

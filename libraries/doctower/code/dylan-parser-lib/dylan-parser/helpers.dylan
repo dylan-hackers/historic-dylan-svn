@@ -138,14 +138,16 @@ define method keyword-from-clause (tok :: <init-arg-spec-token>)
    keyword;
 end method;
 
-define method clauses-init-option (seq) => (tok :: false-or(<token>))
+define method clauses-init-option (seq) => (tok :: false-or(<text-token>))
    let <init-option-type> =
          type-union(<init-value-option-token>, <init-function-option-token>);
-   find-element(seq, rcurry(instance?, <init-option-type>), failure: #f);
+   let tok = find-element(seq, rcurry(instance?, <init-option-type>), failure: #f);
+   tok & tok.value
 end method;
 
-define method clauses-type-option (seq) => (tok :: false-or(<token>))
-   find-element(seq, rcurry(instance?, <type-option-token>), failure: #f);
+define method clauses-type-option (seq) => (tok :: false-or(<text-token>))
+   let tok = find-element(seq, rcurry(instance?, <type-option-token>), failure: #f);
+   tok & tok.value
 end method;
 
 define method clauses-setter-option (seq)
@@ -236,12 +238,22 @@ define class <rest-value> (<func-value>)
    slot param-type :: false-or(<text-token>), init-keyword: #"name";
 end class;
 
+define method parameter-list-from-token (tok == #f)
+=> (param-list :: <sequence>)
+   #[]
+end method;
+
 define method parameter-list-from-token (params-tok :: <parameters-token>)
 => (param-list :: <sequence>)
    let required-param-list = map-as(<stretchy-vector>, required-param-from-token,
                                     params-tok.required-params);
    let rest-key-param-list = rest-key-params-from-token(params-tok.rest-key-param);
    concatenate(required-param-list, rest-key-param-list);
+end method;
+
+define method required-param-from-token (tok == #f)
+=> (param-list :: <sequence>)
+   #[]
 end method;
 
 define method required-param-from-token (param-tok :: <required-parameter-token>)

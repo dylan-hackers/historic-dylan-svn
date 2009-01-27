@@ -1,65 +1,119 @@
 module: dylan-translator
 
 
-/**
-A library definition lists used libraries and modules. Modules may be created
-and exported from the current library, created but internal to the current
-library, excluded from import from another library, imported and re-exported
-from another library, imported and re-exported under a different name from
-another library, or imported but not re-exported from another library. There can
-be multiple use clauses for the same library.
-
-   Exported    - Module is listed in export clause. Instance of <exported-module>.
-   Internal    - Module is created via "define module" but not mentioned in
-                 "define library". Instance of <internal-module>.
-   Excluded    - Module is listed in use clause exclude option, or not listed in
-                 use clause import option. No representation.
-   Reexported  - Module is listed in use clause export option. Instance of
-                 <reexported-module>.
-   Renamed     - Module is listed in use clause export option and given a new
-                 name with rename option, import option, or prefix option.
-                 Instance of <reexported-module>.
-   Imported    - Module is listed in use clause import option, but not listed
-                 in export option. Renaming these is possible but has no effect.
-                 Instance of <imported-module>.
-
-The intent of processing a library definition is to create a list of exported
-modules for the given library, with the proper bindings in each module. The only
-real fact of interest in the documentation of the library itself is the modules
-being exported, so we can ignore excluded and imported modules and the original
-names of renamed modules.
-
-However, this information needs to be preserved for the creation of module
-documentation; a module will need to refer to its used modules for reexported
-bindings.
-**/
-define method process-library-definition
-   (library :: <library>, token :: <library-definer-token>)
+define method extract-library (files :: <sequence>)
 => (library :: <library>)
-   library.local-name := token.api-name;
-
-   let clauses = token.namespace-clauses;
-
-   let exp-clauses = choose(rcurry(instance?, <export-clause-token>), clauses);
-   let exp-module-names = apply(concatenate, #[], map(export-names, exp-clauses));
-   let exp-modules = map(curry(make, <exported-module>, local-name:), exp-module-names);
-   
-   let use-clauses = choose(rcurry(instance?, <use-clause-token>), clauses);
-   let used-libraries = make(<equal-table>);
-   for (clause in use-clauses)
-      let used-lib = make(<used-library>, import-name: clause.use-name);
-      let imp-all? = clause.use-imports == #"all";
-      let exp-all? = clause.use-exports == #"all";
-      // TODO: To handle imported and reexported modules across libraries within
-      // this same documentation package as well as possible, need to model as
-      // many library and module exports as possible. This means, given a set of
-      // library file sets, their libraries should be found, and used libraries
-      // evaluated recursively and exports determined until reaching libraries and
-      // modules that aren't part of the documentation package.
-   end for;
-   let used-lib-names = map(use-name, use-clauses);
-   map-into(library.used-libraries, curry(make, <used-library>, import-name:),
-            used-lib-names);
-
-   
+   let libs = choose-interchange-definitions(<library-definer-token>, files);
+   select (libs.size)
+      0 =>
+         let files = map(source-file, map(token-src-loc, files));
+         no-library-in-fileset(#f, filenames: item-string-list(files));
+      1 =>
+         let token = libs.first;
+         make(<library>, source-token: token, local-name: token.api-name);
+      otherwise =>
+         let dupes = map(token-src-loc, libs);
+         multiple-libraries-in-fileset(#f, defn-locations: item-string-list(dupes));
+   end select;
 end method;
+
+
+/**
+Synopsis: Returns list of libraries, those with no dependencies first.
+
+The algorithm here is as follows:
+   1. Give each library a row of a table. Contents of the row is the list of
+      libraries used by that library.
+   2. Go through each used library list. If a library in the list has a row,
+      recursively insert its dependencies' dependencies, then its dependencies,
+      then the library.
+   3. When finished, each library will have a complete dependency list. Return
+      the libraries in ascending order of number of dependencies; since each
+      dependency list is complete and each library in each list in preceded by
+      its dependencies, there should be no issues.
+**/
+define method dependent-libraries (libraries :: <sequence> /* of <library> */)
+=> (ordered-libraries :: <sequence>)
+   let dependencies = make(<case-insensitive-string-table>);
+   for (lib in libraries)
+      let token :: <library-definer-token> = lib.source-token;
+      let clauses = token.namespace-clauses;
+      let use-clauses = choose(rcurry(instance?, <use-clause-token>), clauses);
+      dependencies[lib.local-name] :=
+            remove-duplicates!(map(use-name, use-clauses), test: case-insensitive-equal?);
+   end for;
+   
+   local method library-dependencies
+            (dependent-list :: <stretchy-vector>, lib :: <string>)
+         => (dependent-list :: <stretchy-vector>)
+            let used-libs = element(dependencies, lib, default: #[]);
+            for (used-lib in used-libs)
+               dependent-list := library-dependencies(dependent-list, used-lib);
+            end for;
+            add-new!(dependent-list, lib, test: case-insensitive-equal?);
+         end method;
+   
+   let full-dependencies = make(<case-insensitive-string-table>);
+   for (lib-name in dependencies.key-sequence)
+      let ordered-dependents = library-dependencies(make(<stretchy-vector>), lib-name);
+      full-dependencies[lib-name] := ordered-dependents;
+   end for;
+   
+   local method compare-dependency-size (lib1 :: <library>, lib2 :: <library>)
+         => (lib1-less? :: <boolean>)
+            let lib1-deps = full-dependencies[lib1.local-name].size;
+            let lib2-deps = full-dependencies[lib2.local-name].size;
+            lib1-deps < lib2-deps;
+         end method;
+
+   sort(libraries, test: compare-dependency-size);
+end method;
+
+
+// define method extract-modules (files :: <sequence>, library :: <library>)
+// => (modules :: <sequence> /* of <module> */)
+//    let mod-tokens = choose-interchange-definitions(<module-definer-token>, files);
+//    select (mod-tokens.size)
+//       0 =>
+//          let files = map(source-file, map(token-src-loc, files));
+//          no-modules-in-fileset(#f, filenames: item-string-list(files));
+//       otherwise =>
+//          local method make-module (token) => (module)
+//                   make(<module>, source-token: token, local-name: token.api-name)
+//                end method;
+//          map(make-module, mod-tokens);
+//    end select;
+// end method;
+// 
+// 
+// define method process-library
+//    (token :: <library-definer-token>, files :: <sequence>)
+// => (library :: <library>)
+//    let clauses = token.namespace-clauses;
+//    let definitions =
+//          choose-interchange-definitions(<non-namespace-definition-token>, files);
+// 
+//    // Catalog modules from use clauses.
+//    
+//    let use-clauses = choose(rcurry(instance?, <use-clause-token>), clauses);
+//    let used-lib-names = map(use-name, use-clauses);
+//    map-into(library.used-libraries, curry(make, <used-library>, import-name:),
+//             used-lib-names);
+//             
+//    
+// 
+//    let export-clauses = choose(rcurry(instance?, <export-clause-token>), clauses);
+//    let export-module-names = map(export-names, export-clauses);
+//    let export-module-names = apply(concatenate, #[], export-module-names);
+//    let export-modules = map(curry(apply, <module>, local-name:), export-module-names);
+// 
+//    let modules = extract-modules(files, library);
+// 
+//    library
+// end method;
+// 
+// 
+// define method process-module
+//    (token :: <module-definer-token>, library :: library>)
+// => (module :: <module>)
+// end method;

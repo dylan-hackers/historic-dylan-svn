@@ -10,7 +10,7 @@ define abstract class <explicit-api> (<object>)
 end class;
 
 define class <library> (<explicit-api>)
-   slot local-name :: <string>;
+   slot local-name :: <string>, init-keyword: #"local-name";
    constant slot used-libraries = make(<stretchy-vector> /* of <used-library> */);
    constant slot modules = make(<stretchy-vector> /* of <module> */);
    constant slot definitions = make(<stretchy-vector> /* of <definition> */);
