@@ -94,3 +94,18 @@ define test test-elapsed-milliseconds ()
                   number-to-string(int));
 end;
 
+define test test-process-id ()
+  for (pattern in #("%{pid}", "%p"),
+       i from 1)
+    let target = make(<string-log-target>);
+    let logger = make(<logger>,
+                      name: format-to-string("test-process-id-%s", i),
+                      targets: list(target),
+                      formatter: make(<log-formatter>, pattern: pattern),
+                      level: $trace-level);
+    log-info(logger, "this is ignored");
+    check-equal("log stream contains process id only",
+                stream-contents(target.target-stream),
+                format-to-string(current-process-id()));
+  end;
+end;

@@ -146,7 +146,6 @@ define method make
             targets: targets,
             formatter: formatter | $default-log-formatter,
             args);
-  log-info(logger, "Logger %s created", logger);
   logger
 end method make;
 
