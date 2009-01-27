@@ -24,6 +24,7 @@ define module conditions
       leading-colon-in-title,
       multiple-libraries-in-fileset,
       no-context-topic-in-block,
+      no-files-in-lid-file,
       no-library-in-fileset,
       no-modules-in-fileset,
       parse-error-in-dylan,

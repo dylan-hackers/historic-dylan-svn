@@ -12,7 +12,7 @@ define method topics-from-dylan-files (locator-seq :: <sequence>)
 
    // Collect any .lid files' referenced files into a library set.
    let library-sets = map(dylan-files-from-lid-file, lid-locators);
-
+   
    // Collect remaining .dyl or .dylan files into another library set.
    for (library-set in library-sets)
       for (file in library-set)
@@ -24,15 +24,15 @@ define method topics-from-dylan-files (locator-seq :: <sequence>)
       library-sets := add(library-sets, dylan-locators);
    end unless;
 
-   // Process them.
-   map(topics-from-library-set, library-sets);
+   let parsed-library-sets = map(parse-library-set, library-sets);
+   topics-from-dylan(parsed-library-sets);
 end method;
 
 
 define method dylan-files-from-lid-file (lid-locator :: <file-locator>)
 => (file-seq :: <sequence>)
    local method locator-from-filename (filename :: <string>)
-         => (file :: false-or(<file-stream>))
+         => (file :: false-or(<file-locator>))
             let filenames = vector(filename,
                                    concatenate(filename, ".dylan"),
                                    concatenate(filename, ".dyl"));
@@ -50,7 +50,7 @@ define method dylan-files-from-lid-file (lid-locator :: <file-locator>)
                         end block;
                   if (stream)
                      close(stream);
-                     found-file(stream);
+                     found-file(locator);
                   end if;
                end for;
                file-not-found(lid-locator, filename: filename);
@@ -59,13 +59,20 @@ define method dylan-files-from-lid-file (lid-locator :: <file-locator>)
          end method;
 
    let interchange = parse-file(lid-locator);
-   if (interchange)
-      let filenames = filenames-from-headers(interchange);
-      let locator-seq = choose(true?, map(locator-from-filename, filenames));
-      remove-duplicates(locator-seq, test: \=)
-   else
-      #()
-   end if;
+   let file-list =
+         if (interchange)
+            let filenames = filenames-from-headers(interchange);
+            let locator-seq = choose(true?, map(locator-from-filename, filenames));
+            remove-duplicates(locator-seq, test: \=)
+         else
+            #()
+         end if;
+
+   when (file-list.empty?)
+      no-files-in-lid-file(#f, filename: lid-locator);
+   end when;
+
+   file-list
 end method;
 
 
@@ -81,22 +88,15 @@ define method filenames-from-headers (token :: <interchange-file-token>)
 end method;
 
 
-define method topics-from-library-set (locators :: <sequence>)
-=> (topics :: <sequence>)
-   log-object("Library file set", map(curry(as, <string>), locators));
-
-   // Read and model source code.
-   let ichange-files = choose(true?, map(parse-file, locators));
-   let lib-model = organize-apis(ichange-files);
-   
-   // Generate implicit topics and sections.
-   // Generate explicit topics, sections, and placeholders.
-   #()
+define method parse-library-set (locators :: <sequence>)
+=> (ichange-files :: <sequence>)
+   choose(true?, map(parse-file, locators));
 end method;
 
 
 define method parse-file (locator :: <file-locator>)
 => (token :: false-or(<interchange-file-token>))
+   log("Parsing %s", locator);
    with-open-file (file = locator)
       let text = make(<canonical-text-stream>, inner-stream: file);
       block ()

@@ -10,5 +10,5 @@ define module dylan-translator
    use markup-rep;
    use configs;
    
-   export organize-apis;
+   export topics-from-dylan;
 end module;

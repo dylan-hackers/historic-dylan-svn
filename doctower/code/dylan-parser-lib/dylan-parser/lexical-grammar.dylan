@@ -430,17 +430,14 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define parser lex-CREATE (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-create, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-create, quote, req-next(quote-sep))))
-   => tokens;
-   slot value :: <string> = tokens[1][2];
+   rule seq(opt-whitespace, lit-create, req-next(word-sep)) => tokens;
+   slot value :: <string> = tokens[1];
    inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
 afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);
 end;
 
-define parser lex-EXCLUDE (<lexeme>)
+define parser lex-EXCLUDE-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-exclude, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-exclude, quote, req-next(quote-sep))))
@@ -452,6 +449,14 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define parser lex-EXPORT (<lexeme>)
+   rule seq(opt-whitespace, lit-export, req-next(word-sep)) => tokens;
+   slot value :: <string> = tokens[1];
+   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+afterwards (context, tokens, value, start-pos, end-pos)
+   adjust-lexeme-start(value, tokens[0]);
+end;
+
+define parser lex-EXPORT-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-export, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-export, quote, req-next(quote-sep))))
@@ -462,7 +467,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);
 end;
 
-define parser lex-IMPORT (<lexeme>)
+define parser lex-IMPORT-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-import, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-import, quote, req-next(quote-sep))))
@@ -481,7 +486,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);
 end;
 
-define parser lex-INIT-FUNCTION (<lexeme>)
+define parser lex-INIT-FUNCTION-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-init-function, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-init-function, quote, req-next(quote-sep))))
@@ -492,7 +497,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);
 end;
 
-define parser lex-INIT-KEYWORD (<lexeme>)
+define parser lex-INIT-KEYWORD-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-init-keyword, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-init-keyword, quote, req-next(quote-sep))))
@@ -503,7 +508,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);
 end;
 
-define parser lex-INIT-VALUE (<lexeme>)
+define parser lex-INIT-VALUE-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-init-value, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-init-value, quote, req-next(quote-sep))))
@@ -522,7 +527,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);
 end;
 
-define parser lex-PREFIX (<lexeme>)
+define parser lex-PREFIX-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-prefix, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-prefix, quote, req-next(quote-sep))))
@@ -533,7 +538,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);
 end;
 
-define parser lex-RENAME (<lexeme>)
+define parser lex-RENAME-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-rename, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-rename, quote, req-next(quote-sep))))
@@ -544,7 +549,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);
 end;
 
-define parser lex-REQUIRED-INIT-KEYWORD (<lexeme>)
+define parser lex-REQUIRED-INIT-KEYWORD-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-req-init-keyword, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-req-init-keyword, quote, req-next(quote-sep))))
@@ -571,7 +576,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);
 end;
 
-define parser lex-SETTER (<lexeme>)
+define parser lex-SETTER-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-setter, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-setter, quote, req-next(quote-sep))))
@@ -590,7 +595,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);
 end;
 
-define parser lex-TYPE (<lexeme>)
+define parser lex-TYPE-SYM (<lexeme>)
    rule seq(opt-whitespace,
             choice(seq(nil(#f), nil(#f), lit-type, colon, req-next(colon-sep)),
                    seq(pound, quote, lit-type, quote, req-next(quote-sep))))
@@ -602,11 +607,8 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define parser lex-USE (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-use, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-use, quote, req-next(quote-sep))))
-   => tokens;
-   slot value :: <string> = tokens[1][2];
+   rule seq(opt-whitespace, lit-use, req-next(word-sep)) => tokens;
+   slot value :: <string> = tokens[1];
    inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
 afterwards (context, tokens, value, start-pos, end-pos)
    adjust-lexeme-start(value, tokens[0]);

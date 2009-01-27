@@ -18,6 +18,7 @@ files:   support-library
          markup-rep/topic-elements
          dylan-rep/module
          dylan-rep/dylan-rep
+         dylan-rep/printers
          configs/module
          configs/configs
          parser-common/module

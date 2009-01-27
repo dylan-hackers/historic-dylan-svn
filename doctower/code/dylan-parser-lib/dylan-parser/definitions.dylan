@@ -190,33 +190,33 @@ define parser inherited-option :: <token>
 end;
 
 define parser setter-option (<token>)
-   rule seq(lex-SETTER, choice(variable-name, lex-FALSE)) => tokens;
+   rule seq(lex-SETTER-SYM, choice(variable-name, lex-FALSE)) => tokens;
    slot name :: false-or(<string>) =
          instance?(tokens[1], <variable-name-token>) & tokens[1].name;
 end;
 
 define parser init-keyword-option (<token>)
-   rule seq(lex-INIT-KEYWORD, lex-SYMBOL) => tokens;
+   rule seq(lex-INIT-KEYWORD-SYM, lex-SYMBOL) => tokens;
    slot value = tokens[1].value;
 end;
 
 define parser required-init-keyword-option (<token>)
-   rule seq(lex-REQUIRED-INIT-KEYWORD, lex-SYMBOL) => tokens;
+   rule seq(lex-REQUIRED-INIT-KEYWORD-SYM, lex-SYMBOL) => tokens;
    slot value = tokens[1].value;
 end;
 
 define parser init-value-option (<token>)
-   rule seq(lex-INIT-VALUE, checked-expression) => tokens;
+   rule seq(lex-INIT-VALUE-SYM, checked-expression) => tokens;
    slot value = ~skipped?(tokens[1]) & tokens[1];
 end;
 
 define parser init-function-option (<token>)
-   rule seq(lex-INIT-FUNCTION, checked-expression) => tokens;
+   rule seq(lex-INIT-FUNCTION-SYM, checked-expression) => tokens;
    slot value = ~skipped?(tokens[1]) & tokens[1];
 end;
 
 define parser type-option (<token>)
-   rule seq(lex-TYPE, checked-expression) => tokens;
+   rule seq(lex-TYPE-SYM, checked-expression) => tokens;
    slot value = ~skipped?(tokens[1]) & tokens[1];
 end;
 
@@ -336,21 +336,25 @@ define parser library-clause :: <token>
    yield token;
 end;
 
-define parser export-clause (<token>)
+define parser export-clause (<source-location-token>)
    rule seq(lex-EXPORT, lex-ORDINARY-NAME, opt-many(seq(lex-COMMA, lex-ORDINARY-NAME)),
             opt(lex-COMMA))
    => tokens;
    slot export-names = map(value, list-from-tokens(copy-sequence(tokens, start: 1)));
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value);
 end;
 
-define parser create-clause (<token>)
+define parser create-clause (<source-location-token>)
    rule seq(lex-CREATE, lex-ORDINARY-NAME, opt-many(seq(lex-COMMA, lex-ORDINARY-NAME)),
             opt(lex-COMMA))
    => tokens;
    slot create-names = map(value, list-from-tokens(copy-sequence(tokens, start: 1)));
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value);
 end;
 
-define parser use-clause (<token>)
+define parser use-clause (<source-location-token>)
    rule seq(lex-USE, lex-ORDINARY-NAME, opt-many(seq(lex-COMMA, use-option)),
             opt(lex-COMMA))
    => tokens;
@@ -371,6 +375,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
          <export-option-token> => value.use-exports := option.export-names;
       end select;
    end for;
+   note-source-location(context, value);
 end;
 
 define parser use-option :: <token>
@@ -381,7 +386,7 @@ define parser use-option :: <token>
 end;
 
 define parser import-option (<token>)
-   rule seq(lex-IMPORT,
+   rule seq(lex-IMPORT-SYM,
             choice(seq(nil(#"all"), lex-ALL),
                    seq(nil(#"list"), lex-LF-BRACE, opt(var-mod-list), lex-RT-BRACE)))
    => tokens;
@@ -405,7 +410,7 @@ define parser var-mod-spec (<renaming-token>)
 end;
 
 define parser exclude-option (<token>)
-   rule seq(lex-EXCLUDE, lex-LF-BRACE, opt(name-list), lex-RT-BRACE) => tokens;
+   rule seq(lex-EXCLUDE-SYM, lex-LF-BRACE, opt(name-list), lex-RT-BRACE) => tokens;
    slot exclude-names = tokens[2];
 end;
 
@@ -416,12 +421,12 @@ define parser name-list :: <sequence> /* of <string> */
 end;
 
 define parser prefix-option (<token>)
-   rule seq(lex-PREFIX, string-literal) => tokens;
+   rule seq(lex-PREFIX-SYM, string-literal) => tokens;
    slot prefix-text = tokens[1].value;
 end;
 
 define parser rename-option (<token>)
-   rule seq(lex-RENAME, lex-LF-BRACE, opt(renaming-list), lex-RT-BRACE) => tokens;
+   rule seq(lex-RENAME-SYM, lex-LF-BRACE, opt(renaming-list), lex-RT-BRACE) => tokens;
    slot rename-renamings = tokens[2];
 end;
 
@@ -431,14 +436,16 @@ define parser renaming-list :: <sequence> /* of <renaming-token> */
    yield list-from-tokens(tokens);
 end;
 
-define parser renaming (<token>)
+define parser renaming (<source-location-token>)
    rule seq(lex-NAME, lex-ARROW, lex-NAME) => tokens;
    slot import-name = tokens[0].value;
    slot local-name = tokens[2].value;
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value);
 end;
 
 define parser export-option (<token>)
-   rule seq(lex-EXPORT,
+   rule seq(lex-EXPORT-SYM,
             choice(seq(nil(#"all"), lex-ALL),
                    seq(nil(#"list"), lex-LF-BRACE, opt(name-list), lex-RT-BRACE)))
    => tokens;
@@ -453,13 +460,15 @@ end;
 // Sealed domain
 //
 
-define parser domain-definer ()
+define parser domain-definer (<definition-token>)
    rule seq(lex-SEALED, lex-DOMAIN, variable-name,
             lex-LF-PAREN, opt(type-list), lex-RT-PAREN)
    => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value);
 end;
 
-define parser type-list ()
+define parser type-list (<token>)
    rule seq(expression, opt-many(seq(lex-COMMA, expression)), lex-COMMA)
    => tokens;
 end;
@@ -468,6 +477,9 @@ end;
 // Macros
 //
 
-define parser macro-definer ()
+define parser macro-definer (<definition-token>)
    rule seq(lex-MACRO, lex-NAME) => tokens;
+   // TODO: Skip rules and patterns so they aren't treated like actual definitions.
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value);
 end;

@@ -105,6 +105,15 @@ define errors (<syntax-warning>)
 end errors;
 
 
+/** Synopsis: Indicates some other error that does not prevent processing. */
+define class <general-warning> (<user-visible-warning>) end;
+
+define errors (<general-warning>)
+   61 file-type-not-known
+      "File %s is not of a known file type", filename;
+end errors;
+
+
 /** Synopsis: Indicates illegal options or syntax. **/
 define class <syntax-error> (<user-visible-error>) end;
 
@@ -170,22 +179,10 @@ define errors (<design-error>)
       "Library files include multiple library definitions at %s", defn-locations;
    
    48 no-library-in-fileset
-      "No library definition found in library files %s", filenames;
+      "No library definition found in %s", filenames;
    
    49 no-modules-in-fileset
-      "No module definitions found in library files %s", filenames;
-end errors;
-
-
-/** Synopsis: Indicates some other error that does not prevent processing. */
-define class <general-warning> (<user-visible-warning>) end;
-
-define errors (<general-warning>)
-   61 file-not-found
-      "File \"%s\" not found", filename;
-   
-   62 file-type-not-known
-      "File \"%s\" is not of a known file type", filename;
+      "No module definitions found in %s", filenames;
 end errors;
 
 
@@ -194,5 +191,11 @@ define class <general-error> (<user-visible-error>) end;
 
 define errors (<general-error>)
    81 file-error
-      "File error with \"%s\": %s", filename, error;
+      "File error with %s: %s", filename, error;
+
+   82 file-not-found
+      "File %s not found", filename;
+   
+   83 no-files-in-lid-file
+      "No files listed in %s", filename;
 end errors;

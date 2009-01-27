@@ -38,7 +38,6 @@ define function main(name, arguments)
       exit-application(0);
    end;
 
-   // TODO: Expand wildcards in args.files.
    let toc-files = make(<stretchy-vector>);
    let doc-files = make(<stretchy-vector>);
    let src-files = make(<stretchy-vector>);
@@ -63,6 +62,11 @@ end function main;
 
 // Invoke our main() function with error handlers.
 begin
+   let handler <user-visible-warning> =
+         method (cond, next)
+            report-condition(cond, *standard-error*);
+            new-line(*standard-error*);
+         end;
    let handler <user-visible-error> =
          method (cond, next)
             report-condition(cond, *standard-error*);
