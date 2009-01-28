@@ -3999,8 +3999,8 @@ define function parse-parameters-into
 			environment: 
 			  lambda-env,
 			// TODO: dynamic type expressions
-			specializer: 
-			  &eval(env, spec-type-expression(var-spec))));
+			specializer: //TODO: fixme! this has been computed before!
+			  ^top-level-eval-type(spec-type-expression(var-spec), type-variables: type-vars)));
   end;
   if (spec-rest?)
     insert-rest-variable!
