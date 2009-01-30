@@ -156,7 +156,7 @@ define method output-lambda-computations-sexp
   end;
   if (o.body)
     res := concatenate(reverse!(res),
-                       output-computations-sexp(o.body.next-computation, #f));
+                       output-computations-sexp(o.body, #f));
   end;
   res;
 end;
@@ -181,12 +181,18 @@ define method output-computations-sexp
   reverse!(res);
 end method;
 
+define method output-computations-sexp
+    (c == #f, last)
+  #()
+end;
+
 define method output-computation-sexp
     (c :: <computation>)
   let res = #();
   let str = make(<string-stream>, direction: #"output");
   print-computation(str, c);
   res := add!(res, str.stream-contents);
+  res := add!(res, c.computation-id);
   if (c.temporary & c.temporary.used?)
     res := add!(res, format-to-string("%s", c.temporary));
     res := add!(res, #"temporary");
@@ -199,7 +205,8 @@ define method output-computation-sexp
   let res = #();
   res := add!(res, output-computations-sexp(loop-body(c), last));
   //res := add!(res, output-computations-sexp(loop-merges(c), #f));
-  add!(res, #"LOOP")
+  res := add!(res, #"LOOP");
+  add!(res, c.computation-id);
 end method;
 
 define method output-computation-sexp
@@ -208,7 +215,8 @@ define method output-computation-sexp
   res := add!(res, output-computations-sexp(c.alternative, c.next-computation));
   res := add!(res, output-computations-sexp(c.consequent, c.next-computation));
   res := add!(res, list(format-to-string("%=", c.test)));
-  add!(res, #"IF");
+  res := add!(res, #"IF");
+  add!(res, c.computation-id);
 end method;
 
 define method output-computation-sexp
@@ -216,7 +224,8 @@ define method output-computation-sexp
   let res = #();
   res := add!(res, output-computations-sexp(c.body, c.next-computation));
   res := add!(res, list(format-to-string("%=", c.entry-state)));
-  add!(res, #"BIND-EXIT");
+  res := add!(res, #"BIND-EXIT");
+  add!(res, c.computation-id);
 end method;
 
 define method output-computation-sexp
@@ -225,7 +234,8 @@ define method output-computation-sexp
   res := add!(res, output-computations-sexp(c.cleanups, c.next-computation));
   res := add!(res, output-computations-sexp(c.body, c.next-computation));
   res := add!(res, list(format-to-string("%=", c.entry-state)));
-  add!(res, #"UNWIND-PROTECT");
+  res := add!(res, #"UNWIND-PROTECT");
+  add!(res, c.computation-id);
 end method;
 
 // eof
