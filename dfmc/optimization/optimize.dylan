@@ -155,6 +155,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	   "Restart all analysis passes.")
 	with-dependent-context ($compilation of model-creator(code))
 	  opt-format-out("READY %=\n", code);
+          *dump-dfm-method*(#"beginning", #("pass one: eliminate assignments"));
 	  for-all-lambdas (f in code)
 	    opt-format-out("PASS ONE %=\n", f);
             if (*trace-optimizations?*)
@@ -173,6 +174,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
               end;
 	    end;
 	  end for-all-lambdas;
+          *dump-dfm-method*(#"beginning", #("pass two: rename temporaries"));
           if (*flow-types-through-conditionals?*)
   	    for-all-lambdas (f in code)
 	      opt-format-out("PASS ONE(A) %=\n", f);
@@ -184,6 +186,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
               end;
 	    end for-all-lambdas;
           end;
+          *dump-dfm-method*(#"beginning", #("pass three: run optimizations (delete, fold, upgrade, inline)"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f))
 	      opt-format-out("PASS TWO %=\n", f);
@@ -200,6 +203,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
               end;
 	    end;
 	  end for-all-lambdas;
+          *dump-dfm-method*(#"beginning", #("pass four: run optimizations (delete, fold, upgrade, inline)"));
 	  iterate loop (count = 0)
 	    let something? = #f;
 	    for-all-lambdas (f in code)
@@ -220,6 +224,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
             *dump-dfm-method*(#"relayouted", #());
           end;
 	  // now carry out the global stuff like environment analysis
+          *dump-dfm-method*(#"beginning", #("pass five: common subexpression elimination, useless environment deletion"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
 	      opt-format-out("PASS FOUR %=\n", f);
@@ -230,6 +235,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
               end;
 	    end;
 	  end for-all-lambdas;
+          *dump-dfm-method*(#"beginning", #("pass six: analyze dynamic-extent, environments, check optimized computations"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
 	      opt-format-out("PASS FIVE %=\n", f);
@@ -241,6 +247,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
               end;
 	    end;
 	  end for-all-lambdas;
+          *dump-dfm-method*(#"beginning", #("pass sevem: pruning closures"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
               opt-format-out("PASS SIX %=\n", f);
@@ -250,6 +257,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
               end;
 	    end;
 	  end for-all-lambdas;
+          *dump-dfm-method*(#"beginning", #("pass eight: constant folding closures"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
 	      opt-format-out("PASS SIX %=\n", f);
@@ -351,6 +359,7 @@ define inline method run-optimizer
  => (b :: <boolean>)
   opt-format-out("%s %= \n", name, c);
   // with-parent-computation (c)
+  *dump-dfm-method*(#"beginning", list(name));
     optimize(c) & #t;
   // end;
 end method;

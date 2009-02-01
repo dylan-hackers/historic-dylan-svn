@@ -91,6 +91,7 @@ define dood-class <lambda-lexical-environment> (<lexical-environment>)
   slot rare-environment-data :: <simple-object-vector> = #[];
 end dood-class;
 
+//disable trace calls here?
 define method ensure-lambda-body (fun :: <&lambda>) => ()
   let env = environment(fun);
   when (env & weak-temporaries?(temporaries(env)))
