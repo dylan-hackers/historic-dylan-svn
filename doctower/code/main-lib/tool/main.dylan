@@ -55,6 +55,7 @@ define function main(name, arguments)
    // TODO: Write doc-tree as HTML or DITA.
    // TODO: For now, just output it.
    print(doc-tree, *standard-output*, pretty?: #t);
+   new-line(*standard-output*);
 
    exit-application(0);
 end function main;

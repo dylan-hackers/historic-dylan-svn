@@ -44,16 +44,15 @@ end method;
 define method note-combined-source-location
    (context :: <file-parse-context>, value :: <source-location-token>, tokens)
 => ()
-   value.source-location :=
-         combined-source-locations(context, tokens) |
-         make(<file-source-location>, file: context.file-locator);
+   let location = combined-source-locations(context, tokens);
+   if (location) value.source-location := location end;
 end method;
 
 define method combined-source-locations
    (context :: <file-parse-context>, seq :: <sequence>)
-=> (source-location :: <file-source-location>)
+=> (source-location :: false-or(<file-source-location>))
    let locations = map(curry(combined-source-locations, context), seq);
-   reduce1(merge-file-source-locations, choose(true?, locations))
+   reduce(merge-file-source-locations, #f, choose(true?, locations))
 end method;
 
 define method combined-source-locations

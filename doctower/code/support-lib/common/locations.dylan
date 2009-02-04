@@ -26,6 +26,16 @@ define method merge-file-source-locations
         end-column: later.source-end-column)
 end method;
 
+define method merge-file-source-locations (loc1 :: <file-source-location>, loc2 == #f)
+=> (merged :: <file-source-location>)
+   loc1
+end method;
+
+define method merge-file-source-locations (loc1 == #f, loc2 :: <file-source-location>)
+=> (merged :: <file-source-location>)
+   loc2
+end method;
+
 define method \< (loc1 :: <file-source-location>, loc2 :: <file-source-location>)
 => (less-than :: <boolean>)
    if (loc1.source-file = loc2.source-file)
