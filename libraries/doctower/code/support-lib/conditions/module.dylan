@@ -5,7 +5,8 @@ define module conditions
    
    export
       <user-visible-warning>, <user-visible-error>, error-code, error-location,
-      <syntax-warning>, <syntax-error>, <design-error>,
+      <syntax-warning>, <design-warning>, <general-warning>,
+      <syntax-error>, <design-error>, <general-error>,
       <need-locations>, specifier-for-locations;
    
    export
@@ -22,6 +23,7 @@ define module conditions
       illegal-section-in-topic,
       leading-colon-in-id,
       leading-colon-in-title,
+      library-exports-not-known,
       multiple-libraries-in-fileset,
       no-context-topic-in-block,
       no-files-in-lid-file,

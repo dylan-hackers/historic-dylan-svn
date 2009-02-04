@@ -1,32 +1,30 @@
 module: dylan-rep
 synopsis: Representation of API elements extracted from source code.
 
-//
-// Root stuff
-//
-
 define abstract class <explicit-api> (<object>)
    slot source-token :: false-or(<token>), required-init-keyword: #"source-token";
 end class;
 
+//
+// Libraries
+//
+
 define class <library> (<explicit-api>)
    slot local-name :: <string>, init-keyword: #"local-name";
-   constant slot used-libraries = make(<stretchy-vector> /* of <used-library> */);
-   constant slot modules = make(<stretchy-vector> /* of <module> */);
-   constant slot definitions = make(<stretchy-vector> /* of <definition> */);
+   slot used-libraries = make(<stretchy-vector> /* of <library> or <unknown-library> */);
+   slot modules = make(<stretchy-vector> /* of <module> */);
+   slot definitions = make(<stretchy-vector> /* of <definition> */);
 end class;
 
-
-//
-// Used libraries
-//
-
-define class <used-library> (<object>)
-   slot import-name :: <string>, init-keyword: #"import-name";
+define class <unknown-library> (<object>)
+   slot local-name :: <string>, init-keyword: #"local-name";
 end class;
 
-define method \= (lib1 :: <used-library>, lib2 :: <used-library>) => (equal? :: <boolean>)
-   lib1 == lib2 | case-insensitive-equal?(lib1.import-name, lib2.import-name)
+define method \=
+   (lib1 :: type-union(<library>, <unknown-library>),
+    lib2 :: type-union(<library>, <unknown-library>))
+=> (equal? :: <boolean>)
+   lib1 == lib2 | case-insensitive-equal?(lib1.local-name, lib2.local-name)
 end method;
 
 
@@ -36,20 +34,22 @@ end method;
 
 define abstract class <module> (<explicit-api>)
    slot local-name :: <string>, init-keyword: #"local-name";
-   constant slot bindings = make(<stretchy-vector> /* of <binding> */);
+   slot bindings = make(<stretchy-vector> /* of <binding> */);
 end class;
 
 define class <exported-module> (<module>)
 end class;
 
 define class <reexported-module> (<module>)
-   slot import-name :: <string>;
-   slot used-library :: <used-library>;
+   slot import-name :: <string>, init-keyword: #"import-name";
+   slot used-library :: type-union(<library>, <unknown-library>),
+      init-keyword: #"used-library";
 end class;
 
 define class <imported-module> (<module>)
-   slot import-name :: <string>;
-   slot used-library :: <used-library>;
+   slot import-name :: <string>, init-keyword: #"import-name";
+   slot used-library :: type-union(<library>, <unknown-library>),
+      init-keyword: #"used-library";
 end class;
 
 define class <internal-module> (<module>)
@@ -107,8 +107,7 @@ end class;
 
 define class <generic-defn> (<definition>)
    slot explicit-defn :: false-or(<explicit-generic-defn>);
-   constant slot implicit-defns
-      = make(<stretchy-vector> /* of <implicit-generic-defn> */);
+   slot implicit-defns = make(<stretchy-vector> /* of <implicit-generic-defn> */);
 end class;
 
 define class <function-defn> (<definition>)
@@ -137,14 +136,10 @@ end class;
 //
 
 define class <explicit-class-defn> (<imp/exp-definition>, <explicit-api>)
-   constant slot adjs
-      = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
-   constant slot direct-supers
-      = make(<stretchy-vector> /* of <class-defn> */);
-   constant slot slots
-      = make(<stretchy-vector> /* of <slot> */);
-   constant slot init-args
-      = make(<stretchy-vector> /* of <init-arg> */);
+   slot adjs = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
+   slot direct-supers = make(<stretchy-vector> /* of <class-defn> */);
+   slot slots = make(<stretchy-vector> /* of <slot> */);
+   slot init-args = make(<stretchy-vector> /* of <init-arg> */);
 end class;
 
 define abstract class <slot> (<object>)
@@ -201,8 +196,7 @@ end class;
 //
 
 define abstract class <func/gen-definition> (<imp/exp-definition>)
-   constant slot adjs
-      = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
+   slot adjs = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
    slot parameter-list :: <parameter-list>;
    slot inferred-param-list :: false-or(<parameter-list>);
 end class;
@@ -230,19 +224,19 @@ end class;
 //
 
 define class <parameter-list> (<object>)
-   constant slot param-list :: <param-list>;
-   constant slot value-list :: <value-list>;
+   slot param-list :: <param-list>;
+   slot value-list :: <value-list>;
 end class;
 
 define abstract class <param-list> (<object>)
-   constant slot req-params = make(<stretchy-vector> /* of <req-param> */);
+   slot req-params = make(<stretchy-vector> /* of <req-param> */);
 end class;
 
 define class <fixed-param-list> (<param-list>)
 end class;
 
 define class <key-param-list> (<param-list>)
-   constant slot key-params = make(<stretchy-vector> /* of <key-param> */);
+   slot key-params = make(<stretchy-vector> /* of <key-param> */);
    slot all-keys? :: <boolean>;
    slot rest-param :: <rest-param>;
 end class;
@@ -252,7 +246,7 @@ define class <var-param-list> (<param-list>)
 end class;
 
 define class <value-list> (<object>)
-   constant slot req-values = make(<stretchy-vector> /* of <req-value> */);
+   slot req-values = make(<stretchy-vector> /* of <req-value> */);
    slot rest-value :: false-or(<rest-value>);
 end class;
 
@@ -307,8 +301,8 @@ end class;
 //
 
 define abstract class <explicit-macro-defn> (<imp/exp-definition>, <explicit-api>)
-   constant slot main-rules = make(<stretchy-vector> /* of <rule> */);
-   constant slot aux-rules = make(<stretchy-vector> /* of <aux-rules> */);
+   slot main-rules = make(<stretchy-vector> /* of <rule> */);
+   slot aux-rules = make(<stretchy-vector> /* of <aux-rules> */);
 end class;
 
 define class <explicit-body-macro-defn> (<explicit-macro-defn>)
@@ -325,7 +319,7 @@ end class;
 
 define class <aux-rules> (<object>)
    slot symbol :: <string>;
-   constant slot rules = make(<stretchy-vector> /* of <rule> */);
+   slot rules = make(<stretchy-vector> /* of <rule> */);
 end class;
 
 define class <rule> (<object>)
@@ -339,18 +333,16 @@ end class;
 //
 
 define class <pattern> (<object>)
-   constant slot pattern-lists = make(<stretchy-vector> /* of <pattern-list> */);
+   slot pattern-lists = make(<stretchy-vector> /* of <pattern-list> */);
 end class;
 
 define class <pattern-list> (<object>)
-   constant slot pattern-sequences
-      = make(<stretchy-vector> /* of <pattern-sequence> */);
+   slot pattern-sequences = make(<stretchy-vector> /* of <pattern-sequence> */);
    slot property-list-pattern :: false-or(<property-list-pattern>);
 end class;
 
 define class <pattern-sequence> (<object>)
-   constant slot simple-patterns
-      = make(<stretchy-vector> /* of <simple-pattern> */);
+   slot simple-patterns = make(<stretchy-vector> /* of <simple-pattern> */);
 end class;
 
 define abstract class <simple-pattern> (<object>)
@@ -408,13 +400,13 @@ define class <rest-pattern> (<property-list-pattern>)
 end class;
 
 define class <key-pattern> (<property-list-pattern>)
-   constant slot patvar-keys = make(<stretchy-vector> /* of <pattern-keyword> */);
+   slot patvar-keys = make(<stretchy-vector> /* of <pattern-keyword> */);
    slot patvar-all-keys? :: <boolean>;
 end class;
 
 define class <rest-key-pattern> (<property-list-pattern>)
    slot patvar :: <pattern-variable>;
-   constant slot patvar-keys = make(<stretchy-vector> /* of <pattern-keyword> */);
+   slot patvar-keys = make(<stretchy-vector> /* of <pattern-keyword> */);
    slot patvar-all-keys? :: <boolean>;
 end class;
 

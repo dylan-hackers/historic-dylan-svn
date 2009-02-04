@@ -98,10 +98,22 @@ end class;
 
 define errors (<syntax-warning>)
    01 unparsable-expression-in-code
-      "Skipping unparsable expression";
+      "Unparsable expression will not be in automatically-generated documentation";
    
    02 unsupported-syntax-in-code
-      "Skipping unsupported syntactic form";
+      "Unsupported syntactic form will not be in automatically-generated documentation";
+end errors;
+
+
+/**
+Synopsis: Indicates issue with topic or content that user might want to look at.
+**/
+define class <design-warning> (<user-visible-warning>)
+end class;
+
+define errors (<design-warning>)
+   11 library-exports-not-known
+      "Modules and bindings of used library are unknown and might not be documented";
 end errors;
 
 
@@ -170,13 +182,13 @@ define errors (<design-error>)
       "Tag is already used as title at %s", title-location;
 
    45 ambiguous-title-in-link
-      "\"%s\" is ambiguous and may refer to any of %s", target-text, topic-locations;
+      "\"%s\" is ambiguous and might refer to any of %s", target-text, topic-locations;
 
    46 conflicting-locations-in-tree
       "Topic is placed ambiguously by %s", arranger-locations;
    
    47 multiple-libraries-in-fileset
-      "Library files include multiple library definitions at %s", defn-locations;
+      "Multiple library definitions found in library at %s", defn-locations;
    
    48 no-library-in-fileset
       "No library definition found in %s", filenames;
