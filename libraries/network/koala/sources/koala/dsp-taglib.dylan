@@ -7,6 +7,17 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 //// Tags
 
+//// Comment tag
+
+// This is for comments that you don't want to be seen by the user,
+// whereas HTML comments (<!-- ... -->) will be seen.  
+define body tag comment in dsp
+    (page :: <dylan-server-page>, do-body :: <function>)
+    ()
+  // don't call do-body
+end;
+
+
 //// Conditional tags
 
 define thread variable *if-tag-test-result* = #"unbound";
