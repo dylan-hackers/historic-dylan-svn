@@ -388,12 +388,12 @@ define function process-log-config-element
                   unrecognized := #t;
                   $info-level;
               end;
-   log-level(logger) := level;
-   if (unrecognized)
-     warn("Unrecognized log level: %=", level);
-   end;
-   log-info("Logger created: %s", logger);
-   logger
+  log-level(logger) := level;
+  if (unrecognized)
+    warn("Unrecognized log level: %=", level);
+  end;
+  log-info("Logger created: %s", logger);
+  logger
 end function process-log-config-element;
 
 define method process-config-element
