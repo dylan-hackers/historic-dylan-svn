@@ -14,7 +14,7 @@ define method xml-rpc-call
 end;
 
 define method xml-rpc-call
-    (url :: <url>, method-name :: <string>, #rest args)
+    (url :: <uri>, method-name :: <string>, #rest args)
  => (response :: <object>)
   let xml = apply(create-method-call-xml, method-name, args);
   with-http-connection(conn = url)
@@ -24,9 +24,8 @@ define method xml-rpc-call
     let headers = #[#["User-Agent", "Koala XML-RPC client"],
                     #["Content-Type", "text/xml"],
                     #["Pragma", "no-cache"]];
-    let response :: <http-response> = send-request(conn, #"post", url,
-                                                   content: xml,
-                                                   headers: headers);
+    send-request(conn, #"post", url, content: xml, headers: headers);
+    let response :: <http-response> = read-response(conn);
     parse-xml-rpc-response(response.response-content)
   end with-http-connection
 end method xml-rpc-call;
