@@ -716,14 +716,15 @@ define function make-http-connection
   let host = host-or-url;
   let port = port | $default-http-port;
   if (instance?(host, <uri>))
-    host := uri-host(host);
+    let uri :: <uri> = host;
+    host := uri-host(uri);
     if (empty?(host))
       error(make(<simple-error>,
                  format-string: "The URI provided to with-http-connection "
                    "must have a host component: %s",
                  format-arguments: list(build-uri(host))));
     end if;
-    port := uri-port(host) | port;
+    port := uri-port(uri) | port;
   end if;
   apply(make, <http-connection>, host: host, port: port, initargs)
 end function make-http-connection;
