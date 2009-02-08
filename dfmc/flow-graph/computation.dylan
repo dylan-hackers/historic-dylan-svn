@@ -13,7 +13,7 @@ define abstract dood-class <computation> (<queueable-item-mixin>)
          = parent-source-location(),
     init-keyword: source-location:;
 
-  weak slot %previous-computation :: false-or(<computation>) = #f,
+  weak slot previous-computation :: false-or(<computation>) = #f,
     reinit-expression: #f,
     init-keyword: previous-computation:;
 
@@ -50,8 +50,8 @@ define method computation-id (c :: <computation>) => (res :: <integer>)
     c.%computation-id := next-computation-id();
     if (*computation-tracer*)
       *computation-tracer*(#"new-computation", c.%computation-id, c, 0);
-      if (c.%next-computation)
-        trace(c, #f, c.%next-computation);
+      if (c.next-computation)
+        trace(c, #f, c.next-computation);
       end;
       if (c.temporary)
         c.temporary.temporary-id; //side effect: adding temporary
@@ -67,7 +67,7 @@ end;
 
 define method computation-type-setter (new, c :: <computation>) => (res)
   if (*computation-tracer* & c.temporary & (c.temporary.users.size > 0) & slot-initialized?(c.temporary, %temporary-id) & instance?(c.temporary.%temporary-id, <integer>))
-      *computation-tracer*(#"change-type", c.temporary.%temporary-id, new, 0);
+      *computation-tracer*(#"change-type", c.temporary.temporary-id, new, 0);
   end;
   c.%computation-type := new;
 end;
@@ -121,33 +121,8 @@ end;
 define method next-computation-setter
     (next, computation :: <computation>)
  => (next);
-  trace(computation, computation.%next-computation, next);
+  trace(computation, computation.next-computation, next);
   computation.%next-computation := next;
-end;
-
-define method next-computation-setter (next, c :: <loop>) => (next)
-  walk-computation(method(a, b) 
-                     if (instance?(b, <end-loop>) & b.ending-loop == c)
-                       trace(b, c.%next-computation, next);
-                     end;
-                   end, c.loop-body, c);
-  c.%next-computation := next;
-end;
-
-define method next-computation-setter
-    (next, computation :: <if>)
- => (next);
-  computation.%next-computation := next;
-end;
-define method previous-computation (computation :: <computation>)
- => (previous);
-  computation.%previous-computation;
-end;
-
-define method previous-computation-setter
-    (previous, computation :: <computation>)
- => (previous);
-  computation.%previous-computation := previous;
 end;
 
 
@@ -788,6 +763,12 @@ define graph-class <if> (<computation>)
     required-init-keyword: alternative:;
 end graph-class;
 
+define method next-computation-setter
+    (next, computation :: <if>)
+ => (next);
+  computation.%next-computation := next;
+end;
+
 define method consequent (c :: <if>) => (res :: false-or(<computation>))
   c.%consequent;
 end;
@@ -798,13 +779,13 @@ end;
 
 
 define method consequent-setter (value :: false-or(<computation>), c :: <if>) => (res :: false-or(<computation>))
-  trace(c, c.%consequent, value, label: #"true");
+  trace(c, c.consequent, value, label: #"true");
   c.%consequent := value;
 end;
 
 define method alternative-setter (value :: false-or(<computation>), c :: <if>)
  => (res :: false-or(<computation>))
-  trace(c, c.%alternative, value, label: #"false");
+  trace(c, c.alternative, value, label: #"false");
   c.%alternative := value;
 end;
 
@@ -813,9 +794,18 @@ end;
 define abstract graph-class <block> (<computation>)
   temporary slot entry-state :: <entry-state>,
     required-init-keyword: entry-state:;
-  slot body :: false-or(<computation>) = #f,
+  slot %body :: false-or(<computation>) = #f,
     init-keyword: body:;
 end graph-class;
+
+define method body (c :: <block>) => (res :: false-or(<computation>))
+  c.%body;
+end;
+
+define method body-setter (new :: false-or(<computation>), c :: <block>) => (res :: false-or(<computation>))
+  trace(c, c.body, new);
+  c.%body := new;
+end;
 
 /// BIND-EXIT
 
@@ -823,16 +813,60 @@ define graph-class <bind-exit> (<block>)
   slot %label, init-value: #f;
 end graph-class;
 
+define method next-computation-setter (new :: false-or(<computation>), c :: <bind-exit>) => (res :: false-or(<computation>))
+  //walk-computation(method(a, b) 
+  //                 end, c.loop-body, c);
+  let comp = c.body;
+  if (comp)
+    while (comp.next-computation)
+      comp := comp.next-computation;
+    end;
+    trace(comp, c.next-computation, new);
+  end;
+  c.%next-computation := new;
+end;
+
 /// UNWIND-PROTECT
 
 define graph-class <unwind-protect> (<block>)
   // (gts,98feb12) temporary slot protected-temporary = #f;
-  slot protected-end :: false-or(<computation>) = #f;
-  slot cleanups :: false-or(<computation>) = #f,
+  slot %protected-end :: false-or(<computation>) = #f;
+  slot %cleanups :: false-or(<computation>) = #f,
     init-keyword: cleanups:;
-  slot cleanups-end :: false-or(<end-cleanup-block>) = #f;  // to support deletion 
+  slot %cleanups-end :: false-or(<end-cleanup-block>) = #f;  // to support deletion 
 end graph-class;
 
+define method protected-end (c :: <unwind-protect>) => (res :: false-or(<computation>))
+  c.%protected-end;
+end;
+
+define method protected-end-setter (new :: false-or(<computation>), c :: <unwind-protect>) => (res :: false-or(<computation>))
+  c.protected-end & trace(c.protected-end, c.cleanups, #f);
+  new & trace(new, #f, c.cleanups);
+  c.%protected-end := new;
+end;
+define method cleanups (c :: <unwind-protect>) => (res :: false-or(<computation>))
+  c.%cleanups
+end;
+
+define method cleanups-setter (new :: false-or(<computation>), c :: <unwind-protect>) => (res :: false-or(<computation>))
+  c.protected-end & trace(c.protected-end, c.cleanups, new);
+  c.%cleanups := new;
+end;
+
+define method cleanups-end (c :: <unwind-protect>) => (res :: false-or(<computation>))
+  c.%cleanups-end
+end;
+
+define method cleanups-end-setter (new :: false-or(<end-cleanup-block>), c :: <unwind-protect>) => (res :: false-or(<end-cleanup-block>))
+  c.cleanups-end & trace(c.cleanups-end, c.next-computation, #f);
+  new & trace(new, #f, c.next-computation);
+  c.%cleanups-end := new;
+end;
+define method next-computation-setter (new :: false-or(<computation>), c :: <unwind-protect>) => (res :: false-or(<computation>))
+  c.cleanups-end & trace(c.cleanups-end, c.next-computation, new);
+  c.%next-computation := new;
+end;
 define method protected-temporary(c :: <unwind-protect>) 
     => (t)
 //  let temp = c.protected-end & temporary(previous-computation(c.protected-end));
@@ -899,12 +933,21 @@ define graph-class <loop> (<nop-computation>)
     init-keyword: body:;
 end graph-class;
 
+define method next-computation-setter (next, c :: <loop>) => (next)
+  walk-computation(method(a, b) 
+                     if (instance?(b, <end-loop>) & b.ending-loop == c)
+                       trace(b, c.next-computation, next);
+                     end;
+                   end, c.loop-body, c);
+  c.%next-computation := next;
+end;
+
 define method loop-body (c :: <loop>) => (res :: false-or(<computation>))
   c.%loop-body;
 end;
 
 define method loop-body-setter (value :: false-or(<computation>), c :: <loop>) => (res :: false-or(<computation>))
-  trace(c, c.%loop-body, value);
+  trace(c, c.loop-body, value);
   c.%loop-body := value;
 end;
 
