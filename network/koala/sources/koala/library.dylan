@@ -46,6 +46,7 @@ define module koala
 
   // Servers
   create
+    default-virtual-host,
     current-server,
     development-mode?;
 

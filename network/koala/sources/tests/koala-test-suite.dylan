@@ -69,7 +69,7 @@ define test bind-interface-test ()
                      concatenate(host-addresses, #["127.0.0.1"]),
                      #["0.0.0.0"]))
 
-    log-debug("STARTING SERVER WITH ADDRS = %s", addrs);
+    log-debug("Starting server with addrs = %s", addrs);
     with-http-server(server = make-server(listeners: map(make-listener, addrs)))
       for (addr in concatenate(host-addresses, #("127.0.0.1")))
         if (member?(addr, addrs, test: \=) | addrs = #["0.0.0.0"])

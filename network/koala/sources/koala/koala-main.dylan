@@ -35,6 +35,23 @@ begin
                             long-options: #("debug"));
 end;
 
+
+/*
+This is the precedence order (lowest to highest) in which initialization
+should happen.  Not quite there yet...
+
+<http-server> default slot values
+              |
+              V
+make(<http-server>) init args
+              |
+              V
+config file settings
+              |
+              V
+command-line args
+*/
+
 // This is defined here rather than in koala-app because wiki needs it too.
 //
 define function koala-main
@@ -50,7 +67,7 @@ define function koala-main
                    "Dylan Server Pages and XML RPC, written in Dylan.";
     print-synopsis(parser,
                    *standard-output*,
-                   usage: "koala [options]",
+                   usage: format-to-string("%s [options]", application-name()),
                    description: desc);
   else
     let debug? :: <boolean> = option-value-by-long-name(parser, "debug");
