@@ -47,7 +47,7 @@ define class <xml-rpc-server> (<object>)
 end class <xml-rpc-server>;
 
 define method add-responder
-    (server :: <http-server>, url :: <url>, xml-rpc-server :: <xml-rpc-server>,
+    (server :: <http-server>, url :: <uri>, xml-rpc-server :: <xml-rpc-server>,
      #key replace?,
           request-methods = #(#"POST"))
   add-responder(server, url, curry(respond-to-xml-rpc-request, xml-rpc-server),

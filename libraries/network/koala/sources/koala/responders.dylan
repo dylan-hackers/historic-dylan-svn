@@ -28,33 +28,35 @@ define open generic add-responder
     (server :: <http-server>, url :: <object>, responder :: <object>,
      #key replace?, request-methods);
 
-// Convenience method to convert first arg to <url>.  All other methods
-// should specialize the first arg on (a subclass of) <url>.
+// Convenience method to convert first arg to <uri>.  All other methods
+// should specialize the first arg on (a subclass of) <uri>.
 define method add-responder
-    (server :: <http-server>, url :: <string>, responder :: <object>,
+    (server :: <http-server>, uri :: <string>, responder :: <object>,
      #key replace?,
           request-methods = #(#"GET", #"POST"))
-  add-responder(server, parse-url(url), responder,
+  add-responder(server, parse-uri(uri), responder,
                 replace?: replace?,
                 request-methods: request-methods)
 end method add-responder;
 
 define method add-responder
-    (server :: <http-server>, url :: <uri>, responder :: <responder>,
+    (server :: <http-server>, uri :: <uri>, responder :: <responder>,
      #key replace?,
           request-methods = #(#"GET", #"POST"))
-  if (empty?(url.uri-path))
+  if (empty?(uri.uri-path))
     error(make(<koala-api-error>,
                format-string: "You can't add a responder for a URL with no path: %s",
-               format-arguments: list(url)));
+               format-arguments: list(uri)));
   else
-    add-object(server.url-map, url.uri-path, responder, replace?: replace?);
-    log-info("Responder: %s ", build-path(url));
+    add-object(server.url-map, uri.uri-path, responder, replace?: replace?);
+    log-info("Responder: %s ", build-path(uri));
   end if;
 end method add-responder;
 
 // The simple case where you just want an exact URL to map to a function.
 // This takes care of the messy details of building a <responder> object.
+// response-function is passed one keyword argument for each named group
+// in the regex that matched the url tail, if any.
 //
 define method add-responder
     (server :: <http-server>, url :: <uri>, response-function :: <function>,

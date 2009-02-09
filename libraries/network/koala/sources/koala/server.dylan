@@ -28,12 +28,10 @@ begin
                                      end);
 end;
 
-// API
 // The user instantiates this class directly, passing configuration options
-// as init args.  Using an alias for now instead of renaming <server>.  We'll
-// see how things progress.
+// as init args.
 //
-define class <http-server> (<object>)
+define open class <http-server> (<object>)
   // Whether the server should run in debug mode or not.  If this is true then
   // errors encountered while servicing HTTP requests will not be handled by the
   // server itself.  Normally the server will handle them and return an "internal
@@ -114,7 +112,8 @@ define class <http-server> (<object>)
   // they're relative they will be relative to this.  The server-root pathname is
   // relative to the koala executable, unless changed in the config file.
   slot server-root :: <directory-locator>
-    = parent-directory(locator-directory(as(<file-locator>, application-filename())));
+    = parent-directory(locator-directory(as(<file-locator>, application-filename()))),
+    init-keyword: server-root:;
 
   constant slot server-mime-type-map :: <table>,
     init-function: curry(make, <table>);
@@ -195,16 +194,18 @@ define method initialize
   if (instance?(dsp-root, <string>))
     dsp-root := as(<directory-locator>, dsp-root);
   end;
-  let name = "default";
+  let doc-root = document-root | subdirectory-locator(server.server-root, "static");
+  let dsp-root = dsp-root | subdirectory-locator(server.server-root, "dsp");
+  let vhost-name = "default";
   let vhost = make(<virtual-host>,
-                   name: name,
-                   document-root:
-                   document-root | subdirectory-locator(server.server-root, name),
-                   dsp-root: dsp-root | subdirectory-locator(server.server-root, name),
+                   name: vhost-name,
+                   document-root: doc-root,
+                   dsp-root: dsp-root,
                    request-logger: req-log | server.request-logger,
                    debug-logger: dbg-log | server.debug-logger,
                    error-logger: err-log | server.error-logger);
   default-virtual-host(server) := vhost;
+  add-virtual-host(server, vhost, vhost-name);
   // Add a spec that matches all urls.
   add-directory-spec(vhost, root-directory-spec(vhost));
 
@@ -362,7 +363,6 @@ define inline function current-server
   *server*
 end function current-server;
 
-// API
 // This is what client libraries call to start the server, which is
 // assumed to have been already configured via configure-server.
 // (Client applications might want to call koala-main instead.)
@@ -371,7 +371,13 @@ end function current-server;
 // immediately.  Otherwise wait until all listeners have shut down.
 // If wait is #t then don't return until all listeners are ready.
 // 
-define function start-server
+define open generic start-server
+    (server :: <http-server>,
+     #key background :: <boolean>,
+          wait :: <boolean>)
+ => (started? :: <boolean>);
+
+define method start-server
     (server :: <http-server>,
      #key background :: <boolean> = #f,
           wait :: <boolean> = #t)
@@ -402,7 +408,7 @@ define function start-server
     end;
   end dynamic-bind;
   #t
-end function start-server;
+end method start-server;
 
 define function wait-for-listeners-to-start
     (listeners :: <sequence>)
@@ -451,8 +457,10 @@ define function join-listeners
   end;
 end;
 
-// API
-define function stop-server
+define open generic stop-server
+    (server :: <http-server>, #key abort);
+
+define method stop-server
     (server :: <http-server>, #key abort)
   abort-listeners(server);
   when (~abort)
@@ -460,7 +468,7 @@ define function stop-server
   end;
   abort-clients(server);
   log-info("%s HTTP server stopped", $server-name);
-end function stop-server;
+end method stop-server;
 
 define function abort-listeners (server :: <server>)
   iterate next ()
@@ -807,6 +815,10 @@ define function handler-top-level
               = rcurry(htl-error-handler, exit-handler-top-level,
                        send-response: #f,
                        decline-if-debugging: #f);
+            // This handler casts too wide of a net.  There's no reason to catch
+            // all the subclasses of <recoverable-socket-condition> such as
+            // <host-not-found> here.  But it's not clear what it SHOULD be catching
+            // either.  --cgay Feb 2009
             let handler <socket-condition>
               = rcurry(htl-error-handler, exit-handler-top-level,
                        send-response: #f,

@@ -7,8 +7,6 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 //// Tags
 
-//// Comment tag
-
 // This is for comments that you don't want to be seen by the user,
 // whereas HTML comments (<!-- ... -->) will be seen.  
 define body tag comment in dsp
@@ -16,6 +14,25 @@ define body tag comment in dsp
     ()
   // don't call do-body
 end;
+
+
+// <dsp:get name="foo" context="page|request|header|session"/>
+//
+define tag get in dsp
+    (page :: <dylan-server-page>)
+    (name :: <string>, context :: <string>)
+  select (as(<symbol>, context))
+    #"page" => output(get-attribute(page-context(), as(<symbol>, name)));
+    #"request" => output(get-query-value(name));
+    #"header" => output(get-header(current-request(), name));
+    #"session" => output(get-attribute(get-session(current-request()), name));
+    // any other context?
+
+    otherwise =>
+      // todo -- what error class?
+      error("Bad context specified in <dsp:get> tag: %s", context);
+  end;
+end tag get;
 
 
 //// Conditional tags
@@ -214,6 +231,7 @@ end;
 
 //// HTTP Header Tags
 
+// This can be replaced by <dsp:get name="Referer" context="header/> now.
 define tag show-referer in dsp
     (page :: <dylan-server-page>)
     ()

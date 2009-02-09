@@ -1,4 +1,8 @@
+This file seems to be mostly about DSP issues.
 
+* When debugging it could be really useful to have process-template output
+  <!-- begin template foo.dsp --> and <!-- end template foo.dsp --> into
+  the generated page.
 
 * Need a way to define a <page> that's 100% dynamic.  i.e., it requires
   no template.  This would be useful for creating simple default pages
