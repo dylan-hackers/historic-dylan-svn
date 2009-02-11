@@ -315,17 +315,13 @@ end function-test substring;
 
 
 define method main () => ()
-  let args = application-arguments();
-  let debug? = #f;
-  if (args.size >= 1)
-    if (equal?(args[0], "--debug", test: case-insensitive-equal?))
-      debug? := #t;
-    end;
+  let filename = locator-name(as(<file-locator>, application-name()));
+  if (split(filename, ".")[0] = "strings-test-suite")
+    run-test-application(strings-test-suite);
   end;
-  perform-suite(strings-test-suite, debug?: debug?);
 end method main;
 
 begin
-  main();
+  main()
 end;
 
