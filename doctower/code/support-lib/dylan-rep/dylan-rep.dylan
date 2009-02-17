@@ -1,15 +1,12 @@
 module: dylan-rep
 synopsis: Representation of API elements extracted from source code.
 
-define abstract class <explicit-api> (<object>)
-   slot source-token :: false-or(<token>), required-init-keyword: #"source-token";
-end class;
 
 //
 // Libraries
 //
 
-define class <library> (<explicit-api>)
+define class <library> (<source-location-mixin>)
    slot local-name :: <string>, init-keyword: #"local-name";
    slot used-libraries = make(<stretchy-vector> /* of <library> or <unknown-library> */);
    slot modules = make(<stretchy-vector> /* of <module> */);
@@ -32,41 +29,46 @@ end method;
 // Modules
 //
 
-define abstract class <module> (<explicit-api>)
+define abstract class <module> (<source-location-mixin>)
    slot local-name :: <string>, init-keyword: #"local-name";
    slot bindings = make(<stretchy-vector> /* of <binding> */);
 end class;
 
-define class <exported-module> (<module>)
+define abstract class <local-module> (<module>)
 end class;
 
-define class <reexported-module> (<module>)
-   slot import-name :: <string>, init-keyword: #"import-name";
-   slot used-library :: type-union(<library>, <unknown-library>),
+define abstract class <foreign-module> (<module>)
+   slot import-name :: false-or(<string>), init-keyword: #"import-name";
+   slot used-library :: false-or(type-union(<library>, <unknown-library>)),
       init-keyword: #"used-library";
 end class;
 
-define class <imported-module> (<module>)
-   slot import-name :: <string>, init-keyword: #"import-name";
-   slot used-library :: type-union(<library>, <unknown-library>),
-      init-keyword: #"used-library";
+define class <exported-module> (<local-module>)
 end class;
 
-define class <internal-module> (<module>)
+define class <internal-module> (<local-module>)
 end class;
 
-/** For modules original to the current library. **/
-define method \= (mod1 :: <module>, mod2 :: <module>) => (equal? :: <boolean>)
+define class <reexported-module> (<foreign-module>)
+end class;
+
+define class <imported-module> (<foreign-module>)
+end class;
+
+define method \= (mod1 :: <module>, mod2 :: <module>)
+=> (equal? :: <boolean>)
    mod1 == mod2 | case-insensitive-equal?(mod1.local-name, mod2.local-name)
 end method;
 
-/** For module imported from another library. **/
-define method \=
-   (mod1 :: type-union(<imported-module>, <reexported-module>),
-    mod2 :: type-union(<imported-module>, <reexported-module>))
+define method \= (mod1 :: <foreign-module>, mod2 :: <foreign-module>)
 => (equal? :: <boolean>)
-   mod1 == mod2 | (mod1.used-library = mod2.used-library &
-                   case-insensitive-equal?(mod1.import-name, mod2.import-name))
+   if (mod1.import-name & mod2.import-name)
+      mod1 == mod2 | (mod1.used-library = mod2.used-library &
+                      case-insensitive-equal?(mod1.import-name, mod2.import-name) &
+                      case-insensitive-equal?(mod1.local-name, mod2.local-name))
+   else
+      next-method();
+   end if;
 end method;
 
 
@@ -75,21 +77,25 @@ end method;
 //
 
 define abstract class <binding> (<object>)
-   slot local-name :: <string>;
-   slot definition :: <definition>;
+   slot local-name :: <string>, init-keyword: #"local-name";
+   slot definition :: false-or(<definition>), init-keyword: #"definition";
 end class;
 
-define class <exported-binding> (<binding>)
+define abstract class <local-binding> (<binding>)
 end class;
 
-define class <reexported-binding> (<binding>)
-   slot import-name :: false-or(<string>);
-   slot module :: false-or(<module>);
+define abstract class <foreign-binding> (<binding>)
+   slot import-name :: <string>, init-keyword: #"import-name";
+   slot used-module :: <module>, init-keyword: #"used-module";
 end class;
 
-define class <internal-binding> (<binding>)
-   slot import-name :: false-or(<string>);
-   slot module :: false-or(<module>);
+define class <exported-binding> (<local-binding>)
+end class;
+
+define class <reexported-binding> (<foreign-binding>)
+end class;
+
+define class <imported-binding> (<foreign-binding>)
 end class;
 
 
@@ -98,7 +104,6 @@ end class;
 //
 
 define abstract class <definition> (<object>)
-   slot identifier :: <object>;
 end class;
 
 define class <class-defn> (<definition>)
@@ -119,11 +124,11 @@ define class <constant-defn> (<definition>)
 end class;
 
 define class <variable-defn> (<definition>)
-   slot variable-defn :: false-or(<explicit-variable-defn>);
+   slot explicit-defn :: false-or(<explicit-variable-defn>);
 end class;
 
 define class <macro-defn> (<definition>)
-   slot macro-defn :: false-or(<explicit-macro-defn>);
+   slot explicit-defn :: false-or(<explicit-macro-defn>);
 end class;
 
 define abstract class <imp/exp-definition> (<object>)
@@ -135,7 +140,7 @@ end class;
 // Classes
 //
 
-define class <explicit-class-defn> (<imp/exp-definition>, <explicit-api>)
+define class <explicit-class-defn> (<imp/exp-definition>, <source-location-mixin>)
    slot adjs = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
    slot direct-supers = make(<stretchy-vector> /* of <class-defn> */);
    slot slots = make(<stretchy-vector> /* of <slot> */);
@@ -201,7 +206,7 @@ define abstract class <func/gen-definition> (<imp/exp-definition>)
    slot inferred-param-list :: false-or(<parameter-list>);
 end class;
 
-define class <explicit-generic-defn> (<func/gen-definition>, <explicit-api>)
+define class <explicit-generic-defn> (<func/gen-definition>, <source-location-mixin>)
    slot vendor-options = make(<stretchy-vector> /* of <vendor-option> */);
    slot sealed-domains = make(<stretchy-vector> /* of <sealed-domain> */);
 end class;
@@ -210,7 +215,7 @@ define class <implicit-generic-defn> (<func/gen-definition>)
    slot warn-sealed-domain? :: <boolean>;
 end class;
 
-define class <explicit-function-defn> (<func/gen-definition>, <explicit-api>)
+define class <explicit-function-defn> (<func/gen-definition>, <source-location-mixin>)
 end class;
 
 define class <vendor-option> (<object>)
@@ -289,10 +294,10 @@ define abstract class <const/var-defn> (<imp/exp-definition>)
    slot value :: <computed-constant>;
 end class;
 
-define class <explicit-constant-defn> (<const/var-defn>, <explicit-api>)
+define class <explicit-constant-defn> (<const/var-defn>, <source-location-mixin>)
 end class;
 
-define class <explicit-variable-defn> (<const/var-defn>, <explicit-api>)
+define class <explicit-variable-defn> (<const/var-defn>, <source-location-mixin>)
 end class;
 
 
@@ -300,7 +305,7 @@ end class;
 // Macros
 //
 
-define abstract class <explicit-macro-defn> (<imp/exp-definition>, <explicit-api>)
+define abstract class <explicit-macro-defn> (<imp/exp-definition>, <source-location-mixin>)
    slot main-rules = make(<stretchy-vector> /* of <rule> */);
    slot aux-rules = make(<stretchy-vector> /* of <aux-rules> */);
 end class;
@@ -436,7 +441,7 @@ end class;
 // Fragments
 //
 
-define class <fragment> (<object>)
+define class <fragment> (<source-location-mixin>)
    slot content :: <string>;
 end class;
 

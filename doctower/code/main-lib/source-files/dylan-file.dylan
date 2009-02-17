@@ -32,7 +32,7 @@ end method;
 define method dylan-files-from-lid-file (lid-locator :: <file-locator>)
 => (file-seq :: <sequence>)
    local method locator-from-filename (filename :: <string>)
-         => (file :: false-or(<file-locator>))
+         => (file :: <file-locator>)
             let filenames = vector(filename,
                                    concatenate(filename, ".dylan"),
                                    concatenate(filename, ".dyl"));
@@ -53,26 +53,14 @@ define method dylan-files-from-lid-file (lid-locator :: <file-locator>)
                      found-file(locator);
                   end if;
                end for;
-               file-not-found(lid-locator, filename: filename);
-               found-file(#f);
+               file-not-found(location: lid-locator, filename: filename);
             end block;
          end method;
 
    let interchange = parse-file(lid-locator);
-   let file-list =
-         if (interchange)
-            let filenames = filenames-from-headers(interchange);
-            let locator-seq = choose(true?, map(locator-from-filename, filenames));
-            remove-duplicates(locator-seq, test: \=)
-         else
-            #()
-         end if;
-
-   when (file-list.empty?)
-      no-files-in-lid-file(#f, filename: lid-locator);
-   end when;
-
-   file-list
+   let filenames = filenames-from-headers(interchange);
+   let locators = map(locator-from-filename, filenames);
+   remove-duplicates(locators, test: \=)
 end method;
 
 
@@ -83,8 +71,19 @@ define method filenames-from-headers (token :: <interchange-file-token>)
          end method;
 
    let file-headers = choose(file-header?, token.headers);
-   let headers-names = map(rcurry(split, '\n'), map(hdr-value, file-headers));
-   apply(concatenate, #[], headers-names);
+   when (file-headers.empty?)
+      no-header-in-interchange-file(location: token.token-src-loc.source-file,
+                                    header: "Files:");
+   end when;
+   
+   let names-per-header = map(rcurry(split, '\n'), map(hdr-value, file-headers));
+   let names = apply(concatenate, #[], names-per-header);
+   let names = choose(complement(empty?), names); // Files: first line may be blank.
+   when (names.empty?)
+      empty-header-in-interchange-file(location: token.token-src-loc.source-file,
+                                       header: "Files:");
+   end when;
+   names
 end method;
 
 
@@ -95,8 +94,8 @@ end method;
 
 
 define method parse-file (locator :: <file-locator>)
-=> (token :: false-or(<interchange-file-token>))
-   log("Parsing %s", locator);
+=> (token :: <interchange-file-token>)
+   verbose-log("Parsing %s", locator);
    with-open-file (file = locator)
       let text = make(<canonical-text-stream>, inner-stream: file);
       block ()
@@ -109,7 +108,7 @@ define method parse-file (locator :: <file-locator>)
                         file: text.inner-stream.inner-stream.stream-locator,
                         start-line: line, start-column: col,
                         end-line: line, end-col: col);
-         parse-error-in-dylan(loc, expected: fail.parse-expected);
+         parse-error-in-dylan(location: loc, expected: fail.parse-expected);
       end block;
    end with-open-file
 end method;

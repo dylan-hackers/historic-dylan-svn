@@ -28,7 +28,12 @@ define method print-object (o :: <reexported-module>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
       format(s, "reexported-module %=, ", o.local-name);
       pprint-newline(#"fill", s);
-      format(s, "from %=:%=", o.used-library.local-name, o.import-name);
+      write(s, "from ");
+      if (o.used-library & o.import-name)
+         format(s, "%=:%=", o.used-library.local-name, o.import-name);
+      else
+         write(s, "unknown");
+      end if;
    end printing-logical-block;
 end method;
 
@@ -36,6 +41,11 @@ define method print-object (o :: <imported-module>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
       format(s, "imported-module %=, ", o.local-name);
       pprint-newline(#"fill", s);
-      format(s, "from %=:%=", o.used-library.local-name, o.import-name);
+      write(s, "from ");
+      if (o.used-library & o.import-name)
+         format(s, "%=:%=", o.used-library.local-name, o.import-name);
+      else
+         write(s, "unknown");
+      end if;
    end printing-logical-block;
 end method;

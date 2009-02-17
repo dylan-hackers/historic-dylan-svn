@@ -71,7 +71,7 @@ define method checked-recovery
    let end-pos = (succ? & result.parse-end) | stream.stream-position;
    let source-location =
          source-location-from-stream-positions(context, start-pos, end-pos);
-   unparsable-expression-in-code(source-location);
+   unparsable-expression-in-code(location: source-location);
    values(result, succ?, err);
 end method;
 

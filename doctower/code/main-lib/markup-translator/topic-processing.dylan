@@ -25,7 +25,7 @@ define method topics-from-markup
    if (~context-topic & ~token.default-topic-content.empty?)
       let content = token.default-topic-content;
       let loc = merge-file-source-locations(content.first, content.last);
-      no-context-topic-in-block(loc);
+      no-context-topic-in-block(location: loc);
    end if;
    
    let topics = make(<stretchy-vector>);

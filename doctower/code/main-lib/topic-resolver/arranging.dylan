@@ -311,7 +311,7 @@ end method;
 define inline method ensure-resolved-to-topic (link :: <target-placeholder>)
 => (target :: <topic>)
    let locations = signal(make(<need-locations>, specifier: link.target));
-   ambiguous-title-in-link(link.source-location,
+   ambiguous-title-in-link(location: link.source-location,
                            target-text: link.target,
                            topic-locations: locations.item-string-list |
                                             "various locations");
@@ -386,7 +386,7 @@ define function combine-trees (tree-1 :: <ordered-tree>, tree-2 :: <ordered-tree
                         vector(tree-1-arr.source-location,
                                tree-2-arr.source-location);
                   conflicting-locations-in-tree(
-                        tree-1-arr.topic.source-location,
+                        location: tree-1-arr.topic.source-location,
                         arranger-locations: conflicting-locations.item-string-list |
                                             "various locations");
             end case;
@@ -412,7 +412,7 @@ define function combine-trees (tree-1 :: <ordered-tree>, tree-2 :: <ordered-tree
                   method (key) combined-tree[key].source-location end,
                   matching-keys);
             conflicting-locations-in-tree(
-                  topic.source-location,
+                  location: topic.source-location,
                   arranger-locations: arranger-locations.item-string-list |
                                       "various locations");
          end if;

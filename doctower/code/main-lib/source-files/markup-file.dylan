@@ -22,7 +22,7 @@ define method topics-from-markup-file (locator :: <file-locator>)
                                     file: text.inner-stream.inner-stream.stream-locator,
                                     start-line: line, start-column: col,
                                     end-line: line, end-col: col);
-                     parse-error-in-markup(loc, expected: fail.parse-expected);
+                     parse-error-in-markup(location: loc, expected: fail.parse-expected);
                   end block;
    
       // Generate explicit topics and placeholders.

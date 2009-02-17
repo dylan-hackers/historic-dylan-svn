@@ -9,6 +9,7 @@ files:      doctower-library
             dylan-translator/module
             dylan-translator/dylan-translator
             dylan-translator/library-modules
+            dylan-translator/module-bindings
             source-files/module
             source-files/dylan-file
             source-files/markup-file

@@ -1,5 +1,13 @@
 module: common
 
+
+define variable $verbose? :: <boolean> = #f;
+
+define inline function verbose-log (str :: <string>, #rest args)
+   when ($verbose?) apply(log, str, args) end;
+end function;
+
+
 define function log (str :: <string>, #rest args)
    apply(format, *standard-output*, str, args);
    write-element(*standard-output*, '\n');
@@ -26,6 +34,97 @@ define function item-string-list (items :: <collection>)
 end function;
 
 
+/**
+Synopsis: Divides a collection into several collections, each containing related
+elements.
+
+Compares elements in the collection to each other using a matching function.
+Elements that match are placed together in a newly-allocated collection, and all
+such collections are returned.
+
+[EXAMPLE]
+group-elements(#[1, 2, 2, 3, 4, 3])
+⇒ #[#[1], #[2, 2], #[3, 3], #[4]]
+[END EXAMPLE]
+
+--- Arguments: ---
+collection  - An instance of <collection>.
+test:       - An instance of <function> taking two arguments. If the arguments
+              should be classified together, the function should return true.
+              Optional; defaults to \==.
+
+--- Values: ---
+categories  - An instance of <sequence>. Each element of the sequence is of the
+              'type-for-copy' of 'collection' and contains one or more elements
+              of 'collection'.
+**/
+define generic group-elements
+   (collection :: <collection>, #key test :: <function> = \==)
+=> (categories :: <sequence>);
+
+define method group-elements
+   (collection :: <table>, #key test :: <function> = \==)
+=> (categories :: <sequence>)
+   let categories = list();
+   for (elem keyed-by key in collection)
+      block (matched)
+         for (categ in categories)
+            if (test(categ.any-element, elem))
+               categ[key] := elem;
+               matched();
+            end if;
+         end for;
+         let categ = table(collection.type-for-copy, key => elem);
+         categories := add!(categories, categ);
+      end block;
+   end for;
+   categories;
+end method;
+
+define method group-elements
+   (collection :: <sequence>, #key test :: <function> = \==)
+=> (categories :: <sequence>)
+   let categories = list();
+   for (elem in collection)
+      block (matched)
+         for (categ in categories)
+            if (test(categ.any-element, elem))
+               add!(categ, elem);
+               matched();
+            end if;
+         end for;
+         let categ = add!(make(<stretchy-vector>), elem);
+         categories := add!(categories, categ);
+      end block;
+   end for;
+   let categ-collection = curry(map-as, collection.type-for-copy, identity);
+   map(categ-collection, categories);
+end method;
+
+
+/**
+Synopsis: Returns the first value of element-sequence.
+
+Calling this function is more efficient than calling element-sequence.
+**/
+define generic any-element (collection :: <collection>, #key default) => (elem);
+
+define method any-element (collection :: <collection>, #key default = unsupplied())
+=> (element)
+   let (initial-state, limit, next-state, finished-state?, current-key, current-element) =
+         collection.forward-iteration-protocol;
+   if (finished-state?(collection, initial-state, limit))
+      if (default.unsupplied?)
+         error("Collection is empty");
+      else
+         default
+      end if
+   else
+      current-element(collection, initial-state)
+   end if
+end method;
+   
+
 define macro with-open-file
    {  with-open-file (?:name = ?locator:expression, #rest ?keys:expression)
          ?:body
@@ -38,9 +137,9 @@ define macro with-open-file
                close(?name)
             end block
          exception (err :: <file-does-not-exist-error>)
-            file-not-found(#f, filename: ?locator)
+            file-not-found(location: #f, filename: ?locator)
          exception (err :: <file-system-error>)
-            file-error(#f, filename: ?locator, error: condition-to-string(err))
+            file-error(filename: ?locator, error: condition-to-string(err))
          end block }
 end macro;
 
