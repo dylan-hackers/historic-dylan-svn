@@ -7,10 +7,10 @@ define inline method check-id (elem :: type-union(<topic>, <section>)) => ()
    let id = elem.id;
    when (id)
       unless (intersection(" /[]", id).empty?)
-         illegal-character-in-id(elem.id-source-loc);
+         illegal-character-in-id(location: elem.id-source-loc);
       end unless;
       when (id.first = ':')
-         leading-colon-in-id(elem.id-source-loc);
+         leading-colon-in-id(location: elem.id-source-loc);
       end when;
    end when;
 end method;
@@ -21,7 +21,7 @@ end method;
 /// ambiguous links.
 define inline method check-title (elem :: type-union(<topic>, <section>)) => ()
    when (elem.title.stringify-title.first = ':')
-      leading-colon-in-title(elem.title-source-loc);
+      leading-colon-in-title(location: elem.title-source-loc);
    end when;
 end method;
 
@@ -31,7 +31,7 @@ end method;
 /// topics when merging [TODO].
 define inline method check-no-shortdesc (topic :: <topic>) => ()
    when (topic.shortdesc)
-      duplicate-section-in-topic(topic.source-location,
+      duplicate-section-in-topic(location: topic.source-location,
                                  section-type: "synopsis");
    end when;
 end method;
@@ -41,8 +41,8 @@ define inline method check-allowed-sections
    (section :: <section-token>, topic :: <topic>)
 => ()
    when (~allowed-markup-section?(section, topic))
-      illegal-section-in-topic(section.token-src-loc,
-                              section-type: section.directive-type);
+      illegal-section-in-topic(location: section.token-src-loc,
+                               section-type: section.directive-type);
    end when;
 end method;
 

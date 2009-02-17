@@ -6,7 +6,7 @@ define module source-files
    use ordered-tree;
    use markup-rep;
    use markup-parser, import: { parse-markup };
-   use dylan-parser, import: all, exclude: { source-location };
+   use dylan-parser, rename: { source-location => token-src-loc };
    use markup-translator;
    use dylan-translator;
    

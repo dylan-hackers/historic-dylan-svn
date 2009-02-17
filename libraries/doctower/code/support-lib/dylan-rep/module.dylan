@@ -7,14 +7,16 @@ define module dylan-rep
    use peg-parser, import: { <token> };
    
    export
-      <explicit-api>, <library>, <unknown-library>, <module>, <exported-module>,
-      <reexported-module>, <imported-module>, <internal-module>
+      <library>, <unknown-library>, <module>, <exported-module>,
+      <reexported-module>, <imported-module>, <internal-module>,
+      <binding>, <exported-binding>, <reexported-binding>, <imported-binding>
       ;
 
    export
       local-name, local-name-setter, import-name, import-name-setter,
       used-libraries, used-libraries-setter, modules, modules-setter,
       definitions, definitions-setter, used-library, used-library-setter,
-      bindings, bindings-setter, source-token
+      bindings, bindings-setter, used-module, used-module-setter, definition,
+      definition-setter
       ;
 end module;

@@ -35,10 +35,11 @@ define method apis-from-dylan (library-sets :: <sequence>)
    
    // Create modules in the libraries.
    populate-modules(library-sets);
-
+   
    // Sort APIs into module and library.
+   populate-bindings(library-sets);
 
-   #[]
+   map(head, library-sets);
 end method;
 
 

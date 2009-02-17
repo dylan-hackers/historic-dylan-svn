@@ -52,7 +52,11 @@ define method combined-source-locations
    (context :: <file-parse-context>, seq :: <sequence>)
 => (source-location :: false-or(<file-source-location>))
    let locations = map(curry(combined-source-locations, context), seq);
-   reduce(merge-file-source-locations, #f, choose(true?, locations))
+   if (locations.empty?)
+      #f
+   else
+      reduce1(merge-file-source-locations, choose(true?, locations))
+   end if;
 end method;
 
 define method combined-source-locations

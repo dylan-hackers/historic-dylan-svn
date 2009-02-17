@@ -18,7 +18,7 @@ define method toc-from-file (locator :: <file-locator>)
                      regexp-position(line, "^(-+)\\s+(.*)\\s*$");
 
                unless (dash-start & dash-end & link-start & link-end)
-                  bad-syntax-in-toc-file(loc);
+                  bad-syntax-in-toc-file(location: loc);
                end unless;
          
                let dash-count = dash-end - dash-start;
@@ -35,7 +35,7 @@ define method toc-from-file (locator :: <file-locator>)
                               parent.sup-key.next-inf-key;
                            end for;
                         otherwise =>
-                           skipped-level-in-toc-file(loc);
+                           skipped-level-in-toc-file(location: loc);
                      end case;
                last-key := line-key;
 

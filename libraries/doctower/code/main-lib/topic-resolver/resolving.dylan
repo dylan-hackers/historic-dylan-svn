@@ -34,7 +34,7 @@ define method resolve-topic-placeholders
       let topic-by-title = element(defined-titles, id, default: #f);
       if (topic-by-title)
          let topic-by-id :: <topic> = defined-ids[id];
-         id-matches-topic-title(topic-by-id.id-source-loc,
+         id-matches-topic-title(location: topic-by-id.id-source-loc,
                                 title-location: topic-by-title.title-source-loc);
       end if;
    end for;
@@ -46,7 +46,7 @@ define method resolve-topic-placeholders
             if (topic)
                setter(topic)
             elseif (~key-exists?(dup-titles, link.target))
-               target-not-found-in-link(link.source-location,
+               target-not-found-in-link(location: link.source-location,
                                         target-text: link.target);
             end if;
          end);
@@ -59,7 +59,7 @@ define method resolve-topic-placeholders
             if (topic)
                placeholder.target := topic;
             else
-               target-not-found-in-link(link.source-location,
+               target-not-found-in-link(location: link.source-location,
                                         target-text: link.target);
             end if;
          end when;
@@ -80,7 +80,7 @@ define method topics-by-id (topics :: <sequence>) => (id-table :: <table>)
       let dup-id-topics =
             choose(compose(curry(case-insensitive-equal?, topic.id), id), id-topics);
       when (dup-id-topics.size > 1)
-         duplicate-id-in-topics(topic.id-source-loc,
+         duplicate-id-in-topics(location: topic.id-source-loc,
                id-locations: item-string-list(map(id-source-loc, dup-id-topics)) |
                              "various locations");
       end when;
