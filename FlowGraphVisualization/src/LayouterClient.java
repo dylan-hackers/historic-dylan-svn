@@ -83,6 +83,14 @@ public class LayouterClient extends Thread {
 					printMessage(result);
 					continue;
 				}
+				if (key.isEqual("choose-source")) {
+					assert(answer.size() == 2);
+					assert(answer.get(1) instanceof Symbol);
+					Symbol mname = (Symbol)answer.get(1);
+					demo.activate(mname.toString());
+					printMessage(result);
+					continue;
+				}
 				assert(answer.get(1) instanceof Integer);
 				int dfm_id = (Integer)answer.get(1);
 				IncrementalHierarchicLayout gr = null;

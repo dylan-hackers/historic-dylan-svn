@@ -206,20 +206,12 @@ public class DemoBase extends Thread {
 	  frame.setVisible( true );
   }
 
-  /**
-   * Adds the view modes to the view.
-   * This implementation adds a new EditMode created by {@link #createEditMode()}
-   * a new {@link AutoDragViewMode}.
-   */
   protected void registerViewModes() {
 	  view.getCanvasComponent().addMouseListener(new MyMouseListener());
 	  view.addViewMode(new NavigationMode());
 	  view.getCanvasComponent().addMouseWheelListener( new Graph2DViewMouseWheelZoomListener() );
   }
 
-  /**
-   * Creates a toolbar for this demo.
-   */
   protected JToolBar createToolBar() {
     JToolBar toolBar = new JToolBar();
     toolBar.add( new Zoom( 1.2 ) );
@@ -230,6 +222,28 @@ public class DemoBase extends Thread {
 	toolBar.add( new Step() );
 
     return toolBar;
+  }
+
+  public void activate (String methodname) {
+	text.setText(string_source_map.get(methodname));
+	for (int i = 0; i < graph_chooser.getItemCount(); i++)
+		if (((ListElement)graph_chooser.getItemAt(i)).toString().equals(methodname)) {
+			graph_chooser.setSelectedIndex(i);
+			break;
+		}
+	int realindex = ((ListElement)graph_chooser.getSelectedItem()).index;
+	if (realindex >= 0) {
+		IncrementalHierarchicLayout ih = client.getGraph(realindex);
+		ih.activateLayouter();
+	} else {
+		updatingslider = true;
+		slider.setLabelTable(null);
+		slider.setMaximum(0);
+		updatingslider = false;
+		view.setGraph2D(new Graph2D());
+		view.repaint();
+		System.out.println("no graph yet, please wait");
+	}
   }
 
   final class MyMouseListener implements MouseListener {
