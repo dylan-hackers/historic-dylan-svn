@@ -306,13 +306,13 @@ define method remove-user! (t :: <object-reference>, c :: <computation>)
   if (*computation-tracer* & ~ instance?(t.reference-value, <&function>))
     *computation-tracer*(#"remove-temporary-user", t.temporary-id, c.computation-id, 0);
   end;
-  if (t.users.size == 0 & ~ instance?(t.reference-value, <&function>))
+  if (*computation-tracer* & t.users.size == 0 & ~ instance?(t.reference-value, <&function>))
     *computation-tracer*(#"remove-temporary", t.temporary-id, 0, 0);
   end;
 end;
 
 define method add-user! (t :: <object-reference>, c :: <computation>)
-  if (t.users.size == 0 & ~ instance?(t.reference-value, <&function>))
+  if (*computation-tracer* & t.users.size == 0 & ~ instance?(t.reference-value, <&function>))
     *computation-tracer*(#"add-temporary", t.temporary-id, t, 0);
   end;
   next-method();
@@ -676,7 +676,7 @@ end;
 
 define method call-iep?-setter (new :: <boolean>, c :: <function-call>) => (res :: <boolean>)
   c.%call-iep? := new;
-  *computation-tracer*(#"change-entry-point", c.computation-id, if (new) #"interior" else #"exterior" end, 0);
+  *computation-tracer* & *computation-tracer*(#"change-entry-point", c.computation-id, if (new) #"interior" else #"exterior" end, 0);
   new;
 end;
 

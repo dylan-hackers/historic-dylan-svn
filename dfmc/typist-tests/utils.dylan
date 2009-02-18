@@ -13,104 +13,23 @@ define function compile-library-until-optimized (project)
   end
 end function;
 
-define function report-progress (i1 :: <integer>, i2 :: <integer>,
-                                 #key heading-label, item-label)
-  //if (item-label[0] = 'D' & item-label[1] = 'F' & item-label[2] = 'M')
-  //  format-out("%s %s\n", heading-label, item-label);
-  //end;
-end;
-
-define thread variable *vis* :: false-or(<dfmc-graph-visualization>) = #f; 
-define thread variable *current-index* :: <integer> = -1;
-
-define function trace-computations (key :: <symbol>, id :: <integer>, comp-or-id, comp2 :: <integer>, #key label)
-  select (key by \==)
-    #"add-temporary-user", #"remove-temporary-user" =>
-      write-to-visualizer(*vis*, list(key, *current-index*, id, comp-or-id));
-    #"add-temporary" =>
-      begin
-        let str = make(<string-stream>, direction: #"output");
-        print-object(comp-or-id, str);
-        write-to-visualizer(*vis*, list(key, *current-index*, id, str.stream-contents, comp2));
-      end;
-    #"temporary-generator" =>
-      write-to-visualizer(*vis*, list(key, *current-index*, id, comp-or-id, comp2));
-    #"remove-temporary" =>
-      write-to-visualizer(*vis*, list(key, *current-index*, id));        
-    #"remove-edge", #"insert-edge" =>
-      write-to-visualizer(*vis*, list(key, *current-index*, id, comp-or-id, label));
-    #"change-edge" =>
-      write-to-visualizer(*vis*, list(key, *current-index*, id, comp-or-id, comp2, label));
-    #"new-computation" =>
-      write-to-visualizer(*vis*, list(key, *current-index*, output-computation-sexp(comp-or-id)));
-    #"remove-computation" =>
-      write-to-visualizer(*vis*, list(key, *current-index*, id));
-    #"change-type" =>
-      begin
-        let str = make(<string-stream>, direction: #"output");
-        if (instance?(comp-or-id, <type-variable>))
-          unless (comp-or-id.type-contents-callback)
-            comp-or-id.type-contents-callback
-              := rcurry(curry(trace-computations, #"change-type", id), 0);
-          end;
-          print-object(comp-or-id.type-variable-contents, str);
-        else
-          print-object(comp-or-id, str);
-        end;
-        write-to-visualizer(*vis*, list(key, *current-index*, id, str.stream-contents));
-      end;
-    #"change-entry-point" =>
-      write-to-visualizer(*vis*, list(key, *current-index*, id, comp-or-id));
-      //format-out("changing entry point of %d %=\n", id, comp-or-id);
-    #"set-loop-call-loop" =>
-      write-to-visualizer(*vis*, list(#"set-loop-call-loop", *current-index*, id, comp-or-id, #"no"));
-    otherwise => ;
-  end;
-end;
-define function visualize (key :: <symbol>, object :: <object>)
-  select (key by \==)
-    #"file-changed" => *vis*.report-enabled? := (object = "scratch-source");
-    #"dfm-switch" => *vis*.dfm-report-enabled? := (object == 4);
-    #"dfm-header" =>
-        write-to-visualizer(*vis*, list(key, *current-index*, object));
-    #"optimizing" =>
-      begin
-        *vis*.dfm-report-enabled? := (object == 4);
-        write-to-visualizer(*vis*, list(#"relayouted", *current-index*));
-      end;
-    //#"finished" =>
-    //  *vis*.dfm-report-enabled? := #f;
-    #"beginning" =>
-      write-to-visualizer(*vis*, list(key, *current-index*, object));
-    #"relayouted" =>
-      write-to-visualizer(*vis*, list(key, *current-index*));
-    #"highlight-queue" =>
-      write-to-visualizer(*vis*, list(key, *current-index*, object));
-    #"highlight" =>
-      if (instance?(object, <integer>))
-        write-to-visualizer(*vis*, list(key, *current-index*, object));
-      end;
-    #"full-dfm" =>
-      format-out("GOT DFM %=\n", object);
-    otherwise => ;
-  end;
-end;
-
 define function compiler (project)
-  let lib = project.project-current-compilation-context;
-  block()
-    dynamic-bind(*progress-library* = lib)
-      dynamic-bind(*dump-dfm-method* = visualize)
-        dynamic-bind(*computation-tracer* = trace-computations)
-          with-progress-reporting(project, report-progress, visualization-callback: visualize)
-            compile-library-from-definitions(lib, force?: #t, skip-link?: #t,
-                                             compile-if-built?: #t, skip-heaping?: #t);
-          end;
-        end;
-      end;
-    end;
-  exception (e :: <abort-compilation>)
-  end
+  if (*vis*)
+    //send source
+    let source = as(<string>, project.project-current-source-records[1].source-record-contents);
+    let method-name = as(<symbol>, concatenate("test", integer-to-string(*vis*.dfm-index + 1)));
+    write-to-visualizer(*vis*, list(#"source", method-name, source));
+    //activate source record
+    write-to-visualizer(*vis*, list(#"choose-source", method-name));
+    visualizing-compiler(*vis*, project);
+  else
+    let lib = project.project-current-compilation-context;
+    block()
+      compile-library-from-definitions(lib, force?: #t, skip-link?: #t,
+                                       compile-if-built?: #t, skip-heaping?: #t);
+    exception (e :: <abort-compilation>)
+    end
+  end;
 end;
 
 define function static-type (lambda :: <&method>) => (res :: <type-estimate>)
@@ -139,7 +58,7 @@ define function compile-string (string :: <string>)
   end
 end;
 
-define method \= (te1 :: <type-estimate>, te2 :: <type-estimate>)
+define sideways method \= (te1 :: <type-estimate>, te2 :: <type-estimate>)
  => (equal? :: <boolean>)
   //type-estimate=?(te1, te2);
   format-out("comparing %= with %=\n", te1, te2);

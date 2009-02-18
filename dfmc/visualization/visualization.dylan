@@ -11,6 +11,7 @@ define class <dfmc-graph-visualization> (<object>)
   constant slot connection-id :: <symbol>, required-init-keyword: id:;
   slot report-enabled? :: <boolean> = #t;
   slot dfm-report-enabled? :: <boolean> = #t;
+  slot dfm-index :: <integer> = -1;
 end;
 
 define function write-to-visualizer (v :: <dfmc-graph-visualization>, data)
@@ -30,8 +31,6 @@ define function write-to-visualizer (v :: <dfmc-graph-visualization>, data)
     exception (c :: <condition>)
       format(*standard-output*, "failed communication: %=\n", c);
     end;
-  else
-    format(*standard-output*, "not sending: %=\n", data);
   end;
 end;
 
@@ -54,35 +53,8 @@ define function connect-to-server
     write-to-visualizer(v, list(#"connection-identifier", v.connection-id))
   end;
 end;
-
-define constant $command-map :: <table> = make(<table>);
-
-define macro visualizer-command-definer
- { define visualizer-command ?:name (?args:*) ?:body end }
-  => { define function ?name (?=v :: <dfmc-graph-visualization>, ?args) ?body end;
-       $command-map[?#"name"] := ?name; }
-end;
-
-define visualizer-command connection-identifier ()
-  write-to-visualizer(v, list(#"connection-identifier", v.connection-id));
-end;
-
-define function process-request (v :: <dfmc-graph-visualization>)
-  let command = read-from-visualizer(v);
-  if (element($command-map, command.head, default: #f))
-    apply($command-map[command.head], v, command.tail);
-  end;
-end;
  
 begin
   start-sockets();
 end;
-define function testme ()
-  let v = make(<dfmc-graph-visualization>, id: #"fooobar");
-  connect-to-server(v);
-  while (#t)
-    process-request(v);
-  end;
-end;
-
 

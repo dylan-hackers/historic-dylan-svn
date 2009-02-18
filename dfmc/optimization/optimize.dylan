@@ -85,6 +85,10 @@ define variable *dump-dfm-library*         = #f;
 define variable *dump-dfm-file*            = #f;
 define variable *dump-dfm-method*          = #f;
 
+define function send-debug (key :: <symbol>, object)
+  *dump-dfm-method* &
+    *dump-dfm-method*(key, object);
+end;
 // HACK: SHOULD BE ELSEWHERE
 
 define function debug-string (object)
@@ -155,7 +159,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	   "Restart all analysis passes.")
 	with-dependent-context ($compilation of model-creator(code))
 	  opt-format-out("READY %=\n", code);
-          *dump-dfm-method*(#"beginning", #("pass one: eliminate assignments"));
+          send-debug(#"beginning", #("pass one: eliminate assignments"));
 	  for-all-lambdas (f in code)
 	    opt-format-out("PASS ONE %=\n", f);
             if (*trace-optimizations?*)
@@ -169,24 +173,20 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	    // finish pseudo-SSA conversion
 	    if (f == code | ~maybe-delete-function-body(f))
 	      eliminate-assignments(f);
-              if (*dump-dfm-method*)
-                *dump-dfm-method*(#"relayouted", #());
-              end;
+              send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          *dump-dfm-method*(#"beginning", #("pass two: rename temporaries"));
+          send-debug(#"beginning", #("pass two: rename temporaries"));
           if (*flow-types-through-conditionals?*)
   	    for-all-lambdas (f in code)
 	      opt-format-out("PASS ONE(A) %=\n", f);
   	      if (f == code | lambda-used?(f))
                 maybe-rename-temporaries-in-conditionals(f);
               end;
-              if (*dump-dfm-method*)
-                *dump-dfm-method*(#"relayouted", #());
-              end;
+              send-debug(#"relayouted", #());
 	    end for-all-lambdas;
           end;
-          *dump-dfm-method*(#"beginning", #("pass three: run optimizations (delete, fold, upgrade, inline)"));
+          send-debug(#"beginning", #("pass three: run optimizations (delete, fold, upgrade, inline)"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f))
 	      opt-format-out("PASS TWO %=\n", f);
@@ -198,12 +198,10 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	      end if;
 	      // Now we're ready for some fun.
 	      run-optimizations(f);
-              if (*dump-dfm-method*)
-                *dump-dfm-method*(#"relayouted", #());
-              end;
+              send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          *dump-dfm-method*(#"beginning", #("pass four: run optimizations (delete, fold, upgrade, inline)"));
+          send-debug(#"beginning", #("pass four: run optimizations (delete, fold, upgrade, inline)"));
 	  iterate loop (count = 0)
 	    let something? = #f;
 	    for-all-lambdas (f in code)
@@ -220,51 +218,41 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	      end if;
 	    end;
 	  end iterate;
-          if (*dump-dfm-method*)
-            *dump-dfm-method*(#"relayouted", #());
-          end;
+          send-debug(#"relayouted", #());
 	  // now carry out the global stuff like environment analysis
-          *dump-dfm-method*(#"beginning", #("pass five: common subexpression elimination, useless environment deletion"));
+          send-debug(#"beginning", #("pass five: common subexpression elimination, useless environment deletion"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
 	      opt-format-out("PASS FOUR %=\n", f);
 	      share-common-subexpressions(f);
 	      delete-useless-environments(f);
-              if (*dump-dfm-method*)
-                *dump-dfm-method*(#"relayouted", #());
-              end;
+              send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          *dump-dfm-method*(#"beginning", #("pass six: analyze dynamic-extent, environments, check optimized computations"));
+          send-debug(#"beginning", #("pass six: analyze dynamic-extent, environments, check optimized computations"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
 	      opt-format-out("PASS FIVE %=\n", f);
 	      analyze-dynamic-extent-for(f);
 	      analyze-environments(f);
 	      check-optimized-computations(f);
-              if (*dump-dfm-method*)
-                *dump-dfm-method*(#"relayouted", #());
-              end;
+              send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          *dump-dfm-method*(#"beginning", #("pass seven: pruning closures"));
+          send-debug(#"beginning", #("pass seven: pruning closures"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
               opt-format-out("PASS SIX %=\n", f);
 	      prune-closure(environment(f));
-              if (*dump-dfm-method*)
-                *dump-dfm-method*(#"relayouted", #());
-              end;
+              send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          *dump-dfm-method*(#"beginning", #("pass eight: constant folding closures"));
+          send-debug(#"beginning", #("pass eight: constant folding closures"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
 	      opt-format-out("PASS SIX %=\n", f);
 	      constant-fold-closure(f);
-              if (*dump-dfm-method*)
-                *dump-dfm-method*(#"relayouted", #());
-              end;
+              send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
 	end with-dependent-context;
@@ -274,11 +262,9 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	optimization-queue(f) := #f;
         strip-environment(environment(f));
       end for-all-lambdas;
-      if (*dump-dfm-method*)
-        *dump-dfm-method*(#"relayouted", #());
-      end;
-      *dump-dfm-method*(#"highlight", 0);
-      *dump-dfm-method*(#"beginning", #("finished"));
+      send-debug(#"relayouted", #());
+      send-debug(#"highlight", 0);
+      send-debug(#"beginning", #("finished"));
       block()
       //when (dumping-dfm?(code))
 	print-method-out(code);
@@ -305,7 +291,7 @@ define method run-optimizations (code) => (b :: <boolean>)
   for (count from 0 below $max-optimization-iterations,
        item = something? then queue-head(queue), while: item) 
     // do-queue(method (i) format-out("  ELT %=\n", i) end, queue);
-    *dump-dfm-method*(#"highlight-queue", map(computation-id, queue | #()));
+    send-debug(#"highlight-queue", map(computation-id, queue | #()));
     if (do-optimize(item))
       something? := #t;
       if (*trace-optimizations?*)
@@ -347,7 +333,7 @@ define generic optimize (item :: <computation>) => (b :: <boolean>);
 
 define function do-optimize (item :: <computation>) => (b :: <boolean>)
   with-parent-computation (item)
-    *dump-dfm-method*(#"highlight", item.computation-id);
+    send-debug(#"highlight", item.computation-id);
     let res = optimize(item) & #t;
     if (res)
       //*dump-dfm-method*(#"relayouted", #());
@@ -361,7 +347,7 @@ define inline method run-optimizer
  => (b :: <boolean>)
   opt-format-out("%s %= \n", name, c);
   // with-parent-computation (c)
-  *dump-dfm-method*(#"beginning", list(name, c.computation-id));
+  send-debug(#"beginning", list(name, c.computation-id));
     optimize(c) & #t;
   // end;
 end method;
