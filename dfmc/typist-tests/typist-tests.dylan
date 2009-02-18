@@ -16,125 +16,8 @@ define test noop ()
   end;
 end;
 
-define test visualization-demo ()
-  let mycode =
-   "define method if-test ()"
-   "  let a :: <integer> = 23;"
-   "  let b :: <integer> = 42;"
-   "  if (instance?(a, <string>))"
-   "    a := a * b;"
-   "  else"
-   "    a := a + b;"
-   "  end;"
-   "  a;"
-   "end;";
-  dynamic-bind (*progress-stream*           = #f,  // with-compiler-muzzled
-                *demand-load-library-only?* = #f)
-    let lib = compile-template(mycode, compiler: compiler);
-    check-equal("no test to run", 0, 0);
-  end;
-end;
-
-define test visualization-test ()
-  let mycode = /* "define method if-nested (x, y, z)"
-               "  if (x == 1)"
-               "    if (y == 1)"
-               "      if (z == 1)"
-               "        \"all equal\";"
-               "      else"
-               "        \"x and y equal\";"
-               "      end;"
-               "    elseif (z == 2)"
-               "      \"y + 1 is z\";"
-               "    else"
-               "      \"all different\";"
-               "    end;"
-               "  end;"
-               "end;" */
-               "define method if-simple (a :: <integer>, b :: <integer>) => (res :: <integer>)"
-               "  if (a == 23)"
-               "    1 + a + b;"
-               "  else"
-               "    42 + 10;"
-               "  end;"
-               "end;"
-               "define method common-subexpression (a, b)"
-               "  values(a + b, (a + b) * b);"
-               "end;"
-               "define method common-subexpression2 (a :: <integer>, b :: <integer>)"
-               "  values(a + b, (a + b) * b);"
-               "end;"
-               "define method while-true-loop (x, y, z)"
-               "  while(#t)"
-               "    1 + 2;"
-               "  end;"
-               "end;"
-               "define method for-loop (x, y, z)"
-               "  for (i from 0 below 20)"
-               "    x := y + 1;"
-               "  end;"
-               "end;"
-//               "define method for-loop-multiple-variables ()"
-//               "  let sum = 0;"
-//               "  for (i from 0, j from 5, k from 20 above 0 by -1, l from 7 below 10)"
-//               "    sum := i + j * k + l;"
-//               "  end;"
-//               "end;"
-               "define method while-loop (x, y, z)"
-               "  let i = 0;"
-               "  while(i < 42)"
-               "    i := i + 1;"
-               "  end;"
-               "end;"
-/*               "define method while-loop-nested (x, y, z)"
-               "  let i = 0;"
-               "  while(i < 42)"
-               "    i := i + 1;"
-               "    while (i < 20)"
-               "      i := i * i;"
-               "    end;"
-               "  end;"
-               "end;" */
-               "define method block-test (x)"
-               "  block(t)"
-               "    t();"
-               "  end;"
-               "end;"
-/*               "define method block-exception (x)"
-               "  block()"
-               "    x := x * x;"
-               "  exception (c :: <condition>)"
-               "    x := 0;"
-               "  end;"
-               "end;" */
-               "define method block-cleanup (x, y, z)"
-               "  block(t)"
-               "    if (x == 42)"
-               "      t();"
-               "    end;"
-               "    x := 20;"
-               "    y := 42 * x;"
-               "  cleanup"
-               "    x := y;"
-               "  end;"
-               "end;"
-               "define method dyn-bind (x, y, z)"
-               "  let t = 42;"
-               "  dynamic-bind(t = 0)"
-               "    x := t * t;"
-               "  end;"
-               "  y := t + t;"
-               "  values(x, y);"
-               "end;";
-  dynamic-bind (*progress-stream*           = #f,  // with-compiler-muzzled
-                *demand-load-library-only?* = #f)
-    let lib = compile-template(mycode, compiler: compiler);
-    check-equal("no test to run", 0, 0);
-  end;
-end;
-
 define test polymorphic-type-test0 ()
-  let mycode = "define function my-+ (All(A)(x :: A, y :: A) => (res :: A))"
+  let mycode = "define function my-+ (A)(x :: A, y :: A) => (res :: A)"
                "  x + y;"
                "end;";
   dynamic-bind (*progress-stream*           = #f,  // with-compiler-muzzled
@@ -189,7 +72,7 @@ define test limited-function-type-test3 ()
 end;
 
 define test polymorphic-type-test0a ()
-  let mycode = "define function my-+ (All(A)(x :: A, y :: A) => (res :: A))"
+  let mycode = "define function my-+ (A)(x :: A, y :: A) => (res :: A)"
                "  x + y;"
                "end;"
                "let my-increment = curry(my-+, 1);"
@@ -204,7 +87,7 @@ define test polymorphic-type-test0a ()
 end;
 
 define test polymorphic-type-test ()
-  let mycode = "define function mymap (All(A, B)(fun :: A => B, c :: limited(<collection>, of: A)) => (res :: limited(<collection>, of: B)))"
+  let mycode = "define function mymap (A, B)(fun :: A => B, c :: limited(<collection>, of: A)) => (res :: limited(<collection>, of: B))"
                "  map(fun, c);"
                "end;"
                "define function my-+ (a :: <integer>, b :: <integer>) => (res :: <integer>)"
@@ -350,17 +233,15 @@ end;
 define suite typist-suite ()
   //tests for the test environment
 //  test noop;
- // test visualization-demo;
-  test visualization-test;
 
   //tests for limited function types
 //  test limited-function-type-test;
 //  test limited-function-type-test2;
 //  test limited-function-type-test3;
-/*
+
   //tests for type variable syntax
   test polymorphic-type-test0;
-  test polymorphic-type-test0a;
+/*  test polymorphic-type-test0a;
   test polymorphic-type-test;
 
   //tests which should succeed with polymorphic types
@@ -387,6 +268,20 @@ define function callback-handler (#rest args)
   format-out("%=\n", args);
 end function callback-handler;
 
+/*
+begin
+  let project = find-project("dylan");
+  open-project-compiler-database(project, 
+                                 warning-callback: callback-handler,
+                                 error-handler: callback-handler);
+  with-library-context (dylan-library-compilation-context())
+    without-dependency-tracking
+      run-test-application(typist-suite)
+    end;
+  end;
+end
+*/
+
 define constant $tests = make(<stretchy-vector>);
 
 begin
@@ -408,6 +303,19 @@ begin
       "end;";
   add!($tests, pair(#"if-nested", if-nested));
   
+  let if-instance
+    = "define method if-instance ()\n"
+      "  let a :: <integer> = 23;\n"
+      "  let b :: <integer> = 42;\n"
+      "  if (instance?(a, <string>))\n"
+      "    a := a * b;\n"
+      "  else\n"
+      "    a := a + b;\n"
+      "  end;\n"
+      "  a;\n"
+      "end;\n";
+  add!($tests, pair(#"if-instance", if-instance));
+
   let if-simple
     = "define method if-simple\n"
       " (a :: <integer>, b :: <integer>)\n"
