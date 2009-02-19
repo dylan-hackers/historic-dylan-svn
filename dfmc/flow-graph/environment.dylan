@@ -36,7 +36,7 @@ end class;
 define class <lexical-required-variable> (<lexical-specialized-variable>) 
 end class;
 
-define class <lexical-required-type-variable> (<lexical-required-variable>)
+define class <lexical-required-type-variable> (<lexical-specialized-variable>)
 end class;
 
 define /* abstract */ class <lexical-optional-variable> (<lexical-variable>)

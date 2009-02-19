@@ -68,7 +68,8 @@ define test limited-function-type-test3 ()
 end;
 
 define test polymorphic-type-test0 ()
-  let mycode = "define function my-+\n"
+  let mycode = "define function foo (a :: <integer>) end;\n"
+               "define function my-+\n"
                " (A)(x :: A, y :: A) => (res :: A)\n"
                "  x + y;\n"
                "end;\n";
@@ -78,6 +79,52 @@ define test polymorphic-type-test0 ()
     let conditions = collect-elements(lib.library-conditions-table);
     format-out("conditions: %=\n", conditions);
     check-equal("not-used condition was reported", 1, size(conditions));
+  end;
+end;
+
+define test polymorphic-type-syntax-test ()
+    let mycode =
+     "define method midentity\n"
+     " (A)(x :: A) => (x :: A)\n"
+     "end;\n"
+     "define method mcompose\n"
+     " (A, B, C)(f1 :: A => B, f2 :: B => C)\n"
+     " => (f3 :: A => C)\n"
+     "end;\n"
+     "define method mcurry\n"
+     " (A, B, C)(fun :: A B ... B => C, obj :: A)\n"
+     " => (cfun :: B ... B => C)\n"
+     "end;\n"
+     "define method mmap\n"
+     " (A, B, C, L <: <collection>)\n"
+     " (fun :: A B ... B => C,\n"
+     "  a :: limited(L, of: A),\n"
+     "  #rest bs :: limited(L, of: B)\n"
+     "              ... limited(L, of: B))\n"
+     " => (c :: limited(L, of: C))\n"
+     "end;\n"
+     "define method mreduce\n"
+     " (A)(fun :: A A => A, e :: A,\n"
+     "     list :: limited(<collection>, of: A))\n"
+     " => (res :: A)\n"
+     "end;\n"
+     "define method mmake\n"
+     " (A)(type == A, #rest #all-keys) => (res :: A)\n"
+     "end;"
+     "define method mas\n"
+     " (A)(type == A, object) => (res :: A)\n"
+     "end;\n"
+     "define method mvalues\n"
+     " (A)(#rest :: A ... A) => (#rest :: A ... A)\n"
+     "end;\n"
+     "define method malways\n"
+     " (A)(x == A) => (res :: <object> => A)\n"
+     "end;\n";
+  dynamic-bind (*progress-stream*           = #f,  // with-compiler-muzzled
+                *demand-load-library-only?* = #f)
+    let lib = compile-template(mycode, compiler: compiler);
+    let conditions = collect-elements(lib.library-conditions-table);
+    check-equal("not-used conditions were reported", 9, size(conditions));
   end;
 end;
 
@@ -259,15 +306,16 @@ end;
 
 define suite typist-suite ()
   //tests for the test environment
-  test noop;
+  //test noop;
 
   //tests for limited function types
-  test limited-function-type-test;
-  test limited-function-type-test2;
-  test limited-function-type-test3;
+  //test limited-function-type-test;
+  //test limited-function-type-test2;
+  //test limited-function-type-test3;
 
   //tests for type variable syntax
   test polymorphic-type-test0;
+  //test polymorphic-type-syntax-test;
 /*  test polymorphic-type-test0a;
   test polymorphic-type-test;
 

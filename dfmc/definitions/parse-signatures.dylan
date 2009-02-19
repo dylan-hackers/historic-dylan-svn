@@ -440,6 +440,11 @@ end method;
 define method spec-type-variables (spec :: <method-polymorphic-signature-spec>) => (res :: <collection>)
   spec.type-variables;
 end;
+
+define method spec-value-rest-variable-spec (spec :: <method-polymorphic-signature-spec>)
+  spec-value-rest-variable-spec(spec.real-signature-spec);
+end method;
+
 /// GENERIC-SIGNATURE-SPEC
 
 define constant <generic-signature-spec> = <signature-spec>;
@@ -623,14 +628,18 @@ define method parse-signature-as
           sig-spec
 	end method;
   macro-case (fragment)
-    { (All (?type-vars:*) ?rest:*) ?more:* }
+    { (?type-vars:*) (?rest:*) ?more:* }
       => begin
-           let (sig, mor) = parse-signature-as(sig-class, rest);
+           //This is considered cheating (not using the variables, but the tail of fragment
+           //Problem was, I couldn't find API to construct parens-fragment ( rest ) , more
+           //And I need to destructure it to get the pattern matching right.
+           //hannes, 19 February 2009
+           let (sig, mor) = parse-signature-as(sig-class, tail(fragment));
            values(make(<method-polymorphic-signature-spec>,
                        signature: sig,
                        variables: parse-type-variable-list(type-vars),
                        argument-next-variable-spec: sig.spec-argument-next-variable-spec),
-                  more);
+                  mor);
          end;
     { (?args:*) => (?vals:*); ?more:* }
       => values(parse-using-fragments(sig-class, args, vals), more);
