@@ -1,7 +1,7 @@
 module: dfmc-modeling
 
 
-define primary abstract &class <type-variable> (<object>)
+define primary abstract &class <type-variable> (<type>)
   constant &slot type-variable-name :: <symbol>,
     required-init-keyword: name:;
   constant &slot type-variable-kind :: <symbol>,

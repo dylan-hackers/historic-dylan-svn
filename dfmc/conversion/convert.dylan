@@ -3923,9 +3923,9 @@ define method ^top-level-eval-type (fragment, #key on-failure = #f, type-variabl
       end;
   if (result == on-failure)
     on-failure
- // elseif (~instance?(result, <&type>))
- //   // Put a warning here.
- //   on-failure
+  elseif (~instance?(result, <&type>))
+    // Put a warning here.
+    on-failure
   else
     result
   end;  
@@ -3982,25 +3982,33 @@ define function parse-parameters-into
   for (var-spec in type-vars)
     let name = spec-variable-name(var-spec);
     push-variable!(name,
-		   make(<lexical-required-type-variable>,
-			name:
-			  name,
-			environment: 
-			  lambda-env,
-			specializer: 
-			  spec-type-expression(var-spec)));
+                   make(<lexical-required-type-variable>,
+                        name: name,
+                        environment: lambda-env,
+                        specializer: 
+                          //TODO: fixme! this has been computed before!
+                          ^top-level-eval-type(spec-type-expression(var-spec))));
   end;
   for (var-spec in required-specs)
     let name = spec-variable-name(var-spec);
-    push-variable!(name,
-		   make(<lexical-required-variable>,
-			name:
-			  name,
-			environment: 
-			  lambda-env,
-			// TODO: dynamic type expressions
-			specializer: //TODO: fixme! this has been computed before!
-			  ^top-level-eval-type(spec-type-expression(var-spec), type-variables: type-vars)));
+    let type-expression = spec-type-expression(var-spec);
+    let env-data = lookup(lambda-env, type-expression, default: #f);
+    let specializer = if (env-data & instance?(env-data, <lexical-required-type-variable>))
+                        env-data
+                        //record user of TV!
+                      else
+                        //TODO: fixme! this has been computed before!
+                        ^top-level-eval-type(type-expression);
+                      end;
+    let lrv = make(<lexical-required-variable>,
+                   name: name,
+                   environment: lambda-env,
+                   // TODO: dynamic type expressions
+                   specializer: specializer);
+    push-variable!(name, lrv);
+    if (instance?(specializer, <lexical-required-type-variable>))
+      add-user!(specializer, lrv);
+    end;
   end;
   if (spec-rest?)
     insert-rest-variable!

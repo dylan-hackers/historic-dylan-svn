@@ -5,6 +5,11 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
+//lots of optimization-code in here. curious whether it is premature
+//optimization or if the databases are really small because of the caching of
+//signatures where all arguments have the same type (test it, I suspect
+//it is premature optimization) -- hannes 22 February 2009
+
 define constant $max-signature-size              = 256;
 define constant $max-default-signature-size      = 16;
 define constant $max-mini-default-signature-size = 2;
@@ -238,9 +243,9 @@ define primary &class <signature> (<object>)
     init-value: 0;
   runtime-constant &slot signature-required :: <simple-object-vector>,
     required-init-keyword: required:;
-//  &slot signature-type-variables :: <simple-object-vector>,
-//    init-keyword: type-variables:,
-//    init-value: #[];
+  &slot signature-type-variables :: <simple-object-vector>,
+    init-keyword: type-variables:,
+    init-value: #[];
 end &class;
 
 define primary &class <object-signature> (<signature>)
