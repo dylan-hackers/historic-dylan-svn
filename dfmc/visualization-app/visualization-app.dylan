@@ -138,6 +138,14 @@ begin
     "  values(x, y);\n"
     "end;";
   add!($tests, pair(#"dyn-bind", db));
+
+  let mm =
+    "define method mymap (A, B)\n"
+    " (fun :: A => B, as :: limited(<collection>, of: A))\n"
+    " => (bs :: limited(<collection>, of: B))\n"
+    "  map(fun, as);"
+    "end;";
+  add!($tests, pair(#"mymap", mm));
 end;
 
 define function callback-handler (#rest args)
@@ -161,9 +169,13 @@ begin
         while (#t)
           let res = read-from-visualizer(vis); //expect: #"compile" "source"
           if (res[0] == #"compile")
-            dynamic-bind (*progress-stream*           = #f,  // with-compiler-muzzled
-                          *demand-load-library-only?* = #f)
-              compile-template(res[1], compiler: curry(visualizing-compiler, vis));
+            block()
+              dynamic-bind (*progress-stream*           = #f,  // with-compiler-muzzled
+                            *demand-load-library-only?* = #f)
+                compile-template(res[1], compiler: curry(visualizing-compiler, vis));
+              end;
+            exception (e :: <condition>)
+              format-out("received exception while compiling: %=\n", e);
             end;
           end;
         end;
@@ -195,7 +207,7 @@ define function list-all-package-names ()
   end;
   res;
 end;
-
+/*
 begin
   let projects = list-all-package-names();
   let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Graph-Visualization");
@@ -238,3 +250,4 @@ begin
     format-out("received exception: %=\n", e);
   end;
 end
+*/

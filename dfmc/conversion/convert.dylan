@@ -3815,7 +3815,7 @@ define inline method ^top-level-eval (fragment, #rest options)
 end method;
 
 define method ^top-level-eval-using-optimization
-    (fragment, #key on-failure = #f, type-variables = #[]) => (maybe-value)
+    (fragment, #key on-failure = #f, type-variables = make(<table>)) => (maybe-value)
   let m = convert-method-to-model-as
             (<&method>, "type-initializer", #{ () ?fragment });
 
@@ -3829,7 +3829,7 @@ define method ^top-level-eval-using-optimization
 end method;
 
 define method ^eval-type-expression-sequence
-    (env :: <simple-object-vector>, fragments :: <sequence>, #key on-failure = #f) => (models)
+    (env :: <table>, fragments :: <sequence>, #key on-failure = #f) => (models)
   block (return)
     collecting (results)
       for (fragment in fragments)
@@ -3846,19 +3846,19 @@ define method ^eval-type-expression-sequence
 end method;
 
 define method &eval-type-expression
-    (env :: <simple-object-vector>, binding :: <module-binding>, #key on-failure = #f) => (models)
+    (env :: <table>, binding :: <module-binding>, #key on-failure = #f) => (models)
   let (model, found?) = binding-constant-model-object(binding);
   if (found?) model else on-failure end
 end method;
 
 define method &eval-type-expression
-    (env :: <simple-object-vector>, fragment :: type-union(<vector-fragment>, <list-fragment>), #key on-failure = #f) 
+    (env :: <table>, fragment :: type-union(<vector-fragment>, <list-fragment>), #key on-failure = #f) 
  => (models)
   map(curry(&eval-type-expression, env), fragment.fragment-value);
 end;
 
 define method &eval-type-expression
-    (env :: <simple-object-vector>, fragment :: <literal-constant-fragment>, #key on-failure = #f) 
+    (env :: <table>, fragment :: <literal-constant-fragment>, #key on-failure = #f) 
  => (models)
   let object = fragment-value(fragment);
   if (instance?(object, <module-binding>))
@@ -3869,14 +3869,10 @@ define method &eval-type-expression
 end method;
 
 define method &eval-type-expression
-    (env :: <simple-object-vector>, fragment :: <variable-name-fragment>, #key on-failure = #f) => (models)
-  let tv-value = choose(compose(curry(\==, fragment.fragment-name),
-				^type-variable-name),
-			env);
-  if (tv-value.size == 1)
-    tv-value.first;
-  elseif (tv-value.size > 1)
-    error("unexpected!")
+    (env :: <table>, fragment :: <variable-name-fragment>, #key on-failure = #f) => (models)
+  let tv-value = element(env, fragment.fragment-name, default: #f);
+  if (tv-value)
+    tv-value;
   else
     let binding = lookup(#f, fragment);
     if (binding)
@@ -3888,7 +3884,7 @@ define method &eval-type-expression
 end method;
 
 define method &eval-type-expression 
-    (env :: <simple-object-vector>, fragment :: <function-call-fragment>, #key on-failure = #f) 
+    (env :: <table>, fragment :: <function-call-fragment>, #key on-failure = #f) 
       => (models)
   let function = ^top-level-eval(fragment-function(fragment));
   let override = lookup-compile-stage-function(function);
@@ -3909,7 +3905,7 @@ define method &eval-type-expression
   end;
 end method;
 // Must be a type.
-define method ^top-level-eval-type (fragment, #key on-failure = #f, type-variables = #[])
+define method ^top-level-eval-type (fragment, #key on-failure = #f, type-variables = make(<table>))
   // Try quickie top level eval.
   let result 
     //= ^top-level-eval(fragment, on-failure: on-failure);
@@ -3947,7 +3943,7 @@ end method;
 
 define function parse-parameters-into
     (env :: <environment>, lambda-env :: <lambda-lexical-environment>, 
-     sig-spec :: <signature-spec>)
+     sig-spec :: <signature-spec>, sig :: <&signature>)
   let type-vars
     = spec-type-variables(sig-spec);
   let required-specs
@@ -3979,36 +3975,21 @@ define function parse-parameters-into
 			      name: name,
 			      environment: lambda-env));
 	end;
-  for (var-spec in type-vars)
+  for (var-spec in type-vars, tv in sig.^signature-type-variables)
     let name = spec-variable-name(var-spec);
-    push-variable!(name,
-                   make(<lexical-required-type-variable>,
-                        name: name,
-                        environment: lambda-env,
-                        specializer: 
-                          //TODO: fixme! this has been computed before!
-                          ^top-level-eval-type(spec-type-expression(var-spec))));
+    let tv = make(<lexical-required-type-variable>,
+                  name: name,
+                  environment: lambda-env,
+                  specializer: tv);
+    push-variable!(name, tv);
   end;
-  for (var-spec in required-specs)
+  for (var-spec in required-specs, var-type in sig.^signature-required)
     let name = spec-variable-name(var-spec);
-    let type-expression = spec-type-expression(var-spec);
-    let env-data = lookup(lambda-env, type-expression, default: #f);
-    let specializer = if (env-data & instance?(env-data, <lexical-required-type-variable>))
-                        env-data
-                        //record user of TV!
-                      else
-                        //TODO: fixme! this has been computed before!
-                        ^top-level-eval-type(type-expression);
-                      end;
     let lrv = make(<lexical-required-variable>,
                    name: name,
                    environment: lambda-env,
-                   // TODO: dynamic type expressions
-                   specializer: specializer);
+                   specializer: var-type);
     push-variable!(name, lrv);
-    if (instance?(specializer, <lexical-required-type-variable>))
-      add-user!(specializer, lrv);
-    end;
   end;
   if (spec-rest?)
     insert-rest-variable!
@@ -4205,7 +4186,7 @@ define method convert-lambda-into*
   let lambda-env = make(<lambda-lexical-environment>, outer: env, lambda: f);
   add-inner!(env, lambda-env);
   let (variables, keys-start) =
-    parse-parameters-into(env, lambda-env, sig-spec);
+    parse-parameters-into(env, lambda-env, sig-spec, f.^function-signature);
   f.environment := lambda-env;
   f.parameters := variables;
   let bind-computation = make-in-environment(lambda-env, <bind>);

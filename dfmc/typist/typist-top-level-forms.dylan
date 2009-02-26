@@ -63,23 +63,25 @@ define type-estimate-top-level-form-rules
   form :: <top-level-init-form>
     // Non-definition top-level forms are misc inits -- get init method & type it.
     <- begin
-	 typist-chatter("top level init form (%=),"
-			  "calling type-estimate on %=\n",
-			form,
-			form-init-method(form));
-	 type-estimate(form-init-method(form));
+	 typist-chatter("top level init form (%=),", form);
+	 //type-estimate(form-init-method(form));
        end;
   form :: <namespace-defining-form>
     // Do nothing for <module-definition>s and <library-definition>s.
     <- #f;
   form :: <function-defining-form>
     // *** Extract signature?
-    <- typist-chatter("function defn %=\n", form);
+    <- begin
+         typist-chatter("function defn %=\n", form);
+       end;
   form :: <method-definition>
-    <- if (form-model(form))
-         type-estimate(form-model(form)) // Look at code
-       else
-         next-method()                          // Else punt like above
-       end
+    <- begin
+         typist-chatter("method defn %=\n", form);
+         if (form-model(form))
+           type-estimate(form-model(form)) // Look at code
+         else
+           next-method()                          // Else punt like above
+         end
+       end;
   // *** Bunch of other kinds of <top-level-form>s.
 end;

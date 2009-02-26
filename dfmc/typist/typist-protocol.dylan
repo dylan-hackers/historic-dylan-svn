@@ -152,7 +152,7 @@ define function type-estimate=?(te1 :: <type-estimate>, te2 :: <type-estimate>)
   => (e? :: <boolean>, known? :: <boolean>)
   // Dylan Torah, p. 48: te1 = te2 iff te1 <= te2 & te2 <= te1
   let (sub?-1, known?-1) = type-estimate-subtype?(te1, te2);
-  let (sub?-2, known?-2) = type-estimate-subtype?(te1, te2);
+  let (sub?-2, known?-2) = type-estimate-subtype?(te2, te1);
   if (known?-1 & known?-2)                               // Both answers known
     values(sub?-1 & sub?-2, #t) 
   elseif ((known?-1 & ~ sub?-1) | (known?-2 & ~ sub?-2)) // At least 1 known=#f
@@ -421,6 +421,10 @@ end method;
 
 define method type-estimate-in-cache (ref :: <dfm-ref>, cache :: <type-cache>) 
     => (te :: <type-estimate>)
+  //for now, type estimate is bottom!
+  type-infer(ref);
+  make(<type-estimate-bottom>);
+/*
   let ref = canonical-ref(ref);
   // Look in cache or infer a type.  Prefer cache if nonempty.
   // Cache may "contain" #f (this ref hasn't been seen yet), bottom (this ref 
@@ -436,6 +440,7 @@ define method type-estimate-in-cache (ref :: <dfm-ref>, cache :: <type-cache>)
     cached-type-variable(ref, cache) := make(<type-variable>); 
     type-estimate-infer(ref, cache)      // Infer the type
   end
+*/
 end;
 
 define method cached-type-variable

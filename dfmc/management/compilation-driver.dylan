@@ -588,6 +588,7 @@ define function ensure-library-dfm-computed (ld :: <compilation-context>)
       i := i + 1;
     end;
   end;
+  visualization-report(#"relayouted", #());
   visualization-report(#"finished", #());
   debug-out(#"internal", "DFM generation complete.\n");
 end function;

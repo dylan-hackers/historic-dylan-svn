@@ -7,6 +7,8 @@ Files:     typist-library
            typist-inference
            typist-top-level-forms
            type-estimate-hashing
+           constraints
+           bottom-up-rules
 Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
               All rights reserved.
 License:      Functional Objects Library Public License Version 1.0

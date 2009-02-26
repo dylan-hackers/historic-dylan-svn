@@ -634,7 +634,12 @@ define method parse-signature-as
            //Problem was, I couldn't find API to construct parens-fragment ( rest ) , more
            //And I need to destructure it to get the pattern matching right.
            //hannes, 19 February 2009
-           let (sig, mor) = parse-signature-as(sig-class, tail(fragment));
+           let real-sig-fragment = tail(if (instance?(fragment, <sequence-fragment>))
+                                          fragment.fragment-fragments
+                                        else
+                                          fragment
+                                        end);
+           let (sig, mor) = parse-signature-as(sig-class, real-sig-fragment);
            values(make(<method-polymorphic-signature-spec>,
                        signature: sig,
                        variables: parse-type-variable-list(type-vars),

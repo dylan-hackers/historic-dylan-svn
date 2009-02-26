@@ -142,6 +142,12 @@ define method type-estimate-normalize(top :: <type-estimate-top>)
   top
 end;
 
+define method type-estimate-normalize(t :: <type-estimate-type-variable>)
+ => (te :: <type-estimate-type-variable>)
+  type-estimate-to-be-normalized?(t) := #f;
+  t
+end;
+
 define method type-estimate-normalize(lim :: <type-estimate-limited>)
  => (te :: <type-estimate-limited>)
   // Some limited normalization is trivial.

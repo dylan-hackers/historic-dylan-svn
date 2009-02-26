@@ -4,11 +4,9 @@ module: dfmc-modeling
 define primary abstract &class <type-variable> (<type>)
   constant &slot type-variable-name :: <symbol>,
     required-init-keyword: name:;
-  constant &slot type-variable-kind :: <symbol>,
-    init-value: #"<type>",
+  constant &slot type-variable-kind :: <type>,
+    init-value: <&object>,
     init-keyword: kind:;
-  &slot type-variable-constraints :: <list>,
-    init-value: #();
 end;
 
 define primary &class <simple-type-variable> (<type-variable>)

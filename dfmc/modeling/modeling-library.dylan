@@ -160,6 +160,7 @@ define module-with-models dfmc-modeling
 
   export
     <&signature>, <&keyword-signature>,
+    <&polymorphic-signature>,
 //      ^signature-default-types,
       as-sig-types,
       &slot signature-required,
@@ -183,7 +184,6 @@ define module-with-models dfmc-modeling
     <&type-variable>,
       &getter type-variable-name,
       &getter type-variable-kind,
-      &slot type-variable-constraints,
       
     <&domain>,
       ^domain-library,

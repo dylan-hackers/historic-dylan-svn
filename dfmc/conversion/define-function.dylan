@@ -30,20 +30,24 @@ define function compute-signature
     (form, sig-spec :: <signature-spec>) 
  => (model, static? :: <boolean>)
   let tvs = compute-type-variables(sig-spec.spec-type-variables);
+  let type-variables = make(<table>);
+  for (tv in tvs)
+    type-variables[tv.^type-variable-name] := tv;
+  end;
   // Try to evaluate each specializer in turn.
   let (required-types, required-types-static?) 
     = compute-variable-specs-types
-        (form, tvs, spec-argument-required-variable-specs(sig-spec));
+        (form, type-variables, spec-argument-required-variable-specs(sig-spec));
   // Keys are always static because they're syntactically constrained to
   // be literals.
   let keys
     = compute-variables-spec-keys(form, sig-spec);
   let (key-types, key-types-static?)
      = compute-variable-specs-types
-         (form, tvs, spec-argument-key-variable-specs(sig-spec));
+         (form, type-variables, spec-argument-key-variable-specs(sig-spec));
   let (values-types, values-types-static?)
     = compute-variable-specs-types
-        (form, tvs, spec-value-required-variable-specs(sig-spec));
+        (form, type-variables, spec-value-required-variable-specs(sig-spec));
   let (rest-value-type, rest-value-type-static?)
     = compute-variables-spec-rest-value-type(form, sig-spec);
   let sig
@@ -58,13 +62,14 @@ define function compute-signature
   values(sig, static?)
 end function;
 
-//get definition objects, return modeling objects
 define function compute-type-variables
     (type-vars :: <collection>) => (res :: <simple-object-vector>)
   map-as(<simple-object-vector>,
-	 compose(curry(^make, <&type-variable>, name:),
-		 fragment-name, spec-variable-name),
-	 type-vars)
+         method(x)
+           ^make(<&type-variable>,
+                 name: fragment-name(spec-variable-name(x)),
+                 kind: ^top-level-eval-type(spec-type-expression(x)))
+         end, type-vars)
 end;
 
 
@@ -86,7 +91,7 @@ end program-warning;
 */
 
 define function compute-variable-specs-types
-    (form, tvs :: <simple-object-vector>, variable-specs :: <variable-specs>) 
+    (form, tvs :: <table>, variable-specs :: <variable-specs>) 
  => (types :: <simple-object-vector>, static? :: <boolean>)
   let static-types = make(<vector>, size: size(variable-specs));
   collecting (dynamic-types)

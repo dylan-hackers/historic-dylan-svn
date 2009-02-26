@@ -806,6 +806,17 @@ define method print-type-estimate-internals(b :: <type-estimate-bottom>,
   format(stream, "<bottom>")
 end;
 
+//polymorphic type variable
+define type-class <type-estimate-type-variable> (<type-estimate>)
+  constant slot kind :: <type-estimate>, required-init-keyword: kind:;
+  slot assigned-type;
+end;
+
+define method print-type-estimate-internals(b :: <type-estimate-type-variable>, 
+                                            #key stream) => ()
+  format(stream, "TV <: %=", b.kind)
+end;
+
 ///
 /// How to convert from a model type to a <type-estimate>.
 ///
@@ -832,6 +843,7 @@ define as-type-estimate-rules
   t :: <&class>                   -> make(<type-estimate-class>, class: t);
   t :: <&raw-type>                -> make(<type-estimate-raw>, raw: t);
   t :: <&raw-aggregate-type>      -> make(<type-estimate-raw>, raw: t);
+  t :: <&type-variable>           -> make(<type-estimate-type-variable>, kind: as(<type-estimate>, t.^type-variable-kind));
   // *** Is <&values> a rep'n of multiple values?
   t :: <&limited-integer>         -> make(<type-estimate-limited-integer>, 
 					  min: ^limited-integer-min(t),
@@ -897,7 +909,9 @@ define as-model-type-rules
   t :: <type-estimate-limited-class>    -> ^subclass(type-estimate-subclass(t));
   t :: <type-estimate-limited-instance> -> ^singleton(
                                               type-estimate-singleton(t));
+  //FIXME!
   t :: <type-estimate-limited-function> -> type-estimate-class(t); // <= <callable-object>
+  //support <type-estimate-type-variable>!
   t :: <type-estimate-union>            -> apply(^type-union,
                                                  // Use reduce & compose?
                                                  map(curry(as, <&type>), 

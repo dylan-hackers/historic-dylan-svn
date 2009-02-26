@@ -243,13 +243,22 @@ define primary &class <signature> (<object>)
     init-value: 0;
   runtime-constant &slot signature-required :: <simple-object-vector>,
     required-init-keyword: required:;
-  &slot signature-type-variables :: <simple-object-vector>,
-    init-keyword: type-variables:,
-    init-value: #[];
 end &class;
 
 define primary &class <object-signature> (<signature>)
 end &class;
+
+define method ^signature-type-variables (s :: <&signature>) => (res :: <simple-object-vector>)
+  #[];
+end;
+
+define primary &class <polymorphic-signature> (<signature>)
+  &slot signature-type-variables :: <simple-object-vector>,
+    init-keyword: type-variables:,
+    init-value: #[];
+  &slot real-signature :: <signature>,
+    required-init-keyword: sig:;
+end;
 
 define function compute-signature-definition-name 
     (type-name :: <symbol>, rest-value? :: <boolean>, size :: <integer>) 
@@ -332,6 +341,11 @@ for (rest-value? in #[#t, #f])
 end for;
 
 define method ^signature-values 
+    (sig :: <&polymorphic-signature>) => (res :: <simple-object-vector>)
+  ^signature-values(sig.^real-signature);
+end;
+
+define method ^signature-values 
     (sig :: <&signature>) => (res :: <simple-object-vector>)
   if (^signature-default-values?(sig))
     ^signature-default-types()
@@ -344,6 +358,11 @@ define &class <signature-values-mixin> (<signature>)
   runtime-constant &slot signature-values :: <simple-object-vector>,
     required-init-keyword: values:;
 end &class;
+
+define method ^signature-rest-value
+    (sig :: <&polymorphic-signature>) => (res)
+  ^signature-rest-value(sig.^real-signature);
+end;
 
 define method ^signature-rest-value
     (sig :: <&signature>) => (res)
@@ -374,6 +393,10 @@ define primary &class <keyword-signature> (<signature>)
     required-init-keyword: key-types:;
 end &class;
 
+define method ^signature-keys (sig :: <&polymorphic-signature>)
+  ^signature-keys(sig.^real-signature);
+end;
+
 define method ^signature-keys (sig :: <&signature>)
   #[]
 end method;
@@ -399,57 +422,66 @@ define method ^make
     (class == <&signature>, #rest all-keys, 
      #key number-required, required, key?, 
           values, rest-value?, rest-value, number-values, 
-          rest?, next?, sealed-domain?, 
+          rest?, next?, sealed-domain?, type-variables,
      #all-keys) 
  => (res :: <&signature>)
   let default-values?
     = every?(curry(\==, dylan-value(#"<object>")), values);
   let default-rest-value? 
     = ~rest-value | rest-value == dylan-value(#"<object>");
-  if (~key? & default-values? & default-rest-value?)
-    let (sig-default-types, sig-default-types-computed?)
-      = ^signature-default-types-if-computed();
-    if (sig-default-types-computed?
-	  & required == sig-default-types
+  let real-sig =
+    if (~key? & default-values? & default-rest-value?)
+      let (sig-default-types, sig-default-types-computed?)
+        = ^signature-default-types-if-computed();
+      if (sig-default-types-computed?
+          & required == sig-default-types
     	  & number-required < $max-default-signature-size
           & ~rest? & ~next? & ~sealed-domain?
           & number-values = 0
 	  & (~rest-value? | default-rest-value?))
-      lookup-object-signature(number-required, rest-value?, rest-value)
+        lookup-object-signature(number-required, rest-value?, rest-value)
+      else
+        apply(next-method, <&signature>,
+              default-values?: default-values?, all-keys)
+      end if
     else
-      apply(next-method, <&signature>,
-	    default-values?: default-values?, all-keys)
-    end if
+      apply(^make,
+            if (key?)
+              if (default-values?)
+                if (default-rest-value?)
+                  <&keyword-signature>
+                else 
+                  <&keyword-signature+rest-value>
+                end if
+              else            
+                if (default-rest-value?)
+                  <&keyword-signature+values>
+                else 
+                  <&keyword-signature+values+rest-value>
+                end if
+              end if
+            else
+              if (default-values?)
+                <&signature+rest-value>
+              else 
+                if (default-rest-value?)
+                  <&signature+values> 
+                else 
+                  <&signature+values+rest-value> 
+                end if 
+              end if
+            end if,
+            default-values?: default-values?,
+            all-keys)
+    end if;
+  if (type-variables & type-variables.size > 0)
+    make(<&polymorphic-signature>,
+         sig: real-sig,
+         type-variables: type-variables,
+         required: required);
   else
-    apply(^make,
-          if (key?)
-            if (default-values?)
-              if (default-rest-value?)
-                <&keyword-signature>
-              else 
-                <&keyword-signature+rest-value>
-              end if
-            else            
-              if (default-rest-value?)
-                <&keyword-signature+values>
-              else 
-                <&keyword-signature+values+rest-value>
-              end if
-            end if
-          else
-            if (default-values?)
-              <&signature+rest-value>
-            else 
-              if (default-rest-value?)
-                <&signature+values> 
-              else 
-                <&signature+values+rest-value> 
-              end if 
-            end if
-          end if,
-          default-values?: default-values?,
-          all-keys)
-   end if;
+    real-sig;
+  end;
 end method;
 
 /*

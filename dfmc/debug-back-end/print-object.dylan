@@ -26,6 +26,14 @@ define compiler-sideways method print-object (o :: <mapped-unbound>, stream :: <
   format(stream, "#unbound-slot-value");
 end method;
 
+define compiler-sideways method print-object (l :: <&limited-function-type>, str :: <stream>) => ()
+  format(str, "%= => %=", l.^limited-function-argument-types, l.^limited-function-return-values);
+end;
+
+define compiler-sideways method print-object (tv :: <&type-variable>, str :: <stream>) => ()
+  format(str, "%= <: %=", tv.^type-variable-name, tv.^type-variable-kind);
+end;
+
 define compiler-sideways method print-object (o :: <&object>, stream :: <stream>) => ()
   let ld = current-library-description() | model-original-library(o);
   if (ld)
