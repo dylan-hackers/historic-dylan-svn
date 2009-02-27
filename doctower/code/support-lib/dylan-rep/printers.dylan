@@ -1,38 +1,25 @@
 module: dylan-rep
 
-define method print-object (o :: <library>, s :: <stream>) => ()
+define method print-object (o :: <known-library>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
-      format(s, "library %=", o.local-name);
+      format(s, "known-library %=", o.local-name);
    end printing-logical-block;
 end method;
 
 define method print-object (o :: <unknown-library>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
-      format(s, "unknown-library %=", o.local-name);
+      write(s, "unknown-library");
+      unless (o.anonymous?) format(s, " %=", o.local-name) end;
    end printing-logical-block;
 end method;
 
-define method print-object (o :: <exported-module>, s :: <stream>) => ()
+define method print-object (o :: <local-module>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
-      format(s, "exported-module %=", o.local-name);
-   end printing-logical-block;
-end method;
-
-define method print-object (o :: <internal-module>, s :: <stream>) => ()
-   printing-logical-block (s, prefix: "{", suffix: "}")
-      format(s, "internal-module %=", o.local-name);
-   end printing-logical-block;
-end method;
-
-define method print-object (o :: <reexported-module>, s :: <stream>) => ()
-   printing-logical-block (s, prefix: "{", suffix: "}")
-      format(s, "reexported-module %=, ", o.local-name);
-      pprint-newline(#"fill", s);
-      write(s, "from ");
-      if (o.used-library & o.import-name)
-         format(s, "%=:%=", o.used-library.local-name, o.import-name);
-      else
-         write(s, "unknown");
+      format(s, "local-module %=", o.local-name);
+      if (o.exported?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "exported");
       end if;
    end printing-logical-block;
 end method;
@@ -41,11 +28,13 @@ define method print-object (o :: <imported-module>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
       format(s, "imported-module %=, ", o.local-name);
       pprint-newline(#"fill", s);
-      write(s, "from ");
-      if (o.used-library & o.import-name)
-         format(s, "%=:%=", o.used-library.local-name, o.import-name);
-      else
-         write(s, "unknown");
+      format(s, "from %= ", o.import-name);
+      pprint-newline(#"fill", s);
+      format(s, "in %=", o.used-library);
+      if (o.exported?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "exported");
       end if;
    end printing-logical-block;
 end method;
