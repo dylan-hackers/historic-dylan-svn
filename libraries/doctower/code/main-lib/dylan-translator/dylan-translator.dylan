@@ -18,42 +18,38 @@ end method;
 Synopsis: Returns representation of Dylan libraries, modules, definitions, etc.
 
 --- Arguments: ---
-library-sets - A sequence. Each element of the sequence is a library being
-               documented. Specifically, each element is a sequence of the
-               parsed files included in that library; a sequence of
-               <interchange-file-token>.
+file-sets - A sequence. Each element of the sequence is a library being
+            documented. Specifically, each element is a sequence of the parsed
+            files included in that library; a sequence of
+            <interchange-file-token>.
 
 --- Values: ---
 libraries - A sequence of <library> objects, each of which contains all the
             modules, bindings, and definitions of that library.
 **/
-define method apis-from-dylan (library-sets :: <sequence>)
-=> (representations :: <sequence>)
-   // Find libraries and sort them by dependency.
-   let library-sets = map(extract-library, library-sets);
-   let library-sets = dependent-libraries(library-sets);
+define method apis-from-dylan (file-sets :: <sequence>)
+=> (libraries :: <sequence>)
+   let library-sets :: <table> = make-library-sets(file-sets);
+   verbose-log("Cataloging definitions");
+
+   // First pass. Populate each library with modules.
+   do(method (lib-token :: <library-definer-token>)
+         find/make-library(library-sets, lib-token, lib-token.api-name)
+      end, map(libset-library-token, library-sets));
+
+   // Second pass. Make sure all imports and exports are included.
+   do(compose(curry(check-library-imports-exports, library-sets), libset-library),
+      choose(libset-library-token, as(<vector>, library-sets)));
    
-   // Create modules in the libraries.
-   populate-modules(library-sets);
+   /**/
+   log-object("Libraries", map(libset-library, as(<vector>, library-sets)));
+   for (lib in map(libset-library, as(<vector>, library-sets)))
+      log-object(format-to-string("Modules in %s", lib.local-name), lib.modules)
+   end for;
    
-   // Sort APIs into module and library.
-   populate-bindings(library-sets);
-
-   map(head, library-sets);
-end method;
-
-
-define constant <non-namespace-definition-token> =
-      type-union(<class-definer-token>, <constant-definer-token>,
-                 <function-definer-token>, <generic-definer-token>,
-                 <method-definer-token>, <variable-definer-token>);
-
-
-define method choose-interchange-definitions
-   (type :: <type>, ichange-tokens :: <sequence> /* of <interchange-file-token> */)
-=> (seq :: <sequence> /* of type */)
-   let source-records = choose(true?, map(source-record, ichange-tokens));
-   let source-defns = map(token-definitions, source-records);
-   let defns = apply(concatenate, #[], source-defns);
-   choose(rcurry(instance?, type), defns);
+   // Do bindings. This has to happen after modules are figured, because some
+   // modules are merged together.
+   // TODO
+   
+   map(libset-library, as(<vector>, library-sets));
 end method;

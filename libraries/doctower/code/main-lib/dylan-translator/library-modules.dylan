@@ -1,341 +1,185 @@
 module: dylan-translator
+synopsis: Creates libraries and modules. Does not create bindings.
 
 
-define method extract-library (files :: <sequence>)
-=> (library-set :: <pair> /* of <library>, <sequence> of <interchange-file-token> */)
-   let libs = choose-interchange-definitions(<library-definer-token>, files);
-   let library =
-         select (libs.size)
-            0 =>
-               let files = map(source-file, map(token-src-loc, files));
-               no-library-in-fileset(filenames: item-string-list(files));
-            1 =>
-               let token = libs.first;
-               make(<library>, source-location: token.token-src-loc,
-                    local-name: token.api-name);
-            otherwise =>
-               let dupes = map(token-src-loc, libs);
-               multiple-libraries-in-fileset(defn-locations: item-string-list(dupes));
-         end select;
-   pair(library, files)
+//
+// Circular reference prevention
+//
+
+
+define constant $incomplete-table = make(<case-insensitive-string-table>);
+
+
+define macro with-incomplete
+   {  with-incomplete (?token:expression, ?names)
+         ?:body
+      end
+   }
+   => {  let key = ?names;
+         $incomplete-table[key] := ?token;
+         block ()
+            ?body
+         cleanup
+            remove-key!($incomplete-table, key);
+         end block }
+names:
+   { ?:name } => { ?name }
+   { ?first:name, ?second:name } => { format-to-string("%s:%s", ?first, ?second) }
+end macro;
+
+
+define method check-library-not-incomplete
+   (library-name :: <string>, reason-token :: <token>)
+=> ()
+   let incomplete = element($incomplete-table, library-name, default: #f);
+   when (incomplete)
+      let locations = vector(incomplete.token-src-loc, reason-token.token-src-loc);
+      circular-definition(defn-locations: locations.item-string-list)
+   end when;
 end method;
 
 
-/**
-Synopsis: Returns list of libraries, those with no dependencies first.
-
-The algorithm here is as follows:
-   1. Give each library a row of a table. Contents of the row is the list of
-      libraries used by that library.
-   2. Go through each used library list. If a library in the list has a row,
-      recursively insert its dependencies' dependencies, then its dependencies,
-      then the library.
-   3. When finished, each library will have a complete dependency list. Return
-      the libraries in ascending order of number of dependencies; since each
-      dependency list is complete and each library in each list in preceded by
-      its dependencies, there should be no issues.
-
---- Arguments: ---
-library-sets - A sequence of <pair>. The head of each pair is a <library> and 
-               the tail is a sequence of <interchange-file-token>.
-
---- Values: ---
-ordered-library-sets - As above, but in order of dependency. Libraries that are
-                       dependent on other libraries under consideration come last.
-**/
-define method dependent-libraries (library-sets :: <sequence>)
-=> (ordered-library-sets :: <sequence>)
-   let libraries = map(head, library-sets);
-   let library-tokens = map(
-         method (files) => (token)
-            choose-interchange-definitions(<library-definer-token>, files).first
-         end, map(tail, library-sets));
-
-   // Step 1
-   
-   let dependencies = make(<case-insensitive-string-table>);
-   for (lib keyed-by i in libraries)
-      // Get used libraries from use clauses.
-      let token = library-tokens[i];
-      let clauses = token.namespace-clauses;
-      let use-clauses = choose(rcurry(instance?, <use-clause-token>), clauses);
-      let dependency-list = 
-            remove-duplicates!(map(use-name, use-clauses), test: case-insensitive-equal?);
-      dependencies[lib.local-name] := dependency-list;
-
-      // Add to <library> instance's used-library list.
-      for (dependency in dependency-list)
-         let used-lib =
-               block (found)
-                  for (lib in libraries)
-                     if (case-insensitive-equal?(lib.local-name, dependency))
-                        found(lib)
-                     end if;
-                  end for;
-                  found(make(<unknown-library>, local-name: dependency));
-               end block;
-         lib.used-libraries := add!(lib.used-libraries, used-lib);
-      end for;
-   end for;
-   
-   // Step 2
-   
-   local method library-dependencies
-            (full-dependent-list :: <stretchy-vector>, lib :: <string>)
-         => (full-dependent-list :: <stretchy-vector>)
-            let used-libs = element(dependencies, lib, default: #[]);
-            for (used-lib in used-libs)
-               full-dependent-list := library-dependencies(full-dependent-list, used-lib);
-            end for;
-            add-new!(full-dependent-list, lib, test: case-insensitive-equal?);
-         end method;
-   
-   let full-dependencies = make(<case-insensitive-string-table>);
-   for (lib-name in dependencies.key-sequence)
-      let full-dependent-list = make(<stretchy-vector>);
-      full-dependencies[lib-name] := library-dependencies(full-dependent-list, lib-name);
-   end for;
-   
-   // Step 3
-   
-   local method compare-dependency-size (set1 :: <pair>, set2 :: <pair>)
-         => (set1-less? :: <boolean>)
-            let lib1-deps = full-dependencies[set1.head.local-name].size;
-            let lib2-deps = full-dependencies[set2.head.local-name].size;
-            lib1-deps < lib2-deps;
-         end method;
-
-   sort(library-sets, test: compare-dependency-size);
+define method check-module-not-incomplete
+   (library-name :: <string>, module-name :: <string>, reason-token :: <token>)
+=> ()
+   let key-name = format-to-string("%s:%s", library-name, module-name);
+   let incomplete = element($incomplete-table, key-name, default: #f);
+   when (incomplete)
+      let locations = vector(incomplete.token-src-loc, reason-token.token-src-loc);
+      circular-definition(defn-locations: locations.item-string-list)
+   end when;
 end method;
 
 
-/**
-Synopsis: Creates modules in libraries.
+//
+// Utility
+//
 
-A library definition lists used libraries and modules. Modules may be created
-and exported from the current library, created but internal to the current
-library, excluded from import from another library, imported and re-exported
-from another library, imported and re-exported under a different name from
-another library, or imported but not re-exported from another library. There can
-be multiple use clauses for the same library.
 
-Modules fall into these categories:
-
-   Exported    - Module is listed in export clause. Instance of <exported-module>.
-   
-   Internal    - Module is created via "define module" but not mentioned in
-                 "define library". Instance of <internal-module>.
-                 
-   Excluded    - Module is listed in use clause exclude option, or not listed in
-                 use clause import option. No representation.
-                 
-   Reexported  - Module is listed in use clause export option. Instance of
-                 <reexported-module>.
-                 
-   Renamed     - Module is listed in use clause export option and given a new
-                 name with rename option, import option, or prefix option.
-                 Instance of <reexported-module>.
-                 
-   Imported    - Module is listed in use clause import option, but not listed
-                 in export option. Instance of <imported-module>.
-   
-   Dylan-User  - Every library has an internal Dylan-User module that can't be
-                 exported from the library. We are not including it, but if it
-                 were included, it would be an instance of <internal-module>
-                 with pre-defined bindings.
-
-The function operates as follows:
-   1. Populate the libraries with exported and internal modules derived from
-      export clauses.
-   2. Populate the libraries with imported, renamed, and reexported clauses
-      listed in use clauses and carried forward from the other libraries.
-   3. Populate the libraries with modules mentioned outside of the library
-      definition, such as used modules listed in module definitions.
-   4. Remove duplicates and sort modules in each library by dependency.
-
---- Arguments: ---
-library-sets - A sequence of <pair>. The head of each pair is a <library> and 
-               the tail is a sequence of <interchange-file-token>. The libraries
-               should be in order of dependency so that re-exported modules of
-               earlier libraries are available for import by later libraries.
-**/
-define method populate-modules (library-sets :: <sequence>) => ()
-   let libraries = map(head, library-sets);
-   let libraries-by-name = make(<case-insensitive-string-table>, size: library-sets.size);
-   let library-export-clauses = make(<vector>, size: library-sets.size);
-   let library-use-clauses = make(<vector>, size: library-sets.size);
-   let library-module-tokens = make(<vector>, size: library-sets.size);
-   
-   for (library-set keyed-by i in library-sets)
-      let library = library-set.head;
-      let library-files = library-set.tail;
-      let token = choose-interchange-definitions
-            (<library-definer-token>, library-files).first;
-      let module-tokens = extract-module-tokens(library, library-files);
-      let clauses = token.namespace-clauses;
-      let export-clauses = choose(rcurry(instance?, <export-clause-token>), clauses);
-      let use-clauses = choose(rcurry(instance?, <use-clause-token>), clauses);
-      libraries-by-name[library.local-name] := library;
-      library-export-clauses[i] := export-clauses;
-      library-use-clauses[i] := use-clauses;
-      library-module-tokens[i] := module-tokens;
-   end for;
-
-   // Step 1
-   
-   for (library keyed-by i in libraries)
-      library.modules := concatenate!(library.modules,
-            modules-from-export-clauses(library-export-clauses[i],
-                                        library-module-tokens[i]));
-   end for;
-   
-   // Step 2
-   
-   for (library keyed-by i in libraries)
-      for (clause in library-use-clauses[i])
-         library.modules := concatenate!(library.modules,
-               modules-from-use-clause(clause, libraries-by-name));
-      end for;
-   end for;
-   
-   // Step 3
-   
-   for (library keyed-by i in libraries)
-      let mod-clauses = map(namespace-clauses, library-module-tokens[i]);
-      let mod-clauses = apply(concatenate, #[], mod-clauses);
-      let mod-use-clauses = choose(rcurry(instance?, <use-clause-token>), mod-clauses);
-      let unknown-mod-clauses = difference(mod-use-clauses, library.modules,
-            test: method (clause :: <use-clause-token>, module :: <module>)
-                  => (same? :: <boolean>)
-                     case-insensitive-equal?(clause.use-name, module.local-name)
-                  end);
-
-      // Assume any used modules that aren't already known are imported from
-      // another library.
-      local method make-imported-module (clause :: <use-clause-token>)
-            => (module :: <imported-module>)
-               make(<imported-module>, local-name: clause.use-name,
-                    import-name: #f, used-library: #f,
-                    source-location: clause.token-src-loc)
-            end method;
-      let unknown-modules = map(make-imported-module, unknown-mod-clauses);
-      library.modules := concatenate!(library.modules, unknown-modules);
-   end for;
-
-   // Step 4
-
-   do(merge-modules, libraries);
-   do(sort-modules, libraries, library-module-tokens);
+define method library-module (library :: <library>, module-name :: <string>)
+=> (module :: false-or(<module>))
+   find-element(library.modules,
+         method (mod :: <module>) => (match?)
+            case-insensitive-equal?(mod.local-name, module-name)
+         end, failure: #f)
 end method;
 
 
-define method extract-module-tokens (library :: <library>, files :: <sequence>)
-=> (tokens :: <sequence> /* of <module-definer-token> */)
-   let mod-tokens = choose-interchange-definitions(<module-definer-token>, files);
-   let modules-by-name = group-elements(mod-tokens,
-         test: method (mod-1 :: <module-definer-token>, mod-2 :: <module-definer-token>)
-               => (dup? :: <boolean>)
-                  case-insensitive-equal?(mod-1.api-name, mod-2.api-name)
-               end method);
-   let duplicate-modules = choose(method (mods) => (dups?) mods.size > 1 end,
-                                  modules-by-name);
-   for (duplicate-set in duplicate-modules)
-      let defn-locations = map(token-src-loc, duplicate-set);
-      duplicate-modules-in-fileset(name: duplicate-set.first.api-name,
-            defn-locations: defn-locations.item-string-list)
-   end for;
-   mod-tokens
+define method namespace-has-local-name? (module :: <module>, name :: <string>)
+=> (match? :: <boolean>)
+   case-insensitive-equal?(module.local-name, name)
+end method;
+         
+
+//
+// Libraries
+//
+
+
+define method find/make-library
+   (library-sets :: <table>, reason-token :: <token>, library-name :: false-or(<string>))
+=> (library :: <library>)
+   if (library-name)
+      check-library-not-incomplete(library-name, reason-token);
+      let library-set = element(library-sets, library-name, default: #f);
+      let library = library-set & library-set.libset-library;
+      library | make-library(library-sets, reason-token, library-name)
+   else
+      make(<unknown-library>, local-name: #f,
+           source-location: reason-token.token-src-loc);
+   end if;
 end method;
 
 
-define method modules-from-export-clauses
-   (export-clauses :: <sequence>, module-tokens :: <sequence>)
+define method make-library
+   (library-sets :: <table>, reason-token :: <token>, library-name :: <string>)
+=> (library :: <library>)
+   // We may not have a library set, but if we have a library token we will.
+   let library-set = element(library-sets, library-name, default: #f);
+   let library-token = library-set & library-set.libset-library-token;
+   with-incomplete (library-token | reason-token, library-name)
+      let library = library-from-token(library-sets, reason-token, library-name,
+                                       library-token);
+      unless (library-set)
+         library-set := make(<library-set>, library: library);
+         library-sets[library-name] := library-set;
+      end unless;
+      library-set.libset-library := library;
+   end with-incomplete;
+end method;
+
+
+define method library-from-token
+   (library-sets :: <table>, reason-token :: <token>, library-name :: <string>,
+    library-token == #f)
+=> (library :: <library>)
+   make(<unknown-library>, local-name: library-name,
+        source-location: reason-token.token-src-loc)
+end method;
+
+
+define method library-from-token
+   (library-sets :: <table>, reason-token :: <token>, library-name :: <string>,
+    library-token :: <library-definer-token>)
+=> (library :: <library>)
+   // Library-set is always present because it will be created for the token.
+   let library-set = library-sets[library-name];
+   let library = make(<known-library>, local-name: library-name,
+                      source-location: library-token.token-src-loc);
+   for (clause in library-token.namespace-clauses)
+      find/make-modules-from-clause(library-sets, library, clause);
+   end for;
+   let module-tokens = library-set.libset-module-tokens;
+   for (module-token keyed-by module-name in module-tokens)
+      find/make-module(library-sets, module-token, library, module-name, infer: #f)
+   end for;
+   library
+end method;
+
+
+define method check-library-imports-exports
+   (library-sets :: <table>, library :: <unknown-library>)
+=> ()
+end method;
+
+
+define method check-library-imports-exports
+   (library-sets :: <table>, library :: <known-library>)
+=> ()
+   let token :: <library-definer-token> =
+         library-sets[library.local-name].libset-library-token;
+   let use-clauses = choose(rcurry(instance?, <use-clause-token>),
+                            token.namespace-clauses);
+   do(curry(find/make-modules-from-clause, library-sets, library), use-clauses);
+end method;
+
+
+define method find/make-modules-from-clause
+   (library-sets :: <table>, library :: <library>, clause :: <export-clause-token>)
 => (modules :: <sequence>)
-   let defined-module-names = map(api-name, module-tokens);
-
-   local method undefined-module? (name :: <string>) => (undefined? :: <boolean>)
-            ~member?(name, defined-module-names, test: case-insensitive-equal?)
-         end method;
-
-   for (clause in export-clauses)
-      let undefined-names = choose(undefined-module?, clause.export-names);
-      for (name in undefined-names)
-         undefined-module-in-library(location: clause.token-src-loc, name: name);
-      end for;
-   end for;
-
-   let names-per-export-clause = map(export-names, export-clauses);
-   let exports = remove-duplicates!(apply(concatenate, #[], names-per-export-clause),
-                                    test: case-insensitive-equal?);
-
-   local method exported-token? (token :: <module-definer-token>)
-         => (exported? :: <boolean>)
-            member?(token.api-name, exports, test: case-insensitive-equal?)
-         end method,
-         
-         method make-module (token :: <module-definer-token>, exported? :: <boolean>)
-         => (module :: <module>)
-            make(if (exported?) <exported-module> else <internal-module> end,
-                 local-name: token.api-name, source-location: token.token-src-loc)
-         end method;
-         
-   map(method (token :: <module-definer-token>) => (mod :: <module>)
-          make-module(token, token.exported-token?)
-       end, module-tokens);
+   map(method (name :: <string>) => (module :: <module>)
+          find/make-module(library-sets, clause, library, name, exported: #t, infer: #f)
+       end, clause.export-names)
 end method;
 
 
-define method modules-from-use-clause
-   (use-clause :: <use-clause-token>, libraries :: <table> /* of <string> => <library> */)
+define method find/make-modules-from-clause
+   (library-sets :: <table>, library :: <library>, clause :: <use-clause-token>)
 => (modules :: <sequence>)
    let import-options :: type-union(<sequence> /* of <renaming-token> */, singleton(#"all"))
-         = use-clause.use-imports | #"all";
+         = clause.use-imports | #"all";
    let rename-options :: <sequence> /* of <renaming-token> */
-         = use-clause.use-renamings | #[];
+         = clause.use-renamings | #[];
    let exclude-options :: <sequence> /* of <string> */
-         = use-clause.use-exclusions | #[];
+         = clause.use-exclusions | #[];
    let export-options :: type-union(<sequence> /* of <string> */, singleton(#"all"))
-         = use-clause.use-exports | #[];
+         = clause.use-exports | #[];
    let prefix-option :: false-or(<string>)
-         = use-clause.use-prefix;
+         = clause.use-prefix;
    
    let import-and-rename-options :: <sequence> /* of <renaming-token> */ =
          concatenate(if (import-options = #"all") #[] else import-options end,
                      rename-options);
-   
-   // Get names of modules from used library.
-   
-   let from-library = element(libraries, use-clause.use-name, default: #f);
-   if (~from-library & export-options ~= #[])
-      library-exports-not-known(location: use-clause.token-src-loc);
-   end if;
-   
-   let all-modules = (from-library & from-library.modules) | #[];
-   let all-modules = map(local-name, all-modules);
-
-   // Remove excluded modules.
-   
-   let included-modules = difference(all-modules, exclude-options,
-                                     test: case-insensitive-equal?);
-   
-   // If we don't have an actual module list for the library, assume it has
-   // any modules explicitly named in rename or import options.
-   
-   when (~from-library)
-      let imported-names = map(token-import-name, import-and-rename-options);
-      included-modules := concatenate!(included-modules, imported-names);
-   end when;
-   
-   // Only include imported modules.
-   
-   let imported-modules =
-         if (import-options = #"all")
-            included-modules
-         else
-            let imported-names = map(token-import-name, import-options);
-            intersection(included-modules, imported-names,
-                         test: case-insensitive-equal?)
-         end if;
    
    // Utility functions.
 
@@ -376,9 +220,9 @@ define method modules-from-use-clause
          
          method import-name-for-exported-module (export-name :: <string>)
          => (import-name :: <string>)
-            let renamings = choose(curry(local-name-of-renaming?, export-name),
-                                   import-and-rename-options);
-            let renaming = element(renamings, 0, default: #f);
+            let renaming = find-element(import-and-rename-options,
+                                        curry(local-name-of-renaming?, export-name),
+                                        default: #f);
             case
                renaming => renaming.token-import-name;
                prefix-option =>
@@ -391,166 +235,335 @@ define method modules-from-use-clause
                otherwise => export-name;
             end case
          end method;
-               
+
+   // Ensure used library has any explicitly-named modules.
+   
+   let used-library = find/make-library(library-sets, clause, clause.use-name);
+
+   let used-library-import-names = map(token-import-name, import-and-rename-options);
+   let used-library-export-names =
+         if (export-options ~= #"all")
+            map(import-name-for-exported-module, export-options);
+         else
+            #[];
+         end if;
+   let used-library-names = concatenate(used-library-import-names, 
+         used-library-export-names, exclude-options);
+   for (name in used-library-names)
+      find/make-module(library-sets, clause, used-library, name, exported: #t);
+   end for;
+   
+   // Get used library's imported modules.
+   
+   let all-modules = (used-library & used-library.modules) | #[];
+   let all-modules = choose(exported?, all-modules);
+   let non-excluded-modules = difference(all-modules, exclude-options,
+                                         test: namespace-has-local-name?);
+   let imported-modules =
+         if (import-options = #"all")
+            non-excluded-modules
+         else
+            let imported-names = map(token-import-name, import-options);
+            intersection(non-excluded-modules, imported-names,
+                         test: namespace-has-local-name?)
+         end if;
+                  
    // Determine local name or names (if multiple import/rename options) of
    // each imported module.
 
-   let module-import-names :: <sequence> /* of <string> */
-         = remove-duplicates!(included-modules, test: case-insensitive-equal?);
-   let module-local-names :: <sequence> /* of <sequence> of <string> */
-         = map(local-names-for-imported-module, module-import-names);
+   let modules-import-name :: <sequence> /* of <string> */
+         = map(local-name, imported-modules);
+   let modules-local-names :: <sequence> /* of <sequence> of <string> */
+         = map(local-names-for-imported-module, modules-import-name);
 
-   // Assume used library has any modules named in export option that aren't
-   // already known.
+   // Make modules in this library.
 
-   let all-module-local-names = apply(concatenate, #[], module-local-names);
-   let exported-modules :: <sequence> /* of <string> */
-         = if (export-options = #"all") all-module-local-names else export-options end;
-   let unknown-exports :: <sequence> /* of <string> */
-         = difference(exported-modules, all-module-local-names,
-                      test: case-insensitive-equal?);
-
-   for (export-name in unknown-exports)
-      module-import-names := add!(module-import-names,
-                                  import-name-for-exported-module(export-name));
-      module-local-names := add!(module-local-names, vector(export-name));
-   end for;
-
-   // Make module list.
-
-   let used-lib = from-library | make(<unknown-library>, local-name: use-clause.use-name);
    let module-list = make(<stretchy-vector>);
-   for (import-name in module-import-names, local-names in module-local-names)
+   for (import-name in modules-import-name, local-names in modules-local-names)
       for (local-name in local-names)
-         let module-class = 
-               if (member?(local-name, exported-modules, test: case-insensitive-equal?))
-                  <reexported-module>
-               else
-                  <imported-module>
-               end if;
-         module-list := add!(module-list,
-               make(module-class, import-name: import-name, local-name: local-name,
-                    used-library: used-lib, source-location: use-clause.token-src-loc));
+         let exported? = (export-options = #"all") |
+               member?(local-name, export-options, test: case-insensitive-equal?);
+         let new-module = find/make-module(library-sets, clause, library, local-name,
+               used-library: used-library, import-name: import-name, exported: exported?);
+         module-list := add!(module-list, new-module);
       end for;
    end for;
+   
+   // Note unknown exports from used library.
+   
+   when (import-options = #"all" & export-options = #"all")
+      let sources = union(library.unknown-reexport-sources,
+                          used-library.unknown-reexport-sources, test: \=);
+      when (instance?(used-library, <unknown-library>))
+         sources := add-new!(sources, used-library, test: \=);
+      end when;
+      library.unknown-reexport-sources := sources;
+   end when;
+   
    module-list
 end method;
 
 
-/**
-A module may be exported by multiple export clauses, and modules may be used by
-several use clauses independently. This function checks and eliminates duplicates.
-**/
-define method merge-modules (library :: <library>) => ()
-   let new-modules = make(<stretchy-vector>);
+//
+// Modules
+//
 
-   local method has-name? (name :: <string>, module :: <module>)
-         => (has-name? :: <boolean>)
-            case-insensitive-equal?(name, module.local-name)
-         end method,
-         
-         method better (mod-1 :: false-or(<module>), mod-2 :: false-or(<module>))
-         => (mod :: false-or(<module>))
-            if (mod-1 = mod-2)
-               select (mod-2.object-class)
-                  (<exported-module>, <reexported-module>) => mod-2;
-                  otherwise => mod-1;
-               end select
-            end if
-         end method;
 
-   iterate extract-next-name (mod-list = library.modules)
-      let mod-name = mod-list.first.local-name;
-      let (shared-name-modules, other-name-modules) =
-            partition(curry(has-name?, mod-name), mod-list);
-      let chosen :: false-or(<module>) = reduce1(better, shared-name-modules);
+define method find/make-module
+   (library-sets :: <table>, reason-token :: <token>, library :: <library>,
+    module-name :: <string>, #rest keys,
+    #key exported: module-exported? :: <boolean> = #f,
+         infer: inferred? :: <boolean> = #t,
+         import-name :: false-or(<string>) = #f,
+         used-library :: false-or(<library>) = #f)
+=> (module :: <module>)
+   let library-name = library.local-name | "";
+   check-module-not-incomplete(library-name, module-name, reason-token);
+   // If the requested module already exists, the new module will be merged into it.
+   apply(make-module, library-sets, reason-token, library, module-name, keys);
+end method;
 
-      if (chosen)
-         new-modules := add!(new-modules, chosen);
-      else
-         let sources = map(source-location, shared-name-modules);
-         conflicting-modules-in-library(location: library.source-location,
-               name: mod-name, defn-locations: sources.item-string-list)
-      end if;
 
-      unless (other-name-modules.empty?)
-         extract-next-name(other-name-modules);
-      end unless;
-   end iterate;
-   
-   library.modules := new-modules;
+define method make-module
+   (library-sets :: <table>, reason-token :: <token>, library :: <library>,
+    module-name :: <string>, #key exported: module-exported? :: <boolean> = #f,
+    import-name :: false-or(<string>) = #f, used-library :: false-or(<library>) = #f,
+    infer: inferred? :: <boolean> = #t)
+=> (module :: <module>)
+   // We may not have a library set, but if we have a module token we will.
+   let library-name = library.local-name | "";
+   let library-set = element(library-sets, library-name, default: #f);
+   let module-tokens = library-set & library-set.libset-module-tokens;
+   let module-token = module-tokens & element(module-tokens, module-name, default: #f);
+   with-incomplete (module-token | reason-token, library-name, module-name)
+      let module = module-from-token(library-sets, reason-token,
+            library, module-name, used-library, import-name, module-token,
+            module-exported?, inferred?);
+      merge-module(library, module, module-token.true?);
+   end with-incomplete;
 end method;
 
 
 /**
-Synopsis: Sort modules within a library by dependencies on each other.
+Synopsis: Add a module to a library's module list, merging with duplicate modules.
 
-The algorithm here is very to that of 'dependent-libraries'. One difference is
-that, for libraries, a library outside the scope of a project may be referenced,
-but for modules, all modules referenced are in the library.
+A module may be exported by multiple export clauses, and modules may be used by
+several use clauses independently. Additionally, the same module may be created
+in a number of different ways. This function resolves all those things.
 
-   1. Give each module a row of a table. Contents of the row is the list of
-      modules used by that module. A module imported from another library has
-      no dependencies within this library.
-   2. Go through each used module list. If a module in the list has a row,
-      recursively insert its dependencies' dependencies, then its dependencies,
-      then the module.
-   3. When finished, each module will have a complete dependency list. Sort the
-      modules in ascending order of number of dependencies. Each dependency list
-      will be complete and each module in each list will be preceded by its
-      dependencies. Therefore, if bindings are created for each module in order,
-      the bindings of a used module of a module will always be known for that
-      module.
+ * A <local-module> supersedes an <imported-module> from an anonymous library
+   because the latter represents a binding in an unknown library, which may in
+   fact be the local library.
+ * An <imported-module> from a known library supersedes an <imported-module>
+   from an anonymous library.
+ * A module created directly from a module definition (a "canonical" module)
+   supersedes a non-canonical module, to ensure the <module>'s 'source-location'
+   is correct.
+ * An exported module supersedes an unexported module.
+ * 'Unknown-reexport-sources' are merged.
 **/
-define method sort-modules (library :: <library>, module-tokens :: <sequence>) => ()
-   local method has-name? (name :: <string>, token :: <module-definer-token>)
-         => (has-name? :: <boolean>)
-            case-insensitive-equal?(token.api-name, name)
-         end method;
+define method merge-module
+   (library :: <library>, new-module :: <module>, canonical? :: <boolean>)
+=> (merged-module :: <module>)
+   let module-name = new-module.local-name;
+   let existing-module = library-module(library, module-name);
+   
+   case
+      ~existing-module =>
+         library.modules := add!(library.modules, new-module);
+         new-module;
+      
+      existing-module ~= new-module =>
+         let conflicts = vector(existing-module.source-location,
+                                new-module.source-location);
+         conflicting-modules-in-library(location: library.source-location,
+               name: module-name, defn-locations: conflicts.item-string-list);
+         
+      otherwise =>
+         let merged-source-location = if (canonical?) new-module else existing-module end
+               .source-location;
+         let merged-export = new-module.exported? | existing-module.exported?;
+         let new-imported? = instance?(new-module, <imported-module>);
+         let existing-imported? = instance?(new-module, <imported-module>);
+         let (merged-class, merged-used-library, merged-import-name) =
+               case
+                  existing-imported? & existing-module.used-library.anonymous? =>
+                     values(new-module.object-class,
+                            new-imported? & new-module.used-library,
+                            new-imported? & new-module.import-name);
+                  otherwise =>
+                     values(existing-module.object-class,
+                            existing-imported? & existing-module.used-library,
+                            existing-imported? & existing-module.import-name);
+               end case;
+         let merged-reexport-sources = union(new-module.unknown-reexport-sources,
+                                             existing-module.unknown-reexport-sources,
+                                             test: \=);
+         // TODO: Need any special procedures to merge the above bindings?
 
-   // Step 1
-   
-   let dependencies = make(<case-insensitive-string-table>);
-   for (mod in library.modules)
-      let dependency-list =
-            if (instance?(mod, type-union(<internal-module>, <exported-module>)))
-               let token = choose(curry(has-name?, mod.local-name),
-                                  module-tokens).first;
-               let clauses = token.namespace-clauses;
-               let use-clauses = choose(rcurry(instance?, <use-clause-token>), clauses);
-               remove-duplicates!(map(use-name, use-clauses),
-                                  test: case-insensitive-equal?);
-            else
-               #[]
-            end if;
-      dependencies[mod.local-name] := dependency-list;
-   end for;
-   
-   // Step 2
-   
-   local method module-dependencies
-            (full-dependent-list :: <stretchy-vector>, mod :: <string>)
-         => (full-dependent-list :: <stretchy-vector>)
-            for (used-mod in dependencies[mod])
-               full-dependent-list := module-dependencies(full-dependent-list, used-mod);
-            end for;
-            add-new!(full-dependent-list, mod, test: case-insensitive-equal?);
-         end method;
-   
-   let full-dependencies = make(<case-insensitive-string-table>);
-   for (mod-name in dependencies.key-sequence)
-      let full-dependent-list = make(<stretchy-vector>);
-      full-dependencies[mod-name] := module-dependencies(full-dependent-list, mod-name);
-   end for;
-   
-   // Step 3
-   
-   local method compare-dependency-size (mod1 :: <module>, mod2 :: <module>)
-         => (mod1-less? :: <boolean>)
-            let mod1-deps = full-dependencies[mod1.local-name].size;
-            let mod2-deps = full-dependencies[mod2.local-name].size;
-            mod1-deps < mod2-deps;
-         end method;
+         let merged-module =
+               make(merged-class, local-name: module-name, exported: merged-export,
+                    used-library: merged-used-library, import-name: merged-import-name,
+                    source-location: merged-source-location);
+         merged-module.unknown-reexport-sources := merged-reexport-sources;
+         
+         library.modules := replace-elements!(library.modules,
+               curry(\==, existing-module), always(merged-module));
+         merged-module;
+   end case
+end method;
 
-   library.modules := sort!(library.modules, test: compare-dependency-size);
+
+/**
+This table describes what kind of module results from different arguments.
+
+module-token  import info  inferred?  class or result
+------------  -----------  ---------  -----------------------------------
+YES           YES          YES/NO     conflicting-modules-in-library
+                                      or <local-module>
+YES           NO           YES/NO     <local-module>
+NO            YES          YES/NO     <imported-module>
+NO            NO           NO         undefined-module-in-library
+NO            NO           YES        <local-module> or <imported-module>
+------------  -----------  ---------  -----------------------------------
+
+The 'module-token' and import info arguments may both be present under the
+the following scenarios.
+
+1. A module may be required before it is created from its definition. In this
+   circumstance, the module will be assumed to be from an anonymous library.
+   Instead, the module should be created from its definition.
+
+The 'module-token' and import info arguments may be legitimately missing under
+the following scenarios.
+
+1. Library A may import a module from library B that library B re-exports from
+   an inferred library C but that library B does not explicitly name. While
+   constructing library B, the module in question will not have a module
+   definition because it is imported, but since it is not explicitly named its
+   import information will not be known.
+   
+   The use clause of library A will cause 'module-from-token' to be called with
+   a 'library' of B. The module created should be an <imported-module> in
+   library B. The module's used-library is library C, but that is not known and
+   will be #f.
+
+2. Library A may import a module from an inferred library B. Library B will not
+   have a module definition for the module. This occurs in the use clause of
+   library A.
+
+   The use clause of library A will cause 'module-from-token' to be called with
+   a 'library' of B. The module created should be a <local-module> in library B.
+
+3. Module A may use module B that was imported from an unknown library but not
+   explicitly named. Module B will not have been created during the initial
+   construction of the library.
+   
+   The use clause of module A will cause 'module-from-token' to be called with a
+   'library' of module A's library. The module created should be an
+   <imported-module> in library A. The module's used-library is the unknown
+   library, but that is not known and will be #f.
+**/
+define generic module-from-token
+   (library-sets :: <table>, reason-token :: <token>,
+    library :: <library>, module-name :: <string>,
+    used-library :: false-or(<library>), import-name :: false-or(<string>),
+    module-token :: false-or(<module-definer-token>),
+    exported? :: <boolean>, inferred? :: <boolean>)
+=> (module :: <module>);
+   
+
+/**
+Called for imported or inferred-to-exist module that has a definition.
+Signal error or create local module from definition.
+**/
+define method module-from-token
+   (library-sets :: <table>, reason-token :: <token>, library :: <library>,
+    module-name :: <string>, used-library :: <library>, import-name :: <string>,
+    module-token :: <module-definer-token>, exported? :: <boolean>,
+    inferred? :: <boolean>)
+=> (module :: <module>)
+   if (used-library.anonymous?)
+      module-from-token(library-sets, reason-token, library, module-name, #f, #f,
+                        module-token, exported?, inferred?)
+   else
+      let locations = vector(reason-token.token-src-loc, module-token.token-src-loc);
+      conflicting-modules-in-library(location: library.source-location,
+            name: module-name, defn-locations: locations.item-string-list);
+   end if;
+end method;
+
+
+/** Called to create local module from definition. **/
+define method module-from-token
+   (library-sets :: <table>, reason-token :: <token>, library :: <library>,
+    module-name :: <string>, used-library :: false-or(<library>),
+    import-name :: false-or(<string>), module-token :: <module-definer-token>,
+    exported? :: <boolean>, inferred? :: <boolean>)
+=> (module :: <local-module>)
+   let module = make(<local-module>, local-name: module-name, exported: exported?,
+                     source-location: module-token.token-src-loc);
+   let use-clauses = choose(rcurry(instance?, <use-clause-token>),
+                            module-token.namespace-clauses);
+   do(method (clause :: <use-clause-token>) => (mod :: <module>)
+         let used-library = find/make-library(library-sets, clause, #f);
+         find/make-module(library-sets, clause, library, clause.use-name,
+                          used-library: used-library, import-name: clause.use-name);
+      end method, use-clauses);
+   module
+end method;
+
+
+/** Called to create imported or inferred-to-exist module. **/
+define method module-from-token
+   (library-sets :: <table>, reason-token :: <token>, library :: <library>,
+    module-name :: <string>, used-library :: <library>, import-name :: <string>,
+    module-token == #f, exported? :: <boolean>, inferred? :: <boolean>)
+=> (module :: <imported-module>)
+   make(<imported-module>, local-name: module-name, exported: exported?,
+        import-name: import-name, used-library: used-library,
+        source-location: reason-token.token-src-loc)
+end method;
+
+
+/** Called to create local module without definition. Signal error. **/
+define method module-from-token
+   (library-sets :: <table>, reason-token :: <token>, library :: <library>,
+    module-name :: <string>, used-library == #f, import-name == #f,
+    module-token == #f, exported? :: <boolean>, inferred? == #f)
+=> (module :: <module>)
+   undefined-module-in-library(location: reason-token.token-src-loc,
+         name: module-name);
+end method;
+
+
+/**
+Called to create inferred module in known library. Assume requested module is
+imported from somewhere else.
+**/
+define method module-from-token
+   (library-sets :: <table>, reason-token :: <token>, library :: <known-library>,
+    module-name :: <string>, used-library == #f, import-name == #f,
+    module-token == #f, exported? :: <boolean>, inferred? == #t)
+=> (module :: <imported-module>)
+   let used-library = find/make-library(library-sets, reason-token, #f);
+   let import-name = module-name;
+   find/make-module(library-sets, reason-token, used-library, import-name);
+   make(<imported-module>, local-name: module-name, exported: exported?,
+        import-name: import-name, used-library: used-library,
+        source-location: reason-token.token-src-loc)
+end method;
+
+
+/**
+Called to create inferred module in unknown library. Assume requested module is
+local to unknown library.
+**/
+define method module-from-token
+   (library-sets :: <table>, reason-token :: <token>, library :: <unknown-library>,
+    module-name :: <string>, used-library == #f, import-name == #f,
+    module-token == #f, exported? :: <boolean>, inferred? == #t)
+=> (module :: <local-module>)
+   make(<local-module>, local-name: module-name, exported: exported?,
+        source-location: reason-token.token-src-loc)
 end method;

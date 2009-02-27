@@ -143,9 +143,11 @@ define errors (<user-visible-warning>)
       "Modules and bindings of used library are unknown and might not be documented",
       location;
 
-   04 undefined-module-in-library
+   /*
+   04 inferred-module-in-library
       "No definition of module \"%s\"",
       location, name;
+   */
 
    05 qv-or-vi-in-title
       "Titles may not include quoted phrase options \"qv\" or \"vi\"",
@@ -226,9 +228,11 @@ define errors (<user-visible-error>)
       "No library definition found in %s",
       filenames;
    
+   /*
    69 file-in-foreign-module
       "Cannot have source record for imported module \"%s\" at %s",
       location, name, defn-location;
+   */
 
    70 file-error
       "File error with %s: %s",
@@ -265,11 +269,25 @@ define errors (<user-visible-error>)
       "File %s has unknown extension",
       filename;
    
-   79 no-module-for-file
+   79 undefined-module-for-interchange-file
       "No definition of module \"%s\"",
       location, name;
    
+   /*
    80 no-module-in-foreign-library
       "No definition of module \"%s\" in library \"%s\"",
       location, module-name, library-name;
+   */
+   
+   81 no-definition-for-bindings
+      "No definition of exported bindings %s",
+      location, names;
+   
+   82 circular-definition
+      "Circular dependency between %s",
+      defn-locations;
+
+   83 undefined-module-in-library
+      "No definition of module \"%s\"",
+      location, name;
 end errors;
