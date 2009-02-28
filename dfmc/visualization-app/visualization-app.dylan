@@ -146,6 +146,17 @@ begin
     "  map(fun, as);"
     "end;";
   add!($tests, pair(#"mymap", mm));
+
+  let tc =
+    "define method foo (a :: <integer>)\n"
+    "  if (a == 0)\n"
+    "    0;\n"
+    "  else\n"
+    "    foo(a - 1);\n"
+    "  end;\n"
+    "end;\n";
+  add!($tests, pair(#"tail-call", tc));
+
 end;
 
 define function callback-handler (#rest args)
