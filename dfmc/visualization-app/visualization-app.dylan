@@ -148,7 +148,7 @@ begin
   add!($tests, pair(#"mymap", mm));
 
   let tc =
-    "define method foo (a :: <integer>)\n"
+    "define method tail-call (a :: <integer>)\n"
     "  if (a == 0)\n"
     "    0;\n"
     "  else\n"
@@ -157,6 +157,24 @@ begin
     "end;\n";
   add!($tests, pair(#"tail-call", tc));
 
+  let gt0 =
+    "define method gradual-typing-test0 ()\n"
+    "  local method f (a :: <integer>) => (b :: <integer>)\n"
+    "          a;\n"
+    "        end;\n"
+    "  local method g (a :: <integer>) => (b :: <boolean>)\n"
+    "          even?(a);\n"
+    "        end;\n"
+    "  f(g(1));\n"
+    "end;\n";
+  add!($tests, pair(#"gradual-typing-test0", gt0));
+
+  let gt1 =
+    "define method gradual-typing-test1 ()\n"
+    "  local method x (a) a(1) end;\n"
+    "  x(1);\n"
+    "end;\n";
+  add!($tests, pair(#"gradual-typing-test1", gt1));
 end;
 
 define function callback-handler (#rest args)

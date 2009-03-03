@@ -42,11 +42,7 @@ define method constant-value?
     (ref :: <temporary>) => (constant-value? :: <boolean>, constant-value)
   // If this temporary is estimated as a singleton, extract the constant.
   let type = type-estimate(ref);
-  if (instance?(type, <type-estimate-limited-instance>))
-    values(#t, type-estimate-singleton(type))
-  else
-    values(#f, #f)
-  end
+  values(#f, #f)
 end method;
 
 define method constant-value?
@@ -55,8 +51,3 @@ define method constant-value?
   values(#f, #f)
 end method;
 
-define function constant-value (ref :: <value-reference>)
- => (constant-value)
-  let (cv?, value) = constant-value?(ref);
-  value
-end;

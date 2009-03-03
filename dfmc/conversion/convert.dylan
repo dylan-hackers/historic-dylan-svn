@@ -4161,6 +4161,32 @@ define program-warning <multiple-values-declared-in-single-value-lambda>
   format-arguments lambda;
 end program-warning;
 
+define method ^make-method? (fn :: <&method>) => (well? :: <boolean>)
+  let binding = model-variable-binding(fn);
+  binding & binding == dylan-binding(#"make")
+end method;
+
+define method ^make-method? (fn) => (well? :: <boolean>)
+  #f
+end method;
+
+define method ^make-return-class-from-signature
+    (fn :: <&method>) => (res :: false-or(<&class>))
+  let sig   = ^function-signature(fn);
+  let rtype = first(^signature-required(sig));
+  let vtype = first(^signature-values(sig));
+  let class = select (rtype by instance?) 
+		<&singleton> => ^singleton-object(rtype);
+		<&subclass>  => ^subclass-class(rtype);
+		otherwise    => #f;
+	      end select;
+  if (class & ~^subtype?(vtype, class))
+    class
+  else
+    vtype
+  end if
+end method;
+
 ///
 /// DYLAN SPECIFIC RETURN TYPE RULES
 ///

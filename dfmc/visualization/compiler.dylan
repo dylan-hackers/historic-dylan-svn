@@ -85,18 +85,21 @@ define function visualize (vis :: <dfmc-graph-visualization>, key :: <symbol>, o
   end;
 end;
 
+define function trace-types (vis :: <dfmc-graph-visualization>, key :: <symbol>, #rest args);
+  apply(write-data, vis, key, args);
+end;
+
 define function visualizing-compiler (vis :: <dfmc-graph-visualization>, project)
   let lib = project.project-current-compilation-context;
   vis.dfm-index := vis.dfm-index + 1;
   block()
-    dynamic-bind(*progress-library* = lib)
-      dynamic-bind(*dump-dfm-method* = curry(visualize, vis))
-        dynamic-bind(*computation-tracer* = curry(trace-computations, vis))
-          with-progress-reporting(project, report-progress, visualization-callback: curry(visualize, vis))
-            compile-library-from-definitions(lib, force?: #t, skip-link?: #t,
-                                             compile-if-built?: #t, skip-heaping?: #t);
-          end;
-        end;
+    dynamic-bind(*progress-library* = lib,
+                 *dump-dfm-method* = curry(visualize, vis),
+                 *computation-tracer* = curry(trace-computations, vis),
+                 *typist-visualize* = curry(trace-types, vis))
+      with-progress-reporting(project, report-progress, visualization-callback: curry(visualize, vis))
+        compile-library-from-definitions(lib, force?: #t, skip-link?: #t,
+                                         compile-if-built?: #t, skip-heaping?: #t);
       end;
     end;
   exception (e :: <abort-compilation>)
