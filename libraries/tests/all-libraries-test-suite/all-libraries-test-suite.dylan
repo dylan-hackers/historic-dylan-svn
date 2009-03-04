@@ -50,7 +50,8 @@ define suite all-libraries-test-suite ()
   suite command-line-parser-test-suite;
   suite logging-test-suite;
   //suite vector-table-test-suite;
-  //suite xml-parser-test-suite;  // convert to testworks
+  suite xml-test-suite;
   //suite xsd-generator-test-suite;
   //suite zlib-test-suite;
 end suite all-libraries-test-suite;
+
