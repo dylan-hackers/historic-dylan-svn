@@ -36,6 +36,7 @@ public class IncrementalHierarchicLayout
 {
 	protected IncrementalHierarchicLayouter hierarchicLayouter;
 	protected HashMap<Integer, Node> int_node_map = new HashMap<Integer, Node>();
+	protected HashMap<String, Node> type_node_map = new HashMap<String, Node>();
 	
 	protected Graph2D graph;
 	private Graph2DView view;
@@ -118,6 +119,7 @@ public class IncrementalHierarchicLayout
 	    //graph.addDataProvider(IncrementalHierarchicLayouter.INCREMENTAL_HINTS_DPKEY, hintMap);
 	    hintsFactory = hierarchicLayouter.createIncrementalHintsFactory();
 		int_node_map = new HashMap<Integer, Node>();
+		type_node_map = new HashMap<String, Node>();
 		opt_queue = new ArrayList<Integer>();
 		topnodes = new ArrayList<Node>();
 		highlight = null;
@@ -284,7 +286,7 @@ public class IncrementalHierarchicLayout
 		return createNodeWithLabel(Integer.toString(node), id);
 	}
 	
-	private Node createNodeWithLabel (String label, int id) {
+	public Node createNodeWithLabel (String label, int id) {
 		NodeRealizer n1 = new GenericNodeRealizer(graph.getDefaultNodeRealizer());
 		NodeLabel nl1 = n1.createNodeLabel();
 		nl1.setText(id + ": " + label);
@@ -294,12 +296,12 @@ public class IncrementalHierarchicLayout
 		if (id > 0) {
 			assert(int_node_map.get(id) == null);
 			int_node_map.put(id, n);
-		} else
+		} else if (id == 0)
 			topnodes.add(n);
 		return n;
 	}
 	
-	private void changeLabel (Node n, String app) {
+	public void changeLabel (Node n, String app) {
 		NodeLabel nl = graph.getRealizer(n).getLabel();
 		String old = nl.getText();
 		//filter number out
@@ -319,6 +321,33 @@ public class IncrementalHierarchicLayout
 			graph.createEdge(gen, t, myreal);
 			scf.addPlaceNodeInSameLayerConstraint(t, gen);
 		}
+	}
+
+	final static String[] tvnames = { "\u03B1", "\u03B2","\u03B3", "\u03B4", "\u03B5", "\u03B6", "\u03B7", "\u03B8", "\u03B9", "\u03BA", "\u03BB" };
+	private int tvindex = 0;
+	
+	public void createTypeVariable (int id, Node temp, String type) {
+		Node tv = createNodeWithLabel(tvnames[tvindex] + " (" + type + ")", id);
+		tvindex++;
+		//graph.getRealizer(tv).setFillColor((Color.BLUE).brighter());
+		EdgeRealizer myreal = new GenericEdgeRealizer(graph.getDefaultEdgeRealizer());
+		myreal.setLineColor(Color.BLUE);
+		graph.createEdge(temp, tv, myreal);
+		scf.addPlaceNodeInSameLayerConstraint(tv, temp);
+	}
+
+	public void createTypeNode (int id, String type) {
+		if (! type_node_map.containsKey(type))
+			type_node_map.put(type, createNodeWithLabel(type, id));
+		Node t = type_node_map.get(type);
+		int_node_map.put(id, t);
+	}
+	
+	public void createTypeNode (int id, Node tv) {
+		if (tv == null)
+			createNodeWithLabel("", id);
+		else
+			int_node_map.put(id, tv);
 	}
 
 	public boolean safeCreateEdge (Node source, Node target) {

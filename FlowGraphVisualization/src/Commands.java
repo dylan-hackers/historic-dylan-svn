@@ -66,6 +66,15 @@ public final class Commands {
 			return highlight(ihl, answer, demo);
 		if (key.isEqual("highlight-queue"))
 			return highlightqueue(ihl, answer, demo);
+		
+		if (key.isEqual("new-type-variable"))
+			return new_type_var(ihl, answer);
+		if (key.isEqual("new-type-node"))
+			return new_type_node(ihl, answer);
+		if (key.isEqual("connect"))
+			return connect(ihl, answer);
+		if (key.isEqual("disconnect"))
+			return disconnect(ihl, answer);
 		System.out.println("shouldn't be here");
 		return false;
 	}
@@ -366,4 +375,52 @@ public final class Commands {
 		return false;
 	}
 
+	private static boolean new_type_var (IncrementalHierarchicLayout ihl, ArrayList answer) {
+		assert(answer.size() == 5);
+		Node object = getNode(ihl, answer, 3, false);
+		assert(answer.get(2) instanceof Integer);
+		assert(answer.get(4) instanceof String);
+		ihl.createTypeVariable((Integer)answer.get(2), object, (String)answer.get(4));
+		return true;
+	}
+	
+	private static boolean new_type_node (IncrementalHierarchicLayout ihl, ArrayList answer) {
+		assert(answer.size() == 4);
+		assert(answer.get(2) instanceof Integer);
+		int id = (Integer)answer.get(2);
+		if (answer.get(3) instanceof Integer) {
+			Node object = getNode(ihl, answer, 3, false);
+			ihl.createTypeNode(id, object);
+		} else {
+			//got a "base type" / String or Symbol
+			if (answer.get(3) instanceof Symbol) { //arrow!
+				Node obf = null;
+				ihl.createTypeNode(id, obf);
+				ihl.changeLabel(ihl.graph.lastNode(), "arrow");
+			}
+			else
+				ihl.createTypeNode(id, (String)answer.get(3));
+		}
+		return true;
+	}
+	
+	private static boolean connect (IncrementalHierarchicLayout ihl, ArrayList answer) {
+		assert(answer.size() == 5);
+		Node from = getNode(ihl, answer, 2, false);
+		Node to = getNode(ihl, answer, 3, false);
+		ihl.graph.createEdge(from, to);
+		if (((String)answer.get(4)).equalsIgnoreCase("constraint"))
+			ihl.setEdgeColor(Color.GREEN);
+		return true;
+	}
+	
+	private static boolean disconnect (IncrementalHierarchicLayout ihl, ArrayList answer) {
+		assert(answer.size() == 4);
+		Node from = getNode(ihl, answer, 2, false);
+		Node to = getNode(ihl, answer, 3, false);
+		for (EdgeCursor ec = from.outEdges(); ec.ok(); ec.next())
+			if (ec.edge().target() == to)
+				ihl.graph.removeEdge(ec.edge());
+		return true;
+	}
 }
