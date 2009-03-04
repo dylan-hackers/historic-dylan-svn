@@ -42,7 +42,7 @@ define abstract class <attributes> (<tag>)
   slot attributes :: <vector> = #[], init-keyword: attributes:;
 end class <attributes>;
 
-// a document contains pi's, comments and the root node
+// a document contains processing instructions, comments and the root node
 define class <document> (<xml>, <node-mixin>)
   inherited slot name-with-proper-capitalization = "ignored";
   constant virtual slot root :: <element>;
@@ -62,26 +62,26 @@ define method root(doc :: <document>) => (elt :: <element>)
 end method root;
 
 // An element is a thing that has attributes and children.
-// Not sealed to allow XML element tags subclasses of <element>
+// Not sealed to allow XML element tags to be subclasses of <element>.
 //
 // N.B. it is (very) preferable to use make-element instead of make
-// when working in conjuction with the xml-parser library
-define open class <element> (<attributes>, <node-mixin>, <mutable-collection>)
+// when working in conjuction with the xml-parser library.
+//
+define open class <element> (<attributes>, <node-mixin>)
   slot element-parent :: false-or(<node-mixin>) = #f, init-keyword: parent:;
   virtual slot text;
 end class <element>;
 
-// We want <element> to behave as <sequence> for indexing, but not
-// for equivalence comparisons
-define method \=(e1 :: <element>, e2 :: <element>)
- => (ans :: <boolean>)
-  e1 == e2;  // compare identity, do not do a deep compare.
-end method \=;
-
 // allows users to interpose their own object hierarchies for the elements
-// This is sort of CLOS's change-class limited to compile-time schemes
-define open generic make-element(kids :: <sequence>, name :: <symbol>, 
-                                 attribs :: <sequence>, mod :: <boolean>)
+// This is sort of CLOS's change-class limited to compile-time schemes.
+define open generic make-element(kids :: <sequence>,
+                                 name :: <symbol>,
+                                 // BUG: The <attributes> class specifies type
+                                 // <vector>.  That appears to be unnecessary,
+                                 // maybe just so aref can be used instead of
+                                 // element, which is used as a parameter name.
+                                 attribs :: <sequence>,
+                                 modify-elements-when-parsing? :: <boolean>)
  => (elt :: <element>);
 
 define class <char-string> (<xml>)
