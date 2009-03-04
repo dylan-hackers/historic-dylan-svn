@@ -16,6 +16,7 @@ public class FlowGraphVisualizer {
 			ServerSocket sock = new ServerSocket(port);
 			while (true) {
 				Socket cli = sock.accept();
+				System.out.println("new connection");
 				new LayouterClient(cli).start();
 			}
 		} catch (IOException e) {

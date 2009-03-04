@@ -163,17 +163,17 @@ public class DemoBase extends Thread {
   }
 
   public String methodName () {
-	  name = text.getText();
+	  String mname = text.getText();
 	  String def = "define method ";
-	  if (name.startsWith(def))
-		  name = name.substring(def.length(), name.indexOf(' ', def.length() + 1)).trim();
-	  return name;
+	  if (mname.startsWith(def))
+		  mname = mname.substring(def.length(), mname.indexOf(' ', def.length() + 1)).trim();
+	  return mname;
   }
   
   public boolean containsMethodHeader () {
-	  String name = text.getText();
+	  String mname = text.getText();
 	  String def = "define method ";
-	  if (name.startsWith(def))
+	  if (mname.startsWith(def))
 		  return true;
 	  return false;
   }
