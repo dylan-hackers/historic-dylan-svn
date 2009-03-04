@@ -10,12 +10,28 @@ define method get-id (c :: <computation>)
   c.computation-id;
 end;
 
+define method get-id (l :: <&limited-function-type>)
+  #"arrow"
+end;
+
+define method get-id (o :: <object-reference>)
+  o.temporary-id;
+end;
+
 define method get-id (t :: <temporary>)
   t.temporary-id;
 end;
 
 define method get-id (tv :: <type-variable>)
   tv.type-variable-id;
+end;
+
+define method get-id (n :: <node>)
+  n.node-id;
+end;
+
+define method get-id (s :: <string>)
+  s
 end;
 
 define method get-id (o :: <object>)

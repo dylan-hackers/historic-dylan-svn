@@ -20,3 +20,10 @@ define method type-variable-contents-setter (te :: <&type>, t :: <type-variable>
   end;
   te;
 end;
+
+define method print-object(v :: <type-variable>, stream :: <stream>) => ()
+  // How to print a <type-variable>.
+  format(stream, "{TV: %=}", type-variable-contents(v))
+end;
+
+

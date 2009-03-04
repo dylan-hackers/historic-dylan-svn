@@ -3,7 +3,7 @@ module: dfmc-typist
 define abstract primary class <type-estimate> (<object>)
 end;
 
-define abstract class <type-estimate-bottom> (<type-estimate>)
+define class <type-estimate-bottom> (<type-estimate>)
 end;
 
 define constant <type-variable-vector> = <simple-object-vector>;

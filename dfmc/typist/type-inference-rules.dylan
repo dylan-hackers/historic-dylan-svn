@@ -51,7 +51,6 @@ define method type-infer (l :: <&lambda>)
                *type-environment* = make(<type-environment>))
     do(lookup-type-variable, l.parameters);
     walk-computations(infer-computation-types, l.body, #f);
-    format-out("returned %=\n", lookup-type-variable(l.body.bind-return.computation-value));
     solve(*constraints*, *type-environment*);
   end;
 end;
