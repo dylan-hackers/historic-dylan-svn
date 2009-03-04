@@ -323,7 +323,8 @@ public class IncrementalHierarchicLayout
 		}
 	}
 
-	final static String[] tvnames = { "\u03B1", "\u03B2","\u03B3", "\u03B4", "\u03B5", "\u03B6", "\u03B7", "\u03B8", "\u03B9", "\u03BA", "\u03BB" };
+	final static String[] tvnames = { "\u03B1", "\u03B2","\u03B3", "\u03B4", "\u03B5", "\u03B6", "\u03B7",
+			"\u03B8", "\u03B9", "\u03BA", "\u03BB", "\u03BC", "\u03BD", "\u03BE", "\u03BF", "\u03C0", "\u03C1" };
 	private int tvindex = 0;
 	
 	public void createTypeVariable (int id, Node temp, String type) {
@@ -480,17 +481,17 @@ public class IncrementalHierarchicLayout
 	    int i = 1;
 		for (Node t : topnodes) {
 			if (swimLane.get(t) == null) {
-				SwimLaneDescriptor sld = new SwimLaneDescriptor(i * 16);
+				SwimLaneDescriptor sld = new SwimLaneDescriptor(-i * 16);
 				swimLane.set(t, sld);
 			}
 			visited = graph.createNodeMap();
-			currindex = i * 16;
-			middle = i * 16;
+			currindex = -i * 16;
+			middle = -i * 16;
 			step = 8;
 			for (EdgeCursor ec = t.outEdges(); ec.ok(); ec.next())
 				if (graph.getRealizer(ec.edge()).getLineColor() == Color.black) 
 					visitComputations(ec.edge().target(), null);
-			int argc = i * 16 + 1;
+			int argc = -i * 16 + 1;
 			for (EdgeCursor ec = t.outEdges(); ec.ok(); ec.next()) {
 				Color c = graph.getRealizer(ec.edge()).getLineColor(); 
 				if (c == Color.pink) {
