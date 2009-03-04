@@ -56,17 +56,18 @@ define function parse-document (doc :: <string>,
  			        ignore-instructions? = #f)
  => (stripped-tree :: false-or(<document>))
   initialize-latin1-entities();
-  *show-warnings?* := print-warnings?;
-  *defining-entities?* := #f;
-  *ignore-instructions?* := ignore-instructions?;
-  *modify?* := modify-elements-when-parsing?;
-  *substitute-entities?* := substitute-entities?;
-  if(dtd-paths) *dtd-paths* := dtd-paths; end if;
-  let (index, document) = scan-document-helper(doc, start: start, end: stop);
-  if (document)
-    transform(document, make(<add-parents>));
-    document;
-  end if;
+  dynamic-bind (*show-warnings?* = print-warnings?,
+                *defining-entities?* = #f,
+                *ignore-instructions?* = ignore-instructions?,
+                *modify?* = modify-elements-when-parsing?,
+                *substitute-entities?* = substitute-entities?,
+                *dtd-paths* = dtd-paths | *dtd-paths*)
+    let (index, document) = scan-document-helper(doc, start: start, end: stop);
+    if (document)
+      transform(document, make(<add-parents>));
+      document;
+    end if;
+  end;
 end function parse-document;
 
 define thread variable *modify?* :: <boolean> = #t;
@@ -538,7 +539,7 @@ define collect-value xml-attribute-value(c) () "'", "\"" => { } end;
 //    
 define meta end-tag(name, s) => (name)
   "</", scan-name(name),
-  do(if(*last-tag-name* & *last-tag-name* ~== name)
+  do(if(*last-tag-name* & *last-tag-name* ~== as(<symbol>, name))
        maybe-tag-mismatch("Close tag does not match open tag",
                           format-to-string("Change </%s> to </%s>",
                                            name, *last-tag-name*),
@@ -1143,11 +1144,15 @@ define collect-value encoding-info(eq, c) () "'", "\"" => { } end;
 
 //-------------------------------------------------------
 // assigning parents
+// (Parents are only maintained for the <element> hierarchy, not for other nodes.)
+
 define thread variable *parent* = #f;
 define class <add-parents> (<xform-state>) end;
 
 define method transform(node :: <document>, state :: <add-parents>)
-  *parent* := node.root;
+  dynamic-bind (*parent* = node.root)
+    next-method()
+  end;
 end method transform;
 
 define method transform(elt :: <element>, state :: <add-parents>)

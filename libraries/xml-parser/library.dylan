@@ -42,7 +42,6 @@ end module xml-parser;
 define module interface
   use common-dylan, exclude: { format-to-string };
   use streams;
-  use format;
 
   use meta;
   use xml-parser, export: { <node-mixin> };

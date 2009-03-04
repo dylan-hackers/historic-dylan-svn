@@ -3,6 +3,15 @@ author: Hannes Mehnert <hannes@mehnert.org>
 
 /*
 BUGS:
+* with-xml doesn't preserve alphabetic case of attribute names (and probably
+  element names), due to use of ?:name in the macro.  It should probably use
+  ?:expression instead, and one would have to use strings for element and
+  attribute names.  More verbose, but more accurate and also allows easily
+  generating elements and attributes whose names aren't known at compile time.
+  From #dylan: "<housel> SGML was normally configured to be case-insensitive,
+  so HTML 4 doesn't care about the case, but it does matter for XML in general
+  and XHTML in particular"
+  Also: "<|Agent> Plus, XML names can contain periods and colons in namespaces."
 *with-xml:collect only works for elements, not for lists of elements
 *passing around lists and elements is not the way to do it performant...
 *comment elements are missing
@@ -209,6 +218,7 @@ end method attribute;
 
 define open generic elements (element :: <element>, name :: <object>) => (res :: <sequence>);
 
+// How about calling this find-children ?
 define method elements (element :: <element>, element-name) 
  => (res :: <sequence>);
   choose(method (a)
