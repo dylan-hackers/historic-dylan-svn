@@ -12,6 +12,7 @@ define library all-libraries-test-suite
   use network-test-suite;
   use regular-expressions-test-suite;
   use strings-test-suite;
+  use xml-test-suite;
   use uri-test;
 
   export all-libraries-test-suite;
@@ -28,6 +29,7 @@ define module all-libraries-test-suite
   use network-test-suite;
   use regular-expressions-test-suite;
   use strings-test-suite;
+  use xml-test-suite;
   use uri-test;
 
   export all-libraries-test-suite;
