@@ -4,14 +4,27 @@ define constant <type-environment> = <table>;
 
 define thread variable *type-environment* :: false-or(<type-environment>) = #f;
 
-define function lookup-type-variable (o :: <object>) => (res :: <type-variable>)
+define function lookup-type-variable (o :: <object>) => (res :: <node>)
   let tenv = *type-environment*;
   let res = element(tenv, o, default: #f);
   unless (res)
     let te = type-estimate-object(o);
-    let tv = make(<type-variable>, contents: te | make(<&bottom-type>));
-    tenv[o] := tv;
+    let tv = make(<type-variable>,
+                  contents: te | make(<&top-type>));
     debug-types(#"new-type-variable", tv, o, te);
+    let n = make(<node>, graph: *graph*, value: tv);
+    tenv[o] := n;
+  end;
+  res | tenv[o];
+end;
+
+define function lookup-type (o :: <object>) => (res :: <node>)
+  let tenv = *type-environment*;
+  let res = element(tenv, o, default: #f);
+  unless (res)
+    let te = type-estimate-object(o);
+    let n = make(<node>, graph: *graph*, value: te);
+    tenv[o] := n;
   end;
   res | tenv[o];
 end;
@@ -20,6 +33,10 @@ define generic type-estimate-object (o :: <object>) => (res :: false-or(<&type>)
 
 define method type-estimate-object (o :: <object>) => (res == #f)
   #f;
+end;
+
+define method type-estimate-object (o :: <&type>) => (res :: <&type>)
+  o; //ha, that's easy! :)
 end;
 
 define method type-estimate-object (o :: <lexical-required-variable>)
@@ -40,6 +57,7 @@ define method type-estimate-value (o :: <integer>) => (res :: <&type>)
 end;
 
 define thread variable *constraints* :: false-or(<stretchy-vector>) = #f;
+define thread variable *graph* :: false-or(<graph>) = #f;
 
 define method add-constraint (c :: <constraint>)
   debug-types(#"constraint", c.left-hand-side, c.right-hand-side);
@@ -48,10 +66,11 @@ end;
 
 define method type-infer (l :: <&lambda>)
   dynamic-bind(*constraints* = make(<stretchy-vector>),
-               *type-environment* = make(<type-environment>))
+               *type-environment* = make(<type-environment>),
+               *graph* = make(<graph>))
     do(lookup-type-variable, l.parameters);
     walk-computations(infer-computation-types, l.body, #f);
-    solve(*constraints*, *type-environment*);
+    solve(*graph*, *constraints*, *type-environment*);
   end;
 end;
 
@@ -97,14 +116,18 @@ define function infer-function-type (fun :: <&function>, arguments :: <vector>, 
   let sig = ^function-signature(fun);
   let values
     = copy-sequence(sig.^signature-values, end: sig.^signature-number-values);
-  let left = make(<&limited-function-type>,
-                  arguments: specializers,
-                  values: values);
+  let left = make(<node>,
+                  graph: *graph*,
+                  value: make(<&limited-function-type>,
+                              arguments: map(lookup-type, specializers),
+                              values: map(lookup-type, values)));
 
   let args = map(lookup-type-variable, arguments);
 
-  let right = make(<&limited-function-type>,
-                   arguments: args,
-                   values: vector(lookup-type-variable(result)));
+  let right = make(<node>,
+                   graph: *graph*,
+                   value: make(<&limited-function-type>,
+                               arguments: args,
+                               values: vector(lookup-type-variable(result))));
   add-constraint(make(<equality-constraint>, left: left, right: right));
 end;

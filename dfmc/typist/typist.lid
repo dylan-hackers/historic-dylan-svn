@@ -2,6 +2,7 @@ Library:   dfmc-typist
 Files:     typist-library
            typist-core
            typist-top-level-forms
+           utils
            type-variable
            type-debug         
            type-graph

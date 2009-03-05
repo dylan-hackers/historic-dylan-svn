@@ -1,24 +1,5 @@
 module: dfmc-typist
 
-define generic insert-type-estimate (graph :: <graph>, te :: type-union(<&type>, <type-variable>))
- => (node :: <node>);
-
-define method insert-type-estimate (graph :: <graph>, te :: type-union(<&type>, <type-variable>))
- => (res :: <node>)
-  find(graph, te) |
-    make(<node>, graph: graph, tv: te);
-end;
-
-define method insert-type-estimate (graph :: <graph>, te :: <&limited-function-type>)
- => (res :: <node>)
-  let args = insert-type-estimate(graph, te.^limited-function-argument-types[0]);
-  let vals = insert-type-estimate(graph, te.^limited-function-return-values[0]);
-  let arrow = make(<node>, graph: graph, tv: te);
-  connect(arrow, args);
-  connect(arrow, vals);
-  arrow;
-end;
-
 define class <graph> (<object>)
   constant slot nodes :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot edges :: <stretchy-vector> = make(<stretchy-vector>);  
@@ -27,24 +8,44 @@ end;
 define class <node> (<object>)
   constant slot graph :: <graph>,
     required-init-keyword: graph:;
-  constant slot type-variable :: type-union(<&type>, <type-variable>),
-    required-init-keyword: tv:;
   constant slot out-edges :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot in-edges :: <stretchy-vector> = make(<stretchy-vector>);
   slot contains-variables? :: <boolean> = #f;
+  constant slot node-value :: type-union(<type-variable>, <&type>),
+    required-init-keyword: value:;
   slot node-rank :: <integer> = 0;
   slot representative :: <node>;
   constant slot node-id :: <integer>,
     init-function: next-computation-id;
 end;
 
-define method make (class == <node>, #rest init-args, #key graph, #all-keys)
+define method make (class == <node>, #rest init-args, #key, #all-keys)
  => (res :: <node>)
   let n = next-method();
   n.representative := n;
-  add!(graph.nodes, n);
-  debug-types(#"new-type-node", n, n.type-variable);
+  add!(n.graph.nodes, n);
+  debug-types(#"new-type-node", n, n.node-value);
+  maybe-setup-connections(n, n.node-value);
+  //find representative!
   n;
+end;
+
+define generic maybe-setup-connections (n :: <node>, t :: type-union(<type-variable>, <&type>));
+
+define method maybe-setup-connections (n :: <node>, tv :: <type-variable>)
+  maybe-setup-connections(n, tv.type-variable-contents);
+end;
+
+define method maybe-setup-connections (n :: <node>, t :: <&type>)
+end;
+
+define method maybe-setup-connections (n :: <node>, lft :: <&limited-function-type>) //actually, also function-types, but I don't expect any of those here
+  if (lft.argument-types.size == 1)
+    connect(n, lft.argument-types[0]);
+  end;
+  if (lft.value-types.size == 1)
+    connect(n, lft.value-types[0]);
+  end;
 end;
 
 define class <edge> (<object>)
@@ -93,14 +94,9 @@ define function remove-edge (source :: <node>, target :: <node>) => ()
   end;
 end;
 
-define function find (g :: <graph>, value :: type-union(<&type>, <type-variable>)) => (res :: false-or(<node>))
-  block(ret)
-    for (node in g.nodes)
-      if (node.type-variable == value)
-        ret(node)
-      end
-    end
-  end
+define function find (g :: <graph>, value :: <node>) => (res :: false-or(<node>))
+  value;
+  //this is wrong!
 end;
 
 define function create-quotient-graph (g :: <graph>) => (res :: <graph>)
@@ -123,7 +119,7 @@ define function create-quotient-graph (g :: <graph>) => (res :: <graph>)
     let u = edge.edge-source;
     let v = edge.edge-target;
     if (find(g, u) == u)
-      connect(find(g*, u.type-variable), find(g*, v.type-variable));
+      connect(find(g*, u), find(g*, v));
     end;
   end;
   //  g'

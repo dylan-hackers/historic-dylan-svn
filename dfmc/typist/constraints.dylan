@@ -1,25 +1,22 @@
 module: dfmc-typist
 
 define abstract class <constraint> (<object>)
-  constant slot left-hand-side :: type-union(<&type>, <type-variable>),
+  constant slot left-hand-side :: <node>,
     required-init-keyword: left:;
-  constant slot right-hand-side :: type-union(<&type>, <type-variable>),
+  constant slot right-hand-side :: <node>,
     required-init-keyword: right:;
 end;
 
 define class <equality-constraint> (<constraint>)
 end;
 
-define function insert-constraint-into-type-graph (graph :: <graph>, c :: <constraint>)
-  let left = insert-type-estimate(graph, c.left-hand-side);
-  let right = insert-type-estimate(graph, c.right-hand-side);
-  constraint-connect(left, right);
+define method make (class :: subclass(<constraint>), #rest init-args, #key, #all-keys) => (res :: <constraint>)
+  let c = next-method();
+  constraint-connect(c.left-hand-side, c.right-hand-side);
+  c;
 end;
 
-define function solve (constraints :: <collection>, type-env :: <type-environment>)
-  let graph = make(<graph>);
-  do(curry(insert-constraint-into-type-graph, graph),
-     constraints);
+define function solve (graph :: <graph>, constraints :: <collection>, type-env :: <type-environment>)
   let cs = copy-dynamic(graph, constraints);
   for (node in graph.nodes)
     node.contains-variables? := #t;
@@ -31,20 +28,18 @@ define function solve (constraints :: <collection>, type-env :: <type-environmen
     let v = find(graph, constraint.right-hand-side);
     if (u ~= v)
       let (u, v, flag) = order(u, v);
-      let ute = u.type-variable;
-      let vte = v.type-variable;
+      let ute = u.node-value;
+      let vte = v.node-value;
       graph-union(u, v, flag);
       if (instance?(ute, <&limited-function-type>))
         if (instance?(vte, <&limited-function-type>))
           remove-edge(u, v);
-          let u1 = ute.^limited-function-argument-types[0];
-          let u2 = ute.^limited-function-return-values[0];
-          let v1 = vte.^limited-function-argument-types[0];
-          let v2 = vte.^limited-function-return-values[0];
-          push-last(cs, make(<equality-constraint>, left: u1, right: v1));
-          constraint-connect(find(graph, u1), find(graph, v1));
-          push-last(cs, make(<equality-constraint>, left: u2, right: v2));
-          constraint-connect(find(graph, u2), find(graph, v2));
+          //this is easier now!
+          for (u1 in u.out-edges, v1 in v.out-edges)
+            push-last(cs, make(<equality-constraint>,
+                               left: u1.edge-target,
+                               right: v1.edge-target));
+          end;
         elseif (dynamic?(vte))
           if (u.contains-variables?)
             u.contains-variables? := #f;
@@ -72,6 +67,7 @@ end;
 define function copy-dynamic (graph :: <graph>, constraints :: <collection>)
  => (res :: <deque>)
   as(<deque>, constraints);
+  //XXX: FIXME!
 end;
 
 define function dynamic? (type :: <&type>) => (res :: <boolean>)
@@ -79,8 +75,8 @@ define function dynamic? (type :: <&type>) => (res :: <boolean>)
 end;
 
 define function order (u :: <node>, v :: <node>)
-  let tu = type-variable(u);
-  let tv = type-variable(v);
+  let tu = node-value(u);
+  let tv = node-value(v);
   if (dynamic?(tu)) 
     if (instance?(tv, <type-variable>))
       values(u, v, #t);
