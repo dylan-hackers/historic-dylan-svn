@@ -70,7 +70,7 @@ define function copy-dynamic (graph :: <graph>, constraints :: <collection>)
   //XXX: FIXME!
 end;
 
-define function dynamic? (type :: <&type>) => (res :: <boolean>)
+define function dynamic? (type :: type-union(<type-variable>, <&type>)) => (res :: <boolean>)
   type == dylan-value(#"<object>"); //or type-=? ?
 end;
 

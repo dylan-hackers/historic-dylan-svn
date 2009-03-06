@@ -9,6 +9,24 @@ end;
 define class <type-estimate-top> (<type-estimate>)
 end;
 
+define method as (class == <type-estimate>, o :: <object>) => (res :: <type-estimate>)
+  make(<type-estimate-top>);
+end;
+
+define method as (class == <&type>, o :: <type-estimate>) => (res :: <&type>)
+  make(<&top-type>);
+end;
+
+define method type-estimate-disjoint? (te1 :: <type-estimate>, te2 :: <type-estimate>)
+ => (disjoint? :: <boolean>, known? :: <boolean>)
+  values(#f, #t);
+end;
+
+define function ^classes-guaranteed-disjoint? (c1 :: <&class>, c2 :: <&class>)
+    => (disjoint? :: <boolean>)
+  #f;
+end;
+
 define constant <type-variable-vector> = <simple-object-vector>;
 
 define abstract class <type-estimate-class> (<type-estimate>)
@@ -27,7 +45,7 @@ define abstract class <type-estimate-union> (<type-estimate>)
     required-init-keyword: unionees:;
 end;
 
-define abstract class <type-estimate-values> (<type-estimate>)
+define class <type-estimate-values> (<type-estimate>)
   constant slot type-estimate-fixed-values :: <type-variable-vector> = #[], 
     init-keyword: fixed:;
   constant slot type-estimate-rest-values :: false-or(<type-variable>)

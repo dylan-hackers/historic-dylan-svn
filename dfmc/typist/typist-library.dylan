@@ -43,7 +43,10 @@ define module dfmc-typist
 
   //old stuff, need to get rid of this
   export <type-estimate>,
+    type-estimate-disjoint?,
+    ^classes-guaranteed-disjoint?,
     <type-estimate-bottom>,
+    <type-estimate-top>,
     <type-estimate-class>,
     type-estimate-class,
     <type-estimate-raw>,
