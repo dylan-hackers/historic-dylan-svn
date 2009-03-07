@@ -39,7 +39,8 @@ end;
 define method maybe-setup-connections (n :: <node>, t :: <&type>)
 end;
 
-define method maybe-setup-connections (n :: <node>, lft :: <&limited-function-type>) //actually, also function-types, but I don't expect any of those here
+define method maybe-setup-connections (n :: <node>, lft :: <&limited-function-type>)
+  //actually, also function-types, but I don't expect any of those here
   if (lft.argument-types.size == 1)
     connect(n, lft.argument-types[0]);
   end;
@@ -87,43 +88,54 @@ define function remove-edge (source :: <node>, target :: <node>) => ()
                  source.out-edges);
   if (e.size == 1)
     let edge = e[0];
-    remove!(source.out-edges, e);
-    remove!(target.in-edges, e);
-    remove!(source.graph.edges, e);
+    remove!(source.out-edges, edge);
+    remove!(target.in-edges, edge);
+    remove!(source.graph.edges, edge);
     debug-types(#"disconnect", source, target);
   end;
 end;
 
-define function find (g :: <graph>, value :: <node>) => (res :: false-or(<node>))
-  value;
-  //this is wrong!
+define function find (value :: <node>) => (res :: <node>)
+  (value.representative == value & value)
+    | (value.representative := find(value.representative));
+end;
+
+define method deep-copy-node
+ (type :: type-union(<&type>, <type-variable>), graph :: <graph>)
+ => (res :: <node>)
+  make(<node>, graph: graph, value: type);
+end;
+
+define method deep-copy-node
+ (type :: <&limited-function-type>, graph :: <graph>)
+ => (res :: <node>)
+  let t = make(<&limited-function-type>,
+               arguments: deep-copy-node(type.argument-types, graph),
+               values: deep-copy-node(type.value-types, graph));
+  make(<node>, graph: graph, value: t);
+end;
+
+define method deep-copy-node
+  (nodes :: <collection>, graph :: <graph>)
+ => (res :: <collection>)
+  map(compose(rcurry(deep-copy-node, graph), node-value), nodes);
 end;
 
 define function create-quotient-graph (g :: <graph>) => (res :: <graph>)
-  //let g' = new Graph.adjacency_list 0 () () in
-  let g* = make(<graph>);
-  //let vs = List.map
-  //  (fun v -> let v' = g'#add_vertex () in (v,v'))
-  //  (List.filter (fun v -> find v = v) g#vertices) 
-  do(curry(make, <node>, graph:, g*, tv:),
-     choose(method(v) find(g, v) == v end, g.nodes));
-  //in
-  //  List.iter
-  //    (fun e ->
-  //      let u = e#source and v = e#target in
-  //        if find u = u then
-  //          let _ = g'#add_edge (List.assoc u vs) (List.assoc (find v) vs) () in ()
-  //    )
-  //    g#edges;
-  for (edge in g.edges)
-    let u = edge.edge-source;
-    let v = edge.edge-target;
-    if (find(g, u) == u)
-      connect(find(g*, u), find(g*, v));
+  dynamic-bind(*typist-visualize* = #f)
+    let g* = make(<graph>);
+    let rep-nodes = choose(method(v) find(v) == v end, g.nodes);
+    let vs = deep-copy-node(rep-nodes, g*);
+    for (edge in g.edges)
+      let u = edge.edge-source;
+      let v = edge.edge-target;
+      if (find(u) == u)
+        connect(choose-by(curry(\=, u), rep-nodes, vs)[0],
+                choose-by(curry(\=, find(v)), rep-nodes, vs)[0]);
+      end;
     end;
+    g*;
   end;
-  //  g'
-  g*;
 end;
 
 define function depth-first-search (graph :: <graph>, enter :: <function>, leave :: <function>)
@@ -152,7 +164,7 @@ define function depth-first-search (graph :: <graph>, enter :: <function>, leave
 end;
 
 define function acyclic? (graph :: <graph>) => (res :: <boolean>)
-  //can be done in O(n + e), is now O(n + e) + O(e)
+  //can be done in O(n + e), is currently O(n + e) + O(e)
   let top-sort = make(<table>);
   let i = graph.nodes.size;
   depth-first-search(graph,
@@ -175,8 +187,8 @@ define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolea
   if (order-matters?)
     if (u.node-rank == v.node-rank)
       u.node-rank := u.node-rank + 1;
-      v.representative := u;
     end;
+    v.representative := u;
   elseif (u.node-rank > v.node-rank)
     v.representative := u;
   else

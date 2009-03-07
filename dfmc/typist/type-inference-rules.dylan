@@ -56,6 +56,8 @@ define method type-estimate-value (o :: <integer>) => (res :: <&type>)
   dylan-value(#"<integer>");
 end;
 
+//list and string literals, floats!
+
 define thread variable *constraints* :: false-or(<stretchy-vector>) = #f;
 define thread variable *graph* :: false-or(<graph>) = #f;
 
