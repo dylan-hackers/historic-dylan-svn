@@ -497,7 +497,8 @@ public class IncrementalHierarchicLayout
 				if (c == Color.pink) {
 					int lane = 0;
 					for (NodeCursor nc = ec.edge().target().successors(); nc.ok(); nc.next())
-						lane += (Integer)((SwimLaneDescriptor)swimLane.get(nc.node())).getClientObject();
+						if (swimLane.get(nc.node()) != null && ((SwimLaneDescriptor)swimLane.get(nc.node())).getClientObject() != null)
+							lane += (Integer)((SwimLaneDescriptor)swimLane.get(nc.node())).getClientObject();
 					if (swimLane.get(ec.edge().target()) == null) {
 						int divisor = ec.edge().target().outDegree();
 						int la = argc;
