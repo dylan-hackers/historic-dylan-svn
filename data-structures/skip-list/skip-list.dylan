@@ -923,7 +923,7 @@ end method;
 //==============================================================================
 
 
-define primary class <skip-list> (<basic-skip-list>)
+define open primary class <skip-list> (<basic-skip-list>)
   // A skip-list that always clears its internal cache 
   // after modifying the data structure keys
 end class;
