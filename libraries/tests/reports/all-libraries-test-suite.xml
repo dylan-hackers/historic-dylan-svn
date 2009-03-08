@@ -1,0 +1,5073 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<test-report>
+<Suite>
+<name>all-libraries-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>collection-extensions-suite</name>
+<status>failed</status>
+<Suite>
+<name>self-organizing-list-suite</name>
+<status>passed</status>
+<Test>
+<name>self-organizing-list-with-==</name>
+<status>passed</status>
+<Check>
+<name>element l1 is &quot;foo&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element l2 is not present</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element l1 is &quot;foo&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element l2 is &quot;bar&quot;</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>self-organizing-list-with-=</name>
+<status>passed</status>
+<Check>
+<name>element l1 is &quot;foo&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element l2 is &quot;foo&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element l1 is &quot;bar&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element l2 is &quot;bar&quot;</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>self-organizing-list-default-test-is-==</name>
+<status>passed</status>
+<Check>
+<name>element l1 is &quot;foo&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element l2 is not present</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element l1 is &quot;foo&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element l2 is &quot;bar&quot;</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>self-organizing-list-iteration</name>
+<status>passed</status>
+<Check>
+<name>s2 contains element 1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>s2 contains element 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>s2 contains element 3</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>s2 contains no additional elements.</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>subseq-suite</name>
+<status>failed</status>
+<Test>
+<name>string-subsequence</name>
+<status>failed</status>
+<Check>
+<name>Subsequence(str1, start: 0, end: 3) is &quot;foo&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Subsequence(str1, start: 3, end: 7) is &quot;bar&quot;</name>
+<status>failed</status>
+<reason>***error getting failure reason***</reason>
+</Check>
+<Check>
+<name>Default start is 0</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Default end is end of string</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Subsequence from the middle of a string.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Subsequence &quot;Charles Dickens&quot;.</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>string-subsequence-mutation</name>
+<status>failed</status>
+<Check>
+<name>Sub is &quot;bar&quot;</name>
+<status>failed</status>
+<reason>***error getting failure reason***</reason>
+</Check>
+<Check>
+<name>Sub is &quot;baz&quot;</name>
+<status>failed</status>
+<reason>***error getting failure reason***</reason>
+</Check>
+<Check>
+<name>Str1 is &quot;foobaz&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Sub is &quot;foo&quot;</name>
+<status>failed</status>
+<reason>***error getting failure reason***</reason>
+</Check>
+<Check>
+<name>Str1 is &quot;foofoo&quot;</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>list-subsequence</name>
+<status>passed</status>
+<Check>
+<name>S1.size is $size</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>S2.size is 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did $Size iterations</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 2*i + 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 2*i + 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did 2 iterations</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>vector-subsequence</name>
+<status>passed</status>
+<Check>
+<name>S1.size is $size</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>S2.size is 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did $Size iterations</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 2*i + 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 2*i + 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did 2 iterations</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did $Size iterations</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 3*i+4</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 3*i+4</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did $Size iterations</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in c is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in c is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in c is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in c is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in c is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did $Size iterations</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>simple-vector-subsequence</name>
+<status>passed</status>
+<Check>
+<name>S1.size is $size</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>S2.size is 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did $Size iterations</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 2*i + 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 2*i + 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did 2 iterations</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did $Size iterations</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 3*i+4</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 3*i+4</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did $Size iterations</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in c is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in c is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in c is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in c is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in c is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did $Size iterations</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>deque-subsequence</name>
+<status>passed</status>
+<Check>
+<name>S1.size is $size</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>S2.size is 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s1 is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did $Size iterations</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 2*i + 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element in s2 is 2*i + 2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did 2 iterations</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>vector-search-suite</name>
+<status>passed</status>
+<Test>
+<name>find-first-key-1</name>
+<status>passed</status>
+<Check>
+<name>Find first key without keyword args.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Find non-existing key.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Find non-existing key with fail = #t.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Find key with start = 2.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Find key with start = 3.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Fail because of start argument.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Fail because of end argument.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Fail because of start and end argument.</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>find-last-key-1</name>
+<status>passed</status>
+<Check>
+<name>Find last key without keyword args.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Find non-existing key.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Find non-existing key with fail = #t.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Find key with end = 5.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Find key with end = 4.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Find key with end = 3.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Fail because of start argument.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Fail because of end argument.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Fail because of start and end argument.</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>sde-vector-suite</name>
+<status>passed</status>
+<Test>
+<name>make-&lt;sde-vector&gt;-1</name>
+<status>passed</status>
+<Check>
+<name>Actually got a &lt;sde-vector&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Create empty vector by default</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>sde-vector-size-1</name>
+<status>passed</status>
+<Check>
+<name>Size of default vector is 0</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Size is size: argument</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>sde-element-1</name>
+<status>passed</status>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did 2*$bound iterations.</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>sde-element-2</name>
+<status>passed</status>
+<Check>
+<name>V is initially empty</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Element i is 2*i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Did 2*$bound iterations.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V contains 11 elements</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>sde-element-3</name>
+<status>passed</status>
+<Check>
+<name>Non existing element</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>sde-iteration-1</name>
+<status>passed</status>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>V[i] = 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Value is 3*i+1</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>sequence-diff-suite</name>
+<status>not implemented</status>
+</Suite>
+<Suite>
+<name>collection-utilities-suite</name>
+<status>passed</status>
+<Test>
+<name>singleton-array-1</name>
+<status>passed</status>
+<Check>
+<name>Singleton? on empty array</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Singleton? on #[1]</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Singleton? on #[#[1,2,3]]</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Singleton? on #[1,2]</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>singleton-list-1</name>
+<status>passed</status>
+<Check>
+<name>Singleton? on empty array</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Singleton? on #(1)</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Singleton? on #(#(1,2,3))</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Singleton? on #(1,2)</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>sequence-utilities-suite</name>
+<status>passed</status>
+<Test>
+<name>push-test</name>
+<status>passed</status>
+<Check>
+<name>Push integer on empty list</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Push integer on non-empty list</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>pop-test</name>
+<status>passed</status>
+<Check>
+<name>Pop singleton result</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Pop singleton location</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>split-empty-vector</name>
+<status>passed</status>
+<Check>
+<name>Split of empty list is singleton</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Split of empty list has empty member</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>split-string-1</name>
+<status>passed</status>
+<Check>
+<name>Split is singleton</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Member equal to whole string</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>split-string-2</name>
+<status>passed</status>
+<Check>
+<name>Split contains three elements</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>First string is &quot;a&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Second string is &quot;bc&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Thrid string is &quot;def&quot;</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>split-string-3</name>
+<status>passed</status>
+<Check>
+<name>Split contains four elements</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>First string is &quot;a&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Second string is &quot;bc&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Thrid string is &quot;def&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Thrid string is empty</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>split-string-4</name>
+<status>passed</status>
+<Check>
+<name>Split contains three elements</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>First string is &quot;a A&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Second string is &quot;b B&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Thrid string is &quot;c&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Thrid string is &quot;d&quot;</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+</Suite>
+<Suite>
+<name>network-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>http-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>http-client-test-suite</name>
+<status>failed</status>
+<Test>
+<name>test-http-get</name>
+<status>passed</status>
+<Check>
+<name>GET 0-byte string of &apos;x&apos;s</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>GET 1-byte string of &apos;x&apos;s</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>GET 2-byte string of &apos;x&apos;s</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>GET 8192-byte string of &apos;x&apos;s</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>GET 100000-byte string of &apos;x&apos;s</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>test-http-get-to-stream</name>
+<status>passed</status>
+<Check>
+<name>http-get to a stream</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>test-encode-form-data</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-with-http-connection</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-http-connections</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-reuse-http-connection</name>
+<status>passed</status>
+<Check>
+<name>first response is xx</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>second response is xxxxx</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>test-streaming-request</name>
+<status>passed</status>
+<Check>
+<name>Streamed request data sent correctly</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>test-streaming-response</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-chunked-request</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-chunked-response</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-non-chunked-request</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-non-chunked-response</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-resource-not-found-error</name>
+<status>passed</status>
+<Check>
+<name>&lt;resource-not-found-error&gt; (404) signaled</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>test-invalid-response-chunk-sizes</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-invalid-response-content-lengths</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-invalid-request-content-lengths</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-read-from-response-after-done</name>
+<status>passed</status>
+<Check>
+<name>Reading past end of response raises &lt;end-of-stream-error&gt;</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>http-common-test-suite</name>
+<status>not implemented</status>
+</Suite>
+<Suite>
+<name>http-protocol-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>method-test-suite</name>
+<status>failed</status>
+<Test>
+<name>test-get-method</name>
+<status>crashed</status>
+<reason>No applicable method, applying {&lt;incremental-generic-function&gt;: size} to {&lt;simple-object-vector&gt;: 80}.</reason>
+<Check>
+<name>GET /hello yields &quot;hello&quot;</name>
+<status>crashed</status>
+<reason>No applicable method, applying {&lt;incremental-generic-function&gt;: size} to {&lt;simple-object-vector&gt;: 80}.</reason>
+</Check>
+</Test>
+<Test>
+<name>test-post-method</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-head-method</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-put-method</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-delete-method</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-trace-method</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>test-connect-method</name>
+<status>not implemented</status>
+</Test>
+</Suite>
+<Suite>
+<name>header-test-suite</name>
+<status>failed</status>
+<Test>
+<name>test-date-header-parsing</name>
+<status>failed</status>
+<Check>
+<name>Date Tue, 15 Nov 1994 12:45:26 GMT parses correctly</name>
+<status>crashed</status>
+<reason>#f is not of type {&lt;class&gt;: &lt;integer&gt;}</reason>
+</Check>
+<Check>
+<name>Date Sun, 06 Nov 1994 08:49:37 GMT parses correctly</name>
+<status>crashed</status>
+<reason>#f is not of type {&lt;class&gt;: &lt;integer&gt;}</reason>
+</Check>
+<Check>
+<name>Date Sunday, 06-Nov-94 08:49:37 GMT parses correctly</name>
+<status>crashed</status>
+<reason>#f is not of type {&lt;class&gt;: &lt;integer&gt;}</reason>
+</Check>
+<Check>
+<name>Date Sun Nov 6 08:49:37 1994 parses correctly</name>
+<status>crashed</status>
+<reason>#f is not of type {&lt;class&gt;: &lt;integer&gt;}</reason>
+</Check>
+</Test>
+</Suite>
+</Suite>
+<Suite>
+<name>koala-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>start-stop-test-suite</name>
+<status>failed</status>
+<Test>
+<name>start-stop-basic-test</name>
+<status>passed</status>
+<Check>
+<name>start-stop-basic-test check #1</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>repeated-start-stop-test</name>
+<status>passed</status>
+<Check>
+<name>repeated-start-stop-test check #1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>repeated-start-stop-test check #2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>repeated-start-stop-test check #3</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>repeated-start-stop-test check #4</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>repeated-start-stop-test check #5</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>bind-interface-test</name>
+<status>passed</status>
+<Check>
+<name>address 192.168.99.103 is NOT listening for bound = {&lt;simple-object-vector&gt;: &quot;127.0.0.1&quot;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>address 127.0.0.1 is listening for bound = {&lt;simple-object-vector&gt;: &quot;127.0.0.1&quot;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>address 192.168.99.103 is listening for bound = {&lt;simple-object-vector&gt;: &quot;192.168.99.103&quot;, &quot;127.0.0.1&quot;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>address 127.0.0.1 is listening for bound = {&lt;simple-object-vector&gt;: &quot;192.168.99.103&quot;, &quot;127.0.0.1&quot;}</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>conflicting-listener-ips-test</name>
+<status>failed</status>
+<Check>
+<name>start-server with conflicting listener-ips</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>configuration-test-suite</name>
+<status>passed</status>
+<Test>
+<name>basic-config-test</name>
+<status>passed</status>
+<Check>
+<name>Invalid config (&quot;&quot;) causes &lt;configuration-error&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Invalid config (&quot;&lt;barbaloot&gt;&quot;) causes &lt;configuration-error&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Invalid config (&quot;&lt;koala&gt;gubbish&lt;/koala&gt;&quot;) causes &lt;configuration-error&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Invalid config (&quot;&amp;!*#)!^%&quot;) causes &lt;configuration-error&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Empty &lt;koala&gt; element</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Unknown element ignored</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>listener-config-test</name>
+<status>passed</status>
+<Check>
+<name>&lt;listener address=&quot;123.45.67.89&quot; port=&quot;2222&quot; /&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>&lt;listener address=&quot;123.45.67.89&quot; /&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>&lt;listener port=&quot;2222&quot; /&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>&lt;listener address=&quot;123.45.67.89&quot; port=&quot;xxx&quot; /&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>&lt;listener /&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>&lt;listener address=&quot;xxx&quot; port=&quot;2222&quot; /&gt;</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>xml-rpc-test-suite</name>
+<status>failed</status>
+<Test>
+<name>xml-rpc-registration-test</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>xml-rpc-namespace-test</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>xml-rpc-data-types-test</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>xml-rpc-server-definer-test</name>
+<status>not implemented</status>
+</Test>
+<Test>
+<name>xml-rpc-fault-test</name>
+<status>not implemented</status>
+</Test>
+</Suite>
+<Suite>
+<name>vhost-test-suite</name>
+<status>passed</status>
+<Test>
+<name>vhost-initialization-test</name>
+<status>passed</status>
+<Check>
+<name>vhost dsp-root defaults to value of document-root</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+</Suite>
+</Suite>
+<Suite>
+<name>wiki-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>storage-test-suite</name>
+<status>failed</status>
+<Test>
+<name>save-user-test</name>
+<status>not implemented</status>
+</Test>
+</Suite>
+</Suite>
+<Suite>
+<name>xml-rpc-client-test-suite</name>
+<status>failed</status>
+<Test>
+<name>test-basic-types</name>
+<status>crashed</status>
+<reason>Attempted to call {&lt;simple-method&gt;: ??? (subclass(&lt;uri&gt;), &lt;string&gt;)} with 4 arguments</reason>
+</Test>
+</Suite>
+</Suite>
+<Suite>
+<name>regular-expressions-test-suite</name>
+<status>failed</status>
+<Test>
+<name>split-test</name>
+<status>passed</status>
+<Check>
+<name>split #1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>split #2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>split #3</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>split #4</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>split #5</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>atom-test</name>
+<status>passed</status>
+<Check>
+<name>Regex &apos;&apos; group 0 is &apos;&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a&apos; group 0 is &apos;a&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;[a]&apos; group 0 is &apos;a&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;(a)b&apos; group 0 is &apos;ab&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;(a)b&apos; group 1 is &apos;a&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;\w&apos; group 0 is &apos;a&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;.&apos; group 0 is &apos;a&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a{0}&apos; group 0 is &apos;&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a{2}&apos; group 0 is &apos;aa&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a{1,}&apos; group 0 is &apos;aa&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a{1,8}&apos; group 0 is &apos;aaa&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a{1,2}&apos; group 0 is &apos;aa&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a{,}&apos; group 0 is &apos;&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a{,}&apos; group 0 is &apos;aaaaaa&apos;</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>ad-hoc-regex-test</name>
+<status>passed</status>
+<Check>
+<name>Regex &apos;&apos; group 0 is &apos;&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a()b&apos; group 0 is &apos;ab&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a()b&apos; group 1 is &apos;&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;a(?#blah)b&apos; group 0 is &apos;ab&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;.&apos; group 0 is &apos;x&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;.&apos; group 0 is &apos; &apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;[a-]&apos; group 0 is &apos;-&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;(x)y&apos; group 0 is &apos;xy&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;(x)y&apos; group 1 is &apos;x&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;((x)y)&apos; group 0 is &apos;xy&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;((x)y)&apos; group 1 is &apos;xy&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;((x)y)&apos; group 2 is &apos;x&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 0 is &apos;http://localhost/&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 1 is &apos;http:&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 2 is &apos;http&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 3 is &apos;//localhost&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 4 is &apos;localhost&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 5 is &apos;#f&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 6 is &apos;#f&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 7 is &apos;localhost&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 8 is &apos;#f&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 9 is &apos;#f&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 10 is &apos;/&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 11 is &apos;#f&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 12 is &apos;#f&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regex &apos;^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)(\?([^#]*))?(#(.*))?&apos; group 13 is &apos;#f&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>start: works?</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>end: works?</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>start: and end: work?</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>atom-tan</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>invalid-regex-test</name>
+<status>failed</status>
+<Check>
+<name>Compiling &apos;(?P&lt;foo&gt;x)(?P&lt;foo&gt;y)&apos; gets an error</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Compiling &apos;(?@abc)&apos; gets an error</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Compiling &apos;(a)\2&apos; gets an error</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Compiling &apos;a{m,n}&apos; gets an error</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Compiling &apos;a{m,}&apos; gets an error</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Compiling &apos;a{,n}&apos; gets an error</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Compiling &apos;a{m}&apos; gets an error</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Compiling &apos;a{,&apos; gets an error</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Compiling &apos;[a&apos; gets an error</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Compiling &apos;(&apos; gets an error</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+<Check>
+<name>Compiling &apos;(()&apos; gets an error</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+<Check>
+<name>Compiling &apos;((a)b|&apos; gets an error</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+</Test>
+<Test>
+<name>regressions-test</name>
+<status>crashed</status>
+<reason>File C:\cgay\dylan\trunk\fundev\sources\libraries\regular-expressions\tests\regression-tests.txt does not exist</reason>
+</Test>
+<Suite>
+<name>regular-expressions-api-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>regular-expressions-module-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>regular-expressions-protocol-test-suite</name>
+<status>failed</status>
+<Test>
+<name>regular-expressions-protocol-constants-test</name>
+<status>passed</status>
+</Test>
+<Test>
+<name>regular-expressions-protocol-variables-test</name>
+<status>passed</status>
+</Test>
+<Test>
+<name>regular-expressions-protocol-classes-test</name>
+<status>passed</status>
+<Test-unit>
+<name>Test unit class &lt;invalid-match-group&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;invalid-match-group&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;invalid-match-group&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;invalid-match-group&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;invalid-match-group&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;invalid-regex&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;invalid-regex&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;invalid-regex&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;invalid-regex&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;invalid-regex&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;regex-error&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;regex-error&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;regex-error&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;regex-error&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;regex-error&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;regex-match&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;regex-match&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;regex-match&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;regex-match&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;regex-match&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;regex&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;regex&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;regex&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;regex&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;regex&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;match-group&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;match-group&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;match-group&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;match-group&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;match-group&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+</Test>
+<Test>
+<name>regular-expressions-protocol-functions-test</name>
+<status>failed</status>
+<Test-unit>
+<name>Test unit group-end specification</name>
+<status>passed</status>
+<Check>
+<name>Variable group-end is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test group-end</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit regex-group-count specification</name>
+<status>passed</status>
+<Check>
+<name>Variable regex-group-count is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test regex-group-count</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit regex-search-strings specification</name>
+<status>passed</status>
+<Check>
+<name>Variable regex-search-strings is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test regex-search-strings</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit group-text specification</name>
+<status>passed</status>
+<Check>
+<name>Variable group-text is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test group-text</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit regex-pattern specification</name>
+<status>passed</status>
+<Check>
+<name>Variable regex-pattern is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test regex-pattern</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit regex-search specification</name>
+<status>passed</status>
+<Check>
+<name>Variable regex-search is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test regex-search</name>
+<status>failed</status>
+<Check>
+<name>regex-search(..., case-sensitive: #f) works for character sets</name>
+<status>failed</status>
+</Check>
+<Check>
+<name>regex-search(..., case-sensitive: #t) works on character sets</name>
+<status>failed</status>
+</Check>
+<Check>
+<name>case-sensitive: #t works for regular strings</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>case-sensitive: #f works for regular strings</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit match-group specification</name>
+<status>passed</status>
+<Check>
+<name>Variable match-group is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test match-group</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit compile-regex specification</name>
+<status>passed</status>
+<Check>
+<name>Variable compile-regex is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test compile-regex</name>
+<status>passed</status>
+<Check>
+<name>use-cache: #t uses the cache</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>use-cache: #f doesn&apos;t use the cache</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit regex-replace specification</name>
+<status>passed</status>
+<Check>
+<name>Variable regex-replace is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test regex-replace</name>
+<status>passed</status>
+<Check>
+<name>regex-replace with regex pattern</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>regex-replace #1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>regex-replace #2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>regex-replace #3</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>regex-replace #4</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit groups-by-name specification</name>
+<status>passed</status>
+<Check>
+<name>Variable groups-by-name is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test groups-by-name</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit group-start specification</name>
+<status>passed</status>
+<Check>
+<name>Variable group-start is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test group-start</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit regex-position specification</name>
+<status>passed</status>
+<Check>
+<name>Variable regex-position is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test regex-position</name>
+<status>failed</status>
+<Check>
+<name>regex-position with a string regex</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>regex-position with a regex regex</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #3</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #4</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #5</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #6</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #7</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #8</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #9</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #a</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #b</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #c</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #d</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #e</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #f</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #g</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #h</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #i</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #j</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #k</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #L</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #m</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #n</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #o</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #p</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #q</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #r</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #s</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #t</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #u</name>
+<status>failed</status>
+<reason>{&lt;simple-object-vector&gt;: 1, 4} ~= {&lt;simple-object-vector&gt;: 1, 2}</reason>
+</Check>
+<Check>
+<name>pos test #v</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #w</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #x</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>pos test #y</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit groups-by-position specification</name>
+<status>passed</status>
+<Check>
+<name>Variable groups-by-position is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test groups-by-position</name>
+<status>not implemented</status>
+</Test-unit>
+</Test>
+<Test>
+<name>regular-expressions-protocol-macros-test</name>
+<status>passed</status>
+</Test>
+</Suite>
+</Suite>
+</Suite>
+<Suite>
+<name>pcre-test-suite</name>
+<status>failed</status>
+<Test>
+<name>pcre-testoutput1</name>
+<status>crashed</status>
+<reason>File C:\cgay\dylan\trunk\fundev\sources\libraries\regular-expressions\tests\pcre-testoutput1.txt does not exist</reason>
+</Test>
+</Suite>
+</Suite>
+<Suite>
+<name>strings-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>strings-module-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>strings-protocol-test-suite</name>
+<status>failed</status>
+<Test>
+<name>strings-protocol-constants-test</name>
+<status>passed</status>
+</Test>
+<Test>
+<name>strings-protocol-variables-test</name>
+<status>passed</status>
+</Test>
+<Test>
+<name>strings-protocol-classes-test</name>
+<status>passed</status>
+</Test>
+<Test>
+<name>strings-protocol-functions-test</name>
+<status>failed</status>
+<Test-unit>
+<name>Test unit a-or-an specification</name>
+<status>passed</status>
+<Check>
+<name>Variable a-or-an is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test a-or-an</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit case-insensitive-less? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable case-insensitive-less? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test case-insensitive-less?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit digit? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable digit? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test digit?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit lowercase specification</name>
+<status>passed</status>
+<Check>
+<name>Variable lowercase is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test lowercase</name>
+<status>passed</status>
+<Check>
+<name>lowercase &quot;&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase &quot;a&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase &quot;A&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase &quot;ABC&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase &quot;ONE TWO&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase &quot;_oNe,Two&quot;</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit control? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable control? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test control?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit byte-string? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable byte-string? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test byte-string?</name>
+<status>passed</status>
+<Check>
+<name>byte-string?(&quot;&quot;) =&gt; #t</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>byte-string?(5) =&gt; #f</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>byte-string?({&lt;unicode-string&gt;: size 0}) =&gt; #f</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit digit-to-integer specification</name>
+<status>passed</status>
+<Check>
+<name>Variable digit-to-integer is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test digit-to-integer</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit index-of specification</name>
+<status>passed</status>
+<Check>
+<name>Variable index-of is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test index-of</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit whitespace? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable whitespace? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test whitespace?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit capitalize specification</name>
+<status>passed</status>
+<Check>
+<name>Variable capitalize is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test capitalize</name>
+<status>passed</status>
+<Check>
+<name>capitalize &quot;&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize &quot;x&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize &quot;abc&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize &quot;Abc&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize &quot;one two&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize &quot;_one,two&quot;</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit less? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable less? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test less?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit trim specification</name>
+<status>passed</status>
+<Check>
+<name>Variable trim is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test trim</name>
+<status>passed</status>
+<Check>
+<name>trim &quot;&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>trim &quot;a&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>trim &quot; a &quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>trim &quot; a &quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>trim &quot; a &quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>trim &quot; a &quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>trim &quot; a &quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>trim &quot;xox&quot;</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit lowercase? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable lowercase? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test lowercase?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit pluralize specification</name>
+<status>passed</status>
+<Check>
+<name>Variable pluralize is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test pluralize</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit case-insensitive-equal? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable case-insensitive-equal? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test case-insensitive-equal?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit alphabetic? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable alphabetic? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test alphabetic?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit uppercase! specification</name>
+<status>passed</status>
+<Check>
+<name>Variable uppercase! is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test uppercase!</name>
+<status>passed</status>
+<Check>
+<name>uppercase! &quot;&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;A&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;A&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;a&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;A&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;abc&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;ABC&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;one two&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;ONE TWO&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;_oNe,Two&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase! &quot;_ONE,TWO&quot; retains identity</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit printable? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable printable? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test printable?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit integer-to-digit specification</name>
+<status>passed</status>
+<Check>
+<name>Variable integer-to-digit is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test integer-to-digit</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit case-insensitive-greater? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable case-insensitive-greater? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test case-insensitive-greater?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit alphanumeric? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable alphanumeric? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test alphanumeric?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit lowercase! specification</name>
+<status>passed</status>
+<Check>
+<name>Variable lowercase! is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test lowercase!</name>
+<status>passed</status>
+<Check>
+<name>lowercase! &quot;&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;a&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;a&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;E&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;e&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;ABC&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;abc&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;ONE TWO&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;one two&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;_oNe,Two&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>lowercase! &quot;_one,two&quot; retains identity</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit equal? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable equal? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test equal?</name>
+<status>passed</status>
+<Check>
+<name>equal?(&quot;&quot;, &quot;&quot;, ,@{&lt;simple-object-vector&gt;: size 0})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;abc&quot;, &quot;abc&quot;, ,@{&lt;simple-object-vector&gt;: size 0})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;xaaax&quot;, &quot;yaaay&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;start1&quot;, 1, #&quot;end1&quot;, 4, #&quot;start2&quot;, 1, #&quot;end2&quot;, 4})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;a&quot;, &quot;&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;end1&quot;, 0})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;a&quot;, &quot;&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;start1&quot;, 1})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;&quot;, &quot;a&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;end2&quot;, 0})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;&quot;, &quot;a&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;start2&quot;, 1})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;abcd&quot;, &quot;ab&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;end1&quot;, 2})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;abcd&quot;, &quot;ab&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;end1&quot;, 1, #&quot;end2&quot;, 1})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;abcd&quot;, &quot;bc&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;start1&quot;, 1, #&quot;end1&quot;, 3})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;abcd&quot;, &quot;cd&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;start1&quot;, 2})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;ab&quot;, &quot;abcd&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;end2&quot;, 2})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;ab&quot;, &quot;abcd&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;end1&quot;, 1, #&quot;end2&quot;, 1})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;bc&quot;, &quot;abcd&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;start2&quot;, 1, #&quot;end2&quot;, 3})</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>equal?(&quot;cd&quot;, &quot;abcd&quot;, ,@{&lt;simple-object-vector&gt;: #&quot;start2&quot;, 2})</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit count-matches specification</name>
+<status>passed</status>
+<Check>
+<name>Variable count-matches is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test count-matches</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit uppercase? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable uppercase? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test uppercase?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit capitalize! specification</name>
+<status>passed</status>
+<Check>
+<name>Variable capitalize! is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test capitalize!</name>
+<status>passed</status>
+<Check>
+<name>capitalize! &quot;&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;a&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;A&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;abc&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;Abc&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;Abc&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;Abc&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;one two&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;One Two&quot; retains identity</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;_one,two&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>capitalize! &quot;_One,Two&quot; retains identity</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit greater? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable greater? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test greater?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit uppercase specification</name>
+<status>passed</status>
+<Check>
+<name>Variable uppercase is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test uppercase</name>
+<status>passed</status>
+<Check>
+<name>uppercase &quot;&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase &quot;a&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase &quot;A&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase &quot;abc&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase &quot;one two&quot;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>uppercase &quot;_oNe,Two&quot;</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit graphic? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable graphic? is a generic-function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test graphic?</name>
+<status>not implemented</status>
+</Test-unit>
+</Test>
+<Test>
+<name>strings-protocol-macros-test</name>
+<status>passed</status>
+</Test>
+</Suite>
+</Suite>
+</Suite>
+<Suite>
+<name>uri-test-suite</name>
+<status>passed</status>
+<Suite>
+<name>uri-transform-suite</name>
+<status>passed</status>
+<Test>
+<name>uri-base-test</name>
+<status>passed</status>
+<Check>
+<name>base-uri scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>base-uri authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>base-uri path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>base-uri query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>base-uri fragment</name>
+<status>passed</status>
+</Check>
+</Test>
+<Suite>
+<name>uri-transform-normal-suite</name>
+<status>passed</status>
+<Test>
+<name>uri-reference-normal-test-1</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-2</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-3</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-4</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-5</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-6</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-7</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-8</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-9</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-10</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-11</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-12</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-13</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-14</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-15</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-16</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-17</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-18</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-19</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-20</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-21</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-22</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-normal-test-23</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>uri-transform-abnormal-suite</name>
+<status>passed</status>
+<Test>
+<name>uri-reference-abnormal-test-1</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-2</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-3</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-4</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-5</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-6</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-7</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-8</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-9</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-10</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-11</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-12</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-13</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>uri-reference-abnormal-test-14</name>
+<status>passed</status>
+<Check>
+<name>scheme</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>authority</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>query</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>fragment</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>target-uri</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+</Suite>
+<Suite>
+<name>uri-normalization-suite</name>
+<status>passed</status>
+<Test>
+<name>uri-path-segment-normalization-test</name>
+<status>passed</status>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>path</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+</Suite>
+<Suite>
+<name>command-line-parser-test-suite</name>
+<status>passed</status>
+<Test>
+<name>argument-list-parser-test</name>
+<status>passed</status>
+<Check>
+<name>parse-arguments returns #f for an unparsable command line</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>parse-arguments returns #t for a parsable command line</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>verbose is true</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>foo has correct value</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>quux has correct value</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>optimize has correct value</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>warning has correct value</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>key is defined as &apos;value&apos;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>regular arguments are empty</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>defargparser-test</name>
+<status>passed</status>
+<Check>
+<name>Verbose flag is false if not supplied.</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Regular arguments are empty.</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>logging-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>logging-module-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>logging-protocol-test-suite</name>
+<status>failed</status>
+<Test>
+<name>logging-protocol-constants-test</name>
+<status>failed</status>
+<Test-unit>
+<name>Test unit $stdout-log-target specification</name>
+<status>passed</status>
+<Check>
+<name>Constant $stdout-log-target has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test $stdout-log-target</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit $error-level specification</name>
+<status>passed</status>
+<Check>
+<name>Constant $error-level has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test $error-level</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit $stderr-log-target specification</name>
+<status>passed</status>
+<Check>
+<name>Constant $stderr-log-target has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test $stderr-log-target</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit $debug-level specification</name>
+<status>passed</status>
+<Check>
+<name>Constant $debug-level has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test $debug-level</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit log-warning specification</name>
+<status>passed</status>
+<Check>
+<name>Constant log-warning has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test log-warning</name>
+<status>passed</status>
+<Check>
+<name>Log output () does not match expected (). Given level {&lt;warn-level&gt;}, logger level {&lt;trace-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output () does not match expected (). Given level {&lt;warn-level&gt;}, logger level {&lt;debug-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output () does not match expected (). Given level {&lt;warn-level&gt;}, logger level {&lt;info-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;warn-level&gt;}, logger level {&lt;warn-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;warn-level&gt;}, logger level {&lt;error-level&gt;}</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit log-trace specification</name>
+<status>passed</status>
+<Check>
+<name>Constant log-trace has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test log-trace</name>
+<status>passed</status>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;trace-level&gt;}, logger level {&lt;trace-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;trace-level&gt;}, logger level {&lt;debug-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;trace-level&gt;}, logger level {&lt;info-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;trace-level&gt;}, logger level {&lt;warn-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;trace-level&gt;}, logger level {&lt;error-level&gt;}</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit log-info specification</name>
+<status>passed</status>
+<Check>
+<name>Constant log-info has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test log-info</name>
+<status>passed</status>
+<Check>
+<name>Log output () does not match expected (). Given level {&lt;info-level&gt;}, logger level {&lt;trace-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output () does not match expected (). Given level {&lt;info-level&gt;}, logger level {&lt;debug-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;info-level&gt;}, logger level {&lt;info-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;info-level&gt;}, logger level {&lt;warn-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;info-level&gt;}, logger level {&lt;error-level&gt;}</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit log-error specification</name>
+<status>passed</status>
+<Check>
+<name>Constant log-error has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test log-error</name>
+<status>passed</status>
+<Check>
+<name>Log output () does not match expected (). Given level {&lt;error-level&gt;}, logger level {&lt;trace-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output () does not match expected (). Given level {&lt;error-level&gt;}, logger level {&lt;debug-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output () does not match expected (). Given level {&lt;error-level&gt;}, logger level {&lt;info-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output () does not match expected (). Given level {&lt;error-level&gt;}, logger level {&lt;warn-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;error-level&gt;}, logger level {&lt;error-level&gt;}</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit log-debug specification</name>
+<status>passed</status>
+<Check>
+<name>Constant log-debug has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test log-debug</name>
+<status>passed</status>
+<Check>
+<name>Log output () does not match expected (). Given level {&lt;debug-level&gt;}, logger level {&lt;trace-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;debug-level&gt;}, logger level {&lt;debug-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;debug-level&gt;}, logger level {&lt;info-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;debug-level&gt;}, logger level {&lt;warn-level&gt;}</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Log output (xxx ) does not match expected (xxx ). Given level {&lt;debug-level&gt;}, logger level {&lt;error-level&gt;}</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit $warn-level specification</name>
+<status>passed</status>
+<Check>
+<name>Constant $warn-level has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test $warn-level</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit $trace-level specification</name>
+<status>passed</status>
+<Check>
+<name>Constant $trace-level has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test $trace-level</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit $info-level specification</name>
+<status>passed</status>
+<Check>
+<name>Constant $info-level has the correct type</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit constant-test $info-level</name>
+<status>not implemented</status>
+</Test-unit>
+</Test>
+<Test>
+<name>logging-protocol-variables-test</name>
+<status>passed</status>
+</Test>
+<Test>
+<name>logging-protocol-classes-test</name>
+<status>passed</status>
+<Test-unit>
+<name>Test unit class &lt;rolling-file-log-target&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;rolling-file-log-target&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;rolling-file-log-target&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;rolling-file-log-target&gt;</name>
+<status>passed</status>
+<Check>
+<name>make(&lt;rolling-file-log-target&gt;) errors because not instantiable</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>log doesn&apos;t roll when below max size</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>log rolls when max size exceeded</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;placeholder-logger&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;placeholder-logger&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;placeholder-logger&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;placeholder-logger&gt;</name>
+<status>passed</status>
+<Check>
+<name>make(&lt;placeholder-logger&gt;) errors because not instantiable</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;null-log-target&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;null-log-target&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;null-log-target&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;null-log-target&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;null-log-target&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;warn-level&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;warn-level&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;warn-level&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;warn-level&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;warn-level&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;logging-error&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;logging-error&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;logging-error&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;logging-error&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;logging-error&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;trace-level&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;trace-level&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;trace-level&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;trace-level&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;trace-level&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;logger&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;logger&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;logger&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;logger&gt;</name>
+<status>passed</status>
+<Check>
+<name>make(&lt;logger&gt;) errors because not instantiable</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>make a logger with a &lt;string&gt; formatter</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;info-level&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;info-level&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;info-level&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;info-level&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;info-level&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;log-target&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;log-target&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;log-target&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;log-target&gt;</name>
+<status>passed</status>
+<Check>
+<name>make(&lt;log-target&gt;) errors because not instantiable</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;error-level&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;error-level&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;error-level&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;error-level&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;error-level&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;log-formatter&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;log-formatter&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;log-formatter&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;log-formatter&gt;</name>
+<status>passed</status>
+<Check>
+<name>make(&lt;log-formatter&gt;) errors because not instantiable</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;debug-level&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;debug-level&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;debug-level&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;debug-level&gt;</name>
+<status>passed</status>
+<Check>
+<name>make &lt;debug-level&gt; with required arguments</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;file-log-target&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;file-log-target&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;file-log-target&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;file-log-target&gt;</name>
+<status>passed</status>
+<Check>
+<name>make(&lt;file-log-target&gt;) errors because not instantiable</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>file-log-target has expected contents</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;log-level&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;log-level&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;log-level&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;log-level&gt;</name>
+<status>passed</status>
+<Check>
+<name>make(&lt;log-level&gt;) errors because not instantiable</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;abstract-logger&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;abstract-logger&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;abstract-logger&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;abstract-logger&gt;</name>
+<status>passed</status>
+<Check>
+<name>make(&lt;abstract-logger&gt;) errors because not instantiable</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class &lt;stream-log-target&gt; specification</name>
+<status>passed</status>
+<Check>
+<name>Variable &lt;stream-log-target&gt; is a class</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Variable &lt;stream-log-target&gt; has the correct superclasses</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit class-test &lt;stream-log-target&gt;</name>
+<status>passed</status>
+<Check>
+<name>make(&lt;stream-log-target&gt;) errors because not instantiable</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+</Test>
+<Test>
+<name>logging-protocol-functions-test</name>
+<status>failed</status>
+<Test-unit>
+<name>Test unit pattern-to-stream specification</name>
+<status>passed</status>
+<Check>
+<name>Variable pattern-to-stream is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test pattern-to-stream</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit log-debug-if specification</name>
+<status>passed</status>
+<Check>
+<name>Variable log-debug-if is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test log-debug-if</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit logger-name specification</name>
+<status>passed</status>
+<Check>
+<name>Variable logger-name is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test logger-name</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit level-name specification</name>
+<status>passed</status>
+<Check>
+<name>Variable level-name is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test level-name</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit logger-enabled? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable logger-enabled? is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test logger-enabled?</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit get-root-logger specification</name>
+<status>passed</status>
+<Check>
+<name>Variable get-root-logger is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test get-root-logger</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit logger-enabled?-setter specification</name>
+<status>passed</status>
+<Check>
+<name>Variable logger-enabled?-setter is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test logger-enabled?-setter</name>
+<status>passed</status>
+<Check>
+<name>disabled logger does no output</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>additivity respected for disabled logger</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit get-logger specification</name>
+<status>passed</status>
+<Check>
+<name>Variable get-logger is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test get-logger</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit logger-additive? specification</name>
+<status>passed</status>
+<Check>
+<name>Variable logger-additive? is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test logger-additive?</name>
+<status>passed</status>
+<Check>
+<name>non-additivity respected for target1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>non-additivity respected for target2</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>additivity respected for target1</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>additivity respected for target2</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit date-to-stream specification</name>
+<status>passed</status>
+<Check>
+<name>Variable date-to-stream is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test date-to-stream</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit logger-additive?-setter specification</name>
+<status>passed</status>
+<Check>
+<name>Variable logger-additive?-setter is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test logger-additive?-setter</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit current-log-object specification</name>
+<status>passed</status>
+<Check>
+<name>Variable current-log-object is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test current-log-object</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit log-to-target specification</name>
+<status>passed</status>
+<Check>
+<name>Variable log-to-target is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test log-to-target</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit current-log-args specification</name>
+<status>passed</status>
+<Check>
+<name>Variable current-log-args is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test current-log-args</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit log-message specification</name>
+<status>passed</status>
+<Check>
+<name>Variable log-message is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test log-message</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit as-common-logfile-date specification</name>
+<status>passed</status>
+<Check>
+<name>Variable as-common-logfile-date is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test as-common-logfile-date</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit write-message specification</name>
+<status>passed</status>
+<Check>
+<name>Variable write-message is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test write-message</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit log-level specification</name>
+<status>passed</status>
+<Check>
+<name>Variable log-level is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test log-level</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit add-target specification</name>
+<status>passed</status>
+<Check>
+<name>Variable add-target is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test add-target</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit remove-target specification</name>
+<status>passed</status>
+<Check>
+<name>Variable remove-target is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test remove-target</name>
+<status>not implemented</status>
+</Test-unit>
+<Test-unit>
+<name>Test unit log-level-setter specification</name>
+<status>passed</status>
+<Check>
+<name>Variable log-level-setter is a function and all of its specializer types are bound</name>
+<status>passed</status>
+</Check>
+</Test-unit>
+<Test-unit>
+<name>Test unit function-test log-level-setter</name>
+<status>not implemented</status>
+</Test-unit>
+</Test>
+<Test>
+<name>logging-protocol-macros-test</name>
+<status>passed</status>
+</Test>
+</Suite>
+</Suite>
+<Test>
+<name>test-elapsed-milliseconds</name>
+<status>passed</status>
+<Check>
+<name>number-to-string(&lt;double-integer&gt;)</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>test-process-id</name>
+<status>failed</status>
+<Check>
+<name>log stream contains process id only</name>
+<status>crashed</status>
+<reason>Reference to undefined binding &quot;current-process-id&quot;.</reason>
+</Check>
+<Check>
+<name>log stream contains process id only</name>
+<status>crashed</status>
+<reason>Reference to undefined binding &quot;current-process-id&quot;.</reason>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>xml-test-suite</name>
+<status>failed</status>
+<Suite>
+<name>simple-xml-test-suite</name>
+<status>passed</status>
+<Test>
+<name>test-with-xml</name>
+<status>passed</status>
+<Check>
+<name>plain element x gives &lt;x/&gt;</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element x with empty attributes</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element x with some attributes</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element with simple body</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>element with attributes and body</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>do/collect</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>character entity conversion</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>transform-test-suite</name>
+<status>passed</status>
+<Test>
+<name>basic-transform-test</name>
+<status>passed</status>
+<Check>
+<name>parse-documents sets parent nodes (via &lt;add-parents&gt;)</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>default transform shouldn&apos;t err</name>
+<status>passed</status>
+</Check>
+</Test>
+</Suite>
+<Suite>
+<name>parsing-test-suite</name>
+<status>failed</status>
+<Test>
+<name>test-basic-parsing</name>
+<status>passed</status>
+<Check>
+<name>&lt;x/&gt; parses without error</name>
+<status>passed</status>
+</Check>
+</Test>
+<Test>
+<name>test-string-parser-error-handling</name>
+<status>failed</status>
+<Check>
+<name>Meta parser: no end element</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+<Check>
+<name>Meta parser: end element doesn&apos;t match</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+<Check>
+<name>Meta parser: start element incomplete #1</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+<Check>
+<name>Meta parser: start element incomplete #2</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+<Check>
+<name>Meta parser: incomplete attribute def #1</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+<Check>
+<name>Meta parser: incomplete attribute def #2</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+</Test>
+<Test>
+<name>test-stream-parser-error-handling</name>
+<status>failed</status>
+<Check>
+<name>Stream parser: no end element</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Stream parser: end element doesn&apos;t match</name>
+<status>passed</status>
+</Check>
+<Check>
+<name>Stream parser: start element incomplete #1</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+<Check>
+<name>Stream parser: start element incomplete #2</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+<Check>
+<name>Stream parser: incomplete attribute def #1</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+<Check>
+<name>Stream parser: incomplete attribute def #2</name>
+<status>failed</status>
+<reason>expected condition not signaled</reason>
+</Check>
+</Test>
+</Suite>
+</Suite>
+</Suite>
+</test-report>
