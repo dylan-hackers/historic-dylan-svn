@@ -40,12 +40,20 @@ copyright: LGPL
  *                   44 (EmptyElemTag)
  */
 
+define class <xml-error> (<format-string-condition>, <error>)
+end;
+
+define class <xml-parse-error> (<xml-error>)
+end;
+
 //-------------------------------------------------------
 // Productions
 
 // Document
 // 
 //    [1]    document    ::=    prolog element Misc*
+//
+// Signals <xml-parse-error>
 //
 define function parse-document (doc :: <string>, 
                                 #key start = 0, end: stop = doc.size, 
@@ -366,7 +374,7 @@ define meta doctypedecl(s, name, sys-id, pub-id, which, markup)
 		end, *dtd-paths*))
         dtd-file := it;
       else 
-	error("%s is not on on the dtd search paths of %=", sys-id, *dtd-paths*)
+	error("%s is not on the DTD search paths of %=", sys-id, *dtd-paths*)
       end aif;
 // hokay, we've got an external-ID, now let's parse that document
 // and bring in its entities and default attribute values.
@@ -440,18 +448,19 @@ end meta yesno;
 // assume that tags usually have content, and, therefore, look
 // for non-empty-element tags first when parsing.
 define meta element(elt-name, attribs, content, etag)
-  => (make-element(apply(if(*substitute-entities?* & ~ *defining-entities?*)
-                           expand-entity
-                         else 
-                           identity 
-                         end if, vector(content)),
+  => (make-element(if(*substitute-entities?* & ~ *defining-entities?*)
+                     expand-entity(content)
+                   else
+                     content
+                   end,
                    elt-name, attribs, *modify?*))
   scan-beginning-of-tag(elt-name, attribs),
   { [">", scan-content(content), scan-end-tag(etag)],
     ["/>", no!(*last-tag-name*), set!(content, "")] }
 end meta element;
 
-define meta start-tag (elt-name, attribs, started-new-element) => (elt-name, attribs, started-new-element)
+define meta start-tag (elt-name, attribs, started-new-element)
+ => (elt-name, attribs, started-new-element)
   scan-beginning-of-tag(elt-name, attribs), {
     [">", set!(started-new-element, #t)],
     ["/>", set!(started-new-element, #f)]
@@ -910,9 +919,16 @@ end function expand-entity;
 //                                                     [WFC: No Recursion]
 define meta entity-ref(name)
  => (if(*substitute-entities?* & ~ *defining-entities?*)
-      *entities*[as(<symbol>, name)].expand-entity;
+       let entity = element(*entities*, as(<symbol>, name), default: #f);
+       if (entity)
+         entity.expand-entity
+       else
+         signal(make(<xml-parse-error>,
+                     format-string: "Invalid entity reference: &%s",
+                     format-arguments: list(name)));
+       end;
      else
-      list(make(<entity-reference>, name: name));
+       list(make(<entity-reference>, name: name));
      end if)
   "&", scan-name(name), ";"
 end meta entity-ref;
