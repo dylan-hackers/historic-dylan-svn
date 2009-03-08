@@ -33,6 +33,8 @@ define module xml-parser
     internal-declarations, internal-declarations-setter,
     expansion, expansion-setter, comment, comment-setter;
 
+  create <xml-error>, <xml-parse-error>;
+
   // for printing
   create <printing>, xml-name, escape-xml;
 

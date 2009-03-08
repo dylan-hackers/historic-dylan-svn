@@ -58,7 +58,8 @@ end test test-with-xml;
 
 define suite parsing-test-suite ()
   test test-basic-parsing;
-  test test-parse-errors;
+  test test-string-parser-error-handling;
+  test test-stream-parser-error-handling;
 end;
 
 define test test-basic-parsing ()
@@ -68,19 +69,35 @@ define test test-basic-parsing ()
   end;
 end;
 
-define test test-parse-errors ()
-  for (item in list(#("<x>", "no end element"),
-                    #("<x></y>", "end element doesn't match"),
-                    #("<", "start element incomplete #1"),
-                    #("<x", "start element incomplete #2"),
-                    #("<x a=>", "incomplete attribute def #1"),
-                    #("<x a=\">", "incomplete attribute def #2")
-                    // ...
-                    ))
+define constant $broken-xml
+  = list(#("<x>", "no end element"),
+         #("<x></y>", "end element doesn't match"),
+         #("<", "start element incomplete #1"),
+         #("<x", "start element incomplete #2"),
+         #("<x a=>", "incomplete attribute def #1"),
+         #("<x a=\">", "incomplete attribute def #2")
+         // ...
+         );
+
+define test test-string-parser-error-handling ()
+  for (item in $broken-xml)
     let (text, reason) = apply(values, item);
-    check-condition(reason, <error>, parse-document(text));
+    check-condition(concatenate("Meta parser: ", reason),
+                    <xml-parse-error>,
+                    parse-document(text));
   end;
-end test test-parse-errors;
+end test test-string-parser-error-handling;
+
+define test test-stream-parser-error-handling ()
+  for (item in $broken-xml)
+    let (text, reason) = apply(values, item);
+    check-condition(concatenate("Stream parser: ", reason),
+                    <xml-parse-error>,
+                    parse(make(<xml-stream-parser>,
+                               stream: make(<string-stream>,
+                                            contents: text))));
+  end;
+end test test-stream-parser-error-handling;
 
 //---------------------------------------------------
 // XML transform tests

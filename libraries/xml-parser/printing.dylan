@@ -211,9 +211,9 @@ define method escape-xml (string :: <string>) => (res :: <string>)
     elseif (char = '&')
       res := concatenate(res, "&amp;");
     elseif (char = '\'')
-      res := concatenate(res, "&apos;");      
+      res := concatenate(res, "&apos;");
     elseif (char = '"')
-      res := concatenate(res, "&quot;");      
+      res := concatenate(res, "&quot;");
     else
       res := add!(res, char)
     end;

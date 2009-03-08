@@ -3,6 +3,8 @@ Author: Carl Gay
 
 define library xml-test-suite
   use common-dylan;
+  use io,
+    import: { streams };
   use system,
     import: { locators };
   use testworks;
@@ -16,6 +18,7 @@ define module xml-test-suite
   use common-dylan;
   use locators,
     import: { locator-name, <file-locator> };
+  use streams;
   use testworks;
   use testworks-specs;
 
@@ -28,3 +31,4 @@ define module xml-test-suite
   export xml-test-suite;
 end module xml-test-suite;
 
+// See also: http://www.w3.org/XML/Test/
