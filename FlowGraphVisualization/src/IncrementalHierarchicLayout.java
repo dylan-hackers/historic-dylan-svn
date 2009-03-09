@@ -124,6 +124,7 @@ public class IncrementalHierarchicLayout
 		topnodes = new ArrayList<Node>();
 		highlight = null;
 		selection = null;
+		tvindex = 0;
 	}
 	
 	public void activateLayouter () {
@@ -338,7 +339,7 @@ public class IncrementalHierarchicLayout
 	}
 
 	public void createTypeNode (int id, String type) {
-		if (! type_node_map.containsKey(type))
+		if (! type_node_map.containsKey(type) || type.equals("dynamic"))
 			type_node_map.put(type, createNodeWithLabel(type, id));
 		Node t = type_node_map.get(type);
 		int_node_map.put(id, t);

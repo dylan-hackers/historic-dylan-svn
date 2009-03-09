@@ -75,6 +75,8 @@ public final class Commands {
 			return connect(ihl, answer);
 		if (key.isEqual("disconnect"))
 			return disconnect(ihl, answer);
+		if (key.isEqual("remove-node"))
+			return removenode(ihl, answer, false);
 		System.out.println("shouldn't be here");
 		return false;
 	}
@@ -393,10 +395,10 @@ public final class Commands {
 			ihl.createTypeNode(id, object);
 		} else {
 			//got a "base type" / String or Symbol
-			if (answer.get(3) instanceof Symbol) { //arrow!
+			if (answer.get(3) instanceof Symbol) { //arrow or tuple!
 				Node obf = null;
 				ihl.createTypeNode(id, obf);
-				ihl.changeLabel(ihl.graph.lastNode(), "arrow");
+				ihl.changeLabel(ihl.graph.lastNode(), ((Symbol)answer.get(3)).toString());
 			}
 			else
 				ihl.createTypeNode(id, (String)answer.get(3));
