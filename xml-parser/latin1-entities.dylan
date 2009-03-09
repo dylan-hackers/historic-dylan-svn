@@ -130,8 +130,8 @@ define entities *entities*
 <!ENTITY yuml   CDATA "&#255;"  small y, dieresis or umlaut mark >;
 
 <!ENTITY quot    CDATA "&#34;"     quotation mark, =apl quote, u+0022 ISOnum >;
-<!ENTITY apos    CDATA "&#39;"     apostrophe, u+0027 ISOnum >;
 <!ENTITY amp     CDATA "&#38;"     ampersand, u+0026 ISOnum >;
+<!ENTITY apos    CDATA "&#39;"     apostrophe, u+0027 ISOnum >;
 <!ENTITY lt      CDATA "&#60;"     less-than sign, u+003C ISOnum >;
 <!ENTITY gt      CDATA "&#62;"     greater-than sign, u+003E ISOnum >;
 end entities;
