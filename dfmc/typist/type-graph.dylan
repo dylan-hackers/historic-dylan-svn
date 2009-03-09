@@ -11,7 +11,7 @@ define class <node> (<object>)
   constant slot out-edges :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot in-edges :: <stretchy-vector> = make(<stretchy-vector>);
   slot contains-variables? :: <boolean> = #f;
-  constant slot node-value :: type-union(<type-variable>, <&type>),
+  constant slot node-value :: <&type>,
     required-init-keyword: value:;
   slot node-rank :: <integer> = 0;
   slot representative :: <node>;
@@ -30,23 +30,26 @@ define method make (class == <node>, #rest init-args, #key, #all-keys)
   n;
 end;
 
-define generic maybe-setup-connections (n :: <node>, t :: type-union(<type-variable>, <&type>));
+define function successors (n :: <node>) => (res :: <collection>)
+  map(edge-target, n.out-edges);
+end;
 
-define method maybe-setup-connections (n :: <node>, tv :: <type-variable>)
-  maybe-setup-connections(n, tv.type-variable-contents);
+define generic maybe-setup-connections (n :: <node>, t :: <&type>);
+
+define method maybe-setup-connections (n :: <node>, tv :: <&type-variable>)
+  maybe-setup-connections(n, tv.^type-variable-contents);
 end;
 
 define method maybe-setup-connections (n :: <node>, t :: <&type>)
 end;
 
-define method maybe-setup-connections (n :: <node>, lft :: <&limited-function-type>)
-  //actually, also function-types, but I don't expect any of those here
-  if (lft.argument-types.size == 1)
-    connect(n, lft.argument-types[0]);
-  end;
-  if (lft.value-types.size == 1)
-    connect(n, lft.value-types[0]);
-  end;
+define method maybe-setup-connections (n :: <node>, arrow :: <&arrow-type>)
+  connect(n, arrow.^arguments);
+  connect(n, arrow.^values);
+end;
+
+define method maybe-setup-connections (n :: <node>, tt :: <&tuple-type>)
+  do(curry(connect, n), tt.^tuple-types);
 end;
 
 define class <edge> (<object>)
@@ -80,18 +83,41 @@ define function constraint-connect (source :: <node>, target :: <node>) => ()
   make(<edge>, graph: source.graph, source: source, target: target, constraint: #t);
 end;
 
-define function remove-edge (source :: <node>, target :: <node>) => ()
+define function disconnect (source :: <node>, target :: <node>) => ()
   unless (source.graph == target.graph)
     error("source and target have to be in the same graph!");
   end;
   let e = choose(compose(curry(\=, target), edge-target),
                  source.out-edges);
   if (e.size == 1)
-    let edge = e[0];
-    remove!(source.out-edges, edge);
-    remove!(target.in-edges, edge);
-    remove!(source.graph.edges, edge);
-    debug-types(#"disconnect", source, target);
+    remove-edge(e[0]);
+  else
+    error("multi-edges from %= to %=\n", source, target);
+  end;
+end;
+
+define function remove-edge (edge :: <edge>) => ()
+  let source = edge.edge-source;
+  let target = edge.edge-target;
+  remove!(source.out-edges, edge);
+  remove!(target.in-edges, edge);
+  remove!(source.graph.edges, edge);
+  debug-types(#"disconnect", source, target);
+end;
+define function degree (n :: <node>) => (int :: <integer>)
+  n.out-edges.size + n.in-edges.size;
+end;
+
+define function remove-node (n :: <node>) => ()
+  for (edge in n.out-edges.copy-sequence)
+    remove-edge(edge);
+    if (edge.edge-target.in-edges.size == 0)
+      remove-node(edge.edge-target);
+    end;
+  end;
+  if (n.degree == 0)
+    remove!(n.graph.nodes, n);
+    debug-types(#"remove-node", n);
   end;
 end;
 
@@ -101,17 +127,26 @@ define function find (value :: <node>) => (res :: <node>)
 end;
 
 define method deep-copy-node
- (type :: type-union(<&type>, <type-variable>), graph :: <graph>)
+ (type :: <&type>, graph :: <graph>)
  => (res :: <node>)
   make(<node>, graph: graph, value: type);
 end;
 
 define method deep-copy-node
- (type :: <&limited-function-type>, graph :: <graph>)
+ (type :: <&tuple-type>, graph :: <graph>)
  => (res :: <node>)
-  let t = make(<&limited-function-type>,
-               arguments: deep-copy-node(type.argument-types, graph),
-               values: deep-copy-node(type.value-types, graph));
+  make(<node>, graph: graph,
+       value: make(<&tuple-type>,
+                   tuples: map(compose(rcurry(deep-copy-node, graph), node-value),
+                               type.^tuple-types)));
+end;
+
+define method deep-copy-node
+ (type :: <&arrow-type>, graph :: <graph>)
+ => (res :: <node>)
+  let t = make(<&arrow-type>,
+               arguments: deep-copy-node(type.^arguments.node-value, graph),
+               values: deep-copy-node(type.^values.node-value, graph));
   make(<node>, graph: graph, value: t);
 end;
 
@@ -202,7 +237,7 @@ end;
 /*
 begin
   let g = make(<graph>);
-  let tv = make(<type-variable>);
+  let tv = make(<&type-variable>);
   let n1 = make(<node>, graph: g, tv: tv);
   let n2 = make(<node>, graph: g, tv: tv);
   let n3 = make(<node>, graph: g, tv: tv);

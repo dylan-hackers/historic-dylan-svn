@@ -175,6 +175,23 @@ begin
     "  x(1);\n"
     "end;\n";
   add!($tests, pair(#"gradual-typing-test1", gt1));
+
+/*
+  let gt2 =
+    "define method gradual-typing-test2 ()\n"
+    "  local method f\n"
+    "         (a :: <object> => <integer>,\n"
+    "          b :: <integer> => <object>)\n"
+    "         => (res :: <integer>)\n"
+    "          2\n"
+    "       end,\n"
+    "       method y (a :: <object>)\n"
+    "         y\n"
+    "       end;\n"
+    "  f(y, y);\n"
+    "end;\n";
+  add!($tests, pair(#"gradual-typing-test2", gt2));
+*/
 end;
 
 define function callback-handler (#rest args)

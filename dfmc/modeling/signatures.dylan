@@ -209,7 +209,7 @@ end method;
 define method as-sig-types 
     (x :: <simple-object-vector>) => (types :: <simple-object-vector>)
   let sig-size = size(x);
-  if (any?(rcurry(instance?, <&type-variable>), x))
+  if (any?(rcurry(instance?, <&polymorphic-type-variable>), x))
     immutable-model(x);
   elseif (any?(rcurry(instance?, <&limited-function-type>), x))
     immutable-model(x);

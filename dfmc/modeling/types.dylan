@@ -307,7 +307,8 @@ define method ^subtype? (f :: <&type>, lft :: <&limited-function-type>) => (resu
   #f
 end;
 
-//^known-disjoint? - ^instantiable?
+//missing: ^known-disjoint? - ^instantiable?
+
 define function ^limited-function (#rest all-keys,
                                    #key arguments :: <simple-object-vector> = #[],
                                    values :: <simple-object-vector> = #[])
@@ -330,6 +331,33 @@ define &override-function ^limited
          end;
   end;
 end &override-function;
+
+define primary &class <tuple-type> (<type>)
+  constant &slot tuple-types :: <simple-object-vector>,
+    required-init-keyword: tuples:;
+  //rest argument, size?
+end;
+
+//missing: base-type, instance?, subtype?, known-disjoint?
+
+define primary &class <arrow-type> (<type>)
+  constant &slot arguments /* :: <type> */,
+    required-init-keyword: arguments:;
+  constant &slot values /* :: <type> */,
+    required-init-keyword: values:;
+end;
+
+//missing: base-type, instance?, subtype?, known-disjoint?
+
+define primary &class <dynamic-type> (<type>)
+end;
+
+//missing: base-type, instance?, subtype?, known-disjoint?
+
+define primary &class <type-variable> (<type>)
+  &slot type-variable-contents :: <type>,
+    required-init-keyword: contents:;
+end;
 
 //// Compiler type properties.
 

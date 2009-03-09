@@ -48,10 +48,7 @@ end;
 define class <type-estimate-values> (<type-estimate>)
   constant slot type-estimate-fixed-values :: <type-variable-vector> = #[], 
     init-keyword: fixed:;
-  constant slot type-estimate-rest-values :: false-or(<type-variable>)
-    = make(<type-variable>, 
-           contents: make(<type-estimate-class>, 
-                          class: dylan-value(#"<object>"))),
+  constant slot type-estimate-rest-values = #f,
     init-keyword: rest:;
 end;
 
@@ -68,7 +65,7 @@ define abstract class <type-estimate-limited-collection> (<type-estimate-limited
     init-value: #f, init-keyword: dimensions:;
   constant slot type-estimate-size :: false-or(limited(<integer>, min: 0)) = #f,
     init-keyword: size:;
-  constant slot type-estimate-of :: false-or(<type-variable>) = #f,
+  constant slot type-estimate-of = #f,
     init-keyword: of:;
 end;
 
@@ -141,7 +138,7 @@ define function type-estimate-values-ref
 end;
 
 define constant <type-cache>     
-  = limited(<table>, of: false-or(<type-variable>));
+  = limited(<table>, of: #f);
 
 define compiler-sideways method initialize-typist-library-caches 
     (ld :: <compilation-context>) => ()

@@ -10,8 +10,12 @@ define method get-id (c :: <computation>)
   c.computation-id;
 end;
 
-define method get-id (l :: <&limited-function-type>)
+define method get-id (l :: <&arrow-type>)
   #"arrow"
+end;
+
+define method get-id (l :: <&tuple-type>)
+  #"tuple"
 end;
 
 define method get-id (o :: <object-reference>)
@@ -22,8 +26,11 @@ define method get-id (t :: <temporary>)
   t.temporary-id;
 end;
 
-define method get-id (tv :: <type-variable>)
-  tv.type-variable-id;
+define constant $tv-id-map :: <table> = make(<table>);
+
+define method get-id (tv :: <&type-variable>)
+  element($tv-id-map, tv, default: #f) |
+    ($tv-id-map[tv] := next-computation-id());
 end;
 
 define method get-id (n :: <node>)

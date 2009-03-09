@@ -181,7 +181,19 @@ define module-with-models dfmc-modeling
       ^pack-signature-properties,
       ^signature-number-keys,
 
+    <&tuple-type>,
+      &getter tuple-types,
+
+    <&arrow-type>,
+      &getter arguments,
+      &getter values,
+
+    <&dynamic-type>,
+
     <&type-variable>,
+      &slot type-variable-contents,
+
+    <&polymorphic-type-variable>,
       &getter type-variable-name,
       &getter type-variable-kind,
       

@@ -30,8 +30,24 @@ define compiler-sideways method print-object (l :: <&limited-function-type>, str
   format(str, "%= => %=", l.^limited-function-argument-types, l.^limited-function-return-values);
 end;
 
-define compiler-sideways method print-object (tv :: <&type-variable>, str :: <stream>) => ()
+define compiler-sideways method print-object (tv :: <&polymorphic-type-variable>, str :: <stream>) => ()
   format(str, "%= <: %=", tv.^type-variable-name, tv.^type-variable-kind);
+end;
+
+define compiler-sideways method print-object (l :: <&arrow-type>, str :: <stream>) => ()
+  format(str, "%= => %=", l.^arguments, l.^values);
+end;
+
+define compiler-sideways method print-object (tv :: <&type-variable>, str :: <stream>) => ()
+  format(str, "TV: %=", tv.^type-variable-contents);
+end;
+
+define compiler-sideways method print-object (tv :: <&dynamic-type>, str :: <stream>) => ()
+  format(str, "dynamic");
+end;
+
+define compiler-sideways method print-object (tv :: <&tuple-type>, str :: <stream>) => ()
+  format(str, "{ %= }", tv.^tuple-types);
 end;
 
 define compiler-sideways method print-object (o :: <&object>, stream :: <stream>) => ()

@@ -27,11 +27,6 @@ define module dfmc-typist
   use dfmc-reader;
   use dfmc-imports;
 
-  export <type-variable>,
-    type-variable-contents,
-    type-contents-callback,
-    type-contents-callback-setter;
-
   export type-estimate,
     lookup-type,
     type-estimate-top-level-form;

@@ -9,7 +9,10 @@ define function lookup-type-variable (o :: <object>) => (res :: <node>)
   let res = element(tenv, o, default: #f);
   unless (res)
     let te = type-estimate-object(o);
-    let tv = make(<type-variable>,
+    if (te == dylan-value(#"<object>"))
+      te := make(<&dynamic-type>);
+    end;
+    let tv = make(<&type-variable>,
                   contents: te | make(<&top-type>));
     debug-types(#"new-type-variable", tv, o, te);
     let n = make(<node>, graph: *graph*, value: tv);
@@ -23,6 +26,9 @@ define function lookup-type (o :: <object>) => (res :: <node>)
   let res = element(tenv, o, default: #f);
   unless (res)
     let te = type-estimate-object(o);
+    if (te == dylan-value(#"<object>"))
+      te := make(<&dynamic-type>);
+    end;
     let n = make(<node>, graph: *graph*, value: te);
     tenv[o] := n;
   end;
@@ -114,22 +120,50 @@ end;
 define function infer-function-type (fun :: <&function>, arguments :: <vector>, result) => ()
   format-out("got %=\n", fun);
   //keyword-arguments, #rest!
-  let specializers = ^function-specializers(fun);
   let sig = ^function-signature(fun);
   let values
     = copy-sequence(sig.^signature-values, end: sig.^signature-number-values);
+  let specializers
+    = begin
+        let args = ^function-specializers(fun);
+        let nodes = map(lookup-type, args);
+        if (nodes.size == 1)
+          nodes.first;
+        else
+          lookup-type(make(<&tuple-type>, tuples: nodes));
+        end;
+      end;
+  
+  let vals
+    = begin
+        let nodes = map(lookup-type, values);
+        if (nodes.size == 1)
+          nodes.first;
+        else
+          lookup-type(make(<&tuple-type>, tuples: nodes));
+        end;
+      end;
+
   let left = make(<node>,
                   graph: *graph*,
-                  value: make(<&limited-function-type>,
-                              arguments: map(lookup-type, specializers),
-                              values: map(lookup-type, values)));
+                  value: make(<&arrow-type>,
+                              arguments: specializers,
+                              values: vals));
 
-  let args = map(lookup-type-variable, arguments);
+  let args
+    = begin
+        let nodes = map(lookup-type-variable, arguments);
+        if (nodes.size == 1)
+          nodes.first;
+        else
+          lookup-type(make(<&tuple-type>, tuples: nodes));
+        end;
+      end;
 
   let right = make(<node>,
                    graph: *graph*,
-                   value: make(<&limited-function-type>,
+                   value: make(<&arrow-type>,
                                arguments: args,
-                               values: vector(lookup-type-variable(result))));
+                               values: lookup-type-variable(result)));
   add-constraint(make(<equality-constraint>, left: left, right: right));
 end;

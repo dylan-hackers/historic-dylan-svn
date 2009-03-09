@@ -36,20 +36,6 @@ define function trace-computations (vis :: <dfmc-graph-visualization>, key :: <s
       write-data(vis, key, output-computation-sexp(comp-or-id));
     #"remove-computation" =>
       write-data(vis, key, id);
-    #"change-type" =>
-      begin
-        let str = make(<string-stream>, direction: #"output");
-        if (instance?(comp-or-id, <type-variable>))
-          unless (comp-or-id.type-contents-callback)
-            comp-or-id.type-contents-callback
-              := rcurry(curry(trace-computations, vis, #"change-type", id), 0);
-          end;
-          print-object(comp-or-id.type-variable-contents, str);
-        else
-          print-object(comp-or-id, str);
-        end;
-        write-data(vis, key, id, str.stream-contents);
-      end;
     #"change-entry-point" =>
       write-data(vis, key, id, comp-or-id);
     #"set-loop-call-loop" =>

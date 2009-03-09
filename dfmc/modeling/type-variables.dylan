@@ -1,7 +1,7 @@
 module: dfmc-modeling
 
 
-define primary abstract &class <type-variable> (<type>)
+define primary &class <polymorphic-type-variable> (<type>)
   constant &slot type-variable-name :: <symbol>,
     required-init-keyword: name:;
   constant &slot type-variable-kind :: <type>,
@@ -9,22 +9,13 @@ define primary abstract &class <type-variable> (<type>)
     init-keyword: kind:;
 end;
 
-define primary &class <simple-type-variable> (<type-variable>)
-end;
-
 /*
-define primary &class <variable-arity-same-type-variable> (<type-variable>)
+define primary &class <variable-arity-same-type-variable> (<polymorphic-type-variable>)
 end;
 
-define primary &class <variable-arity-different-type-variable> (<type-variable>)
+define primary &class <variable-arity-different-type-variable> (<polymorphic-type-variable>)
   &slot type-variables :: <list>, init-value: #();
 end;
 */
 
-define method ^make (class == <&type-variable>, #rest all-keys, #key)
- => (res :: <&type-variable>)
-  apply(^make, <&simple-type-variable>,
-	all-keys);
-end;
-	
 	

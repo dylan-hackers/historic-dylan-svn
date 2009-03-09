@@ -66,7 +66,7 @@ define function compute-type-variables
     (type-vars :: <collection>) => (res :: <simple-object-vector>)
   map-as(<simple-object-vector>,
          method(x)
-           ^make(<&type-variable>,
+           ^make(<&polymorphic-type-variable>,
                  name: fragment-name(spec-variable-name(x)),
                  kind: ^top-level-eval-type(spec-type-expression(x)))
          end, type-vars)
