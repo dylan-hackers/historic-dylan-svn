@@ -55,3 +55,13 @@ define suite all-libraries-test-suite ()
   //suite zlib-test-suite;
 end suite all-libraries-test-suite;
 
+define method main () => ()
+  let filename = locator-name(as(<file-locator>, application-name()));
+  if (split(filename, ".")[0] = "all-libraries-test-suite")
+    run-test-application(all-libraries-test-suite);
+  end;
+end method main;
+
+begin
+  main()
+end;
