@@ -3,6 +3,8 @@ Author: Carl Gay
 
 define library all-libraries-test-suite
   use common-dylan;
+  use system,
+    import: { locators };
   use testworks;
 
   // Test suite libraries
@@ -20,6 +22,8 @@ end;
 
 define module all-libraries-test-suite
   use common-dylan;
+  use locators,
+    import: { <file-locator>, locator-name };
   use testworks;
 
   // Test suite modules

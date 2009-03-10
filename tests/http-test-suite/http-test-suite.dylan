@@ -7,3 +7,14 @@ define suite http-test-suite ()
   suite http-protocol-test-suite;
   suite koala-test-suite;
 end;
+
+define method main () => ()
+  let filename = locator-name(as(<file-locator>, application-name()));
+  if (split(filename, ".")[0] = "http-test-suite")
+    run-test-application(http-test-suite);
+  end;
+end method main;
+
+begin
+  main()
+end;
