@@ -43,4 +43,7 @@ define function make-server
         keys)
 end;
 
+define function echo-responder ()
+  output(request-content(current-request()));
+end;
 

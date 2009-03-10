@@ -883,14 +883,14 @@ define method read-request (request :: <request>) => ()
   end;
 
   parse-request-line(server, request, buffer, len);
-  unless (request.request-version == #"http/0.9")
+  unless (request.request-version = #"http/0.9")
     read-message-headers(socket,
                          buffer: buffer,
                          start: len,
                          headers: request.raw-headers);
   end unless;
   process-incoming-headers(request);
-  select (request.request-method by \==)
+  select (request.request-method by \=)
     #"post", #"put" => read-request-content(request);
     otherwise => #f;
   end select;

@@ -7,6 +7,7 @@ define library koala-test-suite
     import: { common-dylan,
               threads };
   use http-client;
+  use http-common;
   use koala,
     import: { koala,
               koala-unit };
@@ -26,10 +27,13 @@ define module koala-test-suite
   use common-dylan;
   use date;
   use http-client;
+  use http-common;
   use koala;
   use koala-unit;
   use locators,
-    import: { <directory-locator> };
+    import: { <directory-locator>,
+              <file-locator>,
+              locator-name };
   use sockets,
     import: { <connection-failed>,
               <address-in-use>,

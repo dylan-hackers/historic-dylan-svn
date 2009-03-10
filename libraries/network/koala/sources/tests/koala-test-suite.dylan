@@ -91,12 +91,48 @@ define suite start-stop-test-suite ()
   test conflicting-listener-ips-test;
 end suite start-stop-test-suite;
 
+// Test that the server can handle the "Transfer-encoding: chunked" header
+// by setting the outgoing-chunk-size of the client's connection.
+//
+define test chunked-request-test ()
+  // Client requests are chunked if we don't add a Content-Length header.
+  with-http-server (server = make-server())
+    add-responder(server, "/echo", echo-responder);
+    with-http-connection(conn = make-test-url("/echo"),
+                         outgoing-chunk-size: 8)
+      for (data-size in #(0, 1, 7, 8, 9, 200))
+        let data = make(<byte-string>, size: data-size, fill: 'x');
+        send-request(conn, "POST", "/echo", content: data);
+        let response = read-response(conn);
+        check-equal(format-to-string("chunked request of size %d received correctly",
+                                     data-size),
+                    data, response-content(response));
+      end for;
+    end;
+  end;
+end test chunked-request-test;
+
+define suite chunking-test-suite ()
+  test chunked-request-test;
+end;
+
 // exported
 define suite koala-test-suite
     (setup-function: start-sockets)
   suite start-stop-test-suite;
+  suite chunking-test-suite;
   suite configuration-test-suite;
   suite xml-rpc-test-suite;
   suite vhost-test-suite;
 end suite koala-test-suite;
 
+define method main () => ()
+  let filename = locator-name(as(<file-locator>, application-name()));
+  if (split(filename, ".")[0] = "koala-test-suite")
+    run-test-application(koala-test-suite);
+  end;
+end method main;
+
+begin
+  main()
+end;
