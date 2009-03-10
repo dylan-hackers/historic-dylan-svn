@@ -39,9 +39,9 @@ send-request(conn, "/form",
 
 
 // Send streaming data.
-let request :: <http-request> = start-request(conn, "/huge-file.gz", method: "PUT");
-...write(request, "foo")...
-finish-request(request);
+start-request(conn,  "PUT", "/huge-file.gz");
+...write(conn, "foo")...
+finish-request(conn);
 let response = read-response(conn);
 
 
@@ -712,7 +712,7 @@ end method read-status-line;
 ///////////////////////////////////////////
 
 define function make-http-connection
-    (host-or-url, #rest initargs, #key port)
+    (host-or-url, #rest initargs, #key port, #all-keys)
   let host = host-or-url;
   let port = port | $default-http-port;
   if (instance?(host, <uri>))
