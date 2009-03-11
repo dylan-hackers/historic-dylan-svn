@@ -240,12 +240,12 @@ end method ^slot-allocation;
 //end;
 
 
-define inline function accessor-method-dispatch-arg (m :: <&accessor-method>) => (i :: <integer>)
+define sideways inline method accessor-method-dispatch-arg (m :: <&accessor-method>) => (i :: <integer>)
   if (instance?(m, <&setter-accessor-method>)) 1 else 0 end
-end function;
+end method;
 
 
-define function get-method-slot-descriptor (m :: <&accessor-method>)
+define sideways method get-method-slot-descriptor (m :: <&accessor-method>)
  => (sd :: <&slot-descriptor>, class :: <&class>)
   let class =
     m.^function-signature.^signature-required[accessor-method-dispatch-arg(m)];
@@ -324,7 +324,7 @@ define function ^instance-slots-have-fixed-offsets? (class :: <&class>)
   end
 end;
 
-define function slot-offset-fixed-in-class?
+define sideways method slot-offset-fixed-in-class?
     (sd :: <&slot-descriptor>, class :: <&class>)
   let slot-owner = ^slot-owner(sd);
   ^instance-slots-have-fixed-offsets?(slot-owner) |  // slight optimization
@@ -346,7 +346,7 @@ end;
 // The accessor used having previously determined that a slot has a fixed
 // offset using the above predicates.
 
-define function ^slot-fixed-offset 
+define sideways method ^slot-fixed-offset 
     (sd :: <&slot-descriptor>, class :: <&class>)
  => (offset :: <integer>)
   if (^class-abstract?(class))
@@ -374,7 +374,7 @@ define function ^slot-fixed-offset
   end;
 end;
 
-define function slot-guaranteed-initialized-in-class?
+define sideways method slot-guaranteed-initialized-in-class?
     (sd :: <&slot-descriptor>, class :: <&class>)
   ^init-supplied?(^effective-initial-value-descriptor(sd, class)) |
     begin

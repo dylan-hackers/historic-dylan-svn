@@ -835,4 +835,16 @@ define module-with-models dfmc-modeling
     get-default-call-site-summary,
     <call-site-summary>;
 
+  export slot-offset-fixed-in-class?,
+    ^slot-fixed-offset,
+    slot-guaranteed-initialized-in-class?,
+    get-method-slot-descriptor,
+    accessor-method-dispatch-arg,
+    ^ensure-slots-initialized,
+    ^method-generic-function,
+    ^generic-function-domains-known,
+    ^generic-function-methods-known,
+    <argument-sequence>,
+    maybe-vector-element-references;
+
 end module-with-models dfmc-modeling;

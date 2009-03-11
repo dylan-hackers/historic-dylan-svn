@@ -10,7 +10,6 @@ files:	 optimization-library
 	 multiple-values
 	 non-local-exit
 	 tail-call
-         dispatch
          dynamic-extent
          check
 	 optimize

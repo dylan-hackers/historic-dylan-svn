@@ -29,21 +29,17 @@ define module dfmc-conversion
   use dfmc-typist;
   use dfmc-flow-graph;
   export 
-    $ignore, $single, $all-rest,
+    $ignore, $all-rest,
     convert,
     convert-type-expression,
     convert-value-reference,
     convert-object-reference,
     convert-object-reference-1,
-    make-object-reference,
     convert-method-reference,
-    convert-reference,
     convert-values,
     convert-global-reference,
     convert-dylan-reference,
     make-global-reference,
-    make-dylan-reference,
-    make-value-reference,
     convert-error-call,
     convert-1,
     convert-top-level-initializer;
@@ -51,25 +47,17 @@ define module dfmc-conversion
   export // utilities
     make-with-temporary*,
     fast-constant-value?,
-    constant-value,
-    function-value,
-    call-effective-function,
     extractable-constant-value?,
     extract-constant,
     pad-multiple-values,
     temporary-value-context,
-    <value-context>, 
     <ignore-value-context>, 
-    <single-value-context>,
     <multiple-value-context>,
-    match-values-with-temporary,
     match-values-with-context,
     bind-local-variable,
     do-convert;
 
   export
-    <argument-sequence>,
-    maybe-vector-element-references,
     ^function-key-type*,
     ^function-value-type*,
     ^function-required-type*,
@@ -89,12 +77,9 @@ define module dfmc-conversion
 
   export // generic functions
     ^generic-function-explicitly-defined-methods,
-    ^generic-function-explicitly-defined-domains,
-    ^generic-function-domains-known,
-    ^generic-function-methods-known;
+    ^generic-function-explicitly-defined-domains;
 
   export // methods
-    ^method-generic-function,
     method-inlineable?,
     maybe-compute-and-install-method-dfm,
     compute-and-install-method-dfm,
@@ -106,13 +91,7 @@ define module dfmc-conversion
     empty-method?;
 
   export // classes
-    ^ensure-slots-initialized,
     ^ensure-class-complete,
-    accessor-method-dispatch-arg,
-    get-method-slot-descriptor,
-    slot-offset-fixed-in-class?,
-    ^slot-fixed-offset,
-    slot-guaranteed-initialized-in-class?,
     do-instance-slot-values, \for-instance-slot-value;
 
   export

@@ -27,7 +27,6 @@ define module dfmc-optimization
   use dfmc-back-end;
   export
     really-run-compilation-passes,
-    <optimization-note>,
 
     // assignment.dylan
     eliminate-assignments,
@@ -40,10 +39,6 @@ define module dfmc-optimization
 
     // dead.dylan
     delete-useless-computations,
-
-    // entry-points.dylan
-    analyze-calls,
-    maybe-upgrade-call,
 
     // inlining.dylan
     *inlining?*,
@@ -59,16 +54,6 @@ define module dfmc-optimization
     // tail-call.dylan
     tail-position?,
 
-    // for call statistics
-    incf-static-dispatch-count,
-    incf-dynamic-dispatch-count,
-
-    *warn-about-bogus-upgrades*,
-    *colorize-bogus-upgrades*,
-
-    *profile-all-calls?*,
-    *partial-dispatch?*,
-
     *trace-optimizations?*,
     *trace-optimizing-method*,
     *trace-optimizing-library*,
@@ -76,8 +61,7 @@ define module dfmc-optimization
     *dump-dfm?*,
     *dump-dfm-method*,
     *dump-dfm-library*,
-    *dump-dfm-file*,
-    *call-upgrading?*;
+    *dump-dfm-file*;
 
   export <run-time-type-error>,
     <run-time-result-type-error>,
@@ -86,28 +70,5 @@ define module dfmc-optimization
     <ambiguous-copy-down-method>,
     <unknown-copy-down-method-domain>,
     <missing-copy-down-method>,
-    <non-function-in-call>,
-    <unknown-keyword-in-call>,
-    <argument-count-mismatch-in-call>,
-    <too-few-arguments-in-call>,
-    <too-many-arguments-in-call>,
-    <unbalanced-keyword-arguments-in-call>,
-    <non-keywords-in-call>,
-    <argument-type-mismatch-in-call>,
-    <values-argument-type-mismatch-in-call>,
-    <bogus-upgrade-possible>,
-    <unrecognized-keyword-arguments-in-call>,
-    <too-many-arguments-in-apply-call>,
-    <argument-type-mismatch-in-apply-call>,
-    <bogus-apply-upgrade-possible>,
-    <no-applicable-methods-in-call>,
     <calling-inline-only-function-out-of-line>;
-
-  export
-    best-function-key?,
-    best-function-rest?,
-    best-function-optionals?,
-    best-function-all-keys?,
-    best-function-number-keys,
-    best-function-number-required;
 end module;

@@ -975,31 +975,6 @@ define program-warning <non-sequence-last-argument-in-apply>
   format-arguments type-estimate;
 end program-warning;
 
-define method temporary-class 
-    (tmp == #f) => (res :: false-or(<class>))
-  #f
-end method;
-
-define method temporary-class 
-    (tmp :: <multiple-value-temporary>) => (res :: false-or(<class>))
-  <multiple-value-temporary>
-end method;
-
-define method temporary-class 
-    (tmp :: <temporary>) => (res :: false-or(<class>))
-  <temporary>
-end method;
-
-define method temporary-class 
-    (tmp :: <named-temporary-mixin>) => (res :: false-or(<class>))
-  <named-temporary>
-end method;
-
-define function call-temporary-class 
-    (call :: <function-call>) => (res :: false-or(<class>))
-  temporary-class(temporary(call))
-end function;
-
 define method do-optimize-apply (env :: <environment>, call, call-args) 
   let env = call.environment;
   // The generic call consistency checking code will pick up and report
@@ -1446,9 +1421,7 @@ end method;
 
 define method maybe-optimize-function-call
     (c :: <function-call>, f :: <&lambda>, arguments :: <simple-object-vector>)
-  unless (method-upgrade?(f)) // otherwise wait for upgrade
-    do-maybe-optimize-function-call(c, f, arguments)
-  end unless;
+  do-maybe-optimize-function-call(c, f, arguments)
 end method;
 
 define method maybe-optimize-function-call

@@ -8,6 +8,40 @@ Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 
+define compiler-open generic slot-offset-fixed-in-class?
+      (sd :: <&slot-descriptor>, class :: <&class>);
+
+define compiler-open generic ^slot-fixed-offset 
+    (sd :: <&slot-descriptor>, class :: <&class>)
+ => (offset :: <integer>);
+
+define compiler-open generic slot-guaranteed-initialized-in-class?
+    (sd :: <&slot-descriptor>, class :: <&class>);
+
+define compiler-open generic get-method-slot-descriptor
+ (m :: <&accessor-method>)
+ => (sd :: <&slot-descriptor>, class :: <&class>);
+
+define compiler-open generic accessor-method-dispatch-arg
+ (m :: <&accessor-method>) => (i :: <integer>);
+
+define compiler-open generic ^ensure-slots-initialized 
+    (class :: <&class>) => (well? :: <boolean>);
+
+define compiler-open generic ^generic-function-methods-known
+    (function :: <&generic-function>) => (methods :: <sequence>);
+
+define compiler-open generic ^generic-function-domains-known
+    (function :: <&generic-function>) => (domains :: <sequence>);
+
+define compiler-open generic ^method-generic-function (object :: <&method>);
+
+define constant <argument-sequence> = <simple-object-vector>;
+
+define compiler-open generic maybe-vector-element-references
+    (c) => (res :: false-or(<argument-sequence>));
+
+
 // <CALL-SITE-SUMMARY>
 
 define abstract class <call-site-summary> (<object>)

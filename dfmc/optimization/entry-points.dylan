@@ -79,10 +79,6 @@ define method analyze-calls (c :: <function-call>)
       maybe-upgrade-call(c, ef) |
 	maybe-optimize-function-call
 	  (c, call-effective-function(c), c.arguments)
-    elseif (*profile-all-calls?* 
-	      & instance?(c, <simple-call>) & ~instance?(c, <engine-node-call>) 
-	      & instance?(ef, <&generic-function>))
-      upgrade-gf-to-profiling-call-site-cache(c, ef, #[]);
     else 
       #f
     end if

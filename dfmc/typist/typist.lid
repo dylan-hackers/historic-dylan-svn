@@ -7,6 +7,8 @@ Files:     typist-library
            type-graph
            constraints
            type-inference-rules
+           method-dispatch
+           entry-points
            interface
            attic
 Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.

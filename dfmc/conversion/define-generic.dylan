@@ -210,7 +210,7 @@ define compiler-sideways method ^generic-function-methods
 end method;
 
 // Methods known in current library
-define function ^generic-function-methods-known
+define sideways method ^generic-function-methods-known
     (function :: <&generic-function>) => (methods :: <sequence>)
   if (^generic-function-sealed?(function) |
 	current-library-description?(model-library(function)))
@@ -218,12 +218,12 @@ define function ^generic-function-methods-known
   else
     ^generic-function-explicitly-defined-methods(function)
   end;
-end function;
+end method;
 
 // TODO: Less redundant computation.
 
 // Domains known in current library
-define function ^generic-function-domains-known
+define sideways method ^generic-function-domains-known
     (function :: <&generic-function>) => (domains :: <sequence>)
   if (^generic-function-sealed?(function) |
 	current-library-description?(model-library(function)))
@@ -231,7 +231,7 @@ define function ^generic-function-domains-known
   else
     ^generic-function-explicitly-defined-domains(function)
   end;
-end function;
+end method;
 
 define compiler-sideways method ^generic-function-domains 
     (gf :: <&generic-function>) => (res :: <list>)

@@ -162,19 +162,6 @@ end method inline-call;
 // it into place, an optimisation where the original code is no
 // longer needed is to re-use that.
 
-define function replace-call-computation!
-    (env :: <lexical-environment>, 
-     call :: <call>, first :: <computation>, last :: <computation>, 
-     ref :: false-or(<value-reference>))
-  // format-out("MATCHING %= TO %=\n", temporary(call), ref);
-  let (first, new-last, ref)
-    = match-values-with-temporary
-        (env, temporary(call), first, last, ref);
-  unless (new-last == last)
-    re-optimize(new-last);
-  end unless;
-  replace-computation!(call, first, new-last, ref);
-end function;
 
 define method maybe-update-inlined-next-methods
     (c :: <function-call>, f :: <&lambda>, mapped-body)

@@ -31,10 +31,28 @@ define module dfmc-typist
     lookup-type,
     type-estimate-top-level-form;
 
-  export constant-value?;
-
   //visualizer
   export *typist-visualize*;
+
+  //method upgrading
+  export *profile-all-calls?*,
+    *colorize-dispatch*,
+    color-dispatch, color-location,
+    incf-dynamic-dispatch-count,
+    guaranteed-disjoint?,
+    guaranteed-joint?,
+    effectively-disjoint?,
+    <unknown-keyword-in-call>,
+    all-applicable-methods-guaranteed-known?,
+    guaranteed-method-precedes?,
+    guaranteed-sorted-applicable-methods,
+    slot-fixed-offset-in,
+    argument-type-estimates,
+    simplify-call-to-call-to-object!,
+    maybe-check-function-call,
+    estimate-effective-methods;
+
+  export maybe-convert-box, maybe-convert-unbox;
 
   //old stuff, need to get rid of this
   export <type-estimate>,
