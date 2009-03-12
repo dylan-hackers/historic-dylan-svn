@@ -395,13 +395,10 @@ public final class Commands {
 			ihl.createTypeNode(id, object);
 		} else {
 			//got a "base type" / String or Symbol
-			if (answer.get(3) instanceof Symbol) { //arrow or tuple!
-				Node obf = null;
-				ihl.createTypeNode(id, obf);
-				ihl.changeLabel(ihl.graph.lastNode(), ((Symbol)answer.get(3)).toString());
-			}
+			if (answer.get(3) instanceof Symbol) //arrow or tuple!
+				ihl.createNodeWithLabel(((Symbol)answer.get(3)).toString(), id);
 			else
-				ihl.createTypeNode(id, (String)answer.get(3));
+				ihl.createNodeWithLabel((String)answer.get(3), id);
 		}
 		return true;
 	}

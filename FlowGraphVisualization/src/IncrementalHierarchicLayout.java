@@ -36,7 +36,6 @@ public class IncrementalHierarchicLayout
 {
 	protected IncrementalHierarchicLayouter hierarchicLayouter;
 	protected HashMap<Integer, Node> int_node_map = new HashMap<Integer, Node>();
-	protected HashMap<String, Node> type_node_map = new HashMap<String, Node>();
 	
 	protected Graph2D graph;
 	private Graph2DView view;
@@ -119,7 +118,6 @@ public class IncrementalHierarchicLayout
 	    //graph.addDataProvider(IncrementalHierarchicLayouter.INCREMENTAL_HINTS_DPKEY, hintMap);
 	    hintsFactory = hierarchicLayouter.createIncrementalHintsFactory();
 		int_node_map = new HashMap<Integer, Node>();
-		type_node_map = new HashMap<String, Node>();
 		opt_queue = new ArrayList<Integer>();
 		topnodes = new ArrayList<Node>();
 		highlight = null;
@@ -338,18 +336,8 @@ public class IncrementalHierarchicLayout
 		scf.addPlaceNodeInSameLayerConstraint(tv, temp);
 	}
 
-	public void createTypeNode (int id, String type) {
-		if (! type_node_map.containsKey(type) || type.contains("<&top-type>"))
-			type_node_map.put(type, createNodeWithLabel(type, id));
-		Node t = type_node_map.get(type);
-		int_node_map.put(id, t);
-	}
-	
 	public void createTypeNode (int id, Node tv) {
-		if (tv == null)
-			createNodeWithLabel("", id);
-		else
-			int_node_map.put(id, tv);
+		int_node_map.put(id, tv);
 	}
 
 	public boolean safeCreateEdge (Node source, Node target) {
