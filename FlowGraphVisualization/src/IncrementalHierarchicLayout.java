@@ -339,7 +339,7 @@ public class IncrementalHierarchicLayout
 	}
 
 	public void createTypeNode (int id, String type) {
-		if (! type_node_map.containsKey(type) || type.equals("dynamic"))
+		if (! type_node_map.containsKey(type) || type.contains("<&top-type>"))
 			type_node_map.put(type, createNodeWithLabel(type, id));
 		Node t = type_node_map.get(type);
 		int_node_map.put(id, t);
