@@ -307,7 +307,23 @@ define method ^subtype? (f :: <&type>, lft :: <&limited-function-type>) => (resu
   #f
 end;
 
-//missing: ^known-disjoint? - ^instantiable?
+define method ^known-disjoint? (lf1 :: <&limited-function-type>, lf2 :: <&limited-function-type>)
+ => (well? :: <boolean>)
+  ~^subtype?(lf1, lf2) & ~^subtype?(lf2, lf1)
+end;
+
+/*
+define method ^known-disjoint? (lft :: <&limited-function-type>, t :: <&function-class>)
+ => (well? :: <boolean>)
+
+end;
+
+define method ^known-disjoint? (t :: <&function-class>, lft :: <&limited-function-type>)
+ => (well? :: <boolean>)
+  ^known-disjoint?(lft, t);
+end;
+*/
+//missing: ^instantiable?
 
 define function ^limited-function (#rest all-keys,
                                    #key arguments :: <simple-object-vector> = #[],
@@ -347,16 +363,45 @@ define primary &class <arrow-type> (<type>)
     required-init-keyword: values:;
 end;
 
-//missing: base-type, instance?, subtype?, known-disjoint?
-
-define primary &class <dynamic-type> (<type>)
+/*
+define method ^known-disjoint? (at :: <&arrow-type>, t :: <&type>)
+ => (well? :: <boolean>)
 end;
 
+define method ^known-disjoint? (t :: <&type>, at :: <&arrow-type>)
+ => (well? :: <boolean>)
+  ^known-disjoint?(at, t);
+end;
+*/
+
+define method ^known-disjoint? (at1 :: <&arrow-type>, at2 :: <&arrow-type>)
+ => (well? :: <boolean>)
+  ^known-disjoint?(at1.^arguments, at2.^arguments);
+end;
 //missing: base-type, instance?, subtype?, known-disjoint?
+
+define method ^known-disjoint? (a :: <&top-type>, b :: <&type>)
+ => (well? == #f)
+  #f
+end;
+
+define method ^known-disjoint? (a :: <&type>, b :: <&top-type>)
+ => (well? == #f)
+  #f;
+end;
 
 define primary &class <type-variable> (<type>)
   &slot type-variable-contents :: <type>,
     required-init-keyword: contents:;
+end;
+
+define method ^known-disjoint? (tv :: <&type-variable>, t :: <&type>)
+ => (well? :: <boolean>)
+  ^known-disjoint?(tv.^type-variable-contents, t);
+end;
+define method ^known-disjoint? (t :: <&type>, tv :: <&type-variable>)
+ => (well? :: <boolean>)
+  ^known-disjoint?(tv, t);
 end;
 
 //// Compiler type properties.

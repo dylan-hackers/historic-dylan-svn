@@ -10,13 +10,17 @@ define function lookup-type-variable (o :: <object>) => (res :: <node>)
   unless (res)
     let te = type-estimate-object(o);
     if (te == dylan-value(#"<object>"))
-      te := make(<&dynamic-type>);
+      te := make(<&top-type>);
     end;
     let tv = make(<&type-variable>,
                   contents: te | make(<&top-type>));
     debug-types(#"new-type-variable", tv, o, te);
     let n = make(<node>, graph: *graph*, value: tv);
     tenv[o] := n;
+    if (te & ~instance?(te, <&top-type>))
+      add-constraint(make(<equality-constraint>,
+                          left: n, right: te.lookup-type));
+    end;
   end;
   res | tenv[o];
 end;
@@ -27,7 +31,7 @@ define function lookup-type (o :: <object>) => (res :: <node>)
   unless (res)
     let te = type-estimate-object(o);
     if (te == dylan-value(#"<object>"))
-      te := make(<&dynamic-type>);
+      te := make(<&top-type>);
     end;
     let n = make(<node>, graph: *graph*, value: te);
     tenv[o] := n;
@@ -114,10 +118,10 @@ end;
 define method infer-computation-types (c :: <function-call>) => ()
   next-method();
   let fun = c.function.get-function-object;
-  infer-function-type(fun, c.arguments, c.temporary);
+  infer-function-type(c, fun, c.arguments, c.temporary);
 end;
 
-define function infer-function-type (fun :: <&function>, arguments :: <vector>, result) => ()
+define method infer-function-type (c :: <function-call>, fun :: <&function>, arguments :: <vector>, result) => ()
   format-out("got %=\n", fun);
   //keyword-arguments, #rest!
   let sig = ^function-signature(fun);
@@ -166,4 +170,25 @@ define function infer-function-type (fun :: <&function>, arguments :: <vector>, 
                                arguments: args,
                                values: lookup-type-variable(result)));
   add-constraint(make(<equality-constraint>, left: left, right: right));
+end;
+
+define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>, arguments :: <vector>, result) => ()
+  //simple strategy here:
+  // first, solve the type graph (at least the partial graph we have so far)
+  //this might conflict with the general idea of the type graph (error narrowing),
+  //but recording the types of the GF in the constraint is too generic
+  solve(*graph*, *constraints*, *type-environment*);
+
+  // then, try to upgrade the GF call to a simple call (narrowing result type)
+  let arguments = map(compose(^type-variable-contents, node-value, lookup-type-variable), arguments);
+  let effs = estimate-effective-methods(gf, arguments, c);
+  if (~empty?(effs) & maybe-upgrade-gf-to-method-call(c, gf, arguments, effs))
+    // finally, record type constraint (beta = tau1 -> tau2)
+    //well, this will done by the changed call-graph
+    //[get replaced method-call and call infer-function-types there]
+    //infer-computation-types(c.previous-computation.next-computation);
+  else
+    // finally, record type constraint (beta = tau1 -> tau2)
+    next-method();
+  end;
 end;

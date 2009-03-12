@@ -42,10 +42,6 @@ define compiler-sideways method print-object (tv :: <&type-variable>, str :: <st
   format(str, "TV: %=", tv.^type-variable-contents);
 end;
 
-define compiler-sideways method print-object (tv :: <&dynamic-type>, str :: <stream>) => ()
-  format(str, "dynamic");
-end;
-
 define compiler-sideways method print-object (tv :: <&tuple-type>, str :: <stream>) => ()
   format(str, "{ %= }", tv.^tuple-types);
 end;

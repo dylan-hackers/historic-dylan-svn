@@ -131,8 +131,8 @@ end method;
 // if #f is returned.  So it should return #t unless it's sure such a
 // warning would be appropriate.
 define method ^known-disjoint?
-    (class1 :: <&class>, class2 :: <&class>) => (value :: <boolean>)
-  local method guaranteed-joint-2? (class)
+    (c1 :: <&class>, c2 :: <&class>) => (value :: <boolean>)
+/*  local method guaranteed-joint-2? (class)
 	  member?(class2, ^all-superclasses(class))
 	    | any?(guaranteed-joint-2?,
 		   if (^class-sealed?(class) |
@@ -150,6 +150,113 @@ define method ^known-disjoint?
   ~member?(class1, ^all-superclasses(class2))
     & ~member?(class2, ^all-superclasses(class1))
     & ~guaranteed-joint-2?(class1)
-end method;
+end method; */
+  // True if classes c1 & c2 are guaranteed disjoint.  In general, 2 classes
+  // are disjoint if they have no common subclasses.  All this squirming around
+  // is because that's difficult to determine statically.  See example
+  // in guaranteed-joint?.
+  local method ^classes-disjoint-by-primary?(c1 :: <&class>, c2 :: <&class>) 
+            => (disjoint? :: <boolean>)
+          // We can prove c1 & c2 are disjoint if their primary superclasses
+          // won't allow diplomatic relations.  This happens when both have
+          // primary superclasses, and those primaries aren't themselves
+          // in a supertype/subtype relationship.
+          // 
+          // In fact, you just have to check the leftmost primaries on each:
+          // The primaries of each class form a chain, a subset of the CPL.
+          // If leftmost-prim-1 is a subclass of leftmost-prim-2, then
+          // chain above leftmost-prim-2 is already in 1's CPL, and vice versa.
+          let c1-left-primary = ^least-primary-superclass(c1);
+          let c2-left-primary = ^least-primary-superclass(c2);
+          c1-left-primary ~== #f                       &
+          c2-left-primary ~== #f                       &
+          ~^subtype?(c1-left-primary, c2-left-primary) &
+          ~^subtype?(c2-left-primary, c1-left-primary)
+        end,
+        method ^classes-disjoint-by-slots?(c1 :: <&class>, c2 :: <&class>)
+            => (disjoint? :: <boolean>)
+          // DRM p. 57: "... two classes which specify a slot with
+          // the same getter or setter generic function are disjoint..."
+          // Details cribbed from ^compute-slot-descriptors.
+          local method slot-match?
+                  (s1 :: <&slot-descriptor>, s2 :: <&slot-descriptor>)
+                    => (match? :: <boolean>)
+                  // Owners different and either getters or setters match.
+                  // (I.e., don't be confused by commonly inherited slots!)
+                  ^slot-owner(s1) ~== ^slot-owner(s2) & 
+                  (^slot-getter(s1) == ^slot-getter(s2) |
+                   (^slot-setter(s1) == ^slot-setter(s2) &
+		      ^slot-setter(s1) & ^slot-setter(s2) & #t))
+                end;
+          let c2-slots = ^slot-descriptors(c2);
+          any?(rcurry(member?, c2-slots, test: slot-match?), 
+              ^slot-descriptors(c1))
+        end,
+        method ^classes-disjoint-by-domain?(c1 :: <&class>, c2 :: <&class>)
+            => (disjoint? :: <boolean>)
+          // *** There is another disjointness test, hence this stub: 
+          // disjoint-by-sealed-domains.  This is true if the classes
+          // are not known to be joint (i.e., there is no explicitly
+          // known common subclass) and there is a sealed domain that
+          // guarantees that no new common subclasses can be defined.
+          ignore(c1); ignore(c2);
+          #f
+        end,
+        // *** There are a bunch of loose/tight compilation issues:
+        //     - how much is known about a class in another library?
+        //     - how about if it's not exported from that library?
+        //     Ultimately, this is a definition of a library signature.
+        // *** Can I exploit model-library(ci) here somehow?
+        // *** Memoize this & do recursively, not consing like ^all-subclasses.
+        // *** ^direct-subclasses-known-to ? ^worldwide-direct-subclasses ?
+        method ^classes-disjoint-by-sealing?(c1 :: <&class>, c2 :: <&class>)
+            => (disjoint? :: <boolean>)
+          // If you get this far, c1 and c2 _could_ be disjoint, but we need
+          // to look at subclasses to be sure.  Ensure no common subclass now,
+          // and adequate sealing to guarantee there never will be one.
+          local method disjoint-using-subclasses? (c1-subclasses :: <sequence>,
+                                                   c2 :: <&class>)
+                  // we know all of c1's subclasses, and
+                  // we know c2's superclasses (but not necessarily its
+                  // subclasses)
+                  ~any?(rcurry(^subtype?, c2), c1-subclasses)
+                end;
+          let c1-subclasses = ^all-subclasses-if-sealed(c1);
+          if (c1-subclasses)
+            disjoint-using-subclasses?(c1-subclasses, c2)
+          else
+            let c2-subclasses = ^all-subclasses-if-sealed(c2);
+            if (c2-subclasses)
+              disjoint-using-subclasses?(c2-subclasses, c1)
+            else
+              #f
+            end
+          end
+        end,
+        method ^classes-guaranteed-disjoint-1?(c1 :: <&class>, c2 :: <&class>)
+            => (disjoint? :: <boolean>)
+          // First check that one is not a subtype of the other
+          ~^subtype?(c1, c2) & ~^subtype?(c2, c1)
+          // Now they're known not to be subtypes either way.
+          & (  ^classes-disjoint-by-primary?(c1, c2)
+             | ^classes-disjoint-by-slots?  (c1, c2)
+             | ^classes-disjoint-by-domain? (c1, c2)
+             | ^classes-disjoint-by-sealing?(c1, c2))
+        end;
+  // First look in the cache to see if we already know the answer.
+  let disjoint-cache
+                    = library-type-estimate-disjoint?-cache(current-library-description());
+  let cache-key     = pair(c1, c2);
+  let cache-element = element(disjoint-cache, cache-key, default: not-found());
+  if (found?(cache-element))
+    // Found it in the cache.
+    values(cache-element, #t)
+  else
+    // Have to compute it and remember it.  Index under args both ways.
+    let val = ^classes-guaranteed-disjoint-1?(c1, c2);
+    disjoint-cache[cache-key] := val;
+    val
+  end
+end;
 
 // eof

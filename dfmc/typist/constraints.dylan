@@ -19,6 +19,7 @@ end;
 define function solve (graph :: <graph>, constraints :: <collection>, type-env :: <type-environment>)
  => ()
   let cs = copy-dynamic(constraints);
+  constraints.size := 0;
   local method push-cs (l :: <node>, r :: <node>)
           push-last(cs, make(<equality-constraint>, left: l, right: r));
         end;
@@ -47,7 +48,7 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
     do(method(x)
          if (instance?(x.node-value, <&type-variable>))
            let rep-type = x.find.node-value;
-           if (instance?(rep-type, <&type>))
+           if (instance?(rep-type, <&type>) & ~instance?(rep-type, <&type-variable>))
              format-out("changed TV %= to contain type %= now\n", x.node-value.get-id, rep-type);
              x.node-value.^type-variable-contents := rep-type;
            end
@@ -70,12 +71,12 @@ define method solve-constraint
 end;
 
 define method solve-constraint
- (t1 :: <&arrow-type>, t2 :: <&dynamic-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
+ (t1 :: <&arrow-type>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
   if (u.contains-variables?)
     disconnect(u, v);
     u.contains-variables? := #f;
     for (u1 in u.successors)
-      let w1 = make(<node>, graph: graph, value: make(<&dynamic-type>));
+      let w1 = make(<node>, graph: graph, value: make(<&top-type>));
       push-constraint(w1, u1);
     end;
   end;
@@ -90,12 +91,12 @@ define method solve-constraint
   end;
 end;
 define method solve-constraint
- (t1 :: <&tuple-type>, t2 :: <&dynamic-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
+ (t1 :: <&tuple-type>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
   if (u.contains-variables?)
     disconnect(u, v);
     u.contains-variables? := #f;
     for (u1 in u.successors)
-      let w1 = make(<node>, graph: graph, value: make(<&dynamic-type>));
+      let w1 = make(<node>, graph: graph, value: make(<&top-type>));
       push-constraint(u1, w1);
     end;
   end;
@@ -104,7 +105,7 @@ end;
 
 define method solve-constraint
  (t1 :: <&type>,
-  t2 :: type-union(<&type-variable>, <&dynamic-type>),
+  t2 :: type-union(<&type-variable>, <&top-type>),
   u :: <node>, v :: <node>, push-constraint :: <function>)
   //move along
 end;
@@ -120,8 +121,8 @@ define function copy-dynamic (constraints :: <collection>)
  => (res :: <deque>)
   as(<deque>,
      map(method(x)
-           let left = copy-dyn(x.left-hand-side);
-           let right = copy-dyn(x.right-hand-side);
+           let left = copy-dyn(x.left-hand-side.node-value, x.left-hand-side);
+           let right = copy-dyn(x.right-hand-side.node-value, x.right-hand-side);
            if (left ~= x.left-hand-side | right ~= x.right-hand-side)
              disconnect(x.left-hand-side, x.right-hand-side);
              if (left ~= x.left-hand-side)
@@ -137,39 +138,43 @@ define function copy-dynamic (constraints :: <collection>)
          end, constraints));
 end;
 
-define method copy-dyn (n :: <node>)
-  if (dynamic?(n.node-value))
-    make(<node>, graph: n.graph, value: n.node-value);
-  elseif (arrow?(n.node-value))
-    let args = copy-dyn(n.node-value.^arguments);
-    let values = copy-dyn(n.node-value.^values);
-    if (args ~= n.node-value.^arguments | values ~= n.node-value.^values)
-      //retract old arrow node?
-      make(<node>, graph: n.graph,
-           value: make(<&arrow-type>,
-                       arguments: args,
-                       values: values));
-    else
-      n
-    end;
-  elseif (instance?(n.node-value, <&tuple-type>))
-    let tt = map(copy-dyn, n.node-value.^tuple-types);
-    let need-copy? = #f;
-    for (t1 in tt, t2 in n.node-value.^tuple-types)
-      unless (t1 = t2)
-        need-copy? := #t;
-      end;
-    end;
-    if (need-copy?)
-      make(<node>, graph: n.graph,
-           value: make(<&tuple-type>,
-                       tuples: tt))
-    else
-      n
-    end;
+define method copy-dyn (t :: <&top-type>, n :: <node>) => (node :: <node>)
+  make(<node>, graph: n.graph, value: n.node-value);
+end;
+
+define method copy-dyn (t :: <&arrow-type>, n :: <node>) => (node :: <node>)
+  let args = copy-dyn(t.^arguments.node-value, t.^arguments);
+  let values = copy-dyn(t.^values.node-value, t.^values);
+  if (args ~= t.^arguments | values ~= t.^values)
+    //retract old arrow node?
+    make(<node>, graph: n.graph,
+         value: make(<&arrow-type>,
+                     arguments: args,
+                     values: values));
   else
     n
   end;
+end;
+
+define method copy-dyn (t :: <&tuple-type>, n :: <node>) => (node :: <node>)
+  let tt = map(method(x) copy-dyn(x.node-value, x) end, t.^tuple-types);
+  let need-copy? = #f;
+  for (t1 in tt, t2 in t.^tuple-types)
+    unless (t1 = t2)
+      need-copy? := #t;
+    end;
+  end;
+  if (need-copy?)
+    make(<node>, graph: n.graph,
+         value: make(<&tuple-type>,
+                     tuples: tt))
+  else
+    n
+  end;
+end;
+
+define method copy-dyn (t :: <&type>, n :: <node>) => (node :: <node>)
+  n
 end;
 
 define function order (u :: <node>, v :: <node>)

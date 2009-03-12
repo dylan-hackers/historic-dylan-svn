@@ -1,5 +1,13 @@
 module: dfmc-typist
 
+define generic guaranteed-disjoint? (t1 :: type-union(<type-estimate>, <&type>), t2 :: type-union(<type-estimate>, <&type>))
+  => (res :: <boolean>);
+
+define method guaranteed-disjoint? (t1 :: type-union(<type-estimate>, <&type>), t2 :: type-union(<type-estimate>, <&type>))
+  => (res == #f);
+  #f //we don't know anything
+end;
+
 define abstract primary class <type-estimate> (<object>)
 end;
 
@@ -20,11 +28,6 @@ end;
 define method type-estimate-disjoint? (te1 :: <type-estimate>, te2 :: <type-estimate>)
  => (disjoint? :: <boolean>, known? :: <boolean>)
   values(#f, #t);
-end;
-
-define function ^classes-guaranteed-disjoint? (c1 :: <&class>, c2 :: <&class>)
-    => (disjoint? :: <boolean>)
-  #f;
 end;
 
 define constant <type-variable-vector> = <simple-object-vector>;
@@ -137,23 +140,4 @@ define function type-estimate-values-ref
   end
 end;
 
-define constant <type-cache>     
-  = limited(<table>, of: #f);
-
-define compiler-sideways method initialize-typist-library-caches 
-    (ld :: <compilation-context>) => ()
-  // When you make a <library-description> or an interactive layer, install
-  // typist caches.   Done this way because of module lossage, i.e. typist
-  // classes aren't visible
-  // in dfmc-namespace, so couldn't do it with slot initializers. Sigh.
-  library-type-cache(ld) := 
-    make(<type-cache> /* , size: $type-cache-size-init$ */);
-  library-type-estimate-disjoint?-cache(ld) := 
-    //make(<type-estimate-pair-match-table> /* , size: $disjoint-cache-size-init$ */);
-    make(<table>);
-  library-type-estimate-cons-cache(ld) := 
-    make(<table> /* , size: $cons-cache-size-init$ */);
-  library-type-estimate-dispatch-cache(ld) := 
-    make(<table> /* , size: $cons-cache-size-init$ */);
-end;
 

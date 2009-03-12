@@ -188,8 +188,6 @@ define module-with-models dfmc-modeling
       &getter arguments,
       &getter values,
 
-    <&dynamic-type>,
-
     <&type-variable>,
       &slot type-variable-contents,
 

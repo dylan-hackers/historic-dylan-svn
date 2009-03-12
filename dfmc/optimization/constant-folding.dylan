@@ -679,7 +679,7 @@ define method constant-fold (c :: <adjust-multiple-values-rest>)
 	  size(type-estimate-fixed-values(te)) >= n 
 	end;
   if (select (values-te by instance?)
-	<type-estimate-bottom> => 
+	<type-estimate-bottom>, <type-estimate-top> => 
 	  #f;
 	<type-estimate-values> =>
 	  right-number-of-values?(values-te);

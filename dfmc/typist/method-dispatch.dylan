@@ -15,9 +15,9 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 //// Debug switches.
 
 define thread variable *trace-dispatch*            = #f;
-define thread variable *trace-dispatch-failure*    = #f;
+define thread variable *trace-dispatch-failure*    = #t;
 // define thread variable *trace-selection-success*   = #f;
-define thread variable *trace-selection-failure*   = #f;
+define thread variable *trace-selection-failure*   = #t;
 define thread variable *trace-call-cache-success*  = #f;
 define thread variable *trace-call-cache-failure*  = #f;
 define thread variable *colorize-dispatch*         = #t;
@@ -36,12 +36,8 @@ define macro note-when
     => { if (?test) note(?args) end }
 end macro;
 
-//// Typist interface.
-
-define constant <type-or-est> = type-union(<&type>, <type-estimate>);
-
 ///
-/// guaranteed-joint? (<type-or-est>, <type-or-est>) => (joint? :: <boolean>)
+/// guaranteed-joint? (<&type>, <&type>) => (joint? :: <boolean>)
 ///
 /// Returns true only if all instances conforming to the type-estimate
 /// are guaranteed to be instances of the given Dylan type.
@@ -66,47 +62,33 @@ define constant <type-or-est> = type-union(<&type>, <type-estimate>);
 ///  do a simple compile-time dispatch to that lone method.
 ///
 
-define generic guaranteed-joint?(t1 :: <type-or-est>, t2 :: <type-or-est>)
+define generic guaranteed-joint?(t1 :: type-union(<type-estimate>, <&type>), t2 :: type-union(<type-estimate>, <&type>))
    => (res :: <boolean>);
 
-define method guaranteed-joint?(t1 :: <&type>, t2 :: <type-estimate>)
- => (res :: <boolean>)
-  // Coerce first arg to a <type-estimate>.
-  type-estimate-subtype?(as(<type-estimate>, t1), t2)
-end;
-
-define method guaranteed-joint?(t1 :: <type-estimate>, t2 :: <&type>)
- => (res :: <boolean>)
-  // Coerce second arg to a <type-estimate>.
-  type-estimate-subtype?(t1, as(<type-estimate>, t2))
+define method guaranteed-joint?(t1 :: type-union(<type-estimate>, <&type>), t2 :: type-union(<type-estimate>, <&type>))
+ => (well? :: <boolean>)
+  #f
 end;
 
 define method guaranteed-joint?(t1 :: <&type>, t2 :: <&type>)
  => (res :: <boolean>)
-  // Coerce both args to <type-estimate>s.
-  type-estimate-subtype?(as(<type-estimate>, t1), as(<type-estimate>, t2))
+  ^subtype?(t1, t2)
 end;
-
-define method guaranteed-joint?(t1 :: <type-estimate>, t2 :: <type-estimate>)
- => (res :: <boolean>)
-  // Both are <type-estimate>s, so hand off.
-  type-estimate-subtype?(t1, t2)
-end;
-
+/*
 define method guaranteed-joint?(t1 :: <type-estimate-limited-instance>,
 				t2 :: <&type>)
  => (res :: <boolean>)
   // Singleton type estimates can be decided quickly, w/o typist overhead. 
   ^instance?(type-estimate-singleton(t1), t2)
 end;
-   
+*/ 
 // Disambiguating methods
-define method guaranteed-joint?(t1 :: <type-estimate-limited-instance>,
+define method guaranteed-joint?(t1 :: <&type>,
 				t2 :: <&top-type>)
  => (res :: singleton(#t))
   #t
 end;
-define method guaranteed-joint?(t1 :: <type-estimate-limited-instance>,
+define method guaranteed-joint?(t1 :: <&type>,
 				t2 :: <&bottom-type>)
  => (res :: singleton(#f))
   #f
@@ -128,51 +110,6 @@ define method guaranteed-joint?(t1 :: <&singleton>, t2 :: <&bottom-type>)
   #f
 end;
 
-define method guaranteed-joint?(t1 :: <type-estimate>, t2 :: <&top-type>)
- => (res :: singleton(#t))
-  // Top types can be quickly decided, w/o typist overhead.
-  #t
-end;
-
-define method guaranteed-joint?(t1 :: <&type>, t2 :: <&top-type>)
- => (res :: singleton(#t))
-  // Top types can be quickly decided, w/o typist overhead.
-  #t
-end;
-
-define method guaranteed-joint?(t1 :: <type-estimate>, t2 :: <&bottom-type>)
- => (res :: singleton(#f))
-  // Bottom can be quickly decided, w/o typist overhead.
-  #f
-end;
-
-define method guaranteed-joint?(t1 :: <&type>, t2 :: <&bottom-type>)
- => (res :: singleton(#f))
-  // Bottom can be quickly decided, w/o typist overhead.
-  #f
-end;
-
-define method guaranteed-joint? (t1 :: <type-estimate-bottom>, t2 :: <&bottom-type>)
- => (res :: singleton(#t))
-  // But bottom is joint with itself.
-  // Believe it or not, this comes up in checking the "return" type of error!
-  #t
-end;
-  
-define method guaranteed-joint? (t1 :: <&bottom-type>, t2 :: <type-estimate-bottom>)
- => (res :: singleton(#t))
-  // But bottom is joint with itself.
-  // Believe it or not, this comes up in checking the "return" type of error!
-  #t
-end;
-
-define method guaranteed-joint? (t1 :: <type-estimate-bottom>, t2 :: <type-estimate-bottom>)
- => (res :: singleton(#t))
-  // But bottom is joint with itself.
-  // Believe it or not, this comes up in checking the "return" type of error!
-  #t
-end;
-
 define method guaranteed-joint? (t1 :: <&bottom-type>, t2 :: <&bottom-type>)
  => (res :: singleton(#t))
   // But bottom is joint with itself.
@@ -181,180 +118,17 @@ define method guaranteed-joint? (t1 :: <&bottom-type>, t2 :: <&bottom-type>)
 end;
 
 ///
-/// guaranteed-disjoint?(t1, t2) -- #t if any instance of t1 is guaranteed 
-///    never to be an instance of t2.  NB: If t1 is a subtype of t2, then EVERY
-///    instance of t1 is an instance of t2.  If t2 is a subtype of t1, then SOME
-///    (indirect) instances of t1 are (direct) instances of t2.  So t1 & t2
-///    must be incomparable in order to be disjoint.
-///
-///    Disjointness is a symmetric, non-transitive, anti-reflexive relation.
-///
-///    DRM p.49 gives disjointness rules.
-///
-
-define generic guaranteed-disjoint?(t1 :: <type-or-est>, t2 :: <type-or-est>)
-  => (res :: <boolean>);
-
-define method guaranteed-disjoint?(t1 :: <&type>, t2 :: <type-estimate>)
- => (res :: <boolean>)
-  // Coerce first arg to a <type-estimate>.
-  type-estimate-disjoint?(as(<type-estimate>, t1), t2)
-end;
-
-define method guaranteed-disjoint?(t1 :: <type-estimate>, t2 :: <&type>)
- => (res :: <boolean>)
-  // Coerce second arg to a <type-estimate>.
-  type-estimate-disjoint?(t1, as(<type-estimate>, t2))
-end;
-
-define method guaranteed-disjoint?(t1 :: <&type>, t2 :: <&type>)
- => (res :: <boolean>)
-  // Coerce both args to a <type-estimate>.
-  type-estimate-disjoint?(as(<type-estimate>, t1), as(<type-estimate>, t2))
-end;
-
-define method guaranteed-disjoint?(t1 :: <type-estimate>, t2 :: <type-estimate>)
- => (res :: <boolean>)
-  // Both are <type-estimate>s, so hand off
-  type-estimate-disjoint?(t1, t2)
-end;
-
-///
-/// These are attempts to short-circuit the typist in frequent but quick cases.
-/// Metering indicates that the typist overhead was excessive for these simple,
-/// frequently-occurring cases.
-///
-
-define method guaranteed-disjoint?(t1 :: <type-estimate-limited-instance>,
-	                           t2 :: <&type>)
- => (res :: <boolean>)
-  // Singleton type estimates can be quickly decided here.
-  ~^instance?(type-estimate-singleton(t1), t2)
-end;
-   
-define method guaranteed-disjoint?(t1 :: <&type>,
-                                   t2 :: <type-estimate-limited-instance>)
- => (res :: <boolean>)
-  // Singleton type estimates can be quickly decided here.
-  ~^instance?(type-estimate-singleton(t2), t1)
-end;
-
-define method guaranteed-disjoint?(t1 :: <&singleton>, t2 :: <&type>)
- => (res :: <boolean>)
-  // Singleton model types can be quickly decided here.
-  ~^instance?(^singleton-object(t1), t2)
-end;
-
-define method guaranteed-disjoint?(t1 :: <&type>, t2 :: <&singleton>)
- => (res :: <boolean>)
-  // Singleton model types can be quickly decided here.
-  ~^instance?(^singleton-object(t2), t1)
-end;
-
-define method guaranteed-disjoint?(c1 :: <&class>, c2 :: <&class>)
- => (res :: <boolean>)
-  // Going through the typist would involve wrapping & then unwrapping the 
-  // <type-estimate>, so just apply directly to the eventual oracle.
-  ^classes-guaranteed-disjoint?(c1, c2)
-end;
-
-define method guaranteed-disjoint?(c1 :: <&class>, c2 :: <type-estimate-class>)
- => (res :: <boolean>)
-  // Going through the typist would involve wrapping & then unwrapping the 
-  // <type-estimate>, so just apply directly to the eventual oracle.
-  ^classes-guaranteed-disjoint?(c1, type-estimate-class(c2))
-end;
-
-define method guaranteed-disjoint?(c1 :: <type-estimate-class>, c2 :: <&class>)
- => (res :: <boolean>)
-  // Going through the typist would involve wrapping & then unwrapping the 
-  // <type-estimate>, so just apply directly to the eventual oracle.
-  ^classes-guaranteed-disjoint?(type-estimate-class(c1), c2)
-end;
-
-define method guaranteed-disjoint?(c1 :: <&class>, c2 :: <type-estimate-limited-collection>)
- => (res :: <boolean>)
-  // Going through the typist would involve wrapping & then unwrapping the 
-  // <type-estimate>, so just apply directly to the eventual oracle.
-  ^classes-guaranteed-disjoint?
-    (c1, type-estimate-concrete-class(c2) | type-estimate-class(c2))
-end;
-
-define method guaranteed-disjoint?(c1 :: <type-estimate-limited-collection>, c2 :: <&class>)
- => (res :: <boolean>)
-  // Going through the typist would involve wrapping & then unwrapping the 
-  // <type-estimate>, so just apply directly to the eventual oracle.
-  ^classes-guaranteed-disjoint?
-    (type-estimate-concrete-class(c1) | type-estimate-class(c1), c2)
-end;
-
-define method guaranteed-disjoint?(c1 :: <type-estimate-limited-instance>,
-				   c2 :: <&class>)
- => (res :: <boolean>)
-  // Going through the typist would involve wrapping & then unwrapping the 
-  // <type-estimate>, so just apply directly to the eventual oracle.
-  ~^instance?(type-estimate-singleton(c1), c2)
-end;
-
-
-define method guaranteed-disjoint?(c1 :: <type-estimate-class>, 
-                                   c2 :: <type-estimate-class>)
- => (res :: <boolean>)
-  // Going through the typist would involve wrapping & then unwrapping the 
-  // <type-estimate>, so just apply directly to the eventual oracle.
-  ^classes-guaranteed-disjoint?(type-estimate-class(c1),type-estimate-class(c2))
-end;
-
-define method guaranteed-disjoint?(c1 :: <type-estimate-limited-collection>, 
-                                   c2 :: <type-estimate-limited-collection>)
- => (res :: <boolean>)
-  // Going through the typist would involve wrapping & then unwrapping the 
-  // <type-estimate>, so just apply directly to the eventual oracle.
-  type-estimate-disjoint?(c1, c2)
-end;
-
-// I just happen to know that <top> will only occur on the right
-define method guaranteed-disjoint?(c1 :: <type-estimate>, 
-                                   c2 :: <&top-type>)
- => (res :: singleton(#f))
-  #f
-end;
-
-define method guaranteed-disjoint?(c1 :: <&type>, 
-                                   c2 :: <&top-type>)
- => (res :: singleton(#f))
-  #f
-end;
-
-define method guaranteed-disjoint?(t1 :: <type-estimate>, t2 :: <&bottom-type>)
- => (res :: singleton(#t))
-  #t
-end;
-
-define method guaranteed-disjoint?(t1 :: <&type>, t2 :: <&bottom-type>)
- => (res :: singleton(#t))
-  #t
-end;
-
-///
-///  potentially-joint? (<type-estimate>, <&type>) => (<boolean>)
+///  potentially-joint? (<&type>, <&type>) => (<boolean>)
 ///
 ///    Returns true unless all instances conforming to the type-estimate
 ///    are guaranteed not to be instances of the given Dylan type.
 ///
 
 define function potentially-joint? 
-    (type-estimate :: <type-estimate>, type :: <&type>) => (res :: <boolean>)
+    (type1 :: <&type>, type2 :: <&type>) => (res :: <boolean>)
   // Not provably DISjoint.
-  ~guaranteed-disjoint?(type-estimate, type)
+  ~^known-disjoint?(type1, type2)
 end;
-
-///
-/// effectively-disjoint?(t1, t2) -- #t if any instance of t1 is unlikely 
-///    to be an instance of t2. This function is only used for warnings
-///    generation. No optimizations may be made based on this notion of
-///    disjointness.
-///
 
 // The intuition we apply is that #f is often used as a kind of "null"
 // value for the types it appears with in a type-union. Hence, whenever
@@ -444,6 +218,14 @@ define method flatten-union-of-values
   result
 end method;
 
+///
+/// effectively-disjoint?(t1, t2) -- #t if any instance of t1 is unlikely 
+///    to be an instance of t2. This function is only used for warnings
+///    generation. No optimizations may be made based on this notion of
+///    disjointness.
+///
+
+//define generic effectively-disjoint? (t1 :: <&type>, t2 :: <&type>) => (well? :: <boolean>);
 define method effectively-disjoint?
     (t1 :: <type-estimate>, t2 :: <type-estimate>) => (well? :: <boolean>)
   if (null-type?(t1) | null-type?(t2))
@@ -570,15 +352,13 @@ end method;
 /// monotonicity!
 ///
 
-define generic guaranteed-preceding-specializer?(t1  :: <type-or-est>,
-                                                 t2  :: <type-or-est>,
-                                                 arg :: <type-or-est>) 
+define generic guaranteed-preceding-specializer?
+ (t1  :: <&type>, t2  :: <&type>, arg :: <&type>) 
   => (always-precedes? :: <boolean>);
 
 // *** Stub for later improvement.
-define method guaranteed-preceding-specializer? (type1  :: <&type>, 
-                                                 type2  :: <&type>, 
-                                                 arg-te :: <type-estimate>)
+define method guaranteed-preceding-specializer?
+ (type1  :: <&type>, type2  :: <&type>, arg-te :: <&type>)
  => (res :: <boolean>)
   ^subtype?(type1, type2)
 end;
