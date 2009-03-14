@@ -2,6 +2,8 @@ Module: http-protocol-test-suite
 Synopsis: Test suite to validate conformance to HTTP 1.1 protocol spec (RFC 2616)
 Author: Carl Gay
 
+// This test suite is not in a usable state yet.
+
 define suite http-protocol-test-suite ()
   suite method-test-suite;
   suite header-test-suite;
@@ -80,6 +82,6 @@ define variable *test-port* :: <integer> = 80;
 
 define function full-url
     (url :: <string>) => (full-url :: <url>)
-  parse-url(concatenate("http://", *test-host*, ":", *test-port*, url))
+  parse-url(format-to-string("http://%s:%d%s", *test-host*, *test-port*, url))
 end function full-url;
 

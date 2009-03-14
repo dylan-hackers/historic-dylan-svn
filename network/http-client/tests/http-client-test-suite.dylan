@@ -169,14 +169,39 @@ define test test-streaming-request ()
 end test test-streaming-request;
 
 define test test-streaming-response ()
-  
+  with-http-connection(conn = *test-host*, port: *test-port*)
+    let data = make(<byte-string>, size: 10000, fill: 'x');
+    send-request(conn, "POST", short-url("/echo"), content: data);
+    let response :: <http-response> = read-response(conn, read-content: #f);
+    check-equal("streamed response data same as sent data",
+                read-to-end(response),
+                data);
+  end;
 end test test-streaming-response;
 
 define test test-chunked-request ()
+  // See chunked-request-test in koala-test-suite
 end test test-chunked-request;
 
-define test test-chunked-response ()
-end test test-chunked-response;
+define test test-read-chunked-response ()
+  with-http-connection(conn = *test-host*, port: *test-port*)
+    // currently no way to set response chunk size so make data bigger
+    // than koala's $chunk-size.  koala adds Content-Length header if
+    // entire response < $chunk-size.
+    let data = make(<byte-string>, size: 100000, fill: 'x');
+    send-request(conn, "POST", short-url("/echo"), content: data);
+    let response :: <http-response> = read-response(conn);
+    check-equal("response data same as sent data",
+                response-content(response),
+                data);
+    check-false("ensure no Content-Length header",
+                get-header(response, "Content-Length"));
+    check-true("ensure Transfer-Encoding: chunked header",
+               chunked-transfer-encoding?(response));
+    // we don't currently have a way to verify that the response was
+    // actually chunked.  
+  end;
+end test test-read-chunked-response;
 
 define test test-non-chunked-request ()
 end test test-non-chunked-request;
@@ -222,7 +247,7 @@ define suite http-client-test-suite
   test test-streaming-response;
 
   test test-chunked-request;
-  test test-chunked-response;
+  test test-read-chunked-response;
   test test-non-chunked-request;
   test test-non-chunked-response;
 
