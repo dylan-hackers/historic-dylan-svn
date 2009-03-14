@@ -179,9 +179,20 @@ define test test-streaming-response ()
   end;
 end test test-streaming-response;
 
-define test test-chunked-request ()
-  // See chunked-request-test in koala-test-suite
-end test test-chunked-request;
+define test test-write-chunked-request ()
+  // Client requests are chunked if we don't add a Content-Length header.
+  with-http-connection(conn = *test-host*, port: *test-port*,
+                       outgoing-chunk-size: 8)
+    for (data-size in #(0, 1, 7, 8, 9, 200))
+      let data = make(<byte-string>, size: data-size, fill: 'x');
+      send-request(conn, "POST", "/echo", content: data);
+      let response = read-response(conn);
+      check-equal(format-to-string("chunked request of size %d received correctly",
+                                   data-size),
+                  data, response-content(response));
+    end for;
+  end;
+end test test-write-chunked-request;
 
 define test test-read-chunked-response ()
   with-http-connection(conn = *test-host*, port: *test-port*)
@@ -246,7 +257,7 @@ define suite http-client-test-suite
   test test-streaming-request;
   test test-streaming-response;
 
-  test test-chunked-request;
+  test test-write-chunked-request;
   test test-read-chunked-response;
   test test-non-chunked-request;
   test test-non-chunked-response;

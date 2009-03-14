@@ -883,14 +883,14 @@ define method read-request (request :: <request>) => ()
   end;
 
   parse-request-line(server, request, buffer, len);
-  unless (request.request-version = #"http/0.9")
+  unless (request.request-version == #"http/0.9")
     read-message-headers(socket,
                          buffer: buffer,
                          start: len,
                          headers: request.raw-headers);
   end unless;
   process-incoming-headers(request);
-  select (request.request-method by \=)
+  select (request.request-method by \==)
     #"post", #"put" => read-request-content(request);
     otherwise => #f;
   end select;
@@ -950,30 +950,44 @@ define method validate-request-method
 end method validate-request-method;
 
 
+// This should only be called once it has been determined that the request has
+// an entity body.  RFC 2616, 4.4 is useful for this function.
+//
+// This whole model is broken.  The responder function should be able to read
+// streaming data from the request and do what it wants with it.  The server
+// itself may want to keep track of how much data was read from the request so
+// that it can finish reading unread data and discard it?
+//
 define function read-request-content
     (request :: <request>)
- => (content :: <byte-string>)
-  // ---TODO: Should probably try to continue here even if Content-Length
-  //          not supplied.  Or have a "strict" option.
-  let content-length = get-header(request, "Content-Length", parsed: #t)
-                       | content-length-required-error();
-  if (*max-post-size* & content-length > *max-post-size*)
-    //---TODO: the server MAY close the connection to prevent the client from
-    // continuing the request.
-    request-entity-too-large-error(max-size: *max-post-size*);
+ => ()
+  if (chunked-transfer-encoding?(request))
+    not-implemented-error(what: "'Transfer-Encoding: chunked'");
   else
-    let buffer :: <byte-string> = make(<byte-string>, size: content-length);
-    let n = kludge-read-into!(request-socket(request), content-length, buffer);
-    if (n ~== content-length)
-      // RFC 2616, 4.4
-      bad-request-error(reason: format-to-string("Request content size (%d) does not "
-                                                 "match Content-Length header (%d)",
-                                                 n, content-length));
+    let content-length = get-header(request, "Content-Length", parsed: #t);
+    if (~content-length)
+      // Not chunked encoding and no content length.  Looks like we could
+      // legitimately read some of the entity body and then err if it gets
+      // too long, but this is also reasonable I think.
+      content-length-required-error()
+    elseif (*max-post-size* & content-length > *max-post-size*)
+      //---TODO: the server MAY close the connection to prevent the client from
+      // continuing the request.
+      request-entity-too-large-error(max-size: *max-post-size*);
+    else
+      let buffer :: <byte-string> = make(<byte-string>, size: content-length);
+      let n = kludge-read-into!(request-socket(request), content-length, buffer);
+      // Should we check if the content size is too large?
+      if (n ~= content-length)
+        // RFC 2616, 4.4
+        bad-request-error(reason: format-to-string("Request content size (%d) does not "
+                                                   "match Content-Length header (%d)",
+                                                   n, content-length));
+      end;
+      request-content(request) := buffer;
+      process-request-content(request, request-content-type(request));
     end;
-    request-content(request)
-      := process-request-content(request-content-type(request),
-                                 request, buffer, content-length);
-  end
+  end;
 end read-request-content;
 
 define inline function request-content-type (request :: <request>)
@@ -1020,48 +1034,26 @@ end;
 
 
 define open generic process-request-content
-    (content-type :: <symbol>,
-     request :: <request>,
-     buffer :: <byte-string>,
-     content-length :: <integer>)
- => (content :: <string>);
+    (request :: <request>, content-type :: <object>);
 
 define method process-request-content
-    (content-type :: <symbol>,
-     request :: <request>,
-     buffer :: <byte-string>,
-     content-length :: <integer>)
- => (content :: <string>)
-  unsupported-media-type-error()
+    (request :: <request>, content-type :: <object>)
+  // do nothing
 end;
 
 define method process-request-content
-    (content-type == #"application/x-www-form-urlencoded",
-     request :: <request>,
-     buffer :: <byte-string>,
-     content-length :: <integer>)
- => (content :: <string>)
-  let query = copy-sequence(buffer, end: content-length);
+    (request :: <request>, content-type == #"application/x-www-form-urlencoded")
   // By the time we get here request-query-values has already
   // been bound to a <string-table> containing the URL query
   // values. Now we augment it with any form values.
-  let parsed-query = split-query(query, replacements: list(pair("\\+", " ")));
+  let parsed-query = split-query(request-content(request),
+                                 replacements: list(pair("\\+", " ")));
   for (value keyed-by key in parsed-query)
-    request.request-query-values[key] := value; 
+    request.request-query-values[key] := value;
   end for;
-  request-content(request) := query;
   // ---TODO: Deal with content types intelligently.
   // For now this'll have to do.
 end method process-request-content;
-
-define method process-request-content
-    (content-type :: one-of(#"text/xml", #"text/html", #"text/plain"),
-     request :: <request>,
-     buffer :: <byte-string>,
-     content-length :: <integer>)
- => (content :: <string>)
-  request-content(request) := buffer
-end;
 
 /* REWRITE
 define method process-request-content
