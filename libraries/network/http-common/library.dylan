@@ -81,6 +81,10 @@ define module http-common
 
     quote-html,
 
+    <chunking-input-stream>,
+    content-length,
+    note-bytes-received,
+
     // Request objects
     <base-http-request>,
     request-content,

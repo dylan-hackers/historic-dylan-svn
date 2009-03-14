@@ -27,6 +27,16 @@ define abstract class <message-headers-mixin> (<object>)
 
 end class <message-headers-mixin>;
 
+
+// This method makes <chunking-input-stream> work when mixed with
+// <message-headers-mixin>.
+//
+define method content-length
+    (headers :: <message-headers-mixin>)
+ => (content-length :: false-or(<integer>))
+  get-header(headers, "Content-Length", parsed: #t)
+end;
+
 // Read message headers into a <header-table> and return it.
 // If the "headers" argument is supplied then it is side-effected.
 // Otherwise a new <header-table> is created and returned.

@@ -33,8 +33,7 @@ define module http-client
 
   // Progress protocol
   create
-      note-bytes-sent,
-      note-bytes-received;
+      note-bytes-sent;
 
   // Request/response
   create
