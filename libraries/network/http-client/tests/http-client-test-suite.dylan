@@ -185,7 +185,9 @@ define test test-write-chunked-request ()
                        outgoing-chunk-size: 8)
     for (data-size in #(0, 1, 7, 8, 9, 200))
       let data = make(<byte-string>, size: data-size, fill: 'x');
-      send-request(conn, "POST", "/echo", content: data);
+      send-request(conn, "POST", short-url("/echo"),
+                   content: data,
+                   headers: #[#["Connection", "Keep-Alive"]]);
       let response = read-response(conn);
       check-equal(format-to-string("chunked request of size %d received correctly",
                                    data-size),
