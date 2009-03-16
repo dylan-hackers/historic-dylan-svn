@@ -162,7 +162,10 @@ item2  defn
 item3  defn
 -----  ------------
   A titled n-column list. Blank lines separate items in the list. The list
-  continues until the second hyphen line.
+  continues until the second hyphen line. The first hyphen line determines
+  columns; the last column can extend past the end of the hyphen line. The
+  second hyphen line does not need to be broken into columns. The hyphen lines
+  can use any of the ASCII line characters listed below, but they have to match.
 
 
 Headings and links

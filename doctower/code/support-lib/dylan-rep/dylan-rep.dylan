@@ -50,54 +50,65 @@ In the presence of unknown libraries, this documentation is affected as follows:
 The documenter can, of course, document any of the omitted modules or bindings
 manually.
 
-Specific inferences and failure modes
-=====================================
+Specific inferences, failure modes, and representations
+=======================================================
+
+Inferred libraries, modules, and bindings are created without a corresponding
+defining macro of the appropriate type, e.g., a module created without a
+module-definer.
 
 --- Libraries ---
 
 Any library mentioned in a library definition's "use" clause can be inferred to
-exist.
+exist. We can know the library name.
 
 Except as described below, we cannot know what modules are exported by these
-libraries.
+libraries. A library that reexports modules from an inferred library includes
+the inferred library in its 'unknown-reexport-sources' slot.
 
-Inferred libraries do not appear in the documentation's library list. If a
-library may export other unknown modules, this is noted in the library's
-module list.
+Inferred libraries do not appear in the documentation's library list.
+
+An inferred library is an instance of <unknown-library>.
 
 --- Modules ---
 
 Any module mentioned in a library definition's "use" clause's "import,"
 "rename," "exclude," or "export" option can be inferred to exist. We can know
-the library and module name. If the "import" and "export" options are both
-"all," there may be other modules available from the library that we cannot know
-about.
+the library and module name. If the clause's "import" and "export" options are
+both "all" and the used library is inferred, the defined library may contain
+unnamed modules.
 
-Any module mentioned in a module definitions "use" clause can be inferred to
-exist. We cannot know from which library that module is imported.
+Any module mentioned in a module definition's "use" clause can be inferred to
+exist. We cannot know from which library that module is imported, unless the
+library definition mentions it or an inferred library contains the module.
 
 Except as described below, we cannot know what bindings are exported by these
-modules.
+modules. A module that reexports bindings from an inferred module includes the
+inferred module in its 'unknown-reexport-sources' slot.
 
 Inferred modules appear in the module list of the documented library if needed.
 The library from which a module is imported is irrelevant, but can be listed in
-in the module documentation if known. Any inferred bindings are also listed. If
-the module may export other unknown bindings, this is noted in the module's
-bindings list.
+in the module documentation if known. Any inferred bindings are also listed.
 
+An inferred module is an instance of <imported-module> where 'used-library' is
+an inferred library, or any module contained by an inferred library.
+   
 --- Bindings ---
 
 Any binding mentioned in a module definition's "use" clause's "import,"
 "rename," "exclude," or "export" option can be inferred to exist. We can know
-the module and binding name. If the "import" and "export" options are both
-"all," there may be other bindings available from the module that we cannot know
-about.
+the module and binding name. If the clause's "import" and "export" options are
+both "all" and the used module is inferred, the defined module may contain
+unnamed bindings.
 
 Except as described below, we cannot know what the bindings are bound to.
 
 Inferred bindings appear in the bindings list of the corresponding module. The 
 binding's documentation page will at least list the defining module, even if no
 other information is available.
+
+An inferred binding is an instance of <imported-binding> where 'used-module'
+is an inferred module, or any binding contained by an inferred module.
 
 --- Definitions ---
 
@@ -107,29 +118,8 @@ if necessary, assume the binding is from a "create" clause).
 
 For these definitions, we can give the inferred binding name and the module.
 
-Representation
-==============
-
-Libraries -
-   An inferred library is an instance of <unknown-library>. All libraries have
-   an 'unknown-reexport-sources' slot that lists inferred, used libraries from
-   which unlisted modules may be reexported. If a library instance was created
-   simply to hold a module inferred to exist from a module definition's "use"
-   clause, the library instance's 'local-name' will be #f.
-
-Modules -
-   An inferred module is an instance of <imported-module> where 'used-library'
-   is an inferred library. All modules have an 'unknown-reexport-sources' slot
-   that lists inferred, used modules from which unlisted bindings may be
-   reexported.
-
-Bindings -
-   An inferred binding is an instance of <imported-binding> where 'used-module'
-   is an inferred module.
-
-Definitions -
-   There are no inferred definitions. Inferred bindings are assumed to be from
-   "create" clauses and thus have a default definition of #f.
+There are no inferred definitions. Inferred bindings are assumed to be from
+"create" clauses and thus have a default definition of #f.
 **/
 
 
@@ -139,11 +129,11 @@ Definitions -
 
 /**
 A library definition lists used libraries and modules. Modules may be created
-and exported from the current library; created but internal to the current
-library; excluded from import from another library; imported and re-exported
-from another library; imported and re-exported under a different name from
-another library; or imported but not re-exported from another library. There can
-be multiple use clauses for the same library.
+and exported from a library; created but internal to a library; excluded from
+import from another library; imported and re-exported from another library;
+imported and re-exported under a different name from another library; or
+imported but not re-exported from another library. There can be multiple use
+clauses for the same library. Modules created by multiple clauses are merged.
 
 Modules fall into these categories:
 
@@ -171,36 +161,28 @@ Modules fall into these categories:
                  pre-defined bindings.
 **/
 define abstract class <library> (<source-location-mixin>)
-   slot local-name :: false-or(<string>), required-init-keyword: #"local-name";
+   slot local-name :: <string>, required-init-keyword: #"local-name";
    slot modules = make(<stretchy-vector> /* of <module> */);
    slot unknown-reexport-sources = make(<stretchy-vector> /* of <library> */);
-   virtual slot anonymous? :: <boolean>;
 end class;
 
 define class <known-library> (<library>)
-   slot used-libraries = make(<stretchy-vector> /* of <library> */);
    slot definitions = make(<stretchy-vector> /* of <definition> */);
 end class;
 
 define class <unknown-library> (<library>)
 end class;
 
-define method anonymous? (lib :: <library>) => (anon? :: <boolean>)
-   ~lib.local-name
-end method;
-
 /**
 Method: \= (<library>, <library>)
 =================================
-Two libraries are equal if they refer to the same library. If a library is
-anonymous, it is assumed that it could be equal to the other.
+Two libraries are equal if they refer to the same library.
 **/
 
 define method \= (lib1 :: <library>, lib2 :: <library>)
 => (equal? :: <boolean>)
    case
       lib1 == lib2 => #t;
-      lib1.anonymous? | lib2.anonymous? => #t;
       case-insensitive-equal?(lib1.local-name, lib2.local-name) => #t;
       otherwise => #f;
    end case
@@ -221,18 +203,51 @@ end class;
 define class <local-module> (<module>)
 end class;
 
+/**
+If 'used-library' is false, the module is a stray. It is imported from some
+library but we do not know which one. This can happen under the following 
+circumstances:
+
+ - The module is mentioned in a module definition's use clause, but has no local
+   definition in this library. The module must be imported from some other
+   library, but is not mentioned in any of the library definition's use clauses.
+   
+ - Another library imports the module, but the module has no local definition in
+   this library. The module must therefore be imported from another library and
+   reexported, but the module is not explicitly mentioned in this library's
+   definition.
+**/
 define class <imported-module> (<module>)
    slot import-name :: <string>, required-init-keyword: #"import-name";
-   slot used-library :: <library>, required-init-keyword: #"used-library";
+   slot used-library :: false-or(<library>), required-init-keyword: #"used-library";
 end class;
+
+define method stray? (mod :: <local-module>) => (stray? :: <boolean>)
+   #f
+end method;
+
+define method stray? (mod :: <imported-module>) => (stray? :: <boolean>)
+   mod.used-library.false?
+end method;
 
 /**
 Method: \= (<module>, <module>)
 ===============================
-Two modules are equal if they refer to the same module in the same library. If
-one of the modules is imported from an anonymous library, that module's
-import-name may not be accurate and is irrelevant for comparison purposes.
+Two modules are equal if they are named the same and either both local or both
+imported from the same module in the same library. If the module is a stray, its
+'import-name', 'used-library', and class are not reliable and are irrelevant for
+comparison purposes; the module is assumed to be equal to any another module
+with the same 'local-name'.
 **/
+
+define method \= (mod1 :: <module>, mod2 :: <module>)
+=> (equal? :: <boolean>)
+   case
+      ~case-insensitive-equal?(mod1.local-name, mod2.local-name) => #f;
+      mod1.stray? | mod2.stray? => #t;
+      otherwise => #f;
+   end case;
+end method;
 
 define method \= (mod1 :: <local-module>, mod2 :: <local-module>)
 => (equal? :: <boolean>)
@@ -248,7 +263,7 @@ define method \= (mod1 :: <imported-module>, mod2 :: <imported-module>)
    case
       mod1 == mod2 => #t;
       ~case-insensitive-equal?(mod1.local-name, mod2.local-name) => #f;
-      mod1.used-library.anonymous? | mod2.used-library.anonymous? => #t;
+      mod1.stray? | mod2.stray? => #t;
       mod1.used-library = mod2.used-library
             & case-insensitive-equal?(mod1.import-name, mod2.import-name) => #t;
       otherwise => #f;
@@ -260,6 +275,56 @@ end method;
 // Bindings
 //
 
+/**
+Modules are not shared between libraries, nor are the bindings they contain.
+Instead, each library has its own set of modules and bindings. These bindings
+may be copied from another library's module, however. If the module is an
+imported or reexported module, its bindings are copied verbatim from the library
+and module from whence it came. If the module is an internal or exported module,
+its bindings come from other (used) modules from the same library as well as any
+bindings in the module itself.
+
+Bindings may be defined and exported from a module; defined but internal to a
+module; undefined but exported from a module; excluded from import from another
+module; imported and re-exported from another module; imported and re-exported
+under a different name from another module; or imported but not re-exported from
+another module. There can be multiple use clauses for the same module. Bindings
+created by multiple clauses are merged.
+
+Bindings fall into these categories:
+
+   Exported    - Binding is listed in export clause and has a definition; also,
+                 all bindings in a module imported or reexported from another
+                 library are of this type. Instance of <local-binding>.
+   
+   Internal    - Binding is defined but not mentioned in "define module."
+                 Instance of <local-binding>. These bindings do not "need" [em]
+                 to be tracked, as the binding itself and any definitions
+                 associated with it not exported from the module. Any other
+                 bindings that mention an internal binding will do so in an
+                 expression (i.e. as text).
+                 
+   Excluded    - Binding is listed in use clause exclude option, or not listed in
+                 use clause import option. No representation.
+                 
+   Reexported  - Binding is listed in use clause export option. Definition may be
+                 added to binding. Instance of
+                 <imported-binding>.
+                 
+   Renamed     - Binding is listed in use clause export option and given a new
+                 name with rename option, import option, or prefix option.
+                 Definition may be added to binding. Instance of
+                 <imported-binding>.
+                 
+   Imported    - Binding is listed in use clause import option, but not listed
+                 in export option. Definitions may be added to binding. Instance
+                 of <imported-binding>.
+                 
+   Created     - Binding is listed in create clause and does not have a definition.
+                 Instance of <local-binding>.
+
+A binding's owner (if known) is the module that has an exported <local-binding>.
+**/
 define abstract class <binding> (<source-location-mixin>)
    slot local-name :: <string>, required-init-keyword: #"local-name";
    slot definition :: false-or(<definition>) = #f, init-keyword: #"definition";
@@ -269,10 +334,77 @@ end class;
 define class <local-binding> (<binding>)
 end class;
 
+/**
+If 'used-module' is false, the binding is a stray. It is imported from some
+module but we do not know which one. This can happen under the following 
+circumstances:
+
+ - Another module imports the binding, but the binding has no local definition in this
+   module. The binding must therefore be imported from another module and
+   reexported, but the binding is not explicitly mentioned in this module's
+   definition.
+**/
 define class <imported-binding> (<binding>)
    slot import-name :: <string>, required-init-keyword: #"import-name";
-   slot used-module :: <module>, required-init-keyword: #"used-module";
+   slot used-module :: false-or(<module>), required-init-keyword: #"used-module";
 end class;
+
+define method stray? (mod :: <local-binding>) => (stray? :: <boolean>)
+   #f
+end method;
+
+define method stray? (mod :: <imported-binding>) => (stray? :: <boolean>)
+   mod.used-module.false?
+end method;
+
+/**
+Method: \= (<binding>, <binding>)
+=================================
+Two bindings are equal if they are named the same and either both local or both
+imported from the same binding in the same module. If the binding is imported
+from a stray module, any other module with the same name is assumed to be the
+same module. If the binding itself is a stray, any other binding with the same
+name is assumed to be the same binding.
+
+Binding equality is not related to the API definition; two bindings may refer to
+the same definition but not equal each other.
+**/
+
+define method \= (bind1 :: <local-binding>, bind2 :: <local-binding>)
+=> (equal? :: <boolean>)
+   case
+      bind1 == bind2 => #t;
+      case-insensitive-equal?(bind1.local-name, bind2.local-name) => #t;
+      otherwise => #f;
+   end case
+end method;
+
+define method \= (bind1 :: <imported-binding>, bind2 :: <imported-binding>)
+=> (equal? :: <boolean>)
+   case
+      bind1 == bind2 => #t;
+      ~case-insensitive-equal?(bind1.local-name, bind2.local-name) => #f;
+      bind1.stray? | bind2.stray? => #t;
+      bind1.used-module = bind2.used-module
+            & case-insensitive-equal?(bind1.import-name, bind2.import-name) => #t;
+      otherwise => #f;
+   end case
+end method;
+
+define method \= (bind1 :: <local-binding>, bind2 :: <imported-binding>)
+=> (equal? :: <boolean>)
+   case
+      ~case-insensitive-equal?(bind1.local-name, bind2.local-name) => #f;
+      bind2.stray? => #t;
+      bind2.used-module.stray? => #t;
+      otherwise => #f;
+   end case
+end method;
+
+define inline method \= (bind1 :: <imported-binding>, bind2 :: <local-binding>)
+=> (equal? :: <boolean>)
+   bind2 = bind1
+end method;
 
 
 //
@@ -307,17 +439,12 @@ define class <macro-defn> (<definition>)
    slot explicit-defn :: <explicit-macro-defn>;
 end class;
 
-// TODO: This is possibly not a useful class.
-define abstract class <imp/exp-definition> (<object>)
-   slot module :: <module>;
-end class;
-
 
 //
 // Classes
 //
 
-define class <explicit-class-defn> (<imp/exp-definition>, <source-location-mixin>)
+define class <explicit-class-defn> (<source-location-mixin>)
    slot adjs = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
    slot direct-supers = make(<stretchy-vector> /* of <class-defn> */);
    slot slots = make(<stretchy-vector> /* of <slot> */);
@@ -377,7 +504,7 @@ end class;
 // Generics and functions
 //
 
-define abstract class <func/gen-definition> (<imp/exp-definition>)
+define abstract class <func/gen-definition> (<object>)
    slot adjs = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
    slot parameter-list :: <parameter-list>;
    slot inferred-param-list :: false-or(<parameter-list>);
@@ -465,7 +592,7 @@ end class;
 // Constants and variables
 //
 
-define abstract class <const/var-defn> (<imp/exp-definition>)
+define abstract class <const/var-defn> (<object>)
    slot type :: <type>;
    slot inferred-type :: false-or(<type>);
    slot value :: <computed-constant>;
@@ -482,7 +609,7 @@ end class;
 // Macros
 //
 
-define abstract class <explicit-macro-defn> (<imp/exp-definition>, <source-location-mixin>)
+define abstract class <explicit-macro-defn> (<source-location-mixin>)
    slot main-rules = make(<stretchy-vector> /* of <rule> */);
    slot aux-rules = make(<stretchy-vector> /* of <aux-rules> */);
 end class;

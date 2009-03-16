@@ -228,11 +228,9 @@ define errors (<user-visible-error>)
       "No library definition found in %s",
       filenames;
    
-   /*
-   69 file-in-foreign-module
-      "Cannot have source record for imported module \"%s\" at %s",
-      location, name, defn-location;
-   */
+   69 no-definition-for-modules
+      "No definition of exported module %s",
+      location, names;
 
    70 file-error
       "File error with %s: %s",
@@ -273,21 +271,21 @@ define errors (<user-visible-error>)
       "No definition of module \"%s\"",
       location, name;
    
-   /*
-   80 no-module-in-foreign-library
-      "No definition of module \"%s\" in library \"%s\"",
-      location, module-name, library-name;
-   */
+   80 conflicting-bindings-in-module
+      "Differing definitions of binding \"%s\" at %s",
+      location, name, defn-locations;
    
    81 no-definition-for-bindings
-      "No definition of exported bindings %s",
+      "No definition of exported binding %s",
       location, names;
    
    82 circular-definition
-      "Circular dependency between %s",
-      defn-locations;
+      "Circular dependency for \"%s\" between %s",
+      name, defn-locations;
 
+   /*
    83 undefined-module-in-library
       "No definition of module \"%s\"",
       location, name;
+   */
 end errors;

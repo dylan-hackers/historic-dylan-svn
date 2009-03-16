@@ -8,6 +8,7 @@ files:      doctower-library
             markup-translator/markup-processing
             dylan-translator/module
             dylan-translator/dylan-translator
+            dylan-translator/rep-creation
             dylan-translator/library-set
             dylan-translator/library-modules
             dylan-translator/module-bindings

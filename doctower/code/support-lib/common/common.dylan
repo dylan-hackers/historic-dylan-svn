@@ -103,9 +103,10 @@ end method;
 
 
 /**
-Synopsis: Returns the first value of element-sequence.
+Synopsis: Returns the first value of the element sequence.
 
-Calling this function is more efficient than calling element-sequence.
+Calling this function is more efficient than casting to a sequence and taking
+the first element.
 **/
 define generic any-element (collection :: <collection>, #key default) => (elem);
 
@@ -124,6 +125,18 @@ define method any-element (collection :: <collection>, #key default = unsupplied
    end if
 end method;
    
+
+define class <case-insensitive-skip-list> (<skip-list>)
+   keyword test: = case-insensitive-equal?;
+   keyword key-order: = case-insensitive-less?;
+end class;
+
+
+define method case-insensitive-less? (str1 :: <string>, str2 :: <string>)
+=> (less? :: <boolean>)
+   as-lowercase(str1) < as-lowercase(str2)
+end method;
+
 
 define macro with-open-file
    {  with-open-file (?:name = ?locator:expression, #rest ?keys:expression)

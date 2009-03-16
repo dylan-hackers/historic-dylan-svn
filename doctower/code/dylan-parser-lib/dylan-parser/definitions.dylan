@@ -3,6 +3,7 @@ synopsis: Grammar of top-level definitions.
 
 define class <definition-token> (<source-location-token>)
    slot scoped-docs :: <stretchy-vector> = make(<stretchy-vector>);
+   slot api-name :: <string>;
 end class;
 
 //
@@ -41,8 +42,8 @@ define parser variable-definer (<definition-token>)
    rule seq(opt-many(modifier), lex-VARIABLE, variable, lex-EQUAL, expression)
    => tokens;
    inherited slot scoped-docs = attr(scoped-docs);
+   inherited slot api-name = tokens[2].name;
    slot api-modifiers = (tokens[0] & map(value, tokens[0])) | #[];
-   slot api-name :: <string> = tokens[2].name;
    slot api-type = tokens[2].type;
    slot api-value = tokens[4];
 attributes
@@ -59,8 +60,8 @@ define parser constant-definer (<definition-token>)
    rule seq(opt-many(modifier), lex-CONSTANT, variable, lex-EQUAL, expression)
    => tokens;
    inherited slot scoped-docs = attr(scoped-docs);
+   inherited slot api-name = tokens[2].name;
    slot api-modifiers = (tokens[0] & map(value, tokens[0])) | #[];
-   slot api-name :: <string> = tokens[2].name;
    slot api-type = tokens[2].type;
    slot api-value = tokens[4];
 attributes
@@ -81,8 +82,8 @@ define parser class-definer (<definition-token>)
             lex-LF-PAREN, superclasses, lex-RT-PAREN, opt(class-clauses))
    => tokens;
    inherited slot scoped-docs = attr(scoped-docs);
+   inherited slot api-name = tokens[2].name;
    slot api-modifiers :: <sequence> = (tokens[0] & map(value, tokens[0])) | #[];
-   slot api-name :: <string> = tokens[2].name;
    slot class-supers :: <sequence> /* of <text-token> */ = tokens[4];
    slot class-slots =
       choose(true?, map(slot-from-clause, tokens[6] | #[]));
@@ -229,8 +230,8 @@ define parser generic-definer (<definition-token>)
             generic-parameter-list, opt(generic-options))
    => tokens;
    inherited slot scoped-docs = attr(scoped-docs);
+   inherited slot api-name = tokens[2].name;
    slot api-modifiers = (tokens[0] & map(value, tokens[0])) | #[];
-   slot api-name :: <string> = tokens[2].name;
    slot func-params = tokens[3].parameter-list | #[];
    slot func-values = tokens[3].value-list | #[];
    slot func-options = tokens[4] | #[];
@@ -244,8 +245,8 @@ define parser method-definer (<definition-token>)
    rule seq(opt-many(modifier), lex-METHOD, variable-name, parameter-list)
    => tokens;
    inherited slot scoped-docs = attr(scoped-docs);
+   inherited slot api-name = tokens[2].name;
    slot api-modifiers = (tokens[0] & map(value, tokens[0])) | #[];
-   slot api-name :: <string> = tokens[2].name;
    slot func-params = tokens[3].parameter-list | #[];
    slot func-values = tokens[3].value-list | #[];
 attributes
@@ -258,8 +259,8 @@ define parser function-definer (<definition-token>)
    rule seq(opt-many(modifier), lex-FUNCTION, variable-name, parameter-list)
    => tokens;
    inherited slot scoped-docs = attr(scoped-docs);
+   inherited slot api-name = tokens[2].name;
    slot api-modifiers = (tokens[0] & map(value, tokens[0])) | #[];
-   slot api-name :: <string> = tokens[2].name;
    slot func-params = tokens[3].parameter-list | #[];
    slot func-values = tokens[3].value-list | #[];
 attributes
@@ -298,7 +299,7 @@ end;
 
 define parser module-definer (<definition-token>)
    rule seq(lex-MODULE, lex-NAME, opt(module-clauses), lex-END) => tokens;
-   slot api-name = tokens[1].value;
+   inherited slot api-name = tokens[1].value;
    slot namespace-clauses = tokens[2] | #[];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-combined-source-location(context, value, tokens);
@@ -306,7 +307,7 @@ end;
 
 define parser library-definer (<definition-token>)
    rule seq(lex-LIBRARY, lex-NAME, opt(library-clauses), lex-END) => tokens;
-   slot api-name = tokens[1].value;
+   inherited slot api-name = tokens[1].value;
    slot namespace-clauses = tokens[2] | #[];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-combined-source-location(context, value, tokens);
