@@ -1113,9 +1113,6 @@ end graph-class;
 define graph-class <keyword-check-type> (<check-type>)
 end graph-class;
 
-define graph-class <constrain-type> (<single-value-check-type-computation>)
- end graph-class;
-
 // keep the original variable name around for meaningful
 // error messages
 define graph-class <assignment-check-type> (<check-type>)

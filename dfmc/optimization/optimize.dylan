@@ -168,24 +168,20 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
               exception (e :: <condition>)
               end;
             end if;
-	    // make sure we've got some DFM to play with
-	    // elaborate-top-level-definitions(f);
 	    // finish pseudo-SSA conversion
 	    if (f == code | ~maybe-delete-function-body(f))
 	      eliminate-assignments(f);
               send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          send-debug(#"beginning", #("pass two: rename temporaries"));
-          if (*flow-types-through-conditionals?*)
-  	    for-all-lambdas (f in code)
-	      opt-format-out("PASS ONE(A) %=\n", f);
-  	      if (f == code | lambda-used?(f))
-                maybe-rename-temporaries-in-conditionals(f);
-              end;
-              send-debug(#"relayouted", #());
-	    end for-all-lambdas;
-          end;
+          send-debug(#"beginning", #("pass two: run type inference"));
+          for-all-lambdas (f in code)
+            opt-format-out("PASS ONE(A) %=\n", f);
+            if (f == code | lambda-used?(f))
+              type-estimate(f);
+            end;
+            send-debug(#"relayouted", #());
+          end for-all-lambdas;
           send-debug(#"beginning", #("pass three: run optimizations (delete, fold, upgrade, inline)"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f))

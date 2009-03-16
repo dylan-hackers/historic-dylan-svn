@@ -16,8 +16,6 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 //   mandatory?: #t,
 //   before: analyze-calls;
 
-define variable *flow-types-through-conditionals?* = #t;
-
 define method eliminate-assignments (f :: <&lambda>)
   for (t in f.environment.temporaries)
     if (~empty?(t.assignments) & ~cell?(t))
@@ -69,12 +67,11 @@ define method convert-make-cell
     (env :: <lambda-lexical-environment>, t :: <temporary>)
  => (first-c :: <computation>, last-c :: <computation>, t :: <cell>);
    with-parent-computation (t.generator)
-/*
- *     let type 
- *       = as(<&type>, lookup-type(t, current-css(), generator(t)));
- */
-     let type
-        = as(<&type>, type-estimate(t));
+     let type = specializer(t);
+     if (type == dylan-value(#"<object>"))
+       //XXX: one day, dylan-value(#"<object>") should be gone entirely
+       type := make(<&top-type>);
+     end;
      let (unboxer-c, unboxed-t)
        = maybe-convert-unbox(env, t, type);
      let (c, tmp) 
@@ -108,110 +105,5 @@ define method convert-set-cell-value!
       (env, <set-cell-value!>, cell: cell, value: unboxed-t);
   join-1x1-t!(unboxer-c, c, tmp);
 end method convert-set-cell-value!;
-
-// Once boxing has been completed we introduce additional temporaries in the 
-// consequent branch of conditionals to improve typing precision.  
-// We do this when the conditional has one of the following forms:
-//
-//    if (x) ...                         if (instance?(x, y)) ...
-// 
-// In the first case we introduce a new temporary for the duration of the
-// consequent branch whose type is the inferred type for x with any #f 
-// component removed.
-// In the second case the temporary's type is the intersection of the type
-// of x and y.  We only do this transformation for unboxed variables.
-//
-// The temporaries are introduced via a new kind of temporary-transfer 
-// computation called <constrain-type>.  The type component of this
-// computation has two roles corresponding to the two scenarios outlined above
-// (i.e. it is either #f or contains a type).
-// Due to limitations of the type system (e.g. no intersection types) the type
-// pruning is only an approximation.  However, this should always be safe as 
-// the worst that will happen is that the new temporary will have the same type
-// as the original variable.
-
-define method maybe-rename-temporaries-in-conditionals (f :: <&lambda>)
-  for-computations (c in f)
-    maybe-rename-temporaries-in-conditional(c, f)
-  end;
-end;
-
-define method maybe-rename-temporaries-in-conditional
-  (c :: <computation>, f :: <&lambda>)
-end;
-
-define method type-minus-false (te :: <type-estimate>) => (type == #f)
-  #f
-end method;
-
-define method type-minus-false
-    (te :: <type-estimate-union>) => (type :: false-or(<value-reference>))
-  let found-false?
-    = #f;
-  let false-te
-    = make-type-estimate(<type-estimate-limited-instance>, singleton: #f);
-  let new-unionees 
-    = collecting ()
-        for (te in type-estimate-unionees(te))
-          if (type-estimate-subtype?(te, false-te))
-	    found-false? := #t;
-	  else 
-	    collect(te)
-	  end if
-	end for;
-      end collecting;
-  if (found-false? & size(new-unionees) = 1)
-    let te = first(new-unionees);
-    if (instance?(te, <type-estimate-class>))
-      make-object-reference(as(<&type>, te))
-    else 
-      #f
-    end if
-  else
-    #f
-  end if;
-end method;
-
-define method maybe-rename-temporaries-in-conditional
-  (c :: <if>, f :: <&lambda>)
-  let gen-arg0 = c.test;
-  let (rename?, to-be-renamed, constraint) = 
-    if (instance?(gen-arg0, <lexical-variable>))
-      values(#t, gen-arg0, type-minus-false(type-estimate(gen-arg0)))
-    elseif (instance?(gen-arg0, <temporary>))
-      let gen-gen = gen-arg0.generator;
-      if (instance?(gen-gen, <simple-call>))
-        let (constant?, value) = fast-constant-value?(gen-gen.function);
-        if (constant? & (value == dylan-value(#"instance?"))
-	      & size(gen-gen.arguments) > 1)   // so that can do [1]
-          let (constant-type?, constant-type) = 
-            fast-constant-value?(gen-gen.arguments[1]);
-          if (constant-type?)
-            values(#t, gen-gen.arguments[0], gen-gen.arguments[1])
-          end;
-	end;
-      end;
-    end;
-  if (rename?) // So we need to introduce a new temporary
-    let (tt-c, tt-t) =
-      make-with-temporary
-        (c.environment, <constrain-type>, 
-         value: to-be-renamed, type: constraint);
-    let then-f = c.consequent;
-    let changed? = #f;
-    rename-temporary!(to-be-renamed, tt-t);
-    for-computations(tc from then-f before c.next-computation)
-      let now-changed? = rename-temporary-references!(tc, to-be-renamed, tt-t);
-      changed? := (changed? | now-changed?);
-      // was: changed? := (changed? | rename-temporary-references!(tc, to-be-renamed, tt-t));
-    end;
-    if (changed?)
-      insert-computation-before!(then-f, tt-c);
-    else // It's not used in the consequent, so get rid of it.
-      remove-user!(to-be-renamed, tt-c);
-    end
-  end;
-end method;
-
 
 // eof

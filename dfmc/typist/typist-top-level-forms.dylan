@@ -77,11 +77,11 @@ define type-estimate-top-level-form-rules
   form :: <method-definition>
     <- begin
          typist-chatter("method defn %=\n", form);
-         if (form-model(form))
-           type-estimate(form-model(form)) // Look at code
-         else
+         //if (form-model(form))
+         //  type-estimate(form-model(form)) // Look at code
+         //else
            next-method()                          // Else punt like above
-         end
+         //end
        end;
   // *** Bunch of other kinds of <top-level-form>s.
 end;

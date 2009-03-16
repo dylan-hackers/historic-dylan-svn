@@ -240,7 +240,6 @@ define module dfmc-flow-graph
     <single-value-check-type-computation>,
     <check-type>,
     <keyword-check-type>,
-    <constrain-type>,
     <multiple-value-check-type-computation>,
     <multiple-value-check-type>,
     <multiple-value-check-type-rest>,

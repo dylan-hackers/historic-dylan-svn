@@ -871,15 +871,6 @@ define method evaluate-type-checks? (c :: <check-type>)
   end;
 end method evaluate-type-checks?;
 
-define method evaluate-type-checks? (c :: <constrain-type>)
-  unless (type(c))
-    let the-estimate 
-      = type-estimate(computation-value(c));
-    type-estimate-subtype?
-      (the-estimate, as(<type-estimate>, dylan-value(#"<object>")))
-  end;
-end method evaluate-type-checks?;
-
 // TODO: Calls to "values" aren't being type-inferred correctly at the 
 // moment. When they are, beef up this checking appropriately. Things
 // to do:
@@ -1122,12 +1113,6 @@ end method;
 define method constant-fold (c :: <check-type-computation>)
   let value-c = generator(computation-value(c));
   if (value-c & instance?(value-c, <if-merge>) 
-        // The following is because we seem to have a bogus class hierarchy
-        // here 8(
-        // We mustn't propagate a constraint type above its station, since
-        // the constraint is typically local (true within a particular
-        // branch, say).
-        & ~instance?(c, <constrain-type>)
         // The following is a blunt instrument that ensures that we don't
         // promote type checks inappropriately across conditionals or 
         // ahead of computations that might cause the check never to
