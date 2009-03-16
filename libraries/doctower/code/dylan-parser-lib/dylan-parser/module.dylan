@@ -26,6 +26,7 @@ define module dylan-parser
       <header-token>,
       <interchange-file-token>,
       <library-definer-token>,
+      <macro-definer-token>,
       <method-definer-token>,
       <module-definer-token>,
       <property-token>,

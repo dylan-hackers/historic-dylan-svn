@@ -1,120 +1,205 @@
 module: dylan-translator
-synopsis: Working representation of a library and its files.
+synopsis: Common code dealing with library and module representations.
 
 
-define class <library-set> (<object>)
-   slot libset-library :: false-or(<library>) = #f;
-   slot libset-files :: false-or(<sequence>) = #f, init-keyword: #"files";
-   slot libset-library-token :: false-or(<library-definer-token>) = #f;
-   slot libset-module-tokens :: false-or(<table>) = #f;
-   slot libset-definition-tokens :: false-or(<table>) = #f;
+//
+// Library and module annotations
+//
+
+
+/**
+Library and module annotations track dependencies, but they track them by way of
+<use-clause-token>s rather than simple names so that source locations are
+available.
+**/
+define class <namespace-annotation> (<object>)
+   slot annot-dependencies :: <sequence> /* of <use-clause-token> */ = #[];
 end class;
 
 
-define constant <non-namespace-definition-token> =
-      type-union(<class-definer-token>, <constant-definer-token>,
-                 <function-definer-token>, <generic-definer-token>,
-                 <method-definer-token>, <variable-definer-token>
-                 /*, <macro-definer-token>*/);
+//
+// Use clause processing
+//
 
 
-define method choose-interchange-definitions
-   (type :: <type>, ichange-tokens :: <sequence> /* of <interchange-file-token> */)
-=> (seq :: <sequence> /* of type */)
-   let source-records = choose(true?, map(source-record, ichange-tokens));
-   let source-defns = map(token-definitions, source-records);
-   let defns = apply(concatenate, #[], source-defns);
-   choose(rcurry(instance?, type), defns);
-end method;
+/**
+Synopsis: Use clause processing.
 
+--- Arguments: ---
 
-define method module-header (file :: <interchange-file-token>)
-=> (header :: <header-token>)
-   let module-headers = choose(
-         method (hdr :: <header-token>) => (mod-hdr?)
-            case-insensitive-equal?(hdr.hdr-keyword, "module")
-         end, file.headers);
+clause -
+   The <use-clause-token> being processed.
 
-   when (module-headers.empty?)
-      no-header-in-interchange-file(header: "Module:",
-            location: file.token-src-loc.source-file);
-   end when;
+foreign-items -
+   An instance of <sequence>. The modules or bindings contained by the used
+   library or module (respectively). This list should include all the modules or
+   bindings.
+   
+make-stray -
+   An instance of <function> taking a <string> argument. The function is called
+   to create a new stray module or binding in the used library or module; the
+   argument is the name of the new module or binding to create.
+   
+   The function is needed during the 'make-inferences-and-imports' stage of
+   processing. Later in the stage, the used library or module will be visited
+   and the module/binding's stray status will be resolved if possible.
+   
+   During the 'make-all-imports' stage, no new modules or bindings will need to
+   be created in the used library or module and the function will not be called.
 
-   let header = module-headers.first;
-   when (header.hdr-value.empty?)
-      empty-header-in-interchange-file(header: "Module:",
-            location: header.token-src-loc);
-   end when;
+make-or-update-imported -
+   An instance of <function> taking three <string> arguments: a local name, an
+   import name, and an export flag. The function is called to make an
+   <imported-module> or <imported-binding> corresponding to a module or binding
+   from the used library or module, or to update a stray module or binding with
+   its actual origin.
 
-   header
-end method;
+note-unknown-reexport-source -
+   An instance of <function> taking no arguments. This function is called if the
+   use clause imports and reexports all modules or bindings from the used
+   library or module. When the library or module is inferred, it may include
+   other modules or bindings that are not known; if so, the function should note
+   the possibility.
+   
+   This function need not do anything during the 'make-all-imports' stage, since
+   any eligible libraries or modules will already have been noted during the
+   'make-inferences-and-imports' stage.
+**/
+define method infer-and-import-clause
+   (clause :: <use-clause-token>, foreign-items :: <sequence>,
+    make-stray :: <function>, make-or-update-imported :: <function>,
+    note-unknown-reexport-source :: <function>)
+=> ()
+   
+   // Interpret use clause options.
 
+   let import-options :: type-union(<sequence> /* of <renaming-token> */, singleton(#"all"))
+         = clause.use-imports | #"all";
+   let rename-options :: <sequence> /* of <renaming-token> */
+         = clause.use-renamings | #[];
+   let exclude-options :: <sequence> /* of <string> */
+         = clause.use-exclusions | #[];
+   let export-options :: type-union(<sequence> /* of <string> */, singleton(#"all"))
+         = clause.use-exports | #[];
+   let prefix-option :: false-or(<string>)
+         = clause.use-prefix;
+   
+   let import-and-rename-options :: <sequence> /* of <renaming-token> */ =
+         concatenate(if (import-options = #"all") #[] else import-options end,
+                     rename-options);
+   
+   // Utility functions.
 
-define method make-library-sets (file-sets :: <sequence>)
-=> (library-sets :: <table>)
-   let libset-table = make(<case-insensitive-string-table>);
-   let libsets = map(make-library-set, file-sets);
-   for (libset in libsets)
-      libset-table[libset.libset-library-token.api-name] := libset
+   local method import-name-of-renaming?
+            (name :: <string>, renaming :: <renaming-token>)
+         => (match? :: <boolean>)
+            case-insensitive-equal?(name, renaming.token-import-name)
+         end method,
+         
+         method local-name-of-renaming?
+            (name :: <string>, renaming :: <renaming-token>)
+         => (match? :: <boolean>)
+            case-insensitive-equal?(name,
+                  renaming.token-local-name | renaming.token-import-name)
+         end method,
+         
+         method local-name-of-renaming (renaming :: <renaming-token>)
+         => (local-name :: <string>)
+            if (renaming.token-local-name)
+               renaming.token-local-name
+            elseif (prefix-option)
+               concatenate(prefix-option, renaming.token-import-name)
+            else
+               renaming.token-import-name
+            end if;
+         end method,
+         
+         method local-names-for-imported-name (import-name :: <string>)
+         => (local-names :: <sequence> /* of <string> */)
+            let renamings = choose(curry(import-name-of-renaming?, import-name),
+                                   import-and-rename-options);
+            case
+               ~renamings.empty? => map(local-name-of-renaming, renamings);
+               prefix-option => vector(concatenate(prefix-option, import-name));
+               otherwise => vector(import-name);
+            end case
+         end method,
+         
+         method import-name-for-exported-name (export-name :: <string>)
+         => (import-name :: <string>)
+            let renaming = find-element(import-and-rename-options,
+                                        curry(local-name-of-renaming?, export-name),
+                                        failure: #f);
+            case
+               renaming => renaming.token-import-name;
+               prefix-option =>
+                  if (case-insensitive-equal?(prefix-option,
+                        copy-sequence(export-name, end: prefix-option.size)))
+                     copy-sequence(export-name, start: prefix-option.size)
+                  else
+                     export-name
+                  end if;
+               otherwise => export-name;
+            end case
+         end method;
+
+   // Get all explicit names.
+   
+   let imported-names = map(token-import-name, import-and-rename-options);
+   let foreign-exported-names =
+         if (export-options ~= #"all")
+            map(import-name-for-exported-name, export-options);
+         else
+            #[];
+         end if;
+   let foreign-explicit-names = concatenate
+         (imported-names, foreign-exported-names, exclude-options);
+   
+   // Create stray items for undefined explicit names.
+   
+   let foreign-defined-names = map(local-name, foreign-items);
+   let foreign-undefined-names = difference
+         (foreign-explicit-names, foreign-defined-names, test: case-insensitive-equal?);
+   do(make-stray, foreign-undefined-names);
+   
+   // Get foreign importable and imported names.
+   
+   let importable-foreign-items = choose(exported?, foreign-items);
+   let non-excluded-foreign-items = difference
+         (importable-foreign-items, exclude-options, test: has-local-name?);
+   let imported-foreign-items =
+         if (import-options = #"all")
+            non-excluded-foreign-items
+         else
+            let imported-names = map(token-import-name, import-options);
+            intersection(non-excluded-foreign-items, imported-names,
+                         test: has-local-name?)
+         end if;
+                  
+   // Determine local name or names (if multiple import/rename options) of
+   // each imported item.
+
+   let imported-import-names :: <sequence> /* of <string> */
+         = map(local-name, imported-foreign-items);
+   let imported-local-names :: <sequence> /* of <sequence> of <string> */
+         = map(local-names-for-imported-name, imported-import-names);
+
+   // Make items, or update previously inferred items.
+
+   for (import-name in imported-import-names, local-names in imported-local-names)
+      for (local-name in local-names)
+         let export = (export-options = #"all") |
+               member?(local-name, export-options, test: case-insensitive-equal?);
+         make-or-update-imported(local-name, import-name, export);
+      end for;
    end for;
-   libset-table
+   
+   // Note unknown exports from used library.
+   
+   when (import-options = #"all" & export-options = #"all")
+      note-unknown-reexport-source()
+   end when;
+   
 end method;
 
 
-define method make-library-set (files :: <sequence>)
-=> (library-set :: <library-set>)
-   let library-set = make(<library-set>, files: files);
-   
-   // Library token
-   
-   let library-tokens = choose-interchange-definitions(<library-definer-token>, files);
-   library-set.libset-library-token :=
-         select (library-tokens.size)
-            0 =>
-               let files = map(source-file, map(token-src-loc, files));
-               no-library-in-fileset(filenames: item-string-list(files));
-            1 =>
-               library-tokens.first;
-            otherwise =>
-               let dupes = map(token-src-loc, library-tokens);
-               multiple-libraries-in-fileset(defn-locations: item-string-list(dupes));
-         end select;
-   
-   // Module tokens
-   
-   let module-tokens = choose-interchange-definitions(<module-definer-token>, files);
-   let module-token-table = make(<case-insensitive-string-table>, size: module-tokens.size);
-   library-set.libset-module-tokens := module-token-table;
-   do(method (tok :: <module-definer-token>)
-         let existing-defn = element(module-token-table, tok.api-name, default: #f);
-         when (existing-defn)
-            let locations = vector(existing-defn.token-src-loc, tok.token-src-loc);
-            duplicate-modules-in-fileset(name: tok.api-name,
-                  defn-locations: locations.item-string-list)
-         end when;
-         module-token-table[tok.api-name] := tok
-      end, module-tokens);
-   
-   // Module files & definitions
-
-   let module-definitions-table = make(<case-insensitive-string-table>);
-   library-set.libset-definition-tokens := module-definitions-table;
-   let file-headers = map(module-header, files);
-   for (file in files, header in file-headers)
-      let file-module = header.hdr-value;
-      unless (case-insensitive-equal?(file-module, "dylan-user") |
-              key-exists?(module-token-table, file-module))
-         undefined-module-for-interchange-file(location: header.token-src-loc,
-                                               name: header.hdr-value)
-      end unless;
-
-      let definitions =
-            choose-interchange-definitions(<non-namespace-definition-token>, vector(file));
-      let module-definitions =
-            element(module-definitions-table, file-module, default: #[]);
-      module-definitions := concatenate!(module-definitions, definitions);
-      module-definitions-table[file-module] := module-definitions;
-   end for;
-   
-   library-set
-end method;

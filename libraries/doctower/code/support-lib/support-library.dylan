@@ -10,6 +10,7 @@ define library support-library
    use io;
    use peg-parser;
    use dynamic-binding;
+   use skip-list;
    // from Monday project
    use source-location;
 

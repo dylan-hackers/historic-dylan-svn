@@ -1,236 +1,304 @@
 module: dylan-translator
+synopsis: Code dealing specifically with module representations.
 
 
-// /**
-// Synopsis: Creates bindings in modules.
-// 
-// Modules are not shared between libraries, nor are the bindings they contain.
-// Instead, each library has its own set of modules and bindings. These bindings
-// may be copied from another library's module, however. If the module is an
-// imported or reexported module, its bindings are copied verbatim from the library
-// and module from whence it came. If the module is an internal or exported module,
-// its bindings come from other (used) modules from the same library as well as any
-// bindings in the module itself.
-// 
-// Bindings fall into these categories:
-// 
-//    Exported    - Binding is listed in export clause and has a definition.
-//                  Instance of <exported-binding>.
-//    
-//    Internal    - Binding is defined but not mentioned in "define module." These
-//                  bindings do not need to be tracked, as the binding itself and
-//                  any definitions associated with it not exported from the
-//                  module. Any other bindings that mention an internal binding
-//                  will do so in an expression (i.e. as text). No representation.
-//                  
-//    Excluded    - Binding is listed in use clause exclude option, or not listed in
-//                  use clause import option. No representation.
-//                  
-//    Reexported  - Binding is listed in use clause export option. Definition may be
-//                  added to binding. All bindings from modules reexported by a
-//                  library are of this type, though definitions cannot be added to
-//                  them. Instance of <reexported-binding>.
-//                  
-//    Renamed     - Binding is listed in use clause export option and given a new
-//                  name with rename option, import option, or prefix option.
-//                  Definition may be added to binding. Instance of
-//                  <reexported-binding>.
-//                  
-//    Imported    - Binding is listed in use clause import option, but not listed
-//                  in export option. Definitions may be added to an imported
-//                  binding. Instance of <imported-binding>.
-//                  
-//    Created     - Binding is listed in create clause and does not have a definition.
-//                  Instance of <exported-binding>.
-// 
-// A binding's owner (if known) is the module that has the <exported-binding>.
-// 
-// --- Arguments: ---
-// library-sets - A sequence of <pair>. The head of each pair is a <library> and 
-//                the tail is a sequence of <interchange-file-token>. The libraries
-//                should have their modules all set up in order of dependency, and
-//                the libraries themselves should be in order of dependency.
-// **/
-// define method populate-bindings (library-sets :: <sequence>) => ()
-//    local method module-header (file :: <interchange-file-token>)
-//          => (header :: <header-token>)
-//             let module-headers = choose(
-//                   method (hdr :: <header-token>) => (mod-hdr?)
-//                      case-insensitive-equal?(hdr.hdr-keyword, "module")
-//                   end, file.headers);
-// 
-//             when (module-headers.empty?)
-//                no-header-in-interchange-file(header: "Module:",
-//                      location: file.token-src-loc.source-file);
-//             end when;
-// 
-//             let header = module-headers.first;
-//             when (header.hdr-value.empty?)
-//                empty-header-in-interchange-file(header: "Module:",
-//                      location: header.token-src-loc);
-//             end when;
-//             header
-//          end method,
-//          
-//          method file-in-module? (name :: <string>, file :: <interchange-file-token>)
-//          => (file-in-module? :: <boolean>)
-//             case-insensitive-equal?(name, file.interchange-module-header.hdr-value)
-//          end method;
-//          
-//    for (library-set in library-sets)
-//       let library = library-set.head;
-//       let library-files = library-set.tail;
-// 
-//       let module-tokens =
-//             choose-interchange-definitions(<module-definer-token>, library-files);
-//       let module-tokens-by-name = make(<case-insensitive-string-table>);
-//       for (token in module-tokens)
-//          module-tokens-by-name[token.api-name] := token;
-//       end for;
-//       
-//       let modules-by-name = make(<case-insensitive-string-table>);
-//       for (module in library.modules)
-//          modules-by-name[module.local-name] := module
-//       end for;
-// 
-//       // Process module bindings.
-//       for (module in library.modules)
-//          let (module-files, remaining-files) =
-//                partition(curry(file-in-module?, module.local-name), library-files);
-// 
-//          when (instance?(module, type-union(<imported-module>, <reexported-module>)))
-//             // Error if we have a source record for an imported/reexported module.
-//             for (file in module-files)
-//                block()
-//                   file-in-foreign-module(location: file.module-header.token-src-loc,
-//                         name: module.local-name, defn-location: module.source-location);
-//                exception (<skip-error-restart>)
-//                end block;
-//             end for;
-//          end when;
-// 
-//          let module-token = element(module-tokens-by-name, module.local-name, default: #f);
-//          module.bindings :=
-//                merge-bindings(bindings-from-module(module, module-token, modules-by-name));
-//          
-//          library-files := remaining-files;
-//       end for;
-//       
-//       // Any files not in a defined module (aside from dylan-user)? Error.
-//       let extras = choose(complement(curry(file-in-module?, "dylan-user")),
-//                           library-files);
-//       for (extra in extras)
-//          block()
-//             let header = extra.module-header;
-//             no-module-for-file(location: header.token-src-loc,
-//                   name: header.hdr-value);
-//          exception (<skip-error-restart>)
-//          end block;
-//       end for;
-//    end for;
-// end method;
-// 
-// 
-// /** Synopsis: Returns "module:" header from interchange file token. **/
-// define 
-// 
-// 
-// /**
-// Synopsis: Get bindings from module of other library.
-// 
-// Modules that the library imports or reexports from other libraries have the same
-// bindings as the imported or reexported module. Specifically, any bindings that
-// the other library's module exports are also exported from the corresponding
-// module in this library.
-// **/
-// define method bindings-from-module
-//    (module :: type-union(<imported-module>, <reexported-module>),
-//     token :: false-or(<module-definer-token>),
-//     all-modules :: <table> /* <string> => <module> */)
-// => (bindings :: <sequence> /* of <binding> */)
-//    let orig-library = module.used-library;
-//    if (instance?(orig-library, <library>))
-//       // Get imported/reexported module.
-//       let orig-modules = 
-//             choose(method (mod :: <module>) => (match?)
-//                       case-insensitive-equal?(mod.local-name, module.import-name)
-//                    end method, orig-library.modules);
-//       when (orig-modules.empty?)
-//          no-module-in-foreign-library(location: module.source-location,
-//                module-name: module.import-name, library-name: orig-library.local-name)
-//       end when;
-//       let orig-module = orig-modules.first;
-// 
-//       // Get bindings from imported/reexported module and duplicate.
-//       let orig-bindings =
-//             choose(rcurry(instance?, type-union(<exported-binding>, <reexported-binding>)),
-//                    orig-module.bindings);
-//       map(method (orig-binding :: <binding>) => (new-binding)
-//              make(<reexported-binding>, local-name: orig-binding.local-name,
-//                   import-name: orig-binding.local-name, used-module: orig-module,
-//                   definition: orig-binding.definition)
-//           end, orig-bindings);
-//    else
-//       // No information available for imported/reexported module.
-//       #[];
-//    end if;
-// end method;
-// 
-// 
-// /**
-// Synopsis: Get bindings from module definition and top-level definitions.
-// **/
-// define method bindings-from-module
-//    (module :: type-union(<internal-module>, <exported-module>),
-//     token :: false-or(<module-definer-token>),
-//     all-modules :: <table> /* <string> => <module> */)
-// => (bindings :: <sequence> /* of <binding> */)
-//    let clauses = token.namespace-clauses;
-//    let bindings-per-clause = map(rcurry(bindings-from-clause, module, all-modules),
-//                                  clauses);
-//    apply(concatenate, #[], bindings-per-clause);
-// end method;
-// 
-// 
-// define method bindings-from-clause
-//    (clause :: <export-clause-token>, module :: <module>, all-modules :: <table>)
-// => (bindings :: <sequence> /* of <binding> */)
-//    map(method (name :: <string>) => (binding :: <binding>)
-//           make(<exported-binding>, local-name: name,
-//                source-location: clause.token-src-loc)
-//        end, clause.export-names);
-// end method;
-// 
-// 
-// define method bindings-from-clause
-//    (clause :: <create-clause-token>, module :: <module>, all-modules :: <table>)
-// => (bindings :: <sequence> /* of <binding> */)
-//    map(method (name :: <string>) => (binding :: <binding>)
-//           make(<exported-binding>, local-name: name,
-//                source-location: clause.token-src-loc,
-//                definition: make(<deferred-definition>))
-//        end, clause.create-names);
-// end method;
-// 
-// 
-// define method bindings-from-clause
-//    (clause :: <use-clause-token>, module :: <module>, all-modules :: <table>)
-// => (bindings :: <sequence> /* of <binding> */)
-//    local method binding-has-name? (binding :: <binding>, name :: <string>)
-//          => (has-name?)
-//             case-insensitive-equal?(binding.local-name, name)
-//          end;
-//          
-//    let used-module = all-modules[clause.used-name];
-//    let imp-bindings = difference(used-module.bindings, clause.use-exclusions,
-//                                  test: binding-has-name?);
-//    let imp-bindings =
-//          if (clause.use-imports = #f | clause.use-imports = #"all")
-//             imp-bindings
-//          else
-//             intersection(incl-bindings, clause.use-imports, test: binding-has-name?)
-//          end if;
-//    
-//    
-//    #[]
-// end method;
+define class <module-annot> (<namespace-annotation>)
+   slot annot-module :: <module>, required-init-keyword: #"module";
+   slot annot-token :: false-or(<module-definer-token>) = #f,
+         init-keyword: #"token";
+   slot annot-definitions :: <sequence> /* of class, etc., definer tokens */ = #[];
+   // TODO: Add annot-bindings as quick reference to bindings in the module,
+   // rather than calling find-element all the time.
+end class;
+
+
+define method annot-representation (annot :: <module-annot>)
+=> (mod :: <module>)
+   annot.annot-module
+end method;
+
+
+define method inferred-module? (lib :: <library>, mod :: <imported-module>)
+=> (inferred? :: <boolean>)
+   mod.used-library.inferred-library? | next-method()
+end method;
+
+
+define method inferred-module? (lib :: <library>, mod :: <module>)
+   lib.inferred-library?
+end method;
+
+
+//
+// Module creation
+//
+
+
+define method make-annotated-module
+   (mod-annots :: <skip-list>, token :: false-or(<module-definer-token>),
+    library :: <library>, module-class :: subclass(<module>), #rest keys,
+    #key local-name: name :: <string>, #all-keys)
+=> (module :: <module>, annotation :: <module-annot>)
+   let new-module = apply(make, module-class, keys);
+   check-no-annotated-module(mod-annots, library, new-module);
+   let new-annot = make(<module-annot>, module: new-module, token: token);
+   mod-annots[name] := new-annot;
+   library.modules := add!(library.modules, new-module);
+   values(new-module, new-annot);
+end method;
+
+
+define method make-defined-module
+   (mod-annots :: <skip-list>, token :: <module-definer-token>, library :: <library>,
+    #rest keys, #key local-name :: <string>, source-location :: <source-location>)
+=> (module :: <module>, annotation :: <module-annot>)
+   apply(make-annotated-module, mod-annots, token, library, <local-module>, keys);
+end method;
+
+
+define method make-stray-module
+   (mod-annots :: <skip-list>, library :: <library>, #rest keys,
+    #key local-name :: <string>, source-location :: <source-location>,
+         exported :: <boolean> = #f)
+=> (module :: <module>, annotation :: <module-annot>)
+   let module-class =
+         if (library.inferred-library?)
+            <local-module>
+         else
+            <imported-module>
+         end if;
+   apply(make-annotated-module, mod-annots, #f, library, module-class,
+         import-name: local-name, used-library: #f, keys);
+end method;
+
+
+define method make-imported-module
+   (mod-annots :: <skip-list>, library :: <library>, #rest keys,
+    #key local-name :: <string>, source-location :: <source-location>,
+         used-library :: <library>, import-name :: <string>,
+         exported :: <boolean> = #f)
+=> (module :: <module>, annotation :: <module-annot>)
+   let module-class =
+         if (library.inferred-library?)
+            <local-module>
+         else
+            <imported-module>
+         end if;
+   apply(make-annotated-module, mod-annots, #f, library, module-class, keys);
+end method;
+
+
+define method check-no-annotated-module
+   (mod-annots :: <skip-list>, library :: <library>, new-module :: <module>)
+=> ()
+   let existing = element(mod-annots, new-module.local-name, default: #f);
+   when (existing & existing.annot-module ~= new-module)
+      let locs = vector(new-module.source-location, existing.annot-module.source-location);
+      conflicting-modules-in-library(location: library.source-location,
+            name: new-module.local-name, defn-locations: locs.item-string-list);
+   end when;
+end method;
+
+
+//
+// Inferences and imports
+//
+
+
+define method infer-and-import-for-module
+   (mod-annots :: <skip-list>, library :: <library>, module :: <module>)
+=> ()
+   assert(inferred-module?(library, module))
+   // Inferred modules have no imports and no place to infer in; do nothing.
+end method;
+
+
+/**
+Synopsis: Create stray bindings in a module of another library and import
+bindings that are known to exist.
+**/
+define method infer-and-import-for-module
+   (mod-annots :: <skip-list>, library :: <library>, module :: <imported-module>)
+=> ()
+   local method same-binding? (bind1 :: <binding>, bind2 :: <binding>) => (same?)
+            has-local-name?(bind1, bind2.local-name)
+         end method;
+  
+   let used-mod-name = module.import-name;
+   let used-mod = find-element
+         (module.used-library.modules, rcurry(has-local-name?, used-mod-name));
+   let used-bindings = choose(exported?, used-mod.bindings);
+
+   // Infer bindings in other library and module.
+   let missing-used-bindings = difference(module.bindings, used-bindings,
+                                          test: same-binding?);
+   for (missing-binding :: <binding> in missing-used-bindings)
+      make-stray-binding(module.used-library, used-mod, exported: #t,
+                         local-name: missing-binding.local-name,
+                         source-location: missing-binding.source-location)
+   end for;
+   
+   // Import bindings from other library and module.
+   let new-used-bindings = difference(used-bindings, module.bindings,
+                                      test: same-binding?);
+   for (used-binding :: <binding> in new-used-bindings)
+      make-imported-binding(library, module, exported: #t,
+                            local-name: used-binding.local-name,
+                            source-location: used-binding.source-location)
+   end for;
+end method;
+
+
+/**
+Synopsis: Create stray bindings in another module of this library and import
+bindings that are known to exist.
+**/
+define method infer-and-import-for-module
+   (mod-annots :: <skip-list>, library :: <known-library>, module :: <local-module>)
+=> ()
+   let annot = mod-annots[module.local-name];
+   let use-clauses = choose(rcurry(instance?, <use-clause-token>),
+                            annot.annot-token.namespace-clauses);
+   do(curry(infer-and-import-module-clause, mod-annots, annot, library),
+      use-clauses)
+end method;
+
+
+define method infer-and-import-module-clause
+   (mod-annots :: <skip-list>, annot :: <module-annot>, library :: <library>,
+    clause :: <use-clause-token>)
+=> ()
+   let module = annot.annot-module;
+
+   // Create used module if it isn't already defined.
+   let used-mod-name = clause.use-name;
+   let (used-mod, used-mod-annot) =
+         if (key-exists?(mod-annots, used-mod-name))
+            values(mod-annots[used-mod-name].annot-module,
+                   mod-annots[used-mod-name])
+         else
+            make-stray-module(mod-annots, library, local-name: used-mod-name,
+                  exported: #f, source-location: clause.token-src-loc);
+         end if;
+   
+   // Process use clause.
+   infer-and-import-clause(clause, used-mod.bindings,
+
+         // Make stray binding in used module.
+         method (name :: <string>) => ()
+            make-stray-binding(library, used-mod, local-name: name,
+               exported: #t, source-location: clause.token-src-loc)
+         end method,
+         
+         // Make or update binding in this module.
+         method (local-name :: <string>, import-name :: <string>, export :: <boolean>)
+         => ()
+            let existing-binding = find-element
+                  (module.bindings, rcurry(has-local-name?, local-name));
+            case
+               existing-binding & existing-binding.stray? =>
+                  existing-binding.used-module := used-mod;
+                  existing-binding.import-name := import-name;
+                  existing-binding.exported? := existing-binding.exported? | export;
+               otherwise =>
+                  make-imported-binding(library, module,
+                        local-name: local-name, import-name: import-name,
+                        used-module: used-mod, exported: export,
+                        source-location: clause.token-src-loc);
+            end case;
+         end method,
+         
+         // Note unknown reexport source.
+         method () => ()
+            if (inferred-module?(library, used-mod))
+               module.unknown-reexport-sources := add-new!
+                     (module.unknown-reexport-sources, used-mod, test: \=)
+            end if;
+         end method);
+end method;
+   
+
+//
+// Import propogation
+//
+
+
+define method import-all-for-module
+   (mod-annots :: <skip-list>, library :: <library>, module :: <module>)
+=> ()
+   assert(inferred-module?(library, module))
+   // Inferred modules have no imports; do nothing.
+end method;
+
+
+/**
+Synopsis: Create bindings imported from a module in another library.
+**/
+define method import-all-for-module
+   (mod-annots :: <skip-list>, library :: <library>, module :: <imported-module>)
+=> ()
+   local method same-binding? (bind1 :: <binding>, bind2 :: <binding>) => (same?)
+            has-local-name?(bind1, bind2.local-name)
+         end method;
+  
+   let used-mod-name = module.import-name;
+   let used-mod = find-element
+         (module.used-library.modules, rcurry(has-local-name?, used-mod-name));
+   let used-bindings = choose(exported?, used-mod.bindings);
+   let new-used-bindings = difference(used-bindings, module.bindings,
+                                      test: same-binding?);
+   for (used-binding :: <binding> in new-used-bindings)
+      make-imported-binding
+            (library, module, local-name: used-binding.local-name, exported: #t,
+             source-location: used-binding.source-location)
+   end for;
+end method;
+
+
+/**
+Synopsis: Create bindings imported from other modules in this library.
+**/
+define method import-all-for-module
+   (mod-annots :: <skip-list>, library :: <known-library>, module :: <local-module>)
+=> ()
+   let annot = mod-annots[module.local-name];
+   let token = annot.annot-token;
+   let use-clauses = choose(rcurry(instance?, <use-clause-token>),
+                            token.namespace-clauses);
+   do(curry(import-all-module-clause, mod-annots, annot, library), use-clauses);
+end method;
+
+
+define method import-all-module-clause
+   (mod-annots :: <skip-list>, annot :: <module-annot>, library :: <library>,
+    clause :: <use-clause-token>)
+=> ()
+   let module = annot.annot-module;
+   let used-mod = mod-annots[clause.use-name].annot-module;
+   infer-and-import-clause(clause, used-mod.bindings,
+
+         // Make stray binding in used module.
+         always(#f),
+         
+         // Make or update binding in this module.
+         method (local-name :: <string>, import-name :: <string>, export :: <boolean>)
+         => ()
+            let existing-binding = find-element
+                  (module.bindings, rcurry(has-local-name?, local-name));
+            case
+               existing-binding & existing-binding.stray? =>
+                  existing-binding.used-module := used-mod;
+                  existing-binding.import-name := import-name;
+                  existing-binding.exported? := existing-binding.exported? | export;
+               ~existing-binding =>
+                  make-imported-binding(library, module,
+                        local-name: local-name, import-name: import-name,
+                        used-module: used-mod, exported: export,
+                        source-location: clause.token-src-loc);
+            end case;
+         end method,
+         
+         // Note unknown reexport source.
+         always(#f));
+end method;
+

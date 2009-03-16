@@ -29,4 +29,8 @@ define module common-imports
    use source-location, export: all;
    // from dynamic-binding
    use dynamic-binding, export: all;
+   // from skip-list
+   use skip-list,
+      import: { <skip-list>, element-sequence, element-sequence-setter },
+      export: all;
 end module;
