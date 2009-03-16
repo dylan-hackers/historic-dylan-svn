@@ -9,10 +9,10 @@ files:      doctower-library
             dylan-translator/module
             dylan-translator/dylan-translator
             dylan-translator/rep-creation
-            dylan-translator/library-set
-            dylan-translator/library-modules
-            dylan-translator/module-bindings
-            dylan-translator/definitions
+            dylan-translator/namespace-rep
+            dylan-translator/library-rep
+            dylan-translator/module-rep
+            dylan-translator/binding-rep
             source-files/module
             source-files/dylan-file
             source-files/markup-file
