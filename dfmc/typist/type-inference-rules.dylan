@@ -62,11 +62,19 @@ define method type-estimate-value (o :: <object>) => (res == #f)
   #f;
 end;
 
+define method type-estimate-value (t :: <&type>) => (res :: <&type>)
+  t;
+end;
+
 define method type-estimate-value (o :: <integer>) => (res :: <&type>)
   dylan-value(#"<integer>");
 end;
 
-//list and string literals, floats!
+define method type-estimate-value (s :: <string>) => (res :: <&type>)
+  dylan-value(#"<string>");
+end;
+
+//list, floats!
 
 define thread variable *constraints* :: false-or(<stretchy-vector>) = #f;
 define thread variable *graph* :: false-or(<graph>) = #f;
@@ -102,6 +110,13 @@ define method infer-computation-types (c :: <temporary-transfer>) => ()
   add-constraint(make(<equality-constraint>,
                       left: c.computation-value.lookup-type,
                       right: c.temporary.lookup-type-variable))
+end;
+
+define method infer-computation-types (c :: <check-type>) => ()
+  next-method();
+  add-constraint(make(<equality-constraint>,
+                      left: c.type.lookup-type,
+                      right: c.temporary.lookup-type-variable));
 end;
 
 define method infer-computation-types (c :: <make-cell>) => ()

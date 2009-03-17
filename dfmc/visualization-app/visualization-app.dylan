@@ -143,8 +143,8 @@ begin
     "define method mymap (A, B)\n"
     " (fun :: A => B, as :: limited(<collection>, of: A))\n"
     " => (bs :: limited(<collection>, of: B))\n"
-    "  map(fun, as);"
-    "end;";
+    "  map(fun, as);\n"
+    "end;\n";
   add!($tests, pair(#"mymap", mm));
 
   let tc =
@@ -192,6 +192,62 @@ begin
     "end;\n";
   add!($tests, pair(#"gradual-typing-test2", gt2));
 */
+
+  let bin0 =
+    "define method binding0 ()\n"
+    "  let a = 42;\n"
+    "  let b = 455;\n"
+    "  a + b;\n"
+    "end;\n";
+  add!($tests, pair(#"binding0", bin0));
+
+  let bin1 =
+    "define method binding1 ()\n"
+    "  let a :: <integer> = 42;\n"
+    "  let b = 455;\n"
+    "  a + b;\n"
+    "end;\n";
+  add!($tests, pair(#"binding1", bin1));
+
+  let ass1 =
+    "define method assignment1 ()\n"
+    "  let a = 42;\n"
+    "  let b = 455;\n"
+    "  a := b + 1;\n"
+    "  b := \"foo\";\n"
+    "end;\n";
+  add!($tests, pair(#"assignment1", ass1));
+
+  let ass0 =
+    "define method assignment0 ()\n"
+    "  let a = 42;\n"
+    "  let b = 455;\n"
+    "  a := b + 1;\n"
+    "end;\n";
+  add!($tests, pair(#"assignment0", ass0));
+
+  let ass2 =
+    "define method assignment2 ()\n"
+    "  let a :: <integer> = 42;\n"
+    "  let b :: type-union(<integer>, <string>) = 455;\n"
+    "  a := b + 1;\n"
+    "  b := \"foo\";\n"
+    "end;\n";
+  add!($tests, pair(#"assignment2", ass2));
+
+  let mymap2 =
+    "define method mymap2 (c :: <list>)\n"
+    " => (c :: <list>)\n"
+    "  local method ma (x :: <integer>) => (y)\n"
+    "          x + 1;\n"
+    "        end;\n"
+    "  if (c.empty?)\n"
+    "    #()\n"
+    "  else\n"
+    "    add!(mymap2(c.tail), ma(c.head));\n"
+    "  end;\n"
+    "end;\n";
+  add!($tests, pair(#"mymap2", mymap2));
 end;
 
 define function callback-handler (#rest args)
