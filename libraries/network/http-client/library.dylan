@@ -5,7 +5,7 @@ define library http-client
   use http-common;
   use io,
     import: { format,
-              format-out,
+              standard-io,
               streams };
   use logging;
   use network,
@@ -55,12 +55,12 @@ define module http-client-internals
   use common-dylan,
     exclude: { format-to-string };
   use format;
-  use format-out;
   use http-client, export: all;
   use http-common;
   use logging;
   use sockets,
     exclude: { start-server };
+  use standard-io;
   use streams;
   use strings;
   use uncommon-dylan;
