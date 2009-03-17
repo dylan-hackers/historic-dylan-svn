@@ -74,6 +74,8 @@ define method send-request
 
 */
 
+define variable *debug-writes?* = #f;
+
 // Add a target to this if you want to see logging for the client.
 //
 define constant $log :: <logger>
@@ -211,7 +213,8 @@ define method start-request
 
   // If the user set the content length explicitly, we trust them.
   // Otherwise the transfer is chunked.
-  unless (get-header(headers, "Content-Length"))
+  unless (get-header(headers, "Content-Length")
+            | chunked-transfer-encoding?(headers))
     add-header(headers, "Transfer-Encoding", "chunked", if-exists?: #"ignore");
   end;
 
@@ -328,6 +331,11 @@ define inline function send-write-buffer
   else
     write(conn.connection-socket, conn.write-buffer,
           end: conn.write-buffer-index);
+    if (*debug-writes?*)
+      write(*standard-output*, "WROTE: ");
+      write(*standard-output*, conn.write-buffer,
+            end: conn.write-buffer-index);
+    end;
   end;
   conn.write-buffer-index := 0;
   note-bytes-sent(conn, conn.message-bytes-written);
@@ -345,8 +353,11 @@ define function send-chunk
   write(socket, conn.write-buffer, end: count);
   write(socket, "\r\n");
   inc!(conn.message-bytes-written, count);
-  // todo -- If strict mode (?) check the bytes written against the
-  //         content-length header.
+  if (*debug-writes?*)
+    format(*standard-output*, "WROTE: %s\r\n%s\r\n",
+           integer-to-string(count, base: 16),
+           copy-sequence(conn.write-buffer, end: count));
+  end;
 end function send-chunk;
 
 

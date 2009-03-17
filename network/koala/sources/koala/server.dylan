@@ -675,7 +675,9 @@ define function do-http-listen
   close(listener.listener-socket, abort: #t);
 end do-http-listen;
 
-define open primary class <request> (<basic-request>, <base-http-request>)
+define open primary class <request>
+    (<chunking-input-stream>, <basic-request>, <base-http-request>)
+
   // contains the relative URL following the matched responder
   slot request-tail-url :: false-or(<url>),
     init-value: #f;
@@ -701,6 +703,15 @@ define open primary class <request> (<basic-request>, <base-http-request>)
     init-value: #f;
 
 end class <request>;
+
+// Pass along the socket as the inner-stream for <chunking-input-stream>,
+// which is a <wrapper-stream>.
+//
+define method make
+    (class :: subclass(<request>), #rest args, #key client :: <client>, #all-keys)
+ => (request :: <request>)
+  apply(next-method, class, inner-stream: client.client-socket, args)
+end;
 
 // Making a virtual hosts requires an instantiated server to do some
 // initialization, so use this instead of calling make(<virtual-host>).
@@ -823,7 +834,8 @@ define function handler-top-level
               = rcurry(htl-error-handler, exit-handler-top-level,
                        send-response: #f,
                        decline-if-debugging: #f);
-            let handler <http-error> = rcurry(htl-error-handler, finish-request);
+            let handler <http-error> = rcurry(htl-error-handler, finish-request,
+                                              decline-if-debugging: #f);
 
             read-request(request);
 
@@ -962,7 +974,7 @@ define function read-request-content
     (request :: <request>)
  => ()
   if (chunked-transfer-encoding?(request))
-    not-implemented-error(what: "'Transfer-Encoding: chunked'");
+    request-content(request) := read-to-end(request);
   else
     let content-length = get-header(request, "Content-Length", parsed: #t);
     if (~content-length)
@@ -985,9 +997,9 @@ define function read-request-content
                                                    n, content-length));
       end;
       request-content(request) := buffer;
-      process-request-content(request, request-content-type(request));
     end;
   end;
+  process-request-content(request, request-content-type(request));
 end read-request-content;
 
 define inline function request-content-type (request :: <request>)
@@ -1126,10 +1138,6 @@ end method send-error-response-internal;
 // "User-agent" statistics, etc.
 //
 define method process-incoming-headers (request :: <request>)
-  // This should be implemented Real Soon Now...
-  if (chunked-transfer-encoding?(request))
-    not-implemented-error(what: "Chunked transfer-encoding")
-  end;
   bind (conn-values :: <sequence> = get-header(request, "Connection", parsed: #t) | #())
     if (member?("Close", conn-values, test: string-equal?))
       request-keep-alive?(request) := #f

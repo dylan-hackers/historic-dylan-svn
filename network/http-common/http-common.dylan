@@ -82,6 +82,8 @@ end method validate-http-status-code;
 //
 // Handles reading chunked (or non-chunked) HTTP message bodies
 
+define variable *debug-reads?* = #f;
+
 define constant $read-buffer-size :: <integer> = 8192;
 
 define open class <chunking-input-stream> (<wrapper-stream>)
@@ -237,6 +239,10 @@ define method refill-read-buffer
             n := ex.stream-error-count;
           end;
         end;
+        if (*debug-reads?*)
+          write(*standard-output*, "READ: ");
+          write(*standard-output*, stream.read-buffer, end: n);
+        end;
         if (n < stream.read-buffer.size)
           stream.%eof-position := n;
         end;
@@ -305,6 +311,11 @@ define method read-chunk
   if (read-element(stream) ~= '\n')
     bad-response-error();
   end;
+  if (*debug-reads?*)
+    format(*standard-output*, "READ: %s\r\n%s\r\n",
+           copy-sequence(line, end: eol),
+           buffer);
+  end;
   buffer
 end method read-chunk;
 
@@ -313,7 +324,7 @@ end method read-chunk;
 
 ///////////// Requests ////////////
 
-define open primary class <base-http-request> (<message-headers-mixin>)
+define open class <base-http-request> (<message-headers-mixin>)
 
   // todo -- url, raw-url, method, and version (everything that comes in the request
   // line) should be constant slots.  The server needs to be updated to read the
