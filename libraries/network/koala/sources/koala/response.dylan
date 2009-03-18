@@ -284,7 +284,7 @@ define inline function log-request
                   " \"", as(<string>, get-header(req, "referer") | "-"),
                   "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
                   "\"");
-  %log-info(request-logger(*virtual-host*), log-entry);
+  %log-info(request-logger(*virtual-host*), "%s", log-entry);
 end function log-request;
 
 // Exported
