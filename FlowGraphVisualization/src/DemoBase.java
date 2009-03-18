@@ -85,6 +85,8 @@ public class DemoBase extends Thread {
   protected HashMap<String, String> string_source_map = new HashMap<String, String>();
   protected JTextArea text;
   
+  final JToolBar jtb;
+  
   /**
    * This constructor creates the {@link #view}
    * and calls,
@@ -120,7 +122,7 @@ public class DemoBase extends Thread {
     project_chooser.addActionListener(new ChangeProjectAction());
     
     
-    final JToolBar jtb = createToolBar();
+    jtb = createToolBar();
     if ( jtb != null ) {
       left.add( jtb, BorderLayout.NORTH );
     }
@@ -168,6 +170,20 @@ public class DemoBase extends Thread {
 	  if (mname.startsWith(def))
 		  mname = mname.substring(def.length(), mname.indexOf(' ', def.length() + 1)).trim();
 	  return mname;
+  }
+  
+  private boolean steppressed = false;
+  
+  public void waitforstep () {
+	  steppressed = false;
+	  jtb.setBackground(Color.green);
+	  while(! steppressed)
+		try {
+			Thread.sleep(300);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	  jtb.setBackground(Color.LIGHT_GRAY);
   }
   
   public boolean containsMethodHeader () {
@@ -469,6 +485,7 @@ public class DemoBase extends Thread {
 		}
 		
 		public void actionPerformed (ActionEvent ev) {
+			steppressed = true;
 			incrementallayouter.nextStep();
 		}
 		

@@ -414,7 +414,7 @@ public class IncrementalHierarchicLayout
 	}
 	
 	public boolean nextStep () {
-		if (lastslidervalue <= lastEntry) {
+		if (graphfinished && (lastslidervalue <= lastEntry)) {
 			for (Object comm : changes.get(lastslidervalue)) {
 				ArrayList com = (ArrayList)comm;
 				Commands.processCommand(this, com, demobase);
