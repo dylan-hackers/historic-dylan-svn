@@ -228,12 +228,22 @@ begin
 
   let ass2 =
     "define method assignment2 ()\n"
+    "  let a = 42;\n"
+    "  let b = 455;\n"
+    "  a := b + 1;\n"
+    "  b := \"foo\";\n"
+    "  a := concatenate(b, b);\n"
+    "end;\n";
+  add!($tests, pair(#"assignment2", ass2));
+
+  let ass3 =
+    "define method assignment3 ()\n"
     "  let a :: <integer> = 42;\n"
     "  let b :: type-union(<integer>, <string>) = 455;\n"
     "  a := b + 1;\n"
     "  b := \"foo\";\n"
     "end;\n";
-  add!($tests, pair(#"assignment2", ass2));
+  add!($tests, pair(#"assignment3", ass3));
 
   let mymap2 =
     "define method mymap2 (c :: <list>)\n"

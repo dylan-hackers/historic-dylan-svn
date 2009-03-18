@@ -98,6 +98,7 @@ end;
 define generic infer-computation-types (c :: <computation>) => ();
 
 define method infer-computation-types (c :: <computation>) => ()
+  debug-types(#"relayouted");
   debug-types(#"highlight", c);
   if (c.temporary & c.temporary.users.size > 0)
     lookup-type-variable(c.temporary);
@@ -132,9 +133,11 @@ end;
 
 define method infer-computation-types (c :: <get-cell-value>) => ()
   next-method();
-  add-constraint(make(<equality-constraint>,
-                      left: c.computation-cell.lookup-type-variable,
-                      right: c.temporary.lookup-type-variable));
+  if (c.temporary & c.temporary.users.size > 0)
+    add-constraint(make(<equality-constraint>,
+                        left: c.computation-cell.lookup-type-variable,
+                        right: c.temporary.lookup-type-variable));
+  end;
 end;
 
 define method infer-computation-types (c :: <set-cell-value!>) => ()
