@@ -143,11 +143,9 @@ define errors (<user-visible-warning>)
       "Modules and bindings of used library are unknown and might not be documented",
       location;
 
-   /*
-   04 inferred-module-in-library
-      "No definition of module \"%s\"",
-      location, name;
-   */
+   04 no-definition-for-bindings
+      "No definition of exported binding %s",
+      location, names;
 
    05 qv-or-vi-in-title
       "Titles may not include quoted phrase options \"qv\" or \"vi\"",
@@ -275,17 +273,17 @@ define errors (<user-visible-error>)
       "Differing definitions of binding \"%s\" at %s",
       location, name, defn-locations;
    
+   /*
    81 no-definition-for-bindings
       "No definition of exported binding %s",
       location, names;
+   */
    
    82 circular-definition
       "Circular dependency for \"%s\" between %s",
       name, defn-locations;
 
-   /*
-   83 undefined-module-in-library
-      "No definition of module \"%s\"",
-      location, name;
-   */
+   83 conflicting-definitions-in-code
+      "Conflicting definitions at %s",
+      defn-locations;
 end errors;

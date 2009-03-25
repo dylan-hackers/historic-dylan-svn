@@ -13,6 +13,7 @@ define module conditions
       bad-syntax-in-toc-file,
       circular-definition,
       conflicting-bindings-in-module,
+      conflicting-definitions-in-code,
       conflicting-locations-in-tree,
       conflicting-modules-in-library,
       duplicate-id-in-topics,
@@ -43,7 +44,6 @@ define module conditions
       skipped-level-in-toc-file,
       target-not-found-in-link,
       undefined-module-for-interchange-file,
-      // undefined-module-in-library,
       unparsable-expression-in-code,
       unsupported-syntax-in-code,
       ;

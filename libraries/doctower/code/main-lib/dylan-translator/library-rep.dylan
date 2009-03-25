@@ -163,7 +163,7 @@ define method import-all-library-clause
 => ()
    let library = annot.annot-library;
    let used-lib = lib-annots[clause.use-name].annot-library;
-   infer-and-import-clause(clause, library.modules,
+   infer-and-import-clause(clause, used-lib.modules,
 
          // Make stray module in used library.
          always(#f),
