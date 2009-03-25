@@ -2,8 +2,13 @@ module: dylan-translator
 synopsis: Code dealing with class, generic, etc. representations in general.
 
 
-define method make-binding-from-tokens (tokens :: <sequence>)
+define method make-definition-from-tokens
+   (tokens :: <sequence>, library :: <library>, module :: <module>)
 => (binding :: <binding>, definition :: <definition>)
+   
+   // Make new implicit or explicit definitions and check for consistency.
+
+   let binding-name = tokens.first.api-name;
    let expl/impl-defns = map(make-expl/impl-defn, tokens);
    let defn-class =
          case
@@ -28,30 +33,40 @@ define method make-binding-from-tokens (tokens :: <sequence>)
                => <macro-defn>;
             otherwise =>
                let locs = map(source-location, expl/impl-defns);
-               conflicting-bindings-in-module(location: #f, name: tokens.first.api-name,
-                     defn-locations: locs.item-string-list);
+               conflicting-bindings-in-module(location: module.source-location,
+                     name: binding-name, defn-locations: locs.item-string-list);
          end case;
 
    let (impl-defns, expl-defns) =
          partition(rcurry(instance?, <implicit-generic-defn>), expl/impl-defns);
+
    unless (expl-defns.size <= 1)
       let locs = map(source-location, expl-defns);
-      conflicting-bindings-in-module(location: #f, name: tokens.first.api-name,
-            defn-locations: locs.item-string-list)
-   end unless;
-
-   let definition = make(defn-class);
-   definition.explicit-defn := ~expl-defns.empty? & expl-defns.first;
-   unless (impl-defns.empty?)
-      debug-assert(defn-class = <generic-defn>);
-      definition.implicit-defns := as(<stretchy-vector>, impl-defns);
+      conflicting-bindings-in-module(location: module.source-location,
+            name: binding-name, defn-locations: locs.item-string-list);
    end unless;
    
-   let new-binding = make(<local-binding>, local-name: tokens.first.api-name,
-                          definition: definition,
-                          source-location: tokens.first.token-src-loc);
+   // Make new definition.
+   
+   let new-defn = make(defn-class);
+   new-defn.explicit-defn := ~expl-defns.empty? & expl-defns.first;
+   when (instance?(new-defn, <generic-defn>))
+      new-defn.implicit-defns := as(<stretchy-vector>, impl-defns);
+   end when;
 
-   values(new-binding, definition);
+   // Create new or get existing binding and add definition.
+
+   let binding = find-element(module.bindings, rcurry(has-local-name?, binding-name));
+   if (binding)
+      binding.definition := add-definition(binding.definition, new-defn);
+   else
+      let loc = (~expl-defns.empty? & expl-defns.first.source-location)
+            | impl-defns.first.source-location;
+      binding := make-local-binding(library, module, local-name: binding-name,
+                                    definition: new-defn, source-location: loc,
+                                    exported: #f);
+   end if;
+   values(binding, binding.definition);
 end method;
 
 
@@ -75,10 +90,19 @@ define method make-created-binding
 end method;
 
 
+define method make-local-binding
+   (library :: <library>, module :: <module>, #rest keys,
+    #key local-name :: <string>, source-location :: <source-location>,
+         exported :: <boolean> = #f, definition :: false-or(<definition>) = #f)
+=> (binding :: <binding>)
+   apply(make-binding, library, module, <local-binding>, keys);
+end method;
+
+
 define method make-stray-binding
    (library :: <library>, module :: <local-module>, #rest keys,
     #key local-name :: <string>, source-location :: <source-location>,
-         exported :: <boolean> = #f)
+         exported :: <boolean> = #f, definition :: false-or(<definition>) = #f)
 => (binding :: <binding>)
    let binding-class =
          if (inferred-module?(library, module))
@@ -87,14 +111,14 @@ define method make-stray-binding
             <imported-binding>
          end if;
    apply(make-binding, library, module, binding-class,
-         import-name: local-name, used-module: #f, keys);
+         import-name:, local-name, used-module:, #f, keys);
 end method;
 
 
 define method make-stray-binding
    (library :: <library>, module :: <imported-module>, #rest keys,
     #key local-name :: <string>, source-location :: <source-location>,
-         exported :: <boolean> = #f)
+         exported :: <boolean> = #f, definition :: false-or(<definition>) = #f)
 => (binding :: <binding>)
    apply(make-binding, library, module, <local-binding>, keys);
 end method;
@@ -104,7 +128,7 @@ define method make-imported-binding
    (library :: <library>, module :: <local-module>, #rest keys,
     #key local-name :: <string>, source-location :: <source-location>,
          used-module :: <module>, import-name :: <string>,
-         exported :: <boolean> = #f)
+         exported :: <boolean> = #f, definition :: false-or(<definition>) = #f)
 => (binding :: <binding>)
    let binding-class =
          if (inferred-module?(library, module))
@@ -119,7 +143,7 @@ end method;
 define method make-imported-binding
    (library :: <library>, module :: <imported-module>, #rest keys,
     #key local-name :: <string>, source-location :: <source-location>,
-         exported :: <boolean> = #f)
+         exported :: <boolean> = #f, definition :: false-or(<definition>) = #f)
 => (binding :: <binding>)
    apply(make-binding, library, module, <local-binding>, keys);
 end method;
@@ -128,11 +152,47 @@ end method;
 define method check-no-binding (module :: <module>, new-binding :: <binding>) => ()
    let existing = find-element(module.bindings,
                                rcurry(has-local-name?, new-binding.local-name));
-   when (existing & existing ~= new-binding)
+   when (existing)
       let locs = vector(new-binding.source-location, existing.source-location);
       conflicting-bindings-in-module(location: module.source-location,
             name: new-binding.local-name, defn-locations: locs.item-string-list);
    end when;
+end method;
+
+
+//
+// Definition merging
+//
+
+
+define method add-definition (def1 == #f, def2 :: false-or(<definition>))
+=> (def :: false-or(<definition>))
+   def2
+end method;
+
+
+define method add-definition (def1 :: <definition>, def2 == #f)
+=> (def :: <definition>)
+   add-definition(def2, def1)
+end method;
+
+
+define method add-definition (def1 :: <definition>, def2 :: <definition>)
+=> (def :: <definition>)
+   let locs = vector(def1.source-location, def2.source-location);
+   conflicting-definitions-in-code(defn-locations: locs.item-string-list);
+end method;
+
+
+define method add-definition (def1 :: <generic-defn>, def2 :: <generic-defn>)
+=> (def :: <generic-defn>)
+   if (def1.explicit-defn & def2.explicit-defn)
+      let locs = vector(def1.source-location, def2.source-location);
+      conflicting-definitions-in-code(defn-locations: locs.item-string-list);
+   end if;
+   def1.explicit-defn := def1.explicit-defn | def2.explicit-defn;
+   def1.implicit-defns := concatenate!(def1.implicit-defns, def2.implicit-defns);
+   def1
 end method;
 
 

@@ -20,11 +20,11 @@ define module dylan-rep
 
    export
       local-name, local-name-setter, import-name, import-name-setter, modules,
-      modules-setter, definitions, definitions-setter, used-library,
-      used-library-setter, bindings, bindings-setter, used-module,
-      used-module-setter, definition, definition-setter,
-      unknown-reexport-sources, unknown-reexport-sources-setter, exported?,
-      exported?-setter, stray?, implicit-defns, implicit-defns-setter,
-      explicit-defn, explicit-defn-setter
+      modules-setter, used-library, used-library-setter, bindings,
+      bindings-setter, used-module, used-module-setter, definition,
+      definition-setter, unknown-reexport-sources,
+      unknown-reexport-sources-setter, exported?, exported?-setter, stray?,
+      implicit-defns, implicit-defns-setter, explicit-defn,
+      explicit-defn-setter, all-defns
       ;
 end module;

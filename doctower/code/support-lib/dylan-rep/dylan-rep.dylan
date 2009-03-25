@@ -53,7 +53,7 @@ manually.
 Specific inferences, failure modes, and representations
 =======================================================
 
-Inferred libraries, modules, and bindings are created without a corresponding
+"Inferred" libraries, modules, and bindings are created without a corresponding
 defining macro of the appropriate type, e.g., a module created without a
 module-definer.
 
@@ -167,7 +167,6 @@ define abstract class <library> (<source-location-mixin>)
 end class;
 
 define class <known-library> (<library>)
-   slot definitions = make(<stretchy-vector> /* of <definition> */);
 end class;
 
 define class <unknown-library> (<library>)
@@ -411,7 +410,20 @@ end method;
 // Definitions
 //
 
+/**
+Bindings are owned by specific modules and libraries, but map to definitions
+composed of several explicit and implicit definitions gathered from different
+libraries. Since definitions aren't wholly contained by a single library or
+module, they either have to be splittable and recombinable, or have to be
+completely independent of libraries/modules.
+
+There is not much to prefer one to the other. In either case, we have to trace
+an API definition through its module's used modules and libraries to find if the
+definition should be added to an already existing definition or a created
+binding.
+**/
 define abstract class <definition> (<object>)
+   virtual slot all-defns :: <sequence>;
 end class;
 
 define class <class-defn> (<definition>)
@@ -438,6 +450,15 @@ end class;
 define class <macro-defn> (<definition>)
    slot explicit-defn :: <explicit-macro-defn>;
 end class;
+
+define method all-defns (gen :: <generic-defn>) => (defns :: <sequence>)
+   let defns = if (gen.explicit-defn) vector(gen.explicit-defn) else #[] end;
+   concatenate(defns, gen.implicit-defns)
+end method;
+
+define method all-defns (defn :: <definition>) => (defns :: <sequence>)
+   vector(defn.explicit-defn)
+end method;
 
 
 //
@@ -515,7 +536,7 @@ define class <explicit-generic-defn> (<func/gen-definition>, <source-location-mi
    slot sealed-domains = make(<stretchy-vector> /* of <sealed-domain> */);
 end class;
 
-define class <implicit-generic-defn> (<func/gen-definition>)
+define class <implicit-generic-defn> (<func/gen-definition>, <source-location-mixin>)
    slot warn-sealed-domain? :: <boolean>;
 end class;
 

@@ -46,7 +46,13 @@ end method;
 
 define method print-object (o :: <local-binding>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
-      format(s, "local-binding %=", o.local-name);
+      format(s, "local-binding %=, ", o.local-name);
+      pprint-newline(#"fill", s);
+      if (o.definition)
+         format(s, "def %=", o.definition);
+      else
+         write(s, "no def");
+      end if;
       if (o.exported?)
          write(s, ", ");
          pprint-newline(#"fill", s);
@@ -66,6 +72,13 @@ define method print-object (o :: <imported-binding>, s :: <stream>) => ()
          format(s, "%= ", o.import-name);
          pprint-newline(#"fill", s);
          format(s, "in %=", o.used-module);
+      end if;
+      write(s, ", ");
+      pprint-newline(#"fill", s);
+      if (o.definition)
+         format(s, "def %=", o.definition);
+      else
+         write(s, "no def");
       end if;
       if (o.exported?)
          write(s, ", ");

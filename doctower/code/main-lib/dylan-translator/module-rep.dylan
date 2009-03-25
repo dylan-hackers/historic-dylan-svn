@@ -20,7 +20,7 @@ end method;
 
 define method inferred-module? (lib :: <library>, mod :: <imported-module>)
 => (inferred? :: <boolean>)
-   mod.used-library.inferred-library? | next-method()
+   mod.stray? | mod.used-library.inferred-library? | next-method()
 end method;
 
 
@@ -68,7 +68,7 @@ define method make-stray-module
             <imported-module>
          end if;
    apply(make-annotated-module, mod-annots, #f, library, module-class,
-         import-name: local-name, used-library: #f, keys);
+         import-name:, local-name, used-library:, #f, keys);
 end method;
 
 
@@ -92,7 +92,7 @@ define method check-no-annotated-module
    (mod-annots :: <skip-list>, library :: <library>, new-module :: <module>)
 => ()
    let existing = element(mod-annots, new-module.local-name, default: #f);
-   when (existing & existing.annot-module ~= new-module)
+   when (existing)
       let locs = vector(new-module.source-location, existing.annot-module.source-location);
       conflicting-modules-in-library(location: library.source-location,
             name: new-module.local-name, defn-locations: locs.item-string-list);
@@ -116,36 +116,45 @@ end method;
 /**
 Synopsis: Create stray bindings in a module of another library and import
 bindings that are known to exist.
+
+Imported bindings will be instances of <local-binding> in this module.
 **/
 define method infer-and-import-for-module
    (mod-annots :: <skip-list>, library :: <library>, module :: <imported-module>)
 => ()
-   local method same-binding? (bind1 :: <binding>, bind2 :: <binding>) => (same?)
+   local method same-binding? (bind1 :: <binding>, bind2 :: <binding>)
             has-local-name?(bind1, bind2.local-name)
          end method;
-  
-   let used-mod-name = module.import-name;
-   let used-mod = find-element
-         (module.used-library.modules, rcurry(has-local-name?, used-mod-name));
-   let used-bindings = choose(exported?, used-mod.bindings);
-
-   // Infer bindings in other library and module.
-   let missing-used-bindings = difference(module.bindings, used-bindings,
-                                          test: same-binding?);
-   for (missing-binding :: <binding> in missing-used-bindings)
-      make-stray-binding(module.used-library, used-mod, exported: #t,
-                         local-name: missing-binding.local-name,
-                         source-location: missing-binding.source-location)
-   end for;
    
-   // Import bindings from other library and module.
-   let new-used-bindings = difference(used-bindings, module.bindings,
-                                      test: same-binding?);
-   for (used-binding :: <binding> in new-used-bindings)
-      make-imported-binding(library, module, exported: #t,
-                            local-name: used-binding.local-name,
-                            source-location: used-binding.source-location)
-   end for;
+   unless (module.stray?)
+      let used-mod-name = module.import-name;
+      let used-mod = find-element
+            (module.used-library.modules, rcurry(has-local-name?, used-mod-name));
+      let used-bindings = choose(exported?, used-mod.bindings);
+
+      // Infer bindings in other library and module.
+
+      let missing-used-bindings = difference(module.bindings, used-bindings,
+                                             test: same-binding?);
+                  
+      for (missing-binding :: <binding> in missing-used-bindings)
+         make-stray-binding(module.used-library, used-mod, exported: #t,
+                            local-name: missing-binding.local-name,
+                            source-location: missing-binding.source-location)
+      end for;
+   
+      // Import bindings from other library and module.
+
+      let new-used-bindings = difference(used-bindings, module.bindings,
+                                         test: same-binding?);
+
+      for (used-binding :: <binding> in new-used-bindings)
+         make-imported-binding(library, module, exported: #t,
+                               local-name: used-binding.local-name,
+                               definition: used-binding.definition,
+                               source-location: used-binding.source-location)
+      end for;
+   end unless;
 end method;
 
 
@@ -219,11 +228,11 @@ end method;
    
 
 //
-// Import propogation
+// Import propogation and definitions
 //
 
 
-define method import-all-for-module
+define method define-and-import-all-for-module
    (mod-annots :: <skip-list>, library :: <library>, module :: <module>)
 => ()
    assert(inferred-module?(library, module))
@@ -232,33 +241,43 @@ end method;
 
 
 /**
-Synopsis: Create bindings imported from a module in another library.
+Synopsis: Create bindings imported from a module from another library.
+
+These bindings will be instances of <local-binding> in this module.
 **/
-define method import-all-for-module
+define method define-and-import-all-for-module
    (mod-annots :: <skip-list>, library :: <library>, module :: <imported-module>)
 => ()
-   local method same-binding? (bind1 :: <binding>, bind2 :: <binding>) => (same?)
+   local method same-binding? (bind1 :: <binding>, bind2 :: <binding>)
             has-local-name?(bind1, bind2.local-name)
          end method;
-  
-   let used-mod-name = module.import-name;
-   let used-mod = find-element
-         (module.used-library.modules, rcurry(has-local-name?, used-mod-name));
-   let used-bindings = choose(exported?, used-mod.bindings);
-   let new-used-bindings = difference(used-bindings, module.bindings,
-                                      test: same-binding?);
-   for (used-binding :: <binding> in new-used-bindings)
-      make-imported-binding
-            (library, module, local-name: used-binding.local-name, exported: #t,
-             source-location: used-binding.source-location)
-   end for;
+   
+   unless (module.stray?)
+      let used-mod-name = module.import-name;
+      let used-mod = find-element
+            (module.used-library.modules, rcurry(has-local-name?, used-mod-name));
+      let used-bindings = choose(exported?, used-mod.bindings);
+
+      // Import bindings from other library and module.
+
+      let new-used-bindings = difference(used-bindings, module.bindings,
+                                         test: same-binding?);
+
+      for (used-binding :: <binding> in new-used-bindings)
+         make-imported-binding(library, module, exported: #t,
+                               local-name: used-binding.local-name,
+                               definition: used-binding.definition,
+                               source-location: used-binding.source-location)
+      end for;
+   end unless;
 end method;
 
 
 /**
-Synopsis: Create bindings imported from other modules in this library.
+Synopsis: Create bindings imported from other modules from this library and add
+local definitions and bindings.
 **/
-define method import-all-for-module
+define method define-and-import-all-for-module
    (mod-annots :: <skip-list>, library :: <known-library>, module :: <local-module>)
 => ()
    let annot = mod-annots[module.local-name];
@@ -266,6 +285,11 @@ define method import-all-for-module
    let use-clauses = choose(rcurry(instance?, <use-clause-token>),
                             token.namespace-clauses);
    do(curry(import-all-module-clause, mod-annots, annot, library), use-clauses);
+   
+   let defn-tokens = group-elements(annot.annot-definitions, test: same-api-name?);
+   for (group in defn-tokens)
+      make-definition-from-tokens(group, library, module);
+   end for;
 end method;
 
 
@@ -285,15 +309,19 @@ define method import-all-module-clause
          => ()
             let existing-binding = find-element
                   (module.bindings, rcurry(has-local-name?, local-name));
+            let used-binding = find-element
+                  (used-mod.bindings, rcurry(has-local-name?, import-name));
             case
                existing-binding & existing-binding.stray? =>
                   existing-binding.used-module := used-mod;
                   existing-binding.import-name := import-name;
                   existing-binding.exported? := existing-binding.exported? | export;
+                  existing-binding.definition := used-binding & used-binding.definition;
                ~existing-binding =>
                   make-imported-binding(library, module,
                         local-name: local-name, import-name: import-name,
                         used-module: used-mod, exported: export,
+                        definition: used-binding & used-binding.definition,
                         source-location: clause.token-src-loc);
             end case;
          end method,
@@ -301,4 +329,34 @@ define method import-all-module-clause
          // Note unknown reexport source.
          always(#f));
 end method;
+
+
+//
+// Export checks
+//
+
+
+define method check-exports-not-imported (module :: <module>, token == #f)
+=> ()
+   // Do nothing if we don't have an export clause.
+end method;
+
+
+define method check-exports-not-imported
+   (module :: <module>, token :: <module-definer-token>)
+=> ()
+   let export-clauses =
+         choose(rcurry(instance?, <export-clause-token>), token.namespace-clauses);
+   for (clause in export-clauses)
+      for (name in clause.export-names)
+         let found-bind = find-element(module.bindings, rcurry(has-local-name?, name));
+         when (instance?(found-bind, <imported-binding>) & ~found-bind.stray?)
+            let locs = vector(found-bind.source-location, clause.token-src-loc);
+            conflicting-bindings-in-module(location: module.source-location,
+                  name: name, defn-locations: locs.item-string-list);
+         end when;
+      end for;
+   end for;
+end method;
+
 

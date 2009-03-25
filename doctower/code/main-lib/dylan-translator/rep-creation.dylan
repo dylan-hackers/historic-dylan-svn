@@ -23,7 +23,7 @@ define method apis-from-dylan (file-sets :: <sequence>)
    order-by-dependency(annotations);
    make-inferences-and-imports(annotations);
    order-by-dependency(annotations);
-   make-all-imports(annotations);
+   make-all-imports-and-defns(annotations);
 
    /**/
    log-object("Libraries", map(annot-library, annotations.element-sequence));
@@ -37,6 +37,7 @@ define method apis-from-dylan (file-sets :: <sequence>)
                     as(<simple-vector>, mod-annot.annot-module.bindings))
       end for;
    end for;
+   /**/
    
    choose(rcurry(instance?, <known-library>),
           map(annot-library, annotations.element-sequence));
@@ -102,14 +103,17 @@ define method make-annotations-from-files
    for (file in files)
       let header = file.module-header;
       let file-module = header.hdr-value;
-      let module-annot = element(library-annot.annot-modules, file-module, default: #f);
-      unless (module-annot | case-insensitive-equal?(file-module, "dylan-user"))
-         undefined-module-for-interchange-file(location: header.token-src-loc,
-                                               name: header.hdr-value)
+      unless (case-insensitive-equal?(file-module, "dylan-user"))
+         let module-annot = element(library-annot.annot-modules, file-module,
+                                    default: #f);
+         unless (module-annot)
+            undefined-module-for-interchange-file(location: header.token-src-loc,
+                                                  name: header.hdr-value)
+         end unless;
+         module-annot.annot-definitions := concatenate!(module-annot.annot-definitions,
+               choose-interchange-definitions(<non-namespace-definition-token>,
+                                              vector(file)));
       end unless;
-      module-annot.annot-definitions := concatenate!(module-annot.annot-definitions,
-            choose-interchange-definitions(<non-namespace-definition-token>,
-                                           vector(file)));
    end for;
    
    library-annot
@@ -134,61 +138,9 @@ define method make-api-representations (annotations :: <skip-list>) => ()
          let mod = mod-annot.annot-module;
          let deps = dependencies-from-token(mod-annot.annot-token);
          mod-annot.annot-dependencies := deps;
-
-         let defn-tokens = group-elements
-               (mod-annot.annot-definitions, test: same-api-name?);
-         for (group in defn-tokens)
-            let (bind, defn) = make-binding-from-tokens(group);
-            add!(lib.definitions, defn);
-            add!(mod.bindings, bind);
-            // TODO: At some point, need to unify definitions created in different
-            // modules under different binding names, and probably across libraries
-            // too.
-         end for;
-         flag-exported-from-token(mod, mod-annot.annot-token);
          make-created-from-token(lib, mod, mod-annot.annot-token);
       end for;
-      flag-exported-from-token(lib, lib-annot.annot-token);
-   end for;
-end method;
-
-
-define method flag-exported-from-token
-   (library :: <library>, token :: <library-definer-token>)
-=> ()
-   flag-exported-items-from-token(library.modules, token, no-definition-for-modules)
-end method;
-
-
-define method flag-exported-from-token
-   (module :: <module>, token :: <module-definer-token>)
-=> ()
-   flag-exported-items-from-token(module.bindings, token, no-definition-for-bindings)
-end method;
-
-
-define method flag-exported-items-from-token
-   (items :: <sequence>, token :: <definition-token>, error :: <function>)
-=> ()
-   local method item-for-name (name :: <string>) => (item)
-            find-element(items, rcurry(has-local-name?, name))
-         end method;
-         
-   let export-clauses = choose(rcurry(instance?, <export-clause-token>),
-                               token.namespace-clauses);
-   let exported-names = #[];
-   for (clause in export-clauses)
-      let names = apply(concatenate, #[], map(export-names, export-clauses));
-      let names = remove-duplicates!(names, test: case-insensitive-equal?);
-      let new-names = difference(names, exported-names, test: case-insensitive-equal?);
-      let items = map(item-for-name, new-names);
-      let missing-names = choose-by(false?, items, new-names);
-      unless (missing-names.empty?)
-         let quoted-names = map(curry(format-to-string, "\"%s\""), missing-names);
-         error(location: clause.token-src-loc, names: quoted-names.item-string-list);
-      end unless;
-      do(curry(exported?-setter, #t), items);
-      exported-names := concatenate!(exported-names, new-names);
+      flag-and-check-exports-exist(lib, lib-annot.annot-token);
    end for;
 end method;
 
@@ -226,10 +178,11 @@ modules, and traces back to the start to infer any unknown APIs and match them
 to defined APIs in prerequisite libraries or modules.
 **/
 define method make-inferences-and-imports (annotations :: <skip-list>) => ()
-   // This method may add to a skip list that is being iterated. I shouldn't do
-   // this, but I happen to know that skip list iteration will still work.
    for (lib-annot in annotations using backward-iteration-protocol)
+      // Infer-and-import-for-library may create new modules.
+      // If it does so, we need to redo dependencies so the inner loop is right.
       infer-and-import-for-library(annotations, lib-annot.annot-library);
+      order-list-by-dependency(lib-annot.annot-modules);
       for (mod-annot in lib-annot.annot-modules using backward-iteration-protocol)
          infer-and-import-for-module(lib-annot.annot-modules,
                lib-annot.annot-library, mod-annot.annot-module);
@@ -249,14 +202,74 @@ Synopsis: Propogate APIs to dependent libraries and modules.
 Once all stray APIs and inferred libraries/modules are known, this method goes
 back and makes sure that all dependent libraries and modules that use all APIs
 of a library or module are updated with any newly-added APIs.
+
+It also adds definitions to all bindings and ensures that imported bindings are
+not mentioned in "export" clauses.
 **/
-define method make-all-imports (annotations :: <skip-list>) => ()
+define method make-all-imports-and-defns (annotations :: <skip-list>) => ()
    for (lib-annot in annotations)
-      import-all-for-library(annotations, lib-annot.annot-library);
+      // Import-all-for-library may create new modules.
+      // If it does so, we need to redo dependencies so the inner loop is right.
+      let lib = lib-annot.annot-library;
+      import-all-for-library(annotations, lib);
+      order-list-by-dependency(lib-annot.annot-modules);
       for (mod-annot in lib-annot.annot-modules)
-         import-all-for-module(lib-annot.annot-modules,
-               lib-annot.annot-library, mod-annot.annot-module);
+         let mod = mod-annot.annot-module;
+         define-and-import-all-for-module(lib-annot.annot-modules, lib, mod);
+         flag-and-check-exports-exist(mod, mod-annot.annot-token);
+         check-exports-not-imported(mod, mod-annot.annot-token);
       end for;
+   end for;
+end method;
+
+
+//
+// Exports
+//
+
+
+define method flag-and-check-exports-exist
+   (rep :: type-union(<library>, <module>), token == #f)
+=> ()
+end method;
+
+
+define method flag-and-check-exports-exist
+   (library :: <library>, token :: <library-definer-token>)
+=> ()
+   check-exported-items-exist(library.modules, token, no-definition-for-modules)
+end method;
+
+
+define method flag-and-check-exports-exist
+   (module :: <module>, token :: <module-definer-token>)
+=> ()
+   check-exported-items-exist(module.bindings, token, no-definition-for-bindings)
+end method;
+
+
+define method check-exported-items-exist
+   (items :: <sequence>, token :: <definition-token>, error :: <function>)
+=> ()
+   local method item-for-name (name :: <string>) => (item)
+            find-element(items, rcurry(has-local-name?, name))
+         end method;
+         
+   let export-clauses = choose(rcurry(instance?, <export-clause-token>),
+                               token.namespace-clauses);
+   let exported-names = #[];
+   for (clause in export-clauses)
+      let names = apply(concatenate, #[], map(export-names, export-clauses));
+      let names = remove-duplicates!(names, test: case-insensitive-equal?);
+      let new-names = difference(names, exported-names, test: case-insensitive-equal?);
+      let items = map(item-for-name, new-names);
+      let missing-names = choose-by(false?, items, new-names);
+      unless (missing-names.empty?)
+         let quoted-names = map(curry(format-to-string, "\"%s\""), missing-names);
+         error(location: clause.token-src-loc, names: quoted-names.item-string-list);
+      end unless;
+      do(curry(exported?-setter, #t), choose(true?, items));
+      exported-names := concatenate!(exported-names, new-names);
    end for;
 end method;
 
@@ -354,8 +367,8 @@ end method;
 define constant <non-namespace-definition-token> =
       type-union(<class-definer-token>, <constant-definer-token>,
                  <function-definer-token>, <generic-definer-token>,
-                 <method-definer-token>, <variable-definer-token>,
-                 <macro-definer-token>);
+                 <method-definer-token>, <variable-definer-token>
+                 /*, <macro-definer-token> Macros don't parse right yet */);
 
 
 define method choose-interchange-definitions
