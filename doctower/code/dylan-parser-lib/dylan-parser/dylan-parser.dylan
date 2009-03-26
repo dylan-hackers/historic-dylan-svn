@@ -2,6 +2,11 @@ module: dylan-parser
 synopsis: Parser manager.
 
 
+define class <dylan-parse-context> (<file-parse-context>)
+   slot last-whitespace-doc :: false-or(<doc-comment-token>) = #f;
+end class;
+
+
 /// Synopsis: Entry point into parsing.
 /// Conditions: Throws <parse-failure> if stream has syntax error.
 define method parse-dylan-file
@@ -10,7 +15,7 @@ define method parse-dylan-file
    // *parser-trace* := *standard-output*;
    // *parser-cache-hits* := #t;
 
-   let context = make(<file-parse-context>,
+   let context = make(<dylan-parse-context>,
          cache-stream: text,
          file-locator: locator,
          line-col-position-method:

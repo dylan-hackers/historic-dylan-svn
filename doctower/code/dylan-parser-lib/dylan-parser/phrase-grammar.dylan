@@ -501,116 +501,126 @@ afterwards (context, tokens, value, start-pos, end-pos)
          map(var-doc, value.required-vals));
 end;
 
-/* (unused)
 //
 // Macro Definitions
 //
 
-define parser macro-definition ()
+define parser macro-definition (<token>)
    rule seq(lex-MACRO-NAME, main-rule-set, opt(aux-rule-sets),
             lex-END, opt(lex-MACRO), opt-seq(lex-MACRO-NAME))
    => tokens;
+   slot name :: <string> = tokens[0].value;
+   slot main-rule-set :: <sequence> = tokens[1];
 end;
 
-define parser main-rule-set ()
+define parser main-rule-set :: <sequence> /* of main rules */
    rule choice(many(body-style-definition-rule),
                many(list-style-definition-rule),
                many(statement-rule),
                many(function-rule))
    => tokens;
+   yield tokens;
 end;
 
-define parser body-style-definition-rule ()
+define parser body-style-definition-rule (<source-location-token>)
    rule seq(lex-LF-BRACE, lex-DEFINE, opt(definition-head), lex-MACRO-NAME,
             opt(pattern), opt(lex-SEMICOLON), lex-END, lex-RT-BRACE,
             lex-ARROW, rhs)
    => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-combined-source-location(context, value, copy-sequence(tokens, end: 8));
 end;
 
-define parser list-style-definition-rule ()
+define parser list-style-definition-rule (<source-location-token>)
    rule seq(lex-LF-BRACE, lex-DEFINE, opt(definition-head), lex-MACRO-NAME,
             opt(pattern), lex-RT-BRACE, lex-ARROW, rhs)
    => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-combined-source-location(context, value, copy-sequence(tokens, end: 6));
 end;
 
-define parser rhs ()
+define parser rhs (<token>)
    rule seq(lex-LF-BRACE, opt(template), lex-RT-BRACE, opt(lex-SEMICOLON)) => tokens;
 end;
 
-define parser definition-head ()
+define parser definition-head (<token>)
   rule many(choice(modifier, pattern-variable)) => tokens;
 end;
 
-define parser statement-rule ()
+define parser statement-rule (<source-location-token>)
    rule seq(lex-LF-BRACE, lex-MACRO-NAME, opt(pattern), opt(lex-SEMICOLON),
             lex-END, lex-RT-BRACE, lex-ARROW, rhs)
    => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-combined-source-location(context, value, copy-sequence(tokens, end: 6));
 end;
 
-define parser function-rule ()
+define parser function-rule (<source-location-token>)
    rule seq(lex-LF-BRACE, lex-MACRO-NAME, lex-LF-PAREN, opt(pattern), lex-RT-PAREN,
             lex-RT-BRACE, lex-ARROW, rhs)
    => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-combined-source-location(context, value, copy-sequence(tokens, end: 6));
 end;
 
 //
 // Patterns
 //
 
-define parser pattern ()
+define parser pattern (<token>)
    rule seq(pattern-list, opt-many(seq(lex-SEMICOLON, pattern-list))) => tokens;
 end;
 
-define parser pattern-list ()
+define parser pattern-list (<token>)
    rule choice(property-list-pattern,
                seq(pattern-sequence, opt-seq(lex-COMMA, pattern-list))) => token;
 end;
 
-define parser pattern-sequence ()
+define parser pattern-sequence (<token>)
    rule many(simple-pattern) => tokens;
 end;
 
-define parser simple-pattern ()
+define parser simple-pattern (<token>)
    rule choice(binding-pattern, pattern-variable, lex-NAME-NOT-END, lex-ARROW,
                bracketed-pattern)
    => token;
 end;
 
-define parser bracketed-pattern ()
+define parser bracketed-pattern (<token>)
    rule choice(seq(lex-LF-PAREN, opt(pattern), lex-RT-PAREN),
                seq(lex-LF-BRACK, opt(pattern), lex-RT-BRACK),
                seq(lex-LF-BRACE, opt(pattern), lex-RT-BRACE))
    => tokens;
 end;
 
-define parser binding-pattern ()
+define parser binding-pattern (<token>)
    rule choice(seq(pattern-variable, lex-DOUBLE-COLON, pattern-variable,
                    opt-seq(lex-EQUAL, pattern-variable)),
                seq(pattern-variable, lex-EQUAL, pattern-variable))
    => tokens;
 end;
 
-define parser pattern-variable ()
+define parser pattern-variable (<token>)
    rule choice(seq(lex-QUESTION, lex-CONSTRAINED-NAME),
                seq(lex-QUESTION, lex-NAME),
                lex-ELLIPSIS)
    => token;
 end;
 
-define parser property-list-pattern ()
+define parser property-list-pattern (<token>)
    rule choice(seq(lex-REST, pattern-variable,
                    opt-seq(lex-COMMA, lex-KEY, opt(pattern-keywords))),
                seq(lex-KEY, opt(pattern-keywords)))
    => tokens;
 end;
 
-define parser pattern-keywords ()
+define parser pattern-keywords (<token>)
    rule choice(lex-ALL-KEYS,
                seq(pattern-keyword, opt-seq(lex-COMMA, pattern-keywords)))
    => token;
 end;
 
-define parser pattern-keyword ()
+define parser pattern-keyword (<token>)
    rule seq(choice(lex-QUESTION, lex-DOUBLE-QUESTION),
             choice(lex-NAME, lex-CONSTRAINED-NAME),
             opt(default))
@@ -621,11 +631,11 @@ end;
 // Templates
 //
 
-define parser template ()
+define parser template (<token>)
    rule many(template-element) => tokens;
 end;
 
-define parser template-element ()
+define parser template-element (<token>)
    rule choice(substitution, lex-PERIOD, lex-DOUBLE-COLON, lex-ARROW, lex-SYMBOL,
                lex-NAME, lex-NUMBER, lex-CHARACTER-LITERAL, lex-STRING, separator,
                lex-UNARY-OPERATOR, lex-POUND-WORD,
@@ -637,11 +647,11 @@ define parser template-element ()
    => token;
 end;
 
-define parser separator ()
+define parser separator (<token>)
    rule choice(lex-SEMICOLON, lex-COMMA, lex-BINARY-OPERATOR) => token;
 end;
 
-define parser substitution ()
+define parser substitution (<token>)
    rule choice(seq(opt(name-prefix), lex-QUESTION, name-string-or-symbol, opt(name-suffix)),
                seq(lex-DOUBLE-QUESTION, lex-NAME, opt(separator), lex-ELLIPSIS),
                lex-ELLIPSIS,
@@ -649,15 +659,15 @@ define parser substitution ()
    => token;
 end;
 
-define parser name-prefix ()
+define parser name-prefix (<token>)
    rule seq(lex-STRING, lex-DOUBLE-POUND) => tokens;
 end;
 
-define parser name-suffix ()
+define parser name-suffix (<token>)
    rule seq(lex-DOUBLE-POUND, lex-STRING) => tokens;
 end;
 
-define parser name-string-or-symbol ()
+define parser name-string-or-symbol (<token>)
    rule choice(lex-NAME, lex-STRING, lex-SYMBOL) => tokens;
 end;
 
@@ -665,19 +675,18 @@ end;
 // Auxiliary Rule Sets
 //
 
-define parser aux-rule-sets ()
+define parser aux-rule-sets (<token>)
    rule many(aux-rule-set) => tokens;
 end;
 
-define parser aux-rule-set ()
+define parser aux-rule-set (<token>)
    rule seq(lex-SYMBOL, aux-rules) => tokens;
 end;
 
-define parser aux-rules ()
+define parser aux-rules (<token>)
    rule many(aux-rule) => tokens;
 end;
 
-define parser aux-rule ()
+define parser aux-rule (<token>)
    rule seq(lex-LF-BRACE, opt(pattern), lex-RT-BRACE, lex-ARROW, rhs) => tokens;
 end;
-*/

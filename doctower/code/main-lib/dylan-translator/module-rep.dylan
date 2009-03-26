@@ -122,10 +122,6 @@ Imported bindings will be instances of <local-binding> in this module.
 define method infer-and-import-for-module
    (mod-annots :: <skip-list>, library :: <library>, module :: <imported-module>)
 => ()
-   local method same-binding? (bind1 :: <binding>, bind2 :: <binding>)
-            has-local-name?(bind1, bind2.local-name)
-         end method;
-   
    unless (module.stray?)
       let used-mod-name = module.import-name;
       let used-mod = find-element
@@ -135,7 +131,7 @@ define method infer-and-import-for-module
       // Infer bindings in other library and module.
 
       let missing-used-bindings = difference(module.bindings, used-bindings,
-                                             test: same-binding?);
+                                             test: has-same-local-name?);
                   
       for (missing-binding :: <binding> in missing-used-bindings)
          make-stray-binding(module.used-library, used-mod, exported: #t,
@@ -146,7 +142,7 @@ define method infer-and-import-for-module
       // Import bindings from other library and module.
 
       let new-used-bindings = difference(used-bindings, module.bindings,
-                                         test: same-binding?);
+                                         test: has-same-local-name?);
 
       for (used-binding :: <binding> in new-used-bindings)
          make-imported-binding(library, module, exported: #t,
@@ -248,10 +244,6 @@ These bindings will be instances of <local-binding> in this module.
 define method define-and-import-all-for-module
    (mod-annots :: <skip-list>, library :: <library>, module :: <imported-module>)
 => ()
-   local method same-binding? (bind1 :: <binding>, bind2 :: <binding>)
-            has-local-name?(bind1, bind2.local-name)
-         end method;
-   
    unless (module.stray?)
       let used-mod-name = module.import-name;
       let used-mod = find-element
@@ -261,7 +253,7 @@ define method define-and-import-all-for-module
       // Import bindings from other library and module.
 
       let new-used-bindings = difference(used-bindings, module.bindings,
-                                         test: same-binding?);
+                                         test: has-same-local-name?);
 
       for (used-binding :: <binding> in new-used-bindings)
          make-imported-binding(library, module, exported: #t,

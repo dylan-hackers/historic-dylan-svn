@@ -15,6 +15,7 @@ define module dylan-parser
    export parse-dylan-file;
 
    export
+      <body-style-definition-rule-token>,
       <class-definer-token>,
       <constant-definer-token>,
       <create-clause-token>,
@@ -22,16 +23,19 @@ define module dylan-parser
       <doc-comment-token>,
       <export-clause-token>,
       <function-definer-token>,
+      <function-rule-token>,
       <generic-definer-token>,
       <header-token>,
       <interchange-file-token>,
       <library-definer-token>,
+      <list-style-definition-rule-token>,
       <macro-definer-token>,
       <method-definer-token>,
       <module-definer-token>,
       <property-token>,
       <renaming-token>,
       <source-record-token>,
+      <statement-rule-token>,
       <text-token>,
       <use-clause-token>,
       <variable-definer-token>;
@@ -75,6 +79,7 @@ define module dylan-parser
       keyword-required?,
       keyword-type,
       local-name,
+      main-rule-set,
       namespace-clauses,
       param-default,
       param-doc,

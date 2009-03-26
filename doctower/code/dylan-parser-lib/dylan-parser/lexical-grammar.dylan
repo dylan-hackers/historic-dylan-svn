@@ -32,12 +32,16 @@ define method translate-escape-code (s :: <string>) => (s :: <string>)
    format-to-string("%c", as(<character>, code));
 end method;
 
-define inline method adjust-lexeme-start
-   (lexeme :: <lexeme>, whitespace :: false-or(<whitespace-token>))
+define inline method consume-last-whitespace-doc (value :: <lexeme>, context)
 => ()
-   if (whitespace)
-      lexeme.parse-start := whitespace.parse-end;
-   end if;
+   value.lexeme-doc := context.last-whitespace-doc;
+   context.last-whitespace-doc := #f;
+end method;
+
+define inline method adjust-token-end
+   (value :: <token>, tokens :: <sequence>)
+=> ()
+   value.parse-end := tokens.last.parse-start;
 end method;
 
 
@@ -48,61 +52,61 @@ end method;
 // boilerplate, but I can't get it to work. Probably an issue with Gwydion Dylan.
 
 // Token separators keep tokens that begin identically from being confused.
-define parser word-sep              rule not-next(any-character) end;
-define parser pound-word-sep        rule nil(#f) end;
-define parser colon-sep             rule not-next(choice(colon, equal)) end;  
-define parser double-colon-sep      rule nil(#f) end;
-define parser arrow-sep             rule nil(#f) end;
-define parser double-question-sep   rule nil(#f) end;
-define parser question-equal-sep    rule nil(#f) end;
-define parser question-sep          rule not-next(choice(equal, question)) end;
-define parser ellipsis-sep          rule nil(#f) end;
-define parser double-pound-sep      rule nil(#f) end;
-// unused define parser pound-sep             rule not-next(choice(alphabetic-character, pound, lf-paren, lf-brack)) end;
-// unused define parser double-slash-sep      rule nil(#f) end;
-// unused define parser lf-comment-sep        rule nil(#f) end;         
-// unused define parser rt-comment-sep        rule not-next(word-character-not-alphabetic) end;
-define parser empty-list-sep        rule nil(#f) end;
-// unused define parser bin-sep               rule nil(#f) end;
-// unused define parser oct-sep               rule nil(#f) end;
-// unused define parser hex-sep               rule nil(#f) end;
-define parser lf-list-sep           rule nil(#f) end;
-define parser lf-vector-sep         rule nil(#f) end;
-define parser identical-sep         rule nil(#f) end;
-define parser not-identical-sep     rule nil(#f) end;
-define parser not-equal-sep         rule nil(#f) end;
-define parser lt-equal-sep          rule nil(#f) end;      
-define parser gt-equal-sep          rule nil(#f) end;
-define parser bind-sep              rule nil(#f) end;
-define parser plus-sep              rule nil(#f) end;
-define parser minus-sep             rule nil(#f) end;
-define parser star-sep              rule not-next(choice(any-character, slash)) end;
-define parser slash-sep             rule not-next(slash) end;
-define parser caret-sep             rule not-next(any-character) end;
-define parser equal-sep             rule not-next(gt) end;
-define parser lt-sep                rule not-next(choice(any-character, equal)) end;
-define parser gt-sep                rule not-next(choice(any-character, equal)) end;
-define parser amp-sep               rule not-next(any-character) end;
-define parser vert-bar-sep          rule not-next(any-character) end;
-define parser not-sep               rule not-next(equal) end;
-define parser apos-sep              rule nil(#f) end;
-// unused define parser backslash-sep         rule nil(#f) end;
-define parser quote-sep             rule nil(#f) end;
-define parser period-sep            rule not-next(seq(period, period)) end;
-// unused define parser exp-sep               rule not-next(any-character) end;
-define parser comma-sep             rule nil(#f) end;
-define parser semicolon-sep         rule nil(#f) end;
-// unused define parser esc-char-sep          rule not-next(any-character) end;
-define parser lf-paren-sep          rule nil(#f) end;
-define parser rt-paren-sep          rule nil(#f) end;
-define parser lf-brack-sep          rule nil(#f) end;
-define parser rt-brack-sep          rule nil(#f) end;
-define parser lf-brace-sep          rule nil(#f) end;
-define parser rt-brace-sep          rule nil(#f) end;
-// unused define parser bin-digit-sep         rule not-next(binary-digit) end;
-// unused define parser oct-digit-sep         rule not-next(octal-digit)  end;
-// unused define parser dec-digit-sep         rule not-next(dec-digit)    end;
-// unused define parser hex-digit-sep         rule not-next(hex-digit)    end;
+define caching parser word-sep ()       rule seq(not-next(any-character), opt-whitespace) => tokens end;
+define parser pound-word-sep ()         rule opt-whitespace => tokens end;
+define parser colon-sep ()              rule seq(not-next(choice(colon, equal)), opt-whitespace) => tokens end;  
+define parser double-colon-sep ()       rule opt-whitespace => tokens end;
+define parser arrow-sep ()              rule opt-whitespace => tokens end;
+define parser double-question-sep ()    rule opt-whitespace => tokens end;
+define parser question-equal-sep ()     rule opt-whitespace => tokens end;
+define parser question-sep ()           rule seq(not-next(choice(equal, question)), opt-whitespace) => tokens end;
+define parser ellipsis-sep ()           rule opt-whitespace => tokens end;
+define parser double-pound-sep ()       rule opt-whitespace => tokens end;
+// unused define parser pound-sep ()              rule seq(not-next(choice(alphabetic-character, pound, lf-paren, lf-brack)), opt-whitespace) => tokens end;
+// unused define parser double-slash-sep ()       rule opt-whitespace => tokens end;
+// unused define parser lf-comment-sep ()         rule opt-whitespace => tokens end;         
+// unused define parser rt-comment-sep ()         rule seq(not-next(word-character-not-alphabetic), opt-whitespace) => tokens end;
+define parser empty-list-sep ()         rule opt-whitespace => tokens end;
+// unused define parser bin-sep ()                rule opt-whitespace => tokens end;
+// unused define parser oct-sep ()                rule opt-whitespace => tokens end;
+// unused define parser hex-sep ()                rule opt-whitespace => tokens end;
+define parser lf-list-sep ()            rule opt-whitespace => tokens end;
+define parser lf-vector-sep ()          rule opt-whitespace => tokens end;
+define parser identical-sep ()          rule opt-whitespace => tokens end;
+define parser not-identical-sep ()      rule opt-whitespace => tokens end;
+define parser not-equal-sep ()          rule opt-whitespace => tokens end;
+define parser lt-equal-sep ()           rule opt-whitespace => tokens end;      
+define parser gt-equal-sep ()           rule opt-whitespace => tokens end;
+define parser bind-sep ()               rule opt-whitespace => tokens end;
+define parser plus-sep ()               rule opt-whitespace => tokens end;
+define parser minus-sep ()              rule opt-whitespace => tokens end;
+define parser star-sep ()               rule seq(not-next(choice(any-character, slash)), opt-whitespace) => tokens end;
+define parser slash-sep ()              rule seq(not-next(slash), opt-whitespace) => tokens end;
+define parser caret-sep ()              rule seq(not-next(any-character), opt-whitespace) => tokens end;
+define parser equal-sep ()              rule seq(not-next(gt), opt-whitespace) => tokens end;
+define parser lt-sep ()                 rule seq(not-next(choice(any-character, equal)), opt-whitespace) => tokens end;
+define parser gt-sep ()                 rule seq(not-next(choice(any-character, equal)), opt-whitespace) => tokens end;
+define parser amp-sep ()                rule seq(not-next(any-character), opt-whitespace) => tokens end;
+define parser vert-bar-sep ()           rule seq(not-next(any-character), opt-whitespace) => tokens end;
+define parser not-sep ()                rule seq(not-next(equal), opt-whitespace) => tokens end;
+define parser apos-sep ()               rule opt-whitespace => tokens end;
+// unused define parser backslash-sep ()          rule opt-whitespace => tokens end;
+define parser quote-sep ()              rule opt-whitespace => tokens end;
+define parser period-sep ()             rule seq(not-next(seq(period, period)), opt-whitespace) => tokens end;
+// unused define parser exp-sep ()                rule seq(not-next(any-character), opt-whitespace) => tokens end;
+define parser comma-sep ()              rule opt-whitespace => tokens end;
+define parser semicolon-sep ()          rule opt-whitespace => tokens end;
+// unused define parser esc-char-sep ()           rule seq(not-next(any-character), opt-whitespace) => tokens end;
+define parser lf-paren-sep ()           rule opt-whitespace => tokens end;
+define parser rt-paren-sep ()           rule opt-whitespace => tokens end;
+define parser lf-brack-sep ()           rule opt-whitespace => tokens end;
+define parser rt-brack-sep ()           rule opt-whitespace => tokens end;
+define parser lf-brace-sep ()           rule opt-whitespace => tokens end;
+define parser rt-brace-sep ()           rule opt-whitespace => tokens end;
+// unused define parser bin-digit-sep ()          rule seq(not-next(binary-digit), opt-whitespace) => tokens end;
+// unused define parser oct-digit-sep ()          rule seq(not-next(octal-digit), opt-whitespace)  => tokens end;
+// unused define parser dec-digit-sep ()          rule seq(not-next(dec-digit), opt-whitespace)    => tokens end;
+// unused define parser hex-digit-sep ()          rule seq(not-next(hex-digit), opt-whitespace)    => tokens end;
    
 
 //
@@ -130,495 +134,484 @@ define parser pound-word :: <string>
 end;
 
 define parser lex-POUND-WORD (<lexeme>)
-   rule seq(opt-whitespace, pound-word, req-next(pound-word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(pound-word, pound-word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 // Tokens directly used in phrase grammar.
 
 define parser lex-DEFINE (<lexeme>)
-   rule seq(opt-whitespace, lit-define, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-define, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-END (<lexeme>)
-   rule seq(opt-whitespace, lit-end, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-end, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-HANDLER (<lexeme>)
-   rule seq(opt-whitespace, lit-handler, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-handler, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-LET (<lexeme>)
-   rule seq(opt-whitespace, lit-let, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-let, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-LOCAL (<lexeme>)
-   rule seq(opt-whitespace, lit-local, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-local, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-MACRO (<lexeme>)
-   rule seq(opt-whitespace, lit-macro, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-macro, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-METHOD (<lexeme>) 
-   rule seq(opt-whitespace, lit-method, req-next(word-sep)) => tokens; 
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-method, word-sep) => tokens; 
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-OTHERWISE (<lexeme>) 
-   rule seq(opt-whitespace, lit-otherwise, req-next(word-sep)) => tokens; 
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-otherwise, word-sep) => tokens; 
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-DOUBLE-COLON (<lexeme>)
-   rule seq(opt-whitespace, double-colon, req-next(double-colon-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(double-colon, double-colon-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-ARROW (<lexeme>) 
-   rule seq(opt-whitespace, arrow, req-next(arrow-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(arrow, arrow-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-DOUBLE-QUESTION (<lexeme>)
-   rule seq(opt-whitespace, double-question, req-next(double-question-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(double-question, double-question-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-QUESTION-EQUAL (<lexeme>) 
-   rule seq(opt-whitespace, question-equal, req-next(question-equal-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(question-equal, question-equal-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-QUESTION (<lexeme>) 
-   rule seq(opt-whitespace, question, req-next(question-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(question, question-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-ELLIPSIS (<lexeme>) 
-   rule seq(opt-whitespace, ellipsis, req-next(ellipsis-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(ellipsis, ellipsis-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-DOUBLE-POUND (<lexeme>) 
-   rule seq(opt-whitespace, double-pound, req-next(double-pound-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(double-pound, double-pound-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-EMPTY-LIST (<lexeme>) 
-   rule seq(opt-whitespace, empty-list, req-next(empty-list-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(empty-list, empty-list-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-TRUE (<lexeme>) 
-   rule seq(opt-whitespace, true, req-next(pound-word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(true, pound-word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-FALSE (<lexeme>) 
-   rule seq(opt-whitespace, false, req-next(pound-word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(false, pound-word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-NEXT (<lexeme>) 
-   rule seq(opt-whitespace, next, req-next(pound-word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(next, pound-word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-REST (<lexeme>) 
-   rule seq(opt-whitespace, rest, req-next(pound-word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(rest, pound-word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-KEY (<lexeme>) 
-   rule seq(opt-whitespace, key, req-next(pound-word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(key, pound-word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-ALL-KEYS (<lexeme>) 
-   rule seq(opt-whitespace, all-keys, req-next(pound-word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(all-keys, pound-word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
-define caching parser lex-LF-LIST (<lexeme>) 
-   rule seq(opt-whitespace, lf-list, req-next(lf-list-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+define parser lex-LF-LIST (<lexeme>) 
+   rule seq(lf-list, lf-list-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-LF-VECTOR (<lexeme>) 
-   rule seq(opt-whitespace, lf-vector, req-next(lf-vector-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lf-vector, lf-vector-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-IDENTICAL (<lexeme>) 
-   rule seq(opt-whitespace, identical, req-next(identical-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(identical, identical-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-EQUAL (<lexeme>) 
-   rule seq(opt-whitespace, equal, req-next(equal-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(equal, equal-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-PERIOD (<lexeme>) 
-   rule seq(opt-whitespace, period, req-next(period-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(period, period-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
-define caching parser lex-COMMA (<lexeme>) 
-   rule seq(opt-whitespace, comma, req-next(comma-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+define parser lex-COMMA (<lexeme>) 
+   rule seq(comma, comma-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
-define caching parser lex-SEMICOLON (<lexeme>) 
-   rule seq(opt-whitespace, semicolon, req-next(semicolon-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+define parser lex-SEMICOLON (<lexeme>) 
+   rule seq(semicolon, semicolon-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-LF-PAREN (<lexeme>) 
-   rule seq(opt-whitespace, lf-paren, req-next(lf-paren-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lf-paren, lf-paren-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-RT-PAREN (<lexeme>) 
-   rule seq(opt-whitespace, rt-paren, req-next(rt-paren-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(rt-paren, rt-paren-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-LF-BRACK (<lexeme>) 
-   rule seq(opt-whitespace, lf-brack, req-next(lf-brack-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lf-brack, lf-brack-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-RT-BRACK (<lexeme>) 
-   rule seq(opt-whitespace, rt-brack, req-next(rt-brack-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(rt-brack, rt-brack-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-LF-BRACE (<lexeme>) 
-   rule seq(opt-whitespace, lf-brace, req-next(lf-brace-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lf-brace, lf-brace-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-RT-BRACE (<lexeme>) 
-   rule seq(opt-whitespace, rt-brace, req-next(rt-brace-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(rt-brace, rt-brace-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 // Tokens used in definitions.
 
 define parser lex-ALL (<lexeme>)
-   rule seq(opt-whitespace, lit-all, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-all, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-CREATE (<lexeme>)
-   rule seq(opt-whitespace, lit-create, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-create, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-EXCLUDE-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-exclude, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-exclude, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-exclude, colon, colon-sep),
+               seq(pound, quote, lit-exclude, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-EXPORT (<lexeme>)
-   rule seq(opt-whitespace, lit-export, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-export, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-EXPORT-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-export, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-export, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-export, colon, colon-sep),
+               seq(pound, quote, lit-export, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-IMPORT-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-import, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-import, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-import, colon, colon-sep),
+               seq(pound, quote, lit-import, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-INHERITED (<lexeme>)
-   rule seq(opt-whitespace, lit-inherited, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-inherited, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-INIT-FUNCTION-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-init-function, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-init-function, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-init-function, colon, colon-sep),
+               seq(pound, quote, lit-init-function, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-INIT-KEYWORD-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-init-keyword, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-init-keyword, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-init-keyword, colon, colon-sep),
+               seq(pound, quote, lit-init-keyword, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-INIT-VALUE-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-init-value, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-init-value, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-init-value, colon, colon-sep),
+               seq(pound, quote, lit-init-value, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-KEYWORD (<lexeme>)
-   rule seq(opt-whitespace, lit-keyword, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-keyword, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-PREFIX-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-prefix, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-prefix, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-prefix, colon, colon-sep),
+               seq(pound, quote, lit-prefix, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-RENAME-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-rename, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-rename, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-rename, colon, colon-sep),
+               seq(pound, quote, lit-rename, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-REQUIRED-INIT-KEYWORD-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-req-init-keyword, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-req-init-keyword, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-req-init-keyword, colon, colon-sep),
+               seq(pound, quote, lit-req-init-keyword, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-REQUIRED (<lexeme>)
-   rule seq(opt-whitespace, lit-required, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-required, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-SEALED (<lexeme>)
-   rule seq(opt-whitespace, lit-sealed, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-sealed, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-SETTER-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-setter, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-setter, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-setter, colon, colon-sep),
+               seq(pound, quote, lit-setter, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-SLOT (<lexeme>)
-   rule seq(opt-whitespace, lit-slot, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-slot, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-TYPE-SYM (<lexeme>)
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), nil(#f), lit-type, colon, req-next(colon-sep)),
-                   seq(pound, quote, lit-type, quote, req-next(quote-sep))))
+   rule choice(seq(nil(#f), nil(#f), lit-type, colon, colon-sep),
+               seq(pound, quote, lit-type, quote, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-USE (<lexeme>)
-   rule seq(opt-whitespace, lit-use, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-use, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 //
 // Reserved Words
 //
 
-define parser reserved-word :: <string>
+define parser reserved-word :: <token>
    label "reserved word";
    rule choice(core-word, begin-word, function-word,
                define-body-word, define-list-word)
@@ -626,75 +619,81 @@ define parser reserved-word :: <string>
    yield token;
 end;
 
-define parser core-word :: <string>
+define parser core-word (<token>)
    rule seq(choice(lit-define, lit-end, lit-handler, lit-let, lit-local, lit-macro,
                    lit-otherwise),
-            req-next(word-sep))
+            word-sep)
    => tokens;
-   yield tokens[0];
+   slot value :: <string> = tokens[0];
+afterwards (context, tokens, value, start-pos, end-pos)
+   adjust-token-end(value, tokens);
 end;
 
-define parser begin-word :: <string>
+define caching parser begin-word (<token>)
    rule seq(choice(lit-begin, lit-block, lit-case, lit-for, lit-if, lit-method,
                    lit-select, lit-unless, lit-until, lit-while),
-            req-next(word-sep))
+            word-sep)
    => tokens;
-   yield tokens[0];
+   slot value :: <string> = tokens[0];
+afterwards (context, tokens, value, start-pos, end-pos)
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-BEGIN-WORD (<lexeme>)
-   rule seq(opt-whitespace, begin-word)
-   => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
-afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   rule begin-word => token;
+   slot value :: <string> = token.value;
+afterwards (context, token, value, start-pos, end-pos)
+   consume-last-whitespace-doc(value, context);
+   value.parse-end := token.parse-end;
 end;
 
-define parser function-word :: <string>
-   rule seq(choice(), req-next(word-sep)) => tokens;
-   yield tokens[0];
+define caching parser function-word (<token>)
+   rule seq(choice(), word-sep) => tokens;
+   slot value :: <string> = tokens[0];
+afterwards (context, tokens, value, start-pos, end-pos)
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-FUNCTION-WORD (<lexeme>)
-   rule seq(opt-whitespace, function-word)
-   => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
-afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   rule function-word => token;
+   slot value :: <string> = token.value;
+afterwards (context, token, value, start-pos, end-pos)
+   consume-last-whitespace-doc(value, context);
+   value.parse-end := token.parse-end;
 end;
 
-define parser define-body-word :: <string>
+define caching parser define-body-word (<token>)
    rule seq(choice(lit-class, lit-library, lit-method, lit-function, lit-module),
-            req-next(word-sep))
+            word-sep)
    => tokens;
-   yield tokens[0];
+   slot value :: <string> = tokens[0];
+afterwards (context, tokens, value, start-pos, end-pos)
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-DEFINE-BODY-WORD (<lexeme>)
-   rule seq(opt-whitespace, define-body-word)
-   => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
-afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   rule define-body-word => token;
+   slot value :: <string> = token.value;
+afterwards (context, token, value, start-pos, end-pos)
+   consume-last-whitespace-doc(value, context);
+   value.parse-end := token.parse-end;
 end;
 
-define parser define-list-word :: <string>
+define caching parser define-list-word (<token>)
    rule seq(choice(lit-constant, lit-variable, lit-generic, lit-domain),
-            req-next(word-sep))
+            word-sep)
    => tokens;
-   yield tokens[0];
+   slot value :: <string> = tokens[0];
+afterwards (context, tokens, value, start-pos, end-pos)
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-DEFINE-LIST-WORD (<lexeme>)
-   rule seq(opt-whitespace, define-list-word)
-   => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
-afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   rule define-list-word => token;
+   slot value :: <string> = token.value;
+afterwards (context, token, value, start-pos, end-pos)
+   consume-last-whitespace-doc(value, context);
+   value.parse-end := token.parse-end;
 end;
 
 //
@@ -702,67 +701,67 @@ end;
 //
 
 define parser lex-CLASS (<lexeme>)
-   rule seq(opt-whitespace, lit-class, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-class, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-CONSTANT (<lexeme>)
-   rule seq(opt-whitespace, lit-constant, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-constant, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-DOMAIN (<lexeme>)
-   rule seq(opt-whitespace, lit-domain, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-domain, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-FUNCTION (<lexeme>)
-   rule seq(opt-whitespace, lit-function, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-function, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-GENERIC (<lexeme>)
-   rule seq(opt-whitespace, lit-generic, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-generic, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-LIBRARY (<lexeme>)
-   rule seq(opt-whitespace, lit-library, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-library, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-MODULE (<lexeme>)
-   rule seq(opt-whitespace, lit-module, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-module, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-VARIABLE (<lexeme>)
-   rule seq(opt-whitespace, lit-variable, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(lit-variable, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 //
@@ -776,11 +775,11 @@ end;
 
 define parser lex-NAME (<lexeme>)
    label "name";
-   rule seq(opt-whitespace, name, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(name, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser unreserved-name :: <string>
@@ -790,37 +789,39 @@ end;
 
 define parser lex-UNRESERVED-NAME (<lexeme>)
    label "name";
-   rule seq(opt-whitespace, unreserved-name, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(unreserved-name, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser ordinary-name :: <string>
-   rule choice(unreserved-name, define-body-word, define-list-word) => token;
-   yield token;
+   rule choice(seq(nil(identity), unreserved-name),
+               seq(nil(value), define-body-word),
+               seq(nil(value), define-list-word))
+   => tokens;
+   yield (tokens[0])(tokens[1]);
 end;
 
 define parser lex-ORDINARY-NAME (<lexeme>)
    label "name";
-   rule seq(opt-whitespace, ordinary-name, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(ordinary-name, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-CONSTRAINED-NAME (<lexeme>)
    label "constrained name";
-   rule seq(opt-whitespace,
-            choice(seq(name, colon, word, req-next(word-sep)),
-                   seq(name, colon, binary-operator-with-sep),
-                   seq(colon, word, req-next(word-sep))))
+   rule choice(seq(name, colon, word, word-sep),
+               seq(name, colon, binary-operator-with-sep),
+               seq(colon, word, word-sep))
    => tokens;
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser operator-name :: <string>
@@ -829,45 +830,46 @@ define parser operator-name :: <string>
 end;
 
 define parser macro-name :: <string>
-   rule choice(ordinary-name, begin-word, function-word) => token;
-   yield token;
+   rule choice(seq(nil(identity), ordinary-name),
+               seq(nil(value), begin-word),
+               seq(nil(value), function-word))
+   => tokens;
+   yield (tokens[0])(tokens[1]);
 end;
 
 define parser lex-MACRO-NAME (<lexeme>)
    label "name";
-   rule seq(opt-whitespace, macro-name, req-next(word-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(macro-name, word-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-NAME-NOT-END (<lexeme>)
    label "name";
-   rule seq(opt-whitespace,
-            choice(macro-name, lit-define, lit-handler, lit-let,
+   rule seq(choice(macro-name, lit-define, lit-handler, lit-let,
                    lit-local, lit-macro, lit-otherwise),
-            req-next(word-sep))
+            word-sep)
    => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-SYMBOL (<lexeme>)
    label "symbol";
-   rule seq(opt-whitespace,
-            choice(seq(nil(#f), word, colon, req-next(colon-sep)),
-                   seq(pound, string, req-next(quote-sep))))
+   rule choice(seq(nil(#f), word, colon, colon-sep),
+               seq(pound, string, quote-sep))
    => tokens;
-   slot value :: <string> = tokens[1][1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   slot value :: <string> = tokens[1];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
-define parser word :: <string>
+define caching parser word :: <string>
    rule choice(leading-alphabetic,
                seq(leading-numeric, alphabetic-character, leading-alphabetic),
                seq(leading-graphic, leading-alphabetic))
@@ -951,20 +953,22 @@ define lexical-parsers
    unary-operator          in "-~"           label "unary operator";
 end;
 
-define parser unary-operator-with-sep :: <string>
-   rule choice(seq(minus,  req-next(minus-sep)),
-               seq(not,    req-next(not-sep  )))
-   => token;
-   yield token[0];
+define parser unary-operator-with-sep (<token>)
+   rule choice(seq(minus, minus-sep),
+               seq(not, not-sep))
+   => tokens;
+   slot value :: <string> = tokens[0];
+afterwards (context, tokens, value, start-pos, end-pos)
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-UNARY-OPERATOR (<lexeme>)
    label "unary operator";
-   rule seq(opt-whitespace, unary-operator-with-sep) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
-afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   rule unary-operator-with-sep => token;
+   slot value :: <string> = token.value;
+afterwards (context, token, value, start-pos, end-pos)
+   consume-last-whitespace-doc(value, context);
+   value.parse-end := token.parse-end;
 end;
 
 define parser binary-operator :: <string>
@@ -975,34 +979,36 @@ define parser binary-operator :: <string>
    yield token;
 end;
 
-define parser binary-operator-with-sep :: <string>
-   rule choice(seq(identical,       req-next(identical-sep     )),
-               seq(not-identical,   req-next(not-identical-sep )),
-               seq(not-equal,       req-next(not-equal-sep     )),
-               seq(lt-equal,        req-next(lt-equal-sep      )),
-               seq(gt-equal,        req-next(gt-equal-sep      )),
-               seq(bind,            req-next(bind-sep          )),
-               seq(plus,            req-next(plus-sep          )),
-               seq(minus,           req-next(minus-sep         )),
-               seq(star,            req-next(star-sep          )),
-               seq(slash,           req-next(slash-sep         )),
-               seq(caret,           req-next(caret-sep         )),
-               seq(equal,           req-next(equal-sep         )),
-               seq(lt,              req-next(lt-sep            )),
-               seq(gt,              req-next(gt-sep            )),
-               seq(amp,             req-next(amp-sep           )),
-               seq(vert-bar,        req-next(vert-bar-sep      )))
-   => token;
-   yield token[0];
+define parser binary-operator-with-sep (<token>)
+   rule choice(seq(identical,       identical-sep     ),
+               seq(not-identical,   not-identical-sep ),
+               seq(not-equal,       not-equal-sep     ),
+               seq(lt-equal,        lt-equal-sep      ),
+               seq(gt-equal,        gt-equal-sep      ),
+               seq(bind,            bind-sep          ),
+               seq(plus,            plus-sep          ),
+               seq(minus,           minus-sep         ),
+               seq(star,            star-sep          ),
+               seq(slash,           slash-sep         ),
+               seq(caret,           caret-sep         ),
+               seq(equal,           equal-sep         ),
+               seq(lt,              lt-sep            ),
+               seq(gt,              gt-sep            ),
+               seq(amp,             amp-sep           ),
+               seq(vert-bar,        vert-bar-sep      ))
+   => tokens;
+   slot value :: <string> = tokens[0];
+afterwards (context, tokens, value, start-pos, end-pos)
+   adjust-token-end(value, tokens);
 end;
 
 define parser lex-BINARY-OPERATOR (<lexeme>)
    label "binary operator";
-   rule seq(opt-whitespace, binary-operator-with-sep) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
-afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   rule binary-operator-with-sep => token;
+   slot value :: <string> = token.value;
+afterwards (context, token, value, start-pos, end-pos)
+   consume-last-whitespace-doc(value, context);
+   value.parse-end := token.parse-end;
 end;
 
 //
@@ -1011,11 +1017,11 @@ end;
 
 define parser lex-CHARACTER-LITERAL (<lexeme>)
    label "character literal";
-   rule seq(opt-whitespace, apos, character, apos, req-next(apos-sep)) => tokens;
-   slot value :: <string> = tokens[2];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(apos, character, apos, apos-sep) => tokens;
+   slot value :: <string> = tokens[1];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser character :: <string>
@@ -1032,11 +1038,11 @@ end;
 
 define parser lex-STRING (<lexeme>)
    label "string literal";
-   rule seq(opt-whitespace, string, req-next(quote-sep)) => tokens;
-   slot value :: <string> = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule seq(string, quote-sep) => tokens;
+   slot value :: <string> = tokens[0];
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
+   adjust-token-end(value, tokens);
 end;
 
 define parser string-character :: <string>
@@ -1062,12 +1068,10 @@ end;
 
 define parser lex-NUMBER (<lexeme>)
    label "number";
-   rule seq(opt-whitespace, choice(integer, ratio, floating-point))
-   => tokens;
-   slot value = tokens[1];
-   inherited slot lexeme-doc = last-whitespace-docs(tokens[0]);
+   rule choice(integer, ratio, floating-point) => token;
+   slot value = token;
 afterwards (context, tokens, value, start-pos, end-pos)
-   adjust-lexeme-start(value, tokens[0]);
+   consume-last-whitespace-doc(value, context);
 end;
 
 define parser integer (<token>)

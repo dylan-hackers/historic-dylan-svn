@@ -177,3 +177,6 @@ define generic import-name (token :: <renaming-token>)
 
 define generic local-name (token :: <renaming-token>)
 => (name :: false-or(<string>));
+
+define generic main-rule-set (token :: <macro-definer-token>)
+=> (rules :: <sequence> /* of main rule set */);

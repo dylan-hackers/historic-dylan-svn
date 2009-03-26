@@ -367,8 +367,8 @@ end method;
 define constant <non-namespace-definition-token> =
       type-union(<class-definer-token>, <constant-definer-token>,
                  <function-definer-token>, <generic-definer-token>,
-                 <method-definer-token>, <variable-definer-token>
-                 /*, <macro-definer-token> Macros don't parse right yet */);
+                 <method-definer-token>, <variable-definer-token>,
+                 <macro-definer-token>);
 
 
 define method choose-interchange-definitions
@@ -425,3 +425,8 @@ define method has-local-name? (item :: <object>, name :: <string>)
    case-insensitive-equal?(item.local-name, name)
 end method;
 
+
+define method has-same-local-name? (item1 :: <object>, item2 :: <object>)
+=> (same-name? :: <boolean>)
+   case-insensitive-equal?(item1.local-name, item2.local-name)
+end method;
