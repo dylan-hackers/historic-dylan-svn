@@ -479,8 +479,9 @@ end;
 //
 
 define parser macro-definer (<definition-token>)
-   rule seq(lex-MACRO, lex-NAME) => tokens;
-   // TODO: Skip rules and patterns so they aren't treated like actual definitions.
+   rule seq(lex-MACRO, macro-definition) => tokens;
+   inherited slot api-name = tokens[1].name;
+   slot main-rule-set :: <sequence> = tokens[1].main-rule-set;
 afterwards (context, tokens, value, start-pos, end-pos)
    note-combined-source-location(context, value, tokens);
 end;
