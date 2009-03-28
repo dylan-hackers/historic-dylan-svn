@@ -56,7 +56,8 @@ define function authenticated-user ()
   *authenticated-user*
 end;
 
-define function find-user (name :: <string>)
+define function find-user
+    (name :: <string>)
  => (user :: false-or(<user>))
   element(storage(<user>), name, default: #f);
 end;
