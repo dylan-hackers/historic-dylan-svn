@@ -1,7 +1,7 @@
 module: storage
 author: Hannes Mehnert <hannes@mehnert.org>
 
-define variable *content-directory* = #f;
+define variable *content-directory* = false-or(<directory-locator>) = #f;
 
 define constant $database-lock = make(<read-write-lock>);
 
@@ -11,9 +11,10 @@ define sideways method process-config-element
   if (~cdir)
     log-warning("Web Framework - No content-directory specified!");
   else
-    *content-directory* := cdir;
+    *content-directory* := as(<directory-locator>, cdir);
   end;
-  log-info("Web framework content directory = %s", *content-directory*);
+  log-info("Web framework content directory = %s",
+           as(<string>, *content-directory*));
   restore-newest(*content-directory*);
 end;
 
@@ -153,8 +154,11 @@ end;
 
 define constant $filename = last(split(application-name(), file-system-separator()));
 
-define inline function generate-filename () => (res :: <string>)
-  concatenate(*content-directory*, $filename, ".", integer-to-string(*version*));
+define inline function generate-filename
+    () => (res :: <file-locator>)
+  merge-locators(as(<file-locator>,
+                      concatenate($filename, ".", integer-to-string(*version*))),
+                 *content-directory*)
 end;
 
 define function really-dump-all-data () => ()
@@ -173,10 +177,11 @@ define method dump-data () => ()
   release($database-lock);
 end;
 
-define method restore (directory :: <string>, filename :: <string>) => ()
+define method restore (directory :: <pathname>, filename :: <string>) => ()
+  let loc = merge-locators(as(<file-locator>, filename),
+                           as(<directory-locator>, directory));
   let dood = make(<dood>,
-                  locator: merge-locators(as(<file-locator>, filename),
-                                          as(<directory-locator>, directory)),
+                  locator: loc,
                   direction: #"input");
   let storage-root = dood-root(dood);
   dood-close(dood);
@@ -184,24 +189,25 @@ define method restore (directory :: <string>, filename :: <string>) => ()
   *storage* := storage-root.hash-table;
   *version* := storage-root.table-version;
   release($database-lock);
-  format-out("Restored %= %=\n", directory, filename);
+  format-out("Restored %s\n", as(<string>, loc));
   for (class in key-sequence(*storage*))
     setup(class);
   end for;
 end;
 
-define method restore-newest (directory :: <string>) => ()
+define method restore-newest (directory :: <pathname>) => ()
   let file = #f;
   let latest-version = 0;
-  do-directory(method (dir :: <pathname>, filename :: <string>, type :: <file-type>)
-                 if (type == #"file")
-                   let version = split-file(filename);
-                   if (version > latest-version)
-                     latest-version := version;
-                     file := filename
-                   end;
-                 end;
-               end, directory);
+  local method find-latest (dir :: <pathname>, filename :: <string>, type :: <file-type>)
+          if (type == #"file")
+            let version = split-file(filename);
+            if (version > latest-version)
+              latest-version := version;
+              file := filename
+            end;
+          end;
+        end;
+  do-directory(find-latest, directory);
   if (file)
     restore(directory, file);
   end;
