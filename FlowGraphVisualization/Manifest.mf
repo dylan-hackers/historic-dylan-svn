@@ -1,0 +1,2 @@
+Main-Class: FlowGraphVisualizer
+Class-Path: y_obf.jar

@@ -65,7 +65,7 @@ public class LayouterClient extends Thread {
 				assert(answer.size() > 1);
 				assert(answer.get(0) instanceof Symbol);
 				Symbol key = (Symbol)answer.get(0);
-				System.out.println(key.toString() + " : " + answer);
+				//System.out.println(key.toString() + " : " + answer);
 				if (key.isEqual("project")) {
 					assert(answer.size() == 2);
 					assert(answer.get(1) instanceof String); //method name
@@ -107,8 +107,8 @@ public class LayouterClient extends Thread {
 				if (Commands.processCommand(gr, answer, demo))
 					if (! gr.changed)
 						gr.changed = true;
-				if (key.isEqual("relayouted") && lastchange)
-					demo.waitforstep();
+				//if (key.isEqual("relayouted") && lastchange)
+				//	demo.waitforstep();
 				if (gr.isok)
 					printMessage(result);
 				else {

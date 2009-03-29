@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+   <project name="FlowGraphVisualization.makejar" default="obfuscate" basedir=".">
+	   	<target name="init">
+	   	    <property name="project_name" value="FlowGraphVisualization"/>
+    		<property name="srcDir" value="."/>
+		    <property name="classDir" value="bin"/>
+	   	    <property name="jar" value="${project_name}.jar"/>
+	   	    <property name="obfjar" value="${project_name}_obf.jar"/>
+	   	    <property name="renamelog" value="${project_name}_renamelog.xml"/>
+	   	    <property name="shrinklog" value="${project_name}_shrinklog.xml"/>
+	   	    <property name="mainclass" value="FlowGraphVisualizer"/>
+	   	    <mkdir dir="${classDir}" />
+   	    </target>
+
+      <target name ="makejar" depends="init" description="Create a jar for the FlowGraphVisualization project">
+      
+         <jar manifest="Manifest.mf" jarfile="FlowGraphVisualization.jar" includes="*.class" basedir="${classDir}"/>
+         
+      </target>
+   	<target name="obfuscate" depends="makejar">
+   	  <!-- yGuard Ant task. -->
+   	  <taskdef name="yguard" classname="com.yworks.yguard.YGuardTask"
+		classpath="C:\Users\foo bar\workspace\FlowGraphVisualization\yguard.jar"/>
+   	  <!-- Integrated obfuscation and name adjustment... -->
+   	  <yguard>
+   	    <!-- Obfuscate the yFiles Jar. -->
+   	    <inoutpair in="y.jar" out="y_obf.jar"/>
+   	    <inoutpair in="${jar}" out="${obfjar}"/>
+
+        <shrink logfile="${shrinklog}">
+        </shrink>
+
+   	  	<!-- ...using the yGuard 'rename' task. -->
+      	<rename mainclass="${mainclass}" logfile="${renamelog}">
+            <property name="error-checking" value="pedantic"/>
+          </rename>
+   	  </yguard>
+   	</target>
+</project>
