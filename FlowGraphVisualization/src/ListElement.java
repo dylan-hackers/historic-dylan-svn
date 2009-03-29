@@ -8,7 +8,6 @@ public class ListElement implements Comparable {
 		this.index = index;
 	}
 	
-	@Override
 	public int compareTo(Object o) {
 		if (o instanceof ListElement) {
 			ListElement other = (ListElement)o;

@@ -1,6 +1,5 @@
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -533,10 +532,10 @@ public class IncrementalHierarchicLayout
 	}
 
 	private Node visitComputations (Node t, String until) {
-		final Deque<Node> workingset = new LinkedList<Node>();
-		workingset.push(t);
+		final LinkedList<Node> workingset = new LinkedList<Node>();
+		workingset.add(t);
 		while (workingset.size() > 0) {
-			Node work = workingset.pollFirst();
+			Node work = workingset.poll();
 			if (until != null && graph.getLabelText(work).contains(until))
 				return work;
 			visited.set(work, true);
@@ -546,7 +545,7 @@ public class IncrementalHierarchicLayout
 				if (graph.getRealizer(ec.edge()).getLineColor() != Color.pink) {
 					Node targ = ec.edge().target();
 					if (visited.get(targ) == null)
-						workingset.push(targ);
+						workingset.add(targ);
 				}
 		}
 		return null;

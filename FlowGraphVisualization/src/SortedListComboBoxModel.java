@@ -14,12 +14,10 @@ public class SortedListComboBoxModel extends AbstractListModel implements
 	public SortedListComboBoxModel () {
 		elements = new Vector();
 	}
-	@Override
 	public void addElement(Object arg0) {
 		insertElementAt(arg0, 1);
 	}
 
-	@Override
 	public void insertElementAt(Object element, int foo) {
 		if (getSize() < 2)
 			elements.insertElementAt(element, getSize());
@@ -40,33 +38,27 @@ public class SortedListComboBoxModel extends AbstractListModel implements
 		fireIntervalAdded(this, 0, getSize());
 	}
 
-	@Override
 	public void removeElement(Object arg0) {
 		elements.remove(arg0);
 	}
 
-	@Override
 	public void removeElementAt(int arg0) {
 		elements.remove(arg0);
 	}
 
-	@Override
 	public Object getSelectedItem() {
 		return selectedItem;
 	}
 
-	@Override
 	public void setSelectedItem(Object arg0) {
 		selectedItem = arg0;
 	    fireContentsChanged(this, -1, -1);
 	}
 
-	@Override
 	public Object getElementAt(int arg0) {
 		return elements.get(arg0);
 	}
 
-	@Override
 	public int getSize() {
 		return elements.size();
 	}
