@@ -85,8 +85,8 @@ define method add-constraint (c :: <constraint>)
 end;
 
 define method type-infer (l :: <&lambda>)
+  *type-environment* := make(<type-environment>);
   dynamic-bind(*constraints* = make(<stretchy-vector>),
-               *type-environment* = make(<type-environment>),
                *graph* = make(<graph>))
     do(lookup-type-variable, l.parameters);
     walk-computations(infer-computation-types, l.body, #f);
@@ -95,28 +95,53 @@ define method type-infer (l :: <&lambda>)
   end;
 end;
 
+define generic maybe-add-variable-constraints (t :: <temporary>) => ();
+
+define method maybe-add-variable-constraints (t :: <temporary>) => ()
+end;
+
+define method maybe-add-variable-constraints (t :: <lexical-specialized-variable>) => ()
+  let spec = t.specializer;
+  for (ass in t.assignments)
+    add-constraint(make(<equality-constraint>,
+                        left: spec,
+                        right: ass.temporary.lookup-type-variable));
+  end;
+end;
+
 define generic infer-computation-types (c :: <computation>) => ();
 
 define method infer-computation-types (c :: <computation>) => ()
   debug-types(#"relayouted");
   debug-types(#"highlight", c);
-  if (c.temporary & c.temporary.users.size > 0)
-    lookup-type-variable(c.temporary);
-  end
+  c.temporary & lookup-type-variable(c.temporary);
 end;
 
-define method infer-computation-types (c :: <temporary-transfer>) => ()
+define method infer-computation-types (c :: <temporary-transfer-computation>) => ()
   //this is our let!
   next-method();
   add-constraint(make(<equality-constraint>,
                       left: c.computation-value.lookup-type,
-                      right: c.temporary.lookup-type-variable))
+                      right: c.temporary.lookup-type-variable));
+  maybe-add-variable-constraints(c.temporary);
 end;
 
 define method infer-computation-types (c :: <check-type>) => ()
   next-method();
   add-constraint(make(<equality-constraint>,
                       left: c.type.lookup-type,
+                      right: c.temporary.lookup-type-variable));
+end;
+
+define method infer-computation-types (c :: <values>) => ()
+  next-method();
+  add-constraint(make(<equality-constraint>,
+                      left: lookup-type(if (c.fixed-values.size == 1)
+                                          c.fixed-values.first
+                                        else
+                                          make(<&tuple-type>,
+                                               tuples: map(lookup-type, c.fixed-values))
+                                        end),
                       right: c.temporary.lookup-type-variable));
 end;
 
@@ -133,11 +158,9 @@ end;
 
 define method infer-computation-types (c :: <get-cell-value>) => ()
   next-method();
-  if (c.temporary & c.temporary.users.size > 0)
-    add-constraint(make(<equality-constraint>,
-                        left: c.computation-cell.lookup-type-variable,
-                        right: c.temporary.lookup-type-variable));
-  end;
+  add-constraint(make(<equality-constraint>,
+                      left: c.computation-cell.lookup-type-variable,
+                      right: c.temporary.lookup-type-variable));
 end;
 
 define method infer-computation-types (c :: <set-cell-value!>) => ()

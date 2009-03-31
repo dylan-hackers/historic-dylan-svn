@@ -192,6 +192,10 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
                 exception (e :: <condition>)
                 end;
 	      end if;
+              //reset optimization queue, typing might already have called re-optimize,
+              //which triggers optimization queue initialization (and optimizations are not idempotent)
+              //hannes - 31st March 2009
+              f.optimization-queue := #f;
 	      // Now we're ready for some fun.
 	      run-optimizations(f);
               send-debug(#"relayouted", #());

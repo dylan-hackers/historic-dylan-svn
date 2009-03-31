@@ -14,7 +14,7 @@ define class <node> (<object>)
   constant slot node-value :: <&type>,
     required-init-keyword: value:;
   slot node-rank :: <integer> = 0;
-  slot representative :: <node>;
+  slot %representative :: <node>;
   constant slot node-id :: <integer>,
     init-function: next-computation-id;
 end;
@@ -22,12 +22,26 @@ end;
 define method make (class == <node>, #rest init-args, #key, #all-keys)
  => (res :: <node>)
   let n = next-method();
+  debug-types(#"new-type-node", n, n.node-value);
   n.representative := n;
   add!(n.graph.nodes, n);
-  debug-types(#"new-type-node", n, n.node-value);
   maybe-setup-connections(n, n.node-value);
   //find representative!
   n;
+end;
+
+define method representative (n :: <node>) => (res :: <node>)
+  n.%representative;
+end;
+
+define method representative-setter (new :: <node>, n :: <node>) => (res :: <node>)
+  if (slot-initialized?(n, %representative) & n.representative == n)
+    debug-types(#"not-representative", n);
+  end;
+  if (new == n)
+    debug-types(#"representative", n);
+  end;
+  n.%representative := new;
 end;
 
 define function successors (n :: <node>) => (res :: <collection>)

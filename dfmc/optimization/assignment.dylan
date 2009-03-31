@@ -25,7 +25,41 @@ define method eliminate-assignments (f :: <&lambda>)
   strip-assignments(environment(f));
 end method eliminate-assignments;
 
+define method find-temporary-transfer (c :: <bind>, ass :: <collection>) => (res :: <computation>)
+  c;
+end;
+
+define method find-temporary-transfer (c :: <computation>, ass :: <collection>) => (res :: <computation>)
+  if (member?(c, ass))
+    c
+  else
+    find-temporary-transfer(c.previous-computation, ass);
+  end;
+end;
+
 define method cell-assigned-temporaries (t :: <temporary>)
+  let ass = #();
+  for (assignment in t.assignments)
+    assert(assignment.assigned-binding == t);
+    let (tt, tmp)
+      = make-with-temporary
+          (assignment.environment, <temporary-transfer>, value: assignment.computation-value);
+    insert-computations-after!(assignment, tt, tt);
+    replace-temporary-in-users!(assignment.temporary, tmp);
+    delete-computation!(assignment);
+    ass := add!(ass, tt);
+  end;
+  t.assignments := ass;
+  for (user in t.users)
+    //find nearest temporary-transfer
+    let tt = find-temporary-transfer(user.previous-computation, ass);
+    unless (instance?(tt, <bind>))
+      replace-temporary-references!(user, t, tt.temporary);
+    end;
+  end;
+               
+
+ /*
   let (make-cell-first-c, make-cell-last-c, cell) 
     = convert-make-cell(t.environment, t);
   insert-computations-after!
@@ -54,8 +88,7 @@ define method cell-assigned-temporaries (t :: <temporary>)
     delete-computation!(assignment);
     // Track cell writes
     cell.assignments := add!(cell.assignments, set-c); 
-  end for;
-  t.assignments := #(); // should this happen automatically?
+  end for; */
 end method cell-assigned-temporaries;
 
 // Constructors for celling primitives.

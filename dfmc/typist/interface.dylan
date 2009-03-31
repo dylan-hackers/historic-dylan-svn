@@ -1,7 +1,12 @@
 module: dfmc-typist
 
-define method type-estimate (o :: <object>) => (te :: <type-estimate>)
-  make(<type-estimate-top>);
+define method type-estimate (o :: <object>) => (te :: type-union(<&type>, <type-estimate>))
+  let node = element(*type-environment*, o, default: #f);
+  if (node)
+    node.node-value.^type-variable-contents;
+  else 
+    make(<type-estimate-top>);
+  end;
 end;
 
 define method type-estimate (l :: <&lambda>) => (te :: <&type>)
