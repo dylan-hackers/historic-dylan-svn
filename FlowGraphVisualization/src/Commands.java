@@ -77,6 +77,10 @@ public final class Commands {
 			return disconnect(ihl, answer);
 		if (key.isEqual("remove-node"))
 			return removenode(ihl, answer, false);
+		if (key.isEqual("representative"))
+			return colornode(ihl, answer, demo, true);
+		if (key.isEqual("not-representative"))
+			return colornode(ihl, answer, demo, false);
 		System.out.println("shouldn't be here");
 		return false;
 	}
@@ -422,4 +426,17 @@ public final class Commands {
 				ihl.graph.removeEdge(ec.edge());
 		return true;
 	}
+	
+	private static boolean colornode (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo, boolean light) {
+		Node highlightnew = getNode(ihl, answer, 2, false);
+		Color fill = ihl.graph.getDefaultNodeRealizer().getFillColor();
+		if (light)
+			fill = fill.brighter();
+		else
+			fill = fill.darker();
+		ihl.graph.getRealizer(highlightnew).setFillColor(fill);
+		demo.view.repaint();
+		return false;
+	} 
+		
 }
