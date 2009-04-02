@@ -378,6 +378,23 @@ define method ^known-disjoint? (at1 :: <&arrow-type>, at2 :: <&arrow-type>)
  => (well? :: <boolean>)
   ^known-disjoint?(at1.^arguments, at2.^arguments);
 end;
+
+define method ^subtype? (t1 :: <&arrow-type>, t2 :: <&arrow-type>)
+ => (well? :: <boolean>)
+  //this is not real, but since arguments and values are <node> objects,
+  //and we don't have access to the typist here (and I suspect that
+  // <arrow-type>, <tuple-type> and <type-variable> are only typist-objects,
+  // and should move there (out of the <&type> hierarchy), I'll just write this
+  // for now
+  #f
+  //^subtype?(t1.^arguments, t2.^arguments) &
+  //  ^subtype?(t2.^values, t1.^values)
+end;
+define method ^subtype? (t1 :: <&tuple-type>, t2 :: <&tuple-type>)
+ => (well? :: <boolean>)
+  #f;
+end;
+
 //missing: base-type, instance?, subtype?, known-disjoint?
 
 define method ^known-disjoint? (a :: <&top-type>, b :: <&type>)

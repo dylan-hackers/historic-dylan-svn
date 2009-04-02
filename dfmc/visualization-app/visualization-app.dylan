@@ -245,6 +245,20 @@ begin
     "end;\n";
   add!($tests, pair(#"assignment3", ass3));
 
+  let ass4 =
+    "define method assignment4 ()\n"
+    "  let a = 42;\n"
+    "  let b = 455;\n"
+    "  a := b + 1;\n"
+    "  b := \"foo\";\n"
+    "  a := a + 1;\n"
+    "  a := a + 2;\n"
+    "  a := a + a;\n"
+    "  b := a - 4;\n"
+    "  values(a + 2, b - 3);\n"
+    "end;\n";
+  add!($tests, pair(#"assignment4", ass4));
+
   let mymap2 =
     "define method mymap2 (c :: <list>)\n"
     " => (c :: <list>)\n"

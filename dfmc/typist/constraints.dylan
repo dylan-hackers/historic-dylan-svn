@@ -178,6 +178,7 @@ define method copy-dyn (t :: <&type>, n :: <node>) => (node :: <node>)
 end;
 
 define function order (u :: <node>, v :: <node>)
+ => (first :: <node>, second :: <node>, order-matters? :: <boolean>)
   let tu = node-value(u);
   let tv = node-value(v);
   if (dynamic?(tu)) 

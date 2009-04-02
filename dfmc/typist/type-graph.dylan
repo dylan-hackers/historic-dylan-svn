@@ -23,7 +23,7 @@ define method make (class == <node>, #rest init-args, #key, #all-keys)
  => (res :: <node>)
   let n = next-method();
   debug-types(#"new-type-node", n, n.node-value);
-  n.representative := n;
+  n.%representative := n;
   add!(n.graph.nodes, n);
   maybe-setup-connections(n, n.node-value);
   //find representative!
@@ -35,13 +35,17 @@ define method representative (n :: <node>) => (res :: <node>)
 end;
 
 define method representative-setter (new :: <node>, n :: <node>) => (res :: <node>)
-  if (slot-initialized?(n, %representative) & n.representative == n)
-    debug-types(#"not-representative", n);
+  if (new ~= n.representative)
+    if (n.representative == n)
+      debug-types(#"not-representative", n);
+    end;
+    if (new == n)
+      debug-types(#"representative", n);
+    end;
+    n.%representative := new;
+  else
+    new
   end;
-  if (new == n)
-    debug-types(#"representative", n);
-  end;
-  n.%representative := new;
 end;
 
 define function successors (n :: <node>) => (res :: <collection>)
@@ -238,12 +242,30 @@ define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolea
       u.node-rank := u.node-rank + 1;
     end;
     v.representative := u;
-  elseif (u.node-rank > v.node-rank)
-    v.representative := u;
   else
-    u.representative := v;
-    if (u.node-rank == v.node-rank)
-      v.node-rank := v.node-rank + 1;
+    //hah, we can decide on the order ourselves
+    //done by least upper bound:
+    //basically top looses always against a real type
+    //and real types just use subtyping relationship
+    if (u.node-value.dynamic?)
+      v.node-rank := max(u.node-rank, v.node-rank) + 1;
+      u.representative := v;
+    elseif (v.node-value.dynamic?)
+      u.node-rank := max(u.node-rank, v.node-rank) + 1;
+      v.representative := u;
+    elseif (^subtype?(u.node-value, v.node-value))
+      v.node-rank := max(u.node-rank, v.node-rank) + 1;
+      u.representative := v;
+    elseif (^subtype?(v.node-value, u.node-value))
+      u.node-rank := max(u.node-rank, v.node-rank) + 1;
+      v.representative := u;
+    elseif (u.node-rank > v.node-rank) //default case from gtubi-paper (needed?)
+      v.representative := u;
+    else
+      u.representative := v;
+      if (u.node-rank == v.node-rank)
+        v.node-rank := v.node-rank + 1;
+      end;
     end;
   end;
 end;
