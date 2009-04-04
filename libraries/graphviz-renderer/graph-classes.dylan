@@ -42,7 +42,9 @@ define function create-edge
                   source: source,
                   target: target,
                   label: label | integer-to-string(graph.edges.size));
-  edge.attributes["label"] := label;
+  if (label)
+    edge.attributes["label"] := label;
+  end;
   add!(graph.edges, edge);
   add!(source.outgoing-edges, edge);
   add!(target.incoming-edges, edge);
