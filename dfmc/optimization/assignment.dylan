@@ -7,6 +7,220 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
+//eliminate assignments, convert CFG to SSA
+// (A fast Algorithm for Finding Dominators in a Flowgraph - Lengauer, Tarjan, 1979)
+
+define constant <comp-vector> = limited(<stretchy-vector>, of: <computation>);
+
+define method succ (v :: <computation>) => (res :: <comp-vector>)
+  let res = make(<comp-vector>);
+  if (v.next-computation)
+    add!(res, v.next-computation);
+  end;
+  res;
+end;
+
+define method succ (v :: <loop>) => (res :: <comp-vector>)
+  let res = make(<comp-vector>);
+  if (v.next-computation)
+    add!(res, v.next-computation);
+  end;
+  add!(res, v.loop-body);
+  res;
+end;
+
+define method succ (v :: <if>) => (res :: <comp-vector>)
+  let res = make(<comp-vector>);
+  add!(res, v.consequent);
+  add!(res, v.alternative);
+  res;  
+end;
+
+define method succ (v :: <loop-call>) => (res :: <comp-vector>)
+  let res = make(<comp-vector>);
+  add!(res, v.loop-call-loop);
+  res;
+end;
+
+define method dominators (r :: <computation>) => (result :: <table>)
+  let semi = make(<table>);
+  let vertex = make(<table>);
+  let ancestor = make(<table>);
+  //let dsize = make(<table>);
+  let label = make(<table>);
+  let parent = make(<table>);
+  let pred = make(<table>);
+  //let child = make(<table>);
+  let bucket = make(<table>);
+  let dom = make(<table>);
+  let n = 0;
+
+  local method dfs (v :: <computation>)
+          n := n + 1;
+          semi[v] := n;
+          vertex[n] := v;
+          label[v] := v;
+          ancestor[v] := 0;
+          //child[v] := 0;
+          //dsize[v] := 1;
+          for (w in succ(v))
+            unless (element(semi, w, default: #f))
+              parent[w] := v;
+              dfs(w);
+            end;
+            pred[w] := add!(element(pred, w, default: make(<comp-vector>)), v);
+          end;
+        end,
+        method compress (v :: <computation>)
+          if (ancestor[ancestor[v]] ~= 0)
+            compress(ancestor[v]);
+            if (semi[label[ancestor[v]]] < semi[label[v]])
+              label[v] := label[ancestor[v]];
+            end;
+            ancestor[v] := ancestor[ancestor[v]];
+          end;
+        end, /*
+        method eval (v :: <computation>)
+          if (ancestor[v] == 0)
+            label[v];
+          else
+            compress(v);
+            if (semi[label[ancestor[v]]] >= semi[label[v]])
+              label[v];
+            else
+              label[ancestor[v]];
+            end;
+          end;
+        end,
+        method link (v :: <computation>, w :: <computation>)
+          let s = w;
+          while (semi[label[w]] < semi[label[child[s]]])
+            if (dsize[s] + dsize[child[child[s]]] >= 2 * dsize[child[s]])
+              ancestor[child[s]] := s;
+              child[s] := child[child[s]];
+            else
+              dsize[child[s]] := dsize[s];
+              s := ancestor[s] := child[s];
+            end;
+          end;
+          label[s] := label[w];
+          dsize[v] := dsize[v] + dsize[w];
+          if (dsize[v] < 2 * dsize[w])
+            let tmp = s;
+            s := child[v];
+            child[v] := tmp;
+            //s, child[v] := child[v], s
+          end;
+          while (s ~= 0)
+            ancestor[s] := v;
+            s := child[s];
+          end;
+        end; */
+        method eval (v :: <computation>)
+          if (ancestor[v] == 0)
+            v
+          else
+            compress(v);
+            label[v];
+          end;
+        end,
+        method link (v :: <computation>, w :: <computation>)
+          ancestor[w] := v;
+        end;
+  //for (v in succ(r))
+  //  pred[v] := bucket[v] := make(<comp-vector>);
+  //  semi[v] := 0;
+  //end;
+  //step 1
+  dfs(r);
+  //dsize[0] := label[0] := semi[v] := 0;
+  for (i from n to 2 by -1)
+    let w = vertex[i];
+    //step 2
+    for (v in pred[w])
+      let u = eval(v);
+      if (semi[u] < semi[w])
+        semi[w] := semi[u];
+      end;
+    end;
+    bucket[vertex[semi[w]]]
+      := add!(element(bucket, vertex[semi[w]], default: make(<comp-vector>)),
+              w);
+    link(parent[w], w);
+    //step 3
+    for (v in copy-sequence(element(bucket, parent[w], default: make(<comp-vector>))))
+      bucket[parent[w]] := remove!(bucket[parent[w]], v);
+      let u = eval(v);
+      dom[v] := if (semi[u] < semi[v])
+                  u;
+                else
+                  parent[w];
+                end;
+    end;
+  end;
+  //step 4
+  for (i from 2 below n)
+    let w = vertex[i];
+    if (dom[w] ~= vertex[semi[w]])
+      dom[w] := dom[dom[w]];
+    end;
+  end;
+  dom[r] := 0;
+  dom;
+end;
+
+// (Efficiently computing single static assignment and the control dependence graph
+//  Cytron, Ferrante, Kosen, Wegman, Zadeck, 1991)
+/*
+define method domain-frontier (dominator-tree)
+  for (x in bottom-up-traversal(dom))
+    df[x] := #();
+    for (y in succ(x))
+      if (idom(y) ~= x)
+        df[x] := df[x] + {y};
+      end;
+    end;
+    for (z in children(x))
+      for (y in df[z])
+        if (idom[y] ~= x)
+          df[x] := df[x] + {y};
+        end;
+      end;
+    end;
+  end;
+end;
+
+define method phi-placement ()
+  let itercount = 0;
+  for (x in nodes)
+    hasalready(x) := 0;
+    work(x) := 0;
+  end;
+  let w = 0;
+  for (v in variables)
+    itercount := itercount + 1;
+    for (x in a(v))
+      work(x) := itercount;
+      w := add!(w, x);
+    end;
+    while (~ w.empty?)
+      let x = w.pop;
+      for (y in df(x))
+        if (hasalready(y) < itercount)
+          place-phi-for-v-at-y
+          hasalready(y) := itercount;
+          if (work(y) < itercount)
+            work(y) := itercount;
+            w := add!(w, y);
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+*/
+
+
 // Eliminate-assignments turns all temporaries that have assignments
 // into boxed objects, and replaces all references to those temporaries
 // to primitive operations which work on these boxed objects.
@@ -17,6 +231,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 //   before: analyze-calls;
 
 define method eliminate-assignments (f :: <&lambda>)
+  dominators(f.body);
   for (t in f.environment.temporaries)
     if (~empty?(t.assignments) & ~cell?(t))
       cell-assigned-temporaries(t);

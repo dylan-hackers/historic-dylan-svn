@@ -245,7 +245,7 @@ define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolea
   else
     //hah, we can decide on the order ourselves
     //done by least upper bound:
-    //basically top looses always against a real type
+    //basically top loses always against a real type
     //and real types just use subtyping relationship
     if (u.node-value.dynamic?)
       v.node-rank := max(u.node-rank, v.node-rank) + 1;
