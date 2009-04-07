@@ -245,17 +245,20 @@ define constant $default-skip-list-max-level = 32;
 // DJV 08.03.2009  added size keyword and guess-level generic as hint
 define method initialize (sl :: <basic-skip-list>,
                           #key size :: false-or(<integer>),
-                               level :: <integer> = guess-level(size));
+                               level: init-level :: false-or(<integer>));
   // If you provide the size: init-keyword, the level will be preset to an
   // appropriate value, providing some small degree of efficiency.
 
   next-method();
-  sl.next := make(<next-node-vector>, size: level, fill: #f);
+  let init-level = init-level | guess-level(size);
+  sl.level := min(sl.max-level, max(1, init-level));
+  sl.next := make(<next-node-vector>, size: sl.level, fill: #f);
 end method initialize;
 
 
 define method guess-level (size == #f)
-  16
+  // If starting level is unspecified, stick with slot init-value.
+  1
 end method;
 
 
