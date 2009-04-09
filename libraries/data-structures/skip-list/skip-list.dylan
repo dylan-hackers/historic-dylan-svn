@@ -106,7 +106,7 @@ E.g., with p=1/4 and 10000 elements you need about 24 key comparisons to look up
 one value. The measures are about the same for p=1/2, but the maximum level used
 - and therefore the number of pointers - is about two times higher. A totally
 balanced binary tree would need about 14 comparisons. The make function takes
-max-level:, probability:, size:, and level: to adjust performance.
+level:, max-level:, size:, capacity:, and probability: to adjust performance.
 
 This module is intended as an extension to the collection library and inspired
 by the extensions from the Gwydion Project at Carnegie Mellon University. In
@@ -170,7 +170,7 @@ define constant <next-node-vector> =
 define primary class <basic-skip-list> 
   (<stretchy-collection>, <mutable-explicit-key-collection>)
   // If you use this class directly or implement your own subclasses,
-  // see the notes at flush-cache
+  // see the notes at clear-cache
   
   // PUBLIC
   
@@ -191,8 +191,8 @@ define primary class <basic-skip-list>
   // less efficiently.  If you provide the init-keyword level: with the 
   // same value as max-level, you get a static level and a little less
   // garbage is produced during building.
+  // If not supplied, set by initialize to allow $maximum-integer elements.
   slot max-level :: <integer>,
-     init-value: $default-skip-list-max-level,
      init-keyword: max-level:;
   
   // The probability to create a new level is 1/fan-out, 
@@ -218,18 +218,15 @@ define primary class <basic-skip-list>
   slot forward :: false-or(<skip-list-node>), init-value: #f;
   slot backward :: false-or(<skip-list-node>), init-value: #f;
   
-  // The actual maximum level used, cached for efficiency
+  // The actual maximum level used, cached for efficiency.
+  // If not supplied, set by initialize to 4 (given default probability).
   slot level :: <integer>,
-     init-value: 1;
+     init-keyword: level:;
   
-  // In a multi-threaded environment provisions must be taken to insure
-  // that only one process accesses this slot at one time.  The easiest way 
-  // to achieve this is to make it an instance slot.
-  slot skip-list-update-cache,
-     init-value: make(<next-node-vector>,
-                      size: $default-skip-list-max-level,
-                      fill: #f);
-
+  // This was originally a class slot, but to allow <skip-list> to be used in a
+  // multi-threaded environment, this is turned into an instance slot.
+  // Set by initialize.
+  slot skip-list-update-cache :: <next-node-vector>; 
 end class;
 
 
@@ -239,33 +236,43 @@ define constant $default-skip-list-test = \==;
 define constant $default-skip-list-order = \<;
 
 
-define constant $default-skip-list-max-level = 32;
+// DJV 09.04.2008  Replaced $default-skip-list-level with this. The default
+//    level was effectively 16, which is appropriate for 2^32 elements with the
+//    default fan-out. This seems excessive to me. A more reasonable default
+//    is to allow about 64 elements to be inserted before reallocating the
+//    next-level arrays; this is equivalent to a $default-skip-list-level of 4
+//    with the default fan-out.
+define constant $default-skip-list-size = 64;
 
 
-// DJV 08.03.2009  added size keyword and guess-level generic as hint
+// DJV 08.03.2009  added size keyword and level-for-size method as hint
+// DJV 09.04.2009  added capacity keyword
 define method initialize (sl :: <basic-skip-list>,
-                          #key size :: false-or(<integer>),
-                               level: init-level :: false-or(<integer>));
+                          #key size :: <integer> = $default-skip-list-size,
+                               capacity :: <integer> = $maximum-integer);
   // If you provide the size: init-keyword, the level will be preset to an
   // appropriate value, providing some small degree of efficiency.
 
   next-method();
-  let init-level = init-level | guess-level(size);
-  sl.level := min(sl.max-level, max(1, init-level));
+
+  if (~slot-initialized?(sl, level))
+    sl.level := level-for-size(sl, size);
+  end if;
+
+  if (~slot-initialized?(sl, max-level))
+    sl.max-level := level-for-size(sl, capacity);
+  end if;
+
+  sl.level := min(sl.max-level, max(1, sl.level));
   sl.next := make(<next-node-vector>, size: sl.level, fill: #f);
+  sl.skip-list-update-cache := make(<next-node-vector>,
+                                    size: sl.max-level,
+                                    fill: #f);
 end method initialize;
 
 
-define method guess-level (size == #f)
-  // If starting level is unspecified, stick with slot init-value.
-  1
-end method;
-
-
-define method guess-level (size :: <integer>)
-  // I don't have an implementation-independent way to count bits, which would
-  // be the fastest solution.
-  ceiling(logn(size, 2));
+define method level-for-size (sl :: <basic-skip-list>, size :: <integer>)
+  ceiling(logn(size, 1 / sl.probability));
 end method;
 
 
@@ -289,6 +296,10 @@ end method;
 
 
 define method clear-cache (sl :: <basic-skip-list>);
+  /*
+  // This note and code is not applicable when skip-list-update-cache is an
+  // instance slot.
+  
   // The same update vector is used for all skip-lists for efficiency.
   // This could lead to the undesired effect that the update-cache is the
   // only reference to some skip-list, so it does not get garbage collected.  
@@ -305,6 +316,8 @@ define method clear-cache (sl :: <basic-skip-list>);
     // set each field to NIL
     update[i] := #f;
   end;
+  */
+
   #t;
 end;
 
@@ -459,7 +472,7 @@ define method element-setter (val, sl :: <basic-skip-list>, nkey)
     // May need to expand the next vector
     if (nlevel > sl.next.size)
       let new-next :: <next-node-vector> = make(<next-node-vector>,
-                                              size: nlevel);
+                                                size: nlevel);
       let old-next :: <next-node-vector> = sl.next;
       
       // Copy the old references
@@ -497,12 +510,17 @@ define method element-setter (val, sl :: <basic-skip-list>, nkey)
     // update current maximum level used
     sl.level := max(sl.level, nlevel);
     
+    /*
+    // Not necessary with instance-specific skip-list-update-cache; it is
+    // already allocated at the maximum size.
+    
     // create a new update cache if necessary
     if (sl.next.size > update.size)
       sl.skip-list-update-cache := make(<next-node-vector>,
                                         size: sl.next.size + 8,
                                         fill: #f);
     end;
+    */
   end if;
   val;
 end method;
