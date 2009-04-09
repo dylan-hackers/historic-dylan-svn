@@ -76,7 +76,7 @@ define module skip-list
      // Classes
      <skip-list>,
      // Methods
-     probability, probability-setter, level, max-level, max-level-setter,
+     probability, level, max-level,
      key-order, element-sequence, element-sequence-setter,
      forward-by-key-iteration-protocol;
 end module skip-list;
