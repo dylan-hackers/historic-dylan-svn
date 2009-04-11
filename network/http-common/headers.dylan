@@ -55,7 +55,7 @@ define function read-message-headers
       values(headers, buffer, epos)
     else
       let (key, data) = split-header(buffer, bpos, epos);
-      log-trace($log, "<-- %s: %s", key, data);
+      log-trace($header-log, "<-- %s: %s", key, data);
       add-header(headers, key, data);
       loop(buffer, epos, peek-ch);
     end if;

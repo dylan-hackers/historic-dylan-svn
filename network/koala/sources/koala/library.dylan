@@ -61,6 +61,7 @@ define module koala
       get-query-value,           // Get a query value that was passed in a URL or a form
       do-query-values,           // Call f(key, val) for each query in the URL or form
       count-query-values,
+      with-query-values,
     request-content-type,
     process-request-content;
 

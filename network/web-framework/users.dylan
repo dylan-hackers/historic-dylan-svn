@@ -2,6 +2,16 @@ module: users
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define thread variable *authenticated-user* = #f;
+
+// The default "realm" value passed in the WWW-Authenticate header.
+//
+define variable *default-authentication-realm* :: <string> = "koala";
+
+// Because clients (browsers) continue to send the Authentication header
+// once an authentication has been accepted (at least until the browser
+// is restarted, it seems) we need to keep track of the fact that a user
+// has logged out by storing the auth values here.
+//
 define variable *ignore-authorizations* = list();
 define variable *ignore-logins* = list();
 
@@ -12,30 +22,20 @@ define open class <user> (<object>)
     required-init-keyword: password:;
   slot email :: <string>,
     required-init-keyword: email:;
-  slot additional-information :: <table> = make(<table>),
-    init-keyword: additional-information:;
-end;
+  slot administrator? :: <boolean> = #f,
+    init-keyword: administrator?:;
+end class <user>;
 
-define method initialize (user :: <user>, #rest rest, #key, #all-keys)
+define method initialize (user :: <user>, #key)
   next-method();
-  let keyword = #f;
-  for (element in rest)
-    if (keyword) 
-      unless (member?(keyword, #(#"username", #"password", #"email")))
-        user.additional-information[keyword] := element;
-      end;
-      keyword := #f;
-    else
-      keyword := element;
-    end if;
-  end for;
   if (find-user(user.username))
     signal(make(<web-error>,
-      error: "User with same name already exists!"))
+                error: "User with same name already exists!"));
   else
     save(user);
   end if;
 end;
+
 define method key (user :: <user>)
  => (res :: <string>);
   user.username;
@@ -62,15 +62,15 @@ define function find-user
   element(storage(<user>), name, default: #f);
 end;
 
-define method login ()
+define method login (#key realm :: false-or(<string>))
   let redirect-url = get-query-value("redirect");
   let user = check-authorization();
   if (~user)
-    require-authorization();
+    require-authorization(realm: realm);
   elseif (member?(user, *ignore-authorizations*, test: \=) &
           member?(user, *ignore-logins*, test: \=))
     *ignore-authorizations* := remove!(*ignore-authorizations*, user);
-    require-authorization();
+    require-authorization(realm: realm);
   elseif (~member?(user, *ignore-authorizations*, test: \=) &
           member?(user, *ignore-logins*, test: \=))
     *ignore-logins* := remove!(*ignore-logins*, user);
@@ -118,7 +118,8 @@ define function authenticate ()
   end
 end function authenticate;
 
-define function require-authorization (#key realm :: <string> = "koala")
+define function require-authorization (#key realm :: false-or(<string>))
+  let realm = realm | *default-authentication-realm*;
   let headers = current-response().raw-headers;
   add-header(headers, "WWW-Authenticate", concatenate("Basic realm=\"", realm, "\""));
   unauthorized-error(headers: headers);

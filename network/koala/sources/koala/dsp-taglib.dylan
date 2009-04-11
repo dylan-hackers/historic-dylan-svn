@@ -21,17 +21,17 @@ end;
 define tag get in dsp
     (page :: <dylan-server-page>)
     (name :: <string>, context :: <string>)
-  select (as(<symbol>, context))
-    #"page" => output(get-attribute(page-context(), as(<symbol>, name)));
-    #"request" => output(get-query-value(name));
-    #"header" => output(get-header(current-request(), name));
-    #"session" => output(get-attribute(get-session(current-request()), name));
-    // any other context?
-
-    otherwise =>
-      // todo -- what error class?
-      error("Bad context specified in <dsp:get> tag: %s", context);
-  end;
+  output("%s", select (as(<symbol>, context))
+                 #"page" => get-attribute(page-context(), as(<symbol>, name));
+                 #"request" => get-query-value(name);
+                 #"header" => get-header(current-request(), name);
+                 #"session" => get-attribute(get-session(current-request()), name);
+                 // #"any" => ...
+                 // any other context?
+                 otherwise =>
+                   // todo -- what error class?
+                   error("Bad context specified in <dsp:get> tag: %s", context)
+               end);
 end tag get;
 
 
@@ -197,7 +197,7 @@ define tag row-number in dsp
     ()
   when (*table-row-number* >= 0)
     let response = current-response();
-    format(output-stream(response), "%d", *table-row-number* + 1);
+    output("%d", *table-row-number* + 1);
   end;
 end;
  
@@ -210,7 +210,7 @@ end;
 define tag show-query-value in dsp (page :: <dylan-server-page>)
  (name :: <string>)
   let qv = get-query-value(name);
-  qv & write(current-response().output-stream, qv);
+  qv & write(output-stream(current-response()), qv);
 end;
 
 
@@ -226,18 +226,19 @@ define tag show-date in dsp
     (page :: <dylan-server-page>)
     (date :: <date> = current-date(), format, key, scope)
   //---TODO: Finish this.  For now it can only show the current date.
-  date-to-stream(current-response().output-stream, date);
+  date-to-stream(output-stream(current-response()), date);
 end;
 
 //// HTTP Header Tags
 
 // This can be replaced by <dsp:get name="Referer" context="header/> now.
+//
 define tag show-referer in dsp
     (page :: <dylan-server-page>)
     ()
-  format(current-response().output-stream, "%s",
-         get-header(current-request(), "Referer"));
+  output("%s", get-header(current-request(), "Referer"));
 end;
+
 
 //// Internationalization tags
 
@@ -269,6 +270,7 @@ end;
 define class <form-message> (<form-note>)
 end;
 
+// this is broken.  can't pass random format args and keywords to the same method.
 define method note-form-error
     (message :: <string>, #rest args, #key field)
   add-form-note(make(<form-error>,

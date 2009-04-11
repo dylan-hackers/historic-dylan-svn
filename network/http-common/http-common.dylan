@@ -10,10 +10,14 @@ define constant $default-http-port :: <integer> = 80;
 //   add-target(get-logger("http.common"), $stdout-log-target)
 //
 define constant $log :: <logger>
-  = make(<logger>, name: "http.common");
+  = make(<logger>,
+         name: "http.common");
 
 define constant $header-log :: <logger>
-  = make(<logger>, name: "http.common.headers");
+  = make(<logger>,
+         name: "http.common.headers",
+         // temp: not intended to be committed to svn
+         targets: list($stdout-log-target));
 
 
 /////////////// Parsing //////////////

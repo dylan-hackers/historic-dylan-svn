@@ -54,6 +54,7 @@ define open class <entry> (<object>)
     init-keyword: links:;
   slot published :: <date> = current-date(),
     init-keyword: published:;
+  // apparently copyright info
   slot rights :: false-or(<text>) = #f,
     init-keyword: rights:;
   slot source :: false-or(<source>) = #f,
