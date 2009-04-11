@@ -1360,6 +1360,22 @@ define inline function get-query-value
   end
 end function get-query-value;
 
+// with-query-values (name, type, go as go?, search) x end;
+//   
+define macro with-query-values
+    { with-query-values (?bindings) ?:body end }
+ => { ?bindings;
+      ?body }
+
+ bindings:
+   { } => { }
+   { ?binding, ... } => { ?binding; ... }
+
+ binding:
+   { ?:name } => { let ?name = get-query-value(?"name") }
+   { ?:name as ?var:name } => { let ?var = get-query-value(?"name") }
+end;
+
 define function count-query-values
     () => (count :: <integer>)
   *request*.request-query-values.size

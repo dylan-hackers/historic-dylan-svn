@@ -3,14 +3,6 @@ author: turbo24prg
 
 define constant <blog-user> = <user>;
 
-define method administrator? (user :: <blog-user>)
-  element(user.additional-information, #"administrator?", default: #f);
-end;
-  
-define method administrator?-setter (administrator? :: <boolean>, user :: <blog-user>)
-  user.additional-information[#"administrator?"] := administrator?
-end;
-
 define object-tests (user) in turboblog end;
 
 define action-tests

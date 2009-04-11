@@ -312,6 +312,13 @@ define method process-config-element
 end method process-config-element;
 
 
+// todo -- There is currently no way to configure (for example) the
+//         "http.common.headers" logger.  We should really just have one
+//         configuration element, <log>, that names a logger that exists
+//         in the code and says how to configure it.  The loggers for each
+//         virtual host should be named <vhost-name>.debug etc.  Needs more
+//         thought, but I think it will be an improvement.
+
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"error-log")
   let format-control = get-attr(node, #"format");
