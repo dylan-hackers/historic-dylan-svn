@@ -1,5 +1,6 @@
 Module: dylan-user
 Author: Carl Gay
+Synopsis: Tests for the libraies that implement HTTP.
 
 define library http-test-suite
   use common-dylan;

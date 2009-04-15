@@ -1,5 +1,6 @@
 Module: http-test-suite
 Author: Carl Gay
+Synopsis: Tests for the libraries that implement HTTP.
 
 define suite http-test-suite ()
   suite http-client-test-suite;
