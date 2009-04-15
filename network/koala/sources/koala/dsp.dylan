@@ -581,11 +581,18 @@ end;
 // Users can't define this parser because active-taglibs isn't exported.
 // Think about exporting it or passing its value to parse-tag-arg.
 define method parse-tag-arg
-    (param, arg :: <string>, type == <named-method>) => (value :: <named-method>)
-  get-named-method(active-taglibs(), arg)
-  | signal(make(<tag-argument-parse-error>,
-                format-string: "%= is not a named-method.  While parsing the %= argument in a <%s:%s> tag.",
-                format-arguments: vector(arg, param, *tag-call*.prefix, *tag-call*.name)))
+    (param, arg :: <string>, type == <named-method>)
+ => (value :: <named-method>)
+  let taglibs = active-taglibs();  // pairs of ("prefix" . taglib)
+  get-named-method(taglibs, arg)
+    | signal(make(<tag-argument-parse-error>,
+                  format-string:
+                    "%= is not a named-method in the active taglibs (%s).  "
+                    "While parsing the %= argument in a <%s:%s> tag.",
+                  format-arguments:
+                    vector(arg,
+                           join(taglibs, ", ", conjunction: "and", key: first),
+                           param, *tag-call*.prefix, *tag-call*.name)))
 end;
 
 // So tags can accept parameters of type <date>.
