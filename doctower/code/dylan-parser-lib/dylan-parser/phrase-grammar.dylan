@@ -2,6 +2,11 @@ module: dylan-parser
 synopsis: The Dylan phrase grammar, as specified in the DRM, with some omissions.
 
 define class <text-token> (<source-location-token>)
+   slot source-text :: <sequence> /* of <character> or <text-name-token> */;
+end class;
+
+define class <text-name-token> (<source-location-token>)
+   slot api-name :: <string>;
 end class;
 
 //
@@ -74,8 +79,11 @@ define parser basic-fragment (<text-token>)
    rule choice(seq(statement, opt(non-statement-basic-fragment)),
                non-statement-basic-fragment)
    => token;
+attributes
+   text-names :: <sequence> /* of <text-name-token> */ = make(<stretchy-vector>);
 afterwards (context, tokens, value, start-pos, end-pos)
    note-combined-source-location(context, value, tokens);
+   capture-text-and-names(context, value, attr(text-names));
 end;
 
 define parser non-statement-body-fragment (<token>)
@@ -204,15 +212,23 @@ define parser variable (<token>)
    slot var-doc :: false-or(<doc-comment-token>) = tokens[0].var-doc;
 end;
 
-define parser variable-name (<token>)
+define parser variable-name (<text-name-token>)
    rule lex-ORDINARY-NAME => token;
    slot name :: <string> = token.value;
    slot var-doc :: false-or(<doc-comment-token>) = token.lexeme-doc;
+   inherited slot api-name = token.value;
+afterwards (context, token, value, start-pos, end-pos)
+   note-combined-source-location(context, value, token);
+   note-text-name(value);
 end;
 
-define parser type :: <operand-token>
+define parser type (<text-token>)
    rule operand => token;
-   yield token;
+attributes
+   text-names :: <sequence> /* of <text-name-token> */ = make(<stretchy-vector>);
+afterwards (context, token, value, start-pos, end-pos)
+   note-combined-source-location(context, value, token);
+   capture-text-and-names(context, value, attr(text-names));
 end;
 
 //
@@ -225,37 +241,55 @@ define parser expressions (<token>)
 end;
 
 define parser expression (<text-token>)
-   rule seq(binary-operand, opt-many(seq(lex-BINARY-OPERATOR, binary-operand))) => tokens;
-afterwards (context, tokens, value, start-pos, end-pos)
-   note-combined-source-location(context, value, tokens);
+   rule inner-expression => token;
+attributes
+   text-names :: <sequence> /* of <text-name-token> */ = make(<stretchy-vector>);
+afterwards (context, token, value, start-pos, end-pos)
+   note-combined-source-location(context, value, token);
+   capture-text-and-names(context, value, attr(text-names));
 end;
 
-define parser expression-no-symbol (<token>)
-   rule seq(binary-operand-no-symbol, opt-seq(lex-BINARY-OPERATOR, expression))
+define parser inner-expression (<token>)
+   rule seq(binary-operand, opt-many(seq(lex-BINARY-OPERATOR, binary-operand)))
    => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
+end;
+
+define parser inner-expression-no-symbol (<token>)
+   rule seq(binary-operand-no-symbol, opt-seq(lex-BINARY-OPERATOR, inner-expression))
+   => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 define parser binary-operand-no-symbol (<token>)
    rule seq(opt(lex-UNARY-OPERATOR), operand) => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 define parser binary-operand (<token>)
    rule choice(lex-SYMBOL, seq(opt(lex-UNARY-OPERATOR), operand)) => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
-define parser operand (<text-token>)
+define parser operand (<token>)
    rule seq(leaf,
             opt-many(choice(seq(lex-LF-PAREN, opt(arguments), lex-RT-PAREN),
                             seq(lex-LF-BRACK, opt(arguments), lex-RT-BRACK),
                             seq(lex-PERIOD, variable-name))))
    => tokens;
 afterwards (context, tokens, value, start-pos, end-pos)
-   note-combined-source-location(context, value, tokens);
+   span-token-positions(value, tokens);
 end;
 
 define parser function-macro-call (<token>)
    rule seq(lex-FUNCTION-WORD, lex-LF-PAREN, opt(body-fragment), lex-RT-PAREN)
    => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 define parser leaf (<token>)
@@ -263,18 +297,24 @@ define parser leaf (<token>)
                statement,
                function-macro-call,
                variable-name,
-               seq(lex-LF-PAREN, expression, lex-RT-PAREN))
+               seq(lex-LF-PAREN, inner-expression, lex-RT-PAREN))
    => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 define parser arguments (<token>)
    rule seq(argument, opt-many(seq(lex-COMMA, argument))) => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 define parser argument (<token>)
-   rule choice(seq(lex-SYMBOL, opt(expression)),
-               expression-no-symbol)
+   rule choice(seq(lex-SYMBOL, opt(inner-expression)),
+               inner-expression-no-symbol)
    => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 define parser literal (<token>)
@@ -284,6 +324,8 @@ define parser literal (<token>)
                seq(lex-LF-LIST, opt(constants), lex-RT-PAREN),
                seq(lex-LF-VECTOR, opt(constants), lex-RT-BRACK))
    => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 define parser string-literal (<text-token>)
@@ -291,14 +333,19 @@ define parser string-literal (<text-token>)
    slot value :: <string> = apply(concatenate, map(value, tokens));
 afterwards (context, tokens, value, start-pos, end-pos)
    note-combined-source-location(context, value, tokens);
+   capture-text-and-names(context, value, #[]);
 end;
 
 define parser constants (<token>)
    rule seq(constant, opt-many(seq(lex-COMMA, constant))) => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 define parser constant (<token>)
    rule choice(literal, lex-SYMBOL) => token;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 //
@@ -308,11 +355,15 @@ end;
 define parser statement (<token>)
    label "statement";
    rule seq(lex-BEGIN-WORD, opt(body-fragment), end-clause) => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 define parser end-clause (<token>)
    label "end clause";
    rule seq(lex-END, opt(lex-BEGIN-WORD)) => tokens;
+afterwards (context, tokens, value, start-pos, end-pos)
+   span-token-positions(value, tokens);
 end;
 
 define parser case-body (<token>)

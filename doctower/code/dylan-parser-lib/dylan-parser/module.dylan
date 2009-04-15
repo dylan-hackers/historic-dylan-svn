@@ -36,6 +36,7 @@ define module dylan-parser
       <renaming-token>,
       <source-record-token>,
       <statement-rule-token>,
+      <text-name-token>,
       <text-token>,
       <use-clause-token>,
       <variable-definer-token>;
@@ -94,6 +95,7 @@ define module dylan-parser
       slot-setter,
       slot-type,
       source-record,
+      source-text,
       unscoped-docs,
       use-exclusions,
       use-exports,

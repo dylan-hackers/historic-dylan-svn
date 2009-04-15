@@ -3,6 +3,20 @@ synopsis: Representation of API elements extracted from source code.
 
 
 /**
+=================
+Module: dylan-rep
+=================
+
+This module contains a number of classes representing libraries, modules,
+bindings, etc. The relationships between and information contained by these
+classes are designed to be a close match to the information included in a
+library by a compiler. In theory, a Dylan compiler or other tool could generate
+XML documents describing libraries, and Doctower could read these documents and
+create representations of API elements using these classes. Doctower could then
+use the representations to resolve references to API elements in, say, the Dylan
+module.
+
+
 ===================
 Missing information
 ===================
@@ -49,6 +63,7 @@ In the presence of unknown libraries, this documentation is affected as follows:
 
 The documenter can, of course, document any of the omitted modules or bindings
 manually.
+
 
 Specific inferences, failure modes, and representations
 =======================================================
@@ -101,6 +116,10 @@ the module and binding name. If the clause's "import" and "export" options are
 both "all" and the used module is inferred, the defined module may contain
 unnamed bindings.
 
+Additionally, all class, method, or other definitions are added to a binding
+that can be inferred to exist, and bindings mentioned in those definitions (such
+as a superclass or type) can also be inferred to exist.
+
 Except as described below, we cannot know what the bindings are bound to.
 
 Inferred bindings appear in the bindings list of the corresponding module. The 
@@ -121,6 +140,17 @@ For these definitions, we can give the inferred binding name and the module.
 There are no inferred definitions. Inferred bindings are assumed to be from
 "create" clauses and thus have a default definition of #f.
 **/
+
+
+define abstract class <named-api-element> (<object>)
+   slot local-name :: <string>, required-init-keyword: #"local-name";
+end class;
+
+
+define abstract class <documentable-api-element> (<object>)
+   slot comment-tokens = make(<stretchy-vector> /* of <doc-comment-token>*/),
+      init-keyword: #"comments";
+end class;
 
 
 //
@@ -160,8 +190,8 @@ Modules fall into these categories:
                  were included, it would be an instance of <local-module> with
                  pre-defined bindings.
 **/
-define abstract class <library> (<source-location-mixin>)
-   slot local-name :: <string>, required-init-keyword: #"local-name";
+define abstract class <library>
+      (<named-api-element>, <documentable-api-element>, <source-location-mixin>)
    slot modules = make(<stretchy-vector> /* of <module> */);
    slot unknown-reexport-sources = make(<stretchy-vector> /* of <library> */);
 end class;
@@ -192,8 +222,8 @@ end method;
 // Modules
 //
 
-define abstract class <module> (<source-location-mixin>)
-   slot local-name :: <string>, required-init-keyword: #"local-name";
+define abstract class <module>
+      (<named-api-element>, <documentable-api-element>, <source-location-mixin>)
    slot bindings = make(<stretchy-vector> /* of <binding> */);
    slot exported? :: <boolean> = #f, init-keyword: #"exported";
    slot unknown-reexport-sources = make(<stretchy-vector> /* of <module> */);
@@ -237,6 +267,8 @@ imported from the same module in the same library. If the module is a stray, its
 'import-name', 'used-library', and class are not reliable and are irrelevant for
 comparison purposes; the module is assumed to be equal to any another module
 with the same 'local-name'.
+
+Function is not applicable when mod1 and mod2 are in different libraries.
 **/
 
 define method \= (mod1 :: <module>, mod2 :: <module>)
@@ -296,19 +328,22 @@ Bindings fall into these categories:
                  all bindings in a module imported or reexported from another
                  library are of this type. Instance of <local-binding>.
    
-   Internal    - Binding is defined but not mentioned in "define module."
-                 Instance of <local-binding>. These bindings do not "need" [em]
-                 to be tracked, as the binding itself and any definitions
-                 associated with it not exported from the module. Any other
-                 bindings that mention an internal binding will do so in an
-                 expression (i.e. as text).
+   Internal    - Binding is defined but not mentioned in "define module." These
+                 bindings do not "need" [em] to be tracked, as the binding
+                 itself and any definitions associated with it are not exported
+                 from the module. Any other bindings that mention an internal
+                 binding will do so in an expression (i.e. as text).
+
+                 We cannot distinguish an internal binding from an imported or
+                 reexported binding that is not specifically listed, therefore
+                 it has no representation; otherwise, it would be an instance of
+                 <local-binding>.
+
+   Excluded    - Binding is listed in use clause exclude option, or not listed
+                 in use clause import option. No representation.
                  
-   Excluded    - Binding is listed in use clause exclude option, or not listed in
-                 use clause import option. No representation.
-                 
-   Reexported  - Binding is listed in use clause export option. Definition may be
-                 added to binding. Instance of
-                 <imported-binding>.
+   Reexported  - Binding is listed in use clause export option. Definition may
+                 be added to binding. Instance of <imported-binding>.
                  
    Renamed     - Binding is listed in use clause export option and given a new
                  name with rename option, import option, or prefix option.
@@ -319,13 +354,17 @@ Bindings fall into these categories:
                  in export option. Definitions may be added to binding. Instance
                  of <imported-binding>.
                  
-   Created     - Binding is listed in create clause and does not have a definition.
-                 Instance of <local-binding>.
+   Created     - Binding is listed in create clause and does not have a
+                 definition. Instance of <local-binding>.
 
-A binding's owner (if known) is the module that has an exported <local-binding>.
+A class, method, or other definition may be associated with a <local-binding> or
+an <imported-binding>. If the definition is for an exported binding, it will be
+associated with a <local-binding>. In all other cases, we must associate it with
+a stray (until resolved) <imported-binding>.
+
+A binding's owner (if known) is the module that has the <local-binding>.
 **/
-define abstract class <binding> (<source-location-mixin>)
-   slot local-name :: <string>, required-init-keyword: #"local-name";
+define abstract class <binding> (<named-api-element>, <source-location-mixin>)
    slot definition :: false-or(<definition>) = #f, init-keyword: #"definition";
    slot exported? :: <boolean> = #f, init-keyword: #"exported";
 end class;
@@ -366,7 +405,10 @@ same module. If the binding itself is a stray, any other binding with the same
 name is assumed to be the same binding.
 
 Binding equality is not related to the API definition; two bindings may refer to
-the same definition but not equal each other.
+the same definition but not equal each other, and refer to different definitions
+but equal each other.
+
+Function is not applicable when bind1 and bind2 are in different modules.
 **/
 
 define method \= (bind1 :: <local-binding>, bind2 :: <local-binding>)
@@ -414,13 +456,10 @@ end method;
 Bindings are owned by specific modules and libraries, but map to definitions
 composed of several explicit and implicit definitions gathered from different
 libraries. Since definitions aren't wholly contained by a single library or
-module, they either have to be splittable and recombinable, or have to be
-completely independent of libraries/modules.
-
-There is not much to prefer one to the other. In either case, we have to trace
-an API definition through its module's used modules and libraries to find if the
-definition should be added to an already existing definition or a created
-binding.
+module, they either have to be independent of libraries and modules. We provide
+this independence by referencing the complete definition in every binding
+associated with that definition rather than, for example, isolating a method of
+a generic function to the module in which the method was defined.
 **/
 define abstract class <definition> (<object>)
    virtual slot all-defns :: <sequence>;
@@ -465,17 +504,26 @@ end method;
 // Classes
 //
 
-define class <explicit-class-defn> (<source-location-mixin>)
-   slot adjs = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
-   slot direct-supers = make(<stretchy-vector> /* of <class-defn> */);
-   slot slots = make(<stretchy-vector> /* of <slot> */);
-   slot init-args = make(<stretchy-vector> /* of <init-arg> */);
+/**
+--- Slots: ---
+adjs           - Adjectives to class. Sequence of <symbol>.
+direct-supers  - Sequence of <class-defn> or <type-fragment> comprising
+                 superclass list.
+slots          - Slots in this class. Excludes superclasses. Sequence of <slot>.
+init-args      - Initialization keywords defined by "slot" and "keyword"
+                 clauses. Excludes superclasses. Sequence of <init-arg>.
+**/
+define class <explicit-class-defn> (<documentable-api-element>, <source-location-mixin>)
+   slot adjs = make(<stretchy-vector>);
+   slot direct-supers = make(<stretchy-vector>);
+   slot slots = make(<stretchy-vector>);
+   slot init-args = make(<stretchy-vector>);
 end class;
 
-define abstract class <slot> (<object>)
+define abstract class <slot> (<documentable-api-element>)
    slot getter :: <generic-defn>;
    slot setter :: false-or(<generic-defn>);
-   slot type :: <type>;
+   slot type :: <type-fragment>;
 end class;
 
 define abstract class <initable-slot> (<slot>)
@@ -503,10 +551,9 @@ end class;
 // Initializers
 // 
 
-define class <init-arg> (<object>)
+define class <init-arg> (<documentable-api-element>)
    slot symbol :: <string>;
-   slot type :: <type>;
-   slot inferred-type :: false-or(<type>);
+   slot type :: <type-fragment>;
    slot init-spec :: false-or(<init-spec>);
 end class;
 
@@ -525,7 +572,7 @@ end class;
 // Generics and functions
 //
 
-define abstract class <func/gen-definition> (<object>)
+define abstract class <func/gen-definition> (<documentable-api-element>)
    slot adjs = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
    slot parameter-list :: <parameter-list>;
    slot inferred-param-list :: false-or(<parameter-list>);
@@ -580,26 +627,26 @@ define class <value-list> (<object>)
    slot rest-value :: false-or(<rest-value>);
 end class;
 
-define abstract class <param> (<object>)
+define abstract class <param> (<documentable-api-element>)
    slot local-name :: false-or(<string>);
 end class;
 
 define class <req-param> (<param>)
-   slot type :: <type>;
+   slot type :: <type-fragment>;
 end class;
 
 define class <key-param> (<param>)
    slot symbol :: <string>;
-   slot type :: <type>;
+   slot type :: <type-fragment>;
    slot expr :: <code-fragment>;
 end class;
 
 define class <rest-param> (<param>)
 end class;
 
-define abstract class <value> (<object>)
+define abstract class <value> (<documentable-api-element>)
    slot local-name :: false-or(<string>);
-   slot type :: <type>;
+   slot type :: <type-fragment>;
 end class;
 
 define class <req-value> (<value>)
@@ -613,9 +660,8 @@ end class;
 // Constants and variables
 //
 
-define abstract class <const/var-defn> (<object>)
-   slot type :: <type>;
-   slot inferred-type :: false-or(<type>);
+define abstract class <const/var-defn> (<documentable-api-element>)
+   slot type :: <type-fragment>;
    slot value :: <computed-constant>;
 end class;
 
@@ -630,9 +676,10 @@ end class;
 // Macros
 //
 
-define abstract class <explicit-macro-defn> (<source-location-mixin>)
-   slot main-rules = make(<stretchy-vector> /* of <rule> */);
-   slot aux-rules = make(<stretchy-vector> /* of <aux-rules> */);
+define abstract class <explicit-macro-defn>
+      (<documentable-api-element>, <source-location-mixin>)
+   // slot main-rules = make(<stretchy-vector> /* of <rule> */);
+   // slot aux-rules = make(<stretchy-vector> /* of <aux-rules> */);
 end class;
 
 define class <explicit-body-macro-defn> (<explicit-macro-defn>)
@@ -647,119 +694,120 @@ end class;
 define class <explicit-func-macro-defn> (<explicit-macro-defn>)
 end class;
 
-define class <aux-rules> (<object>)
-   slot symbol :: <string>;
-   slot rules = make(<stretchy-vector> /* of <rule> */);
-end class;
-
-define class <rule> (<object>)
-   slot pattern :: <pattern>;
-   slot template :: <template>;
-end class;
-
-
-//
-// Patterns
-//
-
-define class <pattern> (<object>)
-   slot pattern-lists = make(<stretchy-vector> /* of <pattern-list> */);
-end class;
-
-define class <pattern-list> (<object>)
-   slot pattern-sequences = make(<stretchy-vector> /* of <pattern-sequence> */);
-   slot property-list-pattern :: false-or(<property-list-pattern>);
-end class;
-
-define class <pattern-sequence> (<object>)
-   slot simple-patterns = make(<stretchy-vector> /* of <simple-pattern> */);
-end class;
-
-define abstract class <simple-pattern> (<object>)
-end class;
-
-define class <name-not-end-token> (<simple-pattern>)
-   slot name :: <string>;
-end class;
-
-define class <arrow-token> (<simple-pattern>)
-end class;
-
-define class <bracketed-pattern> (<simple-pattern>)
-   slot opening-character :: <character>;
-   slot pattern :: <pattern>;
-   slot closing-character :: <character>;
-end class;
-
-define abstract class <binding-pattern> (<simple-pattern>)
-end class;
-
-define class <variable-pattern> (<binding-pattern>)
-   slot name :: <pattern-variable>;
-   slot type :: <pattern-variable>;
-end class;
-
-define class <assignment-pattern> (<binding-pattern>)
-   slot variable :: <pattern-variable>;
-   slot value :: <pattern-variable>;
-end class;
-
-define class <var-assign-pattern> (<binding-pattern>)
-   slot name :: <pattern-variable>;
-   slot type :: <pattern-variable>;
-   slot value :: <pattern-variable>;
-end class;
-
-define abstract class <pattern-variable> (<simple-pattern>)
-end class;
-
-define class <constrained-name-patvar> (<pattern-variable>)
-   slot name :: <string>;
-   slot constraint :: <string>;
-   slot template :: false-or(<template>);
-end class;
-
-define class <ellipsis-patvar> (<pattern-variable>)
-end class;
-
-define abstract class <property-list-pattern> (<object>)
-end class;
-
-define class <rest-pattern> (<property-list-pattern>)
-   slot patvar :: <pattern-variable>;
-end class;
-
-define class <key-pattern> (<property-list-pattern>)
-   slot patvar-keys = make(<stretchy-vector> /* of <pattern-keyword> */);
-   slot patvar-all-keys? :: <boolean>;
-end class;
-
-define class <rest-key-pattern> (<property-list-pattern>)
-   slot patvar :: <pattern-variable>;
-   slot patvar-keys = make(<stretchy-vector> /* of <pattern-keyword> */);
-   slot patvar-all-keys? :: <boolean>;
-end class;
-
-define abstract class <pattern-keyword> (<object>)
-   slot name :: <string>;
-   slot constraint :: <string>;
-   slot template :: false-or(<template>);
-end class;
-
-define class <first-pattern-keyword> (<pattern-keyword>)
-end class;
-
-define class <every-pattern-keyword> (<pattern-keyword>)
-end class;
-
-
-//
-// Templates
-//
-
-define class <template> (<object>)
-   slot content :: <string>;
-end class;
+// (unused)
+// define class <aux-rules> (<object>)
+//    slot symbol :: <string>;
+//    slot rules = make(<stretchy-vector> /* of <rule> */);
+// end class;
+// 
+// define class <rule> (<object>)
+//    slot pattern :: <pattern>;
+//    slot template :: <template>;
+// end class;
+// 
+// 
+// //
+// // Patterns
+// //
+// 
+// define class <pattern> (<object>)
+//    slot pattern-lists = make(<stretchy-vector> /* of <pattern-list> */);
+// end class;
+// 
+// define class <pattern-list> (<object>)
+//    slot pattern-sequences = make(<stretchy-vector> /* of <pattern-sequence> */);
+//    slot property-list-pattern :: false-or(<property-list-pattern>);
+// end class;
+// 
+// define class <pattern-sequence> (<object>)
+//    slot simple-patterns = make(<stretchy-vector> /* of <simple-pattern> */);
+// end class;
+// 
+// define abstract class <simple-pattern> (<object>)
+// end class;
+// 
+// define class <name-not-end-token> (<simple-pattern>)
+//    slot name :: <string>;
+// end class;
+// 
+// define class <arrow-token> (<simple-pattern>)
+// end class;
+// 
+// define class <bracketed-pattern> (<simple-pattern>)
+//    slot opening-character :: <character>;
+//    slot pattern :: <pattern>;
+//    slot closing-character :: <character>;
+// end class;
+// 
+// define abstract class <binding-pattern> (<simple-pattern>)
+// end class;
+// 
+// define class <variable-pattern> (<binding-pattern>)
+//    slot name :: <pattern-variable>;
+//    slot type :: <pattern-variable>;
+// end class;
+// 
+// define class <assignment-pattern> (<binding-pattern>)
+//    slot variable :: <pattern-variable>;
+//    slot value :: <pattern-variable>;
+// end class;
+// 
+// define class <var-assign-pattern> (<binding-pattern>)
+//    slot name :: <pattern-variable>;
+//    slot type :: <pattern-variable>;
+//    slot value :: <pattern-variable>;
+// end class;
+// 
+// define abstract class <pattern-variable> (<simple-pattern>)
+// end class;
+// 
+// define class <constrained-name-patvar> (<pattern-variable>)
+//    slot name :: <string>;
+//    slot constraint :: <string>;
+//    slot template :: false-or(<template>);
+// end class;
+// 
+// define class <ellipsis-patvar> (<pattern-variable>)
+// end class;
+// 
+// define abstract class <property-list-pattern> (<object>)
+// end class;
+// 
+// define class <rest-pattern> (<property-list-pattern>)
+//    slot patvar :: <pattern-variable>;
+// end class;
+// 
+// define class <key-pattern> (<property-list-pattern>)
+//    slot patvar-keys = make(<stretchy-vector> /* of <pattern-keyword> */);
+//    slot patvar-all-keys? :: <boolean>;
+// end class;
+// 
+// define class <rest-key-pattern> (<property-list-pattern>)
+//    slot patvar :: <pattern-variable>;
+//    slot patvar-keys = make(<stretchy-vector> /* of <pattern-keyword> */);
+//    slot patvar-all-keys? :: <boolean>;
+// end class;
+// 
+// define abstract class <pattern-keyword> (<object>)
+//    slot name :: <string>;
+//    slot constraint :: <string>;
+//    slot template :: false-or(<template>);
+// end class;
+// 
+// define class <first-pattern-keyword> (<pattern-keyword>)
+// end class;
+// 
+// define class <every-pattern-keyword> (<pattern-keyword>)
+// end class;
+// 
+// 
+// //
+// // Templates
+// //
+// 
+// define class <template> (<object>)
+//    slot content :: <string>;
+// end class;
 
 
 //
@@ -767,11 +815,27 @@ end class;
 //
 
 define class <fragment> (<source-location-mixin>)
-   slot content :: <string>;
+   slot source-text :: <sequence> /* of <character> and <source-name> */,
+      required-init-keyword: #"text";
+end class;
+
+define class <source-name> (<source-location-mixin>)
+   slot source-name :: <string>, required-init-keyword: #"name";
 end class;
 
 define class <computed-constant> (<fragment>)
 end class;
 
+define class <type-fragment> (<computed-constant>)
+end class;
+
 define class <code-fragment> (<fragment>)
 end class;
+
+define class <name-fragment> (<fragment>)
+end class;
+
+define method fragment-names (frag :: <fragment>)
+=> (names :: <sequence> /* of <source-name> */)
+   choose(rcurry(instance?, <source-name>), frag.source-text)
+end method;

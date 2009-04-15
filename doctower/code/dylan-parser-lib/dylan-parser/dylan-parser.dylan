@@ -4,6 +4,8 @@ synopsis: Parser manager.
 
 define class <dylan-parse-context> (<file-parse-context>)
    slot last-whitespace-doc :: false-or(<doc-comment-token>) = #f;
+   slot source-stream :: <positionable-stream>,
+      required-init-keyword: #"source-stream";
 end class;
 
 
@@ -17,6 +19,7 @@ define method parse-dylan-file
 
    let context = make(<dylan-parse-context>,
          cache-stream: text,
+         source-stream: text,
          file-locator: locator,
          line-col-position-method:
             method (pos) => (line, col)
@@ -30,9 +33,8 @@ define method parse-dylan-file
    // end for;
 
    if (success?)
-      // log-object("Interchange file", file-token);
-      file-token;
+      file-token
    else
-      error(failure);
+      error(failure)
    end if;
 end method;

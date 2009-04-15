@@ -97,7 +97,16 @@ define method print-object (o :: <source-record-token>, s :: <stream>) => ()
 end method;
 
 define method print-object (o :: <text-token>, s :: <stream>) => ()
-   format(s, "{expr %s}", o.source-location)
+   let text-names = choose(rcurry(instance?, <text-name-token>), o.source-text);
+   format(s, "{expr %s names ", o.source-location);
+   for (name in text-names)
+      format(s, "%=, ", name)
+   end for;
+   write-element(s, '}');
+end method;
+
+define method print-object (o :: <text-name-token>, s :: <stream>) => ()
+   format(s, "{name %=}", o.api-name)
 end method;
 
 // define method print-object (o :: <all-keys-argument>, s :: <stream>) => ()

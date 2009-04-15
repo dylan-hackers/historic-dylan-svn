@@ -7,6 +7,7 @@ define module dylan-rep
    use peg-parser, import: { <token> };
    
    export
+      <documentable-api-element>, <named-api-element>, <source-name>,
       <library>, <known-library>, <unknown-library>,
       <module>, <local-module>, <imported-module>,
       <binding>, <local-binding>, <imported-binding>,
@@ -15,16 +16,42 @@ define module dylan-rep
       <explicit-class-defn>, <explicit-generic-defn>, <implicit-generic-defn>,
       <explicit-function-defn>, <explicit-constant-defn>, <explicit-variable-defn>,
       <explicit-macro-defn>, <explicit-body-macro-defn>, <explicit-list-macro-defn>,
-      <explicit-stmt-macro-defn>, <explicit-func-macro-defn>
+      <explicit-stmt-macro-defn>, <explicit-func-macro-defn>,
+      <fragment>, <computed-constant>, <type-fragment>, <code-fragment>, <name-fragment>
       ;
 
    export
-      local-name, local-name-setter, import-name, import-name-setter, modules,
-      modules-setter, used-library, used-library-setter, bindings,
-      bindings-setter, used-module, used-module-setter, definition,
-      definition-setter, unknown-reexport-sources,
-      unknown-reexport-sources-setter, exported?, exported?-setter, stray?,
-      implicit-defns, implicit-defns-setter, explicit-defn,
-      explicit-defn-setter, all-defns
+      adjs,
+      all-defns,
+      bindings,
+      bindings-setter,
+      comment-tokens,
+      definition,
+      definition-setter,
+      direct-supers,
+      explicit-defn,
+      explicit-defn-setter,
+      exported?,
+      exported?-setter,
+      fragment-names,
+      implicit-defns,
+      implicit-defns-setter,
+      import-name,
+      import-name-setter,
+      init-args,
+      local-name,
+      local-name-setter,
+      modules,
+      modules-setter,
+      slots,
+      source-name,
+      source-text,
+      stray?,
+      unknown-reexport-sources,
+      unknown-reexport-sources-setter,
+      used-library,
+      used-library-setter,
+      used-module,
+      used-module-setter,
       ;
 end module;

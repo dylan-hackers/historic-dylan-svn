@@ -46,13 +46,13 @@ end method;
 
 define method print-object (o :: <local-binding>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
-      format(s, "local-binding %=, ", o.local-name);
+      format(s, "local-binding %=", o.local-name);
       pprint-newline(#"fill", s);
-      if (o.definition)
-         format(s, "def %=", o.definition);
-      else
-         write(s, "no def");
-      end if;
+      unless (o.definition)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "undefined");
+      end unless;
       if (o.exported?)
          write(s, ", ");
          pprint-newline(#"fill", s);
@@ -73,17 +73,37 @@ define method print-object (o :: <imported-binding>, s :: <stream>) => ()
          pprint-newline(#"fill", s);
          format(s, "in %=", o.used-module);
       end if;
-      write(s, ", ");
-      pprint-newline(#"fill", s);
-      if (o.definition)
-         format(s, "def %=", o.definition);
-      else
-         write(s, "no def");
-      end if;
+      unless (o.definition)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "undefined");
+      end unless;
       if (o.exported?)
          write(s, ", ");
          pprint-newline(#"fill", s);
          write(s, "exported");
       end if;
    end printing-logical-block;
+end method;
+
+define method print-object (o :: <fragment>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      write(s, "fragment \"");
+      for (elem in o.source-text)
+         case
+            instance?(o, <character>) => write-element(s, elem);
+            otherwise => format(s, "{%s}", elem.source-name);
+         end case;
+      end for;
+      write(s, "\"");
+   end printing-logical-block;
+end method;
+
+define method print-message (o :: <fragment>, s :: <stream>) => ()
+   for (elem in o.source-text)
+      case
+         instance?(o, <character>) => write-element(s, elem);
+         otherwise => format(s, "%s", elem.source-name);
+      end case;
+   end for;
 end method;
