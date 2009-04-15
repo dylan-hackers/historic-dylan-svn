@@ -12,6 +12,9 @@ define variable *default-authentication-realm* :: <string> = "koala";
 // is restarted, it seems) we need to keep track of the fact that a user
 // has logged out by storing the auth values here.
 //
+// Also, note that if the server restarts and browsers resend the auth,
+// the user is suddenly logged in again.  Yikes.
+//
 define variable *ignore-authorizations* = list();
 define variable *ignore-logins* = list();
 
@@ -83,6 +86,7 @@ end;
 define function logout ()
   let user = check-authorization();
   if (user)
+    *authenticated-user* := #f;
     *ignore-authorizations* :=
       add!(*ignore-authorizations*, user);
     *ignore-logins* :=
@@ -112,7 +116,7 @@ define function authenticate ()
       := if (user
                & user.password = tail(authorization)
                & ~member?(user, *ignore-authorizations*, test: \=)
-               & ~member?(user, *ignore-logins*, test: \=)) //???
+               & ~member?(user, *ignore-logins*, test: \=))
            user
          end;
   end
