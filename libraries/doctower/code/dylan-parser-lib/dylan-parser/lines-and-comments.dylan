@@ -3,6 +3,9 @@ synopsis: Line-oriented parsing and grammar of documentation comments.
 
 
 // Doc comments only need parse-start and parse-end; content is parsed separately.
+// Span includes opening comment delimiter and all text up to and including 
+// closing comment delimiter or eol, including leading spaces and eol comment
+// delimiters on each line.
 define class <doc-comment-token> (<source-location-token>)
 end class;
 

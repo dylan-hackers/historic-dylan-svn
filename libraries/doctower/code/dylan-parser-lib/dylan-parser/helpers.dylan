@@ -44,6 +44,43 @@ end method;
 
 
 //
+// Text tokens
+//
+
+define method capture-text-and-names
+   (context :: <dylan-parse-context>, token :: <text-token>,
+    source-names :: <sequence> /* of <text-name-token> */)
+=> ()
+   let text-span = token.parse-end - token.parse-start;
+   token.source-text := make(<stretchy-vector>, size: text-span);
+
+   let saved-pos = context.source-stream.stream-position;
+   context.source-stream.stream-position := token.parse-start;
+   read-into!(context.source-stream, text-span, token.source-text);
+   context.source-stream.stream-position := saved-pos;
+
+   // Replace characters with appropriate <text-name-token>.
+   
+   let offset = token.parse-start;
+   source-names := sort!(source-names,
+         test: method (tok1 :: <text-name-token>, tok2 :: <text-name-token>)
+               => (less? :: <boolean>)
+                  tok1.parse-start < tok2.parse-start
+               end);
+   for (name in source-names using backward-iteration-protocol)
+      when (name.parse-start >= token.parse-start & name.parse-end <= token.parse-end)
+         token.source-text := replace-subsequence!(token.source-text, vector(name),
+               start: name.parse-start - offset, end: name.parse-end - offset)
+      end when;
+   end for;
+end method;
+
+define method note-text-name (token :: <text-name-token>) => ()
+   add-new!(attr(text-names, default: #[]), token, test: \=)
+end method;
+
+
+//
 // Source records
 //
 

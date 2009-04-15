@@ -74,52 +74,52 @@ _____________________
 __ Lexical grammar __
 
 DEFINE:
-   whitespace? "DEFINE" &word-sep
+   "DEFINE" word-sep
 
 VARIABLE:
-   whitespace? "VARIABLE" &word-sep
+   "VARIABLE" word-sep
 
 CONSTANT:
-   whitespace? "CONSTANT" &word-sep
+   "CONSTANT" word-sep
 
 GENERIC:
-   whitespace? "GENERIC" &word-sep
+   "GENERIC" word-sep
 
 METHOD:
-   whitespace? "METHOD" &word-sep
+   "METHOD" word-sep
 
 FUNCTION:
-   whitespace? "FUNCTION" &word-sep
+   "FUNCTION" word-sep
 
 CLASS:
-   whitespace? "CLASS" &word-sep
+   "CLASS" word-sep
 
 MODULE:
-   whitespace? "MODULE" &word-sep
+   "MODULE" word-sep
 
 LIBRARY:
-   whitespace? "LIBRARY" &word-sep
+   "LIBRARY" word-sep
 
 MACRO:
-   whitespace? "MACRO" &word-sep
+   "MACRO" word-sep
    
 SEALED:
-   whitespace? "SEALED" &word-sep
+   "SEALED" word-sep
    
 DOMAIN:
-   whitespace? "DOMAIN" &word-sep
+   "DOMAIN" word-sep
    
 END:
-   whitespace? "END" &word-sep
+   "END" word-sep
 
 LF-PAREN:
-   whitespace? "(" &lf-paren-sep
+   "(" lf-paren-sep
 
 RT-PAREN:
-   whitespace? ")" &rt-paren-sep
+   ")" rt-paren-sep
 
 EQL:
-   whitespace? "=" &equal-sep
+   "=" equal-sep
 
 NAME:
    (per Dylan lexical grammar)
@@ -366,4 +366,4 @@ ___________
 __ Macro __
 
 macro-definer:
-   MACRO NAME
+   (per Dylan grammar)

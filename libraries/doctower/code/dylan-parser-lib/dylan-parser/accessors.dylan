@@ -34,8 +34,8 @@ define generic scoped-docs (token :: <definition-token>)
 define generic api-modifiers (token :: <token>)
 => (seq :: <sequence> /* of <string> */);
 
-/// Synopsis: Name of top-level form.
-define generic api-name (token :: <definition-token>)
+/// Synopsis: Name of top-level form or referenced API.
+define generic api-name (token :: type-union(<definition-token>, <text-name-token>))
 => (name :: <string>);
 
 /// Synopsis: Type of API element, if present & parsable.
@@ -180,3 +180,6 @@ define generic local-name (token :: <renaming-token>)
 
 define generic main-rule-set (token :: <macro-definer-token>)
 => (rules :: <sequence> /* of main rule set */);
+
+define generic source-text (token :: <text-token>)
+=> (text :: <sequence> /* of <character> or <text-name-token> */);

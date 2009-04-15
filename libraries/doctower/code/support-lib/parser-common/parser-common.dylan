@@ -2,6 +2,15 @@ module: parser-common
 synopsis: Common code for dylan-parser and markup-parser.
 
 
+/// Tokens are equal if they are of the same class and cover the same range.
+define method \= (tok1 :: <token>, tok2 :: <token>) => (equal? :: <boolean>)
+   tok1 == tok2
+      | (tok1.object-class == tok2.object-class
+            & tok1.parse-start = tok2.parse-start
+            & tok1.parse-end = tok2.parse-end)
+end method;
+
+
 /// Synopsis: A token that has a user-identifiable origin.
 define open class <source-location-token> (<token>)
    slot source-location :: <source-location> = make(<unknown-source-location>);
@@ -35,45 +44,55 @@ end method;
 define inline method note-source-location
    (context :: <file-parse-context>, value :: <source-location-token>)
 => ()
-   value.source-location :=
-         source-location-from-stream-positions(context, value.parse-start, value.parse-end);
+   value.source-location := source-location-from-stream-positions
+         (context, value.parse-start, value.parse-end);
 end method;
 
 
-/// Synopsis: Saves source location encompassing several child tokens.
-define method note-combined-source-location
+/// Synopsis: Saves source location encompassing one or more child tokens that
+/// are subclasses of <token>.
+define inline method note-combined-source-location
    (context :: <file-parse-context>, value :: <source-location-token>, tokens)
 => ()
-   let location = combined-source-locations(context, tokens);
-   if (location) value.source-location := location end;
+   span-token-positions(value, tokens);
+   note-source-location(context, value);
 end method;
 
-define method combined-source-locations
-   (context :: <file-parse-context>, seq :: <sequence>)
-=> (source-location :: false-or(<file-source-location>))
-   let locations = map(curry(combined-source-locations, context), seq);
-   if (locations.empty?)
-      #f
-   else
-      reduce1(merge-file-source-locations, choose(true?, locations))
+
+/// Synopsis: Sets token parse span encompassing one or more child tokens that
+/// are subclasses of <token>.
+define method span-token-positions
+   (value :: <token>, tokens)
+=> ()
+   let (start-pos, end-pos) = combined-stream-positions(tokens);
+   if (start-pos)
+      value.parse-start := start-pos;
+      value.parse-end := end-pos;
    end if;
 end method;
 
-define method combined-source-locations
-   (context :: <file-parse-context>, obj :: <object>)
-=> (source-location :: singleton(#f))
-   #f
+
+define method combined-stream-positions (seq :: <sequence>)
+=> (start-pos :: false-or(<integer>), end-pos :: false-or(<integer>))
+   let pos-seq = make(<vector>, size: seq.size);
+   for (item in seq, i from 0)
+      let (start-pos, end-pos) = combined-stream-positions(item);
+      pos-seq[i] := start-pos & pair(start-pos, end-pos);
+   end for;
+   let pos-seq = choose(true?, pos-seq);
+   if (~pos-seq.empty?)
+      let start-pos = apply(min, map(head, pos-seq));
+      let end-pos = apply(max, map(tail, pos-seq));
+      values(start-pos, end-pos)
+   end if;
 end method;
 
-define method combined-source-locations
-   (context :: <file-parse-context>, token :: <token>)
-=> (source-location :: <file-source-location>)
-   source-location-from-stream-positions(context, token.parse-start, token.parse-end)
+define method combined-stream-positions (obj :: <object>)
+=> (start-pos :: singleton(#f), end-pos :: singleton(#f))
+   values(#f, #f)
 end method;
 
-define method combined-source-locations
-   (context :: <file-parse-context>, token :: <source-location-token>)
-=> (source-location :: <file-source-location>)
-   token.source-location
+define method combined-stream-positions (token :: <token>)
+=> (start-pos :: <integer>, end-pos :: <integer>)
+   values(token.parse-start, token.parse-end)
 end method;
-

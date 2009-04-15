@@ -220,7 +220,7 @@ define errors (<user-visible-error>)
    
    67 multiple-libraries-in-fileset
       "Multiple library definitions found in library at %s",
-      defn-locations;
+      location, defn-locations;
    
    68 no-library-in-fileset
       "No library definition found in %s",
@@ -255,7 +255,7 @@ define errors (<user-visible-error>)
    
    76 duplicate-modules-in-fileset
       "Multiple definitions of module \"%s\" at %s",
-      name, defn-locations;
+      location, name, defn-locations;
 
    77 no-header-in-interchange-file
       "\"%s\" header is missing",
@@ -274,16 +274,16 @@ define errors (<user-visible-error>)
       location, name, defn-locations;
    
    /*
-   81 no-definition-for-bindings
-      "No definition of exported binding %s",
-      location, names;
+   81 conflicting-rule-types-in-macro
+      "Differing kinds of main rule",
+      location;
    */
    
    82 circular-definition
       "Circular dependency for \"%s\" between %s",
-      name, defn-locations;
+      location, name, defn-locations;
 
    83 conflicting-definitions-in-code
-      "Conflicting definitions at %s",
-      defn-locations;
+      "Differing binding definitions at %s",
+      location, defn-locations;
 end errors;
