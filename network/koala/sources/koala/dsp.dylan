@@ -12,11 +12,18 @@ define class <dsp-error> (<format-string-condition>, <error>) end;
 
 define class <dsp-parse-error> (<dsp-error>) end;
 
+// for error reporting
+define thread variable *template-locator* :: false-or(<locator>) = #f;
+
 define function parse-error
     (format-string :: <string>, #rest format-arguments)
+  let prefix = if (*template-locator*)
+                 concatenate("Error parsing template ",
+                             as(<string>, *template-locator*), ": ");
+               end | "";
   signal(make(<dsp-parse-error>,
-              format-string: format-string,
-              format-arguments: apply(vector, format-arguments)))
+              format-string: concatenate("%s", format-string),
+              format-arguments: apply(vector, prefix, format-arguments)))
 end;
 
 define class <tag-argument-parse-error> (<dsp-parse-error>) end;
@@ -587,10 +594,11 @@ define method parse-tag-arg
   get-named-method(taglibs, arg)
     | signal(make(<tag-argument-parse-error>,
                   format-string:
-                    "%= is not a named-method in the active taglibs (%s).  "
+                    "For template file %s, %= is not a named-method in the "
+                    "active taglibs (%s).  "
                     "While parsing the %= argument in a <%s:%s> tag.",
                   format-arguments:
-                    vector(arg,
+                    vector(as(<string>, *template-locator*), arg,
                            join(taglibs, ", ", conjunction: "and", key: first),
                            param, *tag-call*.prefix, *tag-call*.name)))
 end;
@@ -854,7 +862,8 @@ end;
 define method parse-page
     (page :: <dylan-server-page>)
   pt-debug("Parsing page %s", as(<string>, source-location(page)));
-  let string = file-contents(source-location(page));
+  let source = source-location(page);
+  let string = file-contents(source);
   if (~string)
     resource-not-found-error(url: current-request().request-url);
   else
@@ -866,7 +875,9 @@ define method parse-page
                      content-end: size(string),
                      source: source-location(page),
                      date-modified: current-date());
-    parse-template(page, tmplt, initial-taglibs-for-parse-template(), list());
+    dynamic-bind (*template-locator* = source)
+      parse-template(page, tmplt, initial-taglibs-for-parse-template(), list());
+    end;
     tmplt
   end;
 end parse-page;
@@ -938,7 +949,9 @@ define function parse-include-directive
                            content-start: 0,
                            content-end: size(contents),
                            date-modified: current-date());
-    parse-template(page, subtemplate, initial-taglibs-for-parse-template(), tag-stack);
+    dynamic-bind (*template-locator* = source)
+      parse-template(page, subtemplate, initial-taglibs-for-parse-template(), tag-stack);
+    end;
     add-entry!(tmplt, subtemplate);
   else
     parse-error("In template %=, included file %= not found.",
