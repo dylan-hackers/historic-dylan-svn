@@ -171,54 +171,93 @@ end;
 
 // (Efficiently computing single static assignment and the control dependence graph
 //  Cytron, Ferrante, Kosen, Wegman, Zadeck, 1991)
-/*
-define method domain-frontier (dominator-tree)
-  for (x in bottom-up-traversal(dom))
-    df[x] := #();
-    for (y in succ(x))
-      if (idom(y) ~= x)
-        df[x] := df[x] + {y};
-      end;
-    end;
-    for (z in children(x))
-      for (y in df[z])
-        if (idom[y] ~= x)
-          df[x] := df[x] + {y};
-        end;
-      end;
-    end;
-  end;
+
+define class <tree-node> (<object>)
+  constant slot node-computation :: <computation>, required-init-keyword: computation:;
+  constant slot node-children :: <stretchy-vector> = make(<stretchy-vector>);
 end;
 
-define method phi-placement ()
-  let itercount = 0;
-  for (x in nodes)
-    hasalready(x) := 0;
-    work(x) := 0;
-  end;
-  let w = 0;
-  for (v in variables)
-    itercount := itercount + 1;
-    for (x in a(v))
-      work(x) := itercount;
-      w := add!(w, x);
+define function post-order (r :: <tree-node>, f :: <function>)
+  do(rcurry(post-order, f), r.node-children);
+  f(r);
+end;
+
+define function build-tree (t :: <table>) => (root :: <tree-node>)
+  let mapping = make(<table>);
+  let root = #f;
+  local method get-tree-node (c :: <computation>)
+          if (element(mapping, c, default: #f))
+            mapping[c];
+          else
+            let n = make(<tree-node>, computation: c);
+            mapping[c] := n;
+          end;
+        end;
+  for (node in t.key-sequence)
+    let idom = t[node];
+    let n = get-tree-node(node);
+    if (idom == 0)
+      root := n;
+    else
+      add!(idom.get-tree-node.node-children, n);
     end;
-    while (~ w.empty?)
-      let x = w.pop;
-      for (y in df(x))
-        if (hasalready(y) < itercount)
-          place-phi-for-v-at-y
-          hasalready(y) := itercount;
-          if (work(y) < itercount)
-            work(y) := itercount;
-            w := add!(w, y);
+  end;
+  root;
+end;
+
+define function dominance-frontier (idom :: <table>)
+ => (dominance-frontier :: <table>)
+  let df = make(<table>);
+  local method visit(tree-node :: <tree-node>)
+          let x = tree-node.node-computation;
+          df[x] := make(<comp-vector>);
+          for (y in succ(x))
+            if (idom[y] ~= x)
+              df[x] := add!(df[x], y);
+            end;
+          end;
+          for (z in node-children(tree-node))
+            for (y in df[z.node-computation])
+              if (idom[y] ~= x)
+                df[x] := add!(df[x], y);
+              end;
+            end;
+          end;
+        end;
+  let root = build-tree(idom);
+  post-order(root, visit);
+  df;
+end;
+
+define method phi-placement (df :: <table>, f :: <&lambda>)
+  let itercount = 0;
+  let hasalready = make(<table>);
+  let work = make(<table>);
+  let w = make(<deque>);
+  for (v in f.environment.temporaries)
+    if (~empty?(v.assignments) & ~cell?(v))
+      itercount := itercount + 1;
+      for (x in assignments(v))
+        work[x] := itercount;
+        push(w, x);
+      end;
+      while (~ w.empty?)
+        let x = w.pop;
+        for (y in df[x])
+          if (element(hasalready, y, default: 0) < itercount)
+            //place-phi-for-v-at-y
+            format-out("placing phi for %= at %=\n", v, y);
+            hasalready[y] := itercount;
+            if (element(work, y, default: 0) < itercount)
+              work[y] := itercount;
+              push(w, y);
+            end;
           end;
         end;
       end;
     end;
   end;
 end;
-*/
 
 
 // Eliminate-assignments turns all temporaries that have assignments
@@ -231,7 +270,9 @@ end;
 //   before: analyze-calls;
 
 define method eliminate-assignments (f :: <&lambda>)
-  dominators(f.body);
+  let idom = dominators(f.body);
+  let df = dominance-frontier(idom);
+  phi-placement(df, f);
   for (t in f.environment.temporaries)
     if (~empty?(t.assignments) & ~cell?(t))
       cell-assigned-temporaries(t);
