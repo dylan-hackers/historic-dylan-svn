@@ -11,9 +11,14 @@ define method \= (tok1 :: <token>, tok2 :: <token>) => (equal? :: <boolean>)
 end method;
 
 
+define class <updatable-source-location-mixin> (<object>)
+   slot source-location :: <source-location> = make(<unknown-source-location>),
+      init-keyword: #"source-location";
+end class;
+
+
 /// Synopsis: A token that has a user-identifiable origin.
-define open class <source-location-token> (<token>)
-   slot source-location :: <source-location> = make(<unknown-source-location>);
+define open class <source-location-token> (<token>, <updatable-source-location-mixin>)
 end class;
 
 

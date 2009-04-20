@@ -12,11 +12,13 @@ define module dylan-rep
       <module>, <local-module>, <imported-module>,
       <binding>, <local-binding>, <imported-binding>,
       <definition>, <class-defn>, <generic-defn>, <function-defn>,
-      <constant-defn>, <variable-defn>, <macro-defn>,
+         <constant-defn>, <variable-defn>, <macro-defn>,
       <explicit-class-defn>, <explicit-generic-defn>, <implicit-generic-defn>,
+      <slot>, <initable-slot>, <inherited-slot>, <instance-slot>, <class-slot>,
+         <subclass-slot>, <virtual-slot>, <init-arg>, <init-spec>,
       <explicit-function-defn>, <explicit-constant-defn>, <explicit-variable-defn>,
-      <explicit-macro-defn>, <explicit-body-macro-defn>, <explicit-list-macro-defn>,
-      <explicit-stmt-macro-defn>, <explicit-func-macro-defn>,
+         <explicit-macro-defn>, <explicit-body-macro-defn>, <explicit-list-macro-defn>,
+         <explicit-stmt-macro-defn>, <explicit-func-macro-defn>,
       <fragment>, <computed-constant>, <type-fragment>, <code-fragment>, <name-fragment>
       ;
 

@@ -6,7 +6,8 @@ define module parser-common
    // from peg-parser
    use peg-parser;
    
-   export <source-location-token>, source-location, source-location-setter,
+   export <updatable-source-location-mixin>, <source-location-token>,
+          source-location, source-location-setter,
           <file-parse-context>, source-location-from-stream-positions,
           span-token-positions, note-source-location, note-combined-source-location;
 end module;

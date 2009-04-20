@@ -17,7 +17,7 @@ files:   support-library
          markup-rep/toc-nav-elements
          markup-rep/topic-elements
          dylan-rep/module
-         dylan-rep/dylan-rep
+         dylan-rep/namespace-rep
          dylan-rep/printers
          configs/module
          configs/configs

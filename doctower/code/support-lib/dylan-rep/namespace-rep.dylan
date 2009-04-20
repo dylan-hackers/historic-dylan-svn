@@ -527,8 +527,7 @@ define abstract class <slot> (<documentable-api-element>)
 end class;
 
 define abstract class <initable-slot> (<slot>)
-   slot init-arg :: false-or(<init-arg>);
-   slot init-spec :: false-or(<init-spec>);
+   slot init-spec :: false-or(<init-spec>) = #f;
 end class;
 
 define class <inherited-slot> (<initable-slot>)
@@ -557,14 +556,8 @@ define class <init-arg> (<documentable-api-element>)
    slot init-spec :: false-or(<init-spec>);
 end class;
 
-define abstract class <init-spec> (<object>)
-   slot code-fragment :: <code-fragment>;
-end class;
-
-define class <init-value> (<init-spec>)
-end class;
-
-define class <init-expr> (<init-spec>)
+define class <init-spec> (<object>)
+   slot code-fragment :: <code-fragment>, required-init-keyword: #"fragment";
 end class;
 
 
@@ -575,7 +568,6 @@ end class;
 define abstract class <func/gen-definition> (<documentable-api-element>)
    slot adjs = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
    slot parameter-list :: <parameter-list>;
-   slot inferred-param-list :: false-or(<parameter-list>);
 end class;
 
 define class <explicit-generic-defn> (<func/gen-definition>, <source-location-mixin>)
@@ -603,11 +595,26 @@ end class;
 define class <parameter-list> (<object>)
    slot param-list :: <param-list>;
    slot value-list :: <value-list>;
+   keyword #"params";
+   keyword #"values";
 end class;
+
+define method initialize
+   (obj :: <parameter-list>, #key params :: <sequence>, values :: <sequence>)
+=> (obj :: <parameter-list>)
+   next-method();
+   obj.param-list := make(<param-list>, params: params);
+   obj.value-list := make(<value-list>, values: values);
+end method;
 
 define abstract class <param-list> (<object>)
    slot req-params = make(<stretchy-vector> /* of <req-param> */);
 end class;
+
+define method make (obj == <param-list>, #key params)
+=> (obj :: <param-list>)
+   if (any?(rcurry(instance)))
+end method;
 
 define class <fixed-param-list> (<param-list>)
 end class;
