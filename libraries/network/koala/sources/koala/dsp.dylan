@@ -69,58 +69,60 @@ define method invoke-responder
      action :: <page>,
      arguments :: <sequence>)
  => ()
-  // todo -- Decide how to pass arguments to the page respond-to* methods?
-  process-page(action)
+  apply(process-page, action, arguments)
 end method invoke-responder;
   
 // This is the method registered as the response function for all <page>s.
-// See register-page.
-define method process-page (page :: <page>)
+// Keyword args are the named groups from the URL regex.
+// See add-responder, below.
+define open generic process-page (page :: <page>, #key, #all-keys);
+
+define method process-page (page :: <page>, #rest args, #key)
   dynamic-bind (*page-context* = make(<page-context>))
-    respond-to(current-request().request-method, page);
+    apply(respond-to, current-request().request-method, page, args);
   end;
 end process-page;
 
 // The protocol every page needs to support.
-define open generic respond-to 
-    (request-method :: <symbol>, page :: <page>);
+define open generic respond-to
+    (request-method :: <symbol>, page :: <page>, #key, #all-keys);
 
 // Default
-define method respond-to 
-    (request-method :: <symbol>, page :: <page>)
+define method respond-to
+    (request-method :: <symbol>, page :: <page>, #key)
   method-not-allowed-error(request-method: request-method);
 end;
 
 define method respond-to
-    (request-method == #"GET", page :: <page>)
-  respond-to-get(page)
+    (request-method == #"GET", page :: <page>, #rest args, #key)
+  apply(respond-to-get, page, args);
 end method respond-to;
 
 define method respond-to
-    (request-method == #"POST", page :: <page>)
-  respond-to-post(page)
+    (request-method == #"POST", page :: <page>, #rest args, #key)
+  apply(respond-to-post, page, args);
 end method respond-to;
 
 // These are by far the most common cases and it's more succinct
 // and readable than respond-to.
 //
-define open generic respond-to-get (page :: <page>);
-define open generic respond-to-post (page :: <page>);
+define open generic respond-to-get (page :: <page>, #key, #all-keys);
+define open generic respond-to-post (page :: <page>, #key, #all-keys);
 
 define method respond-to-get
-    (page :: <page>)
+    (page :: <page>, #key)
   // TODO: include Allow header in response.
   method-not-allowed-error(request-method: "GET");
 end method respond-to-get;
 
 // This is a common case and it's more succinct and readable than respond-to.
 define method respond-to-post
-    (page :: <page>)
-  respond-to-get(page);
+    (page :: <page>, #rest args, #key)
+  apply(respond-to-get, page, args);
 end method respond-to-post;
 
 define method respond-to-get
-    (page :: <dylan-server-page>)
+    (page :: <dylan-server-page>, #rest args, #key)
   process-template(page);
 end method respond-to-get;
 
@@ -229,7 +231,8 @@ end;
 define open primary class <static-page> (<file-page-mixin>, <page>)
 end;
 
-define method respond-to (request-method == #"get", page :: <static-page>)
+define method respond-to-get
+    (page :: <static-page>, #key)
   if (modified?(page))
     page.date-modified := file-property(source-location(page), #"modification-date");
     page.contents := file-contents(source-location(page));
@@ -477,7 +480,8 @@ end taglib dsp;
 
 define constant $dsp-taglib :: <taglib> = find-taglib("dsp");
 
-define constant $placeholder-tag = find-tag($dsp-taglib, "%%placeholder-for-unparsable-tags");
+define constant $placeholder-tag
+  = find-tag($dsp-taglib, "%%placeholder-for-unparsable-tags");
 
 
 //// Named methods
@@ -537,6 +541,15 @@ define class <tag> (<object>)
   constant slot tag-function :: <function>, required-init-keyword: #"function";
   constant slot parameter-names :: <sequence>, required-init-keyword: #"parameter-names";
   constant slot parameter-types :: <sequence>, required-init-keyword: #"parameter-types";
+end;
+
+define method make
+    (class == <tag>, #rest args, #key name: tag-name)
+ => (object :: <tag>)
+  // Tag names are case-insensitive.  This is partly because the tag-definer
+  // macro would need to accept an :expression rather than a :name if we want
+  // to guarantee that case is preserved.
+  apply(next-method, class, name: as-lowercase(tag-name), args);
 end;
 
 define method get-parameter-type
@@ -599,7 +612,7 @@ define method parse-tag-arg
                     "While parsing the %= argument in a <%s:%s> tag.",
                   format-arguments:
                     vector(as(<string>, *template-locator*), arg,
-                           join(taglibs, ", ", conjunction: "and", key: first),
+                           join(taglibs, ", ", conjunction: " and ", key: first),
                            param, *tag-call*.prefix, *tag-call*.name)))
 end;
 
@@ -1141,7 +1154,7 @@ define function parse-start-tag (page :: <dylan-server-page>,
   let name-start = bpos + size(prefix) + 2;  // 2 for the < and : characters
   let epos = size(buffer);
   let name-end = end-of-word(buffer, name-start, epos);
-  let name = copy-sequence(buffer, start: name-start, end: name-end);
+  let name = as-lowercase(copy-sequence(buffer, start: name-start, end: name-end));
   let tag = find-tag(taglib, name);
   let tag-call = if (directive? | tag)
                    make(<tag-call>,
@@ -1150,9 +1163,12 @@ define function parse-start-tag (page :: <dylan-server-page>,
                         tag: tag,
                         taglibs: copy-sequence(taglibs))
                  else
-                   log-warning("In template %=, the tag %= was not found.",
+                   log-warning("In template %=, the tag %= was not found.  "
+                               "The active taglibs are %s.",
                                as(<string>, page.source-location),
-                               name);
+                               name,
+                               join(taglibs, ", ",
+                                    key: first, conjunction: " and "));
                    tag := $placeholder-tag;
                    make-dummy-tag-call(prefix, name);
                  end;
@@ -1163,8 +1179,8 @@ define function parse-start-tag (page :: <dylan-server-page>,
     tag-call.arguments := tag-args;
     when (has-body? & ~tag.allow-body?)
       log-warning("While parsing template %s, at position %=:"
-                  " The %s:%s tag call should end with \"/>\" since this tag doesn't allow a body."
-                  " No body will be processed for this tag.",
+                  " The %s:%s tag call should end with \"/>\" since this tag doesn't "
+                  "allow a body.  No body will be processed for this tag.",
                   as(<string>, page.source-location), bpos, prefix, name);
       has-body? := #f;
     end;
