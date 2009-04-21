@@ -252,7 +252,7 @@ end;
 
 // A simple error reporting mechanism.  Store errors in the page context
 // so they can be displayed when the next page is generated.  The idea is
-// that pages should use the <dsp:show-errors/> tag if they can be
+// that pages should use the <dsp:show-form-notes/> tag if they can be
 // the target of a GET or POST that might generate errors.
 
 define abstract class <form-note> (<object>)
@@ -270,15 +270,18 @@ end;
 define class <form-message> (<form-note>)
 end;
 
-// this is broken.  can't pass random format args and keywords to the same method.
 define method note-form-error
-    (message :: <string>, #rest args, #key field)
+    (message :: <string>,
+     #key field-name, format-arguments :: <sequence> = #())
   add-form-note(make(<form-error>,
                      format-string: message,
-                     format-arguments: remove-keys(args, #"field"),
-                     form-field-name: field))
+                     format-arguments: format-arguments,
+                     form-field-name: field-name))
 end;
 
+// todo -- needs field-name parameter
+// todo -- this and note-form-error need to handle multiple messages for
+//         the same field name
 define method note-form-message
     (message :: <string>, #rest args)
   add-form-note(make(<form-message>,

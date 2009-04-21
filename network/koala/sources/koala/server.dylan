@@ -1187,7 +1187,6 @@ define method invoke-handler (request :: <request>) => ()
   else
     dynamic-bind (*response* = response)
       if (request.request-responder)
-       let url = request.request-url;
        let (actions, match) = find-actions(request);
        if (actions)
          // Invoke each action function with keyword arguments matching the names
@@ -1208,7 +1207,7 @@ define method invoke-handler (request :: <request>) => ()
            invoke-responder(request, action, arguments)
          end;
        else
-         resource-not-found-error(url: url);
+         resource-not-found-error(url: request.request-url);
        end if;
       else
         // generates 404 if not found
