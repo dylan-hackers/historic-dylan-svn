@@ -89,6 +89,11 @@ define method type-infer (l :: <&lambda>)
   dynamic-bind(*constraints* = make(<stretchy-vector>),
                *graph* = make(<graph>))
     do(lookup-type-variable, l.parameters);
+    for (t in l.environment.temporaries)
+      if (~empty?(t.assignments))
+        maybe-add-variable-constraints(t);
+      end;
+    end;
     walk-computations(infer-computation-types, l.body, #f);
     debug-types(#"highlight", 0);
     solve(*graph*, *constraints*, *type-environment*);
@@ -102,10 +107,13 @@ end;
 
 define method maybe-add-variable-constraints (t :: <lexical-specialized-variable>) => ()
   let spec = t.specializer;
-  for (ass in t.assignments)
-    add-constraint(make(<equality-constraint>,
-                        left: spec.lookup-type,
-                        right: ass.temporary.lookup-type-variable));
+  if (spec) //spec for type-union(<integer>, <string>) is #f :[
+    //and not <object>?
+    for (ass in t.assignments)
+      add-constraint(make(<equality-constraint>,
+                          left: spec.lookup-type,
+                          right: ass.temporary.lookup-type-variable));
+    end;
   end;
 end;
 
@@ -123,7 +131,7 @@ define method infer-computation-types (c :: <temporary-transfer-computation>) =>
   add-constraint(make(<equality-constraint>,
                       left: c.computation-value.lookup-type,
                       right: c.temporary.lookup-type-variable));
-  maybe-add-variable-constraints(c.temporary);
+  //maybe-add-variable-constraints(c.temporary);
 end;
 
 define method infer-computation-types (c :: <check-type>) => ()
@@ -145,30 +153,15 @@ define method infer-computation-types (c :: <values>) => ()
                       right: c.temporary.lookup-type-variable));
 end;
 
-define method infer-computation-types (c :: <make-cell>) => ()
-  next-method();
-  add-constraint(make(<equality-constraint>,
-                      left: c.computation-value.lookup-type,
-                      right: c.temporary.lookup-type-variable));
-  //do we need constraint from declared-type to cell,
-  //thus cell-type =~= cell-value-type?
-  //since cell-type is only set to specializer(temp), it's already there
-  //(c.comp-value.type-estimate-object)!
-end;
+define constant temporary-type = compose(^type-variable-contents, node-value, lookup-type-variable);
 
-define method infer-computation-types (c :: <get-cell-value>) => ()
+define method infer-computation-types (c :: <phi-node>) => ()
   next-method();
+  solve(*graph*, *constraints*, *type-environment*);
   add-constraint(make(<equality-constraint>,
-                      left: c.computation-cell.lookup-type-variable,
+                      left: ^type-union(c.phi-left-value.temporary-type,
+                                        c.phi-right-value.temporary-type).lookup-type,
                       right: c.temporary.lookup-type-variable));
-end;
-
-define method infer-computation-types (c :: <set-cell-value!>) => ()
-  next-method();
-  add-constraint(make(<equality-constraint>,
-                      left: c.computation-cell.lookup-type-variable,
-                      right: c.computation-value.lookup-type));
-  //constraint for temporary?
 end;
 
 
@@ -259,7 +252,7 @@ define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>
   solve(*graph*, *constraints*, *type-environment*);
 
   // then, try to upgrade the GF call to a simple call (narrowing result type)
-  let arguments = map(compose(^type-variable-contents, node-value, lookup-type-variable), c.arguments);
+  let arguments = map(temporary-type, c.arguments);
   let effs = estimate-effective-methods(gf, arguments, c);
   if (~empty?(effs) & maybe-upgrade-gf-to-method-call(c, gf, arguments, effs))
     // finally, record type constraint (beta = tau1 -> tau2)

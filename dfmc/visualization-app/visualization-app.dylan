@@ -46,6 +46,43 @@ begin
       "end;";
   add!($tests, pair(#"if-simple", if-simple));
 
+  let if-assign0
+    = "define method if-assign0 (a) => (b)\n"
+      "  let c = 0;\n"
+      "  if (a == 42)\n"
+      "    c := 1;\n"
+      "  else\n"
+      "    c := 2;\n"
+      "  end;\n"
+      "  c;\n"
+      "end;";
+  add!($tests, pair(#"if-assign0", if-assign0));
+
+  let if-assign1
+    = "define method if-assign1 (a) => (b)\n"
+      "  let c = 0;\n"
+      "  if (a == 42)\n"
+      "    c := 1;\n"
+      "  end;\n"
+      "  c;\n"
+      "end;";
+  add!($tests, pair(#"if-assign1", if-assign1));
+
+
+  let if-assign2
+    = "define method if-assign2 (a) => (b)\n"
+      "  let c = 0;\n"
+      "  if (a == 42)\n"
+      "    c := 1;\n"
+      "  else\n"
+      "    if (a == 43)\n"
+      "      c := 2;\n"
+      "    end;\n"
+      "  end;\n"
+      "  c;\n"
+      "end;";
+  add!($tests, pair(#"if-assign2", if-assign2));
+
   let common-sub =
     "define method common-subexpression (a, b)\n"
     "  values(a + b, (a + b) * b);\n"
@@ -258,6 +295,28 @@ begin
     "  values(a + 2, b - 3);\n"
     "end;\n";
   add!($tests, pair(#"assignment4", ass4));
+
+  let ass5 =
+    "define method assignment5 ()\n"
+    "  let a :: <integer> = 42;\n"
+    "  let b = 455;\n"
+    "  a := b + 1;\n"
+    "  b := \"foo\";\n"
+    "  a := a + 1;\n"
+    "  values(a + 2, b);\n"
+    "end;\n";
+  add!($tests, pair(#"assignment5", ass5));
+
+  let ass6 =
+    "define method assignment6 ()\n"
+    "  let a :: <integer> = 42;\n"
+    "  let b = 455;\n"
+    "  a := b + 1;\n"
+    "  a := \"foo\";\n"
+    "  a := a + 1;\n"
+    "  values(a + 2, b - 3);\n"
+    "end;\n";
+  add!($tests, pair(#"assignment6", ass6));
 
   let mymap2 =
     "define method mymap2 (c :: <list>)\n"

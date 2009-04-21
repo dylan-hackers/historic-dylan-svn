@@ -934,7 +934,7 @@ define function trim-type-estimate-to-fixed-values
 end;
 
 define function evaluate-fixed-values-type-checks
-  (c :: <multiple-value-check-type-computation>, values-te :: <type-estimate>)
+  (c :: <multiple-value-check-type-computation>, values-te :: type-union(<type-estimate>, <&type>))
     => (statically-checked? :: <boolean>)
   // See if the fixed values match.  If so, mark them as statically checked,
   // so the back end won't generate code for the type check.  #rest done 

@@ -182,6 +182,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
             end;
             send-debug(#"relayouted", #());
           end for-all-lambdas;
+/*
           send-debug(#"beginning", #("pass three: run optimizations (delete, fold, upgrade, inline)"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f))
@@ -255,6 +256,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
               send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
+*/
 	end with-dependent-context;
       end with-simple-abort-retry-restart;
     cleanup

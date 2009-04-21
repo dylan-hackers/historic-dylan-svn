@@ -362,7 +362,7 @@ define function renaming (f :: <&lambda>, mapping :: <table>)
   let stacks = make(<table>);
   let modified-variables = make(<stretchy-vector>);
   for (v in f.environment.temporaries)
-    if (~empty?(v.assignments) & ~cell?(v))
+    if (~empty?(v.assignments))
       counter[v] := 0;
       stacks[v] := make(<deque>);
       unless (v.generator)
@@ -403,8 +403,22 @@ define function renaming (f :: <&lambda>, mapping :: <table>)
             find-recent-assignments(x, x.phi-ssa-variable);
           end;
           if (instance?(x, <temporary-transfer>))
-            if (instance?(x.temporary, <lexical-local-variable>))
-              push(stacks[x.temporary], x);
+            let v = x.temporary;
+            if (instance?(v, <lexical-local-variable>))
+              if (~empty?(v.assignments))
+                push(stacks[v], x);
+              end;
+            end;
+          end;
+          if (instance?(x, <single-value-check-type-computation>))
+            let v = x.temporary;
+            if (member?(v, modified-variables))
+              if (v.generator == x)
+                unless(member?(x, v.assignments))
+                  v.assignments := add!(v.assignments, x);
+                end;
+                push(stacks[v], x);
+              end;
             end;
           end;
           //for (v in x.temporary)
@@ -433,8 +447,19 @@ define function renaming (f :: <&lambda>, mapping :: <table>)
             pop(stacks[x.phi-ssa-variable]);
           end;
           if (instance?(x, <temporary-transfer>))
-            if (instance?(x.temporary, <lexical-local-variable>))
-              pop(stacks[x.temporary]);
+            let v = x.temporary;
+            if (instance?(v, <lexical-local-variable>))
+              if (~empty?(v.assignments))
+                pop(stacks[v]);
+              end;
+            end;
+          end;
+          if (instance?(x, <single-value-check-type-computation>))
+            let v = x.temporary;
+            if (member?(v, modified-variables))
+              if (v.generator == x)
+                pop(stacks[v]);
+              end;
             end;
           end;
         end;
