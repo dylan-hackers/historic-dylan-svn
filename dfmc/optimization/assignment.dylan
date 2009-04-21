@@ -173,8 +173,8 @@ end;
 //  Cytron, Ferrante, Kosen, Wegman, Zadeck, 1991)
 
 define class <tree-node> (<object>)
-  constant slot node-computation :: <computation>, required-init-keyword: computation:;
-  constant slot node-children :: <stretchy-vector> = make(<stretchy-vector>);
+  slot node-computation :: <computation>, required-init-keyword: computation:;
+  slot node-children :: <stretchy-vector> = make(<stretchy-vector>), init-keyword: children:;
 end;
 
 define function post-order (r :: <tree-node>, f :: <function>)
@@ -182,7 +182,7 @@ define function post-order (r :: <tree-node>, f :: <function>)
   f(r);
 end;
 
-define function build-tree (t :: <table>) => (root :: <tree-node>)
+define function build-tree (t :: <table>) => (root :: <tree-node>, mapping :: <table>)
   let mapping = make(<table>);
   let root = #f;
   local method get-tree-node (c :: <computation>)
@@ -202,10 +202,10 @@ define function build-tree (t :: <table>) => (root :: <tree-node>)
       add!(idom.get-tree-node.node-children, n);
     end;
   end;
-  root;
+  values(root, mapping);
 end;
 
-define function dominance-frontier (idom :: <table>)
+define function dominance-frontier (idom :: <table>, root :: <tree-node>)
  => (dominance-frontier :: <table>)
   let df = make(<table>);
   local method visit(tree-node :: <tree-node>)
@@ -224,12 +224,11 @@ define function dominance-frontier (idom :: <table>)
             end;
           end;
         end;
-  let root = build-tree(idom);
   post-order(root, visit);
   df;
 end;
 
-define method phi-placement (df :: <table>, f :: <&lambda>)
+define method phi-placement (df :: <table>, f :: <&lambda>, mapping :: <table>)
   let itercount = 0;
   let hasalready = make(<table>);
   let work = make(<table>);
@@ -246,7 +245,27 @@ define method phi-placement (df :: <table>, f :: <&lambda>)
         for (y in df[x])
           if (element(hasalready, y, default: 0) < itercount)
             //place-phi-for-v-at-y
-            format-out("placing phi for %= at %=\n", v, y);
+            let (phi, tmp)
+              = make-with-temporary
+                  (y.environment, <phi-node>, variable: v);
+            if (instance?(y, <loop>))
+              insert-computations-before!(y.loop-body, phi, phi);
+            else
+              insert-computations-after!(y, phi, phi);
+            end;
+            v.assignments := add!(v.assignments, phi);
+
+            //incremental updates of dominator tree
+            let prev-dom = mapping[y];
+            let dom-node
+              = make(<tree-node>,
+                     computation: phi,
+                     children: prev-dom.node-children);
+            prev-dom.node-children := make(<stretchy-vector>);
+            add!(prev-dom.node-children, dom-node);            
+            mapping[phi] := dom-node;
+
+            format-out("placed phi for %= at %=\n", v, y);
             hasalready[y] := itercount;
             if (element(work, y, default: 0) < itercount)
               work[y] := itercount;
@@ -257,6 +276,169 @@ define method phi-placement (df :: <table>, f :: <&lambda>)
       end;
     end;
   end;
+end;
+
+define function replace-temporaries! (c :: <computation>, vars :: <collection>, currvars :: <table>)
+  for (accessors :: <temporary-accessors> in c.used-temporary-accessors)
+    let getter = temporary-getter(accessors);
+    let setter = temporary-zetter(accessors);
+    let ref = getter(c);
+    if (instance?(ref, <sequence>))
+      for (ref-t in ref, index from 0)
+        if (member?(ref-t, vars))
+          let new-t = get-latest-assignment(ref-t, currvars);
+          ref[index] := new-t;
+          if (new-t) add-user!(new-t, c) end;
+          remove-user!(ref-t, c);
+	end if;
+      end for;
+    else
+      if (member?(ref, vars))
+        let new-t = get-latest-assignment(ref, currvars);
+        setter(new-t, c);
+        if (new-t) add-user!(new-t, c) end;
+        remove-user!(ref, c);
+      end if;
+    end if;
+  end for;
+end;
+
+define function get-latest-assignment (t :: <temporary>, vars :: <table>) => (res :: <temporary>)
+  let result = element(vars, t, default: #f);
+  assert(result ~= #f);
+  let res = result.first;
+  if (instance?(res, <computation>))
+    res.temporary;
+  else
+    res;
+  end;
+end;
+
+define function find-recent-assignments (phi :: <phi-node>, variable :: <lexical-variable>)
+  local method find (c :: false-or(<computation>), m :: <function>)
+          if (c)
+            m(c) & c | find(c.previous-computation, m);
+          else
+            c
+          end;
+        end;
+  let last-merge = find(phi, rcurry(instance?, type-union(<loop>, <merge>)));
+  local method get-last-ass (start :: <computation>)
+          let last-ass = find(start, method(x)
+                                       member?(x, variable.assignments) |
+                                       (generator(variable) == x)
+                                     end);
+          if (last-ass)
+            last-ass.temporary;
+          elseif (variable.generator == #f)
+            variable;
+          end;
+        end;
+  let (left, right)
+    = if (instance?(last-merge, <merge>))
+        values(last-merge.merge-right-previous-computation,
+               last-merge.merge-left-previous-computation);
+      elseif (instance?(last-merge, <loop>))
+        let call = block(ret)
+                     walk-computations(method(x)
+                                         if (instance?(x, <loop-call>))
+                                           ret(x);
+                                         end
+                                       end, last-merge.loop-body, #f)
+                   end;
+        values(last-merge.previous-computation, call);
+      end;
+  let last-right = left.get-last-ass;
+  phi.phi-right-value := last-right;
+  add-user!(last-right, phi);
+
+  let last-left = right.get-last-ass;
+  phi.phi-left-value := last-left;
+  add-user!(last-left, phi);
+end;
+
+define function renaming (f :: <&lambda>, mapping :: <table>)
+  let counter = make(<table>);
+  let stacks = make(<table>);
+  let modified-variables = make(<stretchy-vector>);
+  for (v in f.environment.temporaries)
+    if (~empty?(v.assignments) & ~cell?(v))
+      counter[v] := 0;
+      stacks[v] := make(<deque>);
+      unless (v.generator)
+        //passed as argument, thus push v onto the stack
+        push(stacks[v], v);
+      end;
+      add!(modified-variables, v);
+    end;
+  end;
+  let assign = #();
+  local method search (x :: <computation>)
+          replace-temporaries!(x, modified-variables, stacks);
+          let children = mapping[x].node-children;
+          if (instance?(x, <assignment>))
+            //replace assignment with <temporary-transfer>
+            let (tt, tmp)
+              = make-with-temporary
+                  (x.environment, <temporary-transfer>, value: x.computation-value);
+            insert-computations-after!(x, tt, tt);
+            replace-temporary-in-users!(x.temporary, tmp);
+            delete-computation!(x);
+
+            //update assignment list
+            let ass = x.assigned-binding.assignments;
+            ass := remove!(ass, x);
+            ass := add!(ass, tt);
+            x.assigned-binding.assignments := ass;
+
+            //update dominator-tree
+            mapping[x].node-computation := tt;
+            mapping[tt] := mapping[x];
+            remove-key!(mapping, x);
+
+            push(stacks[x.assigned-binding], tt);
+          end;
+          if (instance?(x, <phi-node>))
+            push(stacks[x.phi-ssa-variable], x);
+            find-recent-assignments(x, x.phi-ssa-variable);
+          end;
+          if (instance?(x, <temporary-transfer>))
+            if (instance?(x.temporary, <lexical-local-variable>))
+              push(stacks[x.temporary], x);
+            end;
+          end;
+          //for (v in x.temporary)
+          //  let i = counter[v];
+          //  //replace v by vi in LHS
+          //  //add to assignments of v [or not?]
+          //  push(stacks[v], i);
+          //  counter[v] := i + 1;
+          //end;
+          //for (y in succ(x))
+          //  let j = which-predecessor(y, x);
+          //  if (instance?(y, <phi-node>))
+          //    //actually, we need to put the data-flow edges to the phi!
+          //    //replace j-th operand in RHS(phi) by Vi where i = top(stacks[v])
+          //  end;
+          //end;
+          for (y in children)
+            search(y.node-computation);
+          end;
+          if (instance?(x, <assignment>))
+            //for (v in oldLHS(x))
+              pop(stacks[x.assigned-binding]);
+            //end;
+          end;
+          if (instance?(x, <phi-node>))
+            pop(stacks[x.phi-ssa-variable]);
+          end;
+          if (instance?(x, <temporary-transfer>))
+            if (instance?(x.temporary, <lexical-local-variable>))
+              pop(stacks[x.temporary]);
+            end;
+          end;
+        end;
+  search(f.body);
 end;
 
 
@@ -271,14 +453,17 @@ end;
 
 define method eliminate-assignments (f :: <&lambda>)
   let idom = dominators(f.body);
-  let df = dominance-frontier(idom);
-  phi-placement(df, f);
-  for (t in f.environment.temporaries)
-    if (~empty?(t.assignments) & ~cell?(t))
-      cell-assigned-temporaries(t);
-    end if;
-  end for;
-  strip-assignments(environment(f));
+  let (root, mapping) = build-tree(idom);
+  let df = dominance-frontier(idom, root);
+  phi-placement(df, f, mapping);
+  renaming(f, mapping);
+  values(idom, root, mapping, df);
+  //for (t in f.environment.temporaries)
+  //  if (~empty?(t.assignments) & ~cell?(t))
+  //    cell-assigned-temporaries(t);
+  //  end if;
+  //end for;
+  //strip-assignments(environment(f));
 end method eliminate-assignments;
 
 define method find-temporary-transfer (c :: <bind>, ass :: <collection>) => (res :: <computation>)

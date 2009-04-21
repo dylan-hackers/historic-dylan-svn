@@ -109,6 +109,9 @@ define function disconnect (source :: <node>, target :: <node>) => ()
                  source.out-edges);
   if (e.size == 1)
     remove-edge(e[0]);
+  elseif (e.size == 0)
+    error("tried to disconnect %= from %=, which were not connected\n",
+          source, target);
   else
     error("multi-edges from %= to %=\n", source, target);
   end;

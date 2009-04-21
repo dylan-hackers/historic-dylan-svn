@@ -576,6 +576,12 @@ end graph-class;
 define constant bind-exit-merge-body-temporary
   = merge-right-value;
 
+define graph-class <phi-node> (<computation>)
+  temporary slot phi-right-value :: false-or(<value-reference>) = #f;
+  temporary slot phi-left-value :: false-or(<value-reference>) = #f;
+  constant slot phi-ssa-variable, required-init-keyword: variable:;
+end;
+
 
 /// SLOT-VALUE
 

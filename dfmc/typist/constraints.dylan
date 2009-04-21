@@ -119,6 +119,8 @@ end;
 
 define function copy-dynamic (constraints :: <collection>)
  => (res :: <deque>)
+  let to-remove = make(<stretchy-vector>);
+  let res =
   as(<deque>,
      map(method(x)
            let left = copy-dyn(x.left-hand-side.node-value, x.left-hand-side);
@@ -126,16 +128,24 @@ define function copy-dynamic (constraints :: <collection>)
            if (left ~= x.left-hand-side | right ~= x.right-hand-side)
              disconnect(x.left-hand-side, x.right-hand-side);
              if (left ~= x.left-hand-side)
-               remove-node(x.left-hand-side);
+               //remove-node(x.left-hand-side);
+               unless (member?(x.left-hand-side, to-remove))
+                 add!(to-remove, x.left-hand-side);
+               end;
              end;
              if (right ~= x.right-hand-side)
-               remove-node(x.right-hand-side);
+               //remove-node(x.right-hand-side);
+               unless (member?(x.right-hand-side, to-remove))
+                 add!(to-remove, x.right-hand-side);
+               end;
              end;
              make(<equality-constraint>, left: left, right: right)
            else
              x
            end;
          end, constraints));
+  do(remove-node, to-remove);
+  res;
 end;
 
 define method copy-dyn (t :: <&top-type>, n :: <node>) => (node :: <node>)

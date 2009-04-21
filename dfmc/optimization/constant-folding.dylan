@@ -798,12 +798,16 @@ define method constant-fold (c :: <keyword-default>)
   end if
 end method;
 
+/*
+//need TT; they're the former assignments and will be converted to
+//set-cell-value after optimization phase
 define method constant-fold (c :: <temporary-transfer>)
   // after assignment conversion, all the temporary transfers can go away
   let tmp = computation-value(c);
   replace-computation-with-temporary!(c, tmp);
   #t
 end method;
+*/
 
 define method constant-fold (c :: <guarantee-type>)
   let static-type = static-guaranteed-type(c);

@@ -104,7 +104,7 @@ define method maybe-add-variable-constraints (t :: <lexical-specialized-variable
   let spec = t.specializer;
   for (ass in t.assignments)
     add-constraint(make(<equality-constraint>,
-                        left: spec,
+                        left: spec.lookup-type,
                         right: ass.temporary.lookup-type-variable));
   end;
 end;
