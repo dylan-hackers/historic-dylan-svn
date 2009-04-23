@@ -108,6 +108,10 @@ define generic keyword-required? (init-key :: <class-keyword>)
 define generic keyword-name (init-key :: <class-keyword>)
 => (name :: <string>);
 
+/// Synopsis: Returns the slot name corresponding to a class init keyword, if any.
+define generic keyword-slot-name (init-key :: <class-keyword>)
+=> (slot-name :: false-or(<string>));
+
 /// Synopsis: Class init keyword type specification, if parsable & present.
 define generic keyword-type (init-key :: <class-keyword>)
 => (type :: false-or(<text-token>));
@@ -138,7 +142,7 @@ define generic param-instance (param :: <required-singleton-argument>)
 => (inst :: false-or(<text-token>));
 
 /// Synopsis: Function keyword parameter default value, if present & parsable.
-define generic param-default (param :: <func-param>)
+define generic param-default (param :: <keyword-argument>)
 => (def :: false-or(<text-token>));
 
 /// Synopsis: Library/module clauses.
@@ -178,8 +182,17 @@ define generic import-name (token :: <renaming-token>)
 define generic local-name (token :: <renaming-token>)
 => (name :: false-or(<string>));
 
+define generic domain-types (token :: <domain-definer-token>)
+=> (types :: <sequence> /* of <text-token> */);
+
 define generic main-rule-set (token :: <macro-definer-token>)
 => (rules :: <sequence> /* of main rule set */);
 
 define generic source-text (token :: <text-token>)
 => (text :: <sequence> /* of <character> or <text-name-token> */);
+
+define generic prop-name (token :: <property-token>)
+=> (text :: <string>);
+
+define generic prop-value (token :: <property-token>)
+=> (text :: <text-token>);

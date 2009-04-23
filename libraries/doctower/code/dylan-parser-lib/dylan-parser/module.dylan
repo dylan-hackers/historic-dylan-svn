@@ -21,6 +21,7 @@ define module dylan-parser
       <create-clause-token>,
       <definition-token>,
       <doc-comment-token>,
+      <domain-definer-token>,
       <export-clause-token>,
       <function-definer-token>,
       <function-rule-token>,
@@ -42,6 +43,7 @@ define module dylan-parser
       <variable-definer-token>;
       
    export
+      <accepts-keys-argument>,
       <all-keys-argument>,
       <class-keyword>,
       <class-slot>,
@@ -66,6 +68,7 @@ define module dylan-parser
       class-supers,
       create-names,
       definitions,
+      domain-types,
       export-names,
       func-options,
       func-params,
@@ -78,6 +81,7 @@ define module dylan-parser
       keyword-init,
       keyword-name,
       keyword-required?,
+      keyword-slot-name,
       keyword-type,
       local-name,
       main-rule-set,
@@ -87,6 +91,8 @@ define module dylan-parser
       param-instance,
       param-name,
       param-type,
+      prop-name,
+      prop-value,
       scoped-docs,
       slot-doc,
       slot-init,

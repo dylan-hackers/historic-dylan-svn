@@ -4,7 +4,8 @@ synopsis: Code dealing with class, generic, etc. representations in general.
 
 define class <binding-annot> (<object>)
    slot annot-binding :: <binding>, required-init-keyword: #"binding";
-   slot annot-tokens :: <sequence> /* of <definition-token> */ = #[];
+   slot annot-source-defns :: <sequence> = #[]
+         /* of <token> or other <updatable-source-location> */
 end class;
 
 
@@ -108,92 +109,32 @@ define method make-bindings-from-clauses
 end method;
 
 
-define method make-defined-binding
+define method make-bindings-from-definitions
    (lib-annots :: <skip-list>, library :: <library>, module :: <module>,
     tokens :: <sequence> /* of <definition-token> */)
-=> (binding :: <binding>, annotation :: <binding-annot>)
+=> ()
    
-   // Make implicit or explicit definitions and potential binding names.
+   // Make implicit or explicit definition instances and potential binding names.
 
-   let binding-name = tokens.first.api-name;
-   let expl/impl-defns = make(<vector>, size: tokens.size);
+   let defns/tokens-by-name = make(<case-insensitive-string-table>);
    let source-names = make(<stretchy-vector>);
-   for (token in tokens, i from 0)
-      let (defn, names) = make-expl/impl-defn(token);
-      expl/impl-defns[i] := defn;
-      source-names := concatenate!(source-names, names);
+   for (token in tokens)
+      let (more-defns/tokens-by-name, more-source-names) = make-definitions(token);
+      for (more-defns/tokens keyed-by name in more-defns/tokens-by-name)
+         defns/tokens-by-name[name] :=
+               concatenate(element(defns/tokens-by-name, name, default: #[]),
+                           more-defns/tokens);
+      end for;
+      source-names := concatenate!(source-names, more-source-names);
    end for;
    
-   // Check for consistency.
+   // Make bindings for definition instances.
    
-   let defn-class =
-         case
-            every?(rcurry(instance?, <explicit-class-defn>),
-                   expl/impl-defns)
-               => <class-defn>;
-            every?(rcurry(instance?,
-                          type-union(<explicit-generic-defn>, <implicit-generic-defn>)),
-                   expl/impl-defns)
-               => <generic-defn>;
-            every?(rcurry(instance?, <explicit-function-defn>),
-                   expl/impl-defns)
-               => <function-defn>;
-            every?(rcurry(instance?, <explicit-constant-defn>),
-                   expl/impl-defns)
-               => <constant-defn>;
-            every?(rcurry(instance?, <explicit-variable-defn>),
-                   expl/impl-defns)
-               => <variable-defn>;
-            every?(rcurry(instance?, <explicit-macro-defn>),
-                   expl/impl-defns)
-               => <macro-defn>;
-            otherwise =>
-               let locs = map(source-location, expl/impl-defns);
-               conflicting-bindings-in-module(location: module.source-location,
-                     name: binding-name, defn-locations: locs.item-string-list);
-         end case;
+   for (defns/tokens keyed-by name in defns/tokens-by-name)
+      let (defns, tokens) = partition(rcurry(instance?, <definition>), defns/tokens);
+      make-binding-from-definition(lib-annots, library, module, name, defns, tokens)
+   end for;
 
-   let (impl-defns, expl-defns) =
-         partition(rcurry(instance?, <implicit-generic-defn>), expl/impl-defns);
-
-   unless (expl-defns.size <= 1)
-      let locs = map(source-location, expl-defns);
-      conflicting-bindings-in-module(location: module.source-location,
-            name: binding-name, defn-locations: locs.item-string-list);
-   end unless;
-   
-   // Make new definition.
-   
-   let new-defn = make(defn-class);
-   new-defn.explicit-defn := ~expl-defns.empty? & expl-defns.first;
-   when (instance?(new-defn, <generic-defn>))
-      new-defn.implicit-defns := as(<stretchy-vector>, impl-defns);
-   end when;
-
-   // Create new or get existing binding and add definition.
-
-   let bind-annots = lib-annots[library.local-name]
-         .annot-modules[module.local-name].annot-bindings;
-   let annot = element(bind-annots, binding-name, default: #f);
-   let (binding, annot) =
-         if (annot)
-            // This will be the case if the module declared the binding as exported.
-            let binding = annot.annot-binding;
-            if (binding.definition)
-               add-definition!(binding.definition, new-defn)
-            else
-               binding.definition := new-defn
-            end if;
-            values(binding, annot);
-         else
-            let loc = (~expl-defns.empty? & expl-defns.first.source-location)
-                  | impl-defns.first.source-location;
-            make-local-binding(lib-annots, library, module,
-                  local-name: binding-name, definition: new-defn,
-                  source-location: loc, exported: #f);
-         end if;
-   annot.annot-tokens := tokens;
-   
    // Make potential binding names.
    
    let existing-names = map(local-name, module.bindings);
@@ -203,7 +144,43 @@ define method make-defined-binding
          make-stray-binding(lib-annots, library, module, local-name: name.source-name,
                             source-location: name.source-location, exported: #f)
       end, source-names);
+end method;
 
+
+define method make-binding-from-definition
+   (lib-annots :: <skip-list>, library :: <library>, module :: <module>,
+    binding-name :: <string>, defns :: <sequence>, tokens :: <sequence>)
+=> (binding :: <binding>, annotation :: <binding-annot>)
+   let new-defn = reduce1(add-definition!, defns);
+   let bind-annots = lib-annots[library.local-name]
+         .annot-modules[module.local-name].annot-bindings;
+   let annot = element(bind-annots, binding-name, default: #f);
+   let (binding, annot) =
+         if (annot)
+            // This will be the case if the module declared the binding as exported.
+            let binding = annot.annot-binding;
+            binding.definition :=
+                  if (binding.definition)
+                     add-definition!(binding.definition, new-defn);
+                  else
+                     new-defn
+                  end if;
+            values(binding, annot);
+         else
+            let loc = 
+                  case
+                     ~new-defn.all-defns.empty? => 
+                        new-defn.all-defns.first.source-location;
+                     ~tokens.empty? =>
+                        tokens.first.token-src-loc;
+                     otherwise =>
+                        make(<unknown-source-location>);
+                  end case;
+            make-local-binding(lib-annots, library, module,
+                  local-name: binding-name, definition: new-defn,
+                  source-location: loc, exported: #f);
+         end if;
+   annot.annot-source-defns := tokens;
    values(binding, annot)
 end method;
 
