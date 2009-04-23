@@ -123,7 +123,7 @@ define parser class-clause :: <token>
    yield token;
 end;
 
-define parser init-arg-spec (<token>)
+define parser init-arg-spec (<source-location-token>)
    rule seq(opt(lex-REQUIRED), lex-KEYWORD, lex-SYMBOL, opt(init-expression),
             opt-many(seq(lex-COMMA, init-arg-option)), opt(lex-COMMA))
    => tokens;
@@ -133,10 +133,11 @@ define parser init-arg-spec (<token>)
    slot init-expression :: false-or(<text-token>) = tokens[3];
    slot clause-options = list-from-tokens(vector(#f, tokens[4], tokens[5]));
 afterwards (context, tokens, value, start-pos, end-pos)
-   remove-from-outer-scope(context, value.clause-doc)
+   remove-from-outer-scope(context, value.clause-doc);
+   note-combined-source-location(context, value, tokens);
 end;
 
-define parser inherited-slot-spec (<token>)
+define parser inherited-slot-spec (<source-location-token>)
    rule seq(lex-INHERITED, lex-SLOT, variable-name, opt(init-expression),
             opt-many(seq(lex-COMMA, inherited-option)), opt(lex-COMMA))
    => tokens;
@@ -145,10 +146,11 @@ define parser inherited-slot-spec (<token>)
    slot init-expression :: false-or(<text-token>) = tokens[3];
    slot clause-options = list-from-tokens(vector(#f, tokens[4], tokens[5]));
 afterwards (context, tokens, value, start-pos, end-pos)
-   remove-from-outer-scope(context, value.clause-doc)
+   remove-from-outer-scope(context, value.clause-doc);
+   note-combined-source-location(context, value, tokens);
 end;
 
-define parser slot-spec (<token>)
+define parser slot-spec (<source-location-token>)
    rule seq(opt(slot-adjectives), lex-SLOT, variable, opt(init-expression),
             opt-many(seq(lex-COMMA, slot-option)), opt(lex-COMMA))
    => tokens;
@@ -159,7 +161,8 @@ define parser slot-spec (<token>)
    slot init-expression :: false-or(<text-token>) = tokens[3];
    slot clause-options = list-from-tokens(vector(#f, tokens[4], tokens[5]));
 afterwards (context, tokens, value, start-pos, end-pos)
-   remove-from-outer-scope(context, value.clause-doc)
+   remove-from-outer-scope(context, value.clause-doc);
+   note-combined-source-location(context, value, tokens);
 end;
 
 define parser slot-adjectives (<token>)
@@ -465,13 +468,16 @@ define parser domain-definer (<definition-token>)
    rule seq(lex-SEALED, lex-DOMAIN, variable-name,
             lex-LF-PAREN, opt(type-list), lex-RT-PAREN)
    => tokens;
+   inherited slot api-name = tokens[2].name;
+   slot domain-types :: <sequence> = tokens[4] | #[];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-combined-source-location(context, value, tokens);
 end;
 
-define parser type-list (<token>)
+define parser type-list :: <sequence> /* of <text-token> */
    rule seq(expression, opt-many(seq(lex-COMMA, expression)), lex-COMMA)
    => tokens;
+   yield list-from-tokens(tokens);
 end;
 
 //

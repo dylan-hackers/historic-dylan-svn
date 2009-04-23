@@ -15,6 +15,7 @@ files:      doctower-library
             dylan-translator/binding-rep
             dylan-translator/definition-rep
             dylan-translator/class-rep
+            dylan-translator/function-rep
             source-files/module
             source-files/dylan-file
             source-files/markup-file

@@ -46,7 +46,7 @@ define method check-and-flag-module-exports
    check-clause-items(mod-annot.annot-token, <export-clause-token>, export-names,
          method (name :: <string>)
             let annot = element(mod-annot.annot-bindings, name, default: #f);
-            annot & ~annot.annot-tokens.empty?
+            annot & ~annot.annot-source-defns.empty?
          end method,
          method (name :: <string>)
             mod-annot.annot-bindings[name].annot-binding.exported? := #t;
@@ -66,14 +66,15 @@ define method check-and-flag-module-creates
    check-clause-items(mod-annot.annot-token, <create-clause-token>, create-names,
          method (name :: <string>)
             let annot = element(mod-annot.annot-bindings, name, default: #f);
-            annot & annot.annot-tokens.empty?
+            annot & annot.annot-source-defns.empty?
          end method,
          method (name :: <string>)
             mod-annot.annot-bindings[name].annot-binding.exported? := #t;
          end method,
          method (clause :: <token>, names :: <sequence>)
             let existing-name = names.first;
-            let existing-defns = mod-annot.annot-bindings[existing-name].annot-tokens;
+            let existing-defns = mod-annot.annot-bindings[existing-name]
+                  .annot-source-defns;
             let existing-locs = map(token-src-loc, add(existing-defns, clause));
             conflicting-bindings-in-module(location: clause.token-src-loc,
                   name: existing-name, defn-locations: existing-locs.item-string-list)

@@ -204,12 +204,14 @@ define parser variables :: <sequence> /* of <variable-token> */
    yield list-from-tokens(tokens);
 end;
 
-define parser variable (<token>)
+define parser variable (<source-location-token>)
    rule seq(variable-name, opt-seq(lex-DOUBLE-COLON, checked-type)) => tokens;
    slot name :: <string> = tokens[0].name;
    slot type :: false-or(<text-token>) =
       tokens[1] & ~skipped?(tokens[1][1]) & tokens[1][1];
    slot var-doc :: false-or(<doc-comment-token>) = tokens[0].var-doc;
+afterwards (context, token, value, start-pos, end-pos)
+   note-combined-source-location(context, value, token);
 end;
 
 define parser variable-name (<text-name-token>)
@@ -438,7 +440,7 @@ define parser next-rest-key-parameter-list :: <rest-key-parameter-list-token>
    yield (tokens[2] & tokens[2].last);
 end;
 
-define parser rest-key-parameter-list (<token>)
+define parser rest-key-parameter-list (<source-location-token>)
    rule choice(seq(nil(#"rest"), lex-REST, variable-name,
                    opt-seq(lex-COMMA, key-parameter-list)),
                seq(nil(#"key"), key-parameter-list))
@@ -460,17 +462,23 @@ define parser rest-key-parameter-list (<token>)
          end select;
 afterwards (context, tokens, value, start-pos, end-pos)
    remove-from-outer-scope(context, value.rest-doc);
+   note-combined-source-location(context, value, tokens);
 end;
 
-define parser key-parameter-list (<token>)
+define parser key-parameter-list (<source-location-token>)
    rule seq(lex-KEY, opt(keyword-parameters), opt-seq(lex-COMMA, lex-ALL-KEYS))
    => tokens;
    slot key-params :: <sequence> = tokens[1] | #[];
    slot all-keys? :: <boolean> = tokens[2].true?;
-   slot all-keys-doc :: false-or(<doc-comment-token>) =
-         tokens[2] & tokens[2][1].lexeme-doc;
 afterwards (context, tokens, value, start-pos, end-pos)
-   remove-from-outer-scope(context, value.all-keys-doc);
+   unless (value.key-params.empty?)
+      let first-key-param = value.key-params.first;
+      unless (first-key-param.key-doc)
+         first-key-param.key-doc := tokens[0].lexeme-doc;
+         remove-from-outer-scope(context, first-key-param.key-doc);
+      end unless;
+   end unless;
+   note-combined-source-location(context, value, tokens);
 end;
 
 define parser required-parameters :: <sequence> /* of <required-parameter-token> */
@@ -479,7 +487,7 @@ define parser required-parameters :: <sequence> /* of <required-parameter-token>
    yield list-from-tokens(tokens);
 end;
 
-define parser required-parameter (<token>)
+define parser required-parameter (<source-location-token>)
    rule choice(seq(nil(#t), variable-name, lex-IDENTICAL, checked-expression),
                seq(nil(#f), variable, nil(#f), nil(#f)))
    => tokens;
@@ -489,6 +497,7 @@ define parser required-parameter (<token>)
    slot req-inst :: false-or(<text-token>) = ~skipped?(tokens[3]) & tokens[3];
 afterwards (context, tokens, value, start-pos, end-pos)
    remove-from-outer-scope(context, value.req-doc);
+   note-combined-source-location(context, value, tokens);
 end;
 
 define parser keyword-parameters :: <sequence> /* of <keyword-parameter-token> */
@@ -497,7 +506,7 @@ define parser keyword-parameters :: <sequence> /* of <keyword-parameter-token> *
    yield list-from-tokens(tokens);
 end;
 
-define parser keyword-parameter (<token>)
+define parser keyword-parameter (<source-location-token>)
    rule seq(opt(lex-SYMBOL), variable, opt(default)) => tokens;
    slot key-doc :: false-or(<doc-comment-token>) =
          (tokens[0] & tokens[0].lexeme-doc) | tokens[1].var-doc;
@@ -508,6 +517,7 @@ attributes
    type-followers = add(attr(type-followers), parse-lex-EQUAL);
 afterwards (context, tokens, value, start-pos, end-pos)
    remove-from-outer-scope(context, value.key-doc);
+   note-combined-source-location(context, value, tokens);
 end;
 
 define parser default :: false-or(<text-token>)
@@ -528,7 +538,7 @@ define parser enclosed-values-list :: false-or(<values-list-token>)
    yield tokens[1];
 end;
 
-define parser values-list (<token>)
+define parser values-list (<source-location-token>)
    rule choice(seq(nil(#"vars"), variables, opt-seq(lex-COMMA, lex-REST, variable)),
                seq(nil(#"rest"), lex-REST, variable))
    => tokens;
@@ -550,6 +560,7 @@ define parser values-list (<token>)
 afterwards (context, tokens, value, start-pos, end-pos)
    apply(remove-from-outer-scope, context, value.rest-doc,
          map(var-doc, value.required-vals));
+   note-combined-source-location(context, value, tokens);
 end;
 
 //

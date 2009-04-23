@@ -53,7 +53,7 @@ define method apis-from-dylan (file-sets :: <sequence>)
    order-by-dependency(annotations);
    make-all-imports-and-defns(annotations);
    order-by-dependency(annotations);
-
+   
    // TODO: Decide what I can filter out of this list. Inferred modules? Strays?
     map(annot-library, annotations.element-sequence);
 end method;
@@ -133,9 +133,8 @@ define method make-annotations-from-files
          // Create definitions and bindings.
          let defn-tokens = choose-interchange-definitions
                (<non-namespace-definition-token>, vector(file));
-         let defn-groups = group-elements(defn-tokens, test: same-api-name?);
-         do(curry(make-defined-binding, annotations, library, module-annot.annot-module),
-            defn-groups);
+         make-bindings-from-definitions
+               (annotations, library, module-annot.annot-module, defn-tokens);
       end unless;
    end for;
    
@@ -251,7 +250,7 @@ define constant <non-namespace-definition-token> =
       type-union(<class-definer-token>, <constant-definer-token>,
                  <function-definer-token>, <generic-definer-token>,
                  <method-definer-token>, <variable-definer-token>,
-                 <macro-definer-token>);
+                 <domain-definer-token>, <macro-definer-token>);
 
 
 define method choose-interchange-definitions

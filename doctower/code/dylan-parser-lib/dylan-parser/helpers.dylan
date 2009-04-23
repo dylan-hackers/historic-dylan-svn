@@ -95,8 +95,8 @@ end method;
 // Slots and initialization keywords
 //
 
-define class <class-keyword> (<object>)
-   slot keyword-from-slot? :: <boolean>;
+define class <class-keyword> (<updatable-source-location-mixin>)
+   slot keyword-slot-name :: false-or(<string>);
    slot keyword-required? :: <boolean>;
    slot keyword-name :: <string>;
    slot keyword-type :: false-or(<text-token>);
@@ -104,7 +104,7 @@ define class <class-keyword> (<object>)
    slot keyword-doc :: false-or(<doc-comment-token>);
 end class;
 
-define class <class-slot> (<object>)
+define class <class-slot> (<updatable-source-location-mixin>)
    slot slot-modifiers :: <sequence> /* of <string> */;
    slot slot-name :: <string>;
    slot slot-type :: false-or(<text-token>);
@@ -120,7 +120,7 @@ end method;
 
 define method slot-from-clause (tok :: <slot-spec-token>)
 => (slot :: <class-slot>)
-   let slot = make(<class-slot>);
+   let slot = make(<class-slot>, source-location: tok.source-location);
    slot.slot-doc := tok.clause-doc;
    slot.slot-modifiers := tok.slot-modifiers;
    slot.slot-name := tok.slot-name;
@@ -151,8 +151,8 @@ define method keyword-from-clause (tok :: <slot-spec-token>)
 => (keyword :: false-or(<class-keyword>))
    let keyword-option = clauses-keyword-option(tok.clause-options);
    if (keyword-option)
-      let keyword = make(<class-keyword>);
-      keyword.keyword-from-slot? := #t;
+      let keyword = make(<class-keyword>, source-location: tok.source-location);
+      keyword.keyword-slot-name := tok.slot-name;
       keyword.keyword-required? :=
             instance?(keyword-option, <required-init-keyword-option-token>);
       keyword.keyword-name := keyword-option.value;
@@ -165,8 +165,8 @@ end method;
 
 define method keyword-from-clause (tok :: <init-arg-spec-token>)
 => (keyword :: <class-keyword>)
-   let keyword = make(<class-keyword>);
-   keyword.keyword-from-slot? := #f;
+   let keyword = make(<class-keyword>, source-location: tok.source-location);
+   keyword.keyword-slot-name := #f;
    keyword.keyword-required? := tok.keyword-required?;
    keyword.keyword-name := tok.keyword-name;
    keyword.keyword-type := clauses-type-option(tok.clause-options);
@@ -207,12 +207,12 @@ define method remove-duplicate-keywords (seq) => (seq)
       block (skip)
          // We only need to test against other keywords if defined in slot clause.
          // If it is defined in keyword clause, we always keep it.
-         when (seq[k1].keyword-from-slot?)
+         when (seq[k1].keyword-slot-name)
             for (k2 from k1 + 1 below seq.size)
                if (case-insensitive-equal?(seq[k1].keyword-name, seq[k2].keyword-name))
                   // If any of the keywords we check against are defined by a
-                  // keyword clause, skip the current slot-clause-defined keyword.
-                  when (~seq[k2].keyword-from-slot?)
+                  // keyword clause, skip the current slot clause defined keyword.
+                  when (~seq[k2].keyword-slot-name)
                      skip();
                   end when;
                end if;
@@ -229,7 +229,7 @@ end method;
 // Parameter lists
 //
 
-define abstract class <func-param> (<object>)
+define abstract class <func-param> (<updatable-source-location-mixin>)
    slot param-doc :: false-or(<doc-comment-token>), init-keyword: #"doc";
 end class;
 
@@ -260,6 +260,9 @@ define class <keyword-argument> (<func-argument>)
    slot param-name :: <string>;
    slot param-type :: false-or(<text-token>);
    slot param-default :: false-or(<text-token>);
+end class;
+
+define class <accepts-keys-argument> (<func-argument>)
 end class;
 
 define class <all-keys-argument> (<func-argument>)
@@ -297,9 +300,11 @@ define method required-param-from-token (param-tok :: <required-parameter-token>
 => (param :: <required-argument>)
    let param =
          if (param-tok.req-sing?)
-            make(<required-singleton-argument>, instance: param-tok.req-inst);
+            make(<required-singleton-argument>, instance: param-tok.req-inst,
+                 source-location: param-tok.source-location);
          else
-            make(<required-typed-argument>, type: param-tok.req-var.type);
+            make(<required-typed-argument>, type: param-tok.req-var.type,
+                 source-location: param-tok.source-location);
          end if;
    param.param-doc := param-tok.req-doc;
    param.param-name := param-tok.req-var.name;
@@ -314,7 +319,8 @@ end method;
 define method rest-key-params-from-token (tok :: <rest-key-parameter-list-token>)
 => (param-list :: <sequence>)
    let rest-param = tok.rest-var &
-         make(<rest-argument>, doc: tok.rest-doc, name: tok.rest-var.name);
+         make(<rest-argument>, doc: tok.rest-doc, name: tok.rest-var.name,
+              source-location: tok.source-location);
    let key-param-list = key-params-from-token(tok.key-param);
    add-to-front(rest-param, key-param-list);
 end method;
@@ -326,20 +332,22 @@ end method;
 
 define method key-params-from-token (tok :: <key-parameter-list-token>)
 => (param-list :: <sequence>)
+   let accepts-keys-param = 
+         make(<accepts-keys-argument>, source-location: tok.source-location);
    let all-keys-param = tok.all-keys? &
-         make(<all-keys-argument>, doc: tok.all-keys-doc);
-   let key-param-list = map-as(<stretchy-vector>, key-param-from-token,
-                               tok.key-params);
+         make(<all-keys-argument>, source-location: tok.source-location);
+   let key-param-list = map-as(<stretchy-vector>, key-param-from-token, tok.key-params);
+   key-param-list := add-to-front(accepts-keys-param, key-param-list);
    if (all-keys-param)
       add!(key-param-list, all-keys-param);
-   else
-      key-param-list;
    end if;
+   key-param-list;
 end method;
 
 define method key-param-from-token (tok :: <keyword-parameter-token>)
 => (param :: <keyword-argument>)
-   let keyword = make(<keyword-argument>, doc: tok.key-doc);
+   let keyword = make(<keyword-argument>, doc: tok.key-doc,
+                      source-location: tok.source-location);
    keyword.param-name := tok.key-symbol | tok.key-var.name;
    keyword.param-type := tok.key-var.type;
    keyword.param-default := tok.key-default;
@@ -359,7 +367,7 @@ end method;
 define method value-list-from-token (token :: <values-list-token>)
 => (value-list :: <sequence>)
    let rest-value = token.rest-val &
-         make(<rest-value>, doc: token.rest-doc,
+         make(<rest-value>, doc: token.rest-doc, source-location: token.source-location,
               name: token.rest-val.name, type: token.rest-val.type);
    let req-values = map-as(<stretchy-vector>, value-from-token, token.required-vals);
    if (rest-value)
@@ -371,5 +379,6 @@ end method;
 
 define method value-from-token (token :: <variable-token>)
 => (value :: <required-value>)
-   make(<required-value>, doc: token.var-doc, name: token.name, type: token.type);
+   make(<required-value>, doc: token.var-doc, name: token.name, type: token.type,
+        source-location: token.source-location);
 end method;
