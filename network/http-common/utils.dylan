@@ -39,31 +39,35 @@ end method expired?;
 //// Attributes
 
 define open class <attributes-mixin> (<object>)
-  constant slot attributes :: <table>,
-    init-function: curry(make, <table>);
+  constant slot attributes :: <string-table> = make(<string-table>);
 end;
 
-define generic get-attribute (this :: <attributes-mixin>, key :: <object>, #key);
-define generic set-attribute (this :: <attributes-mixin>, key :: <object>, value :: <object>);
-define generic remove-attribute (this :: <attributes-mixin>, key :: <object>);
+define generic get-attribute
+    (this :: <attributes-mixin>, key :: <string>, #key);
+
+define generic set-attribute
+    (this :: <attributes-mixin>, key :: <string>, value :: <object>);
+
+define generic remove-attribute
+    (this :: <attributes-mixin>, key :: <string>);
 
 // API
 define method get-attribute
-    (this :: <attributes-mixin>, key :: <object>, #key default)
+    (this :: <attributes-mixin>, key :: <string>, #key default)
  => (attribute :: <object>)
   element(this.attributes, key, default: default)
 end;
 
 // API
 define method set-attribute
-    (this :: <attributes-mixin>, key :: <object>, value :: <object>)
+    (this :: <attributes-mixin>, key :: <string>, value :: <object>)
   this.attributes[key] := value;
 end;
 
 // API
 define method remove-attribute
-    (this :: <attributes-mixin>, key :: <object>)
-  this.attributes[key] := #f;
+    (this :: <attributes-mixin>, key :: <string>)
+  remove-key!(this.attributes, key);
 end;
 
 
