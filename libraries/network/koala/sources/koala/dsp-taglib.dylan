@@ -21,17 +21,18 @@ end;
 define tag get in dsp
     (page :: <dylan-server-page>)
     (name :: <string>, context :: <string>)
-  output("%s", select (as(<symbol>, context))
-                 #"page" => get-attribute(page-context(), as(<symbol>, name));
-                 #"request" => get-query-value(name);
-                 #"header" => get-header(current-request(), name);
-                 #"session" => get-attribute(get-session(current-request()), name);
-                 // #"any" => ...
-                 // any other context?
-                 otherwise =>
-                   // todo -- what error class?
-                   error("Bad context specified in <dsp:get> tag: %s", context)
-               end);
+  let value = select (as(<symbol>, context))
+                #"page" => get-attribute(page-context(), name);
+                #"request" => get-query-value(name);
+                #"header" => get-header(current-request(), name);
+                #"session" => get-attribute(get-session(current-request()), name);
+                // #"any" => ...
+                // any other context?
+                otherwise =>
+                  // todo -- what error class?
+                  error("Bad context specified in <dsp:get> tag: %s", context)
+              end;
+  output("%s", value | "");     // don't show #f
 end tag get;
 
 
@@ -100,6 +101,76 @@ end;
 
 
 //// Iteration tags
+
+// loop
+// 
+// This stores the current iteration value in the page context because
+// it's convenient to be able to use <dsp:get> to access it rather than
+// defining a new tag such as, for example, <dsp:loop-value>.
+//
+// I can imagine adding more parameters for this tag, such as start,
+// end, limit, etc.
+
+/* Example, from the wiki:
+
+      <h2><wiki:show-group-name/></h2>
+      <dsp:loop over="group-member-names" var="user-name"
+                header="<ul>" footer="</ul>">
+        <li><dsp:get name="user-name" context="page"/></li>
+      </dsp:loop>
+*/
+define thread variable *loop-value* = #f;
+define thread variable *loop-index* :: false-or(<integer>) = #f;
+define thread variable *loop-first?* :: <boolean> = #f;
+define thread variable *loop-last?* :: <boolean> = #f;
+
+define body tag loop in dsp
+    (page :: <dylan-server-page>, do-body :: <function>)
+    (over :: <named-method>, var, header, footer)
+  let items :: <collection> = over(page);
+  for (item in items,
+       i from 1)
+    dynamic-bind (*loop-value* = item,
+                  *loop-index* = i,
+                  *loop-first?* = (i = 1),
+                  *loop-last?* = (i = items.size))
+      if (var)
+        set-attribute(page-context(), var, *loop-value*);
+      end;
+      if (header & *loop-first?*)
+        output("%s", header);
+      end;
+
+      do-body();
+
+      if (footer & *loop-last?*)
+        output("%s", footer);
+      end;
+    end;
+  end for;
+  // Scope the loop variable to the loop, not the entire page.
+  remove-attribute(page-context(), var);
+end tag loop;
+
+define tag loop-index in dsp
+    (page :: <dylan-server-page>)
+    ()
+  // *loop-index* starts at 1.
+  if (*loop-index*)
+    output("%d", *loop-index*);
+  end;
+end;
+
+define named-method loop-first? in dsp
+    (page :: <dylan-server-page>)
+  *loop-first?*
+end;
+
+define named-method loop-last? in dsp
+    (page :: <dylan-server-page>)
+  *loop-last?*
+end;
+
 
 define thread variable *table-has-rows?* :: <boolean> = #f;
 define thread variable *table-first-row?* :: <boolean> = #f;
@@ -271,6 +342,14 @@ define class <form-message> (<form-note>)
 end;
 
 define method note-form-error
+    (cond :: <condition>,
+     #key field-name, format-arguments :: <sequence> = #())
+  note-form-error(format-to-string("%s", cond),
+                  field-name: field-name,
+                  format-arguments: format-arguments);
+end;
+
+define method note-form-error
     (message :: <string>,
      #key field-name, format-arguments :: <sequence> = #())
   add-form-note(make(<form-error>,
@@ -289,7 +368,7 @@ define method note-form-message
                      format-arguments: copy-sequence(args)));
 end;
 
-define constant $form-notes-key = #"form-notes";
+define constant $form-notes-key = "dsp:form-notes";
 
 // This shows the use of <page-context> to store the form errors since they
 // only need to be accessible during the processing of one page.
