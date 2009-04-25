@@ -5,6 +5,12 @@ define abstract class <constraint> (<object>)
     required-init-keyword: left:;
   constant slot right-hand-side :: <node>,
     required-init-keyword: right:;
+  constant slot generated-constraints :: <stretchy-vector>
+    = make(<stretchy-vector>);
+  constant slot node-changes :: <stretchy-vector>
+    = make(<stretchy-vector>);
+  constant slot edge-changes :: <stretchy-vector>
+    = make(<stretchy-vector>);
 end;
 
 define class <equality-constraint> (<constraint>)
@@ -16,12 +22,16 @@ define method make (class :: subclass(<constraint>), #rest init-args, #key, #all
   c;
 end;
 
+define thread variable *current-constraint* :: false-or(<constraint>) = #f;
+
 define function solve (graph :: <graph>, constraints :: <collection>, type-env :: <type-environment>)
  => ()
   let cs = copy-dynamic(constraints);
   constraints.size := 0;
   local method push-cs (l :: <node>, r :: <node>)
-          push-last(cs, make(<equality-constraint>, left: l, right: r));
+          let new-constraint = make(<equality-constraint>, left: l, right: r);
+          push-last(cs, new-constraint);
+          add!(*current-constraint*.generated-constraints, new-constraint);
         end;
   for (node in graph.nodes)
     node.contains-variables? := #t;
@@ -29,17 +39,19 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
   while (~cs.empty?)
     debug-types(#"relayouted");
     let constraint = cs.pop;
-    let u = find(constraint.left-hand-side);
-    let v = find(constraint.right-hand-side);
-    if (u ~= v)
-      let (u, v, flag) = order(u, v);
-      let ute = u.node-value;
-      let vte = v.node-value;
-      graph-union(u, v, flag);
-      block()
-        solve-constraint(ute, vte, u, v, push-cs);
-      exception (e :: <error>)
-        error("constraint %= cannot be satisfied", constraint);
+    dynamic-bind(*current-constraint* = constraint)
+      let u = find(constraint.left-hand-side);
+      let v = find(constraint.right-hand-side);
+      if (u ~= v)
+        let (u, v, flag) = order(u, v);
+        let ute = u.node-value;
+        let vte = v.node-value;
+        graph-union(u, v, flag);
+        block()
+          solve-constraint(ute, vte, u, v, push-cs);
+        exception (e :: <error>)
+          error("constraint %= cannot be satisfied", constraint);
+        end;
       end;
     end;
   end;

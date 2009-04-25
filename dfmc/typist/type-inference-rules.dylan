@@ -79,9 +79,10 @@ end;
 define thread variable *constraints* :: false-or(<stretchy-vector>) = #f;
 define thread variable *graph* :: false-or(<graph>) = #f;
 
-define method add-constraint (c :: <constraint>)
+define function add-constraint (c :: <constraint>) => (c :: <constraint>)
   debug-types(#"constraint", c.left-hand-side, c.right-hand-side);
   add!(*constraints*, c);
+  c;
 end;
 
 define method type-infer (l :: <&lambda>)
@@ -131,7 +132,6 @@ define method infer-computation-types (c :: <temporary-transfer-computation>) =>
   add-constraint(make(<equality-constraint>,
                       left: c.computation-value.lookup-type,
                       right: c.temporary.lookup-type-variable));
-  //maybe-add-variable-constraints(c.temporary);
 end;
 
 define method infer-computation-types (c :: <check-type>) => ()
@@ -164,6 +164,63 @@ define method infer-computation-types (c :: <phi-node>) => ()
                       right: c.temporary.lookup-type-variable));
 end;
 
+define method infer-computation-types (c :: <loop-merge>) => ()
+  next-method();
+  solve(*graph*, *constraints*, *type-environment*);
+  add-constraint(make(<equality-constraint>,
+                      left: ^type-union(c.merge-left-value.temporary-type,
+                                        c.merge-right-value.temporary-type).lookup-type,
+                      right: c.temporary.lookup-type-variable));  
+end;
+
+define method infer-computation-types (c :: <loop>) => ()
+  next-method();
+  let cs = make(<stretchy-vector>);
+  //collect phi and loop-merge nodes
+  while (node = c.loop-body then node = node.next-computation until ~ instance?(node, type-union(<loop-merge>, <phi-node>)))
+    //assign "outer" types to temporaries
+    let tv = lookup-type-variable(node.temporary);
+    add!(cs, add(make(<equality-constraint>,
+                      left: , //outer type
+                      right: tv)));
+  end;
+  
+  //infer body with those assigned type variables
+  walk-computations(infer-computation-types, c.loop-body, #f);
+    //#f? sure? also, better start after loop-merge/phis?
+
+  //check whether outer and inner types are equal
+  // (or subtypes and no GF, only method calls)
+  // actually, if GF protocol must not be violated, thus subtypes are safe!
+  let safe
+    = block(fast-exit)
+        for (phi in phis)
+          unless (^subtype?(outer, inner))
+            fast-exit(#f);
+          end;
+        end;
+        #t;
+      end;
+  //if so, assign types to phi / loop-merge temporaries
+  //already done during walk-computations..
+  //constraints will be added again by outer infer-computation-types :/
+
+  unless (safe)
+    //if not, retract constraints/graph!
+    do(retract-constraint, cs);
+    //actually, also need to retract CFG and DFG (method upgrades)
+  end;
+end;
+
+define method infer-computation-types (c :: <if>) => ()
+  next-method();
+  //if test has occurence typing, assign type to temporary involved
+  
+  //type consequence
+  //retract type assignment, assign inverse type
+  //type alternative
+  //retract types
+end;
 
 define method get-function-object (o :: <object>) => (res :: <&function>)
   error("can't get function object of an <object>");
