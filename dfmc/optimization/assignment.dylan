@@ -348,13 +348,13 @@ define function find-recent-assignments (phi :: <phi-node>, variable :: <lexical
                    end;
         values(last-merge.previous-computation, call);
       end;
-  let last-right = left.get-last-ass;
-  phi.phi-right-value := last-right;
-  add-user!(last-right, phi);
-
-  let last-left = right.get-last-ass;
+  let last-left = left.get-last-ass;
   phi.phi-left-value := last-left;
   add-user!(last-left, phi);
+
+  let last-right = right.get-last-ass;
+  phi.phi-right-value := last-right;
+  add-user!(last-right, phi);
 end;
 
 define function renaming (f :: <&lambda>, mapping :: <table>)

@@ -13,7 +13,7 @@ define class <node> (<object>)
   slot contains-variables? :: <boolean> = #f;
   constant slot node-value :: <&type>,
     required-init-keyword: value:;
-  slot %node-rank :: <integer> = 0;
+  slot node-rank :: <integer> = 0;
   slot %representative :: <node>;
   constant slot node-id :: <integer>,
     init-function: next-computation-id;
@@ -30,17 +30,6 @@ define method make (class == <node>, #rest init-args, #key, #all-keys)
   n;
 end;
 
-define method node-rank (n :: <node>) => (rank :: <integer>)
-  n.%node-rank;
-end;
-
-define method node-rank-setter (new :: <integer>, n :: <node>) => (rank :: <integer>)
-  let old-value = n.node-rank;
-  add!(*current-constraint*.node-changes,
-       method() n.%node-rank := old-value end);
-  n.%node-rank := new;
-end;
-
 define method representative (n :: <node>) => (res :: <node>)
   n.%representative;
 end;
@@ -54,8 +43,6 @@ define method representative-setter (new :: <node>, n :: <node>) => (res :: <nod
     if (new == n)
       debug-types(#"representative", n);
     end;
-    add!(*current-constraint*.node-changes,
-         method() n.%representative := old-value end);
     n.%representative := new;
   else
     new
@@ -106,8 +93,6 @@ define function connect (source :: <node>, target :: <node>) => ()
     error("source and target have to be in the same graph!");
   end;
   make(<edge>, graph: source.graph, source: source, target: target);
-  add!(*current-constraint*.edge-changes,
-       method() disconnect(source, target) end);
 end;
 
 define function constraint-connect (source :: <node>, target :: <node>) => ()

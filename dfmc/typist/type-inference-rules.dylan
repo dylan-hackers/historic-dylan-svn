@@ -173,42 +173,88 @@ define method infer-computation-types (c :: <loop-merge>) => ()
                       right: c.temporary.lookup-type-variable));  
 end;
 
+define method extract-parameter-type (c :: <loop-merge>)
+  c.loop-merge-parameter
+end;
+
+define method extract-parameter-type (c :: <phi-node>)
+  c.phi-left-value
+end;
+
+define method extract-argument-type (c :: <loop-merge>)
+  c.loop-merge-argument
+end;
+
+define method extract-argument-type (c :: <phi-node>)
+  c.phi-right-value
+end;
+
 define method infer-computation-types (c :: <loop>) => ()
   next-method();
-  let cs = make(<stretchy-vector>);
-  //collect phi and loop-merge nodes
-  while (node = c.loop-body then node = node.next-computation until ~ instance?(node, type-union(<loop-merge>, <phi-node>)))
-    //assign "outer" types to temporaries
-    let tv = lookup-type-variable(node.temporary);
-    add!(cs, add(make(<equality-constraint>,
-                      left: , //outer type
-                      right: tv)));
+  //copy loop-body for further investigation (find fixpoint by doing
+  //inference once with outer type)
+  let copier = make(<dfm-copier>);
+  let cfg-first = deep-copy(copier, c.loop-body);
+  walk-computations(curry(deep-copy, copier), cfg-first, #f);
+
+  walk-computations(computation-id, cfg-first, #f);
+
+  //in order to get types for parameter types, we have to solve the type graph
+  solve(*graph*, *constraints*, *type-environment*);
+
+  let types = make(<stretchy-vector>);
+  for (node = c.loop-body then node.next-computation,
+       while: instance?(node, type-union(<loop-merge>, <phi-node>)))
+    add!(types, node.extract-parameter-type.temporary-type);
   end;
-  
-  //infer body with those assigned type variables
-  walk-computations(infer-computation-types, c.loop-body, #f);
-    //#f? sure? also, better start after loop-merge/phis?
 
-  //check whether outer and inner types are equal
-  // (or subtypes and no GF, only method calls)
-  // actually, if GF protocol must not be violated, thus subtypes are safe!
-  let safe
-    = block(fast-exit)
-        for (phi in phis)
-          unless (^subtype?(outer, inner))
-            fast-exit(#f);
+  dynamic-bind(*graph* = make(<graph>),
+               *constraints* = make(<stretchy-vector>),
+               *type-environment* = make(<type-environment>))
+    let phis = make(<stretchy-vector>);
+    //collect phi and loop-merge nodes
+    for (type in types, node = cfg-first then node.next-computation)
+      //assign "outer" types to temporaries
+      let tv = lookup-type-variable(node.temporary);
+      add-constraint(make(<equality-constraint>,
+                          left: type.lookup-type,
+                          right: tv));
+      add!(phis, node);
+    end;
+    //solve to assign types for phi-temporaries [will be done during <call> inference]
+
+    //infer body with those assigned type variables
+    walk-computations(infer-computation-types, phis.last.next-computation, #f);
+
+    //solve constraint system!
+    solve(*graph*, *constraints*, *type-environment*);
+
+    //check whether outer and inner types are equal
+    // (or subtypes - since GF protocol must not be violated)
+    let safe?
+      = block(fast-exit)
+          for (phi in phis, type in types)
+            unless (^subtype?(phi.extract-argument-type.temporary-type,
+                              type))
+              fast-exit(#f);
+            end;
           end;
+          #t;
         end;
-        #t;
-      end;
-  //if so, assign types to phi / loop-merge temporaries
-  //already done during walk-computations..
-  //constraints will be added again by outer infer-computation-types :/
+    //if safe, assign types to phi / loop-merge temporaries
 
-  unless (safe)
-    //if not, retract constraints/graph!
-    do(retract-constraint, cs);
-    //actually, also need to retract CFG and DFG (method upgrades)
+    unless (safe?)
+      //empty types collection
+      types.size := 0;
+    end;
+  end; //dynamic-bind
+
+  //add type constraint to opposite DF node of phi/loop-merge
+  //(is then propagated to temporary of phi by respective inference rule)
+  for (node = c.loop-body then node.next-computation, type in types)
+    add-constraint(make(<equality-constraint>,
+                        left: type.lookup-type,
+                        right: node.extract-argument-type.lookup-type-variable));
   end;
 end;
 
