@@ -113,7 +113,7 @@ begin
   add!($tests, pair(#"for-loop", lfor));
 
   let whill =
-    "define method while-loop (x, y, z)\n"
+    "define method while-loop ()\n"
     "  let i = 0;\n"
     "  while(i < 42)\n"
     "    i := i + 1;\n"
@@ -121,8 +121,19 @@ begin
     "end;";
   add!($tests, pair(#"while-loop", whill));
 
+  let whill2 =
+    "define method while-loop2 ()\n"
+    "  let j = 5;\n"
+    "  let i = 0;\n"
+    "  while(i < 42)\n"
+    "    i := i + j;\n"
+    "  end;\n"
+    "  i\n"
+    "end;";
+  add!($tests, pair(#"while-loop2", whill2));
+
   let whilln =
-    "define method while-loop-nested (x, y, z)\n"
+    "define method while-loop-nested ()\n"
     "  let i = 0;\n"
     "  while(i < 42)\n"
     "    i := i + 1;\n"

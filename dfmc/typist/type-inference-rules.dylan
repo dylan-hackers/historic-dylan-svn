@@ -191,16 +191,40 @@ end;
 
 define method infer-computation-types (c :: <loop>) => ()
   next-method();
-  //copy loop-body for further investigation (find fixpoint by doing
-  //inference once with outer type)
-  let copier = make(<dfm-copier>);
-  let cfg-first = deep-copy(copier, c.loop-body);
-  walk-computations(curry(deep-copy, copier), cfg-first, #f);
-
-  walk-computations(computation-id, cfg-first, #f);
 
   //in order to get types for parameter types, we have to solve the type graph
   solve(*graph*, *constraints*, *type-environment*);
+
+  //copy loop-body for further investigation (find fixpoint by doing
+  //inference once with outer type)
+  let copier = make(<dfm-copier>);
+  //let cfg-first = deep-copy(copier, c.loop-body);
+  let cfg-first = #f;
+  let temps = make(<stretchy-vector>);
+  walk-computations(method(old)
+                      local method maybe-add-temp (old-t, new-t)
+                              if (element(*type-environment*, old-t, default: #f))
+                                if (~ instance?(old-t.temporary-type, <&top-type>))
+                                  add!(temps, pair(new-t, old-t.temporary-type));
+                                end;
+                              end;
+                            end;
+                      let new = deep-copy(copier, old);
+                      unless (cfg-first) cfg-first := new end;
+                      for (tmp in old.used-temporary-accessors)
+                        let getter = temporary-getter(tmp);
+                        let old-tmp = getter(old);
+                        let new-tmp = getter(new);
+                        if (instance?(old-tmp, <sequence>))
+                          for (old* in old-tmp, new* in new-tmp)
+                            maybe-add-temp(old*, new*);
+                          end;
+                        else
+                          maybe-add-temp(old-tmp, new-tmp);
+                        end;
+                      end;
+                      new.computation-id;
+                    end, c.loop-body, #f);
 
   let types = make(<stretchy-vector>);
   for (node = c.loop-body then node.next-computation,
@@ -211,6 +235,14 @@ define method infer-computation-types (c :: <loop>) => ()
   dynamic-bind(*graph* = make(<graph>),
                *constraints* = make(<stretchy-vector>),
                *type-environment* = make(<type-environment>))
+    //insert types of temporaries into environment
+    do(method(x)
+         let tv = x.head.lookup-type-variable;
+         add-constraint(make(<equality-constraint>,
+                             left: x.tail.lookup-type,
+                             right: tv));
+       end, temps);
+
     let phis = make(<stretchy-vector>);
     //collect phi and loop-merge nodes
     for (type in types, node = cfg-first then node.next-computation)
