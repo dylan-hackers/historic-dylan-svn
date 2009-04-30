@@ -161,22 +161,20 @@ define macro url-map-definer
     { ?url ; ... } => { ?url ; ... }
 
   url:
-    { url ?location:expression ?actions }
+    { url ?uri:expression ?actions }
      => { let _responder = make(<responder>);
+          let _locations = list(?uri);
           ?actions ;
-          ?location }
-    { url ( ?locations ) ?actions }
+          add-responder( _http-server, first(_locations), _responder)
+          }
+    { url ( ?locations:* ) ?actions }
       => { let _responder = make(<responder>);
+           let _locations = list(?locations);
            ?actions ;
-           ?locations }
-
-  locations:
-    { } => { }
-    { ?location , ...  } => { ?location ; ... }
-
-  location: 
-    { ?uri:expression } => { add-responder( _http-server, ?uri , _responder) }
-
+           for (loc in _locations)
+             add-responder( _http-server, loc, _responder);
+           end;
+           }
   actions:
     { } => { }
     { ?action-definition , ... } => { ?action-definition ; ... }
@@ -205,8 +203,9 @@ define macro url-map-definer
     { ?request-method , ...  } => { ?request-method ; ... }
 
   request-method:
-    { ?:name }
-     => { add-responder-map-entry(_responder, ?#"name", regex, actions) }
+    { ?req-method:name }
+     => { add-responder-map-entry(_responder, ?#"req-method",
+                                  regex, actions, _locations) }
 
   regex:
     { } => { "^$" }
@@ -215,25 +214,28 @@ define macro url-map-definer
 
 end macro url-map-definer;
 
-define inline function add-responder-map-entry
+define function add-responder-map-entry
     (responder :: <responder>,
      request-method :: <symbol>,
      regex :: <regex>,
-     actions :: <sequence>)
+     actions :: <sequence>,
+     uris :: <sequence>)
   let table = element(responder.responder-map, request-method, default: #f);
   if (~table)
     table := make(<table>);
     responder.responder-map[request-method] := table;
   end;
-  // The following depends on regex caching working, so they're ==.
-  // todo -- Add the url to the error message.  It's not accessible
-  //         here at the moment.
-  if (element(table, regex, default: #f))
-    signal(make(<koala-api-error>,
-                format-string: "Duplicate regular expression (%s) "
-                               "in url map for %s",
-                format-arguments: list(regex, request-method)));
-  end;
+  for (responder keyed-by reg in table)
+    if (reg.regex-pattern = regex.regex-pattern)
+      
+      signal(make(<koala-api-error>,
+                  format-string: "Duplicate regular expression (%s) "
+                    "in url map for %s to %s",
+                  format-arguments: list(regex.regex-pattern,
+                                         request-method,
+                                         join(uris, ", ", key: curry(as, <string>)))));
+    end if;
+  end for;
   table[regex] := actions
 end function add-responder-map-entry;
 
