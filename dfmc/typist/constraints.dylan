@@ -94,14 +94,17 @@ define method solve-constraint
  => (disconnect? :: <boolean>)
   for (u1 in u.successors, v1 in v.successors)
     //need to take care that required and rest parameters are correct
-    push-constraint(u1, v1);
+    if ((instance?(u1.node-value, <&rest-type>) & instance?(v1.node-value, <&rest-type>)) |
+        (~instance?(u1.node-value, <&rest-type>) & ~instance?(v1.node-value, <&rest-type>)))
+      push-constraint(u1, v1);
+    end;
   end;
   if (u.successors.size ~= v.successors.size)
     let (larger, shorter)
-      = if (u.successors.size > v.successors.size) values(u, v) else values(u, v) end;
-    if (instance?(last(shorter.successors), <&rest-type>))
-      let t = make(<node>, graph: u.graph, value: make(<&top-type>));
-      for (i from shorter.successors.size below larger.successors.size)
+      = if (u.successors.size > v.successors.size) values(u, v) else values(v, u) end;
+    if (instance?(shorter.successors.last.node-value, <&rest-type>))
+      for (i from shorter.successors.size - 1 below larger.successors.size)
+        let t = make(<node>, graph: u.graph, value: make(<&top-type>));
         push-constraint(larger.successors[i], t);
       end;
     end;

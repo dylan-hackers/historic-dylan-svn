@@ -50,7 +50,7 @@ define method representative-setter (new :: <node>, n :: <node>) => (res :: <nod
 end;
 
 define function successors (n :: <node>) => (res :: <collection>)
-  map(edge-target, n.out-edges);
+  map(edge-target, choose(compose(\~, constraint-edge?), n.out-edges));
 end;
 
 define generic maybe-setup-connections (n :: <node>, t :: <&type>);
