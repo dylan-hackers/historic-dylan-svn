@@ -2944,7 +2944,9 @@ define function do-convert-single-value-let
      name, type, expression, body)
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: false-or(<value-reference>));
   let named-static-unchecked-type =
-    begin let name = variable-name-fragment?(type);
+    begin
+      let name = variable-name-fragment?(type);
+      //XXX: reason why "let x :: type-union.." has specializer == #f [use evaluator]
       if (name)
         let type-model = lookup-constant-model-object(env, name);
         type-model &

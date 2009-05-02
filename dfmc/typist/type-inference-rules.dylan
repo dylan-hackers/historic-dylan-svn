@@ -25,18 +25,59 @@ define function lookup-type-variable (o :: <object>) => (res :: <node>)
   res | tenv[o];
 end;
 
+define function congruent? (u :: <node>, v :: <node>) => (congruent? :: <boolean>)
+  let edge-equal? = method(e1, e2) find(e1.edge-target) = find(e2.edge-target) end;
+  let edge-equal-in? = method(e1, e2) find(e1.edge-source) = find(e2.edge-source) end;
+  let u = find(u);
+  let v = find(v);
+  if (u == v)
+    #t
+  elseif (u.node-value = v.node-value)
+    every?(method(x) any?(curry(edge-equal?, x), v.out-edges) end, u.out-edges)
+     & every?(method(x) any?(curry(edge-equal?, x), u.out-edges) end, v.out-edges)
+     & every?(method(x) any?(curry(edge-equal-in?, x), v.in-edges) end, u.in-edges)
+     & every?(method(x) any?(curry(edge-equal-in?, x), u.in-edges) end, v.in-edges)
+  end;
+end;
+
+define function create-sharing (u :: <node>) => (v :: <node>)
+  block(found)
+    for (node in *graph*.nodes)
+      if (find(u) ~= find(node) & congruent?(u, node))
+        found(graph-union(node, u, #f));
+      end;
+    end;
+    u;
+  end;
+end;
+
 define function lookup-type (o :: <object>) => (res :: <node>)
   let tenv = *type-environment*;
-  let res = element(tenv, o, default: #f);
-  unless (res)
+//  let res = element(tenv, o, default: #f);
+//  if (res)
+//    format-out("found cached type node\n");
+//  else
+//    format-out("getting new type node\n");
     let te = type-estimate-object(o);
     if (te == dylan-value(#"<object>"))
       te := make(<&top-type>);
     end;
-    let n = make(<node>, graph: *graph*, value: te);
-    tenv[o] := n;
-  end;
-  res | tenv[o];
+    if (instance?(o, <temporary>))
+      lookup-type-variable(o);
+    else
+      let n = make(<node>, graph: *graph*, value: te);
+      //let u = create-sharing(n);
+      //if (u ~= n)
+      //  format-out("found cached type node\n");
+      //else
+      format-out("new type node\n");
+      //end;
+      //u;
+      n;
+    end;
+//    tenv[o] := n;
+//  end;
+//  res | tenv[o];
 end;
 
 define generic type-estimate-object (o :: <object>) => (res :: false-or(<&type>));
@@ -279,6 +320,7 @@ define method infer-computation-types (c :: <loop>) => ()
       //empty types collection
       types.size := 0;
     end;
+    //remove computations and type graph nodes
   end; //dynamic-bind
 
   //add type constraint to opposite DF node of phi/loop-merge
@@ -298,6 +340,13 @@ define method infer-computation-types (c :: <if>) => ()
   //retract type assignment, assign inverse type
   //type alternative
   //retract types
+end;
+
+define method infer-computation-types (c :: <stack-vector>) => ()
+  let t = c.temporary;
+  add-constraint(make(<equality-constraint>,
+                      left: make(<&tuple-type>, tuples: map(lookup-type, c.arguments)).lookup-type,
+                      right: t.lookup-type-variable));
 end;
 
 define method get-function-object (o :: <object>) => (res :: <&function>)
@@ -337,10 +386,16 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
   let specializers
     = begin
         let args = ^function-specializers(fun);
+        let rest? = ^signature-rest?(sig);
+        //#rest can be annotated with a type, but this information is
+        //lost in translation
         let nodes = map(lookup-type, args);
-        if (nodes.size == 1)
+        if (nodes.size == 1 & ~rest?)
           nodes.first;
         else
+          if (rest?)
+            nodes := add!(nodes, make(<&rest-type>).lookup-type);
+          end;
           lookup-type(make(<&tuple-type>, tuples: nodes));
         end;
       end;
@@ -348,9 +403,13 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
   let vals
     = begin
         let nodes = map(lookup-type, values);
-        if (nodes.size == 1)
+        let rest-values? = ^signature-rest-value(sig);
+        if (nodes.size == 1 & ~rest-values?)
           nodes.first;
         else
+          if (rest-values?)
+            nodes := add!(nodes, make(<&rest-type>).lookup-type);
+          end;
           lookup-type(make(<&tuple-type>, tuples: nodes));
         end;
       end;
@@ -393,6 +452,10 @@ define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>
     // finally, record type constraint (beta = tau1 -> tau2)
     //well, this will done by the changed call-graph - walk-computations does this
   else
+    //generate specialized dispatch code, if number of dispatch args is
+    //low on all effs (<integer>, <string>) vs (<boolean>, <string>)
+    //only need to dispatch on first argument
+    
     // finally, record type constraint (beta = tau1 -> tau2)
     next-method();
   end;

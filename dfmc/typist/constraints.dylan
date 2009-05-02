@@ -30,6 +30,7 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
   while (~cs.empty?)
     debug-types(#"relayouted");
     let constraint = cs.pop;
+    debug-types(#"highlight-constraint", constraint.left-hand-side, constraint.right-hand-side);
     let u = find(constraint.left-hand-side);
     let v = find(constraint.right-hand-side);
     if (u ~= v)
@@ -38,11 +39,13 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
       let vte = v.node-value;
       graph-union(u, v, flag);
       block()
-        solve-constraint(ute, vte, u, v, push-cs);
+        solve-constraint(ute, vte, u, v, push-cs)
+          & disconnect(constraint.left-hand-side, constraint.right-hand-side);
       exception (e :: <error>)
         error("constraint %= cannot be satisfied", constraint);
       end;
     end;
+    debug-types(#"unhighlight-constraint", constraint.left-hand-side, constraint.right-hand-side);
   end;
   let quotient-graph = create-quotient-graph(graph);
   if (acyclic?(quotient-graph))
@@ -61,59 +64,79 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
 end;
 
 define generic solve-constraint
- (t1 :: <&type>, t2 :: <&type>, u :: <node>, v :: <node>, push-constraint :: <function>);
+ (t1 :: <&type>, t2 :: <&type>, u :: <node>, v :: <node>, push-constraint :: <function>)
+ => (disconnect? :: <boolean>);
 
 define method solve-constraint
  (t1 :: <&arrow-type>, t2 :: <&arrow-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
-  disconnect(u, v);
+ => (disconnect? :: <boolean>)
   for (u1 in u.successors, v1 in v.successors)
     push-constraint(u1, v1);
   end;
+  #t;
 end;
 
 define method solve-constraint
  (t1 :: <&arrow-type>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
+ => (disconnect? :: <boolean>)
   if (u.contains-variables?)
-    disconnect(u, v);
     u.contains-variables? := #f;
     for (u1 in u.successors)
-      let w1 = make(<node>, graph: graph, value: make(<&top-type>));
+      let w1 = make(<node>, graph: u.graph, value: make(<&top-type>));
       push-constraint(w1, u1);
     end;
+    #t;
   end;
 end;
 
 define method solve-constraint
  (t1 :: <&tuple-type>, t2 :: <&tuple-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
-  disconnect(u, v);
+ => (disconnect? :: <boolean>)
   for (u1 in u.successors, v1 in v.successors)
     //need to take care that required and rest parameters are correct
     push-constraint(u1, v1);
   end;
+  if (u.successors.size ~= v.successors.size)
+    let (larger, shorter)
+      = if (u.successors.size > v.successors.size) values(u, v) else values(u, v) end;
+    if (instance?(last(shorter.successors), <&rest-type>))
+      let t = make(<node>, graph: u.graph, value: make(<&top-type>));
+      for (i from shorter.successors.size below larger.successors.size)
+        push-constraint(larger.successors[i], t);
+      end;
+    end;
+  end;
+  #t;
 end;
+
 define method solve-constraint
  (t1 :: <&tuple-type>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
+ => (disconnect? :: <boolean>)
   if (u.contains-variables?)
-    disconnect(u, v);
+    format-out("solving tuple == top\n");
     u.contains-variables? := #f;
     for (u1 in u.successors)
-      let w1 = make(<node>, graph: graph, value: make(<&top-type>));
+      let w1 = make(<node>, graph: u.graph, value: make(<&top-type>));
       push-constraint(u1, w1);
     end;
+    #t;
   end;
 end;
 
-
 define method solve-constraint
  (t1 :: <&type>,
-  t2 :: type-union(<&type-variable>, <&top-type>),
+  t2 :: type-union(<&type-variable>, <&top-type>, <&rest-type>),
   u :: <node>, v :: <node>, push-constraint :: <function>)
+ => (disconnect? :: <boolean>)
   //move along
 end;
 
 define method solve-constraint
  (t1 :: <&type>, t2 :: <&type>, u :: <node>, v :: <node>, push-constraint :: <function>)
-  unless (t1 = t2)
+ => (disconnect? :: <boolean>)
+  if (^subtype?(t2, t1) | ^subtype?(t1, t2))
+    //move along
+  else
     error("constraint cannot be satisfied");
   end;
 end;

@@ -354,6 +354,14 @@ define primary &class <tuple-type> (<type>)
   //rest argument, size?
 end;
 
+define primary &class <rest-type> (<type>)
+end;
+
+define method ^subtype? (t1 :: <&rest-type>, t2 :: <&rest-type>)
+ => (well? :: <boolean>)
+  #f;
+end;
+
 //missing: base-type, instance?, subtype?, known-disjoint?
 
 define primary &class <arrow-type> (<type>)

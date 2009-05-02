@@ -1161,11 +1161,13 @@ define function congruent-style-call-arguments
       for (i :: <integer> from 0 below number-required)
         new-arguments[i] := call.arguments[i];
       end for;
-      let rest-t = make-object-reference(#[]);
+      let rest-t = make-object-reference(#[]); //XXX: why an empty vector?
       new-arguments[number-required] := rest-t;
       add-user!(rest-t, call);
       values(#f, #f, new-arguments)
-    else  
+    else
+      //not sure whether I really want to convert arguments to a stack
+      //vector here -- hannes 020509
       let (rest-c, rest-t)
         = generate-stack-vector
             (call.environment, 

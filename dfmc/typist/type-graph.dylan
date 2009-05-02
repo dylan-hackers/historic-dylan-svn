@@ -240,7 +240,7 @@ define function acyclic? (graph :: <graph>) => (res :: <boolean>)
   end;
 end;
 
-define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolean>) => ()
+define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolean>) => (rep :: <node>)
   if (order-matters?)
     if (u.node-rank == v.node-rank)
       u.node-rank := u.node-rank + 1;
@@ -258,18 +258,18 @@ define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolea
       u.node-rank := max(u.node-rank, v.node-rank) + 1;
       v.representative := u;
     elseif (^subtype?(u.node-value, v.node-value))
-      v.node-rank := max(u.node-rank, v.node-rank) + 1;
-      u.representative := v;
-    elseif (^subtype?(v.node-value, u.node-value))
       u.node-rank := max(u.node-rank, v.node-rank) + 1;
       v.representative := u;
+    elseif (^subtype?(v.node-value, u.node-value))
+      v.node-rank := max(u.node-rank, v.node-rank) + 1;
+      u.representative := v;
     elseif (u.node-rank > v.node-rank) //default case from gtubi-paper (needed?)
       v.representative := u;
     else
-      u.representative := v;
       if (u.node-rank == v.node-rank)
         v.node-rank := v.node-rank + 1;
       end;
+      u.representative := v;
     end;
   end;
 end;

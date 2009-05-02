@@ -34,6 +34,10 @@ define compiler-sideways method print-object (tv :: <&polymorphic-type-variable>
   format(str, "%= <: %=", tv.^type-variable-name, tv.^type-variable-kind);
 end;
 
+define compiler-sideways method print-object (l :: <&rest-type>, str :: <stream>) => ()
+  format(str, "#rest");
+end;
+
 define compiler-sideways method print-object (l :: <&arrow-type>, str :: <stream>) => ()
   format(str, "%= => %=", l.^arguments, l.^values);
 end;
