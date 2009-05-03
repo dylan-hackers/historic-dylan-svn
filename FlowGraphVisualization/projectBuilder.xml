@@ -8,7 +8,7 @@
 	   	    <property name="obfjar" value="${project_name}_obf.jar"/>
 	   	    <property name="renamelog" value="${project_name}_renamelog.xml"/>
 	   	    <property name="shrinklog" value="${project_name}_shrinklog.xml"/>
-	   	    <property name="mainclass" value="FlowGraphVisualizer"/>
+	   	    <property name="mainclass" value="FlowGraphVisualizerClient"/>
 	   	    <mkdir dir="${classDir}" />
    	    </target>
 

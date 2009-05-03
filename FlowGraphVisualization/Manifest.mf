@@ -1,2 +1,2 @@
-Main-Class: FlowGraphVisualizer
+Main-Class: FlowGraphVisualizerClient
 Class-Path: y_obf.jar
