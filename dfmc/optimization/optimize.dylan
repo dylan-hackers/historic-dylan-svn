@@ -357,7 +357,7 @@ end method;
 define compiler-sideways method re-optimize-type-estimate (c :: <computation>) => ()
   let tmp   = temporary(c);
   if (tmp)
-    type-estimate-retract(c)
+    //type-estimate-retract(c)
   end if;
 end method;
 

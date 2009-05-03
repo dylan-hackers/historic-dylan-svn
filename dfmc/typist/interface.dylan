@@ -1,6 +1,6 @@
 module: dfmc-typist
 
-define method type-estimate (o :: <object>) => (te :: type-union(<&type>, <type-estimate>))
+define method type-estimate (o :: <object>) => (te :: <&type>)
   let node = element(*type-environment*, o, default: #f);
   if (node)
     if (instance?(node.node-value, <&type-variable>))
@@ -9,7 +9,7 @@ define method type-estimate (o :: <object>) => (te :: type-union(<&type>, <type-
       node.node-value;
     end;
   else 
-    make(<type-estimate-top>);
+    make(<&top-type>);
   end;
 end;
 
@@ -23,3 +23,5 @@ define method lookup-type (o :: <object>) => (te :: <&type>)
   make(<&top-type>);
 end;
 */
+
+define constant guaranteed-disjoint? = ^known-disjoint?;

@@ -329,9 +329,8 @@ define method find-copy-downable-methods
   let sig        = m.^function-signature;
   let req-size   = sig.^signature-number-required;
   let req        = copy-sequence(sig.^signature-required, end: req-size);
-  let req-te*    = map(curry (as, <type-estimate>), req);
   let methods-known = ^generic-function-methods-known(gf);
-  unless (all-applicable-methods-guaranteed-known?(gf, req-te*))
+  unless (all-applicable-methods-guaranteed-known?(gf, req))
     note(<unknown-copy-down-method-domain>,
 	 meth: m,
 	 source-location: m.model-source-location);
@@ -343,10 +342,10 @@ define method find-copy-downable-methods
   let methods
     = choose(method (them :: <&method>)
 	       them == m
-		 | ~guaranteed-method-precedes?(them, m, req-te*)
+		 | ~guaranteed-method-precedes?(them, m, req)
 	     end method,
 	     methods-known);
-  guaranteed-sorted-applicable-methods(methods, req-te*);
+  guaranteed-sorted-applicable-methods(methods, req);
 end method;
 
 // markt, copy-down inlining, first cut (still generates a type-check warning)

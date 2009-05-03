@@ -53,35 +53,4 @@ define module dfmc-typist
     estimate-effective-methods;
 
   export maybe-convert-box, maybe-convert-unbox;
-
-  //old stuff, need to get rid of this
-  export <type-estimate>,
-    type-estimate-disjoint?,
-    <type-estimate-bottom>,
-    <type-estimate-top>,
-    <type-estimate-class>,
-    type-estimate-class,
-    <type-estimate-raw>,
-    type-estimate-raw,
-    <type-estimate-union>,
-    type-estimate-unionees,
-    <type-estimate-values>,
-    type-estimate-fixed-values,
-    type-estimate-rest-values,
-    <type-estimate-limited>,
-    <type-estimate-limited-function>,
-    <type-estimate-limited-collection>,
-    type-estimate-concrete-class,
-    type-estimate-dimensions,
-    type-estimate-size,
-    type-estimate-of,
-    <type-estimate-limited-instance>,
-    type-estimate-singleton,
-    type-estimate-debug-name,
-    type-estimate-values-rest-subtype?,
-    type-estimate-values-element-subtype?,
-    type-estimate-subtype?,
-    type-estimate-retract,
-    make-type-estimate,
-    type-estimate-values-ref;
 end;

@@ -94,7 +94,7 @@ define method constant-fold (c :: <if>)
     #t
   else
     let test-estimate  = type-estimate(tst);
-    let false-estimate = as(<type-estimate>, dylan-value(#"<boolean>"));
+    let false-estimate = dylan-value(#"<boolean>");
     // TODO: should use singleton(#f) but this conses
     when (guaranteed-disjoint?(test-estimate, false-estimate))
       constant-fold-if(c, #t);
@@ -453,11 +453,12 @@ define method constant-fold (c :: <adjust-multiple-values>)
   let values-t = computation-value(c);
   let values-te = type-estimate(values-t);
   let n = number-of-required-values(c);
-  local method right-number-of-values? (te :: <type-estimate>)
-	  size(type-estimate-fixed-values(te)) = n &
-	    ~type-estimate-rest-values(te)
+  local method right-number-of-values? (te :: <&type>)
+//	  size(type-estimate-fixed-values(te)) = n &
+//	    ~type-estimate-rest-values(te)
+          #f;
 	end;
-  if (select (values-te by instance?)
+  if (#f /* select (values-te by instance?)
 	<type-estimate-bottom>, <type-estimate-top> => 
 	  #f;
 	<type-estimate-values> =>
@@ -465,7 +466,7 @@ define method constant-fold (c :: <adjust-multiple-values>)
 	<type-estimate-union> =>
 	  every?(right-number-of-values?,
 		 type-estimate-unionees(values-te));
-      end)
+      end */)
     replace-computation-with-temporary!(c, values-t);
     #t
   elseif (n == 0)
@@ -675,10 +676,11 @@ define method constant-fold (c :: <adjust-multiple-values-rest>)
   let values-t = computation-value(c);
   let values-te = type-estimate(values-t);
   let n = number-of-required-values(c);
-  local method right-number-of-values? (te :: <type-estimate>)
-	  size(type-estimate-fixed-values(te)) >= n 
+  local method right-number-of-values? (te :: <&type>)
+	  //size(type-estimate-fixed-values(te)) >= n 
+          #f;
 	end;
-  if (select (values-te by instance?)
+  if (#f /* select (values-te by instance?)
 	<type-estimate-bottom>, <type-estimate-top> => 
 	  #f;
 	<type-estimate-values> =>
@@ -686,7 +688,7 @@ define method constant-fold (c :: <adjust-multiple-values-rest>)
 	<type-estimate-union> =>
 	  every?(right-number-of-values?,
 		 type-estimate-unionees(values-te));
-      end)
+      end */)
     replace-computation-with-temporary!(c, values-t);
     #t
   else
@@ -895,29 +897,29 @@ end method evaluate-type-checks?;
 define function make-type-estimate-for-fixed-check (type-temp*)
   // Construct the type estimate which is used for fixed-return-value
   // type-checking done by <multiple-value-check-type>.  
-  let object-te = as(<type-estimate>, dylan-value(#"<object>"));
-  local method type-temporary-type-estimate (type-temp) => (te :: <type-estimate>)
+  let object-te = dylan-value(#"<object>");
+  local method type-temporary-type-estimate (type-temp) => (te :: <&type>)
           // Construct type-estimate for this temp, erring on side of generality
           let (type-constant?, type) = type-temp & fast-constant-value?(type-temp);
           if (type-constant? & instance?(type, <&type>))
-            as(<type-estimate>, type)  // type-estimate for this temporary.
+            type  // type-estimate for this temporary.
           else
             object-te                  // Won't provoke disjointness.
           end
         end;
-  make-type-estimate
-    (<type-estimate-values>,
-     // Should check these aren't <bottom>.
-     fixed: map(type-temporary-type-estimate, type-temp*),
-     rest:  #f)
+//  make-type-estimate
+//    (<type-estimate-values>,
+//     // Should check these aren't <bottom>.
+//     fixed: map(type-temporary-type-estimate, type-temp*),
+//     rest:  #f)
 end;
 
 define function trim-type-estimate-to-fixed-values 
-  (te :: <type-estimate>, n :: <integer>) => (te :: <type-estimate>)
+  (te :: <&type>, n :: <integer>) => (te :: <&type>)
   // Extract exactly n values from te, and make a new values te.
   // Used to trim computation te to fixed values in optimization below.
-  select (te by instance?)
-    <type-estimate-bottom>,     <type-estimate-top>
+/*  select (te by instance?)
+    <type-estimate-bottom>, <type-estimate-top>
       => te;
     <type-estimate-values> 
       => make-type-estimate
@@ -930,11 +932,11 @@ define function trim-type-estimate-to-fixed-values
 	   (<type-estimate-union>, 
 	    unionees: map(rcurry(trim-type-estimate-to-fixed-values, n),
 			  type-estimate-unionees(te)));
-  end
+  end */
 end;
 
 define function evaluate-fixed-values-type-checks
-  (c :: <multiple-value-check-type-computation>, values-te :: type-union(<type-estimate>, <&type>))
+  (c :: <multiple-value-check-type-computation>, values-te :: <&type>)
     => (statically-checked? :: <boolean>)
   // See if the fixed values match.  If so, mark them as statically checked,
   // so the back end won't generate code for the type check.  #rest done 
@@ -961,14 +963,14 @@ define function evaluate-fixed-values-type-checks
   //  format-out("\n    check-estimate = %s",    check-estimate);
   //  format-out("\n    fixed-values-te = %s",   check-estimate, fixed-values-te)
   //end;
-  local method canonical-undefined-values? (te :: <type-estimate>)
+  local method canonical-undefined-values? (te :: <&type>)
 	 => (canonical-undefined? :: <boolean>)
 	  // Is this <bottom> or values(#rest <bottom>)?
 	  select (te by instance?)
-	    <type-estimate-bottom> => #t;
-	    <type-estimate-values> => empty?(type-estimate-fixed-values(te)) &
-		                      instance?(type-estimate-rest-values(te), 
-						<type-estimate-bottom>);
+	    <&bottom-type> => #t;
+	    //<type-estimate-values> => empty?(type-estimate-fixed-values(te)) &
+	//	                      instance?(type-estimate-rest-values(te), 
+	//					<type-estimate-bottom>);
 	    otherwise              => #f;
 	  end
 	end;
@@ -990,9 +992,10 @@ define function evaluate-fixed-values-type-checks
 	  if (type)                       // Not already checked
 	    let (the-type-constant?, the-type) = fast-constant-value?(type);
 	    if (the-type-constant?           & 
-                instance?(the-type, <&type>) &
-                type-estimate-values-element-subtype?
-                  (values-te, i, as(<type-estimate>, the-type)))
+                instance?(the-type, <&type>) // &
+                // type-estimate-values-element-subtype?
+                //  (values-te, i, as(<type-estimate>, the-type)))
+              )
 	      // NB: succeeds if values-te is bottom, too -- no point in 
               //     checking type of result you'll never get!
 	      remove-user!(type, c);
@@ -1021,10 +1024,10 @@ define method evaluate-type-checks? (c :: <multiple-value-check-type-rest>)
     begin 
       let (rest-type-constant?, rest-type) = fast-constant-value?(check-rest-type);
       if (rest-type-constant? &                      // Type is constant
-          instance?(rest-type, <&type>) &            //   and matches values-te
-          type-estimate-values-rest-subtype?(values-te,
-                                             size(types(c)),
-                                             as(<type-estimate>, rest-type)))
+          instance?(rest-type, <&type>)) // &            //   and matches values-te
+          //type-estimate-values-rest-subtype?(values-te,
+          //                                   size(types(c)),
+          //                                   as(<type-estimate>, rest-type)))
         remove-user!(check-rest-type, c);            // Can remove check computation
         rest-type(c) := #f;
         #t
@@ -1200,11 +1203,11 @@ define method constant-fold (c :: <slot-value>)
     #t
   else
     let type = type-estimate(instance-ref);
-    if (instance?(type, <type-estimate-limited-collection>))
+    if (instance?(type, <&limited-collection-type>))
       select (^slot-getter(sd))
 	dylan-value(#"dimensions")
-	  => if (type-estimate-dimensions(type))
-	       let dims = as(<simple-object-vector>, type-estimate-dimensions(type));
+	  => if (^limited-collection-dimensions(type))
+	       let dims = as(<simple-object-vector>, ^limited-collection-dimensions(type));
 	       let ref  = make-value-reference(dims, <immutable-object-reference>);
 	       replace-computation-with-temporary!(c, ref);
 	       #t;
@@ -1212,7 +1215,7 @@ define method constant-fold (c :: <slot-value>)
 	       #f
 	     end if;
 	dylan-value(#"element-type") 
-	  => let ref = make-object-reference(as(<&type>, type-estimate-of(type)));
+	  => let ref = make-object-reference(^limited-collection-element-type(type));
 	     replace-computation-with-temporary!(c, ref);
              #t;
         otherwise

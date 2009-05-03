@@ -380,21 +380,21 @@ end;
 //   Calculates the dynamic extent of the parameters to a call
 
 define generic get-extent-of-parameters-in-call
-  (call :: <call>, typ :: <type-estimate>, temp) => (extent :: <dynamic-extent>);
+  (call :: <call>, typ :: <&type>, temp) => (extent :: <dynamic-extent>);
 
 define method get-extent-of-parameters-in-call
-    (call :: <call>, typ :: <type-estimate>, temp) => (extent :: <dynamic-extent>)
+    (call :: <call>, typ :: <&type>, temp) => (extent :: <dynamic-extent>)
   #[] // Let's be conservative...
 end;
-
+/*
 define method get-extent-of-parameters-in-call
     (call :: <call>, typ :: <type-estimate-limited-function>, temp)
         => (extent :: <dynamic-extent>)
   #[] // The function could do anything, so take the worst case...
 end;
-
+*/
 define method get-extent-of-parameters-in-call
-    (call :: <call>, typ :: <type-estimate-union>, temp) 
+    (call :: <call>, typ :: <&union>, temp) 
         => (extent :: <dynamic-extent>)
   // TODO: return the intersection of the extents of each component.  The
   // typist needs to export more before we can do this.
@@ -402,7 +402,7 @@ define method get-extent-of-parameters-in-call
 end;
 
 define method get-extent-of-parameters-in-call
-    (call :: <function-call>, typ :: <type-estimate-limited-instance>, temp) 
+    (call :: <function-call>, typ :: <&singleton>, temp) 
         => (extent :: <dynamic-extent>)
 
   local method intersect-extents(so-far, fun :: <&method>)
@@ -426,7 +426,7 @@ define method get-extent-of-parameters-in-call
 	  end if;
 	end;
 
-  let model = typ.type-estimate-singleton;
+  let model = typ.^singleton-object;
 
   if (corresponds-to-a-model-parameter(temp, call, model))
     case

@@ -25,8 +25,7 @@ define method do-optimize-primitive-next-methods-parameter
      call-args :: <argument-sequence>) 
   let lambda :: <&lambda> = lambda(lambda-environment(env));
   when (^function-signature(lambda))
-    let specializers 
-      = map(curry(as, <type-estimate>), ^function-specializers(lambda));
+    let specializers = ^function-specializers(lambda);
     let gf = ^method-generic-function(lambda);
     when (gf & instance?(gf, <&generic-function>))
       let effectives = estimate-effective-methods(gf, specializers, lambda);
@@ -406,7 +405,7 @@ define function simple-make-c-pointer-internal-call?
     // NO SPECIAL INITIALIZE METHODS
     let (leading-sorted, others)
       = potentially-applicable-methods
-          (dylan-value(#"initialize"), as(<type-estimate>, class));
+          (dylan-value(#"initialize"), class);
     if (empty?(others) & size(leading-sorted) == 1)
       let rest-arg  = arguments[2];
       let rest-args = maybe-vector-element-references(rest-arg);
@@ -455,15 +454,15 @@ define &optimizer-function make-c-pointer-internal (env, call, arguments)
   do-optimize-make-c-pointer-internal(env, call, arguments)
 end &optimizer-function;
 
-define method ^type-estimate-class-of (te :: <type-estimate-class>)
-  type-estimate-class(te)
+define method ^type-estimate-class-of (te :: <&class>)
+  te
 end method;
 
-define method ^type-estimate-class-of (te :: <type-estimate-limited-instance>)
-  ^object-class(type-estimate-singleton(te))
+define method ^type-estimate-class-of (te :: <&singleton>)
+  ^object-class(^singleton-object(te))
 end method;
 
-define method ^type-estimate-class-of (te :: <type-estimate>)
+define method ^type-estimate-class-of (te :: <&type>)
   #f
 end method;
 
@@ -1025,9 +1024,9 @@ define method do-optimize-size (env :: <environment>, call, call-args)
   let arg  = call-args[0];
   if (instance?(arg, <stack-vector-temporary>))
     replace-call-with-values(list(number-values(arg)), call, temporary(call));
-  elseif (instance?(type, <type-estimate-limited-collection>)
-	& type-estimate-size(type))
-    replace-call-with-values(list(type-estimate-size(type)), call, temporary(call));
+  elseif (instance?(type, <&limited-collection-type>)
+	& ^limited-collection-size(type))
+    replace-call-with-values(list(^limited-collection-size(type)), call, temporary(call));
   else 
     #f
   end if;
@@ -1041,9 +1040,9 @@ define method do-optimize-dimensions (env :: <environment>, call, call-args)
   let env  = call.environment;
   let arg  = call-args[0];
   let type = type-estimate(arg);
-  if (instance?(type, <type-estimate-limited-collection>)
-	& type-estimate-dimensions(type))
-    replace-call-with-values(list(type-estimate-dimensions(type)), call, temporary(call));
+  if (instance?(type, <&limited-collection-type>)
+	& ^limited-collection-dimensions(type))
+    replace-call-with-values(list(^limited-collection-dimensions(type)), call, temporary(call));
   else 
     #f
   end if;
@@ -1057,9 +1056,9 @@ define method do-optimize-element-type (env :: <environment>, call, call-args)
   let env  = call.environment;
   let arg  = call-args[0];
   let type = type-estimate(arg);
-  if (instance?(type, <type-estimate-limited-collection>))
+  if (instance?(type, <&limited-collection-type>))
     replace-call-with-values
-      (list(as(<&type>, type-estimate-of(type))), call, temporary(call));
+      (list(^limited-collection-element-type(type)), call, temporary(call));
   else 
     #f
   end if;

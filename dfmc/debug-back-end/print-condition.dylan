@@ -143,66 +143,6 @@ define method panic-debug-name(o :: <object>) => (dn :: <string>)
   stream-contents(str)
 end;
 
-
-define compiler-sideways method as(class == <ppml>, cte :: <type-estimate-class>)
-    => (ppml :: <ppml>)
-  let name = type-estimate-class(cte).^debug-name;
-  ppml-string(
-    if (name) name else type-estimate-class(cte).panic-debug-name end)
-end;
-
-define compiler-sideways method as(class == <ppml>, rte :: <type-estimate-raw>)
-  => (ppml :: <ppml>)
-  let name = type-estimate-debug-name(type-estimate-raw(rte));
-  ppml-string(
-    if (name) name else panic-debug-name(type-estimate-raw(rte)) end)
-end;
-
-define compiler-sideways method as(class == <ppml>, vte :: <type-estimate-values>)
-    => (ppml :: <ppml>)
-  let fixed-vals = type-estimate-fixed-values(vte);
-  let rest-vals  = type-estimate-rest-values(vte);
-  // let num-types =
-  //   if (rest-vals) fixed-vals.size + 1 else fixed-vals.size end;
-
-  let ppml-vals =
-    if (rest-vals)
-      concatenate(map(curry(as, <ppml>), fixed-vals), 
-                  list(ppml-block(vector(ppml-string("#rest "),
-                                         as(<ppml>, rest-vals)))))
-    else
-      map(curry(as, <ppml>), fixed-vals)
-    end;
-
-  // This was producing confusing error messages, in which you had to 
-  // the values() wrapper get any understanding.  And values(x) ~= x
-  // in terms of <type-estimate>s, anyway.
-  //
-  // if (num-types = 1)
-  //   ppml-vals[0]
-  // else
-  //   ppml-separator-block(ppml-vals,
-  //                        left-bracket:  ppml-string("values("),
-  //                        right-bracket: ppml-string(")"))
-  // end if
-  ppml-separator-block(ppml-vals,
-		       left-bracket:  ppml-string("values("),
-		       right-bracket: ppml-string(")"))
-end;
-
-define compiler-sideways method as(class == <ppml>, un :: <type-estimate-union>)
-    => (ppml :: <ppml>)
-  ppml-separator-block(map(curry(as, <ppml>), type-estimate-unionees(un)),
-    left-bracket:  ppml-string("type-union("),
-    right-bracket: ppml-string(")"))
-end;
-
-define compiler-sideways method as(class == <ppml>, teli :: <type-estimate-limited-instance>)
-    => (ppml :: <ppml>)
-  format-to-ppml("singleton(%= :: %=)", 
-                 type-estimate-singleton(teli), type-estimate-class(teli))
-end;
-
 define compiler-sideways method as (class == <ppml>, o :: <&object>)
     => (ppml :: <ppml>)
   ppml-string(format-to-string("%=", o))

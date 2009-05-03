@@ -62,26 +62,21 @@ end macro;
 ///  do a simple compile-time dispatch to that lone method.
 ///
 
-define generic guaranteed-joint?(t1 :: type-union(<type-estimate>, <&type>), t2 :: type-union(<type-estimate>, <&type>))
+define generic guaranteed-joint?(t1 :: <&type>, t2 :: <&type>)
    => (res :: <boolean>);
-
-define method guaranteed-joint?(t1 :: type-union(<type-estimate>, <&type>), t2 :: type-union(<type-estimate>, <&type>))
- => (well? :: <boolean>)
-  #f
-end;
 
 define method guaranteed-joint?(t1 :: <&type>, t2 :: <&type>)
  => (res :: <boolean>)
   ^subtype?(t1, t2)
 end;
-/*
-define method guaranteed-joint?(t1 :: <type-estimate-limited-instance>,
+
+define method guaranteed-joint?(t1 :: <&singleton>,
 				t2 :: <&type>)
  => (res :: <boolean>)
   // Singleton type estimates can be decided quickly, w/o typist overhead. 
-  ^instance?(type-estimate-singleton(t1), t2)
+  ^instance?(^singleton-object(t1), t2)
 end;
-*/ 
+
 // Disambiguating methods
 define method guaranteed-joint?(t1 :: <&type>,
 				t2 :: <&top-type>)
@@ -92,12 +87,6 @@ define method guaranteed-joint?(t1 :: <&type>,
 				t2 :: <&bottom-type>)
  => (res :: singleton(#f))
   #f
-end;
-
-define method guaranteed-joint?(t1 :: <&singleton>, t2 :: <&type>)
- => (res :: <boolean>)
-  // Singleton model types can be decided quickly, w/o typist overhead. 
-  ^instance?(^singleton-object(t1), t2)
 end;
 
 // Disambiguating methods
@@ -135,62 +124,63 @@ end;
 // we see #f in a type-union, we remove it and compute disjointess with
 // the remainder of the type-union only.
 
-define method null-type? (t :: <type-estimate>) => (well? :: <boolean>)
-  instance?(t, <type-estimate-limited-instance>)
-    & type-estimate-singleton(t) == #f
+define method null-type? (t :: <&type>) => (well? :: <boolean>)
+  //instance?(t, <type-estimate-limited-instance>)
+  //  & type-estimate-singleton(t) == #f
+  #f;
 end method;
 
 define method denull-type-estimate 
-    (t :: <type-estimate>) => (t :: <type-estimate>)
+    (t :: <&type>) => (t :: <&type>)
   t
 end method;
 
 define method denull-type-estimate 
-    (t :: <type-estimate-limited-instance>) => (t :: <type-estimate>)
-  if (type-estimate-singleton(t) == #f)
-    make(<type-estimate-bottom>)
+    (t :: <&singleton>) => (t :: <&type>)
+  if (^singleton-object(t) == #f)
+    make(<&bottom-type>)
   else
     t
   end;
 end method;
 
 define method maybe-type-estimate-union 
-    (unionees :: <list>) => (t :: <type-estimate>)
+    (unionees :: <list>) => (t :: <&type>)
   if (empty?(unionees.tail))
     unionees.head
   else
-    make(<type-estimate-union>, unionees: unionees)
+    apply(^type-union, unionees.head, unionees.tail)
   end
 end method;
 
 define method denull-type-estimate 
-    (t :: <type-estimate-union>) => (t :: <type-estimate>)
-  let unionees = type-estimate-unionees(t);
-  if (any?(null-type?, unionees))
-    local method non-null? (t :: <type-estimate>) => (well? :: <boolean>)
+    (t :: <&union>) => (t :: <&type>)
+  //let unionees = type-estimate-unionees(t);
+  if (#f) //any?(null-type?, unionees))
+    local method non-null? (t :: <&type>) => (well? :: <boolean>)
       ~null-type?(t)
     end method;
-    let new-unionees = choose(non-null?, unionees);
-    maybe-type-estimate-union(new-unionees);
+//    let new-unionees = choose(non-null?, unionees);
+//    ^type-union(new-unionees);
   else
     t
   end;
 end method;
 
-define method union-of-values? (t :: <type-estimate>) => (well? :: <boolean>)
-  instance?(t, <type-estimate-union>)
-    & every?(rcurry(instance?, <type-estimate-values>), 
-             type-estimate-unionees(t))
+define method union-of-values? (t :: <&type>) => (well? :: <boolean>)
+  instance?(t, <&union>)
+//    & every?(rcurry(instance?, <type-estimate-values>), 
+//             type-estimate-unionees(t))
 end method;
 
 define method flatten-union-of-values 
-    (t :: <type-estimate>) => (t :: <type-estimate>)
+    (t :: <&type>) => (t :: <&type>)
   t
 end method;
 
 define method flatten-union-of-values 
-    (union :: <type-estimate-union>) => (vals :: <type-estimate-values>)
-  let unionees = type-estimate-unionees(union);
+    (union :: <&union>) => (vals :: <&type>)
+/*  let unionees = type-estimate-unionees(union);
   let vals1 = unionees.first;
   let n-fixed = size(type-estimate-fixed-values(vals1));
   let rest? = type-estimate-rest-values(vals1);
@@ -215,7 +205,8 @@ define method flatten-union-of-values
                   end,
                   fixed-unionees-sequence),
        rest: rest? & maybe-type-estimate-union(rest-unionees));
-  result
+  result */
+  union;
 end method;
 
 ///
@@ -225,9 +216,10 @@ end method;
 ///    disjointness.
 ///
 
-//define generic effectively-disjoint? (t1 :: <&type>, t2 :: <&type>) => (well? :: <boolean>);
+define generic effectively-disjoint? (t1 :: <&type>, t2 :: <&type>) => (well? :: <boolean>);
+
 define method effectively-disjoint?
-    (t1 :: <type-estimate>, t2 :: <type-estimate>) => (well? :: <boolean>)
+    (t1 :: <&type>, t2 :: <&type>) => (well? :: <boolean>)
   if (null-type?(t1) | null-type?(t2))
     // A bare null in a comparison stands or falls on its own merit.
     guaranteed-disjoint?(t1, t2)
@@ -242,7 +234,7 @@ define method effectively-disjoint?
     guaranteed-disjoint?(denulled-t1, denulled-t2)
   end;
 end method;
-
+/*
 define method effectively-disjoint?
     (t1 :: <type-estimate-values>, t2 :: <type-estimate-values>)
  => (well? :: <boolean>)
@@ -306,22 +298,7 @@ define method effectively-disjoint?
         end;
   values(disjoint-by-arity?() | disjoint-by-type?(), #t)
 end;
-
-define method effectively-disjoint?
-    (t1 :: <&type>, t2 :: <&type>) => (well? :: <boolean>)
-  effectively-disjoint?(as(<type-estimate>, t1), as(<type-estimate>, t2))
-end method;
-
-define method effectively-disjoint?
-    (t1 :: <type-estimate>, t2 :: <&type>) => (well? :: <boolean>)
-  effectively-disjoint?(t1, as(<type-estimate>, t2))
-end method;
-
-define method effectively-disjoint?
-    (t1 :: <&type>, t2 :: <type-estimate>) => (well? :: <boolean>)
-  effectively-disjoint?(as(<type-estimate>, t1), t2)
-end method;
-
+*/
 ///
 /// guaranteed-preceding-specializer? (type1, type2, type-estimate) => (boolean)
 ///
@@ -364,41 +341,32 @@ define method guaranteed-preceding-specializer?
 end;
 
 define generic slot-fixed-offset-in (sd :: <&slot-descriptor>, 
-				     te :: <type-estimate>)
+				     te :: <&type>)
     // Is this slot at fixed offset, when referenced from something of type te?
     // When this is called, we know that the slot accessor method is
-    // applicable, so we only have to deal with type estimates that
-    // apply to objects which could be of classes which inherit the slot.
+    // applicable, so we only have to deal with types that apply to objects
+    // which could be of classes which inherit the slot.
  => (offset :: false-or(<integer>));
 
-define method slot-fixed-offset-in (sd :: <&slot-descriptor>, 
-				    te :: <type-estimate-class>)
+define method slot-fixed-offset-in (sd :: <&slot-descriptor>,  class :: <&class>)
  => (offset :: false-or(<integer>))
-  // Unwrapping trampoline
-  let class = type-estimate-class(te);
   slot-offset-fixed-in-class?(sd, class) &
     ^slot-fixed-offset(sd, class)
 end;
 
-define method slot-fixed-offset-in (sd :: <&slot-descriptor>, 
-				    te :: <type-estimate-limited-collection>)
+define method slot-fixed-offset-in (sd :: <&slot-descriptor>, lct :: <&limited-collection-type>)
  => (offset :: false-or(<integer>))
-  let class = type-estimate-concrete-class(te);
-  slot-fixed-offset-in(sd, as(<type-estimate>, class));
+  let class = ^limited-collection-concrete-class(lct);
+  slot-fixed-offset-in(sd, class);
 end;
 
-define method slot-fixed-offset-in (sd :: <&slot-descriptor>, 
-				    te :: <type-estimate-union>)
+define method slot-fixed-offset-in (sd :: <&slot-descriptor>,  te :: <&union>)
  => (offset :: false-or(<integer>))
   // Unwrapping trampoline
   let offset = #f;
   // do all unionees have the same offset?
-  // TODO:  this would be a lot simpler if unionees were a <list>
-  //        or if "for" weren't so limited
-  //        or if intermediate results of sequence functions were
-  //           optimized away: reduce(.., map(.., ))
   block (return)
-    for (te in type-estimate-unionees(te))
+/*    for (te in type-estimate-unionees(te))
       let te-offset = slot-fixed-offset-in(sd, te);
       if (te-offset)
 	if (offset)
@@ -412,27 +380,26 @@ define method slot-fixed-offset-in (sd :: <&slot-descriptor>,
 	return(#f);
       end;
     end;
-    offset
-  end
+    offset */
+  end;
+  #f
 end;
 
-define generic slot-guaranteed-initialized-in? (sd :: <&slot-descriptor>, 
-						te :: <type-estimate>)
+define generic slot-guaranteed-initialized-in? (sd :: <&slot-descriptor>, te :: <&type>)
  => (initialized? :: <boolean>);
 
-define method slot-guaranteed-initialized-in? (sd :: <&slot-descriptor>, 
-					       te :: <type-estimate-class>)
+define method slot-guaranteed-initialized-in? (sd :: <&slot-descriptor>, te :: <&class>)
  => (initialized? :: <boolean>)
   // Unwrapping trampoline
-  slot-guaranteed-initialized-in-class?(sd, type-estimate-class(te))
+  slot-guaranteed-initialized-in-class?(sd, te)
 end;
 
-define method slot-guaranteed-initialized-in? (sd :: <&slot-descriptor>, 
-					       te :: <type-estimate-union>)
+define method slot-guaranteed-initialized-in? (sd :: <&slot-descriptor>, te :: <&union>)
  => (initialized? :: <boolean>)
   // Unwrapping trampoline
-  every?(curry(slot-guaranteed-initialized-in?, sd),
-	 type-estimate-unionees(te))
+//  every?(curry(slot-guaranteed-initialized-in?, sd),
+//         type-estimate-unionees(te))
+  #f;
 end;
 
 //// Extended entry point analysis.
@@ -909,7 +876,7 @@ end method;
 define method upgrade-call-to-slot-accessor
     (c :: <simple-call>, m :: <&getter-method>, 
      sd :: <&instance-slot-descriptor>, offset :: <integer>,
-     te :: <type-estimate>)
+     te :: <&type>)
  => ()
   let env = environment(c);
   let args = arguments(c);
@@ -929,7 +896,7 @@ end;
 define method upgrade-call-to-slot-accessor
     (c :: <simple-call>, m :: <&setter-method>,
      sd :: <&instance-slot-descriptor>, offset :: <integer>,
-     te :: <type-estimate>)
+     te :: <&type>)
  => ()
   let env = environment(c);
   let args = arguments(c);
@@ -1003,7 +970,7 @@ end method;
 define method upgrade-call-to-slot-accessor
     (c :: <simple-call>, m :: <&repeated-getter-method>,
      sd :: <&repeated-slot-descriptor>, offset :: <integer>,
-     te :: <type-estimate>)
+     te :: <&type>)
  => ()
   let env = environment(c);
   let args = arguments(c);
@@ -1056,7 +1023,7 @@ end;
 define method upgrade-call-to-slot-accessor
     (c :: <simple-call>, m :: <&repeated-setter-method>,
      sd :: <&repeated-slot-descriptor>, offset :: <integer>,
-     te :: <type-estimate>)
+     te :: <&type>)
  => ()
   let env = environment(c);
   let args = arguments(c);
@@ -1334,7 +1301,7 @@ define method check-function-call (c :: <function-call>) => (ok-to-analyse?)
     let function-te = type-estimate(function-temp);
     // If we've hit bottom, there's been an error already.   gts,98mar25
     // Just bail out.
-    if (instance?(function-te, <type-estimate-bottom>))
+    if (instance?(function-te, <&bottom-type>))
       return(#f)
     end if;
     if (guaranteed-disjoint?(function-te, dylan-value(#"<function>")))
