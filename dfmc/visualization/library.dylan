@@ -44,6 +44,7 @@ define module dfmc-visualization
     report-enabled?, report-enabled?-setter,
     dfm-report-enabled?, dfm-report-enabled?-setter,
     dfm-index, dfm-index-setter,
+    system-info,
     connect-to-server,
     read-from-visualizer,
     write-to-visualizer;
