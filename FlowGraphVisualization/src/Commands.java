@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import y.base.Edge;
 import y.base.EdgeCursor;
 import y.base.Node;
+import y.view.LineType;
 import y.view.NodeLabel;
 
 
@@ -81,6 +82,10 @@ public final class Commands {
 			return colornode(ihl, answer, demo, true);
 		if (key.isEqual("not-representative"))
 			return colornode(ihl, answer, demo, false);
+		if (key.isEqual("highlight-constraint"))
+			return highlightedge(ihl, answer, demo, true);
+		if (key.isEqual("unhighlight-constraint"))
+			return highlightedge(ihl, answer, demo, false);
 		System.out.println("shouldn't be here");
 		return false;
 	}
@@ -438,5 +443,19 @@ public final class Commands {
 		demo.view.repaint();
 		return false;
 	} 
-		
+	
+	private static boolean highlightedge (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo, boolean thick) {
+		Node from = getNode(ihl, answer, 2, false);
+		Node to = getNode(ihl, answer, 3, false);
+		LineType lt = null; //that's what I really like about java!
+		if (thick)
+			lt = LineType.LINE_3;
+		else
+			lt = LineType.LINE_1;
+		for (EdgeCursor ec = from.outEdges(); ec.ok(); ec.next())
+			if (ec.edge().target() == to)
+				ihl.graph.getRealizer(ec.edge()).setLineType(lt);
+		demo.view.repaint();
+		return false;
+	}
 }
