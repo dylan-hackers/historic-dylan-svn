@@ -60,6 +60,14 @@ public class LayouterClient extends Thread {
 			DemoBase demo = new DemoBase(identifier.toString(), this);
 			demo.start();
 			
+			ArrayList sysinfo = new ArrayList();
+			sysinfo.add(System.getProperty("java.version"));
+			sysinfo.add(System.getProperty("java.vendor"));
+			sysinfo.add(System.getProperty("os.name"));
+			sysinfo.add(System.getProperty("os.arch"));
+			sysinfo.add(System.getProperty("os.version"));
+			printMessage(sysinfo);
+			
 			while (true) {
 				answer = readMessage();
 				assert(answer.size() > 1);
