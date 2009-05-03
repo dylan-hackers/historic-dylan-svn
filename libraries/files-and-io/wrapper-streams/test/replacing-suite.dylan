@@ -27,10 +27,9 @@ end test;
 
 
 define test replace-past-end ()
-   // Can't actually do this test, because we don't have a stream that can
-   // grow to cover start/end.
-
-   let stream = make(<replacing-stream>, inner-stream: $base-stream);
+   let inner = make(<string-stream>, contents: $base-stream-contents,
+                    direction: #"input-output");
+   let stream = make(<replacing-stream>, inner-stream: inner);
    add-replacement-contents(stream, "xx", start: stream.stream-size);
    let result = read(stream, 16);
    check-equal("expected data check", "aabbccddeeffggxx", result);

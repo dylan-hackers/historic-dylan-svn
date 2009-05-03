@@ -2,9 +2,8 @@ module: wrapper-streams-tester
 author: Dustin Voss 
 
 define constant $base-stream-contents = "aabbccddeeffgg";
-define constant $base-stream = make(<sequence-stream>,
-      contents: $base-stream-contents, element-type: <character>,
-      start: 0, end: $base-stream-contents.size);
+define constant $base-stream =
+      make(<string-stream>, contents: $base-stream-contents);
 
 
 define constant $text-stream-contents =
@@ -12,17 +11,15 @@ define constant $text-stream-contents =
       "My name is Inigo Montoya.\r"
       "You killed my father.\r\n"
       "Prepare to die!";
-define constant $text-stream = make(<sequence-stream>,
-      contents: $text-stream-contents, element-type: <character>,
-      start: 0, end: $text-stream-contents.size);
+define constant $text-stream =
+      make(<string-stream>, contents: $text-stream-contents);
 
 
 define constant $tabbed-text =
       "Inigo Montoya:\r\n"
       "\tHello.\tMy name is...";
-define constant $tabbed-text-stream = make(<sequence-stream>,
-      contents: $tabbed-text, element-type: <character>,
-      start: 0, end: $tabbed-text.size);
+define constant $tabbed-text-stream =
+      make(<string-stream>, contents: $tabbed-text);
 
 
 define suite wrapper-streams-suite ()
