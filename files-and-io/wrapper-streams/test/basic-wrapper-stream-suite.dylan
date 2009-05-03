@@ -20,8 +20,7 @@ end test;
 
 
 define test write-test ()
-   let inner-stream = make(<sequence-stream>, element-type: <character>,
-         direction: #"output", contents: make(<stretchy-vector>));
+   let inner-stream = make(<string-stream>, direction: #"output", contents: "");
    let stream = make(<basic-wrapper-stream>, inner-stream: inner-stream);
    let data = "Existential questions";
    write(stream, data);
@@ -145,8 +144,7 @@ end test;
 
 
 define test write-line-test ()
-   let inner-stream = make(<sequence-stream>, element-type: <character>,
-         direction: #"output", contents: make(<stretchy-vector>));
+   let inner-stream = make(<string-stream>, direction: #"output", contents: "");
    let stream = make(<basic-wrapper-stream>, inner-stream: inner-stream);
    write-line(stream, "Existential questions");
    check-equal("expected data check", "Existential questions\n",
@@ -155,8 +153,7 @@ end test;
 
 
 define test new-line-test ()
-   let inner-stream = make(<sequence-stream>, element-type: <character>,
-         direction: #"output", contents: make(<stretchy-vector>));
+   let inner-stream = make(<string-stream>, direction: #"output", contents: "");
    let stream = make(<basic-wrapper-stream>, inner-stream: inner-stream);
    stream.new-line;
    check-equal("expected data check", "\n", stream-contents-as(<string>, stream));

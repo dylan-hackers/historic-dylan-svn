@@ -1,6 +1,12 @@
 module: canonical-text-stream
 author: Dustin Voss
 
+
+// TODO: Not sure, but I think rather than inheriting from <basic-wrapper-stream>,
+// this should inherit from <wrapper-stream> and the inner stream should be wrapped
+// in <basic-wrapper-stream> if necessary.
+
+
 /**
 Class: <canonical-text-stream>
 ------------------------------

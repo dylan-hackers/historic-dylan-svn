@@ -1,6 +1,12 @@
 module: replacing-stream
 author: Dustin Voss
 
+
+// TODO: Not sure, but I think rather than inheriting from <basic-wrapper-stream>,
+// this should inherit from <wrapper-stream> and the inner stream should be wrapped
+// in <basic-wrapper-stream> if necessary.
+
+
 /**
 Class: <replacing-stream>
 -------------------------
@@ -594,7 +600,6 @@ define method stream-contents-as
 end method;
 
 
-// TODO: stream-limit-setter or stream-size-setter?
 // TODO: Could provide more efficient read and write implementations than the
 // character-by-character implementation in <basic-wrapper-stream>.
 

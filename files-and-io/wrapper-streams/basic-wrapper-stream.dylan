@@ -4,7 +4,8 @@ author: Dustin Voss
 /**
 Class: <basic-wrapper-stream>
 -----------------------------
-Synopsis: A <wrapper-stream> with implementations for several methods.
+Synopsis: A <wrapper-stream> with implementations for several methods. Use this
+between a wrapper stream and a non-wrapper stream affected by bug #7385.
 
 Note: This class is only necessary because Common Dylan I/O convenience
 methods do not call primitive methods on outer-stream. See bug #7385.
@@ -55,7 +56,7 @@ define method read
     #rest keys, #key on-end-of-stream = unsupplied())
 => (elements-or-eof :: <object>)
    let results = make(sequence-type-for-inner-stream(wrapper), size: n);
-   block (done)
+   block ()
       let read-count = read-into!(wrapper.outer-stream, n, results);
       if (read-count < n)
          copy-sequence(results, end: read-count)
@@ -64,7 +65,7 @@ define method read
       end if;
    exception (type-union(<end-of-stream-error>, <incomplete-read-error>),
               test: always(on-end-of-stream.supplied?))
-      done(on-end-of-stream);
+      on-end-of-stream;
    end block;
 end method;
 
@@ -74,7 +75,7 @@ define method read-into!
     #rest keys, #key start :: <integer> = 0, on-end-of-stream = unsupplied())
 => (count-or-eof :: <object>)
    let total-read = 0;
-   block()
+   block ()
       // Would rather use replace-subsequence!, but it doesn't guarantee that
       // coll would be modified.
       for (i from start below min(start + n, coll.size))
@@ -136,20 +137,20 @@ define method read-through
 => (elements-or-eof :: <object>, found? :: <boolean>)
    let elements = make(<stretchy-vector>);
    let elems-type = wrapper.sequence-type-for-inner-stream;
-   block (done)
-      while (#t)
+   block ()
+      let found? = #f;
+      until (found?)
          let elem = read-element(wrapper);
          add!(elements, elem);
-         if (test(elem, to-elem))
-            done(as(elems-type, elements), #t);
-         end if;
-      end while;
+         found? := test(elem, to-elem);
+      end until;
+      values(as(elems-type, elements), #t)
    exception (eos :: <end-of-stream-error>)
       case
          ~elements.empty? =>
-            done(as(elems-type, elements), #f);
+            values(as(elems-type, elements), #f);
          on-end-of-stream.supplied? =>
-            done(on-end-of-stream, #f);
+            values(on-end-of-stream, #f);
          otherwise =>
             error(eos);
       end case;
@@ -279,7 +280,7 @@ define method read-text-into!
     #rest keys, #key start :: <integer> = 0, on-end-of-stream = unsupplied())
 => (count-or-eof :: <object>)
    let total-read = 0;
-   block (done)
+   block ()
       for (i from start below min(start + n, string.size))
          let elem = read-element(wrapper);
          if (elem == '\r')
@@ -291,18 +292,17 @@ define method read-text-into!
          string[i] := elem;
          total-read := total-read + 1;
       end for;
-      done(total-read);
+      total-read;
    exception (eos :: <end-of-stream-error>)
       case
          total-read > 0 =>
-            done(total-read);
+            total-read;
          on-end-of-stream.supplied? =>
-            done(on-end-of-stream);
+            on-end-of-stream;
          otherwise =>
             error(eos);
       end case;
    end block;
-   total-read
 end method;
 
 
