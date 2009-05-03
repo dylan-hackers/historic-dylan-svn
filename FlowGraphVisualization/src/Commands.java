@@ -86,7 +86,7 @@ public final class Commands {
 			return highlightedge(ihl, answer, demo, true);
 		if (key.isEqual("unhighlight-constraint"))
 			return highlightedge(ihl, answer, demo, false);
-		//System.out.println("shouldn't be here");
+		System.out.println("shouldn't be here");
 		return false;
 	}
 
@@ -176,7 +176,7 @@ public final class Commands {
 			return true;
 		} else
 			if (ihl.safeCreateEdge(from, tonew)) {
-				//System.out.println("only created edge");
+				System.out.println("only created edge");
 				if (label != null)
 					ihl.setEdgeLabel(label);
 				return true;
@@ -198,7 +198,7 @@ public final class Commands {
 					ihl.graph.removeEdge(ec.edge());
 					return true;
 				}
-		//System.out.println("FAILED");
+		System.out.println("FAILED");
 		return false;
 	}
 	
@@ -273,7 +273,7 @@ public final class Commands {
 		assert(answer.size() == 4);
 		Node temp = getNode(ihl, answer, 2, true);
 		if (temp == null) {
-			//System.out.println("temp not present " + (Integer)answer.get(2));
+			System.out.println("temp not present " + (Integer)answer.get(2));
 			return false; //happens with arguments of inlined functions
 		}
 		Node comp = getNode(ihl, answer, 3, false);

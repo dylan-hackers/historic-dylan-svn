@@ -342,7 +342,7 @@ public class IncrementalHierarchicLayout
 
 	public boolean safeCreateEdge (Node source, Node target) {
 		if (source == null || target == null) {
-			//System.out.println("FAIL from " + source + " target " + target + " (source or target null)");
+			System.out.println("FAIL from " + source + " target " + target + " (source or target null)");
 			return false;
 		}
 		boolean connected = false;
@@ -356,7 +356,7 @@ public class IncrementalHierarchicLayout
 			//scf.addPlaceNodeBelowConstraint(source, target);
 			return true;
 		}
-		//System.out.println("FAIL: nodes " + source + " and " + target + " were already connected");
+		System.out.println("FAIL: nodes " + source + " and " + target + " were already connected");
 		return false;
 	}
 

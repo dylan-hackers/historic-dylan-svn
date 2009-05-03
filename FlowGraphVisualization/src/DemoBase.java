@@ -258,7 +258,7 @@ public class DemoBase extends Thread {
 		updatingslider = false;
 		view.setGraph2D(new Graph2D());
 		view.repaint();
-		//System.out.println("no graph yet, please wait");
+		System.out.println("no graph yet, please wait");
 	}
   }
 
@@ -298,7 +298,7 @@ public class DemoBase extends Thread {
   {
 	public void actionPerformed(ActionEvent ev) {
 		if (string_source_map.get(methodName()) == null) {
-			//System.out.println("new method :" + methodName() + ":");
+			System.out.println("new method :" + methodName() + ":");
 			string_source_map.put(methodName(), text.getText());
 			ListElement newLE = new ListElement(-1, methodName());
 			graph_chooser.addItem(newLE);
@@ -348,7 +348,7 @@ public class DemoBase extends Thread {
 				updatingslider = false;
 				view.setGraph2D(new Graph2D());
 				view.repaint();
-				//System.out.println("no graph yet, please wait");
+				System.out.println("no graph yet, please wait");
 			}
 				
 		}
@@ -610,7 +610,7 @@ public class DemoBase extends Thread {
 				player.setFps(30);
 				player.animate(AnimationFactory.createEasedAnimation(morpher));
 			} catch (Exception e) {
-				//System.out.println("got exception during layouting");
+				System.out.println("got exception during layouting");
 				e.printStackTrace();
 			} finally {
 				view.getCanvasComponent().setCursor(oldCursor);
