@@ -126,7 +126,7 @@ end method;
 
 
 define method ext-stream-contents-as
-   (type :: <type>, stream :: <sequence-stream>, #rest keys,
+   (type :: subclass(<sequence>), stream :: <sequence-stream>, #rest keys,
     #key clear-contents?)
 => (contents :: <sequence>)
    as(type, apply(ext-stream-contents, stream.outer-stream, keys))

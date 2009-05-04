@@ -30,9 +30,6 @@ define library sequence-stream
    use common-dylan;
    use io, import: { streams };
 
-   // for debugging
-   use io, import: { format-out };
-
    export sequence-stream;
 end library;
 
@@ -48,9 +45,6 @@ define module sequence-stream
            <stream-closed-error>, <end-of-stream-error>, <stream-not-readable>,
            <stream-not-writable>, <incomplete-read-error>, <byte-character>,
            outer-stream };
-   
-   // for debugging
-   use format-out;
    
    export <sequence-stream>, <string-stream>, <byte-string-stream>;
 end module;
