@@ -16,7 +16,7 @@ define constant $text-stream =
 
 
 define constant $tabbed-text =
-      "Inigo Montoya:\r\n"
+      "\aInigo Montoya:\r\n"
       "\tHello.\tMy name is...";
 define constant $tabbed-text-stream =
       make(<string-stream>, contents: $tabbed-text);

@@ -47,11 +47,11 @@ define open class <replacing-stream> (<basic-wrapper-stream>, <positionable-stre
    // stream contents. There is always at least one element in these arrays;
    // they are prepopulated with an empty segment.
    
-   constant slot inner-stream-limits =
+   slot inner-stream-limits =
       make(<stretchy-vector> /* of <stream-position> or <integer> */);
-   constant slot segment-contents =
+   slot segment-contents =
       make(<stretchy-vector> /* of <sequence> or #f */);
-   constant slot segment-limits =
+   slot segment-limits =
       make(<stretchy-vector> /* of <integer> */);
    slot current-segment :: <integer> = 1;
    slot current-offset :: <integer> = 0;
@@ -141,9 +141,9 @@ define method add-replacement-contents
       if (start-pos ~= seg-limits.last)
          inner.stream-position := inner-limits.last;
          adjust-stream-position(inner, start-pos - seg-limits.last);
-         add!(inner-limits, inner.stream-position);
-         add!(seg-limits, start-pos);
-         add!(seg-contents, #f);
+         inner-limits := add!(inner-limits, inner.stream-position);
+         seg-limits := add!(seg-limits, start-pos);
+         seg-contents := add!(seg-contents, #f);
       end if;
    
       // Add new segment. The adjust skips to the position before end-pos. We do
@@ -159,9 +159,9 @@ define method add-replacement-contents
          adjust-stream-position(inner, max(end-pos-adj - 1, 0));
          read-element(inner, on-end-of-stream: #f)
       end if;
-      add!(inner-limits, inner.stream-position);
-      add!(seg-limits, start-pos + replacement.size);
-      add!(seg-contents, replacement);
+      inner-limits := add!(inner-limits, inner.stream-position);
+      seg-limits := add!(seg-limits, start-pos + replacement.size);
+      seg-contents := add!(seg-contents, replacement);
    
       // Adjust current stream position considering new segment.
       case
@@ -561,10 +561,9 @@ end method;
 
 
 define method stream-contents-as
-   (type :: <type>, wrapper :: <replacing-stream>, #rest keys,
+   (type :: subclass(<sequence>), wrapper :: <replacing-stream>, #rest keys,
     #key clear-contents? :: <boolean> = #t)
 => (contents :: <sequence>)
-   assert(subtype?(type, <sequence>), "Type must be a <sequence>");
    let inner-limits = wrapper.inner-stream-limits;
    let seg-contents = wrapper.segment-contents;
 
@@ -621,9 +620,12 @@ define function clear-contents (wrapper :: <replacing-stream>) => ()
    wrapper.segment-contents.size := 0;
    wrapper.segment-limits.size := 0;
    wrapper.inner-stream.stream-position := #"start";
-   add!(wrapper.inner-stream-limits, wrapper.inner-stream.stream-position);
-   add!(wrapper.segment-contents, #());
-   add!(wrapper.segment-limits, 0);
+   wrapper.inner-stream-limits :=
+         add!(wrapper.inner-stream-limits, wrapper.inner-stream.stream-position);
+   wrapper.segment-contents :=
+         add!(wrapper.segment-contents, #());
+   wrapper.segment-limits :=
+         add!(wrapper.segment-limits, 0);
    wrapper.stream-position := #"start";
 end function;
 

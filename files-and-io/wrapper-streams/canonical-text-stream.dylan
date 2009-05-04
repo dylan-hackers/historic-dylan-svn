@@ -11,20 +11,24 @@ author: Dustin Voss
 Class: <canonical-text-stream>
 ------------------------------
 
-A text stream that detabs, standardizes line endings, and tracks row and column.
+A text stream that detabs, removes or replaces control characters, standardizes
+line endings, and tracks row and column.
 
 NOTE: 'inner-stream' will return a <replacing-stream>. That stream's inner stream
 will be the 'inner-stream'.
 
 Make keywords:
-   tabstop-size - Size of a tab stop. Defaults to 8.
-   end-of-line  - Canonical end-of-line sequence. Defaults to "\n".
+   tabstop-size  - Size of a tab stop. Defaults to 8.
+   end-of-line   - Canonical end-of-line sequence. Defaults to "\n".
+   control-chars - Replacement for control characters (0-32 and 127), or #f to
+                   leave control characters alone. Defaults to "".
 */
 
 define class <canonical-text-stream> (<basic-wrapper-stream>, <positionable-stream>)
    constant slot tabstop-size :: <integer> = 8, init-keyword: #"tabstop-size";
    constant slot eol :: <string> = "\n", init-keyword: #"end-of-line";
-   constant slot line-positions = make(<stretchy-vector>);
+   constant slot control :: false-or(<string>) = "", init-keyword: #"control-chars";
+   slot line-positions = make(<stretchy-vector>);
    slot tabstop-fillers :: <vector>;
    slot unchecked-position :: <integer> = 0;
    slot checked-final-eol? :: <boolean> = #f;
@@ -186,21 +190,22 @@ define function check-elements-to-stream-position (cts :: <canonical-text-stream
    let position = inner.stream-position;
    when (position >= cts.unchecked-position)
 
-      // We make canonical replacements of \t, \r, \n up to and including
-      // current stream position. If current stream position is also eos,
-      // we ensure the stream is terminated by eol. In scanning the stream, we
+      // We make canonical replacements of \t, \r, \n and control characters up to
+      // and including current stream position. If current stream position is also
+      // eos, we ensure the stream is terminated by eol. In scanning the stream, we
       // must change the stream position. We save the original stream position,
-      // scan the stream but do not actually perform any replacements, restore
-      // the original stream position, and then do all the replacements at once.
-      // The replacing automatically adjusts the stream position, saving us
-      // from having to figure out the new position ourselves.
+      // scan the stream but do not actually perform any replacements, restore the
+      // original stream position, and then do all the replacements at once. The
+      // replacing automatically adjusts the stream position, saving us from having
+      // to figure out the new position ourselves.
       
       let replacements = make(<stretchy-vector>);
-      local method add-replacement (start-pos, end-pos, str)
-               let new-rep = make(<vector>, size: 3);
+      local method add-replacement (start-pos, end-pos, str, orig)
+               let new-rep = make(<vector>, size: 4);
                new-rep[0] := start-pos;
                new-rep[1] := end-pos;
                new-rep[2] := str;
+               new-rep[3] := (str ~= orig);  // #t if replacement actually needed
                replacements := add!(replacements, new-rep);
             end method;
             
@@ -211,29 +216,38 @@ define function check-elements-to-stream-position (cts :: <canonical-text-stream
       // Plan replacements.
       while (cur-pos <= position & ~inner.stream-at-end?)
          let elem = read-element(inner);
-         select (elem)
-            '\t' =>
+         case
+            elem = '\t' =>
                let filler = cts.tabstop-fillers[modulo(cur-col, cts.tabstop-size)];
-               add-replacement(cur-pos, cur-pos + 1, filler);
+               add-replacement(cur-pos, cur-pos + 1, filler, #f);
                cur-pos := cur-pos + 1;
                cur-col := cur-col + filler.size;
-            '\n' =>
-               add-replacement(cur-pos, cur-pos + 1, cts.eol);
+            elem = '\n' =>
+               add-replacement(cur-pos, cur-pos + 1, cts.eol, "\n");
                cur-pos := cur-pos + 1;
                cur-col := 0;
-            '\r' =>
+            elem = '\r' =>
                let new-pos = cur-pos + 1;
-               if (peek(inner, on-end-of-stream: #f) == '\n')
-                  read-element(inner);
-                  new-pos := new-pos + 1;
-               end if;
-               add-replacement(cur-pos, new-pos, cts.eol);
+               let orig-eol = 
+                     if (peek(inner, on-end-of-stream: #f) == '\n')
+                        read-element(inner);
+                        new-pos := new-pos + 1;
+                        "\r\n";
+                     else
+                        "\r";
+                     end if;
+               add-replacement(cur-pos, new-pos, cts.eol, orig-eol);
                cur-pos := new-pos;
                cur-col := 0;
+            cts.control & (elem < '\<20>' | elem = '\<7F>') =>
+               add-replacement(cur-pos, cur-pos + 1, cts.control,
+                               make(<string>, size: 1, fill: elem));
+               cur-pos := cur-pos + 1;
+               cur-col := cur-col + cts.control.size;
             otherwise =>
                cur-pos := cur-pos + 1;
                cur-col := cur-col + 1;
-         end select;
+         end case;
       end while;
       
       // If we scanned to end of stream, ensure that it has a preceding eol.
@@ -246,7 +260,7 @@ define function check-elements-to-stream-position (cts :: <canonical-text-stream
                ~(replacements.last[2] == cts.eol &
                  replacements.last[1] == inner.stream-limit);
          when (needs-eol)
-            add-replacement(inner.stream-limit, inner.stream-limit, cts.eol);
+            add-replacement(inner.stream-limit, inner.stream-limit, cts.eol, #f);
          end when;
          cts.checked-final-eol? := #t;
       end when;
@@ -259,15 +273,21 @@ define function check-elements-to-stream-position (cts :: <canonical-text-stream
          let start-pos = rep[0] + offset;
          let end-pos = rep[1] + offset;
          let rep-str = rep[2];
+         let rep-end =
+               if (rep[3])
+                  let (new-start, new-end) = add-replacement-contents
+                        (inner, rep-str, start: start-pos, end: end-pos);
+                  offset := offset + (rep-str.size - (end-pos - start-pos));
+                  new-end
+               else
+                  end-pos
+               end if;
 
-         let (new-start, new-end) =
-               add-replacement-contents(inner, rep-str, start: start-pos, end: end-pos);
-         offset := offset + (rep-str.size - (end-pos - start-pos));
-         cts.unchecked-position := new-end;
+         cts.unchecked-position := rep-end;
          
          // Was it a new line?
          if (rep-str == cts.eol)
-            add!(cts.line-positions, new-end);
+            cts.line-positions := add!(cts.line-positions, rep-end);
          end if;
       end for;
       
