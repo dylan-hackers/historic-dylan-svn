@@ -119,6 +119,42 @@ end;
         <li><dsp:get name="user-name" context="page"/></li>
       </dsp:loop>
 */
+
+/* todo -- If one wants to do something fairly complicated in the
+first loop iteration only, then it's not desirable/possible to use
+"header=" in the loop element itself.  But once you move anything
+inside a <dsp:when test="loop-first?"> then the "header=" becomes
+almost useless because it must be output BEFORE whatever's in the
+dsp:when element.  e.g.
+
+   <dsp:loop over="user-group-names" var="group-name" footer="</ul>">
+     <dsp:when test="loop-first?">
+       <h3><wiki:show-user-username/> is a member of:</h3>
+       <ul>
+     </dsp:when>
+     ...
+   </dsp:loop>
+
+Here you end up with XML in which the <ul> and </ul> aren't properly
+nested in the template source, which makes editing tools less useful.
+Is there any way around this?
+
+I supposed one can use an outer dsp:when to decide whether to enter
+the loop at all, but that likely means computing the loop collection
+twice, which is unfortunate, and also means either writing a new test
+(e.g., test="does-user-belong-to-any-groups?" for the above example).
+
+It occurs to me that we could avoid having to write that extra named-method
+by supporting a syntax like test="user-group-names.empty?.not", where
+"empty?" and "not" and a few others are explicitly supported.  This
+introduces a new mini-language, which is annoying, but it provides more
+expressivity. The set of supported functions, like "not", could be defined
+in a way similar to the way named-methods work, so that the user could
+extend the mini-language to some degree.  But at some point simple 
+chaining with "." isn't expressive enough and we'll want more.  Does
+that way lie madness?
+*/
+
 define thread variable *loop-value* = #f;
 define thread variable *loop-index* :: false-or(<integer>) = #f;
 define thread variable *loop-first?* :: <boolean> = #f;

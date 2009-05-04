@@ -32,30 +32,6 @@ define class <tag-argument-parse-error> (<dsp-parse-error>) end;
 
 //// Generic pages
 
-
-//// <page-context>
-
-// Gives the user a place to store values that will have a lifetime
-// equal to the duration of the page processing (i.e., during process-page).  The
-// name is stolen from JSP's PageContext class, but it's not intended to serve the
-// same purpose.  Use set-attribute(page-context, key, val) to store attributes
-// for the page and get-attribute(page-context, key) to retrieve them.
-
-define class <page-context> (<attributes-mixin>)
-end;
-
-define thread variable *page-context* :: false-or(<page-context>) = #f;
-
-// API
-define method page-context
-    () => (context :: false-or(<page-context>))
-  *page-context*
-end;
-
-
-
-//// <page>
-
 define open primary class <page> (<object>)
 end;
 
@@ -78,9 +54,7 @@ end method invoke-responder;
 define open generic process-page (page :: <page>, #key, #all-keys);
 
 define method process-page (page :: <page>, #rest args, #key)
-  dynamic-bind (*page-context* = make(<page-context>))
-    apply(respond-to, current-request().request-method, page, args);
-  end;
+  apply(respond-to, current-request().request-method, page, args);
 end process-page;
 
 // The protocol every page needs to support.

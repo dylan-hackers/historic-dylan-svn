@@ -345,6 +345,30 @@ define inline function request-port (request :: <basic-request>)
 end;
 */
 
+//// <page-context>
+
+// Gives the user a place to store values that will have a lifetime
+// equal to the duration of the handling of the request.  The name is
+// stolen from JSP's PageContext class, but it's not intended to serve the
+// same purpose.  Use set-attribute(page-context, key, val) to store attributes
+// for the page and get-attribute(page-context, key) to retrieve them.
+
+define class <page-context> (<attributes-mixin>)
+end;
+
+define thread variable *page-context* :: false-or(<page-context>) = #f;
+
+define method page-context
+    () => (context :: false-or(<page-context>))
+  if (*request*)
+    *page-context* | (*page-context* := make(<page-context>))
+  else
+    application-error(message: "There is no active HTTP request.")
+  end;
+end;
+
+
+
 // todo -- make thread safe
 define variable *sockets-started?* :: <boolean> = #f;
 
@@ -1185,30 +1209,32 @@ define method invoke-handler (request :: <request>) => ()
       end;
     end;
   else
-    dynamic-bind (*response* = response)
+    dynamic-bind (*response* = response,
+                  // This is set to a <page-context> when first requested.
+                  *page-context* = #f)
       if (request.request-responder)
-       let (actions, match) = find-actions(request);
-       if (actions)
-         // Invoke each action function with keyword arguments matching the names
-         // of the named groups in the first regular expression that matches the
-         // tail of the url, if any.  Also pass the entire match as the match:
-         // argument so unnamed groups and the entire match can be accessed.
-         let arguments = #[];
-         if (match)
-           arguments := make(<deque>);
-           for (group keyed-by name in match.groups-by-name)
-             if (group)
-               push-last(arguments, as(<symbol>, name));
-               push-last(arguments, group.group-text);
-             end if;
-           end for;
-         end if;
-         for (action in actions)
-           invoke-responder(request, action, arguments)
-         end;
-       else
-         resource-not-found-error(url: request.request-url);
-       end if;
+        let (actions, match) = find-actions(request);
+        if (actions)
+          // Invoke each action function with keyword arguments matching the names
+          // of the named groups in the first regular expression that matches the
+          // tail of the url, if any.  Also pass the entire match as the match:
+          // argument so unnamed groups and the entire match can be accessed.
+          let arguments = #[];
+          if (match)
+            arguments := make(<deque>);
+            for (group keyed-by name in match.groups-by-name)
+              if (group)
+                push-last(arguments, as(<symbol>, name));
+                push-last(arguments, group.group-text);
+              end if;
+            end for;
+          end if;
+          for (action in actions)
+            invoke-responder(request, action, arguments)
+          end;
+        else
+          resource-not-found-error(url: request.request-url);
+        end if;
       else
         // generates 404 if not found
         maybe-serve-static-file();

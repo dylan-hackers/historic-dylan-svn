@@ -63,7 +63,10 @@ define module koala
       count-query-values,
       with-query-values,
     request-content-type,
-    process-request-content;
+    process-request-content,
+    <page-context>,
+    page-context;                // Returns a <page-context> if a page is being processed.
+                                 //   i.e., essentially within the dynamic scope of respond-to-get/post/etc
 
   // Responders
   create
@@ -213,9 +216,6 @@ define module dsp
     show-tag-call-attributes,
     get-tag-call-attribute,
 
-    <page-context>,
-    page-context,                // Returns a <page-context> if a page is being processed.
-                                 //   i.e., essentially within the dynamic scope of respond-to-get/post/etc
     named-method-definer,
     get-named-method,
 
