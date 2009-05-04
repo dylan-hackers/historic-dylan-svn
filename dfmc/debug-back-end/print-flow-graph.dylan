@@ -48,7 +48,7 @@ define compiler-sideways method print-object (o :: <lexical-specialized-variable
 end;
 
 define compiler-sideways method print-object (o :: <cell>, stream :: <stream>) => ()
-  format(stream, "%s (%=)", o.name, o.cell-type);
+  format(stream, "%s (%=)", o.name, slot-initialized?(o, %cell-type) & o.cell-type | #f);
 end;
 
 define compiler-sideways method print-object (o :: <temporary>, stream :: <stream>) => ()

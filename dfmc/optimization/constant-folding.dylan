@@ -933,6 +933,7 @@ define function trim-type-estimate-to-fixed-values
 	    unionees: map(rcurry(trim-type-estimate-to-fixed-values, n),
 			  type-estimate-unionees(te)));
   end */
+  te;
 end;
 
 define function evaluate-fixed-values-type-checks

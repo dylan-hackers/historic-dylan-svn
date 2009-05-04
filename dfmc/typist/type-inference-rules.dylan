@@ -184,13 +184,19 @@ end;
 
 define method infer-computation-types (c :: <values>) => ()
   next-method();
+  let l = begin
+            let types = map(lookup-type, c.fixed-values);
+            if (c.rest-value)
+              types := add(types, make(<&rest-type>).lookup-type);
+            end;
+            if (c.fixed-values.size == 1 & ~c.rest-value)
+              types.first;
+            else
+              make(<&tuple-type>, tuples: types).lookup-type;
+            end;
+          end;
   add-constraint(make(<equality-constraint>,
-                      left: lookup-type(if (c.fixed-values.size == 1)
-                                          c.fixed-values.first
-                                        else
-                                          make(<&tuple-type>,
-                                               tuples: map(lookup-type, c.fixed-values))
-                                        end),
+                      left: l,
                       right: c.temporary.lookup-type-variable));
 end;
 
@@ -205,13 +211,20 @@ define method infer-computation-types (c :: <phi-node>) => ()
                       right: c.temporary.lookup-type-variable));
 end;
 
-define method infer-computation-types (c :: <loop-merge>) => ()
+define method infer-computation-types (c :: <binary-merge>) => ()
   next-method();
-  solve(*graph*, *constraints*, *type-environment*);
-  add-constraint(make(<equality-constraint>,
-                      left: ^type-union(c.merge-left-value.temporary-type,
-                                        c.merge-right-value.temporary-type).lookup-type,
-                      right: c.temporary.lookup-type-variable));  
+  if (c.merge-left-value & c.merge-right-value)
+    solve(*graph*, *constraints*, *type-environment*);
+    add-constraint(make(<equality-constraint>,
+                        left: ^type-union(c.merge-left-value.temporary-type,
+                                          c.merge-right-value.temporary-type).lookup-type,
+                        right: c.temporary.lookup-type-variable));
+  elseif (c.merge-left-value | c.merge-right-value)
+    let v = c.merge-left-value | c.merge-right-value;
+    add-constraint(make(<equality-constraint>,
+                        left: v.temporary-type.lookup-type,
+                        right: c.temporary.lookup-type-variable));
+  end;
 end;
 
 define method extract-parameter-type (c :: <loop-merge>)

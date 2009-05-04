@@ -483,78 +483,58 @@ define method eliminate-assignments (f :: <&lambda>)
   phi-placement(df, f, mapping);
   renaming(f, mapping);
   values(idom, root, mapping, df);
-  //for (t in f.environment.temporaries)
-  //  if (~empty?(t.assignments) & ~cell?(t))
-  //    cell-assigned-temporaries(t);
-  //  end if;
-  //end for;
-  //strip-assignments(environment(f));
 end method eliminate-assignments;
 
-define method find-temporary-transfer (c :: <bind>, ass :: <collection>) => (res :: <computation>)
-  c;
-end;
-
-define method find-temporary-transfer (c :: <computation>, ass :: <collection>) => (res :: <computation>)
-  if (member?(c, ass))
-    c
-  else
-    find-temporary-transfer(c.previous-computation, ass);
-  end;
+define method convert-ssa-to-cells (f :: <&lambda>)
+  for (t in f.environment.temporaries)
+    if (~empty?(t.assignments) & ~cell?(t))
+      cell-assigned-temporaries(t);
+    end if;
+  end for;
+  strip-assignments(environment(f));
 end;
 
 define method cell-assigned-temporaries (t :: <temporary>)
-  let ass = #();
-  for (assignment in t.assignments)
-    assert(assignment.assigned-binding == t);
-    let (tt, tmp)
-      = make-with-temporary
-          (assignment.environment, <temporary-transfer>, value: assignment.computation-value);
-    insert-computations-after!(assignment, tt, tt);
-    replace-temporary-in-users!(assignment.temporary, tmp);
-    delete-computation!(assignment);
-    ass := add!(ass, tt);
-  end;
-  t.assignments := ass;
-  for (user in t.users)
-    //find nearest temporary-transfer
-    let tt = find-temporary-transfer(user.previous-computation, ass);
-    unless (instance?(tt, <bind>))
-      replace-temporary-references!(user, t, tt.temporary);
-    end;
-  end;
-               
-
- /*
   let (make-cell-first-c, make-cell-last-c, cell) 
     = convert-make-cell(t.environment, t);
   insert-computations-after!
     (t.generator | t.environment.lambda.body, 
      make-cell-first-c, make-cell-last-c);
+  local method replace-user (user :: <computation>, replaced :: <temporary>)
+          unless (user == make-cell-first-c | user == make-cell-last-c)
+            let (get-first-c, get-last-c, get-t)
+              = with-parent-computation (user)
+                  convert-get-cell-value(user.environment, cell);
+                end;
+            insert-computations-before-reference!
+              (user, get-first-c, get-last-c, replaced);
+            replace-temporary-references!(user, replaced, get-t);
+          end unless;
+        end method;
   for (user in t.users)
-    unless (user == make-cell-first-c | user == make-cell-last-c)
-      let (get-first-c, get-last-c, get-t)
-        = with-parent-computation (user)
-            convert-get-cell-value(user.environment, cell);
-          end;
-      insert-computations-before-reference!
-        (user, get-first-c, get-last-c, t);
-      replace-temporary-references!(user, t, get-t);
-    end unless;
+    replace-user(user, t);
   end for;
   for (assignment in t.assignments)
-    assert(assignment.assigned-binding == t);
-    let val-t = assignment.computation-value;
-    let (set-first-c, set-c, set-t)
-      = with-parent-computation (assignment)
-          convert-set-cell-value!(assignment.environment, cell, val-t);
-        end;
-    insert-computations-after!(assignment, set-first-c, set-c);
-    replace-temporary-in-users!(assignment.temporary, val-t);
-    delete-computation!(assignment);
-    // Track cell writes
-    cell.assignments := add!(cell.assignments, set-c); 
-  end for; */
+    for (user in assignment.temporary.users)
+      unless (instance?(user, <phi-node>))
+        replace-user(user, assignment.temporary);
+      end;
+    end for;
+    if (instance?(assignment, <phi-node>))
+      delete-computation!(assignment);
+    else //<temporary-transfer>
+      let val-t = assignment.computation-value;
+      let (set-first-c, set-c, set-t)
+        = with-parent-computation (assignment)
+            convert-set-cell-value!(assignment.environment, cell, val-t);
+          end;
+      insert-computations-after!(assignment, set-first-c, set-c);
+      replace-temporary-in-users!(assignment.temporary, val-t);
+      delete-computation!(assignment);
+      // Track cell writes
+      cell.assignments := add!(cell.assignments, set-c); 
+    end;
+  end for;
 end method cell-assigned-temporaries;
 
 // Constructors for celling primitives.

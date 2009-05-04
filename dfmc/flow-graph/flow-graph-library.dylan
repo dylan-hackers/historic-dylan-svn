@@ -324,7 +324,7 @@ define module dfmc-flow-graph
     closed-over?, closed-over?-setter,
     dynamic-extent?, dynamic-extent?-setter,
 
-    <cell>,
+    <cell>, %cell-type,
       cell-type, cell-type-setter,
     cell?,
 
