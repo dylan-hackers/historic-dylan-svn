@@ -5,7 +5,7 @@ define open class <feed> (<object>)
   /* slot CommonAttributes */
   slot authors :: <list> = #(),
     init-keyword: authors:;
-  slot categories :: <vector> = #[],
+  slot categories :: <vector> = #[],  // of strings, if wiki is to be believed
     init-keyword: categories:;
   slot contributors :: <list> = #(),
     init-keyword: contributors:;
