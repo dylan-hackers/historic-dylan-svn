@@ -8,6 +8,7 @@ define library support-library
    use regular-expressions;
    use system;
    use io;
+   use sequence-stream;
    use peg-parser;
    use dynamic-binding;
    use skip-list;

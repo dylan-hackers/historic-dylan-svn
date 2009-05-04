@@ -56,7 +56,7 @@ define method arrange-topics (topics :: <sequence>, tocs :: <sequence>)
               ct)
       end for;
       let combined-tree = reduce(combine-trees, tree, overlapping-trees);
-      combined-trees := concatenate(vector(combined-tree), other-trees);
+      combined-trees := apply(vector, combined-tree, other-trees);
    end for;
    
    // log-object("Combined trees", combined-trees);

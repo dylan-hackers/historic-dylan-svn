@@ -2,7 +2,7 @@ module: dylan-parser
 synopsis: The Dylan lexical grammar, as defined in the DRM, with some omissions.
 
 define class <lexeme> (<token>)
-   slot lexeme-doc :: false-or(<doc-comment-token>) = #f;
+   slot lexeme-doc :: false-or(<markup-content-token>) = #f;
 end class;
 
 define method concatenated-strings (s :: <string>) => (s :: <string>)

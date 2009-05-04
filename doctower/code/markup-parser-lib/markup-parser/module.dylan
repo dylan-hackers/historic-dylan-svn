@@ -4,6 +4,7 @@ synopsis: This module parses Doxygen markup read from a stream.
 define module markup-parser
    use common, exclude: { table, source-location };
    use parser-common, export: { source-location };
+   use conditions;
    use configs;
    
    // from peg-parser
@@ -11,7 +12,6 @@ define module markup-parser
    // from string-extensions
    use character-type;
    // from wrapper-streams
-   use canonical-text-stream;
    use replacing-stream;
    // from regular-expressions
    use regular-expressions, import: { regexp-replace };

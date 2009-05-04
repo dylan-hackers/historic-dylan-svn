@@ -47,16 +47,16 @@ end;
 //
 
 define caching parser paragraph-line :: <markup-word-sequence>
-   rule seq(not-next(paragraph-break), markup-words, ls) => tokens;
-   yield tokens[1];
+   rule seq(not-next(paragraph-break), sol, markup-words, ls) => tokens;
+   yield tokens[2];
 end;
 
 define caching parser paragraph-line-til-hyphen-ls :: <markup-word-sequence>
-   rule seq(not-next(paragraph-break),
+   rule seq(not-next(paragraph-break), sol,
             many(seq(not-next(hyphen-ls), markup-word, spaces)),
             choice(req-next(hyphen-ls), ls))
       => tokens;
-   yield collect-subelements(tokens[1], 1);
+   yield collect-subelements(tokens[2], 1);
 end;
 
 define caching parser paragraph-break
@@ -74,14 +74,18 @@ end;
 
 // exported
 define caching parser raw-line (<source-location-token>)
-   rule seq(opt-many(seq(not-next(raw-line-end), char)), raw-line-end) => tokens;
+   rule seq(indent-dedent, opt-many(seq(not-next(raw-line-end), char)),
+            raw-line-end)
+      => tokens;
    slot text :: <string> =
       begin
-         let first-part = collect-subelements(tokens[0], 1) | "";
-         concatenate(as(<string>, first-part), tokens[1].text)
+         let first-part = collect-subelements(tokens[1], 1) | "";
+         let leading-spaces = attr(raw-leading-spaces, default: 0);
+         let first-part = copy-sequence(first-part, start: leading-spaces);
+         concatenate(as(<string>, first-part), tokens[2].text)
       end;
    slot index :: false-or(type-union(<integer>, <character>)) =
-      tokens[1].index;
+      tokens[2].index;
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
@@ -108,7 +112,7 @@ end;
 //
 
 define caching parser ascii-overline
-   rule seq(ascii-line, ls);
+   rule seq(sol, ascii-line, ls);
 afterwards (context, tokens, value, start-pos, end-pos)
    attr(title-overline?) := #t;
 end;
@@ -120,7 +124,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define caching parser ascii-underline
-   rule seq(ascii-line, ls);
+   rule seq(sol, ascii-line, ls);
 afterwards (context, tokens, value, start-pos, end-pos)
    attr(title-underline?) := #t;
 end;

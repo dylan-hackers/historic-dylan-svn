@@ -92,34 +92,35 @@ define caching parser title-line-bare-style-til-nickname :: <title-line-bare-sty
 end;
 
 define caching parser title-line-midline-style (<token>)
-   rule seq(ascii-midline, spaces, title-words, opt(ascii-midline), ls) => tokens;
-   slot content :: <title-word-sequence> = tokens[2];
+   rule seq(sol, ascii-midline, spaces, title-words, opt(ascii-midline), ls)
+      => tokens;
+   slot content :: <title-word-sequence> = tokens[3];
 end;
 
 define caching parser title-line-bare-style (<token>)
-   rule seq(title-words, ls) => tokens;
-   slot content :: <title-word-sequence> = tokens[0];
+   rule seq(sol, title-words, ls) => tokens;
+   slot content :: <title-word-sequence> = tokens[1];
 end;
 
 define caching parser title-nickname-line-midline-style (<token>)
-   rule seq(ascii-midline, spaces,
+   rule seq(sol, ascii-midline, spaces,
             opt-choice(seq(opt(title-words), ascii-midline, spaces),
                        seq(title-words-til-nickname)),
             title-nickname)
       => tokens;
-   // tokens[2] will be one of
+   // tokens[3] will be one of
    // - #f
    // - #[ #f, ascii-midline, spaces ]
    // - #[ #[ title-words,... ], ascii-midline, spaces]
    // - #[ #[ title-words,... ] ]
-   slot content :: <title-word-sequence> = (tokens[2] & tokens[2][0]) | #[];
-   slot title-nickname :: <title-nickname-token> = tokens[3];
+   slot content :: <title-word-sequence> = (tokens[3] & tokens[3][0]) | #[];
+   slot title-nickname :: <title-nickname-token> = tokens[4];
 end;
 
 define caching parser title-nickname-line-bare-style (<token>)
-   rule seq(opt(title-words-til-nickname), title-nickname) => tokens;
-   slot content :: <title-word-sequence> = tokens[0] | #[];
-   slot title-nickname :: <title-nickname-token> = tokens[1];
+   rule seq(sol, opt(title-words-til-nickname), title-nickname) => tokens;
+   slot content :: <title-word-sequence> = tokens[1] | #[];
+   slot title-nickname :: <title-nickname-token> = tokens[2];
 end;
 
 //

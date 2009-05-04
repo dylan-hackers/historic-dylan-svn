@@ -148,8 +148,8 @@ end class;
 
 
 define abstract class <documentable-api-element> (<object>)
-   slot comment-tokens = make(<stretchy-vector> /* of <doc-comment-token>*/),
-      init-keyword: #"comments";
+   slot markup-tokens = make(<stretchy-vector> /* of <markup-content-token>*/),
+      init-keyword: #"markup";
 end class;
 
 

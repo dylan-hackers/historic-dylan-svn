@@ -209,7 +209,7 @@ define parser variable (<source-location-token>)
    slot name :: <string> = tokens[0].name;
    slot type :: false-or(<text-token>) =
       tokens[1] & ~skipped?(tokens[1][1]) & tokens[1][1];
-   slot var-doc :: false-or(<doc-comment-token>) = tokens[0].var-doc;
+   slot var-doc :: false-or(<markup-content-token>) = tokens[0].var-doc;
 afterwards (context, token, value, start-pos, end-pos)
    note-combined-source-location(context, value, token);
 end;
@@ -217,7 +217,7 @@ end;
 define parser variable-name (<text-name-token>)
    rule lex-ORDINARY-NAME => token;
    slot name :: <string> = token.value;
-   slot var-doc :: false-or(<doc-comment-token>) = token.lexeme-doc;
+   slot var-doc :: false-or(<markup-content-token>) = token.lexeme-doc;
    inherited slot api-name = token.value;
 afterwards (context, token, value, start-pos, end-pos)
    note-combined-source-location(context, value, token);
@@ -445,7 +445,7 @@ define parser rest-key-parameter-list (<source-location-token>)
                    opt-seq(lex-COMMA, key-parameter-list)),
                seq(nil(#"key"), key-parameter-list))
    => tokens;
-   slot rest-doc :: false-or(<doc-comment-token>) =
+   slot rest-doc :: false-or(<markup-content-token>) =
          select (tokens[0])
             #"rest" => tokens[1].lexeme-doc;
             #"key" => #f;
@@ -492,7 +492,7 @@ define parser required-parameter (<source-location-token>)
                seq(nil(#f), variable, nil(#f), nil(#f)))
    => tokens;
    slot req-sing? :: <boolean> = tokens[0];
-   slot req-doc :: false-or(<doc-comment-token>) = tokens[1].var-doc;
+   slot req-doc :: false-or(<markup-content-token>) = tokens[1].var-doc;
    slot req-var :: type-union(<variable-name-token>, <variable-token>) = tokens[1];
    slot req-inst :: false-or(<text-token>) = ~skipped?(tokens[3]) & tokens[3];
 afterwards (context, tokens, value, start-pos, end-pos)
@@ -508,7 +508,7 @@ end;
 
 define parser keyword-parameter (<source-location-token>)
    rule seq(opt(lex-SYMBOL), variable, opt(default)) => tokens;
-   slot key-doc :: false-or(<doc-comment-token>) =
+   slot key-doc :: false-or(<markup-content-token>) =
          (tokens[0] & tokens[0].lexeme-doc) | tokens[1].var-doc;
    slot key-symbol :: false-or(<string>) = tokens[0] & tokens[0].value;
    slot key-var :: <variable-token> = tokens[1];
@@ -552,7 +552,7 @@ define parser values-list (<source-location-token>)
             #"vars" => tokens[2] & tokens[2][2];
             #"rest" => tokens[2];
          end select;
-   slot rest-doc :: false-or(<doc-comment-token>) =
+   slot rest-doc :: false-or(<markup-content-token>) =
          select (tokens[0])
             #"vars" => tokens[2] & tokens[2][1].lexeme-doc;
             #"rest" => #f;

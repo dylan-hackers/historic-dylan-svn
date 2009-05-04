@@ -76,8 +76,8 @@ define caching parser indented-link-words :: <link-word-sequence>
 end;
 
 define caching parser link-word-lines :: <link-word-sequence>
-   rule many(seq(link-words, ls)) => tokens;
-   yield integrate-sequences(collect-subelements(tokens, 0));
+   rule many(seq(sol, link-words, ls)) => tokens;
+   yield integrate-sequences(collect-subelements(tokens, 1));
 end;
 
 define caching parser link-words :: <link-word-sequence>
@@ -99,10 +99,10 @@ end;
 
 // exported as <link-word-token>
 define caching parser link-line (<link-word-token>)
-   rule choice(seq(quote-start, text-til-end-quote, quote-end, ls),
-               seq(nil(#f), text-til-ls, ls))
+   rule choice(seq(sol, quote-start, text-til-end-quote, quote-end, ls),
+               seq(sol, nil(#f), text-til-ls, ls))
       => token;
-   inherited slot text = remove-multiple-spaces(token[1].text);
+   inherited slot text = remove-multiple-spaces(token[2].text);
 attributes
    close-quote-char :: false-or(<character>) = #f;
 afterwards (context, tokens, value, start-pos, end-pos)
@@ -342,4 +342,12 @@ end;
 
 define caching parser opt-spaces
    rule opt-many(spc)
+end;
+
+define parser sol (<token>)
+   rule opt-spaces => token
+end;
+
+define parser indent-dedent
+   rule opt-many(choice(indent, dedent))
 end;

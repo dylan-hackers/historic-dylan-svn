@@ -18,11 +18,15 @@ define module common-imports
    use file-system, import: { <file-stream>, stream-locator }, export: all;
    use locators, import: { <file-locator> }, export: all;
    // from io
-   use streams, export: all;
+   use streams,
+      exclude: { <sequence-stream>, <string-stream>, <byte-string-stream> },
+      export: all;
    use format, export: all;
    use standard-io, export: all;
    use print, import: { print-object, print }, export: all;
    use pprint, import: { printing-logical-block, pprint-newline }, export: all;
+   // from sequence-stream
+   use sequence-stream, export: all;
    // from regular-expressions
    use regular-expressions, import: { join }, export: all;
    // from source-location

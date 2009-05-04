@@ -4,7 +4,6 @@ module: dylan-translator
 /** Synopsis: Returns topics for Dylan libraries, modules, definitions, etc. **/
 define method topics-from-dylan (library-sets :: <sequence>)
 => (topics :: <sequence>)
-   // TODO
    // Model source code.
    let libraries = apis-from-dylan(library-sets);
    

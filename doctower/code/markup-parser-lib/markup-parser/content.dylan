@@ -14,7 +14,7 @@ define constant <raw-line-sequence> = <sequence>;
 //
 
 // #"blank-lines" counts as #f
-define caching parser content-block :: type-union(<division-content-types>, singleton(#f))
+define caching parser content-block :: false-or(<division-content-types>)
    rule choice(blank-lines, marginal-code-block, marginal-verbatim-block,
                figure-ref-line, content-ref-line, ditto-ref-line,
                api-list-ref-line, bracketed-raw-block, table, bullet-list,
@@ -41,8 +41,8 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define caching parser marginal-code-block-line :: <raw-line-token>
-   rule seq(colon, spc, raw-line) => tokens;
-   yield tokens[2];
+   rule seq(sol, colon, spc, raw-line) => tokens;
+   yield tokens[3];
 end;
 
 // exported
@@ -54,8 +54,8 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define caching parser marginal-verbatim-block-line :: <raw-line-token>
-   rule seq(choice(gt, bar), spc, raw-line) => tokens;
-   yield tokens[2];
+   rule seq(sol, choice(gt, bar), spc, raw-line) => tokens;
+   yield tokens[3];
 end;
 
 //
@@ -64,15 +64,15 @@ end;
 
 // exported
 define caching parser figure-ref-line (<source-location-token>)
-   rule seq(opn-brack-spc, fig-lit, many-spc-ls, filename,
+   rule seq(sol, opn-brack-spc, fig-lit, many-spc-ls, filename,
             opt-seq(many-spc-ls, scale-factor), spc-cls-brack,
             opt(text-til-ls), ls)
       => tokens;
-   slot filename :: <string> = tokens[2];
-   slot scale-factor :: false-or(<integer>) = tokens[3] & tokens[3][1].factor;
-   slot scale-type :: false-or(<symbol>) = tokens[3] & tokens[3][1].type;
+   slot filename :: <string> = tokens[3];
+   slot scale-factor :: false-or(<integer>) = tokens[4] & tokens[4][1].factor;
+   slot scale-type :: false-or(<symbol>) = tokens[4] & tokens[4][1].type;
    slot caption :: false-or(<string>) =
-      tokens[5] & remove-multiple-spaces(tokens[5].text);
+      tokens[6] & remove-multiple-spaces(tokens[6].text);
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
@@ -85,30 +85,31 @@ end;
 
 // exported -- link can be false if referring to sub-topics of current topic
 define caching parser content-ref-line (<source-location-token>)
-   rule seq(opn-brack-spc, contents-lit,
+   rule seq(sol, opn-brack-spc, contents-lit,
             opt-seq(many-spc-ls, of-lit, many-spc-ls, link-til-cls-brack),
             spc-cls-brack, ls)
       => tokens;
-   slot link :: false-or(<link-word-token>) = tokens[2] & tokens[2][3];
+   slot link :: false-or(<link-word-token>) = tokens[3] & tokens[3][3];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
 
 // exported
 define caching parser ditto-ref-line (<source-location-token>)
-   rule seq(opn-brack-spc, ditto-lit, many-spc-ls, link-til-cls-brack, spc-cls-brack, ls)
+   rule seq(sol, opn-brack-spc, ditto-lit, many-spc-ls, link-til-cls-brack,
+            spc-cls-brack, ls)
       => tokens;
-   slot link :: <link-word-token> = tokens[3];
+   slot link :: <link-word-token> = tokens[4];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
 
 // exported
 define caching parser api-list-ref-line (<source-location-token>)
-   rule seq(opn-brack-spc, list-lit, many-spc-ls, of-lit, many-spc-ls,
+   rule seq(sol, opn-brack-spc, list-lit, many-spc-ls, of-lit, many-spc-ls,
             api-list-spec-text, spc-cls-brack, ls)
       => tokens;
-   slot list-type :: <symbol> = tokens[5];
+   slot list-type :: <symbol> = tokens[6];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
@@ -122,25 +123,27 @@ define caching parser bracketed-raw-block (<source-location-token>)
    slot block-type :: <symbol> = tokens[0];
    slot content :: <raw-line-sequence> = collect-subelements(tokens[1], 1) | #[];
 attributes
-   bracketed-spec-text :: false-or(<string>) = #f;
+   raw-leading-spaces :: <integer> = 0,
+   bracketed-spec-text :: false-or(<symbol>) = #f;
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
 
 define caching parser bracketed-raw-block-start-line :: <symbol>
-   rule seq(opn-brack-spc, bracketed-raw-block-spec-text, spc-cls-brack, ls)
+   rule seq(sol, opn-brack-spc, bracketed-raw-block-spec-text, spc-cls-brack, ls)
       => tokens;
-   yield tokens[1];
+   yield tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
-   attr(bracketed-spec-text) := tokens[1];
+   attr(raw-leading-spaces) := tokens[0].parse-end - tokens[0].parse-start;
+   attr(bracketed-spec-text) := tokens[2];
 end;
 
 define caching parser bracketed-raw-block-end-line
-   rule seq(opn-brack-spc, end-lit,
+   rule seq(indent-dedent, sol, opn-brack-spc, end-lit,
             opt-seq(many-spc-ls, bracketed-raw-block-spec-text),
             spc-cls-brack, ls);
 afterwards (context, tokens, value, start-pos, end-pos, fail: fail)
-   check-end-spec-text(tokens[2] & tokens[2][1], fail)
+   check-end-spec-text(tokens[4] & tokens[4][1], fail)
 end;
 
 //

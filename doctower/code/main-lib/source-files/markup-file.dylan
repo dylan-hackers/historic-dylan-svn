@@ -12,18 +12,13 @@ define method topics-from-markup-file (locator :: <file-locator>)
    // Read and parse file.
    with-open-file (file = locator)
       let text = make(<canonical-text-stream>, inner-stream: file);
-      let token = block ()
-                     parse-markup(text, file.stream-locator);
-                  cleanup
-                     text.close;
-                  exception (fail :: <parse-failure>)
-                     let (line, col) = line-col-position(text, at: fail.failure-position);
-                     let loc = make(<file-source-location>,
-                                    file: text.inner-stream.inner-stream.stream-locator,
-                                    start-line: line, start-column: col,
-                                    end-line: line, end-col: col);
-                     parse-error-in-markup(location: loc, expected: fail.parse-expected);
-                  end block;
+      let token =
+            block ()
+               parse-markup(text, curry(line-col-position, text, at:),
+                            file.stream-locator);
+            cleanup
+               text.close;
+            end block;
    
       // Generate explicit topics and placeholders.
       topics-from-markup(token, #f);

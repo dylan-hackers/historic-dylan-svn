@@ -138,25 +138,6 @@ define method case-insensitive-less? (str1 :: <string>, str2 :: <string>)
 end method;
 
 
-define macro with-open-file
-   {  with-open-file (?:name = ?locator:expression, #rest ?keys:expression)
-         ?:body
-      end }
-   => {  block ()
-            let ?name = make(<file-stream>, locator: ?locator, ?keys);
-            block ()
-               ?body
-            cleanup
-               close(?name)
-            end block
-         exception (err :: <file-does-not-exist-error>)
-            file-not-found(location: #f, filename: ?locator)
-         exception (err :: <file-system-error>)
-            file-error(filename: ?locator, error: condition-to-string(err))
-         end block }
-end macro;
-
-
 /// Synopsis: Define methods to visit objects and their slots.
 ///
 /// Use as follows, where braces indicate optional items:

@@ -10,5 +10,6 @@ files:   dylan-parser-library
          dylan-parser/lexical-grammar
          dylan-parser/phrase-grammar
          dylan-parser/definitions
+         dylan-parser/markup
          dylan-parser/printers
          

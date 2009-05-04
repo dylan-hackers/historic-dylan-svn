@@ -2,7 +2,7 @@ module: parser-common
 synopsis: Common code for dylan-parser and markup-parser.
 
 
-/// Tokens are equal if they are of the same class and cover the same range.
+/** Tokens are equal if they are of the same class and cover the same range. **/
 define method \= (tok1 :: <token>, tok2 :: <token>) => (equal? :: <boolean>)
    tok1 == tok2
       | (tok1.object-class == tok2.object-class
@@ -17,13 +17,26 @@ define open abstract class <updatable-source-location-mixin> (<object>)
 end class;
 
 
-/// Synopsis: A token that has a user-identifiable origin.
+/** Synopsis: A token that has a user-identifiable origin. **/
 define open class <source-location-token> (<token>, <updatable-source-location-mixin>)
 end class;
 
 
-/// Synopsis: Parse context that includes information required to generate a
-/// source location.
+/**
+Synopsis: Parse context that includes information required to generate a source
+location.
+
+There are one or more wrapper streams between what the parser sees and the
+underlying file on disk. This would normally screw up source location reporting
+to the end user, but with the information in this class, a source location can
+accurately reflect the file on disk.
+
+--- Make Keywords: ---
+file-locator               - The <file-locator> of the base file.
+line-col-position-method   - A function. Given a stream position in the
+                             parser-visible stream, the function should return
+                             the corresponding line and column in the base file.
+**/
 define open class <file-parse-context> (<parse-context>)
    slot file-locator :: <file-locator>,
       required-init-keyword: #"file-locator";
@@ -32,7 +45,7 @@ define open class <file-parse-context> (<parse-context>)
 end class;
 
 
-/// Synopsis: Generate source location from stream positions.
+/** Synopsis: Generate source location from stream positions. **/
 define method source-location-from-stream-positions
    (context :: <file-parse-context>, start-pos :: <integer>, end-pos :: <integer>)
 => (source-location :: <source-location>)
@@ -45,7 +58,7 @@ define method source-location-from-stream-positions
 end method;
 
 
-/// Synopsis: Saves source location of a parsed token.
+/** Synopsis: Saves source location of a parsed token. **/
 define inline method note-source-location
    (context :: <file-parse-context>, value :: <source-location-token>)
 => ()
@@ -54,8 +67,10 @@ define inline method note-source-location
 end method;
 
 
-/// Synopsis: Saves source location encompassing one or more child tokens that
-/// are subclasses of <token>.
+/**
+Synopsis: Saves source location encompassing one or more child tokens that are
+subclasses of <token>.
+**/
 define inline method note-combined-source-location
    (context :: <file-parse-context>, value :: <source-location-token>, tokens)
 => ()
@@ -64,8 +79,10 @@ define inline method note-combined-source-location
 end method;
 
 
-/// Synopsis: Sets token parse span encompassing one or more child tokens that
-/// are subclasses of <token>.
+/**
+Synopsis: Sets token parse span encompassing one or more child tokens that are
+subclasses of <token>.
+**/
 define method span-token-positions
    (value :: <token>, tokens)
 => ()
