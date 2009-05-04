@@ -23,8 +23,8 @@ define method skipped? (item) => (skipped? :: <boolean>)
    instance?(item, <skipped-token>)
 end method;
 
-define method choose-doc-comments (seq) => (seq :: <sequence>)
-   choose(rcurry(instance?, <doc-comment-token>), seq);
+define method choose-markup-tokens (seq) => (seq :: <sequence>)
+   map(markup, choose(rcurry(instance?, <doc-block-token>), seq));
 end method;
 
 define method choose-unskipped (seq) => (seq :: <sequence>)
@@ -36,31 +36,31 @@ define method list-from-tokens (tokens) => (seq :: <sequence>)
    add-to-front(tokens[0], collect-subelements(tokens[1], 1) | #[])
 end method;
 
-define method \= (doc1 :: <doc-comment-token>, doc2 :: <doc-comment-token>)
-=> (equal? :: <boolean>)
-   (doc1 == doc2) |
-   (doc1.parse-start = doc2.parse-start) & (doc1.parse-end = doc2.parse-end)
-end method;
-
 
 //
 // Text tokens
 //
 
-define method capture-text-and-names
-   (context :: <dylan-parse-context>, token :: <text-token>,
-    source-names :: <sequence> /* of <text-name-token> */)
+define method capture-text
+   (context :: <dylan-parse-context>, token :: <text-token>)
 => ()
    let text-span = token.parse-end - token.parse-start;
-   token.source-text := make(<stretchy-vector>, size: text-span);
+   token.source-text := make(<simple-object-vector>, size: text-span);
 
    let saved-pos = context.source-stream.stream-position;
    context.source-stream.stream-position := token.parse-start;
    read-into!(context.source-stream, text-span, token.source-text);
    context.source-stream.stream-position := saved-pos;
+end method;
 
-   // Replace characters with appropriate <text-name-token>.
+define method capture-text-and-names
+   (context :: <dylan-parse-context>, token :: <text-token>,
+    source-names :: <sequence> /* of <text-name-token> */)
+=> ()
+   // Grab text from stream.
+   capture-text(context, token);
    
+   // Replace characters with appropriate <text-name-token>.
    let offset = token.parse-start;
    source-names := sort!(source-names,
          test: method (tok1 :: <text-name-token>, tok2 :: <text-name-token>)
@@ -101,7 +101,7 @@ define class <class-keyword> (<updatable-source-location-mixin>)
    slot keyword-name :: <string>;
    slot keyword-type :: false-or(<text-token>);
    slot keyword-init :: false-or(<text-token>);
-   slot keyword-doc :: false-or(<doc-comment-token>);
+   slot keyword-doc :: false-or(<markup-content-token>);
 end class;
 
 define class <class-slot> (<updatable-source-location-mixin>)
@@ -110,7 +110,7 @@ define class <class-slot> (<updatable-source-location-mixin>)
    slot slot-type :: false-or(<text-token>);
    slot slot-init :: false-or(<text-token>);
    slot slot-setter :: false-or(<string>);
-   slot slot-doc :: false-or(<doc-comment-token>);
+   slot slot-doc :: false-or(<markup-content-token>);
 end class;
 
 define method slot-from-clause (tok :: <token>)
@@ -230,7 +230,7 @@ end method;
 //
 
 define abstract class <func-param> (<updatable-source-location-mixin>)
-   slot param-doc :: false-or(<doc-comment-token>), init-keyword: #"doc";
+   slot param-doc :: false-or(<markup-content-token>), init-keyword: #"doc";
 end class;
 
 define abstract class <func-argument> (<func-param>)

@@ -20,12 +20,7 @@ such as bullet lists.
 define function first-item-and-last-subelements (items :: <sequence>)
 => (simplified-items :: <sequence>)
    let opt-many-items = items[1];
-   if (opt-many-items)
-      concatenate(vector(items[0]),
-                  map(method (seq-items) seq-items.last end, opt-many-items))
-   else
-      vector(items[0])
-   end if
+   apply(vector, items[0], map(last, opt-many-items))
 end function;
 
 
@@ -56,7 +51,7 @@ end function;
 
 
 /** Synopsis: Ensures "[end x]" text is correct. */
-define function check-end-spec-text (text :: false-or(<string>), fail)
+define function check-end-spec-text (text :: false-or(<symbol>), fail)
    let spec-text = attr(bracketed-spec-text, default: #f);
    unless (text = #f | text = spec-text)
       fail(make(<parse-failure>, expected:

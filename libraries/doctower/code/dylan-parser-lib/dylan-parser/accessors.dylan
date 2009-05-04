@@ -24,11 +24,11 @@ define generic definitions (token :: <source-record-token>)
 
 /// Synopsis: Documentation outside of top-level forms.
 define generic unscoped-docs (token :: <source-record-token>)
-=> (seq :: <sequence> /* of <doc-comment-token> */);
+=> (seq :: <sequence> /* of <markup-content-token> */);
 
 /// Synopsis: Documentation belonging to a particular top-level form.
 define generic scoped-docs (token :: <definition-token>)
-=> (seq :: <sequence> /* of <doc-comment-token> */);
+=> (seq :: <sequence> /* of <markup-content-token> */);
 
 /// Synopsis: Adjective strings.
 define generic api-modifiers (token :: <token>)
@@ -98,7 +98,7 @@ define generic slot-setter (slot :: <class-slot>)
 
 /// Synopsis: Class slot documentation.
 define generic slot-doc (slot :: <class-slot>)
-=> (doc :: false-or(<doc-comment-token>));
+=> (doc :: false-or(<markup-content-token>));
 
 /// Synopsis: Returns whether class init keyword is required.
 define generic keyword-required? (init-key :: <class-keyword>)
@@ -122,11 +122,11 @@ define generic keyword-init (init-key :: <class-keyword>)
 
 /// Synopsis: Class init keyword documentation.
 define generic keyword-doc (init-key :: <class-keyword>)
-=> (doc :: false-or(<doc-comment-token>));
+=> (doc :: false-or(<markup-content-token>));
 
 /// Synopsis: Function parameter/value documentation.
 define generic param-doc (param :: <func-param>)
-=> (doc :: false-or(<doc-comment-token>));
+=> (doc :: false-or(<markup-content-token>));
 
 /// Synopsis: Function parameter/value name, or keyword parameter symbol.
 define generic param-name (param :: <func-param>)

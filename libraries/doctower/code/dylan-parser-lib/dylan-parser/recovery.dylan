@@ -55,7 +55,7 @@ parser) and signals a warning to the user.
 **/
 
 define method checked-recovery
-   (skipper :: <function>, stream :: <canonical-text-stream>, context)
+   (skipper :: <function>, stream :: <positionable-stream>, context)
 => (result, succ?, err)
    // Skip to next graphic character before starting recovery, so that the range
    // of skipped input does not include end-of-line characters.

@@ -4,38 +4,6 @@ Need to Do
 
 Most of the things marked with TODO in a comment are need-to-do items.
 
-------
-
-Stripping out the left, top, and bottom margins of comment blocks before handing
-them off to the markup parser. Currently, these are not removed and the comment
-block starts at the opening comment delimiter, so that we type the following
-
-  /// //////////////////
-  /// This is a two-line comment block
-  /// with top & bottom margins.
-  /// ////////////////
-  
-  /**
-   * Function: hello
-   *
-   * Here is documentation.
-   **/
-
-the markup parser would see the slashes, hyphens, and leading whitespace (except
-for the leading whitespace before the comment actually begins). This is bad. The
-parser should see the content without all the decorations. The first and last
-lines should be treated specially, and the rest of the lines should have common
-opening elements removed. This means the indentation level might be different
-between the first and second line, even though they look aligned to the eye. Not
-sure if there is a way to fix that.
-
-This could be implemented with a <replacing-stream> that strips out the extras.
-Whatever solution we choose, it needs to be able to trace markup to the
-underlying file and line/column.
-
-Also, need to decide whether "/************" starts a doc comment or not. I'm
-inclined towards "not."
-
 -----
 
 API recognition. If you type "use the <integer> class," the code should figure

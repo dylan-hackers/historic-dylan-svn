@@ -54,9 +54,9 @@ define method print-message (o :: <file-source-location>, s :: <stream>)
       format(s, "%d", o.source-start-line);
       if (o.source-start-column)
          format(s, ":%d", o.source-start-column);
-         if (o.source-end-column & o.source-end-column > o.source-start-column)
-            format(s, "-%d", o.source-end-column);
-         end if;
+         // if (o.source-end-column & o.source-end-column > o.source-start-column)
+         //    format(s, "-%d", o.source-end-column);
+         // end if;
       end if;
    else
       format(s, "%d-%d", o.source-start-line, o.source-end-line);

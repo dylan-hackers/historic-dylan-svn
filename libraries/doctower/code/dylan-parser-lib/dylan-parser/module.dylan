@@ -3,14 +3,14 @@ module: dylan-user
 define module dylan-parser
    use common, exclude: { source-location };
    use parser-common, export: { source-location };
+   use markup-parser, import: { <markup-content-token>, parse-markup };
    use conditions;
 
    // from peg-parser
    use peg-parser, export: { <token>, *parser-trace* };
    // from string-extensions
    use character-type;
-   // from wrapper-streams
-   use canonical-text-stream;
+   use substring-search;
 
    export parse-dylan-file;
 
@@ -20,7 +20,6 @@ define module dylan-parser
       <constant-definer-token>,
       <create-clause-token>,
       <definition-token>,
-      <doc-comment-token>,
       <domain-definer-token>,
       <export-clause-token>,
       <function-definer-token>,

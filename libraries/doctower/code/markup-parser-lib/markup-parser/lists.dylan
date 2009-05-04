@@ -18,8 +18,8 @@ end;
 
 // exported
 define caching parser bullet-list-item (<source-location-token>)
-   rule seq(bullet-list-marker, remainder-and-indented-content) => tokens;
-   slot content :: <division-content-sequence> = tokens[1];
+   rule seq(sol, bullet-list-marker, remainder-and-indented-content) => tokens;
+   slot content :: <division-content-sequence> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
@@ -36,7 +36,9 @@ end;
 
 // exported
 define caching parser numeric-list (<source-location-token>)
-   rule seq(numeric-list-first-item, opt-many(seq(opt(blank-lines), numeric-list-item)))
+   rule seq(numeric-list-first-item,
+            opt-many(seq(opt(blank-lines), numeric-list-item)),
+            opt(blank-lines))
       => items;
    slot list-start :: type-union(<integer>, <string>) = items[0].ordinal;
    slot content :: <sequence> /* of <numeric-list-item-token> */ =
@@ -50,17 +52,18 @@ end;
 
 // exported as <numeric-list-item-token>
 define caching parser numeric-list-first-item (<numeric-list-item-token>)
-   rule seq(numeric-list-first-marker, remainder-and-indented-content) => tokens;
-   slot ordinal :: type-union(<integer>, <string>) = tokens[0].ordinal;
-   inherited slot content /* :: <division-content-sequence> */ = tokens[1];
+   rule seq(sol, numeric-list-first-marker, remainder-and-indented-content)
+      => tokens;
+   slot ordinal :: type-union(<integer>, <string>) = tokens[1];
+   inherited slot content /* :: <division-content-sequence> */ = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
 
 // exported
 define caching parser numeric-list-item (<source-location-token>)
-   rule seq(numeric-list-marker, remainder-and-indented-content) => tokens;
-   slot content :: <division-content-sequence> = tokens[1];
+   rule seq(sol, numeric-list-marker, remainder-and-indented-content) => tokens;
+   slot content :: <division-content-sequence> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
@@ -95,9 +98,9 @@ end;
 
 // exported
 define caching parser hyphenated-list-item (<source-location-token>)
-   rule seq(hyphenated-list-label, remainder-and-indented-content) => tokens;
-   slot item-label :: <markup-word-sequence> = tokens[0];
-   slot content :: <division-content-sequence> = tokens[1];
+   rule seq(sol, hyphenated-list-label, remainder-and-indented-content) => tokens;
+   slot item-label :: <markup-word-sequence> = tokens[1];
+   slot content :: <division-content-sequence> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
@@ -126,9 +129,9 @@ end;
 
 // exported
 define caching parser phrase-list-item (<source-location-token>)
-   rule seq(phrase-list-label, indented-content) => tokens;
-   slot item-label :: <markup-word-sequence> = tokens[0];
-   slot content :: <division-content-sequence> = tokens[1];
+   rule seq(sol, phrase-list-label, indented-content) => tokens;
+   slot item-label :: <markup-word-sequence> = tokens[1];
+   slot content :: <division-content-sequence> = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;

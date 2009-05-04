@@ -2,11 +2,10 @@ module: dylan-parser
 synopsis: Line-oriented parsing and grammar of documentation comments.
 
 
-// Doc comments only need parse-start and parse-end; content is parsed separately.
 // Span includes opening comment delimiter and all text up to and including 
 // closing comment delimiter or eol, including leading spaces and eol comment
 // delimiters on each line.
-define class <doc-comment-token> (<source-location-token>)
+define class <doc-comment-token> (<text-token>)
 end class;
 
 
@@ -43,7 +42,7 @@ define parser whitespace (<token>)
    label "comment or whitespace";
    rule many(choice(spc, eol, doc-block, comment)) => tokens;
 afterwards (context, tokens, value, start-pos, end-pos)
-   let docs = tokens.choose-doc-comments;
+   let docs = tokens.choose-markup-tokens;
    context.last-whitespace-doc := ~docs.empty? & docs.last;
 end;
 
@@ -74,26 +73,35 @@ define parser eol-comment
    rule seq(double-slash, opt(eol-comment-text), eol)
 end;
 
-define caching parser doc-block :: <doc-comment-token>
+define caching parser doc-block (<token>)
    rule seq(opt-spaces, choice(delim-doc-comment, eol-doc-comments)) => tokens;
-   yield tokens[1];
-afterwards (context, tokens, value, start-pos, end-pos)
-   add-new!(attr(scoped-docs), tokens[1], test: \=)
+   slot comment :: <doc-comment-token> = tokens[1];
+   slot markup :: <markup-content-token>;
+afterwards (context, tokens, value, start-pos, end-pos, fail: fail)
+   let (token, failure) = markup-from-comment(value.comment, context);
+   if (token)
+      value.markup := token;
+      add-new!(attr(scoped-docs), token, test: \=);
+   else
+      fail(failure)
+   end if;
 end;
 
 define parser delim-doc-comment (<doc-comment-token>)
-   rule seq(lf-doc-comment, spc,
+   rule seq(lf-doc-comment, choice(spc, eol),
             opt-many(choice(delim-comment, delim-comment-text)),
             rt-comment)
    => tokens;
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value);
+   capture-text(context, value);
 end;
 
 define parser eol-doc-comments (<doc-comment-token>)
    rule many(seq(opt-spaces, eol-doc-comment)) => tokens;
 afterwards (context, tokens, value, start-pos, end-pos)
    note-combined-source-location(context, value, tokens);
+   capture-text(context, value);
 end;
 
 define parser eol-doc-comment (<token>)

@@ -54,8 +54,7 @@ define method apis-from-dylan (file-sets :: <sequence>)
    make-all-imports-and-defns(annotations);
    order-by-dependency(annotations);
    
-   // TODO: Decide what I can filter out of this list. Inferred modules? Strays?
-    map(annot-library, annotations.element-sequence);
+   map(annot-library, annotations.element-sequence);
 end method;
 
 

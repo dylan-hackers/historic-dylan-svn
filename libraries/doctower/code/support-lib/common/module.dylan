@@ -10,5 +10,5 @@ define module common
    export $verbose?, verbose-log, log, log-object, slot-visitor-definer,
           merge-file-source-locations, item-string-list, with-open-file,
           group-elements, any-element, <case-insensitive-skip-list>,
-          case-insensitive-less?;
+          case-insensitive-less?, read-expected, read-lines-to-end;
 end module;   

@@ -12,19 +12,21 @@ Primitive tokens are:
    LS       - Optional spaces followed by Unicode LS/PS, CR, LF, CRLF.
    NUMBER   - One or more digits.
    ORDINAL  - Character in a progressive sequence (i.e. "a..z").
-   CHAR     - Any character, including LS and SPC characters.
+   CHAR     - Any character, including LS and SPC characters but not INDENT or
+              DEDENT.
    Words & Symbols - Various string literals.
 
 Indentation pre-processing works almost as described in the Python language
-guide.
+guide. Leading spaces on each line are left intact but are preceded by a number
+of INDENT and DEDENT tokens.
    1) Indent stack starts with 0.
    2) A line is read.
-   3) If leading spaces are greater than top of stack, they are replaced by
-      INDENT token.
-   4) If leading spaces equal top of stack, they are removed.
-   5) If leading spaces are less than top of stack, they are replaced by
-      DEDENT tokens until the matching count is reached. If there isn't a
-      matching count, an INDENT token is generated to make up the difference.
+   3) If leading spaces are greater than top of stack, they result in an INDENT
+      token.
+   4) If leading spaces equal top of stack, they are left alone.
+   5) If leading spaces are less than top of stack, they result in DEDENT tokens
+      until the matching count is reached. If there isn't a matching count, an
+      INDENT token is generated to make up the difference.
    6) At end of input, DEDENT tokens are generated for any remaining
       indentation levels on the stack.
 
@@ -106,15 +108,15 @@ title-line-midline-style-til-nickname:
 title-line-bare-style-til-nickname:
    !title-nickname-line-bare-style title-line-bare-style
 title-line-midline-style:
-   ascii-midline SPC+ title-words ascii-midline? LS
+   SOL ascii-midline SPC+ title-words ascii-midline? LS
 title-line-bare-style:
-   title-words LS
+   SOL title-words LS
 title-nickname-line-midline-style:
-   ascii-midline SPC+
+   SOL ascii-midline SPC+
    ( title-words? ascii-midline SPC+ / title-words-til-nickname )?
    title-nickname
 title-nickname-line-bare-style:
-   title-words-til-nickname? title-nickname
+   SOL title-words-til-nickname? title-nickname
 
 title-words:
    ( title-word SPC* )+
@@ -159,7 +161,7 @@ null-directive-spec:
    directive-spec-intro null-directive-spec-text ':' directive-spec-extro
 
 directive-spec-intro:
-   ascii-overline? (ascii-midline SPC+ )?
+   ascii-overline? ( SOL ascii-midline SPC+ )?
 directive-spec-extro:
    SPC+ ( ascii-midline LS ascii-underline? )? / LS ascii-underline?
 
@@ -178,33 +180,33 @@ blank-lines:
 marginal-code-block:
    marginal-code-block-line+
 marginal-code-block-line:
-   ':' SPC raw-line
+   SOL ':' SPC raw-line
 
 marginal-verbatim-block:
    marginal-verbatim-block-line+
 marginal-verbatim-block-line:
-   ( '>' / '|' ) SPC raw-line
+   SOL ( '>' / '|' ) SPC raw-line
 
 figure-ref-line:
-   [-SPC "FIG" SPC-LS+ filename ( SPC-LS+ scale-factor )? SPC-] text-til-ls? LS
+   SOL [-SPC "FIG" SPC-LS+ filename ( SPC-LS+ scale-factor )? SPC-] text-til-ls? LS
 scale-factor:
    NUMBER ( '%' / 'X' )
 
 content-ref-line:
-   [-SPC "CONTENTS" ( SPC-LS+ "OF" SPC-LS+ link-til-cls-brack )? SPC-] LS
+   SOL [-SPC "CONTENTS" ( SPC-LS+ "OF" SPC-LS+ link-til-cls-brack )? SPC-] LS
 ditto-ref-line:
-   [-SPC "DITTO" SPC-LS+ link-til-cls-brack SPC-] LS
+   SOL [-SPC "DITTO" SPC-LS+ link-til-cls-brack SPC-] LS
 api-list-ref-line:
-   [-SPC "LIST" SPC-LS+ "OF" SPC-LS+ api-list-spec-text SPC-] LS
+   SOL [-SPC "LIST" SPC-LS+ "OF" SPC-LS+ api-list-spec-text SPC-] LS
 
 bracketed-raw-block:
    bracketed-raw-block-start-line
    ( !bracketed-raw-block-end-line raw-line )*
    bracketed-raw-block-end-line
 bracketed-raw-block-start-line:
-   [-SPC bracketed-raw-block-spec-text SPC-] LS
+   SOL [-SPC bracketed-raw-block-spec-text SPC-] LS
 bracketed-raw-block-end-line:
-   [-SPC "END" ( SPC-LS+ bracketed-raw-block-spec-text )? SPC-] LS
+   INDENT-DEDENT SOL [-SPC "END" ( SPC-LS+ bracketed-raw-block-spec-text )? SPC-] LS
 
 table:
    table-header table-row+ table-footer
@@ -221,16 +223,16 @@ _________
 bullet-list:
    ( bullet-list-item blank-lines? )+
 bullet-list-item:
-   bullet-list-marker remainder-and-indented-content
+   SOL bullet-list-marker remainder-and-indented-content
 bullet-list-marker:
    bullet-char SPC+
 
 numeric-list:
-   numeric-list-first-item ( blank-lines? numeric-list-item )*
+   numeric-list-first-item ( blank-lines? numeric-list-item )* blank-lines?
 numeric-list-first-item:
-   numeric-list-first-marker remainder-and-indented-content
+   SOL numeric-list-first-marker remainder-and-indented-content
 numeric-list-item:
-   numeric-list-marker remainder-and-indented-content
+   SOL numeric-list-marker remainder-and-indented-content
 numeric-list-first-marker:
    ( NUMBER / ORDINAL ) ( ':' / ')' / '.' ) SPC+
 numeric-list-marker:
@@ -239,7 +241,7 @@ numeric-list-marker:
 hyphenated-list:
    ( hyphenated-list-item blank-lines? )+
 hyphenated-list-item:
-   hyphenated-list-label remainder-and-indented-content
+   SOL hyphenated-list-label remainder-and-indented-content
 hyphenated-list-label:
    markup-words-til-hyphen-spc hyphen-spc
 hyphen-spc:
@@ -248,7 +250,7 @@ hyphen-spc:
 phrase-list:
    ( phrase-list-item blank-lines? )+
 phrase-list-item:
-   phrase-list-label indented-content  
+   SOL phrase-list-label indented-content  
 phrase-list-label:
    paragraph-til-hyphen-ls hyphen-ls
 hyphen-ls:
@@ -265,9 +267,9 @@ paragraph-til-hyphen-ls:
    paragraph-line-til-hyphen-ls+
 
 paragraph-line:
-   !paragraph-break markup-words LS
+   !paragraph-break SOL markup-words LS
 paragraph-line-til-hyphen-ls:
-   !paragraph-break ( !hyphen-ls markup-word SPC+ )+ ( &hyphen-ls / LS )
+   !paragraph-break SOL ( !hyphen-ls markup-word SPC+ )+ ( &hyphen-ls / LS )
 paragraph-break:
    blank-lines / bracketed-line / marginal-code-block / marginal-verbatim-block
 bracketed-line:
@@ -278,18 +280,18 @@ _____________
   FRAGMENTS
  
 raw-line:
-   ( !raw-line-end CHAR )* raw-line-end
+   INDENT-DEDENT ( !raw-line-end CHAR )* raw-line-end
 raw-line-end:
    line-marker? LS
 line-marker:
    '[' SPC* ':' ( NUMBER / ORDINAL ) SPC* ']'
 
 ascii-overline:
-   ascii-line LS
+   SOL ascii-line LS
 ascii-midline:
    ascii-line
 ascii-underline:
-   ascii-line LS
+   SOL ascii-line LS
 ascii-line:
    ascii-line-char ascii-line-char ascii-line-char+
 
@@ -337,13 +339,13 @@ text-word:
 indented-link-words:
    INDENT link-word-lines DEDENT
 link-word-lines:
-   ( link-words LS )+
+   ( SOL link-words LS )+
 link-words:
    link-word ( SPC+ link-word )*
 link-word:
    quote-start text-til-end-quote quote-end / text-til-spc-ls
 link-line:
-   quote-start text-til-end-quote quote-end LS / text-til-ls LS
+   SOL quote-start text-til-end-quote quote-end LS / SOL text-til-ls LS
 link-til-cls-brack:
    quote-start text-til-end-quote quote-end / text-til-cls-brack
 
@@ -411,3 +413,9 @@ SPC-LS:
    '[' SPC-LS*
 SPC-]:
    SPC-LS* ']'
+
+SOL:
+   SPC*
+
+INDENT-DEDENT:
+   ( INDENT / DEDENT )*

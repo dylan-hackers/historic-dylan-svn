@@ -78,7 +78,7 @@ define method filenames-from-headers (token :: <interchange-file-token>)
    
    let names-per-header = map(rcurry(split, '\n'), map(hdr-value, file-headers));
    let names = apply(concatenate, #[], names-per-header);
-   let names = choose(complement(empty?), names); // Files: first line may be blank.
+   let names = choose(complement(empty?), names); // "Files:" first line may be blank.
    when (names.empty?)
       empty-header-in-interchange-file(location: token.token-src-loc.source-file,
                                        header: "Files:");
@@ -99,16 +99,10 @@ define method parse-file (locator :: <file-locator>)
    with-open-file (file = locator)
       let text = make(<canonical-text-stream>, inner-stream: file);
       block ()
-         parse-dylan-file(text, file.stream-locator);
+         parse-dylan-file(text, curry(line-col-position, text, at:),
+                          file.stream-locator);
       cleanup
          text.close;
-      exception (fail :: <parse-failure>)
-         let (line, col) = line-col-position(text, at: fail.failure-position);
-         let loc = make(<file-source-location>,
-                        file: text.inner-stream.inner-stream.stream-locator,
-                        start-line: line, start-column: col,
-                        end-line: line, end-col: col);
-         parse-error-in-dylan(location: loc, expected: fail.parse-expected);
       end block;
    end with-open-file
 end method;
@@ -118,6 +112,7 @@ end method;
 /// Discussion: Used to resolve API references and to construct a topic for the
 /// block.
 define class <topic-context> (<object>)
+
    /// Synopsis: The default parent topic of all topics in this block.
    ///
    /// Discussion: The default parent for a comment block is a topic in the

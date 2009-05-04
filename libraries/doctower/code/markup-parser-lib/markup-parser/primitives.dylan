@@ -1,15 +1,25 @@
 module: markup-parser
 
 
-define parser-method indent (stream, context) => (token :: false-or(<symbol>))
+define constant $indent = '\<11>';
+define constant $dedent = '\<12>';
+
+
+define parser-method indent (stream, context) => (token :: false-or(<character>))
    label "indent";
-   (read-element(stream, on-end-of-stream: #f) = #"indent") & #"indent"
+   let ind = read-element(stream, on-end-of-stream: #f);
+   when (ind = $indent)
+      $indent
+   end when;
 end parser-method;
 
 
-define parser-method dedent (stream, context) => (token :: false-or(<symbol>))
+define parser-method dedent (stream, context) => (token :: false-or(<character>))
    label "dedent";
-   (read-element(stream, on-end-of-stream: #f) = #"dedent") & #"dedent"
+   let ded = read-element(stream, on-end-of-stream: #f);
+   when (ded = $dedent)
+      $dedent
+   end when;
 end parser-method;
 
 
@@ -17,7 +27,7 @@ define parser-method char (stream, context)
 => (character :: false-or(<character>))
    label "character";
    let elem = read-element(stream, on-end-of-stream: #f);
-   instance?(elem, <character>) & elem
+   ~(elem = $indent | elem = $dedent) & elem;
 end parser-method;
 
 
@@ -32,7 +42,9 @@ define parser-method number (stream, context)
          cont();
       end if;
    end iterate;
-   ~num-str.empty? & string-to-integer(num-str)
+   // String-to-integer actually returns two values; we only want the first one.
+   let res = ~num-str.empty? & string-to-integer(num-str);
+   res;
 end parser-method;
 
 
@@ -40,7 +52,7 @@ define parser-method ordinal (stream, context)
 => (ordinal :: false-or(<character>))
    label "ordinal character (a-z)";
    let elem = peek(stream, on-end-of-stream: #f);
-   instance?(elem, <character>) & alphabetic?(elem) & read-element(stream);
+   elem & alphabetic?(elem) & read-element(stream);
 end parser-method;
 
 
@@ -50,9 +62,7 @@ define method parse-literal
    let string = as-lowercase(string);
    let pos = stream.stream-position;
    let stream-elems = read(stream, string.size, on-end-of-stream: #f);
-   let stream-string = stream-elems
-                       & every?(rcurry(instance?, <character>), stream-elems)
-                       & as(<string>, stream-elems);
+   let stream-string = stream-elems & as(<string>, stream-elems);
    if (~stream-string | as-lowercase(stream-string) ~= string)
       let expected = format-to-string("%=", string);
       values(#f, #f, make(<parse-failure>, position: pos, expected: expected));

@@ -6,6 +6,7 @@ files:   support-library
          common/module
          common/common
          common/locations
+         common/io
          ordered-tree/module
          ordered-tree/ordered-tree
          markup-rep/module

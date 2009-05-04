@@ -13,6 +13,7 @@ LIBRARIES = \
 	$(BASE_LIBDIR)/utilities/peg-parser \
 	$(BASE_LIBDIR)/utilities/dynamic-binding \
 	$(BASE_LIBDIR)/monday/lib/program-representation/source-location \
+	$(BASE_LIBDIR)/files-and-io/sequence-stream \
 	$(BASE_LIBDIR)/files-and-io/wrapper-streams \
 	$(BASE_LIBDIR)/data-structures/skip-list
 
