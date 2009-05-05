@@ -783,6 +783,13 @@ define graph-class <if> (<computation>)
     required-init-keyword: alternative:;
 end graph-class;
 
+define method make (class == <if>, #rest rest, #key, #all-keys) => (res :: <if>)
+  let i = next-method();
+  i.consequent := i.consequent;
+  i.alternative := i.alternative;
+  i;
+end;
+
 define method next-computation-setter
     (next, computation :: <if>)
  => (next);
@@ -954,6 +961,12 @@ define graph-class <loop> (<nop-computation>)
   slot %loop-body :: false-or(<computation>), init-value: #f,
     init-keyword: body:;
 end graph-class;
+
+define method make (class == <loop>, #rest rest, #key, #all-keys) => (res :: <loop>)
+  let l = next-method();
+  l.loop-body := l.loop-body;
+  l;
+end;
 
 define method next-computation-setter (next, c :: <loop>) => (next)
   walk-computation(method(a, b) 

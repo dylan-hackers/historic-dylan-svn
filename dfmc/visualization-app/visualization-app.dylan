@@ -342,6 +342,21 @@ begin
     "  end;\n"
     "end;\n";
   add!($tests, pair(#"mymap2", mymap2));
+
+  let poly0 =
+    "define method poly0 ()\n"
+    "  local method mymap (A, B)\n"
+    "   (fun :: A => B, l :: limited(<list>, of: A))\n"
+    "   => (res :: limited(<list>, of: B))\n"
+    "    if (l.empty?)\n"
+    "      #();\n"
+    "    else\n"
+    "      add(mymap(fun, l.tail), fun(l.head));\n"
+    "    end;\n"
+    "  end;\n"
+    "  mymap(method(x) x + 1 end, #(1, 2, 3));\n"
+    "end;";
+  add!($tests, pair(#"poly0", poly0));
 end;
 
 define function callback-handler (#rest args)

@@ -546,10 +546,9 @@ define method convert-make-cell
     (env :: <lambda-lexical-environment>, t :: <temporary>)
  => (first-c :: <computation>, last-c :: <computation>, t :: <cell>);
    with-parent-computation (t.generator)
-     let type = specializer(t);
+     let type = specializer(t); //or better, type-union of all assignments?
      if (~type | type == dylan-value(#"<object>"))
        //XXX: one day, dylan-value(#"<object>") should be gone entirely
-       //also, specializer slot of "a :: type-union(<foo>, <bar>)" is #f
        type := make(<&top-type>);
      end;
      let (unboxer-c, unboxed-t)

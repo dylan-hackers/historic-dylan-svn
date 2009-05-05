@@ -222,7 +222,7 @@ end method;
 define method output-computation-sexp
     (c :: <loop>)
   let res = #();
-  res := add!(res, get-computation-ids(c.loop-body, c.next-computation));
+  res := add!(res, #()); //get-computation-ids(c.loop-body, c.next-computation));
   res := add!(res, #"LOOP");
   add!(res, c.computation-id);
 end method;
@@ -239,8 +239,8 @@ end method;
 define method output-computation-sexp
     (c :: <if>)
   let res = #();
-  res := add!(res, get-computation-ids(c.alternative, c.next-computation));
-  res := add!(res, get-computation-ids(c.consequent, c.next-computation));
+  res := add!(res, #()); //get-computation-ids(c.alternative, c.next-computation));
+  res := add!(res, #()); //get-computation-ids(c.consequent, c.next-computation));
   res := add!(res, list(format-to-string("%=", c.test)));
   res := add!(res, #"IF");
   add!(res, c.computation-id);
