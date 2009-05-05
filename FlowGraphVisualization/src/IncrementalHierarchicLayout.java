@@ -328,7 +328,7 @@ public class IncrementalHierarchicLayout
 	
 	public void createTypeVariable (int id, Node temp, String type) {
 		Node tv = createNodeWithLabel(tvnames[tvindex] + " (" + type + ")", id);
-		tvindex++;
+		tvindex = (tvindex + 1) % tvnames.length;
 		//graph.getRealizer(tv).setFillColor((Color.BLUE).brighter());
 		EdgeRealizer myreal = new GenericEdgeRealizer(graph.getDefaultEdgeRealizer());
 		myreal.setLineColor(Color.BLUE);
