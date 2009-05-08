@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import y.base.Edge;
 import y.base.EdgeCursor;
 import y.base.Node;
+import y.view.EdgeRealizer;
+import y.view.GenericEdgeRealizer;
 import y.view.LineType;
 import y.view.NodeLabel;
 
@@ -77,7 +79,7 @@ public final class Commands {
 		if (key.isEqual("disconnect"))
 			return disconnect(ihl, answer);
 		if (key.isEqual("remove-node"))
-			return removenode(ihl, answer, false);
+			return removetypenode(ihl, answer, false);
 		if (key.isEqual("representative"))
 			return colornode(ihl, answer, demo, true);
 		if (key.isEqual("not-representative"))
@@ -388,11 +390,13 @@ public final class Commands {
 
 	private static boolean new_type_var (IncrementalHierarchicLayout ihl, ArrayList answer) {
 		assert(answer.size() == 5);
-		Node object = getNode(ihl, answer, 3, false);
+		//Node object = getNode(ihl, answer, 3, false);
+		assert(answer.get(3) instanceof Integer);
 		assert(answer.get(2) instanceof Integer);
 		assert(answer.get(4) instanceof String);
-		ihl.createTypeVariable((Integer)answer.get(2), object, (String)answer.get(4));
-		return true;
+		ihl.createTypeVariable((Integer)answer.get(2), (Integer)answer.get(3), (String)answer.get(4));
+		ihl.typechanged = true;
+		return false;
 	}
 	
 	private static boolean new_type_node (IncrementalHierarchicLayout ihl, ArrayList answer) {
@@ -405,21 +409,39 @@ public final class Commands {
 		} else {
 			//got a "base type" / String or Symbol
 			if (answer.get(3) instanceof Symbol) //arrow or tuple!
-				ihl.createNodeWithLabel(((Symbol)answer.get(3)).toString(), id);
+				ihl.createTypeNodeWithLabel(((Symbol)answer.get(3)).toString(), id);
 			else
-				ihl.createNodeWithLabel((String)answer.get(3), id);
+				ihl.createTypeNodeWithLabel((String)answer.get(3), id);
 		}
-		return true;
+		ihl.typechanged = true;
+		return false;
+	}
+	
+	private static boolean removetypenode (IncrementalHierarchicLayout ihl, ArrayList answer, boolean mayfail) {
+		assert(answer.size() == 3);
+		Node del = getNode(ihl, answer, 2, mayfail);
+		if (del != null) {
+			ihl.typegraph.removeNode(del);
+			ihl.int_node_map.remove((Integer)answer.get(2));
+			ihl.typechanged = true;
+			return false;
+		}
+		return false;
 	}
 	
 	private static boolean connect (IncrementalHierarchicLayout ihl, ArrayList answer) {
 		assert(answer.size() == 5);
 		Node from = getNode(ihl, answer, 2, false);
 		Node to = getNode(ihl, answer, 3, false);
-		ihl.graph.createEdge(from, to);
+		ihl.typegraph.createEdge(from, to);
+		EdgeRealizer er = new GenericEdgeRealizer(ihl.typegraph.getDefaultEdgeRealizer());
 		if (((String)answer.get(4)).equalsIgnoreCase("constraint"))
-			ihl.setEdgeColor(Color.GREEN);
-		return true;
+			er.setLineColor(Color.GREEN);
+		else
+			er.setLineColor(Color.BLUE);
+		ihl.typegraph.setRealizer(ihl.typegraph.lastEdge(), er);
+		ihl.typechanged = true;
+		return false;
 	}
 	
 	private static boolean disconnect (IncrementalHierarchicLayout ihl, ArrayList answer) {
@@ -428,19 +450,20 @@ public final class Commands {
 		Node to = getNode(ihl, answer, 3, false);
 		for (EdgeCursor ec = from.outEdges(); ec.ok(); ec.next())
 			if (ec.edge().target() == to)
-				ihl.graph.removeEdge(ec.edge());
-		return true;
+				ihl.typegraph.removeEdge(ec.edge());
+		ihl.typechanged = true;
+		return false;
 	}
 	
 	private static boolean colornode (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo, boolean light) {
 		Node highlightnew = getNode(ihl, answer, 2, false);
-		Color fill = ihl.graph.getDefaultNodeRealizer().getFillColor();
+		Color fill = null; //ihl.typegraph.getDefaultNodeRealizer().getFillColor();
 		if (light)
-			fill = fill.brighter();
+			fill = new Color(0, 0xff, 0, 0x66);
 		else
-			fill = fill.darker();
-		ihl.graph.getRealizer(highlightnew).setFillColor(fill);
-		demo.view.repaint();
+			fill = new Color(0xff, 0xff, 0xff, 0x66);
+		ihl.typegraph.getRealizer(highlightnew).setFillColor(fill);
+		demo.typeview.repaint();
 		return false;
 	} 
 	
@@ -454,8 +477,8 @@ public final class Commands {
 			lt = LineType.LINE_1;
 		for (EdgeCursor ec = from.outEdges(); ec.ok(); ec.next())
 			if (ec.edge().target() == to)
-				ihl.graph.getRealizer(ec.edge()).setLineType(lt);
-		demo.view.repaint();
+				ihl.typegraph.getRealizer(ec.edge()).setLineType(lt);
+		demo.typeview.repaint();
 		return false;
 	}
 }

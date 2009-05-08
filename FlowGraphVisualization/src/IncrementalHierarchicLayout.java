@@ -19,6 +19,7 @@ import y.layout.hierarchic.ConstraintLayerer.ConstraintFactory;
 import y.layout.hierarchic.incremental.IncrementalHintsFactory;
 import y.layout.hierarchic.incremental.OldLayererWrapper;
 import y.layout.hierarchic.incremental.SwimLaneDescriptor;
+import y.layout.organic.OrganicLayouter;
 import y.util.Maps;
 import y.view.Arrow;
 import y.view.BridgeCalculator;
@@ -34,10 +35,14 @@ import y.view.NodeRealizer;
 public class IncrementalHierarchicLayout
 {
 	protected IncrementalHierarchicLayouter hierarchicLayouter;
+	protected OrganicLayouter organicLayouter;
 	protected HashMap<Integer, Node> int_node_map = new HashMap<Integer, Node>();
+	protected HashMap<Node, Node> tv_temp_map = new HashMap<Node, Node>();
 	
 	protected Graph2D graph;
 	private Graph2DView view;
+	protected Graph2D typegraph;
+	private Graph2DView typeview;
 	private DemoBase demobase;
 	protected ConstraintFactory scf;
 	
@@ -46,6 +51,7 @@ public class IncrementalHierarchicLayout
 
 
 	public boolean changed = false;
+	public boolean typechanged = false;
 	public int numChanges = 0;
 	protected Hashtable<Integer, JLabel> sliderLabels = new Hashtable<Integer, JLabel>();
 	protected int lastEntry = 0;
@@ -61,6 +67,8 @@ public class IncrementalHierarchicLayout
 	
 	public boolean isok = true;
 
+	protected NodeMap action_nodes;
+	
 	private NodeMap swimLane;
 	protected DataMap hintMap;
 	protected IncrementalHintsFactory hintsFactory;
@@ -71,13 +79,17 @@ public class IncrementalHierarchicLayout
 	{
 		graph_id = id;
 		graph = new Graph2D();
+		typegraph = new Graph2D();
 		view = db.view;
+		typeview = db.typeview;
 		demobase = db;
 		
 		// enable bridges for PolyLineEdgeRealizer
 		BridgeCalculator bridgeCalculator = new BridgeCalculator();
 		bridgeCalculator.setCrossingMode( BridgeCalculator.CROSSING_MODE_HORIZONTAL_CROSSES_VERTICAL );
 		((DefaultGraph2DRenderer) view.getGraph2DRenderer()).setBridgeCalculator(bridgeCalculator );
+
+		((DefaultGraph2DRenderer) typeview.getGraph2DRenderer()).setBridgeCalculator(bridgeCalculator );
 
 		// create and configure the layout algorithm
 		hierarchicLayouter = new IncrementalHierarchicLayouter();
@@ -99,6 +111,10 @@ public class IncrementalHierarchicLayout
 		//cl.setCoreLayerer(hierarchicLayouter.getLayerer());
 		hierarchicLayouter.setFromScratchLayerer(new OldLayererWrapper(cl));
 
+		organicLayouter = new OrganicLayouter();
+		organicLayouter.setSphereOfAction(OrganicLayouter.ONLY_SELECTION);
+		
+		
 		sliderLabels.put(0, new JLabel("initial DFM models"));
 		changes.add(new ArrayList());
 		initGraph();
@@ -117,6 +133,9 @@ public class IncrementalHierarchicLayout
 	    //graph.addDataProvider(IncrementalHierarchicLayouter.INCREMENTAL_HINTS_DPKEY, hintMap);
 	    hintsFactory = hierarchicLayouter.createIncrementalHintsFactory();
 		int_node_map = new HashMap<Integer, Node>();
+		tv_temp_map = new HashMap<Node, Node>();
+		action_nodes = typegraph.createNodeMap();
+		typegraph.addDataProvider(OrganicLayouter.SPHERE_OF_ACTION_NODES, action_nodes);
 		opt_queue = new ArrayList<Integer>();
 		topnodes = new ArrayList<Node>();
 		highlight = null;
@@ -127,7 +146,9 @@ public class IncrementalHierarchicLayout
 	public void activateLayouter () {
 		if (demobase.incrementallayouter != this) {
 			changed = true;
+			typechanged = true;
 			view.setGraph2D(graph);
+			typeview.setGraph2D(typegraph);
 			demobase.graphChanged(this);
 		} else
 			demobase.calcLayout();
@@ -284,12 +305,29 @@ public class IncrementalHierarchicLayout
 		return createNodeWithLabel(Integer.toString(node), id);
 	}
 	
+	public Node createTypeNodeWithLabel (String label, int id) {
+		NodeRealizer n1 = new GenericNodeRealizer(typegraph.getDefaultNodeRealizer());
+		NodeLabel nl1 = n1.createNodeLabel();
+		nl1.setText(id + ": " + label);
+		n1.setLabel(nl1);
+		n1.setWidth(nl1.getWidth() + 10);
+		n1.setFillColor(new Color(0, 0xff, 0, 0x33));
+		Node n = typegraph.createNode(n1);
+		if (id > 0) {
+			assert(int_node_map.get(id) == null);
+			int_node_map.put(id, n);
+		} else if (id == 0)
+			topnodes.add(n);
+		return n;
+	}
+	
 	public Node createNodeWithLabel (String label, int id) {
 		NodeRealizer n1 = new GenericNodeRealizer(graph.getDefaultNodeRealizer());
 		NodeLabel nl1 = n1.createNodeLabel();
 		nl1.setText(id + ": " + label);
 		n1.setLabel(nl1);
 		n1.setWidth(nl1.getWidth() + 10);
+		n1.setFillColor(new Color(0, 0, 0xff, 0x44));
 		Node n = graph.createNode(n1);
 		if (id > 0) {
 			assert(int_node_map.get(id) == null);
@@ -310,7 +348,7 @@ public class IncrementalHierarchicLayout
 
 	public void createTemporary(int temp_id, int c_id, String text) {
 		Node t = createNodeWithLabel(text, temp_id);
-		graph.getRealizer(t).setFillColor(Color.pink);
+		graph.getRealizer(t).setFillColor(new Color(Color.pink.getRed(), Color.pink.getBlue(), Color.pink.getGreen(), 0x44));
 		if (c_id != 0) {
 			Node gen = int_node_map.get(c_id);
 			assert(gen != null);
@@ -326,14 +364,21 @@ public class IncrementalHierarchicLayout
 			"\u03C2", "\u03C3", "\u03C4", "\u03C5", "\u03C6", "\u03C7", "\u03C8", "\u03C9", "\u03CA", "\u03CB" };
 	private int tvindex = 0;
 	
-	public void createTypeVariable (int id, Node temp, String type) {
-		Node tv = createNodeWithLabel(tvnames[tvindex] + " (" + type + ")", id);
+	public void createTypeVariable (int id, int temp, String type) {
+		Node tv = createTypeNodeWithLabel(tvnames[tvindex] + " (" + type + ") [" + temp + "]" , id);
 		tvindex = (tvindex + 1) % tvnames.length;
+		tv_temp_map.put(tv, int_node_map.get(temp));
+		//NodeRealizer nr = typegraph.getRealizer(tv);
+		//NodeRealizer tr = graph.getRealizer(int_node_map.get(temp));
+		//nr.setLocation(tr.getX(), tr.getY());
+		
+		//typegraph.getRealizer(tv).setX(graph.getRealizer(int_node_map.get(temp)).getX());
+		//typegraph.getRealizer(tv).setY(graph.getRealizer(int_node_map.get(temp)).getY());		
 		//graph.getRealizer(tv).setFillColor((Color.BLUE).brighter());
-		EdgeRealizer myreal = new GenericEdgeRealizer(graph.getDefaultEdgeRealizer());
-		myreal.setLineColor(Color.BLUE);
-		graph.createEdge(temp, tv, myreal);
-		scf.addPlaceNodeInSameLayerConstraint(tv, temp);
+//		EdgeRealizer myreal = new GenericEdgeRealizer(graph.getDefaultEdgeRealizer());
+//		myreal.setLineColor(Color.BLUE);
+//		graph.createEdge(temp, tv, myreal);
+//		scf.addPlaceNodeInSameLayerConstraint(tv, temp);
 	}
 
 	public void createTypeNode (int id, Node tv) {
@@ -428,6 +473,7 @@ public class IncrementalHierarchicLayout
 						break;
 				}
 			changed = true;
+			typechanged = true;
 			demobase.updatingslider = true;
 			demobase.slider.setValue(lastslidervalue);
 			demobase.updatingslider = false;
@@ -448,8 +494,10 @@ public class IncrementalHierarchicLayout
 		} else { //I was too lazy to implement undo, so do the graph from scratch
 			demobase.unselect();
 			graph = new Graph2D();
+			typegraph = new Graph2D();
 			initGraph();
 			view.setGraph2D(graph);
+			typeview.setGraph2D(typegraph);
 			for (int i = 0; i < step; i++)
 				for (Object comm : changes.get(i)) {
 					ArrayList com = (ArrayList)comm;
