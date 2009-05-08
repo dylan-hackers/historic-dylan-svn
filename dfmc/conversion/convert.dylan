@@ -2222,11 +2222,11 @@ end;
 define function spec-type-expression-checking 
     (spec :: <variable-spec>) => (type-expr :: <fragment>)
   check-signature-variable(*current-dependent*, spec, #f);
-  spec-type-expression(spec);
+  spec-type-expression(spec); //returns always <object>!?
 end function;
 
 define function convert-signature-types
-    (env :: <environment>, variable-specs :: <variable-specs>)
+    (env :: <environment>, variable-specs :: <variable-specs>, tvs :: <table>)
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: <value-reference>)
   // immutable-type-vector(...)
   if (empty?(variable-specs))
@@ -2236,6 +2236,7 @@ define function convert-signature-types
       convert-expressions
         (env, variable-specs, form-extractor: spec-type-expression-checking);
     if (every?(method (t) instance?(fast-constant-value(t), <&type>) end, args))
+      error("should not happen");
       convert-object-reference-1
         (env, 
          as-sig-types(map-as(<simple-object-vector>, fast-constant-value, args)))
@@ -2255,80 +2256,97 @@ define method convert-signature
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: <value-reference>)
   // make-<signature>/ make-<keyword-signature>
   //   (required, keys, key-types, values, rest-value, signature-properties)
-  let key? = if (spec-argument-key?(sig-spec)) #t else #f end;
-  let (req-first, req-last, req-t) =
-    convert-signature-types(env, spec-argument-required-variable-specs(sig-spec));
-  let keys-t =
-    key? &
-      make-object-reference
-        (compute-variables-spec-keys(env, sig-spec));
-  let (key-first, key-last, key-t) =
-    key? &
-      convert-signature-types(env, spec-argument-key-variable-specs(sig-spec));
-  let (val-first, val-last, val-t) =
-    convert-signature-types(env, spec-value-required-variable-specs(sig-spec));
-  let (rest-val-first, rest-val-last, rest-val-t) =
-    if (spec-value-rest?(sig-spec))
-      convert-type-expression
-        (env, spec-type-expression(spec-value-rest-variable-spec(sig-spec)))
-    else
-      convert-object-reference-1(env, &false)
-    end;
-  if (fast-constant-value?(req-t) 
-        & (~key? | (fast-constant-value?(keys-t) & fast-constant-value?(key-t)))
-	& fast-constant-value?(val-t) & fast-constant-value?(rest-val-t))
-    convert-object-reference-1
-      (env, 
-       compute-signature-using-types
-         (sig-spec, 
-          fast-constant-value(req-t),
-          fast-constant-value(val-t),
-          fast-constant-value(rest-val-t),
-          if (key?) fast-constant-value(keys-t) else #[] end,
-          if (key?) fast-constant-value(key-t)  else #[] end,
-	  #[]))
+  let (sig, static?) = compute-signature(*current-dependent*, sig-spec);
+  if (static?)
+    convert-object-reference-1(env, sig);
   else
-    let next-t =
-      make-object-reference(#t);
-    let (sig-first, sig-last)
-      = if (key?)
-	  let (sig-first, sig-last)
-	    = join-2x2!(req-first, req-last, key-first, key-last);
-	  join-2x2!(sig-first, sig-last, val-first, val-last);
-	else
-	  join-2x2!(req-first, req-last, val-first, val-last);
-	end;
-    let (sig-first, sig-last)
-      = join-2x2!(sig-first, sig-last, rest-val-first, rest-val-last);
-    let signature-properties =
-      ^pack-signature-properties
-	(rest-value?:     spec-value-rest?(sig-spec),
-	 rest?:           spec-argument-rest?(sig-spec),
-	 all-keys?:       spec-argument-all-keys?(sig-spec),
-	 key?:            key?,
-	 number-values:   spec-value-number-required(sig-spec),
-	 number-required: spec-argument-number-required(sig-spec));
-    let sig-prop-t =
-      make-object-reference(signature-properties);
-    let function =
-      if (key?)
-	make-dylan-reference(#"make-<keyword-signature>")
+    //dynamic case: the problem here is that we generate a CFG which
+    //builds the signature, since there is not yet any support for
+    //type variables at run time, a reference to a type variable in
+    //the dynamic case will lead to a reference to the top-type!
+    //  hannes, 08 May 2009 (to be fixed once JIT and rt tv are available)
+    let type-variables = sig-spec.spec-type-variables;
+    let tvs = make(<table>);
+    let top = dylan-value(#"<object>");
+    for (tv in type-variables)
+      tvs[tv.spec-variable-name] := top; 
+    end;
+    let key? = if (spec-argument-key?(sig-spec)) #t else #f end;
+    let (req-first, req-last, req-t) =
+      convert-signature-types(env, spec-argument-required-variable-specs(sig-spec), tvs);
+    let keys-t =
+      key? &
+        make-object-reference
+          (compute-variables-spec-keys(env, sig-spec));
+    let (key-first, key-last, key-t) =
+      key? &
+        convert-signature-types(env, spec-argument-key-variable-specs(sig-spec), tvs);
+    let (val-first, val-last, val-t) =
+      convert-signature-types(env, spec-value-required-variable-specs(sig-spec), tvs);
+    let (rest-val-first, rest-val-last, rest-val-t) =
+      if (spec-value-rest?(sig-spec))
+        convert-type-expression
+          (env, spec-type-expression(spec-value-rest-variable-spec(sig-spec)))
       else
-	make-dylan-reference(#"make-<signature>")
-      end if;
-    let (call, call-t) =
-      make-with-temporary
-      (env, <simple-call>,
-       function:  function,
-       arguments: 
-         if (key?) // NEXT MUST BE FIRST ARG FOR BELOW
-           vector(next-t, req-t, val-t, rest-val-t, sig-prop-t, keys-t, key-t)
-         else
-           vector(next-t, req-t, val-t, rest-val-t, sig-prop-t)
-         end);
-    let (call-first, call-last, single-t) =
-      extract-single-value(call, call, call-t);
-    join-2x2-t!(sig-first, sig-last, call-first, call-last, single-t);
+        convert-object-reference-1(env, &false)
+      end;
+    if (fast-constant-value?(req-t) 
+          & (~key? | (fast-constant-value?(keys-t) & fast-constant-value?(key-t)))
+          & fast-constant-value?(val-t) & fast-constant-value?(rest-val-t))
+      error("how can this happen?");
+      convert-object-reference-1
+        (env, 
+         compute-signature-using-types
+           (sig-spec, 
+            fast-constant-value(req-t),
+            fast-constant-value(val-t),
+            fast-constant-value(rest-val-t),
+            if (key?) fast-constant-value(keys-t) else #[] end,
+            if (key?) fast-constant-value(key-t)  else #[] end,
+            spec-type-variables(sig-spec)))
+    else
+      let next-t =
+        make-object-reference(#t);
+      let (sig-first, sig-last)
+        = if (key?)
+            let (sig-first, sig-last)
+              = join-2x2!(req-first, req-last, key-first, key-last);
+            join-2x2!(sig-first, sig-last, val-first, val-last);
+          else
+            join-2x2!(req-first, req-last, val-first, val-last);
+          end;
+      let (sig-first, sig-last)
+        = join-2x2!(sig-first, sig-last, rest-val-first, rest-val-last);
+      let signature-properties =
+        ^pack-signature-properties
+          (rest-value?:     spec-value-rest?(sig-spec),
+           rest?:           spec-argument-rest?(sig-spec),
+           all-keys?:       spec-argument-all-keys?(sig-spec),
+           key?:            key?,
+           number-values:   spec-value-number-required(sig-spec),
+           number-required: spec-argument-number-required(sig-spec));
+      let sig-prop-t =
+        make-object-reference(signature-properties);
+      let function =
+        if (key?)
+          make-dylan-reference(#"make-<keyword-signature>")
+        else
+          make-dylan-reference(#"make-<signature>")
+        end if;
+      let (call, call-t) =
+        make-with-temporary
+          (env, <simple-call>,
+           function:  function,
+           arguments: 
+             if (key?) // NEXT MUST BE FIRST ARG FOR BELOW
+               vector(next-t, req-t, val-t, rest-val-t, sig-prop-t, keys-t, key-t)
+             else
+               vector(next-t, req-t, val-t, rest-val-t, sig-prop-t)
+             end);
+      let (call-first, call-last, single-t) =
+        extract-single-value(call, call, call-t);
+      join-2x2-t!(sig-first, sig-last, call-first, call-last, single-t);
+    end if
   end if
 end;
 
@@ -2923,7 +2941,7 @@ define function convert-type-expression (env :: <environment>, type)
 	  (env, <check-type>, value: type-temp, type: <type>-temp);
       let (f, l, t) = 
         join-2x1-t!(type-first, type-last, check-c, check-temp);
-      values(f, l, t, #f);  // emulator doesn't do this right (gts, 9/97)
+      values(f, l, t, #f);
     end
   else
     let t = make-dylan-reference(#"<object>");

@@ -15,9 +15,9 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 //// Debug switches.
 
 define thread variable *trace-dispatch*            = #f;
-define thread variable *trace-dispatch-failure*    = #t;
+define thread variable *trace-dispatch-failure*    = #f; //#t!
 // define thread variable *trace-selection-success*   = #f;
-define thread variable *trace-selection-failure*   = #t;
+define thread variable *trace-selection-failure*   = #f; //#t!
 define thread variable *trace-call-cache-success*  = #f;
 define thread variable *trace-call-cache-failure*  = #f;
 define thread variable *colorize-dispatch*         = #t;

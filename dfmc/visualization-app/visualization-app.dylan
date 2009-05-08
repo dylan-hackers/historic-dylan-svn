@@ -346,15 +346,16 @@ begin
   let poly0 =
     "define method poly0 ()\n"
     "  local method mymap (A, B)\n"
-    "   (fun :: A => B, l :: limited(<list>, of: A))\n"
-    "   => (res :: limited(<list>, of: B))\n"
+    "   (fun :: A => B, l :: limited(<vector>, of: A))\n"
+    "   => (res :: limited(<vector>, of: B))\n"
     "    if (l.empty?)\n"
-    "      #();\n"
+    "      #[];\n"
     "    else\n"
-    "      add(mymap(fun, l.tail), fun(l.head));\n"
+    "      add(mymap(fun, copy-sequence(l, start: 1)),\n"
+    "          fun(l.first));\n"
     "    end;\n"
     "  end;\n"
-    "  mymap(method(x) x + 1 end, #(1, 2, 3));\n"
+    "  mymap(method(x) x + 1 end, #[1, 2, 3]);\n"
     "end;";
   add!($tests, pair(#"poly0", poly0));
 end;
