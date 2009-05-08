@@ -97,7 +97,8 @@ define method make-defined-module
     #rest keys, #key local-name :: <string>, source-location :: <source-location>)
 => (module :: <module>, annotation :: <module-annot>)
    let (module, annotation) = apply
-         (make-annotated-module, lib-annots, token, library, <local-module>, keys);
+         (make-annotated-module, lib-annots, token, library, <local-module>,
+          markup: token.scoped-docs, keys);
    make-exported-bindings(lib-annots, library, module);
    make-created-bindings(lib-annots, library, module);
    values(module, annotation);

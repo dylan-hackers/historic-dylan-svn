@@ -150,6 +150,10 @@ define errors (<user-visible-warning>)
    05 qv-or-vi-in-title
       "Titles may not include quoted phrase options \"qv\" or \"vi\"",
       location;
+   
+   06 doc-comment-on-virtual-slot
+      "Documentation comments for virtual slots are ignored",
+      location;
 end errors;
 
 

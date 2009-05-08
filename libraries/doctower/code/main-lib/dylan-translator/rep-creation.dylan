@@ -119,12 +119,18 @@ define method make-annotations-from-files
    for (file in files)
       let header = file.module-header;
       let file-module = header.hdr-value;
-      unless (case-insensitive-equal?(file-module, "dylan-user"))
+      if (case-insensitive-equal?(file-module, "dylan-user"))
+
+         // Get unscoped documentation comments.
+         library.file-markup-tokens := concatenate!
+               (library.file-markup-tokens, file.source-record.unscoped-docs);
+      else
 
          // Ensure module exists.
          let module-annot = element(library-annot.annot-modules, file-module,
                                     default: #f);
-         unless (module-annot)
+         let module = module-annot & module-annot.annot-module;
+         unless (module)
             undefined-module-for-interchange-file(location: header.token-src-loc,
                                                   name: header.hdr-value)
          end unless;
@@ -132,9 +138,12 @@ define method make-annotations-from-files
          // Create definitions and bindings.
          let defn-tokens = choose-interchange-definitions
                (<non-namespace-definition-token>, vector(file));
-         make-bindings-from-definitions
-               (annotations, library, module-annot.annot-module, defn-tokens);
-      end unless;
+         make-bindings-from-definitions(annotations, library, module, defn-tokens);
+         
+         // Get unscoped documentation comments.
+         module.file-markup-tokens := concatenate!
+               (module.file-markup-tokens,file. source-record.unscoped-docs);
+      end if;
    end for;
    
    library-annot

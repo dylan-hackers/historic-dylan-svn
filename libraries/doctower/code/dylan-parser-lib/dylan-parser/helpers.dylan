@@ -332,10 +332,11 @@ end method;
 
 define method key-params-from-token (tok :: <key-parameter-list-token>)
 => (param-list :: <sequence>)
-   let accepts-keys-param = 
-         make(<accepts-keys-argument>, source-location: tok.source-location);
+   let accepts-keys-param = make(<accepts-keys-argument>, doc: #f,
+                                 source-location: tok.source-location);
    let all-keys-param = tok.all-keys? &
-         make(<all-keys-argument>, source-location: tok.source-location);
+                        make(<all-keys-argument>, doc: #f,
+                             source-location: tok.source-location);
    let key-param-list = map-as(<stretchy-vector>, key-param-from-token, tok.key-params);
    key-param-list := add-to-front(accepts-keys-param, key-param-list);
    if (all-keys-param)

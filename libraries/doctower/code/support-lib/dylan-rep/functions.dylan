@@ -37,19 +37,19 @@ end method;
 //
 
 
-define abstract class <func/gen-definition> (<documentable-api-element>)
+define abstract class <func/gen-definition> (<source-location-mixin>)
    slot adjs = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
    slot parameter-list :: <parameter-list>, init-keyword: #"parameter-list";
 end class;
 
-define class <explicit-generic-defn> (<func/gen-definition>, <source-location-mixin>)
+define class <explicit-generic-defn> (<func/gen-definition>)
    slot vendor-options = make(<stretchy-vector> /* of <vendor-option> */);
 end class;
 
-define class <implicit-generic-defn> (<func/gen-definition>, <source-location-mixin>)
+define class <implicit-generic-defn> (<func/gen-definition>, <documentable-api-element>)
 end class;
 
-define class <explicit-function-defn> (<func/gen-definition>, <source-location-mixin>)
+define class <explicit-function-defn> (<func/gen-definition>)
 end class;
 
 define class <vendor-option> (<object>)

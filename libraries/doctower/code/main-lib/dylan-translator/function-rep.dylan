@@ -4,8 +4,10 @@ module: dylan-translator
 define method make-definitions (token :: <generic-definer-token>)
 => (defn/tokens-by-name :: <table>, name-tokens :: <sequence>)
    let def/tok-table = make(<case-insensitive-string-table>);
-   let expl-defn = make(<explicit-generic-defn>, source-location: token.token-src-loc);
-   let generic-defn = make(<generic-defn>, explicit: expl-defn);
+   let expl-defn = make(<explicit-generic-defn>,
+                        source-location: token.token-src-loc);
+   let generic-defn = make(<generic-defn>, explicit: expl-defn,
+                           markup: token.scoped-docs);
 
    // Adjectives
    map-into(expl-defn.adjs, curry(as, <symbol>), token.api-modifiers);
@@ -34,7 +36,8 @@ end method;
 define method make-definitions (token :: <method-definer-token>)
 => (defn/tokens-by-name :: <table>, name-tokens :: <sequence>)
    let def/tok-table = make(<case-insensitive-string-table>);
-   let impl-defn = make(<implicit-generic-defn>, source-location: token.token-src-loc);
+   let impl-defn = make(<implicit-generic-defn>, source-location: token.token-src-loc,
+                        markup: token.scoped-docs);
    let generic-defn = make(<generic-defn>, implicit: vector(impl-defn));
 
    // Adjectives
@@ -61,8 +64,10 @@ end method;
 define method make-definitions (token :: <function-definer-token>)
 => (defn/tokens-by-name :: <table>, name-tokens :: <sequence>)
    let def/tok-table = make(<case-insensitive-string-table>);
-   let expl-defn = make(<explicit-function-defn>, source-location: token.token-src-loc);
-   let function-defn = make(<function-defn>, explicit: expl-defn);
+   let expl-defn = make(<explicit-function-defn>,
+                        source-location: token.token-src-loc);
+   let function-defn = make(<function-defn>, explicit: expl-defn,
+                            markup: token.scoped-docs);
 
    // Adjectives
    map-into(expl-defn.adjs, curry(as, <symbol>), token.api-modifiers);
@@ -81,7 +86,8 @@ end method;
 
 define method make-definitions (token :: <domain-definer-token>)
 => (defn/tokens-by-name :: <table>, name-tokens :: <sequence>)
-   let generic = make(<generic-defn>, explicit: #f, implicit: #[]);
+   let generic = make(<generic-defn>, explicit: #f, implicit: #[],
+                      markup: token.scoped-docs);
    let types = map(curry(as, <type-fragment>), token.domain-types);
    let names = apply(concatenate, #[], map(fragment-names, types));
    apply(seal-generic, generic, types);
@@ -106,10 +112,13 @@ define method make-param-list (parsed-params :: <sequence> /* of <func-argument>
    let param-list = make(param-list-class);
    let name-seq = make(<stretchy-vector>);
    for (param in parsed-params)
-      select (param by instance?)
+      let markup = param.param-doc;
+      let markup = if (markup) vector(markup) else #[] end;
 
+      select (param by instance?)
          <required-typed-argument> =>
-            let param-rep = make(<req-param>, name: param.param-name);
+            let param-rep = make(<req-param>, name: param.param-name,
+                                 markup: markup);
             when (param.param-type)
                param-rep.type := as(<type-fragment>, param.param-type);
                name-seq := concatenate!(name-seq, fragment-names(param-rep.type));
@@ -117,7 +126,8 @@ define method make-param-list (parsed-params :: <sequence> /* of <func-argument>
             param-list.req-params := add!(param-list.req-params, param-rep);
 
          <required-singleton-argument> =>
-            let param-rep = make(<req-param>, name: param.param-name);
+            let param-rep = make(<req-param>, name: param.param-name,
+                                 markup: markup);
             when (param.param-instance)
                param-rep.type := singleton-from-source-text
                      (param.param-instance, param.token-src-loc);
@@ -126,11 +136,13 @@ define method make-param-list (parsed-params :: <sequence> /* of <func-argument>
             param-list.req-params := add!(param-list.req-params, param-rep);
 
          <rest-argument> =>
-            let param-rep = make(<rest-param>, name: param.param-name);
+            let param-rep = make(<rest-param>, name: param.param-name,
+                                 markup: markup);
             param-list.rest-param := param-rep;
 
          <keyword-argument> =>
-            let param-rep = make(<key-param>, name: param.param-name);
+            let param-rep = make(<key-param>, name: param.param-name,
+                                 markup: markup);
             when (param.param-type)
                param-rep.type := as(<type-fragment>, param.param-type);
                name-seq := concatenate!(name-seq, fragment-names(param-rep.type));
@@ -157,16 +169,22 @@ define method make-value-list (parsed-vals :: <sequence> /* of <func-value> */)
    let value-list = make(<value-list>);
    let name-seq = make(<stretchy-vector>);
    for (val in parsed-vals)
+      let markup = val.param-doc;
+      let markup = if (markup) vector(markup) else #[] end;
+
       select (val by instance?)
          <required-value> =>
-            let value-rep = make(<req-value>, name: val.param-name);
+            let value-rep = make(<req-value>, name: val.param-name,
+                                 markup: markup);
             when (val.param-type)
                value-rep.type := as(<type-fragment>, val.param-type);
                name-seq := concatenate!(name-seq, fragment-names(value-rep.type));
             end when;
             value-list.req-values := add!(value-list.req-values, value-rep);
+
          <parsed-rest-value> =>
-            let value-rep = make(<rest-value>, name: val.param-name);
+            let value-rep = make(<rest-value>, name: val.param-name,
+                                 markup: markup);
             when (val.param-type)
                value-rep.type := as(<type-fragment>, val.param-type);
                name-seq := concatenate!(name-seq, fragment-names(value-rep.type));
@@ -179,14 +197,17 @@ end method;
 
 
 define method make-fixed-method
-   (meth-params :: <sequence>, meth-values :: <sequence>, loc :: <source-location>)
+   (meth-params :: <sequence>, meth-values :: <sequence>,
+    markup :: false-or(<markup-content-token>), loc :: <source-location>)
 => (meth :: <implicit-generic-defn>)
    let meth-param-list = make(<fixed-param-list>, req-params: meth-params);
    let meth-value-list = make(<value-list>, req-values: meth-values);
    let meth-parameter-list =
-         make(<parameter-list>, param-list: meth-param-list, value-list: meth-value-list);
+         make(<parameter-list>, param-list: meth-param-list,
+              value-list: meth-value-list);
+   let markup = if (markup) vector(markup) else #[] end;
    make(<implicit-generic-defn>, parameter-list: meth-parameter-list,
-        source-location: loc)
+        source-location: loc, markup: markup)
 end method;
 
 
@@ -194,8 +215,6 @@ define method seal-generic (generic :: <generic-defn>, #rest types)
 => ()
    let types = as(type-for-copy(types), types);
    replace-elements!(types, false?, always($object-type));
-   assert(every?(rcurry(instance?, <type-fragment>), types),
-          "seal-generic called with illegal arguments");
    let sealed-spec = make(<sealed-domain>, types: types);
    generic.sealed-domains := add-new!(generic.sealed-domains, sealed-spec, test: \=);
 end method;

@@ -78,7 +78,8 @@ define method make-created-bindings
    (annotations :: <skip-list>, library :: <library>, module :: <module>)
 => ()
    make-bindings-from-clauses
-         (annotations, library, module, <create-clause-token>, create-names)
+         (annotations, library, module, <create-clause-token>, create-names,
+          make-created-binding)
 end method;
 
 
@@ -86,13 +87,14 @@ define method make-exported-bindings
    (annotations :: <skip-list>, library :: <library>, module :: <module>)
 => ()
    make-bindings-from-clauses
-         (annotations, library, module, <export-clause-token>, export-names)
+         (annotations, library, module, <export-clause-token>, export-names,
+          make-exported-binding)
 end method;
 
 
 define method make-bindings-from-clauses
    (annotations :: <skip-list>, library :: <library>, module :: <module>,
-    clause-type :: <class>, name-list :: <function>)
+    clause-type :: <class>, name-list :: <function>, maker :: <function>)
 => ()
    let mod-annot = annotations[library.local-name].annot-modules[module.local-name];
    let token :: <module-definer-token> = mod-annot.annot-token;
@@ -101,7 +103,7 @@ define method make-bindings-from-clauses
    for (clause in clauses)
       let names = remove-duplicates(clause.name-list, test: case-insensitive-equal?);
       let new-names = difference(names, resolved-names, test: case-insensitive-equal?);
-      do(curry(make-created/exported-binding, annotations, library, module,
+      do(curry(maker, annotations, library, module,
                source-location:, clause.token-src-loc, local-name:),
          new-names);
       resolved-names := concatenate!(resolved-names, new-names);
@@ -201,7 +203,16 @@ define method make-annotated-binding
 end method;
 
 
-define method make-created/exported-binding
+define method make-created-binding
+   (lib-annots :: <skip-list>, library :: <library>, module :: <module>, #rest keys,
+    #key local-name :: <string>, source-location :: <source-location>)
+=> (binding :: <binding>, annotation :: <binding-annot>)
+   apply(make-annotated-binding, lib-annots, library, module, <local-binding>,
+         definition:, #f /*make(<deferred-defn>)*/, exported:, #t, keys);
+end method;
+
+
+define method make-exported-binding
    (lib-annots :: <skip-list>, library :: <library>, module :: <module>, #rest keys,
     #key local-name :: <string>, source-location :: <source-location>)
 => (binding :: <binding>, annotation :: <binding-annot>)
@@ -217,11 +228,10 @@ define method make-local-binding
          exported :: <boolean> = #f, definition :: <definition>)
 => (binding :: <binding>, annotation :: <binding-annot>)
    let binding-class =
-         if (instance?(definition, <generic-defn>))
-            <imported-binding>
-         else
-            <local-binding>
-         end if;
+         select (definition by instance?)
+            <generic-defn> => <imported-binding>;
+            otherwise => <local-binding>;
+         end select;
    apply(make-annotated-binding, lib-annots, library, module, binding-class,
          import-name:, local-name, used-module:, #f, keys);
 end method;

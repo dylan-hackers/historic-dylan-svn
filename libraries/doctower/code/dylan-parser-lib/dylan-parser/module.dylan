@@ -12,7 +12,7 @@ define module dylan-parser
    use character-type;
    use substring-search;
 
-   export parse-dylan-file;
+   export parse-dylan;
 
    export
       <body-style-definition-rule-token>,

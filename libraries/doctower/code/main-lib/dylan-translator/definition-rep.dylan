@@ -96,8 +96,8 @@ define method make-const/var-definition
    when (expl-def.type)
       name-seq := concatenate!(name-seq, fragment-names(expl-def.type))
    end when;
-   def/tok-table[token.api-name] :=
-         vector(make(defn-class, explicit: expl-def), token);
+   let defn = make(defn-class, explicit: expl-def, markup: token.scoped-docs);
+   def/tok-table[token.api-name] := vector(defn, token);
    values(def/tok-table, name-seq)
 end method;
 
@@ -117,9 +117,10 @@ define method make-definitions (token :: <macro-definer-token>)
                => <explicit-func-macro-defn>;
          end case;
    let expl-defn = make(defn-class, source-location: token.token-src-loc);
-   let defn = make(<macro-defn>, explicit: expl-defn);
-   values(table(<case-insensitive-string-table>, token.api-name => vector(defn, token)),
-          #[])
+   let defn = make(<macro-defn>, explicit: expl-defn, markup: token.scoped-docs);
+   let def/tok-table = table(<case-insensitive-string-table>,
+                             token.api-name => vector(defn, token));
+   values(def/tok-table, #[])
 end method;
 
 

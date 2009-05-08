@@ -52,8 +52,8 @@ define method make-definitions (token :: <class-definer-token>)
          end method, token.class-keywords);
 
    // Return value
-   def/tok-table[token.api-name] :=
-         vector(make(<class-defn>, explicit: class-def), token);
+   let defn = make(<class-defn>, explicit: class-def, markup: token.scoped-docs);
+   def/tok-table[token.api-name] := vector(defn, token);
    values(def/tok-table, name-seq);
 end method;
 
@@ -90,11 +90,12 @@ define method make-slot
          new-slot.type := as(<type-fragment>, parsed.slot-type);
          expr-names := concatenate!(expr-names, fragment-names(new-slot.type))
       end when;
+      let markup = parsed.slot-doc;
 
       // Make getter and setter.
-      new-slot.getter := make-getter-definition(new-slot, class-type);
+      new-slot.getter := make-getter-definition(new-slot, class-type, markup);
       if (parsed.slot-setter)
-         new-slot.setter := make-setter-definition(new-slot, class-type);
+         new-slot.setter := make-setter-definition(new-slot, class-type, markup);
       end if;
    end when;
    
@@ -105,7 +106,8 @@ end method;
 define method make-init-arg (parsed :: <class-keyword>)
 => (init-arg :: <init-arg>, expr-names :: <sequence>)
    let expr-names = #[];
-   let new-init-arg = make(<init-arg>, symbol: parsed.keyword-name);
+   let new-init-arg = make(<init-arg>, symbol: parsed.keyword-name,
+                           markup: parsed.keyword-doc);
 
    when (parsed.keyword-type)
       let type-frag = as(<type-fragment>, parsed.keyword-type);
@@ -133,8 +135,13 @@ end method;
 
 
 define method make-getter-definition
-   (slot :: <virtual-slot>, class-type :: <type-fragment>)
+   (slot :: <virtual-slot>, class-type :: <type-fragment>,
+    markup :: false-or(<markup-content-token>))
 => (getter :: <generic-defn>)
+   when (markup)
+      doc-comment-on-virtual-slot(location: markup.token-src-loc);
+   end when;
+
    let generic = make(<generic-defn>, explicit: #f, implicit: #[]);
    if (slot.sealed?)
       seal-generic(generic, class-type)
@@ -144,12 +151,13 @@ end method;
 
 
 define method make-getter-definition
-   (slot :: <slot>, class-type :: <type-fragment>)
+   (slot :: <slot>, class-type :: <type-fragment>,
+    markup :: false-or(<markup-content-token>))
 => (getter :: <generic-defn>)
    let inst-param = make(<req-param>, name: "instance", type: class-type);
    let value = make(<req-value>, name: "value", type: slot.type);
    let meth = make-fixed-method(vector(inst-param), vector(value),
-                                slot.source-location);
+                                markup, slot.source-location);
    let generic = make(<generic-defn>, explicit: #f, implicit: vector(meth));
    if (slot.sealed?)
       seal-generic(generic, class-type)
@@ -159,7 +167,8 @@ end method;
 
 
 define method make-setter-definition
-   (slot :: <virtual-slot>, class-type :: <type-fragment>)
+   (slot :: <virtual-slot>, class-type :: <type-fragment>,
+    markup :: false-or(<markup-content-token>))
 => (setter :: <generic-defn>)
    let generic = make(<generic-defn>, explicit: #f, implicit: #[]);
    if (slot.sealed?)
@@ -170,13 +179,14 @@ end method;
 
 
 define method make-setter-definition
-   (slot :: <slot>, class-type :: <type-fragment>)
+   (slot :: <slot>, class-type :: <type-fragment>,
+    markup :: false-or(<markup-content-token>))
 => (setter :: <generic-defn>)
    let newval-param = make(<req-param>, name: "new-value", type: slot.type);
    let inst-param = make(<req-param>, name: "instance", type: class-type);
    let value = make(<req-value>, name: "new-value", type: slot.type);
    let meth = make-fixed-method(vector(newval-param, inst-param), vector(value),
-                                slot.source-location);
+                                markup, slot.source-location);
    let generic = make(<generic-defn>, explicit: #f, implicit: vector(meth));
    if (slot.sealed?)
       seal-generic(generic, slot.type, class-type)

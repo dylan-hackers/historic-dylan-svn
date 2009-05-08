@@ -146,45 +146,52 @@ define abstract class <named-api-element> (<object>)
    slot local-name :: <string>, required-init-keyword: #"local-name";
 end class;
 
-
 define abstract class <documentable-api-element> (<object>)
    slot markup-tokens = make(<stretchy-vector> /* of <markup-content-token>*/),
       init-keyword: #"markup";
 end class;
 
 
-//
-// Definitions
-//
-
-
 /**
 Bindings are owned by specific modules and libraries, but map to definitions
 composed of several explicit and implicit definitions gathered from different
 libraries. Since definitions aren't wholly contained by a single library or
-module, they either have to be independent of libraries and modules. We provide
-this independence by referencing the complete definition in every binding
-associated with that definition rather than, for example, isolating a method of
-a generic function to the module in which the method was defined.
+module, they have to be independent of libraries and modules. We provide this
+independence by referencing the complete definition in every binding associated
+with that definition rather than, for example, isolating a method of a generic
+function to the module in which the method was defined.
+
+Each definition may have an owner. The owner is the library, module, and binding
+that is:
+   a) A "create" clause,
+   b) An explicit generic definition, or
+   c) A class, function, macro, constant, or variable definition.
+In particular, an implicit generic definition (i.e. a method) does not an owner
+make. The owner yields the definition's canonical name.
 **/
-define abstract class <definition> (<object>)
+define abstract class <definition> (<documentable-api-element>)
+   slot owning-library :: false-or(<library>) = #f, init-keyword: #"library";
+   slot owning-module :: false-or(<module>) = #f, init-keyword: #"module";
+   slot owning-binding :: false-or(<binding>) = #f, init-keyword: #"binding";
    virtual slot all-defns :: <sequence>;
 end class;
 
-define class <constant-defn> (<definition>)
-   slot explicit-defn :: <explicit-constant-defn>,
-      required-init-keyword: #"explicit";
+/**
+Synopsis: The definition associated with a "create" clause binding.
+
+Technically, a <deferred-defn> is a <documentable-api-element>, but there is no
+way to provide documentation for it except through a topic directive like
+"Generic Function:." Thus, it will always have a known type (as far as the
+documentation is concerned) or be undocumented (though still listed among a
+module's bindings, one hopes).
+**/
+define class <deferred-defn> (<definition>)
 end class;
 
-define class <variable-defn> (<definition>)
-   slot explicit-defn :: <explicit-variable-defn>,
-      required-init-keyword: #"explicit";
-end class;
 
-define class <macro-defn> (<definition>)
-   slot explicit-defn :: <explicit-macro-defn>,
-      required-init-keyword: #"explicit";
-end class;
+define method all-defns (def :: <deferred-defn>) => (defns :: <sequence>)
+   #[]
+end method;
 
 define method all-defns (gen :: <generic-defn>) => (defns :: <sequence>)
    let defns = if (gen.explicit-defn) vector(gen.explicit-defn) else #[] end;
@@ -201,15 +208,25 @@ end method;
 //
 
 
-define abstract class <const/var-defn> (<documentable-api-element>)
+define class <constant-defn> (<definition>)
+   slot explicit-defn :: <explicit-constant-defn>,
+      required-init-keyword: #"explicit";
+end class;
+
+define class <variable-defn> (<definition>)
+   slot explicit-defn :: <explicit-variable-defn>,
+      required-init-keyword: #"explicit";
+end class;
+
+define abstract class <const/var-defn> (<source-location-mixin>)
    slot type :: false-or(<type-fragment>) = #f, init-keyword: #"type";
    slot value :: <computed-constant>, required-init-keyword: #"value";
 end class;
 
-define class <explicit-constant-defn> (<const/var-defn>, <source-location-mixin>)
+define class <explicit-constant-defn> (<const/var-defn>)
 end class;
 
-define class <explicit-variable-defn> (<const/var-defn>, <source-location-mixin>)
+define class <explicit-variable-defn> (<const/var-defn>)
 end class;
 
 
@@ -218,8 +235,12 @@ end class;
 //
 
 
-define abstract class <explicit-macro-defn>
-      (<documentable-api-element>, <source-location-mixin>)
+define class <macro-defn> (<definition>)
+   slot explicit-defn :: <explicit-macro-defn>,
+      required-init-keyword: #"explicit";
+end class;
+
+define abstract class <explicit-macro-defn> (<source-location-mixin>)
    // slot main-rules = make(<stretchy-vector> /* of <rule> */);
    // slot aux-rules = make(<stretchy-vector> /* of <aux-rules> */);
 end class;

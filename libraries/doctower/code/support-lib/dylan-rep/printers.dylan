@@ -4,6 +4,16 @@ module: dylan-rep
 define method print-object (o :: <known-library>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
       format(s, "known-library %=", o.local-name);
+      unless (o.file-markup-tokens.empty?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "file docs");
+      end unless;
+      unless (o.markup-tokens.empty?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "docs");
+      end unless;
    end printing-logical-block;
 end method;
 
@@ -21,6 +31,11 @@ define method print-object (o :: <local-module>, s :: <stream>) => ()
          pprint-newline(#"fill", s);
          write(s, "exported");
       end if;
+      unless (o.markup-tokens.empty?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "docs");
+      end unless;
    end printing-logical-block;
 end method;
 
@@ -94,6 +109,11 @@ define method print-object (o :: <class-defn>, s :: <stream>) => ()
       format(s, "slots %d, ", o.explicit-defn.slots.size);
       pprint-newline(#"fill", s);
       format(s, "init-args %d", o.explicit-defn.init-args.size);
+      unless (o.markup-tokens.empty?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "docs");
+      end unless;
    end printing-logical-block;
 end method;
 
@@ -108,6 +128,11 @@ define method print-object (o :: <generic-defn>, s :: <stream>) => ()
       format(s, "expl %d, ", if (o.explicit-defn) 1 else 0 end);
       pprint-newline(#"fill", s);
       format(s, "impl %d", o.implicit-defns.size);
+      unless (o.markup-tokens.empty?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "docs");
+      end unless;
    end printing-logical-block;
 end method;
 
@@ -116,6 +141,11 @@ define method print-object (o :: <function-defn>, s :: <stream>) => ()
       write(s, "function-defn ");
       pprint-newline(#"fill", s);
       format(s, "%=", o.explicit-defn);
+      unless (o.markup-tokens.empty?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "docs");
+      end unless;
    end printing-logical-block;
 end method;
 
@@ -126,6 +156,11 @@ define method print-object (o :: <constant-defn>, s :: <stream>) => ()
       format(s, "type %=, ", o.explicit-defn.type);
       pprint-newline(#"fill", s);
       format(s, "value %=", o.explicit-defn.value);
+      unless (o.markup-tokens.empty?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "docs");
+      end unless;
    end printing-logical-block;
 end method;
 
@@ -136,11 +171,23 @@ define method print-object (o :: <variable-defn>, s :: <stream>) => ()
       format(s, "type %=, ", o.explicit-defn.type);
       pprint-newline(#"fill", s);
       format(s, "value %=", o.explicit-defn.value);
+      unless (o.markup-tokens.empty?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "docs");
+      end unless;
    end printing-logical-block;
 end method;
 
 define method print-object (o :: <macro-defn>, s :: <stream>) => ()
-   write(s, "{macro-defn}");
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      write(s, "macro-defn");
+      unless (o.markup-tokens.empty?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "docs");
+      end unless;
+   end printing-logical-block;
 end method;
 
 define method print-object (o :: <func/gen-definition>, s :: <stream>) => ()
@@ -164,6 +211,13 @@ define method print-object (o :: <func/gen-definition>, s :: <stream>) => ()
             format(s, "%=", val.type);
          end for;
       end printing-logical-block;
+      when (instance?(o, <implicit-generic-defn>))
+         unless (o.markup-tokens.empty?)
+            write(s, ", ");
+            pprint-newline(#"fill", s);
+            write(s, "docs");
+         end unless;
+      end when;
    end printing-logical-block;
 end method;
 
@@ -182,6 +236,13 @@ define method print-object (o :: <fixed-param-list>, s :: <stream>) => ()
       write(s, "fixed-param-list ");
       pprint-newline(#"fill", s);
       format(s, "req %d", o.req-params.size);
+      unless (o.req-params.empty?)
+         unless (every?(compose(empty?, markup-tokens), o.req-params))
+            write(s, ", ");
+            pprint-newline(#"fill", s);
+            write(s, "docs");
+         end unless;
+      end unless;
    end printing-logical-block;
 end method;
 
@@ -202,6 +263,14 @@ define method print-object (o :: <key-param-list>, s :: <stream>) => ()
          pprint-newline(#"fill", s);
          write(s, "all-keys");
       end when;
+      unless (o.req-params.empty? & o.key-params.empty?)
+         unless (every?(compose(empty?, markup-tokens),
+                        concatenate(o.req-params, o.key-params)))
+            write(s, ", ");
+            pprint-newline(#"fill", s);
+            write(s, "docs");
+         end unless;
+      end unless;
    end printing-logical-block;
 end method;
 
@@ -212,6 +281,13 @@ define method print-object (o :: <var-param-list>, s :: <stream>) => ()
       format(s, "req %d, ", o.req-params.size);
       pprint-newline(#"fill", s);
       write(s, "rest");
+      unless (o.req-params.empty?)
+         unless (every?(compose(empty?, markup-tokens), o.req-params))
+            write(s, ", ");
+            pprint-newline(#"fill", s);
+            write(s, "docs");
+         end unless;
+      end unless;
    end printing-logical-block;
 end method;
 
@@ -225,6 +301,13 @@ define method print-object (o :: <value-list>, s :: <stream>) => ()
          pprint-newline(#"fill", s);
          write(s, "rest");
       end when;
+      unless (o.req-values.empty?)
+         unless (every?(compose(empty?, markup-tokens), o.req-values))
+            write(s, ", ");
+            pprint-newline(#"fill", s);
+            write(s, "docs");
+         end unless;
+      end unless;
    end printing-logical-block;
 end method;
 

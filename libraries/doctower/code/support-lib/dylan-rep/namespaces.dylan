@@ -47,6 +47,7 @@ define abstract class <library>
 end class;
 
 define class <known-library> (<library>)
+   slot file-markup-tokens = make(<stretchy-vector> /* of <markup-content-token> */);
 end class;
 
 define class <unknown-library> (<library>)
@@ -81,6 +82,7 @@ define abstract class <module>
 end class;
 
 define class <local-module> (<module>)
+   slot file-markup-tokens = make(<stretchy-vector> /* of <markup-content-token> */);
 end class;
 
 /**
@@ -206,15 +208,17 @@ Bindings fall into these categories:
                  in export option. Definitions may be added to binding. Instance
                  of <imported-binding>.
                  
-   Created     - Binding is listed in create clause and does not have a
-                 definition. Instance of <local-binding>.
+   Created     - Binding is listed in create clause. Its definition is an
+                 instance of <deferred-definition> unless resolved. Instance of
+                 <local-binding>.
 
 A class, method, or other definition may be associated with a <local-binding> or
 an <imported-binding>. If the definition is for an exported binding, it will be
 associated with a <local-binding>. In all other cases, we must associate it with
 a stray (until resolved) <imported-binding>.
 
-A binding's owner (if known) is the module that has the <local-binding>.
+A binding's owner in a library (if known) is the module that has the
+<local-binding>.
 **/
 define abstract class <binding> (<named-api-element>, <source-location-mixin>)
    slot definition :: false-or(<definition>) = #f, init-keyword: #"definition";

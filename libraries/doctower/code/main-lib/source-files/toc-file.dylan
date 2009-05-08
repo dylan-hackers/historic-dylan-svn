@@ -1,8 +1,10 @@
 module: source-files
 synopsis: This file parses a table-of-contents file into a set of ordered trees.
 
+
 define method toc-from-file (locator :: <file-locator>)
 => (toc :: <ordered-tree>)
+   verbose-log("Parsing %s", locator);
    with-open-file (file = locator)
       let text = make(<canonical-text-stream>, inner-stream: file);
       block ()

@@ -24,9 +24,9 @@ topics need to be merged with each other. Ambiguity is indicated by a
 arrangers.
 
 --- Conditions: ---
-  <need-locations> - Signaled if link is cannot be resolved to topic. Handler
-                     should return possible topics for given link target.
-  <design-error>   - Signaled if user error encountered.
+  <need-locations>     - Signaled if link is cannot be resolved to topic. Handler
+                         should return possible topics for given link target.
+  <user-visible-error> - Signaled if user error encountered.
 **/
 define method arrange-topics (topics :: <sequence>, tocs :: <sequence>)
 => (tree :: <ordered-tree>)
@@ -304,11 +304,11 @@ end method;
 /// Generic function: ensure-resolved-to-topic
 /// Synopsis: Returns topic that link is resolved to.
 /// Conditions:
-///   <need-locations> - Signaled if link cannot be resolved to topic. Handler
-///                      should return possible topics for given link target.
-///   <design-error>   - Signaled if link is not resolved to topic.
+///   <need-locations>     - Signaled if link cannot be resolved to topic. Handler
+///                          should return possible topics for given link target.
+///   <user-visible-error> - Signaled if link is not resolved to topic.
 
-define inline method ensure-resolved-to-topic (link :: <target-placeholder>)
+define method ensure-resolved-to-topic (link :: <target-placeholder>)
 => (target :: <topic>)
    let locations = signal(make(<need-locations>, specifier: link.target));
    ambiguous-title-in-link(location: link.source-location,
@@ -317,13 +317,13 @@ define inline method ensure-resolved-to-topic (link :: <target-placeholder>)
                                             "various locations");
 end method;
 
-define inline method ensure-resolved-to-topic (link :: <topic>)
+define method ensure-resolved-to-topic (link :: <topic>)
 => (target :: <topic>)
    link
 end method;
 
 
-define inline function make-parent-child-tree (parent, #rest children)
+define function make-parent-child-tree (parent, #rest children)
 => (tree :: <ordered-tree>)
    let tree = make(<ordered-tree>, root: parent);
    let root = tree.root-key;

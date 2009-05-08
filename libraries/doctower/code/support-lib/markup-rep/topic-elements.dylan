@@ -66,6 +66,7 @@ define class <con-topic> (<topic>)
 end class;
 
 define class <api-doc> (<ref-topic>)
+   slot explicit-content? :: <boolean> = #f;
 end class;
 
 define method make (class == <api-doc>, #key topic-type) => (inst :: <api-doc>)
