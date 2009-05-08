@@ -43,7 +43,8 @@ define method make-defined-library
    (annotations :: <skip-list>, token :: <library-definer-token>, #rest keys,
     #key local-name :: <string>, source-location :: <source-location>)
 => (library :: <library>, annotation :: <library-annot>)
-   apply(make-annotated-library, annotations, token, <known-library>, keys)
+   apply(make-annotated-library, annotations, token, <known-library>,
+         markup: token.scoped-docs, keys)
 end method;
 
 

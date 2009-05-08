@@ -16,6 +16,7 @@ define module conditions
       conflicting-definitions-in-code,
       conflicting-locations-in-tree,
       conflicting-modules-in-library,
+      doc-comment-on-virtual-slot,
       duplicate-id-in-topics,
       duplicate-modules-in-fileset,
       duplicate-section-in-topic,

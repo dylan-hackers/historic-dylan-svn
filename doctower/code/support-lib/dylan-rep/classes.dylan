@@ -27,14 +27,14 @@ slots          - Slots in this class. Excludes superclasses. Sequence of <slot>.
 init-args      - Initialization keywords defined by "slot" and "keyword"
                  clauses. Excludes superclasses. Sequence of <init-arg>.
 **/
-define class <explicit-class-defn> (<documentable-api-element>, <source-location-mixin>)
+define class <explicit-class-defn> (<source-location-mixin>)
    slot adjs = make(<stretchy-vector>);
    slot direct-supers = make(<stretchy-vector>);
    slot slots = make(<stretchy-vector>);
    slot init-args = make(<stretchy-vector>);
 end class;
 
-define abstract class <slot> (<documentable-api-element>, <source-location-mixin>)
+define abstract class <slot> (<source-location-mixin>)
 end class;
 
 define abstract class <initable-slot> (<slot>)

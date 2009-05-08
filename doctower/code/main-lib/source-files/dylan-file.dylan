@@ -20,12 +20,18 @@ define method topics-from-dylan-files (locator-seq :: <sequence>)
       end for;
    end for;
 
+   // Read and parse files.
    unless (dylan-locators.empty?)
       library-sets := add(library-sets, dylan-locators);
    end unless;
 
    let parsed-library-sets = map(parse-library-set, library-sets);
-   topics-from-dylan(parsed-library-sets);
+
+   // Generate internal representation of Dylan code.
+   let libraries = apis-from-dylan(parsed-library-sets);
+
+   // Generate topics, sections and placeholders.
+   topics-from-dylan(libraries);
 end method;
 
 
@@ -57,7 +63,7 @@ define method dylan-files-from-lid-file (lid-locator :: <file-locator>)
             end block;
          end method;
 
-   let interchange = parse-file(lid-locator);
+   let interchange = parse-dylan-file(lid-locator);
    let filenames = filenames-from-headers(interchange);
    let locators = map(locator-from-filename, filenames);
    remove-duplicates(locators, test: \=)
@@ -89,18 +95,18 @@ end method;
 
 define method parse-library-set (locators :: <sequence>)
 => (ichange-files :: <sequence>)
-   choose(true?, map(parse-file, locators));
+   choose(true?, map(parse-dylan-file, locators));
 end method;
 
 
-define method parse-file (locator :: <file-locator>)
+define method parse-dylan-file (locator :: <file-locator>)
 => (token :: <interchange-file-token>)
    verbose-log("Parsing %s", locator);
    with-open-file (file = locator)
       let text = make(<canonical-text-stream>, inner-stream: file);
       block ()
-         parse-dylan-file(text, curry(line-col-position, text, at:),
-                          file.stream-locator);
+         parse-dylan(text, curry(line-col-position, text, at:),
+                     file.stream-locator);
       cleanup
          text.close;
       end block;

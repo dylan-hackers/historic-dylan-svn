@@ -25,7 +25,7 @@ text-line-col-position -
 locator -
    The <file-locator> of the base disk file.
 **/
-define method parse-dylan-file
+define method parse-dylan
    (text :: <positionable-stream>, text-line-col-position :: <function>,
     locator :: <file-locator>)
 => (file-token :: <interchange-file-token>)

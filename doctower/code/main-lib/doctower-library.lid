@@ -7,7 +7,6 @@ files:      doctower-library
             markup-translator/content-processing
             markup-translator/markup-processing
             dylan-translator/module
-            dylan-translator/dylan-translator
             dylan-translator/rep-creation
             dylan-translator/namespace-rep
             dylan-translator/library-rep
@@ -16,6 +15,8 @@ files:      doctower-library
             dylan-translator/definition-rep
             dylan-translator/class-rep
             dylan-translator/function-rep
+            dylan-topics/module
+            dylan-topics/dylan-topics
             source-files/module
             source-files/dylan-file
             source-files/markup-file

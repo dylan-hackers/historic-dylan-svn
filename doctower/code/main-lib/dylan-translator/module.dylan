@@ -8,9 +8,9 @@ define module dylan-translator
                 import-name => token-import-name, definitions => token-definitions,
                 source-text => token-text, <class-slot> => <parsed-class-slot>,
                 <rest-value> => <parsed-rest-value> };
+   use markup-parser, import: { <markup-content-token> };
    use dylan-rep;
    use markup-rep;
-   use configs;
    
-   export topics-from-dylan;
+   export apis-from-dylan;
 end module;

@@ -139,10 +139,10 @@ libraries).
 2.2 Aliases
 ===========
 
-“define constant” can be used to a new duplicate binding for an already-bound
-object. In this case, should the name be listed as if it were, e.g., a
-function if the existing binding was a function, or should it be listed as a
-constant, referring to the existing binding?
+“define constant” can be used to a create a new duplicate binding for an
+already-bound object. In this case, should the name be listed as if it were,
+e.g., a function if the existing binding was a function, or should it be listed
+as a constant, referring to the existing binding?
 
 Given that it is possible that the alias is exported while its referent is
 not, it makes sense that the constant be documented as if it were the same
@@ -294,7 +294,7 @@ details that are also explained in the reference documentation.
 
 The problem with integrating new sections into existing documentation is only
 a problem if we choose to do so. We could have each doc package remain
-separate. But we do attempt full integration, the hierarchy marks described
+separate. But if we do attempt full integration, the hierarchy marks described
 above likely won’t mesh into the existing structure. We could allow a more
 limited integration, where “See [subclasses/members] in…” annotations are
 automatically added to main binding reference entries.
@@ -304,11 +304,11 @@ automatically added to main binding reference entries.
 ===========================
 
 The ability to take a library compiled without documentation and auto-generate
-some documentation from it is arguably of little or no value. Its greatest
-utility would be in dealing with core libraries written as part of the Open
-Dylan or Gwydion Dylan projects, where it would be a tremendous task to go
-through the source code and bring it into compliance with the documentation
-standard.
+some documentation from it without reference to the source code is arguably of
+little or no value. Its greatest utility would be in dealing with core libraries
+written as part of the Open Dylan or Gwydion Dylan projects, where it would be a
+tremendous task to go through the source code and bring it into compliance with
+the documentation standard.
 
 
 ====================================================
