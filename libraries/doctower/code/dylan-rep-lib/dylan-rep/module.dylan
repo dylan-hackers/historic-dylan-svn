@@ -3,9 +3,6 @@ module: dylan-user
 define module dylan-rep
    use common;
 
-   // from peg-parser
-   use peg-parser, import: { <token> };
-   
    export
       <documentable-api-element>, <named-api-element>, <source-name>,
       <library>, <known-library>, <unknown-library>,

@@ -4,6 +4,7 @@ SOURCES = \
 	support-lib/support-library.lid \
 	markup-parser-lib/markup-parser-library.lid \
 	dylan-parser-lib/dylan-parser-library.lid \
+	dylan-rep-lib/dylan-rep-library.lid \
 	main-lib/doctower-library.lid
 
 BASE_LIBDIR = ../..
@@ -39,6 +40,9 @@ markup-parser-lib/markup-parser-library.lib.du : \
 
 dylan-parser-lib/dylan-parser-library.lib.du : \
 	dylan-parser-lib/dylan-parser-library.lid
+
+dylan-rep-lib/dylan-rep-library.lib.du : \
+	dylan-rep-lib/dylan-rep-library.lid
 
 main-lib/doctower-library.lib.du : \
 	main-lib/doctower-library.lid
