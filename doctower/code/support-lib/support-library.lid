@@ -17,12 +17,6 @@ files:   support-library
          markup-rep/quote-elements
          markup-rep/toc-nav-elements
          markup-rep/topic-elements
-         dylan-rep/module
-         dylan-rep/defns-frags
-         dylan-rep/namespaces
-         dylan-rep/classes
-         dylan-rep/functions
-         dylan-rep/printers
          configs/module
          configs/configs
          parser-common/module
