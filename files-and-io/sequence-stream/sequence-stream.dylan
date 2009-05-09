@@ -270,8 +270,7 @@ define method read-element
       ~stream.stream-at-end? =>
          let pos = stream.stream-position;
          let elem = stream.stream-storage[pos + stream.stream-start];
-         adjust-stream-position(stream, +1);
-         stream.stream-unread-from := stream.stream-position;
+         stream.stream-unread-from := adjust-stream-position(stream, +1);
          elem;
       on-end-of-stream.supplied? =>
          on-end-of-stream;
@@ -304,7 +303,10 @@ define method read-through
             end for;
       
       // Compute new stream position.
-      stream.stream-position := end-idx - stream.stream-start;
+      if (end-idx > start-idx)
+         stream.stream-position := end-idx - stream.stream-start;
+         stream.stream-unread-from := stream.stream-position;
+      end if;
       
       // Copy and return read elements.
       if (found-idx & ~keep-term)
@@ -313,6 +315,40 @@ define method read-through
       values(copy-sequence(stream.stream-storage, start: start-idx, end: end-idx),
              found-idx.true?)
    end if;
+end method;
+
+
+define method read-stream-elements
+   (stream :: <sequence-stream>,
+    #key start: start-idx :: <integer>, end: end-idx :: <integer>)
+=> (elems :: <sequence>)
+   stream.stream-position := end-idx - stream.stream-start;
+   if (end-idx > start-idx)
+      stream.stream-unread-from := stream.stream-position;
+   end if;
+   copy-sequence(stream.stream-storage, start: start-idx, end: end-idx)
+end method;
+
+
+define method skip-through
+   (stream :: <sequence-stream>, to-elem :: <object>, #key test = \==)
+=> (found-idx :: false-or(<integer>), next-idx :: <integer>)
+   let start-idx = stream.stream-position + stream.stream-start;
+   let found-idx = #f;
+   let end-idx = 
+         for (idx from start-idx below stream.stream-end, until: found-idx)
+            if (test(stream.stream-storage[idx], to-elem))
+               found-idx := idx
+            end if
+         finally
+            idx
+         end for;
+   
+   if (end-idx > start-idx)
+      stream.stream-position := end-idx - stream.stream-start;
+      stream.stream-unread-from := stream.stream-position;
+   end if;
+   values(found-idx, end-idx)
 end method;
 
 

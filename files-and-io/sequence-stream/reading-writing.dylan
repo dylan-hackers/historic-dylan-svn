@@ -54,18 +54,17 @@ define method ext-read
       end case
    else
       let start-idx = stream.stream-start + stream.stream-position;
-      let end-idx = start-idx + n;
-      let end-of-stream? = (stream.stream-position + n >= stream.stream-size);
-      stream.stream-position := min(stream.stream-size, stream.stream-position + n);
+      let desired-end-idx = start-idx + n;
+      let past-end-of-stream? = desired-end-idx > stream.stream-end;
+      let end-idx = min(desired-end-idx, stream.stream-end);
+
       case
-         ~end-of-stream? =>
-            copy-sequence(stream.stream-storage, start: start-idx, end: end-idx);
+         ~past-end-of-stream? =>
+            read-stream-elements(stream, start: start-idx, end: end-idx);
          on-end-of-stream.supplied? =>
             on-end-of-stream;
          otherwise =>
-            let partial = copy-sequence(stream.stream-storage,
-                                        start: start-idx,
-                                        end: stream.stream-end);
+            let partial = read-stream-elements(stream, start: start-idx, end: end-idx);
             incomplete-error(stream, partial);
       end case
    end if
@@ -142,30 +141,16 @@ define method ext-read-to-end (stream :: <sequence-stream>)
    check-stream-readable(stream);
 
    let start-idx = stream.stream-position + stream.stream-start;
-   stream.stream-position := stream.stream-end;
-   copy-sequence(stream.stream-storage, start: start-idx, end: stream.stream-end);
+   read-stream-elements(stream, start: start-idx, end: stream.stream-end)
 end method;
 
 
 define method ext-skip-through
-   (stream :: <sequence-stream>, to-elem :: <object>, #key test = \==)
+   (stream :: <sequence-stream>, to-elem :: <object>, #rest keys, #key test)
 => (found? :: <boolean>)
    check-stream-open(stream);
    check-stream-readable(stream);
-
-   let start-idx = stream.stream-position + stream.stream-start;
-   let found-idx = #f;
-   let end-idx = 
-         for (idx from start-idx below stream.stream-end, until: found-idx)
-            if (test(stream.stream-storage[idx], to-elem))
-               found-idx := idx
-            end if
-         finally
-            idx
-         end for;
-   
-   stream.stream-position := end-idx - stream.stream-start;
-   found-idx.true?
+   apply(skip-through, stream, to-elem, keys).true?;
 end method;
 
 
@@ -175,33 +160,26 @@ define method ext-read-line
    check-stream-open(stream);
    check-stream-readable(stream);
 
-   // This method is a lot like read-to. We don't use read-to directly, because
-   // we need to know whether the terminator is '\r' or '\n' so we can read the
-   // next '\n' if necessary.
+   if (stream.stream-at-end?)
+      case
+         on-end-of-stream.supplied? => values(on-end-of-stream, #f);
+         otherwise => eos-error(stream);
+      end case
+   else
+      // Find line ending.
+      let start-idx = stream.stream-position + stream.stream-start;
+      let (found-idx, next-idx) = skip-through(stream, "\r\n", test: member?);
+      let end-idx = found-idx | next-idx;
+      let elements =
+            copy-sequence(stream.stream-storage, start: start-idx, end: end-idx);
+      
+      // Skip over LF of CRLF.
+      when (found? & peek(stream, on-end-of-stream: #f) = '\n')
+         read-element(stream);
+      end when;
 
-   // Read to line ending.
-   let (elements, found?) =
-         read-through(stream, "\r\n", test: member?, on-end-of-stream: #f);
-
-   case
-      elements =>
-         // Remove LF of CRLF.
-         when (found? & elements.last == '\r' &
-               peek(stream, on-end-of-stream: #f) == '\n')
-            read-element(stream);
-         end when;
-
-         // Make into <string>.
-         let end-idx = if (found?) elements.size - 1 else elements.size end;
-         let elements = copy-sequence(elements, end: end-idx);
-         values(elements, found?);
-
-      on-end-of-stream.supplied? =>
-         values(on-end-of-stream, #f);
-
-      otherwise =>
-         eos-error(stream);
-   end case;
+      values(elements, found-idx.true?);
+   end if;
 end method;
 
 
