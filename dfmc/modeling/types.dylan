@@ -263,7 +263,7 @@ define inline function ^subtype-arguments-and-values?
         end;
       end;
       for (x in val1, y in val2) //length! (append #f to val2 until size is equal to val1)
-        unless(^subtype?(x, y)) //covariant
+        unless(^subtype?(x, y)) //covariance
           return(#f);
         end;
       end;
@@ -286,8 +286,8 @@ define method ^instance? (f :: <&function>, lft :: <&limited-function-type>) => 
   let values = ^signature-values(signature);
   //take care about #rest!
   ^subtype-arguments-and-values?(arguments,
-                                 lft.^limited-function-argument-types,
                                  values,
+                                 lft.^limited-function-argument-types,
                                  lft.^limited-function-return-values)  
 end;
 
@@ -298,14 +298,40 @@ end;
 
 define method ^subtype? (f :: <&limited-function-type>, g :: <&limited-function-type>) => (result :: <boolean>)
   ^subtype-arguments-and-values?(f.^limited-function-argument-types,
-                                 g.^limited-function-argument-types,
                                  f.^limited-function-return-values,
+                                 g.^limited-function-argument-types,
                                  g.^limited-function-return-values)
 end;
 
 define method ^subtype? (f :: <&type>, lft :: <&limited-function-type>) => (result :: <boolean>)
   #f
 end;
+
+define method ^subtype? (f :: <&limited-function-type>, g :: <&type>) => (result :: <boolean>)
+  #f
+end;
+
+define method ^subtype? (f :: <&limited-function-type>, g :: <&class>) => (result :: <boolean>)
+  ^subtype?(^base-type(f), g);
+end;
+
+/*
+define method ^subtype? (f :: <&limited-function-type>, g :: <&class>) => (result :: <boolean>)
+  #t
+end;
+
+
+define method ^subtype? (f :: <&function>, g :: <&limited-function-type>) => (result :: <boolean>)
+  let signature = ^function-signature(f);
+  let arguments = ^signature-required(signature);
+  let values = ^signature-values(signature);
+  //take care about #rest!
+  ^subtype-arguments-and-values?(arguments,
+                                 values,
+                                 g.^limited-function-argument-types,
+                                 g.^limited-function-return-values)  
+end;
+*/
 
 define method ^known-disjoint? (lf1 :: <&limited-function-type>, lf2 :: <&limited-function-type>)
  => (well? :: <boolean>)

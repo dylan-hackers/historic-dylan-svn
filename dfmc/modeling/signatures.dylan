@@ -475,10 +475,11 @@ define method ^make
             all-keys)
     end if;
   if (type-variables & type-variables.size > 0)
-    make(<&polymorphic-signature>,
-         sig: real-sig,
-         type-variables: type-variables,
-         required: required);
+    apply(make, <&polymorphic-signature>,
+          sig: real-sig,
+          type-variables: type-variables,
+          required: required,
+          all-keys); //to support properties like ^signature-number-required/-values, etc.
   else
     real-sig;
   end;
@@ -548,6 +549,26 @@ define method ^signature-number-keys
     (sig :: <&signature>) => (result :: <integer>)
   0
 end method ^signature-number-keys;
+
+define macro delegate
+  { delegate(?:name, ?result:expression) } =>
+ { define method ?name (sig :: <&polymorphic-signature>) => (result :: ?result)
+     ?name(sig.^real-signature);
+   end; }
+end;
+
+delegate(^signature-number-required, <integer>);
+delegate(^signature-number-values, <integer>);
+delegate(^signature-key?, <boolean>);
+delegate(^signature-all-keys?, <boolean>);
+delegate(^signature-rest?, <boolean>);
+delegate(^signature-rest-value?, <boolean>);
+delegate(^signature-next?, <boolean>);
+delegate(^signature-default-values?, <boolean>);
+delegate(^signature-sealed-domain?, <boolean>);
+delegate(^signature-optionals, <boolean>);
+delegate(^signature-number-keys, <integer>);
+
 
 // <ABORT>, 
 // <ABSTRACT-INTEGER>, 

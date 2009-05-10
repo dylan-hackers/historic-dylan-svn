@@ -5,8 +5,8 @@ define primary &class <polymorphic-type-variable> (<type>)
   constant &slot type-variable-name :: <symbol>,
     required-init-keyword: name:;
   constant &slot type-variable-kind :: <type>,
-    init-value: <&object>,
-    init-keyword: kind:;
+    //init-value: <type>,
+    required-init-keyword: kind:;
 end;
 
 /*
@@ -18,4 +18,22 @@ define primary &class <variable-arity-different-type-variable> (<polymorphic-typ
 end;
 */
 
-	
+define method ^subtype? (a :: <&polymorphic-type-variable>, b :: <&polymorphic-type-variable>)
+ => (sub? :: <boolean>)
+  ^subtype?(a.^type-variable-kind, b.^type-variable-kind)
+end;
+
+define method ^subtype? (a :: <&polymorphic-type-variable>, b :: <&type>)
+ => (sub? :: <boolean>)
+  ^subtype?(a.^type-variable-kind, b);
+end;
+
+define method ^known-disjoint? (a :: <&polymorphic-type-variable>, b :: <&polymorphic-type-variable>)
+ => (disj? :: <boolean>)
+  ^known-disjoint?(a.^type-variable-kind, b.^type-variable-kind);
+end;
+
+define method ^known-disjoint? (a :: <&polymorphic-type-variable>, b :: <&type>)
+ => (disj? :: <boolean>)
+  ^known-disjoint?(a.^type-variable-kind, b);
+end;

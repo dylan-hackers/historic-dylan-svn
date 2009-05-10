@@ -445,6 +445,10 @@ define method spec-value-rest-variable-spec (spec :: <method-polymorphic-signatu
   spec-value-rest-variable-spec(spec.real-signature-spec);
 end method;
 
+define method spec-value-required-variable-specs (spec :: <method-polymorphic-signature-spec>)
+  spec-value-required-variable-specs(spec.real-signature-spec);
+end method;
+
 /// GENERIC-SIGNATURE-SPEC
 
 define constant <generic-signature-spec> = <signature-spec>;

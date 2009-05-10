@@ -161,6 +161,7 @@ define module-with-models dfmc-modeling
   export
     <&signature>, <&keyword-signature>,
     <&polymorphic-signature>,
+      ^real-signature,
 //      ^signature-default-types,
       as-sig-types,
       &slot signature-required,
@@ -428,8 +429,8 @@ define module-with-models dfmc-modeling
 //      &slot mm-wrapper-pattern-element,
 //      ^mm-wrapper-number-patterns,
     model-<mm-wrapper>,
-//    <&limited-type>,
-//      ^limited,
+    <&limited-type>,
+      ^limited,
     <&limited-function-type>,
       &getter limited-function-argument-types,
       &getter limited-function-return-values,

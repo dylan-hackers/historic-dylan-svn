@@ -115,6 +115,16 @@ define method type-estimate-value (s :: <string>) => (res :: <&type>)
   dylan-value(#"<string>");
 end;
 
+define method type-estimate-value (v :: <vector>) => (res :: <&type>)
+  if (v.size == 0)
+    ^limited(dylan-value(#"<vector>"),
+             of: make(<&polymorphic-type-variable>, name: #"v", kind: dylan-value(#"<type>")));
+  else
+    let types = map(type-estimate-value, v);
+    ^limited(dylan-value(#"<vector>"), of: apply(^type-union, types));
+  end;
+end;
+
 //list, floats!
 
 define thread variable *constraints* :: false-or(<stretchy-vector>) = #f;
@@ -362,15 +372,31 @@ define method infer-computation-types (c :: <stack-vector>) => ()
                       right: t.lookup-type-variable));
 end;
 
-define method get-function-object (o :: <object>) => (res :: <&function>)
-  error("can't get function object of an <object>");
+define generic get-function-object (o :: <object>)
+ => (res :: false-or(type-union(<&limited-function-type>, <&function>)));
+
+define method get-function-object (o :: <object>) => (res == #f)
+  format-out("can't get function object of an <object>");
+  #f;
 end;
 
-define method get-function-object (t :: <temporary>) => (f :: <&function>)
-  t.generator.computation-closure-method;
+define method get-function-object (t :: <temporary>)
+ => (f :: false-or(type-union(<&limited-function-type>, <&function>)))
+  let gen = t.generator;
+  if (instance?(gen, <make-closure>))
+    gen.computation-closure-method;
+  else
+    get-function-object(gen.computation-value); //for check-type!
+  end;
 end;
 
-define method get-function-object (t :: <object-reference>) => (f :: <&function>)
+define method get-function-object (t :: <lexical-specialized-variable>)
+ => (f :: false-or(<&limited-function-type>))
+  instance?(t.specializer, <&limited-function-type>) & t.specializer;
+end;
+
+define method get-function-object (t :: <object-reference>)
+ => (f :: false-or(type-union(<&limited-function-type>, <&function>)))
   if (instance?(t.reference-value, <&function>))
     t.reference-value;
   else
@@ -390,53 +416,40 @@ define method infer-computation-types (c :: <function-call>) => ()
   infer-function-type(c, fun);
 end;
 
-define method infer-function-type (c :: <function-call>, fun :: <&function>) => ()
-  format-out("got %=\n", fun);
-  //keyword-arguments, #rest!
-  let sig = ^function-signature(fun);
-  let values
-    = copy-sequence(sig.^signature-values, end: sig.^signature-number-values);
-  let specializers
-    = begin
-        let args = ^function-specializers(fun);
-        let rest? = ^signature-rest?(sig);
-        //#rest can be annotated with a type, but this information is
-        //lost in translation
-        let nodes = map(lookup-type, args);
-        if (nodes.size == 1 & ~rest?)
-          nodes.first;
-        else
-          if (rest?)
-            nodes := add!(nodes, make(<&rest-type>).lookup-type);
+define method infer-function-type (c :: <function-call>, fun == #f) => ()
+  //well, need to generate an arrow-type, args and vals, constraint...
+end;
+
+define method infer-function-type (c :: <function-call>, fun :: <&limited-function-type>) => ()
+  let args = fun.^limited-function-argument-types;
+  let a = map(lookup-type, args);
+  let vals = fun.^limited-function-return-values;
+  let v = map(lookup-type, vals);
+  create-arrow-and-constraint(c, a, v);
+end;
+
+define function create-arrow-and-constraint
+ (c :: <function-call>, specializers :: <collection>, vals :: <collection>) => ()
+  local method gen-tuple (types :: <collection>) => (res :: <node>)
+          if (types.size == 1)
+            types.first;
+          else
+            make(<&tuple-type>, tuples: types).lookup-type
           end;
-          lookup-type(make(<&tuple-type>, tuples: nodes));
         end;
-      end;
-  
-  let vals
-    = begin
-        let nodes = map(lookup-type, values);
-        let rest-values? = ^signature-rest-value(sig);
-        if (nodes.size == 1 & ~rest-values?)
-          nodes.first;
-        else
-          if (rest-values?)
-            nodes := add!(nodes, make(<&rest-type>).lookup-type);
-          end;
-          lookup-type(make(<&tuple-type>, tuples: nodes));
-        end;
-      end;
 
   let left = make(<node>,
                   graph: *graph*,
                   value: make(<&arrow-type>,
-                              arguments: specializers,
-                              values: vals));
+                              arguments: specializers.gen-tuple,
+                              values: vals.gen-tuple));
 
   let args
     = begin
         let nodes = map(lookup-type-variable, c.arguments);
-        if (nodes.size == 1)
+        if (nodes.size == 1 | specializers.size == 1)
+          //does not respect #rest properly
+          //does not work for keyword arguments
           nodes.first;
         else
           lookup-type(make(<&tuple-type>, tuples: nodes));
@@ -449,6 +462,28 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
                                arguments: args,
                                values: lookup-type-variable(c.temporary)));
   add-constraint(make(<equality-constraint>, left: left, right: right));
+end;
+
+define method infer-function-type (c :: <function-call>, fun :: <&function>) => ()
+  //keyword-arguments!
+  let sig = ^function-signature(fun);
+  let values
+    = copy-sequence(sig.^signature-values, end: sig.^signature-number-values);
+  let args = ^function-specializers(fun);
+  let rest? = ^signature-rest?(sig);
+  //#rest can be annotated with a type, but this information is
+  //lost in translation
+  let arg-nodes = map(lookup-type, args);
+  if (rest?)
+    arg-nodes := add!(arg-nodes, make(<&rest-type>).lookup-type);
+  end;
+  
+  let val-nodes = map(lookup-type, values);
+  let rest-values? = ^signature-rest-value(sig);
+  if (rest-values?)
+    val-nodes := add!(val-nodes, make(<&rest-type>).lookup-type);
+  end;
+  create-arrow-and-constraint(c, arg-nodes, val-nodes);
 end;
 
 define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>) => ()
