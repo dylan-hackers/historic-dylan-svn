@@ -358,6 +358,24 @@ begin
     "  mymap(method(x) x + 1 end, #[1, 2, 3]);\n"
     "end;";
   add!($tests, pair(#"poly0", poly0));
+
+  let id0 =
+    "define method id0 ()\n"
+    "  local method id (A) (x :: A) => (y :: A)\n"
+    "    x;\n"
+    "  end;\n"
+    "  id(42)\n"
+    "end;";
+  add!($tests, pair(#"id0", id0));
+
+  let id1 =
+    "define method id1 ()\n"
+    "  local method id (A) (x :: A) => (y :: A)\n"
+    "    x;\n"
+    "  end;\n"
+    "  values(id(42), id(\"foo\"))\n"
+    "end;";
+  add!($tests, pair(#"id1", id1));
 end;
 
 define function callback-handler (#rest args)

@@ -33,6 +33,11 @@ define method get-id (tv :: <&type-variable>)
     ($tv-id-map[tv] := next-computation-id());
 end;
 
+define method get-id (ptv :: <&polymorphic-type-variable>)
+ element($tv-id-map, ptv, default: #f) |
+   ($tv-id-map[ptv] := next-computation-id())
+end;
+
 define method get-id (n :: <node>)
   n.node-id;
 end;

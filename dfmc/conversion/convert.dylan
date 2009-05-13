@@ -1779,7 +1779,7 @@ define function convert-lambda-into*-d
   let lambda-env = make(<lambda-lexical-environment>, outer: env, lambda: f);
   add-inner!(env, lambda-env);
   let (variables, keys-start) =
-    parse-parameters-into-d(env, lambda-env, sig-spec);
+    parse-parameters-into(env, lambda-env, sig-spec, f.^function-signature);
   f.environment := lambda-env;
   f.parameters := variables;
   let bind-computation = make-in-environment(lambda-env, <bind>);
@@ -3987,11 +3987,12 @@ define function parse-parameters-into
 	end;
   for (var-spec in type-vars, tv in sig.^signature-type-variables)
     let name = spec-variable-name(var-spec);
-    let tv = make(<lexical-required-type-variable>,
-                  name: name,
-                  environment: lambda-env,
-                  specializer: tv);
-    push-variable!(name, tv);
+    let tvt = make(<lexical-required-type-variable>,
+                   name: name,
+                   environment: lambda-env,
+                   specializer: tv);
+    tv.^type-variable-temporary := tvt;
+    push-variable!(name, tvt);
   end;
   for (var-spec in required-specs, var-type in sig.^signature-required)
     let name = spec-variable-name(var-spec);

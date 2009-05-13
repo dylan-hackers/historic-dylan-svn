@@ -4,7 +4,27 @@ define constant <type-environment> = <table>;
 
 define thread variable *type-environment* :: false-or(<type-environment>) = #f;
 
-define function lookup-type-variable (o :: <object>) => (res :: <node>)
+define method lookup-type-variable (o :: <lexical-required-type-variable>)
+ => (res :: <node>);
+  lookup-type-variable(o.specializer); //delegate to <&polymorphic-tv>
+end;
+
+define method lookup-type-variable (tv :: <&polymorphic-type-variable>)
+ => (res :: <node>)
+  element(*type-environment*, tv, default: #f) |
+    begin
+      let te = make(<&top-type>);
+      //todo: respect ^type-variable-kind
+      debug-types(#"new-type-variable", tv, tv.^type-variable-temporary, te);
+      let node = make(<node>, graph: *graph*, value: tv);
+      *type-environment*[tv] := node;
+      add-constraint(make(<equality-constraint>,
+                          left: te.lookup-type, right: node));
+      node;
+    end;
+end;
+
+define method lookup-type-variable (o :: <object>) => (res :: <node>)
   let tenv = *type-environment*;
   let res = element(tenv, o, default: #f);
   unless (res)
@@ -52,38 +72,25 @@ define function create-sharing (u :: <node>) => (v :: <node>)
 end;
 
 define function lookup-type (o :: <object>) => (res :: <node>)
-  let tenv = *type-environment*;
-//  let res = element(tenv, o, default: #f);
-//  if (res)
-//    format-out("found cached type node\n");
-//  else
-//    format-out("getting new type node\n");
-    let te = type-estimate-object(o);
-    if (te == dylan-value(#"<object>"))
-      te := make(<&top-type>);
-    end;
-    if (instance?(o, <temporary>))
-      lookup-type-variable(o);
-    else
-      let n = make(<node>, graph: *graph*, value: te);
-      //let u = create-sharing(n);
-      //if (u ~= n)
-      //  format-out("found cached type node\n");
-      //else
-      format-out("new type node\n");
-      //end;
-      //u;
-      n;
-    end;
-//    tenv[o] := n;
-//  end;
-//  res | tenv[o];
+  let te = type-estimate-object(o);
+  if (te == dylan-value(#"<object>"))
+    te := make(<&top-type>);
+  end;
+  if (instance?(o, type-union(<temporary>, <&polymorphic-type-variable>)))
+    lookup-type-variable(o);
+  else
+    make(<node>, graph: *graph*, value: te);
+  end;
 end;
 
 define generic type-estimate-object (o :: <object>) => (res :: false-or(<&type>));
 
 define method type-estimate-object (o :: <object>) => (res == #f)
   #f;
+end;
+
+define method type-estimate-object (o :: <&polymorphic-type-variable>) => (res :: <&type>)
+  o.^type-variable-kind;
 end;
 
 define method type-estimate-object (o :: <&type>) => (res :: <&type>)
@@ -116,13 +123,14 @@ define method type-estimate-value (s :: <string>) => (res :: <&type>)
 end;
 
 define method type-estimate-value (v :: <vector>) => (res :: <&type>)
-  if (v.size == 0)
-    ^limited(dylan-value(#"<vector>"),
-             of: make(<&polymorphic-type-variable>, name: #"v", kind: dylan-value(#"<type>")));
-  else
-    let types = map(type-estimate-value, v);
-    ^limited(dylan-value(#"<vector>"), of: apply(^type-union, types));
-  end;
+  ^make(<&limited-collection-type>,
+        class: dylan-value(#"<vector>"),
+        element-type:
+          if (v.size == 0)
+            make(<&polymorphic-type-variable>, name: #"v", kind: dylan-value(#"<type>"));
+          else
+            reduce1(^type-union, map(type-estimate-value, v));
+          end);
 end;
 
 //list, floats!
@@ -464,6 +472,23 @@ define function create-arrow-and-constraint
   add-constraint(make(<equality-constraint>, left: left, right: right));
 end;
 
+define method maybe-instantiate-polymorphic-variables (sig :: <&signature>)
+end;
+
+define method maybe-instantiate-polymorphic-variables (tvs :: <collection>)
+  for (tv in tvs)
+    let te = make(<&top-type>);
+    let type-var = make(<&type-variable>, contents: te);
+    debug-types(#"new-type-variable", type-var, tv.^type-variable-temporary, te);
+    let node = make(<node>, graph: *graph*, value: type-var);
+    *type-environment*[tv] := node;
+    add-constraint(make(<equality-constraint>,
+                        left: type-var.^type-variable-contents.lookup-type,
+                        right: node));
+    node;
+  end;
+end;
+
 define method infer-function-type (c :: <function-call>, fun :: <&function>) => ()
   //keyword-arguments!
   let sig = ^function-signature(fun);
@@ -471,6 +496,7 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
     = copy-sequence(sig.^signature-values, end: sig.^signature-number-values);
   let args = ^function-specializers(fun);
   let rest? = ^signature-rest?(sig);
+  maybe-instantiate-polymorphic-variables(sig.^signature-type-variables);
   //#rest can be annotated with a type, but this information is
   //lost in translation
   let arg-nodes = map(lookup-type, args);

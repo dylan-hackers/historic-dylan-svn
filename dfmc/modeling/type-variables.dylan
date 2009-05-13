@@ -7,6 +7,7 @@ define primary &class <polymorphic-type-variable> (<type>)
   constant &slot type-variable-kind :: <type>,
     //init-value: <type>,
     required-init-keyword: kind:;
+  runtime-constant &slot type-variable-temporary;
 end;
 
 /*
@@ -26,6 +27,11 @@ end;
 define method ^subtype? (a :: <&polymorphic-type-variable>, b :: <&type>)
  => (sub? :: <boolean>)
   ^subtype?(a.^type-variable-kind, b);
+end;
+
+define method ^subtype? (a :: <&type>, b :: <&polymorphic-type-variable>)
+ => (sub? :: <boolean>)
+  ^subtype?(a, b.^type-variable-kind);
 end;
 
 define method ^known-disjoint? (a :: <&polymorphic-type-variable>, b :: <&polymorphic-type-variable>)
