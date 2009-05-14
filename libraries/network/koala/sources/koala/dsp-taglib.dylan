@@ -5,6 +5,40 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
+//// Utils
+
+// Used to generate XHTML elements using the current tag call's attributes.
+//
+define method show-element
+    (stream :: <stream>, element-name :: <string>,
+     #key exclude :: <sequence> = #(),
+          body :: false-or(<function>))
+  local method show-attribute (attr :: <symbol>, value)
+          let attr-name = as(<string>, attr);  // for now...
+          write(stream, " ");
+          write(stream, attr-name);
+          // This supports old-style attributes with no value.  For example,
+          // IIRC <option name="foo" selected> used to be valid.  Not sure there's
+          // much point in supporting this anymore, but it doesn't seem to hurt.
+          if (value)
+            let value = as(<string>, trim(value));
+            if (~empty?(value))
+              format(stream, "=\"%s\"", quote-html(value));
+            end;
+          end;
+        end;
+  format(stream, "<%s", element-name);
+  map-tag-call-attributes(show-attribute, exclude: exclude);
+  if (body)
+    write(stream, ">");
+    body();
+    format(stream, "</%s>", element-name);
+  else
+    write(stream, "/>");
+  end;
+end;
+
+
 //// Tags
 
 // This is for comments that you don't want to be seen by the user,
@@ -16,23 +50,37 @@ define body tag comment in dsp
 end;
 
 
-// <dsp:get name="foo" context="page|request|header|session"/>
+// <dsp:get name="foo" context="c1,c2,..."/>
+// where c1, c2 are form-notes|page|request|header|session.
 //
 define tag get in dsp
     (page :: <dylan-server-page>)
-    (name :: <string>, context :: <string>)
-  let value = select (as(<symbol>, context))
-                #"page" => get-attribute(page-context(), name);
-                #"request" => get-query-value(name);
-                #"header" => get-header(current-request(), name);
-                #"session" => get-attribute(get-session(current-request()), name);
-                // #"any" => ...
-                // any other context?
-                otherwise =>
-                  // todo -- what error class?
-                  error("Bad context specified in <dsp:get> tag: %s", context)
-              end;
-  output("%s", value | "");     // don't show #f
+    (name :: <string>, context :: <string>, tag)
+  block (return)
+    // Search contexts in order to find a value.  First one is displayed.
+    for (context in split(context, ','))
+      let value = select (as(<symbol>, context))
+                    page:    => get-attribute(page-context(), name);
+                    request: => get-query-value(name);
+                    headers: => get-header(current-request(), name);
+                    session: => get-attribute(get-session(current-request()), name);
+                    field-errors: => format-field-errors(get-field-errors(name), tag);
+                    /* todo
+                    otherwise =>
+                      if (...debugging template tags?...)
+                        signal(make(<koala-api-error>,
+                                    format-string: "Bad context specified in "
+                                      "<dsp:get> tag: %s",
+                                    format-arguments: list(context)));
+                      end;
+                    */
+                  end;
+      if (value)
+        output("%s", quote-html(value));
+        return();
+      end;
+    end for;
+  end block;
 end tag get;
 
 
@@ -208,6 +256,8 @@ define named-method loop-last? in dsp
 end;
 
 
+// todo -- much of this table stuff should be replaced by the loop tag now.
+
 define thread variable *table-has-rows?* :: <boolean> = #f;
 define thread variable *table-first-row?* :: <boolean> = #f;
 define thread variable *table-row-data* :: <object> = #f;
@@ -254,7 +304,7 @@ define body tag hrow in dsp
     ()
   when (*table-first-row?*)
     let response = current-response();
-    show-table-element(output-stream(response), "tr", do-body);
+    show-element(output-stream(response), "tr", body: do-body);
   end;
 end;
 
@@ -263,7 +313,7 @@ define body tag row in dsp
     ()
   when (*table-has-rows?*)
     let response = current-response();
-    show-table-element(output-stream(response), "tr", do-body);
+    show-element(output-stream(response), "tr", body: do-body);
   end;
 end;
 
@@ -271,14 +321,14 @@ define body tag hcell in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
     ()
   let response = current-response();
-  show-table-element(output-stream(response), "td", do-body);
+  show-element(output-stream(response), "td", body: do-body);
 end;
 
 define body tag cell in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
     ()
   let response = current-response();
-  show-table-element(output-stream(response), "td", do-body);
+  show-element(output-stream(response), "td", body: do-body);
 end;
 
 define body tag no-rows in dsp
@@ -286,17 +336,8 @@ define body tag no-rows in dsp
     ()
   when (~ *table-has-rows?*)
     let response = current-response();
-    show-table-element(output-stream(response), "tr", do-body);
+    show-element(output-stream(response), "tr", body: do-body);
   end;
-end;
-
-define function show-table-element
-    (stream, element-name :: <string>, do-body :: <function>)
-  format(stream, "<%s", element-name);
-  show-tag-call-attributes(stream);
-  write(stream, ">");
-  do-body();
-  format(stream, "</%s>", element-name);
 end;
 
 define tag row-number in dsp
@@ -309,10 +350,35 @@ define tag row-number in dsp
 end;
  
 
+//// Form field tags
+
+// These tags are designed to directly replace HTML <input>, <textarea> and
+// other widget tags.  They aid in correlating input errors with their
+// corresponding widgets when a page is redisplayed.
+/*
+define tag input in dsp
+    (page :: <dylan-server-page>)
+    (name :: <string>, class, value)
+  // Append "invalid-input" to the class so that it can be manipulated via CSS.
+  if (get-form-error(name))
+    class := iff(class,
+                 concatenate(class, " invalid-input"),
+                 "invalid-input");
+  end;
+  // Output a normal <input> element, but fill in the "value" attribute
+  // if not explicitly provided in the tag.
+  show-element(output-stream(current-response()), "input",
+               attributes: make-table(value: => value | get-query-value(name),
+                                      class: => class));
+end;
+*/
+
 // ---TODO: Define a tag to replace the HTML <input> tag, that will
 //          automatically take care of defaulting the value correctly
 //          if the form is redisplayed due to error, and will allow
 //          CSS to display the input tag in a unique way.
+//
+// This can be replaced with <dsp:get name="x" context="request"/>
 //
 define tag show-query-value in dsp (page :: <dylan-server-page>)
  (name :: <string>)
@@ -357,102 +423,188 @@ end;
 // Nothing yet, I guess.
 
 
-// A simple error reporting mechanism.  Store errors in the page context
-// so they can be displayed when the next page is generated.  The idea is
-// that pages should use the <dsp:show-form-notes/> tag if they can be
-// the target of a GET or POST that might generate errors.
+//// Form Field Errors
 
-define abstract class <form-note> (<object>)
-  constant slot format-string :: <string>,
-    required-init-keyword: #"format-string";
-  constant slot format-arguments :: <sequence>,
-    required-init-keyword: #"format-arguments";
+// Provides a mechanism for associating error messages with specific
+// form fields.  Multiple errors can be associated with one key/field-name.
+
+define abstract class <note> (<object>)
+  constant slot note-text :: <string>,
+    required-init-keyword: text:;
 end;
 
-define class <form-error> (<form-note>)
-  constant slot form-field-name :: false-or(<string>) = #f,
-    init-keyword: #"form-field-name";
+define class <form-field-error> (<note>)
 end;
 
-define class <form-message> (<form-note>)
-end;
+// Errors are stored in a <string-table> in the <page-context> under this key.
+//
+define constant $field-errors-key = "dsp:field-errors";
 
-define method note-form-error
-    (cond :: <condition>,
-     #key field-name, format-arguments :: <sequence> = #())
-  note-form-error(format-to-string("%s", cond),
-                  field-name: field-name,
-                  format-arguments: format-arguments);
-end;
-
-define method note-form-error
-    (message :: <string>,
-     #key field-name, format-arguments :: <sequence> = #())
-  add-form-note(make(<form-error>,
-                     format-string: message,
-                     format-arguments: format-arguments,
-                     form-field-name: field-name))
-end;
-
-// todo -- needs field-name parameter
-// todo -- this and note-form-error need to handle multiple messages for
-//         the same field name
-define method note-form-message
-    (message :: <string>, #rest args)
-  add-form-note(make(<form-message>,
-                     format-string: message,
-                     format-arguments: copy-sequence(args)));
-end;
-
-define constant $form-notes-key = "dsp:form-notes";
-
-// This shows the use of <page-context> to store the form errors since they
+// This uses <page-context> to store the form errors since they
 // only need to be accessible during the processing of one page.
 //
-define method add-form-note
-    (note :: <form-note>)
-  let context :: <page-context> = page-context();
-  let notes = get-attribute(context, $form-notes-key) | make(<stretchy-vector>);
-  add!(notes, note);
-  set-attribute(context, $form-notes-key, notes);
+define method add-field-error
+    (field-name :: <string>, message :: <string>,
+     #rest format-arguments)
+  let all-errors = get-attribute(page-context(), $field-errors-key)
+                     | make(<string-table>);
+  let error = make(<form-field-error>,
+                   text: apply(format-to-string, message, format-arguments));
+  let errors-for-field = element(all-errors, field-name, default: #());
+  all-errors[field-name] := add-new!(errors-for-field, error,
+                                     test: method (n1, n2)
+                                             n1.note-text = n2.note-text
+                                           end);
+  set-attribute(page-context(), $field-errors-key, all-errors);
+end method add-field-error;
+
+define method add-field-error
+    (field-name :: <string>, error :: <serious-condition>,
+     #rest format-arguments)
+  ignore(format-arguments);
+  add-field-error(field-name, format-to-string("%s", error));
 end;
 
-define method display-form-note
-    (out :: <stream>, note :: <form-error>)
-  write(out, "<li>");
-  // Should I call quote-html on this output?
-  apply(format, out, format-string(note), format-arguments(note));
-  write(out, "</li>\n");
-end;
-
-define method display-form-note
-    (out :: <stream>, note :: <form-message>)
-  write(out, "<p>");
-  // Should I call quote-html on this output?
-  apply(format, out, format-string(note), format-arguments(note));
-  write(out, "</p>\n");
-end;
-  
-define tag show-form-notes in dsp
-    (page :: <dylan-server-page>)
-    ()
-  let notes = get-attribute(page-context(), $form-notes-key);
-  when (notes)
-    let messages = choose(rcurry(instance?, <form-message>), notes);
-    let errors = choose(rcurry(instance?, <form-error>), notes);
-    let out = output-stream(current-response());
-    write(out, "<div class=\"form-notes\">\n");
-    unless(empty?(messages))
-      write(out, "<div class=\"form-note-message\">\n");
-      do(curry(display-form-note, out), messages);
-      write(out, "</div>\n");
-    end;
-    unless(empty?(errors))
-      format(out, "<div class=\"form-note-errors\">Please fix the following errors:\n<ul>\n");
-      do(curry(display-form-note, out), errors);
-      format(out, "</ul></div>\n");
-    end;
-    write(out, "</div>\n");
+// Get all the <field-error>s associated with a given field-name.
+// This is a named-method so that it can be used with <dsp:loop>.
+//
+define named-method get-field-errors
+    (field-name :: <string>)
+ => (messages :: <sequence>)
+  let message-table = get-attribute(page-context(), $field-errors-key);
+  if (message-table)
+    element(message-table, field-name, default: #[])
+  else
+    #[]
   end;
 end;
+
+// <dsp:show-field-errors field-name="field1,field2,..."/>
+//
+define tag show-field-errors in dsp
+    (page :: <dylan-server-page>)
+    (field-name :: <string>, tag = "div")
+  let error-table = get-attribute(page-context(), $field-errors-key);
+  when (error-table)
+    let field-errors = apply(concatenate,
+                             map(get-field-errors, split(field-name, ',')));
+    let field-errors = remove-duplicates!(field-errors,
+                                          test: method (n1, n2)
+                                                  n1.note-text = n2.note-text
+                                                end);
+    output("%s", format-field-errors(field-errors, tag));
+  end;
+end tag show-field-errors;
+
+define body tag if-error in dsp
+    (page :: <dylan-server-page>, do-body :: <function>)
+    (field-name :: <string>, text :: false-or(<string>))
+  let field-errors = get-field-errors(field-name);
+  if (~empty?(field-errors))
+    if (text)
+      output("%s", text);
+    end;
+    do-body();
+  end;
+end tag if-error;
+
+define method format-field-errors
+    (errors :: <sequence>, tag :: false-or(<string>))
+ => (string :: <string>)
+  let tag = tag | "div";
+  if (empty?(errors))
+    ""
+  else
+    let messages = map(method (error :: <form-field-error>)
+                         format-to-string("<%s class=\"field-error\">%s</%s>",
+                                          tag, error.note-text, tag)
+                       end,
+                       errors);
+    format-to-string("<%s class=\"field-errors\">%s</%s>\n",
+                     tag, join(messages, "\n"), tag)
+  end
+end method format-field-errors;
+
+
+//// Page notes and errors
+
+// For errors and notes unrelated to specific form fields.  e.g., confirmation
+// messages such as "successfully saved".
+
+define class <page-note> (<note>)
+end;
+
+define constant $page-notes-key = "dsp:page-notes";
+
+define constant $page-errors-key = "dsp:page-errors";
+
+define method add-page-note
+    (format-string :: <string>, #rest format-arguments)
+  apply(add-page-note-internal, $page-notes-key, format-string, format-arguments);
+end;
+
+define method add-page-error
+    (format-string :: <string>, #rest format-arguments)
+  apply(add-page-note-internal, $page-errors-key, format-string, format-arguments);
+end;
+
+define method add-page-note-internal
+    (key :: <string>, format-string :: <string>, #rest format-arguments)
+  let notes = get-attribute(page-context(), key) | make(<stretchy-vector>);
+  let text = apply(format-to-string, format-string, format-arguments);
+  let note = make(<page-note>, text: text);
+  add-new!(notes, note, test: method (n1, n2)
+                                n1.note-text = n2.note-text
+                              end);
+  set-attribute(page-context(), key, notes);
+end method add-page-note-internal;
+
+define named-method page-errors?
+    (page :: <dylan-server-page>)
+  get-attribute(page-context(), $page-errors-key)
+end;
+
+define named-method page-notes?
+    (page :: <dylan-server-page>)
+  get-attribute(page-context(), $page-notes-key)
+end;
+
+define tag show-page-notes in dsp
+    (page :: <dylan-server-page>)
+    ()
+  show-page-notes-internal($page-notes-key, "page-note");
+end;
+
+define tag show-page-errors in dsp
+    (page :: <dylan-server-page>)
+    ()
+  show-page-notes-internal($page-errors-key, "page-error");
+end;
+
+define method show-page-notes-internal
+    (key :: <string>, css-class :: <string>)
+  let notes = get-attribute(page-context(), key);
+  if (notes)
+    // Note the 's' added to the end of the class name in the outer div.  :-/
+    output("<div class=\"%ss\">", css-class);
+    for (note in notes)
+      output("<div class=\"%s\">%s</div>", css-class, note.note-text);
+    end;
+    output("</div>")
+  end;
+end method show-page-notes-internal;
+
+
+//// Debug tags
+
+define tag show-query-values in dsp
+    (page :: <dylan-server-page>)
+    ()
+  output("<ul>\n");
+  for (value keyed-by name in request-query-values(current-request()))
+    output("<li>%s: %s</li>\n", name, quote-html(value));
+  end;
+  output("</ul>\n");
+end tag show-query-values;
+
 

@@ -612,6 +612,11 @@ define class <tag-call> (<object>)
   constant slot prefix :: <string>, required-init-keyword: #"prefix";
   constant slot tag :: false-or(<tag>), init-keyword: #"tag";
   // @see extract-tag-args
+  // This should be a <string-table>, or better, a <case-insensitive-string-table>.
+  // Even if attribute names are case insensitive, we should preserve the case,
+  // and there's no guarantee of that when we convert them to symbols and back.
+  // Besides, a table is a natural fit for this.  Can't remember why I did it
+  // this way...  Maybe make <tag-call> a subclass of <attributes-mixin>?
   slot arguments :: <sequence> = #[], init-keyword: #"arguments";
   slot body :: false-or(<dsp-template>) = #f, init-keyword: #"body";
   // The taglibs in effect at the call site.  Used for looking up named methods.
@@ -663,7 +668,7 @@ define function show-tag-call-attributes
     (stream, #key exclude :: <sequence> = #[])
   map-tag-call-attributes(method (name, value)
                             iff(value,
-                                format(stream, " %s=%=", name, value),
+                                format(stream, " %s=%=", name, quote-html(value)),
                                 format(stream, " %s", name))
                           end,
                           exclude: exclude);
@@ -1173,8 +1178,12 @@ end;
 // Parse the key1="val1" key2="val2" arguments from a call to a DSP tag.  Values may be
 // quoted with either single or double quotes (or nothing, but quoting is recommended).
 // There is no way to escape the quote characters.
-// @return a sequence of pairs, each containing a symbol of the argument name and the parsed
-//         argument value.
+// @return a list whos even elements are attribute names (symbols) and odd elements are
+//         the corresponding values.  If a parser exists for the attribute's type the
+//         value is parsed.
+// todo -- This should return a table instead.
+// todo -- The terminology is strange.  Should be "attributes" a la XML instead of
+//         "tags" and "params".
 define method extract-tag-args
     (buffer :: <byte-string>, bpos :: <integer>, epos :: <integer>, tag :: false-or(<tag>))
  => (args :: <sequence>, has-body? :: <boolean>, body-start :: <integer>)

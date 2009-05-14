@@ -173,7 +173,7 @@ define macro url-map-definer
            ?actions ;
            for (loc in _locations)
              add-responder( _http-server, loc, _responder);
-           end;
+           end
            }
   actions:
     { } => { }

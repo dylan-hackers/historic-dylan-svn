@@ -17,7 +17,8 @@ define module graphviz-renderer
   use format;
   use streams;
   use standard-io;
-  use common-dylan;
+  use common-dylan,
+    exclude: { format-to-string };
   use simple-random;
 
   export <graph>, <node>, <edge>,

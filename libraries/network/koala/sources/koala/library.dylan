@@ -7,6 +7,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library koala
   use base64;
+  use collections,
+    import: { table-extensions };
   use command-line-parser;
   use common-dylan,
     import: { dylan, common-extensions, threads, simple-random };
@@ -161,6 +163,9 @@ define module koala-unit
 end module koala-unit;
 
 define module dsp
+  use table-extensions,
+    import: { table },
+    rename: { table => make-table };
   use common-extensions;
   use date;
   use dylan;
@@ -223,8 +228,10 @@ define module dsp
     current-row,                 // dsp:table
     current-row-number,          // dsp:table
 
-    note-form-error,             // for any error encountered while processing a web form
-    note-form-message;           // for informative messages in response to processing a web form
+    add-field-error,
+    get-field-errors,
+    add-page-note,
+    add-page-error;
 
 end module dsp;
 

@@ -10,14 +10,14 @@
   <%dsp:include location="header.dsp"/>
   <%dsp:include location="body-wrapper-start.dsp"/>
 
-  <dsp:show-form-notes/>
+  <dsp:show-page-errors/>
 
   <h2>Table Generation</h2>
 
   <p>This page demonstrates the use of the dsp:table tag to generate HTML tables from a
-  set of data, using dsp:table and other associated tags.
+  set of data, using dsp:table and other associated tags.</p>
 
-  <p>
+  <p/>
   A table with a bunch of rows:<br>
   <dsp:table border="1" align="center" cellspacing="2" generator="animal-generator">
     <dsp:hrow>
