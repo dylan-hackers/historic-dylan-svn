@@ -10,7 +10,7 @@
   <%dsp:include location="header.dsp"/>
   <%dsp:include location="body-wrapper-start.dsp"/>
 
-  <dsp:show-form-notes/>
+  <dsp:show-page-errors/>
 
   <h2>Iterator</h2>
 

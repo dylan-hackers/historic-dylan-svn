@@ -78,7 +78,7 @@ end;
 // count-query-values can be used to find out how many there are.
 //
 define method respond-to-get
-    (page :: <hello-world-page>)
+    (page :: <hello-world-page>, #key)
   output("<html>\n<head><title>Hello World</title></head>\n"
          "<body>Hello there.<p>");
   output("%s<br>", if (count-query-values() > 0)
@@ -187,7 +187,7 @@ end;
 define named-method logged-in? in demo
     (page :: <demo-page>)
   let session = get-session(current-request());
-  session & get-attribute(session, #"username");
+  session & get-attribute(session, "username");
 end;
 
 define class <login-page> (<demo-page>)
@@ -199,10 +199,10 @@ define class <logout-page> (<demo-page>)
 end;
 
 define method respond-to-get
-    (page :: <logout-page>)
+    (page :: <logout-page>, #key)
   let session = get-session(current-request());
-  remove-attribute(session, #"username");
-  remove-attribute(session, #"password");
+  remove-attribute(session, "username");
+  remove-attribute(session, "password");
   // Process the template for this page...
   next-method();
 end method respond-to-get;
@@ -213,19 +213,27 @@ end;
 
 // ...so handle the POST by storing the form values in the session.
 define method respond-to-post
-    (page :: <welcome-page>)
+    (page :: <welcome-page>, #key)
   let username = get-query-value("username");
   let password = get-query-value("password");
   let username-supplied? = username & username ~= "";
   let password-supplied? = password & password ~= "";
   if (username-supplied? & password-supplied?)
     let session = get-session(current-request());
-    set-attribute(session, #"username", username);
-    set-attribute(session, #"password", password);
+    set-attribute(session, "username", username);
+    set-attribute(session, "password", password);
     // Process the template for this page...
     next-method();
   else
-    note-form-error("You must supply <b>both</b> a username and password.");
+    if (~username-supplied?)
+      add-field-error("username", "Username is required");
+    end;
+    if (~password-supplied?)
+      add-field-error("password", "Password is required");
+    end;
+    // For good measure we'll add a note at the top of the page, not associated
+    // with a particular field.
+    add-page-error("Please fix the errors below.");
     respond-to-get(*login-page*);
   end;
 end method respond-to-post;
@@ -238,7 +246,7 @@ define tag current-username in demo
   let response = current-response();
   let username
     = get-query-value("username")
-      | get-attribute(get-session(response.response-request), #"username");
+        | get-attribute(get-session(response.response-request), "username");
   username & output(username);
 end;
 
@@ -313,6 +321,8 @@ define tag pinyin-word in demo
   output("%s", row[2]);
 end;
 
+// Can be replaced by CSS in recent browsers.
+//
 define tag row-bgcolor in demo
     (page :: <demo-page>)
     ()
