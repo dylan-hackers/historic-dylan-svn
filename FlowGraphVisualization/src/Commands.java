@@ -354,7 +354,7 @@ public final class Commands {
 		if (ihl.highlight != highlightnew) {
 			if (ihl.highlight != null)
 				ihl.graph.getRealizer(ihl.highlight).setFillColor(ihl.graph.getDefaultNodeRealizer().getFillColor());
-			ihl.graph.getRealizer(highlightnew).setFillColor(Color.green);
+			ihl.graph.getRealizer(highlightnew).setFillColor(new Color(0x22, 0xdd, 0, 0x66));
 			ihl.highlight = highlightnew;
 			demo.view.repaint();
 		}
@@ -393,8 +393,14 @@ public final class Commands {
 		//Node object = getNode(ihl, answer, 3, false);
 		assert(answer.get(3) instanceof Integer);
 		assert(answer.get(2) instanceof Integer);
-		assert(answer.get(4) instanceof String);
-		ihl.createTypeVariable((Integer)answer.get(2), (Integer)answer.get(3), (String)answer.get(4));
+		String t = null;
+		if (answer.get(4) instanceof Integer)
+			t = Integer.toString((Integer)answer.get(4));
+		else {
+			assert(answer.get(4) instanceof String);
+			t = (String)answer.get(4);
+		}
+		ihl.createTypeVariable((Integer)answer.get(2), (Integer)answer.get(3), t);
 		ihl.typechanged = true;
 		return false;
 	}
@@ -407,11 +413,13 @@ public final class Commands {
 			Node object = getNode(ihl, answer, 3, false);
 			ihl.createTypeNode(id, object);
 		} else {
+			Node nnode = null;
 			//got a "base type" / String or Symbol
 			if (answer.get(3) instanceof Symbol) //arrow or tuple!
-				ihl.createTypeNodeWithLabel(((Symbol)answer.get(3)).toString(), id);
+				nnode = ihl.createTypeNodeWithLabel(((Symbol)answer.get(3)).toString(), id);
 			else
-				ihl.createTypeNodeWithLabel((String)answer.get(3), id);
+				nnode = ihl.createTypeNodeWithLabel((String)answer.get(3), id);
+			ihl.typeHintMap.set(nnode, ihl.typeHintsFactory.createLayerIncrementallyHint(nnode));
 		}
 		ihl.typechanged = true;
 		return false;
@@ -440,6 +448,7 @@ public final class Commands {
 		else
 			er.setLineColor(Color.BLUE);
 		ihl.typegraph.setRealizer(ihl.typegraph.lastEdge(), er);
+		ihl.typescf.addPlaceNodeBelowConstraint(from, to);
 		ihl.typechanged = true;
 		return false;
 	}

@@ -19,9 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
@@ -34,7 +32,6 @@ import y.anim.AnimationPlayer;
 import y.base.EdgeCursor;
 import y.base.Node;
 import y.base.NodeCursor;
-import y.base.NodeList;
 import y.layout.BufferedLayouter;
 import y.layout.GraphLayout;
 import y.view.DefaultBackgroundRenderer;
@@ -45,7 +42,6 @@ import y.view.LayoutMorpher;
 import y.view.LineType;
 import y.view.NavigationMode;
 import y.view.NodeRealizer;
-import y.view.PopupMode;
 
 public class DemoBase extends Thread {
   /**
@@ -313,8 +309,10 @@ public class DemoBase extends Thread {
 
   final class MyMouseListener implements MouseListener {
 	public void mouseClicked(MouseEvent arg0) {
-		Node selected = checkClick(view, incrementallayouter.graph, arg0.getX(), arg0.getY());
-		if (selected == null)
+		Node selected = null;
+		if (alphaslider.getValue() < 2)
+			selected = checkClick(view, incrementallayouter.graph, arg0.getX(), arg0.getY());
+		else
 			selected = checkClick(typeview, incrementallayouter.typegraph, arg0.getX(), arg0.getY());
 		if (selected == null)
 			unselect();
@@ -327,13 +325,11 @@ public class DemoBase extends Thread {
 	public Node checkClick (Graph2DView graph, Graph2D g, int x, int y) {
 		double xv = graph.toWorldCoordX(x);
 		double yv = graph.toWorldCoordY(y);
-		Node selected = null;
 		for (NodeCursor nc = g.nodes(); nc.ok(); nc.next())
 			if (g.getRectangle(nc.node()).contains(xv, yv)) {
-				selected = nc.node();
-				break;
+				return nc.node();
 			}
-		return selected;
+		return null;
 	}
 
 	public void mouseEntered(MouseEvent arg0) {
@@ -468,7 +464,7 @@ public class DemoBase extends Thread {
       view.setZoom( view.getZoom() * factor );
       Rectangle box = view.getGraph2D().getBoundingBox();
       view.setWorldRect( box.x - 20, box.y - 20, box.width + 40, box.height + 40 );
-      typeview.setZoom( view.getZoom() * factor );
+      typeview.setZoom( typeview.getZoom() * factor );
       Rectangle box1 = typeview.getGraph2D().getBoundingBox();
       typeview.setWorldRect( box1.x - 20, box1.y - 20, box1.width + 40, box1.height + 40 );
 
@@ -550,20 +546,46 @@ public class DemoBase extends Thread {
 		
 	}
 	
+	private Color highlightColor (Color c) {
+		Color b = c.darker().darker();
+		return new Color(b.getRed(), b.getGreen(), b.getBlue(), c.getAlpha());
+	}
+	
+	private Color unhighlightColor (Color c) {
+		Color b = c.brighter().brighter();
+		return new Color(b.getRed(), b.getGreen(), b.getBlue(), c.getAlpha());
+	}
+	
 	protected void unselect () {
 		if (incrementallayouter != null) {
 			Node old = incrementallayouter.selection;
 			if  (old != null) {
-				incrementallayouter.graph.setSelected(old, false);
+				Graph2D gr = (Graph2D)old.getGraph();
+				gr.setSelected(old, false);
 				for (EdgeCursor ec = old.edges(); ec.ok(); ec.next())
-					if (incrementallayouter.graph.getRealizer(ec.edge()).getLineColor() == Color.pink) {
-						incrementallayouter.graph.getRealizer(ec.edge()).setLineType(LineType.LINE_1);
-						NodeRealizer o = incrementallayouter.graph.getRealizer(ec.edge().opposite(old)); 
-						o.setFillColor(o.getFillColor().brighter());
+					if (gr.getRealizer(ec.edge()).getLineColor() != Color.black) {
+						gr.getRealizer(ec.edge()).setLineType(LineType.LINE_1);
+						NodeRealizer o = gr.getRealizer(ec.edge().opposite(old)); 
+						o.setFillColor(unhighlightColor(o.getFillColor()));
 					}
+				Node tt = findTNode(old);
+				if (tt != null) {
+					Graph2D gr2 = (Graph2D)tt.getGraph();
+					gr2.getRealizer(tt).setFillColor(unhighlightColor(gr2.getRealizer(tt).getFillColor()));
+				}
 				incrementallayouter.selection = null;
 			}
 		}
+	}
+	
+	private Node findTNode (Node a) {
+		if (incrementallayouter.tv_temp_map.containsKey(a))
+			return incrementallayouter.tv_temp_map.get(a);
+		if (incrementallayouter.tv_temp_map.containsValue(a))
+			for (Node s : incrementallayouter.tv_temp_map.keySet())
+				if (incrementallayouter.tv_temp_map.get(s) == a)
+					return s;
+		return null;
 	}
 	
 	protected void select (Node s) {
@@ -571,48 +593,22 @@ public class DemoBase extends Thread {
 			if (s != incrementallayouter.selection) {
 				unselect();
 				//System.out.println("selection now " + incrementallayouter.graph.getLabelText(s));
-				incrementallayouter.graph.setSelected(s, true);
+				Graph2D gr = (Graph2D)s.getGraph();
+				gr.setSelected(s, true);
 				for (EdgeCursor ec = s.edges(); ec.ok(); ec.next())
-					if (incrementallayouter.graph.getRealizer(ec.edge()).getLineColor() == Color.pink) {
-						incrementallayouter.graph.getRealizer(ec.edge()).setLineType(LineType.LINE_3);
-						NodeRealizer n = incrementallayouter.graph.getRealizer(ec.edge().opposite(s)); 
-						n.setFillColor(n.getFillColor().darker());
+					if (gr.getRealizer(ec.edge()).getLineColor() != Color.black) {
+						gr.getRealizer(ec.edge()).setLineType(LineType.LINE_3);
+						NodeRealizer n = gr.getRealizer(ec.edge().opposite(s)); 
+						n.setFillColor(highlightColor(n.getFillColor()));
 					}
+				Node tt = findTNode(s);
+				if (tt != null) {
+					Graph2D gr2 = (Graph2D)tt.getGraph();
+					gr2.getRealizer(tt).setFillColor(highlightColor(gr2.getRealizer(tt).getFillColor()));
+				}
 				incrementallayouter.selection = s;
 			}
 		}
-	}
-	
-	/**
-	 * Provides popups for all kinds of actions
-	 */
-	final class IncrementalPopupMode extends PopupMode {
-
-		public JPopupMenu getNodePopup(final Node v)
-		{
-			JPopupMenu pm = new JPopupMenu();
-			NodeCursor node = new NodeList(v).nodes();
-			addNodeActions(pm, node);
-			return pm;
-		}
-
-		private void addNodeActions(JPopupMenu pm, NodeCursor node) {
-			JMenu fixNodesMenu = new JMenu("Fix nodes");
-			pm.add(fixNodesMenu);
-		}
-
-		public JPopupMenu getSelectionPopup(double x, double y)
-		{
-			JPopupMenu pm = new JPopupMenu();
-			final NodeCursor snc = getGraph2D().selectedNodes();
-			if (snc.ok()){
-				addNodeActions(pm, snc);
-			} else {
-				return null;
-			}
-			return pm;
-		}
-
 	}
 
 	/**
@@ -621,7 +617,9 @@ public class DemoBase extends Thread {
 	public void calcLayout(){
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");
-			switchViews(typeview);
+			if (alphaslider.getValue() != 0 && alphaslider.getValue() != 2)
+				alphaslider.setValue(2);
+			//switchViews(typeview);
 			incrementallayouter.changed = false;
 			Cursor oldCursor = view.getCanvasComponent().getCursor();
 
@@ -683,25 +681,29 @@ public class DemoBase extends Thread {
 		}
 		if (!typeview.getGraph2D().isEmpty() && incrementallayouter.typechanged){
 			incrementallayouter.typechanged = false;
-			switchViews(view);
+			if (alphaslider.getValue() != 3 && alphaslider.getValue() == 1)
+				alphaslider.setValue(1);
+			//switchViews(view);
 			Cursor oldCursor = typeview.getCanvasComponent().getCursor();
-			for (NodeCursor nc = incrementallayouter.typegraph.nodes(); nc.ok(); nc.next())
-				incrementallayouter.action_nodes.set(nc.node(), true);
+			//for (NodeCursor nc = incrementallayouter.typegraph.nodes(); nc.ok(); nc.next())
+			//	incrementallayouter.action_nodes.set(nc.node(), true);
 			//Point2D vc = view.getCenter();
 			//Point2D tc = typeview.getCenter();
 			//double xoff = vc.getX() - tc.getX();
 			//double yoff = vc.getY() - tc.getY();
+			/*
 			for (Node n : incrementallayouter.tv_temp_map.keySet()) {
 				Node m = incrementallayouter.tv_temp_map.get(n);
 				NodeRealizer mr = incrementallayouter.graph.getRealizer(m);
 				double xv = typeview.toWorldCoordX(view.toViewCoordX(mr.getCenterX()));
 				double yv = typeview.toWorldCoordY(view.toViewCoordY(mr.getCenterY()));
-				incrementallayouter.typegraph.getRealizer(n).setCenter(xv, yv);
-				incrementallayouter.action_nodes.set(n, false);
-			}
+				//incrementallayouter.typegraph.getRealizer(n).setCenter(xv, yv);
+				//incrementallayouter.typeHintMap.set(n, incrementallayouter.typeHintsFactory.createUseExactCoordinatesHint(n));
+				//incrementallayouter.action_nodes.set(n, false);
+			} */
 			try {
 				typeview.getCanvasComponent().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				GraphLayout layout = new BufferedLayouter(incrementallayouter.organicLayouter).calcLayout(typeview.getGraph2D());
+				GraphLayout layout = new BufferedLayouter(incrementallayouter.typeLayouter).calcLayout(typeview.getGraph2D());
 				LayoutMorpher morpher = new LayoutMorpher(typeview, layout);
 				morpher.setSmoothViewTransform(true);
 				//morpher.setKeepZoomFactor(true);

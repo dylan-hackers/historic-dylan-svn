@@ -19,7 +19,6 @@ import y.layout.hierarchic.ConstraintLayerer.ConstraintFactory;
 import y.layout.hierarchic.incremental.IncrementalHintsFactory;
 import y.layout.hierarchic.incremental.OldLayererWrapper;
 import y.layout.hierarchic.incremental.SwimLaneDescriptor;
-import y.layout.organic.OrganicLayouter;
 import y.util.Maps;
 import y.view.Arrow;
 import y.view.BridgeCalculator;
@@ -35,7 +34,7 @@ import y.view.NodeRealizer;
 public class IncrementalHierarchicLayout
 {
 	protected IncrementalHierarchicLayouter hierarchicLayouter;
-	protected OrganicLayouter organicLayouter;
+	protected IncrementalHierarchicLayouter typeLayouter;
 	protected HashMap<Integer, Node> int_node_map = new HashMap<Integer, Node>();
 	protected HashMap<Node, Node> tv_temp_map = new HashMap<Node, Node>();
 	
@@ -45,6 +44,7 @@ public class IncrementalHierarchicLayout
 	private Graph2DView typeview;
 	private DemoBase demobase;
 	protected ConstraintFactory scf;
+	protected ConstraintFactory typescf;
 	
 	public Node highlight = null;
 	public ArrayList<Integer> opt_queue;
@@ -67,12 +67,13 @@ public class IncrementalHierarchicLayout
 	
 	public boolean isok = true;
 
-	protected NodeMap action_nodes;
-	
 	private NodeMap swimLane;
 	protected DataMap hintMap;
 	protected IncrementalHintsFactory hintsFactory;
 	private ArrayList<Node> topnodes;
+	
+	protected IncrementalHintsFactory typeHintsFactory;
+	protected DataMap typeHintMap;
 	
 	
 	public IncrementalHierarchicLayout(DemoBase db, int id)
@@ -106,14 +107,25 @@ public class IncrementalHierarchicLayout
 		
 		ConstraintLayerer cl = new ConstraintLayerer();
 		TopologicalLayerer tl = new TopologicalLayerer();
-		//tl.setRankingPolicy(TopologicalLayerer.DOWN_SHIFT);
 		cl.setCoreLayerer(tl);
-		//cl.setCoreLayerer(hierarchicLayouter.getLayerer());
 		hierarchicLayouter.setFromScratchLayerer(new OldLayererWrapper(cl));
 
-		organicLayouter = new OrganicLayouter();
-		organicLayouter.setSphereOfAction(OrganicLayouter.ONLY_SELECTION);
 		
+		
+		typeLayouter = new IncrementalHierarchicLayouter();
+		typeLayouter.setLayoutMode(IncrementalHierarchicLayouter.LAYOUT_MODE_FROM_SCRATCH);
+	    typeLayouter.getEdgeLayoutDescriptor().setMinimumFirstSegmentLength(0);
+	    typeLayouter.getEdgeLayoutDescriptor().setMinimumLastSegmentLength(0);
+	    typeLayouter.getEdgeLayoutDescriptor().setMinimumDistance(2.0d);
+
+	    typeLayouter.getNodeLayoutDescriptor().setLayerAlignment(0.0d);
+	    typeLayouter.setMinimumLayerDistance(3.0d);
+
+		
+		ConstraintLayerer c2 = new ConstraintLayerer();
+		TopologicalLayerer t2 = new TopologicalLayerer();
+		c2.setCoreLayerer(t2);
+		typeLayouter.setFromScratchLayerer(new OldLayererWrapper(c2));
 		
 		sliderLabels.put(0, new JLabel("initial DFM models"));
 		changes.add(new ArrayList());
@@ -126,16 +138,20 @@ public class IncrementalHierarchicLayout
 		defaultER.setArrow(Arrow.STANDARD);
 		if (scf != null)
 			scf.dispose();
+		if (typescf != null)
+			typescf.dispose();
 		scf = ConstraintLayerer.createConstraintFactory(graph);
+		typescf = ConstraintLayerer.createConstraintFactory(typegraph);
 		swimLane = graph.createNodeMap();
 		graph.addDataProvider(IncrementalHierarchicLayouter.SWIMLANE_DESCRIPTOR_DPKEY, swimLane);
 		hintMap = Maps.createHashedDataMap();
+		typeHintMap = Maps.createHashedDataMap();
 	    //graph.addDataProvider(IncrementalHierarchicLayouter.INCREMENTAL_HINTS_DPKEY, hintMap);
 	    hintsFactory = hierarchicLayouter.createIncrementalHintsFactory();
+	    typeHintsFactory = typeLayouter.createIncrementalHintsFactory();
+	    //typegraph.addDataProvider(IncrementalHierarchicLayouter.INCREMENTAL_HINTS_DPKEY, typeHintMap);
 		int_node_map = new HashMap<Integer, Node>();
 		tv_temp_map = new HashMap<Node, Node>();
-		action_nodes = typegraph.createNodeMap();
-		typegraph.addDataProvider(OrganicLayouter.SPHERE_OF_ACTION_NODES, action_nodes);
 		opt_queue = new ArrayList<Integer>();
 		topnodes = new ArrayList<Node>();
 		highlight = null;
@@ -313,11 +329,8 @@ public class IncrementalHierarchicLayout
 		n1.setWidth(nl1.getWidth() + 10);
 		n1.setFillColor(new Color(0, 0xff, 0, 0x33));
 		Node n = typegraph.createNode(n1);
-		if (id > 0) {
-			assert(int_node_map.get(id) == null);
-			int_node_map.put(id, n);
-		} else if (id == 0)
-			topnodes.add(n);
+		assert(int_node_map.get(id) == null);
+		int_node_map.put(id, n);
 		return n;
 	}
 	
