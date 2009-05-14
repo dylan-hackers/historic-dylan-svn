@@ -122,6 +122,10 @@ define method type-estimate-value (s :: <string>) => (res :: <&type>)
   dylan-value(#"<string>");
 end;
 
+define method type-estimate-value (b :: <boolean>) => (res :: <&type>)
+  dylan-value(#"<boolean>");
+end;
+
 define method type-estimate-value (v :: <vector>) => (res :: <&type>)
   ^make(<&limited-collection-type>,
         class: dylan-value(#"<vector>"),
@@ -263,40 +267,8 @@ end;
 
 define method infer-computation-types (c :: <loop>) => ()
   next-method();
-
   //in order to get types for parameter types, we have to solve the type graph
   solve(*graph*, *constraints*, *type-environment*);
-
-  //copy loop-body for further investigation (find fixpoint by doing
-  //inference once with outer type)
-  let copier = make(<dfm-copier>);
-  //let cfg-first = deep-copy(copier, c.loop-body);
-  let cfg-first = #f;
-  let temps = make(<stretchy-vector>);
-  walk-computations(method(old)
-                      local method maybe-add-temp (old-t, new-t)
-                              if (element(*type-environment*, old-t, default: #f))
-                                if (~ instance?(old-t.temporary-type, <&top-type>))
-                                  add!(temps, pair(new-t, old-t.temporary-type));
-                                end;
-                              end;
-                            end;
-                      let new = deep-copy(copier, old);
-                      unless (cfg-first) cfg-first := new end;
-                      for (tmp in old.used-temporary-accessors)
-                        let getter = temporary-getter(tmp);
-                        let old-tmp = getter(old);
-                        let new-tmp = getter(new);
-                        if (instance?(old-tmp, <sequence>))
-                          for (old* in old-tmp, new* in new-tmp)
-                            maybe-add-temp(old*, new*);
-                          end;
-                        else
-                          maybe-add-temp(old-tmp, new-tmp);
-                        end;
-                      end;
-                      new.computation-id;
-                    end, c.loop-body, #f);
 
   let types = make(<stretchy-vector>);
   for (node = c.loop-body then node.next-computation,
@@ -304,62 +276,95 @@ define method infer-computation-types (c :: <loop>) => ()
     add!(types, node.extract-parameter-type.temporary-type);
   end;
 
-  dynamic-bind(*graph* = make(<graph>),
-               *constraints* = make(<stretchy-vector>),
-               *type-environment* = make(<type-environment>))
-    //insert types of temporaries into environment
-    do(method(x)
-         let tv = x.head.lookup-type-variable;
-         add-constraint(make(<equality-constraint>,
-                             left: x.tail.lookup-type,
-                             right: tv));
-       end, temps);
+  if (types.size > 0)
+    //copy loop-body for further investigation (find fixpoint by doing
+    //inference once with outer type)
+    let copier = make(<dfm-copier>);
+    //let cfg-first = deep-copy(copier, c.loop-body);
+    let cfg-first = #f;
+    let temps = make(<stretchy-vector>);
+    walk-computations(method(old)
+                        local method maybe-add-temp (old-t, new-t)
+                                if (element(*type-environment*, old-t, default: #f))
+                                  if (~ instance?(old-t.temporary-type, <&top-type>))
+                                    add!(temps, pair(new-t, old-t.temporary-type));
+                                  end;
+                                end;
+                              end;
+                        let new = deep-copy(copier, old);
+                        unless (cfg-first) cfg-first := new end;
+                        for (tmp in old.used-temporary-accessors)
+                          let getter = temporary-getter(tmp);
+                          let old-tmp = getter(old);
+                          let new-tmp = getter(new);
+                          if (instance?(old-tmp, <sequence>))
+                            for (old* in old-tmp, new* in new-tmp)
+                              maybe-add-temp(old*, new*);
+                            end;
+                          else
+                            maybe-add-temp(old-tmp, new-tmp);
+                          end;
+                        end;
+                        new.computation-id;
+                      end, c.loop-body, #f);
 
-    let phis = make(<stretchy-vector>);
-    //collect phi and loop-merge nodes
-    for (type in types, node = cfg-first then node.next-computation)
-      //assign "outer" types to temporaries
-      let tv = lookup-type-variable(node.temporary);
+    dynamic-bind(*graph* = make(<graph>),
+                 *constraints* = make(<stretchy-vector>),
+                 *type-environment* = make(<type-environment>))
+      //insert types of temporaries into environment
+      do(method(x)
+           let tv = x.head.lookup-type-variable;
+           add-constraint(make(<equality-constraint>,
+                               left: x.tail.lookup-type,
+                               right: tv));
+         end, temps);
+
+      let phis = make(<stretchy-vector>);
+      //collect phi and loop-merge nodes
+      for (type in types, node = cfg-first then node.next-computation)
+        //assign "outer" types to temporaries
+        let tv = lookup-type-variable(node.temporary);
+        add-constraint(make(<equality-constraint>,
+                            left: type.lookup-type,
+                            right: tv));
+        add!(phis, node);
+      end;
+      //solve to assign types for phi-temporaries [will be done during <call> inference]
+
+      //infer body with those assigned type variables
+      walk-computations(infer-computation-types, phis.last.next-computation, #f);
+
+      //solve constraint system!
+      solve(*graph*, *constraints*, *type-environment*);
+
+      //check whether outer and inner types are equal
+      // (or subtypes - since GF protocol must not be violated)
+      let safe?
+        = block(fast-exit)
+            for (phi in phis, type in types)
+              unless (^subtype?(phi.extract-argument-type.temporary-type,
+                                type))
+                fast-exit(#f);
+              end;
+            end;
+            #t;
+          end;
+      //if safe, assign types to phi / loop-merge temporaries
+
+      unless (safe?)
+        //empty types collection
+        types.size := 0;
+      end;
+      //remove computations and type graph nodes
+    end; //dynamic-bind
+
+    //add type constraint to opposite DF node of phi/loop-merge
+    //(is then propagated to temporary of phi by respective inference rule)
+    for (node = c.loop-body then node.next-computation, type in types)
       add-constraint(make(<equality-constraint>,
                           left: type.lookup-type,
-                          right: tv));
-      add!(phis, node);
+                          right: node.extract-argument-type.lookup-type-variable));
     end;
-    //solve to assign types for phi-temporaries [will be done during <call> inference]
-
-    //infer body with those assigned type variables
-    walk-computations(infer-computation-types, phis.last.next-computation, #f);
-
-    //solve constraint system!
-    solve(*graph*, *constraints*, *type-environment*);
-
-    //check whether outer and inner types are equal
-    // (or subtypes - since GF protocol must not be violated)
-    let safe?
-      = block(fast-exit)
-          for (phi in phis, type in types)
-            unless (^subtype?(phi.extract-argument-type.temporary-type,
-                              type))
-              fast-exit(#f);
-            end;
-          end;
-          #t;
-        end;
-    //if safe, assign types to phi / loop-merge temporaries
-
-    unless (safe?)
-      //empty types collection
-      types.size := 0;
-    end;
-    //remove computations and type graph nodes
-  end; //dynamic-bind
-
-  //add type constraint to opposite DF node of phi/loop-merge
-  //(is then propagated to temporary of phi by respective inference rule)
-  for (node = c.loop-body then node.next-computation, type in types)
-    add-constraint(make(<equality-constraint>,
-                        left: type.lookup-type,
-                        right: node.extract-argument-type.lookup-type-variable));
   end;
 end;
 
@@ -464,18 +469,23 @@ define function create-arrow-and-constraint
         end;
       end;
 
-  let right = make(<node>,
-                   graph: *graph*,
+  let vals
+    = begin
+        if (c.temporary)
+          c.temporary.lookup-type-variable;
+        else
+          make(<&rest-type>).lookup-type;
+        end;
+      end;
+
+  let right = make(<node>, graph: *graph*,
                    value: make(<&arrow-type>,
                                arguments: args,
-                               values: lookup-type-variable(c.temporary)));
+                               values: vals));
   add-constraint(make(<equality-constraint>, left: left, right: right));
 end;
 
-define method maybe-instantiate-polymorphic-variables (sig :: <&signature>)
-end;
-
-define method maybe-instantiate-polymorphic-variables (tvs :: <collection>)
+define function instantiate-polymorphic-variables (tvs :: <collection>)
   for (tv in tvs)
     let te = make(<&top-type>);
     let type-var = make(<&type-variable>, contents: te);
@@ -496,7 +506,7 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
     = copy-sequence(sig.^signature-values, end: sig.^signature-number-values);
   let args = ^function-specializers(fun);
   let rest? = ^signature-rest?(sig);
-  maybe-instantiate-polymorphic-variables(sig.^signature-type-variables);
+  instantiate-polymorphic-variables(sig.^signature-type-variables);
   //#rest can be annotated with a type, but this information is
   //lost in translation
   let arg-nodes = map(lookup-type, args);
