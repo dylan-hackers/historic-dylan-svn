@@ -444,10 +444,10 @@ end;
 define function create-arrow-and-constraint
  (c :: <function-call>, specializers :: <collection>, vals :: <collection>) => ()
   local method gen-tuple (types :: <collection>) => (res :: <node>)
-          if (types.size == 1)
-            types.first;
+          if (types.size > 0 & instance?(types.last.node-value, <&rest-type>))
+            make(<&tuple-type-with-optionals>, tuples: copy-sequence(types, end: types.size - 1)).lookup-type
           else
-            make(<&tuple-type>, tuples: types).lookup-type
+            make(<&tuple-type>, tuples: types).lookup-type;
           end;
         end;
 
@@ -457,31 +457,19 @@ define function create-arrow-and-constraint
                               arguments: specializers.gen-tuple,
                               values: vals.gen-tuple));
 
-  let args
-    = begin
-        let nodes = map(lookup-type-variable, c.arguments);
-        if (nodes.size == 1 | specializers.size == 1)
-          //does not respect #rest properly
-          //does not work for keyword arguments
-          nodes.first;
-        else
-          lookup-type(make(<&tuple-type>, tuples: nodes));
-        end;
-      end;
+  let args = map(lookup-type-variable, c.arguments);
 
   let vals
-    = begin
-        if (c.temporary)
-          c.temporary.lookup-type-variable;
-        else
-          make(<&rest-type>).lookup-type;
-        end;
+    = if (c.temporary)
+        c.temporary.lookup-type-variable;
+      else
+        make(<&rest-type>).lookup-type;
       end;
 
   let right = make(<node>, graph: *graph*,
                    value: make(<&arrow-type>,
-                               arguments: args,
-                               values: vals));
+                               arguments: args.gen-tuple,
+                               values: vector(vals).gen-tuple));
   add-constraint(make(<equality-constraint>, left: left, right: right));
 end;
 
@@ -505,7 +493,7 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
   let values
     = copy-sequence(sig.^signature-values, end: sig.^signature-number-values);
   let args = ^function-specializers(fun);
-  let rest? = ^signature-rest?(sig);
+  let rest? = ^signature-rest?(sig) | ^signature-key?(sig);
   instantiate-polymorphic-variables(sig.^signature-type-variables);
   //#rest can be annotated with a type, but this information is
   //lost in translation

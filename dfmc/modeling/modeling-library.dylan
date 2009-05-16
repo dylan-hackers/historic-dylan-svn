@@ -184,6 +184,7 @@ define module-with-models dfmc-modeling
 
     <&tuple-type>,
       &getter tuple-types,
+    <&tuple-type-with-optionals>,
 
     <&rest-type>,
 

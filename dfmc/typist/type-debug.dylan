@@ -18,6 +18,10 @@ define method get-id (l :: <&tuple-type>)
   #"tuple"
 end;
 
+define method get-id (l :: <&tuple-type-with-optionals>)
+  #"tuple-rest"
+end;
+
 define method get-id (o :: <object-reference>)
   o.temporary-id;
 end;

@@ -1800,14 +1800,14 @@ define function convert-lambda-into*-d
   let vars-first = bind-computation;
   let vars-last  = bind-computation;
   for (var-spec in spec-argument-required-variable-specs(sig-spec),
-       index from 0)
+       req-index from 0, index from spec-type-variables(sig-spec).size)
     let (type-first, type-last, type-t) =
-      convert-required-type(lambda-env, function-t, index); 
+      convert-required-type(lambda-env, function-t, req-index); 
     let (_vars-first, _vars-last)
       = join-2x2!(vars-first, vars-last, type-first, type-last);
     let (constant-type?, constant-type-value) = fast-constant-value?(type-t);
     if (constant-type?)
-      specializer(variables[index]) := constant-type-value;
+      //specializer(variables[index]) := constant-type-value;
       vars-last := _vars-last;
     else
       let (new-env, new-variable) =

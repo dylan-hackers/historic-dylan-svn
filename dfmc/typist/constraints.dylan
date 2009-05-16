@@ -92,25 +92,42 @@ end;
 define method solve-constraint
  (t1 :: <&tuple-type>, t2 :: <&tuple-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
  => (disconnect? :: <boolean>)
-  for (u1 in u.successors, v1 in v.successors)
-    //need to take care that required and rest parameters are correct
-    if ((instance?(u1.node-value, <&rest-type>) & instance?(v1.node-value, <&rest-type>)) |
-        (~instance?(u1.node-value, <&rest-type>) & ~instance?(v1.node-value, <&rest-type>)))
-      push-constraint(u1, v1);
-    end;
-  end;
-  if (u.successors.size ~= v.successors.size)
-    let (larger, shorter)
-      = if (u.successors.size > v.successors.size) values(u, v) else values(v, u) end;
-    if (instance?(shorter.successors.last.node-value, <&rest-type>))
-      for (i from shorter.successors.size - 1 below larger.successors.size)
-        let t = make(<node>, graph: u.graph, value: make(<&top-type>));
-        push-constraint(larger.successors[i], t);
-      end;
-    end;
+  map(push-constraint, u.successors, v.successors);
+  #t;
+end;
+
+define method solve-constraint
+    (t1 :: <&tuple-type>, t2 :: <&tuple-type-with-optionals>,
+     u :: <node>, v :: <node>, push-constraint :: <function>) => (disconnect? :: <boolean>)
+  next-method();
+  for (i from v.successors.size below u.successors.size)
+    push-constraint(u.successors[i], make(<node>, graph: u.graph, value: make(<&top-type>)))
   end;
   #t;
 end;
+
+define method solve-constraint
+    (t1 :: <&tuple-type-with-optionals>, t2 :: <&tuple-type>,
+     u :: <node>, v :: <node>, push-constraint :: <function>) => (disconnect? :: <boolean>)
+  next-method();
+  for (i from u.successors.size below v.successors.size)
+    push-constraint(v.successors[i], make(<node>, graph: u.graph, value: make(<&top-type>)))
+  end;
+  #t;
+end;
+
+define method solve-constraint
+    (t1 :: <&tuple-type-with-optionals>, t2 :: <&tuple-type-with-optionals>,
+     u :: <node>, v :: <node>, push-constraint :: <function>) => (disconnect? :: <boolean>)
+  next-method();
+  let (larger, smaller) = if (u.successors.size > v.successors.size) values(u, v) else values(v, u) end;
+  for (i from smaller.successors.size below larger.successors.size)
+    push-constraint(larger.successors[i], make(<node>, graph: u.graph, value: make(<&top-type>)))
+  end;
+  //push-constraint for &rest == &rest?
+  #t;
+end;
+
 
 define method solve-constraint
  (t1 :: <&tuple-type>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)

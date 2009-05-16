@@ -380,6 +380,9 @@ define primary &class <tuple-type> (<type>)
   //rest argument, size?
 end;
 
+define primary &class <tuple-type-with-optionals> (<tuple-type>)
+end;
+ 
 define primary &class <rest-type> (<type>)
 end;
 
