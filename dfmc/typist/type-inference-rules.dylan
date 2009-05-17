@@ -473,9 +473,49 @@ define function create-arrow-and-constraint
   add-constraint(make(<equality-constraint>, left: left, right: right));
 end;
 
+define generic locate-type-variable (tv :: <&polymorphic-type-variable>, t :: <&type>)
+ => (res);
+
+define method locate-type-variable (tv :: <&polymorphic-type-variable>, t :: <&type>)
+ => (res);
+  t == tv & list(identity)
+end;
+
+define method locate-type-variable (tv :: <&polymorphic-type-variable>, t :: <&limited-function-type>)
+ => (res);
+  let res = make(<stretchy-vector>);
+  for (x in t.^limited-function-argument-types, i from 0)
+    let ct = locate-type-variable(tv, x);
+    if (ct & ct.size > 0)
+      do(curry(add!, res), map(rcurry(compose, rcurry(element, i), ^limited-function-argument-types), ct));
+    end;
+  end;
+  for (x in t.^limited-function-return-values, i from 0)
+    let ct = locate-type-variable(tv, x);
+    if (ct & ct.size > 0)
+      do(curry(add!, res), map(rcurry(compose, rcurry(element, i), ^limited-function-return-values), ct));
+    end;
+  end;
+  res;
+end;
+
+define method locate-type-variable (tv :: <&polymorphic-type-variable>, t :: <&limited-collection-type>)
+ => (res :: <collection>)
+  let res = make(<stretchy-vector>);
+  let ct = locate-type-variable(tv, t.^limited-collection-element-type);
+  if (ct)
+    do(curry(add!, res), map(rcurry(compose, ^limited-collection-element-type), ct));
+  end;
+  let ct2 = locate-type-variable(tv, t.^limited-collection-class);
+  if (ct2)
+    do(curry(add!, res), map(rcurry(compose, ^limited-collection-class), ct));
+  end;
+  res;  
+end;
+
 define function instantiate-polymorphic-variables (tvs :: <collection>)
   for (tv in tvs)
-    let te = make(<&top-type>);
+    let te = make(<&top-type>); //XXX: use constrained type!
     let type-var = make(<&type-variable>, contents: te);
     debug-types(#"new-type-variable", type-var, tv.^type-variable-temporary, te);
     let node = make(<node>, graph: *graph*, value: type-var);
@@ -487,6 +527,33 @@ define function instantiate-polymorphic-variables (tvs :: <collection>)
   end;
 end;
 
+define method constrain-type-variables (sig :: <&signature>, args :: <collection>)
+  //move along!
+end;
+
+define method constrain-type-variables (sig :: <&polymorphic-signature>, args :: <collection>)
+  //key, rest, values!
+  for (tv in sig.^signature-type-variables)
+    for (arg in copy-sequence(sig.^signature-required, end: sig.^signature-number-required),
+         real-arg in args)
+      let users = locate-type-variable(tv, arg);
+      if (users & users.size > 0)
+        //register-user for later optimization!
+        do(method(x)
+             block()
+               let val = real-arg.x;
+               format-out("restricting %= to %=\n", tv.^type-variable-name, val);
+               add-constraint(make(<equality-constraint>,
+                                   left: *type-environment*[tv],
+                                   right: val.lookup-type));
+             exception (e :: <error>)
+               format-out("couldn't determine type for %= (arg: %=real-arg: %=)\n", tv.^type-variable-name, arg, real-arg);
+             end;
+           end, users);
+      end;
+    end;
+  end;
+end;
 define method infer-function-type (c :: <function-call>, fun :: <&function>) => ()
   //keyword-arguments!
   let sig = ^function-signature(fun);
@@ -501,7 +568,14 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
   if (rest?)
     arg-nodes := add!(arg-nodes, make(<&rest-type>).lookup-type);
   end;
-  
+  unless (c.environment.lambda == fun) //updating self-calls is not wise (or, is it?)
+    if (instance?(sig, <&polymorphic-signature>))
+      //would be nice if the compiler tells me that constrain-type-variables on <&signature> is dead code, eh? ;)
+      solve(*graph*, *constraints*, *type-environment*);
+      constrain-type-variables(sig, map(temporary-type, c.arguments));
+      //propagate-type-variables();
+    end;
+  end;
   let val-nodes = map(lookup-type, values);
   let rest-values? = ^signature-rest-value(sig);
   if (rest-values?)
