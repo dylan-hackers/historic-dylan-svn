@@ -17,8 +17,7 @@
   <p>This page demonstrates the use of the dsp:table tag to generate HTML tables from a
   set of data, using dsp:table and other associated tags.</p>
 
-  <p/>
-  A table with a bunch of rows:<br>
+  <p>A table with a bunch of rows:</p>
   <dsp:table border="1" align="center" cellspacing="2" generator="animal-generator">
     <dsp:hrow>
       <!-- hrow is always displayed exactly once, even if the table contains no rows. -->
@@ -40,8 +39,7 @@
     </dsp:no-rows>
   </dsp:table>
 
-  <p>
-  The same table, with a row generator that returns no rows:<br>
+  <p>The same table, with a row generator that returns no rows:</p>
   <dsp:table border="1" align="center" cellspacing="2" generator="no-rows-generator">
     <dsp:hrow>
       <!-- hrow is always displayed exactly once, even if the table contains no rows. -->

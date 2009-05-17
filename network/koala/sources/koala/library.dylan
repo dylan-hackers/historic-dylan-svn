@@ -224,14 +224,19 @@ define module dsp
     named-method-definer,
     get-named-method,
 
-    // Utils associated with DSP tag definitions
+    // Utils associated with the <dsp:table> tag
     current-row,                 // dsp:table
     current-row-number,          // dsp:table
+
+    // Utils associated with the <dsp:loop> tag.
+    loop-index,
+    loop-value,
 
     add-field-error,
     get-field-errors,
     add-page-note,
-    add-page-error;
+    add-page-error,
+    page-has-errors?;
 
 end module dsp;
 
