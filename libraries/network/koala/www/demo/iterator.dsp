@@ -20,7 +20,7 @@
   <p>Specify a query value of n=xxx in the URL to change the number of iterations.
   <p>
   <demo:repeat>
-    <br>This is iteration <demo:display-iteration-number/>.
+    <br/>This is iteration <demo:display-iteration-number/>.
   </demo:repeat>
 
 

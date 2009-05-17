@@ -607,6 +607,7 @@ end;
 // Represents a specific call to a tag in a DSP template.
 // Also used to represent DSP directives, such as <%dsp:include>,
 // in which case the tag slot is not used.
+//
 define class <tag-call> (<object>)
   constant slot name :: <string>, required-init-keyword: #"name";
   constant slot prefix :: <string>, required-init-keyword: #"prefix";
@@ -674,13 +675,14 @@ define function show-tag-call-attributes
                           exclude: exclude);
 end function show-tag-call-attributes;
 
+// API
 define function get-tag-call-attribute
-    (attr :: <object>, #key as: type :: <type>, test = \=)
+    (attr :: <object>, #key as: type :: <type> = <string>, test = \=)
  => (attribute-value :: <object>)
   block (return)
     map-tag-call-attributes(method (name, value)
                               if (test(name, attr))
-                                return(iff(as, as(type, value), value));
+                                return(as(type, value));
                               end;
                             end);
   end;

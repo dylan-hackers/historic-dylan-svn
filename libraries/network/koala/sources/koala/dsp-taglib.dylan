@@ -52,13 +52,25 @@ end;
 
 // <dsp:get name="foo" context="c1,c2,..."/>
 // where c1, c2 are form-notes|page|request|header|session.
+// context defaults to "page".
+// raw="true" means don't escape HTML characters.
 //
 define tag get in dsp
     (page :: <dylan-server-page>)
-    (name :: <string>, context :: <string>, tag)
+    (name :: <string>, context, tag, raw :: <boolean>)
+  let value = get-context-value(name, context, tag: tag);
+  if (value)
+    let string = as(<string>, value);
+    output("%s", iff(raw, string, quote-html(string)));
+  end;
+end tag get;
+
+define method get-context-value
+    (name :: <string>, context :: false-or(<string>), #key tag)
+ => (value :: <object>)
   block (return)
     // Search contexts in order to find a value.  First one is displayed.
-    for (context in split(context, ','))
+    for (context in split(context | "page", ','))
       let value = select (as(<symbol>, context))
                     page:    => get-attribute(page-context(), name);
                     request: => get-query-value(name);
@@ -76,12 +88,12 @@ define tag get in dsp
                     */
                   end;
       if (value)
-        output("%s", quote-html(value));
-        return();
+        return(value);
       end;
     end for;
   end block;
-end tag get;
+end method get-context-value;
+
 
 
 //// Conditional tags
@@ -147,6 +159,21 @@ define body tag \unless in dsp
   end;
 end;
 
+// For use with <dsp:if>, <dsp:when>, and <dsp:unless>.  It grabs the
+// 'name' and 'context' attributes out of those tag calls and uses them
+// to see if the name exists in the given context.
+//
+define named-method exists? in dsp
+    (page :: <dylan-server-page>)
+  let name = get-tag-call-attribute(#"name");
+  if (name)
+    let context = get-tag-call-attribute(#"context");
+    let value = get-context-value(name, context);
+    value ~= #f
+  end
+end named-method exists?;
+
+
 
 //// Iteration tags
 
@@ -171,12 +198,12 @@ end;
 /* todo -- If one wants to do something fairly complicated in the
 first loop iteration only, then it's not desirable/possible to use
 "header=" in the loop element itself.  But once you move anything
-inside a <dsp:when test="loop-first?"> then the "header=" becomes
+inside a <dsp:when test="loop-start?"> then the "header=" becomes
 almost useless because it must be output BEFORE whatever's in the
 dsp:when element.  e.g.
 
    <dsp:loop over="user-group-names" var="group-name" footer="</ul>">
-     <dsp:when test="loop-first?">
+     <dsp:when test="loop-start?">
        <h3><wiki:show-user-username/> is a member of:</h3>
        <ul>
      </dsp:when>
@@ -205,8 +232,16 @@ that way lie madness?
 
 define thread variable *loop-value* = #f;
 define thread variable *loop-index* :: false-or(<integer>) = #f;
-define thread variable *loop-first?* :: <boolean> = #f;
-define thread variable *loop-last?* :: <boolean> = #f;
+define thread variable *loop-start?* :: <boolean> = #f;
+define thread variable *loop-end?* :: <boolean> = #f;
+
+define method loop-index ()
+  *loop-index*
+end;
+
+define method loop-value ()
+  *loop-value*
+end;
 
 define body tag loop in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
@@ -216,18 +251,18 @@ define body tag loop in dsp
        i from 1)
     dynamic-bind (*loop-value* = item,
                   *loop-index* = i,
-                  *loop-first?* = (i = 1),
-                  *loop-last?* = (i = items.size))
+                  *loop-start?* = (i = 1),
+                  *loop-end?* = (i = items.size))
       if (var)
         set-attribute(page-context(), var, *loop-value*);
       end;
-      if (header & *loop-first?*)
+      if (header & *loop-start?*)
         output("%s", header);
       end;
 
       do-body();
 
-      if (footer & *loop-last?*)
+      if (footer & *loop-end?*)
         output("%s", footer);
       end;
     end;
@@ -245,18 +280,16 @@ define tag loop-index in dsp
   end;
 end;
 
-define named-method loop-first? in dsp
+define named-method loop-start? in dsp
     (page :: <dylan-server-page>)
-  *loop-first?*
+  *loop-start?*
 end;
 
-define named-method loop-last? in dsp
+define named-method loop-end? in dsp
     (page :: <dylan-server-page>)
-  *loop-last?*
+  *loop-end?*
 end;
 
-
-// todo -- much of this table stuff should be replaced by the loop tag now.
 
 define thread variable *table-has-rows?* :: <boolean> = #f;
 define thread variable *table-first-row?* :: <boolean> = #f;
@@ -373,19 +406,6 @@ define tag input in dsp
 end;
 */
 
-// ---TODO: Define a tag to replace the HTML <input> tag, that will
-//          automatically take care of defaulting the value correctly
-//          if the form is redisplayed due to error, and will allow
-//          CSS to display the input tag in a unique way.
-//
-// This can be replaced with <dsp:get name="x" context="request"/>
-//
-define tag show-query-value in dsp (page :: <dylan-server-page>)
- (name :: <string>)
-  let qv = get-query-value(name);
-  qv & write(output-stream(current-response()), qv);
-end;
-
 
 //// Date Tags
 
@@ -401,27 +421,6 @@ define tag show-date in dsp
   //---TODO: Finish this.  For now it can only show the current date.
   date-to-stream(output-stream(current-response()), date);
 end;
-
-//// HTTP Header Tags
-
-// This can be replaced by <dsp:get name="Referer" context="header/> now.
-//
-define tag show-referer in dsp
-    (page :: <dylan-server-page>)
-    ()
-  output("%s", get-header(current-request(), "Referer"));
-end;
-
-
-//// Internationalization tags
-
-// Nothing yet, I guess.
-
-
-//// XML tags
-
-// Nothing yet, I guess.
-
 
 //// Form Field Errors
 
@@ -479,7 +478,7 @@ define named-method get-field-errors
   end;
 end;
 
-// <dsp:show-field-errors field-name="field1,field2,..."/>
+// <dsp:show-field-errors field-name="field1,field2,..." tag="span"/>
 //
 define tag show-field-errors in dsp
     (page :: <dylan-server-page>)
@@ -594,6 +593,17 @@ define method show-page-notes-internal
   end;
 end method show-page-notes-internal;
 
+// So that responder methods can decide whether to redisplay the same
+// page with errors highlighted or commit the changes, without having
+// to manually track whether they called add-{page/field}-error.
+//
+define method page-has-errors?
+    () => (errors? :: <boolean>)
+  let page-errors = get-attribute(page-context(), $page-errors-key);
+  let field-errors = get-attribute(page-context(), $field-errors-key);
+  (page-errors & page-errors.size > 0)
+    | (field-errors & field-errors.size > 0)
+end;
 
 //// Debug tags
 
