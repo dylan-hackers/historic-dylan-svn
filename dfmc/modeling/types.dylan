@@ -245,10 +245,8 @@ define method ^known-disjoint? (t1 :: <&limited-collection-type>, t2 :: <&class>
 end method ^known-disjoint?;
 
 define &class <limited-function-type> (<limited-type>)
-  constant &slot limited-function-argument-types :: <simple-object-vector>,
-    required-init-keyword: arguments:;
-  constant &slot limited-function-return-values :: <simple-object-vector>,
-    required-init-keyword: values:;
+  constant &slot function-signature :: <signature>,
+    init-keyword: signature:;
 end;
 
 define inline function ^subtype-arguments-and-values?
@@ -282,13 +280,14 @@ end;
 
 define method ^instance? (f :: <&function>, lft :: <&limited-function-type>) => (result :: <boolean>)
   let signature = ^function-signature(f);
-  let arguments = ^signature-required(signature);
-  let values = ^signature-values(signature);
+  let arguments = ^signature-required-arguments(signature);
+  let values = ^signature-required-values(signature);
+  let lft-sig = lft.^function-signature;
   //take care about #rest!
   ^subtype-arguments-and-values?(arguments,
                                  values,
-                                 lft.^limited-function-argument-types,
-                                 lft.^limited-function-return-values)  
+                                 lft-sig.^signature-required-arguments,
+                                 lft-sig.^signature-required-values)  
 end;
 
 //is this correct?
@@ -297,10 +296,12 @@ define method ^instance? (f :: <&limited-function-type>, g :: <&limited-function
 end;
 
 define method ^subtype? (f :: <&limited-function-type>, g :: <&limited-function-type>) => (result :: <boolean>)
-  ^subtype-arguments-and-values?(f.^limited-function-argument-types,
-                                 f.^limited-function-return-values,
-                                 g.^limited-function-argument-types,
-                                 g.^limited-function-return-values)
+  let s1 = f.^function-signature;
+  let s2 = g.^function-signature;
+  ^subtype-arguments-and-values?(s1.^signature-required-arguments,
+                                 s1.^signature-required-values,
+                                 s2.^signature-required-arguments,
+                                 s2.^signature-required-values)
 end;
 
 define method ^subtype? (f :: <&type>, lft :: <&limited-function-type>) => (result :: <boolean>)
@@ -355,7 +356,9 @@ define function ^limited-function (#rest all-keys,
                                    #key arguments :: <simple-object-vector> = #[],
                                    values :: <simple-object-vector> = #[])
  => (result :: <&limited-function-type>)
-  immutable-model(make(<&limited-function-type>, arguments: arguments, values: values));
+  let sig = ^make(<&signature>, number-required: arguments.size, required: arguments,
+                  number-values: values.size, values: values);
+  immutable-model(make(<&limited-function-type>, signature: sig));
 end;
 
 define &override-function ^limited 

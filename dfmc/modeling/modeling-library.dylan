@@ -181,6 +181,8 @@ define module-with-models dfmc-modeling
       ^signature-number-values,
       ^pack-signature-properties,
       ^signature-number-keys,
+      ^signature-required-arguments,
+      ^signature-required-values,
 
     <&tuple-type>,
       &getter tuple-types,
@@ -434,8 +436,6 @@ define module-with-models dfmc-modeling
     <&limited-type>,
       ^limited,
     <&limited-function-type>,
-      &getter limited-function-argument-types,
-      &getter limited-function-return-values,
     <&limited-collection-type>,
       &getter limited-collection-class,
       &getter limited-collection-concrete-class,

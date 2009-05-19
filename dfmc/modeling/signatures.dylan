@@ -550,6 +550,26 @@ define method ^signature-number-keys
   0
 end method ^signature-number-keys;
 
+define method ^signature-required-arguments (sig :: <&signature>)
+ => (res :: <simple-object-vector>)
+  let r = sig.^signature-required;
+  if (r.size == sig.^signature-number-required)
+    r;
+  else
+    copy-sequence(r, end: sig.^signature-number-required);
+  end;
+end;
+
+define method ^signature-required-values (sig :: <&signature>)
+ => (res :: <simple-object-vector>)
+  let r = sig.^signature-values;
+  if (r.size == sig.^signature-number-values)
+    r;
+  else
+    copy-sequence(r, end: sig.^signature-number-values);
+  end;
+end;
+
 define macro delegate
   { delegate(?:name, ?result:expression) } =>
  { define method ?name (sig :: <&polymorphic-signature>) => (result :: ?result)

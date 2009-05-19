@@ -27,7 +27,8 @@ define compiler-sideways method print-object (o :: <mapped-unbound>, stream :: <
 end method;
 
 define compiler-sideways method print-object (l :: <&limited-function-type>, str :: <stream>) => ()
-  format(str, "%= => %=", l.^limited-function-argument-types, l.^limited-function-return-values);
+  let s = l.^function-signature;
+  format(str, "%= => %=", s.^signature-required-arguments, s.^signature-required-values);
 end;
 
 define compiler-sideways method print-object (tv :: <&polymorphic-type-variable>, str :: <stream>) => ()

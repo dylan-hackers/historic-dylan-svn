@@ -385,6 +385,14 @@ define method infer-computation-types (c :: <stack-vector>) => ()
                       right: t.lookup-type-variable));
 end;
 
+define method infer-computation-types (c :: <make-closure>) => ()
+  next-method();
+  add-constraint(make(<equality-constraint>,
+                      left: make(<&limited-function-type>,  //or computation-signature-value?
+                                 signature: c.computation-closure-method.^function-signature).lookup-type,
+                      right: c.temporary.lookup-type-variable));
+end;
+
 define generic get-function-object (o :: <object>)
  => (res :: false-or(type-union(<&limited-function-type>, <&function>)));
 
@@ -434,9 +442,9 @@ define method infer-function-type (c :: <function-call>, fun == #f) => ()
 end;
 
 define method infer-function-type (c :: <function-call>, fun :: <&limited-function-type>) => ()
-  let args = fun.^limited-function-argument-types;
+  let args = fun.^function-signature.^signature-required-arguments;
   let a = map(lookup-type, args);
-  let vals = fun.^limited-function-return-values;
+  let vals = fun.^function-signature.^signature-required-values;
   let v = map(lookup-type, vals);
   create-arrow-and-constraint(c, a, v);
 end;
@@ -484,16 +492,17 @@ end;
 define method locate-type-variable (tv :: <&polymorphic-type-variable>, t :: <&limited-function-type>)
  => (res);
   let res = make(<stretchy-vector>);
-  for (x in t.^limited-function-argument-types, i from 0)
+  let s = t.^function-signature;
+  for (x in s.^signature-required-arguments, i from 0)
     let ct = locate-type-variable(tv, x);
     if (ct & ct.size > 0)
-      do(curry(add!, res), map(rcurry(compose, rcurry(element, i), ^limited-function-argument-types), ct));
+      do(curry(add!, res), map(rcurry(compose, rcurry(element, i), ^signature-required-arguments, ^function-signature), ct));
     end;
   end;
-  for (x in t.^limited-function-return-values, i from 0)
+  for (x in s.^signature-required-values, i from 0)
     let ct = locate-type-variable(tv, x);
     if (ct & ct.size > 0)
-      do(curry(add!, res), map(rcurry(compose, rcurry(element, i), ^limited-function-return-values), ct));
+      do(curry(add!, res), map(rcurry(compose, rcurry(element, i), ^signature-required-values, ^function-signature), ct));
     end;
   end;
   res;
@@ -532,13 +541,15 @@ define method constrain-type-variables (sig :: <&signature>, args :: <collection
 end;
 
 define method constrain-type-variables (sig :: <&polymorphic-signature>, args :: <collection>)
+ => (res :: <table>)
+  let usage-table = make(<table>);
   //key, rest, values!
   for (tv in sig.^signature-type-variables)
-    for (arg in copy-sequence(sig.^signature-required, end: sig.^signature-number-required),
-         real-arg in args)
+    for (arg in sig.^signature-required-arguments, real-arg in args)
       let users = locate-type-variable(tv, arg);
       if (users & users.size > 0)
         //register-user for later optimization!
+        usage-table[tv] := add(element(usage-table, tv, default: #()), arg);
         do(method(x)
              block()
                let val = real-arg.x;
@@ -553,17 +564,30 @@ define method constrain-type-variables (sig :: <&polymorphic-signature>, args ::
       end;
     end;
   end;
+  usage-table;
 end;
+
+define function propagate-type-variables (tvs :: <collection>, user :: <table>, old-types :: <collection>, new-types :: <collection>)
+ => (progress? :: <boolean>)
+  let res = #f;
+  for (o in old-types, n in new-types, tv in tvs)
+    if (o ~= n)
+      res := #t;
+      format-out("re-optimizing users of %= [%d]\n", tv, user[tv].size);
+      //do(re-type, user[tv]);
+    end;
+  end;
+  res;
+end;
+
 define method infer-function-type (c :: <function-call>, fun :: <&function>) => ()
   //keyword-arguments!
   let sig = ^function-signature(fun);
-  let values
-    = copy-sequence(sig.^signature-values, end: sig.^signature-number-values);
-  let args = ^function-specializers(fun);
-  let rest? = ^signature-rest?(sig) | ^signature-key?(sig);
+  let values = sig.^signature-required-values;
+  let args = sig.^signature-required-arguments;
+  let rest? = sig.^signature-optionals?;
   instantiate-polymorphic-variables(sig.^signature-type-variables);
-  //#rest can be annotated with a type, but this information is
-  //lost in translation
+  //#rest can be annotated with a type, but this information is lost in translation
   let arg-nodes = map(lookup-type, args);
   if (rest?)
     arg-nodes := add!(arg-nodes, make(<&rest-type>).lookup-type);
@@ -572,8 +596,15 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
     if (instance?(sig, <&polymorphic-signature>))
       //would be nice if the compiler tells me that constrain-type-variables on <&signature> is dead code, eh? ;)
       solve(*graph*, *constraints*, *type-environment*);
-      constrain-type-variables(sig, map(temporary-type, c.arguments));
-      //propagate-type-variables();
+      let users = constrain-type-variables(sig, map(temporary-type, c.arguments));
+      let progress? = #t;
+      while (size(*constraints*) > 0 & progress?)
+        let old-types = map(temporary-type, sig.^signature-type-variables);
+        solve(*graph*, *constraints*, *type-environment*);
+        let new-types = map(temporary-type, sig.^signature-type-variables);
+        progress? := propagate-type-variables(sig.^signature-type-variables, users, old-types, new-types);
+        if (progress?) constrain-type-variables(sig, map(temporary-type, c.arguments)); end;
+      end;
     end;
   end;
   let val-nodes = map(lookup-type, values);
