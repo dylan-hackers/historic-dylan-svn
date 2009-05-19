@@ -253,6 +253,7 @@ public final class Commands {
 		assert(answer.get(4) instanceof Integer);
 		int temp_id = (Integer)answer.get(2);
 		String text = (String)answer.get(3);
+		text.replace(':', ' ');
 		int c_id = (Integer)answer.get(4);
 		if (ihl.int_node_map.get(temp_id) == null) {
 			ihl.createTemporary(temp_id, c_id, text + ":");
@@ -311,14 +312,15 @@ public final class Commands {
 		assert(answer.get(3) instanceof String);
 		NodeLabel nl = ihl.graph.getRealizer(n).getLabel();
 		String old = nl.getText();
+		String newtext = ((String)answer.get(3)).replace(':', ' ');
 		//filter number out
 		int start = old.indexOf(':', old.indexOf(':') + 1) + 1;
-		nl.setText(old.substring(0, start) + (String)answer.get(3));
+		nl.setText(old.substring(0, start) + newtext);
 		ihl.graph.getRealizer(n).setWidth(nl.getWidth());
 		//System.out.println("change type " + old + " => " + (String)answer.get(3));
 		demo.view.repaint();
 		//ihl.isok = false;
-		return true;
+		return false;
 	}
         
 	private static boolean changeentrypoint(IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
