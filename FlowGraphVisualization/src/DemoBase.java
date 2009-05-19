@@ -681,7 +681,7 @@ public class DemoBase extends Thread {
 		}
 		if (!typeview.getGraph2D().isEmpty() && incrementallayouter.typechanged){
 			incrementallayouter.typechanged = false;
-			if (alphaslider.getValue() != 3 && alphaslider.getValue() == 1)
+			if (alphaslider.getValue() != 3 && alphaslider.getValue() != 1)
 				alphaslider.setValue(1);
 			//switchViews(view);
 			Cursor oldCursor = typeview.getCanvasComponent().getCursor();
