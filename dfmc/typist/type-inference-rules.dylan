@@ -211,10 +211,10 @@ define method infer-computation-types (c :: <values>) => ()
             if (c.rest-value)
               types := add(types, make(<&rest-type>).lookup-type);
             end;
-            if (c.fixed-values.size == 1 & ~c.rest-value)
+            if (types.size == 1)
               types.first;
             else
-              make(<&tuple-type>, tuples: types).lookup-type;
+              types.gen-tuple; //XXX: actually, emit a MVT here somehow
             end;
           end;
   add-constraint(make(<equality-constraint>,
@@ -449,16 +449,16 @@ define method infer-function-type (c :: <function-call>, fun :: <&limited-functi
   create-arrow-and-constraint(c, a, v);
 end;
 
+define function gen-tuple (types :: <collection>) => (res :: <node>)
+  if (types.size > 0 & instance?(types.last.node-value, <&rest-type>))
+    make(<&tuple-type-with-optionals>, tuples: copy-sequence(types, end: types.size - 1)).lookup-type
+  else
+    make(<&tuple-type>, tuples: types).lookup-type;
+  end;
+end;
+
 define function create-arrow-and-constraint
  (c :: <function-call>, specializers :: <collection>, vals :: <collection>) => ()
-  local method gen-tuple (types :: <collection>) => (res :: <node>)
-          if (types.size > 0 & instance?(types.last.node-value, <&rest-type>))
-            make(<&tuple-type-with-optionals>, tuples: copy-sequence(types, end: types.size - 1)).lookup-type
-          else
-            make(<&tuple-type>, tuples: types).lookup-type;
-          end;
-        end;
-
   let left = make(<node>,
                   graph: *graph*,
                   value: make(<&arrow-type>,
@@ -549,7 +549,7 @@ define method constrain-type-variables (sig :: <&polymorphic-signature>, args ::
       let users = locate-type-variable(tv, arg);
       if (users & users.size > 0)
         //register-user for later optimization!
-        usage-table[tv] := add(element(usage-table, tv, default: #()), arg);
+        usage-table[tv] := add(element(usage-table, tv, default: #()), real-arg);
         do(method(x)
              block()
                let val = real-arg.x;
@@ -567,14 +567,39 @@ define method constrain-type-variables (sig :: <&polymorphic-signature>, args ::
   usage-table;
 end;
 
-define function propagate-type-variables (tvs :: <collection>, user :: <table>, old-types :: <collection>, new-types :: <collection>)
+define method replace-types (new-type :: <&type>, tv :: <&polymorphic-type-variable>, t :: <&limited-function-type>, real-arg :: <&limited-function-type>)
+  let s = t.^function-signature;
+  for (x in s.^signature-required-arguments, i from 0)
+    if (x == tv)
+      real-arg.^function-signature.^signature-required-arguments[i] := new-type;
+    end;
+  end;
+  for (x in s.^signature-required-values, i from 0)
+    if (x == tv)
+      real-arg.^function-signature.^signature-required-values[i] := new-type;
+    end;
+  end;
+end;
+
+define method replace-types (new-type :: <&type>, tv :: <&polymorphic-type-variable>, t :: <&type>, real-arg :: <&type>)
+  //user(new-type, arg);
+end;
+
+define function propagate-type-variables (sig :: <&signature>, user :: <table>, old-types :: <collection>, new-types :: <collection>)
  => (progress? :: <boolean>)
   let res = #f;
-  for (o in old-types, n in new-types, tv in tvs)
+  for (o in old-types, n in new-types, tv in sig.^signature-type-variables, arg in sig.^signature-required-arguments)
     if (o ~= n)
-      res := #t;
       format-out("re-optimizing users of %= [%d]\n", tv, user[tv].size);
-      //do(re-type, user[tv]);
+      //let users = locate-setter-type-variable(tv, arg);
+      do(curry(replace-types, n, tv, arg), user[tv]);
+      for (u in user[tv])
+        let lam = get-function-object(u);
+        if (lam)
+          type-infer(lam);
+          res := #t;
+        end;
+      end;
     end;
   end;
   res;
@@ -602,7 +627,7 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
         let old-types = map(temporary-type, sig.^signature-type-variables);
         solve(*graph*, *constraints*, *type-environment*);
         let new-types = map(temporary-type, sig.^signature-type-variables);
-        progress? := propagate-type-variables(sig.^signature-type-variables, users, old-types, new-types);
+        progress? := propagate-type-variables(sig, users, old-types, new-types);
         if (progress?) constrain-type-variables(sig, map(temporary-type, c.arguments)); end;
       end;
     end;
