@@ -541,15 +541,15 @@ define method constrain-type-variables (sig :: <&signature>, args :: <collection
 end;
 
 define method constrain-type-variables (sig :: <&polymorphic-signature>, args :: <collection>)
- => (res :: <table>)
-  let usage-table = make(<table>);
+ => ()
+  //let usage-table = make(<table>);
   //key, rest, values!
   for (tv in sig.^signature-type-variables)
     for (arg in sig.^signature-required-arguments, real-arg in args)
       let users = locate-type-variable(tv, arg);
       if (users & users.size > 0)
         //register-user for later optimization!
-        usage-table[tv] := add(element(usage-table, tv, default: #()), real-arg);
+        //usage-table[tv] := add(element(usage-table, tv, default: #()), arg);
         do(method(x)
              block()
                let val = real-arg.x;
@@ -558,51 +558,80 @@ define method constrain-type-variables (sig :: <&polymorphic-signature>, args ::
                                    left: *type-environment*[tv],
                                    right: val.lookup-type));
              exception (e :: <error>)
-               format-out("couldn't determine type for %= (arg: %=real-arg: %=)\n", tv.^type-variable-name, arg, real-arg);
+               format-out("couldn't determine type for %= (arg: %= real-arg: %=)\n", tv.^type-variable-name, arg, real-arg);
              end;
            end, users);
       end;
     end;
   end;
-  usage-table;
+  //usage-table;
 end;
 
-define method replace-types (new-type :: <&type>, tv :: <&polymorphic-type-variable>, t :: <&limited-function-type>, real-arg :: <&limited-function-type>)
-  let s = t.^function-signature;
+define method replace-type! (new-type :: <&type>, tv :: <&polymorphic-type-variable>, argument :: <&limited-function-type>, real-arg :: <&limited-function-type>)
+ => (res :: <boolean>)
+  let s = argument.^function-signature;
+  let changed? = #f;
   for (x in s.^signature-required-arguments, i from 0)
     if (x == tv)
-      real-arg.^function-signature.^signature-required-arguments[i] := new-type;
+      real-arg.^function-signature.^signature-required[i] := new-type;
+      changed? := #t;
     end;
   end;
   for (x in s.^signature-required-values, i from 0)
     if (x == tv)
-      real-arg.^function-signature.^signature-required-values[i] := new-type;
+      real-arg.^function-signature.^signature-values[i] := new-type;
+      changed? := #t;
     end;
   end;
+  changed?;
 end;
 
-define method replace-types (new-type :: <&type>, tv :: <&polymorphic-type-variable>, t :: <&type>, real-arg :: <&type>)
+define method replace-type! (new-type :: <&type>, tv :: <&polymorphic-type-variable>, argument :: <&limited-collection-type>, real-arg :: <&limited-collection-type>)
+ => (result :: <boolean>)
+ /* if (argument.^limited-collection-element-type == tv)
+    real-arg.^limited-collection-element-type := new-type;
+  end;
+  if (argument.^limited-collection-class == tv)
+    real-arg.^limited-collection-class := new-type;
+  end; */
+end;
+
+define method replace-type! (new-type :: <&type>, tv :: <&polymorphic-type-variable>, argument :: <&type>, real-arg :: <&type>)
+ => (result :: <boolean>)
   //user(new-type, arg);
+  #f;
 end;
 
-define function propagate-type-variables (sig :: <&signature>, user :: <table>, old-types :: <collection>, new-types :: <collection>)
+define function propagate-type-variables (sig :: <&signature>, real-arg-types :: <collection>, real-args :: <collection>, old-types :: <collection>, new-types :: <collection>)
  => (progress? :: <boolean>)
-  let res = #f;
-  for (o in old-types, n in new-types, tv in sig.^signature-type-variables, arg in sig.^signature-required-arguments)
+  let opt = make(<stretchy-vector>);
+  for (o in old-types, n in new-types, tv in sig.^signature-type-variables)
     if (o ~= n)
-      format-out("re-optimizing users of %= [%d]\n", tv, user[tv].size);
-      //let users = locate-setter-type-variable(tv, arg);
-      do(curry(replace-types, n, tv, arg), user[tv]);
-      for (u in user[tv])
-        let lam = get-function-object(u);
-        if (lam)
-          type-infer(lam);
-          res := #t;
+      format-out("re-optimizing users of %= (%= --> %=)\n", tv, o, n);
+      for (arg in sig.^signature-required-arguments, real-arg-type in real-arg-types, real-arg in real-args)
+        //let users = locate-setter-type-variable(tv, arg);
+        if (replace-type!(n, tv, arg, real-arg-type))
+          let lam = get-function-object(real-arg);
+          if (lam & ~member?(lam, opt))
+            add!(opt, lam);
+          end;
         end;
       end;
     end;
   end;
-  res;
+  if (opt.size > 0)
+    do(upgrade-types, opt);
+    #t;
+  end;
+end;
+
+define function upgrade-types (l :: <&lambda>)
+  for (t in l.^function-signature.^signature-required-arguments, p in l.parameters)
+    unless (t == p.specializer)
+      p.specializer := t;
+    end;
+  end;
+  l.type-infer
 end;
 
 define method infer-function-type (c :: <function-call>, fun :: <&function>) => ()
@@ -621,13 +650,14 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
     if (instance?(sig, <&polymorphic-signature>))
       //would be nice if the compiler tells me that constrain-type-variables on <&signature> is dead code, eh? ;)
       solve(*graph*, *constraints*, *type-environment*);
-      let users = constrain-type-variables(sig, map(temporary-type, c.arguments));
+      //let users = 
+      constrain-type-variables(sig, map(temporary-type, c.arguments));
       let progress? = #t;
       while (size(*constraints*) > 0 & progress?)
         let old-types = map(temporary-type, sig.^signature-type-variables);
         solve(*graph*, *constraints*, *type-environment*);
         let new-types = map(temporary-type, sig.^signature-type-variables);
-        progress? := propagate-type-variables(sig, users, old-types, new-types);
+        progress? := propagate-type-variables(sig, map(temporary-type, c.arguments), c.arguments, old-types, new-types);
         if (progress?) constrain-type-variables(sig, map(temporary-type, c.arguments)); end;
       end;
     end;
