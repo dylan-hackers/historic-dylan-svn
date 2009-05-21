@@ -91,7 +91,7 @@ define function koala-main
       // Configure first so that command-line argument override config settings.
       let config-file = option-value-by-long-name(parser, "config");
       if (config-file)
-        configure-server(server, config-file);
+        configure-server(*server*, config-file);
       end;
 
       // Setup listeners.
