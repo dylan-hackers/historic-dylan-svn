@@ -1,5 +1,7 @@
 module: dfmc-typist
 
+define constant $lambda-type-caches :: <table> = make(<table>);
+
 define constant <type-environment> = <table>;
 
 define thread variable *type-environment* :: false-or(<type-environment>) = #f;
@@ -149,9 +151,14 @@ define function add-constraint (c :: <constraint>) => (c :: <constraint>)
 end;
 
 define method type-infer (l :: <&lambda>)
-  *type-environment* := make(<type-environment>);
-  dynamic-bind(*constraints* = make(<stretchy-vector>),
-               *graph* = make(<graph>))
+  //*type-environment* := make(<type-environment>);
+  let caches = element($lambda-type-caches, l, default: #f);
+  unless (caches)
+    caches := pair(make(<stretchy-vector>), make(<graph>));
+    $lambda-type-caches[l] := caches;
+  end;
+  dynamic-bind(*constraints* = caches.head,
+               *graph* = caches.tail)
     do(lookup-type-variable, l.parameters);
     for (t in l.environment.temporaries)
       if (~empty?(t.assignments))
@@ -161,8 +168,86 @@ define method type-infer (l :: <&lambda>)
     walk-computations(infer-computation-types, l.body, #f);
     debug-types(#"highlight", 0);
     solve(*graph*, *constraints*, *type-environment*);
+    //update values slot of signature
+    let result-type = temporary-type(l.body.bind-return.computation-value);
+    //might need to emit type check (top is super of everything!)
+    if (~ instance?(result-type, <&top-type>)) //top-type is never more specific than some other type
+      let sig = convert-type-to-signature(l.^function-signature, l.parameters, result-type);
+      //also check congruency to generic!
+      //also check with written down stuff: especially "=> ()"
+      //or cases where fewer values are exposed than emitted (warn here!)
+      if (check-signature-compatibility?(l.^function-signature, sig))
+        l.^function-signature := sig;
+      end;
+    end;
   end;
 end;
+
+define function check-signature-compatibility? (old-sig :: <&signature>, new-sig :: <&signature>)
+ => (res :: <boolean>);
+  //do this on a per-value basis... emitting multiple type checks / upgrade only some values
+  //(<object>, <object>, <integer>) and (<integer>, <integer>, <object>)
+  // ===> type-check(2, <integer>) & (<integer>, <integer>, <integer>)
+  let old-vals = old-sig.^signature-required-values;
+  let new-vals = new-sig.^signature-required-values;
+  block(return)
+    for (o in old-vals, n in new-vals)
+      unless (^subtype?(n, o))
+        //emit type check!
+        return(#f);
+      end;
+    end;
+    return(#t);
+  end;
+end;
+
+define generic convert-type-to-signature (old :: false-or(<&signature>), params :: <collection>, values :: <&type>)
+ => (signature :: <&signature>);
+
+define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, values :: <&type>)
+ => (signature :: <&signature>)
+  let (fixed, rest?) = convert-values(values);
+  let param = map(specializer, parameters);
+  ^make(<&signature>, required: param, number-required: param.size,
+        values: fixed, number-values: fixed.size, rest?: rest?);
+end;
+
+define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <&type>)
+ => (signature :: <&signature>)
+  //we can also upgrade <&signature> -> <&polymorphic-signature>
+  let (fixed, rest?) = convert-values(values);
+  ^make(<&signature>, required: old-sig.^signature-required-arguments,
+        number-required: old-sig.^signature-number-required,
+        values: fixed, number-values: fixed.size, rest?: rest?);
+end;
+
+define method convert-type-to-signature (old-sig :: <&polymorphic-signature>, parameters :: <collection>, values :: <&type>)
+ => (signature :: <&signature>)
+  //or add/remove type variables...
+  let (fixed, rest?) = convert-values(values);
+  ^make(<&signature>, required: old-sig.^signature-required-arguments,
+        number-required: old-sig.^signature-number-required,
+        values: fixed, number-values: fixed.size, rest?: rest?,
+        type-variables: old-sig.^signature-type-variables);
+end;
+
+define generic convert-values (v :: <&type>) => (fixed :: <simple-object-vector>, rest? :: <boolean>);
+
+define method convert-values (value :: <&type>)
+ => (fixed :: <simple-object-vector>, rest? :: <boolean>)
+  values(vector(value), #f);
+end;
+
+define method convert-values (value :: <&tuple-type>)
+ => (fixed :: <simple-object-vector>, rest? :: <boolean>)
+  values(map(node-value, value.^tuple-types), #f)
+end;
+
+define method convert-values (value :: <&tuple-type-with-optionals>)
+ => (fixed :: <simple-object-vector>, rest? :: <boolean>)
+  values(map(node-value, value.^tuple-types), #t)
+end;
+
 
 define generic maybe-add-variable-constraints (t :: <temporary>) => ();
 
@@ -605,6 +690,7 @@ end;
 define function propagate-type-variables (sig :: <&signature>, real-arg-types :: <collection>, real-args :: <collection>, old-types :: <collection>, new-types :: <collection>)
  => (progress? :: <boolean>)
   let opt = make(<stretchy-vector>);
+  let temp = make(<stretchy-vector>);
   for (o in old-types, n in new-types, tv in sig.^signature-type-variables)
     if (o ~= n)
       format-out("re-optimizing users of %= (%= --> %=)\n", tv, o, n);
@@ -614,6 +700,8 @@ define function propagate-type-variables (sig :: <&signature>, real-arg-types ::
           let lam = get-function-object(real-arg);
           if (lam & ~member?(lam, opt))
             add!(opt, lam);
+            add!(temp, real-arg);
+            remove-key!(*type-environment*, real-arg);
           end;
         end;
       end;
@@ -621,6 +709,8 @@ define function propagate-type-variables (sig :: <&signature>, real-arg-types ::
   end;
   if (opt.size > 0)
     do(upgrade-types, opt);
+    do(compose(infer-computation-types, generator), temp);
+    solve(*graph*, *constraints*, *type-environment*);
     #t;
   end;
 end;
@@ -629,6 +719,9 @@ define function upgrade-types (l :: <&lambda>)
   for (t in l.^function-signature.^signature-required-arguments, p in l.parameters)
     unless (t == p.specializer)
       p.specializer := t;
+      //actually, add a constraint for given specializer,
+      //but not yet in correct context (<graph>-wise)
+      remove-key!(*type-environment*, p);
     end;
   end;
   l.type-infer
