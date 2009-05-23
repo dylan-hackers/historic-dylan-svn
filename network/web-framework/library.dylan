@@ -110,12 +110,12 @@ define module users
   //export <access-level>;
 
   export <user>,
-    username,
-    username-setter,
-    password,
-    password-setter,
-    email,
-    email-setter,
+    user-name,
+    user-name-setter,
+    user-password,
+    user-password-setter,
+    user-email,
+    user-email-setter,
     administrator?,
     administrator?-setter,
     authenticated-user,
