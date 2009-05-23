@@ -124,6 +124,7 @@ define module koala
   // Configuration
   create
     process-config-element,
+    server-root,
     get-attr;
 
   // XML RPC
@@ -141,6 +142,7 @@ define module koala
   create
     maybe-serve-static-file,
     document-location,
+    document-root,
     static-file-responder,
     file-contents;
 

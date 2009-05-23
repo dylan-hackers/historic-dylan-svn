@@ -19,11 +19,11 @@ define variable *ignore-authorizations* = list();
 define variable *ignore-logins* = list();
 
 define open class <user> (<object>)
-  slot username :: <string>,
-    required-init-keyword: username:;
-  slot password :: <string>,
+  slot user-name :: <string>,
+    required-init-keyword: name:;
+  slot user-password :: <string>,
     required-init-keyword: password:;
-  slot email :: <string>,
+  slot user-email :: <string>,
     required-init-keyword: email:;
   slot administrator? :: <boolean> = #f,
     init-keyword: administrator?:;
@@ -31,30 +31,31 @@ end class <user>;
 
 define method initialize (user :: <user>, #key)
   next-method();
-  if (find-user(user.username))
+  if (find-user(user.user-name))
     signal(make(<web-error>,
-                error: "User with same name already exists!"));
+                error: format-to-string("A user named '%s' already exists.",
+                                        user.user-name)));
   else
     save(user);
   end if;
-end;
+end method initialize;
 
 define method key (user :: <user>)
- => (res :: <string>);
-  user.username;
+ => (res :: <string>)
+  user.user-name;
 end;
 
 define method storage-type (type == <user>) => (res)
-  <string-table>;
+  <string-table>
 end;
 
 define method as (class == <string>, user :: <user>)
  => (result :: <string>)
-  user.username;
+  user.user-name;
 end;
 
 define function authenticated-user ()
- => (user :: false-or(<user>));
+ => (user :: false-or(<user>))
   authenticate();
   *authenticated-user*
 end;
@@ -97,24 +98,24 @@ define function logout ()
 end;
 
 define function check-authorization ()
- => (user :: false-or(<user>));
+ => (user :: false-or(<user>))
   let authorization = get-header(current-request(), "Authorization", parsed: #t);
   if (authorization)
     let user = find-user(head(authorization));
-    if (user & user.password = tail(authorization))
+    if (user & user.user-password = tail(authorization))
       user;
     end if;
   end if;
-end;
+end function check-authorization;
 
 define function authenticate ()
- => (user :: false-or(<user>));
+ => (user :: false-or(<user>))
   let authorization = get-header(current-request(), "Authorization", parsed: #t);
   if (authorization)
     let user = find-user(head(authorization));
     *authenticated-user*
       := if (user
-               & user.password = tail(authorization)
+               & user.user-password = tail(authorization)
                & ~member?(user, *ignore-authorizations*, test: \=)
                & ~member?(user, *ignore-logins*, test: \=))
            user
@@ -130,7 +131,7 @@ define function require-authorization (#key realm :: false-or(<string>))
 end;
 
 define method \= (user1 :: <user>, user2 :: <user>)
- => (equal? :: <boolean>);
-  user1.username = user2.username
+ => (equal? :: <boolean>)
+  user1.user-name = user2.user-name
 end;
 

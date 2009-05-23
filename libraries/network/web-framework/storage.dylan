@@ -11,7 +11,8 @@ define sideways method process-config-element
   if (~cdir)
     log-warning("Web Framework - No content-directory specified!");
   else
-    *content-directory* := as(<directory-locator>, cdir);
+    *content-directory*
+      := merge-locators(as(<directory-locator>, cdir), server.server-root);
   end;
   log-info("Web framework content directory = %s",
            as(<string>, *content-directory*));
