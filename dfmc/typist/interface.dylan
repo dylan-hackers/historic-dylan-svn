@@ -4,9 +4,9 @@ define method type-estimate (o :: <object>) => (te :: <&type>)
   let node = element(*type-environment*, o, default: #f);
   if (node)
     if (instance?(node.node-value, <&type-variable>))
-      node.node-value.^type-variable-contents;
+      node.node-value.^type-variable-contents.model-type;
     else
-      node.node-value;
+      node.node-value.model-type;
     end;
   else 
     make(<&top-type>);

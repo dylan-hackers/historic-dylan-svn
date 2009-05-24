@@ -185,7 +185,7 @@ define module-with-models dfmc-modeling
       ^signature-required-values,
 
     <&tuple-type>,
-      &getter tuple-types,
+      &slot tuple-types,
     <&tuple-type-with-optionals>,
 
     <&rest-type>,
@@ -193,6 +193,10 @@ define module-with-models dfmc-modeling
     <&arrow-type>,
       &getter arguments,
       &getter values,
+
+    <&limited-coll-type>,
+      &getter coll-class,
+      &getter coll-element-type,
 
     <&type-variable>,
       &slot type-variable-contents,

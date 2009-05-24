@@ -378,7 +378,7 @@ define &override-function ^limited
 end &override-function;
 
 define primary &class <tuple-type> (<type>)
-  constant &slot tuple-types :: <simple-object-vector>,
+  runtime-constant &slot tuple-types :: <simple-object-vector>,
     required-init-keyword: tuples:;
   //rest argument, size?
 end;
@@ -401,6 +401,11 @@ define primary &class <arrow-type> (<type>)
     required-init-keyword: arguments:;
   constant &slot values /* :: <type> */,
     required-init-keyword: values:;
+end;
+
+define primary &class <limited-coll-type> (<type>)
+  constant &slot coll-class, required-init-keyword: class:;
+  constant &slot coll-element-type, required-init-keyword: element-type:;
 end;
 
 /*

@@ -71,6 +71,11 @@ define method maybe-setup-connections (n :: <node>, tt :: <&tuple-type>)
   do(curry(connect, n), tt.^tuple-types);
 end;
 
+define method maybe-setup-connections (n :: <node>, c :: <&limited-coll-type>)
+  connect(n, c.^coll-class);
+  connect(n, c.^coll-element-type);
+end;
+
 define class <edge> (<object>)
   constant slot graph :: <graph>, required-init-keyword: graph:;
   constant slot edge-source :: <node>, required-init-keyword: source:;
@@ -143,6 +148,13 @@ define function remove-node (n :: <node>) => ()
   end;
 end;
 
+define function update-connections (n :: <node>, f :: <integer>) => ()
+  for (succ from f below n.node-value.^tuple-types.size)
+    let s = n.node-value.^tuple-types[succ];
+    connect(n, s);
+  end;
+end;
+
 define function find (value :: <node>) => (res :: <node>)
   (value.representative == value & value)
     | (value.representative := find(value.representative));
@@ -169,6 +181,15 @@ define method deep-copy-node
   let t = make(<&arrow-type>,
                arguments: deep-copy-node(type.^arguments.node-value, graph),
                values: deep-copy-node(type.^values.node-value, graph));
+  make(<node>, graph: graph, value: t);
+end;
+
+define method deep-copy-node
+ (type :: <&limited-coll-type>, graph :: <graph>)
+ => (res :: <node>)
+  let t = make(<&limited-coll-type>,
+               class: deep-copy-node(type.^coll-class.node-value, graph),
+               element-type: deep-copy-node(type.^coll-element-type.node-value, graph));
   make(<node>, graph: graph, value: t);
 end;
 
@@ -257,10 +278,10 @@ define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolea
     elseif (v.node-value.dynamic?)
       u.node-rank := max(u.node-rank, v.node-rank) + 1;
       v.representative := u;
-    elseif (^subtype?(u.node-value, v.node-value))
+    elseif (is-subtype?(u, v))
       u.node-rank := max(u.node-rank, v.node-rank) + 1;
       v.representative := u;
-    elseif (^subtype?(v.node-value, u.node-value))
+    elseif (is-subtype?(v, u))
       v.node-rank := max(u.node-rank, v.node-rank) + 1;
       u.representative := v;
     elseif (u.node-rank > v.node-rank) //default case from gtubi-paper (needed?)
@@ -274,6 +295,34 @@ define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolea
   end;
 end;
 
+define generic is-subtype? (t1, t2) => (res :: <boolean>);
+
+define method is-subtype? (t1 :: <object>, t2 :: <object>) => (res == #f)
+  #f;
+end;
+
+define method is-subtype? (t1 :: <&type>, t2 :: <&type>) => (res :: <boolean>)
+  ^subtype?(t1.model-type, t2.model-type);
+end;
+
+define method is-subtype? (t1 :: <node>, t2 :: <&type>) => (res :: <boolean>)
+  is-subtype?(t1.node-value, t2);
+end;
+
+define method is-subtype? (t1 :: <&type>, t2 :: <node>) => (res :: <boolean>)
+  is-subtype?(t1, t2.node-value);
+end;
+
+define method is-subtype? (t1 :: <node>, t2 :: <node>) => (res :: <boolean>)
+  is-subtype?(t1.node-value, t2.node-value);
+end;
+
+//don't care about those types, they'll be taken care by the constraint solver
+//(by propagating constraints to the leaves)
+define method is-subtype? (t1 :: type-union(<&arrow-type>, <&tuple-type>, <&limited-coll-type>),
+                           t2 :: type-union(<&arrow-type>, <&tuple-type>, <&limited-coll-type>)) => (res :: <boolean>)
+  #f;
+end;
 /*
 begin
   let g = make(<graph>);

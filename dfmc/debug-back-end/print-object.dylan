@@ -51,6 +51,10 @@ define compiler-sideways method print-object (tv :: <&tuple-type>, str :: <strea
   format(str, "{ %= }", tv.^tuple-types);
 end;
 
+define compiler-sideways method print-object (c :: <&limited-coll-type>, str :: <stream>) => ()
+  format(str, "limited[ %= ]", c.^coll-element-type);
+end;
+
 define compiler-sideways method print-object (o :: <&object>, stream :: <stream>) => ()
   let ld = current-library-description() | model-original-library(o);
   if (ld)
