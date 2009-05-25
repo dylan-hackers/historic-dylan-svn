@@ -20,7 +20,7 @@ end;
 
 define function solve (graph :: <graph>, constraints :: <collection>, type-env :: <type-environment>)
  => ()
-  let cs = as(<deque>, constraints); //copy-dynamic(constraints);
+  let cs = as(<deque>, constraints);
   constraints.size := 0;
   for (node in graph.nodes)
     node.contains-variables? := #t;
@@ -206,76 +206,6 @@ define method solve-constraint
   else
     error("constraint cannot be satisfied");
   end;
-end;
-
-define function copy-dynamic (constraints :: <collection>)
- => (res :: <deque>)
-  let to-remove = make(<stretchy-vector>);
-  let res =
-  as(<deque>,
-     map(method(x)
-           let left = copy-dyn(x.left-hand-side.node-value, x.left-hand-side);
-           let right = copy-dyn(x.right-hand-side.node-value, x.right-hand-side);
-           if (left ~= x.left-hand-side | right ~= x.right-hand-side)
-             disconnect(x.left-hand-side, x.right-hand-side);
-             if (left ~= x.left-hand-side)
-               //remove-node(x.left-hand-side);
-               unless (member?(x.left-hand-side, to-remove))
-                 add!(to-remove, x.left-hand-side);
-               end;
-             end;
-             if (right ~= x.right-hand-side)
-               //remove-node(x.right-hand-side);
-               unless (member?(x.right-hand-side, to-remove))
-                 add!(to-remove, x.right-hand-side);
-               end;
-             end;
-             make(<equality-constraint>, left: left, right: right)
-           else
-             x
-           end;
-         end, constraints));
-  do(remove-node, to-remove);
-  res;
-end;
-
-define method copy-dyn (t :: <&top-type>, n :: <node>) => (node :: <node>)
-  make(<node>, graph: n.graph, value: n.node-value);
-end;
-
-define method copy-dyn (t :: <&arrow-type>, n :: <node>) => (node :: <node>)
-  let args = copy-dyn(t.^arguments.node-value, t.^arguments);
-  let values = copy-dyn(t.^values.node-value, t.^values);
-  if (args ~= t.^arguments | values ~= t.^values)
-    //retract old arrow node?
-    make(<node>, graph: n.graph,
-         value: make(<&arrow-type>,
-                     arguments: args,
-                     values: values));
-  else
-    n
-  end;
-end;
-
-define method copy-dyn (t :: <&tuple-type>, n :: <node>) => (node :: <node>)
-  let tt = map(method(x) copy-dyn(x.node-value, x) end, t.^tuple-types);
-  let need-copy? = #f;
-  for (t1 in tt, t2 in t.^tuple-types)
-    unless (t1 = t2)
-      need-copy? := #t;
-    end;
-  end;
-  if (need-copy?)
-    make(<node>, graph: n.graph,
-         value: make(<&tuple-type>,
-                     tuples: tt))
-  else
-    n
-  end;
-end;
-
-define method copy-dyn (t :: <&type>, n :: <node>) => (node :: <node>)
-  n
 end;
 
 define function order (u :: <node>, v :: <node>)

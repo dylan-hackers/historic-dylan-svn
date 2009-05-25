@@ -81,32 +81,6 @@ define method lookup-type-variable (o :: <object>) => (res :: <node>)
   res | tenv[o];
 end;
 
-define function congruent? (u :: <node>, v :: <node>) => (congruent? :: <boolean>)
-  let edge-equal? = method(e1, e2) find(e1.edge-target) = find(e2.edge-target) end;
-  let edge-equal-in? = method(e1, e2) find(e1.edge-source) = find(e2.edge-source) end;
-  let u = find(u);
-  let v = find(v);
-  if (u == v)
-    #t
-  elseif (u.node-value = v.node-value)
-    every?(method(x) any?(curry(edge-equal?, x), v.out-edges) end, u.out-edges)
-     & every?(method(x) any?(curry(edge-equal?, x), u.out-edges) end, v.out-edges)
-     & every?(method(x) any?(curry(edge-equal-in?, x), v.in-edges) end, u.in-edges)
-     & every?(method(x) any?(curry(edge-equal-in?, x), u.in-edges) end, v.in-edges)
-  end;
-end;
-
-define function create-sharing (u :: <node>) => (v :: <node>)
-  block(found)
-    for (node in *graph*.nodes)
-      if (find(u) ~= find(node) & congruent?(u, node))
-        found(graph-union(node, u, #f));
-      end;
-    end;
-    u;
-  end;
-end;
-
 define function lookup-type (o :: <object>) => (res :: <node>)
   let te = type-estimate-object(o);
   if (te == dylan-value(#"<object>"))
@@ -364,26 +338,6 @@ define method maybe-add-variable-constraints (t :: <lexical-specialized-variable
                           right: ass.temporary.lookup-type-variable));
     end;
   end;
-end;
-
-define function walk-types (sig :: <&signature>, callback :: <function>) => ()
-  do(rcurry(do-walk-type, callback), sig.^signature-required-arguments);
-  do(rcurry(do-walk-type, callback), sig.^signature-required-values);
-end;
-
-define generic do-walk-type (type :: <&type>, callback :: <function>) => ();
-
-define method do-walk-type (type :: <&type>, callback :: <function>) => ()
-  callback(type)
-end;
-
-define method do-walk-type (type :: <&limited-function-type>, callback :: <function>) => ()
-  walk-types(type.^function-signature, callback);
-end;
-
-define method do-walk-type (type :: <&limited-collection-type>, callback :: <function>) => ()
-  do-walk-type(type.^limited-collection-class, callback);
-  do-walk-type(type.^limited-collection-element-type, callback);
 end;
 
 define generic infer-computation-types (c :: <computation>) => ();
@@ -696,142 +650,6 @@ define function create-arrow-and-constraint
   add-constraint(make(<equality-constraint>, origin: c, left: left, right: right));
 end;
 
-define generic locate-type-variable (tv :: <&polymorphic-type-variable>, t :: <&type>)
- => (res);
-
-define method locate-type-variable (tv :: <&polymorphic-type-variable>, t :: <&type>)
- => (res);
-  t == tv & list(identity)
-end;
-
-define method locate-type-variable (tv :: <&polymorphic-type-variable>, t :: <&limited-function-type>)
- => (res);
-  let res = make(<stretchy-vector>);
-  let s = t.^function-signature;
-  for (x in s.^signature-required-arguments, i from 0)
-    let ct = locate-type-variable(tv, x);
-    if (ct & ct.size > 0)
-      do(curry(add!, res), map(rcurry(compose, rcurry(element, i), ^signature-required-arguments, ^function-signature), ct));
-    end;
-  end;
-  for (x in s.^signature-required-values, i from 0)
-    let ct = locate-type-variable(tv, x);
-    if (ct & ct.size > 0)
-      do(curry(add!, res), map(rcurry(compose, rcurry(element, i), ^signature-required-values, ^function-signature), ct));
-    end;
-  end;
-  res;
-end;
-
-define method locate-type-variable (tv :: <&polymorphic-type-variable>, t :: <&limited-collection-type>)
- => (res :: <collection>)
-  let res = make(<stretchy-vector>);
-  let ct = locate-type-variable(tv, t.^limited-collection-element-type);
-  if (ct)
-    do(curry(add!, res), map(rcurry(compose, ^limited-collection-element-type), ct));
-  end;
-  let ct2 = locate-type-variable(tv, t.^limited-collection-class);
-  if (ct2)
-    do(curry(add!, res), map(rcurry(compose, ^limited-collection-class), ct));
-  end;
-  res;  
-end;
-
-define method constrain-type-variables (sig :: <&signature>, args :: <collection>)
-  //move along!
-end;
-
-define method constrain-type-variables (sig :: <&polymorphic-signature>, args :: <collection>)
- => ()
-  //let usage-table = make(<table>);
-  //key, rest, values!
-  for (tv in sig.^signature-type-variables)
-    for (arg in sig.^signature-required-arguments, real-arg in args)
-      let users = locate-type-variable(tv, arg);
-      if (users & users.size > 0)
-        //register-user for later optimization!
-        //usage-table[tv] := add(element(usage-table, tv, default: #()), arg);
-        do(method(x)
-             block()
-               let val = real-arg.x;
-               format-out("restricting %= to %=\n", tv.^type-variable-name, val);
-               add-constraint(make(<equality-constraint>,
-                                   origin: tv,
-                                   left: tv.lookup-type,
-                                   right: val.lookup-type));
-             exception (e :: <error>)
-               format-out("couldn't determine type for %= (arg: %= real-arg: %=)\n", tv.^type-variable-name, arg, real-arg);
-             end;
-           end, users);
-      end;
-    end;
-  end;
-  //usage-table;
-end;
-
-define method replace-type! (new-type :: <&type>, tv :: <&polymorphic-type-variable>, argument :: <&limited-function-type>, real-arg :: <&limited-function-type>)
- => (res :: <boolean>)
-  let s = argument.^function-signature;
-  let changed? = #f;
-  for (x in s.^signature-required-arguments, i from 0)
-    if (x == tv)
-      real-arg.^function-signature.^signature-required[i] := new-type;
-      changed? := #t;
-    end;
-  end;
-  for (x in s.^signature-required-values, i from 0)
-    if (x == tv)
-      real-arg.^function-signature.^signature-values[i] := new-type;
-      changed? := #t;
-    end;
-  end;
-  changed?;
-end;
-
-define method replace-type! (new-type :: <&type>, tv :: <&polymorphic-type-variable>, argument :: <&limited-collection-type>, real-arg :: <&limited-collection-type>)
- => (result :: <boolean>)
- /* if (argument.^limited-collection-element-type == tv)
-    real-arg.^limited-collection-element-type := new-type;
-  end;
-  if (argument.^limited-collection-class == tv)
-    real-arg.^limited-collection-class := new-type;
-  end; */
-end;
-
-define method replace-type! (new-type :: <&type>, tv :: <&polymorphic-type-variable>, argument :: <&type>, real-arg :: <&type>)
- => (result :: <boolean>)
-  //user(new-type, arg);
-  #f;
-end;
-
-define function propagate-type-variables (sig :: <&signature>, real-arg-types :: <collection>, real-args :: <collection>, old-types :: <collection>, new-types :: <collection>)
- => (progress? :: <boolean>)
-  let opt = make(<stretchy-vector>);
-  let temp = make(<stretchy-vector>);
-  for (o in old-types, n in new-types, tv in sig.^signature-type-variables)
-    if (o ~= n)
-      format-out("re-optimizing users of %= (%= --> %=)\n", tv, o, n);
-      for (arg in sig.^signature-required-arguments, real-arg-type in real-arg-types, real-arg in real-args)
-        //let users = locate-setter-type-variable(tv, arg);
-        if (replace-type!(n, tv, arg, real-arg-type))
-          let lam = get-function-object(real-arg);
-          if (lam & ~member?(lam, opt))
-            add!(opt, lam);
-            add!(temp, real-arg);
-            remove-key!(*type-environment*, real-arg);
-          end;
-        end;
-      end;
-    end;
-  end;
-  if (opt.size > 0)
-    do(upgrade-types, opt);
-    do(compose(infer-computation-types, generator), temp);
-    solve(*graph*, *constraints*, *type-environment*);
-    #t;
-  end;
-end;
-
 define method upgrade-types (l)
 end;
 
@@ -859,7 +677,7 @@ define function initial-type-constraints (sig :: <&signature>)
     end, concatenate(sig.^signature-type-variables, sig.^signature-required-arguments));
 end;
 
-define function constrain-type-variables0
+define function constrain-type-variables
     (c :: <function-call>, sig-args :: <collection>, real-args :: <collection>)
   for (s in sig-args, r in real-args)
     add-constraint(make(<equality-constraint>,
@@ -875,8 +693,8 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
       //would be nice if the compiler tells me that constrain-type-variables on <&signature> is dead code, eh? ;)
       solve(*graph*, *constraints*, *type-environment*);
       initial-type-constraints(sig);
-      constrain-type-variables0(c, map(lookup-type, sig.^signature-required-arguments),
-                                map(lookup-type, c.arguments));
+      constrain-type-variables(c, map(lookup-type, sig.^signature-required-arguments),
+                               map(lookup-type, c.arguments));
       let progress? = #t;
       while (progress?)
         let old-types = map(temporary-type, sig.^signature-type-variables);
