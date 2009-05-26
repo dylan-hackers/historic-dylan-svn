@@ -29,8 +29,10 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
     debug-types(#"relayouted");
     let constraint = cs.pop;
     local method push-cs (l :: <node>, r :: <node>)
-            let new-constraint = make(<equality-constraint>, left: l, right: r, origin: constraint);
-            push-last(cs, new-constraint);
+            unless (l == r)
+              let new-constraint = make(<equality-constraint>, left: l, right: r, origin: constraint);
+              push-last(cs, new-constraint);
+            end;
           end;
     debug-types(#"highlight-constraint", constraint.left-hand-side, constraint.right-hand-side);
     let u = find(constraint.left-hand-side);
@@ -212,7 +214,7 @@ define function order (u :: <node>, v :: <node>)
  => (first :: <node>, second :: <node>, order-matters? :: <boolean>)
   let tu = node-value(u);
   let tv = node-value(v);
-  if (dynamic?(tu)) 
+  if (dynamic?(tu))
     if (instance?(tv, <&type-variable>))
       values(u, v, #t);
     else

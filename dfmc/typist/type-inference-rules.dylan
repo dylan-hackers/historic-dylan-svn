@@ -6,94 +6,116 @@ define constant <type-environment> = <table>;
 
 define thread variable *type-environment* :: false-or(<type-environment>) = #f;
 
-define method lookup-type-variable (o :: <lexical-required-type-variable>)
- => (res :: <node>);
-  lookup-type-variable(o.specializer); //delegate to <&polymorphic-tv>
+define generic lookup-type (o) => (res :: <node>);
+
+define method lookup-type (o :: <temporary>) => (res :: <node>)
+  element(*type-environment*, o, default: #f) |
+    begin
+      let te = o.type-estimate-object;
+      let tv = make(<&type-variable>, contents: te);
+      debug-types(#"new-type-variable", tv, o, te);
+      let n = make(<node>, graph: *graph*, value: tv);
+      *type-environment*[o] := n;
+      unless (instance?(te, <&top-type>))
+        add-constraint(make(<equality-constraint>, origin: o,
+                            left: te.lookup-type, right: n));
+      end;
+      n;
+    end;
 end;
 
-define method lookup-type-variable (tv :: <&polymorphic-type-variable>)
+define method lookup-type (t :: <lexical-required-type-variable>)
+ => (res :: <node>)
+  t.specializer.lookup-type
+end;
+
+define method lookup-type (tv :: <&polymorphic-type-variable>)
  => (res :: <node>)
   element(*type-environment*, tv, default: #f) |
-   begin
-     let te = make(<&top-type>);
-     //todo: respect ^type-variable-kind
-     let tvar = make(<&type-variable>, contents: te);
-     let temp = if (slot-initialized?(tv, ^type-variable-temporary))
-                  tv.^type-variable-temporary
-                else
-                  0
-                end;
-     debug-types(#"new-type-variable", tvar, temp, te);
-     let node = make(<node>, graph: *graph*, value: tvar);
-     *type-environment*[tv] := node;
-     //add-constraint(make(<equality-constraint>, origin: tv,
-     //                    left: te.lookup-type, right: node));
-     node;
-   end;
-end;
-
-define method lookup-type-variable (lft :: <&limited-function-type>) => (res :: <node>)
-  element(*type-environment*, lft, default: #f) |
     begin
-      let args = map(lookup-type, lft.^function-signature.^signature-required-arguments);
-      let vals = map(lookup-type, lft.^function-signature.^signature-required-values);
-      if (lft.^function-signature.^signature-rest?)
-        args := add!(args, make(<&rest-type>).lookup-type);
-      end;
-      if (lft.^function-signature.^signature-rest-value)
-        vals := add!(vals, make(<&rest-type>).lookup-type);
-      end;
-      let node = make(<node>, graph: *graph*,
-                      value: make(<&arrow-type>, arguments: args.gen-tuple, values: vals.gen-tuple));
-      *type-environment*[lft] := node;
+      let node = make(<node>, graph: *graph*, value: tv);
+      //add constraint between ^type-variable-kind and node!
+      *type-environment*[tv] := node;
     end;
 end;
 
-define method lookup-type-variable (lc :: <&limited-collection-type>) => (res :: <node>)
-  element(*type-environment*, lc, default: #f) |
+define method lookup-type (o :: <object-reference>) => (res :: <node>)
+  element(*type-environment*, o, default: #f) |
     begin
-      let class = lc.^limited-collection-class.lookup-type;
-      let etype = lc.^limited-collection-element-type.lookup-type;
-      let node = make(<node>, graph: *graph*,
-                      value: make(<&limited-coll-type>, class: class, element-type: etype));
-      *type-environment*[lc] := node;
+      let n = next-method();
+      *type-environment*[o] := n;
     end;
 end;
 
-define method lookup-type-variable (o :: <object>) => (res :: <node>)
-  let tenv = *type-environment*;
-  let res = element(tenv, o, default: #f);
-  unless (res)
-    let te = type-estimate-object(o);
-    if (te == dylan-value(#"<object>"))
-      te := make(<&top-type>);
-    end;
-    let tv = make(<&type-variable>,
-                  contents: te | make(<&top-type>));
-    debug-types(#"new-type-variable", tv, o, te);
-    let n = make(<node>, graph: *graph*, value: tv);
-    tenv[o] := n;
-    if (te & ~instance?(te, <&top-type>))
-      add-constraint(make(<equality-constraint>, origin: o,
-                          left: te.lookup-type, right: n));
-    end;
-  end;
-  res | tenv[o];
+define method lookup-type (o :: <object>) => (res :: <node>)
+  make(<node>, graph: *graph*, value: o.type-estimate-object);
 end;
 
-define function lookup-type (o :: <object>) => (res :: <node>)
-  let te = type-estimate-object(o);
-  if (te == dylan-value(#"<object>"))
-    te := make(<&top-type>);
-  end;
-  if (instance?(o, type-union(<temporary>, <&polymorphic-type-variable>, <&limited-function-type>, <&limited-collection-type>)))
-    element(*type-environment*, o, default: #f) | lookup-type-variable(o);
-  elseif (instance?(te, type-union(<temporary>, <&polymorphic-type-variable>, <&limited-function-type>, <&limited-collection-type>)))
-    element(*type-environment*, te, default: #f) | lookup-type-variable(te);
+define generic type-estimate-object (o) => (res :: <&type>);
+
+define method type-estimate-object (o :: <object>) => (res :: <&type>)
+  make(<&top-type>)
+end;
+
+define method type-estimate-object (o :: <object-reference>) => (res :: <&type>)
+  type-estimate-object(o.reference-value);
+end;
+
+define method type-estimate-object (o :: <lexical-specialized-variable>) => (res :: <&type>);
+  type-estimate-object(o.specializer);
+end;
+
+define method type-estimate-object (t :: <&type>) => (res :: <&type>)
+  if (t == dylan-value(#"<object>"))
+    make(<&top-type>)
   else
-    make(<node>, graph: *graph*, value: te);
-  end;
+    t
+  end
 end;
+
+define method type-estimate-object (lft :: <&limited-function-type>) => (res :: <&type>)
+  let args = map(lookup-type, lft.^function-signature.^signature-required-arguments);
+  let vals = map(lookup-type, lft.^function-signature.^signature-required-values);
+  if (lft.^function-signature.^signature-rest?)
+    args := add!(args, make(<&rest-type>).lookup-type);
+  end;
+  if (lft.^function-signature.^signature-rest-value)
+    vals := add!(vals, make(<&rest-type>).lookup-type);
+  end;
+  make(<&arrow-type>, arguments: args.gen-tuple, values: vals.gen-tuple);
+end;
+
+define method type-estimate-object (lc :: <&limited-collection-type>) => (res :: <&type>)
+  let class = lc.^limited-collection-class.lookup-type;
+  let etype = lc.^limited-collection-element-type.lookup-type;
+  make(<&limited-coll-type>, class: class, element-type: etype);
+end;
+
+define method type-estimate-object (o :: <integer>) => (res :: <&type>)
+  dylan-value(#"<integer>")
+end;
+
+define method type-estimate-object (s :: <string>) => (res :: <&type>)
+  dylan-value(#"<string>")
+end;
+
+define method type-estimate-object (b :: <boolean>) => (res :: <&type>)
+  dylan-value(#"<boolean>")
+end;
+
+define method type-estimate-object (v :: <vector>) => (res :: <&type>)
+  ^make(<&limited-coll-type>,
+        class: dylan-value(#"<vector>").lookup-type,
+        element-type:
+          lookup-type(if (v.size == 0)
+                        make(<&polymorphic-type-variable>,
+                             name: #"v", kind: dylan-value(#"<top>"));
+                      else
+                        reduce1(^type-union, map(type-estimate-object, v));
+                      end))
+end;
+
+//list, floats, symbols!
 
 define generic model-type (t :: type-union(<node>, <&type>)) => (t :: type-union(<collection>, <&type>));
 
@@ -125,6 +147,14 @@ define method model-type (t :: <&tuple-type>) => (t :: type-union(<&type>, <coll
   end;
 end;
 
+/* define method model-type (t :: <&tuple-type-with-optionals>) => (t :: <collection>)
+  let fixed = next-method();
+  unless (instance?(fixed, <collection>))
+    fixed := vector(fixed);
+  end;
+  concatenate(fixed, vector(make(<&rest-type>)))
+end; */
+
 define method model-type (t :: <&limited-coll-type>) => (t :: <&type>)
   make(<&limited-collection-type>,
        class: t.^coll-class.model-type,
@@ -139,62 +169,6 @@ define method model-type (t :: <&type-variable>) => (res :: <&type>)
   t.^type-variable-contents.model-type;
 end;
 
-define generic type-estimate-object (o :: <object>) => (res :: false-or(<&type>));
-
-define method type-estimate-object (o :: <object>) => (res == #f)
-  #f;
-end;
-
-define method type-estimate-object (o :: <&polymorphic-type-variable>) => (res :: <&type>)
-  o.^type-variable-kind;
-end;
-
-define method type-estimate-object (o :: <&type>) => (res :: <&type>)
-  o; //ha, that's easy! :)
-end;
-
-define method type-estimate-object (o :: <lexical-required-variable>)
- => (res :: <&type>);
-  o.specializer
-end;
-
-define method type-estimate-object (o :: <object-reference>) => (res :: false-or(<&type>))
-  type-estimate-value(o.reference-value);
-end;
-
-define method type-estimate-value (o :: <object>) => (res == #f)
-  #f;
-end;
-
-define method type-estimate-value (t :: <&type>) => (res :: <&type>)
-  t;
-end;
-
-define method type-estimate-value (o :: <integer>) => (res :: <&type>)
-  dylan-value(#"<integer>");
-end;
-
-define method type-estimate-value (s :: <string>) => (res :: <&type>)
-  dylan-value(#"<string>");
-end;
-
-define method type-estimate-value (b :: <boolean>) => (res :: <&type>)
-  dylan-value(#"<boolean>");
-end;
-
-define method type-estimate-value (v :: <vector>) => (res :: <&type>)
-  ^make(<&limited-collection-type>,
-        class: dylan-value(#"<vector>"),
-        element-type:
-          if (v.size == 0)
-            make(<&polymorphic-type-variable>, name: #"v", kind: dylan-value(#"<type>"));
-          else
-            reduce1(^type-union, map(type-estimate-value, v));
-          end);
-end;
-
-//list, floats!
-
 define thread variable *constraints* :: false-or(<stretchy-vector>) = #f;
 define thread variable *graph* :: false-or(<graph>) = #f;
 
@@ -204,10 +178,9 @@ define function add-constraint (c :: <constraint>) => (c :: <constraint>)
   c;
 end;
 
-define constant temporary-type = compose(^type-variable-contents, node-value, lookup-type-variable);
+define constant temporary-type = compose(model-type, node-value, find, lookup-type);
 
 define method type-infer (l :: <&lambda>)
-  //*type-environment* := make(<type-environment>);
   let caches = element($lambda-type-caches, l, default: #f);
   unless (caches)
     caches := pair(make(<type-environment>), make(<graph>));
@@ -216,15 +189,7 @@ define method type-infer (l :: <&lambda>)
   dynamic-bind(*constraints* = make(<stretchy-vector>),
                *type-environment* = caches.head,
                *graph* = caches.tail)
-    if (instance?(l.^function-signature, <&polymorphic-signature>))
-      do(method(x)
-          let te = make(<&top-type>); //x.^type-variable-kind
-          debug-types(#"new-type-variable", x, x.^type-variable-temporary, te);
-          *type-environment*[x] := make(<node>, graph: *graph*, value: x);
-          //add constraint with te
-        end, l.^function-signature.^signature-type-variables);
-    end;
-    do(lookup-type-variable, l.parameters);
+    do(lookup-type, l.parameters);
     for (t in l.environment.temporaries)
       if (~empty?(t.assignments))
         maybe-add-variable-constraints(t);
@@ -271,16 +236,33 @@ end;
 define function more-specific? (sig1 :: <&signature>, sig2 :: <&signature>) => (result :: <boolean>)
   let val1 = sig1.^signature-required-values;
   let val2 = sig2.^signature-required-values;
-  (val1.size < val2.size) | any?(\~=, val1, val2)
+  (val1.size < val2.size) | any?(complement(^type-equivalent?), val1, val2)
 end;
 
-define generic convert-type-to-signature (old :: false-or(<&signature>), params :: <collection>, values :: <&type>)
+define function transform-collection-to-fixed-rest
+    (c :: <collection>) => (fixed :: <collection>, rest? :: <boolean>)
+  if (c.size > 0 & instance?(last(c), <&rest-type>))
+    values(copy-sequence(c, end: c.size - 1), #t)
+  else
+    values(c, #f)
+  end;
+end;
+
+define generic convert-type-to-signature
+ (old :: false-or(<&signature>), params :: <collection>, values :: type-union(<collection>, <&type>))
  => (signature :: <&signature>);
 
 define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, values :: <&type>)
  => (signature :: <&signature>)
-  let (fixed, rest?) = convert-values(values);
   let param = map(specializer, parameters);
+  ^make(<&signature>, required: param, number-required: param.size,
+        values: vector(values), number-values: 1, rest?: #f);
+end;
+
+define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, vals :: <collection>)
+ => (signature :: <&signature>)
+  let param = map(specializer, parameters);
+  let (fixed, rest?) = transform-collection-to-fixed-rest(vals);
   ^make(<&signature>, required: param, number-required: param.size,
         values: fixed, number-values: fixed.size, rest?: rest?);
 end;
@@ -288,7 +270,15 @@ end;
 define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <&type>)
  => (signature :: <&signature>)
   //we can also upgrade <&signature> -> <&polymorphic-signature>
-  let (fixed, rest?) = convert-values(values);
+  ^make(<&signature>, required: old-sig.^signature-required-arguments,
+        number-required: old-sig.^signature-number-required,
+        values: vector(values), number-values: 1, rest?: #f);
+end;
+
+define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <collection>)
+ => (signature :: <&signature>)
+  //we can also upgrade <&signature> -> <&polymorphic-signature>
+  let (fixed, rest?) = transform-collection-to-fixed-rest(values);
   ^make(<&signature>, required: old-sig.^signature-required-arguments,
         number-required: old-sig.^signature-number-required,
         values: fixed, number-values: fixed.size, rest?: rest?);
@@ -297,30 +287,21 @@ end;
 define method convert-type-to-signature (old-sig :: <&polymorphic-signature>, parameters :: <collection>, values :: <&type>)
  => (signature :: <&signature>)
   //or add/remove type variables...
-  let (fixed, rest?) = convert-values(values);
+  ^make(<&signature>, required: old-sig.^signature-required-arguments,
+        number-required: old-sig.^signature-number-required,
+        values: vector(values), number-values: 1, rest?: #f,
+        type-variables: old-sig.^signature-type-variables);
+end;
+
+define method convert-type-to-signature (old-sig :: <&polymorphic-signature>, parameters :: <collection>, values :: <collection>)
+ => (signature :: <&signature>)
+  let (fixed, rest?) = transform-collection-to-fixed-rest(values);
+  //or add/remove type variables...
   ^make(<&signature>, required: old-sig.^signature-required-arguments,
         number-required: old-sig.^signature-number-required,
         values: fixed, number-values: fixed.size, rest?: rest?,
         type-variables: old-sig.^signature-type-variables);
 end;
-
-define generic convert-values (v :: <&type>) => (fixed :: <simple-object-vector>, rest? :: <boolean>);
-
-define method convert-values (value :: <&type>)
- => (fixed :: <simple-object-vector>, rest? :: <boolean>)
-  values(vector(value), #f);
-end;
-
-define method convert-values (value :: <&tuple-type>)
- => (fixed :: <simple-object-vector>, rest? :: <boolean>)
-  values(map(node-value, value.^tuple-types), #f)
-end;
-
-define method convert-values (value :: <&tuple-type-with-optionals>)
- => (fixed :: <simple-object-vector>, rest? :: <boolean>)
-  values(map(node-value, value.^tuple-types), #t)
-end;
-
 
 define generic maybe-add-variable-constraints (t :: <temporary>) => ();
 
@@ -335,7 +316,7 @@ define method maybe-add-variable-constraints (t :: <lexical-specialized-variable
       add-constraint(make(<equality-constraint>,
                           origin: t,
                           left: spec.lookup-type,
-                          right: ass.temporary.lookup-type-variable));
+                          right: ass.temporary.lookup-type));
     end;
   end;
 end;
@@ -345,7 +326,7 @@ define generic infer-computation-types (c :: <computation>) => ();
 define method infer-computation-types (c :: <computation>) => ()
   debug-types(#"relayouted");
   debug-types(#"highlight", c);
-  c.temporary & lookup-type-variable(c.temporary);
+  c.temporary & lookup-type(c.temporary);
 end;
 
 define method infer-computation-types (c :: <temporary-transfer-computation>) => ()
@@ -354,7 +335,7 @@ define method infer-computation-types (c :: <temporary-transfer-computation>) =>
   add-constraint(make(<equality-constraint>,
                       origin: c,
                       left: c.computation-value.lookup-type,
-                      right: c.temporary.lookup-type-variable));
+                      right: c.temporary.lookup-type));
 end;
 
 define method infer-computation-types (c :: <check-type>) => ()
@@ -362,7 +343,7 @@ define method infer-computation-types (c :: <check-type>) => ()
   add-constraint(make(<equality-constraint>,
                       origin: c,
                       left: c.type.lookup-type,
-                      right: c.temporary.lookup-type-variable));
+                      right: c.temporary.lookup-type));
 end;
 
 define method infer-computation-types (c :: <values>) => ()
@@ -381,7 +362,7 @@ define method infer-computation-types (c :: <values>) => ()
   add-constraint(make(<equality-constraint>,
                       origin: c,
                       left: l,
-                      right: c.temporary.lookup-type-variable));
+                      right: c.temporary.lookup-type));
 end;
 
 define method infer-computation-types (c :: <phi-node>) => ()
@@ -391,7 +372,7 @@ define method infer-computation-types (c :: <phi-node>) => ()
                       origin: c,
                       left: ^type-union(c.phi-left-value.temporary-type,
                                         c.phi-right-value.temporary-type).lookup-type,
-                      right: c.temporary.lookup-type-variable));
+                      right: c.temporary.lookup-type));
 end;
 
 define method infer-computation-types (c :: <binary-merge>) => ()
@@ -402,13 +383,13 @@ define method infer-computation-types (c :: <binary-merge>) => ()
                         origin: c,
                         left: ^type-union(c.merge-left-value.temporary-type,
                                           c.merge-right-value.temporary-type).lookup-type,
-                        right: c.temporary.lookup-type-variable));
+                        right: c.temporary.lookup-type));
   elseif (c.merge-left-value | c.merge-right-value)
     let v = c.merge-left-value | c.merge-right-value;
     add-constraint(make(<equality-constraint>,
                         origin: c,
                         left: v.temporary-type.lookup-type,
-                        right: c.temporary.lookup-type-variable));
+                        right: c.temporary.lookup-type));
   end;
 end;
 
@@ -476,7 +457,7 @@ define method infer-computation-types (c :: <loop>) => ()
                  *type-environment* = make(<type-environment>))
       //insert types of temporaries into environment
       do(method(x)
-           let tv = x.head.lookup-type-variable;
+           let tv = x.head.lookup-type;
            add-constraint(make(<equality-constraint>,
                                origin: tv,
                                left: x.tail.lookup-type,
@@ -487,7 +468,7 @@ define method infer-computation-types (c :: <loop>) => ()
       //collect phi and loop-merge nodes
       for (type in types, node = cfg-first then node.next-computation)
         //assign "outer" types to temporaries
-        let tv = lookup-type-variable(node.temporary);
+        let tv = lookup-type(node.temporary);
         add-constraint(make(<equality-constraint>,
                             origin: tv,
                             left: type.lookup-type,
@@ -529,7 +510,7 @@ define method infer-computation-types (c :: <loop>) => ()
       add-constraint(make(<equality-constraint>,
                           origin: node,
                           left: type.lookup-type,
-                          right: node.extract-argument-type.lookup-type-variable));
+                          right: node.extract-argument-type.lookup-type));
     end;
   end;
 end;
@@ -550,7 +531,7 @@ define method infer-computation-types (c :: <stack-vector>) => ()
   add-constraint(make(<equality-constraint>,
                       origin: c,
                       left: make(<&tuple-type>, tuples: map(lookup-type, c.arguments)).lookup-type,
-                      right: t.lookup-type-variable));
+                      right: t.lookup-type));
 end;
 
 define method infer-computation-types (c :: <make-closure>) => ()
@@ -559,7 +540,7 @@ define method infer-computation-types (c :: <make-closure>) => ()
                       origin: c,
                       left: make(<&limited-function-type>,  //or computation-signature-value? - is #f when sig is statically known
                                  signature: c.computation-closure-method.^function-signature).lookup-type,
-                      right: c.temporary.lookup-type-variable));
+                      right: c.temporary.lookup-type));
 end;
 
 define generic get-function-object (o :: <object>)
@@ -634,13 +615,13 @@ define function create-arrow-and-constraint
                               arguments: specializers.gen-tuple,
                               values: vals.gen-tuple));
 
-  let args = map(lookup-type-variable, c.arguments);
+  let args = map(lookup-type, c.arguments);
 
   let vals
     = if (c.temporary)
-        c.temporary.lookup-type-variable;
+        c.temporary.lookup-type;
       else
-        make(<&rest-type>).lookup-type;
+        make(<&rest-type>).lookup-type; //XXX: this is wrong!
       end;
 
   let right = make(<node>, graph: *graph*,
@@ -674,7 +655,7 @@ define function initial-type-constraints (sig :: <&signature>)
   do(method(x)
       remove-key!(*type-environment*, x);
       x.lookup-type;
-    end, concatenate(sig.^signature-type-variables, sig.^signature-required-arguments));
+    end, sig.^signature-required-arguments);
 end;
 
 define function constrain-type-variables

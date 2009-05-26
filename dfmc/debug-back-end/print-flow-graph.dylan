@@ -44,11 +44,21 @@ define compiler-sideways method print-object
 end method;
 
 define compiler-sideways method print-object (o :: <lexical-specialized-variable>, stream :: <stream>) => ()
-  format(stream, "%s (%=)", o.name, o.specializer);
+  let spec = if (slot-initialized?(o, specializer) & o.specializer & o.specializer ~= dylan-value(#"<object>"))
+               format-to-string(" (%=)", o.specializer);
+             else
+               ""
+             end;
+  format(stream, "%s%s", o.name, spec);
 end;
 
 define compiler-sideways method print-object (o :: <cell>, stream :: <stream>) => ()
-  format(stream, "%s (%=)", o.name, slot-initialized?(o, %cell-type) & o.cell-type | #f);
+  let spec = if (slot-initialized?(o, %cell-type) & o.cell-type & o.cell-type ~= dylan-value(#"<object>"))
+                 format-to-string(" (%=)", o.cell-type)
+               else
+                 ""
+               end;
+  format(stream, "%s%s", o.name, spec);
 end;
 
 define compiler-sideways method print-object (o :: <temporary>, stream :: <stream>) => ()

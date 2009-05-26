@@ -169,17 +169,17 @@ end method;
 define constant $top-string = "<top>";
 
 define compiler-sideways method print-object (o :: <&top-type>, stream :: <stream>) => ()
-  format(stream, "{<&top-type> %s}", $top-string);
+  format(stream, "%s", $top-string);
 end method;
 
 define constant $bottom-string = "<bottom>";
 
 define compiler-sideways method print-object (o :: <&bottom-type>, stream :: <stream>) => ()
-  format(stream, "{& %s}", $bottom-string);
+  format(stream, "%s", $bottom-string);
 end method;
 
 define compiler-sideways method print-object (o :: <&class>, stream :: <stream>) => ()
-  format(stream, "{& %s}", o.debug-string);
+  format(stream, "%s", o.debug-string);
 end method;
 
 define compiler-sideways method print-object (o :: <&slot-descriptor>, stream :: <stream>) => ()

@@ -691,7 +691,7 @@ define function parse-type-variable-list (fragment :: <fragment>) => (result :: 
         => collect-first-into
              (required, make(<typed-required-variable-spec>,
                              variable-name:   name,
-                             type-expression: as-expression( #{ <type> })));
+                             type-expression: as-expression( #{ <top> })));
       { ?:name :: ?type:expression, ?parameters }
         => collect-first-into
              (required, make(<typed-required-variable-spec>,

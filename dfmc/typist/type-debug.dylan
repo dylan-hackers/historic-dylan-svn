@@ -22,6 +22,10 @@ define method get-id (l :: <&tuple-type-with-optionals>)
   #"tuple-rest"
 end;
 
+define method get-id (l :: <&limited-coll-type>)
+  #"limited-collection"
+end;
+
 define method get-id (o :: <object-reference>)
   o.temporary-id;
 end;
@@ -35,11 +39,6 @@ define constant $tv-id-map :: <table> = make(<table>);
 define method get-id (tv :: <&type-variable>)
   element($tv-id-map, tv, default: #f) |
     ($tv-id-map[tv] := next-computation-id());
-end;
-
-define method get-id (ptv :: <&polymorphic-type-variable>)
- element($tv-id-map, ptv, default: #f) |
-   ($tv-id-map[ptv] := next-computation-id())
 end;
 
 define method get-id (n :: <node>)

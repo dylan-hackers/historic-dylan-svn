@@ -12,6 +12,7 @@ define library dfmc-visualization-app
   use dfmc-environment-projects;
   use dfmc-core;
   use dfmc-management;
+  use dfmc-typist;
 
   use dfmc-visualization;
 end;
@@ -32,6 +33,7 @@ define module dfmc-visualization-app
   use dfmc-environment-projects;
   use dfmc-core;
   use dfmc-management;
+  use dfmc-typist;
 
   use dfmc-visualization;
 end;
