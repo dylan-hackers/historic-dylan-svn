@@ -371,6 +371,9 @@ define method transform-uris
     end;
   let target = make(as);
   if (~empty?(reference.uri-scheme))
+    // If the reference uri has a scheme then it is fully-qualified and
+    // is used in its entirety, except for the fragment.  (If <uri> were
+    // immutable we could just return the original.)
     target.uri-scheme := reference.uri-scheme;
     target.uri-userinfo := reference.uri-userinfo;
     target.uri-host := reference.uri-host;
@@ -394,9 +397,8 @@ define method transform-uris
                               reference.uri-query
                             end;
       else
-        target.uri-path := if (~empty?(reference.uri-path)
-                                 // what's this for???  --cgay
-                                 & first(reference.uri-path) = "")
+        target.uri-path := if ( // what's this for???  --cgay
+                               first(reference.uri-path) = "")
                              remove-dot-segments(reference.uri-path)
                            else
                              remove-dot-segments(merge(base, reference))

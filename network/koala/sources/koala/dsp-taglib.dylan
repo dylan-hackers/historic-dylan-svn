@@ -60,7 +60,7 @@ define tag get in dsp
     (name :: <string>, context, tag, raw :: <boolean>)
   let value = get-context-value(name, context, tag: tag);
   if (value)
-    let string = as(<string>, value);
+    let string = format-to-string("%s", value);
     output("%s", iff(raw, string, quote-html(string)));
   end;
 end tag get;
