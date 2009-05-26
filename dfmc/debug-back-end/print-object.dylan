@@ -60,10 +60,10 @@ define compiler-sideways method print-object (o :: <&object>, stream :: <stream>
   if (ld)
     with-library-context (ld)
       if (o.name-if-named)
-	format(stream, "{model-object %s :: %s}",
+	format(stream, "%s :: %s",
 	       o.name-if-named, o.&object-class.debug-string);
       else
-	format(stream, "{model-object :: %s}", o.&object-class.debug-string);
+	format(stream, "%s", o.&object-class.debug-string);
       end;
     end;
   else // not enough info to do &object-class...

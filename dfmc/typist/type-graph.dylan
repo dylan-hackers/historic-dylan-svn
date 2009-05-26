@@ -279,8 +279,12 @@ define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolea
       u.node-rank := max(u.node-rank, v.node-rank) + 1;
       v.representative := u;
     elseif (is-subtype?(u, v))
-      u.node-rank := max(u.node-rank, v.node-rank) + 1;
-      v.representative := u;
+      if (is-subtype?(v, u) & v.node-rank > u.node-rank)
+        u.representative := v;
+      else
+        u.node-rank := max(u.node-rank, v.node-rank) + 1;
+        v.representative := u;
+      end;
     elseif (is-subtype?(v, u))
       v.node-rank := max(u.node-rank, v.node-rank) + 1;
       u.representative := v;
