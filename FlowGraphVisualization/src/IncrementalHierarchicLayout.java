@@ -378,9 +378,10 @@ public class IncrementalHierarchicLayout
 	private int tvindex = 0;
 	
 	public void createTypeVariable (int id, int temp, String type) {
-		Node tv = createTypeNodeWithLabel(tvnames[tvindex] + " (" + type + ") [" + temp + "]" , id);
+		Node tv = createTypeNodeWithLabel(tvnames[tvindex] + " [" + temp + "]" , id);
 		tvindex = (tvindex + 1) % tvnames.length;
-		tv_temp_map.put(tv, int_node_map.get(temp));
+		if (temp != 0)
+			tv_temp_map.put(tv, int_node_map.get(temp));
 		//NodeRealizer nr = typegraph.getRealizer(tv);
 		//NodeRealizer tr = graph.getRealizer(int_node_map.get(temp));
 		//nr.setLocation(tr.getX(), tr.getY());

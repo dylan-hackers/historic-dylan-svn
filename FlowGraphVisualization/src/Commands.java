@@ -308,18 +308,20 @@ public final class Commands {
 	
 	private static boolean changetype (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
 		assert(answer.size() == 4);
-		Node n = getNode(ihl, answer, 2, false);
-		assert(answer.get(3) instanceof String);
-		NodeLabel nl = ihl.graph.getRealizer(n).getLabel();
-		String old = nl.getText();
-		String newtext = ((String)answer.get(3)).replace(':', ' ');
-		//filter number out
-		int start = old.indexOf(':', old.indexOf(':') + 1) + 1;
-		nl.setText(old.substring(0, start) + newtext);
-		ihl.graph.getRealizer(n).setWidth(nl.getWidth());
-		//System.out.println("change type " + old + " => " + (String)answer.get(3));
-		demo.view.repaint();
-		//ihl.isok = false;
+		Node n = getNode(ihl, answer, 2, true);
+		if (n != null) {
+			assert(answer.get(3) instanceof String);
+			NodeLabel nl = ihl.graph.getRealizer(n).getLabel();
+			String old = nl.getText();
+			String newtext = ((String)answer.get(3)).replace(':', ' ');
+			//filter number out
+			int start = old.indexOf(':', old.indexOf(':') + 1) + 1;
+			nl.setText(old.substring(0, start) + newtext);
+			ihl.graph.getRealizer(n).setWidth(nl.getWidth());
+			//System.out.println("change type " + old + " => " + (String)answer.get(3));
+			demo.view.repaint();
+			//ihl.isok = false;
+		}
 		return false;
 	}
         
@@ -399,8 +401,10 @@ public final class Commands {
 		if (answer.get(4) instanceof Integer)
 			t = Integer.toString((Integer)answer.get(4));
 		else {
-			assert(answer.get(4) instanceof String);
-			t = (String)answer.get(4);
+			if (answer.get(4) instanceof String)
+				t = (String)answer.get(4);
+			else if (answer.get(4) instanceof Symbol)
+				t = ((Symbol)answer.get(4)).toString();
 		}
 		ihl.createTypeVariable((Integer)answer.get(2), (Integer)answer.get(3), t);
 		ihl.typechanged = true;
