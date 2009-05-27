@@ -143,7 +143,10 @@ end;
 define method solve-constraint
     (t1 :: <&tuple-type-with-optionals>, t2 :: <&tuple-type-with-optionals>,
      u :: <node>, v :: <node>, push-constraint :: <function>) => (disconnect? :: <boolean>)
-  next-method();
+  //next-method(); <- ambiguous!
+  for (x in u.successors, y in v.successors)
+    push-constraint(x, y);
+  end;
   let (larger, smaller) = if (u.successors.size > v.successors.size) values(u, v) else values(v, u) end;
   let tts = smaller.node-value.^tuple-types;
   let old-size = tts.size;

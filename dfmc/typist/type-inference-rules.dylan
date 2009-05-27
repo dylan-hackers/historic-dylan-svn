@@ -147,13 +147,13 @@ define method model-type (t :: <&tuple-type>) => (t :: type-union(<&type>, <coll
   end;
 end;
 
-/* define method model-type (t :: <&tuple-type-with-optionals>) => (t :: <collection>)
+define method model-type (t :: <&tuple-type-with-optionals>) => (t :: <collection>)
   let fixed = next-method();
   unless (instance?(fixed, <collection>))
     fixed := vector(fixed);
   end;
   concatenate(fixed, vector(make(<&rest-type>)))
-end; */
+end;
 
 define method model-type (t :: <&limited-coll-type>) => (t :: <&type>)
   make(<&limited-collection-type>,

@@ -28,6 +28,22 @@ define method arrow? (tv :: <&type-variable>) => (res :: <boolean>)
   tv.^type-variable-contents.arrow?
 end;
 
+define method rest-value? (n :: <node>) => (res :: <boolean>)
+  n.find.node-value.rest-value?;
+end;
+
+define method rest-value? (tv :: <&type-variable>) => (res :: <boolean>)
+  tv.^type-variable-contents.rest-value?;
+end;
+
+define method rest-value? (type :: <&type>) => (res == #f)
+  #f;
+end;
+
+define method rest-value? (type  :: <&tuple-type-with-optionals>) => (res == #t)
+  #t;
+end;
+
 
 define constant <type-cache>     
   = limited(<table>, of: #f);
