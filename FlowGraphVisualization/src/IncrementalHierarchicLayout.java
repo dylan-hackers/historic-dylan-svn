@@ -136,6 +136,8 @@ public class IncrementalHierarchicLayout
 		// make it look nice
 		EdgeRealizer defaultER = graph.getDefaultEdgeRealizer();
 		defaultER.setArrow(Arrow.STANDARD);
+		EdgeRealizer edefaultER = typegraph.getDefaultEdgeRealizer();
+		edefaultER.setArrow(Arrow.STANDARD);
 		if (scf != null)
 			scf.dispose();
 		if (typescf != null)

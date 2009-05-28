@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import y.base.Edge;
 import y.base.EdgeCursor;
 import y.base.Node;
+import y.view.Arrow;
 import y.view.EdgeRealizer;
 import y.view.GenericEdgeRealizer;
 import y.view.LineType;
@@ -75,19 +76,17 @@ public final class Commands {
 		if (key.isEqual("new-type-node"))
 			return new_type_node(ihl, answer);
 		if (key.isEqual("connect"))
-			return connect(ihl, answer);
+			return connect(ihl, answer, demo);
 		if (key.isEqual("disconnect"))
-			return disconnect(ihl, answer);
+			return disconnect(ihl, answer, demo);
 		if (key.isEqual("remove-node"))
 			return removetypenode(ihl, answer, false);
-		if (key.isEqual("representative"))
-			return colornode(ihl, answer, demo, true);
-		if (key.isEqual("not-representative"))
-			return colornode(ihl, answer, demo, false);
 		if (key.isEqual("highlight-constraint"))
 			return highlightedge(ihl, answer, demo, true);
 		if (key.isEqual("unhighlight-constraint"))
 			return highlightedge(ihl, answer, demo, false);
+		if (key.isEqual("type-relation"))
+			return typerelation(ihl, answer, demo);
 		System.out.println("shouldn't be here");
 		return false;
 	}
@@ -431,6 +430,18 @@ public final class Commands {
 		return false;
 	}
 	
+	private static boolean typerelation (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
+		assert(answer.size() == 4);
+		Node temp = getNode(ihl, answer, 3, false);
+		Node type = getNode(ihl, answer, 2, false);
+		ihl.tv_temp_map.put(type, temp);
+		NodeLabel n = ihl.typegraph.getRealizer(type).getLabel();
+		n.setText(n.getText() + " [" + (Integer)answer.get(3) + "]");
+		ihl.typegraph.getRealizer(type).setWidth(n.getWidth());
+		demo.typeview.repaint();
+		return false;
+	}
+	
 	private static boolean removetypenode (IncrementalHierarchicLayout ihl, ArrayList answer, boolean mayfail) {
 		assert(answer.size() == 3);
 		Node del = getNode(ihl, answer, 2, mayfail);
@@ -443,53 +454,54 @@ public final class Commands {
 		return false;
 	}
 	
-	private static boolean connect (IncrementalHierarchicLayout ihl, ArrayList answer) {
+	private static boolean connect (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
 		assert(answer.size() == 5);
 		Node from = getNode(ihl, answer, 2, false);
 		Node to = getNode(ihl, answer, 3, false);
-		ihl.typegraph.createEdge(from, to);
 		EdgeRealizer er = new GenericEdgeRealizer(ihl.typegraph.getDefaultEdgeRealizer());
-		if (((String)answer.get(4)).equalsIgnoreCase("constraint"))
+		assert(answer.get(4) instanceof Symbol);
+		Symbol type = (Symbol)answer.get(4); 
+		if (type.isEqual("<constraint-edge>")) {
 			er.setLineColor(Color.GREEN);
+			er.setArrow(Arrow.NONE);
+		} else if (type.isEqual("<representative-edge>"))
+			er.setLineColor(Color.red);
 		else
 			er.setLineColor(Color.BLUE);
-		ihl.typegraph.setRealizer(ihl.typegraph.lastEdge(), er);
-		ihl.typescf.addPlaceNodeBelowConstraint(from, to);
-		ihl.typechanged = true;
-		return false;
-	}
-	
-	private static boolean disconnect (IncrementalHierarchicLayout ihl, ArrayList answer) {
-		assert(answer.size() == 4);
-		Node from = getNode(ihl, answer, 2, false);
-		Node to = getNode(ihl, answer, 3, false);
-		for (EdgeCursor ec = from.outEdges(); ec.ok(); ec.next())
-			if (ec.edge().target() == to)
-				ihl.typegraph.removeEdge(ec.edge());
-		ihl.typechanged = true;
-		return false;
-	}
-	
-	private static boolean colornode (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo, boolean light) {
-		Node highlightnew = getNode(ihl, answer, 2, false);
-		Color fill = null; //ihl.typegraph.getDefaultNodeRealizer().getFillColor();
-		if (light)
-			fill = new Color(0, 0xff, 0, 0x66);
-		else
-			fill = new Color(0xff, 0xff, 0xff, 0x66);
-		ihl.typegraph.getRealizer(highlightnew).setFillColor(fill);
+		ihl.typegraph.createEdge(from, to, er);
+		if (! (type.isEqual("<representative-edge>")))
+			ihl.typescf.addPlaceNodeBelowConstraint(from, to);
+		//ihl.typechanged = true;
 		demo.typeview.repaint();
 		return false;
-	} 
+	}
+	
+	private static boolean disconnect (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
+		assert(answer.size() == 5);
+		Node from = getNode(ihl, answer, 2, false);
+		Node to = getNode(ihl, answer, 3, false);
+		assert(answer.get(4) instanceof Symbol);
+		Symbol type = (Symbol)answer.get(4);
+		Color nc = Color.BLUE;
+		if (type.isEqual("<constraint-edge>"))
+			nc = Color.green;
+		else if (type.isEqual("<representative-edge>"))
+			nc = Color.red;
+		for (EdgeCursor ec = from.outEdges(); ec.ok(); ec.next())
+			if (ec.edge().target() == to)
+				if (ihl.typegraph.getRealizer(ec.edge()).getLineColor() == nc)
+					ihl.typegraph.removeEdge(ec.edge());
+		//ihl.typechanged = true;
+		demo.typeview.repaint();
+		return false;
+	}
 	
 	private static boolean highlightedge (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo, boolean thick) {
 		Node from = getNode(ihl, answer, 2, false);
 		Node to = getNode(ihl, answer, 3, false);
-		LineType lt = null; //that's what I really like about java!
+		LineType lt = LineType.LINE_1;
 		if (thick)
 			lt = LineType.LINE_3;
-		else
-			lt = LineType.LINE_1;
 		for (EdgeCursor ec = from.outEdges(); ec.ok(); ec.next())
 			if (ec.edge().target() == to)
 				ihl.typegraph.getRealizer(ec.edge()).setLineType(lt);
