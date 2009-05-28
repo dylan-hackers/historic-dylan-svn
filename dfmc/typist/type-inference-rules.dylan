@@ -43,6 +43,7 @@ define method lookup-type (o :: <object-reference>) => (res :: <node>)
   element(*type-environment*, o, default: #f) |
     begin
       let n = next-method();
+      debug-types(#"type-relation", n, o);
       *type-environment*[o] := n;
     end;
 end;
@@ -628,6 +629,7 @@ define function create-arrow-and-constraint
                    value: make(<&arrow-type>,
                                arguments: args.gen-tuple,
                                values: vector(vals).gen-tuple));
+  debug-types(#"type-relation", right, c);
   add-constraint(make(<equality-constraint>, origin: c, left: left, right: right));
 end;
 

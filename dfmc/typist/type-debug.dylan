@@ -53,6 +53,10 @@ define method get-id (i :: <integer>)
   i
 end;
 
+define method get-id (s :: <symbol>)
+  s
+end;
+
 define method get-id (o :: <object>)
   format-to-string("%=", o);
 end;

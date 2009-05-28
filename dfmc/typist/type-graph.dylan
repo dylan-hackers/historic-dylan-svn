@@ -14,7 +14,6 @@ define class <node> (<object>)
   constant slot node-value :: <&type>,
     required-init-keyword: value:;
   slot node-rank :: <integer> = 0;
-  slot %representative :: <node>;
   constant slot node-id :: <integer>,
     init-function: next-computation-id;
 end;
@@ -23,34 +22,41 @@ define method make (class == <node>, #rest init-args, #key, #all-keys)
  => (res :: <node>)
   let n = next-method();
   debug-types(#"new-type-node", n, n.node-value);
-  n.%representative := n;
   add!(n.graph.nodes, n);
   maybe-setup-connections(n, n.node-value);
-  //find representative!
   n;
 end;
 
-define method representative (n :: <node>) => (res :: <node>)
-  n.%representative;
-end;
-
-define method representative-setter (new :: <node>, n :: <node>) => (res :: <node>)
-  let old-value = n.representative;
-  if (new ~= old-value)
-    if (old-value == n)
-      debug-types(#"not-representative", n);
-    end;
-    if (new == n)
-      debug-types(#"representative", n);
-    end;
-    n.%representative := new;
+define function representative (n :: <node>) => (res :: <node>)
+  let rep = choose(rcurry(instance?, <representative-edge>), n.out-edges);
+  if (rep.size == 1)
+    rep.first.edge-target;
+  elseif (rep.size == 0)
+    n
   else
-    new
+    error("multiple representative edges")
   end;
 end;
 
+define function representative-setter (new :: <node>, n :: <node>) => (res :: <node>)
+  let old = n.representative;
+  unless (old == new)
+    unless (old == n)
+      remove-edge(choose(rcurry(instance?, <representative-edge>), n.out-edges).first);
+    end;
+    connect(n, new, edge-type: <representative-edge>);
+    let in-rep = choose(rcurry(instance?, <representative-edge>), n.in-edges);
+    map(compose(curry(representative-setter, new), edge-source), in-rep);
+  end;
+  new;
+end;
+
+define function representative? (n :: <node>) => (result :: <boolean>)
+  any?(rcurry(instance?, <representative-edge>), n.in-edges);
+end;
+
 define function successors (n :: <node>) => (res :: <collection>)
-  map(edge-target, choose(compose(\~, constraint-edge?), n.out-edges));
+  map(edge-target, choose(rcurry(instance?, <graph-edge>), n.out-edges));
 end;
 
 define generic maybe-setup-connections (n :: <node>, t :: <&type>);
@@ -76,45 +82,48 @@ define method maybe-setup-connections (n :: <node>, c :: <&limited-coll-type>)
   connect(n, c.^coll-element-type);
 end;
 
-define class <edge> (<object>)
+define abstract class <edge> (<object>)
   constant slot graph :: <graph>, required-init-keyword: graph:;
   constant slot edge-source :: <node>, required-init-keyword: source:;
   constant slot edge-target :: <node>, required-init-keyword: target:;
-  constant slot constraint-edge? :: <boolean> = #f, init-keyword: constraint:;
 end;
 
-define method make (class == <edge>, #rest init-args, #key graph, source, target, #all-keys)
- => (res :: <edge>)
-  let e = next-method();
-  add!(graph.edges, e);
-  add!(source.out-edges, e);
-  add!(target.in-edges, e);
-  debug-types(#"connect", e.edge-source, e.edge-target, (e.constraint-edge? & "constraint") | "");
-  e;
+define class <graph-edge> (<edge>)
 end;
 
-define function connect (source :: <node>, target :: <node>) => ()
+define class <constraint-edge> (<edge>)
+end;
+
+define class <representative-edge> (<edge>)
+end;
+
+define method initialize (edge :: <edge>, #rest init-args, #key, #all-keys)
+  next-method();
+  add!(edge.graph.edges, edge);
+  add!(edge.edge-source.out-edges, edge);
+  add!(edge.edge-target.in-edges, edge);
+  debug-types(#"connect", edge.edge-source, edge.edge-target,
+              as(<symbol>, edge.object-class.debug-name));
+end;
+
+define function connect (source :: <node>, target :: <node>, #key edge-type = <graph-edge>) => ()
   unless (source.graph == target.graph)
     error("source and target have to be in the same graph!");
   end;
-  make(<edge>, graph: source.graph, source: source, target: target);
+  make(edge-type, graph: source.graph, source: source, target: target);
 end;
 
-define function constraint-connect (source :: <node>, target :: <node>) => ()
-  unless (source.graph == target.graph)
-    error("source and target have to be in the same graph!");
-  end;
-  make(<edge>, graph: source.graph, source: source, target: target, constraint: #t);
-end;
-
-define function disconnect (source :: <node>, target :: <node>) => ()
+define function disconnect (source :: <node>, target :: <node>, #key edge-type) => ()
   unless (source.graph == target.graph)
     error("source and target have to be in the same graph!");
   end;
   let e = choose(compose(curry(\=, target), edge-target),
                  source.out-edges);
+  if (edge-type)
+    e := choose(rcurry(instance?, edge-type), e);
+  end;
   if (e.size == 1)
-    remove-edge(e[0]);
+    remove-edge(e.first);
   elseif (e.size == 0)
     error("tried to disconnect %= from %=, which were not connected\n",
           source, target);
@@ -129,7 +138,7 @@ define function remove-edge (edge :: <edge>) => ()
   remove!(source.out-edges, edge);
   remove!(target.in-edges, edge);
   remove!(source.graph.edges, edge);
-  debug-types(#"disconnect", source, target);
+  debug-types(#"disconnect", source, target, as(<symbol>, edge.object-class.debug-name));
 end;
 define function degree (n :: <node>) => (int :: <integer>)
   n.out-edges.size + n.in-edges.size;

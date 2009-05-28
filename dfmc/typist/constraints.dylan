@@ -14,7 +14,7 @@ end;
 
 define method make (class :: subclass(<constraint>), #rest init-args, #key, #all-keys) => (res :: <constraint>)
   let c = next-method();
-  constraint-connect(c.left-hand-side, c.right-hand-side);
+  connect(c.left-hand-side, c.right-hand-side, edge-type: <constraint-edge>);
   c;
 end;
 
@@ -43,13 +43,13 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
       let vte = v.node-value;
       graph-union(u, v, flag);
       block()
-        solve-constraint(ute, vte, u, v, push-cs)
-          & disconnect(constraint.left-hand-side, constraint.right-hand-side);
+        solve-constraint(ute, vte, u, v, push-cs);
       exception (e :: <error>)
         error("constraint %= cannot be satisfied", constraint);
       end;
     end;
     debug-types(#"unhighlight-constraint", constraint.left-hand-side, constraint.right-hand-side);
+    disconnect(constraint.left-hand-side, constraint.right-hand-side, edge-type: <constraint-edge>);
   end;
   let quotient-graph = create-quotient-graph(graph);
   if (acyclic?(quotient-graph))
@@ -77,40 +77,37 @@ end;
 
 define generic solve-constraint
  (t1 :: <&type>, t2 :: <&type>, u :: <node>, v :: <node>, push-constraint :: <function>)
- => (disconnect? :: <boolean>);
+ => ();
 
 define method solve-constraint
  (t1 :: <&arrow-type>, t2 :: <&arrow-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
- => (disconnect? :: <boolean>)
+ => ()
   for (u1 in u.successors, v1 in v.successors)
     push-constraint(u1, v1);
   end;
-  #t;
 end;
 
 define method solve-constraint
  (t1 :: <&arrow-type>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
- => (disconnect? :: <boolean>)
+ => ()
   if (u.contains-variables?)
     u.contains-variables? := #f;
     for (u1 in u.successors)
       let w1 = make(<node>, graph: u.graph, value: make(<&top-type>));
       push-constraint(w1, u1);
     end;
-    #t;
   end;
 end;
 
 define method solve-constraint
  (t1 :: <&tuple-type>, t2 :: <&tuple-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
- => (disconnect? :: <boolean>)
+ => ()
   map(push-constraint, u.successors, v.successors);
-  #t;
 end;
 
 define method solve-constraint
     (t1 :: <&tuple-type>, t2 :: <&tuple-type-with-optionals>,
-     u :: <node>, v :: <node>, push-constraint :: <function>) => (disconnect? :: <boolean>)
+     u :: <node>, v :: <node>, push-constraint :: <function>) => ()
   next-method();
   let tts = t2.^tuple-types;
   let orig-size = tts.size;
@@ -121,12 +118,11 @@ define method solve-constraint
   end;
   t2.^tuple-types := tts;
   update-connections(v, orig-size);
-  #t;
 end;
 
 define method solve-constraint
     (t1 :: <&tuple-type-with-optionals>, t2 :: <&tuple-type>,
-     u :: <node>, v :: <node>, push-constraint :: <function>) => (disconnect? :: <boolean>)
+     u :: <node>, v :: <node>, push-constraint :: <function>) => ()
   next-method();
   let tts = t1.^tuple-types;
   let orig-size = tts.size;
@@ -137,12 +133,11 @@ define method solve-constraint
   end;
   t1.^tuple-types := tts;
   update-connections(u, orig-size);
-  #t;
 end;
 
 define method solve-constraint
     (t1 :: <&tuple-type-with-optionals>, t2 :: <&tuple-type-with-optionals>,
-     u :: <node>, v :: <node>, push-constraint :: <function>) => (disconnect? :: <boolean>)
+     u :: <node>, v :: <node>, push-constraint :: <function>) => ()
   //next-method(); <- ambiguous!
   for (x in u.successors, y in v.successors)
     push-constraint(x, y);
@@ -158,13 +153,12 @@ define method solve-constraint
   smaller.node-value.^tuple-types := tts;
   update-connections(smaller, old-size);
   //push-constraint for &rest == &rest?
-  #t;
 end;
 
 
 define method solve-constraint
  (t1 :: <&tuple-type>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
- => (disconnect? :: <boolean>)
+ => ()
   if (u.contains-variables?)
     format-out("solving tuple == top\n");
     u.contains-variables? := #f;
@@ -172,26 +166,23 @@ define method solve-constraint
       let w1 = make(<node>, graph: u.graph, value: make(<&top-type>));
       push-constraint(u1, w1);
     end;
-    #t;
   end;
 end;
 
 define method solve-constraint
   (t1 :: <&limited-coll-type>, t2 :: <&limited-coll-type>,
-   u :: <node>, v :: <node>, push-constraint :: <function>) => (disconnect? :: <boolean>)
+   u :: <node>, v :: <node>, push-constraint :: <function>) => ()
   push-constraint(t1.^coll-class, t2.^coll-class);
   push-constraint(t1.^coll-element-type, t2.^coll-element-type);
-  #t;
 end;
 
 define method solve-constraint
   (t1 :: <&limited-coll-type>, t2 :: <&top-type>,
-   u :: <node>, v :: <node>, push-constraint :: <function>) => (disconnect? :: <boolean>)
+   u :: <node>, v :: <node>, push-constraint :: <function>) => ()
   if (u.contains-variables?)
     u.contains-variables? := #f;
     push-constraint(t1.^coll-class, make(<node>, graph: *graph*, value: make(<&top-type>)));
     push-constraint(t1.^coll-element-type, make(<node>, graph: *graph*, value: make(<&top-type>)));
-    #t;
   end;
 end;
 
@@ -199,13 +190,13 @@ define method solve-constraint
  (t1 :: <&type>,
   t2 :: type-union(<&type-variable>, <&top-type>, <&rest-type>),
   u :: <node>, v :: <node>, push-constraint :: <function>)
- => (disconnect? :: <boolean>)
+ => ()
   //move along
 end;
 
 define method solve-constraint
  (t1 :: <&type>, t2 :: <&type>, u :: <node>, v :: <node>, push-constraint :: <function>)
- => (disconnect? :: <boolean>)
+ => ()
   if (is-subtype?(t2, t1) | is-subtype?(t1, t2))
     //move along
   else
