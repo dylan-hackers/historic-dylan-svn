@@ -57,6 +57,12 @@ define sideways method op--free-teb-tlv
   end with-harp;
 end method;
 
+define sideways method op--get-stack-bottom
+    (be :: <pentium-windows-back-end>, dest :: <register>) => ()
+  with-harp (be)
+    ins--get-stack-bottom(be, dest);
+  end with-harp;
+end method;
 
 define sideways method op--get-module-handle(be :: <pentium-windows-back-end>) => ()
   with-harp (be)
@@ -66,6 +72,18 @@ define sideways method op--get-module-handle(be :: <pentium-windows-back-end>) =
   end with-harp;
 end method;
 
+
+define sideways method op--shut-down-dll-library
+    (be :: <pentium-windows-back-end>) => ()
+  op--call-iep(be, primitive-deregister-traced-roots-ref, 
+	       %ambig-root, %static-root, %exact-root);
+end method;
+
+define sideways method op--shut-down-exe-library
+    (be :: <pentium-windows-back-end>) => ()
+  op--call-iep(be, primitive-deregister-traced-roots-ref, 
+	       %ambig-root, %static-root, %exact-root);
+end method;
 
 
 define no-export win32-API-runtime-primitive dylan-thread-trampoline
@@ -117,6 +135,7 @@ define shared init win32-API-runtime-primitive dylan-dll-entry ("DylanDllEntry",
     op--initialize-master-thread(be);
   end when-base;
   ins--call-alien(be, primitive-dylan-initialize-ref, 0);
+  ins--bra(be, done);
 
   ins--tag(be, tag-t-attach);
   when-base
@@ -134,7 +153,7 @@ define shared init win32-API-runtime-primitive dylan-dll-entry ("DylanDllEntry",
 
   ins--tag(be, tag-p-detach);
   // Uninitialize any DLL roots etc.
-  op--shut-down-library(be);
+  op--shut-down-dll-library(be);
   when-base
     // Do any deregistration of the MM state for the master thread here
     op--maybe-uninitialize-thread-for-p-detach(be);
