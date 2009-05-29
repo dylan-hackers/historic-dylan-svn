@@ -80,7 +80,7 @@ public final class Commands {
 		if (key.isEqual("disconnect"))
 			return disconnect(ihl, answer, demo);
 		if (key.isEqual("remove-node"))
-			return removetypenode(ihl, answer, false);
+			return removetypenode(ihl, answer);
 		if (key.isEqual("highlight-constraint"))
 			return highlightedge(ihl, answer, demo, true);
 		if (key.isEqual("unhighlight-constraint"))
@@ -442,14 +442,13 @@ public final class Commands {
 		return false;
 	}
 	
-	private static boolean removetypenode (IncrementalHierarchicLayout ihl, ArrayList answer, boolean mayfail) {
+	private static boolean removetypenode (IncrementalHierarchicLayout ihl, ArrayList answer) {
 		assert(answer.size() == 3);
-		Node del = getNode(ihl, answer, 2, mayfail);
+		Node del = getNode(ihl, answer, 2, false);
 		if (del != null) {
 			ihl.typegraph.removeNode(del);
 			ihl.int_node_map.remove((Integer)answer.get(2));
 			ihl.typechanged = true;
-			return false;
 		}
 		return false;
 	}
@@ -471,7 +470,6 @@ public final class Commands {
 		ihl.typegraph.createEdge(from, to, er);
 		if (! (type.isEqual("<representative-edge>")))
 			ihl.typescf.addPlaceNodeBelowConstraint(from, to);
-		//ihl.typechanged = true;
 		demo.typeview.repaint();
 		return false;
 	}
@@ -491,7 +489,6 @@ public final class Commands {
 			if (ec.edge().target() == to)
 				if (ihl.typegraph.getRealizer(ec.edge()).getLineColor() == nc)
 					ihl.typegraph.removeEdge(ec.edge());
-		//ihl.typechanged = true;
 		demo.typeview.repaint();
 		return false;
 	}
