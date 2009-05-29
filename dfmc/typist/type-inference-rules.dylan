@@ -657,10 +657,7 @@ define method upgrade-types (l :: <&lambda>)
 end;
 
 define function initial-type-constraints (sig :: <&signature>)
-  do(method(x)
-      remove-key!(*type-environment*, x);
-      x.lookup-type;
-    end, sig.^signature-required-arguments);
+  do(curry(remove-key!, *type-environment*), sig.^signature-required-arguments);
 end;
 
 define function constrain-type-variables
