@@ -51,10 +51,6 @@ define function representative-setter (new :: <node>, n :: <node>) => (res :: <n
   new;
 end;
 
-define function representative? (n :: <node>) => (result :: <boolean>)
-  any?(rcurry(instance?, <representative-edge>), n.in-edges);
-end;
-
 define function successors (n :: <node>) => (res :: <collection>)
   map(edge-target, choose(rcurry(instance?, <graph-edge>), n.out-edges));
 end;
@@ -147,9 +143,6 @@ end;
 define function remove-node (n :: <node>) => ()
   for (edge in n.out-edges.copy-sequence)
     remove-edge(edge);
-    if (edge.edge-target.in-edges.size == 0)
-      remove-node(edge.edge-target);
-    end;
   end;
   if (n.degree == 0)
     remove!(n.graph.nodes, n);

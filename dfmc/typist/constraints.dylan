@@ -50,6 +50,18 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
     end;
     debug-types(#"unhighlight-constraint", constraint.left-hand-side, constraint.right-hand-side);
     disconnect(constraint.left-hand-side, constraint.right-hand-side, edge-type: <constraint-edge>);
+    local method may-remove (n :: <node>) => ()
+            if (member?(n, graph.nodes))
+              if (n.in-edges.size == 0)
+                unless (member?(n, *type-environment*))
+                  n.remove-node
+                end;
+              end;
+            end;
+          end;
+    u.may-remove;
+    v.may-remove;
+    u.may-remove;
   end;
   let quotient-graph = create-quotient-graph(graph);
   if (acyclic?(quotient-graph))
