@@ -80,7 +80,7 @@ public final class Commands {
 		if (key.isEqual("disconnect"))
 			return disconnect(ihl, answer, demo);
 		if (key.isEqual("remove-node"))
-			return removetypenode(ihl, answer);
+			return removetypenode(ihl, answer, demo);
 		if (key.isEqual("highlight-constraint"))
 			return highlightedge(ihl, answer, demo, true);
 		if (key.isEqual("unhighlight-constraint"))
@@ -442,13 +442,15 @@ public final class Commands {
 		return false;
 	}
 	
-	private static boolean removetypenode (IncrementalHierarchicLayout ihl, ArrayList answer) {
+	private static boolean removetypenode (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
 		assert(answer.size() == 3);
 		Node del = getNode(ihl, answer, 2, false);
 		if (del != null) {
 			ihl.typegraph.removeNode(del);
 			ihl.int_node_map.remove((Integer)answer.get(2));
-			ihl.typechanged = true;
+			ihl.tv_temp_map.remove(del);
+			//ihl.typechanged = true;
+			demo.typeview.repaint();
 		}
 		return false;
 	}
