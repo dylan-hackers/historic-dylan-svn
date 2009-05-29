@@ -381,6 +381,7 @@ public class IncrementalHierarchicLayout
 	
 	public void createTypeVariable (int id, int temp, String type) {
 		Node tv = createTypeNodeWithLabel(tvnames[tvindex] + " [" + temp + "]" , id);
+		typegraph.getRealizer(typegraph.lastNode()).setFillColor(new Color(Color.pink.getRed(), Color.pink.getBlue(), Color.pink.getGreen(), 0x44));
 		tvindex = (tvindex + 1) % tvnames.length;
 		if (temp != 0)
 			tv_temp_map.put(tv, int_node_map.get(temp));

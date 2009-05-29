@@ -340,7 +340,7 @@ public final class Commands {
 	}
 	
 	private static boolean relayouted (IncrementalHierarchicLayout ihl) {
-		ihl.activateLayouter();
+		//ihl.activateLayouter();
 		return false;
 	} 
         

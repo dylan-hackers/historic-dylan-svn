@@ -215,16 +215,17 @@ public class DemoBase extends Thread {
   }
   
   private boolean steppressed = false;
+  private boolean playpressed = false;
   
   public void waitforstep () {
 	  steppressed = false;
 	  jtb.setBackground(Color.green);
-	  while(! steppressed)
-		try {
-			Thread.sleep(300);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	  while(! steppressed && ! playpressed)
+		  try {
+			  Thread.sleep(300);
+		  } catch (InterruptedException e) {
+			  e.printStackTrace();
+		  }
 	  jtb.setBackground(Color.LIGHT_GRAY);
   }
   
@@ -243,6 +244,7 @@ public class DemoBase extends Thread {
 	  slider.setMaximum(ihl.lastEntry);
 	  slider.setValue(ihl.lastslidervalue);
 	  updatingslider = false;
+	  playpressed = false;
 	  calcLayout();
   }
   
@@ -525,9 +527,11 @@ public class DemoBase extends Thread {
 		}
 		
 		public void actionPerformed (ActionEvent ev) {
-			while (true)
-				if (! incrementallayouter.nextStep())
-					break;
+			playpressed = true;
+			if (incrementallayouter != null)
+				while (true)
+					if (! incrementallayouter.nextStep())
+						break;
 		}
 		
 	}

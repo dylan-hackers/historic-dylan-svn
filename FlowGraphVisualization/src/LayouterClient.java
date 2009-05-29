@@ -111,12 +111,14 @@ public class LayouterClient extends Thread {
 				}
 				gr = graphs.get(dfm_id);
 				demo.unselect();
-				boolean lastchange = gr.changed;
+				//boolean lastchange = gr.changed | gr.typechanged;
 				if (Commands.processCommand(gr, answer, demo))
 					if (! gr.changed)
 						gr.changed = true;
-				//if (key.isEqual("relayouted") && lastchange)
-				//	demo.waitforstep();
+				if (key.isEqual("relayouted")) {
+					demo.waitforstep();
+					gr.activateLayouter();
+				}
 				if (gr.isok)
 					printMessage(result);
 				else {
