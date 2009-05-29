@@ -18,6 +18,14 @@ define method make (class :: subclass(<constraint>), #rest init-args, #key, #all
   c;
 end;
 
+define function deep-origin (c :: <constraint>) => (o)
+  if (instance?(c.origin, <constraint>))
+    c.origin.deep-origin;
+  else
+    c.origin;
+  end;
+end;
+
 define function solve (graph :: <graph>, constraints :: <collection>, type-env :: <type-environment>)
  => ()
   let cs = as(<deque>, constraints);
@@ -25,8 +33,10 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
   for (node in graph.nodes)
     node.contains-variables? := #t;
   end;
+  unless (cs.empty?)
+    debug-types(#"beginning", list("solve"));
+  end;
   while (~cs.empty?)
-    debug-types(#"relayouted");
     let constraint = cs.pop;
     local method push-cs (l :: <node>, r :: <node>)
             unless (l == r)
@@ -34,7 +44,9 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
               push-last(cs, new-constraint);
             end;
           end;
+    //debug-types(#"beginning", list("solve", constraint.deep-origin));
     debug-types(#"highlight-constraint", constraint.left-hand-side, constraint.right-hand-side);
+    debug-types(#"relayouted");
     let u = find(constraint.left-hand-side);
     let v = find(constraint.right-hand-side);
     if (u ~= v)

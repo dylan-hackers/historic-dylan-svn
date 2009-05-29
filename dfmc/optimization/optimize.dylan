@@ -182,12 +182,12 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
             end;
             send-debug(#"relayouted", #());
           end for-all-lambdas;
-          send-debug(#"beginning", #("pass two and a half: convert ssa to cells"));
+/*          send-debug(#"beginning", #("pass two and a half: convert ssa to cells"));
           for-all-lambdas (f in code)
             f.convert-ssa-to-cells;
             send-debug(#"relayouted", #());
           end;
-/*
+
           send-debug(#"beginning", #("pass three: run optimizations (delete, fold, upgrade, inline)"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f))

@@ -325,8 +325,9 @@ end;
 define generic infer-computation-types (c :: <computation>) => ();
 
 define method infer-computation-types (c :: <computation>) => ()
-  debug-types(#"relayouted");
   debug-types(#"highlight", c);
+  debug-types(#"beginning", list("inferring", c));
+  debug-types(#"relayouted");
   c.temporary & lookup-type(c.temporary);
 end;
 
@@ -584,6 +585,8 @@ define method infer-computation-types (c :: <function-call>) => ()
   //next-method(); -- otherwise, we end up with more type variables than needed in
   //the type environment (c.temporary!, which is suspect to change)
   debug-types(#"highlight", c);
+  debug-types(#"beginning", list("inferring", c));
+  debug-types(#"relayouted");
   let fun = c.function.get-function-object;
   infer-function-type(c, fun);
 end;

@@ -57,6 +57,10 @@ define method get-id (s :: <symbol>)
   s
 end;
 
+define method get-id (c :: <collection>)
+  map(get-id, c)
+end;
+
 define method get-id (o :: <object>)
   format-to-string("%=", o);
 end;
