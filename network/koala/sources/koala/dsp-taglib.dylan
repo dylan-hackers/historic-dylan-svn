@@ -59,7 +59,7 @@ define tag get in dsp
     (page :: <dylan-server-page>)
     (name :: <string>, context, tag, raw :: <boolean>)
   let value = get-context-value(name, context, tag: tag);
-  if (value)
+  if (value ~= $unsupplied)
     let string = format-to-string("%s", value);
     output("%s", iff(raw, string, quote-html(string)));
   end;
@@ -91,6 +91,7 @@ define method get-context-value
         return(value);
       end;
     end for;
+    $unsupplied
   end block;
 end method get-context-value;
 
@@ -169,9 +170,20 @@ define named-method exists? in dsp
   if (name)
     let context = get-tag-call-attribute(#"context");
     let value = get-context-value(name, context);
-    value ~= #f
+    value ~= $unsupplied
   end
 end named-method exists?;
+
+define body tag if-equal in dsp
+    (page :: <dylan-server-page>, do-body :: <function>)
+    (name1 :: <string>, context1,
+     name2 :: <string>, context2)
+  let item1 = get-context-value(name1, context1);
+  let item2 = get-context-value(name2, context2);
+  if (item1 = item2)
+    do-body();
+  end;
+end tag if-equal;
 
 
 
@@ -189,7 +201,7 @@ end named-method exists?;
 /* Example, from the wiki:
 
       <h2><wiki:show-group-name/></h2>
-      <dsp:loop over="group-member-names" var="user-name"
+      <dsp:loop over="group-members" context="page" var="user-name"
                 header="<ul>" footer="</ul>">
         <li><dsp:get name="user-name" context="page"/></li>
       </dsp:loop>
@@ -245,9 +257,16 @@ end;
 
 define body tag loop in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
-    (over :: <named-method>, var, header, footer)
-  let items :: <collection> = over(page);
-  for (item in items,
+    (over :: <string>, context, var, header, footer)
+  let items :: <collection>
+    = if (context)
+        get-context-value(over, context)
+      else
+        // This errs if not found.
+        let named-method = parse-tag-arg("over", over, <named-method>);
+        named-method(page);
+      end;
+  for (item in iff(supplied?(items), items, #[]),
        i from 1)
     dynamic-bind (*loop-value* = item,
                   *loop-index* = i,
@@ -524,6 +543,29 @@ define method format-field-errors
   end
 end method format-field-errors;
 
+// This does some of the drudge work of validating form field values,
+// such as percent decoding, trimming whitespace, and handling errors.
+// One need only write a validator that calls error().
+//
+define method validate-form-field
+    (field-name :: <string>, validator :: <function>,
+     #key trim: trim? = #t, decode = #t,
+          as: as-type :: false-or(<type>))
+ => (validator-values-or-field-value-on-error)
+  let field-value = get-query-value(field-name, as: as-type) | "";
+  if (decode)
+    field-value := percent-decode(field-value);
+  end;
+  if (trim?)
+    field-value := trim(field-value);
+  end;
+  block ()
+    validator(field-value)
+  exception (ex :: <serious-condition>)
+    add-field-error(field-name, ex);
+    values(field-value, #t)
+  end
+end method validate-form-field;
 
 //// Page notes and errors
 

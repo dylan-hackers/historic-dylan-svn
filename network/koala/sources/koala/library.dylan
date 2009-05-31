@@ -234,6 +234,8 @@ define module dsp
     loop-index,
     loop-value,
 
+    // Form handling
+    validate-form-field,
     add-field-error,
     get-field-errors,
     add-page-note,
