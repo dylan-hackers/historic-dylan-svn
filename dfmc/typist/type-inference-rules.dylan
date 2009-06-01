@@ -24,6 +24,28 @@ define method lookup-type (o :: <temporary>) => (res :: <node>)
     end;
 end;
 
+define method lookup-type (o :: <multiple-value-temporary>) => (res :: <node>)
+  element(*type-environment*, o, default: #f) |
+    begin
+      let tes = make(<simple-object-vector>);
+      for (x from 0 below o.required-values)
+        tes := add(tes, make(<&top-type>));
+      end;
+      if (o.rest-values?)
+        tes := add(tes, make(<&rest-type>));
+      end;
+      let top = make(<&top-type>);
+      let tv = make(<&type-variable>, contents: top);
+      debug-types(#"new-type-variable", tv, o, top);
+      let n = make(<node>, graph: *graph*, value: tv);
+      *type-environment*[o] := n;
+      add-constraint(make(<equality-constraint>, origin: o,
+                          left: gen-tuple(map(lookup-type, tes)),
+                          right: n));
+      n;
+    end;
+end;
+
 define method lookup-type (t :: <lexical-required-type-variable>)
  => (res :: <node>)
   t.specializer.lookup-type
@@ -139,21 +161,12 @@ define method model-type (t :: <&arrow-type>) => (t :: <&limited-function-type>)
                         values: val, number-values: val.size));
 end;
 
-define method model-type (t :: <&tuple-type>) => (t :: type-union(<&type>, <collection>))
-  let ts = map(model-type, t.^tuple-types);
-  if (ts.size == 1)
-    ts.first;
-  else
-    ts;
-  end;
+define method model-type (t :: <&tuple-type>) => (t :: <collection>)
+  map(model-type, t.^tuple-types);
 end;
 
 define method model-type (t :: <&tuple-type-with-optionals>) => (t :: <collection>)
-  let fixed = next-method();
-  unless (instance?(fixed, <collection>))
-    fixed := vector(fixed);
-  end;
-  concatenate(fixed, vector(make(<&rest-type>)))
+  concatenate(next-method(), vector(make(<&rest-type>)))
 end;
 
 define method model-type (t :: <&limited-coll-type>) => (t :: <&type>)
@@ -355,11 +368,7 @@ define method infer-computation-types (c :: <values>) => ()
             if (c.rest-value)
               types := add(types, make(<&rest-type>).lookup-type);
             end;
-            if (types.size == 1)
-              types.first;
-            else
-              types.gen-tuple; //XXX: actually, emit a MVT here somehow
-            end;
+            types.gen-tuple;
           end;
   add-constraint(make(<equality-constraint>,
                       origin: c,
@@ -367,13 +376,25 @@ define method infer-computation-types (c :: <values>) => ()
                       right: c.temporary.lookup-type));
 end;
 
+define generic typist-union
+ (t1 :: type-union(<collection>, <&type>),
+  t2 :: type-union(<collection>, <&type>)) => (union :: <node>);
+
+define method typist-union (t1 :: <&type>, t2 :: <&type>) => (union :: <node>)
+  ^type-union(t1, t2).lookup-type;
+end;
+
+define method typist-union (t1 :: <collection>, t2 :: <collection>) => (union :: <node>)
+  map(typist-union, t1, t2).gen-tuple;
+end;
+
 define method infer-computation-types (c :: <phi-node>) => ()
   next-method();
   solve(*graph*, *constraints*, *type-environment*);
   add-constraint(make(<equality-constraint>,
                       origin: c,
-                      left: ^type-union(c.phi-left-value.temporary-type,
-                                        c.phi-right-value.temporary-type).lookup-type,
+                      left: typist-union(c.phi-left-value.temporary-type,
+                                         c.phi-right-value.temporary-type),
                       right: c.temporary.lookup-type));
 end;
 
@@ -383,8 +404,8 @@ define method infer-computation-types (c :: <binary-merge>) => ()
     solve(*graph*, *constraints*, *type-environment*);
     add-constraint(make(<equality-constraint>,
                         origin: c,
-                        left: ^type-union(c.merge-left-value.temporary-type,
-                                          c.merge-right-value.temporary-type).lookup-type,
+                        left: typist-union(c.merge-left-value.temporary-type,
+                                           c.merge-right-value.temporary-type).lookup-type,
                         right: c.temporary.lookup-type));
   elseif (c.merge-left-value | c.merge-right-value)
     let v = c.merge-left-value | c.merge-right-value;
@@ -545,11 +566,108 @@ define method infer-computation-types (c :: <make-closure>) => ()
                       right: c.temporary.lookup-type));
 end;
 
+define method infer-computation-types (c :: type-union(<slot-value>, <repeated-slot-value>)) => ()
+  next-method();
+  add-constraint(make(<equality-constraint>,
+                      origin: c,
+                      left: c.computation-slot-descriptor.^slot-type.lookup-type,
+                      right: c.temporary.lookup-type));
+end;
+
+define method infer-computation-types (c :: type-union(<slot-value-setter>, <repeated-slot-value-setter>)) => ()
+  next-method();
+  add-constraint(make(<equality-constraint>,
+                      origin: c,
+                      left: c.computation-new-value.lookup-type,
+                      right: c.temporary.lookup-type));
+  add-constraint(make(<equality-constraint>,
+                      origin: c,
+                      left: c.computation-new-value.lookup-type,
+                      right: c.computation-slot-descriptor.^slot-type.lookup-type));
+end;
+
+define method infer-computation-types (c :: <multiple-value-check-type>) => ()
+  next-method();
+  add-constraint(make(<equality-constraint>,
+                      origin: c,
+                      left: map(lookup-type, c.types).gen-tuple,
+                      right: c.temporary.lookup-type));
+end;
+
+define method infer-computation-types (c :: <multiple-value-check-type-rest>) => ()
+  next-method();
+  let ts = map(lookup-type, c.types);
+  if (c.rest-type)
+    //ts := add(ts, c.rest-type.lookup-type);
+    ts := add(ts, make(<&rest-type>).lookup-type);
+  end;
+  add-constraint(make(<equality-constraint>,
+                      origin: c,
+                      left: ts.gen-tuple,
+                      right: c.temporary.lookup-type));
+end;
+
+define method infer-computation-types (c :: <extract-single-value>) => ()
+  next-method();
+  let tt = c.computation-value.temporary-type;
+  add-constraint(make(<equality-constraint>,
+                      origin: c,
+                      left: tt[index],
+                      right: c.temporary.lookup-type));
+end;
+
+define method infer-computation-types (c :: <extract-rest-value>) => ()
+  next-method();
+  //let tt = c.computation-value.lookup-type;
+  add-constraint(make(<equality-constraint>,
+                      origin: c,
+                      left: make(<&top-type>).lookup-type, //tt.^tuple-types[index],
+                      right: c.temporary.lookup-type));
+end;
+
+//define method infer-computation-types (c :: <adjust-multiple-values>) => ()
+//end;
+
+//define method infer-computation-types (c :: <adjust-multiple-values-rest>) => ()
+//end;
+
+//define method infer-computation-types (c :: <keyword-check-type>) => ()
+//end;
+
+//define method infer-computation-types (c :: <assignment-check-type>) => ()
+//end;
+
+//define method infer-computation-types (c :: <keyword-default>) => ()
+//end;
+
+//define method infer-computation-types (c :: <guarantee-type>) => ()
+//end;
+
+//define method infer-computation-types (c :: <type-definition>) => ()
+//end;
+
+//define method infer-computation-types (c :: <bind-exit>) => ()
+//end;
+
+//define method infer-computation-types (c :: <unwind-protect>) => ()
+//end;
+
+//define method infer-computation-types (c :: <primitive-call>) => ()
+//end;
+
+define method infer-computation-types
+ (c :: type-union(<multiple-value-spill>, <multiple-value-unspill>,
+                  <make-cell>, <get-cell-value>, <set-cell-value!>,
+                  <assignment>, <any-definition>, <definition>, <redefinition>,
+                  <set!>, <conditional-update!>, <type-redefinition>, 
+                  <apply>, <method-apply>, <engine-node-apply>, <engine-node-call>)) => ()
+  error("didn't expect %=", c);
+end;
 define generic get-function-object (o :: <object>)
  => (res :: false-or(type-union(<&limited-function-type>, <&function>)));
 
 define method get-function-object (o :: <object>) => (res == #f)
-  format-out("can't get function object of an <object>");
+  format-out("can't get function object of an <object>\n");
   #f;
 end;
 
@@ -623,15 +741,20 @@ define function create-arrow-and-constraint
 
   let vals
     = if (c.temporary)
-        c.temporary.lookup-type;
+        let res = c.temporary.lookup-type;
+        if (~instance?(c.temporary, <multiple-value-temporary>))
+          vector(res).gen-tuple;
+        else
+          res
+        end;
       else
-        make(<&rest-type>).lookup-type; //XXX: this is wrong!
+        make(<&top-type>).lookup-type;
       end;
 
   let right = make(<node>, graph: *graph*,
                    value: make(<&arrow-type>,
                                arguments: args.gen-tuple,
-                               values: vector(vals).gen-tuple));
+                               values: vals));
   debug-types(#"type-relation", right, c);
   add-constraint(make(<equality-constraint>, origin: c, left: left, right: right));
 end;
@@ -673,7 +796,6 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
   let sig = ^function-signature(fun);
   unless (c.environment.lambda == fun) //updating self-calls is not wise (or, is it?)
     if (instance?(sig, <&polymorphic-signature>))
-      //would be nice if the compiler tells me that constrain-type-variables on <&signature> is dead code, eh? ;)
       solve(*graph*, *constraints*, *type-environment*);
       initial-type-constraints(sig);
       constrain-type-variables(c, map(lookup-type, sig.^signature-required-arguments),

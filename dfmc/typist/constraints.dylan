@@ -65,8 +65,10 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
     local method may-remove (n :: <node>) => ()
             if (member?(n, graph.nodes))
               if (n.in-edges.size == 0)
-                unless (member?(n, *type-environment*))
-                  n.remove-node
+                unless (any?(rcurry(instance?, <constraint-edge>), n.out-edges))
+                  unless (member?(n, *type-environment*))
+                    n.remove-node
+                  end;
                 end;
               end;
             end;
@@ -80,7 +82,7 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
     let changed-vars = make(<stretchy-vector>);
     do(method(x)
          if (instance?(x.node-value, <&type-variable>))
-           let rep-type = x.find.node-value.model-type;
+           let rep-type = x.find.node-value;
            if (instance?(rep-type, <&type>) & ~instance?(rep-type, <&type-variable>))
              format-out("changed TV %= to contain type %= now\n", x.node-value.get-id, rep-type);
              add!(changed-vars, x.node-value);
