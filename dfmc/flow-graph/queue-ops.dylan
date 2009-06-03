@@ -59,6 +59,11 @@ define generic re-optimize (c :: false-or(<computation>)) => ();
 define compiler-open generic re-optimize-type-estimate
   (c :: <computation>) => ();
 
+define compiler-open generic re-type-computations
+  (first :: false-or(<computation>), last :: false-or(<computation>)) => ();
+define compiler-open generic re-type-temporary
+  (old, new) => ();
+
 // by default we just add the computation back to the queue.
 define method re-optimize-into (c :: <computation>, lambda :: <&lambda>) => ()
   let q = lambda.optimization-queue;

@@ -194,35 +194,39 @@ end;
 
 define constant temporary-type = compose(model-type, node-value, find, lookup-type);
 
+define thread variable *inferring?* :: <boolean> = #f;
+
 define method type-infer (l :: <&lambda>)
-  let caches = element($lambda-type-caches, l, default: #f);
-  unless (caches)
-    caches := pair(make(<type-environment>), make(<graph>));
-    $lambda-type-caches[l] := caches;
-  end;
-  dynamic-bind(*constraints* = make(<stretchy-vector>),
-               *type-environment* = caches.head,
-               *graph* = caches.tail)
-    do(lookup-type, l.parameters);
-    for (t in l.environment.temporaries)
-      if (~empty?(t.assignments))
-        maybe-add-variable-constraints(t);
-      end;
+  dynamic-bind(*inferring?* = #t)
+    let caches = element($lambda-type-caches, l, default: #f);
+    unless (caches)
+      caches := pair(make(<type-environment>), pair(make(<graph>), make(<stretchy-vector>)));
+      $lambda-type-caches[l] := caches;
     end;
-    walk-computations(infer-computation-types, l.body, #f);
-    debug-types(#"highlight", 0);
-    solve(*graph*, *constraints*, *type-environment*);
-    //update values slot of signature
-    let result-type = temporary-type(l.body.bind-return.computation-value);
-    //might need to emit type check (top is super of everything!)
-    if (~ instance?(result-type, <&top-type>)) //top-type is never more specific than some other type
-      let sig = convert-type-to-signature(l.^function-signature, l.parameters, result-type);
-      //also check congruency to generic!
-      //also check with written down stuff: especially "=> ()"
-      //or cases where fewer values are exposed than emitted (warn here!)
-      if (signature-compatible?(l.^function-signature, sig))
-        if (more-specific?(l.^function-signature, sig))
-          l.^function-signature := sig;
+    dynamic-bind(*constraints* = caches.tail.tail,
+                 *type-environment* = caches.head,
+                 *graph* = caches.tail.head)
+      do(lookup-type, l.parameters);
+      for (t in l.environment.temporaries)
+        if (~empty?(t.assignments))
+          maybe-add-variable-constraints(t);
+        end;
+      end;
+      walk-computations(infer-computation-types, l.body, #f);
+      debug-types(#"highlight", 0);
+      solve(*graph*, *constraints*, *type-environment*);
+      //update values slot of signature
+      let result-type = temporary-type(l.body.bind-return.computation-value);
+      //might need to emit type check (top is super of everything!)
+      if (~ instance?(result-type, <&top-type>)) //top-type is never more specific than some other type
+        let sig = convert-type-to-signature(l.^function-signature, l.parameters, result-type);
+        //also check congruency to generic!
+        //also check with written down stuff: especially "=> ()"
+        //or cases where fewer values are exposed than emitted (warn here!)
+        if (signature-compatible?(l.^function-signature, sig))
+          if (more-specific?(l.^function-signature, sig))
+            l.^function-signature := sig;
+          end;
         end;
       end;
     end;
@@ -652,9 +656,6 @@ end;
 //define method infer-computation-types (c :: <unwind-protect>) => ()
 //end;
 
-//define method infer-computation-types (c :: <primitive-call>) => ()
-//end;
-
 define method infer-computation-types
  (c :: type-union(<multiple-value-spill>, <multiple-value-unspill>,
                   <make-cell>, <get-cell-value>, <set-cell-value!>,
@@ -709,6 +710,13 @@ define method infer-computation-types (c :: <function-call>) => ()
   infer-function-type(c, fun);
 end;
 
+define method infer-computation-types (c :: <primitive-call>) => ()
+  next-method();
+  let s = c.primitive.primitive-signature;
+  create-arrow-and-constraint(c, map(lookup-type, s.^signature-required-arguments),
+                              map(lookup-type, s.^signature-required-values));
+end;
+
 define method infer-function-type (c :: <function-call>, fun == #f) => ()
   //well, need to generate an arrow-type, args and vals, constraint...
 end;
@@ -730,7 +738,7 @@ define function gen-tuple (types :: <collection>) => (res :: <node>)
 end;
 
 define function create-arrow-and-constraint
- (c :: <function-call>, specializers :: <collection>, vals :: <collection>) => ()
+ (c :: <call>, specializers :: <collection>, vals :: <collection>) => ()
   let left = make(<node>,
                   graph: *graph*,
                   value: make(<&arrow-type>,

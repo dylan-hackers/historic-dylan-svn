@@ -339,17 +339,16 @@ define method ^known-disjoint? (lf1 :: <&limited-function-type>, lf2 :: <&limite
   ~^subtype?(lf1, lf2) & ~^subtype?(lf2, lf1)
 end;
 
-/*
-define method ^known-disjoint? (lft :: <&limited-function-type>, t :: <&function-class>)
+define method ^known-disjoint? (lft :: <&limited-function-type>, t :: <&type>)
  => (well? :: <boolean>)
-
+  ^known-disjoint?(^base-type(lft), t);
 end;
 
-define method ^known-disjoint? (t :: <&function-class>, lft :: <&limited-function-type>)
+define method ^known-disjoint? (t :: <&type>, lft :: <&limited-function-type>)
  => (well? :: <boolean>)
   ^known-disjoint?(lft, t);
 end;
-*/
+
 //missing: ^instantiable?
 
 define function ^limited-function (#rest all-keys,

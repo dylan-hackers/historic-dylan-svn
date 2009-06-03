@@ -29,6 +29,7 @@ define module dfmc-typist
 
   export type-estimate,
     lookup-type,
+    type-infer,
     type-estimate-top-level-form;
 
   //visualizer

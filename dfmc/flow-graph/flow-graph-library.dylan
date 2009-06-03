@@ -397,6 +397,8 @@ define module dfmc-flow-graph
     re-optimize-into,
     re-optimize-into!,
     re-optimize-type-estimate,
+    re-type-temporary,
+    re-type-computations,
     re-optimize-users,
     re-optimize-local-users,
     re-optimize-generators;

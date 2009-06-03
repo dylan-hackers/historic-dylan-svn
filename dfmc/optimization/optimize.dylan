@@ -153,51 +153,32 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
       for-all-lambdas (f in code)
 	lambda-optimized?(f) := #t;
       end for-all-lambdas;
-      // format-out("OPTIMIZING %=\n", code);
       with-simple-abort-retry-restart
 	  ("Abort all analysis passes and continue.", 
 	   "Restart all analysis passes.")
 	with-dependent-context ($compilation of model-creator(code))
-	  opt-format-out("READY %=\n", code);
-          send-debug(#"beginning", #("pass one: eliminate assignments"));
+          send-debug(#"beginning", #("SSA conversion"));
 	  for-all-lambdas (f in code)
-	    opt-format-out("PASS ONE %=\n", f);
-            if (*trace-optimizations?*)
-              block()
-                print-method-out(f);
-              exception (e :: <condition>)
-              end;
-            end if;
-	    // finish pseudo-SSA conversion
 	    if (f == code | ~maybe-delete-function-body(f))
 	      eliminate-assignments(f);
               send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          send-debug(#"beginning", #("pass two: run type inference"));
+          send-debug(#"beginning", #("run type inference"));
           for-all-lambdas (f in code)
-            opt-format-out("PASS ONE(A) %=\n", f);
             if (f == code | lambda-used?(f))
-              type-estimate(f);
+              type-infer(f);
             end;
             send-debug(#"relayouted", #());
           end for-all-lambdas;
-/*          send-debug(#"beginning", #("pass two and a half: convert ssa to cells"));
+          send-debug(#"beginning", #("convert ssa to cells"));
           for-all-lambdas (f in code)
             f.convert-ssa-to-cells;
             send-debug(#"relayouted", #());
           end;
-
-          send-debug(#"beginning", #("pass three: run optimizations (delete, fold, upgrade, inline)"));
+          send-debug(#"beginning", #("run optimizations (delete, fold, upgrade, inline)"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f))
-	      opt-format-out("PASS TWO %=\n", f);
-	      if (*trace-optimizations?*)
-                block()
-                  print-method-out(code);
-                exception (e :: <condition>)
-                end;
-	      end if;
               //reset optimization queue, typing might already have called re-optimize,
               //which triggers optimization queue initialization (and optimizations are not idempotent)
               //hannes - 31st March 2009
@@ -207,12 +188,11 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
               send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          send-debug(#"beginning", #("pass four: run optimizations (delete, fold, upgrade, inline)"));
+          send-debug(#"beginning", #("(loop) run optimizations"));
 	  iterate loop (count = 0)
 	    let something? = #f;
 	    for-all-lambdas (f in code)
 	      if (f == code | lambda-used?(f))
-		opt-format-out("PASS THREE %=\n", f);
 		something? := something? | run-optimizations(f);
 	      end;
 	    end for-all-lambdas;
@@ -226,42 +206,37 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	  end iterate;
           send-debug(#"relayouted", #());
 	  // now carry out the global stuff like environment analysis
-          send-debug(#"beginning", #("pass five: common subexpression elimination, useless environment deletion"));
+          send-debug(#"beginning", #("common subexpression elimination, useless environment deletion"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
-	      opt-format-out("PASS FOUR %=\n", f);
 	      share-common-subexpressions(f);
 	      delete-useless-environments(f);
               send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          send-debug(#"beginning", #("pass six: analyze dynamic-extent, environments, check optimized computations"));
+          send-debug(#"beginning", #("analyze dynamic-extent, environments, check optimized computations"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
-	      opt-format-out("PASS FIVE %=\n", f);
 	      analyze-dynamic-extent-for(f);
 	      analyze-environments(f);
 	      check-optimized-computations(f);
               send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          send-debug(#"beginning", #("pass seven: pruning closures"));
+          send-debug(#"beginning", #("pruning closures"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
-              opt-format-out("PASS SIX %=\n", f);
 	      prune-closure(environment(f));
               send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-          send-debug(#"beginning", #("pass eight: constant folding closures"));
+          send-debug(#"beginning", #("constant folding closures"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f) | lambda-top-level?(f))
-	      opt-format-out("PASS SIX %=\n", f);
 	      constant-fold-closure(f);
               send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
-*/
 	end with-dependent-context;
       end with-simple-abort-retry-restart;
     cleanup
@@ -272,12 +247,6 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
       send-debug(#"relayouted", #());
       send-debug(#"highlight", 0);
       send-debug(#"beginning", #("finished"));
-      block()
-      //when (dumping-dfm?(code))
-	//print-method-out(code);
-      //end when;
-      exception (e :: <condition>)
-      end;
     end block;
   end unless;
   end dynamic-bind;
@@ -357,13 +326,6 @@ define inline method run-optimizer
   send-debug(#"beginning", list(name, c.computation-id));
     optimize(c) & #t;
   // end;
-end method;
-
-define compiler-sideways method re-optimize-type-estimate (c :: <computation>) => ()
-  let tmp   = temporary(c);
-  if (tmp)
-    //type-estimate-retract(c)
-  end if;
 end method;
 
 // the default method just pops the computation

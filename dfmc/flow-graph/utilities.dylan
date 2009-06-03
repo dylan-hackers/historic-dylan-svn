@@ -637,6 +637,7 @@ define function replace-computation!
   end if;
   // Take the old code out.
   delete-computation!(old-c);
+  re-type-computations(new-first, new-last);
 end function replace-computation!;
 
 
@@ -716,12 +717,14 @@ define method replace-temporary-references!
       end if;
     end if;
   end for;
+  //re-type-temporary?
   renamed?
 end method replace-temporary-references!;
 
 define method rename-temporary!
     (old-t :: <named-temporary-mixin>, new-t :: <named-temporary-mixin>) 
  => (renamed? :: <boolean>)
+  re-type-temporary(old-t, new-t);
   unless (named?(new-t))
     name(new-t) := name(old-t);
     #t
@@ -734,6 +737,7 @@ define method rename-temporary!
   // when (named?(old-t) & instance?(new-t, <temporary>))
   //   break("UNABLE TO RENAME %= TO %=\n", new-t, old-t);
   // end when;
+  re-type-temporary(old-t, new-t);
   #f
 end method;
 

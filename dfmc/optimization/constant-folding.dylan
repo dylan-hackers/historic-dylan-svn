@@ -877,168 +877,52 @@ define method evaluate-type-checks? (c :: <check-type>)
   end;
 end method evaluate-type-checks?;
 
-// TODO: Calls to "values" aren't being type-inferred correctly at the 
-// moment. When they are, beef up this checking appropriately. Things
-// to do:
-//
-//   o Spot too few multiple values as a special case so that it can be
-//     reported more usefully than "#f isn't of type xyz".
-//
-//   o Get more specific summary information somehow - distinguish 
-//     multiple value bind checks from return type checks by class
-//     so that error messages can be made more meaningful, preferably
-//     reporting the variable names involved where possible.
-
-// *** This has no callers?  (Which is good, since it has no implementation!)
-// define method check-type-check 
-//     (c :: <multiple-value-check-type-computation>, check-estimate)
-// end method;
-
-define function make-type-estimate-for-fixed-check (type-temp*)
-  // Construct the type estimate which is used for fixed-return-value
-  // type-checking done by <multiple-value-check-type>.  
-  let object-te = dylan-value(#"<object>");
-  local method type-temporary-type-estimate (type-temp) => (te :: <&type>)
-          // Construct type-estimate for this temp, erring on side of generality
-          let (type-constant?, type) = type-temp & fast-constant-value?(type-temp);
-          if (type-constant? & instance?(type, <&type>))
-            type  // type-estimate for this temporary.
-          else
-            object-te                  // Won't provoke disjointness.
-          end
-        end;
-//  make-type-estimate
-//    (<type-estimate-values>,
-//     // Should check these aren't <bottom>.
-//     fixed: map(type-temporary-type-estimate, type-temp*),
-//     rest:  #f)
-end;
-
-define function trim-type-estimate-to-fixed-values 
-  (te :: <&type>, n :: <integer>) => (te :: <&type>)
-  // Extract exactly n values from te, and make a new values te.
-  // Used to trim computation te to fixed values in optimization below.
-/*  select (te by instance?)
-    <type-estimate-bottom>, <type-estimate-top>
-      => te;
-    <type-estimate-values> 
-      => make-type-estimate
-	   (<type-estimate-values>, 
-	    fixed: map(curry(type-estimate-values-ref, te), 
-		       range(from: 0, below: n)),
-	    rest:  #f);
-    <type-estimate-union>
-      => make-type-estimate
-	   (<type-estimate-union>, 
-	    unionees: map(rcurry(trim-type-estimate-to-fixed-values, n),
-			  type-estimate-unionees(te)));
-  end */
-  te;
-end;
-
-define function evaluate-fixed-values-type-checks
-  (c :: <multiple-value-check-type-computation>, values-te :: <&type>)
-    => (statically-checked? :: <boolean>)
-  // See if the fixed values match.  If so, mark them as statically checked,
-  // so the back end won't generate code for the type check.  #rest done 
-  // elsewhere; see evaluate-type-checks(<multiple-value-check-type-rest>).
-  // 
-  // Do the check all together, as in:
-  //   type-union(values(<a>, <b>), values(<b>, <a>)) vs values(<a>, <a>)
-  // This will complain; position-by-position check wouldn't expose the error.
-  let checked-types   = types(c);
-  let ntypes          = size(checked-types);
-  let check-estimate  = make-type-estimate-for-fixed-check(checked-types);
-  let fixed-values-te = trim-type-estimate-to-fixed-values(values-te, ntypes);
-  // Plain-vanilla disjointness of values types isn't quite right here:
-  // * values(#rest <bottom>) and values(anything) are DISJOINT (their
-  //   intersection is empty) but the first is a SUBTYPE of the second (each
-  //   <bottom> is a subtype of every component of the other guy).
-  // * We are perfectly able to elide the return-value type-check if we're never
-  //   going to return!
-  // * values(#rest <bottom>) is the canonical undefined return value, so we'll
-  //   just check for that.
-  //when (instance?(values-te, <type-estimate-bottom>))
-  //  format-out("\n*** c = %s, values-te = %s", c, values-te);
-  //  format-out("\n    ntypes = %d",            ntypes);
-  //  format-out("\n    check-estimate = %s",    check-estimate);
-  //  format-out("\n    fixed-values-te = %s",   check-estimate, fixed-values-te)
-  //end;
-  local method canonical-undefined-values? (te :: <&type>)
-	 => (canonical-undefined? :: <boolean>)
-	  // Is this <bottom> or values(#rest <bottom>)?
-	  select (te by instance?)
-	    <&bottom-type> => #t;
-	    //<type-estimate-values> => empty?(type-estimate-fixed-values(te)) &
-	//	                      instance?(type-estimate-rest-values(te), 
-	//					<type-estimate-bottom>);
-	    otherwise              => #f;
-	  end
-	end;
-  // if (~canonical-undefined-values?(values-te) &
-  //     type-estimate-disjoint?(fixed-values-te, check-estimate))
-  if (~canonical-undefined-values?(values-te) &
-        effectively-disjoint?(fixed-values-te, check-estimate))
-    // Can't possibly be returning the right thing, so complain.
-    // NB: if values-te is bottom, no error since will never return.
-    note(run-time-type-error-class(c),
-         source-location: dfm-source-location(c),
-         context-id:      dfm-context-id(c),
-         inferred-type:   fixed-values-te,
-         expected-type:   check-estimate)
-  end;
-  local method evaluate-single-type? (i :: <integer>) => (ev? :: <boolean>)
-          // #t if ith value type-checks.  Mark it as statically done if so.
-	  let type = checked-types[i];
-	  if (type)                       // Not already checked
-	    let (the-type-constant?, the-type) = fast-constant-value?(type);
-	    if (the-type-constant?           & 
-                instance?(the-type, <&type>) // &
-                // type-estimate-values-element-subtype?
-                //  (values-te, i, as(<type-estimate>, the-type)))
-              )
-	      // NB: succeeds if values-te is bottom, too -- no point in 
-              //     checking type of result you'll never get!
-	      remove-user!(type, c);
-	      checked-types[i] := #f;   // don't bother checking this type
-	      #t
-	    end
-          else
-            #t
-	  end
-	end;
-  every?(evaluate-single-type?, range(from: 0, below: ntypes))
-end;
-
 define method evaluate-type-checks? 
     (c :: <multiple-value-check-type-computation>)
   // If fixed types check statically, mark as checked.
-  evaluate-fixed-values-type-checks(c, type-estimate(computation-value(c)))
+  let wanted-types = map(reference-value, c.types);
+  let got-types = type-estimate(computation-value(c));
+  unless (instance?(got-types, <&top-type>))
+    wanted-types.size == got-types.size &
+     every?(^subtype?, got-types, wanted-types) |
+      begin
+        if (wanted-types.size ~= got-types.size)
+          format-out("wanted %= got %=\n", wanted-types.size, got-types.size);
+        else
+          for (g in got-types, w in wanted-types, i from 0)
+            if (^known-disjoint?(g, w))
+              format-out("type %d is known to be disjoint (W %=, G %=)\n", i, w, g);
+            end;
+          end;
+        end
+      end
+  end;
 end method evaluate-type-checks?;
 
 define method evaluate-type-checks? (c :: <multiple-value-check-type-rest>)
-  // If fixed & rest types statically check, then mark rest as statically checked.
-  let check-rest-type = rest-type(c);
-  let values-te       = type-estimate(computation-value(c));
-  evaluate-fixed-values-type-checks(c, values-te) &  // Fixed types check?
-  (~check-rest-type |                                // #f means already checked
-    begin 
-      let (rest-type-constant?, rest-type) = fast-constant-value?(check-rest-type);
-      if (rest-type-constant? &                      // Type is constant
-          instance?(rest-type, <&type>)) // &            //   and matches values-te
-          //type-estimate-values-rest-subtype?(values-te,
-          //                                   size(types(c)),
-          //                                   as(<type-estimate>, rest-type)))
-        remove-user!(check-rest-type, c);            // Can remove check computation
-        rest-type(c) := #f;
-        #t
-      else
-        #f                                           // Can't remove it
-      end
-   end)
+  #f;
+/*  next-method() & //fixed type check
+    begin
+      // If fixed & rest types statically check, then mark rest as statically checked.
+      let check-rest-type = rest-type(c);
+      let values-te       = type-estimate(computation-value(c));
+      (~check-rest-type |                                // #f means already checked
+      begin 
+        let (rest-type-constant?, rest-type) = fast-constant-value?(check-rest-type);
+        if (rest-type-constant? &                      // Type is constant
+          instance?(rest-type, <&type>) &            //   and matches values-te
+          ^subtype?(rest-type, values-te))
+          remove-user!(check-rest-type, c);
+          rest-type(c) := #f;
+          #t
+        else
+          #f
+        end
+      end)
+  end; */
 end;
 
-// This all sux...
+// This all sux... yes, indeed!
 
 define inline method make-with-matching-temporary
     (env, class :: <class>, old-t :: <temporary>, #rest args)
