@@ -55,12 +55,15 @@ define method main () => ()
   let class = args[0];
   let graph = generate-class-graph(class, project);
   let file-name = concatenate(as(<string>, temp-directory()),
-                              copy-sequence(class, start: 1, end: class.size - 1),
-                              ".dot");
-  with-open-file (file = file-name, direction: #"output", if-exists: #"overwrite")
+                              copy-sequence(class, start: 1, end: class.size - 1));
+  with-open-file (file = concatenate(file-name, ".dot"), direction: #"output", if-exists: #"overwrite")
     generate-dot(graph, file);
   end;
-  format-out("wrote dot: %s\n", file-name);
+  format-out("wrote dot: %s.dot\n", file-name);
+  with-open-file (file = concatenate(file-name, ".gml"), direction: #"output", if-exists: #"overwrite")
+    generate-gml(graph, file);
+  end;
+  format-out("wrote gml: %s.gml\n", file-name);
 end method main;
 
 begin

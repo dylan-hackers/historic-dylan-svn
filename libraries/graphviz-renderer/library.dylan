@@ -23,7 +23,8 @@ define module graphviz-renderer
 
   export <graph>, <node>, <edge>,
     create-node, create-edge,
-    generate-dot, generate-graph,
+    generate-dot, generate-gml,
+    generate-graph,
     find-node, find-node!,
     add-successors,
     add-predecessors, attributes,

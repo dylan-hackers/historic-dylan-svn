@@ -18,7 +18,7 @@ end library class-graph-builder;
 define module class-graph-builder
   use dylan;
   use graphviz-renderer,
-    import: { generate-dot, add-successors, <graph>, find-node, create-node };
+    import: { generate-dot, generate-gml, add-successors, <graph>, find-node, create-node };
   use file-system, import: { with-open-file, temp-directory };
   use format-out, import: { format-out };
   use operating-system, import: { application-arguments };
