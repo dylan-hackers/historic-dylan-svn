@@ -15,6 +15,7 @@ define sealed class <node> (<object>)
   constant slot outgoing-edges :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot incoming-edges :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot attributes :: <string-table> = make(<string-table>);
+  constant slot id :: <integer>, required-init-keyword: id:;
 end;
 
 define sealed class <edge> (<object>)
@@ -29,7 +30,8 @@ define function create-node (graph :: <graph>, #key label)
  => (node :: <node>)
   let node = make(<node>,
                   graph: graph,
-                  label: label | integer-to-string(graph.nodes.size));
+                  label: label | integer-to-string(graph.nodes.size),
+                  id: graph.nodes.size);
   add!(graph.nodes, node);
   node
 end;
