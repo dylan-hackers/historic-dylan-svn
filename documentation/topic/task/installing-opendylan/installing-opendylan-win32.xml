@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" []>
+<task xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="task-1" xsi:noNamespaceSchemaLocation="urn:oasis:names:tc:dita:xsd:task.xsd:1.1">
+  <title>Installing Open Dylan on Win32 Systems</title>
+  <taskbody>
+    <steps>
+      <step>
+        <cmd>Obtain a copy of the Open Dylan self-extracting installer from the <xref href="http://www.opendylan.org/" format="html">Open Dylan website</xref>, or from an installation CD.</cmd>
+      </step>
+      <step>
+        <cmd>Run the installer by double-clicking on the installer icon.</cmd>
+        <stepresult>
+          <p>The installer opening banner will appear.</p>
+          <image href="installing-opendylan-win32-welcome.png"/>
+        </stepresult>
+      </step>
+      <step>
+        <cmd>Click <uicontrol>Next</uicontrol> to proceed to the <wintitle>License Agreement</wintitle> page. </cmd>
+        <stepresult>
+          <image href="installing-opendylan-win32-license.png"/>
+        </stepresult>
+      </step>
+      <step>
+        <cmd>Click <uicontrol>I Agree</uicontrol> to proceed to the <wintitle>Choose Components</wintitle> page.</cmd>
+        <stepresult>
+          <image href="installing-opendylan-win32-components.png"/>
+        </stepresult>
+      </step>
+      <step>
+        <cmd>Choose the installation options and components you want (or do nothing to use the default values) and click <uicontrol>Next</uicontrol> to proceed to the <wintitle>Choose Install Location</wintitle> page. </cmd>
+        <stepresult>
+          <image href="installing-opendylan-win32-location.png"/>
+        </stepresult>
+      </step>
+      <step>
+        <cmd>Choose an installation folder (or do nothing to use the default location) and click <uicontrol>Next</uicontrol> to proceed to the <wintitle>External Build System</wintitle> page.</cmd>
+        <stepresult>
+          <image href="installing-opendylan-win32-build-system.png"/>
+        </stepresult>
+      </step>
+      <step>
+        <cmd>Choose which external build system you will be using and click <uicontrol>Install</uicontrol> to proceed.</cmd>
+        <info>Open Dylan is capable of generating native code object files on its own. However, in order to link these object files into a Windows executable program or DLL, it is necessary for it to invoke an external linker (and, if the Dylan project requires it, an external C compiler or resource file compiler). You will need to have at least one of these linkers installed in order to build a Dylan library project. After installation you will be able to choose a different build system.</info>
+      </step>
+      <step>
+        <cmd>Wait for the installer to copy all of the necessary files and display the <wintitle>Completing...</wintitle> page.</cmd>
+        <stepresult>
+          <image href="installing-opendylan-win32-completing.png"/>
+        </stepresult>
+      </step>
+      <step>
+        <cmd>Click <uicontrol>Finish</uicontrol> to exit the installer.</cmd>
+      </step>
+    </steps>
+  </taskbody>
+</task>
