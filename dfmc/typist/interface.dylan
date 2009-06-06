@@ -4,7 +4,7 @@ define method find-lambda (c :: <computation>) => (l :: <&lambda>)
   c.environment.lambda;
 end;
 
-define method find-lambda (t :: <temporary>) => (l :: <&lambda>)
+define method find-lambda (t :: <temporary>) => (l :: false-or(<&lambda>))
   (t.generator & t.generator.find-lambda) | (t.environment & t.environment.lambda);
 end;
 
@@ -44,7 +44,7 @@ end;
 define compiler-sideways method re-optimize-type-estimate (c :: <computation>) => ()
   unless (*inferring?*)
     with-environment (c)
-      //infer-computation-types(c);
+      //retract-computation-types(c) //(as done in old typist)
       //solve, re-type users
     end;
   end;

@@ -11,7 +11,7 @@ define class <node> (<object>)
   constant slot out-edges :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot in-edges :: <stretchy-vector> = make(<stretchy-vector>);
   slot contains-variables? :: <boolean> = #f;
-  constant slot node-value :: <&type>,
+  constant slot node-value :: type-union(<typist-type>, <&type>),
     required-init-keyword: value:;
   slot node-rank :: <integer> = 0;
   constant slot node-id :: <integer>,
@@ -55,27 +55,27 @@ define function successors (n :: <node>) => (res :: <collection>)
   map(edge-target, choose(rcurry(instance?, <graph-edge>), n.out-edges));
 end;
 
-define generic maybe-setup-connections (n :: <node>, t :: <&type>);
+define generic maybe-setup-connections (n :: <node>, t :: type-union(<typist-type>, <&type>));
 
-define method maybe-setup-connections (n :: <node>, tv :: <&type-variable>)
-  maybe-setup-connections(n, tv.^type-variable-contents);
+define method maybe-setup-connections (n :: <node>, t :: type-union(<typist-type>, <&type>))
 end;
 
-define method maybe-setup-connections (n :: <node>, t :: <&type>)
+define method maybe-setup-connections (n :: <node>, tv :: <type-variable>)
+  maybe-setup-connections(n, tv.type-variable-contents);
 end;
 
-define method maybe-setup-connections (n :: <node>, arrow :: <&arrow-type>)
-  connect(n, arrow.^arguments);
-  connect(n, arrow.^values);
+define method maybe-setup-connections (n :: <node>, arrow :: <arrow>)
+  connect(n, arrow.arrow-arguments);
+  connect(n, arrow.arrow-values);
 end;
 
-define method maybe-setup-connections (n :: <node>, tt :: <&tuple-type>)
-  do(curry(connect, n), tt.^tuple-types);
+define method maybe-setup-connections (n :: <node>, tt :: <tuple>)
+  do(curry(connect, n), tt.tuple-types);
 end;
 
-define method maybe-setup-connections (n :: <node>, c :: <&limited-coll-type>)
-  connect(n, c.^coll-class);
-  connect(n, c.^coll-element-type);
+define method maybe-setup-connections (n :: <node>, c :: <limited-collection>)
+  connect(n, c.collection-class);
+  connect(n, c.element-type);
 end;
 
 define abstract class <edge> (<object>)
@@ -136,8 +136,9 @@ define function remove-edge (edge :: <edge>) => ()
   remove!(source.graph.edges, edge);
   debug-types(#"disconnect", source, target, as(<symbol>, edge.object-class.debug-name));
 end;
+
 define function degree (n :: <node>) => (int :: <integer>)
-  n.out-edges.size + n.in-edges.size;
+  n.out-edges.size + n.in-edges.size
 end;
 
 define function remove-node (n :: <node>) => ()
@@ -151,8 +152,8 @@ define function remove-node (n :: <node>) => ()
 end;
 
 define function update-connections (n :: <node>, f :: <integer>) => ()
-  for (succ from f below n.node-value.^tuple-types.size)
-    let s = n.node-value.^tuple-types[succ];
+  for (succ from f below n.node-value.tuple-types.size)
+    let s = n.node-value.tuple-types[succ];
     connect(n, s);
   end;
 end;
@@ -163,42 +164,42 @@ define function find (value :: <node>) => (res :: <node>)
 end;
 
 define method deep-copy-node
- (type :: <&type>, graph :: <graph>)
+ (type :: type-union(<typist-type>, <&type>), graph :: <graph>)
  => (res :: <node>)
-  make(<node>, graph: graph, value: type);
+  make(<node>, graph: graph, value: type)
 end;
 
 define method deep-copy-node
- (type :: <&tuple-type>, graph :: <graph>)
+ (type :: <tuple>, graph :: <graph>)
  => (res :: <node>)
   make(<node>, graph: graph,
-       value: make(<&tuple-type>,
+       value: make(<tuple>,
                    tuples: map(compose(rcurry(deep-copy-node, graph), node-value),
-                               type.^tuple-types)));
+                               type.tuple-types)))
 end;
 
 define method deep-copy-node
- (type :: <&arrow-type>, graph :: <graph>)
+ (type :: <arrow>, graph :: <graph>)
  => (res :: <node>)
-  let t = make(<&arrow-type>,
-               arguments: deep-copy-node(type.^arguments.node-value, graph),
-               values: deep-copy-node(type.^values.node-value, graph));
-  make(<node>, graph: graph, value: t);
+  let t = make(<arrow>,
+               arguments: deep-copy-node(type.arrow-arguments.node-value, graph),
+               values: deep-copy-node(type.arrow-values.node-value, graph));
+  make(<node>, graph: graph, value: t)
 end;
 
 define method deep-copy-node
- (type :: <&limited-coll-type>, graph :: <graph>)
+ (type :: <limited-collection>, graph :: <graph>)
  => (res :: <node>)
-  let t = make(<&limited-coll-type>,
-               class: deep-copy-node(type.^coll-class.node-value, graph),
-               element-type: deep-copy-node(type.^coll-element-type.node-value, graph));
-  make(<node>, graph: graph, value: t);
+  let t = make(<limited-collection>,
+               class: deep-copy-node(type.collection-class.node-value, graph),
+               element-type: deep-copy-node(type.element-type.node-value, graph));
+  make(<node>, graph: graph, value: t)
 end;
 
 define method deep-copy-node
   (nodes :: <collection>, graph :: <graph>)
  => (res :: <collection>)
-  map(compose(rcurry(deep-copy-node, graph), node-value), nodes);
+  map(compose(rcurry(deep-copy-node, graph), node-value), nodes)
 end;
 
 define function create-quotient-graph (g :: <graph>) => (res :: <graph>)
@@ -310,30 +311,37 @@ end;
 define generic is-subtype? (t1, t2) => (res :: <boolean>);
 
 define method is-subtype? (t1 :: <object>, t2 :: <object>) => (res == #f)
-  #f;
+  #f
 end;
 
 define method is-subtype? (t1 :: <&type>, t2 :: <&type>) => (res :: <boolean>)
-  ^subtype?(t1.model-type, t2.model-type);
+  ^subtype?(t1.model-type, t2.model-type)
 end;
 
-define method is-subtype? (t1 :: <node>, t2 :: <&type>) => (res :: <boolean>)
-  is-subtype?(t1.node-value, t2);
+define method is-subtype? (t1 :: <typist-type>, t2 :: <&type>) => (res :: <boolean>)
+  ^subtype?(t1.model-type, t2.model-type)
 end;
 
-define method is-subtype? (t1 :: <&type>, t2 :: <node>) => (res :: <boolean>)
-  is-subtype?(t1, t2.node-value);
+define method is-subtype? (t1 :: <&type>, t2 :: <typist-type>) => (res :: <boolean>)
+  ^subtype?(t1.model-type, t2.model-type)
+end;
+
+define method is-subtype? (t1 :: <node>, t2 :: type-union(<typist-type>, <&type>)) => (res :: <boolean>)
+  is-subtype?(t1.node-value, t2)
+end;
+
+define method is-subtype? (t1 :: type-union(<typist-type>, <&type>), t2 :: <node>) => (res :: <boolean>)
+  is-subtype?(t1, t2.node-value)
 end;
 
 define method is-subtype? (t1 :: <node>, t2 :: <node>) => (res :: <boolean>)
-  is-subtype?(t1.node-value, t2.node-value);
+  is-subtype?(t1.node-value, t2.node-value)
 end;
 
 //don't care about those types, they'll be taken care by the constraint solver
 //(by propagating constraints to the leaves)
-define method is-subtype? (t1 :: type-union(<&arrow-type>, <&tuple-type>, <&limited-coll-type>),
-                           t2 :: type-union(<&arrow-type>, <&tuple-type>, <&limited-coll-type>)) => (res :: <boolean>)
-  #f;
+define method is-subtype? (t1 :: <typist-type>, t2 :: <typist-type>) => (res :: <boolean>)
+  #f
 end;
 /*
 begin

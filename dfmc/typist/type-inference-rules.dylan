@@ -12,7 +12,7 @@ define method lookup-type (o :: <temporary>) => (res :: <node>)
   element(*type-environment*, o, default: #f) |
     begin
       let te = o.type-estimate-object;
-      let tv = make(<&type-variable>, contents: te);
+      let tv = make(<type-variable>, contents: te);
       debug-types(#"new-type-variable", tv, o, te);
       let n = make(<node>, graph: *graph*, value: tv);
       *type-environment*[o] := n;
@@ -32,10 +32,10 @@ define method lookup-type (o :: <multiple-value-temporary>) => (res :: <node>)
         tes := add(tes, make(<&top-type>));
       end;
       if (o.rest-values?)
-        tes := add(tes, make(<&rest-type>));
+        tes := add(tes, make(<rest-type>));
       end;
       let top = make(<&top-type>);
-      let tv = make(<&type-variable>, contents: top);
+      let tv = make(<type-variable>, contents: top);
       debug-types(#"new-type-variable", tv, o, top);
       let n = make(<node>, graph: *graph*, value: tv);
       *type-environment*[o] := n;
@@ -74,21 +74,24 @@ define method lookup-type (o :: <object>) => (res :: <node>)
   make(<node>, graph: *graph*, value: o.type-estimate-object);
 end;
 
-define generic type-estimate-object (o) => (res :: <&type>);
+define generic type-estimate-object (o) => (res :: type-union(<typist-type>, <&type>));
 
 define method type-estimate-object (o :: <object>) => (res :: <&type>)
   make(<&top-type>)
 end;
 
-define method type-estimate-object (o :: <object-reference>) => (res :: <&type>)
-  type-estimate-object(o.reference-value);
+define method type-estimate-object (o :: <object-reference>)
+ => (res :: type-union(<typist-type>, <&type>))
+  type-estimate-object(o.reference-value)
 end;
 
-define method type-estimate-object (o :: <lexical-specialized-variable>) => (res :: <&type>);
-  type-estimate-object(o.specializer);
+define method type-estimate-object (o :: <lexical-specialized-variable>)
+ => (res :: type-union(<typist-type>, <&type>));
+  type-estimate-object(o.specializer)
 end;
 
-define method type-estimate-object (t :: <&type>) => (res :: <&type>)
+define method type-estimate-object (t :: <&type>)
+ => (res :: <&type>)
   if (t == dylan-value(#"<object>"))
     make(<&top-type>)
   else
@@ -96,22 +99,29 @@ define method type-estimate-object (t :: <&type>) => (res :: <&type>)
   end
 end;
 
-define method type-estimate-object (lft :: <&limited-function-type>) => (res :: <&type>)
+define method type-estimate-object (t :: <typist-type>)
+ => (res :: <typist-type>)
+  t
+end;
+
+define method type-estimate-object (lft :: <&limited-function-type>)
+ => (res :: type-union(<typist-type>, <&type>))
   let args = map(lookup-type, lft.^function-signature.^signature-required-arguments);
   let vals = map(lookup-type, lft.^function-signature.^signature-required-values);
   if (lft.^function-signature.^signature-rest?)
-    args := add!(args, make(<&rest-type>).lookup-type);
+    args := add!(args, make(<rest-type>).lookup-type);
   end;
   if (lft.^function-signature.^signature-rest-value)
-    vals := add!(vals, make(<&rest-type>).lookup-type);
+    vals := add!(vals, make(<rest-type>).lookup-type);
   end;
-  make(<&arrow-type>, arguments: args.gen-tuple, values: vals.gen-tuple);
+  make(<arrow>, arguments: args.gen-tuple, values: vals.gen-tuple);
 end;
 
-define method type-estimate-object (lc :: <&limited-collection-type>) => (res :: <&type>)
+define method type-estimate-object (lc :: <&limited-collection-type>)
+ => (res :: type-union(<typist-type>, <&type>))
   let class = lc.^limited-collection-class.lookup-type;
   let etype = lc.^limited-collection-element-type.lookup-type;
-  make(<&limited-coll-type>, class: class, element-type: etype);
+  make(<limited-collection>, class: class, element-type: etype);
 end;
 
 define method type-estimate-object (o :: <integer>) => (res :: <&type>)
@@ -126,29 +136,30 @@ define method type-estimate-object (b :: <boolean>) => (res :: <&type>)
   dylan-value(#"<boolean>")
 end;
 
-define method type-estimate-object (v :: <vector>) => (res :: <&type>)
-  ^make(<&limited-coll-type>,
-        class: dylan-value(#"<vector>").lookup-type,
-        element-type:
-          lookup-type(if (v.size == 0)
-                        make(<&polymorphic-type-variable>,
-                             name: #"v", kind: dylan-value(#"<top>"));
-                      else
-                        reduce1(^type-union, map(type-estimate-object, v));
-                      end))
+define method type-estimate-object (v :: <vector>)
+ => (res :: type-union(<typist-type>, <&type>))
+  make(<limited-collection>,
+       class: dylan-value(#"<vector>").lookup-type,
+       element-type:
+         lookup-type(if (v.size == 0)
+                       make(<&polymorphic-type-variable>,
+                            name: #"v", kind: dylan-value(#"<top>"));
+                     else
+                       reduce1(^type-union, map(type-estimate-object, v));
+                     end))
 end;
 
 //list, floats, symbols!
 
-define generic model-type (t :: type-union(<node>, <&type>)) => (t :: type-union(<collection>, <&type>));
+define generic model-type (t :: type-union(<node>, <typist-type>, <&type>)) => (t :: type-union(<collection>, <&type>));
 
 define method model-type (t :: <&type>) => (t :: <&type>)
   t
 end;
 
-define method model-type (t :: <&arrow-type>) => (t :: <&limited-function-type>)
-  let arg = t.^arguments.model-type;
-  let val = t.^values.model-type;
+define method model-type (t :: <arrow>) => (t :: <&limited-function-type>)
+  let arg = t.arrow-arguments.model-type;
+  let val = t.arrow-values.model-type;
   unless (instance?(arg, <collection>))
     arg := vector(arg);
   end;
@@ -161,26 +172,26 @@ define method model-type (t :: <&arrow-type>) => (t :: <&limited-function-type>)
                         values: val, number-values: val.size));
 end;
 
-define method model-type (t :: <&tuple-type>) => (t :: <collection>)
-  map(model-type, t.^tuple-types);
+define method model-type (t :: <tuple>) => (t :: <collection>)
+  map(model-type, t.tuple-types)
 end;
 
-define method model-type (t :: <&tuple-type-with-optionals>) => (t :: <collection>)
-  concatenate(next-method(), vector(make(<&rest-type>)))
+define method model-type (t :: <tuple-with-rest>) => (t :: <collection>)
+  concatenate(next-method(), vector(make(<&top-type>)))
 end;
 
-define method model-type (t :: <&limited-coll-type>) => (t :: <&type>)
+define method model-type (t :: <limited-collection>) => (t :: <&type>)
   make(<&limited-collection-type>,
-       class: t.^coll-class.model-type,
-       element-type: t.^coll-element-type.model-type);
+       class: t.collection-class.model-type,
+       element-type: t.element-type.model-type)
 end;
 
 define method model-type (t :: <node>) => (res :: type-union(<collection>, <&type>))
-  t.find.node-value.model-type;
+  t.find.node-value.model-type
 end;
 
-define method model-type (t :: <&type-variable>) => (res :: <&type>)
-  t.^type-variable-contents.model-type;
+define method model-type (t :: <type-variable>) => (res :: <&type>)
+  t.type-variable-contents.model-type
 end;
 
 define thread variable *constraints* :: false-or(<stretchy-vector>) = #f;
@@ -259,7 +270,7 @@ end;
 
 define function transform-collection-to-fixed-rest
     (c :: <collection>) => (fixed :: <collection>, rest? :: <boolean>)
-  if (c.size > 0 & instance?(last(c), <&rest-type>))
+  if (c.size > 0 & instance?(last(c), <rest-type>))
     values(copy-sequence(c, end: c.size - 1), #t)
   else
     values(c, #f)
@@ -370,7 +381,7 @@ define method infer-computation-types (c :: <values>) => ()
   let l = begin
             let types = map(lookup-type, c.fixed-values);
             if (c.rest-value)
-              types := add(types, make(<&rest-type>).lookup-type);
+              types := add(types, make(<rest-type>).lookup-type);
             end;
             types.gen-tuple;
           end;
@@ -557,7 +568,7 @@ define method infer-computation-types (c :: <stack-vector>) => ()
   let t = c.temporary;
   add-constraint(make(<equality-constraint>,
                       origin: c,
-                      left: make(<&tuple-type>, tuples: map(lookup-type, c.arguments)).lookup-type,
+                      left: make(<tuple>, tuples: map(lookup-type, c.arguments)).lookup-type,
                       right: t.lookup-type));
 end;
 
@@ -603,7 +614,7 @@ define method infer-computation-types (c :: <multiple-value-check-type-rest>) =>
   let ts = map(lookup-type, c.types);
   if (c.rest-type)
     //ts := add(ts, c.rest-type.lookup-type);
-    ts := add(ts, make(<&rest-type>).lookup-type);
+    ts := add(ts, make(<rest-type>).lookup-type);
   end;
   add-constraint(make(<equality-constraint>,
                       origin: c,
@@ -730,10 +741,10 @@ define method infer-function-type (c :: <function-call>, fun :: <&limited-functi
 end;
 
 define function gen-tuple (types :: <collection>) => (res :: <node>)
-  if (types.size > 0 & instance?(types.last.node-value, <&rest-type>))
-    make(<&tuple-type-with-optionals>, tuples: copy-sequence(types, end: types.size - 1)).lookup-type
+  if (types.size > 0 & instance?(types.last.node-value, <rest-type>))
+    make(<tuple-with-rest>, tuples: copy-sequence(types, end: types.size - 1)).lookup-type
   else
-    make(<&tuple-type>, tuples: types).lookup-type;
+    make(<tuple>, tuples: types).lookup-type;
   end;
 end;
 
@@ -741,7 +752,7 @@ define function create-arrow-and-constraint
  (c :: <call>, specializers :: <collection>, vals :: <collection>) => ()
   let left = make(<node>,
                   graph: *graph*,
-                  value: make(<&arrow-type>,
+                  value: make(<arrow>,
                               arguments: specializers.gen-tuple,
                               values: vals.gen-tuple));
 
@@ -760,7 +771,7 @@ define function create-arrow-and-constraint
       end;
 
   let right = make(<node>, graph: *graph*,
-                   value: make(<&arrow-type>,
+                   value: make(<arrow>,
                                arguments: args.gen-tuple,
                                values: vals));
   debug-types(#"type-relation", right, c);
@@ -850,12 +861,12 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
   //#rest can be annotated with a type, but this information is lost in translation
   let arg-nodes = map(lookup-type, args);
   if (rest?)
-    arg-nodes := add!(arg-nodes, make(<&rest-type>).lookup-type);
+    arg-nodes := add!(arg-nodes, make(<rest-type>).lookup-type);
   end;
   let val-nodes = map(lookup-type, values);
   let rest-values? = ^signature-rest-value(sig);
   if (rest-values?)
-    val-nodes := add!(val-nodes, make(<&rest-type>).lookup-type);
+    val-nodes := add!(val-nodes, make(<rest-type>).lookup-type);
   end;
   create-arrow-and-constraint(c, arg-nodes, val-nodes);
 end;

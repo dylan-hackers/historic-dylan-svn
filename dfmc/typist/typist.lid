@@ -3,7 +3,8 @@ Files:     typist-library
            typist-core
            typist-top-level-forms
            utils
-           type-debug         
+           typist-types
+           type-debug
            type-graph
            constraints
            type-inference-rules

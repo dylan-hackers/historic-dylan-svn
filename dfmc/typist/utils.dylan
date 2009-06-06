@@ -1,47 +1,63 @@
 module: dfmc-typist
 
 define method dynamic? (type ::  <&type>) => (res :: <boolean>)
-  type == dylan-value(#"<object>"); //or type-=? ?
+  ^type-equivalent?(type, dylan-value(#"<object>"))
 end;
 
-define method dynamic? (tv :: <&type-variable>) => (res :: <boolean>)
-  tv.^type-variable-contents.dynamic?
+define method dynamic? (type :: <typist-type>) => (res == #f)
+  #f
+end;
+
+define method dynamic? (tv :: <type-variable>) => (res :: <boolean>)
+  tv.type-variable-contents.dynamic?
 end;
 
 define method dynamic? (tv :: <&top-type>) => (res == #t)
   #t
 end;
 
-define method dynamic? (tv :: <&rest-type>) => (res == #t)
+define method dynamic? (tv :: <rest-type>) => (res == #t)
   #t
 end;
 
 define method arrow? (type :: <&type>) => (res :: <boolean>)
-  instance?(type, <&limited-function-type>)
+  #f
 end;
 
-define method arrow? (type :: <&arrow-type>) => (res == #t)
+define method arrow? (type :: <typist-type>) => (res == #f)
+  #f
+end;
+
+define method arrow? (type :: <&limited-function-type>) => (res :: <boolean>)
   #t
 end;
 
-define method arrow? (tv :: <&type-variable>) => (res :: <boolean>)
-  tv.^type-variable-contents.arrow?
+define method arrow? (type :: <arrow>) => (res == #t)
+  #t
+end;
+
+define method arrow? (tv :: <type-variable>) => (res :: <boolean>)
+  tv.type-variable-contents.arrow?
 end;
 
 define method rest-value? (n :: <node>) => (res :: <boolean>)
   n.find.node-value.rest-value?;
 end;
 
-define method rest-value? (tv :: <&type-variable>) => (res :: <boolean>)
-  tv.^type-variable-contents.rest-value?;
+define method rest-value? (tv :: <type-variable>) => (res :: <boolean>)
+  tv.type-variable-contents.rest-value?
 end;
 
 define method rest-value? (type :: <&type>) => (res == #f)
-  #f;
+  #f
 end;
 
-define method rest-value? (type  :: <&tuple-type-with-optionals>) => (res == #t)
-  #t;
+define method rest-value? (type :: <typist-type>) => (res == #f)
+  #f
+end;
+
+define method rest-value? (type  :: <tuple-with-rest>) => (res == #t)
+  #t
 end;
 
 

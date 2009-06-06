@@ -376,71 +376,6 @@ define &override-function ^limited
   end;
 end &override-function;
 
-define primary &class <tuple-type> (<type>)
-  runtime-constant &slot tuple-types :: <simple-object-vector>,
-    required-init-keyword: tuples:;
-  //rest argument, size?
-end;
-
-define primary &class <tuple-type-with-optionals> (<tuple-type>)
-end;
- 
-define primary &class <rest-type> (<type>)
-end;
-
-define method ^subtype? (t1 :: <&rest-type>, t2 :: <&rest-type>)
- => (well? :: <boolean>)
-  #f;
-end;
-
-//missing: base-type, instance?, subtype?, known-disjoint?
-
-define primary &class <arrow-type> (<type>)
-  constant &slot arguments /* :: <type> */,
-    required-init-keyword: arguments:;
-  constant &slot values /* :: <type> */,
-    required-init-keyword: values:;
-end;
-
-define primary &class <limited-coll-type> (<type>)
-  constant &slot coll-class, required-init-keyword: class:;
-  constant &slot coll-element-type, required-init-keyword: element-type:;
-end;
-
-/*
-define method ^known-disjoint? (at :: <&arrow-type>, t :: <&type>)
- => (well? :: <boolean>)
-end;
-
-define method ^known-disjoint? (t :: <&type>, at :: <&arrow-type>)
- => (well? :: <boolean>)
-  ^known-disjoint?(at, t);
-end;
-*/
-
-define method ^known-disjoint? (at1 :: <&arrow-type>, at2 :: <&arrow-type>)
- => (well? :: <boolean>)
-  ^known-disjoint?(at1.^arguments, at2.^arguments);
-end;
-
-define method ^subtype? (t1 :: <&arrow-type>, t2 :: <&arrow-type>)
- => (well? :: <boolean>)
-  //this is not real, but since arguments and values are <node> objects,
-  //and we don't have access to the typist here (and I suspect that
-  // <arrow-type>, <tuple-type> and <type-variable> are only typist-objects,
-  // and should move there (out of the <&type> hierarchy), I'll just write this
-  // for now
-  #f
-  //^subtype?(t1.^arguments, t2.^arguments) &
-  //  ^subtype?(t2.^values, t1.^values)
-end;
-define method ^subtype? (t1 :: <&tuple-type>, t2 :: <&tuple-type>)
- => (well? :: <boolean>)
-  #f;
-end;
-
-//missing: base-type, instance?, subtype?, known-disjoint?
-
 define method ^known-disjoint? (a :: <&top-type>, b :: <&type>)
  => (well? == #f)
   #f
@@ -451,19 +386,86 @@ define method ^known-disjoint? (a :: <&type>, b :: <&top-type>)
   #f;
 end;
 
-define primary &class <type-variable> (<type>)
-  &slot type-variable-contents :: <type>,
-    required-init-keyword: contents:;
+/*
+define primary &class <tuple-type> (<type>)
+  constant &slot tuple-types :: <simple-object-vector>,
+    required-init-keyword: tuples:;
 end;
 
-define method ^known-disjoint? (tv :: <&type-variable>, t :: <&type>)
- => (well? :: <boolean>)
-  ^known-disjoint?(tv.^type-variable-contents, t);
+define method ^subtype? (tt1 :: <&tuple-type>, tt2 :: <&tuple-type>) => (res :: <boolean>)
+  tt1.^tuple-types.size == tt2.^tuple-types.size &
+   every?(^subtype?, tt1.^tuple-types, tt2.^tuple-types)
 end;
-define method ^known-disjoint? (t :: <&type>, tv :: <&type-variable>)
- => (well? :: <boolean>)
-  ^known-disjoint?(tv, t);
+
+define method ^subtype? (tt1 :: <&tuple-type>, tt2 :: <&type>) => (res :: <boolean>)
+  #f
 end;
+
+define method ^subtype? (tt1 :: <&tuple-type>, tt2 :: <&top-type>) => (res :: <boolean>)
+  #t
+end;
+
+define method ^subtype? (tt1 :: <&type>, tt2 :: <&tuple-type>) => (res :: <boolean>)
+  #f
+end;
+
+define method ^known-disjoint? (tt1 :: <&tuple-type>, tt2 :: <&tuple-type>)
+ => (res :: <boolean>)
+  tt1.^tuple-types.size ~= tt2.^tuple-types.size |
+   every?(^known-disjoint?, tt1.^tuple-types, tt2.^tuple-types);
+end;
+
+define method ^known-disjoint? (tt1 :: <&tuple-type>, tt2 :: <&type>)
+ => (res :: <boolean>)
+  #t;
+end;
+
+define method ^known-disjoint? (tt1 :: <&type>, tt2 :: <&tuple-type>)
+ => (res :: <boolean>)
+  #t;
+end;
+
+define method ^known-disjoint? (tt1 :: <&tuple-type>, tt2 :: <&top-type>)
+ => (res :: <boolean>)
+  #f;
+end;
+
+define method ^known-disjoint? (tt1 :: <&top-type>, tt2 :: <&tuple-type>)
+ => (res :: <boolean>)
+  #f;
+end;
+
+define primary &class <tuple-type-rest> (<tuple-type>)
+  constant &slot rest-type :: <type>,
+    required-init-keyword: type:;
+end;
+
+define method ^subtype? (tt1 :: <&tuple-type-rest>, tt2 :: <&tuple-type>)
+ => (res :: <boolean>)
+  #f
+end;
+
+define method ^subtype? (tt1 :: <&tuple-type>, tt2 :: <&tuple-type-rest>)
+ => (res :: <boolean>)
+  tt1.^tuple-types.size >= tt2.^tuple-types.size &
+   every?(^subtype?, tt1.^tuple-types, tt2.^tuple-types) &
+   every?(^subtype?, copy-sequence(tt1.^tuple-types, start: tt2.^tuple-types.size),
+          tt2.^rest-type)
+end;
+
+define method ^subtype? (tt1 :: <&tuple-type-rest>, tt2 :: <&tuple-type-rest>)
+ => (res :: <boolean>)
+  tt1.^tuple-types.size >= tt2.^tuple-types.size &
+   every?(^subtype?, tt1.^tuple-types, tt2.^tuple-types) &
+   every?(^subtype?, copy-sequence(tt1.^tuple-types, start: tt2.^tuple-types.size),
+          tt2.^rest-type) &
+   ^subtype?(tt1.^rest-type, tt2.^rest-type)
+end;
+
+define method ^known-disjoint? (tt1 :: <&tuple-type-with-optionals>, tt2 :: <&tuple-type-with-optionals>)
+ => (res :: <boolean>)
+end;
+*/
 
 //// Compiler type properties.
 

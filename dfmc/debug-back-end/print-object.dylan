@@ -35,26 +35,6 @@ define compiler-sideways method print-object (tv :: <&polymorphic-type-variable>
   format(str, "%= <: %=", tv.^type-variable-name, tv.^type-variable-kind);
 end;
 
-define compiler-sideways method print-object (l :: <&rest-type>, str :: <stream>) => ()
-  format(str, "#rest");
-end;
-
-define compiler-sideways method print-object (l :: <&arrow-type>, str :: <stream>) => ()
-  format(str, "%= => %=", l.^arguments, l.^values);
-end;
-
-define compiler-sideways method print-object (tv :: <&type-variable>, str :: <stream>) => ()
-  format(str, "TV: %=", tv.^type-variable-contents);
-end;
-
-define compiler-sideways method print-object (tv :: <&tuple-type>, str :: <stream>) => ()
-  format(str, "{ %= }", tv.^tuple-types);
-end;
-
-define compiler-sideways method print-object (c :: <&limited-coll-type>, str :: <stream>) => ()
-  format(str, "limited[ %= ]", c.^coll-element-type);
-end;
-
 define compiler-sideways method print-object (o :: <&object>, stream :: <stream>) => ()
   let ld = current-library-description() | model-original-library(o);
   if (ld)

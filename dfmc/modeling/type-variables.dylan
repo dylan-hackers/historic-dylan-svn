@@ -34,6 +34,11 @@ define method ^subtype? (a :: <&type>, b :: <&polymorphic-type-variable>)
   ^subtype?(a, b.^type-variable-kind);
 end;
 
+define method ^subtype? (a :: <&top-type>, b :: <&polymorphic-type-variable>)
+ => (sub? :: <boolean>)
+  ^subtype?(a, b.^type-variable-kind);
+end;
+
 define method ^known-disjoint? (a :: <&polymorphic-type-variable>, b :: <&polymorphic-type-variable>)
  => (disj? :: <boolean>)
   ^known-disjoint?(a.^type-variable-kind, b.^type-variable-kind);
