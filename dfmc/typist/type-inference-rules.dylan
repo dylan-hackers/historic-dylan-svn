@@ -582,28 +582,35 @@ end;
 
 define method infer-computation-types (c :: <multiple-value-check-type>) => ()
   next-method();
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: map(lookup-type, c.types).gen-tuple,
-                      right: c.temporary.lookup-type));
+  unless (any?(curry(\=, #f), c.types))
+    add-constraint(make(<equality-constraint>,
+                        origin: c,
+                        left: map(lookup-type, c.types).gen-tuple,
+                        right: c.temporary.lookup-type));
+  end;
 end;
 
 define method infer-computation-types (c :: <multiple-value-check-type-rest>) => ()
   next-method();
-  let ts = map(lookup-type, c.types);
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: gen-tuple(ts, rest?: c.rest-type), //pass real rest type!
-                      right: c.temporary.lookup-type));
+  unless (any?(curry(\=, #f), c.types))
+    let ts = map(lookup-type, c.types);
+    add-constraint(make(<equality-constraint>,
+                        origin: c,
+                        left: gen-tuple(ts, rest?: c.rest-type), //pass real rest type!
+                        right: c.temporary.lookup-type));
+  end;
 end;
 
 define method infer-computation-types (c :: <extract-single-value>) => ()
   next-method();
+  solve(*graph*, *constraints*, *type-environment*);
   let tt = c.computation-value.temporary-type;
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: tt[index],
-                      right: c.temporary.lookup-type));
+  if (instance?(tt, <collection>))
+    add-constraint(make(<equality-constraint>,
+                        origin: c,
+                        left: tt[c.index].lookup-type,
+                        right: c.temporary.lookup-type));
+  end
 end;
 
 define method infer-computation-types (c :: <extract-rest-value>) => ()

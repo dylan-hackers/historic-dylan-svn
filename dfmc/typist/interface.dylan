@@ -42,12 +42,12 @@ define method type-estimate (o :: <object>) => (te :: type-union(<collection>, <
 end;
 
 define compiler-sideways method re-optimize-type-estimate (c :: <computation>) => ()
-  unless (*inferring?*)
-    with-environment (c)
+  //unless (*inferring?*)
+  //  with-environment (c)
       //retract-computation-types(c) //(as done in old typist)
       //solve, re-type users
-    end;
-  end;
+  //  end;
+  //end;
 end method;
 
 define compiler-sideways method re-type-computations

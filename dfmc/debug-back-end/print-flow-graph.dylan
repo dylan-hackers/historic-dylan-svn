@@ -474,7 +474,7 @@ define method print-computation (stream :: <stream>, c :: <get-cell-value>);
 end method print-computation;
 
 define method print-computation (stream :: <stream>, c :: <set-cell-value!>);
-  format(stream, "cell-value"); // := %s", c.computation-value)
+  format(stream, "set-cell-value"); // := %s", c.computation-value)
 end method print-computation;
 
 // C-FFI
