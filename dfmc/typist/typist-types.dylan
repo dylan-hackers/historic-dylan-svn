@@ -11,9 +11,6 @@ end;
 define primary class <tuple-with-rest> (<tuple>)
 end;
  
-define primary class <rest-type> (<typist-type>)
-end;
-
 define primary class <arrow> (<typist-type>)
   constant slot arrow-arguments :: <node>,
     required-init-keyword: arguments:;
@@ -32,10 +29,6 @@ define primary class <type-variable> (<typist-type>)
   //should actually be superfluous, since tv's node should have a representative!
   slot type-variable-contents :: type-union(<&type>, <typist-type>),
     required-init-keyword: contents:;
-end;
-
-define compiler-sideways method print-object (l :: <rest-type>, str :: <stream>) => ()
-  format(str, "#rest");
 end;
 
 define compiler-sideways method print-object (l :: <arrow>, str :: <stream>) => ()

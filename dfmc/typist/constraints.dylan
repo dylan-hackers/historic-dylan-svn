@@ -213,7 +213,7 @@ define method solve-constraint
 end;
 
 define method solve-constraint
- (t1 :: type-union(<typist-type>, <&type>), t2 :: type-union(<type-variable>, <&top-type>, <rest-type>),
+ (t1 :: type-union(<typist-type>, <&type>), t2 :: type-union(<type-variable>, <&top-type>),
   u :: <node>, v :: <node>, push-constraint :: <function>)
  => ()
   //move along

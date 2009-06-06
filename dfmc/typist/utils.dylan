@@ -16,10 +16,6 @@ define method dynamic? (tv :: <&top-type>) => (res == #t)
   #t
 end;
 
-define method dynamic? (tv :: <rest-type>) => (res == #t)
-  #t
-end;
-
 define method arrow? (type :: <&type>) => (res :: <boolean>)
   #f
 end;

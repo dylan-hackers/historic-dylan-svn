@@ -31,16 +31,13 @@ define method lookup-type (o :: <multiple-value-temporary>) => (res :: <node>)
       for (x from 0 below o.required-values)
         tes := add(tes, make(<&top-type>));
       end;
-      if (o.rest-values?)
-        tes := add(tes, make(<rest-type>));
-      end;
       let top = make(<&top-type>);
       let tv = make(<type-variable>, contents: top);
       debug-types(#"new-type-variable", tv, o, top);
       let n = make(<node>, graph: *graph*, value: tv);
       *type-environment*[o] := n;
       add-constraint(make(<equality-constraint>, origin: o,
-                          left: gen-tuple(map(lookup-type, tes)),
+                          left: gen-tuple(map(lookup-type, tes), rest?: o.rest-values?),
                           right: n));
       n;
     end;
@@ -106,15 +103,11 @@ end;
 
 define method type-estimate-object (lft :: <&limited-function-type>)
  => (res :: type-union(<typist-type>, <&type>))
-  let args = map(lookup-type, lft.^function-signature.^signature-required-arguments);
-  let vals = map(lookup-type, lft.^function-signature.^signature-required-values);
-  if (lft.^function-signature.^signature-rest?)
-    args := add!(args, make(<rest-type>).lookup-type);
-  end;
-  if (lft.^function-signature.^signature-rest-value)
-    vals := add!(vals, make(<rest-type>).lookup-type);
-  end;
-  make(<arrow>, arguments: args.gen-tuple, values: vals.gen-tuple);
+  let sig = lft.^function-signature;
+  let args = map(lookup-type, sig.^signature-required-arguments);
+  let vals = map(lookup-type, sig.^signature-required-values);
+  make(<arrow>, arguments: gen-tuple(args, rest?: sig.^signature-rest?),
+       values: gen-tuple(vals, rest?: sig.^signature-rest-value));
 end;
 
 define method type-estimate-object (lc :: <&limited-collection-type>)
@@ -160,12 +153,7 @@ end;
 define method model-type (t :: <arrow>) => (t :: <&limited-function-type>)
   let arg = t.arrow-arguments.model-type;
   let val = t.arrow-values.model-type;
-  unless (instance?(arg, <collection>))
-    arg := vector(arg);
-  end;
-  unless (instance?(val, <collection>))
-    val := vector(val);
-  end;
+  //doesn't respect #rest and keywords!
   make(<&limited-function-type>,
        signature: ^make(<&signature>,
                         required: arg, number-required: arg.size,
@@ -230,7 +218,13 @@ define method type-infer (l :: <&lambda>)
       let result-type = temporary-type(l.body.bind-return.computation-value);
       //might need to emit type check (top is super of everything!)
       if (~ instance?(result-type, <&top-type>)) //top-type is never more specific than some other type
-        let sig = convert-type-to-signature(l.^function-signature, l.parameters, result-type);
+        let res-type = l.body.bind-return.computation-value.lookup-type.find.node-value;
+        let (res, rest?) = if (instance?(res-type, <tuple-with-rest>))
+                             values(map(model-type, res-type.tuple-types), #t); //respect rest-type!
+                           else
+                             values(result-type, #f);
+                           end;
+        let sig = convert-type-to-signature(l.^function-signature, l.parameters, res, rest?);
         //also check congruency to generic!
         //also check with written down stuff: especially "=> ()"
         //or cases where fewer values are exposed than emitted (warn here!)
@@ -268,67 +262,55 @@ define function more-specific? (sig1 :: <&signature>, sig2 :: <&signature>) => (
   (val1.size < val2.size) | any?(complement(^type-equivalent?), val1, val2)
 end;
 
-define function transform-collection-to-fixed-rest
-    (c :: <collection>) => (fixed :: <collection>, rest? :: <boolean>)
-  if (c.size > 0 & instance?(last(c), <rest-type>))
-    values(copy-sequence(c, end: c.size - 1), #t)
-  else
-    values(c, #f)
-  end;
-end;
-
 define generic convert-type-to-signature
- (old :: false-or(<&signature>), params :: <collection>, values :: type-union(<collection>, <&type>))
+ (old :: false-or(<&signature>), params :: <collection>, res :: type-union(<collection>, <&type>), rest? :: <boolean>)
  => (signature :: <&signature>);
 
-define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, values :: <&type>)
+define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, values :: <&type>, rest? :: <boolean>)
  => (signature :: <&signature>)
   let param = map(specializer, parameters);
   ^make(<&signature>, required: param, number-required: param.size,
-        values: vector(values), number-values: 1, rest?: #f);
+        values: vector(values), number-values: 1, rest?: rest?);
 end;
 
-define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, vals :: <collection>)
+define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, values :: <collection>, rest? :: <boolean>)
  => (signature :: <&signature>)
   let param = map(specializer, parameters);
-  let (fixed, rest?) = transform-collection-to-fixed-rest(vals);
   ^make(<&signature>, required: param, number-required: param.size,
-        values: fixed, number-values: fixed.size, rest?: rest?);
+        values: values, number-values: values.size, rest?: rest?);
 end;
 
-define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <&type>)
+define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <&type>, rest? :: <boolean>)
  => (signature :: <&signature>)
   //we can also upgrade <&signature> -> <&polymorphic-signature>
   ^make(<&signature>, required: old-sig.^signature-required-arguments,
         number-required: old-sig.^signature-number-required,
-        values: vector(values), number-values: 1, rest?: #f);
+        values: vector(values), number-values: 1, rest?: rest?);
 end;
 
-define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <collection>)
+define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <collection>, rest? :: <boolean>)
  => (signature :: <&signature>)
   //we can also upgrade <&signature> -> <&polymorphic-signature>
-  let (fixed, rest?) = transform-collection-to-fixed-rest(values);
   ^make(<&signature>, required: old-sig.^signature-required-arguments,
         number-required: old-sig.^signature-number-required,
-        values: fixed, number-values: fixed.size, rest?: rest?);
+        values: values, number-values: values.size, rest?: rest?);
 end;
 
-define method convert-type-to-signature (old-sig :: <&polymorphic-signature>, parameters :: <collection>, values :: <&type>)
+define method convert-type-to-signature (old-sig :: <&polymorphic-signature>, parameters :: <collection>, values :: <&type>, rest? :: <boolean>)
  => (signature :: <&signature>)
   //or add/remove type variables...
   ^make(<&signature>, required: old-sig.^signature-required-arguments,
         number-required: old-sig.^signature-number-required,
-        values: vector(values), number-values: 1, rest?: #f,
+        values: vector(values), number-values: 1, rest?: rest?,
         type-variables: old-sig.^signature-type-variables);
 end;
 
-define method convert-type-to-signature (old-sig :: <&polymorphic-signature>, parameters :: <collection>, values :: <collection>)
+define method convert-type-to-signature (old-sig :: <&polymorphic-signature>, parameters :: <collection>, values :: <collection>, rest? :: <boolean>)
  => (signature :: <&signature>)
-  let (fixed, rest?) = transform-collection-to-fixed-rest(values);
   //or add/remove type variables...
   ^make(<&signature>, required: old-sig.^signature-required-arguments,
         number-required: old-sig.^signature-number-required,
-        values: fixed, number-values: fixed.size, rest?: rest?,
+        values: values, number-values: values.size, rest?: rest?,
         type-variables: old-sig.^signature-type-variables);
 end;
 
@@ -380,10 +362,7 @@ define method infer-computation-types (c :: <values>) => ()
   next-method();
   let l = begin
             let types = map(lookup-type, c.fixed-values);
-            if (c.rest-value)
-              types := add(types, make(<rest-type>).lookup-type);
-            end;
-            types.gen-tuple;
+            gen-tuple(types, rest?: c.rest-value)
           end;
   add-constraint(make(<equality-constraint>,
                       origin: c,
@@ -612,13 +591,9 @@ end;
 define method infer-computation-types (c :: <multiple-value-check-type-rest>) => ()
   next-method();
   let ts = map(lookup-type, c.types);
-  if (c.rest-type)
-    //ts := add(ts, c.rest-type.lookup-type);
-    ts := add(ts, make(<rest-type>).lookup-type);
-  end;
   add-constraint(make(<equality-constraint>,
                       origin: c,
-                      left: ts.gen-tuple,
+                      left: gen-tuple(ts, rest?: c.rest-type), //pass real rest type!
                       right: c.temporary.lookup-type));
 end;
 
@@ -724,8 +699,7 @@ end;
 define method infer-computation-types (c :: <primitive-call>) => ()
   next-method();
   let s = c.primitive.primitive-signature;
-  create-arrow-and-constraint(c, map(lookup-type, s.^signature-required-arguments),
-                              map(lookup-type, s.^signature-required-values));
+  create-arrow-and-constraint(c, s);
 end;
 
 define method infer-function-type (c :: <function-call>, fun == #f) => ()
@@ -733,28 +707,22 @@ define method infer-function-type (c :: <function-call>, fun == #f) => ()
 end;
 
 define method infer-function-type (c :: <function-call>, fun :: <&limited-function-type>) => ()
-  let args = fun.^function-signature.^signature-required-arguments;
-  let a = map(lookup-type, args);
-  let vals = fun.^function-signature.^signature-required-values;
-  let v = map(lookup-type, vals);
-  create-arrow-and-constraint(c, a, v);
+  create-arrow-and-constraint(c, fun.^function-signature);
 end;
 
-define function gen-tuple (types :: <collection>) => (res :: <node>)
-  if (types.size > 0 & instance?(types.last.node-value, <rest-type>))
-    make(<tuple-with-rest>, tuples: copy-sequence(types, end: types.size - 1)).lookup-type
-  else
-    make(<tuple>, tuples: types).lookup-type;
-  end;
+define function gen-tuple (types :: <collection>, #key rest?) => (res :: <node>)
+  make(if (rest?) <tuple-with-rest> else <tuple> end, tuples: types).lookup-type
 end;
 
 define function create-arrow-and-constraint
- (c :: <call>, specializers :: <collection>, vals :: <collection>) => ()
+ (c :: <call>, sig :: <&signature>) => ()
+  let specializers = map(lookup-type, sig.^signature-required-arguments);
+  let vals = map(lookup-type, sig.^signature-required-values);
   let left = make(<node>,
                   graph: *graph*,
                   value: make(<arrow>,
-                              arguments: specializers.gen-tuple,
-                              values: vals.gen-tuple));
+                              arguments: gen-tuple(specializers, rest?: sig.^signature-optionals?),
+                              values: gen-tuple(vals, rest?: sig.^signature-rest-value)));
 
   let args = map(lookup-type, c.arguments);
 
@@ -855,20 +823,7 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
       end;
     end;
   end;
-  let values = sig.^signature-required-values;
-  let args = sig.^signature-required-arguments;
-  let rest? = sig.^signature-optionals?;
-  //#rest can be annotated with a type, but this information is lost in translation
-  let arg-nodes = map(lookup-type, args);
-  if (rest?)
-    arg-nodes := add!(arg-nodes, make(<rest-type>).lookup-type);
-  end;
-  let val-nodes = map(lookup-type, values);
-  let rest-values? = ^signature-rest-value(sig);
-  if (rest-values?)
-    val-nodes := add!(val-nodes, make(<rest-type>).lookup-type);
-  end;
-  create-arrow-and-constraint(c, arg-nodes, val-nodes);
+  create-arrow-and-constraint(c, sig);
 end;
 
 define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>) => ()

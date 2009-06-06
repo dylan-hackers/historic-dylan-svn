@@ -183,6 +183,15 @@ define method fast-constant-argument-value?
   values(#f, #f)
 end method;
 
+define method fast-constant-argument-value?
+    (ref :: <temporary>) => (erll? :: <boolean>, res)
+  if (instance?(ref.generator, <temporary-transfer>))
+    fast-constant-argument-value?(ref.generator.computation-value)
+  else
+    values(#f, #f)
+  end
+end;
+
 define inline function fast-constant-argument-value (ref) => (value)
   let (constant?, value) = fast-constant-argument-value?(ref);
   value
