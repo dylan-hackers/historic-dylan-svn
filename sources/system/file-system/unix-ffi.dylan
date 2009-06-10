@@ -186,6 +186,11 @@ end function dirent-name;
 
 /// Error handling
 
+define function unix-errno () => (errno :: <integer>)
+  raw-as-integer
+    (%call-c-function("io_errno") ()=>(result :: <raw-c-signed-int>)() end)
+end function;
+
 define function unix-last-error-message () => (message :: <string>)
   let message :: <byte-string>
     = primitive-raw-as-string

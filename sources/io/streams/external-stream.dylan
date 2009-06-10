@@ -27,7 +27,7 @@ define constant $open-external-streams :: <table> = make(<table>);
 
 define function close-external-streams () => ()
   for (external-stream in $open-external-streams)
-      close(external-stream);
+    close(external-stream);
   end for;
 end function;
 
@@ -100,7 +100,13 @@ end method;
 
 define method newline-sequence (stream :: <external-stream>)
  => (elements :: <string>)
+  if (stream.accessor)
   accessor-newline-sequence(stream.accessor)
+  else
+    error(make(<stream-closed-error>, stream: stream,
+               format-string:
+                 "Can't get newline-sequence of a closed external stream"));
+  end;
 end method newline-sequence;
 
 
@@ -122,8 +128,8 @@ define open generic platform-accessor-class
 // common denominator wins.
 
 define open generic accessor-fd
-  ( the-accessor :: <external-stream-accessor> ) 
-=> (the-fd :: false-or(<machine-word>));
+    (the-accessor :: <external-stream-accessor>) 
+ => (the-fd :: false-or(<machine-word>));
 
 // Legal values for direction are #"input", #"output", #"input-output"
 // Legal values for if-exists are #"new-version", #"overwrite", #"replace",
@@ -155,6 +161,34 @@ define open generic accessor-close
 define open generic accessor-open?
     (accessor :: <external-stream-accessor>)
  => (open? :: <boolean>);
+
+define open generic accessor-at-end?
+    (accessor :: <external-stream-accessor>)
+ => (at-end? :: <boolean>);
+
+define open generic accessor-at-end?-setter
+    (at-end? :: <boolean>, accessor :: <external-stream-accessor>)
+ => (at-end? :: <boolean>);
+
+define open generic accessor-size
+    (accessor :: <external-stream-accessor>)
+ => (size);
+
+define open generic accessor-size-setter
+    (size, accessor :: <external-stream-accessor>)
+ => (size);
+
+define open generic accessor-positionable?
+    (accessor :: <external-stream-accessor>)
+ => (positionable? :: <boolean>);
+
+define open generic accessor-position
+    (accessor :: <external-stream-accessor>)
+ => (position);
+
+define open generic accessor-position-setter
+    (position, accessor :: <external-stream-accessor>)
+ => (position);
 
 define open generic accessor-preferred-buffer-size
     (accessor :: <external-stream-accessor>)

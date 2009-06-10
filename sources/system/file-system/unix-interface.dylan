@@ -38,72 +38,6 @@ define function unix-open
   end
 end function unix-open;
 
-define function unix-close (fd :: <integer>) => (result :: <integer>)
-  with-interrupt-repeat
-    raw-as-integer
-      (%call-c-function ("close") (fd :: <raw-c-unsigned-int>)
-            => (result :: <raw-c-signed-int>)
-         (integer-as-raw(fd)) end)
-  end
-end function unix-close;
-
-define function unix-read
-    (fd :: <integer>, data :: <buffer>, offset :: <integer>, count :: <integer>) => (result :: <integer>)
-  with-interrupt-repeat
-    raw-as-integer
-      (%call-c-function ("read")
-           (fd :: <raw-c-unsigned-int>, address :: <raw-pointer>, 
-            size :: <raw-c-unsigned-long>)
-        => (result :: <raw-c-signed-int>)
-         (integer-as-raw(fd), 
-	  primitive-cast-raw-as-pointer
-	    (primitive-machine-word-add
-	       (primitive-cast-pointer-as-raw
-		  (primitive-repeated-slot-as-raw(data, primitive-repeated-slot-offset(data))), 
-                primitive-cast-pointer-as-raw(integer-as-raw(offset)))), 
-          integer-as-raw(count))
-       end)
-  end
-end function unix-read;
-
-define function unix-write
-    (fd :: <integer>, data, offset :: <integer>, count :: <integer>) => (result :: <integer>)
-  with-interrupt-repeat
-    raw-as-integer
-      (%call-c-function ("write")
-           (fd :: <raw-c-unsigned-int>, address :: <raw-pointer>, 
-            size :: <raw-c-unsigned-long>)
-        => (result :: <raw-c-signed-int>)
-         (integer-as-raw(fd), 
-	  primitive-cast-raw-as-pointer
-	    (primitive-machine-word-add
-	       (primitive-cast-pointer-as-raw
-		  (primitive-repeated-slot-as-raw(data, primitive-repeated-slot-offset(data))), 
-	        primitive-cast-pointer-as-raw(integer-as-raw(offset)))), 
-	  integer-as-raw(count))
-       end)
-  end
-end function unix-write;
-
-define function unix-lseek
-    (fd :: <integer>, position :: <integer>, mode :: <integer>) => (position :: <integer>)
-  with-interrupt-repeat
-    unwrapped-unix-lseek(fd, position, mode)
-  end
-end function unix-lseek;
-
-define function get-unix-error (errno :: <integer>) => (message :: <string>)
-  let message :: <byte-string>
-    = primitive-raw-as-string
-       (%call-c-function ("strerror") 
-	    (errno :: <raw-c-signed-int>) => (message :: <raw-byte-string>)
-	  (integer-as-raw(errno))
-	end);
-  // Make a copy to avoid it being overwritten ...
-  copy-sequence(message)
-end function get-unix-error;
-
-
 /// HIGHER LEVEL INTERFACE
 
 /// This value is overkill, actually ...
@@ -132,9 +66,9 @@ end function unix-delete-file;
 
 // POSIX lseek whence definitions:
 
-define constant $seek_set = 0;
+//define constant $seek_set = 0;
 // define constant $seek_cur = 1;
-define constant $seek_end = 2;
+//define constant $seek_end = 2;
 
 // Definitions for open mode arg.
 
@@ -172,10 +106,3 @@ define constant $o_sync
 
 // standard unix error definitions
 define constant $e_access = 13;
-
-define function unix-error (syscall :: <string>, #key errno = #f) => ()
-  let message :: <string> 
-   = get-unix-error
-       (if (~errno) unix-errno() else errno end);
-  error("%s %s", syscall, message);
-end function unix-error;
