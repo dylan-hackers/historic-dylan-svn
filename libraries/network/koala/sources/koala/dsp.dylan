@@ -585,7 +585,11 @@ define method parse-tag-arg
                     "active taglibs (%s).  "
                     "While parsing the %= argument in a <%s:%s> tag.",
                   format-arguments:
-                    vector(as(<string>, *template-locator*), arg,
+                    // *template-locator* can be #f if we're being called
+                    // explicitly during tag execution.  To fix it we'd have
+                    // to store a back pointer in the tag call.  For now I'm
+                    // just putting "unknown".  --cgay June 2009
+                    vector(as(<string>, *template-locator* | "unknown"), arg,
                            join(taglibs, ", ", conjunction: " and ", key: first),
                            param, *tag-call*.prefix, *tag-call*.name)))
 end;

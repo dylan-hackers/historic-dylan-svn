@@ -2,6 +2,7 @@ module: dylan-user
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define library web-framework
+  use base64;
   use common-dylan;
   use dood;
   use dylan;
@@ -98,6 +99,7 @@ define module web-framework-macro
 end;
 
 define module users
+  use base64;
   use common-dylan;
   use dylan;
   use dsp, import: { set-attribute, get-attribute };
@@ -116,9 +118,13 @@ define module users
     user-password-setter,
     user-email,
     user-email-setter,
+    user-activation-key,
+    user-activated?,
+    user-activated?-setter,
     administrator?,
     administrator?-setter,
     authenticated-user,
+    generate-activation-key,
     find-user,
     authenticate,
     login,
@@ -151,8 +157,8 @@ define module change
   export <add-command>,
     <remove-command>,
     <edit-command>;
-
 end;
+
 define module changes
   use common-dylan;
   use dylan;
