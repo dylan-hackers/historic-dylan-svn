@@ -75,6 +75,7 @@ define module http-common
 
     // Thing with attributes
     <attributes-mixin>,
+    has-attribute?,
     get-attribute,
     set-attribute,
     remove-attribute,

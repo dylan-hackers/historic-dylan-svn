@@ -76,7 +76,8 @@ define function koala-main
           if (debug?)
             next-handler()  // decline to handle it
           else
-            format(*standard-output*, "Error: %s\n", cond);
+            format(*standard-error*, "Error: %s\n", cond);
+            exit-application(1);
           end;
         end;
     // We want to bind *server* early so that log output goes to the

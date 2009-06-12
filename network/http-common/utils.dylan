@@ -42,14 +42,26 @@ define open class <attributes-mixin> (<object>)
   constant slot attributes :: <string-table> = make(<string-table>);
 end;
 
+define generic has-attribute?
+    (this :: <attributes-mixin>, key :: <string>) => (has-it? :: <boolean>);
+
 define generic get-attribute
-    (this :: <attributes-mixin>, key :: <string>, #key);
+    (this :: <attributes-mixin>, key :: <string>, #key)
+ => (value :: <object>);
 
 define generic set-attribute
     (this :: <attributes-mixin>, key :: <string>, value :: <object>);
 
 define generic remove-attribute
     (this :: <attributes-mixin>, key :: <string>);
+
+
+// API
+define method has-attribute?
+    (this :: <attributes-mixin>, key :: <string>)
+ => (has-it? :: <boolean>)
+  has-key?(this, key)
+end;
 
 // API
 define method get-attribute

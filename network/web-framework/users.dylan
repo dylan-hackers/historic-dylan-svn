@@ -27,6 +27,9 @@ define open class <user> (<object>)
     required-init-keyword: email:;
   slot administrator? :: <boolean> = #f,
     init-keyword: administrator?:;
+  slot user-activation-key :: <string>,
+    init-keyword: activation-key:;
+  slot user-activated? :: <boolean> = #f;
 end class <user>;
 
 define method initialize (user :: <user>, #key)
@@ -36,9 +39,19 @@ define method initialize (user :: <user>, #key)
                 error: format-to-string("A user named '%s' already exists.",
                                         user.user-name)));
   else
+    if (~slot-initialized?(user, user-activation-key))
+      user.user-activation-key := generate-activation-key(user);
+    end;
     save(user);
   end if;
 end method initialize;
+
+define method generate-activation-key
+    (user :: <user>)
+ => (key :: <string>)
+  // temporary.  should be more secure.
+  base64-encode(concatenate(user.user-name, user.user-email))
+end;
 
 define method key (user :: <user>)
  => (res :: <string>)
@@ -102,21 +115,20 @@ define function check-authorization ()
   let authorization = get-header(current-request(), "Authorization", parsed: #t);
   if (authorization)
     let user = find-user(head(authorization));
-    if (user & user.user-password = tail(authorization))
-      user;
-    end if;
-  end if;
+    if (user
+          & user.user-activated?
+          & user.user-password = tail(authorization))
+      user
+    end
+  end
 end function check-authorization;
 
 define function authenticate ()
  => (user :: false-or(<user>))
-  let authorization = get-header(current-request(), "Authorization", parsed: #t);
-  if (authorization)
-    let user = find-user(head(authorization));
+  let user = check-authorization();
+  if (user)
     *authenticated-user*
-      := if (user
-               & user.user-password = tail(authorization)
-               & ~member?(user, *ignore-authorizations*, test: \=)
+      := if (~member?(user, *ignore-authorizations*, test: \=)
                & ~member?(user, *ignore-logins*, test: \=))
            user
          end;

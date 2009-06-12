@@ -59,6 +59,7 @@ define module koala
     current-request,             // Returns the active request of the thread.
     request-host,
     request-tail-url,
+    request-absolute-url,
     request-query-values,        // get the keys/vals from the current GET or POST request
       get-query-value,           // Get a query value that was passed in a URL or a form
       do-query-values,           // Call f(key, val) for each query in the URL or form
@@ -168,7 +169,8 @@ define module dsp
   use table-extensions,
     import: { table },
     rename: { table => make-table };
-  use common-extensions;
+  use common-extensions,
+    exclude: { false?, true? };
   use date;
   use dylan;
   use file-system;

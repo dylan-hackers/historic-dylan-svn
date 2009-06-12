@@ -51,15 +51,29 @@ end;
 
 
 // <dsp:get name="foo" context="c1,c2,..."/>
+// <dsp:get name="foo[0]" context="c1,c2,..."/>
 // where c1, c2 are form-notes|page|request|header|session.
 // context defaults to "page".
-// raw="true" means don't escape HTML characters.
+//
+// The 'name' parameter names an attribute in one of the given contexts.
+//
+// Simple subscripting (i.e., foo[n]) can be used to access elements of
+// the retrieved value.  (This may be extended in the future to allow
+// applying named functions to the value as well, via dotted notation.)
+// If the retrieved value is a <sequence> then the key must be
+// parsable as an integer; otherwise the value is expected to have string
+// keys (e.g., <string-table>).  The purpose here is to prevent the need
+// to write many one-off tags to access attributes of a <dsp:loop> value.
+// Instead, just iterate over a collection of <string-table>s and use
+// subscripting notation.
+//
+// raw="true" means don't escape HTML special characters.
 //
 define tag get in dsp
     (page :: <dylan-server-page>)
     (name :: <string>, context, tag, raw :: <boolean>)
   let value = get-context-value(name, context, tag: tag);
-  if (value ~= $unsupplied)
+  if (found?(value))
     let string = format-to-string("%s", value);
     output("%s", iff(raw, string, quote-html(string)));
   end;
@@ -68,33 +82,77 @@ end tag get;
 define method get-context-value
     (name :: <string>, context :: false-or(<string>), #key tag)
  => (value :: <object>)
-  block (return)
-    // Search contexts in order to find a value.  First one is displayed.
-    for (context in split(context | "page", ','))
-      let value = select (as(<symbol>, context))
-                    page:    => get-attribute(page-context(), name);
-                    request: => get-query-value(name);
-                    headers: => get-header(current-request(), name);
-                    session: => get-attribute(get-session(current-request()), name);
-                    field-errors: => format-field-errors(get-field-errors(name), tag);
-                    /* todo
-                    otherwise =>
-                      if (...debugging template tags?...)
-                        signal(make(<koala-api-error>,
-                                    format-string: "Bad context specified in "
-                                      "<dsp:get> tag: %s",
-                                    format-arguments: list(context)));
-                      end;
-                    */
-                  end;
-      if (value)
-        return(value);
-      end;
-    end for;
-    $unsupplied
-  end block;
-end method get-context-value;
+  let name = trim(name);
+  local method get-context-value-internal ()
+    block (return)
+      // Search contexts in order to find a value.  First one is displayed.
+      for (context in split(context | "page", ','))
+        let context-symbol = as(<symbol>, context);
+        select (context-symbol)
+          page: =>
+            let v = get-attribute(page-context(), name, default: $unfound);
+            found?(v) & return(v);
+          request: =>
+            let v = get-query-value(name);
+            v & return(v);
+          headers: =>
+            let v = get-header(current-request(), name);
+            v & return(v);
+          session: =>
+            let v = get-attribute(get-session(current-request()), name,
+                                  default: $unfound);
+            found?(v) & return(v);
+          field-errors: =>
+            let errors = get-field-errors(name);
+            if (errors)
+              format-field-errors(errors, tag);
+            end;
 
+          /* todo
+          otherwise =>
+            if (...debugging template tags?...)
+              signal(make(<dsp-error>,
+                          format-string: "Bad context specified in "
+                            "<dsp:get> tag: %s",
+                          format-arguments: list(context)));
+            end;
+            */
+
+        end select;
+      end for;
+      $unfound
+    end block;
+  end method get-context-value-internal;
+
+  let full-name = name;
+  let key = $unfound;
+
+  // Check if the template is using "name='value[key]'" syntax.
+  let bracket = position(full-name, '[');
+  if (bracket)
+    // lame-o parsing for now.
+    name := copy-sequence(full-name, end: bracket);
+    let close-bracket = position(full-name, ']') | full-name.size;
+    if (bracket < close-bracket)
+      key := copy-sequence(full-name, start: bracket + 1, end: close-bracket);
+    end;
+  end;
+
+  let value = get-context-value-internal();
+  if (found?(value) & found?(key))
+    // If the value found in the given context is a <sequence> then
+    // try to convert the key to an integer since that's the only
+    // key that makes sense for sequences.  (Any other useful key
+    // conversions we should do?)
+    if (instance?(value, <sequence>))
+      key := string-to-integer(key);
+    end;
+    // Default to "" because these will almost always be output directly
+    // to the response stream and we don't want "#f" showing up in web pages.
+    value := element(value, key, default: "");
+  end;
+  value
+end method get-context-value;
 
 
 //// Conditional tags
@@ -160,6 +218,15 @@ define body tag \unless in dsp
   end;
 end;
 
+define function context-value-not-found-error
+    (name :: <string>, context :: false-or(<string>))
+ => ()
+   signal(make(<dsp-error>,
+               format-string: "No attribute named %= was found in the "
+                 "given context, %=",
+               format-arguments: list(name, context)));
+end;
+
 // For use with <dsp:if>, <dsp:when>, and <dsp:unless>.  It grabs the
 // 'name' and 'context' attributes out of those tag calls and uses them
 // to see if the name exists in the given context.
@@ -169,10 +236,37 @@ define named-method exists? in dsp
   let name = get-tag-call-attribute(#"name");
   if (name)
     let context = get-tag-call-attribute(#"context");
-    let value = get-context-value(name, context);
-    value ~= $unsupplied
+    found?(get-context-value(name, context));
   end
 end named-method exists?;
+
+define named-method true? in dsp
+    (page :: <dylan-server-page>)
+  let name = get-tag-call-attribute(#"name");
+  if (name)
+    let context = get-tag-call-attribute(#"context");
+    let value = get-context-value(name, context);
+    if (found?(value))
+      value ~= #f
+    else
+      context-value-not-found-error(name, context);
+    end
+  end
+end named-method true?;
+
+define named-method false? in dsp
+    (page :: <dylan-server-page>)
+  let name = get-tag-call-attribute(#"name");
+  if (name)
+    let context = get-tag-call-attribute(#"context");
+    let value = get-context-value(name, context);
+    if (found?(value))
+      value = #f
+    else
+      context-value-not-found-error(name, context);
+    end
+  end
+end named-method false?;
 
 define body tag if-equal in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
@@ -180,6 +274,12 @@ define body tag if-equal in dsp
      name2 :: <string>, context2)
   let item1 = get-context-value(name1, context1);
   let item2 = get-context-value(name2, context2);
+  if (~found?(item1))
+    context-value-not-found-error(name1, context1);
+  end;
+  if (~found?(item2))
+    context-value-not-found-error(name2, context2);
+  end;
   if (item1 = item2)
     do-body();
   end;
@@ -202,7 +302,7 @@ end tag if-equal;
 
       <h2><wiki:show-group-name/></h2>
       <dsp:loop over="group-members" context="page" var="user-name"
-                header="<ul>" footer="</ul>">
+                header="<ul>" footer="</ul>" empty="None">
         <li><dsp:get name="user-name" context="page"/></li>
       </dsp:loop>
 */
@@ -257,35 +357,39 @@ end;
 
 define body tag loop in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
-    (over :: <string>, context, var, header, footer)
+    (over :: <string>, context, var, header, footer, empty)
   let items :: <collection>
     = if (context)
-        get-context-value(over, context)
+        let value = get-context-value(over, context);
+        iff(found?(value), value, #[])
       else
         // This errs if not found.
         let named-method = parse-tag-arg("over", over, <named-method>);
         named-method(page);
       end;
-  for (item in iff(supplied?(items), items, #[]),
-       i from 1)
-    dynamic-bind (*loop-value* = item,
-                  *loop-index* = i,
-                  *loop-start?* = (i = 1),
-                  *loop-end?* = (i = items.size))
-      if (var)
-        set-attribute(page-context(), var, *loop-value*);
-      end;
-      if (header & *loop-start?*)
-        output("%s", header);
-      end;
+  if (empty?(items))
+    output("%s", empty | "");
+  else
+    for (item in items, i from 1)
+      dynamic-bind (*loop-value* = item,
+                    *loop-index* = i,
+                    *loop-start?* = (i = 1),
+                    *loop-end?* = (i = items.size))
+        if (var)
+          set-attribute(page-context(), var, *loop-value*);
+        end;
+        if (header & *loop-start?*)
+          output("%s", header);
+        end;
 
-      do-body();
+        do-body();
 
-      if (footer & *loop-end?*)
-        output("%s", footer);
+        if (footer & *loop-end?*)
+          output("%s", footer);
+        end;
       end;
-    end;
-  end for;
+    end for;
+  end if;
   // Scope the loop variable to the loop, not the entire page.
   remove-attribute(page-context(), var);
 end tag loop;
@@ -535,7 +639,7 @@ define method format-field-errors
   else
     let messages = map(method (error :: <form-field-error>)
                          format-to-string("<%s class=\"field-error\">%s</%s>",
-                                          tag, error.note-text, tag)
+                                          tag, quote-html(error.note-text), tag)
                        end,
                        errors);
     format-to-string("<%s class=\"field-errors\">%s</%s>\n",
@@ -549,7 +653,7 @@ end method format-field-errors;
 //
 define method validate-form-field
     (field-name :: <string>, validator :: <function>,
-     #key trim: trim? = #t, decode = #t,
+     #key trim: trim? = #t, decode = #t, error-if-empty,
           as: as-type :: false-or(<type>))
  => (validator-values-or-field-value-on-error)
   let field-value = get-query-value(field-name, as: as-type) | "";
@@ -558,6 +662,9 @@ define method validate-form-field
   end;
   if (trim?)
     field-value := trim(field-value);
+  end;
+  if (error-if-empty & empty?(field-value))
+    add-field-error(field-name, "The %s field is required.", field-name);
   end;
   block ()
     validator(field-value)

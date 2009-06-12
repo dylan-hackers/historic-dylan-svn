@@ -40,7 +40,7 @@ end;
 
 define open class <entry> (<object>)
   /* slot CommonAttributes */
-  slot authors :: <list> = #(),
+  slot authors :: <list> = #(),  // list of strings
     init-keyword: authors:;
   slot categories :: <vector> = #[],
     init-keyword: categories:;

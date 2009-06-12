@@ -737,6 +737,28 @@ define method make
   apply(next-method, class, inner-stream: client.client-socket, args)
 end;
 
+// The request-url slot represents the URL in the Request-Line,
+// and may not be absolute.  This methods gives client code a way
+// to get the whole thing.  (We assume HTTP for now.)
+//
+define method request-absolute-url
+    (request :: <request>)
+ => (url :: <url>)
+  let url = request.request-url;
+  if (absolute?(url))
+    url
+  else
+    make(<url>,
+         scheme: "http",
+         //userinfo:
+         host: request.request-host,
+         port: request.request-client.client-listener.listener-port,
+         path: url.uri-path,
+         query: url.uri-query,
+         fragment: url.uri-fragment)
+  end
+end method request-absolute-url;
+
 // Making a virtual hosts requires an instantiated server to do some
 // initialization, so use this instead of calling make(<virtual-host>).
 //
