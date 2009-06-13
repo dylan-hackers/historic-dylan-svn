@@ -29,7 +29,8 @@ define open class <user> (<object>)
     init-keyword: administrator?:;
   slot user-activation-key :: <string>,
     init-keyword: activation-key:;
-  slot user-activated? :: <boolean> = #f;
+  slot user-activated? :: <boolean> = #f,
+    init-keyword: activated?:;
 end class <user>;
 
 define method initialize (user :: <user>, #key)
