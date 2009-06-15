@@ -8,6 +8,10 @@ define method find-lambda (t :: <temporary>) => (l :: false-or(<&lambda>))
   (t.generator & t.generator.find-lambda) | (t.environment & t.environment.lambda);
 end;
 
+define method find-lambda (o :: <object-reference>) => (l :: false-or(<&lambda>))
+  o.users.size > 0 & o.users.first.find-lambda;
+end;
+
 define method find-lambda (o :: <object>) => (l == #f)
   #f
 end;
@@ -25,19 +29,35 @@ define macro with-environment
    }
 end;
 
+define method type-estimate (const :: <defined-constant-reference>) => (te :: type-union(<collection>, <&type>))
+  let mb = const.referenced-binding; //probably need this stuff also in my typist rep?!
+  if (mb & instance?(mb, <module-binding>))
+    let type = binding-type-model-object(mb, error-if-circular?: #f);
+    if (type & instance?(type, type-union(<collection>, <&type>)))
+      type
+    else
+      make(<&top-type>)
+    end
+  else
+    make(<&top-type>)
+  end
+end;
+
 define method type-estimate (o :: <object>) => (te :: type-union(<collection>, <&type>))
   block()
     with-environment(o)
       *constraints*.size > 0 & solve(*graph*, *constraints*, *type-environment*);
       let node = element(*type-environment*, o, default: #f);
       if (node)
-        node.model-type;
+        node.model-type
       else 
-        make(<&top-type>);
+        o.type-estimate-object.model-type
       end;
     end;
   exception (e :: <condition>)
-    o.type-estimate-object
+    dynamic-bind(*graph* = make(<graph>))
+      o.type-estimate-object.model-type
+    end;
   end;
 end;
 

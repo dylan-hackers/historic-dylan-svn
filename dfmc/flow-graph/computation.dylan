@@ -280,8 +280,6 @@ end dood-class;
 define method temporary-id (t :: <object-reference>) => (res :: <integer>)
   if (instance?(t.%temporary-id, <integer>))
     t.%temporary-id;
-  elseif (instance?(t.reference-value, <&function>))
-    0;
   else
     t.%temporary-id := next-computation-id();
     if (*computation-tracer*)

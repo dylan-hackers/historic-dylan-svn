@@ -661,6 +661,7 @@ define method replace-computation-with-temporary!
   if (c-t)
     replace-temporary-in-users!(c-t, ref);
   end;
+  //type ref [into te]!
   // usually, the computation is removed above,
   // but it might not be side-effect-free
   delete-computation!(c);

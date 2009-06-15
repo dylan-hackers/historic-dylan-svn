@@ -376,7 +376,7 @@ define function renaming (f :: <&lambda>, mapping :: <table>)
   local method search (x :: <computation>)
           replace-temporaries!(x, modified-variables, stacks);
           let children = mapping[x].node-children;
-          if (instance?(x, <assignment>))
+          if (instance?(x, <assignment>) & ~ instance?(x, <definition>))
             //replace assignment with <temporary-transfer>
             let (tt, tmp)
               = make-with-temporary
@@ -438,7 +438,7 @@ define function renaming (f :: <&lambda>, mapping :: <table>)
           for (y in children)
             search(y.node-computation);
           end;
-          if (instance?(x, <assignment>))
+          if (instance?(x, <assignment>) & ~ instance?(x, <definition>))
             //for (v in oldLHS(x))
               pop(stacks[x.assigned-binding]);
             //end;

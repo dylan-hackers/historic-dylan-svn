@@ -2121,8 +2121,8 @@ end method parameter-type-size;
 // Ensure that return values from C-functions are of their desired types
 
 define method emit-ffi-result
-    (back-end :: <harp-back-end>, result, type :: <type-estimate-raw>, result-typespec) => ()
-  emit-ffi-result(back-end, result, as(<&type>, type), result-typespec)
+    (back-end :: <harp-back-end>, result, type :: <&type>, result-typespec) => ()
+  emit-ffi-result(back-end, result, type, result-typespec)
 end method emit-ffi-result;
 
 define method emit-ffi-result(back-end :: <harp-back-end>, result, type :: <&raw-type>, result-typespec) => ()

@@ -17,6 +17,7 @@ define library dfmc-visualization
   use dfmc-debug-back-end;
   use projects;
   use dfmc-environment-projects;
+  use dfmc-browser-support;
 
   export dfmc-visualization;
 end;
@@ -37,8 +38,10 @@ define module dfmc-visualization
   use dfmc-optimization;
   use dfmc-typist;
   use dfmc-debug-back-end;
-  use projects-implementation, import: { project-current-compilation-context };
+  use projects;
+  use projects-implementation, import: { project-build-settings, project-current-compilation-context };
   use dfmc-environment-projects; //for with-progress-reporting
+  use dfmc-project-compilation, import: { compilation-context-project };
 
   export <dfmc-graph-visualization>,
     report-enabled?, report-enabled?-setter,
@@ -47,7 +50,8 @@ define module dfmc-visualization
     system-info,
     connect-to-server,
     read-from-visualizer,
-    write-to-visualizer;
+    write-to-visualizer,
+    *batch-compiling*;
 
   export visualizing-compiler;
 end;

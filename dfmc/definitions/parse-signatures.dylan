@@ -643,12 +643,21 @@ define method parse-signature-as
                                         else
                                           fragment
                                         end);
-           let (sig, mor) = parse-signature-as(sig-class, real-sig-fragment);
-           values(make(<method-polymorphic-signature-spec>,
-                       signature: sig,
-                       variables: parse-type-variable-list(type-vars),
-                       argument-next-variable-spec: sig.spec-argument-next-variable-spec),
-                  mor);
+           block()
+             let (sig, mor) = parse-signature-as(sig-class, real-sig-fragment);
+             values(make(<method-polymorphic-signature-spec>,
+                         signature: sig,
+                         variables: parse-type-variable-list(type-vars),
+                         argument-next-variable-spec: sig.spec-argument-next-variable-spec),
+                    mor);
+           exception (e :: <condition>)
+             //ok, another "tradeoff":
+             //define constant same-sign? = method(x, y)
+             // (if (positive?(x) positive? else negative? end)(y) end;
+             //is valid dylan code, but since it contains two bracketed
+             //fragments, was parsed here
+             values(parse-using-fragments(sig-class, type-vars, #f), real-sig-fragment);
+           end;
          end;
     { (?args:*) => (?vals:*); ?more:* }
       => values(parse-using-fragments(sig-class, args, vals), more);

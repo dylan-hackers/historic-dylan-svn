@@ -11,7 +11,7 @@ define class <dfmc-graph-visualization> (<object>)
   constant slot connection-id :: <symbol>, required-init-keyword: id:;
   slot report-enabled? :: <boolean> = #t;
   slot dfm-report-enabled? :: <boolean> = #t;
-  slot dfm-index :: <integer> = -1;
+  slot dfm-index :: <integer> = 0;
   slot system-info;
 end;
 

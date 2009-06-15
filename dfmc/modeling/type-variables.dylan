@@ -4,7 +4,7 @@ module: dfmc-modeling
 define primary &class <polymorphic-type-variable> (<type>)
   constant &slot type-variable-name :: <symbol>,
     required-init-keyword: name:;
-  constant &slot type-variable-kind :: <type>,
+  constant &slot type-variable-kind :: <type>, //better: (upper-)bound
     //init-value: <type>,
     required-init-keyword: kind:;
   runtime-constant &slot type-variable-temporary;

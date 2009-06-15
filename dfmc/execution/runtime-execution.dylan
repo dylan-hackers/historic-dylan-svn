@@ -300,13 +300,14 @@ define method make-runstage-method
   lambda
 end method;
 
+//TODO: FIXME best-function-key?
 define method make-runstage (state :: <machine-state>, x :: <&lambda>) => (value)
   let class
-    = if (best-function-key?(x))
-	<keyword-closure-method>
-      else
-	<simple-closure-method>
-      end if;
+    = //if (best-function-key?(x))
+      //  <keyword-closure-method>
+      //else
+        <simple-closure-method>;
+      //end if;
   make-runstage-method(state, x, class);
 end method;
 

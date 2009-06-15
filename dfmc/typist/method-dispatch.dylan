@@ -497,7 +497,7 @@ define function maybe-upgrade-gf-to-method-call
       = upgrade-to-method-call!
       (c, effective, tail(effectives), <method-call>);
     re-optimize(method-call); // Is this the right place to do this?
-    maybe-upgrade-call(method-call, effective);
+    //maybe-upgrade-call(method-call, effective);
     #t
   end
 end function;
@@ -1133,18 +1133,7 @@ define function congruent-style-call-arguments
       add-user!(rest-t, call);
       values(#f, #f, new-arguments)
     else
-      //not sure whether I really want to convert arguments to a stack
-      //vector here -- hannes 020509
-      let (rest-c, rest-t)
-        = generate-stack-vector
-            (call.environment, 
-             copy-sequence(call.arguments, start: number-required));
-      let new-arguments = make(<vector>, size: number-required + 1);
-      for (i :: <integer> from 0 below number-required)
-        new-arguments[i] := call.arguments[i];
-      end for;
-      new-arguments[number-required] := rest-t;
-      values(rest-c, rest-c, new-arguments)
+      values(#f, #f, arguments(call))
     end
   else
     values(#f, #f, arguments(call))

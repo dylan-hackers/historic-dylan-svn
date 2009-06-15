@@ -383,13 +383,28 @@ define function callback-handler (#rest args)
 end function callback-handler;
 
 begin
+  let top-build = "c:\\stage3\\";
+  environment-variable("OPEN_DYLAN_USER_ROOT") := top-build;
+  environment-variable("OPEN_DYLAN_USER_BUILD") := concatenate(top-build, "build");
+  environment-variable("OPEN_DYLAN_USER_INSTALL") := top-build;
+  let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Type-and-Graph-Visualization");
+  connect-to-server(vis);
+  dynamic-bind(*batch-compiling* = #t)
+    let project = lookup-named-project("dylan");
+    visualizing-compiler(vis, project); //, library: dylan-library-compilation-context());
+  end;
+end;
+
+/*
+begin
+  dynamic-bind(*batch-compiling* = #t)
   let project = find-project("dylan");
   open-project-compiler-database(project,
                                  warning-callback: callback-handler,
                                  error-handler: callback-handler);
   with-library-context (dylan-library-compilation-context())
     without-dependency-tracking
-      let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Graph-Visualization");
+      let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Type-and-Graph-Visualization");
       connect-to-server(vis);
       for (test in $tests)
         write-to-visualizer(vis, list(#"source", test.head, test.tail));
@@ -414,8 +429,10 @@ begin
       end;
     end;
   end;
+  end
 end;
-            
+*/
+          
 define function list-all-package-names ()
   let res = #();
   local method collect-project
@@ -440,7 +457,7 @@ end;
 /*
 begin
   let projects = list-all-package-names();
-  let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Graph-Visualization");
+  let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Type-and-Graph-Visualization");
   connect-to-server(vis);
   for (project in projects)
     write-to-visualizer(vis, list(#"project", project));

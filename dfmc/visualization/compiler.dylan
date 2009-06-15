@@ -3,6 +3,8 @@ author: Hannes Mehnert
 copyright: 2009, all rights reversed
 synopsis: Dylan side of graphical visualization of DFM control flow graphs
 
+define thread variable *batch-compiling* :: <boolean> = #f;
+
 define function report-progress (i1 :: <integer>, i2 :: <integer>,
                                  #key heading-label, item-label)
   //if (item-label[0] = 'D' & item-label[1] = 'F' & item-label[2] = 'M')
@@ -46,19 +48,19 @@ end;
 
 define function visualize (vis :: <dfmc-graph-visualization>, key :: <symbol>, object :: <object>)
   select (key by \==)
-    #"file-changed" => vis.report-enabled? := (object = "scratch-source");
-    #"dfm-switch" => vis.dfm-report-enabled? := (object == 4);
+    #"file-changed" => vis.report-enabled? := (object = "scratch-source") | *batch-compiling*;
+    #"dfm-switch" => vis.dfm-report-enabled? := (object == 4) | *batch-compiling*;
     #"dfm-header" =>
         write-data(vis, key, object);
     #"optimizing" =>
       begin
-        vis.dfm-report-enabled? := (object == 4);
+        vis.dfm-report-enabled? := (object == 4) | *batch-compiling*;
         write-data(vis, #"relayouted");
       end;
     //#"finished" =>
     //  vis.dfm-report-enabled? := #f;
     #"beginning" =>
-      write-data(vis, key, object);
+        write-data(vis, key, object);
     #"relayouted" =>
       write-data(vis, key);
     #"highlight-queue" =>
@@ -67,6 +69,10 @@ define function visualize (vis :: <dfmc-graph-visualization>, key :: <symbol>, o
       if (instance?(object, <integer>))
         write-data(vis, key, object);
       end;
+    #"source" =>
+      *batch-compiling* & write-data(vis, key, object.head, object.tail);
+    #"choose-source" =>
+      *batch-compiling* & write-data(vis, key, object);
     otherwise => ;
   end;
 end;
@@ -75,17 +81,24 @@ define function trace-types (vis :: <dfmc-graph-visualization>, key :: <symbol>,
   apply(write-data, vis, key, args);
 end;
 
-define function visualizing-compiler (vis :: <dfmc-graph-visualization>, project)
+define function visualizing-compiler (vis :: <dfmc-graph-visualization>, project, #rest keys, #key, #all-keys)
   let lib = project.project-current-compilation-context;
-  vis.dfm-index := vis.dfm-index + 1;
   block()
     dynamic-bind(*progress-library* = lib,
                  *dump-dfm-method* = curry(visualize, vis),
                  *computation-tracer* = curry(trace-computations, vis),
                  *typist-visualize* = curry(trace-types, vis))
       with-progress-reporting(project, report-progress, visualization-callback: curry(visualize, vis))
-        compile-library-from-definitions(lib, force?: #t, skip-link?: #t,
-                                         compile-if-built?: #t, skip-heaping?: #t);
+    let subc = project-load-namespace(project, force-parse?: #t);
+    for (s in subc using backward-iteration-protocol)
+      parse-project-sources(s);
+    end;
+    let project2 = compilation-context-project(project-current-compilation-context(project));
+    let settings = project-build-settings(project2);
+
+
+        apply(compile-library-from-definitions, lib, force?: #t, skip-link?: #t,
+                                         compile-if-built?: #t, skip-heaping?: #t, build-settings: settings, keys);
       end;
     end;
   exception (e :: <abort-compilation>)

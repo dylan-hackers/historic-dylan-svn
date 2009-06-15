@@ -868,6 +868,9 @@ end method;
 define method evaluate-type-checks? (c :: <check-type>)
   let (type-constant?, the-type) = fast-constant-value?(type(c));
   if (type-constant? & instance?(the-type, <&type>))
+    if (the-type == dylan-value(#"<object>") | the-type == dylan-value(#"<type>"))
+      the-type := make(<&top-type>);
+    end;
     let the-estimate 
       = type-estimate(computation-value(c));
     if (guaranteed-joint?(the-estimate, the-type))
@@ -888,8 +891,12 @@ end method evaluate-type-checks?;
 
 define method evaluate-type-checks? 
     (c :: <multiple-value-check-type-computation>)
+  if (every?(rcurry(\==, #f), c.types))
+    //uhm, what did you mean with "check-type"? no type from you, so everything is fine
+    //== go away!
+    #t
   // If fixed types check statically, mark as checked.
-  if (every?(rcurry(instance?, <object-reference>), c.types))
+  elseif (every?(rcurry(instance?, <object-reference>), c.types))
     let wanted-types = map(reference-value, c.types);
     let got-types = type-estimate(computation-value(c));
     unless (instance?(got-types, <&top-type>))
@@ -911,26 +918,24 @@ define method evaluate-type-checks?
 end method evaluate-type-checks?;
 
 define method evaluate-type-checks? (c :: <multiple-value-check-type-rest>)
-  #f;
-/*  next-method() & //fixed type check
-    begin
-      // If fixed & rest types statically check, then mark rest as statically checked.
-      let check-rest-type = rest-type(c);
-      let values-te       = type-estimate(computation-value(c));
-      (~check-rest-type |                                // #f means already checked
-      begin 
-        let (rest-type-constant?, rest-type) = fast-constant-value?(check-rest-type);
-        if (rest-type-constant? &                      // Type is constant
-          instance?(rest-type, <&type>) &            //   and matches values-te
-          ^subtype?(rest-type, values-te))
-          remove-user!(check-rest-type, c);
-          rest-type(c) := #f;
-          #t
-        else
-          #f
-        end
-      end)
-  end; */
+  if (every?(rcurry(\==, #f), c.types))
+    //uhm, what did you mean with "check-type"? no type from you, so everything is fine
+    //== go away!
+    #t
+  elseif (every?(rcurry(instance?, <object-reference>), c.types))
+    let wanted-types = map(reference-value, c.types);
+    let rest-type = c.rest-type & c.rest-type.reference-value | make(<&top-type>);
+    let got-types = type-estimate(computation-value(c));
+    unless (instance?(got-types, <&top-type>))
+      if (got-types.size > 0 & instance?(got-types.last, <&top-type>))
+        got-types := copy-sequence(got-types, end: got-types.size - 1);
+      end;
+      wanted-types.size <= got-types.size & //we got more or equal sized lists
+       every?(^subtype?, got-types, wanted-types) & //the prefix of both lists is congruent
+       every?(rcurry(^subtype?, rest-type), copy-sequence(got-types, start: wanted-types.size))
+         //rest are subtypes of rest
+    end
+  end
 end;
 
 // This all sux... yes, indeed!
