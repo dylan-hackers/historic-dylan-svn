@@ -144,12 +144,12 @@ define method new-accessor
     (type :: <symbol>, #rest initargs, #key locator, #all-keys)
  => (accessor :: <external-stream-accessor>)
   let new-one = apply(make, platform-accessor-class(type, locator), initargs);
-  apply(accessor-open, new-one, initargs);
+  apply(accessor-open, new-one, locator, initargs);
   new-one
 end method new-accessor;
 
 define open generic accessor-open
-    (accessor :: <external-stream-accessor>,
+    (accessor :: <external-stream-accessor>, locator :: <object>,
      #key direction, if-exists, if-does-not-exist,
      #all-keys) => ();
 

@@ -252,6 +252,9 @@ define module streams-internals
          pending-count,
          pending-file-offset,
          pending-stream;
+
+  // File accessors
+  create <native-file-accessor>;
 end module streams-internals;
 
 define module pprint

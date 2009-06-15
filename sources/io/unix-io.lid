@@ -23,7 +23,7 @@ Files:	library
 	format
 	buffered-format
 	format-condition
-        unix-fd-file-accessor
+        unix-file-accessor
 	unix-standard-io
 	unix-interface
 	format-out
