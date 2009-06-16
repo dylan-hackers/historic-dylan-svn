@@ -418,6 +418,11 @@ define module dfmc-flow-graph
     $single,
     convert-reference;
 
+  export temporary-value-context,
+    pad-multiple-values,
+    context-num-values,
+    context-rest?;
+
   export call-temporary-class,
     temporary-class,
     function-value,

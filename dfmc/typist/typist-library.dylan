@@ -53,4 +53,9 @@ define module dfmc-typist
     estimate-effective-methods;
 
   export maybe-convert-box, maybe-convert-unbox;
+
+  //constant folding method calls
+  export fold-function-call,
+    replace-call-with-values,
+    maybe-fold-function-call;
 end;

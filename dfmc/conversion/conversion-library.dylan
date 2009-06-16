@@ -46,11 +46,8 @@ define module dfmc-conversion
 
   export // utilities
     make-with-temporary*,
-    fast-constant-value?,
     extractable-constant-value?,
     extract-constant,
-    pad-multiple-values,
-    temporary-value-context,
     <ignore-value-context>, 
     <multiple-value-context>,
     match-values-with-context,

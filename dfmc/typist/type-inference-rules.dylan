@@ -93,6 +93,25 @@ define method type-estimate-object (o) => (res :: <&type>)
   o.&object-class
 end;
 
+define method type-estimate-object (const :: <defined-constant-reference>) => (te :: <&type>)
+  let mb = const.referenced-binding;
+  if (mb & instance?(mb, <module-binding>))
+    let type = binding-type-model-object(mb, error-if-circular?: #f);
+    if (type & instance?(type, type-union(<collection>, <&type>)))
+      type
+    else
+      make(<&top-type>)
+    end
+  else
+    make(<&top-type>)
+  end
+end;
+
+//this is <model-value> - (<string>, <vector>, <mapped-unbound>)
+define method type-estimate-object (o :: type-union(<&top>, <heap-deferred-model>, <number>, <character>, <boolean>, <list>, <symbol>)) => (t :: <&type>)
+  make(<&singleton>, object: o)
+end;
+
 define method type-estimate-object (t :: <temporary>) => (t :: <&type>)
   make(<&top-type>)
 end;
@@ -123,22 +142,6 @@ define method type-estimate-object (t :: <typist-type>)
   make(<&singleton>, object: t) //or call model-type here?
 end;
 
-define method type-estimate-object (o :: <integer>) => (res :: <&type>)
-  dylan-value(#"<integer>") //singleton(o)?
-end;
-
-define method type-estimate-object (s :: <string>) => (res :: <&type>)
-  dylan-value(#"<string>") //singleton(s)?
-end;
-
-define method type-estimate-object (s :: <byte-string>) => (res :: <&type>)
-  dylan-value(#"<byte-string>") //singleton(s)?
-end;
-
-define method type-estimate-object (b :: <boolean>) => (res :: <&type>)
-  dylan-value(#"<boolean>") //singleton(b)?
-end;
-
 define method type-estimate-object (v :: <vector>)
  => (res :: type-union(<typist-type>, <&type>))
   if (v.size == 0)
@@ -150,22 +153,15 @@ define method type-estimate-object (v :: <vector>)
   end
 end;
 
-define method type-estimate-object (l :: <empty-list>)
- => (res :: type-union(<typist-type>, <&type>))
-  make(<&singleton>, object: l)
-end;
-
-define method type-estimate-object (l :: <pair>)
- => (res :: type-union(<typist-type>, <&type>))
-  dylan-value(#"<pair>") //can be more specific (size, object-types, singleton?)
+define method type-estimate-object (s :: <string>)
+ => (res :: <&type>)
+  make(<&singleton>, object: s)
 end;
 
 define method type-estimate-object (l == &unbound)
  => (res :: <&type>)
-  dylan-value(#"<unbound>"); //there's only one unbound, use singleton type here!?
+  make(<&singleton>, object: &unbound)
 end;
-
-//floats, symbols!
 
 define generic convert-to-typist-type (t :: type-union(<typist-type>, <&type>))
  => (res :: type-union(<typist-type>, <&type>));
@@ -860,24 +856,37 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
 end;
 
 define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>) => ()
-  //simple strategy here:
-  // first, solve the type graph (at least the partial graph we have so far)
-  //this might conflict with the general idea of the type graph (error narrowing),
-  //but recording the types of the GF in the constraint is too generic
-  solve(*graph*, *constraints*, *type-environment*);
+  let folded? = #f;
+  let (function-constant?, function) = constant-value?(function(c));
+  if (function-constant? & every?(constant-value?, c.arguments))
+    let compile-stage-function = lookup-compile-stage-function(function);
+    if (compile-stage-function)
+      folded? := maybe-fold-function-call(c, c.temporary,
+                                          compile-stage-function,
+                                          c.arguments);
+    end;
+  end;
 
-  // then, try to upgrade the GF call to a simple call (narrowing result type)
-  let arguments = map(temporary-type-abstraction, c.arguments);
-  let effs = estimate-effective-methods(gf, arguments, c);
-  if (~empty?(effs) & maybe-upgrade-gf-to-method-call(c, gf, arguments, effs))
-    // finally, record type constraint (beta = tau1 -> tau2)
-    //well, this will done by the changed call-graph - walk-computations does this
-  else
-    //generate specialized dispatch code, if number of dispatch args is
-    //low on all effs (<integer>, <string>) vs (<boolean>, <string>)
-    //only need to dispatch on first argument
+  unless(folded?)
+    //simple strategy here:
+    // first, solve the type graph (at least the partial graph we have so far)
+    //this might conflict with the general idea of the type graph (error narrowing),
+    //but recording the types of the GF in the constraint is too generic
+    solve(*graph*, *constraints*, *type-environment*);
+
+    // then, try to upgrade the GF call to a simple call (narrowing result type)
+    let arguments = map(temporary-type-abstraction, c.arguments);
+    let effs = estimate-effective-methods(gf, arguments, c);
+    if (~empty?(effs) & maybe-upgrade-gf-to-method-call(c, gf, arguments, effs))
+      // finally, record type constraint (beta = tau1 -> tau2)
+      //well, this will done by the changed call-graph - walk-computations does this
+    else
+      //generate specialized dispatch code, if number of dispatch args is
+      //low on all effs (<integer>, <string>) vs (<boolean>, <string>)
+      //only need to dispatch on first argument
     
-    // finally, record type constraint (beta = tau1 -> tau2)
-    next-method();
+      // finally, record type constraint (beta = tau1 -> tau2)
+      next-method();
+    end;
   end;
 end;

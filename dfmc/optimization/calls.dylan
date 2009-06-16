@@ -51,7 +51,7 @@ define method do-optimize-primitive-instance?
     (env :: <environment>, call :: <primitive-call>, 
      call-args :: <argument-sequence>) 
   let type-ref = call-args[1];
-  let (type-constant?, static-type) = fast-constant-value?(type-ref);
+  let (type-constant?, static-type) = constant-value?(type-ref);
   if (type-constant?)
     let object = call-args[0];
     case
@@ -122,7 +122,7 @@ define method do-optimize-primitive-id?
     (env :: <environment>, call, call-args) 
   // PID?(X, #F) == X | PID?(#F, X) == X
   local method do-arg (arg, other-arg) => (did-it? :: <boolean>)
-    let (arg-constant?, arg-raw-value) = fast-constant-value?(arg);
+    let (arg-constant?, arg-raw-value) = constant-value?(arg);
     if (arg-constant? & arg-raw-value == #f)
       let (new-call, new-ref)
         = make-with-temporary
@@ -207,7 +207,7 @@ define method do-primitive-move-log-coercion
      c :: <primitive-call>, call-args :: <argument-sequence>) 
   let arg-0 = call-args[0];
   let arg-1 = call-args[1];
-  let constant? = fast-constant-value?(arg-1);
+  let constant? = constant-value?(arg-1);
   do-primitive-move-coercion(env, c, arg-0, generator(arg-0))
 end method;
 
@@ -397,7 +397,7 @@ end function;
 define function simple-make-c-pointer-internal-call?
     (call :: <simple-call>) => (well? :: <boolean>)
   let arguments = arguments(call);
-  let (constant?, class) = fast-constant-value?(arguments[0]);
+  let (constant?, class) = constant-value?(arguments[0]);
   // ONLY ADDRESS SLOT?
   if (constant? & size(^slot-descriptors(class)) == 1
 	& empty?(^class-slot-descriptors(class))
@@ -502,7 +502,7 @@ define inline method do-optimize-machine-word-binary-noop-1
     call :: <primitive-call>, enabled?, static-arg, dynamic-arg,
     identity-value :: <integer>)
   if (enabled?)
-    let (constant?, raw-value) = fast-constant-value?(static-arg);
+    let (constant?, raw-value) = constant-value?(static-arg);
     if (constant?)
       let raw-value :: <integer> = as(<integer>, ^raw-object-value(raw-value));
       if (raw-value = identity-value)
@@ -536,13 +536,13 @@ define method do-optimize-machine-word-partial-fold-binary-op
   if (*optimize-machine-word-primitives?*)
     let arg-0 = call-args[0];
     let arg-1 = call-args[1];
-    let (constant?, value-1) = fast-constant-value?(arg-1);
+    let (constant?, value-1) = constant-value?(arg-1);
     if (constant?)
       let gen = generator(arg-0);
       // format-out("TRYING PARTIAL CALL %= GEN %=\n", call, gen);
       if (primitive-call-to?(gen, companion-primitive-name))
 	let ref = second(arguments(gen));
-	let (constant?, value-2) = fast-constant-value?(ref);
+	let (constant?, value-2) = constant-value?(ref);
 	if (constant?)
 	  let combined-value = combine(value-1, value-2);
 	  if (combined-value)
@@ -567,7 +567,7 @@ define method machine-word-primitive-call-to-and-argument?
   if (~primitive-name | primitive-call-to?(call, primitive-name))
     let call-args = arguments(call);
     let arg-1 = call-args[1];
-    let (constant?, raw-value-1) = fast-constant-value?(arg-1);
+    let (constant?, raw-value-1) = constant-value?(arg-1);
     // format-out("  FOUND CALL %= ARG %=\n", call, raw-value-1);
     if (constant?)
       let value-1 :: <integer> = as(<integer>, ^raw-object-value(raw-value-1));
@@ -668,7 +668,7 @@ define method machine-word-primitive-call-to-and-matching-argument?
   let gen = generator(primitive-arg);
   if (primitive-call-to?(gen, primitive-name))
     let arg-1 = arguments(gen)[1];
-    let (constant?, raw-value-1) = fast-constant-value?(arg-1);
+    let (constant?, raw-value-1) = constant-value?(arg-1);
     if (constant?)
       let value-1 :: <integer> = as(<integer>, ^raw-object-value(raw-value-1));
       // format-out("MATCHING %= TEST-ARG %= VALUE %=\n", 
@@ -686,7 +686,7 @@ define method machine-word-primitives-call-to-and-matching-arguments?
  => (gen :: false-or(<primitive-call>))
   let arg-0 = call-args[0];
   let arg-1 = call-args[1];
-  let (constant?, raw-test-arg) = fast-constant-value?(arg-1);
+  let (constant?, raw-test-arg) = constant-value?(arg-1);
   if (constant?)
     let test-arg :: <integer> = as(<integer>, ^raw-object-value(raw-test-arg));
     iterate loop (i :: <integer> = 0)
@@ -853,12 +853,12 @@ define method do-optimize-machine-word-shifts
   // format-out("OPTIMIZING SHIFT INVERSES %= %=\n", call, gen);
   if (primitive-call-to?(gen, other-shift-name))
     // format-out("FOUND %=\n", other-shift-name);
-    let (constant?, raw-amount-0) = fast-constant-value?(arg-1);
+    let (constant?, raw-amount-0) = constant-value?(arg-1);
     if (constant?)
       // format-out("  SHIFT AMOUNT %=\n", raw-amount-0);
       let call-args = arguments(gen);
       let arg-1     = call-args[1];
-      let (constant?, raw-amount-1) = fast-constant-value?(arg-1);
+      let (constant?, raw-amount-1) = constant-value?(arg-1);
       if (constant?)
         // format-out("  SHIFT AMOUNT %=\n", raw-amount-1);
         let amount-0 = as(<integer>, ^raw-object-value(raw-amount-0));
@@ -905,11 +905,11 @@ end &optimizer-function;
 define method do-optimize-primitive-machine-word-bit-field-extract
    (env :: <environment>, 
     call :: <primitive-call>, call-args :: <argument-sequence>) 
-  let (constant?, raw-offset) = fast-constant-value?(call-args[0]);
+  let (constant?, raw-offset) = constant-value?(call-args[0]);
   if (constant?)
     let offset = as(<integer>, ^raw-object-value(raw-offset));
     if (offset = 0)
-      let (constant?, raw-size) = fast-constant-value?(call-args[1]);
+      let (constant?, raw-size) = constant-value?(call-args[1]);
       if (constant?)
 	let size = as(<integer>, ^raw-object-value(raw-size));
 	let mask = ash(1, size) - 1;
@@ -1506,7 +1506,7 @@ Need to optimize map-into as well?
 
 define &optimizer-function class-constructor-atomically
     (env, call, arguments)
-  let (constant?, class) = fast-constant-value?(arguments.first);
+  let (constant?, class) = constant-value?(arguments.first);
   if (constant?)
     // format-out(">>> Upgrading make call: %=\n", class);
     let constructor = ^class-constructor(class);

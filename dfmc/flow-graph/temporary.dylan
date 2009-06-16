@@ -17,6 +17,31 @@ define compiler-open generic convert-reference
     (env :: <environment>, context :: <value-context>, object, #key)
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: false-or(<value-reference>));
 
+define compiler-open generic temporary-value-context
+    (temporary :: false-or(<temporary>)) => (context :: <value-context>);
+
+define compiler-open generic context-num-values(c :: <value-context>) => (i :: <integer>);
+
+define compiler-open generic context-rest?(c :: <value-context>) => (ans :: <boolean>);
+
+define function pad-multiple-values
+    (env :: <environment>, context :: <value-context>, 
+     #rest references)
+ => (res :: <simple-object-vector>)
+  let required  = context-num-values(context);
+  let rest?     = context-rest?(context);
+  let max-size  = max(required, if (rest?) size(references) else 0 end);
+  let mv :: <simple-object-vector> = make(<vector>, size: max-size);
+  for (i :: <integer> from 0 below max-size, ref in references)
+    mv[i] := ref;
+  finally
+    for (j :: <integer> from i below max-size)
+      mv[i] := make-object-reference(#f);
+    end for;
+  end for;
+  mv
+end function;
+
 define abstract class <value-reference> (<referenced-object>)
 end class;
 

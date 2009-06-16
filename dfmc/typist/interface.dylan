@@ -30,17 +30,7 @@ define macro with-environment
 end;
 
 define method type-estimate (const :: <defined-constant-reference>) => (te :: type-union(<collection>, <&type>))
-  let mb = const.referenced-binding; //probably need this stuff also in my typist rep?!
-  if (mb & instance?(mb, <module-binding>))
-    let type = binding-type-model-object(mb, error-if-circular?: #f);
-    if (type & instance?(type, type-union(<collection>, <&type>)))
-      type
-    else
-      make(<&top-type>)
-    end
-  else
-    make(<&top-type>)
-  end
+  type-estimate-object(const)
 end;
 
 define method type-estimate (o :: <object>) => (te :: type-union(<collection>, <&type>))

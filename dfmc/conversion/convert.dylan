@@ -28,33 +28,6 @@ define inline function make-for-fragment-with-temporary
         options)
 end function;
 
-// do a conservative check whether a reference is a constant.
-// specifically, do not invoke the typist (which constant-value? does).
-// (moved from optimization/constant-folding.dylan (gts, 10/17/97))
-
-define inline function fast-constant-value?
-    (ref) => (well? :: <boolean>, model)
-  if (instance?(ref, <object-reference>))
-    values(#t, reference-value(ref))
-  elseif (instance?(ref, <temporary>)
-            & instance?(ref.generator, <make-closure>))
-    let m = computation-closure-method(ref.generator);
-    if (^function-signature(m))
-      values(#t, m)
-    else
-      values(#f, #f)
-    end
-  else
-    values(#f, #f)
-  end
-end;
-
-define inline function fast-constant-value
-    (ref) => (model)
-  let (well?, model) = fast-constant-value?(ref);
-  model
-end function;
-
 // TODO: Both the following functions are hacks pending true source location
 // information becoming available.
 
@@ -203,13 +176,11 @@ define sideways method print-object(c :: <value-context>, s :: <stream>) => ()
   end select;
 end method;
 
-define generic context-num-values(c :: <value-context>) => (i :: <integer>);
-
 define method context-num-values(c :: <multiple-value-context>) => (i :: <integer>)
   mvc-num-values(c);
 end method;
 
-define method context-num-values(c :: <single-value-context>) => (i :: <integer>)
+define sideways method context-num-values(c :: <single-value-context>) => (i :: <integer>)
   1
 end method;
 
@@ -217,13 +188,11 @@ define method context-num-values(c :: <ignore-value-context>) => (i :: <integer>
   0
 end method;
 
-define generic context-rest?(c :: <value-context>) => (ans :: <boolean>);
-
 define method context-rest?(c :: <multiple-value-context>) => (ans :: <boolean>)
   mvc-rest?(c);
 end method;
 
-define method context-rest?(c :: <single-value-context>) => (ans :: <boolean>)
+define sideways method context-rest?(c :: <single-value-context>) => (ans :: <boolean>)
   #f
 end method;
 
@@ -370,24 +339,6 @@ define method match-values-with-context
   join-2x1-t!(first, last, values-c, values-t);
 end method;
 
-define function pad-multiple-values
-    (env :: <environment>, context :: <value-context>, 
-     #rest references)
- => (res :: <simple-object-vector>)
-  let required  = context-num-values(context);
-  let rest?     = context-rest?(context);
-  let max-size  = max(required, if (rest?) size(references) else 0 end);
-  let mv :: <simple-object-vector> = make(<vector>, size: max-size);
-  for (i :: <integer> from 0 below max-size, ref in references)
-    mv[i] := ref;
-  finally
-    for (j :: <integer> from i below max-size)
-      mv[i] := make-object-reference(#f);
-    end for;
-  end for;
-  mv
-end function;
-
 /// GOT SINGLE VALUE
 
 // ... and nothing is expected
@@ -426,19 +377,19 @@ end method;
 
 /// TEMPORARY-VALUE-CONTEXT
 
-define method temporary-value-context 
+define sideways method temporary-value-context 
     (tmp :: <temporary>) => (res :: <value-context>)
  $single
 end method;
 
-define method temporary-value-context 
+define sideways method temporary-value-context 
     (tmp :: <multiple-value-temporary>) => (res :: <value-context>)
   make(<multiple-value-context>, 
        mvc-num-values: required-values(tmp),
        mvc-rest?: rest-values?(tmp));
 end method;
 
-define method temporary-value-context 
+define sideways method temporary-value-context 
     (tmp == #f) => (res :: <value-context>)
  $ignore
 end method;
@@ -830,7 +781,7 @@ define function convert-function-call
   let (first, function-last, function) = convert-1(env, function-form);
 
   // assure callable at run-time
-  let (cv?, value) = fast-constant-value?(function);   // e.g. function :: <method-reference>
+  let (cv?, value) = constant-value?(function);   // e.g. function :: <method-reference>
 
   let (first, last, fun-temp) = 
     if (typecheck-function?)
@@ -1249,7 +1200,7 @@ define method convert-assignment-with-binding
 
   let (check-first, check-last, check-temp)
     = if (binding-type)        // if lhs has a (static) type constraint
-        let (rhs-constant?, rhs-value) = fast-constant-value?(value-temp);
+        let (rhs-constant?, rhs-value) = constant-value?(value-temp);
         if (rhs-constant?)
           if (^instance?(rhs-value, binding-type))
             values(#f, #f, temp);
@@ -1459,7 +1410,7 @@ define function bind-local-variable (env :: <environment>,
  => (new-env :: <local-lexical-environment>,
      variable :: <lexical-local-variable>)
   let type-value = if (instance?(type, <value-reference>))
-		     fast-constant-value(type)
+		     constant-value(type)
 		   else
 		     type
 		   end;
@@ -1510,7 +1461,7 @@ define function convert-keyword-initialization-d
 
   let (type-first, type-last, type-temp) =
     convert-key-type(env, function-t, index);
-  let type = fast-constant-value(type-temp);
+  let type = constant-value(type-temp);
   let static-type = instance?(type, <&type>) & type;
 
   let (key-literal?, key-literal-value) =
@@ -1805,7 +1756,7 @@ define function convert-lambda-into*-d
       convert-required-type(lambda-env, function-t, req-index); 
     let (_vars-first, _vars-last)
       = join-2x2!(vars-first, vars-last, type-first, type-last);
-    let (constant-type?, constant-type-value) = fast-constant-value?(type-t);
+    let (constant-type?, constant-type-value) = constant-value?(type-t);
     if (constant-type?)
       //specializer(variables[index]) := constant-type-value;
       vars-last := _vars-last;
@@ -1874,14 +1825,14 @@ define function convert-lambda-into*-d
     ret-types-first := _types-first;
     ret-types-last  := _types-last;
     fixed-types[i]
-      := type-checked-at-run-time?(fast-constant-value(type-temp)) & type-temp;
+      := type-checked-at-run-time?(constant-value(type-temp)) & type-temp;
   end for;
   let (ret-types-first, ret-types-last, rest-type-temp)
     = if (rest-type)
         let (type-first, type-last, type-temp) =
           convert-rest-value-type(lambda-env, function-t);
 	let type-temp
-	  = type-checked-at-run-time?(fast-constant-value(type-temp)) & type-temp;
+	  = type-checked-at-run-time?(constant-value(type-temp)) & type-temp;
         join-2x2-t!(ret-types-first, ret-types-last, type-first, type-last, type-temp);
       else
         values(ret-types-first, ret-types-last, #f)
@@ -2023,7 +1974,7 @@ define method ^function-signature-type*
     let (type, found?) =
       if (sig-t)
 	let type-ref = dynamic-accessor(sig-t, index);
-	let (type-constant?, type-value) = fast-constant-value?(type-ref);
+	let (type-constant?, type-value) = constant-value?(type-ref);
 	values(type-value, type-constant?)
       else
 	let sig = ^function-signature(computation-closure-method(mc));
@@ -2235,11 +2186,11 @@ define function convert-signature-types
     let (args-first, args-last, args) =
       convert-expressions
         (env, variable-specs, form-extractor: spec-type-expression-checking);
-    if (every?(method (t) instance?(fast-constant-value(t), <&type>) end, args))
+    if (every?(method (t) instance?(constant-value(t), <&type>) end, args))
       error("should not happen");
       convert-object-reference-1
         (env, 
-         as-sig-types(map-as(<simple-object-vector>, fast-constant-value, args)))
+         as-sig-types(map-as(<simple-object-vector>, constant-value, args)))
     else
       let function =
 	make-dylan-reference(#"immutable-type-vector");
@@ -2290,19 +2241,19 @@ define method convert-signature
       else
         convert-object-reference-1(env, &false)
       end;
-    if (fast-constant-value?(req-t) 
-          & (~key? | (fast-constant-value?(keys-t) & fast-constant-value?(key-t)))
-          & fast-constant-value?(val-t) & fast-constant-value?(rest-val-t))
+    if (constant-value?(req-t) 
+          & (~key? | (constant-value?(keys-t) & constant-value?(key-t)))
+          & constant-value?(val-t) & constant-value?(rest-val-t))
       error("how can this happen?");
       convert-object-reference-1
         (env, 
          compute-signature-using-types
            (sig-spec, 
-            fast-constant-value(req-t),
-            fast-constant-value(val-t),
-            fast-constant-value(rest-val-t),
-            if (key?) fast-constant-value(keys-t) else #[] end,
-            if (key?) fast-constant-value(key-t)  else #[] end,
+            constant-value(req-t),
+            constant-value(val-t),
+            constant-value(rest-val-t),
+            if (key?) constant-value(keys-t) else #[] end,
+            if (key?) constant-value(key-t)  else #[] end,
             spec-type-variables(sig-spec)))
     else
       let next-t =
@@ -2375,7 +2326,7 @@ define function convert-method-and-signature
     (env :: <environment>, sig-t :: <value-reference>, the-method :: <&method>)
  => (first :: false-or(<computation>), last :: false-or(<computation>), 
      ref :: <value-reference>)
-  let (sig-constant?, sig-constant-value) = fast-constant-value?(sig-t);
+  let (sig-constant?, sig-constant-value) = constant-value?(sig-t);
   if (sig-constant?)
     ^function-signature(the-method) := sig-constant-value;
     if (top-level-environment?(env))
@@ -2930,7 +2881,7 @@ define function convert-type-expression (env :: <environment>, type)
      type-value)
   if (type)
     let (type-first, type-last, type-temp) = convert-1(env, type);
-    let (constant-value?, constant-value) = fast-constant-value?(type-temp);
+    let (constant-value?, constant-value) = constant-value?(type-temp);
     if (constant-value? & instance?(constant-value, <&type>))
       values(type-first, type-last, type-temp, constant-value)
     else
@@ -3060,12 +3011,12 @@ define function do-convert-let
 			  value: value-temp,
 			  types: map(method (fixed-type) 
                                        type-checked-at-run-time?
-                                         (fast-constant-value(fixed-type))
+                                         (constant-value(fixed-type))
                                          & fixed-type
                                      end,
                                      fixed-types),
 			  rest-type: type-checked-at-run-time?
-                                       (fast-constant-value(rest-type))
+                                       (constant-value(rest-type))
                                      & rest-type,
 			  temporary-class: <multiple-value-temporary>);
     else
@@ -4305,7 +4256,7 @@ define method convert-lambda-into*
 		  = join-2x2!(types-first, types-last, type-first, type-last);
 		types-first := _types-first;
 		types-last  := _types-last;
-		type-checked-at-run-time?(fast-constant-value(type-temp)) &
+		type-checked-at-run-time?(constant-value(type-temp)) &
 		  type-temp
 	      end;
 	let fixed-types = map(convert-type, required-values);

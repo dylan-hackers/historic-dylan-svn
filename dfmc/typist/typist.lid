@@ -8,6 +8,7 @@ Files:     typist-library
            type-graph
            constraints
            type-inference-rules
+           fold-method-call
            method-dispatch
            entry-points
            interface

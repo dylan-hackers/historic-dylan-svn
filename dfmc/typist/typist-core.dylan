@@ -5,11 +5,6 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-// This code should be identical in all/both typists.
-// Long term, we only intend to have one typist, so not worth abstracting into 
-// some sort of "abstract typist" library.
-
-
 define sideways method constant-value? 
   (ref :: <object-reference>)
    => (constant-value? :: <boolean>, constant-value)
@@ -37,9 +32,27 @@ end method;
 
 define sideways method constant-value?
     (ref :: <temporary>) => (constant-value? :: <boolean>, constant-value)
-  // If this temporary is estimated as a singleton, extract the constant.
-  let type = type-estimate(ref);
-  values(#f, #f)
+  if (instance?(ref.generator, <temporary-transfer>))
+    //borrowed from fast-constant-argument-value? in constant-folding
+    constant-value?(ref.generator.computation-value)
+  elseif (instance?(ref.generator, <make-closure>))
+    //borrowed from fast-constant-value? - but should actually be superfluous
+    //(next case, invoking typist, should cover this special case)
+    let m = computation-closure-method(ref.generator);
+    if (^function-signature(m))
+      values(#t, m)
+    else
+      values(#f, #f)
+    end
+  else
+    // If this temporary is estimated as a singleton, extract the constant.
+    let type = type-estimate(ref);
+    if (instance?(type, <&singleton>))
+      values(#t, type.^singleton-object)
+    else
+      values(#f, #f)
+    end
+  end
 end method;
 
 define sideways method constant-value?

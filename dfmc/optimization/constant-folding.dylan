@@ -84,7 +84,7 @@ end method;
 
 define method constant-fold (c :: <if>)
   let tst = test(c);
-  let (test-constant?, test-value) = fast-constant-value?(tst);
+  let (test-constant?, test-value) = constant-value?(tst);
   if (test-constant?)
     constant-fold-if(c, test-value);
     #t
@@ -166,102 +166,6 @@ define method constant-fold (c :: <bind-exit-merge>)
   #f
 end method;
 
-define method fast-constant-argument-value?
-    (ref :: <object-reference>) => (well? :: <boolean>, res)
-  values(#t, reference-value(ref))
-end method;
-
-define method fast-constant-argument-value?
-    (ref :: <method-reference>) => (well? :: <boolean>, res)
-  let function = reference-value(ref);
-  ensure-optimized-method-model(function);
-  values(#t, function)
-end method;
-
-define method fast-constant-argument-value?
-    (ref) => (well? :: <boolean>, res)
-  values(#f, #f)
-end method;
-
-define method fast-constant-argument-value?
-    (ref :: <temporary>) => (erll? :: <boolean>, res)
-  if (instance?(ref.generator, <temporary-transfer>))
-    fast-constant-argument-value?(ref.generator.computation-value)
-  else
-    values(#f, #f)
-  end
-end;
-
-define inline function fast-constant-argument-value (ref) => (value)
-  let (constant?, value) = fast-constant-argument-value?(ref);
-  value
-end function;
-
-define method fold-function-call (t == #f,
-				  function, arguments) => (call-values)
-  apply(function, map(fast-constant-argument-value, arguments));
-  // result ignored
-  #f
-end;
-
-define method replace-call-with-values (call-value,
-					call :: <call>,
-					t == #f) => ()
-  delete-computation!(call);
-end;
-
-define method fold-function-call (t :: <multiple-value-temporary>,
-				  function, arguments) => (call-values)
-  let (#rest call-values) = apply(function, map(fast-constant-argument-value, arguments));
-  call-values
-end;
-
-define method replace-call-with-values (call-values,
-					call :: <call>,
-					t :: <multiple-value-temporary>) => ()
-  let values-temps = map(make-object-reference, call-values);
-  // format-out("XXX doing %=.\n", call);
-  let padded-values 
-    = apply(pad-multiple-values, 
-            call.environment, 
-            temporary-value-context(t),
-            values-temps);              
-  let (values-c, values-t) =
-    make-with-temporary(environment(call),
-                        <values>,
-                        values: padded-values,
-                        temporary-class: <multiple-value-temporary>);
-  values-t.required-values := size(padded-values);
-  values-t.rest-values? := #f;
-  // format-out("\tgot %=.\n", values-c);
-  replace-computation!(call, values-c, values-c, values-t);
-end;
-
-define method fold-function-call (t :: <temporary>,
-				  function, arguments) => (call-value)
-  apply(function, map(fast-constant-argument-value, arguments))
-end;
- 
-define method replace-call-with-values (call-value,
-					call :: <call>,
-					t :: <temporary>) => ()
-  replace-computation-with-temporary!(call, make-object-reference(call-value));
-end;
-
-define function maybe-fold-function-call (call, t, function, arg-t*)
-  let (call-values, okay?) =
-    block ()
-      values(fold-function-call(t, function, arg-t*), #t)
-    exception (e :: <error>)
-      values(#f, #f)		// silently fail to fold
-    end;
-  if (okay?)
-    re-optimize-generators(call.arguments);
-    replace-call-with-values(call-values, call, t);
-    #t
-  end;
-end;
-
 // define function variable-slot-access?
 //     (function :: <&function>, folder-function :: <function>, call-arguments)
 //  => (well? :: <boolean>)
@@ -282,10 +186,10 @@ end;
 // end function;
 
 define method constant-fold (c :: <function-call>)
-  let (function-constant?, function) = fast-constant-value?(function(c));
+  let (function-constant?, function) = constant-value?(function(c));
   let call-arguments = arguments(c);
   if (function-constant? &
-	every?(fast-constant-argument-value?, call-arguments))
+	every?(constant-value?, call-arguments))
     let compile-stage-function = lookup-compile-stage-function(function);
     if (compile-stage-function 
           /* & ~variable-slot-access?
@@ -348,7 +252,7 @@ define constant $number-tag-bits = 2; // HACK: SHOULDN'T HARD CODE THIS IN!!!!
 
 define method constant-fold (c :: <repeated-slot-value>)
   let index-ref    = computation-index(c);
-  let (index-constant?, raw-index) = fast-constant-value?(index-ref);
+  let (index-constant?, raw-index) = constant-value?(index-ref);
   if (index-constant?)
     let instance-ref = computation-instance(c);
     let vec = maybe-vector-element-references(instance-ref);
@@ -422,7 +326,7 @@ define method constant-fold (c :: <primitive-call>)
   end
   */
   let arguments = c.arguments;
-  if (every?(fast-constant-argument-value?, arguments))
+  if (every?(constant-value?, arguments))
     block ()
       // TODO: DOESN"T HANDLE MULTIPLE-VALUE RETURNING PRIMITIVES
       let prim = c.primitive;
@@ -430,7 +334,7 @@ define method constant-fold (c :: <primitive-call>)
       if (function)
         let result
           = apply(function,
-                  map(compose(compile-stage, fast-constant-argument-value), arguments));
+                  map(compose(compile-stage, constant-value), arguments));
         unless (instance?(result, <unknown>))
           let result-c-tmp = make-object-reference(result);
           replace-computation-with-temporary!(c, result-c-tmp);
@@ -612,7 +516,7 @@ define method constant-fold (c :: <make-closure>)
   let lambda = computation-closure-method(c);
   let sigtmp = computation-signature-value(c);
   if (sigtmp)
-    let (constant-value?, constant-value) = fast-constant-value?(sigtmp);
+    let (constant-value?, constant-value) = constant-value?(sigtmp);
     if (constant-value?)
       ^function-signature(lambda) := constant-value;
       computation-signature-value(c) := #f;
@@ -830,7 +734,7 @@ define method constant-fold (c :: <guarantee-type>)
     end
   else
     let type-t = guaranteed-type(c);
-    let (type-constant?, the-type) = fast-constant-value?(type-t);
+    let (type-constant?, the-type) = constant-value?(type-t);
     if (type-constant?)
       static-guaranteed-type(c) := the-type;
       guaranteed-type(c) := #f;
@@ -866,7 +770,7 @@ define method run-time-type-error-class (c :: <result-check-type-computation>)
 end method;
 
 define method evaluate-type-checks? (c :: <check-type>)
-  let (type-constant?, the-type) = fast-constant-value?(type(c));
+  let (type-constant?, the-type) = constant-value?(type(c));
   if (type-constant? & instance?(the-type, <&type>))
     if (the-type == dylan-value(#"<object>") | the-type == dylan-value(#"<type>"))
       the-type := make(<&top-type>);
@@ -1070,7 +974,7 @@ end method;
 define method constant-fold (c :: <slot-value>)
   let instance-ref = computation-instance(c);
   let sd           = computation-slot-descriptor(c);
-  let (constant?, instance) = fast-constant-value?(instance-ref);
+  let (constant?, instance) = constant-value?(instance-ref);
   if (constant?)
     let spec = model-definition(sd);
     if ((spec-constant?(spec) & ~spec-volatile?(spec))
