@@ -1,6 +1,4 @@
-module: binary-trees
-
-define constant <tree> = type-union(<integer>, <node>);
+Module: binary-trees
 
 define class <node> (<object>)
   constant slot left :: <tree>, required-init-keyword: left:;
@@ -11,9 +9,11 @@ end;
 define sealed domain make(singleton(<node>));
 define sealed domain initialize(<node>);
 
+define constant <tree> = type-union(<integer>, <node>);
+
 define function build
     (n :: <integer>, d :: <integer>) => (tree :: <tree>)
-  if (d == 0)
+  if (d = 0)
     n
   else
     make(<node>,
@@ -44,8 +44,8 @@ begin
 
   for (d from min-depth to max-depth by 2)
     let iterations = ash(1, max-depth - d + min-depth);
-    for (i from 1 to iterations,
-         c = 0 then c + check(build(i, d)) + check(build(-i, d)))
+    for (i :: <integer> from 1 to iterations,
+         c :: <integer> = 0 then c + check(build(i, d)) + check(build(-i, d)))
     finally
       format-out("%d\t trees of depth %d\t check: %d\n",
                  2 * iterations, d, c);
