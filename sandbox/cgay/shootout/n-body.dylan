@@ -1,6 +1,4 @@
-module: n-body
-use-libraries: common-dylan, io, transcendental
-use-modules: common-dylan, format-out, transcendental
+Module: n-body
 
 define sealed class <planet> (<object>)
   slot x :: <double-float>, required-init-keyword: x:;
@@ -131,9 +129,9 @@ begin
   let n = application-arguments()[0].string-to-integer;
   
   offset-momentum($bodies);
-  format-out("%.9f\n", energy($bodies,0.0));
+  format-out("%.9f\n", energy($bodies, 0.0d0));
   for (i from 1 to n)
-    advance($bodies,0.01d0);
+    advance($bodies, 0.01d0);
   end for;
-  format-out("%.9f\n", energy($bodies,0.0));
+  format-out("%.9f\n", energy($bodies, 0.0d0));
 end;

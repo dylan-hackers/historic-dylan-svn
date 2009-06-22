@@ -27,7 +27,11 @@ define function check
     (tree :: <tree>) => (i :: <integer>)
   select (tree by instance?)
     <integer> => tree;
-    <node> => tree.item + tree.left.check - tree.right.check;
+    <node> =>
+      let item :: <integer> = tree.item;
+      let left :: <integer> = tree.left.check;
+      let right :: <integer> = tree.right.check;
+      item + left - right
   end
 end function check;
 
