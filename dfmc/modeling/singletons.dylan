@@ -54,6 +54,16 @@ define method ^subtype? (t1 :: <&type>, t2 :: <&singleton>)
   #f
 end method ^subtype?;
 
+define method ^subtype? (t1 :: <&top-type>, t2 :: <&singleton>)
+ => (subtype? :: <boolean>)
+  #f
+end method ^subtype?;
+
+define method ^subtype? (t1 :: <&singleton>, t2 :: <&top-type>)
+ => (subtype? :: <boolean>)
+  #t
+end method ^subtype?;
+
 //// Disjointness relationships.
 
 define method ^known-disjoint? 
