@@ -20,6 +20,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
@@ -34,6 +35,7 @@ import y.base.Node;
 import y.base.NodeCursor;
 import y.layout.BufferedLayouter;
 import y.layout.GraphLayout;
+import y.layout.hierarchic.IncrementalHierarchicLayouter;
 import y.view.DefaultBackgroundRenderer;
 import y.view.Graph2D;
 import y.view.Graph2DView;
@@ -83,6 +85,7 @@ public class DemoBase extends Thread {
   private JPanel left;
   private boolean typesForeground = false;
   private JSlider alphaslider;
+  private boolean forcelayout = false;
   
   final JToolBar jtb;
   
@@ -122,7 +125,7 @@ public class DemoBase extends Thread {
     left.add( typeview, BorderLayout.CENTER );
 
     graph_chooser = new JComboBox(new SortedListComboBoxModel());
-    graph_chooser.addItem(new ListElement(-1, "new..."));
+    graph_chooser.addItem(new ListElement("new..."));
     graph_chooser.setSelectedIndex(0);
     graph_chooser.setMaximumRowCount(50);
     graph_chooser.addActionListener(new ChangeGraphAction());
@@ -155,10 +158,14 @@ public class DemoBase extends Thread {
     
 
     text = new JTextArea("Choose code example or type code!", 8, 20);
-    text.setFont(new Font( "dialog", Font.PLAIN, 20));
+    //text.setFont(new Font( "dialog", Font.PLAIN, 20));
     string_source_map.put("new...", text.getText());
     text.setEditable(true);
-    textok.add(text, BorderLayout.CENTER );
+    
+    JScrollPane textscroll = new JScrollPane(text);
+    textscroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    textscroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    textok.add(textscroll, BorderLayout.CENTER );
 
     JButton send = new JButton("send");
     textok.add(send, BorderLayout.SOUTH );
@@ -215,7 +222,8 @@ public class DemoBase extends Thread {
   }
   
   private boolean steppressed = false;
-  private boolean playpressed = false;
+  private boolean playpressed = true;
+public boolean updatingguimanually = false;
   
   public void waitforstep () {
 	  steppressed = false;
@@ -240,11 +248,15 @@ public class DemoBase extends Thread {
   public void graphChanged (IncrementalHierarchicLayout ihl) {
 	  incrementallayouter = ihl;
 	  updatingslider = true;
-	  slider.setLabelTable(ihl.sliderLabels);
-	  slider.setMaximum(ihl.lastEntry);
-	  slider.setValue(ihl.lastslidervalue);
+	  //happens from time to time (some propertychanged event
+	  //which shouldn't be sent in the first place)...
+	  try { slider.setValue(0); } catch (NullPointerException e) { }
+	  try { slider.setMaximum(0); } catch (NullPointerException e) { }
+	  try { slider.setLabelTable(ihl.sliderLabels); } catch (NullPointerException e) { }
+	  try { slider.setMaximum(ihl.lastEntry); } catch (NullPointerException e) { }
+	  try { slider.setValue(ihl.lastslidervalue); } catch (NullPointerException e) { }
 	  updatingslider = false;
-	  playpressed = false;
+	  playpressed = true;
 	  calcLayout();
   }
   
@@ -287,26 +299,17 @@ public class DemoBase extends Thread {
     return toolBar;
   }
 
-  public void activate (String methodname) {
-	text.setText(string_source_map.get(methodname));
+  public void activate (IncrementalHierarchicLayout ih) {
+	String mname = ih.graph_id;
+	text.setText(string_source_map.get(mname));
+	updatingguimanually = true;
 	for (int i = 0; i < graph_chooser.getItemCount(); i++)
-		if (((ListElement)graph_chooser.getItemAt(i)).toString().equals(methodname)) {
+		if (((ListElement)graph_chooser.getItemAt(i)).toString().equals(mname)) {
 			graph_chooser.setSelectedIndex(i);
 			break;
 		}
-	int realindex = ((ListElement)graph_chooser.getSelectedItem()).index;
-	if (realindex >= 0) {
-		IncrementalHierarchicLayout ih = client.getGraph(realindex);
-		ih.activateLayouter();
-	} else {
-		updatingslider = true;
-		slider.setLabelTable(null);
-		slider.setMaximum(0);
-		updatingslider = false;
-		view.setGraph2D(new Graph2D());
-		view.repaint();
-		System.out.println("no graph yet, please wait");
-	}
+	updatingguimanually = false;
+	ih.activateLayouter();
   }
 
   final class MyMouseListener implements MouseListener {
@@ -353,12 +356,11 @@ public class DemoBase extends Thread {
 		if (string_source_map.get(methodName()) == null) {
 			System.out.println("new method :" + methodName() + ":");
 			string_source_map.put(methodName(), text.getText());
-			ListElement newLE = new ListElement(-1, methodName());
+			ListElement newLE = new ListElement(methodName());
 			graph_chooser.addItem(newLE);
 			graph_chooser.setSelectedItem(newLE);
 		} 
-		int realindex = ((ListElement)graph_chooser.getSelectedItem()).index;
-		if (realindex == -1) {
+		if (client.getGraph(methodName()) == null) {
 			ArrayList data = new ArrayList();
 			data.add(new Symbol("compile"));
 			//data.add(new Symbol(methodName()));
@@ -389,23 +391,24 @@ public class DemoBase extends Thread {
 		}
 		
 		public void actionPerformed(ActionEvent ev) {
-			text.setText(string_source_map.get(((ListElement)graph_chooser.getSelectedItem()).toString()));
-			int realindex = ((ListElement)graph_chooser.getSelectedItem()).index;
-			if (realindex >= 0) {
-				IncrementalHierarchicLayout ih = client.getGraph(realindex);
-				ih.activateLayouter();
-			} else {
-				updatingslider = true;
-				slider.setLabelTable(null);
-				slider.setMaximum(0);
-				updatingslider = false;
-				view.setGraph2D(new Graph2D());
-				view.repaint();
-				typeview.setGraph2D(new Graph2D());
-				typeview.repaint();
-				System.out.println("no graph yet, please wait");
-			}
-				
+			if (! updatingguimanually ) {
+				String mname = ((ListElement)graph_chooser.getSelectedItem()).toString();
+				text.setText(string_source_map.get(mname));
+				if (client.getGraph(mname) != null) {
+					IncrementalHierarchicLayout ih = client.getGraph(mname);
+					ih.activateLayouter();
+				} else {
+					updatingslider = true;
+					slider.setLabelTable(null);
+					slider.setMaximum(0);
+					updatingslider = false;
+					view.setGraph2D(new Graph2D());
+					view.repaint();
+					typeview.setGraph2D(new Graph2D());
+					typeview.repaint();
+					System.out.println("no graph yet, please wait");
+				}
+			}				
 		}
 	}
   
@@ -515,7 +518,9 @@ public class DemoBase extends Thread {
 		{
 			incrementallayouter.changed = true;
 			incrementallayouter.typechanged = true;
+			forcelayout = true;
 			calcLayout();
+			forcelayout = false;
 		}
 	}
 	
@@ -619,6 +624,7 @@ public class DemoBase extends Thread {
 	 * Animated layout assignment
 	 */
 	public void calcLayout(){
+		if (forcelayout) {
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");
 			if (alphaslider.getValue() != 0 && alphaslider.getValue() != 2)
@@ -733,6 +739,7 @@ public class DemoBase extends Thread {
 		}
 		typeview.updateView();
 		view.updateView();
+		}
 	}
 
 }

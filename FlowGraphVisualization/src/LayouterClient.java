@@ -5,6 +5,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 
 
@@ -12,7 +13,7 @@ public class LayouterClient extends Thread {
 	private Socket socket;
 	private BufferedReader reader;
 	private PrintWriter writer;
-	private ArrayList<IncrementalHierarchicLayout> graphs = new ArrayList<IncrementalHierarchicLayout>();
+	private HashMap<String, IncrementalHierarchicLayout> graphs = new HashMap<String, IncrementalHierarchicLayout>();
 	
 	public LayouterClient (Socket s) {
 		try {
@@ -24,7 +25,7 @@ public class LayouterClient extends Thread {
 		}
 	}
 	
-	public IncrementalHierarchicLayout getGraph (int index) {
+	public IncrementalHierarchicLayout getGraph (String index) {
 		return graphs.get(index);
 	}
 	
@@ -83,34 +84,28 @@ public class LayouterClient extends Thread {
 				}
 				if (key.isEqual("source")) {
 					assert(answer.size() == 3);
-					assert(answer.get(1) instanceof Symbol); //method name
+					String name = null;
+					assert(answer.get(1) instanceof String); //method name
+					name = (String)answer.get(1);
 					assert(answer.get(2) instanceof String); //source code
-					String name = ((Symbol)answer.get(1)).toString();
 					demo.string_source_map.put(name, (String)answer.get(2));
-					demo.graph_chooser.addItem(new ListElement(-1, name));
+					demo.graph_chooser.addItem(new ListElement(name));
+					//demo.activate(name);
 					printMessage(result);
 					continue;
 				}
-				if (key.isEqual("choose-source")) {
-					assert(answer.size() == 2);
-					assert(answer.get(1) instanceof Symbol);
-					Symbol mname = (Symbol)answer.get(1);
-					demo.activate(mname.toString());
-					printMessage(result);
-					continue;
-				}
-				assert(answer.get(1) instanceof Integer);
-				int dfm_id = (Integer)answer.get(1);
+				assert(answer.get(1) instanceof String); //method name!
+				String dfm_id = (String)answer.get(1);
 				IncrementalHierarchicLayout gr = null;
 				if (! (key.isEqual("highlight") || key.isEqual("highlight-queue") || key.isEqual("relayouted")))
 					; //System.out.println(key.toString() + " for " + dfm_id + " : " + answer.subList(2, answer.size()));
-				if (graphs.size() <= dfm_id) {
+				if (! graphs.containsKey(dfm_id)) {
 					gr = new IncrementalHierarchicLayout(demo, dfm_id);
-					graphs.add(gr);
-					((ListElement)demo.graph_chooser.getSelectedItem()).index = dfm_id;
+					graphs.put(dfm_id, gr);
 				}
 				gr = graphs.get(dfm_id);
 				demo.unselect();
+				demo.activate(gr);
 				//boolean lastchange = gr.changed | gr.typechanged;
 				if (Commands.processCommand(gr, answer, demo))
 					if (! gr.changed)

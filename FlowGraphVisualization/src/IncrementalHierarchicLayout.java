@@ -61,7 +61,7 @@ public class IncrementalHierarchicLayout
 	protected int lastslidervalue = 0;
 	protected boolean graphfinished = false;
 	
-	protected final int graph_id;
+	protected final String graph_id;
 	
 	public Node selection;
 	
@@ -76,7 +76,7 @@ public class IncrementalHierarchicLayout
 	protected DataMap typeHintMap;
 	
 	
-	public IncrementalHierarchicLayout(DemoBase db, int id)
+	public IncrementalHierarchicLayout(DemoBase db, String id)
 	{
 		graph_id = id;
 		graph = new Graph2D();
@@ -168,8 +168,7 @@ public class IncrementalHierarchicLayout
 			view.setGraph2D(graph);
 			typeview.setGraph2D(typegraph);
 			demobase.graphChanged(this);
-		} else
-			demobase.calcLayout();
+		}
 	}
 
 	protected void addMethodNode (String name, Node bind, ArrayList arguments, ArrayList argumentnames)
@@ -344,6 +343,8 @@ public class IncrementalHierarchicLayout
 		n1.setWidth(nl1.getWidth() + 10);
 		n1.setFillColor(new Color(0, 0, 0xff, 0x44));
 		Node n = graph.createNode(n1);
+		//demobase.calcLayout();
+		//System.out.println("created node (gr " + graph + ")");
 		if (id > 0) {
 			assert(int_node_map.get(id) == null);
 			int_node_map.put(id, n);

@@ -214,6 +214,7 @@ public final class Commands {
 		if (ihl.safeCreateEdge(from, to)) {
 			if (label != null)
 				ihl.setEdgeLabel(label);
+			//System.out.println("connected!");
 			return true;
 		}
 		return false;

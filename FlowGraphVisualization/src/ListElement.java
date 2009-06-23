@@ -1,11 +1,9 @@
 
 public class ListElement implements Comparable {
 	private String item;
-	public int index;
 	
-	public ListElement (int index, String item) {
+	public ListElement (String item) {
 		this.item = item;
-		this.index = index;
 	}
 	
 	public int compareTo(Object o) {
