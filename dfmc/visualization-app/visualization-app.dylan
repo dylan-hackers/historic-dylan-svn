@@ -389,10 +389,8 @@ begin
   environment-variable("OPEN_DYLAN_USER_INSTALL") := top-build;
   let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Type-and-Graph-Visualization");
   connect-to-server(vis);
-  dynamic-bind(*batch-compiling* = #t)
-    let project = lookup-named-project("dylan");
-    visualizing-compiler(vis, project); //, library: dylan-library-compilation-context());
-  end;
+  let project = lookup-named-project("dylan");
+  visualizing-compiler(vis, project); //, library: dylan-library-compilation-context());
 end;
 
 /*

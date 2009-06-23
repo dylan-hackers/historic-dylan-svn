@@ -180,7 +180,10 @@ define sideways method maybe-compute-and-install-form-model-objects
       form.form-models-installed? := #"processing";
       block ()
 	with-fragment-info (form-variable-names(form).first)
-          //tell vis about it!
+          let str = make(<string-stream>, direction: #"output");
+          print(form, str, escape?: #t);
+          let text = str.stream-contents;
+          visualization-report(#"source", pair(form, text));
 	  compute-and-install-form-model-objects(form);
 	end;
       cleanup

@@ -3,8 +3,6 @@ author: Hannes Mehnert
 copyright: 2009, all rights reversed
 synopsis: Dylan side of graphical visualization of DFM control flow graphs
 
-define thread variable *batch-compiling* :: <boolean> = #f;
-
 define function report-progress (i1 :: <integer>, i2 :: <integer>,
                                  #key heading-label, item-label)
   //if (item-label[0] = 'D' & item-label[1] = 'F' & item-label[2] = 'M')
@@ -12,73 +10,99 @@ define function report-progress (i1 :: <integer>, i2 :: <integer>,
   //end;
 end;
 
-define function write-data (vis :: <dfmc-graph-visualization>, key :: <symbol>, #rest arguments)
-  write-to-visualizer(vis, apply(list, key, vis.dfm-index, arguments));
+define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
+  write-to-visualizer(vis, apply(list, arguments));
 end;
 
-define function trace-computations (vis :: <dfmc-graph-visualization>, key :: <symbol>, id :: <integer>, comp-or-id, comp2 :: <integer>, #key label)
+define method form (c :: type-union(<temporary>, <computation>))
+  c.environment.lambda.model-creator
+end;
+
+define method form (c :: <&lambda>)
+  c
+end;
+
+define method form (c :: <lambda-lexical-environment>)
+  c.lambda
+end;
+
+define method identifier (f) => (res :: <string>)
+  as(<string>, f.form-variable-name)
+end;
+
+define method identifier (l :: <&lambda>) => (res :: <string>)
+  l.model-creator.identifier
+end;
+
+define method identifier (s :: <string>) => (res :: <string>)
+  s
+end;
+
+define constant form-id = compose(identifier, form);
+
+define method get-id (c :: <computation>) => (id :: <integer>)
+  c.computation-id
+end;
+
+define method get-id (t /* :: <temporary> */) => (id :: <integer>)
+  t.temporary-id
+end;
+
+define method get-id (i :: <integer>) => (res :: <integer>)
+  i
+end;
+
+define function trace-computations (vis :: <dfmc-graph-visualization>, key :: <symbol>, id, comp-or-id, comp2, #key label)
   select (key by \==)
     #"add-temporary-user", #"remove-temporary-user" =>
-      write-data(vis, key, id, comp-or-id);
+      write-data(vis, key, comp-or-id.form-id, id.get-id, comp-or-id.get-id);
     #"add-temporary" =>
       begin
         let str = make(<string-stream>, direction: #"output");
-        print-object(comp-or-id, str);
-        write-data(vis, key, id, str.stream-contents, comp2);
+        print-object(id, str);
+        write-data(vis, key, if (comp-or-id == 0) id.form-id else comp-or-id.form-id end,
+                   id.get-id, str.stream-contents, 0);
       end;
     #"temporary-generator" =>
-      write-data(vis, key, id, comp-or-id, comp2);
+      write-data(vis, key, comp-or-id.form-id, id.get-id, comp-or-id.get-id, comp2.get-id);
     #"remove-temporary" =>
-      write-data(vis, key, id);        
+      write-data(vis, key, if (comp-or-id == 0) id.form-id else comp-or-id.form-id end, id.get-id);        
     #"remove-edge", #"insert-edge" =>
-      write-data(vis, key, id, comp-or-id, label);
+      write-data(vis, key, id.form-id, id.get-id, comp-or-id.get-id, label);
     #"change-edge" =>
-      write-data(vis, key, id, comp-or-id, comp2, label);
+      write-data(vis, key, id.form-id, id.get-id, comp-or-id.get-id, comp2.get-id, label);
     #"new-computation" =>
-      write-data(vis, key, output-computation-sexp(comp-or-id));
+      write-data(vis, key, comp-or-id.form-id, output-computation-sexp(comp-or-id));
     #"remove-computation" =>
-      write-data(vis, key, id);
+      write-data(vis, key, id.form-id, id.get-id);
     #"change-entry-point" =>
-      write-data(vis, key, id, comp-or-id);
+      write-data(vis, key, id.form-id, id.get-id, comp-or-id);
     #"set-loop-call-loop" =>
-      write-data(vis, key, id, comp-or-id, #"no");
+      write-data(vis, key, id.form-id, id.get-id, comp-or-id, #"no");
     otherwise => ;
   end;
 end;
 
 define function visualize (vis :: <dfmc-graph-visualization>, key :: <symbol>, object :: <object>)
   select (key by \==)
-    #"file-changed" => vis.report-enabled? := (object = "scratch-source") | *batch-compiling*;
-    #"dfm-switch" => vis.dfm-report-enabled? := (object == 4) | *batch-compiling*;
     #"dfm-header" =>
-        write-data(vis, key, object);
-    #"optimizing" =>
-      begin
-        vis.dfm-report-enabled? := (object == 4) | *batch-compiling*;
-        write-data(vis, #"relayouted");
-      end;
-    //#"finished" =>
-    //  vis.dfm-report-enabled? := #f;
-    #"beginning" =>
-        write-data(vis, key, object);
-    #"relayouted" =>
-      write-data(vis, key);
-    #"highlight-queue" =>
       write-data(vis, key, object);
+    #"beginning" =>
+      write-data(vis, key, object.head.form-id, object.tail);
+    #"relayouted" =>
+      write-data(vis, key, object.head.form-id);
+    #"highlight-queue" =>
+      write-data(vis, key, object.head.form-id, object.tail);
     #"highlight" =>
-      if (instance?(object, <integer>))
-        write-data(vis, key, object);
-      end;
+      write-data(vis, key, object.form-id, object.get-id);
     #"source" =>
-      *batch-compiling* & write-data(vis, key, object.head, object.tail);
-    #"choose-source" =>
-      *batch-compiling* & write-data(vis, key, object);
+      write-data(vis, key, object.head.identifier, object.tail);
     otherwise => ;
   end;
 end;
 
-define function trace-types (vis :: <dfmc-graph-visualization>, key :: <symbol>, #rest args);
-  apply(write-data, vis, key, args);
+define function trace-types (vis :: <dfmc-graph-visualization>, key :: <symbol>, env :: <&lambda>, #rest args);
+  apply(write-data, vis, key, env.form-id, args);
 end;
 
 define function visualizing-compiler (vis :: <dfmc-graph-visualization>, project, #rest keys, #key, #all-keys)

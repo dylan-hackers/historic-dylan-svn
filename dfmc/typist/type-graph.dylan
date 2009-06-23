@@ -1,6 +1,7 @@
 module: dfmc-typist
 
 define class <graph> (<object>)
+  constant slot graph-lambda, required-init-keyword: lambda:;
   constant slot nodes :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot edges :: <stretchy-vector> = make(<stretchy-vector>);  
 end;
@@ -204,7 +205,7 @@ end;
 
 define function create-quotient-graph (g :: <graph>) => (res :: <graph>)
   dynamic-bind(*typist-visualize* = #f)
-    let g* = make(<graph>);
+    let g* = make(<graph>, lambda: #f);
     let rep-nodes = choose(method(v) find(v) == v end, g.nodes);
     let vs = deep-copy-node(rep-nodes, g*);
     for (edge in g.edges)

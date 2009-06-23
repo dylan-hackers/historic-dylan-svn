@@ -149,6 +149,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
   dynamic-bind
      (*trace-optimizations?* = tracing-optimizations?(code))
   unless (~code.body | lambda-optimized?(code))
+    let send-debug = method(k, o) send-debug(k, pair(code, o)) end;
     block ()
       for-all-lambdas (f in code)
 	lambda-optimized?(f) := #t;
@@ -245,7 +246,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
         strip-environment(environment(f));
       end for-all-lambdas;
       send-debug(#"relayouted", #());
-      send-debug(#"highlight", 0);
+      //send-debug(#"highlight", 0);
       send-debug(#"beginning", #("finished"));
     end block;
   end unless;
@@ -267,7 +268,7 @@ define method run-optimizations (code) => (b :: <boolean>)
   for (count from 0 below $max-optimization-iterations,
        item = something? then queue-head(queue), while: item) 
     // do-queue(method (i) format-out("  ELT %=\n", i) end, queue);
-    send-debug(#"highlight-queue", map(computation-id, queue | #()));
+    send-debug(#"highlight-queue", pair(code, map(computation-id, queue | #())));
     if (do-optimize(item))
       something? := #t;
       if (*trace-optimizations?*)
@@ -309,7 +310,7 @@ define generic optimize (item :: <computation>) => (b :: <boolean>);
 
 define function do-optimize (item :: <computation>) => (b :: <boolean>)
   with-parent-computation (item)
-    send-debug(#"highlight", item.computation-id);
+    send-debug(#"highlight", item);
     let res = optimize(item) & #t;
     if (res)
       //*dump-dfm-method*(#"relayouted", #());
@@ -323,7 +324,7 @@ define inline method run-optimizer
  => (b :: <boolean>)
   opt-format-out("%s %= \n", name, c);
   // with-parent-computation (c)
-  send-debug(#"beginning", list(name, c.computation-id));
+  send-debug(#"beginning", pair(c, list(name, c.computation-id)));
     optimize(c) & #t;
   // end;
 end method;

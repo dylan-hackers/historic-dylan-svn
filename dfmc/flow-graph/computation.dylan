@@ -88,19 +88,19 @@ define thread variable *computation-tracer* :: false-or(<function>) = #f;
 define function trace (a :: <computation>, old-next :: false-or(<computation>), new-next :: false-or(<computation>), #key new, label) => ()
   if (*computation-tracer*)
     if (new)
-      *computation-tracer*(#"new-computation", a.computation-id, a, 0);
+      *computation-tracer*(#"new-computation", a, a, 0);
     end;
     unless (label) label := #"no" end;
     if (old-next & new-next)
       if (old-next == new-next)
-        *computation-tracer*(#"insert-edge", a.computation-id, new-next.computation-id, 0, label: label);
+        *computation-tracer*(#"insert-edge", a, new-next, 0, label: label);
       else
-        *computation-tracer*(#"change-edge", a.computation-id, old-next.computation-id, new-next.computation-id, label: label);
+        *computation-tracer*(#"change-edge", a, old-next, new-next, label: label);
       end;
     elseif (old-next)
-      *computation-tracer*(#"remove-edge", a.computation-id, old-next.computation-id, 0, label: label);
+      *computation-tracer*(#"remove-edge", a, old-next, 0, label: label);
     elseif (new-next)
-      *computation-tracer*(#"insert-edge", a.computation-id, new-next.computation-id, 0, label: label);
+      *computation-tracer*(#"insert-edge", a, new-next, 0, label: label);
     end;
   end;
 end;
@@ -284,14 +284,13 @@ define method temporary-id (t :: <object-reference>) => (res :: <integer>)
     t.%temporary-id := next-computation-id();
     if (*computation-tracer*)
       if (t.users.size > 0)
-        let gen = if (t.generator) t.generator.computation-id else 0 end;
-        *computation-tracer*(#"add-temporary", t.%temporary-id, t, gen);
+        let gen = if (t.generator) t.generator else t.users.first end;
+        *computation-tracer*(#"add-temporary", t, gen, 0);
         if (t.generator)
           let new = t.generator.computation-type;
-          *computation-tracer*(#"change-type", t.%temporary-id, new, 0);
+          *computation-tracer*(#"change-type", t, new, 0);
         end;
-        do(compose(rcurry(curry(*computation-tracer*, #"add-temporary-user", t.%temporary-id), 0),
-                   computation-id),
+        do(rcurry(curry(*computation-tracer*, #"add-temporary-user", t), 0),
            t.users);
       end;
     end;
@@ -301,21 +300,26 @@ end;
 
 define method remove-user! (t :: <object-reference>, c :: <computation>)
   next-method();
-  if (*computation-tracer* & ~ instance?(t.reference-value, <&function>))
-    *computation-tracer*(#"remove-temporary-user", t.temporary-id, c.computation-id, 0);
+  if (*computation-tracer*)
+    *computation-tracer*(#"remove-temporary-user", t, c, 0);
   end;
-  if (*computation-tracer* & t.users.size == 0 & ~ instance?(t.reference-value, <&function>))
-    *computation-tracer*(#"remove-temporary", t.temporary-id, 0, 0);
+  if (*computation-tracer* & t.users.size == 0)
+    *computation-tracer*(#"remove-temporary", t, c, 0);
   end;
 end;
 
 define method add-user! (t :: <object-reference>, c :: <computation>)
-  if (*computation-tracer* & t.users.size == 0 & ~ instance?(t.reference-value, <&function>))
-    *computation-tracer*(#"add-temporary", t.temporary-id, t, 0);
-  end;
+  let add? = (t.users.size == 0);
   next-method();
-  if (*computation-tracer* & ~ instance?(t.reference-value, <&function>))
-    *computation-tracer*(#"add-temporary-user", t.temporary-id, c.computation-id, 0);
+  if (*computation-tracer*)
+    if (~ instance?(t.%temporary-id, <integer>))
+      t.%temporary-id := next-computation-id();
+      add? := #t;
+    end;
+    if (add?)
+      *computation-tracer*(#"add-temporary", t, c, 0);
+    end;
+    *computation-tracer*(#"add-temporary-user", t, c, 0);
   end;
 end;
 
@@ -326,7 +330,11 @@ define /* inline */ method make
     (class == <immutable-object-reference>, #rest initargs, #key value, #all-keys)
  => (object)
   let res = next-method();
-  *computation-tracer*(#"add-temporary", res.temporary-id, res, 0);
+  if (res.users.size > 0)
+    *computation-tracer*(#"add-temporary", res, res.users.first, 0);
+    do(rcurry(curry(*computation-tracer*, #"add-temporary-user", res), 0),
+       res.users);
+  end;
   res;
 end;
 define /* inline */ method make
@@ -337,10 +345,9 @@ define /* inline */ method make
             else
               next-method()
             end if;
-  if (~ instance?(value, <&function>) & (res.users.size > 0))
-    *computation-tracer*(#"add-temporary", res.temporary-id, res, 0);
-    do(compose(rcurry(curry(*computation-tracer*, #"add-temporary-user", res.temporary-id), 0),
-               computation-id),
+  if (res.users.size > 0)
+    *computation-tracer*(#"add-temporary", res, res.users.first, 0);
+    do(rcurry(curry(*computation-tracer*, #"add-temporary-user", res), 0),
        res.users);
   end;
   res;
@@ -680,7 +687,7 @@ end;
 
 define method call-iep?-setter (new :: <boolean>, c :: <function-call>) => (res :: <boolean>)
   c.%call-iep? := new;
-  *computation-tracer* & *computation-tracer*(#"change-entry-point", c.computation-id, if (new) #"interior" else #"exterior" end, 0);
+  *computation-tracer* & *computation-tracer*(#"change-entry-point", c, if (new) #"interior" else #"exterior" end, 0);
   new;
 end;
 
@@ -1026,7 +1033,7 @@ end;
 
 define method make (c == <loop-call>, #rest all-keys, #key loop, #all-keys) => (res :: <loop-call>)
   let l = next-method();
-  *computation-tracer*(#"set-loop-call-loop", l.computation-id, loop.computation-id, 0);
+  *computation-tracer*(#"set-loop-call-loop", l, loop.computation-id, 0);
   l;
 end;
 

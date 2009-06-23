@@ -168,7 +168,11 @@ define generic convert-to-typist-type (t :: type-union(<typist-type>, <&type>))
 
 define method convert-to-typist-type (t :: <&type>)
  => (res :: <&type>)
-  t
+  if (t == dylan-value(#"<object>"))
+    make(<&top-type>)
+  else
+    t
+  end
 end;
 
 define method convert-to-typist-type (t :: <typist-type>)
@@ -235,7 +239,7 @@ define thread variable *constraints* :: false-or(<stretchy-vector>) = #f;
 define thread variable *graph* :: false-or(<graph>) = #f;
 
 define function add-constraint (c :: <constraint>) => (c :: <constraint>)
-  debug-types(#"constraint", c.left-hand-side, c.right-hand-side);
+  //debug-types(#"constraint", c.left-hand-side, c.right-hand-side);
   add!(*constraints*, c);
   c;
 end;
@@ -250,7 +254,7 @@ define method type-infer (l :: <&lambda>)
   dynamic-bind(*inferring?* = #t)
     let caches = element($lambda-type-caches, l, default: #f);
     unless (caches)
-      caches := pair(make(<type-environment>), pair(make(<graph>), make(<stretchy-vector>)));
+      caches := pair(make(<type-environment>), pair(make(<graph>, lambda: l), make(<stretchy-vector>)));
       $lambda-type-caches[l] := caches;
     end;
     dynamic-bind(*constraints* = caches.tail.tail,
@@ -512,7 +516,7 @@ define method infer-computation-types (c :: <loop>) => ()
                         new.computation-id;
                       end, c.loop-body, #f);
 
-    dynamic-bind(*graph* = make(<graph>),
+    dynamic-bind(*graph* = make(<graph>, lambda: c.environment.lambda),
                  *constraints* = make(<stretchy-vector>),
                  *type-environment* = make(<type-environment>))
       //insert types of temporaries into environment
@@ -692,6 +696,9 @@ define method get-function-object (t :: <temporary>)
   let gen = t.generator;
   if (instance?(gen, <make-closure>))
     gen.computation-closure-method;
+  elseif (instance?(gen, <extract-single-value>))
+    //well, get the indexed value (type)?
+    #f
   else
     get-function-object(gen.computation-value); //for check-type!
   end;

@@ -495,7 +495,7 @@ define function maybe-upgrade-gf-to-method-call
     // and if no effectives are slot accesses, upgrade to method call
     let method-call 
       = upgrade-to-method-call!
-      (c, effective, tail(effectives), <method-call>);
+      (c, effective, tail(effectives), <simple-call>);
     re-optimize(method-call); // Is this the right place to do this?
     //maybe-upgrade-call(method-call, effective);
     #t

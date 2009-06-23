@@ -44,14 +44,10 @@ define module dfmc-visualization
   use dfmc-project-compilation, import: { compilation-context-project };
 
   export <dfmc-graph-visualization>,
-    report-enabled?, report-enabled?-setter,
-    dfm-report-enabled?, dfm-report-enabled?-setter,
-    dfm-index, dfm-index-setter,
     system-info,
     connect-to-server,
     read-from-visualizer,
-    write-to-visualizer,
-    *batch-compiling*;
+    write-to-visualizer;
 
   export visualizing-compiler;
 end;

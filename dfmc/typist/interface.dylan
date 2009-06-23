@@ -45,7 +45,7 @@ define method type-estimate (o :: <object>) => (te :: type-union(<collection>, <
       end;
     end;
   exception (e :: <condition>)
-    dynamic-bind(*graph* = make(<graph>))
+    dynamic-bind(*graph* = make(<graph>, lambda: #f), *typist-visualize* = #f)
       o.type-estimate-object.model-type
     end;
   end;
