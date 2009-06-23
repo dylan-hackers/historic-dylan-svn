@@ -381,7 +381,7 @@ end;
 define function callback-handler (#rest args)
   format-out("%=\n", args);
 end function callback-handler;
-
+/*
 begin
   let top-build = "c:\\stage3\\";
   environment-variable("OPEN_DYLAN_USER_ROOT") := top-build;
@@ -393,9 +393,8 @@ begin
   visualizing-compiler(vis, project); //, library: dylan-library-compilation-context());
 end;
 
-/*
+*/
 begin
-  dynamic-bind(*batch-compiling* = #t)
   let project = find-project("dylan");
   open-project-compiler-database(project,
                                  warning-callback: callback-handler,
@@ -405,9 +404,8 @@ begin
       let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Type-and-Graph-Visualization");
       connect-to-server(vis);
       for (test in $tests)
-        write-to-visualizer(vis, list(#"source", test.head, test.tail));
+        write-to-visualizer(vis, list(#"source", as(<string>, test.head), test.tail));
       end;
-      vis.dfm-report-enabled? := #f;
       block()
         while (#t)
           let res = read-from-visualizer(vis); //expect: #"compile" "source"
@@ -427,9 +425,7 @@ begin
       end;
     end;
   end;
-  end
 end;
-*/
           
 define function list-all-package-names ()
   let res = #();

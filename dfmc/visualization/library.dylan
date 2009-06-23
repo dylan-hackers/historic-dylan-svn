@@ -24,6 +24,7 @@ end;
 
 define module dfmc-visualization
   use dylan;
+  use dylan-extensions, import: { debug-name };
   use common-dylan, exclude: { format-to-string };
   use threads, import: { dynamic-bind };
   use format;

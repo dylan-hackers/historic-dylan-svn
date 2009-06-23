@@ -133,6 +133,7 @@ define method temporary-id (t :: <temporary>) => (id :: <integer>)
         let gen = if (t.generator) t.generator else 0 end;
         *computation-tracer*(#"add-temporary", t, gen, 0);
         if (t.generator)
+          *computation-tracer*(#"temporary-generator", t, gen, 0);
           let new = t.generator.computation-type;
           *computation-tracer*(#"change-type", t, new, 0);
         end;

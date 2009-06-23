@@ -24,27 +24,37 @@ define method ^subtype? (a :: <&polymorphic-type-variable>, b :: <&polymorphic-t
   ^subtype?(a.^type-variable-kind, b.^type-variable-kind)
 end;
 
+define method ^subtype? (a :: <&polymorphic-type-variable>, b :: <&singleton>)
+ => (sub? :: <boolean>)
+  #f
+end;
+
 define method ^subtype? (a :: <&polymorphic-type-variable>, b :: <&type>)
  => (sub? :: <boolean>)
-  ^subtype?(a.^type-variable-kind, b);
+  ^subtype?(a.^type-variable-kind, b)
 end;
 
 define method ^subtype? (a :: <&type>, b :: <&polymorphic-type-variable>)
  => (sub? :: <boolean>)
-  ^subtype?(a, b.^type-variable-kind);
+  ^subtype?(a, b.^type-variable-kind)
 end;
 
 define method ^subtype? (a :: <&top-type>, b :: <&polymorphic-type-variable>)
  => (sub? :: <boolean>)
-  ^subtype?(a, b.^type-variable-kind);
+  ^subtype?(a, b.^type-variable-kind)
+end;
+
+define method ^subtype? (a :: <&singleton>, b :: <&polymorphic-type-variable>)
+ => (sub? :: <boolean>)
+  ^instance?(a.^singleton-object, b.^type-variable-kind)
 end;
 
 define method ^known-disjoint? (a :: <&polymorphic-type-variable>, b :: <&polymorphic-type-variable>)
  => (disj? :: <boolean>)
-  ^known-disjoint?(a.^type-variable-kind, b.^type-variable-kind);
+  ^known-disjoint?(a.^type-variable-kind, b.^type-variable-kind)
 end;
 
 define method ^known-disjoint? (a :: <&polymorphic-type-variable>, b :: <&type>)
  => (disj? :: <boolean>)
-  ^known-disjoint?(a.^type-variable-kind, b);
+  ^known-disjoint?(a.^type-variable-kind, b)
 end;

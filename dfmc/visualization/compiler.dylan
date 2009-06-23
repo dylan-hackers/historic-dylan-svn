@@ -15,7 +15,7 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
 end;
 
 define method form (c :: type-union(<temporary>, <computation>))
-  c.environment.lambda.model-creator
+  c.environment.lambda
 end;
 
 define method form (c :: <&lambda>)
@@ -31,7 +31,11 @@ define method identifier (f) => (res :: <string>)
 end;
 
 define method identifier (l :: <&lambda>) => (res :: <string>)
-  l.model-creator.identifier
+  if (instance?(l.model-creator, type-union(<top-level-init-form>, <compilation-record>)))
+    l.debug-name
+  else
+    l.model-creator.identifier
+  end
 end;
 
 define method identifier (s :: <string>) => (res :: <string>)
@@ -86,7 +90,7 @@ end;
 define function visualize (vis :: <dfmc-graph-visualization>, key :: <symbol>, object :: <object>)
   select (key by \==)
     #"dfm-header" =>
-      write-data(vis, key, object);
+      write-data(vis, key, object.head.form-id, object.tail);
     #"beginning" =>
       write-data(vis, key, object.head.form-id, object.tail);
     #"relayouted" =>
@@ -113,16 +117,16 @@ define function visualizing-compiler (vis :: <dfmc-graph-visualization>, project
                  *computation-tracer* = curry(trace-computations, vis),
                  *typist-visualize* = curry(trace-types, vis))
       with-progress-reporting(project, report-progress, visualization-callback: curry(visualize, vis))
-    let subc = project-load-namespace(project, force-parse?: #t);
-    for (s in subc using backward-iteration-protocol)
-      parse-project-sources(s);
-    end;
-    let project2 = compilation-context-project(project-current-compilation-context(project));
-    let settings = project-build-settings(project2);
+    //let subc = project-load-namespace(project, force-parse?: #t);
+    //for (s in subc using backward-iteration-protocol)
+    //  parse-project-sources(s);
+    //end;
+    //let project2 = compilation-context-project(project-current-compilation-context(project));
+    //let settings = project-build-settings(project2);
 
 
         apply(compile-library-from-definitions, lib, force?: #t, skip-link?: #t,
-                                         compile-if-built?: #t, skip-heaping?: #t, build-settings: settings, keys);
+                                         compile-if-built?: #t, skip-heaping?: #t, /* build-settings: settings, */ keys);
       end;
     end;
   exception (e :: <abort-compilation>)
