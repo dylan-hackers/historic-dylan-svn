@@ -88,8 +88,12 @@ public class LayouterClient extends Thread {
 					assert(answer.get(1) instanceof String); //method name
 					name = (String)answer.get(1);
 					assert(answer.get(2) instanceof String); //source code
-					demo.string_source_map.put(name, (String)answer.get(2));
-					demo.graph_chooser.addItem(new ListElement(name));
+					if (demo.string_source_map.containsKey(name))
+						System.out.println("string_source_map already contains key");
+					else {
+						demo.string_source_map.put(name, (String)answer.get(2));
+						demo.graph_chooser.addItem(new ListElement(name));
+					}
 					//demo.activate(name);
 					printMessage(result);
 					continue;
@@ -102,11 +106,14 @@ public class LayouterClient extends Thread {
 				if (! graphs.containsKey(dfm_id)) {
 					gr = new IncrementalHierarchicLayout(demo, dfm_id);
 					graphs.put(dfm_id, gr);
+					if (! demo.string_source_map.containsKey(dfm_id)) {
+						demo.string_source_map.put(dfm_id, "no source");
+						demo.graph_chooser.addItem(new ListElement(dfm_id));
+					}
 				}
 				gr = graphs.get(dfm_id);
 				demo.unselect();
 				demo.activate(gr);
-				//boolean lastchange = gr.changed | gr.typechanged;
 				if (Commands.processCommand(gr, answer, demo))
 					if (! gr.changed)
 						gr.changed = true;
