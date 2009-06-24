@@ -336,6 +336,7 @@ define module io-internals
   use functional-dylan,
     exclude: { format-to-string };
   use dylan-direct-c-ffi;
+  use threads;
   use streams-internals;
   use format-internals;
   use standard-io;
