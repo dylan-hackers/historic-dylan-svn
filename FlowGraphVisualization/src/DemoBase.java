@@ -217,7 +217,7 @@ public class DemoBase extends Thread {
 	  String mname = text.getText();
 	  String def = "define method ";
 	  if (mname.startsWith(def))
-		  mname = mname.substring(def.length(), mname.indexOf(' ', def.length() + 1)).trim();
+		  mname = mname.substring(def.length(), mname.indexOf(')', def.length() + 1)).trim();
 	  return mname;
   }
   
@@ -398,6 +398,7 @@ public boolean updatingguimanually = false;
 					IncrementalHierarchicLayout ih = client.getGraph(mname);
 					ih.activateLayouter();
 				} else {
+					incrementallayouter = null;
 					updatingslider = true;
 					slider.setLabelTable(null);
 					slider.setMaximum(0);

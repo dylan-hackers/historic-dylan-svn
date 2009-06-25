@@ -100,6 +100,10 @@ public class LayouterClient extends Thread {
 				}
 				assert(answer.get(1) instanceof String); //method name!
 				String dfm_id = (String)answer.get(1);
+				if (dfm_id.equalsIgnoreCase("top-level-initializer")) {
+					printMessage(result);
+					continue;
+				}
 				IncrementalHierarchicLayout gr = null;
 				if (! (key.isEqual("highlight") || key.isEqual("highlight-queue") || key.isEqual("relayouted")))
 					; //System.out.println(key.toString() + " for " + dfm_id + " : " + answer.subList(2, answer.size()));
