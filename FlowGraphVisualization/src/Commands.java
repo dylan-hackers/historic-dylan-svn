@@ -270,7 +270,7 @@ public final class Commands {
 		Node temp = getNode(ihl, answer, 2, false);
 		Node comp = getNode(ihl, answer, 3, false);
 		ihl.graph.createEdge(temp, comp);
-		ihl.setEdgeColor(Color.pink);
+		ihl.setEdgeColor(Color.blue);
 		return true;
 	} 
 	
@@ -302,7 +302,7 @@ public final class Commands {
 					return true;
 				}
 		if (ihl.safeCreateEdge(newgenerator, temp)) {
-			ihl.setEdgeColor(Color.pink);
+			ihl.setEdgeColor(Color.blue);
 			return true;
 		}
 		return false;
@@ -501,9 +501,9 @@ public final class Commands {
 	private static boolean highlightedge (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo, boolean thick) {
 		Node from = getNode(ihl, answer, 2, false);
 		Node to = getNode(ihl, answer, 3, false);
-		LineType lt = LineType.LINE_1;
+		LineType lt = LineType.LINE_2;
 		if (thick)
-			lt = LineType.LINE_3;
+			lt = LineType.LINE_4;
 		for (EdgeCursor ec = from.outEdges(); ec.ok(); ec.next())
 			if (ec.edge().target() == to)
 				ihl.typegraph.getRealizer(ec.edge()).setLineType(lt);

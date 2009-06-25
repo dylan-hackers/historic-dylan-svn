@@ -28,6 +28,7 @@ import y.view.GenericEdgeRealizer;
 import y.view.GenericNodeRealizer;
 import y.view.Graph2D;
 import y.view.Graph2DView;
+import y.view.LineType;
 import y.view.NodeLabel;
 import y.view.NodeRealizer;
 
@@ -137,8 +138,10 @@ public class IncrementalHierarchicLayout
 		// make it look nice
 		EdgeRealizer defaultER = graph.getDefaultEdgeRealizer();
 		defaultER.setArrow(Arrow.STANDARD);
+		defaultER.setLineType(LineType.LINE_2);
 		EdgeRealizer edefaultER = typegraph.getDefaultEdgeRealizer();
 		edefaultER.setArrow(Arrow.STANDARD);
+		edefaultER.setLineType(LineType.LINE_2);
 		if (scf != null)
 			scf.dispose();
 		if (typescf != null)
@@ -189,7 +192,8 @@ public class IncrementalHierarchicLayout
 				n = graph.lastNode();
 			}
 			EdgeRealizer myreal = new GenericEdgeRealizer(graph.getDefaultEdgeRealizer());
-			myreal.setLineColor(Color.pink);
+			myreal.setLineColor(Color.blue);
+			myreal.setLineType(LineType.DASHED_2);
 			graph.createEdge(header, n, myreal);
 			scf.addPlaceNodeBelowConstraint(header, n);
 			i++; //want loop over multiple variables!
@@ -370,7 +374,8 @@ public class IncrementalHierarchicLayout
 			Node gen = int_node_map.get(c_id);
 			assert(gen != null);
 			EdgeRealizer myreal = new GenericEdgeRealizer(graph.getDefaultEdgeRealizer());
-			myreal.setLineColor(Color.pink);
+			myreal.setLineColor(Color.blue);
+			myreal.setLineType(LineType.DASHED_2);
 			graph.createEdge(gen, t, myreal);
 			scf.addPlaceNodeInSameLayerConstraint(t, gen);
 		}
@@ -450,6 +455,8 @@ public class IncrementalHierarchicLayout
 	public void setEdgeColor (Color color) {
 		EdgeRealizer myreal = new GenericEdgeRealizer(graph.getDefaultEdgeRealizer());
 		myreal.setLineColor(color);
+		if (color == Color.blue)
+			myreal.setLineType(LineType.DASHED_2);
 		graph.setRealizer(graph.lastEdge(), myreal);
 	}
 
@@ -549,7 +556,7 @@ public class IncrementalHierarchicLayout
 			int argc = -i * 16 + 1;
 			for (EdgeCursor ec = t.outEdges(); ec.ok(); ec.next()) {
 				Color c = graph.getRealizer(ec.edge()).getLineColor(); 
-				if (c == Color.pink) {
+				if (c == Color.blue) {
 					int lane = 0;
 					for (NodeCursor nc = ec.edge().target().successors(); nc.ok(); nc.next())
 						if (swimLane.get(nc.node()) != null && ((SwimLaneDescriptor)swimLane.get(nc.node())).getClientObject() != null)
@@ -609,7 +616,7 @@ public class IncrementalHierarchicLayout
 			Node next = visit(work);
 			if (next != null) work = next;
 			for (EdgeCursor ec = work.outEdges(); ec.ok(); ec.next())
-				if (graph.getRealizer(ec.edge()).getLineColor() != Color.pink) {
+				if (graph.getRealizer(ec.edge()).getLineColor() != Color.blue) {
 					Node targ = ec.edge().target();
 					if (visited.get(targ) == null)
 						workingset.add(targ);
@@ -620,7 +627,7 @@ public class IncrementalHierarchicLayout
 	
 	private Node nextC (Node n) {
 		for (EdgeCursor ec = n.outEdges(); ec.ok(); ec.next())
-			if (graph.getRealizer(ec.edge()).getLineColor() != Color.pink)
+			if (graph.getRealizer(ec.edge()).getLineColor() != Color.blue)
 				return ec.edge().target();
 		return null;
 	}
@@ -628,7 +635,7 @@ public class IncrementalHierarchicLayout
 		String text = graph.getLabelText(n);
 		setL(currindex, n);
 		for (EdgeCursor ec = n.edges(); ec.ok(); ec.next())
-			if (graph.getRealizer(ec.edge()).getLineColor() == Color.pink) {
+			if (graph.getRealizer(ec.edge()).getLineColor() == Color.blue) {
 				int weight = step;
 				if (ec.edge().opposite(n).degree() == 1) {
 					setLf(currindex, ec.edge().opposite(n));

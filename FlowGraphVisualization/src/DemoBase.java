@@ -114,7 +114,7 @@ public class DemoBase extends Thread {
     registerViewModes();
     
     graphpanel = new JPanel();
-    graphpanel.setLayout( new BorderLayout() );
+    graphpanel.setLayout( new BorderLayout(3, 3) );
     left.add(graphpanel, BorderLayout.CENTER);
     
     //view.setOpaque(true);
@@ -127,7 +127,7 @@ public class DemoBase extends Thread {
     //typeview.getGlassPane().add(view);
 
     //left.add( typeview, BorderLayout.CENTER );
-    graphpanel.add(view, BorderLayout.WEST);
+    graphpanel.add(view, BorderLayout.CENTER);
     graphpanel.add(typeview, BorderLayout.EAST);
 
     graph_chooser = new JComboBox(new SortedListComboBoxModel());
@@ -197,6 +197,7 @@ public class DemoBase extends Thread {
     alphaslider.setLabelTable(labels);
     alphaslider.setPaintLabels(true);
     alphaslider.setSnapToTicks(true);
+    alphaslider.setValue(1);
     alphaslider.addChangeListener(new ChangeAlphaSlider());
   }
 
@@ -208,12 +209,12 @@ public class DemoBase extends Thread {
 	  } else if (newl == 1) {
 		  graphpanel.remove(typeview);
 		  graphpanel.remove(view);
-		  graphpanel.add(view, BorderLayout.WEST);
+		  graphpanel.add(view, BorderLayout.CENTER);
 		  graphpanel.add(typeview, BorderLayout.EAST);		  
 	  } else if (newl == 2) {
 		  graphpanel.remove(typeview);
 		  graphpanel.remove(view);
-		  graphpanel.add(view, BorderLayout.NORTH);
+		  graphpanel.add(view, BorderLayout.CENTER);
 		  graphpanel.add(typeview, BorderLayout.SOUTH);		  
 	  } else if (newl == 3) { //type only
 		  graphpanel.remove(typeview);
@@ -221,6 +222,10 @@ public class DemoBase extends Thread {
 		  graphpanel.add(typeview, BorderLayout.CENTER);
 	  }
 	  graphpanel.revalidate();
+      view.fitContent();
+      view.updateView();
+      typeview.fitContent();
+      typeview.updateView();
   }
   
   public String methodName () {
@@ -440,7 +445,6 @@ public boolean updatingguimanually = false;
 		if (!alphaslider.getValueIsAdjusting()) {
 			int step = alphaslider.getValue();
 			switchViews(step);
-			graphpanel.repaint();
 		}
 	}
   }
@@ -573,7 +577,10 @@ public boolean updatingguimanually = false;
 				gr.setSelected(old, false);
 				for (EdgeCursor ec = old.edges(); ec.ok(); ec.next())
 					if (gr.getRealizer(ec.edge()).getLineColor() != Color.black) {
-						gr.getRealizer(ec.edge()).setLineType(LineType.LINE_1);
+						if (gr.getRealizer(ec.edge()).getLineColor() == Color.blue)
+							gr.getRealizer(ec.edge()).setLineType(LineType.DASHED_2);
+						else
+							gr.getRealizer(ec.edge()).setLineType(LineType.LINE_2);
 						NodeRealizer o = gr.getRealizer(ec.edge().opposite(old)); 
 						o.setFillColor(unhighlightColor(o.getFillColor()));
 					}
@@ -607,7 +614,7 @@ public boolean updatingguimanually = false;
 				gr.setSelected(s, true);
 				for (EdgeCursor ec = s.edges(); ec.ok(); ec.next())
 					if (gr.getRealizer(ec.edge()).getLineColor() != Color.black) {
-						gr.getRealizer(ec.edge()).setLineType(LineType.LINE_3);
+						gr.getRealizer(ec.edge()).setLineType(LineType.LINE_4);
 						NodeRealizer n = gr.getRealizer(ec.edge().opposite(s)); 
 						n.setFillColor(highlightColor(n.getFillColor()));
 					}
