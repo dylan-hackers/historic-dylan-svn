@@ -82,8 +82,7 @@ public class DemoBase extends Thread {
   public boolean updatingslider = false;
   protected HashMap<String, String> string_source_map = new HashMap<String, String>();
   protected JTextArea text;
-  private JPanel left;
-  private boolean typesForeground = false;
+  private JPanel graphpanel;
   private JSlider alphaslider;
   private boolean forcelayout = false;
   
@@ -109,20 +108,27 @@ public class DemoBase extends Thread {
     contentPane = new JPanel();
     contentPane.setLayout( new BorderLayout() );
 
-    left = new JPanel();
+    JPanel left = new JPanel();
     left.setLayout( new BorderLayout() );
 
     registerViewModes();
+    
+    graphpanel = new JPanel();
+    graphpanel.setLayout( new BorderLayout() );
+    left.add(graphpanel, BorderLayout.CENTER);
+    
     //view.setOpaque(true);
-    view.setPreferredSize(new Dimension(1100, 1000));
-    ((DefaultBackgroundRenderer)view.getBackgroundRenderer()).setColor(new Color(0xff, 0xff, 0xff, 0x33));
+    //view.setPreferredSize(new Dimension(1100, 1000));
+    //((DefaultBackgroundRenderer)view.getBackgroundRenderer()).setColor(new Color(0xff, 0xff, 0xff, 0x33));
 
     //typeview.setOpaque(true);
-    typeview.setPreferredSize(new Dimension(1100, 1000));
+    //typeview.setPreferredSize(new Dimension(1100, 1000));
     //((DefaultBackgroundRenderer)typeview.getBackgroundRenderer()).setColor(new Color(0xff, 0xff, 0xff, 0x33));
-    typeview.getGlassPane().add(view);
+    //typeview.getGlassPane().add(view);
 
-    left.add( typeview, BorderLayout.CENTER );
+    //left.add( typeview, BorderLayout.CENTER );
+    graphpanel.add(view, BorderLayout.WEST);
+    graphpanel.add(typeview, BorderLayout.EAST);
 
     graph_chooser = new JComboBox(new SortedListComboBoxModel());
     graph_chooser.addItem(new ListElement("new..."));
@@ -194,23 +200,27 @@ public class DemoBase extends Thread {
     alphaslider.addChangeListener(new ChangeAlphaSlider());
   }
 
-  private void switchViews (Graph2DView fg) {
-	  if (fg == typeview && !typesForeground) {
-		  reallySwitch(typeview, view);
-		  typesForeground = true;
-	  } else if (fg == view && typesForeground) {
-		  reallySwitch(view, typeview);
-		  typesForeground = false;
+  private void switchViews (int newl) {
+	  if (newl == 0) { //cfg only
+		  graphpanel.remove(typeview);
+		  graphpanel.remove(view);
+		  graphpanel.add(view, BorderLayout.CENTER);
+	  } else if (newl == 1) {
+		  graphpanel.remove(typeview);
+		  graphpanel.remove(view);
+		  graphpanel.add(view, BorderLayout.WEST);
+		  graphpanel.add(typeview, BorderLayout.EAST);		  
+	  } else if (newl == 2) {
+		  graphpanel.remove(typeview);
+		  graphpanel.remove(view);
+		  graphpanel.add(view, BorderLayout.NORTH);
+		  graphpanel.add(typeview, BorderLayout.SOUTH);		  
+	  } else if (newl == 3) { //type only
+		  graphpanel.remove(typeview);
+		  graphpanel.remove(view);
+		  graphpanel.add(typeview, BorderLayout.CENTER);
 	  }
-  }
-  
-  private void reallySwitch (Graph2DView fg, Graph2DView bg) {
-	  left.remove(fg);
-	  typeview.getGlassPane().remove(bg);
-	  ((DefaultBackgroundRenderer)bg.getBackgroundRenderer()).setColor(Color.white);
-	  left.add(bg, BorderLayout.CENTER);
-	  ((DefaultBackgroundRenderer)fg.getBackgroundRenderer()).setColor(new Color(0xff, 0xff, 0xff, 0x33));
-	  bg.getGlassPane().add(fg);
+	  graphpanel.revalidate();
   }
   
   public String methodName () {
@@ -279,10 +289,10 @@ public boolean updatingguimanually = false;
   }
 
   protected void registerViewModes() {
-	  view.getCanvasComponent().addMouseListener(new MyMouseListener());
+	  view.getCanvasComponent().addMouseListener(new MyMouseListener(view));
 	  view.addViewMode(new NavigationMode());
 	  view.getCanvasComponent().addMouseWheelListener( new Graph2DViewMouseWheelZoomListener() );
-	  typeview.getCanvasComponent().addMouseListener(new MyMouseListener());
+	  typeview.getCanvasComponent().addMouseListener(new MyMouseListener(typeview));
 	  typeview.addViewMode(new NavigationMode());
 	  typeview.getCanvasComponent().addMouseWheelListener( new Graph2DViewMouseWheelZoomListener() );
   }
@@ -313,12 +323,13 @@ public boolean updatingguimanually = false;
   }
 
   final class MyMouseListener implements MouseListener {
+	  private Graph2DView graph;
+	  public MyMouseListener (Graph2DView gr) {
+		  this.graph = gr;
+	  }
+	  
 	public void mouseClicked(MouseEvent arg0) {
-		Node selected = null;
-		if (alphaslider.getValue() < 2)
-			selected = checkClick(view, incrementallayouter.graph, arg0.getX(), arg0.getY());
-		else
-			selected = checkClick(typeview, incrementallayouter.typegraph, arg0.getX(), arg0.getY());
+		Node selected = checkClick(graph, graph.getGraph2D(), arg0.getX(), arg0.getY());
 		if (selected == null)
 			unselect();
 		else
@@ -428,20 +439,8 @@ public boolean updatingguimanually = false;
 	public void stateChanged(ChangeEvent arg0) {
 		if (!alphaslider.getValueIsAdjusting()) {
 			int step = alphaslider.getValue();
-			if (step == 1)
-				switchViews(view);
-			else if (step == 2)
-				switchViews(typeview);
-			else if (step == 0) {
-				switchViews(typeview);
-				view.getGlassPane().remove(typeview);
-			} else if (step == 3) {
-				switchViews(view);
-				typeview.getGlassPane().remove(view);			
-			}
-			//view.updateView();
-			//typeview.updateView();
-			left.repaint();
+			switchViews(step);
+			graphpanel.repaint();
 		}
 	}
   }
@@ -581,6 +580,7 @@ public boolean updatingguimanually = false;
 				Node tt = findTNode(old);
 				if (tt != null) {
 					Graph2D gr2 = (Graph2D)tt.getGraph();
+					if (gr2 != null)
 					gr2.getRealizer(tt).setFillColor(unhighlightColor(gr2.getRealizer(tt).getFillColor()));
 				}
 				incrementallayouter.selection = null;
@@ -614,7 +614,8 @@ public boolean updatingguimanually = false;
 				Node tt = findTNode(s);
 				if (tt != null) {
 					Graph2D gr2 = (Graph2D)tt.getGraph();
-					gr2.getRealizer(tt).setFillColor(highlightColor(gr2.getRealizer(tt).getFillColor()));
+					if (gr2 != null)
+						gr2.getRealizer(tt).setFillColor(highlightColor(gr2.getRealizer(tt).getFillColor()));
 				}
 				incrementallayouter.selection = s;
 			}
@@ -628,8 +629,8 @@ public boolean updatingguimanually = false;
 		if (forcelayout) {
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");
-			if (alphaslider.getValue() != 0 && alphaslider.getValue() != 2)
-				alphaslider.setValue(2);
+			if (alphaslider.getValue() == 3)
+				alphaslider.setValue(1);
 			//switchViews(typeview);
 			incrementallayouter.changed = false;
 			Cursor oldCursor = view.getCanvasComponent().getCursor();
@@ -692,7 +693,7 @@ public boolean updatingguimanually = false;
 		}
 		if (!typeview.getGraph2D().isEmpty() && incrementallayouter.typechanged){
 			incrementallayouter.typechanged = false;
-			if (alphaslider.getValue() != 3 && alphaslider.getValue() != 1)
+			if (alphaslider.getValue() == 0)
 				alphaslider.setValue(1);
 			//switchViews(view);
 			Cursor oldCursor = typeview.getCanvasComponent().getCursor();
