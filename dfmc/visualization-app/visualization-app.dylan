@@ -375,6 +375,38 @@ begin
     "  values(id(42), id(\"foo\"))\n"
     "end;";
   add!($tests, pair(#"id1 ()", id1));
+
+  let inl =
+    "define method double\n (a :: <integer>)\n"
+    "  2 * a;\n"
+    "end;";
+  add!($tests, pair(#"double (<integer>)", inl));
+
+  let dead-code =
+    "define method dead ()\n"
+    "  if (#f)\n"
+    "    23;\n"
+    "  else\n"
+    "    42;\n"
+    "  end;\n"
+    "end;";
+  add!($tests, pair(#"dead ()", dead-code));
+
+  let cse =
+    "define method cse\n (a :: <integer>)\n"
+    "  values(42 + a, (42 + a) * 2);\n"
+    "end;";
+  add!($tests, pair(#"cse (<integer>)", cse));
+
+  let tc =
+    "define method tail-call\n (x :: <integer>)\n"
+    "  if (x == 0)\n"
+    "    1\n"
+    "  else\n"
+    "    tail-call(x - 1)\n"
+    "  end;\n"
+    "end;";
+  add!($tests, pair(#"tail-call (<integer>)", tc));
 end;
 
 define function callback-handler (#rest args)

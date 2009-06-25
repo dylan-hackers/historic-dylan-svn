@@ -834,6 +834,7 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
   let sig = ^function-signature(fun);
   unless (c.environment.lambda == fun) //updating self-calls is not wise (or, is it?)
     if (instance?(sig, <&polymorphic-signature>))
+      //XXX: copy me if not single user!
       solve(*graph*, *constraints*, *type-environment*);
       //initial-type-constraints(sig);
       constrain-type-variables(c, map(lookup-type-node, sig.^signature-required-arguments),
