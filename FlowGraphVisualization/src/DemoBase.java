@@ -237,7 +237,7 @@ public class DemoBase extends Thread {
   }
   
   private boolean steppressed = false;
-  private boolean playpressed = true;
+  private boolean playpressed = false;
 public boolean updatingguimanually = false;
   
   public void waitforstep () {
@@ -271,7 +271,7 @@ public boolean updatingguimanually = false;
 	  try { slider.setMaximum(ihl.lastEntry); } catch (NullPointerException e) { }
 	  try { slider.setValue(ihl.lastslidervalue); } catch (NullPointerException e) { }
 	  updatingslider = false;
-	  playpressed = true;
+	  playpressed = false;
 	  calcLayout();
   }
   
@@ -577,7 +577,7 @@ public boolean updatingguimanually = false;
 				gr.setSelected(old, false);
 				for (EdgeCursor ec = old.edges(); ec.ok(); ec.next())
 					if (gr.getRealizer(ec.edge()).getLineColor() != Color.black) {
-						if (gr.getRealizer(ec.edge()).getLineColor() == Color.blue)
+						if (gr == view.getGraph2D() && gr.getRealizer(ec.edge()).getLineColor() == Color.blue)
 							gr.getRealizer(ec.edge()).setLineType(LineType.DASHED_2);
 						else
 							gr.getRealizer(ec.edge()).setLineType(LineType.LINE_2);
@@ -633,7 +633,7 @@ public boolean updatingguimanually = false;
 	 * Animated layout assignment
 	 */
 	public void calcLayout(){
-		if (forcelayout) {
+		//if (forcelayout) {
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");
 			if (alphaslider.getValue() == 3)
@@ -748,7 +748,7 @@ public boolean updatingguimanually = false;
 		}
 		typeview.updateView();
 		view.updateView();
-		}
+		//}
 	}
 
 }
