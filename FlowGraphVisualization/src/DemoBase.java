@@ -232,7 +232,7 @@ public class DemoBase extends Thread {
 	  String mname = text.getText();
 	  String def = "define method ";
 	  if (mname.startsWith(def))
-		  mname = mname.substring(def.length(), mname.indexOf(')', def.length() + 1)).trim();
+		  mname = mname.substring(def.length(), mname.indexOf(')', def.length() + 1) + 1).trim();
 	  return mname;
   }
   
@@ -369,7 +369,8 @@ public boolean updatingguimanually = false;
   final class SendAction extends AbstractAction
   {
 	public void actionPerformed(ActionEvent ev) {
-		if (string_source_map.get(methodName()) == null) {
+		if (string_source_map.get(methodName()) == null)
+			if (string_source_map.get(methodName().substring(0, methodName().indexOf(' ')).trim()) == null) {
 			System.out.println("new method :" + methodName() + ":");
 			string_source_map.put(methodName(), text.getText());
 			ListElement newLE = new ListElement(methodName());
@@ -636,8 +637,8 @@ public boolean updatingguimanually = false;
 		//if (forcelayout) {
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");
-			if (alphaslider.getValue() == 3)
-				alphaslider.setValue(1);
+			//if (alphaslider.getValue() == 3)
+			//	alphaslider.setValue(1);
 			//switchViews(typeview);
 			incrementallayouter.changed = false;
 			Cursor oldCursor = view.getCanvasComponent().getCursor();
@@ -700,8 +701,8 @@ public boolean updatingguimanually = false;
 		}
 		if (!typeview.getGraph2D().isEmpty() && incrementallayouter.typechanged){
 			incrementallayouter.typechanged = false;
-			if (alphaslider.getValue() == 0)
-				alphaslider.setValue(1);
+			//if (alphaslider.getValue() == 0)
+			//	alphaslider.setValue(1);
 			//switchViews(view);
 			Cursor oldCursor = typeview.getCanvasComponent().getCursor();
 			//for (NodeCursor nc = incrementallayouter.typegraph.nodes(); nc.ok(); nc.next())
