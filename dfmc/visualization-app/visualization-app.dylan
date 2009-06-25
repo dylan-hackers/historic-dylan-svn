@@ -19,8 +19,8 @@ begin
       "    end;\n"
       "  end;\n"
       "end;";
-  add!($tests, pair(#"if-nested", if-nested));
-  
+  add!($tests, pair(#"if-nested (<object>, <object>, <object>)", if-nested));
+ 
   let if-instance
     = "define method if-instance ()\n"
       "  let a :: <integer> = 23;\n"
@@ -32,7 +32,7 @@ begin
       "  end;\n"
       "  a;\n"
       "end;\n";
-  add!($tests, pair(#"if-instance", if-instance));
+  add!($tests, pair(#"if-instance ()", if-instance));
 
   let if-simple
     = "define method if-simple\n"
@@ -44,7 +44,7 @@ begin
       "    42 + 10;\n"
       "  end;\n"
       "end;";
-  add!($tests, pair(#"if-simple", if-simple));
+  add!($tests, pair(#"if-simple (<integer>, <integer>)", if-simple));
 
   let if-assign0
     = "define method if-assign0 (a) => (b)\n"
@@ -56,7 +56,7 @@ begin
       "  end;\n"
       "  c;\n"
       "end;";
-  add!($tests, pair(#"if-assign0", if-assign0));
+  add!($tests, pair(#"if-assign0 (<object>)", if-assign0));
 
   let if-assign1
     = "define method if-assign1 (a) => (b)\n"
@@ -66,8 +66,7 @@ begin
       "  end;\n"
       "  c;\n"
       "end;";
-  add!($tests, pair(#"if-assign1", if-assign1));
-
+  add!($tests, pair(#"if-assign1 (<object>)", if-assign1));
 
   let if-assign2
     = "define method if-assign2 (a) => (b)\n"
@@ -81,36 +80,36 @@ begin
       "  end;\n"
       "  c;\n"
       "end;";
-  add!($tests, pair(#"if-assign2", if-assign2));
+  add!($tests, pair(#"if-assign2 (<object>)", if-assign2));
 
   let common-sub =
     "define method common-subexpression (a, b)\n"
     "  values(a + b, (a + b) * b);\n"
     "end;";
-  add!($tests, pair(#"common-subexpression", common-sub));
+  add!($tests, pair(#"common-subexpression (<object>, <object>)", common-sub));
 
   let common-sub2 =
     "define method common-subexpression2\n"
     " (a :: <integer>, b :: <integer>)\n"
     "  values(a + b, (a + b) * b);\n"
     "end;";
-  add!($tests, pair(#"common-subexpression2", common-sub2));
+  add!($tests, pair(#"common-subexpression2 (<integer>, <integer>)", common-sub2));
 
   let whil-true =
-    "define method while-true-loop (x, y, z)\n"
+    "define method while-true-loop ()\n"
     "  while(#t)\n"
     "    1 + 2;\n"
     "  end;\n"
     "end;";
-  add!($tests, pair(#"while-true-loop", whil-true));
+  add!($tests, pair(#"while-true-loop ()", whil-true));
 
   let lfor =
-    "define method for-loop (x, y, z)\n"
+    "define method for-loop (x, y)\n"
     "  for (i from 0 below 20)\n"
     "    x := y + 1;\n"
     "  end;\n"
     "end;";
-  add!($tests, pair(#"for-loop", lfor));
+  add!($tests, pair(#"for-loop (<object>, <object>)", lfor));
 
   let whill =
     "define method while-loop ()\n"
@@ -119,7 +118,7 @@ begin
     "    i := i + 1;\n"
     "  end;\n"
     "end;";
-  add!($tests, pair(#"while-loop", whill));
+  add!($tests, pair(#"while-loop ()", whill));
 
   let whill2 =
     "define method while-loop2 ()\n"
@@ -130,7 +129,7 @@ begin
     "  end;\n"
     "  i\n"
     "end;";
-  add!($tests, pair(#"while-loop2", whill2));
+  add!($tests, pair(#"while-loop2 ()", whill2));
 
   let whilln =
     "define method while-loop-nested ()\n"
@@ -142,7 +141,7 @@ begin
     "    end;\n"
     "  end;\n"
     "end;";
-  add!($tests, pair(#"while-loop-nested", whilln));
+  add!($tests, pair(#"while-loop-nested ()", whilln));
 
   let blte =
     "define method block-test (x)\n"
@@ -150,7 +149,7 @@ begin
     "    t();\n"
     "  end;\n"
     "end;";
-  add!($tests, pair(#"block-test", blte));
+  add!($tests, pair(#"block-test (<object>)", blte));
 
   let ble =
     "define method block-exception (x)\n"
@@ -160,10 +159,10 @@ begin
     "    x := 0;\n"
     "  end;\n"
     "end;";
-  add!($tests, pair(#"block-exception", ble));
+  add!($tests, pair(#"block-exception (<object>)", ble));
 
   let blcl =
-    "define method block-cleanup (x, y, z)\n"
+    "define method block-cleanup (x, y)\n"
     "  block(t)\n"
     "    if (x == 42)\n"
     "      t();\n"
@@ -174,10 +173,10 @@ begin
     "    x := y;\n"
     "  end;\n"
     "end;";
-  add!($tests, pair(#"block-cleanup", blcl));
+  add!($tests, pair(#"block-cleanup (<object>, <object>)", blcl));
 
   let db =
-    "define method dyn-bind (x, y, z)\n"
+    "define method dyn-bind (x, y)\n"
     "  let t = 42;\n"
     "  dynamic-bind(t = 0)\n"
     "    x := t * t;\n"
@@ -185,7 +184,7 @@ begin
     "  y := t + t;\n"
     "  values(x, y);\n"
     "end;";
-  add!($tests, pair(#"dyn-bind", db));
+  add!($tests, pair(#"dyn-bind (<object>, <object>)", db));
 
   let mm =
     "define method mymap (A, B)\n"
@@ -203,7 +202,7 @@ begin
     "    foo(a - 1);\n"
     "  end;\n"
     "end;\n";
-  add!($tests, pair(#"tail-call", tc));
+  add!($tests, pair(#"tail-call (<integer>)", tc));
 
   let gt0 =
     "define method gradual-typing-test0 ()\n"
@@ -215,14 +214,14 @@ begin
     "        end;\n"
     "  f(g(1));\n"
     "end;\n";
-  add!($tests, pair(#"gradual-typing-test0", gt0));
+  add!($tests, pair(#"gradual-typing-test0 ()", gt0));
 
   let gt1 =
     "define method gradual-typing-test1 ()\n"
     "  local method x (a) a(1) end;\n"
     "  x(1);\n"
     "end;\n";
-  add!($tests, pair(#"gradual-typing-test1", gt1));
+  add!($tests, pair(#"gradual-typing-test1 ()", gt1));
 
 /*
   let gt2 =
@@ -247,7 +246,7 @@ begin
     "  let b = 455;\n"
     "  a + b;\n"
     "end;\n";
-  add!($tests, pair(#"binding0", bin0));
+  add!($tests, pair(#"binding0 ()", bin0));
 
   let bin1 =
     "define method binding1 ()\n"
@@ -255,7 +254,7 @@ begin
     "  let b = 455;\n"
     "  a + b;\n"
     "end;\n";
-  add!($tests, pair(#"binding1", bin1));
+  add!($tests, pair(#"binding1 ()", bin1));
 
   let ass1 =
     "define method assignment1 ()\n"
@@ -264,7 +263,7 @@ begin
     "  a := b + 1;\n"
     "  b := \"foo\";\n"
     "end;\n";
-  add!($tests, pair(#"assignment1", ass1));
+  add!($tests, pair(#"assignment1 ()", ass1));
 
   let ass0 =
     "define method assignment0 ()\n"
@@ -272,7 +271,7 @@ begin
     "  let b = 455;\n"
     "  a := b + 1;\n"
     "end;\n";
-  add!($tests, pair(#"assignment0", ass0));
+  add!($tests, pair(#"assignment0 ()", ass0));
 
   let ass2 =
     "define method assignment2 ()\n"
@@ -282,7 +281,7 @@ begin
     "  b := \"foo\";\n"
     "  a := concatenate(b, b);\n"
     "end;\n";
-  add!($tests, pair(#"assignment2", ass2));
+  add!($tests, pair(#"assignment2 ()", ass2));
 
   let ass3 =
     "define method assignment3 ()\n"
@@ -291,7 +290,7 @@ begin
     "  a := b + 1;\n"
     "  b := \"foo\";\n"
     "end;\n";
-  add!($tests, pair(#"assignment3", ass3));
+  add!($tests, pair(#"assignment3 ()", ass3));
 
   let ass4 =
     "define method assignment4 ()\n"
@@ -305,7 +304,7 @@ begin
     "  b := a - 4;\n"
     "  values(a + 2, b - 3);\n"
     "end;\n";
-  add!($tests, pair(#"assignment4", ass4));
+  add!($tests, pair(#"assignment4 ()", ass4));
 
   let ass5 =
     "define method assignment5 ()\n"
@@ -316,7 +315,7 @@ begin
     "  a := a + 1;\n"
     "  values(a + 2, b);\n"
     "end;\n";
-  add!($tests, pair(#"assignment5", ass5));
+  add!($tests, pair(#"assignment5 ()", ass5));
 
   let ass6 =
     "define method assignment6 ()\n"
@@ -327,7 +326,7 @@ begin
     "  a := a + 1;\n"
     "  values(a + 2, b - 3);\n"
     "end;\n";
-  add!($tests, pair(#"assignment6", ass6));
+  add!($tests, pair(#"assignment6 ()", ass6));
 
   let mymap2 =
     "define method mymap2 (c :: <list>)\n"
@@ -341,7 +340,7 @@ begin
     "    add!(mymap2(c.tail), ma(c.head));\n"
     "  end;\n"
     "end;\n";
-  add!($tests, pair(#"mymap2", mymap2));
+  add!($tests, pair(#"mymap2 (<list>)", mymap2));
 
   let poly0 =
     "define method poly0 ()\n"
@@ -357,7 +356,7 @@ begin
     "  end;\n"
     "  mymap(method(x) x + 1 end, #[1, 2, 3]);\n"
     "end;";
-  add!($tests, pair(#"poly0", poly0));
+  add!($tests, pair(#"poly0 ()", poly0));
 
   let id0 =
     "define method id0 ()\n"
@@ -366,7 +365,7 @@ begin
     "  end;\n"
     "  id(42)\n"
     "end;";
-  add!($tests, pair(#"id0", id0));
+  add!($tests, pair(#"id0 ()", id0));
 
   let id1 =
     "define method id1 ()\n"
@@ -375,13 +374,14 @@ begin
     "  end;\n"
     "  values(id(42), id(\"foo\"))\n"
     "end;";
-  add!($tests, pair(#"id1", id1));
+  add!($tests, pair(#"id1 ()", id1));
 end;
 
 define function callback-handler (#rest args)
   format-out("%=\n", args);
 end function callback-handler;
 
+/*
 begin
   let top-build = "c:\\stage3\\";
   environment-variable("OPEN_DYLAN_USER_ROOT") := top-build;
@@ -392,8 +392,8 @@ begin
   let project = lookup-named-project("dylan");
   visualizing-compiler(vis, project, parse?: #t);
 end;
+*/
 
-/*
 begin
   let project = find-project("dylan");
   open-project-compiler-database(project,
@@ -426,7 +426,7 @@ begin
     end;
   end;
 end;
-*/
+
 
 define function list-all-package-names ()
   let res = #();

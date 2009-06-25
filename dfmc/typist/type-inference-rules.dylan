@@ -147,9 +147,12 @@ define method type-estimate-object (v :: <vector>)
   if (v.size == 0)
     make(<&singleton>, object: v) //actually, (C <: <vector>, E)limited(C, of: E, size: 0) ?
   else
+    let types = map(type-estimate-object, v);
+    let ctypes = map(method(x) if (instance?(x, <&singleton>)) x.^singleton-object.&object-class else x end end,
+                     types);
     make(<limited-collection>,
          class: make(<node>, graph: *graph*, value: dylan-value(#"<vector>")), //more like subclass(<vector>)
-         element-type: reduce1(^type-union, map(type-estimate-object, v)))
+         element-type: reduce1(^type-union, ctypes).lookup-type-node)
   end
 end;
 
@@ -832,7 +835,7 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
   unless (c.environment.lambda == fun) //updating self-calls is not wise (or, is it?)
     if (instance?(sig, <&polymorphic-signature>))
       solve(*graph*, *constraints*, *type-environment*);
-      initial-type-constraints(sig);
+      //initial-type-constraints(sig);
       constrain-type-variables(c, map(lookup-type-node, sig.^signature-required-arguments),
                                map(abstract-and-lookup, c.arguments));
       let progress? = #t;
@@ -869,9 +872,24 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
           end;
         end;
       end;
+      //upgrade signature (using type variable types)
+      let arg = map(temporary-type, sig.^signature-required-arguments);
+      let val = map(temporary-type, sig.^signature-required-values);
+      fun.^function-signature := make(<&signature>, required:  arg, number-required: arg.size, values: val, number-values: val.size);
+      let env = element($lambda-type-caches, fun, default: #f);
+      let tv-types = map(temporary-type, sig.^signature-type-variables);
+      dynamic-bind(*type-environment* = env.head, *graph* = env.tail.head, *constraints* = env.tail.tail)
+        for (tv in sig.^signature-type-variables, tv-type in tv-types)
+          add-constraint(make(<equality-constraint>,
+                              left: lookup-type-node(tv),
+                              right: tv-type.lookup-type-node,
+                              origin: c));
+          solve(*graph*, *constraints*, *type-environment*);
+        end
+      end;
     end;
   end;
-  create-arrow-and-constraint(c, sig);
+  create-arrow-and-constraint(c, fun.^function-signature);
 end;
 
 define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>) => ()
