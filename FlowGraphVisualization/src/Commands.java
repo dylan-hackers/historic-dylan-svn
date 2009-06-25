@@ -103,10 +103,12 @@ public final class Commands {
 	private static Node getNode (IncrementalHierarchicLayout ihl, ArrayList answer, int index, boolean maybenull) {
 		assert(answer.size() >= index);
 		assert(answer.get(index) instanceof Integer);
-		int nodeid = (Integer)answer.get(index);
+		Integer nodeid = (Integer)answer.get(index);
 		Node n = ihl.int_node_map.get(nodeid);
-		if (! maybenull)
+		if (! maybenull) {
+			assert(ihl.int_node_map.containsKey(nodeid));
 			assert(n != null);
+		}
 		return n;
 	}
 	

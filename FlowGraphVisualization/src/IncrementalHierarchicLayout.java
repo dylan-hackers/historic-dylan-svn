@@ -60,6 +60,7 @@ public class IncrementalHierarchicLayout
 
 	protected int lastslidervalue = 0;
 	protected boolean graphfinished = false;
+	protected boolean graphinprocessofbeingfinished = false;
 	
 	protected final String graph_id;
 	
@@ -346,7 +347,7 @@ public class IncrementalHierarchicLayout
 		//demobase.calcLayout();
 		//System.out.println("created node (gr " + graph + ")");
 		if (id > 0) {
-			assert(int_node_map.get(id) == null);
+			assert(int_node_map.containsKey(id) == false);
 			int_node_map.put(id, n);
 		} else if (id == 0)
 			topnodes.add(n);
@@ -453,10 +454,9 @@ public class IncrementalHierarchicLayout
 	}
 
 	public void updatephase(String text) {
-		boolean finished = false;
 		if (text.equals("finished"))
-			finished = true;
-		final boolean rfinished = finished;
+			graphinprocessofbeingfinished = true;
+		final boolean rfinished = graphinprocessofbeingfinished;
 		if (lastChangeCount < numChanges) {
 			lastEntry++;
 			lastChangeCount = numChanges;

@@ -89,7 +89,7 @@ public class LayouterClient extends Thread {
 					name = (String)answer.get(1);
 					assert(answer.get(2) instanceof String); //source code
 					if (demo.string_source_map.containsKey(name))
-						System.out.println("string_source_map already contains key");
+						System.out.println("string_source_map already contains key: " + name);
 					else {
 						demo.string_source_map.put(name, (String)answer.get(2));
 						demo.graph_chooser.addItem(new ListElement(name));
@@ -112,22 +112,26 @@ public class LayouterClient extends Thread {
 					}
 				}
 				gr = graphs.get(dfm_id);
-				demo.unselect();
-				demo.activate(gr);
-				if (Commands.processCommand(gr, answer, demo))
-					if (! gr.changed)
-						gr.changed = true;
-				if (key.isEqual("relayouted")) {
-					demo.waitforstep();
-					gr.activateLayouter();
-				}
-				if (gr.isok)
-					printMessage(result);
-				else {
-					gr.isok = true;
-					ArrayList res = new ArrayList();
-					res.add(new Symbol("bar"));
-					printMessage(res);
+				if (gr.graphinprocessofbeingfinished) {
+					System.err.println("graph is already finished, go away");
+				} else {
+					demo.unselect();
+					demo.activate(gr);
+					if (Commands.processCommand(gr, answer, demo))
+						if (! gr.changed)
+							gr.changed = true;
+					if (key.isEqual("relayouted")) {
+						demo.waitforstep();
+						gr.activateLayouter();
+					}
+					if (gr.isok)
+						printMessage(result);
+					else {
+						gr.isok = true;
+						ArrayList res = new ArrayList();
+						res.add(new Symbol("bar"));
+						printMessage(res);
+					}
 				}
 			}
 		} catch (IOException e) {
