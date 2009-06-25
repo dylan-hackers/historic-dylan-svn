@@ -37,8 +37,8 @@ end method stream-parse-error;
 //
 define method monitor (parser :: <xml-stream-parser>,
                        event :: one-of(#"start-element", #"end-element", #"characters"),
-                       handler :: <function>)
-  parser.handlers[event] := handler;
+                       handler-function :: <function>)
+  parser.handlers[event] := handler-function;
 end method monitor;
 
 define method parse (parser :: <xml-stream-parser>)
