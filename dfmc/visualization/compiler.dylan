@@ -18,6 +18,10 @@ define method form (c :: type-union(<temporary>, <computation>))
   c.environment.lambda
 end;
 
+define method form (c :: <exit>)
+  c.entry-state.form
+end;
+
 define method form (c :: <&lambda>)
   c
 end;
@@ -28,6 +32,12 @@ end;
 
 define method identifier (f) => (res :: <string>)
   as(<string>, f.form-variable-name)
+end;
+
+define method identifier (m :: <method-definition>) => (res :: <string>)
+  let str = make(<string-stream>, direction: #"output");
+  print-specializers(m.form-signature, str);
+  concatenate(as(<string>, m.form-variable-name), " ", str.stream-contents)
 end;
 
 define method identifier (l :: <&lambda>) => (res :: <string>)
@@ -109,7 +119,7 @@ define function trace-types (vis :: <dfmc-graph-visualization>, key :: <symbol>,
   apply(write-data, vis, key, env.form-id, args);
 end;
 
-define function visualizing-compiler (vis :: <dfmc-graph-visualization>, project, #rest keys, #key, #all-keys)
+define function visualizing-compiler (vis :: <dfmc-graph-visualization>, project, #key parse?)
   let lib = project.project-current-compilation-context;
   block()
     dynamic-bind(*progress-library* = lib,
@@ -117,16 +127,19 @@ define function visualizing-compiler (vis :: <dfmc-graph-visualization>, project
                  *computation-tracer* = curry(trace-computations, vis),
                  *typist-visualize* = curry(trace-types, vis))
       with-progress-reporting(project, report-progress, visualization-callback: curry(visualize, vis))
-    //let subc = project-load-namespace(project, force-parse?: #t);
-    //for (s in subc using backward-iteration-protocol)
-    //  parse-project-sources(s);
-    //end;
-    //let project2 = compilation-context-project(project-current-compilation-context(project));
-    //let settings = project-build-settings(project2);
+        let settings =
+          if (parse?)
+            let subc = project-load-namespace(project, force-parse?: #t);
+            for (s in subc using backward-iteration-protocol)
+              parse-project-sources(s);
+            end;
+            let project2 = compilation-context-project(project-current-compilation-context(project));
+            project-build-settings(project2);
+          end;
 
-
-        apply(compile-library-from-definitions, lib, force?: #t, skip-link?: #t,
-                                         compile-if-built?: #t, skip-heaping?: #t, /* build-settings: settings, */ keys);
+        compile-library-from-definitions(lib, force?: #t, skip-link?: #t,
+                                         compile-if-built?: #t, skip-heaping?: #t,
+                                         build-settings: settings);
       end;
     end;
   exception (e :: <abort-compilation>)

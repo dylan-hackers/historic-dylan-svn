@@ -495,7 +495,7 @@ define function maybe-upgrade-gf-to-method-call
     // and if no effectives are slot accesses, upgrade to method call
     let method-call 
       = upgrade-to-method-call!
-      (c, effective, tail(effectives), <simple-call>);
+      (c, effective, tail(effectives), <method-call>);
     re-optimize(method-call); // Is this the right place to do this?
     //maybe-upgrade-call(method-call, effective);
     #t
@@ -1128,12 +1128,21 @@ define function congruent-style-call-arguments
       for (i :: <integer> from 0 below number-required)
         new-arguments[i] := call.arguments[i];
       end for;
-      let rest-t = make-object-reference(#[]); //XXX: why an empty vector?
+      let rest-t = make-object-reference(#[]);
       new-arguments[number-required] := rest-t;
       add-user!(rest-t, call);
       values(#f, #f, new-arguments)
     else
-      values(#f, #f, arguments(call))
+      let (rest-c, rest-t)
+        = generate-stack-vector
+          (call.environment,
+           copy-sequence(call.arguments, start: number-required));
+      let new-arguments = make(<vector>, size: number-required + 1);
+      for (i :: <integer> from 0 below number-required)
+        new-arguments[i] := call.arguments[i];
+      end for;
+      new-arguments[number-required] := rest-t;
+      values(rest-c, rest-c, new-arguments)
     end
   else
     values(#f, #f, arguments(call))

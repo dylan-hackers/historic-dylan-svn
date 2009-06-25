@@ -381,7 +381,7 @@ end;
 define function callback-handler (#rest args)
   format-out("%=\n", args);
 end function callback-handler;
-/*
+
 begin
   let top-build = "c:\\stage3\\";
   environment-variable("OPEN_DYLAN_USER_ROOT") := top-build;
@@ -390,10 +390,10 @@ begin
   let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Type-and-Graph-Visualization");
   connect-to-server(vis);
   let project = lookup-named-project("dylan");
-  visualizing-compiler(vis, project); //, library: dylan-library-compilation-context());
+  visualizing-compiler(vis, project, parse?: #t);
 end;
 
-*/
+/*
 begin
   let project = find-project("dylan");
   open-project-compiler-database(project,
@@ -426,7 +426,8 @@ begin
     end;
   end;
 end;
-          
+*/
+
 define function list-all-package-names ()
   let res = #();
   local method collect-project

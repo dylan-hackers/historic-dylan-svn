@@ -554,13 +554,13 @@ define method infer-computation-types (c :: <loop>) => ()
             for (phi in phis, type in types)
               unless (^subtype?(phi.extract-argument-type.temporary-type,
                                 type))
-                fast-exit(#f);
+                fast-exit(#f)
               end;
             end;
-            #t;
+            #t
           end;
-      //if safe, assign types to phi / loop-merge temporaries
 
+      //if safe, assign types to phi / loop-merge temporaries
       unless (safe?)
         //empty types collection
         types.size := 0;
@@ -617,14 +617,18 @@ end;
 
 define method infer-computation-types (c :: type-union(<slot-value-setter>, <repeated-slot-value-setter>)) => ()
   next-method();
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: c.computation-new-value.abstract-and-lookup,
-                      right: c.temporary.abstract-and-lookup));
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: c.computation-new-value.abstract-and-lookup,
-                      right: c.computation-slot-descriptor.^slot-type.lookup-type-node));
+  let new-val = c.computation-new-value.abstract-and-lookup;
+  let new-val-t = new-val.model-type;
+  unless (instance?(new-val-t, <&singleton>) & (new-val-t.^singleton-object == &unbound) & instance?(c.environment.lambda, <&initializer-method>))
+    add-constraint(make(<equality-constraint>,
+                        origin: c,
+                        left: new-val,
+                        right: c.temporary.abstract-and-lookup));
+    add-constraint(make(<equality-constraint>,
+                        origin: c,
+                        left: new-val,
+                        right: c.computation-slot-descriptor.^slot-type.lookup-type-node));
+  end;
 end;
 
 define method infer-computation-types (c :: <extract-single-value>) => ()
@@ -680,7 +684,7 @@ define method infer-computation-types
                   <make-cell>, <get-cell-value>, <set-cell-value!>,
                   <redefinition>,
                   <set!>, <conditional-update!>, <type-redefinition>, 
-                  <apply>, <method-apply>, <engine-node-apply>, <engine-node-call>)) => ()
+                  <engine-node-call>)) => ()
   error("didn't expect %=", c);
 end;
 define generic get-function-object (o :: <object>)
@@ -697,10 +701,17 @@ define method get-function-object (t :: <temporary>)
   if (instance?(gen, <make-closure>))
     gen.computation-closure-method;
   elseif (instance?(gen, <extract-single-value>))
-    //well, get the indexed value (type)?
-    #f
-  else
-    get-function-object(gen.computation-value); //for check-type!
+    block()
+      let res = gen.computation-value.temporary-type[gen.index];
+      instance?(res, <&limited-function-type>) & res
+    exception (e :: <condition>)
+      #f
+    end
+  elseif (instance?(gen, <call>))
+    let res = gen.temporary.temporary-type;
+    instance?(res, <&limited-function-type>) & res
+  elseif (instance?(gen, <temporary-transfer>))
+    get-function-object(gen.computation-value)
   end;
 end;
 
@@ -740,6 +751,7 @@ end;
 
 define method infer-function-type (c :: <function-call>, fun == #f) => ()
   //well, need to generate an arrow-type, args and vals, constraint...
+  create-arrow-and-constraint(c, make(<&signature>, rest-value?: #t, rest?: #t, values: #[], number-values: 0, required: #[], number-required: 0));
 end;
 
 define method infer-function-type (c :: <function-call>, fun :: <&limited-function-type>) => ()

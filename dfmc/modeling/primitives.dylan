@@ -543,7 +543,7 @@ define side-effecting stateless indefinite-extent &primitive primitive-iep-apply
 
 // !@#$ needs to be built-in
 define side-effecting stateless indefinite-extent &primitive primitive-apply // !@#$ broken
-    (fn :: <function>, size :: <integer>, #rest arguments)
+    (fn :: <function>, #rest arguments)
  => (#rest values);
 
 

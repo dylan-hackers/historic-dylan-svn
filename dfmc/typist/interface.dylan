@@ -64,9 +64,11 @@ define compiler-sideways method re-type-computations
     (first :: false-or(<computation>), last :: false-or(<computation>)) => ()
   unless (*inferring?*)
     let e = (first & first) | last;
-    with-environment (e)
-      walk-computations(infer-computation-types, first, last.next-computation);
-      //solve(*graph*, *constraints*, *type-environment*);
+    if (e)
+      with-environment (e)
+        walk-computations(infer-computation-types, first, last.next-computation);
+        //solve(*graph*, *constraints*, *type-environment*);
+      end;
     end;
   end;
 end;
