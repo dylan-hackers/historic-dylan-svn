@@ -316,7 +316,7 @@ define function do-optimize (item :: <computation>) => (b :: <boolean>)
     if (res)
       //*dump-dfm-method*(#"relayouted", #());
     end;
-    res;
+    res
   end;
 end function;
 

@@ -11,7 +11,15 @@ define function report-progress (i1 :: <integer>, i2 :: <integer>,
 end;
 
 define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
-  write-to-visualizer(vis, apply(list, arguments));
+  if (member?(arguments[1], list("object-implementation-class", //<object> vs <raw-pointer> in call to indirect-object-implementation-class
+                                 "default-initialize", //<raw-integer> vs <raw-address> because of wrap/unwrap
+                                 "system-allocate-simple-instance", //too many arguments
+                                 "make-simple-lock", "make-notification", //too many arguments
+                                 "make-slot-access-engine-repository"), //too many arguments
+                                 //"ash", "search-for-entry-count"), //<make-cell>
+              test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
+    write-to-visualizer(vis, apply(list, arguments));
+  end
 end;
 
 define method form (c :: type-union(<temporary>, <computation>))
@@ -22,7 +30,7 @@ define method form (c :: <exit>)
   c.entry-state.form
 end;
 
-define method form (c :: <&lambda>)
+define method form (c :: type-union(<&accessor-method>, <&lambda>))
   c
 end;
 
@@ -30,8 +38,15 @@ define method form (c :: <lambda-lexical-environment>)
   c.lambda
 end;
 
+//define constant $lambda-string-table = make(<table>);
+//define constant $string-lambda-table = make(<table>);
+
 define method identifier (f) => (res :: <string>)
   as(<string>, f.form-variable-name)
+end;
+
+define method identifier (f :: <name-fragment>) => (res :: <string>)
+  as(<string>, f.fragment-name)
 end;
 
 define method identifier (m :: <method-definition>) => (res :: <string>)
@@ -40,12 +55,12 @@ define method identifier (m :: <method-definition>) => (res :: <string>)
   concatenate(as(<string>, m.form-variable-name), " ", str.stream-contents)
 end;
 
-define method identifier (l :: <&lambda>) => (res :: <string>)
+define method identifier (l :: type-union(<&accessor-method>, <&lambda>)) => (res :: <string>)
   if (instance?(l.model-creator, type-union(<top-level-init-form>, <compilation-record>)))
-    l.debug-name
+    l.debug-name.identifier
   else
     l.model-creator.identifier
-  end
+  end;
 end;
 
 define method identifier (s :: <string>) => (res :: <string>)

@@ -259,12 +259,16 @@ define method do-primitive-coercion-inverses
 
     // create an inverse coercion, for other users (besides this call)
     // of the merge value
+    let new-arg = make(arg.temporary-class,
+                       generator: merge-node,
+                       environment: env);
+    merge-node.temporary := new-arg;
 
     let (inverse-coercion-call, inverse-coercion-ref)
       = make-with-temporary
 	(env, <primitive-call>,
 	 primitive: inverse-coercion,
-	 arguments: vector(arg));
+	 arguments: vector(new-arg));
 
     insert-computation-after!(merge-node, inverse-coercion-call);
     replace-temporary-in-users!
@@ -290,8 +294,8 @@ define method do-primitive-coercion-inverses
     // Current call (the coercion) is now obsolete.  Replace all users
     // of this call with the temporary gen'ed by the merge node.
 
-    replace-computation-with-temporary!(call, arg);
-
+    replace-computation-with-temporary!(call, new-arg);
+    remove-temporary!(env, arg);
     // NOW MERGING RAW VALUES
 
     re-optimize-type-estimate(merge-node);

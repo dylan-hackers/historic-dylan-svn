@@ -402,23 +402,13 @@ define function renaming (f :: <&lambda>, mapping :: <table>)
             push(stacks[x.phi-ssa-variable], x);
             find-recent-assignments(x, x.phi-ssa-variable);
           end;
-          if (instance?(x, <temporary-transfer>))
-            let v = x.temporary;
-            if (instance?(v, <lexical-local-variable>))
-              if (~empty?(v.assignments))
-                push(stacks[v], x);
-              end;
-            end;
-          end;
-          if (instance?(x, <single-value-check-type-computation>))
+          begin
             let v = x.temporary;
             if (member?(v, modified-variables))
-              if (v.generator == x)
-                unless(member?(x, v.assignments))
-                  v.assignments := add!(v.assignments, x);
-                end;
-                push(stacks[v], x);
+              unless (member?(x, v.assignments) | v.generator == x)
+                v.assignments := add!(v.assignments, x);
               end;
+              push(stacks[v], x);
             end;
           end;
           //for (v in x.temporary)

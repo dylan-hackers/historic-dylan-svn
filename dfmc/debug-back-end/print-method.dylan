@@ -51,6 +51,10 @@ define method output-lambda-computations
 end method;
 
 define compiler-sideways method print-method (stream :: <stream>, 
+      o :: <&method>, #key css, output-format, header-only) 
+end;
+
+define compiler-sideways method print-method (stream :: <stream>, 
       o :: <&lambda>, #key css, output-format, header-only) 
   if (output-format == #"sexp")
     if (header-only)
@@ -62,6 +66,9 @@ define compiler-sideways method print-method (stream :: <stream>,
     output-lambda-computations(stream, 0, o);
   end;
 end method;
+
+define compiler-sideways method print-method-out (o :: <&method>, #key css) 
+end;
 
 define compiler-sideways method print-method-out (o :: <&lambda>, #key css) 
   print-method(*standard-output*, o)
@@ -148,7 +155,7 @@ define method output-lambda-header-sexp
           let res = #();
           res := add!(res, #"METHOD");
           res := add!(res, o.debug-string);
-          res := add!(res, o.body.computation-id);
+          res := add!(res, o.body & o.body.computation-id | 0);
           res := add!(res, map(temporary-id, o.parameters | #()));
           reverse!(add!(res, map(method(x)
                                    let str = make(<string-stream>, direction: #"output");

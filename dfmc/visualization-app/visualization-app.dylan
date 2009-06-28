@@ -413,7 +413,7 @@ define function callback-handler (#rest args)
   format-out("%=\n", args);
 end function callback-handler;
 
-/*
+
 begin
   let top-build = "c:\\stage3\\";
   environment-variable("OPEN_DYLAN_USER_ROOT") := top-build;
@@ -424,7 +424,7 @@ begin
   let project = lookup-named-project("dylan");
   visualizing-compiler(vis, project, parse?: #t);
 end;
-*/
+/*
 
 begin
   let project = find-project("dylan");
@@ -458,7 +458,7 @@ begin
     end;
   end;
 end;
-
+*/
 
 define function list-all-package-names ()
   let res = #();

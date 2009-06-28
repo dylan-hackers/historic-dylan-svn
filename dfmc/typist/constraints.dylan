@@ -84,7 +84,7 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
          if (instance?(x.node-value, <type-variable>))
            let rep-type = x.find.node-value;
            if (instance?(rep-type, type-union(<&type>, <typist-type>)) & ~instance?(rep-type, <type-variable>))
-             format-out("changed TV %= to contain type %= now\n", x.node-value.get-id, rep-type);
+             //format-out("changed TV %= to contain type %= now\n", x.node-value.get-id, rep-type);
              add!(changed-vars, x.node-value);
              x.node-value.type-variable-contents := rep-type;
            end

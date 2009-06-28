@@ -18,6 +18,7 @@ define library dfmc-visualization
   use projects;
   use dfmc-environment-projects;
   use dfmc-browser-support;
+  use dfmc-reader;
 
   export dfmc-visualization;
 end;
@@ -43,6 +44,7 @@ define module dfmc-visualization
   use projects-implementation, import: { project-build-settings, project-current-compilation-context };
   use dfmc-environment-projects; //for with-progress-reporting
   use dfmc-project-compilation, import: { compilation-context-project };
+  use dfmc-reader, import: { fragment-name, <name-fragment> };
 
   export <dfmc-graph-visualization>,
     system-info,

@@ -253,16 +253,26 @@ define constant temporary-type-abstraction = compose(node-to-type, abstract-and-
 
 define thread variable *inferring?* :: <boolean> = #f;
 
-define method type-infer (l :: <&lambda>)
-  dynamic-bind(*inferring?* = #t)
-    let caches = element($lambda-type-caches, l, default: #f);
+define macro with-cached-environment
+  { with-cached-environment (?lambda:expression) ?:body end }
+ => { 
+    let caches = element($lambda-type-caches, ?lambda, default: #f);
     unless (caches)
-      caches := pair(make(<type-environment>), pair(make(<graph>, lambda: l), make(<stretchy-vector>)));
-      $lambda-type-caches[l] := caches;
+      caches := pair(make(<type-environment>),
+                     pair(make(<graph>, lambda: ?lambda),
+                          make(<stretchy-vector>)));
+      $lambda-type-caches[?lambda] := caches;
     end;
     dynamic-bind(*constraints* = caches.tail.tail,
                  *type-environment* = caches.head,
                  *graph* = caches.tail.head)
+      ?body
+    end }
+end;
+
+define method type-infer (l :: <&lambda>)
+  dynamic-bind(*inferring?* = #t)
+    with-cached-environment (l)
       do(abstract-and-lookup, l.parameters);
       for (t in l.environment.temporaries)
         if (~empty?(t.assignments))
@@ -519,9 +529,7 @@ define method infer-computation-types (c :: <loop>) => ()
                         new.computation-id;
                       end, c.loop-body, #f);
 
-    dynamic-bind(*graph* = make(<graph>, lambda: c.environment.lambda),
-                 *constraints* = make(<stretchy-vector>),
-                 *type-environment* = make(<type-environment>))
+    with-cached-environment (cfg-first.environment.lambda)
       //insert types of temporaries into environment
       do(method(x)
            let tv = x.head.abstract-and-lookup;

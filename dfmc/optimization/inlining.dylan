@@ -505,7 +505,7 @@ define method move-code-into!
   walk-lambda-computations
     (method (c :: <computation>)
        if (instance?(c, <call>))
-         do(temporary-id, c.arguments);
+         do(temporary-id, choose(rcurry(instance?, type-union(<object-reference>, <temporary>)), c.arguments));
        end;
      end, mapped-body);
 

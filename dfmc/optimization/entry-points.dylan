@@ -172,7 +172,11 @@ define method maybe-upgrade-call (c :: <apply>, f :: <&function>)
     replace-computation!(c, new-call, new-call, new-temporary);
     // Ensure that this new call gets considered for inlining
     re-optimize(new-call);
-    maybe-upgrade-call(new-call, f);
+    if (new-call.item-status ~= $queueable-item-dead)
+      maybe-upgrade-call(new-call, f) //might already have happened in typist (during replace-computation!)
+    else
+      #t
+    end
   else
     // REST?(F) && NUMBER-REQUIRED(F) < SIZE(ARGS(C))
     // DIRECT TO IEP WHERE REST ARGS ARE CONCAT-2(...)

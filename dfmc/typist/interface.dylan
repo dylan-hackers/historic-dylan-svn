@@ -66,7 +66,10 @@ define compiler-sideways method re-type-computations
     let e = (first & first) | last;
     if (e)
       with-environment (e)
-        walk-computations(infer-computation-types, first, last.next-computation);
+        let infer = make(<stretchy-vector>);
+        walk-computations(curry(add!, infer), first, last.next-computation);
+        //may change during inference! (the next-computation pointers)
+        do(infer-computation-types, infer);
         //solve(*graph*, *constraints*, *type-environment*);
       end;
     end;
