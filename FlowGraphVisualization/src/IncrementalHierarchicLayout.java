@@ -674,14 +674,16 @@ public class IncrementalHierarchicLayout
 			return merge;
 		}
 		if (text.endsWith(" loop")) {
-			update(0);
-			Node mbreak = visitComputations(n.firstOutEdge().target(), "BREAK");
-			restore(0);
-			if (mbreak != null) {
-				setL(currindex, mbreak);
-				visited.set(mbreak, true);
+			if (n.outDegree() > 0) {
+				update(0);
+				Node mbreak = visitComputations(n.firstOutEdge().target(), "BREAK");
+				restore(0);
+				if (mbreak != null) {
+					setL(currindex, mbreak);
+					visited.set(mbreak, true);
+				}
+				return mbreak;
 			}
-			return mbreak;
 		}
 		if (text.endsWith(" bind-exit")) {
 			update(0);

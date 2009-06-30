@@ -149,11 +149,13 @@ public final class Commands {
 			assert(((Symbol)cf.get(0)).isEqual("method"));
 			assert(cf.get(1) instanceof Symbol); //method name
 			assert(cf.get(2) instanceof Integer); //bind
-			Node bind = getNode(ihl, cf, 2, false);
-			assert(cf.get(3) instanceof ArrayList); //args
-			assert(cf.get(4) instanceof ArrayList); //arg names
-			main = ((Symbol)(cf.get(1))).toString();
-			ihl.addMethodNode(main, bind, (ArrayList)cf.get(3), (ArrayList)cf.get(4));
+			if ((Integer)cf.get(2) != 0) {
+				Node bind = getNode(ihl, cf, 2, false);
+				assert(cf.get(3) instanceof ArrayList); //args
+				assert(cf.get(4) instanceof ArrayList); //arg names
+				main = ((Symbol)(cf.get(1))).toString();
+				ihl.addMethodNode(main, bind, (ArrayList)cf.get(3), (ArrayList)cf.get(4));
+			}
 		}
 		return true;
 	}

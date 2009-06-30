@@ -117,8 +117,18 @@ public class LayouterClient extends Thread {
 				}
 				gr = graphs.get(dfm_id);
 				if (gr.graphinprocessofbeingfinished) {
+					while (true) {
+						if (gr.graphfinished) {
+							gr.graphfinished = false;
+							gr.graphinprocessofbeingfinished = false;
+							break;
+						}
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) { }
+					}
 					System.err.println("graph is already finished, go away");
-				} else {
+				} //else {
 					demo.unselect();
 					demo.activate(gr);
 					if (Commands.processCommand(gr, answer, demo))
@@ -137,7 +147,7 @@ public class LayouterClient extends Thread {
 						printMessage(res);
 					}
 				}
-			}
+	//		}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

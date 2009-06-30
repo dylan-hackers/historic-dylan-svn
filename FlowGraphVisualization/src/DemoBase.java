@@ -381,10 +381,10 @@ public boolean updatingguimanually = false;
 			ArrayList data = new ArrayList();
 			data.add(new Symbol("compile"));
 			//data.add(new Symbol(methodName()));
-			if (containsMethodHeader())
+			//if (containsMethodHeader())
 				data.add(text.getText());
-			else
-				data.add("define function test" + client.getGraphSize() + " () " + text.getText() + " end;");
+			//else
+			//	data.add("define function test" + client.getGraphSize() + " () " + text.getText() + " end;");
 			client.printMessage(data);
 		}
 	}
@@ -634,7 +634,7 @@ public boolean updatingguimanually = false;
 	 * Animated layout assignment
 	 */
 	public void calcLayout(){
-		//if (forcelayout) {
+		if (forcelayout) {
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");
 			//if (alphaslider.getValue() == 3)
@@ -749,7 +749,7 @@ public boolean updatingguimanually = false;
 		}
 		typeview.updateView();
 		view.updateView();
-		//}
+		}
 	}
 
 }
