@@ -11,12 +11,25 @@ define function report-progress (i1 :: <integer>, i2 :: <integer>,
 end;
 
 define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
-  if (member?(arguments[1], list("object-implementation-class", //<object> vs <raw-pointer> in call to indirect-object-implementation-class
-                                 "default-initialize", //<raw-integer> vs <raw-address> because of wrap/unwrap
-                                 "system-allocate-simple-instance", //too many arguments
-                                 "make-simple-lock", "make-notification", //too many arguments
-                                 "make-slot-access-engine-repository"), //too many arguments
-                                 //"ash", "search-for-entry-count"), //<make-cell>
+  if (member?(arguments[1], list(//"indirect-object-implementation-class", "object-implementation-class", //<object> vs <raw-pointer> in call to indirect-object-implementation-class
+                                 //"member-eql?" <- <raw-pointer> vs <object>
+                                 //"default-initialize", //<raw-integer> vs <raw-address> because of wrap/unwrap
+                                 //"system-allocate-simple-instance", //too many arguments
+                                 //"make-simple-lock", "make-notification", //too many arguments
+                                 //"make-slot-access-engine-repository"), //too many arguments
+                                 //"in-place-rehashable?" <- <set!> on global variable! (inlined by rehash-table)
+                                 //"ash", "search-for-entry-count", //<make-cell>
+                                 "any?", //constraint <function> vs <simple-object-vector>
+                                 "element-no-bounds-check" //, "case-insensitive-string-equal-2", "gethash-or-set" <raw-integer> vs <byte-character>
+                                 //"same-specializer?" //no applicable methods in call [subclass-class [singleton]]
+                                 // also, run-time type error (inferred <singleton>, expected <subclass>)
+                                 //"grounded-subtype?" //no-app-m (singleton-object on <class>) + run-time type error + argument-type mismatch
+                                 //"parent-of" //no appl meth (cache-header-engine-node-parent (<generic-function>))
+                                 //"byte-slot-element-setter" //<raw-integer> vs <raw-byte-character>
+                                 //"object-class" //raw-integer vs raw-address
+                                 //"system-allocate-repeated-byte-character-instance-i" <raw-byte> vs <raw-integer>
+                                 //"signal" //phi-placement - <set!> not in table (df/mapping)
+                                 ),
               test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
     write-to-visualizer(vis, apply(list, arguments));
   end

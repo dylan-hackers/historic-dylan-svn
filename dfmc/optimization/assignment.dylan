@@ -377,26 +377,28 @@ define function renaming (f :: <&lambda>, mapping :: <table>)
           replace-temporaries!(x, modified-variables, stacks);
           let children = mapping[x].node-children;
           if (instance?(x, <assignment>) & ~ instance?(x, <definition>))
-            //replace assignment with <temporary-transfer>
-            let (tt, tmp)
-              = make-with-temporary
-                  (x.environment, <temporary-transfer>, value: x.computation-value);
-            insert-computations-after!(x, tt, tt);
-            replace-temporary-in-users!(x.temporary, tmp);
-            delete-computation!(x);
+            unless (instance?(x.assigned-binding, <module-binding>))
+              //replace assignment with <temporary-transfer>
+              let (tt, tmp)
+                = make-with-temporary
+                    (x.environment, <temporary-transfer>, value: x.computation-value);
+              insert-computations-after!(x, tt, tt);
+              replace-temporary-in-users!(x.temporary, tmp);
+              delete-computation!(x);
 
-            //update assignment list
-            let ass = x.assigned-binding.assignments;
-            ass := remove!(ass, x);
-            ass := add!(ass, tt);
-            x.assigned-binding.assignments := ass;
+              //update assignment list
+              let ass = x.assigned-binding.assignments;
+              ass := remove!(ass, x);
+              ass := add!(ass, tt);
+              x.assigned-binding.assignments := ass;
 
-            //update dominator-tree
-            mapping[x].node-computation := tt;
-            mapping[tt] := mapping[x];
-            remove-key!(mapping, x);
+              //update dominator-tree
+              mapping[x].node-computation := tt;
+              mapping[tt] := mapping[x];
+              remove-key!(mapping, x);
 
-            push(stacks[x.assigned-binding], tt);
+              push(stacks[x.assigned-binding], tt);
+            end;
           end;
           if (instance?(x, <phi-node>))
             push(stacks[x.phi-ssa-variable], x);
@@ -453,7 +455,9 @@ define function renaming (f :: <&lambda>, mapping :: <table>)
             end;
           end;
         end;
-  search(f.body);
+  if (modified-variables.size > 0)
+    search(f.body);
+  end;
 end;
 
 

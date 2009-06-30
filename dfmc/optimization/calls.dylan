@@ -163,9 +163,23 @@ end macro;
 // inverse, just output a reference to the argument to the generator.
 
 define method do-primitive-coercion-inverses
-    (env :: <environment>, call, arg, arg-gen :: <primitive-call>, p2, kind) 
+    (env :: <environment>, call, arg, arg-gen :: <primitive-call>, p2, kind)
   if (primitive(arg-gen) == p2)
     replace-computation-with-temporary!(call, arguments(arg-gen)[0]);
+    if ((p2 == dylan-value(#"primitive-wrap-machine-word") & kind == #"forward") |
+         (p2 == dylan-value(#"primitive-unwrap-machine-word") & kind == #"backward"))
+      if (instance?(arguments(arg-gen)[0], <lexical-specialized-variable>))
+        //well, most generic type. more specific would be the type estimate
+        //of call.temporary and arg-gen.temporary... but this will probably
+        //loose in constraint system. somehow this <raw-machine-word> should
+        //be pinned as the type of the temporary; otherwise during inlining
+        //of this temporary it might once again be narrowed down to
+        //<raw-address>, where the next caller can then try to narrow it to
+        //<raw-integer>, and voila, same situation, no help!
+        // hannes, 30 June 2009
+        arguments(arg-gen)[0].specializer := dylan-value(#"<raw-machine-word>")
+      end
+    end;
     // format-out("users of %=: %=.\n", arg-gen, users(temporary(arg-gen)));
     #t
   else

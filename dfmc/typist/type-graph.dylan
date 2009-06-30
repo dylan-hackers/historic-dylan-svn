@@ -171,6 +171,11 @@ define method deep-copy-node
 end;
 
 define method deep-copy-node
+ (type :: <type-variable>, graph :: <graph>)
+ => (res :: <node>)
+  deep-copy-node(type.type-variable-contents, graph)
+end;
+define method deep-copy-node
  (type :: <tuple>, graph :: <graph>)
  => (res :: <node>)
   make(<node>, graph: graph,

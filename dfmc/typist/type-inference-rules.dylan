@@ -93,15 +93,19 @@ define method type-estimate-object (o) => (res :: <&type>)
   o.&object-class
 end;
 
+define method type-estimate-object (mb :: <module-binding>) => (te :: <&type>)
+  let type = binding-type-model-object(mb, error-if-circular?: #f);
+  if (type & instance?(type, type-union(<collection>, <&type>)))
+    type
+  else
+    make(<&top-type>)
+  end
+end;
+
 define method type-estimate-object (const :: <defined-constant-reference>) => (te :: <&type>)
   let mb = const.referenced-binding;
   if (mb & instance?(mb, <module-binding>))
-    let type = binding-type-model-object(mb, error-if-circular?: #f);
-    if (type & instance?(type, type-union(<collection>, <&type>)))
-      type
-    else
-      make(<&top-type>)
-    end
+    type-estimate-object(mb)
   else
     make(<&top-type>)
   end
@@ -663,6 +667,48 @@ define method infer-computation-types (c :: <extract-rest-value>) => ()
                       right: c.temporary.abstract-and-lookup));
 end;
 
+define method infer-computation-types (c :: <make-cell>) => ()
+  next-method();
+  add-constraint(make(<equality-constraint>,
+                      origin: c,
+                      left: c.computation-value.abstract-and-lookup,
+                      right: c.temporary.abstract-and-lookup));
+  add-constraint(make(<equality-constraint>,
+                      origin: c,
+                      left: c.temporary.cell-type.lookup-type-node,
+                      right: c.temporary.abstract-and-lookup));
+end;
+
+define method infer-computation-types (c :: <get-cell-value>) => ()
+  next-method();
+  add-constraint(make(<equality-constraint>, origin: c,
+                      left: c.computation-cell.abstract-and-lookup,
+                      right: c.temporary.abstract-and-lookup));
+end;
+
+define method infer-computation-types (c :: <set-cell-value!>) => ()
+  next-method();
+  add-constraint(make(<equality-constraint>, origin: c,
+                      left: c.computation-value.abstract-and-lookup,
+                      right: c.temporary.abstract-and-lookup));
+  add-constraint(make(<equality-constraint>, origin: c,
+                      left: c.computation-value.abstract-and-lookup,
+                      right: c.computation-cell.abstract-and-lookup));
+end;
+
+define method infer-computation-types (c :: <set!>) => ()
+  next-method();
+  if (instance?(c.assigned-binding, <module-binding>))
+    add-constraint(make(<equality-constraint>, origin: c,
+                        left: c.computation-value.abstract-and-lookup,
+                        right: c.temporary.abstract-and-lookup));
+    add-constraint(make(<equality-constraint>, origin: c,
+                        left: c.computation-value.abstract-and-lookup,
+                        right: c.assigned-binding.abstract-and-lookup));
+  else
+    error("assignment is not possible!")
+  end
+end;
 //define method infer-computation-types (c :: <adjust-multiple-values>) => ()
 //end;
 
@@ -692,9 +738,8 @@ end;
 
 define method infer-computation-types
  (c :: type-union(<multiple-value-spill>, <multiple-value-unspill>,
-                  <make-cell>, <get-cell-value>, <set-cell-value!>,
                   <redefinition>,
-                  <set!>, <conditional-update!>, <type-redefinition>, 
+                  <conditional-update!>, <type-redefinition>, 
                   <engine-node-call>)) => ()
   error("didn't expect %=", c);
 end;

@@ -223,9 +223,9 @@ define method effectively-disjoint?
   if (null-type?(t1) | null-type?(t2))
     // A bare null in a comparison stands or falls on its own merit.
     guaranteed-disjoint?(t1, t2)
-  elseif (union-of-values?(t1) | union-of-values?(t2))
-    effectively-disjoint?
-      (flatten-union-of-values(t1), flatten-union-of-values(t2));
+//  elseif (union-of-values?(t1) | union-of-values?(t2))
+//    effectively-disjoint?
+//      (flatten-union-of-values(t1), flatten-union-of-values(t2));
   else
     // When neither is just null on its own, we apply the denulling 
     // heuristic.
