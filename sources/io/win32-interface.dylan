@@ -11,7 +11,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // eventually, be rewritten.
 
 // GetFileType results
-//define constant $FILE_TYPE_UNKNOWN = #x0000;
+define constant $FILE_TYPE_UNKNOWN = #x0000;
 define constant $FILE_TYPE_DISK    = #x0001;
 //define constant $FILE_TYPE_CHAR    = #x0002;
 //define constant $FILE_TYPE_PIPE    = #x0003;
@@ -40,6 +40,26 @@ end function call-succeeded?;
 
 // Now the actual interfaces ...
 
+define function win32-std-handle
+    (std-handle :: <integer>)
+ => (handle :: false-or(<machine-word>))
+  let handle
+    = primitive-wrap-machine-word
+        (primitive-cast-pointer-as-raw
+           (%call-c-function ("GetStdHandle", c-modifiers: "__stdcall")
+              (nStdHandle :: <raw-c-unsigned-long>) => (handle :: <raw-c-pointer>)
+              (integer-as-raw(std-handle))
+           end));
+  call-succeeded?(handle) & handle
+end function win32-std-handle;
+
+define function win32-alloc-console () => (success? :: <boolean>)
+  primitive-raw-as-boolean
+    (%call-c-function ("AllocConsole", c-modifiers: "__stdcall")
+       () => (success? :: <raw-c-signed-int>) ()
+     end)
+end function win32-alloc-console;
+
 define function win32-close (handle :: <machine-word>) => (success? :: <boolean>)
   primitive-raw-as-boolean
     (%call-c-function ("CloseHandle", c-modifiers: "__stdcall")
@@ -48,17 +68,16 @@ define function win32-close (handle :: <machine-word>) => (success? :: <boolean>
      end)
 end function win32-close;
 
-define function win32-file-positionable?
+define function win32-file-type
     (handle :: <machine-word>)
- => (positionable? :: <boolean>)
-  let type = raw-as-integer
-                (%call-c-function ("GetFileType", c-modifiers: "__stdcall")
-                     (handle :: <raw-c-pointer>) 
-                  => (eof :: <raw-c-unsigned-long>)
-                   (primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(handle)))
-                 end);
-  type = $FILE_TYPE_DISK
-end function win32-file-positionable?;
+ => (type :: <integer>)
+  raw-as-integer
+    (%call-c-function ("GetFileType", c-modifiers: "__stdcall")
+          (handle :: <raw-c-pointer>) 
+       => (eof :: <raw-c-unsigned-long>)
+       (primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(handle)))
+     end)
+end function win32-file-type;
 
 define function win32-file-size (handle :: <machine-word>)
  => (fsize :: false-or(<integer>))

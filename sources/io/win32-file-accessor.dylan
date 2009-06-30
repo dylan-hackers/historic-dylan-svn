@@ -10,8 +10,9 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 define constant $preferred-buffer-size = 1024 * 16;
 
 define sealed class <native-file-accessor> (<external-file-accessor>)
-  slot file-handle :: false-or(<machine-word>) = #f;
-  slot file-position :: <integer> = -1;
+  slot %file-handle :: false-or(<machine-word>) = #f;
+  slot file-position :: <integer> = -1,
+    init-keyword: file-position:;
   slot actual-file-position :: <integer> = -1;	// The physical file position 
   						// for async access.
   constant slot asynchronous? :: <boolean> = #f, 
@@ -20,6 +21,13 @@ define sealed class <native-file-accessor> (<external-file-accessor>)
   sealed slot accessor-positionable? :: <boolean> = #f;
   sealed slot accessor-at-end? :: <boolean> = #f;
 end class <native-file-accessor>;
+
+define method file-handle
+    (the-accessor :: <native-file-accessor>)
+ => (handle :: <machine-word>)
+  the-accessor.%file-handle
+    | error("cannot operate on a closed file")
+end method;
 
 // An attempt at a portable flexible interface to OS read/write/seek
 // functionality.  Legal values for TYPE might include #"file", #"pipe",
@@ -33,9 +41,7 @@ end method platform-accessor-class;
 define method accessor-fd
     (the-accessor :: <native-file-accessor>)
  => (the-fd :: false-or(<machine-word>))
-  if (the-accessor.file-handle)
-    the-accessor.file-handle
-  end if
+  the-accessor.file-handle
 end method;
 
 // Should really signal a subclass of <file-error> ...
@@ -67,9 +73,9 @@ define method accessor-open
        file-position: initial-file-position = #f, // :: false-or(<integer>)?
        overlapped? :: <boolean> = #f,
      #all-keys) => ();
-  accessor.file-handle := initial-file-handle;
+  accessor.%file-handle := initial-file-handle;
   accessor.accessor-positionable?
-    := win32-file-positionable?(initial-file-handle);
+    := win32-file-type(initial-file-handle) = $FILE_TYPE_DISK;
   accessor.file-position
     := if (initial-file-position)
          as(<integer>, initial-file-position)
@@ -103,12 +109,12 @@ end function accessor-close-async;
 
 define function accessor-close-internal (accessor :: <native-file-accessor>) 
 				     => ()
-  let handle = accessor.file-handle;
+  let handle = accessor.%file-handle;
   if (handle)
     if (~win32-close(handle) /* & ~abort? */)
-      win32-file-error(accessor, "close", #f)
+      win32-file-error(accessor, "close", "handle %=", handle)
     else
-      accessor.file-handle := #f;
+      accessor.%file-handle := #f;
       remove-key!(*open-accessors*, accessor);
     end
   end;
@@ -135,7 +141,7 @@ define method accessor-size
     (accessor :: <native-file-accessor>)
  => (size :: false-or(<integer>))
   accessor.accessor-positionable?
-  & win32-file-size(accessor.file-handle)
+    & win32-file-size(accessor.file-handle)
 end method accessor-size;
 
 define method accessor-position
@@ -173,14 +179,10 @@ define method accessor-read-into!
     (accessor :: <native-file-accessor>, stream :: <file-stream>,
      offset :: <buffer-index>, count :: <buffer-index>, #key buffer)
  => (nread :: <integer>)
-  let handle = accessor.file-handle;
-  unless (handle)
-    error("Can't read from closed stream");
-  end unless; 
-
   if (accessor.accessor-at-end?)
     0
   else
+    let handle = accessor.file-handle;
     let buffer :: <buffer> = buffer | stream-input-buffer(stream);
     let file-position-before-read = accessor.file-position;
     let nread :: false-or(<integer>) = #f;
@@ -267,9 +269,6 @@ define function accessor-write-from-internal
      => (number-of-bytes-written :: <integer>)
 
   let handle = accessor.file-handle;
-  unless (handle)
-    error("Can't write to closed stream");
-  end unless; 
   let number-of-bytes-written :: false-or(<integer>) = #f;
 
   if (accessor.asynchronous?)
@@ -312,10 +311,6 @@ define method accessor-force-output
      stream :: <file-stream>)
  => ()
   let handle = accessor.file-handle;
-  unless (handle)
-    error("accessor-force-output called on closed stream");
-  end unless; 
-
   let success :: <boolean> = win32-force-output(handle);
   if (~success)
     win32-file-error(accessor, "force output to", #f)
