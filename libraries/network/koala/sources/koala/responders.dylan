@@ -182,6 +182,8 @@ define macro url-map-definer
   // I'd like to get rid of the parens around ?request-methods.
   // Not quite sure how yet though.  --cgay
   action-definition:
+    // These four retained for backward compatibility, just until I get
+    // a chance to fix the callers.  --cgay June 2009
     { action ( ?request-methods ) ( ?regex ) => ?action:expression }
       => { let regex = compile-regex(?regex, use-cache: #t);
            let actions = list(?action);
@@ -195,6 +197,25 @@ define macro url-map-definer
            let actions = list(?action-sequence);
            ?request-methods }
     { action ?request-method:name ( ?regex ) => ( ?action-sequence:* ) }
+      => { let regex = compile-regex(?regex);
+           let actions = list(?action-sequence);
+           ?request-method }
+
+    // These ones are exact copies of the above, but with the parens
+    // around ?regex removed.
+    { action ( ?request-methods ) ?regex => ?action:expression }
+      => { let regex = compile-regex(?regex, use-cache: #t);
+           let actions = list(?action);
+           ?request-methods }
+    { action ?request-method:name ?regex => ?action:expression }
+      => { let regex = compile-regex(?regex);
+           let actions = list(?action);
+           ?request-method }
+    { action ( ?request-methods ) ?regex => ( ?action-sequence:* ) }
+      => { let regex = compile-regex(?regex, use-cache: #t);
+           let actions = list(?action-sequence);
+           ?request-methods }
+    { action ?request-method:name ?regex => ( ?action-sequence:* ) }
       => { let regex = compile-regex(?regex);
            let actions = list(?action-sequence);
            ?request-method }
