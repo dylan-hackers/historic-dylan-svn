@@ -380,7 +380,7 @@ end;
 define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <collection>, rest? :: <boolean>)
  => (signature :: <&signature>)
   //we can also upgrade <&signature> -> <&polymorphic-signature>
-  apply(^make, <&signature>, values: values, number-values: values.size, rest?: rest?,
+  apply(^make, <&signature>, values: values, number-values: values.size, rest-value?: rest?,
         rest-value: dylan-value(#"<object>"), params-from-sig(old-sig))
 end;
 

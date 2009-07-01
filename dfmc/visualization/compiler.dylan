@@ -19,16 +19,16 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
                                  //"make-slot-access-engine-repository"), //too many arguments
                                  //"in-place-rehashable?" <- <set!> on global variable! (inlined by rehash-table)
                                  //"ash", "search-for-entry-count", //<make-cell>
-                                 "any?", //constraint <function> vs <simple-object-vector>
-                                 "curry",
-                                 "element-no-bounds-check" //, "case-insensitive-string-equal-2", "gethash-or-set" <raw-integer> vs <byte-character>
+                                 //"any?", //constraint <function> vs <simple-object-vector>
+                                 //"curry",
+                                 //"element-no-bounds-check" //, "case-insensitive-string-equal-2", "gethash-or-set" <raw-integer> vs <byte-character>
                                  //"same-specializer?" //no applicable methods in call [subclass-class [singleton]]
                                  // also, run-time type error (inferred <singleton>, expected <subclass>)
                                  //"grounded-subtype?" //no-app-m (singleton-object on <class>) + run-time type error + argument-type mismatch
                                  //"parent-of" //no appl meth (cache-header-engine-node-parent (<generic-function>))
                                  //"byte-slot-element-setter" //<raw-integer> vs <raw-byte-character>
                                  //"object-class" //raw-integer vs raw-address
-                                 //"system-allocate-repeated-byte-character-instance-i" <raw-byte> vs <raw-integer>
+                                 "system-allocate-repeated-byte-character-instance-i" //<raw-byte> vs <raw-integer>
                                  //"signal" //phi-placement - <set!> not in table (df/mapping)
                                  ),
               test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
