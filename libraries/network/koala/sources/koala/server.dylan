@@ -750,7 +750,7 @@ define method request-absolute-url
   else
     make(<url>,
          scheme: "http",
-         //userinfo:
+         userinfo: url.uri-userinfo,
          host: request.request-host,
          port: request.request-client.client-listener.listener-port,
          path: url.uri-path,
