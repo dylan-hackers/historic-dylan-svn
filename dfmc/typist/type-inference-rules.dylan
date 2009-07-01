@@ -338,52 +338,66 @@ define generic convert-type-to-signature
  (old :: false-or(<&signature>), params :: <collection>, res :: type-union(<collection>, <&type>), rest? :: <boolean>)
  => (signature :: <&signature>);
 
+define inline function extract-params (p :: <collection>) => (key/value :: <list>)
+  let rest? = (p.size > 0) & instance?(p.last, <lexical-rest-variable>);
+  let off = (rest? & 1) | 0;
+  let ps = map(specializer, copy-sequence(p, end: p.size - off));
+  list(#"required", ps, #"number-required", ps.size, #"rest?", rest?)
+end;
 define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, values :: <&type>, rest? :: <boolean>)
  => (signature :: <&signature>)
-  let param = map(specializer, parameters);
-  ^make(<&signature>, required: param, number-required: param.size,
-        values: vector(values), number-values: 1, rest?: rest?);
+  let k/v = extract-params(parameters);
+  apply(^make, <&signature>, values: vector(values), number-values: 1, rest-value?: rest?,
+        rest-value: dylan-value(#"<object>"), k/v)
 end;
 
 define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, values :: <collection>, rest? :: <boolean>)
  => (signature :: <&signature>)
-  let param = map(specializer, parameters);
-  ^make(<&signature>, required: param, number-required: param.size,
-        values: values, number-values: values.size, rest?: rest?);
+  let k/v = extract-params(parameters);
+  apply(^make, <&signature>, values: values, number-values: values.size, rest-value?: rest?,
+        rest-value: dylan-value(#"<object>"), k/v);
+end;
+
+define inline function params-from-sig (sig :: <&signature>) => (k/v :: <list>)
+  let rest? = sig.^signature-rest?;
+  let ps = sig.^signature-required-arguments;
+  let key? = sig.^signature-key?;
+  let keys = key? & sig.^signature-keys;
+  let key-types = key? & sig.^signature-key-types;
+  let sealed? = sig.^signature-sealed-domain?;
+  list(#"required", ps, #"number-required", ps.size, #"rest?", rest?,
+       #"key?", key?, #"keys", keys, #"key-types", key-types,
+       #"sealed-domain?", sealed?)
 end;
 
 define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <&type>, rest? :: <boolean>)
  => (signature :: <&signature>)
   //we can also upgrade <&signature> -> <&polymorphic-signature>
-  ^make(<&signature>, required: old-sig.^signature-required-arguments,
-        number-required: old-sig.^signature-number-required,
-        values: vector(values), number-values: 1, rest?: rest?);
+  apply(^make, <&signature>, values: vector(values), number-values: 1, rest-value?: rest?,
+        rest-value: dylan-value(#"<object>"), params-from-sig(old-sig))
 end;
 
 define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <collection>, rest? :: <boolean>)
  => (signature :: <&signature>)
   //we can also upgrade <&signature> -> <&polymorphic-signature>
-  ^make(<&signature>, required: old-sig.^signature-required-arguments,
-        number-required: old-sig.^signature-number-required,
-        values: values, number-values: values.size, rest?: rest?);
+  apply(^make, <&signature>, values: values, number-values: values.size, rest?: rest?,
+        rest-value: dylan-value(#"<object>"), params-from-sig(old-sig))
 end;
 
 define method convert-type-to-signature (old-sig :: <&polymorphic-signature>, parameters :: <collection>, values :: <&type>, rest? :: <boolean>)
  => (signature :: <&signature>)
   //or add/remove type variables...
-  ^make(<&signature>, required: old-sig.^signature-required-arguments,
-        number-required: old-sig.^signature-number-required,
-        values: vector(values), number-values: 1, rest?: rest?,
-        type-variables: old-sig.^signature-type-variables);
+  apply(^make, <&signature>, values: vector(values), number-values: 1,
+        rest-value?: rest?, rest-value: dylan-value(#"<object>"),
+        type-variables: old-sig.^signature-type-variables, params-from-sig(old-sig.^real-signature))
 end;
 
 define method convert-type-to-signature (old-sig :: <&polymorphic-signature>, parameters :: <collection>, values :: <collection>, rest? :: <boolean>)
  => (signature :: <&signature>)
   //or add/remove type variables...
-  ^make(<&signature>, required: old-sig.^signature-required-arguments,
-        number-required: old-sig.^signature-number-required,
-        values: values, number-values: values.size, rest?: rest?,
-        type-variables: old-sig.^signature-type-variables);
+  apply(^make, <&signature>, values: values, number-values: values.size,
+        rest-value?: rest?, rest-value: dylan-value(#"<object>"),
+        type-variables: old-sig.^signature-type-variables, params-from-sig(old-sig.^real-signature))
 end;
 
 define generic maybe-add-variable-constraints (t :: <temporary>) => ();

@@ -20,6 +20,7 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
                                  //"in-place-rehashable?" <- <set!> on global variable! (inlined by rehash-table)
                                  //"ash", "search-for-entry-count", //<make-cell>
                                  "any?", //constraint <function> vs <simple-object-vector>
+                                 "curry",
                                  "element-no-bounds-check" //, "case-insensitive-string-equal-2", "gethash-or-set" <raw-integer> vs <byte-character>
                                  //"same-specializer?" //no applicable methods in call [subclass-class [singleton]]
                                  // also, run-time type error (inferred <singleton>, expected <subclass>)
