@@ -38,6 +38,26 @@ define function unix-open
   end
 end function unix-open;
 
+define function unix-close (fd :: <integer>) => (result :: <integer>)
+  with-interrupt-repeat
+    raw-as-integer
+      (%call-c-function ("close") (fd :: <raw-c-unsigned-int>)
+            => (result :: <raw-c-signed-int>)
+         (integer-as-raw(fd)) end)
+  end
+end function unix-close;
+
+define function unix-lseek
+    (fd :: <integer>, position :: <integer>, mode :: <integer>) => (position :: <integer>)
+  raw-as-integer
+    (%call-c-function ("io_lseek")
+       (fd :: <raw-c-signed-int>, position :: <raw-c-signed-long>, 
+        mode :: <raw-c-signed-int>) 
+       => (result :: <raw-c-signed-long>)
+       (integer-as-raw(fd), integer-as-raw(position), integer-as-raw(mode))
+     end)
+end function unix-lseek;
+
 /// HIGHER LEVEL INTERFACE
 
 /// This value is overkill, actually ...
@@ -67,8 +87,8 @@ end function unix-delete-file;
 // POSIX lseek whence definitions:
 
 //define constant $seek_set = 0;
-// define constant $seek_cur = 1;
-//define constant $seek_end = 2;
+//define constant $seek_cur = 1;
+define constant $seek_end = 2;
 
 // Definitions for open mode arg.
 
