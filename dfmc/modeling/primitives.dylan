@@ -218,11 +218,11 @@ define side-effecting stateless dynamic-extent &primitive primitive-element-sett
  => (obj :: <object>);
 define side-effect-free dynamic-extent &primitive primitive-byte-element
     (x :: <object>, offset :: <raw-integer>, byte-offset :: <raw-integer>) 
- => (obj :: <raw-byte-character>);
+ => (obj :: <raw-byte>);
 define side-effecting stateless dynamic-extent &primitive primitive-byte-element-setter
-    (new-value :: <raw-byte-character>,
+    (new-value :: <raw-byte>,
      x :: <object>, offset :: <raw-integer>, byte-offset :: <raw-integer>) 
- => (obj :: <raw-byte-character>);
+ => (obj :: <raw-byte>);
 define side-effect-free dynamic-extent &primitive primitive-bit-element
     (x :: <object>, word-offset :: <raw-integer>, byte-offset :: <raw-integer>,
      bit-offset :: <raw-integer>) 
@@ -349,8 +349,9 @@ define side-effect-free stateless dynamic-extent &primitive primitive-raw-as-uni
 /// BYTE-CHARACTER
 
 define side-effect-free stateless dynamic-extent &primitive-and-override primitive-byte-character-as-raw
-    (x :: <byte-character>) => (r :: <raw-integer>)
-  make-raw-literal(as(<integer>, x))
+    (x :: <byte-character>) => (r :: <raw-byte>)
+  //make-raw-literal(as(<integer>, x))
+  ^make(<&raw-byte>, value: as(<integer>, x))
 end;
 define side-effect-free stateless dynamic-extent &primitive-and-override primitive-raw-as-byte-character
      (r :: <raw-integer>) => (x :: <byte-character>)

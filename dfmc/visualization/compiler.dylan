@@ -28,8 +28,10 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
                                  //"parent-of" //no appl meth (cache-header-engine-node-parent (<generic-function>))
                                  //"byte-slot-element-setter" //<raw-integer> vs <raw-byte-character>
                                  //"object-class" //raw-integer vs raw-address
-                                 "system-allocate-repeated-byte-character-instance-i" //<raw-byte> vs <raw-integer>
+                                 //"system-allocate-repeated-byte-character-instance-i" //<raw-byte> vs <raw-integer>
                                  //"signal" //phi-placement - <set!> not in table (df/mapping)
+                                 //"make-symbol"
+                                 "wait-for"
                                  ),
               test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
     write-to-visualizer(vis, apply(list, arguments));
