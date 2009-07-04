@@ -244,8 +244,6 @@ define method optimize-slot-initializer (slot-descriptor :: <&slot-initial-value
   if (instance?(init-model, <&lambda>))
     with-dependent-context ($compilation of model-creator(init-model))
       ensure-method-dfm(init-model);
-      // Type infer init-model
-      type-estimate(init-model);
     end;
     // optimize it
     let init-model =

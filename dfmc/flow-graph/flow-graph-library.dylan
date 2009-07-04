@@ -46,7 +46,9 @@ define module dfmc-flow-graph
     previous-computation, previous-computation-setter,
     temporary, temporary-setter,
     computation-value, computation-value-setter,
+    //both are exported by dfmc-modeling (define compiler-open generic)
     // *** environment, environment-setter,
+    // *** type-environment, type-environment-setter,
     computation-type, computation-type-setter,
     %label, %label-setter,
     next-computation, next-computation-setter,
@@ -313,6 +315,14 @@ define module dfmc-flow-graph
     lookup,
     inner-environment?;
     
+  export // type environment
+    <type-graph>, graph-nodes, graph-edges,
+    <type-environment>,
+    real-environment, outer-environment,
+    type-graph, type-lambda, type-constraints,
+    finished-initial-typing?, finished-initial-typing?-setter,
+    deep-copy-node;
+
   export // temporaries
     <temporary>,
     <named-temporary-mixin>,
@@ -397,7 +407,6 @@ define module dfmc-flow-graph
     re-optimize-into,
     re-optimize-into!,
     re-optimize-type-estimate,
-    re-type-temporary,
     re-type-computations,
     re-optimize-users,
     re-optimize-local-users,

@@ -245,6 +245,7 @@ define module-with-models dfmc-modeling
       slot parameters,
       slot body,
       slot optimization-queue,
+      slot type-environment,
       slot lambda-optimized?,
       slot lambda-initializer?,
       slot lambda-has-free-references?,

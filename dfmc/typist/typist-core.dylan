@@ -46,7 +46,7 @@ define sideways method constant-value?
     end
   else
     // If this temporary is estimated as a singleton, extract the constant.
-    let type = type-estimate(ref);
+    let type = type-estimate-object(ref);
     if (instance?(type, <&singleton>))
       values(#t, type.^singleton-object)
     else

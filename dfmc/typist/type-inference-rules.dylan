@@ -1,37 +1,30 @@
 module: dfmc-typist
 
-define constant $lambda-type-caches :: <table> = make(<table>);
-
-define constant <type-environment> = <table>;
-
-define thread variable *type-environment* :: false-or(<type-environment>) = #f;
-
-define generic lookup-type-node (o, #key abstract?) => (res :: <node>);
+define generic lookup-type-node (o, env :: <type-environment>, #key abstract?) => (res :: <node>);
 
 define constant abstract-and-lookup = rcurry(lookup-type-node, abstract?:, #t);
 
-define method lookup-type-node (o :: <temporary>, #key abstract?) => (res :: <node>)
-  element(*type-environment*, o, default: #f) |
+define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #key abstract?) => (res :: <node>)
+  element(env, o, default: #f) |
     begin
       let te = if (abstract?)
-                 o.type-estimate-object.convert-to-typist-type
+                 convert-to-typist-type(o.type-estimate-object, env)
                else
                  make(<&top-type>)
                end;
       let tv = make(<type-variable>, contents: te);
-      debug-types(#"new-type-variable", tv, o, te);
-      let n = make(<node>, graph: *graph*, value: tv);
-      *type-environment*[o] := n;
+      debug-types(#"new-type-variable", env, tv, o, te);
+      let n = make(<node>, graph: env.type-graph, value: tv);
+      env[o] := n;
       unless (instance?(te, <&top-type>))
-        add-constraint(make(<equality-constraint>, origin: o,
-                            left: te.lookup-type-node, right: n));
+        add-constraint(env, o, lookup-type-node(te, env), n);
       end;
       n;
     end;
 end;
 
-define method lookup-type-node (o :: <multiple-value-temporary>, #key abstract?) => (res :: <node>)
-  element(*type-environment*, o, default: #f) |
+define method lookup-type-node (o :: <multiple-value-temporary>, env :: <type-environment>, #key abstract?) => (res :: <node>)
+  element(env, o, default: #f) |
     begin
       let tes = make(<simple-object-vector>);
       for (x from 0 below o.required-values)
@@ -39,55 +32,53 @@ define method lookup-type-node (o :: <multiple-value-temporary>, #key abstract?)
       end;
       let top = make(<&top-type>);
       let tv = make(<type-variable>, contents: top);
-      debug-types(#"new-type-variable", tv, o, top);
-      let n = make(<node>, graph: *graph*, value: tv);
-      *type-environment*[o] := n;
-      add-constraint(make(<equality-constraint>, origin: o,
-                          left: gen-tuple(map(lookup-type-node, tes), rest?: o.rest-values?),
-                          right: n));
+      debug-types(#"new-type-variable", env, tv, o, top);
+      let n = make(<node>, graph: env.type-graph, value: tv);
+      env[o] := n;
+      add-constraint(env, o, lookup-type-node(gen-tuple(map(rcurry(lookup-type-node, env), tes), rest?: o.rest-values?), env), n);
       n;
     end;
 end;
 
-define method lookup-type-node (t :: <lexical-required-type-variable>, #key abstract?)
+define method lookup-type-node (t :: <lexical-required-type-variable>, env :: <type-environment>, #key abstract?)
  => (res :: <node>)
   assert(abstract? == #t);
-  lookup-type-node(t.specializer, abstract?: abstract?)
+  lookup-type-node(t.specializer, env, abstract?: abstract?)
 end;
 
-define method lookup-type-node (tv :: <&polymorphic-type-variable>, #key abstract?)
+define method lookup-type-node (tv :: <&polymorphic-type-variable>, env :: <type-environment>, #key abstract?)
  => (res :: <node>)
-  element(*type-environment*, tv, default: #f) |
+  element(env, tv, default: #f) |
     begin
-      let node = make(<node>, graph: *graph*, value: tv);
+      let node = make(<node>, graph: env.type-graph, value: tv);
       //add constraint between ^type-variable-kind and node!
-      *type-environment*[tv] := node;
+      env[tv] := node;
     end;
 end;
 
-define method lookup-type-node (o :: <object-reference>, #key abstract?) => (res :: <node>)
-  element(*type-environment*, o, default: #f) |
+define method lookup-type-node (o :: <object-reference>, env :: <type-environment>, #key abstract?) => (res :: <node>)
+  element(env, o, default: #f) |
     begin
       let n = next-method();
-      debug-types(#"type-relation", n, o);
-      *type-environment*[o] := n;
+      debug-types(#"type-relation", env, n, o);
+      env[o] := n;
     end;
 end;
 
-define method lookup-type-node (o :: <object>, #key abstract?) => (res :: <node>)
-  make(<node>, graph: *graph*,
+define method lookup-type-node (o :: <object>, env :: <type-environment>, #key abstract?) => (res :: <node>)
+  make(<node>, graph: env.type-graph,
        value: if (abstract?)
-                o.type-estimate-object.convert-to-typist-type
+                convert-to-typist-type(o.type-estimate-object, env)
               else
-                if (instance?(o, type-union(<typist-type>, <&type>)))
-                  o.convert-to-typist-type
+                if (instance?(o, type-union(<typist-type>, <&type>, <&signature>)))
+                  convert-to-typist-type(o, env)
                 else
                   make(<&top-type>)
                 end
               end);
 end;
 
-define generic type-estimate-object (o) => (res :: type-union(<typist-type>, <&type>));
+define generic type-estimate-object (o) => (res :: <&type>);
 
 define method type-estimate-object (o) => (res :: <&type>)
   o.&object-class
@@ -95,8 +86,10 @@ end;
 
 define method type-estimate-object (mb :: <module-binding>) => (te :: <&type>)
   let type = binding-type-model-object(mb, error-if-circular?: #f);
-  if (type & instance?(type, type-union(<collection>, <&type>)))
+  if (type & instance?(type, <&type>))
     type
+  elseif (type & instance?(type, <collection>))
+    error("not sure what to do here...");
   else
     make(<&top-type>)
   end
@@ -121,12 +114,12 @@ define method type-estimate-object (t :: <temporary>) => (t :: <&type>)
 end;
 
 define method type-estimate-object (o :: <lexical-specialized-variable>)
- => (res :: type-union(<typist-type>, <&type>))
-  o.specializer & convert-to-typist-type(o.specializer) | make(<&top-type>)
+ => (res :: <&type>)
+  o.specializer | make(<&top-type>)
 end;
 
 define method type-estimate-object (o :: <object-reference>)
- => (res :: type-union(<typist-type>, <&type>))
+ => (res :: <&type>)
   type-estimate-object(o.reference-value)
 end;
 
@@ -147,16 +140,23 @@ define method type-estimate-object (t :: <typist-type>)
 end;
 
 define method type-estimate-object (v :: <vector>)
- => (res :: type-union(<typist-type>, <&type>))
+ => (res :: <&type>)
   if (v.size == 0)
     make(<&singleton>, object: v) //actually, (C <: <vector>, E)limited(C, of: E, size: 0) ?
   else
     let types = map(type-estimate-object, v);
-    let ctypes = map(method(x) if (instance?(x, <&singleton>)) x.^singleton-object.&object-class else x end end,
-                     types);
-    make(<limited-collection>,
-         class: make(<node>, graph: *graph*, value: dylan-value(#"<vector>")), //more like subclass(<vector>)
-         element-type: reduce1(^type-union, ctypes).lookup-type-node)
+    //#[ { 1 }, { 2 }, { 3 } ] -> #[<integer>, <integer>, <integer>] so type-union is useful
+    //(might be better done in type-union?)
+    let ctypes = map(method(x)
+                       if (instance?(x, <&singleton>))
+                         x.^singleton-object.&object-class
+                       else
+                         x
+                       end
+                     end, types);
+    make(<&limited-collection-type>,
+         class: dylan-value(#"<vector>"), //more like subclass(<vector>)
+         element-type: reduce1(^type-union, ctypes))
   end
 end;
 
@@ -170,10 +170,10 @@ define method type-estimate-object (l == &unbound)
   make(<&singleton>, object: &unbound)
 end;
 
-define generic convert-to-typist-type (t :: type-union(<typist-type>, <&type>))
+define generic convert-to-typist-type (t :: type-union(<typist-type>, <&signature>, <&type>), env :: <type-environment>)
  => (res :: type-union(<typist-type>, <&type>));
 
-define method convert-to-typist-type (t :: <&type>)
+define method convert-to-typist-type (t :: <&type>, env :: <type-environment>)
  => (res :: <&type>)
   if (t == dylan-value(#"<object>"))
     make(<&top-type>)
@@ -182,24 +182,29 @@ define method convert-to-typist-type (t :: <&type>)
   end
 end;
 
-define method convert-to-typist-type (t :: <typist-type>)
+define method convert-to-typist-type (t :: <typist-type>, env :: <type-environment>)
  => (res :: <typist-type>)
   t
 end;
 
-define method convert-to-typist-type (lft :: <&limited-function-type>)
+define method convert-to-typist-type (sig :: <&signature>, env :: <type-environment>)
  => (res :: <typist-type>)
-  let sig = lft.^function-signature;
-  let args = map(lookup-type-node, sig.^signature-required-arguments);
-  let vals = map(lookup-type-node, sig.^signature-required-values);
-  make(<arrow>, arguments: gen-tuple(args, rest?: sig.^signature-rest?),
-       values: gen-tuple(vals, rest?: sig.^signature-rest-value));
+  let args = map(rcurry(lookup-type-node, env), sig.^signature-required-arguments);
+  let vals = map(rcurry(lookup-type-node, env), sig.^signature-required-values);
+  make(<arrow>,
+       arguments: lookup-type-node(gen-tuple(args, rest?: sig.^signature-rest?), env),
+       values: lookup-type-node(gen-tuple(vals, rest?: sig.^signature-rest-value), env));
 end;
 
-define method convert-to-typist-type (lc :: <&limited-collection-type>)
+define method convert-to-typist-type (lft :: <&limited-function-type>, env :: <type-environment>)
  => (res :: <typist-type>)
-  let class = lc.^limited-collection-class.lookup-type-node;
-  let etype = lc.^limited-collection-element-type.lookup-type-node;
+  convert-to-typist-type(lft.^function-signature, env)
+end;
+
+define method convert-to-typist-type (lc :: <&limited-collection-type>, env :: <type-environment>)
+ => (res :: <typist-type>)
+  let class = lookup-type-node(lc.^limited-collection-class, env);
+  let etype = lookup-type-node(lc.^limited-collection-element-type, env);
   make(<limited-collection>, class: class, element-type: etype);
 end;
 
@@ -242,12 +247,43 @@ define method model-type (t :: <type-variable>) => (res :: <&type>)
   t.type-variable-contents.model-type
 end;
 
-define thread variable *constraints* :: false-or(<stretchy-vector>) = #f;
-define thread variable *graph* :: false-or(<graph>) = #f;
+define generic add-constraint
+    (type-environment :: <type-environment>,
+     origin :: type-union(<computation>, <constraint>, <temporary>),
+     left :: false-or(<node>), right :: false-or(<node>))
+ => (c :: false-or(<constraint>));
 
-define function add-constraint (c :: <constraint>) => (c :: <constraint>)
-  //debug-types(#"constraint", c.left-hand-side, c.right-hand-side);
-  add!(*constraints*, c);
+define method add-constraint
+    (type-environment :: <type-environment>,
+     origin :: type-union(<computation>, <constraint>, <temporary>),
+     left == #f, right :: <node>)
+ => (c == #f);
+  error("left was false");
+end;
+
+define method add-constraint
+    (type-environment :: <type-environment>,
+     origin :: type-union(<computation>, <constraint>, <temporary>),
+     left :: <node>, right == #f)
+ => (c == #f);
+  error("right was false");
+end;
+
+define method add-constraint
+    (type-environment :: <type-environment>,
+     origin :: type-union(<computation>, <constraint>, <temporary>),
+     left == #f, right == #f)
+ => (c == #f);
+  error("left and right were false");
+end;
+
+define method add-constraint
+    (type-environment :: <type-environment>,
+     origin :: type-union(<computation>, <constraint>, <temporary>),
+     left :: <node>, right :: <node>)
+ => (c :: <constraint>)
+  let c = make(<equality-constraint>, origin: origin, left: left, right: right);
+  add!(type-environment.type-constraints, c);
   c;
 end;
 
@@ -255,59 +291,42 @@ define constant node-to-type = compose(model-type, node-value, find);
 define constant temporary-type = compose(node-to-type, lookup-type-node);
 define constant temporary-type-abstraction = compose(node-to-type, abstract-and-lookup);
 
-define thread variable *inferring?* :: <boolean> = #f;
-
-define macro with-cached-environment
-  { with-cached-environment (?lambda:expression) ?:body end }
- => { 
-    let caches = element($lambda-type-caches, ?lambda, default: #f);
-    unless (caches)
-      caches := pair(make(<type-environment>),
-                     pair(make(<graph>, lambda: ?lambda),
-                          make(<stretchy-vector>)));
-      $lambda-type-caches[?lambda] := caches;
-    end;
-    dynamic-bind(*constraints* = caches.tail.tail,
-                 *type-environment* = caches.head,
-                 *graph* = caches.tail.head)
-      ?body
-    end }
-end;
-
 define method type-infer (l :: <&lambda>)
-  dynamic-bind(*inferring?* = #t)
-    with-cached-environment (l)
-      do(abstract-and-lookup, l.parameters);
-      for (t in l.environment.temporaries)
-        if (~empty?(t.assignments))
-          maybe-add-variable-constraints(t);
-        end;
-      end;
-      walk-computations(infer-computation-types, l.body, #f);
-      debug-types(#"highlight", 0);
-      solve(*graph*, *constraints*, *type-environment*);
-      //update values slot of signature
-      let result-type = temporary-type(l.body.bind-return.computation-value);
-      //might need to emit type check (top is super of everything!)
-      if (~ instance?(result-type, <&top-type>)) //top-type is never more specific than some other type
-        let res-type = l.body.bind-return.computation-value.lookup-type-node.find.node-value;
-        let (res, rest?) = if (instance?(res-type, <tuple-with-rest>))
-                             values(map(model-type, res-type.tuple-types), #t); //respect rest-type!
-                           else
-                             values(result-type, #f);
-                           end;
-        let sig = convert-type-to-signature(l.^function-signature, l.parameters, res, rest?);
-        //also check congruency to generic!
-        //also check with written down stuff: especially "=> ()"
-        //or cases where fewer values are exposed than emitted (warn here!)
-        if (signature-compatible?(l.^function-signature, sig))
-          if (more-specific?(l.^function-signature, sig))
-            l.^function-signature := sig;
-          end;
-        end;
+  let type-env = l.type-environment;
+  unless (type-env)
+    type-env := make(<type-environment>, lambda: l);
+    l.type-environment := type-env;
+  end;
+  do(rcurry(abstract-and-lookup, type-env), l.parameters);
+  for (t in l.environment.temporaries)
+    if (~empty?(t.assignments))
+      maybe-add-variable-constraints(t, type-env);
+    end;
+  end;
+  type-walk(type-env, l.body, #f);
+  debug-types(#"highlight", type-env, 0);
+  solve(type-env);
+  //update values slot of signature
+  let result-type = temporary-type(l.body.bind-return.computation-value, type-env);
+  //might need to emit type check (top is super of everything!)
+  if (~ instance?(result-type, <&top-type>)) //top-type is never more specific than some other type
+    let res-type = lookup-type-node(l.body.bind-return.computation-value, type-env).find.node-value;
+    let (res, rest?) = if (instance?(res-type, <tuple-with-rest>))
+                         values(map(model-type, res-type.tuple-types), #t); //respect rest-type!
+                       else
+                         values(result-type, #f);
+                       end;
+    let sig = convert-type-to-signature(l.^function-signature, l.parameters, res, rest?);
+    //also check congruency to generic!
+    //also check with written down stuff: especially "=> ()"
+    //or cases where fewer values are exposed than emitted (warn here!)
+    if (signature-compatible?(l.^function-signature, sig))
+      if (more-specific?(l.^function-signature, sig))
+        l.^function-signature := sig;
       end;
     end;
   end;
+  type-env.finished-initial-typing? := #t;
 end;
 
 define function signature-compatible? (old-sig :: <&signature>, new-sig :: <&signature>)
@@ -400,91 +419,195 @@ define method convert-type-to-signature (old-sig :: <&polymorphic-signature>, pa
         type-variables: old-sig.^signature-type-variables, params-from-sig(old-sig.^real-signature))
 end;
 
-define generic maybe-add-variable-constraints (t :: <temporary>) => ();
+define generic maybe-add-variable-constraints (t :: <temporary>, env :: <type-environment>) => ();
 
-define method maybe-add-variable-constraints (t :: <temporary>) => ()
+define method maybe-add-variable-constraints (t :: <temporary>, env :: <type-environment>) => ()
 end;
 
-define method maybe-add-variable-constraints (t :: <lexical-specialized-variable>) => ()
+define method maybe-add-variable-constraints (t :: <lexical-specialized-variable>, env :: <type-environment>) => ()
   let spec = t.specializer;
   if (spec) //spec for type-union(<integer>, <string>) is #f :[
+    let spec-node = lookup-type-node(spec, env);
     //and not <object>?
-    for (ass in t.assignments)
-      add-constraint(make(<equality-constraint>,
-                          origin: t,
-                          left: spec.lookup-type-node,
-                          right: ass.temporary.abstract-and-lookup));
+    for (ass in t.assignments) //these are <temporary-transfer> in current representation (SSA-converted)
+      add-constraint(env, t, spec-node, abstract-and-lookup(ass.temporary, env));
     end;
+  end;
+end;
+
+define generic type-walk(env :: <type-environment>, c :: <computation>, last :: false-or(<computation>)) => ();
+
+define constant next-type-step =
+    method(env, c, last)
+      c.next-computation & type-walk(env, c.next-computation, last)
+    end;
+
+define method type-walk (env :: <type-environment>, c :: <computation>, last :: false-or(<computation>)) => ()
+  if (c ~== last)
+    c.type-environment := env;
+    c.infer-computation-types;
+    next-type-step(env, c, last);
+  end;
+end;
+
+define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(<computation>)) => ()
+  if (c ~== last)
+    c.type-environment := env;
+    solve(env);
+    c.infer-computation-types; //actually, needs both envs for proper inference
+    let con-env = make(<type-environment>, outer: env);
+    type-walk(con-env, c.consequent, c.next-computation);
+    con-env.finished-initial-typing? := #t;
+    solve(con-env);
+    let alt-env = make(<type-environment>, outer: env);
+    type-walk(alt-env, c.alternative, c.next-computation);
+    alt-env.finished-initial-typing? := #t;
+    solve(alt-env);
+    let if-merge = c.next-computation;
+    //actually, this should record usage to merge-left/right, so that an upgrade of
+    //those types upgrade this union somehow (and their users)
+    add-constraint(env, if-merge,
+                   typist-union(env, temporary-type(if-merge.merge-left-value, con-env),
+                                temporary-type(if-merge.merge-right-value, alt-env)),
+                   abstract-and-lookup(if-merge.temporary, env));
+    next-type-step(env, c.next-computation, last);
+  end;
+end;
+
+define method type-walk (env :: <type-environment>, c :: <bind-exit>, last :: false-or(<computation>)) => ()
+  if (c ~== last)
+    c.type-environment := env;
+    solve(env);
+    c.infer-computation-types;
+    let bind-env = make(<type-environment>, outer: env);
+    type-walk(bind-env, c.body, c.next-computation);
+    bind-env.finished-initial-typing? := #t;
+    solve(bind-env);
+    let be-merge = c.next-computation;
+    add-constraint(env, be-merge,
+                   typist-union(env, temporary-type(be-merge.merge-left-value, env),
+                                temporary-type(be-merge.merge-right-value, bind-env)),
+                   abstract-and-lookup(be-merge.temporary, env));
+    next-type-step(env, c.next-computation, last);
+  end;
+end;
+
+define method type-walk (env :: <type-environment>, c :: <loop>, last :: false-or(<computation>)) => ()
+  if (c ~== last)
+    c.type-environment := env;
+    c.infer-computation-types;
+    let loop-env = make(<type-environment>, outer: env);
+    type-walk(loop-env, c.loop-body, c.next-computation);
+    loop-env.finished-initial-typing? := #t;
+    solve(loop-env);
+    next-type-step(env, c, last);
+  end;
+end;
+
+define method type-walk (env :: <type-environment>, c :: <unwind-protect>, last :: false-or(<computation>)) => ()
+  if (c ~== last)
+    c.type-environment := env;
+    c.infer-computation-types;
+    let uw-env = make(<type-environment>, outer: env);
+    type-walk(uw-env, c.body, c.next-computation);
+    uw-env.finished-initial-typing? := #t;
+    let cleanup-env = make(<type-environment>, outer: env); //or uw-env?
+    type-walk(cleanup-env, c.cleanups, c.next-computation);
+    cleanup-env.finished-initial-typing? := #t;
+    next-type-step(env, c, last);
   end;
 end;
 
 define generic infer-computation-types (c :: <computation>) => ();
 
+define macro type-rule-definer
+ { define type-rule ?computation:expression ?body:* end }
+ => { define method infer-computation-types (c :: ?computation) => ()
+        let type-env = c.type-environment;
+        debug-types(#"highlight", type-env, c);
+        debug-types(#"beginning", type-env, list("inferring", c));
+        debug-types(#"relayouted", type-env);
+        let ?=abstract = rcurry(abstract-and-lookup, type-env);
+        let ?=constraint = curry(add-constraint, type-env, c);
+        let ?=temporary-node = c.temporary & ?=abstract(c.temporary);
+        let ?=computation = c;
+        let ?=solve = curry(solve, type-env);
+        let ?=type-env = c.type-environment;
+        let ?=estimate = rcurry(temporary-type, type-env);
+        let ?=lookup = rcurry(lookup-type-node, type-env);
+        ?body
+      end; }
+end;
+
 define method infer-computation-types (c :: <computation>) => ()
-  debug-types(#"highlight", c);
-  debug-types(#"beginning", list("inferring", c));
-  debug-types(#"relayouted");
-  c.temporary & abstract-and-lookup(c.temporary);
+  let type-env = c.type-environment;
+  debug-types(#"highlight", type-env, c);
+  debug-types(#"beginning", type-env, list("inferring", c));
+  debug-types(#"relayouted", type-env);
+  c.temporary & abstract-and-lookup(c.temporary, c.type-environment);
 end;
 
-define method infer-computation-types (c :: <temporary-transfer-computation>) => ()
-  //this is our let!
-  next-method();
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: c.computation-value.abstract-and-lookup,
-                      right: c.temporary.abstract-and-lookup));
+define type-rule <temporary-transfer-computation>
+  constraint(computation.computation-value.abstract, temporary-node);
 end;
 
-define method infer-computation-types (c :: <values>) => ()
-  next-method();
-  let l = begin
-            let types = map(abstract-and-lookup, c.fixed-values);
-            gen-tuple(types, rest?: c.rest-value)
-          end;
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: l,
-                      right: c.temporary.abstract-and-lookup));
+define type-rule <values>
+  constraint(gen-tuple(map(abstract, computation.fixed-values), rest?: computation.rest-value).lookup,
+             temporary-node);
+end;
+
+define type-rule <phi-node>
+  solve();
+  constraint(typist-union(type-env, computation.phi-left-value.estimate, computation.phi-right-value.estimate),
+             temporary-node);
 end;
 
 define generic typist-union
- (t1 :: type-union(<collection>, <&type>),
+ (env :: <type-environment>,
+  t1 :: type-union(<collection>, <&type>),
   t2 :: type-union(<collection>, <&type>)) => (union :: <node>);
 
-define method typist-union (t1 :: <&type>, t2 :: <&type>) => (union :: <node>)
-  ^type-union(t1, t2).lookup-type-node;
+define method typist-union (env :: <type-environment>, t1 :: <&type>, t2 :: <&type>) => (union :: <node>)
+  lookup-type-node(^type-union(t1, t2), env)
 end;
 
-define method typist-union (t1 :: <collection>, t2 :: <collection>) => (union :: <node>)
-  map(typist-union, t1, t2).gen-tuple;
+define method typist-union (env :: <type-environment>, t1 :: <collection>, t2 :: <collection>) => (union :: <node>)
+  lookup-type-node(map(curry(typist-union, env), t1, t2).gen-tuple, env)
 end;
 
-define method infer-computation-types (c :: <phi-node>) => ()
-  next-method();
-  solve(*graph*, *constraints*, *type-environment*);
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: typist-union(c.phi-left-value.temporary-type,
-                                         c.phi-right-value.temporary-type),
-                      right: c.temporary.abstract-and-lookup));
+define method typist-union (env :: <type-environment>, t1 :: <&top-type>, t2 :: type-union(<collection>, <&type>))
+ => (union :: <node>)
+  lookup-type-node(t1, env)
 end;
 
-define method infer-computation-types (c :: <binary-merge>) => ()
-  next-method();
-  if (c.merge-left-value & c.merge-right-value)
-    solve(*graph*, *constraints*, *type-environment*);
-    add-constraint(make(<equality-constraint>,
-                        origin: c,
-                        left: typist-union(c.merge-left-value.temporary-type,
-                                           c.merge-right-value.temporary-type),
-                        right: c.temporary.abstract-and-lookup));
-  elseif (c.merge-left-value | c.merge-right-value)
-    let v = c.merge-left-value | c.merge-right-value;
-    add-constraint(make(<equality-constraint>,
-                        origin: c,
-                        left: v.temporary-type.abstract-and-lookup,
-                        right: c.temporary.abstract-and-lookup));
+define method typist-union (env :: <type-environment>, t2 :: type-union(<collection>, <&type>), t1 :: <&top-type>)
+ => (union :: <node>)
+  lookup-type-node(t1, env)
+end;
+
+define method typist-union (env :: <type-environment>, t1 :: <&top-type>, t2 :: <&top-type>)
+ => (union :: <node>)
+  lookup-type-node(t1, env)
+end;
+
+define method typist-union (env :: <type-environment>, t1 :: <&type>, t2 :: <collection>)
+ => (union :: <node>)
+  lookup-type-node(make(<&top-type>), env)
+end;
+
+define method typist-union (env :: <type-environment>, t2 :: <collection>, t1 :: <&type>)
+ => (union :: <node>)
+  lookup-type-node(make(<&top-type>), env)
+end;
+
+define type-rule <binary-merge>
+  if (computation.merge-left-value & computation.merge-right-value)
+    solve();
+    constraint(typist-union(type-env, computation.merge-left-value.estimate, computation.merge-right-value.estimate),
+               temporary-node);
+  elseif (computation.merge-left-value | computation.merge-right-value)
+    let v = computation.merge-left-value | computation.merge-right-value;
+    constraint(v.lookup, temporary-node);
   end;
 end;
 
@@ -506,13 +629,14 @@ end;
 
 define method infer-computation-types (c :: <loop>) => ()
   next-method();
+  let out-env = c.type-environment;
   //in order to get types for parameter types, we have to solve the type graph
-  solve(*graph*, *constraints*, *type-environment*);
+  solve(out-env);
 
   let types = make(<stretchy-vector>);
   for (node = c.loop-body then node.next-computation,
        while: instance?(node, type-union(<loop-merge>, <phi-node>)))
-    add!(types, node.extract-parameter-type.temporary-type);
+    add!(types, temporary-type(node.extract-parameter-type, out-env));
   end;
 
   if (types.size > 0)
@@ -522,15 +646,17 @@ define method infer-computation-types (c :: <loop>) => ()
     //let cfg-first = deep-copy(copier, c.loop-body);
     let cfg-first = #f;
     let temps = make(<stretchy-vector>);
+    let c-env = make(<type-environment>, outer: out-env);
     walk-computations(method(old)
                         local method maybe-add-temp (old-t, new-t)
-                                if (element(*type-environment*, old-t, default: #f))
-                                  if (~ instance?(old-t.temporary-type, <&top-type>))
-                                    add!(temps, pair(new-t, old-t.temporary-type));
+                                if (element(out-env, old-t, default: #f))
+                                  if (~ instance?(temporary-type(old-t, out-env), <&top-type>))
+                                    add!(temps, pair(new-t, temporary-type(old-t, out-env)));
                                   end;
                                 end;
                               end;
                         let new = deep-copy(copier, old);
+                        new.type-environment := c-env;
                         unless (cfg-first) cfg-first := new end;
                         for (tmp in old.used-temporary-accessors)
                           let getter = temporary-getter(tmp);
@@ -547,180 +673,115 @@ define method infer-computation-types (c :: <loop>) => ()
                         new.computation-id;
                       end, c.loop-body, #f);
 
-    with-cached-environment (cfg-first.environment.lambda)
-      //insert types of temporaries into environment
-      do(method(x)
-           let tv = x.head.abstract-and-lookup;
-           add-constraint(make(<equality-constraint>,
-                               origin: tv,
-                               left: x.tail.lookup-type-node,
-                               right: tv));
-         end, temps);
+    //insert types of temporaries into environment
+    do(method(x)
+         let tv = abstract-and-lookup(x.head, c-env);
+         add-constraint(c-env, cfg-first, lookup-type-node(x.tail, c-env), tv);
+       end, temps);
 
-      let phis = make(<stretchy-vector>);
-      //collect phi and loop-merge nodes
-      for (type in types, node = cfg-first then node.next-computation)
-        //assign "outer" types to temporaries
-        let tv = abstract-and-lookup(node.temporary);
-        add-constraint(make(<equality-constraint>,
-                            origin: tv,
-                            left: type.lookup-type-node,
-                            right: tv));
-        add!(phis, node);
-      end;
-      //solve to assign types for phi-temporaries [will be done during <call> inference]
+    let phis = make(<stretchy-vector>);
+    //collect phi and loop-merge nodes
+    for (type in types, node = cfg-first then node.next-computation)
+      //assign "outer" types to temporaries
+      let tv = abstract-and-lookup(node.temporary, c-env);
+      add-constraint(c-env, node, lookup-type-node(type, c-env), tv);
+      add!(phis, node);
+    end;
+    //solve to assign types for phi-temporaries [will be done during <call> inference]
 
-      //infer body with those assigned type variables
-      walk-computations(infer-computation-types, phis.last.next-computation, #f);
+    //infer body with those assigned type variables
+    type-walk(c-env, phis.last.next-computation, #f);
 
-      //solve constraint system!
-      solve(*graph*, *constraints*, *type-environment*);
+    //solve constraint system!
+    solve(c-env);
 
-      //check whether outer and inner types are equal
-      // (or subtypes - since GF protocol must not be violated)
-      let safe?
-        = block(fast-exit)
-            for (phi in phis, type in types)
-              unless (^subtype?(phi.extract-argument-type.temporary-type,
-                                type))
-                fast-exit(#f)
-              end;
+    //check whether outer and inner types are equal
+    // (or subtypes - since GF protocol must not be violated)
+    let safe?
+      = block(fast-exit)
+          for (phi in phis, type in types)
+            unless (^subtype?(temporary-type(phi.extract-argument-type, c-env),
+                              type))
+              fast-exit(#f)
             end;
-            #t
           end;
+          #t
+        end;
 
-      //if safe, assign types to phi / loop-merge temporaries
-      unless (safe?)
-        //empty types collection
-        types.size := 0;
-      end;
-      //remove computations and type graph nodes
-    end; //dynamic-bind
+    //if safe, assign types to phi / loop-merge temporaries
+    unless (safe?)
+      //empty types collection
+      types.size := 0;
+    end;
+    //remove computations and type graph nodes
 
     //add type constraint to opposite DF node of phi/loop-merge
     //(is then propagated to temporary of phi by respective inference rule)
     for (node = c.loop-body then node.next-computation, type in types)
-      add-constraint(make(<equality-constraint>,
-                          origin: node,
-                          left: type.lookup-type-node,
-                          right: node.extract-argument-type.abstract-and-lookup));
+      add-constraint(out-env, node, lookup-type-node(type, out-env), abstract-and-lookup(node.extract-argument-type, out-env));
     end;
   end;
 end;
 
-define method infer-computation-types (c :: <if>) => ()
-  next-method();
-  //if test has occurence typing, assign type to temporary involved
-  
-  //type consequence
-  //retract type assignment, assign inverse type
-  //type alternative
-  //retract types
+define type-rule <if>
+  //if test has occurence typing, assign type to temporar(y/ies) involved
+  //into alternative and consequent environments!
 end;
 
-define method infer-computation-types (c :: <stack-vector>) => ()
-  next-method();
-  let t = c.temporary;
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: map(abstract-and-lookup, c.arguments).gen-tuple,
-                      right: t.abstract-and-lookup));
+define type-rule <stack-vector>
+  constraint(map(abstract, computation.arguments).gen-tuple.lookup, temporary-node);
 end;
 
-define method infer-computation-types (c :: <make-closure>) => ()
-  next-method();
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: make(<&limited-function-type>,  //or computation-signature-value? - is #f when sig is statically known
-                                 signature: c.computation-closure-method.^function-signature).lookup-type-node,
-                      right: c.temporary.abstract-and-lookup));
+define type-rule <make-closure>
+  //or computation-signature-value? - is #f when sig is statically known
+  constraint(computation.computation-closure-method.^function-signature.lookup, temporary-node);
 end;
 
-define method infer-computation-types (c :: type-union(<slot-value>, <repeated-slot-value>)) => ()
-  next-method();
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: c.computation-slot-descriptor.^slot-type.lookup-type-node,
-                      right: c.temporary.abstract-and-lookup));
+define type-rule type-union(<slot-value>, <repeated-slot-value>)
+  constraint(computation.computation-slot-descriptor.^slot-type.lookup, temporary-node);
 end;
 
-define method infer-computation-types (c :: type-union(<slot-value-setter>, <repeated-slot-value-setter>)) => ()
-  next-method();
-  let new-val = c.computation-new-value.abstract-and-lookup;
+define type-rule type-union(<slot-value-setter>, <repeated-slot-value-setter>)
+  let new-val = computation.computation-new-value.abstract;
   let new-val-t = new-val.model-type;
-  unless (instance?(new-val-t, <&singleton>) & (new-val-t.^singleton-object == &unbound) & instance?(c.environment.lambda, <&initializer-method>))
-    add-constraint(make(<equality-constraint>,
-                        origin: c,
-                        left: new-val,
-                        right: c.temporary.abstract-and-lookup));
-    add-constraint(make(<equality-constraint>,
-                        origin: c,
-                        left: new-val,
-                        right: c.computation-slot-descriptor.^slot-type.lookup-type-node));
+  unless (instance?(new-val-t, <&singleton>) & (new-val-t.^singleton-object == &unbound) & instance?(computation.environment.lambda, <&initializer-method>))
+    constraint(new-val, temporary-node);
+    constraint(computation.computation-slot-descriptor.^slot-type.lookup, temporary-node);
   end;
 end;
 
-define method infer-computation-types (c :: <extract-single-value>) => ()
-  next-method();
-  solve(*graph*, *constraints*, *type-environment*);
-  let tt = c.computation-value.temporary-type;
+define type-rule <extract-single-value>
+  solve();
+  let tt = computation.computation-value.estimate;
   if (instance?(tt, <collection>))
-    add-constraint(make(<equality-constraint>,
-                        origin: c,
-                        left: tt[c.index].lookup-type-node,
-                        right: c.temporary.abstract-and-lookup));
+    constraint(tt[computation.index].lookup, temporary-node)
   end
 end;
 
-define method infer-computation-types (c :: <extract-rest-value>) => ()
-  next-method();
-  //let tt = c.computation-value.lookup-type;
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: make(<&top-type>).lookup-type-node, //tt.^tuple-types[index],
-                      right: c.temporary.abstract-and-lookup));
+define type-rule <extract-rest-value>
+  constraint(make(<&top-type>).lookup, temporary-node);
 end;
 
-define method infer-computation-types (c :: <make-cell>) => ()
-  next-method();
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: c.computation-value.abstract-and-lookup,
-                      right: c.temporary.abstract-and-lookup));
-  add-constraint(make(<equality-constraint>,
-                      origin: c,
-                      left: c.temporary.cell-type.lookup-type-node,
-                      right: c.temporary.abstract-and-lookup));
+define type-rule <make-cell>
+  constraint(computation.computation-value.lookup, temporary-node);
+  constraint(computation.temporary.cell-type.lookup, temporary-node);
 end;
 
-define method infer-computation-types (c :: <get-cell-value>) => ()
-  next-method();
-  add-constraint(make(<equality-constraint>, origin: c,
-                      left: c.computation-cell.abstract-and-lookup,
-                      right: c.temporary.abstract-and-lookup));
+define type-rule <get-cell-value>
+  constraint(computation.computation-cell.abstract, temporary-node);
 end;
 
-define method infer-computation-types (c :: <set-cell-value!>) => ()
-  next-method();
-  add-constraint(make(<equality-constraint>, origin: c,
-                      left: c.computation-value.abstract-and-lookup,
-                      right: c.temporary.abstract-and-lookup));
-  add-constraint(make(<equality-constraint>, origin: c,
-                      left: c.computation-value.abstract-and-lookup,
-                      right: c.computation-cell.abstract-and-lookup));
+define type-rule <set-cell-value!>
+  constraint(computation.computation-value.abstract, temporary-node);
+  constraint(computation.computation-cell.abstract, temporary-node);
 end;
 
-define method infer-computation-types (c :: <set!>) => ()
-  next-method();
-  if (instance?(c.assigned-binding, <module-binding>))
-    add-constraint(make(<equality-constraint>, origin: c,
-                        left: c.computation-value.abstract-and-lookup,
-                        right: c.temporary.abstract-and-lookup));
-    add-constraint(make(<equality-constraint>, origin: c,
-                        left: c.computation-value.abstract-and-lookup,
-                        right: c.assigned-binding.abstract-and-lookup));
+define type-rule <set!>
+  if (instance?(computation.assigned-binding, <module-binding>))
+    constraint(computation.computation-value.abstract, temporary-node);
+    constraint(computation.assigned-binding.abstract, temporary-node);
   else
-    error("assignment is not possible!")
+    error("assignment is not possible!");
   end
 end;
 //define method infer-computation-types (c :: <adjust-multiple-values>) => ()
@@ -772,13 +833,13 @@ define method get-function-object (t :: <temporary>)
     gen.computation-closure-method;
   elseif (instance?(gen, <extract-single-value>))
     block()
-      let res = gen.computation-value.temporary-type[gen.index];
+      let res = temporary-type(gen.computation-value, gen.type-environment)[gen.index];
       instance?(res, <&limited-function-type>) & res
     exception (e :: <condition>)
       #f
     end
   elseif (instance?(gen, <call>))
-    let res = gen.temporary.temporary-type;
+    let res = temporary-type(gen.temporary, gen.type-environment);
     instance?(res, <&limited-function-type>) & res
   elseif (instance?(gen, <temporary-transfer>))
     get-function-object(gen.computation-value)
@@ -806,9 +867,10 @@ end;
 define method infer-computation-types (c :: <function-call>) => ()
   //next-method(); -- otherwise, we end up with more type variables than needed in
   //the type environment (c.temporary!, which is suspect to change)
-  debug-types(#"highlight", c);
-  debug-types(#"beginning", list("inferring", c));
-  debug-types(#"relayouted");
+  let type-env = c.type-environment;
+  debug-types(#"highlight", type-env, c);
+  debug-types(#"beginning", type-env, list("inferring", c));
+  debug-types(#"relayouted", type-env);
   let fun = c.function.get-function-object;
   infer-function-type(c, fun);
 end;
@@ -828,91 +890,79 @@ define method infer-function-type (c :: <function-call>, fun :: <&limited-functi
   create-arrow-and-constraint(c, fun.^function-signature);
 end;
 
-define function gen-tuple (types :: <collection>, #key rest?) => (res :: <node>)
-  make(if (rest?) <tuple-with-rest> else <tuple> end, tuples: types).lookup-type-node
+define function gen-tuple (types :: <collection>, #key rest?) => (res :: <tuple>)
+  make(if (rest?) <tuple-with-rest> else <tuple> end, tuples: types)
 end;
 
 define function create-arrow-and-constraint
  (c :: <call>, sig :: <&signature>) => ()
-  let specializers = map(lookup-type-node, sig.^signature-required-arguments);
-  let vals = map(lookup-type-node, sig.^signature-required-values);
-  let left = make(<node>,
-                  graph: *graph*,
-                  value: make(<arrow>,
-                              arguments: gen-tuple(specializers, rest?: sig.^signature-optionals?),
-                              values: gen-tuple(vals, rest?: sig.^signature-rest-value)));
+  let tenv = c.type-environment;
+  let left = lookup-type-node(sig, tenv);
 
-  let args = map(abstract-and-lookup, c.arguments);
+  let args = map(rcurry(abstract-and-lookup, tenv), c.arguments);
 
   let vals
     = if (c.temporary)
-        let res = c.temporary.abstract-and-lookup;
+        let res = abstract-and-lookup(c.temporary, tenv);
         if (~instance?(c.temporary, <multiple-value-temporary>))
-          vector(res).gen-tuple;
+          lookup-type-node(vector(res).gen-tuple, tenv)
         else
           res
         end;
       else
-        make(<&top-type>).lookup-type-node;
+        lookup-type-node(make(<&top-type>), tenv)
       end;
 
-  let right = make(<node>, graph: *graph*,
+  let right = make(<node>, graph: tenv.type-graph,
                    value: make(<arrow>,
-                               arguments: args.gen-tuple,
+                               arguments: lookup-type-node(args.gen-tuple, tenv),
                                values: vals));
-  debug-types(#"type-relation", right, c);
-  add-constraint(make(<equality-constraint>, origin: c, left: left, right: right));
+  debug-types(#"type-relation", tenv, right, c);
+  add-constraint(tenv, c, left, right);
 end;
 
 define method upgrade-types (l)
 end;
 
 define method upgrade-types (l :: <&lambda>)
-  dynamic-bind(*type-environment* = head(element($lambda-type-caches, l,
-                                                 default: pair(make(<table>), #f))))
-    for (t in l.^function-signature.^signature-required-arguments, p in l.parameters)
-      unless (^type-equivalent?(t, p.specializer))
-        p.specializer := t;
-        //actually, add a constraint for given specializer,
-        //but not yet in correct context (<graph>-wise)
-        // actually, *constraint* get bound to #[] in type-infer, thus modifying constraints
-        // does not make sense yet
-        remove-key!(*type-environment*, p);
-      end;
+  for (t in l.^function-signature.^signature-required-arguments, p in l.parameters)
+    unless (^type-equivalent?(t, p.specializer))
+      p.specializer := t;
+      //actually, add a constraint for given specializer,
+      //but not yet in correct context (<graph>-wise)
+      // actually, *constraint* get bound to #[] in type-infer, thus modifying constraints
+      // does not make sense yet
+      remove-key!(l.type-environment, p);
     end;
   end;
   l.type-infer
 end;
 
-define function initial-type-constraints (sig :: <&signature>) //XXX: that's actually a really bad name for what it is doing
-  do(curry(remove-key!, *type-environment*), sig.^signature-required-arguments);
-end;
-
 define function constrain-type-variables
     (c :: <function-call>, sig-args :: <collection>, real-args :: <collection>)
   for (s in sig-args, r in real-args)
-    add-constraint(make(<equality-constraint>,
-                        origin: c, left: s, right: r));
+    add-constraint(c.type-environment, c, s, r);
   end;
 end;
 
 define method infer-function-type (c :: <function-call>, fun :: <&function>) => ()
   //keyword-arguments!
   let sig = ^function-signature(fun);
+  let tenv = c.type-environment;
   unless (c.environment.lambda == fun) //updating self-calls is not wise (or, is it?)
     if (instance?(sig, <&polymorphic-signature>))
       //XXX: copy me if not single user!
-      solve(*graph*, *constraints*, *type-environment*);
+      solve(tenv);
       //initial-type-constraints(sig);
-      constrain-type-variables(c, map(lookup-type-node, sig.^signature-required-arguments),
-                               map(abstract-and-lookup, c.arguments));
+      constrain-type-variables(c, map(rcurry(lookup-type-node, tenv), sig.^signature-required-arguments),
+                               map(rcurry(abstract-and-lookup, tenv), c.arguments));
       let progress? = #t;
       while (progress?)
-        let old-types = map(temporary-type, sig.^signature-type-variables);
-        let old-argument-types = map(temporary-type-abstraction, c.arguments);
-        solve(*graph*, *constraints*, *type-environment*);
-        let new-types = map(temporary-type, sig.^signature-type-variables);
-        let new-argument-types = map(temporary-type-abstraction, c.arguments);
+        let old-types = map(rcurry(temporary-type, tenv), sig.^signature-type-variables);
+        let old-argument-types = map(rcurry(temporary-type-abstraction, tenv), c.arguments);
+        solve(tenv);
+        let new-types = map(rcurry(temporary-type, tenv), sig.^signature-type-variables);
+        let new-argument-types = map(rcurry(temporary-type-abstraction, tenv), c.arguments);
         let opt = make(<stretchy-vector>);
         for (o in old-argument-types, n in new-argument-types, a in c.arguments)
           if (~ ^type-equivalent?(o.model-type, n.model-type))
@@ -931,8 +981,8 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
             infer-computation-types(p.head.generator);
           end;
         end;
-        solve(*graph*, *constraints*, *type-environment*);
-        let newer-types = map(temporary-type, sig.^signature-type-variables);
+        solve(tenv);
+        let newer-types = map(rcurry(temporary-type, tenv), sig.^signature-type-variables);
         progress? := #f;
         for (n in new-types, n2 in newer-types)
           if (~ ^type-equivalent?(n, n2))
@@ -941,20 +991,14 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
         end;
       end;
       //upgrade signature (using type variable types)
-      let arg = map(temporary-type, sig.^signature-required-arguments);
-      let val = map(temporary-type, sig.^signature-required-values);
+      let arg = map(rcurry(temporary-type, tenv), sig.^signature-required-arguments);
+      let val = map(rcurry(temporary-type, tenv), sig.^signature-required-values);
       fun.^function-signature := make(<&signature>, required:  arg, number-required: arg.size, values: val, number-values: val.size);
-      let env = element($lambda-type-caches, fun, default: #f);
-      let tv-types = map(temporary-type, sig.^signature-type-variables);
-      dynamic-bind(*type-environment* = env.head, *graph* = env.tail.head, *constraints* = env.tail.tail)
-        for (tv in sig.^signature-type-variables, tv-type in tv-types)
-          add-constraint(make(<equality-constraint>,
-                              left: lookup-type-node(tv),
-                              right: tv-type.lookup-type-node,
-                              origin: c));
-          solve(*graph*, *constraints*, *type-environment*);
-        end
+      let tv-types = map(rcurry(temporary-type, tenv), sig.^signature-type-variables);
+      for (tv in sig.^signature-type-variables, tv-type in tv-types)
+        add-constraint(tenv, c, lookup-type-node(tv, tenv), lookup-type-node(tv-type, tenv));
       end;
+      solve(tenv);
     end;
   end;
   create-arrow-and-constraint(c, fun.^function-signature);
@@ -977,10 +1021,10 @@ define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>
     // first, solve the type graph (at least the partial graph we have so far)
     //this might conflict with the general idea of the type graph (error narrowing),
     //but recording the types of the GF in the constraint is too generic
-    solve(*graph*, *constraints*, *type-environment*);
+    solve(c.type-environment);
 
     // then, try to upgrade the GF call to a simple call (narrowing result type)
-    let arguments = map(temporary-type-abstraction, c.arguments);
+    let arguments = map(rcurry(temporary-type-abstraction, c.type-environment), c.arguments);
     let effs = estimate-effective-methods(gf, arguments, c);
     if (~empty?(effs) & maybe-upgrade-gf-to-method-call(c, gf, arguments, effs))
       // finally, record type constraint (beta = tau1 -> tau2)

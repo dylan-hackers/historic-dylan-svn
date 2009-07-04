@@ -1062,7 +1062,7 @@ end;
 define method argument-type-estimates
     (c :: <function-call>) => (estimates :: <argument-sequence>)
   // gts-debug("errs", "arg-tes(funcall): c.args=%=.\n", c.arguments);
-  map-as(<argument-sequence>, type-estimate, c.arguments);
+  map-as(<argument-sequence>, curry(type-estimate, c), c.arguments);
 end;
 
 define method argument-type-estimates
@@ -1088,7 +1088,7 @@ define function required-argument-type-estimates
  => (estimates :: <argument-sequence>)
   collecting (as <argument-sequence>)
     for (i :: <integer> from 0 below required-count, arg in c.arguments)
-      collect(type-estimate(arg))
+      collect(type-estimate(c, arg))
     end;
   end;
 end;
@@ -1296,7 +1296,7 @@ define method check-function-call (c :: <function-call>) => (ok-to-analyse?)
       // We must already have checked to have upgraded this far.
       return(#t) 
     end;
-    let function-te = type-estimate(function-temp);
+    let function-te = type-estimate(c, function-temp);
     // If we've hit bottom, there's been an error already.   gts,98mar25
     // Just bail out.
     if (instance?(function-te, <&bottom-type>))

@@ -2,6 +2,7 @@ Library: dfmc-flow-graph
 Files:   flow-graph-library
          macros
          temporary
+         type-environment
          environment
 	 queue
 	 computation

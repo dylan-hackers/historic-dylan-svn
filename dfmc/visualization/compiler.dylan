@@ -31,7 +31,7 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
                                  //"system-allocate-repeated-byte-character-instance-i" //<raw-byte> vs <raw-integer>
                                  //"signal" //phi-placement - <set!> not in table (df/mapping)
                                  //"make-symbol"
-                                 "wait-for"
+                                 "wait-for", "gethash"
                                  ),
               test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
     write-to-visualizer(vis, apply(list, arguments));

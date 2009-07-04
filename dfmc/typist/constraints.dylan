@@ -9,6 +9,10 @@ define abstract class <constraint> (<object>)
     required-init-keyword: origin:;
 end;
 
+define method type-environment (c :: <constraint>) => (result :: <type-environment>)
+  c.origin.type-environment
+end;
+
 define class <equality-constraint> (<constraint>)
 end;
 
@@ -16,6 +20,10 @@ define method make (class :: subclass(<constraint>), #rest init-args, #key, #all
   let c = next-method();
   connect(c.left-hand-side, c.right-hand-side, edge-type: <constraint-edge>);
   c;
+end;
+
+define function disconnect (c :: <constraint>) => ()
+  disconnect-constraint(c.left-hand-side, c.right-hand-side);
 end;
 
 define function deep-origin (c :: <constraint>) => (o)
@@ -26,15 +34,17 @@ define function deep-origin (c :: <constraint>) => (o)
   end;
 end;
 
-define function solve (graph :: <graph>, constraints :: <collection>, type-env :: <type-environment>)
+define function solve (type-env :: <type-environment>)
  => ()
+  let graph = type-env.type-graph;
+  let constraints = type-env.type-constraints;
   let cs = as(<deque>, constraints);
   constraints.size := 0;
-  for (node in graph.nodes)
+  for (node in graph.graph-nodes)
     node.contains-variables? := #t;
   end;
   unless (cs.empty?)
-    debug-types(#"beginning", list("solve"));
+    debug-types(#"beginning", type-env, list("solve"));
   end;
   while (~cs.empty?)
     let constraint = cs.pop;
@@ -45,8 +55,8 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
             end;
           end;
     //debug-types(#"beginning", list("solve", constraint.deep-origin));
-    debug-types(#"highlight-constraint", constraint.left-hand-side, constraint.right-hand-side);
-    debug-types(#"relayouted");
+    debug-types(#"highlight-constraint", type-env, constraint.left-hand-side, constraint.right-hand-side);
+    debug-types(#"relayouted", type-env);
     let u = find(constraint.left-hand-side);
     let v = find(constraint.right-hand-side);
     if (u ~= v)
@@ -60,13 +70,13 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
         error("constraint %= cannot be satisfied", constraint);
       end;
     end;
-    debug-types(#"unhighlight-constraint", constraint.left-hand-side, constraint.right-hand-side);
-    disconnect(constraint.left-hand-side, constraint.right-hand-side, edge-type: <constraint-edge>);
+    debug-types(#"unhighlight-constraint", type-env, constraint.left-hand-side, constraint.right-hand-side);
+    disconnect(constraint);
     local method may-remove (n :: <node>) => ()
-            if (member?(n, graph.nodes))
+            if (member?(n, graph.graph-nodes))
               if (n.in-edges.size == 0)
                 unless (any?(rcurry(instance?, <constraint-edge>), n.out-edges))
-                  unless (member?(n, *type-environment*))
+                  unless (member?(n, type-env))
                     n.remove-node
                   end;
                 end;
@@ -89,11 +99,11 @@ define function solve (graph :: <graph>, constraints :: <collection>, type-env :
              x.node-value.type-variable-contents := rep-type;
            end
          end
-       end, graph.nodes);
-    for (ele in *type-environment*.key-sequence)
-      let val = element(*type-environment*, ele, default: #f);
+       end, graph.graph-nodes);
+    for (ele in type-env.key-sequence)
+      let val = element(type-env, ele, default: #f);
       if (val & member?(val.node-value, changed-vars))
-        debug-types(#"change-type", ele, format-to-string("%=", val.node-value.type-variable-contents.model-type));
+        debug-types(#"change-type", type-env, ele, format-to-string("%=", val.node-value.type-variable-contents.model-type));
       end;
     end;
   else
@@ -207,8 +217,8 @@ define method solve-constraint
    u :: <node>, v :: <node>, push-constraint :: <function>) => ()
   if (u.contains-variables?)
     u.contains-variables? := #f;
-    push-constraint(t1.collection-class, make(<node>, graph: *graph*, value: make(<&top-type>)));
-    push-constraint(t1.element-type, make(<node>, graph: *graph*, value: make(<&top-type>)));
+    push-constraint(t1.collection-class, make(<node>, graph: u.graph, value: make(<&top-type>)));
+    push-constraint(t1.element-type, make(<node>, graph: u.graph, value: make(<&top-type>)));
   end;
 end;
 

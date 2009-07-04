@@ -2,8 +2,8 @@ module: dfmc-typist
 
 define thread variable *typist-visualize* :: false-or(<function>) = #f;
 
-define function debug-types (key :: <symbol>, #rest args)
-  *typist-visualize* & apply(*typist-visualize*, key, *graph*.graph-lambda, map(get-id, args))
+define function debug-types (key :: <symbol>, env :: <type-environment>, #rest args)
+  *typist-visualize* & apply(*typist-visualize*, key, env.type-lambda, map(get-id, args))
 end;
 
 define method get-id (c :: <computation>)

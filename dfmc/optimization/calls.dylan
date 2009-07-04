@@ -55,11 +55,11 @@ define method do-optimize-primitive-instance?
   if (type-constant?)
     let object = call-args[0];
     case
-      guaranteed-joint?(type-estimate(object), static-type) =>
+      guaranteed-joint?(type-estimate(call, object), static-type) =>
 	let true-tmp = make-object-reference(#t);
 	replace-computation-with-temporary!(call, true-tmp);
 	#t;
-      guaranteed-disjoint?(type-estimate(object), static-type) =>
+      guaranteed-disjoint?(type-estimate(call, object), static-type) =>
         let false-tmp = make-object-reference(#f);
         replace-computation-with-temporary!(call, false-tmp);
         #t;
@@ -106,7 +106,7 @@ end &optimizer-function;
 define method do-optimize-primitive-as-boolean
     (env :: <environment>, call, call-args) 
   let arg = call-args[0];
-  let arg-type = type-estimate(arg);
+  let arg-type = type-estimate(call, arg);
   if (guaranteed-joint?(arg-type, dylan-value(#"<boolean>")))
     replace-computation-with-temporary!(call, arg);
     #t
@@ -488,7 +488,7 @@ define method do-optimize-primitive-repeated-slot-offset
     (env :: <environment>, call, call-args) 
   // format-out("OPTIMIZING REPEATED SLOT OFFSET %=\n", arguments);
   let arg = call-args[0];
-  let arg-type = type-estimate(arg);
+  let arg-type = type-estimate(call, arg);
   let class = ^type-estimate-class-of(arg-type);
   if (class)
     let repeated-slot = ^repeated-slot-descriptor(class);
@@ -1003,7 +1003,7 @@ define method do-optimize-apply (env :: <environment>, call, call-args)
     if (apply-args)
       let args = copy-sequence(apply-args);
       let last-arg = last(args);
-      let last-arg-type = type-estimate(last-arg);
+      let last-arg-type = type-estimate(call, last-arg);
       if (guaranteed-joint?
 	    (last-arg-type, dylan-value(#"<simple-object-vector>")))
 	let (apply-call, apply-tmp)
@@ -1057,7 +1057,7 @@ end &optimizer-function;
 define method do-optimize-dimensions (env :: <environment>, call, call-args) 
   let env  = call.environment;
   let arg  = call-args[0];
-  let type = type-estimate(arg);
+  let type = type-estimate(call, arg);
   if (instance?(type, <&limited-collection-type>)
 	& ^limited-collection-dimensions(type))
     replace-call-with-values(list(^limited-collection-dimensions(type)), call, temporary(call));
@@ -1073,7 +1073,7 @@ end &optimizer-function;
 define method do-optimize-element-type (env :: <environment>, call, call-args) 
   let env  = call.environment;
   let arg  = call-args[0];
-  let type = type-estimate(arg);
+  let type = type-estimate(call, arg);
   if (instance?(type, <&limited-collection-type>))
     replace-call-with-values
       (list(^limited-collection-element-type(type)), call, temporary(call));
@@ -1087,7 +1087,7 @@ define &optimizer-function element-type (env, call, arguments)
 end &optimizer-function;
 
 define method pointer-argument? (ref :: <value-reference>)
-  guaranteed-disjoint?(type-estimate(ref), dylan-value(#"<value-object>"));
+  guaranteed-disjoint?(type-estimate-object(ref), dylan-value(#"<value-object>"));
 end method;
 
 define method do-optimize-id (env :: <environment>, call, arguments) 
@@ -1132,12 +1132,10 @@ end &optimizer-function;
 */
 
 define sideways method ^instance?-function (s :: <&singleton>)
-  let obj = s.^singleton-object;
-  let te = type-estimate(obj);
   let vo = dylan-value(#"<value-object>");
-  if (guaranteed-disjoint?(te, vo))
+  if (guaranteed-disjoint?(s, vo))
     #"singleton-pointer-id?-instance?"
-  elseif (guaranteed-joint?(te, vo))
+  elseif (guaranteed-joint?(s, vo))
     #"singleton-value-object-instance?"
   else
     #"singleton-instance?"

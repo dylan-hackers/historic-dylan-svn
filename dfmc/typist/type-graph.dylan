@@ -1,13 +1,7 @@
 module: dfmc-typist
 
-define class <graph> (<object>)
-  constant slot graph-lambda, required-init-keyword: lambda:;
-  constant slot nodes :: <stretchy-vector> = make(<stretchy-vector>);
-  constant slot edges :: <stretchy-vector> = make(<stretchy-vector>);  
-end;
-
 define class <node> (<object>)
-  constant slot graph :: <graph>,
+  constant slot graph :: <type-graph>,
     required-init-keyword: graph:;
   constant slot out-edges :: <stretchy-vector> = make(<stretchy-vector>);
   constant slot in-edges :: <stretchy-vector> = make(<stretchy-vector>);
@@ -22,8 +16,8 @@ end;
 define method make (class == <node>, #rest init-args, #key, #all-keys)
  => (res :: <node>)
   let n = next-method();
-  debug-types(#"new-type-node", n, n.node-value);
-  add!(n.graph.nodes, n);
+  debug-types(#"new-type-node", n.graph.type-environment, n, n.node-value);
+  add!(n.graph.graph-nodes, n);
   maybe-setup-connections(n, n.node-value);
   n;
 end;
@@ -56,6 +50,9 @@ define function successors (n :: <node>) => (res :: <collection>)
   map(edge-target, choose(rcurry(instance?, <graph-edge>), n.out-edges));
 end;
 
+//define function maybe-setup-connections (n :: <node>, t :: <typist-type>)
+//  walk-node(curry(connect, n), t)
+//end;
 define generic maybe-setup-connections (n :: <node>, t :: type-union(<typist-type>, <&type>));
 
 define method maybe-setup-connections (n :: <node>, t :: type-union(<typist-type>, <&type>))
@@ -80,7 +77,7 @@ define method maybe-setup-connections (n :: <node>, c :: <limited-collection>)
 end;
 
 define abstract class <edge> (<object>)
-  constant slot graph :: <graph>, required-init-keyword: graph:;
+  constant slot graph :: <type-graph>, required-init-keyword: graph:;
   constant slot edge-source :: <node>, required-init-keyword: source:;
   constant slot edge-target :: <node>, required-init-keyword: target:;
 end;
@@ -96,10 +93,10 @@ end;
 
 define method initialize (edge :: <edge>, #rest init-args, #key, #all-keys)
   next-method();
-  add!(edge.graph.edges, edge);
+  add!(edge.graph.graph-edges, edge);
   add!(edge.edge-source.out-edges, edge);
   add!(edge.edge-target.in-edges, edge);
-  debug-types(#"connect", edge.edge-source, edge.edge-target,
+  debug-types(#"connect", edge.graph.type-environment, edge.edge-source, edge.edge-target,
               as(<symbol>, edge.object-class.debug-name));
 end;
 
@@ -110,22 +107,18 @@ define function connect (source :: <node>, target :: <node>, #key edge-type = <g
   make(edge-type, graph: source.graph, source: source, target: target);
 end;
 
-define function disconnect (source :: <node>, target :: <node>, #key edge-type) => ()
+define function disconnect-constraint (source :: <node>, target :: <node>) => ()
   unless (source.graph == target.graph)
     error("source and target have to be in the same graph!");
   end;
   let e = choose(compose(curry(\=, target), edge-target),
                  source.out-edges);
-  if (edge-type)
-    e := choose(rcurry(instance?, edge-type), e);
-  end;
-  if (e.size == 1)
-    remove-edge(e.first);
+  let c-edges := choose(rcurry(instance?, <constraint-edge>), e);
+  if (c-edges.size > 1)
+    do(remove-edge, c-edges);
   elseif (e.size == 0)
     error("tried to disconnect %= from %=, which were not connected\n",
           source, target);
-  else
-    error("multi-edges from %= to %=\n", source, target);
   end;
 end;
 
@@ -134,8 +127,8 @@ define function remove-edge (edge :: <edge>) => ()
   let target = edge.edge-target;
   remove!(source.out-edges, edge);
   remove!(target.in-edges, edge);
-  remove!(source.graph.edges, edge);
-  debug-types(#"disconnect", source, target, as(<symbol>, edge.object-class.debug-name));
+  remove!(source.graph.graph-edges, edge);
+  debug-types(#"disconnect", edge.graph.type-environment, source, target, as(<symbol>, edge.object-class.debug-name));
 end;
 
 define function degree (n :: <node>) => (int :: <integer>)
@@ -147,11 +140,12 @@ define function remove-node (n :: <node>) => ()
     remove-edge(edge);
   end;
   if (n.degree == 0)
-    remove!(n.graph.nodes, n);
-    debug-types(#"remove-node", n);
+    remove!(n.graph.graph-nodes, n);
+    debug-types(#"remove-node", n.graph.type-environment, n);
   end;
 end;
 
+//XXX: this is bad!
 define function update-connections (n :: <node>, f :: <integer>) => ()
   for (succ from f below n.node-value.tuple-types.size)
     let s = n.node-value.tuple-types[succ];
@@ -165,18 +159,25 @@ define function find (value :: <node>) => (res :: <node>)
 end;
 
 define method deep-copy-node
- (type :: type-union(<typist-type>, <&type>), graph :: <graph>)
+ (type :: type-union(<typist-type>, <&type>), graph :: <type-graph>)
  => (res :: <node>)
   make(<node>, graph: graph, value: type)
 end;
 
 define method deep-copy-node
- (type :: <type-variable>, graph :: <graph>)
+ (type :: <node>, graph :: <type-graph>)
+ => (res :: <node>)
+  deep-copy-node(type.node-value, graph)
+end;
+
+define method deep-copy-node
+ (type :: <type-variable>, graph :: <type-graph>)
  => (res :: <node>)
   deep-copy-node(type.type-variable-contents, graph)
 end;
+
 define method deep-copy-node
- (type :: <tuple>, graph :: <graph>)
+ (type :: <tuple>, graph :: <type-graph>)
  => (res :: <node>)
   make(<node>, graph: graph,
        value: make(<tuple>,
@@ -185,7 +186,7 @@ define method deep-copy-node
 end;
 
 define method deep-copy-node
- (type :: <arrow>, graph :: <graph>)
+ (type :: <arrow>, graph :: <type-graph>)
  => (res :: <node>)
   let t = make(<arrow>,
                arguments: deep-copy-node(type.arrow-arguments.node-value, graph),
@@ -194,7 +195,7 @@ define method deep-copy-node
 end;
 
 define method deep-copy-node
- (type :: <limited-collection>, graph :: <graph>)
+ (type :: <limited-collection>, graph :: <type-graph>)
  => (res :: <node>)
   let t = make(<limited-collection>,
                class: deep-copy-node(type.collection-class.node-value, graph),
@@ -203,17 +204,17 @@ define method deep-copy-node
 end;
 
 define method deep-copy-node
-  (nodes :: <collection>, graph :: <graph>)
+  (nodes :: <collection>, graph :: <type-graph>)
  => (res :: <collection>)
   map(compose(rcurry(deep-copy-node, graph), node-value), nodes)
 end;
 
-define function create-quotient-graph (g :: <graph>) => (res :: <graph>)
+define function create-quotient-graph (g :: <type-graph>) => (res :: <type-graph>)
   dynamic-bind(*typist-visualize* = #f)
-    let g* = make(<graph>, lambda: #f);
-    let rep-nodes = choose(method(v) find(v) == v end, g.nodes);
+    let g* = make(<type-graph>, type-environment: g.type-environment);
+    let rep-nodes = choose(method(v) find(v) == v end, g.graph-nodes);
     let vs = deep-copy-node(rep-nodes, g*);
-    for (edge in g.edges)
+    for (edge in g.graph-edges)
       let u = edge.edge-source;
       let v = edge.edge-target;
       if (find(u) == u)
@@ -225,9 +226,9 @@ define function create-quotient-graph (g :: <graph>) => (res :: <graph>)
   end;
 end;
 
-define function depth-first-search (graph :: <graph>, enter :: <function>, leave :: <function>)
+define function depth-first-search (graph :: <type-graph>, enter :: <function>, leave :: <function>)
   let colors = make(<table>);
-  for (n in graph.nodes)
+  for (n in graph.graph-nodes)
     colors[n] := #"white";
   end;
 
@@ -243,17 +244,17 @@ define function depth-first-search (graph :: <graph>, enter :: <function>, leave
           leave(n);
         end;
 
-  for (n in graph.nodes)
+  for (n in graph.graph-nodes)
     if (colors[n] == #"white")
       visit(n);
     end;
   end;
 end;
 
-define function acyclic? (graph :: <graph>) => (res :: <boolean>)
+define function acyclic? (graph :: <type-graph>) => (res :: <boolean>)
   //can be done in O(n + e), is currently O(n + e) + O(e)
   let top-sort = make(<table>);
-  let i = graph.nodes.size;
+  let i = graph.graph-nodes.size;
   depth-first-search(graph,
                      method(x) end,
                      method(x)
@@ -261,7 +262,7 @@ define function acyclic? (graph :: <graph>) => (res :: <boolean>)
                        i := i - 1;
                      end);
   block(ret)
-    for (edge in graph.edges)
+    for (edge in graph.graph-edges)
       if (top-sort[edge.edge-source] > top-sort[edge.edge-target])
         ret(#f);
       end;

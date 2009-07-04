@@ -350,7 +350,7 @@ define method used-with-dynamic-extent?
     // elsewhere, when the assignment takes place, so it is better to return #t
     #t
   else
-    let typ = type-estimate(comp.function);
+    let typ = type-estimate(comp, comp.function);
 
     let dynamic-extent-of-parameters =
         get-extent-of-parameters-in-call(comp, typ, temp);

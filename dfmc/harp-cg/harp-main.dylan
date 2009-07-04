@@ -2037,7 +2037,7 @@ define inline function ffi-result-typespec
     (back-end :: <harp-back-end>, c :: <primitive-call>) => (result-type, result-typespec)
   let c-temporary = c.temporary;
   let result-type =
-    if (c-temporary) as(<&type>, type-estimate(c-temporary)) end;
+    if (c-temporary) type-estimate(c, c-temporary) end;
   let result-typespec =
     if (result-type)
       if (instance?(result-type, <&raw-aggregate-type>))

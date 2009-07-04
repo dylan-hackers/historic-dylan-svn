@@ -10,7 +10,11 @@ end;
 
 define primary class <tuple-with-rest> (<tuple>)
 end;
- 
+
+/* 
+define method make (class == <tuple>, #rest, #key rest?, tuples, #all-keys)
+ => (res :: <tuple>)
+*/
 define primary class <arrow> (<typist-type>)
   constant slot arrow-arguments :: <node>,
     required-init-keyword: arguments:;
@@ -47,5 +51,27 @@ define compiler-sideways method print-object (c :: <limited-collection>, str :: 
   format(str, "limited[ %= ]", c.element-type);
 end;
 
+define generic walk-node (fun :: <function>, start :: <typist-type>);
 
+define method walk-node (fun :: <function>, start :: <typist-type>)
+  fun(start);
+end;
+
+define method walk-node (fun :: <function>, n :: <tuple>)
+  map(fun, n.tuple-types);
+end;
+
+define method walk-node (fun :: <function>, n :: <arrow>)
+  fun(n.arrow-arguments);
+  fun(n.arrow-values);
+end;
+
+define method walk-node (fun :: <function>, n :: <limited-collection>)
+  fun(n.collection-class);
+  fun(n.element-type);
+end;
+
+define method walk-node (fun :: <function>, n :: <type-variable>)
+  fun(n.type-variable-contents);
+end;
 

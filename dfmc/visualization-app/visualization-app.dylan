@@ -407,6 +407,22 @@ begin
     "  end;\n"
     "end;";
   add!($tests, pair(#"tail-call (<integer>)", tc));
+
+  let if-te =
+    "define method if-type (a)\n"
+    "  local method con (b :: <string>)\n"
+    "    concatenate(b, b)\n"
+    "  end;\n"
+    "  local method double (b :: <integer>)\n"
+    "    b * b\n"
+    "  end;\n"
+    "  if (instance?(a, <integer>))\n"
+    "    double(a)\n"
+    "  elseif (instance?(a, <string>))\n"
+    "    con(a)\n"
+    "  end;\n"
+    "end;";
+  add!($tests, pair(#"if-type (<object>)", if-te));
 end;
 
 define function callback-handler (#rest args)
@@ -424,8 +440,9 @@ begin
   let project = lookup-named-project("dylan");
   visualizing-compiler(vis, project, parse?: #t);
 end;
-/*
 
+
+/*
 begin
   let project = find-project("dylan");
   open-project-compiler-database(project,
@@ -459,7 +476,7 @@ begin
   end;
 end;
 */
-
+/*
 define function list-all-package-names ()
   let res = #();
   local method collect-project
@@ -481,7 +498,7 @@ define function list-all-package-names ()
   end;
   res;
 end;
-/*
+
 begin
   let projects = list-all-package-names();
   let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Type-and-Graph-Visualization");

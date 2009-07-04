@@ -154,7 +154,7 @@ define method output-lambda-header-sexp
   local method single-header (o)
           let res = #();
           res := add!(res, #"METHOD");
-          res := add!(res, o.debug-string);
+          res := add!(res, as(<string>, o.debug-string));
           res := add!(res, o.body & o.body.computation-id | 0);
           res := add!(res, map(temporary-id, o.parameters | #()));
           reverse!(add!(res, map(method(x)

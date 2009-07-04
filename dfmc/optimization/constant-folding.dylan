@@ -93,7 +93,7 @@ define method constant-fold (c :: <if>)
     replace-temporary-references!(c, tst, first(arguments(generator(tst))));
     #t
   else
-    let test-estimate  = type-estimate(tst);
+    let test-estimate  = type-estimate(c, tst);
     let false-estimate = dylan-value(#"<boolean>");
     // TODO: should use singleton(#f) but this conses
     when (guaranteed-disjoint?(test-estimate, false-estimate))
@@ -132,14 +132,14 @@ define method constant-fold (c :: <binary-merge>)
     let left-g  = generator(left-value);
     let right-g = generator(right-value);
     if (left-value == right-value |
-	  guaranteed-joint?(type-estimate(left-value),
+	  guaranteed-joint?(type-estimate(c, left-value),
 			    dylan-value(#"<bottom>")))
       // unless (left-value == right-value)
       //   format-out(" MERGE %= BOTTOM LV %=\n", c, left-value);
       // end unless;
       replace-computation-with-temporary!(c, right-value);
       #t
-    elseif (guaranteed-joint?(type-estimate(right-value),
+    elseif (guaranteed-joint?(type-estimate(c, right-value),
 			      dylan-value(#"<bottom>")))
       // unless (left-value == right-value)
       //   format-out(" MERGE %= BOTTOM RV %=\n", c, right-value);
@@ -364,7 +364,7 @@ end method;
 define method constant-fold (c :: <adjust-multiple-values>)
   let env = environment(c);
   let values-t = computation-value(c);
-  let values-te = type-estimate(values-t);
+  let values-te = type-estimate(c, values-t);
   let n = number-of-required-values(c);
   local method right-number-of-values? (te :: <&type>)
 //	  size(type-estimate-fixed-values(te)) = n &
@@ -587,7 +587,7 @@ end method;
 
 define method constant-fold (c :: <adjust-multiple-values-rest>)
   let values-t = computation-value(c);
-  let values-te = type-estimate(values-t);
+  let values-te = type-estimate(c, values-t);
   let n = number-of-required-values(c);
   local method right-number-of-values? (te :: <&type>)
 	  //size(type-estimate-fixed-values(te)) >= n 
@@ -728,7 +728,7 @@ define method constant-fold (c :: <guarantee-type>)
   let static-type = static-guaranteed-type(c);
   if (static-type)
     let value = computation-value(c);
-    if (guaranteed-joint?(type-estimate(value), static-type))
+    if (guaranteed-joint?(type-estimate(c, value), static-type))
       replace-computation-with-temporary!(c, value);
       #t
     end
@@ -776,7 +776,7 @@ define method evaluate-type-checks? (c :: <check-type>)
       the-type := make(<&top-type>);
     end;
     let the-estimate 
-      = type-estimate(computation-value(c));
+      = type-estimate(c, computation-value(c));
     if (guaranteed-joint?(the-estimate, the-type))
       #t
     else
@@ -802,7 +802,7 @@ define method evaluate-type-checks?
   // If fixed types check statically, mark as checked.
   elseif (every?(rcurry(instance?, <object-reference>), c.types))
     let wanted-types = map(reference-value, c.types);
-    let got-types = type-estimate(computation-value(c));
+    let got-types = type-estimate(c, computation-value(c));
     unless (instance?(got-types, <&top-type>))
       wanted-types.size == got-types.size &
       every?(^subtype?, got-types, wanted-types) |
@@ -829,7 +829,7 @@ define method evaluate-type-checks? (c :: <multiple-value-check-type-rest>)
   elseif (every?(rcurry(instance?, <object-reference>), c.types))
     let wanted-types = map(reference-value, c.types);
     let rest-type = c.rest-type & c.rest-type.reference-value | make(<&top-type>);
-    let got-types = type-estimate(computation-value(c));
+    let got-types = type-estimate(c, computation-value(c));
     unless (instance?(got-types, <&top-type>))
       if (got-types.size > 0 & instance?(got-types.last, <&top-type>))
         got-types := copy-sequence(got-types, end: got-types.size - 1);
@@ -1007,7 +1007,7 @@ define method constant-fold (c :: <slot-value>)
     replace-computation-with-temporary!(c, ref);
     #t
   else
-    let type = type-estimate(instance-ref);
+    let type = type-estimate(c, instance-ref);
     if (instance?(type, <&limited-collection-type>))
       select (^slot-getter(sd))
 	dylan-value(#"dimensions")

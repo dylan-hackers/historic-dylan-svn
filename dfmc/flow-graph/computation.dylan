@@ -31,6 +31,10 @@ define abstract dood-class <computation> (<queueable-item-mixin>)
     reinit-expression: #f,
     required-init-keyword: environment:;
 
+  weak slot type-environment :: false-or(<type-environment>),
+    reinit-expression: #f,
+    init-keyword: type-environment:;
+
   weak slot %computation-type = #f,
     reinit-expression: #f;
 

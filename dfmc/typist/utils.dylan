@@ -74,7 +74,6 @@ define compiler-sideways method initialize-typist-library-caches
     make(<table> /* , size: $cons-cache-size-init$ */);
   library-type-estimate-dispatch-cache(ld) := 
     make(<table> /* , size: $cons-cache-size-init$ */);
-  *type-environment* := make(<type-environment>);
 end;
 
 define class <pair-table> (<table>)
