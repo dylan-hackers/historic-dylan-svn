@@ -237,7 +237,7 @@ public class DemoBase extends Thread {
   }
   
   private boolean steppressed = false;
-  private boolean playpressed = false;
+  private boolean playpressed = true;
 public boolean updatingguimanually = false;
   
   public void waitforstep () {
@@ -271,7 +271,7 @@ public boolean updatingguimanually = false;
 	  try { slider.setMaximum(ihl.lastEntry); } catch (NullPointerException e) { }
 	  try { slider.setValue(ihl.lastslidervalue); } catch (NullPointerException e) { }
 	  updatingslider = false;
-	  playpressed = false;
+	  playpressed = true;
 	  calcLayout();
   }
   
