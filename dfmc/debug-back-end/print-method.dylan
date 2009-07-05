@@ -51,7 +51,8 @@ define method output-lambda-computations
 end method;
 
 define compiler-sideways method print-method (stream :: <stream>, 
-      o :: <&method>, #key css, output-format, header-only) 
+      o :: <&method>, #key css, output-format, header-only)
+  list(list(#"method", "foo", 0, #(), #()))
 end;
 
 define compiler-sideways method print-method (stream :: <stream>, 

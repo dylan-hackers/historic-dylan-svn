@@ -239,7 +239,7 @@ end macro;
 */
 
 define function object-class (instance) => (value :: <class>)
-  let bits :: <raw-address> = tag-bits(instance);
+  let bits /* :: <raw-address> */ = tag-bits(instance);
   if (indirect-object-tag-bits?(bits))
     indirect-object-class(instance)
   else

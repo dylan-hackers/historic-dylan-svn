@@ -31,11 +31,15 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
                                  //"system-allocate-repeated-byte-character-instance-i" //<raw-byte> vs <raw-integer>
                                  //"signal" //phi-placement - <set!> not in table (df/mapping)
                                  //"make-symbol"
-                                 "wait-for", "gethash"
-                                 ),
+//                                 "wait-for", "gethash"
+                                 //"object-class"
+                                 "disjoint-types-1? (<class>"),
               test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
-    write-to-visualizer(vis, apply(list, arguments));
-  end
+    write-to-visualizer(vis, arguments);
+  end;
+//  go? &
+//    write-to-visualizer(vis, arguments);
+//  end
 end;
 
 define method form (c :: type-union(<temporary>, <computation>))

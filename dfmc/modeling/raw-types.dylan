@@ -75,6 +75,10 @@ define method ^known-disjoint?
   #t
 end method;
 
+define method ^known-disjoint?
+    (t1 :: <&raw-type>, t2 :: <&raw-type>) => (disjoint? :: <boolean>)
+  ~^subtype?(t1, t2) & ~^subtype?(t2, t1)
+end;
 
 
 // is this needed??

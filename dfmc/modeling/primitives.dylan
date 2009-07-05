@@ -343,18 +343,21 @@ define side-effecting &primitive primitive-keyboard-interrupt-polling-thread-set
 // TODO: NEED UNICODE SUPPORT IN COMPILER's RUNTIME
 define side-effect-free stateless dynamic-extent &primitive primitive-unicode-character-as-raw
     (x :: <unicode-character>) => (r :: <raw-integer>);
+
+//argument should actually be type-union(<raw-integer>, <raw-byte>)
 define side-effect-free stateless dynamic-extent &primitive primitive-raw-as-unicode-character
-     (r :: <raw-integer>) => (x :: <unicode-character>);
+     (r :: <raw-machine-word>) => (x :: <unicode-character>);
 
 /// BYTE-CHARACTER
 
 define side-effect-free stateless dynamic-extent &primitive-and-override primitive-byte-character-as-raw
     (x :: <byte-character>) => (r :: <raw-byte>)
-  //make-raw-literal(as(<integer>, x))
   ^make(<&raw-byte>, value: as(<integer>, x))
 end;
+
+//argument should actually be type-union(<raw-integer>, <raw-byte>)
 define side-effect-free stateless dynamic-extent &primitive-and-override primitive-raw-as-byte-character
-     (r :: <raw-integer>) => (x :: <byte-character>)
+     (r :: <raw-machine-word>) => (x :: <byte-character>)
   as(<byte-character>, ^raw-object-value(r))
 end;
 

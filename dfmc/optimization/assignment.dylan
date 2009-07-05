@@ -42,7 +42,7 @@ define method succ (v :: <loop-call>) => (res :: <comp-vector>)
   res;
 end;
 
-define method dominators (r :: <computation>) => (result :: <table>)
+define method dominators (r :: <computation>) => (dominators :: <table>, ass :: <comp-vector>)
   let semi = make(<table>);
   let vertex = make(<table>);
   let ancestor = make(<table>);
@@ -54,6 +54,7 @@ define method dominators (r :: <computation>) => (result :: <table>)
   let bucket = make(<table>);
   let dom = make(<table>);
   let n = 0;
+  let ass = make(<comp-vector>);
 
   local method dfs (v :: <computation>)
           n := n + 1;
@@ -63,6 +64,9 @@ define method dominators (r :: <computation>) => (result :: <table>)
           ancestor[v] := 0;
           //child[v] := 0;
           //dsize[v] := 1;
+          if (instance?(v, <assignment>) & ~instance?(v, <definition>) & ~member?(v, ass))
+            add!(ass, v);
+          end;
           for (w in succ(v))
             unless (element(semi, w, default: #f))
               parent[w] := v;
@@ -166,7 +170,7 @@ define method dominators (r :: <computation>) => (result :: <table>)
     end;
   end;
   dom[r] := 0;
-  dom;
+  values(dom, ass);
 end;
 
 // (Efficiently computing single static assignment and the control dependence graph
@@ -228,18 +232,17 @@ define function dominance-frontier (idom :: <table>, root :: <tree-node>)
   df;
 end;
 
-define method phi-placement (df :: <table>, f :: <&lambda>, mapping :: <table>)
+define method phi-placement (df :: <table>, ass :: <comp-vector>, mapping :: <table>)
   let itercount = 0;
   let hasalready = make(<table>);
   let work = make(<table>);
   let w = make(<deque>);
-  for (v in f.environment.temporaries)
-    if (~empty?(v.assignments) & ~cell?(v))
+  for (x in ass)
+    if (~ instance?(x.assigned-binding, <module-binding>))
+      let v = x.assigned-binding;
       itercount := itercount + 1;
-      for (x in assignments(v))
-        work[x] := itercount;
-        push(w, x);
-      end;
+      work[x] := itercount;
+      push(w, x);
       while (~ w.empty?)
         let x = w.pop;
         for (y in df[x])
@@ -357,15 +360,16 @@ define function find-recent-assignments (phi :: <phi-node>, variable :: <lexical
   add-user!(last-right, phi);
 end;
 
-define function renaming (f :: <&lambda>, mapping :: <table>)
+define function renaming (ass :: <comp-vector>, f :: <&lambda>, mapping :: <table>)
   let counter = make(<table>);
   let stacks = make(<table>);
   let modified-variables = make(<stretchy-vector>);
-  for (v in f.environment.temporaries)
-    if (~empty?(v.assignments))
+  for (assignment in ass)
+    let v = assignment.assigned-binding;
+    unless (instance?(v, <module-binding>))
       counter[v] := 0;
       stacks[v] := make(<deque>);
-      unless (v.generator)
+      unless (v.generator & v.environment == assignment.environment)
         //passed as argument, thus push v onto the stack
         push(stacks[v], v);
       end;
@@ -471,11 +475,11 @@ end;
 //   before: analyze-calls;
 
 define method eliminate-assignments (f :: <&lambda>)
-  let idom = dominators(f.body);
+  let (idom, ass) = dominators(f.body);
   let (root, mapping) = build-tree(idom);
   let df = dominance-frontier(idom, root);
-  phi-placement(df, f, mapping);
-  renaming(f, mapping);
+  phi-placement(df, ass, mapping);
+  renaming(ass, f, mapping);
   values(idom, root, mapping, df);
 end method eliminate-assignments;
 

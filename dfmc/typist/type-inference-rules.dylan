@@ -455,22 +455,26 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
     c.type-environment := env;
     solve(env);
     c.infer-computation-types; //actually, needs both envs for proper inference
-    let con-env = make(<type-environment>, outer: env);
-    type-walk(con-env, c.consequent, c.next-computation);
-    con-env.finished-initial-typing? := #t;
-    solve(con-env);
-    let alt-env = make(<type-environment>, outer: env);
-    type-walk(alt-env, c.alternative, c.next-computation);
-    alt-env.finished-initial-typing? := #t;
-    solve(alt-env);
-    let if-merge = c.next-computation;
-    //actually, this should record usage to merge-left/right, so that an upgrade of
-    //those types upgrade this union somehow (and their users)
-    add-constraint(env, if-merge,
-                   typist-union(env, temporary-type(if-merge.merge-left-value, con-env),
-                                temporary-type(if-merge.merge-right-value, alt-env)),
-                   abstract-and-lookup(if-merge.temporary, env));
-    next-type-step(env, c.next-computation, last);
+    if (c.fold-if)
+      next-type-step(env, c.previous-computation, last);
+    else
+      let con-env = make(<type-environment>, outer: env);
+      type-walk(con-env, c.consequent, c.next-computation);
+      con-env.finished-initial-typing? := #t;
+      solve(con-env);
+      let alt-env = make(<type-environment>, outer: env);
+      type-walk(alt-env, c.alternative, c.next-computation);
+      alt-env.finished-initial-typing? := #t;
+      solve(alt-env);
+      let if-merge = c.next-computation;
+      //actually, this should record usage to merge-left/right, so that an upgrade of
+      //those types upgrade this union somehow (and their users)
+      add-constraint(env, if-merge,
+                     typist-union(env, temporary-type(if-merge.merge-left-value, con-env),
+                                  temporary-type(if-merge.merge-right-value, alt-env)),
+                     abstract-and-lookup(if-merge.temporary, env));
+      next-type-step(env, c.next-computation, last);
+    end;
   end;
 end;
 
@@ -737,16 +741,29 @@ define type-rule <make-closure>
   constraint(computation.computation-closure-method.^function-signature.lookup, temporary-node);
 end;
 
-define type-rule type-union(<slot-value>, <repeated-slot-value>)
+define type-rule <slot-value>
   constraint(computation.computation-slot-descriptor.^slot-type.lookup, temporary-node);
 end;
 
-define type-rule type-union(<slot-value-setter>, <repeated-slot-value-setter>)
+define type-rule <repeated-slot-value>
+  constraint(computation.computation-slot-descriptor.^slot-type.repeated-representation.lookup, temporary-node);
+end;
+
+define type-rule <slot-value-setter>
   let new-val = computation.computation-new-value.abstract;
   let new-val-t = new-val.model-type;
   unless (instance?(new-val-t, <&singleton>) & (new-val-t.^singleton-object == &unbound) & instance?(computation.environment.lambda, <&initializer-method>))
     constraint(new-val, temporary-node);
     constraint(computation.computation-slot-descriptor.^slot-type.lookup, temporary-node);
+  end;
+end;
+
+define type-rule <repeated-slot-value-setter>
+  let new-val = computation.computation-new-value.abstract;
+  let new-val-t = new-val.model-type;
+  unless (instance?(new-val-t, <&singleton>) & (new-val-t.^singleton-object == &unbound) & instance?(computation.environment.lambda, <&initializer-method>))
+    constraint(new-val, temporary-node);
+    constraint(computation.computation-slot-descriptor.^slot-type.repeated-representation.lookup, temporary-node);
   end;
 end;
 

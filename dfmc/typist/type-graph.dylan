@@ -113,12 +113,12 @@ define function disconnect-constraint (source :: <node>, target :: <node>) => ()
   end;
   let e = choose(compose(curry(\=, target), edge-target),
                  source.out-edges);
-  let c-edges := choose(rcurry(instance?, <constraint-edge>), e);
-  if (c-edges.size > 1)
-    do(remove-edge, c-edges);
-  elseif (e.size == 0)
+  let c-edges = choose(rcurry(instance?, <constraint-edge>), e);
+  if (c-edges.size == 0)
     error("tried to disconnect %= from %=, which were not connected\n",
           source, target);
+  else
+    remove-edge(c-edges.first);
   end;
 end;
 
