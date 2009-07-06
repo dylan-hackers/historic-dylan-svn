@@ -275,7 +275,7 @@ define function run-application
 
   let envp
     = if (environment)
-        error("environment: not supported yet");
+        make-envp(environment);
       else
         primitive-wrap-machine-word
           (primitive-c-pointer-at(%c-variable-pointer("environ", #t),
@@ -413,6 +413,64 @@ define function %waitpid
                                      integer-as-raw(0)));
     values(pid, status)
   end with-storage
+end function;
+
+define function make-envp
+    (environment :: <explicit-key-collection>)
+ => (result :: <machine-word>)
+  let temp-table :: <string-table> = make(<string-table>);
+
+  // Obtain the current environment as a <string-table> keyed by the
+  // environment variable name
+  let old-envp :: <machine-word>
+    = primitive-wrap-machine-word
+        (primitive-c-pointer-at(%c-variable-pointer("environ", #t),
+                                integer-as-raw(0),
+                                integer-as-raw(0)));
+  block (envp-done)
+    for (i :: <integer> from 0)
+      let raw-item
+        = primitive-c-pointer-at(primitive-unwrap-machine-word(old-envp),
+                                 integer-as-raw(i), integer-as-raw(0));
+      if (primitive-machine-word-equal?(raw-item, integer-as-raw(0)))
+        envp-done();
+      else
+        let item = primitive-raw-as-string(raw-item);
+        block (item-done)
+          for (char in item, j from 0)
+            if (char == '=')
+              let key = copy-sequence(item, end: j);
+              temp-table[key] := item;
+              item-done();
+            end if;
+          end for;
+        end block;
+      end if;
+    end for;
+  end block;
+
+  // Override anything set in the user-supplied environment
+  for (value keyed-by key in environment)
+    temp-table[key] := concatenate(key, "=", value);
+  end for;
+
+  // Create a new environment vector and initialize it
+  let envp-size = (temp-table.size + 1) * raw-as-integer(primitive-word-size());
+  let new-envp
+    = primitive-wrap-machine-word
+        (primitive-cast-pointer-as-raw
+           (%call-c-function ("GC_malloc")
+              (nbytes :: <raw-c-unsigned-long>) => (p :: <raw-c-pointer>)
+              (integer-as-raw(envp-size))
+            end));
+  for (i :: <integer> from 0, item keyed-by key in temp-table)
+    primitive-c-pointer-at(primitive-unwrap-c-pointer(new-envp),
+                           integer-as-raw(i),
+                           integer-as-raw(0))
+      := primitive-string-as-raw(item);
+  end for;
+
+  new-envp
 end function;
 
 ///---*** NOTE: The following functions need real implementations!
