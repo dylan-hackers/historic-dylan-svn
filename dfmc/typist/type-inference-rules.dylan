@@ -579,29 +579,11 @@ define method typist-union (env :: <type-environment>, t1 :: <collection>, t2 ::
   lookup-type-node(map(curry(typist-union, env), t1, t2).gen-tuple, env)
 end;
 
-define method typist-union (env :: <type-environment>, t1 :: <&top-type>, t2 :: type-union(<collection>, <&type>))
+define method typist-union (env :: <type-environment>, t1 :: type-union(<collection>, <&type>), t2 :: type-union(<collection>, <&type>))
  => (union :: <node>)
-  lookup-type-node(t1, env)
-end;
-
-define method typist-union (env :: <type-environment>, t2 :: type-union(<collection>, <&type>), t1 :: <&top-type>)
- => (union :: <node>)
-  lookup-type-node(t1, env)
-end;
-
-define method typist-union (env :: <type-environment>, t1 :: <&top-type>, t2 :: <&top-type>)
- => (union :: <node>)
-  lookup-type-node(t1, env)
-end;
-
-define method typist-union (env :: <type-environment>, t1 :: <&type>, t2 :: <collection>)
- => (union :: <node>)
-  lookup-type-node(make(<&top-type>), env)
-end;
-
-define method typist-union (env :: <type-environment>, t2 :: <collection>, t1 :: <&type>)
- => (union :: <node>)
-  lookup-type-node(make(<&top-type>), env)
+  //if (^instance?(t1, <&top-type>) | ^instance?(t2, <&top-type>) | ^instance?(t1, <collection>) | ^instance?(t2, <collection>))
+    lookup-type-node(make(<&top-type>), env);
+  //else
 end;
 
 define type-rule <binary-merge>

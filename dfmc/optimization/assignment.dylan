@@ -21,10 +21,7 @@ define method succ (v :: <computation>) => (res :: <comp-vector>)
 end;
 
 define method succ (v :: <loop>) => (res :: <comp-vector>)
-  let res = make(<comp-vector>);
-  if (v.next-computation)
-    add!(res, v.next-computation);
-  end;
+  let res = next-method();
   add!(res, v.loop-body);
   res;
 end;
@@ -39,6 +36,18 @@ end;
 define method succ (v :: <loop-call>) => (res :: <comp-vector>)
   let res = make(<comp-vector>);
   add!(res, v.loop-call-loop);
+  res;
+end;
+
+define method succ (c :: <block>) => (res :: <comp-vector>)
+  let res = next-method();
+  add!(res, c.body);
+  res;
+end;
+
+define method succ (c :: <unwind-protect>) => (res :: <comp-vector>)
+  let res = next-method();
+  add!(res, c.cleanups);
   res;
 end;
 

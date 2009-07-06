@@ -423,6 +423,48 @@ begin
     "  end;\n"
     "end;";
   add!($tests, pair(#"if-type (<object>)", if-te));
+
+  let set-broke =
+    "define method mygcd (n :: <integer>, m :: <integer>)\n"
+    "  => (result :: <integer>)\n"
+    "  case\n"
+    "    n = 0 =>\n"
+    "      m;\n"
+    "    m = 0 =>\n"
+    "      n;\n"
+    "    n = m =>\n"
+    "      n;\n"
+    "    otherwise =>\n"
+    "      for (k :: <integer> from 0,\n"
+    "           u :: <integer> = abs(n) then ash(u, -1),\n"
+    "           v :: <integer> = abs(m) then ash(v, -1),\n"
+    "           until: odd?(logior(u, v)))\n"
+    "      finally\n"
+    "        block (return)\n"
+    "          for (tmp :: <integer>\n"
+    "                 = if (u.odd?)\n"
+    "                     v.negative\n"
+    "                   else\n"
+    "                     ash(u, -1)\n"
+    "                   end if\n"
+    "               then ash(tmp, -1))\n"
+    "            if (tmp.odd?)\n"
+    "              if (tmp.positive?)\n"
+    "                u := tmp\n"
+    "              else\n"
+    "                v := tmp.negative\n"
+    "              end if;\n"
+    "              tmp := u - v;\n"
+    "              if (tmp.zero?)\n"
+    "                return(ash(u, k))\n"
+    "              end if\n"
+    "            end if;\n"
+    "          end for\n"
+    "        end block;\n"
+    "      end for\n"
+    "    end case\n"
+    "  end;";
+  add!($tests, pair(#"mygcd (<integer>, <integer>)", set-broke));
 end;
 
 define function callback-handler (#rest args)
