@@ -67,7 +67,9 @@ define function solve (type-env :: <type-environment>)
       block()
         solve-constraint(ute, vte, u, v, push-cs);
       exception (e :: <error>)
-        error("constraint %= cannot be satisfied", constraint);
+        unless (exceptions?(ute, vte, u, v, push-cs))
+          error("constraint %= cannot be satisfied", constraint);
+        end
       end;
     end;
     debug-types(#"unhighlight-constraint", type-env, constraint.left-hand-side, constraint.right-hand-side);
@@ -108,6 +110,20 @@ define function solve (type-env :: <type-environment>)
     end;
   else
     error("type graph %= contains cycles!", quotient-graph)
+  end;
+end;
+
+define method exceptions? (t1 :: type-union(<typist-type>, <&type>), t2 :: type-union(<typist-type>, <&type>), u :: <node>, v :: <node>, push-constraint :: <function>)
+ => (res :: <boolean>)
+  //dirty stuff goes here
+  //dispatch-prologue needs to cast from a <mm-wrapper> to a <integer>;
+  //this is done by pointer-as-integer, called from interpret-mm-wrapper-as-integer
+  //which uses cast-raw-as-integer(unwrap-m-w(force-int-tag(wrap-m-w(cast-pointer-as-raw(x)))))
+  //where x happens to be a <mm-wrapper> (obviously, cast-pointer-as-raw doesn't work, because
+  //its signature is <raw-pointer> => <raw-address>
+  let ex1 = pair(dylan-value(#"<mm-wrapper>"), dylan-value(#"<raw-pointer>"));
+  if ((t1 == head(ex1) & t2 == tail(ex1)) | (t1 == tail(ex1) & t2 == head(ex1)))
+    #t
   end;
 end;
 

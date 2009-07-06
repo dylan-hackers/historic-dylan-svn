@@ -33,7 +33,7 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
                                  //"make-symbol"
 //                                 "wait-for", "gethash"
                                  //"object-class"
-                                 "disjoint-types-1? (<class>"),
+                                 "gcd (<integer>"),
               test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
     write-to-visualizer(vis, arguments);
   end;

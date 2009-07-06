@@ -733,7 +733,8 @@ define type-rule <if>
 end;
 
 define type-rule <stack-vector>
-  constraint(map(abstract, computation.arguments).gen-tuple.lookup, temporary-node);
+  //constraint(map(abstract, computation.arguments).gen-tuple.lookup, temporary-node);
+  constraint(dylan-value(#"<simple-object-vector>").lookup, temporary-node);
 end;
 
 define type-rule <make-closure>

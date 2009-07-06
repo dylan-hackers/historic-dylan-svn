@@ -748,7 +748,8 @@ define function compute-terminal-engine-node (ds :: <dispatch-state>)
       = bootstrap-typed-allocate-engine-node(<profiling-call-site-cache-header-engine-node>,
 					     engine-node$k-profiling-cache-header,
 					     0);
-    primitive-initialize-discriminator(new);
+    //primitive-initialize-discriminator(new); //new is no <discriminator>!
+    primitive-initialize-engine-node(new);
     %profile-count-low(new)  := as(<machine-word>, 0);
     %profile-count-high(new) := as(<machine-word>, 0);
     cache-header-engine-node-parent(new) := parent;
@@ -851,20 +852,21 @@ define patchable-constant transmogrify-method-list-tail-grounded
       end if
     else
       let m :: <method> = head(subordered);
-      let more
-	= if (function-next?(m))
-	    let othermeths :: <list> = tail(subordered);
-	    transmogrify-method-list-tail-grounded(ds, ordered, othermeths, 
-						   ambig,  kludge?);
-	  else
-	    #()
-	  end if;
-      more & select (m by instance?)
-	       <accessor-method> => 
-		 let m :: <accessor-method> = m;
-		 make-slot-accessing-next-method-chain(ds, m);
-	       <method>      => pair(m, more);
-	     end select
+      select (m by instance?)
+        <accessor-method> => 
+          let m :: <accessor-method> = m;
+          make-slot-accessing-next-method-chain(ds, m);
+        <method> =>
+          let more
+            = if (function-next?(m))
+                let othermeths :: <list> = tail(subordered);
+                transmogrify-method-list-tail-grounded(ds, ordered, othermeths, 
+                                                       ambig,  kludge?);
+              else
+                #()
+              end if;
+          pair(m, more);
+      end select
     end if
   end
 end patchable-constant;
