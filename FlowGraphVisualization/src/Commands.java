@@ -36,8 +36,8 @@ public final class Commands {
 			if (! key.isEqual("relayouted"))
 				ihl.changes.get(ihl.changes.size() - 1).add(answer);
 		}
-		if (key.isEqual("dfm-header"))
-			return dfmheader(ihl, answer);
+		//if (key.isEqual("dfm-header"))
+		//	return dfmheader(ihl, answer);
 		if (key.isEqual("change-edge"))
 			return changeedge(ihl, answer);
 		if (key.isEqual("remove-edge"))
