@@ -357,7 +357,12 @@ end;
 define method slot-fixed-offset-in (sd :: <&slot-descriptor>, lct :: <&limited-collection-type>)
  => (offset :: false-or(<integer>))
   let class = ^limited-collection-concrete-class(lct);
-  slot-fixed-offset-in(sd, class);
+  slot-fixed-offset-in(sd, class)
+end;
+
+define method slot-fixed-offset-in (sd :: <&slot-descriptor>, s :: <&singleton>)
+ => (offset :: false-or(<integer>))
+  slot-fixed-offset-in(sd, s.^singleton-object.&object-class)
 end;
 
 define method slot-fixed-offset-in (sd :: <&slot-descriptor>,  te :: <&union>)
@@ -392,6 +397,17 @@ define method slot-guaranteed-initialized-in? (sd :: <&slot-descriptor>, te :: <
  => (initialized? :: <boolean>)
   // Unwrapping trampoline
   slot-guaranteed-initialized-in-class?(sd, te)
+end;
+
+define method slot-guaranteed-initialized-in? (sd :: <&slot-descriptor>, lct :: <&limited-collection-type>)
+ => (initialized? :: <boolean>)
+  let class = ^limited-collection-concrete-class(lct);
+  slot-guaranteed-initialized-in?(sd, class)
+end;
+
+define method slot-guaranteed-initialized-in? (sd :: <&slot-descriptor>, s :: <&singleton>)
+ => (initialized? :: <boolean>)
+  slot-guaranteed-initialized-in?(sd, s.^singleton-object.&object-class)
 end;
 
 define method slot-guaranteed-initialized-in? (sd :: <&slot-descriptor>, te :: <&union>)

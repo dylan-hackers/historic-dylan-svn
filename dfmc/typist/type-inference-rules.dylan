@@ -488,11 +488,18 @@ define method type-walk (env :: <type-environment>, c :: <bind-exit>, last :: fa
     bind-env.finished-initial-typing? := #t;
     solve(bind-env);
     let be-merge = c.next-computation;
-    add-constraint(env, be-merge,
-                   typist-union(env, temporary-type(be-merge.merge-left-value, env),
-                                temporary-type(be-merge.merge-right-value, bind-env)),
-                   abstract-and-lookup(be-merge.temporary, env));
-    next-type-step(env, c.next-computation, last);
+    //can get optimized away, and then the function can get inlined
+    //problem: if optimized, need to add a constraint from right/left value
+    //to actual user (if there's a user)
+    if (instance?(be-merge, <bind-exit-merge>))
+      add-constraint(env, be-merge,
+                     typist-union(env, temporary-type(be-merge.merge-left-value, env),
+                                  temporary-type(be-merge.merge-right-value, bind-env)),
+                     abstract-and-lookup(be-merge.temporary, env));
+      next-type-step(env, c.next-computation, last);
+    else
+      next-type-step(env, c, last);
+    end;
   end;
 end;
 
