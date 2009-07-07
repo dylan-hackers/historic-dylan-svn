@@ -455,8 +455,9 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
     c.type-environment := env;
     solve(env);
     c.infer-computation-types; //actually, needs both envs for proper inference
-    if (c.fold-if)
-      next-type-step(env, c.previous-computation, last);
+    let fold = c.fold-if;
+    if (fold)
+      type-walk(env, fold, last);
     else
       let con-env = make(<type-environment>, outer: env);
       type-walk(con-env, c.consequent, c.next-computation);
@@ -469,11 +470,12 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
       let if-merge = c.next-computation;
       //actually, this should record usage to merge-left/right, so that an upgrade of
       //those types upgrade this union somehow (and their users)
+      if-merge.type-environment := env;
       add-constraint(env, if-merge,
                      typist-union(env, temporary-type(if-merge.merge-left-value, con-env),
                                   temporary-type(if-merge.merge-right-value, alt-env)),
                      abstract-and-lookup(if-merge.temporary, env));
-      next-type-step(env, c.next-computation, last);
+      next-type-step(env, if-merge, last);
     end;
   end;
 end;
@@ -492,11 +494,12 @@ define method type-walk (env :: <type-environment>, c :: <bind-exit>, last :: fa
     //problem: if optimized, need to add a constraint from right/left value
     //to actual user (if there's a user)
     if (instance?(be-merge, <bind-exit-merge>))
+      be-merge.type-environment := env;
       add-constraint(env, be-merge,
                      typist-union(env, temporary-type(be-merge.merge-left-value, env),
                                   temporary-type(be-merge.merge-right-value, bind-env)),
                      abstract-and-lookup(be-merge.temporary, env));
-      next-type-step(env, c.next-computation, last);
+      next-type-step(env, be-merge, last);
     else
       next-type-step(env, c, last);
     end;

@@ -1,20 +1,5 @@
 module: dfmc-typist
 
-define method find-lambda (c :: <computation>) => (l :: <&lambda>)
-  c.environment.lambda;
-end;
-
-define method find-lambda (t :: <temporary>) => (l :: false-or(<&lambda>))
-  (t.generator & t.generator.find-lambda) | (t.environment & t.environment.lambda);
-end;
-
-define method find-lambda (o :: <object-reference>) => (l :: false-or(<&lambda>))
-  o.users.size > 0 & o.users.first.find-lambda;
-end;
-
-define method find-lambda (o :: <object>) => (l == #f)
-  #f
-end;
 
 define function type-estimate (context :: <computation>, o :: <object>)
  => (te :: type-union(<collection>, <&type>))

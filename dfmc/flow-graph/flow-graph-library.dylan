@@ -373,7 +373,6 @@ define module dfmc-flow-graph
     insert-computations-before!,
     remove-computation-references!,
     remove-computation-block-references!,
-    delete-computation-block!,
     maybe-delete-function-body,
     replace-computation!,
     replace-call-computation!,

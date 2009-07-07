@@ -484,31 +484,6 @@ define method insert-computations-before!
 end method insert-computations-before!;
 
 
-define function delete-computation-block! 
-    (start :: <computation>, before, #key on-deletion = identity) => ()
-  let queue :: <list> = #();
-  walk-computations(method (c)
-		      queue := pair(c, queue);
-		    end,
-		    start, before);
-  // everything is now in reverse order, so data dependencies should
-  // go away automatically
-  for (c in queue)
-    let t = c.temporary;
-    if (~t | ~used?(t))
-      on-deletion(c);
-      delete-computation!(c);
-    elseif (instance?(c, <make-closure>)
-              | every?(rcurry(instance?, <loop-merge>), users(t)))
-      replace-temporary-in-users!(t, #f);
-      on-deletion(c);
-      delete-computation!(c);
-    else
-      error("Computation still used - %=", c);
-    end;
-  end;
-end;
-
 define function remove-computation-block-references! 
     (start :: <computation>, before, #key on-deletion = identity) => ()
   let queue :: <list> = #();
@@ -524,7 +499,7 @@ define function remove-computation-block-references!
       on-deletion(c);
       remove-computation-references!(c);
     elseif (instance?(c, <make-closure>)
-              | every?(rcurry(instance?, <loop-merge>), users(t)))
+              | every?(rcurry(instance?, type-union(<phi-node>, <loop-merge>)), users(t)))
       replace-temporary-in-users!(t, #f);
       on-deletion(c);
       remove-computation-references!(c);
@@ -587,7 +562,7 @@ define function maybe-delete-function-body (function :: <&lambda>)
       unless (used-from-outside?(function))
 	// clear the body for recursive references
 	body(function) := #f;
-	delete-computation-block!(function-body, #f);
+	remove-computation-block-references!(function-body, #f);
 	#t
       end;
   end;

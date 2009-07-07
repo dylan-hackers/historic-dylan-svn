@@ -444,9 +444,11 @@ define function renaming (ass :: <comp-vector>, f :: <&lambda>, mapping :: <tabl
             search(y.node-computation);
           end;
           if (instance?(x, <assignment>) & ~ instance?(x, <definition>))
-            //for (v in oldLHS(x))
+            unless (instance?(x.assigned-binding, <module-binding>))
+              //for (v in oldLHS(x))
               pop(stacks[x.assigned-binding]);
-            //end;
+              //end;
+            end;
           end;
           if (instance?(x, <phi-node>))
             pop(stacks[x.phi-ssa-variable]);

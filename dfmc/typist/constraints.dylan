@@ -34,6 +34,16 @@ define function deep-origin (c :: <constraint>) => (o)
   end;
 end;
 
+define program-warning <type-unification-failed>
+  slot condition-type-estimate1,
+    required-init-keyword: type-estimate1:;
+  slot condition-type-estimate2,
+    required-init-keyword: type-estimate2:;
+  format-string
+    "Could not unify %s and %s.";
+  format-arguments type-estimate1, type-estimate2;
+end;
+
 define function solve (type-env :: <type-environment>)
  => ()
   let graph = type-env.type-graph;
@@ -68,7 +78,13 @@ define function solve (type-env :: <type-environment>)
         solve-constraint(ute, vte, u, v, push-cs);
       exception (e :: <error>)
         unless (exceptions?(ute, vte, u, v, push-cs))
-          error("constraint %= cannot be satisfied", constraint);
+          let orig = deep-origin(constraint);
+          note(<type-unification-failed>,
+               source-location: dfm-source-location(orig),
+               context-id:      dfm-context-id(orig),
+               type-estimate1:  ute,
+               type-estimate2:  vte);
+          //error("constraint %= cannot be satisfied", constraint);
         end
       end;
     end;

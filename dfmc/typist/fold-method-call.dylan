@@ -106,6 +106,7 @@ end method;
 
 define method constant-fold-if (c :: <if>, test-value)
   let merge = c.next-computation;
+  let merge-next = merge.next-computation;
   let (sav-first, sav-last, sav-value, del-first) 
     = if (test-value) 
 	 values(consequent(c), merge-left-previous-computation(merge),  
@@ -115,19 +116,21 @@ define method constant-fold-if (c :: <if>, test-value)
 		 merge-right-value(merge), consequent(c))
       end if;
   fold-if-merge!(c, sav-first, sav-last, sav-value, del-first);
-  #t
+  if (sav-first == merge)
+    merge-next
+  else
+    sav-first
+  end
 end method;
 
-define method fold-if (c :: <if>) => (result :: <boolean>)
+define method fold-if (c :: <if>) => (result :: false-or(<computation>))
   let tst = test(c);
   let test-value = type-estimate(c, tst);
   //actually, should also work for union(#t, <integer>) etc.
   if (instance?(test-value, <&singleton>))
     constant-fold-if(c, test-value.^singleton-object);
-    #t
   elseif (^known-disjoint?(test-value, dylan-value(#"<boolean>")))
     constant-fold-if(c, #t);
-    #t
   end if;
 end method;
 
