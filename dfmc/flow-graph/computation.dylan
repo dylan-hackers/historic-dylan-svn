@@ -334,7 +334,7 @@ define /* inline */ method make
     (class == <immutable-object-reference>, #rest initargs, #key value, #all-keys)
  => (object)
   let res = next-method();
-  if (res.users.size > 0)
+  if (res.users.size > 0 & *computation-tracer*)
     *computation-tracer*(#"add-temporary", res, res.users.first, 0);
     do(rcurry(curry(*computation-tracer*, #"add-temporary-user", res), 0),
        res.users);
@@ -349,7 +349,7 @@ define /* inline */ method make
             else
               next-method()
             end if;
-  if (res.users.size > 0)
+  if (res.users.size > 0 & *computation-tracer*)
     *computation-tracer*(#"add-temporary", res, res.users.first, 0);
     do(rcurry(curry(*computation-tracer*, #"add-temporary-user", res), 0),
        res.users);
@@ -1037,7 +1037,7 @@ end;
 
 define method make (c == <loop-call>, #rest all-keys, #key loop, #all-keys) => (res :: <loop-call>)
   let l = next-method();
-  *computation-tracer*(#"set-loop-call-loop", l, loop.computation-id, 0);
+  *computation-tracer* & *computation-tracer*(#"set-loop-call-loop", l, loop.computation-id, 0);
   l;
 end;
 

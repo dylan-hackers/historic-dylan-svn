@@ -245,7 +245,7 @@ define method ^known-disjoint? (t1 :: <&limited-collection-type>, t2 :: <&class>
 end method ^known-disjoint?;
 
 define &class <limited-function-type> (<limited-type>)
-  constant &slot function-signature :: <signature>,
+  runtime-constant &slot function-signature :: <signature>,
     init-keyword: signature:;
 end;
 

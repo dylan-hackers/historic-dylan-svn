@@ -218,7 +218,7 @@ end;
 
 define method cell-type-setter (new :: <&type>, c :: <cell>) => (t :: <&type>)
   c.%cell-type := new;
-  if (c.users.size > 0)
+  if (c.users.size > 0 & *computation-tracer*)
     *computation-tracer*(#"change-type", c.temporary-id, new, 0);
   end;
   new;
