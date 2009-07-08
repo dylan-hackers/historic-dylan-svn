@@ -355,6 +355,8 @@ public class IncrementalHierarchicLayout
 			int_node_map.put(id, n);
 		} else if (id == 0)
 			topnodes.add(n);
+		if (label.equalsIgnoreCase("[bind]"))
+			topnodes.add(n);
 		return n;
 	}
 	

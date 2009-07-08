@@ -163,7 +163,7 @@ public class DemoBase extends Thread {
     textok.add(choosers, BorderLayout.NORTH);
     
 
-    text = new JTextArea("Choose code example or type code!", 8, 20);
+    text = new JTextArea("Choose code example or type code!", 15, 50);
     //text.setFont(new Font( "dialog", Font.PLAIN, 20));
     string_source_map.put("new...", text.getText());
     text.setEditable(true);
@@ -237,7 +237,7 @@ public class DemoBase extends Thread {
   }
   
   private boolean steppressed = false;
-  private boolean playpressed = true;
+  private boolean playpressed = false;
 public boolean updatingguimanually = false;
   
   public void waitforstep () {
@@ -271,7 +271,7 @@ public boolean updatingguimanually = false;
 	  try { slider.setMaximum(ihl.lastEntry); } catch (NullPointerException e) { }
 	  try { slider.setValue(ihl.lastslidervalue); } catch (NullPointerException e) { }
 	  updatingslider = false;
-	  playpressed = true;
+	  playpressed = false;
 	  calcLayout();
   }
   
@@ -308,6 +308,7 @@ public boolean updatingguimanually = false;
     toolBar.add( new Zoom( 0.8 ) );
     toolBar.add( new FitContent( ) );
 	toolBar.add( new LayoutAction() );
+	toolBar.add( new ForceLayoutAction() );
 	toolBar.add( new Play() );
 	toolBar.add( new Step() );
 
@@ -521,6 +522,22 @@ public boolean updatingguimanually = false;
 		}
 		public void actionPerformed(ActionEvent ev)
 		{
+			//incrementallayouter.changed = true;
+			//incrementallayouter.typechanged = true;
+			forcelayout = true;
+			calcLayout();
+			forcelayout = false;
+		}
+	}
+	
+	final class ForceLayoutAction extends AbstractAction
+	{
+		ForceLayoutAction ()
+		{
+			super("Force Layout");
+		}
+		public void actionPerformed(ActionEvent ev)
+		{
 			incrementallayouter.changed = true;
 			incrementallayouter.typechanged = true;
 			forcelayout = true;
@@ -528,7 +545,6 @@ public boolean updatingguimanually = false;
 			forcelayout = false;
 		}
 	}
-	
 	final class Play extends AbstractAction
 	{
 		Play() {
@@ -634,7 +650,7 @@ public boolean updatingguimanually = false;
 	 * Animated layout assignment
 	 */
 	public void calcLayout(){
-		if (forcelayout) {
+		//if (forcelayout) {
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");
 			//if (alphaslider.getValue() == 3)
@@ -749,7 +765,7 @@ public boolean updatingguimanually = false;
 		}
 		typeview.updateView();
 		view.updateView();
-		}
+		//}
 	}
 
 }

@@ -65,7 +65,7 @@ public final class Commands {
 		if (key.isEqual("set-loop-call-loop"))
 			return setloopcallloop(ihl, answer);
 		if (key.isEqual("relayouted"))
-			return relayouted(ihl);
+			return relayouted(ihl, demo);
 		if (key.isEqual("highlight"))
 			return highlight(ihl, answer, demo);
 		if (key.isEqual("highlight-queue"))
@@ -301,10 +301,12 @@ public final class Commands {
 			for (EdgeCursor ec = temp.inEdges(); ec.ok(); ec.next())
 				if (ec.edge().source() == oldgenerator) {
 					ihl.graph.changeEdge(ec.edge(), temp, newgenerator);
+					ihl.scf.removeConstraints(temp);
 					return true;
 				}
 		if (ihl.safeCreateEdge(newgenerator, temp)) {
 			ihl.setEdgeColor(Color.blue);
+			ihl.scf.addPlaceNodeInSameLayerConstraint(temp, newgenerator);
 			return true;
 		}
 		return false;
@@ -344,8 +346,9 @@ public final class Commands {
 		return true;		
 	}
 	
-	private static boolean relayouted (IncrementalHierarchicLayout ihl) {
-		//ihl.activateLayouter();
+	private static boolean relayouted (IncrementalHierarchicLayout ihl, DemoBase demo) {
+		ihl.activateLayouter();
+		demo.calcLayout();
 		return false;
 	} 
         
