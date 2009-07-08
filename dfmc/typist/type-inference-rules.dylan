@@ -942,7 +942,7 @@ define method upgrade-types (l :: <&lambda>)
       //but not yet in correct context (<graph>-wise)
       // actually, *constraint* get bound to #[] in type-infer, thus modifying constraints
       // does not make sense yet
-      remove-key!(l.type-environment, p);
+      remove-key!(l.type-environment.real-environment, p);
     end;
   end;
   l.type-infer

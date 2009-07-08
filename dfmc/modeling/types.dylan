@@ -386,6 +386,16 @@ define method ^known-disjoint? (a :: <&type>, b :: <&top-type>)
   #f;
 end;
 
+define method ^subtype? (a :: <&top-type>, b :: <&limited-vector-type>)
+ => (well? == #f)
+  #f
+end;
+
+define method ^subtype? (a :: <&limited-vector-type>, b :: <&top-type>)
+ => (well? == #t)
+  #t
+end;
+
 /*
 define primary &class <tuple-type> (<type>)
   constant &slot tuple-types :: <simple-object-vector>,

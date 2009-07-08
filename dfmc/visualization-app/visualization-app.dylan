@@ -465,13 +465,31 @@ begin
     "    end case\n"
     "  end;";
   add!($tests, pair(#"mygcd (<integer>, <integer>)", set-broke));
+
+  let map-ve =
+    "define method map-vector ()\n"
+    "  local method mymap (A, B)\n"
+    "   (fun :: A => B, l :: limited(<vector>, of: A))\n"
+    "   => (res :: limited(<vector>, of: B))\n"
+    "    if (l.empty?)\n"
+    "      #[]\n"
+    "    else\n"
+    "      let tail = copy-sequence(l, start: 1);\n"
+    "      vector(fun(l.first),\n"
+    "             mymap(fun, tail))\n"
+    "    end\n"
+    "  end;\n"
+    "  mymap(method(x) x + 1 end, #[1, 2, 3]);\n"
+    "end;";
+  add!($tests, pair(#"map-vector ()", map-ve));
+
 end;
 
 define function callback-handler (#rest args)
   format-out("%=\n", args);
 end function callback-handler;
 
-
+/*
 begin
   let top-build = "c:\\stage3\\";
   environment-variable("OPEN_DYLAN_USER_ROOT") := top-build;
@@ -482,9 +500,8 @@ begin
   let project = lookup-named-project("dylan");
   visualizing-compiler(vis, project, parse?: #t);
 end;
+*/
 
-
-/*
 begin
   let project = find-project("dylan");
   open-project-compiler-database(project,
@@ -517,7 +534,7 @@ begin
     end;
   end;
 end;
-*/
+
 /*
 define function list-all-package-names ()
   let res = #();
