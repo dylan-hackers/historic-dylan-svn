@@ -174,12 +174,12 @@ define macro with-xml
   attribute:
    { ?key:name => ?value:expression }
     => { make(<attribute>, 
-          name: ?"key",
-          value: ?value) }
+              name: ?"key",
+              value: ?value) }
    { ?ns:name :: ?key:name => ?value:expression }
     => { make(<attribute>, 
-          name: concatenate(?"ns" ## ":", ?"key"),
-          value: ?value) }
+              name: concatenate(?"ns" ## ":", ?"key"),
+              value: ?value) }
 end macro with-xml;
 
 define method add-attribute (element :: <element>, attribute :: <attribute>) 
