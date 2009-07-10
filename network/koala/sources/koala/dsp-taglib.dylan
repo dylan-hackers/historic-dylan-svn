@@ -107,6 +107,8 @@ define method get-context-value
             if (errors)
               format-field-errors(errors, tag);
             end;
+          literal: =>      // useful for <dsp:if-equal> and <dsp:if-not-equal>
+            return(name);
 
           /* todo
           otherwise =>
@@ -272,6 +274,22 @@ define body tag if-equal in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
     (name1 :: <string>, context1,
      name2 :: <string>, context2)
+  if-equal-internal(page, do-body, name1, context1, name2, context2);
+end;
+
+define body tag if-not-equal in dsp
+    (page :: <dylan-server-page>, do-body :: <function>)
+    (name1 :: <string>, context1,
+     name2 :: <string>, context2)
+  if-equal-internal(page, do-body, name1, context1, name2, context2,
+                    negate: #t);
+end;
+
+define method if-equal-internal
+    (page :: <dylan-server-page>, do-body :: <function>,
+     name1 :: <string>, context1,
+     name2 :: <string>, context2,
+     #key negate :: <boolean>)
   let item1 = get-context-value(name1, context1);
   let item2 = get-context-value(name2, context2);
   if (~found?(item1))
@@ -280,10 +298,11 @@ define body tag if-equal in dsp
   if (~found?(item2))
     context-value-not-found-error(name2, context2);
   end;
-  if (item1 = item2)
+  let test = iff(negate, \~=, \=);
+  if (test(item1, item2))
     do-body();
   end;
-end tag if-equal;
+end method if-equal-internal;
 
 
 
