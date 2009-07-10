@@ -9,6 +9,7 @@ files:	library
 	server
 	session
 	dsp
+	dsp-utils
 	dsp-taglib
 	xml-rpc-server
 	config

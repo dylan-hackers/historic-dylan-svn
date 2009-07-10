@@ -201,6 +201,8 @@ define module dsp
   use threads;
   use uncommon-dylan;
   use uri;
+  use simple-xml,
+    import: { with-xml };
 
   export
     <page>,
@@ -242,7 +244,20 @@ define module dsp
     get-field-errors,
     add-page-note,
     add-page-error,
-    page-has-errors?;
+    page-has-errors?,
+
+    <paginator>,
+    paginator-sequence,
+    current-page-number,
+    current-page-number-setter,
+    previous-page-number,
+    next-page-number,
+    page-count,
+    page-size,
+    page-links,
+    <page-link>,
+    page-link-page-number,
+    page-link-label;
 
 end module dsp;
 
