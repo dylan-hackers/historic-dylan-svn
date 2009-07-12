@@ -66,8 +66,6 @@ define method analyze-calls (c :: <primitive-call>)
   maybe-optimize-function-call(c, c.primitive, c.arguments);
 end method;
 
-define variable *call-upgrading?* = #t;
-
 define method analyze-calls (c :: <function-call>)
   // If what's being called is not a valid function, or there is some
   // clear incompatibility between the arguments and the function,

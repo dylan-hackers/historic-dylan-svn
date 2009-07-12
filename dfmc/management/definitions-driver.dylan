@@ -63,7 +63,7 @@ define function do-timing-compilation-phase
     elapsed-microseconds := cpu-time-microseconds;
     //allocated-space := allocation / 1000000.0;
   end;
-  allocated-space := 0.0;
+  allocated-space := 1.0;
   let elapsed-time = elapsed-seconds + elapsed-microseconds / 1000000.0;
   let snap =
     accumulate? &

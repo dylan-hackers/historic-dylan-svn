@@ -36,7 +36,8 @@ define module dfmc-typist
   export *typist-visualize*;
 
   //method upgrading
-  export *profile-all-calls?*,
+  export *call-upgrading?*,
+    *profile-all-calls?*,
     *colorize-dispatch*,
     color-dispatch, color-location,
     incf-dynamic-dispatch-count,

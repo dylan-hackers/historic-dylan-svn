@@ -747,7 +747,7 @@ end;
 define &virtual-class <virtual-class> (<class>)
 end;
 
-define &virtual-class <top-type> (<type>)
+define &class <top-type> (<type>)
 end;
 
 // <bottom> exists in the runtime, for function result introspection

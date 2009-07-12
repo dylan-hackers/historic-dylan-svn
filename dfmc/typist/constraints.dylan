@@ -228,7 +228,7 @@ define method solve-constraint
  (t1 :: <tuple>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
  => ()
   if (u.contains-variables?)
-    format-out("solving tuple == top\n");
+    //format-out("solving tuple == top\n");
     u.contains-variables? := #f;
     for (u1 in u.successors)
       let w1 = make(<node>, graph: u.graph, value: make(<&top-type>));

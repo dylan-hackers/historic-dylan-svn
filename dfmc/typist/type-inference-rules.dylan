@@ -208,16 +208,21 @@ define method convert-to-typist-type (lc :: <&limited-collection-type>, env :: <
   make(<limited-collection>, class: class, element-type: etype);
 end;
 
-define generic model-type (t :: type-union(<node>, <typist-type>, <&type>))
+define generic model-type (t :: type-union(<node>, <typist-type>, <&type>), #key top?)
  => (t :: type-union(<collection>, <&type>));
 
-define method model-type (t :: <&type>) => (t :: <&type>)
-  t
+define method model-type (t :: <&type>, #key top?) => (t :: <&type>)
+  if (top? & instance?(t, <&top-type>))
+    dylan-value(#"<object>")
+  else
+    t
+  end
 end;
 
-define method model-type (t :: <arrow>) => (t :: <&limited-function-type>)
-  let arg = t.arrow-arguments.model-type;
-  let val = t.arrow-values.model-type;
+define method model-type (t :: <arrow>, #key top?) => (t :: <&limited-function-type>)
+  let mt = rcurry(model-type, top?:, top?);
+  let arg = t.arrow-arguments.mt;
+  let val = t.arrow-values.mt;
   //doesn't respect #rest and keywords!
   make(<&limited-function-type>,
        signature: ^make(<&signature>,
@@ -225,26 +230,30 @@ define method model-type (t :: <arrow>) => (t :: <&limited-function-type>)
                         values: val, number-values: val.size));
 end;
 
-define method model-type (t :: <tuple>) => (t :: <collection>)
-  map(model-type, t.tuple-types)
+define method model-type (t :: <tuple>, #key top?) => (t :: <collection>)
+  let mt = rcurry(model-type, top?:, top?);
+  map(mt, t.tuple-types)
 end;
 
-define method model-type (t :: <tuple-with-rest>) => (t :: <collection>)
-  concatenate(next-method(), vector(make(<&top-type>)))
+define method model-type (t :: <tuple-with-rest>, #key top?) => (t :: <collection>)
+  concatenate(next-method(), vector(if (top?) dylan-value(#"<object>") else make(<&top-type>) end))
 end;
 
-define method model-type (t :: <limited-collection>) => (t :: <&type>)
+define method model-type (t :: <limited-collection>, #key top?) => (t :: <&type>)
+  let mt = rcurry(model-type, top?:, top?);  
   make(<&limited-collection-type>,
-       class: t.collection-class.model-type,
-       element-type: t.element-type.model-type)
+       class: t.collection-class.mt,
+       element-type: t.element-type.mt)
 end;
 
-define method model-type (t :: <node>) => (res :: type-union(<collection>, <&type>))
-  t.find.node-value.model-type
+define method model-type (t :: <node>, #key top?) => (res :: type-union(<collection>, <&type>))
+  let mt = rcurry(model-type, top?:, top?);  
+  t.find.node-value.mt
 end;
 
-define method model-type (t :: <type-variable>) => (res :: <&type>)
-  t.type-variable-contents.model-type
+define method model-type (t :: <type-variable>, #key top?) => (res :: <&type>)
+  let mt = rcurry(model-type, top?:, top?);  
+  t.type-variable-contents.mt
 end;
 
 define generic add-constraint
@@ -312,7 +321,7 @@ define method type-infer (l :: <&lambda>)
   if (~ instance?(result-type, <&top-type>)) //top-type is never more specific than some other type
     let res-type = lookup-type-node(l.body.bind-return.computation-value, type-env).find.node-value;
     let (res, rest?) = if (instance?(res-type, <tuple-with-rest>))
-                         values(map(model-type, res-type.tuple-types), #t); //respect rest-type!
+                         values(map(rcurry(model-type, top?:, #t), res-type.tuple-types), #t); //respect rest-type!
                        else
                          values(result-type, #f);
                        end;
@@ -363,6 +372,7 @@ define inline function extract-params (p :: <collection>) => (key/value :: <list
   let ps = map(specializer, copy-sequence(p, end: p.size - off));
   list(#"required", ps, #"number-required", ps.size, #"rest?", rest?)
 end;
+
 define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, values :: <&type>, rest? :: <boolean>)
  => (signature :: <&signature>)
   let k/v = extract-params(parameters);
@@ -794,6 +804,7 @@ define type-rule <set!>
     error("assignment is not possible!");
   end
 end;
+
 //define method infer-computation-types (c :: <adjust-multiple-values>) => ()
 //end;
 
@@ -815,15 +826,8 @@ end;
 //define method infer-computation-types (c :: <type-definition>) => ()
 //end;
 
-//define method infer-computation-types (c :: <bind-exit>) => ()
-//end;
-
-//define method infer-computation-types (c :: <unwind-protect>) => ()
-//end;
-
 define method infer-computation-types
- (c :: type-union(<multiple-value-spill>, <multiple-value-unspill>,
-                  <redefinition>,
+ (c :: type-union(<redefinition>,
                   <conditional-update!>, <type-redefinition>, 
                   <engine-node-call>)) => ()
   error("didn't expect %=", c);

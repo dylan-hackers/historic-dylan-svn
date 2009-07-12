@@ -41,6 +41,8 @@ define module dfmc-shell
   use dfmc-conversion,
     import: { *strip-enabled?* };
   use dfmc-optimization;
+  use dfmc-typist,
+    import: { *call-upgrading?* };
   use dfmc-runtime-execution,
     import: { interpreter-transaction-value };
   use dfmc-management, 

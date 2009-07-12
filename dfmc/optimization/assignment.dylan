@@ -277,7 +277,7 @@ define method phi-placement (df :: <table>, ass :: <comp-vector>, mapping :: <ta
             add!(prev-dom.node-children, dom-node);            
             mapping[phi] := dom-node;
 
-            format-out("placed phi for %= at %=\n", v, y);
+            //format-out("placed phi for %= at %=\n", v, y);
             hasalready[y] := itercount;
             if (element(work, y, default: 0) < itercount)
               work[y] := itercount;
@@ -496,7 +496,7 @@ end method eliminate-assignments;
 
 define method convert-ssa-to-cells (f :: <&lambda>)
   for (t in f.environment.temporaries)
-    if (~empty?(t.assignments) & ~cell?(t))
+    if (t & ~empty?(t.assignments) & ~cell?(t))
       cell-assigned-temporaries(t);
     end if;
   end for;

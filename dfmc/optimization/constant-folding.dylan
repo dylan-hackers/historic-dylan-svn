@@ -476,19 +476,19 @@ define method constant-fold-closure (f :: <&lambda>)
               computation-init-closure(c) := #f;
             end if;
           end method;
-    format-out("CONSTANT-FOLDING-CLOSURE %=\n", lambda);
+    //format-out("CONSTANT-FOLDING-CLOSURE %=\n", lambda);
     if (empty?(closure))
       if (~sigtmp & ~closed-over?(temporary(c)))
-	format-out("DELETING MAKE-CLOSURE\n");
-	// print-method-out(lambda);
-	let ref = make(<method-reference>, value: lambda);
-	add-user!(lambda, ref);
-	replace-computation-with-temporary!(c, ref);
+        //format-out("DELETING MAKE-CLOSURE\n");
+        // print-method-out(lambda);
+        let ref = make(<method-reference>, value: lambda);
+        add-user!(lambda, ref);
+        replace-computation-with-temporary!(c, ref);
         maybe-delete-init-closure(computation-init-closure(c));
       end if
     elseif (~any?(method (tmp) instance?(generator(tmp), <make-closure>) end, 
                   closure))
-      format-out("DELETING UNNECESSARY INIT-CLOSURE %=\n", f);
+      //format-out("DELETING UNNECESSARY INIT-CLOSURE %=\n", f);
       maybe-delete-init-closure(computation-init-closure(c));
     end if;
   end if;
@@ -808,11 +808,11 @@ define method evaluate-type-checks?
       every?(^subtype?, got-types, wanted-types) |
         begin
           if (wanted-types.size ~= got-types.size)
-            format-out("wanted %= got %=\n", wanted-types.size, got-types.size);
+            //format-out("wanted %= got %=\n", wanted-types.size, got-types.size);
           else
             for (g in got-types, w in wanted-types, i from 0)
               if (^known-disjoint?(g, w))
-                format-out("type %d is known to be disjoint (W %=, G %=)\n", i, w, g);
+                //format-out("type %d is known to be disjoint (W %=, G %=)\n", i, w, g);
               end;
             end;
           end

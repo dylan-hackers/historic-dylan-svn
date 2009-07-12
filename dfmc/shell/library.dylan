@@ -27,6 +27,7 @@ define library dfmc-shell
   use dfmc-definitions;
   use dfmc-conversion;
   use dfmc-optimization;
+  use dfmc-typist;
   use dfmc-execution;
   use dfmc-back-end;
   use dfmc-debug-back-end;
