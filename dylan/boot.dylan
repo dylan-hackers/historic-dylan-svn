@@ -239,7 +239,7 @@ end macro;
 */
 
 define function object-class (instance) => (value :: <class>)
-  let bits /* :: <raw-address> */ = tag-bits(instance);
+  let bits :: <raw-address> = tag-bits(instance);
   if (indirect-object-tag-bits?(bits))
     indirect-object-class(instance)
   else
@@ -1111,7 +1111,7 @@ define inline function major-minor-only-library? (lib :: <library>) => (well? ::
   library-build-count(lib) == $library-build-count-only-wildcard
 end function;
 
-define variable *version-checks?* = #f;
+define variable *version-checks?* = #t;
 
 define function version-checks?-setter (well?)
   *version-checks?* := well?;
