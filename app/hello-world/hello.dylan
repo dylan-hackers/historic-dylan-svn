@@ -5,6 +5,15 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
+
+
+define method main ()
+  format-out("hello, world!\n");
+end;
+
+main()
+
+/*
 define function seq1 (#rest sub-rules) => (rule-parser :: <function>)
   local method foo (stream, context)
           values(if (context) #t end, #f, #t);
@@ -28,6 +37,6 @@ define function parse-ablock
   succb := #f;
   values(#t, #t, #t);
 end function;
-
+*/
 
 
