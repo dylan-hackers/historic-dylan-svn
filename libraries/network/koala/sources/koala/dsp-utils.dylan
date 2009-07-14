@@ -2,19 +2,27 @@ Module: dsp
 Author: Carl Gay
 Synopsis: Utilities for DSP that otherwise can stand alone.
 
+define constant <positive-integer> = limited(<integer>, min: 1);
+
 define open class <paginator> (<sequence>)
   // The underlying sequence we're paging over.
   constant slot paginator-sequence :: <sequence>,
     required-init-keyword: sequence:;
 
   // 1-based current page number
-  slot current-page-number :: <integer> = 1,
+  slot current-page-number :: <positive-integer> = 1,
     init-keyword: current-page-number:;
 
-  // The number of elements in paginator-sequence to display per page.
-  constant slot page-size :: <integer>,
-    required-init-keyword: page-size:;
+  slot page-size :: <positive-integer> = 20,
+    init-keyword: page-size:;
 end class <paginator>;
+
+define method initialize
+    (paginator :: <paginator>, #key)
+  next-method();
+  paginator.current-page-number := min(paginator.current-page-number,
+                                       paginator.page-count);
+end;
 
 // Total number of pages in this paginator.
 define open generic page-count
@@ -59,30 +67,110 @@ end class <page-link>;
 // Returns a sequence of <page-link>s.
 //
 define open generic page-links
-    (paginator :: <paginator>, #key maximum :: false-or(<integer>))
- => (page-nums :: <sequence>);
+    (paginator :: <paginator>,
+     #key ellipsis :: false-or(<string>),
+          prev :: false-or(<string>),
+          next :: false-or(<string>),
+          center-span :: false-or(<integer>),
+          min-pages :: false-or(<integer>))
+ => (page-links :: <sequence>);
 
+// Generates page links that look like this, where the current page is 11:
+//    Prev 1 ... 5 ... 10 11 12 ... 14 15 Next
+// Idea copied from http://snipplr.com/view/3409/pager-for-lots-o-data/.
+//
 define method page-links
-    (paginator :: <paginator>, #key maximum :: false-or(<integer>))
+    (paginator :: <paginator>,
+     #key ellipsis :: false-or(<string>),
+          prev :: false-or(<string>),
+          next :: false-or(<string>),
+          center-span :: false-or(<integer>),
+          min-pages :: false-or(<integer>))
  => (page-nums :: <sequence>)
-  let total = paginator.page-count;
-  let next  = paginator.next-page-number;
-  let prev  = paginator.previous-page-number;
-  let current = paginator.current-page-number;
+  let ellipsis = ellipsis | "...";
+  let prev = prev | "Prev";
+  let next = next | "Next";
+  let center-span = center-span | 3;
+  let min-pages = min-pages | 15;
   let links = make(<stretchy-vector>);
-  if (prev)
-    add!(links, make(<page-link>, page-number: prev, label: "Prev"));
-  end;
-  // todo -- for now we just display all the pages.  should elide some when
-  // there are too many, based on the "maximum" parameter...
-  for (pn from 1 to total)
-    add!(links, make(<page-link>,
-                     page-number: iff(pn = current, #f, pn),
-                     label: integer-to-string(pn)));
-  end;
-  if (next)
-    add!(links, make(<page-link>, page-number: next, label: "Next"));
-  end;
+  let center = paginator.current-page-number;
+  let total  = paginator.page-count;
+  let max-page = 0;
+  local method add-link (page, #key label)
+          if (~page | (page > max-page & page <= total))
+            add!(links, make(<page-link>,
+                             page-number: page ~= center & page,
+                             label: label | integer-to-string(page)))
+          end;
+          if (page)
+            max-page := max(max-page, page);
+          end;
+        end;
+  local method add-range(bpos, epos)
+          if (bpos < epos)
+            // does NOT add links for bpos or epos
+            if (epos - bpos >= 3)
+              add-link(#f, label: ellipsis);
+            else
+              // this loop may have zero iterations
+              for (i from bpos + 1 below epos)
+                if (i >= 1)
+                  add-link(i);
+                end;
+              end;
+            end;
+          end;
+        end method;
+  if (total > 1)
+    // Prev link
+    if (paginator.previous-page-number)
+      add!(links, make(<page-link>,
+                       page-number: paginator.previous-page-number,
+                       label: prev));
+    end;
+    if (total <= min-pages)
+      // Just list all the pages
+      for (i from 1 to total)
+        add-link(i);
+      end;
+    else
+      // Each of the following variables is exemplified by a number in this
+      // paginator, as indicated in the comments at the end of each line:
+      //    Prev 1 ... 5 ... 10 11 12 ... 14 15 Next
+      let center-left  = max(1, center - floor/(center-span, 2));      // 10
+      let center-right = min(total, center + floor/(center-span, 2));  // 12
+      let half-left  = max(1, round/(center-left - 1, 2));             // 5
+      let half-right = min(total, center-right + round/(total - center-right, 2));  // 14
+      // First page
+      add-link(1);
+
+      // Halfway between 1 and center group
+      add-range(1, half-left);
+      add-link(half-left);
+      add-range(half-left, center-left);
+
+      // Central group of pages
+      for (i from center-left to center-right)
+        add-link(i, label: integer-to-string(i));
+      end;
+
+      // Half way between center group and total.
+      add-range(center-right, half-right);
+      add-link(half-right);
+      add-range(half-right, total);
+
+      // Last page
+      add-link(total);
+    end;
+
+    // Next link
+    if (paginator.next-page-number)
+      add!(links, make(<page-link>,
+                       page-number: paginator.next-page-number,
+                       label: next));
+    end;
+  end if; // total > 1
+
   links
 end method page-links;
 
@@ -101,7 +189,8 @@ define method forward-iteration-protocol
      current-element :: <function>,
      current-element-setter :: <function>,
      copy-state :: <function>)
-  let start-index = (ptor.current-page-number - 1) * ptor.page-size;
+  let start-index = min((ptor.current-page-number - 1) * ptor.page-size,
+                        (ptor.page-count - 1) * ptor.page-size);
   values(start-index,                                   // initial state
 	 min(ptor.paginator-sequence.size,              // limit
              start-index + ptor.page-size),
@@ -119,13 +208,21 @@ end method forward-iteration-protocol;
 
 define tag show-page-links in dsp
     (page :: <dylan-server-page>)
-    (name :: <string>, url :: <string>, query-value :: <string>, context)
+    (name :: <string>, url :: <string>, query-value :: <string>,
+     context, ellipsis, prev, next, center-span, min-pages)
   let paginator :: false-or(<paginator>) = get-context-value(name, context);
+  let links = page-links(paginator,
+                         ellipsis: ellipsis,
+                         prev: prev,
+                         next: next,
+                         center-span: center-span & string-to-integer(center-span),
+                         min-pages: min-pages & string-to-integer(min-pages));
+  // todo -- There should be a special css class for the current page;
+  //         currently it's just "unlinked-page-number".
   output("%s",
          with-xml ()
            span (class => "paginator") {
-             do(let links = paginator.page-links;
-                for (page-link :: <page-link> in links,
+             do(for (page-link :: <page-link> in links,
                      i from 1)
                   let pn = page-link.page-link-page-number;
                   let label = page-link.page-link-label;
@@ -142,7 +239,7 @@ define tag show-page-links in dsp
                           end);
                   if (i < links.size)
                     collect(with-xml ()
-                              span(",", class => "page-number-separator")
+                              span(" ", class => "page-number-separator")
                             end)
                   end;
                   collect(with-xml () text("\n") end);
