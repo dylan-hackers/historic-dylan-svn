@@ -130,8 +130,6 @@ define module dfmc-flow-graph
       loop-merge-initial?,  loop-merge-initial?-setter,
     <bind-exit-merge>,
     <phi-node>,
-      phi-right-value, phi-right-value-setter,
-      phi-left-value,  phi-left-value-setter,
       phi-ssa-variable,
     <any-slot-value>, 
     <slot-value>,

@@ -5,7 +5,7 @@ Copyright:(c) 2009; All rights reversed. BSD License
 define class <type-graph> (<object>)
   constant slot graph-nodes :: <stretchy-vector> = make(<stretchy-vector>); //actually, limited( , of: <node>)
   constant slot graph-edges :: <stretchy-vector> = make(<stretchy-vector>); //actually, limited( , of: <edge>)
-  slot type-environment :: <type-environment>, init-keyword: type-environment:;
+  slot type-environment :: <type-environment>, init-keyword: type-environment:; //only used for debug printing context :[ (in typist/type-debug)
 end;
 
 define class <type-environment> (<mutable-explicit-key-collection>)
@@ -14,7 +14,7 @@ define class <type-environment> (<mutable-explicit-key-collection>)
     init-keyword: outer:;
   constant slot type-graph :: <type-graph> = make(<type-graph>);
   constant slot %type-lambda :: false-or(<&lambda>) = #f,
-    init-keyword: lambda:;
+    init-keyword: lambda:; //once again, only used for debugging in typist/type-debug
   constant slot type-constraints :: <stretchy-vector> =
     make(<stretchy-vector>);
   slot finished-initial-typing? :: <boolean> = #f;
@@ -24,7 +24,8 @@ define method initialize (t :: <type-environment>, #key, #all-keys)
   next-method();
   t.type-graph.type-environment := t;
 end;
-    
+
+//only used for debug context in typist/type-debug
 define function type-lambda (t :: <type-environment>) => (res :: <&lambda>)
   t.%type-lambda | t.outer-environment.type-lambda
 end;

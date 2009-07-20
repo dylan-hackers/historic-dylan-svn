@@ -158,6 +158,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	  ("Abort all analysis passes and continue.", 
 	   "Restart all analysis passes.")
 	with-dependent-context ($compilation of model-creator(code))
+          send-debug(#"relayouted", #());
           send-debug(#"beginning", #("SSA conversion"));
 	  for-all-lambdas (f in code)
 	    if (f == code | ~maybe-delete-function-body(f))

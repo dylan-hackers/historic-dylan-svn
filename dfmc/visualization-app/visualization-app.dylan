@@ -483,13 +483,33 @@ begin
     "end;";
   add!($tests, pair(#"map-vector ()", map-ve));
 
+  let regr0 =
+    "define method regression0 ()\n"
+    "  let l = #(1, 2, 3);\n"
+    "  for (i :: <integer> from 0 below l.size - 1)\n"
+    "    l[i] := l[i] + 1;\n"
+    "  end\n"
+    "end;";
+  add!($tests, pair(#"regression0 ()", regr0));
+
+  let regr1 =
+    "define method regression1 (b)\n"
+    "  let a = 2;\n"
+    "  if (b)\n"
+    "    a := 3;\n"
+    "  else\n"
+    "    a := 4;\n"
+    "  end;\n"
+    "  a + a;\n"
+    "end;";
+  add!($tests, pair(#"regression1 (<object>)", regr1));
 end;
 
 define function callback-handler (#rest args)
   format-out("%=\n", args);
 end function callback-handler;
 
-/*
+
 begin
   let top-build = "c:\\stage3\\";
   environment-variable("OPEN_DYLAN_USER_ROOT") := top-build;
@@ -500,8 +520,8 @@ begin
   let project = lookup-named-project("dylan");
   visualizing-compiler(vis, project, parse?: #t);
 end;
-*/
 
+/*
 begin
   let project = find-project("dylan");
   open-project-compiler-database(project,
@@ -534,7 +554,7 @@ begin
     end;
   end;
 end;
-
+*/
 /*
 define function list-all-package-names ()
   let res = #();

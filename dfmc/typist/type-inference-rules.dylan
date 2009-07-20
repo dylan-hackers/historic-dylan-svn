@@ -580,12 +580,6 @@ define type-rule <values>
              temporary-node);
 end;
 
-define type-rule <phi-node>
-  solve();
-  constraint(typist-union(type-env, computation.phi-left-value.estimate, computation.phi-right-value.estimate),
-             temporary-node);
-end;
-
 define generic typist-union
  (env :: <type-environment>,
   t1 :: type-union(<collection>, <&type>),
@@ -606,7 +600,7 @@ define method typist-union (env :: <type-environment>, t1 :: type-union(<collect
   //else
 end;
 
-define type-rule <binary-merge>
+define type-rule <merge>
   if (computation.merge-left-value & computation.merge-right-value)
     solve();
     constraint(typist-union(type-env, computation.merge-left-value.estimate, computation.merge-right-value.estimate),
@@ -617,20 +611,12 @@ define type-rule <binary-merge>
   end;
 end;
 
-define method extract-parameter-type (c :: <loop-merge>)
-  c.loop-merge-parameter
+define method extract-parameter-type (c :: <merge>)
+  c.merge-left-value
 end;
 
-define method extract-parameter-type (c :: <phi-node>)
-  c.phi-left-value
-end;
-
-define method extract-argument-type (c :: <loop-merge>)
-  c.loop-merge-argument
-end;
-
-define method extract-argument-type (c :: <phi-node>)
-  c.phi-right-value
+define method extract-argument-type (c :: <merge>)
+  c.merge-right-value
 end;
 
 define method infer-computation-types (c :: <loop>) => ()
@@ -836,7 +822,7 @@ define generic get-function-object (o :: <object>)
  => (res :: false-or(type-union(<&limited-function-type>, <&function>)));
 
 define method get-function-object (o :: <object>) => (res == #f)
-  format-out("can't get function object of an <object>\n");
+  //format-out("can't get function object of an <object>\n");
   #f;
 end;
 

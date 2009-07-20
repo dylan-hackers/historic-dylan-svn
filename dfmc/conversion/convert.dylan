@@ -2187,7 +2187,6 @@ define function convert-signature-types
       convert-expressions
         (env, variable-specs, form-extractor: spec-type-expression-checking);
     if (every?(method (t) instance?(constant-value(t), <&type>) end, args))
-      error("should not happen");
       convert-object-reference-1
         (env, 
          as-sig-types(map-as(<simple-object-vector>, constant-value, args)))

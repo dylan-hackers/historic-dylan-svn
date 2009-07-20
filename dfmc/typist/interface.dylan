@@ -12,7 +12,7 @@ define function type-estimate (context :: <computation>, o :: <object>)
       o.type-estimate-object
     end;
   exception (e :: <condition>)
-    dynamic-bind(*typist-visualize* = #f) //here, need some magic TE
+    dynamic-bind(*typist-visualize* = #f)
       o.type-estimate-object
     end;
   end;

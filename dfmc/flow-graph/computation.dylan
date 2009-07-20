@@ -486,6 +486,10 @@ define graph-class <type-redefinition> (<any-type-definition>)
 end graph-class;
 
 define abstract graph-class <merge> (<computation>)
+  temporary slot merge-left-value :: false-or(<value-reference>) = #f,
+    init-keyword: left-value:;
+  temporary slot merge-right-value :: false-or(<value-reference>) = #f,
+    init-keyword: right-value:;
 end graph-class;
 
 /// TEMPORARY-TRANSFER
@@ -521,10 +525,6 @@ end method;
 /// MERGE
 
 define abstract graph-class <binary-merge> (<merge>, <nop-computation>)
-  temporary slot merge-left-value :: false-or(<value-reference>),
-    required-init-keyword: left-value:;
-  temporary slot merge-right-value :: false-or(<value-reference>),
-    required-init-keyword: right-value:;
   slot merge-left-previous-computation :: false-or(<computation>) = #f,
     init-keyword: left-previous-computation:;
   slot merge-right-previous-computation :: false-or(<computation>) = #f,
@@ -585,12 +585,10 @@ end graph-class;
 define constant bind-exit-merge-body-temporary
   = merge-right-value;
 
-define graph-class <phi-node> (<computation>)
-  temporary slot phi-right-value :: false-or(<value-reference>) = #f;
-  temporary slot phi-left-value :: false-or(<value-reference>) = #f;
-  constant slot phi-ssa-variable, required-init-keyword: variable:;
+define graph-class <phi-node> (<merge>, <nop-computation>)
+  constant slot phi-ssa-variable :: <lexical-variable>,
+    required-init-keyword: variable:;
 end;
-
 
 /// SLOT-VALUE
 
