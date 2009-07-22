@@ -25,12 +25,9 @@ import y.view.BridgeCalculator;
 import y.view.DefaultGraph2DRenderer;
 import y.view.EdgeRealizer;
 import y.view.GenericEdgeRealizer;
-import y.view.GenericNodeRealizer;
 import y.view.Graph2D;
 import y.view.Graph2DView;
 import y.view.LineType;
-import y.view.NodeLabel;
-import y.view.NodeRealizer;
 
 public class IncrementalHierarchicLayout
 {
@@ -142,6 +139,8 @@ public class IncrementalHierarchicLayout
 		EdgeRealizer edefaultER = typegraph.getDefaultEdgeRealizer();
 		edefaultER.setArrow(Arrow.STANDARD);
 		edefaultER.setLineType(LineType.LINE_2);
+		graph.setDefaultNodeRealizer(new GraphNodeRealizer());
+		typegraph.setDefaultNodeRealizer(new GraphNodeRealizer());
 		if (scf != null)
 			scf.dispose();
 		if (typescf != null)
@@ -172,31 +171,6 @@ public class IncrementalHierarchicLayout
 			view.setGraph2D(graph);
 			typeview.setGraph2D(typegraph);
 			demobase.graphChanged(this);
-		}
-	}
-
-	protected void addMethodNode (String name, Node bind, ArrayList arguments, ArrayList argumentnames)
-	{
-		Node header = createNodeWithLabel(name, 0);
-		graph.getRealizer(header).setFillColor(Color.LIGHT_GRAY);
-		graph.createEdge(header, bind); //edge to bind!
-		scf.addPlaceNodeAtTopConstraint(header);
-		scf.addPlaceNodeBelowConstraint(header, bind);
-		
-		int i = 0;
-		for (Object number : arguments) {
-			assert(number instanceof Integer);
-			Node n = int_node_map.get((Integer)number);
-			if (n == null) {
-				createTemporary((Integer)number, 0, (String)argumentnames.get(i) + ":");
-				n = graph.lastNode();
-			}
-			EdgeRealizer myreal = new GenericEdgeRealizer(graph.getDefaultEdgeRealizer());
-			myreal.setLineColor(Color.blue);
-			myreal.setLineType(LineType.DASHED_2);
-			graph.createEdge(header, n, myreal);
-			scf.addPlaceNodeBelowConstraint(header, n);
-			i++; //want loop over multiple variables!
 		}
 	}
 
@@ -328,26 +302,22 @@ public class IncrementalHierarchicLayout
 	}
 	
 	public Node createTypeNodeWithLabel (String label, int id) {
-		NodeRealizer n1 = new GenericNodeRealizer(typegraph.getDefaultNodeRealizer());
-		NodeLabel nl1 = n1.createNodeLabel();
-		nl1.setText(id + ": " + label);
-		n1.setLabel(nl1);
-		n1.setWidth(nl1.getWidth() + 10);
-		n1.setFillColor(new Color(0, 0xff, 0, 0x33));
-		Node n = typegraph.createNode(n1);
+		Node n = typegraph.createNode();
+		GraphNodeRealizer nr = (GraphNodeRealizer)typegraph.getRealizer(n);
+		nr.setNodeColor(new Color(0, 0xff, 0, 0x33));
+		nr.setIdentifier(id);
+		nr.setNodeText(label);
 		assert(int_node_map.get(id) == null);
 		int_node_map.put(id, n);
 		return n;
 	}
 	
 	public Node createNodeWithLabel (String label, int id) {
-		NodeRealizer n1 = new GenericNodeRealizer(graph.getDefaultNodeRealizer());
-		NodeLabel nl1 = n1.createNodeLabel();
-		nl1.setText(id + ": " + label);
-		n1.setLabel(nl1);
-		n1.setWidth(nl1.getWidth() + 10);
-		n1.setFillColor(new Color(0, 0, 0xff, 0x44));
-		Node n = graph.createNode(n1);
+		Node n = graph.createNode();
+		GraphNodeRealizer nr = (GraphNodeRealizer)graph.getRealizer(n);
+		nr.setIdentifier(id);
+		nr.setNodeText(label);
+		nr.setNodeColor(new Color(0, 0, 0xff, 0x44));
 		//demobase.calcLayout();
 		//System.out.println("created node (gr " + graph + ")");
 		if (id > 0) {
@@ -361,17 +331,14 @@ public class IncrementalHierarchicLayout
 	}
 	
 	public void changeLabel (Node n, String app) {
-		NodeLabel nl = graph.getRealizer(n).getLabel();
-		String old = nl.getText();
-		//filter number out
-		int start = old.indexOf(' ') + 1;
-		nl.setText(old.substring(0, start) + app + old.substring(start));
-		graph.getRealizer(n).setWidth(nl.getWidth());
+		GraphNodeRealizer nr = (GraphNodeRealizer)graph.getRealizer(n);
+		nr.setNodeText(app);
 	}
 
 	public void createTemporary(int temp_id, int c_id, String text) {
 		Node t = createNodeWithLabel(text, temp_id);
-		graph.getRealizer(t).setFillColor(new Color(Color.pink.getRed(), Color.pink.getBlue(), Color.pink.getGreen(), 0x44));
+		GraphNodeRealizer gr = (GraphNodeRealizer)graph.getRealizer(t);
+		gr.setNodeColor(new Color(Color.pink.getRed(), Color.pink.getBlue(), Color.pink.getGreen(), 0x44));
 		if (c_id != 0) {
 			Node gen = int_node_map.get(c_id);
 			assert(gen != null);
@@ -389,8 +356,10 @@ public class IncrementalHierarchicLayout
 	private int tvindex = 0;
 	
 	public void createTypeVariable (int id, int temp, String type) {
-		Node tv = createTypeNodeWithLabel(tvnames[tvindex] + " [" + temp + "]" , id);
-		typegraph.getRealizer(typegraph.lastNode()).setFillColor(new Color(Color.pink.getRed(), Color.pink.getBlue(), Color.pink.getGreen(), 0x44));
+		Node tv = createTypeNodeWithLabel(tvnames[tvindex], id);
+		GraphNodeRealizer nr = (GraphNodeRealizer)typegraph.getRealizer(typegraph.lastNode());
+		nr.setNodeColor(new Color(Color.pink.getRed(), Color.pink.getBlue(), Color.pink.getGreen(), 0x44));
+		nr.setReference(temp);
 		tvindex = (tvindex + 1) % tvnames.length;
 		if (temp != 0)
 			tv_temp_map.put(tv, int_node_map.get(temp));
@@ -658,7 +627,7 @@ public class IncrementalHierarchicLayout
 					update(direction);
 					merge = visitComputations(ec.edge().target(), "IF-MERGE");
 					restore(direction);
-				} else { //Color == red!
+				} else if (graph.getRealizer(ec.edge()).getLineColor() == Color.red) {
 					if (! graph.getLabelText(ec.edge().target()).contains("IF-MERGE"))
 						if (swimLane.get(ec.edge().target()) != null)
 							if ((Integer)((SwimLaneDescriptor)swimLane.get(ec.edge().target())).getClientObject() > currindex)

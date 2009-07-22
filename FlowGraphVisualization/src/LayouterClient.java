@@ -14,6 +14,7 @@ public class LayouterClient extends Thread {
 	private BufferedReader reader;
 	private PrintWriter writer;
 	private HashMap<String, IncrementalHierarchicLayout> graphs = new HashMap<String, IncrementalHierarchicLayout>();
+	public boolean active = true;
 	
 	public LayouterClient (Socket s) {
 		try {
@@ -42,6 +43,19 @@ public class LayouterClient extends Thread {
 			int message_length = Integer.parseInt(size, 16);
 			return read_s_expression(message_length);
 		}
+		return null;
+	}
+	
+	public IncrementalHierarchicLayout findComparableGraph (String graphname) {
+		//first try active sessions
+		for (LayouterClient l : FlowGraphVisualizer.clients)
+			if (l != this && l.active && l.getGraph(graphname) != null && l.getGraph(graphname).graphfinished)
+				return l.getGraph(graphname);
+		//now try also inactive sessions
+		for (LayouterClient l : FlowGraphVisualizer.clients)
+			if (l != this && l.getGraph(graphname) != null && l.getGraph(graphname).graphfinished)
+				return l.getGraph(graphname);
+		//if we found no matching graph, return null...
 		return null;
 	}
 	
@@ -117,18 +131,18 @@ public class LayouterClient extends Thread {
 				}
 				gr = graphs.get(dfm_id);
 				if (gr.graphinprocessofbeingfinished) {
-					while (true) {
-						if (gr.graphfinished) {
-							gr.graphfinished = false;
-							gr.graphinprocessofbeingfinished = false;
-							break;
-						}
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) { }
-					}
+//					while (true) {
+//						if (gr.graphfinished) {
+//							gr.graphfinished = false;
+//							gr.graphinprocessofbeingfinished = false;
+//							break;
+//						}
+//						try {
+//							Thread.sleep(100);
+//						} catch (InterruptedException e) { }
+//					}
 					System.err.println("graph is already finished, go away");
-				} //else {
+				} else {
 					demo.unselect();
 					demo.activate(gr);
 					if (Commands.processCommand(gr, answer, demo))
@@ -147,8 +161,12 @@ public class LayouterClient extends Thread {
 						printMessage(res);
 					}
 				}
-	//		}
+			}
 		} catch (IOException e) {
+			//finish graphs, mark inactive
+			for (IncrementalHierarchicLayout i : graphs.values())
+				i.graphfinished = true;
+			active = false;
 			e.printStackTrace();
 		}
 	}

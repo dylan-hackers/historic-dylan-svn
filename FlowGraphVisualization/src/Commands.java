@@ -8,7 +8,6 @@ import y.view.Arrow;
 import y.view.EdgeRealizer;
 import y.view.GenericEdgeRealizer;
 import y.view.LineType;
-import y.view.NodeLabel;
 
 
 public final class Commands {
@@ -36,8 +35,6 @@ public final class Commands {
 			if (! key.isEqual("relayouted"))
 				ihl.changes.get(ihl.changes.size() - 1).add(answer);
 		}
-		//if (key.isEqual("dfm-header"))
-		//	return dfmheader(ihl, answer);
 		if (key.isEqual("change-edge"))
 			return changeedge(ihl, answer);
 		if (key.isEqual("remove-edge"))
@@ -136,30 +133,6 @@ public final class Commands {
 		return false;
 	}
 	
-	private static boolean dfmheader (IncrementalHierarchicLayout ihl, ArrayList answer) {
-		assert(answer.size() == 3);
-		assert(answer.get(2) instanceof ArrayList);
-		ArrayList cfs = (ArrayList)answer.get(2);
-		String main = null;
-		for (Object o : cfs) {
-			assert(o instanceof ArrayList);
-			ArrayList cf = (ArrayList)o;
-			assert(cf.size() == 5);
-			assert(cf.get(0) instanceof Symbol);
-			assert(((Symbol)cf.get(0)).isEqual("method"));
-			assert(cf.get(1) instanceof String); //method name
-			assert(cf.get(2) instanceof Integer); //bind
-			if ((Integer)cf.get(2) != 0) {
-				Node bind = getNode(ihl, cf, 2, false);
-				assert(cf.get(3) instanceof ArrayList); //args
-				assert(cf.get(4) instanceof ArrayList); //arg names
-				main = (String)(cf.get(1));
-				ihl.addMethodNode(main, bind, (ArrayList)cf.get(3), (ArrayList)cf.get(4));
-			}
-		}
-		return true;
-	}
-	
 	private static boolean changeedge (IncrementalHierarchicLayout ihl, ArrayList answer) {
 		assert(answer.size() == 6);
 		assert(answer.get(5) instanceof Symbol);
@@ -236,8 +209,6 @@ public final class Commands {
 		assert(answer.size() == 3);
 		Node del = getNode(ihl, answer, 2, mayfail);
 		if (del != null) {
-			if (ihl.graph.getRealizer(del).getLabelText().contains("bind") && del.inDegree() == 1)
-				ihl.graph.removeNode(del.firstInEdge().source());
 			//System.out.println("D:" + del.degree() + " " + ihl.graph.getRealizer(del).getLabelText());
 			if (del.degree() > 0)
 				for (EdgeCursor ec = del.edges(); ec.ok(); ec.next()) {
@@ -257,10 +228,9 @@ public final class Commands {
 		assert(answer.get(4) instanceof Integer);
 		int temp_id = (Integer)answer.get(2);
 		String text = (String)answer.get(3);
-		text.replace(':', ' ');
 		int c_id = (Integer)answer.get(4);
 		if (ihl.int_node_map.get(temp_id) == null) {
-			ihl.createTemporary(temp_id, c_id, text + ":");
+			ihl.createTemporary(temp_id, c_id, text);
 			return true;
 		}
 		//System.out.println("already added temporary " + temp_id + " " + text);
@@ -317,16 +287,9 @@ public final class Commands {
 		Node n = getNode(ihl, answer, 2, true);
 		if (n != null) {
 			assert(answer.get(3) instanceof String);
-			NodeLabel nl = ihl.graph.getRealizer(n).getLabel();
-			String old = nl.getText();
-			String newtext = ((String)answer.get(3)).replace(':', ' ');
-			//filter number out
-			int start = old.indexOf(':', old.indexOf(':') + 1) + 1;
-			nl.setText(old.substring(0, start) + newtext);
-			ihl.graph.getRealizer(n).setWidth(nl.getWidth());
+			GraphNodeRealizer nr = (GraphNodeRealizer)ihl.graph.getRealizer(n);
+			nr.setNodeType((String)answer.get(3));
 			//System.out.println("change type " + old + " => " + (String)answer.get(3));
-			demo.view.repaint();
-			//ihl.isok = false;
 		}
 		return false;
 	}
@@ -335,14 +298,9 @@ public final class Commands {
 		assert(answer.size() == 4);
 		Node n = getNode(ihl, answer, 2, false);
 		assert(answer.get(3) instanceof Symbol);
-		NodeLabel nl = ihl.graph.getRealizer(n).getLabel();
-		String old = nl.getText();
-		//filter number out
-		int start = old.indexOf(':') + 1;
-		nl.setText(old.substring(0, start) + " " + ((Symbol)answer.get(3)).toString() + " " + old.substring(start));
-		ihl.graph.getRealizer(n).setWidth(nl.getWidth());
+		GraphNodeRealizer nr = (GraphNodeRealizer)ihl.graph.getRealizer(n);
+		nr.setPrefix(((Symbol)answer.get(3)).toString());
 		//System.out.println("change entry point " + old + " => " + ((Symbol)answer.get(3)).toString());
-		demo.view.repaint();
 		return true;		
 	}
 	
@@ -443,10 +401,8 @@ public final class Commands {
 		Node temp = getNode(ihl, answer, 3, false);
 		Node type = getNode(ihl, answer, 2, false);
 		ihl.tv_temp_map.put(type, temp);
-		NodeLabel n = ihl.typegraph.getRealizer(type).getLabel();
-		n.setText(n.getText() + " [" + (Integer)answer.get(3) + "]");
-		ihl.typegraph.getRealizer(type).setWidth(n.getWidth());
-		demo.typeview.repaint();
+		GraphNodeRealizer nr = (GraphNodeRealizer)ihl.typegraph.getRealizer(type);
+		nr.setReference((Integer)answer.get(3));
 		return false;
 	}
 	

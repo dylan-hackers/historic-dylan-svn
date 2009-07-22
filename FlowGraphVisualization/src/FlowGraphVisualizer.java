@@ -1,10 +1,12 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedList;
 
 
-public class FlowGraphVisualizer {
+public final class FlowGraphVisualizer {
 	private static final int port = 1234;
+	protected static LinkedList<LayouterClient> clients = new LinkedList<LayouterClient>();
 	
 	public static void main(String[] args) {
 		DemoBase.initLnF();
@@ -17,7 +19,9 @@ public class FlowGraphVisualizer {
 			while (true) {
 				Socket cli = sock.accept();
 				System.out.println("new connection");
-				new LayouterClient(cli).start();
+				LayouterClient lc = new LayouterClient(cli);
+				clients.addFirst(lc);
+				lc.start();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

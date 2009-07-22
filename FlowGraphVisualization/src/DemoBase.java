@@ -1,12 +1,11 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +16,7 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -33,10 +33,11 @@ import y.anim.AnimationPlayer;
 import y.base.EdgeCursor;
 import y.base.Node;
 import y.base.NodeCursor;
+import y.io.GMLIOHandler;
+import y.io.YGFIOHandler;
 import y.layout.BufferedLayouter;
 import y.layout.GraphLayout;
-import y.layout.hierarchic.IncrementalHierarchicLayouter;
-import y.view.DefaultBackgroundRenderer;
+import y.util.D;
 import y.view.Graph2D;
 import y.view.Graph2DView;
 import y.view.Graph2DViewMouseWheelZoomListener;
@@ -285,7 +286,7 @@ public boolean updatingguimanually = false;
    */
   public final void run() {
 	  JFrame frame = new JFrame( name );
-	  frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+	  //frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 	  frame.getRootPane().setContentPane( contentPane );
 	  frame.pack();
 	  frame.setSize(1400, 1000);
@@ -309,9 +310,11 @@ public boolean updatingguimanually = false;
     toolBar.add( new FitContent( ) );
 	toolBar.add( new LayoutAction() );
 	toolBar.add( new ForceLayoutAction() );
+	toolBar.add( new CompareAction() );
 	toolBar.add( new Play() );
 	toolBar.add( new Step() );
-
+	toolBar.add( new SaveAction(view, "Flow Graph") );
+	toolBar.add( new SaveAction(typeview, "Type Graph") );
     return toolBar;
   }
 
@@ -545,6 +548,61 @@ public boolean updatingguimanually = false;
 			forcelayout = false;
 		}
 	}
+	
+	  final class SaveAction extends AbstractAction {
+		  JFileChooser chooser;
+		  Graph2DView view;
+		  
+		  public SaveAction(Graph2DView v, String t) {
+			  super( "Save " + t );
+			  chooser = null;
+			  view = v;
+		  }
+
+		  public void actionPerformed( ActionEvent e ) {
+			  if ( chooser == null ) {
+				  chooser = new JFileChooser();
+			  }
+			  if ( chooser.showSaveDialog( contentPane ) == JFileChooser.APPROVE_OPTION ) {
+				  String name = chooser.getSelectedFile().toString();
+				  if ( name.endsWith( ".gml" ) ) {
+					  GMLIOHandler ioh = new GMLIOHandler();
+					  try {
+						  ioh.write( view.getGraph2D(), name );
+					  } catch ( IOException ioe ) {
+						  D.show( ioe );
+					  }
+				  } else {
+					  if ( !name.endsWith( ".ygf" ) ) {
+						  name = name + ".ygf";
+					  }
+					  YGFIOHandler ioh = new YGFIOHandler();
+					  try {
+						  ioh.write( view.getGraph2D(), name );
+					  } catch ( IOException ioe ) {
+						  D.show( ioe );
+					  }
+				  }
+			  }
+		  }
+	  }
+
+	  
+	final class CompareAction extends AbstractAction
+	{
+		CompareAction () {
+			super("Compare Graph");
+		}
+		
+		public void actionPerformed (ActionEvent ev) {
+			IncrementalHierarchicLayout ihl2 = client.findComparableGraph(incrementallayouter.graph_id);
+			if (ihl2 != null) {
+				CompareGraphs.compareColorize(view, incrementallayouter.graph, ihl2.graph);
+			} else
+				System.out.println("no suitable graph found for comparison");
+		}
+	}
+	
 	final class Play extends AbstractAction
 	{
 		Play() {
