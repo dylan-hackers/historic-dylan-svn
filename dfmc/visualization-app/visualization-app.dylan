@@ -199,7 +199,7 @@ begin
     "  if (a == 0)\n"
     "    0;\n"
     "  else\n"
-    "    foo(a - 1);\n"
+    "    tail-call(a - 1);\n"
     "  end;\n"
     "end;\n";
   add!($tests, pair(#"tail-call (<integer>)", tc));
@@ -520,8 +520,8 @@ begin
   let project = lookup-named-project("dylan");
   visualizing-compiler(vis, project, parse?: #t);
 end;
-
 /*
+
 begin
   let project = find-project("dylan");
   open-project-compiler-database(project,

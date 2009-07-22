@@ -317,7 +317,7 @@ define module dfmc-flow-graph
     <type-graph>, graph-nodes, graph-edges,
     <type-environment>,
     real-environment, outer-environment,
-    type-graph, type-lambda, type-constraints,
+    type-graph, type-lambda,
     finished-initial-typing?, finished-initial-typing?-setter,
     deep-copy-node;
 

@@ -258,13 +258,13 @@ end;
 
 define generic add-constraint
     (type-environment :: <type-environment>,
-     origin :: type-union(<computation>, <constraint>, <temporary>),
+     origin :: type-union(<computation>, <constraint-edge>, <temporary>),
      left :: false-or(<node>), right :: false-or(<node>))
- => (c :: false-or(<constraint>));
+ => (c :: false-or(<constraint-edge>));
 
 define method add-constraint
     (type-environment :: <type-environment>,
-     origin :: type-union(<computation>, <constraint>, <temporary>),
+     origin :: type-union(<computation>, <constraint-edge>, <temporary>),
      left == #f, right :: <node>)
  => (c == #f);
   error("left was false");
@@ -272,7 +272,7 @@ end;
 
 define method add-constraint
     (type-environment :: <type-environment>,
-     origin :: type-union(<computation>, <constraint>, <temporary>),
+     origin :: type-union(<computation>, <constraint-edge>, <temporary>),
      left :: <node>, right == #f)
  => (c == #f);
   error("right was false");
@@ -280,7 +280,7 @@ end;
 
 define method add-constraint
     (type-environment :: <type-environment>,
-     origin :: type-union(<computation>, <constraint>, <temporary>),
+     origin :: type-union(<computation>, <constraint-edge>, <temporary>),
      left == #f, right == #f)
  => (c == #f);
   error("left and right were false");
@@ -288,12 +288,10 @@ end;
 
 define method add-constraint
     (type-environment :: <type-environment>,
-     origin :: type-union(<computation>, <constraint>, <temporary>),
+     origin :: type-union(<computation>, <constraint-edge>, <temporary>),
      left :: <node>, right :: <node>)
- => (c :: <constraint>)
-  let c = make(<equality-constraint>, origin: origin, left: left, right: right);
-  add!(type-environment.type-constraints, c);
-  c;
+ => (c :: <constraint-edge>)
+  make(<constraint-edge>, graph: type-environment.type-graph, origin: origin, source: left, target: right);
 end;
 
 define constant node-to-type = compose(model-type, node-value, find);

@@ -1,5 +1,9 @@
 module: dfmc-typist
 
+define function type-constraints (type-graph :: <type-graph>) => (res :: <collection>)
+  choose(rcurry(instance?, <constraint-edge>), type-graph.graph-edges);
+end;
+
 define class <node> (<object>)
   constant slot graph :: <type-graph>,
     required-init-keyword: graph:;
@@ -39,7 +43,7 @@ define function representative-setter (new :: <node>, n :: <node>) => (res :: <n
     unless (old == n)
       remove-edge(choose(rcurry(instance?, <representative-edge>), n.out-edges).first);
     end;
-    connect(n, new, edge-type: <representative-edge>);
+    connect(n, new, edge-type: <representative-edge>, origin: *origin*);
     let in-rep = choose(rcurry(instance?, <representative-edge>), n.in-edges);
     map(compose(curry(representative-setter, new), edge-source), in-rep);
   end;
@@ -85,10 +89,22 @@ end;
 define class <graph-edge> (<edge>)
 end;
 
-define class <constraint-edge> (<edge>)
+define abstract class <origin-mixin> (<object>)
+  constant slot origin, required-init-keyword: origin:;
 end;
 
-define class <representative-edge> (<edge>)
+define class <constraint-edge> (<edge>, <origin-mixin>)
+end;
+
+define class <representative-edge> (<edge>, <origin-mixin>)
+end;
+
+define function deep-origin (e :: <origin-mixin>) => (o)
+  if (instance?(e.origin, <origin-mixin>))
+    e.origin.deep-origin
+  else
+    e.origin
+  end
 end;
 
 define method initialize (edge :: <edge>, #rest init-args, #key, #all-keys)
@@ -100,26 +116,11 @@ define method initialize (edge :: <edge>, #rest init-args, #key, #all-keys)
               as(<symbol>, edge.object-class.debug-name));
 end;
 
-define function connect (source :: <node>, target :: <node>, #key edge-type = <graph-edge>) => ()
+define function connect (source :: <node>, target :: <node>, #key edge-type = <graph-edge>, origin) => ()
   unless (source.graph == target.graph)
     error("source and target have to be in the same graph!");
   end;
-  make(edge-type, graph: source.graph, source: source, target: target);
-end;
-
-define function disconnect-constraint (source :: <node>, target :: <node>) => ()
-  unless (source.graph == target.graph)
-    error("source and target have to be in the same graph!");
-  end;
-  let e = choose(compose(curry(\=, target), edge-target),
-                 source.out-edges);
-  let c-edges = choose(rcurry(instance?, <constraint-edge>), e);
-  if (c-edges.size == 0)
-    error("tried to disconnect %= from %=, which were not connected\n",
-          source, target);
-  else
-    remove-edge(c-edges.first);
-  end;
+  make(edge-type, graph: source.graph, source: source, target: target, origin: origin);
 end;
 
 define function remove-edge (edge :: <edge>) => ()
@@ -214,7 +215,7 @@ define function create-quotient-graph (g :: <type-graph>) => (res :: <type-graph
     let g* = make(<type-graph>, type-environment: g.type-environment);
     let rep-nodes = choose(method(v) find(v) == v end, g.graph-nodes);
     let vs = deep-copy-node(rep-nodes, g*);
-    for (edge in g.graph-edges)
+    for (edge in choose(rcurry(instance?, <graph-edge>), g.graph-edges))
       let u = edge.edge-source;
       let v = edge.edge-target;
       if (find(u) == u)

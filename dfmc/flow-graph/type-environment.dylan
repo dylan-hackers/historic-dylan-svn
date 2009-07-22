@@ -15,8 +15,6 @@ define class <type-environment> (<mutable-explicit-key-collection>)
   constant slot type-graph :: <type-graph> = make(<type-graph>);
   constant slot %type-lambda :: false-or(<&lambda>) = #f,
     init-keyword: lambda:; //once again, only used for debugging in typist/type-debug
-  constant slot type-constraints :: <stretchy-vector> =
-    make(<stretchy-vector>);
   slot finished-initial-typing? :: <boolean> = #f;
 end;
 

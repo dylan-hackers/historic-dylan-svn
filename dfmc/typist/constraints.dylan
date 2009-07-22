@@ -1,39 +1,5 @@
 module: dfmc-typist
 
-define abstract class <constraint> (<object>)
-  constant slot left-hand-side :: <node>,
-    required-init-keyword: left:;
-  constant slot right-hand-side :: <node>,
-    required-init-keyword: right:;
-  constant slot origin, //:: type-union(<computation>, <&type>, <constraint>),
-    required-init-keyword: origin:;
-end;
-
-define method type-environment (c :: <constraint>) => (result :: <type-environment>)
-  c.origin.type-environment
-end;
-
-define class <equality-constraint> (<constraint>)
-end;
-
-define method make (class :: subclass(<constraint>), #rest init-args, #key, #all-keys) => (res :: <constraint>)
-  let c = next-method();
-  connect(c.left-hand-side, c.right-hand-side, edge-type: <constraint-edge>);
-  c;
-end;
-
-define function disconnect (c :: <constraint>) => ()
-  disconnect-constraint(c.left-hand-side, c.right-hand-side);
-end;
-
-define function deep-origin (c :: <constraint>) => (o)
-  if (instance?(c.origin, <constraint>))
-    c.origin.deep-origin;
-  else
-    c.origin;
-  end;
-end;
-
 define program-warning <type-unification-failed>
   slot condition-type-estimate1,
     required-init-keyword: type-estimate1:;
@@ -44,12 +10,13 @@ define program-warning <type-unification-failed>
   format-arguments type-estimate1, type-estimate2;
 end;
 
+define thread variable *origin* = #f;
+
 define function solve (type-env :: <type-environment>)
  => ()
   let graph = type-env.type-graph;
-  let constraints = type-env.type-constraints;
+  let constraints = graph.type-constraints;
   let cs = as(<deque>, constraints);
-  constraints.size := 0;
   for (node in graph.graph-nodes)
     node.contains-variables? := #t;
   end;
@@ -60,20 +27,22 @@ define function solve (type-env :: <type-environment>)
     let constraint = cs.pop;
     local method push-cs (l :: <node>, r :: <node>)
             unless (l == r)
-              let new-constraint = make(<equality-constraint>, left: l, right: r, origin: constraint);
+              let new-constraint = make(<constraint-edge>, graph: graph, source: l, target: r, origin: constraint);
               push-last(cs, new-constraint);
             end;
           end;
     //debug-types(#"beginning", list("solve", constraint.deep-origin));
-    debug-types(#"highlight-constraint", type-env, constraint.left-hand-side, constraint.right-hand-side);
+    debug-types(#"highlight-constraint", type-env, constraint.edge-source, constraint.edge-target);
     debug-types(#"relayouted", type-env);
-    let u = find(constraint.left-hand-side);
-    let v = find(constraint.right-hand-side);
+    let u = find(constraint.edge-source);
+    let v = find(constraint.edge-target);
     if (u ~= v)
       let (u, v, flag) = order(u, v);
       let ute = u.node-value;
       let vte = v.node-value;
-      graph-union(u, v, flag);
+      dynamic-bind(*origin* = constraint)
+        graph-union(u, v, flag);
+      end;
       block()
         solve-constraint(ute, vte, u, v, push-cs);
       exception (e :: <error>)
@@ -85,8 +54,8 @@ define function solve (type-env :: <type-environment>)
              type-estimate2:  vte);
       end;
     end;
-    debug-types(#"unhighlight-constraint", type-env, constraint.left-hand-side, constraint.right-hand-side);
-    disconnect(constraint);
+    debug-types(#"unhighlight-constraint", type-env, constraint.edge-source, constraint.edge-target);
+    remove-edge(constraint);
     local method may-remove (n :: <node>) => ()
             if (member?(n, graph.graph-nodes))
               if (n.in-edges.size == 0)
