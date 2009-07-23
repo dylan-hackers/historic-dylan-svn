@@ -104,9 +104,15 @@ define method type-estimate-object (const :: <defined-constant-reference>) => (t
   end
 end;
 
-//this is <model-value> - (<string>, <vector>, <mapped-unbound>)
-define method type-estimate-object (o :: type-union(<&top>, <heap-deferred-model>, <number>, <character>, <boolean>, <list>, <symbol>)) => (t :: <&type>)
+//this is <model-value> - (<string>, <vector>, <mapped-unbound>, <heap-deferred-model>)
+define method type-estimate-object (o :: type-union(<&top>, <number>, <character>, <boolean>, <list>, <symbol>)) => (t :: <&type>)
   make(<&singleton>, object: o)
+end;
+
+//there's a mapping <heap-deferred-all-classes-model> => <simple-object-vector>
+//but, <h-d-a-c-m> is not exported.
+define method type-estimate-object (o :: <heap-deferred-model>) => (t :: <&type>)
+  dylan-value(#"<simple-object-vector>")
 end;
 
 define method type-estimate-object (t :: <temporary>) => (t :: <&type>)
@@ -567,6 +573,10 @@ define method infer-computation-types (c :: <computation>) => ()
   debug-types(#"beginning", type-env, list("inferring", c));
   debug-types(#"relayouted", type-env);
   c.temporary & abstract-and-lookup(c.temporary, c.type-environment);
+end;
+
+define type-rule <variable-reference>
+  constraint(computation.referenced-binding.abstract, temporary-node);
 end;
 
 define type-rule <temporary-transfer-computation>
