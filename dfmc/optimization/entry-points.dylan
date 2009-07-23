@@ -179,14 +179,10 @@ define method maybe-upgrade-call (c :: <apply>, f :: <&function>)
     // REST?(F) && NUMBER-REQUIRED(F) < SIZE(ARGS(C))
     // DIRECT TO IEP WHERE REST ARGS ARE CONCAT-2(...)
     // Spread out into a simple call
-    /*
     let spread-args
       = collecting (as <simple-object-vector>)
           for (i :: <integer> from 1 below c.arguments.size, 
 	       arg in c.arguments)
-            collect(arg);
-          end;
-          for (arg in rest-temporaries)
             collect(arg);
           end;
         end;
@@ -200,9 +196,11 @@ define method maybe-upgrade-call (c :: <apply>, f :: <&function>)
     replace-computation!(c, new-call, new-call, new-temporary);
     // Ensure that this new call gets considered for inlining
     re-optimize(new-call);
-    maybe-upgrade-call(new-call, f);
-    */
-    next-method();
+    if (new-call.item-status ~= $queueable-item-dead)
+      maybe-upgrade-call(new-call, f);
+    else
+      #t
+    end;
   end;
 end method;
 

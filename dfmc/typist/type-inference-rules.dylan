@@ -885,8 +885,21 @@ end;
 
 define method infer-computation-types (c :: <primitive-call>) => ()
   next-method();
-  let s = c.primitive.primitive-signature;
-  create-arrow-and-constraint(c, s);
+  let fn = c.primitive;
+  let s = fn.primitive-signature;
+  if (fn == dylan-value(#"primitive-object-allocate-filled"))
+    // type returned is actually contained in second argument
+    let (c?, wrapper) = constant-value?(second(arguments(c)));
+    when (c?)
+      let iclass = ^mm-wrapper-implementation-class(wrapper);
+      let class  = ^iclass-class(iclass);
+      let req = s.^signature-required-arguments;
+      create-arrow-and-constraint(c, make(<&signature>, number-required: req.size, required: req,
+                                          number-values: 1, values: vector(class)));
+    end;
+  else
+    create-arrow-and-constraint(c, s);
+  end;
 end;
 
 define method infer-function-type (c :: <function-call>, fun == #f) => ()
