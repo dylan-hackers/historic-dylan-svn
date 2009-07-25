@@ -42,18 +42,18 @@ define method document-location
   end block
 end document-location;
 
-define method maybe-serve-static-file ()
+define method serve-static-file-or-cgi-script ()
   let request = current-request();
   let response = current-response();
   // Just use the path, not the host, query, or fragment.
   let url = build-path(request.request-url);
   let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
-  log-debug("Requested document is %s", document);
   if (~document)
     log-info("%s not found", url);
     resource-not-found-error(url: request-raw-url-string(request));  // 404
   end;
 
+  log-debug("Requested document is %s", document);
   let (etag, weak?) = etag(document);
   if (weak?)
     add-header(response, "W/ETag", etag);
@@ -83,6 +83,8 @@ define method maybe-serve-static-file ()
         end if;
       #"link" =>
         let target = link-target(document);
+        // Follow links until we get to the end.  This could loop forever.
+        // There should be something in the locators library to do this
         block (exit-loop)
           while (#t)
             if (~file-exists?(target)
@@ -98,10 +100,16 @@ define method maybe-serve-static-file ()
         end;
         static-file-responder(target);
       otherwise =>
-        static-file-responder(document);
+        if (allow-cgi?(spec)
+              // todo -- make extensions configurable
+              & locator-extension(document) = "cgi")
+          cgi-script-responder(document)
+        else
+          static-file-responder(document);
+        end;
     end select;
   end if;
-end method maybe-serve-static-file;
+end method serve-static-file-or-cgi-script;
 
 // Returns the appropriate locator for the given URL, or #f if the URL doesn't
 // name an existing file below the document root.

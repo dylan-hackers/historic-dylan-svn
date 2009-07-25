@@ -484,6 +484,7 @@ define method process-config-element
   else
     let dirlist? = get-attr(node, #"allow-directory-listing");
     let follow? = get-attr(node, #"follow-symlinks");
+    let cgi? = get-attr(node, #"allow-cgi");
     let root-spec = root-directory-spec(%vhost);
     // TODO: the default value for these should really
     //       be taken from the parent dirspec rather than from root-spec.
@@ -494,7 +495,10 @@ define method process-config-element
                                           follow-symlinks?(root-spec)),
                     allow-directory-listing?: iff(dirlist?,
                                                   true-value?(dirlist?),
-                                                  allow-directory-listing?(root-spec)));
+                                                  allow-directory-listing?(root-spec)),
+                    allow-cgi?: iff(cgi?,
+                                    true-value?(cgi?),
+                                    allow-cgi?(root-spec)));
     add-directory-spec(%vhost, spec);
     dynamic-bind (%dir = spec)
       for (child in xml$node-children(node))

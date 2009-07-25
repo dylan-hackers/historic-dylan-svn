@@ -22,26 +22,21 @@ define class <directory-spec> (<object>)
   // Whether to allow directory listings.
   // May be overridden for specific directories.
   // Default is to be secure.
-  slot allow-directory-listing? :: <boolean> = #f,
+  constant slot allow-directory-listing? :: <boolean> = #f,
     init-keyword: allow-directory-listing?:;
 
   // Whether to allow serving documents that are outside of the document
   // root and are accessed via a symlink from within the document root.
   // Default is to be secure.
-  slot follow-symlinks? :: <boolean> = #f,
+  constant slot follow-symlinks? :: <boolean> = #f,
     init-keyword: follow-symlinks?:;
 
-  // TODO:
-  //slot allow-cgi?, etc ...
+  // Whether to allow CGI scripts to be executed from this directory.
+  // Default is to be secure.
+  constant slot allow-cgi? :: <boolean> = #f,
+    init-keyword: allow-cgi?:;
   
 end class <directory-spec>;
-
-// prevent warnings until these are used by the config stuff
-begin
-  follow-symlinks?-setter;
-  allow-directory-listing?-setter;
-end;
-
 
 define method initialize
     (spec :: <directory-spec>, #key pattern, #all-keys)

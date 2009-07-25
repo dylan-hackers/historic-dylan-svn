@@ -1259,7 +1259,7 @@ define method invoke-handler (request :: <request>) => ()
         end if;
       else
         // generates 404 if not found
-        maybe-serve-static-file();
+        serve-static-file-or-cgi-script();
       end if;
     end dynamic-bind;
   end if;
