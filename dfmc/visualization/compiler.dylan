@@ -11,7 +11,7 @@ define function report-progress (i1 :: <integer>, i2 :: <integer>,
 end;
 
 define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
-  //if (member?(arguments[1], list(//"indirect-object-implementation-class", "object-implementation-class", //<object> vs <raw-pointer> in call to indirect-object-implementation-class
+//  if (member?(arguments[1], list(//"indirect-object-implementation-class", "object-implementation-class", //<object> vs <raw-pointer> in call to indirect-object-implementation-class
                                  //"member-eql?" <- <raw-pointer> vs <object>
                                  //"default-initialize", //<raw-integer> vs <raw-address> because of wrap/unwrap
                                  //"system-allocate-simple-instance", //too many arguments
@@ -37,9 +37,10 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
                                  //"stretchy-vector-element-setter", "remove-all-keys",
   //                               "add-method-internal-internal"),
                                  //"map-as-one", "partition!", "primitive-partition"),
-  //            test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
-   // write-to-visualizer(vis, arguments);
-  //end;
+//                                 "<subjunctive-class-universe"),
+//              test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
+    write-to-visualizer(vis, arguments);
+//  end;
 end;
 
 define method form (c :: type-union(<temporary>, <computation>))
@@ -58,11 +59,22 @@ define method form (c :: <lambda-lexical-environment>)
   c.lambda
 end;
 
-//define constant $lambda-string-table = make(<table>);
+define constant $lambda-string-table = make(<table>);
 //define constant $string-lambda-table = make(<table>);
 
+define constant $top-l-i = "top-level-initializer";
+
 define method identifier (f) => (res :: <string>)
-  as(<string>, f.form-variable-name)
+  let id = as(<string>, f.form-variable-name);
+  if (copy-sequence(id, end: min(id.size, $top-l-i.size)) = $top-l-i)
+    let name = element($lambda-string-table, f, default: #f);
+    unless (name)
+      $lambda-string-table[f] := concatenate(id, integer-to-string($lambda-string-table.size));
+    end;
+    $lambda-string-table[f]
+  else
+    id
+  end;
 end;
 
 define method identifier (f :: <name-fragment>) => (res :: <string>)
@@ -76,8 +88,20 @@ define method identifier (m :: <method-definition>) => (res :: <string>)
 end;
 
 define method identifier (l :: type-union(<&accessor-method>, <&lambda>)) => (res :: <string>)
-  if (instance?(l.model-creator, type-union(<top-level-init-form>, <compilation-record>)))
+  if (instance?(l.model-creator, <compilation-record>))
+//type-union(<top-level-init-form>, <compilation-record>)))
     l.debug-name.identifier
+  elseif (instance?(l.model-creator, <top-level-init-form>))
+    let id = l.debug-name.identifier;
+    if (copy-sequence(id, end: min(id.size, $top-l-i.size)) = $top-l-i)
+      let name = element($lambda-string-table, l, default: #f);
+      unless (name)
+        $lambda-string-table[l] := concatenate(id, integer-to-string($lambda-string-table.size));
+      end;
+      $lambda-string-table[l]
+    else
+      id
+    end;
   else
     l.model-creator.identifier
   end;
