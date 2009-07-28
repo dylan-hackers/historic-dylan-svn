@@ -805,25 +805,8 @@ end;
 //define method infer-computation-types (c :: <adjust-multiple-values-rest>) => ()
 //end;
 
-//define method infer-computation-types (c :: <keyword-check-type>) => ()
-//end;
-
-//define method infer-computation-types (c :: <assignment-check-type>) => ()
-//end;
-
-//define method infer-computation-types (c :: <keyword-default>) => ()
-//end;
-
-//define method infer-computation-types (c :: <guarantee-type>) => ()
-//end;
-
-//define method infer-computation-types (c :: <type-definition>) => ()
-//end;
-
 define method infer-computation-types
- (c :: type-union(<redefinition>,
-                  <conditional-update!>, <type-redefinition>, 
-                  <engine-node-call>)) => ()
+ (c :: type-union(<redefinition>, <conditional-update!>, <type-redefinition>)) => ()
   error("didn't expect %=", c);
 end;
 define generic get-function-object (o :: <object>)

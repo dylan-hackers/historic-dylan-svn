@@ -1499,7 +1499,9 @@ define function do-optimize-multi-collection
          arguments: copy-sequence(arguments, end: arguments.size - 1));
     let (first, last) = join-2x1!(first, last, new-call-c);
     replace-call-computation!(env, call, first, last, temp);
-    analyze-calls(new-call-c);
+    if (new-call-c.item-status ~== $queueable-item-dead)
+      analyze-calls(new-call-c);
+    end;
     #t
   end;
 end;

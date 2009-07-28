@@ -243,8 +243,8 @@ define method print-computation (stream :: <stream>, c :: <function-call>)
 end method;
 
 define method print-computation (stream :: <stream>, c :: <slot-value>) 
-  format(stream, "slot-value (%s)", 
-         if (computation-guaranteed-initialized?(c)) "-INITD" else "" end,
+  format(stream, "slot-value%s (%s)", 
+         if (computation-guaranteed-initialized?(c)) "-initd" else "" end,
 	 ^debug-name(computation-slot-descriptor(c)));
 end method;
 

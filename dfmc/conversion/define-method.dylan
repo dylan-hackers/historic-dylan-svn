@@ -420,6 +420,7 @@ end method;
 define method update-lambda-inlineable? (f :: <&lambda>)
   when (lambda-inlineable?(f) == #"unknown")
     let definition = model-definition(f);
+    ensure-method-model(f);
     let inlineable?
       = if (lambda-top-level?(f) & definition 
 	      & form-inline-policy(definition) == #"default-inline"

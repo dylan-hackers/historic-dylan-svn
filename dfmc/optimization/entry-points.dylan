@@ -30,6 +30,7 @@ define method analyze-calls (c :: <function-call>)
   let call-ok? = maybe-check-function-call(c);
   if (*call-upgrading?*)
     if (call-ok? & ef)
+      instance?(ef, <&lambda>) & ensure-method-model(ef);
       maybe-upgrade-call(c, ef) |
 	maybe-optimize-function-call
 	  (c, call-effective-function(c), c.arguments)
