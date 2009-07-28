@@ -763,4 +763,11 @@ define function call-effective-function (c :: <function-call>)
   end
 end function;
 
+define compiler-open generic tail-position? (c :: <call>) => (tail? :: <boolean>);
+define compiler-open generic convert-type-expression (env :: <environment>, type)
+ => (first :: false-or(<computation>),
+     last :: false-or(<computation>),
+     ref :: <value-reference>,
+     type-value);
+
 // eof

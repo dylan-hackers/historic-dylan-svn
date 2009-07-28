@@ -51,9 +51,6 @@ define module dfmc-optimization
     // non-local-exit.dylan
     analyze-non-local-exits,
 
-    // tail-call.dylan
-    tail-position?,
-
     *trace-optimizations?*,
     *trace-optimizing-method*,
     *trace-optimizing-library*,

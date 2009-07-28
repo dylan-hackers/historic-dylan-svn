@@ -31,7 +31,6 @@ define module dfmc-conversion
   export 
     $ignore, $all-rest,
     convert,
-    convert-type-expression,
     convert-value-reference,
     convert-object-reference,
     convert-object-reference-1,

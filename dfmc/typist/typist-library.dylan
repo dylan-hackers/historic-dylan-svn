@@ -52,7 +52,12 @@ define module dfmc-typist
     argument-type-estimates,
     simplify-call-to-call-to-object!,
     maybe-check-function-call,
-    estimate-effective-methods;
+    estimate-effective-methods,
+    maybe-upgrade-call,
+    generate-stack-vector,
+    upgrade-to-congruent-call!,
+    //better: dfmc-flow-graph?
+    do-callers;
 
   export maybe-convert-box, maybe-convert-unbox;
 

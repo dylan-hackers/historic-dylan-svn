@@ -159,7 +159,7 @@ define function find (value :: <node>) => (res :: <node>)
     | (value.representative := find(value.representative));
 end;
 
-define method deep-copy-node
+define sideways method deep-copy-node
  (type :: type-union(<typist-type>, <&type>), graph :: <type-graph>)
  => (res :: <node>)
   make(<node>, graph: graph, value: type)
@@ -204,7 +204,7 @@ define method deep-copy-node
   make(<node>, graph: graph, value: t)
 end;
 
-define method deep-copy-node
+define sideways method deep-copy-node
   (nodes :: <collection>, graph :: <type-graph>)
  => (res :: <collection>)
   map(compose(rcurry(deep-copy-node, graph), node-value), nodes)

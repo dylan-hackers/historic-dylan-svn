@@ -51,39 +51,7 @@ define generic maybe-upgrade-rest-call
 define generic maybe-upgrade-keyword-call
     (c :: <function-call>, f :: <&callable-object>) => (upgraded? :: <boolean>);
 
-//// Simple entry-point pass
-
-// define compilation-pass analyze-calls,
-//   visit: computations,
-//   optimization: low,
-//   before: single-value-propagation;
-
-define method analyze-calls (c :: <computation>)
-  #f
-end method;
-
 define variable *call-upgrading?* = #t;
-
-define method analyze-calls (c :: <function-call>)
-  // If what's being called is not a valid function, or there is some
-  // clear incompatibility between the arguments and the function,
-  // don't attempt to do anything with the call.
-  let ef = call-effective-function(c);
-  let call-ok? = maybe-check-function-call(c);
-  if (*call-upgrading?*)
-    if (call-ok? & ef)
-      maybe-upgrade-call(c, ef)
-    elseif (*profile-all-calls?* 
-	      & instance?(c, <simple-call>) & ~instance?(c, <engine-node-call>) 
-	      & instance?(ef, <&generic-function>))
-      upgrade-gf-to-profiling-call-site-cache(c, ef, #[]);
-    else 
-      #f
-    end if
-  else 
-    #f
-  end if;
-end method;
 
 define method maybe-upgrade-call 
     (c :: <function-call>, f :: <&callable-object>) => (res :: <boolean>)
@@ -109,18 +77,28 @@ define method maybe-upgrade-function-call
   end unless;
 end method;
 
+define inline function method-upgrade?
+    (f :: <&lambda>) => (res :: <boolean>)
+  let definition = model-definition(f);
+  ~definition | form-upgrade?(definition)
+end function;
+
 define method maybe-upgrade-function-call
     (c :: <function-call>, f :: <&lambda>) => (res :: <boolean>)
-  when (*colorize-dispatch*)
-    color-dispatch(c, #"lambda-call")
+  // TODO: This requires the function's DFM to have been computed for
+  // no good reason.
+  when (method-upgrade?(f))
+    when (*colorize-dispatch*)
+      color-dispatch(c, #"lambda-call")
+    end when;
+    if (best-function-key?(f))
+      maybe-upgrade-keyword-call(c, f)
+    elseif (best-function-rest?(f))
+      maybe-upgrade-rest-call(c, f)
+    else
+      maybe-upgrade-required-call(c, f)
+    end if
   end when;
-  if (best-function-key?(f))
-    maybe-upgrade-keyword-call(c, f)
-  elseif (best-function-rest?(f))
-    maybe-upgrade-rest-call(c, f)
-  else
-    maybe-upgrade-required-call(c, f)
-  end if
 end method;
 
 define inline method maybe-rest-references
@@ -128,9 +106,138 @@ define inline method maybe-rest-references
   maybe-vector-element-references(ref)
 end method;
 
+// If, typically after inlining, we discover a call to apply where
+// the values in the applied sequence are known, we flatten it out
+// to a simple call. This works for any kind of function - lambda
+// or generic.
+
+define method maybe-upgrade-call (c :: <apply>, f :: <&function>)
+ => (res :: <boolean>)
+  let rest-temporaries
+    = maybe-rest-references(c.environment, c.arguments.last);
+  if (rest-temporaries)
+    // Spread out into a simple call
+    let spread-args
+      = collecting (as <simple-object-vector>)
+          for (i :: <integer> from 1 below c.arguments.size,
+              arg in c.arguments)
+            collect(arg);
+          end;
+          for (arg in rest-temporaries)
+            collect(arg);
+          end;
+        end;
+    let (new-call, new-temporary)
+      = make-with-temporary
+          (c.environment, <simple-call>,
+           temporary-class: call-temporary-class(c),
+           function:  c.function,
+           arguments: spread-args);
+    compatibility-state(new-call) := compatibility-state(c);
+    replace-computation!(c, new-call, new-call, new-temporary);
+    // Ensure that this new call gets considered for inlining
+    re-optimize(new-call);
+    if (new-call.item-status ~= $queueable-item-dead)
+      maybe-upgrade-call(new-call, f) //might already have happened in typist (during replace-computation!)
+    else
+      #t
+    end
+  else
+    // REST?(F) && NUMBER-REQUIRED(F) < SIZE(ARGS(C))
+    // DIRECT TO IEP WHERE REST ARGS ARE CONCAT-2(...)
+    // Spread out into a simple call
+    /*
+    let (new-call, new-temporary)
+      = make-with-temporary
+          (c.environment, <simple-call>,
+           temporary-class: call-temporary-class(c),
+           function:  c.function,
+           arguments: c.arguments);
+    compatibility-state(new-call) := compatibility-state(c);
+    replace-computation!(c, new-call, new-call, new-temporary);
+    // Ensure that this new call gets considered for inlining
+    re-optimize(new-call);
+    if (new-call.item-status ~= $queueable-item-dead)
+      maybe-upgrade-call(new-call, f);
+    else
+      #t
+    end;
+    */
+    next-method()
+  end;
+end method;
+
+// Method applies a slightly more irritating because method calls have to
+// be in a format where their rest list has already been constructed.
+
+define method maybe-upgrade-call (c :: <method-apply>, f :: <&method>)
+ => (res :: <boolean>)
+  let stack-vector
+    = maybe-rest-references(c.environment, c.arguments.last);
+  // break("method apply upgrade");
+  if (stack-vector)
+    // Spread out into a simple call
+    let spread-args
+      = collecting (as <simple-object-vector>)
+          for (i :: <integer> from 0 below c.arguments.size - 1,
+              arg in c.arguments)
+            collect(arg);
+          end;
+          for (arg in stack-vector)
+            collect(arg);
+          end;
+        end;
+    let number-required = best-function-number-required(f);
+    if (size(spread-args) >= number-required)
+      let (first-c, last-c, method-call-args)
+       = method-call-arguments-using-arguments(c.environment, spread-args, f);
+      let (new-call, new-temporary)
+       = make-with-temporary
+           (c.environment,   <method-call>,
+            temporary-class: call-temporary-class(c),
+            function:        c.function,
+            next-methods:    c.next-methods,
+            arguments:       method-call-args);
+      compatibility-state(new-call) := compatibility-state(c);
+      let (first-c, last-c) = join-2x1!(first-c, last-c, new-call);
+      replace-computation!(c, first-c, last-c, new-temporary);
+      // Ensure that this new call gets considered for inlining
+      re-optimize(new-call);
+      maybe-upgrade-call(new-call, f);
+    else
+      // next-method();
+      #f
+    end if
+  else
+    next-method();
+  end if;
+end method;
+
+define method method-call-arguments-using-arguments
+    (env :: <environment>, args :: <argument-sequence>, func :: <&lambda>)
+ => (first-c :: false-or(<computation>), last-c :: false-or(<computation>),
+     arguments :: <argument-sequence>)
+  if (best-function-optionals?(func))
+    let number-required = best-function-number-required(func);
+    let (rest-c, rest-t)
+      = generate-stack-vector
+         (env, copy-sequence(args, start: number-required));
+    let new-arguments = make(<vector>, size: number-required + 1);
+    for (i :: <integer> from 0 below number-required)
+      new-arguments[i] := args[i];
+    end for;
+    new-arguments[number-required] := rest-t;
+    values(rest-c, rest-c, new-arguments)
+  else
+    values(#f, #f, args)
+  end if;
+end method;
+
 define method maybe-upgrade-function-call (c :: <function-call>, f :: <&iep>)
  => (res :: <boolean>)
-  #f
+  unless (best-function-optionals?(function(f)))
+    maybe-upgrade-to-self-call(c, f)
+  end unless;
 end method;
 
 define method maybe-upgrade-required-call 
@@ -167,6 +274,123 @@ define inline method do-callers
       end if;
     end for;
   end for;
+end method;
+
+////
+//// SELF-TAIL CALLS
+////
+
+define method self-call?
+    (c :: <simple-call>, f :: <&lambda>) => (boolean)
+  let env = c.environment.lambda-environment;
+  env.lambda == f.function
+    // AVOID CALLS TO OUTER LOOPS
+    // TODO: GENERALIZE
+    // & size(env.loops) <= 1
+end method;
+
+define method install-loop-prolog
+    (call :: <simple-call>, f :: <&lambda>)
+  let env         = f.environment;
+  let bind-c      = f.body;
+  let bind-next-c = bind-c.next-computation;
+  let return-c    = bind-return(bind-c);
+  let loop-c =
+    make-in-environment
+      (env, <loop>,
+       body: bind-next-c,
+       merges: make(<vector>, size: size(f.parameters)));
+  insert-computation-before!(bind-next-c, loop-c);
+  let end-loop-c = make-in-environment(env, <end-loop>, loop: loop-c);
+  insert-computation-before!(return-c, end-loop-c);
+  next-computation(end-loop-c) := #f; // MAKE SURE RETURN-C IS NOT NC
+  next-computation(loop-c) := return-c;
+  previous-computation(return-c) := loop-c;
+  lambda-loop(f) := loop-c;
+end method;
+
+define method upgrade-self-call
+    (c :: <simple-call>, f :: <&lambda>, first? :: <boolean>)
+  let env          = environment(c);
+  let f-parameters = f.parameters;
+  let loop         = lambda-loop(f);
+  // HACK: THERE SHOULD BE NO TEMPORARY AS LOOP-CALL DOES NOT RETURN
+  let (call, call-temporary)
+    = make-with-temporary
+        (env, <loop-call>, loop: loop,
+         temporary-class: call-temporary-class(c));
+  let first-a = #f;
+  let last-a  = #f;
+  let first-m = #f;
+  let last-m  = #f;
+  let merges  = loop-merges(loop);
+  for (parameter  in f-parameters,
+       argument   in arguments(c),
+       last-merge in merges,
+       offset :: <integer> from 0)
+    let (merge, merge-t) =
+      make-with-temporary
+       (env, <loop-merge>,
+        temporary-class: <named-temporary>,
+        loop: loop, parameter: parameter, call: call, argument: argument);
+    let (_first-m, _last-m)
+      = join-2x1!(first-m, last-m, merge);
+    name(merge-t) := name(parameter);
+    if (last-merge)
+      loop-merge-initial?(last-merge) := #f;
+      first-m := _first-m;
+      last-m  := _last-m;
+      if (merge)
+       replace-temporary-references!
+         (last-merge, parameter, temporary(merge));
+      end if;
+    else
+      let type = specializer(parameter);
+      let (type-first, type-last, type-temp) =
+       convert-type-expression(env, type);
+      let (_first-m, _last-m)
+       = join-2x2!(_first-m, _last-m, type-first, type-last);
+      let (check-c, check-temp) =
+       make-with-temporary
+         (env, <check-type>, value: merge-t, type: type-temp);
+      let (_first-m, _last-m)
+       = join-2x1!(_first-m, _last-m, check-c);
+      replace-temporary-in-users!
+        (parameter, check-temp,
+         exclude: method (e) e == merge | e == loop end);
+      first-m := _first-m;
+      last-m  := _last-m;
+    end if;
+    merges[offset] := merge;
+  end for;
+
+  loop-call-merges(call) := copy-sequence(merges);
+  insert-computations-before!(loop-body(loop), first-m, last-m);
+
+  let first-a = join-2x1!(first-a, last-a, call);
+  replace-computation!(c, first-a, call, call-temporary);
+  do-callers(re-optimize, f.iep);
+end method;
+
+///
+/// a loop consists of a a loop, followed by loop merges,
+/// followed by the loop body.
+/// each call gets transformed into a loop-call
+///
+
+define method maybe-upgrade-to-self-call
+    (c :: <simple-call>, f :: <&lambda-or-code>) => (res :: <boolean>)
+  let f = f.function;
+  // format-out("LOOP? %= %= %=\n", f, tail-position?(c), self-call?(c, f));
+  if (self-call?(c, f) & tail-position?(c))
+    let first? = ~lambda-loop(f);
+    if (first?)
+      install-loop-prolog(c, f);
+    end if;
+    upgrade-self-call(c, f, first?);
+    re-optimize(c);
+    #t
+  end if;
 end method;
 
 ////
@@ -227,7 +451,8 @@ define method maybe-upgrade-required-call (c :: <simple-call>, f :: <&lambda>)
  => (res :: singleton(#t))
   // format-out("UPGRADING %=\n", f);
   // check-required-arguments(c, f);
-  upgrade-to-congruent-call!(c, f);
+  maybe-upgrade-to-self-call(c, f)
+    | upgrade-to-congruent-call!(c, f);
   #t
 end method;
 

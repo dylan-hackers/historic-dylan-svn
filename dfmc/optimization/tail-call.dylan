@@ -7,7 +7,7 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define method tail-position? (c :: <call>)
+define sideways method tail-position? (c :: <call>) => (tail? :: <boolean>)
   returns-temporary?(c.next-computation, c.temporary)
 end method tail-position?;
 

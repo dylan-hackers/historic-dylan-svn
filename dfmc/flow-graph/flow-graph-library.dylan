@@ -435,6 +435,9 @@ define module dfmc-flow-graph
     call-effective-function,
     constant-value,
     constant-value?;
+
+  export tail-position?,
+    convert-type-expression;
 end module;
 
 // eof

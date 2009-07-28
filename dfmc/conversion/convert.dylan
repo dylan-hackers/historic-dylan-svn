@@ -2875,7 +2875,7 @@ false-action:
     => #{ if (?test) ?body else ?false-action end }
 end &converter;
 
-define function convert-type-expression (env :: <environment>, type)
+define sideways method convert-type-expression (env :: <environment>, type)
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: <value-reference>,
      type-value)
   if (type)
