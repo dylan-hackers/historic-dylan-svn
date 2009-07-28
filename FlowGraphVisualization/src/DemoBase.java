@@ -45,6 +45,7 @@ import y.view.LayoutMorpher;
 import y.view.LineType;
 import y.view.NavigationMode;
 import y.view.NodeRealizer;
+import yext.svg.io.SVGIOHandler;
 
 public class DemoBase extends Thread {
   /**
@@ -572,10 +573,16 @@ public boolean updatingguimanually = false;
 					  } catch ( IOException ioe ) {
 						  D.show( ioe );
 					  }
-				  } else {
-					  if ( !name.endsWith( ".ygf" ) ) {
-						  name = name + ".ygf";
+				  } else if ( name.endsWith(".svg")) {
+					  SVGIOHandler svg = new SVGIOHandler();
+					  try {
+						  svg.write( view.getGraph2D(), name );
+					  } catch ( IOException ioe ) {
+						  D.show( ioe );
 					  }
+				  } else {
+					  if ( !name.endsWith( ".ygf" ) )
+						  name = name + ".ygf";
 					  YGFIOHandler ioh = new YGFIOHandler();
 					  try {
 						  ioh.write( view.getGraph2D(), name );

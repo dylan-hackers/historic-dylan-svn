@@ -429,9 +429,11 @@ public final class Commands {
 		if (type.isEqual("<constraint-edge>")) {
 			er.setLineColor(Color.GREEN);
 			er.setArrow(Arrow.NONE);
-		} else if (type.isEqual("<representative-edge>"))
+			er.setLineType(LineType.DASHED_2);
+		} else if (type.isEqual("<representative-edge>")) {
 			er.setLineColor(Color.red);
-		else
+			er.setLineType(LineType.DOTTED_2);
+		} else
 			er.setLineColor(Color.BLUE);
 		ihl.typegraph.createEdge(from, to, er);
 		if (! (type.isEqual("<representative-edge>")))

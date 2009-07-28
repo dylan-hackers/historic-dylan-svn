@@ -7,5 +7,7 @@
 			<attribute name="javadoc_location" value="file:/C:/Users/foo bar/Desktop/yfiles-2.6.0.1-complete/doc/api/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/foo bar/Desktop/ysvg-2.1.0.1/lib/ysvg.jar"/>
+	<classpathentry kind="lib" path="C:/Users/foo bar/Desktop/ysvg-2.1.0.1/lib/batik.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

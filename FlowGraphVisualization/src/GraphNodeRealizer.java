@@ -8,7 +8,7 @@ import y.view.NodeRealizer;
 public class GraphNodeRealizer extends GenericNodeRealizer {
 	private String nodetext = "";
 	private String nodetype = "";
-	private Color nodecolor = new Color(0, 0, 0xff, 0x44);
+	private Color nodecolor = new Color(0xbb, 0xbf, 0xff);
 	private int reference = 0;
 	private int identifier = 0;
 	private String prefix = "";
@@ -17,7 +17,7 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 	//private boolean selected
 	//private boolean highlight
 	//private boolean optimization_queue
-	private final boolean debug = true;
+	private final boolean debug = false;
 	
 	public GraphNodeRealizer () {
 		label = createNodeLabel();

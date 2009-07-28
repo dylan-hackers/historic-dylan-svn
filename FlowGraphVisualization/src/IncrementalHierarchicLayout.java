@@ -245,13 +245,13 @@ public class IncrementalHierarchicLayout
 				graph.createEdge(loop, body.get(0));
 			
 			for (Node b : body)
-				if (graph.getRealizer(b).getLabelText().contains("CONTINUE"))
+				if (graph.getRealizer(b).getLabelText().contains("continue"))
 					safeCreateEdge(b, loop);
 
 		} else if (s.isEqual("loop-call")) {
 			assert(nodelist.size() == 3);
 			assert(nodelist.get(2) instanceof Integer);
-			Node loopc = createNodeWithLabel("CONTINUE", comp_id);
+			Node loopc = createNodeWithLabel("continue", comp_id);
 			if ((Integer) nodelist.get(2) != 0) {
 				Node loop = int_node_map.get((Integer)nodelist.get(2));
 				graph.createEdge(loopc, loop);
@@ -304,7 +304,7 @@ public class IncrementalHierarchicLayout
 	public Node createTypeNodeWithLabel (String label, int id) {
 		Node n = typegraph.createNode();
 		GraphNodeRealizer nr = (GraphNodeRealizer)typegraph.getRealizer(n);
-		nr.setNodeColor(new Color(0, 0xff, 0, 0x33));
+		nr.setNodeColor(new Color(0xcc, 0xff, 0xcc));
 		nr.setIdentifier(id);
 		nr.setNodeText(label);
 		assert(int_node_map.get(id) == null);
@@ -317,7 +317,7 @@ public class IncrementalHierarchicLayout
 		GraphNodeRealizer nr = (GraphNodeRealizer)graph.getRealizer(n);
 		nr.setIdentifier(id);
 		nr.setNodeText(label);
-		nr.setNodeColor(new Color(0, 0, 0xff, 0x44));
+		nr.setNodeColor(new Color(0xbb, 0xbf, 0xff));
 		//demobase.calcLayout();
 		//System.out.println("created node (gr " + graph + ")");
 		if (id > 0) {
@@ -325,7 +325,7 @@ public class IncrementalHierarchicLayout
 			int_node_map.put(id, n);
 		} else if (id == 0)
 			topnodes.add(n);
-		if (label.equalsIgnoreCase("[bind]"))
+		if (label.equalsIgnoreCase("bind"))
 			topnodes.add(n);
 		return n;
 	}
@@ -338,7 +338,7 @@ public class IncrementalHierarchicLayout
 	public void createTemporary(int temp_id, int c_id, String text) {
 		Node t = createNodeWithLabel(text, temp_id);
 		GraphNodeRealizer gr = (GraphNodeRealizer)graph.getRealizer(t);
-		gr.setNodeColor(new Color(Color.pink.getRed(), Color.pink.getBlue(), Color.pink.getGreen(), 0x44));
+		gr.setNodeColor(new Color(0xff, 0xe9, 0xe9));
 		if (c_id != 0) {
 			Node gen = int_node_map.get(c_id);
 			assert(gen != null);
@@ -358,7 +358,7 @@ public class IncrementalHierarchicLayout
 	public void createTypeVariable (int id, int temp, String type) {
 		Node tv = createTypeNodeWithLabel(tvnames[tvindex], id);
 		GraphNodeRealizer nr = (GraphNodeRealizer)typegraph.getRealizer(typegraph.lastNode());
-		nr.setNodeColor(new Color(Color.pink.getRed(), Color.pink.getBlue(), Color.pink.getGreen(), 0x44));
+		nr.setNodeColor(new Color(0xff, 0xe9, 0xe9));
 		nr.setReference(temp);
 		tvindex = (tvindex + 1) % tvnames.length;
 		if (temp != 0)

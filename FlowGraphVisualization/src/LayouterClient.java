@@ -114,10 +114,10 @@ public class LayouterClient extends Thread {
 				}
 				assert(answer.get(1) instanceof String); //method name!
 				String dfm_id = (String)answer.get(1);
-				if (dfm_id.equalsIgnoreCase("top-level-initializer")) {
-					printMessage(result);
-					continue;
-				}
+				//if (dfm_id.equalsIgnoreCase("top-level-initializer")) {
+				//	printMessage(result);
+				//	continue;
+				//}
 				IncrementalHierarchicLayout gr = null;
 				if (! (key.isEqual("highlight") || key.isEqual("highlight-queue") || key.isEqual("relayouted")))
 					; //System.out.println(key.toString() + " for " + dfm_id + " : " + answer.subList(2, answer.size()));
@@ -131,18 +131,23 @@ public class LayouterClient extends Thread {
 				}
 				gr = graphs.get(dfm_id);
 				if (gr.graphinprocessofbeingfinished) {
-//					while (true) {
-//						if (gr.graphfinished) {
-//							gr.graphfinished = false;
-//							gr.graphinprocessofbeingfinished = false;
-//							break;
-//						}
-//						try {
-//							Thread.sleep(100);
-//						} catch (InterruptedException e) { }
-//					}
-					System.err.println("graph is already finished, go away");
-				} else {
+					if (dfm_id.equalsIgnoreCase("top-level-initializer")) {
+						while (true) {
+							if (gr.graphfinished) {
+								gr.graphfinished = false;
+								gr.graphinprocessofbeingfinished = false;
+								break;
+							}
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) { }
+						}
+					} else {
+						System.err.println("graph is already finished, go away");
+						printMessage(result);
+						continue;
+					}
+				} //else {
 					demo.unselect();
 					demo.activate(gr);
 					if (Commands.processCommand(gr, answer, demo))
@@ -161,7 +166,7 @@ public class LayouterClient extends Thread {
 						printMessage(res);
 					}
 				}
-			}
+			//}
 		} catch (IOException e) {
 			//finish graphs, mark inactive
 			for (IncrementalHierarchicLayout i : graphs.values())
