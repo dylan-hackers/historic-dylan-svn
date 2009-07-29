@@ -117,6 +117,9 @@ define method remove-user! (t :: <temporary>, c :: <computation>)
 end;
 
 define method add-user! (t :: <temporary>, c :: <computation>)
+  if (*computation-tracer* & t.environment ~== c.environment)
+    *computation-tracer*(#"add-temporary", t, c, 0);
+  end;
   next-method();
   if (*computation-tracer*)
     *computation-tracer*(#"add-temporary-user", t, c, 0);

@@ -301,6 +301,7 @@ define method add-constraint
 end;
 
 define constant node-to-type = compose(model-type, node-value, find);
+define constant node-to-model-type = compose(rcurry(model-type, top?:, #t), node-value, find);
 define constant temporary-type = compose(node-to-type, lookup-type-node);
 define constant temporary-type-abstraction = compose(node-to-type, abstract-and-lookup);
 
@@ -1028,7 +1029,8 @@ define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>
     solve(c.type-environment);
 
     // then, try to upgrade the GF call to a simple call (narrowing result type)
-    let arguments = map(rcurry(temporary-type-abstraction, c.type-environment), c.arguments);
+    let arguments = map(compose(node-to-model-type, rcurry(abstract-and-lookup, c.type-environment)),
+                        c.arguments);
     let effs = estimate-effective-methods(gf, arguments, c);
     if (~empty?(effs) & maybe-upgrade-gf-to-method-call(c, gf, arguments, effs))
       // finally, record type constraint (beta = tau1 -> tau2)

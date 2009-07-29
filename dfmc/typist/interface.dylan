@@ -7,7 +7,7 @@ define function type-estimate (context :: <computation>, o :: <object>)
     solve(context.type-environment);
     let node = element(context.type-environment, o, default: #f);
     if (node)
-      node.node-to-type
+      node.node-to-model-type
     else 
       o.type-estimate-object
     end;
