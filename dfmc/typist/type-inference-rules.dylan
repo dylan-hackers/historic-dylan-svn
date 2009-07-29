@@ -124,6 +124,11 @@ define method type-estimate-object (o :: <lexical-specialized-variable>)
   o.specializer | make(<&top-type>)
 end;
 
+define method type-estimate-object (o :: <lexical-rest-variable>)
+ => (res :: <&type>)
+  dylan-value(#"<simple-object-vector>")
+end;
+
 define method type-estimate-object (o :: <object-reference>)
  => (res :: <&type>)
   type-estimate-object(o.reference-value)

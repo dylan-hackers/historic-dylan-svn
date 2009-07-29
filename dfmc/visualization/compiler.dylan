@@ -39,7 +39,8 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
                                  //"map-as-one", "partition!", "primitive-partition"),
 //                                 "<subjunctive-class-universe"),
 //                                 "compute-implementation-class-precedence-list"),
-                                 "eassign"),
+//                                 "eassign"),
+                                 "list"),
               test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
     write-to-visualizer(vis, arguments);
   end;
