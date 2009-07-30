@@ -144,6 +144,20 @@ define method add-directory-spec
                           test: method (s1, s2)
                                   dirspec-pattern(s1) = dirspec-pattern(s2)
                                 end));
+  for (spec in vhost.directory-specs)
+    log-debug("dirspec: %s", debug-string(spec));
+  end;
+end;
+
+define method debug-string
+    (spec :: <directory-spec>)
+  format-to-string("<directory-spec pattern=%= regex=%= list?=%= "
+                     "follow?=%= cgi?=%=>",
+                   spec.dirspec-pattern,
+                   spec.regular-expression,
+                   spec.allow-directory-listing?,
+                   spec.follow-symlinks?,
+                   spec.allow-cgi?)
 end;
 
 define method directory-spec-matching

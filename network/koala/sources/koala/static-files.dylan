@@ -67,6 +67,8 @@ define method serve-static-file-or-cgi-script ()
   else
     let spec :: <directory-spec>
       = directory-spec-matching(*virtual-host*, url);
+    log-debug("dirspec match: %s", debug-string(spec));
+    log-debug("document file type: %=", file-type(document));
     select (file-type(document))
       #"directory" =>
         if (allow-directory-listing?(spec))
@@ -100,7 +102,10 @@ define method serve-static-file-or-cgi-script ()
         end;
         static-file-responder(target);
       otherwise =>
-        if (allow-cgi?(spec)
+        log-debug("got a static file: %s  dirspec: %s",
+                  as(<string>, document), debug-string(spec));
+        log-debug("locator extension: %=", locator-extension(document));
+        if (spec.allow-cgi?
               // todo -- make extensions configurable
               & locator-extension(document) = "cgi")
           cgi-script-responder(document)

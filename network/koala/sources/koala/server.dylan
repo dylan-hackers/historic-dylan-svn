@@ -983,7 +983,7 @@ define function parse-request-line
     request.request-url := url;
     let (responder, tail) = find-responder(server, request.request-url);
     request.request-responder := responder;
-    if (tail)
+    if (tail & ~empty?(tail))
       request.request-tail-url := make(<url>, path: as(<deque>, tail));
     end if;
     for (value keyed-by key in url.uri-query)
