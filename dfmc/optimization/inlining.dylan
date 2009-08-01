@@ -436,7 +436,7 @@ define compiler-sideways method copy-down-body (m :: <&copy-down-method>) => ()
     re-optimize (return-c) ;
     m.body-spec := f.body-spec ;
 
-    run-optimizations (m);
+    really-run-compilation-passes (m);
     #f
   end
 end;

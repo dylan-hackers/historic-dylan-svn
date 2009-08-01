@@ -87,7 +87,19 @@ end;
 define method type-estimate-object (mb :: <module-binding>) => (te :: <&type>)
   let type = binding-type-model-object(mb, error-if-circular?: #f);
   if (type & instance?(type, <&type>))
-    type
+    //try for a better type
+    let mo = binding-model-object(mb, error-if-circular?: #f);
+    if (mo)
+      let type2 = type-estimate-object(mo);
+      if (^subtype?(type2, type))
+        type2
+      else
+        //can this happen?
+        type
+      end;
+    else
+      type
+    end;
   elseif (type & instance?(type, <collection>))
     error("not sure what to do here...");
   else
@@ -166,7 +178,8 @@ define method type-estimate-object (v :: <vector>)
                        end
                      end, types);
     make(<&limited-collection-type>,
-         class: dylan-value(#"<vector>"), //more like subclass(<vector>)
+         class: v.&object-class,
+         concrete-class: v.&object-class,
          element-type: reduce1(^type-union, ctypes))
   end
 end;
@@ -254,6 +267,7 @@ define method model-type (t :: <limited-collection>, #key top?) => (t :: <&type>
   let mt = rcurry(model-type, top?:, top?);  
   make(<&limited-collection-type>,
        class: t.collection-class.mt,
+       concrete-class: t.collection-class.mt,
        element-type: t.element-type.mt)
 end;
 
@@ -302,6 +316,9 @@ define method add-constraint
      origin :: type-union(<computation>, <constraint-edge>, <temporary>),
      left :: <node>, right :: <node>)
  => (c :: <constraint-edge>)
+  unless (left.graph == right.graph)
+    error("constraint must be in same type graph")
+  end;
   make(<constraint-edge>, graph: type-environment.type-graph, origin: origin, source: left, target: right);
 end;
 
@@ -310,10 +327,14 @@ define constant node-to-model-type = compose(rcurry(model-type, top?:, #t), node
 define constant temporary-type = compose(node-to-type, lookup-type-node);
 define constant temporary-type-abstraction = compose(node-to-type, abstract-and-lookup);
 
-define method type-infer (l :: <&lambda>)
-  let type-env = l.type-environment;
-  unless (type-env)
-    type-env := make(<type-environment>, lambda: l);
+define method type-infer (l :: <&lambda>, type-env :: <type-environment>)
+  //let type-env = l.type-environment;
+  //unless (type-env)
+  //  type-env := make(<type-environment>, lambda: l);
+  //  l.type-environment := type-env;
+  //end;
+  if (l.type-environment & ~ any-te-matches?(l.type-environment, type-env))
+    //merge those TEs?
     l.type-environment := type-env;
   end;
   do(rcurry(abstract-and-lookup, type-env), l.parameters);
@@ -345,7 +366,7 @@ define method type-infer (l :: <&lambda>)
       end;
     end;
   end;
-  type-env.finished-initial-typing? := #t;
+  //type-env.finished-initial-typing? := #t;
 end;
 
 define function signature-compatible? (old-sig :: <&signature>, new-sig :: <&signature>)
@@ -462,9 +483,32 @@ define constant next-type-step =
       c.next-computation & type-walk(env, c.next-computation, last)
     end;
 
+define function any-te-matches? (te :: <type-environment>, te2 :: <type-environment>) => (match? :: <boolean>)
+  te == te2 | (te.outer-environment & any-te-matches?(te.outer-environment, te2))
+end;
+
+define function set-type-environment! (c :: <computation>, t :: <type-environment>) => ()
+  if (slot-initialized?(c, type-environment) & c.type-environment)
+    if (c.type-environment == t)
+      //pass
+    elseif (any-te-matches?(c.type-environment, t))
+      //widen type environment? is unsafe, should not happen!
+      c.type-environment := t;
+    elseif (any-te-matches?(t, c.type-environment))
+      //t is more specific than c.t-e, so its safe to set
+      c.type-environment := t;
+    else
+      //disjoint, should not happen!
+      c.type-environment := t;
+    end;
+  else
+    c.type-environment := t;
+  end;
+end;
+
 define method type-walk (env :: <type-environment>, c :: <computation>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    c.type-environment := env;
+    set-type-environment!(c, env);
     c.infer-computation-types;
     next-type-step(env, c, last);
   end;
@@ -472,25 +516,37 @@ end;
 
 define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    c.type-environment := env;
+    set-type-environment!(c, env);
     solve(env);
     c.infer-computation-types; //actually, needs both envs for proper inference
     let fold = c.fold-if;
     if (fold)
       type-walk(env, fold, last);
     else
-      let con-env = make(<type-environment>, outer: env);
+      local method get-te (comp :: <computation>) => (result :: <type-environment>)
+              if (comp == c.next-computation)
+                env
+              elseif (slot-initialized?(comp, type-environment) & comp.type-environment)
+                if (c.type-environment == env) //outer env was more specific, use it
+                  comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
+                end;
+                comp.type-environment
+              else
+                make(<type-environment>, outer: env)
+              end;
+            end;
+      let con-env = get-te(c.consequent);
       type-walk(con-env, c.consequent, c.next-computation);
       con-env.finished-initial-typing? := #t;
       solve(con-env);
-      let alt-env = make(<type-environment>, outer: env);
+      let alt-env = get-te(c.alternative);
       type-walk(alt-env, c.alternative, c.next-computation);
       alt-env.finished-initial-typing? := #t;
       solve(alt-env);
       let if-merge = c.next-computation;
       //actually, this should record usage to merge-left/right, so that an upgrade of
       //those types upgrade this union somehow (and their users)
-      if-merge.type-environment := env;
+      set-type-environment!(if-merge, env);
       add-constraint(env, if-merge,
                      typist-union(env, temporary-type(if-merge.merge-left-value, con-env),
                                   temporary-type(if-merge.merge-right-value, alt-env)),
@@ -502,7 +558,7 @@ end;
 
 define method type-walk (env :: <type-environment>, c :: <bind-exit>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    c.type-environment := env;
+    set-type-environment!(c, env);
     solve(env);
     c.infer-computation-types;
     let bind-env = make(<type-environment>, outer: env);
@@ -514,7 +570,7 @@ define method type-walk (env :: <type-environment>, c :: <bind-exit>, last :: fa
     //problem: if optimized, need to add a constraint from right/left value
     //to actual user (if there's a user)
     if (instance?(be-merge, <bind-exit-merge>))
-      be-merge.type-environment := env;
+      set-type-environment!(be-merge, env);
       add-constraint(env, be-merge,
                      typist-union(env, temporary-type(be-merge.merge-left-value, env),
                                   temporary-type(be-merge.merge-right-value, bind-env)),
@@ -528,19 +584,19 @@ end;
 
 define method type-walk (env :: <type-environment>, c :: <loop>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    c.type-environment := env;
+    set-type-environment!(c, env);
     c.infer-computation-types;
-    let loop-env = make(<type-environment>, outer: env);
-    type-walk(loop-env, c.loop-body, c.next-computation);
-    loop-env.finished-initial-typing? := #t;
-    solve(loop-env);
+    //let loop-env = make(<type-environment>, outer: env);
+    type-walk(env, c.loop-body, c.next-computation);
+    //loop-env.finished-initial-typing? := #t;
+    //solve(loop-env);
     next-type-step(env, c, last);
   end;
 end;
 
 define method type-walk (env :: <type-environment>, c :: <unwind-protect>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    c.type-environment := env;
+    set-type-environment!(c, env);
     c.infer-computation-types;
     let uw-env = make(<type-environment>, outer: env);
     type-walk(uw-env, c.body, c.next-computation);
@@ -548,6 +604,15 @@ define method type-walk (env :: <type-environment>, c :: <unwind-protect>, last 
     let cleanup-env = make(<type-environment>, outer: env); //or uw-env?
     type-walk(cleanup-env, c.cleanups, c.next-computation);
     cleanup-env.finished-initial-typing? := #t;
+    next-type-step(env, c, last);
+  end;
+end;
+
+define method type-walk (env :: <type-environment>, c :: <make-closure>, last :: false-or(<computation>)) => ()
+  if (c ~== last)
+    set-type-environment!(c, env);
+    type-infer(c.computation-closure-method, env);
+    c.infer-computation-types;
     next-type-step(env, c, last);
   end;
 end;
@@ -565,7 +630,6 @@ define macro type-rule-definer
         let ?=constraint = curry(add-constraint, type-env, c);
         let ?=temporary-node = c.temporary & ?=abstract(c.temporary);
         let ?=computation = c;
-        let ?=solve = curry(solve, type-env);
         let ?=type-env = c.type-environment;
         let ?=estimate = rcurry(temporary-type, type-env);
         let ?=lookup = rcurry(lookup-type-node, type-env);
@@ -615,13 +679,25 @@ define method typist-union (env :: <type-environment>, t1 :: type-union(<collect
 end;
 
 define type-rule <merge>
+  local method find-te (t :: <value-reference>) => (res :: <type-environment>)
+          if (instance?(t, <temporary>) & t.generator & slot-initialized?(t.generator, type-environment) & t.generator.type-environment)
+            t.generator.type-environment
+          else
+            type-env
+          end
+        end;
   if (computation.merge-left-value & computation.merge-right-value)
-    solve();
-    constraint(typist-union(type-env, computation.merge-left-value.estimate, computation.merge-right-value.estimate),
+    let left-te = find-te(computation.merge-left-value);
+    let right-te = find-te(computation.merge-right-value);
+    solve(left-te);
+    solve(right-te);
+    constraint(typist-union(type-env,
+                            temporary-type(computation.merge-left-value, left-te),
+                            temporary-type(computation.merge-right-value, right-te)),
                temporary-node);
   elseif (computation.merge-left-value | computation.merge-right-value)
     let v = computation.merge-left-value | computation.merge-right-value;
-    constraint(v.lookup, temporary-node);
+    constraint(temporary-type(v, v.find-te).lookup, temporary-node);
   end;
 end;
 
@@ -642,7 +718,14 @@ define method infer-computation-types (c :: <loop>) => ()
   let types = make(<stretchy-vector>);
   for (node = c.loop-body then node.next-computation,
        while: instance?(node, type-union(<loop-merge>, <phi-node>)))
-    add!(types, temporary-type(node.extract-parameter-type, out-env));
+    let type = temporary-type(node.extract-parameter-type, out-env);
+    if (instance?(type, <&singleton>)) 
+      //inferring a singleton as a loop variable makes no sense
+      // because a loop variable is modified/assigned and won't
+      // stay constant
+      type := type.^singleton-object.&object-class;
+    end;
+    add!(types, type);
   end;
 
   if (types.size > 0)
@@ -662,7 +745,7 @@ define method infer-computation-types (c :: <loop>) => ()
                                 end;
                               end;
                         let new = deep-copy(copier, old);
-                        new.type-environment := c-env;
+                        //new.type-environment := c-env;
                         unless (cfg-first) cfg-first := new end;
                         for (tmp in old.used-temporary-accessors)
                           let getter = temporary-getter(tmp);
@@ -689,6 +772,7 @@ define method infer-computation-types (c :: <loop>) => ()
     //collect phi and loop-merge nodes
     for (type in types, node = cfg-first then node.next-computation)
       //assign "outer" types to temporaries
+      node.type-environment := c-env;
       let tv = abstract-and-lookup(node.temporary, c-env);
       add-constraint(c-env, node, lookup-type-node(type, c-env), tv);
       add!(phis, node);
@@ -706,8 +790,10 @@ define method infer-computation-types (c :: <loop>) => ()
     let safe?
       = block(fast-exit)
           for (phi in phis, type in types)
-            unless (^subtype?(temporary-type(phi.extract-argument-type, c-env),
-                              type))
+            let inner-t = phi.extract-argument-type;
+            let gen = inner-t.generator;
+            let inner-type = temporary-type(inner-t, gen & gen.type-environment | c-env);
+            unless (^subtype?(inner-type, type))
               fast-exit(#f)
             end;
           end;
@@ -771,9 +857,9 @@ define type-rule <repeated-slot-value-setter>
 end;
 
 define type-rule <extract-single-value>
-  solve();
+  solve(type-env);
   let tt = computation.computation-value.estimate;
-  if (instance?(tt, <collection>))
+  if (instance?(tt, <collection>) & (tt.size > computation.index))
     constraint(tt[computation.index].lookup, temporary-node)
   end
 end;
@@ -945,7 +1031,7 @@ define method upgrade-types (l :: <&lambda>)
       remove-key!(l.type-environment.real-environment, p);
     end;
   end;
-  l.type-infer
+  type-infer(l, l.type-environment);
 end;
 
 define function constrain-type-variables

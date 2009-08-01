@@ -167,12 +167,14 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	    end;
 	  end for-all-lambdas;
           send-debug(#"beginning", #("run type inference"));
-          for-all-lambdas (f in code)
-            if (f == code | lambda-used?(f))
-              type-infer(f);
-            end;
+          let tenv = make(<type-environment>, lambda: code);
+          //for-all-lambdas (f in code)
+          //  if (f == code | lambda-used?(f))
+              type-infer(code, tenv);
+          //  end;
             send-debug(#"relayouted", #());
-          end for-all-lambdas;
+          //end for-all-lambdas;
+          tenv.finished-initial-typing? := #t;
           send-debug(#"beginning", #("convert ssa to cells"));
           for-all-lambdas (f in code)
             f.convert-ssa-to-cells;

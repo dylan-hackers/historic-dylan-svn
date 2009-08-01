@@ -40,7 +40,11 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
 //                                 "<subjunctive-class-universe"),
 //                                 "compute-implementation-class-precedence-list"),
 //                                 "eassign"),
-                                 "list"),
+                                 //"list"),
+                                 //"initme"),
+                                 //"rcpl-isubclass"),
+                                 //"search-for-entry-count",
+                                 "make-symbol"),
               test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
     write-to-visualizer(vis, arguments);
   end;

@@ -515,6 +515,7 @@ begin
   environment-variable("OPEN_DYLAN_USER_ROOT") := top-build;
   environment-variable("OPEN_DYLAN_USER_BUILD") := concatenate(top-build, "build");
   environment-variable("OPEN_DYLAN_USER_INSTALL") := top-build;
+  environment-variable("OPEN_DYLAN_USER_REGISTRIES") := "c:\\typed-opendylan-dylan\\registry;c:\\typed-opendylan\\registry";
   let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Type-and-Graph-Visualization");
   connect-to-server(vis);
   let project = lookup-named-project("dylan");

@@ -10,7 +10,7 @@ end;
 
 define class <type-environment> (<mutable-explicit-key-collection>)
   constant slot real-environment :: <table> = make(<table>);
-  constant slot outer-environment :: false-or(<type-environment>) = #f,
+  slot outer-environment :: false-or(<type-environment>) = #f,
     init-keyword: outer:;
   constant slot type-graph :: <type-graph> = make(<type-graph>);
   constant slot %type-lambda :: false-or(<&lambda>) = #f,
