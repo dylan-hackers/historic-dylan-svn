@@ -239,7 +239,7 @@ define method print-tail-call-annotation
 end method;
 
 define method print-computation (stream :: <stream>, c :: <function-call>) 
-  format(stream, "%s", c.operation-name);
+  format(stream, "%s %=", c.operation-name, c.function);
 end method;
 
 define method print-computation (stream :: <stream>, c :: <slot-value>) 
