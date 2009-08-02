@@ -44,7 +44,13 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
                                  //"initme"),
                                  //"rcpl-isubclass"),
                                  //"search-for-entry-count",
-                                 "make-symbol"),
+                                 //"make-symbol"),
+                                 //"make-slot-access-engine-node"),
+                                 "object-implementation-class",
+                                 "class-instance?-rcpl-single-small"),
+                                 //"indirect-object-implementation-class"),
+                                 //"value-wrapper",
+                                 //"<stretchy-object-vector-representation> constructor"),
               test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
     write-to-visualizer(vis, arguments);
   end;
@@ -157,6 +163,12 @@ define function trace-computations (vis :: <dfmc-graph-visualization>, key :: <s
       write-data(vis, key, id.form-id, id.get-id);
     #"change-entry-point" =>
       write-data(vis, key, id.form-id, id.get-id, comp-or-id);
+    #"change-function" =>
+      begin
+        let str = make(<string-stream>, direction: #"output");
+        print-object(comp-or-id, str);
+        write-data(vis, key, id.form-id, id.get-id, str.stream-contents);
+      end;
     #"set-loop-call-loop" =>
       write-data(vis, key, id.form-id, id.get-id, comp-or-id, #"no");
     otherwise => ;

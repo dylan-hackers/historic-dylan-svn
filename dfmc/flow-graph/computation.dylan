@@ -673,9 +673,27 @@ define constant $dispatch-untried = 0;
 define constant $dispatch-tried   = 1;
 
 define abstract graph-class <function-call> (<call>)
-  temporary slot function :: false-or(<value-reference>), 
+  temporary slot %function :: false-or(<value-reference>), 
     required-init-keyword: function:;
 end graph-class;
+
+define method make (c :: subclass(<function-call>), #rest all-keys, #key, #all-keys)
+ => (res :: <function-call>)
+  let f = next-method();
+  f.function := f.function;
+  f;
+end;
+
+define method function (f :: <function-call>) => (res :: false-or(<value-reference>))
+  f.%function
+end;
+
+define method function-setter (new :: false-or(<value-reference>), c :: <function-call>)
+ => (res :: false-or(<value-reference>))
+  c.%function := new;
+  *computation-tracer* & *computation-tracer*(#"change-function", c, new, 0);
+  new;
+end;
 
 define packed-slots item-properties (<function-call>, <call>)
   field   slot dispatch-state  = $dispatch-untried, field-size: 1;

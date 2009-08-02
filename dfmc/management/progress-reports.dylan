@@ -22,7 +22,7 @@ define thread variable *current-progress* :: <float> = 0.0;
 // for synchronization at the stage and library level
 define thread variable *previous-progress* :: <float> = 0.0;
 
-define variable *internal-reporting?* :: <boolean> = #f;
+define variable *internal-reporting?* :: <boolean> = #t;
 // define variable *progress-debugging?* :: <boolean> = #f;
 
 define function internal-reporting-setter
