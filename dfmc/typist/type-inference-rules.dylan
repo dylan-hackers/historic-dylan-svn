@@ -543,15 +543,7 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
       type-walk(alt-env, c.alternative, c.next-computation);
       alt-env.finished-initial-typing? := #t;
       solve(alt-env);
-      let if-merge = c.next-computation;
-      //actually, this should record usage to merge-left/right, so that an upgrade of
-      //those types upgrade this union somehow (and their users)
-      set-type-environment!(if-merge, env);
-      add-constraint(env, if-merge,
-                     typist-union(env, temporary-type(if-merge.merge-left-value, con-env),
-                                  temporary-type(if-merge.merge-right-value, alt-env)),
-                     abstract-and-lookup(if-merge.temporary, env));
-      next-type-step(env, if-merge, last);
+      next-type-step(env, c, last);
     end;
   end;
 end;
@@ -561,24 +553,8 @@ define method type-walk (env :: <type-environment>, c :: <bind-exit>, last :: fa
     set-type-environment!(c, env);
     solve(env);
     c.infer-computation-types;
-    let bind-env = make(<type-environment>, outer: env);
-    type-walk(bind-env, c.body, c.next-computation);
-    bind-env.finished-initial-typing? := #t;
-    solve(bind-env);
-    let be-merge = c.next-computation;
-    //can get optimized away, and then the function can get inlined
-    //problem: if optimized, need to add a constraint from right/left value
-    //to actual user (if there's a user)
-    if (instance?(be-merge, <bind-exit-merge>))
-      set-type-environment!(be-merge, env);
-      add-constraint(env, be-merge,
-                     typist-union(env, temporary-type(be-merge.merge-left-value, env),
-                                  temporary-type(be-merge.merge-right-value, bind-env)),
-                     abstract-and-lookup(be-merge.temporary, env));
-      next-type-step(env, be-merge, last);
-    else
-      next-type-step(env, c, last);
-    end;
+    type-walk(env, c.body, c.next-computation);
+    next-type-step(env, c, last);
   end;
 end;
 
@@ -586,10 +562,7 @@ define method type-walk (env :: <type-environment>, c :: <loop>, last :: false-o
   if (c ~== last)
     set-type-environment!(c, env);
     c.infer-computation-types;
-    //let loop-env = make(<type-environment>, outer: env);
     type-walk(env, c.loop-body, c.next-computation);
-    //loop-env.finished-initial-typing? := #t;
-    //solve(loop-env);
     next-type-step(env, c, last);
   end;
 end;
@@ -598,12 +571,8 @@ define method type-walk (env :: <type-environment>, c :: <unwind-protect>, last 
   if (c ~== last)
     set-type-environment!(c, env);
     c.infer-computation-types;
-    let uw-env = make(<type-environment>, outer: env);
-    type-walk(uw-env, c.body, c.next-computation);
-    uw-env.finished-initial-typing? := #t;
-    let cleanup-env = make(<type-environment>, outer: env); //or uw-env?
-    type-walk(cleanup-env, c.cleanups, c.next-computation);
-    cleanup-env.finished-initial-typing? := #t;
+    type-walk(env, c.body, c.next-computation);
+    type-walk(env, c.cleanups, c.next-computation);
     next-type-step(env, c, last);
   end;
 end;
@@ -692,12 +661,12 @@ define type-rule <merge>
     solve(left-te);
     solve(right-te);
     constraint(typist-union(type-env,
-                            temporary-type(computation.merge-left-value, left-te),
-                            temporary-type(computation.merge-right-value, right-te)),
+                            temporary-type-abstraction(computation.merge-left-value, left-te),
+                            temporary-type-abstraction(computation.merge-right-value, right-te)),
                temporary-node);
   elseif (computation.merge-left-value | computation.merge-right-value)
     let v = computation.merge-left-value | computation.merge-right-value;
-    constraint(temporary-type(v, v.find-te).lookup, temporary-node);
+    constraint(temporary-type-abstraction(v, v.find-te).lookup, temporary-node);
   end;
 end;
 
