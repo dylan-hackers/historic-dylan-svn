@@ -17,7 +17,7 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 	//private boolean selected
 	//private boolean highlight
 	//private boolean optimization_queue
-	private final boolean debug = false;
+	private final boolean debug = true;
 	
 	public GraphNodeRealizer () {
 		label = createNodeLabel();

@@ -56,9 +56,11 @@ public final class Commands {
 		if (key.isEqual("remove-temporary"))
 			return removenode(ihl, answer, true);
 		if (key.isEqual("change-type"))
-			return changetype(ihl, answer, demo);
+			return changetype(ihl, answer);
 		if (key.isEqual("change-entry-point"))
-			return changeentrypoint(ihl, answer, demo);
+			return changeentrypoint(ihl, answer);
+		if (key.isEqual("change-function"))
+			return changefunction(ihl, answer);
 		if (key.isEqual("set-loop-call-loop"))
 			return setloopcallloop(ihl, answer);
 		if (key.isEqual("relayouted"))
@@ -83,7 +85,7 @@ public final class Commands {
 		if (key.isEqual("unhighlight-constraint"))
 			return highlightedge(ihl, answer, demo, false);
 		if (key.isEqual("type-relation"))
-			return typerelation(ihl, answer, demo);
+			return typerelation(ihl, answer);
 		System.out.println("shouldn't be here");
 		return false;
 	}
@@ -282,7 +284,7 @@ public final class Commands {
 		return false;
 	} 
 	
-	private static boolean changetype (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
+	private static boolean changetype (IncrementalHierarchicLayout ihl, ArrayList answer) {
 		assert(answer.size() == 4);
 		Node n = getNode(ihl, answer, 2, true);
 		if (n != null) {
@@ -294,7 +296,7 @@ public final class Commands {
 		return false;
 	}
         
-	private static boolean changeentrypoint(IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
+	private static boolean changeentrypoint(IncrementalHierarchicLayout ihl, ArrayList answer) {
 		assert(answer.size() == 4);
 		Node n = getNode(ihl, answer, 2, false);
 		assert(answer.get(3) instanceof Symbol);
@@ -304,6 +306,15 @@ public final class Commands {
 		return true;		
 	}
 	
+	private static boolean changefunction(IncrementalHierarchicLayout ihl, ArrayList answer) {
+		assert(answer.size() == 4);
+		Node n = getNode(ihl, answer, 2, false);
+		assert(answer.get(3) instanceof String);
+		GraphNodeRealizer nr = (GraphNodeRealizer)ihl.graph.getRealizer(n);
+		nr.setSuffix((String)answer.get(3));
+		return true;		
+	}
+
 	private static boolean relayouted (IncrementalHierarchicLayout ihl, DemoBase demo) {
 		ihl.activateLayouter();
 		demo.calcLayout();
@@ -396,7 +407,7 @@ public final class Commands {
 		return false;
 	}
 	
-	private static boolean typerelation (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
+	private static boolean typerelation (IncrementalHierarchicLayout ihl, ArrayList answer) {
 		assert(answer.size() == 4);
 		Node temp = getNode(ihl, answer, 3, false);
 		Node type = getNode(ihl, answer, 2, false);
