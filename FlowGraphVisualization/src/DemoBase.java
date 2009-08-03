@@ -6,14 +6,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -23,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
@@ -44,7 +43,6 @@ import y.view.Graph2DViewMouseWheelZoomListener;
 import y.view.LayoutMorpher;
 import y.view.LineType;
 import y.view.NavigationMode;
-import y.view.NodeRealizer;
 import yext.svg.io.SVGIOHandler;
 
 public class DemoBase extends Thread {
@@ -87,6 +85,8 @@ public class DemoBase extends Thread {
   private JPanel graphpanel;
   private JSlider alphaslider;
   private boolean forcelayout = false;
+  private JToggleButton compb;
+  protected final JToggleButton debug = new JToggleButton( new DebugAction() );
   
   final JToolBar jtb;
   
@@ -119,16 +119,6 @@ public class DemoBase extends Thread {
     graphpanel.setLayout( new BorderLayout(3, 3) );
     left.add(graphpanel, BorderLayout.CENTER);
     
-    //view.setOpaque(true);
-    //view.setPreferredSize(new Dimension(1100, 1000));
-    //((DefaultBackgroundRenderer)view.getBackgroundRenderer()).setColor(new Color(0xff, 0xff, 0xff, 0x33));
-
-    //typeview.setOpaque(true);
-    //typeview.setPreferredSize(new Dimension(1100, 1000));
-    //((DefaultBackgroundRenderer)typeview.getBackgroundRenderer()).setColor(new Color(0xff, 0xff, 0xff, 0x33));
-    //typeview.getGlassPane().add(view);
-
-    //left.add( typeview, BorderLayout.CENTER );
     graphpanel.add(view, BorderLayout.CENTER);
     graphpanel.add(typeview, BorderLayout.EAST);
 
@@ -239,7 +229,7 @@ public class DemoBase extends Thread {
   }
   
   private boolean steppressed = false;
-  private boolean playpressed = false;
+  private boolean playpressed = true;
 public boolean updatingguimanually = false;
   
   public void waitforstep () {
@@ -263,6 +253,7 @@ public boolean updatingguimanually = false;
   }
   
   public void graphChanged (IncrementalHierarchicLayout ihl) {
+	  compb.setSelected(false);
 	  incrementallayouter = ihl;
 	  updatingslider = true;
 	  //happens from time to time (some propertychanged event
@@ -273,7 +264,7 @@ public boolean updatingguimanually = false;
 	  try { slider.setMaximum(ihl.lastEntry); } catch (NullPointerException e) { }
 	  try { slider.setValue(ihl.lastslidervalue); } catch (NullPointerException e) { }
 	  updatingslider = false;
-	  playpressed = false;
+	  playpressed = true;
 	  calcLayout();
   }
   
@@ -311,25 +302,29 @@ public boolean updatingguimanually = false;
     toolBar.add( new FitContent( ) );
 	toolBar.add( new LayoutAction() );
 	toolBar.add( new ForceLayoutAction() );
-	toolBar.add( new CompareAction() );
+	compb = new JToggleButton(new CompareAction());
+	toolBar.add( compb );
 	toolBar.add( new Play() );
 	toolBar.add( new Step() );
 	toolBar.add( new SaveAction(view, "Flow Graph") );
 	toolBar.add( new SaveAction(typeview, "Type Graph") );
+	toolBar.add( debug );
     return toolBar;
   }
 
   public void activate (IncrementalHierarchicLayout ih) {
-	String mname = ih.graph_id;
-	text.setText(string_source_map.get(mname));
-	updatingguimanually = true;
-	for (int i = 0; i < graph_chooser.getItemCount(); i++)
-		if (((ListElement)graph_chooser.getItemAt(i)).toString().equals(mname)) {
-			graph_chooser.setSelectedIndex(i);
-			break;
-		}
-	updatingguimanually = false;
-	ih.activateLayouter();
+	  if (ih != incrementallayouter) {
+		  String mname = ih.graph_id;
+		  text.setText(string_source_map.get(mname));
+		  updatingguimanually = true;
+		  for (int i = 0; i < graph_chooser.getItemCount(); i++)
+			  if (((ListElement)graph_chooser.getItemAt(i)).toString().equals(mname)) {
+				  graph_chooser.setSelectedIndex(i);
+				  break;
+			  }
+		  updatingguimanually = false;
+		  ih.activateLayouter();
+	  }
   }
 
   final class MyMouseListener implements MouseListener {
@@ -344,8 +339,6 @@ public boolean updatingguimanually = false;
 			unselect();
 		else
 			select(selected);
-		view.repaint();
-		typeview.repaint();
 	}
 	
 	public Node checkClick (Graph2DView graph, Graph2D g, int x, int y) {
@@ -371,8 +364,7 @@ public boolean updatingguimanually = false;
 	}
 	  
   }
-  final class SendAction extends AbstractAction
-  {
+  final class SendAction extends AbstractAction {
 	public void actionPerformed(ActionEvent ev) {
 		if (string_source_map.get(methodName()) == null)
 			if (string_source_map.get(methodName().substring(0, methodName().indexOf(' ')).trim()) == null) {
@@ -395,8 +387,7 @@ public boolean updatingguimanually = false;
 	}
   }
   
-  final class ChangeProjectAction extends AbstractAction
-  {
+  final class ChangeProjectAction extends AbstractAction {
 		public void actionPerformed(ActionEvent ev) {
 			ArrayList data = new ArrayList();
 			data.add(new Symbol("open-project"));
@@ -405,8 +396,7 @@ public boolean updatingguimanually = false;
 		} 
   }
   
-  final class ChangeGraphAction extends AbstractAction
-	{
+  final class ChangeGraphAction extends AbstractAction {
 		public ChangeGraphAction() {
 			super("Change Graph");
 			this.putValue(Action.SHORT_DESCRIPTION, "Change Graph");
@@ -435,8 +425,7 @@ public boolean updatingguimanually = false;
 		}
 	}
   
-  final class ChangeSlider implements ChangeListener
-  {
+  final class ChangeSlider implements ChangeListener {
 	public void stateChanged(ChangeEvent arg0) {
 		if (!updatingslider && !slider.getValueIsAdjusting() && incrementallayouter.graphfinished) {
 			int step = slider.getValue();
@@ -445,8 +434,7 @@ public boolean updatingguimanually = false;
 	}
   }
  
-  final class ChangeAlphaSlider implements ChangeListener
-  {
+  final class ChangeAlphaSlider implements ChangeListener {
 	public void stateChanged(ChangeEvent arg0) {
 		if (!alphaslider.getValueIsAdjusting()) {
 			int step = alphaslider.getValue();
@@ -462,15 +450,6 @@ public boolean updatingguimanually = false;
 
     public Zoom( double factor ) {
       super( "Zoom " + ( factor > 1.0 ? "In" : "Out" ) );
-      URL imageURL;
-      if ( factor > 1.0d ) {
-        imageURL = ClassLoader.getSystemResource( "demo/view/resource/ZoomIn16.gif" );
-      } else {
-        imageURL = ClassLoader.getSystemResource( "demo/view/resource/ZoomOut16.gif" );
-      }
-      if ( imageURL != null ) {
-        this.putValue( Action.SMALL_ICON, new ImageIcon( imageURL ) );
-      }
       this.putValue( Action.SHORT_DESCRIPTION, "Zoom " + ( factor > 1.0 ? "In" : "Out" ) );
       this.factor = factor;
     }
@@ -492,13 +471,8 @@ public boolean updatingguimanually = false;
    * Action that fits the content nicely inside the view.
    */
   protected class FitContent extends AbstractAction {
-
     public FitContent( ) {
       super( "Fit Content" );
-      URL imageURL = ClassLoader.getSystemResource( "demo/view/resource/FitContent16.gif" );
-      if ( imageURL != null ) {
-        this.putValue( Action.SMALL_ICON, new ImageIcon( imageURL ) );
-      }
       this.putValue( Action.SHORT_DESCRIPTION, "Fit Content" );
     }
 
@@ -513,15 +487,10 @@ public boolean updatingguimanually = false;
 	/**
 	 * Simple Layout action (incremental)
 	 */
-	final class LayoutAction extends AbstractAction
-	{
+	final class LayoutAction extends AbstractAction	{
 		LayoutAction()
 		{
 			super("Layout");
-			URL imageURL = ClassLoader.getSystemResource("demo/view/resource/Layout16.gif");
-			if (imageURL != null){
-				this.putValue(Action.SMALL_ICON, new ImageIcon(imageURL));
-			}
 			this.putValue( Action.SHORT_DESCRIPTION, "Layout");
 		}
 		public void actionPerformed(ActionEvent ev)
@@ -534,8 +503,7 @@ public boolean updatingguimanually = false;
 		}
 	}
 	
-	final class ForceLayoutAction extends AbstractAction
-	{
+	final class ForceLayoutAction extends AbstractAction {
 		ForceLayoutAction ()
 		{
 			super("Force Layout");
@@ -595,23 +563,43 @@ public boolean updatingguimanually = false;
 	  }
 
 	  
-	final class CompareAction extends AbstractAction
-	{
+	final class CompareAction extends AbstractAction {
 		CompareAction () {
 			super("Compare Graph");
 		}
 		
 		public void actionPerformed (ActionEvent ev) {
-			IncrementalHierarchicLayout ihl2 = client.findComparableGraph(incrementallayouter.graph_id);
-			if (ihl2 != null) {
-				CompareGraphs.compareColorize(view, incrementallayouter.graph, ihl2.graph);
-			} else
-				System.out.println("no suitable graph found for comparison");
+			if (compb.isSelected()) {
+				IncrementalHierarchicLayout ihl2 = client.findComparableGraph(incrementallayouter.graph_id, incrementallayouter.graphfinished);
+				if (ihl2 != null) {
+					CompareGraphs.resetComparison(incrementallayouter);
+					CompareGraphs.resetComparison(ihl2);
+					CompareGraphs.compareColorize(incrementallayouter, ihl2);
+				} else
+					System.out.println("no suitable graph found for comparison");
+			} else {
+				CompareGraphs.resetComparison(incrementallayouter);
+			}
 		}
 	}
 	
-	final class Play extends AbstractAction
-	{
+	final class DebugAction extends AbstractAction {
+		public DebugAction() {
+			super("Debug");
+		}
+		
+		public void actionPerformed (ActionEvent ev) {
+			if (incrementallayouter != null) {
+				boolean d = debug.isSelected();
+				for (NodeCursor nc = incrementallayouter.graph.nodes(); nc.ok(); nc.next())
+					((GraphNodeRealizer)incrementallayouter.graph.getRealizer(nc.node())).setDebug(d);
+				for (NodeCursor nc = incrementallayouter.typegraph.nodes(); nc.ok(); nc.next())
+					((GraphNodeRealizer)incrementallayouter.typegraph.getRealizer(nc.node())).setDebug(d);
+			}
+		}
+	}
+	
+	final class Play extends AbstractAction	{
 		Play() {
 			super("Play");
 			this.putValue( Action.SHORT_DESCRIPTION, "Play");
@@ -624,11 +612,9 @@ public boolean updatingguimanually = false;
 					if (! incrementallayouter.nextStep())
 						break;
 		}
-		
 	}
 	
-	final class Step extends AbstractAction
-	{
+	final class Step extends AbstractAction	{
 		Step() {
 			super("Step");
 			this.putValue( Action.SHORT_DESCRIPTION, "Step");
@@ -641,36 +627,34 @@ public boolean updatingguimanually = false;
 		
 	}
 	
-	private Color highlightColor (Color c) {
-		Color b = c.darker().darker();
-		return new Color(b.getRed(), b.getGreen(), b.getBlue(), c.getAlpha());
-	}
-	
-	private Color unhighlightColor (Color c) {
-		Color b = c.brighter().brighter();
-		return new Color(b.getRed(), b.getGreen(), b.getBlue(), c.getAlpha());
-	}
-	
 	protected void unselect () {
 		if (incrementallayouter != null) {
 			Node old = incrementallayouter.selection;
 			if  (old != null) {
 				Graph2D gr = (Graph2D)old.getGraph();
 				gr.setSelected(old, false);
-				for (EdgeCursor ec = old.edges(); ec.ok(); ec.next())
-					if (gr.getRealizer(ec.edge()).getLineColor() != Color.black) {
-						if (gr == view.getGraph2D() && gr.getRealizer(ec.edge()).getLineColor() == Color.blue)
+				((GraphNodeRealizer)gr.getRealizer(old)).updateColor();
+				for (EdgeCursor ec = old.edges(); ec.ok(); ec.next()) {
+					if (gr == view.getGraph2D())
+						if (gr.getRealizer(ec.edge()).getLineColor() == Color.blue)
 							gr.getRealizer(ec.edge()).setLineType(LineType.DASHED_2);
 						else
 							gr.getRealizer(ec.edge()).setLineType(LineType.LINE_2);
-						NodeRealizer o = gr.getRealizer(ec.edge().opposite(old)); 
-						o.setFillColor(unhighlightColor(o.getFillColor()));
-					}
+					else //typegraph
+						if (gr.getRealizer(ec.edge()).getLineColor() == Color.red)
+							gr.getRealizer(ec.edge()).setLineType(LineType.DOTTED_2);
+						else if (gr.getRealizer(ec.edge()).getLineColor() == Color.GREEN)
+							gr.getRealizer(ec.edge()).setLineType(LineType.DASHED_2);
+						else
+							gr.getRealizer(ec.edge()).setLineType(LineType.LINE_2);
+					gr.getRealizer(ec.edge()).repaint();
+					((GraphNodeRealizer)(gr.getRealizer(ec.edge().opposite(old)))).setNeighbourSelected(false);
+				}
 				Node tt = findTNode(old);
 				if (tt != null) {
 					Graph2D gr2 = (Graph2D)tt.getGraph();
 					if (gr2 != null)
-					gr2.getRealizer(tt).setFillColor(unhighlightColor(gr2.getRealizer(tt).getFillColor()));
+						((GraphNodeRealizer)gr2.getRealizer(tt)).setReferenceSelected(false);
 				}
 				incrementallayouter.selection = null;
 			}
@@ -694,17 +678,28 @@ public boolean updatingguimanually = false;
 				//System.out.println("selection now " + incrementallayouter.graph.getLabelText(s));
 				Graph2D gr = (Graph2D)s.getGraph();
 				gr.setSelected(s, true);
-				for (EdgeCursor ec = s.edges(); ec.ok(); ec.next())
-					if (gr.getRealizer(ec.edge()).getLineColor() != Color.black) {
-						gr.getRealizer(ec.edge()).setLineType(LineType.LINE_4);
-						NodeRealizer n = gr.getRealizer(ec.edge().opposite(s)); 
-						n.setFillColor(highlightColor(n.getFillColor()));
-					}
+				gr.getRealizer(s).repaint();
+				for (EdgeCursor ec = s.edges(); ec.ok(); ec.next()) {
+					if (gr == view.getGraph2D())
+						if (gr.getRealizer(ec.edge()).getLineColor() == Color.blue)
+							gr.getRealizer(ec.edge()).setLineType(LineType.DASHED_4);
+						else
+							gr.getRealizer(ec.edge()).setLineType(LineType.LINE_4);
+					else //typegraph
+						if (gr.getRealizer(ec.edge()).getLineColor() == Color.red)
+							gr.getRealizer(ec.edge()).setLineType(LineType.DOTTED_4);
+						else if (gr.getRealizer(ec.edge()).getLineColor() == Color.green)
+							gr.getRealizer(ec.edge()).setLineType(LineType.DASHED_4);
+						else
+							gr.getRealizer(ec.edge()).setLineType(LineType.LINE_4);
+					gr.getRealizer(ec.edge()).repaint();
+					((GraphNodeRealizer)gr.getRealizer(ec.edge().opposite(s))).setNeighbourSelected(true); 
+				}
 				Node tt = findTNode(s);
 				if (tt != null) {
 					Graph2D gr2 = (Graph2D)tt.getGraph();
 					if (gr2 != null)
-						gr2.getRealizer(tt).setFillColor(highlightColor(gr2.getRealizer(tt).getFillColor()));
+						((GraphNodeRealizer)gr2.getRealizer(tt)).setReferenceSelected(true); 
 				}
 				incrementallayouter.selection = s;
 			}
@@ -715,7 +710,7 @@ public boolean updatingguimanually = false;
 	 * Animated layout assignment
 	 */
 	public void calcLayout(){
-		//if (forcelayout) {
+		if (forcelayout) {
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");
 			//if (alphaslider.getValue() == 3)
@@ -762,13 +757,18 @@ public boolean updatingguimanually = false;
 				incrementallayouter.calcSwimLanes();
 				GraphLayout layout = new BufferedLayouter(incrementallayouter.hierarchicLayouter).calcLayout(view.getGraph2D());
 				LayoutMorpher morpher = new LayoutMorpher(view, layout);
-				morpher.setSmoothViewTransform(true);
-				//morpher.setKeepZoomFactor(true);
-				morpher.setPreferredDuration(1500);
 				final AnimationPlayer player = new AnimationPlayer();
 				player.addAnimationListener(view);
-				player.setFps(30);
-				//player.setBlocking(true);
+				if (alphaslider.getValue() == 3) {
+					morpher.setPreferredDuration(0);
+					player.setFps(0);
+				} else {
+					morpher.setSmoothViewTransform(true);
+					//morpher.setKeepZoomFactor(true);
+					morpher.setPreferredDuration(1500);
+					player.setFps(30);
+					//player.setBlocking(true);
+				}
 				player.animate(AnimationFactory.createEasedAnimation(morpher));
 			} catch (Exception e) {
 				System.out.println("got exception during layouting");
@@ -806,13 +806,18 @@ public boolean updatingguimanually = false;
 				typeview.getCanvasComponent().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				GraphLayout layout = new BufferedLayouter(incrementallayouter.typeLayouter).calcLayout(typeview.getGraph2D());
 				LayoutMorpher morpher = new LayoutMorpher(typeview, layout);
-				morpher.setSmoothViewTransform(true);
-				//morpher.setKeepZoomFactor(true);
-				morpher.setPreferredDuration(1500);
 				final AnimationPlayer player = new AnimationPlayer();
 				player.addAnimationListener(typeview);
-				player.setFps(30);
-				//player.setBlocking(true);
+				if (alphaslider.getValue() == 0) {
+					morpher.setPreferredDuration(0);
+					player.setFps(0);
+				} else {
+					morpher.setSmoothViewTransform(true);
+					//morpher.setKeepZoomFactor(true);
+					morpher.setPreferredDuration(1500);
+					player.setFps(30);
+					//player.setBlocking(true);
+				}
 				player.animate(AnimationFactory.createEasedAnimation(morpher));
 			} catch (Exception e) {
 				System.out.println("got exception during layouting");
@@ -830,7 +835,7 @@ public boolean updatingguimanually = false;
 		}
 		typeview.updateView();
 		view.updateView();
-		//}
+		}
 	}
 
 }

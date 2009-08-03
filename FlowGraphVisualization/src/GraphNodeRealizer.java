@@ -6,18 +6,31 @@ import y.view.NodeRealizer;
 
 
 public class GraphNodeRealizer extends GenericNodeRealizer {
+	private boolean debug = false;
 	private String nodetext = "";
-	private String nodetype = "";
-	private Color nodecolor = new Color(0xbb, 0xbf, 0xff);
-	private int reference = 0;
-	private int identifier = 0;
 	private String prefix = "";
 	private String suffix = "";
+	private String nodetypetext = "";
+	private int reference = 0;
+	private int identifier = 0;
+	private boolean neighbour_selected = false;
+	private boolean reference_selected = false;
+	private boolean highlight = false;
+	private boolean optimization_queue = false;
+	private boolean different = false;
+	private NodeType type = NodeType.CONTROL;
+
+	private static final Color diffColor = new Color(0xC6, 0xB3, 0xFF);
+	private static final Color highlightColor = new Color(0xCC, 0xFF, 0xCC);
+	private static final Color optimizationColor = Color.orange;
+	private static final Color baseColor = new Color(0xbb, 0xbf, 0xff);
+	private static final Color dataColor = new Color(0xff, 0xe9, 0xe9);
+	
 	private NodeLabel label;
-	//private boolean selected
-	//private boolean highlight
-	//private boolean optimization_queue
-	private final boolean debug = true;
+
+	public static enum NodeType { CONTROL, DATA, TYPE, TYPEVAR };
+	private static final Color[] NodeColors = { baseColor, dataColor };
+	
 	
 	public GraphNodeRealizer () {
 		label = createNodeLabel();
@@ -29,7 +42,7 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 	    return new GraphNodeRealizer();
 	}
 	  
-	private void update () {
+	private void updateText () {
 		if (debug) {
 			String ref = "";
 			if (reference != 0)
@@ -38,70 +51,108 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 		} else
 			label.setText(prefix + " " + nodetext + " " + suffix);
 		setWidth(label.getWidth() + 2 * 20);
-		setFillColor(nodecolor);
 		repaint();
 	}
 	
-	public String getNodeText () {
-		return nodetext;
+	public void updateColor () {
+		if (! isSelected()) {
+			Color nc = null;
+			if (different)
+				nc = diffColor;
+			else if (highlight)
+				nc = highlightColor;
+			else if (optimization_queue)
+				nc = optimizationColor;
+			else 
+				nc = NodeColors[type.ordinal() % 2];
+			if (neighbour_selected | reference_selected)
+				nc = nc.darker().darker();
+			setFillColor(nc);
+			repaint();
+		}
+	}
+	
+	public String getComparableText () {
+		return prefix + " " + nodetext + " " + suffix;
+	}
+	
+	public String getSliderText () {
+		return suffix + " " + nodetext;
 	}
 	
 	public void setNodeText (String s) {
 		nodetext = s;
-		update();
+		updateText();
 	}
 	
-	public String getNodeType () {
-		return nodetype;
-	}
-	
-	public void setNodeType (String s) {
-		nodetype = s;
-		//update();
-	}
-	
-	public Color getNodeColor () {
-		return nodecolor;
-	}
-	
-	public void setNodeColor (Color c) {
-		nodecolor = c;
-		update();
-	}
-	
-	public int getReference () {
-		return reference;
+	public void setNodeTypeText (String s) {
+		nodetypetext = s;
 	}
 	
 	public void setReference (int r) {
 		reference = r;
-		update();
-	}
-	
-	public int getIdentifier () {
-		return identifier;
+		updateText();
 	}
 	
 	public void setIdentifier (int i) {
 		identifier = i;
-		update();
-	}
-	
-	public String getPrefix () {
-		return prefix;
+		updateText();
 	}
 	
 	public void setPrefix (String p) {
 		prefix = p;
-		update();
-	}
-	
-	public String getSuffix () {
-		return suffix;
+		updateText();
 	}
 	
 	public void setSuffix (String s) {
 		suffix = s;
-		update();
-	}	
+		updateText();
+	}
+	
+	public void setNodeType (NodeType t) {
+		type = t;
+		updateColor();
+	}
+	
+	public void setDifferent (boolean b) {
+		if (different != b) {
+			different = b;
+			updateColor();
+		}
+	}
+
+	public void setNeighbourSelected(boolean b) {
+		if (neighbour_selected != b) {
+			neighbour_selected = b;
+			updateColor();
+		}
+	}
+
+	public void setReferenceSelected(boolean b) {
+		if (reference_selected != b) {
+			reference_selected = b;
+			updateColor();
+		}
+	}
+
+	public void setHighlight(boolean b) {
+		if (highlight != b) {
+			highlight = b;
+			updateColor();
+		}
+	}
+
+	public void setOptimizationQueue(boolean b) {
+		if (optimization_queue != b) {
+			optimization_queue = b;
+			updateColor();
+		}
+	}
+	
+	public void setDebug (boolean b) {
+		if (debug != b) {
+			debug = b;
+			updateText();
+		}
+	}
 }

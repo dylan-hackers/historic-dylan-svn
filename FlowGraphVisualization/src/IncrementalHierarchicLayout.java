@@ -44,19 +44,31 @@ public class IncrementalHierarchicLayout
 	protected ConstraintFactory scf;
 	protected ConstraintFactory typescf;
 	
+	//temporary cache for highlight/opt-queue commands
 	public Node highlight = null;
 	public ArrayList<Integer> opt_queue;
 
-
+	//GUI information whether to relayout or not
 	public boolean changed = false;
 	public boolean typechanged = false;
-	public int numChanges = 0;
+	
+	//changes, every new phase pushes a new ArrayList
+	public ArrayList<ArrayList> changes = new ArrayList<ArrayList>();
+	//total useful changes (all apart from beginning, highlight, relayouted, etc.
+	protected int numChanges = 0;
+	//index in current active changes vector
+	protected int chindex = 0;	
+	//last index a new ArrayList was pushed
+	protected int lastChangeCount = 0;
+	//last index a relayout was done
+	protected int lastRelayout = 0;
+
+	//slider indexes: last set value (maximum), and current value (lastslidervalue) 
 	protected Hashtable<Integer, JLabel> sliderLabels = new Hashtable<Integer, JLabel>();
 	protected int lastEntry = 0;
-	private int lastChangeCount = 0;
-	public ArrayList<ArrayList> changes = new ArrayList<ArrayList>();
-
 	protected int lastslidervalue = 0;
+
+	//two booleans, one set by gui thread (including last label "finished")
 	protected boolean graphfinished = false;
 	protected boolean graphinprocessofbeingfinished = false;
 	
@@ -64,12 +76,13 @@ public class IncrementalHierarchicLayout
 	
 	public Node selection;
 	
+	//debug support
 	public boolean isok = true;
 
 	private NodeMap swimLane;
 	protected DataMap hintMap;
 	protected IncrementalHintsFactory hintsFactory;
-	private ArrayList<Node> topnodes;
+	protected ArrayList<Node> topnodes;
 	
 	protected IncrementalHintsFactory typeHintsFactory;
 	protected DataMap typeHintMap;
@@ -186,6 +199,7 @@ public class IncrementalHierarchicLayout
 	}
 
 	private void initGraphHelper (ArrayList nodelist, int id) {
+		System.err.println("uh? " + nodelist);
 		assert (nodelist.size() > 1);
 
 		assert(nodelist.get(0) instanceof Integer);
@@ -201,61 +215,21 @@ public class IncrementalHierarchicLayout
 			ArrayList testnodes = (ArrayList)nodelist.get(2);
 			assert(testnodes.size() == 1);
 			assert(testnodes.get(0) instanceof String);
-			Node test = createNodeWithLabel((String)testnodes.get(0), comp_id);
-			changeLabel(test, "if ");
-				
-			//consequence
 			assert(nodelist.get(3) instanceof ArrayList);
-			ArrayList<Node> consequence = getNodes((ArrayList)nodelist.get(3));
-				
-			if (consequence.size() > 0) {
-				graph.createEdge(test, consequence.get(0));
-				setEdgeLabel("true");
-			}
-			
-			
-			
-			for (Node c : consequence) {
-				//scf.addPlaceNodeBelowConstraint(test, c);
-				//groups.setInt(c, test.index());
-			}
-				
-			//alternative
+			assert(((ArrayList)nodelist.get(3)).size() == 0);
 			assert(nodelist.get(4) instanceof ArrayList);
-			ArrayList<Node> alternative = getNodes((ArrayList)nodelist.get(4));
-				
-			if (alternative.size() > 0) {
-				graph.createEdge(test, alternative.get(0));
-				setEdgeLabel("false");
-			}
-			for (Node a : alternative) {
-				//scf.addPlaceNodeBelowConstraint(test, a);
-				//groups.setInt(a, test.index() - 1);
-			}
-
+			assert(((ArrayList)nodelist.get(4)).size() == 0);
+			Node test = createNodeWithLabel("if", comp_id);
 		} else if (s.isEqual("loop")) {
 			Node loop = createNodeWithLabel("loop", comp_id);
 			assert(nodelist.size() == 3);
 			assert(nodelist.get(2) instanceof ArrayList);
-				
-			ArrayList<Node> body = getNodes((ArrayList)nodelist.get(2));
-
-			//groupMap.set(n, loop-id);
-			if (body.size() > 0)
-				graph.createEdge(loop, body.get(0));
-			
-			for (Node b : body)
-				if (graph.getRealizer(b).getLabelText().contains("continue"))
-					safeCreateEdge(b, loop);
-
+			assert(((ArrayList)nodelist.get(2)).size() == 0);	
 		} else if (s.isEqual("loop-call")) {
 			assert(nodelist.size() == 3);
 			assert(nodelist.get(2) instanceof Integer);
 			Node loopc = createNodeWithLabel("continue", comp_id);
-			if ((Integer) nodelist.get(2) != 0) {
-				Node loop = int_node_map.get((Integer)nodelist.get(2));
-				graph.createEdge(loopc, loop);
-			}
+			assert((Integer)nodelist.get(2) == 0);
 		} else if (s.isEqual("bind-exit")) {
 			assert(nodelist.size() == 3);
 			//assert(nodelist.get(2) instanceof Integer); //entry-state
@@ -279,6 +253,7 @@ public class IncrementalHierarchicLayout
 	}
 	
 	private ArrayList<Node> getNodes(ArrayList arrayList) {
+		System.err.println("wtf? " + arrayList);
 		ArrayList<Node> res = new ArrayList<Node>();
 		for (Object o : arrayList) {
 			assert(o instanceof Integer);
@@ -294,17 +269,19 @@ public class IncrementalHierarchicLayout
 	}
 	
 	private Node initGraphHelper (Symbol node, int id) {
+		System.out.println("inithelper with symbol, int " + node + " " + id);
 		return createNodeWithLabel(node.toString(), id);
 	}
 	
 	private Node initGraphHelper (Integer node, int id) {
+		System.out.println("inithelper with int, int " + node + " " + id);
 		return createNodeWithLabel(Integer.toString(node), id);
 	}
 	
 	public Node createTypeNodeWithLabel (String label, int id) {
 		Node n = typegraph.createNode();
 		GraphNodeRealizer nr = (GraphNodeRealizer)typegraph.getRealizer(n);
-		nr.setNodeColor(new Color(0xcc, 0xff, 0xcc));
+		nr.setNodeType(GraphNodeRealizer.NodeType.TYPE);
 		nr.setIdentifier(id);
 		nr.setNodeText(label);
 		assert(int_node_map.get(id) == null);
@@ -317,28 +294,24 @@ public class IncrementalHierarchicLayout
 		GraphNodeRealizer nr = (GraphNodeRealizer)graph.getRealizer(n);
 		nr.setIdentifier(id);
 		nr.setNodeText(label);
-		nr.setNodeColor(new Color(0xbb, 0xbf, 0xff));
-		//demobase.calcLayout();
+		nr.setNodeType(GraphNodeRealizer.NodeType.CONTROL);
 		//System.out.println("created node (gr " + graph + ")");
 		if (id > 0) {
 			assert(int_node_map.containsKey(id) == false);
 			int_node_map.put(id, n);
-		} else if (id == 0)
+		} else if (id == 0) {
+			System.out.println("shouldn't happen, id of createNodeWithLabel is 0");
 			topnodes.add(n);
-		if (label.equals("bind") || label.equals("[BIND]"))
+		}
+		if (label.equals("bind"))
 			topnodes.add(n);
 		return n;
 	}
 	
-	public void changeLabel (Node n, String app) {
-		GraphNodeRealizer nr = (GraphNodeRealizer)graph.getRealizer(n);
-		nr.setNodeText(app);
-	}
-
 	public void createTemporary(int temp_id, int c_id, String text) {
 		Node t = createNodeWithLabel(text, temp_id);
 		GraphNodeRealizer gr = (GraphNodeRealizer)graph.getRealizer(t);
-		gr.setNodeColor(new Color(0xff, 0xe9, 0xe9));
+		gr.setNodeType(GraphNodeRealizer.NodeType.DATA);
 		if (c_id != 0) {
 			Node gen = int_node_map.get(c_id);
 			assert(gen != null);
@@ -358,22 +331,11 @@ public class IncrementalHierarchicLayout
 	public void createTypeVariable (int id, int temp, String type) {
 		Node tv = createTypeNodeWithLabel(tvnames[tvindex], id);
 		GraphNodeRealizer nr = (GraphNodeRealizer)typegraph.getRealizer(typegraph.lastNode());
-		nr.setNodeColor(new Color(0xff, 0xe9, 0xe9));
+		nr.setNodeType(GraphNodeRealizer.NodeType.TYPEVAR);
 		nr.setReference(temp);
 		tvindex = (tvindex + 1) % tvnames.length;
 		if (temp != 0)
 			tv_temp_map.put(tv, int_node_map.get(temp));
-		//NodeRealizer nr = typegraph.getRealizer(tv);
-		//NodeRealizer tr = graph.getRealizer(int_node_map.get(temp));
-		//nr.setLocation(tr.getX(), tr.getY());
-		
-		//typegraph.getRealizer(tv).setX(graph.getRealizer(int_node_map.get(temp)).getX());
-		//typegraph.getRealizer(tv).setY(graph.getRealizer(int_node_map.get(temp)).getY());		
-		//graph.getRealizer(tv).setFillColor((Color.BLUE).brighter());
-//		EdgeRealizer myreal = new GenericEdgeRealizer(graph.getDefaultEdgeRealizer());
-//		myreal.setLineColor(Color.BLUE);
-//		graph.createEdge(temp, tv, myreal);
-//		scf.addPlaceNodeInSameLayerConstraint(tv, temp);
 	}
 
 	public void createTypeNode (int id, Node tv) {
@@ -382,7 +344,7 @@ public class IncrementalHierarchicLayout
 
 	public boolean safeCreateEdge (Node source, Node target) {
 		if (source == null || target == null) {
-			System.out.println("FAIL from " + source + " target " + target + " (source or target null)");
+			//System.out.println("FAIL from " + source + " target " + target + " (source or target null)");
 			return false;
 		}
 		boolean connected = false;
@@ -396,7 +358,7 @@ public class IncrementalHierarchicLayout
 			//scf.addPlaceNodeBelowConstraint(source, target);
 			return true;
 		}
-		System.out.println("FAIL: nodes " + source + " and " + target + " were already connected");
+		//System.out.println("FAIL: nodes " + source + " and " + target + " were already connected");
 		return false;
 	}
 
@@ -431,6 +393,25 @@ public class IncrementalHierarchicLayout
 		graph.setRealizer(graph.lastEdge(), myreal);
 	}
 
+	public void synchronizeGraphOperations (ArrayList commands, int index, boolean waitforuser) {
+		if (index < commands.size()) {
+			//System.out.println("synchronizing ops " + index + " comm.size " + commands.size());
+			if (waitforuser)
+				demobase.waitforstep();
+			for (int i = index; i < commands.size(); i++)
+				if (Commands.execute(this, (ArrayList)commands.get(i), demobase) && (changed == false))
+					changed = true;
+			if (waitforuser)
+				demobase.calcLayout();
+		}
+	}
+
+	public void executeNonChangingGraphOperations (ArrayList commands) {
+		for (Object c : commands)
+			if (! Commands.processIfNoChange(this, (ArrayList)c, demobase))
+				break;
+	}
+	
 	public void updatephase(String text) {
 		if (text.equals("finished"))
 			graphinprocessofbeingfinished = true;
@@ -439,6 +420,7 @@ public class IncrementalHierarchicLayout
 			lastEntry++;
 			lastChangeCount = numChanges;
 			changes.add(new ArrayList());
+			chindex = 0;
 		}
 		sliderLabels.put(lastEntry, new JLabel(text.substring(0, Math.min(40, text.length()))));
 		Runnable updateMyUI = new Runnable() {
@@ -456,20 +438,10 @@ public class IncrementalHierarchicLayout
 	
 	public boolean nextStep () {
 		if (graphfinished && (lastslidervalue <= lastEntry)) {
-			for (Object comm : changes.get(lastslidervalue)) {
-				ArrayList com = (ArrayList)comm;
-				Commands.processCommand(this, com, demobase);
-			}
-
+			synchronizeGraphOperations((ArrayList)changes.get(lastslidervalue), 0, false);
 			lastslidervalue++;
 			if (lastslidervalue <= lastEntry)
-				for (Object o : changes.get(lastslidervalue)) {
-					ArrayList comm = (ArrayList)o;
-					if (! Commands.processIfNoChange(this, comm, demobase))
-						break;
-				}
-			changed = true;
-			typechanged = true;
+				executeNonChangingGraphOperations(changes.get(lastslidervalue));
 			demobase.updatingslider = true;
 			demobase.slider.setValue(lastslidervalue);
 			demobase.updatingslider = false;
@@ -480,14 +452,10 @@ public class IncrementalHierarchicLayout
 	}
 
 	public void resetGraph(int step) {
-		if (step >= lastslidervalue) {
-			demobase.unselect();
+		if (step >= lastslidervalue)
 			for (int i = lastslidervalue; i < step; i++)
-				for (Object comm : changes.get(i)) {
-					ArrayList com = (ArrayList)comm;
-					Commands.processCommand(this, com, demobase);
-				}
-		} else { //I was too lazy to implement undo, so do the graph from scratch
+				synchronizeGraphOperations((ArrayList)changes.get(i), 0, false);
+		else { //I was too lazy to implement undo, so do the graph from scratch
 			demobase.unselect();
 			graph = new Graph2D();
 			typegraph = new Graph2D();
@@ -495,18 +463,11 @@ public class IncrementalHierarchicLayout
 			view.setGraph2D(graph);
 			typeview.setGraph2D(typegraph);
 			for (int i = 0; i < step; i++)
-				for (Object comm : changes.get(i)) {
-					ArrayList com = (ArrayList)comm;
-					Commands.processCommand(this, com, demobase);
-				}
+				synchronizeGraphOperations((ArrayList)changes.get(i), 0, false);
 		}
-		for (Object o : changes.get(step)) {
-			ArrayList comm = (ArrayList)o;
-			if (! Commands.processIfNoChange(this, comm, demobase))
-				break;
-		}
+		executeNonChangingGraphOperations(changes.get(step));
+		chindex = 0;
 		lastslidervalue = step;
-		changed = true;
 		demobase.calcLayout();
 	}
 

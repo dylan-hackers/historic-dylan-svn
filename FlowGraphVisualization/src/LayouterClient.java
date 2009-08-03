@@ -46,14 +46,14 @@ public class LayouterClient extends Thread {
 		return null;
 	}
 	
-	public IncrementalHierarchicLayout findComparableGraph (String graphname) {
+	public IncrementalHierarchicLayout findComparableGraph (String graphname, boolean finished) {
 		//first try active sessions
 		for (LayouterClient l : FlowGraphVisualizer.clients)
-			if (l != this && l.active && l.getGraph(graphname) != null && l.getGraph(graphname).graphfinished)
+			if (l != this && l.active && l.getGraph(graphname) != null && l.getGraph(graphname).graphfinished == finished)
 				return l.getGraph(graphname);
 		//now try also inactive sessions
 		for (LayouterClient l : FlowGraphVisualizer.clients)
-			if (l != this && l.getGraph(graphname) != null && l.getGraph(graphname).graphfinished)
+			if (l != this && l.getGraph(graphname) != null && l.getGraph(graphname).graphfinished == finished)
 				return l.getGraph(graphname);
 		//if we found no matching graph, return null...
 		return null;
@@ -103,7 +103,7 @@ public class LayouterClient extends Thread {
 					name = (String)answer.get(1);
 					assert(answer.get(2) instanceof String); //source code
 					if (demo.string_source_map.containsKey(name))
-						System.out.println("string_source_map already contains key: " + name);
+						; //System.out.println("string_source_map already contains key: " + name);
 					else {
 						demo.string_source_map.put(name, (String)answer.get(2));
 						demo.graph_chooser.addItem(new ListElement(name));
@@ -147,25 +147,18 @@ public class LayouterClient extends Thread {
 						printMessage(result);
 						continue;
 					}
-				} //else {
-					demo.unselect();
-					demo.activate(gr);
-					if (Commands.processCommand(gr, answer, demo))
-						if (! gr.changed)
-							gr.changed = true;
-					if (key.isEqual("relayouted")) {
-						demo.waitforstep();
-						gr.activateLayouter();
-					}
-					if (gr.isok)
-						printMessage(result);
-					else {
-						gr.isok = true;
-						ArrayList res = new ArrayList();
-						res.add(new Symbol("bar"));
-						printMessage(res);
-					}
 				}
+				demo.activate(gr);
+				Commands.processCommand(gr, answer, demo);
+				if (gr.isok)
+					printMessage(result);
+				else {
+					gr.isok = true;
+					ArrayList res = new ArrayList();
+					res.add(new Symbol("bar"));
+					printMessage(res);
+				}
+			}
 			//}
 		} catch (IOException e) {
 			//finish graphs, mark inactive

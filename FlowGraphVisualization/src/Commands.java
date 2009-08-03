@@ -11,30 +11,57 @@ import y.view.LineType;
 
 
 public final class Commands {
+	private static String[] noChange = { "highlight", "highlight-queue", "highlight-constraint", "unhighlight-constraint" };
+	
 	public static boolean processIfNoChange (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
 		assert(answer.size() > 1);
 		assert(answer.get(0) instanceof Symbol);
 		Symbol key = (Symbol)answer.get(0);
-		if (key.isEqual("highlight") || key.isEqual("highlight-queue")) {
-			processCommand(ihl, answer, demo);
-			return true;
-		}
+		for (String s : noChange)
+			if (key.isEqual(s)) {
+				processHighlights(ihl, answer, demo);
+				return true;
+			}
 		return false;
 	}
 	
-	public static boolean processCommand (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
+	public static void processCommand (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
 		assert(answer.size() > 1);
 		assert(answer.get(0) instanceof Symbol);
 		Symbol key = (Symbol)answer.get(0);
+		ArrayList ch = ihl.changes.get(ihl.changes.size() - 1);
+		//System.out.println("processing " + key);
 
 		if (key.isEqual("beginning"))
-			return beginning(ihl, answer, demo);
-		if (! ihl.graphfinished) {
-			if (! (key.isEqual("highlight") || key.isEqual("highlight-queue") || key.isEqual("relayouted")))
-				ihl.numChanges++;
-			if (! key.isEqual("relayouted"))
-				ihl.changes.get(ihl.changes.size() - 1).add(answer);
+			beginning(ihl, answer, demo);
+		else {
+			if (! ihl.graphfinished) {
+				if (! (key.isEqual("highlight") || key.isEqual("highlight-queue") || key.isEqual("relayouted") || key.isEqual("highlight-constraint") || key.isEqual("unhighlight-constraint")))
+					ihl.numChanges++;
+				if (! key.isEqual("relayouted"))
+					ch.add(answer);
+			}
+			if (key.isEqual("relayouted")) {
+				if (ihl.numChanges > ihl.lastRelayout) {
+					ihl.synchronizeGraphOperations(ch, ihl.chindex, true);
+					ihl.chindex = ch.size();
+				}
+			} else if (demo.debug.isSelected()) {
+				if (execute(ihl, answer, demo) && (ihl.changed == false))
+					ihl.changed = true;
+				ihl.chindex = ch.size();
+			}
+			processHighlights(ihl, answer, demo);
 		}
+		//System.out.println("counters: lastchangecount " + ihl.lastChangeCount + " numchanges " + ihl.numChanges + " chindex " + ihl.chindex + " lastRelayout " + ihl.lastRelayout + " lastentry " + ihl.lastEntry + " lastslidervalue " + ihl.lastslidervalue);
+	}
+	
+	public static boolean execute (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
+		assert(answer.size() > 1);
+		assert(answer.get(0) instanceof Symbol);
+		Symbol key = (Symbol)answer.get(0);
+		//System.out.println("executing " + key);
+
 		if (key.isEqual("change-edge"))
 			return changeedge(ihl, answer);
 		if (key.isEqual("remove-edge"))
@@ -63,12 +90,6 @@ public final class Commands {
 			return changefunction(ihl, answer);
 		if (key.isEqual("set-loop-call-loop"))
 			return setloopcallloop(ihl, answer);
-		if (key.isEqual("relayouted"))
-			return relayouted(ihl, demo);
-		if (key.isEqual("highlight"))
-			return highlight(ihl, answer, demo);
-		if (key.isEqual("highlight-queue"))
-			return highlightqueue(ihl, answer, demo);
 		
 		if (key.isEqual("new-type-variable"))
 			return new_type_var(ihl, answer);
@@ -80,18 +101,32 @@ public final class Commands {
 			return disconnect(ihl, answer, demo);
 		if (key.isEqual("remove-node"))
 			return removetypenode(ihl, answer, demo);
-		if (key.isEqual("highlight-constraint"))
-			return highlightedge(ihl, answer, demo, true);
-		if (key.isEqual("unhighlight-constraint"))
-			return highlightedge(ihl, answer, demo, false);
 		if (key.isEqual("type-relation"))
 			return typerelation(ihl, answer);
+		
+		for (String s : noChange)
+			if (key.isEqual(s))
+				return processHighlights(ihl, answer, demo);
 		System.out.println("shouldn't be here");
 		return false;
 	}
 
-	private static boolean setloopcallloop(IncrementalHierarchicLayout ihl,
-			ArrayList answer) {
+	private static boolean processHighlights (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
+		assert(answer.size() > 1);
+		assert(answer.get(0) instanceof Symbol);
+		Symbol key = (Symbol)answer.get(0);
+		if (key.isEqual("highlight"))
+			return highlight(ihl, answer);
+		if (key.isEqual("highlight-queue"))
+			return highlightqueue(ihl, answer);
+		if (key.isEqual("highlight-constraint"))
+			return highlightedge(ihl, answer, demo, true);
+		if (key.isEqual("unhighlight-constraint"))
+			return highlightedge(ihl, answer, demo, false);
+		return false;
+	}
+	
+	private static boolean setloopcallloop(IncrementalHierarchicLayout ihl, ArrayList answer) {
 		Node loopcall = getNode(ihl, answer, 2, false);
 		Node loop = getNode(ihl, answer, 3, true);
 		if (loop != null)
@@ -112,6 +147,10 @@ public final class Commands {
 	}
 	
 	private static boolean beginning (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
+		if (ihl.lastRelayout < ihl.numChanges) {
+			ihl.synchronizeGraphOperations(ihl.changes.get(ihl.changes.size() - 1), ihl.chindex, true);
+			ihl.lastRelayout = ihl.numChanges;
+		}
 		assert(answer.get(2) instanceof ArrayList);
 		ArrayList mess = (ArrayList)answer.get(2);
 		assert(mess.get(0) instanceof String);
@@ -119,7 +158,7 @@ public final class Commands {
 		if (mess.size() == 2) {
 			if (mess.get(1) instanceof Integer) {
 				Node n = getNode(ihl, mess, 1, false);
-				String label = ihl.graph.getRealizer(n).getLabelText();
+				String label = ((GraphNodeRealizer)ihl.graph.getRealizer(n)).getSliderText();
 				ph = ph + " " + label; //or label text? but might be too long
 			} else if (mess.get(1) instanceof Symbol) {
 				Symbol tag = (Symbol)mess.get(1);
@@ -131,7 +170,6 @@ public final class Commands {
 			}
 		}
 		ihl.updatephase(ph);
-		demo.calcLayout();
 		return false;
 	}
 	
@@ -252,7 +290,7 @@ public final class Commands {
 		assert(answer.size() == 4);
 		Node temp = getNode(ihl, answer, 2, true);
 		if (temp == null) {
-			System.out.println("temp not present " + (Integer)answer.get(2));
+			//System.out.println("temp not present " + (Integer)answer.get(2));
 			return false; //happens with arguments of inlined functions
 		}
 		Node comp = getNode(ihl, answer, 3, false);
@@ -290,7 +328,7 @@ public final class Commands {
 		if (n != null) {
 			assert(answer.get(3) instanceof String);
 			GraphNodeRealizer nr = (GraphNodeRealizer)ihl.graph.getRealizer(n);
-			nr.setNodeType((String)answer.get(3));
+			nr.setNodeTypeText((String)answer.get(3));
 			//System.out.println("change type " + old + " => " + (String)answer.get(3));
 		}
 		return false;
@@ -315,56 +353,35 @@ public final class Commands {
 		return true;		
 	}
 
-	private static boolean relayouted (IncrementalHierarchicLayout ihl, DemoBase demo) {
-		ihl.activateLayouter();
-		demo.calcLayout();
-		return false;
-	} 
-        
-	private static boolean highlight (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
-		if ((Integer)answer.get(2) == 0) {
-			if (ihl.highlight != null) {
-				ihl.graph.getRealizer(ihl.highlight).setFillColor(ihl.graph.getDefaultNodeRealizer().getFillColor());
-				ihl.highlight = null;
-				demo.view.repaint();
-			}
-			return false;
-		}
-		Node highlightnew = getNode(ihl, answer, 2, false);
+	private static boolean highlight (IncrementalHierarchicLayout ihl, ArrayList answer) {
+		Node highlightnew = null;
+		if ((Integer)answer.get(2) != 0)
+			highlightnew = getNode(ihl, answer, 2, false);
 		if (ihl.highlight != highlightnew) {
 			if (ihl.highlight != null)
-				ihl.graph.getRealizer(ihl.highlight).setFillColor(ihl.graph.getDefaultNodeRealizer().getFillColor());
-			ihl.graph.getRealizer(highlightnew).setFillColor(new Color(0x22, 0xdd, 0, 0x66));
+				((GraphNodeRealizer)ihl.graph.getRealizer(ihl.highlight)).setHighlight(false);
+			if (highlightnew != null)
+				((GraphNodeRealizer)ihl.graph.getRealizer(highlightnew)).setHighlight(true);
 			ihl.highlight = highlightnew;
-			demo.view.repaint();
 		}
 		return false;
 	} 
 		
-	private static boolean highlightqueue (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
-		ArrayList queue = (ArrayList)answer.get(2);
-		ArrayList<Integer> removed = new ArrayList<Integer>();
-		ArrayList<Integer> added = new ArrayList<Integer>();
-		for (Object ind : queue)
-			if (! ihl.opt_queue.contains((Integer)ind))
-				added.add((Integer)ind);
-		for (Integer old : ihl.opt_queue)
-			if (! queue.contains(old))
-				removed.add(old);
-
-		for (Integer rem : removed) {
-			ihl.opt_queue.remove(rem);
-			Node unh = ihl.int_node_map.get(rem);
-			if (unh != ihl.highlight && unh != null)
-				ihl.graph.getRealizer(unh).setFillColor(ihl.graph.getDefaultNodeRealizer().getFillColor());
-		}
-		for (Integer a : added) {
-			ihl.opt_queue.add(a);
-			Node h = ihl.int_node_map.get(a);
-			if (h != ihl.highlight && h != null)
-				ihl.graph.getRealizer(h).setFillColor(Color.orange);
-		}
-		demo.view.repaint();
+	private static boolean highlightqueue (IncrementalHierarchicLayout ihl, ArrayList answer) {
+		assert(answer.get(2) instanceof ArrayList);
+		ArrayList<Integer> queue = (ArrayList<Integer>)answer.get(2);
+		for (Integer n : ihl.opt_queue)
+			if (! queue.contains(n)) {
+				Node unh = ihl.int_node_map.get(n);
+				if (unh != null)
+					((GraphNodeRealizer)ihl.graph.getRealizer(unh)).setOptimizationQueue(false);
+			}
+		for (Integer n : queue) {
+			Node h = ihl.int_node_map.get(n);
+			if (h != null)
+				((GraphNodeRealizer)ihl.graph.getRealizer(h)).setOptimizationQueue(true);
+		}		
+		ihl.opt_queue = queue;
 		return false;
 	}
 
@@ -475,9 +492,9 @@ public final class Commands {
 	private static boolean highlightedge (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo, boolean thick) {
 		Node from = getNode(ihl, answer, 2, false);
 		Node to = getNode(ihl, answer, 3, false);
-		LineType lt = LineType.LINE_2;
+		LineType lt = LineType.DASHED_2;
 		if (thick)
-			lt = LineType.LINE_4;
+			lt = LineType.DASHED_4;
 		for (EdgeCursor ec = from.outEdges(); ec.ok(); ec.next())
 			if (ec.edge().target() == to)
 				ihl.typegraph.getRealizer(ec.edge()).setLineType(lt);
