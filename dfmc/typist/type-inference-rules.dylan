@@ -517,6 +517,8 @@ end;
 define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(<computation>)) => ()
   if (c ~== last)
     set-type-environment!(c, env);
+    debug-types(#"beginning", env, list("inferring", c));
+    debug-types(#"highlight", env, c);
     solve(env);
     c.infer-computation-types; //actually, needs both envs for proper inference
     let fold = c.fold-if;
@@ -592,9 +594,8 @@ define macro type-rule-definer
  { define type-rule ?computation:expression ?body:* end }
  => { define method infer-computation-types (c :: ?computation) => ()
         let type-env = c.type-environment;
-        debug-types(#"highlight", type-env, c);
         debug-types(#"beginning", type-env, list("inferring", c));
-        debug-types(#"relayouted", type-env);
+        debug-types(#"highlight", type-env, c);
         let ?=abstract = rcurry(abstract-and-lookup, type-env);
         let ?=constraint = curry(add-constraint, type-env, c);
         let ?=temporary-node = c.temporary & ?=abstract(c.temporary);
@@ -608,9 +609,8 @@ end;
 
 define method infer-computation-types (c :: <computation>) => ()
   let type-env = c.type-environment;
-  debug-types(#"highlight", type-env, c);
   debug-types(#"beginning", type-env, list("inferring", c));
-  debug-types(#"relayouted", type-env);
+  debug-types(#"highlight", type-env, c);
   c.temporary & abstract-and-lookup(c.temporary, c.type-environment);
 end;
 
@@ -920,9 +920,8 @@ define method infer-computation-types (c :: <function-call>) => ()
   //next-method(); -- otherwise, we end up with more type variables than needed in
   //the type environment (c.temporary!, which is suspect to change)
   let type-env = c.type-environment;
-  debug-types(#"highlight", type-env, c);
   debug-types(#"beginning", type-env, list("inferring", c));
-  debug-types(#"relayouted", type-env);
+  debug-types(#"highlight", type-env, c);
   let fun = c.function.get-function-object;
   infer-function-type(c, fun);
 end;

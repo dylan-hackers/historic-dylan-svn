@@ -31,9 +31,7 @@ define function solve (type-env :: <type-environment>)
               push-last(cs, new-constraint);
             end;
           end;
-    //debug-types(#"beginning", list("solve", constraint.deep-origin));
     debug-types(#"highlight-constraint", type-env, constraint.edge-source, constraint.edge-target);
-    debug-types(#"relayouted", type-env);
     let u = find(constraint.edge-source);
     let v = find(constraint.edge-target);
     if (u ~= v)
@@ -54,7 +52,6 @@ define function solve (type-env :: <type-environment>)
              type-estimate2:  vte);
       end;
     end;
-    debug-types(#"unhighlight-constraint", type-env, constraint.edge-source, constraint.edge-target);
     remove-edge(constraint);
     local method may-remove (n :: <node>) => ()
             if (member?(n, graph.graph-nodes))
@@ -70,6 +67,7 @@ define function solve (type-env :: <type-environment>)
     u.may-remove;
     v.may-remove;
     u.may-remove;
+    debug-types(#"relayouted", type-env);
   end;
   let quotient-graph = create-quotient-graph(graph);
   if (acyclic?(quotient-graph))
@@ -78,9 +76,11 @@ define function solve (type-env :: <type-environment>)
          if (instance?(x.node-value, <type-variable>))
            let rep-type = x.find.node-value;
            if (instance?(rep-type, type-union(<&type>, <typist-type>)) & ~instance?(rep-type, <type-variable>))
-             //format-out("changed TV %= to contain type %= now\n", x.node-value.get-id, rep-type);
-             add!(changed-vars, x.node-value);
-             x.node-value.type-variable-contents := rep-type;
+             if (x.node-value.type-variable-contents ~== rep-type)
+               //format-out("changed TV %= to contain type %= now\n", x.node-value.get-id, rep-type);
+               add!(changed-vars, x.node-value);
+               x.node-value.type-variable-contents := rep-type;
+             end
            end
          end
        end, graph.graph-nodes);
@@ -90,6 +90,7 @@ define function solve (type-env :: <type-environment>)
         debug-types(#"change-type", type-env, ele, format-to-string("%=", val.node-value.type-variable-contents.model-type));
       end;
     end;
+    debug-types(#"relayouted", type-env);
   else
     error("type graph %= contains cycles!", quotient-graph)
   end;

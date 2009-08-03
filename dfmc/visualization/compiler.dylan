@@ -11,7 +11,7 @@ define function report-progress (i1 :: <integer>, i2 :: <integer>,
 end;
 
 define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
-  if (member?(arguments[1], list(//"indirect-object-implementation-class", "object-implementation-class", //<object> vs <raw-pointer> in call to indirect-object-implementation-class
+//  if (member?(arguments[1], list(//"indirect-object-implementation-class", "object-implementation-class", //<object> vs <raw-pointer> in call to indirect-object-implementation-class
                                  //"member-eql?" <- <raw-pointer> vs <object>
                                  //"default-initialize", //<raw-integer> vs <raw-address> because of wrap/unwrap
                                  //"system-allocate-simple-instance", //too many arguments
@@ -46,14 +46,14 @@ define function write-data (vis :: <dfmc-graph-visualization>, #rest arguments)
                                  //"search-for-entry-count",
                                  //"make-symbol"),
                                  //"make-slot-access-engine-node"),
-                                 "object-implementation-class",
-                                 "class-instance?-rcpl-single-small"),
+//                                 "object-implementation-class",
+//                                 "class-instance?-rcpl-single-small"),
                                  //"indirect-object-implementation-class"),
                                  //"value-wrapper",
                                  //"<stretchy-object-vector-representation> constructor"),
-              test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
+//              test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
     write-to-visualizer(vis, arguments);
-  end;
+//  end;
 end;
 
 define method form (c :: type-union(<temporary>, <computation>))
