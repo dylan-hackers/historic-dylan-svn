@@ -564,6 +564,7 @@ public boolean updatingguimanually = false;
 
 	  
 	final class CompareAction extends AbstractAction {
+		private IncrementalHierarchicLayout other = null;
 		CompareAction () {
 			super("Compare Graph");
 		}
@@ -572,6 +573,7 @@ public boolean updatingguimanually = false;
 			if (compb.isSelected()) {
 				IncrementalHierarchicLayout ihl2 = client.findComparableGraph(incrementallayouter.graph_id, incrementallayouter.graphfinished);
 				if (ihl2 != null) {
+					other = ihl2;
 					CompareGraphs.resetComparison(incrementallayouter);
 					CompareGraphs.resetComparison(ihl2);
 					CompareGraphs.compareColorize(incrementallayouter, ihl2);
@@ -579,6 +581,8 @@ public boolean updatingguimanually = false;
 					System.out.println("no suitable graph found for comparison");
 			} else {
 				CompareGraphs.resetComparison(incrementallayouter);
+				CompareGraphs.resetComparison(other);
+				other = null;
 			}
 		}
 	}

@@ -304,6 +304,7 @@ public class IncrementalHierarchicLayout
 			topnodes.add(n);
 		}
 		if (label.equals("bind"))
+			//System.err.println("adding " + n + "(" + id + ") to topnodes of " + graph_id);
 			topnodes.add(n);
 		return n;
 	}

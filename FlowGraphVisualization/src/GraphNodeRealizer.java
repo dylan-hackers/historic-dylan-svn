@@ -73,7 +73,7 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 	}
 	
 	public String getComparableText () {
-		return prefix + " " + nodetext + " " + suffix;
+		return prefix + nodetext + suffix;
 	}
 	
 	public String getSliderText () {

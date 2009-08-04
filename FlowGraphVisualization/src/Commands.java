@@ -255,6 +255,7 @@ public final class Commands {
 					//System.out.println("  was connected to " + ihl.graph.getRealizer(ec.edge().opposite(del)).getLabelText());
 				}
 			ihl.graph.removeNode(del);
+			ihl.topnodes.remove(del);
 			ihl.int_node_map.remove((Integer)answer.get(2));
 			return true;
 		}
