@@ -105,8 +105,9 @@ public class LayouterClient extends Thread {
 					if (demo.string_source_map.containsKey(name))
 						; //System.out.println("string_source_map already contains key: " + name);
 					else {
-						demo.string_source_map.put(name, (String)answer.get(2));
-						demo.graph_chooser.addItem(new ListElement(name));
+						;
+						//demo.string_source_map.put(name, (String)answer.get(2));
+						//demo.graph_chooser.addItem(new ListElement(name));
 					}
 					//demo.activate(name);
 					printMessage(result);

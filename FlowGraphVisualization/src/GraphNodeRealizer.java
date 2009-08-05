@@ -20,7 +20,7 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 	private boolean different = false;
 	private NodeType type = NodeType.CONTROL;
 
-	private static final Color diffColor = new Color(0xC6, 0xB3, 0xFF);
+	private static final Color diffColor = Color.red; //new Color(0xC6, 0xB3, 0xFF);
 	private static final Color highlightColor = new Color(0xCC, 0xFF, 0xCC);
 	private static final Color optimizationColor = Color.orange;
 	private static final Color baseColor = new Color(0xbb, 0xbf, 0xff);
@@ -67,6 +67,8 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 				nc = NodeColors[type.ordinal() % 2];
 			if (neighbour_selected | reference_selected)
 				nc = nc.darker().darker();
+			if (suffix.contains("generic") && ! different)
+				nc = Color.yellow;
 			setFillColor(nc);
 			repaint();
 		}

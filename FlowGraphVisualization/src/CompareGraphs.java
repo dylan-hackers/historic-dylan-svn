@@ -14,7 +14,7 @@ public final class CompareGraphs {
 		assert(top1.size() == top2.size());
 		ArrayList<Node> changes = new ArrayList<Node>();
 		compareSubGraph(top1, top2, changes, "return");
-		//System.out.println("left comparegraph, changes: " + changes);
+		System.out.println("left comparegraph, changes: " + changes);
 		for (Node x : changes)
 			getR(x).setDifferent(true);
 	}
@@ -43,14 +43,12 @@ public final class CompareGraphs {
 		String realstop = stop;
 		if (getR(n).getComparableText().equals("if"))
 			realstop = "if-merge";
-		if (getR(n).getComparableText().equals(realstop))
-			return 0;
 		ArrayList<Node> succn = cfSuccs(n);
 		Node succ = m;
 		int drop = 0;
 		while (true) {
 			if (getR(succ).getComparableText().equals(realstop))
-				return 0;
+				break;
 			if (compareNode(n, succ))
 				break;
 			ArrayList<Node> succm = cfSuccs(succ);
