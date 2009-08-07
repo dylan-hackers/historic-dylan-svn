@@ -87,6 +87,18 @@ end;
 define method type-estimate-object (mb :: <module-binding>) => (te :: <&type>)
   let type = binding-type-model-object(mb, error-if-circular?: #f);
   if (type & instance?(type, <&type>))
+    type
+  elseif (type & instance?(type, <collection>))
+    error("not sure what to do here...");
+  else
+    make(<&top-type>)
+  end
+end;
+
+define method type-estimate-object (const :: <defined-constant-reference>) => (te :: <&type>)
+  let mb = const.referenced-binding;
+  if (mb & instance?(mb, <module-binding>))
+    let type = type-estimate-object(mb);
     //try for a better type
     let mo = binding-model-object(mb, error-if-circular?: #f);
     if (mo)
@@ -100,17 +112,6 @@ define method type-estimate-object (mb :: <module-binding>) => (te :: <&type>)
     else
       type
     end;
-  elseif (type & instance?(type, <collection>))
-    error("not sure what to do here...");
-  else
-    make(<&top-type>)
-  end
-end;
-
-define method type-estimate-object (const :: <defined-constant-reference>) => (te :: <&type>)
-  let mb = const.referenced-binding;
-  if (mb & instance?(mb, <module-binding>))
-    type-estimate-object(mb)
   else
     make(<&top-type>)
   end
