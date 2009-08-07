@@ -688,12 +688,15 @@ define method infer-computation-types (c :: <loop>) => ()
   let types = make(<stretchy-vector>);
   for (node = c.loop-body then node.next-computation,
        while: instance?(node, type-union(<loop-merge>, <phi-node>)))
-    let type = temporary-type(node.extract-parameter-type, out-env);
+    let type = temporary-type-abstraction(node.extract-parameter-type, out-env);
     if (instance?(type, <&singleton>)) 
       //inferring a singleton as a loop variable makes no sense
       // because a loop variable is modified/assigned and won't
       // stay constant
       type := type.^singleton-object.&object-class;
+      if (^subtype?(type, dylan-value(#"<raw-machine-word>")))
+        type := dylan-value(#"<raw-machine-word>"); //XXX this is bad and hard-coded!
+      end;
     end;
     add!(types, type);
   end;

@@ -168,7 +168,7 @@ end;
 define method deep-copy-node
  (type :: <node>, graph :: <type-graph>)
  => (res :: <node>)
-  deep-copy-node(type.node-value, graph)
+  deep-copy-node(type.find.node-value, graph)
 end;
 
 define method deep-copy-node
@@ -182,7 +182,7 @@ define method deep-copy-node
  => (res :: <node>)
   make(<node>, graph: graph,
        value: make(<tuple>,
-                   tuples: map(compose(rcurry(deep-copy-node, graph), node-value),
+                   tuples: map(compose(rcurry(deep-copy-node, graph), node-value, find),
                                type.tuple-types)))
 end;
 
@@ -190,8 +190,8 @@ define method deep-copy-node
  (type :: <arrow>, graph :: <type-graph>)
  => (res :: <node>)
   let t = make(<arrow>,
-               arguments: deep-copy-node(type.arrow-arguments.node-value, graph),
-               values: deep-copy-node(type.arrow-values.node-value, graph));
+               arguments: deep-copy-node(type.arrow-arguments.find.node-value, graph),
+               values: deep-copy-node(type.arrow-values.find.node-value, graph));
   make(<node>, graph: graph, value: t)
 end;
 
@@ -199,15 +199,15 @@ define method deep-copy-node
  (type :: <limited-collection>, graph :: <type-graph>)
  => (res :: <node>)
   let t = make(<limited-collection>,
-               class: deep-copy-node(type.collection-class.node-value, graph),
-               element-type: deep-copy-node(type.element-type.node-value, graph));
+               class: deep-copy-node(type.collection-class.find.node-value, graph),
+               element-type: deep-copy-node(type.element-type.find.node-value, graph));
   make(<node>, graph: graph, value: t)
 end;
 
 define sideways method deep-copy-node
   (nodes :: <collection>, graph :: <type-graph>)
  => (res :: <collection>)
-  map(compose(rcurry(deep-copy-node, graph), node-value), nodes)
+  map(compose(rcurry(deep-copy-node, graph), node-value, find), nodes)
 end;
 
 define function create-quotient-graph (g :: <type-graph>) => (res :: <type-graph>)
