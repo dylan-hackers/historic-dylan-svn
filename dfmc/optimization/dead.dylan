@@ -64,7 +64,7 @@ end method delete-useless-computations;
 
 define method delete-useless-computations (c :: <if-merge>)
   if (useless?(c))
-    let status = #f; //this is not correctly used here...
+    let status = #f;
     //wrong if merge-left-value and merge-right-value already #f on entry
     c.temporary := #f;
     if (merge-left-value(c))

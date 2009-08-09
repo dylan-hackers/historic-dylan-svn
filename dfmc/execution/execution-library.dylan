@@ -20,6 +20,8 @@ define library dfmc-execution
   // use dylan-script;
   use projects;
 
+  use dfmc-typist;
+
   export dfmc-execution, dfmc-runtime-execution;
 end library;
 
@@ -59,6 +61,7 @@ define module dfmc-runtime-execution
     export: { interpret-top-level-form, unregister-interpreter-transaction };
   use projects,
     exclude: { load-library };
+  use dfmc-typist, import: { best-function-key? };
 
   export
     interpreter-transaction-value;

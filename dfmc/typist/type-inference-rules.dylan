@@ -509,20 +509,25 @@ end;
 
 define method type-walk (env :: <type-environment>, c :: <computation>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    set-type-environment!(c, env);
-    c.infer-computation-types;
+    with-parent-computation (c)
+      set-type-environment!(c, env);
+      c.infer-computation-types;
+    end;
     next-type-step(env, c, last);
   end;
 end;
 
 define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    set-type-environment!(c, env);
-    debug-types(#"beginning", env, list("inferring", c));
-    debug-types(#"highlight", env, c);
-    solve(env);
-    c.infer-computation-types; //actually, needs both envs for proper inference
-    let fold = c.fold-if;
+    let fold = 
+      with-parent-computation (c)
+        set-type-environment!(c, env);
+        debug-types(#"beginning", env, list("inferring", c));
+        debug-types(#"highlight", env, c);
+        solve(env);
+        c.infer-computation-types; //actually, needs both envs for proper inference
+        c.fold-if;
+      end;
     if (fold)
       type-walk(env, fold, last);
     else
@@ -553,9 +558,11 @@ end;
 
 define method type-walk (env :: <type-environment>, c :: <bind-exit>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    set-type-environment!(c, env);
-    solve(env);
-    c.infer-computation-types;
+    with-parent-computation (c)
+      set-type-environment!(c, env);
+      solve(env);
+      c.infer-computation-types;
+    end;
     type-walk(env, c.body, c.next-computation);
     next-type-step(env, c, last);
   end;
@@ -563,8 +570,10 @@ end;
 
 define method type-walk (env :: <type-environment>, c :: <loop>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    set-type-environment!(c, env);
-    c.infer-computation-types;
+    with-parent-computation (c)
+      set-type-environment!(c, env);
+      c.infer-computation-types;
+    end;
     type-walk(env, c.loop-body, c.next-computation);
     next-type-step(env, c, last);
   end;
@@ -572,8 +581,10 @@ end;
 
 define method type-walk (env :: <type-environment>, c :: <unwind-protect>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    set-type-environment!(c, env);
-    c.infer-computation-types;
+    with-parent-computation(c)
+      set-type-environment!(c, env);
+      c.infer-computation-types;
+    end;
     type-walk(env, c.body, c.next-computation);
     type-walk(env, c.cleanups, c.next-computation);
     next-type-step(env, c, last);
@@ -582,9 +593,11 @@ end;
 
 define method type-walk (env :: <type-environment>, c :: <make-closure>, last :: false-or(<computation>)) => ()
   if (c ~== last)
-    set-type-environment!(c, env);
-    type-infer(c.computation-closure-method, env);
-    c.infer-computation-types;
+    with-parent-computation (c)
+      set-type-environment!(c, env);
+      type-infer(c.computation-closure-method, env);
+      c.infer-computation-types;
+    end;
     next-type-step(env, c, last);
   end;
 end;

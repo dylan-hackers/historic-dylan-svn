@@ -564,7 +564,7 @@ define side-effecting stateless dynamic-extent &primitive primitive-initialize-d
 /// MULTIPLE-VALUES
 
 define side-effect-free stateless dynamic-extent &primitive-and-override primitive-values
-    (size :: <integer>, #rest arguments) => (#rest values)
+    (#rest arguments) => (#rest values)
   apply(values, arguments)
 end;
 

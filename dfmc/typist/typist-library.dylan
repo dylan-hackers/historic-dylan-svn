@@ -65,4 +65,6 @@ define module dfmc-typist
   export fold-function-call,
     replace-call-with-values,
     maybe-fold-function-call;
+
+  export best-function-key?;
 end;
