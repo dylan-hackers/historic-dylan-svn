@@ -31,29 +31,24 @@ define sealed inline method \<
   as(<integer>, character-1) < as(<integer>, character-2)
 end method \<;
 
-define sealed method as-uppercase (character :: <character>) 
- => (uppercase-character :: <character>)
+define sealed method as-uppercase (character :: <byte-character>) 
+ => (uppercase-character :: <byte-character>)
   if (character.lowercase?)
-    as(<character>,
+    as(<byte-character>,
        as(<integer>, character) + (as(<integer>, 'A') - as(<integer>, 'a')))
   else
     character
   end if
 end method as-uppercase;
 
-define inline function as-lowercase-guts (character :: <character>)
- => (lowercase-character :: <character>)
+define sealed method as-lowercase (character :: <byte-character>)
+ => (lowercase-character :: <byte-character>)
   if (character.uppercase?)
-    as(<character>,
+    as(<byte-character>,
        as(<integer>, character) + (as(<integer>, 'a') - as(<integer>, 'A')))
   else
     character
   end if
-end function as-lowercase-guts;
-
-define sealed method as-lowercase (character :: <character>)
- => (lowercase-character :: <character>)
-  as-lowercase-guts(character);
 end method as-lowercase;
 
 ///// EXTRAS FROM COMMON LISP
@@ -68,12 +63,14 @@ define function alpha? (character :: <character>) => (result :: <boolean>)
 end function alpha?;
 */
 
-define inline function lowercase? (character :: <character>) => (result :: <boolean>)
+define inline function lowercase? (character :: <byte-character>)
+ => (result :: <boolean>)
   let code :: <integer> = as(<integer>, character);
   code >= as(<integer>, 'a') & code <= as(<integer>, 'z')
 end function lowercase?;
 
-define inline function uppercase? (character :: <character>) => (result :: <boolean>)
+define inline function uppercase? (character :: <byte-character>)
+ => (result :: <boolean>)
   let code :: <integer> = as(<integer>, character);
   code >= as(<integer>, 'A') & code <= as(<integer>, 'Z')
 end function uppercase?;
@@ -130,25 +127,6 @@ end macro;
 
 define constant <byte-integer> = <byte>;
 define character <byte-character>;
-
-define constant $number-ascii-characters = 256;
-
-define constant $lowercase-ascii :: <byte-string>
-  = make(<byte-string>, size: $number-ascii-characters);
-
-for (i from 0 below size($lowercase-ascii))
-  let c = as(<byte-character>, i);
-  $lowercase-ascii[i] := as-lowercase-guts(c);
-end for;
-
-/// THIS NEEDS TO BE FAST FOR SYMBOLS ETC
-
-define sealed inline method as-lowercase (character :: <byte-character>)
- => (lowercase-character :: <byte-character>)
-  // without-bounds-checks
-  element-no-bounds-check($lowercase-ascii, as(<integer>, character))
-  // end without-bounds-checks;
-end method as-lowercase;
 
 // ALREADY BOOTED
 // (define *byte-characters* (make <vector> size: 256))

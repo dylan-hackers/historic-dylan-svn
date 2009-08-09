@@ -736,7 +736,7 @@ define function compute-terminal-engine-node (ds :: <dispatch-state>)
   dbg("Terminal engine node = %=", ans);
   let parent
     = %ds-parent(ds);
-  let profiling-parent
+/*  let profiling-parent
     = if (instance?(parent, <cache-header-engine-node>))
 	cache-header-engine-node-parent(parent)
       else
@@ -755,9 +755,9 @@ define function compute-terminal-engine-node (ds :: <dispatch-state>)
     cache-header-engine-node-parent(new) := parent;
     install-cache-header-engine-node-next(new, ans, %ds-gf(ds));
     new
-  else
+  else */
     ans
-  end if
+//  end if
 end function;
 
 

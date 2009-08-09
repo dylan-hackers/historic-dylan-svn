@@ -53,7 +53,7 @@ define method case-insensitive-string-equal-2
   end;
 end case-insensitive-string-equal-2;
 
-define variable *initial-symbol-table-size* = 5 * 1024;
+define constant *initial-symbol-table-size* = 5 * 1024;
 
 define variable *symbols-booted?* :: <boolean> = #f;
 

@@ -48,7 +48,7 @@ end method size;
 
 // This is a simplified version of gethash.  Read the comments in table.dylan
 // for further explanation of how this works.
-
+/*
 define sealed method member? (object, set :: <object-set>, #key test) 
     => (bool :: <boolean>)
   let table :: <object-table> = set.set-elements;
@@ -131,7 +131,7 @@ end method remove!;
 define sealed method remove-all-keys! (set :: <object-set>)
   remove-all-keys!(set.set-elements)
 end method;
-
+*/
 define sealed method element (set :: <object-set>, key, #key default = unsupplied())
     => (key-or-default-or-error :: <object>)
   if (member?(key, set)) 

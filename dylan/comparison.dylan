@@ -44,7 +44,7 @@ end function;
 // This version of value-wrapper? is more efficient
 // but potentially more fragile too.
 //
-define inline-only function value-wrapper? (w) => (value :: <boolean>)
+define inline-only function value-wrapper? (w :: <mm-wrapper>) => (value :: <boolean>)
   primitive-machine-word-not-equal?
     (primitive-machine-word-logand
        (primitive-cast-pointer-as-raw(mm-wrapper-subtype-mask(w)),
