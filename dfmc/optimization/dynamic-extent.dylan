@@ -386,13 +386,7 @@ define method get-extent-of-parameters-in-call
     (call :: <call>, typ :: <&type>, temp) => (extent :: <dynamic-extent>)
   #[] // Let's be conservative...
 end;
-/*
-define method get-extent-of-parameters-in-call
-    (call :: <call>, typ :: <type-estimate-limited-function>, temp)
-        => (extent :: <dynamic-extent>)
-  #[] // The function could do anything, so take the worst case...
-end;
-*/
+
 define method get-extent-of-parameters-in-call
     (call :: <call>, typ :: <&union>, temp) 
         => (extent :: <dynamic-extent>)

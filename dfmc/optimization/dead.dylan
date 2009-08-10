@@ -57,7 +57,6 @@ end method;
 
 define method delete-useless-computations (c :: <computation>)
   if (useless?(c))
-    //format-out("deleting %=\n", c);
     really-delete-useless-computations(c)
   end if
 end method delete-useless-computations;
@@ -65,7 +64,6 @@ end method delete-useless-computations;
 define method delete-useless-computations (c :: <if-merge>)
   if (useless?(c))
     let status = #f;
-    //wrong if merge-left-value and merge-right-value already #f on entry
     c.temporary := #f;
     if (merge-left-value(c))
       remove-user!(merge-left-value(c), c);  merge-left-value(c)  := #f;

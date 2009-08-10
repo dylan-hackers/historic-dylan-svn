@@ -119,7 +119,7 @@ end;
 
 //this is <model-value> - (<string>, <vector>, <mapped-unbound>, <heap-deferred-model>)
 define method type-estimate-object (o :: type-union(<&top>, <number>, <character>, <boolean>, <list>, <symbol>)) => (t :: <&type>)
-  make(<&singleton>, object: o)
+  ^singleton(o)
 end;
 
 //there's a mapping <heap-deferred-all-classes-model> => <simple-object-vector>
@@ -154,19 +154,14 @@ define method type-estimate-object (t :: <&type>)
   elseif (t == dylan-value(#"<type>"))
     make(<&top-type>)
   else
-    make(<&singleton>, object: t)
+    ^singleton(t)
   end
-end;
-
-define method type-estimate-object (t :: <typist-type>)
- => (res :: <&type>)
-  make(<&singleton>, object: t) //or call model-type here?
 end;
 
 define method type-estimate-object (v :: <vector>)
  => (res :: <&type>)
   if (v.size == 0)
-    make(<&singleton>, object: v) //actually, (C <: <vector>, E)limited(C, of: E, size: 0) ?
+    ^singleton(v) //actually, (C <: <vector>, E)limited(C, of: E, size: 0) ?
   else
     let types = map(type-estimate-object, v);
     //#[ { 1 }, { 2 }, { 3 } ] -> #[<integer>, <integer>, <integer>] so type-union is useful
@@ -187,12 +182,18 @@ end;
 
 define method type-estimate-object (s :: <string>)
  => (res :: <&type>)
-  make(<&singleton>, object: s)
+  ^singleton(s)
 end;
 
 define method type-estimate-object (l == &unbound)
  => (res :: <&type>)
-  make(<&singleton>, object: &unbound)
+  ^singleton(&unbound)
+end;
+
+define method type-estimate-object (t :: <typist-type>)
+ => (res :: <&type>)
+  //uhm, how?
+  type-estimate-object(model-type(t))
 end;
 
 define generic convert-to-typist-type (t :: type-union(<typist-type>, <&signature>, <&type>), env :: <type-environment>)

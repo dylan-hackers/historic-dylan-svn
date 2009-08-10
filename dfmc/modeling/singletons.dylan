@@ -41,7 +41,14 @@ end method ^instance?;
 
 define method ^subtype? (t1 :: <&singleton>, t2 :: <&singleton>)
  => (subtype? :: <boolean>)
-  t1.^singleton-object == t2.^singleton-object
+  let o1 = t1.^singleton-object;
+  let o2 = t2.^singleton-object;
+  if (^instance?(o1, dylan-value(#"<raw-object>")) & ^instance?(o2, dylan-value(#"<raw-object>")))
+    o1.&object-class == o2.&object-class &
+      o1.^raw-object-value == o2.^raw-object-value
+  else
+    o1 == o2
+  end
 end method ^subtype?;
 
 define method ^subtype? (t1 :: <&singleton>, t2 :: <&type>)

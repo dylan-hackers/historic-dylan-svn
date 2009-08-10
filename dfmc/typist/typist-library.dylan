@@ -61,6 +61,8 @@ define module dfmc-typist
 
   export maybe-convert-box, maybe-convert-unbox;
 
+  export method-upgrade?;
+
   //constant folding method calls
   export fold-function-call,
     replace-call-with-values,

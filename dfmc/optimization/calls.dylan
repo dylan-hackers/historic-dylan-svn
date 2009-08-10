@@ -1436,7 +1436,9 @@ end method;
 
 define method maybe-optimize-function-call
     (c :: <function-call>, f :: <&lambda>, arguments :: <simple-object-vector>)
-  do-maybe-optimize-function-call(c, f, arguments)
+  unless (method-upgrade?(f)) // otherwise wait for upgrade
+    do-maybe-optimize-function-call(c, f, arguments)
+  end unless;
 end method;
 
 define method maybe-optimize-function-call
