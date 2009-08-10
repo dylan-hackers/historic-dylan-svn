@@ -88,7 +88,7 @@ public class LayouterClient extends Thread {
 				assert(answer.size() > 1);
 				assert(answer.get(0) instanceof Symbol);
 				Symbol key = (Symbol)answer.get(0);
-				System.out.println(key.toString() + " : " + answer);
+				//System.out.println(key.toString() + " : " + answer);
 				if (key.isEqual("project")) {
 					assert(answer.size() == 2);
 					assert(answer.get(1) instanceof String); //method name
@@ -105,9 +105,8 @@ public class LayouterClient extends Thread {
 					if (demo.string_source_map.containsKey(name))
 						; //System.out.println("string_source_map already contains key: " + name);
 					else {
-						;
-						//demo.string_source_map.put(name, (String)answer.get(2));
-						//demo.graph_chooser.addItem(new ListElement(name));
+						demo.string_source_map.put(name, (String)answer.get(2));
+						demo.graph_chooser.addItem(new ListElement(name));
 					}
 					//demo.activate(name);
 					printMessage(result);

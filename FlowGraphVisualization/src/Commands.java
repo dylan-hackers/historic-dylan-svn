@@ -45,6 +45,7 @@ public final class Commands {
 				if (ihl.numChanges > ihl.lastRelayout) {
 					ihl.synchronizeGraphOperations(ch, ihl.chindex, true);
 					ihl.chindex = ch.size();
+					ihl.lastRelayout = ihl.numChanges;
 				}
 			} else if (demo.debug.isSelected()) {
 				if (execute(ihl, answer, demo) && (ihl.changed == false))

@@ -199,7 +199,7 @@ public class IncrementalHierarchicLayout
 	}
 
 	private void initGraphHelper (ArrayList nodelist, int id) {
-		System.err.println("uh? " + nodelist);
+		//System.err.println("uh? " + nodelist);
 		assert (nodelist.size() > 1);
 
 		assert(nodelist.get(0) instanceof Integer);
@@ -253,7 +253,7 @@ public class IncrementalHierarchicLayout
 	}
 	
 	private ArrayList<Node> getNodes(ArrayList arrayList) {
-		System.err.println("wtf? " + arrayList);
+		//System.err.println("wtf? " + arrayList);
 		ArrayList<Node> res = new ArrayList<Node>();
 		for (Object o : arrayList) {
 			assert(o instanceof Integer);
