@@ -154,9 +154,11 @@ define sealed domain make (subclass(<value-reference>));
 define sealed domain initialize (<value-reference>);
 define sealed domain initialize-packed-slots (<value-reference>);
 
+/*
 define method assignments (t :: <temporary>) => (res)
   #()
 end method;
+*/
 
 define method name (o :: <temporary>) => (res :: <boolean>)
   #f

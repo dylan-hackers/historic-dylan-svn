@@ -671,6 +671,9 @@ define method replace-temporary-references!
      "replace-temporary-references! - temporaries should differ but "
      "%= == %=", t, new-t);
   let renamed? :: <boolean> = #f;
+  if (t.assignments.size > 0)
+    new-t.assignments := t.assignments;
+  end;
   for (accessors :: <temporary-accessors> in c.used-temporary-accessors)
     let getter = temporary-getter(accessors);
     let setter = temporary-zetter(accessors);

@@ -160,6 +160,10 @@ define method side-effect-free? (c :: <temporary-transfer>)
   #t
 end method;
 
+define method side-effect-free? (c :: <get-cell-value>)
+  #t
+end method;
+
 define method side-effect-free? (c :: <binary-merge>)
   #t
 end method;

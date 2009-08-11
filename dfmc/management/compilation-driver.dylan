@@ -66,52 +66,6 @@ define function ensure-library-models-checked (ld :: <library-description>)
   debug-out(#"internal", "Model checking complete.\n");
 end function;
 
-define function copy-next-line (string, start) => (line-string, next-start)
-  let stop = size(string);
-  collecting (line-string :: <string>)
-    for (i from start below stop, until: string[i] == 10)
-      collect-into(line-string, as(<character>, string[i]));
-    finally
-      values(collected(line-string), i + 1);
-    end;
-  end;
-end function;
-
-define function compute-line-start-character 
-    (string, lines :: <integer>) => (character :: <integer>)
-  let line-count = 1;
-  for (i from 0, char in string, until: line-count == lines)
-    if (char == as(<integer>, '\n'))
-      line-count := line-count + 1;
-    end;
-  finally 
-    i
-  end;
-end function;
-
-define function get-lines (loc :: <compiler-range-source-location>)
- => (lines :: <string>)
-  let text = loc.source-location-record.compilation-record-source-record.source-record-contents;
-  let line-count
-    = loc.source-location-end-offset.source-offset-line
-       - loc.source-location-start-offset.source-offset-line;
-  let line-one-start-index
-    = compute-line-start-character
-       (text, loc.source-location-start-offset.source-offset-line);
-  collecting (line-strings)
-    local method walk-lines (cursor, lines)
-            if (lines <= line-count)
-              let (line-string, next-cursor) = copy-next-line(text, cursor);
-              collect-into(line-strings, line-string);
-              walk-lines(next-cursor, lines + 1);
-            end;
-          end;
-    walk-lines(line-one-start-index, 0);
-    let line-strings = collected(line-strings);
-    reduce1(method(a, b) concatenate(a, "\n", b) end, line-strings);
-  end;
-end;
-
 //// Model object generation.
 
 define function compute-and-install-model-objects
@@ -122,16 +76,8 @@ define function compute-and-install-model-objects
     source-record-progress-text("Computing data models for %s.dylan", name);
     unless (cr.compilation-record-model-heap)
       progress-line("Computing models for %s.dylan", name);
-      visualization-report(#"file-changed", name);
       compiling-forms ($compilation of form in cr)
         unless (form-ignored?(form))
-          let lines = block()
-                        form.form-source-location.get-lines;
-                      exception (e :: <condition>)
-                        ""
-                      end;
-//          visualization-report(#"source",
-//                               pair(as(<string>, form.form-variable-name), lines));
 	  maybe-compute-and-install-form-model-objects(form);
 	  finish-installing-form-model-objects(form);
 	end unless;
@@ -886,12 +832,12 @@ define method optimize-method (m :: <&method>)
   with-simple-abort-retry-restart
       ("Skip optimizing this method", 
        "Retry optimizing for this method")
-    //progress-line("<<<<");
-    //progress-line("  Method before: %=.", m);
-    //progress-line("  ----");
+    // progress-line("<<<<");
+    // progress-line("  Method before: %=.", m);
+    // progress-line("  ----");
     run-compilation-passes(m);
-    //progress-line("  Method after: %=.", m);
-    //progress-line(">>>>");
+    // progress-line("  Method after: %=.", m);
+    // progress-line(">>>>");
   end;
 end method;
 

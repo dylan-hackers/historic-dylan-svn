@@ -495,7 +495,7 @@ define method eliminate-assignments (f :: <&lambda>)
 end method eliminate-assignments;
 
 define method convert-ssa-to-cells (f :: <&lambda>)
-  for (t in f.environment.temporaries)
+  for (t in f.environment.temporaries.copy-sequence)
     if (t & ~empty?(t.assignments) & ~cell?(t))
       cell-assigned-temporaries(t);
     end if;

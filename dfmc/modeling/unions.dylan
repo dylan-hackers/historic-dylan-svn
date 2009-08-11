@@ -42,6 +42,14 @@ define &override-function ^type-union
   reduce(binary-type-union, type, more-types)
 end &override-function;
 
+define method ^union-unionees (u :: <&union>) => (res :: <collection>)
+  concatenate(^union-unionees(u.^union-type1), ^union-unionees(u.^union-type2))    
+end;
+
+define method ^union-unionees (u :: <&type>) => (res :: <collection>)
+  vector(u)
+end;
+
 // This protocol allows types with specific knowledge about how to merge
 // to bring it into play.
 

@@ -445,6 +445,7 @@ define module-with-models dfmc-modeling
       ^union-type1,
       ^union-type2,
       ^type-union,
+      ^union-unionees,
     <&subclass>,
       &getter subclass-class, ^subclass;
 

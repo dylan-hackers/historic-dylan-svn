@@ -366,20 +366,20 @@ define method constant-fold (c :: <adjust-multiple-values>)
   let values-t = computation-value(c);
   let values-te = type-estimate(c, values-t);
   let n = number-of-required-values(c);
-  local method right-number-of-values? (te :: <&type>)
-//	  size(type-estimate-fixed-values(te)) = n &
-//	    ~type-estimate-rest-values(te)
-          #f;
+  local method right-number-of-values? (te :: type-union(<collection>, <&type>))
+	  size(te) = n
+//	   & ~type-estimate-rest-values(te)
+          //#f;
 	end;
-  if (#f /* select (values-te by instance?)
-	<type-estimate-bottom>, <type-estimate-top> => 
+  if (select (values-te by instance?)
+	<&bottom-type>, <&top-type> => 
 	  #f;
-	<type-estimate-values> =>
+	<collection> =>
 	  right-number-of-values?(values-te);
-	<type-estimate-union> =>
+	<&union> =>
 	  every?(right-number-of-values?,
-		 type-estimate-unionees(values-te));
-      end */)
+		 ^union-unionees(values-te));
+      end)
     replace-computation-with-temporary!(c, values-t);
     #t
   elseif (n == 0)
@@ -589,19 +589,18 @@ define method constant-fold (c :: <adjust-multiple-values-rest>)
   let values-t = computation-value(c);
   let values-te = type-estimate(c, values-t);
   let n = number-of-required-values(c);
-  local method right-number-of-values? (te :: <&type>)
-	  //size(type-estimate-fixed-values(te)) >= n 
-          #f;
+  local method right-number-of-values? (te :: type-union(<collection>, <&type>))
+	  size(te) >= n 
 	end;
-  if (#f /* select (values-te by instance?)
-	<type-estimate-bottom>, <type-estimate-top> => 
+  if (select (values-te by instance?)
+	<&bottom-type>, <&top-type> => 
 	  #f;
-	<type-estimate-values> =>
+	<collection> =>
 	  right-number-of-values?(values-te);
-	<type-estimate-union> =>
+	<&union> =>
 	  every?(right-number-of-values?,
-		 type-estimate-unionees(values-te));
-      end */)
+		 ^union-unionees(values-te));
+      end)
     replace-computation-with-temporary!(c, values-t);
     #t
   else
@@ -713,16 +712,12 @@ define method constant-fold (c :: <keyword-default>)
   end if
 end method;
 
-/*
-//need TT; they're the former assignments and will be converted to
-//set-cell-value after optimization phase
 define method constant-fold (c :: <temporary-transfer>)
   // after assignment conversion, all the temporary transfers can go away
   let tmp = computation-value(c);
   replace-computation-with-temporary!(c, tmp);
   #t
 end method;
-*/
 
 define method constant-fold (c :: <guarantee-type>)
   let static-type = static-guaranteed-type(c);

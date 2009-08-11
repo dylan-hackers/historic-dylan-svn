@@ -225,7 +225,7 @@ define method strip-environment (env :: <lambda-lexical-environment>)
   */
 end method;
 
-define method assignments (tmp :: <lexical-variable>) => (res :: <list>)
+define method assignments (tmp :: <temporary>) => (res :: <list>)
   let tbl = variable-assignments(environment(tmp));
   if (tbl)
     element(tbl, tmp, default: #())
@@ -235,7 +235,7 @@ define method assignments (tmp :: <lexical-variable>) => (res :: <list>)
 end method;
 
 define method assignments-setter
-    (value :: <list>, tmp :: <lexical-variable>) => (res :: <list>)
+    (value :: <list>, tmp :: <temporary>) => (res :: <list>)
   let tbl :: <table>
     = variable-assignments(environment(tmp))
         | (variable-assignments(environment(tmp)) := make(<table>));
