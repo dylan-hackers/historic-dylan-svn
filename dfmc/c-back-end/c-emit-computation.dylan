@@ -31,39 +31,16 @@ $global-all-rest.rest-values? := #t;
 
 define method emit-parameter-type
     (back-end :: <c-back-end>, stream :: <stream>, 
-     o :: <type-estimate-raw>, #key index :: false-or(<integer>))
-  emit-parameter-type(back-end, stream, as(<&type>, o))
-end method;
-
-define method emit-parameter-type
-    (back-end :: <c-back-end>, stream :: <stream>, 
-     o :: <type-estimate-limited-instance>, #key index :: false-or(<integer>))
+     o :: <&singleton>, #key index :: false-or(<integer>))
   emit-parameter-type
-    (back-end, stream, ^object-class(type-estimate-singleton(o)));
+    (back-end, stream, &object-class(^singleton-object(o)));
 end method;
 
 define method emit-parameter-type
     (back-end :: <c-back-end>, stream :: <stream>, 
-     o :: <type-estimate-union>, #key index :: false-or(<integer>))
+     o :: <&union>, #key index :: false-or(<integer>))
   emit-parameter-type
-    (back-end, stream, first(type-estimate-unionees(o)), index: index);
-end method;
-
-define method emit-parameter-type
-    (back-end :: <c-back-end>, stream :: <stream>, 
-     o :: <type-estimate-values>, #key index :: false-or(<integer>))
-  let fixed-values = type-estimate-fixed-values(o);
-  let itype
-    = if (size(fixed-values) > 0)
-        if (index & index < size(fixed-values))
-          fixed-values[index]
-        else
-          fixed-values[0]
-        end if
-      else 
-        dylan-value(#"<object>")
-      end if;
-  emit-parameter-type(back-end, stream, itype)
+    (back-end, stream, first(^union-unionees(o)), index: index);
 end method;
 
 define method closure? (o)
@@ -81,7 +58,7 @@ define constant $loop-shadow-tmp-suffix = "T";
 define method emit-local-tmp-definition 
     (back-end :: <c-back-end>, stream :: <stream>, tmp :: <temporary>) => ()
   format-emit*(back-end, stream, "\t");
-  let type = type-estimate(tmp); // lookup-type(tmp, current-css(), tmp.generator);
+  let type = type-estimate(tmp.generator, tmp); // lookup-type(tmp, current-css(), tmp.generator);
   emit-parameter-type(back-end, stream, type);
   // if (tmp.cell?)
   //   format-emit*
@@ -103,7 +80,7 @@ define method emit-local-tmp-definition
   // note that there is no need for a variable for the mv-temp 
   // itself -- only for its elements.
   // let type = lookup-type(tmp, current-css(), tmp.generator); // ***** WRONG?
-  let type = type-estimate(tmp);
+  let type = type-estimate(tmp.generator, tmp);
   for (i from 0 below required-values(tmp))
     format-emit*(back-end, stream, "\t");
     emit-parameter-type(back-end, stream, type, index: i);
@@ -971,12 +948,12 @@ define method emit-reference
 //	       o.ref-index, o.ref-temp);
     if (o.ref-index > 0) 
       // let type = lookup-type(o.ref-temp, current-css(), o.ref-temp.generator);
-      let type = type-estimate(o.ref-temp);
-      if (instance?(type, <type-estimate-raw>))
-        write-element(s, '(');
-        emit-parameter-type(b, s, type);
-        write-element(s, ')');
-      end if;
+//      let type = type-estimate(o.ref-temp.generator, o.ref-temp);
+//      if (instance?(type, <type-estimate-raw>))
+//        write-element(s, '(');
+//        emit-parameter-type(b, s, type);
+//        write-element(s, ')');
+//      end if;
     end if;
     if (lhs?(o))
       format-out("Trying to set a too-large index!(%=, %d)\n",
