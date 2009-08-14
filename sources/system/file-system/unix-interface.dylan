@@ -58,6 +58,23 @@ define function unix-lseek
      end)
 end function unix-lseek;
 
+define function unix-raw-read
+    (fd :: <integer>, address :: <machine-word>, count :: <integer>)
+ => (result :: <integer>)
+  with-interrupt-repeat
+    raw-as-integer
+      (%call-c-function ("read")
+           (fd :: <raw-c-unsigned-int>, address :: <raw-pointer>, 
+            size :: <raw-c-unsigned-long>)
+        => (result :: <raw-c-signed-int>)
+         (integer-as-raw(fd), 
+	  primitive-cast-raw-as-pointer
+	    (primitive-unwrap-machine-word(address)), 
+          integer-as-raw(count))
+       end)
+  end
+end function unix-raw-read;
+
 /// HIGHER LEVEL INTERFACE
 
 /// This value is overkill, actually ...

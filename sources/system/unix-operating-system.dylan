@@ -235,7 +235,7 @@ define function run-application
       end select;
 
   local
-    method open-output (key, if-exists) => (fd :: <integer>);
+    method open-output (key, if-exists, output-fd) => (fd :: <integer>);
       select (key)
         #"inherit" =>
           -1;
@@ -249,6 +249,8 @@ define function run-application
                                        direction: #"input"));
           close-fds := add(close-fds, write-fd);
           write-fd;
+        #"output" =>
+          output-fd;
         otherwise =>
           let pathstring = as(<byte-string>, expand-pathname(key));
           let mode-code
@@ -270,8 +272,16 @@ define function run-application
       end select;
     end method;
 
-  let output-fd = open-output(output, if-output-exists);
-  let error-fd = open-output(_error, if-error-exists);
+  let output-fd = open-output(output, if-output-exists, #f);
+  let error-fd = open-output(_error, if-error-exists, output-fd);
+
+  let outputter-read-fd = -1;
+  if (outputter)
+    let (read-fd, write-fd) = make-pipe();
+    outputter-read-fd := read-fd;
+    error-fd := output-fd := write-fd;
+    close-fds := add(close-fds, write-fd);
+  end if;
 
   let envp
     = if (environment)
@@ -365,14 +375,16 @@ define function run-application
       end with-storage;
 
   // Close fds that belong to the child
-  for (fd in close-fds)
-    unix-close(fd)
-  end;
+  do(unix-close, close-fds);
 
   if (asynchronous?)
     apply(values, 0, #f, make(<application-process>, process-id: pid),
           reverse!(streams))
   else
+    if (outputter)
+      run-outputter(outputter, outputter-read-fd)
+    end if;
+    
     let (return-pid, status-code) = %waitpid(pid, 0);
     let signal-code = logand(status-code, #o177);
     let exit-code = ash(status-code, -8);
@@ -380,6 +392,23 @@ define function run-application
           reverse!(streams))
   end if
 end function run-application;
+
+define constant $BUFFER-MAX = 4096;
+
+define function run-outputter
+    (outputter :: <function>, outputter-read-fd :: <integer>) => ();
+  let dylan-output-buffer = make(<byte-string>, size: $BUFFER-MAX, fill: '\0');
+  let output-buffer
+    = primitive-wrap-machine-word
+        (primitive-string-as-raw(dylan-output-buffer));
+  iterate loop ()
+    let count = unix-raw-read(outputter-read-fd, output-buffer, $BUFFER-MAX);
+    if (count > 0)
+      outputter(dylan-output-buffer, end: count);
+      loop();
+    end if;
+  end iterate;
+end function;
 
 define function wait-for-application-process
     (process :: <application-process>)
