@@ -124,12 +124,12 @@ define function environment-variable-setter
 					integer-as-raw(0)))
     //--- NOTE: We can't use primitive-replace-bytes! as our 
     //--- first argument isn't a Dylan object.  (Sigh)
-    %call-c-function ("memcpy")
-        (dst :: <raw-c-pointer>, src :: <raw-c-pointer>, n-bytes :: <raw-c-unsigned-long>)
+    %call-c-function ("strcpy")
+        (dst :: <raw-c-pointer>, src :: <raw-c-pointer>)
      => (dst :: <raw-c-pointer>)
-      (primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(static-thing)),
-       primitive-string-as-raw(thing),
-       integer-as-raw(size(thing)))
+      (primitive-cast-raw-as-pointer
+         (primitive-unwrap-machine-word(static-thing)),
+       primitive-string-as-raw(thing))
     end;
     //---*** Should we signal something if this call fails?
     %call-c-function ("putenv")
