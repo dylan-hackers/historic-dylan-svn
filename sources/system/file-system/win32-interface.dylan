@@ -34,6 +34,10 @@ define constant $FILE_ATTRIBUTE_NORMAL = #x80;
 define constant $FILE_FLAG_OVERLAPPED  = #x4000; // shifted right 16 bits
 ignorable($FILE_ATTRIBUTE_NORMAL, $FILE_FLAG_OVERLAPPED);
 
+// SetFilePointer
+// whence argument
+define constant $FILE_END     = 2;
+
 // A useful utility ...
 
 define function call-succeeded? (result :: <machine-word>) => (success :: <boolean>)
@@ -44,6 +48,37 @@ end function call-succeeded?;
  
 
 // Now the actual interfaces ...
+
+define function win32-std-handle
+    (std-handle :: <integer>)
+ => (handle :: false-or(<machine-word>))
+  let handle
+    = primitive-wrap-machine-word
+        (primitive-cast-pointer-as-raw
+           (%call-c-function ("GetStdHandle", c-modifiers: "__stdcall")
+              (nStdHandle :: <raw-c-unsigned-long>) => (handle :: <raw-c-pointer>)
+              (integer-as-raw(std-handle))
+           end));
+  call-succeeded?(handle) & handle
+end function win32-std-handle;
+
+define function win32-set-file-position (handle :: <machine-word>, position :: <integer>, mode :: <integer>)
+ => (newpos :: false-or(<integer>))
+  let newpos = primitive-wrap-machine-word
+                (%call-c-function ("SetFilePointer", c-modifiers: "__stdcall")
+                     (handle :: <raw-c-pointer>,
+                      distance-to-move :: <raw-c-signed-long>,
+                      lpDistanceToMoveHigh :: <raw-c-pointer>,
+                      move-method :: <raw-c-unsigned-long>)
+                  => (newpos :: <raw-c-unsigned-long>)
+                   (primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(handle)),
+                    integer-as-raw(position),
+                    primitive-cast-raw-as-pointer(integer-as-raw(0)),
+                    integer-as-raw(mode))
+                 end);
+  call-succeeded?(newpos)
+    & raw-as-integer(primitive-unwrap-machine-word(newpos))
+end function win32-set-file-position;
 
 define function win32-file-exists? (path :: <byte-string>) => (exists? :: <boolean>)
   let attributes = primitive-wrap-machine-word

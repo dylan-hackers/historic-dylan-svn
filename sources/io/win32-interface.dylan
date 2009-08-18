@@ -25,8 +25,9 @@ define constant $FILE_END     = 2;
 ignorable($FILE_BEGIN, $FILE_CURRENT, $FILE_END);
 
 define constant $ERROR_HANDLE_EOF = 38;
+define constant $ERROR_BROKEN_PIPE = 109;
 
-define constant $FORMAT_MESSAGE_FLAGS         = #x00001100;
+define constant $FORMAT_MESSAGE_FLAGS         = #x000011FF;
 define constant $FORMAT_MESSAGE_LANGUAGE      = #x00000400;
 
 // A useful utility ...
@@ -141,8 +142,14 @@ define function win32-read
 	    primitive-cast-raw-as-pointer
 	      (primitive-unwrap-machine-word(actual-count-ptr)),
 	    primitive-cast-raw-as-pointer(integer-as-raw(0)))
-	 end);
-  success? := success? | (win32-raw-last-error() = $ERROR_HANDLE_EOF);
+        end);
+  if (~success?)
+    let last-error = win32-raw-last-error();
+    if (last-error = $ERROR_HANDLE_EOF | last-error = $ERROR_BROKEN_PIPE)
+      success? := #t;
+    end;
+  end;
+
   success? & raw-as-integer
                (primitive-c-unsigned-long-at
 		  (primitive-unwrap-machine-word(actual-count-ptr),

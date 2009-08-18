@@ -135,7 +135,7 @@ define operating-system function-test run-application ()
   // Error stream
   with-test-unit ("run-application error stream")
     let (exit-code, signal, child, stream)
-      = run-application("echo hello, world >&2",
+      = run-application("echo hello, world>&2",
                         asynchronous?: #t, error: #"stream",
                         under-shell?: #t);
     check-equal("asynchronous exit 0", 0, exit-code);
@@ -161,9 +161,9 @@ define operating-system function-test run-application ()
     let command
       = select ($os-name)
           #"win32" =>
-            "echo hello, world & echo DANGER WILL ROBINSON! >&2 & echo ok";
+            "echo hello, world&echo DANGER WILL ROBINSON!>&2&echo ok";
           otherwise =>
-            "echo hello, world ; echo DANGER WILL ROBINSON! >&2 ; echo ok";
+            "echo hello, world;echo DANGER WILL ROBINSON!>&2;echo ok";
         end;
     let (exit-code, signal, child, stream)
       = run-application(command,
@@ -195,9 +195,9 @@ define operating-system function-test run-application ()
     let command
       = select ($os-name)
           #"win32" =>
-            "echo hello, world & echo DANGER WILL ROBINSON! >&2 & echo ok";
+            "echo hello, world&echo DANGER WILL ROBINSON!>&2&echo ok";
           otherwise =>
-            "echo hello, world ; echo DANGER WILL ROBINSON! >&2 ; echo ok";
+            "echo hello, world;echo DANGER WILL ROBINSON!>&2;echo ok";
         end;
 
     let contents = "";
@@ -406,6 +406,6 @@ define operating-system macro-test with-application-output-test ()
   with-application-output (stream = "echo hello, world", under-shell?: #t)
     let contents = read-to-end(stream);
     check-equal("echo results read from stream",
-                "hello, world\n", contents);
+                concatenate("hello, world", $line-end), contents);
   end;
 end macro-test with-application-output-test;

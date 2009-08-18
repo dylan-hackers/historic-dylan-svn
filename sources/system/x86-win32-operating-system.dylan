@@ -1,7 +1,8 @@
 Module:       system-internals
-Author:       Jonathan Bachrach, Gary Palter
+Author:       Jonathan Bachrach, Gary Palter, Peter Housel
 Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
               All rights reserved.
+              Additional changes Copyright 2009 Dylan Hackers
 License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
@@ -20,6 +21,38 @@ define constant $VER_PLATFORM_WIN32_WINDOWS = 1;
 define constant $VER_PLATFORM_WIN32_NT      = 2;
 
 define constant $command-line-option-prefix = '/';
+
+define macro with-stack-dword
+  { with-stack-dword (?dword:name) ?:body end }
+  => { begin
+         let ?dword = primitive-wrap-machine-word(integer-as-raw(0));
+	 block ()
+	   ?dword
+             := primitive-wrap-machine-word
+                  (primitive-cast-pointer-as-raw
+                     (%call-c-function ("LocalAlloc", c-modifiers: "__stdcall")
+                           (flags :: <raw-c-unsigned-int>,
+                            bytes :: <raw-c-unsigned-int>)
+                        => (pointer :: <raw-c-pointer>)
+                        (integer-as-raw(0), integer-as-raw($DWORD_SIZE))
+                      end));
+	   if (primitive-machine-word-equal?
+                 (primitive-unwrap-machine-word(?dword), integer-as-raw(0)))
+	     error("Can't allocate space for a DWORD")
+	   end;
+	   ?body
+	 cleanup
+	   if (primitive-machine-word-not-equal?
+                 (primitive-unwrap-machine-word(?dword), integer-as-raw(0)))
+	     %call-c-function ("LocalFree", c-modifiers: "__stdcall")
+               (pointer :: <raw-c-pointer>) => (null-pointer :: <raw-c-pointer>)
+	       (primitive-cast-raw-as-pointer
+                  (primitive-unwrap-machine-word(?dword)))
+	     end
+	   end
+         end
+       end }
+end macro with-stack-dword;
 
 define constant $osversioninfo
   = method ()
@@ -232,7 +265,10 @@ end function login-group;
 
 define constant $HKEY_LOCAL_MACHINE :: <machine-word> = as(<machine-word>, #x80000002);
 define constant $KEY_QUERY_VALUE = 1;
+
 define constant $ERROR_SUCCESS   = 0;
+define constant $ERROR_HANDLE_EOF = 38;
+define constant $ERROR_BROKEN_PIPE = 109;
 
 define inline-only function current-version-key (name :: <byte-string>)
  => (value :: false-or(<string>))
@@ -434,6 +470,15 @@ define function environment-variable-setter
   new-value
 end function environment-variable-setter;
 
+define class <application-process> (<object>)
+  constant slot application-process-handle :: <machine-word>,
+    required-init-keyword: process-handle:;
+  slot %application-process-state :: one-of(#"running", #"exited"),
+    init-value: #"running";
+  slot %application-process-status-code :: <integer>,
+    init-value: 0;
+end class;
+
 define constant $STARTUPINFO_SIZE = 16 * $DWORD_SIZE;
 define constant $STARTF_USESHOWWINDOW = 1;
 define constant $STARTF_USESTDHANDLES = #x00000100;
@@ -448,8 +493,10 @@ define constant $BUFFER-MAX = 4096;
 define constant $SECURITY_ATTRIBUTES_SIZE = 3 * $DWORD_SIZE;
 
 define constant $STD_INPUT_HANDLE  = -10;
-// define constant $STD_OUTPUT_HANDLE = -11;
-// define constant $STD_ERROR_HANDLE  = -12;
+define constant $STD_OUTPUT_HANDLE = -11;
+define constant $STD_ERROR_HANDLE  = -12;
+
+define constant $HANDLE_FLAG_INHERIT = #x00000001;
 
 define constant $WAIT_FAILED   = -1;
 define constant $WAIT_OBJECT_0 = 0;
@@ -490,30 +537,38 @@ define inline-only function startupinfo-wShowWindow-setter
   wShowWindow
 end function startupinfo-wShowWindow-setter;
 
-define function startupinfo-StdOutput-setter
-    (output-pipe :: <machine-word>, startupinfo :: <byte-string>) => ()
-  let output-pipe-ptr = 
-    primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(output-pipe));
-  let startupinfo-ptr =
-    primitive-cast-raw-as-pointer(primitive-string-as-raw(startupinfo));
+define function startupinfo-StdInput-setter
+    (input-pipe :: <machine-word>, startupinfo :: <byte-string>) => ();
+  let input-pipe-ptr
+    = primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(input-pipe));
+  let startupinfo-ptr
+    = primitive-cast-raw-as-pointer(primitive-string-as-raw(startupinfo));
   primitive-c-unsigned-long-at
-      (startupinfo-ptr,
-       integer-as-raw(14), integer-as-raw(0))
-    :=
-    (%call-c-function ("GetStdHandle", c-modifiers: "__stdcall")
-                     (nstdhandle :: <raw-c-unsigned-long>)
-                      => (handle :: <raw-c-unsigned-long>)
-		      (integer-as-raw($STD_INPUT_HANDLE))
-    end);
-  primitive-c-pointer-at
-      (startupinfo-ptr,
-       integer-as-raw(15), integer-as-raw(0))
-    := output-pipe-ptr;
-  primitive-c-pointer-at
-      (startupinfo-ptr,
-       integer-as-raw(16), integer-as-raw(0))
+      (startupinfo-ptr, integer-as-raw(14), integer-as-raw(0))
+    := input-pipe-ptr;
+end function startupinfo-StdInput-setter;
+
+define function startupinfo-StdOutput-setter
+    (output-pipe :: <machine-word>, startupinfo :: <byte-string>) => ();
+  let output-pipe-ptr
+    = primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(output-pipe));
+  let startupinfo-ptr
+    = primitive-cast-raw-as-pointer(primitive-string-as-raw(startupinfo));
+  primitive-c-unsigned-long-at
+    (startupinfo-ptr, integer-as-raw(15), integer-as-raw(0))
     := output-pipe-ptr;
 end function startupinfo-StdOutput-setter;
+
+define function startupinfo-StdError-setter
+    (error-pipe :: <machine-word>, startupinfo :: <byte-string>) => ();
+  let error-pipe-ptr
+    = primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(error-pipe));
+  let startupinfo-ptr
+    = primitive-cast-raw-as-pointer(primitive-string-as-raw(startupinfo));
+  primitive-c-unsigned-long-at
+      (startupinfo-ptr, integer-as-raw(16), integer-as-raw(0))
+    := error-pipe-ptr;
+end function startupinfo-StdError-setter;
 
 define constant $PROCESS_INFORMATION_SIZE = 4 * $DWORD_SIZE;
 
@@ -521,7 +576,8 @@ define inline-only function process-information-hProcess
     (process-information :: <byte-string>) => (hProcess :: <machine-word>)
   primitive-wrap-machine-word
     (primitive-c-unsigned-long-at
-       (primitive-cast-raw-as-pointer(primitive-string-as-raw(process-information)),
+       (primitive-cast-raw-as-pointer
+          (primitive-string-as-raw(process-information)),
 	integer-as-raw(0), integer-as-raw(0)))
 end function process-information-hProcess;
 
@@ -529,7 +585,8 @@ define inline-only function process-information-hThread
     (process-information :: <byte-string>) => (hThread :: <machine-word>)
   primitive-wrap-machine-word
     (primitive-c-unsigned-long-at
-       (primitive-cast-raw-as-pointer(primitive-string-as-raw(process-information)),
+       (primitive-cast-raw-as-pointer
+          (primitive-string-as-raw(process-information)),
 	integer-as-raw(1), integer-as-raw(0)))
 end function process-information-hThread;
 
@@ -545,23 +602,47 @@ define inline-only function win32-last-error () => (status :: <integer>)
 	integer-as-raw($HRESULT_CODE_MASK)))
 end function win32-last-error;
 
-define function run-application (command :: <string>,
-				 #key under-shell? = #f,
-				      inherit-console? = #t,
-				      activate? = #t,
-				      minimize? = #f,
-                                      hide? = #f,
-				      outputter :: false-or(<function>),
-				      asynchronous? = #f)
- => (status :: <integer>)
-  let startupInfo :: <byte-string> = make(<byte-string>, size: $STARTUPINFO_SIZE, fill: '\0');
-  let processInfo :: <byte-string> = make(<byte-string>, size: $PROCESS_INFORMATION_SIZE,
-							 fill: '\0');
-  let command = if (under-shell?)
-		  concatenate-as(<string>, environment-variable("COMSPEC"), " /c ", command)
-		else
-		  command
-		end;
+define constant $null-device = "NUL:";
+
+define function run-application
+    (command :: type-union(<string>, limited(<sequence>, of: <string>)),
+     #key under-shell? = #f,
+          inherit-console? = #t,
+          activate? = #t,
+          minimize? = #f,
+          hide? = #f,
+          outputter :: false-or(<function>) = #f,
+          asynchronous? = #f,
+
+          environment :: false-or(<explicit-key-collection>),
+          working-directory :: false-or(<pathname>) = #f,
+     
+          input :: type-union(one-of(#"inherit", #"null", #"stream"),
+                              <pathname>) = #"inherit",
+          if-input-does-not-exist :: one-of(#"signal", #"create") = #"signal",
+          output :: type-union(one-of(#"inherit", #"null", #"stream"),
+                               <pathname>) = #"inherit",
+          if-output-exists :: one-of(#"signal", #"new-version", #"replace",
+                                     #"overwrite", #"append",
+                                     #"truncate") = #"replace",
+          error: _error :: type-union(one-of(#"inherit", #"null", #"stream", #"output"),
+                              <pathname>) = #"inherit",
+          if-error-exists :: one-of(#"signal", #"new-version", #"replace",
+                                    #"overwrite", #"append",
+                                    #"truncate") = #"replace")
+ => (exit-code :: <integer>, signal :: false-or(<integer>),
+     child :: false-or(<application-process>), #rest streams);
+  let startupInfo :: <byte-string>
+    = make(<byte-string>, size: $STARTUPINFO_SIZE, fill: '\0');
+  let processInfo :: <byte-string>
+    = make(<byte-string>, size: $PROCESS_INFORMATION_SIZE, fill: '\0');
+  let command
+    = if (under-shell?)
+        concatenate-as(<string>, environment-variable("COMSPEC"), " /c ",
+                       command)
+      else
+        command
+      end;
   startupinfo-cb(startupInfo) := $STARTUPINFO_SIZE;
   startupinfo-dwFlags(startupInfo) := $STARTF_USESHOWWINDOW;
   startupinfo-wShowWindow(startupInfo)
@@ -575,16 +656,117 @@ define function run-application (command :: <string>,
 	 // there is a chance of returning #f.  Disabuse it of that notion.
 	 otherwise => -1;
        end;
-  let (input-pipe :: <machine-word>, output-pipe :: <machine-word>) =
-    values(primitive-wrap-machine-word(integer-as-raw(0)),
-	   primitive-wrap-machine-word(integer-as-raw(0)));
+
+  let streams :: <list> = #();
+  let close-handles :: <list> = #();
+
+  startupinfo-StdInput(startupInfo)
+    := select (input)
+         #"inherit" =>
+           win32-std-handle($STD_INPUT_HANDLE);
+         #"null" =>
+           win32-open/create($null-device, $GENERIC_READ,
+                             $FILE_SHARE_READ, $OPEN_EXISTING);
+         #"stream" =>
+           let (input-p, output-p) = Win32CreatePipe();
+           streams := add(streams, make(<file-stream>,
+                                        locator: output-p,
+                                        file-descriptor: output-p,
+                                        direction: #"output"));
+           Win32SetHandleInformation(output-p,
+                                     as(<machine-word>, $HANDLE_FLAG_INHERIT),
+                                     as(<machine-word>, 0));
+           close-handles := add(close-handles, input-p);
+           input-p;
+         otherwise =>
+           let pathstring = as(<byte-string>, expand-pathname(input));
+           let fdwCreate
+             = if (if-input-does-not-exist == #"create")
+                 $CREATE_ALWAYS
+               else
+                 $OPEN_EXISTING
+               end if;
+           win32-open/create(pathstring, $GENERIC_READ, $FILE_SHARE_READ,
+                             fdwCreate);
+       end select;
+  
+  let input-pipe :: <machine-word> = as(<machine-word>, 0);
+  let output-pipe :: <machine-word> = as(<machine-word>, 0);
   if (outputter)
-    startupinfo-dwFlags(startupInfo) := logior(startupinfo-dwFlags(startupInfo), $STARTF_USESTDHANDLES);
     inherit-console? := #t;
     let (input-p, output-p) = Win32CreatePipe();
-    input-pipe := input-p; output-pipe := output-p;
-    startupinfo-StdOutput(startupInfo) := output-pipe;
+    input-pipe := input-p;
+    output-pipe := output-p;
+    startupinfo-StdOutput(startupInfo) := output-p;
+    startupinfo-StdError(startupInfo) := output-p;
+
+    Win32SetHandleInformation(input-p,
+                              as(<machine-word>, $HANDLE_FLAG_INHERIT),
+                              as(<machine-word>, 0));
+    close-handles := add(close-handles, output-p);
+  else
+    local
+      method open-output
+          (key, if-exists, std-handle, output-handle)
+       => (handle :: <machine-word>);
+        select (key)
+          #"inherit" =>
+            win32-std-handle(std-handle);
+          #"null" =>
+            win32-open/create($null-device, $GENERIC_WRITE,
+                              $FILE_SHARE_WRITE, $OPEN_EXISTING);
+          #"stream" =>
+            let (input-p, output-p) = Win32CreatePipe();
+            streams := add(streams, make(<file-stream>,
+                                         locator: input-p,
+                                         file-descriptor: input-p,
+                                         direction: #"input"));
+            Win32SetHandleInformation(input-p,
+                                      as(<machine-word>, $HANDLE_FLAG_INHERIT),
+                                      as(<machine-word>, 0));
+            close-handles := add(close-handles, output-p);
+            output-p;
+          #"output" =>
+            output-handle;
+          otherwise =>
+            let pathstring = as(<byte-string>, expand-pathname(key));
+            let fdwCreate
+              = select (if-exists)
+                  #"signal" =>
+                    error("not yet");
+                  #"new-version", #"replace" =>
+                    $CREATE_ALWAYS;
+                  #"overwrite", #"append" =>
+                    $OPEN_EXISTING;
+                  #"truncate" =>
+                    $TRUNCATE_EXISTING;
+                end select;
+            let handle
+              = win32-open/create(pathstring, $GENERIC_WRITE, $FILE_SHARE_WRITE,
+                                  fdwCreate);
+            if (if-output-exists == #"append")
+              win32-set-file-position(handle, 0, $FILE_END);
+            end if;
+            handle;
+        end select;
+      end method;
+
+    // FIXME
+    let output-handle
+      = open-output(output, if-output-exists, $STD_OUTPUT_HANDLE, #f);
+    startupinfo-StdOutput(startupInfo)
+      := output-handle;
+    startupinfo-StdError(startupInfo)
+      := open-output(_error, if-error-exists, $STD_ERROR_HANDLE, output-handle);
   end if;
+
+  if (outputter
+        | input ~== #"inherit" | output ~== #"inherit" | _error ~== #"inherit")
+    startupinfo-dwFlags(startupInfo)
+      := logior(startupinfo-dwFlags(startupInfo), $STARTF_USESTDHANDLES);
+  end if;
+
+
   if (primitive-raw-as-boolean
 	(%call-c-function ("CreateProcessA", c-modifiers: "__stdcall")
 	     (lpApplicationName :: <raw-byte-string>,
@@ -602,147 +784,100 @@ define function run-application (command :: <string>,
 	    primitive-string-as-raw(command),
 	    integer-as-raw(0), integer-as-raw(0),
 	    if (inherit-console?) integer-as-raw(1) else integer-as-raw(0) end,
-	    integer-as-raw(0), integer-as-raw(0), integer-as-raw(0),
+	    integer-as-raw(0),
+            integer-as-raw(0),
+            if (working-directory)
+              primitive-string-as-raw(as(<byte-string>, working-directory))
+            else
+              integer-as-raw(0)
+            end,
 	    primitive-cast-raw-as-pointer(primitive-string-as-raw(startupInfo)),
 	    primitive-cast-raw-as-pointer(primitive-string-as-raw(processInfo)))
 	 end))
     block ()
-      if (outputter)
-	let dylan-win32-buffer = make(<byte-string>, size: $BUFFER-MAX, fill: '\0');
-	let win32-buffer =
-	  primitive-wrap-machine-word(primitive-string-as-raw(dylan-win32-buffer));
-	let actual-transfer = Win32LocalAlloc();
-	let wait-result =
-	  primitive-wrap-machine-word
-	    (%call-c-function ("WaitForSingleObject", c-modifiers: "__stdcall")
-	         (hHandle :: <raw-c-pointer>, dwMilliseconds :: <raw-c-unsigned-long>)
-	      => (result :: <raw-c-unsigned-long>)
-	       (primitive-cast-raw-as-pointer
-		  (primitive-unwrap-machine-word(process-information-hProcess(processInfo))),
-		integer-as-raw(500))
-	     end);
-	if (wait-result == $WAIT_FAILED)
-	  win32-last-error()
-	end;
-	let process-is-alive? = wait-result ~= $WAIT_OBJECT_0;
-	while (process-is-alive?)
-	  if (Win32PeekNamedPipe(input-pipe, actual-transfer))
-	    let available 
-	      = raw-as-integer(primitive-c-unsigned-long-at
-				 (primitive-cast-raw-as-pointer
-				    (primitive-unwrap-machine-word(actual-transfer)),
-				  integer-as-raw(0), integer-as-raw(0)));
-	    while (~zero?(available))
-	      if (Win32ReadFile(input-pipe, win32-buffer, actual-transfer))
-		outputter(dylan-win32-buffer,
-			  end:
-			    raw-as-integer
-			      (primitive-c-unsigned-long-at
-				 (primitive-cast-raw-as-pointer
-				    (primitive-unwrap-machine-word(actual-transfer)),
-				  integer-as-raw(0), integer-as-raw(0))))
-	      else
-		win32-last-error()
-	      end;
-	      if (Win32PeekNamedPipe(input-pipe, actual-transfer))
-		available 
-		  := raw-as-integer(primitive-c-unsigned-long-at
-				      (primitive-cast-raw-as-pointer
-					 (primitive-unwrap-machine-word(actual-transfer)),
-				       integer-as-raw(0), integer-as-raw(0)));
-	      else
-		win32-last-error()
-	      end;
-	    end while;
-	  else
-	    win32-last-error()
-	  end if;
-	  let wait-result =
-	    primitive-wrap-machine-word
-	      (%call-c-function ("WaitForSingleObject", c-modifiers: "__stdcall")
-		   (hHandle :: <raw-c-pointer>, dwMilliseconds :: <raw-c-unsigned-long>)
-		=> (result :: <raw-c-unsigned-long>)
-		 (primitive-cast-raw-as-pointer
-		    (primitive-unwrap-machine-word(process-information-hProcess(processInfo))),
-		  integer-as-raw(500))
-	       end);
-	  if (wait-result == $WAIT_FAILED)
-	    win32-last-error()
-	  end;
-	  process-is-alive? := wait-result ~= $WAIT_OBJECT_0;
-	end while;
-	// Make sure that the writing end of the pipe is closed, otherwise we 
-	// will never terminate when we try to read from the pipe.
-	unless (Win32CloseHandle(output-pipe))
-	  error("Operating System: Run-application: Output Pipe failed to close");
-	end;
-	// Now copy the last bit of data from the pipe ...
-	while (Win32ReadFile(input-pipe, win32-buffer, actual-transfer))
-	  outputter(dylan-win32-buffer,
-		    end:
-		      raw-as-integer
-		        (primitive-c-unsigned-long-at
-			   (primitive-cast-raw-as-pointer
-			      (primitive-unwrap-machine-word(actual-transfer)),
-			    integer-as-raw(0), integer-as-raw(0))));
-	end;
+      if (asynchronous?)
+        win32-close-handle(process-information-hThread(processInfo));
+        let child
+          = make(<application-process>,
+                 process-handle: process-information-hProcess(processInfo));
+        apply(values, 0, #f, child, reverse!(streams))
       else
-	unless (asynchronous?)
-	if (primitive-machine-word-equal?
-	      (%call-c-function ("WaitForSingleObject", c-modifiers: "__stdcall")
-		   (hHandle :: <raw-c-pointer>, dwMilliseconds :: <raw-c-unsigned-long>)
-		=> (result :: <raw-c-unsigned-long>)
-		 (primitive-cast-raw-as-pointer
-		    (primitive-unwrap-machine-word(process-information-hProcess(processInfo))),
-		  integer-as-raw(-1))
-	      end,
-	      integer-as-raw($WAIT_FAILED)))
-	  win32-last-error()
-	end
-	end
-      end;
-      if (asynchronous?) 0
-      else
-      let statusBuffer :: <byte-string> = make(<byte-string>, size: $DWORD_SIZE,
-						              fill: '\0');
-      if (primitive-raw-as-boolean
-	    (%call-c-function ("GetExitCodeProcess", c-modifiers: "__stdcall")
-	         (hProcess :: <raw-c-pointer>, lpExitCode :: <raw-c-pointer>)
-	      => (success? :: <raw-c-signed-int>)
-	       (primitive-cast-raw-as-pointer
-		  (primitive-unwrap-machine-word
-		     (process-information-hProcess(processInfo))),
-		primitive-cast-raw-as-pointer(primitive-string-as-raw(statusBuffer)))
-	     end))
-	raw-as-integer
-	  (primitive-machine-word-logand
-	     (primitive-c-unsigned-long-at
-		(primitive-cast-raw-as-pointer(primitive-string-as-raw(statusBuffer)),
-		 integer-as-raw(0), integer-as-raw(0)),
-	      integer-as-raw($HRESULT_CODE_MASK)))
-      else
-	win32-last-error()
-      end
+        if (outputter)
+          win32-close-handle(output-pipe);
+          run-outputter(outputter, input-pipe);
+        end if;
+        
+        let wait-result
+          = win32-wait-for-single-object
+              (process-information-hProcess(processInfo), $INFINITE_TIMEOUT);
+        if (primitive-machine-word-equal?(wait-result,
+                                          integer-as-raw($WAIT_FAILED)))
+          error("wait for process failed: %s", win32-last-error-message());
+        end;
+        let (success?, code)
+          = win32-get-exit-code-process
+              (process-information-hProcess(processInfo));
+        if (~success?)
+          error("get exit code failed: %s", win32-last-error-message());
+        end;
+	let exit-code
+          = raw-as-integer
+              (primitive-machine-word-logand
+                 (primitive-unwrap-machine-word(code),
+                  integer-as-raw($HRESULT_CODE_MASK)));
+        let signal-code = 0;    // FIXME
+        apply(values, exit-code, (signal-code ~= 0) & signal-code, #f,
+              reverse!(streams))
       end
     cleanup
+      do(win32-close-handle, close-handles);
+      
       unless (asynchronous?)
-      Win32CloseHandle(process-information-hProcess(processInfo));
-      Win32CloseHandle(process-information-hThread(processInfo));
-      end;
+        win32-close-handle(process-information-hProcess(processInfo));
+        win32-close-handle(process-information-hThread(processInfo));
+      end
     end
   else
-    win32-last-error()
+    error("create process failed: %s", win32-last-error-message());
   end
 end function run-application;
 
-define function Win32CloseHandle
-    (handle :: <machine-word>) => (success? :: <boolean>)
+define function run-outputter
+    (outputter :: <function>, input-pipe :: <machine-word>) => ();
+  let dylan-win32-buffer = make(<byte-string>, size: $BUFFER-MAX, fill: '\0');
+  let win32-buffer
+    = primitive-wrap-machine-word
+        (primitive-string-as-raw(dylan-win32-buffer));
+  with-stack-dword (actual-transfer)
+    iterate loop ()
+      if (Win32ReadFile(input-pipe, win32-buffer, actual-transfer))
+        let count
+          = raw-as-integer(primitive-c-unsigned-long-at
+                             (primitive-cast-raw-as-pointer
+                                (primitive-unwrap-machine-word
+                                   (actual-transfer)),
+                              integer-as-raw(0), integer-as-raw(0)));
+        if (count)
+          outputter(dylan-win32-buffer, end: count);
+          loop();
+        end if;
+      else
+        let last-error = win32-raw-last-error();
+        if (last-error ~= $ERROR_HANDLE_EOF & last-error ~= $ERROR_BROKEN_PIPE)
+          win32-last-error()
+        end if;
+      end if;
+    end iterate;
+  end;
+end function;
+
+define inline function win32-close-handle
+    (handle :: <machine-word>) => (success? :: <boolean>);
   primitive-raw-as-boolean
-  (%call-c-function ("CloseHandle", c-modifiers: "__stdcall")
-     (hHandle :: <raw-c-pointer>) => (closed? :: <raw-c-signed-int>)
-     (primitive-cast-raw-as-pointer
-	(primitive-unwrap-machine-word(handle)))
-   end)
+    (%call-c-function ("CloseHandle", c-modifiers: "__stdcall")
+       (hHandle :: <raw-c-pointer>) => (closed? :: <raw-c-signed-int>)
+       (primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(handle)))
+    end)
 end function;
 
 define inline-only function Win32CreatePipe()
@@ -781,6 +916,19 @@ define inline-only function Win32CreatePipe()
 	 primitive-wrap-machine-word
 	   (primitive-c-unsigned-long-at
 	      (output-pipe, integer-as-raw(0), integer-as-raw(0))))
+end function;
+
+define inline-only function Win32SetHandleInformation
+    (handle :: <machine-word>, mask :: <machine-word>, flags :: <machine-word>)
+ => (success? :: <boolean>);
+  primitive-raw-as-boolean
+    (%call-c-function ("SetHandleInformation", c-modifiers: "__stdcall")
+       (hObject :: <raw-c-pointer>, dwMask :: <raw-c-unsigned-long>,
+        dwFlags :: <raw-c-unsigned-long>) => (success? :: <raw-c-signed-int>)
+     (primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(handle)),
+      primitive-unwrap-machine-word(mask),
+      primitive-unwrap-machine-word(flags))
+     end)
 end function;
 
 // Can be used to see if there's input available on an anonymous pipe ...
@@ -855,6 +1003,75 @@ define inline-only function Win32WriteFile
 end function;
 */
 
+define function wait-for-application-process
+    (process :: <application-process>)
+ => (exit-code :: <integer>, signal :: false-or(<integer>));
+  if (process.%application-process-state == #"running")
+    let wait-result
+      = win32-wait-for-single-object(process.application-process-handle,
+                                     $INFINITE_TIMEOUT);
+    if (primitive-machine-word-equal?
+          (wait-result, integer-as-raw($WAIT_FAILED)))
+      win32-last-error();
+    end;
+    
+    let (success?, return-status)
+      = win32-get-exit-code-process(process.application-process-handle);
+
+    process.%application-process-status-code
+      := if (success?)
+           raw-as-integer
+             (primitive-machine-word-logand
+                (primitive-unwrap-machine-word(return-status),
+                 integer-as-raw($HRESULT_CODE_MASK)))
+         else
+           win32-last-error()
+         end;
+    process.%application-process-state := #"exited";
+  end if;
+  let status-code = process.%application-process-status-code;
+  //let signal-code = logand(status-code, #o177);
+  let exit-code = status-code;  // FIXME
+  let signal-code = 0;          // FIXME
+  values(exit-code, (signal-code ~= 0) & signal-code);
+end function;
+
+define function win32-wait-for-single-object
+    (handle :: <machine-word>, timeout :: <integer>)
+ => (result :: <machine-word>);
+  primitive-wrap-machine-word
+    (%call-c-function ("WaitForSingleObject", c-modifiers: "__stdcall")
+          (hHandle :: <raw-c-pointer>, dwMilliseconds :: <raw-c-unsigned-long>)
+       => (result :: <raw-c-signed-int>)
+       (primitive-cast-raw-as-pointer
+	  (primitive-unwrap-machine-word(handle)),
+	integer-as-raw(timeout))
+     end)
+end function;
+
+define function win32-get-exit-code-process
+    (handle :: <machine-word>)
+ => (success? :: <boolean>, code :: <machine-word>);
+  with-stack-dword (status-word)
+    let success?
+      = primitive-raw-as-boolean
+          (%call-c-function ("GetExitCodeProcess", c-modifiers: "__stdcall")
+                (hProcess :: <raw-c-pointer>, lpExitCode :: <raw-c-pointer>)
+             => (success? :: <raw-c-signed-int>)
+             (primitive-cast-raw-as-pointer
+                (primitive-unwrap-machine-word(handle)),
+              primitive-cast-raw-as-pointer
+                (primitive-unwrap-machine-word(status-word)))
+           end);
+    let code
+      = primitive-wrap-machine-word
+          (primitive-c-unsigned-long-at
+             (primitive-cast-raw-as-pointer
+                (primitive-unwrap-machine-word(status-word)),
+              integer-as-raw(0), integer-as-raw(0)));
+    values(success?, code)
+  end
+end function;
 
 /// Inter-Process Synchronization tools
 
@@ -878,31 +1095,12 @@ end function;
 define constant $INFINITE_TIMEOUT = -1;
 
 define function wait-for-application-event
-    (event-object :: <machine-word>, #key timeout :: <integer> = $INFINITE_TIMEOUT)
+    (event-object :: <machine-word>,
+     #key timeout :: <integer> = $INFINITE_TIMEOUT)
  => (success? :: <boolean>)
-  
-  let wait-result =
-    primitive-wrap-machine-word
-    (%call-c-function ("WaitForSingleObject", c-modifiers: "__stdcall")
-       (hHandle :: <raw-c-pointer>, dwMilliseconds :: <raw-c-unsigned-long>)
-       => (result :: <raw-c-signed-int>)
-       (primitive-cast-raw-as-pointer
-	  (primitive-unwrap-machine-word(event-object)),
-	integer-as-raw(timeout))
-    end);
-
-  %call-c-function ("CloseHandle", c-modifiers: "__stdcall")
-    (hHandle :: <raw-c-pointer>)
-    => (result :: <raw-c-signed-int>)
-    (primitive-cast-raw-as-pointer
-       (primitive-unwrap-machine-word(event-object)))
-  end;
-
-  if (wait-result == $WAIT_FAILED)
-    #f
-  else
-    #t
-  end;
+  let wait-result = win32-wait-for-single-object(event-object, timeout);
+  win32-close-handle(event-object);
+  wait-result ~== $WAIT_FAILED
 end function;
 
 define constant $STANDARD_RIGHTS_REQUIRED = #x000F0000;
@@ -934,15 +1132,9 @@ define function signal-application-event
 	  (primitive-unwrap-machine-word(event-object)))
     end);
 
-  %call-c-function ("CloseHandle", c-modifiers: "__stdcall")
-    (hHandle :: <raw-c-pointer>)
-    => (result :: <raw-c-signed-int>)
-    (primitive-cast-raw-as-pointer
-       (primitive-unwrap-machine-word(event-object)))
-  end;
+  win32-close-handle(event-object);
 
   success?
-
 end function;
 
 
