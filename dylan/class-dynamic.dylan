@@ -779,7 +779,7 @@ end function;
 define function complete-dependent-generic-functions (iclass :: <implementation-class>,
 						      u :: <subjunctive-class-universe>)
  => ()
-/*  local method p1 (iclass :: <implementation-class>)
+  local method p1 (iclass :: <implementation-class>)
 	  do(recompute-type-complete!,  iclass-dependent-generics(iclass));
 	  do(compose(p1, rcurry(scu-entry,u)), direct-subclasses(iclass));
 	end method;
@@ -789,7 +789,7 @@ define function complete-dependent-generic-functions (iclass :: <implementation-
 	     iclass-dependent-generics(iclass));
 	  do(compose(p2, rcurry(scu-entry,u)), direct-subclasses(iclass));
 	end method;
-  p2(iclass); */
+  p2(iclass);
 end function;
 
 
