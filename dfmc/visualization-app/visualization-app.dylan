@@ -518,7 +518,7 @@ begin
   environment-variable("OPEN_DYLAN_USER_REGISTRIES") := "c:\\typed-opendylan-dylan\\registry;c:\\typed-opendylan\\registry";
   let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Type-and-Graph-Visualization");
   connect-to-server(vis);
-  let project = lookup-named-project("dylan");
+  let project = lookup-named-project("io");
   visualizing-compiler(vis, project, parse?: #t);
 end;
 

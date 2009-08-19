@@ -40,14 +40,38 @@ define method succ (v :: <loop-call>) => (res :: <comp-vector>)
 end;
 
 define method succ (c :: <block>) => (res :: <comp-vector>)
-  let res = next-method();
+  let res = make(<comp-vector>);
   add!(res, c.body);
   res;
 end;
 
-define method succ (c :: <unwind-protect>) => (res :: <comp-vector>)
+define method succ (c :: <end-block>) => (res :: <comp-vector>)
+  let res = make(<comp-vector>);
+  add!(res, c.entry-state.me-block.next-computation);
+  res;
+end;
+
+//define method succ (c :: <unwind-protect>) => (res :: <comp-vector>)
+//  let res = next-method();
+//  add!(res, c.cleanups);
+//  res;
+//end;
+
+define method succ (c :: <end-protected-block>) => (res :: <comp-vector>)
+  let res = make(<comp-vector>);
+  add!(res, c.entry-state.me-block.cleanups);
+  res;
+end;
+
+define method succ (c :: <end-cleanup-block>) => (res :: <comp-vector>)
+  let res = make(<comp-vector>);
+  add!(res, c.entry-state.me-block.next-computation);
+  res;
+end;
+
+define method succ (c :: <make-closure>) => (res :: <comp-vector>)
   let res = next-method();
-  add!(res, c.cleanups);
+  add!(res, c.computation-closure-method.body);
   res;
 end;
 
@@ -378,7 +402,7 @@ define function renaming (ass :: <comp-vector>, f :: <&lambda>, mapping :: <tabl
     unless (instance?(v, <module-binding>))
       counter[v] := 0;
       stacks[v] := make(<deque>);
-      unless (v.generator & v.environment == assignment.environment)
+      unless (v.generator)
         //passed as argument, thus push v onto the stack
         push(stacks[v], v);
       end;
@@ -453,20 +477,10 @@ define function renaming (ass :: <comp-vector>, f :: <&lambda>, mapping :: <tabl
           if (instance?(x, <phi-node>))
             pop(stacks[x.phi-ssa-variable]);
           end;
-          if (instance?(x, <temporary-transfer>))
-            let v = x.temporary;
-            if (instance?(v, <lexical-local-variable>))
-              if (~empty?(v.assignments))
-                pop(stacks[v]);
-              end;
-            end;
-          end;
-          if (instance?(x, <single-value-check-type-computation>))
+          begin
             let v = x.temporary;
             if (member?(v, modified-variables))
-              if (v.generator == x)
-                pop(stacks[v]);
-              end;
+              pop(stacks[v]);
             end;
           end;
         end;
@@ -486,12 +500,29 @@ end;
 //   before: analyze-calls;
 
 define method eliminate-assignments (f :: <&lambda>)
+  //filter out assignments in different environments
+  for (t in f.environment.temporaries.copy-sequence)
+    if (t & ~empty?(t.assignments) & ~cell?(t))
+      let gen-env = (t.generator & t.generator.environment) | f.environment;
+      let rem? = block (ret)
+                   for (as in t.assignments)
+                     if (as.environment ~== gen-env)
+                       ret(#t)
+                     end
+                   end
+                 end;
+      if (rem?)
+        //do cell conversion!
+        cell-assigned-temporaries(t);
+      end;
+    end;
+  end;
   let (idom, ass) = dominators(f.body);
   let (root, mapping) = build-tree(idom);
   let df = dominance-frontier(idom, root);
   phi-placement(df, ass, mapping);
   renaming(ass, f, mapping);
-  values(idom, root, mapping, df);
+  values(idom, ass, root, mapping, df);
 end method eliminate-assignments;
 
 define method convert-ssa-to-cells (f :: <&lambda>)
@@ -504,6 +535,8 @@ define method convert-ssa-to-cells (f :: <&lambda>)
 end;
 
 define method cell-assigned-temporaries (t :: <temporary>)
+  let ass = t.assignments;
+  t.assignments := #();
   let (make-cell-first-c, make-cell-last-c, cell) 
     = convert-make-cell(t.environment, t);
   insert-computations-after!
@@ -523,7 +556,7 @@ define method cell-assigned-temporaries (t :: <temporary>)
   for (user in t.users)
     replace-user(user, t);
   end for;
-  for (assignment in t.assignments)
+  for (assignment in ass)
     for (user in assignment.temporary.users)
       unless (instance?(user, <phi-node>))
         replace-user(user, assignment.temporary);

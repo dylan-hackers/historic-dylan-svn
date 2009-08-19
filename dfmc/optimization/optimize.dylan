@@ -160,26 +160,16 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	with-dependent-context ($compilation of model-creator(code))
           send-debug(#"relayouted", #());
           send-debug(#"beginning", #("SSA conversion"));
-	  for-all-lambdas (f in code)
-	    if (f == code | ~maybe-delete-function-body(f))
-	      eliminate-assignments(f);
-              send-debug(#"relayouted", #());
-	    end;
-	  end for-all-lambdas;
+          eliminate-assignments(code);
+          send-debug(#"relayouted", #());
           send-debug(#"beginning", #("run type inference"));
           let tenv = make(<type-environment>, lambda: code);
-          //for-all-lambdas (f in code)
-          //  if (f == code | lambda-used?(f))
-              type-infer(code, tenv);
-          //  end;
-            send-debug(#"relayouted", #());
-          //end for-all-lambdas;
+          type-infer(code, tenv);
+          send-debug(#"relayouted", #());
           tenv.finished-initial-typing? := #t;
           send-debug(#"beginning", #("convert ssa to cells"));
-          for-all-lambdas (f in code)
-            f.convert-ssa-to-cells;
-            send-debug(#"relayouted", #());
-          end;
+          convert-ssa-to-cells(code);
+          send-debug(#"relayouted", #());
           send-debug(#"beginning", #("run optimizations (delete, fold, upgrade, inline)"));
 	  for-all-lambdas (f in code)
 	    if (f == code | lambda-used?(f))

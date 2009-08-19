@@ -364,7 +364,7 @@ define method type-infer (l :: <&lambda>, type-env :: <type-environment>)
     //or cases where fewer values are exposed than emitted (warn here!)
     if (signature-compatible?(l.^function-signature, sig))
       if (more-specific?(l.^function-signature, sig))
-        l.^function-signature := sig;
+        //l.^function-signature := sig;
       end;
     end;
   end;
@@ -856,7 +856,7 @@ define type-rule <extract-rest-value>
 end;
 
 define type-rule <make-cell>
-  constraint(computation.computation-value.lookup, temporary-node);
+  //constraint(computation.computation-value.lookup, temporary-node);
   constraint(computation.temporary.cell-type.lookup, temporary-node);
 end;
 
@@ -865,7 +865,7 @@ define type-rule <get-cell-value>
 end;
 
 define type-rule <set-cell-value!>
-  constraint(computation.computation-value.abstract, temporary-node);
+  //constraint(computation.computation-value.abstract, temporary-node);
   constraint(computation.computation-cell.abstract, temporary-node);
 end;
 
