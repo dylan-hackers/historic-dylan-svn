@@ -525,13 +525,15 @@ define method eliminate-assignments (f :: <&lambda>)
   values(idom, ass, root, mapping, df);
 end method eliminate-assignments;
 
-define method convert-ssa-to-cells (f :: <&lambda>)
-  for (t in f.environment.temporaries.copy-sequence)
-    if (t & ~empty?(t.assignments) & ~cell?(t))
-      cell-assigned-temporaries(t);
-    end if;
-  end for;
-  strip-assignments(environment(f));
+define method convert-ssa-to-cells (code :: <&lambda>)
+  for-all-lambdas (f in code)
+    for (t in f.environment.temporaries.copy-sequence)
+      if (t & ~empty?(t.assignments) & ~cell?(t))
+        cell-assigned-temporaries(t);
+      end if;
+    end for;
+    strip-assignments(environment(f));
+  end;
 end;
 
 define method cell-assigned-temporaries (t :: <temporary>)
