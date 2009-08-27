@@ -9,7 +9,7 @@
   <prolog>
     <author></author>
     <copyright>
-      <copyryear year="2005"/>
+      <copyryear year="2009"/>
       <copyrholder>Gwydion Dylan Maintainers</copyrholder>
     </copyright>
   </prolog>
@@ -23,54 +23,55 @@
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>
-	<apiItemName>target</apiItemName>
+	<apiItemName>value</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
+      
       <dylanFunctionKeywordParam>
 	<apiItemName>test</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LfunctionG.xml">&lt;function&gt;</apiOperationClassifier>
-	<apiDefNote>The default value is <apioperation href="../../dylan/dylan/EE.xml">\==</apioperation></apiDefNote>
+	<apiDefNote>The default is <apioperation href="../../dylan/dylan/EE.xml">==</apioperation>.</apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>start</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote>The default is <codeph>0</codeph>.</apiDefNote>
+      </dylanFunctionKeywordParam>
+      <dylanFunctionKeywordParam>
+	<apiItemName>end</apiItemName>
+        <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
+	<apiDefNote>The default is the size of <parmname>sequence</parmname>.</apiDefNote>
       </dylanFunctionKeywordParam>
       <dylanFunctionKeywordParam>
 	<apiItemName>skip</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LintegerG.xml">&lt;integer&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>The default is <codeph>0</codeph>.</apiDefNote>
       </dylanFunctionKeywordParam>
-      <dylanFunctionKeywordParam>
-	<apiItemName>count</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
-      </dylanFunctionKeywordParam>
+      
       <dylanFunctionReturn>
 	<apiItemName>position</apiItemName>
-        <apiType value="{complex type}"/>
+        <apiType value="false-or(<integer>)"/>
 	<apiDefNote></apiDefNote>
       </dylanFunctionReturn>
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p>Returns the key at which <parmname>target</parmname> occurs in
-      <parmname>sequence</parmname>.</p>
+      <p>Returns the key (between <parmname>start</parmname> and
+      <parmname>end</parmname>) at which <parmname>value</parmname>
+      occurs in <parmname>sequence</parmname>, or <codeph>#f</codeph>
+      if it does not occur.</p>
 
-      <p>If <parmname>predicate</parmname> is supplied,
-      <apiname>position</apiname> uses it as an equivalence predicate
-      for comparing <parmname>sequence</parmname>’s elements to
-      <parmname>target</parmname> . It should take two objects and
-      return a boolean.  The default predicate used is
-      <apioperation href="../../dylan/dylan/EE.xml">\==</apioperation> . </p>
+      <p>If <parmname>test</parmname> is supplied,
+      <apiname>position</apiname> uses it as an equivalence
+      predicate. It need not be commutative; it is always called with
+      <parmname>value</parmname> as the first argument and an element
+      from <parmname>sequence</parmname> as the second. The default
+      predicate is <apioperation href="../../dylan/dylan/EE.xml">==</apioperation>.</p>
 
-      <p>COMMENT: Should use a better description for how
-      <parmname>test</parmname> is invoked.</p>
-
-      <p>The <parmname>skip</parmname> argument is interpreted as it
-      is by Dylan’s <apioperation
-      href="../../dylan/dylan/find_key.xml">find-key</apioperation>
-      function: <apiname>position</apiname> ignores the first
-      <parmname>skip</parmname> elements that match
-      <parmname>value</parmname>, and if <parmname>skip</parmname> or
-      fewer elements satisfy <parmname>predicate</parmname>, it
-      returns <codeph>#f</codeph>.</p>
+      <p>If <parmname>skip</parmname> is supplied, then the first
+      <parmname>skip</parmname> elements satisfying
+      <parmname>test</parmname> are ignored.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>
