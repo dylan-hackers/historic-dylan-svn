@@ -296,7 +296,7 @@ define operating-system function-test run-application ()
      let command
       = select ($os-name)
           #"win32" =>
-            "echo %OS_TEST_RUN_APPLICATION% & echo %PATH%";
+            "echo %OS_TEST_RUN_APPLICATION%&echo %PATH%";
           otherwise =>
             "echo $OS_TEST_RUN_APPLICATION; echo $PATH";
         end;
