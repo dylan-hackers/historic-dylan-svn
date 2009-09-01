@@ -102,7 +102,7 @@ sub do_char_library_name {
   <prolog>
     <author></author>
     <copyright>
-      <copyryear year="2005"/>
+      <copyryear year="$year"/>
       <copyrholder>Gwydion Dylan Maintainers</copyrholder>
     </copyright>
   </prolog>
@@ -127,7 +127,7 @@ EOF
 
     close(LIBRARY);
     if($library_file ne "$library.xml") {
-	system("cmp $library.xml $library_file >/dev/null") || die;
+	system("cmp '$library.xml' '$library_file' >/dev/null") || die;
 	if ($? == 0) {
 	    remove $library_file;
 	}
@@ -165,7 +165,7 @@ EOF
   <prolog>
     <author></author>
     <copyright>
-      <copyryear year="2005"/>
+      <copyryear year="$year"/>
       <copyrholder>Gwydion Dylan Maintainers</copyrholder>
     </copyright>
   </prolog>
@@ -190,7 +190,7 @@ EOF
 
     close(MODULE);
     if($module_file ne "$library/$module.xml") {
-	system("cmp $library/$module.xml $module_file >/dev/null") || die;
+	system("cmp '$library/$module.xml' '$module_file' >/dev/null") || die;
 	if ($? == 0) {
 	    remove $module_file;
 	}
@@ -231,7 +231,7 @@ sub do_end_entry {
     my $mangled = &mangle($entry);
     
     if($entry_file ne "$library/$module/$mangled.xml") {
-	system("cmp $entry_file $library/$module/$mangled.xml >/dev/null")
+	system("cmp '$entry_file' '$library/$module/$mangled.xml' >/dev/null")
 	    || die;
 	if ($? == 0) {
 	    remove $entry_file;
@@ -370,7 +370,7 @@ sub do_char_type {
 	$tag = 'apiOperationClassifier';
     }
 
-    if($string eq '{complex type}') {
+    if($string eq '{complex type}' || $string =~ /[()]/) {
 	print ENTRY << "EOF";
 $s      <apiType value="$string"/>
 EOF
@@ -387,7 +387,7 @@ sub do_start_functiondef {
     
     print ENTRY << "EOF"
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Macro//EN" "../../../../dtd/dylanFunction.dtd" []>
+<!DOCTYPE dylanFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Function//EN" "../../../../dtd/dylanFunction.dtd" []>
 <dylanFunction id="lib-$library-$module-$mangled">
   <apiName>$escaped</apiName>
   <shortdesc>Returns .</shortdesc>
@@ -395,7 +395,7 @@ sub do_start_functiondef {
   <prolog>
     <author></author>
     <copyright>
-      <copyryear year="2005"/>
+      <copyryear year="$year"/>
       <copyrholder>Gwydion Dylan Maintainers</copyrholder>
     </copyright>
   </prolog>
@@ -431,7 +431,7 @@ sub do_start_genericdef {
   <prolog>
     <author></author>
     <copyright>
-      <copyryear year="2005"/>
+      <copyryear year="$year"/>
       <copyrholder>Gwydion Dylan Maintainers</copyrholder>
     </copyright>
   </prolog>
@@ -563,7 +563,7 @@ sub do_start_macrodef {
   <prolog>
     <author></author>
     <copyright>
-      <copyryear year="2005"/>
+      <copyryear year="$year"/>
       <copyrholder>Gwydion Dylan Maintainers</copyrholder>
     </copyright>
   </prolog>
