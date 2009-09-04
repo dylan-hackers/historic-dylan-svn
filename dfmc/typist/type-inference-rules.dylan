@@ -320,7 +320,7 @@ end;
 define method add-constraint
     (type-environment :: <type-environment>,
      origin :: type-union(<computation>, <constraint-edge>, <temporary>),
-     left :: <node>, right :: <node>)
+     right :: <node>, left :: <node>)
  => (c :: <constraint-edge>)
   unless (left.graph == right.graph)
     error("constraint must be in same type graph")
