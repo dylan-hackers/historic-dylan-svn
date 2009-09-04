@@ -133,6 +133,28 @@ define method ^known-disjoint? (u :: <&union>, t :: <&union>)
     & ^known-disjoint?(u.^union-type2, t)
 end method ^known-disjoint?;
 
+define method ^known-disjoint? (u :: <&union>, s :: <&subclass>)
+ => (disjoint? :: <boolean>)
+  ^known-disjoint?(u.^union-type1, s)
+    & ^known-disjoint?(u.^union-type2, s)
+end;
+
+define method ^known-disjoint? (s :: <&subclass>, u :: <&union>)
+ => (disjoint? :: <boolean>)
+  ^known-disjoint?(u, s)
+end;
+
+define method ^known-disjoint? (u :: <&union>, s :: <&singleton>)
+ => (disjoint? :: <boolean>)
+  ^known-disjoint?(u.^union-type1, s)
+    & ^known-disjoint?(u.^union-type2, s)
+end;
+
+define method ^known-disjoint? (s :: <&singleton>, u :: <&union>)
+ => (disjoint? :: <boolean>)
+  ^known-disjoint?(u, s)
+end;
+
 //// False-or.
 
 define &override-function ^false-or 

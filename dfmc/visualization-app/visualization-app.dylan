@@ -503,6 +503,18 @@ begin
     "  a + a;\n"
     "end;";
   add!($tests, pair(#"regression1 (<object>)", regr1));
+
+  let dyn0 =
+    "define method dyn0 (a)\n"
+    "  let g = method(x :: <integer>) 2 * x end;\n"
+    "  let h = method(x :: <string>) concatenate(x, x) end;\n"
+    "  if (instance?(a, <integer>))\n"
+    "    g(a)\n"
+    "  elseif (instance?(a, <string>))\n"
+    "    h(a)\n"
+    "  end\n"
+    "end;";
+  add!($tests, pair(#"dyn0 (<object>)", dyn0));
 end;
 
 define function callback-handler (#rest args)
@@ -518,7 +530,7 @@ begin
   environment-variable("OPEN_DYLAN_USER_REGISTRIES") := "c:\\typed-opendylan-dylan\\registry;c:\\typed-opendylan\\registry";
   let vis = make(<dfmc-graph-visualization>, id: #"Dylan-Type-and-Graph-Visualization");
   connect-to-server(vis);
-  let project = lookup-named-project("io");
+  let project = lookup-named-project("dylan");
   visualizing-compiler(vis, project, parse?: #t);
 end;
 

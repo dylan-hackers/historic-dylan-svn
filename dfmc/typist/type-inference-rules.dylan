@@ -10,7 +10,7 @@ define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #ke
       let te = if (abstract?)
                  convert-to-typist-type(o.type-estimate-object, env)
                else
-                 make(<&top-type>)
+                 make(<dynamic>)
                end;
       let tv = make(<type-variable>, contents: te);
       debug-types(#"new-type-variable", env, tv, o, te);
@@ -28,9 +28,9 @@ define method lookup-type-node (o :: <multiple-value-temporary>, env :: <type-en
     begin
       let tes = make(<simple-object-vector>);
       for (x from 0 below o.required-values)
-        tes := add(tes, make(<&top-type>)); //actually estimate the objects!
+        tes := add(tes, make(<dynamic>)); //actually estimate the objects!
       end;
-      let top = make(<&top-type>);
+      let top = make(<dynamic>);
       let tv = make(<type-variable>, contents: top);
       debug-types(#"new-type-variable", env, tv, o, top);
       let n = make(<node>, graph: env.type-graph, value: tv);
@@ -73,7 +73,7 @@ define method lookup-type-node (o :: <object>, env :: <type-environment>, #key a
                 if (instance?(o, type-union(<typist-type>, <&type>, <&signature>)))
                   convert-to-typist-type(o, env)
                 else
-                  make(<&top-type>)
+                  make(<dynamic>)
                 end
               end);
 end;
@@ -200,9 +200,9 @@ define generic convert-to-typist-type (t :: type-union(<typist-type>, <&signatur
  => (res :: type-union(<typist-type>, <&type>));
 
 define method convert-to-typist-type (t :: <&type>, env :: <type-environment>)
- => (res :: <&type>)
-  if (t == dylan-value(#"<object>"))
-    make(<&top-type>)
+ => (res :: type-union(<typist-type>, <&type>))
+  if (t == dylan-value(#"<object>") | instance?(t, <&top-type>))
+    make(<dynamic>)
   else
     t
   end
@@ -271,6 +271,10 @@ define method model-type (t :: <limited-collection>, #key top?) => (t :: <&type>
        class: t.collection-class.mt,
        concrete-class: t.collection-class.mt,
        element-type: t.element-type.mt)
+end;
+
+define method model-type (t :: <dynamic>, #key top?) => (t :: <&type>)
+  top? & dylan-value(#"<object>") | make(<&top-type>)
 end;
 
 define method model-type (t :: <node>, #key top?) => (res :: type-union(<collection>, <&type>))
@@ -495,12 +499,14 @@ define function set-type-environment! (c :: <computation>, t :: <type-environmen
       //pass
     elseif (any-te-matches?(c.type-environment, t))
       //widen type environment? is unsafe, should not happen!
+//      error("should not happen!");
       c.type-environment := t;
     elseif (any-te-matches?(t, c.type-environment))
       //t is more specific than c.t-e, so its safe to set
       c.type-environment := t;
     else
       //disjoint, should not happen!
+//      error("should not happen!");
       c.type-environment := t;
     end;
   else

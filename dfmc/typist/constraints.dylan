@@ -15,6 +15,7 @@ define thread variable *origin* = #f;
 define function solve (type-env :: <type-environment>)
  => ()
   let graph = type-env.type-graph;
+  //do(copy-dynamic, graph.graph-nodes);
   let constraints = graph.type-constraints;
   let cs = as(<deque>, constraints);
   for (node in graph.graph-nodes)
@@ -109,12 +110,13 @@ define method solve-constraint
 end;
 
 define method solve-constraint
- (t1 :: <arrow>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
+ (t1 :: <arrow>, t2 :: <dynamic>, u :: <node>, v :: <node>, push-constraint :: <function>)
  => ()
   if (u.contains-variables?)
     u.contains-variables? := #f;
     for (u1 in u.successors)
-      let w1 = make(<node>, graph: u.graph, value: make(<&top-type>));
+      let w1 = make(<node>, graph: u.graph, value: make(<dynamic>));
+      w1.contains-variables? := #f;
       push-constraint(w1, u1);
     end;
   end;
@@ -133,7 +135,8 @@ define method solve-constraint
   let tts = t2.tuple-types;
   let orig-size = tts.size;
   for (i from v.successors.size below u.successors.size)
-    let n = make(<node>, graph: u.graph, value: make(<&top-type>));
+    let n = make(<node>, graph: u.graph, value: make(<dynamic>));
+    n.contains-variables? := #f;
     tts := add(tts, n);
     push-constraint(u.successors[i], n)
   end;
@@ -148,7 +151,8 @@ define method solve-constraint
   let tts = t1.tuple-types;
   let orig-size = tts.size;
   for (i from u.successors.size below v.successors.size)
-    let top = make(<node>, graph: u.graph, value: make(<&top-type>));
+    let top = make(<node>, graph: u.graph, value: make(<dynamic>));
+    top.contains-variables? := #f;
     tts := add(tts, top);
     push-constraint(v.successors[i], top)
   end;
@@ -167,7 +171,8 @@ define method solve-constraint
   let tts = smaller.node-value.tuple-types;
   let old-size = tts.size;
   for (i from smaller.successors.size below larger.successors.size)
-    let top = make(<node>, graph: u.graph, value: make(<&top-type>));
+    let top = make(<node>, graph: u.graph, value: make(<dynamic>));
+    top.contains-variables? := #f;
     tts := add(tts, top);
     push-constraint(larger.successors[i], top)
   end;
@@ -178,13 +183,14 @@ end;
 
 
 define method solve-constraint
- (t1 :: <tuple>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
+ (t1 :: <tuple>, t2 :: <dynamic>, u :: <node>, v :: <node>, push-constraint :: <function>)
  => ()
   if (u.contains-variables?)
     //format-out("solving tuple == top\n");
     u.contains-variables? := #f;
     for (u1 in u.successors)
-      let w1 = make(<node>, graph: u.graph, value: make(<&top-type>));
+      let w1 = make(<node>, graph: u.graph, value: make(<dynamic>));
+      w1.contains-variables? := #f;
       push-constraint(u1, w1);
     end;
   end;
@@ -198,24 +204,22 @@ define method solve-constraint
 end;
 
 define method solve-constraint
-  (t1 :: <limited-collection>, t2 :: <&top-type>,
+  (t1 :: <limited-collection>, t2 :: <dynamic>,
    u :: <node>, v :: <node>, push-constraint :: <function>) => ()
   if (u.contains-variables?)
     u.contains-variables? := #f;
-    push-constraint(t1.collection-class, make(<node>, graph: u.graph, value: make(<&top-type>)));
-    push-constraint(t1.element-type, make(<node>, graph: u.graph, value: make(<&top-type>)));
+    let c = make(<node>, graph: u.graph, value: make(<dynamic>));
+    c.contains-variables? := #f;
+    push-constraint(t1.collection-class, c);
+    let e = make(<node>, graph: u.graph, value: make(<dynamic>));
+    e.contains-variables? := #f;
+    push-constraint(t1.element-type, e);
   end;
 end;
 
 define method solve-constraint
- (t1 :: type-union(<typist-type>, <&type>), t2 :: type-union(<type-variable>, <&top-type>),
+ (t1 :: type-union(<typist-type>, <&type>), t2 :: type-union(<type-variable>, <dynamic>),
   u :: <node>, v :: <node>, push-constraint :: <function>)
- => ()
-  //move along
-end;
-
-define method solve-constraint
- (t1 :: <&top-type>, t2 :: <&top-type>, u :: <node>, v :: <node>, push-constraint :: <function>)
  => ()
   //move along
 end;

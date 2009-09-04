@@ -22,6 +22,9 @@ define primary class <arrow> (<typist-type>)
     required-init-keyword: values:;
 end;
 
+define primary class <dynamic> (<typist-type>)
+end;
+
 define primary class <limited-collection> (<typist-type>)
   constant slot collection-class :: <node>,
     required-init-keyword: class:;
@@ -45,6 +48,10 @@ end;
 
 define compiler-sideways method print-object (tv :: <tuple>, str :: <stream>) => ()
   format(str, "{ %= }", tv.tuple-types);
+end;
+
+define compiler-sideways method print-object (tv :: <dynamic>, str :: <stream>) => ()
+  format(str, "?");
 end;
 
 define compiler-sideways method print-object (c :: <limited-collection>, str :: <stream>) => ()

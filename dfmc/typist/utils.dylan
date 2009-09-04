@@ -1,7 +1,7 @@
 module: dfmc-typist
 
 define method dynamic? (type ::  <&type>) => (res :: <boolean>)
-  ^type-equivalent?(type, dylan-value(#"<object>"))
+  #f //^type-equivalent?(type, dylan-value(#"<object>"))
 end;
 
 define method dynamic? (type :: <typist-type>) => (res == #f)
@@ -9,10 +9,14 @@ define method dynamic? (type :: <typist-type>) => (res == #f)
 end;
 
 define method dynamic? (tv :: <type-variable>) => (res :: <boolean>)
-  tv.type-variable-contents.dynamic?
+  #f //tv.type-variable-contents.dynamic?
 end;
 
-define method dynamic? (tv :: <&top-type>) => (res == #t)
+define method dynamic? (tv :: <&top-type>) => (res == #f)
+  #f
+end;
+
+define method dynamic? (d :: <dynamic>) => (res == #t)
   #t
 end;
 

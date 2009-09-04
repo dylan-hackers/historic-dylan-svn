@@ -32,7 +32,7 @@ define function write-data (vis :: <dfmc-graph-visualization>, key :: <symbol>, 
     //if (loc = "new-dispatch.dylan")
     //if (member?(env, list("expand-tabs"),
     //            test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
-    //  write-to-visualizer(vis, apply(list, key, env, arguments));
+      write-to-visualizer(vis, apply(list, key, env, arguments));
     //end;
   else
     //uhm... shouldn't be here

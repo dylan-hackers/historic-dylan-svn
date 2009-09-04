@@ -159,6 +159,21 @@ define function find (value :: <node>) => (res :: <node>)
     | (value.representative := find(value.representative));
 end;
 
+//define function copy-dynamic (n :: <node>)
+//  let cs = choose(rcurry(instance?, <constraint-edge>), concatenate(n.out-edges, n.in-edges));
+//  if (cs.size > 1)
+//    if (any?(rcurry(instance?, <dynamic>), map(node-value, concatenate(n, n.successors))))
+//      for (c in cs)
+//        let copy = deep-copy-node(n, n.graph);
+//        let target = if (c.edge-target == n) c.edge-source else c.edge-target end;
+//        make(<constraint-edge>, graph: n.graph, origin: c.origin, source: copy, target: target);
+//        c.remove-edge;
+//        n.remove-node;
+//      end
+//    end
+//  end
+//end;
+
 define sideways method deep-copy-node
  (type :: type-union(<typist-type>, <&type>), graph :: <type-graph>)
  => (res :: <node>)
@@ -280,16 +295,9 @@ define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolea
     v.representative := u;
   else
     //hah, we can decide on the order ourselves
-    //done by least upper bound:
-    //basically top loses always against a real type
-    //and real types just use subtyping relationship
-    if (u.node-value.dynamic?)
-      v.node-rank := max(u.node-rank, v.node-rank) + 1;
-      u.representative := v;
-    elseif (v.node-value.dynamic?)
-      u.node-rank := max(u.node-rank, v.node-rank) + 1;
-      v.representative := u;
-    elseif (is-subtype?(u, v))
+    //done by "least upper bound":
+    //real types use subtype? relationship
+    if (is-subtype?(u, v))
       if (is-subtype?(v, u) & v.node-rank > u.node-rank)
         u.representative := v;
       else
@@ -299,13 +307,14 @@ define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolea
     elseif (is-subtype?(v, u))
       v.node-rank := max(u.node-rank, v.node-rank) + 1;
       u.representative := v;
+    //variable arity nodes loose
     elseif (v.rest-value?)
       u.node-rank := max(u.node-rank, v.node-rank) + 1;
       v.representative := u;
     elseif (u.rest-value?)
       v.node-rank := max(u.node-rank, v.node-rank) + 1;
       u.representative := v;
-    elseif (u.node-rank > v.node-rank) //default case from gtubi-paper (needed?)
+    elseif (u.node-rank > v.node-rank) //default case from gtubi-paper
       v.representative := u;
     else
       if (u.node-rank == v.node-rank)
