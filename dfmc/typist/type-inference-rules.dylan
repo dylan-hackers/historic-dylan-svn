@@ -923,8 +923,8 @@ define method get-function-object (t :: <temporary>)
 end;
 
 define method get-function-object (t :: <lexical-specialized-variable>)
- => (f :: false-or(<&limited-function-type>))
-  instance?(t.specializer, <&limited-function-type>) & t.specializer;
+ => (f :: false-or(type-union(<&limited-function-type>, <&function>)))
+  instance?(t.specializer, <&limited-function-type>) & t.specializer | next-method() 
 end;
 
 define method get-function-object (t :: <object-reference>)
@@ -982,12 +982,42 @@ define function gen-tuple (types :: <collection>, #key rest?) => (res :: <tuple>
   make(if (rest?) <tuple-with-rest> else <tuple> end, tuples: types)
 end;
 
-define function create-arrow-and-constraint
+define method create-arrow-and-constraint
  (c :: <call>, sig :: <&signature>) => ()
   let tenv = c.type-environment;
   let left = lookup-type-node(sig, tenv);
 
   let args = map(rcurry(abstract-and-lookup, tenv), c.arguments);
+
+  let vals
+    = if (c.temporary)
+        let res = abstract-and-lookup(c.temporary, tenv);
+        if (~instance?(c.temporary, <multiple-value-temporary>))
+          lookup-type-node(vector(res).gen-tuple, tenv)
+        else
+          res
+        end;
+      else
+        lookup-type-node(make(<&top-type>), tenv)
+      end;
+
+  let right = make(<node>, graph: tenv.type-graph,
+                   value: make(<arrow>,
+                               arguments: lookup-type-node(args.gen-tuple, tenv),
+                               values: vals));
+  debug-types(#"type-relation", tenv, right, c);
+  add-constraint(tenv, c, left, right);
+end;
+
+define method create-arrow-and-constraint
+ (c :: <apply>, sig :: <&signature>) => ()
+  let tenv = c.type-environment;
+  let left = lookup-type-node(sig, tenv);
+
+  let args = map(rcurry(abstract-and-lookup, tenv), c.arguments);
+  let last-arg-pos = args.size - 1;
+  //actually, unwrap last argument! (mustn't be a sequence!)
+  args[last-arg-pos] := lookup-type-node(make(<dynamic>), tenv);
 
   let vals
     = if (c.temporary)
