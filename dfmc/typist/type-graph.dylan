@@ -307,13 +307,6 @@ define function graph-union (u :: <node>, v :: <node>, order-matters? :: <boolea
     elseif (is-subtype?(v, u))
       v.node-rank := max(u.node-rank, v.node-rank) + 1;
       u.representative := v;
-    //variable arity nodes loose
-    elseif (v.rest-value?)
-      u.node-rank := max(u.node-rank, v.node-rank) + 1;
-      v.representative := u;
-    elseif (u.rest-value?)
-      v.node-rank := max(u.node-rank, v.node-rank) + 1;
-      u.representative := v;
     elseif (u.node-rank > v.node-rank) //default case from gtubi-paper
       v.representative := u;
     else

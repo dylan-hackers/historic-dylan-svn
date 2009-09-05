@@ -241,16 +241,20 @@ define function order (u :: <node>, v :: <node>)
   let tv = node-value(v);
   if (dynamic?(tu))
     if (instance?(tv, <type-variable>))
-      values(u, v, #t);
+      values(u, v, #t)
     else
-      values(v, u, #t);
+      values(v, u, #t)
     end;
   elseif (instance?(tu, <type-variable>))
-    values(v, u, #t);
+    values(v, u, #t)
   elseif (instance?(tv, <type-variable>))
-    values(u, v, #t);
+    values(u, v, #t)
+  elseif (tu.rest-value?)
+    values(v, u, #t)
+  elseif (tv.rest-value?)
+    values(u, v, #t)
   else
-    values(u, v, #f);
+    values(u, v, #f)
   end;
 end;
 

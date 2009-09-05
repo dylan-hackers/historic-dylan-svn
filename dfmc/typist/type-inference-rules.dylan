@@ -16,7 +16,7 @@ define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #ke
       debug-types(#"new-type-variable", env, tv, o, te);
       let n = make(<node>, graph: env.type-graph, value: tv);
       env[o] := n;
-      unless (instance?(te, <&top-type>))
+      unless (instance?(te, type-union(<dynamic>, <&top-type>)))
         add-constraint(env, o, lookup-type-node(te, env), n);
       end;
       n;
