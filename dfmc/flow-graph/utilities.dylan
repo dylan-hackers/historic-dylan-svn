@@ -619,7 +619,7 @@ define function replace-computation!
   end if;
   // Take the old code out.
   delete-computation!(old-c);
-  re-type-computations(old-c.type-environment, new-first, new-last);
+  //re-type-computations(old-c.type-environment, new-first, new-last);
 end function replace-computation!;
 
 
