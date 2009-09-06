@@ -300,7 +300,7 @@ define method insert-computations-before-reference!
         => insert-computations-before!(old-c, new-first-c, new-last-c);
            #f;
     end case;
-  re-type & re-type-computations(re-type.type-environment, new-first-c, new-last-c);
+  re-type & set-type-environment(re-type, new-first-c, new-last-c);
 end method;
 
 define method insert-computations-before-reference!
@@ -467,7 +467,7 @@ define method insert-computations-after!
   last.next-computation := old-c.next-computation;
   first.previous-computation := old-c;
   old-c.next-computation := first;
-  slot-initialized?(old-c, type-environment) & re-type-computations(old-c.type-environment, first, last);
+  set-type-environment(old-c, first, last);
 end method insert-computations-after!;
 
 define method insert-computations-after!
@@ -483,7 +483,7 @@ define method insert-computations-before!
   first.previous-computation := old-c.previous-computation;
   last.next-computation := old-c;
   old-c.previous-computation := last;
-  slot-initialized?(old-c, type-environment) & re-type-computations(old-c.type-environment, first, last);
+  set-type-environment(old-c, first, last);
 end method insert-computations-before!;
 
 define method insert-computations-before!
@@ -619,7 +619,7 @@ define function replace-computation!
   end if;
   // Take the old code out.
   delete-computation!(old-c);
-  //re-type-computations(old-c.type-environment, new-first, new-last);
+  re-type-computations(old-c.type-environment, new-first, new-last);
 end function replace-computation!;
 
 
@@ -772,6 +772,11 @@ define function call-effective-function (c :: <function-call>)
     funct
   end
 end function;
+
+define function set-type-environment (old-c :: <computation>, first :: <computation>, last :: <computation>) => ()
+  slot-initialized?(old-c, type-environment) &
+    re-type-computations(old-c.type-environment, first, last);
+end;
 
 define compiler-open generic tail-position? (c :: <call>) => (tail? :: <boolean>);
 define compiler-open generic convert-type-expression (env :: <environment>, type)

@@ -21,10 +21,14 @@ end;
 define compiler-sideways method re-optimize-type-estimate (c :: <computation>) => ()
 end method;
 
+define thread variable *upgrade?* :: <boolean> = #t;
+
 define compiler-sideways method re-type-computations
     (env :: <type-environment>, first :: false-or(<computation>), last :: false-or(<computation>)) => ()
   if (env.finished-initial-typing? & first)
-    type-walk(env, first, last.next-computation);
+    dynamic-bind(*upgrade?* = #f)
+      type-walk(env, first, last.next-computation);
+    end;
 
     //let infer = make(<stretchy-vector>);
     //walk-computations(curry(add!, infer), first, last.next-computation);

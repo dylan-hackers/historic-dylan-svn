@@ -1125,6 +1125,7 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
 end;
 
 define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>) => ()
+  if (*upgrade?*)
   let folded? = #f;
   let (function-constant?, function) = constant-value?(function(c));
   if (function-constant? & every?(constant-value?, c.arguments))
@@ -1158,5 +1159,8 @@ define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>
       // finally, record type constraint (beta = tau1 -> tau2)
       next-method();
     end;
+  end;
+  else
+    next-method()
   end;
 end;

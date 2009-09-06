@@ -245,6 +245,12 @@ define function order (u :: <node>, v :: <node>)
     else
       values(v, u, #t)
     end;
+  elseif (dynamic?(tv))
+    if (instance?(tu, <type-variable>))
+      values(v, u, #t)
+    else
+      values(u, v, #t)
+    end;
   elseif (instance?(tu, <type-variable>))
     values(v, u, #t)
   elseif (instance?(tv, <type-variable>))
