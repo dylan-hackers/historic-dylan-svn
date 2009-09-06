@@ -543,7 +543,9 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
                 env
               elseif (slot-initialized?(comp, type-environment) & comp.type-environment)
                 if (c.type-environment == env) //outer env was more specific, use it
-                  comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
+                  unless (env == comp.type-environment)
+                    comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
+                  end;
                 end;
                 comp.type-environment
               else

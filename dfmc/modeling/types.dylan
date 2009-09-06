@@ -383,7 +383,22 @@ end;
 
 define method ^known-disjoint? (a :: <&type>, b :: <&top-type>)
  => (well? == #f)
-  #f;
+  #f
+end;
+
+define method ^known-disjoint? (a :: <&bottom-type>, b :: <&type>)
+ => (well? == #t)
+  #t
+end;
+
+define method ^known-disjoint? (a :: <&type>, b :: <&bottom-type>)
+ => (well? == #t)
+  #t
+end;
+
+define method ^known-disjoint? (a :: <&bottom-type>, b :: <&bottom-type>)
+ => (well? == #f)
+  #f
 end;
 
 define method ^subtype? (a :: <&top-type>, b :: <&limited-vector-type>)
@@ -397,14 +412,25 @@ define method ^subtype? (a :: <&limited-vector-type>, b :: <&top-type>)
 end;
 
 /*
-define primary &class <tuple-type> (<type>)
-  constant &slot tuple-types :: <simple-object-vector>,
-    required-init-keyword: tuples:;
+define primary &class <tuple-type> (<type>, <simple-vector>)
+  repeated &slot vector-element,
+    init-keyword: fill:,
+    init-value: #f,
+    size-getter: size,
+    size-init-keyword: size:,
+    size-init-value: 0;
 end;
 
+//define compile-time-collection-functions-for <tuple-type>;
+define ^mapping <tuple-type> => <tuple-type>
+  &instance %empty-vector       => &empty-simple-object-vector;
+  constant &slot size           => size;
+  repeated &slot vector-element => element;
+end ^mapping;
+
 define method ^subtype? (tt1 :: <&tuple-type>, tt2 :: <&tuple-type>) => (res :: <boolean>)
-  tt1.^tuple-types.size == tt2.^tuple-types.size &
-   every?(^subtype?, tt1.^tuple-types, tt2.^tuple-types)
+  tt1.^size == tt2.^size &
+   every?(^subtype?, tt1, tt2)
 end;
 
 define method ^subtype? (tt1 :: <&tuple-type>, tt2 :: <&type>) => (res :: <boolean>)
@@ -421,8 +447,7 @@ end;
 
 define method ^known-disjoint? (tt1 :: <&tuple-type>, tt2 :: <&tuple-type>)
  => (res :: <boolean>)
-  tt1.^tuple-types.size ~= tt2.^tuple-types.size |
-   every?(^known-disjoint?, tt1.^tuple-types, tt2.^tuple-types);
+  any?(^known-disjoint?, tt1, tt2)
 end;
 
 define method ^known-disjoint? (tt1 :: <&tuple-type>, tt2 :: <&type>)
@@ -457,23 +482,32 @@ end;
 
 define method ^subtype? (tt1 :: <&tuple-type>, tt2 :: <&tuple-type-rest>)
  => (res :: <boolean>)
-  tt1.^tuple-types.size >= tt2.^tuple-types.size &
-   every?(^subtype?, tt1.^tuple-types, tt2.^tuple-types) &
-   every?(^subtype?, copy-sequence(tt1.^tuple-types, start: tt2.^tuple-types.size),
-          tt2.^rest-type)
+  tt1.^size >= tt2.^size &
+   every?(^subtype?, tt1, tt2) &
+   every?(^subtype?, copy-sequence(tt1, start: tt2.^size), tt2.^rest-type)
 end;
 
 define method ^subtype? (tt1 :: <&tuple-type-rest>, tt2 :: <&tuple-type-rest>)
  => (res :: <boolean>)
-  tt1.^tuple-types.size >= tt2.^tuple-types.size &
-   every?(^subtype?, tt1.^tuple-types, tt2.^tuple-types) &
-   every?(^subtype?, copy-sequence(tt1.^tuple-types, start: tt2.^tuple-types.size),
-          tt2.^rest-type) &
+  tt1.^size >= tt2.^size &
+   every?(^subtype?, tt1, tt2) &
+   every?(^subtype?, copy-sequence(tt1, start: tt2.^size), tt2.^rest-type) &
    ^subtype?(tt1.^rest-type, tt2.^rest-type)
 end;
 
-define method ^known-disjoint? (tt1 :: <&tuple-type-with-optionals>, tt2 :: <&tuple-type-with-optionals>)
+define method ^known-disjoint? (tt1 :: <&tuple-type-rest>, tt2 :: <&tuple-type>)
  => (res :: <boolean>)
+  ~ ^subtype?(tt1, tt2) & ~ ^subtype?(tt2, tt1)
+end;
+
+define method ^known-disjoint? (tt1 :: <&tuple-type>, tt2 :: <&tuple-type-rest>)
+ => (res :: <boolean>)
+  ^known-disjoint?(tt2, tt1)
+end;
+
+define method ^known-disjoint? (tt1 :: <&tuple-type-rest>, tt2 :: <&tuple-type-rest>)
+ => (res :: <boolean>)
+  ~ ^subtype?(tt1, tt2) & ~ ^subtype?(tt2, tt1)
 end;
 */
 

@@ -919,7 +919,11 @@ end method;
 
 define method constant-fold (c :: <check-type-computation>)
   let value-c = generator(computation-value(c));
-  if (value-c & instance?(value-c, <if-merge>) 
+  if (evaluate-type-checks?(c))
+    // remove it
+    replace-computation-with-temporary!(c, computation-value(c));
+    #t
+  elseif (value-c & instance?(value-c, <if-merge>) 
         // The following is a blunt instrument that ensures that we don't
         // promote type checks inappropriately across conditionals or 
         // ahead of computations that might cause the check never to
@@ -958,10 +962,6 @@ define method constant-fold (c :: <check-type-computation>)
     // Re-optimize from the new type checks.
     re-optimize(left-check);
     re-optimize(right-check);
-    #t
-  elseif (evaluate-type-checks?(c))
-    // remove it
-    replace-computation-with-temporary!(c, computation-value(c));
     #t
   end
 end method;
