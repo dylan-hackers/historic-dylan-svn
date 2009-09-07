@@ -494,7 +494,7 @@ define function any-te-matches? (te :: <type-environment>, te2 :: <type-environm
 end;
 
 define function set-type-environment! (c :: <computation>, t :: <type-environment>) => ()
-  if (slot-initialized?(c, type-environment) & c.type-environment)
+  if (slot-initialized?(c, %type-environment) & c.type-environment)
     if (c.type-environment == t)
       //pass
     elseif (any-te-matches?(c.type-environment, t))
@@ -541,7 +541,7 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
       local method get-te (comp :: <computation>) => (result :: <type-environment>)
               if (comp == c.next-computation)
                 env
-              elseif (slot-initialized?(comp, type-environment) & comp.type-environment)
+              elseif (slot-initialized?(comp, %type-environment) & comp.type-environment)
                 if (c.type-environment == env) //outer env was more specific, use it
                   unless (env == comp.type-environment)
                     comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
@@ -672,7 +672,7 @@ end;
 
 define type-rule <merge>
   local method find-te (t :: <value-reference>) => (res :: <type-environment>)
-          if (instance?(t, <temporary>) & t.generator & slot-initialized?(t.generator, type-environment) & t.generator.type-environment)
+          if (instance?(t, <temporary>) & t.generator & slot-initialized?(t.generator, %type-environment) & t.generator.type-environment)
             t.generator.type-environment
           else
             type-env

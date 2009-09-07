@@ -774,7 +774,7 @@ define function call-effective-function (c :: <function-call>)
 end function;
 
 define function set-type-environment (old-c :: <computation>, first :: <computation>, last :: <computation>) => ()
-  slot-initialized?(old-c, type-environment) &
+  slot-initialized?(old-c, %type-environment) & old-c.type-environment &
     re-type-computations(old-c.type-environment, first, last);
 end;
 

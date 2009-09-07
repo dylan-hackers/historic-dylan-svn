@@ -12,7 +12,7 @@ end;
 
 define thread variable *origin* = #f;
 
-define function solve (type-env :: <type-environment>)
+define sealed method solve (type-env :: <type-environment>)
  => ()
   let graph = type-env.type-graph;
   //do(copy-dynamic, graph.graph-nodes);

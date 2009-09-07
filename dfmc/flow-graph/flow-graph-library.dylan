@@ -316,10 +316,11 @@ define module dfmc-flow-graph
   export // type environment
     <type-graph>, graph-nodes, graph-edges,
     <type-environment>,
+    %type-environment,
     real-environment, outer-environment, outer-environment-setter,
     type-graph, type-lambda,
     finished-initial-typing?, finished-initial-typing?-setter,
-    deep-copy-node;
+    deep-copy-node, solve;
 
   export // temporaries
     <temporary>,

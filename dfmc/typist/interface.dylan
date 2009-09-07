@@ -1,11 +1,12 @@
 module: dfmc-typist
 
 
-define function type-estimate (context :: <computation>, o :: <object>)
+define function type-estimate (c :: <computation>, o :: <object>)
  => (te :: type-union(<collection>, <&type>))
   block()
-    solve(context.type-environment);
-    let node = element(context.type-environment, o, default: #f);
+    let context = c.type-environment;
+    solve(context);
+    let node = element(context, o, default: #f);
     if (node)
       node.node-to-model-type
     else 

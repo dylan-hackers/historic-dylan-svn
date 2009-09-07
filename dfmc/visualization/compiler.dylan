@@ -32,8 +32,12 @@ define function write-data (vis :: <dfmc-graph-visualization>, key :: <symbol>, 
     //if (loc = "new-dispatch.dylan")
     //if (member?(env, list("expand-tabs"),
     //            test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
-      write-to-visualizer(vis, apply(list, key, env, arguments));
+    //  write-to-visualizer(vis, apply(list, key, env, arguments));
     //end;
+    if (member?(env, list("compute-entry-count"),
+                test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
+      write-to-visualizer(vis, apply(list, key, env, arguments));
+    end;
   else
     //uhm... shouldn't be here
   end;
@@ -166,6 +170,10 @@ define function trace-computations (vis :: <dfmc-graph-visualization>, key :: <s
       end;
     #"set-loop-call-loop" =>
       write-data(vis, key, id, id.get-id, comp-or-id, #"no");
+    #"outer-te" =>
+      write-data(vis, key, id, comp-or-id, comp2);
+    #"change-te" =>
+      write-data(vis, key, comp-or-id, id, comp2);
     otherwise => ;
   end;
 end;
@@ -188,8 +196,8 @@ define function visualize (vis :: <dfmc-graph-visualization>, key :: <symbol>, o
   end;
 end;
 
-define function trace-types (vis :: <dfmc-graph-visualization>, key :: <symbol>, env :: <&lambda>, #rest args);
-  apply(write-data, vis, key, env, args);
+define function trace-types (vis :: <dfmc-graph-visualization>, key :: <symbol>, env :: <&lambda>, env-id :: <integer>, #rest args);
+  apply(write-data, vis, key, env, env-id, args);
 end;
 
 define function visualizing-compiler (vis :: <dfmc-graph-visualization>, project, #key parse?)

@@ -366,6 +366,7 @@ define method upgrade-self-call
 
   loop-call-merges(call) := copy-sequence(merges);
   insert-computations-before!(loop-body(loop), first-m, last-m);
+  //XXX: re-add to opt-queue?!
 
   let first-a = join-2x1!(first-a, last-a, call);
   replace-computation!(c, first-a, call, call-temporary);

@@ -31,7 +31,7 @@ define abstract dood-class <computation> (<queueable-item-mixin>)
     reinit-expression: #f,
     required-init-keyword: environment:;
 
-  weak slot type-environment :: false-or(<type-environment>),
+  weak slot %type-environment :: false-or(<type-environment>) = #f,
     reinit-expression: #f,
     init-keyword: type-environment:;
 
@@ -42,6 +42,19 @@ define abstract dood-class <computation> (<queueable-item-mixin>)
     init-function: next-computation-id;
 
 end dood-class <computation>;
+
+define method type-environment (c :: <computation>) => (res :: false-or(<type-environment>))
+  c.%type-environment
+end;
+
+define method type-environment-setter (t :: false-or(<type-environment>), c :: <computation>)
+ => (res :: false-or(<type-environment>))
+  c.%type-environment := t;
+  if (*computation-tracer*)
+    *computation-tracer*(#"change-te", c.computation-id, c, t & t.computation-id | 0)
+  end;
+  t
+end;
 
 define thread variable current-computation-id :: <integer> = 0;
 
