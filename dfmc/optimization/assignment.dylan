@@ -540,7 +540,7 @@ define method cell-assigned-temporaries (t :: <temporary>)
   let ass = t.assignments;
   t.assignments := #();
   let (make-cell-first-c, make-cell-last-c, cell) 
-    = convert-make-cell(t.environment, t);
+    = convert-make-cell(t.environment, t, ass);
   insert-computations-after!
     (t.generator | t.environment.lambda.body, 
      make-cell-first-c, make-cell-last-c);
@@ -587,13 +587,18 @@ end method cell-assigned-temporaries;
 ///       BOX/UNBOX THAN THEY REMOVE... 
 
 define method convert-make-cell 
-    (env :: <lambda-lexical-environment>, t :: <temporary>)
+    (env :: <lambda-lexical-environment>, t :: <temporary>, assignments :: <sequence>)
  => (first-c :: <computation>, last-c :: <computation>, t :: <cell>);
    with-parent-computation (t.generator)
-     let type = specializer(t); //or better, type-union of all assignments?
-     if (~type | type == dylan-value(#"<object>"))
-       //XXX: one day, dylan-value(#"<object>") should be gone entirely
-       type := make(<&top-type>);
+     let spec-type = specializer(t); //or better, type-union of all assignments?
+     let tenv = t.generator | env.lambda.body;
+     let ass = t.generator & pair(t.generator, assignments) | assignments;
+     let inferred-type = apply(^type-union,
+                               map(curry(type-estimate, tenv),
+                                   map(temporary, ass)));
+     let type = if (~spec-type | ^subtype?(inferred-type, spec-type)) inferred-type else spec-type end;
+     if (~type)
+       type := dylan-value(#"<object>")
      end;
      let (unboxer-c, unboxed-t)
        = maybe-convert-unbox(env, t, type);
