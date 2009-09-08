@@ -34,7 +34,7 @@ define function write-data (vis :: <dfmc-graph-visualization>, key :: <symbol>, 
     //            test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
     //  write-to-visualizer(vis, apply(list, key, env, arguments));
     //end;
-    if (member?(env, list("compute-entry-count"),
+    if (member?(env, list("make-symbol"), //"compute-entry-count"),
                 test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
       write-to-visualizer(vis, apply(list, key, env, arguments));
     end;
@@ -117,6 +117,14 @@ define method identifier (l :: type-union(<&accessor-method>, <&lambda>)) => (re
   else
     l.model-creator.identifier
   end;
+end;
+
+define method identifier (s :: <&slot-initializer-method>) => (res :: <string>)
+  let name = element($lambda-string-table, s, default: #F);
+  unless (name)
+    $lambda-string-table[s] := concatenate(next-method(), integer-to-string($lambda-string-table.size));
+  end;
+  $lambda-string-table[s]
 end;
 
 define method identifier (s :: <string>) => (res :: <string>)

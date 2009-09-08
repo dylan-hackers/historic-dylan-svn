@@ -333,7 +333,7 @@ define constant node-to-model-type = compose(rcurry(model-type, top?:, #t), node
 define constant temporary-type = compose(node-to-type, lookup-type-node);
 define constant temporary-type-abstraction = compose(node-to-type, abstract-and-lookup);
 
-define method type-infer (l :: <&lambda>, type-env :: <type-environment>)
+define method type-infer (l :: <&lambda>, type-env :: <type-environment>, #key infer? = #t)
   //let type-env = l.type-environment;
   //unless (type-env)
   //  type-env := make(<type-environment>, lambda: l);
@@ -349,7 +349,7 @@ define method type-infer (l :: <&lambda>, type-env :: <type-environment>)
       maybe-add-variable-constraints(t, type-env);
     end;
   end;
-  type-walk(type-env, l.body, #f);
+  type-walk(type-env, l.body, #f, infer?: infer?);
   debug-types(#"highlight", type-env, 0);
   solve(type-env);
   //update values slot of signature
@@ -482,11 +482,11 @@ define method maybe-add-variable-constraints (t :: <lexical-specialized-variable
   end;
 end;
 
-define generic type-walk(env :: <type-environment>, c :: <computation>, last :: false-or(<computation>)) => ();
+define generic type-walk(env :: <type-environment>, c :: <computation>, last :: false-or(<computation>), #key infer?) => ();
 
 define constant next-type-step =
-    method(env, c, last)
-      c.next-computation & type-walk(env, c.next-computation, last)
+    method(env, c, last, infer?)
+      c.next-computation & type-walk(env, c.next-computation, last, infer?: infer?)
     end;
 
 define function any-te-matches? (te :: <type-environment>, te2 :: <type-environment>) => (match? :: <boolean>)
@@ -514,17 +514,17 @@ define function set-type-environment! (c :: <computation>, t :: <type-environmen
   end;
 end;
 
-define method type-walk (env :: <type-environment>, c :: <computation>, last :: false-or(<computation>)) => ()
+define method type-walk (env :: <type-environment>, c :: <computation>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     with-parent-computation (c)
       set-type-environment!(c, env);
-      c.infer-computation-types;
+      infer? & c.infer-computation-types;
     end;
-    next-type-step(env, c, last);
+    next-type-step(env, c, last, infer?);
   end;
 end;
 
-define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(<computation>)) => ()
+define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     let fold = 
       with-parent-computation (c)
@@ -532,11 +532,11 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
         debug-types(#"beginning", env, list("inferring", c));
         debug-types(#"highlight", env, c);
         solve(env);
-        c.infer-computation-types; //actually, needs both envs for proper inference
-        c.fold-if;
+        infer? & c.infer-computation-types; //actually, needs both envs for proper inference
+        infer? & c.fold-if;
       end;
     if (fold)
-      type-walk(env, fold, last);
+      type-walk(env, fold, last, infer?: infer?);
     else
       local method get-te (comp :: <computation>) => (result :: <type-environment>)
               if (comp == c.next-computation)
@@ -553,61 +553,67 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
               end;
             end;
       let con-env = get-te(c.consequent);
-      type-walk(con-env, c.consequent, c.next-computation);
+      type-walk(con-env, c.consequent, c.next-computation, infer?: infer?);
       con-env.finished-initial-typing? := #t;
       solve(con-env);
       let alt-env = get-te(c.alternative);
-      type-walk(alt-env, c.alternative, c.next-computation);
+      type-walk(alt-env, c.alternative, c.next-computation, infer?: infer?);
       alt-env.finished-initial-typing? := #t;
       solve(alt-env);
-      next-type-step(env, c, last);
+      next-type-step(env, c, last, infer?);
     end;
   end;
 end;
 
-define method type-walk (env :: <type-environment>, c :: <bind-exit>, last :: false-or(<computation>)) => ()
+define method type-walk (env :: <type-environment>, c :: <bind-exit>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     with-parent-computation (c)
       set-type-environment!(c, env);
       solve(env);
-      c.infer-computation-types;
+      infer? & c.infer-computation-types;
     end;
-    type-walk(env, c.body, c.next-computation);
-    next-type-step(env, c, last);
+    type-walk(env, c.body, c.next-computation, infer?: infer?);
+    next-type-step(env, c, last, infer?);
   end;
 end;
 
-define method type-walk (env :: <type-environment>, c :: <loop>, last :: false-or(<computation>)) => ()
+define method type-walk (env :: <type-environment>, c :: <loop>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     with-parent-computation (c)
       set-type-environment!(c, env);
-      c.infer-computation-types;
+      infer? & c.infer-computation-types;
     end;
-    type-walk(env, c.loop-body, c.next-computation);
-    next-type-step(env, c, last);
+    //ok, problem case: loop gets inlined.
+    //first computations of loop-body are loop-merges
+    //their type-rule unifies type of both temporaries (in their respective context)
+    //and one of the context is not yet updated!
+    //solution: first set type environment of body, afterwards do the inference!
+    type-walk(env, c.loop-body, c.next-computation, infer?: #f);
+    infer? & type-walk(env, c.loop-body, c.next-computation, infer?: infer?);
+    next-type-step(env, c, last, infer?);
   end;
 end;
 
-define method type-walk (env :: <type-environment>, c :: <unwind-protect>, last :: false-or(<computation>)) => ()
+define method type-walk (env :: <type-environment>, c :: <unwind-protect>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     with-parent-computation(c)
       set-type-environment!(c, env);
-      c.infer-computation-types;
+      infer? & c.infer-computation-types;
     end;
-    type-walk(env, c.body, c.next-computation);
-    type-walk(env, c.cleanups, c.next-computation);
-    next-type-step(env, c, last);
+    type-walk(env, c.body, c.next-computation, infer?: infer?);
+    type-walk(env, c.cleanups, c.next-computation, infer?: infer?);
+    next-type-step(env, c, last, infer?);
   end;
 end;
 
-define method type-walk (env :: <type-environment>, c :: <make-closure>, last :: false-or(<computation>)) => ()
+define method type-walk (env :: <type-environment>, c :: <make-closure>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     with-parent-computation (c)
       set-type-environment!(c, env);
-      type-infer(c.computation-closure-method, env);
-      c.infer-computation-types;
+      type-infer(c.computation-closure-method, env, infer?: infer?);
+      infer? & c.infer-computation-types;
     end;
-    next-type-step(env, c, last);
+    next-type-step(env, c, last, infer?);
   end;
 end;
 
@@ -801,6 +807,26 @@ define method infer-computation-types (c :: <loop>) => ()
       types.size := 0;
     end;
     //remove computations and type graph nodes
+    walk-computations(method(x)
+                        if (*computation-tracer*)
+                          *computation-tracer*(#"remove-node", x, 0, 0);
+                          for (tmp in x.used-temporary-accessors)
+                            let getter = temporary-getter(tmp);
+                            let new-tmp = getter(x);
+                            if (instance?(new-tmp, <sequence>))
+                              for (new* in new-tmp)
+                                if (instance?(new*, type-union(<temporary>, <object-reference>)))
+                                  new* & *computation-tracer*(#"remove-temporary", new*, x, 0);
+                                end
+                              end;
+                            else
+                              if (instance?(new-tmp, type-union(<temporary>, <object-reference>)))
+                                new-tmp & *computation-tracer*(#"remove-temporary", new-tmp, x, 0);
+                              end;
+                            end;
+                          end;
+                        end
+                      end, cfg-first, #f);
 
     //add type constraint to opposite DF node of phi/loop-merge
     //(is then propagated to temporary of phi by respective inference rule)

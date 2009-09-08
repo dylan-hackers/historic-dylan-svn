@@ -499,6 +499,7 @@ define method move-code-into!
   walk-lambda-computations
     (method (c :: <computation>)
        c.environment := env;
+       c.type-environment := #f;
        re-optimize-into!(c, lambda);
      end, mapped-body); 
 

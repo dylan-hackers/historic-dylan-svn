@@ -50,7 +50,7 @@ end;
 define method type-environment-setter (t :: false-or(<type-environment>), c :: <computation>)
  => (res :: false-or(<type-environment>))
   c.%type-environment := t;
-  if (*computation-tracer*)
+  if (*computation-tracer* & t)
     *computation-tracer*(#"change-te", c.computation-id, c, t & t.computation-id | 0)
   end;
   t
