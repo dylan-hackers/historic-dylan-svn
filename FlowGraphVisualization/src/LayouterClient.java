@@ -88,7 +88,7 @@ public class LayouterClient extends Thread {
 				assert(answer.size() > 1);
 				assert(answer.get(0) instanceof Symbol);
 				Symbol key = (Symbol)answer.get(0);
-				//System.out.println(key.toString() + " : " + answer);
+				System.out.println(key.toString() + " : " + answer);
 				if (key.isEqual("project")) {
 					assert(answer.size() == 2);
 					assert(answer.get(1) instanceof String); //method name
@@ -143,9 +143,16 @@ public class LayouterClient extends Thread {
 							} catch (InterruptedException e) { }
 						}
 					} else {
-						System.err.println("graph is already finished, go away");
-						printMessage(result);
-						continue;
+						if (key.isEqual("beginning") && answer.get(2) instanceof ArrayList &&
+								((ArrayList)answer.get(2)).size() == 1 && ((ArrayList)answer.get(2)).get(0) instanceof String &&
+								((String)((ArrayList)answer.get(2)).get(0)).equalsIgnoreCase("initial DFM models")) { 
+							printMessage(result);
+							continue;
+						} else {
+							System.err.println("graph is already finished, go away");
+							//printMessage(result);
+							continue;
+						}
 					}
 				}
 				demo.activate(gr);

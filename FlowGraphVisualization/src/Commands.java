@@ -47,7 +47,7 @@ public final class Commands {
 					ihl.chindex = ch.size();
 					ihl.lastRelayout = ihl.numChanges;
 				}
-			} else if (demo.debug.isSelected()) {
+			} else { //if (demo.debug.isSelected()) {
 				if (execute(ihl, answer, demo) && (ihl.changed == false))
 					ihl.changed = true;
 				ihl.chindex = ch.size();
@@ -105,6 +105,11 @@ public final class Commands {
 		if (key.isEqual("type-relation"))
 			return typerelation(ihl, answer);
 		
+		if (key.isEqual("outer-te"))
+			return outerte(ihl, answer);
+		if (key.isEqual("change-te"))
+			return changete(ihl, answer);
+		
 		for (String s : noChange)
 			if (key.isEqual(s))
 				return processHighlights(ihl, answer, demo);
@@ -152,8 +157,11 @@ public final class Commands {
 			ihl.synchronizeGraphOperations(ihl.changes.get(ihl.changes.size() - 1), ihl.chindex, true);
 			ihl.lastRelayout = ihl.numChanges;
 		}
-		assert(answer.get(2) instanceof ArrayList);
-		ArrayList mess = (ArrayList)answer.get(2);
+		ArrayList mess = null;
+		if (answer.get(2) instanceof Integer)
+			mess = (ArrayList)answer.get(3);
+		else
+			mess = (ArrayList)answer.get(2);
 		assert(mess.get(0) instanceof String);
 		String ph = (String)mess.get(0);
 		if (mess.size() == 2) {
@@ -325,12 +333,12 @@ public final class Commands {
 	} 
 	
 	private static boolean changetype (IncrementalHierarchicLayout ihl, ArrayList answer) {
-		assert(answer.size() == 4);
-		Node n = getNode(ihl, answer, 2, true);
+		assert(answer.size() == 5);
+		Node n = getNode(ihl, answer, 3, true);
 		if (n != null) {
-			assert(answer.get(3) instanceof String);
+			assert(answer.get(4) instanceof String);
 			GraphNodeRealizer nr = (GraphNodeRealizer)ihl.graph.getRealizer(n);
-			nr.setNodeTypeText((String)answer.get(3));
+			nr.setNodeTypeText((String)answer.get(4));
 			//System.out.println("change type " + old + " => " + (String)answer.get(3));
 		}
 		return false;
@@ -359,6 +367,9 @@ public final class Commands {
 		Node highlightnew = null;
 		if ((Integer)answer.get(2) != 0)
 			highlightnew = getNode(ihl, answer, 2, false);
+		if (highlightnew.getGraph() != ihl.graph)
+			if ((Integer)answer.get(3) != 0)
+				highlightnew = getNode(ihl, answer, 3, false);			
 		if (ihl.highlight != highlightnew) {
 			if (ihl.highlight != null)
 				((GraphNodeRealizer)ihl.graph.getRealizer(ihl.highlight)).setHighlight(false);
@@ -388,38 +399,40 @@ public final class Commands {
 	}
 
 	private static boolean new_type_var (IncrementalHierarchicLayout ihl, ArrayList answer) {
-		assert(answer.size() == 5);
+		assert(answer.size() == 6);
 		//Node object = getNode(ihl, answer, 3, false);
+		assert(answer.get(4) instanceof Integer);
 		assert(answer.get(3) instanceof Integer);
-		assert(answer.get(2) instanceof Integer);
 		String t = null;
-		if (answer.get(4) instanceof Integer)
+		getTE(ihl, answer, 2);
+		if (answer.get(5) instanceof Integer)
 			t = Integer.toString((Integer)answer.get(4));
 		else {
-			if (answer.get(4) instanceof String)
-				t = (String)answer.get(4);
-			else if (answer.get(4) instanceof Symbol)
-				t = ((Symbol)answer.get(4)).toString();
+			if (answer.get(5) instanceof String)
+				t = (String)answer.get(5);
+			else if (answer.get(5) instanceof Symbol)
+				t = ((Symbol)answer.get(5)).toString();
 		}
-		ihl.createTypeVariable((Integer)answer.get(2), (Integer)answer.get(3), t);
+		ihl.createTypeVariable((Integer)answer.get(3), (Integer)answer.get(4), t, (Integer)answer.get(2));
 		ihl.typechanged = true;
 		return false;
 	}
 	
 	private static boolean new_type_node (IncrementalHierarchicLayout ihl, ArrayList answer) {
-		assert(answer.size() == 4);
-		assert(answer.get(2) instanceof Integer);
-		int id = (Integer)answer.get(2);
-		if (answer.get(3) instanceof Integer) {
-			Node object = getNode(ihl, answer, 3, false);
+		assert(answer.size() == 5);
+		assert(answer.get(3) instanceof Integer);
+		int id = (Integer)answer.get(3);
+		getTE(ihl, answer, 2);
+		if (answer.get(4) instanceof Integer) {
+			Node object = getNode(ihl, answer, 4, false);
 			ihl.createTypeNode(id, object);
 		} else {
 			Node nnode = null;
 			//got a "base type" / String or Symbol
-			if (answer.get(3) instanceof Symbol) //arrow or tuple!
-				nnode = ihl.createTypeNodeWithLabel(((Symbol)answer.get(3)).toString(), id);
+			if (answer.get(4) instanceof Symbol) //arrow or tuple!
+				nnode = ihl.createTypeNodeWithLabel(((Symbol)answer.get(4)).toString(), id, (Integer)answer.get(2));
 			else
-				nnode = ihl.createTypeNodeWithLabel((String)answer.get(3), id);
+				nnode = ihl.createTypeNodeWithLabel((String)answer.get(4), id, (Integer)answer.get(2));
 			ihl.typeHintMap.set(nnode, ihl.typeHintsFactory.createLayerIncrementallyHint(nnode));
 		}
 		ihl.typechanged = true;
@@ -427,21 +440,21 @@ public final class Commands {
 	}
 	
 	private static boolean typerelation (IncrementalHierarchicLayout ihl, ArrayList answer) {
-		assert(answer.size() == 4);
-		Node temp = getNode(ihl, answer, 3, false);
-		Node type = getNode(ihl, answer, 2, false);
+		assert(answer.size() == 5);
+		Node temp = getNode(ihl, answer, 4, false);
+		Node type = getNode(ihl, answer, 3, false);
 		ihl.tv_temp_map.put(type, temp);
 		GraphNodeRealizer nr = (GraphNodeRealizer)ihl.typegraph.getRealizer(type);
-		nr.setReference((Integer)answer.get(3));
+		nr.setReference((Integer)answer.get(4));
 		return false;
 	}
 	
 	private static boolean removetypenode (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
-		assert(answer.size() == 3);
-		Node del = getNode(ihl, answer, 2, false);
+		assert(answer.size() == 4);
+		Node del = getNode(ihl, answer, 3, false);
 		if (del != null) {
 			ihl.typegraph.removeNode(del);
-			ihl.int_node_map.remove((Integer)answer.get(2));
+			ihl.int_node_map.remove((Integer)answer.get(3));
 			ihl.tv_temp_map.remove(del);
 			//ihl.typechanged = true;
 			demo.typeview.repaint();
@@ -450,12 +463,12 @@ public final class Commands {
 	}
 	
 	private static boolean connect (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
-		assert(answer.size() == 5);
-		Node from = getNode(ihl, answer, 2, false);
-		Node to = getNode(ihl, answer, 3, false);
+		assert(answer.size() == 6);
+		Node from = getNode(ihl, answer, 3, false);
+		Node to = getNode(ihl, answer, 4, false);
 		EdgeRealizer er = new GenericEdgeRealizer(ihl.typegraph.getDefaultEdgeRealizer());
-		assert(answer.get(4) instanceof Symbol);
-		Symbol type = (Symbol)answer.get(4); 
+		assert(answer.get(5) instanceof Symbol);
+		Symbol type = (Symbol)answer.get(5); 
 		if (type.isEqual("<constraint-edge>")) {
 			er.setLineColor(Color.GREEN);
 			er.setArrow(Arrow.NONE);
@@ -473,11 +486,11 @@ public final class Commands {
 	}
 	
 	private static boolean disconnect (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo) {
-		assert(answer.size() == 5);
-		Node from = getNode(ihl, answer, 2, false);
-		Node to = getNode(ihl, answer, 3, false);
-		assert(answer.get(4) instanceof Symbol);
-		Symbol type = (Symbol)answer.get(4);
+		assert(answer.size() == 6);
+		Node from = getNode(ihl, answer, 3, false);
+		Node to = getNode(ihl, answer, 4, false);
+		assert(answer.get(5) instanceof Symbol);
+		Symbol type = (Symbol)answer.get(5);
 		Color nc = Color.BLUE;
 		if (type.isEqual("<constraint-edge>"))
 			nc = Color.green;
@@ -492,8 +505,8 @@ public final class Commands {
 	}
 	
 	private static boolean highlightedge (IncrementalHierarchicLayout ihl, ArrayList answer, DemoBase demo, boolean thick) {
-		Node from = getNode(ihl, answer, 2, false);
-		Node to = getNode(ihl, answer, 3, false);
+		Node from = getNode(ihl, answer, 3, false);
+		Node to = getNode(ihl, answer, 4, false);
 		LineType lt = LineType.DASHED_2;
 		if (thick)
 			lt = LineType.DASHED_4;
@@ -503,4 +516,35 @@ public final class Commands {
 		demo.typeview.repaint();
 		return false;
 	}
+	
+	private static Node getTE (IncrementalHierarchicLayout ihl, ArrayList answer, int index) {
+		Node te = getNode(ihl, answer, index, true);
+		if (te == null)
+			if ((Integer)answer.get(index) != 0)
+				te = ihl.createTypeEnv((Integer)answer.get(index));
+		return te;
+	}
+	
+	private static boolean outerte (IncrementalHierarchicLayout ihl, ArrayList answer) {
+		assert(answer.size() == 4);
+		Node te = getTE(ihl, answer, 2);
+		Node outer = getTE(ihl, answer, 3);
+		for (EdgeCursor ec = te.outEdges(); ec.ok(); ec.next())
+			ihl.typegraph.removeEdge(ec.edge());
+		if (outer != null) {
+		  ihl.outertes.put(te, outer);
+		  ihl.typegraph.createEdge(te, outer);
+		}
+		ihl.typechanged = true;
+		return true;
+	}
+
+	private static boolean changete (IncrementalHierarchicLayout ihl, ArrayList answer) {
+		assert(answer.size() == 4);
+		Node c = getNode(ihl, answer, 2, false);
+		getTE(ihl, answer, 3);
+		((GraphNodeRealizer)ihl.graph.getRealizer(c)).setTE((Integer)answer.get(3));
+		return false;
+	}
+
 }

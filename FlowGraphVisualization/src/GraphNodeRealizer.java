@@ -11,6 +11,7 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 	private String prefix = "";
 	private String suffix = "";
 	private String nodetypetext = "";
+	private int typeenv = 0;
 	private int reference = 0;
 	private int identifier = 0;
 	private boolean neighbour_selected = false;
@@ -28,7 +29,7 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 	
 	private NodeLabel label;
 
-	public static enum NodeType { CONTROL, DATA, TYPE, TYPEVAR };
+	public static enum NodeType { CONTROL, DATA, TYPE, TYPEVAR, TENV };
 	private static final Color[] NodeColors = { baseColor, dataColor };
 	
 	
@@ -43,13 +44,20 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 	}
 	  
 	private void updateText () {
-		if (debug) {
-			String ref = "";
-			if (reference != 0)
-				ref = " [" + Integer.toString(reference) + "]";
-			label.setText(Integer.toString(identifier) + ": " +  prefix + " " + nodetext + " " + suffix + ref);
-		} else
-			label.setText(prefix + " " + nodetext + " " + suffix);
+		if (type == NodeType.TENV)
+			label.setText("TENV " + Integer.toString(identifier));
+		else {
+			String env = "";
+			if (typeenv != 0)
+				env = "[" + Integer.toString(typeenv) + "] "; 
+			if (debug) {
+				String ref = "";
+				if (reference != 0)
+					ref = " [" + Integer.toString(reference) + "]";
+				label.setText(env + Integer.toString(identifier) + ": " +  prefix + " " + nodetext + " " + suffix + ref);
+			} else
+				label.setText(env + prefix + " " + nodetext + " " + suffix);
+		}
 		setWidth(label.getWidth() + 2 * 20);
 		repaint();
 	}
@@ -57,7 +65,9 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 	public void updateColor () {
 		if (! isSelected()) {
 			Color nc = null;
-			if (different)
+			if (type == NodeType.TENV)
+				nc = Color.ORANGE;
+			else if (different)
 				nc = diffColor;
 			else if (highlight)
 				nc = highlightColor;
@@ -156,5 +166,10 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 			debug = b;
 			updateText();
 		}
+	}
+	
+	public void setTE (int n) {
+		typeenv = n;
+		updateText();
 	}
 }

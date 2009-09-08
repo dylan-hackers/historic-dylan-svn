@@ -76,6 +76,8 @@ public class IncrementalHierarchicLayout
 	
 	public Node selection;
 	
+	protected Hashtable<Node, Node> outertes = new Hashtable<Node, Node>();
+	
 	//debug support
 	public boolean isok = true;
 
@@ -170,6 +172,7 @@ public class IncrementalHierarchicLayout
 	    //typegraph.addDataProvider(IncrementalHierarchicLayouter.INCREMENTAL_HINTS_DPKEY, typeHintMap);
 		int_node_map = new HashMap<Integer, Node>();
 		tv_temp_map = new HashMap<Node, Node>();
+		outertes = new Hashtable<Node, Node>();
 		opt_queue = new ArrayList<Integer>();
 		topnodes = new ArrayList<Node>();
 		highlight = null;
@@ -278,12 +281,13 @@ public class IncrementalHierarchicLayout
 		return createNodeWithLabel(Integer.toString(node), id);
 	}
 	
-	public Node createTypeNodeWithLabel (String label, int id) {
+	public Node createTypeNodeWithLabel (String label, int id, int te) {
 		Node n = typegraph.createNode();
 		GraphNodeRealizer nr = (GraphNodeRealizer)typegraph.getRealizer(n);
 		nr.setNodeType(GraphNodeRealizer.NodeType.TYPE);
 		nr.setIdentifier(id);
 		nr.setNodeText(label);
+		nr.setTE(te);
 		assert(int_node_map.get(id) == null);
 		int_node_map.put(id, n);
 		return n;
@@ -329,8 +333,8 @@ public class IncrementalHierarchicLayout
 			"\u03C2", "\u03C3", "\u03C4", "\u03C5", "\u03C6", "\u03C7", "\u03C8", "\u03C9", "\u03CA", "\u03CB" };
 	private int tvindex = 0;
 	
-	public void createTypeVariable (int id, int temp, String type) {
-		Node tv = createTypeNodeWithLabel(tvnames[tvindex], id);
+	public void createTypeVariable (int id, int temp, String type, int te) {
+		Node tv = createTypeNodeWithLabel(tvnames[tvindex], id, te);
 		GraphNodeRealizer nr = (GraphNodeRealizer)typegraph.getRealizer(typegraph.lastNode());
 		nr.setNodeType(GraphNodeRealizer.NodeType.TYPEVAR);
 		nr.setReference(temp);
@@ -341,6 +345,13 @@ public class IncrementalHierarchicLayout
 
 	public void createTypeNode (int id, Node tv) {
 		int_node_map.put(id, tv);
+	}
+	
+	public Node createTypeEnv (int id) {
+		Node te = createTypeNodeWithLabel("type-env", id, id);
+		GraphNodeRealizer nr = (GraphNodeRealizer)typegraph.getRealizer(typegraph.lastNode());
+		nr.setNodeType(GraphNodeRealizer.NodeType.TENV);
+		return te;
 	}
 
 	public boolean safeCreateEdge (Node source, Node target) {
