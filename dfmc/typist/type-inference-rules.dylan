@@ -1,18 +1,19 @@
 module: dfmc-typist
 
-define generic lookup-type-node (o, env :: <type-environment>, #key abstract?, type) => (res :: <node>);
+define generic lookup-type-node (o, env :: <type-environment>, #key abstract?) => (res :: <node>);
 
 define constant abstract-and-lookup = rcurry(lookup-type-node, abstract?:, #t);
 
-define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #key abstract?, type) => (res :: <node>)
+define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #key abstract?) => (res :: <node>)
   element(env, o, default: #f) |
     begin
-      let te = type |
-                 if (abstract?)
-                   convert-to-typist-type(o.type-estimate-object, env)
-                 else
-                   make(<dynamic>)
-                 end;
+      let te = if (o.generator & o.generator.computation-type)
+                 o.generator.computation-type
+               elseif (abstract?)
+                 convert-to-typist-type(o.type-estimate-object, env)
+               else
+                 make(<dynamic>)
+               end;
       let tv = make(<type-variable>, contents: te);
       debug-types(#"new-type-variable", env, tv, o, te);
       let n = make(<node>, graph: env.type-graph, value: tv);
@@ -24,15 +25,18 @@ define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #ke
     end;
 end;
 
-define method lookup-type-node (o :: <multiple-value-temporary>, env :: <type-environment>, #key abstract?, type) => (res :: <node>)
+define method lookup-type-node (o :: <multiple-value-temporary>, env :: <type-environment>, #key abstract?) => (res :: <node>)
   element(env, o, default: #f) |
     begin
-      let tes = if (type) type else make(<simple-object-vector>) end;
-      unless (type)
-        for (x from 0 below o.required-values)
-          tes := add(tes, make(<dynamic>)); //actually estimate the objects!
-        end;
-      end;
+      let tes = if (o.generator & o.generator.computation-type)
+                  o.generator.computation-type
+                else
+                  let r = make(<simple-object-vector>);
+                  for (x from 0 below o.required-values)
+                    r := add(r, make(<dynamic>)); //actually estimate the objects!
+                  end;
+                  r
+                end;
       let top = make(<dynamic>);
       let tv = make(<type-variable>, contents: top);
       debug-types(#"new-type-variable", env, tv, o, top);
@@ -43,13 +47,13 @@ define method lookup-type-node (o :: <multiple-value-temporary>, env :: <type-en
     end;
 end;
 
-define method lookup-type-node (t :: <lexical-required-type-variable>, env :: <type-environment>, #key abstract?, type)
+define method lookup-type-node (t :: <lexical-required-type-variable>, env :: <type-environment>, #key abstract?)
  => (res :: <node>)
   assert(abstract? == #t);
   lookup-type-node(t.specializer, env, abstract?: abstract?)
 end;
 
-define method lookup-type-node (tv :: <&polymorphic-type-variable>, env :: <type-environment>, #key abstract?, type)
+define method lookup-type-node (tv :: <&polymorphic-type-variable>, env :: <type-environment>, #key abstract?)
  => (res :: <node>)
   element(env, tv, default: #f) |
     begin
@@ -59,16 +63,16 @@ define method lookup-type-node (tv :: <&polymorphic-type-variable>, env :: <type
     end;
 end;
 
-define method lookup-type-node (o :: <object-reference>, env :: <type-environment>, #key abstract?, type) => (res :: <node>)
+define method lookup-type-node (o :: <object-reference>, env :: <type-environment>, #key abstract?) => (res :: <node>)
   element(env, o, default: #f) |
     begin
-      let n = next-method();
+      let n = lookup-type-node(o.reference-value, env, abstract?: abstract?);
       debug-types(#"type-relation", env, n, o);
       env[o] := n;
     end;
 end;
 
-define method lookup-type-node (o :: <object>, env :: <type-environment>, #key abstract?, type) => (res :: <node>)
+define method lookup-type-node (o :: <object>, env :: <type-environment>, #key abstract?) => (res :: <node>)
   make(<node>, graph: env.type-graph,
        value: if (abstract?)
                 convert-to-typist-type(o.type-estimate-object, env)
@@ -190,6 +194,7 @@ end;
 
 define method type-estimate-object (l == &unbound)
  => (res :: <&type>)
+  //XXX: well, actually alpha (then wouldn't need to exclude stuff in slot-value type-rule)
   ^singleton(&unbound)
 end;
 
@@ -354,7 +359,18 @@ define method type-infer (l :: <&lambda>, type-env :: <type-environment>, #key i
   end;
   type-walk(type-env, l.body, #f, infer?: infer?);
   debug-types(#"highlight", type-env, 0);
-  solve(type-env);
+end;
+
+//solve TEs and may upgrade signature!
+define function solve-and-upgrade (l :: <&lambda>) => ()
+  let type-env = l.type-environment;
+  local method rec-solve (te :: <type-environment>)
+          solve(te);
+          for (inner in te.inner-type-environments)
+            rec-solve(inner)
+          end;
+        end;
+  rec-solve(type-env);
   //update values slot of signature
   let result-type = temporary-type(l.body.bind-return.computation-value, type-env);
   //might need to emit type check (top is super of everything!)
@@ -549,6 +565,7 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
                 if (comp == c.next-computation)
                   env
                 elseif (slot-initialized?(comp, %type-environment) & comp.type-environment)
+                //XXX: this looks wrong!
                   if (c.type-environment == env) //outer env was more specific, use it
                     unless (env == comp.type-environment)
                       comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
@@ -654,19 +671,33 @@ define macro type-rule-definer
       end; }
 end;
 
-define method infer-computation-types (c :: <computation>) => ()
-  let type-env = c.type-environment;
-  debug-types(#"beginning", type-env, list("inferring", c));
-  debug-types(#"highlight", type-env, c);
-  c.temporary & abstract-and-lookup(c.temporary, c.type-environment);
+define type-rule <computation>
+  //nothing to do here
 end;
 
+//the next 5 rules should not constrain but set the type estimate!
 define type-rule <variable-reference>
   constraint(computation.referenced-binding.abstract, temporary-node);
 end;
 
 define type-rule <temporary-transfer-computation>
   constraint(computation.computation-value.abstract, temporary-node);
+end;
+
+define type-rule <single-value-check-type-computation>
+  //we have an input value and an input type.
+  //the resulting temporary will be of the given type
+  //when value is more specific, c-t will be optimized, and users will be re-optimized
+  constraint(computation.type.lookup, temporary-node);
+end;
+
+define type-rule <multiple-value-check-type-computation>
+  constraint(gen-tuple(map(lookup, computation.types)).lookup, temporary-node);
+end;
+
+define type-rule <multiple-value-check-type-rest>
+  //XXX: actually, could use rest-type GF
+  constraint((gen-tuple(map(lookup, computation.types), rest?: #t)).lookup, temporary-node);
 end;
 
 define type-rule <values>
@@ -879,10 +910,11 @@ define type-rule <repeated-slot-value>
 end;
 
 define type-rule <slot-value-setter>
+  //XXX: maybe use new-val-t if new-val-t <: slot-type ?
   let new-val = computation.computation-new-value.abstract;
   let new-val-t = new-val.model-type;
   unless (instance?(new-val-t, <&singleton>) & (new-val-t.^singleton-object == &unbound) & instance?(computation.environment.lambda, <&initializer-method>))
-    constraint(new-val, temporary-node);
+    //constraint(new-val, temporary-node); - this is part of type-check, which has been done in conversion
     constraint(computation.computation-slot-descriptor.^slot-type.lookup, temporary-node);
   end;
 end;
@@ -891,7 +923,7 @@ define type-rule <repeated-slot-value-setter>
   let new-val = computation.computation-new-value.abstract;
   let new-val-t = new-val.model-type;
   unless (instance?(new-val-t, <&singleton>) & (new-val-t.^singleton-object == &unbound) & instance?(computation.environment.lambda, <&initializer-method>))
-    constraint(new-val, temporary-node);
+    //constraint(new-val, temporary-node); - this is part of type-check, which has been done in conversion
     constraint(computation.computation-slot-descriptor.^slot-type.repeated-representation.lookup, temporary-node);
   end;
 end;
@@ -908,23 +940,23 @@ define type-rule <extract-rest-value>
   constraint(make(<&top-type>).lookup, temporary-node);
 end;
 
+//XXX: assign types, do not constrain them!
+//or: use cell-representation?
 define type-rule <make-cell>
-  //constraint(computation.computation-value.lookup, temporary-node);
   constraint(computation.temporary.cell-type.lookup, temporary-node);
 end;
 
 define type-rule <get-cell-value>
-  constraint(computation.computation-cell.abstract, temporary-node);
+  constraint(computation.computation-cell.cell-type.lookup, temporary-node);
 end;
 
 define type-rule <set-cell-value!>
-  //constraint(computation.computation-value.abstract, temporary-node);
-  constraint(computation.computation-cell.abstract, temporary-node);
+  constraint(computation.computation-cell.cell-type.lookup, temporary-node);
 end;
 
 define type-rule <set!>
   if (instance?(computation.assigned-binding, <module-binding>))
-    constraint(computation.computation-value.abstract, temporary-node);
+    //constraint(computation.computation-value.abstract, temporary-node);
     constraint(computation.assigned-binding.abstract, temporary-node);
   else
     error("assignment is not possible!");

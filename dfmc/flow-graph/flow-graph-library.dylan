@@ -320,6 +320,7 @@ define module dfmc-flow-graph
     real-environment, outer-environment, outer-environment-setter,
     type-graph, type-lambda,
     finished-initial-typing?, finished-initial-typing?-setter,
+    in-type-environment?, inner-type-environments,
     deep-copy-node, solve;
 
   export // temporaries

@@ -20,6 +20,10 @@ define class <type-environment> (<mutable-explicit-key-collection>)
   constant slot inners :: <stretchy-vector> = make(<stretchy-vector>);
 end;
 
+define function inner-type-environments (te :: <type-environment>) => (res :: <stretchy-vector>)
+  te.inners
+end;
+
 define method initialize (t :: <type-environment>, #key outer, #all-keys)
   next-method();
   t.type-graph.type-environment := t;
@@ -54,6 +58,11 @@ end;
 //only used for debug context in typist/type-debug
 define function type-lambda (t :: <type-environment>) => (res :: type-union(<symbol>, <&lambda>))
   t.%type-lambda | t.outer-environment.type-lambda
+end;
+
+define function in-type-environment? (te :: <type-environment>, o) => (res :: <boolean>)
+  member?(o, te.real-environment.key-sequence) |
+    (te.outer-environment & in-type-environment?(te.outer-environment, o))
 end;
 
 define compiler-open generic deep-copy-node

@@ -31,7 +31,9 @@ define module dfmc-typist
     type-estimate-object,
     type-infer,
     type-estimate-top-level-form,
-    initialize-type-environment!;
+    initialize-type-environment!,
+    retract-type!,
+    solve-and-upgrade;
 
   //visualizer
   export *typist-visualize*;

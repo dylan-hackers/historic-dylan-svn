@@ -231,6 +231,9 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
               send-debug(#"relayouted", #());
 	    end;
 	  end for-all-lambdas;
+          for-all-lambdas (f in code)
+            solve-and-upgrade(f);
+          end;
 	end with-dependent-context;
       end with-simple-abort-retry-restart;
     cleanup

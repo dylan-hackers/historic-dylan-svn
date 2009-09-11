@@ -955,6 +955,9 @@ define method constant-fold (c :: <check-type-computation>)
     insert-computation-before-reference!(merge-c, right-check, right-ref);
     merge-replace-right-value!(merge-c, right-ref, right-check.temporary);
 
+    retract-type!(merge-c);
+    re-optimize(merge-c);
+    type-environment(merge-c) & re-optimize-type-estimate(merge-c);
     // Replace the original type check with the direct result of the
     // merge.
     replace-computation-with-temporary!(c, merge-c.temporary);

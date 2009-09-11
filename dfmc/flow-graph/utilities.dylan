@@ -608,6 +608,7 @@ define function replace-computation!
     (old-c :: <computation>, new-first :: false-or(<computation>),
      new-last :: false-or(<computation>), 
      new-ref :: false-or(<value-reference>)) => ()
+  mark-as-dead(old-c);
   if (new-first)
     // Put the new code in.  (Must happen before temporary replacement.)
     insert-computations-after!(old-c, new-first, new-last);

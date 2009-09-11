@@ -449,7 +449,7 @@ define method maybe-upgrade-call
   // TODO: If things become more precise after inlining, allow dispatch
   // to be selectively redone by recording the previous inputs? Except
   // that CPA won't work like this anyway.
-//  if (dispatch-state(c) == $dispatch-untried)
+//  if (dispatch-state(c) == $dispatch-untried) //XXX: re-enable this check!
     let arg-te* :: <argument-sequence> = argument-type-estimates(c);
     //  effectives is non-empty only if all methods are known:
     let effectives :: <method-sequence> = estimate-effective-methods(f, arg-te*, c);

@@ -168,6 +168,7 @@ define method extract-single-value
 	let single-temporary =
 	  make(<temporary>, generator: c, environment: environment(c));
 	temporary(c) := single-temporary;
+        retract-type!(c);
 	re-optimize(c);
         type-environment(c) & re-optimize-type-estimate(c);
 	single-temporary

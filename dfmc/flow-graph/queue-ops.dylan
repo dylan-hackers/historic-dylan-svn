@@ -64,14 +64,16 @@ define compiler-open generic re-type-computations
 
 // by default we just add the computation back to the queue.
 define method re-optimize-into (c :: <computation>, lambda :: <&lambda>) => ()
-  let q = lambda.optimization-queue;
-  // format-out("--- RE-OPT %= INT %= ---\n", c, lambda);
-  c.type-environment & c.item-status ~== $queueable-item-dead & re-optimize-type-estimate(c);
-  if (q)
-    add-to-queue!(q , c);
-    // print-queue-out(q);
-  elseif (lambda.body)		// make sure it's not dead
-    init-optimization-queue(lambda)
+  if (c.item-status ~== $queueable-item-dead)
+    let q = lambda.optimization-queue;
+    // format-out("--- RE-OPT %= INT %= ---\n", c, lambda);
+    c.type-environment & re-optimize-type-estimate(c);
+    if (q)
+      add-to-queue!(q , c);
+      // print-queue-out(q);
+    elseif (lambda.body)		// make sure it's not dead
+      init-optimization-queue(lambda)
+    end if;
   end if;
 end method;
 

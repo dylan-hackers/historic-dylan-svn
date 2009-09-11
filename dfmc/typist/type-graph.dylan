@@ -227,7 +227,7 @@ end;
 
 define function create-quotient-graph (g :: <type-graph>) => (res :: <type-graph>)
   dynamic-bind(*typist-visualize* = #f)
-    let g* = make(<type-graph>, type-environment: g.type-environment);
+    let g* = make(<type-graph>, type-environment: g.type-environment); //XXX: bad! use a singleton fake TE instead!
     let rep-nodes = choose(method(v) find(v) == v end, g.graph-nodes);
     let vs = deep-copy-node(rep-nodes, g*);
     for (edge in choose(rcurry(instance?, <graph-edge>), g.graph-edges))
