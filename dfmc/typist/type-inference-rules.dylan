@@ -1,17 +1,18 @@
 module: dfmc-typist
 
-define generic lookup-type-node (o, env :: <type-environment>, #key abstract?) => (res :: <node>);
+define generic lookup-type-node (o, env :: <type-environment>, #key abstract?, type) => (res :: <node>);
 
 define constant abstract-and-lookup = rcurry(lookup-type-node, abstract?:, #t);
 
-define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #key abstract?) => (res :: <node>)
+define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #key abstract?, type) => (res :: <node>)
   element(env, o, default: #f) |
     begin
-      let te = if (abstract?)
-                 convert-to-typist-type(o.type-estimate-object, env)
-               else
-                 make(<dynamic>)
-               end;
+      let te = type |
+                 if (abstract?)
+                   convert-to-typist-type(o.type-estimate-object, env)
+                 else
+                   make(<dynamic>)
+                 end;
       let tv = make(<type-variable>, contents: te);
       debug-types(#"new-type-variable", env, tv, o, te);
       let n = make(<node>, graph: env.type-graph, value: tv);
@@ -23,12 +24,14 @@ define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #ke
     end;
 end;
 
-define method lookup-type-node (o :: <multiple-value-temporary>, env :: <type-environment>, #key abstract?) => (res :: <node>)
+define method lookup-type-node (o :: <multiple-value-temporary>, env :: <type-environment>, #key abstract?, type) => (res :: <node>)
   element(env, o, default: #f) |
     begin
-      let tes = make(<simple-object-vector>);
-      for (x from 0 below o.required-values)
-        tes := add(tes, make(<dynamic>)); //actually estimate the objects!
+      let tes = if (type) type else make(<simple-object-vector>) end;
+      unless (type)
+        for (x from 0 below o.required-values)
+          tes := add(tes, make(<dynamic>)); //actually estimate the objects!
+        end;
       end;
       let top = make(<dynamic>);
       let tv = make(<type-variable>, contents: top);
@@ -40,13 +43,13 @@ define method lookup-type-node (o :: <multiple-value-temporary>, env :: <type-en
     end;
 end;
 
-define method lookup-type-node (t :: <lexical-required-type-variable>, env :: <type-environment>, #key abstract?)
+define method lookup-type-node (t :: <lexical-required-type-variable>, env :: <type-environment>, #key abstract?, type)
  => (res :: <node>)
   assert(abstract? == #t);
   lookup-type-node(t.specializer, env, abstract?: abstract?)
 end;
 
-define method lookup-type-node (tv :: <&polymorphic-type-variable>, env :: <type-environment>, #key abstract?)
+define method lookup-type-node (tv :: <&polymorphic-type-variable>, env :: <type-environment>, #key abstract?, type)
  => (res :: <node>)
   element(env, tv, default: #f) |
     begin
@@ -56,7 +59,7 @@ define method lookup-type-node (tv :: <&polymorphic-type-variable>, env :: <type
     end;
 end;
 
-define method lookup-type-node (o :: <object-reference>, env :: <type-environment>, #key abstract?) => (res :: <node>)
+define method lookup-type-node (o :: <object-reference>, env :: <type-environment>, #key abstract?, type) => (res :: <node>)
   element(env, o, default: #f) |
     begin
       let n = next-method();
@@ -65,7 +68,7 @@ define method lookup-type-node (o :: <object-reference>, env :: <type-environmen
     end;
 end;
 
-define method lookup-type-node (o :: <object>, env :: <type-environment>, #key abstract?) => (res :: <node>)
+define method lookup-type-node (o :: <object>, env :: <type-environment>, #key abstract?, type) => (res :: <node>)
   make(<node>, graph: env.type-graph,
        value: if (abstract?)
                 convert-to-typist-type(o.type-estimate-object, env)
@@ -339,10 +342,10 @@ define method type-infer (l :: <&lambda>, type-env :: <type-environment>, #key i
   //  type-env := make(<type-environment>, lambda: l);
   //  l.type-environment := type-env;
   //end;
-  if (l.type-environment & ~ any-te-matches?(l.type-environment, type-env))
+  //if (l.type-environment & ~ any-te-matches?(l.type-environment, type-env))
     //merge those TEs?
     l.type-environment := type-env;
-  end;
+  //end;
   do(rcurry(abstract-and-lookup, type-env), l.parameters);
   for (t in l.environment.temporaries)
     if (~empty?(t.assignments))
@@ -493,32 +496,34 @@ define function any-te-matches? (te :: <type-environment>, te2 :: <type-environm
   te == te2 | (te.outer-environment & any-te-matches?(te.outer-environment, te2))
 end;
 
-define function set-type-environment! (c :: <computation>, t :: <type-environment>) => ()
+define function set-type-environment! (c :: <computation>, t :: <type-environment>) => (set? :: <boolean>)
   if (slot-initialized?(c, %type-environment) & c.type-environment)
     if (c.type-environment == t)
       //pass
-    elseif (any-te-matches?(c.type-environment, t))
+//    elseif (any-te-matches?(c.type-environment, t))
       //widen type environment? is unsafe, should not happen!
 //      error("should not happen!");
-      c.type-environment := t;
-    elseif (any-te-matches?(t, c.type-environment))
+//      c.type-environment := t;
+//    elseif (any-te-matches?(t, c.type-environment))
       //t is more specific than c.t-e, so its safe to set
-      c.type-environment := t;
+//      c.type-environment := t;
     else
       //disjoint, should not happen!
-//      error("should not happen!");
-      c.type-environment := t;
+      error("should not happen!");
+//      c.type-environment := t;
     end;
+    #f
   else
     c.type-environment := t;
+    #t
   end;
 end;
 
 define method type-walk (env :: <type-environment>, c :: <computation>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     with-parent-computation (c)
-      set-type-environment!(c, env);
-      infer? & c.infer-computation-types;
+      set-type-environment!(c, env) &
+        infer? & c.infer-computation-types;
     end;
     next-type-step(env, c, last, infer?);
   end;
@@ -526,40 +531,48 @@ end;
 
 define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
-    let fold = 
-      with-parent-computation (c)
-        set-type-environment!(c, env);
-        debug-types(#"beginning", env, list("inferring", c));
-        debug-types(#"highlight", env, c);
-        solve(env);
-        infer? & c.infer-computation-types; //actually, needs both envs for proper inference
-        infer? & c.fold-if;
-      end;
-    if (fold)
-      type-walk(env, fold, last, infer?: infer?);
-    else
-      local method get-te (comp :: <computation>) => (result :: <type-environment>)
-              if (comp == c.next-computation)
-                env
-              elseif (slot-initialized?(comp, %type-environment) & comp.type-environment)
-                if (c.type-environment == env) //outer env was more specific, use it
-                  unless (env == comp.type-environment)
-                    comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
+    let todo? = set-type-environment!(c, env);
+    if (todo?)
+      let fold = 
+        with-parent-computation (c)
+          debug-types(#"beginning", env, list("inferring", c));
+          debug-types(#"highlight", env, c);
+          solve(env);
+          infer? & c.infer-computation-types; //actually, needs both envs for proper inference
+          set-type-environment!(c.next-computation, env);
+          infer? & c.fold-if;
+        end;
+      if (fold)
+        type-walk(env, fold, last, infer?: infer?);
+      else
+        local method get-te (comp :: <computation>) => (result :: <type-environment>)
+                if (comp == c.next-computation)
+                  env
+                elseif (slot-initialized?(comp, %type-environment) & comp.type-environment)
+                  if (c.type-environment == env) //outer env was more specific, use it
+                    unless (env == comp.type-environment)
+                      comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
+                    end;
                   end;
+                  comp.type-environment
+                else
+                  make(<type-environment>, outer: env)
                 end;
-                comp.type-environment
-              else
-                make(<type-environment>, outer: env)
               end;
-            end;
-      let con-env = get-te(c.consequent);
-      type-walk(con-env, c.consequent, c.next-computation, infer?: infer?);
-      con-env.finished-initial-typing? := #t;
-      solve(con-env);
-      let alt-env = get-te(c.alternative);
-      type-walk(alt-env, c.alternative, c.next-computation, infer?: infer?);
-      alt-env.finished-initial-typing? := #t;
-      solve(alt-env);
+        let con-env = get-te(c.consequent);
+        type-walk(con-env, c.consequent, c.next-computation, infer?: infer?);
+        con-env.finished-initial-typing? := #t;
+        solve(con-env);
+        let alt-env = get-te(c.alternative);
+        type-walk(alt-env, c.alternative, c.next-computation, infer?: infer?);
+        alt-env.finished-initial-typing? := #t;
+        solve(alt-env);
+        with-parent-computation (c.next-computation)
+          infer? & c.next-computation.infer-computation-types;
+        end;
+        next-type-step(env, c.next-computation, last, infer?);
+      end;
+    else
       next-type-step(env, c, last, infer?);
     end;
   end;
@@ -568,9 +581,11 @@ end;
 define method type-walk (env :: <type-environment>, c :: <bind-exit>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     with-parent-computation (c)
-      set-type-environment!(c, env);
-      solve(env);
-      infer? & c.infer-computation-types;
+      let todo? = set-type-environment!(c, env);
+      if (todo?)
+        solve(env);
+        infer? & c.infer-computation-types;
+      end;
     end;
     type-walk(env, c.body, c.next-computation, infer?: infer?);
     next-type-step(env, c, last, infer?);
@@ -580,7 +595,7 @@ end;
 define method type-walk (env :: <type-environment>, c :: <loop>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     with-parent-computation (c)
-      set-type-environment!(c, env);
+      set-type-environment!(c, env) &
       infer? & c.infer-computation-types;
     end;
     //ok, problem case: loop gets inlined.
@@ -588,8 +603,8 @@ define method type-walk (env :: <type-environment>, c :: <loop>, last :: false-o
     //their type-rule unifies type of both temporaries (in their respective context)
     //and one of the context is not yet updated!
     //solution: first set type environment of body, afterwards do the inference!
-    type-walk(env, c.loop-body, c.next-computation, infer?: #f);
-    infer? & type-walk(env, c.loop-body, c.next-computation, infer?: infer?);
+    //type-walk(env, c.loop-body, c.next-computation, infer?: #f);
+    type-walk(env, c.loop-body, c.next-computation, infer?: infer?);
     next-type-step(env, c, last, infer?);
   end;
 end;
@@ -597,7 +612,7 @@ end;
 define method type-walk (env :: <type-environment>, c :: <unwind-protect>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     with-parent-computation(c)
-      set-type-environment!(c, env);
+      set-type-environment!(c, env) &
       infer? & c.infer-computation-types;
     end;
     type-walk(env, c.body, c.next-computation, infer?: infer?);
@@ -609,9 +624,12 @@ end;
 define method type-walk (env :: <type-environment>, c :: <make-closure>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     with-parent-computation (c)
-      set-type-environment!(c, env);
+      let todo? = set-type-environment!(c, env);
+      todo? & //XXX: not yet sure whether this is the right place to reset the TE
+        walk-computations(method(x) x.type-environment := #f end,
+                          c.computation-closure-method.body, #f);
       type-infer(c.computation-closure-method, env, infer?: infer?);
-      infer? & c.infer-computation-types;
+      todo? & infer? & c.infer-computation-types;
     end;
     next-type-step(env, c, last, infer?);
   end;
@@ -621,15 +639,15 @@ define generic infer-computation-types (c :: <computation>) => ();
 
 define macro type-rule-definer
  { define type-rule ?computation:expression ?body:* end }
- => { define method infer-computation-types (c :: ?computation) => ()
-        let type-env = c.type-environment;
-        debug-types(#"beginning", type-env, list("inferring", c));
-        debug-types(#"highlight", type-env, c);
+ => { define method infer-computation-types (computation :: ?computation) => ()
+        let type-env = computation.type-environment;
+        debug-types(#"beginning", type-env, list("inferring", computation));
+        debug-types(#"highlight", type-env, computation);
         let ?=abstract = rcurry(abstract-and-lookup, type-env);
-        let ?=constraint = curry(add-constraint, type-env, c);
-        let ?=temporary-node = c.temporary & ?=abstract(c.temporary);
-        let ?=computation = c;
-        let ?=type-env = c.type-environment;
+        let ?=constraint = curry(add-constraint, type-env, computation);
+        let ?=temporary-node = computation.temporary & ?=abstract(computation.temporary);
+        let ?=computation = computation;
+        let ?=type-env = computation.type-environment;
         let ?=estimate = rcurry(temporary-type, type-env);
         let ?=lookup = rcurry(lookup-type-node, type-env);
         ?body
@@ -736,7 +754,8 @@ define method infer-computation-types (c :: <loop>) => ()
     //let cfg-first = deep-copy(copier, c.loop-body);
     let cfg-first = #f;
     let temps = make(<stretchy-vector>);
-    let c-env = make(<type-environment>, outer: out-env);
+    let c-env = make(<type-environment>, outer: out-env, lambda: #"copy");
+
     walk-computations(method(old)
                         local method maybe-add-temp (old-t, new-t)
                                 if (element(out-env, old-t, default: #f))
@@ -746,7 +765,7 @@ define method infer-computation-types (c :: <loop>) => ()
                                 end;
                               end;
                         let new = deep-copy(copier, old);
-                        //new.type-environment := c-env;
+                        new.type-environment := #f;
                         unless (cfg-first) cfg-first := new end;
                         for (tmp in old.used-temporary-accessors)
                           let getter = temporary-getter(tmp);
@@ -807,7 +826,7 @@ define method infer-computation-types (c :: <loop>) => ()
       types.size := 0;
     end;
     //remove computations and type graph nodes
-    walk-computations(method(x)
+/*    walk-computations(method(x)
                         if (*computation-tracer*)
                           *computation-tracer*(#"remove-node", x, 0, 0);
                           for (tmp in x.used-temporary-accessors)
@@ -827,7 +846,7 @@ define method infer-computation-types (c :: <loop>) => ()
                           end;
                         end
                       end, cfg-first, #f);
-
+*/
     //add type constraint to opposite DF node of phi/loop-merge
     //(is then propagated to temporary of phi by respective inference rule)
     for (node = c.loop-body then node.next-computation, type in types)

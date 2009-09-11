@@ -323,6 +323,14 @@ define method upgrade-self-call
   let last-a  = #f;
   let first-m = #f;
   let last-m  = #f;
+  for (m in loop.loop-merges, i from 0)
+    if (instance?(m, <computation>) & m.item-status == $queueable-item-dead)
+      loop.loop-merges[i] := #f; //XXX: i don't yet have a good theory for this
+      //but, as always probably related to type inference of a loop
+      //(which copies a loop around and may not be side-effect free)
+      //hannes 10 September 2009
+    end;
+  end;
   let merges  = loop-merges(loop);
   for (parameter  in f-parameters,
        argument   in arguments(c),
@@ -353,6 +361,7 @@ define method upgrade-self-call
       let (check-c, check-temp) =
        make-with-temporary
          (env, <check-type>, value: merge-t, type: type-temp);
+      re-optimize(check-c);
       let (_first-m, _last-m)
        = join-2x1!(_first-m, _last-m, check-c);
       replace-temporary-in-users!
@@ -366,7 +375,6 @@ define method upgrade-self-call
 
   loop-call-merges(call) := copy-sequence(merges);
   insert-computations-before!(loop-body(loop), first-m, last-m);
-  //XXX: re-add to opt-queue?!
 
   let first-a = join-2x1!(first-a, last-a, call);
   replace-computation!(c, first-a, call, call-temporary);

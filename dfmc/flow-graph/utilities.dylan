@@ -773,9 +773,14 @@ define function call-effective-function (c :: <function-call>)
   end
 end function;
 
-define function set-type-environment (old-c :: <computation>, first :: <computation>, last :: <computation>) => ()
-  slot-initialized?(old-c, %type-environment) & old-c.type-environment &
-    re-type-computations(old-c.type-environment, first, last);
+define function set-type-environment (new-context :: <computation>, first :: <computation>, last :: <computation>) => ()
+  if (slot-initialized?(new-context, %type-environment) & new-context.type-environment)
+    //let inlined-te = slot-initialized?(first, %type-environment) & first.type-environment;
+    //if (inlined-te)
+    //  copy-type-environment-into!(inlined-te, old-c.type-environment);
+    //end;
+    re-type-computations(new-context.type-environment, first, last);
+ end;
 end;
 
 define compiler-open generic tail-position? (c :: <call>) => (tail? :: <boolean>);

@@ -195,6 +195,7 @@ define method do-inline-call
   if (mapped == identity)
     f.body := #f;
   end if;
+  initialize-type-environment!(c.type-environment, first, last);
   redirect-arguments!(c, f, mapped);
   let return-t = return-c.computation-value;
   re-optimize-users(c.temporary);
@@ -231,6 +232,9 @@ define method do-inline-call
         re-optimize(extract-c);
         join-2x1-t!(first, last, extract-c, extract-t);
       end if;
+  unless (slot-initialized?(last, %type-environment) & last.type-environment)
+    initialize-type-environment!(c.type-environment, last, last);
+  end;
   replace-call-computation!(target-env, c, first, last, tmp);
   delete-computation!(return-c);
   maybe-update-inlined-next-methods(c, f, mapped-body);

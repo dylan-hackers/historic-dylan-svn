@@ -579,6 +579,7 @@ define method cell-assigned-temporaries (t :: <temporary>)
       cell.assignments := add!(cell.assignments, set-c); 
     end;
   end for;
+  cell.finished-conversion? := #t;
 end method cell-assigned-temporaries;
 
 // Constructors for celling primitives.
@@ -590,12 +591,13 @@ define method convert-make-cell
     (env :: <lambda-lexical-environment>, t :: <temporary>, assignments :: <sequence>)
  => (first-c :: <computation>, last-c :: <computation>, t :: <cell>);
    with-parent-computation (t.generator)
-     let spec-type = specializer(t); //or better, type-union of all assignments?
+     let spec-type = specializer(t);
      let tenv = t.generator | env.lambda.body;
      let ass = t.generator & pair(t.generator, assignments) | assignments;
      let inferred-type = apply(^type-union,
-                               map(curry(type-estimate, tenv),
-                                   map(temporary, ass)));
+                               map(method(x)
+                                     type-estimate(x, x.temporary)
+                                   end, ass));
      let type = if (~spec-type | ^subtype?(inferred-type, spec-type)) inferred-type else spec-type end;
      if (~type)
        type := dylan-value(#"<object>")

@@ -73,6 +73,7 @@ define sealed method solve (type-env :: <type-environment>)
   let quotient-graph = create-quotient-graph(graph);
   if (acyclic?(quotient-graph))
     let changed-vars = make(<stretchy-vector>);
+    let changed-ts = make(<stretchy-vector>);
     do(method(x)
          if (instance?(x.node-value, <type-variable>))
            let rep-type = x.find.node-value;
@@ -81,10 +82,42 @@ define sealed method solve (type-env :: <type-environment>)
                //format-out("changed TV %= to contain type %= now\n", x.node-value.get-id, rep-type);
                add!(changed-vars, x.node-value);
                x.node-value.type-variable-contents := rep-type;
+               let t = find-key(type-env, curry(\==, x));
+               if (t & t.generator & (type-env.type-lambda ~== #"copy"))
+                 let type = rep-type.model-type;
+                 if (t.generator.computation-type)
+                   let old-type = t.generator.computation-type;
+                   if (instance?(old-type, <&type>))
+                     if (^subtype?(type, old-type))
+                       unless (^subtype?(old-type, type))
+                         add!(changed-ts, t);
+                       end
+                     end
+                   else //must be a collection!
+                     if (instance?(old-type, <collection>) & instance?(type, <collection>))
+                       if (old-type.size == type.size)
+                         if (every?(^subtype?, type, old-type))
+                           unless (every?(^subtype?, old-type, type))
+                             add!(changed-ts, t);
+                           end
+                         end
+                       else
+                         add!(changed-ts, t);
+                       end;
+                     else
+                       add!(changed-ts, t);
+                     end;
+                   end
+                 else
+                   add!(changed-ts, t);
+                 end;
+                 t.generator.computation-type := type;
+               end
              end
            end
          end
-       end, graph.graph-nodes);
+       end, graph.graph-nodes.copy-sequence); //XXX: this copy-sequence has to go away!
+    do(re-optimize-users, changed-ts);
     for (ele in type-env.key-sequence)
       let val = element(type-env, ele, default: #f);
       if (val & member?(val.node-value, changed-vars))

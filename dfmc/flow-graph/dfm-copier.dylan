@@ -34,9 +34,8 @@ define dont-copy-slots  <queueable-item-mixin>       using <dfm-copier> =
 
 define dont-copy-slots  <computation>                using <dfm-copier> =
   { computation-source-location => parent-source-location(),
-    computation-type => #f,
     %computation-id => #f,
-    type-environment => #f };
+    %type-environment => #f };
 
 define dont-copy-slots  <bind-exit>                  using <dfm-copier> =
   { %label => #f };

@@ -215,6 +215,11 @@ define class <cell> (<named-temporary>)
   slot assignments :: <list> = #();
   slot %cell-type :: <&type>,
     init-keyword: cell-type:;
+  slot finished-conversion? :: <boolean> = #f;
+    //XXX: could probably also check whether assignments slot is filled yet
+    //but might error at locations where all set-cell-value computations are
+    //folded away... and then type of the cell is type of the computation-value
+    //of its generator.
 end class;
 
 define method cell-type (c :: <cell>) => (t :: <&type>)

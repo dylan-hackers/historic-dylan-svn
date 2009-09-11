@@ -11,6 +11,7 @@ define function report-progress (i1 :: <integer>, i2 :: <integer>,
 end;
 
 define function write-data (vis :: <dfmc-graph-visualization>, key :: <symbol>, e, #rest arguments)
+unless (e == #"copy")
   let form = e.form;
   let env = form.identifier;
   let cr = if (instance?(form, <&method>))
@@ -30,17 +31,14 @@ define function write-data (vis :: <dfmc-graph-visualization>, key :: <symbol>, 
                 "unknown"
               end;
     //if (loc = "new-dispatch.dylan")
-    //if (member?(env, list("expand-tabs"),
+    //if (member?(env, list("compute-slot-descriptors"), //"make-symbol (<sequence>"), //"as-field-size-for-tagged-integer"), //"compute-entry-count"),
     //            test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
     //  write-to-visualizer(vis, apply(list, key, env, arguments));
     //end;
-    if (member?(env, list("make-symbol"), //"compute-entry-count"),
-                test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
-      write-to-visualizer(vis, apply(list, key, env, arguments));
-    end;
   else
     //uhm... shouldn't be here
   end;
+end;
 end;
 
 define method form (c :: type-union(<temporary>, <computation>))

@@ -13,18 +13,22 @@ define class <type-environment> (<mutable-explicit-key-collection>)
   slot %outer-environment :: false-or(<type-environment>) = #f,
     init-keyword: outer:;
   constant slot type-graph :: <type-graph> = make(<type-graph>);
-  constant slot %type-lambda :: false-or(<&lambda>) = #f,
+  constant slot %type-lambda :: false-or(type-union(<symbol>, <&lambda>)) = #f,
     init-keyword: lambda:; //once again, only used for debugging in typist/type-debug
   slot finished-initial-typing? :: <boolean> = #f;
   constant slot computation-id :: <integer> = next-computation-id();
+  constant slot inners :: <stretchy-vector> = make(<stretchy-vector>);
 end;
 
-define method initialize (t :: <type-environment>, #key, #all-keys)
+define method initialize (t :: <type-environment>, #key outer, #all-keys)
   next-method();
   t.type-graph.type-environment := t;
   if (*computation-tracer*)
     *computation-tracer*(#"new-te", t.type-lambda, t.computation-id, 0);
     *computation-tracer*(#"outer-te", t.type-lambda, t.computation-id, t.outer-environment & t.outer-environment.computation-id | 0);
+  end;
+  if (outer)
+    add!(outer.inners, t)
   end;
 end;
 
@@ -34,15 +38,21 @@ end;
 
 define method outer-environment-setter (te :: false-or(<type-environment>), t :: <type-environment>)
  => (res :: false-or(<type-environment>))
-  t.%outer-environment := te;
-  if (*computation-tracer*)
-    *computation-tracer*(#"outer-te", t.type-lambda, t.computation-id, te & te.computation-id | 0);
+  if (t.%outer-environment)
+    remove!(t.%outer-environment.inners, t)
   end;
-  te
+  t.%outer-environment := te;
+  if (te)
+    add!(te.inners, t);
+    if (*computation-tracer*)
+      *computation-tracer*(#"outer-te", t.type-lambda, t.computation-id, te & te.computation-id | 0);
+    end;
+  end;
+  te;
 end;
 
 //only used for debug context in typist/type-debug
-define function type-lambda (t :: <type-environment>) => (res :: <&lambda>)
+define function type-lambda (t :: <type-environment>) => (res :: type-union(<symbol>, <&lambda>))
   t.%type-lambda | t.outer-environment.type-lambda
 end;
 

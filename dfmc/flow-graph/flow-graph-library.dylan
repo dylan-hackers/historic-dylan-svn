@@ -335,6 +335,7 @@ define module dfmc-flow-graph
 
     <cell>, %cell-type,
       cell-type, cell-type-setter,
+      finished-conversion?, finished-conversion?-setter,
     cell?,
 
     <stack-vector-temporary>,

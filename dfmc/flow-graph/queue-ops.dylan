@@ -66,7 +66,7 @@ define compiler-open generic re-type-computations
 define method re-optimize-into (c :: <computation>, lambda :: <&lambda>) => ()
   let q = lambda.optimization-queue;
   // format-out("--- RE-OPT %= INT %= ---\n", c, lambda);
-  re-optimize-type-estimate(c);
+  c.type-environment & c.item-status ~== $queueable-item-dead & re-optimize-type-estimate(c);
   if (q)
     add-to-queue!(q , c);
     // print-queue-out(q);

@@ -30,7 +30,8 @@ define module dfmc-typist
   export type-estimate,
     type-estimate-object,
     type-infer,
-    type-estimate-top-level-form;
+    type-estimate-top-level-form,
+    initialize-type-environment!;
 
   //visualizer
   export *typist-visualize*;

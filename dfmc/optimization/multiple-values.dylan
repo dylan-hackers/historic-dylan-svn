@@ -169,6 +169,7 @@ define method extract-single-value
 	  make(<temporary>, generator: c, environment: environment(c));
 	temporary(c) := single-temporary;
 	re-optimize(c);
+        type-environment(c) & re-optimize-type-estimate(c);
 	single-temporary
       elseif (new-left-value ~== old-left-value)
 	let extract-c = generator(new-left-value); 
