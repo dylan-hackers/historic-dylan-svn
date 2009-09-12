@@ -767,6 +767,7 @@ end method;
 define method evaluate-type-checks? (c :: <check-type>)
   let (type-constant?, the-type) = constant-value?(type(c));
   if (type-constant? & instance?(the-type, <&type>))
+    //this is needed because we try subtype? instead of instance? here!
     if (the-type == dylan-value(#"<object>") | the-type == dylan-value(#"<type>"))
       the-type := make(<&top-type>);
     end;

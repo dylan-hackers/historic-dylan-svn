@@ -44,22 +44,42 @@ define function retract-type! (c :: <computation>) => ()
 end;
 
 define compiler-sideways method re-optimize-type-estimate (c :: <computation>) => ()
+  unless (member?(c, c.type-environment.retype-queue))
+    push(c.type-environment.retype-queue, c)
+  end;
+end;
+
+define function empty-retype-queue (c :: <computation>) => ()
+  let q = c.type-environment.retype-queue;
+  empty-retype-queue!(q);
+end;
+
+define function empty-retype-queue! (q :: <deque>) => ()
+  while (~ q.empty?)
+    let top = q.pop;
+    if (top.item-status ~== $queueable-item-dead)
+      re-type(top);
+    end;
+  end;
+end;
+
+define method re-type (c :: <computation>) => ()
   dynamic-bind(*upgrade?* = #f)
     infer-computation-types(c);
   end
 end method;
 
-define compiler-sideways method re-optimize-type-estimate (c :: <make-cell>) => ()
+define method re-type (c :: <make-cell>) => ()
   next-method();
   maybe-upgrade-cell(c.temporary);
 end;
 
-define compiler-sideways method re-optimize-type-estimate (c :: <set-cell-value!>) => ()
+define method re-type (c :: <set-cell-value!>) => ()
   next-method();
   maybe-upgrade-cell(c.computation-cell);
 end;
 
-define compiler-sideways method re-optimize-type-estimate (c :: <loop>) => ()
+define method re-type (c :: <loop>) => ()
 end method;
 
 define function maybe-upgrade-cell (c :: <cell>) => ()
@@ -119,9 +139,11 @@ define thread variable *upgrade?* :: <boolean> = #t;
 define compiler-sideways method re-type-computations
     (env :: <type-environment>, first :: false-or(<computation>), last :: false-or(<computation>)) => ()
   if (env.finished-initial-typing? & first)
-    dynamic-bind(*upgrade?* = #f)
-      type-walk(env, first, last.next-computation);
-    end;
+    type-walk(env, first, last.next-computation, infer?: #f);
+    walk-computations(re-optimize-type-estimate, first, last.next-computation);
+    //dynamic-bind(*upgrade?* = #f)
+    //  type-walk(env, first, last.next-computation);
+    //end;
 
     //let infer = make(<stretchy-vector>);
     //walk-computations(curry(add!, infer), first, last.next-computation);

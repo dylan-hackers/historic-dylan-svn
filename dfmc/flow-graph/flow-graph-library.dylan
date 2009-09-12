@@ -321,6 +321,7 @@ define module dfmc-flow-graph
     type-graph, type-lambda,
     finished-initial-typing?, finished-initial-typing?-setter,
     in-type-environment?, inner-type-environments,
+    retype-queue,
     deep-copy-node, solve;
 
   export // temporaries

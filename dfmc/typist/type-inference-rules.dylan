@@ -4,7 +4,8 @@ define generic lookup-type-node (o, env :: <type-environment>, #key abstract?) =
 
 define constant abstract-and-lookup = rcurry(lookup-type-node, abstract?:, #t);
 
-define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #key abstract?) => (res :: <node>)
+define method lookup-type-node (o :: <temporary>, env :: <type-environment>, #key abstract?)
+ => (res :: <node>)
   element(env, o, default: #f) |
     begin
       let te = if (o.generator & o.generator.computation-type)
@@ -158,8 +159,8 @@ define method type-estimate-object (t :: <&type>)
  => (res :: <&type>)
   if (t == dylan-value(#"<object>"))
     make(<&top-type>)
-  elseif (t == dylan-value(#"<type>"))
-    make(<&top-type>)
+//  elseif (t == dylan-value(#"<type>"))
+//    make(<&top-type>)
   else
     ^singleton(t)
   end
@@ -684,20 +685,39 @@ define type-rule <temporary-transfer-computation>
   constraint(computation.computation-value.abstract, temporary-node);
 end;
 
+define function convert-instance-to-subtype (t :: <object>) => (res)
+  if (instance?(t, <object-reference>))
+    let type = t.reference-value;
+    if (type == dylan-value(#"<type>"))
+      make(<&top-type>)
+    elseif (type == dylan-value(#"<class>"))
+      make(<&top-type>)
+    //elseif (t == dylan-value(#"<singleton>"))
+    else
+      type
+    end;
+  else
+    t
+  end;
+end;
+
+//take care, <check-type-..> are instance? constraints, not subtype!
 define type-rule <single-value-check-type-computation>
   //we have an input value and an input type.
   //the resulting temporary will be of the given type
   //when value is more specific, c-t will be optimized, and users will be re-optimized
-  constraint(computation.type.lookup, temporary-node);
+  constraint(computation.type.convert-instance-to-subtype.lookup, temporary-node);
 end;
 
 define type-rule <multiple-value-check-type-computation>
-  constraint(gen-tuple(map(lookup, computation.types)).lookup, temporary-node);
+  let c-types = map(compose(lookup, convert-instance-to-subtype), computation.types);
+  constraint(gen-tuple(c-types).lookup, temporary-node);
 end;
 
 define type-rule <multiple-value-check-type-rest>
   //XXX: actually, could use rest-type GF
-  constraint((gen-tuple(map(lookup, computation.types), rest?: #t)).lookup, temporary-node);
+  let c-types = map(compose(lookup, convert-instance-to-subtype), computation.types);
+  constraint(gen-tuple(c-types, rest?: #t).lookup, temporary-node);
 end;
 
 define type-rule <values>

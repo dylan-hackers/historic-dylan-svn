@@ -312,6 +312,7 @@ define method do-primitive-coercion-inverses
     remove-temporary!(env, arg);
     // NOW MERGING RAW VALUES
 
+    retract-type!(merge-node);
     re-optimize-type-estimate(merge-node);
 
     #t

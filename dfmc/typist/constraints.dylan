@@ -14,6 +14,7 @@ define thread variable *origin* = #f;
 
 define sealed method solve (type-env :: <type-environment>)
  => ()
+  empty-retype-queue!(type-env.retype-queue);
   let graph = type-env.type-graph;
   //do(copy-dynamic, graph.graph-nodes);
   let constraints = graph.type-constraints;
