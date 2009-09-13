@@ -680,7 +680,10 @@ define method replace-temporary-references!
      "%= == %=", t, new-t);
   let renamed? :: <boolean> = #f;
   if (t.assignments.size > 0)
-    new-t.assignments := t.assignments;
+    if (every?(rcurry(instance?, type-union(<phi-node>, <temporary-transfer>)),
+               t.assignments))
+      new-t.assignments := t.assignments;
+    end;
   end;
   for (accessors :: <temporary-accessors> in c.used-temporary-accessors)
     let getter = temporary-getter(accessors);

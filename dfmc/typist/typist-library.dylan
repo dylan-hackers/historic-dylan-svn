@@ -34,6 +34,7 @@ define module dfmc-typist
     initialize-type-environment!,
     retract-type!,
     empty-retype-queue,
+    upgrade-cells,
     solve-and-upgrade;
 
   //visualizer

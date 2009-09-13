@@ -355,7 +355,9 @@ define method force-copy-method-into
     copy.^mep          := maybe-do-deep-copy(copier, m.^mep);
     copy.^mep.function := copy;
   end if;
-  ensure-method-dfm(copy);
+  dynamic-bind (*dump-dfm-method* = #f)
+    ensure-method-dfm(copy);
+  end;
   walk-lambda-computations
     (method (c) item-status(c) := $queueable-item-absent; end, copy.body); 
   if (model-library(m) ~== model-library(copy))

@@ -31,10 +31,10 @@ unless (e == #"copy")
                 "unknown"
               end;
     //if (loc = "new-dispatch.dylan")
-    //if (member?(env, list("case-insensitive-string-equal-2 (<byte-s", "replace-elements! (<vector>, <function>", "invert-accumulator", "ash"), //compute-slot-descriptors"), //"make-symbol (<sequence>"), //"as-field-size-for-tagged-integer"), //"compute-entry-count"),
-    //            test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
+    if (member?(env, list("replace-elements! (<vector>, <function>"), //"invert-accumulator", "ash"), //compute-slot-descriptors"), //"make-symbol (<sequence>"), //"as-field-size-for-tagged-integer"), //"compute-entry-count"),
+                test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
       write-to-visualizer(vis, apply(list, key, env, arguments));
-    //end;
+    end;
   else
     //uhm... shouldn't be here
   end;

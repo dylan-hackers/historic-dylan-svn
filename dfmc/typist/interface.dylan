@@ -69,20 +69,30 @@ define method re-type (c :: <computation>) => ()
   end
 end method;
 
-define method re-type (c :: <make-cell>) => ()
-  next-method();
-  maybe-upgrade-cell(c.temporary);
-end;
+//define method re-type (c :: <make-cell>) => ()
+//  next-method();
+//  maybe-upgrade-cell(c.temporary);
+//end;
 
-define method re-type (c :: <set-cell-value!>) => ()
-  next-method();
-  maybe-upgrade-cell(c.computation-cell);
-end;
+//define method re-type (c :: <set-cell-value!>) => ()
+//  next-method();
+//  maybe-upgrade-cell(c.computation-cell);
+//end;
 
 define method re-type (c :: <loop>) => ()
 end method;
 
-define function maybe-upgrade-cell (c :: <cell>) => ()
+define function upgrade-cells (l :: <&lambda>) => (res :: <boolean>)
+  let done? = #f;
+  for (e in l.environment.temporaries)
+    if (instance?(e, <cell>))
+      done? := maybe-upgrade-cell(e) | done?
+    end;
+  end;
+  done?
+end;
+
+define function maybe-upgrade-cell (c :: <cell>) => (res :: <boolean>)
   if (c.finished-conversion?)
     let gens = pair(c.generator, choose(rcurry(instance?, <set-cell-value!>), c.users));
     if (every?(type-environment, gens))
@@ -122,6 +132,7 @@ define function maybe-upgrade-cell (c :: <cell>) => ()
           re-optimize-users(c);
           re-optimize(c.generator);
           c.finished-conversion? := #t;
+          #t
         end;
       else
         error("this shouldn't happen! (cell-type %= new-type %=)", c.cell-type, cell-t);

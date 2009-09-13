@@ -522,6 +522,16 @@ define method eliminate-assignments (f :: <&lambda>)
   let df = dominance-frontier(idom, root);
   phi-placement(df, ass, mapping);
   renaming(ass, f, mapping);
+  //for (x in ass)
+  //  let v = x.assigned-binding;
+  //  unless (instance?(v, <module-binding>))
+  //    for (a in v.assignments)
+  //      unless (instance?(a, type-union(<temporary-transfer>, <phi-node>)))
+  //        error("shouldnt");
+  //      end;
+  //    end;
+  //  end;
+  //end;
   values(idom, ass, root, mapping, df);
 end method eliminate-assignments;
 

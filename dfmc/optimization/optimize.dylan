@@ -190,6 +190,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 		something? := something? | run-optimizations(f);
 	      end;
 	    end for-all-lambdas;
+            something? := upgrade-cells(code) | something?;
 	    if (something?) 
 	      if (count < $max-reoptimization-iterations) 
 		loop(count + 1)
