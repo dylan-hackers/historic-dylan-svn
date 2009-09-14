@@ -316,6 +316,54 @@ define method ^subtype? (f :: <&limited-function-type>, g :: <&class>) => (resul
   ^subtype?(^base-type(f), g);
 end;
 
+define method ^subtype? (f :: <&limited-function-type>, g :: <&singleton>) => (result :: <boolean>)
+  ^subtype?(^base-type(f), g);
+end;
+
+define method ^subtype? (g :: <&singleton>, f :: <&limited-function-type>) => (result :: <boolean>)
+  ^instance?(g.^singleton-object, f)
+end;
+
+define method ^subtype? (g :: <&limited-function-type>, f :: <&top-type>) => (result :: <boolean>)
+  #t
+end;
+
+define method ^subtype? (f :: <&top-type>, g :: <&limited-function-type>) => (result :: <boolean>)
+  #f
+end;
+
+define method ^subtype? (f :: <&top-type>, g :: <&bottom-type>) => (result :: <boolean>)
+  #f
+end;
+
+define method ^subtype? (g :: <&bottom-type>, f :: <&top-type>) => (result :: <boolean>)
+  #t
+end;
+
+define method ^subtype? (g :: <&union>, f :: <&top-type>) => (result :: <boolean>)
+  #t
+end;
+
+define method ^subtype? (f :: <&top-type>, g :: <&union>) => (result :: <boolean>)
+  #f
+end;
+
+define method ^subtype? (g :: <&union>, f :: <&subclass>) => (result :: <boolean>)
+  ^subtype?(g.^union-type1, f) & ^subtype?(g.^union-type2, f)
+end;
+
+define method ^subtype? (f :: <&top-type>, g :: <&limited-sequence-type>) => (result :: <boolean>)
+  #f
+end;
+
+define method ^known-disjoint? (s :: <&singleton>, t :: <&limited-integer>) => (res :: <boolean>)
+  ~^instance?(s.^singleton-object, t)
+end;
+
+define method ^known-disjoint? (t :: <&limited-integer>, s :: <&singleton>) => (res :: <boolean>)
+  ^known-disjoint?(s, t)
+end;
+
 /*
 define method ^subtype? (f :: <&limited-function-type>, g :: <&class>) => (result :: <boolean>)
   #t
