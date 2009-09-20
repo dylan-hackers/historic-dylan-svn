@@ -343,15 +343,6 @@ define constant temporary-type = compose(node-to-type, lookup-type-node);
 define constant temporary-type-abstraction = compose(node-to-type, abstract-and-lookup);
 
 define method type-infer (l :: <&lambda>, type-env :: <type-environment>, #key infer? = #t)
-  //let type-env = l.type-environment;
-  //unless (type-env)
-  //  type-env := make(<type-environment>, lambda: l);
-  //  l.type-environment := type-env;
-  //end;
-  //if (l.type-environment & ~ any-te-matches?(l.type-environment, type-env))
-    //merge those TEs?
-    l.type-environment := type-env;
-  //end;
   do(rcurry(abstract-and-lookup, type-env), l.parameters);
   for (t in l.environment.temporaries)
     if (~empty?(t.assignments))
@@ -363,8 +354,7 @@ define method type-infer (l :: <&lambda>, type-env :: <type-environment>, #key i
 end;
 
 //solve TEs and may upgrade signature!
-define function solve-and-upgrade (l :: <&lambda>) => ()
-  let type-env = l.type-environment;
+define function solve-and-upgrade (l :: <&lambda>, type-env :: <type-environment>) => ()
   local method rec-solve (te :: <type-environment>)
           solve(te);
           for (inner in te.inner-type-environments)
@@ -549,8 +539,8 @@ end;
 define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     let todo? = set-type-environment!(c, env);
-    if (todo?)
-      let fold = 
+    let fold = 
+      if (todo?)
         with-parent-computation (c)
           debug-types(#"beginning", env, list("inferring", c));
           debug-types(#"highlight", env, c);
@@ -559,39 +549,37 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
           set-type-environment!(c.next-computation, env);
           infer? & c.fold-if;
         end;
-      if (fold)
-        type-walk(env, fold, last, infer?: infer?);
-      else
-        local method get-te (comp :: <computation>) => (result :: <type-environment>)
-                if (comp == c.next-computation)
-                  env
-                elseif (slot-initialized?(comp, %type-environment) & comp.type-environment)
-                //XXX: this looks wrong!
-                  if (c.type-environment == env) //outer env was more specific, use it
-                    unless (env == comp.type-environment)
-                      comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
-                    end;
-                  end;
-                  comp.type-environment
-                else
-                  make(<type-environment>, outer: env)
-                end;
-              end;
-        let con-env = get-te(c.consequent);
-        type-walk(con-env, c.consequent, c.next-computation, infer?: infer?);
-        con-env.finished-initial-typing? := #t;
-        solve(con-env);
-        let alt-env = get-te(c.alternative);
-        type-walk(alt-env, c.alternative, c.next-computation, infer?: infer?);
-        alt-env.finished-initial-typing? := #t;
-        solve(alt-env);
-        with-parent-computation (c.next-computation)
-          infer? & c.next-computation.infer-computation-types;
-        end;
-        next-type-step(env, c.next-computation, last, infer?);
       end;
+    if (fold)
+      type-walk(env, fold, last, infer?: infer?);
     else
-      next-type-step(env, c, last, infer?);
+      local method get-te (comp :: <computation>) => (result :: <type-environment>)
+              if (comp == c.next-computation)
+                env
+              elseif (slot-initialized?(comp, %type-environment) & comp.type-environment)
+                //XXX: this looks wrong!
+                if (c.type-environment == env) //outer env was more specific, use it
+                  unless (env == comp.type-environment)
+                    comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
+                  end;
+                end;
+                comp.type-environment
+              else
+                make(<type-environment>, outer: env)
+              end;
+            end;
+      let con-env = get-te(c.consequent);
+      type-walk(con-env, c.consequent, c.next-computation, infer?: infer?);
+      con-env.finished-initial-typing? := #t;
+      solve(con-env);
+      let alt-env = get-te(c.alternative);
+      type-walk(alt-env, c.alternative, c.next-computation, infer?: infer?);
+      alt-env.finished-initial-typing? := #t;
+      solve(alt-env);
+      with-parent-computation (c.next-computation)
+        infer? & c.next-computation.infer-computation-types;
+      end;
+      next-type-step(env, c.next-computation, last, infer?);
     end;
   end;
 end;
@@ -1138,10 +1126,10 @@ define method create-arrow-and-constraint
   add-constraint(tenv, c, left, right);
 end;
 
-define method upgrade-types (l)
+define method upgrade-types (l, t :: <type-environment>)
 end;
 
-define method upgrade-types (l :: <&lambda>)
+define method upgrade-types (l :: <&lambda>, type-env :: <type-environment>)
   for (t in l.^function-signature.^signature-required-arguments, p in l.parameters)
     unless (^type-equivalent?(t, p.specializer))
       p.specializer := t;
@@ -1149,10 +1137,10 @@ define method upgrade-types (l :: <&lambda>)
       //but not yet in correct context (<graph>-wise)
       // actually, *constraint* get bound to #[] in type-infer, thus modifying constraints
       // does not make sense yet
-      remove-key!(l.type-environment.real-environment, p);
+      remove-key!(type-env.real-environment, p);
     end;
   end;
-  type-infer(l, l.type-environment);
+  type-infer(l, type-env);
 end;
 
 define function constrain-type-variables
@@ -1193,7 +1181,7 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
           let closure = p.head.get-function-object;
           if (closure)
             closure.^function-signature := type.^function-signature; //assert type is a <l-f-t>
-            closure.upgrade-types;
+            upgrade-types(closure, tenv); //is tenv the correct env here?
             //update types for p.head
             infer-computation-types(p.head.generator);
           end;

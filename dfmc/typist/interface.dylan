@@ -135,7 +135,7 @@ define function maybe-upgrade-cell (c :: <cell>) => (res :: <boolean>)
           #t
         end;
       else
-        error("this shouldn't happen! (cell-type %= new-type %=)", c.cell-type, cell-t);
+        //error("this shouldn't happen! (cell-type %= new-type %=)", c.cell-type, cell-t);
       end
     end;
   end;

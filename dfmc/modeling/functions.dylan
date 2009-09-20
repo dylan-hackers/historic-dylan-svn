@@ -276,8 +276,6 @@ define dood-class <lambda-body> (<object>)
   // TODO: TIE TO REAL QUEUE
   weak slot lambda-dfm-optimization-queue :: false-or(<stretchy-object-vector>) = #f,
     reinit-expression: #f;
-  weak slot lambda-dfm-type-environment = #f,
-    reinit-expression: #f;
 end dood-class;
 
 // Warning - run-time.h knows about this object's format!
@@ -335,8 +333,6 @@ define lambda-body-transfer body,
   lambda-dfm-body (<object>);
 define lambda-body-transfer optimization-queue,
   lambda-dfm-optimization-queue (false-or(<stretchy-object-vector>));
-define lambda-body-transfer type-environment,
-  lambda-dfm-type-environment (<object>);
 
 define leaf packed-slots function-properties (<&lambda>, <object>)
   boolean  slot lambda-optimized?             = #f;

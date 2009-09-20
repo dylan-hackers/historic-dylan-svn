@@ -544,6 +544,18 @@ define method convert-ssa-to-cells (code :: <&lambda>)
     end for;
     strip-assignments(environment(f));
   end;
+  //for-all-lambdas (f in code)
+  //  walk-computations(method(x)
+  //                      if (instance?(x, <computation>))
+  //                        unless (x.type-environment)
+  //                          error("may not happen!");
+  //                        end;
+  //                        if (instance?(x, <phi-node>))
+  //                          error("phi not here anymore!")
+  //                        end
+  //                      end
+  //                    end, f.body, #f)
+  //end;
 end;
 
 define method cell-assigned-temporaries (t :: <temporary>)
@@ -569,24 +581,26 @@ define method cell-assigned-temporaries (t :: <temporary>)
     replace-user(user, t);
   end for;
   for (assignment in ass)
-    for (user in assignment.temporary.users)
-      unless (instance?(user, <phi-node>))
-        replace-user(user, assignment.temporary);
+    unless (assignment.item-status == $queueable-item-dead)
+      for (user in assignment.temporary.users)
+        unless (instance?(user, <phi-node>))
+          replace-user(user, assignment.temporary);
+        end;
+      end for;
+      if (instance?(assignment, <phi-node>))
+        delete-computation!(assignment);
+      else //<temporary-transfer>
+        let val-t = assignment.computation-value;
+        let (set-first-c, set-c, set-t)
+          = with-parent-computation (assignment)
+              convert-set-cell-value!(assignment.environment, cell, val-t);
+            end;
+        insert-computations-after!(assignment, set-first-c, set-c);
+        replace-temporary-in-users!(assignment.temporary, val-t);
+        delete-computation!(assignment);
+        // Track cell writes
+        cell.assignments := add!(cell.assignments, set-c);
       end;
-    end for;
-    if (instance?(assignment, <phi-node>))
-      delete-computation!(assignment);
-    else //<temporary-transfer>
-      let val-t = assignment.computation-value;
-      let (set-first-c, set-c, set-t)
-        = with-parent-computation (assignment)
-            convert-set-cell-value!(assignment.environment, cell, val-t);
-          end;
-      insert-computations-after!(assignment, set-first-c, set-c);
-      replace-temporary-in-users!(assignment.temporary, val-t);
-      delete-computation!(assignment);
-      // Track cell writes
-      cell.assignments := add!(cell.assignments, set-c); 
     end;
   end for;
   cell.finished-conversion? := #t;

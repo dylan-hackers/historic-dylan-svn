@@ -50,6 +50,7 @@ define module dfmc-flow-graph
     // *** environment, environment-setter,
     // *** type-environment, type-environment-setter,
     computation-type, computation-type-setter,
+    type-environment, type-environment-setter,
     %label, %label-setter,
     next-computation, next-computation-setter,
     make-in-environment,

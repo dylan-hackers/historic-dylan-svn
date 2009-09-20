@@ -167,6 +167,15 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
           type-infer(code, tenv);
           send-debug(#"relayouted", #());
           tenv.finished-initial-typing? := #t;
+          //for-all-lambdas (f in code)
+          //  walk-computations(method(x)
+          //                      if (instance?(x, <computation>))
+          //                        unless (x.type-environment)
+          //                          error("no TE");
+          //                        end
+          //                      end
+          //                    end, f.body, #f);
+          //end;
           send-debug(#"beginning", #("convert ssa to cells"));
           convert-ssa-to-cells(code);
           send-debug(#"relayouted", #());
@@ -233,7 +242,7 @@ define sealed method really-run-compilation-passes (code :: <&lambda>)
 	    end;
 	  end for-all-lambdas;
           for-all-lambdas (f in code)
-            solve-and-upgrade(f);
+            solve-and-upgrade(f, tenv);
           end;
 	end with-dependent-context;
       end with-simple-abort-retry-restart;
@@ -266,7 +275,10 @@ define method run-optimizations (code) => (b :: <boolean>)
        item = something? then queue-head(queue), while: item) 
     // do-queue(method (i) format-out("  ELT %=\n", i) end, queue);
     send-debug(#"highlight-queue", pair(code, map(computation-id, queue | #())));
-    empty-retype-queue(item);
+    //empty-retype-queue(item);
+    unless (item.item-status == $queueable-item-dead)
+      re-type(item);
+    end;
     if (do-optimize(item))
       something? := #t;
       if (*trace-optimizations?*)

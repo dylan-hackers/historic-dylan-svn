@@ -21,10 +21,11 @@ define class <type-environment> (<mutable-explicit-key-collection>)
   //constant slot retype-queue :: <deque> = make(<deque>);
 end;
 
-define constant ret-que = make(<table>);
+//define constant ret-que = make(<table>);
 
 define function retype-queue (te :: <type-environment>) => (res :: <deque>)
-  element(ret-que, te, default: #f) | (ret-que[te] := make(<deque>))
+  //element(ret-que, te, default: #f) | (ret-que[te] := make(<deque>))
+  make(<deque>)
 end;
 
 define function inner-type-environments (te :: <type-environment>) => (res :: <stretchy-vector>)
