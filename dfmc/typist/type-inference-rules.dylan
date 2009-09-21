@@ -409,29 +409,8 @@ define function more-specific? (sig1 :: <&signature>, sig2 :: <&signature>) => (
 end;
 
 define generic convert-type-to-signature
- (old :: false-or(<&signature>), params :: <collection>, res :: type-union(<collection>, <&type>), rest? :: <boolean>)
+ (old :: <&signature>, params :: <collection>, res :: type-union(<collection>, <&type>), rest? :: <boolean>)
  => (signature :: <&signature>);
-
-define inline function extract-params (p :: <collection>) => (key/value :: <list>)
-  let rest? = (p.size > 0) & instance?(p.last, <lexical-rest-variable>);
-  let off = (rest? & 1) | 0;
-  let ps = map(specializer, copy-sequence(p, end: p.size - off));
-  list(#"required", ps, #"number-required", ps.size, #"rest?", rest?)
-end;
-
-define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, values :: <&type>, rest? :: <boolean>)
- => (signature :: <&signature>)
-  let k/v = extract-params(parameters);
-  apply(^make, <&signature>, values: vector(values), number-values: 1, rest-value?: rest?,
-        rest-value: dylan-value(#"<object>"), k/v)
-end;
-
-define method convert-type-to-signature (old-sig == #f, parameters :: <collection>, values :: <collection>, rest? :: <boolean>)
- => (signature :: <&signature>)
-  let k/v = extract-params(parameters);
-  apply(^make, <&signature>, values: values, number-values: values.size, rest-value?: rest?,
-        rest-value: dylan-value(#"<object>"), k/v);
-end;
 
 define inline function params-from-sig (sig :: <&signature>) => (k/v :: <list>)
   let rest? = sig.^signature-rest?;
@@ -440,9 +419,11 @@ define inline function params-from-sig (sig :: <&signature>) => (k/v :: <list>)
   let keys = key? & sig.^signature-keys;
   let key-types = key? & sig.^signature-key-types;
   let sealed? = sig.^signature-sealed-domain?;
+  let next? = sig.^signature-next?;
+  let all-keys? = sig.^signature-all-keys?;
   list(#"required", ps, #"number-required", ps.size, #"rest?", rest?,
        #"key?", key?, #"keys", keys, #"key-types", key-types,
-       #"sealed-domain?", sealed?)
+       #"sealed-domain?", sealed?, #"next?", next?, #"all-keys?", all-keys?)
 end;
 
 define method convert-type-to-signature (old-sig :: <&signature>, parameters :: <collection>, values :: <&type>, rest? :: <boolean>)

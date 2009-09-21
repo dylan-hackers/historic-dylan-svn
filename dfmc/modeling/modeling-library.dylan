@@ -167,7 +167,7 @@ define module-with-models dfmc-modeling
       &slot signature-required,
       ^signature-rest?,
       ^signature-key?,
-      &setter signature-next?,
+      &slot signature-next?,
       &getter signature-keys,
       &getter signature-key-types,
       ^signature-all-keys?,
