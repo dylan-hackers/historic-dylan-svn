@@ -33,7 +33,6 @@ define module dfmc-typist
     type-estimate-top-level-form,
     initialize-type-environment!,
     retract-type!,
-    empty-retype-queue,
     upgrade-cells,
     re-type,
     solve-and-upgrade;

@@ -18,14 +18,6 @@ define class <type-environment> (<mutable-explicit-key-collection>)
   slot finished-initial-typing? :: <boolean> = #f;
   constant slot computation-id :: <integer> = next-computation-id();
   constant slot inners :: <stretchy-vector> = make(<stretchy-vector>);
-  //constant slot retype-queue :: <deque> = make(<deque>);
-end;
-
-//define constant ret-que = make(<table>);
-
-define function retype-queue (te :: <type-environment>) => (res :: <deque>)
-  //element(ret-que, te, default: #f) | (ret-que[te] := make(<deque>))
-  make(<deque>)
 end;
 
 define function inner-type-environments (te :: <type-environment>) => (res :: <stretchy-vector>)

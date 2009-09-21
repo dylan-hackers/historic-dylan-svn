@@ -67,7 +67,6 @@ define method re-optimize-into (c :: <computation>, lambda :: <&lambda>) => ()
   if (c.item-status ~== $queueable-item-dead)
     let q = lambda.optimization-queue;
     // format-out("--- RE-OPT %= INT %= ---\n", c, lambda);
-    c.type-environment & re-optimize-type-estimate(c);
     if (q)
       add-to-queue!(q , c);
       // print-queue-out(q);
@@ -137,6 +136,11 @@ end method;
 define method re-optimize-users (o :: <object>)
   re-optimize(o)
 end method;
+
+define method re-optimize-users (c :: <computation>)
+  c.item-type-status? := #t;
+  next-method();
+end;
 
 define method re-optimize-users (o :: <referenced-object>)
   for (c in o.users)

@@ -28,6 +28,7 @@ define constant $queueable-item-dead    = 2;
 
 define packed-slots item-properties (<queueable-item-mixin>, <object>)
   field slot item-status = $queueable-item-absent, field-size: 2;
+  boolean slot item-type-status? = #t;
 end packed-slots;
 
 define method mark-as-dead (x :: <queueable-item-mixin>) => ()

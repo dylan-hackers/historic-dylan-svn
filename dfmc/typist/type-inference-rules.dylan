@@ -646,17 +646,20 @@ define generic infer-computation-types (c :: <computation>) => ();
 define macro type-rule-definer
  { define type-rule ?computation:expression ?body:* end }
  => { define method infer-computation-types (computation :: ?computation) => ()
-        let type-env = computation.type-environment;
-        debug-types(#"beginning", type-env, list("inferring", computation));
-        debug-types(#"highlight", type-env, computation);
-        let ?=abstract = rcurry(abstract-and-lookup, type-env);
-        let ?=constraint = curry(add-constraint, type-env, computation);
-        let ?=temporary-node = computation.temporary & ?=abstract(computation.temporary);
-        let ?=computation = computation;
-        let ?=type-env = computation.type-environment;
-        let ?=estimate = rcurry(temporary-type, type-env);
-        let ?=lookup = rcurry(lookup-type-node, type-env);
-        ?body
+        if (computation.item-type-status?)
+          computation.item-type-status? := #f;
+          let type-env = computation.type-environment;
+          debug-types(#"beginning", type-env, list("inferring", computation));
+          debug-types(#"highlight", type-env, computation);
+          let ?=abstract = rcurry(abstract-and-lookup, type-env);
+          let ?=constraint = curry(add-constraint, type-env, computation);
+          let ?=temporary-node = computation.temporary & ?=abstract(computation.temporary);
+          let ?=computation = computation;
+          let ?=type-env = computation.type-environment;
+          let ?=estimate = rcurry(temporary-type, type-env);
+          let ?=lookup = rcurry(lookup-type-node, type-env);
+          ?body
+        end
       end; }
 end;
 
@@ -1027,32 +1030,27 @@ define method get-function-object (t :: <method-reference>) => (f :: <&function>
   t.reference-value;
 end;
   
-define method infer-computation-types (c :: <function-call>) => ()
-  //next-method(); -- otherwise, we end up with more type variables than needed in
-  //the type environment (c.temporary!, which is suspect to change)
-  let type-env = c.type-environment;
-  debug-types(#"beginning", type-env, list("inferring", c));
-  debug-types(#"highlight", type-env, c);
-  let fun = c.function.get-function-object;
-  infer-function-type(c, fun);
+define type-rule <function-call>
+  let fun = computation.function.get-function-object;
+  infer-function-type(computation, fun);
 end;
 
-define method infer-computation-types (c :: <primitive-call>) => ()
-  next-method();
-  let fn = c.primitive;
+define type-rule <primitive-call>
+  let fn = computation.primitive;
   let s = fn.primitive-signature;
   if (fn == dylan-value(#"primitive-object-allocate-filled"))
     // type returned is actually contained in second argument
-    let (c?, wrapper) = constant-value?(second(arguments(c)));
+    let (c?, wrapper) = constant-value?(second(arguments(computation)));
     when (c?)
       let iclass = ^mm-wrapper-implementation-class(wrapper);
       let class  = ^iclass-class(iclass);
       let req = s.^signature-required-arguments;
-      create-arrow-and-constraint(c, make(<&signature>, number-required: req.size, required: req,
-                                          number-values: 1, values: vector(class)));
+      create-arrow-and-constraint(computation,
+                                  make(<&signature>, number-required: req.size, required: req,
+                                       number-values: 1, values: vector(class)));
     end;
   else
-    create-arrow-and-constraint(c, s);
+    create-arrow-and-constraint(computation, s);
   end;
 end;
 

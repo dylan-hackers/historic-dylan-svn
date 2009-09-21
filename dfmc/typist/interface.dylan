@@ -31,6 +31,7 @@ end;
 define function retract-type! (c :: <computation>) => ()
   let context = c.type-environment;
   c.computation-type := #f;
+  c.item-type-status? := #t;
   let t = c.temporary;
   local method rec-rem (te :: <type-environment>)
           let n = element(te.real-environment, t, default: #F);
@@ -44,23 +45,7 @@ define function retract-type! (c :: <computation>) => ()
 end;
 
 define compiler-sideways method re-optimize-type-estimate (c :: <computation>) => ()
-  unless (member?(c, c.type-environment.retype-queue))
-    push(c.type-environment.retype-queue, c)
-  end;
-end;
-
-define function empty-retype-queue (c :: <computation>) => ()
-  let q = c.type-environment.retype-queue;
-  empty-retype-queue!(q);
-end;
-
-define function empty-retype-queue! (q :: <deque>) => ()
-  while (~ q.empty?)
-    let top = q.pop;
-    if (top.item-status ~== $queueable-item-dead)
-      re-type(top);
-    end;
-  end;
+  c.item-type-status? := #t;
 end;
 
 define method re-type (c :: <computation>) => ()
@@ -151,30 +136,19 @@ define compiler-sideways method re-type-computations
     (env :: <type-environment>, first :: false-or(<computation>), last :: false-or(<computation>)) => ()
   if (env.finished-initial-typing? & first)
     type-walk(env, first, last.next-computation, infer?: #f);
-    walk-computations(re-optimize-type-estimate, first, last.next-computation);
-    //dynamic-bind(*upgrade?* = #f)
-    //  type-walk(env, first, last.next-computation);
-    //end;
-
-    //let infer = make(<stretchy-vector>);
-    //walk-computations(curry(add!, infer), first, last.next-computation);
-    ////may change during inference! (the next-computation pointers)
-    //do(infer-computation-types, infer);
+    //walk-computations(re-type, first, last.next-computation);
   end;
 end;
 
-define sideways function initialize-type-environment!
+define function initialize-type-environment!
  (env :: <type-environment>, first :: false-or(<computation>), last :: false-or(<computation>)) => ()
   type-walk(env, first, #f, infer?: #f);
   walk-computations(method(x)
-                      unless (x.computation-type) //during inlining: spliced extract or adjust values
-                        dynamic-bind(*upgrade?* = #f)
-                          unless (instance?(x, <loop>)) //loop has no type
-                            x.infer-computation-types
-                          end
-                        end
+                      if (x.computation-type)
+                        x.item-type-status? := #f
+                      else
+                        x.re-type
                       end
-                    end,
-                    first, #f);
+                    end, first, #f);
 end;
 define constant guaranteed-disjoint? = ^known-disjoint?;

@@ -202,9 +202,6 @@ define compiler-open generic parameters-setter (value, function);
 define compiler-open generic body (function);
 define compiler-open generic body-setter (value, function);
 
-define compiler-open generic type-environment (function);
-define compiler-open generic type-environment-setter (value, function);
-
 define compiler-open generic environment (function);
 define compiler-open generic environment-setter (value, function);
 

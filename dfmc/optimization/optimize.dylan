@@ -275,7 +275,6 @@ define method run-optimizations (code) => (b :: <boolean>)
        item = something? then queue-head(queue), while: item) 
     // do-queue(method (i) format-out("  ELT %=\n", i) end, queue);
     send-debug(#"highlight-queue", pair(code, map(computation-id, queue | #())));
-    //empty-retype-queue(item);
     unless (item.item-status == $queueable-item-dead)
       re-type(item);
     end;
