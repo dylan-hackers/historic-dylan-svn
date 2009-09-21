@@ -378,7 +378,7 @@ define function solve-and-upgrade (l :: <&lambda>, type-env :: <type-environment
     //or cases where fewer values are exposed than emitted (warn here!)
     if (signature-compatible?(l.^function-signature, sig))
       if (more-specific?(l.^function-signature, sig))
-        l.^function-signature := sig;
+        //l.^function-signature := sig;
       end;
     end;
   end;

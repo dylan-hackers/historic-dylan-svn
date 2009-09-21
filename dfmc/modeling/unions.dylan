@@ -57,7 +57,17 @@ define generic ^merge-types (type1 :: <&type>, type2 :: <&type>)
   => (type :: <&type>);
 
 define method ^merge-types (t1 :: <&type>, t2 :: <&type>) => (type :: <&type>)
-  immutable-model(make(<&union>, type1: t1, type2: t2))
+//XXX: this is needed if signature upgrades are enabled, because
+//     union(<pair>, #()) is not available in the dylan library,
+//     but used in interface description
+//     (actually, this method here should register the union for
+//      inclusion into the dylan runtime library)
+//  if ((^instance?(t1, dylan-value(#"<singleton>")) & ^instance?(t1.^singleton-object, dylan-value(#"<empty-list>")) & t2 == dylan-value(#"<pair>")) |
+//      (^instance?(t2, dylan-value(#"<singleton>")) & ^instance?(t2.^singleton-object, dylan-value(#"<empty-list>")) & t1 == dylan-value(#"<pair>")))
+//    dylan-value(#"<list>")
+//  else
+    immutable-model(make(<&union>, type1: t1, type2: t2))
+//  end
 end method;
 
 //// one-of
