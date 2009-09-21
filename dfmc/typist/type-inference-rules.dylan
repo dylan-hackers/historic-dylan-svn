@@ -367,22 +367,21 @@ define function solve-and-upgrade (l :: <&lambda>, type-env :: <type-environment
   //might need to emit type check (top is super of everything!)
   if (~ instance?(result-type, <&top-type>)) //top-type is never more specific than some other type
     let res-type = lookup-type-node(l.body.bind-return.computation-value, type-env).find.node-value;
-    let (res, rest?) = if (instance?(res-type, <tuple-with-rest>))
-                         values(map(rcurry(model-type, top?:, #t), res-type.tuple-types), #t); //respect rest-type!
-                       else
-                         values(result-type, #f);
-                       end;
+    let (res, rest?) = values(if (instance?(res-type, <tuple>))
+                                map(rcurry(model-type, top?:, #t), res-type.tuple-types)
+                              else
+                                model-type(res-type, top?: #t)
+                              end, instance?(res-type, <tuple-with-rest>));
     let sig = convert-type-to-signature(l.^function-signature, l.parameters, res, rest?);
     //also check congruency to generic!
     //also check with written down stuff: especially "=> ()"
     //or cases where fewer values are exposed than emitted (warn here!)
     if (signature-compatible?(l.^function-signature, sig))
       if (more-specific?(l.^function-signature, sig))
-        //l.^function-signature := sig;
+        l.^function-signature := sig;
       end;
     end;
   end;
-  //type-env.finished-initial-typing? := #t;
 end;
 
 define function signature-compatible? (old-sig :: <&signature>, new-sig :: <&signature>)
@@ -646,7 +645,7 @@ define generic infer-computation-types (c :: <computation>) => ();
 define macro type-rule-definer
  { define type-rule ?computation:expression ?body:* end }
  => { define method infer-computation-types (computation :: ?computation) => ()
-        if (computation.item-type-status?)
+        //if (computation.item-type-status?)
           computation.item-type-status? := #f;
           let type-env = computation.type-environment;
           debug-types(#"beginning", type-env, list("inferring", computation));
@@ -659,7 +658,7 @@ define macro type-rule-definer
           let ?=estimate = rcurry(temporary-type, type-env);
           let ?=lookup = rcurry(lookup-type-node, type-env);
           ?body
-        end
+        //end
       end; }
 end;
 
