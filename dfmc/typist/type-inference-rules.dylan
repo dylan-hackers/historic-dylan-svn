@@ -350,7 +350,7 @@ define method type-infer (l :: <&lambda>, type-env :: <type-environment>, #key i
     end;
   end;
   type-walk(type-env, l.body, #f, infer?: infer?);
-  debug-types(#"highlight", type-env, 0);
+  //debug-types(#"highlight", type-env, 0);
 end;
 
 //solve TEs and may upgrade signature!

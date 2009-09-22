@@ -360,7 +360,18 @@ define function find-recent-assignments (phi :: <phi-node>, variable :: <lexical
         end;
   let last-merge = find(phi, rcurry(instance?, type-union(<loop>, <binary-merge>)));
   local method get-last-ass (start :: <computation>)
-          let last-ass = find(start, method(x)
+          let real-start = if (instance?(start, <loop>))
+                             block(ret)
+                               walk-computations(method(x)
+                                                   if (instance?(x, <loop-call>))
+                                                     ret(x);
+                                                   end
+                                                 end, start.loop-body, #f)
+                             end;
+                           else
+                             start
+                           end;
+          let last-ass = find(real-start, method(x)
                                        member?(x, variable.assignments) |
                                        (generator(variable) == x)
                                      end);
@@ -375,14 +386,7 @@ define function find-recent-assignments (phi :: <phi-node>, variable :: <lexical
         values(last-merge.merge-right-previous-computation,
                last-merge.merge-left-previous-computation);
       elseif (instance?(last-merge, <loop>))
-        let call = block(ret)
-                     walk-computations(method(x)
-                                         if (instance?(x, <loop-call>))
-                                           ret(x);
-                                         end
-                                       end, last-merge.loop-body, #f)
-                   end;
-        values(last-merge.previous-computation, call);
+        values(last-merge.previous-computation, last-merge);
       end;
   let last-left = left.get-last-ass;
   phi.merge-left-value := last-left;
