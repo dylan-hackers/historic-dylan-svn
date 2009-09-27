@@ -31,7 +31,7 @@ unless (e == #"copy")
                 "unknown"
               end;
     //if (loc = "new-dispatch.dylan")
-    if (member?(env, list("remove (<sequence>"), //"initialize (<subjunctive-"), //"replace-elements! (<vector>, <function>"), //"invert-accumulator", "ash"), //compute-slot-descriptors"), //"make-symbol (<sequence>"), //"as-field-size-for-tagged-integer"), //"compute-entry-count"),
+    if (member?(env, list("check-key-test-eq"), //remove (<sequence>"), //"initialize (<subjunctive-"), //"replace-elements! (<vector>, <function>"), //"invert-accumulator", "ash"), //compute-slot-descriptors"), //"make-symbol (<sequence>"), //"as-field-size-for-tagged-integer"), //"compute-entry-count"),
                 test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
       write-to-visualizer(vis, apply(list, key, env, arguments));
     end;

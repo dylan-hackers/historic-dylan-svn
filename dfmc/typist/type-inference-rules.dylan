@@ -59,7 +59,7 @@ define method lookup-type-node (tv :: <&polymorphic-type-variable>, env :: <type
   element(env, tv, default: #f) |
     begin
       let node = make(<node>, graph: env.type-graph, value: tv);
-      //add constraint between ^type-variable-kind and node!
+      //add constraint between ^type-variable-bound and node!
       env[tv] := node;
     end;
 end;
@@ -1122,9 +1122,27 @@ define method upgrade-types (l :: <&lambda>, type-env :: <type-environment>)
 end;
 
 define function constrain-type-variables
-    (c :: <function-call>, sig-args :: <collection>, real-args :: <collection>)
-  for (s in sig-args, r in real-args)
-    add-constraint(c.type-environment, c, s, r);
+    (c :: <function-call>, sig-args :: <collection>, real-args :: <collection>,
+     spec-args :: <collection>, tvs :: <collection>)
+  let tv-names = map(^type-variable-name, tvs);
+  for (s in sig-args, r in real-args, sa in spec-args)
+    let spec-n = sa.spec-variable-name.fragment-name;
+    if (member?(spec-n, tv-names))
+      let tv = choose-by(curry(\==, spec-n), tv-names, tvs);
+      let t =
+        lookup-type-node(
+          if (^instance?(r.node-to-type, dylan-value(#"<singleton>")))
+            r.node-to-type.^singleton-object
+          elseif (^instance?(r.node-to-type, dylan-value(#"<subclass>")))
+            r.node-to-type.^subclass-class
+          else
+            make(<&top-type>)
+          end,
+          c.type-environment);
+      add-constraint(c.type-environment, c, lookup-type-node(tv[0], c.type-environment), t);
+    else
+      add-constraint(c.type-environment, c, s, r);
+    end
   end;
 end;
 
@@ -1137,8 +1155,11 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
       //XXX: copy me if not single user!
       solve(tenv);
       //initial-type-constraints(sig);
-      constrain-type-variables(c, map(rcurry(lookup-type-node, tenv), sig.^signature-required-arguments),
-                               map(rcurry(abstract-and-lookup, tenv), c.arguments));
+      constrain-type-variables(c,
+                               map(rcurry(lookup-type-node, tenv), sig.^signature-required-arguments),
+                               map(rcurry(abstract-and-lookup, tenv), c.arguments),
+                               fun.signature-spec.spec-argument-required-variable-specs,
+                               sig.^signature-type-variables);
       let progress? = #t;
       while (progress?)
         let old-types = map(rcurry(temporary-type, tenv), sig.^signature-type-variables);
@@ -1176,15 +1197,17 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
       //upgrade signature (using type variable types)
       let arg = map(rcurry(temporary-type, tenv), sig.^signature-required-arguments);
       let val = map(rcurry(temporary-type, tenv), sig.^signature-required-values);
-      fun.^function-signature := make(<&signature>, required:  arg, number-required: arg.size, values: val, number-values: val.size);
-      let tv-types = map(rcurry(temporary-type, tenv), sig.^signature-type-variables);
-      for (tv in sig.^signature-type-variables, tv-type in tv-types)
+      let k/v = tail(tail(params-from-sig(sig)));
+      let rest-v = sig.^signature-rest-value;
+      sig := apply(make, <&signature>, required: arg, values: val, number-values: val.size, rest-value?: rest-v & #t, rest-value: rest-v, k/v);
+      let tv-types = map(rcurry(temporary-type, tenv), fun.^function-signature.^signature-type-variables);
+      for (tv in fun.^function-signature.^signature-type-variables, tv-type in tv-types)
         add-constraint(tenv, c, lookup-type-node(tv, tenv), lookup-type-node(tv-type, tenv));
       end;
       solve(tenv);
     end;
   end;
-  create-arrow-and-constraint(c, fun.^function-signature);
+  create-arrow-and-constraint(c, sig);
 end;
 
 define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>) => ()

@@ -410,42 +410,42 @@ define class <method-complex-signature+complex-values-spec>
     (<complex-values-spec>, <method-complex-signature+values-spec>)
 end class;
 
-define class <method-polymorphic-signature-spec> (<method-signature-spec>)
-  constant slot real-signature-spec :: <method-signature-spec>,
+define class <polymorphic-signature-spec> (<signature-spec>)
+  constant slot real-signature-spec :: <signature-spec>,
     required-init-keyword: signature:;
   constant slot type-variables :: <collection>,
     required-init-keyword: variables:;
 end;
 
-define method spec-argument-required-variable-specs (spec :: <method-polymorphic-signature-spec>)
+define method spec-argument-required-variable-specs (spec :: <polymorphic-signature-spec>)
   spec-argument-required-variable-specs(spec.real-signature-spec)
 end method;
 
-define method spec-argument-rest-variable-spec (spec :: <method-polymorphic-signature-spec>)
+define method spec-argument-rest-variable-spec (spec :: <polymorphic-signature-spec>)
   spec-argument-rest-variable-spec(spec.real-signature-spec)
 end method;
 
-//define method spec-argument-next-variable-spec (spec :: <method-polymorphic-signature-spec>)
+//define method spec-argument-next-variable-spec (spec :: <polymorphic-signature-spec>)
 //  spec-argument-next-variable-spec(spec.real-signature-spec)
 //end method;
 
-define method spec-argument-key-variable-specs (spec :: <method-polymorphic-signature-spec>)
+define method spec-argument-key-variable-specs (spec :: <polymorphic-signature-spec>)
   spec-argument-key-variable-specs(spec.real-signature-spec)
 end method;
 
-define method spec-argument-key? (spec :: <method-polymorphic-signature-spec>)
+define method spec-argument-key? (spec :: <polymorphic-signature-spec>)
   spec-argument-key?(spec.real-signature-spec)
 end method;
 
-define method spec-type-variables (spec :: <method-polymorphic-signature-spec>) => (res :: <collection>)
+define method spec-type-variables (spec :: <polymorphic-signature-spec>) => (res :: <collection>)
   spec.type-variables;
 end;
 
-define method spec-value-rest-variable-spec (spec :: <method-polymorphic-signature-spec>)
+define method spec-value-rest-variable-spec (spec :: <polymorphic-signature-spec>)
   spec-value-rest-variable-spec(spec.real-signature-spec);
 end method;
 
-define method spec-value-required-variable-specs (spec :: <method-polymorphic-signature-spec>)
+define method spec-value-required-variable-specs (spec :: <polymorphic-signature-spec>)
   spec-value-required-variable-specs(spec.real-signature-spec);
 end method;
 
@@ -632,7 +632,7 @@ define method parse-signature-as
           sig-spec
 	end method;
   macro-case (fragment)
-    { (?type-vars:*) (?rest:*) ?more:* }
+    { (forall: ?type-vars:*) (?rest:*) ?more:* }
       => begin
            //This is considered cheating (not using the variables, but the tail of fragment
            //Problem was, I couldn't find API to construct parens-fragment ( rest ) , more
@@ -643,21 +643,12 @@ define method parse-signature-as
                                         else
                                           fragment
                                         end);
-           block()
-             let (sig, mor) = parse-signature-as(sig-class, real-sig-fragment);
-             values(make(<method-polymorphic-signature-spec>,
-                         signature: sig,
-                         variables: parse-type-variable-list(type-vars),
-                         argument-next-variable-spec: sig.spec-argument-next-variable-spec),
-                    mor);
-           exception (e :: <condition>)
-             //ok, another "tradeoff":
-             //define constant same-sign? = method(x, y)
-             // (if (positive?(x) positive? else negative? end)(y) end;
-             //is valid dylan code, but since it contains two bracketed
-             //fragments, was parsed here
-             values(parse-using-fragments(sig-class, type-vars, #f), real-sig-fragment);
-           end;
+           let (sig, mor) = parse-signature-as(sig-class, real-sig-fragment);
+           values(make(<polymorphic-signature-spec>,
+                       signature: sig,
+                       variables: parse-type-variable-list(type-vars),
+                       argument-next-variable-spec: sig.spec-argument-next-variable-spec),
+                  mor);
          end;
     { (?args:*) => (?vals:*); ?more:* }
       => values(parse-using-fragments(sig-class, args, vals), more);

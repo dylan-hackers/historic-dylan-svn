@@ -3941,7 +3941,6 @@ define function parse-parameters-into
                    name: name,
                    environment: lambda-env,
                    specializer: tv);
-    tv.^type-variable-temporary := tvt;
     push-variable!(name, tvt);
   end;
   for (var-spec in required-specs, var-type in sig.^signature-required)

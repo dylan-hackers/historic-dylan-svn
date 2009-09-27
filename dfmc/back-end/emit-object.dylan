@@ -114,11 +114,13 @@ define constant $anonymous-name-cache = make(<object-table>);
 
 define method emit-anonymous-name
     (back-end :: <back-end>, stream, o) => (name :: <string>)
-  let number = o.emitted-name;
+  let number = o.emitted-name | $anonymous-name-cache.size;
   debug-assert(number, "Missing emitted-name for %s", o);
-  element($anonymous-name-cache, number, default: #f)
-    | (element($anonymous-name-cache, number)
-         := mangle-constant(mangle-integer(number)));
+  let res = element($anonymous-name-cache, number, default: #f)
+             | (element($anonymous-name-cache, number)
+               := mangle-constant(mangle-integer(number)));
+  o.emitted-name := res;
+  res;
 end method;
 
 define generic emit-method-name 

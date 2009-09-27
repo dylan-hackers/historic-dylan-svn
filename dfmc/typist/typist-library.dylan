@@ -24,7 +24,7 @@ define module dfmc-typist
   // Module for the typist.
   use functional-dylan;
   use dfmc-core;
-  use dfmc-reader, import: { <compiler-range-source-location>, source-location-record };
+  use dfmc-reader, import: { <compiler-range-source-location>, source-location-record, fragment-name };
   use dfmc-imports;
 
   export type-estimate,

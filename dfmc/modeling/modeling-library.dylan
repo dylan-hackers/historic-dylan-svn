@@ -189,8 +189,7 @@ define module-with-models dfmc-modeling
 
     <&polymorphic-type-variable>,
       &getter type-variable-name,
-      &getter type-variable-kind,
-      &slot type-variable-temporary,
+      &getter type-variable-bound,
       
     <&domain>,
       ^domain-library,

@@ -68,7 +68,7 @@ define function compute-type-variables
          method(x)
            ^make(<&polymorphic-type-variable>,
                  name: fragment-name(spec-variable-name(x)),
-                 kind: ^top-level-eval-type(spec-type-expression(x)))
+                 bound: ^top-level-eval-type(spec-type-expression(x)))
          end, type-vars)
 end;
 

@@ -21,7 +21,7 @@ define method check-congruence
     (gf :: <&generic-function>, m :: <&method>) => (ok? :: <boolean>)
   let (congruent?, problem)
     = ^signatures-congruent?
-         (^function-signature(gf), ^function-signature(m));
+         (^function-signature(gf), ^function-signature(m), gf);
   if (~congruent?)
     note(<method-not-congruent>,
          source-location: model-source-location(m),
@@ -95,7 +95,142 @@ define constant $rest-values-type
     "type of the generic";
 
 define method ^signatures-congruent?
-    (gsig :: <&signature>, msig :: <&signature>)
+    (gsig :: <&polymorphic-signature>, msig :: <&signature>, gf :: <&generic-function>)
+ => (congruent? :: <boolean>, reason)
+  //instantiate and constrain gsig TVs
+  let tenv = make(<table>);
+  for (t in gsig.^signature-type-variables)
+    tenv[t.^type-variable-name] := t;
+    tenv[t] := t.^type-variable-bound;
+  end;
+  //make: (forall: type) (type :: <type>, ... ) => (inst :: type)
+  //make                 (type == <foo>, ... ) => (inst :: <foo>)
+    //but: forall: type <: <type> is wrong, since it constrains type to be
+    // a subtype of <type>, whereas here an instance of <type> is required!
+  // (forall: type <: <type>)(x == type , ... ) => (inst :: type)
+  //                             singleton(<: <type>)
+  //                             subclass?
+  //-> gf-sig doesn't contain arg-names, only arg-types
+  // can also only work for subclass and singleton!
+
+  let sig = gsig.^real-signature;
+  let key/value = extract-k-v(sig);
+  let ps = sig.^signature-required-arguments;
+  let vs = sig.^signature-required-values;
+
+  let args = make(<simple-object-vector>, size: ps.size);
+  let vals = make(<simple-object-vector>, size: vs.size);
+  let margs = msig.^signature-required-arguments;
+  let mvals = msig.^signature-required-values;
+
+  let sig-spec = gf.signature-spec;
+  let sig-spec-args = sig-spec.spec-argument-required-variable-specs;
+  let sig-spec-vals = sig-spec.spec-value-required-variable-specs;
+  //also, there might be TVs in key-types, rest-value?!
+  for (a in ps, i from 0, m in margs, spec-a in sig-spec-args)
+    if (element(tenv, a, default: #f))
+      if (^subtype?(m, tenv[a]))
+        tenv[a] := m
+      end;
+    end;
+    let spec-n = spec-a.spec-variable-name.fragment-name;
+    if (element(tenv, spec-n, default: #F))
+      let old = tenv[tenv[spec-n]];
+      let new = if (^instance?(m, dylan-value(#"<singleton>"))) m.^singleton-object
+                elseif (^instance?(m, dylan-value(#"<subclass>"))) m.^subclass-class
+                else dylan-value(#"<object>") end;
+      if (^subtype?(new, old))
+        tenv[tenv[spec-n]] := new;
+      end;
+    end;
+  end;
+  for (a in vs, i from 0, m in mvals, spec-v in sig-spec-vals)
+    if (element(tenv, a, default: #f))
+      if (^subtype?(m, tenv[a]))
+        tenv[a] := m
+      end;
+    end;
+    let spec-n = spec-v.spec-variable-name.fragment-name;
+    if (element(tenv, spec-n, default: #F))
+      let old = tenv[tenv[spec-n]];
+      let new = if (^instance?(m, dylan-value(#"<singleton>"))) m.^singleton-object
+                elseif (^instance?(m, dylan-value(#"<subclass>"))) m.^subclass-class
+                else dylan-value(#"<object>") end;
+      if (^subtype?(new, old))
+        tenv[tenv[spec-n]] := new;
+      end;
+    end;
+  end;
+  for (a in ps, i from 0)
+    args[i] := element(tenv, a, default: a);
+  end;
+  for (a in vs, i from 0)
+    vals[i] := element(tenv, a, default: a);
+  end;
+  let inst-gsig = apply(make, <&signature>, #"required", args, #"values", vals, key/value);
+  //check congruency of inst-gsig and msig
+  ^signatures-congruent?(inst-gsig, msig, gf)
+end;
+
+define function convert-tv-to-upper-bounds
+  (msig :: <&polymorphic-signature>) => (sig :: <&signature>)
+  let tenv = make(<table>);
+  for (t in msig.^signature-type-variables)
+    tenv[t] := t.^type-variable-bound;
+  end;
+  //replace TV users with instantiated type
+  let sig = msig.^real-signature;
+  let key/value = extract-k-v(sig);
+  let ps = sig.^signature-required-arguments;
+  let vs = sig.^signature-required-values;
+  let args = make(<simple-object-vector>, size: ps.size);
+  let vals = make(<simple-object-vector>, size: vs.size);
+  //also, there might be TVs in key-types, rest-value?!
+  for (a in ps, i from 0)
+    args[i] := element(tenv, a, default: a); //doesn't work for union, singleton, limited (collection/function/subclass)!
+  end;
+  for (a in vs, i from 0)
+    vals[i] := element(tenv, a, default: a);
+  end;
+  apply(make, <&signature>, #"required", args, #"values", vals, key/value)
+end;
+
+define function extract-k-v (sig :: <&signature>) => (res :: <collection>)
+  let rest? = sig.^signature-rest?;
+  let ps = sig.^signature-required-arguments;
+  let vs = sig.^signature-required-values;
+  let key? = sig.^signature-key?;
+  let keys = key? & sig.^signature-keys;
+  let key-types = key? & sig.^signature-key-types;
+  let sealed? = sig.^signature-sealed-domain?;
+  let next? = sig.^signature-next?;
+  let all-keys? = sig.^signature-all-keys?;
+  let rest-value? = sig.^signature-rest-value & #t;
+  let rest-value = sig.^signature-rest-value;
+  list(#"number-values", vs.size, #"number-required", ps.size, #"rest?", rest?,
+       #"key?", key?, #"keys", keys, #"key-types", key-types,
+       #"sealed-domain?", sealed?, #"next?", next?, #"all-keys?", all-keys?,
+       #"rest-value?", rest-value?, #"rest-value", rest-value);
+end;
+
+define method ^signatures-congruent?
+    (gsig :: <&polymorphic-signature>, msig :: <&polymorphic-signature>, gf :: <&generic-function>)
+ => (congruent? :: <boolean>, reason)
+  let new-msig = convert-tv-to-upper-bounds(msig);
+  //then check for congruency of gsig, least-specific-msig
+  ^signatures-congruent?(gsig, new-msig, gf)
+end;
+
+define method ^signatures-congruent?
+    (gsig :: <&signature>, msig :: <&polymorphic-signature>, gf :: <&generic-function>)
+ => (congruent? :: <boolean>, reason)
+  let new-msig = convert-tv-to-upper-bounds(msig);
+  //check for congruency of gsig and least-specific-msig
+  ^signatures-congruent?(gsig, new-msig, gf)
+end;
+
+define method ^signatures-congruent?
+    (gsig :: <&signature>, msig :: <&signature>, gf :: <&generic-function>)
  => (congruent? :: <boolean>, reason)
 
   block (return)

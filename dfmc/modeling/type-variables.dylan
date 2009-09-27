@@ -4,10 +4,9 @@ module: dfmc-modeling
 define primary &class <polymorphic-type-variable> (<type>)
   constant &slot type-variable-name :: <symbol>,
     required-init-keyword: name:;
-  constant &slot type-variable-kind :: <type>, //better: (upper-)bound
+  constant &slot type-variable-bound :: <type>,
     //init-value: <type>,
-    required-init-keyword: kind:;
-  runtime-constant &slot type-variable-temporary;
+    required-init-keyword: bound:;
 end;
 
 /*
@@ -21,7 +20,7 @@ end;
 
 define method ^subtype? (a :: <&polymorphic-type-variable>, b :: <&polymorphic-type-variable>)
  => (sub? :: <boolean>)
-  ^subtype?(a.^type-variable-kind, b.^type-variable-kind)
+  ^subtype?(a.^type-variable-bound, b.^type-variable-bound)
 end;
 
 define method ^subtype? (a :: <&polymorphic-type-variable>, b :: <&singleton>)
@@ -31,30 +30,30 @@ end;
 
 define method ^subtype? (a :: <&polymorphic-type-variable>, b :: <&type>)
  => (sub? :: <boolean>)
-  ^subtype?(a.^type-variable-kind, b)
+  ^subtype?(a.^type-variable-bound, b)
 end;
 
 define method ^subtype? (a :: <&type>, b :: <&polymorphic-type-variable>)
  => (sub? :: <boolean>)
-  ^subtype?(a, b.^type-variable-kind)
+  ^subtype?(a, b.^type-variable-bound)
 end;
 
 define method ^subtype? (a :: <&top-type>, b :: <&polymorphic-type-variable>)
  => (sub? :: <boolean>)
-  ^subtype?(a, b.^type-variable-kind)
+  ^subtype?(a, b.^type-variable-bound)
 end;
 
 define method ^subtype? (a :: <&singleton>, b :: <&polymorphic-type-variable>)
  => (sub? :: <boolean>)
-  ^instance?(a.^singleton-object, b.^type-variable-kind)
+  ^instance?(a.^singleton-object, b.^type-variable-bound)
 end;
 
 define method ^known-disjoint? (a :: <&polymorphic-type-variable>, b :: <&polymorphic-type-variable>)
  => (disj? :: <boolean>)
-  ^known-disjoint?(a.^type-variable-kind, b.^type-variable-kind)
+  ^known-disjoint?(a.^type-variable-bound, b.^type-variable-bound)
 end;
 
 define method ^known-disjoint? (a :: <&polymorphic-type-variable>, b :: <&type>)
  => (disj? :: <boolean>)
-  ^known-disjoint?(a.^type-variable-kind, b)
+  ^known-disjoint?(a.^type-variable-bound, b)
 end;

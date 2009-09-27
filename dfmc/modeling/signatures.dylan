@@ -397,6 +397,10 @@ define method ^signature-keys (sig :: <&polymorphic-signature>)
   ^signature-keys(sig.^real-signature);
 end;
 
+define method ^signature-key-types (sig :: <&polymorphic-signature>)
+  ^signature-key-types(sig.^real-signature);
+end;
+
 define method ^signature-keys (sig :: <&signature>)
   #[]
 end method;
