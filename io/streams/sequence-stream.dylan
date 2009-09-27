@@ -54,7 +54,7 @@ end macro with-output-to-string;
 
 define method make
     (class == <sequence-stream>, #rest initargs, #key contents, element-type)
- => (stream /* ---*** :: subclass(<sequence-stream>) */)
+ => (stream :: <sequence-stream>)
   let type = type-for-sequence-stream(contents);
   if (type == class)
     next-method()
