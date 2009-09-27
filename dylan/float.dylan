@@ -10,11 +10,11 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // BOOTED: define ... class <single-float> ... end;
 // BOOTED: define ... class <double-float> ... end;
 
-define sealed method make (class == <single-float>, #rest all-keys, #key) => (res)
+define sealed method make (class == <single-float>, #rest all-keys, #key) => (res :: <single-float>)
   uninstantiable-error(class);
 end method;
 
-define sealed method make (class == <double-float>, #rest all-keys, #key) => (res)
+define sealed method make (class == <double-float>, #rest all-keys, #key) => (res :: <double-float>)
   uninstantiable-error(class);
 end method;
 

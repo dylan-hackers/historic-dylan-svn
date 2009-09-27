@@ -766,7 +766,7 @@ define method uninstantiable-error (class)
   error("Cannot instantiate %=, it is not an instantiable type.", class)
 end method;
 
-define sealed method make (class == <boolean>, #rest all-keys, #key) => (res)
+define sealed method make (class == <boolean>, #rest all-keys, #key) => (res :: <boolean>)
   uninstantiable-error(class);
 end method;
 

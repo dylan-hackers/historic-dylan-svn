@@ -40,7 +40,7 @@ define constant $empty-range :: <empty-range>
   = make(<empty-range>, from: 0, by: 0, password: $empty-range-password);
 
 define method make
-    (class == <empty-range>, #key password, #all-keys) => (result :: <range>)
+    (class == <empty-range>, #key password, #all-keys) => (result :: <empty-range>)
   if (password == $empty-range-password)
     next-method()
   else

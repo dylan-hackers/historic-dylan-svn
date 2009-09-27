@@ -17,7 +17,7 @@ define open generic as-uppercase (object :: <object>) => (result :: <object>);
 define open generic as-lowercase (object :: <object>) => (result :: <object>);
 
 define sealed inline method as (class == <character>, integer :: <abstract-integer>)
- => (result)
+ => (result :: <character>)
   as(<byte-character>, integer)
 end method as;
 

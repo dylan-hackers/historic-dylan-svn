@@ -20,7 +20,7 @@ define method make
      #key required, key?, all-keys?, values: vals = #[], rest-value = <object>,
           number-required, number-values,
      #all-keys)
- => (res)
+ => (res :: <signature>)
   
   let (number-required :: <integer>, required :: <simple-object-vector>)
     = select (required by instance?)

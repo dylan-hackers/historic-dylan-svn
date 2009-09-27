@@ -1084,7 +1084,7 @@ define sealed domain initialize (<object-table>);
 
 
 define sealed inline method make 
-    (c == <table>, #rest initargs, #key, #all-keys) => (object)
+    (c == <table>, #rest initargs, #key, #all-keys) => (object :: <table>)
   // ignore(c);
   apply(make, <object-table>, initargs);
 end method make;

@@ -9,7 +9,7 @@ define open abstract class <set> (<mutable-explicit-key-collection>)
 end class <set>;
 
 define sealed inline method make (class == <set>, #rest all-keys, #key) 
-    => (object)
+    => (object :: <set>)
   apply(make, <object-set>, all-keys)
 end method make;
 

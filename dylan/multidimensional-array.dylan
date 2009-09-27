@@ -8,7 +8,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define sealed inline method make
     (class == <multidimensional-array>, #rest all-keys, #key)
-        => (array :: <array>)
+        => (array :: <multidimensional-array>)
   apply(make, <simple-object-array>, all-keys)
 end method make;
 

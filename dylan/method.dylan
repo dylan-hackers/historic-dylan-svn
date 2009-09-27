@@ -12,7 +12,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // BOOTED: define ... class <keyword-method> ... end;
 // BOOTED: define ... class <keyword-closure-method> ... end;
 
-define sealed method make (class == <method>, #rest all-keys, #key) => (res)
+define sealed method make (class == <method>, #rest all-keys, #key) => (res :: <method>)
   error("Cannot instantiate %=, it is not an instantiable type.", class)
 end method;
 

@@ -67,7 +67,7 @@ define generic-binary-logical-function logand -1;
 
 /// BOOTED: define ... class <integer> ... end;
 
-define sealed method make (class == <integer>, #rest all-keys, #key) => (res)
+define sealed method make (class == <integer>, #rest all-keys, #key) => (res :: <integer>)
   uninstantiable-error(class);
 end method;
 
