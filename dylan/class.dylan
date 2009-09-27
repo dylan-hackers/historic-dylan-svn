@@ -46,10 +46,10 @@ ignore(slots-have-fixed-offsets?-computed?);
 // BOOTED: define ... class <function-class> ... end;
 // BOOTED: define ... class <value-class> ... end;
 
-define open generic as (type :: <type>, object) => object;
+define open generic as (forall: type)(type :: <type>, object) => (object :: type);
 
-define open generic make 
-    (type :: <type>, #rest key-value-pairs, #key, #all-keys) => object;
+define open generic make (forall: type)
+    (type :: <type>, #rest key-value-pairs, #key, #all-keys) => (object :: type);
 
 define open generic initialize 
     (instance, #key, #all-keys);
