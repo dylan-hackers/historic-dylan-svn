@@ -634,7 +634,7 @@ define method parse-signature-as
   macro-case (fragment)
     { (forall: ?type-vars:*) (?rest:*) ?more:* }
       => begin
-           //This is considered cheating (not using the variables, but the tail of fragment
+           //This is considered cheating (not using the variables, but the tail of fragment)
            //Problem was, I couldn't find API to construct parens-fragment ( rest ) , more
            //And I need to destructure it to get the pattern matching right.
            //hannes, 19 February 2009
@@ -691,7 +691,7 @@ define function parse-type-variable-list (fragment :: <fragment>) => (result :: 
         => collect-first-into
              (required, make(<typed-required-variable-spec>,
                              variable-name:   name,
-                             type-expression: as-expression( #{ <top> })));
+                             type-expression: dylan-object-expression()));
       { ?:name :: ?type:expression, ?parameters }
         => collect-first-into
              (required, make(<typed-required-variable-spec>,
