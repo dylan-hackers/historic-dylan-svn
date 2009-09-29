@@ -459,6 +459,56 @@ define method ^subtype? (a :: <&limited-vector-type>, b :: <&top-type>)
   #t
 end;
 
+define method ^subtype? (s :: <&subclass>, t :: <&top-type>)
+ => (well? == #t)
+  #t
+end;
+
+define method ^subtype? (s :: <&singleton>, b :: <&bottom-type>)
+ => (well? == #f)
+  #f
+end;
+
+define method ^subtype? (b :: <&bottom-type>, s :: <&singleton>)
+ => (well? == #t)
+  #t
+end;
+
+define method ^subtype? (u :: <&union>, b :: <&bottom-type>)
+ => (well? == #f)
+  #f
+end;
+
+define method ^subtype? (b :: <&bottom-type>, u :: <&union>)
+ => (well? == #t)
+  #t
+end;
+
+define method ^subtype? (t :: <&top-type>, s :: <&subclass>)
+ => (well? == #f)
+  #f
+end;
+
+define method ^subtype? (lct :: <&limited-collection-type>, t :: <&top-type>)
+ => (well? == #t)
+  #t
+end;
+
+define method ^known-disjoint? (t :: <&top-type>, u :: <&union>)
+ => (dis? == #f)
+  #f
+end;
+
+define method ^known-disjoint? (t :: <&top-type>, s :: <&singleton>)
+ => (dis? == #f)
+  #f
+end;
+
+define method ^known-disjoint? (t :: <&top-type>, s :: <&subclass>)
+ => (dis? == #f)
+  #f
+end;
+
 /*
 define primary &class <tuple-type> (<type>, <simple-vector>)
   repeated &slot vector-element,

@@ -238,7 +238,7 @@ end;
 
 define method convert-to-typist-type (lc :: <&limited-collection-type>, env :: <type-environment>)
  => (res :: <typist-type>)
-  let class = lookup-type-node(lc.^limited-collection-class, env);
+  let class = lookup-type-node(if (lc.^limited-collection-concrete-class) lc.^limited-collection-concrete-class else lc.^limited-collection-class end, env);
   let etype = lookup-type-node(lc.^limited-collection-element-type, env);
   make(<limited-collection>, class: class, element-type: etype);
 end;
@@ -549,6 +549,18 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
               end;
             end;
       let con-env = get-te(c.consequent);
+      let test-type = type-estimate(c, c.test);
+      if (instance?(test-type, <&union>))
+        let tt = if (instance?(test-type.^union-type1, <&singleton>) & test-type.^union-type1.^singleton-object == #f)
+                   test-type.^union-type2
+                 elseif (instance?(test-type.^union-type2, <&singleton>) & test-type.^union-type2.^singleton-object == #f)
+                   test-type.^union-type1
+                 end;
+        if (tt)
+          let t = abstract-and-lookup(c.test, con-env);
+          add-constraint(con-env, c, t, lookup-type-node(tt, con-env));
+        end;
+      end;
       type-walk(con-env, c.consequent, c.next-computation, infer?: infer?);
       con-env.finished-initial-typing? := #t;
       solve(con-env);
@@ -840,6 +852,8 @@ define method infer-computation-types (c :: <loop>) => ()
             end;
           end;
           #t
+        exception (e :: <condition>)
+          #f
         end;
 
     //if safe, assign types to phi / loop-merge temporaries

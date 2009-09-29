@@ -30,11 +30,16 @@ unless (e == #"copy")
               else
                 "unknown"
               end;
-    //if (loc = "new-dispatch.dylan")
-    if (member?(env, list("check-key-test-eq"), //remove (<sequence>"), //"initialize (<subjunctive-"), //"replace-elements! (<vector>, <function>"), //"invert-accumulator", "ash"), //compute-slot-descriptors"), //"make-symbol (<sequence>"), //"as-field-size-for-tagged-integer"), //"compute-entry-count"),
+    //if (loc = "boot.dylan")
+    if (member?(env, list(//"member? (<object>, <simple-object-vector>",
+                          //"convert-accumulator-as (<mutable-sequence-type>, <keyed-accumulator", "disjoint-types-1? (<class>, <class>", "defaulted-initialization-arguments (<class>",
+                          //"element (<multiple-sequence>",
+                          "element (<stretchy-byte-character-vector>"),
+                //"choose (<function>, <sequence>", "element (<stretchy-object-vector>", "add! (<stretchy-object-vector>", "merge! (<simple-object-vector", "find-key-for-element (<infinite-"), //remove (<sequence>"), //"initialize (<subjunctive-"), //"replace-elements! (<vector>, <function>"), //"invert-accumulator", "ash"), //compute-slot-descriptors"), //"make-symbol (<sequence>"), //"as-field-size-for-tagged-integer"), //"compute-entry-count"),
                 test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
       write-to-visualizer(vis, apply(list, key, env, arguments));
     end;
+    //end;
   else
     //uhm... shouldn't be here
   end;

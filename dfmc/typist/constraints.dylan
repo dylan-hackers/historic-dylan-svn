@@ -83,7 +83,7 @@ define sideways sealed method solve (type-env :: <type-environment>)
                add!(changed-vars, x.node-value);
                x.node-value.type-variable-contents := rep-type;
                let t = find-key(type-env, curry(\==, x));
-               if (t & t.generator & (type-env.type-lambda ~== #"copy"))
+               if (t & t.generator & (type-env.type-lambda ~== #"copy") & t.generator.type-environment == type-env)
                  let type = rep-type.model-type;
                  if (t.generator.computation-type)
                    let old-type = t.generator.computation-type;

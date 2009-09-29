@@ -134,8 +134,9 @@ define thread variable *upgrade?* :: <boolean> = #t;
 
 define compiler-sideways method re-type-computations
     (env :: <type-environment>, first :: false-or(<computation>), last :: false-or(<computation>)) => ()
-  if (env.finished-initial-typing? & first)
+  if (first) //env.finished-initial-typing? & first)
     type-walk(env, first, last.next-computation, infer?: #f);
+    walk-computations(re-type, first, last.next-computation);
     //walk-computations(re-type, first, last.next-computation);
   end;
 end;
@@ -144,11 +145,11 @@ define function initialize-type-environment!
  (env :: <type-environment>, first :: false-or(<computation>), last :: false-or(<computation>)) => ()
   type-walk(env, first, #f, infer?: #f);
   walk-computations(method(x)
-                      if (x.computation-type)
-                        x.item-type-status? := #f
-                      else
+//                      if (x.computation-type)
+//                        x.item-type-status? := #f
+//                      else
                         x.re-type
-                      end
+//                      end
                     end, first, #f);
 end;
 define constant guaranteed-disjoint? = ^known-disjoint?;
