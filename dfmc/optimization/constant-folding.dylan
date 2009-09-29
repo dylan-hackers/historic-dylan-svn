@@ -797,23 +797,34 @@ define method evaluate-type-checks?
     #t
   // If fixed types check statically, mark as checked.
   elseif (every?(rcurry(instance?, <object-reference>), c.types))
-    let wanted-types = map(reference-value, c.types);
+    let wanted-types = map(method(x)
+                             let the-type = x.reference-value;
+                             if (the-type == dylan-value(#"<object>") | the-type == dylan-value(#"<type>"))
+                               make(<&top-type>);
+                             else
+                               the-type
+                             end
+                           end, c.types);
     let got-types = type-estimate(c, computation-value(c));
-    unless (instance?(got-types, <&top-type>))
-      wanted-types.size == got-types.size &
-      every?(^subtype?, got-types, wanted-types) |
-        begin
-          if (wanted-types.size ~= got-types.size)
-            //format-out("wanted %= got %=\n", wanted-types.size, got-types.size);
-          else
-            for (g in got-types, w in wanted-types, i from 0)
-              if (^known-disjoint?(g, w))
-                //format-out("type %d is known to be disjoint (W %=, G %=)\n", i, w, g);
-              end;
-            end;
-          end
-        end
+    unless (instance?(got-types, <collection>))
+      got-types := vector(got-types);
     end;
+    //unless (instance?(got-types, <&top-type>))
+      //wanted-types.size == got-types.size &
+      every?(^subtype?, got-types, wanted-types) //|
+        //begin
+        //  if (wanted-types.size ~= got-types.size)
+        //    //format-out("wanted %= got %=\n", wanted-types.size, got-types.size);
+        //  else
+        //    for (g in got-types, w in wanted-types, i from 0)
+        //      if (^known-disjoint?(g, w))
+        //        //format-out("type %d is known to be disjoint (W %=, G %=)\n", i, w, g);
+        //      end;
+        //    end;
+        //    ok?
+        //  end
+        //end
+    //end;
   end;
 end method evaluate-type-checks?;
 
