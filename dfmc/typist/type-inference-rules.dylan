@@ -556,10 +556,10 @@ define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(
                  elseif (instance?(test-type.^union-type2, <&singleton>) & test-type.^union-type2.^singleton-object == #f)
                    test-type.^union-type1
                  end;
-        if (tt)
-          let t = abstract-and-lookup(c.test, con-env);
-          add-constraint(con-env, c, t, lookup-type-node(tt, con-env));
-        end;
+        //if (tt)
+        //  let t = abstract-and-lookup(c.test, con-env);
+        //  add-constraint(con-env, c, t, lookup-type-node(tt, con-env));
+        //end;
       end;
       type-walk(con-env, c.consequent, c.next-computation, infer?: infer?);
       con-env.finished-initial-typing? := #t;
