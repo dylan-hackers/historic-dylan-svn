@@ -358,7 +358,7 @@ end method remove!;
 define method choose
     (test :: <function>, sequence :: <sequence>) 
         => (result :: <sequence>);
-  for (result = #() then if (test(item)) pair(item,result) else result end,
+  for (result :: <list> = #() then if (test(item)) pair(item,result) else result end,
        item in sequence)
   finally 
     as(sequence.type-for-copy, reverse!(result))
@@ -374,7 +374,7 @@ define method choose-by
     (test :: <function>, 
      test-sequence :: <sequence>, value-sequence :: <sequence>)
         => (result-sequence :: <sequence>);
-  for (result = #() 
+  for (result :: <list> = #() 
          then if (test(test-item)) pair(value-item,result) else result end,
        test-item in test-sequence, 
        value-item in value-sequence)

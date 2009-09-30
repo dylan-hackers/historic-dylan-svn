@@ -317,6 +317,7 @@ define function add-method-internal (g :: <generic-function>, m :: <method>, lib
   => (new-value, condition);
   let reason1 = check-sealing? & method-not-frobbable?(g, m, lib, "add-method");
   if (instance?(reason1, <sealed-generic-function-error>))
+    let reason1 :: <sealed-generic-function-error> = reason1;
     sealed-generic-function-error-operation(reason1) := add-method;
     sealed-generic-function-error-arguments(reason1) := vector(g, m);
   end;
@@ -615,6 +616,7 @@ define function remove-method-internal (g :: <generic-function>, frob, lib, chec
   => (removed? :: false-or(<method>), condition :: false-or(<condition>));
   let reason1 = check-sealing? & method-not-frobbable?(g, frob, lib, "remove-method");
   if (instance?(reason1, <sealed-generic-function-error>))
+    let reason1 :: <sealed-generic-function-error> = reason1;
     sealed-generic-function-error-operation(reason1) := remove-method;
     sealed-generic-function-error-arguments(reason1) := vector(g, frob);
   end;
