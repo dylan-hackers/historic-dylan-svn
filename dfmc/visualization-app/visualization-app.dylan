@@ -187,7 +187,7 @@ begin
   add!($tests, pair(#"dyn-bind (<object>, <object>)", db));
 
   let mm =
-    "define method mymap (A, B)\n"
+    "define method mymap (forall: A, B)\n"
     " (fun :: A => B, as :: limited(<collection>, of: A))\n"
     " => (bs :: limited(<collection>, of: B))\n"
     "  map(fun, as);\n"
@@ -344,7 +344,7 @@ begin
 
   let poly0 =
     "define method poly0 ()\n"
-    "  local method mymap (A, B)\n"
+    "  local method mymap (forall: A, B)\n"
     "   (fun :: A => B, l :: limited(<vector>, of: A))\n"
     "   => (res :: limited(<vector>, of: B))\n"
     "    if (l.empty?)\n"
@@ -360,7 +360,7 @@ begin
 
   let id0 =
     "define method id0 ()\n"
-    "  local method id (A) (x :: A) => (y :: A)\n"
+    "  local method id (forall: A) (x :: A) => (y :: A)\n"
     "    x;\n"
     "  end;\n"
     "  id(42)\n"
@@ -369,7 +369,7 @@ begin
 
   let id1 =
     "define method id1 ()\n"
-    "  local method id (A) (x :: A) => (y :: A)\n"
+    "  local method id (forall: A) (x :: A) => (y :: A)\n"
     "    x;\n"
     "  end;\n"
     "  values(id(42), id(\"foo\"))\n"
@@ -468,7 +468,7 @@ begin
 
   let map-ve =
     "define method map-vector ()\n"
-    "  local method mymap (A, B)\n"
+    "  local method mymap (forall: A, B)\n"
     "   (fun :: A => B, l :: limited(<vector>, of: A))\n"
     "   => (res :: limited(<vector>, of: B))\n"
     "    if (l.empty?)\n"
@@ -521,7 +521,7 @@ define function callback-handler (#rest args)
   format-out("%=\n", args);
 end function callback-handler;
 
-
+/*
 begin
   let top-build = "c:\\stage3\\";
   environment-variable("OPEN_DYLAN_USER_ROOT") := top-build;
@@ -533,8 +533,8 @@ begin
   let project = lookup-named-project("dylan");
   visualizing-compiler(vis, project, parse?: #t);
 end;
+*/
 
-/*
 begin
   let project = find-project("dylan");
   open-project-compiler-database(project,
@@ -567,7 +567,7 @@ begin
     end;
   end;
 end;
-*/
+
 /*
 define function list-all-package-names ()
   let res = #();

@@ -31,14 +31,15 @@ unless (e == #"copy")
                 "unknown"
               end;
     //if (loc = "boot.dylan")
-    if (member?(env, list(//"member? (<object>, <simple-object-vector>",
+    //if (member?(env, list("xmember", "choose (<function>, <sequence>"),
+                          //"member? (<object>, <simple-object-vector>",
                           //"convert-accumulator-as (<mutable-sequence-type>, <keyed-accumulator", "disjoint-types-1? (<class>, <class>", "defaulted-initialization-arguments (<class>",
                           //"element (<multiple-sequence>",
-                          "element (<stretchy-byte-character-vector>"),
+                          //"element (<stretchy-byte-character-vector>"),
                 //"choose (<function>, <sequence>", "element (<stretchy-object-vector>", "add! (<stretchy-object-vector>", "merge! (<simple-object-vector", "find-key-for-element (<infinite-"), //remove (<sequence>"), //"initialize (<subjunctive-"), //"replace-elements! (<vector>, <function>"), //"invert-accumulator", "ash"), //compute-slot-descriptors"), //"make-symbol (<sequence>"), //"as-field-size-for-tagged-integer"), //"compute-entry-count"),
-                test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
+    //            test: method(x, y) copy-sequence(x, end: min(x.size, y.size)) = y end))
       write-to-visualizer(vis, apply(list, key, env, arguments));
-    end;
+    //end;
     //end;
   else
     //uhm... shouldn't be here

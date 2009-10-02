@@ -202,7 +202,7 @@ define function parse-method-signature
   values(sig-spec, as-body(body))
 end;
 
-define method verify-signature-spec (name, sig :: <method-signature-spec>, sig-fragment)
+define method verify-signature-spec (name, sig /* :: <method-signature-spec> */, sig-fragment)
   // TODO: Do the checking.
 end method;
 
