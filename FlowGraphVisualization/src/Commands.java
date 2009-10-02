@@ -42,12 +42,13 @@ public final class Commands {
 					ch.add(answer);
 			}
 			if (key.isEqual("relayouted")) {
+				//demo.waitforstep();
 				if (ihl.numChanges > ihl.lastRelayout) {
 					ihl.synchronizeGraphOperations(ch, ihl.chindex, true);
 					ihl.chindex = ch.size();
 					ihl.lastRelayout = ihl.numChanges;
 				}
-			} else { //if (demo.debug.isSelected()) {
+			} else if (demo.debug.isSelected()) {
 				if (execute(ihl, answer, demo) && (ihl.changed == false))
 					ihl.changed = true;
 				ihl.chindex = ch.size();
@@ -263,6 +264,8 @@ public final class Commands {
 				for (EdgeCursor ec = del.edges(); ec.ok(); ec.next()) {
 					//System.out.println("  was connected to " + ihl.graph.getRealizer(ec.edge().opposite(del)).getLabelText());
 				}
+			if (ihl.highlight == del)
+				ihl.demobase.unselect();
 			ihl.graph.removeNode(del);
 			ihl.topnodes.remove(del);
 			ihl.int_node_map.remove((Integer)answer.get(2));
@@ -453,6 +456,8 @@ public final class Commands {
 		assert(answer.size() == 4);
 		Node del = getNode(ihl, answer, 3, false);
 		if (del != null) {
+			if (ihl.selection == del)
+				ihl.demobase.unselect();
 			ihl.typegraph.removeNode(del);
 			ihl.int_node_map.remove((Integer)answer.get(3));
 			ihl.tv_temp_map.remove(del);
@@ -479,8 +484,8 @@ public final class Commands {
 		} else
 			er.setLineColor(Color.BLUE);
 		ihl.typegraph.createEdge(from, to, er);
-		if (! (type.isEqual("<representative-edge>")))
-			ihl.typescf.addPlaceNodeBelowConstraint(from, to);
+		//if (! (type.isEqual("<representative-edge>")))
+		//	ihl.typescf.addPlaceNodeBelowConstraint(from, to);
 		demo.typeview.repaint();
 		return false;
 	}

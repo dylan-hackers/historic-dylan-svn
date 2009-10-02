@@ -88,7 +88,7 @@ public class LayouterClient extends Thread {
 				assert(answer.size() > 1);
 				assert(answer.get(0) instanceof Symbol);
 				Symbol key = (Symbol)answer.get(0);
-				System.out.println(key.toString() + " : " + answer);
+				//System.out.println(key.toString() + " : " + answer);
 				if (key.isEqual("project")) {
 					assert(answer.size() == 2);
 					assert(answer.get(1) instanceof String); //method name
@@ -114,13 +114,15 @@ public class LayouterClient extends Thread {
 				}
 				assert(answer.get(1) instanceof String); //method name!
 				String dfm_id = (String)answer.get(1);
-				//if (dfm_id.equalsIgnoreCase("top-level-initializer")) {
-				//	printMessage(result);
-				//	continue;
-				//}
+				if (dfm_id.startsWith("top-level-initializer")) {
+					printMessage(result);
+					continue;
+				}
 				IncrementalHierarchicLayout gr = null;
 				if (! (key.isEqual("highlight") || key.isEqual("highlight-queue") || key.isEqual("relayouted")))
 					; //System.out.println(key.toString() + " for " + dfm_id + " : " + answer.subList(2, answer.size()));
+				if (! demo.string_source_map.containsKey(dfm_id))
+					dfm_id = dfm_id.substring(0, dfm_id.indexOf(' '));
 				if (! graphs.containsKey(dfm_id)) {
 					gr = new IncrementalHierarchicLayout(demo, dfm_id);
 					graphs.put(dfm_id, gr);

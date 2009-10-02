@@ -40,7 +40,7 @@ public class IncrementalHierarchicLayout
 	private Graph2DView view;
 	protected Graph2D typegraph;
 	private Graph2DView typeview;
-	private DemoBase demobase;
+	public DemoBase demobase;
 	protected ConstraintFactory scf;
 	protected ConstraintFactory typescf;
 	

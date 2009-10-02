@@ -43,7 +43,7 @@ import y.view.Graph2DViewMouseWheelZoomListener;
 import y.view.LayoutMorpher;
 import y.view.LineType;
 import y.view.NavigationMode;
-import yext.svg.io.SVGIOHandler;
+//import yext.svg.io.SVGIOHandler;
 
 public class DemoBase extends Thread {
   /**
@@ -253,7 +253,7 @@ public boolean updatingguimanually = false;
   }
   
   public void graphChanged (IncrementalHierarchicLayout ihl) {
-	  compb.setSelected(false);
+	  //compb.setSelected(false);
 	  incrementallayouter = ihl;
 	  updatingslider = true;
 	  //happens from time to time (some propertychanged event
@@ -264,7 +264,7 @@ public boolean updatingguimanually = false;
 	  try { slider.setMaximum(ihl.lastEntry); } catch (NullPointerException e) { }
 	  try { slider.setValue(ihl.lastslidervalue); } catch (NullPointerException e) { }
 	  updatingslider = false;
-	  playpressed = true;
+	  playpressed = false;
 	  calcLayout();
   }
   
@@ -301,13 +301,13 @@ public boolean updatingguimanually = false;
     toolBar.add( new Zoom( 0.8 ) );
     toolBar.add( new FitContent( ) );
 	toolBar.add( new LayoutAction() );
-	toolBar.add( new ForceLayoutAction() );
-	compb = new JToggleButton(new CompareAction());
-	toolBar.add( compb );
+//	toolBar.add( new ForceLayoutAction() );
+//	compb = new JToggleButton(new CompareAction());
+//	toolBar.add( compb );
 	toolBar.add( new Play() );
 	toolBar.add( new Step() );
-	toolBar.add( new SaveAction(view, "Flow Graph") );
-	toolBar.add( new SaveAction(typeview, "Type Graph") );
+//	toolBar.add( new SaveAction(view, "Flow Graph") );
+//	toolBar.add( new SaveAction(typeview, "Type Graph") );
 	toolBar.add( debug );
     return toolBar;
   }
@@ -428,6 +428,7 @@ public boolean updatingguimanually = false;
   final class ChangeSlider implements ChangeListener {
 	public void stateChanged(ChangeEvent arg0) {
 		if (!updatingslider && !slider.getValueIsAdjusting() && incrementallayouter.graphfinished) {
+			unselect();
 			int step = slider.getValue();
 			incrementallayouter.resetGraph(step);
 		}
@@ -541,13 +542,13 @@ public boolean updatingguimanually = false;
 					  } catch ( IOException ioe ) {
 						  D.show( ioe );
 					  }
-				  } else if ( name.endsWith(".svg")) {
-					  SVGIOHandler svg = new SVGIOHandler();
-					  try {
-						  svg.write( view.getGraph2D(), name );
-					  } catch ( IOException ioe ) {
-						  D.show( ioe );
-					  }
+//				  } else if ( name.endsWith(".svg")) {
+//					  SVGIOHandler svg = new SVGIOHandler();
+//					  try {
+//						  svg.write( view.getGraph2D(), name );
+//					  } catch ( IOException ioe ) {
+//						  D.show( ioe );
+//					  }
 				  } else {
 					  if ( !name.endsWith( ".ygf" ) )
 						  name = name + ".ygf";
@@ -714,7 +715,7 @@ public boolean updatingguimanually = false;
 	 * Animated layout assignment
 	 */
 	public void calcLayout(){
-		if (forcelayout) {
+		//if (forcelayout) {
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");
 			//if (alphaslider.getValue() == 3)
@@ -839,7 +840,7 @@ public boolean updatingguimanually = false;
 		}
 		typeview.updateView();
 		view.updateView();
-		}
+		//}
 	}
 
 }

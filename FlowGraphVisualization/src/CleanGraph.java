@@ -7,7 +7,7 @@ import y.module.HierarchicLayoutModule;
 import y.view.Graph2D;
 import y.view.NodeLabel;
 import y.view.NodeRealizer;
-import yext.svg.io.SVGIOHandler;
+//import yext.svg.io.SVGIOHandler;
 
 
 public final class CleanGraph {
@@ -37,8 +37,8 @@ public final class CleanGraph {
 	}
 	
 	private static void exportGraph (Graph2D graph, String filename) throws IOException {
-		SVGIOHandler svg = new SVGIOHandler();
-		svg.write(graph, filename);
+//		SVGIOHandler svg = new SVGIOHandler();
+//		svg.write(graph, filename);
 	}
 	
 	public static void main(String[] args) {
