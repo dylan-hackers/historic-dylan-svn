@@ -241,6 +241,7 @@ define module http-common
     avalue-value,
     avalue-alist,
     chunked-transfer-encoding?,
+    *http-header-logger*,
 
     // lower level header APIs...
     read-header-line,

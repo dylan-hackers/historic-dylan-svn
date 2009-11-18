@@ -51,6 +51,16 @@ idea -- There's often a tension between the level of logging you want
         buffer of recent debug info.  Log to RAMdisk...even better, to
         avoid disk contention.  :-)
 
+idea -- It is useful for general purpose libraries (e.g., an XML parser)
+        to do logging.  You normally want this logging disabled.  A calling
+        library will probably want to turn on the XML parser's logging for
+        specific threads, for debugging purposes.  The XML parser can use
+        an exported thread variable to hold its debug logger and callers can
+        rebind that to the logger they want.  (Not really an issue for this
+        logging library to address...more of a suggestion for something to
+        add to future documentation.)  Just enabling the XML parser's logger
+        won't always be what users want because it will enable logging in
+        all threads.
 */
 
 
@@ -123,7 +133,7 @@ define open class <logger> (<abstract-logger>)
     init-keyword: targets:,
     init-function: curry(make, <stretchy-vector>);
 
-  constant slot log-formatter :: <log-formatter>,
+  slot log-formatter :: <log-formatter>,
     init-keyword: formatter:,
     init-value: $default-log-formatter;
 
@@ -176,6 +186,13 @@ define method remove-target
   remove!(logger.log-targets, target);
 end;
 
+define method remove-all-targets
+    (logger :: <logger>)
+  for (target in logger.log-targets)
+    remove-target(logger, target)
+  end;
+end;
+
 define open class <logging-error> (<error>, <format-string-condition>)
 end;
 
@@ -201,17 +218,14 @@ define method %get-logger
   if (empty?(path))
     logger
   else
-    %get-logger(element(logger.logger-children, first(path), default: #f),
-                rest(path),
-                original-name)
+    let child = element(logger.logger-children, first(path), default: #f);
+    child & %get-logger(child, rest(path), original-name)
   end
 end method %get-logger;
 
 define method %get-logger
     (logger :: <placeholder-logger>, path :: <list>, original-name :: <string>)
-  iff(empty?(path),
-      logging-error("Logger not found: %s", original-name),
-      next-method())
+  ~empty?(path) & next-method()
 end method %get-logger;
 
 define method %get-logger

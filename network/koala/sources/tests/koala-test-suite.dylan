@@ -124,15 +124,42 @@ define suite koala-test-suite
   suite configuration-test-suite;
   suite xml-rpc-test-suite;
   suite vhost-test-suite;
+  suite cgi-test-suite;
 end suite koala-test-suite;
 
+// This library may be used as a dll or as an executable.  If an executable,
+// it does different things depending on the environment so that it can be
+// invoked as a CGI script.
+//
 define method main () => ()
   let filename = locator-name(as(<file-locator>, application-name()));
   if (split(filename, ".")[0] = "koala-test-suite")
-    run-test-application(koala-test-suite);
+    let query = environment-variable("QUERY_STRING");
+    if (~query)
+      run-test-application(koala-test-suite);
+    else
+      // We're being invoked as a CGI script.
+      // Note: don't log anything in this branch since it will become
+      // part of the response.
+
+      // Expecting "cgi=xxx" for various values of xxx.
+      let parts = query & split(query, '=');
+      let cgi = parts & parts.size >= 2 & parts[1];
+      select (cgi by \=)
+        "env" =>
+          cgi-show-environment();
+        "location" =>
+          cgi-emit-location-header();
+        "status" =>
+          cgi-emit-status-header();
+        otherwise =>
+          error("unrecognized query string: %s", query);
+      end;
+    end;
   end;
 end method main;
 
 begin
   main()
 end;
+

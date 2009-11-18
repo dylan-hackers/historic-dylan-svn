@@ -188,7 +188,8 @@ define http-error header-too-large-error (<http-client-protocol-error>)
     max-size;
 
 define http-error bad-header-error (<http-parse-error>)
-    400, "Malformed syntax in message header";
+    400, "Invalid header: %s",
+    message;
 
 // Response MUST include WWW-Authenticate header
 define http-error unauthorized-error (<http-client-protocol-error>)

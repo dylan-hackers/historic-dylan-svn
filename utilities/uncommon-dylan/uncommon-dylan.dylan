@@ -400,7 +400,7 @@ define method remove-object
       end if;
     end for;
   end;
-  object;
+  object
 end method remove-object;
 
 
@@ -410,7 +410,7 @@ end method remove-object;
 //
 define method find-object
     (trie :: <string-trie>, path :: <sequence>)
- => (object :: <object>, rest-path :: <sequence>);
+ => (object :: <object>, rest-path :: <sequence>)
   local method real-find (trie, path, object, rest)
           if (empty?(path))
             values(object, rest)

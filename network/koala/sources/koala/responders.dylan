@@ -14,6 +14,7 @@ define class <responder> (<object>)
   // registered) the functions are called in order.  They should raise an exception
   // (of what type?) to abort the chain.
 
+  // FIXME
   // This doesn't make much sense to me.  Since the regular expressions are in a
   // table there's no guaranteed order in which they'll be searched so you could
   // get an arbitrary result.  --cgay Sep 2008
@@ -49,7 +50,7 @@ define method add-responder
                format-arguments: list(uri)));
   else
     add-object(server.url-map, uri.uri-path, responder, replace?: replace?);
-    log-info("Responder: %s ", build-path(uri));
+    log-info("Responder added: %s ", build-path(uri));
   end if;
 end method add-responder;
 
@@ -96,20 +97,17 @@ end method add-responder;
 
 define open generic find-responder
     (server :: <http-server>, url :: <object>)
- => (responder :: false-or(<responder>),
-     rest-path :: false-or(<sequence>));
+ => (responder :: false-or(<responder>), rest-path :: <sequence>);
 
 define method find-responder
     (server :: <http-server>, url :: <string>)
- => (responder :: false-or(<responder>),
-     rest-path :: false-or(<sequence>))
+ => (responder :: false-or(<responder>), rest-path :: <sequence>)
   find-responder(server, parse-url(url))
 end method find-responder;
 
 define method find-responder
     (server :: <http-server>, url :: <url>)
- => (responder :: false-or(<responder>),
-     rest-path :: false-or(<sequence>))
+ => (responder :: false-or(<responder>), rest-path :: <sequence>)
   find-object(server.url-map, url.uri-path)
 end method find-responder;
 

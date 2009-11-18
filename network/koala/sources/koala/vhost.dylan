@@ -35,6 +35,10 @@ define class <directory-spec> (<object>)
   // Default is to be secure.
   constant slot allow-cgi? :: <boolean> = #f,
     init-keyword: allow-cgi?:;
+
+  // Acceptable CGI script file extensions.  No other files will be served.
+  constant slot cgi-extensions :: <sequence> = #("cgi"),
+    init-keyword: cgi-extensions:;
   
 end class <directory-spec>;
 
@@ -152,12 +156,13 @@ end;
 define method debug-string
     (spec :: <directory-spec>)
   format-to-string("<directory-spec pattern=%= regex=%= list?=%= "
-                     "follow?=%= cgi?=%=>",
+                     "follow-symlinks?=%= cgi?=%= cgi-ext=%=>",
                    spec.dirspec-pattern,
                    spec.regular-expression,
                    spec.allow-directory-listing?,
                    spec.follow-symlinks?,
-                   spec.allow-cgi?)
+                   spec.allow-cgi?,
+                   spec.cgi-extensions);
 end;
 
 define method directory-spec-matching
