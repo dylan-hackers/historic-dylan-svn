@@ -16,6 +16,12 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define constant $cgi-header-names :: <sequence>
   = #["Location", "Status", "Script-Control"];
 
+// HTTP headers that should not be passed through to the CGI script
+// in the environment.
+// TODO: make this configurable
+define variable *cgi-excluded-http-header-names* :: <sequence>
+  = #["Authorization", "Content-Length", "Content-Type"];
+
 define method cgi-script-responder
     (script :: <locator>)
   let command = as(<string>, script);
@@ -36,8 +42,7 @@ define method cgi-script-responder
                       under-shell?: #f,
                       inherit-console?: #t,
                       environment: env,
-                      // TODO: see if RFC sez anything about this
-                      //working-directory: foo,
+                      working-directory: locator-directory(script),
                       input: null:,
                       output: stream:,
                       error: stream:);
@@ -169,7 +174,22 @@ define method make-cgi-environment
   
   env["QUERY_STRING"] := build-query(request.request-url);
 
-  // TODO: Include some of the request headers, prepended with HTTP_.
-
+  // Include some HTTP headers
+  local method replace-dash (string)
+          for (char in string, i from 0)
+            if (char = '-')
+              string[i] := '_';
+            end;
+          end;
+          string
+        end;
+  for (header-value keyed-by header-name in request.raw-headers)
+    unless (member?(header-name, *cgi-excluded-http-header-names*,
+                    test: string-equal?)
+              | member?(header-name, $cgi-header-names, test: string-equal?))
+      let hdr-name = as-uppercase!(replace-dash(header-name));
+      env[concatenate("HTTP_", hdr-name)] := header-value;
+    end;
+  end;
   env
 end method make-cgi-environment;

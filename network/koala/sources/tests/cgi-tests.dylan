@@ -79,15 +79,17 @@ define test cgi-required-environment-variables-test ()
       send-request(conn, "GET", url);
       let response :: <http-response> = read-response(conn);
 
-      // Build the environment from the response content.  On Windows the
-      // lines are terminated with \r\n so we need to trim the trailing \r
-      // after splitting.
+      // Build the environment from the response content.
       let env = make(<string-table>);
+      let eol-regex = compile-regex("\r?\n");
       do(method (line)
            let (var, val) = apply(values, split(line, "=", count: 2));
-           env[var] := trim(val);
+           var := trim(var);
+           if (val & var.size > 0)
+             env[var] := val;
+           end;
          end,
-         split(response.response-content, "\n"));
+         split(response.response-content, eol-regex));
 
       log-debug("env.size = %d", env.size);
       for (val keyed-by key in env)

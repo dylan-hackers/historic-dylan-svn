@@ -15,6 +15,7 @@ define library koala-test-suite
     import: { koala, koala-unit };
   use network,
     import: { sockets };
+  use regular-expressions;
   use strings;
   use system,
     import: {
@@ -24,6 +25,7 @@ define library koala-test-suite
       operating-system
     };
   use testworks;
+  use uncommon-dylan;
   use uri;
   use xml-rpc-client;
 
@@ -45,6 +47,7 @@ define module koala-test-suite
     exclude: { <http-server>, <url> };
   use operating-system,
     import: { environment-variable };
+  use regular-expressions;
   use sockets,
     import: {
       <connection-failed>,
@@ -57,6 +60,7 @@ define module koala-test-suite
   use strings;
   use testworks;
   use threads;
+  use uncommon-dylan;
   use uri;
   use xml-rpc-client;
 
