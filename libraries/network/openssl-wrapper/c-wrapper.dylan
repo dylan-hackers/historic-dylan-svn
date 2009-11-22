@@ -64,7 +64,7 @@ end;
 
 define C-function BIO-read
   input parameter bio :: <basic-input-output*>;
-  parameter data :: <C-void*>;
+  parameter data :: <C-void*>; //buffer-offset>;
   input parameter length :: <C-int>;
   result read-bytes :: <C-int>;
   c-name: "BIO_read"
@@ -72,14 +72,124 @@ end;
 
 define C-function BIO-write
   input parameter bio :: <basic-input-output*>;
-  input parameter data :: <C-string>;
+  input parameter data :: <C-void*>; //buffer-offset>;
   input parameter length :: <C-int>;
   result written-bytes :: <C-int>;
   c-name: "BIO_write"
 end;
 
-define C-function my-BIO-do-connect
+//hope that I can treat this as opaque
+define constant <SSL-METHOD> = <C-void*>;
+
+define C-function SSLv2-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "SSLv2_method"
+end;
+
+define C-function SSLv2-server-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "SSLv2_server_method"
+end;
+
+define C-function SSLv2-client-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "SSLv2_client_method"
+end;
+
+define C-function SSLv3-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "SSLv3_method"
+end;
+
+define C-function SSLv3-server-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "SSLv3_server_method"
+end;
+
+define C-function SSLv3-client-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "SSLv3_client_method"
+end;
+
+define C-function SSLv23-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "SSLv23_method"
+end;
+
+define C-function SSLv23-server-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "SSLv23_server_method"
+end;
+
+define C-function SSLv23-client-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "SSLv23_client_method"
+end;
+
+define C-function TLSv1-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "TLSv1_method"
+end;
+
+define C-function TLSv1-server-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "TLSv1_server_method"
+end;
+
+define C-function TLSv1-client-method
+  result ssl-method :: <SSL-METHOD>;
+  c-name: "TLSv1_client_method"
+end;
+
+//opaque!?
+define constant <SSL-CTX> = <C-void*>;
+
+define C-function SSL-context-new
+  input parameter ssl-method :: <SSL-METHOD>;
+  result ssl-context :: <SSL-CTX>;
+  c-name: "SSL_CTX_new"
+end;
+
+define C-function BIO-new-ssl-connect
+  input parameter context :: <SSL-CTX>;
+  result bio :: <basic-input-output*>;
+  c-name: "BIO_new_ssl_connect"
+end;
+
+define constant <ssl*> = <C-void*>;
+
+//define C-struct <ssl>
+//
+//  pointer-type-name: <ssl*>;
+//end;
+
+//some constants
+define constant $SSL-MODE-AUTO-RETRY = 4;
+
+//these are macros or other stuff defined in support.c
+define C-function BIO-do-connect
   input parameter bio :: <basic-input-output*>;
   result res :: <C-long>;
   c-name: "my_BIO_do_connect"
+end;
+
+define C-function BIO-set-connection-hostname
+  input parameter bio :: <basic-input-output*>;
+  input parameter name :: <C-string>;
+  result res :: <C-long>;
+  c-name: "my_BIO_set_conn_hostname"
+end;
+
+define C-function BIO-get-ssl
+  input parameter bio :: <basic-input-output*>;
+  parameter ssl :: <ssl*>;
+  result res :: <C-long>;
+  c-name: "my_BIO_get_ssl"
+end;
+
+define C-function SSL-set-mode
+  input parameter ssl :: <ssl*>;
+  input parameter operation :: <C-long>;
+  result res :: <C-long>;
+  c-name: "my_SSL_set_mode"
 end;
