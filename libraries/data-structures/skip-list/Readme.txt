@@ -1,6 +1,5 @@
 Copyright (c) 1996 by Kai W. Zimmermann, Hamburg, Germany
-All rights reserved
-GNU Lesser General Public License (LGPL)
+Distributed under the terms of the GNU Lesser General Public License (LGPL)
 
 Version   1.0
 Released  17.03.1996
