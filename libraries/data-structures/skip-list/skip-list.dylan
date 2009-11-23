@@ -5,17 +5,22 @@ module: skip-list
 //
 // Copyright (c) 1996 by Kai W. Zimmermann, Hamburg, Germany
 // All rights reserved
-//
-// This code is provided as is for non-commercial, non-professional and 
-// non-military use.  No warranty is taken for any consequences that may
-// happen due to the use of this code, be it loss of software, hardware, 
-// money, time, friends, etc..  You may use and distribute this code
-// freely as long as this notice stays intact.  If you use this code in 
-// your projects, please mention me in the documentation.  If you 
-// redistribute this software you may not charge a fee for it.   
 // 
-// If you make changes to the code, port it to another platform, or use it
-// in a major project, please let me know.  
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+// 
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+// details.
+// 
+// The terms of the GNU Lesser General Public License may be found at 
+// <http://www.gnu.org/licenses/lgpl.html>.
+// 
+// If you make changes to the code, port it to another platform, or use it in a
+// major project, please let me know.
 // 
 //==============================================================================
 
@@ -26,7 +31,7 @@ module: skip-list
 // Author
 // 
 // KWZ       =    Kai W. Zimmermann, Hamburg, Germany
-//                zimmerma@informatik.uni-hamburg.de
+//                kwz@kai-zimmermann.de
 // DJV       =    Dustin Voss, Seattle, United States
 //                d_j_v@mac.com, |Agent on irc://irc.freenode.net/#ylan
 //

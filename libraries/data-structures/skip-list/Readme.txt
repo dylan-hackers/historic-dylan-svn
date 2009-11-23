@@ -1,11 +1,12 @@
 Copyright (c) 1996 by Kai W. Zimmermann, Hamburg, Germany
 All rights reserved
+GNU Lesser General Public License (LGPL)
 
 Version   1.0
 Released  17.03.1996
 
 Kai W. Zimmermann, Hamburg, Germany
-zimmerma@informatik.uni-hamburg.de
+kwz@kai-zimmermann.de
 
 
 Description
@@ -88,4 +89,4 @@ delimiters to revert to iterative, if you think that is necessary.
 I hope this code is of use to someone.
 Kai
 --
-zimmerma@informatik.uni-hamburg.de
+kwz@kai-zimmermann.de
