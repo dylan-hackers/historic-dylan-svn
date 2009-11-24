@@ -11,7 +11,9 @@ define suite cgi-test-suite ()
   test cgi-required-environment-variables-test;
   test cgi-status-header-test;
   test cgi-command-line-test;
-  test cgi-authentication-test;
+  test cgi-working-directory-test;
+  test cgi-http-header-test;
+  test cgi-non-parsed-headers-test;
 end suite cgi-test-suite;
 
 define function make-cgi-server
@@ -112,14 +114,14 @@ end test cgi-required-environment-variables-test;
 // CGI "script" for cgi=env.  See main().
 // Output the values of the CGI environment variables on stdout.
 //
-define method cgi-show-environment ()
+define method cgi-emit-environment ()
   format-out("Content-type: text/plain\n");
   format-out("X-my-test-header: foo\n");
   format-out("\n");
   for (var in key-sequence($all-cgi-variables))
     format-out("%s=%s\n", var, environment-variable(var) | "");
   end;
-end method cgi-show-environment;
+end method cgi-emit-environment;
 
 
 // Verify that the Location header is respected when emitted by a CGI script
@@ -196,12 +198,87 @@ end;
 // The CGI 1.1 "spec" says that this is done by having the script
 // name begin with the prefix "nph-".
 //
-define test cgi-raw-response-test ()
-end test cgi-raw-response-test;
+define test cgi-non-parsed-headers-test ()
+  /*
+  let server = make-cgi-server(server-root: cgi-directory());
+  let expected-content = "This is the entire response.";
+  add-responder(server,
+                "/cgi-nph-test",
+                curry(output, expected-content));
+  with-http-server (server = server)
+    let url = make-test-url("/nph-koala-test-suite.exe?cgi=nph");
+    with-http-connection (conn = url)
+      send-request(conn, "GET", url);
+      let full-response-text = read-to-end(conn.connection-socket);
+      check-equal("Non-parsed response is received correctly",
+                  full-response-text, expected-content);
+    end;
+  end;
+  */
+end test cgi-non-parsed-headers-test;
 
+
+// Verify command-line semantics match the section "The CGI Script
+// Command Line".
+//
 define test cgi-command-line-test ()
 end test cgi-command-line-test;
 
-define test cgi-authentication-test ()
-end test cgi-authentication-test;
 
+// Verify that the working directory of the CGI script is the script's directory.
+//
+define test cgi-working-directory-test ()
+  let server = make-cgi-server(server-root: cgi-directory());
+  with-http-server (server = server)
+    let url = make-test-url("/koala-test-suite.exe?cgi=cwd");
+    with-http-connection (conn = url)
+      send-request(conn, "GET", url);
+      let response :: <http-response> = read-response(conn);
+      check-equal("Working directory set to CGI script directory?",
+                  response.response-content, cgi-directory());
+    end;
+  end;
+end test cgi-working-directory-test;
+
+// CGI "script" for "cgi=cwd".
+//
+define function cgi-emit-working-directory ()
+  format-out("Content-type: text/plain\n");
+  format-out("\n");
+  format-out("%s", working-directory());
+end;
+
+
+// Verify that the expected HTTP headers are passed through to the CGI script
+// with "HTTP_" prefixed to the header name.  Everything except Authorization,
+// Content-Length, and Content-Type should be passed through.  The latter two
+// are excluded because they're passed to the script without the "HTTP_" prefix.
+// Note: headers are uppercased and '-' replaced by '_', per the spec.
+//
+define test cgi-http-header-test ()
+  let server = make-cgi-server(server-root: cgi-directory());
+  with-http-server (server = server)
+    let url = make-test-url("/koala-test-suite.exe?cgi=HTTP_");
+    with-http-connection (conn = url)
+      send-request(conn, "GET", url,
+                   headers: #[#("X-test-header-1", "blah")]);
+      let response :: <http-response> = read-response(conn);
+      check-equal("HTTP headers passed through with HTTP_ prefix?",
+                  response.response-content, "HTTP_X_TEST_HEADER_1: blah");
+    end;
+  end;
+end test cgi-http-header-test;
+
+// CGI "script" for "cgi=HTTP_"
+//
+define function cgi-emit-http-headers ()
+  format-out("Content-type: text/plain\n");
+  format-out("\n");
+  let header-name = "HTTP_X_TEST_HEADER_1";
+  let header-value = environment-variable(header-name);
+  if (header-value)
+    format-out("%s: %s", header-name, header-value);
+  else
+    format-out("%s not defined in the CGI environment", header-name);
+  end;
+end;

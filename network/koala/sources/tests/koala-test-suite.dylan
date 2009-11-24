@@ -146,8 +146,12 @@ define method main () => ()
       let parts = query & split(query, '=');
       let cgi = parts & parts.size >= 2 & parts[1];
       select (cgi by \=)
+        "cwd" =>
+          cgi-emit-working-directory();
         "env" =>
-          cgi-show-environment();
+          cgi-emit-environment();
+        "HTTP_" =>
+          cgi-emit-http-headers();
         "location" =>
           cgi-emit-location-header();
         "status" =>

@@ -145,10 +145,11 @@ define method make-cgi-environment
   env["GATEWAY_INTERFACE"] := "CGI/1.1";
 
   let url-tail = request.request-tail-url;
-  if (url-tail)
+  let url-tail-string = build-uri(url-tail);
+  if (url-tail-string.size > 0)
     env["PATH_INFO"] := build-path(url-tail);
     env["PATH_TRANSLATED"]
-      := as(<string>, merge-locators(as(<file-locator>, build-uri(url-tail)),
+      := as(<string>, merge-locators(as(<file-locator>, url-tail-string),
                                      *virtual-host*.document-root));
   end;
 
