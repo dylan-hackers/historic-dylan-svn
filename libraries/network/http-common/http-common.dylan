@@ -5,20 +5,16 @@ define constant $http-version :: <byte-string> = "HTTP/1.1";
 
 define constant $default-http-port :: <integer> = 80;
 
-// These have no log targets by default.  If someone wants to enable logging
-// for this library they can add one.  For example,
-//   add-target(get-logger("http.common"), $stdout-log-target)
+// Clients can bind this if they want to combine this library's logs with
+// there own.  Adding a log target to the default value here doesn't work
+// for the HTTP server, which wants to log to different targets for different
+// virtual hosts.  If they don't care about that they can just remove the
+// default target and add their own.
 //
-define constant $log :: <logger>
-  = make(<logger>,
-         name: "http.common");
-
-define constant $header-log :: <logger>
+define thread variable *http-header-logger* :: <logger>
   = make(<logger>,
          name: "http.common.headers",
-         // temp: not intended to be committed to svn
          targets: list($stdout-log-target));
-
 
 /////////////// Parsing //////////////
 
@@ -391,6 +387,8 @@ end method chunked-transfer-encoding?;
 // is the end-of-line index.
 //
 // See also: read-header-line
+// todo -- Callers of this that are in the server should pass a max-size
+//         argument, at which point an error should be signaled.
 //
 define method read-http-line
     (stream :: <stream>)

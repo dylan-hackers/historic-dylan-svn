@@ -376,13 +376,14 @@ define function process-log-config-element
                         max-size: max-size),
                    default-log-target);
   let logger :: <logger>
-    = make(<logger>,
-           name: logger-name,
-           targets: list(target),
-           additive: additive?,
-           formatter: iff(format-control,
-                          make(<log-formatter>, pattern: format-control),
-                          $default-log-formatter));
+    = get-logger(logger-name) | make(<logger>, name: logger-name);
+  logger.logger-additive? := additive?;
+  if (format-control)
+    logger.log-formatter := make(<log-formatter>, pattern: format-control);
+  end;
+  remove-all-targets(logger);  // todo -- make this optional
+  add-target(logger, target);
+
   let unrecognized = #f;
   let level-name = get-attr(node, #"level") | "info";
   let level = select (level-name by string-equal?)
@@ -473,6 +474,8 @@ end method process-config-element;
 
 // <directory  location = "/"
 //             allow-directory-listing = "yes"
+//             allow-cgi = "yes"
+//             cgi-extensions = "cgi,bat,exe,..."
 //             follow-symlinks = "yes"
 // />
 define method process-config-element
@@ -484,6 +487,10 @@ define method process-config-element
   else
     let dirlist? = get-attr(node, #"allow-directory-listing");
     let follow? = get-attr(node, #"follow-symlinks");
+    let cgi? = get-attr(node, #"allow-cgi");
+    let cgi-ext = get-attr(node, #"cgi-extensions") | "cgi";
+    cgi-ext := choose(complement(empty?),
+                      map(trim, split(trim(cgi-ext), ',')));
     let root-spec = root-directory-spec(%vhost);
     // TODO: the default value for these should really
     //       be taken from the parent dirspec rather than from root-spec.
@@ -494,7 +501,11 @@ define method process-config-element
                                           follow-symlinks?(root-spec)),
                     allow-directory-listing?: iff(dirlist?,
                                                   true-value?(dirlist?),
-                                                  allow-directory-listing?(root-spec)));
+                                                  allow-directory-listing?(root-spec)),
+                    allow-cgi?: iff(cgi?,
+                                    true-value?(cgi?),
+                                    allow-cgi?(root-spec)),
+                    cgi-extensions: cgi-ext);
     add-directory-spec(%vhost, spec);
     dynamic-bind (%dir = spec)
       for (child in xml$node-children(node))

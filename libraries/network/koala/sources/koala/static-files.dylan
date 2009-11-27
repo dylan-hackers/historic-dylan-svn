@@ -42,18 +42,18 @@ define method document-location
   end block
 end document-location;
 
-define method maybe-serve-static-file ()
+define method serve-static-file-or-cgi-script ()
   let request = current-request();
   let response = current-response();
   // Just use the path, not the host, query, or fragment.
   let url = build-path(request.request-url);
   let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
-  log-debug("Requested document is %s", document);
   if (~document)
     log-info("%s not found", url);
     resource-not-found-error(url: request-raw-url-string(request));  // 404
   end;
 
+  log-debug("Document: %s", document);
   let (etag, weak?) = etag(document);
   if (weak?)
     add-header(response, "W/ETag", etag);
@@ -65,8 +65,15 @@ define method maybe-serve-static-file ()
     request.request-method := #"head";
     not-modified-redirect(headers: response.raw-headers);
   else
-    let spec :: <directory-spec>
-      = directory-spec-matching(*virtual-host*, url);
+    let spec :: <directory-spec> = directory-spec-matching(*virtual-host*, url);
+    log-debug("Matched dirspec: %s", debug-string(spec));
+
+    if (file-type(document) == #"link")
+      let doc = follow-links(link-target(document), spec, url);
+      (doc ~= document) & log-info("Target document: %s", doc);
+      document := doc;
+    end if;
+
     select (file-type(document))
       #"directory" =>
         if (allow-directory-listing?(spec))
@@ -81,27 +88,35 @@ define method maybe-serve-static-file ()
         else
           forbidden-error();  // 403
         end if;
-      #"link" =>
-        let target = link-target(document);
-        block (exit-loop)
-          while (#t)
-            if (~file-exists?(target)
-                  | (~locator-below-document-root?(target)
-                       & ~follow-symlinks?(spec)))
-              resource-not-found-error(url: url);
-            elseif (file-type(target) == #"link")
-              target := link-target(target);
-            else
-              exit-loop();
-            end;
-          end;
-        end;
-        static-file-responder(target);
       otherwise =>
-        static-file-responder(document);
+        log-debug("allow = %s, ext = %s", spec.allow-cgi?, spec.cgi-extensions);
+        if (spec.allow-cgi?
+              & member?(document.locator-extension, spec.cgi-extensions,
+                        test: string-equal?))  // should be \= on Unix
+          cgi-script-responder(document);
+        else
+          static-file-responder(document);
+        end;
     end select;
   end if;
-end method maybe-serve-static-file;
+end method serve-static-file-or-cgi-script;
+
+// Follow symlink chain.  If the target is outside the document root and
+// the given directory spec disallows that, signal 404 error.
+//
+define function follow-links
+    (document :: <pathname>, spec :: <directory-spec>, url)
+ => (target :: <pathname>)
+  if ( ~(file-exists?(document)
+           & (follow-symlinks?(spec)
+                | locator-below-document-root?(document))))
+    resource-not-found-error(url: url);
+  elseif (file-type(document) == #"link")
+    follow-links(link-target(document), spec, url)
+  else
+    document
+  end
+end function follow-links;
 
 // Returns the appropriate locator for the given URL, or #f if the URL doesn't
 // name an existing file below the document root.
@@ -111,7 +126,6 @@ end method maybe-serve-static-file;
 define function static-file-locator-from-url
     (url :: <string>) => (locator :: false-or(<physical-locator>))
   let locator = document-location(url);
-  log-debug("document-location returned %=", as(<string>, locator));
   locator
     & file-exists?(locator)
     & iff(instance?(locator, <directory-locator>),
@@ -177,6 +191,7 @@ end method;
 
 // Serves up a static file
 define method static-file-responder (locator :: <locator>)
+  log-debug("Serving static file: %s", as(<string>, locator));
   let response = current-response();
   with-open-file(in-stream = locator, direction: #"input", if-does-not-exist: #f,
                  element-type: <byte>)

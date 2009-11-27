@@ -412,7 +412,8 @@ define method start-server
   // server proper...
   dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
                 *error-logger* = server.default-virtual-host.error-logger,
-                *request-logger* = server.default-virtual-host.request-logger)
+                *request-logger* = server.default-virtual-host.request-logger,
+                *http-header-logger* = *debug-logger*)
     log-info("Starting %s HTTP Server", $server-name);
     ensure-sockets-started();
     log-info("Server root directory is %s", server-root(server));
@@ -570,7 +571,8 @@ define function start-http-listener
   local method run-listener-top-level ()
           dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
                         *error-logger* = server.default-virtual-host.error-logger,
-                        *request-logger* = server.default-virtual-host.request-logger)
+                        *request-logger* = server.default-virtual-host.request-logger,
+                        *http-header-logger* = *debug-logger*)
             with-lock (server-lock) end; // Wait for setup to finish.
             block ()
               listener-top-level(server, listener);
@@ -702,9 +704,11 @@ end do-http-listen;
 define open primary class <request>
     (<chunking-input-stream>, <basic-request>, <base-http-request>)
 
-  // contains the relative URL following the matched responder
-  slot request-tail-url :: false-or(<url>),
-    init-value: #f;
+  // Contains the relative URL following the matched <responder>.
+  // If the request URL is an exact match for the URL under which the
+  // <responder> was registered this URL will simply have a path
+  // component of #[""].  i.e., so it will match the regex "^$".
+  slot request-tail-url :: <url>;
 
   // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
   slot request-host :: false-or(<string>),
@@ -858,7 +862,8 @@ define function handler-top-level
                 *virtual-host* = #f,  // set after read-request called
                 *debug-logger* = *server*.default-virtual-host.debug-logger,
                 *error-logger* = *server*.default-virtual-host.error-logger,
-                *request-logger* = *server*.default-virtual-host.request-logger)
+                *request-logger* = *server*.default-virtual-host.request-logger,
+                *http-header-logger* = *debug-logger*)
     block (exit-handler-top-level)
       while (#t)                      // keep alive loop
         let request :: <basic-request>
@@ -889,6 +894,7 @@ define function handler-top-level
             *debug-logger* := *virtual-host*.debug-logger;
             *error-logger* := *virtual-host*.error-logger;
             *request-logger* := *virtual-host*.request-logger;
+            *http-header-logger* := *debug-logger*;
 
             invoke-handler(request);
             force-output(request.request-socket);
@@ -973,26 +979,34 @@ define function parse-request-line
     let url-string = substring(buffer, bpos2, epos2);
     let http-version = substring(buffer, bpos3, epos3);
     request.request-method := validate-request-method(req-method);
-    request.request-raw-url-string := url-string;
-    let url = parse-url(url-string);
-    // RFC 2616, 5.2 -- absolute URLs in the request line take precedence
-    // over Host header.
-    if (absolute?(url))
-      request.request-host := url.uri-host;
-    end if;
-    request.request-url := url;
-    let (responder, tail) = find-responder(server, request.request-url);
-    request.request-responder := responder;
-    if (tail)
-      request.request-tail-url := make(<url>, path: as(<deque>, tail));
-    end if;
-    for (value keyed-by key in url.uri-query)
-      request.request-query-values[key] := value;
-    end for;
+    parse-request-url(server, request, url-string);
     request.request-version := validate-http-version(http-version);
     log-trace("<-- %s %s %s", req-method, url-string, http-version);
   end if;
 end function parse-request-line;
+
+// This may be called by internal-redirect-to to morph a request for a
+// new URL.  Probably should consider copying the request to a new <request>
+// object rather than mutating the existing one, but this will have tow do
+// for now.
+define method parse-request-url
+    (server :: <http-server>, request :: <request>, url-string :: <string>)
+  request.request-raw-url-string := url-string;
+  let url :: <url> = parse-url(url-string);
+  // RFC 2616, 5.2 -- absolute URLs in the request line take precedence
+  // over Host header.
+  if (absolute?(url))
+    request.request-host := url.uri-host;
+  end;
+  request.request-url := url;
+  let (responder, tail :: <sequence>) = find-responder(server, request.request-url);
+  request.request-responder := responder;
+  request.request-tail-url := make(<url>, path: as(<deque>, tail));
+  remove-all-keys!(request.request-query-values);
+  for (value keyed-by key in url.uri-query)
+    request.request-query-values[key] := value;
+  end;
+end method parse-request-url;
 
 define method validate-request-method
     (request-method :: <byte-string>)
@@ -1209,10 +1223,9 @@ define method process-incoming-headers (request :: <request>)
 end method process-incoming-headers;
 
 // Invoke the appropriate handler for the given request URL and method.
-// Have to buffer up the entire response since the web app needs a chance to
-// set headers, etc.  And if the web app signals an error we need to catch it
-// and generate the appropriate error response.
-define method invoke-handler (request :: <request>) => ()
+//
+define method invoke-handler
+    (request :: <request>)
   let headers = make(<header-table>);
   let response = make(<response>,
                       request: request,
@@ -1220,7 +1233,14 @@ define method invoke-handler (request :: <request>) => ()
   if (request.request-keep-alive?)
     add-header(response, "Connection", "Keep-Alive");
   end if;
+  %invoke-handler(request, response);
+end method invoke-handler;
 
+// Used by internal-redirect-to so that one responder can invoke a different
+// responder completely internally to the server.
+//
+define method %invoke-handler
+    (request :: <request>, response :: <response>)
   if (request.request-method == #"OPTIONS")
     if (request.request-raw-url-string = "*")
       add-header(response, "Allow", $allowed-request-methods-string);
@@ -1259,12 +1279,12 @@ define method invoke-handler (request :: <request>) => ()
         end if;
       else
         // generates 404 if not found
-        maybe-serve-static-file();
+        serve-static-file-or-cgi-script();
       end if;
     end dynamic-bind;
   end if;
   finish-response(response);
-end method invoke-handler;
+end method %invoke-handler;
 
 define inline function find-actions
     (request :: <request>)
@@ -1280,12 +1300,12 @@ define inline function find-actions
           return(actions, match)
         end if;
       end for;
-    end block;
-  end if;
+    end block
+  end
 end function find-actions;
 
-// Return a list of request methods that apply for the given URL.
-// Used for the OPTIONS request method.
+// Return a list of request methods that apply for the given request's
+// URL and tail URL.  Used for the OPTIONS request method.
 //
 define inline function find-request-methods
     (request :: <request>)
@@ -1294,17 +1314,16 @@ define inline function find-request-methods
   let url-tail = build-path(request.request-tail-url);
   let methods = #();
   for (req-method in $allowed-request-methods)
-    let responders = element(rmap, req-method, default: #f);
-    if (responders)
-      block (return)
-        for (actions keyed-by regex in responders)
-          let match = regex-search(regex, url-tail);
-          if (match)
-            methods := pair(req-method, methods);
-          end if;
-        end for;
-      end block;
-    end if;
+    let responders = element(rmap, req-method, default: #());
+    block (exit-loop)
+      for (actions keyed-by regex in responders)
+        let match = regex-search(regex, url-tail);
+        if (match)
+          methods := pair(req-method, methods);
+          exit-loop();
+        end if;
+      end for;
+    end block;
   end for;
   methods
 end function find-request-methods;

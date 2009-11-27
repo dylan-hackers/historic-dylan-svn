@@ -22,26 +22,25 @@ define class <directory-spec> (<object>)
   // Whether to allow directory listings.
   // May be overridden for specific directories.
   // Default is to be secure.
-  slot allow-directory-listing? :: <boolean> = #f,
+  constant slot allow-directory-listing? :: <boolean> = #f,
     init-keyword: allow-directory-listing?:;
 
   // Whether to allow serving documents that are outside of the document
   // root and are accessed via a symlink from within the document root.
   // Default is to be secure.
-  slot follow-symlinks? :: <boolean> = #f,
+  constant slot follow-symlinks? :: <boolean> = #f,
     init-keyword: follow-symlinks?:;
 
-  // TODO:
-  //slot allow-cgi?, etc ...
+  // Whether to allow CGI scripts to be executed from this directory.
+  // Default is to be secure.
+  constant slot allow-cgi? :: <boolean> = #f,
+    init-keyword: allow-cgi?:;
+
+  // Acceptable CGI script file extensions.  No other files will be served.
+  constant slot cgi-extensions :: <sequence> = #("cgi"),
+    init-keyword: cgi-extensions:;
   
 end class <directory-spec>;
-
-// prevent warnings until these are used by the config stuff
-begin
-  follow-symlinks?-setter;
-  allow-directory-listing?-setter;
-end;
-
 
 define method initialize
     (spec :: <directory-spec>, #key pattern, #all-keys)
@@ -149,6 +148,21 @@ define method add-directory-spec
                           test: method (s1, s2)
                                   dirspec-pattern(s1) = dirspec-pattern(s2)
                                 end));
+  for (spec in vhost.directory-specs)
+    log-debug("dirspec: %s", debug-string(spec));
+  end;
+end;
+
+define method debug-string
+    (spec :: <directory-spec>)
+  format-to-string("<directory-spec pattern=%= regex=%= list?=%= "
+                     "follow-symlinks?=%= cgi?=%= cgi-ext=%=>",
+                   spec.dirspec-pattern,
+                   spec.regular-expression,
+                   spec.allow-directory-listing?,
+                   spec.follow-symlinks?,
+                   spec.allow-cgi?,
+                   spec.cgi-extensions);
 end;
 
 define method directory-spec-matching

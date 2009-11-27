@@ -17,14 +17,14 @@ let conn = make(<http-connection>, host: host, port: port, ...);
 // The simplest GET possible at this level.
 // (GET is the default request method.  HTTP/1.1 is the default version.)
 //
-send-request(conn, "/status");
+send-request(conn, "GET", "/status");
 let response :: <http-response> = read-response(conn);
 ...content is in response.response-content...
 
 
 // Read streaming data (e.g., if it's too big to buffer it all).
 //
-send-request(conn, "/status");
+send-request(conn, "GET", "/status");
 let response :: <http-response> = read-response(conn, read-content: #f);
 ...read(response, n)...
 
@@ -32,8 +32,7 @@ let response :: <http-response> = read-response(conn, read-content: #f);
 // POST form data.
 // Content will be automatically encoded if it is a table.
 // A Content-Type header will be added if not otherwise provided.
-send-request(conn, "/form",
-             method: "POST",
+send-request(conn, "POST", "/form",
              content: encode-form-data(form-data));
 ...
 
@@ -57,29 +56,11 @@ end;
 
 close(conn);
 
-// The send-request signature...
-define method send-request
-    (conn :: <http-connection>,
-     url :: <uri>
-     #key headers :: <object>,
-          method :: type-union(<byte-string>, <symbol>),
-          send-standard-headers = #t,
-          http-version :: <symbol> = #"http/1.1",
-          content :: <object>)
- => ()
-
 // The plan is to allow content to be a stream, a string, a function,
 // a table (for POST), etc.
 
 
 */
-
-define variable *debug-writes?* = #f;
-
-// Add a target to this if you want to see logging for the client.
-//
-define constant $log :: <logger>
-  = make(<logger>, name: "http.client");
 
 // By the spec request methods are case-sensitive, but for convenience
 // we let them be specified as symbols as well.  If a symbol is used it
@@ -331,11 +312,6 @@ define inline function send-write-buffer
   else
     write(conn.connection-socket, conn.write-buffer,
           end: conn.write-buffer-index);
-    if (*debug-writes?*)
-      write(*standard-output*, "WROTE: ");
-      write(*standard-output*, conn.write-buffer,
-            end: conn.write-buffer-index);
-    end;
   end;
   conn.write-buffer-index := 0;
   note-bytes-sent(conn, conn.message-bytes-written);
@@ -353,11 +329,6 @@ define function send-chunk
   write(socket, conn.write-buffer, end: count);
   write(socket, "\r\n");
   inc!(conn.message-bytes-written, count);
-  if (*debug-writes?*)
-    format(*standard-output*, "WROTE: %s\r\n%s\r\n",
-           integer-to-string(count, base: 16),
-           copy-sequence(conn.write-buffer, end: count));
-  end;
 end function send-chunk;
 
 

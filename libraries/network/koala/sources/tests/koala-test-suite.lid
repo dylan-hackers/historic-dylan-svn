@@ -4,4 +4,5 @@ Files: library
        config-tests
        xml-rpc-tests
        vhost-tests
+       cgi-tests
        koala-test-suite

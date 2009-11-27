@@ -36,7 +36,9 @@ define function token-or-qstring (str :: <byte-string>,
     iterate count (pos = b, len = strlen)
       let pos = char-position('\\', str, pos, e);
       if (pos)
-        pos + 1 < e | bad-header-error();
+        if (pos + 1 >= e)
+          bad-header-error(message: "unterminated quoted character");
+        end;
         count(pos + 2, len - 1);
       elseif (len == strlen)
         substring(str, b, e)
@@ -106,8 +108,9 @@ define function parse-header (data) => (str :: <string>)
 end;
 
 
-define function parse-comma-separated-values (data, parse-function :: <function>)
-  => (values :: <list>)
+define function parse-comma-separated-values
+    (data, parse-function :: <function>)
+ => (values :: <list>)
   local method add-fields (so-far :: <list>, string :: <string>)
           let (str, bpos, epos) = string-extent(string);
           let result = #();
@@ -124,7 +127,7 @@ define function parse-comma-separated-values (data, parse-function :: <function>
                         elseif (ch)
                           find-end(pos + 1, quoted?)
                         else
-                          bad-header-error()
+                          bad-header-error(message: "malformed syntax"); // improve this
                         end;
                       end;
             let (b, e) = trim-whitespace(str, bpos, lim);
@@ -150,9 +153,10 @@ define function parse-comma-separated-pairs (data, parse-function :: <function>)
        alist: as(<alist>, parse-comma-separated-values(data, parse-function)))
 end;
 
-define function parse-single-header (data, parse-function :: <function>)
+define function parse-single-header
+    (data, parse-function :: <function>)
   if (instance?(data, <list>))
-    bad-header-error();
+    bad-header-error(message: "malformed syntax");  // improve this
   else
     let (str, bpos, epos) = string-extent(data);
     parse-function(str, bpos, epos)
@@ -244,17 +248,17 @@ define function parse-media-type (str :: <byte-string>,
 end;
 
 // accept-charset, accept-languages, TE
-define function parse-quality-pair (str :: <byte-string>,
-                                    bpos :: <integer>,
-                                    epos :: <integer>)
+define function parse-quality-pair
+    (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
   let (key, params) = extract-parameterized-value(str, bpos, epos);
   let val = if (empty?(params))
               1000
             elseif (params.size > 1 | ~string-equal?("q", params[0].head))
-              bad-header-error();
+              bad-header-error(message: "invalid quality pair");
             else
               let (str, b, e) = string-extent(params[0].tail);
-              quality-value(str, b, e) | bad-header-error();
+              quality-value(str, b, e)
+                | bad-header-error(message: "invalid quality pair");
             end;
   pair(key, val)
 end;
@@ -310,29 +314,27 @@ define function parse-expectation-pair (str :: <byte-string>,
        vpos & parse-parameterized-value(str, vpos + 1, epos))
 end;
 
-define function parse-host-value (str :: <string>,
-                                  bpos :: <integer>,
-                                  epos :: <integer>)
-  => (host+port :: <pair>)
+define function parse-host-value
+    (str :: <string>, bpos :: <integer>, epos :: <integer>)
+ => (host+port :: <pair>)
   let ppos = char-position(':', str, bpos, epos) | epos;
   let host = trimmed-substring(str, bpos, ppos);
   let (b, e) = trim-whitespace(str, ppos + 1, epos);
   let port = ppos < epos
               & (string->integer(str, b, e)
-                   | bad-header-error());
+                   | bad-header-error(message: "invalid port number"));
   pair(host, port)
 end;
 
-define function parse-entity-tag-value (str :: <byte-string>,
-                                        bpos :: <integer>,
-                                        epos :: <integer>)
+define function parse-entity-tag-value
+    (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
   if (string-match("*", str, bpos, epos))
-   #("*" . #f)
+    #("*" . #f)
   else
     let weak? = looking-at?("W/", str, bpos, epos)
                   & (bpos := skip-whitespace(str, bpos + 2, epos));
     unless (bpos < epos & str[bpos] == '"')
-      bad-header-error();
+      bad-header-error(message: "invalid entity tag; expected '\"'");
     end;
     let tag = token-or-qstring(str, bpos, epos);
     pair(tag, weak?)
@@ -397,34 +399,37 @@ define function parse-http-date (str :: <byte-string>,
   end;
 end;
 
-define function parse-date-value (str :: <byte-string>,
-                                  bpos :: <integer>,
-                                  epos :: <integer>)
-  => (date :: <date>)
-  parse-http-date(str, bpos, epos) | bad-header-error()
+define function parse-date-value
+    (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
+ => (date :: <date>)
+  parse-http-date(str, bpos, epos)
+    | bad-header-error(message: "value could not be parsed as a date")
 end;
 
-define function parse-integer-value (str :: <byte-string>,
-                                     bpos :: <integer>,
-                                     epos :: <integer>)
-  => (n :: <integer>)
-  string->integer(str, bpos, epos) | bad-header-error()
+define function parse-integer-value
+    (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
+ => (n :: <integer>)
+  string->integer(str, bpos, epos)
+    | bad-header-error(message: "value could not be parsed as an integer")
 end;
 
 define function parse-ranges-value (str :: <byte-string>,
                                     bpos :: <integer>,
                                     epos :: <integer>)
   => (ranges :: <list>)
-  let pos = char-position('=', str, bpos, epos) | bad-header-error();
+  let pos = char-position('=', str, bpos, epos)
+              | bad-header-error(message: "invalid ranges value");
   let (b, e) = trim-whitespace(str, bpos, pos);
-  string-match("bytes", str, b, e) | bad-header-error();
+  string-match("bytes", str, b, e)
+    | bad-header-error(message: "invalid range unit; expected 'bytes'");
   iterate loop (pos = pos, ranges = #())
     let bpos = skip-whitespace(str, pos + 1, epos);
     if (bpos == epos)
       reverse!(ranges)
     else
       let lim = char-position(',', str, bpos, epos) | epos;
-      let pos = char-position('-', str, bpos, lim) | bad-header-error();
+      let pos = char-position('-', str, bpos, lim)
+                  | bad-header-error(message: "invalid range specifier; expected '-'");
       let first = unless (pos == bpos)
                     let (b, e) = trim-whitespace(str, bpos, pos);
                     parse-integer-value(str, b, e)
@@ -438,30 +443,41 @@ define function parse-ranges-value (str :: <byte-string>,
   end;
 end;
 
-define function parse-range-value (str :: <byte-string>,
-                                   bpos :: <integer>,
-                                   epos :: <integer>)
-  => (range :: <pair>)
+define function parse-range-value
+    (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
+ => (range :: <pair>)
   let pos = token-end-position(str, bpos, epos);
-  (pos & string-match("bytes", str, bpos, pos)) | bad-header-error();
+  unless (pos & string-match("bytes", str, bpos, pos))
+    bad-header-error(message: "invalid range unit; expected 'bytes'");
+  end;
   let bpos = skip-whitespace(str, pos, epos);
-  bpos < epos | bad-header-error();
+  unless (bpos < epos)
+    bad-header-error(message: "invalid range value");
+  end;
   let (first, last, pos)
     = if (str[bpos] == '*')
         let pos = skip-whitespace(str, bpos + 1, epos);
-        unless (pos < epos & str[pos] == '/') bad-header-error() end;
+        unless (pos < epos & str[pos] == '/')
+          bad-header-error(message: "invalid range value")
+        end;
         values(#f, #f, pos)
       else
         let pos1 = char-position('-', str, bpos, epos);
         let first = pos1 & trimmed-string->integer(str, bpos, pos1);
         let pos2 = pos1 & char-position('/', str, pos1 + 1, epos);
         let last = pos2 & trimmed-string->integer(str, pos1 + 1, pos2);
-        unless (first & last) bad-header-error() end;
+        unless (first & last)
+          bad-header-error(message: "invalid range value")
+        end;
         values(first, last, pos2);
       end;
   let bpos = skip-whitespace(str, pos + 1, epos);
-  let len = if (bpos + 1 == epos & str[bpos] == '*') #f
-            else string->integer(str, bpos, epos) | bad-header-error() end;
+  let len = if (bpos + 1 == epos & str[bpos] == '*')
+              #f
+            else
+              string->integer(str, bpos, epos)
+              | bad-header-error(message: "invalid range value")
+            end;
   pair(pair(first, last), len);
 end;
 

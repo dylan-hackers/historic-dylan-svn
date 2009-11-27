@@ -21,6 +21,8 @@ define module logging
     // Loggers
     // Maybe rename to <log> and log-*
     <logger>,
+    log-formatter,
+    log-formatter-setter,
     log-level,
     log-level-setter,
     log-targets,
@@ -32,6 +34,7 @@ define module logging
     get-logger,
     get-root-logger,
     add-target,
+    remove-all-targets,
     remove-target,
 
     // Levels

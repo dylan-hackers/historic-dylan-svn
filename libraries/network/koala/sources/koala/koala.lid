@@ -6,6 +6,7 @@ files:	library
 	vhost
 	response
 	static-files
+	cgi
 	server
 	session
 	dsp
