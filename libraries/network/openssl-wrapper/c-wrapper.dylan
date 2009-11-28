@@ -244,3 +244,21 @@ define C-function BIO-do-accept
 end;
 
 //define constant BIO-do-handshake = BIO-do-accept;
+
+define constant <x509> = <C-void*>;
+
+define C-function PEM-read-X509
+  input parameter file :: <C-string>;
+  input parameter x :: <C-void*>; //actually x509**
+  input parameter password-callback :: <C-void*>; //actually pem_password_cb*
+  input parameter u :: <C-void*>;
+  result x509 :: <x509>;
+  c-name: "my_PEM_read_X509"
+end;
+
+define C-function SSL-context-add-extra-chain-certificate
+  input parameter context :: <SSL-CTX>;
+  input parameter x509 :: <x509>;
+  result res :: <C-long>;
+  c-name: "my_SSL_CTX_add_extra_chain_cert"
+end;

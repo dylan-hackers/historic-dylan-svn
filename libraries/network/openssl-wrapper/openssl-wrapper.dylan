@@ -49,10 +49,20 @@ define function write-bytes (bio :: <basic-input-output*>, data)
   BIO-write(bio, pointer-cast(<C-void*>, as(<C-string>, data)), data.size);
 end;
 
-define method ssl-listen (cert, key)
+define method ssl-listen (cert, key, #key ca)
   let ctx = SSL-context-new(SSLv23-server-method());
   SSL-context-use-certificate-file(ctx, cert, $SSL-FILETYPE-PEM);
   SSL-context-use-private-key-file(ctx, key, $SSL-FILETYPE-PEM);
+  if (ca)
+    let null = null-pointer(<C-void*>);
+    let cas = instance?(ca, <string>) & list(ca) | ca;
+    for (c in cas)
+      let x509 = PEM-read-X509(c, null, null, null);
+      format-out("setting ca certificate: x509\n");
+      SSL-context-add-extra-chain-certificate(ctx, x509);
+      format-out("setting ca certificate: add-extra\n");
+    end;
+  end;
   let bio = BIO-new-ssl(ctx, 0);
   let abio = BIO-new-accept("1234");
   BIO-set-accept-bios(abio, bio);
@@ -64,7 +74,7 @@ define function main(name, arguments)
   format-out("Hello, world!\n");
   init-ssl();
   //let bio = ssl-connect("www.opendylan.org", port: 443);
-  let bio = ssl-listen("/Users/hannes/cert.pem", "/Users/hannes/key.pem");
+  let bio = ssl-listen("/Users/hannes/www.opendylan.org.cert.pem", "/Users/hannes/www.opendylan.org.key.pem", ca: #("/Users/hannes/cacert.class3.crt", "/Users/hannes/root.crt"));
   while(#t)
     BIO-do-accept(bio);
     let out = BIO-pop(bio);
