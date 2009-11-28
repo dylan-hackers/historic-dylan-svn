@@ -49,17 +49,31 @@ define function write-bytes (bio :: <basic-input-output*>, data)
   BIO-write(bio, pointer-cast(<C-void*>, as(<C-string>, data)), data.size);
 end;
 
+define method ssl-listen (cert, key)
+  let ctx = SSL-context-new(SSLv23-server-method());
+  SSL-context-use-certificate-file(ctx, cert, $SSL-FILETYPE-PEM);
+  SSL-context-use-private-key-file(ctx, key, $SSL-FILETYPE-PEM);
+  let bio = BIO-new-ssl(ctx, 0);
+  let abio = BIO-new-accept("1234");
+  BIO-set-accept-bios(abio, bio);
+  BIO-do-accept(abio);
+  abio;
+end;
 
 define function main(name, arguments)
   format-out("Hello, world!\n");
   init-ssl();
-  let bio = ssl-connect("www.opendylan.org", port: 443);
-  //while(#t)
-    write-bytes(bio, "GET /\n\n");
-    format-out("wrote foo\n");
-    let in = read-bytes(bio);
+  //let bio = ssl-connect("www.opendylan.org", port: 443);
+  let bio = ssl-listen("/Users/hannes/cert.pem", "/Users/hannes/key.pem");
+  while(#t)
+    BIO-do-accept(bio);
+    let out = BIO-pop(bio);
+    BIO-do-accept(out);
+    let in = read-bytes(out);
     format-out("read %=\n", in);
-  //end;
+    write-bytes(out, in);
+    format-out("wrote in\n");
+  end;
 //  force-output(*standard-output*);
 //  exit-application(0);
 end function main;

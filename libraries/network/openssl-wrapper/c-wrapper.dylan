@@ -163,8 +163,44 @@ define constant <ssl*> = <C-void*>;
 //  pointer-type-name: <ssl*>;
 //end;
 
+define C-function SSL-context-use-certificate-file
+  input parameter context :: <SSL-CTX>;
+  input parameter filename :: <C-string>;
+  input parameter type :: <C-int>;
+  result res :: <C-int>;
+  c-name: "SSL_CTX_use_certificate_file"
+end;
+
+define C-function SSL-context-use-private-key-file
+  input parameter context :: <SSL-CTX>;
+  input parameter filename :: <C-string>;
+  input parameter type :: <C-int>;
+  result res :: <C-int>;
+  c-name: "SSL_CTX_use_PrivateKey_file"
+end;
+
+define C-function BIO-new-ssl
+  input parameter context :: <SSL-CTX>;
+  input parameter client :: <C-int>;
+  result bio :: <basic-input-output*>;
+  c-name: "BIO_new_ssl"
+end;
+
+define C-function BIO-new-accept
+  input parameter host-port :: <C-string>;
+  result bio :: <basic-input-output*>;
+  c-name: "BIO_new_accept"
+end;
+
+define C-function BIO-pop
+  input parameter bio :: <basic-input-output*>;
+  result bio :: <basic-input-output*>;
+  c-name: "BIO_pop"
+end;
+
 //some constants
 define constant $SSL-MODE-AUTO-RETRY = 4;
+define constant $SSL-FILETYPE-PEM = 1;
 
 //these are macros or other stuff defined in support.c
 define C-function BIO-do-connect
@@ -193,3 +229,18 @@ define C-function SSL-set-mode
   result res :: <C-long>;
   c-name: "my_SSL_set_mode"
 end;
+
+define C-function BIO-set-accept-bios
+  input parameter b :: <basic-input-output*>;
+  input parameter bio :: <basic-input-output*>;
+  result res :: <C-long>;
+  c-name: "my_BIO_set_accept_bios"
+end;
+
+define C-function BIO-do-accept
+  input parameter b :: <basic-input-output*>;
+  result res :: <C-long>;
+  c-name: "my_BIO_do_accept"
+end;
+
+//define constant BIO-do-handshake = BIO-do-accept;
