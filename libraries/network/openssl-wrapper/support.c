@@ -27,12 +27,13 @@ long my_SSL_set_mode (SSL* s, long op) {
   return SSL_set_mode(s, op);
 }
 
-X509* my_PEM_read_X509 (char* f, X509** x1, pem_password_cb* cb, void* u) {
-  FILE* fp;
-  X509* x;
-  fp = fopen(f, "r");
-  x = X509_new();
-  return PEM_read_X509(fp, &x, cb, u);
+X509* my_PEM_read_X509 (char* filename, X509** x, pem_password_cb* cb, void* u) {
+  FILE* f;
+  X509* xx;
+  f = fopen(filename, "r");
+  xx = PEM_read_X509(f, x, cb, u);
+  fclose(f);
+  return xx;
 }
 
 long my_SSL_CTX_add_extra_chain_cert (SSL_CTX* ctx, X509* x509) {

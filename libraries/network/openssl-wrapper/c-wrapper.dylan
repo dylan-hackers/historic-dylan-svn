@@ -198,6 +198,11 @@ define C-function BIO-pop
   c-name: "BIO_pop"
 end;
 
+define C-function X509-new
+  result x509 :: <x509>;
+  c-name: "X509_new"
+end;
+
 //some constants
 define constant $SSL-MODE-AUTO-RETRY = 4;
 define constant $SSL-FILETYPE-PEM = 1;
@@ -247,9 +252,11 @@ end;
 
 define constant <x509> = <C-void*>;
 
+define C-pointer-type <x509**> => <x509>;
+
 define C-function PEM-read-X509
   input parameter file :: <C-string>;
-  input parameter x :: <C-void*>; //actually x509**
+  input parameter x :: <x509**>;
   input parameter password-callback :: <C-void*>; //actually pem_password_cb*
   input parameter u :: <C-void*>;
   result x509 :: <x509>;

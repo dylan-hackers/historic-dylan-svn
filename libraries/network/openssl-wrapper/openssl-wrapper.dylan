@@ -49,19 +49,26 @@ define function write-bytes (bio :: <basic-input-output*>, data)
   BIO-write(bio, pointer-cast(<C-void*>, as(<C-string>, data)), data.size);
 end;
 
+define constant $nullp = null-pointer(<C-void*>);
+
+define function read-pem (filename :: <string>) => (result :: <x509>)
+  //if filename exists and is readable!
+  let x = X509-new();
+  if (null-pointer?(x))
+    //error in allocation, this is bad.
+  else
+    PEM-read-X509(filename, C-pointer-at(<x509**>, x), $nullp, $nullp);
+  end;
+end;
+
 define method ssl-listen (cert, key, #key ca)
   let ctx = SSL-context-new(SSLv23-server-method());
   SSL-context-use-certificate-file(ctx, cert, $SSL-FILETYPE-PEM);
   SSL-context-use-private-key-file(ctx, key, $SSL-FILETYPE-PEM);
   if (ca)
-    let null = null-pointer(<C-void*>);
     let cas = instance?(ca, <string>) & list(ca) | ca;
-    for (c in cas)
-      let x509 = PEM-read-X509(c, null, null, null);
-      format-out("setting ca certificate: x509\n");
-      SSL-context-add-extra-chain-certificate(ctx, x509);
-      format-out("setting ca certificate: add-extra\n");
-    end;
+    map(curry(SSL-context-add-extra-chain-certificate, ctx),
+	map(read-pem, cas));
   end;
   let bio = BIO-new-ssl(ctx, 0);
   let abio = BIO-new-accept("1234");
