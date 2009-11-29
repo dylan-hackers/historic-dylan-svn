@@ -21,23 +21,27 @@ define method bio-connect (host, #key port)
   bio;
 end;
 
-define method ssl-connect (host, #key port)
+define method dylan-ssl-connect (host, #key port)
   let ctx = SSL-context-new(SSLv23-client-method());
-  let bio = BIO-new-ssl-connect(ctx);
-//  with-stack-structure (ssl :: <SSL>)
-//    let res = BIO-get-ssl(bio, ssl);
-//    SSL-set-mode(ssl, $SSL-MODE-AUTO-RETRY);
+  let conn = make(<tcp-socket>, host: host, port: port);
+  let ssl = SSL-new(ctx);
+  SSL-set-fd(ssl, conn.socket-descriptor);
+  SSL-connect(ssl); //does the handshake
+//  let bio = BIO-new-ssl-connect(ctx);
+////  with-stack-structure (ssl :: <SSL>)
+////    let res = BIO-get-ssl(bio, ssl);
+////    SSL-set-mode(ssl, $SSL-MODE-AUTO-RETRY);
+////  end;
+//  BIO-set-connection-hostname(bio, concatenate(host, ":", integer-to-string(port)));
+//  if (BIO-do-connect(bio) <= 0)
+//    format-out("bio-do-connect failed!\n");
 //  end;
-  BIO-set-connection-hostname(bio, concatenate(host, ":", integer-to-string(port)));
-  if (BIO-do-connect(bio) <= 0)
-    format-out("bio-do-connect failed!\n");
-  end;
-  bio;
+  ssl;
 end;  
 
-define function read-bytes (bio :: <basic-input-output*>)
+define function read-bytes (bio :: <ssl*>) //bio :: <basic-input-output*>)
   let buf = make(<C-string>, size: 2000);
-  let c = BIO-read(bio, pointer-cast(<C-void*>, buf), 2000);
+  let c = SSL-read(bio, pointer-cast(<C-void*>, buf), 2000);
   if (c > 0)
     as(<byte-string>, copy-sequence(buf, end: c))
   else
@@ -45,8 +49,8 @@ define function read-bytes (bio :: <basic-input-output*>)
   end
 end;
 
-define function write-bytes (bio :: <basic-input-output*>, data)
-  BIO-write(bio, pointer-cast(<C-void*>, as(<C-string>, data)), data.size);
+define function write-bytes (bio :: <ssl*> /* <basic-input-output*> */, data)
+  SSL-write(bio, pointer-cast(<C-void*>, as(<C-string>, data)), data.size);
 end;
 
 define constant $nullp = null-pointer(<C-void*>);
@@ -70,26 +74,36 @@ define method ssl-listen (cert, key, #key ca)
     map(curry(SSL-context-add-extra-chain-certificate, ctx),
 	map(read-pem, cas));
   end;
-  let bio = BIO-new-ssl(ctx, 0);
-  let abio = BIO-new-accept("1234");
-  BIO-set-accept-bios(abio, bio);
-  BIO-do-accept(abio);
-  abio;
+  let s = make(<TCP-server-socket>, port: 1234);
+  values(ctx, s);
+//  let bio = BIO-new-ssl(ctx, 0);
+//  let abio = BIO-new-accept("1234");
+//  BIO-set-accept-bios(abio, bio);
+//  BIO-do-accept(abio);
+//  abio;
 end;
 
 define function main(name, arguments)
   format-out("Hello, world!\n");
   init-ssl();
-  //let bio = ssl-connect("www.opendylan.org", port: 443);
-  let bio = ssl-listen("/Users/hannes/www.opendylan.org.cert.pem", "/Users/hannes/www.opendylan.org.key.pem", ca: #("/Users/hannes/cacert.class3.crt", "/Users/hannes/root.crt"));
+  //let ssl = dylan-ssl-connect("www.opendylan.org", port: 443);
+  //write-bytes(ssl, "GET /\n\n");
+  //while (#t)
+  //  let buf = read-bytes(ssl);
+  //  format-out("read %s", buf);
+  //end;
+  let (ctx, s) = ssl-listen("/Users/hannes/www.opendylan.org.cert.pem", "/Users/hannes/www.opendylan.org.key.pem", ca: #("/Users/hannes/cacert.class3.crt", "/Users/hannes/root.crt"));
   while(#t)
-    BIO-do-accept(bio);
-    let out = BIO-pop(bio);
-    BIO-do-accept(out);
-    let in = read-bytes(out);
-    format-out("read %=\n", in);
-    write-bytes(out, in);
-    format-out("wrote in\n");
+    let cs = accept(s);
+    let ssl = SSL-new(ctx);
+    SSL-set-fd(ssl, cs.socket-descriptor);
+    SSL-accept(ssl);
+    while (#t)
+      let in = read-bytes(ssl);
+      format-out("read %=\n", in);
+      write-bytes(ssl, in);
+      format-out("wrote in\n");
+    end;
   end;
 //  force-output(*standard-output*);
 //  exit-application(0);

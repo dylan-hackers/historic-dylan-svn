@@ -78,6 +78,47 @@ define C-function BIO-write
   c-name: "BIO_write"
 end;
 
+define C-function SSL-new
+  input parameter context :: <SSL-CTX>;
+  result ssl :: <ssl*>;
+  c-name: "SSL_new"
+end;
+
+define C-function SSL-read
+  input parameter ssl :: <ssl*>;
+  parameter data :: <C-void*>;
+  input parameter length :: <C-int>;
+  result read-bytes :: <C-int>;
+  c-name: "SSL_read"
+end;
+
+define C-function SSL-write
+  input parameter ssl :: <ssl*>;
+  input parameter data :: <C-void*>;
+  input parameter length :: <C-int>;
+  result written-bytes :: <C-int>;
+  c-name: "SSL_write"
+end;
+
+define C-function SSL-set-fd
+  input parameter ssl :: <ssl*>;
+  input parameter socket :: <C-int>;
+  result res :: <C-int>;
+  c-name: "SSL_set_fd"
+end;
+
+define C-function SSL-connect
+  input parameter ssl :: <ssl*>;
+  result res :: <C-int>;
+  c-name: "SSL_connect"
+end;
+
+define C-function SSL-accept
+  input parameter ssl :: <ssl*>;
+  result res :: <C-int>;
+  c-name: "SSL_accept"
+end;
+
 //hope that I can treat this as opaque
 define constant <SSL-METHOD> = <C-void*>;
 

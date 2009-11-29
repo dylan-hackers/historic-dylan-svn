@@ -15,4 +15,5 @@ define module openssl-wrapper
   use c-ffi;
 //  use unix-sockets, import: { <C-buffer-offset> };
 //  use sockets, import: { buffer-offset, interruptibe-system-call };
+  use sockets;
 end module;
