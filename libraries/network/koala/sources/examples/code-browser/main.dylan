@@ -2,8 +2,6 @@ Module:   code-browser
 Synopsis: Browse Open Dylan environment objects
 Author:   Andreas Bogk, Bastian Mueller, Hannes Mehnert
 
-define constant $http-server = make(<http-server>);
-
 define thread variable *project* = #f; 
 define thread variable *environment-object* = #f;
 
@@ -50,7 +48,7 @@ define function symbol-responder (#key library-name, module-name, symbol-name)
   end;
 end;
 
-define url-map on $http-server
+define url-map $code-browser-url-map
   url "/symbol"
     action GET ("^(?P<library-name>[^/]+)(/(?P<module-name>[^/]+)(/(?P<symbol-name>[^/]+)/?)?)?$")
       => symbol-responder;
@@ -286,7 +284,7 @@ define function main () => ()
                                       foo.symbol-entry-name)),
              name-type(foo.symbol-entry-project,
                        foo.symbol-entry-name));
-  koala-main(server: $http-server,
+  koala-main(server: make(<http-server>, url-map: $code-browser-url-map),
              description: "Dylan Code Browser");
 end;
 

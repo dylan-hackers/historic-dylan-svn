@@ -47,10 +47,10 @@ define class <xml-rpc-server> (<object>)
 end class <xml-rpc-server>;
 
 define method add-responder
-    (server :: <http-server>, url :: <uri>, xml-rpc-server :: <xml-rpc-server>,
+    (store, url :: <uri>, xml-rpc-server :: <xml-rpc-server>,
      #key replace?,
           request-methods = #(#"POST"))
-  add-responder(server, url, curry(respond-to-xml-rpc-request, xml-rpc-server),
+  add-responder(store, url, curry(respond-to-xml-rpc-request, xml-rpc-server),
                 replace?: replace?,
                 request-methods: request-methods);
 end method add-responder;
@@ -193,13 +193,13 @@ define method parse-xml-rpc-call
 end method parse-xml-rpc-call;
 
 define macro xml-rpc-server-definer
-  { define xml-rpc-server ?:name (?url:expression on ?http-server:expression)
+  { define xml-rpc-server ?:name (?url:expression on ?store:expression)
         (?initargs:*)
       ?the-methods:*
     end }
     => { define xml-rpc-server ?name () (?initargs) ?the-methods end;
          let _xml-rpc-server = ?name;
-         add-responder(?http-server, ?url, ?name, server: ?http-server); }
+         add-responder(?store, ?url, ?name); }
 
   { define xml-rpc-server ?:name ()
         (?initargs:*)
