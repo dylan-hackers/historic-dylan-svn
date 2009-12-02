@@ -11,15 +11,6 @@ define thread variable *action* = #f;
 // sent values
 define thread variable *form* = #f;
 
-/* This can't possibly belong here.
-define url-map
-  url "/login"
-    action get () => (login);
-  url "/logout"
-    action get () => (logout);
-end;
-*/
-
 define tag show-login-url in web-framework (page :: <dylan-server-page>)
  (redirect :: type-union(<string>, <boolean>), current :: <boolean>)
   let url = parse-url("/login");

@@ -69,17 +69,24 @@ define module koala
     process-request-content,
     <page-context>,
     page-context;                // Returns a <page-context> if a page is being processed.
-                                 //   i.e., essentially within the dynamic scope of respond-to-get/post/etc
+                                 //   i.e., essentially within the dynamic scope of
+                                 //   respond-to-get/post/etc
 
   // Responders
   create
     <responder>,
-    responder-map,
+      request-method-map,
+    <tail-responder>,
+      tail-responder-regex,
+      tail-responder-action,
     add-responder,
+    add-tail-responder,
     remove-responder,
     find-responder,
     invoke-responder,
-    url-map-definer;
+    <skip-remaining-responders>,
+    url-map-definer,
+    add-urls;
 
   // Virtual hosts
   create

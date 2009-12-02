@@ -1,5 +1,5 @@
 Module:    httpi
-Synopsis:  Built-in URI response functions
+Synopsis:  Tools for mapping URLs to responder functions
 Author:    Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
            Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
@@ -7,50 +7,69 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
+// One URL prefix is mapped to one <responder>.  The <responder> contains
+// all the information necessary to dispatch to specific actions based on
+// the part of the URL following the prefix.
+//
 define class <responder> (<object>)
-  // responder-map is a map from request method (e.g. #"POST") to another table
-  // mapping regex -> list of functions.  When the regex matches the tail of the
-  // url (i.e., the part following the base url on which this responder was
-  // registered) the functions are called in order.  They should raise an exception
-  // (of what type?) to abort the chain.
-
-  // FIXME
-  // This doesn't make much sense to me.  Since the regular expressions are in a
-  // table there's no guaranteed order in which they'll be searched so you could
-  // get an arbitrary result.  --cgay Sep 2008
-
-  constant slot responder-map :: <table>,
-    init-function: curry(make, <table>),
+  // request-method-map is a map from request method (e.g. #"POST") to a sequence
+  // of <tail-responder>s.  When the regex in the tail responder matches the tail
+  // of the url (i.e., the part following the base url on which this responder was
+  // registered) the tail responder's action function is called.
+  //
+  constant slot request-method-map :: <table> = make(<table>),
     init-keyword: map:;
 end;
 
-// API
+// There is a sequence of <tail-responder>s per request method.  They are
+// each matched against the tail of the URL in order and the first one to
+// match is invoked.
+define class <tail-responder> (<object>)
+    constant slot tail-responder-regex :: <regex>,
+      required-init-keyword: regex:;
+
+    // Must be an object that supports the invoke-responder method.
+    // Currently that means <function> or <page>, but invoke-responder
+    // is exported so it could be anything.
+    constant slot tail-responder-action :: <object>,
+      required-init-keyword: action:;
+end;
+
+// Add a <responder> to a store, which is a <string-trie> or <http-server>.
+// Various conversions of the arguments are done for convenience in the 
+// following methods.
 define open generic add-responder
-    (server :: <http-server>, url :: <object>, responder :: <object>,
-     #key replace?, request-methods);
-
-// Convenience method to convert first arg to <uri>.  All other methods
-// should specialize the first arg on (a subclass of) <uri>.
-define method add-responder
-    (server :: <http-server>, uri :: <string>, responder :: <object>,
-     #key replace?,
-          request-methods = #(#"GET", #"POST"))
-  add-responder(server, parse-uri(uri), responder,
-                replace?: replace?,
-                request-methods: request-methods)
-end method add-responder;
+    (store, url, responder, #key replace?, request-methods);
 
 define method add-responder
-    (server :: <http-server>, uri :: <uri>, responder :: <responder>,
-     #key replace?,
-          request-methods = #(#"GET", #"POST"))
+    (server :: <http-server>, uri, responder,
+     #rest args, #key replace?, request-methods)
+  apply(add-responder, server.url-map, uri, responder, args)
+end;
+
+define method add-responder
+    (store, uri :: <string>, responder,
+     #rest args, #key replace?, request-methods)
+  apply(add-responder, store, parse-uri(uri), responder, args)
+end;
+
+define method add-responder
+    (store :: <string-trie>, uri :: <uri>, responder :: <responder>,
+     #key replace? :: <boolean>, request-methods)
   if (empty?(uri.uri-path))
     error(make(<koala-api-error>,
                format-string: "You can't add a responder for a URL with no path: %s",
-               format-arguments: list(uri)));
+               format-arguments: list(build-uri(uri))));
   else
-    add-object(server.url-map, uri.uri-path, responder, replace?: replace?);
-    log-info("Responder added: %s ", build-path(uri));
+    let path = build-path(uri);
+    block ()
+      add-object(store, uri.uri-path, responder, replace?: replace?);
+      log-info("Responder added: %s ", path);
+    exception (ex :: <trie-error>)
+      error(make(<koala-api-error>,
+                 format-string: "A responder already exists for URL path %s",
+                 format-arguments: list(path)));
+    end;
   end if;
 end method add-responder;
 
@@ -60,37 +79,30 @@ end method add-responder;
 // in the regex that matched the url tail, if any.
 //
 define method add-responder
-    (server :: <http-server>, url :: <uri>, response-function :: <function>,
-     #key replace?,
-          request-methods = #(#"GET", #"POST"))
-  let table = make(<table>, size: 1);
-  table[compile-regex("^$")] := list(response-function);
-  add-responder(server, url, table,
-                replace?: replace?,
-                request-methods: request-methods);
+    (store :: <string-trie>, url :: <uri>, response-function :: <function>,
+     #rest args, #key replace?, request-methods)
+  let tail-responder = make(<tail-responder>,
+                            regex: compile-regex("^$"),
+                            action: response-function);
+  apply(add-responder, store, url, list(tail-responder), args)
 end method add-responder;
 
 // Use this if you want a prefix URL and different behaviour depending on
 // which regex matches the URL tail.
 //
 define method add-responder
-    (server :: <http-server>, url :: <uri>, regex-map :: <table>,
-     #key replace?,
-          request-methods = #(#"GET", #"POST"))
-  for (responses keyed-by regex in regex-map)
-    assert(instance?(regex, <regex>)
-             & instance?(responses, <sequence>)
-             & every?(rcurry(instance?, <function>), responses),
-           "The regex-map argument to add-responder must be a table "
-           "mapping <regex> to a sequence of functions.  Found %= -> %=.",
-           regex, responses);
-  end;
+    (store :: <string-trie>, url :: <uri>, tail-responders :: <sequence>,
+     #key replace? :: <boolean>,
+          request-methods :: <collection> = #(#"GET", #"POST"))
+  assert(every?(rcurry(instance?, <tail-responder>), tail-responders),
+         "The tail-responders argument to add-responder must be a sequence "
+         "of <tail-responder>s.");
   let responder = make(<responder>);
   for (request-method in request-methods)
     // todo -- validate-request-method(request-method)
-    responder.responder-map[request-method] := regex-map;
+    responder.request-method-map[request-method] := tail-responders;
   end;
-  add-responder(server, url, responder,
+  add-responder(store, url, responder,
                 replace?: replace?,
                 request-methods: request-methods);
 end method add-responder;
@@ -127,13 +139,23 @@ end;
 
 
 /* Example usage
-define url-map on my-http-server
+define url-map $map ()
+  url "/" action get () => $main-page;
+end;
+
+add-urls(trie-or-server,
+         url "/a" action get () => $main-page;
+         url "/b" action get () => $main-page;)
+
+define url-map $my-map ()
   url "/wiki",
     action GET () => show-page,
     action POST () => edit-page;
   url "/wiki/login"
     action POST ("/(?<name>:\\w+") => login;
-  url
+end;
+define url-map for $my-map ()
+  url "/other" action GET () => responder;
 end;
 */
 // It might be nice to add a prefix clause to this.  e.g.,
@@ -148,11 +170,15 @@ end;
 // unhelpful error message.
 //
 define macro url-map-definer
-  { define url-map on ?http-server:expression
-      ?urls
-    end }
-   => { let _http-server :: <http-server> = ?http-server;
-        ?urls }
+  // Define a new variable and add URL mappings to it.
+  { define url-map ?:name () ?urls:* end }
+   => { define constant ?name :: <string-trie> = make(<string-trie>, object: #f);
+        add-urls(?name, ?urls); }
+end;
+
+define macro add-urls
+    { add-urls(?:name, ?urls) }
+ => { let _url-map = ?name; ?urls }
 
   urls:
     { } => { }
@@ -163,14 +189,14 @@ define macro url-map-definer
      => { let _responder = make(<responder>);
           let _locations = list(?uri);
           ?actions ;
-          add-responder( _http-server, first(_locations), _responder)
+          add-responder( _url-map, first(_locations), _responder)
           }
     { url ( ?locations:* ) ?actions }
       => { let _responder = make(<responder>);
            let _locations = list(?locations);
            ?actions ;
            for (loc in _locations)
-             add-responder( _http-server, loc, _responder);
+             add-responder( _url-map, loc, _responder);
            end
            }
   actions:
@@ -223,40 +249,30 @@ define macro url-map-definer
 
   request-method:
     { ?req-method:name }
-     => { add-responder-map-entry(_responder, ?#"req-method",
-                                  regex, actions, _locations) }
+     => { add-tail-responder(_responder, ?#"req-method",
+                             regex, actions, _locations) }
 
   regex:
     { } => { "^$" }
     { * } => { ".*" }
     { ?pattern:expression } => { ?pattern }
 
-end macro url-map-definer;
+end macro add-urls;
 
-define function add-responder-map-entry
+define method add-tail-responder
     (responder :: <responder>,
      request-method :: <symbol>,
      regex :: <regex>,
-     actions :: <sequence>,
+     action,
      uris :: <sequence>)
-  let table = element(responder.responder-map, request-method, default: #f);
-  if (~table)
-    table := make(<table>);
-    responder.responder-map[request-method] := table;
+  let tail-responders = element(responder.request-method-map, request-method,
+                                default: #f);
+  if (~tail-responders)
+    tail-responders := make(<stretchy-vector>);
+    responder.request-method-map[request-method] := tail-responders;
   end;
-  for (responder keyed-by reg in table)
-    if (reg.regex-pattern = regex.regex-pattern)
-      
-      signal(make(<koala-api-error>,
-                  format-string: "Duplicate regular expression (%s) "
-                    "in url map for %s to %s",
-                  format-arguments: list(regex.regex-pattern,
-                                         request-method,
-                                         join(uris, ", ", key: curry(as, <string>)))));
-    end if;
-  end for;
-  table[regex] := actions
-end function add-responder-map-entry;
+  add!(tail-responders, make(<tail-responder>, regex: regex, action: action));
+end method add-tail-responder;
 
 
 /*

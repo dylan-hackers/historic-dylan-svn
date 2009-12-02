@@ -333,9 +333,7 @@ define tag row-bgcolor in demo
          end);
 end;
 
-define constant $http-server = make(<http-server>);
-
-define url-map on $http-server
+define url-map $demo-url-map ()
   //prefix "/demo";    ...would be nice
   url ("/demo", "/demo/home")
     // Note that when a page just has a template but no special respond-to*
@@ -362,6 +360,8 @@ define url-map on $http-server
   url "/demo/table"
     action GET () => make(<demo-page>, source: "demo/table.dsp");
 end url-map;
+
+define constant $http-server = make(<http-server>, url-map: $demo-url-map);
 
 //// XML-RPC (use any XML-RPC client to call these)
 define xml-rpc-server $xml-rpc-server ("/RPC2" on $http-server)

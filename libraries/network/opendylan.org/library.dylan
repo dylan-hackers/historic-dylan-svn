@@ -6,6 +6,7 @@ define library opendylan-dot-org
   use common-dylan;
   use koala,  import: { dsp, koala };
   use uri;
+  use wiki;
 end;
 
 
@@ -14,5 +15,6 @@ define module opendylan-dot-org
   use dsp;
   use koala;
   use uri;
+  use wiki;
 end;
 

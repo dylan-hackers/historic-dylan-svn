@@ -6,7 +6,7 @@ Author: Carl Gay
 // When there are multiple urls for a single page, put the one
 // we want to be "canonical" first.
 define constant $urls
-  = list(#(#("/", "/index"), "/index.dsp"),
+  = list(//#(#("/", "/index"), "/index.dsp"),
          #("/about-dylan", "/about-dylan.dsp"),
          #("/about-gwydion.dsp", "/about-gwydion.dsp"),
          #("/browser", "/browser.dsp"),
@@ -45,7 +45,7 @@ define constant $urls
          #("/tools", "/tools.dsp"));
 
 define variable *server-directory* :: <string>
-  = "/var/www/opendylan.org";
+  = "c:/cgay/dylan/trunk/libraries/network/opendylan.org";
 
 define variable *static-directory* :: <string>
   = concatenate(*server-directory*, "/static");
@@ -100,7 +100,8 @@ define method main ()
   let http-server = make(<http-server>,
                          root-directory: *server-directory*,
                          document-root: *static-directory*,
-                         dsp-root: *dsp-directory*);
+                         dsp-root: *dsp-directory*,
+                         url-map: $wiki-url-map);
   for (item in $urls)
     let (urls, source) = apply(values, item);
     let page = make(<od-page>, source: source);

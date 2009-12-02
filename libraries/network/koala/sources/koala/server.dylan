@@ -73,14 +73,14 @@ define open class <http-server> (<object>)
   // RFC 2616, 5.1.1
 
   // In the url-map trie, each URL path leads to a <responder> object.
-  // The <responder> has a responder-map table that maps request methods
-  // (currently symbols like #"get") to yet another table which maps
-  // regular expressions to lists of objects that have an invoke-responder
-  // method defined on them.  (Weeee!)  The leading slash is removed
+  // The <responder> has a request-method-map that maps request methods
+  // (currently symbols like #"get") to a set of <tail-responder>s each
+  // of which has a regular expression and an object that supports the
+  // invoke-responder method.  (Weeee!)  The leading slash is removed
   // from URLs because it's easier to use merge-locators that way.
   // todo -- this should be per vhost
-  constant slot url-map :: <string-trie>,
-    init-function: curry(make, <string-trie>, object: #f);
+  constant slot url-map :: <string-trie> = make(<string-trie>, object: #f),
+    init-keyword: url-map:;
 
   //// Statistics
   // todo -- move these elsewhere
@@ -1255,9 +1255,9 @@ define method %invoke-handler
                   // This is set to a <page-context> when first requested.
                   *page-context* = #f)
       if (request.request-responder)
-        let (actions, match) = find-actions(request);
-        if (actions)
-          // Invoke each action function with keyword arguments matching the names
+        let (action, match) = find-action(request);
+        if (action)
+          // Invoke the action function with keyword arguments matching the names
           // of the named groups in the first regular expression that matches the
           // tail of the url, if any.  Also pass the entire match as the match:
           // argument so unnamed groups and the entire match can be accessed.
@@ -1271,8 +1271,12 @@ define method %invoke-handler
               end if;
             end for;
           end if;
-          for (action in actions)
+          block ()
             invoke-responder(request, action, arguments)
+          exception (ex :: <skip-remaining-responders>)
+            // The idea is that if 'action' is a sequence then one of the
+            // functions therein can signal this exception to say "I handled it."
+            // Not sure how useful this might be in practice.
           end;
         else
           resource-not-found-error(url: request.request-url);
@@ -1286,23 +1290,23 @@ define method %invoke-handler
   finish-response(response);
 end method %invoke-handler;
 
-define inline function find-actions
+define inline function find-action
     (request :: <request>)
- => (actions, match)
-  let rmap = request.request-responder.responder-map;
-  let responders = element(rmap, request.request-method, default: #f);
-  if (responders)
+ => (action, match)
+  let rm-map = request.request-responder.request-method-map;
+  let tail-responders = element(rm-map, request.request-method, default: #f);
+  if (tail-responders)
     block (return)
       let url-tail = build-path(request.request-tail-url);
-      for (actions keyed-by regex in responders)
-        let match = regex-search(regex, url-tail);
+      for (tail-responder in tail-responders)
+        let match = regex-search(tail-responder.tail-responder-regex, url-tail);
         if (match)
-          return(actions, match)
+          return(tail-responder.tail-responder-action, match)
         end if;
       end for;
     end block
   end
-end function find-actions;
+end function find-action;
 
 // Return a list of request methods that apply for the given request's
 // URL and tail URL.  Used for the OPTIONS request method.
@@ -1310,13 +1314,13 @@ end function find-actions;
 define inline function find-request-methods
     (request :: <request>)
  => (request-methods :: <sequence>)
-  let rmap = request.request-responder.responder-map;
+  let rm-map = request.request-responder.request-method-map;
   let url-tail = build-path(request.request-tail-url);
   let methods = #();
   for (req-method in $allowed-request-methods)
-    let responders = element(rmap, req-method, default: #());
+    let regex-map = element(rm-map, req-method, default: #());
     block (exit-loop)
-      for (actions keyed-by regex in responders)
+      for (actions keyed-by regex in regex-map)
         let match = regex-search(regex, url-tail);
         if (match)
           methods := pair(req-method, methods);
@@ -1328,26 +1332,40 @@ define inline function find-request-methods
   methods
 end function find-request-methods;
 
+// See %invoke-handler
+define class <skip-remaining-responders> (<condition>)
+end;
+
 // Clients can override this to create other types of responders.
 // 
 define open generic invoke-responder
-    (request :: <request>,
-     action :: <object>,
-     arguments :: <sequence>)
+    (request :: <request>, action :: <object>, arguments :: <sequence>)
  => ();
 
+// action unknown
 define method invoke-responder
-    (request :: <request>,
-     action :: <object>,
-     arguments :: <sequence>)
+    (request :: <request>, action :: <object>, arguments :: <sequence>)
  => ()
-  log-warning("Unknown action %= in action sequence.", action);
+  log-error("Unknown action %= in action sequence.", action);
+  // This is less specific than the log message because it may end up
+  // being displayed to the user.
+  application-error(message: "Unknown responder action");
 end;
 
+// action sequence
+// Action functions should signal <skip-remaining-responders> to skip
+// execution of any remaining responders in the sequence.
 define method invoke-responder
-    (request :: <request>,
-     action :: <function>,
-     arguments :: <sequence>)
+    (request :: <request>, actions :: <collection>, arguments :: <sequence>)
+ => ()
+  for (action in actions)
+    invoke-responder(request, action, arguments);
+  end;
+end;
+
+// action function
+define method invoke-responder
+    (request :: <request>, action :: <function>, arguments :: <sequence>)
  => ()
   apply(action, arguments)
 end;
