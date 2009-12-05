@@ -151,7 +151,8 @@ define module change
     undo,
     redo,
     print-xml,
-    print-change;
+    print-change,
+    permanent-link;
 
   //commands
   export <add-command>,
@@ -172,6 +173,7 @@ define module changes
   use object-table;
   use storage;
   use web-framework-macro;
+  use uri;
   use users;
   use change, export: all;
   //exports

@@ -36,7 +36,7 @@
       <A HREF="/learning">&rsaquo; Learning Dylan</A>
       <A HREF="/downloading">&rsaquo; Downloads</A>
       <A HREF="/documentation">&rsaquo; Documentation</A>
-      <A HREF="http://wiki.opendylan.org/">&rsaquo; Wiki</A>
+      <A HREF="/wiki/">&rsaquo; Wiki</A>
       <A HREF="/community">&rsaquo; Community</A>
       <A HREF="/contests">&rsaquo; Dylan Competes</A>
       <A HREF="/ports">&rsaquo; Supported Platforms</A>

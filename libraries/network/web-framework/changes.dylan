@@ -168,8 +168,6 @@ define constant <text> = <string>;
 define class <xhtml-div> (<object>)
 end;
 
-define constant <uri> = <string>;
-
 define constant <email> = <string>;
 
 define class <generator> (<object>)
@@ -200,11 +198,13 @@ end;
     
 define constant <source> = <feed>;
 
-define open generic permanent-link (object :: <object>, #key #all-keys) => (uri :: <uri>);
+define open generic permanent-link
+    (object :: <object>, #key, #all-keys) => (uri :: <uri>);
 
-define method permanent-link (entry :: <entry>, #key)
- => (uri :: <uri>);
-  entry.identifier 
+define method permanent-link
+    (entry :: <entry>, #key)
+ => (uri :: <uri>)
+  entry.identifier
 end;
 
 // RSS

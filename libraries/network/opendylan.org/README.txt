@@ -3,33 +3,17 @@ This is the project library for the opendylan.org web site.
 INSTALLATION
 ------------
 
-* Create the directory /var/www/opendylan.org.  For now this is
-  hard-coded.
+* Modify the provided config.xml for your site.
 
-* cd /var/www/opendylan.org
-  ln -s trunk/libraries/network/opendylan-dot-org/dsp
-  ln -s trunk/libraries/network/opendylan-dot-org/static
+* Create symlinks for the wiki .dsp and static files.
+  cd <your configured dsp root directory>
+  ln -s .../trunk/libraries/network/wiki/dsp wiki
+  ln -s .../trunk/libraries/network/wiki/www/style.css
+  ...TODO: probably more...
   ln -s <wherever>/downloads  (don't want to store these in svn)
 
 * Build the opendylan-dot-org library
 
 * Start the server:
 
-  opendylan-dot-org --help
-
-
-
-DEV NOTES
----------
-
-Items not implemented in the new version:
-
-* Recent news.  Handle this with the wiki?
-  Or by committing to a recent-news.dsp file?
-
-* news.phtml -- Move to wiki
-
-
-DSP bugs/features:
-
-* modified?(<file-page-mixin>) seems broken
+  opendylan-dot-org --config config.xml

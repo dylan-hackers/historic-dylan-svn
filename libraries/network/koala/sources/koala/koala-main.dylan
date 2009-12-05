@@ -56,7 +56,8 @@ command-line args
 //
 define function koala-main
     (#key server :: false-or(<http-server>),
-          description :: false-or(<string>))
+          description :: false-or(<string>),
+          before-startup :: false-or(<function>))
  => ()
   let parser = *argument-list-parser*;
   parse-arguments(parser, application-arguments());
@@ -93,6 +94,13 @@ define function koala-main
       let config-file = option-value-by-long-name(parser, "config");
       if (config-file)
         configure-server(*server*, config-file);
+      end;
+
+      // Gives callers a chance to do things after the server has been
+      // configured.  e.g., the wiki wants to add responders after a
+      // URL prefix has been configured.
+      if (before-startup)
+        before-startup(*server*);
       end;
 
       // Setup listeners.

@@ -12,27 +12,27 @@ define thread variable *action* = #f;
 define thread variable *form* = #f;
 
 define tag show-login-url in web-framework (page :: <dylan-server-page>)
- (redirect :: type-union(<string>, <boolean>), current :: <boolean>)
+    (redirect :: type-union(<string>, <boolean>), current :: <boolean>)
   let url = parse-url("/login");
   if (redirect)
     url.uri-query["redirect"] := if (current) 
-        build-uri(request-url(current-request()))
-      else 
-        redirect 
-      end if;
+                                   build-uri(request-url(current-request()))
+                                 else 
+                                   redirect
+                                 end;
   end if;
   output("%s", url);
 end;
 
 define tag show-logout-url in web-framework (page :: <dylan-server-page>)
- (redirect :: type-union(<string>, <boolean>), current :: <boolean>)
+    (redirect :: type-union(<string>, <boolean>), current :: <boolean>)
   let url = parse-url("/logout");
   if (redirect)
     url.uri-query["redirect"] := if (current) 
-        build-uri(request-url(current-request())) 
-      else 
-        redirect 
-      end if;
+                                   build-uri(request-url(current-request())) 
+                                 else
+                                   redirect
+                                 end;
   end if;
   output("%s", url);
 end;

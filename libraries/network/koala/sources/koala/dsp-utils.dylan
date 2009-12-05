@@ -21,7 +21,7 @@ define method initialize
     (paginator :: <paginator>, #key)
   next-method();
   paginator.current-page-number := min(paginator.current-page-number,
-                                       paginator.page-count);
+                                       max(1, paginator.page-count));
 end;
 
 // Total number of pages in this paginator.
