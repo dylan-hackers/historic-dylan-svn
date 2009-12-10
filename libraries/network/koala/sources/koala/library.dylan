@@ -149,9 +149,12 @@ define module koala
   // Documents
   create
     serve-static-file-or-cgi-script,
+    serve-static-file,
+    serve-cgi-script,
+    cgi-directory-responder,
+    cgi-script-responder,
     document-location,
     document-root,
-    static-file-responder,
     file-contents;
 
   // Errors

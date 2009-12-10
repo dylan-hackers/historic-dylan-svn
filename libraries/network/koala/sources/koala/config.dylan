@@ -8,6 +8,9 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 /*
  * TODO: Should warn when unrecognized attributes are used.
  *       Makes debugging your config file much easier sometimes.
+ *
+ * TODO: Decide how to configure CGI directories/scripts.  i.e.,
+ *       to add cgi-directory-responder via config only.
  */
 
 define constant $koala-config-dir :: <string> = "config";
@@ -472,12 +475,12 @@ define method process-config-element
   end if;
 end method process-config-element;
 
-// <directory  location = "/"
+// <directory  pattern = "/"
 //             allow-directory-listing = "yes"
 //             allow-cgi = "yes"
 //             cgi-extensions = "cgi,bat,exe,..."
 //             follow-symlinks = "yes"
-// />
+//             />
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"directory")
   let pattern = get-attr(node, #"pattern");

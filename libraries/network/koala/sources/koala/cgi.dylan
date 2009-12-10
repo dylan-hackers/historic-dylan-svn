@@ -22,12 +22,12 @@ define constant $cgi-header-names :: <sequence>
 define variable *cgi-excluded-http-header-names* :: <sequence>
   = #["Authorization", "Content-Length", "Content-Type"];
 
-define method cgi-script-responder
-    (script :: <locator>)
+define method serve-cgi-script
+    (script :: <locator>, #key path-info :: false-or(<sequence>))
   let command = as(<string>, script);
   log-debug("Running CGI script: %s", command);
   let request :: <request> = current-request();
-  let env :: <string-table> = make-cgi-environment(script);
+  let env :: <string-table> = make-cgi-environment(script, path-info: path-info);
 
   log-debug("  CGI environment:");
   for (value keyed-by key in env)
@@ -65,7 +65,41 @@ define method cgi-script-responder
     log-debug("  CGI terminated: %s, exit-code: %s, signal: %s",
               command, exit-code, signal);
   end;
-end method cgi-script-responder;
+end method serve-cgi-script;
+
+// Register this responder for directories containing CGI scripts.
+// It allows
+define function cgi-directory-responder (#key)
+  let request = current-request();
+  let path = request.request-tail-url.uri-path;
+  if (path.size = 0)
+    resource-not-found-error(url: request.request-raw-url-string); // 404
+  else
+    let script-name = path[0];
+    let url = concatenate(build-path(request.request-url),
+                          "/",
+                          script-name);
+    let script :: false-or(<physical-locator>) = static-file-locator-from-url(url);
+    if (script)
+      serve-cgi-script(script, path-info: copy-sequence(path, from: 1));
+    else
+      resource-not-found-error(url: url)
+    end;
+  end;
+end function cgi-directory-responder;
+
+// This may be registered explicitly for particular CGI scripts.
+define function cgi-script-responder (#key)
+  let request = current-request();
+  // Just use the path, not the host, query, or fragment.
+  let url = build-path(request.request-url);
+  let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
+  if (~document)
+    log-info("CGI script %s not found", url);
+    resource-not-found-error(url: request.request-raw-url-string);  // 404
+  end;
+  serve-cgi-script(document);
+end function cgi-script-responder;
 
 define method process-cgi-script-output
     (stdout :: <stream>, stderr :: <stream>)
@@ -120,7 +154,7 @@ define method internal-redirect-to
 end method internal-redirect-to;
 
 define method make-cgi-environment
-    (script :: <locator>)
+    (script :: <locator>, #key path-info :: false-or(<sequence>))
  => (environment :: <string-table>)
   let request :: <request> = current-request();
   let env :: <string-table> = make(<string-table>);
@@ -144,12 +178,14 @@ define method make-cgi-environment
 
   env["GATEWAY_INTERFACE"] := "CGI/1.1";
 
-  let url-tail = request.request-tail-url;
-  let url-tail-string = build-uri(url-tail);
-  if (url-tail-string.size > 0)
-    env["PATH_INFO"] := build-path(url-tail);
+  if (~path-info)
+    path-info := request.request-tail-url.uri-path;
+  end;
+  if (path-info.size > 0)
+    let path = build-path(make(<url>, path: path-info));
+    env["PATH_INFO"] := path;
     env["PATH_TRANSLATED"]
-      := as(<string>, merge-locators(as(<file-locator>, url-tail-string),
+      := as(<string>, merge-locators(as(<file-locator>, path),
                                      *virtual-host*.document-root));
   end;
 

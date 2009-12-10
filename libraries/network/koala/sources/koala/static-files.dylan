@@ -54,51 +54,41 @@ define method serve-static-file-or-cgi-script ()
   end;
 
   log-debug("Document: %s", document);
-  let (etag, weak?) = etag(document);
-  if (weak?)
-    add-header(response, "W/ETag", etag);
-  else
-    add-header(response, "ETag", etag);
+  let spec :: <directory-spec> = directory-spec-matching(*virtual-host*, url);
+  log-debug("Matched dirspec: %s", debug-string(spec));
+
+  if (file-type(document) == #"link")
+    let doc = follow-links(link-target(document), spec, url);
+    (doc ~= document) & log-info("Target document: %s", doc);
+    document := doc;
   end if;
-  let client-etag = get-header(request, "If-None-Match");
-  if (etag = client-etag)
-    request.request-method := #"head";
-    not-modified-redirect(headers: response.raw-headers);
-  else
-    let spec :: <directory-spec> = directory-spec-matching(*virtual-host*, url);
-    log-debug("Matched dirspec: %s", debug-string(spec));
 
-    if (file-type(document) == #"link")
-      let doc = follow-links(link-target(document), spec, url);
-      (doc ~= document) & log-info("Target document: %s", doc);
-      document := doc;
-    end if;
+  select (file-type(document))
+    #"directory" =>
+      serve-directory(url, document, spec);
 
-    select (file-type(document))
-      #"directory" =>
-        if (allow-directory-listing?(spec))
-          if (url[size(url) - 1] = '/')
-            directory-responder(request, response, document);
-          else
-            let new-location = concatenate(url, "/");
-            moved-permanently-redirect(location: new-location, // 301
-                                       header-name: "Location",
-                                       header-value: new-location);
-          end if;
+    // Links handled above.
+    //#"link" =>  
+      
+    otherwise =>
+      // It's a regular file...
+      log-debug("allow = %s, ext = %s", spec.allow-cgi?, spec.cgi-extensions);
+      if (spec.allow-cgi?
+            & member?(document.locator-extension, spec.cgi-extensions,
+                      test: string-equal?))  // should be \= on Unix
+        serve-cgi-script(document);
+      else
+        let (etag, weak?) = etag(document);
+        add-header(response, iff(weak?, "W/ETag", "ETag"), etag);
+        let client-etag = get-header(request, "If-None-Match");
+        if (etag = client-etag)
+          request.request-method := #"head";
+          not-modified-redirect(headers: response.raw-headers);
         else
-          forbidden-error();  // 403
-        end if;
-      otherwise =>
-        log-debug("allow = %s, ext = %s", spec.allow-cgi?, spec.cgi-extensions);
-        if (spec.allow-cgi?
-              & member?(document.locator-extension, spec.cgi-extensions,
-                        test: string-equal?))  // should be \= on Unix
-          cgi-script-responder(document);
-        else
-          static-file-responder(document);
+          serve-static-file(document);
         end;
-    end select;
-  end if;
+      end;
+  end select;
 end method serve-static-file-or-cgi-script;
 
 // Follow symlink chain.  If the target is outside the document root and
@@ -190,7 +180,7 @@ end method;
 
 
 // Serves up a static file
-define method static-file-responder (locator :: <locator>)
+define method serve-static-file (locator :: <locator>)
   log-debug("Serving static file: %s", as(<string>, locator));
   let response = current-response();
   with-open-file(in-stream = locator, direction: #"input", if-does-not-exist: #f,
@@ -203,7 +193,7 @@ define method static-file-responder (locator :: <locator>)
     //---TODO: optimize this
     write(response.output-stream, stream-contents(in-stream));
   end;
-end;
+end method serve-static-file;
 
 define method etag 
     (locator :: <locator>)
@@ -232,13 +222,29 @@ define method etag
                      weak);
 end method etag;
 
+define method serve-directory
+    (url :: <string>, directory :: <physical-locator>, spec :: <directory-spec>)
+  if (allow-directory-listing?(spec))
+    if (url[size(url) - 1] = '/')
+      generate-directory-html(directory);
+    else
+      let new-location = concatenate(url, "/");
+      moved-permanently-redirect(location: new-location, // 301
+                                 header-name: "Location",
+                                 header-value: new-location);
+    end if;
+  else
+    forbidden-error();  // 403
+  end if;
+end method serve-directory;
 
 // Serves up a directory listing as HTML.  The caller has already verified that this
 // locator names a directory, even though it may be a <file-locator>, and that the
 // directory it names is under the document root.
 //---TODO: add image links.  deal with access control.
-define method directory-responder
-    (request :: <request>, response :: <response>, locator :: <locator>)
+define method generate-directory-html
+    (locator :: <locator>)
+  let response :: <response> = current-response();  
   let loc :: <directory-locator>
     = iff(instance?(locator, <directory-locator>),
           locator,
@@ -281,7 +287,7 @@ define method directory-responder
         write(stream, "\t\t\t</tr>\n");
       end;
     end;
-  let url = request-url(request);
+  let url = request-url(current-request());
   format(stream,
          "<?xml version=\"1.0\"?>\n"
          "<!DOCTYPE html PUBLIC \"-//W3C/DTD XHTML 1.0 Strict//EN\""
@@ -327,7 +333,7 @@ define method directory-responder
         "\t\t</table>\n"
         "\t</body>\n"
         "</html>\n");
-end;
+end method generate-directory-html;
 
 define method display-file-property
     (stream, key, property, file-type :: <file-type>) => ()

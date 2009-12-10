@@ -139,11 +139,15 @@
      match against the requested URL, so "/" matches all documents.  The
      order of DIRECTORY elements is significant.  If two directory
      patterns match the same URL, the one specified later in the config
-     file will take precedence.  For now allow-directory-listing is the
-     only recognized attribute (defaulting to "no").  -->
+     file will take precedence.  Note that if follow-symlinks is true then
+     links will be followed even if the target is outside of the document
+     root directory.  -->
 <directory pattern = "/"
-           allow-directory-listing = "yes" />
-
+           allow-directory-listing = "yes"
+           allow-cgi = "yes"
+           cgi-extensions = "cgi,bat,exe,..."
+           follow-symlinks = "yes"
+           />
 
 <!-- If DEFAULT-VIRTUAL-HOST is enabled then requests that don't match
      any virtual host will fall back to the default vhost instead.  The
