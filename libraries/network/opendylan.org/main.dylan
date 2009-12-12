@@ -91,10 +91,10 @@ define method add-opendylan-responders
                 else
                   urls
                 end)
-      add-responder(http-server, parse-uri(url), page);
+      add-responder(http-server, url, page);
     end;
   end;
-  add-responder(http-server, "/cgi-bin", cgi-directory-responder);
+  add-cgi-directory-responder(http-server, "/cgi-bin");
 end method add-opendylan-responders;
 
 define method main

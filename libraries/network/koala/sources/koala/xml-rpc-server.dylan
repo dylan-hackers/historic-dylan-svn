@@ -46,14 +46,12 @@ define class <xml-rpc-server> (<object>)
 
 end class <xml-rpc-server>;
 
-define method add-responder
-    (store, url :: <uri>, xml-rpc-server :: <xml-rpc-server>,
-     #key replace?,
-          request-methods = #(#"POST"))
-  add-responder(store, url, curry(respond-to-xml-rpc-request, xml-rpc-server),
-                replace?: replace?,
-                request-methods: request-methods);
-end method add-responder;
+define method %add-responder
+    (store :: <string-trie>, url :: <uri>, xml-rpc-server :: <xml-rpc-server>,
+     #key replace?)
+  %add-responder(store, url, curry(respond-to-xml-rpc-request, xml-rpc-server),
+                 replace?: replace?)
+end method %add-responder;
 
 define function respond-to-xml-rpc-request
     (xml-rpc-server :: <xml-rpc-server>)

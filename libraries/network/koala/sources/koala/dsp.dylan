@@ -100,14 +100,12 @@ define method respond-to-get
   process-template(page);
 end method respond-to-get;
 
-define method add-responder
-    (server :: <http-server>, url :: <uri>, responder :: <page>,
-     #key replace?,
-          request-methods = #(#"GET", #"POST"))
-  add-responder(server, url, curry(process-page, responder),
-                replace?: replace?,
-                request-methods: request-methods)
-end method add-responder;
+define method %add-responder
+    (store :: <string-trie>, url :: <uri>, responder :: <page>,
+     #key replace?)
+  %add-responder(store, url, curry(process-page, responder), replace?: replace?)
+end method %add-responder;
+
 //
 // Page mixin classes and related methods
 //

@@ -35,77 +35,76 @@ define class <tail-responder> (<object>)
       required-init-keyword: action:;
 end;
 
-// Add a <responder> to a store, which is a <string-trie> or <http-server>.
-// Various conversions of the arguments are done for convenience in the 
-// following methods.
-define open generic add-responder
-    (store, url, responder, #key replace?, request-methods);
+// A convenience function for making a responder with several
+// tail url matchers.  Example:
+//   make-responder(list(#(get:, post:),
+//                       "^/(?P<script-name>[^/]+)(?P<path-info>.*)$",
+//                       cgi-directory-responder),
+//                  ...)
+define function make-responder
+    (#rest triples) => (responder :: <responder>)
+  let responder = make(<responder>);
+  for (triple in triples)
+    let (request-methods, regex, action) = apply(values, triple);
+    if (~instance?(regex, <regex>))
+      regex := compile-regex(regex);
+    end;
+    for (request-method in iff(instance?(request-methods, <collection>),
+                               request-methods,
+                               list(request-methods)))
+      add-tail-responder(responder, request-method, regex, action);
+    end;
+  end;
+  responder
+end function make-responder;
 
-define method add-responder
-    (server :: <http-server>, uri, responder,
-     #rest args, #key replace?, request-methods)
-  apply(add-responder, server.url-map, uri, responder, args)
-end;
+define function add-responder
+    (store :: type-union(<string-trie>, <http-server>),
+     uri :: type-union(<uri>, <string>), responder,
+     #key replace? :: <boolean>)
+  if (instance?(store, <http-server>))
+    store := store.url-map;
+  end;
+  if (instance?(uri, <string>))
+    uri := parse-uri(uri);
+  end;
+  %add-responder(store, uri, responder, replace?: replace?);
+end function add-responder;
 
-define method add-responder
-    (store, uri :: <string>, responder,
-     #rest args, #key replace?, request-methods)
-  apply(add-responder, store, parse-uri(uri), responder, args)
-end;
+define open generic %add-responder
+    (store :: <string-trie>, url :: <uri>, responder, #key replace?);
 
-define method add-responder
+define method %add-responder
     (store :: <string-trie>, uri :: <uri>, responder :: <responder>,
-     #key replace? :: <boolean>, request-methods)
-  if (empty?(uri.uri-path))
+     #key replace? :: <boolean>)
+  let path = uri.uri-path;
+  if (empty?(path))
     error(make(<koala-api-error>,
-               format-string: "You can't add a responder for a URL with no path: %s",
-               format-arguments: list(build-uri(uri))));
+               format-string: "Attempt to add a responder for a URL with no path."));
   else
-    let path = build-path(uri);
     block ()
-      add-object(store, uri.uri-path, responder, replace?: replace?);
-      log-info("Responder added: %s ", path);
+      add-object(store, path, responder, replace?: replace?);
+      log-info("Responder added: %s ", build-path(uri));
     exception (ex :: <trie-error>)
       error(make(<koala-api-error>,
                  format-string: "A responder already exists for URL path %s",
-                 format-arguments: list(path)));
+                 format-arguments: list(build-path(uri))));
     end;
   end if;
-end method add-responder;
+end method %add-responder;
 
 // The simple case where you just want an exact URL to map to a function.
 // This takes care of the messy details of building a <responder> object.
 // response-function is passed one keyword argument for each named group
 // in the regex that matched the url tail, if any.
 //
-define method add-responder
+define method %add-responder
     (store :: <string-trie>, url :: <uri>, response-function :: <function>,
-     #rest args, #key replace?, request-methods)
-  let tail-responder = make(<tail-responder>,
-                            regex: compile-regex("^$"),
-                            action: response-function);
-  apply(add-responder, store, url, list(tail-responder), args)
-end method add-responder;
-
-// Use this if you want a prefix URL and different behaviour depending on
-// which regex matches the URL tail.
-//
-define method add-responder
-    (store :: <string-trie>, url :: <uri>, tail-responders :: <sequence>,
-     #key replace? :: <boolean>,
-          request-methods :: <collection> = #(#"GET", #"POST"))
-  assert(every?(rcurry(instance?, <tail-responder>), tail-responders),
-         "The tail-responders argument to add-responder must be a sequence "
-         "of <tail-responder>s.");
-  let responder = make(<responder>);
-  for (request-method in request-methods)
-    // todo -- validate-request-method(request-method)
-    responder.request-method-map[request-method] := tail-responders;
-  end;
-  add-responder(store, url, responder,
-                replace?: replace?,
-                request-methods: request-methods);
-end method add-responder;
+     #key replace?)
+  %add-responder(store, url,
+                 make-responder(list(#(get:, post:), "^$", response-function)),
+                 replace?: replace?)
+end method %add-responder;
 
 define open generic find-responder
     (server :: <http-server>, url :: <object>)
@@ -154,20 +153,12 @@ define url-map $my-map ()
   url "/wiki/login"
     action POST ("/(?<name>:\\w+") => login;
 end;
-define url-map for $my-map ()
-  url "/other" action GET () => responder;
-end;
 */
 // It might be nice to add a prefix clause to this.  e.g.,
 //    prefix: "/demo"
 // so that all urls are prefixed with that string.  But that might
 // be better handled by "define web-application", which perhaps this
 // macro can be expanded to at some point.
-//
-// This should have a way of specifying the server for which the urls
-// will be defined.  Maybe "define url-map for server ... end".
-// Predictably, trying to add that syntax results in a mysterious and
-// unhelpful error message.
 //
 define macro url-map-definer
   // Define a new variable and add URL mappings to it.
@@ -177,8 +168,8 @@ define macro url-map-definer
 end;
 
 define macro add-urls
-    { add-urls(?:name, ?urls) }
- => { let _url-map = ?name; ?urls }
+    { add-urls(?store:expression, ?urls) }
+ => { let _url-map = ?store; ?urls }
 
   urls:
     { } => { }
@@ -250,7 +241,7 @@ define macro add-urls
   request-method:
     { ?req-method:name }
      => { add-tail-responder(_responder, ?#"req-method",
-                             regex, actions, _locations) }
+                             regex, actions) }
 
   regex:
     { } => { "^$" }
@@ -263,8 +254,7 @@ define method add-tail-responder
     (responder :: <responder>,
      request-method :: <symbol>,
      regex :: <regex>,
-     action,
-     uris :: <sequence>)
+     action)
   let tail-responders = element(responder.request-method-map, request-method,
                                 default: #f);
   if (~tail-responders)

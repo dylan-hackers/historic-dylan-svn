@@ -79,7 +79,8 @@ define module koala
     <tail-responder>,
       tail-responder-regex,
       tail-responder-action,
-    add-responder,
+    add-responder,       // call this
+    %add-responder,      // extend this
     add-tail-responder,
     remove-responder,
     find-responder,
@@ -144,6 +145,7 @@ define module koala
     debugging-enabled?,
     debugging-enabled?-setter,
     register-xml-rpc-method,
+    respond-to-xml-rpc-request,
     $default-xml-rpc-url;
 
   // Documents
@@ -151,8 +153,8 @@ define module koala
     serve-static-file-or-cgi-script,
     serve-static-file,
     serve-cgi-script,
-    cgi-directory-responder,
-    cgi-script-responder,
+    cgi-directory-responder, add-cgi-directory-responder,
+    cgi-script-responder, add-cgi-script-responder,
     document-location,
     document-root,
     file-contents;

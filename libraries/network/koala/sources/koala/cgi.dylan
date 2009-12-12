@@ -67,39 +67,53 @@ define method serve-cgi-script
   end;
 end method serve-cgi-script;
 
-// Register this responder for directories containing CGI scripts.
-// It allows
-define function cgi-directory-responder (#key)
+// Register this responder for directories containing CGI scripts
+// with add-cgi-directory-responder.
+define function cgi-directory-responder
+    (#key script-name :: <string>, path-info)
   let request = current-request();
-  let path = request.request-tail-url.uri-path;
-  if (path.size = 0)
-    resource-not-found-error(url: request.request-raw-url-string); // 404
+  let url = concatenate(build-path(request.request-url), "/", script-name);
+  let script :: false-or(<physical-locator>) = static-file-locator-from-url(url);
+  if (script)
+    serve-cgi-script(script, path-info: path-info);
   else
-    let script-name = path[0];
-    let url = concatenate(build-path(request.request-url),
-                          "/",
-                          script-name);
-    let script :: false-or(<physical-locator>) = static-file-locator-from-url(url);
-    if (script)
-      serve-cgi-script(script, path-info: copy-sequence(path, from: 1));
-    else
-      resource-not-found-error(url: url)
-    end;
+    resource-not-found-error(url: url)
   end;
 end function cgi-directory-responder;
 
-// This may be registered explicitly for particular CGI scripts.
-define function cgi-script-responder (#key)
+define method add-cgi-directory-responder
+    (store :: type-union(<string-trie>, <http-server>),
+     cgi-directory-url :: <string>)
+  add-responder(store, cgi-directory-url,
+                make-responder(list(#(get:, post:),
+                                    "^/(?P<script-name>[^/]+)(?P<path-info>.*)$",
+                                    cgi-directory-responder)))
+end;
+
+// This may be registered explicitly for particular CGI scripts
+// with add-cgi-script-responder.
+define function cgi-script-responder
+    (#key path-info)
   let request = current-request();
   // Just use the path, not the host, query, or fragment.
   let url = build-path(request.request-url);
-  let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
-  if (~document)
+  let script :: false-or(<physical-locator>) = static-file-locator-from-url(url);
+  if (script)
+    serve-cgi-script(script, path-info: path-info);
+  else
     log-info("CGI script %s not found", url);
     resource-not-found-error(url: request.request-raw-url-string);  // 404
   end;
-  serve-cgi-script(document);
 end function cgi-script-responder;
+
+define method add-cgi-script-responder
+    (store :: type-union(<string-trie>, <http-server>),
+     cgi-script-url :: <string>)
+  add-responder(store, cgi-script-url,
+                make-responder(list(#(get:, post:),
+                                    "^(?P<path-info>.*)$",
+                                    cgi-script-responder)))
+end;
 
 define method process-cgi-script-output
     (stdout :: <stream>, stderr :: <stream>)
@@ -154,7 +168,7 @@ define method internal-redirect-to
 end method internal-redirect-to;
 
 define method make-cgi-environment
-    (script :: <locator>, #key path-info :: false-or(<sequence>))
+    (script :: <locator>, #key path-info = $unsupplied)
  => (environment :: <string-table>)
   let request :: <request> = current-request();
   let env :: <string-table> = make(<string-table>);
@@ -178,14 +192,10 @@ define method make-cgi-environment
 
   env["GATEWAY_INTERFACE"] := "CGI/1.1";
 
-  if (~path-info)
-    path-info := request.request-tail-url.uri-path;
-  end;
-  if (path-info.size > 0)
-    let path = build-path(make(<url>, path: path-info));
-    env["PATH_INFO"] := path;
+  if (path-info & ~empty?(path-info))
+    env["PATH_INFO"] := path-info;
     env["PATH_TRANSLATED"]
-      := as(<string>, merge-locators(as(<file-locator>, path),
+      := as(<string>, merge-locators(as(<file-locator>, path-info),
                                      *virtual-host*.document-root));
   end;
 
