@@ -44,30 +44,23 @@ end;
 define method initialize (sock :: <ssl-socket>, #rest rest, #key lower, requested-buffer-size, #all-keys)
  => ()
   //next-method();
-  if (lower)
+  if (lower) //this is a client socket!
     format-out("initializing ssl socket\n");
+    let keys = list(#"port", lower.remote-port,
+		    #"host", lower.remote-host,
+		    #"direction", lower.stream-direction);
+    format-out("calling next-method with %=\n", keys);
+    apply(next-method, sock, keys);
+    format-out("ran next method\n");
     //already setup a connection! do SSL handshake over this connection
     sock.ssl-context := SSL-context-new(SSLv23-client-method());
     let ssl = SSL-new(sock.ssl-context);
-    sock.accessor := new-accessor(type-for-socket(sock), descriptor: ssl);
-    format-out("set ssl socket accessor\n");
-    let direction = sock.stream-direction;
-    sock.stream-direction := direction;
-    let size-for-buffers :: <integer> =
-      if (requested-buffer-size) 
-	requested-buffer-size
-      else
-	accessor-preferred-buffer-size(sock.accessor)
-      end if;
-    if ((direction == #"input") | (direction == #"input-output"))
-      stream-input-buffer(sock) := make(<buffer>, size: size-for-buffers) 
-    end;
-    if ((direction == #"output") | (direction == #"input-output"))
-      stream-output-buffer(sock) := make(<buffer>, size: size-for-buffers)
-    end;
+    sock.accessor.socket-descriptor := ssl;
     SSL-set-fd(ssl, lower.accessor.socket-descriptor);
+    let ret = SSL-connect(sock.accessor.socket-descriptor); //does the handshake
+    format-out("return value of connect was %=\n", ret);
     format-out("finished initializing %=, acc is %=\n", sock, sock.accessor);
-  else //need to connect manually!
+  else //server socket via accept
     format-out("FOO\n");
     next-method();
   end;
@@ -160,9 +153,9 @@ define method accessor-open
   if (descriptor)
     accessor.socket-descriptor := descriptor;
   end;
-  //else //client socket, already connected!
-    let ret = SSL-connect(accessor.socket-descriptor); //does the handshake
-    format-out("return value of connect was %=\n", ret);
+  //else
+//    let ret = SSL-connect(accessor.socket-descriptor); //does the handshake; only needed if a client!
+//    format-out("return value of connect was %=\n", ret);
   //end
 end;
 
@@ -187,8 +180,8 @@ define function main(name, arguments)
   format-out("Hello, world!\n");
   start-sockets();
   init-ssl();
-  format-out("initialized sockets and ssl\n");
-/*  let cs = make(<TCP-socket>, host: "localhost", port: 1234);
+/*  format-out("initialized sockets and ssl\n");
+  let cs = make(<TCP-socket>, host: "localhost", port: 1234);
   format-out("instantiated tcp socket\n");
   let scs = make(<ssl-socket>, lower: cs);
   format-out("instantiated ssl socket!\n");
