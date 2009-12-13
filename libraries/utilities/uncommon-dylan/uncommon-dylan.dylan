@@ -403,31 +403,27 @@ define method remove-object
   object
 end method remove-object;
 
-
 // Find the object with the longest path, if any.
-// 2nd return value is the part of the path that
+// 2nd return value is the path that matched.
+// 3rd return value is the part of the path that
 // came after where the object matched.
 //
 define method find-object
     (trie :: <string-trie>, path :: <sequence>)
- => (object :: <object>, rest-path :: <sequence>)
-  local method real-find (trie, path, object, rest)
+ => (object :: <object>, rest-path :: <sequence>, prefix-path :: <sequence>)
+  local method real-find (trie, path, object, prefix, rest)
           if (empty?(path))
-            values(object, rest)
+            values(object, rest, reverse(prefix))
           else
             let child = element(trie.trie-children, head(path), default: #f);
             if (child)
               real-find(child, tail(path), child.trie-object | object,
-                        if (child.trie-object)
-                          tail(path)
-                        else
-                          rest
-                        end if);
+                        pair(head(path), prefix),
+                        iff(child.trie-object, tail(path), rest));
             else
-              values(object, rest);
+              values(object, rest, reverse(prefix));
             end
           end
         end method real-find;
-  real-find(trie, as(<list>, path), trie.trie-object, #());
+  real-find(trie, as(<list>, path), trie.trie-object, #(), #());
 end method find-object;
-

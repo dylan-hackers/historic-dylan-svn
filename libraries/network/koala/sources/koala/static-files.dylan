@@ -48,6 +48,8 @@ define method serve-static-file-or-cgi-script ()
   // Just use the path, not the host, query, or fragment.
   let url = build-path(request.request-url);
   let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
+  log-debug("serve-static-file-or-cgi-script: url = %s, document = %s",
+            url, as(<string>, document | "#f"));
   if (~document)
     log-info("%s not found", url);
     resource-not-found-error(url: request-raw-url-string(request));  // 404
@@ -76,7 +78,7 @@ define method serve-static-file-or-cgi-script ()
       if (spec.allow-cgi?
             & member?(document.locator-extension, spec.cgi-extensions,
                       test: string-equal?))  // should be \= on Unix
-        serve-cgi-script(document);
+        serve-cgi-script(document, url);
       else
         let (etag, weak?) = etag(document);
         add-header(response, iff(weak?, "W/ETag", "ETag"), etag);

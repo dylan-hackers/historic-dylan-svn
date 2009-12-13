@@ -58,7 +58,8 @@ define module koala
     <request>,
     current-request,             // Returns the active request of the thread.
     request-host,
-    request-tail-url,
+    request-path-prefix,
+    request-path-tail,
     request-absolute-url,
     request-query-values,        // get the keys/vals from the current GET or POST request
       get-query-value,           // Get a query value that was passed in a URL or a form

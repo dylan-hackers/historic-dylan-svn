@@ -53,7 +53,7 @@ define function prefix1 (#key)
          "</body></html>",
          // Note that we could also use "#key match" above and then get the
          // entire match with match-group(match, 0).
-         current-request().request-tail-url);
+         current-request().request-path-tail);
 end function prefix1;
 
 

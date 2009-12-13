@@ -108,17 +108,23 @@ end method %add-responder;
 
 define open generic find-responder
     (server :: <http-server>, url :: <object>)
- => (responder :: false-or(<responder>), rest-path :: <sequence>);
+ => (responder :: false-or(<responder>),
+     rest-path :: <sequence>,
+     prefix-path :: <sequence>);
 
 define method find-responder
     (server :: <http-server>, url :: <string>)
- => (responder :: false-or(<responder>), rest-path :: <sequence>)
+ => (responder :: false-or(<responder>),
+     rest-path :: <sequence>,
+     prefix-path :: <sequence>)
   find-responder(server, parse-url(url))
 end method find-responder;
 
 define method find-responder
     (server :: <http-server>, url :: <url>)
- => (responder :: false-or(<responder>), rest-path :: <sequence>)
+ => (responder :: false-or(<responder>),
+     rest-path :: <sequence>,
+     prefix-path :: <sequence>)
   find-object(server.url-map, url.uri-path)
 end method find-responder;
 

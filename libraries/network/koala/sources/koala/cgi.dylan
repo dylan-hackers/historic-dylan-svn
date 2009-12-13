@@ -23,11 +23,13 @@ define variable *cgi-excluded-http-header-names* :: <sequence>
   = #["Authorization", "Content-Length", "Content-Type"];
 
 define method serve-cgi-script
-    (script :: <locator>, #key path-info :: false-or(<sequence>))
+    (script :: <locator>, script-name :: <string>,
+     #key path-info :: false-or(<string>))
   let command = as(<string>, script);
   log-debug("Running CGI script: %s", command);
   let request :: <request> = current-request();
-  let env :: <string-table> = make-cgi-environment(script, path-info: path-info);
+  let env :: <string-table>
+    = make-cgi-environment(script, script-name, path-info: path-info);
 
   log-debug("  CGI environment:");
   for (value keyed-by key in env)
@@ -70,12 +72,15 @@ end method serve-cgi-script;
 // Register this responder for directories containing CGI scripts
 // with add-cgi-directory-responder.
 define function cgi-directory-responder
-    (#key script-name :: <string>, path-info)
+    (#key script-name :: <string>, path-info :: false-or(<string>))
+  log-debug("cgi-directory-responder: script-name = %=, path-info = %=", script-name, path-info);
   let request = current-request();
-  let url = concatenate(build-path(request.request-url), "/", script-name);
+  let url = concatenate(request.request-path-prefix, "/", script-name);
+  log-debug("cgi-directory-responder: url = %s", url);
   let script :: false-or(<physical-locator>) = static-file-locator-from-url(url);
+  log-debug("cgi-directory-responder: script = %s", as(<string>, script | "#f"));
   if (script)
-    serve-cgi-script(script, path-info: path-info);
+    serve-cgi-script(script, url, path-info: path-info);
   else
     resource-not-found-error(url: url)
   end;
@@ -86,20 +91,20 @@ define method add-cgi-directory-responder
      cgi-directory-url :: <string>)
   add-responder(store, cgi-directory-url,
                 make-responder(list(#(get:, post:),
-                                    "^/(?P<script-name>[^/]+)(?P<path-info>.*)$",
+                                    "^(?P<script-name>[^/]+)(?P<path-info>.*)$",
                                     cgi-directory-responder)))
 end;
 
 // This may be registered explicitly for particular CGI scripts
 // with add-cgi-script-responder.
 define function cgi-script-responder
-    (#key path-info)
+    (#key path-info :: false-or(<string>))
   let request = current-request();
   // Just use the path, not the host, query, or fragment.
   let url = build-path(request.request-url);
   let script :: false-or(<physical-locator>) = static-file-locator-from-url(url);
   if (script)
-    serve-cgi-script(script, path-info: path-info);
+    serve-cgi-script(script, url, path-info: path-info);
   else
     log-info("CGI script %s not found", url);
     resource-not-found-error(url: request.request-raw-url-string);  // 404
@@ -168,7 +173,8 @@ define method internal-redirect-to
 end method internal-redirect-to;
 
 define method make-cgi-environment
-    (script :: <locator>, #key path-info = $unsupplied)
+    (script :: <locator>, script-name :: <string>,
+     #key path-info :: false-or(<string>))
  => (environment :: <string-table>)
   let request :: <request> = current-request();
   let env :: <string-table> = make(<string-table>);
@@ -194,6 +200,9 @@ define method make-cgi-environment
 
   if (path-info & ~empty?(path-info))
     env["PATH_INFO"] := path-info;
+    // This is only correct if there's no responder registered for a
+    // URL for which path-info is a prefix.  Should try to find such
+    // a responder and not set this if one is found.
     env["PATH_TRANSLATED"]
       := as(<string>, merge-locators(as(<file-locator>, path-info),
                                      *virtual-host*.document-root));
@@ -212,7 +221,7 @@ define method make-cgi-environment
   // Not supported: REMOTE_USER
 
   env["REQUEST_METHOD"] := as-uppercase(as(<string>, request.request-method));
-  env["SCRIPT_NAME"] := as(<string>, script);
+  env["SCRIPT_NAME"] := script-name;
   env["SERVER_NAME"] := request.request-host;
   env["SERVER_PORT"]
     := integer-to-string(request.request-client.client-listener.listener-port);

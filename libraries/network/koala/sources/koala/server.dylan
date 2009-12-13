@@ -704,11 +704,13 @@ end do-http-listen;
 define open primary class <request>
     (<chunking-input-stream>, <basic-request>, <base-http-request>)
 
-  // Contains the relative URL following the matched <responder>.
-  // If the request URL is an exact match for the URL under which the
-  // <responder> was registered this URL will simply have a path
-  // component of #[""].  i.e., so it will match the regex "^$".
-  slot request-tail-url :: <url>;
+  // Contains the prefix of the URL that matched the <responder>.
+  // i.e., this is the URL under which the <responder> was registered.
+  slot request-path-prefix :: <string>;
+
+  // Contains part of the URL path following the prefix URL (above).
+  // This may be the empty string.
+  slot request-path-tail :: <string>;
 
   // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
   slot request-host :: false-or(<string>),
@@ -999,9 +1001,10 @@ define method parse-request-url
     request.request-host := url.uri-host;
   end;
   request.request-url := url;
-  let (responder, tail :: <sequence>) = find-responder(server, request.request-url);
+  let (responder, tail, prefix) = find-responder(server, request.request-url);
   request.request-responder := responder;
-  request.request-tail-url := make(<url>, path: as(<deque>, tail));
+  request.request-path-prefix := iff(prefix, join(prefix, "/"), "");
+  request.request-path-tail := iff(tail, join(tail, "/"), "");
   remove-all-keys!(request.request-query-values);
   for (value keyed-by key in url.uri-query)
     request.request-query-values[key] := value;
@@ -1255,14 +1258,18 @@ define method %invoke-handler
                   // This is set to a <page-context> when first requested.
                   *page-context* = #f)
       if (request.request-responder)
+        log-debug("request has a responder");
+	log-debug("tail url = %s", request.request-path-tail);
         let (action, match) = find-action(request);
         if (action)
+          log-debug("request action found");
           // Invoke the action function with keyword arguments matching the names
           // of the named groups in the first regular expression that matches the
           // tail of the url, if any.  Also pass the entire match as the match:
           // argument so unnamed groups and the entire match can be accessed.
           let arguments = #[];
           if (match)
+            log-debug("request match found");
             arguments := make(<deque>);
             push-last(arguments, match:);
             push-last(arguments, match);
@@ -1281,9 +1288,11 @@ define method %invoke-handler
             // Not sure how useful this might be in practice.
           end;
         else
+          log-debug("no action found");
           resource-not-found-error(url: request.request-url);
         end if;
       else
+        log-debug("attempting to serve static file or cgi");
         // generates 404 if not found
         serve-static-file-or-cgi-script();
       end if;
@@ -1297,12 +1306,15 @@ define inline function find-action
  => (action, match)
   let rm-map = request.request-responder.request-method-map;
   let tail-responders = element(rm-map, request.request-method, default: #f);
+  log-debug("tail-responders = %s", tail-responders);
   if (tail-responders)
     block (return)
-      let url-tail = build-path(request.request-tail-url);
+      let url-tail = request.request-path-tail;
       for (tail-responder in tail-responders)
+	log-debug("  regex = %s", tail-responder.tail-responder-regex.regex-pattern);
         let match = regex-search(tail-responder.tail-responder-regex, url-tail);
         if (match)
+          log-debug("    matched!");
           return(tail-responder.tail-responder-action, match)
         end if;
       end for;
@@ -1317,7 +1329,7 @@ define inline function find-request-methods
     (request :: <request>)
  => (request-methods :: <sequence>)
   let rm-map = request.request-responder.request-method-map;
-  let url-tail = build-path(request.request-tail-url);
+  let url-tail = request.request-path-tail;
   let methods = #();
   for (req-method in $allowed-request-methods)
     let regex-map = element(rm-map, req-method, default: #());
