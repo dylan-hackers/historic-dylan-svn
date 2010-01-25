@@ -1,18 +1,23 @@
 library: dylan-rep-library
 files:   dylan-rep-library
          dylan-rep/module
-         dylan-rep/defns-frags
-         dylan-rep/namespaces
+         dylan-rep/api-objects
+         dylan-rep/definitions
+         dylan-rep/bindings
          dylan-rep/classes
          dylan-rep/functions
+         dylan-rep/macros
          dylan-rep/printers
          dylan-translator/module
-         dylan-translator/rep-creation
-         dylan-translator/namespace-rep
-         dylan-translator/library-rep
-         dylan-translator/module-rep
-         dylan-translator/binding-rep
-         dylan-translator/definition-rep
-         dylan-translator/class-rep
-         dylan-translator/function-rep
+         dylan-translator/context
+         dylan-translator/translator
+         dylan-translator/inferences
+         dylan-translator/definitions
+         dylan-translator/namespaces
+         dylan-translator/bindings
+         dylan-translator/class-bindings
+         dylan-translator/function-bindings
+         dylan-translator/other-bindings
+         dylan-translator/fragments
+         dylan-translator/predefined
          

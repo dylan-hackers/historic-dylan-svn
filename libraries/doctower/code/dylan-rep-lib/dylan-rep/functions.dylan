@@ -1,30 +1,35 @@
 module: dylan-rep
-synopsis: Classes and methods for representing Dylan functions & arguments.
+synopsis: Representation of Dylan functions, arguments, and values.
 
 
-//
-// Definitions
-//
-
-
-define class <generic-defn> (<definition>)
+define class <generic-binding> (<binding>)
+   /// False if generic is implicitly defined.
    slot explicit-defn :: false-or(<explicit-generic-defn>) = #f,
       init-keyword: #"explicit";
-   slot implicit-defns = make(<stretchy-vector> /* of <implicit-generic-defn> */),
-      init-keyword: #"implicit";
-   slot sealed-domains = make(<stretchy-vector> /* of <sealed-domain> */);
+   
+   /// Sequence of <implicit-generic-defn>.
+   slot implicit-defns = make(<stretchy-vector>), init-keyword: #"implicit";
+   
+   /// Sequence of <sealed-domain>.
+   slot sealed-domains = make(<stretchy-vector>);
+   
+   /// True if the generic itself is sealed, regardless of any sealed domains.
    slot sealed? :: <boolean> = #t, init-keyword: #"sealed";
 end class;
 
-define class <function-defn> (<definition>)
-   slot explicit-defn :: <explicit-function-defn>,
+
+define class <function-binding> (<binding>)
+   slot explicit-defn :: false-or(<explicit-function-defn>),
       required-init-keyword: #"explicit";
 end class;
 
+
 define class <sealed-domain> (<object>)
-   slot sealed-types :: <sequence> /* of <type-fragment> */,
-      required-init-keyword: #"types";
+   /// Sequence of <type-fragment>. The types of the required parameters over
+   /// which the generic is sealed.
+   slot sealed-types :: <sequence>, required-init-keyword: #"types";
 end class;
+
 
 define method \= (seal1 :: <sealed-domain>, seal2 :: <sealed-domain>)
 => (equal? :: <boolean>)
@@ -33,24 +38,33 @@ end method;
 
 
 //
-// Generics and functions
+// Implicit/explicit definitions
 //
 
 
-define abstract class <func/gen-definition> (<source-location-mixin>)
-   slot adjs = make(<stretchy-vector> /* of #"sealed", #"abstract", etc. */);
-   slot parameter-list :: <parameter-list>, init-keyword: #"parameter-list";
+define abstract class <func/gen-defn> (<implicit/explicit-defn>)
+   /// Sequence of #"sealed", #"abstract", etc.
+   slot adjectives = make(<stretchy-vector>);
+   slot param-list :: <param-list>, init-keyword: #"param-list";
+   slot value-list :: <value-list>, init-keyword: #"value-list";
 end class;
 
-define class <explicit-generic-defn> (<func/gen-definition>)
+
+/// Synopsis: A "define generic" definition.
+define class <explicit-generic-defn> (<func/gen-defn>)
    slot vendor-options = make(<stretchy-vector> /* of <vendor-option> */);
 end class;
 
-define class <implicit-generic-defn> (<func/gen-definition>, <documentable-api-element>)
+
+/// Synopsis: A "define method" definition. This implicitly creates a generic
+/// with a method in it.
+define class <implicit-generic-defn> (<func/gen-defn>, <documentable-api-object>)
 end class;
 
-define class <explicit-function-defn> (<func/gen-definition>)
+
+define class <explicit-function-defn> (<func/gen-defn>)
 end class;
+
 
 define class <vendor-option> (<object>)
    slot symbol :: <string>, required-init-keyword: #"symbol";
@@ -63,18 +77,15 @@ end class;
 //
 
 
-define class <parameter-list> (<object>)
-   slot param-list :: <param-list>, required-init-keyword: #"param-list";
-   slot value-list :: <value-list>, required-init-keyword: #"value-list";
-end class;
-
 define abstract class <param-list> (<object>)
    slot req-params = make(<stretchy-vector> /* of <req-param> */),
       init-keyword: #"req-params";
 end class;
 
+
 define class <fixed-param-list> (<param-list>)
 end class;
+
 
 define class <key-param-list> (<param-list>)
    slot key-params = make(<stretchy-vector> /* of <key-param> */);
@@ -82,9 +93,11 @@ define class <key-param-list> (<param-list>)
    slot rest-param :: false-or(<rest-param>) = #f;
 end class;
 
+
 define class <var-param-list> (<param-list>)
    slot rest-param :: <rest-param>;
 end class;
+
 
 define class <value-list> (<object>)
    slot req-values = make(<stretchy-vector> /* of <req-value> */),
@@ -92,13 +105,17 @@ define class <value-list> (<object>)
    slot rest-value :: false-or(<rest-value>) = #f;
 end class;
 
-define abstract class <param> (<documentable-api-element>)
+
+/// Its source location is a parameter in a parameter list.
+define abstract class <param> (<documentable-api-object>)
    slot local-name :: <string>, required-init-keyword: #"name";
 end class;
+
 
 define class <req-param> (<param>)
    slot type :: false-or(<type-fragment>) = #f, init-keyword: #"type";
 end class;
+
 
 define class <key-param> (<param>)
    slot symbol :: <string>, required-init-keyword: #"name";
@@ -106,16 +123,21 @@ define class <key-param> (<param>)
    slot expr :: false-or(<code-fragment>) = #f;
 end class;
 
+
 define class <rest-param> (<param>)
 end class;
 
-define abstract class <value> (<documentable-api-element>)
+
+/// Its source location is a value in a parameter list.
+define abstract class <value> (<documentable-api-object>)
    slot local-name :: <string>, required-init-keyword: #"name";
    slot type :: false-or(<type-fragment>) = #f;
 end class;
 
+
 define class <req-value> (<value>)
 end class;
+
 
 define class <rest-value> (<value>)
 end class;

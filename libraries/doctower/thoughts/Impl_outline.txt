@@ -34,8 +34,8 @@ directive or directive-ending markup.
 TODO: Directives have synonyms and can be pluralized or singularized.
 
 
-Automatic classification
-========================
+API documentation
+=================
 
 A comment block can be associated with a documentable code element, such as a
 method, constant, or argument. In scanning a source code file, the system will
@@ -44,17 +44,35 @@ don't have any docs. Un-associated docs can have free content; it is assumed
 that the free content will be pinned down once the comment block is associated
 with a code element.
 
-Doc comments for an element can precede or follow the element itself, or both,
-depending on the element in question. Once associated, the docs for that
-element might be moved to the docs for a parent element. Several elements of
-that kind might have to preserve their relative declaration order when moved
+Doc comments for an element can precede the element itself. (TODO: I would like
+to have doc comments precede or follow elements, depending on the element type,
+but I can't figure out a good way to allow that.) Once associated, the docs for
+that element might be moved to the docs for a parent element. Several elements
+of that kind might have to preserve their relative declaration order when moved
 to the parent.
 
 The comment block itself is assumed tagged as a certain type. If the comment
 block contains content that violates the rules of that type, while the content
 is lexically part of that block, it isn't part of the block's implicitly
 classified content. The extra content is still processed and included in the
-output, though.
+output, though. For example, if a macro definition includes an "Arguments"
+directive, it is still a macro definition, and it has a section named
+"Arguments," but special argument processing does not occur.
+
+API elements may be defined under more than one name. One of the names is
+canonical; this is the name in the owning module. This name will always be
+exported from the module, otherwise the API element is inaccessible with no need
+for documentation or (in the case of maintenance documentation) documented
+regardless. However, the owning module and its library may be outside the scope
+of the documentation. That does not matter. The canonical name is the canonical
+name. An outside library or module may not have an API index, but the documented
+modules that use the API element will.
+
+In cases like "as", the binding is owned by an external library, and a
+documented module may add an additional method while not explicitly re-exporting
+th name. The additional method still needs to be documented, listed, and indexed
+in the module. It should be listed under its local exported name in the module
+or, if not exported, under its fully-qualified canonical name.
 
 
 Documenting class slots
@@ -66,12 +84,27 @@ can only have general directives like "Synopsis" and "See also." Separate
 getter and setter functions will override the generated documentation.
 
 
-Overriding documentation
-========================
+Automatic and overriding documentation
+======================================
 
 API documentation topics can be implicitly-generated or explicitly-generated.
 These coexist until the stage in which they are merged and all topics and
 sections are made explicit.
+
+Automatic (implicitly-generated) documentation is normally only created for
+exported API elements -- regardless of whether the exporting library or module
+is within the documentation's scope -- that have an implicit or explicit
+definition that IS within the documentation's scope. This includes create
+clauses, not that there is much to say about them absent overriding explicit
+documentation.
+
+Overriding explicit documentation must generally be a topic type that matches
+the API type, e.g., a class must be documented with a "Class:" topic directive.
+There is one exception to this: create clauses, which may be documented as any
+API type.
+
+If an API is not exported, it is not documented. An explicit topic given for an
+API does not change this.
 
 TODO: Think about [ditto] in the context of API documentation.
 
@@ -128,7 +161,8 @@ The tool assigns IDs to API topics and other generated topics as follows. The
 first letter of each word is capitalized and spaces are removed from member
 method canonical names (i.e. "As(<Integer>, <Float>)" becomes
 "As(<Integer>,<Float>)"). An API name can have a "/"; in the ID, this is
-replaced by the non-name character ".".
+replaced by the non-name character ".". There is no need to escape operator
+names for our purposes.
 
 Conceptual API topics do not have tool-assigned IDs.
 
@@ -150,6 +184,8 @@ Conceptual API topics do not have tool-assigned IDs.
   Other topic titles  - :Title(Topic):nnn
   Other sections      - :Sect:nnn
   Other sect. titles  - :Title(Sect):nnn
+
+The topic and section titles are used for DITA conref attributes.
 
 
 Intermediate format
@@ -255,6 +291,6 @@ means that documentation added to a system-wide set could add additional
 properties of that type. "Linkable" means that the element can be linked to.
 Linkable items can have nav titles and are topics.
 
-Constants may determined at run-time. A constant that is simply an alias to
-one of the other API elements or a method isn't a constant at all, but is
-instead a binding to that element.
+A constant that is set equal to one of the other API elements isn't a constant
+at all, but is instead an additional binding name for that element according to
+both user expectations and the Dylan language spec.

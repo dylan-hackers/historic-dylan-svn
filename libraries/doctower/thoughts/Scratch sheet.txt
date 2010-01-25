@@ -36,13 +36,13 @@ I could destructure the entries a bit more:
     blah blah blah
   end method
 
-One way to make this work would be to track documentable elements like args
-or methods. Each type of documentable element can have a specifier saying if
-it can be documented before of after the element is 'declared,' and a default field
-for unlabeled doc comment text. When a doc comment is found, and a post-documentable
-element was just made, set the element's doc to the contents of the comment. 
-If there is no element done (or the element wasn't post-documentable), add the
-doc comment to the next documentable element (if the next element is
+One way to make this work would be to track documentable elements like args or
+methods. Each type of documentable element can have a specifier saying if it can
+be documented before of after the element is 'declared,' and a default field for
+unlabeled doc comment text. When a doc comment is found, and a post-documentable
+element was just made, set the element's doc to the contents of the comment. If
+there is no element done (or the element wasn't post-documentable), add the doc
+comment to the next documentable element (if the next element is
 pre-documentable).
 
 But this process is linear. Don't know how well syntax can be parsed linearly.
@@ -50,16 +50,16 @@ But this process is linear. Don't know how well syntax can be parsed linearly.
 ----------------------------
 
 So, how the links should work is, if there is no clarifier, they should attempt
-to find one-and-only-one reference (ignoring closing punctuation and maybe plurals) 
-and error if they can't, or else choose the innermost reference of the multiple
-references found. If there is a clarifier, the quotes can contain whatever
-you like.
+to find one-and-only-one reference (ignoring closing punctuation and maybe
+plurals) and error if they can't, or else choose the innermost reference of the
+multiple references found. If there is a clarifier, the quotes can contain
+whatever you like.
 
   …A flag of \'a' means append, described on the 'File Modes' table.…
   …A flag of 'a' means append, described on the `File Modes` table.…
 
-I don't like the backquote syntax; that's not something that people type naturally.
-Plus, I was thinking of reserving that for inline code format.
+I don't like the backquote syntax; that's not something that people type
+naturally. Plus, I was thinking of reserving that for inline code format.
 
 A footnote/see also format could be like so:
 
@@ -100,8 +100,8 @@ In this case, the return value should be listed like
   iterator - An instance of 'get-iterator function'.
 
 and 'get-iterator function' should be defined as a separate reference topic,
-though perhaps on the same page as 'get-iterator.' But the 'get-iterator function'
-topic needs to be created.
+though perhaps on the same page as 'get-iterator.' But the 'get-iterator
+function' topic needs to be created.
 
 This could be done in a separate document, but should likely be done in the
 reference doc comments for the 'get-iterator' function, nested.
@@ -159,7 +159,8 @@ can be circular; tocs cannot.
 
 Topics can't be put in more than one place unless I duplicate and customize
 pages so that the "Next/Previous/Parent Topic" links are correct for each place.
-I don't really want to do that, in absence of a compelling reason for duplication.
+I don't really want to do that, in absence of a compelling reason for
+duplication.
 
   /// Synopsis: Given a format string and values, makes a new string.
   ///
@@ -201,9 +202,9 @@ I don't really want to do that, in absence of a compelling reason for duplicatio
 
 ----------------------------
 
-On a larger scale than the above, how to render a list of all a topic's subtopics?
-Should there be a way to render it manually? Yes, topics should be able to
-list their contents, and this should be under the writer's control.
+On a larger scale than the above, how to render a list of all a topic's
+subtopics? Should there be a way to render it manually? Yes, topics should be
+able to list their contents, and this should be under the writer's control.
 
   Streams module
   ==============
@@ -243,11 +244,11 @@ The default ToC would look like this:
 
 How to resolve these? And how is chunking managed?
 
-First, a nested topic is fixed. A section directive, vi quote, or toc file that moves it
-is in error. There can *be* a section directive, a vi quote, and a toc file entry for it,
-but they all have to agree. The topic is chunked with its parent topic. Note
-that a nested topic can be moved after another topic that isn't nested, though
-under the same parent topic, by a toc file.
+First, a nested topic is fixed. A section directive, vi quote, or toc file that
+moves it is in error. There can *be* a section directive, a vi quote, and a toc
+file entry for it, but they all have to agree. The topic is chunked with its
+parent topic. Note that a nested topic can be moved after another topic that
+isn't nested, though under the same parent topic, by a toc file.
 
 Second, a top-level topic in a doc file does not automatically have a parent.
 It may be given a parent through an arranging method. Multiple
@@ -255,44 +256,59 @@ top-level topics in a doc file or comment block are not chunked together.
 
 Third, APIs have an implied parent. Any arranging method overrides this. APIs
 without an arranging method go into the default ToC above. The default ToC is
-always present if there is something to go in it. General functions & methods are
-chunked, nothing else is.
+always present if there is something to go in it. General functions & methods
+are chunked, nothing else is.
 
-The default ToC pages have tool-generated nicknames
-that aren't addressable by users; users can use the page titles. The default pages
-should be removed before links to them are resolved; there won't be a "Libraries"
-page to link to if there aren't any libraries.
+The default ToC pages have tool-generated nicknames that aren't addressable by
+users; users can use the page titles. The default pages should be removed before
+links to them are resolved; there won't be a "Libraries" page to link to if
+there aren't any libraries.
 
 But then, how can the user do efficient large-scale organization of APIs, for
-example, to put them all under an "API Reference" topic, or to group APIs within modules
-and modules within libraries?
+example, to put them all under an "API Reference" topic, or to group APIs within
+modules and modules within libraries?
 
 ----------------------------
 
-Literate programming is basically just like a normal code file, except that
-the default mode is documentation and the alternate mode is code, in contrast
-to normal programming, which is code except when it comes to doc comments. It
-would be useful if the doc processor allowed for this enhancement and did not
-*need* to be in code comments, and could in fact do the same sort of
-auto-detection used in code files, except do them in doc files with code
-blocks or something. Probably the best way to do this is to treat the whole
-thing as a comment block in a code file, regardless of whether it is a code
-file or a doc file.
+I have considered the idea of letting the user specify an API's library and
+module. This is in some way necessary for documentation-only APIs. But the
+problem is when an API doc block is backed by an actual API in code. There may
+be a conflict. In such cases -- in fact, in general -- I should assume the code
+has supremacy. After all, the whole *point* of having API scanning is to avoid
+as many errors as possible automatically.
 
-Unfortunately, this doesn't seem like it would interact well with automatic
-association of doc comments with code elements; if the writer interrupts his
-discourse to show a chunk of code, the automatic system would likely try to
-interpret one of the discourse blocks as being a code comment associated with
-whatever the code happened to declare.
+As for API doc blocks without backing code, I think the best way to handle that
+is with the usual hierarchy methods. The user can put the API wherever he likes.
+So what happens if there is a conflict between the hierachy placement and the
+actual code? Well, first, is there -- or should there be -- detection of that
+situation? The topic model doesn't currently include separate library or module
+references apart from its place in the hierarchy. So it isn't currently
+detectable. I guess in the event of a conflict, the topic goes where-ever the
+user puts it, or in its default location in the library/module structure. If the
+topic is wrong, no big deal, because the aliases will be right.
 
-Instead, the style could be supported by putting a verbatim reference to the
-code under discussion.
+The aliases, along with a lot of other information, is only available for APIs
+defined in code. I have not devised a syntax to provide complete API information
+in a topic. Should I assume that APIs are in code? Which ones won't be?
+
+  - Arguments and values that are functions with a given signature. For this,
+    the argument/functions directives are sufficient.
+  - APIs for a library for which source is not available, e.g. the Dylan
+ 	library. In a case like this, one could create some fake source code. If API
+	filenames or line numbers are documented, though, this will be incorrect.
+	May want to a) not list them or only list them for maintainer documentation,
+	or b) allow it to be specified. That means another directive.
+
+I don't want to deal with adding syntax to fully specify an API in docs. So,
+I should assume that APIs are in code, though the documentation may or may not
+be.
 
 ----------------------------
 
-Maintainer-mode documentation is basically unpublished doc comments/files. Of
-limited use, except for two cases: a) the case of a method or whatever left
-open for extension by anyone, in which the maintainer-mode docs describe
-assumptions that extensions must adhere to; and b) comments on a single method
-or whatever exported by an internal and external module, where the internal
-comments describe the method's relationships with with other internal modules.
+Maintainer-mode documentation includes doc comments/files not needed by users of
+a library. Of use in several cases: a) a method or whatever left open for
+extension by anyone, in which the maintainer-mode docs describe assumptions that
+extensions must adhere to; b) comments on a single method or whatever exported
+by an internal and external module, where the internal comments describe the
+method's relationships with with other internal modules; c) for maintainers of a
+complex system, where the source code is too big to examine directly.

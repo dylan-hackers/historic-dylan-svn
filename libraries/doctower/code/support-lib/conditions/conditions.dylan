@@ -148,30 +148,34 @@ define errors (<user-visible-warning>)
       location, names;
 
    05 qv-or-vi-in-title
-      "Titles may not include quoted phrase options \"qv\" or \"vi\"",
+      "Title may not include quoted phrase options \"qv\" or \"vi\"",
       location;
    
    06 doc-comment-on-virtual-slot
-      "Documentation comments for virtual slots are ignored",
+      "Virtual slot may only be documented via its method or generic definition",
       location;
+      
+   07 doc-comment-on-binding-alias
+      "Alias of binding \"%s\" may not be individually documented",
+      location, alias-name;
 end errors;
 
 
 define errors (<user-visible-error>)
    51 illegal-character-in-id
-      "Tags may not include space, slash, open bracket, or close bracket characters",
+      "Tag may not include space, slash, open bracket, or close bracket characters",
       location;
 
    52 leading-colon-in-id
-      "Tags may not include a leading colon",
+      "Tag may not include a leading colon",
       location;
 
    53 leading-colon-in-title
-      "Titles may not include a leading colon",
+      "Title may not include a leading colon",
       location;
 
    54 duplicate-section-in-topic
-      "Topics may only include one %s section",
+      "Topic may only include one %s section",
       location, section-type;
 
    55 illegal-section-in-topic
@@ -257,10 +261,12 @@ define errors (<user-visible-error>)
       "Differing definitions of module \"%s\" at %s",
       location, name, defn-locations;
    
+   /*
    76 duplicate-modules-in-fileset
       "Multiple definitions of module \"%s\" at %s",
       location, name, defn-locations;
-
+   */
+   
    77 no-header-in-interchange-file
       "\"%s\" header is missing",
       location, header;
@@ -277,17 +283,17 @@ define errors (<user-visible-error>)
       "Differing definitions of binding \"%s\" at %s",
       location, name, defn-locations;
    
-   /*
-   81 conflicting-rule-types-in-macro
-      "Differing kinds of main rule",
-      location;
-   */
+   81 conflicting-libraries-in-filesets
+      "Differing definitions of library \"%s\" at %s",
+      location, name, defn-locations;
    
    82 circular-definition
       "Circular dependency for \"%s\" between %s",
       location, name, defn-locations;
 
+   /*
    83 conflicting-definitions-in-code
       "Differing binding definitions at %s",
       location, defn-locations;
+   */
 end errors;
