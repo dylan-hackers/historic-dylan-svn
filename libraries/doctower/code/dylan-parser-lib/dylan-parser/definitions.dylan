@@ -2,7 +2,7 @@ module: dylan-parser
 synopsis: Grammar of top-level definitions.
 
 define class <definition-token> (<source-location-token>)
-   slot scoped-docs :: <stretchy-vector> = make(<stretchy-vector>);
+   slot scoped-docs = make(<stretchy-vector> /* of <markup-content-token> */);
    slot api-name :: <string>;
 end class;
 

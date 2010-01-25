@@ -2,10 +2,8 @@ module: dylan-topics
 
 
 /**
-1. Reorganize around definitions. Find bindings (and modules and libraries)
-   associated with each definition.
-2. Generate implicit topics for all APIs.
-3. Override with 
+1. Generate implicit topics for all APIs.
+2. Override with explicit topic content.
 **/
 define method topics-from-dylan (libraries :: <sequence>)
 => (topics :: <sequence>)

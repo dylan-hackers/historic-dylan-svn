@@ -78,7 +78,7 @@ define method strip-doc-comment
                                        start: delim-start, end: delim-end);
    let margin-limit = delim-end;
    
-   // Rmove closing comment token. Comment will end with "*/" or "**/".
+   // Remove closing comment token. Comment will end with "*/" or "**/".
    let delim-start = max(0, lines.last.size - 3);
    if (lines.last[delim-start] ~= '*')
       delim-start := delim-start + 1;

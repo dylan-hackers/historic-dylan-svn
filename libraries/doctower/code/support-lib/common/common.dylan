@@ -68,12 +68,14 @@ define method group-elements
    let categories = list();
    for (elem keyed-by key in collection)
       block (matched)
+         // See if an existing category fits.
          for (categ in categories)
             if (test(categ.any-element, elem))
                categ[key] := elem;
                matched();
             end if;
          end for;
+         // If not, make a new one.
          let categ = table(collection.type-for-copy, key => elem);
          categories := add!(categories, categ);
       end block;
@@ -87,12 +89,15 @@ define method group-elements
    let categories = list();
    for (elem in collection)
       block (matched)
+         // See if an existing category fits.
          for (categ in categories)
             if (test(categ.any-element, elem))
+               // Each categ will be a <stretchy-vector>, so add! is okay.
                add!(categ, elem);
                matched();
             end if;
          end for;
+         // If not, make a new one.
          let categ = add!(make(<stretchy-vector>), elem);
          categories := add!(categories, categ);
       end block;

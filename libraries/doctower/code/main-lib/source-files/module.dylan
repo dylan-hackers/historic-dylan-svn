@@ -5,7 +5,6 @@ define module source-files
    use conditions;
    use ordered-tree;
    use markup-rep;
-   use dylan-rep;
    use parser-common,
       import: { source-location => token-src-loc };
    use markup-parser,

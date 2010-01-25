@@ -20,7 +20,7 @@ define parser source-record (<source-location-token>)
    slot definitions = source-record-definitions(tokens[0] | #[]);
    slot unscoped-docs = attr(scoped-docs);
 attributes
-   scoped-docs = make(<stretchy-vector>);
+   scoped-docs = make(<stretchy-vector> /* of <markup-content-token> */);
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value);
 end;

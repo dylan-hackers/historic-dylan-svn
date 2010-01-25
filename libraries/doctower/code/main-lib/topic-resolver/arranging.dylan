@@ -423,21 +423,17 @@ define function combine-trees (tree-1 :: <ordered-tree>, tree-2 :: <ordered-tree
 end function;
 
 
-/// Synopsis: Returns the keys of common elements in two trees, or #f if no
-/// common element.
+/// Synopsis: Returns the keys of common elements in two trees.
 /// Values:
 ///   common-keys - A sequence of pairs, each pair contains the keys in 'tree-1'
-///                 and 'tree-2' that contain a common element.
+///                 and 'tree-2' that contain a common element. If no common
+///                 elements, returns empty sequence.
 define function common-element-keys
    (tree-1 :: <ordered-tree>, tree-2 :: <ordered-tree>)
 => (common-keys :: <sequence>)
    let common-keys = make(<stretchy-vector>);
-   let tree-1-keys = tree-1.key-sequence;
-   let tree-2-keys = tree-2.key-sequence;
-   for (key-1 in tree-1-keys)
-      for (key-2 in tree-2-keys)
-         let arr-topic-1 :: <arranged-topic> = tree-1[key-1];
-         let arr-topic-2 :: <arranged-topic> = tree-2[key-2];
+   for (arr-topic-1 keyed-by key-1 in tree-1)
+      for (arr-topic-2 keyed-by key-2 in tree-2)
          if (arr-topic-1.topic == arr-topic-2.topic)
             common-keys := add!(common-keys, pair(key-1, key-2))
          end if;

@@ -46,7 +46,7 @@ define constant $disabled-warnings = make(<stretchy-vector>);
 define variable $stop-on-errors? :: <boolean> = #f;
 define variable $error-code :: false-or(<integer>) = #f;
 
-define function main(name, arguments)
+define function main (name, arguments)
 
    // Check arguments
 

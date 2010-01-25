@@ -190,7 +190,7 @@ end method;
 define method clauses-setter-option (seq)
 => (present? :: <boolean>, setter :: false-or(<string>))
    let tok = find-element(seq, rcurry(instance?, <setter-option-token>), failure: #f);
-   values(tok.true?, tok & tok.value);
+   values(tok.true?, tok & tok.name);
 end method;
 
 define method clauses-keyword-option (seq) => (tok :: false-or(<token>))
