@@ -61,6 +61,12 @@ idea -- It is useful for general purpose libraries (e.g., an XML parser)
         add to future documentation.)  Just enabling the XML parser's logger
         won't always be what users want because it will enable logging in
         all threads.
+
+todo -- Look at concurrency issues.  For example, is it possible for log
+        messages to be written with out-of-order timestamps when multiple
+        threads log to the same file via different log targets.  Can either
+        document that and say "don't do that" or fix it.
+
 */
 
 
