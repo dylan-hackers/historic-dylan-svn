@@ -11,10 +11,15 @@ define constant $default-http-port :: <integer> = 80;
 // virtual hosts.  If they don't care about that they can just remove the
 // default target and add their own.
 //
-define thread variable *http-header-logger* :: <logger>
+// Message headers are logged at debug level and message content is logged
+// at trace level.
+//
+define thread variable *http-common-log* :: <logger>
   = make(<logger>,
-         name: "http.common.headers",
-         targets: list($stdout-log-target));
+         name: "http.common",
+         targets: list($stdout-log-target),
+         level: $info-level);
+
 
 /////////////// Parsing //////////////
 
@@ -96,7 +101,8 @@ define open class <chunking-input-stream> (<wrapper-stream>)
     // time anything is read from the stream.
     init-value: $read-buffer-size;
 
-  // Number of bytes read so far for the current message body only.
+  // Number of bytes read from the inner stream so far, for the current
+  // message body only.  Does not include chunk encoding bytes.
   slot message-bytes-read :: <integer>,
     init-value: 0;
 
@@ -129,14 +135,28 @@ define method note-bytes-received
   // default method does nothing
 end;
 
+define inline-only function initial-state?
+    (stream :: <chunking-input-stream>) => (initial-state? :: <boolean>)
+  stream.message-bytes-read = 0 & stream.%eof-position = -1
+end;
+
 define method stream-at-end?
     (stream :: <chunking-input-stream>) => (at-end? :: <boolean>)
   stream.%eof-position = stream.read-buffer-index
 end method stream-at-end?;
 
+define inline-only function maybe-refill-read-buffer
+    (stream :: <chunking-input-stream>)
+  if (initial-state?(stream)
+        | stream.read-buffer-index = stream.read-buffer.size)
+    refill-read-buffer(stream);
+  end;
+end;
+
 define method read-element
     (stream :: <chunking-input-stream>, #key on-end-of-stream = $unsupplied)
- => (char :: <byte-character>)
+ => (char)
+  maybe-refill-read-buffer(stream);
   if (stream-at-end?(stream))
     if (supplied?(on-end-of-stream))
       on-end-of-stream
@@ -144,9 +164,6 @@ define method read-element
       signal(make(<end-of-stream-error>, stream: stream))
     end
   else
-    if (stream.read-buffer-index = stream.read-buffer.size)
-      refill-read-buffer(stream);
-    end;
     let char = stream.read-buffer[stream.read-buffer-index];
     inc!(stream.read-buffer-index);
     char
@@ -160,6 +177,7 @@ define method read
     (stream :: <chunking-input-stream>, n :: <integer>,
      #key on-end-of-stream = $unsupplied)
  => (string :: <byte-string>)
+  maybe-refill-read-buffer(stream);
   let string :: <byte-string> = make(<byte-string>, size: n, fill: ' ');
   let spos :: <integer> = 0;
   block (return)
@@ -187,6 +205,7 @@ define method read
         inc!(stream.read-buffer-index);
       end;
     end while;
+    log-trace(*http-common-log*, "<==%=", string);
     string
   end block
 end method read;
@@ -214,6 +233,36 @@ define method read-to-end
     join(chunks, "")
   end
 end method read-to-end;
+
+// This is here to override the method on <wrapper-stream>, which ends up calling
+// read-into!(<buffered-stream>, ...) which doesn't check for stream-at-end? first.
+// This method is an exact copy of read-into!(<stream>, ...) except for the type
+// on which the first parameter is specialized.  (Is there a better way?)
+//
+define method read-into!
+    (stream :: <chunking-input-stream>, n :: <integer>, sequence :: <mutable-sequence>,
+     #key start = 0, on-end-of-stream = $unsupplied)
+ => (count)
+  let limit = min(n + start, sequence.size);
+  iterate loop (i = start)
+    if (i < limit)
+      let elt = read-element(stream, on-end-of-stream: unfound());
+      if (found?(elt))
+	sequence[i] := elt;
+	loop(i + 1);
+      elseif (supplied?(on-end-of-stream))
+	i - start
+      else
+	signal(make(<incomplete-read-error>,
+		    stream: stream,
+		    count: i - start, // seems kinda redundant...
+		    sequence: copy-sequence(sequence, start: start, end: i)))
+      end
+    else
+      i - start
+    end if;
+  end;
+end method read-into!;
 
 // Read enough data from the message to fill read-buffer.
 // If the message end is found, based on either Content-Length header
@@ -243,7 +292,8 @@ define method refill-read-buffer
           write(*standard-output*, "READ: ");
           write(*standard-output*, stream.read-buffer, end: n);
         end;
-        if (n < stream.read-buffer.size)
+        if (n < stream.read-buffer.size
+              | (stream.message-bytes-read + n) = content-len)
           stream.%eof-position := n;
         end;
         n

@@ -73,13 +73,14 @@ define module koala
                                  //   i.e., essentially within the dynamic scope of
                                  //   respond-to-get/post/etc
 
-  // Responders
+  // Responder mechanism
   create
     <responder>,
       request-method-map,
     <tail-responder>,
       tail-responder-regex,
       tail-responder-action,
+    make-responder,
     add-responder,       // call this
     %add-responder,      // extend this
     add-tail-responder,
@@ -89,6 +90,15 @@ define module koala
     <skip-remaining-responders>,
     url-map-definer,
     add-urls;
+
+  // Responder utilities
+  create
+    cgi-directory-responder,
+    cgi-script-responder,
+    alias-responder,
+    add-cgi-directory-responder,
+    add-cgi-script-responder,
+    add-alias-responder;
 
   // Virtual hosts
   create
@@ -124,6 +134,8 @@ define module koala
 
   // Logging
   create
+    log-content,
+    *log-content?*,
     // These are wrappers for the defs by the same name in the logging library.
     log-trace,
     log-debug,
@@ -154,8 +166,6 @@ define module koala
     serve-static-file-or-cgi-script,
     serve-static-file,
     serve-cgi-script,
-    cgi-directory-responder, add-cgi-directory-responder,
-    cgi-script-responder, add-cgi-script-responder,
     document-location,
     document-root,
     file-contents;

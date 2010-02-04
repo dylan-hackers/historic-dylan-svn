@@ -207,7 +207,7 @@ define method initialize
   default-virtual-host(server) := vhost;
   add-virtual-host(server, vhost, vhost-name);
   // Add a spec that matches all urls.
-  add-directory-spec(vhost, root-directory-spec(vhost));
+  add-directory-policy(vhost, root-directory-policy(vhost));
 
   // Copy mime type map in, since it may be modified when config loaded.
   let tmap :: <table> = server.server-mime-type-map;
@@ -413,7 +413,7 @@ define method start-server
   dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
                 *error-logger* = server.default-virtual-host.error-logger,
                 *request-logger* = server.default-virtual-host.request-logger,
-                *http-header-logger* = *debug-logger*)
+                *http-common-log* = *debug-logger*)
     log-info("Starting %s HTTP Server", $server-name);
     ensure-sockets-started();
     log-info("Server root directory is %s", server-root(server));
@@ -572,7 +572,7 @@ define function start-http-listener
           dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
                         *error-logger* = server.default-virtual-host.error-logger,
                         *request-logger* = server.default-virtual-host.request-logger,
-                        *http-header-logger* = *debug-logger*)
+                        *http-common-log* = *debug-logger*)
             with-lock (server-lock) end; // Wait for setup to finish.
             block ()
               listener-top-level(server, listener);
@@ -669,6 +669,7 @@ define function do-http-listen
                   handler-top-level(client);
                 end;
               cleanup
+                log-debug("Closing socket for %s", client);
                 ignore-errors(<socket-condition>,
                               close(client.client-socket, abort: #t));
                 release-client(client);
@@ -698,6 +699,7 @@ define function do-http-listen
       loop();
     end when;
   end iterate;
+  log-debug("Closing socket for %s", listener);
   close(listener.listener-socket, abort: #t);
 end do-http-listen;
 
@@ -791,7 +793,7 @@ define method make-virtual-host
               dbg-logger | server.default-virtual-host.debug-logger,
             args);
   // Add a spec that matches all urls.
-  add-directory-spec(vhost, root-directory-spec(vhost));
+  add-directory-policy(vhost, root-directory-policy(vhost));
   vhost
 end;
 
@@ -865,7 +867,7 @@ define function handler-top-level
                 *debug-logger* = *server*.default-virtual-host.debug-logger,
                 *error-logger* = *server*.default-virtual-host.error-logger,
                 *request-logger* = *server*.default-virtual-host.request-logger,
-                *http-header-logger* = *debug-logger*)
+                *http-common-log* = *debug-logger*)
     block (exit-handler-top-level)
       while (#t)                      // keep alive loop
         let request :: <basic-request>
@@ -896,7 +898,7 @@ define function handler-top-level
             *debug-logger* := *virtual-host*.debug-logger;
             *error-logger* := *virtual-host*.error-logger;
             *request-logger* := *virtual-host*.request-logger;
-            *http-header-logger* := *debug-logger*;
+            *http-common-log* := *debug-logger*;
 
             invoke-handler(request);
             force-output(request.request-socket);
@@ -956,10 +958,10 @@ define method read-request (request :: <request>) => ()
                          headers: request.raw-headers);
   end unless;
   process-incoming-headers(request);
-  select (request.request-method by \==)
-    #"post", #"put" => read-request-content(request);
-    otherwise => #f;
-  end select;
+  // Unconditionally read all request content in case we need to process
+  // further requests on the same connection.  This is temporary and needs
+  // to be handled with more finesse.
+  read-request-content(request);
 end method read-request;
 
 // Read the Request-Line.  RFC 2616 Section 5.1
@@ -980,10 +982,10 @@ define function parse-request-line
     let req-method = substring(buffer, 0, epos1);
     let url-string = substring(buffer, bpos2, epos2);
     let http-version = substring(buffer, bpos3, epos3);
+    log-trace("<-- %s %s %s", req-method, url-string, http-version);
     request.request-method := validate-request-method(req-method);
     parse-request-url(server, request, url-string);
     request.request-version := validate-http-version(http-version);
-    log-trace("<-- %s %s %s", req-method, url-string, http-version);
   end if;
 end function parse-request-line;
 
@@ -1026,18 +1028,20 @@ end method validate-request-method;
 
 
 // This should only be called once it has been determined that the request has
-// an entity body.  RFC 2616, 4.4 is useful for this function.
+// an entity body.  RFC 2616, 4.3 and 4.4 are useful for this function.
 //
+// TODO:
 // This whole model is broken.  The responder function should be able to read
 // streaming data from the request and do what it wants with it.  The server
 // itself may want to keep track of how much data was read from the request so
-// that it can finish reading unread data and discard it?
+// that it can finish reading unread data and discard it.
 //
 define function read-request-content
     (request :: <request>)
  => ()
   if (chunked-transfer-encoding?(request))
-    request-content(request) := read-to-end(request);
+    request.request-content := read-to-end(request);
+    log-debug("<==%=", request.request-content);
   else
     let content-length = get-header(request, "Content-Length", parsed: #t);
     if (~content-length)
@@ -1258,18 +1262,14 @@ define method %invoke-handler
                   // This is set to a <page-context> when first requested.
                   *page-context* = #f)
       if (request.request-responder)
-        log-debug("request has a responder");
-	log-debug("tail url = %s", request.request-path-tail);
         let (action, match) = find-action(request);
         if (action)
-          log-debug("request action found");
           // Invoke the action function with keyword arguments matching the names
           // of the named groups in the first regular expression that matches the
           // tail of the url, if any.  Also pass the entire match as the match:
           // argument so unnamed groups and the entire match can be accessed.
           let arguments = #[];
           if (match)
-            log-debug("request match found");
             arguments := make(<deque>);
             push-last(arguments, match:);
             push-last(arguments, match);
@@ -1288,11 +1288,9 @@ define method %invoke-handler
             // Not sure how useful this might be in practice.
           end;
         else
-          log-debug("no action found");
           resource-not-found-error(url: request.request-url);
         end if;
       else
-        log-debug("attempting to serve static file or cgi");
         // generates 404 if not found
         serve-static-file-or-cgi-script();
       end if;
@@ -1306,15 +1304,12 @@ define inline function find-action
  => (action, match)
   let rm-map = request.request-responder.request-method-map;
   let tail-responders = element(rm-map, request.request-method, default: #f);
-  log-debug("tail-responders = %s", tail-responders);
   if (tail-responders)
     block (return)
       let url-tail = request.request-path-tail;
       for (tail-responder in tail-responders)
-	log-debug("  regex = %s", tail-responder.tail-responder-regex.regex-pattern);
         let match = regex-search(tail-responder.tail-responder-regex, url-tail);
         if (match)
-          log-debug("    matched!");
           return(tail-responder.tail-responder-action, match)
         end if;
       end for;

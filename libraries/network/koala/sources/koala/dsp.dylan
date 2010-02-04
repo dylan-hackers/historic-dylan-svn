@@ -936,7 +936,7 @@ define function parse-include-directive
                   "'location' attribute.",
                 as(<string>, page.source-location));
   end;
-  let source = document-location(url, context: page-directory(page));
+  let source = document-location(url, page-directory(page));
   let contents = source & file-contents(source);
   if (contents)
     let subtemplate = make(<dsp-template>,

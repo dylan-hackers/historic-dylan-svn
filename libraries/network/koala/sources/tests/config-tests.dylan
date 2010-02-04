@@ -14,7 +14,7 @@ define function configure
     (configuration :: <string>)
  => (server :: <http-server>)
   let server = make(<http-server>);
-  configure-from-string(server, configuration, "<no-file>");
+  configure-from-string(server, configuration);
   server
 end function configure;
   
@@ -49,9 +49,27 @@ define test listener-config-test ()
   end;
 end test listener-config-test;
 
+define test alias-config-test ()
+  let server = make-server(debug: #t);
+  add-responder(server, "/abc", echo-responder);
+  let text = "<koala><alias url=\"/def\" target=\"/abc\"/></koala>";
+  configure-from-string(server, text);
+  with-http-server (server = server)
+    with-http-connection(conn = test-url("/"))
+      send-request(conn, "GET", "/def");
+      let response = read-response(conn, follow-redirects: #f);
+      check-equal("/def returned response code 301?",
+                  response.response-code, 301);
+      check-equal("/def was redirected to /abc?",
+                  get-header(response, "Location"), "/abc");
+    end;
+  end;
+end test alias-config-test;
+
 define suite configuration-test-suite ()
   test basic-config-test;
   test listener-config-test;
+  test alias-config-test;
 end;
 
 
@@ -71,7 +89,10 @@ end;
   <server-root location="c:/cgay/dylan" />
   <document-root location="www" />
   <dsp-root location="c:/cgay/dylan/trunk/libraries/network/koala/www" />
-  <directory pattern = "/"
+  <directory url = "/"
+             path = "..."
+             allow-cgi = "yes"
+             follow-symlinks = "yes"
              allow-directory-listing = "yes" />
   <default-virtual-host enabled="yes"/>
   <listener address="0.0.0.0" port="8080" />

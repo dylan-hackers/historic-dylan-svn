@@ -60,7 +60,8 @@ end function make-responder;
 
 define function add-responder
     (store :: type-union(<string-trie>, <http-server>),
-     uri :: type-union(<uri>, <string>), responder,
+     uri :: type-union(<uri>, <string>),
+     responder,
      #key replace? :: <boolean>)
   if (instance?(store, <http-server>))
     store := store.url-map;

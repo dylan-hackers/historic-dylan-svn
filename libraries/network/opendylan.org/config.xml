@@ -14,6 +14,22 @@
     -->
   <document-root location="/home/cgay/trunk/libraries/network/opendylan.org/static"/>
   <dsp-root location="/home/cgay/trunk/libraries/network/opendylan.org/dsp"/>
+
+  <!-- Redirect /bugzilla to HTTPS on Apache, which uses ProxyPass and
+       ProxyPassReverse.  Then redirect /koala/bugzilla to /cgi-bin/bugzilla
+       to get the actual CGIs executed.
+    -->
+  <alias url="/bugzilla"
+	 target="https://www.opendylan.org/koala/bugzilla" />
+  <alias url="/koala/bugzilla"
+	 target="/cgi-bin/bugzilla"
+	 internal-redirect="true" />
+<!--
+  <directory url="/cgi-bin/"  ??
+	     pathname="/usr/lib/cgi-bin/"
+	     allow-cgi="yes"
+	     cgi-extensions="cgi" />
+  -->
   <wiki content-directory="/home/cgay/wiki-content"
         site-name="Dylan Wiki"
 	site-url="http://mccarthy.opendylan.org:8000"

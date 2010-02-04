@@ -1,4 +1,4 @@
-Module: http-client-test-suite
+Module: koala-test-suite
 
 /*
 tests to write:
@@ -15,66 +15,23 @@ tests to write:
 // Utilities and responders
 ///////////////////////////
 
-define constant $log :: <logger>
-  = make(<logger>, name: "http.client.test-suite");
-
 define variable *test-server* :: false-or(<http-server>) = #f;
-
-define variable *test-port* :: <integer> = 7000;
-
-define variable *test-host* :: <string> = "localhost";
-
-define variable *url-prefix* :: <byte-string> = "/http-test";
-
-// Make a full URL for HTTP requests.
-define function full-url
-    (url :: <string>, #key secure = #f) => (url :: <string>)
-  format-to-string("http://%s:%d%s",
-                   *test-host*, *test-port*, short-url(url))
-end;
-
-// Make URLs for registering with the server (i.e., just a path)
-define function short-url
-    (url :: <string>) => (url :: <string>)
-  format-to-string("%s%s", *url-prefix*, url)
-end;
-
-
-define function x-responder ()
-  let n = get-query-value("n", as: <integer>);
-  output(make(<byte-string>, size: n, fill: 'x'))
-end;
-
-define function make-x-url
-    (n :: <integer>)
- => (url)
-  full-url(format-to-string("/x?n=%d", n))
-end function make-x-url;
-
-// Responder that echos the message body back verbatim to the response.
-//
-define function echo-responder ()
-  // should eventually be output(read-to-end(current-request()))
-  output(request-content(current-request()))
-end;
 
 define function register-test-responders
     (server :: <http-server>)
-  add-responder(server, short-url("/x"),
-                table(compile-regex("^.*$") => list(x-responder)));
-  add-responder(server, short-url("/echo"),
-                table(compile-regex("^.*$") => list(echo-responder)));
-end function register-test-responders;
+  add-responder(server, "/x", x-responder);
+  add-responder(server, "/echo", echo-responder);
+end;
 
 define variable *test-suite-initialized?* = #f;
 
 define function setup-http-client-test-suite
     ()
   if (~*test-suite-initialized?*)
-    add-target(get-logger("http.common"), $stdout-log-target);
-    add-target(get-logger("http.client"), $stdout-log-target);
-    //logger-enabled?(get-logger("http.common.headers")) := #f;
-    start-test-server();
+    // To debug server errors uncomment debug: #t below.
+    *test-server* := make-server(/* debug: #t */);
+    register-test-responders(*test-server*);
+    start-server(*test-server*, background: #t, wait: #t);
     *test-suite-initialized?* := #t;
   end;
 end function setup-http-client-test-suite;
@@ -86,14 +43,6 @@ define function cleanup-http-client-test-suite
   end
 end function cleanup-http-client-test-suite;
 
-define function start-test-server
-    (#key host = *test-host*, port = *test-port*)
-  *test-server* := make(<http-server>,
-                        listeners: list(list(host, port)));
-  register-test-responders(*test-server*);
-  start-server(*test-server*, background: #t, wait: #t);
-end function start-test-server;
-
 
 /////////////////////////////
 // Tests
@@ -103,22 +52,31 @@ end function start-test-server;
 // Test GETs with responses of various sizes.  For Koala, the largest
 // one causes a chunked response.
 //
-define test test-http-get ()
-  for (n in list(0, 1, 2, 8192, 100000))
-    check-equal(format-to-string("GET %d-byte string of 'x's", n),
-                http-get(make-x-url(n)),
-                make(<byte-string>, size: n, fill: 'x'));
+define test test-http-get-to-string ()
+  for (n in list(0, 1, 2, 8192 /*, 100000 */))
+    let response = http-get(make-x-url(n));
+    check-equal(fmt("http-get-to-string %d bytes - verify response code", n),
+                200,
+                response.response-code);
+    check-equal(fmt("http-get-to-string %d bytes - verify content", n),
+                make(<byte-string>, size: n, fill: 'x'),
+                response.response-content);
   end;
-end test test-http-get;
+end test test-http-get-to-string;
 
-// Test http-get with output done to a stream.
-//
 define test test-http-get-to-stream ()
-  check-equal("http-get to a stream",
-              "xxxx",
-              with-output-to-string(stream)
-                http-get(make-x-url(4), stream: stream)
-              end);
+  for (n-bytes in list(0, 1, 2, 8192 /*, 100000 */))
+    let stream = make(<string-stream>, direction: #"output");
+    let response = http-get(make-x-url(n-bytes), stream: stream);
+    check-equal(fmt("http-get-to-stream %d bytes - verify response code", n-bytes),
+                200,
+                response.response-code);
+    check-equal(fmt("http-get-to-stream %d bytes - verify content not read", n-bytes),
+                #f,
+                response.response-content);
+    // log-debug($log, " test-http-get/read-content: read-to-end()");
+    // read-to-end(response);  // cleanup
+  end;
 end test test-http-get-to-stream;
 
 define test test-encode-form-data ()
@@ -134,7 +92,7 @@ define test test-reuse-http-connection ()
   // The explicit headers here should be temporary.  I want to make
   // with-http-connection and send-request coordinate better to do
   // the keep-alive.
-  with-http-connection (conn = *test-host*, port: *test-port*)
+  with-http-connection (conn = root-url())
     send-request(conn, "GET", make-x-url(2),
                  headers: #[#["Connection", "Keep-alive"]]);
     let response :: <http-response> = read-response(conn);
@@ -154,10 +112,10 @@ define test test-reuse-http-connection ()
 end test test-reuse-http-connection;
 
 define test test-streaming-request ()
-  with-http-connection(conn = *test-host*, port: *test-port*)
+  with-http-connection(conn = root-url())
     // This uses a content-length header because currently Koala doesn't
     // support requests with chunked encoding.
-    start-request(conn, #"post", short-url("/echo"),
+    start-request(conn, #"post", "/echo",
                   headers: #[#["Content-Length", "7"],
                              #["Content-Type", "text/plain"]]);
     write(conn, "abcdefg");
@@ -169,9 +127,9 @@ define test test-streaming-request ()
 end test test-streaming-request;
 
 define test test-streaming-response ()
-  with-http-connection(conn = *test-host*, port: *test-port*)
+  with-http-connection(conn = root-url())
     let data = make(<byte-string>, size: 10000, fill: 'x');
-    send-request(conn, "POST", short-url("/echo"), content: data);
+    send-request(conn, "POST", "/echo", content: data);
     let response :: <http-response> = read-response(conn, read-content: #f);
     check-equal("streamed response data same as sent data",
                 read-to-end(response),
@@ -181,11 +139,11 @@ end test test-streaming-response;
 
 define test test-write-chunked-request ()
   // Client requests are chunked if we don't add a Content-Length header.
-  with-http-connection(conn = *test-host*, port: *test-port*,
+  with-http-connection(conn = root-url(),
                        outgoing-chunk-size: 8)
     for (data-size in #(0, 1, 7, 8, 9, 200))
       let data = make(<byte-string>, size: data-size, fill: 'x');
-      send-request(conn, "POST", short-url("/echo"),
+      send-request(conn, "POST", "/echo",
                    content: data,
                    headers: #[#["Connection", "Keep-Alive"],
                               #["Transfer-Encoding", "chunked"]]);
@@ -198,12 +156,12 @@ define test test-write-chunked-request ()
 end test test-write-chunked-request;
 
 define test test-read-chunked-response ()
-  with-http-connection(conn = *test-host*, port: *test-port*)
+  with-http-connection(conn = root-url())
     // currently no way to set response chunk size so make data bigger
     // than koala's $chunk-size.  koala adds Content-Length header if
     // entire response < $chunk-size.
     let data = make(<byte-string>, size: 100000, fill: 'x');
-    send-request(conn, "POST", short-url("/echo"), content: data);
+    send-request(conn, "POST", "/echo", content: data);
     let response :: <http-response> = read-response(conn);
     check-equal("response data same as sent data",
                 response-content(response),
@@ -226,7 +184,7 @@ end test test-non-chunked-response;
 define test test-resource-not-found-error ()
   check-condition("<resource-not-found-error> (404) signaled",
                   <resource-not-found-error>,
-                  http-get(full-url("/no-such-url")));
+                  http-get(test-url("/no-such-url")));
 end test test-resource-not-found-error;
 
 define test test-invalid-response-chunk-sizes ()
@@ -239,7 +197,7 @@ define test test-invalid-request-content-lengths ()
 end test test-invalid-request-content-lengths;
 
 define test test-read-from-response-after-done ()
-  with-http-connection(conn = *test-host*, port: *test-port*)
+  with-http-connection(conn = root-url())
     send-request(conn, #"get", make-x-url(3));
     let response = read-response(conn, read-content: #t);
     check-condition("Reading past end of response raises <end-of-stream-error>",
@@ -251,7 +209,7 @@ end test test-read-from-response-after-done;
 define suite http-client-test-suite
     (setup-function: setup-http-client-test-suite,
      cleanup-function: cleanup-http-client-test-suite)
-  test test-http-get;
+  test test-http-get-to-string;
   test test-http-get-to-stream;
   test test-encode-form-data;
   test test-with-http-connection;
@@ -264,7 +222,6 @@ define suite http-client-test-suite
   test test-read-chunked-response;
   test test-non-chunked-request;
   test test-non-chunked-response;
-
   test test-resource-not-found-error;
   test test-invalid-response-chunk-sizes;
   test test-invalid-response-content-lengths;
@@ -272,6 +229,5 @@ define suite http-client-test-suite
 
   test test-read-from-response-after-done;
   // todo -- test the reaction to server errors
-
 end suite http-client-test-suite;
 

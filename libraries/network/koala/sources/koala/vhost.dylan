@@ -8,17 +8,16 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define thread variable *virtual-host* :: false-or(<virtual-host>) = #f;
 
 
-// todo -- rename this to <access-policy>
-//
-define class <directory-spec> (<object>)
-  constant slot dirspec-pattern :: <string>,
-    required-init-keyword: pattern:;
+define class <directory-policy> (<object>)
 
-  // TODO:
-  // If this regular expression is the first to match the request URL
-  // then this directory spec will be used.
-  slot regular-expression :: <string>;        // will be <regular-expression>
-  
+  // The URL path that maps to this directory policy.
+  constant slot policy-url-path :: <string>,
+    required-init-keyword: url-path:;
+
+  // The actual filesystem path of the directory.
+  constant slot policy-directory :: <directory-locator>,
+    required-init-keyword: directory:;
+
   // Whether to allow directory listings.
   // May be overridden for specific directories.
   // Default is to be secure.
@@ -37,25 +36,14 @@ define class <directory-spec> (<object>)
     init-keyword: allow-cgi?:;
 
   // Acceptable CGI script file extensions.  No other files will be served.
-  constant slot cgi-extensions :: <sequence> = #("cgi"),
+  constant slot policy-cgi-extensions :: <sequence> = #("cgi"),
     init-keyword: cgi-extensions:;
   
-end class <directory-spec>;
+end class <directory-policy>;
 
-define method initialize
-    (spec :: <directory-spec>, #key pattern, #all-keys)
-  // TODO:
-  // This is temp code, depending on the fact that we only create specs ending
-  // in '*' right now.
-  let pos = char-position('*', pattern, 0, size(pattern));
-  regular-expression(spec) := iff(pos, substring(pattern, 0, pos), pattern);
-end;
-
-
-define method dirspec-matches?
-    (spec :: <directory-spec>, url :: <string>)
-  // TODO: regular expressions.  For now if it's an initial substring match that'll do.
-  looking-at?(regular-expression(spec), url, 0, size(url))
+define method policy-matches?
+    (policy :: <directory-policy>, url :: <string>)
+  looking-at?(policy-url-path(policy), url, 0, size(url))
 end;
 
 
@@ -77,7 +65,7 @@ define class <virtual-host> (<object>)
   slot dsp-root :: <directory-locator>,
     init-keyword: dsp-root:;
 
-  // List of <directory-spec> objects that determine how documents in
+  // List of <directory-policy>s that determine how documents in
   // different directories are treated.  These are searched in order,
   // and the first one to match the requested URL is used.  Items are
   // pushed onto the beginning of this list as the config file is read,
@@ -85,16 +73,14 @@ define class <virtual-host> (<object>)
   // precedence.  I think this will match the natural usage, where people
   // will put more general specs first in the file and more specific ones
   // later, but we might want to revisit this decision.
-  slot directory-specs :: <list>
+  slot directory-policies :: <list>
     = list();
 
   // Each vhost gets an implicitly defined spec for the vhost root directory.
   // It must, of course, match all documents under the vhost document root.
-  // It should always be the last element in directory-specs(vhost).
+  // It should always be the last element in directory-policies(vhost).
   // See initialize(<virtual-host>).
-  constant slot root-directory-spec :: <directory-spec>
-    = make(<directory-spec>,
-           pattern: "/*");
+  slot root-directory-policy :: <directory-policy>;
 
   // TODO: this should be per-dirspec.  no reason some subtree on the same
   //       vhost shouldn't have a different set of default docs.
@@ -139,47 +125,52 @@ define method initialize
   if (~dsp-root)
     vhost.dsp-root := vhost.document-root;
   end;
+  if (~slot-initialized?(vhost, root-directory-policy))
+    vhost.root-directory-policy := make(<directory-policy>,
+                                        url-path: "/",
+                                        directory: vhost.document-root);
+  end;
 end method initialize;
 
-define method add-directory-spec
-    (vhost :: <virtual-host>, spec :: <directory-spec>)
-  directory-specs(vhost)
-    := pair(spec, remove!(directory-specs(vhost), spec,
-                          test: method (s1, s2)
-                                  dirspec-pattern(s1) = dirspec-pattern(s2)
-                                end));
-  for (spec in vhost.directory-specs)
-    log-debug("dirspec: %s", debug-string(spec));
+define method add-directory-policy
+    (vhost :: <virtual-host>, policy :: <directory-policy>)
+  directory-policies(vhost)
+    := pair(policy, remove!(directory-policies(vhost), policy,
+                            test: method (s1, s2)
+                                    policy-url-path(s1) = policy-url-path(s2)
+                                  end));
+  for (policy in vhost.directory-policies)
+    log-debug("directory policy: %s", debug-string(policy));
   end;
-end;
+end method add-directory-policy;
 
 define method debug-string
-    (spec :: <directory-spec>)
-  format-to-string("<directory-spec pattern=%= regex=%= list?=%= "
+    (policy :: <directory-policy>)
+  format-to-string("<directory-policy url-path=%= directory=%= list?=%= "
                      "follow-symlinks?=%= cgi?=%= cgi-ext=%=>",
-                   spec.dirspec-pattern,
-                   spec.regular-expression,
-                   spec.allow-directory-listing?,
-                   spec.follow-symlinks?,
-                   spec.allow-cgi?,
-                   spec.cgi-extensions);
+                   policy.policy-url-path,
+                   policy.policy-directory,
+                   policy.allow-directory-listing?,
+                   policy.follow-symlinks?,
+                   policy.allow-cgi?,
+                   policy.policy-cgi-extensions);
 end;
 
-define method directory-spec-matching
+define method directory-policy-matching
     (vhost :: <virtual-host>, url :: <string>)
-  iterate loop (specs :: <list> = directory-specs(vhost))
-    if (empty?(specs))
-      // The last spec is guaranteed to match all documents under the document root,
+  iterate loop (policies :: <list> = directory-policies(vhost))
+    if (empty?(policies))
+      // The last policy is guaranteed to match all documents under the document root,
       // so if we get here it's an error.
       // TODO: improve the error message here, at least in the case where debugging
       //       is enabled.
       internal-server-error();
     else
-      let spec :: <directory-spec> = head(specs);
-      iff(dirspec-matches?(spec, url),
-          spec,
-          loop(tail(specs)));
+      let policy :: <directory-policy> = head(policies);
+      iff(policy-matches?(policy, url),
+          policy,
+          loop(tail(policies)));
     end if;
   end;
-end method directory-spec-matching;
+end method directory-policy-matching;
 

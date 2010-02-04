@@ -10,9 +10,10 @@ define library koala-test-suite
   use http-client;
   use http-common;
   use io,
-    import: { format-out };
+    import: { format-out, standard-io, streams };
   use koala,
     import: { koala, koala-unit };
+  use logging;
   use network,
     import: { sockets };
   use regular-expressions;
@@ -41,10 +42,12 @@ define module koala-test-suite
   use format-out;
   use http-client;
   use http-common;
-  use koala;
+  use koala,
+    exclude: { log-trace, log-debug, log-info, log-warning, log-error };
   use koala-unit;
   use locators,
     exclude: { <http-server>, <url> };
+  use logging;
   use operating-system,
     import: { environment-variable };
   use regular-expressions;
@@ -57,6 +60,8 @@ define module koala-test-suite
       start-sockets,
       $local-host
     };
+  use standard-io;
+  use streams;
   use strings;
   use testworks;
   use threads;

@@ -66,20 +66,48 @@ define method serve-cgi-script
     let (exit-code, signal) = wait-for-application-process(child);
     log-debug("  CGI terminated: %s, exit-code: %s, signal: %s",
               command, exit-code, signal);
+  exception (ex :: <serious-condition>)
+    log-error("  CGI terminated with error: %s", ex);
+    log-debug("  CGI stdout = %s", %read-buffered-data(stdout));
   end;
 end method serve-cgi-script;
+
+// does something like this exist already?
+define function %read-buffered-data
+    (stream) => (data :: <string>)
+  let chars = make(<string>, size: 2000);
+  let index :: <integer> = 0;
+  block ()
+    while (stream-input-available?(stream))
+      chars[index] := read-element(stream);
+      inc!(index);
+      if (index >= chars.size)
+        let new = make(<string>, size: chars.size * 2);
+        for (i :: <integer> from 0 below chars.size)
+          new[i] := chars[i];
+        end;
+        chars := new;
+      end;
+    end;
+  exception (ex :: <end-of-stream-error>)
+  end;
+  copy-sequence(chars, end: index)
+end function %read-buffered-data;
 
 // Register this responder for directories containing CGI scripts
 // with add-cgi-directory-responder.
 define function cgi-directory-responder
-    (#key script-name :: <string>, path-info :: false-or(<string>))
-  log-debug("cgi-directory-responder: script-name = %=, path-info = %=", script-name, path-info);
+    (directory :: <directory-locator>,
+     #key script-name :: <string>, path-info :: false-or(<string>))
+  log-debug("cgi-directory-responder: script-name = %=, path-info = %=",
+            script-name, path-info);
   let request = current-request();
   let url = concatenate(request.request-path-prefix, "/", script-name);
-  log-debug("cgi-directory-responder: url = %s", url);
-  let script :: false-or(<physical-locator>) = static-file-locator-from-url(url);
-  log-debug("cgi-directory-responder: script = %s", as(<string>, script | "#f"));
-  if (script)
+  log-debug("cgi-directory-responder: directory = %s, url = %s",
+            as(<string>, directory), url);
+  let script = merge-locators(as(<file-locator>, script-name), directory);
+  log-debug("cgi-directory-responder: script = %s", as(<string>, script));
+  if (file-exists?(script))
     serve-cgi-script(script, url, path-info: path-info);
   else
     resource-not-found-error(url: url)
@@ -88,22 +116,24 @@ end function cgi-directory-responder;
 
 define method add-cgi-directory-responder
     (store :: type-union(<string-trie>, <http-server>),
-     cgi-directory-url :: <string>)
-  add-responder(store, cgi-directory-url,
-                make-responder(list(#(get:, post:),
+     url :: <string>,
+     directory :: <pathname>,
+     #key request-methods :: false-or(<sequence>))
+  add-responder(store, url,
+                make-responder(list(request-methods | #(get:, post:),
                                     "^(?P<script-name>[^/]+)(?P<path-info>.*)$",
-                                    cgi-directory-responder)))
+                                    curry(cgi-directory-responder,
+                                          as(<directory-locator>, directory)))))
 end;
 
 // This may be registered explicitly for particular CGI scripts
 // with add-cgi-script-responder.
 define function cgi-script-responder
-    (#key path-info :: false-or(<string>))
+    (script :: <pathname>, #key path-info :: false-or(<string>))
   let request = current-request();
   // Just use the path, not the host, query, or fragment.
   let url = build-path(request.request-url);
-  let script :: false-or(<physical-locator>) = static-file-locator-from-url(url);
-  if (script)
+  if (file-exists?(script))
     serve-cgi-script(script, url, path-info: path-info);
   else
     log-info("CGI script %s not found", url);
@@ -113,11 +143,13 @@ end function cgi-script-responder;
 
 define method add-cgi-script-responder
     (store :: type-union(<string-trie>, <http-server>),
-     cgi-script-url :: <string>)
-  add-responder(store, cgi-script-url,
-                make-responder(list(#(get:, post:),
+     url :: <string>,
+     script :: <pathname>,
+     #key request-methods :: false-or(<sequence>))
+  add-responder(store, url,
+                make-responder(list(request-methods | #(get:, post:),
                                     "^(?P<path-info>.*)$",
-                                    cgi-script-responder)))
+                                    curry(cgi-script-responder, script))))
 end;
 
 define method process-cgi-script-output

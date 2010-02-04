@@ -43,7 +43,10 @@ define module uncommon-dylan
     remove-object,
     trie-children,
     trie-object,
-    <trie-error>;
+    <trie-error>,
+
+    <nonnegative-integer>,
+    <positive-integer>;
 
 end module uncommon-dylan;
 

@@ -9,6 +9,9 @@ to-do list:
 * (optional?) strict mode in which reads/writes signal an error if the
   chunk size is wrong or content length is wrong.  give the user a way
   to recover from the error.
+* This code isn't currently designed to support an HTTP over anything
+  other than a <tcp-socket>.  It does not support <ssl-socket>s. (It's
+  also conceivable for there to be an <ipc-socket> class.)
 
 Examples:
 
@@ -62,6 +65,20 @@ close(conn);
 
 */
 
+// This is bound to an <http-connection> for the duration of with-http-connection.
+//
+define thread variable *http-connection* :: false-or(<http-connection>) = #f;
+
+// Logging is disabled by default.  Enable this to see what's going on.
+// Set level to $trace-level to see all request/response content data.
+//
+define thread variable *http-client-log* :: <logger>
+  = make(<logger>,
+         name: "http.client",
+         targets: list($stdout-log-target),
+         level: $info-level);
+
+
 // By the spec request methods are case-sensitive, but for convenience
 // we let them be specified as symbols as well.  If a symbol is used it
 // is uppercased before sending to the server.  Similarly for HTTP version.
@@ -69,6 +86,10 @@ close(conn);
 define constant <request-method> = type-union(<symbol>, <byte-string>);
 define constant <http-version> = type-union(<symbol>, <byte-string>);
 
+// This error is signaled if the number of redirects exceeds n for n in
+// http-get(conn, follow-redirects: n).
+define open class <maximum-redirects-exceeded> (<http-error>)
+end;
 
 // For sending requests, an <http-connection> acts as the output stream so
 // that it can do chunking etc.  But note that the request line and the headers
@@ -98,7 +119,7 @@ define open class <http-connection> (<basic-stream>)
 end class <http-connection>;
 
 define method initialize
-    (conn :: <http-connection>, #rest socket-args, #key host)
+    (conn :: <http-connection>, #rest socket-args, #key host :: <string>)
   next-method();
   conn.connection-socket := apply(make, <tcp-socket>,
                                   remove-keys(socket-args, outgoing-chunk-size:));
@@ -142,6 +163,10 @@ end;
 // Writing requests
 //////////////////////////////////////////
 
+// Start a request by sending the request line and headers.  The caller
+// may then write the message body data to the connection and call finish-request.
+// If you have a small amount of data to send you may want to use send-request
+// instead.
 define generic start-request
     (conn :: <http-connection>,
      request-method :: <request-method>,
@@ -167,18 +192,8 @@ define method start-request
   if (instance?(http-version, <string>))
     http-version := as(<symbol>, http-version);
   end;
+
   let headers = convert-headers(headers);
-  let proxy? = #f;  // todo -- probably in the connection
-
-  // Determine the URL string to send in the request line.  If using a proxy an
-  // absolute URI is required, otherwise HTTP/1.1 clients MUST send an abs_path
-  // (a.k.a. path-absolute) and send a Host header.
-  let url-string = iff(proxy?,
-                       build-uri(url),
-                       build-uri(url, include-scheme: #f, include-authority: #f));
-
-  send-request-line(conn, request-method, url-string, http-version);
-
   if (standard-headers)
     // Add standard headers unless user has already set them.
     if (http-version = #"HTTP/1.1")
@@ -190,6 +205,12 @@ define method start-request
                                         uri-host(url)));
       end;
     end;
+    // Always use Keep-alive when inside with-http-connection.  The connection
+    // will be closed when with-http-connection exits.
+    if (*http-connection* & ~element(headers, "Connection", default: #f))
+      headers["Connection"] := "Keep-alive";
+    end;
+
   end;
 
   // If the user set the content length explicitly, we trust them.
@@ -199,6 +220,16 @@ define method start-request
     add-header(headers, "Transfer-Encoding", "chunked", if-exists?: #"ignore");
   end;
 
+  let proxy? = #f;  // todo -- probably in the connection
+
+  // Determine the URL string to send in the request line.  If using a proxy an
+  // absolute URI is required, otherwise HTTP/1.1 clients MUST send an abs_path
+  // (a.k.a. path-absolute) and send a Host header.
+  let url-string = iff(proxy?,
+                       build-uri(url),
+                       build-uri(url, include-scheme: #f, include-authority: #f));
+
+  send-request-line(conn, request-method, url-string, http-version);
   send-headers(conn, headers);
 end method start-request;
 
@@ -224,7 +255,7 @@ define method send-request
     add-header(headers, "Content-Length", integer-to-string(content.size));
   end;
   apply(start-request, conn, request-method, url,
-        headers: headers, content: content, start-request-args);
+        headers: headers, start-request-args);
   write(conn, content);
   finish-request(conn);
 end method send-request;
@@ -251,11 +282,12 @@ define method send-request-line
     (conn :: <http-connection>,
      request-method :: <request-method>,
      url :: type-union(<uri>, <byte-string>),
-     http-version :: type-union(<byte-string>, <symbol>))
+     http-version :: <http-version>)
+  let req-meth = iff(~instance?(request-method, <string>),
+                     as-uppercase(as(<byte-string>, request-method)),
+                     request-method);
   format(conn.connection-socket, "%s %s %s\r\n",
-         iff(instance?(request-method, <symbol>),
-             as-uppercase(as(<byte-string>, request-method)),
-             request-method),
+         req-meth,
          // The client MUST omit the URI host unless sending to a proxy.
          // (Since we don't support proxies yet, the user can do this manually
          // by passing the url as a string.)
@@ -267,6 +299,8 @@ define method send-request-line
              http-version));
 end method send-request-line;
 
+// todo -- This and the function by the same name in the server should be
+//         moved into http-common.
 define method send-headers
     (conn :: <http-connection>, headers :: <table>)
   let stream :: <tcp-socket> = conn.connection-socket;
@@ -341,11 +375,6 @@ define method convert-headers
 end method convert-headers;
 
 define method convert-headers
-    (headers :: <header-table>)
-  headers
-end method convert-headers;
-
-define method convert-headers
     (headers :: <sequence>)
   let new-headers = make(<header-table>);
   for (item in headers)
@@ -356,8 +385,13 @@ define method convert-headers
   new-headers
 end method convert-headers;
 
+// There is explicitly no method on <header-table> so that the table
+// will be copied, since we have to modify it in send-request.
+
 define method convert-headers
     (headers :: <table>)
+  // Note the potential for duplicate headers to be dropped here.
+  // We let it pass...
   let new-headers = make(<header-table>);
   for (header-value keyed-by header-name in headers)
     new-headers[header-name] := header-value;
@@ -399,6 +433,7 @@ define open generic read-response
 
 define method read-response
     (conn :: <http-connection>,
+     #rest args,
      #key read-content :: <boolean> = #t,
           response-class :: subclass(<http-response>) = <http-response>)
  => (response :: <http-response>)
@@ -421,19 +456,10 @@ define method read-response
                 format-string: "%s",
                 format-arguments: list(reason-phrase),
                 code: status-code));
-  elseif (status-code >= 300 & follow-redirects)
-    follow-redirects(conn, response)
   else
     response
   end
 end method read-response;
-
-define method follow-redirects
-    (conn :: <http-connection>, response :: <http-response>)
- => (response :: <http-response>)
-  // Reminder: 302 and 307 require subtly different treatment
-  not-implemented-error(what: "follow-redirects");
-end method follow-redirects;
 
 // Read the status line from the response.  Signal <internal-server-error>
 // (code 500) if that status line is not valid.
@@ -495,10 +521,6 @@ end function make-http-connection;
 // with-http-connection(conn = url) blah end;
 // with-http-connection(conn = host, ...<http-connection> initargs...) blah end;
 //
-// Note that you'll need to add-header("Connection", "Keep-alive") if you intend
-// to use the connection for multiple requests and the server doesn't assume
-// keep-alive.
-//
 define macro with-http-connection
   { with-http-connection (?conn:name = ?host-or-url:expression, #rest ?initargs:*)
       ?:body
@@ -507,7 +529,11 @@ define macro with-http-connection
          block ()
            _conn := make-http-connection(?host-or-url, ?initargs);
            let ?conn = _conn;
-           ?body
+           // Bind *http-connection* so that start-request knows it should add
+           // a "Connection: Keep-alive" header if no Connection header is present.
+           dynamic-bind (*http-connection* = _conn)
+             ?body
+           end;
          cleanup
            if (_conn)
              close(_conn, abort?: #t)
@@ -515,41 +541,98 @@ define macro with-http-connection
          end }
 end macro with-http-connection;
 
-// Return the content of the given URL as a string, or, if a stream is
-// supplied write the content to that stream and return #f.
-//
+// Do a complete HTTP GET request and response.
+// Arguments:
+//   url - The URL to get.
+//   headers - Any additional headers to send with the request.  The same headers
+//     are sent in subsequent requests if redirects are followed.
+//   stream - A stream on which to output the response message body.  This is useful
+//     when an extremely large response is expected.  If not provided, then the
+//     response message body is stored in the returned response object.
+//   follow-redirects - If #f, then don't follow redirects.  This is allowed in order
+//     to simplify the caller.  If #t, then follow an indefinite number of redirects.
+//     If 0, then raise <maximum-redirects-exceeded>.  If > 0, follow that many
+//     redirects.
+// Values:
+//   An <http-response> object.
 define open generic http-get
-    (url :: <object>, #key stream)
- => (content :: false-or(<string>));
+    (url :: <object>, #key headers, follow-redirects, stream)
+ => (response :: <http-response>);
 
 define method http-get
-    (url :: <byte-string>, #key stream)
- => (content :: false-or(<string>))
-  http-get(parse-uri(url), stream: stream)
+    (url :: <byte-string>, #key headers, follow-redirects, stream)
+ => (response :: <http-response>)
+  http-get(parse-uri(url),
+           headers: headers,
+           follow-redirects: follow-redirects,
+           stream: stream)
 end method http-get;
 
 define method http-get
-    (url :: <uri>, #key stream)
- => (content :: false-or(<string>))
-  let host = uri-host(url);
-  with-http-connection(conn = host, port: uri-port(url))
-    send-request(conn, "GET", url,
-                 headers: #[#["Connection", "close"]]);
-    let response :: <http-response> = read-response(conn, read-content: #f);
-    if (stream)
-      block ()
-        while (#t)
-          write(stream, read(response, 8192));
+    (url :: <uri>,
+     #key headers,
+          follow-redirects :: type-union(<boolean>, <nonnegative-integer>),
+          stream :: false-or(<stream>))
+ => (response :: <http-response>)
+  with-http-connection(conn = url)
+    let headers = convert-headers(headers);
+    let original-headers = convert-headers(headers);  // copy
+
+    iterate loop (follow = follow-redirects, url = url)
+      send-request(conn, #"get", url, headers: original-headers);
+      let read-content? = ~stream;
+      let response :: <http-response> = read-response(conn, read-content: #f);
+      let code = response.response-code;
+      if (follow & code >= 300 & code <= 399)
+        // Discard the body of the redirect message.
+        read-and-discard-to-end(response);
+        if (follow = 0)
+          signal(make(<maximum-redirects-exceeded>,
+                      format-string: "Maximum number of redirects exceeded."));
+        else
+          loop(iff(follow = #t, #t, follow - 1),
+               get-header(response, "Location"))
+        end
+      else
+        if (stream)
+          copy-message-body-to-stream(response, stream);
+        else
+          response.response-content := read-to-end(response);
         end;
-      exception (ex :: <incomplete-read-error>)
-        write(stream, ex.stream-error-sequence);
-      exception (ex :: <end-of-stream-error>)
-        // pass
-      end;
-      #f
-    else
-      read-to-end(response)
-    end
-  end
+        response
+      end
+    end iterate
+  end with-http-connection
 end method http-get;
+
+// does something like this exist already?
+define method copy-message-body-to-stream
+    (response :: <http-response>, to-stream :: <stream>)
+  let buffer :: <byte-string> = make(<byte-string>, size: 8192);
+  block (return)
+    while (#t)
+      let count = read-into!(response, 8192, buffer);
+      log-trace(*http-client-log*, "Read %s elements", count);
+      if (count = 0)
+        return();
+      else
+        write(to-stream, buffer, end: count);
+      end;
+    end;
+  exception (ex :: <incomplete-read-error>)
+    write(to-stream, ex.stream-error-sequence, end: ex.stream-error-count);
+  exception (ex :: <end-of-stream-error>)
+    // pass
+  end;
+end method copy-message-body-to-stream;
+
+define method read-and-discard-to-end
+    (response :: <http-response>)
+  let buff-size :: <integer> = 16384;
+  let buffer :: <byte-string> = make(<byte-string>, size: buff-size);
+  let count = buff-size;
+  while (count)
+    count := read-into!(response, buff-size, buffer, on-end-of-stream: #f);
+  end;
+end method read-and-discard-to-end;
 

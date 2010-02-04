@@ -25,6 +25,7 @@ define module logging
     log-formatter-setter,
     log-level,
     log-level-setter,
+    log-level-applicable?,
     log-targets,
     logger-name,
     logger-additive?,
@@ -57,6 +58,7 @@ define module logging
     <rolling-file-log-target>,
     $stdout-log-target,
     $stderr-log-target,
+    $null-log-target,
 
     // Functions
     log-trace,

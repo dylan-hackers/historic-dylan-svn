@@ -427,3 +427,10 @@ define method find-object
         end method real-find;
   real-find(trie, as(<list>, path), trie.trie-object, #(), #());
 end method find-object;
+
+
+//// Type defs
+
+define constant <nonnegative-integer> = limited(<integer>, min: 0);
+define constant <positive-integer> = limited(<integer>, min: 1);
+

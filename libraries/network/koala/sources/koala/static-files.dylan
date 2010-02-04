@@ -12,8 +12,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // ---TODO: Consider signalling a real error instead.
 //
 define method document-location
-    (url :: <string>,
-     #key context :: <directory-locator> = document-root(*virtual-host*))
+    (url :: <string>, context :: <directory-locator>)
  => (locator :: false-or(<physical-locator>))
   block ()
     let len :: <integer> = size(url);
@@ -40,43 +39,45 @@ define method document-location
     log-debug("Locator error in document-location: %=", ex);
     #f
   end block
-end document-location;
+end method document-location;
 
 define method serve-static-file-or-cgi-script ()
   let request = current-request();
   let response = current-response();
   // Just use the path, not the host, query, or fragment.
-  let url = build-path(request.request-url);
-  let document :: false-or(<physical-locator>) = static-file-locator-from-url(url);
-  log-debug("serve-static-file-or-cgi-script: url = %s, document = %s",
-            url, as(<string>, document | "#f"));
+  let url :: <string> = build-path(request.request-url);
+  let policy :: <directory-policy> = directory-policy-matching(*virtual-host*, url);
+  let document :: false-or(<locator>)
+    = static-file-locator-from-url(url, policy-directory(policy));
+
+  log-debug("static file: url = %s", url);
+  log-debug("static file: spec = %s", debug-string(policy));
+  log-debug("static file: document = %s", as(<string>, document | "#f"));
+
   if (~document)
-    log-info("%s not found", url);
     resource-not-found-error(url: request-raw-url-string(request));  // 404
   end;
 
-  log-debug("Document: %s", document);
-  let spec :: <directory-spec> = directory-spec-matching(*virtual-host*, url);
-  log-debug("Matched dirspec: %s", debug-string(spec));
-
   if (file-type(document) == #"link")
-    let doc = follow-links(link-target(document), spec, url);
-    (doc ~= document) & log-info("Target document: %s", doc);
+    let doc = follow-links(link-target(document), policy, url);
+    if (doc ~= document)
+      log-info("static file: target document = %s", doc);
+    end;
     document := doc;
   end if;
 
   select (file-type(document))
     #"directory" =>
-      serve-directory(url, document, spec);
+      serve-directory(url, document, policy);
 
     // Links handled above.
     //#"link" =>  
       
     otherwise =>
       // It's a regular file...
-      log-debug("allow = %s, ext = %s", spec.allow-cgi?, spec.cgi-extensions);
-      if (spec.allow-cgi?
-            & member?(document.locator-extension, spec.cgi-extensions,
+      log-debug("allow = %s, ext = %s", policy.allow-cgi?, policy.policy-cgi-extensions);
+      if (policy.allow-cgi?
+            & member?(document.locator-extension, policy.policy-cgi-extensions,
                       test: string-equal?))  // should be \= on Unix
         serve-cgi-script(document, url);
       else
@@ -94,30 +95,31 @@ define method serve-static-file-or-cgi-script ()
 end method serve-static-file-or-cgi-script;
 
 // Follow symlink chain.  If the target is outside the document root and
-// the given directory spec disallows that, signal 404 error.
+// the given directory policy disallows that, signal 404 error.
 //
 define function follow-links
-    (document :: <pathname>, spec :: <directory-spec>, url)
+    (document :: <pathname>, policy :: <directory-policy>, url)
  => (target :: <pathname>)
   if ( ~(file-exists?(document)
-           & (follow-symlinks?(spec)
-                | locator-below-document-root?(document))))
+           & (follow-symlinks?(policy)
+                | locator-below-root?(document, policy.policy-directory))))
     resource-not-found-error(url: url);
   elseif (file-type(document) == #"link")
-    follow-links(link-target(document), spec, url)
+    follow-links(link-target(document), policy, url)
   else
     document
   end
 end function follow-links;
 
 // Returns the appropriate locator for the given URL, or #f if the URL doesn't
-// name an existing file below the document root.
+// name an existing file below the given context directory.
 // If the URL names a directory this checks for an appropriate default document
 // such as index.html and returns a locator for that, if found.
 //
 define function static-file-locator-from-url
-    (url :: <string>) => (locator :: false-or(<physical-locator>))
-  let locator = document-location(url);
+    (url :: <string>, context :: <directory-locator>)
+ => (locator :: false-or(<physical-locator>))
+  let locator = document-location(url, context);
   locator
     & file-exists?(locator)
     & iff(instance?(locator, <directory-locator>),
@@ -152,6 +154,7 @@ define method locator-below-dsp-root?
   locator-below-root?(locator, *virtual-host*.dsp-root)
 end;
 
+// I can't make any sense of this.  --cgay
 define method locator-below-root?
     (locator :: <physical-locator>, root :: <directory-locator>)
  => (below? :: <boolean>)
@@ -160,12 +163,13 @@ define method locator-below-root?
   if (locator-relative?(relative))
     let relative-parent = locator-directory(relative);
     // is it a file directly in the root dir?
-    ~relative-parent | begin
-      let relative-path = locator-path(relative-parent);
-      // again, is it directly in the root dir?
-      empty?(relative-path) | 
-        relative-path[0] ~= #"parent"  // does it start with ".."?
-    end;
+    ~relative-parent
+      | begin
+          let relative-path = locator-path(relative-parent);
+          // again, is it directly in the root dir?
+          empty?(relative-path)
+            | relative-path[0] ~= #"parent"  // does it start with ".."?
+        end;
   end if;
 end method locator-below-root?;
 
@@ -225,8 +229,8 @@ define method etag
 end method etag;
 
 define method serve-directory
-    (url :: <string>, directory :: <physical-locator>, spec :: <directory-spec>)
-  if (allow-directory-listing?(spec))
+    (url :: <string>, directory :: <physical-locator>, policy :: <directory-policy>)
+  if (allow-directory-listing?(policy))
     if (url[size(url) - 1] = '/')
       generate-directory-html(directory);
     else

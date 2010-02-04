@@ -134,19 +134,21 @@
 <dsp-root location="dsp" />
 
 
-<!-- DIRECTORY elements can be used to grant or deny access to specific
-     directories.  For now the pattern is simply an initial-substring
-     match against the requested URL, so "/" matches all documents.  The
-     order of DIRECTORY elements is significant.  If two directory
-     patterns match the same URL, the one specified later in the config
-     file will take precedence.  Note that if follow-symlinks is true then
-     links will be followed even if the target is outside of the document
-     root directory.  -->
-<directory pattern = "/"
+<!-- DIRECTORY elements can be used to grant or deny access to
+     specific directories.  For now the url is simply an
+     initial-substring match against the requested URL, so "/" matches
+     all documents.  The order of DIRECTORY elements is significant.
+     If two directory urls match the same request URL, the one
+     specified later in the config file will take precedence.  Note
+     that if follow-symlinks is true then links will be followed even
+     if the target is outside of the document root directory.
+  -->
+<directory url = "/"
+	   path = "/some/filesystem/path"
+           follow-symlinks = "yes"
            allow-directory-listing = "yes"
            allow-cgi = "yes"
            cgi-extensions = "cgi,bat,exe,..."
-           follow-symlinks = "yes"
            />
 
 <!-- If DEFAULT-VIRTUAL-HOST is enabled then requests that don't match
@@ -212,6 +214,9 @@
 
     <directory pattern = "/"
                allow-directory-listing = "no" />
+
+    <!-- Add an alias for the current virtual host. -->
+    <host-alias name="alias" />
 
 </virtual-host>
 

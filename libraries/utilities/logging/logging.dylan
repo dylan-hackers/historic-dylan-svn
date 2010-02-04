@@ -65,7 +65,11 @@ idea -- It is useful for general purpose libraries (e.g., an XML parser)
 todo -- Look at concurrency issues.  For example, is it possible for log
         messages to be written with out-of-order timestamps when multiple
         threads log to the same file via different log targets.  Can either
-        document that and say "don't do that" or fix it.
+        document that and say "don't do that" or fix it.  Similarly, could
+        add OPTIONAL file locking (a la fcntl.flock(fd, LOCK_EX)) so that
+        multiple processes can ensure that large log messages are written
+        atomically and guarantee monotonically increasing log entry dates.
+        Must be optional since it's heavyweight.
 
 */
 
@@ -379,7 +383,7 @@ define constant log-trace = curry(log-message, $trace-level);
 
 define constant log-debug = curry(log-message, $debug-level);
 
-define method log-debug-if
+define inline method log-debug-if
     (test, logger :: <logger>, object, #rest args)
   if (test)
     apply(log-debug, logger, object, args);
@@ -431,12 +435,14 @@ end;
 define sealed class <null-log-target> (<log-target>)
 end;
 
-define method log-to-target
+define sealed method log-to-target
     (target :: <null-log-target>,
      formatter :: <log-formatter>, format-string :: <string>, #rest args)
   // do nothing
 end;
 
+define constant $null-log-target :: <null-log-target>
+  = make(<null-log-target>);
 
 // A log target that outputs directly to a stream.
 // e.g., make(<stream-log-target>, stream: *standard-output*)

@@ -66,6 +66,7 @@ define module http-common
   export
     $http-version,
     $default-http-port,
+    *http-common-log*,
 
     // Things that expire
     <expiring-mixin>,
@@ -241,7 +242,6 @@ define module http-common
     avalue-value,
     avalue-alist,
     chunked-transfer-encoding?,
-    *http-header-logger*,
 
     // lower level header APIs...
     read-header-line,

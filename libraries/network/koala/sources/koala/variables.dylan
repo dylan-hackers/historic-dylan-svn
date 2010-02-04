@@ -278,4 +278,19 @@ define method log-error (format-string, #rest format-args)
   apply(%log-error, *error-logger*,  format-string, format-args);
 end;
 
+// For debugging only.
+// For logging request and response content data only.
+// So verbose it needs to be explicitly enabled.
+define variable *content-logger* :: <logger>
+  = make(<logger>,
+         name: "http.server.content",
+         targets: list($stdout-log-target),
+         additive: #f);
+
+// Not yet configurable.
+define variable *log-content?* :: <boolean> = #t;
+
+define inline method log-content (content)
+  log-debug-if(*log-content?*, *content-logger*, "==>%=", content);
+end;
 

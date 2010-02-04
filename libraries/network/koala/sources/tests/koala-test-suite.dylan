@@ -4,7 +4,7 @@ define function connect-and-close
     (addr, #key port = *test-port*)
   block ()
     with-http-connection(conn = addr, port: port)
-      log-debug("Connected to %s:%s", addr, port);
+      log-info($log, "Connected to %s:%s", addr, port);
       #t
     end;
   exception (ex :: <connection-failed>)
@@ -69,7 +69,7 @@ define test bind-interface-test ()
                      concatenate(host-addresses, #["127.0.0.1"]),
                      #["0.0.0.0"]))
 
-    log-debug("Starting server with addrs = %s", addrs);
+    log-info($log, "Starting server with addrs = %s", addrs);
     with-http-server(server = make-server(listeners: map(make-listener, addrs)))
       for (addr in concatenate(host-addresses, #("127.0.0.1")))
         if (member?(addr, addrs, test: \=) | addrs = #["0.0.0.0"])
@@ -98,7 +98,7 @@ define test chunked-request-test ()
   // Client requests are chunked if we don't add a Content-Length header.
   with-http-server (server = make-server())
     add-responder(server, "/echo", echo-responder);
-    with-http-connection(conn = make-test-url("/echo"),
+    with-http-connection(conn = test-url("/echo"),
                          outgoing-chunk-size: 8)
       for (data-size in #(0, 1, 7, 8, 9, 200))
         let data = make(<byte-string>, size: data-size, fill: 'x');
@@ -125,6 +125,7 @@ define suite koala-test-suite
   suite xml-rpc-test-suite;
   suite vhost-test-suite;
   suite cgi-test-suite;
+  suite http-client-test-suite;
 end suite koala-test-suite;
 
 // This library may be used as a dll or as an executable.  If an executable,
@@ -136,7 +137,15 @@ define method main () => ()
   if (split(filename, ".")[0] = "koala-test-suite")
     let query = environment-variable("QUERY_STRING");
     if (~query)
+      // Show all request/response headers and message content.
+      *http-common-log*.log-level := $trace-level;
+      *http-client-log*.log-level := $trace-level;
+      *log-content?* := #t;  // koala variable, not yet configurable.
+
       run-test-application(koala-test-suite);
+      // Work around bug in new-io.  It should force-output before the
+      // application exits.
+      force-output(*standard-output*);
     else
       // We're being invoked as a CGI script.
       // Note: don't log anything in this branch since it will become

@@ -94,7 +94,15 @@ define method add-opendylan-responders
       add-responder(http-server, url, page);
     end;
   end;
-  add-cgi-directory-responder(http-server, "/cgi-bin");
+  add-cgi-directory-responder(http-server,
+                              "/cgi-bin/cvszilla",
+                              "/usr/share/cvszilla/cgi-bin");
+  add-cgi-directory-responder(http-server,
+                              "/cgi-bin",
+                              "/usr/local/viewvc-1.0.5/bin/cgi");
+  add-cgi-directory-responder(http-server,
+                              "/cgi-bin/bugzilla",
+                              "/usr/lib/cgi-bin/bugzilla");
 end method add-opendylan-responders;
 
 define method main

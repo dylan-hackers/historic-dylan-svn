@@ -57,7 +57,7 @@ define function read-message-headers
       values(headers, buffer, epos)
     else
       let (key, data) = split-header(buffer, bpos, epos);
-      log-trace(*http-header-logger*, "<-- %s: %s", key, data);
+      log-debug(*http-common-log*, "<-- %s: %s", key, data);
       add-header(headers, key, data);
       loop(buffer, epos, peek-ch)
     end if
@@ -77,18 +77,18 @@ define method add-header
   if (~old)
     headers[header-name] := value;
   elseif (if-exists? = #"replace")
-    log-debug(*http-header-logger*, "Replacing header %s: %s -> %s",
+    log-debug(*http-common-log*, "Replacing header %s: %s -> %s",
               header-name, old, value);
     headers[header-name] := value;
   elseif (if-exists? = #"append")
-    log-debug(*http-header-logger*, "Appending to header %s: %s", header-name, value);
+    log-debug(*http-common-log*, "Appending to header %s: %s", header-name, value);
     headers[header-name] := iff(instance?(old, <pair>),
                                 concatenate!(old, list(value)),
                                 list(old, value));
   elseif (if-exists? = #"error")
     error("Attempt to add header %= which has already been added", header-name);
   else
-    log-debug(*http-header-logger*, "Ignoring header %s: %s", header-name, value);
+    log-debug(*http-common-log*, "Ignoring header %s: %s", header-name, value);
     assert(if-exists? == #"ignore");
   end;
 end method add-header;

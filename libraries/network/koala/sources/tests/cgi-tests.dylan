@@ -29,7 +29,7 @@ define function make-cgi-server
             "<directory pattern=\"/*\" allow-cgi=\"yes\" cgi-extensions=\"cgi,bat,exe\"/>\n"
             "</koala>\n";
   let server = make-server();
-  configure-from-string(server, fmt(cfg, server-root), "<no-file>");
+  configure-from-string(server, fmt(cfg, server-root));
   server
 end function make-cgi-server;
 
@@ -75,7 +75,7 @@ end;
 //
 define test cgi-required-environment-variables-test ()
   with-http-server (server = make-cgi-server(server-root: cgi-directory()))
-    let url = make-test-url("/koala-test-suite.exe?cgi=env");
+    let url = test-url("/koala-test-suite.exe?cgi=env");
 
     with-http-connection (conn = url)
       send-request(conn, "GET", url);
@@ -136,7 +136,7 @@ define test cgi-location-header-test ()
                   redirected? := #t;
                 end);
   with-http-server (server = server)
-    let url = make-test-url("/koala-test-suite.exe?cgi=location");
+    let url = test-url("/koala-test-suite.exe?cgi=location");
 
     with-http-connection (conn = url)
       send-request(conn, "GET", url);
@@ -167,7 +167,7 @@ define test cgi-status-header-test ()
                 "/cgi-status-header-test",
                 curry(output, expected-content));
   with-http-server (server = server)
-    let url = make-test-url("/koala-test-suite.exe?cgi=status");
+    let url = test-url("/koala-test-suite.exe?cgi=status");
 
     with-http-connection (conn = url)
       send-request(conn, "GET", url);
@@ -206,7 +206,7 @@ define test cgi-non-parsed-headers-test ()
                 "/cgi-nph-test",
                 curry(output, expected-content));
   with-http-server (server = server)
-    let url = make-test-url("/nph-koala-test-suite.exe?cgi=nph");
+    let url = test-url("/nph-koala-test-suite.exe?cgi=nph");
     with-http-connection (conn = url)
       send-request(conn, "GET", url);
       let full-response-text = read-to-end(conn.connection-socket);
@@ -230,7 +230,7 @@ end test cgi-command-line-test;
 define test cgi-working-directory-test ()
   let server = make-cgi-server(server-root: cgi-directory());
   with-http-server (server = server)
-    let url = make-test-url("/koala-test-suite.exe?cgi=cwd");
+    let url = test-url("/koala-test-suite.exe?cgi=cwd");
     with-http-connection (conn = url)
       send-request(conn, "GET", url);
       let response :: <http-response> = read-response(conn);
@@ -258,7 +258,7 @@ end;
 define test cgi-http-header-test ()
   let server = make-cgi-server(server-root: cgi-directory());
   with-http-server (server = server)
-    let url = make-test-url("/koala-test-suite.exe?cgi=HTTP_");
+    let url = test-url("/koala-test-suite.exe?cgi=HTTP_");
     with-http-connection (conn = url)
       send-request(conn, "GET", url,
                    headers: #[#("X-test-header-1", "blah")]);

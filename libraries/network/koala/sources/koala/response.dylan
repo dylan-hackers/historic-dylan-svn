@@ -43,6 +43,9 @@ define constant $chunk-size :: <integer> = 16384;
 //
 // Would like to subclass <byte-string-stream>, but it's sealed.
 //
+// Not thread safe.  If you plan to have multiple threads writing to the
+// response, do your own locking.
+//
 define open primary class <response> (<string-stream>, <base-http-response>)
 
   inherited slot stream-sequence
@@ -79,6 +82,7 @@ end method initialize;
 define method write-element
     (response :: <response>, char :: <byte-character>)
  => ()
+  // Let the method on <string-stream> do it's thing.
   next-method();
   maybe-send-chunk(response);
 end method write-element;
@@ -90,13 +94,14 @@ define method write
     (response :: <response>, chars :: <byte-string>,
      #key start: bpos = 0, end: epos)
  => ()
-  let epos :: <integer> = epos | chars.size;
-  let count :: <integer> = epos - bpos;
   // Let the method on <string-stream> do it's thing.
   next-method();
   maybe-send-chunk(response);
 end method write;
 
+// Send a chunk if this is a chunked response and the chunk buffer is full.
+// Note that if this is not a chunked response we do nothing, so the entire
+// response is buffered.
 define method maybe-send-chunk
     (response :: <response>)
   // response-chunked? returns #f if this is http/0.9 or http/1.0
@@ -119,11 +124,19 @@ define method send-chunk
     send-response-line(response, socket);
     send-headers(response, socket);
   end;
+
   let count :: <integer> = response.stream-size;
-  write(socket, integer-to-string(count, base: 16));
+  let count-string = integer-to-string(count, base: 16);
+  write(socket, count-string);
   write(socket, "\r\n");
+  log-content(count-string);
+
   write(socket, response.stream-sequence, end: count);
   write(socket, "\r\n");
+  if (*log-content?*)
+    log-content(copy-sequence(response.stream-sequence, end: count));
+  end;
+
   // Reset the response buffer.
   clear-contents(response);
   inc!(response.response-transfer-length, count);
@@ -136,7 +149,7 @@ define method send-response-line
                                        $http-version, 
                                        response.response-code, 
                                        response.response-reason-phrase | "OK");
-  log-trace("-->%s", response-line);
+  log-trace("-->%=", response-line);
   write(socket, response-line);
   write(socket, "\r\n");
 end method send-response-line;
@@ -183,9 +196,12 @@ end;
 define method send-header
     (socket :: <tcp-socket>, name :: <string>, val :: <object>)
   format(socket, "%s: %s\r\n", name, val);
-  log-trace("-->%s: %s", name, val);
+  %log-debug(*http-common-log*, "-->%s: %s", name, val);
 end;
 
+// todo -- This and the function by the same name in the client should be
+//         moved into http-common.  (Probably just the stuff inside the
+//         "unless" below, excluding headers-sent?.)
 define method send-headers
     (response :: <response>, socket :: <tcp-socket>)
   unless (response.response-request.request-version == #"http/0.9")
@@ -243,6 +259,11 @@ define method finish-response
 
     if (send-body? & req-method ~== #"head")
       write(socket, response.stream-sequence, start: 0, end: response.stream-size);
+      if (*log-content?*)
+        log-content(copy-sequence(response.stream-sequence,
+                                  start: 0,
+                                  end: response.stream-size));
+      end;
       // todo -- close connection if this is 0.9 (or 1.0?)
     end;
   end if;

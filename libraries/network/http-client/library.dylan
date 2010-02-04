@@ -11,6 +11,8 @@ define library http-client
   use network,
     import: { sockets };
   use strings;
+  use system,
+    import: { threads };
   use uncommon-dylan;
   use uri;
 
@@ -43,10 +45,12 @@ define module http-client
     read-response,
     <http-response>,
     response-content,
-    http-get;
+    http-get,
+    <maximum-redirects-exceeded>;
 
   // Utilities
   create
+    *http-client-log*,
     encode-form-data;
 
 end module http-client;
@@ -63,6 +67,7 @@ define module http-client-internals
   use standard-io;
   use streams;
   use strings;
+  use threads;
   use uncommon-dylan;
   use uri;
 

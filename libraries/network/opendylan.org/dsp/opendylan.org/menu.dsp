@@ -51,12 +51,12 @@
       <div>Developer Resources</div>
       <A HREF="/repository">&rsaquo; Repository Access</A>
       <A HREF="/cgi-bin/viewcvs.cgi">&rsaquo; Browse Repository</A>
-      <A HREF="/bugs/">&rsaquo; Bug Tracker</A>
-      <A HREF="/cvszilla/query.cgi">&rsaquo; CVSZilla Search</A>
+      <A HREF="/bugzilla/">&rsaquo; Bug Tracker</A>
+      <A HREF="/cgi-bin/query.cgi">&rsaquo; CVSZilla Search</A>
       <A HREF="/buildbot/">&rsaquo; Buildbot</A>
       <A HREF="/projects">&rsaquo; Current Projects</A>
       <A HREF="/tools">&rsaquo; Dev Tools</a>
-      <A HREF="http://wiki.opendylan.org/view.dsp?title=Latest%20News">&rsaquo; Submit News</A>
+      <A HREF="/wiki/view.dsp?title=Latest%20News">&rsaquo; Submit News</A>
     </div>
     <!--/UdmComment-->
     <div id="bodyText">

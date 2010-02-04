@@ -6,6 +6,11 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 /*
+ * TODO: warn() should note whether it has been called (perhaps with a
+ *       fatal? flag) and then after the entire config has been processed
+ *       Koala should exit if there were errors.  It's a good way to debug
+ *       the config file.  Many of the current warnings should be fatal.
+ *
  * TODO: Should warn when unrecognized attributes are used.
  *       Makes debugging your config file much easier sometimes.
  *
@@ -34,15 +39,13 @@ define function config-error
               format-arguments: format-args))
 end;
 
-/*
-define variable *options* = make(<table>);
-
-define function append-option
-    (key :: <symbol>, option, #key type = <stretchy-vector>)
-  let val = element(*options*, key, default: make(type));
-  *options*[key] := add!(val, setting);
+define function warn
+    (format-string, #rest format-args)
+  apply(log-warning,
+        concatenate("CONFIG: ", format-string),
+        format-args);
 end;
-*/
+
 
 // API
 // Process the server config file, config.xml.
@@ -63,7 +66,7 @@ define method configure-server
   let text = file-contents(config-loc);
   if (text)
     log-info("Loading server configuration from %s.", config-loc);
-    configure-from-string(server, text, config-loc);
+    configure-from-string(server, text, filename: config-loc);
   elseif (config-file)
     // Only blow out if user specified a config file, not if they're taking
     // the default config file.
@@ -74,26 +77,21 @@ end method configure-server;
 // This is separated out so it can be used by the test suite.
 //
 define method configure-from-string
-    (server :: <http-server>, text :: <string>, filename :: <string>)
+    (server :: <http-server>, text :: <string>,
+     #key filename :: false-or(<string>))
   // --todo: Fix parse-document to give a reasonable error message
   // instead of just returning #f.
   let xml :: false-or(xml$<document>) = xml$parse-document(text);
   if (xml)
     dynamic-bind (%vhost = server.default-virtual-host,
-                  %dir = root-directory-spec(server.default-virtual-host))
+                  %dir = root-directory-policy(server.default-virtual-host))
       process-config-node(server, xml);
     end;
   else
-    config-error("Unable to parse config file %s", filename);
+    config-error("Unable to parse configuration from %s",
+                 filename | "string");
   end;
 end method configure-from-string;
-
-define function warn
-    (format-string, #rest format-args)
-  apply(log-warning,
-        concatenate("CONFIG: ", format-string),
-        format-args);
-end;
 
 // Exported
 // The xml-parser library doesn't seem to define anything like this.
@@ -199,7 +197,7 @@ define method process-config-element
     let vhost = make-virtual-host(server, name: trim(name));
     add-virtual-host(server, vhost, name);
     dynamic-bind (%vhost = vhost,
-                  %dir = root-directory-spec(vhost))
+                  %dir = root-directory-policy(vhost))
       for (child in xml$node-children(node))
         process-config-element(server, child, xml$name(child))
       end;
@@ -211,16 +209,16 @@ define method process-config-element
 end;
 
 define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"alias")
+    (server :: <http-server>, node :: xml$<element>, name == #"host-alias")
   let name = get-attr(node, #"name");
   if (name)
     block ()
       add-virtual-host(server, %vhost, name);
     exception (err :: <koala-api-error>)
-      warn("Invalid <ALIAS> element.  %s", err);
+      warn("Invalid <HOST-ALIAS> element.  %s", err);
     end;
   else
-    warn("Invalid <ALIAS> element.  The 'name' attribute must be specified.");
+    warn("Invalid <HOST-ALIAS> element.  The 'name' attribute must be specified.");
   end;
 end;
 
@@ -475,7 +473,44 @@ define method process-config-element
   end if;
 end method process-config-element;
 
-// <directory  pattern = "/"
+define method process-config-element
+    (server :: <http-server>, node :: xml$<element>, name == #"alias")
+  let url = get-attr(node, #"url");
+  let target = get-attr(node, #"target");
+  if (~url)
+    warn("Invalid alias; the 'url' attribute is required.");
+  end;
+  if (~target)
+    warn("Invalid alias; the 'target' attribute is required.");
+  end;
+  add-alias-responder(server, url, target);
+end method process-config-element;
+
+// Add an alias that maps all URLs starting with url-path to the target path.
+// For example:
+//   add-alias-responder("/bugs/", "https://foo.com/bugzilla/")
+// will redirect a request for /bugs/123 to https://foo.com/bugzilla/123.
+// The redirection is implemented by issuing a 301 (moved permanently
+// redirect) response.
+define function add-alias-responder
+    (store :: type-union(<string-trie>, <http-server>),
+     url-path :: <string>, target :: <string>, #key request-methods)
+  add-responder(store, url-path,
+                make-responder(list(request-methods | #(get:, post:),
+                                    "^(?P<tail>.*)$",
+                                    curry(alias-responder, target))));
+end;
+
+define function alias-responder
+    (target :: <string>, #key tail :: <string>)
+  let location = concatenate(target, tail);
+  moved-permanently-redirect(location: location,
+                             header-name: "Location",
+                             header-value: location);
+end function alias-responder;
+
+// <directory  url = "/"
+//             path = "/some/filesystem/path"
 //             allow-directory-listing = "yes"
 //             allow-cgi = "yes"
 //             cgi-extensions = "cgi,bat,exe,..."
@@ -483,34 +518,36 @@ end method process-config-element;
 //             />
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"directory")
-  let pattern = get-attr(node, #"pattern");
-  if (~pattern)
-    warn("Invalid <DIRECTORY> spec.  "
-           "The 'pattern' attribute must be specified.")
+  let url = get-attr(node, #"url");
+  if (~url)
+    warn("Invalid <DIRECTORY> spec.  The 'pattern' attribute is required.");
   else
+    let path = get-attr(node, #"path");
     let dirlist? = get-attr(node, #"allow-directory-listing");
     let follow? = get-attr(node, #"follow-symlinks");
     let cgi? = get-attr(node, #"allow-cgi");
     let cgi-ext = get-attr(node, #"cgi-extensions") | "cgi";
-    cgi-ext := choose(complement(empty?),
-                      map(trim, split(trim(cgi-ext), ',')));
-    let root-spec = root-directory-spec(%vhost);
+    cgi-ext := map(trim, split(trim(cgi-ext), ','));
+    let root-policy = root-directory-policy(%vhost);
     // TODO: the default value for these should really
-    //       be taken from the parent dirspec rather than from root-spec.
-    let spec = make(<directory-spec>,
-                    pattern: pattern,
-                    follow-symlinks?: iff(follow?,
-                                          true-value?(follow?),
-                                          follow-symlinks?(root-spec)),
-                    allow-directory-listing?: iff(dirlist?,
-                                                  true-value?(dirlist?),
-                                                  allow-directory-listing?(root-spec)),
-                    allow-cgi?: iff(cgi?,
-                                    true-value?(cgi?),
-                                    allow-cgi?(root-spec)),
-                    cgi-extensions: cgi-ext);
-    add-directory-spec(%vhost, spec);
-    dynamic-bind (%dir = spec)
+    //       be taken from the parent policy rather than from root-policy.
+    let policy = make(<directory-policy>,
+                      url-path: url,
+                      directory: path | apply(subdirectory-locator,
+                                              document-root(%vhost),
+                                              uri-path(parse-url(url))),
+                      follow-symlinks?: iff(follow?,
+                                            true-value?(follow?),
+                                            follow-symlinks?(root-policy)),
+                      allow-directory-listing?: iff(dirlist?,
+                                                    true-value?(dirlist?),
+                                                    allow-directory-listing?(root-policy)),
+                      allow-cgi?: iff(cgi?,
+                                      true-value?(cgi?),
+                                      allow-cgi?(root-policy)),
+                      cgi-extensions: cgi-ext);
+    add-directory-policy(%vhost, policy);
+    dynamic-bind (%dir = policy)
       for (child in xml$node-children(node))
         process-config-element(server, child, xml$name(child));
       end;

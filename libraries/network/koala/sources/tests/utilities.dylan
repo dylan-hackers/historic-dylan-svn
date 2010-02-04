@@ -1,6 +1,9 @@
 Module: koala-test-suite
 
 
+define constant $log :: <logger>
+  = make(<logger>, name: "http.test-suite");
+
 // Would this be useful in koala itself?
 //
 define macro with-http-server
@@ -23,9 +26,14 @@ define constant fmt = format-to-string;
 
 define variable *test-port* :: <integer> = 8080;
 
-define method make-test-url
+define method test-url
     (path-etc :: <string>) => (url :: <url>)
   parse-url(fmt("http://localhost:%d%s", *test-port*, path-etc))
+end;
+
+define method root-url
+    () => (url :: <url>)
+  test-url("/")
 end;
 
 define method make-listener
@@ -43,7 +51,20 @@ define function make-server
         keys)
 end;
 
-define function echo-responder ()
+define function echo-responder
+    (#key)
+  // should eventually be output(read-to-end(current-request()))
   output(request-content(current-request()));
 end;
+
+define function x-responder (#key)
+  let n = get-query-value("n", as: <integer>);
+  output(make(<byte-string>, size: n, fill: 'x'))
+end;
+
+define function make-x-url
+    (n :: <integer>) => (url :: <url>)
+  test-url(format-to-string("/x?n=%d", n))
+end;
+
 

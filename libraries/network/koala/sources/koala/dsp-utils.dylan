@@ -2,8 +2,6 @@ Module: dsp
 Author: Carl Gay
 Synopsis: Utilities for DSP that otherwise can stand alone.
 
-define constant <positive-integer> = limited(<integer>, min: 1);
-
 define open class <paginator> (<sequence>)
   // The underlying sequence we're paging over.
   constant slot paginator-sequence :: <sequence>,
