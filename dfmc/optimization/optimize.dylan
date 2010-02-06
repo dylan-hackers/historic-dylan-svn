@@ -316,11 +316,11 @@ define generic optimize (item :: <computation>) => (b :: <boolean>);
 
 define function do-optimize (item :: <computation>) => (b :: <boolean>)
   with-parent-computation (item)
-    send-debug(#"relayouted", pair(item, #()));
+    //send-debug(#"relayouted", pair(item, #()));
     send-debug(#"highlight", item);
     let res = optimize(item) & #t;
     if (res)
-      //*dump-dfm-method*(#"relayouted", #());
+      send-debug(#"relayouted", pair(item, #()));
     end;
     res
   end;
