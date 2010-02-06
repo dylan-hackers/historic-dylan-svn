@@ -54,15 +54,9 @@ public class IncrementalHierarchicLayout
 	
 	//changes, every new phase pushes a new ArrayList
 	public ArrayList<ArrayList> changes = new ArrayList<ArrayList>();
-	//total useful changes (all apart from beginning, highlight, relayouted, etc.
-	protected int numChanges = 0;
-	//index in current active changes vector
-	protected int chindex = 0;	
-	//last index a new ArrayList was pushed
-	protected int lastChangeCount = 0;
-	//last index a relayout was done
-	protected int lastRelayout = 0;
-
+	//indicates whether a graph-changing command was received
+	protected boolean commandreceived = false;
+	
 	//slider indexes: last set value (maximum), and current value (lastslidervalue) 
 	protected Hashtable<Integer, JLabel> sliderLabels = new Hashtable<Integer, JLabel>();
 	protected int lastEntry = 0;
@@ -405,17 +399,8 @@ public class IncrementalHierarchicLayout
 		graph.setRealizer(graph.lastEdge(), myreal);
 	}
 
-	public void synchronizeGraphOperations (ArrayList commands, int index, boolean waitforuser) {
-		if (index < commands.size()) {
-			//System.out.println("synchronizing ops " + index + " comm.size " + commands.size());
-			if (waitforuser)
-				demobase.waitforstep();
-			for (int i = index; i < commands.size(); i++)
-				if (Commands.execute(this, (ArrayList)commands.get(i), demobase) && (changed == false))
-					changed = true;
-			if (waitforuser)
-				demobase.calcLayout();
-		}
+	public void synchronizeGraphOperations (ArrayList commands) {
+		demobase.calcLayout();
 	}
 
 	public void executeNonChangingGraphOperations (ArrayList commands) {
@@ -428,11 +413,17 @@ public class IncrementalHierarchicLayout
 		if (text.equals("finished"))
 			graphinprocessofbeingfinished = true;
 		final boolean rfinished = graphinprocessofbeingfinished;
-		if (lastChangeCount < numChanges) {
-			lastEntry++;
-			lastChangeCount = numChanges;
+		if (commandreceived) {
+			ArrayList ch = changes.get(changes.size() - 1);
+			for (Object c : ch)
+				if (Commands.execute(this, (ArrayList)c, demobase)) {
+					System.out.println("changed is true now! (caused by" + (ArrayList)c + ")");
+					changed = true;
+				}
+			demobase.calcLayout();
 			changes.add(new ArrayList());
-			chindex = 0;
+			lastEntry++;
+			commandreceived = false;
 		}
 		sliderLabels.put(lastEntry, new JLabel(text.substring(0, Math.min(40, text.length()))));
 		Runnable updateMyUI = new Runnable() {
@@ -445,12 +436,15 @@ public class IncrementalHierarchicLayout
 			}
 		};
 		SwingUtilities.invokeLater(updateMyUI);
+		if (graphinprocessofbeingfinished)
+			demobase.waitforstep();
 		lastslidervalue = lastEntry;
 	}
 	
 	public boolean nextStep () {
 		if (graphfinished && (lastslidervalue <= lastEntry)) {
-			synchronizeGraphOperations((ArrayList)changes.get(lastslidervalue), 0, false);
+			System.out.println("nextstep is called!");
+			synchronizeGraphOperations((ArrayList)changes.get(lastslidervalue));
 			lastslidervalue++;
 			if (lastslidervalue <= lastEntry)
 				executeNonChangingGraphOperations(changes.get(lastslidervalue));
@@ -466,7 +460,7 @@ public class IncrementalHierarchicLayout
 	public void resetGraph(int step) {
 		if (step >= lastslidervalue)
 			for (int i = lastslidervalue; i < step; i++)
-				synchronizeGraphOperations((ArrayList)changes.get(i), 0, false);
+				synchronizeGraphOperations((ArrayList)changes.get(i));
 		else { //I was too lazy to implement undo, so do the graph from scratch
 			demobase.unselect();
 			graph = new Graph2D();
@@ -475,10 +469,10 @@ public class IncrementalHierarchicLayout
 			view.setGraph2D(graph);
 			typeview.setGraph2D(typegraph);
 			for (int i = 0; i < step; i++)
-				synchronizeGraphOperations((ArrayList)changes.get(i), 0, false);
+				synchronizeGraphOperations((ArrayList)changes.get(i));
 		}
 		executeNonChangingGraphOperations(changes.get(step));
-		chindex = 0;
+		commandreceived = false;
 		lastslidervalue = step;
 		demobase.calcLayout();
 	}

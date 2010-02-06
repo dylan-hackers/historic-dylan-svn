@@ -155,7 +155,7 @@ public class DemoBase extends Thread {
     textok.add(choosers, BorderLayout.NORTH);
     
 
-    text = new JTextArea("Choose code example or type code!", 15, 50);
+    text = new JTextArea("Choose code example or type code!", 15, 22);
     //text.setFont(new Font( "dialog", Font.PLAIN, 20));
     string_source_map.put("new...", text.getText());
     text.setEditable(true);
@@ -715,6 +715,7 @@ public boolean updatingguimanually = false;
 	 * Animated layout assignment
 	 */
 	public void calcLayout(){
+		System.out.println("calculating layout! (graph changed? " + incrementallayouter.changed + ", typegraph changed? " + incrementallayouter.typechanged + ")");
 		//if (forcelayout) {
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");

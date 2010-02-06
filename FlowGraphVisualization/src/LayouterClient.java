@@ -88,7 +88,7 @@ public class LayouterClient extends Thread {
 				assert(answer.size() > 1);
 				assert(answer.get(0) instanceof Symbol);
 				Symbol key = (Symbol)answer.get(0);
-				//System.out.println(key.toString() + " : " + answer);
+				System.out.println(key.toString() + " : " + answer);
 				if (key.isEqual("project")) {
 					assert(answer.size() == 2);
 					assert(answer.get(1) instanceof String); //method name
@@ -102,13 +102,10 @@ public class LayouterClient extends Thread {
 					assert(answer.get(1) instanceof String); //method name
 					name = (String)answer.get(1);
 					assert(answer.get(2) instanceof String); //source code
-					if (demo.string_source_map.containsKey(name))
-						; //System.out.println("string_source_map already contains key: " + name);
-					else {
+					if (! demo.string_source_map.containsKey(name)) {
 						demo.string_source_map.put(name, (String)answer.get(2));
 						demo.graph_chooser.addItem(new ListElement(name));
 					}
-					//demo.activate(name);
 					printMessage(result);
 					continue;
 				}
@@ -119,10 +116,6 @@ public class LayouterClient extends Thread {
 					continue;
 				}
 				IncrementalHierarchicLayout gr = null;
-				if (! (key.isEqual("highlight") || key.isEqual("highlight-queue") || key.isEqual("relayouted")))
-					; //System.out.println(key.toString() + " for " + dfm_id + " : " + answer.subList(2, answer.size()));
-				if (! demo.string_source_map.containsKey(dfm_id))
-					dfm_id = dfm_id.substring(0, dfm_id.indexOf(' '));
 				if (! graphs.containsKey(dfm_id)) {
 					gr = new IncrementalHierarchicLayout(demo, dfm_id);
 					graphs.put(dfm_id, gr);
@@ -254,13 +247,6 @@ public class LayouterClient extends Thread {
 		return false;
 	}
 	
-	private boolean isNumeric (char n) {
-		if (n == '0' | n == '1' | n == '2' | n == '3' | n == '4' |
-				n == '5' | n == '6' | n == '7' | n == '8' | n == '9')
-			return true;
-		return false;
-	}
-
 	private int usedTokens = 0;
 	private int level = 0;
 	private ArrayList read_s_expression (int message_length) throws IOException {
@@ -279,7 +265,7 @@ public class LayouterClient extends Thread {
 					res.add(Integer.parseInt(result));
 					result = "";
 					state = ParseState.Nested;
-				} else if (isNumeric(next)) {
+				} else if (Character.isDigit(next)) {
 					result += Character.toString(next);
 				} else if (next == ')') {
 					res.add(Integer.parseInt(result));
@@ -328,7 +314,7 @@ public class LayouterClient extends Thread {
 					i += usedTokens;
 				} else if (next == '"') {
 					state = ParseState.String;
-				} else if (isNumeric(next)) {
+				} else if (Character.isDigit(next)) {
 					state = ParseState.Number;
 					result += Character.toString(next);
 				} else if (next == ')') {
