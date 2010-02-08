@@ -86,7 +86,7 @@ public class DemoBase extends Thread {
   private JSlider alphaslider;
   private boolean forcelayout = false;
   private JToggleButton compb;
-  protected final JToggleButton debug = new JToggleButton( new DebugAction() );
+  private JToggleButton debug;
   
   final JToolBar jtb;
   
@@ -176,6 +176,7 @@ public class DemoBase extends Thread {
     slider.setMinimum(0);
     slider.setMaximum(0);
     slider.addChangeListener(new ChangeSlider());
+    slider.setEnabled(false);
     right.add(slider, BorderLayout.CENTER );
     contentPane.add( right, BorderLayout.EAST );
     
@@ -228,19 +229,18 @@ public class DemoBase extends Thread {
 	  return mname;
   }
   
-  private boolean steppressed = false;
-  private boolean playpressed = true;
-public boolean updatingguimanually = false;
+  public boolean updatingguimanually = false;
   
-  public void waitforstep () {
-	  steppressed = false;
+  public void waitforstep (IncrementalHierarchicLayout i) {
+	  i.waiting = true;
 	  jtb.setBackground(Color.green);
-	  while(! steppressed && ! playpressed)
+	  while(i.waiting && ! i.playpressed)
 		  try {
 			  Thread.sleep(300);
 		  } catch (InterruptedException e) {
 			  e.printStackTrace();
 		  }
+	  i.waiting = false;
 	  jtb.setBackground(Color.LIGHT_GRAY);
   }
   
@@ -263,8 +263,15 @@ public boolean updatingguimanually = false;
 	  try { slider.setLabelTable(ihl.sliderLabels); } catch (NullPointerException e) { }
 	  try { slider.setMaximum(ihl.lastEntry); } catch (NullPointerException e) { }
 	  try { slider.setValue(ihl.lastslidervalue); } catch (NullPointerException e) { }
+	  if (incrementallayouter.graphfinished)
+		  slider.setEnabled(true);
+	  else
+		  slider.setEnabled(false);
 	  updatingslider = false;
-	  playpressed = false;
+	  Color bgc = Color.LIGHT_GRAY;
+	  if (incrementallayouter.waiting)
+		  bgc = Color.GREEN;
+	  jtb.setBackground(bgc);
 	  calcLayout();
   }
   
@@ -308,6 +315,7 @@ public boolean updatingguimanually = false;
 	toolBar.add( new Step() );
 //	toolBar.add( new SaveAction(view, "Flow Graph") );
 //	toolBar.add( new SaveAction(typeview, "Type Graph") );
+	debug = new JToggleButton(new DebugAction());
 	toolBar.add( debug );
     return toolBar;
   }
@@ -414,6 +422,7 @@ public boolean updatingguimanually = false;
 					updatingslider = true;
 					slider.setLabelTable(null);
 					slider.setMaximum(0);
+					slider.setEnabled(false);
 					updatingslider = false;
 					view.setGraph2D(new Graph2D());
 					view.repaint();
@@ -428,7 +437,6 @@ public boolean updatingguimanually = false;
   final class ChangeSlider implements ChangeListener {
 	public void stateChanged(ChangeEvent arg0) {
 		if (!updatingslider && !slider.getValueIsAdjusting() && incrementallayouter.graphfinished) {
-			unselect();
 			int step = slider.getValue();
 			incrementallayouter.resetGraph(step);
 		}
@@ -591,15 +599,17 @@ public boolean updatingguimanually = false;
 	final class DebugAction extends AbstractAction {
 		public DebugAction() {
 			super("Debug");
+			this.putValue( Action.SHORT_DESCRIPTION, "Debug");
 		}
 		
 		public void actionPerformed (ActionEvent ev) {
 			if (incrementallayouter != null) {
 				boolean d = debug.isSelected();
+				GraphNodeRealizer.setDebug(d);
 				for (NodeCursor nc = incrementallayouter.graph.nodes(); nc.ok(); nc.next())
-					((GraphNodeRealizer)incrementallayouter.graph.getRealizer(nc.node())).setDebug(d);
+					((GraphNodeRealizer)incrementallayouter.graph.getRealizer(nc.node())).updateText();
 				for (NodeCursor nc = incrementallayouter.typegraph.nodes(); nc.ok(); nc.next())
-					((GraphNodeRealizer)incrementallayouter.typegraph.getRealizer(nc.node())).setDebug(d);
+					((GraphNodeRealizer)incrementallayouter.typegraph.getRealizer(nc.node())).updateText();
 			}
 		}
 	}
@@ -611,7 +621,7 @@ public boolean updatingguimanually = false;
 		}
 		
 		public void actionPerformed (ActionEvent ev) {
-			playpressed = true;
+			incrementallayouter.playpressed = true;
 			if (incrementallayouter != null)
 				while (true)
 					if (! incrementallayouter.nextStep())
@@ -626,7 +636,7 @@ public boolean updatingguimanually = false;
 		}
 		
 		public void actionPerformed (ActionEvent ev) {
-			steppressed = true;
+			incrementallayouter.waiting = false;
 			incrementallayouter.nextStep();
 		}
 		
@@ -715,8 +725,8 @@ public boolean updatingguimanually = false;
 	 * Animated layout assignment
 	 */
 	public void calcLayout(){
-		System.out.println("calculating layout! (graph changed? " + incrementallayouter.changed + ", typegraph changed? " + incrementallayouter.typechanged + ")");
 		//if (forcelayout) {
+		//System.out.println("calculating layout! (graph changed? " + incrementallayouter.changed + ", typegraph changed? " + incrementallayouter.typechanged + ")");
 		if (!view.getGraph2D().isEmpty() && incrementallayouter.changed){
 		    //System.out.println("calculating layout");
 			//if (alphaslider.getValue() == 3)

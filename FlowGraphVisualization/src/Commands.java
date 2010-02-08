@@ -43,17 +43,17 @@ public final class Commands {
 			beginning(ihl, answer, demo);
 		else {
 			if (key.isEqual("highlight-constraint")) {
-				Node from = getNode(ihl, answer, 3, false);
-				Node to = getNode(ihl, answer, 4, false);
-				ihl.updatephase(((GraphNodeRealizer)ihl.graph.getRealizer(from)).getSliderText() + " == " + ((GraphNodeRealizer)ihl.graph.getRealizer(to)).getSliderText());
-			}
-			if (! ihl.graphfinished && ! key.isEqual("relayouted"))
+				assert(answer.size() == 5);
+				assert(answer.get(3) instanceof Integer);
+				assert(answer.get(4) instanceof Integer);
+				ihl.updatephase(" == ", (Integer)answer.get(3), (Integer)answer.get(4));
+			} if (! ihl.graphfinished && ! key.isEqual("relayouted"))
 				ch.add(answer);
 			if (key.isEqual("relayouted"))
-				ihl.synchronizeGraphOperations(ch);
+				demo.calcLayout();
 			else if (changesGraph(answer) && ! ihl.commandreceived) {
 				ihl.commandreceived = true;
-				demo.waitforstep();
+				demo.waitforstep(ihl);
 			}
 			processHighlights(ihl, answer, demo);
 		}
@@ -162,22 +162,13 @@ public final class Commands {
 			mess = (ArrayList)answer.get(2);
 		assert(mess.get(0) instanceof String);
 		String ph = (String)mess.get(0);
-		if (mess.size() == 2) {
+		int id = 0;
+		if (mess.size() == 2)
 			if (mess.get(1) instanceof Integer) {
-				Node n = getNode(ihl, mess, 1, false);
-				String label = ((GraphNodeRealizer)ihl.graph.getRealizer(n)).getSliderText();
-				ph = ph + " " + label; //or label text? but might be too long
-			} else if (mess.get(1) instanceof Symbol) {
-				System.out.println("barf!!!!");
-				Symbol tag = (Symbol)mess.get(1);
-				if (tag.isEqual("global")) {
-					//demo.phase.setText(ph);
-					//demo.phase.validate();
-					return false;
-				}
+				id = (Integer)mess.get(1);
+				ph = ph + " ";
 			}
-		}
-		ihl.updatephase(ph);
+		ihl.updatephase(ph, id, 0);
 		return false;
 	}
 	

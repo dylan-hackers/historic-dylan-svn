@@ -66,6 +66,12 @@ public class IncrementalHierarchicLayout
 	protected boolean graphfinished = false;
 	protected boolean graphinprocessofbeingfinished = false;
 	
+	//play pressed; lived in DemoBase, but are local to IHL, not DemoBase
+	protected boolean playpressed = true;
+	//waiting for a step press?
+	protected boolean waiting = false;
+
+	
 	protected final String graph_id;
 	
 	public Node selection;
@@ -399,68 +405,86 @@ public class IncrementalHierarchicLayout
 		graph.setRealizer(graph.lastEdge(), myreal);
 	}
 
-	public void synchronizeGraphOperations (ArrayList commands) {
-		demobase.calcLayout();
-	}
-
 	public void executeNonChangingGraphOperations (ArrayList commands) {
 		for (Object c : commands)
 			if (! Commands.processIfNoChange(this, (ArrayList)c, demobase))
 				break;
 	}
 	
-	public void updatephase(String text) {
+	private String getLabel (int id) {
+		assert(int_node_map.containsKey(id));
+		Node n = int_node_map.get(id);
+		return ((GraphNodeRealizer)graph.getRealizer(n)).getSliderText();
+	}
+	
+	public void updatephase(String text, int id1, int id2) {
 		if (text.equals("finished"))
 			graphinprocessofbeingfinished = true;
 		final boolean rfinished = graphinprocessofbeingfinished;
 		if (commandreceived) {
 			ArrayList ch = changes.get(changes.size() - 1);
 			for (Object c : ch)
-				if (Commands.execute(this, (ArrayList)c, demobase)) {
-					System.out.println("changed is true now! (caused by" + (ArrayList)c + ")");
+				if (Commands.execute(this, (ArrayList)c, demobase))
 					changed = true;
-				}
 			demobase.calcLayout();
 			changes.add(new ArrayList());
 			lastEntry++;
 			commandreceived = false;
 		}
+		if (id1 != 0)
+			if (id2 != 0)
+				text = getLabel(id1) + text + getLabel(id2);
+			else
+				text = text + getLabel(id1);
 		sliderLabels.put(lastEntry, new JLabel(text.substring(0, Math.min(40, text.length()))));
 		Runnable updateMyUI = new Runnable() {
 			public void run () {
 				demobase.slider.setMaximum(lastEntry);
 				demobase.slider.setValue(lastEntry);
 				demobase.slider.updateUI();		
-				if (rfinished)
+				if (rfinished) {
 					graphfinished = true;
+					demobase.slider.setEnabled(true);
+				}
 			}
 		};
 		SwingUtilities.invokeLater(updateMyUI);
 		if (graphinprocessofbeingfinished)
-			demobase.waitforstep();
+			demobase.waitforstep(this);
 		lastslidervalue = lastEntry;
 	}
 	
 	public boolean nextStep () {
 		if (graphfinished && (lastslidervalue <= lastEntry)) {
-			System.out.println("nextstep is called!");
-			synchronizeGraphOperations((ArrayList)changes.get(lastslidervalue));
+			applyChanges(lastslidervalue, lastslidervalue + 1);
 			lastslidervalue++;
 			if (lastslidervalue <= lastEntry)
 				executeNonChangingGraphOperations(changes.get(lastslidervalue));
 			demobase.updatingslider = true;
 			demobase.slider.setValue(lastslidervalue);
+			demobase.slider.updateUI();		
 			demobase.updatingslider = false;
 			demobase.calcLayout();
 			return true;
-		}
+		} else if (! graphfinished)
+			//this is here because it doesn't seem to work in DemoBase.graphChanged
+			//(gets disabled, but neither GUI updates correctly nor it is permanent)
+			demobase.slider.setEnabled(false);
 		return false;
+	}
+	
+	private void applyChanges (int start, int end) {
+		for (int i = start; i < end; i++) {
+			ArrayList change = (ArrayList)changes.get(i);
+			for (int j = 0; j < change.size(); j++)
+				if (Commands.execute(this, (ArrayList)change.get(j), demobase))
+					changed = true;
+		}
 	}
 
 	public void resetGraph(int step) {
 		if (step >= lastslidervalue)
-			for (int i = lastslidervalue; i < step; i++)
-				synchronizeGraphOperations((ArrayList)changes.get(i));
+			applyChanges(lastslidervalue, step);
 		else { //I was too lazy to implement undo, so do the graph from scratch
 			demobase.unselect();
 			graph = new Graph2D();
@@ -468,8 +492,7 @@ public class IncrementalHierarchicLayout
 			initGraph();
 			view.setGraph2D(graph);
 			typeview.setGraph2D(typegraph);
-			for (int i = 0; i < step; i++)
-				synchronizeGraphOperations((ArrayList)changes.get(i));
+			applyChanges(0, step);
 		}
 		executeNonChangingGraphOperations(changes.get(step));
 		commandreceived = false;

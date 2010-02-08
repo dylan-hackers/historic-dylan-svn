@@ -6,7 +6,7 @@ import y.view.NodeRealizer;
 
 
 public class GraphNodeRealizer extends GenericNodeRealizer {
-	private boolean debug = false;
+	protected static boolean debug = false;
 	private String nodetext = "";
 	private String prefix = "";
 	private String suffix = "";
@@ -43,7 +43,7 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 	    return new GraphNodeRealizer();
 	}
 	  
-	private void updateText () {
+	protected void updateText () {
 		if (type == NodeType.TENV)
 			label.setText("TENV " + Integer.toString(identifier));
 		else {
@@ -161,10 +161,9 @@ public class GraphNodeRealizer extends GenericNodeRealizer {
 		}
 	}
 	
-	public void setDebug (boolean b) {
+	public static void setDebug (boolean b) {
 		if (debug != b) {
 			debug = b;
-			updateText();
 		}
 	}
 	
