@@ -234,6 +234,8 @@ public class DemoBase extends Thread {
   public void waitforstep (IncrementalHierarchicLayout i) {
 	  i.waiting = true;
 	  jtb.setBackground(Color.green);
+	  if (! i.graphfinished)
+		  slider.setEnabled(false);
 	  while(i.waiting && ! i.playpressed)
 		  try {
 			  Thread.sleep(300);
@@ -802,22 +804,11 @@ public class DemoBase extends Thread {
 			//	alphaslider.setValue(1);
 			//switchViews(view);
 			Cursor oldCursor = typeview.getCanvasComponent().getCursor();
-			//for (NodeCursor nc = incrementallayouter.typegraph.nodes(); nc.ok(); nc.next())
-			//	incrementallayouter.action_nodes.set(nc.node(), true);
-			//Point2D vc = view.getCenter();
-			//Point2D tc = typeview.getCenter();
-			//double xoff = vc.getX() - tc.getX();
-			//double yoff = vc.getY() - tc.getY();
-			/*
-			for (Node n : incrementallayouter.tv_temp_map.keySet()) {
-				Node m = incrementallayouter.tv_temp_map.get(n);
-				NodeRealizer mr = incrementallayouter.graph.getRealizer(m);
-				double xv = typeview.toWorldCoordX(view.toViewCoordX(mr.getCenterX()));
-				double yv = typeview.toWorldCoordY(view.toViewCoordY(mr.getCenterY()));
-				//incrementallayouter.typegraph.getRealizer(n).setCenter(xv, yv);
-				//incrementallayouter.typeHintMap.set(n, incrementallayouter.typeHintsFactory.createUseExactCoordinatesHint(n));
-				//incrementallayouter.action_nodes.set(n, false);
-			} */
+			for (NodeCursor nc = incrementallayouter.typegraph.nodes(); nc.ok(); nc.next())
+				if (incrementallayouter.typeHintMap.get(nc.node()) == null)
+					incrementallayouter.typeHintMap.set(nc.node(), incrementallayouter.typeHintsFactory.createLayerIncrementallyHint(nc.node()));
+				else
+					incrementallayouter.typeHintMap.set(nc.node(), incrementallayouter.typeHintsFactory.createUseExactLayerCoordinatesHint(nc.node()));
 			try {
 				typeview.getCanvasComponent().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				GraphLayout layout = new BufferedLayouter(incrementallayouter.typeLayouter).calcLayout(typeview.getGraph2D());
@@ -841,13 +832,6 @@ public class DemoBase extends Thread {
 			} finally {
 				typeview.getCanvasComponent().setCursor(oldCursor);
 			}
-			/* for (Node n : incrementallayouter.tv_temp_map.keySet()) {
-				Node m = incrementallayouter.tv_temp_map.get(n);
-				NodeRealizer mr = incrementallayouter.graph.getRealizer(m);
-				double xv = typeview.toWorldCoordX(view.toViewCoordX(mr.getCenterX()));
-				double yv = typeview.toWorldCoordY(view.toViewCoordY(mr.getCenterY()));
-				incrementallayouter.typegraph.getRealizer(n).setCenter(xv, yv);
-			} */
 		}
 		typeview.updateView();
 		view.updateView();

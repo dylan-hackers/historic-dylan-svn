@@ -418,13 +418,11 @@ public final class Commands {
 			Node object = getNode(ihl, answer, 4, false);
 			ihl.createTypeNode(id, object);
 		} else {
-			Node nnode = null;
 			//got a "base type" / String or Symbol
 			if (answer.get(4) instanceof Symbol) //arrow or tuple!
-				nnode = ihl.createTypeNodeWithLabel(((Symbol)answer.get(4)).toString(), id, (Integer)answer.get(2));
+				ihl.createTypeNodeWithLabel(((Symbol)answer.get(4)).toString(), id, (Integer)answer.get(2));
 			else
-				nnode = ihl.createTypeNodeWithLabel((String)answer.get(4), id, (Integer)answer.get(2));
-			ihl.typeHintMap.set(nnode, ihl.typeHintsFactory.createLayerIncrementallyHint(nnode));
+				ihl.createTypeNodeWithLabel((String)answer.get(4), id, (Integer)answer.get(2));
 		}
 		ihl.typechanged = true;
 		return false;

@@ -67,7 +67,7 @@ public class IncrementalHierarchicLayout
 	protected boolean graphinprocessofbeingfinished = false;
 	
 	//play pressed; lived in DemoBase, but are local to IHL, not DemoBase
-	protected boolean playpressed = true;
+	protected boolean playpressed = false;
 	//waiting for a step press?
 	protected boolean waiting = false;
 
@@ -127,20 +127,14 @@ public class IncrementalHierarchicLayout
 		
 		
 		typeLayouter = new IncrementalHierarchicLayouter();
-		typeLayouter.setLayoutMode(IncrementalHierarchicLayouter.LAYOUT_MODE_FROM_SCRATCH);
-	    typeLayouter.getEdgeLayoutDescriptor().setMinimumFirstSegmentLength(0);
-	    typeLayouter.getEdgeLayoutDescriptor().setMinimumLastSegmentLength(0);
-	    typeLayouter.getEdgeLayoutDescriptor().setMinimumDistance(2.0d);
+		typeLayouter.setLayoutMode(IncrementalHierarchicLayouter.LAYOUT_MODE_INCREMENTAL);
+	    //typeLayouter.getEdgeLayoutDescriptor().setMinimumFirstSegmentLength(0);
+	    //typeLayouter.getEdgeLayoutDescriptor().setMinimumLastSegmentLength(0);
+	    //typeLayouter.getEdgeLayoutDescriptor().setMinimumDistance(2.0d);
 
-	    typeLayouter.getNodeLayoutDescriptor().setLayerAlignment(0.0d);
-	    typeLayouter.setMinimumLayerDistance(3.0d);
+	    //typeLayouter.getNodeLayoutDescriptor().setLayerAlignment(0.0d);
+	    //typeLayouter.setMinimumLayerDistance(3.0d);
 
-		
-		ConstraintLayerer c2 = new ConstraintLayerer();
-		TopologicalLayerer t2 = new TopologicalLayerer();
-		c2.setCoreLayerer(t2);
-		typeLayouter.setFromScratchLayerer(new OldLayererWrapper(c2));
-		
 		sliderLabels.put(0, new JLabel("initial DFM models"));
 		changes.add(new ArrayList());
 		initGraph();
@@ -166,10 +160,10 @@ public class IncrementalHierarchicLayout
 		graph.addDataProvider(IncrementalHierarchicLayouter.SWIMLANE_DESCRIPTOR_DPKEY, swimLane);
 		hintMap = Maps.createHashedDataMap();
 		typeHintMap = Maps.createHashedDataMap();
-	    //graph.addDataProvider(IncrementalHierarchicLayouter.INCREMENTAL_HINTS_DPKEY, hintMap);
+	    graph.addDataProvider(IncrementalHierarchicLayouter.INCREMENTAL_HINTS_DPKEY, hintMap);
 	    hintsFactory = hierarchicLayouter.createIncrementalHintsFactory();
 	    typeHintsFactory = typeLayouter.createIncrementalHintsFactory();
-	    //typegraph.addDataProvider(IncrementalHierarchicLayouter.INCREMENTAL_HINTS_DPKEY, typeHintMap);
+	    typegraph.addDataProvider(IncrementalHierarchicLayouter.INCREMENTAL_HINTS_DPKEY, typeHintMap);
 		int_node_map = new HashMap<Integer, Node>();
 		tv_temp_map = new HashMap<Node, Node>();
 		outertes = new Hashtable<Node, Node>();
