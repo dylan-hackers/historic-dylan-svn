@@ -27,6 +27,7 @@ define module dfmc-optimization
   use dfmc-back-end;
   export
     really-run-compilation-passes,
+    <optimization-note>,
 
     // assignment.dylan
     eliminate-assignments,
@@ -40,6 +41,10 @@ define module dfmc-optimization
     // dead.dylan
     delete-useless-computations,
 
+    // entry-points.dylan
+    analyze-calls,
+    maybe-upgrade-call,
+
     // inlining.dylan
     *inlining?*,
     try-inlining,
@@ -51,6 +56,19 @@ define module dfmc-optimization
     // non-local-exit.dylan
     analyze-non-local-exits,
 
+    // tail-call.dylan
+    tail-position?,
+
+    // for call statistics
+    incf-static-dispatch-count,
+    incf-dynamic-dispatch-count,
+
+    *warn-about-bogus-upgrades*,
+    *colorize-bogus-upgrades*,
+
+    *profile-all-calls?*,
+    *partial-dispatch?*,
+
     *trace-optimizations?*,
     *trace-optimizing-method*,
     *trace-optimizing-library*,
@@ -58,7 +76,16 @@ define module dfmc-optimization
     *dump-dfm?*,
     *dump-dfm-method*,
     *dump-dfm-library*,
-    *dump-dfm-file*;
+    *dump-dfm-file*,
+    *call-upgrading?*;
+
+  export
+    best-function-key?,
+    best-function-rest?,
+    best-function-optionals?,
+    best-function-all-keys?,
+    best-function-number-keys,
+    best-function-number-required;
 
   export <run-time-type-error>,
     <run-time-result-type-error>,

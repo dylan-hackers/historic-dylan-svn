@@ -1,4 +1,4 @@
-Module:   dfmc-typist
+Module:   dfmc-optimization
 Synopsis: Compile-time method selection
 Author:   Keith Playford
 Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
@@ -429,6 +429,8 @@ end;
 // that method.
 
 define variable *profile-all-calls?* = #f;
+define variable *partial-dispatch?*  = #f;
+
 define inline function call-site-caches-ok? 
     (c :: <simple-call>, f :: <&generic-function>) => (well? :: <boolean>)
   let f = lambda(environment(c));
@@ -459,6 +461,8 @@ define method maybe-upgrade-call
       |
       (call-site-caches-ok?(c, f)
 	 & case
+//             *partial-dispatch?*
+//               => maybe-upgrade-gf-to-partial-dispatch(c, f, arg-te*);
 	     *profile-all-calls?*
 	       => upgrade-gf-to-profiling-call-site-cache(c, f, arg-te*);
 	     otherwise

@@ -37,41 +37,8 @@ define module dfmc-typist
     re-type,
     solve-and-upgrade;
 
+  export guaranteed-disjoint?;
+
   //visualizer
   export *typist-visualize*;
-
-  //method upgrading
-  export *call-upgrading?*,
-    *profile-all-calls?*,
-    *colorize-dispatch*,
-    color-dispatch, color-location,
-    incf-dynamic-dispatch-count,
-    guaranteed-disjoint?,
-    guaranteed-joint?,
-    effectively-disjoint?,
-    <unknown-keyword-in-call>,
-    all-applicable-methods-guaranteed-known?,
-    guaranteed-method-precedes?,
-    guaranteed-sorted-applicable-methods,
-    slot-fixed-offset-in,
-    argument-type-estimates,
-    simplify-call-to-call-to-object!,
-    maybe-check-function-call,
-    estimate-effective-methods,
-    maybe-upgrade-call,
-    generate-stack-vector,
-    upgrade-to-congruent-call!,
-    //better: dfmc-flow-graph?
-    do-callers;
-
-  export maybe-convert-box, maybe-convert-unbox;
-
-  export method-upgrade?;
-
-  //constant folding method calls
-  export fold-function-call,
-    replace-call-with-values,
-    maybe-fold-function-call;
-
-  export best-function-key?;
 end;

@@ -144,12 +144,12 @@ end;
 define function initialize-type-environment!
  (env :: <type-environment>, first :: false-or(<computation>), last :: false-or(<computation>)) => ()
   type-walk(env, first, #f, infer?: #f);
-  walk-computations(method(x)
+//  walk-computations(method(x)
 //                      if (x.computation-type)
 //                        x.item-type-status? := #f
 //                      else
-                        x.re-type
+//                        x.re-type
 //                      end
-                    end, first, #f);
+//                    end, first, #f);
 end;
 define constant guaranteed-disjoint? = ^known-disjoint?;

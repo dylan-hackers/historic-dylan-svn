@@ -441,7 +441,7 @@ define module dfmc-flow-graph
     constant-value,
     constant-value?;
 
-  export tail-position?,
+  export 
     convert-type-expression;
 end module;
 

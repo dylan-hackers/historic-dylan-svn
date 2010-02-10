@@ -519,60 +519,54 @@ end;
 define method type-walk (env :: <type-environment>, c :: <if>, last :: false-or(<computation>), #key infer? = #t) => ()
   if (c ~== last)
     let todo? = set-type-environment!(c, env);
-    let fold = 
-      if (todo?)
-        with-parent-computation (c)
-          debug-types(#"beginning", env, list("inferring", c));
-          debug-types(#"highlight", env, c);
-          solve(env);
-          infer? & c.infer-computation-types; //actually, needs both envs for proper inference
-          set-type-environment!(c.next-computation, env);
-          infer? & c.fold-if;
-        end;
+    if (todo?)
+      with-parent-computation (c)
+        debug-types(#"beginning", env, list("inferring", c));
+        debug-types(#"highlight", env, c);
+        solve(env);
+        infer? & c.infer-computation-types; //actually, needs both envs for proper inference
+        set-type-environment!(c.next-computation, env);
       end;
-    if (fold)
-      type-walk(env, fold, last, infer?: infer?);
-    else
-      local method get-te (comp :: <computation>) => (result :: <type-environment>)
-              if (comp == c.next-computation)
-                env
-              elseif (slot-initialized?(comp, %type-environment) & comp.type-environment)
-                //XXX: this looks wrong!
-                if (c.type-environment == env) //outer env was more specific, use it
-                  unless (env == comp.type-environment)
-                    comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
-                  end;
-                end;
-                comp.type-environment
-              else
-                make(<type-environment>, outer: env)
-              end;
-            end;
-      let con-env = get-te(c.consequent);
-      let test-type = type-estimate(c, c.test);
-      if (instance?(test-type, <&union>))
-        let tt = if (instance?(test-type.^union-type1, <&singleton>) & test-type.^union-type1.^singleton-object == #f)
-                   test-type.^union-type2
-                 elseif (instance?(test-type.^union-type2, <&singleton>) & test-type.^union-type2.^singleton-object == #f)
-                   test-type.^union-type1
-                 end;
-        //if (tt)
-        //  let t = abstract-and-lookup(c.test, con-env);
-        //  add-constraint(con-env, c, t, lookup-type-node(tt, con-env));
-        //end;
-      end;
-      type-walk(con-env, c.consequent, c.next-computation, infer?: infer?);
-      con-env.finished-initial-typing? := #t;
-      solve(con-env);
-      let alt-env = get-te(c.alternative);
-      type-walk(alt-env, c.alternative, c.next-computation, infer?: infer?);
-      alt-env.finished-initial-typing? := #t;
-      solve(alt-env);
-      with-parent-computation (c.next-computation)
-        infer? & c.next-computation.infer-computation-types;
-      end;
-      next-type-step(env, c.next-computation, last, infer?);
     end;
+    local method get-te (comp :: <computation>) => (result :: <type-environment>)
+            if (comp == c.next-computation)
+              env
+            elseif (slot-initialized?(comp, %type-environment) & comp.type-environment)
+              //XXX: this looks wrong!
+              if (c.type-environment == env) //outer env was more specific, use it
+                unless (env == comp.type-environment)
+                  comp.type-environment.outer-environment := env; //actually, should re-type all members of comp.t-e.r-e!
+                end;
+              end;
+              comp.type-environment
+            else
+              make(<type-environment>, outer: env)
+            end;
+          end;
+    let con-env = get-te(c.consequent);
+    let test-type = type-estimate(c, c.test);
+    if (instance?(test-type, <&union>))
+      let tt = if (instance?(test-type.^union-type1, <&singleton>) & test-type.^union-type1.^singleton-object == #f)
+                 test-type.^union-type2
+               elseif (instance?(test-type.^union-type2, <&singleton>) & test-type.^union-type2.^singleton-object == #f)
+                 test-type.^union-type1
+               end;
+      //if (tt)
+      //  let t = abstract-and-lookup(c.test, con-env);
+      //  add-constraint(con-env, c, t, lookup-type-node(tt, con-env));
+      //end;
+    end;
+    type-walk(con-env, c.consequent, c.next-computation, infer?: infer?);
+    con-env.finished-initial-typing? := #t;
+    solve(con-env);
+    let alt-env = get-te(c.alternative);
+    type-walk(alt-env, c.alternative, c.next-computation, infer?: infer?);
+    alt-env.finished-initial-typing? := #t;
+    solve(alt-env);
+    with-parent-computation (c.next-computation)
+      infer? & c.next-computation.infer-computation-types;
+    end;
+    next-type-step(env, c.next-computation, last, infer?);
   end;
 end;
 
@@ -1225,7 +1219,7 @@ define method infer-function-type (c :: <function-call>, fun :: <&function>) => 
 end;
 
 define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>) => ()
-  if (*upgrade?*)
+/*  if (*upgrade?*)
   let folded? = #f;
   let (function-constant?, function) = constant-value?(function(c));
   if (function-constant? & every?(constant-value?, c.arguments))
@@ -1262,5 +1256,6 @@ define method infer-function-type (c :: <simple-call>, gf :: <&generic-function>
   end;
   else
     next-method()
-  end;
+  end; */
+  next-method()
 end;

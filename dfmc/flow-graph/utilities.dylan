@@ -787,7 +787,6 @@ define function set-type-environment (new-context :: <computation>, first :: <co
  end;
 end;
 
-define compiler-open generic tail-position? (c :: <call>) => (tail? :: <boolean>);
 define compiler-open generic convert-type-expression (env :: <environment>, type)
  => (first :: false-or(<computation>),
      last :: false-or(<computation>),
