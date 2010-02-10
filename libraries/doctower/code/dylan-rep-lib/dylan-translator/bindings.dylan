@@ -4,12 +4,17 @@ module: dylan-translator
 define method make-bindings-from-definition
    (context :: <context>, token :: <definition-token>)
 => ()
-   // /**/ log("  defining %s", token.api-name);
    let bindings = make-defined-bindings(context, token);
    
    for (binding in bindings)
+      let module-name = context.context-name;
+      let aliases-in-module = choose(
+            method (alias :: <binding-name>) => (in-module? :: <boolean>)
+               alias.enclosing-name = module-name
+            end,
+            binding.aliases);
       do(curry(add-definition, context, context.context-module.definitions, binding),
-         aliases-in-context(context, binding))
+         aliases-in-module)
    end for;
 end method;
 
@@ -75,7 +80,6 @@ define method merge-definitions
 => (merged :: <placeholder-binding>)
    let (better, worse) = better-definition(existing, new);
    unless (better == worse)
-      // /**/ log("    merging %= and %=", better, worse);
       merge-aliases(context, better, worse);
       note-replacement(context, better, worse);
    end unless;
@@ -86,7 +90,6 @@ end method;
 define method merge-definitions
    (context :: <context>, binding :: <binding>, placeholder :: <placeholder-binding>)
 => (merged :: <binding>)
-   // /**/ log("    merging %= and %=", binding, placeholder);
    merge-aliases(context, binding, placeholder);
    note-replacement(context, binding, placeholder);
    binding
@@ -110,7 +113,6 @@ define method merge-definitions
 => (merged :: <binding>)
    let (better, worse) = better-definition(bind1, bind2);
    unless (better == worse)
-      // /**/ log("    merging %= and %=", better, worse);
       merge-aliases(context, better, worse);
       note-replacement(context, better, worse);
    end unless;

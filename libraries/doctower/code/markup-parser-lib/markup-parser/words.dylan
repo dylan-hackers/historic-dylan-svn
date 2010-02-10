@@ -66,6 +66,11 @@ afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
 
+define caching parser word-line :: <text-word-token>
+   rule seq(sol, text-word, ls) => tokens;
+   yield tokens[1];
+end;
+
 //
 // Links
 //
@@ -219,10 +224,12 @@ end;
 //
 
 define caching parser directive-topic-spec-text :: <symbol>
-   rule choice(seq(nil(#f), function-lit),
+   rule choice(seq(nil(#f), constant-lit),
+               seq(nil(#f), function-lit),
                seq(nil(#f), variable-lit),
                seq(generic-lit, spaces, function-lit),
                seq(nil(#f), library-lit),
+               seq(nil(#f), method-lit),
                seq(nil(#f), module-lit),
                seq(nil(#f), class-lit),
                seq(nil(#f), macro-lit))
@@ -253,6 +260,11 @@ define caching parser links-directive-spec-text :: <symbol>
          end select;
 end;
 
+define caching parser word-directive-spec-text :: <symbol>
+   rule seq(fully-lit, spaces, qualified-lit, spaces, name-lit) => tokens;
+   yield #"fully-qualified-name";
+end;
+
 define caching parser division-directive-spec-text :: <symbol>
    rule choice(seq(nil(#"keywords"),   init-keywords-lit),
                seq(nil(#"conditions"), conditions-lit),
@@ -278,10 +290,19 @@ define caching parser null-directive-spec-text
 end;
 
 define caching parser api-list-spec-text :: <symbol>
-   rule choice(functions-lit, libraries-lit, variables-lit, bindings-lit,
-               classes-lit, modules-lit, macros-lit)
+   rule choice(seq(nil(#f), functions-lit),
+               seq(nil(#f), libraries-lit),
+               seq(nil(#f), variables-lit), 
+               seq(nil(#f), bindings-lit),
+               seq(nil(#f), classes-lit),
+               seq(nil(#f), modules-lit), 
+               seq(unbound-lit, spaces, names-lit),
+               seq(nil(#f), macros-lit))
       => token;
-   yield token;
+   yield select (token[0])
+            #"unbound" => #"unbound-names";
+            otherwise => token[1];
+         end select;
 end;
 
 define caching parser bracketed-raw-block-spec-text :: <symbol>

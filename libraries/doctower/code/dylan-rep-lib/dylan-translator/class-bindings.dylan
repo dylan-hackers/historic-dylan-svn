@@ -11,7 +11,7 @@ define method make-defined-bindings
    let class-binding = make(<class-binding>, source-location: token.token-src-loc,
                             local-name: class-name, explicit: class-def,
                             markup: token.scoped-docs, provenance: #"definition");
-   let bindings = list(class-binding);
+   let bindings = vector(class-binding);
 
    // Adjectives
    map-into(class-def.adjectives, curry(as, <symbol>), token.api-modifiers);
@@ -63,8 +63,8 @@ end method;
 define method make-slot
    (context :: <context>, class-type :: <type-fragment>, parsed :: <parsed-class-slot>)
 => (slot :: <slot>, bindings :: <sequence>)
-   let expr-names = make(<list>);
-   let bindings = make(<list>);
+   let expr-names = make(<stretchy-vector>);
+   let bindings = make(<stretchy-vector>);
    let slot-mods = map(as-lowercase, parsed.slot-modifiers);
    let slot-class = <instance-slot>;
    let sealed-slot? = #f;
@@ -183,10 +183,11 @@ end method;
 define method make-init-arg
    (context :: <context>, parsed :: <class-keyword>)
 => (init-arg :: <init-arg>, bindings :: <sequence>)
-   let expr-names = make(<list>);
-   let new-init-arg = make(<init-arg>, symbol: parsed.keyword-name,
-                           markup: parsed.keyword-doc);
-
+   let expr-names = make(<stretchy-vector>);
+   let markup = parsed.keyword-doc;
+   let markup = if (markup) vector(markup) else #[] end;
+   let new-init-arg = make(<init-arg>, symbol: parsed.keyword-name, markup: markup);
+   
    when (parsed.keyword-type)
       let type-frag = type-fragment-from-text(context, parsed.keyword-type);
       new-init-arg.type := type-frag;
@@ -214,11 +215,11 @@ define method merge-definitions
 => (merged :: <class-binding>)
    let (better, worse) = better-definition(existing, new);
    unless (better == worse)
-      // /**/ log("    merging %= and %=", better, worse);
       check-single-explicit-defn(better, worse);
       better.explicit-defn := better.explicit-defn | worse.explicit-defn;
       
       merge-aliases(context, better, worse);
+      merge-markup(context, better, worse);
       note-replacement(context, better, worse);
    end unless;
    better

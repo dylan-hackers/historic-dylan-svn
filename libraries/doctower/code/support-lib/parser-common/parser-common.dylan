@@ -12,7 +12,7 @@ end method;
 
 
 define open abstract class <updatable-source-location-mixin> (<object>)
-   slot source-location :: <source-location> = make(<unknown-source-location>),
+   slot source-location :: <source-location> = $unknown-source-location,
       init-keyword: #"source-location";
 end class;
 

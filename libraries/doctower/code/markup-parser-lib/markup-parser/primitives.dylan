@@ -124,6 +124,7 @@ define literal-parsers
    classes-lit    = "classes";
    code-lit       = "code";
    conditions-lit = "conditions";
+   constant-lit   = "constant";
    contents-lit   = "contents";
    diagram-lit    = "diagram";
    discussion-lit = "discussion";
@@ -135,6 +136,7 @@ define literal-parsers
    example-lit    = "example";
    exceptions-lit = "exceptions";
    fig-lit        = "fig";
+   fully-lit      = "fully";
    function-lit   = "function";
    functions-lit  = "functions";
    generic-lit    = "generic";
@@ -149,12 +151,16 @@ define literal-parsers
    macro-lit      = "macro";
    macros-lit     = "macros";
    make-lit       = "make";
+   method-lit     = "method";
    module-lit     = "module";
    modules-lit    = "modules";
+   name-lit       = "name";
+   names-lit      = "names";
    note-lit       = "note";
    of-lit         = "of";
    q-lit          = "q";
    qq-lit         = "qq";
+   qualified-lit  = "qualified";
    qv-lit         = "qv";
    relevant-lit   = "relevant";
    section-lit    = "section";
@@ -166,6 +172,7 @@ define literal-parsers
    term-lit       = "term";
    to-lit         = "to";
    u-lit          = "u";
+   unbound-lit    = "unbound";
    unq-lit        = "unq";
    values-lit     = "values";
    variable-lit   = "variable";

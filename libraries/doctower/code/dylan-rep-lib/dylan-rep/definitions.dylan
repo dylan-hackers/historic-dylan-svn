@@ -9,8 +9,7 @@ define abstract class <definition> (<documentable-api-object>)
    /// The scoped name of the definition according to its definer macro or
    /// create clause, or whatever else is handy. The best available canonical
    /// name is chosen while merging.
-   slot canonical-name :: false-or(<source-name>),
-      required-init-keyword: #"local-name";
+   slot canonical-name :: <source-name>, required-init-keyword: #"local-name";
    
    /// Where this definition instance comes from. Used to select the best
    /// canonical name and source location.
@@ -33,7 +32,7 @@ define abstract class <definition> (<documentable-api-object>)
       required-init-keyword: #"provenance";
    
    /// All source names of the definition.
-   slot aliases = make(<list>);
+   slot aliases :: <sequence> = make(<stretchy-vector>);
 end class;
 
 
@@ -51,11 +50,12 @@ end method;
 define abstract class <namespace> (<definition>)
    /// Exported definitions in this namespace. These are a subsequence of keys
    /// in 'definitions'. Elements are local names. Each is a <string>. 
-   slot exported-names = make(<list>);
+   slot exported-names :: <sequence> = make(<stretchy-vector>);
 
    /// Definitions in this namespace. Keyed by local name, a <string>. Includes
    /// both exported and internal definitions.
-   slot definitions = make(<case-insensitive-skip-list>);
+   slot definitions :: <mutable-explicit-key-collection>
+      = make(<case-insensitive-skip-list>);
 end class;
 
 
@@ -64,18 +64,17 @@ end class;
 /// Its source location is a defining macro.
 define abstract class <defined-namespace> (<namespace>)
    /// Sequence of other namespaces from which additional, unlisted definitions
-   /// may be exported. The only namespaces in this list are undefined namespaces,
+   /// may be exported. The only namespaces in this list are <undefined-namespace>,
    /// and they are only included if the chain of namespaces leading to them
    /// had all imported and reexported all definitions.
    ///
    /// Basically, this slot can be used to add text like "Other bindings from
    /// common-dylan" to a list of exported bindings.
-   slot unknown-reexport-sources =
-         make(<stretchy-vector> /* of <undefined-namespace> */);
+   slot unknown-reexport-sources :: <sequence> = make(<stretchy-vector>);
 
    /// Sequence of <markup-content-token>. These tokens are in the source code
    /// but aren't associated with any particular API object.
-   slot file-markup-tokens = make(<stretchy-vector>);
+   slot file-markup-tokens :: <sequence> = make(<stretchy-vector>);
 end class;
 
 

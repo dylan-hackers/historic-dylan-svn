@@ -2,41 +2,46 @@ module: main
 
 //// Arguments
 
+// TODO: Make --name-list a separate task from doc gen.
+
 define argument-parser <my-arg-parser> ()
    regular-arguments files;
    option toc-pattern = "toc",
-      " <ext>", "Extension of table of contents files [toc]",
-      long: "toc", short: "t", kind: <optional-parameter-option-parser>;
+      " <ext>", "Read as table of contents file [\"toc\"]",
+      long: "toc", short: "t", kind: <parameter-option-parser>;
    option cfg-pattern = "cfg",
-      " <ext>", "Extension of configuration files [cfg]",
-      long: "cfg", short: "c", kind: <optional-parameter-option-parser>;
+      " <ext>", "Read as configuration file [\"cfg\"]",
+      long: "cfg", short: "c", kind: <parameter-option-parser>;
    option doc-pattern = "txt",
-      " <ext>", "Extension of documentation text files [txt]",
-      long: "doc", short: "d", kind: <optional-parameter-option-parser>;
+      " <ext>", "Read as documentation text file [\"txt\"]",
+      long: "doc", short: "d", kind: <parameter-option-parser>;
+   option api-list-filename,
+      " <filename>", "Write fully qualified API names to file",
+      long: "name-list", kind: <parameter-option-parser>;
    // option title = "Untitled",
    //    " <title>", "Title of documentation [Untitled]",
-   //    long: "title", kind: <optional-parameter-option-parser>;
+   //    long: "title", kind: <parameter-option-parser>;
    // option tab-size = "8",
    //    " <n>", "Tab size [8]",
-   //    long: "tabsize", kind: <optional-parameter-option-parser>;
+   //    long: "tabsize", kind: <parameter-option-parser>;
    option disabled-warnings,
-      " <nn>", "Disable warning message",
+      " <nn>", "Hide warning message",
       long: "no-warn", short: "w", kind: <repeated-parameter-option-parser>;
    option stop-on-errors?,
       "Stop on first error or warning",
       long: "stop";
-   option verbose?,
-      "Display progress messages",
-      long: "verbose", short: "v";
+   option quiet?,
+      "Hide progress messages",
+      long: "quiet", short: "q";
    option help?,
-      "Display this help message and exit",
+      "Show this help message and exit",
       long: "help";
    option version?,
-      "Display program version and exit",
+      "Show program version and exit",
       long: "version";
    synopsis print-help,
       usage: "doctower [options] <files>",
-      description: "Create documentation from files."
+      description: "Creates Dylan API documentation from files."
 end argument-parser;
 
 
@@ -51,9 +56,11 @@ define function main (name, arguments)
    // Check arguments
 
    let args = make(<my-arg-parser>);
-   parse-arguments(args, arguments);
+   let good-options? = parse-arguments(args, arguments);
    
    case
+      ~good-options? =>
+         error-in-command-arguments();
       args.help? =>
          print-help(args, *standard-output*);
          exit-application(0);
@@ -71,7 +78,11 @@ define function main (name, arguments)
    end block;
 
    $stop-on-errors? := args.stop-on-errors?;
-   $verbose? := args.verbose?;
+   $verbose? := ~args.quiet?;
+   $api-list-filename := 
+         when (args.api-list-filename)
+            as(<file-locator>, args.api-list-filename)
+         end when;
 
    let toc-files = make(<stretchy-vector>);
    let doc-files = make(<stretchy-vector>);
@@ -134,5 +145,6 @@ begin
             exit-application($error-code);
          end method;
          
+   *default-line-length* := 120;
    main(application-name(), application-arguments());
 end

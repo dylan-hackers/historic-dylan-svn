@@ -121,9 +121,11 @@ define method process-namespace-clauses (context :: <context>) => ()
                
                // Evaluate clauses if the module has a definer.
                when (key-exists?(context.definers, mod))
-                  let clauses = context.definers[mod].namespace-clauses;
+                  let definer = context.definers[mod];
+                  let clauses = definer.namespace-clauses;
                   let module-name = make(<module-name>, module: local-name,
-                                         within: context.context-name);
+                                         within: context.context-name,
+                                         source-location: definer.token-src-loc);
                   with-context-name(module-name)
                      do(curry(process-namespace-clause, context, mod, node), clauses);
                   end with-context-name;
@@ -198,9 +200,6 @@ define method merge-definitions
 => (merged :: <namespace>)
    let (better, worse) = better-definition(existing, new);
    unless (better == worse)
-      // /**/ log("merging %= into %=", worse, better);
-      // /**/ log("  %= exports %=", better.canonical-name, better.exported-names);
-      // /**/ log("  %= exports %=", worse.canonical-name, worse.exported-names);
       better.definitions := map-into(better.definitions, 
                                      curry(merge-definitions, context),
                                      better.definitions, worse.definitions);
@@ -211,7 +210,6 @@ define method merge-definitions
       merge-exported-names(context, better, worse);
       merge-aliases(context, better, worse);
       note-replacement(context, better, worse);
-      // /**/ log("  now %= exports %=", better.canonical-name, better.exported-names);
    end unless;
    better
 end method;

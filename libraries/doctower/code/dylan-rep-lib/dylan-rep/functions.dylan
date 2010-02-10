@@ -8,10 +8,11 @@ define class <generic-binding> (<binding>)
       init-keyword: #"explicit";
    
    /// Sequence of <implicit-generic-defn>.
-   slot implicit-defns = make(<stretchy-vector>), init-keyword: #"implicit";
+   slot implicit-defns :: <sequence> = make(<stretchy-vector>), 
+      init-keyword: #"implicit";
    
    /// Sequence of <sealed-domain>.
-   slot sealed-domains = make(<stretchy-vector>);
+   slot sealed-domains :: <sequence> = make(<stretchy-vector>);
    
    /// True if the generic itself is sealed, regardless of any sealed domains.
    slot sealed? :: <boolean> = #t, init-keyword: #"sealed";
@@ -44,7 +45,7 @@ end method;
 
 define abstract class <func/gen-defn> (<implicit/explicit-defn>)
    /// Sequence of #"sealed", #"abstract", etc.
-   slot adjectives = make(<stretchy-vector>);
+   slot adjectives :: <sequence> = make(<stretchy-vector>);
    slot param-list :: <param-list>, init-keyword: #"param-list";
    slot value-list :: <value-list>, init-keyword: #"value-list";
 end class;
@@ -52,7 +53,7 @@ end class;
 
 /// Synopsis: A "define generic" definition.
 define class <explicit-generic-defn> (<func/gen-defn>)
-   slot vendor-options = make(<stretchy-vector> /* of <vendor-option> */);
+   slot vendor-options :: <sequence> = make(<stretchy-vector> /* of <vendor-option> */);
 end class;
 
 
@@ -78,7 +79,7 @@ end class;
 
 
 define abstract class <param-list> (<object>)
-   slot req-params = make(<stretchy-vector> /* of <req-param> */),
+   slot req-params :: <sequence> = make(<stretchy-vector> /* of <req-param> */),
       init-keyword: #"req-params";
 end class;
 
@@ -88,7 +89,7 @@ end class;
 
 
 define class <key-param-list> (<param-list>)
-   slot key-params = make(<stretchy-vector> /* of <key-param> */);
+   slot key-params :: <sequence> = make(<stretchy-vector> /* of <key-param> */);
    slot all-keys? :: <boolean> = #f;
    slot rest-param :: false-or(<rest-param>) = #f;
 end class;
@@ -100,7 +101,7 @@ end class;
 
 
 define class <value-list> (<object>)
-   slot req-values = make(<stretchy-vector> /* of <req-value> */),
+   slot req-values :: <sequence> = make(<stretchy-vector> /* of <req-value> */),
       init-keyword: #"req-values";
    slot rest-value :: false-or(<rest-value>) = #f;
 end class;

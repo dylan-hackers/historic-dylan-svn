@@ -28,10 +28,10 @@ define method topics-from-dylan-files (locator-seq :: <sequence>)
    let parsed-library-sets = map(parse-library-set, library-sets);
 
    // Generate internal representation of Dylan code.
-   let libraries = apis-from-dylan(parsed-library-sets);
+   let api-definitions = apis-from-dylan(parsed-library-sets);
 
    // Generate topics, sections and placeholders.
-   topics-from-dylan(libraries);
+   topics-from-dylan(api-definitions);
 end method;
 
 

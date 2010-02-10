@@ -48,7 +48,6 @@ define method infer-and-merge-used-names
    (context :: <context>, namespace :: <defined-namespace>,
     used-namespace :: <namespace>, clause :: <use-clause-token>)
 => ()
-   // /**/ log("infer on %= using %=", namespace, used-namespace);
 
    // Interpret use clause options.
 
@@ -123,9 +122,6 @@ define method infer-and-merge-used-names
          names-in-this[name-index] := concatenate(prefix-option | "", name-in-used);
       end if;
    end for;
-   
-   // /**/ log("  names in used %=", names-in-used);
-   // /**/ log("  names in this %=", names-in-this);
    
    // Skip names we don't care about.
    let imported-names-from-used = choose-by(true?, names-in-this, names-in-used);
@@ -300,12 +296,12 @@ define method clean-up-graph (context :: <context>, graph :: <graph>) => ()
          end,
          
          method merge-nodes (node1 :: <node>, node2 :: <node>) => (node :: <node>)
-            for (e :: <edge> in node2.outgoing-edges)
+            for (e :: <edge> in node2.outgoing-edges.shallow-copy)
                let node2-target = e.edge-target;
                connect(node1, node2-target, label: e.edge-label);
                disconnect(node2, node2-target);
             end for;
-            for (e :: <edge> in node2.incoming-edges)
+            for (e :: <edge> in node2.incoming-edges.shallow-copy)
                let node2-source = e.edge-source;
                connect(node2-source, node1, label: e.edge-label);
                disconnect(node2-source, node2);

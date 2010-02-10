@@ -55,6 +55,15 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 // exported
+define caching parser word-directive (<source-location-token>)
+   rule seq(word-directive-spec, word-line) => tokens;
+   slot directive-type :: <symbol> = tokens[0];
+   slot word :: <text-word-token> = tokens[1];
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value)
+end;
+
+// exported
 define caching parser division-directive (<source-location-token>)
    rule seq(division-directive-spec, opt(division-content))
       => tokens;
@@ -100,6 +109,13 @@ end;
 
 define caching parser links-directive-spec :: <symbol>
    rule seq(directive-spec-intro, links-directive-spec-text, colon,
+            directive-spec-outro)
+      => tokens;
+   yield tokens[1];
+end;
+
+define caching parser word-directive-spec :: <symbol>
+   rule seq(directive-spec-intro, word-directive-spec-text, colon,
             directive-spec-outro)
       => tokens;
    yield tokens[1];

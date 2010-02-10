@@ -24,7 +24,7 @@ define module markup-parser
       <titled-section-token>, <footnote-token>,
       <topic-or-section-title-token>, <title-nickname-token>,
       <directive-topic-title-token>, <paragraph-directive-token>,
-      <link-directive-token>, <links-directive-token>,
+      <link-directive-token>, <links-directive-token>, <word-directive-token>,
       <division-directive-token>, <indented-content-directive-token>,
       <marginal-code-block-token>, <marginal-verbatim-block-token>,
       <figure-ref-line-token>, <content-ref-line-token>,
@@ -45,6 +45,6 @@ define module markup-parser
       list-type, open-quote, ordinal, postquoted-text, prequoted-text,
       quote-options, quote-spec, quoted-text, scale-factor, scale-type,
       section-nickname, section-title, text, title-content, title-style,
-      title-text, topic-nickname, topic-title, topic-type, topics;
+      title-text, topic-nickname, topic-title, topic-type, topics, word;
       
 end module;

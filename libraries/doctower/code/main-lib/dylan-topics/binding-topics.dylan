@@ -1,0 +1,73 @@
+module: dylan-topics
+
+
+// TODO: Replace programmatic section construction with template system.
+
+
+define method make-source-topics (defn :: <binding>) 
+=> (topics :: <sequence>)
+   let implicit-topic = make(<binding-doc>, source-location: defn.source-location,
+         id: defn.canonical-id, title: defn.canonical-title, implicit: #t,
+         qualified-name: defn.definition-qualified-name);
+   vector(implicit-topic)
+end method;
+
+
+define method make-source-topics (defn :: <class-binding>) 
+=> (topics :: <sequence>)
+   let implicit-topic = make(<class-doc>, source-location: defn.source-location,
+         id: defn.canonical-id, title: defn.canonical-title, implicit: #t,
+         qualified-name: defn.definition-qualified-name);
+   vector(implicit-topic)
+end method;
+
+
+define method make-source-topics (defn :: <function-binding>) 
+=> (topics :: <sequence>)
+   let implicit-topic = make(<function-doc>, source-location: defn.source-location,
+         id: defn.canonical-id, title: defn.canonical-title, implicit: #t,
+         qualified-name: defn.definition-qualified-name);
+   vector(implicit-topic)
+end method;
+
+
+define method make-source-topics
+   (defn :: type-union(<constant-binding>, <variable-binding>))
+=> (topics :: <sequence>)
+   let implicit-topic = make(<variable-doc>, source-location: defn.source-location,
+         id: defn.canonical-id, title: defn.canonical-title, implicit: #t,
+         qualified-name: defn.definition-qualified-name);
+   vector(implicit-topic)
+end method;
+
+
+define method make-source-topics (defn :: <macro-binding>) 
+=> (topics :: <sequence>)
+   let implicit-topic = make(<macro-doc>, source-location: defn.source-location,
+         id: defn.canonical-id, title: defn.canonical-title, implicit: #t,
+         qualified-name: defn.definition-qualified-name);
+   vector(implicit-topic)
+end method;
+
+
+define method make-source-topics (defn :: <generic-binding>) 
+=> (topics :: <sequence>)
+   let generic-topic = make(<generic-doc>, source-location: defn.source-location,
+         id: defn.canonical-id, title: defn.canonical-title, implicit: #t,
+         qualified-name: defn.definition-qualified-name);
+   let topics = vector(generic-topic);
+   
+   for (method-defn :: <implicit-generic-defn> in defn.implicit-defns)
+      let method-params = method-defn.param-list.req-params;
+      let topic-id = canonical-id(defn, method-params: method-params);
+      let topic-title = canonical-title(defn, method-params: method-params);
+      let qual-name = definition-qualified-name(defn, method-params: method-params);
+      let method-topic = make(<function-doc>, implicit: #t,
+                              source-location: method-defn.source-location,
+                              qualified-name: qual-name,
+                              id: topic-id, title: topic-title);
+      topics := add!(topics, method-topic);
+   end for;
+   topics
+end method;
+

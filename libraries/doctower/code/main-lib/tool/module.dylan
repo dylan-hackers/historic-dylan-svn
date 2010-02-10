@@ -5,10 +5,12 @@ define module main
    use conditions;
    use tasks;
    use markup-parser, import: { *parser-trace* };
+   use dylan-topics, import: { $api-list-filename };
    
    // from io
    use format-out;
    use print;
+   use pprint, import: { *default-line-length* };
    // from command-line-parser
    use command-line-parser;
    // from dylan

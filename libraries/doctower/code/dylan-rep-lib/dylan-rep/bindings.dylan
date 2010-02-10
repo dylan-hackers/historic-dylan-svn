@@ -97,7 +97,7 @@ end class;
 
 
 define abstract class <const/var-defn> (<implicit/explicit-defn>)
-   slot adjectives = make(<stretchy-vector>);
+   slot adjectives :: <sequence> = make(<stretchy-vector>);
    slot type :: false-or(<type-fragment>) = #f, init-keyword: #"type";
    slot value :: <computed-constant>, required-init-keyword: #"value";
 end class;

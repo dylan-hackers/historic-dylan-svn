@@ -14,6 +14,11 @@ define constant <title-seq> = limited(<stretchy-vector>,
                      <dita-content>, <term>, <term-style>, <code-phrase>, <entity>,
                      <cite>, <bold>, <italic>, <underline>, <emphasis>,
                      singleton(#f)));
+
+define method title-seq (#rest elements) => (seq :: <title-seq>)
+   make-limited-seq(<title-seq>, elements)
+end method;
+
                      
 /**
 Synopsis: List of elements corresponding to topic-content grammar.
@@ -26,6 +31,11 @@ define constant <topic-content-seq> = limited(<stretchy-vector>,
                      <api-list-placeholder>, <simple-table>, <unordered-list>,
                      <ordered-list>, <defn-list>, <paragraph>, <note>, <section>,
                      <footnote>, singleton(#f)));
+
+define method topic-content-seq (#rest elements) => (seq :: <topic-content-seq>)
+   make-limited-seq(<topic-content-seq>, elements)
+end method;
+
 
 define class <topic> (<markup-element>)
    // No placeholder needed for fixed-parent, because the parent is known from
@@ -41,22 +51,26 @@ define class <topic> (<markup-element>)
    slot id :: false-or(<string>) = #f,
          init-keyword: #"id";
          
-   slot title = make(<title-seq>);
+   slot title :: <title-seq> = make(<title-seq>),
+         init-keyword: #"title";
    slot shortdesc :: false-or(<paragraph>) = #f;
 
    // Main topic content, including sections but excluding templated sections
    // such as "Arguments" or "Superclasses".
-   slot content = make(<topic-content-seq>);
+   slot content :: <topic-content-seq> = make(<topic-content-seq>);
    
-   slot title-source-loc :: <source-location>;
-   slot id-source-loc :: <source-location>;
+   slot title-source-loc :: <source-location> = $unknown-source-location,
+         init-keyword: #"title-id-source-location";
+   slot id-source-loc :: <source-location> = $unknown-source-location,
+         init-keyword: #"title-id-source-location";
    
-   slot footnotes = make(<stretchy-vector>) /* of <footnote> */;
+   slot footnotes :: <sequence> /* of <footnote> */
+         = make(<stretchy-vector>);
    
-   slot see-also = make(<stretchy-vector>) /* of <topic-ref> to <topic>, <url>,
-                                              or <target-placeholder> */;
-   slot relevant-to = make(<stretchy-vector>) /* of <topic-ref> to <topic> or
-                                                 <target-placeholder> */;
+   slot see-also :: <sequence> /* of <topic-ref> to <topic>, <url>, or <target-placeholder> */
+         = make(<stretchy-vector>);
+   slot relevant-to :: <sequence> /* of <topic-ref> to <topic> or <target-placeholder> */
+         = make(<stretchy-vector>);
 end class;
 
 define class <ref-topic> (<topic>)
@@ -65,8 +79,12 @@ end class;
 define class <con-topic> (<topic>)
 end class;
 
-define class <api-doc> (<ref-topic>)
-   slot explicit-content? :: <boolean> = #f;
+// BUGFIX: Gwydion Dylan does not support abstract subclasses of concrete classes.
+define /*abstract*/ class <api-doc> (<ref-topic>)
+   slot implicit-topic? :: <boolean> = #f, init-keyword: #"implicit";
+   slot fully-qualified-name :: false-or(<string>) = #f, 
+         init-keyword: #"qualified-name";
+   slot definitions-section :: false-or(<section>) = #f;
 end class;
 
 define method make (class == <api-doc>, #key topic-type) => (inst :: <api-doc>)
@@ -81,8 +99,18 @@ define method make (class == <api-doc>, #key topic-type) => (inst :: <api-doc>)
    end select;
 end method;
 
-define class <class-doc> (<api-doc>)
-   slot export-section :: false-or(<section>) = #f;
+define class <library-doc> (<api-doc>)
+   slot modules-section :: false-or(<section>) = #f;
+end class;
+
+define class <module-doc> (<api-doc>)
+   slot names-section :: false-or(<section>) = #f;
+end class;
+
+define class <binding-doc> (<api-doc>)
+end class;
+
+define class <class-doc> (<binding-doc>)
    slot keywords-section :: false-or(<section>) = #f;
    slot slots-section :: false-or(<section>) = #f;
    slot modifiers-section :: false-or(<section>) = #f;
@@ -92,14 +120,18 @@ define class <class-doc> (<api-doc>)
    slot funcs-returning-section :: false-or(<section>) = #f;
 end class;
 
-define class <variable-doc> (<api-doc>)
-   slot export-section :: false-or(<section>) = #f;
+define class <variable-doc> (<binding-doc>)
    slot type-section :: false-or(<section>) = #f;
    slot value-section :: false-or(<section>) = #f;
 end class;
 
-define class <function-doc> (<api-doc>)
-   slot export-section :: false-or(<section>) = #f;
+define class <macro-doc> (<binding-doc>)
+   slot syntax-section :: false-or(<section>) = #f;
+   slot args-section :: false-or(<section>) = #f;
+   slot vals-section :: false-or(<section>) = #f;
+end class;
+
+define class <function-doc> (<binding-doc>)
    slot args-section :: false-or(<section>) = #f;
    slot vals-section :: false-or(<section>) = #f;
    slot conds-section :: false-or(<section>) = #f;
@@ -110,21 +142,6 @@ define class <generic-doc> (<function-doc>)
    
    // TODO: Is this redundant to the method's fixed-parent slot? Depends on if
    // methods are always children of their generic function.
-   slot method-topics = make(<stretchy-vector>) /* of <function-doc> */;
-end class;
-
-define class <library-doc> (<api-doc>)
-   slot modules-section :: false-or(<section>) = #f;
-end class;
-
-define class <module-doc> (<api-doc>)
-   slot export-section :: false-or(<section>) = #f;
-   slot names-section :: false-or(<section>) = #f;
-end class;
-
-define class <macro-doc> (<api-doc>)
-   slot export-section :: false-or(<section>) = #f;
-   slot syntax-section :: false-or(<section>) = #f;
-   slot args-section :: false-or(<section>) = #f;
-   slot vals-section :: false-or(<section>) = #f;
+   slot method-topics :: <sequence> /* of <function-doc> */
+         = make(<stretchy-vector>);
 end class;

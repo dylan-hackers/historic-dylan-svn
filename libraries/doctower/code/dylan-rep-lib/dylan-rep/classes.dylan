@@ -10,17 +10,17 @@ end class;
 
 define class <explicit-class-defn> (<implicit/explicit-defn>)
    /// Adjectives to class. Sequence of <symbol>.
-   slot adjectives = make(<stretchy-vector>);
+   slot adjectives :: <sequence> = make(<stretchy-vector>);
    
    /// Sequence of <type-fragment> comprising superclass list.
-   slot direct-supers = make(<stretchy-vector>);
+   slot direct-supers :: <sequence> = make(<stretchy-vector>);
    
    /// Slots in this class. Excludes superclasses. Sequence of <slot>.
-   slot slots = make(<stretchy-vector>);
+   slot slots :: <sequence> = make(<stretchy-vector>);
    
    /// Initialization keywords defined by "slot" and "keyword" clauses. Excludes
    /// superclasses. Sequence of <init-arg>.
-   slot init-args = make(<stretchy-vector>);
+   slot init-args :: <sequence> = make(<stretchy-vector>);
 end class;
 
 

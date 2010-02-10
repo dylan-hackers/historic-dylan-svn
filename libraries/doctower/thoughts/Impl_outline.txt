@@ -168,7 +168,8 @@ Conceptual API topics do not have tool-assigned IDs.
 
   Each class, function,
   macro, or variable  - ::Dylan:Dylan:<Integer>
-  Each member method  - ::Dylan:Dylan:As(<Integer>,<Float>)
+  Each member method  -
+    ::Dylan:Dylan:As(Dylan:Dylan:Singleton(Dylan:Dylan:<Integer>),Dylan:Dylan:<Float>)
   Each library        - ::Dylan
   Each module         - ::Dylan:Dylan
   "All Libraries"     - :Libraries
@@ -178,6 +179,7 @@ Conceptual API topics do not have tool-assigned IDs.
   "All Functions"     - :Functions
   "All Variables"     - :Variables
   "All Macros"        - :Macros
+  "All Unbound Names" - :Unbound
   Library members     - :Modules(Dylan), :Bindings(Dylan), etc.
   Module members      - :Bindings(Dylan:Dylan), :Classes(Dylan:Dylan), etc.
   Other topics        - :Topic:nnn

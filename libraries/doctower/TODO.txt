@@ -6,13 +6,6 @@ Most of the things marked with TODO in a comment are need-to-do items.
 
 -----
 
-The "cataloging definitions" phase implemented by the dylan-translator module
-currently works down from libraries. It would probably be more efficient to work
-up from definitions, since I later organize and create topics centered around
-definitions anyway.
-
------
-
 API recognition. If you type "use the <integer> class," the code should figure
 out that you want to link to the class. This relies on cues within the name, of
 course. If you type "use the stream-location function," I doubt the code can

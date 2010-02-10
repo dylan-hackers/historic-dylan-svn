@@ -45,7 +45,7 @@ define method make-defined-bindings
             source-location: token.token-src-loc, provenance: #"declaration",
             markup: token.scoped-docs);
       binding.aliases := add!(binding.aliases, value-name);
-      let bindings = list(binding);
+      let bindings = vector(binding);
 
       // Type names
       when (type-frag)
@@ -79,7 +79,7 @@ define method make-defined-var/const-bindings
    let binding = make(binding-class, source-location: token.token-src-loc,
                       local-name: local-name, explicit: binding-defn,
                       provenance: #"definition", markup: token.scoped-docs);
-   let bindings = list(binding);
+   let bindings = vector(binding);
 
    // Adjectives
    map-into(binding-defn.adjectives, curry(as, <symbol>), token.api-modifiers);
@@ -106,7 +106,6 @@ define method merge-definitions
 => (merged :: <constant-binding>)
    let (better, worse) = better-definition(existing, new);
    unless (better == worse)
-      // /**/ log("    merging %= and %=", better, worse);
       check-single-explicit-defn(better, worse);
       better.explicit-defn := better.explicit-defn | worse.explicit-defn;
       
@@ -122,7 +121,6 @@ define method merge-definitions
 => (merged :: <variable-binding>)
    let (better, worse) = better-definition(existing, new);
    unless (better == worse)
-      // /**/ log("    merging %= and %=", better, worse);
       check-single-explicit-defn(better, worse);
       better.explicit-defn := better.explicit-defn | worse.explicit-defn;
       
@@ -160,7 +158,7 @@ define method make-defined-bindings
    let binding = make(<macro-binding>, source-location: token.token-src-loc,
                       local-name: binding-name, explicit: binding-defn,
                       provenance: #"definition", markup: token.scoped-docs);
-   list(binding);
+   vector(binding);
 end method;
 
 
@@ -169,7 +167,6 @@ define method merge-definitions
 => (merged :: <macro-binding>)
    let (better, worse) = better-definition(existing, new);
    unless (better == worse)
-      // /**/ log("    merging %= and %=", better, worse);
       check-single-explicit-defn(better, worse);
       better.explicit-defn := better.explicit-defn | worse.explicit-defn;
       

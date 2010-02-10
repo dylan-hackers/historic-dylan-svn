@@ -342,8 +342,8 @@ define method print-object (o :: <fragment>, s :: <stream>) => ()
       write(s, "fragment \"");
       for (elem in o.source-text)
          case
-            instance?(elem, <character>) => write-element(s, elem);
-            otherwise => format(s, "{%s}", elem);
+            instance?(elem, <source-name>) => format(s, "{%s}", elem);
+            otherwise => write-element(s, elem);
          end case;
       end for;
       write(s, "\"");
@@ -353,8 +353,8 @@ end method;
 define method print-message (o :: <fragment>, s :: <stream>) => ()
    for (elem in o.source-text)
       case
-         instance?(o, <character>) => write-element(s, elem);
-         otherwise => format(s, "%s", elem.local-name);
+         instance?(o, <source-name>) => write(s, elem.local-name);
+         otherwise => format(s, "%s", elem);
       end case;
    end for;
 end method;

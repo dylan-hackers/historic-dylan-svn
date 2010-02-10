@@ -68,7 +68,7 @@ define method make
          error-class :: <string>)
 => (inst :: <user-visible-condition>)
    let (prefix-string, prefix-args) =
-         if (~error-location | instance?(error-location, <unknown-source-location>))
+         if (~error-location | ~instance?(error-location, <file-source-location>))
             values("%s: ", vector(error-class))
          else
             values("%s: %s: ", vector(error-location, error-class))
@@ -132,16 +132,18 @@ end class;
 
 define errors (<user-visible-warning>)
    01 unparsable-expression-in-code
-      "Unparsable expression will not be in automatically-generated documentation",
+      "Unparsable expression will not be automatically documented",
       location;
    
    02 unsupported-syntax-in-code
-      "Unsupported syntactic form will not be in automatically-generated documentation",
+      "Unsupported syntactic form will not be automatically documented",
       location;
 
+   /*
    03 library-exports-not-known
       "Modules and bindings of used library are unknown and might not be documented",
       location;
+   */
 
    04 no-definition-for-bindings
       "No definition of exported binding %s",
@@ -175,11 +177,11 @@ define errors (<user-visible-error>)
       location;
 
    54 duplicate-section-in-topic
-      "Topic may only include one %s section",
+      "Topic may only include one \"%s\" section",
       location, section-type;
 
    55 illegal-section-in-topic
-      "Topic may not include %s section",
+      "Topic may not include \"%s\" section",
       location, section-type;
 
    56 q-and-qq-in-spec
@@ -234,9 +236,11 @@ define errors (<user-visible-error>)
       "No library definition found in %s",
       filenames;
    
+   /*
    69 no-definition-for-modules
       "No definition of exported module %s",
       location, names;
+   */
 
    70 file-error
       "File error with %s: %s",
@@ -261,11 +265,8 @@ define errors (<user-visible-error>)
       "Differing definitions of module \"%s\" at %s",
       location, name, defn-locations;
    
-   /*
-   76 duplicate-modules-in-fileset
-      "Multiple definitions of module \"%s\" at %s",
-      location, name, defn-locations;
-   */
+   76 error-in-command-arguments
+      "Incorrect arguments; see --help";
    
    77 no-header-in-interchange-file
       "\"%s\" header is missing",

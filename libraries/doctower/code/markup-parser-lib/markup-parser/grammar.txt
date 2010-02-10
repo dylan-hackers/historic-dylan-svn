@@ -1,9 +1,9 @@
 http://en.wikipedia.org/wiki/Parsing_expression_grammar
 
-Files are pre-processed to resolve indentation. Doing this as a separate step
-means that indentation handling does not need a stack, which means that
-caching parsers can be used without invalidating the cache all the time. All
-tabs should be converted to spaces before parsing.
+Files are pre-processed to resolve indentation and remove trailing spaces. Doing
+this as a separate step means that indentation handling does not need a stack,
+which means that caching parsers can be used without invalidating the cache all
+the time. All tabs should be converted to spaces before parsing.
 
 Primitive tokens are:
    INDENT   - A new indentation level.
@@ -62,8 +62,8 @@ topic-content:
 section:
    directive-section / titled-section
 directive-section:
-   paragraph-directive / link-directive / links-directive / division-directive
-   / null-directive
+   paragraph-directive / link-directive / links-directive / word-directive /
+   division-directive / null-directive
 titled-section:
    section-title section-content?
 section-content:
@@ -139,6 +139,8 @@ link-directive:
    link-directive-spec link-line
 links-directive:
    links-directive-spec link-words? LS indented-link-words?
+word-directive:
+   word-directive-spec word-line
 division-directive:
    division-directive-spec division-content?
 indented-content-directive:
@@ -152,6 +154,8 @@ link-directive-spec:
    directive-spec-intro link-directive-spec-text ':' directive-spec-extro
 links-directive-spec:
    directive-spec-intro links-directive-spec-text ':' directive-spec-extro
+word-directive-spec:
+   directive-spec-intro word-directive-spec-text ':' directive-spec-extro
 division-directive-spec:
    directive-spec-intro division-directive-spec-text ':' directive-spec-extro
 indented-content-directive-spec:
@@ -335,6 +339,8 @@ title-word:
    !ascii-line ( quote / image-ref / bracketed-render-span / text-word )
 text-word:
    text-til-spc-ls
+word-line:
+   SOL text-word LS
 
 indented-link-words:
    INDENT link-word-lines DEDENT
@@ -377,14 +383,16 @@ bracketed-render-span-end:
    [-SPC "END" ( SPC-LS+ bracketed-render-span-spec-text )? SPC-]
 
 directive-topic-spec-text:
-   "FUNCTION" / "VARIABLE" / ( "GENERIC" SPC+ "FUNCTION" ) / "LIBRARY" /
-   "MODULE" / "CLASS" / "MACRO"
+   "CONSTANT" / "FUNCTION" / "VARIABLE" / ( "GENERIC" SPC+ "FUNCTION" ) / 
+   "LIBRARY" / "METHOD" / "MODULE" / "CLASS" / "MACRO"
 paragraph-directive-spec-text:
    "SYNOPSIS" / "SYN"
 link-directive-spec-text:
    "SECTION"
 links-directive-spec-text:
    "RELEVANT" SPC+ "TO" / "SEE" SPC+ "ALSO"
+word-directive-spec-text:
+   "FULLY" SPC+ "QUALIFIED" SPC+ "NAME"
 division-directive-spec-text:
    "INIT-KEYWORDS" / "CONDITIONS" / "EXCEPTIONS" / "ARGUMENTS" / "KEYWORDS" /
    "SIGNALS" / "ERRORS" / "VALUES" / "ARGS" / ( "MAKE" SPC+ "KEYWORDS" ) /
@@ -395,8 +403,8 @@ indented-content-directive-spec-text:
 null-directive-spec-text:
    "DISCUSSION"
 api-list-spec-text:
-   "FUNCTIONS" / "LIBRARIES" / "VARIABLES" / "BINDINGS" / "CLASSES" /
-   "MODULES" / "MACROS"
+   "FUNCTIONS" / "LIBRARIES" / "VARIABLES" / "BINDINGS" / "CLASSES" / "MODULES" / 
+   ( "UNBOUND" SPC+ "NAMES" ) / "MACROS"
 bracketed-raw-block-spec-text:
    "VERBATIM" / "DIAGRAM" / "EXAMPLE" / "CODE"
 bracketed-render-span-spec-text:

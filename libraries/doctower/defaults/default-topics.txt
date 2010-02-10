@@ -10,65 +10,81 @@ This package includes the following libraries:
 Xxx Library          [::xxx]
 ============================
 
-Synopsis: The Xxx library.
+The Xxx library.
 
 --- Definition ---
-(define library declaration)
+Defined in (filename) line (line number).
 
 --- Modules ---
 [LIST OF MODULES]
 
 
 ================================
-Xxx Module           [::xxx:xxx]
+Yyy Module           [::xxx:yyy]
 ================================
 
-Synopsis: The Xxx module.
+The Yyy module.
 
---- Origin ---
-Exported from '::xxx library'. [qv ::xxx]
+--- Definitions ---
+Defined in (filename) line (line number).
+
+Exported under these names:
+- Yyy in 'Xxx library'. [qv ::xxx]
 
 --- Classes ---
-[CONTENTS OF :Classes(xxx:xxx)]
+[CONTENTS OF :Classes(xxx:yyy)]
 
 --- Functions ---
-[CONTENTS OF :Functions(xxx:xxx)]
+[CONTENTS OF :Functions(xxx:yyy)]
 
 --- Variables ---
-[CONTENTS OF :Variables(xxx:xxx)]
+[CONTENTS OF :Variables(xxx:yyy)]
 
 --- Macros ---
-[CONTENTS OF :Macros(xxx:xxx)]
+[CONTENTS OF :Macros(xxx:yyy)]
+
+--- Unbound names ---
+[CONTENTS OF :Unbound(xxx:yyy)]
 
 
 =====================================
-Xxx Classes       [:Classes(xxx:xxx)]
+Yyy Classes       [:Classes(xxx:yyy)]
 =====================================
-Section: ::xxx:xxx
+Section: ::xxx:yyy
 
-The Xxx module exports these classes:
+The Yyy module exports these classes:
 
 [LIST OF CLASSES]
 
 
 =======================================
-Xxx Functions     [:Functions(xxx:xxx)]
+Yyy Functions     [:Functions(xxx:yyy)]
 =======================================
-Section: ::xxx:xxx
+Section: ::xxx:yyy
 
-The Xxx module exports these functions:
+The Yyy module exports these functions:
 
 [LIST OF FUNCTIONS]
 
 
 =======================================
-Xxx Variables     [:Variables(xxx:xxx)]
+Yyy Variables     [:Variables(xxx:yyy)]
 =======================================
-Section: ::xxx:xxx
+Section: ::xxx:yyy
 
-The Xxx module exports these variables:
+The Yyy module exports these variables:
 
 [LIST OF VARIABLES]
+
+
+=======================================
+Yyy Unbound Names   [:Unbound(xxx:yyy)]
+=======================================
+Section: ::xxx:yyy
+
+The Yyy module creates and exports these unbound names:
+
+[LIST OF UNBOUND NAMES]
 
 
 ===================================
@@ -82,13 +98,16 @@ The Xxx module exports these macros:
 
 
 ================================
-Xxx              [::xxx:xxx:xxx]
+Zzz              [::xxx:yyy:zzz]
 ================================
 
-Synopsis: The Xxx class.
+The Zzz class.
 
---- Origin ---
-Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
+--- Definitions ---
+Defined in (filename) line (line number).
+
+Exported under these names:
+- Zzz in 'Yyy module' [qv ::xxx:yyy] in 'Xxx library'. [qv ::xxx]
 
 --- Modifiers ---
 (class modifiers)
@@ -116,13 +135,16 @@ Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
 
 
 ================================
-Xxx              [::xxx:xxx:xxx]
+Zzz              [::xxx:yyy:zzz]
 ================================
 
-Synopsis: The Xxx generic function.
+The Zzz generic function.
 
---- Origin ---
-Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
+--- Definitions ---
+Defined in (filename) line (line number).
+
+Exported under these names:
+- Zzz in 'Yyy module' [qv ::xxx:yyy] in 'Xxx library'. [qv ::xxx]
 
 --- Modifiers ---
 (class modifiers)
@@ -144,13 +166,16 @@ Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
 
 
 ================================
-Xxx              [::xxx:xxx:xxx]
+Zzz              [::xxx:yyy:zzz]
 ================================
 
-Synopsis: The Xxx function.
+The Zzz function.
 
---- Origin ---
-Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
+--- Definitions ---
+Defined in (filename) line (line number).
+
+Exported under these names:
+- Zzz in 'Yyy module' [qv ::xxx:yyy] in 'Xxx library'. [qv ::xxx]
 
 --- Modifiers ---
 (class modifiers)
@@ -169,13 +194,16 @@ Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
 
 
 ================================
-Xxx              [::xxx:xxx:xxx]
+Zzz              [::xxx:yyy:zzz]
 ================================
 
-Synopsis: The Xxx variable.
+The Zzz variable.
 
---- Origin ---
-Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
+--- Definitions ---
+Defined in (filename) line (line number).
+
+Exported under these names:
+- Zzz in 'Yyy module' [qv ::xxx:yyy] in 'Xxx library'. [qv ::xxx]
 
 --- Type/value ---
 Type  - (type)
@@ -186,13 +214,32 @@ Value - (value)
 
 
 ================================
-Xxx              [::xxx:xxx:xxx]
+Zzz              [::xxx:yyy:zzz]
 ================================
 
-Synopsis: The Xxx macro.
+The unbound name Zzz.
 
---- Origin ---
-Exported from 'xxx module' [qv ::xxx:xxx] in 'xxx library'. [qv ::xxx]
+--- Definitions ---
+Defined in (filename) line (line number).
+
+Exported under these names:
+- Zzz in 'Yyy module' [qv ::xxx:yyy] in 'Xxx library'. [qv ::xxx]
+
+--- See also ---
+(see also list)
+
+
+================================
+Zzz              [::xxx:yyy:zzz]
+================================
+
+The Zzz macro.
+
+--- Definitions ---
+Defined in (filename) line (line number).
+
+Exported under these names:
+- Zzz in 'Yyy module' [qv ::xxx:yyy] in 'Xxx library'. [qv ::xxx]
 
 --- Arguments ---
 (argument list)

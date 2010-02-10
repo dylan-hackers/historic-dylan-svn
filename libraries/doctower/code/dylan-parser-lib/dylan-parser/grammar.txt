@@ -32,8 +32,9 @@ define variable/constant x :: <type> = value;
 define generic/function/method x
    (/** p1 */  p1 :: <t1>,
     /** p2 */  p2 :: <t2>,
-    /** k1 */  #key k1,
-    /** k2 */  #"k2" k2 :: <t2> = 8,
+    /** k1 */  #key
+    /** k1 */       k1,
+    /** k2 */       #"k2" k2 :: <t2> = 8,
     /** r */   #rest r) =>
    (/** v1 */  v1 :: <t1>,
     /** v2 */  v2 :: <t2>)

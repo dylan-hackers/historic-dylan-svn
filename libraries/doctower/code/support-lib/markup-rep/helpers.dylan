@@ -1,6 +1,13 @@
 module: markup-rep
 
 
+/// Synopsis: Creates a limited sequence of the given type with the given elements.
+define method make-limited-seq (type :: <type>, elements :: <sequence>)
+=> (seq :: <sequence>)
+   map-as(type, identity, elements)
+end method;
+
+
 /// Synopsis: Records the characteristics of a topic level style.
 define class <topic-level-style> (<object>)
    slot line-character :: <character>, init-keyword: #"char";

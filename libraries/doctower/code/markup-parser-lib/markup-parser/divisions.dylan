@@ -8,6 +8,7 @@ define constant <topic-content-types> =
       type-union(<paragraph-directive-token>,
                  <link-directive-token>,
                  <links-directive-token>,
+                 <word-directive-token>,
                  <division-directive-token>,
                  <titled-section-token>,
                  <footnote-token>,
@@ -108,6 +109,7 @@ define caching parser section
                     <paragraph-directive-token>,
                     <link-directive-token>,
                     <links-directive-token>,
+                    <word-directive-token>,
                     <division-directive-token>,
                     <division-content-sequence>)
    rule choice(directive-section, titled-section) => token;
@@ -119,10 +121,11 @@ define caching parser directive-section
       :: type-union(<paragraph-directive-token>,
                     <link-directive-token>,
                     <links-directive-token>,
+                    <word-directive-token>,
                     <division-directive-token>,
                     <division-content-sequence>)
    rule choice(paragraph-directive, link-directive, links-directive,
-               division-directive, null-directive)
+               word-directive, division-directive, null-directive)
       => token;
    yield token;
 end;

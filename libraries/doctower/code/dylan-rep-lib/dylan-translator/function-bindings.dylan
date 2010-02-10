@@ -30,7 +30,7 @@ define method make-defined-bindings
    // Vendor options
    map-into(func-def.vendor-options, curry(as, <vendor-option>), token.func-options);
 
-   concatenate(list(generic-binding), param-bindings, value-bindings)
+   concatenate(vector(generic-binding), param-bindings, value-bindings)
 end method;
 
 
@@ -61,7 +61,7 @@ define method make-defined-bindings
       func-def.adjectives := remove!(func-def.adjectives, #"sealed");
    end if;
 
-   concatenate(list(generic-binding), param-bindings, value-bindings)
+   concatenate(vector(generic-binding), param-bindings, value-bindings)
 end method;
 
 
@@ -85,7 +85,7 @@ define method make-defined-bindings
    func-def.param-list := func-params;
    func-def.value-list := func-values;
    
-   concatenate(list(function-binding), param-bindings, value-bindings);
+   concatenate(vector(function-binding), param-bindings, value-bindings);
 end method;
 
 
@@ -118,7 +118,7 @@ define method make-param-list
          end case;
 
    let param-list = make(param-list-class);
-   let expr-names = make(<list>);
+   let expr-names = make(<stretchy-vector>);
    for (param in parsed-params)
       let markup = param.param-doc;
       let markup = if (markup) vector(markup) else #[] end;
@@ -180,7 +180,7 @@ define method make-value-list
    (context :: <context>, parsed-vals :: <sequence> /* of <func-value> */)
 => (value-list :: <value-list>, name-tokens :: <sequence>)
    let value-list = make(<value-list>);
-   let expr-names = make(<list>);
+   let expr-names = make(<stretchy-vector>);
    for (val in parsed-vals)
       let markup = val.param-doc;
       let markup = if (markup) vector(markup) else #[] end;
@@ -242,7 +242,8 @@ define method make-empty-generic
          sealed: sealed? :: <boolean> = #f, provenance :: <symbol>,
          source-location :: <source-location> = name.source-location)
 => (generic :: <generic-binding>)
-   // Markup is ignored because that would imply a non-empty generic.
+   // Markup is ignored because it only comes with a defining macro, and that
+   // would imply a non-empty generic.
    let generic = make(<generic-binding>, source-location: source-location,
                       local-name: name, explicit: #f, implicit: #[],
                       provenance: provenance);
@@ -272,7 +273,6 @@ define method merge-definitions
 => (merged :: <generic-binding>)
    let (better, worse) = better-definition(existing, new);
    unless (better == worse)
-      // /**/ log("    merging %= and %=", better, worse);
       check-single-explicit-defn(better, worse);
       better.explicit-defn := better.explicit-defn | worse.explicit-defn;
       
@@ -284,6 +284,7 @@ define method merge-definitions
       better.sealed? := better.sealed? | worse.sealed?;
       
       merge-aliases(context, better, worse);
+      merge-markup(context, better, worse);
       note-replacement(context, better, worse);
    end unless;
    better
@@ -295,11 +296,11 @@ define method merge-definitions
 => (merged :: <function-binding>)
    let (better, worse) = better-definition(existing, new);
    unless (better == worse)
-      // /**/ log("    merging %= and %=", better, worse);
       check-single-explicit-defn(better, worse);
       better.explicit-defn := better.explicit-defn | worse.explicit-defn;
       
       merge-aliases(context, better, worse);
+      merge-markup(context, better, worse);
       note-replacement(context, better, worse);
    end unless;
    better

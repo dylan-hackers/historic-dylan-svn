@@ -22,17 +22,19 @@ define constant <section-token> =
 define method topics-from-markup
    (token :: <markup-content-token>, context-topic :: false-or(<topic>))
 => (result :: <sequence>)
-   if (~context-topic & ~token.default-topic-content.empty?)
-      let content = token.default-topic-content;
-      let loc = merge-file-source-locations(content.first, content.last);
-      no-context-topic-in-block(location: loc);
-   end if;
-   
    let topics = make(<stretchy-vector>);
-   if (context-topic)
-      process-tokens(context-topic, token.default-topic-content);
-      add!(topics, context-topic)
-   end if;
+   
+   unless (token.default-topic-content.empty?)
+      if (context-topic)
+         process-tokens(context-topic, token.default-topic-content);
+         add!(topics, context-topic)
+      else
+         let content = token.default-topic-content;
+         let loc = merge-file-source-locations(content.first, content.last);
+         no-context-topic-in-block(location: loc);
+      end if;
+   end unless;
+
    topics := concatenate(topics, map(make-topic-from-token, token.token-topics));
    
    // TODO: Resolve markers and footnotes.
@@ -158,6 +160,8 @@ define method process-tokens
    topic.title-source-loc := token.token-src-loc;
    add!(topic.title, token.title-text);
    check-title(topic);
+   // TODO: This doesn't convert something like "Library: format-io" to a title
+   // like "Format-io Library".
 end method;
 
 
@@ -240,7 +244,7 @@ define method process-tokens
                end select;
          let section = make(<section>, source-location: section-token.token-src-loc);
          section.id := section-id;
-         section.title := vector(section-title);
+         section.title := title-seq(section-title);
          process-tokens(section, section-token.token-content);
          setter(section, topic);
    end select;
@@ -282,6 +286,21 @@ define method process-tokens
          topic.relevant-to := concatenate!(topic.relevant-to, targets);
       #"see-also" =>
          topic.see-also := concatenate!(topic.see-also, targets);
+   end select;
+end method;
+
+
+//
+// Processing <word-directive-token>
+//
+
+
+define method process-tokens
+   (topic :: <api-doc>, section-token :: <word-directive-token>)
+=> ()
+   select (section-token.directive-type)
+      #"fully-qualified-name" =>
+         topic.fully-qualified-name := section-token.word.token-text;
    end select;
 end method;
 

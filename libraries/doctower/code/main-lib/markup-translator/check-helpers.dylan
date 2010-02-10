@@ -63,6 +63,12 @@ define method allowed-markup-section?
 end method;
 
 define method allowed-markup-section?
+   (section :: <directive-section-token>, topic :: <api-doc>)
+=> (okay? :: <boolean>)
+   (section.directive-type = #"fully-qualified-name") | next-method()
+end method;
+
+define method allowed-markup-section?
    (section :: <directive-section-token>, topic :: <class-doc>)
 => (okay? :: <boolean>)
    (section.directive-type = #"keywords") | next-method()

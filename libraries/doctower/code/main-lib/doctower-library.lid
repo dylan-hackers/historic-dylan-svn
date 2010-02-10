@@ -8,6 +8,10 @@ files:      doctower-library
             markup-translator/markup-processing
             dylan-topics/module
             dylan-topics/dylan-topics
+            dylan-topics/namespace-topics
+            dylan-topics/binding-topics
+            dylan-topics/names
+            dylan-topics/simple-content
             source-files/module
             source-files/dylan-file
             source-files/markup-file

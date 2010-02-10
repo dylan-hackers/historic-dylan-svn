@@ -14,5 +14,5 @@ define module dylan-translator
    use dylan-rep;
    use markup-rep;
    
-   export apis-from-dylan;
+   export apis-from-dylan, $object-type;
 end module;

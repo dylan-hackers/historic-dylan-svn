@@ -43,7 +43,7 @@ define module dylan-rep
       definitions,
       definitions-setter,
       direct-supers,
-      enclosing-name?,
+      enclosing-name,
       explicit-defn,
       explicit-defn-setter,
       exported-names,

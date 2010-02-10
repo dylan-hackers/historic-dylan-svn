@@ -7,8 +7,10 @@ define module common
    // from system
    use file-system, import: { <file-system-error>, <file-does-not-exist-error> };
    
-   export $verbose?, verbose-log, log, log-object, slot-visitor-definer,
-          merge-file-source-locations, item-string-list, with-open-file,
-          group-elements, any-element, <case-insensitive-skip-list>,
-          case-insensitive-less?, read-expected, read-lines-to-end;
+   export $verbose?, verbose-log, log, log-object,
+          slot-visitor-definer,
+          with-open-file, read-expected, read-lines-to-end,
+          merge-file-source-locations, $unknown-source-location,
+          item-string-list, group-elements, any-element,
+          <case-insensitive-skip-list>, case-insensitive-less?;
 end module;   

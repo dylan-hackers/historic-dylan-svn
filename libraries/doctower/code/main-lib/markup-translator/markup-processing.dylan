@@ -222,7 +222,7 @@ define method quote-specs (quote :: <quote-token>) => (specs :: <sequence>)
                                        default: $default-markup-quote-specs);
    let (specs, spec-loc) =
          if (~quote.quote-spec)
-            values(default-specs[quote.open-quote], make(<unknown-source-location>))
+            values(default-specs[quote.open-quote], $unknown-source-location)
          else
             values(quote.quote-spec.quote-options, quote.quote-spec.token-src-loc)
          end if;

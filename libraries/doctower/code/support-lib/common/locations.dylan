@@ -1,6 +1,10 @@
 module: common
 synopsis: Source location methods.
 
+
+define constant $unknown-source-location = make(<unknown-source-location>);
+
+
 define method merge-file-source-locations
    (loc1 :: <file-source-location>, loc2 :: <file-source-location>)
 => (merged :: <file-source-location>)
@@ -38,7 +42,7 @@ define method \< (loc1 :: <file-source-location>, loc2 :: <file-source-location>
 end method;
 
 define method \= (loc1 :: <file-source-location>, loc2 :: <file-source-location>)
-=> (less-than :: <boolean>)
+=> (equal :: <boolean>)
    (loc1 == loc2) |
    (loc1.source-file = loc2.source-file) &
    (loc1.source-start-line = loc2.source-start-line) &
@@ -46,6 +50,7 @@ define method \= (loc1 :: <file-source-location>, loc2 :: <file-source-location>
    (loc1.source-end-line = loc2.source-end-line) &
    (loc1.source-end-column = loc2.source-end-column)
 end method;
+
 
 define method print-message (o :: <file-source-location>, s :: <stream>)
 => ()
@@ -65,5 +70,5 @@ end method;
 
 define method print-message (o :: <unknown-source-location>, s :: <stream>)
 => ()
-   write(s, "no location")
+   write(s, "unspecified location")
 end method;

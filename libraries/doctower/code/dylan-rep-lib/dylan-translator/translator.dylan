@@ -8,9 +8,6 @@ synopsis: Contains code in charge of building representations of Dylan APIs.
 // as a constant. Keeping the tokens around could also enable the source
 // location of, say, an <empty-binding>, to be the name of the binding itself
 // rather than its clause.
-//
-// TODO: Handle documentation. Maybe only keep the default markup content with
-// the API itself, and put the rest in the module or library ASAP?
 
 
 /**
@@ -23,58 +20,24 @@ file-sets - A sequence. Each element of the sequence is a library being
             <interchange-file-token>.
 
 --- Values: ---
-libraries - A sequence of <library> objects, each of which contains all the
-            modules, bindings, and definitions of that library.
+definitions - A sequence of <definition> objects, containing all the libraries,
+              modules, and bindings.
 **/
 define method apis-from-dylan (file-sets :: <sequence>)
-=> (libraries :: <sequence>)
+=> (definitions :: <sequence>)
    verbose-log("Cataloging definitions");
    let context = make(<context>);
    make-api-objects(context, file-sets);
    process-namespace-clauses(context);
    infer-and-merge-definitions(context);
-   let (total-count, valid-count) = count-unique-definitions(context);
-   verbose-log("%d unique definitions", valid-count);
-
-   /**/
-   let libs = as(<simple-object-vector>, map(value, context.library-graph.nodes));
-   let mods = as(<simple-object-vector>, map(value, context.module-graph.nodes));
-   let binds = #[];
-   
-   log-object("Libraries", libs);
-   // for (lib in libs)
-   //    unless (lib.aliases.size == 1)
-   //       log("Aliases of %s\n\t%=", lib.canonical-name, lib.aliases);
-   //    end unless;
-   // end for;
-   
-   log-object("Modules", mods);
-   for (mod in mods)
-      // unless (mod.aliases.size == 1)
-      //    log("Aliases of %s\n\t%=", mod.canonical-name, mod.aliases);
-      // end unless;
-      binds := union(binds, mod.definitions.element-sequence);
-   end for;
-   
-   // log-object("Bindings", binds);
-   for (bind in binds)
-      unless (bind.aliases.size == 1)
-         log("Aliases of %s\n\t%=", bind.canonical-name, bind.aliases);
-      end unless;
-   end for;
-   // 
-   // log-object("Definitions", apply(concatenate, #[], map(all-defns, binds)));
-   // 
-   /**/
-
-   context.library-graph.nodes
+   unique-definitions(context)
 end method;
 
 
-define method count-unique-definitions (context :: <context>) 
-=> (total-count :: <integer>, valid-count :: <integer>)
-   let all-defns = make(<list>);
-   let all-bindings = make(<list>);
+define method unique-definitions (context :: <context>) 
+=> (definitions :: <sequence>)
+   let all-defns = make(<stretchy-vector>);
+   let all-bindings = make(<stretchy-vector>);
    for (lib in context.library-definitions)
       all-defns := add-new!(all-defns, lib);
       for (mod in lib.definitions)
@@ -82,9 +45,7 @@ define method count-unique-definitions (context :: <context>)
          all-bindings := union(all-bindings, mod.definitions.element-sequence);
       end for;
    end for;
-   
-   all-defns := concatenate(all-defns, all-bindings);
-   values(all-defns.size, choose(valid-binding?, all-bindings).size)
+   concatenate(all-defns, all-bindings)
 end method;
 
 

@@ -28,7 +28,8 @@ end class;
 ///   setter, or initialization argument.
 define abstract class <documentable-api-object> (<api-object>)
    /// Sequence of <markup-content-token>.
-   slot markup-tokens = make(<stretchy-vector>), init-keyword: #"markup";
+   slot markup-tokens :: <sequence> = make(<stretchy-vector>), 
+      init-keyword: #"markup";
 end class;
 
 
@@ -75,11 +76,12 @@ end method;
 /// argument for <module-name> itself and to supply defaults from the 'within'
 /// argument before slot initialization.
 define method make
-   (cls == <module-name>,
+   (cls == <module-name>, #rest keys,
     #key module :: <string>, within :: false-or(<library-name>) = #f)
 => (inst :: <module-name>)
    if (within)
-      next-method(cls, module: module, library: within.library-name)
+      apply(next-method, cls, within:, #f, module:, module,
+            library:, within.library-name, keys)
    else
       next-method()
    end if;
@@ -91,12 +93,12 @@ end method;
 /// argument for <binding-name> itself and to supply defaults from the 'within'
 /// argument before slot initialization.
 define method make
-   (cls == <binding-name>,
+   (cls == <binding-name>, #rest keys,
     #key binding :: <string>, within :: false-or(<module-name>) = #f)
 => (inst :: <binding-name>)
    if (within)
-      next-method(cls, binding: binding, module: within.module-name,
-                  library: within.library-name)
+      apply(next-method, cls, within:, #f, binding:, binding,
+            module:, within.module-name, library:, within.library-name, keys)
    else
       next-method()
    end if;
@@ -116,15 +118,14 @@ define inline method local-name (source-name :: <binding-name>) => (name :: <str
 end method;
 
 
-define method enclosing-name? (binding :: <binding-name>, module :: <module-name>)
-=> (enclosed? :: <boolean>)
-   case-insensitive-equal?(binding.library-name, module.library-name)
-   & case-insensitive-equal?(binding.module-name, module.module-name)
+define method enclosing-name (bind :: <binding-name>) => (mod :: <module-name>)
+   make(<module-name>, library: bind.library-name, module: bind.module-name,
+        source-location: bind.source-location);
 end method;
 
-define method enclosing-name? (module :: <module-name>, library :: <library-name>)
-=> (enclosed? :: <boolean>)
-   case-insensitive-equal?(module.library-name, library.library-name)
+define method enclosing-name (mod :: <module-name>) => (lib :: <library-name>)
+   make(<library-name>, library: mod.library-name,
+        source-location: mod.source-location);
 end method;
 
 

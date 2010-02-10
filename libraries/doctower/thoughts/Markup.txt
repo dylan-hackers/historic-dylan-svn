@@ -69,7 +69,7 @@ the processing specified in the brackets is done. Bracket options are:
   code    - Use code font.
   term    - Indicate a technical term being defined.
   bib     - Indicates a book or article title.
-  em	    - Use general emphasis font.
+  em	  - Use general emphasis font.
   b       - Use bold font.
   i       - Use italic font.
   u       - Use underline.
@@ -203,7 +203,7 @@ can be used for over-, mid-, and underlines:
 A new style (a style is the presence or absence of each line, as well as the
 character used) encountered in a file or comment block creates a new,
 inferior, section level. One style must be chosen to indicate the sub-section
-level. By default, this is a midline of "=".
+level. By default, this is a midline of "-".
 
 The heading (and trailing midline, if any) may be followed by a bracket option
 that specifies a section tag.
@@ -215,14 +215,14 @@ Suppose we have a doc file with the following content:
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ...
  
-  === Where to Download ===   [download]
+  --- Where to Download ---   [download]
   ...
 
   Installation
   ~~~~~~~~~~~~
   ...
  
-  === About Us ===
+  --- About Us ---
   ...
  
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -237,7 +237,7 @@ Suppose we have a doc file with the following content:
   ### Rabbit ###
   ...
  
-  === Where to Download ===   [download]
+  --- Where to Download ---   [download]
   ...
 
 In this example, "About the Wonderland Library" and "Required Libraries" are
@@ -291,24 +291,31 @@ Section tags are not case sensitive. They cannot include spaces.
 Section Directives
 ==================
 
-These are words that start in the leftmost column and end with a colon.
+These are words that start in the leftmost column of the current indentation
+level and end with a colon.
 
 The scope of the NOTE and WARNING directives is determined by indentation. The
 scope of the SYNOPSIS directive is one paragraph; indentation is allowed but
 ignored. The scope of the DISCUSSION, ARGUMENTS, CONDITIONS, VALUES, and
-KEYWORDS directives is until the next section. The scope of the GENERIC
-FUNCTION etc. directives is until the next topic. The other tags end after one
+KEYWORDS directives is until the next section. The scope of the GENERIC FUNCTION
+etc. directives is until the next topic. The other directives end after one
 line.
 
-Underlines and overlines are allowed but ignored; they will not affect topic
-structure like headers do. If used, underlines must appear on the next line
-after the directive itself, and the content of the directive must still be
-indented if necessary.
+Underlines, midlines, and overlines are allowed but ignored; they will not
+affect topic structure like headers do. If used, underlines must appear on the
+next line after the directive itself, and the content of the directive must
+still be indented if necessary.
 
-GENERIC FUNCTION|METHOD|CLASS|MACRO...: title
+LIBRARY|MODULE|GENERIC FUNCTION|CLASS...: title
   Start a new reference topic of that type. This new topic is set at the same
-  level as the previous topic.
+  level as the previous topic. The types are "Library," "Module," "Class,"
+  "Generic Function," "Function," "Method," "Variable," "Constant," and "Macro."
   
+FULLY QUALIFIED NAME: name
+  May be necessary to determine which of several APIs this topic refers to.
+  Only in reference topics. Doctower has a command-line switch to get a list of
+  all the fully qualified names in the project and their local aliases.
+
 SYN|SYNOPSIS: paragraph
   A brief description of the topic.
 
@@ -409,17 +416,17 @@ text
   strictly for the purposes of escaping spaces; the quote options cannot be
   used.
 
-[LIST OF LIBRARIES|MODULES|BINDINGS|CLASSES|FUNCTIONS|VARIABLES|MACROS]
-  Shows all libraries, modules, etc. If this directive occurs in a sub-topic
-  of a topic containing a "[LIST OF LIBRARIES]" or "[LIST OF MODULES]"
-  directive, the list is restricted to that library or module.
+[LIST OF LIBRARIES|MODULES|BINDINGS|CLASSES|FUNCTIONS|VARIABLES|MACROS|
+UNBOUND NAMES]
+  Shows all libraries, modules, etc. If this directive occurs in a sub-topic of
+  a topic containing a "[LIST OF LIBRARIES]" or "[LIST OF MODULES]" directive,
+  the list is restricted to that library or module. This directive adds the
+  listed items as sub-topics if possible.
 
-  This directive adds the listed items as sub-topics. There can only be one
-  "[LIST OF LIBRARIES]" directive. Of the other directives, there can be one
-  per library or one per module, and one that is global. If no global
-  directive is given and one is needed, it is created automatically. There
-  cannot be both a "[LIST OF BINDINGS]" and a "[LIST OF CLASSES etc.]"
-  directive globally or in a single module or library.
+  There can only be one "[LIST OF LIBRARIES]" directive. Of the other
+  directives, there can be one within each library or module parent topic, and
+  one without any library or module parent topic, but in both cases a "[LIST OF
+  BINDINGS]" directive cannot be used with a "[LIST OF CLASSES etc.]" directive.
   
 [DITTO topic|"title"]
   Make identical to another topic as much as possible. The quotation here is

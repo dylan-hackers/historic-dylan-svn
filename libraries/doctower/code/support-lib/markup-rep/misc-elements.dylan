@@ -16,7 +16,8 @@ define method \= (obj-1 :: <target-placeholder>, obj-2 :: <target-placeholder>)
 end method;
 
 define class <api-list-placeholder> (<markup-element>)
-   slot type :: <symbol>;
+   slot type :: <symbol>, init-keyword: #"type";
+   // TODO: Can maybe delete scope. Cf. main-lib/dylan-topics/simple-content.dylan.
    slot scope;
 end class;
 

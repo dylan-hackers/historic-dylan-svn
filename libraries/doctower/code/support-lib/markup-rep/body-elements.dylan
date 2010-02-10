@@ -19,6 +19,11 @@ define constant <markup-seq> = limited(<stretchy-vector>,
                      <entity>, <cite>, <bold>, <italic>, <underline>,
                      <emphasis>, singleton(#f)));
 
+define method markup-seq (#rest elements) => (seq :: <markup-seq>)
+   make-limited-seq(<markup-seq>, elements)
+end method;
+
+
 /**                     
 Synopsis: List of elements corresponding to content-block grammar.
    marginal-code-block  - <code-block>
@@ -40,13 +45,21 @@ define constant <content-seq> = limited(<stretchy-vector>,
                   <api-list-placeholder>, <simple-table>, <unordered-list>,
                   <ordered-list>, <defn-list>, <paragraph>, singleton(#f)));
 
-define class <section> (<markup-element>)
-   slot id :: false-or(<string>) = #f;
-   slot title = make(<title-seq>);
-   slot content = make(<content-seq>);
+define method content-seq (#rest elements) => (seq :: <content-seq>)
+   make-limited-seq(<content-seq>, elements)
+end method;
 
-   slot title-source-loc :: <source-location>;
-   slot id-source-loc :: <source-location>;
+
+define class <section> (<markup-element>)
+   slot id :: false-or(<string>) = #f,
+         init-keyword: #"id";
+   slot title :: <title-seq> = make(<title-seq>),
+         init-keyword: #"title";
+   slot content :: <content-seq> = make(<content-seq>),
+         init-keyword: #"content";
+
+   slot title-source-loc :: <source-location> = $unknown-source-location;
+   slot id-source-loc :: <source-location> = $unknown-source-location;
 end class;
 
 /**
@@ -54,16 +67,20 @@ In DITA, footnotes are done with the <fn> tag. In HTML, they are rendered at
 the end of the topic before sub-topics.
 **/
 define class <footnote> (<markup-element>)
-   slot index :: type-union(<character>, <integer>), init-keyword: #"index";
-   slot content = make(<content-seq>);
+   slot index :: type-union(<character>, <integer>), 
+         init-keyword: #"index";
+   slot content :: <content-seq> = make(<content-seq>),
+         init-keyword: #"content";
 end class;
 
 define class <paragraph> (<markup-element>)
-   slot content = make(<markup-seq>);
+   slot content :: <markup-seq> = make(<markup-seq>),
+         init-keyword: #"content";
 end class;
 
 define class <note> (<markup-element>)
-   slot content = make(<content-seq>);
+   slot content :: <content-seq> = make(<content-seq>),
+         init-keyword: #"content";
 end class;
 
 define class <warning-note> (<note>)
@@ -81,11 +98,13 @@ end class;
 /// Don't want to include content in the tag in case DITA processors won't consider
 /// it as code in a code block.
 define class <ph-marker> (<markup-element>)
-   slot index :: type-union(<integer>, <character>), init-keyword: #"index";
+   slot index :: type-union(<integer>, <character>), 
+         init-keyword: #"index";
 end class;
 
 define class <ordered-list> (<markup-element>)
-   slot start :: type-union(<integer>, <character>), init-keyword: #"start";
+   slot start :: type-union(<integer>, <character>), 
+         init-keyword: #"start";
    slot items :: <vector> /* of <content-seq> */;
 end class;
 
@@ -117,7 +136,8 @@ define class <inline-image> (<markup-element>)
 end class;
 
 define class <pre> (<markup-element>)
-   slot content = make(<stretchy-vector>) /* of <string>, <ph-marker> */;
+   slot content :: <sequence> /* of <string>, <ph-marker> */
+         = make(<stretchy-vector>);
 end class;
 
 define class <simple-table> (<markup-element>)

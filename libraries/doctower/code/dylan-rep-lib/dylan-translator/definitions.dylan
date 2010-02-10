@@ -67,17 +67,13 @@ define method merge-definitions
 end method;
 
 
-/// Synopsis: Get the aliases applicable to a given context.
-define method aliases-in-context (context :: <context>, definition :: <definition>)
-=> (aliases :: <sequence>)
-   choose(rcurry(enclosing-name?, context.context-name), definition.aliases)
-end method;
-
-
 /// Synopsis: Return definition with better provenance.
 ///
 /// The better definition is the one whose source location we want to keep.
 /// It depends on the definition's provenance.
+define generic better-definition (existing :: <definition>, new :: <definition>)
+=> (better :: <definition>, worse :: <definition>);
+
 define method better-definition (existing :: <definition>, new :: <definition>)
 => (better :: <definition>, worse :: <definition>)
    if (existing == new)
@@ -96,6 +92,34 @@ define method better-definition (existing :: <definition>, new :: <definition>)
    end if
 end method;
 
+define method better-definition (existing :: <module>, new :: <module>)
+=> (better :: <module>, worse :: <module>)
+   case
+      existing == new =>
+         values (existing, new);
+      existing.canonical-name.enclosing-name = $common-dylan-library.canonical-name =>
+         values (existing, new);
+      new.canonical-name.enclosing-name = $common-dylan-library.canonical-name =>
+         values (new, existing);
+      otherwise =>
+         next-method();
+   end case
+end method;
+
+define method better-definition (existing :: <binding>, new :: <binding>)
+=> (better :: <binding>, worse :: <binding>)
+   case
+      existing == new =>
+         values (existing, new);
+      existing.canonical-name.enclosing-name = $common-dylan-module.canonical-name =>
+         values (existing, new);
+      new.canonical-name.enclosing-name = $common-dylan-module.canonical-name =>
+         values (new, existing);
+      otherwise =>
+         next-method();
+   end case
+end method;
+
 
 define method merge-aliases 
    (context :: <context>, better :: <definition>, worse :: <definition>)
@@ -105,4 +129,11 @@ define method merge-aliases
    if (better.aliases.size > preunion-size)
       context.changed? := #t;
    end if;
+end method;
+
+
+define method merge-markup
+   (context :: <context>, better :: <definition>, worse :: <definition>)
+=> ()
+   better.markup-tokens := concatenate!(better.markup-tokens, worse.markup-tokens);
 end method;
