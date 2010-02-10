@@ -87,6 +87,7 @@ public class DemoBase extends Thread {
   private boolean forcelayout = false;
   private JToggleButton compb;
   private JToggleButton debug;
+  protected JToggleButton wait;
   
   final JToolBar jtb;
   
@@ -319,6 +320,8 @@ public class DemoBase extends Thread {
 //	toolBar.add( new SaveAction(typeview, "Type Graph") );
 	debug = new JToggleButton(new DebugAction());
 	toolBar.add( debug );
+	wait = new JToggleButton("Wait");
+	toolBar.add( wait );
     return toolBar;
   }
 

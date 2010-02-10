@@ -78,9 +78,6 @@ public class IncrementalHierarchicLayout
 	
 	protected Hashtable<Node, Node> outertes = new Hashtable<Node, Node>();
 	
-	//debug support
-	public boolean isok = true;
-
 	private NodeMap swimLane;
 	protected DataMap hintMap;
 	protected IncrementalHintsFactory hintsFactory;
@@ -443,9 +440,9 @@ public class IncrementalHierarchicLayout
 			}
 		};
 		SwingUtilities.invokeLater(updateMyUI);
+		lastslidervalue = lastEntry;
 		if (graphinprocessofbeingfinished)
 			demobase.waitforstep(this);
-		lastslidervalue = lastEntry;
 	}
 	
 	public boolean nextStep () {

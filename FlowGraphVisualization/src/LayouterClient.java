@@ -152,16 +152,9 @@ public class LayouterClient extends Thread {
 				}
 				demo.activate(gr);
 				Commands.processCommand(gr, answer, demo);
-				if (gr.isok)
+				if (! demo.wait.isSelected())
 					printMessage(result);
-				else {
-					gr.isok = true;
-					ArrayList res = new ArrayList();
-					res.add(new Symbol("bar"));
-					printMessage(res);
-				}
 			}
-			//}
 		} catch (IOException e) {
 			//finish graphs, mark inactive
 			for (IncrementalHierarchicLayout i : graphs.values())
