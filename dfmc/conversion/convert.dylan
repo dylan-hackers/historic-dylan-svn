@@ -99,9 +99,13 @@ end method;
 
 /// CONVERSION
 
+define abstract class <value-context> (<object>) end;
+
 define class <ignore-value-context> (<value-context>) end;
+define class <single-value-context> (<value-context>) end;
 
 define constant $ignore :: <value-context> = make(<ignore-value-context>);
+define constant $single :: <value-context> = make(<single-value-context>);
 
 define class <multiple-value-context> (<value-context>)
   slot mvc-properties :: <integer> = 0;
@@ -166,7 +170,7 @@ define constant $mvc-cache :: <simple-object-vector>      = make-mvc-cache(#f);
 
 *mvc-caches-initialized?* := #t;
 
-define sideways method print-object(c :: <value-context>, s :: <stream>) => ()
+define method print-object(c :: <value-context>, s :: <stream>) => ()
   select (c by instance?)
     <ignore-value-context> => format(s, "$ignore");
     <single-value-context> => format(s, "$single");
@@ -176,11 +180,13 @@ define sideways method print-object(c :: <value-context>, s :: <stream>) => ()
   end select;
 end method;
 
+define generic context-num-values(c :: <value-context>) => (i :: <integer>);
+
 define method context-num-values(c :: <multiple-value-context>) => (i :: <integer>)
   mvc-num-values(c);
 end method;
 
-define sideways method context-num-values(c :: <single-value-context>) => (i :: <integer>)
+define method context-num-values(c :: <single-value-context>) => (i :: <integer>)
   1
 end method;
 
@@ -188,11 +194,13 @@ define method context-num-values(c :: <ignore-value-context>) => (i :: <integer>
   0
 end method;
 
+define generic context-rest?(c :: <value-context>) => (ans :: <boolean>);
+
 define method context-rest?(c :: <multiple-value-context>) => (ans :: <boolean>)
   mvc-rest?(c);
 end method;
 
-define sideways method context-rest?(c :: <single-value-context>) => (ans :: <boolean>)
+define method context-rest?(c :: <single-value-context>) => (ans :: <boolean>)
   #f
 end method;
 
@@ -227,6 +235,10 @@ end method;
 
 define generic convert
     (env :: <environment>, context :: <value-context>, object)
+ => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: false-or(<value-reference>));
+
+define generic convert-reference
+    (env :: <environment>, context :: <value-context>, object, #key)
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: false-or(<value-reference>));
 
 /// MULTIPLE-VALUES
@@ -339,6 +351,24 @@ define method match-values-with-context
   join-2x1-t!(first, last, values-c, values-t);
 end method;
 
+define function pad-multiple-values
+    (env :: <environment>, context :: <value-context>, 
+     #rest references)
+ => (res :: <simple-object-vector>)
+  let required  = context-num-values(context);
+  let rest?     = context-rest?(context);
+  let max-size  = max(required, if (rest?) size(references) else 0 end);
+  let mv :: <simple-object-vector> = make(<vector>, size: max-size);
+  for (i :: <integer> from 0 below max-size, ref in references)
+    mv[i] := ref;
+  finally
+    for (j :: <integer> from i below max-size)
+      mv[i] := make-object-reference(#f);
+    end for;
+  end for;
+  mv
+end function;
+
 /// GOT SINGLE VALUE
 
 // ... and nothing is expected
@@ -377,24 +407,24 @@ end method;
 
 /// TEMPORARY-VALUE-CONTEXT
 
-define sideways method temporary-value-context 
+define method temporary-value-context 
     (tmp :: <temporary>) => (res :: <value-context>)
  $single
 end method;
 
-define sideways method temporary-value-context 
+define method temporary-value-context 
     (tmp :: <multiple-value-temporary>) => (res :: <value-context>)
   make(<multiple-value-context>, 
        mvc-num-values: required-values(tmp),
        mvc-rest?: rest-values?(tmp));
 end method;
 
-define sideways method temporary-value-context 
+define method temporary-value-context 
     (tmp == #f) => (res :: <value-context>)
  $ignore
 end method;
 
-define sideways inline method match-values-with-temporary
+define inline function match-values-with-temporary
     (env :: <environment>, temporary :: false-or(<temporary>), 
      first :: false-or(<computation>), last :: false-or(<computation>), 
      object :: false-or(<value-reference>))
@@ -402,7 +432,7 @@ define sideways inline method match-values-with-temporary
      temp :: false-or(<value-reference>))
   match-values-with-context
     (env, temporary-value-context(temporary), first, last, object)
-end method;
+end function;
 
 define inline function convert-value-reference 
     (env :: <environment>, context :: <value-context>, object, 
@@ -443,12 +473,12 @@ define sideways inline method make-object-reference
   ref
 end method;
 
-define sideways inline method make-value-reference
+define inline function make-value-reference
     (object, ref-class :: <class>) => (ref :: <value-reference>)
   let (ignore-first, ignore-last, ref)
     = convert-value-reference($top-level-environment, $single, object, ref-class);
   ref
-end method;
+end function;
 
 define inline function convert-method-reference
     (env :: <environment>, context :: <value-context>, object :: <&method>)
@@ -456,7 +486,7 @@ define inline function convert-method-reference
   convert-value-reference(env, context, object, <method-reference>)
 end function;
 
-define sideways method convert-reference
+define method convert-reference
     (env :: <environment>, context :: <value-context>, object, #key)
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: false-or(<value-reference>))
   convert-object-reference(env, context, object)
@@ -464,7 +494,7 @@ end method;
 
 // TODO: MIGHT NOT BE NEEDED -- MORE OF A STOP-GAP FIRE-WALL
 
-define sideways method convert-reference
+define method convert-reference
     (env :: <environment>, context :: <value-context>, 
      object :: <&lambda-or-code>, #key)
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: false-or(<value-reference>))
@@ -480,7 +510,7 @@ end serious-program-warning;
 
 define thread variable *generating-undefined-reference-warning* = #f;
 
-define sideways method convert-reference
+define method convert-reference
     (env :: <environment>, context :: <value-context>, 
      var :: <module-binding>, #key fragment)
  => (first :: false-or(<computation>), last :: false-or(<computation>), 
@@ -533,7 +563,7 @@ define sideways method convert-reference
   end
 end method;
 
-define sideways method convert-reference
+define method convert-reference
     (env :: <environment>, context :: <value-context>,
      binding :: <interactor-binding>, #key fragment)
  => (first :: false-or(<computation>), last :: false-or(<computation>), temp :: false-or(<value-reference>))
@@ -542,7 +572,7 @@ define sideways method convert-reference
     (env, context, #f, #f, reference);
 end method;
 
-define sideways method convert-reference 
+define method convert-reference 
     (env :: <environment>, context :: <value-context>, 
      ref :: <value-reference>, #key fragment)
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: false-or(<value-reference>))
@@ -565,7 +595,7 @@ define serious-program-warning <macro-value-reference> (<manual-parser-error>)
   format-arguments variable-name;
 end serious-program-warning;
 
-define sideways method convert-reference 
+define method convert-reference 
     (env :: <environment>, context :: <value-context>, 
      name :: <variable-name-fragment>, #key)
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: false-or(<value-reference>))
@@ -634,12 +664,12 @@ define inline function convert-dylan-reference
   convert-object-reference-1($top-level-environment, dylan-value(name))
 end function;
 
-define sideways inline method make-dylan-reference
+define inline function make-dylan-reference
     (name :: <name>) => (ref :: <value-reference>);
   let (ignore-first, ignore-last, ref)
     = convert-dylan-reference(name);
   ref
-end method;
+end function;
 
 // multiple values
 
@@ -2003,24 +2033,26 @@ end method;
 // inserted rest vector copies. When vector copies are no longer
 // inserted so eagerly, this can go away.
 
-define sideways method maybe-vector-element-references
+define constant <argument-sequence> = <simple-object-vector>;
+
+define method maybe-vector-element-references
     (c) => (res :: false-or(<argument-sequence>))
   #f
 end method;
 
-define sideways method maybe-vector-element-references
+define method maybe-vector-element-references
     (c :: <stack-vector>) => (res :: false-or(<argument-sequence>))
   c.arguments
 end method;
 
-define sideways method maybe-vector-element-references
+define method maybe-vector-element-references
     (c :: <primitive-call>) => (res :: false-or(<argument-sequence>))
   let primitive = c.primitive;
   primitive == dylan-value(#"primitive-copy-vector")
     & maybe-vector-element-references(c.arguments.first)
 end method;
 
-define sideways method maybe-vector-element-references
+define method maybe-vector-element-references
     (c :: <simple-call>) => (res :: false-or(<argument-sequence>))
   select (function-value(c))
     dylan-value(#"immutable-vector"), dylan-value(#"immutable-type-vector")
@@ -2034,17 +2066,17 @@ define sideways method maybe-vector-element-references
   end select;
 end method;
 
-define sideways method maybe-vector-element-references
+define method maybe-vector-element-references
     (ref :: <temporary>) => (res :: false-or(<argument-sequence>))
   maybe-vector-element-references(ref.generator);
 end method;
 
-define sideways method maybe-vector-element-references
+define method maybe-vector-element-references
     (ref :: <object-reference>) => (res :: false-or(<argument-sequence>))
   maybe-vector-object-element-references(reference-value(ref));
 end method;
 
-define sideways method maybe-vector-object-element-references
+define method maybe-vector-object-element-references
     (object :: <simple-object-vector>) => (res :: false-or(<argument-sequence>))
   map-as(<argument-sequence>, 
          method (elt) make(<object-reference>, value: elt) end,
@@ -2875,7 +2907,7 @@ false-action:
     => #{ if (?test) ?body else ?false-action end }
 end &converter;
 
-define sideways method convert-type-expression (env :: <environment>, type)
+define function convert-type-expression (env :: <environment>, type)
  => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: <value-reference>,
      type-value)
   if (type)

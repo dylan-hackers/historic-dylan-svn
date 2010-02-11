@@ -7,13 +7,6 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define compiler-open generic match-values-with-temporary
-    (env :: <environment>, temporary :: false-or(<temporary>), 
-     first :: false-or(<computation>), last :: false-or(<computation>), 
-     object :: false-or(<value-reference>))
- => (first :: false-or(<computation>), last :: false-or(<computation>), 
-     temp :: false-or(<value-reference>));
-
 //// find the final <computation> by following control flow
 
 // Uses of this function should be considered with strict scutiny.
@@ -623,21 +616,6 @@ define function replace-computation!
   //re-type-computations(old-c.type-environment, new-first, new-last);
 end function replace-computation!;
 
-
-define function replace-call-computation!
-    (env :: <lexical-environment>, 
-     call :: <call>, first :: <computation>, last :: <computation>, 
-     ref :: false-or(<value-reference>))
-  // format-out("MATCHING %= TO %=\n", temporary(call), ref);
-  let (first, new-last, ref)
-    = match-values-with-temporary
-        (env, temporary(call), first, last, ref);
-  unless (new-last == last)
-    re-optimize(new-last);
-  end unless;
-  replace-computation!(call, first, new-last, ref);
-end function;
-
 define method replace-computation-with-temporary!
     (c :: <computation>, ref :: <value-reference>)
   let c-t = c.temporary;
@@ -758,24 +736,6 @@ define function constant-value (ref :: <value-reference>) => (constant-value)
   let (cv?, value) = constant-value?(ref);
   value
 end;
-define generic function-value (c :: <call>) => (fv :: <object>);
-
-define method function-value (c :: <function-call>) => (fv :: <object>)
-  constant-value(c.function)
-end method;
-
-define method function-value (c :: <primitive-call>) => (fv :: <&primitive>)
-  c.primitive
-end method;
-
-define function call-effective-function (c :: <function-call>)
-  let funct = function-value(c);
-  if (call-iep?(c))
-    iep(function(funct))
-  else
-    funct
-  end
-end function;
 
 define function set-type-environment (new-context :: <computation>, first :: <computation>, last :: <computation>) => ()
   if (slot-initialized?(new-context, %type-environment) & new-context.type-environment)
@@ -786,11 +746,5 @@ define function set-type-environment (new-context :: <computation>, first :: <co
     re-type-computations(new-context.type-environment, first, last);
  end;
 end;
-
-define compiler-open generic convert-type-expression (env :: <environment>, type)
- => (first :: false-or(<computation>),
-     last :: false-or(<computation>),
-     ref :: <value-reference>,
-     type-value);
 
 // eof

@@ -71,8 +71,6 @@ define module dfmc-flow-graph
     <nop>,
     <value-reference>,
     make-object-reference,
-    make-value-reference,
-    make-dylan-reference,
     <binding-reference>,
       referenced-binding,
     <module-binding-reference>,
@@ -357,7 +355,6 @@ define module dfmc-flow-graph
     local-entry-state?, local-entry-state?-setter;
 
   export // utilities
-    match-values-with-temporary,
     lambda-has-free-lexical-references?,
     final-computation,
     join!, 
@@ -377,7 +374,6 @@ define module dfmc-flow-graph
     remove-computation-block-references!,
     maybe-delete-function-body,
     replace-computation!,
-    replace-call-computation!,
     replace-computation-with-temporary!,
     replace-temporary-references!,
     rename-temporary!,
@@ -424,25 +420,9 @@ define module dfmc-flow-graph
     estimated-copier-table-size,
     current-dfm-copier;
 
-  export <value-context>,
-    <single-value-context>,
-    $single,
-    convert-reference;
-
-  export temporary-value-context,
-    pad-multiple-values,
-    context-num-values,
-    context-rest?;
-
-  export call-temporary-class,
-    temporary-class,
-    function-value,
-    call-effective-function,
+  export
     constant-value,
     constant-value?;
-
-  export 
-    convert-type-expression;
 end module;
 
 // eof

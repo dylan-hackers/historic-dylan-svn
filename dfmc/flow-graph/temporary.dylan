@@ -6,82 +6,15 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-
-define compiler-open abstract class <value-context> (<object>) end;
-
-define class <single-value-context> (<value-context>) end;
-
-define constant $single :: <value-context> = make(<single-value-context>);
-
-define compiler-open generic convert-reference
-    (env :: <environment>, context :: <value-context>, object, #key)
- => (first :: false-or(<computation>), last :: false-or(<computation>), ref :: false-or(<value-reference>));
-
-define compiler-open generic temporary-value-context
-    (temporary :: false-or(<temporary>)) => (context :: <value-context>);
-
-define compiler-open generic context-num-values(c :: <value-context>) => (i :: <integer>);
-
-define compiler-open generic context-rest?(c :: <value-context>) => (ans :: <boolean>);
-
-define function pad-multiple-values
-    (env :: <environment>, context :: <value-context>, 
-     #rest references)
- => (res :: <simple-object-vector>)
-  let required  = context-num-values(context);
-  let rest?     = context-rest?(context);
-  let max-size  = max(required, if (rest?) size(references) else 0 end);
-  let mv :: <simple-object-vector> = make(<vector>, size: max-size);
-  for (i :: <integer> from 0 below max-size, ref in references)
-    mv[i] := ref;
-  finally
-    for (j :: <integer> from i below max-size)
-      mv[i] := make-object-reference(#f);
-    end for;
-  end for;
-  mv
-end function;
-
 define abstract class <value-reference> (<referenced-object>)
 end class;
 
 define compiler-open generic make-object-reference
     (object) => (ref :: <value-reference>);
 
-define compiler-open generic make-value-reference
-    (object, ref-class :: <class>) => (ref :: <value-reference>);
-
-define compiler-open generic make-dylan-reference
-    (name :: <name>) => (ref :: <value-reference>);
-
 define method generator (ref :: <value-reference>) => (object)
   #f
 end method;
-
-define method temporary-class 
-    (tmp == #f) => (res :: false-or(<class>))
-  #f
-end method;
-
-define method temporary-class 
-    (tmp :: <multiple-value-temporary>) => (res :: false-or(<class>))
-  <multiple-value-temporary>
-end method;
-
-define method temporary-class 
-    (tmp :: <temporary>) => (res :: false-or(<class>))
-  <temporary>
-end method;
-
-define method temporary-class 
-    (tmp :: <named-temporary-mixin>) => (res :: false-or(<class>))
-  <named-temporary>
-end method;
-
-define function call-temporary-class 
-    (call :: <function-call>) => (res :: false-or(<class>))
-  temporary-class(temporary(call))
-end function;
 
 // Like a value continuation
 

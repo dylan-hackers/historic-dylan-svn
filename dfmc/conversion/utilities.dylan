@@ -13,6 +13,25 @@ define inline method make-with-temporary*
   values(computation, computation, temporary)
 end method make-with-temporary*;
 
+define generic function-value (c :: <call>) => (fv :: <object>);
+
+define method function-value (c :: <function-call>) => (fv :: <object>)
+  constant-value(c.function)
+end method;
+
+define method function-value (c :: <primitive-call>) => (fv :: <&primitive>)
+  c.primitive
+end method;
+
+define function call-effective-function (c :: <function-call>)
+  let funct = function-value(c);
+  if (call-iep?(c))
+    iep(function(funct))
+  else
+    funct
+  end
+end function;
+
 define method extractable-constant-value? (ref :: <temporary>)
  => (constant-value? :: <boolean>, constant-value)
   values(#f, #f)

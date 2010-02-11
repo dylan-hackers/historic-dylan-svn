@@ -203,7 +203,7 @@ define method ^method-sideways?
   form-sideways?(model-definition(m))
 end method;
 
-define sideways method ^method-generic-function (object :: <&method>)
+define method ^method-generic-function (object :: <&method>)
   let binding = model-variable-binding(object);
   when (binding)
     let model = binding-model-object(binding, default: not-found());

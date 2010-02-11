@@ -70,7 +70,7 @@ define function ^ensure-slots-initialized-dynamically
   end;
 end function;
 
-define sideways method ^ensure-slots-initialized 
+define function ^ensure-slots-initialized 
     (class :: <&class>) => (well? :: <boolean>)
   select (class.^slots-initialized-state)
     #"tried-and-failed"
@@ -86,7 +86,7 @@ define sideways method ^ensure-slots-initialized
            ^ensure-each-slot-initialized(class);
          end;
   end;
-end method;
+end function;
 
 define function ^ensure-each-slot-initialized
     (class :: <&class>) => (well? :: <boolean>)
