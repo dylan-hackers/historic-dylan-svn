@@ -5,6 +5,8 @@ Synopsis:  Simple logging mechanism.  Some ideas taken from log4j.
 
 /* 
 
+See README.txt for documentation.
+
 todo -- implement keep-versions in <rolling-file-log-target>
 
 todo -- implement compress-on-close? in <rolling-file-log-target>
@@ -847,7 +849,7 @@ define method parse-formatter-pattern
 end method parse-formatter-pattern;
 
 define constant $default-log-formatter :: <log-formatter>
-  = make(<log-formatter>, pattern: "%d %-5L [%t] %m");
+  = make(<log-formatter>, pattern: "%{date:%Y-%m-%dT%H:%M:%S.%F%z} %-5L [%t] %m");
 
 // stub -- not sure if getpid exists yet.
 //         it's not in the operating-system module at least.
