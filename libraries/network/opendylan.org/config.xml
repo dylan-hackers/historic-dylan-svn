@@ -30,9 +30,9 @@
 	     allow-cgi="yes"
 	     cgi-extensions="cgi" />
   -->
-  <wiki content-directory="/home/cgay/wiki-content"
+  <wiki content-directory="/home/cgay/opendylan.org/database"
         site-name="Dylan Wiki"
-	site-url="http://mccarthy.opendylan.org:8000"
+	site-url="http://www.opendylan.org:8000"
 	url-prefix="/wiki"
 	dsp-subdirectory="wiki/"
 	>
