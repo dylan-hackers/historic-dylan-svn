@@ -442,25 +442,31 @@ define function wait-for-listeners-to-start
     let start :: <date> = current-date();
     let max-wait = make(<duration>, days: 0, hours: 0, minutes: 0, seconds: 1,
                         microseconds: 0);
-    iterate loop ()
+    iterate loop (iteration = 1)
       let socket = #f;
       block ()
         let host = listener.listener-host;
+        let conn-host = iff(host = "0.0.0.0", $local-host, host);
+        log-debug("Attempting connection to %s via %s",
+                  listener.listener-name, conn-host);
         socket := make(<tcp-socket>,
                        // hack hack
-                       host: iff(host = "0.0.0.0", $local-host, host),
+                       host: conn-host,
                        port: listener.listener-port);
-        log-info("Connection to %s successful", listener.listener-name);
+        log-debug("Connection to %s successful", listener.listener-name);
       cleanup
         socket & close(socket);
       exception (ex :: <connection-failed>)
+        log-debug("Connection attempt #%d to %s failed: %s",
+                  iteration, listener.listener-name, ex);
         if (current-date() - start > max-wait)
           signal(ex)
         end;
         sleep(0.1);
-        loop();
+        loop(iteration + 1);
       exception (ex :: <error>)
-        log-error("Error connecting to %s", listener.listener-name);
+        log-error("Error while waiting for listener %s to start: %s",
+                  listener.listener-name, ex);
       end block;
     end;
   end for;
@@ -1045,11 +1051,11 @@ define function read-request-content
   else
     let content-length = get-header(request, "Content-Length", parsed: #t);
     if (~content-length)
-      // Not chunked encoding and no content length.  Looks like we could
-      // legitimately read some of the entity body and then err if it gets
-      // too long, but this is also reasonable I think.
-      content-length-required-error()
-    elseif (*max-post-size* & content-length > *max-post-size*)
+      // RFC 2616 4.3: If no Transfer-Encoding and no Content-Length then
+      // assume no message body.
+      content-length := 0;
+    end;
+    if (*max-post-size* & content-length > *max-post-size*)
       //---TODO: the server MAY close the connection to prevent the client from
       // continuing the request.
       request-entity-too-large-error(max-size: *max-post-size*);

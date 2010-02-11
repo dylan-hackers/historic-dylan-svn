@@ -510,11 +510,12 @@ define function alias-responder
 end function alias-responder;
 
 // <directory  url = "/"
-//             path = "/some/filesystem/path"
-//             allow-directory-listing = "yes"
-//             allow-cgi = "yes"
+//             location = "/some/filesystem/path"
+//             allow-directory-listing = "no"
+//             allow-static = "no"
+//             allow-cgi = "no"
 //             cgi-extensions = "cgi,bat,exe,..."
-//             follow-symlinks = "yes"
+//             follow-symlinks = "no"
 //             />
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"directory")
@@ -522,8 +523,9 @@ define method process-config-element
   if (~url)
     warn("Invalid <DIRECTORY> spec.  The 'pattern' attribute is required.");
   else
-    let path = get-attr(node, #"path");
+    let path = get-attr(node, #"location");
     let dirlist? = get-attr(node, #"allow-directory-listing");
+    let static? = get-attr(node, #"allow-static");
     let follow? = get-attr(node, #"follow-symlinks");
     let cgi? = get-attr(node, #"allow-cgi");
     let cgi-ext = get-attr(node, #"cgi-extensions") | "cgi";
@@ -533,9 +535,14 @@ define method process-config-element
     //       be taken from the parent policy rather than from root-policy.
     let policy = make(<directory-policy>,
                       url-path: url,
-                      directory: path | apply(subdirectory-locator,
-                                              document-root(%vhost),
-                                              uri-path(parse-url(url))),
+                      directory: iff(path,
+                                     as(<directory-locator>, path),
+                                     apply(subdirectory-locator,
+                                           document-root(%vhost),
+                                           uri-path(parse-url(url)))),
+                      allow-static?: iff(static?,
+                                         true-value?(static?),
+                                         allow-static?(root-policy)),
                       follow-symlinks?: iff(follow?,
                                             true-value?(follow?),
                                             follow-symlinks?(root-policy)),

@@ -1,11 +1,12 @@
 Module: koala-test-suite
 
-define constant $header :: <string> = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
+define constant $xml-header :: <string>
+  = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
 
 // Make an XML document string that contains the given string.
 define function koala-document
     (content :: <string>) => (doc :: <string>)
-  concatenate($header, "<koala>\n", content, "\n</koala>\n")
+  concatenate($xml-header, "<koala>\n", content, "\n</koala>\n")
 end;
 
 // Try to configure a server with the given document (a string containing
@@ -50,7 +51,7 @@ define test listener-config-test ()
 end test listener-config-test;
 
 define test alias-config-test ()
-  let server = make-server(debug: #t);
+  let server = make-server();
   add-responder(server, "/abc", echo-responder);
   let text = "<koala><alias url=\"/def\" target=\"/abc\"/></koala>";
   configure-from-string(server, text);
@@ -66,10 +67,29 @@ define test alias-config-test ()
   end;
 end test alias-config-test;
 
+// Verify that the <document-root> setting is respected, by setting it
+// to the directory containing application-filename() and then requesting
+// the executable file.
+define test test-document-root ()
+  let app = as(<file-locator>, application-filename());
+  let dir = as(<string>, locator-directory(app));
+  let text = fmt("<directory url=\"/\" location=\"%s\" allow-static=\"yes\"/>\n", dir);
+  let server = make-server();  // includes default listener
+  configure-from-string(server, koala-document(text));
+  with-http-server (server = server)
+    let app-url = test-url(concatenate("/", locator-name(app)));
+    with-http-connection (conn = app-url)
+      send-request(conn, "GET", app-url);
+      check-no-errors("<document-root> is respected?", read-response(conn));
+    end;
+  end;
+end test test-document-root;
+
 define suite configuration-test-suite ()
   test basic-config-test;
   test listener-config-test;
   test alias-config-test;
+  test test-document-root;
 end;
 
 

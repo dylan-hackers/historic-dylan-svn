@@ -80,6 +80,8 @@ define method serve-static-file-or-cgi-script ()
             & member?(document.locator-extension, policy.policy-cgi-extensions,
                       test: string-equal?))  // should be \= on Unix
         serve-cgi-script(document, url);
+      elseif (~policy.allow-static?)
+        forbidden-error();
       else
         let (etag, weak?) = etag(document);
         add-header(response, iff(weak?, "W/ETag", "ETag"), etag);

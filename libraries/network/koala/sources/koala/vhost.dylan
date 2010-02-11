@@ -15,8 +15,13 @@ define class <directory-policy> (<object>)
     required-init-keyword: url-path:;
 
   // The actual filesystem path of the directory.
-  constant slot policy-directory :: <directory-locator>,
+  slot policy-directory :: <directory-locator>,
     required-init-keyword: directory:;
+
+  // Whether to serve up static files under this directory.  Default to
+  // the safe setting.
+  constant slot allow-static? :: <boolean> = #f,
+    init-keyword: allow-static?:;
 
   // Whether to allow directory listings.
   // May be overridden for specific directories.
@@ -55,12 +60,6 @@ define class <virtual-host> (<object>)
   constant slot vhost-name :: <string>,
     required-init-keyword: name:;
 
-  // The root of the web document hierarchy.  By default, this will be
-  // <server-root>/www/<vhost-name>/.  If name is the empty string then
-  // just <server-root>/www/.
-  slot document-root :: <directory-locator>,
-    required-init-keyword: document-root:;
-
   // This defaults to the value of document-root.
   slot dsp-root :: <directory-locator>,
     init-keyword: dsp-root:;
@@ -76,7 +75,13 @@ define class <virtual-host> (<object>)
   slot directory-policies :: <list>
     = list();
 
+  // The document root is now defined by the root-directory-policy (below).
+  // Should get rid of this and just use root-directory-policy instead.
+  required keyword document-root,
+    type: <directory-locator>;
+
   // Each vhost gets an implicitly defined spec for the vhost root directory.
+  // The directory in this policy defines the document root.
   // It must, of course, match all documents under the vhost document root.
   // It should always be the last element in directory-policies(vhost).
   // See initialize(<virtual-host>).
@@ -120,17 +125,29 @@ begin
 end;
 
 define method initialize
-    (vhost :: <virtual-host>, #key dsp-root, #all-keys)
+    (vhost :: <virtual-host>,
+     #key dsp-root, document-root :: <directory-locator>,
+     #all-keys)
   next-method();
   if (~dsp-root)
-    vhost.dsp-root := vhost.document-root;
+    vhost.dsp-root := document-root;
   end;
-  if (~slot-initialized?(vhost, root-directory-policy))
-    vhost.root-directory-policy := make(<directory-policy>,
-                                        url-path: "/",
-                                        directory: vhost.document-root);
-  end;
+  vhost.root-directory-policy := make(<directory-policy>,
+                                      url-path: "/",
+                                      directory: document-root);
 end method initialize;
+
+// The document root is defined by the root directory policy.
+define inline method document-root
+    (vhost :: <virtual-host>) => (root :: <directory-locator>)
+  vhost.root-directory-policy.policy-directory
+end;
+
+define method document-root-setter
+    (new-root :: <directory-locator>, vhost :: <virtual-host>)
+ => (new-root :: <directory-locator>)
+  vhost.root-directory-policy.policy-directory := new-root
+end method document-root-setter;
 
 define method add-directory-policy
     (vhost :: <virtual-host>, policy :: <directory-policy>)
@@ -146,11 +163,12 @@ end method add-directory-policy;
 
 define method debug-string
     (policy :: <directory-policy>)
-  format-to-string("<directory-policy url-path=%= directory=%= list?=%= "
-                     "follow-symlinks?=%= cgi?=%= cgi-ext=%=>",
+  format-to-string("<directory-policy url-path=%= directory=\"%s\" list?=%= "
+                     "static?=%= symlinks?=%= cgi?=%= cgi-ext=%=>",
                    policy.policy-url-path,
-                   policy.policy-directory,
+                   as(<string>, policy.policy-directory),
                    policy.allow-directory-listing?,
+                   policy.allow-static?,
                    policy.follow-symlinks?,
                    policy.allow-cgi?,
                    policy.policy-cgi-extensions);

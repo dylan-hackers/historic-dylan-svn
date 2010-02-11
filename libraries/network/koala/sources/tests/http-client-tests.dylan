@@ -31,6 +31,7 @@ define function setup-http-client-test-suite
     // To debug server errors uncomment debug: #t below.
     *test-server* := make-server(/* debug: #t */);
     register-test-responders(*test-server*);
+    test-output("Starting server for http-client-test-suite\n");
     start-server(*test-server*, background: #t, wait: #t);
     *test-suite-initialized?* := #t;
   end;
@@ -39,6 +40,7 @@ end function setup-http-client-test-suite;
 define function cleanup-http-client-test-suite
     ()
   if (*test-server*)
+    test-output("Stopping server for http-client-test-suite\n");
     stop-server(*test-server*)
   end
 end function cleanup-http-client-test-suite;
