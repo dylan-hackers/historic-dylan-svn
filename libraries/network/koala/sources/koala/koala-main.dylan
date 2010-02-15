@@ -90,28 +90,32 @@ define function koala-main
                     "cause server to enter debugger (or exit).");
       end;
 
-      // Configure first so that command-line argument override config settings.
-      let config-file = option-value-by-long-name(parser, "config");
-      if (config-file)
-        configure-server(*server*, config-file);
-      end;
+      block ()
+	// Configure first so that command-line argument override config settings.
+	let config-file = option-value-by-long-name(parser, "config");
+	if (config-file)
+	  configure-server(*server*, config-file);
+	end;
 
-      // Gives callers a chance to do things after the server has been
-      // configured.  e.g., the wiki wants to add responders after a
-      // URL prefix has been configured.
-      if (before-startup)
-        before-startup(*server*);
-      end;
+	// Gives callers a chance to do things after the server has been
+	// configured.  e.g., the wiki wants to add responders after a
+	// URL prefix has been configured.
+	if (before-startup)
+	  before-startup(*server*);
+	end;
 
-      // Setup listeners.
-      let listeners = option-value-by-long-name(parser, "listen");
-      if (empty?(listeners) & ~config-file)
-        listeners := vector(format-to-string("0.0.0.0:%d", $default-http-port));
+	// Setup listeners.
+	let listeners = option-value-by-long-name(parser, "listen");
+	if (empty?(listeners) & ~config-file)
+	  listeners := vector(format-to-string("0.0.0.0:%d", $default-http-port));
+	end;
+	for (listener in listeners)
+	  add!(*server*.server-listeners, make-listener(listener));
+	end;
+	start-server(*server*);
+      exception (ex :: <serious-condition>)
+        log-error("Error starting server: %s", ex);
       end;
-      for (listener in listeners)
-        add!(*server*.server-listeners, make-listener(listener));
-      end;
-      start-server(*server*);
     end dynamic-bind;
   end if;
 end function koala-main;

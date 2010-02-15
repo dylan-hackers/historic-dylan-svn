@@ -8,34 +8,29 @@
 
   <server-root location="/home/cgay/trunk/libraries/network/opendylan.org"/>
 
-  <!-- For now we set the document root and dsp root explicitly.
-       They are not relative to server root due to the way the wiki is
-       started up.
-    -->
-  <document-root location="/home/cgay/trunk/libraries/network/opendylan.org/static"/>
+  <directory url = "/"
+             location = "/home/cgay/trunk/libraries/network/opendylan.org/static"
+             allow-static = "yes"
+             allow-directory-listing = "no"
+             follow-symlinks = "no"
+             />
+
+  <directory url = "/cgi-bin"
+             location = "/home/cgay/trunk/libraries/network/opendylan.org/static/cgi-bin"
+             allow-static = "no"
+             allow-directory-listing = "no"
+             allow-cgi = "yes"
+             follow-symlinks = "yes"
+             />
+
   <dsp-root location="/home/cgay/trunk/libraries/network/opendylan.org/dsp"/>
 
-  <!-- Redirect /bugzilla to HTTPS on Apache, which uses ProxyPass and
-       ProxyPassReverse.  Then redirect /koala/bugzilla to /cgi-bin/bugzilla
-       to get the actual CGIs executed.
-    -->
-  <alias url="/bugzilla"
-	 target="https://www.opendylan.org/koala/bugzilla" />
-  <alias url="/koala/bugzilla"
-	 target="/cgi-bin/bugzilla"
-	 internal-redirect="true" />
-<!--
-  <directory url="/cgi-bin/"  ??
-	     pathname="/usr/lib/cgi-bin/"
-	     allow-cgi="yes"
-	     cgi-extensions="cgi" />
-  -->
   <wiki content-directory="/home/cgay/opendylan.org/database"
         site-name="Dylan Wiki"
-	site-url="http://www.opendylan.org:8000"
-	url-prefix="/wiki"
-	dsp-subdirectory="wiki/"
-	>
+        site-url="http://www.opendylan.org:8000"
+        url-prefix="/wiki"
+        dsp-subdirectory="wiki/"
+        >
     <!-- Note that the administrator's email address will be the one
          from which account emails are sent, so it runs a high spam risk.
       -->

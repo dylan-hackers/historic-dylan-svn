@@ -122,6 +122,7 @@ define function static-file-locator-from-url
     (url :: <string>, context :: <directory-locator>)
  => (locator :: false-or(<physical-locator>))
   let locator = document-location(url, context);
+  log-debug("static file: locator = %s", as(<string>, locator | "#f"));
   locator
     & file-exists?(locator)
     & iff(instance?(locator, <directory-locator>),

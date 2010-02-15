@@ -78,7 +78,7 @@ define function %read-buffered-data
   let chars = make(<string>, size: 2000);
   let index :: <integer> = 0;
   block ()
-    while (stream-input-available?(stream))
+    while (~stream-at-end?(stream))
       chars[index] := read-element(stream);
       inc!(index);
       if (index >= chars.size)
