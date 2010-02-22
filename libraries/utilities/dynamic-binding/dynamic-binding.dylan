@@ -3,10 +3,31 @@ synopsis: Implementation of dynamically bound variables.
 author: Dustin Voss
 
 
+/**
+Synopsis: Accesses a dynamically-scoped binding by symbolic name. Generally, you
+would use the 'dynamic-binding' or 'dynamic-binding-setting' macros.
+
+Signal this condition to access or change a dynamically-scoped binding. The
+recovery protocol is that 'signal' returns two values: the new or current value
+of the binding or false if the binding is not defined, and a <boolean>
+indicating whether the binding is defined.
+
+--- Init Keywords: ---
+name:  - A <symbol>, the name of a dynamically-scoped binding. Required.
+value: - If provided, the dynamically-scoped binding will be rebound to this value.
+*/
 define class <dynamic-binding-access> (<condition>)
    constant slot binding-name :: <symbol>, required-init-keyword: #"name";
    constant slot binding-value :: <object>, init-keyword: #"value";
 end class;
+
+define method return-allowed? (cond :: <dynamic-binding-access>)
+=> (true :: singleton(#t)) #t end method;
+
+define method return-description (cond :: <dynamic-binding-access>)
+=> (desc :: <string>)
+   format-to-string("The value of the %s dynamic binding", cond.binding-name)
+end method;
 
 
 /**

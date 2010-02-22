@@ -4,12 +4,13 @@ synopsis: This library supports dynamically-bound variables with dynamic scope
 author: Dustin Voss
 
 define library dynamic-binding
-   use dylan;
+   use common-dylan;
    export dynamic-binding;
 end library;
 
 define module dynamic-binding
    use dylan;
+   use common-dylan, import: { format-to-string };
    export with-dynamic-bindings, dynamic-binding, dynamic-binding-setter,
-          <binding-not-in-dynamic-scope>, binding-name;
+          <dynamic-binding-access>, <binding-not-in-dynamic-scope>, binding-name;
 end module;
