@@ -22,6 +22,7 @@ define library koala
   use network,
     import: { sockets };
   use regular-expressions;
+  use ssl-network;         // adds sideways methods to network lib
   use strings;
   use system,
     import: { date, file-system, locators, operating-system };

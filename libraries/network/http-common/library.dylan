@@ -66,6 +66,7 @@ define module http-common
   export
     $http-version,
     $default-http-port,
+    $default-https-port,
     *http-common-log*,
 
     // Things that expire

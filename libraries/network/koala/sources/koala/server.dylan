@@ -268,7 +268,7 @@ define method make-listener
 end;
 
 // #(host, port)
-define method make-listener
+ define method make-listener
     (host-and-port :: <sequence>) => (listener :: <listener>)
   if (host-and-port.size = 2)
     let (host, port) = apply(values, host-and-port);
@@ -281,7 +281,7 @@ define method make-listener
                format-string: "Invalid listener spec: %s",
                format-arguments: list(host-and-port)));
   end
-end method make-listener;
+ end method make-listener;
 
 // "host:port"
 define method make-listener
@@ -294,6 +294,38 @@ define method listener-name
   format-to-string("HTTP Listener for %s:%d",
                    listener.listener-host, listener.listener-port)
 end;
+
+define method make-socket
+    (listener :: <listener>) => (socket :: <tcp-server-socket>)
+  listener.listener-socket := make(<tcp-server-socket>,
+                                   host: listener.listener-host,
+                                   port: listener.listener-port);
+end;
+
+
+define class <ssl-listener> (<listener>)
+  slot certificate-filename :: <pathname>,
+    required-init-keyword: certificate-filename:;
+  slot key-filename :: <pathname>,
+    required-init-keyword: key-filename:;
+end;
+
+define method listener-name
+    (listener :: <ssl-listener>) => (name :: <string>)
+  format-to-string("HTTPS Listener for %s:%d",  // just adds 'S'
+                   listener.listener-host, listener.listener-port)
+end;
+
+define method make-socket
+    (listener :: <ssl-listener>) => (socket :: <tcp-server-socket>)
+  listener.listener-socket := make(<tcp-server-socket>,
+                                   host: listener.listener-host,
+                                   port: listener.listener-port,
+                                   ssl?: #t,
+                                   certificate: listener.certificate-filename,
+                                   key: listener.key-filename)
+end;
+
 
 define class <client> (<object>)
   constant slot client-server :: <server>,
@@ -592,9 +624,7 @@ define function start-http-listener
         end method;
   with-lock (server-lock)
     block ()
-      listener.listener-socket := make(<server-socket>,
-                                       host: listener.listener-host,
-                                       port: listener.listener-port);
+      make-socket(listener);
       make(<thread>,
            name: listener.listener-name,
            function: run-listener-top-level);

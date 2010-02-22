@@ -104,15 +104,20 @@ define function koala-main
 	  before-startup(*server*);
 	end;
 
-	// Setup listeners.
+	// Any command-line listeners specified?
 	let listeners = option-value-by-long-name(parser, "listen");
 	if (empty?(listeners) & ~config-file)
-	  listeners := vector(format-to-string("0.0.0.0:%d", $default-http-port));
+          listeners := vector(list("0.0.0.0", $default-http-port));
 	end;
-	for (listener in listeners)
-	  add!(*server*.server-listeners, make-listener(listener));
-	end;
-	start-server(*server*);
+        for (listener in listeners)
+          add!(*server*.server-listeners, make-listener(listener));
+        end;
+
+        if (empty?(*server*.server-listeners))
+          error("No listeners were created.  Exiting.");
+        else
+          start-server(*server*);
+        end;
       exception (ex :: <serious-condition>)
         log-error("Error starting server: %s", ex);
       end;

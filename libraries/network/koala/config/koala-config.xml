@@ -143,12 +143,12 @@
      that if follow-symlinks is true then links will be followed even
      if the target is outside of the document root directory.
   -->
-<directory url = "/"
-	   path = "/some/filesystem/path"
-           follow-symlinks = "yes"
-           allow-directory-listing = "yes"
-           allow-cgi = "yes"
-           cgi-extensions = "cgi,bat,exe,..."
+<directory url="/"
+	   path="/some/filesystem/path"
+           follow-symlinks="yes"
+           allow-directory-listing="yes"
+           allow-cgi="yes"
+           cgi-extensions="cgi,bat,exe,..."
            />
 
 <!-- If DEFAULT-VIRTUAL-HOST is enabled then requests that don't match
@@ -161,8 +161,8 @@
 <!-- LISTENER elements are used to add an ip-addr/port pair on which
      to listen for HTTP requests.  Use 0.0.0.0 to listen on all
      interfaces.  There may be multiple listener specs.  The default
-     is to listen on 0.0.0.0:80 if not specified.  -->
-<listener address="0.0.0.0" port="80" />
+     is to listen on 0.0.0.0:80 (non-ssl) if not specified.  -->
+<listener address="0.0.0.0" port="80" ssl="no"/>
 
 <!-- Location of the mime-type file.  By default the contents of the
      file augment Koala's default mime-type map.  If clear is enabled
@@ -210,10 +210,10 @@
 
 <virtual-host name="127.0.0.1">
 
-    <document-root location = "www/127.0.0.1" />
+    <document-root location="www/127.0.0.1" />
 
-    <directory pattern = "/"
-               allow-directory-listing = "no" />
+    <directory pattern="/"
+               allow-directory-listing="no" />
 
     <!-- Add an alias for the current virtual host. -->
     <host-alias name="alias" />
@@ -224,6 +224,6 @@
 <!-- For the web-framework library and its clients, e.g. wiki.
      Set the content-directory to wherever you want content (e.g.,
      wiki pages, user database, etc to be stored. -->
-<web-framework content-directory = "www/wiki" />
+<web-framework content-directory="www/wiki" />
 
 </koala>

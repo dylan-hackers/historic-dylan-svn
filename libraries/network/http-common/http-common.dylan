@@ -5,6 +5,8 @@ define constant $http-version :: <byte-string> = "HTTP/1.1";
 
 define constant $default-http-port :: <integer> = 80;
 
+define constant $default-https-port :: <integer> = 443;
+
 // Clients can bind this if they want to combine this library's logs with
 // there own.  Adding a log target to the default value here doesn't work
 // for the HTTP server, which wants to log to different targets for different

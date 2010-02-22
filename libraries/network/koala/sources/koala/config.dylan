@@ -175,14 +175,31 @@ define method process-config-element
   let port = get-attr(node, #"port");
   if (address | port)
     block ()
-      let port = iff(port,
-                     string-to-integer(port),
-                     $default-http-port);
-      log-info("Adding listener for %s:%d", address, port);
-      add!(server.server-listeners,
-           make-listener(format-to-string("%s:%d", address, port)));
-    exception (<error>)
-      warn("Invalid <listener> spec: %=", xml$text(node));
+      let ssl = get-attr(node, #"ssl");
+      let ssl? = ssl & true-value?(ssl);
+      let port = port & string-to-integer(port);
+      if (ssl?)
+        let port = port | $default-https-port;
+        let cert = get-attr(node, #"certificate");
+        let key = get-attr(node, #"key");
+        if (~cert | ~key)
+          error("Both 'certificate' and 'key' are required for SSL listener %s:%d.",
+                address, port);
+        end;
+        log-info("Adding HTTPS listener for %s:%d", address, port);
+        add!(server.server-listeners,
+             make(<ssl-listener>,
+                  host: address,
+                  port: port,
+                  certificate-filename: cert,
+                  key-filename: key));
+      else
+        let port = port | $default-http-port;
+        log-info("Adding HTTP listener for %s:%d", address, port);
+        add!(server.server-listeners, make(<listener>, host: address, port: port));
+      end;
+    exception (ex :: <serious-condition>)
+      warn("Invalid <listener> spec: %s", ex);
     end;
   else
     warn("Invalid <listener> spec.  You must supply at least one "
