@@ -1,18 +1,31 @@
-<?xml version="1.0"?>
+<?xml version = "1.0"?>
 <koala>
-  <listener address="0.0.0.0" port="8000"/>
-  <debug-server value="off" />
+  <listener address = "0.0.0.0" port = "8000"/>
+  <listener address = "0.0.0.0" port = "8443" ssl = "yes"
+            certificate = "certificate.pem"
+            key = "key.pem"
+            />
+  <debug-server value = "off" />
 
   <!-- dev mode makes DSP check for modified templates and reparse them. -->
-  <development-mode enabled="on" />
+  <development-mode enabled = "on" />
 
-  <server-root location="/home/cgay/trunk/libraries/network/opendylan.org"/>
+  <server-root location = "/home/cgay/trunk/libraries/network/opendylan.org"/>
 
   <directory url = "/"
              location = "/home/cgay/trunk/libraries/network/opendylan.org/static"
              allow-static = "yes"
              allow-directory-listing = "no"
+             follow-symlinks = "yes"
+             default-documents = "index.html"
+             />
+
+  <directory url = "/books/drm"
+             location = "/home/cgay/trunk/www/books/drm"
+             allow-static = "yes"
+             allow-directory-listing = "no"
              follow-symlinks = "no"
+             default-documents = "Cover.html"
              />
 
   <directory url = "/cgi-bin"
@@ -23,21 +36,21 @@
              follow-symlinks = "yes"
              />
 
-  <dsp-root location="/home/cgay/trunk/libraries/network/opendylan.org/dsp"/>
+  <dsp-root location = "/home/cgay/trunk/libraries/network/opendylan.org/dsp"/>
 
-  <wiki content-directory="/home/cgay/opendylan.org/database"
-        site-name="Dylan Wiki"
-        site-url="http://www.opendylan.org:8000"
-        url-prefix="/wiki"
-        dsp-subdirectory="wiki/"
+  <wiki content-directory = "/home/cgay/opendylan.org/database"
+        site-name = "Dylan Wiki"
+        site-url = "http://www.opendylan.org:8000"
+        url-prefix = "/wiki"
+        dsp-subdirectory = "wiki/"
         >
     <!-- Note that the administrator's email address will be the one
          from which account emails are sent, so it runs a high spam risk.
       -->
-    <administrator username="administrator"
-                   password="..."
-                   email="hackers@lists.opendylan.org"/>
-    <authentication realm="dylan-wiki"/>
-    <mail host="lists.opendylan.org"/>
+    <administrator username = "administrator"
+                   password = "..."
+                   email = "hackers@lists.opendylan.org"/>
+    <authentication realm = "dylan-wiki"/>
+    <mail host = "lists.opendylan.org"/>
   </wiki>
 </koala>

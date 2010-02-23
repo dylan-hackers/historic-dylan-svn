@@ -51,7 +51,7 @@
       <div>Developer Resources</div>
       <A HREF="/repository">&rsaquo; Repository Access</A>
       <A HREF="/cgi-bin/viewcvs.cgi">&rsaquo; Browse Repository</A>
-      <A HREF="https://www.opendylan.org/koala/cgi-bin/bugzilla/index.cgi">&rsaquo; Bug Tracker</A>
+      <A HREF="https://www.opendylan.org/cgi-bin/bugzilla/index.cgi">&rsaquo; Bug Tracker</A>
       <A HREF="/cgi-bin/cvszilla/query.cgi">&rsaquo; CVSZilla Search</A>
       <A HREF="/buildbot/">&rsaquo; Buildbot</A>
       <A HREF="/projects">&rsaquo; Current Projects</A>
