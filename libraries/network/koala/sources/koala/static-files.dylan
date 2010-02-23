@@ -47,8 +47,7 @@ define method serve-static-file-or-cgi-script ()
   // Just use the path, not the host, query, or fragment.
   let url :: <string> = build-path(request.request-url);
   let policy :: <directory-policy> = directory-policy-matching(*virtual-host*, url);
-  let document :: false-or(<locator>)
-    = static-file-locator-from-url(url, policy-directory(policy));
+  let document :: false-or(<locator>) = static-file-locator-from-url(url, policy);
 
   log-debug("static file: url = %s", url);
   log-debug("static file: spec = %s", debug-string(policy));
@@ -119,31 +118,30 @@ end function follow-links;
 // such as index.html and returns a locator for that, if found.
 //
 define function static-file-locator-from-url
-    (url :: <string>, context :: <directory-locator>)
+    (url :: <string>, policy :: <directory-policy>)
  => (locator :: false-or(<physical-locator>))
-  let locator = document-location(url, context);
+  let locator = document-location(url, policy.policy-directory);
   log-debug("static file: locator = %s", as(<string>, locator | "#f"));
   locator
     & file-exists?(locator)
     & iff(instance?(locator, <directory-locator>),
-          find-default-document(locator) | locator,
+          find-default-document(policy, locator) | locator,
           locator)
 end;
 
 define method find-default-document
-    (locator :: <directory-locator>) => (locator :: <physical-locator>)
+    (policy :: <directory-policy>, locator :: <directory-locator>)
+ => (locator :: <physical-locator>)
   block (return)
-    let default-docs = default-documents(*virtual-host*);
-    local method is-default? (directory, name, type)
-            let potential :: <file-locator> = as(<file-locator>, name);
-            when (type = #"file" & member?(potential, default-docs, test: \=))
-              return(merge-locators(potential, as(<directory-locator>, directory)));
-            end;
-          end;
-    do-directory(is-default?, locator);
+    for (default in policy.policy-default-documents)
+      let full-path = merge-locators(default, locator);
+      if (file-exists?(full-path))
+        return(full-path)
+      end;
+    end;
     locator  // found nothing
-  end;
-end;
+  end
+end method find-default-document;
 
 define method locator-below-document-root? 
     (locator :: <physical-locator>)

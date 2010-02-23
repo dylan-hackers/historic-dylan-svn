@@ -22,7 +22,7 @@ define library koala
   use network,
     import: { sockets };
   use regular-expressions;
-  use ssl-network;         // adds sideways methods to network lib
+//  use ssl-network;         // adds sideways methods to network lib
   use strings;
   use system,
     import: { date, file-system, locators, operating-system };
@@ -186,7 +186,18 @@ end module koala;
 
 // Additional interface for unit tests.
 define module koala-unit
-  create configure-from-string
+  // directory policies
+  create
+    policy-default-documents;
+
+  // vhost
+  create
+    directory-policies,
+    root-directory-policy;
+
+  // other
+  create
+    configure-from-string;
 end module koala-unit;
 
 define module dsp

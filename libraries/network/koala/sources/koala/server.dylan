@@ -304,9 +304,9 @@ end;
 
 
 define class <ssl-listener> (<listener>)
-  slot certificate-filename :: <pathname>,
+  constant slot certificate-filename :: <pathname>,
     required-init-keyword: certificate-filename:;
-  slot key-filename :: <pathname>,
+  constant slot key-filename :: <pathname>,
     required-init-keyword: key-filename:;
 end;
 

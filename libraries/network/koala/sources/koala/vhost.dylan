@@ -43,7 +43,16 @@ define class <directory-policy> (<object>)
   // Acceptable CGI script file extensions.  No other files will be served.
   constant slot policy-cgi-extensions :: <sequence> = #("cgi"),
     init-keyword: cgi-extensions:;
-  
+
+  // The set of file names that are searched for when a directory URL is
+  // requested.  They are searched in order, and the first match is chosen.
+  // TODO: Probably these shouldn't specify a filename extension, so that
+  //       the media type can be chosen via content negotiation.
+  constant slot policy-default-documents :: <list>
+    = list(as(<file-locator>, "index.html"),
+           as(<file-locator>, "index.htm")),
+    init-keyword: default-documents:;
+
 end class <directory-policy>;
 
 define method policy-matches?
@@ -87,14 +96,6 @@ define class <virtual-host> (<object>)
   // See initialize(<virtual-host>).
   slot root-directory-policy :: <directory-policy>;
 
-  // TODO: this should be per-dirspec.  no reason some subtree on the same
-  //       vhost shouldn't have a different set of default docs.
-  // The set of file names that are searched for when a directory URL is
-  // requested.  They are searched in order, and the first match is chosen.
-  slot default-documents :: <list>
-    = list(as(<file-locator>, "index.html"),
-           as(<file-locator>, "index.htm"));
-
   // The value sent in the "Content-Type" header for static file responses if
   // no other value is set.  See server-mime-type-map.
   slot default-static-content-type :: <string> = "application/octet-stream";
@@ -119,7 +120,6 @@ end class <virtual-host>;
 
 // prevent warnings until these are used by the config stuff
 begin
-  default-documents-setter;
   default-static-content-type-setter;
   default-dynamic-content-type-setter;
 end;

@@ -85,52 +85,42 @@ define test test-document-root ()
   end;
 end test test-document-root;
 
+define suite directory-policy-test-suite ()
+  test test-directory-policy-default-documents;
+end;
+
+define test test-directory-policy-default-documents ()
+  let server = make-server();
+  check-equal("Default default documents are index.html and index.htm",
+              list(as(<file-locator>, "index.html"),
+                   as(<file-locator>, "index.htm")),
+              server.default-virtual-host.root-directory-policy.policy-default-documents);
+
+  local method configure (default-docs :: <string>)
+          let str = fmt("<directory url=\"/\" default-documents = \"%s\" />", default-docs);
+          configure-from-string(server, koala-document(str));
+        end;
+
+  configure("one");
+  let policy = server.default-virtual-host.directory-policies[0];
+  check-equal("A single default document parses correctly",
+              list(as(<file-locator>, "one")),
+              policy.policy-default-documents);
+              
+  configure("one,two");
+  let policy = server.default-virtual-host.directory-policies[0];
+  check-equal("Multiple default documents parse correctly",
+              list(as(<file-locator>, "one"),
+                   as(<file-locator>, "two")),
+              policy.policy-default-documents);
+end test test-directory-policy-default-documents;
+
 define suite configuration-test-suite ()
   test basic-config-test;
   test listener-config-test;
   test alias-config-test;
   test test-document-root;
-end;
+  suite directory-policy-test-suite;
+end suite configuration-test-suite;
 
 
-/*
-<koala>
-  <debug-server value="off" />
-  <log type="debug"
-       location="c:/cgay/dylan/debug.log"
-       level="debug"
-       max-size="20000000" />
-  <log type="activity"
-       location="c:/cgay/dylan/activity.log"
-       max-size="20000000" />
-  <log type="error"
-       location="c:/cgay/dylan/error.log"
-       max-size="20000000" />
-  <server-root location="c:/cgay/dylan" />
-  <document-root location="www" />
-  <dsp-root location="c:/cgay/dylan/trunk/libraries/network/koala/www" />
-  <directory url = "/"
-             path = "..."
-             allow-cgi = "yes"
-             follow-symlinks = "yes"
-             allow-directory-listing = "yes" />
-  <default-virtual-host enabled="yes"/>
-  <listener address="0.0.0.0" port="8080" />
-  <mime-type-map location="mime-type-map.xml" clear="true"/>
-  <administrator
-     email="you@your.domain"
-     name="yourname" />
-  <auto-register enabled="no" />
-  <xml-rpc
-    url="/RPC2"
-    enable="yes"
-    internal-error-fault-code="0"
-    debug="no"
-    />
-  <virtual-host name="127.0.0.1">
-      <document-root location = "www/127.0.0.1" />
-      <directory pattern = "/"
-                 allow-directory-listing = "no" />
-  </virtual-host>
-</koala>
-*/

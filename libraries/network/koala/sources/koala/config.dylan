@@ -533,6 +533,7 @@ end function alias-responder;
 //             allow-cgi = "no"
 //             cgi-extensions = "cgi,bat,exe,..."
 //             follow-symlinks = "no"
+//             default-documents = "index.html,index.htm"
 //             />
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"directory")
@@ -548,6 +549,10 @@ define method process-config-element
     let cgi-ext = get-attr(node, #"cgi-extensions") | "cgi";
     cgi-ext := map(trim, split(trim(cgi-ext), ','));
     let root-policy = root-directory-policy(%vhost);
+    let index = get-attr(node, #"default-documents");
+    let indexes = iff(index,
+                      map(curry(as, <file-locator>), split(index, ",")),
+                      root-policy.policy-default-documents);
     // TODO: the default value for these should really
     //       be taken from the parent policy rather than from root-policy.
     let policy = make(<directory-policy>,
@@ -569,7 +574,8 @@ define method process-config-element
                       allow-cgi?: iff(cgi?,
                                       true-value?(cgi?),
                                       allow-cgi?(root-policy)),
-                      cgi-extensions: cgi-ext);
+                      cgi-extensions: cgi-ext,
+                      default-documents: indexes);
     add-directory-policy(%vhost, policy);
     dynamic-bind (%dir = policy)
       for (child in xml$node-children(node))
