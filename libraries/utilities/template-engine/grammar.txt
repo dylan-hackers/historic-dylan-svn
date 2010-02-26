@@ -1,0 +1,313 @@
+space:
+  WHITESPACE+
+
+opt-space:
+  WHITESPACE*
+
+________________
+___ TEMPLATE ___
+
+template:
+  template-header? content-element* EOF
+
+# These things need to deal with leading and possibly trailing space.
+content-element:
+  escaped-directive / directive / text / space
+
+# These things need to deal with leading and possibly trailing space.
+content-element-til-escape-end:
+  escaped-directive / directive / text-til-escape-end / space
+
+template-header:
+  template-style-directive
+
+# This production sets what the directive delimiter is; that is, it sets what
+# lf/rt-directive, lf/rt-directive-char, and lf/rt-directive-mark match.
+template-style-directive:
+  paren-directive / angle-directive / brace-directive / brack-directive
+
+paren-directive:
+  lf-paren-directive template-dirspec rt-paren-directive
+
+angle-directive:
+  lf-angle-directive template-dirspec rt-angle-directive
+
+brace-directive:
+  lf-brace-directive template-dirspec rt-brace-directive
+
+brack-directive:
+  lf-brack-directive template-dirspec rt-brack-directive
+
+template-dirspec:
+  "TEMPLATE"
+
+lf-paren-directive:
+  ( opt-space "((" "+" / "((" ) opt-templ-space
+
+lf-angle-directive:
+  ( opt-space "<<" "+" / "<<" ) opt-templ-space
+
+lf-brace-directive:
+  ( opt-space "{{" "+" / "{{" ) opt-templ-space
+
+lf-brack-directive:
+  ( opt-space "[[" "+" / "[[" ) opt-templ-space
+
+rt-paren-directive:
+  opt-templ-space "!"? ( "))" / "+" "))" opt-space )
+                                                  
+rt-angle-directive:                               
+  opt-templ-space "!"? ( ">>" / "+" ">>" opt-space )
+                                                  
+rt-brace-directive:                               
+  opt-templ-space "!"? ( "}}" / "+" "}}" opt-space )
+                                                  
+rt-brack-directive:                               
+  opt-templ-space "!"? ( "]]" / "+" "]]" opt-space )
+
+_______________________
+___ TEXT AND ESCAPE ___
+
+text:
+  opt-space ( !WHITESPACE !lf-directive-mark CHAR )*
+
+text-til-escape-end:
+  opt-space ( !WHITESPACE !lf-directive-mark !rt-directive-esc CHAR )*
+
+escaped-directive:
+  opt-space lf-directive-esc escaped-content? rt-directive-esc
+
+lf-directive-esc:
+  lf-directive-mark lf-directive-char
+
+rt-directive-esc:
+  rt-directive-char rt-directive-mark
+
+escaped-content:
+  content-element-til-escape-end+
+
+__________________
+___ DIRECTIVE  ___
+
+templ-space:
+  ( WHITESPACE / templ-comment )+
+
+opt-templ-space:
+  ( WHITESPACE / templ-comment )*
+
+templ-comment:
+  "(*" ( !"*)" ( templ-comment / CHAR ) )* "*)"
+
+# Some of these are control structure directives that may be disallowed.
+directive:
+  case-directive-block / if-directive-block / definition-directive-block
+  / repeat-directive-block / force-directive-block / with-directive-block
+  / standalone-directive / simple-directive / empty-directive
+
+case-directive-block:
+  ( case-directive case-content? )+ ( else-directive block-content? )? end-directive
+
+if-directive-block:
+  if-directive branch-content? ( else-directive block-content? )? end-directive
+
+# Omitted for now.
+definition-directive-block:
+  define-directive inner-content? end-directive
+
+repeat-directive-block:
+  repeat-directive block-content? end-directive
+
+# Omitted for now.
+force-directive-block:
+  force-directive block-content? end-directive
+
+with-directive-block:
+  with-directive block-content? end-directive
+
+case-content:
+  ( !case-directive !else-directive !end-directive content-element )+
+
+branch-content:
+  ( !else-directive !end-directive content-element )+
+
+# Omitted for now.
+inner-content:
+  ( !end-directive ( inner-directive / content-element ) )+
+
+block-content:
+  ( !end-directive content-element )+
+
+case-directive:
+  lf-directive case-dirspec rt-directive
+
+if-directive:
+  lf-directive if-dirspec rt-directive
+
+# Omitted for now.
+definition-directive:
+  lf-directive definition-dirspec rt-directive
+
+repeat-directive:
+  lf-directive repeat-dirspec rt-directive
+
+# Omitted for now.
+force-directive:
+  lf-directive force-dirspec rt-directive
+
+with-directive:
+  lf-directive with-dirspec rt-directive
+
+# Omitted for now.
+standalone-directive:
+  lf-directive standalone-dirspec rt-directive
+
+simple-directive:
+  lf-directive simple-dirspec rt-directive
+
+# Omitted for now.
+inner-directive:
+  lf-directive "CONTENTS" rt-directive
+
+else-directive:
+  lf-directive "ELSE" rt-directive
+
+end-directive:
+  lf-directive "END" rt-directive
+
+empty-directive:
+  lf-directive rt-directive
+
+____________________________
+___ DIRECTIVE SPECIFIERS ___
+
+case-dirspec:
+  "CASE" templ-space expression
+
+if-dirspec:
+  ( "IF" / "WHEN" / "UNLESS" ) templ-space expression
+
+# Omitted for now.
+standalone-dirspec:
+  
+simple-dirspec:
+  expression
+
+with-dirspec:
+  "WITH" templ-space assignment ( opt-templ-space "," opt-templ-space assignment )*
+
+assignment:
+  ( "OPERATION" templ-space )? NAME templ-space "=" templ-space expression
+
+# Omitted for now.
+force-dirspec:
+  "FORCE" templ-space if-dirspec
+
+repeat-dirspec:
+  "REPEAT" templ-space "WITH" templ-space NAME templ-space
+  ( "INFO" templ-space NAME templ-space )? "IN" templ-space expression
+
+___________________
+___ EXPRESSIONS ___
+
+expression:
+  tier-1-or-lower-expression
+
+tier-1-or-lower-expression:
+  binary-tier-1-expression / tier-2-or-lower-expression
+
+tier-2-or-lower-expression:
+  binary-tier-2-expression / tier-3-or-lower-expression
+
+tier-3-or-lower-expression:
+  binary-tier-3-expression / tier-4-or-lower-expression
+
+tier-4-or-lower-expression:
+  binary-tier-4-expression / binary-operand
+
+# Logical operators
+binary-tier-1-expression:
+  tier-2-or-lower-expression opt-templ-space binary-tier-1-operator opt-templ-space
+  expression
+
+# Multiplicative operators
+binary-tier-2-expression:
+  tier-3-or-lower-expression opt-templ-space binary-tier-2-operator opt-templ-space
+  expression
+
+# Additive operators
+binary-tier-3-expression:
+  tier-4-or-lower-expression opt-templ-space binary-tier-3-operator opt-templ-space
+  expression
+
+# Multiplicative operators
+binary-tier-4-expression:
+  binary-operand opt-templ-space binary-tier-4-operator opt-templ-space
+  tier-4-or-lower-expression
+
+# Unary operators
+binary-operand:
+  unary-operator? opt-templ-space operand
+
+binary-tier-1-operator:
+  "&" / "|"
+
+binary-tier-2-operator:
+  "*" / "/" / "%"
+
+binary-tier-3-operator:
+  "+" / "-"
+
+binary-tier-4-operator:
+  "=" / "~=" / "<" / ">" / "<=" / ">="
+
+unary-operator:
+  "-" / "~"
+
+operand:
+  ( paren-expression / var-name / literal )
+  ( opt-templ-space "." opt-templ-space chained-call )*
+
+paren-expression:
+  "(" opt-templ-space expression opt-templ-space ")"
+
+var-name:
+  NAME
+
+chained-call:
+  NAME
+
+literal:
+  string / character / NUMBER / HEX-NUMBER / "#t" / "#f"
+
+hex-number:
+  "#x" HEX-NUMBER
+
+string:
+  substring ( opt-templ-space substring )*
+
+substring:
+  """ string-char* """
+
+character:
+  "'" string-char "'"
+
+string-char:
+  code-escape / char-escape / CHAR
+
+code-escape:
+  "\" "<" HEX-DIGIT+ ">"
+
+char-escape:
+  "\" ESC-CHAR
+
+NUMBER:
+  DIGIT+
+
+HEX-NUMBER:
+  "#x" HEX-DIGIT+
+
+NAME:
+  A Dylan name
+
+ESC-CHAR:
+  A Dylan escape character

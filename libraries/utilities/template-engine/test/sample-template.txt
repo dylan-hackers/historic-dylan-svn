@@ -1,0 +1,7 @@
+{{ with greeting = "Hello." }}
+{{+ greeting }}
+{{ repeat with item in alphabet info in info +}}
+{{ item }}
+{{+ unless info.last-rep? +}}, {{ end (*unless*) +}}
+{{ end (*repeat*) +}}
+{{ end (*with*) }}

@@ -1,0 +1,301 @@
+==============
+   Overview
+==============
+
+A template document is a text stream containing directives and normal text. To
+use a template document, a program first creates a '<template>' object and reads
+the document, then calls 'process-template' on that object to generate an output
+string. The '<template>' object can be created once and processed multiple
+times.
+
+Directives can access variables and operations specified by the program. These
+variables and operations form the vocabulary available for use in template
+document expressions. The program can specify a base vocabulary when it creates
+the '<template>' object and can specify additional or replacement vocabulary
+when it calls 'process-template'.
+
+Programatically, vocabulary words are strings that map to bindings. In the case
+of operations, these bindings must be single-argument functions. The template
+processor looks up the value of the binding when it processes the template
+document's expressions. The template processor can treat these words as
+case-sensitive or case-insensitive; this is configured when the program creates
+the '<template>' object. The library provides a 'template-vocabulary' macro to
+easily add vocabulary words.
+
+The program can specify which directives are recognized in the template document
+when it creates the '<template>' object. Briefly, the directives are:
+
+Template	- Changes the delimiters used to set off other directives.
+Case		- Selects which of several alternative sections to process.
+If		- Selects whether to process a section.
+Repeat		- Processes a section for each element of a collection.
+With		- Creates local variables or operations.
+Substitution	- Evaluates an expression and outputs it.
+Escape		- May be used to include delimiters in the output.
+Empty		- May be used for finer whitespace trim control.
+
+Expressions are comprised of literals, operators, and vocabulary words. They are
+much like Dylan expressions, but more limited. There is no support for function
+calls aside from the function application (".") operator.
+
+Literals are strings, characters, decimal integers, hexadecimal integers, #t, or
+#f. Adjacent strings are combined and Dylan escape sequences are recognized.
+
+Operators are logical ("~", "&" and "|"), arithmatic ("+", "-", "*", "/", "%"),
+relational ("=", "~=", "<", ">", "<=", ">="), grouping ("(" and ")"), or
+function application ("."). These operators work like their Dylan counterparts
+and with the same operator precedence; the modulo ("%") operator is also
+recognized and acts at the same precedence level as division. The operand of
+function application may be a literal.
+
+Vocabulary words follow the syntax of Dylan names, except for possible
+case-sensitivity as mentioned above.
+
+
+================
+   Directives
+================
+
+Directives may be delimited one of these pairs: (( )), [[ ]], {{ }}, or << >>.
+The default is {{ }}, but this may be changed programatically when the
+'<template>' object is created or in the template document itself using the
+"template" directive.
+
+Directives may include comments delimited by the pair (* *), for example:
+
+| {{ hours / 60 / 60 (* to show seconds *) }}
+
+Whitespace preceding and following each directive may be removed during parsing
+by including a "+" just inside the opening or closing delimiter. This includes
+newline characters. For example, template A below results in output B and not C.
+
+Template A:
+| Greetings, {{ name +}} !
+
+Output B:
+| Greetings, Felix!
+
+Output C: 
+| Greetings, Felix !
+
+You can use an empty directive for better control of whitespace removal. While
+template D results in erroneous output E, you can use template F to produce
+correct output G.
+
+Template D:
+| Greetings, {{ title +}}
+| {{ name }}!
+
+Output E:
+| Greetings, SirRobin!
+
+Template F:
+| Greetings, {{ title +}} {{ +}}
+| {{ name }}!
+
+Output G:
+| Greetings, Sir Robin!
+
+Whitespace removal happens at parsing time, when the '<template>' object is
+created, not at processing time. This means that whitespace is removed from
+around a directive -- and only around that directive -- regardless of whether
+that directive is actually processed or not.
+
+Consider template H below, and output I generated for an age of 10 and output J
+generated for an age of 30. Output I is correct, but output J is incorrect
+because the "+" in the "end" directive only applies to the whitespace between
+the "first-name" and the "end" directives, not to the whitespace after the
+"last-name" directive.
+
+Template H:
+| {{ if age > 15 +}} {{ title }} {{ last-name }}
+| {{ else +}} {{ first-name }}
+| {{+ end }}, hello!
+
+Output I:
+| David, hello!
+
+Output J:
+| Mr. Johnson
+| , hello!
+
+
+------------------------
+   Template Directive
+------------------------
+
+This directive takes the following forms:
+
+| {{ template }}
+| [[ template ]]
+| (( template ))
+| << template >>
+
+It simply changes the delimiter style. If present, this directive must appear
+first in the template document -- only whitespace may precede it -- and can only
+appear once.
+
+The program may disable this directive when creating the '<template>' object.
+
+
+--------------------
+   Case Directive
+--------------------
+
+This directive takes the following form:
+
+| {{ case TEST-1 }} CONTENT-1
+| {{ case TEST-2 }} CONTENT-2
+| ...
+| {{ else }} ELSE-CONTENT
+| {{ end }}
+
+It will process and output the first alternative where the 'TEST' expression
+returns a true value (that is, some value other than #f). If none do, it
+processes and outputs 'ELSE-CONTENT'. The "else" directive and its content are
+optional.
+
+The program may disable this directive when creating the '<template>' object.
+
+
+------------------
+   If Directive
+------------------
+
+This directive takes the following forms:
+
+| {{ if TEST }} CONTENT
+| {{ else }} ELSE-CONTENT
+| {{ end }}
+
+| {{ when TEST }} CONTENT
+| {{ else }} ELSE-CONTENT
+| {{ end }}
+
+| {{ unless TEST }} CONTENT
+| {{ else }} ELSE-CONTENT
+| {{ end }}
+
+It will process and output 'CONTENT' if 'TEST' returns a true value (or a false
+value in the case of "unless"). Otherwise it will process and output
+'ELSE-CONTENT' if provided. The "else" directive and its content are optional.
+
+The program may disable this directive when creating the '<template>' object.
+
+
+----------------------
+   Repeat Directive
+----------------------
+
+This directive takes the following forms:
+
+| {{ repeat with ELEMENT-NAME in COLLECTION }} CONTENT
+| {{ end }}
+
+| {{ repeat with ELEMENT-NAME in COLLECTION info in INFO-NAME }} CONTENT
+| {{ end }}
+
+It will process and output 'CONTENT' for each element in the collection returned
+by the 'COLLECTION' expression. If the collection is empty, it ignores
+'CONTENT'.
+
+During the processing of 'CONTENT', the current element and information about
+the current iteration will be available through the 'ELEMENT-NAME' and
+'INFO-NAME' variables. Any pre-existing variables with those names will not be
+available until outside the "repeat" directive block.
+
+The 'INFO-NAME' variable, if provided, is associated with an internal object.
+The template engine provides four Dylan accessor functions on this object. By
+default and if the "repeat" directive is enabled, the base vocabulary of the
+'<template>' object includes these functions under their own names. However, if
+the program overrides the base vocabulary, it may have to explicitly specify
+these functions' vocabulary words.
+
+The 'INFO-NAME' functions are:
+
+first-rep?	- Returns #t if this iteration is for the first element in the
+                  collection.
+last-rep?	- Returns #t if this iteration is for the last element in the
+ 		  collection.
+rep-number	- The iteration number, starting from 1.
+rep-key		- The collection key of this element; for a sequence, this will
+		  the iteration number except starting from 0.
+
+The program may disable this directive when creating the '<template>' object.
+
+
+--------------------
+   With Directive
+--------------------
+
+This directive takes the following form:
+
+| {{ with VAR-NAME = EXPRESSION, 
+|         operation OP-NAME = EXPRESSION,
+|         ... }} CONTENT
+| {{ end }}
+
+It will create one or more local variables or operations available within the
+"with" directive block. Any pre-existing variables or operations with those
+names will not be available until outside the "repeat" directive block. Variable
+and operation assignments may be mixed freely in the comma-separated list.
+
+The program may disable this directive when creating the '<template>' object.
+
+
+----------------------------
+   Substitution Directive
+----------------------------
+
+This directive takes the following forms:
+
+| {{ EXPRESSION }}
+
+| {{ EXPRESSION !}}
+
+The first form sanitizes and outputs the result of the expression. The second
+form outputs the result of the expression without sanitization.
+
+All directives allow the "!" unsanitized marker, but it only has an effect with
+this directive. The unsanitized marker comes just before a "+" whitespace
+removal marker:
+
+| {{ EXPRESSION !+}}
+
+The result of the expression is converted into string form using a function that
+takes one argument and returns a string, and is sanitized by a another function
+that takes a string and returns a different string. The program may customize
+both functions when it creates the '<template>' object. By default, the string
+conversion function uses 'format-to-string' and the sanitizer is 'identity'.
+
+
+----------------------
+   Escape Directive
+----------------------
+
+This directive is not really a directive at all, but takes the following form:
+
+| {{{ CONTENT }}}
+
+This is output as the following, with CONTENT being processed and output as
+normal (in particular, CONTENT can contain other directives):
+
+| { CONTENT }
+
+This directive works with all the delimiter styles as you'd expect:
+
+| ((( CONTENT ))) => ( CONTENT )
+| [[[ CONTENT ]]] => [ CONTENT ]
+| <<< CONTENT >>> => < CONTENT >
+
+
+---------------------
+   Empty Directive
+---------------------
+
+This directive takes the following form:
+
+| {{ }}
+
+It may contain comments and the "!" and "+" markers, but does not output
+anything.
