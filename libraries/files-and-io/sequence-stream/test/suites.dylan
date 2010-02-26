@@ -9,6 +9,7 @@ define constant $text-contents =
 
 
 define suite sequence-stream-suite ()
+   test position-offset-test;
    test read-test;
    test read-into!-test;
    test write-test;

@@ -2,6 +2,19 @@ module: sequence-stream-tester
 author: Dustin Voss
 
 
+define test position-offset-test ()
+   let text = copy-sequence($text-contents);
+   let stream = make(<sequence-stream>, contents: text, position-offset: 30);
+   check-equal("start position check", 30,
+         stream.stream-position);
+   check-equal("size check", text.size + 30,
+         stream.stream-size);
+   adjust-stream-position(stream, 0, from: #"end");
+   check-equal("end position check", text.size + 30,
+         stream.stream-position);
+end test;
+
+
 define test read-test ()
    let text = copy-sequence($text-contents);
    let stream = make(<sequence-stream>, contents: text);

@@ -18,10 +18,14 @@ define open primary class <sequence-stream> (<basic-stream>, <positionable-strea
    constant slot stream-direction :: one-of(#"input", #"output", #"input-output"),
          init-keyword: direction:;
    
+   // Manual offset
+   constant slot stream-position-offset :: <integer>, init-keyword: position-offset:;
+
    // Keywords
    keyword contents: = make(<vector>);
    keyword start:;
    keyword end:;
+   keyword position-offset: = 0;
    keyword element-type: = <object>;
    keyword fill: = #f;
    keyword direction: = #"input";
@@ -72,10 +76,23 @@ define method initialize
    next-method();
    stream.stream-storage :=
          if (direction = #"input")
-            make-storage(stream, <vector>, contents)
+            if (instance?(contents, <vector>) & 
+                ~instance?(contents, <stretchy-vector>))
+               contents
+            else
+               let (storage, new-start-pos, new-end-pos)
+                     = make-storage(stream, <vector>, contents, start-pos, end-pos);
+               start-pos := new-start-pos;
+               end-pos := new-end-pos;
+               storage
+            end if;
          else
             check-fill-type(stream);
-            make-storage(stream, <stretchy-vector>, contents)
+            let (storage, new-start-pos, new-end-pos)
+                  =  make-storage(stream, <stretchy-vector>, contents, start-pos, end-pos);
+            start-pos := new-start-pos;
+            end-pos := new-end-pos;
+            storage
          end if;
    stream.stream-start := start-pos;
    stream.stream-end := end-pos;
@@ -148,7 +165,7 @@ end method;
 define method ext-stream-size (stream :: <sequence-stream>)
 => (size :: <integer>)
    check-stream-open(stream);
-   stream.stream-size
+   stream.stream-size + stream.stream-position-offset
 end method;
 
 
@@ -162,14 +179,14 @@ define method ext-adjust-stream-position
    (stream :: <sequence-stream>, delta :: <integer>, #rest keys, #key from)
 => (new-position :: <integer>)
    check-stream-open(stream);
-   apply(adjust-stream-position, stream, delta, keys)
+   apply(adjust-stream-position, stream, delta, keys) + stream.stream-position-offset
 end method;
 
 
 define method ext-stream-position (stream :: <sequence-stream>)
 => (position :: <integer>)
    check-stream-open(stream);
-   stream.stream-position
+   stream.stream-position + stream.stream-position-offset
 end method;
 
 
@@ -177,7 +194,7 @@ define method ext-stream-position-setter
    (position :: <integer>, stream :: <sequence-stream>)
 => (position :: <integer>)
    check-stream-open(stream);
-   
+   let position = position - stream.stream-position-offset;
    if (position < 0 | position > stream.stream-size)
       position-range-error(stream);
    else
@@ -387,10 +404,34 @@ end method;
 
 
 define method make-storage
-   (stream :: <sequence-stream>, class :: <class>, contents :: <sequence>)
-=> (storage :: <vector>)
-   let storage = make(class, size: contents.size, fill: stream.stream-fill);
-   map-into(storage, identity, contents)
+   (stream :: <sequence-stream>, class :: <class>, original :: <sequence>,
+    start-pos :: <integer>, end-pos :: <integer>)
+=> (storage :: <vector>, new-start-pos :: <integer>, new-end-pos :: <integer>)
+
+   // Set up storage of a usable class, for the part of the original sequence
+   // that we want to work with.
+   let storage = make(class, size: end-pos - start-pos, fill: stream.stream-fill);
+
+   let (iter-start, iter-limit, iter-next, iter-done?, iter-key, iter-elem) =
+         forward-iteration-protocol(original);
+   
+   // Skip to what we want from original sequence.
+   let iter-start-wanted =
+         for (skip-count from 0 below start-pos,
+              state = iter-start then iter-next(original, state),
+              until: iter-done?(original, state, iter-limit))
+         finally
+            state
+         end for;
+   
+   // Copy those elements into storage.
+   for (storage-index from 0 below storage.size,
+        state = iter-start-wanted then iter-next(original, state),
+        until: iter-done?(original, state, iter-limit))
+      storage[storage-index] := iter-elem(original, state)
+   end for;
+
+   values(storage, 0, storage.size)
 end method;
 
 
