@@ -41,7 +41,7 @@ calls aside from the function application (".") operator.
 Literals are strings, characters, decimal integers, hexadecimal integers, #t, or
 #f. Adjacent strings are combined and Dylan escape sequences are recognized.
 
-Operators are logical ("~", "&" and "|"), arithmatic ("+", "-", "*", "/", "%"),
+Operators are logical ("~", "&" and "|"), arithmetic ("+", "-", "*", "/", "%"),
 relational ("=", "~=", "<", ">", "<=", ">="), grouping ("(" and ")"), or
 function application ("."). These operators work like their Dylan counterparts
 and with the same operator precedence; the modulo ("%") operator is also
@@ -56,7 +56,7 @@ case-sensitivity as mentioned above.
    Directives
 ================
 
-Directives may be delimited one of these pairs: (( )), [[ ]], {{ }}, or << >>.
+Directives may be delimited by one of these pairs: (( )), [[ ]], {{ }}, or << >>.
 The default is {{ }}, but this may be changed programatically when the
 '<template>' object is created or in the template document itself using the
 "template" directive.
@@ -219,7 +219,7 @@ last-rep?	- Returns #t if this iteration is for the last element in the
  		  collection.
 rep-number	- The iteration number, starting from 1.
 rep-key		- The collection key of this element; for a sequence, this will
-		  the iteration number except starting from 0.
+		  be the iteration number except starting from 0.
 
 The program may disable this directive when creating the '<template>' object.
 
@@ -263,7 +263,7 @@ removal marker:
 | {{ EXPRESSION !+}}
 
 The result of the expression is converted into string form using a function that
-takes one argument and returns a string, and is sanitized by a another function
+takes one argument and returns a string, and is sanitized by another function
 that takes a string and returns a different string. The program may customize
 both functions when it creates the '<template>' object. By default, the string
 conversion function uses 'format-to-string' and the sanitizer is 'identity'.
