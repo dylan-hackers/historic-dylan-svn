@@ -215,8 +215,8 @@ define tag show-page-links in dsp
                          next: next,
                          center-span: center-span & string-to-integer(center-span),
                          min-pages: min-pages & string-to-integer(min-pages));
-  // todo -- There should be a special css class for the current page;
-  //         currently it's just "unlinked-page-number".
+  // TODO: There should be a special css class for the current page;
+  //       currently it's just "unlinked-page-number".
   output("%s",
          with-xml ()
            span (class => "paginator") {

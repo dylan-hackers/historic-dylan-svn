@@ -19,16 +19,16 @@ code for Koala.
 * Please more-or-less follow the coding conventions in the existing
   code.  That means keeping line lengths to around 90 (80 preferred),
   using the standard indentation for IFs, etc.  It should be fairly
-  obvious.
+  obvious.  (Famous last words.)
 
 * Please try to write unit tests for the code you add.  I've become a
   big fan of test-driven development.  Writing the tests BEFORE you
-  write the code is even better.  There are (at least) three test
-  suites:
+  write the code is even better.  There are two test suites:
 
     + koala-test-suite -- for server
-    + http-client-test-suite -- for client
     + http-protocol-test-suite -- to validate conformance to HTTP standard
+      (This doesn't have much in it and should just be integrated with
+      koala-test-suite anyway.  Separate test suites was a bad idea.)
 
 * If you make incompatible changes to the API, update references to
   it.  That means, at the very least, searching for uses of that API
@@ -48,10 +48,6 @@ code for Koala.
 * Annotate definitions exported in the public API module (koala) with
 
     // Exported
-
-  or
-
-    // API
 
   above them.  This just makes it less likely for someone to
   accidentally change them incompatibly without meaning to.

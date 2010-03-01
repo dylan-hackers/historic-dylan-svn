@@ -105,7 +105,7 @@ define test test-reuse-http-connection ()
     let response :: <http-response> = read-response(conn);
     check-equal("second response is xxxxx", response.response-content, "xxxxx");
   end;
-    // todo -- 
+    // TODO:
     // be sure to check what happens if we write more data to the request
     // stream than specified by Content-Length, and if the server sends
     // more data than specified by its Content-Length header.  i.e., do
@@ -230,6 +230,6 @@ define suite http-client-test-suite
   test test-invalid-request-content-lengths;
 
   test test-read-from-response-after-done;
-  // todo -- test the reaction to server errors
+  // TODO: test the reaction to server errors
 end suite http-client-test-suite;
 

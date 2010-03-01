@@ -79,8 +79,6 @@ end method configure-server;
 define method configure-from-string
     (server :: <http-server>, text :: <string>,
      #key filename :: false-or(<string>))
-  // --todo: Fix parse-document to give a reasonable error message
-  // instead of just returning #f.
   let xml :: false-or(xml$<document>) = xml$parse-document(text);
   if (xml)
     dynamic-bind (%vhost = server.default-virtual-host,
@@ -330,12 +328,12 @@ define method process-config-element
 end method process-config-element;
 
 
-// todo -- There is currently no way to configure (for example) the
-//         "http.common.headers" logger.  We should really just have one
-//         configuration element, <log>, that names a logger that exists
-//         in the code and says how to configure it.  The loggers for each
-//         virtual host should be named <vhost-name>.debug etc.  Needs more
-//         thought, but I think it will be an improvement.
+// TODO: There is currently no way to configure (for example) the
+//       "http.common.headers" logger.  We should really just have one
+//       configuration element, <log>, that names a logger that exists
+//       in the code and says how to configure it.  The loggers for each
+//       virtual host should be named <vhost-name>.debug etc.  Needs more
+//       thought, but I think it will be an improvement.
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"error-log")
@@ -399,7 +397,7 @@ define function process-log-config-element
   if (format-control)
     logger.log-formatter := make(<log-formatter>, pattern: format-control);
   end;
-  remove-all-targets(logger);  // todo -- make this optional
+  remove-all-targets(logger);  // TODO: make this optional
   add-target(logger, target);
 
   let unrecognized = #f;
@@ -424,7 +422,7 @@ end function process-log-config-element;
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"administrator")
-  // ---TODO
+  // ---TODO:
 end;
 
 define method process-config-element

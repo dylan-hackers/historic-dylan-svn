@@ -5,7 +5,7 @@ Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
-// todo -- this whole thing is half baked
+// TODO: this whole thing is half baked
 
 define open primary class <session> (<attributes-mixin>)
   constant slot session-id :: <integer>, required-init-keyword: #"id";
@@ -62,7 +62,7 @@ define method clear-session
     add-cookie(*response*, *server*.server-session-id, -1,
                max-age: *server*.session-max-age,
                path: "/",
-               // domain: ??? ---TODO
+               // domain: ??? ---TODO:
                comment: "This cookie assigns a unique number to your browser "
                  "so that we can remember who you are as you move from page "
                  "to page within our site.");
@@ -88,15 +88,15 @@ end method current-session;
 define method new-session
     (request :: <request>) => (session :: <session>)
   let id = next-session-id(*server*);
-  // todo -- This "unless" is a temporary hack to prevent blowing up when
-  //         chunked transfer encoding is being used and we've sent the
+  // TODO: This "unless" is a temporary hack to prevent blowing up when
+  //       chunked transfer encoding is being used and we've sent the
   //         headers early.  (Only happens with very small chunk size,
   //         but still, it should work...)  Need to rethink sessions a bit.
   unless (headers-sent?(*response*))
     add-cookie(*response*, *server*.server-session-id, id,
                max-age: *server*.session-max-age,
                path: "/",
-               // domain: ??? ---TODO
+               // domain: ??? ---TODO:
                comment: "This cookie assigns a unique number to your browser so "
                  "that we can remember who you are as you move from page "
                  "to page within our site.");

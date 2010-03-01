@@ -70,8 +70,8 @@ end;
 
 // Verify that the expected environment variables are set when a CGI script
 // is invoked.
-// todo -- for now this just verifies that they're set but doesn't really
-//         check the values.
+// TODO: for now this just verifies that they're set but doesn't really
+//       check the values.
 //
 define test cgi-required-environment-variables-test ()
   with-http-server (server = make-cgi-server(server-root: cgi-directory()))

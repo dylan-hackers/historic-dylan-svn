@@ -78,12 +78,12 @@ define open class <http-server> (<object>)
   // of which has a regular expression and an object that supports the
   // invoke-responder method.  (Weeee!)  The leading slash is removed
   // from URLs because it's easier to use merge-locators that way.
-  // todo -- this should be per vhost
+  // TODO: this should be per vhost
   constant slot url-map :: <string-trie> = make(<string-trie>, object: #f),
     init-keyword: url-map:;
 
   //// Statistics
-  // todo -- move these elsewhere
+  // TODO: move these elsewhere
 
   slot connections-accepted :: <integer> = 0;
   constant slot user-agent-stats :: <string-table>,
@@ -401,7 +401,7 @@ end;
 
 
 
-// todo -- make thread safe
+// TODO: make thread safe
 define variable *sockets-started?* :: <boolean> = #f;
 
 define function ensure-sockets-started ()
@@ -765,8 +765,8 @@ define open primary class <request>
   slot request-session :: false-or(<session>),
     init-value: #f;
 
-  // todo -- This is only stored in the request for internal modularity
-  //         reasons.  It should be removed.
+  // TODO: This is only stored in the request for internal modularity
+  //       reasons.  It should be removed.
   slot request-responder :: false-or(<responder>),
     init-value: #f;
 
@@ -867,7 +867,7 @@ define method virtual-host
     if (vhost)
       vhost
     else
-      // todo -- see if the spec says what error to return here.
+      // TODO: see if the spec says what error to return here.
       resource-not-found-error(url: request.request-url);
     end;
   elseif (*server*.fall-back-to-default-virtual-host?)
@@ -1053,7 +1053,7 @@ define method validate-request-method
     (request-method :: <byte-string>)
  => (request-method :: <symbol>)
   if (member?(request-method, #["GET", "HEAD", "OPTIONS", "POST"], test: \=))
-    // todo -- The request method should be case sensitive, so it shouldn't be a symbol.
+    // TODO: The request method should be case sensitive, so it shouldn't be a symbol.
     as(<symbol>, request-method)
   else
     not-implemented-error(what: format-to-string("Request method %s", request-method),
@@ -1218,7 +1218,7 @@ define method send-error-response-internal
                       headers: headers);
   let one-liner = http-error-message-no-code(err);
   unless (request-method(request) == #"head")
-    // todo -- Display a pretty error page.
+    // TODO: Display a pretty error page.
     add-header(response, "Content-Type", "text/plain");
     write(response, one-liner);
     write(response, "\r\n");
@@ -1226,7 +1226,7 @@ define method send-error-response-internal
     // is being debugged.  It can give away too much information, such as the
     // full path to a missing file on the server.
     if (debugging-enabled?(*server*))
-      // todo -- display a backtrace
+      // TODO: display a backtrace
       write(response, condition-to-string(err));
       write(response, "\r\n");
     end;

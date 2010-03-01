@@ -110,7 +110,7 @@ define method get-context-value
           literal: =>      // useful for <dsp:if-equal> and <dsp:if-not-equal>
             return(name);
 
-          /* todo
+          /* TODO:
           otherwise =>
             if (...debugging template tags?...)
               signal(make(<dsp-error>,
@@ -326,7 +326,7 @@ end method if-equal-internal;
       </dsp:loop>
 */
 
-/* todo -- If one wants to do something fairly complicated in the
+/* TODO: If one wants to do something fairly complicated in the
 first loop iteration only, then it's not desirable/possible to use
 "header=" in the loop element itself.  But once you move anything
 inside a <dsp:when test="loop-start?"> then the "header=" becomes

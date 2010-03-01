@@ -199,9 +199,9 @@ define method send-header
   %log-debug(*http-common-log*, "-->%s: %s", name, val);
 end;
 
-// todo -- This and the function by the same name in the client should be
-//         moved into http-common.  (Probably just the stuff inside the
-//         "unless" below, excluding headers-sent?.)
+// TODO: This and the function by the same name in the client should be
+//       moved into http-common.  (Probably just the stuff inside the
+//       "unless" below, excluding headers-sent?.)
 define method send-headers
     (response :: <response>, socket :: <tcp-socket>)
   unless (response.response-request.request-version == #"http/0.9")
@@ -264,7 +264,7 @@ define method finish-response
                                   start: 0,
                                   end: response.stream-size));
       end;
-      // todo -- close connection if this is 0.9 (or 1.0?)
+      // TODO: close connection if this is 0.9 (or 1.0?)
     end;
   end if;
 

@@ -442,8 +442,8 @@ define taglib dsp ()
   body tag %%placeholder-for-unparsable-tags
       (page :: <dylan-server-page>, process-body :: <function>)
       ()
-    // todo -- allow user to configure whether this output is displayed.
-    //         e.g., you don't want it in a production setting.
+    // TODO: allow user to configure whether this output is displayed.
+    //       e.g., you don't want it in a production setting.
     begin
       output(" TAG PARSE ERROR ");
       process-body();
@@ -1185,9 +1185,9 @@ end;
 // @return a list whos even elements are attribute names (symbols) and odd elements are
 //         the corresponding values.  If a parser exists for the attribute's type the
 //         value is parsed.
-// todo -- This should return a table instead.
-// todo -- The terminology is strange.  Should be "attributes" a la XML instead of
-//         "tags" and "params".
+// TODO: This should return a table instead.
+// TODO: The terminology is strange.  Should be "attributes" a la XML instead of
+//       "tags" and "params".
 define method extract-tag-args
     (buffer :: <byte-string>, bpos :: <integer>, epos :: <integer>, tag :: false-or(<tag>))
  => (args :: <sequence>, has-body? :: <boolean>, body-start :: <integer>)
