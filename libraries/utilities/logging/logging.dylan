@@ -73,6 +73,12 @@ todo -- Look at concurrency issues.  For example, is it possible for log
         atomically and guarantee monotonically increasing log entry dates.
         Must be optional since it's heavyweight.
 
+idea -- Support logging categories.  Each log message is associated with a
+        category.  Each category has a log level associated with it.  This
+        makes it easy to adjust the types of debug logging per category at
+        run time.  Categories could be hierarchical so that messages from
+        entire subsystems can be enabled/disabled en masse.
+
 */
 
 
