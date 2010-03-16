@@ -102,6 +102,7 @@ end class;
 
 
 define parser expression :: <expression-token>
+   label "expression";
    rule tier-1-or-lower-expression => token;
    yield token
 end;

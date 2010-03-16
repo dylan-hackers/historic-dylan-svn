@@ -12,7 +12,7 @@ define function main (name, arguments)
    let alphabet = #[ "Alpha", "Beta", "Gamma" ];
    let output = process-template(template,
          variables: template-vocabulary(template, alphabet),
-         operations: template-vocabulary(template, as-uppercase));
+         operations: template-vocabulary(template, as-uppercase, first));
    format-out("%s", output);
 
    exit-application(0);

@@ -111,7 +111,7 @@ define class <delimited-directive-token> (<token>)
 end class;
 
 
-define parser case-directive (<delimited-directive-token>)
+define caching parser case-directive (<delimited-directive-token>)
    rule seq(lf-directive, dirspec-content, rt-directive) => tokens;
    inherited slot left-delimiter = tokens[0];
    inherited slot right-delimiter = tokens[2];
@@ -120,7 +120,7 @@ afterwards (context, tokens, result, start-pos, end-pos, fail: fail)
          parse-case-dirspec, fail)
 end;
 
-define parser if-directive (<delimited-directive-token>)
+define caching parser if-directive (<delimited-directive-token>)
    rule seq(lf-directive, dirspec-content, rt-directive) => tokens;
    inherited slot left-delimiter = tokens[0];
    inherited slot right-delimiter = tokens[2];
@@ -129,7 +129,7 @@ afterwards (context, tokens, result, start-pos, end-pos, fail: fail)
          parse-if-dirspec, fail)
 end;
 
-define parser repeat-directive (<delimited-directive-token>)
+define caching parser repeat-directive (<delimited-directive-token>)
    rule seq(lf-directive, dirspec-content, rt-directive) => tokens;
    inherited slot left-delimiter = tokens[0];
    inherited slot right-delimiter = tokens[2];
@@ -138,7 +138,7 @@ afterwards (context, tokens, result, start-pos, end-pos, fail: fail)
          parse-repeat-dirspec, fail)
 end;   
 
-define parser with-directive (<delimited-directive-token>)
+define caching parser with-directive (<delimited-directive-token>)
    rule seq(lf-directive, dirspec-content, rt-directive) => tokens;
    inherited slot left-delimiter = tokens[0];
    inherited slot right-delimiter = tokens[2];
@@ -147,7 +147,7 @@ afterwards (context, tokens, result, start-pos, end-pos, fail: fail)
          parse-with-dirspec, fail)
 end;   
 
-define parser simple-directive (<delimited-directive-token>, <directive-group>)
+define caching parser simple-directive (<delimited-directive-token>, <directive-group>)
    rule seq(lf-directive, dirspec-content, rt-directive) => tokens;
    inherited slot left-delimiter = tokens[0];
    inherited slot right-delimiter = tokens[2];
@@ -156,7 +156,7 @@ afterwards (context, tokens, result, start-pos, end-pos, fail: fail)
          parse-simple-dirspec, fail)
 end;
 
-define parser else-directive (<delimited-directive-token>)
+define caching parser else-directive (<delimited-directive-token>)
    rule seq(lf-directive, dirspec-content, rt-directive) => tokens;
    inherited slot left-delimiter = tokens[0];
    inherited slot right-delimiter = tokens[2];
@@ -165,7 +165,7 @@ afterwards (context, tokens, result, start-pos, end-pos, fail: fail)
          parse-else-dirspec, fail)
 end;
 
-define parser end-directive (<delimited-directive-token>)
+define caching parser end-directive (<delimited-directive-token>)
    label "end directive";
    rule seq(lf-directive, dirspec-content, rt-directive) => tokens;
    inherited slot left-delimiter = tokens[0];
@@ -175,7 +175,7 @@ afterwards (context, tokens, result, start-pos, end-pos, fail: fail)
          parse-end-dirspec, fail)
 end;
 
-define parser empty-directive (<delimited-directive-token>, <directive-group>)
+define caching parser empty-directive (<delimited-directive-token>, <directive-group>)
    rule seq(lf-directive, rt-directive) => tokens;
    inherited slot left-delimiter = tokens[0];
    inherited slot right-delimiter = tokens[1];

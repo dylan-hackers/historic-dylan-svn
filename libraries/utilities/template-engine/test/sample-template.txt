@@ -5,3 +5,11 @@
 {{+ unless info.last-rep? +}}, {{ end (*unless*) +}}
 {{ end (*repeat*) +}}
 {{ end (*with*) }}
+
+{{ case alphabet.first = "Alpha" +}}
+Starts with Alpha
+{{ case alphabet.first = "Gamma" +}}
+Starts with Gamma
+{{ else +}}
+Starts with something else.
+{{ end }}
