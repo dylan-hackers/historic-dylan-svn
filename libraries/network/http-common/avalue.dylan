@@ -1,4 +1,4 @@
-Module:    http-common
+Module:    http-common-internals
 Synopsis:  values with attributes
 Author:    Gail Zacharias
 Copyright: Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
@@ -26,7 +26,7 @@ define function rev-as-alist (pairs :: <list>)
   alist
 end;
 
-// <tagged-element>?
+// <parameterized-value>?
 define class <avalue> (<explicit-key-collection>)
   constant slot avalue-value :: <object>,
     required-init-keyword: value:;
@@ -122,4 +122,9 @@ define sealed method element-setter (value , av :: <avalue>, key :: <string>)
 end;
 */
 
+define method \=
+    (av1 :: <avalue>, av2 :: <avalue>) => (equal? :: <boolean>)
+  av1.avalue-value = av2.avalue-value
+    & av1.avalue-alist = av2.avalue-alist
+end;
 

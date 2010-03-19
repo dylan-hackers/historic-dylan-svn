@@ -15,6 +15,7 @@ define library http-common
               standard-io,
               streams };
   use logging;
+  use mime;
   use system,
     import: { date,
               file-system,
@@ -23,72 +24,39 @@ define library http-common
   use strings;
   use uncommon-dylan;
   use uri;
-  export http-common;
+  export
+    http-common,
+    http-common-internals;
 end library http-common;
 
 define module http-common
-  use base64;
-  use common-extensions,
-    exclude: { format-to-string };
-  use date;
-  use dylan;
-  use dylan-extensions,
-    import: { element-no-bounds-check,
-              element-no-bounds-check-setter,
-              element-range-check,
-              element-range-error,
-              // make-symbol,
-              // case-insensitive-equal,
-              // case-insensitive-string-hash
-              <format-string-condition>
-              };
-  use file-system,
-    import: { with-open-file,
-              <file-does-not-exist-error>,
-              <pathname> };
-  use format;
-  use locators,
-    import: { <locator>,
-              <file-locator>,
-              <directory-locator>,
-              locator-directory,
-              simplify-locator,
-              subdirectory-locator
-              };
-  use logging;
-  use standard-io;
-  use streams;
-  use strings;
-  use threads;
-  use uncommon-dylan;
-  use uri;
-
-  export
+  create
     $http-version,
     $default-http-port,
     $default-https-port,
     *http-common-log*,
+    quote-html,
+    <chunking-input-stream>,
+    content-length,
+    note-bytes-received;
 
-    // Things that expire
+  // Things that expire
+  create
     <expiring-mixin>,
     expired?,
     date-modified,
-    date-modified-setter,
+    date-modified-setter;
 
-    // Thing with attributes
+  // Thing with attributes
+  create
     <attributes-mixin>,
     has-attribute?,
     get-attribute,
     set-attribute,
-    remove-attribute,
+    remove-attribute;
 
-    quote-html,
-
-    <chunking-input-stream>,
-    content-length,
-    note-bytes-received,
-
-    // Request objects
+  // Request objects
+  create
     <base-http-request>,
     request-content,
     request-content-setter,
@@ -99,9 +67,10 @@ define module http-common
     request-url,
     request-url-setter,             // todo -- remove this export
     request-version,
-    request-version-setter,         // todo -- remove this export
+    request-version-setter;         // todo -- remove this export
 
-    // Response objects
+  // Response objects
+  create
     <base-http-response>,
     response-chunked?,
     response-chunked?-setter,
@@ -109,9 +78,10 @@ define module http-common
     response-code-setter,
     response-reason-phrase,
     response-reason-phrase-setter,
-    response-request,
+    response-request;
 
-    // Errors and redirects
+  // Errors and redirects
+  create
     <http-error>,                            // Any client or server error
     <http-protocol-condition>,               // Any client or server protocol condition
 
@@ -137,15 +107,16 @@ define module http-common
     moved-temporarily-redirect,
 
     <http-client-protocol-error>,            // Superclass of all client errors
-    <bad-request-error>,                     // 400
-    $bad-request-error,
-    bad-request-error,
+    <http-parse-error>,
+      <bad-request-error>,                   // 400
+      $bad-request-error,
+      bad-request-error,
+      <bad-header-error>,                    // 400
+      $bad-header-error,
+      bad-header-error,
     <header-too-large-error>,                // 400
     $header-too-large-error,
     header-too-large-error,
-    <bad-header-error>,                      // 400
-    $bad-header-error,
-    bad-header-error,
     <unauthorized-error>,                    // 401
     $unauthorized-error,
     unauthorized-error,
@@ -224,15 +195,17 @@ define module http-common
     condition-class-for-status-code,
     http-status-code,
     http-error-headers,
-    http-error-message-no-code,   // get rid of this, use condition-to-string
+    http-error-message-no-code;   // get rid of this, use condition-to-string
 
-    // Parsing
+  // Parsing
+  create
     token-end-position,
     validate-http-version,
     validate-http-status-code,
-    parse-http-date,
+    parse-http-date;
 
-    // Headers
+  // Headers
+  create
     <header-table>,
     add-header,  // should probably be set-header, for symmetry with get-header.
     get-header,
@@ -242,15 +215,24 @@ define module http-common
     <avalue>,
     avalue-value,
     avalue-alist,
-    chunked-transfer-encoding?,
+    <media-type>,  // Accept & Content-type headers
+      media-type-quality,
+      media-type-level,
+      media-type-exact?,
+      media-type-more-specific?,
+      mime-types-match?,
+      $mime-wild,
+    chunked-transfer-encoding?;
 
-    // lower level header APIs...
+  // lower level header APIs...
+  create
     read-header-line,
     read-http-line,
     parse-header-value,
-    grow-header-buffer,
+    grow-header-buffer;
 
-    // Cookies
+  // Cookies
+  create
     cookie-name,
     cookie-value,
     cookie-domain,
@@ -259,6 +241,50 @@ define module http-common
     cookie-comment,
     cookie-version,
     $default-cookie-version;   // get rid of this
-
 end module http-common;
+
+define module http-common-internals
+  use base64;
+  use common-extensions,
+    exclude: { format-to-string };
+  use date;
+  use dylan;
+  use dylan-extensions,
+    import: { element-no-bounds-check,
+              element-no-bounds-check-setter,
+              element-range-check,
+              element-range-error,
+              // make-symbol,
+              // case-insensitive-equal,
+              // case-insensitive-string-hash
+              <format-string-condition>
+              };
+  use file-system,
+    import: { with-open-file,
+              <file-does-not-exist-error>,
+              <pathname> };
+  use format;
+  use http-common;
+  use locators,
+    import: { <locator>,
+              <file-locator>,
+              <directory-locator>,
+              locator-directory,
+              simplify-locator,
+              subdirectory-locator
+              };
+  use logging;
+  use mime;
+  use standard-io;
+  use streams;
+  use strings;
+  use threads;
+  use uncommon-dylan;
+  use uri;
+
+  // Internals for test suite etc
+  export
+    parse-media-type,
+    quality-value;
+end module http-common-internals;
 

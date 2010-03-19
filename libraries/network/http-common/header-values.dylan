@@ -1,4 +1,4 @@
-Module:    http-common
+Module:    http-common-internals
 Synopsis:  header fields values parsing
 Author:    Gail Zacharias
 Copyright: Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
@@ -67,26 +67,27 @@ define function quality-value (str :: <byte-string>,
                                epos :: <integer>)
   => (value :: false-or(/* limited(<float>, min: 0.0, max: 1.0) */ <float>))
   when (bpos < epos & epos <= bpos + 5)
-    let val = as(<integer>, str[bpos]) - as(<integer>, '0');
+    let zero = as(<integer>, '0');
+    let val = as(<integer>, str[bpos]) - zero;
     let pos = bpos + 1;
     when ((val == 0 | val == 1) & (pos == epos | str[pos] == '.'))
-      iterate a2f (pos = pos + 1, val = val, rep = 3)
-        if (rep == 0)
-          when (val <= 1000)
-            val / 1000.0
-          end;
+      val := val * 1000.0;
+      iterate a2f (pos = pos + 1, val = val, expt = 2)
+        log-info(*http-common-log*, "a2f(%=, %=, %=, %=)",
+                 copy-sequence(str, start: bpos, end: epos), pos, val, expt);
+        if (expt < 0 | pos >= epos)
+          val / 1000.0
         else
-          let n = if (pos < epos)
-                    as(<integer>, str[pos]) - as(<integer>, '0')
-                  else
-                    0
-                  end;
-          0 <= n & n <= 9 & a2f(pos + 1, rep * 10 + n, rep - 1)
-        end;
-      end iterate;
-    end;
+          let digit = as(<integer>, str[pos]) - zero;
+          if (0 <= digit & digit <= 9)
+            let n = iff(pos < epos, digit, 0);
+            0 <= n & n <= 9 & a2f(pos + 1, val + 10 ^ expt * n, expt - 1)
+          end
+        end
+      end iterate
+    end
   end
-end;
+end function quality-value;
 
   
 define function parse-header (data) => (str :: <string>)
@@ -144,7 +145,7 @@ define function parse-comma-separated-values
   else
     add-fields(#(), data)
   end;
-end;
+end function parse-comma-separated-values;
 
 define function parse-comma-separated-pairs (data, parse-function :: <function>)
   => (attribs :: <avalue>)
@@ -154,13 +155,13 @@ define function parse-comma-separated-pairs (data, parse-function :: <function>)
 end;
 
 define function parse-single-header
-    (data, parse-function :: <function>)
+    (data, parser :: <function>)
   if (instance?(data, <list>))
     bad-header-error(message: "malformed syntax");  // improve this
   else
     let (str, bpos, epos) = string-extent(data);
-    parse-function(str, bpos, epos)
-  end;
+    parser(str, bpos, epos)
+  end
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,8 +171,11 @@ end;
 // Appear in Accept: and Content-Type: header fields
 
 
-//---TODO: should have a table of known attributes and how to parse them.
-// e.g. "q" => qvalue, "max-age" => integer, etc.
+//---TODO: add more to this table.  max-age, ...
+define table $parameter-parsers :: <string-table>
+  = { "q"     => quality-value,
+      "level" => parse-integer-value };
+                                                    
 define function extract-attribute+value (str :: <byte-string>,
                                          bpos :: <integer>,
                                          epos :: <integer>)
@@ -179,7 +183,8 @@ define function extract-attribute+value (str :: <byte-string>,
   let vpos = char-position('=', str, bpos, epos) | epos;
   let attrib = trimmed-substring(str, bpos, vpos);
   let value = vpos < epos & token-or-qstring(str, vpos + 1, epos);
-  values(attrib, value)
+  let parser = element($parameter-parsers, attrib, default: #f);
+  values(attrib, iff(parser, parser(value, 0, value.size), value))
 end;
 
 // Add a tagged-alist type, which has a "value" (aka tag) and "attributes",
@@ -230,22 +235,39 @@ define function parse-parameterized-value (str :: <byte-string>,
   make(<avalue>, value: value, alist: alist);
 end;
 
-//  value = (type . subtype)
 define function parse-media-type (str :: <byte-string>,
                                   bpos :: <integer>,
                                   epos :: <integer>)
-  => (media-type :: <avalue>)
+  => (media-type :: <media-type>)
   let (value, params) = extract-parameterized-value(str, bpos, epos);
   let (str, bpos, epos) = string-extent(value);
   let spos = char-position('/', str, bpos, epos);
-  let (type, subtype) = if (spos)
-                          values(trimmed-substring(str, bpos, spos),
-                                 trimmed-substring(str, spos + 1, epos))
-                        else
-                          values(str, #f)
-                        end;
-  make(<avalue>, value: pair(type, subtype), alist: params)
-end;
+  local method fail (msg)
+          bad-header-error(message: concatenate("Invalid media-type, ", msg, str));
+        end;
+  if (~spos)
+    fail("/ not found: ");
+  else
+    let type = trimmed-substring(str, bpos, spos);
+    let subtype = trimmed-substring(str, spos + 1, epos);
+    if (~type | empty?(type))
+      fail("no type specified: ");
+    end;
+    if (~subtype | empty?(subtype))
+      fail("no subtype specified: ");
+    end;
+
+    let attributes = make(<string-table>);
+    // TODO: parse directly to <string-table> instead of converting.
+    for (param in params)
+      attributes[as-lowercase(head(param))] := tail(param);
+    end;
+    make(<media-type>,
+         type: as-lowercase(type),
+         subtype: as-lowercase(subtype),
+         attributes: attributes)
+  end;
+end function parse-media-type;
 
 // accept-charset, accept-languages, TE
 define function parse-quality-pair

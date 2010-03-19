@@ -1,4 +1,4 @@
-Module:    http-common
+Module:    http-common-internals
 Synopsis:  Request header parsing
 Author:    Gail Zacharias
 Copyright: Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
@@ -271,11 +271,9 @@ define method parse-header-value (key :: <symbol>, data :: <field-type>) => (v :
   parse-header(data)
 end;
 
-// Media type is an <avalue> whose primary value is #(type . subtype)
-// and whose alist corresponds to the parameters, including the
-// "q" parameter and any other accept extensions.
+// Returns a list of <media-types>s
 define sealed method parse-header-value (key == #"accept", data :: <field-type>)
-    => (media-type-list :: <list>)
+    => (media-types :: <list>)
   parse-comma-separated-values(data, parse-media-type)
 end;
 
@@ -494,7 +492,7 @@ define sealed method parse-header-value (key == #"content-range", data :: <field
 end;
 
 define sealed method parse-header-value (key == #"content-type", data :: <field-type>)
-  => (type :: <avalue>)
+  => (type :: <media-type>)
   parse-single-header(data, parse-media-type)
 end;
 

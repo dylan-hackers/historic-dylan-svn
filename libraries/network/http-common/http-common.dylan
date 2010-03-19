@@ -1,4 +1,4 @@
-Module: http-common
+Module: http-common-internals
 Synopsis: Code shared by HTTP client and server.
 
 define constant $http-version :: <byte-string> = "HTTP/1.1";

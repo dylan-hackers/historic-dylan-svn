@@ -1,4 +1,4 @@
-Module: http-common
+Module: http-common-internals
 Synopsis: Response codes and associated error classes.
 Author:    Carl Gay
 Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
@@ -59,9 +59,7 @@ define table $http-status-codes =
     599 => "Application Error"
     };
 
-// For any error related to the HTTP libraries.  Violations of the HTTP
-// protocol should signal a subclass of <http-protocol-condition> instead.
-// 
+// For any error related to the HTTP libraries.
 define open class <http-error> (<format-string-condition>, <error>)
 end;
 
