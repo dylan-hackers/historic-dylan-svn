@@ -167,10 +167,12 @@ define literal-parsers
    see-lit        = "see";
    sic-lit        = "sic";
    signals-lit    = "signals";
+   subheading-lit = "subheading";
    syn-lit        = "syn";
    synopsis-lit   = "synopsis";
    term-lit       = "term";
    to-lit         = "to";
+   topic-lit      = "topic";
    u-lit          = "u";
    unbound-lit    = "unbound";
    unq-lit        = "unq";

@@ -1,0 +1,12 @@
+=========================================================
+Topic: {Module name} Functions	[:Functions({Module ID})]
+=========================================================
+Section: ::{Module ID}
+
+The {Module name} module exports these functions:
+
+[LIST OF FUNCTIONS]
+
+------------------------------------------
+Subsection: See also		[:SeeAlso]
+------------------------------------------

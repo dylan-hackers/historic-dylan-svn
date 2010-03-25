@@ -12,6 +12,7 @@ BASE_LIBDIR = ../..
 LIBRARIES = \
 	$(BASE_LIBDIR)/utilities/command-line-parser \
 	$(BASE_LIBDIR)/utilities/peg-parser \
+	$(BASE_LIBDIR)/utilities/template-engine \
 	$(BASE_LIBDIR)/utilities/dynamic-binding \
 	$(BASE_LIBDIR)/monday/lib/program-representation/source-location \
 	$(BASE_LIBDIR)/files-and-io/sequence-stream \

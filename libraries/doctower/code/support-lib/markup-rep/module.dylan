@@ -26,19 +26,24 @@ define module markup-rep
       content-seq, markup-seq, title-seq, topic-content-seq;
 
    export
-      abs-size, abs-size-setter, args-section, args-section-setter,
-      conds-section, conds-section-setter, content, content-setter,
-      definitions-section, definitions-section-setter, footnotes,
-      footnotes-setter, fully-qualified-name, fully-qualified-name-setter,
-      headings, headings-setter, id, id-setter, id-source-loc,
-      id-source-loc-setter, image-name, image-name-setter, index, index-setter,
-      items, items-setter, keywords-section, keywords-section-setter,
-      method-topics, modules-section, modules-section-setter, names-section,
-      names-section-setter, parent, parent-setter, rel-size, rel-size-setter,
-      relevant-to, relevant-to-setter, see-also, see-also-setter, shortdesc,
-      shortdesc-setter, target, target-setter, text, text-setter, title,
-      title-setter, title-source-loc, title-source-loc-setter, vals-section,
-      vals-section-setter;
+      abs-size, abs-size-setter, adjectives-section, adjectives-section-setter,
+      args-section, args-section-setter, bindings-section,
+      bindings-section-setter, conds-section, conds-section-setter, content,
+      content-setter, definitions-section, definitions-section-setter,
+      footnotes, footnotes-setter, fully-qualified-name,
+      fully-qualified-name-setter, funcs-on-section, funcs-on-section-setter,
+      funcs-returning-section, funcs-returning-section-setter, headings,
+      headings-setter, id, id-setter, id-source-loc, id-source-loc-setter,
+      image-name, image-name-setter, index, index-setter, inheritables-section,
+      inheritables-section-setter, items, items-setter, keywords-section,
+      keywords-section-setter, methods-section, methods-section-setter,
+      modules-section, modules-section-setter, parent, parent-setter, rel-size,
+      rel-size-setter, relevant-to, relevant-to-setter, see-also,
+      see-also-setter, shortdesc, shortdesc-setter, subs-section,
+      subs-section-setter, supers-section, supers-section-setter, target,
+      target-setter, text, text-setter, title, title-setter, title-source-loc,
+      title-source-loc-setter, vals-section, vals-section-setter, value-section,
+      value-section-setter;
 
    export
       <topic-level-style>, stringify-title;

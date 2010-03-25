@@ -215,13 +215,13 @@ end method;
 define method make-fixed-method
    (context :: <context>, name :: <binding-name>,
     meth-params :: <sequence>, meth-values :: <sequence>,
-    #key markup :: false-or(<markup-content-token>) = #f,
+    #key markup-token :: false-or(<markup-content-token>) = #f,
          sealed: sealed? :: <boolean> = #f, provenance :: <symbol>,
          source-location :: <source-location> = name.source-location)
 => (generic :: <generic-binding>)
    let meth-param-list = make(<fixed-param-list>, req-params: meth-params);
    let meth-value-list = make(<value-list>, req-values: meth-values);
-   let markup = if (markup) vector(markup) else #[] end;
+   let markup = if (markup-token) vector(markup-token) else #[] end;
    let impl-def = make(<implicit-generic-defn>, source-location: source-location,
                        param-list: meth-param-list, value-list: meth-value-list,
                        markup: markup);
@@ -238,7 +238,7 @@ end method;
 define method make-empty-generic
    (context :: <context>, name :: <binding-name>,
     meth-params :: <sequence>, meth-values :: <sequence>,
-    #key markup :: false-or(<markup-content-token>) = #f,
+    #key markup-token :: false-or(<markup-content-token>) = #f,
          sealed: sealed? :: <boolean> = #f, provenance :: <symbol>,
          source-location :: <source-location> = name.source-location)
 => (generic :: <generic-binding>)

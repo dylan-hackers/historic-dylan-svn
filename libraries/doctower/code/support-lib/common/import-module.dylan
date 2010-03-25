@@ -16,7 +16,7 @@ define module common-imports
    use sequence-utilities, export: { partition };
    // from system
    use file-system, import: { <file-stream>, stream-locator }, export: all;
-   use locators, import: { <file-locator> }, export: all;
+   use locators, import: { <file-locator>, <directory-locator> }, export: all;
    // from io
    use streams,
       exclude: { <sequence-stream>, <string-stream>, <byte-string-stream> },

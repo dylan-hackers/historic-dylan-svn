@@ -159,13 +159,14 @@ disallowed titles, aside from what falls out from the grammar.
 
 The tool assigns IDs to API topics and other generated topics as follows. The
 first letter of each word is capitalized and spaces are removed from member
-method canonical names (i.e. "As(<Integer>, <Float>)" becomes
+method canonical names (i.e. "as (<integer>, <float>)" becomes
 "As(<Integer>,<Float>)"). An API name can have a "/"; in the ID, this is
 replaced by the non-name character ".". There is no need to escape operator
 names for our purposes.
 
 Conceptual API topics do not have tool-assigned IDs.
 
+Topic IDs:
   Each class, function,
   macro, or variable  - ::Dylan:Dylan:<Integer>
   Each member method  -
@@ -184,10 +185,23 @@ Conceptual API topics do not have tool-assigned IDs.
   Module members      - :Bindings(Dylan:Dylan), :Classes(Dylan:Dylan), etc.
   Other topics        - :Topic:nnn
   Other topic titles  - :Title(Topic):nnn
+
+Section IDs:
+  "Definitions"       - :Definitions
+  "Classes", etc.     - :Classes, etc.
+  "Unbound names"     - :Unbound
+  "Other names"       - :Reexports
+  "Functions on X"    - :FunctionsOn
+  "Functions returning X" - :FunctionsReturning
+  "Type and value"    - :Value
+  "See also"          - :SeeAlso
   Other sections      - :Sect:nnn
   Other sect. titles  - :Title(Sect):nnn
 
 The topic and section titles are used for DITA conref attributes.
+
+In API reference topics, the user may link to an ID like ":::Something". This is
+shorthand for an API in the current module or library.
 
 
 Intermediate format

@@ -1,0 +1,30 @@
+The {{const.name}} constant.
+
+----------------------------------------------
+Subsection: Definitions		[:Definitions]
+----------------------------------------------
+
+{{IF const.definition? +}}
+Defined in {{const.source.filename}} line {{const.source.line}}.
+{{+END}}
+
+{{IF const.exports.size > 0 +}}
+Exported under these names:
+{{REPEAT WITH export IN const.exports}}
+- {{export.name}} in '{{export.module.name}} module' [qv ::{{export.module.id}}]
+  in '{{export.library}} library'. [qv ::{{export.library.id}}]
+{{+END+}}
+{{END}}
+
+---------------------------------------------
+Subsection: Adjectives	        [:Adjectives]
+---------------------------------------------
+
+'{{const.adjectives}}' [code]
+
+----------------------------------------
+Subsection: Type and value	[:Value]
+----------------------------------------
+
+An instance of '{{const.type.id}}' [qv] initialized to '{{const.value}}'. [code]
+

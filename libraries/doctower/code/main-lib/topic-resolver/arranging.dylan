@@ -267,28 +267,30 @@ end slot-visitor;
 /// Discussion: This will result in one tree per documented generic.
 define method generic-function-arrangement (topics :: <sequence>)
 => (trees :: <sequence> /* of <ordered-tree> */)
-   let generic-topics = choose(rcurry(instance?, <generic-doc>), topics);
-
-   local method arrange-methods (gen-topic :: <generic-doc>)
-         => (tree :: <ordered-tree>)
-            apply(make-parent-child-tree,
-                  make(<arranged-topic>, topic: gen-topic,
-                       type: #"generic-family"),
-                  gen-topic.arranged-method-topics)
-         end method,
-            
-         method arranged-method-topics (gen-topic :: <generic-doc>)
-         => (arranged :: <sequence>)
-            map(rcurry(arranged-method-topic, gen-topic), gen-topic.method-topics)
-         end method,
-
-         method arranged-method-topic
-            (meth-topic :: <function-doc>, gen-topic :: <generic-doc>)
-         => (arranged :: <arranged-topic>)
-            make(<arranged-topic>, topic: meth-topic, type: #"generic-family")
-         end method;
-   
-   map(arrange-methods, generic-topics);
+   // TODO: Rewrite this in terms of fully-qualified name.
+   // let generic-topics = choose(rcurry(instance?, <generic-doc>), topics);
+   // 
+   // local method arrange-methods (gen-topic :: <generic-doc>)
+   //       => (tree :: <ordered-tree>)
+   //          apply(make-parent-child-tree,
+   //                make(<arranged-topic>, topic: gen-topic,
+   //                     type: #"generic-family"),
+   //                gen-topic.arranged-method-topics)
+   //       end method,
+   //          
+   //       method arranged-method-topics (gen-topic :: <generic-doc>)
+   //       => (arranged :: <sequence>)
+   //          map(rcurry(arranged-method-topic, gen-topic), gen-topic.method-topics)
+   //       end method,
+   // 
+   //       method arranged-method-topic
+   //          (meth-topic :: <function-doc>, gen-topic :: <generic-doc>)
+   //       => (arranged :: <arranged-topic>)
+   //          make(<arranged-topic>, topic: meth-topic, type: #"generic-family")
+   //       end method;
+   // 
+   // map(arrange-methods, generic-topics);
+   #()
 end method;
 
 

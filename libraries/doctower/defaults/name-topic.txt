@@ -1,0 +1,25 @@
+==============================
+Topic: {Name}	[::{Topic ID}]
+==============================
+
+The unbound name {Name}.
+
+----------------------------------------------
+Subsection: Definitions		[:Definitions]
+----------------------------------------------
+
+{IF definition?}
+Defined in {source filename} line {source line}.
+{ENDIF}
+
+{IF exports?}
+Exported under these names:
+{EACH export}
+- {Export name} in '{Export module} module' [qv ::{Export module ID}] in
+  '{Export library} library'. [qv ::{Export library ID}]
+{ENDEACH}
+{ENDIF}
+
+------------------------------------------
+Subsection: See also		[:SeeAlso]
+------------------------------------------

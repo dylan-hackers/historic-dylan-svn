@@ -17,20 +17,20 @@ define module markup-parser
    use regular-expressions, import: { regexp-replace };
    
    export
-      parse-markup;
+      parse-markup, parse-internal-markup;
    
    export
       <markup-content-token>, <directive-topic-token>, <titled-topic-token>,
-      <titled-section-token>, <footnote-token>,
-      <topic-or-section-title-token>, <title-nickname-token>,
-      <directive-topic-title-token>, <paragraph-directive-token>,
-      <link-directive-token>, <links-directive-token>, <word-directive-token>,
+      <titled-section-token>, <titled-directive-section-token>,
+      <footnote-token>, <topic-or-section-title-token>, <title-nickname-token>,
+      <directive-topic-title-token>, <directive-section-title-token>,
+      <paragraph-directive-token>, <link-directive-token>,
+      <links-directive-token>, <word-directive-token>,
       <division-directive-token>, <indented-content-directive-token>,
       <marginal-code-block-token>, <marginal-verbatim-block-token>,
-      <figure-ref-line-token>, <content-ref-line-token>,
-      <ditto-ref-line-token>, <api-list-ref-line-token>,
-      <bracketed-raw-block-token>, <table-token>, <bullet-list-token>,
-      <bullet-list-item-token>, <numeric-list-token>,
+      <figure-ref-line-token>, <content-ref-line-token>, <ditto-ref-line-token>,
+      <api-list-ref-line-token>, <bracketed-raw-block-token>, <table-token>,
+      <bullet-list-token>, <bullet-list-item-token>, <numeric-list-token>,
       <numeric-list-item-token>, <hyphenated-list-token>,
       <hyphenated-list-item-token>, <phrase-list-token>,
       <phrase-list-item-token>, <paragraph-token>, <raw-line-token>,

@@ -143,10 +143,7 @@ define method canonical-source-text (src-text :: <sequence>)
 => (src-text :: <sequence>)
    let new-text = src-text.shallow-copy;
    replace-elements!(new-text, rcurry(instance?, <source-name>),
-         method (n :: <source-name>) => (n :: <source-name>)
-            let defn = definition-for-name(n);
-            (defn & defn.canonical-name) | n
-         end method)
+         compose(canonical-name, curry(element, *definitions*)))
 end method;
 
 
@@ -165,19 +162,4 @@ define method source-text-as-string (src-text :: <sequence>, scoped? :: <boolean
       end select;
    end for;
    as(<string>, str)
-end method;
-
-
-define method definition-for-name (name :: <library-name>)
-=> (defn :: false-or(<library>))
-   find-element(dynamic-binding(*libraries*), 
-         method (lib :: <library>) => (has-name? :: <boolean>)
-            any?(curry(\=, name), lib.aliases)
-         end, failure: #f)
-end method;
-
-define method definition-for-name (name :: type-union(<module-name>, <binding-name>))
-=> (defn :: false-or(<definition>))
-   let enclosing-scope = definition-for-name(name.enclosing-name);
-   element(enclosing-scope.definitions, name.local-name, default: #f)
 end method;

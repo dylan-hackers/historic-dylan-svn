@@ -31,6 +31,8 @@ define method apis-from-dylan (file-sets :: <sequence>)
    process-namespace-clauses(context);
    infer-and-merge-definitions(context);
    unique-definitions(context)
+   // TODO: Change type fragments of the "singleton(x)" syntax to singleton
+   // type fragments.
 end method;
 
 

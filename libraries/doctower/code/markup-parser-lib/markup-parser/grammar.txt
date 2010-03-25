@@ -60,14 +60,14 @@ topic-content:
    ( section / footnote / division-content )+
 
 section:
-   directive-section / titled-section
+   directive-section / titled-directive-section / titled-section
 directive-section:
    paragraph-directive / link-directive / links-directive / word-directive /
    division-directive / null-directive
 titled-section:
-   section-title section-content?
-section-content:
-   division-content
+   section-title division-content?
+titled-directive-section:
+   directive-section-title division-content?
 
 footnote:
    [-SPC ( NUMBER / ORDINAL ) SPC-] ':' SPC+ division-content?
@@ -130,6 +130,10 @@ ______________
 
 directive-topic-title:
    directive-spec-intro directive-topic-spec-text ':' SPC+ 
+   text-til-ascii-nickname-ls ( SPC+ ascii-midline )?
+   ( LS / SPC+ title-nickname ) ascii-underline?
+directive-section-title:
+   directive-spec-intro titled-directive-section-spec-text ':' SPC+ 
    text-til-ascii-nickname-ls ( SPC+ ascii-midline )?
    ( LS / SPC+ title-nickname ) ascii-underline?
 
@@ -318,12 +322,10 @@ quote-start:
 quote-end:
    ''' / '"' / '`' / user-defined
 quote-spec:
-   [-SPC ( quote-spec-option SPC-LS* )* quote-spec-link-option? SPC-]
+   [-SPC ( quote-spec-option SPC-LS* )+ link-til-cls-brack? SPC-]
 quote-spec-option:
    "CODE" / "TERM" / "BIB" / "SIC" / "TOC" / "UNQ" / "EM" / "QQ" / "QV" /
    "B" / "I" / "U" / "Q"
-quote-spec-link-option:
-   ( "TOC" / "QV" ) SPC-LS+ link-til-cls-brack
 
 _________
   WORDS  
@@ -384,7 +386,9 @@ bracketed-render-span-end:
 
 directive-topic-spec-text:
    "CONSTANT" / "FUNCTION" / "VARIABLE" / ( "GENERIC" SPC+ "FUNCTION" ) / 
-   "LIBRARY" / "METHOD" / "MODULE" / "CLASS" / "MACRO"
+   "LIBRARY" / "METHOD" / "MODULE" / "CLASS" / "MACRO" / "TOPIC"
+titled-directive-section-spec-text:
+   "SUBHEADING"
 paragraph-directive-spec-text:
    "SYNOPSIS" / "SYN"
 link-directive-spec-text:

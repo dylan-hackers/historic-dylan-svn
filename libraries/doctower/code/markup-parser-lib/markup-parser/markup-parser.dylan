@@ -3,7 +3,7 @@ synopsis: Parser initialization, pre-processing, and overall control.
 
 
 /**
-Synopsis: Entry point into parsing.
+Synopsis: Entry point into parsing a user-supplied file.
 
 --- Conditions: --- 
 Signals error if stream has syntax error.
@@ -56,6 +56,48 @@ define method parse-markup
 end method;
 
 
+/**
+Synopsis: Entry point into parsing a filled-out topic template stream.
+
+--- Conditions: --- 
+Signals error if stream has syntax error.
+
+--- Arguments: ---
+text -
+   A <positionable-stream>. The stream may be one or more wrapper streams over
+   the base disk file.
+locator -
+   The <source-location> to use in tokens.
+**/
+define method parse-internal-markup
+   (text :: <positionable-stream>, locator :: <source-location>)
+=> (markup-token :: <markup-content-token>)
+   let (indented-stream, close-indented-stream, text-stream-position) =
+         text.stream-with-indentation;
+
+   block ()
+      let context = make(<internal-parse-context>, cache-stream: text,
+                         locator: locator);
+
+      // *parser-trace* := *standard-output*;
+   
+      let (markup-token, success?, failure) =
+            parse-markup-block(indented-stream, context);
+
+      // *parser-trace* := #f;
+   
+      if (success?)
+         markup-token;
+      else
+         error("Failed to parse internal markup at stream position %d: %=",
+               failure.failure-position, failure.parse-expected);
+      end if;
+   cleanup
+      close-indented-stream();
+   end block;
+end method;
+
+
 /// Synopsis: Creates a stream with INDENT or DEDENT tokens and without trailing
 /// spaces.
 define method stream-with-indentation (text :: <stream>)
@@ -74,9 +116,9 @@ define method stream-with-indentation (text :: <stream>)
             case
                spaces > levels.first =>
                   push(levels, spaces);
-                  vector($indent);
+                  as(<string>, $indent);
                spaces = levels.first =>
-                  #[];
+                  "";
                spaces < levels.first =>
                   // Dedent until we clear the missing levels. Then, if there are
                   // spaces remaining, add an indent to take care them. That last
@@ -90,7 +132,7 @@ define method stream-with-indentation (text :: <stream>)
                      push(levels, spaces);
                      reps := add!(reps, $indent);
                   end if;
-                  as(<simple-vector>, reps);
+                  as(<string>, reps);
             end case;
          add-replacement-contents(stream, spaces-replacement, start: sol, end: sol);
       end unless;

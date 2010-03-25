@@ -236,11 +236,9 @@ define errors (<user-visible-error>)
       "No library definition found in %s",
       filenames;
    
-   /*
-   69 no-definition-for-modules
-      "No definition of exported module %s",
-      location, names;
-   */
+   69 link-without-qv-or-vi-in-spec
+      "Quoted phrase options do not include \"qv\" or \"vi\" but include a link",
+      location;
 
    70 file-error
       "File error with %s: %s",

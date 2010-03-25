@@ -1,0 +1,29 @@
+The {{mod.name}} module.
+
+----------------------------------------------
+Subheading: Definitions		[:Definitions]
+----------------------------------------------
+
+{{IF mod.definition? +}}
+Defined in {{mod.source.filename}} line {{mod.source.line}}.
+{{+END}}
+
+{{IF mod.exports.size > 0 +}}
+Exported under these names:
+{{REPEAT WITH export IN mod.exports}}
+- {{export.name}} in '{{export.library.name}} library'. [qv {{export.library.ID}}]
+{{END+}}
+{{+END}}
+
+-------------------------------------------
+Subheading: Bindings		[:Bindings]
+-------------------------------------------
+
+[LIST OF BINDINGS]
+
+{{IF mod.unknown-reexports.size > 0}}
+May export other bindings from these modules:
+{{REPEAT WITH unknown-reexport IN lib.unknown-reexports}}
+- '{{unknown-reexport.name}}' [qv {{unknown-reexport.ID}}]
+{{END+}}
+{{+END}}

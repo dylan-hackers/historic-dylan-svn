@@ -32,7 +32,7 @@ define abstract class <definition> (<documentable-api-object>)
       required-init-keyword: #"provenance";
    
    /// All source names of the definition.
-   slot aliases :: <sequence> = make(<stretchy-vector>);
+   slot aliases :: <vector> = make(<stretchy-vector>);
 end class;
 
 
@@ -50,11 +50,11 @@ end method;
 define abstract class <namespace> (<definition>)
    /// Exported definitions in this namespace. These are a subsequence of keys
    /// in 'definitions'. Elements are local names. Each is a <string>. 
-   slot exported-names :: <sequence> = make(<stretchy-vector>);
+   slot exported-names :: <vector> = make(<stretchy-vector>);
 
    /// Definitions in this namespace. Keyed by local name, a <string>. Includes
    /// both exported and internal definitions.
-   slot definitions :: <mutable-explicit-key-collection>
+   slot definitions :: <case-insensitive-skip-list>
       = make(<case-insensitive-skip-list>);
 end class;
 
@@ -70,11 +70,11 @@ define abstract class <defined-namespace> (<namespace>)
    ///
    /// Basically, this slot can be used to add text like "Other bindings from
    /// common-dylan" to a list of exported bindings.
-   slot unknown-reexport-sources :: <sequence> = make(<stretchy-vector>);
+   slot unknown-reexport-sources :: <vector> = make(<stretchy-vector>);
 
    /// Sequence of <markup-content-token>. These tokens are in the source code
    /// but aren't associated with any particular API object.
-   slot file-markup-tokens :: <sequence> = make(<stretchy-vector>);
+   slot file-markup-tokens :: <vector> = make(<stretchy-vector>);
 end class;
 
 

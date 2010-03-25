@@ -40,7 +40,6 @@ end class;
 
 define abstract class <source-name> (<source-location-mixin>)
    constant virtual slot local-name :: <string>;
-   constant virtual slot namespace-name :: <string>;
 end class;
 
 
@@ -174,15 +173,16 @@ define class <type-fragment> (<computed-constant>)
 end class;
 
 
-/// Synopsis: An expression evaluated repeatedly as needed. For example, the
-/// default value of a keyword parameter.
-define class <code-fragment> (<fragment>)
+/// Synopsis: A type expression referring to a singleton type, either of the
+/// "a == x" or "a :: singleton(x)" variety.
+define class <singleton-type-fragment> (<type-fragment>)
+   constant slot singleton-expr :: <fragment>, required-init-keyword: #"expression";
 end class;
 
 
-/// Synopsis: A name expression. 'Source-text' will contain a single
-/// <source-name> element.
-define class <name-fragment> (<fragment>)
+/// Synopsis: An expression evaluated repeatedly as needed. For example, the
+/// default value of a keyword parameter.
+define class <code-fragment> (<fragment>)
 end class;
 
 

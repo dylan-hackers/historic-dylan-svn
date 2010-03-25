@@ -15,29 +15,35 @@ Synopsis: Section tokens.
 do not have content.
 **/
 define constant <section-token> =
-      type-union(<directive-section-token>, <titled-section-token>);
+      type-union(<directive-section-token>, <titled-section-token>,
+                 <titled-directive-section-token>);
 
 
 /** Synopsis: Returns <topic>s from a markup block. **/
 define method topics-from-markup
-   (token :: <markup-content-token>, context-topic :: false-or(<topic>))
+   (token :: <markup-content-token>, context-topic :: false-or(<topic>),
+    #key internal :: <boolean> = #f)
 => (result :: <sequence>)
    let topics = make(<stretchy-vector>);
    
-   unless (token.default-topic-content.empty?)
-      if (context-topic)
-         process-tokens(context-topic, token.default-topic-content);
-         add!(topics, context-topic)
-      else
-         let content = token.default-topic-content;
-         let loc = merge-file-source-locations(content.first, content.last);
-         no-context-topic-in-block(location: loc);
-      end if;
-   end unless;
+   with-dynamic-bindings (*internal-markup* = internal)
+      unless (token.default-topic-content.empty?)
+         if (context-topic)
+            process-tokens(context-topic, token.default-topic-content);
+            add!(topics, context-topic)
+         else
+            let content = token.default-topic-content;
+            let loc = merge-file-source-locations
+                  (content.first.token-src-loc, content.last.token-src-loc);
+            no-context-topic-in-block(location: loc);
+         end if;
+      end unless;
 
-   topics := concatenate(topics, map(make-topic-from-token, token.token-topics));
+      topics := concatenate(topics, map(make-topic-from-token, token.token-topics));
    
-   // TODO: Resolve markers and footnotes.
+      // TODO: Resolve markers and footnotes.
+      
+   end with-dynamic-bindings;
    
    topics
 end method;
@@ -53,8 +59,8 @@ define generic make-topic-from-token (token :: <topic-token>)
 
 
 define method make-topic-from-token (token :: <directive-topic-token>)
-=> (topic :: <api-doc>)
-   let topic = make(<api-doc>, source-location: token.token-src-loc,
+=> (topic :: <topic>)
+   let topic = make(<topic>, source-location: token.token-src-loc,
                     topic-type: token.topic-type);
    process-tokens(topic, token);
    topic
@@ -190,16 +196,42 @@ end method;
 
 
 //
-// Processing <titled-section-token>
+// Processing <titled-section-token> and <titled-directive-section-token>
 //
 
 
 define method process-tokens
-   (topic :: <topic>, section-token :: <titled-section-token>)
+   (topic :: <topic>,
+    section-token :: type-union(<titled-section-token>, <titled-directive-section-token>))
 => ()
    let section = make(<section>, source-location: section-token.token-src-loc);
    process-tokens(section, section-token);
-   add!(topic.content, section);
+   select (section.id by \=)
+      ":Definitions" => 
+         topic.definitions-section := section;
+      ":Modules" =>
+         topic.modules-section := section;
+      ":Bindings" =>
+         topic.bindings-section := section;
+      ":Adjectives" =>
+         topic.adjectives-section := section;
+      ":Inheritables" =>
+         topic.inheritables-section := section;
+      ":Superclasses" =>
+         topic.supers-section := section;
+      ":Subclasses" =>
+         topic.subs-section := section;
+      ":FunctionsOn" =>
+         topic.funcs-on-section := section;
+      ":FunctionsReturning" =>
+         topic.funcs-returning-section := section;
+      ":Value" =>
+         topic.value-section := section;
+      ":Methods" =>
+         topic.methods-section := section;
+      otherwise =>
+         add!(topic.content, section);
+   end select;
 end method;
 
 
@@ -250,6 +282,9 @@ define method process-tokens
    end select;
 end method;
 
+// TODO: Process "Slot Accessors" sections specially; they don't get added to
+// the topic, but instead result in new topics.
+
 
 //
 // Processing <link-directive-token> and <links-directive-token>
@@ -295,6 +330,8 @@ end method;
 //
 
 
+// TODO: Signal warning if fully-qualified-name section is used outside of an
+// <api-doc>.
 define method process-tokens
    (topic :: <api-doc>, section-token :: <word-directive-token>)
 => ()
@@ -311,7 +348,8 @@ end method;
 
 
 define method process-tokens
-   (section :: <section>, token :: <titled-section-token>)
+   (section :: <section>,
+    token :: type-union(<titled-section-token>, <titled-directive-section-token>))
 => ()
    process-tokens(section, token.section-nickname);
    process-tokens(section, token.section-title);
@@ -327,6 +365,15 @@ define method process-tokens
                           *title-markup* = #t)
       process-tokens(section.title, token.title-content);
    end with-dynamic-bindings;
+   check-title(section);
+end method;
+
+
+define method process-tokens
+   (section :: <section>, token :: <directive-section-title-token>)
+=> ()
+   section.title-source-loc := token.token-src-loc;
+   add!(section.title, token.title-text);
    check-title(section);
 end method;
 

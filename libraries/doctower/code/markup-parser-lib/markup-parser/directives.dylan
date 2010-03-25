@@ -1,12 +1,26 @@
 module: markup-parser
 
 //
-// Directive topics
+// Directive titles
 //
 
 // exported
 define caching parser directive-topic-title (<source-location-token>)
    rule seq(directive-spec-intro, directive-topic-spec-text, colon, spaces,
+            text-til-ascii-nickname-ls, opt-seq(spaces, ascii-midline),
+            choice(seq(ls, nil(#f)), seq(spaces, title-nickname)),
+            opt(ascii-underline))
+      => tokens;
+   slot title-type :: <symbol> = tokens[1];
+   slot title-text :: <string> = remove-multiple-spaces(tokens[4].text);
+   slot title-nickname :: false-or(<title-nickname-token>) = tokens[6][1];
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value)
+end;
+
+// exported
+define caching parser directive-section-title (<source-location-token>)
+   rule seq(directive-spec-intro, titled-directive-section-spec-text, colon, spaces,
             text-til-ascii-nickname-ls, opt-seq(spaces, ascii-midline),
             choice(seq(ls, nil(#f)), seq(spaces, title-nickname)),
             opt(ascii-underline))

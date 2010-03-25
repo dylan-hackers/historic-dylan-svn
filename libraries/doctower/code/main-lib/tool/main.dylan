@@ -6,6 +6,9 @@ module: main
 
 define argument-parser <my-arg-parser> ()
    regular-arguments files;
+   option template-path = "../defaults",
+      " <path>", "Path to topic templates [\"../defaults\"]",
+      long: "templates", kind: <parameter-option-parser>;
    option toc-pattern = "toc",
       " <ext>", "Read as table of contents file [\"toc\"]",
       long: "toc", short: "t", kind: <parameter-option-parser>;
@@ -79,6 +82,7 @@ define function main (name, arguments)
 
    $stop-on-errors? := args.stop-on-errors?;
    $verbose? := ~args.quiet?;
+   $topic-template-path := as(<directory-locator>, args.template-path);
    $api-list-filename := 
          when (args.api-list-filename)
             as(<file-locator>, args.api-list-filename)

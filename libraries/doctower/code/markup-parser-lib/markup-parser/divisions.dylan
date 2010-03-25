@@ -11,6 +11,7 @@ define constant <topic-content-types> =
                  <word-directive-token>,
                  <division-directive-token>,
                  <titled-section-token>,
+                 <titled-directive-section-token>,
                  <footnote-token>,
                  <division-content-types>);
                  
@@ -111,8 +112,10 @@ define caching parser section
                     <links-directive-token>,
                     <word-directive-token>,
                     <division-directive-token>,
-                    <division-content-sequence>)
-   rule choice(directive-section, titled-section) => token;
+                    <division-content-sequence>,
+                    <titled-directive-section-token>)
+   rule choice(directive-section, titled-directive-section, titled-section) 
+      => token;
    yield token;
 end;
 
@@ -132,7 +135,7 @@ end;
 
 // exported
 define caching parser titled-section (<source-location-token>)
-   rule seq(section-title, opt(section-content)) => tokens;
+   rule seq(section-title, opt(division-content)) => tokens;
    slot section-title :: <topic-or-section-title-token> = tokens[0];
    slot section-nickname :: false-or(<title-nickname-token>) =
       tokens[0].title-nickname;
@@ -141,9 +144,18 @@ afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
 
-define caching parser section-content :: <division-content-sequence>
-   rule division-content => token;
-   yield token;
+// exported
+// Not subclassed from <titled-section-token> because of the disjoint
+// section-title slot.
+define caching parser titled-directive-section (<source-location-token>)
+   rule seq(directive-section-title, opt(division-content))
+      => tokens;
+   slot section-title :: <directive-section-title-token> = tokens[0];
+   slot section-nickname :: false-or(<title-nickname-token>) =
+      tokens[0].title-nickname;
+   slot content :: <division-content-sequence> = tokens[1] | #[];
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value)
 end;
 
 //

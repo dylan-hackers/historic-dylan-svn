@@ -99,7 +99,7 @@ define method make-slot
       let getter-name = make(<binding-name>, source-location: new-slot.source-location,
                              binding: parsed.slot-name, within: context.context-name);
       new-slot.getter := make-getter(context, new-slot, getter-name, class-type,
-                                     sealed: sealed-slot?, markup: parsed.slot-doc);
+                                     sealed: sealed-slot?, markup-token: parsed.slot-doc);
       bindings := add!(bindings, new-slot.getter);
 
       // Setter
@@ -109,7 +109,7 @@ define method make-slot
                                 binding: concatenate(parsed.slot-name, "-setter"),
                                 within: context.context-name);
          new-slot.setter := make-setter(context, new-slot, setter-name, class-type,
-                                        sealed: sealed-slot?, markup: parsed.slot-doc);
+                                        sealed: sealed-slot?, markup-token: parsed.slot-doc);
          bindings := add!(bindings, new-slot.setter);
       end if;
    end when;
@@ -124,12 +124,12 @@ end method;
 
 define method make-getter
    (context :: <context>, slot :: <virtual-slot>, name :: <binding-name>,
-    class-type :: <type-fragment>, #rest keys, #key sealed, markup)
+    class-type :: <type-fragment>, #rest keys, #key sealed, markup-token)
 => (getter :: <generic-binding>)
-   when (markup)
+   when (markup-token)
       // Can't document virtual slot, because no place to attach markup content
       // except the generic itself, which is not strictly correct.
-      doc-comment-on-virtual-slot(location: markup.source-location)
+      doc-comment-on-virtual-slot(location: markup-token.token-src-loc)
    end when;
    let inst-param = make(<req-param>, name: "instance", type: class-type);
    let value = make(<req-value>, name: "value", type: slot.type);
@@ -140,7 +140,7 @@ end method;
 
 define method make-getter
    (context :: <context>, slot :: <slot>, name :: <binding-name>,
-    class-type :: <type-fragment>, #rest keys, #key sealed, markup)
+    class-type :: <type-fragment>, #rest keys, #key sealed, markup-token)
 => (getter :: <generic-binding>)
    let inst-param = make(<req-param>, name: "instance", type: class-type);
    let value = make(<req-value>, name: "value", type: slot.type);
@@ -151,7 +151,7 @@ end method;
 
 define method make-setter
    (context :: <context>, slot :: <virtual-slot>, name :: <binding-name>,
-    class-type :: <type-fragment>, #rest keys, #key sealed, markup)
+    class-type :: <type-fragment>, #rest keys, #key sealed, markup-token)
 => (setter :: <generic-binding>)
    let newval-param = make(<req-param>, name: "new-value", type: slot.type);
    let inst-param = make(<req-param>, name: "instance", type: class-type);
@@ -164,7 +164,7 @@ end method;
 
 define method make-setter
    (context :: <context>, slot :: <slot>, name :: <binding-name>,
-    class-type :: <type-fragment>, #rest keys, #key sealed, markup)
+    class-type :: <type-fragment>, #rest keys, #key sealed, markup-token)
 => (setter :: <generic-binding>)
    let newval-param = make(<req-param>, name: "new-value", type: slot.type);
    let inst-param = make(<req-param>, name: "instance", type: class-type);

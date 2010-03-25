@@ -6,12 +6,14 @@ files:      doctower-library
             markup-translator/topic-processing
             markup-translator/content-processing
             markup-translator/markup-processing
+            template-files/module
+            template-files/template-files
             dylan-topics/module
             dylan-topics/dylan-topics
             dylan-topics/namespace-topics
             dylan-topics/binding-topics
             dylan-topics/names
-            dylan-topics/simple-content
+            dylan-topics/template-handling
             source-files/module
             source-files/dylan-file
             source-files/markup-file

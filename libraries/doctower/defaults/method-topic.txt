@@ -1,0 +1,82 @@
+Section: {{meth.Generic-ID}}
+
+The {{meth.base-name}} method on {{meth.arg-types}}.
+
+----------------------------------------------
+Subsection: Definitions		[:Definitions]
+----------------------------------------------
+
+{{IF meth.definition? +}}
+Defined in {{meth.source.filename}} line {{meth.source.line}}.
+{{+END}}
+
+---------------------------------------------
+Subsection: Adjectives		[:Adjectives]
+---------------------------------------------
+
+'{{meth.adjectives}}' [code]
+
+----------
+Arguments:
+----------
+
+{{REPEAT WITH argument IN meth.required-arguments +}}
+'{{argument.name}}' [code] -
+	{{CASE argument.singleton? +}}
+	The object '{{argument.object}}'. [code]
+	{{CASE argument.type +}}
+	An instance of '{{argument.type.id}}'. [qv]
+	{{ELSE +}}
+	An object.
+	{{END+}}
+{{END+}}
+{{REPEAT WITH argument IN meth.keyword-arguments +}}
+'{{argument.name}}:' [code] -
+	{{CASE argument.singleton? +}}
+	The object '{{argument.object}}'. [code]
+	{{CASE argument.type +}}
+	An instance of '{{argument.type.id}}'. [qv]
+	{{ELSE +}}
+	An object.
+	{{END+}}
+	{{IF argument.default? +}}
+	Defaults to '{{argument.default}}'. [code]
+	{{END+}}
+{{END+}}
+{{IF meth.rest-argument +}}
+'#rest {{meth.rest-argument.name}}' [code] -
+	{{IF meth.takes-keywords? +}}
+	Zero or more keyword/value pairs.
+	{{ELSE +}}
+	Zero or more arguments.
+	{{END +}}
+{{END +}}
+{{IF meth.all-keys-argument? +}}
+'#all-keys' [code] -
+	This method accepts any keyword argument.
+{{END}}
+
+-------
+Values:
+-------
+
+{{REPEAT WITH value IN meth.required-values +}}
+'{{value.name}}' [code] -
+	{{CASE value.singleton? +}}
+	The object '{{value.object}}'. [code]
+	{{CASE value.type +}}
+	An instance of '{{value.type.id}}'. [qv]
+	{{ELSE +}}
+	An object.
+	{{END +}}
+{{END +}}
+{{IF meth.rest-value +}}
+'#rest {{meth.rest-value.name}}' [code] -
+	Zero or more values.
+{{END}}
+
+{{(*
+-----------
+Conditions:
+-----------
+*)}}

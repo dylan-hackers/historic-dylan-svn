@@ -1,0 +1,22 @@
+The {{lib.name}} library.
+
+----------------------------------------------
+Subheading: Definition		[:Definitions]
+----------------------------------------------
+
+{{IF lib.definition? +}}
+Defined in {{lib.source.filename}} line {{lib.source.line}}.
+{{+END}}
+
+------------------------------------------
+Subheading: Modules		[:Modules]
+------------------------------------------
+
+[LIST OF MODULES]
+
+{{IF lib.unknown-reexports.size > 0 +}}
+May export other modules from these libraries:
+{{REPEAT WITH unknown-reexport IN lib.unknown-reexports}}
+- '{{unknown-reexport.name}}' [qv {{unknown-reexport.ID}}]
+{{END+}}
+{{+END}}

@@ -1,0 +1,75 @@
+The {{class.name}} class.
+
+----------------------------------------------
+Subsection: Definitions		[:Definitions]
+----------------------------------------------
+
+{{IF class.definition? +}}
+Defined in {{class.source.filename}} line {{class.source.line}}.
+{{+END}}
+
+{{IF class.exports.size > 0 +}}
+Exported under these names:
+{{REPEAT WITH export IN class.exports}}
+- {{export.name}} in '{{export.module.name}} module' [qv ::{{export.module.id}}]
+  in '{{export.library}} library'. [qv ::{{export.library.id}}]
+{{+END+}}
+{{END}}
+
+---------------------------------------------
+Subsection: Adjectives  	[:Adjectives]
+---------------------------------------------
+
+'{{class.adjectives}}' [code]
+
+--------------
+Make keywords:
+--------------
+
+{{REPEAT WITH keyword IN class.keywords +}}
+'{{keyword.name}}:' [code] -
+ 	An instance of '{{keyword.type}}'. [qv]
+	{{IF keyword.default? +}}
+	Optional. Defaults to '{{keyword.default}}' [qv].
+	{{ELSE +}}
+	Required.
+	{{+END+}}
+{{END}}
+
+-----------------------------------------------
+Subsection: Inheritable Slots	[:Inheritables]
+-----------------------------------------------
+
+{{REPEAT WITH getter IN class.inheritable-getters +}} '{{getter.ID}}' [qv] {{END}}
+
+-----------------------------------------------
+Subsection: Superclasses	[:Superclasses]
+-----------------------------------------------
+
+{{REPEAT WITH superclass IN class.superclasses +}} '{{Superclass.ID}}' [qv] {{END}}
+
+---------------------------------------------
+Subsection: Subclasses		[:Subclasses]
+---------------------------------------------
+
+{{REPEAT WITH subclass IN class.subclasses +}} '{{Subclass.ID}}' [qv] {{END}}
+
+--------------------------------------------------------------
+Subsection: Functions on {{Name}}		[:FunctionsOn]
+--------------------------------------------------------------
+
+{{REPEAT WITH function IN class.functions-on-class +}}
+- '{{Function.ID}}' [qv]
+{{END}}
+
+---------------------------------------------------------------------
+Subsection: Functions returning {{Name}}	[:FunctionsReturning]
+---------------------------------------------------------------------
+
+{{REPEAT WITH function IN class.functions-returning-class +}}
+- '{{Function.ID}}' [qv]
+{{END}}
+
+------------------------------------------
+Subsection: See also		[:SeeAlso]
+------------------------------------------

@@ -1,0 +1,88 @@
+The {{func.name}} function.
+
+----------------------------------------------
+Subsection: Definitions		[:Definitions]
+----------------------------------------------
+
+{{IF func.definition? +}}
+Defined in {{func.source.filename}} line {{func.source.line}}.
+{{+END}}
+
+{{IF func.exports.size > 0 +}}
+Exported under these names:
+{{REPEAT WITH export IN func.exports}}
+- {{export.name}} in '{{export.module.name}} module' [qv ::{{export.module.id}}]
+  in '{{export.library}} library'. [qv ::{{export.library.id}}]
+{{+END+}}
+{{END}}
+
+---------------------------------------------
+Subsection: Adjectives		[:Adjectives]
+---------------------------------------------
+
+'{{func.adjectives}}' [code]
+
+----------
+Arguments:
+----------
+
+{{REPEAT WITH argument IN func.required-arguments +}}
+'{{argument.name}}' [code] -
+	{{CASE argument.singleton? +}}
+	The object '{{argument.object}}'. [code]
+	{{CASE argument.type +}}
+	An instance of '{{argument.type.id}}'. [qv]
+	{{ELSE +}}
+	An object.
+	{{END+}}
+{{END+}}
+{{REPEAT WITH argument IN func.keyword-arguments +}}
+'{{argument.name}}:' [code] -
+	{{CASE argument.singleton? +}}
+	The object '{{argument.object}}'. [code]
+	{{CASE argument.type +}}
+	An instance of '{{argument.type.id}}'. [qv]
+	{{ELSE +}}
+	An object.
+	{{END+}}
+	{{IF argument.default? +}}
+	Defaults to '{{argument.default}}'. [code]
+	{{END+}}
+{{END+}}
+{{IF func.rest-argument +}}
+'#rest {{func.rest-argument.name}}' [code] -
+	{{IF func.takes-keywords? +}}
+	Zero or more keyword/value pairs.
+	{{ELSE +}}
+	Zero or more arguments.
+	{{END +}}
+{{END +}}
+{{IF func.all-keys-argument? +}}
+'#all-keys' [code] -
+	This function accepts any keyword argument.
+{{END}}
+
+-------
+Values:
+-------
+
+{{REPEAT WITH value IN func.required-values +}}
+'{{value.name}}' [code] -
+	{{CASE value.singleton? +}}
+	The object '{{value.object}}'. [code]
+	{{CASE value.type +}}
+	An instance of '{{value.type.id}}'. [qv]
+	{{ELSE +}}
+	An object.
+	{{END +}}
+{{END +}}
+{{IF func.rest-value +}}
+'#rest {{func.rest-value.name}}' [code] -
+	Zero or more values.
+{{END}}
+
+{{(*
+-----------
+Conditions:
+-----------
+*)}}

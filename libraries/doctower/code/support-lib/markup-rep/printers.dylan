@@ -18,6 +18,75 @@ define method print-object (o :: <topic>, s :: <stream>) => ()
    end printing-logical-block;
 end method;
 
+define method print-object (o :: <api-doc>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      format(s, "api topic %=, ", o.title);
+      pprint-newline(#"fill", s);
+      format(s, "id %=, ", o.id);
+      pprint-newline(#"fill", s);
+      write(s, "parent ");
+      if (instance?(o.parent, <topic>))
+         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+      else
+         format(s, "%=", o.parent);
+      end if;
+      write(s, ", ");
+      pprint-newline(#"fill", s);
+      format(s, "content %=", o.content);
+      write(s, ", ");
+      pprint-newline(#"fill", s);
+      format(s, "definitions %=", o.definitions-section);
+   end printing-logical-block;
+end method;
+
+define method print-object (o :: <library-doc>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      format(s, "library topic %=, ", o.title);
+      pprint-newline(#"fill", s);
+      format(s, "id %=, ", o.id);
+      pprint-newline(#"fill", s);
+      write(s, "parent ");
+      if (instance?(o.parent, <topic>))
+         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+      else
+         format(s, "%=", o.parent);
+      end if;
+      write(s, ", ");
+      pprint-newline(#"fill", s);
+      format(s, "content %=", o.content);
+      write(s, ", ");
+      pprint-newline(#"fill", s);
+      format(s, "definitions %=", o.definitions-section);
+      write(s, ", ");
+      pprint-newline(#"fill", s);
+      format(s, "modules %=", o.modules-section);
+   end printing-logical-block;
+end method;
+
+define method print-object (o :: <module-doc>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      format(s, "module topic %=, ", o.title);
+      pprint-newline(#"fill", s);
+      format(s, "id %=, ", o.id);
+      pprint-newline(#"fill", s);
+      write(s, "parent ");
+      if (instance?(o.parent, <topic>))
+         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+      else
+         format(s, "%=", o.parent);
+      end if;
+      write(s, ", ");
+      pprint-newline(#"fill", s);
+      format(s, "content %=", o.content);
+      write(s, ", ");
+      pprint-newline(#"fill", s);
+      format(s, "definitions %=", o.definitions-section);
+      write(s, ", ");
+      pprint-newline(#"fill", s);
+      format(s, "bindings %=", o.bindings-section);
+   end printing-logical-block;
+end method;
+
 define method print-object (o :: <section>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
       format(s, "section %=, ", o.title);
@@ -62,6 +131,18 @@ end method;
 
 define method print-object (o :: <footnote>, s :: <stream>) => ()
    format(s, "{footnote #%s %=}", o.index, o.content)
+end method;
+
+define method print-object (o :: <xref>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      format(s, "xref %= ", o.text);
+      pprint-newline(#"fill", s);
+      if (instance?(o.target, <topic>))
+         format(s, "{topic %=, id %=}", o.target.title, o.target.id);
+      else
+         format(s, "%=", o.target);
+      end if;
+   end printing-logical-block;
 end method;
 
 define method print-object (o :: <vi-xref>, s :: <stream>) => ()

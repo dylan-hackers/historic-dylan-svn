@@ -255,18 +255,12 @@ end;
 
 // exported
 define caching parser quote-spec (<source-location-token>)
-   rule seq(opn-brack-spc, opt-many(seq(quote-spec-option, opt-many-spc-ls)),
-            opt(quote-spec-link-option), spc-cls-brack)
+   rule seq(opn-brack-spc, many(seq(quote-spec-option, opt-many-spc-ls)),
+            opt(link-til-cls-brack), spc-cls-brack)
       => tokens;
    slot quote-options :: <quote-options-sequence> =
-      begin
-         let options = collect-subelements(tokens[1], 0);
-         if (tokens[2])
-            options := add!(options, tokens[2].link-option);
-         end if;
-         remove-duplicates(options)
-      end;
-   slot link :: false-or(<link-word-token>) = tokens[2] & tokens[2].link;
+      collect-subelements(tokens[1], 0).remove-duplicates;
+   slot link :: false-or(<link-word-token>) = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
@@ -276,12 +270,4 @@ define caching parser quote-spec-option :: <symbol>
                qv-lit, vi-lit, b-lit, i-lit, u-lit, q-lit)
       => token;
    yield token;
-end;
-
-// content promoted to quote spec list
-define caching parser quote-spec-link-option (<token>)
-   rule seq(choice(qv-lit, vi-lit), many-spc-ls, link-til-cls-brack)
-      => tokens;
-   slot link-option :: <symbol> = tokens[0];
-   slot link :: <link-word-token> = tokens[2];
 end;

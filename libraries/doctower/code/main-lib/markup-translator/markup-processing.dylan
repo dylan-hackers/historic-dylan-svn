@@ -118,7 +118,7 @@ define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>
             quote.quoted-text
          end if;
 
-   let link-token = quote.quote-spec.link;
+   let link-token = quote.quote-spec & quote.quote-spec.link;
    let (link-target, link-text) =
          if (link-token)
             // Has qv or vi with an explicit link location. Use quoted text
@@ -127,8 +127,8 @@ define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>
                         source-location: link-token.token-src-loc),
                    interior)
          else
-            // Has qv or vi without an explicit link location. Use quoted text
-            // as target and target's title as link label.
+            // May have qv or vi without an explicit link location. Use quoted
+            // text as target and target's title as link label.
             let placeholder =
                   make(<target-placeholder>, link: quote.quoted-text,
                        source-location: quote.token-src-loc);
@@ -240,6 +240,13 @@ define method quote-specs (quote :: <quote-token>) => (specs :: <sequence>)
          specs := remove!(specs, #"vi");
       end when;
    end if;
+   
+   // Cannot have a link without qv or vi.
+   unless (member?(#"qv", specs) | member?(#"vi", specs))
+      if (quote.quote-spec & quote.quote-spec.link)
+         link-without-qv-or-vi-in-spec(location: spec-loc);
+      end if
+   end unless;
 
    // A quote can basically be a qv/vi, bib, or term. The other stuff is
    // decorative. Former trumps latter.

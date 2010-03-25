@@ -8,7 +8,8 @@ define module parser-common
    
    export <updatable-source-location-mixin>, <source-location-token>,
           source-location, source-location-setter,
-          <file-parse-context>, source-location-from-stream-positions,
+          <file-parse-context>, <internal-parse-context>,
+          source-location-from-stream-positions,
           file-locator, line-col-position, span-token-positions,
           note-source-location, note-combined-source-location;
 end module;

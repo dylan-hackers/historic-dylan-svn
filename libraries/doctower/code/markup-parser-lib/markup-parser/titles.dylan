@@ -15,7 +15,6 @@ define constant <title-word-sequence> = <sequence>;
 //
 
 define caching parser topic-title :: <topic-or-section-title-token>
-   label "topic title";
    rule topic-or-section-title => token;
    yield token;
 afterwards (context, token, value, start-pos, end-pos, fail: fail)
@@ -25,7 +24,6 @@ afterwards (context, token, value, start-pos, end-pos, fail: fail)
 end;
    
 define caching parser section-title :: <topic-or-section-title-token>
-   label "section title";
    rule topic-or-section-title => token;
    yield token;
 afterwards (context, token, value, start-pos, end-pos, fail: fail)

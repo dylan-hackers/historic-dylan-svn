@@ -25,7 +25,8 @@ define module dylan-rep
          <req-param>, <key-param>, <rest-param>,
       <value-list>, <req-value>, <rest-value>,
       <sealed-domain>, <vendor-option>,
-      <fragment>, <computed-constant>, <type-fragment>, <code-fragment>, <name-fragment>
+      <fragment>, <computed-constant>, <type-fragment>, <singleton-type-fragment>,
+         <code-fragment>
       ;
 
    export
@@ -88,6 +89,7 @@ define module dylan-rep
       setter,
       setter-setter,
       simple-name?,
+      singleton-expr,
       slots,
       source-text,
       symbol,

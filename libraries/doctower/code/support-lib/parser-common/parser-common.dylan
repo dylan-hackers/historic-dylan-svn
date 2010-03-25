@@ -45,6 +45,12 @@ define open class <file-parse-context> (<parse-context>)
 end class;
 
 
+/** Synopsis: Parse context used for internal parsing. **/
+define open class <internal-parse-context> (<parse-context>)
+   slot locator :: <source-location>, required-init-keyword: #"locator";
+end class;
+
+
 /** Synopsis: Generate source location from stream positions. **/
 define method source-location-from-stream-positions
    (context :: <file-parse-context>, start-pos :: <integer>, end-pos :: <integer>)
@@ -58,12 +64,26 @@ define method source-location-from-stream-positions
 end method;
 
 
+define method source-location-from-stream-positions
+   (context :: <internal-parse-context>, start-pos :: <integer>, end-pos :: <integer>)
+=> (source-location :: <source-location>)
+   context.locator
+end method;
+
+
 /** Synopsis: Saves source location of a parsed token. **/
 define inline method note-source-location
    (context :: <file-parse-context>, value :: <source-location-token>)
 => ()
    value.source-location := source-location-from-stream-positions
          (context, value.parse-start, value.parse-end);
+end method;
+
+
+define inline method note-source-location
+   (context :: <internal-parse-context>, value :: <source-location-token>)
+=> ()
+   value.source-location := context.locator;
 end method;
 
 
@@ -75,6 +95,13 @@ define inline method note-combined-source-location
    (context :: <file-parse-context>, value :: <source-location-token>, tokens)
 => ()
    span-token-positions(value, tokens);
+   note-source-location(context, value);
+end method;
+
+
+define inline method note-combined-source-location
+   (context :: <internal-parse-context>, value :: <source-location-token>, tokens)
+=> ()
    note-source-location(context, value);
 end method;
 

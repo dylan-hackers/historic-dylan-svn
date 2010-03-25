@@ -1,0 +1,12 @@
+===============================================================
+Topic: {Module name} Unbound Names	[:Unbound({Module ID})]
+===============================================================
+Section: ::{Module ID}
+
+The {Module name} module exports these unbound names:
+
+[LIST OF UNBOUND NAMES]
+
+------------------------------------------
+Subsection: See also		[:SeeAlso]
+------------------------------------------

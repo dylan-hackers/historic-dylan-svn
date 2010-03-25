@@ -1,0 +1,30 @@
+The {{var.name}} variable.
+
+----------------------------------------------
+Subsection: Definitions		[:Definitions]
+----------------------------------------------
+
+{{IF var.definition? +}}
+Defined in {{var.source.filename}} line {{var.source.line}}.
+{{+END}}
+
+{{IF var.exports.size > 0 +}}
+Exported under these names:
+{{REPEAT WITH export IN var.exports}}
+- {{export.name}} in '{{export.module.name}} module' [qv ::{{export.module.id}}]
+  in '{{export.library}} library'. [qv ::{{export.library.id}}]
+{{+END+}}
+{{END}}
+
+---------------------------------------------
+Subsection: Adjectives	        [:Adjectives]
+---------------------------------------------
+
+'{{var.adjectives}}' [code]
+
+----------------------------------------
+Subsection: Type and value	[:Value]
+----------------------------------------
+
+An instance of '{{var.type.id}}' [qv] initialized to '{{var.value}}'. [code]
+

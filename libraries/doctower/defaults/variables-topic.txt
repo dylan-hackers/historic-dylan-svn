@@ -1,0 +1,12 @@
+=========================================================
+Topic: {Module name} Variables	[:Variables({Module ID})]
+=========================================================
+Section: ::{Module ID}
+
+The {Module name} module exports these variables and constants:
+
+[LIST OF VARIABLES]
+
+------------------------------------------
+Subsection: See also		[:SeeAlso]
+------------------------------------------

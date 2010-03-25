@@ -1,0 +1,96 @@
+The {{gen.name}} generic function.
+
+----------------------------------------------
+Subsection: Definitions		[:Definitions]
+----------------------------------------------
+
+{{IF gen.definition? +}}
+Defined in {{gen.source.filename}} line {{gen.source.line}}.
+{{+END}}
+
+{{IF gen.exports.size > 0 +}}
+Exported under these names:
+{{REPEAT WITH export IN gen.exports}}
+- {{export.name}} in '{{export.module.name}} module' [qv ::{{export.module.id}}]
+  in '{{export.library}} library'. [qv ::{{export.library.id}}]
+{{+END+}}
+{{END}}
+
+---------------------------------------------
+Subsection: Adjectives		[:Adjectives]
+---------------------------------------------
+
+'{{gen.adjectives}}' [code]
+
+----------
+Arguments:
+----------
+
+{{REPEAT WITH argument IN gen.required-arguments +}}
+'{{argument.name}}' [code] -
+	{{CASE argument.singleton? +}}
+	The object '{{argument.object}}'. [code]
+	{{CASE argument.type +}}
+	An instance of '{{argument.type.id}}'. [qv]
+	{{ELSE +}}
+	An object.
+	{{END+}}
+{{END+}}
+{{REPEAT WITH argument IN gen.keyword-arguments +}}
+'{{argument.name}}:' [code] -
+	{{CASE argument.singleton? +}}
+	The object '{{argument.object}}'. [code]
+	{{CASE argument.type +}}
+	An instance of '{{argument.type.id}}'. [qv]
+	{{ELSE +}}
+	An object.
+	{{END+}}
+	{{IF argument.default? +}}
+	Defaults to '{{argument.default}}'. [code]
+	{{END+}}
+{{END+}}
+{{IF gen.rest-argument +}}
+'#rest {{gen.rest-argument.name}}' [code] -
+	{{IF gen.takes-keywords? +}}
+	Zero or more keyword/value pairs.
+	{{ELSE +}}
+	Zero or more arguments.
+	{{END +}}
+{{END +}}
+{{IF gen.all-keys-argument? +}}
+'#all-keys' [code] -
+	This generic function accepts any keyword argument.
+{{END}}
+
+-------
+Values:
+-------
+
+{{REPEAT WITH value IN gen.required-values +}}
+'{{value.name}}' [code] -
+	{{CASE value.singleton? +}}
+	The object '{{value.object}}'. [code]
+	{{CASE value.type +}}
+	An instance of '{{value.type.id}}'. [qv]
+	{{ELSE +}}
+	An object.
+	{{END}}
+{{END +}}
+{{IF gen.rest-value +}}
+'#rest {{gen.rest-value.name}}' [code] -
+	Zero or more values.
+{{END}}
+
+{{(*
+-----------
+Conditions:
+-----------
+*)}}
+
+------------------------------------------
+Subsection: Methods		[:Methods]
+------------------------------------------
+
+{{REPEAT WITH method in gen.methods +}}
+- '{method.ID}' [qv]
+{{END}}

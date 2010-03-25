@@ -39,7 +39,7 @@ end method;
 
 define class <topic> (<markup-element>)
    // No placeholder needed for fixed-parent, because the parent is known from
-   // topic nesting markup.
+   // topic nesting markup or generic method.
    slot fixed-parent :: false-or(<topic>) = #f;
    
    // parent is parent topic as indicated by "Section:" directive. If not false,
@@ -73,21 +73,8 @@ define class <topic> (<markup-element>)
          = make(<stretchy-vector>);
 end class;
 
-define class <ref-topic> (<topic>)
-end class;
-
-define class <con-topic> (<topic>)
-end class;
-
-// BUGFIX: Gwydion Dylan does not support abstract subclasses of concrete classes.
-define /*abstract*/ class <api-doc> (<ref-topic>)
-   slot implicit-topic? :: <boolean> = #f, init-keyword: #"implicit";
-   slot fully-qualified-name :: false-or(<string>) = #f, 
-         init-keyword: #"qualified-name";
-   slot definitions-section :: false-or(<section>) = #f;
-end class;
-
-define method make (class == <api-doc>, #key topic-type) => (inst :: <api-doc>)
+define method make (class == <topic>, #key topic-type = #"topic")
+=> (inst :: <topic>)
    select (topic-type)
       #"class" => make(<class-doc>);
       #"variable" => make(<variable-doc>);
@@ -96,24 +83,38 @@ define method make (class == <api-doc>, #key topic-type) => (inst :: <api-doc>)
       #"library" => make(<library-doc>);
       #"module" => make(<module-doc>);
       #"macro" => make(<macro-doc>);
+      #"topic" => make(<con-topic>);
    end select;
 end method;
+
+define class <con-topic> (<topic>)
+end class;
+
+define class <ref-topic> (<topic>)
+end class;
+
+define class <api-doc> (<ref-topic>)
+   slot implicit-topic? :: <boolean> = #f, init-keyword: #"implicit";
+   slot fully-qualified-name :: false-or(<string>) = #f, 
+         init-keyword: #"qualified-name";
+   slot definitions-section :: false-or(<section>) = #f;
+end class;
 
 define class <library-doc> (<api-doc>)
    slot modules-section :: false-or(<section>) = #f;
 end class;
 
 define class <module-doc> (<api-doc>)
-   slot names-section :: false-or(<section>) = #f;
+   slot bindings-section :: false-or(<section>) = #f;
 end class;
 
 define class <binding-doc> (<api-doc>)
 end class;
 
 define class <class-doc> (<binding-doc>)
+   slot adjectives-section :: false-or(<section>) = #f;
    slot keywords-section :: false-or(<section>) = #f;
-   slot slots-section :: false-or(<section>) = #f;
-   slot modifiers-section :: false-or(<section>) = #f;
+   slot inheritables-section :: false-or(<section>) = #f;
    slot supers-section :: false-or(<section>) = #f;
    slot subs-section :: false-or(<section>) = #f;
    slot funcs-on-section :: false-or(<section>) = #f;
@@ -121,7 +122,7 @@ define class <class-doc> (<binding-doc>)
 end class;
 
 define class <variable-doc> (<binding-doc>)
-   slot type-section :: false-or(<section>) = #f;
+   slot adjectives-section :: false-or(<section>) = #f;
    slot value-section :: false-or(<section>) = #f;
 end class;
 
@@ -132,16 +133,12 @@ define class <macro-doc> (<binding-doc>)
 end class;
 
 define class <function-doc> (<binding-doc>)
+   slot adjectives-section :: false-or(<section>) = #f;
    slot args-section :: false-or(<section>) = #f;
    slot vals-section :: false-or(<section>) = #f;
    slot conds-section :: false-or(<section>) = #f;
 end class;
 
 define class <generic-doc> (<function-doc>)
-   slot modifiers-section :: false-or(<section>) = #f;
-   
-   // TODO: Is this redundant to the method's fixed-parent slot? Depends on if
-   // methods are always children of their generic function.
-   slot method-topics :: <sequence> /* of <function-doc> */
-         = make(<stretchy-vector>);
+   slot methods-section :: false-or(<section>) = #f;
 end class;

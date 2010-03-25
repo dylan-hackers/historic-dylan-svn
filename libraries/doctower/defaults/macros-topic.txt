@@ -1,0 +1,12 @@
+======================================================
+Topic: {Module name} Macros	[:Macros({Module ID})]
+======================================================
+Section: ::{Module ID}
+
+The {Module name} module exports these macros:
+
+[LIST OF MACROS]
+
+------------------------------------------
+Subsection: See also		[:SeeAlso]
+------------------------------------------

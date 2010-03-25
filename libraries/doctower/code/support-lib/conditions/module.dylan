@@ -31,6 +31,7 @@ define module conditions
       illegal-section-in-topic,
       leading-colon-in-id,
       leading-colon-in-title,
+      link-without-qv-or-vi-in-spec,
       multiple-libraries-in-fileset,
       no-context-topic-in-block,
       no-definition-for-bindings,

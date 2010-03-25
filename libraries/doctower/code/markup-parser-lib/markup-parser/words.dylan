@@ -232,12 +232,18 @@ define caching parser directive-topic-spec-text :: <symbol>
                seq(nil(#f), method-lit),
                seq(nil(#f), module-lit),
                seq(nil(#f), class-lit),
-               seq(nil(#f), macro-lit))
+               seq(nil(#f), macro-lit),
+               seq(nil(#f), topic-lit))
       => token;
    yield select (token[0])
             #"generic" => #"generic-function";
             otherwise => token[1];
          end select;
+end;
+
+define caching parser titled-directive-section-spec-text :: <symbol>
+   rule subheading-lit => token;
+   yield token;
 end;
 
 define caching parser paragraph-directive-spec-text :: <symbol>

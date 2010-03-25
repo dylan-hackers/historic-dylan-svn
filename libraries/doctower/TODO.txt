@@ -6,6 +6,17 @@ Most of the things marked with TODO in a comment are need-to-do items.
 
 -----
 
+Better template handling. Right now, there is little debugging information for
+templates. If the template itself is badly formed, you get a direct error from
+the parser without the usual file name and position. That is easy enough to
+clean up. But if the document resulting from the template has errors or
+warnings, you get source locations that say nothing more than "automatically
+generated". A better solution would be to save all template results into a
+temporary directory, contingent on a command line switch, and to report errors
+accordingly.
+
+-----
+
 API recognition. If you type "use the <integer> class," the code should figure
 out that you want to link to the class. This relies on cues within the name, of
 course. If you type "use the stream-location function," I doubt the code can
@@ -49,6 +60,16 @@ one.
 ============
 Bonus Points
 ============ 
+
+Create some sort of standalone installation that does not need to live in the
+SVN libraries directory. Some arrangement has to be made for the contents of the
+Doctower's defaults directory, though. Typical locations would be:
+
+- "${PREFIX}/share/doctower" on Unix
+- "C:\Program Files\Doctower" on Windows
+- "/Applications/Doctower.app/Contents/Resources" on Mac OS
+
+------
 
 Figure out how to do something like the abbreviated syntax shown at
 http://naturaldocs.org/documenting/walkthrough.html#AbbreviatedSyntax.

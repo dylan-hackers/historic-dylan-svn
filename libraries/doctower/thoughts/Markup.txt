@@ -69,20 +69,18 @@ the processing specified in the brackets is done. Bracket options are:
   code    - Use code font.
   term    - Indicate a technical term being defined.
   bib     - Indicates a book or article title.
-  em	  - Use general emphasis font.
+  em      - Use general emphasis font.
   b       - Use bold font.
   i       - Use italic font.
   u       - Use underline.
-  qv      - The quoted text will link to the section or URL specified by the
-            text. The text is replaced by the actual section title.
+  qv      - The quoted text will link to a specified section or URL, or at least
+            render in an appropriate font. The section or URL may be specified
+            after all the other options (and enclosed in quotes if it contains
+            spaces). If omitted, the section or URL is specified by the text and
+            the text is replaced by the actual section title.
   vi      - Same as "qv", but the linked item is also marked as a sub-topic if
             appropriate. From the Latin "vide infra," meaning "see below."
-  qv ...  - The quoted text will link to the specified section or URL, or at
-            least render in an appropriate font. The text is not changed. This
-            option must be last.
-  vi ...  - Same as "qv ...", but the linked item is also marked as a
-            sub-topic if appropriate. This option must be last.
-  
+
 For example,
 
   This is "important" [em] information!
@@ -211,7 +209,7 @@ that specifies a section tag.
 Suppose we have a doc file with the following content:
 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  About the Wonderland Library	 [about]
+  About the Wonderland Library   [about]
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ...
  
@@ -226,7 +224,7 @@ Suppose we have a doc file with the following content:
   ...
  
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Required Libraries	           [req]
+  Required Libraries               [req]
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ...
  
@@ -296,9 +294,9 @@ level and end with a colon.
 
 The scope of the NOTE and WARNING directives is determined by indentation. The
 scope of the SYNOPSIS directive is one paragraph; indentation is allowed but
-ignored. The scope of the DISCUSSION, ARGUMENTS, CONDITIONS, VALUES, and
-KEYWORDS directives is until the next section. The scope of the GENERIC FUNCTION
-etc. directives is until the next topic. The other directives end after one
+ignored. The scope of the SUBHEADING, DISCUSSION, ARGUMENTS, CONDITIONS, VALUES,
+and KEYWORDS directives is until the next section. The scope of the LIBRARY,
+etc., directives is until the next topic. The other directives end after one
 line.
 
 Underlines, midlines, and overlines are allowed but ignored; they will not
@@ -306,10 +304,17 @@ affect topic structure like headers do. If used, underlines must appear on the
 next line after the directive itself, and the content of the directive must
 still be indented if necessary.
 
+Only the LIBRARY, etc., and the SUBHEADING directives can have link tags.
+
 LIBRARY|MODULE|GENERIC FUNCTION|CLASS...: title
   Start a new reference topic of that type. This new topic is set at the same
   level as the previous topic. The types are "Library," "Module," "Class,"
   "Generic Function," "Function," "Method," "Variable," "Constant," and "Macro."
+
+TOPIC: title
+  Start a new conceptual topic. It may be used as an alternative to the
+  ASCII-art method of denoting a topic. The new topic is set at the same level
+  as the previous topic.
   
 FULLY QUALIFIED NAME: name
   May be necessary to determine which of several APIs this topic refers to.
@@ -337,22 +342,27 @@ SEE ALSO: "title" | tag | URL ...
   Topics may be specified by title or tag. The quotation here is strictly for
   the purposes of escaping spaces; the quote options cannot be used.
 
+SUBHEADING: title
+  This directive starts a new subsection of a topic. It may be used as an
+  alternative to the ASCII-art method of denoting a subsection (though like all
+  directives, you can add ASCII-art around it that is ignored).
+
 ARGS|ARGUMENTS|VALUES:
-_content
   An argument or value list. May include paragraphs and other content. Term or
-  phrase definition lists are recognized as argument or value names. Only in
+  phrase definition lists are recognized as argument or value names. Only in 
   reference topics.
   
+GETTERS|GETTERS AND|& SETTERS|SLOTS|SLOT ACCESSORS:
+  A list of getters, setters, or slots available for a class. The only allowed
+  content is a term or phrase definition list; each item results in separate
+  method topic. Only in class topics. [TODO: This.]
+
 CONDITIONS|SIGNALS|ERRORS|EXCEPTIONS:
-_content
   A list of signals raised by a function. May include paragraphs and other
-  content. The official link tag for this section is "conditions". Only in
-  reference topics.
+  content. Only in reference topics.
 
 INIT-|MAKE? KEYWORDS:
-_content
-  A keyword list. Similar to ARGUMENTS. The official link tag for this
-  section is "keywords". Only in reference topics.
+  A keyword list. Similar to ARGUMENTS. Only in reference topics.
 
 NOTE|WARNING: content
 _content

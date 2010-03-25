@@ -9,7 +9,7 @@ define inline method check-id (elem :: type-union(<topic>, <section>)) => ()
       unless (intersection(" /[]", id).empty?)
          illegal-character-in-id(location: elem.id-source-loc);
       end unless;
-      when (id.first = ':')
+      when (id.first = ':' & ~dynamic-binding(*internal-markup*, default: #f))
          leading-colon-in-id(location: elem.id-source-loc);
       end when;
    end when;
@@ -68,10 +68,11 @@ define method allowed-markup-section?
    (section.directive-type = #"fully-qualified-name") | next-method()
 end method;
 
+// TODO: Add slot accessors section to allowed list.
 define method allowed-markup-section?
    (section :: <directive-section-token>, topic :: <class-doc>)
 => (okay? :: <boolean>)
-   (section.directive-type = #"keywords") | next-method()
+   member?(section.directive-type, #[ #"keywords", #"conditions" ]) | next-method()
 end method;
 
 define method allowed-markup-section?
