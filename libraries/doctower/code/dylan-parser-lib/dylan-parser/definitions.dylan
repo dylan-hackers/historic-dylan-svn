@@ -1,10 +1,17 @@
 module: dylan-parser
 synopsis: Grammar of top-level definitions.
 
-define class <definition-token> (<source-location-token>)
+
+define class <documentable-token-mixin> (<object>)
+   // Documentation in the scoped-docs ABOVE this production that we want to take.
+   slot claimed-docs :: <sequence> /* of <markup-content-token> */ = #[];
+end class;
+
+define class <definition-token> (<source-location-token>, <documentable-token-mixin>)
    slot scoped-docs = make(<stretchy-vector> /* of <markup-content-token> */);
    slot api-name :: <string>;
 end class;
+
 
 //
 // Definitions
@@ -22,8 +29,13 @@ attributes
    type-skipper = parse-til-parsable,
    expression-skipper = parse-til-parsable;
 afterwards (context, tokens, value, start-pos, end-pos)
+   // Sort in case order got screwy because of parser backtracking.
+   value.scoped-docs := sort!(value.scoped-docs, test: markup-sort-test);
+   // Lower productions (including variable-definer, etc.) will have removed
+   // their claims from this scope already. But this production needs to claim
+   // the DEFINE docs for itself from the file's scope.
    value.scoped-docs := add-to-front(tokens[0].lexeme-doc, value.scoped-docs);
-   remove-from-outer-scope(context, tokens[0].lexeme-doc);
+   claim-docs(value, tokens[0].lexeme-doc);
    note-combined-source-location(context, value, tokens);
 end;
 
@@ -95,6 +107,7 @@ attributes
    expression-followers = vector(parse-lex-RT-PAREN, parse-lex-COMMA),
    expression-skipper = parse-til-rt-paren;
 afterwards (context, tokens, value, start-pos, end-pos)
+   value.scoped-docs := remove-claimed-docs(value.scoped-docs, tokens[6]);
    note-combined-source-location(context, value, tokens);
 end;
 
@@ -123,7 +136,7 @@ define parser class-clause :: <token>
    yield token;
 end;
 
-define parser init-arg-spec (<source-location-token>)
+define parser init-arg-spec (<source-location-token>, <documentable-token-mixin>)
    rule seq(opt(lex-REQUIRED), lex-KEYWORD, lex-SYMBOL, opt(init-expression),
             opt-many(seq(lex-COMMA, init-arg-option)), opt(lex-COMMA))
    => tokens;
@@ -133,11 +146,11 @@ define parser init-arg-spec (<source-location-token>)
    slot init-expression :: false-or(<text-token>) = tokens[3];
    slot clause-options = list-from-tokens(vector(#f, tokens[4], tokens[5]));
 afterwards (context, tokens, value, start-pos, end-pos)
-   remove-from-outer-scope(context, value.clause-doc);
+   claim-docs(value, value.clause-doc);
    note-combined-source-location(context, value, tokens);
 end;
 
-define parser inherited-slot-spec (<source-location-token>)
+define parser inherited-slot-spec (<source-location-token>, <documentable-token-mixin>)
    rule seq(lex-INHERITED, lex-SLOT, variable-name, opt(init-expression),
             opt-many(seq(lex-COMMA, inherited-option)), opt(lex-COMMA))
    => tokens;
@@ -146,11 +159,11 @@ define parser inherited-slot-spec (<source-location-token>)
    slot init-expression :: false-or(<text-token>) = tokens[3];
    slot clause-options = list-from-tokens(vector(#f, tokens[4], tokens[5]));
 afterwards (context, tokens, value, start-pos, end-pos)
-   remove-from-outer-scope(context, value.clause-doc);
+   claim-docs(value, value.clause-doc);
    note-combined-source-location(context, value, tokens);
 end;
 
-define parser slot-spec (<source-location-token>)
+define parser slot-spec (<source-location-token>, <documentable-token-mixin>)
    rule seq(opt(slot-adjectives), lex-SLOT, variable, opt(init-expression),
             opt-many(seq(lex-COMMA, slot-option)), opt(lex-COMMA))
    => tokens;
@@ -161,7 +174,7 @@ define parser slot-spec (<source-location-token>)
    slot init-expression :: false-or(<text-token>) = tokens[3];
    slot clause-options = list-from-tokens(vector(#f, tokens[4], tokens[5]));
 afterwards (context, tokens, value, start-pos, end-pos)
-   remove-from-outer-scope(context, value.clause-doc);
+   claim-docs(value, value.clause-doc);
    note-combined-source-location(context, value, tokens);
 end;
 
@@ -233,6 +246,7 @@ define parser generic-definer (<definition-token>)
             generic-parameter-list, opt(generic-options))
    => tokens;
    inherited slot scoped-docs = attr(scoped-docs);
+   inherited slot claimed-docs = tokens[3].claimed-docs;
    inherited slot api-name = tokens[2].name;
    slot api-modifiers = (tokens[0] & map(value, tokens[0])) | #[];
    slot func-params = tokens[3].parameter-list | #[];
@@ -241,6 +255,7 @@ define parser generic-definer (<definition-token>)
 attributes
    scoped-docs = make(<stretchy-vector>);
 afterwards (context, tokens, value, start-pos, end-pos)
+   value.scoped-docs := remove-claimed-docs(value.scoped-docs, tokens[3]);
    note-combined-source-location(context, value, tokens)
 end;
 
@@ -255,6 +270,7 @@ define parser method-definer (<definition-token>)
 attributes
    scoped-docs = make(<stretchy-vector>);
 afterwards (context, tokens, value, start-pos, end-pos)
+   value.scoped-docs := remove-claimed-docs(value.scoped-docs, tokens[3]);
    note-combined-source-location(context, value, tokens);
 end;
 
@@ -269,10 +285,11 @@ define parser function-definer (<definition-token>)
 attributes
    scoped-docs = make(<stretchy-vector>);
 afterwards (context, tokens, value, start-pos, end-pos)
+   value.scoped-docs := remove-claimed-docs(value.scoped-docs, tokens[3]);
    note-combined-source-location(context, value, tokens);
 end;
 
-define parser generic-parameter-list (<token>)
+define parser generic-parameter-list (<token>, <documentable-token-mixin>)
    rule seq(lex-LF-PAREN, opt(parameters), lex-RT-PAREN,
             opt-seq(lex-ARROW, generic-values))
    => tokens;
@@ -283,12 +300,16 @@ attributes
    type-followers = vector(parse-lex-COMMA, parse-lex-RT-PAREN),
    type-skipper = parse-til-rt-paren,
    expression-followers = vector(parse-lex-COMMA, parse-lex-RT-PAREN),
-   expression-skipper = parse-til-rt-paren
+   expression-skipper = parse-til-rt-paren;
+afterwards (context, tokens, value, start-pos, end-pos)
+   claim-docs(value, vector(tokens[1], tokens[3] & tokens[3][1]));
 end;
 
-define parser generic-values (<token>)
+define parser generic-values (<token>, <documentable-token-mixin>)
    rule choice(bare-values-list, enclosed-values-list) => token;
    slot value-list = value-list-from-token(token);
+afterwards (context, token, value, start-pos, end-pos)
+   claim-docs(value, token)
 end;
 
 define parser generic-options :: <sequence> /* of <property-token> */

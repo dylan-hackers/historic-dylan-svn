@@ -3,7 +3,6 @@ synopsis: Parser manager.
 
 
 define class <dylan-parse-context> (<file-parse-context>)
-   slot last-whitespace-doc :: false-or(<markup-content-token>) = #f;
    slot source-stream :: <positionable-stream>,
       required-init-keyword: #"source-stream";
 end class;

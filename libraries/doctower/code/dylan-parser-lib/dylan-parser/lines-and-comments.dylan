@@ -8,6 +8,13 @@ synopsis: Line-oriented parsing and grammar of documentation comments.
 define class <doc-comment-token> (<text-token>)
 end class;
 
+define method last-whitespace-doc (ws :: false-or(<whitespace-token>))
+=> (doc :: false-or(<markup-content-token>))
+   if (ws & ~ws.whitespace-docs.empty?)
+      ws.whitespace-docs.last;
+   end if;
+end method;
+
 
 //
 // Line oriented parsing
@@ -22,6 +29,8 @@ define parser source-record (<source-location-token>)
 attributes
    scoped-docs = make(<stretchy-vector> /* of <markup-content-token> */);
 afterwards (context, tokens, value, start-pos, end-pos)
+   value.unscoped-docs := sort!(value.unscoped-docs, test: markup-sort-test);
+   value.unscoped-docs := remove-claimed-docs(value.unscoped-docs, value.definitions);
    note-source-location(context, value);
 end;
 
@@ -41,12 +50,10 @@ end;
 define parser whitespace (<token>)
    label "comment or whitespace";
    rule many(choice(spc, eol, doc-block, comment)) => tokens;
-afterwards (context, tokens, value, start-pos, end-pos)
-   let docs = tokens.choose-markup-tokens;
-   context.last-whitespace-doc := ~docs.empty? & docs.last;
+   slot whitespace-docs = tokens.choose-markup-tokens;
 end;
 
-define parser opt-whitespace :: false-or(<whitespace-token>)
+define caching parser opt-whitespace :: false-or(<whitespace-token>)
    rule opt(whitespace) => token;
    yield token;
 end;

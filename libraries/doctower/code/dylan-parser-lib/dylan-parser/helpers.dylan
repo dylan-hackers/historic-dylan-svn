@@ -5,26 +5,12 @@ synopsis: Functions and classes used in various places.
 // General helpers
 //
 
-define method remove-from-outer-scope (context, #rest items)
-=> ()
-   unless (items.empty?)
-      let outer-scope = attr(scoped-docs);
-      for (item in items)
-         if (item) remove!(outer-scope, item, test: \=) end;
-      end for;
-   end unless;
-end method;
-
 define method add-to-front (item, seq :: <sequence>) => (seq :: <sequence>)
    if (item) concatenate-as(seq.type-for-copy, vector(item), seq) else seq end
 end method;
 
 define method skipped? (item) => (skipped? :: <boolean>)
    instance?(item, <skipped-token>)
-end method;
-
-define method choose-markup-tokens (seq) => (seq :: <sequence>)
-   map(markup, choose(rcurry(instance?, <doc-block-token>), seq));
 end method;
 
 define method choose-unskipped (seq) => (seq :: <sequence>)
@@ -34,6 +20,61 @@ end method;
 /// Used to make a list of x from tokens parsed using (x? (s x)* s?).
 define method list-from-tokens (tokens) => (seq :: <sequence>)
    add-to-front(tokens[0], collect-subelements(tokens[1], 1) | #[])
+end method;
+
+
+//
+// Markup tokens
+//
+
+define method markup-sort-test
+   (item1 :: <markup-content-token>, item2 :: <markup-content-token>)
+=> (strictly-< :: <boolean>)
+   item1.source-location < item2.source-location
+end method;
+
+define method choose-markup-tokens (seq) => (seq :: <sequence>)
+   map(markup, choose(rcurry(instance?, <doc-block-token>), seq));
+end method;
+
+define method claim-docs (token :: <documentable-token-mixin>, seq :: <sequence>)
+=> ()
+   do(curry(claim-docs, token), seq)
+end method;
+
+define method claim-docs (token :: <documentable-token-mixin>, nil == #f) => ()
+   #f
+end method;
+
+define method claim-docs
+   (token :: <documentable-token-mixin>, another :: <documentable-token-mixin>)
+=> ()
+   token.claimed-docs := concatenate(token.claimed-docs, another.claimed-docs)
+end method;
+
+define method claim-docs
+   (token :: <documentable-token-mixin>, doc :: <markup-content-token>)
+=> ()
+   token.claimed-docs := add!(token.claimed-docs, doc)
+end method;
+
+define method remove-claimed-docs (docs :: <sequence>, nil == #f)
+=> (docs :: <sequence>)
+   docs
+end method;
+
+define method remove-claimed-docs (docs :: <sequence>, tokens :: <sequence>)
+=> (docs :: <sequence>)
+   reduce(remove-claimed-docs, docs, tokens)
+end method;
+
+define method remove-claimed-docs
+   (docs :: <sequence>, token :: <documentable-token-mixin>)
+=> (docs :: <sequence>)
+   for (claimed :: <markup-content-token> in token.claimed-docs)
+      docs := remove(docs, claimed, test: \=)
+   end for;
+   docs
 end method;
 
 
@@ -289,11 +330,6 @@ define method parameter-list-from-token (params-tok :: <parameters-token>)
                                     params-tok.required-params);
    let rest-key-param-list = rest-key-params-from-token(params-tok.rest-key-param);
    concatenate(required-param-list, rest-key-param-list);
-end method;
-
-define method required-param-from-token (tok == #f)
-=> (param-list :: <sequence>)
-   #[]
 end method;
 
 define method required-param-from-token (param-tok :: <required-parameter-token>)
