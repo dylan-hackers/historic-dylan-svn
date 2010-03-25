@@ -169,11 +169,11 @@ define method initialize
 
    // Parse template.
    
-   let (result, success?, failure) = parse-template(template-stream, context);
+   let (result, success?, extent) = parse-template(template-stream, context);
    if (success?)
       template.parsed-template := result
    else
-      error(failure)
+      error(extent)
    end if;
 
    // for (count keyed-by parser in context.parser-cache-hits)
