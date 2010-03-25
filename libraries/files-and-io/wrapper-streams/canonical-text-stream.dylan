@@ -20,7 +20,7 @@ will be the 'inner-stream'.
 Make keywords:
    tabstop-size  - Size of a tab stop. Defaults to 8.
    end-of-line   - Canonical end-of-line sequence. Defaults to "\n".
-   control-chars - Replacement for control characters (0-32 and 127), or #f to
+   control-chars - Replacement for control characters (0-31 and 127), or #f to
                    leave control characters alone. Defaults to "".
 */
 
