@@ -8,5 +8,5 @@ The {Module name} module exports these functions:
 [LIST OF FUNCTIONS]
 
 ------------------------------------------
-Subsection: See also		[:SeeAlso]
+Subheading: See also		[:SeeAlso]
 ------------------------------------------

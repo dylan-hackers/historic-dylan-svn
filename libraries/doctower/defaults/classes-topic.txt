@@ -8,5 +8,5 @@ The {Module name} module exports these classes:
 [LIST OF CLASSES]
 
 ------------------------------------------
-Subsection: See also		[:SeeAlso]
+Subheading: See also		[:SeeAlso]
 ------------------------------------------

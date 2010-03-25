@@ -1,7 +1,7 @@
 The {{const.name}} constant.
 
 ----------------------------------------------
-Subsection: Definitions		[:Definitions]
+Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
 {{IF const.definition? +}}
@@ -17,13 +17,13 @@ Exported under these names:
 {{END}}
 
 ---------------------------------------------
-Subsection: Adjectives	        [:Adjectives]
+Subheading: Adjectives	        [:Adjectives]
 ---------------------------------------------
 
 '{{const.adjectives}}' [code]
 
 ----------------------------------------
-Subsection: Type and value	[:Value]
+Subheading: Type and value	[:Value]
 ----------------------------------------
 
 An instance of '{{const.type.id}}' [qv] initialized to '{{const.value}}'. [code]

@@ -3,7 +3,7 @@ Section: {{meth.Generic-ID}}
 The {{meth.base-name}} method on {{meth.arg-types}}.
 
 ----------------------------------------------
-Subsection: Definitions		[:Definitions]
+Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
 {{IF meth.definition? +}}
@@ -11,7 +11,7 @@ Defined in {{meth.source.filename}} line {{meth.source.line}}.
 {{+END}}
 
 ---------------------------------------------
-Subsection: Adjectives		[:Adjectives]
+Subheading: Adjectives		[:Adjectives]
 ---------------------------------------------
 
 '{{meth.adjectives}}' [code]

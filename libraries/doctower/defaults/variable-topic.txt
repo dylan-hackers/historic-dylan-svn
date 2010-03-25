@@ -1,7 +1,7 @@
 The {{var.name}} variable.
 
 ----------------------------------------------
-Subsection: Definitions		[:Definitions]
+Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
 {{IF var.definition? +}}
@@ -17,13 +17,13 @@ Exported under these names:
 {{END}}
 
 ---------------------------------------------
-Subsection: Adjectives	        [:Adjectives]
+Subheading: Adjectives	        [:Adjectives]
 ---------------------------------------------
 
 '{{var.adjectives}}' [code]
 
 ----------------------------------------
-Subsection: Type and value	[:Value]
+Subheading: Type and value	[:Value]
 ----------------------------------------
 
 An instance of '{{var.type.id}}' [qv] initialized to '{{var.value}}'. [code]

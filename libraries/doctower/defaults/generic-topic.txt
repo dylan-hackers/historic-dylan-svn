@@ -1,7 +1,7 @@
 The {{gen.name}} generic function.
 
 ----------------------------------------------
-Subsection: Definitions		[:Definitions]
+Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
 {{IF gen.definition? +}}
@@ -17,7 +17,7 @@ Exported under these names:
 {{END}}
 
 ---------------------------------------------
-Subsection: Adjectives		[:Adjectives]
+Subheading: Adjectives		[:Adjectives]
 ---------------------------------------------
 
 '{{gen.adjectives}}' [code]
@@ -88,7 +88,7 @@ Conditions:
 *)}}
 
 ------------------------------------------
-Subsection: Methods		[:Methods]
+Subheading: Methods		[:Methods]
 ------------------------------------------
 
 {{REPEAT WITH method in gen.methods +}}

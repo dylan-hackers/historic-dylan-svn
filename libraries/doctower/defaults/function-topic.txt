@@ -1,7 +1,7 @@
 The {{func.name}} function.
 
 ----------------------------------------------
-Subsection: Definitions		[:Definitions]
+Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
 {{IF func.definition? +}}
@@ -17,7 +17,7 @@ Exported under these names:
 {{END}}
 
 ---------------------------------------------
-Subsection: Adjectives		[:Adjectives]
+Subheading: Adjectives		[:Adjectives]
 ---------------------------------------------
 
 '{{func.adjectives}}' [code]

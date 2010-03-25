@@ -7,5 +7,5 @@ This package includes the following libraries:
 [LIST OF LIBRARIES]
 
 ------------------------------------------
-Subsection: See also		[:SeeAlso]
+Subheading: See also		[:SeeAlso]
 ------------------------------------------

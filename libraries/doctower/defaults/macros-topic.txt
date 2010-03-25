@@ -8,5 +8,5 @@ The {Module name} module exports these macros:
 [LIST OF MACROS]
 
 ------------------------------------------
-Subsection: See also		[:SeeAlso]
+Subheading: See also		[:SeeAlso]
 ------------------------------------------

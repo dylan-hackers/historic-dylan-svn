@@ -5,7 +5,7 @@ Topic: {Name}	[::{Topic ID}]
 The unbound name {Name}.
 
 ----------------------------------------------
-Subsection: Definitions		[:Definitions]
+Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
 {IF definition?}
@@ -21,5 +21,5 @@ Exported under these names:
 {ENDIF}
 
 ------------------------------------------
-Subsection: See also		[:SeeAlso]
+Subheading: See also		[:SeeAlso]
 ------------------------------------------

@@ -8,5 +8,5 @@ The {Module name} module exports these unbound names:
 [LIST OF UNBOUND NAMES]
 
 ------------------------------------------
-Subsection: See also		[:SeeAlso]
+Subheading: See also		[:SeeAlso]
 ------------------------------------------

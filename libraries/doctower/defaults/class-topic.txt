@@ -1,7 +1,7 @@
 The {{class.name}} class.
 
 ----------------------------------------------
-Subsection: Definitions		[:Definitions]
+Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
 {{IF class.definition? +}}
@@ -17,7 +17,7 @@ Exported under these names:
 {{END}}
 
 ---------------------------------------------
-Subsection: Adjectives  	[:Adjectives]
+Subheading: Adjectives  	[:Adjectives]
 ---------------------------------------------
 
 '{{class.adjectives}}' [code]
@@ -37,25 +37,25 @@ Make keywords:
 {{END}}
 
 -----------------------------------------------
-Subsection: Inheritable Slots	[:Inheritables]
+Subheading: Inheritable Slots	[:Inheritables]
 -----------------------------------------------
 
 {{REPEAT WITH getter IN class.inheritable-getters +}} '{{getter.ID}}' [qv] {{END}}
 
 -----------------------------------------------
-Subsection: Superclasses	[:Superclasses]
+Subheading: Superclasses	[:Superclasses]
 -----------------------------------------------
 
 {{REPEAT WITH superclass IN class.superclasses +}} '{{Superclass.ID}}' [qv] {{END}}
 
 ---------------------------------------------
-Subsection: Subclasses		[:Subclasses]
+Subheading: Subclasses		[:Subclasses]
 ---------------------------------------------
 
 {{REPEAT WITH subclass IN class.subclasses +}} '{{Subclass.ID}}' [qv] {{END}}
 
 --------------------------------------------------------------
-Subsection: Functions on {{Name}}		[:FunctionsOn]
+Subheading: Functions on {{Name}}		[:FunctionsOn]
 --------------------------------------------------------------
 
 {{REPEAT WITH function IN class.functions-on-class +}}
@@ -63,7 +63,7 @@ Subsection: Functions on {{Name}}		[:FunctionsOn]
 {{END}}
 
 ---------------------------------------------------------------------
-Subsection: Functions returning {{Name}}	[:FunctionsReturning]
+Subheading: Functions returning {{Name}}	[:FunctionsReturning]
 ---------------------------------------------------------------------
 
 {{REPEAT WITH function IN class.functions-returning-class +}}
@@ -71,5 +71,5 @@ Subsection: Functions returning {{Name}}	[:FunctionsReturning]
 {{END}}
 
 ------------------------------------------
-Subsection: See also		[:SeeAlso]
+Subheading: See also		[:SeeAlso]
 ------------------------------------------
