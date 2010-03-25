@@ -35,7 +35,7 @@ define method parse-markup
       // *parser-trace* := *standard-output*;
       // *parser-cache-hits* := #t;
    
-      let (markup-token, success?, failure) =
+      let (markup-token, success?, extent) =
             parse-markup-block(indented-stream, context);
 
       // *parser-trace* := #f;
@@ -47,8 +47,8 @@ define method parse-markup
          markup-token;
       else
          let loc = source-location-from-stream-positions
-               (context, failure.failure-position, failure.failure-position);
-         parse-error-in-markup(location: loc, expected: failure.parse-expected);
+               (context, extent.parse-position, extent.parse-position);
+         parse-error-in-markup(location: loc, expected: extent.parse-expected);
       end if;
    cleanup
       close-indented-stream();
@@ -81,7 +81,7 @@ define method parse-internal-markup
 
       // *parser-trace* := *standard-output*;
    
-      let (markup-token, success?, failure) =
+      let (markup-token, success?, extent) =
             parse-markup-block(indented-stream, context);
 
       // *parser-trace* := #f;
@@ -90,7 +90,7 @@ define method parse-internal-markup
          markup-token;
       else
          error("Failed to parse internal markup at stream position %d: %=",
-               failure.failure-position, failure.parse-expected);
+               extent.parse-position, extent.parse-expected);
       end if;
    cleanup
       close-indented-stream();

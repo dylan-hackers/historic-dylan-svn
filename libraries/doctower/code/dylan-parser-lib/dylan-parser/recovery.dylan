@@ -26,23 +26,24 @@ Synopsis: Checks if the current parse point has expected syntax.
 **/
 
 define method checked-followers (follows :: <sequence>, stream, context)
-=> (result, succ?, err)
+=> (result, succ?, extent)
    let parser = apply(choice, follows);
    parser(stream, context);
 end method;
 
-define method checked-followers (follows, stream, context) => (result, succ?, err)
-   values(#f, #t, #f);
+define method checked-followers (follows, stream, context)
+=> (result, succ?, extent)
+   values(#f, #t, make(<parse-success>, position: stream.stream-position));
 end method;
 
 define parser-method checked-type-followers (stream, context)
-=> (result, succ? :: <boolean>, err :: false-or(<parse-failure>))
+=> (result, succ? :: <boolean>, extent :: <parse-extent>)
    label "valid input";
    checked-followers(attr(type-followers, default: #f), stream, context)
 end;
 
 define parser-method checked-expression-followers (stream, context)
-=> (result, succ? :: <boolean>, err :: false-or(<parse-failure>))
+=> (result, succ? :: <boolean>, extent :: <parse-extent>)
    label "valid input";
    checked-followers(attr(expression-followers, default: #f), stream, context)
 end;
@@ -56,7 +57,7 @@ parser) and signals a warning to the user.
 
 define method checked-recovery
    (skipper :: <function>, stream :: <positionable-stream>, context)
-=> (result, succ?, err)
+=> (result, succ?, extent)
    // Skip to next graphic character before starting recovery, so that the range
    // of skipped input does not include end-of-line characters.
    for (c = peek(stream, on-end-of-stream: #f) then peek(stream, on-end-of-stream: #f),
@@ -66,17 +67,17 @@ define method checked-recovery
 
    let parser = skip(skipper);
    let start-pos = stream.stream-position;
-   let (result :: false-or(<token>), succ? :: <boolean>, err) = parser(stream, context);
+   let (result :: false-or(<token>), succ? :: <boolean>, extent) = parser(stream, context);
    let start-pos = (succ? & result.parse-start) | start-pos;
    let end-pos = (succ? & result.parse-end) | stream.stream-position;
    let source-location =
          source-location-from-stream-positions(context, start-pos, end-pos);
    unparsable-expression-in-code(location: source-location);
-   values(result, succ?, err);
+   values(result, succ?, extent);
 end method;
 
-define method checked-recovery (skipper, stream, context) => (result, succ?, err)
-   values(#f, #t, #f)
+define method checked-recovery (skipper, stream, context) => (result, succ?, extent)
+   values(#f, #t, make(<parse-success>, position: stream.stream-position))
 end method;
 
 define parser-method checked-type-recovery (stream, context)

@@ -158,8 +158,7 @@ end;
 
 
 define parser-method char (stream, context)
-=> (char :: false-or(<string>),
-    succ? :: <boolean>, err :: false-or(<parse-failure>))
+=> (char :: false-or(<string>), succ? :: <boolean>, err :: false-or(<parse-failure>))
    label "character";
    let char = read-element(stream, on-end-of-stream: #f);
    case
@@ -169,8 +168,7 @@ define parser-method char (stream, context)
 end parser-method;
 
 define parser-method printing-character (stream, context)
-=> (char :: false-or(<string>), succ? :: <boolean>,
-    err :: false-or(<parse-failure>))
+=> (char :: false-or(<string>), succ? :: <boolean>, err :: false-or(<parse-failure>))
    label "printable character";
    let char = read-element(stream, on-end-of-stream: #f);
    case

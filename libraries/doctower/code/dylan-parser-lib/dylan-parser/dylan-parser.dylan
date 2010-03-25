@@ -37,7 +37,7 @@ define method parse-dylan
    // *parser-trace* := *standard-output*;
    // *parser-cache-hits* := #t;
 
-   let (file-token, success?, failure) = parse-interchange-file(text, context);
+   let (file-token, success?, extent) = parse-interchange-file(text, context);
 
    // *parser-trace* := #f;
    // for (e keyed-by k in context.parser-cache-hits)
@@ -48,7 +48,7 @@ define method parse-dylan
       file-token
    else
       let loc = source-location-from-stream-positions
-            (context, failure.failure-position, failure.failure-position);
-      parse-error-in-dylan(location: loc, expected: failure.parse-expected);
+            (context, extent.parse-position, extent.parse-position);
+      parse-error-in-dylan(location: loc, expected: extent.parse-expected);
    end if;
 end method;

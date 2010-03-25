@@ -653,6 +653,8 @@ end;
 define caching parser function-word (<token>)
    rule seq(choice(), word-sep) => tokens;
    slot value :: <string> = tokens[0];
+afterwards (context, tokens, value, start-pos, end-pos, fail: fail)
+   fail(make(<parse-failure>))
 end;
 
 define parser lex-FUNCTION-WORD (<lexeme>)
@@ -917,8 +919,7 @@ define caching parser any-character :: <string>
 end;
 
 define parser-method alphabetic-character (stream, context)
-=> (char :: false-or(<string>),
-    succ? :: <boolean>, err :: false-or(<parse-failure>))
+=> (char :: false-or(<string>), succ? :: <boolean>, err :: false-or(<parse-failure>))
    label "alphabetic character";
    let char = read-element(stream, on-end-of-stream: #f);
    case
@@ -929,8 +930,7 @@ define parser-method alphabetic-character (stream, context)
 end parser-method;
 
 define parser-method numeric-character (stream, context)
-=> (char :: false-or(<string>),
-    succ? :: <boolean>, err :: false-or(<parse-failure>))
+=> (char :: false-or(<string>), succ? :: <boolean>, err :: false-or(<parse-failure>))
    label "numeric character";
    let char = read-element(stream, on-end-of-stream: #f);
    case
