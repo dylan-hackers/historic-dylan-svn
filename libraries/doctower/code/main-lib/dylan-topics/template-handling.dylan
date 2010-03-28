@@ -3,15 +3,15 @@ synopsis: Operations for template documents.
 
 
 define method topics-from-template
-   (template :: <template>, implicit-topic :: <topic>, vars :: <table>)
+   (template :: <template>, generated-topic :: <topic>, vars :: <table>)
 => (topics :: <sequence>)
-   let implicit-body = process-template(template, operations: $template-ops, 
+   let generated-body = process-template(template, operations: $template-ops, 
          variables: vars);
-   let implicit-body-stream = make(<canonical-text-stream>,
-         inner-stream: make(<sequence-stream>, contents: implicit-body));
-   let markup-content = parse-internal-markup(implicit-body-stream,
+   let generated-body-stream = make(<canonical-text-stream>,
+         inner-stream: make(<sequence-stream>, contents: generated-body));
+   let markup-content = parse-internal-markup(generated-body-stream,
          $generated-source-location);
-   topics-from-markup(markup-content, implicit-topic, internal: #t)
+   topics-from-markup(markup-content, generated-topic, internal: #t)
 end method;
 
 

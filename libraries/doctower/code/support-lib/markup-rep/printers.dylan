@@ -24,6 +24,8 @@ define method print-object (o :: <api-doc>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       format(s, "id %=, ", o.id);
       pprint-newline(#"fill", s);
+      format(s, "fqn %=, ", o.fully-qualified-name);
+      pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
          format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
@@ -44,6 +46,8 @@ define method print-object (o :: <library-doc>, s :: <stream>) => ()
       format(s, "library topic %=, ", o.title);
       pprint-newline(#"fill", s);
       format(s, "id %=, ", o.id);
+      pprint-newline(#"fill", s);
+      format(s, "fqn %=, ", o.fully-qualified-name);
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
@@ -68,6 +72,8 @@ define method print-object (o :: <module-doc>, s :: <stream>) => ()
       format(s, "module topic %=, ", o.title);
       pprint-newline(#"fill", s);
       format(s, "id %=, ", o.id);
+      pprint-newline(#"fill", s);
+      format(s, "fqn %=, ", o.fully-qualified-name);
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))

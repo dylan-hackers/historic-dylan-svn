@@ -1,5 +1,5 @@
 module: dylan-user
-synopsis: Merges implicit and explicit topics and resolves links.
+synopsis: Merges generated and authored topics and resolves links.
 
 define module topic-resolver
    use common;
@@ -8,5 +8,6 @@ define module topic-resolver
    use ordered-tree;
    
    export
-      resolve-topic-placeholders, arrange-topics, merge-topics;
+      resolve-topic-placeholders, arrange-topics, group-mergeable-topics,
+      check-and-merge-topics;
 end module;

@@ -87,23 +87,21 @@ getter and setter functions will override the generated documentation.
 Automatic and overriding documentation
 ======================================
 
-API documentation topics can be implicitly-generated or explicitly-generated.
-These coexist until the stage in which they are merged and all topics and
-sections are made explicit.
+API documentation topics can be automatically generated or manually authored.
+These coexist until the stage in which they are merged.
 
-Automatic (implicitly-generated) documentation is normally only created for
-exported API elements -- regardless of whether the exporting library or module
-is within the documentation's scope -- that have an implicit or explicit
-definition that IS within the documentation's scope. This includes create
-clauses, not that there is much to say about them absent overriding explicit
-documentation.
+Automatically-generated documentation is normally only created for exported API
+elements -- regardless of whether the exporting library or module is within the
+documentation's scope -- that have an implicit or explicit definition that IS
+within the documentation's scope. This includes create clauses, not that there
+is much to say about them absent overriding authored documentation.
 
-Overriding explicit documentation must generally be a topic type that matches
-the API type, e.g., a class must be documented with a "Class:" topic directive.
-There is one exception to this: create clauses, which may be documented as any
-API type.
+Manually-authored overriding documentation must generally be a topic type that
+matches the API type, e.g., a class must be documented with a "Class:" topic
+directive. There is one exception to this: create clauses, which may be
+documented as any API type.
 
-If an API is not exported, it is not documented. An explicit topic given for an
+If an API is not exported, it is not documented. An authored topic given for an
 API does not change this.
 
 TODO: Think about [ditto] in the context of API documentation.
@@ -131,7 +129,7 @@ each word is capitalized.
   Macros, variables  - The bare name of the API element.
 
 Conceptual APIs (such as "rule functions" in the PEG Parser library) may be
-documented.
+documented. Titles of conceptual APIs are not canonicalized.
 
 
 Titles and identifiers

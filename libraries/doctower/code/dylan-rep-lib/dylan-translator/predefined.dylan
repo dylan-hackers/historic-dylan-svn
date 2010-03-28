@@ -34,7 +34,7 @@ define constant $predefined-source-location = make(<predefined-source-location>)
 
 define method print-message (o :: <predefined-source-location>, s :: <stream>)
 => ()
-   write(s, "predefined API element")
+   write(s, "predefined API location")
 end method;
 
 

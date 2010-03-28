@@ -39,6 +39,11 @@ the user should generate DITA output and use XSLT or a DITA processing system.
 Want to Do
 ==========
 
+Note direct and indirect libraries required, so developer can make sure those
+are available. More important for GD than OD.
+
+------
+
 Tables. The table syntax requires that the code figures out table columns before
 tokenizing words -- actual character boundaries matter.
 

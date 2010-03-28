@@ -8,8 +8,10 @@ define module markup-translator
    use markup-parser,
       rename: { content => token-content, index => token-index,
                 text => token-text, topics => token-topics,
+                topic-type => token-topic-type,
                 source-location => token-src-loc };
    use markup-rep;
+   use name-processing;
    use configs;
    
    export topics-from-markup;

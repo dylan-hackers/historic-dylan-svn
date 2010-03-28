@@ -61,7 +61,7 @@ define generic make-topic-from-token (token :: <topic-token>)
 define method make-topic-from-token (token :: <directive-topic-token>)
 => (topic :: <topic>)
    let topic = make(<topic>, source-location: token.token-src-loc,
-                    topic-type: token.topic-type);
+                    topic-type: token.token-topic-type);
    process-tokens(topic, token);
    topic
 end method;
@@ -160,14 +160,18 @@ define method process-tokens
 end method;
 
 
+/**
+The title for library or module topics will have "Library" or "Module" added to
+the end, but not here; when merging topics, automatically-generated canonical
+titles replace user-defined titles and that takes care of "Library" and "Module"
+and spaces and casing.
+**/
 define method process-tokens
    (topic :: <topic>, token :: <directive-topic-title-token>)
 => ()
    topic.title-source-loc := token.token-src-loc;
    add!(topic.title, token.title-text);
    check-title(topic);
-   // TODO: This doesn't convert something like "Library: format-io" to a title
-   // like "Format-io Library".
 end method;
 
 
@@ -242,8 +246,6 @@ end method;
 
 /**
 Directive section tokens are added directly to slots of a topic.
-TODO: Should they be added to the normal content instead, with the slots only
-used for quick-reference by other code?
 
 Titled section tokens are added to the content of a topic. See
 'process-tokens(<topic>, <token>)' and 'process-tokens(<topic-content-seq>,
@@ -337,7 +339,9 @@ define method process-tokens
 => ()
    select (section-token.directive-type)
       #"fully-qualified-name" =>
-         topic.fully-qualified-name := section-token.word.token-text;
+         topic.fully-qualified-name :=
+               standardize-qualified-name(section-token.word.token-text);
+         topic.fully-qualified-name-source-loc := section-token.token-src-loc;
    end select;
 end method;
 

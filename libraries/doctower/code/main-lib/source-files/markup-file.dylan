@@ -14,7 +14,7 @@ define method topics-from-markup-file (locator :: <file-locator>)
    // Read and parse file.
    let token = parse-markup-file(locator);
 
-   // Generate explicit topics and placeholders.
+   // Generate authored topics and placeholders.
    topics-from-markup(token, #f);
 end method;
 

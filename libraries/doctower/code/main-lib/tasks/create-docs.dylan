@@ -8,13 +8,14 @@ define method create-doc-tree
    let tocs = map(toc-from-file, toc-files);
    // log-object("Table of contents", tocs);
 
-   // Collect explicit and implicit topics.
+   // Collect authored and generated topics.
    let doc-file-topics = topics-from-markup-files(doc-files);
    let src-file-topics = topics-from-dylan-files(source-files);
    let topics = concatenate(doc-file-topics, src-file-topics);
+   let grouped-topics = group-mergeable-topics(topics);
    
-   // Combine API topic fragments.
-   // TODO: Combine topics that have same API name, type, library, and module.
+   // Check and combine API topic fragments.
+   let topics = map(check-and-merge-topics, grouped-topics);
    
    // Check for duplicate IDs and resolve table of contents placeholders.
 
@@ -23,7 +24,7 @@ define method create-doc-tree
       resolve-topic-placeholders(topics, tocs);
    // log-object("After res", topics);
    
-   // Check for ambiguous titles and arrange explicit and implicit topics.
+   // Check for ambiguous titles and arrange authored and generated topics.
 
    let handler <need-locations> =
          method (cond, next-handler)

@@ -50,6 +50,10 @@ define class <topic> (<markup-element>)
    
    slot id :: false-or(<string>) = #f,
          init-keyword: #"id";
+   slot topic-type :: <symbol> = #"topic",
+         init-keyword: #"topic-type";
+   slot generated-topic? :: <boolean> = #f,
+         init-keyword: #"generated";
          
    slot title :: <title-seq> = make(<title-seq>),
          init-keyword: #"title";
@@ -73,19 +77,32 @@ define class <topic> (<markup-element>)
          = make(<stretchy-vector>);
 end class;
 
-define method make (class == <topic>, #key topic-type = #"topic")
+define method make
+   (class == <topic>, #rest keys, #key topic-type = #"topic")
 => (inst :: <topic>)
-   select (topic-type)
-      #"class" => make(<class-doc>);
-      #"variable" => make(<variable-doc>);
-      #"function" => make(<function-doc>);
-      #"generic-function" => make(<generic-doc>);
-      #"library" => make(<library-doc>);
-      #"module" => make(<module-doc>);
-      #"macro" => make(<macro-doc>);
-      #"topic" => make(<con-topic>);
-   end select;
+   let subclass = 
+         select (topic-type)
+            #"class" => <class-doc>;
+            #"constant" => <variable-doc>;
+            #"variable" => <variable-doc>;
+            #"function" => <function-doc>;
+            #"method" => <function-doc>;
+            #"generic-function" => <generic-doc>;
+            #"library" => <library-doc>;
+            #"module" => <module-doc>;
+            #"macro" => <macro-doc>;
+            #"topic" => <con-topic>;
+         end select;
+   apply(make, subclass, keys);
 end method;
+
+define function printed-topic-type (topic-type :: <symbol>) => (string :: <string>)
+   select (topic-type)
+      #"topic" => "topic";
+      #"generic-function" => "generic function topic";
+      otherwise => concatenate(as(<string>, topic-type), " topic");
+   end select
+end function;
 
 define class <con-topic> (<topic>)
 end class;
@@ -94,9 +111,21 @@ define class <ref-topic> (<topic>)
 end class;
 
 define class <api-doc> (<ref-topic>)
-   slot implicit-topic? :: <boolean> = #f, init-keyword: #"implicit";
+   // The fully qualified name, either automatically generated or supplied by
+   // author.
    slot fully-qualified-name :: false-or(<string>) = #f, 
          init-keyword: #"qualified-name";
+   
+   slot fully-qualified-name-source-loc :: <source-location> = $unknown-source-location,
+         init-keyword: #"qualified-name-source-location";
+   
+   // True if this API actually exists in code; false if it is conceptual and
+   // provided by author. All automatically generated API topics are existent,
+   // and authored topics that correspond to generated topics are also made
+   // existent during topic merging.
+   slot existent-api? :: <boolean> = #f,
+         init-keyword: #"existent-api";
+         
    slot definitions-section :: false-or(<section>) = #f;
 end class;
 
@@ -114,6 +143,7 @@ end class;
 define class <class-doc> (<binding-doc>)
    slot adjectives-section :: false-or(<section>) = #f;
    slot keywords-section :: false-or(<section>) = #f;
+   slot conds-section :: false-or(<section>) = #f;
    slot inheritables-section :: false-or(<section>) = #f;
    slot supers-section :: false-or(<section>) = #f;
    slot subs-section :: false-or(<section>) = #f;

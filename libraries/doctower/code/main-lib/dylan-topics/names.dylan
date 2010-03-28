@@ -11,7 +11,7 @@ define generic definition-qualified-name (defn :: <definition>, #key)
 
 define method definition-qualified-name (defn :: <definition>, #key) 
 => (id :: <string>)
-   standardize-name(format-to-string("%s", defn.canonical-name))
+   standardize-qualified-name(format-to-string("%s", defn.canonical-name))
 end method;
 
 define method definition-qualified-name
@@ -20,16 +20,12 @@ define method definition-qualified-name
    if (method-params)
       let types = canonical-param-types(method-params, #t);
       let type-list = types.item-string-list | "";
-      standardize-name(format-to-string("%s(%s)", defn.canonical-name, type-list))
+      standardize-qualified-name
+            (format-to-string("%s(%s)", defn.canonical-name, type-list))
    else
       next-method()
    end if;
 end method;
-
-
-define function standardize-name (id :: <string>) => (id :: <string>)
-   choose(curry(\~=, ' '), id.as-titlecase);
-end function;
 
 
 //
@@ -44,11 +40,6 @@ define method canonical-id (defn :: <definition>, #rest keys, #key, #all-keys)
    let name = apply(definition-qualified-name, defn, keys);
    format-to-string("::%s", name.standardize-id)
 end method;
-
-
-define function standardize-id (id :: <string>) => (id :: <string>)
-   replace-elements!(id, curry(\=, '/'), always('.'));
-end function;
 
 
 //
@@ -86,37 +77,9 @@ define method canonical-title
 end method;
 
 
-define function standardize-title (title :: <string>) => (title :: <string>)
-   title := as-titlecase(title);
-   title := regexp-replace(title, " {2,}", " ");
-   title := regexp-replace(title, " ?, ?([^ ])", ", \\1");
-   title := regexp-replace(title, " ?([.\\(\\)\\[\\]]) ?", "\\1");
-end function;
-
-
 //
 // Helpers
 //
-
-
-define function as-titlecase (str :: <string>) => (str :: <string>)
-   let cased-str = str.copy-sequence;
-   let should-cap? :: <boolean> = #t;
-   for (c keyed-by i in cased-str)
-      case
-         c.alphabetic? =>
-            when (should-cap?)
-               cased-str[i] := c.as-uppercase;
-               should-cap? := #f
-            end when;
-         member?(c, "!&*<=>|^$%@_-+~?/0123456789") =>
-            #f;
-         otherwise =>
-            should-cap? := #t;
-      end case
-   end for;
-   cased-str
-end function;
 
 
 /// Synopsis: Gets text for method argument types using their canonical names.

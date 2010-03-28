@@ -23,8 +23,8 @@ define constant *definitions* :: <equal-table> = make(<equal-table>);
 
 
 /**
-1. Generate implicit topics for all APIs.
-2. Generate explicit topic content.
+1. Generate automatically-generated topics for all APIs.
+2. Generate manually-authored topic content.
 **/
 define method topics-from-dylan (api-definitions :: <sequence>)
 => (topics :: <sequence>)
@@ -45,7 +45,16 @@ define method topics-from-dylan (api-definitions :: <sequence>)
    for (api-defn in api-definitions)
       let new-topics = make-source-topics(api-defn);
       topics := concatenate!(topics, new-topics);
-      definition-topics := add!(definition-topics, pair(api-defn, new-topics));
+
+      when ($api-list-filename)
+         let new-definition-topics
+               = choose(conjoin(generated-topic?, rcurry(instance?, <api-doc>)),
+                        new-topics);
+         unless (new-definition-topics.size = 0)
+            definition-topics
+                  := add!(definition-topics, pair(api-defn, new-definition-topics))
+         end unless
+      end when
    end for;
    
    // Clean up.
@@ -56,6 +65,10 @@ define method topics-from-dylan (api-definitions :: <sequence>)
    when ($api-list-filename)
       verbose-log("Writing fully-qualified API names to %s", $api-list-filename);
       with-open-file (api-list = $api-list-filename, direction: #"output")
+         write(api-list,
+            "# Each first line is the fully qualified name of a library, module, or binding.\n"
+            "# Each subsequent indented line is an alternative name for the library, module,\n"
+            "# or binding as declared or used in Dylan source code.\n\n");
          for (defn-topic in definition-topics)
             for (topic in defn-topic.tail)
                write-line(api-list, topic.fully-qualified-name)
@@ -71,7 +84,6 @@ define method topics-from-dylan (api-definitions :: <sequence>)
       end with-open-file
    end when;
 
-   log-object("Topics from source", topics); /**/
    topics
 end method;
 
@@ -80,7 +92,7 @@ define generic make-source-topics (definition :: <definition>)
 => (topics :: <sequence>);
 
 
-define method make-explicit-topics
+define method make-authored-topics
    (markup-content-tokens :: <sequence>, context-topic :: false-or(<api-doc>))
 => (topics :: <sequence>)
    let topics-per-token = map(rcurry(topics-from-markup, context-topic), 
@@ -101,5 +113,5 @@ define constant $generated-source-location = make(<generated-source-location>);
 
 define method print-message(o :: <generated-source-location>, s :: <stream>)
 => ()
-   write(s, "automatically-generated documentation")
+   write(s, "automatically-generated documentation location")
 end method;

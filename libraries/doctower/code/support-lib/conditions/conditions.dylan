@@ -92,7 +92,7 @@ end class;
 define method make
    (cls == <user-visible-warning>, #rest keys, #key, #all-keys)
 => (inst :: <user-visible-warning>)
-   apply(next-method, cls, #"error-class", "Warning", keys);
+   apply(next-method, cls, error-class:, "Warning", keys);
 end method;
 
 define method return-allowed? (warning :: <user-visible-warning>)
@@ -139,11 +139,9 @@ define errors (<user-visible-warning>)
       "Unsupported syntactic form will not be automatically documented",
       location;
 
-   /*
-   03 library-exports-not-known
-      "Modules and bindings of used library are unknown and might not be documented",
-      location;
-   */
+   03 api-not-found-in-code
+      "%s \"%s\" is not present in source code; check title unless intentional",
+      location, topic-type, title;
 
    04 no-definition-for-bindings
       "No definition of exported binding %s",
@@ -160,6 +158,16 @@ define errors (<user-visible-warning>)
    07 doc-comment-on-binding-alias
       "Alias of binding \"%s\" may not be individually documented",
       location, alias-name;
+   
+   08 ambiguous-api-in-topics
+      "\"%s\" is ambiguous and might refer to any of %s; "
+      "add \"Fully Qualified Name:\" to clarify",
+      location, title, topic-locations;
+   
+   09 fully-qualified-name-not-found-in-code
+      "Fully qualified name \"%s\" is not present in source code; "
+      "see --name-list file",
+      location, qualified-name;
 end errors;
 
 
@@ -205,7 +213,7 @@ define errors (<user-visible-error>)
       location, expected;
 
    61 no-context-topic-in-block
-      "Topic for content cannot be inferred",
+      "Content not associated with a topic",
       location;
 
    62 target-not-found-in-link
@@ -290,9 +298,7 @@ define errors (<user-visible-error>)
       "Circular dependency for \"%s\" between %s",
       location, name, defn-locations;
 
-   /*
-   83 conflicting-definitions-in-code
-      "Differing binding definitions at %s",
-      location, defn-locations;
-   */
+   83 multiple-topics-for-api
+      "Multiple topics for \"%s\" found at %s",
+      location, name, topic-locations;
 end errors;

@@ -9,7 +9,9 @@ define module conditions
       <need-locations>, specifier-for-locations;
    
    export
+      ambiguous-api-in-topics,
       ambiguous-title-in-link,
+      api-not-found-in-code,
       bad-syntax-in-toc-file,
       circular-definition,
       conflicting-bindings-in-module,
@@ -26,6 +28,7 @@ define module conditions
       file-error,
       file-not-found,
       file-type-not-known,
+      fully-qualified-name-not-found-in-code,
       id-matches-topic-title,
       illegal-character-in-id,
       illegal-section-in-topic,
@@ -33,6 +36,7 @@ define module conditions
       leading-colon-in-title,
       link-without-qv-or-vi-in-spec,
       multiple-libraries-in-fileset,
+      multiple-topics-for-api,
       no-context-topic-in-block,
       no-definition-for-bindings,
       no-files-in-command-arguments,

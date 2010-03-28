@@ -9,12 +9,9 @@ define module dylan-topics
    use dylan-translator, import: { $object-type };
    use markup-translator;
    use template-files;
+   use name-processing;
    // from wrapper-streams
    use canonical-text-stream;
-   // from regular-expressions
-   use regular-expressions, import: { regexp-replace };
-   // from string-extensions
-   use character-type;
    // from template-engine
    use template-engine;
 
