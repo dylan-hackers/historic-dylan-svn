@@ -50,6 +50,7 @@ define module markup-rep
       value-section, value-section-setter;
 
    export
-      <topic-level-style>, stringify-title, printed-topic-type;
+      <topic-level-style>, stringify-title, printed-topic-type, visit-placeholders,
+      visit-vi-xrefs;
       
 end module;

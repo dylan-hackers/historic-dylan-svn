@@ -5,9 +5,10 @@ module: dylan-user
 define module tasks
    use common;
    use conditions;
-   use ordered-tree;
+   use template-files;
    use source-files;
    use topic-resolver;
+   use ordered-tree;
    
    export
       create-doc-tree;

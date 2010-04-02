@@ -201,7 +201,7 @@ define macro class-visitors
             for (slot in vector(?slots),
                  setter in setters-vector(?slots))
                apply(?name, object.slot, action,
-                     #"setter", rcurry(setter, object), keys)
+                     setter:, rcurry(setter, object), keys)
             end for;
 
             when (instance?(object, action.function-specializers.first))

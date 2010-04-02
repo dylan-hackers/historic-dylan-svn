@@ -5,63 +5,63 @@ module: dylan-topics
 
 
 define method make-source-topics (defn :: <binding>) 
-=> (topics :: <sequence>)
+=> (topics :: <sequence>, catalog-topics :: <sequence>)
    let generated-topic = make(<binding-doc>, source-location: defn.source-location,
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
          existent-api: #t, qualified-name: defn.definition-qualified-name,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
-   vector(generated-topic)
+   values(vector(generated-topic), #[])
 end method;
 
 
 define method make-source-topics (defn :: <class-binding>) 
-=> (topics :: <sequence>)
+=> (topics :: <sequence>, catalog-topics :: <sequence>)
    let generated-topic = make(<class-doc>, source-location: defn.source-location,
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
          existent-api: #t, qualified-name: defn.definition-qualified-name,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
-   vector(generated-topic)
+   values(vector(generated-topic), #[])
 end method;
 
 
 define method make-source-topics (defn :: <function-binding>) 
-=> (topics :: <sequence>)
+=> (topics :: <sequence>, catalog-topics :: <sequence>)
    let generated-topic = make(<function-doc>, source-location: defn.source-location,
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
          existent-api: #t, qualified-name: defn.definition-qualified-name,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
-   vector(generated-topic)
+   values(vector(generated-topic), #[])
 end method;
 
 
 define method make-source-topics
    (defn :: type-union(<constant-binding>, <variable-binding>))
-=> (topics :: <sequence>)
+=> (topics :: <sequence>, catalog-topics :: <sequence>)
    let generated-topic = make(<variable-doc>, source-location: defn.source-location,
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
          existent-api: #t, qualified-name: defn.definition-qualified-name,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
-   vector(generated-topic)
+   values(vector(generated-topic), #[])
 end method;
 
 
 define method make-source-topics (defn :: <macro-binding>) 
-=> (topics :: <sequence>)
+=> (topics :: <sequence>, catalog-topics :: <sequence>)
    let generated-topic = make(<macro-doc>, source-location: defn.source-location,
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
          existent-api: #t, qualified-name: defn.definition-qualified-name,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
-   vector(generated-topic)
+   values(vector(generated-topic), #[])
 end method;
 
 
 define method make-source-topics (defn :: <generic-binding>) 
-=> (topics :: <sequence>)
+=> (topics :: <sequence>, catalog-topics :: <sequence>)
    let generic-topic = make(<generic-doc>, source-location: defn.source-location,
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
          existent-api: #t, qualified-name: defn.definition-qualified-name,
@@ -81,6 +81,6 @@ define method make-source-topics (defn :: <generic-binding>)
             qualified-name-source-location: $generated-source-location);
       topics := add!(topics, method-topic);
    end for;
-   topics
+   values(topics, #[])
 end method;
 

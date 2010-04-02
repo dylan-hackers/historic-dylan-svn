@@ -106,10 +106,13 @@ end;
 
 // exported
 define caching parser api-list-ref-line (<source-location-token>)
-   rule seq(sol, opn-brack-spc, list-lit, many-spc-ls, of-lit, many-spc-ls,
-            api-list-spec-text, spc-cls-brack, ls)
+   rule seq(sol, opn-brack-spc,
+            list-lit, many-spc-ls, of-lit, many-spc-ls, api-list-spec-text,
+            opt-seq(many-spc-ls, in-lit, many-spc-ls, word-til-cls-brack),
+            spc-cls-brack, ls)
       => tokens;
    slot list-type :: <symbol> = tokens[6];
+   slot scope-word :: false-or(<text-word-token>) = tokens[7] & tokens[7][3];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;

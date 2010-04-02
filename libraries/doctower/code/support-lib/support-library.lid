@@ -17,6 +17,7 @@ files:   support-library
          markup-rep/quote-elements
          markup-rep/toc-nav-elements
          markup-rep/topic-elements
+         markup-rep/visitors
          configs/module
          configs/configs
          parser-common/module

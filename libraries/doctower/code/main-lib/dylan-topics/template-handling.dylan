@@ -3,7 +3,7 @@ synopsis: Operations for template documents.
 
 
 define method topics-from-template
-   (template :: <template>, generated-topic :: <topic>, vars :: <table>)
+   (template :: <template>, generated-topic, vars :: <table>)
 => (topics :: <sequence>)
    let generated-body = process-template(template, operations: $template-ops, 
          variables: vars);
@@ -22,8 +22,10 @@ define constant $template-ops = table(<case-insensitive-string-table>,
       "id" => canonical-id,
       "library" => template-library,
       "line" => source-start-line,
+      "module" => template-module,
       "name" => template-name,
       "size" => size,
+      "scope-name" => definition-qualified-name,
       "source" => source-location,
       "unknown-reexports" => template-unknown-reexports,
       );
@@ -64,6 +66,23 @@ end method;
 define method template-library (name :: <source-name>) => (library :: <library>)
    let lib-name :: <source-name> = make(<library-name>, library: name.library-name);
    *definitions*[lib-name];
+end method;
+
+
+//
+// Scoping
+//
+
+
+define method template-library (module :: <module>) => (library :: <library>)
+   let lib-name :: <library-name> = module.canonical-name.enclosing-name;
+   *definitions*[lib-name];
+end method;
+
+
+define method template-module (binding :: <binding>) => (module :: <module>)
+   let mod-name :: <module-name> = binding.canonical-name.enclosing-name;
+   *definitions*[mod-name];
 end method;
 
 

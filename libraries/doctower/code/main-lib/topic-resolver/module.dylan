@@ -6,6 +6,7 @@ define module topic-resolver
    use conditions;
    use markup-rep;
    use ordered-tree;
+   use name-processing;
    
    export
       resolve-topic-placeholders, arrange-topics, group-mergeable-topics,

@@ -19,7 +19,7 @@ Exported under these names:
 Subheading: Bindings		[:Bindings]
 -------------------------------------------
 
-[LIST OF BINDINGS]
+[LIST OF BINDINGS IN {{mod.scope-name}}]
 
 {{IF mod.unknown-reexports.size > 0}}
 May export other bindings from these modules:

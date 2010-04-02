@@ -112,10 +112,9 @@ end class;
 
 define class <api-doc> (<ref-topic>)
    // The fully qualified name, either automatically generated or supplied by
-   // author.
+   // author and standardized.
    slot fully-qualified-name :: false-or(<string>) = #f, 
          init-keyword: #"qualified-name";
-   
    slot fully-qualified-name-source-loc :: <source-location> = $unknown-source-location,
          init-keyword: #"qualified-name-source-location";
    

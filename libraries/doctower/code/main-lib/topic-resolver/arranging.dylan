@@ -8,25 +8,13 @@ There can only be one final topic hierarchy, but it is built from fragmentary
 parent-child relationships created by:
    - The table of contents file,
    - Section directives,
-   - ToC directives in quotes,
-   - List Of directives (requires everything else to be arranged),
+   - VI directives in quotes,
    - Generic function/method relationships,
    - Fixed child topics created by header styles.
 
-The magic is in combining these fragments into one overall tree and
-identifying errors.
-
-One error is to use an ambiguous title in one of the above. Ambiguity in
-non-hierarchy-building directives is fine, but cannot be tolerated while
-building the hierarchy, since the hierarchy determines which identically-named
-topics need to be merged with each other. Ambiguity is indicated by a
-'<target-placeholder>' in one of the above and is detected by the individual
-arrangers.
-
---- Conditions: ---
-  <need-locations>     - Signaled if link is cannot be resolved to topic. Handler
-                         should return possible topics for given link target.
-  <user-visible-error> - Signaled if user error encountered.
+The magic is in combining these fragments into one overall tree and identifying
+errors. One error that should NOT be a concern is the use of an ambiguous title
+in one of the above. All ambiguity should have been resolved.
 **/
 define method arrange-topics (topics :: <sequence>, tocs :: <sequence>)
 => (tree :: <ordered-tree>)
@@ -42,47 +30,222 @@ define method arrange-topics (topics :: <sequence>, tocs :: <sequence>)
    // Combine topics that are == in different trees into one tree. Topics are
    // == if a topic reference leading to a parent/child relationship was
    // successfully resolved.
-   let combined-trees = vector();
-   let uncombined-trees = trees;
-   for (tree in uncombined-trees)
-      // I would use partition here, but that returns lists (which add to the
-      // front) and I want to be able to preserve the original order as much
-      // as possible, and also the add wouldn't work because add makes a new
-      // list that I can't re-bind to.
+   let remaining-trees = trees;
+   let arranged-trees :: <vector> = vector();
+   for (tree in remaining-trees)
+      // Each iteration takes the arranged-trees collection, splits it into
+      // overlapping and non-overlapping parts, combines the overlapping parts,
+      // saves the non-overlapping parts, and puts them both in a new vector.
+      // I would use partition to do the split, but that returns lists (which
+      // add to the front) and I want to be able to preserve the original order
+      // as much as possible, and also the add wouldn't work because it would
+      // make a new list that I can't re-bind to.
       let overlapping-trees = make(<stretchy-vector>);
-      let other-trees = make(<stretchy-vector>);
-      for (ct in combined-trees)
-         add!(if (overlapping?(tree, ct)) overlapping-trees else other-trees end,
+      let spare-trees = make(<stretchy-vector>);
+      for (ct in arranged-trees)
+         add!(if (overlapping?(tree, ct)) overlapping-trees else spare-trees end,
               ct)
       end for;
       let combined-tree = reduce(combine-trees, tree, overlapping-trees);
-      combined-trees := apply(vector, combined-tree, other-trees);
-   end for;
-   
-   // log-object("Combined trees", combined-trees);
-   
-   // Combine the disjoint trees into a single tree with #f as the root topic
-   // by adding unrooted trees as top-level children of rooted tree.
-   let (rooted-trees, unrooted-trees) =
-         partition(method (tree) tree[tree.root-key].topic = #f end,
-                   combined-trees);
-   debug-assert(rooted-trees.size = 1, "Tables of content not merged");
-   let arranged-tree = rooted-trees.first;
-   let rk = arranged-tree.root-key;
-   for (t in unrooted-trees)
-      replace-subtree!(arranged-tree, t, from: rk.next-inf-key)
+      arranged-trees := apply(vector, combined-tree, spare-trees);
    end for;
 
+   // Pick out the main table of contents tree and the other unrooted trees.
+   local method rooted? (tree :: <ordered-tree>) => (rooted? :: <boolean>)
+            tree[tree.root-key].topic = #f
+         end method;
+   let contents-tree :: <ordered-tree> = find-element(arranged-trees, rooted?);
+   debug-assert(find-element(arranged-trees, rooted?, skip: 1) = #f,
+         "More than one root; tables of content not merged");
+
+   // Move trees that haven't been placed anywhere in particular to default
+   // locations. These default locations may or may not be in contents-tree, but
+   // all trees should be in contents-tree at the end.
+   let remaining-trees :: <list>
+         = as(<list>, choose(curry(\~==, contents-tree), arranged-trees));
+   while (~remaining-trees.empty?)
+      reparent-tree-at-default(remaining-trees.head, contents-tree, remaining-trees.tail);
+      remaining-trees := remaining-trees.tail;
+   end while;
+   
    // Sort the topics.
-   sort-tree!(arranged-tree, stable: #t);
-   // log-object("Sorted toc", arranged-tree);
+   sort-tree!(contents-tree, stable: #t);
    
    // Discard <arranged-topic>s and keep only <topic>s.
-   for (arr-topic :: <arranged-topic> keyed-by k in arranged-tree)
-      arranged-tree[k] := arr-topic.topic;
+   for (arr-topic :: <arranged-topic> keyed-by k in contents-tree)
+      contents-tree[k] := arr-topic.topic;
    end for;
    
-   arranged-tree
+   contents-tree
+end method;
+
+
+/// Synopsis: Move a tree to a default location.
+define method reparent-tree-at-default
+   (tree :: <ordered-tree>, contents-tree :: <ordered-tree>, other-trees :: <list>)
+=> ()
+   let root-topic :: <topic> = tree[tree.root-key].topic;
+   let better-parent-ids = default-parent-ids(root-topic);
+   let parent-tree :: false-or(<ordered-tree>) = #f;
+   let parent-key :: false-or(<ordered-tree-key>) = #f;
+
+   // Search all-trees for potential parents and record best of them.
+   // Better-parent-ids is in descending order of awesomeness, so as we find a
+   // possible parent, we can easily ignore all later less-awesome parents.
+   // Note that the IDs here may be actual IDs or fully qualified names in ID form.
+   for (target-tree in add(other-trees, contents-tree),
+         until: better-parent-ids.empty?)
+      unless (tree == target-tree)
+         for (arranged-topic keyed-by target-key in target-tree,
+               until: better-parent-ids.empty?)
+            let target-topic = arranged-topic.topic;
+            if (target-topic)
+               let parent-list-key = find-key
+                     (better-parent-ids, rcurry(matching-id?, target-topic));
+               if (parent-list-key)
+                  parent-tree := target-tree;
+                  parent-key := target-key;
+                  better-parent-ids := copy-sequence
+                        (better-parent-ids, end: parent-list-key);
+               end if
+            end if
+         end for
+      end unless
+   end for;
+   
+   // If we can't find anything better, just put in top level of content.
+   unless (parent-tree & parent-key)
+      parent-tree := contents-tree;
+      parent-key := contents-tree.root-key;
+   end unless;
+
+   replace-subtree!(parent-tree, tree, from: parent-key.next-inf-key)
+end method;
+
+
+/// Synopsis: Returns default parent IDs for a topic, best first.
+define generic default-parent-ids (topic :: <topic>) => (ids :: <sequence>);
+
+define method default-parent-ids (topic :: <library-doc>)
+=> (ids :: <sequence>)
+   if (topic.existent-api?)
+      list(":Libraries")
+   else
+      #()
+   end if
+end method;
+
+define method default-parent-ids (topic :: <module-doc>)
+=> (ids :: <sequence>)
+   if (topic.existent-api?)
+      let lib-name = topic.fully-qualified-name.enclosing-qualified-name;
+      list(format-to-string(":Modules(%s)", lib-name),
+           ":Modules",
+           format-to-string("::%s", lib-name))
+   else
+      #()
+   end if
+end method;
+
+define method default-parent-ids (topic :: <class-doc>)
+=> (ids :: <sequence>)
+   if (topic.existent-api?)
+      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let lib-name = mod-name.enclosing-qualified-name;
+      list(format-to-string(":Classes(%s)", mod-name),
+           format-to-string(":Bindings(%s)", mod-name),
+           format-to-string(":Classes(%s)", lib-name),
+           format-to-string(":Bindings(%s)", lib-name),
+           ":Classes",
+           ":Bindings",
+           format-to-string("::%s", mod-name))
+   else
+      #()
+   end if
+end method;
+
+define method default-parent-ids (topic :: <variable-doc>)
+=> (ids :: <sequence>)
+   if (topic.existent-api?)
+      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let lib-name = mod-name.enclosing-qualified-name;
+      list(format-to-string(":Variables(%s)", mod-name),
+           format-to-string(":Bindings(%s)", mod-name),
+           format-to-string(":Variables(%s)", lib-name),
+           format-to-string(":Bindings(%s)", lib-name),
+           ":Variables",
+           ":Bindings",
+           format-to-string("::%s", mod-name))
+   else
+      #()
+   end if
+end method;
+
+define method default-parent-ids (topic :: <function-doc>)
+=> (ids :: <sequence>)
+   if (topic.existent-api? & topic.topic-type ~= #"method")
+      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let lib-name = mod-name.enclosing-qualified-name;
+      list(format-to-string(":Functions(%s)", mod-name),
+           format-to-string(":Bindings(%s)", mod-name),
+           format-to-string(":Functions(%s)", lib-name),
+           format-to-string(":Bindings(%s)", lib-name),
+           ":Functions",
+           ":Bindings",
+           format-to-string("::%s", mod-name))
+   else
+      #()
+   end if
+end method;
+
+define method default-parent-ids (topic :: <macro-doc>)
+=> (ids :: <sequence>)
+   if (topic.existent-api?)
+      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let lib-name = mod-name.enclosing-qualified-name;
+      list(format-to-string(":Macros(%s)", mod-name),
+           format-to-string(":Bindings(%s)", mod-name),
+           format-to-string(":Macros(%s)", lib-name),
+           format-to-string(":Bindings(%s)", lib-name),
+           ":Macros",
+           ":Bindings",
+           format-to-string("::%s", mod-name))
+   else
+      #()
+   end if
+end method;
+
+define method default-parent-ids (topic :: <binding-doc>)
+=> (ids :: <sequence>)
+   if (topic.existent-api?)
+      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let lib-name = mod-name.enclosing-qualified-name;
+      list(format-to-string(":Unbound(%s)", mod-name),
+           format-to-string(":Bindings(%s)", mod-name),
+           format-to-string(":Unbound(%s)", lib-name),
+           format-to-string(":Bindings(%s)", lib-name),
+           ":Unbound",
+           ":Bindings",
+           format-to-string("::%s", mod-name))
+   else
+      #()
+   end if
+end method;
+
+define method default-parent-ids (topic :: <topic>) => (ids :: <sequence>)
+   #()
+end method;
+
+
+define method matching-id? (test-id :: <string>, topic :: <topic>)
+=> (matching? :: <boolean>)
+   test-id = topic.id
+end method;
+
+define method matching-id? (test-id :: <string>, topic :: <api-doc>)
+=> (matching? :: <boolean>)
+   test-id = topic.id
+         | id-matches-qualified-name?(test-id, topic.fully-qualified-name)
 end method;
 
 
@@ -111,30 +274,39 @@ end method;
 /// A heterogenous collection of topics, all children of the same parent,
 /// are ordered as follows:
 ///   1. By table of contents, in the order specified.
-///   2. By ToC directives in quotes, in the order encountered in the parent
+///   2. By VI directives in quotes, in the order encountered in the parent
 ///      topic.
 ///   3. Children created with subtopic styling, in the order encountered
 ///      in the source code.
 ///   4. Alphabetically by title.
 define method \< (arr1 :: <arranged-topic>, arr2 :: <arranged-topic>)
-=> (less-than :: <boolean>)
-   let type1 :: <symbol> = arr1.type;
-   let type2 :: <symbol> = arr2.type;
+=> (arr1-sorts-before? :: <boolean>)
+   let ranked-types =  #[#"toc-file", #"vi-directive", #"topic-style"];
+   let arr1-rank = position(ranked-types, arr1.type) | ranked-types.size;
+   let arr2-rank = position(ranked-types, arr2.type) | ranked-types.size;
    case
-      type1 = #"toc-file" => #t ;
-      type2 = #"toc-file" => #f ;
-      type1 = #"vi-directive" & type2 = #"vi-directive" =>
-         arr1.source-location < arr2.source-location;
-      type1 = #"vi-directive" => #t ;
-      type2 = #"vi-directive" => #f ; 
-      type1 = #"topic-style" => #t ;
-      type2 = #"topic-style" => #f ;
-      otherwise =>
-         when (arr1.topic & arr2.topic)
-            let str1 = arr1.topic.title.stringify-title;
-            let str2 = arr2.topic.title.stringify-title;
-            str1 < str2
-         end when;
+      arr1-rank < arr2-rank => #t;
+      arr1-rank > arr2-rank => #f;
+      arr1-rank = arr2-rank =>
+         case
+            arr1.type = #"toc-file" =>
+               // Keep relative order from toc-arrangement; this is a stable sort,
+               // so returning #f will do the trick.
+               #f;
+            arr1.type = #"vi-directive" =>
+               // Use order from parent topic.
+               arr1.source-location < arr2.source-location;
+            arr1.type = #"topic-style" =>
+               // Keep relative order.
+               #f;
+            otherwise =>
+               // Alphabetical.
+               when (arr1.topic & arr2.topic)
+                  let str1 = arr1.topic.title.stringify-title;
+                  let str2 = arr2.topic.title.stringify-title;
+                  str1 < str2
+               end when;
+         end case;
    end case;
 end method;
 
@@ -164,12 +336,12 @@ define method toc-arrangement (tocs :: <sequence>)
    else
       map(method (toc :: <ordered-tree>) => (topics :: <ordered-tree>)
              let tree = make(<ordered-tree>, root: toc-root);
-             for (i keyed-by k in toc)
-                when (i)
-                   ensure-resolved-to-topic(i.target);
+             for (toc-ref :: false-or(<topic-ref>) keyed-by k in toc)
+                when (toc-ref)
                    let arranged-topic =
-                         make(<arranged-topic>, topic: i.target, type: #"toc-file",
-                              source-location: i.source-location);
+                         make(<arranged-topic>, topic: toc-ref.target,
+                              type: #"toc-file",
+                              source-location: toc-ref.source-location);
                    tree[k] := arranged-topic;
                 end when;
              end for;
@@ -188,7 +360,6 @@ define method section-directive-arrangement (topics :: <sequence>)
    let sectioned-topics = choose(parent, topics);
    let trees = make(<stretchy-vector>);
    for (topic in sectioned-topics)
-      ensure-resolved-to-topic(topic.parent.target);
       let arranged-parent = make(<arranged-topic>, topic: topic.parent.target,
                                  type: #"section-directive",
                                  source-location: topic.parent.source-location);
@@ -210,56 +381,20 @@ define method vi-arrangement (topics :: <sequence>)
    let trees = make(<stretchy-vector>);
    for (parent-topic in topics)
       visit-vi-xrefs(parent-topic,
-            method (xref, #key setter)
-               when (instance?(xref, <vi-xref>))
-                  let child-topic = ensure-resolved-to-topic(xref.target);
-                  let arranged-parent = make(<arranged-topic>, topic: parent-topic,
-                                             type: #"vi-directive",
-                                             source-location: xref.source-location);
-                  let arranged-child = make(<arranged-topic>, topic: child-topic,
-                                            type: #"vi-directive",
-                                            source-location: xref.source-location);
-                  let tree = make-parent-child-tree(arranged-parent, arranged-child);
-                  trees := add!(trees, tree);
-               end when;
+            method (xref :: <vi-xref>, #key setter)
+               let child-topic = xref.target;
+               let arranged-parent = make(<arranged-topic>, topic: parent-topic,
+                                          type: #"vi-directive",
+                                          source-location: xref.source-location);
+               let arranged-child = make(<arranged-topic>, topic: child-topic,
+                                         type: #"vi-directive",
+                                         source-location: xref.source-location);
+               let tree = make-parent-child-tree(arranged-parent, arranged-child);
+               trees := add!(trees, tree);
             end method);
    end for;
    trees
 end method;
-
-
-/// Generic Function: visit-vi-xrefs
-/// Synopsis: Visits a <topic> and its nested elements that can contain <vi-xref>
-/// objects.
-///
-/// Arguments:
-///   element     - The <markup-element> to visit.
-///   operation   - A <function> on 'element'.
-///   #rest keys  - A set of keys passed to 'operation'.
-
-define collection-recursive slot-visitor visit-vi-xrefs
-   <bold>,	          text;
-   <cite>,            text;
-   <class-doc>,	    content, shortdesc, keywords-section;
-   <code-phrase>,	    text;
-   <defn-list>,	    items;
-   <emphasis>,	       text;
-   <footnote>,	       content;
-   <function-doc>,	 content, shortdesc, args-section, vals-section, conds-section;
-   <italic>,	       text;
-   <macro-doc>,       content, shortdesc, args-section, vals-section;
-   <note>,	          content;
-   <ordered-list>,	 items;
-   <paragraph>,       content;
-   <section>,         content;
-   <simple-table>,	 headings, items;
-   <term-style>,	    text;
-   <term>,	          text;
-   <vi-xref>,	       ;
-   <topic>,           content, shortdesc;
-   <underline>,	    text;
-   <unordered-list>,	 items;
-end slot-visitor;
 
 
 /// Synopsis: Determines relationships by generic function and method relations.
@@ -300,28 +435,6 @@ define method header-arrangement (topics :: <sequence>)
 => (trees :: <sequence> /* of <ordered-tree> */)
    // TODO
    #()
-end method;
-
-
-/// Generic function: ensure-resolved-to-topic
-/// Synopsis: Returns topic that link is resolved to.
-/// Conditions:
-///   <need-locations>     - Signaled if link cannot be resolved to topic. Handler
-///                          should return possible topics for given link target.
-///   <user-visible-error> - Signaled if link is not resolved to topic.
-
-define method ensure-resolved-to-topic (link :: <target-placeholder>)
-=> (target :: <topic>)
-   let locations = signal(make(<need-locations>, specifier: link.target));
-   ambiguous-title-in-link(location: link.source-location,
-                           target-text: link.target,
-                           topic-locations: locations.item-string-list |
-                                            "various locations");
-end method;
-
-define method ensure-resolved-to-topic (link :: <topic>)
-=> (target :: <topic>)
-   link
 end method;
 
 
@@ -444,6 +557,7 @@ define function common-element-keys
    common-keys
 end function;
 
+
 /// Synopsis: Combine two <arranged-topic>s containing identical <topic>s.
 define function merge-arranged-topics!
    (dest-tree :: <ordered-tree>, dest-tree-key :: <ordered-tree-key>,
@@ -454,7 +568,8 @@ define function merge-arranged-topics!
    
    // When two different arrangement methods put a topic under the same parent,
    // which arrangement method trumps the other? The arrangement method drives
-   // the final table-of-contents sort order.
+   // the final table-of-contents sort order. The topics are the same, but keep
+   // the trumping arrangement method.
    if (orig-tree[orig-tree-key] < dest-tree[dest-tree-key])
       dest-tree[dest-tree-key] := orig-tree[orig-tree-key]
    end if;

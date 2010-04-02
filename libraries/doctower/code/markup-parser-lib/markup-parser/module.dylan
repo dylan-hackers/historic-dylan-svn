@@ -44,7 +44,8 @@ define module markup-parser
       directive-type, filename, index, item-label, link, links, list-start,
       list-type, open-quote, ordinal, postquoted-text, prequoted-text,
       quote-options, quote-spec, quoted-text, scale-factor, scale-type,
-      section-nickname, section-title, text, title-content, title-style,
-      title-text, topic-nickname, topic-title, topic-type, topics, word;
+      scope-word, section-nickname, section-title, text, title-content,
+      title-style, title-text, topic-nickname, topic-title, topic-type, topics,
+      word;
       
 end module;

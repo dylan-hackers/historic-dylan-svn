@@ -12,7 +12,7 @@ Defined in {{lib.source.filename}} line {{lib.source.line}}.
 Subheading: Modules		[:Modules]
 ------------------------------------------
 
-[LIST OF MODULES]
+[LIST OF MODULES IN {{lib.scope-name}}]
 
 {{IF lib.unknown-reexports.size > 0 +}}
 May export other modules from these libraries:

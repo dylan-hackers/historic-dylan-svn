@@ -5,8 +5,7 @@ define module conditions
    
    export
       <skip-error-restart>, error-condition,
-      <user-visible-warning>, <user-visible-error>, error-code, error-location,
-      <need-locations>, specifier-for-locations;
+      <user-visible-warning>, <user-visible-error>, error-code, error-location;
    
    export
       ambiguous-api-in-topics,

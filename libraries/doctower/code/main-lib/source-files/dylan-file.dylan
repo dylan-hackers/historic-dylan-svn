@@ -3,7 +3,7 @@ synopsis: Gets doc markup out of doc files or comment blocks.
 
 
 define method topics-from-dylan-files (locator-seq :: <sequence>)
-=> (topic-seq :: <sequence>)
+=> (topic-seq :: <sequence>, catalog-topic-seq :: <sequence>)
    let (lid-locators, dylan-locators) = partition(
          method (loc :: <file-locator>) => (bool)
             case-insensitive-equal?("lid", loc.locator-extension)

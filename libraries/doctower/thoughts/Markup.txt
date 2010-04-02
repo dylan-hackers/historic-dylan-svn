@@ -428,15 +428,12 @@ text
 
 [LIST OF LIBRARIES|MODULES|BINDINGS|CLASSES|FUNCTIONS|VARIABLES|MACROS|
 UNBOUND NAMES]
-  Shows all libraries, modules, etc. If this directive occurs in a sub-topic of
-  a topic containing a "[LIST OF LIBRARIES]" or "[LIST OF MODULES]" directive,
-  the list is restricted to that library or module. This directive adds the
-  listed items as sub-topics if possible.
+  Shows all libraries, modules, etc.
 
-  There can only be one "[LIST OF LIBRARIES]" directive. Of the other
-  directives, there can be one within each library or module parent topic, and
-  one without any library or module parent topic, but in both cases a "[LIST OF
-  BINDINGS]" directive cannot be used with a "[LIST OF CLASSES etc.]" directive.
+[LIST OF MODULES|BINDINGS|CLASSES|FUNCTIONS|VARIABLES|MACROS|
+UNBOUND NAMES IN name]
+  As above, but the list is restricted to the modules, classes, etc., in the
+  given fully qualified name, which must be a library or module.
   
 [DITTO topic|"title"]
   Make identical to another topic as much as possible. The quotation here is

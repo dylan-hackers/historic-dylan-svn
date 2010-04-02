@@ -2,7 +2,7 @@ module: dylan-topics
 
 
 define method make-source-topics (defn :: <library>) 
-=> (topics :: <sequence>)
+=> (topics :: <sequence>, catalog-topics :: <sequence>)
 
    // Create generated topic.
 
@@ -12,11 +12,14 @@ define method make-source-topics (defn :: <library>)
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
-   // Create body of generated topic.
+   // Create body of generated topics.
    
-   let template = topic-template(#"library-topic");
    let vars = table(<case-insensitive-string-table>, "lib" => defn);
-   let topics = topics-from-template(template, generated-topic, vars);
+   let topics = topics-from-template
+         (topic-template(#"library-topic"), generated-topic, vars);
+   let catalog-topics = topics-from-template
+         (topic-template(#"lib-modules-topic"), #f, vars);
+   let topics = concatenate!(topics, catalog-topics);
 
    // Create authored topics.
    
@@ -38,12 +41,12 @@ define method make-source-topics (defn :: <library>)
       topics := concatenate!(topics, file-topics);
    end when;
 
-   topics
+   values(topics, catalog-topics)
 end method;
 
 
 define method make-source-topics (defn :: <module>) 
-=> (topics :: <sequence>)
+=> (topics :: <sequence>, catalog-topics :: <sequence>)
 
    // Create generated topic.
 
@@ -55,9 +58,9 @@ define method make-source-topics (defn :: <module>)
 
    // Create body of generated topic.
    
-   let template = topic-template(#"module-topic");
    let vars = table(<case-insensitive-string-table>, "mod" => defn);
-   let topics = topics-from-template(template, generated-topic, vars);
+   let topics = topics-from-template
+         (topic-template(#"module-topic"), generated-topic, vars);
 
    // Create authored topics.
    
@@ -79,5 +82,5 @@ define method make-source-topics (defn :: <module>)
       topics := concatenate!(topics, file-topics);
    end when;
 
-   topics
+   values(topics, #[])
 end method;

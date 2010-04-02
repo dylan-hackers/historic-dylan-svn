@@ -40,3 +40,34 @@ define function as-titlecase (str :: <string>) => (str :: <string>)
    end for;
    cased-str
 end function;
+
+
+/// Synopsis: Finds higher qualified name.
+/// Value:
+///   name - Higher qualified name (a <string>) as follows:
+///            + "" for a library
+///            + Library name for a module
+///            + Module name for a binding
+///            + Generic name for a method
+define function enclosing-qualified-name (name :: <string>) => (name :: <string>)
+   let paren-key = find-key(name, curry(\=, '(') /*)*/);
+   if (paren-key)
+      copy-sequence(name, end: paren-key)
+   else
+      let last-colon-key = find-last-key(name, curry(\=, ':'));
+      if (last-colon-key)
+         copy-sequence(name, end: last-colon-key)
+      else
+         ""
+      end if
+   end if
+end function;
+
+
+/// Synopsis: Returns whether an ID might be a qualified name in disguise.
+define function id-matches-qualified-name?
+   (id :: <string>, name :: <string>, #key test :: <function> = \=)
+=> (matches? :: <boolean>)
+   let name-as-id = format-to-string("::%s", name).standardize-id;
+   test(id, name-as-id)
+end function;

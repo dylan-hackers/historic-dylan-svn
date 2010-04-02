@@ -71,6 +71,14 @@ define caching parser word-line :: <text-word-token>
    yield tokens[1];
 end;
 
+// exported as <text-word-token>
+define caching parser word-til-cls-brack (<text-word-token>)
+   rule text-til-spc-cls-brack => token;
+   inherited slot text = token.text;
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value)
+end;
+
 //
 // Links
 //
@@ -177,6 +185,11 @@ define caching parser text-til-cls-brack (<token>)
    rule many(seq(not-next(spc-cls-brack), char)) => items;
    slot text :: <string> =
       replace-ls-with-spc(as(<string>, collect-subelements(items, 1)));
+end;
+
+define caching parser text-til-spc-cls-brack (<token>)
+   rule many(seq(not-next(spc-ls), not-next(close-bracket), char)) => items;
+   slot text :: <string> = as(<string>, collect-subelements(items, 2));
 end;
 
 define caching parser text-til-end-quote (<token>)

@@ -169,7 +169,7 @@ null-directive-spec:
    directive-spec-intro null-directive-spec-text ':' directive-spec-extro
 
 directive-spec-intro:
-   ascii-overline? ( SOL ascii-midline SPC+ )?
+   ascii-overline? ( SOL ascii-midline SPC+ )? SPC*
 directive-spec-extro:
    SPC+ ( ascii-midline LS ascii-underline? )? / LS ascii-underline?
 
@@ -205,7 +205,8 @@ content-ref-line:
 ditto-ref-line:
    SOL [-SPC "DITTO" SPC-LS+ link-til-cls-brack SPC-] LS
 api-list-ref-line:
-   SOL [-SPC "LIST" SPC-LS+ "OF" SPC-LS+ api-list-spec-text SPC-] LS
+   SOL [-SPC "LIST" SPC-LS+ "OF" SPC-LS+ api-list-spec-text
+   ( SPC-LS+ "IN" SPC-LS+ word-til-cls-brack )? SPC-] LS
 
 bracketed-raw-block:
    bracketed-raw-block-start-line
@@ -343,6 +344,8 @@ text-word:
    text-til-spc-ls
 word-line:
    SOL text-word LS
+word-til-cls-brack:
+   text-til-spc-cls-brack
 
 indented-link-words:
    INDENT link-word-lines DEDENT
@@ -372,6 +375,8 @@ text-til-ascii-nickname-ls:
    ( !( LS / SPC+ ascii-line / SPC+ title-nickname ) ) CHAR )+
 text-til-cls-brack:
    ( !SPC-] CHAR )+
+text-til-spc-cls-brack:
+   ( !SPC-LS !']' CHAR )+
 text-til-end-quote:
    ( !quote-end CHAR )+
   

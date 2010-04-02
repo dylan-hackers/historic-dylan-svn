@@ -9,8 +9,10 @@ define module name-processing
    use regular-expressions, import: { regexp-replace };
    // from string-extensions
    use character-type;
+   // from collection-extensions
+   use vector-search, import: { find-last-key };
    
    export
       standardize-qualified-name, standardize-id, standardize-title,
-      as-titlecase;
+      as-titlecase, enclosing-qualified-name, id-matches-qualified-name?;
 end module;

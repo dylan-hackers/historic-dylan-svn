@@ -8,14 +8,8 @@ Also, Synopsis Of, Contents Of, and Ditto directives. It does not deal with
 quoted QV directives, because those may be referring to local Arguments or
 Values entries, which can't be resolved until the topic is finalized.
 
-This method does not know which topics are duplicates of each other and need
-to be merged vs. totally different topics that happen to share a name. The
-topics need to be arranged in the table of contents before that can happen.
-Also, two topics that need to be merged may have a different ID on each topic;
-this is an error that must be caught after the topics have been arranged.
-
-If a link is to a duplicate title, it won't be resolved, so there may still be
-<target-placeholders> after this method completes.
+It discards catalog topics (such as "All Libraries" or "Modules in Io") that are
+not actually referenced.
 
 This method ensures IDs are unique as a by-product.
 
@@ -23,11 +17,12 @@ This method ensures IDs are unique as a by-product.
 Signals an error if two topics have the same ID or a link fails to resolve.
 **/
 define method resolve-topic-placeholders
-   (topics :: <sequence>, tables-of-content :: <sequence>)
-=> (resolved-topics :: <sequence>, ambiguous-topic-table :: <table>,
-    tables-of-content :: <sequence>)
+   (topics :: <sequence>, tables-of-content :: <sequence>, catalog-topics :: <sequence>)
+=> (resolved-topics :: <sequence>, tables-of-content :: <sequence>)
    let defined-ids = topics-by-id(topics);
+   let defined-fqns = topics-by-fqn(topics);
    let (defined-titles, dup-titles) = topics-by-title(topics);
+   let unused-catalogs = catalog-topics.copy-sequence;
    
    // Ensure no id duplicates a topic title.
    for (id in defined-ids.key-sequence)
@@ -39,34 +34,45 @@ define method resolve-topic-placeholders
       end if;
    end for;
    
-   visit-placeholders(
-         topics,
-         method (link :: <target-placeholder>, #key setter) => ()
-            let topic = resolve-link(link, defined-titles, defined-ids);
-            if (topic)
-               setter(topic)
-            elseif (~key-exists?(dup-titles, link.target))
-               target-not-found-in-link(location: link.source-location,
-                                        target-text: link.target);
-            end if;
-         end);
-
-   for (toc in tables-of-content)
-      for (placeholder :: false-or(<topic-ref>) in toc)
-         when (placeholder)
-            let link = placeholder.target;
-            let topic = resolve-link(link, defined-titles, defined-ids);
-            if (topic)
-               placeholder.target := topic;
+   // Resolution method.
+   local method resolve (link :: <target-placeholder>, #key setter, topic) => ()
+            let topic-found = resolve-link
+                  (link, topic, defined-titles, defined-ids, defined-fqns);
+            if (topic-found)
+               setter(topic-found);
+               unused-catalogs := remove!(unused-catalogs, topic-found);
+            elseif (key-exists?(dup-titles, link.target))
+               let locs = map(source-location, dup-titles[link.target]);
+               ambiguous-title-in-link(location: link.source-location,
+                     target-text: link.target,
+                     topic-locations: locs.item-string-list);
             else
                target-not-found-in-link(location: link.source-location,
                                         target-text: link.target);
+            end if
+         end method;
+            
+   // Assign topics in place of placeholders.
+   for (topic in topics)
+      visit-placeholders(topic, resolve, topic: topic)
+   end for;
+
+   // Assign topics in place of tables of content references.
+   for (toc in tables-of-content)
+      for (toc-ref :: false-or(<topic-ref>) in toc)
+         when (toc-ref)
+            let link = toc-ref.target;
+            if (instance?(link, <target-placeholder>))
+               resolve(link, setter: rcurry(target-setter, toc-ref), topic: #f);
             end if;
          end when;
       end for;
    end for;
+   
+   // Remove unused catalog topics.
+   let topics = reduce(remove!, topics, unused-catalogs);
 
-   values(topics, dup-titles, tables-of-content);
+   values(topics, tables-of-content);
 end method;
 
 
@@ -90,10 +96,28 @@ define method topics-by-id (topics :: <sequence>) => (id-table :: <table>)
 end method;
 
 
+/// Synopsis: Makes a table of topics keyed by fully qualified name.
+///
+define method topics-by-fqn (topics :: <sequence>) => (fqn-table :: <table>)
+   let fqn-topics = choose(conjoin(rcurry(instance?, <api-doc>), fully-qualified-name),
+                           topics);
+   let fqn-table = make(<string-table>, size: fqn-topics.size);
+   for (topic in fqn-topics)
+      fqn-table[topic.fully-qualified-name] := topic
+   end for;
+   fqn-table
+end method;
+
+
 /// Synopsis: Makes a table of topics keyed by topic title.
-/// Discussion: Topic titles need to be stringified because links to titles
-/// are strings and can't use images or styled text. Topics with identical
-/// titles aren't included; those links can't be resolved at this time.
+///
+/// Topic titles need to be stringified because links to titles are strings and
+/// can't use images or styled text. Topics with identical titles aren't
+/// included; those links can't be resolved at this time.
+///
+/// Values:
+///   unique-title-table     - A <table> keyed by title containing topics.
+///   duplicate-title-table  - A <table> keyed by title containing topic lists.
 ///
 define method topics-by-title (topics :: <sequence>)
 => (unique-title-table :: <table>, duplicate-title-table :: <table>)
@@ -105,6 +129,7 @@ define method topics-by-title (topics :: <sequence>)
       title-table[string-title] := add(topic-list, topic);
    end for;
    
+   // Effectively a "choose size of 1," but choose does not work on tables.
    let unique-title-table = make(<case-insensitive-string-table>, size: topics.size);
    let removed-titles = list();
    for (topic-list keyed-by topic-title in title-table)
@@ -124,68 +149,29 @@ end method;
 ///
 /// In general, a link is resolved to one of the following, in order:
 ///   1. Local attribute/value name
-///   2. IDs
-///   3. Unique title
-///   4. API in current module/library
-///   5. Unique API in other module/library
+///   2. ID
+///   3. Fully qualified name disguised as ID
+///   4. Unique title
+///   5. API in current module/library
+///   6. Unique API in other module/library
 /// At this point in the code, though, we are only dealing with topic-level stuff,
-/// so we won't see any #1. Also at this point, topics haven't been merged
-/// or placed, so no point in worrying about uniqueness.
+/// so we won't see any #1.
 ///
 /// Values:
 ///   resolution  -  #f if link could not be resolved, else the <topic> it
 ///                  resolved to.
 ///
 define method resolve-link
-   (link :: <target-placeholder>, topics-by-title :: <table>,
-    topics-by-id :: <table>)
+   (link :: <target-placeholder>, containing-topic :: false-or(<topic>),
+    topics-by-title :: <table>, topics-by-id :: <table>, topics-by-fqn :: <table>)
 => (resolution :: false-or(<topic>))
    let topic = element(topics-by-id, link.target, default: #f) |
                element(topics-by-title, link.target, default: #f);
    if (~topic)
       // It is an API, a duplicate title, or an argument/value. APIs need to be
       // canonicalized and looked up; arguments/values need to be resolved later.
+      // TODO: Lookup by fully qualified name.
       // TODO: API canonicalization and lookup.
    end if;
    topic
 end method;
-
-
-/// Generic Function: visit-placeholders
-/// Synopsis: Visits a <topic> and its nested elements that can contain
-/// <target-placeholder> objects.
-///
-/// Arguments:
-///   element     - The <markup-element> to visit.
-///   operation   - A <function> on 'element'. The function is passed a
-///                 setter: argument.
-
-define collection-recursive slot-visitor visit-placeholders
-   <bold>,                 text;
-   <cite>,                 text;
-   <class-doc>,            content, shortdesc, parent, see-also, relevant-to,
-                           keywords-section;
-   <code-phrase>,          text;
-   <conref>,               target;
-   <defn-list>,            items;
-   <ditto-placeholder>,    target;
-   <emphasis>,             text;
-   <footnote>,             content;
-   <function-doc>,         content, shortdesc, parent, see-also, relevant-to,
-                           args-section, vals-section, conds-section;
-   <italic>,               text;
-   <macro-doc>,            content, shortdesc, parent, see-also, relevant-to,
-                           args-section, vals-section;
-   <ordered-list>,         items;
-   <paragraph>,            content;
-   <section>,              title, content;
-   <simple-table>,         headings, items;
-   <target-placeholder>,   ;
-   <term-style>,           text;
-   <term>,                 text;
-   <vi-xref>,              target;
-   <topic>,                content, shortdesc, parent, see-also, relevant-to;
-   <topic-ref>,            target;
-   <underline>,            text;
-   <unordered-list>,       items;
-end slot-visitor;

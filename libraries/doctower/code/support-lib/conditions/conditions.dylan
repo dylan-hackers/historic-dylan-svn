@@ -1,22 +1,6 @@
 module: conditions
 synopsis: Condition support and error handling.
 
-/**
-Synopsis: Indicates a request for a list of locations matching a given
-specifier (defined by the caller).
-
-Recovery protocol is for handler to return an appropriate list of
-<source-location>s.
-**/
-define class <need-locations> (<condition>)
-   constant slot specifier-for-locations = #f, init-keyword: #"specifier";
-end class;
-
-define method return-allowed? (warning :: <need-locations>)
-=> (yes :: singleton(#t))
-   #t
-end method;
-
 
 define macro errors-definer
    {  define errors (?class:expression)

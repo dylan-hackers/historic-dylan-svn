@@ -27,7 +27,7 @@ define constant *definitions* :: <equal-table> = make(<equal-table>);
 2. Generate manually-authored topic content.
 **/
 define method topics-from-dylan (api-definitions :: <sequence>)
-=> (topics :: <sequence>)
+=> (topics :: <sequence>, catalog-topics :: <sequence>)
    // Make <source-name> quick-reference table.
    for (api-defn :: <definition> in api-definitions)
       for (api-name :: <source-name> in api-defn.aliases)
@@ -35,16 +35,15 @@ define method topics-from-dylan (api-definitions :: <sequence>)
       end for;
    end for;
    
-   // Make templates.
-   create-topic-templates();
-
    // Generate topic content for definitions.
    verbose-log("Creating documentation from source code");
    let topics = make(<stretchy-vector>);
+   let catalog-topics = make(<stretchy-vector>);
    let definition-topics = make(<stretchy-vector>);
    for (api-defn in api-definitions)
-      let new-topics = make-source-topics(api-defn);
+      let (new-topics, new-catalogs) = make-source-topics(api-defn);
       topics := concatenate!(topics, new-topics);
+      catalog-topics := concatenate!(catalog-topics, new-catalogs);
 
       when ($api-list-filename)
          let new-definition-topics
@@ -58,7 +57,6 @@ define method topics-from-dylan (api-definitions :: <sequence>)
    end for;
    
    // Clean up.
-   discard-topic-templates();
    remove-all-keys!(*definitions*);
    
    // Generate API list.
@@ -84,12 +82,21 @@ define method topics-from-dylan (api-definitions :: <sequence>)
       end with-open-file
    end when;
 
-   topics
+   // Generate global catalog topics.
+   let global-catalogs = #[ #"all-libraries-topic", #"all-modules-topic" ];
+   let no-vars = make(<case-insensitive-string-table>);
+   for (catalog-type in global-catalogs)
+      let new-topics = topics-from-template(topic-template(catalog-type), #f, no-vars);
+      topics := concatenate!(topics, new-topics);
+      catalog-topics := concatenate!(catalog-topics, new-topics);
+   end for;
+   
+   values(topics, catalog-topics)
 end method;
 
 
 define generic make-source-topics (definition :: <definition>)
-=> (topics :: <sequence>);
+=> (topics :: <sequence>, catalog-topics :: <sequence>);
 
 
 define method make-authored-topics

@@ -143,6 +143,7 @@ define literal-parsers
    html-lit       = "html";
    i-lit          = "i";
    img-lit        = "img";
+   in-lit         = "in";
    init-keywords-lit = "init-keywords";
    keywords-lit   = "keywords";
    libraries-lit  = "libraries";

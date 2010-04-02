@@ -13,5 +13,6 @@ define library doctower-library
    use wrapper-streams;
    use io;
    use command-line-parser;
+   use collection-extensions, import: { vector-search };
    use dylan;
 end library;

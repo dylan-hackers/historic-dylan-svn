@@ -199,7 +199,8 @@ Section IDs:
 The topic and section titles are used for DITA conref attributes.
 
 In API reference topics, the user may link to an ID like ":::Something". This is
-shorthand for an API in the current module or library.
+shorthand for an API in the current module or library. "Something" may not have
+colons.
 
 
 Intermediate format
