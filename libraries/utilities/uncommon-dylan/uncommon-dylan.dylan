@@ -285,24 +285,15 @@ end;
 
 
 // ----------------------------------------------------------------------
-// Would value-sequence and key-sequence be better names for thes?
+// Collections
 
-define method table-values
+// A complement to key-sequence
+define method value-sequence
     (table :: <table>) => (collection :: <collection>)
   let v :: <vector> = make(<vector>, size: table.size);
   for (val keyed-by key in table,
        i from 0)
     v[i] := val;
-  end;
-  v
-end;
-
-define method table-keys
-    (table :: <table>) => (collection :: <collection>)
-  let v :: <vector> = make(<vector>, size: table.size);
-  for (val keyed-by key in table,
-       i from 0)
-    v[i] := key;
   end;
   v
 end;
@@ -313,6 +304,29 @@ define method has-key?
 end method has-key?;
 
 // copy-table?
+
+// Count the number of occurrances of item in collection, as determined
+// by the test.  'max' is an efficiency hack: stop counting when max is
+// reached, the theory being that it's common to want to know if there's
+// more than one of the given item.
+define open generic count
+    (collection :: <collection>, item, #key test, max)
+ => (count :: <integer>);
+
+define method count
+    (collection :: <collection>, given,
+     #key test :: <function> = \==,
+          max :: false-or(<integer>))
+ => (count :: <integer>)
+  let count :: <integer> = 0;
+  for (item in collection,
+       while: ~max | count >= max)
+    if (test(given, item))
+      inc!(count)
+    end;
+  end;
+  count
+end method count;
 
 //// multiple-value-setq
 
@@ -434,3 +448,5 @@ end method find-object;
 define constant <nonnegative-integer> = limited(<integer>, min: 0);
 define constant <positive-integer> = limited(<integer>, min: 1);
 
+
+//// Collection functions

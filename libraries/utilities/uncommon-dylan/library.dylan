@@ -30,9 +30,9 @@ define module uncommon-dylan
     remove-keys,        // For removing keywords from #rest arglists.
     raise,
     ignore-errors,
-    table-keys,
-    table-values,
+    value-sequence,
     has-key?,
+    count,
 
     wrapping-inc!,
     pset,                // multiple-value-setq
