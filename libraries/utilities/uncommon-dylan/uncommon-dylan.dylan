@@ -262,19 +262,6 @@ define sideways method as
 end;
 
 // ----------------------------------------------------------------------
-// raise(<my-error>, "%s broke", foo)
-// (This is a bit pointless since it only works for conditions that
-// don't require other keyword arguments.)
-//
-define method raise
-    (class :: subclass(<condition>), format-string, #rest args)
-  signal(make(class,
-              format-string: format-string,
-              format-arguments: copy-sequence(args)))
-end;
-
-
-// ----------------------------------------------------------------------
 define macro ignore-errors
     { ignore-errors(?v:variable, ?body:expression) }
  => { block () ?body exception (?v) #f end }
@@ -289,9 +276,9 @@ end;
 
 // A complement to key-sequence
 define method value-sequence
-    (table :: <table>) => (collection :: <collection>)
-  let v :: <vector> = make(<vector>, size: table.size);
-  for (val keyed-by key in table,
+    (collection :: <explicit-key-collection>) => (seq :: <sequence>)
+  let v :: <vector> = make(<vector>, size: collection.size);
+  for (val keyed-by key in collection,
        i from 0)
     v[i] := val;
   end;
@@ -299,28 +286,29 @@ define method value-sequence
 end;
 
 define method has-key?
-    (table :: <table>, key :: <object>) => (has-it? :: <boolean>)
-  element(table, key, default: $unfound) = $unfound
+    (collection :: <explicit-key-collection>, key :: <object>)
+ => (has-it? :: <boolean>)
+  element(collection, key, default: $unfound) = $unfound
 end method has-key?;
 
 // copy-table?
 
 // Count the number of occurrances of item in collection, as determined
-// by the test.  'max' is an efficiency hack: stop counting when max is
-// reached, the theory being that it's common to want to know if there's
+// by the test.  'limit' is an efficiency hack: stop counting when limit
+// is reached, the theory being that it's common to want to know if there's
 // more than one of the given item.
 define open generic count
-    (collection :: <collection>, item, #key test, max)
+    (collection :: <collection>, item, #key test, limit)
  => (count :: <integer>);
 
 define method count
     (collection :: <collection>, given,
      #key test :: <function> = \==,
-          max :: false-or(<integer>))
+          limit :: false-or(<integer>))
  => (count :: <integer>)
   let count :: <integer> = 0;
   for (item in collection,
-       while: ~max | count >= max)
+       while: ~limit | count < limit)
     if (test(given, item))
       inc!(count)
     end;

@@ -28,7 +28,6 @@ define module uncommon-dylan
     // --cgay
     float-to-formatted-string,
     remove-keys,        // For removing keywords from #rest arglists.
-    raise,
     ignore-errors,
     value-sequence,
     has-key?,

@@ -166,14 +166,15 @@ define method add-header
     (response :: <response>, header :: <byte-string>, value :: <object>,
      #key if-exists? = #"replace")
   if (headers-sent?(response))
-    raise(<koala-api-error>,
-          "Attempt to add a %s header after headers have already been sent.",
-          header);
+    signal(make(<koala-api-error>,
+                format-string: "Attempt to add a %s header after headers have "
+                  "already been sent.",
+                format-arguments: list(header)));
   elseif (string-equal?(header, "Content-Length"))
     if (response.response-transfer-length > 0)
-      raise (<koala-api-error>,
-             "Attempt to add the Content-Length header after some data has "
-             "already been sent.")
+      signal(make(<koala-api-error>,
+                  format-string: "Attempt to add the Content-Length header "
+                    "after some data has already been sent."));
     else
       // If a responder sets the content length then it's claiming it knows
       // better than we do.  We turn off chunked tranfer encoding since it
