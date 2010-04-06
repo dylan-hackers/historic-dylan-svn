@@ -21,7 +21,7 @@ define module-spec uncommon-dylan ()
   function string-to-float (<string>) => (<float>);
 
   // Collections
-  function count (<collection>, <object>, key:, test:, limit:) => (<integer>);
+  function count (<collection>, <function>, key:, limit:) => (<integer>);
   function has-key? (<explicit-key-collection>, <object>) => (<boolean>);
   function value-sequence (<table>) => (<sequence>);
   function remove-keys (<sequence>, rest:) => (<list>);
@@ -94,23 +94,13 @@ end macro-test ignore-errors-test;
 
 define uncommon-dylan function-test count ()
   let seq = #[1, 2, 2, 3, 3, 3];
-  check-equal("count(#[], #f) => 0", 0, count(#[], #f));
-  check-equal("count(seq, #f) => 0", 0, count(seq, #f));
-  check-equal("count(seq, 1) => 1", 1, count(seq, 1));
-  check-equal("count(seq, 2) => 2", 2, count(seq, 2));
-  check-equal("count(seq, 3) => 3", 3, count(seq, 3));
-  check-equal("count(seq, 3, limit: 2) => 2", 2, count(seq, 3, limit: 2));
-  check-equal("count(seq, 1, test: =) => 1", 1, count(seq, 1, test: \=));
-  check-true("Test fn receives given item 1st, then collection element?",
-             begin
-               let result = #t;
-               count(seq, #f, test: method (x, y)
-                                      if (x ~= #f)
-                                        result := #f
-                                      end;
-                                    end);
-               result
-             end);
+  check-equal("count(#[], curry(=, #f)) => 0", 0, count(#[], curry(\=, #f)));
+  check-equal("count(seq, curry(=, #f)) => 0", 0, count(seq, curry(\=, #f)));
+  check-equal("count(seq, curry(=, 1)) => 1", 1, count(seq, curry(\=, 1)));
+  check-equal("count(seq, curry(=, 2)) => 2", 2, count(seq, curry(\=, 2)));
+  check-equal("count(seq, curry(=, 3)) => 3", 3, count(seq, curry(\=, 3)));
+  check-equal("count(seq, curry(=, 3), limit: 2) => 2",
+              2, count(seq, curry(\=, 3), limit: 2));
 end function-test count;
 
 define uncommon-dylan macro-test with-restart-test ()

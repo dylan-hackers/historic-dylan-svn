@@ -294,22 +294,21 @@ end method has-key?;
 // copy-table?
 
 // Count the number of occurrances of item in collection, as determined
-// by the test.  'limit' is an efficiency hack: stop counting when limit
+// by the predicate.  'limit' is an efficiency hack: stop counting when limit
 // is reached, the theory being that it's common to want to know if there's
 // more than one of the given item.
 define open generic count
-    (collection :: <collection>, item, #key test, limit)
+    (collection :: <collection>, predicate :: <function>, #key limit)
  => (count :: <integer>);
 
 define method count
-    (collection :: <collection>, given,
-     #key test :: <function> = \==,
-          limit :: false-or(<integer>))
+    (collection :: <collection>, predicate :: <function>,
+     #key limit :: false-or(<integer>))
  => (count :: <integer>)
   let count :: <integer> = 0;
   for (item in collection,
        while: ~limit | count < limit)
-    if (test(given, item))
+    if (predicate(item))
       inc!(count)
     end;
   end;
