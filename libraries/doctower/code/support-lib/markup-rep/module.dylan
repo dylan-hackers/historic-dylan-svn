@@ -10,7 +10,7 @@ define module markup-rep
 
    export
       <api-doc>, <api-list-placeholder>, <api-name>, <bold>, <cite>,
-      <binding-doc>, <class-doc>, <code-block>, <code-phrase>, <con-topic>,
+      <unbound-doc>, <class-doc>, <code-block>, <code-phrase>, <con-topic>,
       <conref>, <content-seq>, <defn-list>, <dita-content>, <ditto-placeholder>,
       <emphasis>, <entity>, <fig>, <footnote>, <footnote-placeholder>,
       <function-doc>, <generic-doc>, <html-content>, <inline-image>,
@@ -50,7 +50,7 @@ define module markup-rep
       value-section, value-section-setter;
 
    export
-      <topic-level-style>, stringify-title, printed-topic-type, visit-placeholders,
-      visit-vi-xrefs;
+      <topic-level-style>, stringify-title, printed-topic-type,
+      visit-topic-placeholders, visit-vi-xrefs;
       
 end module;

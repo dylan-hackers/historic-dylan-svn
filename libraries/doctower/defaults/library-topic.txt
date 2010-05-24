@@ -17,6 +17,6 @@ Subheading: Modules		[:Modules]
 {{IF lib.unknown-reexports.size > 0 +}}
 May export other modules from these libraries:
 {{REPEAT WITH unknown-reexport IN lib.unknown-reexports}}
-- '{{unknown-reexport.name}}' [qv {{unknown-reexport.ID}}]
+- '{{unknown-reexport.name}}' [qv {{unknown-reexport.id}}]
 {{END+}}
 {{+END}}

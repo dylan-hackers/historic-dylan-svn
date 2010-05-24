@@ -240,22 +240,20 @@ define method clauses-keyword-option (seq) => (tok :: false-or(<token>))
    find-element(seq, rcurry(instance?, <keyword-option-type>), failure: #f);
 end method;
 
-/// A keyword may be defined in a slot clause and also in a keyword clause. Keep
-/// only the keyword clause. Otherwise, allow duplicate keywords.
+/// A keyword may be defined in several slot clause and in one keyword clause.
+/// If both are provided, keep only the keyword clause.
 define method remove-duplicate-keywords (seq) => (seq)
    let new-seq = make(<stretchy-vector>);
    for (k1 from 0 below seq.size)
       block (skip)
-         // We only need to test against other keywords if defined in slot clause.
-         // If it is defined in keyword clause, we always keep it.
          when (seq[k1].keyword-slot-name)
+            // This keyword is from a slot clause. Skip it, but only if there is
+            // a keyword clause later.
             for (k2 from k1 + 1 below seq.size)
                if (case-insensitive-equal?(seq[k1].keyword-name, seq[k2].keyword-name))
-                  // If any of the keywords we check against are defined by a
-                  // keyword clause, skip the current slot clause defined keyword.
-                  when (~seq[k2].keyword-slot-name)
+                  if (seq[k2].keyword-slot-name = #f)
                      skip();
-                  end when;
+                  end if;
                end if;
             end for;
          end when;

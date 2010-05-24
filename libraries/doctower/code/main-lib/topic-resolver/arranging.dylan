@@ -215,7 +215,7 @@ define method default-parent-ids (topic :: <macro-doc>)
    end if
 end method;
 
-define method default-parent-ids (topic :: <binding-doc>)
+define method default-parent-ids (topic :: <unbound-doc>)
 => (ids :: <sequence>)
    if (topic.existent-api?)
       let mod-name = topic.fully-qualified-name.enclosing-qualified-name;

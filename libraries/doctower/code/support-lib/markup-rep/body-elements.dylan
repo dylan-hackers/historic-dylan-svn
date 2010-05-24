@@ -113,7 +113,7 @@ define class <unordered-list> (<markup-element>)
 end class;
 
 define class <defn-list> (<markup-element>)
-   slot items :: <array> /* 2-by-n, first col of <markup-seq>,
+   slot items :: <array> /* n rows by 2 cols, first col of <markup-seq>,
                             second col of <content-seq> */;
 end class;
 

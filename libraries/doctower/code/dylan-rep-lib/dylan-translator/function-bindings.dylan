@@ -44,7 +44,7 @@ define method make-defined-bindings
    let generic-binding = make(<generic-binding>, source-location: token.token-src-loc,
                               local-name: local-name, implicit: vector(func-def),
                               provenance: #"definition");
-
+   
    // Adjectives
    map-into(func-def.adjectives, curry(as, <symbol>), token.api-modifiers);
    func-def.adjectives := func-def.adjectives.remove-duplicates!;
@@ -237,7 +237,7 @@ end method;
 
 define method make-empty-generic
    (context :: <context>, name :: <binding-name>,
-    meth-params :: <sequence>, meth-values :: <sequence>,
+    meth-params :: false-or(<sequence>), meth-values :: false-or(<sequence>),
     #key markup-token :: false-or(<markup-content-token>) = #f,
          sealed: sealed? :: <boolean> = #f, provenance :: <symbol>,
          source-location :: <source-location> = name.source-location)
@@ -247,7 +247,7 @@ define method make-empty-generic
    let generic = make(<generic-binding>, source-location: source-location,
                       local-name: name, explicit: #f, implicit: #[],
                       provenance: provenance);
-   if (sealed?)
+   if (sealed? & meth-params)
       seal-generic(generic, map(type, meth-params))
    end if;
    generic
@@ -305,4 +305,4 @@ define method merge-definitions
    end unless;
    better
 end method;
-   
+

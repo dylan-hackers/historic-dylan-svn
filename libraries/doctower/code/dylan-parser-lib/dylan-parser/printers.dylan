@@ -109,10 +109,16 @@ define method print-object (o :: <text-name-token>, s :: <stream>) => ()
    format(s, "{name %=}", o.api-name)
 end method;
 
+define method print-object (o :: <class-keyword>, s :: <stream>) => ()
+   format(s, "{class-keyword %= ", o.keyword-name);
+   if (o.keyword-required?)
+      format(s, "(req) ");
+   end if;
+   format(s, "slot %= type %= init %=}",
+      o.keyword-slot-name, o.keyword-type, o.keyword-init);
+end method;
+
 // define method print-object (o :: <all-keys-argument>, s :: <stream>) => ()
-// end method;
-// 
-// define method print-object (o :: <class-keyword>, s :: <stream>) => ()
 // end method;
 // 
 // define method print-object (o :: <class-slot>, s :: <stream>) => ()

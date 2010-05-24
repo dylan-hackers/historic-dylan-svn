@@ -312,6 +312,16 @@ define method visit-cycles (graph :: <graph>, visit-cycle :: <function>) => ()
 end method;
 
 
+define method print-object (o :: <graph>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      write(s, "graph ");
+      pprint-newline(#"fill", s);
+      format(s, "%= ", o.nodes);
+      pprint-newline(#"fill", s);
+      format(s, "%=", o.edges);
+   end printing-logical-block
+end method;
+
 define method print-object (o :: <node>, s :: <stream>) => ()
    format(s, "{node %=}", o.value);
 end method;

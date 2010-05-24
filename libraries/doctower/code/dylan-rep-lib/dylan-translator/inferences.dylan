@@ -236,6 +236,9 @@ define method clean-up-definitions (context :: <context>) => ()
       for (mod in lib.definitions)
          clean-up-reexport-sources(context, mod);
          replace-in-collection(context, mod.definitions);
+         for (bind in mod.definitions)
+            replace-in-binding(context, bind)
+         end for;
       end for;
    end for;
    
@@ -253,6 +256,11 @@ define method replace-in-collection (context :: <context>, coll :: <collection>)
    replace-elements!(coll,
          curry(key-exists?, context.replacements),
          curry(element, context.replacements))
+end method;
+
+
+define method replace-in-binding (context :: <context>, bind :: <binding>)
+   #f
 end method;
 
 

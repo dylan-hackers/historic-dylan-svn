@@ -84,3 +84,20 @@ define method make-source-topics (defn :: <module>)
 
    values(topics, #[])
 end method;
+
+
+//
+// Template unknown reexports
+//
+
+
+define method template-unknown-reexports (namespace :: <defined-namespace>) 
+=> (sources :: <sequence>)
+   sort(namespace.unknown-reexport-sources, test: sort-comparison-by-name);
+end method;
+
+
+define method template-unknown-reexports (namespace :: <undefined-namespace>)
+=> (sources :: <sequence>)
+   #[]
+end method;

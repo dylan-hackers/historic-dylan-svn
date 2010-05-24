@@ -3,22 +3,6 @@ module: dylan-topics
 
 define variable $api-list-filename :: false-or(<file-locator>) = #f;
 
-define method equal-hash (source-name :: <library-name>, state :: <hash-state>)
-=> (hash :: <integer>, state :: <hash-state>)
-   string-hash(source-name.library-name, state)
-end method;
-
-define method equal-hash (source-name :: <module-name>, state :: <hash-state>)
-=> (hash :: <integer>, state :: <hash-state>)
-   values-hash(string-hash, state, source-name.library-name, source-name.module-name)
-end method;
-
-define method equal-hash (source-name :: <binding-name>, state :: <hash-state>)
-=> (hash :: <integer>, state :: <hash-state>)
-   values-hash(string-hash, state,
-         source-name.library-name, source-name.module-name, source-name.binding-name)
-end method;
-
 define constant *definitions* :: <equal-table> = make(<equal-table>);
 
 
@@ -104,7 +88,11 @@ define method make-authored-topics
 => (topics :: <sequence>)
    let topics-per-token = map(rcurry(topics-from-markup, context-topic), 
                               markup-content-tokens);
-   apply(concatenate, #[], topics-per-token);
+   let topics = apply(concatenate, #[], topics-per-token);
+
+   // If several markup tokens attach to the same context topic, the context
+   // topic will be duplicated. This is unnecessary, so clear out duplicates.
+   topics.remove-duplicates
 end method;
 
 
@@ -118,7 +106,7 @@ end class;
 
 define constant $generated-source-location = make(<generated-source-location>);
 
-define method print-message(o :: <generated-source-location>, s :: <stream>)
+define method print-message (o :: <generated-source-location>, s :: <stream>)
 => ()
    write(s, "automatically-generated documentation location")
 end method;

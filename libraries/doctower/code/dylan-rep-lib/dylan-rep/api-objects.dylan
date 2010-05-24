@@ -150,6 +150,24 @@ define method \= (name1 :: <binding-name>, name2 :: <binding-name>)
 end method;
 
 
+define method equal-hash (source-name :: <library-name>, state :: <hash-state>)
+=> (hash :: <integer>, state :: <hash-state>)
+   case-insensitive-string-hash(source-name.library-name, state)
+end method;
+
+define method equal-hash (source-name :: <module-name>, state :: <hash-state>)
+=> (hash :: <integer>, state :: <hash-state>)
+   values-hash(case-insensitive-string-hash, state,
+         source-name.library-name, source-name.module-name)
+end method;
+
+define method equal-hash (source-name :: <binding-name>, state :: <hash-state>)
+=> (hash :: <integer>, state :: <hash-state>)
+   values-hash(case-insensitive-string-hash, state,
+         source-name.library-name, source-name.module-name, source-name.binding-name)
+end method;
+
+
 //
 // Fragments
 //
@@ -196,6 +214,14 @@ end method;
 /// <fragment>.
 define method fragment-names (frag :: <fragment>) => (names :: <sequence>)
    choose(rcurry(instance?, <source-name>), frag.source-text)
+end method;
+
+
+/// Synopsis: Return the <source-name> elements from a collection of <fragment>
+/// where the name is the whole of the fragment.
+define method simple-names (fragments :: <sequence>) => (names :: <sequence>)
+   let simple-frags = choose(simple-name?, fragments);
+   map(compose(first, fragment-names), simple-frags)
 end method;
 
 

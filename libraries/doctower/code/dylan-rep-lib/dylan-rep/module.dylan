@@ -44,6 +44,14 @@ define module dylan-rep
       definitions,
       definitions-setter,
       direct-supers,
+      effective-init-args,
+      effective-init-args-setter,
+      effective-slots,
+      effective-slots-setter,
+      effective-subs,
+      effective-subs-setter,
+      effective-supers,
+      effective-supers-setter,
       enclosing-name,
       explicit-defn,
       explicit-defn-setter,
@@ -89,8 +97,10 @@ define module dylan-rep
       setter,
       setter-setter,
       simple-name?,
+      simple-names,
       singleton-expr,
       slots,
+      slots-setter,
       source-text,
       symbol,
       type,
@@ -105,4 +115,7 @@ define module dylan-rep
       value-setter,
       vendor-options,
       ;
+   
+   export
+      visit-type-fragments;
 end module;

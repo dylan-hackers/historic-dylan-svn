@@ -136,10 +136,10 @@ define class <module-doc> (<api-doc>)
    slot bindings-section :: false-or(<section>) = #f;
 end class;
 
-define class <binding-doc> (<api-doc>)
+define class <unbound-doc> (<api-doc>)
 end class;
 
-define class <class-doc> (<binding-doc>)
+define class <class-doc> (<api-doc>)
    slot adjectives-section :: false-or(<section>) = #f;
    slot keywords-section :: false-or(<section>) = #f;
    slot conds-section :: false-or(<section>) = #f;
@@ -150,24 +150,24 @@ define class <class-doc> (<binding-doc>)
    slot funcs-returning-section :: false-or(<section>) = #f;
 end class;
 
-define class <variable-doc> (<binding-doc>)
+define class <variable-doc> (<api-doc>)
    slot adjectives-section :: false-or(<section>) = #f;
    slot value-section :: false-or(<section>) = #f;
 end class;
 
-define class <macro-doc> (<binding-doc>)
+define class <macro-doc> (<api-doc>)
    slot syntax-section :: false-or(<section>) = #f;
    slot args-section :: false-or(<section>) = #f;
    slot vals-section :: false-or(<section>) = #f;
 end class;
 
-define class <function-doc> (<binding-doc>)
+define class <function-doc> (<api-doc>)
    slot adjectives-section :: false-or(<section>) = #f;
    slot args-section :: false-or(<section>) = #f;
    slot vals-section :: false-or(<section>) = #f;
    slot conds-section :: false-or(<section>) = #f;
 end class;
 
-define class <generic-doc> (<function-doc>)
+define class <generic-doc> (<api-doc>)
    slot methods-section :: false-or(<section>) = #f;
 end class;

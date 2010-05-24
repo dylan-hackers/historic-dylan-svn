@@ -30,9 +30,17 @@ define method apis-from-dylan (file-sets :: <sequence>)
    make-api-objects(context, file-sets);
    process-namespace-clauses(context);
    infer-and-merge-definitions(context);
-   unique-definitions(context)
-   // TODO: Change type fragments of the "singleton(x)" syntax to singleton
-   // type fragments.
+   let definitions = unique-definitions(context);
+   
+   // Replace simple singleton type fragments with <singleton-type-fragment>.
+   visit-type-fragments(definitions, make-singleton-type-fragment);
+   
+   // Analyze definitions and fill in class information for templates.
+   let class-graph = class-inheritance-graph(definitions);
+   inherit-slots(definitions, class-graph);
+   inherit-init-args(definitions, class-graph);
+
+   definitions
 end method;
 
 
@@ -125,6 +133,20 @@ define method make-apis-from-files
    
    library
 end method;
+
+
+define function make-singleton-type-fragment
+   (type-frag :: <type-fragment>, #key setter :: <function>)
+=> ()
+   let names = type-frag.fragment-names;
+   let (sing-part, expr-part) = partition(curry(\=, $singleton-name), names);
+   if (sing-part.size = 1 & expr-part.size = 1)
+      let sing-frag = make(<singleton-type-fragment>, text: type-frag.source-text, 
+            expression: as(<type-fragment>, expr-part.first),
+            source-location: type-frag.source-location);
+      setter(sing-frag);
+   end if
+end function;
 
 
 //

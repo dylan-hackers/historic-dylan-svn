@@ -20,8 +20,8 @@ end class;
 
 
 define class <function-binding> (<binding>)
-   slot explicit-defn :: false-or(<explicit-function-defn>),
-      required-init-keyword: #"explicit";
+   slot explicit-defn :: false-or(<explicit-function-defn>) = #f,
+      init-keyword: #"explicit";
 end class;
 
 

@@ -2,9 +2,9 @@ module: markup-rep
 synopsis: Contains slot visitor functions.
 
 
-/// Generic Function: visit-placeholders
+/// Generic Function: visit-topic-placeholders
 /// Synopsis: Visits a <topic> and its nested elements that can contain
-/// user-specified <target-placeholder> objects.
+/// user-specified <target-placeholder> objects referring to topics.
 ///
 /// Arguments:
 ///   element     - The <markup-element> to visit.
@@ -12,7 +12,7 @@ synopsis: Contains slot visitor functions.
 ///                 argument and the 'keys' argument.
 ///   #rest keys  - A set of keys passed to 'operation'.
 
-define collection-recursive slot-visitor visit-placeholders
+define collection-recursive slot-visitor visit-topic-placeholders
    <bold>,                 text;
    <cite>,                 text;
    <class-doc>,            content, shortdesc, parent, footnotes, see-also, relevant-to,

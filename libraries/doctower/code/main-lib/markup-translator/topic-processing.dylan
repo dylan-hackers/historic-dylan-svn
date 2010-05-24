@@ -312,6 +312,8 @@ define method process-tokens
    let targets =
          map(method (link-token :: <link-word-token>) => (link :: <topic-ref>)
                 let loc = link-token.token-src-loc;
+                // TODO: If link-target is an URL, make a new URL for it
+                // instead of a <target-placeholder>.
                 let target = make(<target-placeholder>,
                                   link: link-token.token-text,
                                   source-location: loc);

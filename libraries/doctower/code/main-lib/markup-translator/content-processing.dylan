@@ -181,7 +181,7 @@ define method process-tokens
 => ()
    let list-item-tokens = token.token-content;
    let list = make(<one-line-defn-list>, source-location: token.token-src-loc);
-   list.items := make(<array>, dimensions: vector(2, list-item-tokens.size));
+   list.items := make(<array>, dimensions: vector(list-item-tokens.size, 2));
    for (i from 0, list-item-token in list-item-tokens)
       let list-item-label = make(<markup-seq>);
       let list-item-content = make(<content-seq>);
@@ -189,8 +189,8 @@ define method process-tokens
          process-tokens(list-item-label, list-item-token.item-label);
       end with-dynamic-bindings;
       process-tokens(list-item-content, list-item-token.token-content);
-      list.items[0, i] := list-item-label;
-      list.items[1, i] := list-item-content;
+      list.items[i, 0] := list-item-label;
+      list.items[i, 1] := list-item-content;
    end for;
    add!(seq, list);
 end method;

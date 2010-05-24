@@ -3,8 +3,22 @@ synopsis: Representation of Dylan classes & slots.
 
 
 define class <class-binding> (<binding>)
-   slot explicit-defn :: false-or(<explicit-class-defn>),
-      required-init-keyword: #"explicit";
+   slot explicit-defn :: false-or(<explicit-class-defn>) = #f,
+      init-keyword: #"explicit";
+
+   /// Sequence of <class-binding> comprising direct superclass list.
+   slot effective-supers :: <sequence> = make(<stretchy-vector>);
+
+   /// Sequence of <class-binding> comprising direct subclass list.
+   slot effective-subs :: <sequence> = make(<stretchy-vector>);
+
+   /// Slot getters in this class, including from superclasses. Sequence of
+   /// <generic-binding>.
+   slot effective-slots :: <sequence> = make(<stretchy-vector>);
+   
+   /// Initialization keywords defined by "slot" and "keyword" clauses and "make"
+   /// and "initialize" methods, including from superclasses. Sequence of <init-arg>.
+   slot effective-init-args :: <sequence> = make(<stretchy-vector>);
 end class;
 
 
@@ -15,11 +29,11 @@ define class <explicit-class-defn> (<implicit/explicit-defn>)
    /// Sequence of <type-fragment> comprising superclass list.
    slot direct-supers :: <sequence> = make(<stretchy-vector>);
    
-   /// Slots in this class. Excludes superclasses. Sequence of <slot>.
+   /// Slots in this class. Sequence of <slot>. Excludes superclasses.
    slot slots :: <sequence> = make(<stretchy-vector>);
    
-   /// Initialization keywords defined by "slot" and "keyword" clauses. Excludes
-   /// superclasses. Sequence of <init-arg>.
+   /// Initialization keywords defined by "slot" and "keyword" clauses. Sequence
+   /// of <init-arg>. Excludes superclasses.
    slot init-args :: <sequence> = make(<stretchy-vector>);
 end class;
 
@@ -31,6 +45,7 @@ end class;
 
 /// Its source location is a "slot" clause.
 define abstract class <slot> (<api-object>)
+   slot getter :: <generic-binding>;
 end class;
 
 
@@ -41,7 +56,6 @@ end class;
 
 /// Synopsis: An accessor slot is a slot with accessor methods.
 define abstract class <accessor-slot> (<slot>)
-   slot getter :: <generic-binding>;
    slot setter :: false-or(<generic-binding>) = #f;
    slot type :: false-or(<type-fragment>) = #f;
 end class;   
@@ -85,7 +99,23 @@ end class;
 //
 
 
-/// Its source location is a "keyword" or "slot" clause.
+/// Its source location is a "keyword" or "slot" clause, or a keyword argument
+/// of "make" or "initialize".
+///
+/// Init-arg declarations can come from several sources.
+///
+/// 1. "Make" methods
+/// 2. Class declarations
+/// 3. Superclass declarations
+/// 4. "Initialize" methods
+///
+/// In the event of duplicate declarations of an init-arg, we will use the first
+/// specified type and init-spec found in the above order. We will not attempt
+/// to use the most specific type found among all declarations because our
+/// knowledge of the type hierarchy is too fragmentary. We will not consult
+/// "make" methods on superclasses because we have no way of knowing if they are
+/// called.
+///
 define class <init-arg> (<documentable-api-object>)
    slot symbol :: <string>, required-init-keyword: #"symbol";
    slot type :: false-or(<type-fragment>) = #f;

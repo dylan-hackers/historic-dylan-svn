@@ -42,6 +42,8 @@ define method toc-from-file (locator :: <file-locator>)
                last-key := line-key;
 
                let link-name = copy-sequence(line, start: link-start, end: link-end);
+               // TODO: If link-name is an URL, make a new URL for it
+               // instead of a <target-placeholder>.
                let placeholder = make(<target-placeholder>, link: link-name,
                                       source-location: loc);
                let topic-ref = make(<topic-ref>, target: placeholder,

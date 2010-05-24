@@ -5,7 +5,7 @@ define class <markup-element> (<source-location-mixin>)
 end class;
 
 /// Synopsis: Used when the target is unknown. May generally refer to a topic,
-/// API, argument, etc.
+/// API, argument, etc., but not an URL.
 define class <target-placeholder> (<markup-element>)
    slot target :: <string>, init-keyword: #"link";
 end class;

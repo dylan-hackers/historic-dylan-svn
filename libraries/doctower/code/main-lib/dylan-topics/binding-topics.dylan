@@ -6,18 +6,7 @@ module: dylan-topics
 
 define method make-source-topics (defn :: <binding>) 
 => (topics :: <sequence>, catalog-topics :: <sequence>)
-   let generated-topic = make(<binding-doc>, source-location: defn.source-location,
-         id: defn.canonical-id, title: defn.canonical-title, generated: #t,
-         existent-api: #t, qualified-name: defn.definition-qualified-name,
-         title-id-source-location: $generated-source-location,
-         qualified-name-source-location: $generated-source-location);
-   values(vector(generated-topic), #[])
-end method;
-
-
-define method make-source-topics (defn :: <class-binding>) 
-=> (topics :: <sequence>, catalog-topics :: <sequence>)
-   let generated-topic = make(<class-doc>, source-location: defn.source-location,
+   let generated-topic = make(<unbound-doc>, source-location: defn.source-location,
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
          existent-api: #t, qualified-name: defn.definition-qualified-name,
          title-id-source-location: $generated-source-location,

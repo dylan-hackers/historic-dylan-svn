@@ -86,7 +86,7 @@ end method;
 define method group-elements
    (collection :: <sequence>, #key test :: <function> = \==)
 => (categories :: <sequence>)
-   let categories = list();
+   let categories = make(<stretchy-vector>);
    for (elem in collection)
       block (matched)
          // See if an existing category fits.
@@ -102,6 +102,7 @@ define method group-elements
          categories := add!(categories, categ);
       end block;
    end for;
+   // Fix type of each category's collection.
    let categ-collection = curry(map-as, collection.type-for-copy, identity);
    map(categ-collection, categories);
 end method;

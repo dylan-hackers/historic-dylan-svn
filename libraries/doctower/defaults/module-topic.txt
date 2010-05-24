@@ -11,7 +11,7 @@ Defined in {{mod.source.filename}} line {{mod.source.line}}.
 {{IF mod.exports.size > 0 +}}
 Exported under these names:
 {{REPEAT WITH export IN mod.exports}}
-- {{export.name}} in '{{export.library.name}} library'. [qv {{export.library.ID}}]
+- {{export.name}} in '{{export.library.name}}' [qv {{export.library.id}}] library.
 {{END+}}
 {{+END}}
 
@@ -24,6 +24,6 @@ Subheading: Bindings		[:Bindings]
 {{IF mod.unknown-reexports.size > 0}}
 May export other bindings from these modules:
 {{REPEAT WITH unknown-reexport IN lib.unknown-reexports}}
-- '{{unknown-reexport.name}}' [qv {{unknown-reexport.ID}}]
+- '{{unknown-reexport.name}}' [qv {{unknown-reexport.id}}]
 {{END+}}
 {{+END}}

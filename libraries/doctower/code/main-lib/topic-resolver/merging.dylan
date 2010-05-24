@@ -23,7 +23,7 @@ define method test-combinable (a :: <api-doc>, b :: <api-doc>)
    elseif (~a.fully-qualified-name | ~b.fully-qualified-name)
       #f
    elseif (a.fully-qualified-name = b.fully-qualified-name)
-      a.object-class = <binding-doc> | b.object-class = <binding-doc>
+      a.object-class = <unbound-doc> | b.object-class = <unbound-doc>
             | a.object-class = b.object-class
    else
       #f
@@ -151,17 +151,7 @@ define method merge-two-topics (a :: <api-doc>, b :: <api-doc>)
 end method;
 
 
-define method merge-two-topics (a :: <binding-doc>, b :: <binding-doc>)
-=> (merged :: <api-doc>)
-   next-method()
-end method;
-
-define method merge-two-topics (a :: <api-doc>, b :: <binding-doc>)
-=> (merged :: <api-doc>)
-   next-method()
-end method;
-
-define method merge-two-topics (a :: <binding-doc>, b :: <api-doc>)
+define method merge-two-topics (a :: <unbound-doc>, b :: <api-doc>)
 => (merged :: <api-doc>)
    merge-two-topics(b, a)
 end method;

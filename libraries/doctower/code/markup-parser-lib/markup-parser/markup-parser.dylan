@@ -76,7 +76,8 @@ define method parse-internal-markup
          text.stream-with-indentation;
 
    block ()
-      let context = make(<internal-parse-context>, cache-stream: text,
+      let context = make(<internal-parse-context>,
+                         cache-stream: indented-stream,
                          locator: locator);
 
       // *parser-trace* := *standard-output*;

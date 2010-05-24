@@ -85,14 +85,14 @@ end class;
 
 
 define class <constant-binding> (<binding>)
-   slot explicit-defn :: false-or(<explicit-constant-defn>),
-      required-init-keyword: #"explicit";
+   slot explicit-defn :: false-or(<explicit-constant-defn>) = #f,
+      init-keyword: #"explicit";
 end class;
 
 
 define class <variable-binding> (<binding>)
-   slot explicit-defn :: false-or(<explicit-variable-defn>),
-      required-init-keyword: #"explicit";
+   slot explicit-defn :: false-or(<explicit-variable-defn>) = #f,
+      init-keyword: #"explicit";
 end class;
 
 

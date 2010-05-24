@@ -3,8 +3,8 @@ synopsis: Representation of Dylan macro definitions.
 
 
 define class <macro-binding> (<binding>)
-   slot explicit-defn :: false-or(<explicit-macro-defn>),
-      required-init-keyword: #"explicit";
+   slot explicit-defn :: false-or(<explicit-macro-defn>) = #f,
+      init-keyword: #"explicit";
 end class;
 
 

@@ -151,9 +151,15 @@ define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>
    for (spec in used-specs-in-order)
       let new-interior = 
             select (spec)
-               #"qv", #"vi" =>
-                  let link = make(if (spec = #"vi") <vi-xref> else <xref> end,
-                                  source-location: quote.token-src-loc);
+               #"qv" =>
+                  // TODO: If link-target is an URL, make a new URL for it
+                  // instead of a <target-placeholder>.
+                  let link = make(<xref>, source-location: quote.token-src-loc);
+                  link.text := link-text;
+                  link.target := link-target;
+                  link;
+               #"vi" =>
+                  let link = make(<vi-xref>, source-location: quote.token-src-loc);
                   link.text := link-text;
                   link.target := link-target;
                   link;

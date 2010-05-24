@@ -55,9 +55,10 @@ define generic make-defined-bindings
 
 
 define method make-expression-binding
-   (context :: <context>, name :: <binding-name>)
+   (context :: <context>, name :: <binding-name>,
+    #key type :: subclass(<binding>) = <placeholder-binding>)
 => (binding :: <binding>)
-   make(<placeholder-binding>, local-name: name, source-location: name.source-location,
+   make(type, local-name: name, source-location: name.source-location,
         provenance: #"expression")
 end method;
 

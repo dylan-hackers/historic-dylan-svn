@@ -7,6 +7,7 @@ files:   dylan-rep-library
          dylan-rep/classes
          dylan-rep/functions
          dylan-rep/macros
+         dylan-rep/visitors
          dylan-rep/printers
          dylan-translator/module
          dylan-translator/context

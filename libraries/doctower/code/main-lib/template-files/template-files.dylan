@@ -9,7 +9,8 @@ define constant $template-types = #[
    #"all-modules-topic",
    #"lib-modules-topic",
    #"library-topic",
-   #"module-topic"
+   #"module-topic",
+   #"class-topic"
 ];
 
 define variable *templates* :: <table> = make(<table>);

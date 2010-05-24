@@ -128,9 +128,36 @@ define method print-object (o :: <implicit/explicit-defn>, s :: <stream>) => ()
 end method;
 
 
-// define method print-object (o :: <class-defn>, s :: <stream>) => ()
+define method print-object (o :: <slot>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      format(s, "%s ", select (o by instance?)
+                          <inherited-slot> => "inherited-slot";
+                          <instance-slot> => "instance-slot";
+                          <class-slot> => "class-slot";
+                          <subclass-slot> => "subclass-slot";
+                          <virtual-slot> => "virtual-slot";
+                          otherwise => "slot";
+                       end select);
+      pprint-newline(#"fill", s);
+      format(s, "%=", o.getter.canonical-name);
+   end printing-logical-block;
+end method;
+
+
+define method print-object (o :: <init-arg>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      format(s, "init-arg \"%s\", ", o.symbol);
+      pprint-newline(#"fill", s);
+      format(s, "type %=, ", o.type);
+      pprint-newline(#"fill", s);
+      format(s, "init-spec %=", o.init-spec);
+   end printing-logical-block;
+end method;   
+
+
+// define method print-object (o :: <explicit-class-defn>, s :: <stream>) => ()
 //    printing-logical-block (s, prefix: "{", suffix: "}")
-//       write(s, "class-defn ");
+//       write(s, "explicit-class-defn ");
 //       pprint-newline(#"fill", s);
 //       format(s, "slots %d, ", o.explicit-defn.slots.size);
 //       pprint-newline(#"fill", s);
@@ -140,9 +167,11 @@ end method;
 //          pprint-newline(#"fill", s);
 //          write(s, "docs");
 //       end unless;
+//       pprint-newline(#"fill", s);
+//       format(s, " @ %s", o.source-location);
 //    end printing-logical-block;
 // end method;
-// 
+//
 // define method print-object (o :: <generic-defn>, s :: <stream>) => ()
 //    printing-logical-block (s, prefix: "{", suffix: "}")
 //       write(s, "generic-defn ");

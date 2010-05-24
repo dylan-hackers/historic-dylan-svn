@@ -7,7 +7,8 @@ define module dylan-translator
    use conditions;
    use dylan-parser,
       rename: { source-location => token-src-loc, local-name => token-local-name,
-                import-name => token-import-name, definitions => token-definitions,
+                import-name => token-import-name, slot-name => token-slot-name,
+                slot-setter => token-slot-setter, definitions => token-definitions,
                 source-text => token-text, <class-slot> => <parsed-class-slot>,
                 <rest-value> => <parsed-rest-value> };
    use markup-parser, import: { <markup-content-token>, default-topic-content };

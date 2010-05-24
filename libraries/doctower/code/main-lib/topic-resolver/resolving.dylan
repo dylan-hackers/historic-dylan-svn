@@ -54,7 +54,7 @@ define method resolve-topic-placeholders
             
    // Assign topics in place of placeholders.
    for (topic in topics)
-      visit-placeholders(topic, resolve, topic: topic)
+      visit-topic-placeholders(topic, resolve, topic: topic)
    end for;
 
    // Assign topics in place of tables of content references.
@@ -112,8 +112,8 @@ end method;
 /// Synopsis: Makes a table of topics keyed by topic title.
 ///
 /// Topic titles need to be stringified because links to titles are strings and
-/// can't use images or styled text. Topics with identical titles aren't
-/// included; those links can't be resolved at this time.
+/// can't use images or styled text. Topics with identical titles are returned
+/// in a separate table.
 ///
 /// Values:
 ///   unique-title-table     - A <table> keyed by title containing topics.
@@ -148,13 +148,13 @@ end method;
 /// Synopsis: Determines what topic a link refers to.
 ///
 /// In general, a link is resolved to one of the following, in order:
-///   1. Local attribute/value name
+///   1. Local argument/value name
 ///   2. ID
 ///   3. Fully qualified name disguised as ID
 ///   4. Unique title
 ///   5. API in current module/library
 ///   6. Unique API in other module/library
-/// At this point in the code, though, we are only dealing with topic-level stuff,
+/// At this point in the code, though, we are only processing topic-level stuff,
 /// so we won't see any #1.
 ///
 /// Values:
@@ -168,8 +168,9 @@ define method resolve-link
    let topic = element(topics-by-id, link.target, default: #f) |
                element(topics-by-title, link.target, default: #f);
    if (~topic)
-      // It is an API, a duplicate title, or an argument/value. APIs need to be
-      // canonicalized and looked up; arguments/values need to be resolved later.
+      // It is an API or a duplicate title. It will not be an argument/value
+      // because those can only be legitimately found in an <xref>, which we are
+      // not processing. APIs need to be canonicalized and looked up.
       // TODO: Lookup by fully qualified name.
       // TODO: API canonicalization and lookup.
    end if;

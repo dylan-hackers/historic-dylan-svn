@@ -55,12 +55,10 @@ end method;
 
 
 define method singleton-from-text (context :: <context>, token :: <text-token>)
-=> (frag :: <type-fragment>)
+=> (frag :: <singleton-type-fragment>)
    let operand-frag = fragment-from-text(context, <computed-constant>, token);
    let operand-text = operand-frag.source-text;
-   let singleton-name = 
-         make(<binding-name>, library: "Dylan", module: "Dylan", binding: "Singleton");
-   let full-text = concatenate(vector(singleton-name, '('), operand-text, vector(')'));
+   let full-text = concatenate(vector($singleton-name, '('), operand-text, vector(')'));
    make(<singleton-type-fragment>, source-location: token.token-src-loc,
         text: full-text, expression: operand-frag)
 end method;
@@ -85,6 +83,9 @@ define method as (cls == <type-fragment>, name :: <binding-name>)
 end method;
 
 
+define constant $singleton-name = 
+      make(<binding-name>, library: "Dylan", module: "Dylan", binding: "Singleton");
+      
 define constant $object-type = as(<type-fragment>, 
       make(<binding-name>, library: "Dylan", module: "Dylan", binding: "<Object>"));
 
