@@ -4,6 +4,7 @@ synopsis: Internal representation of documentation.
 define module markup-rep
    use common;
    use ordered-tree;
+   use markup-parser, import: { <topic-level-style> };
    
    // from system
    use locators, import: { <url> }, export: all;
@@ -50,7 +51,7 @@ define module markup-rep
       value-section, value-section-setter;
 
    export
-      <topic-level-style>, stringify-title, printed-topic-type,
+      stringify-title, printed-topic-type,
       visit-topic-placeholders, visit-vi-xrefs;
       
 end module;

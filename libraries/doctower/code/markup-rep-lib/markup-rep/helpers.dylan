@@ -8,23 +8,6 @@ define method make-limited-seq (type :: <type>, elements :: <sequence>)
 end method;
 
 
-/// Synopsis: Records the characteristics of a topic level style.
-define class <topic-level-style> (<object>)
-   slot line-character :: <character>, init-keyword: #"char";
-   slot underline? :: <boolean>, init-keyword: #"under";
-   slot midline? :: <boolean>, init-keyword: #"mid";
-   slot overline? :: <boolean>, init-keyword: #"over";
-end class;
-
-define method \= (style1 :: <topic-level-style>, style2 :: <topic-level-style>)
-=> (equal? :: <boolean>)
-   style1.line-character = style2.line-character &
-   style1.underline? = style2.underline? &
-   style1.midline? = style2.midline? &
-   style1.overline? = style2.overline?
-end method;
-
-
 /// Synopsis: Converts a title to a string. This can be done without resolving
 /// anything.
 define method stringify-title (title :: <title-seq>) => (title :: <string>)

@@ -30,10 +30,6 @@ define constant $default-list-quote-specs =
 define constant $default-title-quote-specs =
       table(<string-table>, "'" => #[#"q"], "`" => #[#"code"], "\"" => #[#"qq"]);
 
-/// Synopsis: The underline/overline style of a section (as opposed to topic).
-define constant $section-style =
-      make(<topic-level-style>, char: '-', under: #f, mid: #t, over: #f);
-
 
 /// Synopsis: The size of the tab character, in spaces. The markup parser
 /// doesn't want tab characters.

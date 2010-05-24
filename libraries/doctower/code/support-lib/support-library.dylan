@@ -15,5 +15,5 @@ define library support-library
    // from Monday project
    use source-location;
 
-   export common, conditions, configs, parser-common, markup-rep, ordered-tree;
+   export common, conditions, ordered-tree;
 end library;

@@ -47,5 +47,8 @@ define module markup-parser
       scope-word, section-nickname, section-title, text, title-content,
       title-style, title-text, topic-nickname, topic-title, topic-type, topics,
       word;
+   
+   export
+      <topic-level-style>;
       
 end module;

@@ -130,12 +130,6 @@ define method print-object (o :: <section>, s :: <stream>) => ()
    end printing-logical-block;
 end method;
 
-define method print-object (o :: <topic-level-style>, s :: <stream>) => ()
-   format(s, "{topic-style '%c'%s%s%s}", o.line-character,
-          (o.overline? & " over") | "", (o.midline? & " mid") | "",
-          (o.underline? & " under") | "");
-end method;
-
 define method print-object
    (o :: type-union(<title-seq>, <markup-seq>, <content-seq>, <topic-content-seq>),
     s :: <stream>)

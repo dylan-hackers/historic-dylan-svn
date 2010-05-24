@@ -1,13 +1,6 @@
 library:    doctower-library
 executable: doctower
 files:      doctower-library
-            name-processing/module
-            name-processing/names
-            markup-translator/module
-            markup-translator/check-helpers
-            markup-translator/topic-processing
-            markup-translator/content-processing
-            markup-translator/markup-processing
             template-files/module
             template-files/template-files
             dylan-topics/module

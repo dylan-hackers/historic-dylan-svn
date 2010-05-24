@@ -2,8 +2,10 @@ all: doctower
 
 SOURCES = \
 	support-lib/support-library.lid \
+	midsupport-lib/midsupport-library.lid \
 	markup-parser-lib/markup-parser-library.lid \
 	dylan-parser-lib/dylan-parser-library.lid \
+	markup-rep-lib/markup-rep-library.lid \
 	dylan-rep-lib/dylan-rep-library.lid \
 	main-lib/doctower-library.lid
 
@@ -30,11 +32,11 @@ ifneq ($(MAKECMDGOALS),clean)
 -include $(SOURCES:.lid=.dep)
 endif
 
-doctower : main-lib/doctower-library.lib.du
-	cp main-lib/doctower doctower
-
 support-lib/support-library.lib.du : \
 	support-lib/support-library.lid
+
+midsupport-lib/midsupport-library.lib.du : \
+	midsupport-lib/midsupport-library.lid
 
 markup-parser-lib/markup-parser-library.lib.du : \
 	markup-parser-lib/markup-parser-library.lid
@@ -42,11 +44,17 @@ markup-parser-lib/markup-parser-library.lib.du : \
 dylan-parser-lib/dylan-parser-library.lib.du : \
 	dylan-parser-lib/dylan-parser-library.lid
 
+markup-rep-lib/markup-rep-library.lib.du : \
+	markup-rep-lib/markup-rep-library.lid
+
 dylan-rep-lib/dylan-rep-library.lib.du : \
 	dylan-rep-lib/dylan-rep-library.lid
 
 main-lib/doctower-library.lib.du : \
 	main-lib/doctower-library.lid
+
+doctower : main-lib/doctower-library.lib.du
+	cp main-lib/doctower doctower
 
 %.dep %.lib.du : %.lid
 	cd $(dir $<) ; d2c -gM $(libflags) $(notdir $<)
