@@ -135,31 +135,23 @@ define method add-replacement-contents
       // well make no change at all.
       values(start-pos, end-pos)
    else
-      // If new segment isn't adjacent to last segment, create base stream segment
-      // to cover the gap. Covering segment runs from last segment to start of
-      // new segment.
+      // If new segment isn't adjacent to last segment, create base stream
+      // segment to cover the gap. Covering segment runs from last segment to
+      // start of new segment, and the inner stream is grown if necessary.
       if (start-pos ~= seg-limits.last)
-         inner.stream-position := inner-limits.last;
-         adjust-stream-position(inner, start-pos - seg-limits.last);
-         inner-limits := add!(inner-limits, inner.stream-position);
+         let inner-end-pos = offset-inner-stream-position(wrapper,
+               origin: inner-limits.last, delta: start-pos - seg-limits.last);
+         inner-limits := add!(inner-limits, inner-end-pos);
          seg-limits := add!(seg-limits, start-pos);
          seg-contents := add!(seg-contents, #f);
       end if;
    
-      // Add new segment. The adjust skips to the position before end-pos. We do
-      // not skip to end-pos itself, because that may be beyond eos and adjust
-      // would then increase the size of the stream; we don't want that, though
-      // we do want the stream increased to just before end-pos, and we do want
-      // the (eos) stream-position of end-pos itself so we can add it to
-      // inner-limits. So we advance the stream position by one more element
-      // after the adjust using read-element.
-      inner.stream-position := inner-limits.last;
-      let end-pos-adj = end-pos - start-pos;
-      if (end-pos-adj > 0)
-         adjust-stream-position(inner, max(end-pos-adj - 1, 0));
-         read-element(inner, on-end-of-stream: #f)
-      end if;
-      inner-limits := add!(inner-limits, inner.stream-position);
+      // Add new segment. We want the inner stream increased to just before
+      // end-pos, and we want the (eos) stream-position of end-pos itself so we
+      // can add it to inner-limits.
+      let inner-end-pos = offset-inner-stream-position(wrapper,
+            origin: inner-limits.last, delta: end-pos - start-pos);
+      inner-limits := add!(inner-limits, inner-end-pos);
       seg-limits := add!(seg-limits, start-pos + replacement.size);
       seg-contents := add!(seg-contents, replacement);
    
@@ -297,8 +289,9 @@ define method inner-stream-position
       values(inner-pos, ~corresponds?);
    else
       // Return corresponding inner stream position at end of inner stream.
-      inner.stream-position := inner-seg-start;
-      values(adjust-stream-position(inner, off), #f);
+      let inner-pos = offset-inner-stream-position(wrapper,
+            origin: inner-seg-start, delta: off);
+      values(inner-pos, #f);
    end if;
 end method;
 
@@ -315,16 +308,14 @@ define method read-element
    let elem = #f;
    if (cur-seg < seg-count & seg-contents[cur-seg])
       elem := seg-contents[cur-seg][cur-off];
-      adjust-stream-position(wrapper, +1);
+      adjust/grow-stream-position(wrapper, +1, grow: #f);
    else
-      adjust-inner-stream-position(wrapper);
-
-      elem := apply(read-element, inner, keys);
-      if (wrapper.stream-at-end?)
-         // Don't want to grow inner stream trying to adjust wrapper position.
-         adjust-stream-position(wrapper, 0, from: #"end");
+      set-inner-stream-position(wrapper);
+      if (inner.stream-at-end?)
+         elem := apply(read-element, inner, keys);
       else
-         adjust-stream-position(wrapper, +1);
+         elem := read-element(inner);
+         adjust/grow-stream-position(wrapper, +1, grow: #f);
       end if;
    end if;
 
@@ -339,7 +330,7 @@ define method unread-element
    let seg-count = seg-contents.size;
    let inner = wrapper.inner-stream;
 
-   adjust-stream-position(wrapper, -1);
+   adjust/grow-stream-position(wrapper, -1, grow: #f);
    let cur-seg = wrapper.current-segment;
    let cur-off = wrapper.current-offset;
 
@@ -347,7 +338,7 @@ define method unread-element
    if (cur-seg < seg-count & seg-contents[cur-seg])
       elem := seg-contents[cur-seg][cur-off];
    else
-      adjust-inner-stream-position(wrapper);
+      set-inner-stream-position(wrapper);
       elem := peek(inner);
    end if;
    
@@ -371,7 +362,7 @@ define method peek
    if (cur-seg < seg-count & seg-contents[cur-seg])
       elem := seg-contents[cur-seg][cur-off];
    else
-      adjust-inner-stream-position(wrapper);
+      set-inner-stream-position(wrapper);
       elem := apply(peek, inner, keys);
    end if;
 
@@ -397,23 +388,18 @@ define method write-element (wrapper :: <replacing-stream>, elem :: <object>)
    let elem = #f;
    if (cur-seg < seg-count & seg-contents[cur-seg])
       seg-contents[cur-seg][cur-off] := elem;
-      adjust-stream-position(wrapper, +1);
+      adjust/grow-stream-position(wrapper, +1, grow: #f);
    else
-      adjust-inner-stream-position(wrapper);
+      set-inner-stream-position(wrapper);
       write-element(inner, elem);
-      if (wrapper.stream-at-end?)
-         // Don't want to grow inner stream trying to adjust wrapper position.
-         adjust-stream-position(wrapper, 0, from: #"end");
-      else
-         adjust-stream-position(wrapper, +1);
-      end if;
+      adjust/grow-stream-position(wrapper, +1, grow: #f);
    end if;
 end method;
 
 
 define method stream-at-end? (wrapper :: <replacing-stream>)
 => (at-end? :: <boolean>)
-   adjust-inner-stream-position(wrapper);
+   set-inner-stream-position(wrapper);
    wrapper.current-segment >= wrapper.segment-contents.size &
          wrapper.inner-stream.stream-at-end?;
 end method;
@@ -438,20 +424,29 @@ end method;
 define method stream-position-setter
    (position == #"start", wrapper :: <replacing-stream>)
 => (position :: <integer>)
-   adjust-stream-position(wrapper, 0, from: #"start");
+   adjust/grow-stream-position(wrapper, 0, from: #"start", grow: #f);
 end method;
 
 
 define method stream-position-setter
    (position == #"end", wrapper :: <replacing-stream>)
 => (position :: <integer>)
-   adjust-stream-position(wrapper, 0, from: #"end");
+   adjust/grow-stream-position(wrapper, 0, from: #"end", grow: #f);
 end method;
 
 
 define method adjust-stream-position
    (wrapper :: <replacing-stream>, delta :: <integer>,
     #key from :: one-of(#"current", #"start", #"end") = #"current")
+=> (new-position :: <integer>)
+   adjust/grow-stream-position(wrapper, delta, from: from)
+end method;
+
+
+define method adjust/grow-stream-position
+   (wrapper :: <replacing-stream>, delta :: <integer>,
+    #key from :: one-of(#"current", #"start", #"end") = #"current",
+         grow: grow? :: <boolean> = #t)
 => (new-position :: <integer>)
    let inner-limits = wrapper.inner-stream-limits;
    let seg-contents = wrapper.segment-contents;
@@ -470,54 +465,70 @@ define method adjust-stream-position
                values(seg-count, post-segment-size);
          end select;
    
-   while (delta ~= 0)
-      if (delta < 0)
-         if (cur-seg > 0)
-            // Move no further than just before segment.
-            let adj-size = min(cur-off + 1, -delta);
-            cur-off := cur-off - adj-size;
-            
-            // While before the start of the segment, move to prev segment.
-            // This also skips empty segments.
-            while (cur-off < 0 & cur-seg > 0)
-               cur-seg := cur-seg - 1;
-               cur-off := segment-size(wrapper, cur-seg) - 1;
-            end while;
-            
-            delta := delta + adj-size;
-         else
-            // This branch handles case where we move to before any wrapper
-            // stream content. Should signal error, if not, just move to start.
-            adjust-stream-position(inner, delta, from: #"start");
-            delta := 0;
-            cur-seg := 1;
-            cur-off := 0;
-         end if;
-      elseif (delta > 0)
-         if (cur-seg < seg-count)
-            // Move no further than just past segment.
-            let seg-size-left = segment-size(wrapper, cur-seg) - cur-off;
-            let adj-size = min(seg-size-left, delta);
-            cur-off := cur-off + adj-size;
-            
-            // While past end of the segment, move to next segment. This also
-            // skips empty segments.
-            while (cur-seg < seg-count & cur-off >= segment-size(wrapper, cur-seg))
-               cur-seg := cur-seg + 1;
-               cur-off := 0;
-            end while;
-
-            delta := delta - adj-size;
-         else
-            // After end of segments, can just delegate to inner stream.
-            adjust-inner-stream-position(
-                  wrapper, segment: cur-seg, offset: cur-off);
-            adjust-stream-position(inner, delta);
-            cur-off := cur-off + delta;
-            delta := 0;
-         end if;
+   if (delta = 0)
+      if (grow?)
+         // Even if delta was 0, adjust the inner stream position in case we are at
+         // the end of the inner stream and need to add a position.
+         set-inner-stream-position(wrapper);
+         adjust-stream-position(inner, 0);
       end if;
-   end while;
+   else
+      while (delta ~= 0)
+         if (delta < 0)
+            if (cur-seg > 0)
+               // Move no further than just before segment.
+               let adj-size = min(cur-off + 1, -delta);
+               cur-off := cur-off - adj-size;
+            
+               // While before the start of the segment, move to prev segment.
+               // This also skips empty segments.
+               while (cur-off < 0 & cur-seg > 0)
+                  cur-seg := cur-seg - 1;
+                  cur-off := segment-size(wrapper, cur-seg) - 1;
+               end while;
+            
+               delta := delta + adj-size;
+            else
+               // This branch handles case where we move to before any wrapper
+               // stream content. Should signal error, if not, just move to start.
+               if (grow?)
+                  adjust-stream-position(inner, delta, from: #"start")
+               else
+                  offset-inner-stream-position(wrapper, delta: delta);
+               end if;
+               delta := 0;
+               cur-seg := 1;
+               cur-off := 0;
+            end if;
+         elseif (delta > 0)
+            if (cur-seg < seg-count)
+               // Move no further than just past segment.
+               let seg-size-left = segment-size(wrapper, cur-seg) - cur-off;
+               let adj-size = min(seg-size-left, delta);
+               cur-off := cur-off + adj-size;
+            
+               // While past end of the segment, move to next segment. This also
+               // skips empty segments.
+               while (cur-seg < seg-count & cur-off >= segment-size(wrapper, cur-seg))
+                  cur-seg := cur-seg + 1;
+                  cur-off := 0;
+               end while;
+
+               delta := delta - adj-size;
+            else
+               // After end of segments, can just delegate to inner stream.
+               set-inner-stream-position(wrapper, segment: cur-seg, offset: cur-off);
+               if (grow?)
+                  adjust-stream-position(inner, delta);
+               else
+                  offset-inner-stream-position(wrapper, delta: delta);
+               end if;
+               cur-off := cur-off + delta;
+               delta := 0;
+            end if;
+         end if;
+      end while;
+   end if;
    
    // Even if delta was 0, ensure cur-seg/cur-off is a valid position or is at
    // end of stream, i.e., not past the end of a segment and not in empty segment.
@@ -534,17 +545,16 @@ end method;
 
 define method stream-size (wrapper :: <replacing-stream>)
 => (sz :: <integer>)
-   adjust-stream-position(wrapper.inner-stream, 0, from: #"end");
+   // Move to end of inner stream less 1 and read to reach actual end of stream.
+   // inner.stream-position := #"end" can give an error if stream does not have
+   // well-defined stream-limit.
+   adjust-stream-position(wrapper.inner-stream, -1, from: #"end");
+   read-element(wrapper.inner-stream);
    let last-seg-start = as(<integer>, wrapper.inner-stream-limits.last);
    let last-seg-end = as(<integer>, wrapper.inner-stream.stream-position);
    wrapper.segment-limits.last + (last-seg-end - last-seg-start)
 end method;
 
-
-/**
-Not sure what a stream limit is, but I think it is supposed to be the stream
-position at #"end".
-*/
 
 define inline method stream-limit (wrapper :: <replacing-stream>)
 => (limit :: <integer>)
@@ -647,21 +657,32 @@ define function position-from-segment
 end function;
 
 
-define function adjust-inner-stream-position
+define function set-inner-stream-position
    (wrapper :: <replacing-stream>,
     #key segment: cur-seg = wrapper.current-segment,
          offset: cur-off = wrapper.current-offset)
 => ()
-   let inner = wrapper.inner-stream;
-   let inner-limits = wrapper.inner-stream-limits;
-   let seg-contents = wrapper.segment-contents;
-   let seg-count = inner-limits.size;
+   let inner-start = wrapper.inner-stream-limits[cur-seg - 1];
+   offset-inner-stream-position(wrapper, origin: inner-start, delta: cur-off);
+end function;
 
-   let inner-start = inner-limits[cur-seg - 1];
-   inner.stream-position := inner-start;
-   adjust-stream-position(inner,
-         if (cur-seg < seg-count) min(cur-off, segment-size(wrapper, cur-seg))
-         else cur-off end if);
+
+define function offset-inner-stream-position
+   (wrapper :: <replacing-stream>,
+    #key origin = wrapper.inner-stream.stream-position,
+         delta :: <integer>)
+=> (new-position)
+   // Can't simply use adjust-stream-position because if we are moving to the
+   // end-of-stream position, it will attempt to grow the inner stream.
+   let inner = wrapper.inner-stream;
+   inner.stream-position := origin;
+   if (delta > 0)
+      adjust-stream-position(inner, delta - 1);
+      read-element(inner);
+   elseif (delta < 0)
+      adjust-stream-position(inner, delta);
+   end if;
+   inner.stream-position
 end function;
 
 

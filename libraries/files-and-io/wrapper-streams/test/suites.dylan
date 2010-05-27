@@ -110,5 +110,6 @@ define suite inner-position-suite ()
 end suite;
 
 define suite canonical-text-stream-suite ()
-   test cts-works;
+   test expansion-and-position;
+   test expansion-to-past-end;
 end suite;

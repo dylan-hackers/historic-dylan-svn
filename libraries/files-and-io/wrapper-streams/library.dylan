@@ -19,6 +19,7 @@ define module basic-wrapper-stream
    use common-extensions, exclude: { format-to-string };
    // from io
    use streams;
+   use format-out;
    
    export
       <basic-wrapper-stream>, 
@@ -33,6 +34,7 @@ define module replacing-stream
    use common-extensions, exclude: { format-to-string };
    // from io
    use streams;
+   use format-out;
    // from collection-extensions
    use vector-search;
 
@@ -50,6 +52,7 @@ define module canonical-text-stream
    use common-extensions, exclude: { format-to-string };
    // from io
    use streams;
+   use format-out;
    // from collection-extensions
    use vector-search;
 

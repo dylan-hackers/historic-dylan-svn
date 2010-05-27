@@ -197,8 +197,10 @@ define method ext-stream-position-setter
    let position = position - stream.stream-position-offset;
    if (position < 0 | position > stream.stream-size)
       position-range-error(stream);
+   elseif (position = stream.stream-size)
+      adjust-stream-position(stream, 0, from: #"end", grow: #f);
    else
-      adjust-stream-position(stream, position, from: #"start");
+      adjust-stream-position(stream, position, from: #"start", grow: #f);
    end if;
 end method;
 
@@ -207,7 +209,7 @@ define method ext-stream-position-setter
    (position == #"start", stream :: <sequence-stream>)
 => (position :: <integer>)
    check-stream-open(stream);
-   adjust-stream-position(stream, 0, from: #"start");
+   adjust-stream-position(stream, 0, from: #"start", grow: #f);
 end method;
 
 
@@ -215,7 +217,7 @@ define method ext-stream-position-setter
    (position == #"end", stream :: <sequence-stream>)
 => (position :: <integer>)
    check-stream-open(stream);
-   adjust-stream-position(stream, 0, from: #"end");
+   adjust-stream-position(stream, 0, from: #"end", grow: #f);
 end method;
 
 
@@ -226,7 +228,8 @@ end method;
 
 define method adjust-stream-position
    (stream :: <sequence-stream>, delta :: <integer>,
-    #key from :: one-of(#"current", #"start", #"end") = #"current")
+    #key from :: one-of(#"current", #"start", #"end") = #"current",
+         grow: grow? :: <boolean> = #t)
 => (new-position :: <integer>)
    // Compute position.
    let base-pos :: <integer> = 
@@ -238,11 +241,11 @@ define method adjust-stream-position
    let new-pos = base-pos + delta;
 
    // Grow stream if necessary.
-   if (new-pos > stream.stream-size)
+   if (grow? & new-pos >= stream.stream-size)
       if (stream.stream-direction = #"input")
          cannot-grow-error(stream);
       else
-         let grow-data = make(<vector>, size: new-pos - stream.stream-size,
+         let grow-data = make(<vector>, size: new-pos - stream.stream-size + 1,
                               fill: stream.stream-fill);
          replace-stream-elements(stream, grow-data);
       end if;
@@ -287,7 +290,7 @@ define method read-element
       ~stream.stream-at-end? =>
          let pos = stream.stream-position;
          let elem = stream.stream-storage[pos + stream.stream-start];
-         stream.stream-unread-from := adjust-stream-position(stream, +1);
+         stream.stream-unread-from := adjust-stream-position(stream, +1, grow: #f);
          elem;
       on-end-of-stream.supplied? =>
          on-end-of-stream;
@@ -437,7 +440,7 @@ end method;
 
 define method reset-stream (stream :: <sequence-stream>) => ()
    replace-stream-elements(stream, #[], start: 0, end: stream.stream-size);
-   adjust-stream-position(stream, 0, from: #"start");
+   adjust-stream-position(stream, 0, from: #"start", grow: #f);
 end method;
 
 

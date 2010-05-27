@@ -9,7 +9,7 @@ define test position-offset-test ()
          stream.stream-position);
    check-equal("size check", text.size + 30,
          stream.stream-size);
-   adjust-stream-position(stream, 0, from: #"end");
+   stream.stream-position := #"end";
    check-equal("end position check", text.size + 30,
          stream.stream-position);
 end test;
@@ -180,7 +180,7 @@ define test grow-test ()
    let text = as(<stretchy-vector>, "xxx");
    let stream = make(<sequence-stream>, element-type: <character>, fill: 'y',
                      direction: #"output", contents: text);
-   adjust-stream-position(stream, +3, from: #"end");
+   adjust-stream-position(stream, +2, from: #"end");
    check-equal("expected data check", "xxxyyy",
                stream-contents-as(<string>, stream));
 end test;

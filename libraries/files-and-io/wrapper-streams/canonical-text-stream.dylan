@@ -85,27 +85,31 @@ end method;
 define method stream-position-setter
    (position :: <integer>, cts :: <canonical-text-stream>)
 => (position :: <integer>)
-   cts.inner-stream.stream-position := position;
-   let new-pos = check-elements-to-stream-position(cts);
-   if (position ~= new-pos)
-      cts.inner-stream.stream-position := position;
+   if (position >= cts.inner-stream.stream-size)
+      cts.inner-stream.stream-position := #"end";
    else
-      position;
+      cts.inner-stream.stream-position := position;
    end if;
+   check-elements-to-stream-position(cts);
+   cts.inner-stream.stream-position := position
 end method;
 
 
 define method stream-position-setter
    (position == #"start", cts :: <canonical-text-stream>)
 => (position :: <integer>)
-   adjust-stream-position(cts, 0, from: #"start");
+   cts.inner-stream.stream-position := #"start";
+   cts.inner-stream.stream-position
 end method;
 
 
 define method stream-position-setter
    (position == #"end", cts :: <canonical-text-stream>)
 => (position :: <integer>)
-   adjust-stream-position(cts, 0, from: #"end");
+   cts.inner-stream.stream-position := #"end";
+   check-elements-to-stream-position(cts);
+   cts.inner-stream.stream-position := #"end";
+   cts.inner-stream.stream-position
 end method;
 
 

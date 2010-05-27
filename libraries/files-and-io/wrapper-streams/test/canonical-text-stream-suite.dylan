@@ -1,7 +1,8 @@
 module: wrapper-streams-tester
 author: Dustin Voss
 
-define test cts-works ()
+
+define test expansion-and-position ()
    let stream = make(<canonical-text-stream>, inner-stream: $tabbed-text-stream);
 
    stream.stream-position := 20;
@@ -25,4 +26,11 @@ define test cts-works ()
    check-equal("expl line check", 1, line);
    check-equal("expl col check", 4, col);
    check-equal("expl pos unchanged", 20, stream.stream-position);
+end test;
+
+
+define test expansion-to-past-end ()
+   let stream = make(<canonical-text-stream>, inner-stream: $tabbed-text-stream);
+   stream.stream-position := 40; // Beyond end of $tabbed-text-stream
+   check-equal("expected data check", 's', stream.read-element);
 end test;

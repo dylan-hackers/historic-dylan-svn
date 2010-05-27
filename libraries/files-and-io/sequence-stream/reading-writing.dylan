@@ -33,7 +33,7 @@ define method ext-unread-element
    if (stream.stream-position ~= stream.stream-unread-from)
       cannot-unread-error(stream)
    end if;
-   adjust-stream-position(stream, -1);
+   adjust-stream-position(stream, -1, grow: #f);
    stream.stream-storage[stream.stream-position + stream.stream-start]
 end method;
 
@@ -292,7 +292,7 @@ define method ext-write-element
       let idx = stream.stream-start + stream.stream-position;
       stream.stream-storage[idx] := elem;
    end if;
-   adjust-stream-position(stream, +1);
+   adjust-stream-position(stream, +1, grow: #f);
 end method;
    
 
@@ -347,7 +347,7 @@ define method ext-write
    end if;
    
    // Reset stream position.
-   adjust-stream-position(stream, coll-end-idx - coll-start-idx);
+   adjust-stream-position(stream, coll-end-idx - coll-start-idx, grow: #f);
 end method;
 
 
@@ -367,7 +367,7 @@ define method ext-write
    let stream-start-idx = stream.stream-position + stream.stream-start;
    let stream-end-idx = stream-start-idx + string-span;
    replace-stream-elements(stream, string, start: stream-start-idx, end: stream-end-idx);
-   adjust-stream-position(stream, string-span);
+   adjust-stream-position(stream, string-span, grow: #f);
 end method;
 
 
