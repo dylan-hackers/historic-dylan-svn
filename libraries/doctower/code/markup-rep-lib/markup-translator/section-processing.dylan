@@ -1,0 +1,92 @@
+module: markup-translator
+
+
+/**
+Synopsis: Section tokens.
+
+<link-directive-token> and <links-directive-token> are not included because they
+do not have content.
+**/
+define constant <section-token> =
+      type-union(<directive-section-token>, <titled-section-token>,
+                 <titled-directive-section-token>);
+
+
+/** [ditto <section-token>] **/
+define constant <directive-section-token> =
+      type-union(<paragraph-directive-token>, <division-directive-token>);
+      
+
+/** Syn: Make a blank section of the given type. **/
+define method make-directive-section
+   (section-type :: <symbol>, location :: <source-location>)
+=> (section :: <section>, setter :: <function>)
+   let (setter, section-id, section-title) =
+         select (section-type)
+            #"keywords" =>
+               values(keywords-section-setter, ":Keywords", "Make Keywords");
+            #"conditions" =>
+               values(conds-section-setter, ":Conditions", "Conditions");
+            #"arguments" =>
+               values(args-section-setter, ":Arguments", "Arguments");
+            #"values" =>
+               values(vals-section-setter, ":Values", "Values");
+         end select;
+   values(make(<section>, source-location: location,
+               id: section-id, title: title-seq(section-title)),
+          setter)
+end method;
+
+
+//
+// Processing sections
+//
+
+
+define method process-tokens
+   (section :: <section>,
+    token :: type-union(<titled-section-token>, <titled-directive-section-token>))
+=> ()
+   process-tokens(section, token.section-nickname);
+   process-tokens(section, token.section-title);
+   process-tokens(section, token.token-content);
+end method;
+
+
+define method process-tokens
+   (section :: <section>, token :: <topic-or-section-title-token>)
+=> ()
+   section.title-source-loc := token.token-src-loc;
+   with-dynamic-bindings (*default-quote-specs* = $default-title-quote-specs,
+                          *title-markup* = #t)
+      process-tokens(section.title, token.title-content);
+   end with-dynamic-bindings;
+   check-title(section);
+end method;
+
+
+define method process-tokens
+   (section :: <section>, token :: <directive-section-title-token>)
+=> ()
+   section.title-source-loc := token.token-src-loc;
+   add!(section.title, token.title-text);
+   check-title(section);
+end method;
+
+
+define method process-tokens
+   (section :: <section>, token :: <title-nickname-token>)
+=> ()
+   section.id-source-loc := token.token-src-loc;
+   section.id := token.token-text;
+   check-id(section);
+end method;
+
+
+/** Tokens other than those explicitly handled go into 'section.content'. **/
+define method process-tokens
+   (section :: <section>, token :: <token>)
+=> ()
+   process-tokens(section.content, token)
+end method;
+

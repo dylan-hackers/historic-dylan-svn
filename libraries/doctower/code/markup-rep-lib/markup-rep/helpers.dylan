@@ -8,32 +8,48 @@ define method make-limited-seq (type :: <type>, elements :: <sequence>)
 end method;
 
 
+/// Synopsis: Converts markup to a string. This can be done without resolving
+/// anything.
+define method stringify-markup (markup :: <markup-seq>) => (markup :: <string>)
+   stringify-part(markup)
+end method;
+
 /// Synopsis: Converts a title to a string. This can be done without resolving
 /// anything.
 define method stringify-title (title :: <title-seq>) => (title :: <string>)
-   stringify-title-part(title)
+   stringify-part(title)
 end method;
 
-define method stringify-title-part (string :: <string>) => (string :: <string>)
+
+define method stringify-part (string :: <string>) => (string :: <string>)
    string
 end method;
 
-define method stringify-title-part (char :: <character>) => (string :: <string>)
+define method stringify-part (char :: <character>) => (string :: <string>)
    as(<string>, char)
 end method;
 
-define method stringify-title-part (img :: <inline-image>) => (string :: <string>)
+define method stringify-part (img :: <inline-image>) => (string :: <string>)
    concatenate("[", img.alt-text | "img", "]")
 end method;
 
-define method stringify-title-part
-   (qt :: type-union(<emphasis>, <term-style>, <underline>, <italic>,
-                     <bold>, <cite>, <code-phrase>, <term>))
-=> (string :: <string>)
-   stringify-title-part(qt.text)
+define method stringify-part (conref :: <conref>) => (string :: <string>)
+   if (instance?(conref.target, <topic>) & conref.style = #"title")
+      stringify-title(conref.target.title)
+   else
+      ""
+   end if
 end method;
 
-define method stringify-title-part (entity :: <entity>) => (string :: <string>)
+define method stringify-part
+   (qt :: type-union(<emphasis>, <term-style>, <underline>, <italic>,
+                     <bold>, <cite>, <code-phrase>, <term>, <xref>,
+                     <api-name>, <parm-name>))
+=> (string :: <string>)
+   stringify-part(qt.text)
+end method;
+
+define method stringify-part (entity :: <entity>) => (string :: <string>)
    select (entity.code)
       #x2018, #x2019 => "'";
       #x201C, #x201C => "\"";
@@ -42,13 +58,14 @@ define method stringify-title-part (entity :: <entity>) => (string :: <string>)
    end select
 end method;
 
-define method stringify-title-part
+define method stringify-part
    (raw :: type-union(<html-content>, <dita-content>))
 => (string :: <string>)
    ""
 end method;
 
-define method stringify-title-part (seq :: <sequence>) => (string :: <string>)
-   let strings = map-as(<vector>, stringify-title-part, seq);
+define method stringify-part (seq :: <sequence>) => (string :: <string>)
+   let strings = map-as(<vector>, stringify-part, seq);
    apply(concatenate, "", strings)
 end method;
+

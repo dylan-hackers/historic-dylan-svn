@@ -132,15 +132,15 @@ define errors (<user-visible-warning>)
       location, names;
 
    05 qv-or-vi-in-title
-      "Title may not include quoted phrase options \"qv\" or \"vi\"",
+      "Title cannot include quoted phrase options \"qv\" or \"vi\"",
       location;
    
    06 doc-comment-on-virtual-slot
-      "Virtual slot may only be documented via its method or generic definition",
+      "Virtual slot can only be documented via its method or generic definition",
       location;
       
    07 doc-comment-on-binding-alias
-      "Alias of binding \"%s\" may not be individually documented",
+      "Alias of binding \"%s\" cannot be individually documented",
       location, alias-name;
    
    08 ambiguous-api-in-topics
@@ -152,32 +152,36 @@ define errors (<user-visible-warning>)
       "Fully qualified name \"%s\" is not present in source code; "
       "see --name-list file",
       location, qualified-name;
+   
+   10 unused-docs-in-topic
+      "Documentation replaces other documentation at %s",
+      location, doc-locations;
 end errors;
 
 
 define errors (<user-visible-error>)
    51 illegal-character-in-id
-      "Tag may not include space, slash, open bracket, or close bracket characters",
+      "Tag cannot include space, slash, open bracket, or close bracket characters",
       location;
 
    52 leading-colon-in-id
-      "Tag may not include a leading colon",
+      "Tag cannot include a leading colon",
       location;
 
    53 leading-colon-in-title
-      "Title may not include a leading colon",
+      "Title cannot include a leading colon",
       location;
 
    54 duplicate-section-in-topic
-      "Topic may only include one \"%s\" section",
+      "Topic can only include one \"%s\" section",
       location, section-type;
 
    55 illegal-section-in-topic
-      "Topic may not include \"%s\" section",
+      "Topic cannot include \"%s\" section",
       location, section-type;
 
    56 q-and-qq-in-spec
-      "Quoted phrase options may not include both \"q\" and \"qq\"",
+      "Quoted phrase options cannot include both \"q\" and \"qq\"",
       location;
 
    57 bad-syntax-in-toc-file
@@ -189,11 +193,11 @@ define errors (<user-visible-error>)
       location;
    
    59 parse-error-in-markup
-      "Unparsable markup, expected %s",
+      "Unparsable markup; expected %s",
       location, expected;
 
    60 parse-error-in-dylan
-      "Unparsable syntax, expected %s",
+      "Unparsable syntax; expected %s",
       location, expected;
 
    61 no-context-topic-in-block
@@ -285,4 +289,12 @@ define errors (<user-visible-error>)
    83 multiple-topics-for-api
       "Multiple topics for \"%s\" found at %s",
       location, name, topic-locations;
+   
+   84 topics-in-nontopic-markup
+      "Content cannot include topics at %s",
+      location, topic-locations;
+   
+   85 sections-in-nonsection-markup
+      "Content cannot include sections at %s",
+      location, section-locations;
 end errors;

@@ -4,6 +4,8 @@ define module template-files
    use common;
    // from template-engine
    use template-engine;
+   // from wrapper-streams
+   use canonical-text-stream;
    // from peg-parser
    use peg-parser,
       import: { <parse-failure>, parse-expected, parse-position, *parser-trace* };

@@ -22,15 +22,15 @@ define class <vi-xref> (<xref>)
 end class;
 
 define class <api-name> (<markup-element>)
-   slot text :: <string>;
+   slot text :: <string>, init-keyword: #"text";
 end class;
 
 define class <parm-name> (<markup-element>)
-   slot text :: <string>;
+   slot text :: <string>, init-keyword: #"text";
 end class;
 
 define class <term> (<markup-element>)
-   slot text;
+   slot text, init-keyword: #"text";
 end class;
 
 /// Synopsis: Like <emphasis>, this is a style that will be rendered as bold,
@@ -38,11 +38,11 @@ end class;
 /// for typographical quotes that are appropriately styled but not part of the
 /// actual term.
 define class <term-style> (<markup-element>)
-   slot text;
+   slot text, init-keyword: #"text";
 end class;
 
 define class <code-phrase> (<markup-element>)
-   slot text;
+   slot text, init-keyword: #"text";
 end class;
 
 define class <entity> (<markup-element>)
@@ -50,21 +50,21 @@ define class <entity> (<markup-element>)
 end class;
 
 define class <cite> (<markup-element>)
-   slot text;
+   slot text, init-keyword: #"text";
 end class;
 
 define class <bold> (<markup-element>)
-   slot text;
+   slot text, init-keyword: #"text";
 end class;
 
 define class <italic> (<markup-element>)
-   slot text;
+   slot text, init-keyword: #"text";
 end class;
 
 define class <underline> (<markup-element>)
-   slot text;
+   slot text, init-keyword: #"text";
 end class;
 
 define class <emphasis> (<markup-element>)
-   slot text;
+   slot text, init-keyword: #"text";
 end class;

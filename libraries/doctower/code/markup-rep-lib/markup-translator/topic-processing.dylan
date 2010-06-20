@@ -1,53 +1,10 @@
 module: markup-translator
 
+
 /** Synopsis: Topic tokens. **/
 define constant <topic-token> =
       type-union(<directive-topic-token>, <titled-topic-token>);
       
-/** [ditto <section-token>] **/
-define constant <directive-section-token> =
-      type-union(<paragraph-directive-token>, <division-directive-token>);
-      
-/**
-Synopsis: Section tokens.
-
-<link-directive-token> and <links-directive-token> are not included because they
-do not have content.
-**/
-define constant <section-token> =
-      type-union(<directive-section-token>, <titled-section-token>,
-                 <titled-directive-section-token>);
-
-
-/** Synopsis: Returns <topic>s from a markup block. **/
-define method topics-from-markup
-   (token :: <markup-content-token>, context-topic :: false-or(<topic>),
-    #key internal :: <boolean> = #f)
-=> (result :: <sequence>)
-   let topics = make(<stretchy-vector>);
-   
-   with-dynamic-bindings (*internal-markup* = internal)
-      unless (token.default-topic-content.empty?)
-         if (context-topic)
-            process-tokens(context-topic, token.default-topic-content);
-            add!(topics, context-topic)
-         else
-            let content = token.default-topic-content;
-            let loc = merge-file-source-locations
-                  (content.first.token-src-loc, content.last.token-src-loc);
-            no-context-topic-in-block(location: loc);
-         end if;
-      end unless;
-
-      topics := concatenate(topics, map(make-topic-from-token, token.token-topics));
-   
-      // TODO: Resolve markers and footnotes.
-      
-   end with-dynamic-bindings;
-   
-   topics
-end method;
-
 
 /**
 Generic Function: make-topic-from-token
@@ -72,46 +29,6 @@ define method make-topic-from-token (token :: <titled-topic-token>)
    let topic = make(<con-topic>, source-location: token.token-src-loc);
    process-tokens(topic, token);
    topic
-end method;
-
-
-/**
-Generic Function: process-tokens
---------------------------------
-Synopsis: Add a token into an intermediate object, merging if necessary.
-
-'Owner' could be the object itself or the value of some slot of the object. We
-don't call this method on the content slot of a topic, because 'tokens' may
-include things that affect the topic itself, and the topic isn't reachable
-from its content slot.
-
-Arguments:
-   owner - An intermediate object or content sequence.
-   tokens - The token or tokens to process and add to 'owner'.
-**/
-define generic process-tokens
-   (owner :: type-union(<markup-element>, <content-seq>, <markup-seq>,
-                        <title-seq>, <topic-content-seq>),
-    tokens :: type-union(<token>, <sequence>, singleton(#f)))
-=> ();
-
-
-/** A sequence of tokens is added to <markup-element>s individually. **/
-define method process-tokens
-   (owner :: type-union(<markup-element>, <content-seq>, <markup-seq>,
-                        <title-seq>, <topic-content-seq>),
-    tokens :: <sequence>)
-=> ()
-   do(curry(process-tokens, owner), tokens)
-end method;
-
-
-/** #f is ignored. **/
-define method process-tokens
-   (owner :: type-union(<markup-element>, <content-seq>, <markup-seq>,
-                        <title-seq>, <topic-content-seq>),
-    token == #f)
-=> ()
 end method;
 
 
@@ -265,20 +182,8 @@ define method process-tokens
          // TODO: Ensure user hasn't specified multiple of these, like we do
          // for #"synopsis". Should generalize check-no-shortdesc, maybe combine
          // with check-allowed-sections?
-         let (setter, section-id, section-title) =
-               select (section-token.directive-type)
-                  #"keywords" =>
-                     values(keywords-section-setter, ":Keywords", "Make Keywords");
-                  #"conditions" =>
-                     values(conds-section-setter, ":Conditions", "Conditions");
-                  #"arguments" =>
-                     values(args-section-setter, ":Arguments", "Arguments");
-                  #"values" =>
-                     values(vals-section-setter, ":Values", "Values");
-               end select;
-         let section = make(<section>, source-location: section-token.token-src-loc);
-         section.id := section-id;
-         section.title := title-seq(section-title);
+         let (section, setter) = make-directive-section
+               (section-token.directive-type, section-token.token-src-loc);
          process-tokens(section, section-token.token-content);
          setter(section, topic);
    end select;
@@ -347,56 +252,4 @@ define method process-tokens
    end select;
 end method;
 
-
-//
-// Processing sections
-//
-
-
-define method process-tokens
-   (section :: <section>,
-    token :: type-union(<titled-section-token>, <titled-directive-section-token>))
-=> ()
-   process-tokens(section, token.section-nickname);
-   process-tokens(section, token.section-title);
-   process-tokens(section, token.token-content);
-end method;
-
-
-define method process-tokens
-   (section :: <section>, token :: <topic-or-section-title-token>)
-=> ()
-   section.title-source-loc := token.token-src-loc;
-   with-dynamic-bindings (*default-quote-specs* = $default-title-quote-specs,
-                          *title-markup* = #t)
-      process-tokens(section.title, token.title-content);
-   end with-dynamic-bindings;
-   check-title(section);
-end method;
-
-
-define method process-tokens
-   (section :: <section>, token :: <directive-section-title-token>)
-=> ()
-   section.title-source-loc := token.token-src-loc;
-   add!(section.title, token.title-text);
-   check-title(section);
-end method;
-
-
-define method process-tokens
-   (section :: <section>, token :: <title-nickname-token>)
-=> ()
-   section.id-source-loc := token.token-src-loc;
-   section.id := token.token-text;
-   check-id(section);
-end method;
-
-
-/** Tokens other than those explicitly handled go into 'section.content'. **/
-define method process-tokens
-   (section :: <section>, token :: <token>)
-=> ()
-   process-tokens(section.content, token)
-end method;
 

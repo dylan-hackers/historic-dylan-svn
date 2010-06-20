@@ -1,0 +1,52 @@
+=======================================================================================
+Topic: {{mod.name}} Bindings and Unbound Names          [:Bindings({{mod.scope-name}})]
+=======================================================================================
+
+The {{mod.name}} module exports these bindings and unbound names:
+
+[LIST OF BINDINGS IN {{mod.scope-name}}]
+
+
+======================================================================
+Topic: {{mod.name}} Classes             [:Classes({{mod.scope-name}})]
+======================================================================
+
+The {{mod.name}} module exports these classes:
+
+[LIST OF CLASSES IN {{mod.scope-name}}]
+
+
+========================================================================
+Topic: {{mod.name}} Functions           [:Functions({{mod.scope-name}})]
+========================================================================
+
+The {{mod.name}} module exports these generic functions and methods:
+
+[LIST OF FUNCTIONS IN {{mod.scope-name}}]
+
+
+========================================================================================
+Topic: {{mod.name}} Constants and Variables             [:Variables({{mod.scope-name}})]
+========================================================================================
+
+The {{mod.name}} module exports these constants and variables:
+
+[LIST OF VARIABLES IN {{mod.scope-name}}]
+
+
+=====================================================================
+Topic: {{mod.name}} Macros              [:Macros({{mod.scope-name}})]
+=====================================================================
+
+The {{mod.name}} module exports these macros:
+
+[LIST OF MACROS IN {{mod.scope-name}}]
+
+
+======================================================================
+Topic: {{mod.name}} Unbound Names       [:Unbound({{mod.scope-name}})]
+======================================================================
+
+The {{mod.name}} module exports these unbound names:
+
+[LIST OF UNBOUND NAMES IN {{mod.scope-name}}]

@@ -1,6 +1,12 @@
 module: dylan-topics
 
 
+define function source-name-as-standardized-id (name :: <source-name>) => (id :: <string>)
+   let name-string = format-to-string("%s", name);
+   format-to-string("::%s", name-string.standardize-qualified-name).standardize-id
+end function;
+
+
 //
 // Standard form of canonical-name
 //
@@ -69,7 +75,8 @@ define method canonical-title
    if (method-params)
       let types = canonical-param-types(method-params, #f);
       let type-list = types.item-string-list | "";
-      let title = format-to-string("%s(%s)", defn.canonical-name.local-name, type-list);
+      let title = format-to-string("%s(%s)",
+            defn.canonical-name.local-name, type-list);
       title-seq(standardize-title(title))
    else
       next-method()

@@ -1,7 +1,7 @@
 The {{gen.name}} generic function.
 
 ----------------------------------------------
-Subheading: Definitions		[:Definitions]
+Subheading: Definitions         [:Definitions]
 ----------------------------------------------
 
 {{IF gen.definition? +}}
@@ -11,16 +11,18 @@ Defined in {{gen.source.filename}} line {{gen.source.line}}.
 {{IF gen.exports.size > 0 +}}
 Exported under these names:
 {{REPEAT WITH export IN gen.exports}}
-- {{export.name}} in '{{export.module.name}} module' [qv ::{{export.module.id}}]
-  in '{{export.library}} library'. [qv ::{{export.library.id}}]
+- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}]
+  in '{{export.library.name}}'. [qv {{export.library.id}}]
 {{+END+}}
 {{END}}
 
 ---------------------------------------------
-Subheading: Adjectives		[:Adjectives]
+Subheading: Adjectives          [:Adjectives]
 ---------------------------------------------
 
+{{IF gen.adjectives.size > 0 +}}
 '{{gen.adjectives}}' [code]
+{{END}}
 
 ----------
 Arguments:
@@ -28,38 +30,47 @@ Arguments:
 
 {{REPEAT WITH argument IN gen.required-arguments +}}
 '{{argument.name}}' [code] -
-	{{CASE argument.singleton? +}}
-	The object '{{argument.object}}'. [code]
-	{{CASE argument.type +}}
-	An instance of '{{argument.type.id}}'. [qv]
-	{{ELSE +}}
-	An object.
-	{{END+}}
+        {{CASE argument.singleton? +}}
+        The value '{{argument.object}}'. [code]
+        {{CASE argument.type.code? +}}
+        An instance of '{{argument.type.text}}'. [code]
+        {{CASE argument.type.link? +}}
+        An instance of '{{argument.type.text}}'. [qv]
+        {{ELSE +}}
+        An object.
+        {{+END}}
 {{END+}}
 {{REPEAT WITH argument IN gen.keyword-arguments +}}
 '{{argument.name}}:' [code] -
-	{{CASE argument.singleton? +}}
-	The object '{{argument.object}}'. [code]
-	{{CASE argument.type +}}
-	An instance of '{{argument.type.id}}'. [qv]
-	{{ELSE +}}
-	An object.
-	{{END+}}
-	{{IF argument.default? +}}
-	Defaults to '{{argument.default}}'. [code]
-	{{END+}}
+        {{CASE argument.singleton? +}}
+        The value '{{argument.object}}'. [code]
+        {{CASE argument.type.code? +}}
+        An instance of '{{argument.type.text}}'. [code]
+        {{CASE argument.type.link? +}}
+        An instance of '{{argument.type.text}}'. [qv]
+        {{ELSE +}}
+        An object.
+        {{END+}}
+        {{IF argument.default +}}
+        Defaults to '{{argument.default.text}}'. [code]
+        {{+END}}
 {{END+}}
 {{IF gen.rest-argument +}}
-'#rest {{gen.rest-argument.name}}' [code] -
-	{{IF gen.takes-keywords? +}}
-	Zero or more keyword/value pairs.
-	{{ELSE +}}
-	Zero or more arguments.
-	{{END +}}
-{{END +}}
-{{IF gen.all-keys-argument? +}}
+{{WITH argument = gen.rest-argument +}}
+'#rest {{argument.name}}' [code] -
+        {{CASE gen.takes-keywords? +}}
+        Zero or more keyword/value pairs.
+        {{ELSE +}}
+        Zero or more arguments.
+        {{+END}}
+{{+END+}}
+{{END+}}
+{{CASE gen.all-keys-argument? +}}
 '#all-keys' [code] -
-	This generic function accepts any keyword argument.
+        Methods of this generic function accept any keyword argument.
+{{CASE gen.takes-keywords? & gen.keyword-arguments.size = 0 +}}
+'#key' [code] -
+        Methods of this generic function accept keyword arguments.
 {{END}}
 
 -------
@@ -68,17 +79,27 @@ Values:
 
 {{REPEAT WITH value IN gen.required-values +}}
 '{{value.name}}' [code] -
-	{{CASE value.singleton? +}}
-	The object '{{value.object}}'. [code]
-	{{CASE value.type +}}
-	An instance of '{{value.type.id}}'. [qv]
-	{{ELSE +}}
-	An object.
-	{{END}}
-{{END +}}
+        {{CASE value.singleton? +}}
+        The value '{{value.object}}'. [code]
+        {{CASE value.type.code? +}}
+        An instance of '{{argument.type.text}}'. [code]
+        {{CASE value.type.link? +}}
+        An instance of '{{argument.type.text}}'. [qv]
+        {{ELSE +}}
+        An object.
+        {{+END}}
+{{END+}}
 {{IF gen.rest-value +}}
-'#rest {{gen.rest-value.name}}' [code] -
-	Zero or more values.
+{{WITH value = gen.rest-value +}}
+'#rest {{value.name}}' [code] -
+        {{CASE value.type.code? +}}
+        Zero or more instances of '{{value.type.text}}'. [code]
+        {{CASE gen.rest-value.type.link? +}}
+        Zero or more instances of '{{value.type.text}}'. [qv]
+        {{ELSE +}}
+        Zero or more values.
+        {{+END}}
+{{+END+}}
 {{END}}
 
 {{(*
@@ -88,9 +109,9 @@ Conditions:
 *)}}
 
 ------------------------------------------
-Subheading: Methods		[:Methods]
+Subheading: Methods             [:Methods]
 ------------------------------------------
 
 {{REPEAT WITH method in gen.methods +}}
-- '{method.ID}' [qv]
+- '{{method.id}}' [qv]
 {{END}}

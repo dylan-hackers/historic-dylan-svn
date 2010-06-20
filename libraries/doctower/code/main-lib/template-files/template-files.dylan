@@ -5,12 +5,15 @@ synopsis: Processes template files for dylan-topics to fill in.
 define variable $topic-template-path :: false-or(<directory-locator>) = #f;
 
 define constant $template-types = #[
-   #"all-libraries-topic",
-   #"all-modules-topic",
-   #"lib-modules-topic",
+   #"all-catalog-topics",
+   #"lib-catalog-topics",
+   #"mod-catalog-topics",
    #"library-topic",
    #"module-topic",
-   #"class-topic"
+   #"class-topic",
+   #"function-topic",
+   #"generic-topic",
+   #"method-topic"
 ];
 
 define variable *templates* :: <table> = make(<table>);
@@ -22,9 +25,11 @@ define method create-topic-templates () => ()
       let template-file = make(<file-locator>, directory: $topic-template-path,
             base: as(<string>, template-type), extension: "txt");
 
-      with-open-file (template-stream = template-file)
+      with-open-file (file = template-file)
+         let file-contents = make(<string-stream>, contents: file.stream-contents);
+         let template-text = make(<canonical-text-stream>, inner-stream: file-contents);
          block ()
-            *templates*[template-type] := make(<template>, document: template-stream);
+            *templates*[template-type] := make(<template>, document: template-text);
          exception (err :: <parse-failure>)
             error("Failed to parse template %s at %d: %s", template-file,
                   err.parse-position, err.parse-expected)

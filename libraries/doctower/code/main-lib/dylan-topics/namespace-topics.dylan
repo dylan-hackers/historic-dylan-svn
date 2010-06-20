@@ -1,4 +1,5 @@
 module: dylan-topics
+synopsis: Code to generate library and module topics.
 
 
 define method make-source-topics (defn :: <library>) 
@@ -15,10 +16,8 @@ define method make-source-topics (defn :: <library>)
    // Create body of generated topics.
    
    let vars = table(<case-insensitive-string-table>, "lib" => defn);
-   let topics = topics-from-template
-         (topic-template(#"library-topic"), generated-topic, vars);
-   let catalog-topics = topics-from-template
-         (topic-template(#"lib-modules-topic"), #f, vars);
+   let topics = topics-from-template(#"library-topic", generated-topic, vars);
+   let catalog-topics = topics-from-template(#"lib-catalog-topics", #f, vars);
    let topics = concatenate!(topics, catalog-topics);
 
    // Create authored topics.
@@ -59,8 +58,9 @@ define method make-source-topics (defn :: <module>)
    // Create body of generated topic.
    
    let vars = table(<case-insensitive-string-table>, "mod" => defn);
-   let topics = topics-from-template
-         (topic-template(#"module-topic"), generated-topic, vars);
+   let topics = topics-from-template(#"module-topic", generated-topic, vars);
+   let catalog-topics = topics-from-template(#"mod-catalog-topics", #f, vars);
+   let topics = concatenate!(topics, catalog-topics);
 
    // Create authored topics.
    
@@ -82,22 +82,5 @@ define method make-source-topics (defn :: <module>)
       topics := concatenate!(topics, file-topics);
    end when;
 
-   values(topics, #[])
-end method;
-
-
-//
-// Template unknown reexports
-//
-
-
-define method template-unknown-reexports (namespace :: <defined-namespace>) 
-=> (sources :: <sequence>)
-   sort(namespace.unknown-reexport-sources, test: sort-comparison-by-name);
-end method;
-
-
-define method template-unknown-reexports (namespace :: <undefined-namespace>)
-=> (sources :: <sequence>)
-   #[]
+   values(topics, catalog-topics)
 end method;

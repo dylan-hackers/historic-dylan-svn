@@ -151,6 +151,11 @@ define method print-object (o :: <init-arg>, s :: <stream>) => ()
       format(s, "type %=, ", o.type);
       pprint-newline(#"fill", s);
       format(s, "init-spec %=", o.init-spec);
+      unless (o.markup-tokens.empty?)
+         write(s, ", ");
+         pprint-newline(#"fill", s);
+         write(s, "docs");
+      end unless;
    end printing-logical-block;
 end method;   
 

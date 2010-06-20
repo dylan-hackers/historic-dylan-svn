@@ -280,7 +280,7 @@ define method class-inheritance-graph (bindings :: <sequence>)
 
    for (subclass-node in graph.nodes)
       let subclass = subclass-node.value;
-      if (subclass.valid-binding?)
+      if (subclass.explicit-defn)
          // Find classes that are superclasses of this class. 
          let superclass-nodes = choose-nodes(graph, rcurry(superclass-node?, subclass));
          let superclasses = map(value, superclass-nodes);
@@ -315,7 +315,7 @@ define method inherit-slots (apis :: <sequence>, inheritance :: <graph>)
       end for;
       
       // Second, from self.
-      if (class-binding.valid-binding?)
+      if (class-binding.explicit-defn)
          let self-getters = map(getter, class-binding.explicit-defn.slots);
          all-getters := concatenate!(all-getters, self-getters);
       end if;
@@ -351,7 +351,7 @@ define method inherit-init-args (apis :: <sequence>, inheritance :: <graph>)
       
       // Second, from class itself. If the class has multiple init args (from
       // several slot declarations), don't assign a type or init spec.
-      if (class-binding.valid-binding?)
+      if (class-binding.explicit-defn)
          let grouped-keywords = group-elements(class-binding.explicit-defn.init-args,
                test: same-keyword?);
          let class-keywords = map(

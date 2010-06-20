@@ -168,6 +168,6 @@ define class <function-doc> (<api-doc>)
    slot conds-section :: false-or(<section>) = #f;
 end class;
 
-define class <generic-doc> (<api-doc>)
+define class <generic-doc> (<function-doc>)
    slot methods-section :: false-or(<section>) = #f;
 end class;

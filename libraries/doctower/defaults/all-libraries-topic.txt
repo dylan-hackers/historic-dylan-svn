@@ -1,7 +1,0 @@
-============================================
-Topic: Library Reference        [:Libraries]
-============================================
-
-This package includes the following libraries:
-
-[LIST OF LIBRARIES]

@@ -149,6 +149,6 @@ begin
             exit-application($error-code);
          end method;
          
-   *default-line-length* := 120;
+   *default-line-length* := 132;
    main(application-name(), application-arguments());
 end

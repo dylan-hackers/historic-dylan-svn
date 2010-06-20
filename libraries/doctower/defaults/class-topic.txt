@@ -29,7 +29,7 @@ Make keywords:
 --------------
 
 {{REPEAT WITH keyword IN class.keywords +}}
-'{{keyword.name}}' [code] -
+'{{keyword.name}}:' [code] -
 	{{CASE keyword.type.code? +}}
 	An instance of '{{keyword.type.text}}'. [code]
 	{{CASE keyword.type.link? +}}
@@ -41,14 +41,8 @@ Make keywords:
 	Optional. Defaults to '{{keyword.default.text}}'. [code]
 	{{ELSE +}}
 	Required.
-	{{+END+}}
+	{{+END}}
 {{END}}
-
-{{(*
------------
-Conditions:
------------
-*)+}}
 
 -----------------------------------------------
 Subheading: Inheritable Slots	[:Inheritables]
@@ -85,7 +79,3 @@ Subheading: Functions returning {{class.name}}	[:FunctionsReturning]
 {{REPEAT WITH function IN class.functions-returning-class +}}
 - '{{function.id}}' [qv]
 {{END}}
-
-------------------------------------------
-Subheading: See also		[:SeeAlso]
-------------------------------------------

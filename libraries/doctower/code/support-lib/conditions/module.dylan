@@ -45,10 +45,13 @@ define module conditions
       parse-error-in-markup,
       q-and-qq-in-spec,
       qv-or-vi-in-title,
+      sections-in-nonsection-markup,
       skipped-level-in-toc-file,
       target-not-found-in-link,
+      topics-in-nontopic-markup,
       undefined-module-for-interchange-file,
       unparsable-expression-in-code,
       unsupported-syntax-in-code,
+      unused-docs-in-topic,
       ;
 end module;

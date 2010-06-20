@@ -90,7 +90,6 @@ end class;
 
 define class <key-param-list> (<param-list>)
    slot key-params :: <sequence> = make(<stretchy-vector> /* of <key-param> */);
-   // TODO: slot takes-keys? :: <boolean>
    slot all-keys? :: <boolean> = #f;
    slot rest-param :: false-or(<rest-param>) = #f;
 end class;

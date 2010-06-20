@@ -22,8 +22,8 @@ define module dylan-rep
          <class-slot>, <subclass-slot>, <virtual-slot>,
       <init-arg>,
       <param-list>, <fixed-param-list>, <key-param-list>, <var-param-list>,
-         <req-param>, <key-param>, <rest-param>,
-      <value-list>, <req-value>, <rest-value>,
+         <param>, <req-param>, <key-param>, <rest-param>,
+      <value-list>, <value>, <req-value>, <rest-value>,
       <sealed-domain>, <vendor-option>,
       <fragment>, <computed-constant>, <type-fragment>, <singleton-type-fragment>,
          <code-fragment>

@@ -12,5 +12,6 @@ define module common
           with-open-file, read-expected, read-lines-to-end,
           merge-file-source-locations, $unknown-source-location,
           item-string-list, group-elements, any-element,
+          add-row,
           <case-insensitive-skip-list>, case-insensitive-less?;
 end module;   

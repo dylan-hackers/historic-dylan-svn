@@ -152,11 +152,10 @@ define method stream-with-indentation (text :: <stream>)
          end if;
       end for;
       if (spaces-start)
-         // Remove spaces up to '\n.'
-         adjust-stream-position(stream, -1);
+         // Remove spaces up to '\n'. At this point, stream-position will be the
+         // character after '\n'.
          add-replacement-contents(stream, "", start: spaces-start,
-                                  end: stream.stream-position);
-         adjust-stream-position(stream, +1);
+                                  end: stream.stream-position - 1);
       end if;
    end until;
 

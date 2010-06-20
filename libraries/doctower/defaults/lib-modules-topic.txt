@@ -1,7 +1,0 @@
-==============================================================
-Topic: {{lib.name}} Modules	[:Modules({{lib.scope-name}})]
-==============================================================
-
-The {{lib.name}} library exports these modules:
-
-[LIST OF MODULES IN {{lib.scope-name}}]

@@ -103,7 +103,8 @@ define method parse-dylan-file (locator :: <file-locator>)
 => (token :: <interchange-file-token>)
    verbose-log("Parsing %s", locator);
    with-open-file (file = locator)
-      let text = make(<canonical-text-stream>, inner-stream: file);
+      let file-contents = make(<string-stream>, contents: file.stream-contents);
+      let text = make(<canonical-text-stream>, inner-stream: file-contents);
       block ()
          parse-dylan(text, curry(line-col-position, text, at:),
                      file.stream-locator);

@@ -1,80 +1,58 @@
 module: dylan-topics
+synopsis: Code to generate class topics.
 
 
 define method make-source-topics (binding :: <class-binding>) 
 => (topics :: <sequence>, catalog-topics :: <sequence>)
-   let generated-topic = make(<class-doc>, source-location: binding.source-location,
-         id: binding.canonical-id, title: binding.canonical-title, generated: #t,
-         existent-api: #t, qualified-name: binding.definition-qualified-name,
-         title-id-source-location: $generated-source-location,
-         qualified-name-source-location: $generated-source-location);
    
    // Create body of generated topic.
    
-   let vars = table(<case-insensitive-string-table>, "class" => binding);
-   let topics = topics-from-template
-         (topic-template(#"class-topic"), generated-topic, vars);
+   let generated-topic = make(<class-doc>, generated: #t, existent-api: #t,
+         id: binding.canonical-id, title: binding.canonical-title,
+         qualified-name: binding.definition-qualified-name,
+         source-location: binding.source-location,
+         title-id-source-location: $generated-source-location,
+         qualified-name-source-location: $generated-source-location);
 
+   let vars = table(<case-insensitive-string-table>, "class" => binding);
+   let topics = topics-from-template(#"class-topic", generated-topic, vars);
+         
    // Create authored topics.
    
-   unless (binding.markup-tokens.empty?)
-      let context-topic = make(<class-doc>, source-location: binding.source-location,
-            id: binding.canonical-id, title: binding.canonical-title, generated: #f,
-            qualified-name: binding.definition-qualified-name, existent-api: #t,
-            title-id-source-location: $generated-source-location,
-            qualified-name-source-location: $generated-source-location);
-      let authored-topics = make-authored-topics(binding.markup-tokens, context-topic);
-      topics := concatenate!(topics, authored-topics);
-   end unless;
+   let authored-topic = make(<class-doc>, generated: #f, existent-api: #t,
+         id: binding.canonical-id, title: binding.canonical-title,
+         qualified-name: binding.definition-qualified-name,
+         source-location: binding.source-location,
+         title-id-source-location: $generated-source-location,
+         qualified-name-source-location: $generated-source-location);
+
+   let authored-topics = make-authored-topics(binding.markup-tokens, authored-topic);
+   topics := concatenate!(topics, authored-topics);
+   
+   // Replace generated init-arg docs with individual init-arg markup.
+
+   if (binding.explicit-defn)
+      let init-arg-items = binding.explicit-defn.init-args;
+      let item-defn-list = generated-topic.keywords-section.defn-list;
+      if (item-defn-list)
+         replace-list-item-docs(item-defn-list, init-arg-items)
+      end if;
+      
+      // If there is init-arg documentation from individual init-args AND from
+      // the overall manually-authored class documentation, use the overall
+      // class documentation. That is more likely to be focused, since
+      // individual init-arg docs may only be intended for getters and setters.
+      if (~init-arg-items.empty? & authored-topic.keywords-section)
+         let tokens = init-arg-items.all-markup-tokens;
+         unused-docs-in-topic(location: authored-topic.keywords-section.source-location,
+               doc-locations: map(token-src-loc, tokens).item-string-list);
+      end if;
+   end if;
    
    values(topics, #[])
 end method;
 
 
-//
-// Template keyword processing
-//
-
-
-define method template-type (init-arg :: <init-arg>)
-=> (type :: false-or(<type-fragment>))
-   init-arg.type
+define method defn-list-item-label (init-arg :: <init-arg>) => (name :: <string>)
+   format-to-string("%s:", init-arg.symbol)
 end method;
-
-
-define method template-code? (type :: false-or(<type-fragment>))
-=> (code? :: <boolean>)
-   type & ~type.simple-name?
-end method;
-
-
-define method template-link? (type :: false-or(<type-fragment>))
-=> (link? :: <boolean>)
-   type & type.simple-name?
-end method;
-
-
-define method template-default (init-arg :: <init-arg>)
-=> (default :: false-or(<code-fragment>))
-   init-arg.init-spec
-end method;
-
-
-//
-// Template applicable and returning methods
-//
-
-
-define method template-funcs-on-class (defn :: <class-binding>)
-=> (funcs :: <sequence>)
-   // TODO: template-funcs-on-class
-   #[]
-end method;
-
-
-define method template-funcs-returning-class (defn :: <class-binding>)
-=> (funcs :: <sequence>)
-   // TODO: template-funcs-returning-class
-   #[]
-end method;
-

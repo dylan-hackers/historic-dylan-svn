@@ -108,6 +108,15 @@ define method group-elements
 end method;
 
 
+define method add-row (array :: <array>, #key count :: <integer> = 1)
+=> (new-array :: <array>)
+   let new-dimensions = array.dimensions.shallow-copy;
+   new-dimensions[0] := new-dimensions[0] + count;
+   let new-array = make(<array>, dimensions: new-dimensions);
+   map-into(new-array, identity, array)
+end method;
+
+
 /**
 Synopsis: Returns the first value of the element sequence.
 

@@ -14,5 +14,5 @@ define module markup-translator
    use name-processing;
    use configs;
    
-   export topics-from-markup;
+   export topics-from-markup, content-from-markup, make-directive-section;
 end module;

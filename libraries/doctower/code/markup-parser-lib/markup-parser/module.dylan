@@ -38,6 +38,9 @@ define module markup-parser
       <synopsis-ref-token>, <quote-token>, <quote-spec-token>,
       <text-word-token>, <link-word-token>, <api-ref-token>,
       <bracketed-render-span-token>;
+   
+   export
+      <topic-content-types>, <division-content-types>;
       
    export
       block-type, caption, close-quote, content, default-topic-content,

@@ -1,14 +1,26 @@
 module: dylan-topics
+synopsis: Entry point and overall control for dylan-topics module.
 
 
+/// Set by main.dylan when user wants a list of APIs.
 define variable $api-list-filename :: false-or(<file-locator>) = #f;
 
+/// Syn: Quick reference for referring to definitions by name.
 define constant *definitions* :: <equal-table> = make(<equal-table>);
 
 
 /**
-1. Generate automatically-generated topics for all APIs.
-2. Generate manually-authored topic content.
+Synopsis: Module entry point.
+
+In addition to conceptual topics and API reference topics, there are catalog
+topics. These are automatically-generated lists of all modules, classes, etc.,
+separate from the lists included in each library and module page. They are only
+included in the documentation when listed in the table of contents. If included,
+they act as parents for other topics.
+
+This function generates catalog topics and any other topics included in source
+code doc comments. And, since this function is going through all the APIs anyway,
+it also makes the API list file.
 **/
 define method topics-from-dylan (api-definitions :: <sequence>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
@@ -67,18 +79,22 @@ define method topics-from-dylan (api-definitions :: <sequence>)
    end when;
 
    // Generate global catalog topics.
-   let global-catalogs = #[ #"all-libraries-topic", #"all-modules-topic" ];
-   let no-vars = make(<case-insensitive-string-table>);
-   for (catalog-type in global-catalogs)
-      let new-topics = topics-from-template(topic-template(catalog-type), #f, no-vars);
-      topics := concatenate!(topics, new-topics);
-      catalog-topics := concatenate!(catalog-topics, new-topics);
-   end for;
+   let new-topics = topics-from-template
+         (#"all-catalog-topics", #f, make(<case-insensitive-string-table>));
+   topics := concatenate!(topics, new-topics);
+   catalog-topics := concatenate!(catalog-topics, new-topics);
    
    values(topics, catalog-topics)
 end method;
 
 
+/**
+Arguments:
+   definition  - The API representation to generate docs for; a <definition>.
+Values:
+   topics         - A sequence of <topic> objects.
+   catalog-topics - The subset of returned 'topics' that are catalog topics.
+**/
 define generic make-source-topics (definition :: <definition>)
 => (topics :: <sequence>, catalog-topics :: <sequence>);
 
@@ -88,7 +104,9 @@ define method make-authored-topics
 => (topics :: <sequence>)
    let topics-per-token = map(rcurry(topics-from-markup, context-topic), 
                               markup-content-tokens);
-   let topics = apply(concatenate, #[], topics-per-token);
+   let topics = if (context-topic) vector(context-topic)
+                else #[] end;
+   let topics = apply(concatenate, topics, topics-per-token);
 
    // If several markup tokens attach to the same context topic, the context
    // topic will be duplicated. This is unnecessary, so clear out duplicates.

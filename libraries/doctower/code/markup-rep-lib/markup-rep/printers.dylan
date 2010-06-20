@@ -13,7 +13,7 @@ define method print-object (o :: <topic>, s :: <stream>) => ()
          format(s, "%=", o.parent);
       end if;
       write(s, ", ");
-      pprint-newline(#"fill", s);
+      pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
    end printing-logical-block;
 end method;
@@ -33,7 +33,7 @@ define method print-object (o :: <api-doc>, s :: <stream>) => ()
          format(s, "%=", o.parent);
       end if;
       write(s, ", ");
-      pprint-newline(#"fill", s);
+      pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
       print-topic-section("definitions", o.definitions-section, s);
    end printing-logical-block;
@@ -54,7 +54,7 @@ define method print-object (o :: <library-doc>, s :: <stream>) => ()
          format(s, "%=", o.parent);
       end if;
       write(s, ", ");
-      pprint-newline(#"fill", s);
+      pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
       print-topic-section("definitions", o.definitions-section, s);
       print-topic-section("modules", o.modules-section, s);
@@ -76,7 +76,7 @@ define method print-object (o :: <module-doc>, s :: <stream>) => ()
          format(s, "%=", o.parent);
       end if;
       write(s, ", ");
-      pprint-newline(#"fill", s);
+      pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
       print-topic-section("definitions", o.definitions-section, s);
       print-topic-section("bindings", o.bindings-section, s);
@@ -98,10 +98,12 @@ define method print-object (o :: <class-doc>, s :: <stream>) => ()
          format(s, "%=", o.parent);
       end if;
       write(s, ", ");
-      pprint-newline(#"fill", s);
+      pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
       print-topic-section("definitions", o.definitions-section, s);
+      print-topic-section("adjectives", o.adjectives-section, s);
       print-topic-section("keywords", o.keywords-section, s);
+      print-topic-section("conds", o.conds-section, s);
       print-topic-section("inheritables", o.inheritables-section, s);
       print-topic-section("supers", o.supers-section, s);
       print-topic-section("subs", o.subs-section, s);
@@ -110,9 +112,60 @@ define method print-object (o :: <class-doc>, s :: <stream>) => ()
    end printing-logical-block;
 end method;
 
+define method print-object (o :: <function-doc>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      format(s, "function topic %=, ", o.title);
+      pprint-newline(#"fill", s);
+      format(s, "id %=, ", o.id);
+      pprint-newline(#"fill", s);
+      format(s, "fqn %=, ", o.fully-qualified-name);
+      pprint-newline(#"fill", s);
+      write(s, "parent ");
+      if (instance?(o.parent, <topic>))
+         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+      else
+         format(s, "%=", o.parent);
+      end if;
+      write(s, ", ");
+      pprint-newline(#"linear", s);
+      format(s, "content %=", o.content);
+      print-topic-section("definitions", o.definitions-section, s);
+      print-topic-section("adjectives", o.adjectives-section, s);
+      print-topic-section("args", o.args-section, s);
+      print-topic-section("vals", o.vals-section, s);
+      print-topic-section("conds", o.conds-section, s);
+   end printing-logical-block;
+end method;
+
+define method print-object (o :: <generic-doc>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      format(s, "generic topic %=, ", o.title);
+      pprint-newline(#"fill", s);
+      format(s, "id %=, ", o.id);
+      pprint-newline(#"fill", s);
+      format(s, "fqn %=, ", o.fully-qualified-name);
+      pprint-newline(#"fill", s);
+      write(s, "parent ");
+      if (instance?(o.parent, <topic>))
+         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+      else
+         format(s, "%=", o.parent);
+      end if;
+      write(s, ", ");
+      pprint-newline(#"linear", s);
+      format(s, "content %=", o.content);
+      print-topic-section("definitions", o.definitions-section, s);
+      print-topic-section("adjectives", o.adjectives-section, s);
+      print-topic-section("args", o.args-section, s);
+      print-topic-section("vals", o.vals-section, s);
+      print-topic-section("conds", o.conds-section, s);
+      print-topic-section("methods", o.methods-section, s);
+   end printing-logical-block;
+end method;
+
 define method print-topic-section (name :: <string>, section, s :: <stream>) => ()
    write(s, ", ");
-   pprint-newline(#"fill", s);
+   pprint-newline(#"linear", s);
    format(s, "%s ", name);
    case
       section & section.content.empty? => write(s, "empty");
@@ -125,7 +178,7 @@ define method print-object (o :: <section>, s :: <stream>) => ()
       format(s, "section %=, ", o.title);
       pprint-newline(#"fill", s);
       format(s, "id %=, ", o.id);
-      pprint-newline(#"fill", s);
+      pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
    end printing-logical-block;
 end method;
@@ -136,13 +189,13 @@ define method print-object
 => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
       write(s, select (o by instance?)
-                  <title-seq> => "title";
-                  <markup-seq> => "markup";
-                  <content-seq> => "section-content";
-                  <topic-content-seq> => "topic-content";
+                  <title-seq> => "title ";
+                  <markup-seq> => "markup ";
+                  <content-seq> => "section-content ";
+                  <topic-content-seq> => "topic-content ";
                end select);
       for (i in o)
-         format(s, " %=,", i);
+         format(s, "%=, ", i);
          pprint-newline(#"fill", s);
       end for;
    end printing-logical-block;
@@ -158,6 +211,10 @@ end method;
 
 define method print-object (o :: <footnote>, s :: <stream>) => ()
    format(s, "{footnote #%s %=}", o.index, o.content)
+end method;
+
+define method print-object (o :: <code-phrase>, s :: <stream>) => ()
+   format(s, "{code-phrase %=}", o.text)
 end method;
 
 define method print-object (o :: <xref>, s :: <stream>) => ()
@@ -193,13 +250,12 @@ define method print-object
 => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
       write(s, select (o by instance?)
-                  <ordered-list> => "ordered-list";
-                  <unordered-list> => "unordered-list";
+                  <ordered-list> => "ordered-list ";
+                  <unordered-list> => "unordered-list ";
                end select);
-      write-element(s, ' ');
       for (i in o.items)
          format(s, "%=, ", i);
-         pprint-newline(#"fill", s);
+         pprint-newline(#"linear", s);
       end for;
    end printing-logical-block;
 end method;
@@ -207,15 +263,14 @@ end method;
 define method print-object (o :: <defn-list>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
       write(s, select (o by instance?)
-                  <one-line-defn-list> => "one-line-defn-list";
-                  <many-line-defn-list> => "many-line-defn-list";
+                  <one-line-defn-list> => "one-line-defn-list ";
+                  <many-line-defn-list> => "many-line-defn-list ";
                end select);
-      write-element(s, ' ');
       for (i from 0 below dimension(o.items, 0))
          format(s, "%= => ", o.items[i, 0]);
          pprint-newline(#"fill", s);
          format(s, "%=, ", o.items[i, 1]);
-         pprint-newline(#"fill", s);
+         pprint-newline(#"linear", s);
       end for;
    end printing-logical-block;
 end method;

@@ -7,6 +7,7 @@ define module common-imports
    use dylan, export: all;
    use common-extensions, export: all,
       exclude: { format-to-string };
+   use simple-profiling, import: { profiling }, export: all;
    // from collections
    use table-extensions,
       rename: { case-insensitive-equal => case-insensitive-equal? },
