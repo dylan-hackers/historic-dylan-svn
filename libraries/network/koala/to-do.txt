@@ -1,6 +1,8 @@
 Koala To-Do List
 ----------------
 
+These are pretty random.  See also the bugzilla list.
+
 * Add command-line option --log so that Koala can be started up
   without doing any logging to stdout.  This should also be the
   place we log messages that are related to the server and not
@@ -37,12 +39,8 @@ Koala To-Do List
   sure the code in handler-top-level that uses that has actually
   been exercised.
 
-* xml-rpc-client sends Host header?
-
 * Change add-header to default to #"error", but figure out what's currently
   breaking first.
-
-* Make xml-rpc-client use http-client.
 
 * Make a combined test suite for all libraries that use http-common (directly
   or indirectly) so that it's possible to verify in one shot that you didn't
@@ -131,17 +129,13 @@ Kitchen Sink
 * Ability to specify a URL to be displayed when 404 errors occur.
   Should be per-directory.
 
-* Search sources for "---*** TODO" and do them.
+* Search sources for "TODO:" and do them.
 
 * Documentation.
-
-* mod_dylan for Apache?
 
 * A facility to generate .html files from .dsp files.  e.g., a way to
   "play back" all the .dsp doc files into .html.  Will only work for pages
   that don't require parameters.
-
-* Secure connections.  Have to finish implementing <ssl-tcp-server-socket>.
 
 * URL cleanups:
   - Use web locators instead of strings?  Not sure it would buy much.
@@ -170,3 +164,36 @@ Kitchen Sink
     Gwydion so it's easier to keep exports up-to-date.  So far only the
     response.dylan file uses it as an experiment to see how it looked.
 
+* Cleanup server core code.
+  - Server core
+    . Startup/shutdown
+    . Accept connections
+    . Basic request parsing
+    . Connection management
+    . Configuration?
+  - Pluggable request dispatch.  e.g., threaded, processes, async, or
+    even single threaded.
+    . <abstract-server>
+    .   <multi-threaded-server>
+    .   <multi-process-server>
+    .   <async-server>
+    . start-listener(<server>)
+    . stop-listeners(<server>)
+    . prepare-request(<stream>, <request>)  -- read headers, set URL head/tail fields
+    . dispatch-request(<server>, <request>) -- spawn thread, process, etc.
+    . respond-to(<web-resource>, <request>, <response>)
+    . Since <async-server> can't use thread variables, should not depend
+      on them for <multi-*-server> either.
+  - Request handler mapping is way too complex.  I like the Twisted
+    model of having a root resource and letting it manage dispatching
+    to its children, and so on.
+  - Sessions
+  - Virtual hosts
+    . Set of resources
+    . Document root doesn't apply; it's specified per <file-system-resource>.
+    . DSP root doesn't apply; it's specified per <dsp-resource>.
+    . <directory-policy> doesn't apply.  It becomes part of <file-system-resource>
+      which possibly shares a superclass with <dsp-resource>.
+  - Page context.  Only needed for dynamically generated responses.
+    Can mix in a <context-resource-mixin> class?
+  - Logging is too complex.
