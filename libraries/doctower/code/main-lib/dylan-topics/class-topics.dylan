@@ -31,22 +31,20 @@ define method make-source-topics (binding :: <class-binding>)
    
    // Replace generated init-arg docs with individual init-arg markup.
 
-   if (binding.explicit-defn)
-      let init-arg-items = binding.explicit-defn.init-args;
-      let item-defn-list = generated-topic.keywords-section.defn-list;
-      if (item-defn-list)
-         replace-list-item-docs(item-defn-list, init-arg-items)
-      end if;
-      
-      // If there is init-arg documentation from individual init-args AND from
-      // the overall manually-authored class documentation, use the overall
-      // class documentation. That is more likely to be focused, since
-      // individual init-arg docs may only be intended for getters and setters.
-      if (~init-arg-items.empty? & authored-topic.keywords-section)
-         let tokens = init-arg-items.all-markup-tokens;
-         unused-docs-in-topic(location: authored-topic.keywords-section.source-location,
-               doc-locations: map(token-src-loc, tokens).item-string-list);
-      end if;
+   let item-defn-list = generated-topic.keywords-section.defn-list;
+   if (item-defn-list)
+      replace-list-item-docs(item-defn-list, binding.effective-init-args)
+   end if;
+   
+   // If there is init-arg documentation from individual init-args AND from
+   // the overall manually-authored class documentation, use the overall
+   // class documentation. That is more likely to be focused, since
+   // individual init-arg docs may only be intended for getters and setters.
+   if (binding.explicit-defn & ~binding.explicit-defn.init-args.empty?
+         & authored-topic.keywords-section)
+      let tokens = binding.explicit-defn.init-args.all-markup-tokens;
+      unused-docs-in-topic(location: authored-topic.keywords-section.source-location,
+            doc-locations: map(token-src-loc, tokens).item-string-list);
    end if;
    
    values(topics, #[])

@@ -11,21 +11,7 @@ Defined in {{macro.source.filename}} line {{macro.source.line}}.
 {{IF macro.exports.size > 0 +}}
 Exported under these names:
 {{REPEAT WITH export IN macro.exports}}
-- {{export.name}} in '{{export.module.name}} module' [qv ::{{export.module.id}}]
-  in '{{export.library}} library'. [qv ::{{export.library.id}}]
+- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}] module
+  in '{{export.library.name}}' [qv {{export.library.id}}] library.
 {{+END+}}
 {{END}}
-
-{{(*
------------------------------------------
-Subheading: Syntax		[:Syntax]
------------------------------------------
-
-----------
-Arguments:
-----------
-
--------
-Values:
--------
-*)}}

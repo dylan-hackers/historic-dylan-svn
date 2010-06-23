@@ -8,7 +8,8 @@ files:      doctower-library
             dylan-topics/namespace-topics
             dylan-topics/class-topics
             dylan-topics/function-topics
-            dylan-topics/binding-helpers
+            dylan-topics/other-topics
+            dylan-topics/list-helpers
             dylan-topics/template-handling
             dylan-topics/names
             source-files/module

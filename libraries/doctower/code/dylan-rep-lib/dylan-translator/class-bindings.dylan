@@ -265,51 +265,117 @@ end method;
 //
 
 
-define method class-inheritance-graph (bindings :: <sequence>)
-=> (inheritance-graph :: <graph>)
-   local method superclass-node? (node :: <node>, subclass :: <class-binding>)
-         => (superclass? :: <boolean>)
-            let super-names = subclass.explicit-defn.direct-supers.simple-names;
-            let superclass :: <class-binding> = node.value;
-            any?(rcurry(member?, superclass.aliases, test:, \=), super-names)
-         end method;
-         
+/// Synopsis: Computes the class list sorted by inheritance depth, as well as
+/// each class's inheritance information.
+define method class-inheritance-list (bindings :: <sequence>)
+=> (class-list :: <sequence>)
    let class-bindings = choose(rcurry(instance?, <class-binding>), bindings);
    let graph = make(<graph>);
-   do(curry(make, <node>, graph:, graph, value:), class-bindings);
+   let class-table = make(<equal-table>);
+   for (binding :: <class-binding> in class-bindings)
+      make(<node>, graph: graph, value: binding);
+      do(curry(element-setter, binding, class-table), binding.aliases);
+   end for;
 
    for (subclass-node in graph.nodes)
       let subclass = subclass-node.value;
       if (subclass.explicit-defn)
          // Find classes that are superclasses of this class. 
-         let superclass-nodes = choose-nodes(graph, rcurry(superclass-node?, subclass));
-         let superclasses = map(value, superclass-nodes);
+         let superclass-names = remove-duplicates!
+               (subclass.explicit-defn.direct-supers.simple-names, test: \=);
+         let superclasses = map(curry(element, class-table), superclass-names);
+         let superclass-nodes = choose-nodes(graph,
+               method (node :: <node>) => (superclass-node? :: <boolean>)
+                  member?(node.value, superclasses)
+               end);
       
          // Connect this class to those classes.
          do(rcurry(connect, subclass-node), superclass-nodes);
-         subclass.effective-supers :=
-               remove-duplicates!(concatenate!(subclass.effective-supers, superclasses));
+         subclass.effective-supers := superclasses;
          for (superclass in superclasses)
-            superclass.effective-subs := add!(superclass.effective-subs, subclass)
+            superclass.effective-subs := add-new!(superclass.effective-subs, subclass)
          end for
       end if
    end for;
+   
+   if (~graph.acyclic?)
+      visit-cycles(graph, inheritance-cycle-error)
+   end if;
+   
+   let sorted-classes = map(value, sorted-graph(graph));
+   for (binding :: <class-binding> in sorted-classes)
+      binding.effective-cpl := compute-class-linearization(binding);
+   end for;
 
-   graph
+   sorted-classes
 end method;
 
 
-define method inherit-slots (apis :: <sequence>, inheritance :: <graph>)
+/// Adapted from DRM page 55.
+define function compute-class-linearization (c :: <class-binding>) => (cpl :: <list>)
+   let inconsistent-cpl? = #f;
+   local method merge-lists (reversed-partial-result :: <list>, remaining-inputs :: <sequence>)
+            if (every?(empty?, remaining-inputs))
+               reverse!(reversed-partial-result)
+            else
+               local method candidate (c :: <class-binding>)
+                        // returns c if it can go in the result now,
+                        // otherwise false
+                        local method head? (l :: <list>)
+                                 c == head(l)
+                              end method head?,
+                              method tail? (l :: <list>)
+                                 member?(c, tail(l))
+                              end method tail?;
+                        any?(head?, remaining-inputs) & ~any?(tail?, remaining-inputs) & c
+                     end method candidate,
+
+                     method candidate-direct-superclass (c :: <class-binding>)
+                        any?(candidate, c.effective-supers)
+                     end method candidate-direct-superclass;
+         
+               let next = any?(candidate-direct-superclass, reversed-partial-result);
+               if (next)
+                  local method remove-next (l :: <list>)
+                           if (head(l) == next) tail(l) else l end
+                        end method remove-next;
+                  merge-lists(pair(next, reversed-partial-result),
+                  map(remove-next, remaining-inputs))
+               else
+                  // In case of an inconsistent graph, just return what we've got.
+                  inconsistent-cpl? := #t;
+                  reverse!(reversed-partial-result)
+               end if
+            end if
+         end method merge-lists;
+
+   let c-direct-superclasses = c.effective-supers;
+
+   let result = merge-lists(list(c),
+         add(map(effective-cpl, c-direct-superclasses),
+             as(<list>, c-direct-superclasses)));
+   if (inconsistent-cpl?)
+      inconsistent-cpl(location: c.source-location)
+   end if;
+   result
+end function;
+
+
+define function inheritance-cycle-error (cycle :: <sequence>)
+   let classes = map(value, cycle);
+   circular-class-inheritance(location: classes.first.source-location,
+         defn-locations: map(source-location, classes).item-string-list);
+end function;
+
+
+define method inherit-slots (apis :: <sequence>, sorted-classes :: <sequence>)
 => ()
-   // Order classes by inheritance, deepest last. Determine getters for each.
-   let sorted-classes = sorted-graph(inheritance);
-   for (class-node in sorted-classes)
-      let class-binding = class-node.value;
+   // Determine getters for each class, deepest inheritance last.
+   for (class-binding :: <class-binding> in sorted-classes)
       let all-getters = make(<stretchy-vector>);
       
       // First, from superclasses.
-      let class-supers = map(compose(value, edge-source), class-node.incoming-edges);
-      for (class-super :: <class-binding> in class-supers)
+      for (class-super :: <class-binding> in class-binding.effective-supers)
          let super-getters = class-super.effective-slots;
          all-getters := concatenate!(all-getters, super-getters);
       end for;
@@ -325,7 +391,7 @@ define method inherit-slots (apis :: <sequence>, inheritance :: <graph>)
 end method;
 
 
-define method inherit-init-args (apis :: <sequence>, inheritance :: <graph>)
+define method inherit-init-args (apis :: <sequence>, sorted-classes :: <sequence>)
 => ()
    let make-binding :: <generic-binding> = $dylan-module.definitions["Make"];
    let initialize-binding :: <generic-binding> = $dylan-module.definitions["Initialize"];
@@ -335,10 +401,8 @@ define method inherit-init-args (apis :: <sequence>, inheritance :: <graph>)
             case-insensitive-equal?(init1.symbol, init2.symbol)
          end method;
    
-   // Order classes by inheritance, deepest last. Determine init-args for each.
-   let sorted-classes = sorted-graph(inheritance);
-   for (class-node in sorted-classes)
-      let class-binding = class-node.value;
+   // Determine init-args for each class, deepest inheritance last.
+   for (class-binding :: <class-binding> in sorted-classes)
       let all-keywords = make(<stretchy-vector>);
 
       // First, from "make".
@@ -368,20 +432,18 @@ define method inherit-init-args (apis :: <sequence>, inheritance :: <graph>)
       end if;
       
       // Third, from superclasses.
-      let class-supers = map(compose(value, edge-source), class-node.incoming-edges);
-      for (class-super in class-supers)
+      for (class-super in class-binding.effective-supers)
          let keywords = class-super.effective-init-args;
          all-keywords := concatenate!(all-keywords, keywords);
       end for;
       
-      // Fourth, from "initialize". TODO: This should search up the inheritance
-      // hierarchy, since "initialize" should always call "next-method".
-      let applicable-initialize :: false-or(<implicit-generic-defn>)
-            = applicable-method(initialize-binding, class-binding);
-      if (applicable-initialize)
+      // Fourth, from "initialize" and superclasses' "initialize".
+      let applicable-initialize-list
+            = applicable-method-list(initialize-binding, class-binding);
+      for (applicable-initialize in applicable-initialize-list)
          let keywords = keywords-as-init-args(applicable-initialize);
          all-keywords := concatenate!(all-keywords, keywords);
-      end if;
+      end for;
       
       // Merge duplicate init-args, keeping type and init-spec from first of above.
       let grouped-keywords = group-elements(all-keywords, test: same-keyword?);
@@ -415,7 +477,58 @@ define method merge-init-args (init1 :: <init-arg>, init2 :: <init-arg>)
          symbol: init1.symbol);
    new-init.type := init1.type | init2.type;
    new-init.init-spec := init1.init-spec | init2.init-spec;
+   new-init.markup-tokens :=
+         if (init1.markup-tokens.empty?)
+            init2.markup-tokens
+         else
+            init1.markup-tokens
+         end if;
    new-init
+end method;
+
+
+/// Synopsis: Compute functions on and returning each class.
+define method note-class-functions (apis :: <sequence>, sorted-classes :: <sequence>)
+=> ()
+   let functions = choose(rcurry(instance?, type-union(<generic-binding>, <function-binding>)),
+                          apis);
+   for (class-binding :: <class-binding> in sorted-classes)
+      for (func :: type-union(<generic-binding>, <function-binding>) in functions)
+         let added-func-on? = #f;
+         let added-func-returning? = #f;
+         for (defn in func.all-defns, until: added-func-on? & added-func-returning?)
+            if (~added-func-on? & func-defn-applicable?(defn, class-binding))
+               class-binding.functions-on-class :=
+                     add!(class-binding.functions-on-class, func);
+               added-func-on? := #t;
+            end if;
+            if (~added-func-returning? & func-defn-returns?(defn, class-binding))
+               class-binding.functions-returning-class :=
+                     add!(class-binding.functions-returning-class, func);
+               added-func-returning? := #t;
+            end if
+         end for
+      end for
+   end for
+end method;
+
+
+define method applicable-method-list (gen :: <generic-binding>, cls :: <class-binding>)
+=> (methods :: <sequence>)
+   let dylan-object = $dylan-module.definitions["<Object>"];
+   let methods = make(<stretchy-vector>);
+   iterate next-class (rest = cls.effective-cpl)
+      unless (rest.empty?)
+         let meth = applicable-method(gen, rest.head);
+         if (meth)
+            methods := add!(methods, meth);
+            next-class(rest.tail);
+         elseif (rest.head ~= dylan-object)
+            next-class(list(dylan-object))
+         end if;
+      end unless;
+   end iterate;
+   methods
 end method;
 
 
@@ -423,17 +536,52 @@ define method applicable-method (gen :: <generic-binding>, cls :: <class-binding
 => (defn :: false-or(<implicit-generic-defn>))
    block (found)
       for (defn :: <implicit-generic-defn> in gen.implicit-defns)
-         let first-param = element(defn.param-list.req-params, 0, default: #f);
-         if (first-param)
-            let first-type :: <fragment> = first-param.type;
-            if (instance?(first-type, <singleton-type-fragment>))
-               first-type := first-type.singleton-expr;
-            end if;
-            
-            let first-name = first-type.simple-name? & first-type.fragment-names.first;
-            if (first-name & member?(first-name, cls.aliases, test: \=))
-               found(defn)
-            end if
+         if (func-defn-applicable?(defn, cls))
+            found(defn)
+         end if
+      end for
+   end block
+end method;
+
+
+define method func-defn-applicable?
+   (defn :: type-union(<explicit-generic-defn>, <implicit-generic-defn>,
+                       <explicit-function-defn>),
+    cls :: <class-binding>)
+=> (applicable? :: <boolean>)
+   block (found)
+      for (param :: <req-param> in defn.param-list.req-params)
+         let type :: false-or(<fragment>) = param.type;
+         if (instance?(type, <singleton-type-fragment>))
+            type := type.singleton-expr;
+         end if;
+         let name = type & type.simple-name? & type.fragment-names.first;
+         if (name & member?(name, cls.aliases, test: \=))
+            found(#t)
+         end if
+      end for
+   end block
+end method;
+
+
+define method func-defn-returns?
+   (defn :: type-union(<explicit-generic-defn>, <implicit-generic-defn>,
+                       <explicit-function-defn>),
+    cls :: <class-binding>)
+=> (returns? :: <boolean>)
+   block (found)
+      let vals = defn.value-list.req-values;
+      if (defn.value-list.rest-value)
+         vals := add(vals, defn.value-list.rest-value);
+      end if;
+      for (val :: <value> in vals)
+         let type :: false-or(<type-fragment>) = val.type;
+         if (instance?(type, <singleton-type-fragment>))
+            type := type.singleton-expr;
+         end if;
+         let name = type & type.simple-name? & type.fragment-names.first;
+         if (name & member?(name, cls.aliases, test: \=))
+            found(#t)
          end if
       end for
    end block

@@ -1,25 +1,17 @@
-==============================
-Topic: {Name}	[::{Topic ID}]
-==============================
-
-The unbound name {Name}.
+The {{unbound.name}} unbound name. Modules may import this name and define it.
 
 ----------------------------------------------
 Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
-{IF definition?}
-Defined in {source filename} line {source line}.
-{ENDIF}
+{{IF unbound.definition? +}}
+Defined in {{unbound.source.filename}} line {{unbound.source.line}}.
+{{END}}
 
-{IF exports?}
+{{IF unbound.exports.size > 0 +}}
 Exported under these names:
-{EACH export}
-- {Export name} in '{Export module} module' [qv ::{Export module ID}] in
-  '{Export library} library'. [qv ::{Export library ID}]
-{ENDEACH}
-{ENDIF}
-
-------------------------------------------
-Subheading: See also		[:SeeAlso]
-------------------------------------------
+{{REPEAT WITH export IN unbound.exports}}
+- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}] module
+  in '{{export.library.name}}' [qv {{export.library.id}}] library.
+{{+END+}}
+{{END}}

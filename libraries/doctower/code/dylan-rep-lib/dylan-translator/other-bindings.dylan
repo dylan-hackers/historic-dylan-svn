@@ -57,14 +57,8 @@ define method make-defined-bindings
       bindings
    else
       make-defined-var/const-bindings(context, local-name, type-frag, value-frag,
-            <explicit-variable-defn>, <variable-binding>, token);
+            <explicit-constant-defn>, <constant-binding>, token);
    end if
-end method;
-
-
-define method make-const-alias-bindings
-   (context :: <context>, token :: <constant-definer-token>)
-=> (bindings :: <sequence>)
 end method;
 
 

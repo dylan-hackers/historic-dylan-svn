@@ -36,9 +36,10 @@ define method apis-from-dylan (file-sets :: <sequence>)
    visit-type-fragments(definitions, make-singleton-type-fragment);
    
    // Analyze definitions and fill in class information for templates.
-   let class-graph = class-inheritance-graph(definitions);
-   inherit-slots(definitions, class-graph);
-   inherit-init-args(definitions, class-graph);
+   let class-list = class-inheritance-list(definitions);
+   inherit-slots(definitions, class-list);
+   inherit-init-args(definitions, class-list);
+   note-class-functions(definitions, class-list);
 
    definitions
 end method;

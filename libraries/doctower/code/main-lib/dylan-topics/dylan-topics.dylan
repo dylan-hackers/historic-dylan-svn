@@ -104,9 +104,7 @@ define method make-authored-topics
 => (topics :: <sequence>)
    let topics-per-token = map(rcurry(topics-from-markup, context-topic), 
                               markup-content-tokens);
-   let topics = if (context-topic) vector(context-topic)
-                else #[] end;
-   let topics = apply(concatenate, topics, topics-per-token);
+   let topics = apply(concatenate, #[], topics-per-token);
 
    // If several markup tokens attach to the same context topic, the context
    // topic will be duplicated. This is unnecessary, so clear out duplicates.

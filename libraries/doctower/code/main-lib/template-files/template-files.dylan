@@ -13,7 +13,11 @@ define constant $template-types = #[
    #"class-topic",
    #"function-topic",
    #"generic-topic",
-   #"method-topic"
+   #"method-topic",
+   #"constant-topic",
+   #"variable-topic",
+   #"macro-topic",
+   #"unbound-topic"
 ];
 
 define variable *templates* :: <table> = make(<table>);

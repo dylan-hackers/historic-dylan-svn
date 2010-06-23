@@ -163,6 +163,29 @@ define method print-object (o :: <generic-doc>, s :: <stream>) => ()
    end printing-logical-block;
 end method;
 
+define method print-object (o :: <variable-doc>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      format(s, "variable topic %=, ", o.title);
+      pprint-newline(#"fill", s);
+      format(s, "id %=, ", o.id);
+      pprint-newline(#"fill", s);
+      format(s, "fqn %=, ", o.fully-qualified-name);
+      pprint-newline(#"fill", s);
+      write(s, "parent ");
+      if (instance?(o.parent, <topic>))
+         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+      else
+         format(s, "%=", o.parent);
+      end if;
+      write(s, ", ");
+      pprint-newline(#"linear", s);
+      format(s, "content %=", o.content);
+      print-topic-section("definitions", o.definitions-section, s);
+      print-topic-section("adjectives", o.adjectives-section, s);
+      print-topic-section("value", o.value-section, s);
+   end printing-logical-block;
+end method;
+
 define method print-topic-section (name :: <string>, section, s :: <stream>) => ()
    write(s, ", ");
    pprint-newline(#"linear", s);

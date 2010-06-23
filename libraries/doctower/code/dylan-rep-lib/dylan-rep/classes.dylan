@@ -7,10 +7,13 @@ define class <class-binding> (<binding>)
       init-keyword: #"explicit";
 
    /// Sequence of <class-binding> comprising direct superclass list.
-   slot effective-supers :: <sequence> = make(<stretchy-vector>);
+   slot effective-supers :: <sequence> = #[];
 
    /// Sequence of <class-binding> comprising direct subclass list.
    slot effective-subs :: <sequence> = make(<stretchy-vector>);
+   
+   /// Sequence of <class-binding> that is the class precedence list.
+   slot effective-cpl :: <list> = #();
 
    /// Slot getters in this class, including from superclasses. Sequence of
    /// <generic-binding>.
@@ -19,6 +22,14 @@ define class <class-binding> (<binding>)
    /// Initialization keywords defined by "slot" and "keyword" clauses and "make"
    /// and "initialize" methods, including from superclasses. Sequence of <init-arg>.
    slot effective-init-args :: <sequence> = make(<stretchy-vector>);
+   
+   /// Sequence of <generic-binding> or <function-binding> that has this class
+   /// as a value type.
+   slot functions-returning-class :: <sequence> = make(<stretchy-vector>);
+   
+   /// Sequence of <generic-binding> or <function-binding> that has this class
+   /// as an argument type.
+   slot functions-on-class :: <sequence> = make(<stretchy-vector>);
 end class;
 
 

@@ -283,7 +283,7 @@ define errors (<user-visible-error>)
       location, name, defn-locations;
    
    82 circular-definition
-      "Circular dependency for \"%s\" between %s",
+      "Circular dependency for \"%s\" among %s",
       location, name, defn-locations;
 
    83 multiple-topics-for-api
@@ -297,4 +297,12 @@ define errors (<user-visible-error>)
    85 sections-in-nonsection-markup
       "Content cannot include sections at %s",
       location, section-locations;
+   
+   86 inconsistent-cpl
+      "Superclasses cannot be determined; inconsistent class precedence list",
+      location;
+   
+   87 circular-class-inheritance
+      "Circular inheritance among %s",
+      location, defn-locations;
 end errors;

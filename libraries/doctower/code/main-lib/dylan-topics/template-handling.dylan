@@ -24,8 +24,8 @@ define constant $template-ops = table(<case-insensitive-string-table>,
       "definition?" => template-definition?,
       "exports" => template-exports,
       "filename" => source-file,
-      "functions-on-class" => template-funcs-on-class,
-      "functions-returning-class" => template-funcs-returning-class,
+      "functions-on-class" => functions-on-class,
+      "functions-returning-class" => functions-returning-class,
       "id" => template-id,
       "inheritable-getters" => effective-slots,
       "keyword-arguments" => template-keyword-arguments,
@@ -49,8 +49,9 @@ define constant $template-ops = table(<case-insensitive-string-table>,
       "superclasses" => effective-supers,
       "takes-keywords?" => template-takes-keywords?,
       "text" => template-text,
-      "type" => type,
+      "type" => template-type,
       "unknown-reexports" => template-unknown-reexports,
+      "value" => template-value
       );
 
 
@@ -113,6 +114,19 @@ end method;
 //
 // Types
 // 
+
+
+define method template-type (obj :: <object>)
+=> (type :: false-or(<type-fragment>))
+   obj.type
+end method;
+
+
+define method template-type
+   (const/var :: type-union(<constant-binding>, <variable-binding>))
+=> (type :: false-or(<type-fragment>))
+   const/var.explicit-defn.type
+end method;
 
 
 define method template-code? (type :: false-or(<type-fragment>))
@@ -253,6 +267,18 @@ end method;
 
 
 //
+// Constants and variables
+//
+
+
+define method template-value
+   (const/var :: type-union(<constant-binding>, <variable-binding>))
+=> (value :: false-or(<computed-constant>))
+   const/var.explicit-defn & const/var.explicit-defn.value
+end method;
+
+
+//
 // Keyword defaults
 //
 
@@ -266,25 +292,6 @@ end method;
 define method template-default (func-arg :: <key-param>)
 => (default :: false-or(<code-fragment>))
    func-arg.expr
-end method;
-
-
-//
-// Functions on and returning class
-//
-
-
-define method template-funcs-on-class (defn :: <class-binding>)
-=> (funcs :: <sequence>)
-   // TODO: template-funcs-on-class
-   #[]
-end method;
-
-
-define method template-funcs-returning-class (defn :: <class-binding>)
-=> (funcs :: <sequence>)
-   // TODO: template-funcs-returning-class
-   #[]
 end method;
 
 

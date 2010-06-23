@@ -11,8 +11,8 @@ Defined in {{func.source.filename}} line {{func.source.line}}.
 {{IF func.exports.size > 0 +}}
 Exported under these names:
 {{REPEAT WITH export IN func.exports}}
-- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}]
-  in '{{export.library.name}}'. [qv {{export.library.id}}]
+- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}] module
+  in '{{export.library.name}}' library. [qv {{export.library.id}}]
 {{+END+}}
 {{END}}
 

@@ -11,8 +11,8 @@ Defined in {{const.source.filename}} line {{const.source.line}}.
 {{IF const.exports.size > 0 +}}
 Exported under these names:
 {{REPEAT WITH export IN const.exports}}
-- {{export.name}} in '{{export.module.name}} module' [qv ::{{export.module.id}}]
-  in '{{export.library}} library'. [qv ::{{export.library.id}}]
+- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}] module
+  in '{{export.library.name}}' [qv {{export.library.id}}] library.
 {{+END+}}
 {{END}}
 
@@ -20,11 +20,20 @@ Exported under these names:
 Subheading: Adjectives	        [:Adjectives]
 ---------------------------------------------
 
+{{IF const.adjectives.size > 0 +}}
 '{{const.adjectives}}' [code]
+{{END}}
 
 ----------------------------------------
 Subheading: Type and value	[:Value]
 ----------------------------------------
 
-An instance of '{{const.type.id}}' [qv] initialized to '{{const.value}}'. [code]
-
+{{IF const.value}}
+{{+ CASE const.type.code? +}}
+An instance of '{{const.type.text}}' [code]
+{{+ CASE const.type.link? +}}
+An instance of '{{const.type.text}}' [qv]
+{{+ ELSE +}}
+An object
+{{+END}} initialized to '{{const.value.text}}'. [code]
+{{+END}}
