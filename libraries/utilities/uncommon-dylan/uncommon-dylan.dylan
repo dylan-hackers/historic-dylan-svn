@@ -285,12 +285,6 @@ define method value-sequence
   v
 end;
 
-define method has-key?
-    (collection :: <explicit-key-collection>, key :: <object>)
- => (has-it? :: <boolean>)
-  element(collection, key, default: $unfound) = $unfound
-end method has-key?;
-
 // copy-table?
 
 // Count the number of occurrances of item in collection, as determined

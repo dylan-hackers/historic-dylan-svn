@@ -5,6 +5,7 @@ files:	library
 	urls
 	vhost
 	response
+	content-negotiation
 	static-files
 	cgi
 	server

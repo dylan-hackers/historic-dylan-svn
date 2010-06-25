@@ -122,21 +122,56 @@ end quote-html;
 define class <media-type> (<attributes-mixin>, <mime-type>)
 end;
 
+define method print-object
+    (mt :: <media-type>, stream :: <stream>) => ()
+  format(stream, "<media-type %s/%s", mt.mime-type, mt.mime-subtype);
+  for (value keyed-by key in mt.attributes)
+    format(stream, "; %s=%s", key, value);
+  end;
+  write(stream, ">");
+end;
+
+define method as
+    (class :: subclass(<string>), mt :: <media-type>) => (s :: <string>)
+  with-output-to-string(s)
+    print-object(mt, s)
+  end
+end;
+
 define constant $mime-wild :: <byte-string> = "*";
 
-// This method isn't in the MIME library because wildcards for type and
-// subtype aren't supported by MIME; only by HTTP.
-//
-define method mime-types-match?
-    (type1 :: <mime-type>, type2 :: <mime-type>)
- => (match? :: <boolean>)
-  (type1.mime-type = type2.mime-type
-     | type1.mime-type = $mime-wild
-     | type2.mime-type = $mime-wild)
-    & (type1.mime-subtype = type2.mime-subtype
-         | type1.mime-subtype = $mime-wild
-         | type2.mime-subtype = $mime-wild)
-end;
+// Returns the degree to which the two media types match, or #f if they
+// don't match at all.  Points are assigned as follows:
+// * 100 - major mime type matches exactly (not a wildcard match)
+// * 100 - mime subtype matches exactly (not a wildcard match)
+// * 1 - wildcard match for type or subtype
+// * 1 - for each attribute (excluding "q") that matches exactly
+// Matching type/subtype trumps all else.
+define method match-media-types
+    (type1 :: <media-type>, type2 :: <media-type>)
+ => (degree :: false-or(<nonnegative-integer>))
+  let degree = 0;
+  if ((type1.mime-type = type2.mime-type & inc!(degree, 100))
+        | (type1.mime-type = $mime-wild & inc!(degree))
+        | (type2.mime-type = $mime-wild & inc!(degree)))
+    log-debug(*http-common-log*, "  MMT: 1 - degree = %s", degree);
+    if ((type1.mime-subtype = type2.mime-subtype & inc!(degree, 100))
+          | (type1.mime-subtype = $mime-wild & inc!(degree))
+          | (type2.mime-subtype = $mime-wild & inc!(degree)))
+      log-debug(*http-common-log*, "  MMT: 2 - degree = %s", degree);
+      // a point for each matching parameter, ignoring "q".
+      for (value keyed-by key in type1.attributes)
+        if (key ~= "q" & value = element(type2.attributes, key, default: #f))
+          inc!(degree)
+        end;
+      end;
+    end;
+  end;
+  if (degree ~= 0)
+    log-debug(*http-common-log*, "  MMT: 3 - returning degree = %s", degree);
+    degree
+  end;
+end method match-media-types;
 
 // This method returns #t if type1 is more specific than type2.
 // A media type is considered more specific than another if it doesn't

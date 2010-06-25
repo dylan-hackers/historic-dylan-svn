@@ -5,6 +5,7 @@ Author: Carl Gay
 
 to-do list:
 
+* Request pipelining.
 * See todos in code below.
 * (optional?) strict mode in which reads/writes signal an error if the
   chunk size is wrong or content length is wrong.  give the user a way
@@ -176,7 +177,7 @@ define generic start-request
           http-version :: <http-version>)
  => ();
 
-// todo -- http-version ~= 1.1 not supported yet
+// TODO: http-version ~= 1.1 not supported yet
 //
 define method start-request
     (conn :: <http-connection>,
@@ -220,7 +221,7 @@ define method start-request
     add-header(headers, "Transfer-Encoding", "chunked", if-exists?: #"ignore");
   end;
 
-  let proxy? = #f;  // todo -- probably in the connection
+  let proxy? = #f;  // TODO: probably in the connection
 
   // Determine the URL string to send in the request line.  If using a proxy an
   // absolute URI is required, otherwise HTTP/1.1 clients MUST send an abs_path
@@ -299,8 +300,8 @@ define method send-request-line
              http-version));
 end method send-request-line;
 
-// todo -- This and the function by the same name in the server should be
-//         moved into http-common.
+// TODO: This and the function by the same name in the server should be
+//       moved into http-common.
 define method send-headers
     (conn :: <http-connection>, headers :: <table>)
   let stream :: <tcp-socket> = conn.connection-socket;
@@ -431,6 +432,9 @@ define open generic read-response
           response-class :: subclass(<http-response>))
  => (response :: <http-response>);
 
+// TODO: how to deal with "Connection: close"?  Close the socket and mark
+//       the connection to be re-opened if subsequent requests are made on
+//       it?  Return a 2nd value: conn-closed? :: <boolean> ?
 define method read-response
     (conn :: <http-connection>,
      #rest args,
@@ -442,7 +446,7 @@ define method read-response
   let headers :: <header-table> = read-message-headers(socket);
   let response = make(response-class,
                       connection: conn,
-                      // todo -- add version to <http-response> class
+                      // TODO: add version to <http-response> class
                       http-version: http-version,
                       code: status-code,
                       reason-phrase: reason-phrase,

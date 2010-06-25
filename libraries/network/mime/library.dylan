@@ -4,13 +4,16 @@ Author: Carl Gay
 
 define library mime
   use common-dylan;
+  use dylan,
+    import: { dylan-extensions };
   use io,
-    import: { streams };
+    import: { format, streams };
   use strings;
   use system,
     import: { file-system };
   export mime;
-end;
+  export mime-internal;
+end library mime;
 
 define module mime
   create
@@ -33,9 +36,15 @@ end module mime;
 
 define module mime-internal
   use common-dylan;
-  use file-system;
+  use dylan-extensions,
+    import: { string-hash };
+  use file-system,
+    import: { <pathname>, with-open-file };
+  use format,
+    import: { format };
   use mime;
-  use streams;
+  use streams,
+    import: { with-open-file, read-line, with-output-to-string };
   use strings,
     import: { trim };
 end module mime-internal;

@@ -53,6 +53,19 @@ define class <directory-policy> (<object>)
            as(<file-locator>, "index.htm")),
     init-keyword: default-documents:;
 
+  // Name taken from Apache.  If #t then when a static file document 'foo'
+  // is requested and doesn't exist, we search for foo.* files instead.
+  constant slot allow-multi-views? :: <boolean> = #f,
+    init-keyword: allow-multi-views?:;
+
+  // The value sent in the "Content-Type" header for files served from this
+  // directory if no mime-type can be found based on the file extension.
+  slot policy-default-content-type :: <media-type>
+    = make(<media-type>,
+           type: "application",
+           subtype: "octet-stream"),
+    init-keyword: default-content-type:;
+
 end class <directory-policy>;
 
 define method policy-matches?
@@ -96,14 +109,6 @@ define class <virtual-host> (<object>)
   // See initialize(<virtual-host>).
   slot root-directory-policy :: <directory-policy>;
 
-  // The value sent in the "Content-Type" header for static file responses if
-  // no other value is set.  See server-mime-type-map.
-  slot default-static-content-type :: <string> = "application/octet-stream";
-
-  // The value sent in the "Content-Type" header for dynamic responses if no
-  // other value is set.
-  slot default-dynamic-content-type :: <string> = "text/html; charset=utf-8";
-
   slot request-logger :: <logger>,
     init-value: *request-logger*,
     init-keyword: request-logger:;
@@ -117,12 +122,6 @@ define class <virtual-host> (<object>)
     init-keyword: debug-logger:;
 
 end class <virtual-host>;
-
-// prevent warnings until these are used by the config stuff
-begin
-  default-static-content-type-setter;
-  default-dynamic-content-type-setter;
-end;
 
 define method initialize
     (vhost :: <virtual-host>,
@@ -157,21 +156,28 @@ define method add-directory-policy
                                     policy-url-path(s1) = policy-url-path(s2)
                                   end));
   for (policy in vhost.directory-policies)
-    log-debug("directory policy: %s", debug-string(policy));
+    log-debug("directory policy: %=", policy);
   end;
 end method add-directory-policy;
 
-define method debug-string
-    (policy :: <directory-policy>)
-  format-to-string("<directory-policy url-path=%= directory=\"%s\" list?=%= "
-                     "static?=%= symlinks?=%= cgi?=%= cgi-ext=%=>",
-                   policy.policy-url-path,
-                   as(<string>, policy.policy-directory),
-                   policy.allow-directory-listing?,
-                   policy.allow-static?,
-                   policy.follow-symlinks?,
-                   policy.allow-cgi?,
-                   policy.policy-cgi-extensions);
+define method print-object
+    (policy :: <directory-policy>, stream :: <stream>) => ()
+  format(stream, "<directory-policy url-path=%= directory=\"%s\" list?=%= "
+                 "static?=%= symlinks?=%= cgi?=%= cgi-ext=%=>",
+         policy.policy-url-path,
+         as(<string>, policy.policy-directory),
+         policy.allow-directory-listing?,
+         policy.allow-static?,
+         policy.follow-symlinks?,
+         policy.allow-cgi?,
+         policy.policy-cgi-extensions);
+end;
+
+define method as
+    (class :: subclass(<string>), policy :: <directory-policy>) => (s :: <string>)
+  with-output-to-string(s)
+    print-object(policy, s)
+  end
 end;
 
 define method directory-policy-matching

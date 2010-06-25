@@ -5,5 +5,6 @@ Files: library
        xml-rpc-tests
        vhost-tests
        cgi-tests
+       content-negotiation-tests
        http-client-tests
        koala-test-suite

@@ -6,12 +6,15 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
+define function document-not-found ()
+  resource-not-found-error(url: request-raw-url-string(current-request()));  // 404
+end;
+
+
 // Merges the given URL against the context parameter and ensures that the
-// resulting locator refers to a document below the document root.  If not,
-// it returns #f to indicate the document location is invalid.
-// ---TODO: Consider signalling a real error instead.
-//
-define method document-location
+// resulting locator refers to a (possibly non-existent) document below the
+// context directory.  If not, it signals an error.
+define method locator-from-url
     (url :: <string>, context :: <directory-locator>)
  => (locator :: false-or(<physical-locator>))
   block ()
@@ -36,107 +39,103 @@ define method document-location
       end if
     end if
   exception (ex :: <locator-error>)
-    log-debug("Locator error in document-location: %=", ex);
-    #f
+    log-debug("Locator error in locator-from-url: %=", ex);
+    document-not-found();
   end block
-end method document-location;
+end method locator-from-url;
 
-define method serve-static-file-or-cgi-script ()
+define function serve-static-file-or-cgi-script ()
   let request = current-request();
   let response = current-response();
   // Just use the path, not the host, query, or fragment.
   let url :: <string> = build-path(request.request-url);
   let policy :: <directory-policy> = directory-policy-matching(*virtual-host*, url);
-  let document :: false-or(<locator>) = static-file-locator-from-url(url, policy);
+  let document :: <locator> = locator-from-url(url, policy.policy-directory);
 
   log-debug("static file: url = %s", url);
-  log-debug("static file: spec = %s", debug-string(policy));
-  log-debug("static file: document = %s", as(<string>, document | "#f"));
+  log-debug("static file: policy = %=", policy);
+  log-debug("static file: document = %s", as(<string>, document));
 
-  if (~document)
-    resource-not-found-error(url: request-raw-url-string(request));  // 404
+  if (~file-exists?(document))
+    document := find-multi-view-file(policy, document)
+                  | document-not-found();
+    log-debug("static file: multi-view document = %s", as(<string>, document));
   end;
 
   if (file-type(document) == #"link")
-    let doc = follow-links(link-target(document), policy, url);
-    if (doc ~= document)
-      log-info("static file: target document = %s", doc);
+    if (follow-symlinks?(policy))
+      document := follow-links(link-target(document), policy);
+      log-info("static file: linked document = %s", document);
+    else
+      forbidden-error();
     end;
-    document := doc;
   end if;
 
-  select (file-type(document))
-    #"directory" =>
-      serve-directory(url, document, policy);
-
-    // Links handled above.
-    //#"link" =>  
-      
-    otherwise =>
-      // It's a regular file...
-      log-debug("allow = %s, ext = %s", policy.allow-cgi?, policy.policy-cgi-extensions);
-      if (policy.allow-cgi?
-            & member?(document.locator-extension, policy.policy-cgi-extensions,
-                      test: string-equal?))  // should be \= on Unix
-        serve-cgi-script(document, url);
-      elseif (~policy.allow-static?)
-        forbidden-error();
+  block (return)
+    let ftype = file-type(document);
+    if (ftype = #"directory")
+      let index = find-default-document(policy, document);
+      if (index)
+        // Let the index file be processed like a regular file, below.
+        document := index;
+      elseif (policy.allow-directory-listing?)
+        serve-directory(document);
+        return();
       else
-        let (etag, weak?) = etag(document);
-        add-header(response, iff(weak?, "W/ETag", "ETag"), etag);
-        let client-etag = get-header(request, "If-None-Match");
-        if (etag = client-etag)
-          request.request-method := #"head";
-          not-modified-redirect(headers: response.raw-headers);
-        else
-          serve-static-file(document);
-        end;
+        document-not-found()
       end;
-  end select;
-end method serve-static-file-or-cgi-script;
+    end;
 
-// Follow symlink chain.  If the target is outside the document root and
-// the given directory policy disallows that, signal 404 error.
+    // It's a regular file...
+    if (policy.allow-cgi?
+          & member?(document.locator-extension, policy.policy-cgi-extensions,
+                    test: string-equal?))  // TODO: should be \= on Unix
+      serve-cgi-script(document, url);
+    elseif (~policy.allow-static?)
+      forbidden-error();
+    else
+      let (etag, weak?) = etag(document);
+      add-header(response, iff(weak?, "W/ETag", "ETag"), etag);
+      let client-etag = get-header(request, "If-None-Match");
+      if (etag = client-etag)
+        request.request-method := #"head";
+        not-modified-redirect(headers: response.raw-headers);
+      else
+        serve-static-file(policy, document);
+      end;
+    end;
+  end block;
+end function serve-static-file-or-cgi-script;
+
+// Follow symlink chain.  If the target is outside the policy directory and
+// the given policy disallows that, signal 404 error.
 //
 define function follow-links
-    (document :: <pathname>, policy :: <directory-policy>, url)
+    (document :: <pathname>, policy :: <directory-policy>)
  => (target :: <pathname>)
   if ( ~(file-exists?(document)
-           & (follow-symlinks?(policy)
-                | locator-below-root?(document, policy.policy-directory))))
-    resource-not-found-error(url: url);
+           & locator-below-root?(document, policy.policy-directory)))
+    document-not-found();
   elseif (file-type(document) == #"link")
-    follow-links(link-target(document), policy, url)
+    follow-links(link-target(document), policy)
   else
     document
   end
 end function follow-links;
-
-// Returns the appropriate locator for the given URL, or #f if the URL doesn't
-// name an existing file below the given context directory.
-// If the URL names a directory this checks for an appropriate default document
-// such as index.html and returns a locator for that, if found.
-//
-define function static-file-locator-from-url
-    (url :: <string>, policy :: <directory-policy>)
- => (locator :: false-or(<physical-locator>))
-  let locator = document-location(url, policy.policy-directory);
-  log-debug("static file: locator = %s", as(<string>, locator | "#f"));
-  locator
-    & file-exists?(locator)
-    & iff(instance?(locator, <directory-locator>),
-          find-default-document(policy, locator) | locator,
-          locator)
-end;
 
 define method find-default-document
     (policy :: <directory-policy>, locator :: <directory-locator>)
  => (locator :: <physical-locator>)
   block (return)
     for (default in policy.policy-default-documents)
-      let full-path = merge-locators(default, locator);
-      if (file-exists?(full-path))
-        return(full-path)
+      let document = merge-locators(default, locator);
+      if (~file-exists?(document))
+        document := find-multi-view-file(policy, document);
+      end;
+      if (document
+            & file-exists?(document)
+            & file-type(document) = #"file")
+        return(document)
       end;
     end;
     locator  // found nothing
@@ -174,33 +173,41 @@ define method locator-below-root?
   end if;
 end method locator-below-root?;
 
+define method locator-media-type
+    (locator :: <locator>, policy :: <directory-policy>)
+ => (media-type :: <media-type>)
+  extension-to-mime-type(locator.locator-extension, *server*.server-media-type-map)
+    | policy-default-content-type(policy)
+end method locator-media-type;
 
-define method get-mime-type
-    (locator :: <locator>) => (mime-type :: <string>)
-  let extension = locator-extension(locator);
-  let sym = extension & ~empty?(extension) & as(<symbol>, extension);
-  let mime-type = (sym & element(server-mime-type-map(*server*), sym, default: #f))
-                    | default-static-content-type(*virtual-host*);
-  log-debug("extension = %=, sym = %=, mime-type = %=", extension, sym, mime-type);
-  mime-type;
-end method;
-
-
-// Serves up a static file
-define method serve-static-file (locator :: <locator>)
+define method serve-static-file
+    (policy :: <directory-policy>, locator :: <locator>)
   log-debug("Serving static file: %s", as(<string>, locator));
   let response = current-response();
   with-open-file(in-stream = locator, direction: #"input", if-does-not-exist: #f,
                  element-type: <byte>)
-    let mime-type = get-mime-type(locator);
-    add-header(response, "Content-Type", mime-type);
+    add-header(response, "Content-Type",
+               as(<string>, locator-media-type(locator, policy)));
     let props = file-properties(locator);
     add-header(response, "Last-Modified",
                as-rfc1123-string(props[#"modification-date"]));
-    //---TODO: optimize this
-    write(response.output-stream, stream-contents(in-stream));
+    copy-to-end(in-stream, response.output-stream);
   end;
 end method serve-static-file;
+
+define method copy-to-end
+    (in-stream :: <stream>, out-stream :: <stream>)
+  let buffer-size :: <integer> = 8092;
+  let buffer :: <sequence> = make(stream-sequence-class(in-stream),
+                                  size: buffer-size);
+  iterate loop ()
+    let count = read-into!(in-stream, buffer-size, buffer, on-end-of-stream: #f);
+    write(out-stream, buffer, end: count);
+    if (count = buffer-size)
+      loop()
+    end;
+  end;
+end method copy-to-end;
 
 define method etag 
     (locator :: <locator>)
@@ -231,17 +238,14 @@ end method etag;
 
 define method serve-directory
     (url :: <string>, directory :: <physical-locator>, policy :: <directory-policy>)
-  if (allow-directory-listing?(policy))
-    if (url[size(url) - 1] = '/')
-      generate-directory-html(directory);
-    else
-      let new-location = concatenate(url, "/");
-      moved-permanently-redirect(location: new-location, // 301
-                                 header-name: "Location",
-                                 header-value: new-location);
-    end if;
+  // Why require the url to end in '/'?  --cgay
+  if (url[size(url) - 1] = '/')
+    generate-directory-html(policy, directory);
   else
-    forbidden-error();  // 403
+    let new-location = concatenate(url, "/");
+    moved-permanently-redirect(location: new-location, // 301
+                               header-name: "Location",
+                               header-value: new-location);
   end if;
 end method serve-directory;
 
@@ -250,7 +254,7 @@ end method serve-directory;
 // directory it names is under the document root.
 //---TODO: add image links.  deal with access control.
 define method generate-directory-html
-    (locator :: <locator>)
+    (policy :: <directory-policy>, locator :: <locator>)
   let response :: <response> = current-response();  
   let loc :: <directory-locator>
     = iff(instance?(locator, <directory-locator>),
@@ -274,9 +278,10 @@ define method generate-directory-html
                      name;
                    end if;
         write(stream, "\t\t\t\t<tr>\n");
-        format(stream, "\t\t\t\t<td class=\"name\"><a href=\"%s\">%s</a></td>\n", link, link);
+        format(stream, "\t\t\t\t<td class=\"name\"><a href=\"%s\">%s</a></td>\n",
+               link, link);
         let mime-type = iff(type = #"file",
-                            get-mime-type(locator),
+                            as(<string>, locator-media-type(locator, policy)),
                             "");
         format(stream, "\t\t\t\t<td class=\"mime-type\">%s</td>\n", mime-type);
         for (key in #[#"size", #"modification-date", #"author"],
@@ -375,5 +380,3 @@ define method display-file-property
     (stream, key, property :: <string>, file-type :: <file-type>) => ()
   format(stream, property);
 end;
-
-

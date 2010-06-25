@@ -59,7 +59,7 @@ define suite media-type-test-suite ()
   test test-media-type-level;
   test test-media-type-exact?;
   test test-media-type-more-specific?;
-  test test-mime-types-match?;
+  test test-match-media-types;
 end suite media-type-test-suite;
 
 define function make-media-type
@@ -129,13 +129,13 @@ define test test-parse-media-type ()
               media-type-level(parse-media-type-helper("text/plain; q=0.3; level=2")));
 end test test-parse-media-type;
 
-define test test-mime-types-match? ()
+define test test-match-media-types ()
   for (item in list(list("text", "plain"),
                     list("text", $mime-wild),
                     list($mime-wild, $mime-wild)))
     let (t, s) = apply(values, item);
-    check-true(format-to-string("mime-types-match?(text/plain, %s/%s)", t, s),
-               mime-types-match?(text/plain, make-media-type(t, s)));
+    check-true(format-to-string("match-media-types(text/plain, %s/%s)", t, s),
+               match-media-types(text/plain, make-media-type(t, s)));
   end;
 
   for (item in list(list("text", "html"),
@@ -144,10 +144,10 @@ define test test-mime-types-match? ()
                     list("image", $mime-wild),
                     list($mime-wild, "html")))
     let (t, s) = apply(values, item);
-    check-false(format-to-string("mime-types-match?(text/plain, %s/%s) is false?", t, s),
-                mime-types-match?(text/plain, make-media-type(t, s)));
+    check-false(format-to-string("media-types-match?(text/plain, %s/%s) is false?", t, s),
+                match-media-types(text/plain, make-media-type(t, s)));
   end;
-end test test-mime-types-match?;
+end test test-match-media-types;
 
 define test test-media-type-more-specific? ()
   let text/html-level-1 = make-media-type("text", "html", #["level", 1]);

@@ -9,11 +9,13 @@ define library koala-test-suite
     import: { common-dylan, threads };
   use http-client;
   use http-common;
+  use http-common-test-suite;
   use io,
     import: { format-out, standard-io, streams };
   use koala,
     import: { koala, koala-unit };
   use logging;
+  use mime;
   use network,
     import: { sockets };
   use regular-expressions;
@@ -42,12 +44,16 @@ define module koala-test-suite
   use format-out;
   use http-client;
   use http-common;
+  use http-common-internals;
+  use http-common-test-suite;
   use koala,
     exclude: { log-trace, log-debug, log-info, log-warning, log-error };
   use koala-unit;
   use locators,
     exclude: { <http-server>, <url> };
   use logging;
+  use mime,
+    import: { $default-mime-type-map };
   use operating-system,
     import: { environment-variable };
   use regular-expressions;

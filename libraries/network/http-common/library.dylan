@@ -220,7 +220,7 @@ define module http-common
       media-type-level,
       media-type-exact?,
       media-type-more-specific?,
-      mime-types-match?,
+      match-media-types,
       $mime-wild,
     chunked-transfer-encoding?;
 

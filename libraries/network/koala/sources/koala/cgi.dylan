@@ -188,7 +188,7 @@ define method process-cgi-script-output
     end;
   else
     // The CGI script is generating the response body...
-    // todo -- A more efficient copy-stream
+    // TODO: A more efficient copy-stream
     write(response, read-to-end(stdout));
   end;
 end method process-cgi-script-output;

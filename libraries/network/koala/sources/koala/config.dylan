@@ -434,13 +434,13 @@ define method process-config-element
   end;
 end;
 
-define class <mime-type> (xml$<xform-state>)
+define class <mime-type-whatever> (xml$<xform-state>)
   constant slot mime-type-map :: <table>,
     required-init-keyword: mime-type-map:;
-end class <mime-type>;
+end class <mime-type-whatever>;
 
 define method xml$transform
-    (node :: xml$<element>, state :: <mime-type>)
+    (node :: xml$<element>, state :: <mime-type-whatever>)
   if (xml$name(node) = #"mime-type")
     let mime-type = get-attr(node, #"id");
     let mime-type-map = state.mime-type-map;
@@ -473,14 +473,14 @@ define method process-config-element
     let clear = get-attr(node, #"clear");
     if (clear & true-value?(clear))
       log-info("Clearing default mime type mappings.");
-      remove-all-keys!(server.server-mime-type-map);
+      remove-all-keys!(server.server-media-type-map);
     end;
     with-output-to-string (stream)
       dynamic-bind (%server = server)
         // Transforming the document side-effects the server's mime type map.
-        xml$transform(mime-xml, make(<mime-type>,
+        xml$transform(mime-xml, make(<mime-type-whatever>,
                                      stream: stream,
-                                     mime-type-map: server.server-mime-type-map));
+                                     mime-type-map: server.server-media-type-map));
       end;
     end;
   else
@@ -551,6 +551,8 @@ define method process-config-element
     let indexes = iff(index,
                       map(curry(as, <file-locator>), split(index, ",")),
                       root-policy.policy-default-documents);
+    let default-content-type = get-attr(node, #"default-content-type")
+                                 | as(<string>, root-policy.policy-default-content-type);
     // TODO: the default value for these should really
     //       be taken from the parent policy rather than from root-policy.
     let policy = make(<directory-policy>,
@@ -573,7 +575,8 @@ define method process-config-element
                                       true-value?(cgi?),
                                       allow-cgi?(root-policy)),
                       cgi-extensions: cgi-ext,
-                      default-documents: indexes);
+                      default-documents: indexes,
+                      default-content-type: default-content-type);
     add-directory-policy(%vhost, policy);
     dynamic-bind (%dir = policy)
       for (child in xml$node-children(node))

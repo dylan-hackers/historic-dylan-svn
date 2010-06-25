@@ -211,6 +211,8 @@ end test test-read-from-response-after-done;
 define suite http-client-test-suite
     (setup-function: setup-http-client-test-suite,
      cleanup-function: cleanup-http-client-test-suite)
+  suite http-common-test-suite;
+
   test test-http-get-to-string;
   test test-http-get-to-stream;
   test test-encode-form-data;

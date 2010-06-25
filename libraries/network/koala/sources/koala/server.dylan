@@ -115,8 +115,9 @@ define open class <http-server> (<object>)
     = parent-directory(locator-directory(as(<file-locator>, application-filename()))),
     init-keyword: server-root:;
 
-  constant slot server-mime-type-map :: <table>,
-    init-function: curry(make, <table>);
+  // This holds a <mime-type-map>, but in fact all the values are <media-type>s.
+  slot server-media-type-map :: <mime-type-map>,
+    init-keyword: media-type-map:;
 
 
   //// Next 3 slots are for sessions
@@ -210,9 +211,12 @@ define method initialize
   add-directory-policy(vhost, root-directory-policy(vhost));
 
   // Copy mime type map in, since it may be modified when config loaded.
-  let tmap :: <table> = server.server-mime-type-map;
-  for (mime-type keyed-by extension in $default-mime-type-map)
-    tmap[extension] := mime-type;
+  if (~slot-initialized?(server, server-media-type-map))
+    let tmap :: <mime-type-map> = make(<mime-type-map>);
+    for (media-type keyed-by extension in $default-media-type-map)
+      tmap[extension] := media-type;
+    end;
+    server.server-media-type-map := tmap;
   end;
 end method initialize;
 
@@ -1109,8 +1113,9 @@ define inline function request-content-type (request :: <request>)
   let content-type-header = get-header(request, "content-type");
   as(<symbol>,
      if (content-type-header)
+       // TODO:
        // this looks broken.  why ignore everything else?
-       // besides, one should just use: get-header(request, "content-type")
+       // besides, one should just use: get-header(request, "content-type", parsed: #t)
        // which should return the parsed content type.
        first(split(content-type-header, ";"))
      else
@@ -1311,6 +1316,9 @@ define method %invoke-handler
             push-last(arguments, match);
             for (group keyed-by name in match.groups-by-name)
               if (group)
+                // TODO:
+                // as(<symbol>) can be a memory leak.  This one can match
+                // an arbitrary string in the URL, so it's bad.
                 push-last(arguments, as(<symbol>, name));
                 push-last(arguments, group.group-text);
               end if;
@@ -1328,6 +1336,8 @@ define method %invoke-handler
         end if;
       else
         // generates 404 if not found
+        // TODO: static files should be handled through the normal means:
+        //       add-responder(url, curry(serve-static-file, policy))
         serve-static-file-or-cgi-script();
       end if;
     end dynamic-bind;

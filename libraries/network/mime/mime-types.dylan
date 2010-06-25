@@ -23,23 +23,123 @@ define method initialize
   mt.mime-name := concatenate(mt.mime-type, "/", mt.mime-subtype);
 end;
 
+define method print-object
+    (mt :: <mime-type>, stream :: <stream>) => ()
+  format(stream, "%s/%s", mt.mime-type, mt.mime-subtype);
+end;
+
+define method as
+    (class :: subclass(<string>), mt :: <mime-type>) => (s :: <string>)
+  with-output-to-string(s)
+    print-object(mt, s)
+  end
+end;
+
 define method \=
     (mt1 :: <mime-type>, mt2 :: <mime-type>) => (equal? :: <boolean>)
   mt1.mime-type = mt2.mime-type & mt1.mime-subtype = mt2.mime-subtype
 end;
 
-define open class <mime-type-map> (<object>)
-  constant slot extension-to-mime-type-map :: <string-table>
-    = make(<string-table>);
+
+//// <mime-type-map>
+
+// Looks like there's some support for limited tables, but no way to
+// specify the key type so roll our own....
+define open class <mime-type-map> (<table>)
 end;
+
+// Can't subclass <string-table> because it's sealed. :-(
+define sealed method table-protocol
+    (table :: <mime-type-map>) => (test :: <function>, hash :: <function>);
+  values(method (x :: <string>, y :: <string>) x = y end,
+         string-hash);
+end;
+
+/* frak.  sealing also prevents this.
+define method element-setter
+    (new-value, collection :: <mime-type-map>, key)
+ => (new-value)
+  if (~instance?(new-value, <mime-type>))
+    signal(make(<type-error>, value: new-value, type: <mime-type>))
+  else
+    next-method()
+  end;
+end method element-setter;
+*/
+
+// Load a standard mime.types file, storing the mappings in the
+// given <mime-type-map>.  File format is:
+//    type/subtype ext1 ext2 ...
+// Blank lines and lines starting with '#' are ignored.
+//
+define open generic load-mime-types
+    (type-map :: <mime-type-map>, pathname :: <pathname>)
+ => ();
+
+define method load-mime-types
+    (type-map :: <mime-type-map>, pathname :: <pathname>)
+ => ()
+  with-open-file (stream = pathname)
+    iterate loop (line = read-line(stream, on-end-of-file: #f))
+      if (line)
+        line := trim(line);
+        if (~empty?(line) & line[0] ~= '#')
+          let line-parts = split(line, rcurry(member?, " \t"));
+          let type-parts = split(line-parts[0], '/');
+          if (line-parts.size > 1 & type-parts = 2)
+            let (type, subtype) = apply(values, type-parts);
+            for (extension in copy-sequence(line-parts, start: 1))
+              let mt = extension-to-mime-type(extension, type-map)
+                         | make(<mime-type>, type: type, subtype: subtype);
+              extension-to-mime-type(extension, type-map) := mt;
+            end;
+          end if;
+        end if;
+        loop(read-line(stream, on-end-of-file: #f));
+      end if;
+    end iterate;
+  end with-open-file;
+end method load-mime-types;
+
+define open generic extension-to-mime-type
+    (extension :: <string>, type-map :: <mime-type-map>)
+ => (mt :: false-or(<mime-type>));
+
+define method extension-to-mime-type
+    (extension :: <byte-string>, type-map :: <mime-type-map>)
+ => (mt :: false-or(<mime-type>))
+  element(type-map, extension, default: #f)
+end;
+
+define open generic extension-to-mime-type-setter
+    (mt :: <mime-type>, extension :: <string>, type-map :: <mime-type-map>)
+ => (mt :: <mime-type>);
+
+define method extension-to-mime-type-setter
+    (mt :: <mime-type>, extension :: <byte-string>, type-map :: <mime-type-map>)
+ => (mt :: <mime-type>)
+  type-map[extension] := mt
+end;
+
+/* Not sure I want to pull in the locators code just yet...
+define open generic locator-mime-type
+    (o :: <object>) => (mt :: false-or(<mime-type>));
+
+define method locator-mime-type
+    (locator :: <file-locator>,
+     #key type-map :: <mime-type-map> = $default-mime-type-map)
+ => (mt :: false-or(<mime-type>))
+  extension-to-mime-type(type-map, locator-extension(locator))
+end;
+*/
 
 define constant $default-mime-type-map :: <mime-type-map>
   = begin
       let mt-map = make(<mime-type-map>);
       local method mt (ext, type, subtype)
-        mt-map.extension-to-mime-type-map[ext]
-          := make(<mime-type>, type: type, subtype: subtype);
-      end;
+              mt-map[ext] := make(<mime-type>, type: type, subtype: subtype);
+            end;
+
       mt("ez",      "application", "andrew-inset");
       mt("bz2",     "application", "x-bzip2");
       mt("tar",     "application", "tar");
@@ -190,8 +290,8 @@ define constant $default-mime-type-map :: <mime-type-map>
       mt("ics",   "text", "calendar");
       mt("ifb",   "text", "calendar");
       mt("css",   "text", "css");
-      mt("html",  "text", "html; charset=utf-8");
-      mt("htm",   "text", "html; charset=utf-8");
+      mt("html",  "text", "html");  // ; charset=utf-8
+      mt("htm",   "text", "html");  // ; charset=utf-8
       mt("asc",   "text", "plain");
       mt("txt",   "text", "plain");
       mt("rtx",   "text", "richtext");
@@ -219,69 +319,4 @@ define constant $default-mime-type-map :: <mime-type-map>
       mt-map
     end;
 
-// Load a standard mime.types file, storing the mappings in the
-// given <mime-type-map>.  File format is:
-//    type/subtype ext1 ext2 ...
-// Blank lines and lines starting with '#' are ignored.
-//
-define open generic load-mime-types
-    (type-map :: <mime-type-map>, pathname :: <pathname>)
- => ();
-
-define method load-mime-types
-    (type-map :: <mime-type-map>, pathname :: <pathname>)
- => ()
-  with-open-file (stream = pathname)
-    iterate loop (line = read-line(stream, on-end-of-file: #f))
-      if (line)
-        line := trim(line);
-        if (~empty?(line) & line[0] ~= '#')
-          let line-parts = split(line, rcurry(member?, " \t"));
-          let type-parts = split(line-parts[0], '/');
-          if (line-parts.size > 1 & type-parts = 2)
-            let (type, subtype) = apply(values, type-parts);
-            for (extension in copy-sequence(line-parts, start: 1))
-              let mt = extension-to-mime-type(extension, type-map)
-                         | make(<mime-type>, type: type, subtype: subtype);
-              extension-to-mime-type(extension, type-map) := mt;
-            end;
-          end if;
-        end if;
-        loop(read-line(stream, on-end-of-file: #f));
-      end if;
-    end iterate;
-  end with-open-file;
-end method load-mime-types;
-
-define open generic extension-to-mime-type
-    (extension :: <string>, type-map :: <mime-type-map>)
- => (mt :: false-or(<mime-type>));
-
-define method extension-to-mime-type
-    (extension :: <byte-string>, type-map :: <mime-type-map>)
- => (mt :: false-or(<mime-type>))
-  element(type-map.extension-to-mime-type-map, extension, default: #f)
-end;
-
-define open generic extension-to-mime-type-setter
-    (mt :: <mime-type>, extension :: <string>, type-map :: <mime-type-map>)
- => (mt :: <mime-type>);
-
-define method extension-to-mime-type-setter
-    (mt :: <mime-type>, extension :: <byte-string>, type-map :: <mime-type-map>)
- => (mt :: <mime-type>)
-  type-map.extension-to-mime-type-map[extension] := mt
-end;
-
-/* Not sure I want to pull in the locators code just yet...
-define open generic get-mime-type
-    (o :: <object>) => (mt :: false-or(<mime-type>));
-
-define method get-mime-type
-    (locator :: <file-locator>,
-     #key type-map :: <mime-type-map> = $default-mime-type-map)
- => (mt :: false-or(<mime-type>))
-  extension-to-mime-type(type-map, locator-extension(locator))
-end;
-*/
 

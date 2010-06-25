@@ -125,6 +125,8 @@ define suite koala-test-suite
   suite xml-rpc-test-suite;
   suite vhost-test-suite;
   suite cgi-test-suite;
+  suite multi-views-test-suite;
+
   suite http-client-test-suite;
 end suite koala-test-suite;
 

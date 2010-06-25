@@ -19,6 +19,7 @@ define library koala
     import: { format, standard-io, streams, streams-internals };
   use logging;
   use memory-manager;
+  use mime;
   use network,
     import: { sockets };
   use regular-expressions;
@@ -167,7 +168,7 @@ define module koala
     serve-static-file-or-cgi-script,
     serve-static-file,
     serve-cgi-script,
-    document-location,
+    locator-from-url,
     document-root,
     file-contents;
 
@@ -188,6 +189,7 @@ end module koala;
 define module koala-unit
   // directory policies
   create
+    <directory-policy>,
     policy-default-documents;
 
   // vhost
@@ -197,7 +199,10 @@ define module koala-unit
 
   // other
   create
-    configure-from-string;
+    *server*,
+    configure-from-string,
+    media-type-from-header,
+    find-multi-view-file;
 end module koala-unit;
 
 define module dsp
@@ -331,6 +336,7 @@ define module httpi                             // http internals
               log-warning => %log-warning,
               log-error => %log-error };
   use memory-manager;
+  use mime;
   use operating-system;        // from system lib
   use regular-expressions;
   use simple-random;

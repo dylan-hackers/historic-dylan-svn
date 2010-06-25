@@ -4,13 +4,19 @@ Synopsis: Some definitions of general use that could be considered for
 Author:   Carl Gay
 
 define library uncommon-dylan
+  use collection-extensions,
+    import: { collection-utilities };
   use common-dylan;
-  use io;
+  use io,
+    import: { streams };
   export uncommon-dylan;
 end;
 
 define module uncommon-dylan
   use dylan;
+  use collection-utilities,
+    rename: { key-exists? => has-key? },
+    export: all;
   use common-extensions;
   use streams, import: { write, with-output-to-string };
 
@@ -30,7 +36,6 @@ define module uncommon-dylan
     remove-keys,        // For removing keywords from #rest arglists.
     ignore-errors,
     value-sequence,
-    has-key?,
     count,
 
     wrapping-inc!,
