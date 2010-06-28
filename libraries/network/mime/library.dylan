@@ -22,6 +22,15 @@ define module mime
     mime-subtype,
     mime-name;
 
+  // Errors
+  create
+    <mime-error>,
+    <invalid-mime-type-error>;
+
+  // Conversions
+  create
+    string-to-mime-type;
+
   // Comparisons
   // =
 

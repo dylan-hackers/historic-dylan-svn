@@ -5,6 +5,12 @@ Author: Carl Gay
 // So far just simple mime data types and mappings.  Should be expanded to
 // handle MIME message parsing etc.
 
+define open class <mime-error> (<format-string-condition>, <error>)
+end;
+
+define open class <invalid-mime-type-error> (<mime-error>)
+end;
+
 define open generic mime-type    (mt :: <mime-type>) => (type :: <byte-string>);
 define open generic mime-subtype (mt :: <mime-type>) => (subtype :: <byte-string>);
 define open generic mime-name    (mt :: <mime-type>) => (name :: <byte-string>);
@@ -25,20 +31,33 @@ end;
 
 define method print-object
     (mt :: <mime-type>, stream :: <stream>) => ()
-  format(stream, "%s/%s", mt.mime-type, mt.mime-subtype);
-end;
-
-define method as
-    (class :: subclass(<string>), mt :: <mime-type>) => (s :: <string>)
-  with-output-to-string(s)
-    print-object(mt, s)
-  end
+  write(stream, mt.mime-name);
 end;
 
 define method \=
     (mt1 :: <mime-type>, mt2 :: <mime-type>) => (equal? :: <boolean>)
   mt1.mime-type = mt2.mime-type & mt1.mime-subtype = mt2.mime-subtype
 end;
+
+define method mime-type-to-string
+    (mtype :: <mime-type>) => (string :: <byte-string>)
+  mtype.mime-name
+end;
+
+define method string-to-mime-type
+    (string :: <string>,
+     #key class :: subclass(<mime-type>) = <mime-type>)
+ => (mime-type :: <mime-type>)
+  let parts = split(string, '/');
+  if (parts.size ~= 2)
+    signal(make(<invalid-mime-type-error>,
+                format-string: "Invalid MIME type: %s",
+                format-arguments: list(string)));
+  else
+    // TODO: all other validation. :)
+    make(class, type: parts[0], subtype: parts[1])
+  end
+end method string-to-mime-type;
 
 
 //// <mime-type-map>

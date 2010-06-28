@@ -200,6 +200,7 @@ define method locators-matching
           log-debug("match: directory = %s, name = %s, type = %s",
                     directory, name, type);
           if (type = #"file"
+                & (name.size >= document-name.size)
                 & equal?(document-name, name, end2: length))
             log-debug("document name matched");
             if (regex-search($file-extension-regex, name, start: length))

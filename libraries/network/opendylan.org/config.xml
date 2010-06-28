@@ -12,20 +12,14 @@
 
   <server-root location = "/home/cgay/trunk/libraries/network/opendylan.org"/>
 
+  <!-- Index.html default doc is for the DRM.  Should really have a separate
+       <directory> element for each book. -->
   <directory url = "/"
              location = "/home/cgay/trunk/libraries/network/opendylan.org/static"
              allow-static = "yes"
              allow-directory-listing = "no"
-             follow-symlinks = "yes"
-             default-documents = "index.html"
-             />
-
-  <directory url = "/books/drm"
-             location = "/home/cgay/trunk/www/books/drm"
-             allow-static = "yes"
-             allow-directory-listing = "no"
              follow-symlinks = "no"
-             default-documents = "Cover.html"
+             default-documents = "index.html,index.htm,Index.html"
              />
 
   <directory url = "/cgi-bin"

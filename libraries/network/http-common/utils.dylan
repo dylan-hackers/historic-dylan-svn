@@ -124,7 +124,7 @@ end;
 
 define method print-object
     (mt :: <media-type>, stream :: <stream>) => ()
-  format(stream, "<media-type %s/%s", mt.mime-type, mt.mime-subtype);
+  format(stream, "<%s %s/%s", mt.object-class, mt.mime-type, mt.mime-subtype);
   for (value keyed-by key in mt.attributes)
     format(stream, "; %s=%s", key, value);
   end;

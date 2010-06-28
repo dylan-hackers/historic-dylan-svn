@@ -551,8 +551,13 @@ define method process-config-element
     let indexes = iff(index,
                       map(curry(as, <file-locator>), split(index, ",")),
                       root-policy.policy-default-documents);
-    let default-content-type = get-attr(node, #"default-content-type")
-                                 | as(<string>, root-policy.policy-default-content-type);
+    let default-content-type = get-attr(node, #"default-content-type");
+    default-content-type :=
+      if (default-content-type)
+        string-to-mime-type(default-content-type, class: <media-type>)
+      else
+        root-policy.policy-default-content-type
+      end;
     // TODO: the default value for these should really
     //       be taken from the parent policy rather than from root-policy.
     let policy = make(<directory-policy>,
@@ -565,6 +570,7 @@ define method process-config-element
                       allow-static?: iff(static?,
                                          true-value?(static?),
                                          allow-static?(root-policy)),
+                      allow-multi-views?: #t,  // TODO:
                       follow-symlinks?: iff(follow?,
                                             true-value?(follow?),
                                             follow-symlinks?(root-policy)),

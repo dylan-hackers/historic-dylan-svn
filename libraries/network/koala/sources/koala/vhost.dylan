@@ -60,8 +60,8 @@ define class <directory-policy> (<object>)
 
   // The value sent in the "Content-Type" header for files served from this
   // directory if no mime-type can be found based on the file extension.
-  slot policy-default-content-type :: <media-type>
-    = make(<media-type>,
+  slot policy-default-content-type :: <mime-type>
+    = make(<mime-type>,
            type: "application",
            subtype: "octet-stream"),
     init-keyword: default-content-type:;

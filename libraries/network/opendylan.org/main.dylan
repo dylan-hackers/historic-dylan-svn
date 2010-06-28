@@ -109,6 +109,9 @@ define method main
     ()
   koala-main(description: "www.opendylan.org web server",
              before-startup: add-opendylan-responders);
+  // temp workaround for bug
+  force-output(*standard-output*);
+  force-output(*standard-error*);
 end;
 
 begin

@@ -187,7 +187,7 @@ define method serve-static-file
   with-open-file(in-stream = locator, direction: #"input", if-does-not-exist: #f,
                  element-type: <byte>)
     add-header(response, "Content-Type",
-               as(<string>, locator-media-type(locator, policy)));
+               mime-name(locator-media-type(locator, policy)));
     let props = file-properties(locator);
     add-header(response, "Last-Modified",
                as-rfc1123-string(props[#"modification-date"]));
