@@ -96,6 +96,10 @@ define test test-find-multi-view-file ()
                 "foo.gif",
                 locator-name(multi-view("foo", accept-header)));
 
+    // This test is intended to result in two variants that are the same
+    // all the way through find-multi-view-file so that all the code is
+    // excercised at least once.  (It would probably be better to choose
+    // two much more obscure mime types than image/gif and image/jpg.)
     let accept-header = "image/*; q=0.9";
     check-equal(fmt("multi-view foo %= => foo.jpg?", accept-header),
                 "foo.jpg",

@@ -5,10 +5,11 @@ define library web-framework
   use base64;
   use common-dylan;
   use dood;
+  use dsp;
   use dylan;
   use http-common;
   use io;
-  use koala, import: { koala, dsp };
+  use koala;
   use system, import: { file-system, date, locators };
   use uri;
   use xml-parser;

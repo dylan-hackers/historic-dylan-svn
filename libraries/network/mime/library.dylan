@@ -7,7 +7,7 @@ define library mime
   use dylan,
     import: { dylan-extensions };
   use io,
-    import: { format, streams };
+    import: { format, print, streams };
   use strings;
   use system,
     import: { file-system };
@@ -29,6 +29,7 @@ define module mime
 
   // Conversions
   create
+    mime-type-to-string,
     string-to-mime-type;
 
   // Comparisons
@@ -52,8 +53,10 @@ define module mime-internal
   use format,
     import: { format };
   use mime;
+  use print,
+    import: { print-object };
   use streams,
-    import: { with-open-file, read-line, with-output-to-string };
+    import: { with-open-file, read-line, with-output-to-string, write };
   use strings,
     import: { trim };
 end module mime-internal;

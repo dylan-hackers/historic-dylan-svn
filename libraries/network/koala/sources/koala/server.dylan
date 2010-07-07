@@ -786,8 +786,8 @@ define method make
 end;
 
 // The request-url slot represents the URL in the Request-Line,
-// and may not be absolute.  This methods gives client code a way
-// to get the whole thing.  (We assume HTTP for now.)
+// and may not be absolute.  This method gives client code a way
+// to get the whole thing.  (We assume scheme = HTTP for now.)
 //
 define method request-absolute-url
     (request :: <request>)

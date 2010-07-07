@@ -17,3 +17,10 @@ INSTALLATION
 * Start the server:
 
   opendylan-dot-org --config config.xml
+
+
+TODO
+----
+
+* The links on the "downloading" page are all broken.  Need to copy
+  the downloading directory or symlink to it.

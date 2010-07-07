@@ -10,9 +10,6 @@ files:	library
 	cgi
 	server
 	session
-	dsp
-	dsp-utils
-	dsp-taglib
 	xml-rpc-server
 	config
 	responders

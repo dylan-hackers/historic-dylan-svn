@@ -32,6 +32,9 @@ define class <tag-argument-parse-error> (<dsp-parse-error>) end;
 
 //// Generic pages
 
+// TODO: Rename this to <resource> and define it in the main server.
+//       (Name stolen from Twisted's Resource.)
+
 define open primary class <page> (<object>)
 end;
 
@@ -789,13 +792,6 @@ define open primary class <dylan-server-page> (<file-page-mixin>, <page>)
   // A sequence of strings and functions.  Strings are output directly
   // to the network stream.  The functions are created by 'define tag'.
   slot page-template :: false-or(<dsp-template>) = #f;
-end;
-
-// For convenience in responders, tags, named-methods, etc.
-//
-define function output
-    (format-string, #rest format-args)
-  apply(format, output-stream(current-response()), format-string, format-args)
 end;
 
 

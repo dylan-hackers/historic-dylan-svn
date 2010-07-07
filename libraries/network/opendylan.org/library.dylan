@@ -4,8 +4,9 @@ Author: Carl Gay
 
 define library opendylan-dot-org
   use common-dylan;
+  use dsp;
   use io;
-  use koala,  import: { dsp, koala };
+  use koala;
   use system;
   use uri;
   use wiki;

@@ -336,3 +336,10 @@ define method add-cookie
              end);
 end method add-cookie;
 
+// For convenience in responders, tags, named-methods, etc.
+//
+define function output
+    (format-string, #rest format-args)
+  apply(format, output-stream(current-response()), format-string, format-args)
+end;
+

@@ -443,10 +443,10 @@ define method xml$transform
     (node :: xml$<element>, state :: <mime-type-whatever>)
   if (xml$name(node) = #"mime-type")
     let mime-type = get-attr(node, #"id");
-    let mime-type-map = state.mime-type-map;
+    let mime-map = state.mime-type-map;
     for (child in xml$node-children(node))
       if (xml$name(child) = #"extension")
-        mime-type-map[as(<symbol>, xml$text(child))] := mime-type;
+        mime-map[xml$text(child)] := mime-type;
       else
         warn("Skipping: %s %s %s: not an extension node!",
              mime-type, xml$name(child), xml$text(child));
