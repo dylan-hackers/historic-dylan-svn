@@ -262,10 +262,10 @@ define method print-source-location
   let first-line = record.source-record-start-line;
   let name
     = select (record by instance?)
-	<source-record> => 
-	  record.source-record-name | $interactive-record;
-	<file-source-record> =>
-	  locator-name(record.source-record-location);
+        <file-source-record> =>
+          locator-name(record.source-record-location);
+        <source-record> =>
+          record.source-record-name | $interactive-record;
       end;
   let (start-line, end-line)
     = if (line-number)
@@ -380,7 +380,7 @@ define method print-environment-object-id
   let id = environment-object-id(project, object);
   //---*** Enable this in all editions when the runtime manager correctly
   //---*** maintains object identity.
-  if (release-internal?() & instance?(id, <integer>))
+  if (instance?(id, <integer>))
     write(stream, ": ");
     write(stream, integer-to-string(id))
   end

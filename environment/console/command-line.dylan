@@ -16,6 +16,8 @@ define abstract class <basic-main-command> (<basic-command>)
     init-keyword: personal-root:;
   constant slot %system-root :: false-or(<directory-locator>) = #f,
     init-keyword: system-root:;
+  constant slot %internal-debug :: false-or(<sequence>) = #f,
+    init-keyword: internal-debug:;
   constant slot %project :: false-or(<file-locator>) = #f,
     init-keyword: project:;
   constant slot %help?          :: <boolean> = #f,
@@ -56,6 +58,8 @@ define abstract class <basic-main-command> (<basic-command>)
     init-keyword: link-exe?:;
   constant slot %gnu-exports? :: <boolean> = #f,
     init-keyword: gnu-exports?:;
+  constant slot %arch :: false-or(<symbol>) = #f,
+    init-keyword: arch:;
   constant slot %debug-info :: <symbol> = #"full",
     init-keyword: debug-info:;
   constant slot %messages :: false-or(<symbol>) = #f,
@@ -86,6 +90,12 @@ define method execute-main-command
 	  let command = apply(make, class, server: context, arguments);
 	  execute-command(command)
 	end method run;
+  if (command.%internal-debug)
+    let parts = as(<list>, command.%internal-debug);
+    debugging?() := #t;
+    debug-parts() := parts;     // For simple-debugging's debug-out.
+    *dfmc-debug-out* := parts;  // For dfmc-common's debug-out.
+  end if;
   let filename = command.%project;
   if (command.%import?)
     run(<import-project-command>, file: filename)
@@ -120,6 +130,7 @@ define method execute-main-command
     run(<link-project-command>, 
 	build-script: command.%build-script,
 	target:      target,
+	arch:        command.%arch,
 	force?:      command.%force? | command.%clean?,
 	subprojects: command.%subprojects? & ~command.%not-recursive?,
 	unify?:      command.%unify?)

@@ -547,5 +547,3 @@ define sideways method fragment-module
     dylan-implementation-module();
   end;
 end method;
-
-// eof

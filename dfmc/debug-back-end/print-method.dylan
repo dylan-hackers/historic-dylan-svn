@@ -272,5 +272,3 @@ define method output-computation-sexp
   res := add!(res, #"UNWIND-PROTECT");
   add!(res, c.computation-id);
 end method;
-
-// eof

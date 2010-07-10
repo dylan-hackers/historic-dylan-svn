@@ -175,15 +175,22 @@ define open generic copy-into-buffer!
 define sealed method copy-into-buffer!
     (buffer :: <buffer>, buffer-start-index :: <buffer-index>,
      sequence :: <byte-string>,
-     #key start: start-index = 0, end: end-index) => ()
-  copy-bytes(buffer, buffer-start-index, sequence, start-index, (end-index | sequence.size))
+     #key start: start-index = 0, end: end-index = sequence.size) => ()
+  copy-bytes(buffer, buffer-start-index, sequence, start-index, end-index - start-index)
 end method copy-into-buffer!;
 
 define sealed method copy-into-buffer!
     (buffer :: <buffer>, buffer-start-index :: <buffer-index>,
      sequence :: <byte-vector>,
-     #key start: start-index = 0, end: end-index) => ()
-  copy-bytes(buffer, buffer-start-index, sequence, start-index, (end-index | sequence.size))
+     #key start: start-index = 0, end: end-index = sequence.size) => ()
+  copy-bytes(buffer, buffer-start-index, sequence, start-index, end-index - start-index)
+end method copy-into-buffer!;
+
+define sealed method copy-into-buffer!
+    (buffer :: <buffer>, buffer-start-index :: <buffer-index>,
+     sequence :: <buffer>,
+     #key start: start-index = 0, end: end-index = sequence.size) => ()
+  copy-bytes(buffer, buffer-start-index, sequence, start-index, end-index - start-index)
 end method copy-into-buffer!;
 
 
@@ -196,15 +203,15 @@ define open generic copy-from-buffer!
 define sealed method copy-from-buffer!
     (buffer :: <buffer>, buffer-start-index :: <buffer-index>,
      sequence :: <byte-string>,
-     #key start: start-index = 0, end: end-index) => ()
-  copy-bytes(sequence, start-index, buffer, buffer-start-index, (end-index | sequence.size))
+     #key start: start-index = 0, end: end-index = sequence.size) => ()
+  copy-bytes(sequence, start-index, buffer, buffer-start-index, end-index - start-index)
 end method copy-from-buffer!;
 
 define sealed method copy-from-buffer!
     (buffer :: <buffer>, buffer-start-index :: <buffer-index>,
      sequence :: <byte-vector>,
-     #key start: start-index = 0, end: end-index) => ()
-  copy-bytes(sequence, start-index, buffer, buffer-start-index, (end-index | sequence.size))
+     #key start: start-index = 0, end: end-index = sequence.size) => ()
+  copy-bytes(sequence, start-index, buffer, buffer-start-index, end-index - start-index)
 end method copy-from-buffer!;
 
 //
@@ -215,5 +222,3 @@ define sealed /*inline*/ method type-for-copy (object :: <buffer>)
  => (c :: <class>)
   <buffer>
 end method type-for-copy;
-
-// eof

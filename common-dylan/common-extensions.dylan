@@ -103,6 +103,8 @@ end method difference;
 define open generic position
     (sequence :: <sequence>, target,
      #key test :: <function>,
+          start: _start :: <integer>,
+          end: _end,
           skip :: <integer>,
           //---*** For compatibility: remove this eventually
           count)
@@ -111,48 +113,79 @@ define open generic position
 define method position
     (sequence :: <sequence>, target, 
      #key test :: <function> = \==, 
+          start: _start :: <integer> = 0,
+          end: _end,
           skip :: <integer> = 0,
           count)
  => (position :: false-or(<integer>))
-  if (count)
-    skip := count - 1
-  end;
-  block (return)
-    for (index :: <integer> from 0, item in sequence)
-      let matched? = test(target, item);
-      if (matched?)
-        if (skip = 0)
-	  return(index);
-        end;
-	skip := skip - 1;
-      end;
-    end;
-  end;
+  with-fip-of sequence
+    // Skip indices before _start
+    for (index :: <integer> from 0 below _start,
+         state = initial-state then next-state(sequence, state))
+    finally
+      // Search for a matching index
+      iterate loop (index :: <integer> = _start,
+                    skip :: <integer> = if (count) count - 1 else skip end,
+                    state = state)
+        if (finished-state?(sequence, state, limit) | (_end & index >= _end))
+          #f
+        elseif (test(target, current-element(sequence, state)))
+          if (skip = 0)
+            index
+          else
+            loop(index + 1, skip - 1, next-state(sequence, state))
+          end if
+        else
+          loop(index + 1, skip, next-state(sequence, state))
+        end if
+      end iterate
+    end for
+  end with-fip-of
 end method position;
 
-// Copy-down method for simple object vectors...
-define sealed method position
+// Specialization for random-access sequences (subclasses of <vector>)
+define method position
+    (sequence :: <vector>, target, 
+     #key test :: <function> = \==, 
+          start: _start :: <integer> = 0,
+          end: _end :: <integer> = sequence.size,
+          skip :: <integer> = 0,
+          count)
+ => (position :: false-or(<integer>))
+  // Search for a matching index
+  iterate loop (index :: <integer> = _start,
+                skip :: <integer> = if (count) count - 1 else skip end)
+    if (index >= _end)
+      #f
+    elseif (test(target, sequence[index]))
+      if (skip = 0)
+        index
+      else
+        loop(index + 1, skip - 1)
+      end if
+    else
+      loop(index + 1, skip)
+    end if
+  end iterate;
+end method position;
+
+define sealed copy-down-method position
     (sequence :: <simple-object-vector>, target, 
      #key test :: <function> = \==, 
+          start: _start :: <integer> = 0,
+          end: _end :: <integer> = sequence.size,
           skip :: <integer> = 0,
           count)
- => (position :: false-or(<integer>))
-  if (count)
-    skip := count - 1
-  end;
-  block (return)
-    for (index :: <integer> from 0, item in sequence)
-      let matched? = test(target, item);
-      if (matched?)
-        if (skip = 0)
-	  return(index);
-        end;
-	skip := skip - 1;
-      end
-    end
-  end
-end method position;
+ => (position :: false-or(<integer>));
 
+define sealed copy-down-method position
+    (sequence :: <byte-string>, target, 
+     #key test :: <function> = \==, 
+          start: _start :: <integer> = 0,
+          end: _end :: <integer> = sequence.size,
+          skip :: <integer> = 0,
+          count)
+ => (position :: false-or(<integer>));
 
 // Split a sequence into parts at each occurrance of the 'separator'
 // and return a sequence containing the parts.  The sequence is
@@ -279,7 +312,10 @@ define method split
         remove-if-empty: remove-if-empty)
 end method split;
 
-// Join several sequences together, including a separator between each sequence.
+// Join several sequences together, including a separator between each
+// sequence.  If the first argument is empty, an empty sequence of type
+// type-for-copy(separator) is returned.
+//
 define open generic join
     (items :: <sequence>, separator :: <sequence>, #key key, conjunction)
  => (joined :: <sequence>);
@@ -301,7 +337,7 @@ define method join
   end;
   let length :: <integer> = sequences.size;
   if (length == 0)
-    error("Attempt to join an empty sequence.")
+    make(type-for-copy(separator), size: 0)
   elseif (length == 1)
     sequences[0]
   else

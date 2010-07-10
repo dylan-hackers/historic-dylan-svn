@@ -9,7 +9,6 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library io
   use functional-dylan;
-  use unix-portability;
   export
     streams,
     streams-internals,
@@ -60,6 +59,9 @@ define module streams
 	 read-line-into!,
 	 write-line,
 	 new-line;
+
+  // Used mainly by the above convenience functions and line-oriented functions.
+  create stream-sequence-class;
 
   // Positionable streams
   create <basic-positionable-stream>,
@@ -142,8 +144,7 @@ define module streams-internals
 	 ensure-readable, ensure-writable;
 
   // Querying streams
-  export stream-sequence-class,
-         stream-direction;
+  export stream-direction;
 
   // Positionable streams
   export current-position, current-position-setter,
@@ -172,6 +173,34 @@ define module streams-internals
 	 actual-stream-input-buffer, actual-stream-input-buffer-setter,
 	 actual-stream-output-buffer, actual-stream-output-buffer-setter;
 
+  // File streams
+  export <file-stream>,
+         <byte-file-stream>,
+         <external-file-accessor>,
+         type-for-file-stream,
+         stream-locator,
+         writable-file-stream-position-setter,
+         <general-file-stream>,
+         <byte-char-file-stream>;
+ 
+  // Multi-buffered streams
+  export <buffer-vector>,
+         <multi-buffered-stream>,
+         multi-buffered-stream-position-setter,
+         write-4-aligned-bytes-from-word,
+         read-4-aligned-bytes-as-word,
+         write-4-aligned-bytes, write-8-aligned-bytes,
+         read-4-aligned-bytes, read-8-aligned-bytes,
+         multi-buffer-working-set,
+         multi-buffer-reads,
+         multi-buffer-bytes,
+         multi-buffer-total-working-set,
+         multi-buffer-total-reads,
+         multi-buffer-total-bytes,
+         <general-multi-buffered-stream>,
+         <byte-multi-buffered-stream>,
+         <byte-char-multi-buffered-stream>;
+
   // Sequence streams
   export clear-contents,
          newline-sequence,
@@ -187,6 +216,13 @@ define module streams-internals
 	 accessor-open,
 	 accessor-open?,
 	 accessor-close,
+         accessor-at-end?,
+         accessor-at-end?-setter,
+         accessor-size,
+         accessor-size-setter,
+         accessor-positionable?,
+         accessor-position,
+         accessor-position-setter,
 	 accessor-force-output,
 	 accessor-wait-for-completion,
 	 accessor-newline-sequence,
@@ -203,7 +239,7 @@ define module streams-internals
          write-fill;
 
   // Asynchronous writes
-  create <pending-operation>,
+  export <pending-operation>,
          <pending-write>,
          async-check-for-errors,
          async-wait-for-completion,
@@ -216,6 +252,9 @@ define module streams-internals
          pending-count,
          pending-file-offset,
          pending-stream;
+
+  // File accessors
+  create <native-file-accessor>;
 end module streams-internals;
 
 define module pprint
@@ -296,8 +335,8 @@ end module format-out;
 define module io-internals
   use functional-dylan,
     exclude: { format-to-string };
-  use unix-portability;
   use dylan-direct-c-ffi;
+  use threads;
   use streams-internals;
   use format-internals;
   use standard-io;

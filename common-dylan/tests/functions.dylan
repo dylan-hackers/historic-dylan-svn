@@ -45,10 +45,6 @@ define common-extensions function-test concatenate! ()
 	\=, my-stretchy-vector, my-stretchy-vector-afterwards);
 end function-test concatenate!;
 
-define common-extensions function-test integer-length ()
-  //---*** Fill this in...
-end function-test integer-length;
-
 define constant $test-error-message = "Test Error";
 
 define class <test-error> (<error>)
@@ -258,17 +254,31 @@ end function-test one-of;
 
 define common-extensions function-test position ()
   //---*** Do all collections by using dylan-test-suite collection code
-  let list1 = #(1, 'a', 34.43, 'a', "done");
-  check-equal("test position",
-              position(list1, 'a'),
-              1);
-  check-equal("test position with skip of 2",
-              position(list1, 'a', skip: 1),
-              3);
-  check-false("test position with wrong item",
-              position(list1, 'w'));
-  check-false("test posision with skip greater than existance", 
-	      position(list1, 'a', skip: 2));
+  for (sequence in #[#(1, 'a', 34.43, 'a', "done"),
+                     #[1, 'a', 34.43, 'a', "done"],
+                     "xaxad"])
+    check-equal("test position",
+                position(sequence, 'a'),
+                1);
+    check-equal("test position with skip of 1",
+                position(sequence, 'a', skip: 1),
+                3);
+    check-false("test position with wrong item",
+                position(sequence, 'w'));
+    check-false("test posision with skip greater than existance", 
+                position(sequence, 'a', skip: 2));
+
+    check-equal("test position with start at first",
+                position(sequence, 'a', start: 1),
+                1);
+    check-equal("test position with start beyond first",
+                position(sequence, 'a', start: 2),
+                3);
+    check-false("test position with end",
+                position(sequence, 'a', end: 1));
+    check-false("test position with skip and end",
+                position(sequence, 'a', end: 3, skip: 1));
+  end for;
   check-equal("test position using test: \\<", 
               position(#(1, 2, 3, 4), 3, test: \<),
               3);
@@ -479,6 +489,38 @@ define common-extensions function-test format-to-string ()
   format-object-tests()
 end function-test format-to-string;
 
+define common-extensions function-test unfound ()
+  //---*** Fill this in...
+end function-test unfound;
+
+define common-extensions function-test unfound? ()
+  //---*** Fill this in...
+end function-test unfound?;
+
+define common-extensions function-test found? ()
+  //---*** Fill this in...
+end function-test found?;
+
+define common-extensions function-test unsupplied ()
+  //---*** Fill this in...
+end function-test unsupplied;
+
+define common-extensions function-test unsupplied? ()
+  //---*** Fill this in...
+end function-test unsupplied?;
+
+define common-extensions function-test supplied? ()
+  //---*** Fill this in...
+end function-test supplied?;
+
+define common-extensions function-test true? ()
+  //---*** Fill this in...
+end function-test true?;
+
+define common-extensions function-test false? ()
+  //---*** Fill this in...
+end function-test false?;
+
 
 /// simple-format module
 
@@ -590,3 +632,48 @@ define simple-profiling function-test profiling-type-result ()
   //---*** Fill this in...
 end function-test profiling-type-result;
 
+
+/// finalization tests
+
+define finalization function-test drain-finalization-queue ()
+  //---*** Fill this in...
+end function-test drain-finalization-queue;
+
+define finalization function-test finalize ()
+  //---*** Fill this in...
+end function-test finalize;
+
+define finalization function-test finalize-when-unreachable ()
+  //---*** Fill this in...
+end function-test finalize-when-unreachable;
+
+define finalization function-test automatic-finalization-enabled?-setter ()
+  //---*** Fill this in...
+end function-test automatic-finalization-enabled?-setter;
+
+define finalization function-test automatic-finalization-enabled? ()
+  //---*** Fill this in...
+end function-test automatic-finalization-enabled?;
+
+
+/// Numerics
+
+define common-extensions function-test integer-length ()
+  for (i from 0 below 27)
+    let v1 = ash(1, i) - 1;
+    check-equal(format-to-string("integer-length(%d) is %d", v1, i),
+                i, integer-length(v1));
+
+    let v2 = ash(1, i);
+    check-equal(format-to-string("integer-length(%d) is %d", v2, i + 1),
+                i + 1, integer-length(v2));
+
+    let v3 = - ash(1, i);
+    check-equal(format-to-string("integer-length(%d) is %d", v3, i),
+                i, integer-length(v3));
+
+    let v4 = -1 - ash(1, i);
+    check-equal(format-to-string("integer-length(%d) is %d", v4, i + 1),
+                i + 1, integer-length(v4));
+  end for;
+end function-test integer-length;

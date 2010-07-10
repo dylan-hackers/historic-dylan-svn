@@ -1246,5 +1246,3 @@ define macro with-parent-computation
   { with-parent-computation (?c:expression) ?:body end }
     => { do-with-parent-computation(method () ?body end, ?c) }
 end macro;
-
-// eof

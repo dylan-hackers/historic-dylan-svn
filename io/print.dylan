@@ -46,7 +46,7 @@ define thread variable *print-length* :: false-or(<integer>) = *default-length*;
 define variable *default-level* :: false-or(<integer>) = #f;
 define thread variable *print-level* :: false-or(<integer>) = *default-level*;
 
-// Print-circle? holds whether the user wants pretty printing.
+// Print-circle? holds whether the user wants circular printing.
 define variable *default-circle?* :: <boolean> = #f;
 define thread variable *print-circle?* :: <boolean> = *default-circle?*;
 
@@ -818,8 +818,6 @@ end method print-specializer;
 // deal with.
 // 
 
-/*
-// Kludge: unions don't work in the emulator, so split this up
 define sealed method print-object
     (object :: type-union(<singleton>, <limited-integer>, <union>), stream :: <stream>) => ()
   pprint-logical-block
@@ -829,32 +827,6 @@ define sealed method print-object
 	     print-specializer(object, stream);
 	   end method,
      suffix: "}");
-end method print-object;
-*/
-
-define function print-type-object (object, stream :: <stream>) => ()
-  pprint-logical-block
-    (stream,
-     prefix: "{Type ",
-     body: method (stream :: <stream>) => ()
-	     print-specializer(object, stream);
-	   end method,
-     suffix: "}");
-end;
-
-define sealed method print-object
-    (object :: <singleton>, stream :: <stream>) => ()
-  print-type-object(object, stream);
-end method print-object;
-
-define sealed method print-object
-    (object :: <limited-integer>, stream :: <stream>) => ()
-  print-type-object(object, stream);
-end method print-object;
-
-define sealed method print-object
-    (object :: <union>, stream :: <stream>) => ()
-  print-type-object(object, stream);
 end method print-object;
 
 /// For classes, we just print the class name if there is one.

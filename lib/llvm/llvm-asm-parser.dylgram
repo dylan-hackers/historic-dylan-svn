@@ -1,0 +1,1592 @@
+Module:       llvm-asm-parser-internals
+Author:       Peter S. Housel
+Copyright:    Original Code is Copyright 2009-2010 Gwydion Dylan Maintainers
+              All rights reserved.
+License:      Functional Objects Library Public License Version 1.0
+Dual-license: GNU Lesser General Public License
+Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
+
+define class <llvm-parse-state> (<object>)
+  constant slot parse-module :: <llvm-module>,
+    required-init-keyword: module:;
+
+  slot parse-unnamed-type-index :: <integer> = 0;
+  constant slot parse-unnamed-types :: <stretchy-object-vector>
+    = make(<stretchy-object-vector>);
+
+  slot parse-unnamed-global-index :: <integer> = 0;
+  constant slot parse-unnamed-global-values :: <stretchy-object-vector>
+    = make(<stretchy-object-vector>);
+
+  slot parse-function :: false-or(<llvm-function>) = #f;
+  slot parse-unnamed-local-index :: <integer> = 0;
+  constant slot parse-unnamed-local-values :: <stretchy-object-vector>
+    = make(<stretchy-object-vector>);
+end class;
+
+define thread variable *llvm-parse-state* :: <llvm-parse-state>
+  = make(<llvm-parse-state>, module: make(<llvm-module>, name: "<dummy>"));
+
+define method do-define-type (name :: <string>, type :: <llvm-type>) => ();
+  let definition
+    = element(*llvm-parse-state*.parse-module.llvm-type-table, name,
+              default: #f);
+  if (definition)
+    if (instance?(definition, <llvm-symbolic-type>))
+      definition.llvm-placeholder-type-forward := type;
+    else
+      error("type %%%s is multiply defined", name);
+    end if;
+  end if;
+  
+  // Record this type 
+  element(*llvm-parse-state*.parse-module.llvm-type-table, name) := type
+end method;
+
+define method do-define-type
+    (supplied-index :: false-or(<integer>), type :: <llvm-type>) => ();
+  let new-index = *llvm-parse-state*.parse-unnamed-type-index;
+  if (supplied-index & supplied-index ~= new-index)
+    error("Expected %%%d rather than %%%d for unnamed type",
+          new-index, supplied-index);
+  end;
+
+  let definition
+    = element(*llvm-parse-state*.parse-unnamed-types, new-index, default: #f);
+  if (definition)
+    if (instance?(definition, <llvm-symbolic-type>))
+      definition.llvm-placeholder-type-forward := type;
+    else
+      error("type %%%d is multiply defined", new-index);
+    end if;
+  end if;
+
+  // Record this type
+  element(*llvm-parse-state*.parse-unnamed-types, new-index) := type;
+  *llvm-parse-state*.parse-unnamed-type-index := new-index + 1;
+  type
+end method;
+
+define method do-define-global-value
+    (name :: <string>, value :: <llvm-constant-value>) => ();
+  let definition
+    = element(*llvm-parse-state*.parse-module.llvm-global-table, name,
+              default: #f);
+  if (definition)
+    if (instance?(definition, <llvm-symbolic-constant>))
+      definition.llvm-placeholder-value-forward := value;
+      llvm-constrain-type(definition.llvm-value-type, llvm-value-type(value));
+    else
+      error("value @%s is multiply defined", name);
+    end if;
+  end if;
+  
+  // Record this value
+  element(*llvm-parse-state*.parse-module.llvm-global-table, name) := value
+end method;
+
+define method do-define-global-value
+    (supplied-index :: false-or(<integer>), value :: <llvm-constant-value>)
+ => ();
+  let new-index = *llvm-parse-state*.parse-unnamed-global-index;
+  if (supplied-index & supplied-index ~= new-index)
+    error("Expected @%d rather than @%d for unnamed global value",
+          new-index, supplied-index);
+  end;
+  let definition
+    = element(*llvm-parse-state*.parse-unnamed-global-values, new-index,
+              default: #f);
+  if (definition)
+    if (instance?(definition, <llvm-symbolic-constant>))
+      definition.llvm-placeholder-value-forward := value;
+      llvm-constrain-type(definition.llvm-value-type, llvm-value-type(value));
+    else
+      error("value @%d is multiply defined", new-index);
+    end if;
+  end if;
+  
+  // Record this value
+  element(*llvm-parse-state*.parse-unnamed-global-values, new-index) := value;
+  *llvm-parse-state*.parse-unnamed-global-index := new-index + 1;
+end method;
+
+define method do-define-local-value
+    (name :: <string>, value :: <llvm-value>) => (value :: <llvm-value>);
+  let definition
+    = element(*llvm-parse-state*.parse-function.llvm-function-value-table,
+              name, default: #f);
+  if (definition)
+    if (instance?(definition, <llvm-symbolic-value>))
+      definition.llvm-placeholder-value-forward := value;
+      llvm-constrain-type(definition.llvm-value-type, llvm-value-type(value));
+    else
+      error("value %%%s is multiply defined", name);
+    end if;
+  end if;
+  
+  // Record this value
+  element(*llvm-parse-state*.parse-function.llvm-function-value-table, name)
+    := value
+end method;
+
+define method do-define-local-value
+    (supplied-index :: false-or(<integer>), value :: <llvm-value>)
+ => (value :: <llvm-value>);
+  unless (llvm-void-type?(llvm-value-type(value)))
+    let new-index = *llvm-parse-state*.parse-unnamed-local-index;
+    if (supplied-index & supplied-index ~= new-index)
+      error("Expected %%%d rather than %%%d for unnamed local value",
+            new-index, supplied-index);
+    end;
+    let definition
+      = element(*llvm-parse-state*.parse-unnamed-local-values, new-index,
+                default: #f);
+    if (definition)
+      if (instance?(definition, <llvm-symbolic-value>))
+        definition.llvm-placeholder-value-forward := value;
+        llvm-constrain-type(definition.llvm-value-type, llvm-value-type(value));
+      else
+        error("value %%%d is multiply defined", new-index);
+      end if;
+    end if;
+    
+    // Record this value
+    element(*llvm-parse-state*.parse-unnamed-local-values, new-index) := value;
+    *llvm-parse-state*.parse-unnamed-local-index := new-index + 1;
+  end unless;
+  value
+end method;
+
+define class <arg-entry> (<object>)
+  constant slot arg-attributes :: <llvm-attributes>,
+    init-value: $llvm-attribute-none, init-keyword: attributes:;
+  constant slot arg-type :: <llvm-type>,
+    init-keyword: type:;
+end class;
+
+define class <param-entry> (<object>)
+  constant slot param-attributes :: <llvm-attributes>,
+    init-value: $llvm-attribute-none, init-keyword: attributes:;
+  constant slot param-value :: <llvm-value>,
+    init-keyword: value:;
+end class;
+
+define function string-constant-contents
+    (string-constant :: <string>)
+ => (contents :: <sequence>);
+  let contents = make(<stretchy-object-vector>);
+  let string-constant-size = string-constant.size;
+
+  iterate loop (i = 0)
+    if (i < string-constant-size)
+      let ch = string-constant[i];
+      if (ch == '\\')
+        if (i + 1 < string-constant-size & string-constant[i + 1] == '\\')
+          add!(contents, make(<llvm-integer-constant>,
+                              type: $llvm-i8-type,
+                              integer: as(<integer>, '\\')));
+          loop(i + 2);
+        elseif (i + 2 < string-constant-size)
+          let hex-value
+            = string-to-integer(string-constant, base: 16,
+                                start: i + 1, end: i + 3);
+          add!(contents, make(<llvm-integer-constant>,
+                              type: $llvm-i8-type,
+                              integer: hex-value));
+          loop(i + 3);
+        end if;
+      else
+        add!(contents, make(<llvm-integer-constant>,
+                            type: $llvm-i8-type,
+                            integer: as(<integer>, ch)));
+        loop(i + 1);
+      end if;
+    end if;
+  end iterate;
+  
+  contents
+end function;
+
+// Change some attributes (that used to be function attributes) to
+// return attributes
+define constant $return-attributes-mask
+  = %logior($llvm-attribute-zext, $llvm-attribute-sext, $llvm-attribute-inreg);
+define function munge-attributes
+    (return-attributes :: <llvm-attributes>,
+     function-attributes :: <llvm-attributes>)
+ => (return-attributes :: <llvm-attributes>,
+     function-attributes :: <llvm-attributes>);
+  values(%logior(return-attributes,
+                 %logand(function-attributes, $return-attributes-mask)),
+         %logand(function-attributes, %lognot($return-attributes-mask)))
+end function;
+
+define parser llvm-parser
+
+// Module Structure
+start:
+  definition-list EOF => #f;;
+
+definition-list:
+  /* empty */
+    => #f;;
+  definition-list definition
+    => #f;;
+
+definition:
+  %MODULE %ASM asm-block
+    => if (empty?(*llvm-parse-state*.parse-module.llvm-module-asm))
+         *llvm-parse-state*.parse-module.llvm-module-asm := arg$3;
+       else
+         *llvm-parse-state*.parse-module.llvm-module-asm
+           := concatenate(*llvm-parse-state*.parse-module.llvm-module-asm,
+                          "\n", arg$3);
+       end if;;
+
+  global-assign      opt-linkage g-v-visibility-style opt-thread-local
+    opt-addr-space global-type const-val global-var-attributes
+    => begin
+         let pointer-type
+           = make(<llvm-pointer-type>,
+                  pointee: llvm-value-type(arg$7),
+                  address-space: arg$5);
+         let global
+           = apply(make, <llvm-global-variable>,
+                   name: arg$1,
+                   type: llvm-type-resolve-upvals(pointer-type),
+                   initializer: arg$7,
+                   constant?: arg$6 == #"constant",
+                   linkage: arg$2,
+                   visibility: arg$3,
+                   thread-local?: arg$4,
+                   arg$8);
+         add!(*llvm-parse-state*.parse-module.llvm-module-globals, global);
+         do-define-global-value(arg$1, global);
+       end;;
+
+                     opt-linkage g-v-visibility-style opt-thread-local
+                   global-type const-val global-var-attributes 
+    => begin
+         let pointer-type
+           = make(<llvm-pointer-type>,
+                  pointee: arg$5.llvm-value-type);
+         let global
+           = apply(make, <llvm-global-variable>,
+                   type: llvm-type-resolve-upvals(pointer-type),
+                   initializer: arg$5,
+                   constant?: arg$4 == #"constant",
+                   linkage: arg$1,
+                   visibility: arg$2,
+                   arg$6);
+         add!(*llvm-parse-state*.parse-module.llvm-module-globals, global);
+         do-define-global-value(#f, global);
+       end;;
+  global-assign external-linkage g-v-visibility-style opt-thread-local
+    opt-addr-space global-type types global-var-attributes 
+    => begin
+         let pointer-type
+           = make(<llvm-pointer-type>,
+                  pointee: arg$7,
+                  address-space: arg$5);
+         let global
+           = apply(make, <llvm-global-variable>,
+                   name: arg$1,
+                   type: llvm-type-resolve-upvals(pointer-type),
+                   constant?: arg$6 == #"constant",
+                   linkage: arg$2,
+                   visibility: arg$3,
+                   thread-local?: arg$4,
+                   arg$8);
+         add!(*llvm-parse-state*.parse-module.llvm-module-globals, global);
+         do-define-global-value(arg$1, global);
+       end;;
+                external-linkage g-v-visibility-style opt-thread-local
+                   global-type types global-var-attributes 
+    => begin
+         let pointer-type = make(<llvm-pointer-type>, pointee: arg$5);
+         let global
+           = apply(make, <llvm-global-variable>,
+                   type: llvm-type-resolve-upvals(pointer-type),
+                   constant?: arg$4 == #"constant",
+                   linkage: arg$1,
+                   visibility: arg$2,
+                   thread-local?: arg$3,
+                   arg$6);
+         add!(*llvm-parse-state*.parse-module.llvm-module-globals, global);
+         do-define-global-value(#f, global);
+       end;;
+
+  global-assign opt-linkage g-v-visibility-style %ALIAS opt-linkage aliasee-ref
+    => begin
+         let alias
+           = make(<llvm-global-alias>,
+                  name: arg$1,
+                  type: llvm-value-type(arg$6),
+                  linkage: arg$5,
+                  visibility: arg$3,
+                  aliasee: arg$6);
+         add!(*llvm-parse-state*.parse-module.llvm-module-aliases, alias);
+         do-define-global-value(arg$1, alias);
+       end;;
+
+  %TARGET %TRIPLE %EQUALS %STRINGCONSTANT
+    => *llvm-parse-state*.parse-module.llvm-module-target-triple := arg$4;;
+  %TARGET %DATALAYOUT %EQUALS %STRINGCONSTANT
+    => *llvm-parse-state*.parse-module.llvm-module-data-layout := arg$4;;
+
+  %DEPLIBS %EQUALS libraries-definition
+    => concatenate!(*llvm-parse-state*.parse-module.llvm-module-dependent-libraries, arg$3);;
+
+asm-block:
+  %STRINGCONSTANT => arg$1;;
+
+global-assign:
+  global-name %EQUALS
+    => arg$1;;
+  %GLOBALVAL_ID %EQUALS
+    => arg$1;;
+
+libraries-definition:
+  %LBRACK lib-list %RBRACK
+    => reverse!(arg$2);;
+
+lib-list:
+  /* empty */
+    => #();;
+  %STRINGCONSTANT
+    => list(arg$1);;
+  lib-list %COMMA %STRINGCONSTANT
+    => pair(arg$3, arg$1);;
+
+// Linkage Types
+
+opt-linkage:
+  /* empty */
+    => #"external";;
+  %PRIVATE
+    => #"private";;
+  %LINKER_PRIVATE
+    => #"linker-private";;
+  %INTERNAL
+    => #"internal";;
+  %WEAK
+    => #"weak";;
+  %WEAK_ODR
+    => #"weak-odr";;
+  %LINKONCE
+    => #"linkonce";;
+  %LINKONCE_ODR
+    => #"linkonce-odr";;
+  %AVAILABLE_EXTERNALLY
+    => #"available-externally";;
+  %APPENDING
+    => #"appending";;
+  %DLLEXPORT
+    => #"dllexport";;
+  %COMMON
+    => #"common";;
+
+external-linkage:
+  %DLLIMPORT
+    => #"dllimport";;
+  %EXTERN_WEAK
+    => #"extern-weak";;
+  %EXTERNAL
+    => #"external";;
+
+// Named Types
+
+definition:
+  opt-local-assign %TYPE types
+    => begin
+         let resolved-type = llvm-type-resolve-upvals(arg$3);
+         do-define-type(arg$1, resolved-type);
+       end;;
+  local-number     %TYPE types
+    => begin
+         let resolved-type = llvm-type-resolve-upvals(arg$3);
+         do-define-type(arg$1, resolved-type);
+       end;;
+
+opt-local-assign:
+  /* empty */
+    => #f;;
+  local-name %EQUALS
+    => arg$1;;
+
+local-name:
+  %LOCALVAR
+    => arg$1;;
+  %STRINGCONSTANT
+    => arg$1;;
+
+local-number:
+  %LOCALVAL_ID %EQUALS
+    => arg$1;;
+
+// Functions
+
+definition:
+  %DEFINE function 
+    => #f;;
+  %DECLARE function-proto
+    => #f;;
+
+function: 
+  function-header function-body
+    => begin
+         *llvm-parse-state*.parse-function := #f;
+         *llvm-parse-state*.parse-unnamed-local-index := 0;
+         *llvm-parse-state*.parse-unnamed-local-values.size := 0;
+       end;;
+
+function-header:
+  opt-linkage g-v-visibility-style function-header-h
+    => begin
+         let function
+           = apply(make, <llvm-function>,
+                   linkage: arg$1,
+                   visibility: arg$2,
+                   arg$3);
+         add!(*llvm-parse-state*.parse-module.llvm-module-functions, function);
+         do-define-global-value(function.llvm-global-name, function);
+
+         // Install this function as the current one while parsing the
+         // function-body
+         *llvm-parse-state*.parse-function := function;
+
+         // Install the function arguments as local values
+         for (argument in function.llvm-function-arguments)
+           do-define-local-value(argument.llvm-argument-name, argument);
+         end for;
+       end;;
+
+function-proto:
+  function-linkage g-v-visibility-style function-header-h
+    => begin
+         let function
+           = apply(make, <llvm-function>,
+                   linkage: arg$1,
+                   visibility: arg$2,
+                   arg$3);
+         add!(*llvm-parse-state*.parse-module.llvm-module-functions, function);
+         do-define-global-value(function.llvm-global-name, function);
+       end;;
+
+function-header-h:
+  opt-calling-conv opt-ret-attrs result-types function-name
+    %LPAREN arg-list %RPAREN opt-func-attrs opt-section opt-align opt-gc
+    => begin
+         let function-type
+           = make(<llvm-function-type>,
+                  return-type: arg$3,
+                  parameter-types: map(llvm-value-type, arg$6.head),
+                  varargs?: arg$6.tail);
+         let pointer-type
+           = make(<llvm-pointer-type>, pointee: function-type);
+         let (return-attributes, function-attributes)
+           = munge-attributes(arg$2, arg$8);
+         let attribute-list
+           = make(<llvm-attribute-list>,
+                  return-attributes: return-attributes,
+                  function-attributes: function-attributes,
+                  parameter-attributes:
+                    map(llvm-argument-attributes, arg$6.head));
+         vector(calling-convention: arg$1,
+                type: llvm-type-resolve-upvals(pointer-type),
+                name: arg$4,
+                arguments: arg$6.head,
+                attribute-list: attribute-list,
+                section: arg$9,
+                alignment: arg$10,
+                garbage-collector: arg$11)
+       end;;
+
+function-linkage:
+  opt-linkage
+    => arg$1;;
+  external-linkage
+    => arg$1;;
+
+function-name:
+  global-name
+    => arg$1;;
+  %GLOBALVAL_ID
+    => arg$1;;
+
+opt-calling-conv:
+  /* empty */
+    => $llvm-calling-convention-c;;
+  %CCC
+    => $llvm-calling-convention-c;;
+  %FASTCC
+    => $llvm-calling-convention-fast;;
+  %COLDCC
+    => $llvm-calling-convention-cold;;
+  %X86_STDCALLCC
+    => $llvm-calling-convention-x86-stdcall;;
+  %X86_FASTCALLCC
+    => $llvm-calling-convention-x86-fastcall;;
+  %ARM_APCSCC
+    => $llvm-calling-convention-arm-apcs;;
+  %ARM_AAPCSCC
+    => $llvm-calling-convention-arm-aapcs;;
+  %ARM_AAPCS_VFPCC
+    => $llvm-calling-convention-arm-vfp;;
+  %MSP430_INTRCC
+    => $llvm-calling-convention-msp430-intr;;
+  %X86_THISCALLCC
+    => $llvm-calling-convention-x86-thiscall;;
+  %CC %EUINT64VAL
+    => arg$2;;
+
+opt-ret-attrs:
+  /* empty */
+    => $llvm-attribute-none;;
+  opt-ret-attrs ret-attr
+    => llvm-attribute-merge(arg$1, arg$2);;
+
+ret-attr:
+  %INREG
+    => $llvm-attribute-inreg;;
+  %ZEROEXT
+    => $llvm-attribute-zext;;
+  %SIGNEXT
+    => $llvm-attribute-sext;;
+  %NOALIAS
+    => $llvm-attribute-noalias;;
+
+function-body:
+  %BEGIN basic-block-list %END
+    => #f;;
+  %LBRACE basic-block-list %RBRACE
+    => #f;;
+
+basic-block-list:
+  basic-block
+    => add!(*llvm-parse-state*.parse-function.llvm-function-basic-blocks,
+            arg$1);;
+  basic-block-list basic-block
+    => add!(*llvm-parse-state*.parse-function.llvm-function-basic-blocks,
+            arg$2);;
+
+types:
+  nonfunction-types
+    => arg$1;;
+  function-types
+    => arg$1;;
+
+nonfunction-types:
+  %OPAQUE
+    => make(<llvm-opaque-type>);;
+  %INTTYPE
+    => make(<llvm-integer-type>, width: arg$1);;
+  prim-type
+    => make(<llvm-primitive-type>, kind: arg$1);;
+  types opt-addr-space %STAR
+    => make(<llvm-pointer-type>, pointee: arg$1, address-space: arg$2);;
+  %LOCALVAL_ID
+    => begin
+         element(*llvm-parse-state*.parse-unnamed-types, arg$1, default: #f)
+           | begin
+               let placeholder = make(<llvm-symbolic-type>, name: arg$1);
+               element(*llvm-parse-state*.parse-unnamed-types, arg$1)
+                 := placeholder;
+               placeholder;
+             end
+       end;;
+  local-name
+    => begin
+         element(*llvm-parse-state*.parse-module.llvm-type-table,
+                 arg$1, default: #f)
+           | begin
+               let placeholder = make(<llvm-symbolic-type>, name: arg$1);
+               element(*llvm-parse-state*.parse-module.llvm-type-table, arg$1)
+                 := placeholder;
+               placeholder
+             end
+       end;;
+  %UPVAL %EUINT64VAL
+    => make(<llvm-upval-type>, index: arg$2);;
+  %LBRACK %EUINT64VAL %x types %RBRACK
+    => make(<llvm-array-type>, size: arg$2, element-type: arg$4);;
+  %LANGLE %EUINT64VAL %x types %RANGLE
+    => make(<llvm-vector-type>, size: arg$2, element-type: arg$4);;
+  %LBRACE type-list-i %RBRACE
+    => make(<llvm-struct-type>, packed?: #f, elements: reverse!(arg$2));;
+  %LBRACE %RBRACE
+    => make(<llvm-struct-type>, packed?: #f, elements: #[]);;
+  %LANGLE %LBRACE type-list-i %RBRACE %RANGLE
+    => make(<llvm-struct-type>, packed?: #t, elements: reverse!(arg$3));;
+  %LANGLE %LBRACE %RBRACE %RANGLE
+    => make(<llvm-struct-type>, packed?: #t, elements: #[]);;
+  %UNION %LBRACE type-list-i %RBRACE
+    => make(<llvm-union-type>, elements: reverse!(arg$3));;
+
+prim-type:
+  %FLOAT
+    => #"FLOAT";;
+  %DOUBLE
+    => #"DOUBLE";;
+  %PPC_FP128
+    => #"PPC_FP128";;
+  %FP128
+    => #"FP128";;
+  %X86_FP80
+    => #"X86_FP80";;
+  %LABEL
+    => #"LABEL";;
+  %METADATA
+    => #"METADATA";;
+
+opt-addr-space:
+  /* empty */
+    => 0;;
+  %ADDRSPACE %LPAREN %EUINT64VAL %RPAREN
+    => arg$3;;
+
+function-types:
+  types %LPAREN arg-type-list-i %RPAREN opt-func-attrs
+    => make(<llvm-function-type>,
+            return-type: arg$1,
+            parameter-types: map(arg-type, arg$3.head),
+            varargs?: arg$3.tail);;
+  %VOID %LPAREN arg-type-list-i %RPAREN opt-func-attrs
+    => make(<llvm-function-type>,
+            return-type: $llvm-void-type,
+            parameter-types: map(arg-type, arg$3.head),
+            varargs?: arg$3.tail);;
+
+types-opt-attributes:
+  function-types
+    => make(<arg-entry>, type: arg$1);;
+  nonfunction-types
+    => make(<arg-entry>, type: arg$1);;
+  nonfunction-types overlap-attribute
+    => make(<arg-entry>, type: arg$1, attributes: arg$2);;
+  types-opt-attributes nonoverlap-attribute
+    => make(<arg-entry>,
+            type: arg$1.arg-type,
+            attributes: llvm-attribute-merge(arg$1.arg-attributes, arg$2));;
+
+g-v-visibility-style:
+  /* empty */
+    => #"default";;
+  %DEFAULT
+    => #"default";;
+  %HIDDEN
+    => #"hidden";;
+  %PROTECTED
+    => #"protected";;
+
+opt-thread-local:
+  /* empty */
+    => #f;;
+  %THREAD_LOCAL
+    => #t;;
+
+global-type:
+  %GLOBAL
+    => #"global";;
+  %CONSTANT
+    => #"constant";;
+
+const-val:
+  types %LBRACK const-vector %RBRACK
+    => make(<llvm-aggregate-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            aggregate-values: reverse!(arg$3));;
+  types %LBRACK %RBRACK
+    => make(<llvm-aggregate-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            aggregate-values: #[]);;
+  types %C %STRINGCONSTANT
+    => make(<llvm-aggregate-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            aggregate-values: string-constant-contents(arg$3));;
+  types %LANGLE const-vector %RANGLE
+    => make(<llvm-aggregate-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            aggregate-values: reverse!(arg$3));;
+  types %LBRACE const-vector %RBRACE
+    => make(<llvm-aggregate-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            aggregate-values: reverse!(arg$3));;
+  types %LBRACE %RBRACE
+    => make(<llvm-aggregate-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            aggregate-values: #[]);;
+  types %LANGLE %LBRACE const-vector %RBRACE %RANGLE
+    => make(<llvm-aggregate-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            aggregate-values: reverse!(arg$4));;
+  types %LANGLE %LBRACE %RBRACE %RANGLE
+    => make(<llvm-aggregate-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            aggregate-values: #[]);;
+  types %NULL
+    => make(<llvm-null-constant>, type: llvm-type-resolve-upvals(arg$1));;
+  types %UNDEF
+    => make(<llvm-undef-constant>, type: llvm-type-resolve-upvals(arg$1));;
+  types symbolic-value-ref
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$2),
+                             llvm-type-resolve-upvals(arg$1));
+         arg$2
+       end;;
+  types const-expr
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$2),
+                             llvm-type-resolve-upvals(arg$1));
+         arg$2
+       end;;
+  types %ZEROINITIALIZER
+    => make(<llvm-null-constant>, type: llvm-type-resolve-upvals(arg$1));;
+  types %ESINT64VAL
+    => make(<llvm-integer-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            integer: arg$2);;
+  types %EUINT64VAL
+    => make(<llvm-integer-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            integer: arg$2);;
+  types %FPVAL
+    => make(<llvm-float-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            float: arg$2);;
+  types %TRUE
+    => make(<llvm-integer-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            integer: 1);;
+  types %FALSE
+    => make(<llvm-integer-constant>,
+            type: llvm-type-resolve-upvals(arg$1),
+            integer: 0);;
+  types %BLOCKADDRESS %LPAREN global-name %COMMA local-name %RPAREN
+    => error("%%BLOCKADDRESS");;
+
+global-var-attributes:
+  /* empty */
+    => #[];;
+  %COMMA global-var-attribute global-var-attributes
+    => concatenate(arg$2, arg$3);;
+
+global-var-attribute:
+  section-string
+    => vector(section:, arg$1);;
+  %ALIGN %EUINT64VAL
+    => vector(alignment:, arg$2);;
+
+section-string:
+  %SECTION %STRINGCONSTANT
+    => arg$2;;
+
+aliasee-ref:
+  result-types symbolic-value-ref
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$2),
+                             llvm-type-resolve-upvals(arg$1));
+         arg$2
+       end;;
+  %BITCAST %LPAREN aliasee-ref %TO types %RPAREN
+    => make(<llvm-cast-constant>,
+            operator: #"BITCAST",
+            type: llvm-type-resolve-upvals(arg$5),
+            operands: vector(arg$3));;
+  %GETELEMENTPTR opt-inbounds %LPAREN const-val index-list %RPAREN
+    => make(<llvm-gep-constant>,
+            in-bounds?: arg$2,
+            operands: pair(arg$4, reverse!(arg$5)));;
+
+symbolic-value-ref:
+  %LOCALVAL_ID
+    => begin
+         element(*llvm-parse-state*.parse-unnamed-local-values, arg$1,
+                 default: #f)
+           | begin
+               let placeholder = make(<llvm-symbolic-value>, name: arg$1);
+               element(*llvm-parse-state*.parse-unnamed-local-values, arg$1)
+                 := placeholder
+             end
+       end;;
+  %GLOBALVAL_ID
+    => begin
+         element(*llvm-parse-state*.parse-unnamed-global-values, arg$1,
+                 default: #f)
+           | begin
+               let placeholder = make(<llvm-symbolic-constant>, name: arg$1);
+               element(*llvm-parse-state*.parse-unnamed-global-values, arg$1)
+                 := placeholder
+             end
+       end;;
+
+  local-name
+    => begin
+         element(*llvm-parse-state*.parse-function.llvm-function-value-table,
+                 arg$1, default: #f)
+           | begin
+               let placeholder = make(<llvm-symbolic-value>, name: arg$1);
+               element(*llvm-parse-state*
+                         .parse-function.llvm-function-value-table, arg$1)
+                 := placeholder
+             end
+       end;;
+  global-name
+    => begin
+         element(*llvm-parse-state*.parse-module.llvm-global-table, arg$1,
+                 default: #f)
+           | begin
+               let placeholder = make(<llvm-symbolic-constant>, name: arg$1);
+               element(*llvm-parse-state*
+                         .parse-module.llvm-global-table, arg$1)
+                 := placeholder
+             end
+       end;;
+
+arg-type-list-i:
+  /* empty */
+    => pair(#(), #f);;
+  arg-type-list
+    => pair(reverse!(arg$1), #f);;
+  arg-type-list %COMMA %DOTDOTDOT
+    => pair(reverse!(arg$1), #t);;
+  %DOTDOTDOT
+    => pair(#(), #t);;
+
+arg-type-list:
+  types-opt-attributes
+    => list(arg$1);;
+  arg-type-list %COMMA types-opt-attributes
+    => pair(arg$3, arg$1);;
+
+type-list-i:
+  types
+    => list(arg$1);;
+  type-list-i %COMMA types
+     => pair(arg$3, arg$1);;
+
+const-vector:
+  const-val
+    => list(arg$1);;
+  const-vector %COMMA const-val
+    => pair(arg$3, arg$1);;
+
+const-expr:
+  cast-ops %LPAREN const-val %TO types %RPAREN
+    => make(<llvm-cast-constant>,
+            type: llvm-type-resolve-upvals(arg$5),
+            operator: arg$1,
+            operands: vector(arg$3));;
+  %GETELEMENTPTR opt-inbounds %LPAREN const-val index-list %RPAREN
+    => make(<llvm-gep-constant>,
+            in-bounds?: arg$2,
+            operands: pair(arg$4, reverse!(arg$5)));;
+  %SELECT %LPAREN const-val %COMMA const-val %COMMA const-val %RPAREN
+    => error("const-expr %%SELECT");;
+  arithmetic-ops %LPAREN const-val %COMMA const-val %RPAREN
+    => apply(make, <llvm-binop-constant>,
+             operator: arg$1.head,
+             operands: vector(arg$3, arg$5),
+             arg$1.tail);;
+  logical-ops %LPAREN const-val %COMMA const-val %RPAREN
+    => make(<llvm-binop-constant>,
+            operator: arg$1,
+            operands: vector(arg$3, arg$5));;
+  %ICMP i-predicates %LPAREN const-val %COMMA const-val %RPAREN
+    => begin
+         make(<llvm-icmp-constant>,
+            predicate: arg$2,
+            operands: vector(arg$4, arg$6))
+       end;;
+  %FCMP f-predicates %LPAREN const-val %COMMA const-val %RPAREN
+    => begin
+         make(<llvm-fcmp-constant>,
+            predicate: arg$2,
+            operands: vector(arg$4, arg$6))
+       end;;
+  %EXTRACTELEMENT %LPAREN const-val %COMMA const-val %RPAREN
+    => error("const-expr %%EXTRACTELEMENT");;
+  %INSERTELEMENT %LPAREN const-val %COMMA const-val %COMMA const-val %RPAREN
+    => error("const-expr %%INSERTELEMENT");;
+  %SHUFFLEVECTOR %LPAREN const-val %COMMA const-val %COMMA const-val %RPAREN
+    => error("const-expr %%SHUFFLEVECTOR");;
+  %EXTRACTVALUE %LPAREN const-val constant-index-list %RPAREN
+    => error("const-expr %%EXTRACTVALUE");;
+  %INSERTVALUE %LPAREN const-val %COMMA const-val constant-index-list %RPAREN
+    => error("const-expr %%INSERTVALUE");;
+
+cast-ops:
+  %TRUNC
+    => #"TRUNC";;
+  %ZEXT
+    => #"ZEXT";;
+  %SEXT
+    => #"SEXT";;
+  %FPTRUNC
+    => #"FPTRUNC";;
+  %FPEXT
+    => #"FPEXT";;
+  %BITCAST
+    => #"BITCAST";;
+  %UITOFP
+    => #"UITOFP";;
+  %SITOFP
+    => #"SITOFP";;
+  %FPTOUI
+    => #"FPTOUI";;
+  %FPTOSI
+    => #"FPTOSI";;
+  %INTTOPTR
+    => #"INTTOPTR";;
+  %PTRTOINT
+    => #"PTRTOINT";;
+
+constant-index-list:
+  %COMMA %EUINT64VAL
+    => list(arg$2);;
+  constant-index-list %COMMA %EUINT64VAL
+    => pair(arg$3, arg$1);;
+
+result-types:
+  types
+    => arg$1;;
+  %VOID
+    => $llvm-void-type;;
+
+basic-block:
+  instruction-list opt-local-assign b-b-terminator-inst
+    => begin
+         do-define-local-value(arg$2, arg$3);
+         add!(arg$1.llvm-basic-block-instructions, arg$3);
+         arg$1
+       end;;
+  instruction-list local-number b-b-terminator-inst
+    => begin
+         do-define-local-value(arg$2, arg$3);
+         add!(arg$1.llvm-basic-block-instructions, arg$3);
+         arg$1
+       end;;
+
+global-name:
+  %GLOBALVAR
+    => arg$1;;
+
+arg-list:
+  /* empty */
+    => pair(#(), #f);;
+  arg-list-h
+    => pair(reverse!(arg$1), #f);;
+  arg-list-h %COMMA %DOTDOTDOT
+    => pair(reverse!(arg$1), #t);;
+  %DOTDOTDOT
+    => pair(#(), #t);;
+
+arg-list-h:
+  types-opt-attributes opt-local-name
+    => list(make(<llvm-argument>,
+                 type: arg$1.arg-type,
+                 name: arg$2,
+                 attributes: arg$1.arg-attributes,
+                 index: 0));;
+  arg-list-h %COMMA types-opt-attributes opt-local-name
+    => pair(make(<llvm-argument>,
+                 type: arg$3.arg-type,
+                 name: arg$4,
+                 attributes: arg$3.arg-attributes,
+                 index: arg$1.head.llvm-argument-index + 1),
+            arg$1);;
+
+opt-func-attrs:
+  /* empty */
+    => $llvm-attribute-none;;
+  opt-func-attrs func-attr
+    => llvm-attribute-merge(arg$1, arg$2);;
+
+opt-section:
+  /* empty */
+    => #f;;
+  section-string
+    => arg$1;;
+
+opt-align:
+  /* empty */
+    => #f;;
+  %ALIGN %EUINT64VAL
+    => arg$2;;
+
+opt-gc:
+  /* empty */
+    => #f;;
+  %GC %STRINGCONSTANT
+    => arg$2;;
+
+index-list:
+  /* empty */
+    => #();;
+  index-list %COMMA resolved-val
+    => pair(arg$3, arg$1);;
+
+arithmetic-ops:
+  %ADD opt-nuw-nsw
+    => pair(#"ADD", arg$2);;
+  %FADD
+    => #(#"FADD");;
+  %SUB opt-nuw-nsw
+    => pair(#"SUB", arg$2);;
+  %FSUB
+    => #(#"FSUB");;
+  %MUL opt-nuw-nsw
+    => pair(#"MUL", arg$2);;
+  %FMUL
+    => #(#"FMUL");;
+  %UDIV
+    => #(#"UDIV");;
+  %SDIV
+    => #(#"SDIV");;
+  %SDIV %EXACT
+    => #(#"SDIV", exact?:, #t);;
+  %FDIV
+    => #(#"FDIV");;
+  %UREM
+    => #(#"UREM");;
+  %SREM
+    => #(#"SREM");;
+  %FREM
+    => #(#"FREM");;
+
+opt-nuw-nsw:
+  /* empty */
+    => #();;
+  %NUW
+    => #(no-unsigned-wrap?:, #t);;
+  %NSW
+    => #(no-signed-wrap?:, #t);;
+  %NUW %NSW
+    => #(no-unsigned-wrap?:, #t, no-signed-wrap?:, #t);;
+  %NSW %NUW
+    => #(no-unsigned-wrap?:, #t, no-signed-wrap?:, #t);;
+
+logical-ops:
+  %SHL  => #"SHL";;
+  %LSHR => #"LSHR";;
+  %ASHR => #"ASHR";;
+  %AND  => #"AND";;
+  %OR   => #"OR";;
+  %XOR  => #"XOR";;
+
+i-predicates:
+  %EQ   => #"EQ";;
+  %NE   => #"NE";;
+  %SLT  => #"SLT";;
+  %SGT  => #"SGT";;
+  %SLE  => #"SLE";;
+  %SGE  => #"SGE";;
+  %ULT  => #"ULT";;
+  %UGT  => #"UGT";;
+  %ULE  => #"ULE";;
+  %UGE  => #"UGE";;
+
+f-predicates:
+  %OEQ  => #"OEQ";;
+  %ONE  => #"ONE";;
+  %OLT  => #"OLT";;
+  %OGT  => #"OGT";;
+  %OLE  => #"OLE";;
+  %OGE  => #"OGE";;
+  %ORD  => #"ORD";;
+  %UNO  => #"UNO";;
+  %UEQ  => #"UEQ";;
+  %UNE  => #"UNE";;
+  %ULT  => #"ULT";;
+  %UGT  => #"UGT";;
+  %ULE  => #"ULE";;
+  %UGE  => #"UGE";;
+  %TRUE => #"TRUE";;
+  %FALSE => #"FALSE";;
+
+instruction-list:
+  /* empty */
+    => begin
+         let basic-block = make(<llvm-basic-block>);
+         do-define-local-value(#f, basic-block);
+         basic-block
+       end;;
+  %LABELSTR
+    => begin
+         let basic-block = make(<llvm-basic-block>, name: arg$1);
+         do-define-local-value(arg$1, basic-block);
+         basic-block
+       end;;
+  instruction-list inst
+    => begin
+         add!(arg$1.llvm-basic-block-instructions, arg$2);
+         arg$1
+       end;;
+
+inst:
+  opt-local-assign inst-val
+    => do-define-local-value(arg$1, arg$2);;
+  local-number inst-val
+    => do-define-local-value(arg$1, arg$2);;
+
+b-b-terminator-inst:
+  %RET returned-val
+    => make(<llvm-return-instruction>, operands: reverse!(arg$2));;
+  %RET %VOID
+    => make(<llvm-return-instruction>, operands: #[]);;
+  %BR %LABEL value-ref
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$3), $llvm-label-type);
+         make(<llvm-branch-instruction>,
+              operands: vector(arg$3));
+       end;;
+  %BR %INTTYPE value-ref %COMMA %LABEL value-ref %COMMA %LABEL value-ref
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$3),
+                             make(<llvm-integer-type>, width: arg$2));
+         llvm-constrain-type(llvm-value-type(arg$6), $llvm-label-type);
+         llvm-constrain-type(llvm-value-type(arg$9), $llvm-label-type);
+         make(<llvm-branch-instruction>,
+              operands: vector(arg$3, arg$6, arg$9));
+       end;;
+  %SWITCH %INTTYPE value-ref %COMMA %LABEL value-ref %LBRACK jump-table %RBRACK
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$3),
+                             make(<llvm-integer-type>, width: arg$2));
+         llvm-constrain-type(llvm-value-type(arg$6), $llvm-label-type);
+         make(<llvm-switch-instruction>,
+              operands: concatenate(vector(arg$3, arg$6), arg$8))
+       end;;
+  %SWITCH %INTTYPE value-ref %COMMA %LABEL value-ref %LBRACK %RBRACK
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$3),
+                             make(<llvm-integer-type>, width: arg$2));
+         llvm-constrain-type(llvm-value-type(arg$6), $llvm-label-type);
+         make(<llvm-switch-instruction>,
+              operands: vector(arg$3, arg$6))
+       end;;
+  %INDIRECTBR resolved-val %COMMA %LBRACK indirectbr-table %RBRACK
+    => error("%%INDIRECTBR");;
+  %INDIRECTBR resolved-val %COMMA %LBRACK %RBRACK
+    => error("%%INDIRECTBR");;
+  %INVOKE opt-calling-conv opt-ret-attrs result-types value-ref
+    %LPAREN param-list %RPAREN opt-func-attrs
+    %TO %LABEL value-ref
+    %UNWIND %LABEL value-ref
+    => begin
+         let type = llvm-type-resolve-upvals(arg$4);
+         let return-type
+           = if (instance?(type, <llvm-pointer-type>))
+               let pointee
+                 = llvm-type-forward(type.llvm-pointer-type-pointee);
+               if (instance?(pointee, <llvm-function-type>))
+                 llvm-constrain-type(llvm-value-type(arg$5), type);
+                 llvm-type-forward(pointee.llvm-function-type-return-type)
+               else
+                 type
+               end if
+             else
+               type
+             end if;
+         llvm-constrain-type(llvm-value-type(arg$12), $llvm-label-type);
+         llvm-constrain-type(llvm-value-type(arg$15), $llvm-label-type);
+         let param-list = reverse!(arg$7);
+         let (return-attributes, function-attributes)
+           = munge-attributes(arg$3, arg$9);
+         let attribute-list
+           = make(<llvm-attribute-list>,
+                  return-attributes: return-attributes,
+                  function-attributes: function-attributes,
+                  parameter-attributes: map(param-attributes, param-list));
+         make(<llvm-invoke-instruction>,
+              type: return-type,
+              attribute-list: attribute-list,
+              calling-convention: arg$2,
+              operands: concatenate(vector(arg$12, arg$15, arg$5),
+                                    map(param-value, param-list)))
+       end;;
+  %UNWIND
+    => make(<llvm-unwind-instruction>);;
+  %UNREACHABLE
+    => make(<llvm-unreachable-instruction>);;
+
+func-attr:
+  %NORETURN
+    => $llvm-attribute-noreturn;;
+  %NOUNWIND
+    => $llvm-attribute-nounwind;;
+  %INREG
+    => $llvm-attribute-inreg;;
+  %ZEROEXT
+    => $llvm-attribute-zext;;
+  %SIGNEXT
+    => $llvm-attribute-sext;;
+  %READNONE
+    => $llvm-attribute-readnone;;
+  %READONLY
+    => $llvm-attribute-readonly;;
+  %NOINLINE
+    => $llvm-attribute-noinline;;
+  %ALWAYSINLINE
+    => $llvm-attribute-alwaysinline;;
+  %INLINEHINT
+    => $llvm-attribute-inlinehint;;
+  %OPTSIZE
+    => $llvm-attribute-optsize;;
+  %SSP
+    => $llvm-attribute-ssp;;
+  %SSPREQ
+    => $llvm-attribute-sspreq;;
+  %NOREDZONE
+    => $llvm-attribute-noredzone;;
+  %NOIMPLICITFLOAT
+    => $llvm-attribute-noimplicitfloat;;
+  %NAKED
+    => $llvm-attribute-naked;;
+  %ALIGNSTACK %EUINT64VAL
+    => llvm-attribute-stack-alignment(arg$2);;
+
+resolved-val:
+  types value-ref
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$2),
+                             llvm-type-resolve-upvals(arg$1));
+         arg$2
+       end;;
+
+returned-val:
+  resolved-val
+    => list(arg$1);;
+  returned-val %COMMA resolved-val
+    => pair(arg$3, arg$1);;
+
+value-ref:
+  symbolic-value-ref
+    => arg$1;;
+  const-value-ref
+    => arg$1;;
+
+jump-table:
+  %INTTYPE const-value-ref %COMMA %LABEL value-ref
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$2),
+                             make(<llvm-integer-type>, width: arg$1));
+         llvm-constrain-type(llvm-value-type(arg$5), $llvm-label-type);
+         vector(arg$2, arg$5)
+       end;;
+  jump-table %INTTYPE const-value-ref %COMMA %LABEL value-ref
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$3),
+                             make(<llvm-integer-type>, width: arg$2));
+         llvm-constrain-type(llvm-value-type(arg$6), $llvm-label-type);
+         concatenate(arg$1, vector(arg$3, arg$6))
+       end;;
+
+indirectbr-table:
+  %LABEL value-ref
+    => #f;;
+  indirectbr-table %COMMA %LABEL value-ref
+    => #f;;
+
+param-list:
+  /* empty */
+    => #();;
+  types-opt-attributes value-ref opt-attributes
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$2), arg$1.arg-type);
+         let entry
+           = make(<param-entry>,
+                  attributes: llvm-attribute-merge(arg$1.arg-attributes,
+                                                   arg$3),
+                  value: arg$2);
+         list(entry)
+       end;;
+  param-list %COMMA types-opt-attributes value-ref opt-attributes
+    => begin
+         llvm-constrain-type(llvm-value-type(arg$4), arg$3.arg-type);
+         let entry
+           = make(<param-entry>,
+                  attributes: llvm-attribute-merge(arg$3.arg-attributes,
+                                                   arg$5),
+                  value: arg$4);
+         pair(entry, arg$1)
+       end;;
+
+opt-attributes:
+  /* empty */
+    => $llvm-attribute-none;;
+  opt-attributes attribute
+    => llvm-attribute-merge(arg$1, arg$2);;
+
+opt-local-name:
+  /* empty */
+    => #f;;
+  local-name
+    => arg$1;;
+
+inst-val:
+  arithmetic-ops types value-ref %COMMA value-ref
+    => begin
+         let type = llvm-type-resolve-upvals(arg$2);
+         llvm-constrain-type(llvm-value-type(arg$3), type);
+         llvm-constrain-type(llvm-value-type(arg$5), type);
+         apply(make, <llvm-binop-instruction>,
+               operator: arg$1.head,
+               operands: vector(arg$3, arg$5),
+               arg$1.tail)
+       end;;
+  logical-ops types value-ref %COMMA value-ref
+    => begin
+         let type = llvm-type-resolve-upvals(arg$2);
+         llvm-constrain-type(llvm-value-type(arg$3), type);
+         llvm-constrain-type(llvm-value-type(arg$5), type);
+         make(<llvm-binop-instruction>,
+              operator: arg$1,
+              operands: vector(arg$3, arg$5))
+       end;;
+  %ICMP i-predicates types value-ref %COMMA value-ref
+    => begin
+         let type = llvm-type-resolve-upvals(arg$3);
+         llvm-constrain-type(llvm-value-type(arg$4), type);
+         llvm-constrain-type(llvm-value-type(arg$6), type);
+         make(<llvm-icmp-instruction>,
+              predicate: arg$2,
+              operands: vector(arg$4, arg$6))
+       end;;
+  %FCMP f-predicates types value-ref %COMMA value-ref
+    => begin
+         let type = llvm-type-resolve-upvals(arg$3);
+         llvm-constrain-type(llvm-value-type(arg$4), type);
+         llvm-constrain-type(llvm-value-type(arg$6), type);
+         make(<llvm-fcmp-instruction>,
+              predicate: arg$2,
+              operands: vector(arg$4, arg$6))
+       end;;
+  cast-ops resolved-val %TO types
+    => make(<llvm-cast-instruction>,
+            type: llvm-type-resolve-upvals(arg$4),
+            operator: arg$1,
+            operands: vector(arg$2));;
+  %SELECT resolved-val %COMMA resolved-val %COMMA resolved-val
+    => make(<llvm-select-instruction>,
+            operands: vector(arg$2, arg$4, arg$6));;
+  %VAARG resolved-val %COMMA types
+    => make(<llvm-va-arg-instruction>,
+            type: arg$4,
+            operands: vector(arg$2));;
+  %EXTRACTELEMENT resolved-val %COMMA resolved-val
+    => make(<llvm-extractelement-instruction>,
+            operands: vector(arg$2, arg$4));;
+  %INSERTELEMENT resolved-val %COMMA resolved-val %COMMA resolved-val
+    => make(<llvm-insertelement-instruction>,
+            operands: vector(arg$2, arg$4, arg$6));;
+  %SHUFFLEVECTOR resolved-val %COMMA resolved-val %COMMA resolved-val
+    => make(<llvm-shufflevector-instruction>,
+            operands: vector(arg$2, arg$4, arg$6));;
+  %PHI types phi-list
+    => begin
+         let type = llvm-type-resolve-upvals(arg$2);
+         for (i from 0 below arg$3.size by 2)
+           llvm-constrain-type(llvm-value-type(arg$3[i]), type);
+           llvm-constrain-type(llvm-value-type(arg$3[i + 1]), $llvm-label-type)
+         end for;
+         make(<llvm-phi-node>, operands: arg$3)
+       end;;
+  opt-tail-call opt-calling-conv opt-ret-attrs result-types value-ref
+    %LPAREN param-list %RPAREN opt-func-attrs
+    => begin
+         let param-list = reverse!(arg$7);
+         let type = llvm-type-resolve-upvals(arg$4);
+         let return-type
+           = if (instance?(type, <llvm-pointer-type>))
+               let pointee
+                 = llvm-type-forward(type.llvm-pointer-type-pointee);
+               if (instance?(pointee, <llvm-function-type>))
+                 llvm-constrain-type(llvm-value-type(arg$5), type);
+                 llvm-type-forward(pointee.llvm-function-type-return-type)
+               else
+                 type
+               end if
+             else
+               type
+             end if;
+         let (return-attributes, function-attributes)
+           = munge-attributes(arg$3, arg$9);
+         let attribute-list
+           = make(<llvm-attribute-list>,
+                  return-attributes: return-attributes,
+                  function-attributes: function-attributes,
+                  parameter-attributes: map(param-attributes, param-list));
+         make(<llvm-call-instruction>,
+              type: return-type,
+              attribute-list: attribute-list,
+              tail-call?: arg$1,
+              calling-convention: arg$2,
+              operands: pair(arg$5, map(param-value, param-list)))
+       end;;
+  %MALLOC types opt-c-align
+    => error("%%MALLOC");;
+  %MALLOC types %COMMA %INTTYPE value-ref opt-c-align
+    => error("%%MALLOC");;
+  %ALLOCA types opt-c-align
+    => begin
+         let pointer-type
+           = make(<llvm-pointer-type>, pointee: arg$2);
+         let size-operand
+           = make(<llvm-integer-constant>,
+                  type: $llvm-i32-type,
+                  integer: 1);
+         make(<llvm-alloca-instruction>,
+              type: llvm-type-resolve-upvals(pointer-type),
+              alignment: arg$3,
+              operands: vector(size-operand))
+       end;;
+  %ALLOCA types %COMMA %INTTYPE value-ref opt-c-align
+    => begin
+         let pointer-type
+           = make(<llvm-pointer-type>, pointee: arg$2);
+         llvm-constrain-type(llvm-value-type(arg$5),
+                             make(<llvm-integer-type>, width: arg$4));
+         make(<llvm-alloca-instruction>,
+              type: llvm-type-resolve-upvals(pointer-type),
+              alignment: arg$6,
+              operands: vector(arg$5))
+       end;;
+  %FREE resolved-val
+    => error("%%FREE");;
+  opt-volatile %LOAD resolved-val opt-c-align
+    => make(<llvm-load-instruction>,
+            volatile?: arg$1,
+            alignment: arg$4,
+            operands: vector(arg$3));;
+  opt-volatile %STORE resolved-val %COMMA resolved-val opt-c-align
+    => make(<llvm-store-instruction>,
+            volatile?: arg$1,
+            alignment: arg$6,
+            operands: vector(arg$3, arg$5));;
+  %GETELEMENTPTR opt-inbounds resolved-val index-list
+    => make(<llvm-gep-instruction>,
+            in-bounds?: arg$2,
+            operands: pair(arg$3, reverse!(arg$4)));;
+  %INSERTVALUE resolved-val %COMMA resolved-val constant-index-list
+    => make(<llvm-insert-value-instruction>,
+            operands: vector(arg$2, arg$4),
+            indices: reverse!(arg$5));;
+  %EXTRACTVALUE resolved-val constant-index-list
+    => make(<llvm-extract-value-instruction>,
+            operands: vector(arg$2),
+            indices: reverse!(arg$3));;
+  %GETRESULT resolved-val %COMMA %EUINT64VAL
+    => make(<llvm-extract-value-instruction>,
+            operands: vector(arg$2),
+            indices: vector(arg$4));;
+
+opt-tail-call:
+  %TAIL %CALL
+    => #t;;
+  %CALL
+    => #f;;
+
+const-value-ref:
+  %ESINT64VAL
+    => make(<llvm-integer-constant>, integer: arg$1);;
+  %EUINT64VAL
+    => make(<llvm-integer-constant>, integer: arg$1);;
+  %FPVAL
+    => make(<llvm-float-constant>, float: arg$1);;
+  %TRUE
+    => make(<llvm-integer-constant>, integer: 1);;
+  %FALSE
+    => make(<llvm-integer-constant>, integer: 0);;
+  %NULL
+    => make(<llvm-null-constant>);;
+  %UNDEF
+    => make(<llvm-undef-constant>);;
+  %ZEROINITIALIZER
+    => make(<llvm-null-constant>);;
+  %LANGLE const-vector %RANGLE
+    => make(<llvm-aggregate-constant>, aggregate-values: reverse!(arg$2));;
+  %LBRACK const-vector %RBRACK
+    => make(<llvm-aggregate-constant>, aggregate-values: reverse!(arg$2));;
+  %LBRACK %RBRACK
+    => make(<llvm-aggregate-constant>, aggregate-values: #[]);;
+  %C %STRINGCONSTANT
+    => make(<llvm-aggregate-constant>,
+            aggregate-values: string-constant-contents(arg$2));;
+  %LBRACE const-vector %RBRACE
+    => make(<llvm-aggregate-constant>, aggregate-values: reverse!(arg$2));;
+  %LBRACE %RBRACE
+    => make(<llvm-aggregate-constant>, aggregate-values: #[]);;
+  %LANGLE %LBRACE const-vector %RBRACE %RANGLE
+    => make(<llvm-aggregate-constant>, aggregate-values: reverse!(arg$3));;
+  %LANGLE %LBRACE %RBRACE %RANGLE
+    => make(<llvm-aggregate-constant>, aggregate-values: #[]);;
+  %BLOCKADDRESS %LPAREN global-name %COMMA local-name %RPAREN
+    => error("%%BLOCKADDRESS");;
+  %ASM opt-asm-flags %STRINGCONSTANT %COMMA %STRINGCONSTANT
+    => apply(make, <llvm-asm-constant>,
+             asm-string: arg$3,
+             constraint: arg$5,
+             arg$2);;
+  const-expr
+    => arg$1;;
+
+opt-asm-flags:
+  /* empty */
+    => #[];;
+  %SIDEEFFECT
+    => #[side-effect?:, #t];;
+  %ALIGNSTACK
+    => #[align-stack?:, #t];;
+  %SIDEEFFECT %ALIGNSTACK
+    => #[side-effect?:, #t, align-stack?:, #t];;
+
+attribute:
+  overlap-attribute
+    => arg$1;;
+  nonoverlap-attribute
+    => arg$1;;
+
+overlap-attribute:
+  %ZEROEXT
+    => $llvm-attribute-zext;;
+  %SIGNEXT
+    => $llvm-attribute-sext;;
+  %INREG
+    => $llvm-attribute-inreg;;
+
+nonoverlap-attribute:
+  %ZEXT => $llvm-attribute-zext;;
+  %SEXT => $llvm-attribute-sext;;
+  %SRET => $llvm-attribute-sret;;
+  %NOALIAS => $llvm-attribute-noalias;;
+  %NOCAPTURE => $llvm-attribute-nocapture;;
+  %BYVAL => $llvm-attribute-byval;;
+  %NEST => $llvm-attribute-nest;;
+  %ALIGN %EUINT64VAL => llvm-attribute-alignment(arg$2);;
+
+phi-list:
+  %LBRACK value-ref %COMMA value-ref %RBRACK
+    => vector(arg$2, arg$4);;
+  phi-list %COMMA %LBRACK value-ref %COMMA value-ref %RBRACK
+    => concatenate(arg$1, vector(arg$4, arg$6));;
+
+opt-c-align:
+  /* empty */
+    => 0;;
+  %COMMA %ALIGN %EUINT64VAL
+    => arg$3;;
+
+opt-volatile:
+  /* empty */
+    => #f;;
+  %VOLATILE
+    => #t;;
+
+opt-inbounds:
+  /* empty */
+    => #f;;
+  %INBOUNDS
+    => #t;;
+
+end parser;

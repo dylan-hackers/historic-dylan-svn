@@ -385,6 +385,8 @@ define method format-date (format :: <string>, date :: <date>)
         'k' => wrap(" ", hours);
         'M' => wrap("0", minutes);
         'S' => wrap("0", seconds);
+        'f' => format-integer(date.date-microseconds, 6);
+        'F' => format-integer(round/(date.date-microseconds, 1000), 3);
 	'T' => concatenate(wrap("0", hours), ":",
                            wrap("0", minutes), ":",
 			   wrap("0", seconds));
@@ -425,19 +427,8 @@ end;
 
 define function as-iso8601-string (date :: <date>, #key precision :: <integer> = 0)
  => (iso8601-string :: <string>)
-/*
-    if (precision > 0)
-		  concatenate(".", format-integer(round/(date-microseconds(date),
-							 10 ^ (6 - precision)),
-						  precision))
-		else
-		  ""
-    end;
-*/
   format-date("%Y-%m-%dT%H:%M:%S%:z", date);
 end;
-
-define variable *default-date-formats* :: <sequence> = #();
 
 define method parse-date (date :: <string>, format :: <string>)
  => (date :: false-or(<date>));
