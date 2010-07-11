@@ -262,7 +262,7 @@ define method run-optimizations (code) => (b :: <boolean>)
   let something? = queue-head(queue);
   for (count from 0 below $max-optimization-iterations,
        item = something? then queue-head(queue), while: item) 
-    // do-queue(method (i) format-out("  ELT %=\n", i) end, queue);
+    // do-queue(method (i) opt-format-out("  ELT %=\n", i) end, queue);
     send-debug(#"highlight-queue", pair(code, map(computation-id, queue | #())));
     if (do-optimize(item))
       something? := #t;
