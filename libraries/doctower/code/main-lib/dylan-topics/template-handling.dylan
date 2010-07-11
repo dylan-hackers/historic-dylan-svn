@@ -2,12 +2,43 @@ module: dylan-topics
 synopsis: Operations for template documents.
 
 
+/// Set by main.dylan when user wants generated topics.
+define variable $generated-topics-directory :: false-or(<directory-locator>) = #f;
+define variable $topic-file-extension :: <string> = "txt";
+
+
 define method topics-from-template
    (template-name :: <symbol>, generated-topic, vars :: <table>)
 => (topics :: <sequence>)
    let template = topic-template(template-name);
    let generated-body = process-template(template, operations: $template-ops, 
          variables: vars);
+         
+   if ($generated-topics-directory)
+      let base-name :: <string> = 
+            if (~vars.empty?)
+               debug-assert(vars.size = 1, "More than one variable for template");
+               let var-object = vars.any-element;
+               select (var-object by instance?)
+                  <definition> =>
+                     format-to-string("%s_%s", template-name,
+                           var-object.definition-qualified-name);
+                  <generic-method> =>
+                     let binding = var-object.generic-binding;
+                     let method-params = var-object.method-defn.param-list.req-params;
+                     format-to-string("%s_%s", template-name,
+                           definition-qualified-name(binding, method-params: method-params));
+               end select
+            else
+               as(<string>, template-name)
+            end if;
+      let locator = make(<file-locator>, directory: $generated-topics-directory,
+                         base: base-name, extension: $topic-file-extension);
+      with-open-file (template-output = locator, direction: #"output")
+         write(template-output, generated-body)
+      end with-open-file;
+   end if;
+
    let generated-body-stream = make(<string-stream>, contents: generated-body);
    let markup-content = parse-internal-markup(generated-body-stream,
          $generated-source-location);
@@ -16,42 +47,107 @@ end method;
 
 
 define constant $template-ops = table(<case-insensitive-string-table>,
-      "adjectives" => template-adjectives,
-      "all-keys-argument?" => template-all-keys-argument?,
-      "base-name" => template-base-name,
-      "code?" => template-code?,
+      // The comments indicate which other operations can follow each operation
+      // or the built-in type returned by each operation.
+      
+      /*
+      "lib" => <library>
+            .id .name .scope-name .source .exports .unknown-reexports
+      "mod" => <module>
+            .id .name .scope-name .source .exports .unknown-reexports
+      "class" => <class-binding>
+            .id .name .scope-name .source .exports .adjectives
+            .functions-on-class .functions-returning-class .inheritable-getters
+            .keywords .subclasses .superclasses
+      "func" => <function-binding>
+            .id .name .scope-name .source .exports .adjectives
+            .required-arguments .keyword-arguments .rest-argument
+            .all-keys-argument? .takes-keywords? .required-values 
+            .rest-value
+      "gen" => <generic-binding>
+            .id .name .scope-name .source .exports .adjectives
+            .required-arguments .keyword-arguments .rest-argument
+            .all-keys-argument? .takes-keywords? .required-values 
+            .rest-value .methods
+      "meth" => <generic-method>
+            .id .name .source .adjectives .required-arguments
+            .keyword-arguments .rest-argument .all-keys-argument?
+            .takes-keywords? .required-values .rest-value
+      "const" => <constant-binding>
+            .id .name .scope-name .source .exports .adjectives .type .value
+      "var" => <variable-binding>
+            .id .name .scope-name .source .exports .adjectives .type .value
+      "macro" => <macro-binding>
+            .id .name .scope-name .source .exports
+      */    
+
+      "adjectives" => template-adjectives,                  // <string>
+      "all-keys-argument?" => template-all-keys-argument?,  // <boolean>
+      "base-name" => template-base-name,                    // <string>
       "default" => template-default,
-      "definition?" => template-definition?,
+            // .text .source
       "exports" => template-exports,
-      "filename" => source-file,
-      "functions-on-class" => functions-on-class,
-      "functions-returning-class" => functions-returning-class,
-      "id" => template-id,
-      "inheritable-getters" => effective-slots,
+            // each .name .library .module
+      "filename" => source-file,                            // <string>
+      "functions-on-class" => template-functions-on-class,
+            // each .id .name .scope-name .source .exports .adjectives
+            // .required-arguments .keyword-arguments .rest-argument
+            // .all-keys-argument? .takes-keywords? .required-values 
+            // .rest-value .methods
+      "functions-returning-class" => template-functions-returning-class,
+            // each .id .name .scope-name .source .exports .adjectives
+            // .required-arguments .keyword-arguments .rest-argument
+            // .all-keys-argument? .takes-keywords? .required-values 
+            // .rest-value .methods
+      "id" => template-id,                                  // false-or(<string>)
+      "inheritable-getters" => template-inheritable-getters,
+            // each .id .name .scope-name .source .exports .adjectives
+            // .required-arguments .keyword-arguments .rest-argument
+            // .all-keys-argument? .takes-keywords? .required-values 
+            // .rest-value .methods
       "keyword-arguments" => template-keyword-arguments,
-      "keywords" => effective-init-args,
+            // each .name .source .type .default .singleton
+      "keywords" => template-keywords,
+            // each .name .source .type .default
       "library" => template-library,
-      "line" => source-start-line,
-      "link?" => template-link?,
+            // .id .name .scope-name .source .exports .unknown-reexports
+      "line" => source-start-line,                          // <string>
       "methods" => template-methods,
+            // each .id .name .source .adjectives .required-arguments
+            // .keyword-arguments .rest-argument .all-keys-argument?
+            // .takes-keywords? .required-values .rest-value
       "module" => template-module,
-      "name" => template-name,
-      "object" => template-object,
-      "rest-argument" => template-rest-argument,
-      "rest-value" => template-rest-value,
+            // .id .name .scope-name .source .exports .unknown-reexports
+      "name" => template-name,                              // <string>
       "required-arguments" => template-required-arguments,
+            // each .name .source .type .singleton
       "required-values" => template-required-values,
-      "singleton?" => template-singleton?,
-      "size" => size,
-      "scope-name" => definition-qualified-name,
+            // each .name .source .type .singleton
+      "rest-argument" => template-rest-argument,
+            // .name .source
+      "rest-value" => template-rest-value,
+            // .name .source .type .singleton
+      "scope-name" => definition-qualified-name,            // <string>
+      "singleton" => template-singleton,
+            // .text .source
       "source" => template-source,
-      "subclasses" => effective-subs,
-      "superclasses" => effective-supers,
-      "takes-keywords?" => template-takes-keywords?,
-      "text" => template-text,
+            // .filename .line
+      "subclasses" => template-subclasses,
+            // each .id .name .scope-name .source .exports .adjectives
+            // .functions-on-class .functions-returning-class .inheritable-getters
+            // .keywords .subclasses .superclasses
+      "superclasses" => template-superclasses,
+            // each .id .name .scope-name .source .exports .adjectives
+            // .functions-on-class .functions-returning-class .inheritable-getters
+            // .keywords .subclasses .superclasses
+      "takes-keywords?" => template-takes-keywords?,        // <boolean>
+      "text" => template-text,                              // <string>
       "type" => template-type,
+            // .text .id .source
       "unknown-reexports" => template-unknown-reexports,
+            // each .name .library .module            
       "value" => template-value
+            // .text .source
       );
 
 
@@ -95,124 +191,89 @@ define method template-name (name :: <source-name>) => (name :: <string>)
 end method;
 
 
-define method template-name (init-arg :: <init-arg>) => (name :: <string>)
-   init-arg.symbol
-end method;
-
-
-define method template-name (func-arg/val :: type-union(<param>, <value>))
-=> (name :: <string>)
-   func-arg/val.local-name
-end method;
-
-
-define method template-base-name (meth :: <generic-method>) => (name :: <string>)
-   meth.generic-binding.template-name
-end method;
-
-
 //
-// Types
+// Types and fragments
 // 
 
 
-define method template-type (obj :: <object>)
+define method template-type (obj :: type-union(<init-arg>, <param>, <value>))
 => (type :: false-or(<type-fragment>))
    obj.type
 end method;
 
 
-define method template-type
-   (const/var :: type-union(<constant-binding>, <variable-binding>))
-=> (type :: false-or(<type-fragment>))
-   const/var.explicit-defn.type
+define method template-text (frag :: <fragment>) => (text :: <string>)
+   source-text-as-string(frag.source-text, #f)
 end method;
 
 
-define method template-code? (type :: false-or(<type-fragment>))
-=> (code? :: <boolean>)
-   type & ~type.simple-name?
-end method;
-
-
-define method template-link? (type :: false-or(<type-fragment>))
-=> (link? :: <boolean>)
-   type & type.simple-name?
+define method template-id (type :: <type-fragment>)
+=> (id :: false-or(<string>))
+   if (type.simple-name?)
+      let source-name = type.source-text.first;
+      let definition = element(*definitions*, source-name, default: #f);
+      if (definition)
+         definition.canonical-id
+      end if
+   end if
 end method;
 
 
 //
-// Scoping
+// Scoping and ID
 //
 
 
-define method template-id (defn :: <definition>) => (id :: <string>)
-   defn.canonical-id
+define method template-id (defn :: <definition>)
+=> (id :: false-or(<string>))
+   defn.needs-topic? & defn.canonical-id
 end method;
 
 
-define method template-id (meth :: <generic-method>) => (id :: <string>)
+define method template-id (meth :: <generic-method>)
+=> (id :: false-or(<string>))
    let method-params = meth.method-defn.param-list.req-params;
    canonical-id(meth.generic-binding, method-params: method-params)
 end method;
 
 
-define method template-library (name :: <source-name>) => (library :: <library>)
+define method template-library (name :: <source-name>)
+=> (library :: false-or(<library>))
    let lib-name :: <source-name>
          = make(<library-name>, library: name.library-name);
-   *definitions*[lib-name];
+   element(*definitions*, lib-name, default: #f)
 end method;
 
 
-define method template-module (name :: <source-name>) => (module :: <module>)
+define method template-module (name :: <source-name>)
+=> (module :: false-or(<module>))
    let mod-name :: <source-name>
          = make(<module-name>, library: name.library-name, module: name.module-name);
-   *definitions*[mod-name];
-end method;
-
-
-define method template-library (module :: <module>) => (library :: <library>)
-   let lib-name :: <library-name> = module.canonical-name.enclosing-name;
-   *definitions*[lib-name];
-end method;
-
-
-define method template-module (binding :: <binding>) => (module :: <module>)
-   let mod-name :: <module-name> = binding.canonical-name.enclosing-name;
-   *definitions*[mod-name];
+   element(*definitions*, mod-name, default: #f)
 end method;
 
 
 //
-// Exported aliases
+// Exported aliases and source location
 //
-
-
-define method template-definition? (api-defn :: <definition>)
-=> (has-definition? :: <boolean>)
-   instance?(api-defn.source-location, <file-source-location>)
-end method;
-
-
-define method template-definition? (gen-method :: <generic-method>)
-=> (has-definition? :: <boolean>)
-   instance?(gen-method.method-defn.source-location, <file-source-location>)
-end method;
 
 
 define method template-source (api-object :: <api-object>)
-=> (loc :: <source-location>)
-   api-object.source-location
+=> (loc :: false-or(<file-source-location>))
+   instance?(api-object.source-location, <file-source-location>)
+         & api-object.source-location
 end method;
 
 
 define method template-source (gen-method :: <generic-method>)
-=> (loc :: <source-location>)
-   gen-method.method-defn.source-location
+=> (loc :: false-or(<file-source-location>))
+   instance?(gen-method.method-defn.source-location, <file-source-location>)
+         & gen-method.method-defn.source-location
 end method;
 
 
-define method template-exports (api-defn :: <definition>) => (exports :: <sequence>)
+define method template-exports (api-defn :: <definition>)
+=> (exports :: false-or(<sequence>))
    let exported-aliases = make(<stretchy-vector>);
    for (alias :: <source-name> in api-defn.aliases)
       let enclosing-namespace = *definitions*[alias.enclosing-name];
@@ -221,18 +282,20 @@ define method template-exports (api-defn :: <definition>) => (exports :: <sequen
          exported-aliases := add!(exported-aliases, alias);
       end if;
    end for;
-   sort(exported-aliases, test: sort-comparison-by-name)
+   let exports = sort(exported-aliases, test: sort-comparison-by-name);
+   ~exports.empty? & exports
 end method;
 
 
 define method template-unknown-reexports (namespace :: <defined-namespace>) 
-=> (sources :: <sequence>)
-   sort(namespace.unknown-reexport-sources, test: sort-comparison-by-name);
+=> (sources :: false-or(<sequence>))
+   let sources = sort(namespace.unknown-reexport-sources, test: sort-comparison-by-name);
+   ~sources.empty? & sources
 end method;
 
 define method template-unknown-reexports (namespace :: <undefined-namespace>)
-=> (sources :: <sequence>)
-   #[]
+=> (sources :: false-or(<sequence>))
+   #f
 end method;
 
 
@@ -271,6 +334,13 @@ end method;
 //
 
 
+define method template-type
+   (const/var :: type-union(<constant-binding>, <variable-binding>))
+=> (type :: false-or(<type-fragment>))
+   const/var.explicit-defn.type
+end method;
+
+
 define method template-value
    (const/var :: type-union(<constant-binding>, <variable-binding>))
 => (value :: false-or(<computed-constant>))
@@ -279,8 +349,13 @@ end method;
 
 
 //
-// Keyword defaults
+// Classes
 //
+
+
+define method template-name (init-arg :: <init-arg>) => (name :: <string>)
+   init-arg.symbol
+end method;
 
 
 define method template-default (init-arg :: <init-arg>)
@@ -289,20 +364,76 @@ define method template-default (init-arg :: <init-arg>)
 end method;
 
 
-define method template-default (func-arg :: <key-param>)
-=> (default :: false-or(<code-fragment>))
-   func-arg.expr
+define method template-keywords (binding :: <class-binding>)
+=> (keywords :: false-or(<sequence>))
+   ~binding.effective-init-args.empty? & binding.effective-init-args
+end method;
+
+
+define method template-superclasses (binding :: <class-binding>)
+=> (superclasses :: false-or(<sequence>))
+   ~binding.effective-supers.empty? & binding.effective-supers
+end method;
+
+
+define method template-subclasses (binding :: <class-binding>)
+=> (subclasses :: false-or(<sequence>))
+   ~binding.effective-subs.empty? & binding.effective-subs
+end method;
+
+
+define method template-functions-on-class (binding :: <class-binding>)
+=> (functions :: false-or(<sequence>))
+   ~binding.functions-on-class.empty? & binding.functions-on-class
+end method;
+
+
+define method template-functions-returning-class (binding :: <class-binding>)
+=> (functions :: false-or(<sequence>))
+   ~binding.functions-returning-class.empty? & binding.functions-returning-class
+end method;
+
+
+define method template-inheritable-getters (binding :: <class-binding>)
+=> (functions :: false-or(<sequence>))
+   ~binding.effective-slots.empty? & binding.effective-slots
 end method;
 
 
 //
-// Methods of generic
+// Functions
 //
 
 
 define method template-methods (defn :: <generic-binding>)
-=> (methods :: <sequence>)
-   map(curry(make, <generic-method>, generic:, defn, method:), defn.implicit-defns)
+=> (methods :: false-or(<sequence>))
+   let methods = map(curry(make, <generic-method>, generic:, defn, method:),
+         defn.implicit-defns);
+   ~methods.empty? & methods
+end method;
+
+
+define method template-name (func-arg/val :: type-union(<param>, <value>))
+=> (name :: <string>)
+   func-arg/val.local-name
+end method;
+
+
+define method template-base-name (meth :: <generic-method>) => (name :: <string>)
+   meth.generic-binding.template-name
+end method;
+
+
+//
+// Arguments and values
+//
+
+
+define method template-singleton
+   (param/value :: type-union(<req-param>, <key-param>, <value>))
+=> (expr :: false-or(<computed-constant>))
+   instance?(param/value.type, <singleton-type-fragment>)
+         & param/value.type.singleton-expr
 end method;
 
 
@@ -312,13 +443,13 @@ end method;
 
 
 define method template-required-arguments (func :: <binding>)
-=> (args :: <sequence>)
+=> (args :: false-or(<sequence>))
    func.explicit-defn.template-required-arguments
 end method;
 
 
 define method template-required-arguments (meth :: <generic-method>)
-=> (args :: <sequence>)
+=> (args :: false-or(<sequence>))
    meth.method-defn.template-required-arguments
 end method;
 
@@ -326,20 +457,20 @@ end method;
 define method template-required-arguments
    (defn :: type-union(<explicit-generic-defn>, <implicit-generic-defn>,
       <explicit-function-defn>))
-=> (args :: <sequence>)
+=> (args :: false-or(<sequence>))
    defn.param-list.template-required-arguments
 end method;
 
 
 define method template-required-arguments (defn == #f)
-=> (args :: <sequence>)
-   #[]
+=> (args :: false-or(<sequence>))
+   #f
 end method;
 
 
 define method template-required-arguments (params :: <param-list>)
-=> (args :: <sequence>)
-   params.req-params
+=> (args :: false-or(<sequence>))
+   ~params.req-params.empty? & params.req-params
 end method;
 
 
@@ -349,13 +480,13 @@ end method;
 
 
 define method template-keyword-arguments (func :: <binding>)
-=> (args :: <sequence>)
+=> (args :: false-or(<sequence>))
    func.explicit-defn.template-keyword-arguments
 end method;
 
 
 define method template-keyword-arguments (meth :: <generic-method>)
-=> (args :: <sequence>)
+=> (args :: false-or(<sequence>))
    meth.method-defn.template-keyword-arguments
 end method;
 
@@ -363,26 +494,26 @@ end method;
 define method template-keyword-arguments
    (defn :: type-union(<explicit-generic-defn>, <implicit-generic-defn>,
       <explicit-function-defn>))
-=> (args :: <sequence>)
+=> (args :: false-or(<sequence>))
    defn.param-list.template-keyword-arguments
 end method;
 
 
 define method template-keyword-arguments (defn == #f)
-=> (args :: <sequence>)
-   #[]
+=> (args :: false-or(<sequence>))
+   #f
 end method;
 
 
 define method template-keyword-arguments (params :: <key-param-list>)
-=> (args :: <sequence>)
-   params.key-params
+=> (args :: false-or(<sequence>))
+   ~params.key-params.empty? & params.key-params
 end method;
 
 
 define method template-keyword-arguments (params :: <param-list>)
-=> (args :: <sequence>)
-   #[]
+=> (args :: false-or(<sequence>))
+   #f
 end method;
 
 
@@ -421,6 +552,12 @@ end method;
 define method template-takes-keywords? (params :: <param-list>)
 => (keywords? :: <boolean>)
    #f
+end method;
+
+
+define method template-default (func-arg :: <key-param>)
+=> (default :: false-or(<code-fragment>))
+   func-arg.expr
 end method;
 
 
@@ -517,13 +654,13 @@ end method;
 
 
 define method template-required-values (func :: <binding>)
-=> (vals :: <sequence>)
+=> (vals :: false-or(<sequence>))
    func.explicit-defn.template-required-values
 end method;
 
 
 define method template-required-values (meth :: <generic-method>)
-=> (vals :: <sequence>)
+=> (vals :: false-or(<sequence>))
    meth.method-defn.template-required-values
 end method;
 
@@ -531,20 +668,20 @@ end method;
 define method template-required-values
    (defn :: type-union(<explicit-generic-defn>, <implicit-generic-defn>,
       <explicit-function-defn>))
-=> (vals :: <sequence>)
+=> (vals :: false-or(<sequence>))
    defn.value-list.template-required-values
 end method;
 
 
 define method template-required-values (defn == #f)
-=> (vals :: <sequence>)
-   #[]
+=> (vals :: false-or(<sequence>))
+   #f
 end method;
 
 
 define method template-required-values (vals :: <value-list>)
-=> (vals :: <sequence>)
-   vals.req-values
+=> (vals :: false-or(<sequence>))
+   ~vals.req-values.empty? & vals.req-values
 end method;
 
 
@@ -577,33 +714,3 @@ define method template-rest-value (defn == #f)
 => (val :: false-or(<rest-value>))
    #f
 end method;
-
-
-//
-// Arguments and values
-//
-
-
-define method template-singleton?
-   (param/value :: type-union(<req-param>, <key-param>, <value>))
-=> (singleton? :: <boolean>)
-   instance?(param/value.type, <singleton-type-fragment>)
-end method;
-
-
-define method template-object
-   (param/value :: type-union(<req-param>, <key-param>, <value>))
-=> (object :: <string>)
-   source-text-as-string(param/value.type.singleton-expr.source-text, #f)
-end method;
-
-
-//
-// Text
-//
-
-
-define method template-text (frag :: <fragment>) => (text :: <string>)
-   source-text-as-string(frag.source-text, #f)
-end method;
-

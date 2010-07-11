@@ -10,7 +10,7 @@ define module markup-rep
    use locators, import: { <url> }, export: all;
 
    export
-      <api-doc>, <api-list-placeholder>, <api-name>, <bold>, <cite>,
+      <api-doc>, <api-list-placeholder>, <api/parm-name>, <bold>, <cite>,
       <unbound-doc>, <class-doc>, <code-block>, <code-phrase>, <con-topic>,
       <conref>, <content-seq>, <defn-list>, <dita-content>, <ditto-placeholder>,
       <emphasis>, <entity>, <fig>, <footnote>, <footnote-placeholder>,
@@ -18,8 +18,8 @@ define module markup-rep
       <markup-element>, <italic>, <library-doc>, <macro-doc>,
       <many-line-defn-list>, <line-marker-placeholder>, <markup-seq>,
       <module-doc>, <note>, <one-line-defn-list>, <ordered-list>, <paragraph>,
-      <parm-list>, <parm-name>, <ph-marker>, <pre>, <ref-topic>, <section>,
-      <simple-table>, <target-placeholder>, <term-style>, <term>, <title-seq>,
+      <parm-list>, <ph-marker>, <pre>, <ref-topic>, <section>, <simple-table>,
+      <target-placeholder>, <term-style>, <term>, <title-seq>,
       <toc-placeholder>, <topic-ref>, <topic>, <topic-content-seq>, <underline>,
       <unordered-list>, <variable-doc>, <vi-xref>, <warning-note>, <xref>;
 

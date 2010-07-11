@@ -66,19 +66,19 @@ the processing specified in the brackets is done. Bracket options are:
   sic     - Do not remove quotes.
   q       - Surround text with typographical single quotes.
   qq      - Surround text with typographical double quotes.
-  code    - Use code font. If possible, code elements are linked to the relevant
-            documentation.
+  code    - Indicates a code excerpt. If possible, code elements are linked to
+            the relevant documentation.
   term    - Indicate a technical term being defined.
   bib     - Indicates a book or article title.
-  em      - Use general emphasis font.
+  api     - Indicates an API or parameter name.
+  em      - Indicates a phrase that requires emphasis.
   b       - Use bold font.
   i       - Use italic font.
   u       - Use underline.
   qv      - The quoted text will link to a specified section or URL. The section
             or URL may be specified after all the other options (and enclosed in
-            quotes if it contains spaces). If omitted, the section or URL is
-            specified by the text and the text is replaced by the actual section
-            title.
+            quotes if it contains spaces). If omitted, the section is specified
+            by the text and the text is replaced by the actual section title.
   vi      - Same as "qv", but the linked item is also marked as a sub-topic if
             appropriate. From the Latin "vide infra," meaning "see below."
 

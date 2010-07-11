@@ -7,20 +7,23 @@ module: main
 define argument-parser <my-arg-parser> ()
    regular-arguments files;
    option template-path = "../defaults",
-      " <path>", "Path to topic templates [\"../defaults\"]",
+      "=<path>", "Path to topic templates [\"../defaults\"]",
       long: "templates", kind: <parameter-option-parser>;
    option toc-pattern = "toc",
-      " <ext>", "Read as table of contents file [\"toc\"]",
+      "=<ext>", "Table of contents files [\"toc\"]",
       long: "toc", short: "t", kind: <parameter-option-parser>;
    option cfg-pattern = "cfg",
-      " <ext>", "Read as configuration file [\"cfg\"]",
+      "=<ext>", "Configuration files [\"cfg\"]",
       long: "cfg", short: "c", kind: <parameter-option-parser>;
    option doc-pattern = "txt",
-      " <ext>", "Read as documentation text file [\"txt\"]",
+      "=<ext>", "Documentation text files [\"txt\"]",
       long: "doc", short: "d", kind: <parameter-option-parser>;
    option api-list-filename,
-      " <filename>", "Write fully qualified API names to file",
+      "=<filename>", "Write fully qualified API names to file",
       long: "name-list", kind: <parameter-option-parser>;
+   option generated-topics-directory,
+      "=<directory>", "Write automatically-generated topic files",
+      long: "autogen-dir", kind: <parameter-option-parser>;
    // option title = "Untitled",
    //    " <title>", "Title of documentation [Untitled]",
    //    long: "title", kind: <parameter-option-parser>;
@@ -28,7 +31,7 @@ define argument-parser <my-arg-parser> ()
    //    " <n>", "Tab size [8]",
    //    long: "tabsize", kind: <parameter-option-parser>;
    option disabled-warnings,
-      " <nn>", "Hide warning message",
+      "=<nn>", "Hide warning message",
       long: "no-warn", short: "w", kind: <repeated-parameter-option-parser>;
    option stop-on-errors?,
       "Stop on first error or warning",
@@ -83,6 +86,13 @@ define function main (name, arguments)
    $stop-on-errors? := args.stop-on-errors?;
    $verbose? := ~args.quiet?;
    $topic-template-path := as(<directory-locator>, args.template-path);
+   $topic-file-extension := args.doc-pattern;
+
+   $generated-topics-directory :=
+         when (args.generated-topics-directory)
+            as(<directory-locator>, args.generated-topics-directory)
+         end when;
+
    $api-list-filename := 
          when (args.api-list-filename)
             as(<file-locator>, args.api-list-filename)

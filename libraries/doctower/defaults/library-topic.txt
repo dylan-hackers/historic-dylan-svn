@@ -4,9 +4,9 @@ The {{lib.name}} library.
 Subheading: Definition		[:Definitions]
 ----------------------------------------------
 
-{{IF lib.definition? +}}
+{{ IF lib.source +}}
 Defined in {{lib.source.filename}} line {{lib.source.line}}.
-{{+END}}
+{{+ END }}
 
 ------------------------------------------
 Subheading: Modules		[:Modules]
@@ -14,9 +14,15 @@ Subheading: Modules		[:Modules]
 
 [LIST OF MODULES IN {{lib.scope-name}}]
 
-{{IF lib.unknown-reexports.size > 0 +}}
+{{ IF lib.unknown-reexports +}}
 May export other modules from these libraries:
-{{REPEAT WITH unknown-reexport IN lib.unknown-reexports}}
-- '{{unknown-reexport.name}}' [qv {{unknown-reexport.id}}]
-{{END+}}
-{{+END}}
+
+{{ REPEAT WITH unknown-reexport IN lib.unknown-reexports +}}
+{{+ CASE unknown-reexport.id +}}
+- '{{unknown-reexport.id}}' [qv]
+{{+ ELSE +}}
+- '{{unknown-reexport.name}}' [api]
+{{+ END (* case *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if unknown-reexports *) }}

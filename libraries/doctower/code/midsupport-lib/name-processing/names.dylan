@@ -7,7 +7,7 @@ define function standardize-qualified-name (name :: <string>) => (name :: <strin
 end function;
 
 
-/// Synopsis: Ensures legal characters in automatically-generated IDs.
+/// Synopsis: Ensures legal characters in IDs.
 define function standardize-id (id :: <string>) => (id :: <string>)
    replace-elements!(id, curry(\=, '/'), always('.'));
 end function;
@@ -64,10 +64,7 @@ define function enclosing-qualified-name (name :: <string>) => (name :: <string>
 end function;
 
 
-/// Synopsis: Returns whether an ID might be a qualified name in disguise.
-define function id-matches-qualified-name?
-   (id :: <string>, name :: <string>, #key test :: <function> = \=)
-=> (matches? :: <boolean>)
-   let name-as-id = format-to-string("::%s", name).standardize-id;
-   test(id, name-as-id)
+/// Synopsis: Returns the ID form of a qualified name.
+define function qualified-name-as-id (name :: <string>) => (id :: <string>)
+   format-to-string("::%s", name).standardize-id
 end function;

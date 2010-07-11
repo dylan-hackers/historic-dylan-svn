@@ -266,8 +266,8 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define caching parser quote-spec-option :: <symbol>
-   rule choice(code-lit, term-lit, bib-lit, sic-lit, unq-lit, em-lit, qq-lit,
-               qv-lit, vi-lit, b-lit, i-lit, u-lit, q-lit)
+   rule choice(code-lit, term-lit, api-lit, bib-lit, sic-lit, unq-lit, em-lit,
+               qq-lit, qv-lit, vi-lit, b-lit, i-lit, u-lit, q-lit)
       => token;
    yield token;
 end;

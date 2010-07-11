@@ -3,7 +3,7 @@ module: dylan-topics
 
 define function source-name-as-standardized-id (name :: <source-name>) => (id :: <string>)
    let name-string = format-to-string("%s", name);
-   format-to-string("::%s", name-string.standardize-qualified-name).standardize-id
+   name-string.standardize-qualified-name.qualified-name-as-id
 end function;
 
 
@@ -44,7 +44,7 @@ define generic canonical-id (defn :: <definition>, #key) => (id :: <string>);
 define method canonical-id (defn :: <definition>, #rest keys, #key, #all-keys)
 => (id :: <string>)
    let name = apply(definition-qualified-name, defn, keys);
-   format-to-string("::%s", name.standardize-id)
+   name.qualified-name-as-id
 end method;
 
 
@@ -111,9 +111,12 @@ end method;
 /// canonical <source-name>s.
 define method canonical-source-text (src-text :: <sequence>)
 => (src-text :: <sequence>)
+   local method new-name (name :: <source-name>) => (name :: <source-name>)
+            let definition = element(*definitions*, name, default: #f);
+            if (definition) definition.canonical-name else name end
+         end method;
    let new-text = src-text.shallow-copy;
-   replace-elements!(new-text, rcurry(instance?, <source-name>),
-         compose(canonical-name, curry(element, *definitions*)))
+   replace-elements!(new-text, rcurry(instance?, <source-name>), new-name)
 end method;
 
 

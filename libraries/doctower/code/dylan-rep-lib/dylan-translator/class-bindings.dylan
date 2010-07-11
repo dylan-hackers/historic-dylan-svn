@@ -30,10 +30,13 @@ define method make-defined-bindings
    map-into(class-def.direct-supers, curry(type-fragment-from-text, context),
             token.class-supers);
    for (supertype in class-def.direct-supers)
-      // Can't assume that a simple name refers to a class; it could be a variable.
-      for (name in supertype.fragment-names)
-         bindings := add!(bindings, make-expression-binding(context, name));
-      end for;
+      // Assume that it is a class name, or unparsable.
+      if (~supertype.simple-name?)
+         unparsable-expression-in-code(location: supertype.source-location)
+      else
+         bindings := add!(bindings, make-expression-binding
+               (context, supertype.source-text.first, type: <class-binding>));
+      end if
    end for;
    
    // Slots
@@ -281,8 +284,9 @@ define method class-inheritance-list (bindings :: <sequence>)
       let subclass = subclass-node.value;
       if (subclass.explicit-defn)
          // Find classes that are superclasses of this class. 
-         let superclass-names = remove-duplicates!
-               (subclass.explicit-defn.direct-supers.simple-names, test: \=);
+         let superclass-names = map(compose(first, source-text),
+               subclass.explicit-defn.direct-supers);
+         let superclass-names = remove-duplicates!(superclass-names, test: \=);
          let superclasses = map(curry(element, class-table), superclass-names);
          let superclass-nodes = choose-nodes(graph,
                method (node :: <node>) => (superclass-node? :: <boolean>)

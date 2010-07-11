@@ -11,7 +11,7 @@ define class <xref> (<markup-element>)
                              <target-placeholder>, <footnote-placeholder>,
                              <line-marker-placeholder>),
          init-keyword: #"target";
-   slot text :: type-union(<api-name>, <parm-name>, <string>, <conref>),
+   slot text :: type-union(<string>, <conref>),
          init-keyword: #"text";
 end class;
 
@@ -21,12 +21,8 @@ define class <vi-xref> (<xref>)
    inherited slot target /* :: type-union(<topic>, <target-placeholder>) */;
 end class;
 
-define class <api-name> (<markup-element>)
-   slot text :: <string>, init-keyword: #"text";
-end class;
-
-define class <parm-name> (<markup-element>)
-   slot text :: <string>, init-keyword: #"text";
+define class <api/parm-name> (<markup-element>)
+   slot text, init-keyword: #"text";
 end class;
 
 define class <term> (<markup-element>)

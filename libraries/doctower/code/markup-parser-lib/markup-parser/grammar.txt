@@ -325,7 +325,7 @@ quote-end:
 quote-spec:
    [-SPC ( quote-spec-option SPC-LS* )+ link-til-cls-brack? SPC-]
 quote-spec-option:
-   "CODE" / "TERM" / "BIB" / "SIC" / "TOC" / "UNQ" / "EM" / "QQ" / "QV" /
+   "CODE" / "TERM" / "API" / "BIB" / "SIC" / "UNQ" / "EM" / "QQ" / "QV" / "VI" / 
    "B" / "I" / "U" / "Q"
 
 _________

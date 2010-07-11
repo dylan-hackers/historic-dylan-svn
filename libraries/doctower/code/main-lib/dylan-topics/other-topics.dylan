@@ -30,23 +30,24 @@ end method;
 
 define method make-source-topics (binding :: <constant-binding>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
-   make-const/var-topics(binding, "const", #"constant-topic")
+   make-const/var-topics(binding, "const", #"constant", #"constant-topic")
 end method;
 
 define method make-source-topics (binding :: <variable-binding>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
-   make-const/var-topics(binding, "var", #"variable-topic")
+   make-const/var-topics(binding, "var", #"variable", #"variable-topic")
 end method;
 
 
 define method make-const/var-topics
    (binding :: type-union(<constant-binding>, <variable-binding>),
-    template-var :: <string>, template-name :: <symbol>)
+    template-var :: <string>, topic-type :: <symbol>, template-name :: <symbol>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
    
    // Create body of generated topic.
    
-   let generated-topic = make(<variable-doc>, generated: #t, existent-api: #t,
+   let generated-topic = make(<variable-doc>,
+         generated: #t, existent-api: #t, topic-type: topic-type,
          id: binding.canonical-id, title: binding.canonical-title,
          qualified-name: binding.definition-qualified-name,
          source-location: binding.source-location,
@@ -58,7 +59,8 @@ define method make-const/var-topics
 
    // Create authored topics.
    
-   let authored-topic = make(<variable-doc>, generated: #f, existent-api: #t,
+   let authored-topic = make(<variable-doc>,
+         generated: #f, existent-api: #t, topic-type: topic-type,
          id: binding.canonical-id, title: binding.canonical-title,
          qualified-name: binding.definition-qualified-name,
          source-location: binding.source-location,

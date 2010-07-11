@@ -4,36 +4,48 @@ The {{const.name}} constant.
 Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
-{{IF const.definition? +}}
+{{ IF const.source +}}
 Defined in {{const.source.filename}} line {{const.source.line}}.
-{{+END}}
+{{+ END }}
 
-{{IF const.exports.size > 0 +}}
+{{ IF const.exports +}}
 Exported under these names:
-{{REPEAT WITH export IN const.exports}}
-- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}] module
-  in '{{export.library.name}}' [qv {{export.library.id}}] library.
-{{+END+}}
-{{END}}
+
+{{ REPEAT WITH export IN const.exports +}}
+- '{{export.name}}' [api] in module '{{export.module.name}}' {{ +}}
+{{+ CASE export.module.id +}}
+[api qv {{export.module.id}}] {{ +}}
+{{+ ELSE +}}
+[api] {{ +}}
+{{+ END (* case *) +}}
+
+in library '{{export.library.name}}'. {{ +}}
+{{ CASE export.library.id +}}
+[api qv {{export.library.id}}]
+{{+ ELSE +}}
+[api]
+{{+ END (* case *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if exports *) }}
 
 ---------------------------------------------
 Subheading: Adjectives	        [:Adjectives]
 ---------------------------------------------
 
-{{IF const.adjectives.size > 0 +}}
-'{{const.adjectives}}' [code]
-{{END}}
+{{const.adjectives}}
 
 ----------------------------------------
 Subheading: Type and value	[:Value]
 ----------------------------------------
 
-{{IF const.value}}
-{{+ CASE const.type.code? +}}
-An instance of '{{const.type.text}}' [code]
-{{+ CASE const.type.link? +}}
-An instance of '{{const.type.text}}' [qv]
+{{ IF const.value +}}
+{{+ CASE ~const.type +}}
+An object {{ +}}
+{{+ CASE const.type.id +}}
+An instance of '{{const.type.id}}' [qv] {{ +}}
 {{+ ELSE +}}
-An object
-{{+END}} initialized to '{{const.value.text}}'. [code]
-{{+END}}
+An instance of '{{const.type.text}}' [code] {{ +}}
+{{+ END (* case *) +}}
+initialized to '{{const.value.text}}'. [code]
+{{+ END (* if value *) }}

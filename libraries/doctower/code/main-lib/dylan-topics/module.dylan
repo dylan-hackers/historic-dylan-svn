@@ -18,5 +18,6 @@ define module dylan-topics
    use template-engine;
 
    export
-      topics-from-dylan, $api-list-filename;
+      topics-from-dylan, $api-list-filename, $generated-topics-directory,
+      $topic-file-extension;
 end module;

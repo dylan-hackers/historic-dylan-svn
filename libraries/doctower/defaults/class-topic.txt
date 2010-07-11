@@ -4,78 +4,129 @@ The {{class.name}} class.
 Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
-{{IF class.definition? +}}
+{{ IF class.source +}}
 Defined in {{class.source.filename}} line {{class.source.line}}.
-{{END}}
+{{+ END }}
 
-{{IF class.exports.size > 0 +}}
+{{ IF class.exports +}}
 Exported under these names:
-{{REPEAT WITH export IN class.exports}}
-- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}] module
-  in '{{export.library.name}}' [qv {{export.library.id}}] library.
-{{+END+}}
-{{END}}
+
+{{ REPEAT WITH export IN class.exports +}}
+- '{{export.name}}' [api] in module '{{export.module.name}}' {{ +}}
+{{+ CASE export.module.id +}}
+[api qv {{export.module.id}}] {{ +}}
+{{+ ELSE +}}
+[api] {{ +}}
+{{+ END (* case *) +}}
+
+in library '{{export.library.name}}'. {{ +}}
+{{+ CASE export.library.id +}}
+[api qv {{export.library.id}}]
+{{+ ELSE +}}
+[api]
+{{+ END (* case *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if exports *) }}
 
 ---------------------------------------------
 Subheading: Adjectives  	[:Adjectives]
 ---------------------------------------------
 
-{{IF class.adjectives.size > 0 +}}
-'{{class.adjectives}}' [code]
-{{END}}
+{{class.adjectives}}
 
 --------------
 Make keywords:
 --------------
 
-{{REPEAT WITH keyword IN class.keywords +}}
-'{{keyword.name}}:' [code] -
-	{{CASE keyword.type.code? +}}
-	An instance of '{{keyword.type.text}}'. [code]
-	{{CASE keyword.type.link? +}}
- 	An instance of '{{keyword.type.text}}'. [qv]
-	{{ELSE +}}
+{{ IF class.keywords +}}
+{{+ REPEAT WITH keyword IN class.keywords +}}
+'{{keyword.name}}:' [api] -
+	{{ CASE ~keyword.type +}}
 	An object.
-	{{+END+}}
-	{{IF keyword.default +}}
+	{{+ CASE keyword.type.id +}}
+ 	An instance of '{{keyword.type.id}}'. [qv]
+	{{+ ELSE +}}
+	An instance of '{{keyword.type.text}}'. [code]
+	{{+ END (* case *) }} {{ +}}
+
+	{{+ IF keyword.default +}}
 	Optional. Defaults to '{{keyword.default.text}}'. [code]
-	{{ELSE +}}
+	{{+ ELSE +}}
 	Required.
-	{{+END}}
-{{END}}
+	{{+ END (* if default *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if keywords *) }}
 
 -----------------------------------------------
 Subheading: Inheritable Slots	[:Inheritables]
 -----------------------------------------------
 
-{{REPEAT WITH getter IN class.inheritable-getters +}}
-	'{{getter.id}}' [qv]
-{{+END}}
+{{ IF class.inheritable-getters +}}
+{{+ REPEAT WITH getter IN class.inheritable-getters +}}
+{{+ CASE getter.id +}}
+'{{getter.id}}' [qv]  {{ +}}
+{{+ ELSE +}}
+'{{getter.name}}' [api]  {{ +}}
+{{+ END (* case *) +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if inheritable-getters *) }}
 
 -----------------------------------------------
 Subheading: Superclasses	[:Superclasses]
 -----------------------------------------------
 
-{{REPEAT WITH superclass IN class.superclasses +}} '{{superclass.id}}' [qv] {{END}}
+{{ IF class.superclasses +}}
+{{+ REPEAT WITH superclass IN class.superclasses +}}
+{{+ CASE superclass.id +}}
+'{{superclass.id}}' [qv]  {{ +}}
+{{+ ELSE +}}
+'{{superclass.name}}' [api]  {{ +}}
+{{+ END (* case *) +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if superclasses *) }}
 
 ---------------------------------------------
 Subheading: Subclasses		[:Subclasses]
 ---------------------------------------------
 
-{{REPEAT WITH subclass IN class.subclasses +}} '{{subclass.id}}' [qv] {{END}}
+{{ IF class.subclasses +}}
+{{+ REPEAT WITH subclass IN class.subclasses +}}
+{{+ CASE subclass.id +}}
+'{{subclass.id}}' [qv]  {{ +}}
+{{+ ELSE +}}
+'{{subclass.name}}' [api]  {{ +}}
+{{+ END (* case *) +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if subclasses *) }}
 
 --------------------------------------------------------------
 Subheading: Functions on {{class.name}}		[:FunctionsOn]
 --------------------------------------------------------------
 
-{{REPEAT WITH function IN class.functions-on-class +}}
+{{ IF class.functions-on-class +}}
+{{+ REPEAT WITH function IN class.functions-on-class +}}
+{{+ CASE function.id +}}
 - '{{function.id}}' [qv]
-{{END}}
+{{+ ELSE +}}
+- '{{function.name}}' [api]
+{{+ END (* case *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if functions-on-class *) }}
 
 ---------------------------------------------------------------------
 Subheading: Functions returning {{class.name}}	[:FunctionsReturning]
 ---------------------------------------------------------------------
 
-{{REPEAT WITH function IN class.functions-returning-class +}}
+{{ IF class.functions-returning-class +}}
+{{+ REPEAT WITH function IN class.functions-returning-class +}}
+{{+ CASE function.id +}}
 - '{{function.id}}' [qv]
-{{END}}
+{{+ ELSE +}}
+- '{{function.name}}' [api]
+{{+ END (* case *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if functions-returning-class *) }}

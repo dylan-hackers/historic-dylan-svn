@@ -12,5 +12,5 @@ define module name-processing
    
    export
       standardize-qualified-name, standardize-id, standardize-title,
-      as-titlecase, enclosing-qualified-name, id-matches-qualified-name?;
+      as-titlecase, enclosing-qualified-name, qualified-name-as-id;
 end module;

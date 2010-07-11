@@ -101,9 +101,9 @@ end method;
 define method topics-by-fqn (topics :: <sequence>) => (fqn-table :: <table>)
    let fqn-topics = choose(conjoin(rcurry(instance?, <api-doc>), fully-qualified-name),
                            topics);
-   let fqn-table = make(<string-table>, size: fqn-topics.size);
+   let fqn-table = make(<case-insensitive-string-table>, size: fqn-topics.size);
    for (topic in fqn-topics)
-      fqn-table[topic.fully-qualified-name] := topic
+      fqn-table[topic.fully-qualified-name.qualified-name-as-id] := topic
    end for;
    fqn-table
 end method;
@@ -157,6 +157,14 @@ end method;
 /// At this point in the code, though, we are only processing topic-level stuff,
 /// so we won't see any #1.
 ///
+/// Arguments:
+///   link              -  The <target-placeholder> to resolve.
+///   containing-topic  -  The topic containing the link, used to look up the
+///                        current module/library.
+///   topics-by-id      -  Topics indexed by id.
+///   topics-by-fqn     -  Topics indexed by fully qualified name disguised as
+///                        id.
+///   topics-by-title   -  Topics indexed by unique title (in string form).
 /// Values:
 ///   resolution  -  #f if link could not be resolved, else the <topic> it
 ///                  resolved to.
@@ -166,12 +174,12 @@ define method resolve-link
     topics-by-title :: <table>, topics-by-id :: <table>, topics-by-fqn :: <table>)
 => (resolution :: false-or(<topic>))
    let topic = element(topics-by-id, link.target, default: #f) |
+               element(topics-by-fqn, link.target, default: #f) |
                element(topics-by-title, link.target, default: #f);
    if (~topic)
       // It is an API or a duplicate title. It will not be an argument/value
       // because those can only be legitimately found in an <xref>, which we are
-      // not processing. APIs need to be canonicalized and looked up.
-      // TODO: Lookup by fully qualified name.
+      // not processing.
       // TODO: API canonicalization and lookup.
    end if;
    topic

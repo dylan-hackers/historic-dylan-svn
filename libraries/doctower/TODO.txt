@@ -11,9 +11,8 @@ templates. If the template itself is badly formed, you get a direct error from
 the parser without the usual file name and position. That is easy enough to
 clean up. But if the document resulting from the template has errors or
 warnings, you get source locations that say nothing more than "automatically
-generated". A better solution would be to save all template results into a
-temporary directory, contingent on a command line switch, and to report errors
-accordingly.
+generated". This can be improved to refer to an actual file if the --autogen-dir
+switch is used.
 
 -----
 
@@ -54,12 +53,17 @@ with ASCII lines because an ASCII line needs *three* consecutive characters.
 
 ------
 
-Rewrite <ordered-tree>. I recently learned of something called a "zipper." This
-is a data structure that acts much like a tree, but is based around a pointer to
-a current node. This is what I was trying to do when I wrote the <ordered-tree>
-class, but I expect the zipper will be faster and more efficient. It would be
-good to replace the current <ordered-tree> implementation with a zipper-based
-one.
+Rewrite <ordered-tree>. There is is a data structure called a "zipper" that acts
+much like a tree, but is based around a pointer to a current node. This is what
+I was trying to do when I wrote the <ordered-tree> class, but I expect the
+zipper will be faster and more efficient. It would be good to replace the
+current <ordered-tree> implementation with a zipper-based one.
+
+------
+
+Cache parsed templates in a file so that Doctower does not have to reparse them
+each time it runs. That should shave about a minute from each run. This could be
+a separate tool.
 
 
 ============

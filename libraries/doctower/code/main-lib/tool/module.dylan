@@ -5,7 +5,9 @@ define module main
    use conditions;
    use tasks;
    use markup-parser, import: { *parser-trace* };
-   use dylan-topics, import: { $api-list-filename };
+   use dylan-topics,
+      import: { $api-list-filename, $generated-topics-directory,
+                $topic-file-extension };
    use template-files, import: { $topic-template-path };
    
    // from io

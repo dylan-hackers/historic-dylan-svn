@@ -118,7 +118,7 @@ end method;
 
 
 /**
-Synopsis: Returns the first value of the element sequence.
+Synopsis: Returns the first or any element of the collection.
 
 Calling this function is more efficient than casting to a sequence and taking
 the first element.

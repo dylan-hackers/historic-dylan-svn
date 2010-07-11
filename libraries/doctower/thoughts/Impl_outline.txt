@@ -79,9 +79,9 @@ Documenting class slots
 =======================
 
 A comment block associated with a slot is used to generated getter and setter
-function documentation, and init-keyword documentation. These comment blocks
-can only have general directives like "Synopsis" and "See also." Separate
-getter and setter functions will override the generated documentation.
+function documentation and init-keyword documentation. These comment blocks can
+only have list item content markup. Separate getter and setter functions or
+function documentation will override the slot documentation.
 
 
 Automatic and overriding documentation
@@ -110,11 +110,11 @@ TODO: Think about [ditto] in the context of API documentation.
 API names and titles
 ====================
 
-API names referenced in '...' markup, or any markup really, may be partial or
-have some idiosyncratic format, e.g., 'make', 'make(singleton(<table>))',
-'make(table)', 'make( t == <table>)', 'make( == <table>)'. Not all these are
-valid. The canonical forms of API names are as follows. The first letter of
-each word is capitalized.
+API names referenced in quotes, or any markup really, may have some
+idiosyncratic format, e.g., 'make', 'make(singleton(<table>))', 'make(table)',
+'make( t == <table>)', 'make( == <table>)'. Not all these are valid. The
+canonical forms of API names are as follows. The first letter of each word is
+capitalized.
 
   Classes            - The name of the class.
   Types              - A type expression like "Singleton(<Type>)." This will
@@ -186,9 +186,8 @@ Topic IDs:
 
 Section IDs:
   "Definitions"       - :Definitions
-  "Classes", etc.     - :Classes, etc.
-  "Unbound names"     - :Unbound
-  "Other names"       - :Reexports
+  "Modules"	      - :Modules
+  "Bindings"	      - :Bindings
   "Functions on X"    - :FunctionsOn
   "Functions returning X" - :FunctionsReturning
   "Type and value"    - :Value
@@ -215,7 +214,7 @@ Properties follow:
   topic family
     related topics...
 
-  doc file (linkable)  [TODO: get rid of this?]
+  doc file (linkable)  [TODO: Do we actually want this? Not currently implemented.]
     title
     synopsis
     sections
@@ -307,5 +306,5 @@ properties of that type. "Linkable" means that the element can be linked to.
 Linkable items can have nav titles and are topics.
 
 A constant that is set equal to one of the other API elements isn't a constant
-at all, but is instead an additional binding name for that element according to
-both user expectations and the Dylan language spec.
+at all, but is instead an additional binding name for that element. This is
+congruent with both user expectations and the Dylan language spec.

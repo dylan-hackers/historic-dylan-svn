@@ -44,7 +44,7 @@ end method;
 define method stringify-part
    (qt :: type-union(<emphasis>, <term-style>, <underline>, <italic>,
                      <bold>, <cite>, <code-phrase>, <term>, <xref>,
-                     <api-name>, <parm-name>))
+                     <api/parm-name>))
 => (string :: <string>)
    stringify-part(qt.text)
 end method;

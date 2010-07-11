@@ -240,6 +240,10 @@ define method print-object (o :: <code-phrase>, s :: <stream>) => ()
    format(s, "{code-phrase %=}", o.text)
 end method;
 
+define method print-object (o :: <api/parm-name>, s :: <stream>) => ()
+   format(s, "{api/parm-name %=}", o.text)
+end method;
+
 define method print-object (o :: <xref>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
       format(s, "xref %= ", o.text);

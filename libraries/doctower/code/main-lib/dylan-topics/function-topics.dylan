@@ -6,7 +6,8 @@ define method make-source-topics (binding :: <function-binding>)
 
    // Create body of generated topic.
    
-   let generated-topic = make(<function-doc>, generated: #t, existent-api: #t,
+   let generated-topic = make(<function-doc>,
+         generated: #t, existent-api: #t, topic-type: #"function",
          id: binding.canonical-id, title: binding.canonical-title,
          qualified-name: binding.definition-qualified-name,
          source-location: binding.source-location,
@@ -18,7 +19,8 @@ define method make-source-topics (binding :: <function-binding>)
 
    // Create authored topics.
    
-   let authored-topic = make(<function-doc>, generated: #f, existent-api: #t,
+   let authored-topic = make(<function-doc>,
+         generated: #f, existent-api: #t, topic-type: #"function",
          id: binding.canonical-id, title: binding.canonical-title,
          qualified-name: binding.definition-qualified-name,
          source-location: binding.source-location,
@@ -91,7 +93,8 @@ define method make-method-topics (generic-method :: <generic-method>)
 
    // Create body of generated topic.
    
-   let generated-topic = make(<function-doc>, generated: #t, existent-api: #t,
+   let generated-topic = make(<function-doc>,
+         generated: #t, existent-api: #t, topic-type: #"method",
          id: canonical-id(binding, method-params: method-params),
          title: canonical-title(binding, method-params: method-params),
          qualified-name: definition-qualified-name(binding, method-params: method-params),
@@ -104,7 +107,8 @@ define method make-method-topics (generic-method :: <generic-method>)
 
    // Create authored topics.
    
-   let authored-topic = make(<function-doc>, generated: #f, existent-api: #t,
+   let authored-topic = make(<function-doc>,
+         generated: #f, existent-api: #t, topic-type: #"method",
          id: canonical-id(binding, method-params: method-params),
          title: canonical-title(binding, method-params: method-params),
          qualified-name: definition-qualified-name(binding, method-params: method-params),

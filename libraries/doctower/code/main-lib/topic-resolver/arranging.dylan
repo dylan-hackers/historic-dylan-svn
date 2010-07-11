@@ -139,9 +139,9 @@ define method default-parent-ids (topic :: <module-doc>)
 => (ids :: <sequence>)
    if (topic.existent-api?)
       let lib-name = topic.fully-qualified-name.enclosing-qualified-name;
-      list(format-to-string(":Modules(%s)", lib-name),
+      list(format-to-string(":Modules(%s)", lib-name).standardize-id,
            ":Modules",
-           format-to-string("::%s", lib-name))
+           lib-name.qualified-name-as-id)
    else
       #()
    end if
@@ -152,13 +152,13 @@ define method default-parent-ids (topic :: <class-doc>)
    if (topic.existent-api?)
       let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
       let lib-name = mod-name.enclosing-qualified-name;
-      list(format-to-string(":Classes(%s)", mod-name),
-           format-to-string(":Bindings(%s)", mod-name),
-           format-to-string(":Classes(%s)", lib-name),
-           format-to-string(":Bindings(%s)", lib-name),
+      list(format-to-string(":Classes(%s)", mod-name).standardize-id,
+           format-to-string(":Bindings(%s)", mod-name).standardize-id,
+           format-to-string(":Classes(%s)", lib-name).standardize-id,
+           format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Classes",
            ":Bindings",
-           format-to-string("::%s", mod-name))
+           mod-name.qualified-name-as-id)
    else
       #()
    end if
@@ -169,13 +169,13 @@ define method default-parent-ids (topic :: <variable-doc>)
    if (topic.existent-api?)
       let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
       let lib-name = mod-name.enclosing-qualified-name;
-      list(format-to-string(":Variables(%s)", mod-name),
-           format-to-string(":Bindings(%s)", mod-name),
-           format-to-string(":Variables(%s)", lib-name),
-           format-to-string(":Bindings(%s)", lib-name),
+      list(format-to-string(":Variables(%s)", mod-name).standardize-id,
+           format-to-string(":Bindings(%s)", mod-name).standardize-id,
+           format-to-string(":Variables(%s)", lib-name).standardize-id,
+           format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Variables",
            ":Bindings",
-           format-to-string("::%s", mod-name))
+           mod-name.qualified-name-as-id)
    else
       #()
    end if
@@ -186,13 +186,13 @@ define method default-parent-ids (topic :: <function-doc>)
    if (topic.existent-api? & topic.topic-type ~= #"method")
       let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
       let lib-name = mod-name.enclosing-qualified-name;
-      list(format-to-string(":Functions(%s)", mod-name),
-           format-to-string(":Bindings(%s)", mod-name),
-           format-to-string(":Functions(%s)", lib-name),
-           format-to-string(":Bindings(%s)", lib-name),
+      list(format-to-string(":Functions(%s)", mod-name).standardize-id,
+           format-to-string(":Bindings(%s)", mod-name).standardize-id,
+           format-to-string(":Functions(%s)", lib-name).standardize-id,
+           format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Functions",
            ":Bindings",
-           format-to-string("::%s", mod-name))
+           mod-name.qualified-name-as-id)
    else
       #()
    end if
@@ -203,13 +203,13 @@ define method default-parent-ids (topic :: <macro-doc>)
    if (topic.existent-api?)
       let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
       let lib-name = mod-name.enclosing-qualified-name;
-      list(format-to-string(":Macros(%s)", mod-name),
-           format-to-string(":Bindings(%s)", mod-name),
-           format-to-string(":Macros(%s)", lib-name),
-           format-to-string(":Bindings(%s)", lib-name),
+      list(format-to-string(":Macros(%s)", mod-name).standardize-id,
+           format-to-string(":Bindings(%s)", mod-name).standardize-id,
+           format-to-string(":Macros(%s)", lib-name).standardize-id,
+           format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Macros",
            ":Bindings",
-           format-to-string("::%s", mod-name))
+           mod-name.qualified-name-as-id)
    else
       #()
    end if
@@ -220,13 +220,13 @@ define method default-parent-ids (topic :: <unbound-doc>)
    if (topic.existent-api?)
       let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
       let lib-name = mod-name.enclosing-qualified-name;
-      list(format-to-string(":Unbound(%s)", mod-name),
-           format-to-string(":Bindings(%s)", mod-name),
-           format-to-string(":Unbound(%s)", lib-name),
-           format-to-string(":Bindings(%s)", lib-name),
+      list(format-to-string(":Unbound(%s)", mod-name).standardize-id,
+           format-to-string(":Bindings(%s)", mod-name).standardize-id,
+           format-to-string(":Unbound(%s)", lib-name).standardize-id,
+           format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Unbound",
            ":Bindings",
-           format-to-string("::%s", mod-name))
+           mod-name.qualified-name-as-id)
    else
       #()
    end if
@@ -244,8 +244,7 @@ end method;
 
 define method matching-id? (test-id :: <string>, topic :: <api-doc>)
 => (matching? :: <boolean>)
-   test-id = topic.id
-         | id-matches-qualified-name?(test-id, topic.fully-qualified-name)
+   test-id = topic.id | test-id = topic.fully-qualified-name.qualified-name-as-id
 end method;
 
 
@@ -402,30 +401,37 @@ end method;
 /// Discussion: This will result in one tree per documented generic.
 define method generic-function-arrangement (topics :: <sequence>)
 => (trees :: <sequence> /* of <ordered-tree> */)
-   // TODO: Rewrite this in terms of fully-qualified name.
-   // let generic-topics = choose(rcurry(instance?, <generic-doc>), topics);
-   // 
-   // local method arrange-methods (gen-topic :: <generic-doc>)
-   //       => (tree :: <ordered-tree>)
-   //          apply(make-parent-child-tree,
-   //                make(<arranged-topic>, topic: gen-topic,
-   //                     type: #"generic-family"),
-   //                gen-topic.arranged-method-topics)
-   //       end method,
-   //          
-   //       method arranged-method-topics (gen-topic :: <generic-doc>)
-   //       => (arranged :: <sequence>)
-   //          map(rcurry(arranged-method-topic, gen-topic), gen-topic.method-topics)
-   //       end method,
-   // 
-   //       method arranged-method-topic
-   //          (meth-topic :: <function-doc>, gen-topic :: <generic-doc>)
-   //       => (arranged :: <arranged-topic>)
-   //          make(<arranged-topic>, topic: meth-topic, type: #"generic-family")
-   //       end method;
-   // 
-   // map(arrange-methods, generic-topics);
-   #()
+   let trees = make(<stretchy-vector>);
+   let function-topics
+         = choose(method (topic :: <topic>) => (use? :: <boolean>)
+                     instance?(topic, <function-doc>)
+                           & topic.topic-type = #"method"
+                           & topic.fully-qualified-name.true?
+                  end, topics);
+   let generic-topics
+         = choose(method (topic :: <topic>) => (use? :: <boolean>)
+                     instance?(topic, <generic-doc>)
+                           & topic.fully-qualified-name.true?
+                  end, topics);
+   for (generic-topic in generic-topics)
+      let arranged-children = make(<stretchy-vector>);
+      for (function-topic in function-topics)
+         let generic-name = function-topic.fully-qualified-name.enclosing-qualified-name;
+         if (generic-name = generic-topic.fully-qualified-name)
+            arranged-children := add!(arranged-children,
+                  make(<arranged-topic>, type: #"generic-family",
+                       source-location: generic-topic.source-location,
+                       topic: function-topic))
+         end if
+      end for;
+      unless (arranged-children.empty?)
+         let arranged-parent = make(<arranged-topic>, type: #"generic-family",
+               source-location: generic-topic.source-location, topic: generic-topic);
+         let tree = apply(make-parent-child-tree, arranged-parent, arranged-children);
+         trees := add!(trees, tree)
+      end unless
+   end for;
+   trees
 end method;
 
 
@@ -576,30 +582,25 @@ define function merge-arranged-topics!
 
    // Merge or copy original's children to destination.
 
-   // log-object("Merging", orig-tree);
-   // log-object("into", dest-tree);
-   // log("key %= into %=", orig-tree-key, dest-tree-key);
    for (orig-child-key in orig-tree-key.inf-key-sequence)
       let merged-orig-to-dest? =
             block (merged)
+               // Do we need to merge from this orig child into a dest child?
                for (dest-child-key in dest-tree-key.inf-key-sequence)
-                  // log("Checking need to merge from child %= into %=",
-                  //     orig-child-key, dest-child-key);
                   if (dest-tree[dest-child-key].topic ==
                       orig-tree[orig-child-key].topic)
-                     // log("Recursing");
+                     // Yes, merge them.
                      merge-arranged-topics!(dest-tree, dest-child-key,
                                             orig-tree, orig-child-key);
-                     // log("Recurse done");
                      merged(#t);
                   end if;
                end for;
                merged(#f);
             end block;
-      if (~merged-orig-to-dest?) // ...then we need to copy orig to dest
+      // If we didn't merge, we still need to copy this orig child to dest.
+      if (~merged-orig-to-dest?)
          let orig-child-tree = copy-tree(orig-tree, from: orig-child-key);
          let dest-child-key = dest-tree-key.next-inf-key;
-         // log("Copying orig %= to dest %=", orig-child-key, dest-child-key);
          replace-subtree!(dest-tree, orig-child-tree, from: dest-child-key);
       end if;
    end for;   

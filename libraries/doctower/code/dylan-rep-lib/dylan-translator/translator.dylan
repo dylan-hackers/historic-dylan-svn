@@ -3,11 +3,11 @@ synopsis: Contains code in charge of building representations of Dylan APIs.
 
 
 // TODO: Try to keep the tokens around longer, rather than converting them to
-// text, so that I can turn "define constant foo = method () ... end" into a
-// function. But if I do this, it could interfere with foo if it were documented
-// as a constant. Keeping the tokens around could also enable the source
-// location of, say, an <empty-binding>, to be the name of the binding itself
-// rather than its clause.
+// text, so that I can turn "foo" from "define constant foo = method () ... end"
+// into a function. But if I do this, it could interfere with foo if it were
+// documented as a constant. Keeping the tokens around could also enable the
+// source location of, say, an <empty-binding>, to be the name of the binding
+// itself rather than its clause.
 
 
 /**
@@ -20,7 +20,7 @@ file-sets - A sequence. Each element of the sequence is a library being
             <interchange-file-token>.
 
 --- Values: ---
-definitions - A sequence of <definition> objects, containing all the libraries,
+definitions - A sequence of <definition> objects including all the libraries,
               modules, and bindings.
 **/
 define method apis-from-dylan (file-sets :: <sequence>)

@@ -115,6 +115,7 @@ define literal-parsers
    close-bracket  = ']';
    period         = '.';
    also-lit       = "also";
+   api-lit        = "api";
    args-lit       = "args";
    arguments-lit  = "arguments";
    b-lit          = "b";

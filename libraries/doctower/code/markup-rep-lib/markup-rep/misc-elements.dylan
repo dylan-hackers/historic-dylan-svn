@@ -17,7 +17,7 @@ end method;
 
 define class <api-list-placeholder> (<markup-element>)
    slot type :: <symbol>, init-keyword: #"type";
-   // TODO: Can maybe delete scope. Cf. main-lib/dylan-topics/simple-content.dylan.
+   // TODO: Can maybe delete scope.
    slot scope;
 end class;
 

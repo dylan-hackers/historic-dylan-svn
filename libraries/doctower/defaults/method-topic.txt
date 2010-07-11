@@ -1,110 +1,122 @@
-The {{meth.base-name}}
-{{+ IF meth.required-arguments.size = 0 +}}
-  {{ }} method.
+The {{meth.base-name}} {{ +}}
+{{+ IF ~meth.required-arguments +}}
+method.
 {{+ ELSE +}}
-  {{ }} method on {{ }}
-  {{+ REPEAT WITH argument IN meth.required-arguments INFO IN arg-info +}}
-    {{+ IF argument.type +}}
-      '{{argument.type.text}}'{{IF arg-info.last-rep?}}.{{ELSE}},{{END}}
-      {{+ CASE argument.type.code?}} [code]
-      {{+ CASE argument.type.link?}} [qv]
-      {{+ END (*of case*)}}
-    {{+ ELSE +}}
-      '::Dylan:Dylan:<Object>'{{IF arg-info.last-rep?}}.{{ELSE}},{{END}} [qv]
-    {{+END}}
-  {{+END}}
-{{+END}}
+method on {{ +}}
+{{+ REPEAT WITH argument IN meth.required-arguments INFO IN arg-info +}}
+{{+ CASE ~argument.type +}}
+'<Object>'{{ IF arg-info.last-rep? }}.{{ ELSE }},{{ END }} [api] {{ +}}
+{{+ CASE argument.type.id +}}
+'{{argument.type.id}}'{{ IF arg-info.last-rep? }}.{{ ELSE }},{{ END }} [qv] {{ +}}
+{{+ ELSE +}}
+'{{argument.type.text}}'{{ IF arg-info.last-rep? }}.{{ ELSE }},{{ END }} [code] {{ +}}
+{{+ END (* case *) +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if required-arguments *) }}
 
 ----------------------------------------------
 Subheading: Definitions         [:Definitions]
 ----------------------------------------------
 
-{{IF meth.definition? +}}
+{{ IF meth.source +}}
 Defined in {{meth.source.filename}} line {{meth.source.line}}.
-{{+END}}
+{{+ END }}
 
 ---------------------------------------------
 Subheading: Adjectives          [:Adjectives]
 ---------------------------------------------
 
-{{IF meth.adjectives.size > 0 +}}
-'{{meth.adjectives}}' [code]
-{{END}}
+{{meth.adjectives}}
 
 ----------
 Arguments:
 ----------
 
-{{REPEAT WITH argument IN meth.required-arguments +}}
-'{{argument.name}}' [code] -
-        {{CASE argument.singleton? +}}
-        The value '{{argument.object}}'. [code]
-        {{CASE argument.type.code? +}}
-        An instance of '{{argument.type.text}}'. [code]
-        {{CASE argument.type.link? +}}
-        An instance of '{{argument.type.text}}'. [qv]
-        {{ELSE +}}
+{{ IF meth.required-arguments +}}
+{{+ REPEAT WITH argument IN meth.required-arguments +}}
+'{{argument.name}}' [api] -
+	{{ CASE ~argument.type +}}
         An object.
-        {{+END}}
-{{END+}}
-{{REPEAT WITH argument IN meth.keyword-arguments +}}
-'{{argument.name}}:' [code] -
-        {{CASE argument.singleton? +}}
-        The value '{{argument.object}}'. [code]
-        {{CASE argument.type.code? +}}
+        {{+ CASE argument.singleton +}}
+        The value '{{argument.singleton.text}}'. [code]
+        {{+ CASE argument.type.id +}}
+        An instance of '{{argument.type.id}}'. [qv]
+        {{+ ELSE +}}
         An instance of '{{argument.type.text}}'. [code]
-        {{CASE argument.type.link? +}}
-        An instance of '{{argument.type.text}}'. [qv]
-        {{ELSE +}}
-        An object.
-        {{END+}}
-        {{IF argument.default +}}
+        {{+ END }}
+{{ +}}
+{{+ END +}}
+{{+ END +}}
+
+{{ IF meth.keyword-arguments +}}
+{{+ REPEAT WITH argument IN meth.keyword-arguments +}}
+'{{argument.name}}:' [api] -
+	{{+ CASE ~argument.type +}}
+        An object. {{ +}}
+        {{+ CASE argument.singleton +}}
+        The value '{{argument.singleton.text}}'. [code] {{ +}}
+        {{+ CASE argument.type.id +}}
+        An instance of '{{argument.type.id}}'. [qv] {{ +}}
+        {{+ ELSE +}}
+        An instance of '{{argument.type.text}}'. [code] {{ +}}
+        {{+ END +}}
+
+        {{+ IF argument.default +}}
         Defaults to '{{argument.default.text}}'. [code]
-        {{+END}}
-{{END+}}
-{{IF meth.rest-argument +}}
-{{WITH argument = meth.rest-argument +}}
-'#rest {{argument.name}}' [code] -
-        {{CASE meth.takes-keywords? +}}
+        {{+ END }}
+{{ +}}
+{{+ END +}}
+{{+ END +}}
+
+{{ IF meth.rest-argument +}}
+{{+ WITH argument = meth.rest-argument +}}
+#rest '{{argument.name}}' [api] -
+        {{ CASE meth.takes-keywords? +}}
         Zero or more keyword/value pairs.
-        {{ELSE +}}
+        {{+ ELSE +}}
         Zero or more arguments.
-        {{+END}}
-{{+END+}}
-{{END+}}
-{{CASE meth.all-keys-argument? +}}
-'#all-keys' [code] -
+        {{+ END }}
+{{ +}}
+{{+ END +}}
+{{+ END +}}
+
+{{ CASE meth.all-keys-argument? +}}
+#all-keys -
         This method accepts any keyword argument.
-{{CASE meth.takes-keywords? & meth.keyword-arguments.size = 0 +}}
-'#key' [code] -
+{{ CASE meth.takes-keywords? & ~meth.keyword-arguments +}}
+#key -
         This method accepts keyword arguments.
-{{END}}
+{{+ END }}
 
 -------
 Values:
 -------
 
-{{REPEAT WITH value IN meth.required-values +}}
-'{{value.name}}' [code] -
-        {{CASE value.singleton? +}}
-        The value '{{value.object}}'. [code]
-        {{CASE value.type.code? +}}
-        An instance of '{{argument.type.text}}'. [code]
-        {{CASE value.type.link? +}}
-        An instance of '{{argument.type.text}}'. [qv]
-        {{ELSE +}}
+{{ IF meth.required-values +}}
+{{+ REPEAT WITH value IN meth.required-values +}}
+'{{value.name}}' [api] -
+	{{ CASE ~value.type +}}
         An object.
-        {{+END}}
-{{END+}}
-{{IF meth.rest-value +}}
-{{WITH value = meth.rest-value +}}
-'#rest {{value.name}}' [code] -
-        {{CASE value.type.code? +}}
+        {{+ CASE value.singleton +}}
+        The value '{{value.singleton.text}}'. [code]
+        {{+ CASE value.type.id +}}
+        An instance of '{{value.type.id}}'. [qv]
+        {{+ ELSE +}}
+        An instance of '{{value.type.text}}'. [code]
+        {{+ END }}
+{{ +}}
+{{+ END +}}
+{{+ END +}}
+
+{{ IF meth.rest-value +}}
+{{+ WITH value = meth.rest-value +}}
+#rest '{{value.name}}' [api] -
+	{{ CASE ~value.type +}}
+	Zero or more values.
+        {{+ CASE value.type.id +}}
+        Zero or more instances of '{{value.type.id}}'. [qv]
+        {{+ ELSE +}}
         Zero or more instances of '{{value.type.text}}'. [code]
-        {{CASE meth.rest-value.type.link? +}}
-        Zero or more instances of '{{value.type.text}}'. [qv]
-        {{ELSE +}}
-        Zero or more values.
-        {{+END}}
-{{+END+}}
-{{END}}
+        {{+ END}}
+{{+ END +}}
+{{+ END }}

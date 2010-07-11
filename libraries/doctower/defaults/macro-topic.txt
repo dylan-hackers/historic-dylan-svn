@@ -4,14 +4,27 @@ The {{macro.name}} macro.
 Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
-{{IF macro.definition? +}}
+{{ IF macro.source +}}
 Defined in {{macro.source.filename}} line {{macro.source.line}}.
-{{+END}}
+{{+ END }}
 
-{{IF macro.exports.size > 0 +}}
+{{ IF macro.exports +}}
 Exported under these names:
-{{REPEAT WITH export IN macro.exports}}
-- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}] module
-  in '{{export.library.name}}' [qv {{export.library.id}}] library.
-{{+END+}}
-{{END}}
+
+{{ REPEAT WITH export IN macro.exports +}}
+- '{{export.name}}' [api] in module '{{export.module.name}}' {{ +}}
+{{+ CASE export.module.id +}}
+[api qv {{export.module.id}}] {{ +}}
+{{+ ELSE +}}
+[api] {{ +}}
+{{+ END (* case *) +}}
+
+in library '{{export.library.name}}'. {{ +}}
+{{+ CASE export.library.id +}}
+[api qv {{export.library.id}}]
+{{+ ELSE +}}
+[api]
+{{+ END (* case *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if exports *) }}

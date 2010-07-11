@@ -4,14 +4,27 @@ The {{unbound.name}} unbound name. Modules may import this name and define it.
 Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
-{{IF unbound.definition? +}}
+{{ IF unbound.source +}}
 Defined in {{unbound.source.filename}} line {{unbound.source.line}}.
-{{END}}
+{{+ END }}
 
-{{IF unbound.exports.size > 0 +}}
+{{ IF unbound.exports +}}
 Exported under these names:
-{{REPEAT WITH export IN unbound.exports}}
-- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}] module
-  in '{{export.library.name}}' [qv {{export.library.id}}] library.
-{{+END+}}
-{{END}}
+
+{{ REPEAT WITH export IN unbound.exports +}}
+- '{{export.name}}' [api] in module '{{export.module.name}}' {{ +}}
+{{+ CASE export.module.id +}}
+[api qv {{export.module.id}}] {{ +}}
+{{+ ELSE +}}
+[api] {{ +}}
+{{+ END (* case *) +}}
+
+in library '{{export.library.name}}'. {{ +}}
+{{+ CASE export.library.id +}}
+[api qv {{export.library.id}}]
+{{+ ELSE +}}
+[api]
+{{+ END (* case *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if exports *) }}

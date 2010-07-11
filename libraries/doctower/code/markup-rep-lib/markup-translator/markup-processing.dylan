@@ -104,11 +104,10 @@ Synopsis: Returns the intermediate elements that make up a quote.
 
 Style changes affect the entire render. Link and monospace affect everything
 inside typographical quotes. The actual link tag is innermost so its text can
-be replaced easily by a topic title or an <api-name> or <parameter-name>
-object (perhaps surrounded by an <xref>).
+be easily replaced by a topic title.
 
 To support that, from innermost to outermost, the quoted text is wrapped in:
-link-placeholder, term, code, typographical quotes, bib, b, i, u, term formatting, em
+link-placeholder, api, term, code, typographical quotes, bib, b, i, u, term formatting, em
 **/
 define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>)
    let specs = quote-specs(quote);
@@ -146,8 +145,8 @@ define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>
    // order for wrapping and processing.
    let used-specs-in-order =
          choose(rcurry(member?, specs),
-                #[ #"qv", #"vi", #"term", #"code", #"q", #"qq", #"bib", #"b",
-                   #"i", #"u", #"term", #"em" ]);
+                #[ #"qv", #"vi", #"api", #"term", #"code", #"q", #"qq", #"bib",
+                   #"b", #"i", #"u", #"term", #"em" ]);
 
    for (spec in used-specs-in-order)
       let new-interior = 
@@ -155,26 +154,22 @@ define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>
                #"qv" =>
                   // TODO: If link-target is an URL, make a new URL for it
                   // instead of a <target-placeholder>.
-                  let link = make(<xref>, source-location: quote.token-src-loc);
-                  link.text := link-text;
-                  link.target := link-target;
-                  link;
+                  make(<xref>, source-location: quote.token-src-loc,
+                       text: link-text, target: link-target);
                #"vi" =>
-                  let link = make(<vi-xref>, source-location: quote.token-src-loc);
-                  link.text := link-text;
-                  link.target := link-target;
-                  link;
+                  make(<vi-xref>, source-location: quote.token-src-loc,
+                       text: link-text, target: link-target);
+               #"api" =>
+                  make(<api/parm-name>, source-location: quote.token-src-loc,
+                       text: interior);
                #"term" =>
                   let term = make(if (first-term) <term> else <term-style> end,
-                                  source-location: quote.token-src-loc);
-                  term.text := interior;
+                                  source-location: quote.token-src-loc, text: interior);
                   first-term := #f;
                   term;
                #"code" =>
-                  let phrase = make(<code-phrase>,
-                                    source-location: quote.token-src-loc);
-                  phrase.text := interior;
-                  phrase;
+                  make(<code-phrase>, source-location: quote.token-src-loc,
+                       text: interior);
                #"q" =>
                   if (~instance?(interior, <sequence>))
                      interior := vector(interior);
@@ -192,25 +187,20 @@ define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>
                   let right-quote = vector(make(<entity>, code: #x201D));
                   concatenate-as(<markup-seq>, left-quote, interior, right-quote);
                #"bib" =>
-                  let cite = make(<cite>, source-location: quote.token-src-loc);
-                  cite.text := interior;
-                  cite;
+                  make(<cite>, source-location: quote.token-src-loc,
+                       text: interior);
                #"b" =>
-                  let bold = make(<bold>, source-location: quote.token-src-loc);
-                  bold.text := interior;
-                  bold;
+                  make(<bold>, source-location: quote.token-src-loc,
+                       text: interior);
                #"i" =>
-                  let ital = make(<italic>, source-location: quote.token-src-loc);
-                  ital.text := interior;
-                  ital;
+                  make(<italic>, source-location: quote.token-src-loc,
+                       text: interior);
                #"u" =>
-                  let ul = make(<underline>, source-location: quote.token-src-loc);
-                  ul.text := interior;
-                  ul;
+                  make(<underline>, source-location: quote.token-src-loc,
+                       text: interior);
                #"em" =>
-                  let em = make(<emphasis>, source-location: quote.token-src-loc);
-                  em.text := interior;
-                  em;
+                  make(<emphasis>, source-location: quote.token-src-loc,
+                       text: interior);
             end select;
       interior := new-interior;
    end for;
@@ -255,15 +245,19 @@ define method quote-specs (quote :: <quote-token>) => (specs :: <sequence>)
       end if
    end unless;
 
-   // A quote can basically be a qv/vi, bib, or term. The other stuff is
-   // decorative. Former trumps latter.
-   when (member?(#"qv", specs) | member?(#"vi", specs))
-      specs := remove!(specs, #"bib");
-      specs := remove!(specs, #"term");
-   end when;
-   when (member?(#"bib", specs))
-      specs := remove!(specs, #"term");
-   end when;
+   // A quote can basically be code, api, term, bib, or plain text.
+   // Former trumps latter.
+   case
+      member?(#"code", specs) =>
+         specs := remove!(specs, #"api");
+         specs := remove!(specs, #"term");
+         specs := remove!(specs, #"bib");
+      member?(#"api", specs) =>
+         specs := remove!(specs, #"term");
+         specs := remove!(specs, #"bib");
+      member?(#"term", specs) =>
+         specs := remove!(specs, #"bib");
+   end case;
    specs
 end method;
 

@@ -1,29 +1,42 @@
 The {{mod.name}} module.
 
 ----------------------------------------------
-Subheading: Definitions		[:Definitions]
+Subheading: Definition          [:Definitions]
 ----------------------------------------------
 
-{{IF mod.definition? +}}
+{{ IF mod.source +}}
 Defined in {{mod.source.filename}} line {{mod.source.line}}.
-{{+END}}
+{{+ END }}
 
-{{IF mod.exports.size > 0 +}}
+{{ IF mod.exports +}}
 Exported under these names:
-{{REPEAT WITH export IN mod.exports}}
-- {{export.name}} in '{{export.library.name}}' [qv {{export.library.id}}] library.
-{{END+}}
-{{+END}}
 
--------------------------------------------
-Subheading: Bindings		[:Bindings]
--------------------------------------------
+{{ REPEAT WITH export IN mod.exports +}}
+- '{{export.name}}' [api] in library '{{export.library.name}}'. {{ +}}
+{{+ CASE export.library.id +}}
+[api qv {{export.library.id}}]
+{{+ ELSE +}}
+[api]
+{{+ END (* case *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if exports *) }}
+
+-----------------------------------------------------------
+Subheading: Bindings and Unbound Names          [:Bindings]
+-----------------------------------------------------------
 
 [LIST OF BINDINGS IN {{mod.scope-name}}]
 
-{{IF mod.unknown-reexports.size > 0}}
+{{ IF mod.unknown-reexports +}}
 May export other bindings from these modules:
-{{REPEAT WITH unknown-reexport IN lib.unknown-reexports}}
-- '{{unknown-reexport.name}}' [qv {{unknown-reexport.id}}]
-{{END+}}
-{{+END}}
+
+{{ REPEAT WITH unknown-reexport IN mod.unknown-reexports +}}
+{{+ CASE unknown-reexport.id +}}
+- '{{unknown-reexport.id}}' [qv]
+{{+ ELSE +}}
+- '{{unknown-reexport.name}}' [api]
+{{+ END (* case *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if unknown-reexports *) }}

@@ -91,6 +91,7 @@ define method make
             #"library" => <library-doc>;
             #"module" => <module-doc>;
             #"macro" => <macro-doc>;
+            #"unbound" => <unbound-doc>;
             #"topic" => <con-topic>;
          end select;
    apply(make, subclass, keys);
@@ -130,13 +131,16 @@ end class;
 
 define class <library-doc> (<api-doc>)
    slot modules-section :: false-or(<section>) = #f;
+   keyword topic-type: = #"library";
 end class;
 
 define class <module-doc> (<api-doc>)
    slot bindings-section :: false-or(<section>) = #f;
+   keyword topic-type: = #"module";
 end class;
 
 define class <unbound-doc> (<api-doc>)
+   keyword topic-type: = #"unbound";
 end class;
 
 define class <class-doc> (<api-doc>)
@@ -148,17 +152,20 @@ define class <class-doc> (<api-doc>)
    slot subs-section :: false-or(<section>) = #f;
    slot funcs-on-section :: false-or(<section>) = #f;
    slot funcs-returning-section :: false-or(<section>) = #f;
+   keyword topic-type: = #"class";
 end class;
 
 define class <variable-doc> (<api-doc>)
    slot adjectives-section :: false-or(<section>) = #f;
    slot value-section :: false-or(<section>) = #f;
+   keyword topic-type: = #"variable";
 end class;
 
 define class <macro-doc> (<api-doc>)
    slot syntax-section :: false-or(<section>) = #f;
    slot args-section :: false-or(<section>) = #f;
    slot vals-section :: false-or(<section>) = #f;
+   keyword topic-type: = #"macro";
 end class;
 
 define class <function-doc> (<api-doc>)
@@ -166,8 +173,10 @@ define class <function-doc> (<api-doc>)
    slot args-section :: false-or(<section>) = #f;
    slot vals-section :: false-or(<section>) = #f;
    slot conds-section :: false-or(<section>) = #f;
+   keyword topic-type: = #"function";
 end class;
 
 define class <generic-doc> (<function-doc>)
    slot methods-section :: false-or(<section>) = #f;
+   keyword topic-type: = #"generic-function";
 end class;

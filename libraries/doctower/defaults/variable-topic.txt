@@ -4,36 +4,48 @@ The {{var.name}} variable.
 Subheading: Definitions		[:Definitions]
 ----------------------------------------------
 
-{{IF var.definition? +}}
+{{ IF var.source +}}
 Defined in {{var.source.filename}} line {{var.source.line}}.
-{{+END}}
+{{+ END }}
 
-{{IF var.exports.size > 0 +}}
+{{ IF var.exports +}}
 Exported under these names:
-{{REPEAT WITH export IN var.exports}}
-- {{export.name}} in '{{export.module.name}}' [qv {{export.module.id}}] module
-  in '{{export.library.name}}' [qv {{export.library.id}}] library.
-{{+END+}}
-{{END}}
+
+{{ REPEAT WITH export IN var.exports +}}
+- '{{export.name}}' [api] in module '{{export.module.name}}' {{ +}}
+{{+ CASE export.module.id +}}
+[api qv {{export.module.id}}] {{ +}}
+{{+ ELSE +}}
+[api] {{ +}}
+{{+ END (* case *) +}}
+
+in library '{{export.library.name}}'. {{ +}}
+{{+ CASE export.library.id +}}
+[api qv {{export.library.id}}]
+{{+ ELSE +}}
+[api]
+{{+ END (* case *) }}
+{{ +}}
+{{+ END (* repeat *) +}}
+{{+ END (* if exports *) }}
 
 ---------------------------------------------
 Subheading: Adjectives	        [:Adjectives]
 ---------------------------------------------
 
-{{IF var.adjectives.size > 0 +}}
-'{{var.adjectives}}' [code]
-{{END}}
+{{var.adjectives}}
 
 ----------------------------------------
 Subheading: Type and value	[:Value]
 ----------------------------------------
 
-{{IF var.value}}
-{{+ CASE var.type.code? +}}
-An instance of '{{var.type.text}}' [code]
-{{+ CASE var.type.link? +}}
-An instance of '{{var.type.text}}' [qv]
+{{ IF var.value +}}
+{{+ CASE ~var.type +}}
+An object {{ +}}
+{{+ CASE var.type.id +}}
+An instance of '{{var.type.id}}' [qv] {{ +}}
 {{+ ELSE +}}
-An object
-{{+END}} initialized to '{{var.value.text}}'. [code]
-{{+END}}
+An instance of '{{var.type.text}}' [code] {{ +}}
+{{+ END (* case *) +}}
+initialized to '{{var.value.text}}'. [code]
+{{+ END (* if value *) }}

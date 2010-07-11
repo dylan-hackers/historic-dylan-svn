@@ -104,9 +104,9 @@ define method check-and-merge-topics (topics :: <sequence>) => (topic :: <topic>
       end if;
       
       // Preferentially keep authored topics because they have useful source
-      // locations and authored sections should override corresponding generated
-      // sections. 'Merge-two-topics' keeps the first of its arguments, so put
-      // authored topics first.
+      // locations and better ids and authored sections should override
+      // corresponding generated sections. 'Merge-two-topics' keeps the first of
+      // its arguments, so put authored topics first.
       let topics = concatenate(authored-topics, generated-topics);
       reduce1(merge-two-topics, topics)
    end if
