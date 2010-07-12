@@ -268,6 +268,18 @@ define method print-object (o :: <vi-xref>, s :: <stream>) => ()
    end printing-logical-block;
 end method;
 
+define method print-object (o :: <conref>, s :: <stream>) => ()
+   printing-logical-block (s, prefix: "{", suffix: "}")
+      format(s, "conref (%s) ", o.style);
+      pprint-newline(#"fill", s);
+      if (instance?(o.target, <topic>))
+         format(s, "{topic %=, id %=} ", o.target.title, o.target.id);
+      else
+         format(s, "%= ", o.target);
+      end if;
+   end printing-logical-block;
+end method;
+
 define method print-object (o :: <target-placeholder>, s :: <stream>) => ()
    format(s, "{placeholder %=}", o.target)
 end method;

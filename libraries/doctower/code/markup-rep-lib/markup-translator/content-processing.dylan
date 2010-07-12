@@ -100,15 +100,13 @@ define method process-tokens
    (seq :: type-union(<topic-content-seq>, <content-seq>),
     token :: <content-ref-line-token>)
 => ()
-   let ref = if (token.link)
-                let targ = make(<target-placeholder>, link: token.link.token-text,
-                                source-location: token.link.token-src-loc);
-                make(<conref>, style: #"toc", target: targ,
-                     source-location: token.token-src-loc);
-             else
-                make(<toc-placeholder>, source-location: token.token-src-loc);
-             end if;
-   add!(seq, ref);
+   let targ =
+         if (token.link)
+            make(<target-placeholder>, link: token.link.token-text,
+                 source-location: token.link.token-src-loc)
+         end if;
+   add!(seq, make(<toc-placeholder>, target: targ,
+                  source-location: token.token-src-loc));
 end method;
 
 

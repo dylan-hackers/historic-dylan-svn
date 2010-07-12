@@ -1,6 +1,7 @@
 module: markup-rep
 synopsis: Classes comprising documentation.
 
+
 /**
 Synopsis: List of elements corresponding to the markup-words grammar.
    text-word         - <string> and <character>
@@ -10,7 +11,7 @@ Synopsis: List of elements corresponding to the markup-words grammar.
    api-ref           - Basically converts to an API qv.
    line-marker-ref   - An <xref> to a <ph-marker>.
    footnote-ref      - An <xref> to a <footnote>.
-   synopsis-ref      - <conref> with the #"title" or #"shortdesc" style.
+   synopsis-ref      - <conref>
 **/
 define constant <markup-seq> = limited(<stretchy-vector>,
       of: type-union(<string>, <character>, <inline-image>, <html-content>,
@@ -28,7 +29,7 @@ Synopsis: List of elements corresponding to content-block grammar.
    marginal-code-block  - <code-block>
    marginal-verbatim-block - <pre>
    figure-ref-line      - <fig>
-   content-ref-line     - <conref> with the #"toc" style.
+   content-ref-line     - <toc-placeholder>
    ditto-ref-line       - <ditto-placeholder>
    api-list-ref-line    - <api-list-placeholder>
    bracketed-raw-block  - <code-block> or <pre>
@@ -40,13 +41,18 @@ Synopsis: List of elements corresponding to content-block grammar.
    paragraph            - <paragraph>
 **/
 define constant <content-seq> = limited(<stretchy-vector>,
-   of: type-union(<code-block>, <pre>, <fig>, <conref>, <ditto-placeholder>,
+   of: type-union(<code-block>, <pre>, <fig>, <toc-placeholder>, <ditto-placeholder>,
                   <api-list-placeholder>, <simple-table>, <unordered-list>,
                   <ordered-list>, <defn-list>, <paragraph>, singleton(#f)));
 
 define method content-seq (#rest elements) => (seq :: <content-seq>)
    make-limited-seq(<content-seq>, elements)
 end method;
+
+
+//
+// Topic content
+//
 
 
 define class <section> (<markup-element>)
@@ -72,6 +78,12 @@ define class <footnote> (<markup-element>)
          init-keyword: #"content";
 end class;
 
+
+//
+// Section/topic content
+//
+
+
 define class <paragraph> (<markup-element>)
    slot content :: <markup-seq> = make(<markup-seq>),
          init-keyword: #"content";
@@ -83,22 +95,6 @@ define class <note> (<markup-element>)
 end class;
 
 define class <warning-note> (<note>)
-end class;
-
-define class <conref> (<markup-element>)
-   slot target :: type-union(<topic>, <target-placeholder>),
-      init-keyword: #"target";
-   slot style :: one-of(#"title", #"shortdesc", #"toc"),
-      init-keyword: #"style";
-end class;
-
-/// This will be rendered as an empty DITA <ph> or HTML anchor. Technically,
-/// DITA <codeph> is a sub-class of <ph>, but I'm not using them at all the same.
-/// Don't want to include content in the tag in case DITA processors won't consider
-/// it as code in a code block.
-define class <ph-marker> (<markup-element>)
-   slot index :: type-union(<integer>, <character>), 
-         init-keyword: #"index";
 end class;
 
 define class <ordered-list> (<markup-element>)
@@ -122,21 +118,22 @@ end class;
 define class <many-line-defn-list> (<defn-list>)
 end class;
 
+/// Mixin class for <defn-list> indicating an argument or value list.
+// TODO: I don't make use of <parm-list>, but I need to.
+define class <parm-list> (<object>)
+end class;
+
+define class <one-line-parm-list> (<one-line-defn-list>, <parm-list>)
+end class;
+
+define class <many-line-parm-list> (<many-line-defn-list>, <parm-list>)
+end class;
+
 define class <fig> (<markup-element>)
    slot image-name :: <string>;
    slot abs-size :: false-or(<integer>) = #f;
    slot rel-size :: false-or(<integer>) = #f;
    slot title :: <string>;
-end class;
-
-define class <inline-image> (<markup-element>)
-   slot image-name :: <string>, init-keyword: #"image";
-   slot alt-text :: <string>, init-keyword: #"alt-text";
-end class;
-
-define class <pre> (<markup-element>)
-   slot content :: <sequence> /* of <string>, <ph-marker> */
-         = make(<stretchy-vector>);
 end class;
 
 define class <simple-table> (<markup-element>)
@@ -147,14 +144,62 @@ end class;
 define class <code-block> (<pre>)
 end class;
 
-/// Mixin class for <defn-list> indicating an argument or value list.
-define class <parm-list> (<object>)
+
+//
+// Section/topic content placeholders
+//
+
+
+define class <api-list-placeholder> (<markup-element>)
+   slot type :: <symbol>, init-keyword: #"type";
+   // TODO: Can maybe delete scope.
+   slot scope;
 end class;
 
-define class <one-line-parm-list> (<one-line-defn-list>, <parm-list>)
+define class <ditto-placeholder> (<markup-element>)
+   slot target :: type-union(<topic>, <target-placeholder>),
+      init-keyword: #"target";
 end class;
 
-define class <many-line-parm-list> (<many-line-defn-list>, <parm-list>)
+/// Synopsis: Placeholder for contents of current topic, i.e. "[CONTENTS]".
+define class <toc-placeholder> (<markup-element>)
+   // If #f, the target is the current topic.
+   slot target :: false-or(type-union(<topic>, <target-placeholder>)),
+      init-keyword: #"target";
+end class;
+
+
+//
+// Inline content
+//
+
+
+/// This will be rendered as a DITA <p> or <ph> element with a conref attribute
+/// or an HTML <p> or <span>.
+define class <conref> (<markup-element>)
+   slot target :: type-union(<topic>, <target-placeholder>),
+      init-keyword: #"target";
+   slot style :: one-of(#"title", #"shortdesc"),
+      init-keyword: #"style";
+end class;
+
+/// This will be rendered as an empty DITA <ph> or HTML anchor. Technically,
+/// DITA <codeph> is a sub-class of <ph>, but I'm not using them at all the same.
+/// Don't want to include content in the tag in case DITA processors won't consider
+/// it as code in a code block.
+define class <ph-marker> (<markup-element>)
+   slot index :: type-union(<integer>, <character>), 
+         init-keyword: #"index";
+end class;
+
+define class <inline-image> (<markup-element>)
+   slot image-name :: <string>, init-keyword: #"image";
+   slot alt-text :: <string>, init-keyword: #"alt-text";
+end class;
+
+define class <pre> (<markup-element>)
+   slot content :: <sequence> /* of <string>, <ph-marker> */
+         = make(<stretchy-vector>);
 end class;
 
 define class <html-content> (<markup-element>)

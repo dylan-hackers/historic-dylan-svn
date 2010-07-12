@@ -52,6 +52,6 @@ define module markup-rep
 
    export
       stringify-title, stringify-markup, printed-topic-type,
-      visit-topic-placeholders, visit-vi-xrefs;
+      visit-topic-placeholders, visit-vi-xrefs, visit-content-placeholders;
       
 end module;

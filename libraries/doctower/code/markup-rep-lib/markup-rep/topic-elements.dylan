@@ -24,10 +24,10 @@ end method;
 Synopsis: List of elements corresponding to topic-content grammar.
    section           - <section>, <note>, or <warning-note>
    footnote          - <footnote>
-   division-content  - As in <content-deque>
+   division-content  - As in <content-seq>
 **/
 define constant <topic-content-seq> = limited(<stretchy-vector>,
-      of: type-union(<code-block>, <pre>, <fig>, <conref>, <ditto-placeholder>,
+      of: type-union(<code-block>, <pre>, <fig>, <toc-placeholder>, <ditto-placeholder>,
                      <api-list-placeholder>, <simple-table>, <unordered-list>,
                      <ordered-list>, <defn-list>, <paragraph>, <note>, <section>,
                      <footnote>, singleton(#f)));
