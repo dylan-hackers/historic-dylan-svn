@@ -10,17 +10,14 @@ define library network
   use functional-dylan;
   use C-FFI;
   use IO;
-  use unix-portability;
   export unix-sockets,
          sockets;
 end;
-
 
 define module unix-sockets
   use functional-dylan,
     exclude: { close };
   use C-FFI;
-  use unix-portability;
 
   // Misc
   export
@@ -173,6 +170,7 @@ define module unix-sockets
   export
     gethostname;
   export
+    errno,
     $EPERM, $ENOENT, $ESRCH, $EINTR, $EIO, $ENXIO, $E2BIG, $ENOEXEC,
     $EBADF, $ECHILD, $EAGAIN, $EWOULDBLOCK, $ENOMEM, $EACCES, $EFAULT,
     $ENOTBLK, $EBUSY, $EEXIST, $EXDEV, $ENODEV, $ENOTDIR, $EISDIR,
@@ -202,7 +200,6 @@ define module unix-sockets
     pollfd-fd-setter, pollfd-events-setter, pollfd-revents-setter,
     $POLLIN, $POLLPRI, $POLLOUT, $POLLERR, $POLLHUP, $POLLNVAL;
 end module unix-sockets;
-
 
 define module sockets
   create start-sockets;
@@ -249,6 +246,12 @@ define module sockets
         <service-not-found>,
       <socket-accessor-error>,
         explanation, calling-function;
+
+  create socket-descriptor-setter, <platform-socket>, buffer-offset,
+    accessor-close-socket, <unix-socket-accessor>, current-socket-manager,
+    socket-manager-lock, accessor-accept, default-element-type, type-for-socket;
+
+  create ssl-socket-class, ssl-server-socket-class;
 end module sockets;
 
 define module sockets-internals
@@ -262,7 +265,6 @@ define module sockets-internals
   use format;
   use format-out;
   use byte-vector;
-  use unix-portability;
   use unix-sockets,
     rename: {socket => unix-socket,
              connect => unix-connect,
@@ -278,11 +280,11 @@ define module sockets-internals
 	     getpeername => unix-getpeername,
 	     gethostname => unix-gethostname,
 	     <c-socket> => <unix-socket-descriptor>,
-	     close => unix-closesocket },
+	     close => unix-closesocket,
+             errno => unix-errno },
     exclude: {<socket>, // use <accessor-socket-descriptor>
 	      send,  //  use unix-send-buffer instead
 	      recv};  //  use unix-recv-buffer instead
-
   use sockets, export: all;
   create
     <general-TCP-socket>, <byte-char-TCP-socket>, <byte-TCP-socket>;

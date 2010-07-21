@@ -201,5 +201,3 @@ define method name-uses-type-convention? (name :: <variable-name-fragment>)
     { ?other:* } => #f;
   end;
 end method;
-
-// eof

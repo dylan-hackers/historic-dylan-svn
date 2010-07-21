@@ -2276,5 +2276,3 @@ define method arguments-potentially-joint?
   end block;
   // every?(potentially-joint?, arg-te*, domain-type*);
 end method;
-
-// eof

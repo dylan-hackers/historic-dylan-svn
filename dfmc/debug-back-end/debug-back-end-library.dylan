@@ -34,6 +34,3 @@ define module dfmc-debug-back-end
     output-computation-sexp,
     print-specializers;
 end module;
-
-// eof
-

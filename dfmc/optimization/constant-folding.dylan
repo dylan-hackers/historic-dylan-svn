@@ -1112,7 +1112,3 @@ define method constant-fold (c :: <set-cell-value!>)
   #f;
 end method;
 */
-
-// eof
-
-

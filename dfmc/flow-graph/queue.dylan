@@ -131,5 +131,3 @@ define method do-queue (function :: <function>, queue :: <queue>) => ()
     end unless;
   end for;
 end method;
-        
-// eof

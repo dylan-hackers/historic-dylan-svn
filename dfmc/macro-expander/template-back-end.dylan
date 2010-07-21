@@ -377,10 +377,6 @@ define method make-literal-fragment (value :: <string>)
 end method;
 
 define method make-literal-fragment (value :: <symbol>)
-   // TODO: EMULATOR: Get rid of this keyword hack.
-  if (keyword?(value))
-    value := as(<symbol>, as(<string>, value));
-  end;
   make-in-expansion(<symbol-syntax-symbol-fragment>, value: value);
 end method;
 
@@ -539,23 +535,6 @@ define function make-braces-fragment (nested)
      right-delimiter: make-in-expansion(<rbrace-fragment>));
 end function;
 
-//// Emulator template expansion control.
-
-// This flag is only examined by the compiler running in the emulator.
-
-define thread variable *native-template-evaluation?* = #f;
-
-define macro with-native-template-evaluation
-  { with-native-template-evaluation ?:body end }
-    => { do-with-native-template-evaluation(method () ?body end) }
-end macro;
-
-define inline function do-with-native-template-evaluation (body-thunk)
-  dynamic-bind (*native-template-evaluation?* = #t)
-    body-thunk();
-  end;
-end function;
-
 //// Fragment import
 
 // To a macro-case.
@@ -697,5 +676,3 @@ end method;
 define inline method export-fragment-tokens (f :: <fragment>)
   f
 end method;
-
-// eof

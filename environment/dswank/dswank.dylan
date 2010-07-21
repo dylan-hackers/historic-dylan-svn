@@ -57,8 +57,12 @@ define swank-function connection-info ()
        #":lisp-implementation", list(#":type", "dylan",
                                      #":name", release-product-name(),
                                      #":version", release-version()),
-       #":version", "2008-03-27",
-       #":package", #(#":name", "opendylan", #":prompt", "opendylan"));
+       #":version", "2009-11-06",
+       #":package", #(#":name", "opendylan", #":prompt", "opendylan"))
+end;
+
+define swank-function create-repl (x)
+  list("opendylan", "opendylan")
 end;
 
 define swank-function quit-lisp ()
@@ -100,7 +104,7 @@ define swank-function set-default-directory (new-directory)
   new-directory;
 end;
 
-define swank-function compile-file-for-emacs (filename, foo)
+define swank-function compile-file-for-emacs (filename, #rest foo)
   block(ret)
     for (p in open-projects())
       for (source in project-sources(p))
@@ -112,8 +116,9 @@ define swank-function compile-file-for-emacs (filename, foo)
     end;
   end;
   run-compiler(*server*, concatenate("build ", *project*.project-name));
-  //slime expects a list with 2 elements, so be it
-  #("NIL", "2.1");
+  let notes = compiler-notes-for-emacs();
+  //result is output-pathname, notes, success/failure of compilation
+  list("pathname", notes, "T");
 end;
 
 define swank-function compiler-notes-for-emacs ()

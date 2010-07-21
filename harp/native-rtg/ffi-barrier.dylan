@@ -671,30 +671,18 @@ define method op--mark-unregistered-GC-TEB
   end with-harp;
 end method;
 
+define open generic op--get-stack-bottom
+    (be :: <harp-back-end>, dest :: <register>) => ();
 
 define method op--initialize-thread-with-gc
     (be :: <harp-back-end>) => ()
   with-harp (be)
     nreg stack-bot;
-    stack stack;
     c-result c-result;
     tag ok;
 
     // Initialize the thread with the memory manager
-    // To determine the bottom of stack, we mask the current stack pointer
-    // to round up to the nearest page (leaving the bottom 2 bits alone).
-    // WARNING: This relies on the stack not being popped by more than a page
-    // after invocation of this, but before another call-in to Dylan. Normally
-    // this will be performed very close to the stack bottom so it's OK. However
-    // this is inappropriate for registering the stack lazily during a C call-in.
-
-    // The stack mask used to be 0x1ffc, but that would only be correct for 16k
-    // memory pages.  Most architectures use 4k pages, and in fact assuming
-    // bigger alignments leads to crashes on Linux/x86.  This probably wants to
-    // be platform dependent one day.
-
-    let stack-mask = #x3fc; // Bottom of stack is at top of page
-    ins--or(be, stack-bot, stack, stack-mask);
+    op--get-stack-bottom(be, stack-bot);
     op--call-c(be, mm-dylan-register-thread, stack-bot);
     ins--beq(be, ok, c-result, 0);
 
@@ -958,11 +946,8 @@ define used-by-client init runtime-primitive deregister-traced-roots
 end runtime-primitive;
 
 
-
-define method op--shut-down-library (be :: <harp-back-end>) => ()
-  op--call-iep(be, primitive-deregister-traced-roots-ref, 
-	       %ambig-root, %static-root, %exact-root);
-end method;
+define open generic op--shut-down-dll-library (be :: <harp-back-end>) => ();
+define open generic op--shut-down-exe-library (be :: <harp-back-end>) => ();
 
 
 define method op--shut-down-dylan-library (be :: <harp-back-end>) => ()
@@ -1112,7 +1097,7 @@ define shared init c-runtime-primitive dylan-main
   c-result c-result;
   op--get-module-handle(be);
   op--call-c(be, primitive-dylan-initialize-ref);
-  op--shut-down-library(be);
+  op--shut-down-exe-library(be);
   op--call-iep(be, primitive-exit-application-ref, c-result);
   ins--rts(be);    // except that we'll never get to here.
 end c-runtime-primitive;
@@ -1135,7 +1120,7 @@ define init c-runtime-primitive dylan-main-0
 
   op--call-c(be, primitive-dylan-initialize-ref);
 
-  op--shut-down-library(be);
+  op--shut-down-exe-library(be);
 
   // Do any deregistration of the MM state for the master thread here
   op--maybe-uninitialize-thread-for-p-detach(be);

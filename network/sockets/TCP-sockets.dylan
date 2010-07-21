@@ -12,7 +12,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 define abstract primary class <platform-socket> (<buffered-socket>)
 end class;
 
-define abstract primary class <TCP-socket> (<platform-socket>)
+define open abstract primary class <TCP-socket> (<platform-socket>)
 end class;
 
 define method initialize 
@@ -80,18 +80,45 @@ define method initialize
   end
 end method initialize;
 
+define open generic type-for-socket (socket :: <socket>) => (type :: <symbol>);
+
 define method type-for-socket (socket :: <TCP-socket>)
  => (type == #"TCP")
   #"TCP"
 end method;
 
+define open generic ssl-socket-class (socket :: <type>) => (result :: <type>);
+define open generic ssl-server-socket-class (socket :: <type>) => (result :: <type>);
+
+// ssl-network implements these methods (sideways).  The failure mode for
+// not using ssl-network is pretty bad so try to soften the blow.
+
+define method ssl-server-socket-class (class :: <type>)
+ => (ssl-server-class :: <type>)
+  error("The SSL server socket class for %= is unknown.  "
+          "Perhaps you need to 'use ssl-network' in your library definition?")
+end;
+
+define method ssl-socket-class (class :: <type>)
+ => (ssl-server-class :: <type>)
+  error("The SSL socket class for %= is unknown.  "
+          "Perhaps you need to 'use ssl-network' in your library definition?")
+end;
+
+
 define method make (class == <TCP-socket>, #rest initargs,
 		    #key element-type = <byte-character>,
-		    direction: requested-direction = #"input-output")
+		    direction: requested-direction = #"input-output",
+		    ssl?)
  => (stream :: <TCP-socket>)
-  apply(make, client-class-for-element-type(class, element-type),
-        direction: requested-direction,
-        initargs)
+  let s = apply(make, client-class-for-element-type(class, element-type),
+		direction: requested-direction,
+		initargs);
+  if (ssl?)
+    apply(make, ssl-socket-class(<TCP-socket>), element-type:, element-type, lower:, s, initargs)
+  else
+    s
+  end
 end method make;
 
 define generic client-class-for-element-type
@@ -143,12 +170,12 @@ end method;
 /// SERVERSIDE
 
 define primary class
-    <platform-server-socket> (<server-socket>, <sealed-object>)
+    <platform-server-socket> (<server-socket>)
   slot default-element-type :: <type>, init-keyword: element-type:,
     init-value: <byte-character>;
 end class;
 
-define primary class
+define open primary class
     <TCP-server-socket> (<platform-server-socket>)
 end class;
 
@@ -160,6 +187,17 @@ end method;
 define inline method socket-code (socket :: <TCP-server-socket>)
   $SOCK-STREAM
 end method;
+
+define method make
+ (class == <TCP-server-socket>, #rest initargs, #key ssl?, #all-keys)
+ => (res :: <TCP-server-socket>)
+  let s = next-method();
+  if (ssl?)
+    apply(make, ssl-server-socket-class(<TCP-server-socket>), lower:, s, initargs)
+  else
+    s
+  end
+end;
 
 define method initialize 
     (new-server-socket :: <platform-server-socket>, #rest initargs,

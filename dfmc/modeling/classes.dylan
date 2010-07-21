@@ -258,5 +258,3 @@ end method; */
     val
   end
 end;
-
-// eof

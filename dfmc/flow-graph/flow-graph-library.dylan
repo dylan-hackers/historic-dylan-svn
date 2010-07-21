@@ -424,5 +424,3 @@ define module dfmc-flow-graph
     constant-value,
     constant-value?;
 end module;
-
-// eof

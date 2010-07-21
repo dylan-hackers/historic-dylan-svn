@@ -3,7 +3,7 @@ author: Hannes Mehnert
 copyright: 2009, all rights reversed
 synopsis: Dylan side of graphical visualization of DFM control flow graphs
 
-define constant $default-host = "10.37.129.2";
+define constant $default-host = "127.0.0.1";
 define constant $default-port = 1234;
 
 define class <dfmc-graph-visualization> (<object>)

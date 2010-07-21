@@ -55,9 +55,7 @@ end method;
 
 define &definition macro-definer
   { define ?mods:* \macro ?:name ?rules:* end }
-    => with-native-template-evaluation
-         do-define-macro(form, mods, name, rules);
-       end;
+    => do-define-macro(form, mods, name, rules);
 end &definition;
 
 define function do-compile-macro 
@@ -1083,5 +1081,3 @@ define function macro-fragment? (fragment) => (well? :: <boolean>)
   instance?(fragment, <macro-call-fragment>) 
     & (lookup-binding(fragment-macro(fragment)) == dylan-binding(#"macro"))
 end function;
-
-// eof

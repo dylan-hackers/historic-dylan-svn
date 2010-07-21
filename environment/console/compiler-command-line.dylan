@@ -21,6 +21,7 @@ define command-line main => <main-command>
 
   keyword build-script :: <file-locator> = "the (Jam) build script to use";
   keyword target :: <symbol> = "the target";
+  keyword arch :: <symbol> = "the architecture to build (e.g. i386 or x86_64)";
 
   flag help        = "show this help summary";
   flag logo        = "displays the copyright banner";
@@ -52,6 +53,7 @@ define command-line internal-main => <internal-main-command>
 
   keyword build-script :: <file-locator> = "the (Jam) build script to use";
   keyword target :: <symbol> = "the type of executable to generate";
+  keyword arch :: <symbol> = "the architecture to build (e.g. i386 or x86_64)";
   keyword debug-info :: <symbol>  = "control the debug info generated";
 
   flag help             = "show this help summary";
@@ -71,6 +73,8 @@ define command-line internal-main => <internal-main-command>
   // Internal-only options
   keyword personal-root :: <directory-locator> = "personal area root";
   keyword system-root   :: <directory-locator> = "system area root";
+  keyword internal-debug :: $keyword-list-type
+                        = "show debug messages (e.g. for linker,project-manager)";
   flag unify            = "combine the libraries into a single executable";
   flag profile-commands = "profile the execution of each command";
   flag harp             = "generate HARP output";

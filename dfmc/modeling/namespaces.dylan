@@ -1102,10 +1102,6 @@ define &module dylan-extensions
     <ordered-string-table>,
     <ordered-object-set>;
 
-  // Used for emulator compatibility
-  create
-    as-keyword, keyword?;				     
-
   // Alternate interface, allows substrings
   create
     make-symbol;
@@ -2627,5 +2623,3 @@ end &module;
 define &module dylan-internal
   use internal, export: all;
 end &module;
-
-// eof

@@ -746,5 +746,3 @@ define function set-type-environment (new-context :: <computation>, first :: <co
     re-type-computations(new-context.type-environment, first, last);
  end;
 end;
-
-// eof

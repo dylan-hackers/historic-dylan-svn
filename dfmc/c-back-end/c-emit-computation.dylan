@@ -1420,5 +1420,3 @@ define method emit-source-location
 end method;
 
 */
-
-// eof

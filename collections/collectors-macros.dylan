@@ -63,7 +63,7 @@ options:
   { }
     => { }
   { ?:name ?:expression ... }
-    => { as-keyword(?#"name"), ?expression, ... }
+    => { ?#"name", ?expression, ... }
   { = ?:expression ... }
     => { from:, ?expression, ... }
 end macro;
@@ -104,5 +104,3 @@ define macro collect
   { collect (?:expression) }
     => { collect-last-into(?=_collector, ?expression) }
 end macro;
-
-// eof

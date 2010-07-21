@@ -13,6 +13,7 @@ define c-fun runtime-external tlv-create-key    = "tlv_create_key";
 define c-fun runtime-external tlv-destroy-key   = "tlv_destroy_key";
 define c-fun runtime-external tlv-get-value     = "tlv_get_value";
 define c-fun runtime-external tlv-set-value     = "tlv_set_value";
+define c-fun runtime-external get-page-size     = "getpagesize";
 
 define sideways method op--create-TEB-tlv-index 
     (be :: <native-unix-back-end>) => ()
@@ -47,10 +48,46 @@ define sideways method op--free-teb-tlv
   end with-harp;
 end method;
 
+define sideways method op--get-stack-bottom
+    (be :: <native-unix-back-end>, dest :: <register>) => ()
+  // To determine the bottom of stack, we mask the current stack
+  // pointer to round up to the nearest page.  WARNING: This relies on
+  // the stack not being popped by more than a page after invocation
+  // of this, but before another call-in to Dylan. Normally this will
+  // be performed very close to the stack bottom so it's OK. However
+  // this is inappropriate for registering the stack lazily during a C
+  // call-in.
+  
+  with-harp (be)
+    stack stack;
+    c-result c-result;
+
+    // Get the system page size, minus 1
+    op--call-c(be, get-page-size);
+    ins--sub(be, dest, c-result, 1);
+
+    // Or this mask with the stack address to obtain the last address
+    // on this page
+    ins--or(be, dest, dest, stack);
+
+    // Add one
+    ins--add(be, dest, dest, 1);
+  end with-harp;
+end method;
 
 define sideways method op--get-module-handle(be :: <native-unix-back-end>) => ()
 end method;
 
+define sideways method op--shut-down-dll-library
+    (be :: <native-unix-back-end>) => ()
+  op--call-iep(be, primitive-deregister-traced-roots-ref, 
+	       %ambig-root, %static-root, %exact-root);
+end method;
+
+define sideways method op--shut-down-exe-library
+    (be :: <native-unix-back-end>) => ()
+  // Do nothing
+end method;
 
 
 define no-export unix-API-runtime-primitive dylan-thread-trampoline
@@ -61,7 +98,7 @@ end unix-API-runtime-primitive;
 
 
 
-define shared init no-public unix-API-runtime-primitive dylan-shared-object-entry
+define shared init unix-API-runtime-primitive dylan-shared-object-entry
   ("DylanSOEntry")
   c-result c-result;
   
@@ -93,12 +130,12 @@ define open generic op--initialize-thread-instructions (be :: <native-unix-back-
 define sideways method op--initialize-thread-instructions (be :: <native-unix-back-end>) => ()
 end method;
 
-define shared init no-public unix-API-runtime-primitive dylan-shared-object-exit
+define shared init unix-API-runtime-primitive dylan-shared-object-exit
   ("DylanSOExit")
   c-result c-result;
   
   // Uninitialize any DLL roots etc.
-  op--shut-down-library(be);
+  op--shut-down-dll-library(be);
   when-base
     // Do any deregistration of the MM state for the master thread here
     op--maybe-uninitialize-thread-for-p-detach(be);

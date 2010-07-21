@@ -1,4 +1,5 @@
 Library:   dfmc-typist
+Target-Type: dll
 Files:     typist-library
            typist-core
            typist-top-level-forms
