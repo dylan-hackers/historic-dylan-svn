@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"
          prefer="public">
+  <!-- Dylan API Reference Specialization DTDs -->
   <public publicId="-//Gwydion//DTD DITA Dylan API Class//EN"
           uri="dtd/dylanClass.dtd"/>
   <public publicId="-//Gwydion//DTD DITA Dylan API Constant//EN"
@@ -21,4 +22,14 @@
           uri="dtd/dylanType.dtd"/>
   <public publicId="-//Gwydion//DTD DITA Dylan API Variable//EN"
           uri="dtd/dylanVariable.dtd"/>
+
+  <!-- Custom Shell DTDs -->
+  <public publicId="-//Gwydion//DTD DITA Topic//EN"
+          uri="dtd/topic.dtd" />
+  <public publicId="-//Gwydion//DTD DITA Concept//EN"
+          uri="dtd/concept.dtd" />
+  <public publicId="-//Gwydion//DTD DITA Task//EN"
+          uri="dtd/task.dtd" />
+  <public publicId="-//Gwydion//DTD DITA Reference//EN"
+          uri="dtd/reference.dtd" />
 </catalog>

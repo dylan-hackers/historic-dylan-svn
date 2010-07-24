@@ -1,0 +1,210 @@
+<!-- ============================================================= -->
+<!--                    PUBLIC DOCUMENT TYPE DEFINITION            -->
+<!-- ============================================================= -->
+
+<!--  Refer to this file by the following public identifier or an
+      appropriate system identifier:
+
+PUBLIC "-//Gwydion//DTD DITA Reference//EN"
+      Delivered as file "reference.dtd"                            -->
+<!-- ============================================================= -->
+
+
+<!-- ============================================================= -->
+<!--                    TOPIC ENTITY DECLARATIONS                  -->
+<!-- ============================================================= -->
+
+<!ENTITY % reference-dec
+  PUBLIC "-//OASIS//ENTITIES DITA Reference//EN"
+         "reference.ent">
+%reference-dec;
+
+<!-- ============================================================= -->
+<!--                    DOMAIN ENTITY DECLARATIONS                 -->
+<!-- ============================================================= -->
+
+<!ENTITY % hi-d-dec
+  PUBLIC "-//OASIS//ENTITIES DITA Highlight Domain//EN"
+         "highlightDomain.ent">
+%hi-d-dec;
+
+<!ENTITY % ui-d-dec
+  PUBLIC "-//OASIS//ENTITIES DITA User Interface Domain//EN"
+         "uiDomain.ent">
+%ui-d-dec;
+
+<!ENTITY % indexing-d-dec
+  PUBLIC "-//OASIS//ENTITIES DITA Indexing Domain//EN"
+         "indexingDomain.ent">
+%indexing-d-dec;
+
+<!ENTITY % abbrev-d-dec
+  PUBLIC "-//OASIS//ENTITIES DITA Abbreviated Form Domain//EN"
+         "abbreviateDomain.ent">
+%abbrev-d-dec;
+
+<!ENTITY % hazard-d-dec
+  PUBLIC "-//OASIS//ENTITIES DITA Hazard Statement Domain//EN"
+         "hazardstatementDomain.ent">
+%hazard-d-dec;
+
+<!ENTITY % pr-d-dec
+  PUBLIC "-//OASIS//ENTITIES DITA Programming Domain//EN"
+         "programmingDomain.ent">
+%pr-d-dec;
+
+<!ENTITY % sw-d-dec
+  PUBLIC "-//OASIS//ENTITIES DITA Software Domain//EN"
+         "softwareDomain.ent">
+%sw-d-dec;
+
+<!ENTITY % ut-d-dec
+  PUBLIC "-//OASIS//ENTITIES DITA Utilities Domain//EN"
+         "utilitiesDomain.ent">
+%ut-d-dec;
+
+<!ENTITY % api-d-dec
+  PUBLIC "-//IBM//ENTITIES DITA API Domain//EN"
+         "apiDomain.ent">
+%api-d-dec;
+
+<!-- ============================================================= -->
+<!--                    DOMAIN EXTENSIONS                          -->
+<!-- ============================================================= -->
+
+<!ENTITY % pre          "pre |
+                         %ui-d-pre; |
+                         %pr-d-pre; |
+                         %sw-d-pre;
+                        ">
+<!ENTITY % note         "note |
+                         %hazard-d-note;
+                        ">
+<!ENTITY % term         "term |
+                         %abbrev-d-term;
+                        ">
+<!ENTITY % keyword      "keyword |
+                         %ui-d-keyword; |
+                         %pr-d-keyword; |
+                         %sw-d-keyword;
+                        ">
+<!ENTITY % dl           "dl |
+                         %pr-d-dl;
+                        ">
+<!ENTITY % index-base   "index-base |
+                         %indexing-d-index-base;
+                        ">
+<!ENTITY % fig          "fig |
+                         %pr-d-fig; |
+                         %ut-d-fig;
+                        ">
+<!ENTITY % ph           "ph |
+                         %hi-d-ph; |
+                         %ui-d-ph; |
+                         %pr-d-ph; |
+                         %sw-d-ph;
+                        ">
+<!ENTITY % xref         "xref |
+                         %api-d-xref;
+                        ">
+
+<!-- ============================================================= -->
+<!--                    DOMAIN ATTRIBUTE EXTENSIONS                -->
+<!-- ============================================================= -->
+
+<!ENTITY % props-attribute-extensions
+                        "
+                        ">
+<!ENTITY % base-attribute-extensions
+                        "
+                        ">
+
+<!-- ============================================================= -->
+<!--                    TOPIC NESTING OVERRIDE                     -->
+<!-- ============================================================= -->
+
+<!ENTITY % reference-info-types
+                        "reference">
+
+<!-- ============================================================= -->
+<!--                    DOMAINS ATTRIBUTE OVERRIDE                 -->
+<!-- ============================================================= -->
+
+<!ENTITY included-domains
+                        "&reference-att;
+                         &hi-d-att;
+                         &ui-d-att;
+                         &indexing-d-att;
+                         &abbrev-d-att;
+                         &hazard-d-att;
+                         &pr-d-att;
+                         &sw-d-att;
+                         &ut-d-att;
+                         &api-d-att;
+                        ">
+
+<!-- ============================================================= -->
+<!--                    TOPIC ELEMENT INTEGRATION                  -->
+<!-- ============================================================= -->
+
+<!ENTITY % topic-type
+  PUBLIC "-//OASIS//ELEMENTS DITA Topic//EN"
+         "topic.mod">
+%topic-type;
+
+<!ENTITY % reference-typemod
+  PUBLIC "-//OASIS//ELEMENTS DITA Reference//EN"
+         "reference.mod">
+%reference-typemod;
+
+<!-- ============================================================= -->
+<!--                    DOMAIN ELEMENT INTEGRATION                 -->
+<!-- ============================================================= -->
+
+<!ENTITY % hi-d-def
+  PUBLIC "-//OASIS//ELEMENTS DITA Highlight Domain//EN"
+         "highlightDomain.mod">
+%hi-d-def;
+
+<!ENTITY % ui-d-def
+  PUBLIC "-//OASIS//ELEMENTS DITA User Interface Domain//EN"
+         "uiDomain.mod">
+%ui-d-def;
+
+<!ENTITY % indexing-d-def
+  PUBLIC "-//OASIS//ELEMENTS DITA Indexing Domain//EN"
+         "indexingDomain.mod">
+%indexing-d-def;
+
+<!ENTITY % abbrev-d-def
+  PUBLIC "-//OASIS//ELEMENTS DITA Abbreviated Form Domain//EN"
+         "abbreviateDomain.mod">
+%abbrev-d-def;
+
+<!ENTITY % hazard-d-def
+  PUBLIC "-//OASIS//ELEMENTS DITA Hazard Statement Domain//EN"
+         "hazardstatementDomain.mod">
+%hazard-d-def;
+
+<!ENTITY % pr-d-def
+  PUBLIC "-//OASIS//ELEMENTS DITA Programming Domain//EN"
+         "programmingDomain.mod">
+%pr-d-def;
+
+<!ENTITY % sw-d-def
+  PUBLIC "-//OASIS//ELEMENTS DITA Software Domain//EN"
+         "softwareDomain.mod">
+%sw-d-def;
+
+<!ENTITY % ut-d-def
+  PUBLIC "-//OASIS//ELEMENTS DITA Utilities Domain//EN"
+         "utilitiesDomain.mod">
+%ut-d-def;
+
+
+<!ENTITY % api-d-def
+  PUBLIC "-//IBM//ELEMENTS DITA API Domain//EN"
+         "apiDomain.mod">
+%api-d-def;
+
+<!-- ======================== End of file ======================== -->
