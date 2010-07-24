@@ -130,13 +130,22 @@ pre {
 /* ##### Side Bar ##### */
 
 #side-bar {
-  width: 15em;
+  width: 18em;
   float: left;
   clear: left;
   border-right: 1px solid rgb(153,153,153);
+  overflow: hidden;
+}
+
+#side-bar .sideBarTree {
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 80%;
 }
 
 #side-bar .sideBarTree div {
+  overflow: hidden;
+  white-space: nowrap;
   border-bottom: 0px;
 }
 
@@ -218,7 +227,7 @@ pre {
   background-color: white;
   text-align: justify;
   line-height: 1.5em;
-  margin: 0 0 0 15em;
+  margin: 0 0 0 18em;
   padding: 0.5mm 5mm 5mm 5mm;
   border-left: 1px solid rgb(153,153,153);
 }

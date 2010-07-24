@@ -5,15 +5,14 @@ use utf8;
 use CGI;
 use CGI::Carp;
 
-my $www = "/var/www";
-my $wwwdata = "$www/website";
-my $wwwtopic = "$www/topic";
+my $wwwdata = $ENV{'DOCUMENT_ROOT'};
+my $wwwtopic = "$wwwdata/topic";
 my $wwwcms = "$wwwtopic/cms";
 my $cache = "$wwwtopic/Cache";
-my $ditaot = "$www/topic/dita";
+my $ditaot = "$wwwtopic/dita";
 my $urisite = "http://www.opendylan.org";
 my $uri = "$urisite/cgi-bin/topic.cgi";
-my $uricms = "$urisite/cms";
+my $uricms = "$urisite/topic/cms";
 my $uricss = "$uricms/css";
 my $uriimages = "$uricms/images";
 my $urijs = "$uricms/js";
@@ -43,15 +42,18 @@ if($view eq 'download') {
 	exit 0;
     }
 } elsif($view eq 'default') {
+    require URI;
     require XML::LibXML;
     require XML::LibXSLT;
+
+    XML::LibXSLT->max_depth(1000);
 
     $parser = new XML::LibXML;
     $xslt = new XML::LibXSLT;
 
     $parser->load_catalog("$wwwtopic/catalog.xml");
     $parser->load_catalog("$ditaot/catalog-dita.xml");
-    
+
     $parser->expand_entities(1);
     $parser->complete_attributes(1);
     $parser->load_ext_dtd(1);
@@ -61,10 +63,41 @@ if($view eq 'download') {
        && $path =~ /\.(xml|dita|ditamap)$/
        && -f "$wwwtopic$path") {
 	if($path =~ /\.ditamap$/) {
+	    # If someone browses to a .ditamap file directly, we redirect
+	    # to the first topic in the map, providing the map in the 'map'
+	    # query option.
+
 	    my $mapdoc = $parser->parse_file("$wwwtopic$path");
-	    my $toc = &toc($mapdoc);
+	    my $toc = &toc($parser, $mapdoc);
 	    my $tpath = &firsttopic($toc);
-	    print $q->redirect("$uri$tpath?map=$path");
+
+	    if (defined $tpath) {
+		print $q->redirect("$uri$tpath?map=$path");
+	    }
+	    else {
+		print $q->header(-charset => 'utf-8', -encoding => 'utf-8');
+		&start_html;
+		&start_head;
+
+		&print_links(\*STDOUT, $path);
+
+		print "<title>Dylan: Topic $path</title>";
+		&end_head;
+		&start_body;
+
+		&print_header;
+		&print_sidebar(\*STDOUT);
+		&start_main;
+
+		&print_breadcrumbs(\*STDOUT, $path);
+
+		print $q->p("Map contains no topics");
+
+		&end_main;
+		&dump_foot;
+		&end_body;
+		&end_html;
+	    }
 	    exit 0;
 	}
 
@@ -72,21 +105,25 @@ if($view eq 'download') {
 	binmode STDOUT, ":utf8";
 	&start_html;
 	&start_head;
+
+	# Transform the document using a variant of the DITA to HTML stylesheet
 	my $stylesheet
 	    = $xslt->parse_stylesheet_file("$wwwcms/xsl/dylan-dita2cms.xsl");
 
 	my $doc = $parser->parse_file("$wwwtopic$path");
 	my $result = $stylesheet->transform($doc);
 
+	# Compute a Table of Contents
 	my $tocdoc = $doc;
 	if(defined $map) {
-	    $tocdoc = $parser->parse_file("$wwwtopic/$map");
+	    $tocdoc = $parser->parse_file("$wwwtopic$map");
 	}
 	my $toc;
 	if(defined $tocdoc) {
-	    $toc = &toc($tocdoc);
+	    $toc = &toc($parser, $tocdoc);
 	}
 
+	# Add navigation information to the Table of Contents
 	my $tocmap = {};
 	my $pathtoc = &tocnav($toc, $path, $tocmap, $map);
 
@@ -218,11 +255,23 @@ if($view eq 'download') {
 	    &not_found($path);
 	}
 	exit 0;
+    } elsif(&path_ok($path)
+	    && $path =~ /\.(png|gif)$/
+	    && -f "$wwwtopic$path"
+	    && open(DOWNLOAD, '<:raw', "$wwwtopic$path")) {
+	my %mime = ('png' => 'image/png',
+		    'gif' => 'image/gif');
+	&ensure_cache_dirs($path);
+	print $q->header(-type => $mime{$1},
+			 -Content_length => (stat DOWNLOAD)[7]);
+	binmode STDOUT, ':raw';
+	print <DOWNLOAD>;
+	close(DOWNLOAD);
+	exit 0;
     } else {
 	&not_found($path);
 	exit 0;
     }
-	    
 } else {
     exit 1;
 }
@@ -245,6 +294,7 @@ sub path_ok {
     return
 	($path =~ m|^/reference/|
 	 || $path =~ m|^/map/|
+	 || $path =~ m|^/bookmap/|
 	 || $path =~ m|^/concept/|
 	 || $path =~ m|^/task/|);
 }
@@ -622,24 +672,25 @@ sub printHTML {
 ########################################################################
 
 sub toc {
-    my ($doc) = @_;
+    my ($parser, $doc) = @_;
+
     my ($root) = $doc->findnodes('/*');
     my $class = $root->getAttribute('class');
 
     if($class =~ m| map/map |) {
-	return &toc_map($root);
+	return &toc_map($parser, $root);
     }
     elsif($class =~ m| topic/topic |) {
-	return &toc_topic($root);
+	return &toc_topic($parser, $root);
     } else {
 	die $root->nodeName . " (class=$class)";
     }
 }
 
 sub toc_map {
-    my ($node) = @_;
+    my ($parser, $node) = @_;
 
-    my $p = $node->baseURI;
+    my $p = $node->baseURI || die;
     $p =~ s|^$wwwtopic||;
 
     my $self = {
@@ -647,31 +698,47 @@ sub toc_map {
 	title => $node->getAttribute('title'),
     };
 
+    my $class = $node->getAttribute('class');
+    if ($class =~ m| bookmap/bookmap |) {
+	$self->{'title'} = "[Book]";
+    }
+
     my @children = $node->findnodes('./*');
     if (scalar @children) {
 	my @results;
 	foreach my $element (@children) {
 	    my $class = $element->getAttribute('class');
 	    if($class =~ m| map/topicref |) {
-		push @results, &toc_topicref($element)
+		push @results, &toc_topicref($parser, $element)
 	    }
 	    else {
-		die $element->nodeName . " (class=$class) in map";
+		#die $element->nodeName . " (class=$class) in map";
 	    }
 	}
 	$self->{'children'} = \@results;
     }
 
-    return $self;
+    if(defined $self->{'children'} && scalar @{$self->{'children'}} == 1
+       && (!defined $self->{'title'}
+	   || $self->{'children'}->[0]->{'title'} eq $self->{'title'})) {
+	return $self->{'children'}->[0];
+    } else {
+	return $self;
+    }
 }
 
 sub toc_topicref {
-    my ($node) = @_;
+    my ($parser, $node) = @_;
 
     my $self;
-    if($node->getAttribute('href')) {
-	my ($ref) = $node->findnodes('document(@href)');
-	$self = &toc($ref);
+    if (my $href = $node->getAttribute('href')) {
+	my $refuri = URI->new_abs($href, $node->baseURI());
+	my ($ref) = $parser->parse_file($refuri);
+	if(!defined $ref) {
+	    die("Couldn't open '" . $node->getAttribute('href') . "' from "
+		. $node->baseURI);;
+	}
+	$self = &toc($parser, $ref);
     }
     else {
 	$self = {};
@@ -688,7 +755,7 @@ sub toc_topicref {
 	foreach my $element (@children) {
 	    my $class = $element->getAttribute('class');
 	    if($class =~ m| map/topicref |) {
-		push @results, &toc_topicref($element)
+		push @results, &toc_topicref($parser, $element)
 	    }
 	    else {
 		die $element->nodeName . " (class=$class) in topicref";
@@ -705,9 +772,9 @@ sub toc_topicref {
 }
 
 sub toc_topic {
-    my ($node) = @_;
+    my ($parser, $node) = @_;
 
-    my $p = $node->baseURI;
+    my $p = $node->baseURI || die;
     $p =~ s|^$wwwtopic||;
 
     my (@title)

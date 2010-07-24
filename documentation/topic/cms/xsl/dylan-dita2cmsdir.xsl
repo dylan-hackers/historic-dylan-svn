@@ -45,6 +45,8 @@
             doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN"
 />
 
+<!-- DITAEXT file extension name of referenced links -->
+<xsl:param name="OUTEXT"  select="'.xml'"/>
 <!-- DITAEXT file extension name of dita topic file -->
 <xsl:param name="DITAEXT" select="'.xml'"/>
 
