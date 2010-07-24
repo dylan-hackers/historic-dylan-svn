@@ -24,6 +24,8 @@
 
 <!-- Topic nesting redefinitions -->
 
+<!ENTITY % dylanGenericFunction-info-types "dylanMethod">
+
 <!-- Domain declaration redefinition -->
 
 <!ENTITY included-domains "&ui-d-att; &hi-d-att; &pr-d-att; &sw-d-att; &ut-d-att; &api-d-att;">
@@ -45,6 +47,9 @@
 
 <!ENTITY % dylanFunction-typemod SYSTEM "dylanFunction.mod">
   %dylanFunction-typemod;
+
+<!ENTITY % dylanMethod-typemod SYSTEM "dylanMethod.mod">
+  %dylanMethod-typemod;
 
 <!ENTITY % dylanGenericFunction-typemod SYSTEM "dylanGenericFunction.mod">
   %dylanGenericFunction-typemod;
