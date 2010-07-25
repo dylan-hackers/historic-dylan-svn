@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "../dtd/map.dtd">
+<map title="Language Differences">
+  <topicref href="language-differences-tables.xml">
+    <topicref href="../../reference/lib/dylan/dylan/merge_hash_ids.xml"/>
+    <topicref href="../../reference/lib/dylan/dylan/table_protocol.xml"/>
+    <topicref href="../../reference/lib/dylan/dylan/object_hash.xml"/>
+  </topicref>
+</map>

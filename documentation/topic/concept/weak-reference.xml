@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "../dtd/concept.dtd" []>
+<!DOCTYPE concept PUBLIC "-//Gwydion//DTD DITA Concept//EN" "../dtd/concept.dtd" []>
 <concept id="concept-weak-references">
   <title>Weak References</title>
   <prolog>
@@ -10,8 +10,8 @@
   </prolog>
 
   <conbody>
-    <p>Common Dylan tables can incorporate <term>weak
-    references</term> through keys and values. </p>
+    <p>Open Dylan tables can incorporate <term>weak references</term>
+    through keys and values.</p>
     
     <p>A <term>weak reference</term> is an reference that the garbage
     collector treats as irrelevant to establishing whether the object
@@ -35,8 +35,10 @@
     value.</p>
 
     <p>Common Dylan provides weakness options for instances of
-    <apiname>&lt;table&gt;</apiname>. A table can have <term>weak
-    keys</term> or <term>weak values</term>:</p>
+    <apiclassifier
+    href="../reference/lib/dylan/dylan/LtableG.xml">&lt;table&gt;</apiclassifier>. A
+    table can have <term>weak keys</term> or <term>weak
+    values</term>:</p>
     
     <codeblock>
 make(&lt;table&gt;, weak: #"key");     // makes a weak-key table
@@ -51,30 +53,29 @@ make(&lt;table&gt;, weak: #"value");   // makes a weak-value table
     references from elsewhere in the program.</p>
 
     <p>Weak-valued tables are much the same, except that the focus is
-    values and not keys. In a weak-valued table, if a value is no
-    longer referenced from anywhere else in the program (apart from
-    weak references, including from the same table), then the entry
-    (value and key) can be deleted from the table. After that, the
-    value object will be recycled. The key will also be recycled
+    on values rather than keys. In a weak-valued table, if a value is
+    no longer referenced from anywhere else in the program (apart from
+    other weak references, including from the same table), then the
+    entry (value and key) can be deleted from the table. After that,
+    the value object will be recycled. The key will also be recycled
     unless it has strong references from elsewhere in the program.</p>
     
     <p>Weak tables are useful for implementing many sorts of cache,
     where the cached data is recomputable and yet both expensive to
     compute and also expensive to keep for a long time. For example,
-    consider something like a font cache for an X Window System
-    server, or a printer. Fonts might be looked up by name, so the
-    strings would be the keys of the table. The values would be the
-    bitmaps for the font. While the X server is using a font, the
-    cache will be kept alive, so any further requests to select the
-    font will find the data already present. However, if the font is
-    not used then you would eventually expect the garbage collector to
-    clean it out. Any future request would then have to re-load all of
-    the bitmaps.</p>
+    consider something like a font cache for a Window System server or
+    a printer. Fonts might be looked up by name, so the strings would
+    be the keys of the table. The values would be the bitmaps for the
+    font. While the server is using a font, the cache will be kept
+    alive, so any further requests to select the font will find the
+    data already present. However, if the font is not used then you
+    can eventually expect the garbage collector to clean it out. Any
+    subsequent request would then have to re-load all of the bitmaps.</p>
   </conbody>
 
   <related-links>
     <link href="../reference/lib/dylan/dylan/LtableG.xml"
-	  type="reference" format="xml">
+          type="reference" format="xml">
       <linktext><apiname>&lt;table&gt;</apiname></linktext>
     </link>
   </related-links>

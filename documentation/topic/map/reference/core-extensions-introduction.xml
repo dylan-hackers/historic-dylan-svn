@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "../dtd/topic.dtd" []>
+<topic id="core-extensions-introduction">
+  <title>Core Extensions</title>
+
+  <body>
+    <p>This section describes the common language extensions, that is,
+    extensions made to the Dylan library as it is defined in the
+    <i>Dylan Reference Manual</i>. These extensions are available to
+    applications in the <codeph>dylan</codeph> library’s
+    <codeph>dylan</codeph> module.</p>
+  </body>
+</topic>

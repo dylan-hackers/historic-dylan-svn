@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "../dtd/topic.dtd" []>
+<topic id="language-differences-tables">
+  <title>Table-related Language Differences</title>
+
+  <body>
+    <p>For efficiency, Common Dylan adopts a slightly different table
+    protocol than that described by the DRM. Hashing functions take an
+    additional hash-state argument and merge it into the hash-state
+    result. The function <apiname>merge-hash-codes</apiname> is
+    replaced by <codeph>merge-hash-ids</codeph> because hash-states
+    are merged as part of the hashing process. The constant
+    <apiname>$permanent-hash-state</apiname> is no longer required (or
+    provided); the same effect is achieved by returning the argument
+    <apiname>hash-state</apiname> unchanged as the result
+    <apiname>hash-state</apiname>. Finally,
+    <codeph>object-hash</codeph> has been altered to use the new
+    protocol.</p>
+    
+    <p>This section describes the items that have been changed. We
+    also provide a <apiname>table-extensions</apiname> module in the
+    <apiname>collections</apiname> library.</p>
+  </body>
+
+  <related-links>
+    <link href="../../reference/lib/collections/table-extensions.xml">
+      <linktext>The <apiname>table-extensions</apiname> module</linktext>
+    </link>
+  </related-links>
+</topic>

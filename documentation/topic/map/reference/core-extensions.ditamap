@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "../dtd/map.dtd">
+<map title="Core Extensions">
+  <topicref href="core-extensions-introduction.xml">
+    <topicref href="../../reference/lib/dylan/dylan/function_definer.xml"/>
+    <!-- FIXME: Extensions to the FOR iteration construct -->
+    <topicref href="../../concept/weak-reference.xml"/>
+    <topicref href="../../reference/dylan-inlining.xml"/>
+  </topicref>
+</map>
