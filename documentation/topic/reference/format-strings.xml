@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" []>
+<reference id="format-strings">
+  <title>Format Control Strings</title>
+
+  <refbody>
+    <section>
+      <p>Format strings, or control strings, used with the functions
+      in <apiname>format</apiname> module, offer the same directives
+      specified as part of the Dylan condition system, as well as
+      providing few more directives, and additional field width and
+      alignment flags.</p>
+
+      <p>The field width argument is an integer that must appear
+      immediately after the dispatch character, <codeph>%</codeph>,
+      and before the format directive.  The argument indicates a
+      printing field in which to justify the output of the
+      directive. A positive integer indicates that the output should
+      be flush right within the field, and a negative integer
+      indicates the output should be flush left within the field. If
+      the output length is greater than the field’s width, then output
+      occurs as if there were no field specification.</p>
+
+      <p>The directives are: </p>
+
+      <dl>
+	<dlentry>
+	  <dt><codeph>%s</codeph> </dt>
+
+	  <dd>Prints the next format argument as a message by calling
+          the function <codeph>print-message</codeph> on the format
+          argument and the stream. This permits the functionality of
+          the <codeph>%S</codeph> directive to be extended by adding
+          methods to <apiname>print-message</apiname>.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>%=</codeph> </dt>
+
+	  <dd>Prints the next format argument by calling the
+          <apiname>print-object</apiname> function from the
+          <apiname>print</apiname> module on the format argument and
+          the stream.  You can extend the <codeph>%=</codeph>
+          functionality by adding methods to the
+          <codeph>print-object</codeph> function.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>%c</codeph> </dt>
+
+	  <dd>Print the next format argument, which must be a
+          character (an instance of
+          <apiname>&lt;character&gt;</apiname>), according to Dylan’s
+          <codeph>%S</codeph> format-string directive. This module’s
+          <codeph>%C</codeph> directive is the same as this module’s
+          <codeph>%S</codeph> directive. </dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>%d</codeph> </dt>
+
+	  <dd>Prints a decimal representation of the next format
+          argument, which must be an integer.</dd>
+
+	  <!-- FIXME floating-point case -->
+	</dlentry>
+	
+	<dlentry>
+	  <dt><codeph>%B</codeph> </dt>
+
+	  <dd>Prints a binary representation of the next format
+          argument, which must be an integer.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>%O</codeph> </dt>
+
+	  <dd>Prints an octal representation of the next format
+          argument, which must be an integer.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>%X</codeph> </dt>
+
+	  <dd>Prints a hexadecimal representation of the next format
+          argument, which must be an integer.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>%M</codeph> </dt>
+
+	  <dd>Invokes the next format argument, which must be a
+          function, on the stream passed to <apiname>format</apiname>.</dd>
+	</dlentry>
+
+	<dlentry>
+	  <dt><codeph>%%</codeph> </dt>
+
+	  <dd>Outputs a single <codeph>%</codeph>  character.</dd>
+	</dlentry>
+
+	<!-- FIXME %E %F %g -->
+      </dl>
+    </section>
+
+    <example>
+      <p>The following are examples of valid format directives:</p>
+
+      <ul>
+	<li><codeph>%S</codeph></li>
+	<li><codeph>%s</codeph></li>
+	<li><codeph>%15D</codeph></li>
+	<li><codeph>%-10=</codeph></li>
+      </ul>
+    </example>
+  </refbody>
+
+  <related-links>
+    <link href="lib/io/format/format.xml">
+      <linktext>format</linktext>
+    </link>
+    <link href="lib/io/format/format_to_string.xml">
+      <linktext>format-to-string</linktext>
+    </link>
+  </related-links>
+</reference>
