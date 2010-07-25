@@ -4,6 +4,7 @@ use strict;
 use utf8;
 use CGI;
 use CGI::Carp;
+use Storable qw(store retrieve);
 
 my $wwwdata = $ENV{'DOCUMENT_ROOT'};
 my $wwwtopic = "$wwwdata/topic";
@@ -66,9 +67,9 @@ if($view eq 'download') {
 	    # If someone browses to a .ditamap file directly, we redirect
 	    # to the first topic in the map, providing the map in the 'map'
 	    # query option.
+	    &ensure_cache_dirs($path);
 
-	    my $mapdoc = $parser->parse_file("$wwwtopic$path");
-	    my $toc = &toc($parser, $mapdoc);
+	    my $toc = &toc_path($parser, $path);
 	    my $tpath = &firsttopic($toc);
 
 	    if (defined $tpath) {
@@ -114,13 +115,13 @@ if($view eq 'download') {
 	my $result = $stylesheet->transform($doc);
 
 	# Compute a Table of Contents
-	my $tocdoc = $doc;
-	if(defined $map) {
-	    $tocdoc = $parser->parse_file("$wwwtopic$map");
-	}
 	my $toc;
-	if(defined $tocdoc) {
-	    $toc = &toc($parser, $tocdoc);
+	if(defined $map) {
+	    &ensure_cache_dirs($map);
+	    $toc = &toc_path($parser, $map);
+	}
+	else {
+	    $toc = &toc($parser, $doc);
 	}
 
 	# Add navigation information to the Table of Contents
@@ -670,6 +671,19 @@ sub printHTML {
 }
 
 ########################################################################
+
+sub toc_path {
+    my ($parser, $path) = @_;
+
+    my $tocfile = "$cache$path.toc";
+    my $toc = (-f $tocfile) ? retrieve($tocfile) : undef;
+    if (!$toc) {
+	my $doc = $parser->parse_file("$wwwtopic$path");
+	$toc = &toc($parser, $doc);
+	store($toc, $tocfile);
+    }
+    return $toc;
+}
 
 sub toc {
     my ($parser, $doc) = @_;
