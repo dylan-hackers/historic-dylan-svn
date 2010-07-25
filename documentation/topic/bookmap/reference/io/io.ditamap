@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE bookmap PUBLIC "-//OASIS//DTD DITA BookMap//EN" "bookmap.dtd">
+<bookmap id="core">
+  <booktitle>
+    <booklibrary>Open Dylan</booklibrary>
+    <mainbooktitle>Library Reference: System, I/O and Networking</mainbooktitle>
+  </booktitle>
+
+  <bookmeta>
+    <bookid>
+      <maintainer>
+	<organization>Gwydion Dylan Maintainers</organization>
+      </maintainer>
+    </bookid>
+    <bookrights>
+      <copyrfirst>
+	<year>1997</year>
+      </copyrfirst>
+      <copyrlast>
+	<year>2004</year>
+      </copyrlast>
+      <bookowner>
+	<organization>Functional Objects, Inc.</organization>
+      </bookowner>
+      <summary></summary>
+    </bookrights>
+
+    <bookrights>
+      <copyrfirst>
+	<year>2004</year>
+      </copyrfirst>
+      <copyrlast>
+	<year>2009</year>
+      </copyrlast>
+      <bookowner>
+	<organization>Gwydion Dylan Maintainers</organization>
+      </bookowner>
+    </bookrights>
+  </bookmeta>
+  
+  <frontmatter>
+    <booklists>
+      <toc/>
+    </booklists>
+  </frontmatter>
+
+  <chapter navtitle="Introduction" href="io-introduction.xml">
+    <topicref href="io-introduction-libraries.xml"/>
+  </chapter>
+
+  <chapter navtitle="The Format Module">
+    <topicref navtitle="Introduction" href="../../../reference/lib/io/format.xml"/>
+    <topicref href="../../../reference/format-strings.xml"/>
+    <topichead navtitle="The Format Module">
+      <topicref href="../../../reference/lib/io/format/format.xml"/>
+      <topicref href="../../../reference/lib/io/format/format-to-string.xml"/>
+    </topichead>
+  </chapter>
+
+  <chapter navtitle="The Format-Out Module">
+  </chapter>
+
+  <chapter navtitle="The Printing Modules">
+  </chapter>
+
+  <chapter navtitle="The Streams Module">
+  </chapter>
+
+  <chapter navtitle="The Standard-IO Module"">
+  </chapter>
+
+  <chapter navtitle="The Date Module">
+  </chapter>
+
+  <chapter navtitle="The File-System Module">
+  </chapter>
+
+  <chapter navtitle="The Operating-System Module">
+  </chapter>
+
+  <chapter navtitle="The Network Library">
+    <topicref navtitle="Overview"/>
+    <topicref navtitle="Utilities"/>
+    <topicref navtitle="Internet Addresses"/>
+    <topicref navtitle="Sockets"/>
+    <topicref navtitle="Socket Conditions"/>
+  </chapter>
+
+  <chapter navtitle="Dylan Language Extensions">
+    <topicref navtitle="Introduction"/>
+    <topicref navtitle="Using Open Dylan Language Extensions"/>
+    <topicref href="../../../map/reference/core-extensions.ditamap" format='ditamap'/>
+    <topicref href="../../../map/reference/language-differences.ditamap" format='ditamap'/>
+  </chapter>
+
+  <backmatter>
+    <booklists>
+      <!--
+        <topicref href="otherbooks.dita" navtitle="Related Books"/>
+        <topicref href="trademarks.dita" navtitle="Trademarks"/>
+        <topicref href="glossary.dita navtitle="Glossary"/>
+      -->
+      <indexlist/>
+    </booklists>
+  </backmatter> 
+</bookmap>

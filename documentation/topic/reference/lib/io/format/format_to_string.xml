@@ -2,7 +2,9 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-io-format-format_to_string">
   <apiName>format-to-string</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Returns a string formatted according to a format control
+  string.</shortdesc>
 
   <prolog>
     <author></author>
@@ -19,11 +21,13 @@
         <apiOperationClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
+      
       <dylanFunctionRestParam>
 	<apiItemName>args</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionRestParam>
+      
       <dylanFunctionReturn>
 	<apiItemName>result</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOperationClassifier>
@@ -32,7 +36,10 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>The <apioperation>format-to-string </apioperation> uses the
+      <apioperation href="format.xml">format</apioperation> function
+      to produce output according to
+      <parmname>control-string</parmname> and returns it a string.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

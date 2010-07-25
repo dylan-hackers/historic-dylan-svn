@@ -2,7 +2,9 @@
 <!DOCTYPE dylanModule PUBLIC "-//Gwydion//DTD DITA Dylan API Module//EN" "../../../dtd/dylanModule.dtd" []>
 <dylanModule id="lib-io-format">
   <apiName>format</apiName>
-  <shortdesc></shortdesc>
+
+  <shortdesc>The <apiname>format</apiname> module provides formatted
+  printing functionality.</shortdesc>
 
   <prolog>
     <author></author>
@@ -14,7 +16,17 @@
 
   <dylanModuleDetail>
     <apiDesc>
-      <p></p>
+      <p>The <apipackage>format</apipackage> module is exported from
+      the <apipackage>io</apipackage> library. This module extends the
+      functionality of the format strings described as part of Dylan’s
+      condition system, and provides two new functions for processing
+      the extended format strings. The Format module is a small
+      module, but it uses the printing modules and the
+      <apipackage>streams</apipackage> module.</p>
+
+      <!-- Chapter 4, “The Printing Modules” and Chapter 5, “The
+           Streams Module” give full details of the Print and Streams
+           libraries. -->
     </apiDesc>
   </dylanModuleDetail>
 

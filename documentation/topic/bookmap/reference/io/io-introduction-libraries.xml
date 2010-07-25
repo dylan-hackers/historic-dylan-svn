@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE topic PUBLIC "-//Gwydion//DTD DITA Topic//EN" "../../../dtd/topic.dtd">
+<topic id="io-introduction-libraries">
+  <title>The libraries and their modules</title>
+
+  <body>
+    <p>The three libraries described here are the <apipackage
+    href="../../../reference/lib/io.xml">io</apipackage> library, the
+    <apipackage
+    href="../../../reference/lib/system.xml">system</apipackage>
+    library and the <apipackage
+    href="../../../reference/lib/network.xml">network</apipackage>
+    library. Each library exports a number of modules designed to
+    provide interfaces and functionality related to input/output
+    operations, formatting, operating system interfaces, and
+    networking operations.</p>
+
+    <p>The <apipackage
+    href="../../../reference/lib/io.xml">io</apipackage> library
+    exports:</p>
+    
+    <ul>
+      <li>the <apipackage
+      href="../../../reference/lib/io/format.xml">format</apipackage>
+      module, which extends the functionality of format strings and
+      provides functions for processing the extended format
+      strings</li>
+      
+      <li>the <apipackage
+      href="../../../reference/lib/io/format-out.xml">format-out</apipackage>
+      module, which repackages the <apipackage
+      href="../../../reference/lib/io/format.xml">format</apipackage>
+      module and the <apipackage
+      href="../../../reference/lib/io/standard-io.xml">standard-io</apipackage>
+      module for more convenient use</li>
+
+      <li>the <apipackage
+      href="../../../reference/lib/io/print.xml">print</apipackage>
+      module, which provides interfaces for printing</li>
+
+      <li>the <apipackage
+      href="../../../reference/lib/io/pprint.xml">pprint</apipackage>
+      module, which provides interfaces for pretty printing</li>
+
+      <li>the <apipackage
+      href="../../../reference/lib/io/streams.xml">streams</apipackage>
+      module, which allows you to establish and control input to and
+      output from aggregates of data</li>
+
+      <li>the <apipackage
+      href="../../../reference/lib/io/standard-io.xml">standard-io</apipackage>
+      module, which provides an interface to the standard I/O facility
+      of operating systems like Windows and UNIX</li>
+    </ul>
+
+    <p>The <apipackage
+    href="../../../reference/lib/system.xml">system</apipackage>
+    library exports:</p>
+
+    <ul>
+      <li>the <apipackage
+      href="../../../reference/lib/system/date.xml">date</apipackage>
+      module, which allows for representation and manipulation of
+      dates and date/time intervals</li>
+      
+      <li>the <apipackage
+      href="../../../reference/lib/system/file-system.xml">file-system</apipackage>
+      module, which provides a generic interface to the file system of
+      the local machine</li>
+
+      <li>the <apipackage
+      href="../../../reference/lib/system/locators.xml">locators</apipackage>
+      module</li>
+      
+      <li>the <apipackage
+      href="../../../reference/lib/system/operating-system.xml">operating-system</apipackage>
+      module, which provides an interface to some of the features of
+      the host machine's operating system</li>
+
+      <li><apipackage
+      href="../../../reference/lib/system/settings.xml">settings</apipackage></li>
+
+      <li><apipackage
+      href="../../../reference/lib/system/simple-xml.xml">simple-xml</apipackage></li>
+    </ul>
+
+    <p>The <apipackage
+    href="../../../reference/lib/network.xml">network</apipackage>
+    library exports:</p>
+
+    <ul>
+      <li>the <apipackage
+      href="../../../reference/lib/network/sockets.xml">sockets</apipackage>
+      module, which provides Internet address protocols, TCP/IP server
+      and client sockets, and UDP sockets</li>
+    </ul>
+  </body>
+</topic>

@@ -2,7 +2,8 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-io-format-print_message">
   <apiName>print-message</apiName>
-  <shortdesc>Returns .</shortdesc>
+
+  <shortdesc>Prints an object to a stream.</shortdesc>
 
   <prolog>
     <author></author>
@@ -20,6 +21,7 @@
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
+      
       <dylanFunctionParam>
 	<apiItemName>stream</apiItemName>
         <apiOperationClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
@@ -28,7 +30,125 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Prints <parmname>object</parmname> to
+      <parmname>stream</parmname>.</p>
+
+      <p>Methods for this function should print objects as a message,
+      as opposed to printing them in any form intending to represent
+      Dylan data, literal syntax, and so on.</p>
+
+      <p>For example, printing a condition object with this function
+      presents the condition as an error message, but printing the
+      condition object with the <apioperation
+      href="../print/print.xml">print</apioperation> function from the
+      <apipackage href="../print.xml">print</apipackage> module prints
+      the condition in some form such as </p>
+
+      <pre>{Simple-error}</pre>
+
+      <p>See the individual methods for the details of how this
+      function prints various objects. This function exists to define
+      the behavior of the <codeph>%S</codeph> format directive and to
+      give users the ability to extend the <codeph>%S</codeph>
+      directive. Users should have little need to call this function
+      directly.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
+
+  <!-- Methods -->
+
+  <dylanMethod id="print-message-condition">
+    <apiName>print-message</apiName>
+    <shortdesc>Prints a condition to a stream as an error message.</shortdesc>
+
+    <dylanMethodDetail>
+      <dylanMethodDef>
+	<dylanMethodSealing value="sealed"/>
+	<dylanFunctionParam>
+	  <apiItemName>condition</apiItemName>
+	  <apiOperationClassifier href="../../dylan/dylan/LconditionG.xml">&lt;condition&gt;</apiOperationClassifier>
+	</dylanFunctionParam>
+
+	<dylanFunctionParam>
+	  <apiItemName>stream</apiItemName>
+	  <apiOperationClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
+	  <apiDefNote></apiDefNote>
+	</dylanFunctionParam>
+      </dylanMethodDef>
+
+      <apiDesc>
+        <p>Prints <parmname>condition</parmname> as an error message,
+        as described for the Dylan <codeph>%S</codeph> format
+        directive. You should not specialize the <apioperation
+        href="print_message.xml">print-message</apioperation> protocol
+        for subclasses of <apiclassifier
+        href="../../dylan/dylan/LconditionG.xml">&lt;condition&gt;</apiclassifier>,
+        but instead extend the <apioperation
+        href="print_message.xml">print-message</apioperation> protocol
+        to new condition objects by specializing methods on
+        <apioperation>report-condition</apioperation>.</p>
+      </apiDesc>
+    </dylanMethodDetail>
+  </dylanMethod>
+
+  <dylanMethod id="print-message-symbol">
+    <apiName>print-message</apiName>
+    <shortdesc>Prints a symbol to a stream.</shortdesc>
+
+    <dylanMethodDetail>
+      <dylanMethodDef>
+	<dylanMethodSealing value="sealed"/>
+	<dylanFunctionParam>
+	  <apiItemName>symbol</apiItemName>
+	  <apiOperationClassifier href="../../dylan/dylan/LsymbolG.xml">&lt;symbol&gt;</apiOperationClassifier>
+	</dylanFunctionParam>
+
+	<dylanFunctionParam>
+	  <apiItemName>stream</apiItemName>
+	  <apiOperationClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
+	  <apiDefNote></apiDefNote>
+	</dylanFunctionParam>
+      </dylanMethodDef>
+
+      <apiDesc>
+        <p>Prints <parmname>symbol</parmname> to
+        <parmname>stream</parmname> by converting it to a string with
+        the <apioperation
+        href="../../dylan/dylan/as.xml">as</apioperation> function,
+        and then writing the string with the <apioperation
+        href="../streams/write.xml">write</apioperation> function from
+        the <apipackage href="../streams.xml">streams</apipackage>
+        module.</p>
+      </apiDesc>
+    </dylanMethodDetail>
+  </dylanMethod>
+
+  <dylanMethod id="print-message-object">
+    <apiName>print-message</apiName>
+    <shortdesc>Prints an object to a stream.</shortdesc>
+
+    <dylanMethodDetail>
+      <dylanMethodDef>
+	<dylanMethodSealing value="sealed"/>
+	<dylanFunctionParam>
+	  <apiItemName>object</apiItemName>
+	  <apiType value="type-union(&lt;string&gt;, &lt;character&gt;)"/>
+	</dylanFunctionParam>
+
+	<dylanFunctionParam>
+	  <apiItemName>stream</apiItemName>
+	  <apiOperationClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
+	  <apiDefNote></apiDefNote>
+	</dylanFunctionParam>
+      </dylanMethodDef>
+
+      <apiDesc>
+        <p>Prints <parmname>object</parmname> to
+        <parmname>stream</parmname> by calling the <apioperation
+        href="../streams/write.xml">write</apioperation> function from
+        the <apipackage href="../streams.xml">streams</apipackage>
+        module.</p>
+      </apiDesc>
+    </dylanMethodDetail>
+  </dylanMethod>
 </dylanGenericFunction>

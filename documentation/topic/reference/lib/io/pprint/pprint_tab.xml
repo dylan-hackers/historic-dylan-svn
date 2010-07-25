@@ -17,7 +17,7 @@
       <dylanGenericFunctionSealing value='open'/>
       <dylanFunctionParam>
 	<apiItemName>kind</apiItemName>
-        <apiOperationClassifier href="../print-internals/Ltab_kindG.xml">&lt;tab-kind&gt;</apiOperationClassifier>
+        <apiOperationClassifier href="../../dylan/dylan/LsymbolG.xml">&lt;symbol&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
       <dylanFunctionParam>

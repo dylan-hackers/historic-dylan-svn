@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-io-format-format">
   <apiName>format</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Formats output according to a control string.</shortdesc>
 
   <prolog>
     <author></author>
@@ -17,14 +17,16 @@
       <dylanFunctionParam>
 	<apiItemName>stream</apiItemName>
         <apiOperationClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
-	<apiDefNote>The stream
-          to which formatted output should be sent</apiDefNote>
+	<apiDefNote>The stream to which formatted output should be
+        sent.</apiDefNote>
       </dylanFunctionParam>
+      
       <dylanFunctionParam>
 	<apiItemName>control-string</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LstringG.xml">&lt;string&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+	<apiDefNote>A string containing format directives.</apiDefNote>
       </dylanFunctionParam>
+      
       <dylanFunctionRestParam>
 	<apiItemName>args</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
@@ -33,7 +35,18 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
-      <p></p>
+      <p>Sends output to <parmname>stream</parmname> according to the
+      format directives in <parmname>control-string</parmname>. Each
+      directive consumes one argument from
+      <parmname>arguments</parmname>. See <xref
+      href="../../../format-strings.xml"/> for a description of the
+      control string directives that can be used.</p>
+
+      <p>The <parmname>control-string</parmname> contents that are not
+      part of any directive are output directly to
+      <parmname>stream</parmname>, in the manner of the
+      <apipackage href="../streams.xml">streams</apipackage> module’s
+      <apioperation>write</apioperation> function.</p>
     </apiDesc>
   </dylanGenericFunctionDetail>
 </dylanGenericFunction>

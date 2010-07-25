@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE topic PUBLIC "-//Gwydion//DTD DITA Topic//EN" "../../../dtd/topic.dtd">
+<topic id="io-introduction">
+  <title>Introduction</title>
+
+  <body>
+    <p>This book provides reference documentation for the Open Dylan
+    libraries and modules that support: printing and output formatting
+    (including a streams module), interfaces to operating system
+    features (such as the file system, time and date information, and
+    the host machine environment), and network protocols and
+    sockets.</p>
+
+    <p>In general, each module is documented in a separate
+    chapter.</p>
+  </body>
+</topic>

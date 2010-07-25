@@ -2,7 +2,7 @@
 <!DOCTYPE dylanGenericFunction PUBLIC "-//Gwydion//DTD DITA Dylan API Generic Function//EN" "../../../../dtd/dylanGenericFunction.dtd" []>
 <dylanGenericFunction id="lib-io-print-print">
   <apiName>print</apiName>
-  <shortdesc>Returns .</shortdesc>
+  <shortdesc>Prints an object to a stream.</shortdesc>
 
   <prolog>
     <author></author>
@@ -19,31 +19,44 @@
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
+      
       <dylanFunctionParam>
 	<apiItemName>stream</apiItemName>
         <apiOperationClassifier href="../../common-dylan/streams-protocol/LstreamG.xml">&lt;stream&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionParam>
+      
       <dylanFunctionKeywordParam>
 	<apiItemName>level</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+        <apiType value="false-or(&lt;integer&gt;)"/>
+
+	<apiDefNote>The default value is the current value of
+	<apivalue>*print-level*</apivalue>.</apiDefNote>
       </dylanFunctionKeywordParam>
+      
       <dylanFunctionKeywordParam>
 	<apiItemName>length</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+        <apiType value="false-or(&lt;integer&gt;)"/>
+
+	<apiDefNote>The default value is the current value of
+	<apivalue>*print-length*</apivalue>.</apiDefNote>
       </dylanFunctionKeywordParam>
+      
       <dylanFunctionKeywordParam>
 	<apiItemName>circle?</apiItemName>
-        <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
-	<apiDefNote></apiDefNote>
+
+        <apiOperationClassifier href="../../dylan/dylan/LbooleanG.xml">&lt;boolean&gt;</apiOperationClassifier>
+
+	<apiDefNote>The default value is the current value of
+	<apivalue>*print-circle?*</apivalue>.</apiDefNote>
       </dylanFunctionKeywordParam>
+      
       <dylanFunctionKeywordParam>
 	<apiItemName>pretty?</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
 	<apiDefNote></apiDefNote>
       </dylanFunctionKeywordParam>
+      
       <dylanFunctionKeywordParam>
 	<apiItemName>escape?</apiItemName>
         <apiOperationClassifier href="../../dylan/dylan/LobjectG.xml">&lt;object&gt;</apiOperationClassifier>
@@ -52,6 +65,82 @@
     </dylanGenericFunctionDef>
 
     <apiDesc>
+      <p>Prints <parmname>object</parmname> to
+      <parmname>stream</parmname> according to the print request
+      formed by the keyword arguments. A first call to
+      <apioperation>print</apioperation> creates a printing stream to
+      represent the print request, and recursive calls to
+      <codeph>print</codeph> on this printing stream process the
+      keyword arguments differently (see below).  There are inspection
+      functions for querying the print request. When
+      <apioperation>print</apioperation> actually prints an object, it
+      calls <apioperation
+      href="print_object.xml">print-object</apioperation>. Though the
+      inspection functions for querying the print request allow you to
+      inspect any parameter of the print request,
+      <codeph>print-object</codeph> methods should only need to call
+      <codeph>print-length</codeph> . All other aspects of the print
+      request are handled by <codeph>print</codeph> . There is one
+      exception, which is described in Section 4.3 on page 14.</p>
+
+      <p>The <i>level</i>  keyword controls how deep into a nested data
+      structure to print. The value <codeph>#f</codeph>  indicates that
+      there is no limit. The default, <codeph>*print-level*</codeph> , has
+      no effect on recursive calls to <codeph>print</codeph> . Recursive
+      calls to <codeph>print</codeph>  may change the value of 
+      <codeph>print-level</codeph>  explicitly, but <codeph>print</codeph>
+       always uses a value to ensure the print request formed by the first
+      call to <codeph>print</codeph>  is never exceeded. For example, if
+      a first call to <codeph>print</codeph>  set the level to 5, and while
+      at a depth of 3, a recursive call specified a level of 4, the recursive
+      call would only descend 2 more levels, not 4.</p>
+
+      <p>The <i>length</i>  keyword controls how many elements of a sequence
+      to print before printing ellipsis notation (<codeph>...</codeph> ).
+      The value <codeph>#f</codeph>  indicates that there is no limit. The
+<codeph>print-length</codeph>  control can be interpreted loosely by some
+<codeph>print-object</codeph>  methods to control how many <i>elements</i>
+       of any kind of object to print; for example, the default 
+      <codeph>&lt;object&gt;</codeph>  method might regard <codeph>print-length</codeph>
+       to determine how many slot-name/value pairs to print. The default,
+<codeph>*print-length*</codeph> , has no effect on recursive calls to 
+      <codeph>print</codeph> . Recursive calls to <codeph>print</codeph>
+       may change the value of <codeph>print-length</codeph>  explicitly,
+      but they may only decrease the value, never increase it.</p>
+
+      <p>The <i>circle?</i>  keyword indicates whether printing should check
+      all subcomponent references to make sure the printing process does
+      not infinitely recurse through a data structure. Circular printing
+      also tags objects that occur more than once when they are first printed,
+      and later occurrences are printed as a reference to the previously
+      emitted tag. The default, <codeph>*print-circle?*</codeph> , has no
+      effect on recursive calls to <codeph>print</codeph> . If 
+      <codeph>print-circle?</codeph>  is already <codeph>#t</codeph> , then
+      it remains <codeph>#t</codeph>  throughout all recursive calls. If
+<codeph>print-circle?</codeph>  is <codeph>#f</codeph> , then recursive
+      calls to <codeph>print</codeph>  can change the value to 
+      <codeph>#t</codeph> ; however, when printing exits the dynamic scope
+      of the call that changed the value to <codeph>#t</codeph> , the value
+      reverts back to <codeph>#f</codeph> . If the original call to 
+      <codeph>print</codeph>  specifies <i>circle?</i>  as <codeph>#f</codeph>
+      , and dynamically distinct recursive calls turn circular printing
+      on and off, all output generated while circular printing was on shares
+      the same tagging space; that is, if <codeph>#1#</codeph>  is printed
+      twice, once from each of two distinct recursive calls to print, then
+      each <codeph>#1#</codeph>  is guaranteed to signify the same 
+      <codeph>==</codeph>  object.</p>
+
+      <p>The <i>pretty?</i>  keyword indicates whether printing should attempt
+      to insert line breaks and indentation to format objects according
+      to how programmers tend to find it easier to read data. The default,
+<codeph>*print-pretty?*</codeph> , has no effect on recursive calls to 
+      <codeph>print</codeph> . If <codeph>print-pretty?</codeph>  is already
+<codeph>#t</codeph> , then it remains <codeph>#t</codeph>  throughout all
+      recursive calls. If <codeph>print-pretty?</codeph>  is <codeph>#f</codeph>
+      , then recursive calls to <codeph>print</codeph>  can change the value
+      to <codeph>#t</codeph> ; however, when printing exits the dynamic
+      scope of the call that changed the value to <codeph>#t</codeph> ,
+      the value reverts back to <codeph>#f</codeph> .</p>
       <p></p>
     </apiDesc>
   </dylanGenericFunctionDetail>
