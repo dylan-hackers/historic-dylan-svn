@@ -137,8 +137,8 @@ end method;
 
 
 define function make-singleton-type-fragment
-   (type-frag :: <type-fragment>, #key setter :: <function>)
-=> ()
+   (type-frag :: <type-fragment>, #key setter)
+=> (slots? :: <boolean>)
    let names = type-frag.fragment-names;
    let (sing-part, expr-part) = partition(curry(\=, $singleton-name), names);
    if (sing-part.size = 1 & expr-part.size = 1)
@@ -146,7 +146,8 @@ define function make-singleton-type-fragment
             expression: as(<type-fragment>, expr-part.first),
             source-location: type-frag.source-location);
       setter(sing-frag);
-   end if
+   end if;
+   #t
 end function;
 
 

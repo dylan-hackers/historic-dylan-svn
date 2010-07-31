@@ -51,15 +51,15 @@ Arguments:
 {{ IF meth.keyword-arguments +}}
 {{+ REPEAT WITH argument IN meth.keyword-arguments +}}
 '{{argument.name}}:' [api] -
-	{{+ CASE ~argument.type +}}
-        An object. {{ +}}
+	{{ CASE ~argument.type +}}
+        An object.
         {{+ CASE argument.singleton +}}
-        The value '{{argument.singleton.text}}'. [code] {{ +}}
+        The value '{{argument.singleton.text}}'. [code]
         {{+ CASE argument.type.id +}}
-        An instance of '{{argument.type.id}}'. [qv] {{ +}}
+        An instance of '{{argument.type.id}}'. [qv]
         {{+ ELSE +}}
-        An instance of '{{argument.type.text}}'. [code] {{ +}}
-        {{+ END +}}
+        An instance of '{{argument.type.text}}'. [code]
+        {{+ END }} {{ +}}
 
         {{+ IF argument.default +}}
         Defaults to '{{argument.default.text}}'. [code]

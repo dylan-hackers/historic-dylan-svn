@@ -422,11 +422,6 @@ text
   strictly for the purposes of escaping spaces; the quote options cannot be
   used.
   
-[CONTENTS OF topic|"title"?]
-  Shows the subtopics of the current or specified topic. The quotation here is
-  strictly for the purposes of escaping spaces; the quote options cannot be
-  used.
-
 [LIST OF LIBRARIES|MODULES|BINDINGS|CLASSES|FUNCTIONS|VARIABLES|MACROS|
 UNBOUND NAMES]
   Shows all libraries, modules, etc.

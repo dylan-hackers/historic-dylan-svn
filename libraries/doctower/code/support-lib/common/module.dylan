@@ -7,6 +7,9 @@ define module common
    // from system
    use file-system, import: { <file-system-error>, <file-does-not-exist-error> };
    
+   // from collections
+   use plists;
+   
    export $verbose?, verbose-log, log, log-object,
           slot-visitor-definer,
           with-open-file, read-expected, read-lines-to-end,

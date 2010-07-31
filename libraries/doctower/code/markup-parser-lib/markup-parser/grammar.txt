@@ -178,9 +178,9 @@ ___________
 
 content-block: 
    blank-lines / marginal-code-block / marginal-verbatim-block /
-   figure-ref-line / content-ref-line / ditto-ref-line / api-list-ref-line /
-   bracketed-raw-block / table / bullet-list / numeric-list / hyphenated-list /
-   phrase-list / indented-content-directive / paragraph
+   figure-ref-line / ditto-ref-line / api-list-ref-line / bracketed-raw-block /
+   table / bullet-list / numeric-list / hyphenated-list / phrase-list /
+   indented-content-directive / paragraph
 
 blank-lines:
    ( SPC* LS )+
@@ -200,8 +200,6 @@ figure-ref-line:
 scale-factor:
    NUMBER ( '%' / 'X' )
 
-content-ref-line:
-   SOL [-SPC "CONTENTS" ( SPC-LS+ "OF" SPC-LS+ link-til-cls-brack )? SPC-] LS
 ditto-ref-line:
    SOL [-SPC "DITTO" SPC-LS+ link-til-cls-brack SPC-] LS
 api-list-ref-line:
@@ -282,8 +280,7 @@ paragraph-line-til-hyphen-ls:
 paragraph-break:
    blank-lines / bracketed-line / marginal-code-block / marginal-verbatim-block
 bracketed-line:
-   figure-ref-line / content-ref-line / ditto-ref-line
-   / bracketed-raw-block-start-line
+   figure-ref-line / ditto-ref-line / bracketed-raw-block-start-line
   
 _____________
   FRAGMENTS

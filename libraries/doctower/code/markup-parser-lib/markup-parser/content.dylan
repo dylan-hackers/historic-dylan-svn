@@ -16,9 +16,9 @@ define constant <raw-line-sequence> = <sequence>;
 // #"blank-lines" counts as #f
 define caching parser content-block :: false-or(<division-content-types>)
    rule choice(blank-lines, marginal-code-block, marginal-verbatim-block,
-               figure-ref-line, content-ref-line, ditto-ref-line,
-               api-list-ref-line, bracketed-raw-block, table, bullet-list,
-               numeric-list, hyphenated-list, phrase-list, indented-content-directive,
+               figure-ref-line, ditto-ref-line, api-list-ref-line,
+               bracketed-raw-block, table, bullet-list, numeric-list,
+               hyphenated-list, phrase-list, indented-content-directive,
                paragraph)
       => token;
    yield (token ~= #"blank-lines") & token;
@@ -81,17 +81,6 @@ define caching parser scale-factor (<token>)
    rule seq(number, choice(percent, x-lit)) => tokens;
    slot factor :: <integer> = tokens[0];
    slot type :: <symbol> = tokens[1];
-end;
-
-// exported -- link can be false if referring to sub-topics of current topic
-define caching parser content-ref-line (<source-location-token>)
-   rule seq(sol, opn-brack-spc, contents-lit,
-            opt-seq(many-spc-ls, of-lit, many-spc-ls, link-til-cls-brack),
-            spc-cls-brack, ls)
-      => tokens;
-   slot link :: false-or(<link-word-token>) = tokens[3] & tokens[3][3];
-afterwards (context, tokens, value, start-pos, end-pos)
-   note-source-location(context, value)
 end;
 
 // exported

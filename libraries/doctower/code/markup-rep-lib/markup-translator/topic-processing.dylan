@@ -185,6 +185,7 @@ define method process-tokens
          let (section, setter) = make-directive-section
                (section-token.directive-type, section-token.token-src-loc);
          process-tokens(section, section-token.token-content);
+         ensure-parm-list(section);
          setter(section, topic);
    end select;
 end method;
@@ -239,8 +240,6 @@ end method;
 //
 
 
-// TODO: Signal warning if fully-qualified-name section is used outside of an
-// <api-doc>.
 define method process-tokens
    (topic :: <api-doc>, section-token :: <word-directive-token>)
 => ()
@@ -253,3 +252,11 @@ define method process-tokens
 end method;
 
 
+define method process-tokens
+   (topic :: <topic>, section-token :: <word-directive-token>)
+=> ()
+   select (section-token.directive-type)
+      #"fully-qualified-name" =>
+         fully-qualified-name-in-non-api-topic(location: section-token.token-src-loc);
+   end select;
+end method;

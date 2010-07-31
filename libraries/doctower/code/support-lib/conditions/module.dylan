@@ -28,6 +28,7 @@ define module conditions
       file-error,
       file-not-found,
       file-type-not-known,
+      fully-qualified-name-in-non-api-topic,
       fully-qualified-name-not-found-in-code,
       id-matches-topic-title,
       illegal-character-in-id,
@@ -53,6 +54,7 @@ define module conditions
       topics-in-nontopic-markup,
       undefined-module-for-interchange-file,
       unparsable-expression-in-code,
+      unresolvable-target-in-link,
       unsupported-syntax-in-code,
       unused-docs-in-topic,
       ;

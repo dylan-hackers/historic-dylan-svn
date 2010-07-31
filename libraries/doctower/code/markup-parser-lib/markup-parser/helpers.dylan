@@ -334,9 +334,6 @@ end method;
 define method print-object (o :: <figure-ref-line-token>, s :: <stream>) => ()
 end method;
 
-define method print-object (o :: <content-ref-line-token>, s :: <stream>) => ()
-end method;
-
 define method print-object (o :: <ditto-ref-line-token>, s :: <stream>) => ()
 end method;
 

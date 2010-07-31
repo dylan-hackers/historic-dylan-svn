@@ -28,7 +28,7 @@ define module markup-parser
       <links-directive-token>, <word-directive-token>,
       <division-directive-token>, <indented-content-directive-token>,
       <marginal-code-block-token>, <marginal-verbatim-block-token>,
-      <figure-ref-line-token>, <content-ref-line-token>, <ditto-ref-line-token>,
+      <figure-ref-line-token>, <ditto-ref-line-token>,
       <api-list-ref-line-token>, <bracketed-raw-block-token>, <table-token>,
       <bullet-list-token>, <bullet-list-item-token>, <numeric-list-token>,
       <numeric-list-item-token>, <hyphenated-list-token>,

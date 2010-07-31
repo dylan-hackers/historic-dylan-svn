@@ -64,8 +64,7 @@ define caching parser paragraph-break
 end;
 
 define caching parser bracketed-line
-   rule choice(figure-ref-line, content-ref-line, ditto-ref-line,
-               bracketed-raw-block-start-line)
+   rule choice(figure-ref-line, ditto-ref-line, bracketed-raw-block-start-line)
 end;
 
 //

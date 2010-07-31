@@ -61,12 +61,12 @@ Arguments:
 	{{ CASE ~argument.type +}}
         An object. {{ +}}
         {{+ CASE argument.singleton +}}
-        The value '{{argument.singleton.text}}'. [code] {{ +}}
+        The value '{{argument.singleton.text}}'. [code]
         {{+ CASE argument.type.id +}}
-        An instance of '{{argument.type.id}}'. [qv] {{ +}}
+        An instance of '{{argument.type.id}}'. [qv]
         {{+ ELSE +}}
-        An instance of '{{argument.type.text}}'. [code] {{ +}}
-        {{+ END +}}
+        An instance of '{{argument.type.text}}'. [code]
+        {{+ END }} {{ +}}
 
         {{+ IF argument.default +}}
         Defaults to '{{argument.default.text}}'. [code]
@@ -104,11 +104,11 @@ Values:
 '{{value.name}}' [api] -
 	{{ CASE ~value.type +}}
         An object.
-        {{ CASE value.singleton +}}
+        {{+ CASE value.singleton +}}
         The value '{{value.singleton.text}}'. [code]
-        {{ CASE value.type.id +}}
+        {{+ CASE value.type.id +}}
         An instance of '{{value.type.id}}'. [qv]
-        {{ ELSE +}}
+        {{+ ELSE +}}
         An instance of '{{value.type.text}}'. [code]
         {{+ END }}
 {{ +}}
@@ -120,9 +120,9 @@ Values:
 #rest '{{value.name}}' [api] -
 	{{ CASE ~value.type +}}
 	Zero or more values.
-        {{ CASE value.type.id +}}
+        {{+ CASE value.type.id +}}
         Zero or more instances of '{{value.type.id}}'. [qv]
-        {{ELSE +}}
+        {{+ ELSE +}}
         Zero or more instances of '{{value.type.text}}'. [code]
         {{+ END}}
 {{+ END +}}

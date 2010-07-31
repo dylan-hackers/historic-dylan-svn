@@ -250,6 +250,8 @@ define method print-object (o :: <xref>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       if (instance?(o.target, <topic>))
          format(s, "{topic %=, id %=}", o.target.title, o.target.id);
+      elseif (instance?(o.target, <section>))
+         format(s, "{section %=, id %=}", o.target.title, o.target.id);
       else
          format(s, "%=", o.target);
       end if;
@@ -284,6 +286,10 @@ define method print-object (o :: <target-placeholder>, s :: <stream>) => ()
    format(s, "{placeholder %=}", o.target)
 end method;
 
+define method print-object (o :: <api-list-placeholder>, s :: <stream>) => ()
+   format(s, "{api-list-placeholder (%s) id %=}", o.api-type, o.qualified-scope-name)
+end method;
+
 define method print-object
    (o :: type-union(<ordered-list>, <unordered-list>), s :: <stream>)
 => ()
@@ -302,6 +308,8 @@ end method;
 define method print-object (o :: <defn-list>, s :: <stream>) => ()
    printing-logical-block (s, prefix: "{", suffix: "}")
       write(s, select (o by instance?)
+                  <one-line-parm-list> => "one-line-parm-list ";
+                  <many-line-parm-list> => "many-line-parm-list ";
                   <one-line-defn-list> => "one-line-defn-list ";
                   <many-line-defn-list> => "many-line-defn-list ";
                end select);

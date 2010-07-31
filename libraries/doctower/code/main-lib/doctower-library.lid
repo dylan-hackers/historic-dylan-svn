@@ -20,6 +20,7 @@ files:      doctower-library
             topic-resolver/arranging
             topic-resolver/merging
             topic-resolver/resolving
+            topic-resolver/placeholders
             tasks/module
             tasks/create-docs
             tool/module

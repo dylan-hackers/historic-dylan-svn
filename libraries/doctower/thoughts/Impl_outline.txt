@@ -44,12 +44,13 @@ don't have any docs. Un-associated docs can have free content; it is assumed
 that the free content will be pinned down once the comment block is associated
 with a code element.
 
-Doc comments for an element can precede the element itself. (TODO: I would like
-to have doc comments precede or follow elements, depending on the element type,
-but I can't figure out a good way to allow that.) Once associated, the docs for
-that element might be moved to the docs for a parent element. Several elements
-of that kind might have to preserve their relative declaration order when moved
-to the parent.
+Doc comments for an element can precede the element itself. Once associated, the
+docs for that element might be moved to the docs for a parent element. Several
+elements of that kind might have to preserve their relative declaration order
+when moved to the parent.
+
+TODO: I would like to have doc comments precede or follow elements, depending on
+the element type, but I can't figure out a good way to allow that.
 
 The comment block itself is assumed tagged as a certain type. If the comment
 block contains content that violates the rules of that type, while the content
@@ -181,8 +182,7 @@ Topic IDs:
   "All Unbound Names" - :Unbound
   Library members     - :Modules(Dylan), :Bindings(Dylan), etc.
   Module members      - :Bindings(Dylan:Dylan), :Classes(Dylan:Dylan), etc.
-  Other topics        - :Topic:nnn
-  Other topic titles  - :Title(Topic):nnn
+  Other topics        - :Topic-nnn
 
 Section IDs:
   "Definitions"       - :Definitions
@@ -192,10 +192,13 @@ Section IDs:
   "Functions returning X" - :FunctionsReturning
   "Type and value"    - :Value
   "See also"          - :SeeAlso
-  Other sections      - :Sect:nnn
-  Other sect. titles  - :Title(Sect):nnn
+  Other sections      - :Sect-nnn
 
-The topic and section titles are used for DITA conref attributes.
+Title IDs:
+  Topic title         - :Title
+  Section title       - :Title(Sect-nnn)
+
+The topic and section title IDs are used for DITA conref attributes.
 
 In API reference topics, the user may link to an ID like ":::Something". This is
 shorthand for an API in the current module or library. "Something" may not have

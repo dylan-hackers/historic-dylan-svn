@@ -156,6 +156,14 @@ define errors (<user-visible-warning>)
    10 unused-docs-in-topic
       "Documentation replaces other documentation at %s",
       location, doc-locations;
+   
+   11 fully-qualified-name-in-non-api-topic
+      "Fully qualified name of general topic has no use",
+      location;
+   
+   12 unresolvable-target-in-link
+      "Unable to resolve cross-reference to \"%s\"",
+      location, target-text;
 end errors;
 
 

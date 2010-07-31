@@ -42,4 +42,7 @@ define collection-recursive slot-visitor visit-type-fragments
    
    // Our goal
    <type-fragment>,        ;
+   
+   // Cut recursion
+   <string>,               ;
 end slot-visitor;

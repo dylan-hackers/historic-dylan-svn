@@ -28,7 +28,7 @@ end method;
 
 /// Synopsis: There can only be one Synopsis section in a topic. This method
 /// is used to check within a single topic; this is also checked across multiple
-/// topics when merging [TODO].
+/// topics when merging.
 define inline method check-no-shortdesc (topic :: <topic>) => ()
    when (topic.shortdesc)
       duplicate-section-in-topic(location: topic.source-location,

@@ -45,7 +45,7 @@ define method topics-from-dylan (api-definitions :: <sequence>)
    let topics = make(<stretchy-vector>);
    let catalog-topics = make(<stretchy-vector>);
    let definition-topics = make(<stretchy-vector>);
-   for (api-defn in choose(needs-topic?, api-definitions))
+   for (api-defn in choose(should-have-topic?, api-definitions))
       let (new-topics, new-catalogs) = make-source-topics(api-defn);
       topics := concatenate!(topics, new-topics);
       catalog-topics := concatenate!(catalog-topics, new-catalogs);
@@ -98,18 +98,18 @@ end method;
 
 
 /// Synopsis: Determine whether a definition should be documented.
-define generic needs-topic? (definition :: <definition>) => (topic? :: <boolean>);
+define generic should-have-topic? (definition :: <definition>) => (topic? :: <boolean>);
 
-define method needs-topic? (binding :: <binding>) => (topic? :: <boolean>)
+define method should-have-topic? (binding :: <binding>) => (topic? :: <boolean>)
    binding.valid-binding?
 end method;
 
-define method needs-topic? (namespace :: <namespace>) => (topic? :: <boolean>)
+define method should-have-topic? (namespace :: <namespace>) => (topic? :: <boolean>)
    local method in-namespace? (definition :: <definition>) => (in-namespace? :: <boolean>)
             definition.canonical-name.enclosing-name = namespace.canonical-name
          end method;
    let namespace-definitions = choose(in-namespace?, namespace.definitions.element-sequence);
-   any?(needs-topic?, namespace-definitions)
+   any?(should-have-topic?, namespace-definitions)
 end method;
 
 

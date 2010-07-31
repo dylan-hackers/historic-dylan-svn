@@ -13,7 +13,8 @@ define module dylan-translator
                 <rest-value> => <parsed-rest-value> };
    use markup-parser, import: { <markup-content-token>, default-topic-content };
    use dylan-rep;
-   use markup-rep;
+   use markup-rep,
+      rename: { api-type => api-list-type, api-type-setter => api-list-type-setter};
    
    export apis-from-dylan, $object-type;
 end module;

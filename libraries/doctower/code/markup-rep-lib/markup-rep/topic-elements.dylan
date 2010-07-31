@@ -27,7 +27,7 @@ Synopsis: List of elements corresponding to topic-content grammar.
    division-content  - As in <content-seq>
 **/
 define constant <topic-content-seq> = limited(<stretchy-vector>,
-      of: type-union(<code-block>, <pre>, <fig>, <toc-placeholder>, <ditto-placeholder>,
+      of: type-union(<code-block>, <pre>, <fig>, <ditto-placeholder>,
                      <api-list-placeholder>, <simple-table>, <unordered-list>,
                      <ordered-list>, <defn-list>, <paragraph>, <note>, <section>,
                      <footnote>, singleton(#f)));

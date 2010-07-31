@@ -378,19 +378,33 @@ end method;
 define method vi-arrangement (topics :: <sequence>)
 => (trees :: <sequence> /* of <ordered-tree> */)
    let trees = make(<stretchy-vector>);
+   
+   local method visit (object, #key setter, topic: current-topic :: <topic>)
+         => (slots? :: <boolean>)
+            select (object by instance?)
+               <vi-xref> =>
+                  let xref :: <vi-xref> = object;
+                  let child-topic = xref.target;
+                  let arranged-parent
+                        = make(<arranged-topic>, topic: current-topic, type: #"vi-directive",
+                              source-location: xref.source-location);
+                  let arranged-child
+                        = make(<arranged-topic>, topic: child-topic, type: #"vi-directive",
+                              source-location: xref.source-location);
+                  let tree = make-parent-child-tree(arranged-parent, arranged-child);
+                  trees := add!(trees, tree);
+                  #t;
+               <topic> =>
+                  // Only allow recursion into current topic.
+                  object == current-topic;
+               otherwise =>
+                  // Allow recursion into everything else.
+                  #t;
+            end select
+         end method;
+         
    for (parent-topic in topics)
-      visit-vi-xrefs(parent-topic,
-            method (xref :: <vi-xref>, #key setter)
-               let child-topic = xref.target;
-               let arranged-parent = make(<arranged-topic>, topic: parent-topic,
-                                          type: #"vi-directive",
-                                          source-location: xref.source-location);
-               let arranged-child = make(<arranged-topic>, topic: child-topic,
-                                         type: #"vi-directive",
-                                         source-location: xref.source-location);
-               let tree = make-parent-child-tree(arranged-parent, arranged-child);
-               trees := add!(trees, tree);
-            end method);
+      visit-xrefs(parent-topic, visit, topic: parent-topic)
    end for;
    trees
 end method;
@@ -436,7 +450,7 @@ end method;
 
 
 /// Synopsis: Determines relationships by header style in a comment block,
-/// represented by topics' fixed-parent slot.
+/// represented by topics' 'fixed-parent' slot.
 define method header-arrangement (topics :: <sequence>)
 => (trees :: <sequence> /* of <ordered-tree> */)
    // TODO

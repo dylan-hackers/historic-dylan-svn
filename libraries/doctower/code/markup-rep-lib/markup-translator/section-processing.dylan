@@ -90,3 +90,25 @@ define method process-tokens
    process-tokens(section.content, token)
 end method;
 
+
+//
+// Post-process sections
+//
+
+
+define method ensure-parm-list (section :: <section>) => ()
+   if (member?(section.id, #[":Arguments", ":Values", ":Keywords"], test: \=))
+      section.content := replace-elements!(section.content,
+            rcurry(instance?, <defn-list>),
+            method (list-of-parm :: <defn-list>) => (parm-list :: <parm-list>)
+               let parm-list-class =
+                     select (list-of-parm.object-class)
+                        <one-line-defn-list> => <one-line-parm-list>;
+                        <many-line-defn-list> => <many-line-parm-list>;
+                     end select;
+               make(parm-list-class, source-location: list-of-parm.source-location,
+                    items: list-of-parm.items);
+            end method,
+            count: 1);
+   end if
+end method;

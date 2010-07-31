@@ -29,7 +29,6 @@ Synopsis: List of elements corresponding to content-block grammar.
    marginal-code-block  - <code-block>
    marginal-verbatim-block - <pre>
    figure-ref-line      - <fig>
-   content-ref-line     - <toc-placeholder>
    ditto-ref-line       - <ditto-placeholder>
    api-list-ref-line    - <api-list-placeholder>
    bracketed-raw-block  - <code-block> or <pre>
@@ -41,7 +40,7 @@ Synopsis: List of elements corresponding to content-block grammar.
    paragraph            - <paragraph>
 **/
 define constant <content-seq> = limited(<stretchy-vector>,
-   of: type-union(<code-block>, <pre>, <fig>, <toc-placeholder>, <ditto-placeholder>,
+   of: type-union(<code-block>, <pre>, <fig>, <ditto-placeholder>,
                   <api-list-placeholder>, <simple-table>, <unordered-list>,
                   <ordered-list>, <defn-list>, <paragraph>, singleton(#f)));
 
@@ -100,16 +99,19 @@ end class;
 define class <ordered-list> (<markup-element>)
    slot start :: type-union(<integer>, <character>), 
          init-keyword: #"start";
-   slot items :: <vector> /* of <content-seq> */;
+   slot items :: <vector> /* of <content-seq> */,
+         init-keyword: #"items";
 end class;
 
 define class <unordered-list> (<markup-element>)
-   slot items :: <vector> /* of <content-seq> */;
+   slot items :: <vector> /* of <content-seq> */,
+         init-keyword: #"items";
 end class;
 
 define class <defn-list> (<markup-element>)
    slot items :: <array> /* n rows by 2 cols, first col of <markup-seq>,
-                            second col of <content-seq> */;
+                            second col of <content-seq> */,
+         init-keyword: #"items";
 end class;
 
 define class <one-line-defn-list> (<defn-list>)
@@ -119,7 +121,6 @@ define class <many-line-defn-list> (<defn-list>)
 end class;
 
 /// Mixin class for <defn-list> indicating an argument or value list.
-// TODO: I don't make use of <parm-list>, but I need to.
 define class <parm-list> (<object>)
 end class;
 
@@ -151,20 +152,13 @@ end class;
 
 
 define class <api-list-placeholder> (<markup-element>)
-   slot type :: <symbol>, init-keyword: #"type";
-   // TODO: Can maybe delete scope.
-   slot scope;
+   slot api-type :: <symbol>, init-keyword: #"type";
+   slot qualified-scope-name :: false-or(<string>) = #f,
+      init-keyword: #"scope";
 end class;
 
 define class <ditto-placeholder> (<markup-element>)
    slot target :: type-union(<topic>, <target-placeholder>),
-      init-keyword: #"target";
-end class;
-
-/// Synopsis: Placeholder for contents of current topic, i.e. "[CONTENTS]".
-define class <toc-placeholder> (<markup-element>)
-   // If #f, the target is the current topic.
-   slot target :: false-or(type-union(<topic>, <target-placeholder>)),
       init-keyword: #"target";
 end class;
 

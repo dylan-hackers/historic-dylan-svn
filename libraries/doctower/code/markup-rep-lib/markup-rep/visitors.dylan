@@ -2,18 +2,17 @@ module: markup-rep
 synopsis: Contains slot visitor functions.
 
 
-/// Generic Function: visit-topic-placeholders
+/// Generic Function: visit-target-placeholders
 /// Synopsis: Visits a <topic> and its nested elements that can contain
-/// user-specified <target-placeholder> objects referring to topics. Does not
-/// include general <xref> objects.
+/// user-specified <target-placeholder> objects referring to topics.
 ///
 /// Arguments:
-///   element     - The <markup-element> to visit.
+///   element     - The <markup-element> or collection to visit.
 ///   operation   - A <function> on 'element'. The setter is passed a setter:
-///                 argument and the 'keys' argument.
+///                 [api] argument and the 'keys' argument.
 ///   #rest keys  - A set of keys passed to 'operation'.
 
-define collection-recursive slot-visitor visit-topic-placeholders
+define collection-recursive slot-visitor visit-target-placeholders
    // Topic elements
    <topic>,                content, shortdesc, parent, footnotes, see-also, relevant-to;
    <library-doc>,          content, shortdesc, parent, footnotes, see-also, relevant-to,
@@ -57,28 +56,29 @@ define collection-recursive slot-visitor visit-topic-placeholders
    <term-style>,           text;
    <term>,                 text;
    <underline>,            text;
-   <vi-xref>,              target;
-   // <xref> not included because it can contain non-topic placeholders.
+   <xref>,                 target, text;
    
    // Placeholders
    <ditto-placeholder>,    target;
    <target-placeholder>,   ;
-   <toc-placeholder>,      target;
    <topic-ref>,            target;
+   
+   // Cut recursion
+   <string>,               ;
 end slot-visitor;
 
 
-/// Generic Function: visit-vi-xrefs
-/// Synopsis: Visits a <topic> and its nested elements that can contain <vi-xref>
+/// Generic Function: visit-xrefs
+/// Synopsis: Visits a <topic> and its nested elements that can contain <xref>
 /// objects.
 ///
 /// Arguments:
-///   element     - The <markup-element> to visit.
-///   operation   - A <function> on 'element'. The setter is passed a setter:
-///                 argument and the 'keys' argument.
+///   element     - The <markup-element> or collection to visit.
+///   operation   - A <function> on 'element'. The setter is passed a 'setter:'
+///                 [api] argument and the 'keys' argument.
 ///   #rest keys  - A set of keys passed to 'operation'.
 
-define collection-recursive slot-visitor visit-vi-xrefs
+define collection-recursive slot-visitor visit-xrefs
    // Topic elements
    <topic>,           content, shortdesc, footnotes;
    <library-doc>,     content, shortdesc, footnotes, definitions-section,
@@ -119,19 +119,22 @@ define collection-recursive slot-visitor visit-vi-xrefs
    <italic>,          text;
    <term-style>,      text;
    <term>,            text;
-   <vi-xref>,         ;
+   <xref>,            ;
    <underline>,       text;
+   
+   // Cut recursion
+   <string>,               ;
 end slot-visitor;
 
 
 /// Generic function: visit-content-placeholders
 /// Synopsis: Visit a <topic> and its nested elements that can contain
-/// <api-list-placeholder>, <ditto-placeholder>, and <toc-placeholder> objects.
+/// <api-list-placeholder> and <ditto-placeholder> objects.
 ///
 /// Arguments:
-///   element     - The <markup-element> to visit.
-///   operation   - A <function> on 'element'. The setter is passed a setter:
-///                 argument and the 'keys' argument.
+///   element     - The <markup-element> or collection to visit.
+///   operation   - A <function> on 'element'. The setter is passed a 'setter:'
+///                 [api] argument and the 'keys' argument.
 ///   #rest keys  - A set of keys passed to 'operation'.
 
 define collection-recursive slot-visitor visit-content-placeholders
@@ -165,5 +168,7 @@ define collection-recursive slot-visitor visit-content-placeholders
    // Placeholders
    <api-list-placeholder>  ;
    <ditto-placeholder>     ;
-   <toc-placeholder>       ;
+   
+   // Cut recursion
+   <string>,               ;
 end slot-visitor;

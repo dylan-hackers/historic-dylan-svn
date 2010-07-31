@@ -1,30 +1,14 @@
 module: topic-resolver
 
-/**
-Synopsis: Resolves topic and table-of-contents-related placeholders.
 
-This method resolves placeholders from Section, quoted VI, Relevant To, See
-Also, Synopsis Of, Contents Of, and Ditto directives. It does not deal with
-quoted QV directives, because those may be referring to local Arguments or
-Values entries, which can't be resolved until the topic is finalized.
-
-It discards catalog topics (such as "All Libraries" or "Modules in Io") that are
-not actually referenced.
-
-This method ensures IDs are unique as a by-product.
-
---- Conditions: ---
-Signals an error if two topics have the same ID or a link fails to resolve.
+/** 
+Synopsis: Verifies that all IDs are unique and that no ID duplicates a topic
+title.
 **/
-define method resolve-topic-placeholders
-   (topics :: <sequence>, tables-of-content :: <sequence>, catalog-topics :: <sequence>)
-=> (resolved-topics :: <sequence>, tables-of-content :: <sequence>)
-   let defined-ids = topics-by-id(topics);
-   let defined-fqns = topics-by-fqn(topics);
-   let (defined-titles, dup-titles) = topics-by-title(topics);
-   let unused-catalogs = catalog-topics.copy-sequence;
-   
-   // Ensure no id duplicates a topic title.
+define method check-topic-ids
+   (topics :: <sequence>,
+    #key id-table: defined-ids :: <table>, title-table: defined-titles :: <table>)
+=> ()
    for (id in defined-ids.key-sequence)
       let topic-by-title = element(defined-titles, id, default: #f);
       if (topic-by-title)
@@ -33,39 +17,126 @@ define method resolve-topic-placeholders
                                 title-location: topic-by-title.title-source-loc);
       end if;
    end for;
+end method;
+
+
+/**
+Synopsis: Resolves all xref link placeholders.
+
+This method resolves xref targets, including arguments and values.
+**/
+define method resolve-xref-placeholders
+   (topics :: <sequence>,
+    #key id-table: defined-ids :: <table>, fqn-table: defined-fqns :: <table>,
+    title-table: defined-titles :: <table>)
+=> (topics :: <sequence>)
+   for (topic in topics)
+      let defined-parms = sections-by-parm-name(topic);
+      
+      local method resolve (object, #key setter, topic: current-topic :: <topic>)
+            => (slots? :: <boolean>)
+               select (object by instance?)
+                  <xref> =>
+                     let xref :: <xref> = object;
+                     if (instance?(xref.target, <target-placeholder>))
+                        let placeholder :: <target-placeholder> = xref.target;
+                        let resolution
+                              = resolve-local-link(placeholder, current-topic,
+                                    defined-parms)
+                              | resolve-topic-link(placeholder, current-topic,
+                                    defined-titles, defined-ids, defined-fqns);
+                        if (resolution)
+                           xref.target := resolution;
+                           if (instance?(resolution, <section>))
+                              // If no explicit title specified, use placeholder
+                              // text instead of conref to section title.
+                              xref.text := placeholder.target;
+                           end if;
+                        else
+                           unresolvable-target-in-link
+                                 (location: placeholder.source-location,
+                                  target-text: placeholder.target);
+                           setter(xref.text);
+                        end if
+                     end if;
+                     #t;
+                  <topic> =>
+                     // Only allow recursion into current topic.
+                     object == current-topic;
+                  otherwise =>
+                     // Allow recursion into everything else.
+                     #t;
+               end select
+            end method;
+            
+      visit-xrefs(topic, resolve, topic: topic);
+   end for;
+   topics
+end method;
+
+
+/**
+Synopsis: Resolves topic and table-of-contents-related placeholders.
+
+This method resolves all remaining <target-placeholder> objects.
+
+It discards catalog topics (such as "All Libraries" or "Modules in Io") that are
+not actually referenced.
+
+This method ensures IDs are unique as a by-product.
+
+--- Conditions: ---
+Signals an error if a link fails to resolve.
+**/
+define method resolve-topic-placeholders
+   (topics :: <sequence>, tables-of-content :: <sequence>, catalog-topics :: <sequence>,
+    #key id-table: defined-ids :: <table>, fqn-table: defined-fqns :: <table>,
+    title-table: defined-titles :: <table>, dup-title-table: dup-titles :: <table>)
+=> (resolved-topics :: <sequence>, tables-of-content :: <sequence>)
+   let unused-catalogs = catalog-topics.copy-sequence;
    
    // Resolution method.
-   local method resolve (link :: <target-placeholder>, #key setter, topic) => ()
-            let topic-found = resolve-link
-                  (link, topic, defined-titles, defined-ids, defined-fqns);
-            if (topic-found)
-               setter(topic-found);
-               unused-catalogs := remove!(unused-catalogs, topic-found);
-            elseif (key-exists?(dup-titles, link.target))
-               let locs = map(source-location, dup-titles[link.target]);
-               ambiguous-title-in-link(location: link.source-location,
-                     target-text: link.target,
-                     topic-locations: locs.item-string-list);
-            else
-               target-not-found-in-link(location: link.source-location,
-                                        target-text: link.target);
-            end if
+   local method resolve (object, #key setter, topic: current-topic :: false-or(<topic>))
+         => (slots? :: <boolean>)
+            select (object by instance?)
+               <target-placeholder> =>
+                  let link :: <target-placeholder> = object;
+                  let topic-found = resolve-topic-link(link, current-topic,
+                        defined-titles, defined-ids, defined-fqns);
+                  if (topic-found)
+                     setter(topic-found);
+                     unused-catalogs := remove!(unused-catalogs, topic-found);
+                  elseif (key-exists?(dup-titles, link.target))
+                     let locs = map(source-location, dup-titles[link.target]);
+                     ambiguous-title-in-link(location: link.source-location,
+                           target-text: link.target,
+                           topic-locations: locs.item-string-list);
+                  else
+                     target-not-found-in-link(location: link.source-location,
+                                              target-text: link.target);
+                  end if;
+                  #t;
+               <topic> =>
+                  // Only allow recursion into current topic.
+                  object == current-topic;
+               otherwise =>
+                  // Allow recursion into everything else.
+                  #t;
+            end select
          end method;
             
    // Assign topics in place of placeholders.
    for (topic in topics)
-      visit-topic-placeholders(topic, resolve, topic: topic)
+      visit-target-placeholders(topic, resolve, topic: topic)
    end for;
 
    // Assign topics in place of tables of content references.
    for (toc in tables-of-content)
       for (toc-ref :: false-or(<topic-ref>) in toc)
-         when (toc-ref)
-            let link = toc-ref.target;
-            if (instance?(link, <target-placeholder>))
-               resolve(link, setter: rcurry(target-setter, toc-ref), topic: #f);
-            end if;
-         end when;
+         if (toc-ref)
+            resolve(toc-ref.target, setter: rcurry(target-setter, toc-ref),
+                    topic: #f);
+         end if;
       end for;
    end for;
    
@@ -145,6 +216,29 @@ define method topics-by-title (topics :: <sequence>)
 end method;
 
 
+define method sections-by-parm-name (topic :: <topic>) => (parm-table :: <table>)
+   make(<case-insensitive-string-table>)
+end method;
+
+
+define method sections-by-parm-name (topic :: <class-doc>)
+=> (parm-table :: <table>)
+   let parms = next-method();
+   add-parms-from-section(parms, topic.keywords-section)
+end method;
+
+
+define method sections-by-parm-name
+   (topic :: type-union(<function-doc>, <macro-doc>))
+=> (parm-table :: <table>)
+   let parms = next-method();
+   add-parms-from-section(parms, topic.vals-section);
+   add-parms-from-section(parms, topic.args-section)
+end method;
+
+
+// TODO: Implement linking to arbitrary sections.
+
 /// Synopsis: Determines what topic a link refers to.
 ///
 /// In general, a link is resolved to one of the following, in order:
@@ -154,8 +248,10 @@ end method;
 ///   4. Unique title
 ///   5. API in current module/library
 ///   6. Unique API in other module/library
-/// At this point in the code, though, we are only processing topic-level stuff,
-/// so we won't see any #1.
+///
+/// Case #1 is handled in 'resolve-xref-placeholders' by calling
+/// 'resolve-local-link' before this method, and not handled at all in
+/// 'resolve-topic-placeholders'.
 ///
 /// Arguments:
 ///   link              -  The <target-placeholder> to resolve.
@@ -165,11 +261,12 @@ end method;
 ///   topics-by-fqn     -  Topics indexed by fully qualified name disguised as
 ///                        id.
 ///   topics-by-title   -  Topics indexed by unique title (in string form).
+///
 /// Values:
 ///   resolution  -  #f if link could not be resolved, else the <topic> it
 ///                  resolved to.
 ///
-define method resolve-link
+define method resolve-topic-link
    (link :: <target-placeholder>, containing-topic :: false-or(<topic>),
     topics-by-title :: <table>, topics-by-id :: <table>, topics-by-fqn :: <table>)
 => (resolution :: false-or(<topic>))
@@ -177,10 +274,54 @@ define method resolve-link
                element(topics-by-fqn, link.target, default: #f) |
                element(topics-by-title, link.target, default: #f);
    if (~topic)
-      // It is an API or a duplicate title. It will not be an argument/value
-      // because those can only be legitimately found in an <xref>, which we are
-      // not processing.
+      // It is an API or a duplicate title or something unknown.
       // TODO: API canonicalization and lookup.
    end if;
    topic
 end method;
+
+
+define method resolve-local-link
+   (link :: <target-placeholder>, containing-topic :: false-or(<topic>),
+    section-by-parm-name :: <table>)
+=> (resolution :: false-or(<section>))
+   let link-text = link.target.standardize-target;
+   element(section-by-parm-name, link-text, default: #f)
+end method;
+
+
+define method standardize-target (target :: <string>) => (cleaned :: <string>)
+   let cleaned = target.copy-sequence;
+   cleaned := replace-elements!(cleaned, rcurry(\=, '\n'), always(' '));
+   cleaned := regexp-replace(cleaned, " {2,}", " ");
+   cleaned := regexp-replace(cleaned, "^#[^ ]+ ", "");
+   cleaned := regexp-replace(cleaned, ":$", "");
+   cleaned
+end method;
+
+
+define method add-parms-from-section
+   (parms :: <table>, section :: false-or(<section>))
+=> (parms :: <table>)
+   let parm-list = section.section-parm-list;
+   if (parm-list)
+      for (row from 0 below dimension(parm-list.items, 0))
+         let parm-markup = parm-list.items[row, 0];
+         let parm-name = parm-markup.stringify-markup.standardize-target;
+         parms[parm-name] := section;
+      end for
+   end if;
+   parms
+end method;
+
+
+define method section-parm-list (section :: false-or(<section>))
+=> (parm-list :: false-or(<parm-list>))
+   if (section)
+      let section-content = as(<simple-object-vector>, section.content);
+            // BUGFIX: Necessary because choose cannot create a limited sequence on demand.
+      let parm-lists = choose(rcurry(instance?, <parm-list>), section-content);
+      ~parm-lists.empty? & parm-lists.first;
+   end if
+end method;
+

@@ -207,12 +207,17 @@ define method template-text (frag :: <fragment>) => (text :: <string>)
 end method;
 
 
+define method template-text (type :: <type-fragment>) => (text :: <string>)
+   as-titlecase(next-method())
+end method;
+
+
 define method template-id (type :: <type-fragment>)
 => (id :: false-or(<string>))
    if (type.simple-name?)
       let source-name = type.source-text.first;
       let definition = element(*definitions*, source-name, default: #f);
-      if (definition)
+      if (definition & definition.should-have-topic?)
          definition.canonical-id
       end if
    end if
@@ -226,7 +231,7 @@ end method;
 
 define method template-id (defn :: <definition>)
 => (id :: false-or(<string>))
-   defn.needs-topic? & defn.canonical-id
+   defn.should-have-topic? & defn.canonical-id
 end method;
 
 

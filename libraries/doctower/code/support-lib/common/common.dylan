@@ -155,47 +155,62 @@ end method;
 
 /// Synopsis: Define methods to visit objects and their slots.
 ///
-/// Use as follows, where braces indicate optional items:
-/// : define {collection-recursive} slot-visitor NAME
-/// :   CLASS {, SLOT}... ;
-/// :   {CLASS {, SLOT}... ;}...
-/// : end {slot-visitor {NAME}}
+/// Use as follows, where braces indicate optional items: : define
+/// {collection-recursive} slot-visitor NAME :   CLASS {, SLOT}... ; :   {CLASS
+/// {, SLOT}... ;}... : end {slot-visitor {NAME}}
 ///
 /// This defines a set of visitor methods called NAME. The methods have this
-/// signature:
-/// : NAME (object :: CLASS, action :: <function>, #key KEY, ...) => ()
-/// 
-/// The method visits all SLOTS then the object itself, performing the action.
-/// The action should have this signature:
-/// : (object {:: TYPE}, #key setter, KEY, ...) => ()
+/// signature: : NAME (object :: CLASS, action :: <function>, #key KEY, ...) =>
+/// ()
+///  
+/// The 'action' [api] function should have this signature: : (object {:: TYPE},
+/// #key setter, KEY, ...) => (slots? :: <boolean>)
 ///
-/// The action is called on the object or slot value. If the TYPE doesn't match,
-/// the action is not performed. The setter key is a function by which the action
-/// can replace replace the object or slot value. ALL-KEYS passed to each NAME
-/// function is also passed to the ACTION.
+/// The action is considered for an object then, if the action returns #t, for
+/// the value of each specified SLOT. If an object does not match the action's
+/// specified TYPE, the action is not performed but the object's slots are still
+/// visited. Note that if the action in an implicit generic function, the
+/// implicit type, <object>, will always match and the action will be performed
+/// for every object and slot value.
+///
+/// The action's 'setter' [api] keyword argument is a function by which the
+/// action can replace replace the object or slot value, or false if the action
+/// is called on a top-level object not contained by a slot. All other keys
+/// originally passed to a NAME function are preserved and also passed to each
+/// action.
+///
+/// The 'collection-recursive' [api] adjective adds a default behavior for
+/// collections that are not specified in the CLASS list. This behavior is to
+/// visit every element of the collection; it supplies an appropriate 'setter'
+/// [api] argument to the action.
 ///
 define macro slot-visitor-definer
    { define collection-recursive slot-visitor ?:name ?classes:* end }
    => {
          define method ?name
-            (col :: <collection>, f :: <function>, #rest keys, #key, #all-keys)
+            (col :: <collection>, action :: <function>, #rest keys, #key, #all-keys)
          => ()
+            remove-property!(keys, #"setter");
             for (o keyed-by i in col)
-               apply(?name, o, f, #"setter", rcurry(element-setter, col, i),
+               apply(?name, o, action, setter:, rcurry(element-setter, col, i),
                      keys);
             end for;
-         end method;
-
-         define method ?name
-            (o :: <object>, f :: <function>, #key, #all-keys)
-         => ()
          end method;
 
          define slot-visitor ?name ?classes end;
       }
    
    { define slot-visitor ?:name ?classes:* end }
-   => { class-visitors(?name; ?classes) }
+   => {
+         define generic ?name (o :: <object>, f :: <function>, #key, #all-keys);
+
+         define method ?name
+            (o :: <object>, f :: <function>, #key, #all-keys)
+         => ()
+         end method;
+
+         class-visitors(?name; ?classes)
+      }
 end macro;
 
 
@@ -206,17 +221,21 @@ define macro class-visitors
    { class-visitors(?:name; ?class-name:name, ?slots; ?more:*) }
    => {
          define method ?name
-            (object :: ?class-name, action :: <function>, #rest keys, #key, #all-keys)
+            (object :: ?class-name, action :: <function>, #rest keys,
+             #key setter, #all-keys)
          => ()
-            for (slot in vector(?slots),
-                 setter in setters-vector(?slots))
-               apply(?name, object.slot, action,
-                     setter:, rcurry(setter, object), keys)
-            end for;
-
-            when (instance?(object, action.function-specializers.first))
-               apply(action, object, keys);
-            end when;
+            remove-property!(keys, #"setter");
+            let skip-slots? =
+                  if (instance?(object, action.function-specializers.first))
+                     ~apply(action, object, setter:, setter, keys);
+                  end if;
+            unless (skip-slots?)
+               for (slot in vector(?slots),
+                    setter in setters-vector(?slots))
+                  apply(?name, object.slot, action, setter:, rcurry(setter, object),
+                        keys)
+               end for
+            end unless;
          end method;
          
          class-visitors(?name; ?more)

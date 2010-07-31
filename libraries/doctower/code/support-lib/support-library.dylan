@@ -4,7 +4,7 @@ define library support-library
    use dylan, import: { extensions };
    use common-dylan;
    use collection-extensions;
-   use collections, import: { table-extensions };
+   use collections, import: { table-extensions, plists };
    use regular-expressions;
    use system;
    use io;

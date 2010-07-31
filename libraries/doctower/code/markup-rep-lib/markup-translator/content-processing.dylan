@@ -98,20 +98,6 @@ end method;
 
 define method process-tokens
    (seq :: type-union(<topic-content-seq>, <content-seq>),
-    token :: <content-ref-line-token>)
-=> ()
-   let targ =
-         if (token.link)
-            make(<target-placeholder>, link: token.link.token-text,
-                 source-location: token.link.token-src-loc)
-         end if;
-   add!(seq, make(<toc-placeholder>, target: targ,
-                  source-location: token.token-src-loc));
-end method;
-
-
-define method process-tokens
-   (seq :: type-union(<topic-content-seq>, <content-seq>),
     token :: <ditto-ref-line-token>)
 => ()
    add!(seq, make(<ditto-placeholder>, target: token.link.token-text,
@@ -123,7 +109,9 @@ define method process-tokens
    (seq :: type-union(<topic-content-seq>, <content-seq>),
     token :: <api-list-ref-line-token>)
 => ()
-   // TODO
+   let scope-string = token.scope-word & token.scope-word.token-text;
+   add!(seq, make(<api-list-placeholder>, source-location: token.token-src-loc,
+                  type: token.list-type, scope: scope-string));
 end method;
 
 
@@ -179,7 +167,12 @@ define method process-tokens
     token :: type-union(<hyphenated-list-token>, <phrase-list-token>))
 => ()
    let list-item-tokens = token.token-content;
-   let list = make(<one-line-defn-list>, source-location: token.token-src-loc);
+   let list-class =
+         select (token.object-class)
+            <hyphenated-list-token> => <one-line-defn-list>;
+            <phrase-list-token> => <many-line-defn-list>;
+         end select;
+   let list = make(list-class, source-location: token.token-src-loc);
    list.items := make(<array>, dimensions: vector(list-item-tokens.size, 2));
    for (i from 0, list-item-token in list-item-tokens)
       let list-item-label = make(<markup-seq>);

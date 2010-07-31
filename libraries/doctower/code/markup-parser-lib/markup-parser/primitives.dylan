@@ -126,7 +126,6 @@ define literal-parsers
    code-lit       = "code";
    conditions-lit = "conditions";
    constant-lit   = "constant";
-   contents-lit   = "contents";
    diagram-lit    = "diagram";
    discussion-lit = "discussion";
    dita-lit       = "dita";
