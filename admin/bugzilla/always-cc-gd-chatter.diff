@@ -1,14 +1,11 @@
---- post_bug.cgi.orig	2006-04-25 13:25:07.000000000 +0200
-+++ post_bug.cgi	2006-09-06 02:23:26.000000000 +0200
-@@ -229,6 +229,11 @@
+--- post_bug.cgi.orig	2010-08-13 11:08:40.000000000 +0200
++++ post_bug.cgi	2010-08-13 11:06:46.000000000 +0200
+@@ -159,7 +159,7 @@
+     $bug_params{$field} = $cgi->param($field);
+ }
+ $bug_params{'creation_ts'} = $timestamp;
+-$bug_params{'cc'}          = [$cgi->param('cc')];
++$bug_params{'cc'}          = ['chatter@lists.opendylan.org', $cgi->param('cc')];
+ $bug_params{'groups'}      = \@selected_groups;
+ $bug_params{'comment'}     = $comment;
  
- my %ccids;
- 
-+my $ccid = DBNameToIdAndCheck('gd-chatter@gwydiondylan.org');
-+if ($ccid && !$ccids{$ccid}) {
-+  $ccids{$ccid} = 1;
-+}
-+
- # Create the ccid hash for inserting into the db
- # use a hash rather than a list to avoid adding users twice
- if (defined $cgi->param('cc')) {
