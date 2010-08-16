@@ -302,10 +302,11 @@ define generic optimize (item :: <computation>) => (b :: <boolean>);
 
 define function do-optimize (item :: <computation>) => (b :: <boolean>)
   with-parent-computation (item)
-    send-debug(#"relayouted", pair(item, #()));
-    send-debug(#"highlight", item);
+    //send-debug(#"relayouted", pair(item, #()));
+    //send-debug(#"highlight", item);
     let res = optimize(item) & #t;
     if (res)
+      send-debug(#"relayouted", pair(item, #()));
       //*dump-dfm-method*(#"relayouted", #());
     end;
     res
@@ -318,6 +319,7 @@ define inline method run-optimizer
   opt-format-out("%s %= \n", name, c);
   // with-parent-computation (c)
   send-debug(#"beginning", pair(c, list(name, c.computation-id)));
+  send-debug(#"highlight", c);
     optimize(c) & #t;
   // end;
 end method;
