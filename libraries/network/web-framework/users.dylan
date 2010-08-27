@@ -139,7 +139,7 @@ end function authenticate;
 define function require-authorization (#key realm :: false-or(<string>))
   let realm = realm | *default-authentication-realm*;
   let headers = current-response().raw-headers;
-  add-header(headers, "WWW-Authenticate", concatenate("Basic realm=\"", realm, "\""));
+  set-header(headers, "WWW-Authenticate", concatenate("Basic realm=\"", realm, "\""));
   unauthorized-error(headers: headers);
 end;
 

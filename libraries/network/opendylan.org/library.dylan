@@ -17,6 +17,11 @@ define module opendylan-dot-org
   use common-dylan;
   use dsp;
   use koala;
+  use locators,
+    exclude: {
+      <http-server>,    // sheesh
+      <url>
+      };
   use streams;
   use standard-io;
   use uri;

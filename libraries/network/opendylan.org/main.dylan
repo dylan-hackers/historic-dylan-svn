@@ -91,18 +91,24 @@ define method add-opendylan-responders
                 else
                   urls
                 end)
-      add-responder(http-server, url, page);
+      add-resource(http-server, url, page);
     end;
   end;
-  add-cgi-directory-responder(http-server,
-                              "/cgi-bin/cvszilla",
-                              "/usr/share/cvszilla/cgi-bin");
-  add-cgi-directory-responder(http-server,
-                              "/cgi-bin",
-                              "/usr/local/viewvc-1.0.5/bin/cgi");
-  add-cgi-directory-responder(http-server,
-                              "/cgi-bin/bugzilla",
-                              "/usr/lib/cgi-bin/bugzilla");
+  add-resource(http-server,
+               "/cgi-bin/cvszilla",
+               make(<cgi-directory-resource>,
+                    locator: as(<directory-locator>,
+                                "/usr/share/cvszilla/cgi-bin")));
+  add-resource(http-server,
+               "/cgi-bin",
+               make(<cgi-directory-resource>,
+                    locator: as(<directory-locator>,
+                                "/usr/local/viewvc-1.0.5/bin/cgi")));
+  add-resource(http-server,
+               "/cgi-bin/bugzilla",
+               make(<cgi-directory-resource>,
+                    locator: as(<directory-locator>,
+                                "/usr/lib/cgi-bin/bugzilla")));
 end method add-opendylan-responders;
 
 define method main

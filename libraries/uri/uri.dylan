@@ -132,9 +132,8 @@ define constant absolute? = complement(relative?);
 
 define method split-path
     (path :: <string>)
- => (parts :: <sequence>);
-  let parts = split(path, "/", remove-if-empty: #f);
-  map(percent-decode, parts);
+ => (parts :: <sequence>)
+  map(percent-decode, split(path, '/'))
 end;
 
 define method split-query
