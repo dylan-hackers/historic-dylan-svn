@@ -4,7 +4,7 @@ define library support-library
    use dylan, import: { extensions };
    use common-dylan;
    use collection-extensions;
-   use collections, import: { table-extensions, plists };
+   use collections, import: { table-extensions };
    use regular-expressions;
    use system;
    use io;
@@ -12,6 +12,7 @@ define library support-library
    use peg-parser;
    use dynamic-binding;
    use skip-list;
+   use slot-visitor;
    // from Monday project
    use source-location;
 

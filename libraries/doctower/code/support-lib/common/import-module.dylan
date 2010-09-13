@@ -38,4 +38,6 @@ define module common-imports
    use skip-list,
       import: { <skip-list>, element-sequence, element-sequence-setter },
       export: all;
+   // from slot-visitor
+   use slot-visitor, export: all;
 end module;

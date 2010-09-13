@@ -15,26 +15,17 @@ synopsis: Contains slot visitor functions.
 define collection-recursive slot-visitor visit-target-placeholders
    // Topic elements
    <topic>,                content, shortdesc, parent, footnotes, see-also, relevant-to;
-   <library-doc>,          content, shortdesc, parent, footnotes, see-also, relevant-to,
-                           definitions-section, modules-section;
-   <module-doc>,           content, shortdesc, parent, footnotes, see-also, relevant-to,
-                           definitions-section, bindings-section;
-   <class-doc>,            content, shortdesc, parent, footnotes, see-also, relevant-to,
-                           definitions-section, adjectives-section, keywords-section,
-                           conds-section, inheritables-section, supers-section, 
-                           subs-section, funcs-on-section, funcs-returning-section;
-   <function-doc>,         content, shortdesc, parent, footnotes, see-also, relevant-to,
-                           definitions-section, adjectives-section, args-section,
-                           vals-section, conds-section;
-   <generic-doc>,          content, shortdesc, parent, footnotes, see-also, relevant-to,
-                           definitions-section, adjectives-section, args-section,
-                           vals-section, conds-section, methods-section;
-   <variable-doc>,         content, shortdesc, parent, footnotes, see-also, relevant-to,
-                           definitions-section, adjectives-section, value-section;
-   <macro-doc>,            content, shortdesc, parent, footnotes, see-also, relevant-to,
-                           definitions-section, syntax-section, args-section, vals-section;
-   <unbound-doc>,          content, shortdesc, parent, footnotes, see-also, relevant-to,
-                           definitions-section;
+   <api-doc>,              definitions-section;
+   <library-doc>,          modules-section;
+   <module-doc>,           bindings-section;
+   <class-doc>,            adjectives-section, keywords-section, conds-section,
+                           inheritables-section, supers-section, subs-section,
+                           funcs-on-section, funcs-returning-section;
+   <function-doc>,         adjectives-section, args-section, vals-section, conds-section;
+   <generic-doc>,          methods-section;
+   <variable-doc>,         adjectives-section, value-section;
+   <macro-doc>,            syntax-section, args-section, vals-section;
+   <unbound-doc>,          ;
 
    // Body elements
    <conref>,               target;
@@ -81,24 +72,17 @@ end slot-visitor;
 define collection-recursive slot-visitor visit-xrefs
    // Topic elements
    <topic>,           content, shortdesc, footnotes;
-   <library-doc>,     content, shortdesc, footnotes, definitions-section,
-                      modules-section;
-   <module-doc>,      content, shortdesc, footnotes, definitions-section,
-                      bindings-section;
-   <class-doc>,       content, shortdesc, footnotes, definitions-section,
-                      adjectives-section, keywords-section, conds-section,
+   <api-doc>,         definitions-section;
+   <library-doc>,     modules-section;
+   <module-doc>,      bindings-section;
+   <class-doc>,       adjectives-section, keywords-section, conds-section,
                       inheritables-section, supers-section, subs-section,
                       funcs-on-section, funcs-returning-section;
-   <function-doc>,    content, shortdesc, footnotes, definitions-section,
-                      adjectives-section, args-section, vals-section, conds-section;
-   <generic-doc>,     content, shortdesc, footnotes, definitions-section,
-                      adjectives-section, args-section, vals-section, conds-section,
-                      methods-section;
-   <variable-doc>,    content, shortdesc, footnotes, definitions-section,
-                      adjectives-section, value-section;
-   <macro-doc>,       content, shortdesc, footnotes, definitions-section,
-                      syntax-section, args-section, vals-section;
-   <unbound-doc>,     content, shortdesc, footnotes, definitions-section;
+   <function-doc>,    adjectives-section, args-section, vals-section, conds-section;
+   <generic-doc>,     methods-section;
+   <variable-doc>,    adjectives-section, value-section;
+   <macro-doc>,       syntax-section, args-section, vals-section;
+   <unbound-doc>,     ;
 
    // Body elements
    <defn-list>,       items;
@@ -140,21 +124,17 @@ end slot-visitor;
 define collection-recursive slot-visitor visit-content-placeholders
    // Topic elements
    <topic>,                content, footnotes;
-   <library-doc>,          content, footnotes, definitions-section, modules-section;
-   <module-doc>,           content, footnotes, definitions-section, bindings-section;
-   <class-doc>,            content, footnotes, definitions-section, adjectives-section,
-                           keywords-section, conds-section, inheritables-section,
-                           supers-section, subs-section, funcs-on-section,
-                           funcs-returning-section;
-   <function-doc>,         content, footnotes, definitions-section, adjectives-section,
-                           args-section, vals-section, conds-section;
-   <generic-doc>,          content, footnotes, definitions-section, adjectives-section,
-                           args-section, vals-section, conds-section, methods-section;
-   <variable-doc>,         content, footnotes, definitions-section, adjectives-section,
-                           value-section;
-   <macro-doc>,            content, footnotes, definitions-section, syntax-section,
-                           args-section, vals-section;
-   <unbound-doc>,          content, footnotes, definitions-section;
+   <api-doc>,              definitions-section;
+   <library-doc>,          modules-section;
+   <module-doc>,           bindings-section;
+   <class-doc>,            adjectives-section, keywords-section, conds-section,
+                           inheritables-section, supers-section, subs-section,
+                           funcs-on-section, funcs-returning-section;
+   <function-doc>,         adjectives-section, args-section, vals-section, conds-section;
+   <generic-doc>,          methods-section;
+   <variable-doc>,         adjectives-section, value-section;
+   <macro-doc>,            syntax-section, args-section, vals-section;
+   <unbound-doc>,          ;
    
    // Body elements
    <defn-list>,            items;
@@ -170,5 +150,5 @@ define collection-recursive slot-visitor visit-content-placeholders
    <ditto-placeholder>     ;
    
    // Cut recursion
-   <string>,               ;
+   <string>                ;
 end slot-visitor;

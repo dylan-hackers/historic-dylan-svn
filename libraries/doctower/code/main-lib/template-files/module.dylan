@@ -2,6 +2,8 @@ module: dylan-user
 
 define module template-files
    use common;
+   // from system
+   use file-system, import: { file-exists?, file-property };
    // from template-engine
    use template-engine;
    // from wrapper-streams

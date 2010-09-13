@@ -25,7 +25,7 @@ define collection-recursive slot-visitor visit-type-fragments
 
    // Parameters and values
    <param-list>,           req-params;
-   <key-param-list>,       req-params, key-params;
+   <key-param-list>,       key-params;
    <value-list>,           req-values, rest-value;
    <req-param>,            type;
    <key-param>,            type;
@@ -37,7 +37,7 @@ define collection-recursive slot-visitor visit-type-fragments
 
    // Slots and init args
    <slot>,                 getter;
-   <accessor-slot>,        getter, setter, type;
+   <accessor-slot>,        setter, type;
    <init-arg>,             type;
    
    // Our goal
