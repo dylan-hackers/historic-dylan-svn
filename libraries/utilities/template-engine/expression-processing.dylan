@@ -28,7 +28,7 @@ define method resolve-const-expression
 => ()
    if (exp.operand.const-value?)
       exp.const-value? := #t;
-      exp.value := resolve-expression(context.template-config, exp)
+      exp.value := resolve-expression(context.template-config, exp);
    end if
 end method;
 
@@ -144,7 +144,8 @@ define method resolve-expression
          <lex-gte-token>       => left >= right;
       end select
    exception (err :: <error>)
-      error(make(<expression-error>, position: exp.parse-start, error: err))
+      error(make(<expression-error>, position: exp.parse-start, error: err,
+                 operands: vector(left, right), operation: exp.operator.text))
    end block
 end method;
 
@@ -160,7 +161,8 @@ define method resolve-expression
          otherwise         => op-value;
       end select
    exception (err :: <error>)
-      error(make(<expression-error>, position: exp.parse-start, error: err))
+      error(make(<expression-error>, position: exp.parse-start, error: err,
+                 operands: vector(op-value), operation: exp.operator.text))
    end block
 end method;
 
@@ -175,7 +177,8 @@ define method resolve-expression
             block ()
                result.called-func
             exception (err :: <error>)
-               error(make(<expression-error>, position: call.parse-start, error: err))
+               error(make(<expression-error>, position: call.parse-start, error: err,
+                     operands: vector(result), operation: call.name))
             end block;
       result := new-result
    end for;

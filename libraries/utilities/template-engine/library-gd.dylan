@@ -7,6 +7,7 @@ define library template-engine
    use peg-parser;
    use string-extensions;
    use sequence-stream;
+	use slot-visitor;
 
    export template-engine;
 end library;
@@ -16,6 +17,8 @@ define module template-engine
    // from common-dylan
    use dylan;
    use common-extensions, exclude: { format-to-string };
+   use machine-words;
+   use byte-vector;
    // from collections
    use table-extensions,
       rename: { case-insensitive-equal => case-insensitive-equal? };
@@ -29,14 +32,19 @@ define module template-engine
    use peg-parser;
    // from string-extensions
    use character-type;
+	// from slot-visitor
+	use slot-visitor;
    
    export
       <template>, process-template, template-vocabulary, vocabulary-table-type;
+   
+   export
+      persistable-template, restorable?;
    
    export
       first-rep?, last-rep?, rep-number, rep-key;
    
    export
       <missing-name-error>, <expression-error>, error-position, actual-error,
-      missing-name, missing-operation?;
+      failed-operands, failed-operation, missing-name, missing-operation?;
 end module;

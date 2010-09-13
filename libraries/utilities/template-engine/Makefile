@@ -2,6 +2,7 @@ BASE_LIBDIR = ../..
 
 LIBRARIES = \
 	$(BASE_LIBDIR)/utilities/peg-parser \
+	$(BASE_LIBDIR)/utilities/slot-visitor \
 	$(BASE_LIBDIR)/files-and-io/sequence-stream \
 	$(BASE_LIBDIR)/utilities/dynamic-binding
 

@@ -3,10 +3,10 @@
 ==============
 
 A template document is a text stream containing directives and normal text. To
-use a template document, a program first creates a '<template>' object and reads
-the document, then calls 'process-template' on that object to generate an output
-string. The '<template>' object can be created once and processed multiple
-times.
+use a template document, a program first creates a '<template>' object from the
+document, then calls 'process-template' on that object to generate an output
+string. The '<template>' object can be created once, optionally saved to disk,
+and then processed multiple times to generate different output strings.
 
 Directives can access variables and operations specified by the program. These
 variables and operations form the vocabulary available for use in template

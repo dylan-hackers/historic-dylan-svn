@@ -5,12 +5,12 @@ module: template-engine
 
 This class contains everything needed to produce output from a template document
 given some variables. An instance of this class may be used repeatedly with
-different variables each time.
+different variables each time, and may be saved and restored as a <byte-vector>.
 
 --- Conditions: ---
 
 'Make' on this class may signal a <parse-error> if the template document has
-syntax errors.
+syntax errors or an <error> if a persisted template cannot be restored.
 
 --- Slot Accessors: ---
 
@@ -23,7 +23,11 @@ vocabulary-table-type -
 document -
    A <positionable-stream> containing the template document. The document is
    parsed and stored; this stream is not needed after the <template> instance
-   is created. Required.
+   is created. Either this keyword or 'persisted-template' is required.
+
+persisted-template -
+  A <byte-vector> resulting from a 'persistable-template' [api qv
+  :::persistable-template] call. Either this keyword or 'document' is required.
 
 base-variables -
    Base variable values that the template may refer to. An instance of
@@ -59,7 +63,8 @@ case-sensitive -
 delimiter -
    One of #"{}", #"[]", #"<>", or #"()", indicating the type of delimiter around
    template directives, e.g. "{{person.name}}" or "((person.name))". May be
-   overridden by a template header directive. Defaults to #"{}".
+   overridden by a template header directive. Defaults to #"{}". Ignored if
+   'persisted-template' is provided.
 
 stringifier -
    Function to convert variable values to <string>. The engine passes an
@@ -77,14 +82,14 @@ control-structures -
    basic substitution directive is available; other directives in the template
    document are treated as substitution directives and result in parse errors.
    This flag does not affect the availability of the template style directive;
-   see 'header'.
+   see 'header'. Ignored if 'persisted-template' is provided.
 
 header -
    A flag indicating whether the first line of the template document can contain
    a template header directive ("{{template}}", "((template))", etc.). If #t,
    the default, the directive is available. If #f and the directive is present,
    it is treated like plain text or a substitution directive, depending on the
-   delimiter style it uses.
+   delimiter style it uses. Ignored if 'persisted-template' is provided.
 */
 define class <template> (<object>)
    constant slot variable-scopes
@@ -99,8 +104,10 @@ define class <template> (<object>)
       
    slot vocabulary-table-type :: one-of(<string-table>, <case-insensitive-string-table>);
    slot parsed-template :: <template-token>;
+   slot processed? :: <boolean> = #f;
 
-   required keyword document:;
+   keyword document:;
+   keyword persisted-template:;
    keyword base-variables:;
    keyword base-operations:;
    keyword case-sensitive:;
@@ -113,13 +120,17 @@ end class;
 
 define method initialize
    (template :: <template>, #rest keys, #key
-    document: template-stream :: <positionable-stream>,
+    document: template-stream :: false-or(<positionable-stream>),
+    persisted-template :: false-or(<byte-vector>),
     case-sensitive :: <boolean> = #f, base-variables, base-operations,
     control-structures :: <boolean> = #t, header :: <boolean> = #t,
     delimiter :: false-or(one-of(#"()", #"[]", #"{}", #"<>")),
     #all-keys)
 => ()
    next-method();
+
+   assert(~(template-stream & persisted-template) & (template-stream | persisted-template),
+         "Initialization requires either the document: or persisted-template: init-keyword");
 
    // Set up scopes.
 
@@ -145,40 +156,52 @@ define method initialize
    push(template.variable-scopes, base-variables);
    push(template.operation-scopes, base-operations);
    
-   // Set up parse context.
-   
-   let context :: <template-context>
-         = apply(make, <template-context>, config:, template, keys);
+   if (template-stream)
 
-   when (delimiter)
-      let delim-string = as(<string>, delimiter);
-      context.lf-directive-character := delim-string.first;
-      context.rt-directive-character := delim-string.second;
-   end when;
+      // Set up parse context.
    
-   let catalog-choices = 
-         if (context.allow-control-structures?)
-            vector(parse-case-directive-block, parse-if-directive-block,
-                   parse-repeat-directive-block, parse-with-directive-block,
-                   parse-simple-directive, parse-empty-directive)
-         else
-            vector(parse-with-directive-block, parse-simple-directive,
-                   parse-empty-directive)
-         end if;
-   context.directive-catalog-parser := apply(choice, catalog-choices);
+      let context :: <template-context>
+            = apply(make, <template-context>, config:, template, keys);
 
-   // Parse template.
+      when (delimiter)
+         let delim-string = as(<string>, delimiter);
+         context.lf-directive-character := delim-string.first;
+         context.rt-directive-character := delim-string.second;
+      end when;
    
-   let (result, success?, extent) = parse-template(template-stream, context);
-   if (success?)
-      template.parsed-template := result
+      let catalog-choices = 
+            if (context.allow-control-structures?)
+               vector(parse-case-directive-block, parse-if-directive-block,
+                      parse-repeat-directive-block, parse-with-directive-block,
+                      parse-simple-directive, parse-empty-directive)
+            else
+               vector(parse-with-directive-block, parse-simple-directive,
+                      parse-empty-directive)
+            end if;
+      context.directive-catalog-parser := apply(choice, catalog-choices);
+
+      // Parse template.
+   
+      let (result, success?, extent) = parse-template(template-stream, context);
+      if (success?)
+         template.parsed-template := result
+      else
+         error(extent)
+      end if;
+
+      // for (count keyed-by parser in context.parser-cache-hits)
+      //    format-out("%5d %s\n", count, parser);
+      // end for;
+
    else
-      error(extent)
+   
+      if (persisted-template.restorable?)
+         template.parsed-template := persisted-template.restore-template;
+      else
+         error("Cannot restore template; mismatch in version or platform")
+      end if
+      
    end if;
-
-   // for (count keyed-by parser in context.parser-cache-hits)
-   //    format-out("%5d %s\n", count, parser);
-   // end for;
 end method;
 
 
@@ -249,6 +272,7 @@ define function process-template
    end if;
    
    let output = generate-output(template, template.parsed-template);
+   template.processed? := #t;
    
    when (variables) pop(template.variable-scopes) end;
    when (operations) pop(template.operation-scopes) end;
@@ -320,16 +344,20 @@ Synopsis: Condition indicating that an expression could not be evaluated.
 See 'process-template' for recovery protocol.
 
 --- Getters: ---
-actual-error   - The <error> that caused the expression to fail.
+actual-error      - The <error> that caused the expression to fail.
+failed-operation  - A <string>. The template expression operation that failed.
+failed-operands   - A <sequence>. The arguments to 'failed-operation'.
 */
 define class <expression-error> (<processing-error>)
    constant slot actual-error :: <error>, required-init-keyword: #"error";
+   constant slot failed-operation :: <string>, required-init-keyword: #"operation";
+   constant slot failed-operands :: <sequence>, required-init-keyword: #"operands";
 end class;
 
 define method condition-to-string (cond :: <expression-error>)
 => (desc :: <string>)
-   format-to-string("Operation failed at template position %s: %s",
-         cond.error-position, cond.actual-error)
+   format-to-string("Operation \"%s\" on %= failed at template position %s: %s",
+         cond.failed-operation, cond.failed-operands, cond.error-position, cond.actual-error)
 end method;
 
 

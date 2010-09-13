@@ -17,6 +17,7 @@ define module template-test
    use standard-io;
    use format-out;
    use table-extensions;
+   use streams;
    use peg-parser, import: { *parser-trace*, *parser-cache-hits* };
    
    use template-engine;
