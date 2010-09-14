@@ -1,11 +1,9 @@
-Module:    httpi
+Module:    xml-rpc-server
 Synopsis:  XML-RPC server
 Author:    Carl Gay
-Copyright: Copyright (c) 2001-2002 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2010 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
-
-// TODO: move this to its own library.
 
 // Usage:
 //   define xml-rpc-server $xml-rpc-server ("/RPC2" on http-server)
@@ -19,13 +17,10 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 //   add-resource(http-server, "/RPC2", xml-rpc-server);
 
 
-// API
 define constant $default-xml-rpc-url :: <string> = "/RPC2";
 
-// API
 define class <xml-rpc-server> (<resource>)
 
-  // API
   // This is the fault code that will be returned to the caller if
   // any error other than <xml-rpc-fault> is thrown during the execution
   // of the RPC.  For example, if there's a parse error in the XML
@@ -41,9 +36,8 @@ define class <xml-rpc-server> (<resource>)
     init-function: curry(make, <string-table>),
     init-keyword: methods:;
 
-  // API
-  slot debugging-enabled? :: <boolean> = #f,
-    init-keyword: debug:;
+  slot debug? :: <boolean> = #f,
+    init-keyword: debug?:;
 
 end class <xml-rpc-server>;
 
@@ -56,12 +50,12 @@ define method respond-to-post
   write(response, "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>");
   block ()
     let xml = request-content(request);
-    when (debugging-enabled?(xml-rpc-server))
+    when (debug?(xml-rpc-server))
       log-debug("Received XML-RPC call:\n   %s", xml);
     end;
     let doc = xml$parse-document(xml);
     let (method-name, args) = parse-xml-rpc-call(doc);
-    when (debugging-enabled?(xml-rpc-server))
+    when (debug?(xml-rpc-server))
       log-debug("method-name = %=, args = %=", method-name, args);
     end;
     let fun = lookup-xml-rpc-method(xml-rpc-server, method-name)
@@ -104,7 +98,8 @@ define method lookup-xml-rpc-method
   the-method
 end method lookup-xml-rpc-method;
 
-// API
+// TODO: this could be changed to a method on the add-resource gf now.
+//       and use find-resource instead of lookup-xml-rpc-method.
 define method register-xml-rpc-method
     (xml-rpc-server :: <xml-rpc-server>, method-name :: <string>, fn :: <function>)
   let path = split(method-name, '.');
@@ -154,7 +149,7 @@ define method send-xml-rpc-result
   let xml = with-output-to-string(s)
               to-xml(result, s);
             end;
-  if (debugging-enabled?(xml-rpc-server))
+  if (debug?(xml-rpc-server))
     log-debug("Sending XML: %=", xml);
   end;
   write(response, xml);
