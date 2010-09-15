@@ -12,26 +12,35 @@
 
   <server-root location = "/home/cgay/trunk/libraries/network/opendylan.org"/>
 
+  <!-- Enable fall-back to the default virtual host.  (This element seems badly named.) -->
+  <default-virtual-host enabled = "yes"/>
+
   <!-- Index.html default doc is for the DRM.  Should really have a separate
        <directory> element for each book. -->
+
   <directory
-      url = "/"
-      location = "/home/cgay/trunk/libraries/network/opendylan.org/static"
+      url = "/books"
+      location = "/home/cgay/trunk/www/books"
       allow-directory-listing = "no"
-      follow-symlinks = "yes"
+      allow-multi-view = "yes"
       default-documents = "index.html,index.htm,Index.html"
       />
 
+  <!-- static files for opendylan-dot-org -->
+  <directory
+      url = "/static"
+      location = "/home/cgay/trunk/libraries/network/opendylan.org/static"
+      />
+
+  <!-- CGI scripts for opendylan.org itself.  -->
   <cgi-directory
       url = "/cgi-bin"
-      location = "/home/cgay/trunk/libraries/network/opendylan.org/static/cgi-bin"
-      extensions = "cgi"
+      location = "/usr/lib/cgi-bin"
       />
 
   <cgi-directory
       url = "/cgi-bin/cvszilla"
       location = "/usr/share/cvszilla/cgi-bin"
-      extensions = "cgi"
       />
 
   <!-- This directory is not available on Mccarthy.
@@ -42,7 +51,6 @@
       extensions = "cgi"
       />
 
-  <!-- This directory is not available on Mccarthy. -->
   <cgi-directory
       url = "/cgi-bin/bugzilla"
       location = "/usr/lib/cgi-bin/bugzilla"
