@@ -13,6 +13,8 @@ define class <xref> (<markup-element>)
          init-keyword: #"target";
    slot text :: type-union(<string>, <conref>),
          init-keyword: #"text";
+   slot target-from-text? :: <boolean> = #f,
+         init-keyword: #"target-from-text";
 end class;
 
 /// Synopsis: Represents a vi quotation directive (as opposed to <xref>'s qv

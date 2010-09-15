@@ -77,8 +77,9 @@ the processing specified in the brackets is done. Bracket options are:
   u       - Use underline.
   qv      - The quoted text will link to a specified section or URL. The section
             or URL may be specified after all the other options (and enclosed in
-            quotes if it contains spaces). If omitted, the section is specified
-            by the text and the text is replaced by the actual section title.
+            quotes if it contains spaces). If the section or URL is omitted, it
+            is specified by the text and the text is replaced by the actual
+            section title. See "Headings and Links" below for more information.
   vi      - Same as "qv", but the linked item is also marked as a sub-topic if
             appropriate. From the Latin "vide infra," meaning "see below."
 
@@ -94,13 +95,13 @@ text.
 
 The quoted text is not interpreted any further.
 
-  "[contents]"
+  "[list of libraries]"
   
 is rendered as 
   
-  [contents]
+  [list of libraries]
   
-not as a list of sub-topics.
+not as a list of all libraries in the documentation.
 
 The quoted text can be surrounded with other characters:
   
@@ -167,7 +168,7 @@ item3  defn
   can use any of the ASCII line characters listed below, but they have to match.
 
 
-Headings and links
+Headings and Links
 ==================
 
 Headings mark the start of sections. Each section should ideally stand on its
@@ -280,6 +281,11 @@ you must ensure its containing section has a tag.
    as "Required Libraries," but "...install the 'required libraries' [qv req],
    then..." would render the link as "required libraries."
 
+The "qv" quote option may optionally be followed by an explicit title or tag. If
+there is no section with that title or tag, Doctower reports an error. But if
+the "qv" quote option is not followed by a explicit title or tag, then Doctower
+will use the quoted text as a title or tag and will only report a warning if a
+corresponding section is not found.
 
 Section Tags
 ============

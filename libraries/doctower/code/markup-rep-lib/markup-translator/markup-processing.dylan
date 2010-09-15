@@ -119,22 +119,16 @@ define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>
          end if;
 
    let link-token = quote.quote-spec & quote.quote-spec.link;
-   let (link-target, link-text) =
+   let link-target =
          if (link-token)
-            // Has qv or vi with an explicit link location. Use quoted text
-            // as link label and explicit link location as target.
-            values(make(<target-placeholder>, link: link-token.token-text,
-                        source-location: link-token.token-src-loc),
-                   interior)
+            // Has qv or vi with an explicit link location. Use it as target.
+            make(<target-placeholder>, source-location: link-token.token-src-loc,
+                 link: link-token.token-text)
          else
             // May have qv or vi without an explicit link location. Use quoted
-            // text as target and target's title as link label.
-            let placeholder =
-                  make(<target-placeholder>, link: quote.quoted-text,
-                       source-location: quote.token-src-loc);
-            values(placeholder,
-                   make(<conref>, style: #"title", target: placeholder,
-                        source-location: quote.token-src-loc))
+            // text as target if needed.
+            make(<target-placeholder>, source-location: quote.token-src-loc,
+                 link: quote.quoted-text)
          end if;
 
    // The term option is used twice: once to make a term tag and again to wrap
@@ -155,10 +149,12 @@ define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>
                   // TODO: If link-target is an URL, make a new URL for it
                   // instead of a <target-placeholder>.
                   make(<xref>, source-location: quote.token-src-loc,
-                       text: link-text, target: link-target);
+                       text: interior, target: link-target,
+                       target-from-text: ~link-token);
                #"vi" =>
                   make(<vi-xref>, source-location: quote.token-src-loc,
-                       text: link-text, target: link-target);
+                       text: interior, target: link-target,
+                       target-from-text: ~link-token);
                #"api" =>
                   make(<api/parm-name>, source-location: quote.token-src-loc,
                        text: interior);

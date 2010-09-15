@@ -43,7 +43,7 @@ Subheading: Type and value	[:Value]
 {{+ CASE ~const.type +}}
 An object {{ +}}
 {{+ CASE const.type.id +}}
-An instance of '{{const.type.id}}' [qv] {{ +}}
+An instance of '{{const.type.id}}' [api qv] {{ +}}
 {{+ ELSE +}}
 An instance of '{{const.type.text}}' [code] {{ +}}
 {{+ END (* case *) +}}

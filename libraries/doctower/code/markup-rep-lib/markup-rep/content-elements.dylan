@@ -169,9 +169,10 @@ end class;
 
 
 /// This will be rendered as a DITA <p> or <ph> element with a conref attribute
-/// or an HTML <p> or <span>.
+/// or an HTML <p> or <span>. The #"shortdesc" style is only relevent to <topic>
+/// targets.
 define class <conref> (<markup-element>)
-   slot target :: type-union(<topic>, <target-placeholder>),
+   slot target :: type-union(<topic>, <section>, <target-placeholder>),
       init-keyword: #"target";
    slot style :: one-of(#"title", #"shortdesc"),
       init-keyword: #"style";

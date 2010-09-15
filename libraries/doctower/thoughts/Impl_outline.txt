@@ -186,11 +186,15 @@ Topic IDs:
 
 Section IDs:
   "Definitions"       - :Definitions
-  "Modules"	      - :Modules
-  "Bindings"	      - :Bindings
+  "Modules"           - :Modules
+  "Bindings"          - :Bindings
   "Functions on X"    - :FunctionsOn
   "Functions returning X" - :FunctionsReturning
   "Type and value"    - :Value
+  "Make keywords"     - :Keywords
+  "Conditions"        - :Conditions
+  "Arguments"         - :Arguments
+  "Values"            - :Values
   "See also"          - :SeeAlso
   Other sections      - :Sect-nnn
 

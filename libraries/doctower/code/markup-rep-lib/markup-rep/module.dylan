@@ -47,10 +47,10 @@ define module markup-rep
       rel-size-setter, relevant-to, relevant-to-setter, see-also,
       see-also-setter, shortdesc, shortdesc-setter, subs-section,
       subs-section-setter, supers-section, supers-section-setter,
-      syntax-section, syntax-section-setter, target, target-setter, text,
-      text-setter, title, title-setter, title-source-loc,
-      title-source-loc-setter, topic-type, vals-section, vals-section-setter,
-      value-section, value-section-setter;
+      syntax-section, syntax-section-setter, target, target-setter,
+      target-from-text?, text, text-setter, title, title-setter,
+      title-source-loc, title-source-loc-setter, topic-type, vals-section,
+      vals-section-setter, value-section, value-section-setter;
 
    export
       stringify-title, stringify-markup, printed-topic-type,

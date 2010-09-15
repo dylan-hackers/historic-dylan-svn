@@ -32,46 +32,66 @@ define method resolve-xref-placeholders
 => (topics :: <sequence>)
    for (topic in topics)
       let defined-parms = sections-by-parm-name(topic);
-      
-      local method resolve (object, #key setter, topic: current-topic :: <topic>)
-            => (slots? :: <boolean>)
-               select (object by instance?)
-                  <xref> =>
-                     let xref :: <xref> = object;
-                     if (instance?(xref.target, <target-placeholder>))
-                        let placeholder :: <target-placeholder> = xref.target;
-                        let resolution
-                              = resolve-local-link(placeholder, current-topic,
-                                    defined-parms)
-                              | resolve-topic-link(placeholder, current-topic,
-                                    defined-titles, defined-ids, defined-fqns);
-                        if (resolution)
-                           xref.target := resolution;
-                           if (instance?(resolution, <section>))
-                              // If no explicit title specified, use placeholder
-                              // text instead of conref to section title.
-                              xref.text := placeholder.target;
-                           end if;
-                        else
-                           unresolvable-target-in-link
-                                 (location: placeholder.source-location,
-                                  target-text: placeholder.target);
-                           setter(xref.text);
-                        end if
-                     end if;
-                     #t;
-                  <topic> =>
-                     // Only allow recursion into current topic.
-                     object == current-topic;
-                  otherwise =>
-                     // Allow recursion into everything else.
-                     #t;
-               end select
-            end method;
-            
-      visit-xrefs(topic, resolve, topic: topic);
+      visit-xrefs(topic, resolve-xref-in-topic, topic: topic, titles: defined-titles,
+                  ids: defined-ids, fqns: defined-fqns, parms: defined-parms);
    end for;
    topics
+end method;
+
+
+define method resolve-xref-in-topic
+   (object :: <object>, #key setter, topic: current-topic, titles, ids, fqns, parms)
+=> (visit-slots? :: <boolean>)
+   // Allow recursion in the general case.
+   #t
+end method;
+
+
+define method resolve-xref-in-topic
+   (topic :: <topic>, #key setter, topic: current-topic, titles, ids, fqns, parms)
+=> (visit-slots? :: <boolean>)
+   // Only allow recursion into current topic.
+   topic == current-topic
+end method;
+
+
+define method resolve-xref-in-topic
+   (xref :: <xref>, #key setter, topic: current-topic, titles, ids, fqns, parms)
+=> (visit-slots? :: <boolean>)
+   if (instance?(xref.target, <target-placeholder>))
+      let placeholder :: <target-placeholder> = xref.target;
+      let (resolution, replace-text-with-title?) =
+            begin
+               let local-res = resolve-local-link(placeholder, current-topic, parms);
+               if (local-res)
+                  values(local-res, #f)
+               else
+                  values(resolve-topic-link(placeholder, current-topic, titles, ids, fqns),
+                         xref.target-from-text?)
+               end if
+            end;
+
+      if (resolution)
+         xref.target := resolution;
+         if (replace-text-with-title?)
+            xref.text := make(<conref>, target: resolution, style: #"title",
+                  source-location: placeholder.source-location)
+         end if
+
+      elseif (xref.target-from-text?)
+         // May not be intended as an actual link target. Give warning and
+         // remove unlinkable xref.
+         unresolvable-target-in-link(location: placeholder.source-location,
+                target-text: placeholder.target);
+         setter(xref.text);
+
+      else
+         // Explicit link target. Give error.
+         target-not-found-in-link(location: placeholder.source-location,
+                target-text: placeholder.target);
+      end if
+   end if;
+   #t
 end method;
 
 
@@ -113,7 +133,7 @@ define method resolve-topic-placeholders
                            topic-locations: locs.item-string-list);
                   else
                      target-not-found-in-link(location: link.source-location,
-                                              target-text: link.target);
+                            target-text: link.target);
                   end if;
                   #t;
                <topic> =>

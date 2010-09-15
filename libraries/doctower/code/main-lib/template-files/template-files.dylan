@@ -24,7 +24,7 @@ define variable *templates* :: <table> = make(<table>);
 
 
 define method create-topic-templates () => ()
-   verbose-log("Reading cached templates");
+   verbose-log("Reading templates");
    for (template-type in $template-types)
       let template-file = make(<file-locator>, directory: $topic-template-path,
             base: as(<string>, template-type), extension: "txt");

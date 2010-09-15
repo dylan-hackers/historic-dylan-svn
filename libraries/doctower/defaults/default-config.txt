@@ -1,11 +1,11 @@
 Quotes:
-' ' - [qv]
-" " - [qq]
+' ' - [api qv]
+" " - [qq qv]
 ` ` - [code]
 
 List quotes:
-' ' - [qv]
-" " - [unq]
+' ' - [api]
+" " - [qq]
 ` ` - [code]
 
 Section style:

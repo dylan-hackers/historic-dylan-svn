@@ -33,7 +33,7 @@ May export other bindings from these modules:
 
 {{ REPEAT WITH unknown-reexport IN mod.unknown-reexports +}}
 {{+ CASE unknown-reexport.id +}}
-- '{{unknown-reexport.id}}' [qv]
+- '{{unknown-reexport.id}}' [api qv]
 {{+ ELSE +}}
 - '{{unknown-reexport.name}}' [api]
 {{+ END (* case *) }}

@@ -13,22 +13,35 @@ define constant $bullet-chars = "-*+oO";
 
 /// Synopsis: The set of quote characters.
 /// TODO: Should be configurable.
-define constant $open-quote-chars  = "'`\"";
-define constant $close-quote-chars = "'`\""; //< [ditto $open-quote-chars]
+define constant $open-quote-chars  = "'\"`";
+define constant $close-quote-chars = "'\"`"; //< [ditto $open-quote-chars]
 
 
 /// Synopsis: The default specifiers for each quote type in normal markup.
 define constant $default-markup-quote-specs =
-      table(<string-table>, "'" => #[#"qv"], "`" => #[#"code"], "\"" => #[#"qq"]);
+      table(<string-table>,
+            "'" => #[#"api", #"qv"],
+            "\"" => #[#"qq", #"qv"],
+            "`" => #[#"code"]
+      );
 
 /// Synopsis: The default specifiers for each quote type in hyphenated and
 /// phrase lists.
 define constant $default-list-quote-specs =
-      table(<string-table>, "'" => #[#"qv"], "`" => #[#"code"], "\"" => #[#"qq"]);
+      table(<string-table>,
+            "'" => #[#"api"],
+            "\"" => #[#"qq"],
+            "`" => #[#"code"]
+      );
 
 /// Synopsis: The default specifiers for each quote type in titles.
+/// TODO: Should maybe be the same as $default-markup-quote-specs without qv or vi.
 define constant $default-title-quote-specs =
-      table(<string-table>, "'" => #[#"q"], "`" => #[#"code"], "\"" => #[#"qq"]);
+      table(<string-table>,
+            "'" => #[#"api"],
+            "\"" => #[#"qq"],
+            "`" => #[#"code"]
+      );
 
 
 /// Synopsis: The size of the tab character, in spaces. The markup parser

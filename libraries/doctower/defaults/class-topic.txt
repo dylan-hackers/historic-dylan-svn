@@ -45,7 +45,7 @@ Make keywords:
 	{{ CASE ~keyword.type +}}
 	An object.
 	{{+ CASE keyword.type.id +}}
- 	An instance of '{{keyword.type.id}}'. [qv]
+ 	An instance of '{{keyword.type.id}}'. [api qv]
 	{{+ ELSE +}}
 	An instance of '{{keyword.type.text}}'. [code]
 	{{+ END (* case *) }} {{ +}}
@@ -66,7 +66,7 @@ Subheading: Inheritable Slots	[:Inheritables]
 {{ IF class.inheritable-getters +}}
 {{+ REPEAT WITH getter IN class.inheritable-getters +}}
 {{+ CASE getter.id +}}
-'{{getter.id}}' [qv]  {{ +}}
+'{{getter.id}}' [api qv]  {{ +}}
 {{+ ELSE +}}
 '{{getter.name}}' [api]  {{ +}}
 {{+ END (* case *) +}}
@@ -80,7 +80,7 @@ Subheading: Superclasses	[:Superclasses]
 {{ IF class.superclasses +}}
 {{+ REPEAT WITH superclass IN class.superclasses +}}
 {{+ CASE superclass.id +}}
-'{{superclass.id}}' [qv]  {{ +}}
+'{{superclass.id}}' [api qv]  {{ +}}
 {{+ ELSE +}}
 '{{superclass.name}}' [api]  {{ +}}
 {{+ END (* case *) +}}
@@ -94,7 +94,7 @@ Subheading: Subclasses		[:Subclasses]
 {{ IF class.subclasses +}}
 {{+ REPEAT WITH subclass IN class.subclasses +}}
 {{+ CASE subclass.id +}}
-'{{subclass.id}}' [qv]  {{ +}}
+'{{subclass.id}}' [api qv]  {{ +}}
 {{+ ELSE +}}
 '{{subclass.name}}' [api]  {{ +}}
 {{+ END (* case *) +}}
@@ -108,7 +108,7 @@ Subheading: Functions on {{class.name}}		[:FunctionsOn]
 {{ IF class.functions-on-class +}}
 {{+ REPEAT WITH function IN class.functions-on-class +}}
 {{+ CASE function.id +}}
-- '{{function.id}}' [qv]
+- '{{function.id}}' [api qv]
 {{+ ELSE +}}
 - '{{function.name}}' [api]
 {{+ END (* case *) }}
@@ -123,7 +123,7 @@ Subheading: Functions returning {{class.name}}	[:FunctionsReturning]
 {{ IF class.functions-returning-class +}}
 {{+ REPEAT WITH function IN class.functions-returning-class +}}
 {{+ CASE function.id +}}
-- '{{function.id}}' [qv]
+- '{{function.id}}' [api qv]
 {{+ ELSE +}}
 - '{{function.name}}' [api]
 {{+ END (* case *) }}

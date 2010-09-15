@@ -107,7 +107,7 @@ define collection-recursive slot-visitor visit-xrefs
    <underline>,       text;
    
    // Cut recursion
-   <string>,               ;
+   <string>,          ;
 end slot-visitor;
 
 
