@@ -6,7 +6,7 @@ Author: Carl Gay
 // When there are multiple urls for a single page, put the one
 // we want to be "canonical" first.
 define constant $urls
-  = list(#(#("/", "/index"), "opendylan.org/index.dsp"),
+  = list(#(#(/* "/", */ "/index"), "opendylan.org/index.dsp"),
          #("/about-dylan", "opendylan.org/about-dylan.dsp"),
          #("/about-gwydion.dsp", "opendylan.org/about-gwydion.dsp"),
          #("/browser", "opendylan.org/browser.dsp"),
@@ -80,7 +80,7 @@ define taglib od ()
 
 end taglib od;
 
-define method add-opendylan-responders
+define method add-opendylan-resources
     (http-server :: <http-server>)
   add-wiki-responders(http-server);
   for (item in $urls)
@@ -94,27 +94,12 @@ define method add-opendylan-responders
       add-resource(http-server, url, page);
     end;
   end;
-  add-resource(http-server,
-               "/cgi-bin/cvszilla",
-               make(<cgi-directory-resource>,
-                    locator: as(<directory-locator>,
-                                "/usr/share/cvszilla/cgi-bin")));
-  add-resource(http-server,
-               "/cgi-bin",
-               make(<cgi-directory-resource>,
-                    locator: as(<directory-locator>,
-                                "/usr/local/viewvc-1.0.5/bin/cgi")));
-  add-resource(http-server,
-               "/cgi-bin/bugzilla",
-               make(<cgi-directory-resource>,
-                    locator: as(<directory-locator>,
-                                "/usr/lib/cgi-bin/bugzilla")));
-end method add-opendylan-responders;
+end method add-opendylan-resources;
 
 define method main
     ()
   koala-main(description: "www.opendylan.org web server",
-             before-startup: add-opendylan-responders);
+             before-startup: add-opendylan-resources);
   // temp workaround for bug
   force-output(*standard-output*);
   force-output(*standard-error*);
