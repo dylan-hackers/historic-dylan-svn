@@ -21,8 +21,8 @@ language. Tutorials, introductions, articles.</p>
 
 <DL>
 
-<DT><STRONG><A HREF="books/drm/">Dylan Reference Manual</A></STRONG>
- (<A href="books/drm/drm_errata.html">Errata</A>)
+<DT><STRONG><A HREF="/books/drm/">Dylan Reference Manual</A></STRONG>
+ (<A href="/books/drm/drm_errata.html">Errata</A>)
 
 <DD><P>The official definition of the Dylan language and standard library.</P>
 

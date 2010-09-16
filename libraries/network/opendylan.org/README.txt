@@ -3,24 +3,21 @@ This is the project library for the opendylan.org web site.
 INSTALLATION
 ------------
 
-* Modify the provided config.xml for your site.
-
-* Create symlinks for the wiki .dsp and static files.
-  cd <your configured dsp root directory>
-  ln -s .../trunk/libraries/network/wiki/dsp wiki
-  ln -s .../trunk/libraries/network/wiki/www/style.css
-  ...TODO: probably more...
-  ln -s <wherever>/downloads  (don't want to store these in svn)
+* Modify the provided config.xml for your site.  The only changes
+  necessary SHOULD be to the "location" attributes of the config
+  elements.
 
 * Build the opendylan-dot-org library
 
-* Start the server:
+* Start the server.  This is the way I do it on Mccarthy:
 
-  opendylan-dot-org --config config.xml
-
+  opendylan-dot-org --config /home/cgay/opendylan.org/config.xml --working-directory /home/cgay/trunk/libraries/network/opendylan.org/dsp/opendylan.org
 
 TODO
 ----
+
+* Add a config element for opendylan-dot-org so we don't depend on
+  the --working-directory command-line option.
 
 * The links on the "downloading" page are all broken.  Need to copy
   the downloading directory or symlink to it.

@@ -17,8 +17,8 @@ advanced features...</EM>
 </BLOCKQUOTE>
 
 <P>Dylan is fast, flexible and capable of unusually sophisticated abstractions.
-The <a href="books/drm/">Dylan Reference Manual</a> defines the language
-standard and has an excellent <a href="books/drm/drm_7.html">overview</a> of
+The <a href="/books/drm/">Dylan Reference Manual</a> defines the language
+standard and has an excellent <a href="/books/drm/drm_7.html">overview</a> of
 Dylan's features.</P>
 
 <p>Some <a href="fragments">code examples</a> can give a quick feel for

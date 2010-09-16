@@ -34,7 +34,7 @@ support on most platforms for dybug, a gdb wrapper that understands
 Dylan, this can hardly be called elegant. But at least it's there.</li>
 
 <li>d2c supports most of the Dylan language as specified in the
-<a href="books/drm/">Dylan Reference Manual</a> (DRM), but is lacking
+<a href="/books/drm/">Dylan Reference Manual</a> (DRM), but is lacking
 support for some features, such as limited collections.</li>
 
 </ul>

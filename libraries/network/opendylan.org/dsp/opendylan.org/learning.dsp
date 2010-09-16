@@ -32,7 +32,7 @@ things, this might be a good place to start.</p>
 programmers. It covers the diffences between Dylan and other popular
 programming languages.</p>
 
-<dt><strong><a href="books/dpg/">Dylan Programming: An Object-Oriented and Dynamic Language</a></strong>
+<dt><strong><a href="/books/dpg/">Dylan Programming: An Object-Oriented and Dynamic Language</a></strong>
 
 <dd><p>A good Dylan tutorial by several Harlequin employees.</p>
 
@@ -42,7 +42,7 @@ programming languages.</p>
 <cite>develop</cite>. It covers classes, functions and modules, and
 provides good examples.</p>
 
-<dt><strong><a href="books/drm/">The Dylan Reference Manual</a></strong>
+<dt><strong><a href="/books/drm/">The Dylan Reference Manual</a></strong>
 
 <dd><p>The official Dylan reference, available online or as a
 well-bound softcover book. If you're the type who likes to go right
