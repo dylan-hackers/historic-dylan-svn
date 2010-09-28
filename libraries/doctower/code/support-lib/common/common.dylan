@@ -1,10 +1,10 @@
 module: common
 
 
-define variable $verbose? :: <boolean> = #t;
+define variable *verbose?* :: <boolean> = #t;
 
 define inline function verbose-log (str :: <string>, #rest args)
-   when ($verbose?) apply(log, str, args) end;
+   when (*verbose?*) apply(log, str, args) end;
 end function;
 
 

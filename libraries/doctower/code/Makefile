@@ -7,6 +7,7 @@ SOURCES = \
 	dylan-parser-lib/dylan-parser-library.lid \
 	markup-rep-lib/markup-rep-library.lid \
 	dylan-rep-lib/dylan-rep-library.lid \
+	output-lib/output-library.lid \
 	main-lib/doctower-library.lid
 
 BASE_LIBDIR = ../..
@@ -50,6 +51,9 @@ markup-rep-lib/markup-rep-library.lib.du : \
 
 dylan-rep-lib/dylan-rep-library.lib.du : \
 	dylan-rep-lib/dylan-rep-library.lid
+
+output-lib/output-library.lib.du : \
+	output-lib/output-library.lid
 
 main-lib/doctower-library.lib.du : \
 	main-lib/doctower-library.lid

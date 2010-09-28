@@ -161,9 +161,17 @@ define errors (<user-visible-warning>)
       "Fully qualified name of general topic has no use",
       location;
    
-   12 unresolvable-target-in-link
+   12 unresolvable-target-in-xref
       "Unable to resolve cross-reference to \"%s\"",
       location, target-text;
+   
+   13 section-id-without-topic-id
+      "Section tag has no use without topic tag",
+      location;
+
+   14 ambiguous-title-in-xref
+      "Cross-reference to \"%s\" is ambiguous and might refer to any of %s",
+      location, target-text, target-locations;
 end errors;
 
 
@@ -216,17 +224,17 @@ define errors (<user-visible-error>)
       "Title or tag \"%s\" not found",
       location, target-text;
 
-   63 duplicate-id-in-topics
+   63 duplicate-id-in-targets
       "Tag is already used at %s", 
       location, id-locations;
 
    64 id-matches-topic-title
       "Tag is already used as title at %s",
-      location, title-location;
+      location, title-locations;
 
    65 ambiguous-title-in-link
       "\"%s\" is ambiguous and might refer to any of %s",
-      location, target-text, topic-locations;
+      location, target-text, target-locations;
 
    66 conflicting-locations-in-tree
       "Topic is placed ambiguously by %s",
@@ -313,4 +321,12 @@ define errors (<user-visible-error>)
    87 circular-class-inheritance
       "Circular inheritance among %s",
       location, defn-locations;
+
+   88 multiple-topics-for-fqn
+      "Multiple topics with fully qualified name \"%s\" found at %s", 
+      location, fqn, fqn-locations;
+   
+   89 section-where-topic-required-in-link
+      "Topic-only link cannot refer to section at %s",
+      location, section-location;
 end errors;

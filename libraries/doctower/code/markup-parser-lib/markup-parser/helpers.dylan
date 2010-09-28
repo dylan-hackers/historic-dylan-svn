@@ -25,17 +25,6 @@ define constant $section-style =
       make(<topic-level-style>, char: '-', under: #f, mid: #t, over: #f);
 
 
-/** Synopsis: Create <topic-level-style> from title attributes. */
-define function topic-level-style-from-attributes ()
-=> (style :: <topic-level-style>)
-   make(<topic-level-style>,
-        char: attr(title-line-char),
-        over: attr(title-overline?),
-        mid: attr(title-midline?),
-        under: attr(title-underline?));
-end function;
-
-
 /**
 Synopsis: Simplifies products of the form (item, #f | ((..., item), ...))
 such as bullet lists.
@@ -138,15 +127,13 @@ end function;
 
 
 /** Synopsis: Ensures ASCII lines in a title all use the same character. */
-define function check-title-line-char (line :: <string>, fail)
-   let line-char = attr(title-line-char, default: ' ');
-   case
-      line-char = ' ' =>
-         attr(title-line-char) := line-char;
-      line-char ~= line[0] =>
-         fail(make(<parse-failure>, expected:
-                   format-to-string("\"%c\"", line-char)));
-   end case;
+define function check-title-line-char (char :: <character>, fail)
+   let title-char = attr(title-line-char, default: #f);
+   unless (~title-char | title-char = ' ')
+      if (char ~= title-char)
+         fail(make(<parse-failure>, expected: format-to-string("\"%c\"", title-char)))
+      end if
+   end unless
 end function;
 
 

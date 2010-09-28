@@ -2,11 +2,6 @@ module: dylan-topics
 synopsis: Operations for template documents.
 
 
-/// Set by main.dylan when user wants generated topics.
-define variable $generated-topics-directory :: false-or(<directory-locator>) = #f;
-define variable $topic-file-extension :: <string> = "txt";
-
-
 define method topics-from-template
    (template-name :: <symbol>, generated-topic, vars :: <table>)
 => (topics :: <sequence>)
@@ -14,7 +9,7 @@ define method topics-from-template
    let generated-body = process-template(template, operations: $template-ops, 
          variables: vars);
          
-   if ($generated-topics-directory)
+   if (*generated-topics-directory*)
       let base-name :: <string> = 
             if (~vars.empty?)
                debug-assert(vars.size = 1, "More than one variable for template");
@@ -32,8 +27,8 @@ define method topics-from-template
             else
                as(<string>, template-name)
             end if;
-      let locator = make(<file-locator>, directory: $generated-topics-directory,
-                         base: base-name, extension: $topic-file-extension);
+      let locator = make(<file-locator>, directory: *generated-topics-directory*,
+                         base: base-name, extension: *topic-file-extension*);
       with-open-file (template-output = locator, direction: #"output")
          write(template-output, generated-body)
       end with-open-file;

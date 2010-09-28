@@ -75,6 +75,8 @@ define class <topic> (<markup-element>)
          = make(<stretchy-vector>);
    slot relevant-to :: <sequence> /* of <topic-ref> to <topic> or <target-placeholder> */
          = make(<stretchy-vector>);
+
+   slot see-also-section :: false-or(<section>) = #f;
 end class;
 
 define method make

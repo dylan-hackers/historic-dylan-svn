@@ -24,23 +24,14 @@ define method create-doc-tree
    let grouped-topics = group-mergeable-topics(topics);
    let topics = map(check-and-merge-topics, grouped-topics);
    
-   // Index topics by various means.
-   let topic-id-table = topics-by-id(topics);
-   let topic-fqn-table = topics-by-fqn(topics);
-   let (topic-title-table, topic-dup-title-table) = topics-by-title(topics);
+   // Index topics and sections by various means.
+   // Check for duplicate IDs and other issues.
+   let (target-res, dup-titles) = topics.resolution-info;
    
    // Resolve table of contents and topic and local placeholders.
-   // Check for duplicate IDs. Discard unused catalog topics.
-   check-topic-ids(topics, id-table: topic-id-table, title-table: topic-title-table);
-   let topics = resolve-xref-placeholders(topics, id-table: topic-id-table,
-         fqn-table: topic-fqn-table, title-table: topic-title-table);
-   let (topics, tocs) = resolve-topic-placeholders(topics, tocs, catalog-topics,
-         id-table: topic-id-table, fqn-table: topic-fqn-table,
-         title-table: topic-title-table, dup-title-table: topic-dup-title-table);
-   
-   // Done with indexes.
-   topic-id-table := topic-fqn-table := topic-title-table := topic-dup-title-table
-         := #f;
+   // Discard unused catalog topics.
+   let (topics, tocs) = resolve-target-placeholders(topics, tocs,
+         catalog-topics, target-res, dup-titles);
    
    // Check for ambiguous titles and arrange authored and generated topics.
    let doc-tree = arrange-topics(topics, tocs);
@@ -52,6 +43,18 @@ define method create-doc-tree
    replace-content-placeholders(doc-tree);
    
    // Finalize table of contents.
+   // TODO: I think this means creating the general index and other structural pages.
    
    doc-tree
+end method;
+
+
+define method create-output-files (structure :: <ordered-tree>) => ()
+   verbose-log("Designing navigation");
+   let (output-files, target-files) = chunk-topics(structure);
+   
+   verbose-log("Generating documentation files");
+   // for (file-info in output-files)
+   //    write-output-file(file-info, links, link-targets)
+   // end for;
 end method;

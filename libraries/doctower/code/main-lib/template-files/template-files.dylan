@@ -2,8 +2,6 @@ module: template-files
 synopsis: Processes template files for dylan-topics to fill in.
 
 
-define variable $topic-template-path :: false-or(<directory-locator>) = #f;
-
 define constant $template-types = #[
    #"all-catalog-topics",
    #"lib-catalog-topics",
@@ -26,9 +24,9 @@ define variable *templates* :: <table> = make(<table>);
 define method create-topic-templates () => ()
    verbose-log("Reading templates");
    for (template-type in $template-types)
-      let template-file = make(<file-locator>, directory: $topic-template-path,
+      let template-file = make(<file-locator>, directory: *topic-template-directory*,
             base: as(<string>, template-type), extension: "txt");
-      let cache-file = make(<file-locator>, directory: $topic-template-path,
+      let cache-file = make(<file-locator>, directory: *topic-template-directory*,
             base: as(<string>, template-type), extension: "dat");
       
       let template = valid-cache?(cache-file, template-file)

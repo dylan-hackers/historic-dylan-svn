@@ -2,6 +2,7 @@ module: dylan-user
 
 define module template-files
    use common;
+   use configs, import: { *topic-template-directory* };
    // from system
    use file-system, import: { file-exists?, file-property };
    // from template-engine
@@ -13,6 +14,5 @@ define module template-files
       import: { <parse-failure>, parse-expected, parse-position, *parser-trace* };
    
    export
-      topic-template, create-topic-templates, discard-topic-templates,
-      $topic-template-path;
+      topic-template, create-topic-templates, discard-topic-templates;
 end module;

@@ -35,14 +35,14 @@ end;
 // exported
 define caching parser topic-or-section-title (<source-location-token>)
    rule choice(title-midline-style, title-bare-style) => token;
-   slot title-style :: <topic-level-style> = topic-level-style-from-attributes();
+   slot title-style :: <topic-level-style> =
+      make(<topic-level-style>, char: attr(title-line-char),
+           over: token.title-overline?, mid: token.title-midline?,
+           under: token.title-underline?);
    slot title-content :: <title-word-sequence> = token.title-content;
    slot title-nickname :: false-or(<title-nickname-token>) = token.title-nickname;
 attributes
-   title-line-char :: <character> = ' ',
-   title-overline? :: <boolean> = #f,
-   title-midline? :: <boolean> = #f,
-   title-underline? :: <boolean> = #f;
+   title-line-char :: <character> = ' ';
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
@@ -55,6 +55,9 @@ define caching parser title-midline-style (<token>)
                        nil(#f))),
             opt(ascii-underline))
       => tokens;
+   slot title-overline? :: <boolean> = tokens[0].true?;
+   slot title-midline? :: <boolean> = #t;
+   slot title-underline? :: <boolean> = tokens[2].true?;
    slot title-content :: <title-word-sequence> = extract-title(tokens[1]);
    slot title-nickname :: false-or(<title-nickname-token>) =
       tokens[1][1] & tokens[1][1].title-nickname;
@@ -68,6 +71,9 @@ define caching parser title-bare-style (<token>)
                        nil(#f))),
             ascii-underline)
       => tokens;
+   slot title-overline? :: <boolean> = tokens[0].true?;
+   slot title-midline? :: <boolean> = #f;
+   slot title-underline? :: <boolean> = #t;
    slot title-content :: <title-word-sequence> = extract-title(tokens[1]);
    slot title-nickname :: false-or(<title-nickname-token>) =
       tokens[1][1] & tokens[1][1].title-nickname;

@@ -112,20 +112,23 @@ end;
 
 define caching parser ascii-overline
    rule seq(sol, ascii-line, ls);
-afterwards (context, tokens, value, start-pos, end-pos)
-   attr(title-overline?) := #t;
+afterwards (context, tokens, value, start-pos, end-pos, fail: fail)
+   check-title-line-char(tokens[1].ascii-line-char, fail);
+   attr(title-line-char) := tokens[1].ascii-line-char;
 end;
 
 define caching parser ascii-midline
    rule ascii-line;
-afterwards (context, tokens, value, start-pos, end-pos)
-   attr(title-midline?) := #t;
+afterwards (context, token, value, start-pos, end-pos, fail: fail)
+   check-title-line-char(token.ascii-line-char, fail);
+   attr(title-line-char) := token.ascii-line-char;
 end;
 
 define caching parser ascii-underline
    rule seq(sol, ascii-line, ls);
-afterwards (context, tokens, value, start-pos, end-pos)
-   attr(title-underline?) := #t;
+afterwards (context, tokens, value, start-pos, end-pos, fail: fail)
+   check-title-line-char(tokens[1].ascii-line-char, fail);
+   attr(title-line-char) := tokens[1].ascii-line-char;
 end;
 
 define caching parser ascii-line (<token>)
@@ -135,7 +138,6 @@ define caching parser ascii-line (<token>)
 afterwards (context, tokens, value, start-pos, end-pos, fail: fail)
    let line = format-to-string("%c%c%s", tokens[0], tokens[1], as(<string>, tokens[2]));
    check-ascii-line-chars(line, start-pos, fail);
-   check-title-line-char(line, fail);
 end;
    
 //
@@ -265,6 +267,13 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define caching parser quote-spec-option :: <symbol>
+   rule seq(quote-spec-option-text, req-next(choice(spc-ls, close-bracket)))
+      => tokens;
+   yield tokens[0];
+end;
+   
+
+define caching parser quote-spec-option-text :: <symbol>
    rule choice(code-lit, term-lit, api-lit, bib-lit, sic-lit, unq-lit, em-lit,
                qq-lit, qv-lit, vi-lit, b-lit, i-lit, u-lit, q-lit)
       => token;

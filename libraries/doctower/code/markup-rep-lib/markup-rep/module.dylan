@@ -45,15 +45,15 @@ define module markup-rep
       modules-section, modules-section-setter, parent, parent-setter,
       qualified-scope-name, qualified-scope-name-setter, rel-size,
       rel-size-setter, relevant-to, relevant-to-setter, see-also,
-      see-also-setter, shortdesc, shortdesc-setter, subs-section,
-      subs-section-setter, supers-section, supers-section-setter,
-      syntax-section, syntax-section-setter, target, target-setter,
-      target-from-text?, text, text-setter, title, title-setter,
+      see-also-setter, see-also-section, see-also-section-setter, shortdesc,
+      shortdesc-setter, subs-section, subs-section-setter, supers-section,
+      supers-section-setter, syntax-section, syntax-section-setter, target,
+      target-setter, target-from-text?, text, text-setter, title, title-setter,
       title-source-loc, title-source-loc-setter, topic-type, vals-section,
       vals-section-setter, value-section, value-section-setter;
 
    export
       stringify-title, stringify-markup, printed-topic-type,
-      visit-target-placeholders, visit-xrefs, visit-content-placeholders;
+      visit-target-placeholders, visit-content-placeholders, visit-targets;
       
 end module;

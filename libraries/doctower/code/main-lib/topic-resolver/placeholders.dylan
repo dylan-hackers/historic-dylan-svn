@@ -2,18 +2,6 @@ module: topic-resolver
 synopsis: Replaces placeholders with actual content.
 
 
-define method ensure-topic-ids (doc-tree :: <ordered-tree>) => ()
-   let next-topic-id = 1;
-   let places = ceiling(math-log(doc-tree.size, base: 10));
-   for (topic :: false-or(<topic>) in doc-tree)
-      if (topic & ~topic.id)
-         topic.id := format-to-string(":Topic-%0*d", places, next-topic-id);
-         next-topic-id := next-topic-id + 1;
-      end if
-   end for
-end method;
-
-
 define method replace-content-placeholders (doc-tree :: <ordered-tree>) => ()
    for (topic :: false-or(<topic>) keyed-by topic-key in doc-tree)
       if (topic)
@@ -23,9 +11,6 @@ define method replace-content-placeholders (doc-tree :: <ordered-tree>) => ()
    end for;
 end method;
 
-
-define generic replacer (object, #key setter, topic, topic-key, doc-tree)
-=> (slots? :: <boolean>);
 
 define method replacer
    (object :: <object>, #key setter, topic, topic-key, doc-tree)

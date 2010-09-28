@@ -6,32 +6,45 @@ module: main
 
 define argument-parser <my-arg-parser> ()
    regular-arguments files;
-   option template-path = "../defaults",
-      "=<path>", "Path to topic templates [\"../defaults\"]",
+   option output-dir = *package-directory*,
+      "=<directory>",
+      format-to-string("Documentation path [%s]", *package-directory*),
+      long: "output-dir", short: "o", knd: <parameter-option-parser>;
+   option package-title = *package-title*,
+      "=<title>",
+      format-to-string("Documentation title [%s]", *package-title*),
+      long: "title", short: "t", kind: <parameter-option-parser>;
+   option template-path = *topic-template-directory*,
+      "=<directory>",
+      format-to-string("Path to topic templates [%s]", *topic-template-directory*),
       long: "templates", kind: <parameter-option-parser>;
-   option toc-pattern = "toc",
-      "=<ext>", "Table of contents files [\"toc\"]",
-      long: "toc", short: "t", kind: <parameter-option-parser>;
-   option cfg-pattern = "cfg",
-      "=<ext>", "Configuration files [\"cfg\"]",
-      long: "cfg", short: "c", kind: <parameter-option-parser>;
-   option doc-pattern = "txt",
-      "=<ext>", "Documentation text files [\"txt\"]",
-      long: "doc", short: "d", kind: <parameter-option-parser>;
-   option api-list-filename,
-      "=<filename>", "Write fully qualified API names to file",
+   option toc-pattern = *contents-file-extension*,
+      "=<ext>",
+      format-to-string("Table of contents files [%s]", *contents-file-extension*),
+      long: "toc", kind: <parameter-option-parser>;
+   // option cfg-pattern = "cfg",
+   //    "=<ext>",
+   //    "Configuration files [\"cfg\"]",
+   //    long: "cfg", short: "c", kind: <parameter-option-parser>;
+   option doc-pattern = *topic-file-extension*,
+      "=<ext>",
+      format-to-string("Documentation text files [%s]", *topic-file-extension*),
+      long: "doc", kind: <parameter-option-parser>;
+   option api-list-filename = #f,
+      "=<filename>",
+      "Write fully qualified API names to file",
       long: "name-list", kind: <parameter-option-parser>;
-   option generated-topics-directory,
-      "=<directory>", "Write automatically-generated topic files",
+   option generated-topics-path = #f,
+      "=<directory>",
+      "Write automatically-generated topic files",
       long: "autogen-dir", kind: <parameter-option-parser>;
-   // option title = "Untitled",
-   //    " <title>", "Title of documentation [Untitled]",
-   //    long: "title", kind: <parameter-option-parser>;
    // option tab-size = "8",
-   //    " <n>", "Tab size [8]",
+   //    "=<n>",
+   //    "Tab size [8]",
    //    long: "tabsize", kind: <parameter-option-parser>;
    option disabled-warnings,
-      "=<nn>", "Hide warning message",
+      "=<nn>",
+      "Hide warning message",
       long: "no-warn", short: "w", kind: <repeated-parameter-option-parser>;
    option stop-on-errors?,
       "Stop on first error or warning",
@@ -54,8 +67,8 @@ end argument-parser;
 //// Main
 
 define constant $disabled-warnings = make(<stretchy-vector>);
-define variable $stop-on-errors? :: <boolean> = #f;
-define variable $error-code :: false-or(<integer>) = #f;
+define variable *stop-on-errors?* :: <boolean> = #f;
+define variable *error-code* :: false-or(<integer>) = #f;
 
 define function main (name, arguments)
 
@@ -83,17 +96,18 @@ define function main (name, arguments)
       error-in-command-option(option: "--no-warn");
    end block;
 
-   $stop-on-errors? := args.stop-on-errors?;
-   $verbose? := ~args.quiet?;
-   $topic-template-path := as(<directory-locator>, args.template-path);
-   $topic-file-extension := args.doc-pattern;
+   *stop-on-errors?* := args.stop-on-errors?;
+   *verbose?* := ~args.quiet?;
+   *topic-template-directory* := as(<directory-locator>, args.template-path);
+   *topic-file-extension* := args.doc-pattern;
+   *package-title* := args.package-title;
 
-   $generated-topics-directory :=
-         when (args.generated-topics-directory)
-            as(<directory-locator>, args.generated-topics-directory)
+   *generated-topics-directory* :=
+         when (args.generated-topics-path)
+            as(<directory-locator>, args.generated-topics-path)
          end when;
 
-   $api-list-filename := 
+   *api-list-file* := 
          when (args.api-list-filename)
             as(<file-locator>, args.api-list-filename)
          end when;
@@ -117,12 +131,13 @@ define function main (name, arguments)
    // Process files.
 
    let doc-tree = create-doc-tree(toc-files, doc-files, src-files);
-   // TODO: Write doc-tree as HTML or DITA.
+   create-output-files(doc-tree);
+
    // TODO: For now, just output it.
    print(doc-tree, *standard-output*, pretty?: #t);
    new-line(*standard-output*);
 
-   exit-application($error-code | 0);
+   exit-application(*error-code* | 0);
 end function main;
 
 
@@ -132,10 +147,10 @@ begin
          method (cond, next)
             report-condition(cond, *standard-error*);
             new-line(*standard-error*);
-            when ($stop-on-errors?)
+            when (*stop-on-errors?*)
                exit-application(cond.error-code);
             end when;
-            $error-code := $error-code | cond.error-code;
+            *error-code* := *error-code* | cond.error-code;
             signal(make(<skip-error-restart>, condition: cond));
          end method;
 
@@ -144,7 +159,7 @@ begin
             case
                member?(cond.error-code, $disabled-warnings) =>
                   #f;
-               $stop-on-errors? =>
+               *stop-on-errors?* =>
                   report-condition(cond, *standard-error*);
                   new-line(*standard-error*);
                   exit-application(cond.error-code);
@@ -156,7 +171,7 @@ begin
 
    let handler <skip-error-restart> =
          method (cond, next)
-            exit-application($error-code);
+            exit-application(*error-code*);
          end method;
          
    *default-line-length* := 132;

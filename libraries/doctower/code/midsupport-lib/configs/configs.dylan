@@ -1,6 +1,20 @@
 module: configs
 synopsis: Configurable parameters. These are read from config files if present.
 
+
+define variable *api-list-file* :: false-or(<file-locator>) = #f;
+define variable *generated-topics-directory* :: false-or(<directory-locator>) = #f;
+define variable *topic-template-directory* :: <directory-locator>
+      = as(<directory-locator>, "../defaults");
+
+define variable *topic-file-extension* :: <string> = "txt";
+define variable *contents-file-extension* :: <string> = "toc";
+
+define variable *package-title* :: <string> = "Untitled";
+define variable *package-directory* :: <directory-locator>
+      = as(<directory-locator>, "./doc");
+
+
 /// Synopsis: The set of characters allowed for underline/overline.
 /// TODO: Should be configurable.
 define constant $ascii-line-chars = "=-:.~^_*+#";
@@ -44,6 +58,6 @@ define constant $default-title-quote-specs =
       );
 
 
-/// Synopsis: The size of the tab character, in spaces. The markup parser
-/// doesn't want tab characters.
+/// Synopsis: The size of the tab character, in spaces. The parsers do not want
+/// tab characters.
 define constant $tab-size = 8;

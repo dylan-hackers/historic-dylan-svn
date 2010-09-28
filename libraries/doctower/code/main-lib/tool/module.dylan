@@ -3,12 +3,9 @@ module: dylan-user
 define module main
    use common;
    use conditions;
+   use configs;
    use tasks;
    use markup-parser, import: { *parser-trace* };
-   use dylan-topics,
-      import: { $api-list-filename, $generated-topics-directory,
-                $topic-file-extension };
-   use template-files, import: { $topic-template-path };
    
    // from io
    use format-out;

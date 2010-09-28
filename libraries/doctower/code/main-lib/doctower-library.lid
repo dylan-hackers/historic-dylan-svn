@@ -19,6 +19,7 @@ files:      doctower-library
             topic-resolver/module
             topic-resolver/arranging
             topic-resolver/merging
+            topic-resolver/cataloging
             topic-resolver/resolving
             topic-resolver/placeholders
             tasks/module

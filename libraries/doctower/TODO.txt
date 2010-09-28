@@ -59,12 +59,6 @@ I was trying to do when I wrote the <ordered-tree> class, but I expect the
 zipper will be faster and more efficient. It would be good to replace the
 current <ordered-tree> implementation with a zipper-based one.
 
-------
-
-Cache parsed templates in a file so that Doctower does not have to reparse them
-each time it runs. That should shave about a minute from each run. This could be
-a separate tool.
-
 
 ============
 Bonus Points

@@ -287,6 +287,9 @@ the "qv" quote option is not followed by a explicit title or tag, then Doctower
 will use the quoted text as a title or tag and will only report a warning if a
 corresponding section is not found.
 
+Only the "qv" quote option can link to a sub-section.
+
+
 Section Tags
 ============
 

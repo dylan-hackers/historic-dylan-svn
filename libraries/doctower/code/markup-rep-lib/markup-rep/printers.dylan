@@ -8,7 +8,8 @@ define method print-object (o :: <topic>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
-         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+         format(s, "{topic %= %s}",
+               o.parent.title.stringify-title, o.parent.source-location);
       else
          format(s, "%=", o.parent);
       end if;
@@ -28,7 +29,8 @@ define method print-object (o :: <api-doc>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
-         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+         format(s, "{topic %= %s}",
+               o.parent.title.stringify-title, o.parent.source-location);
       else
          format(s, "%=", o.parent);
       end if;
@@ -49,7 +51,8 @@ define method print-object (o :: <library-doc>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
-         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+         format(s, "{topic %= %s}",
+               o.parent.title.stringify-title, o.parent.source-location);
       else
          format(s, "%=", o.parent);
       end if;
@@ -71,7 +74,8 @@ define method print-object (o :: <module-doc>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
-         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+         format(s, "{topic %= %s}",
+               o.parent.title.stringify-title, o.parent.source-location);
       else
          format(s, "%=", o.parent);
       end if;
@@ -93,7 +97,8 @@ define method print-object (o :: <class-doc>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
-         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+         format(s, "{topic %= %s}",
+               o.parent.title.stringify-title, o.parent.source-location);
       else
          format(s, "%=", o.parent);
       end if;
@@ -122,7 +127,8 @@ define method print-object (o :: <function-doc>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
-         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+         format(s, "{topic %= %s}",
+               o.parent.title.stringify-title, o.parent.source-location);
       else
          format(s, "%=", o.parent);
       end if;
@@ -147,7 +153,8 @@ define method print-object (o :: <generic-doc>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
-         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+         format(s, "{topic %= %s}",
+               o.parent.title.stringify-title, o.parent.source-location);
       else
          format(s, "%=", o.parent);
       end if;
@@ -173,7 +180,8 @@ define method print-object (o :: <variable-doc>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
-         format(s, "{topic %=, id %=}", o.parent.title, o.parent.id);
+         format(s, "{topic %= %s}",
+               o.parent.title.stringify-title, o.parent.source-location);
       else
          format(s, "%=", o.parent);
       end if;
@@ -249,9 +257,11 @@ define method print-object (o :: <xref>, s :: <stream>) => ()
       format(s, "xref %= ", o.text);
       pprint-newline(#"fill", s);
       if (instance?(o.target, <topic>))
-         format(s, "{topic %=, id %=}", o.target.title, o.target.id);
+         format(s, "{topic %= %s}",
+               o.target.title.stringify-title, o.target.source-location);
       elseif (instance?(o.target, <section>))
-         format(s, "{section %=, id %=}", o.target.title, o.target.id);
+         format(s, "{section %= %s}", 
+               o.target.title.stringify-title, o.target.source-location);
       else
          format(s, "%=", o.target);
       end if;
@@ -263,7 +273,8 @@ define method print-object (o :: <vi-xref>, s :: <stream>) => ()
       format(s, "vi-xref %= ", o.text);
       pprint-newline(#"fill", s);
       if (instance?(o.target, <topic>))
-         format(s, "{topic %=, id %=}", o.target.title, o.target.id);
+         format(s, "{topic %= %s}",
+               o.target.title.stringify-title, o.target.source-location);
       else
          format(s, "%=", o.target);
       end if;
@@ -275,9 +286,13 @@ define method print-object (o :: <conref>, s :: <stream>) => ()
       format(s, "conref (%s) ", o.style);
       pprint-newline(#"fill", s);
       if (instance?(o.target, <topic>))
-         format(s, "{topic %=, id %=} ", o.target.title, o.target.id);
+         format(s, "{topic %= %s}",
+               o.target.title.stringify-title, o.target.source-location);
+      elseif (instance?(o.target, <section>))
+         format(s, "{section %= %s}",
+               o.target.title.stringify-title, o.target.source-location);
       else
-         format(s, "%= ", o.target);
+         format(s, "%=", o.target);
       end if;
    end printing-logical-block;
 end method;

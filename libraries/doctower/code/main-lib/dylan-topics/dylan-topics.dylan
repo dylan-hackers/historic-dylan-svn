@@ -2,9 +2,6 @@ module: dylan-topics
 synopsis: Entry point and overall control for dylan-topics module.
 
 
-/// Set by main.dylan when user wants a list of APIs.
-define variable $api-list-filename :: false-or(<file-locator>) = #f;
-
 /// Syn: Quick reference for referring to definitions by name.
 define constant *definitions* :: <equal-table> = make(<equal-table>);
 
@@ -50,7 +47,7 @@ define method topics-from-dylan (api-definitions :: <sequence>)
       topics := concatenate!(topics, new-topics);
       catalog-topics := concatenate!(catalog-topics, new-catalogs);
 
-      when ($api-list-filename)
+      when (*api-list-file*)
          let new-definition-topics
                = choose(conjoin(generated-topic?, rcurry(instance?, <api-doc>)),
                         new-topics);
@@ -65,9 +62,9 @@ define method topics-from-dylan (api-definitions :: <sequence>)
    remove-all-keys!(*definitions*);
    
    // Generate API list.
-   when ($api-list-filename)
-      verbose-log("Writing fully-qualified API names to %s", $api-list-filename);
-      with-open-file (api-list = $api-list-filename, direction: #"output")
+   when (*api-list-file*)
+      verbose-log("Writing fully-qualified API names to %s", *api-list-file*);
+      with-open-file (api-list = *api-list-file*, direction: #"output")
          write(api-list,
             "# Each first line is the fully qualified name of a library, module, or binding.\n"
             "# Each subsequent indented line is an alternative name for the library, module,\n"

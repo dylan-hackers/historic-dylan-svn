@@ -9,6 +9,7 @@ define library doctower-library
    use markup-parser-library;
    use dylan-rep-library;
    use markup-rep-library;
+   use output-library;
    use peg-parser;
    use system;
    use regular-expressions;

@@ -11,8 +11,7 @@ define module topic-resolver
    use transcendental, import: { log => math-log };
    
    export
-      check-topic-ids, ensure-topic-ids, topics-by-id, topics-by-fqn, topics-by-title,
-      resolve-xref-placeholders, resolve-topic-placeholders, arrange-topics,
       group-mergeable-topics, check-and-merge-topics,
-      replace-content-placeholders;
+      resolution-info, resolve-target-placeholders, replace-content-placeholders,
+      arrange-topics, ensure-topic-ids;
 end module;

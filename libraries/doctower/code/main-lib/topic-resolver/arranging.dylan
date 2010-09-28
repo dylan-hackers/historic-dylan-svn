@@ -393,7 +393,7 @@ define method vi-arrangement (topics :: <sequence>)
                               source-location: xref.source-location);
                   let tree = make-parent-child-tree(arranged-parent, arranged-child);
                   trees := add!(trees, tree);
-                  #t;
+                  #f;
                <topic> =>
                   // Only allow recursion into current topic.
                   object == current-topic;
@@ -404,7 +404,7 @@ define method vi-arrangement (topics :: <sequence>)
          end method;
          
    for (parent-topic in topics)
-      visit-xrefs(parent-topic, visit, topic: parent-topic)
+      visit-target-placeholders(parent-topic, visit, topic: parent-topic)
    end for;
    trees
 end method;
