@@ -47,6 +47,11 @@ define constant $urls
 define class <od-page> (<dylan-server-page>)
 end;
 
+define method handle-unmatched-path-elements
+    (resource :: <od-page>, unmatched :: <sequence>)
+  resource-not-found-error();
+end;
+
 define constant $header-page :: <od-page>
   = make(<od-page>, source: "header.dsp");
 
