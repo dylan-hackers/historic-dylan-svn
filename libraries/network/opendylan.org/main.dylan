@@ -47,7 +47,7 @@ define constant $urls
 define class <od-page> (<dylan-server-page>)
 end;
 
-define method handle-unmatched-path-elements
+define method unmatched-url-suffix
     (resource :: <od-page>, unmatched :: <sequence>)
   resource-not-found-error();
 end;
