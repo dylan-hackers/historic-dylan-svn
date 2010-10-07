@@ -22,16 +22,16 @@ define module-spec regular-expressions ()
 
   // Search and replace
   sealed generic-function regex-position
-      (<object>, <string>, #"key", #"start", #"end", #"case-sensitive")
+      (<regex>, <string>, #"key", #"start", #"end", #"case-sensitive")
       => (false-or(<string>), #"rest");
   sealed generic-function regex-replace
-      (<string>, <object>, <string>, #"key", #"start", #"end", #"case-sensitive", #"count")
+      (<string>, <regex>, <string>, #"key", #"start", #"end", #"case-sensitive", #"count")
       => (<string>);
   sealed generic-function regex-search
-      (<object>, <string>, #"key", #"anchored", #"start", #"end")
+      (<regex>, <string>, #"key", #"anchored", #"start", #"end")
       => (false-or(<regex-match>));
   sealed generic-function regex-search-strings
-      (<object>, <string>, #"key", #"anchored", #"start", #"end")
+      (<regex>, <string>, #"key", #"anchored", #"start", #"end")
       => (false-or(<regex-match>));
 
   // Accessing match groups
@@ -52,8 +52,6 @@ define module-spec regular-expressions ()
 end module-spec regular-expressions;
 
 define regular-expressions function-test regex-position ()
-  check-no-errors("regex-position with a string regex",
-                  regex-position("pattern", "pattern"));
   check-no-errors("regex-position with a regex regex",
                   regex-position(compile-regex("pattern"), "pattern"));
   local method check-pos
@@ -62,6 +60,7 @@ define regular-expressions function-test regex-position ()
     check-equal(test-name,
                 positions,
                 begin
+                  let regex = compile-regex(regex);
                   let (#rest marks) = apply(regex-position, regex, big, args);
                   marks
                 end);
@@ -141,16 +140,16 @@ define regular-expressions function-test regex-replace ()
                                 compile-regex("the (.*) in (\\w*\\b)"),
                                 "\\2 has its \\1"));
   check-equal("regex-replace #1",
-              regex-replace("a or b", "(o)(r)", "\\2\\1"),
+              regex-replace("a or b", compile-regex("(o)(r)"), "\\2\\1"),
               "a ro b");
   check-equal("regex-replace #2",
-              regex-replace(big-string, "in", "out"),
+              regex-replace(big-string, compile-regex("in"), "out"),
               "The raout out spaout and some other text");
   check-equal("regex-replace #3",
-              regex-replace(big-string, "in", "out", count: 2),
+              regex-replace(big-string, compile-regex("in"), "out", count: 2),
               "The raout out spain and some other text");
   check-equal("regex-replace #4",
-              regex-replace(big-string, "in", "out", start: 8, end: 15),
+              regex-replace(big-string, compile-regex("in"), "out", start: 8, end: 15),
               "The rain out spain and some other text");
 end function-test regex-replace;
 
@@ -162,13 +161,13 @@ define regular-expressions function-test regex-search ()
   // Test case-sensitive parameter
   // See bug 7371
   check-true("regex-search(..., case-sensitive: #f) works for character sets",
-             regex-search("[a-z]", "A", case-sensitive: #f));
+             regex-search(compile-regex("[a-z]"), "A", case-sensitive: #f));
   check-true("regex-search(..., case-sensitive: #t) works on character sets",
-             regex-search("[a-z]", "A", case-sensitive: #f));
+             regex-search(compile-regex("[a-z]"), "A", case-sensitive: #f));
   check-false("case-sensitive: #t works for regular strings",
-              regex-search("abc", "aBc", case-sensitive: #t));
+              regex-search(compile-regex("abc"), "aBc", case-sensitive: #t));
   check-true("case-sensitive: #f works for regular strings",
-             regex-search("abc", "ABC", case-sensitive: #f));
+             regex-search(compile-regex("abc"), "ABC", case-sensitive: #f));
 end function-test regex-search;
 
 define regular-expressions function-test compile-regex ()

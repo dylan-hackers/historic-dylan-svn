@@ -56,7 +56,7 @@ define method main(name, arguments)
 
   let platform-name = option-value-by-long-name(arg-parser, "platform");
   local method same-platform? (string, regex)
-          regex-position(regex, string)
+          regex-position(compile-regex(regex), string)
         end;
   let platform
     = select(platform-name by same-platform?)

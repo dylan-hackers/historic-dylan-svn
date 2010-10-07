@@ -489,7 +489,7 @@ define method archive-responder (blog :: <blog>)
   authenticate();
 
   let (year, month, day, title) = apply(values,
-    split(request.request-url-tail, separator: "/"));
+    split(request.request-url-suffix, separator: "/"));
   let (year, month, day) = validate-dates(year, month, day); 
 
   let add? :: <boolean> = (get-query-value("add") = #t);

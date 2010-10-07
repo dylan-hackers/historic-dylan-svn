@@ -89,13 +89,13 @@ define test ad-hoc-regex-test ()
                 "http://localhost/", "http:", "http", "//localhost", "localhost",
                 #f, #f, "localhost", #f, #f, "/", #f, #f, #f);
   check-equal("start: works?",
-              regex-search("a", "a b c", start: 1),
+              regex-search(compile-regex("a"), "a b c", start: 1),
               #f);
   check-equal("end: works?",
-              regex-search("c", "a b c", end: 4),
+              regex-search(compile-regex("c"), "a b c", end: 4),
               #f);
   check-equal("start: and end: work?",
-              regex-search("a", "a b a", start: 1, end: 4),
+              regex-search(compile-regex("a"), "a b a", start: 1, end: 4),
               #f);
   check-equal("atom-tan", "\<44>\<79>\<6c>\<61>\<6e>", "Dylan");
 end test ad-hoc-regex-test;
@@ -152,4 +152,15 @@ define suite regular-expressions-test-suite ()
   // It's sometimes useful to use -ignore-suite to skip this one because it's so noisy.
   suite pcre-test-suite;
 end;
+
+define method main
+    () => ()
+  let filename = locator-name(as(<file-locator>, application-name()));
+  if (split(filename, ".")[0] = "regular-expressions-test-suite")
+    run-test-application(regular-expressions-test-suite);
+  end;
+end;
+
+main();
+
 

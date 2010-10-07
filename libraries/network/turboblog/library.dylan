@@ -11,8 +11,8 @@ define library turboblog
   use network;
   use string-extensions;
   use regular-expressions;
-  use koala,
-    import: { dsp };
+  use dsp;
+  use koala;
   use web-framework;
   use xml-parser;
   use xml-rpc-client;
@@ -36,6 +36,7 @@ define module turboblog
   use substring-search;
   use regular-expressions;
   use dsp, exclude: { join };
+  use koala;
   use web-framework, exclude: { slot-type };
   use users;
   use permission;

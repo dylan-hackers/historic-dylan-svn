@@ -135,39 +135,29 @@ end method compile-regex;
 // <regex-match> object back.
 //
 define generic regex-position
-    (regex :: <object>, big :: <string>,
+    (pattern :: <regex>, text :: <string>,
      #key start :: <integer>,
           end: epos :: <integer>,
           case-sensitive :: <boolean>)
  => (regex-start :: false-or(<integer>), #rest marks);
 
 define method regex-position
-    (pattern :: <string>, string :: <string>,
+    (pattern :: <regex>, text :: <string>,
      #key start :: <integer> = 0,
-          end: epos :: <integer> = string.size,
+          end: epos :: <integer> = text.size,
           case-sensitive :: <boolean> = #t)
  => (regex-start :: false-or(<integer>), #rest marks :: false-or(<integer>))
-  regex-position(compile-regex(pattern), string, start: start, end: epos,
-                 case-sensitive: case-sensitive)
-end method regex-position;
-
-define method regex-position
-    (regex :: <regex>, string :: <string>,
-     #key start :: <integer> = 0,
-          end: epos :: <integer> = string.size,
-          case-sensitive :: <boolean> = #t)
- => (regex-start :: false-or(<integer>), #rest marks :: false-or(<integer>))
-  let substring = make(<substring>, string: string, start: start, end: epos);
+  let substring = make(<substring>, string: text, start: start, end: epos);
   let (matched, marks)
-    = if (regex.is-anchored?)
+    = if (pattern.is-anchored?)
         let searcher = #f;
-	anchored-match-root?(regex, substring, case-sensitive,
-			     regex.regex-group-count, searcher);
+	anchored-match-root?(pattern, substring, case-sensitive,
+			     pattern.regex-group-count, searcher);
       else
-	let initial = regex.initial-substring;
+	let initial = pattern.initial-substring;
 	let searcher = ~initial.empty?
 	  & make-substring-positioner(initial, case-sensitive: case-sensitive);
-	match-root?(regex, substring, case-sensitive, regex.regex-group-count,
+	match-root?(pattern, substring, case-sensitive, pattern.regex-group-count,
 		    searcher);
       end if;
   if (matched)  
@@ -180,7 +170,7 @@ end method regex-position;
 // Deprecated.  Use curry(regex-position, regex) or a local method instead.
 //
 define inline function make-regex-positioner
-    (regex :: type-union(<string>, <regex>), 
+    (pattern :: <regex>,
      #key case-sensitive :: <boolean> = #t)
  => (regex-positioner :: <function>)
   method (string :: <string>,
@@ -188,7 +178,7 @@ define inline function make-regex-positioner
                end: epos :: <integer> = string.size)
    => (regex-start :: false-or(<integer>), 
        #rest marks :: false-or(<integer>))
-    regex-position(regex, string,
+    regex-position(pattern, string,
                    case-sensitive: case-sensitive, 
                    start: start,
                    end: epos);
@@ -196,7 +186,7 @@ define inline function make-regex-positioner
 end function make-regex-positioner;
 
 define generic regex-replace
-    (big :: <string>, old :: <object>, new :: <string>,
+    (big :: <string>, pattern :: <regex>, replacement-text :: <string>,
      #key start :: <integer>,
           end: epos :: <integer>,
           count :: false-or(<integer>),
@@ -204,29 +194,15 @@ define generic regex-replace
  => (new-string :: <string>);
 
 define method regex-replace
-    (big :: <string>, old :: <string>, new :: <string>,
-     #key count :: false-or(<integer>),
-          start :: <integer> = 0,
-          end: epos :: <integer> = big.size,
-          case-sensitive :: <boolean> = #t)
- => (new-string :: <string>)
-  regex-replace(big, compile-regex(old), new,
-                start: start,
-                end: epos,
-                count: count,
-                case-sensitive: case-sensitive)
-end method regex-replace;
-
-define method regex-replace
-    (big :: <string>, old :: <regex>, new :: <string>,
+    (big :: <string>, pattern :: <regex>, replacement-text :: <string>,
      #key count :: false-or(<integer>),
           start :: <integer> = 0,
           end: epos :: <integer> = big.size,
           case-sensitive :: <boolean> = #t)
  => (new-string :: <string>)
   let positioner
-    = make-regex-positioner(old, case-sensitive: case-sensitive);
-  do-replacement(positioner, new, big, start,
+    = make-regex-positioner(pattern, case-sensitive: case-sensitive);
+  do-replacement(positioner, replacement-text, big, start,
 		 epos, count, #t);
 end method regex-replace;
 
@@ -238,11 +214,8 @@ end method regex-replace;
 // Returns a <regex-match> containing info about a successful match, or #f if
 // no match was found.
 //
-// @param big -- The string in which to search.
-// @param pattern -- The pattern to search for.  If not a <regex>, it will be
-//   compiled first with compile-regex (implying that <invalid-regex> may be
-//   signalled), using the defaults for the keyword arguments.  If you wish
-//   to override them, call compile-regex directly.
+// @param pattern -- The regex pattern to search for.
+// @param text -- The string in which to search.
 // @param anchored -- Whether or not the search should be anchored at the start
 //   position.  This is useful because "^..." will only match at the beginning
 //   of a string, or after \n if the regex was compiled with multi-line = #t.
@@ -255,7 +228,7 @@ end method regex-replace;
 // todo -- Should $ anchor at the provided end position or at the end of the string?
 //
 define sealed generic regex-search
-    (pattern :: <object>, string :: <string>,
+    (pattern :: <regex>, text :: <string>,
      #key anchored :: <boolean>,
           start :: <integer>,
           end: epos :: <integer>,
@@ -263,27 +236,13 @@ define sealed generic regex-search
  => (match :: false-or(<regex-match>));
 
 define method regex-search
-    (pattern :: <string>, string :: <string>,
-     #key anchored  :: <boolean> = #f,
-          start     :: <integer> = 0,
-          end: epos :: <integer> = string.size,
-          case-sensitive :: <boolean> = #t)
- => (match :: false-or(<regex-match>))
-  regex-search(compile-regex(pattern), string,
-               anchored: anchored,
-               start: start,
-               end: epos,
-               case-sensitive: case-sensitive)
-end method regex-search;
-
-define method regex-search
-    (pattern :: <regex>, string :: <string>,
+    (pattern :: <regex>, text :: <string>,
      #key anchored :: <boolean> = #f,
           start    :: <integer> = 0,
-          end: epos :: <integer> = string.size,
+          end: epos :: <integer> = text.size,
           case-sensitive :: <boolean> = #t)
  => (match :: false-or(<regex-match>))
-  let substring = make(<substring>, string: string, start: start, end: epos);
+  let substring = make(<substring>, string: text, start: start, end: epos);
   let num-groups = pattern.regex-group-count;
   let (matched?, marks)
     = if (pattern.is-anchored?)
@@ -305,7 +264,7 @@ define method regex-search
       if (bpos & epos)
         add-group(regex-match,
                   make(<match-group>,
-                       text: copy-sequence(string, start: bpos, end: epos),
+                       text: copy-sequence(text, start: bpos, end: epos),
                        start: bpos,
                        end: epos),
                   group-name);
@@ -324,7 +283,7 @@ end method regex-search;
 // expression, instead of a <regex-match>.  Note that group 0, the entire match,
 // is included as the first value.
 define sealed generic regex-search-strings
-    (pattern :: <object>, string :: <string>,
+    (pattern :: <regex>, text :: <string>,
      #key anchored :: <boolean>,
           start :: <integer>,
           end: epos :: <integer>,
@@ -332,33 +291,21 @@ define sealed generic regex-search-strings
  => (#rest strings);
 
 define method regex-search-strings
-    (pattern :: <string>, string :: <string>,
-     #key anchored  :: <boolean> = #f,
-          start     :: <integer> = 0,
-          end: epos :: <integer> = string.size,
-          case-sensitive :: <boolean> = #t)
- => (#rest strings)
-  regex-search-strings(compile-regex(pattern), string,
-		       anchored: anchored,
-                       start: start,
-                       end: epos,
-                       case-sensitive: case-sensitive)
-end method regex-search-strings;
-
-define method regex-search-strings
-    (pattern :: <regex>, string :: <string>,
+    (pattern :: <regex>, text :: <string>,
      #key anchored :: <boolean> = #f,
           start    :: <integer> = 0,
-          end: epos :: <integer> = string.size,
+          end: epos :: <integer> = text.size,
           case-sensitive :: <boolean> = #t)
  => (#rest strings)
-  let match = regex-search(pattern, string,
+  let match = regex-search(pattern, text,
 			   anchored: anchored,
                            start: start,
                            end: epos,
                            case-sensitive: case-sensitive);
   if (match)
-    apply(values, map(method (group) group & group.group-text end,
+    apply(values, map(method (group)
+                        group & group.group-text
+                      end,
                       match.groups-by-position))
   else
     #f
@@ -454,9 +401,9 @@ end method match-group;
 // The split method is exported from the common-dylan module.
 //
 define method split
-    (string :: <string>, separator :: <regex>,
+    (text :: <string>, separator :: <regex>,
      #key start :: <integer> = 0,
-          end: epos :: <integer> = string.size,
+          end: epos :: <integer> = text.size,
           count :: <integer> = epos + 1,
           case-sensitive :: <boolean> = #t,
           remove-if-empty :: <boolean> = #f)
@@ -472,7 +419,7 @@ define method split
             #f
           end
         end method find-regex;
-  split(string, find-regex, start: start, end: epos, count: count,
+  split(text, find-regex, start: start, end: epos, count: count,
         remove-if-empty: remove-if-empty)
 end method split;
 

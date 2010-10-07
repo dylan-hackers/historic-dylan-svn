@@ -54,11 +54,11 @@ define method ping (source, target)
   let (content-type, content-length) = values(#f, #f);
   let current = #f;
   while ((current := read-line(socket)) ~= "")
-    let (header, content-type-value) = regex-search-strings("Content-Type: (.*)", current);
+    let (header, content-type-value) = regex-search-strings(compile-regex("Content-Type: (.*)"), current);
     if (content-type-value)
       content-type := remove!(content-type-value, '\r', test: \=);
     else
-      let (header, content-length-value) = regex-search-strings("Content-Length: (\\d+)", current); 
+      let (header, content-length-value) = regex-search-strings(compile-regex("Content-Length: (\\d+)"), current); 
       if (content-length-value)
         content-length := remove!(content-length-value, '\r', test: \=);
       end if;
@@ -80,12 +80,12 @@ define method ping (source, target)
     end while;
   end if;
   
-  let link = regex-search-strings(concatenate("<a(.*) href=\"", target,"\"(.*)>"), content);
+  let link = regex-search-strings(compile-regex(concatenate("<a(.*) href=\"", target,"\"(.*)>")), content);
   unless (link)
     xml-rpc-fault(17, "The source URI does not contain a link to the target URI, and so cannot be used as a source.");
   end unless;
 
-  let (title, title-value) = regex-search-strings("<title>((.|\n)*)</title>", content);
+  let (title, title-value) = regex-search-strings(compile-regex("<title>((.|\n)*)</title>"), content);
   unless (title-value)
     xml-rpc-fault(0, "The source URI does not contain a title.");
   end unless;
@@ -97,9 +97,9 @@ define method ping (source, target)
     start: link-position - 100,
     end: link-position + size(link) + 100);
 
-  let plain-text = regex-replace(text, "<[a-zA-Z\\/][^>]*>", "");
-  plain-text := regex-replace(plain-text, "(.*)>", "");
-  plain-text := regex-replace(plain-text, "<(.*)", "");
+  let plain-text = regex-replace(text, compile-regex("<[a-zA-Z\\/][^>]*>"), "");
+  plain-text := regex-replace(plain-text, compile-regex("(.*)>"), "");
+  plain-text := regex-replace(plain-text, compile-regex("<(.*)"), "");
   plain-text := concatenate("[...] ", plain-text," [...]");
 
   let pingback = make(<blog-pingback>, source: source,
@@ -134,7 +134,7 @@ end;
 define method do-pingbacks (entry :: <blog-entry>)
   let source = build-uri(permanent-link(entry, full?: #t, escaped?: #t));
   let content = entry.content.content;
-  let regex = "<a([^>]+)href=\"([^>\"]+)\"([^>]*)>";
+  let regex = compile-regex("<a([^>]+)href=\"([^>\"]+)\"([^>]*)>");
   let start = 0;
   while (regex-position(regex, content, start: start))
     let (#rest matches) = regex-search-strings(regex, copy-sequence(content, start: start));
@@ -152,10 +152,10 @@ define method discover-pingback (source :: <string>, target :: <string>)
   if (~empty?(url.uri-host))
     let response = read(http-request(target), 5*1024);
     let (header, pingback-url) = 
-      regex-search-strings("X-Pingback: (.*)\r", response);
+      regex-search-strings(compile-regex("X-Pingback: (.*)\r"), response);
     unless (pingback-url)
       let (link, pingback-url) = 
-        regex-search-strings("<link rel=\"pingback\" href=\"([^\"]+)\" ?/?>", response);
+        regex-search-strings(compile-regex("<link rel=\"pingback\" href=\"([^\"]+)\" ?/?>"), response);
     end;
     if (pingback-url)
       let url = parse-uri(pingback-url, as: <url>);

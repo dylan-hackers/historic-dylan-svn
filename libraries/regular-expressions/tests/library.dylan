@@ -25,6 +25,7 @@ define module regular-expressions-test-suite
   use locators,
     import: { <directory-locator>,
               <file-locator>,
+              locator-name,
               subdirectory-locator };
   use operating-system,
     import: { environment-variable };

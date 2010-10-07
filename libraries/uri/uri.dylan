@@ -81,6 +81,8 @@ define constant $uri-regex :: <regex>
     = compile-regex("^(([^:/?#]+):)?(//((([^/?#]*)@)?([^/?#:]*)(:([^/?#]*))?))?([^?#]*)"
                     "(\\?([^#]*))?(#(.*))?");
 
+define constant $plus :: <regex> = compile-regex("[+]");
+
 define method parse-uri-as
     (class :: subclass(<uri>), uri :: <string>)
  => (result :: <uri>)
@@ -90,7 +92,7 @@ define method parse-uri-as
     = regex-search-strings($uri-regex, uri);
   // inside generic method to save code duplication
   if (class == <url> & query)
-    query := regex-replace(query, "\\+", " ");
+    query := regex-replace(query, $plus, " ");
   end if;
   if (scheme) scheme := percent-decode(scheme); end;
   if (userinfo) userinfo := percent-decode(userinfo); end;
@@ -152,8 +154,8 @@ define method split-query
     if (qvalue)
       if (replacements)
         for (replacement in replacements)
-          let old = head(replacement);
-          let new = tail(replacement);
+          let old :: <regex> = head(replacement);
+          let new :: <string> = tail(replacement);
           qvalue := regex-replace(qvalue, old, new);
         end for;
       end if;
@@ -432,7 +434,8 @@ begin
   let foo = parse-url("http://baz.blub/pat%2fh/test?fo%20o=ba%2f%20r");
   format-out("%s, %=,%s\n", foo.uri-query, foo.uri-path, foo);
 
-  format-out("%s\n", split-query("foo=bar+blub&baz", replacements: list(pair("\\+", " ")))["foo"]);
+  format-out("%s\n", split-query("foo=bar+blub&baz",
+                                 replacements: list(pair($plus, " ")))["foo"]);
 
   let uri = parse-uri("http://foo:bar@baz.blub:23/path/test/../page?fo%20=ba+r&q1=q2&q3=&q4#extra");
   let url = parse-url("http://foo:bar@baz.blub:23/path/test/../page?fo%20o=b+r&q1=q2&q3=&q4#extra");

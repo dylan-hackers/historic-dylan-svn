@@ -44,7 +44,7 @@ define method serve-feed (blog :: <blog>, type == #"atom", #key feed-entries :: 
   feed.links["self"] := make(<blog-link>, rel: "self", href: requested-url());
 
   set-content-type(current-response(), "application/atom+xml");
-  format(output-stream(current-response()), "%s", generate-atom(feed, entries: feed-entries));
+  output("%s", generate-atom(feed, entries: feed-entries));
 end;
 
 define method generate-atom (entry :: <blog-entry>, #key)
