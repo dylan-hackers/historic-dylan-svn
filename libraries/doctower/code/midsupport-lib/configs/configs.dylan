@@ -4,15 +4,17 @@ synopsis: Configurable parameters. These are read from config files if present.
 
 define variable *api-list-file* :: false-or(<file-locator>) = #f;
 define variable *generated-topics-directory* :: false-or(<directory-locator>) = #f;
-define variable *topic-template-directory* :: <directory-locator>
+define variable *template-directory* :: <directory-locator>
       = as(<directory-locator>, "../defaults");
 
 define variable *topic-file-extension* :: <string> = "txt";
 define variable *contents-file-extension* :: <string> = "toc";
+define variable *config-file-extension* :: <string> = "cfg";
 
 define variable *package-title* :: <string> = "Untitled";
-define variable *package-directory* :: <directory-locator>
+define variable *output-directory* :: <directory-locator>
       = as(<directory-locator>, "./doc");
+define variable *output-types* :: <sequence> = #[ #"html" ];
 
 
 /// Synopsis: The set of characters allowed for underline/overline.

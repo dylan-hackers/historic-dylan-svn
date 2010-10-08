@@ -4,7 +4,7 @@ synopsis: Replaces placeholders with actual content.
 
 define method replace-content-placeholders (doc-tree :: <ordered-tree>) => ()
    for (topic :: false-or(<topic>) keyed-by topic-key in doc-tree)
-      if (topic)
+      if (topic)  // Root of doc-tree is #f.
          visit-content-placeholders(topic, replacer, topic: topic,
                topic-key: topic-key, doc-tree: doc-tree)
       end if
@@ -47,7 +47,7 @@ define method replacer
 
    let found-topics = make(<stretchy-vector>);
    for (topic :: false-or(<topic>) in doc-tree)
-      if (topic & member?(topic.topic-type, desired-topic-types))
+      if (topic & member?(topic.topic-type, desired-topic-types)) // Root is #f.
          if (desired-namespace)
             let enclosing-name = topic.fully-qualified-name.enclosing-qualified-name;
             if (enclosing-name = desired-namespace

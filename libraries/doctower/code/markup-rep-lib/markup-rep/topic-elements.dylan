@@ -71,12 +71,10 @@ define class <topic> (<markup-element>)
    slot footnotes :: <sequence> /* of <footnote> */
          = make(<stretchy-vector>);
    
-   slot see-also :: <sequence> /* of <topic-ref> to <topic>, <url>, or <target-placeholder> */
+   slot related-links :: <sequence> /* of <topic-ref> to <topic>, <url>, or <target-placeholder> */
          = make(<stretchy-vector>);
    slot relevant-to :: <sequence> /* of <topic-ref> to <topic> or <target-placeholder> */
          = make(<stretchy-vector>);
-
-   slot see-also-section :: false-or(<section>) = #f;
 end class;
 
 define method make

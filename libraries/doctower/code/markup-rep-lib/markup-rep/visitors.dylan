@@ -14,8 +14,8 @@ synopsis: Contains slot visitor functions.
 
 define collection-recursive slot-visitor visit-target-placeholders
    // Topic elements
-   <topic>,                content, shortdesc, parent, footnotes, see-also, relevant-to,
-                           see-also-section;
+   <topic>,                content, shortdesc, parent, footnotes, related-links,
+                           relevant-to;
    <api-doc>,              definitions-section;
    <library-doc>,          modules-section;
    <module-doc>,           bindings-section;
@@ -73,7 +73,7 @@ end slot-visitor;
 
 define collection-recursive slot-visitor visit-content-placeholders
    // Topic elements
-   <topic>,                content, footnotes, see-also-section;
+   <topic>,                content, footnotes;
    <api-doc>,              definitions-section;
    <library-doc>,          modules-section;
    <module-doc>,           bindings-section;
@@ -118,7 +118,7 @@ end slot-visitor;
 
 define collection-recursive slot-visitor visit-targets
    // Topic elements
-   <topic>,           content, footnotes, see-also-section;
+   <topic>,           content, footnotes;
    <api-doc>,         definitions-section;
    <library-doc>,     modules-section;
    <module-doc>,      bindings-section;

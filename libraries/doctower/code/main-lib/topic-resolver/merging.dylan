@@ -134,7 +134,7 @@ define method merge-two-topics (a :: <topic>, b :: <topic>)
       a.content := b.content
    end if;
    a.footnotes := concatenate!(a.footnotes, b.footnotes);
-   a.see-also := concatenate!(a.see-also, b.see-also);
+   a.related-links := concatenate!(a.related-links, b.related-links);
    a.relevant-to := concatenate!(a.relevant-to, b.relevant-to);
    a
 end method;

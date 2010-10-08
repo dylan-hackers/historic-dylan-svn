@@ -180,9 +180,8 @@ Topic IDs:
   "All Variables"     - :Variables
   "All Macros"        - :Macros
   "All Unbound Names" - :Unbound
-  Library members     - :Modules(Dylan), :Bindings(Dylan), etc.
-  Module members      - :Bindings(Dylan:Dylan), :Classes(Dylan:Dylan), etc.
-  Other topics        - :Topic-nnn
+  Library catalogs    - :Modules(Dylan), :Bindings(Dylan), etc.
+  Module catalogs     - :Bindings(Dylan:Dylan), :Classes(Dylan:Dylan), etc.
 
 Section IDs:
   "Definitions"       - :Definitions
@@ -196,17 +195,20 @@ Section IDs:
   "Arguments"         - :Arguments
   "Values"            - :Values
   "See also"          - :SeeAlso
-  Other sections      - :Sect-nnn
 
-Title IDs:
-  Topic title         - :Title
-  Section title       - :Title(Sect-nnn)
+Output IDs:
+  Topic without ID   - :Topic-nnn
+  Section without ID - :Sect-nnn
+  Topic title        - :Title
+  Section title      - :Title(:Definitions), :Title(:Sect-nnn), etc.
+  Footnote           - :Foot-nnn
+  Phrase marker      - :Line-nnn
 
-The topic and section title IDs are used for DITA conref attributes.
+The output IDs are used for DITA or HTML conref and href attributes.
 
 In API reference topics, the user may link to an ID like ":::Something". This is
 shorthand for an API in the current module or library. "Something" may not have
-colons.
+colons. (TODO)
 
 
 Intermediate format

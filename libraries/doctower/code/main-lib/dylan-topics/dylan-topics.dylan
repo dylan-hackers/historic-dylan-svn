@@ -38,11 +38,12 @@ define method topics-from-dylan (api-definitions :: <sequence>)
    end for;
    
    // Generate topic content for definitions.
-   verbose-log("Creating documentation from source code");
+   verbose-log("Creating documentation from definitions");
    let topics = make(<stretchy-vector>);
    let catalog-topics = make(<stretchy-vector>);
    let definition-topics = make(<stretchy-vector>);
    for (api-defn in choose(should-have-topic?, api-definitions))
+      verbose-log("Documenting %s", api-defn.canonical-name);
       let (new-topics, new-catalogs) = make-source-topics(api-defn);
       topics := concatenate!(topics, new-topics);
       catalog-topics := concatenate!(catalog-topics, new-catalogs);

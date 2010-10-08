@@ -44,11 +44,11 @@ define module markup-rep
       keywords-section-setter, methods-section, methods-section-setter,
       modules-section, modules-section-setter, parent, parent-setter,
       qualified-scope-name, qualified-scope-name-setter, rel-size,
-      rel-size-setter, relevant-to, relevant-to-setter, see-also,
-      see-also-setter, see-also-section, see-also-section-setter, shortdesc,
-      shortdesc-setter, subs-section, subs-section-setter, supers-section,
-      supers-section-setter, syntax-section, syntax-section-setter, target,
-      target-setter, target-from-text?, text, text-setter, title, title-setter,
+      rel-size-setter, relevant-to, relevant-to-setter, related-links,
+      related-links-setter, shortdesc, shortdesc-setter, subs-section,
+      subs-section-setter, supers-section, supers-section-setter,
+      syntax-section, syntax-section-setter, target, target-setter,
+      target-from-text?, text, text-setter, title, title-setter,
       title-source-loc, title-source-loc-setter, topic-type, vals-section,
       vals-section-setter, value-section, value-section-setter;
 

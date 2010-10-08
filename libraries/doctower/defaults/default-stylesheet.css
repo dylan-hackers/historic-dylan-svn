@@ -1,0 +1,170 @@
+body {
+	background: #F0F0F0;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	margin: 0;
+	border-width: 0;
+	padding: 0 1em;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+
+div {
+	position: relative;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	margin: 0;
+	border-width: 0;
+	padding: 0;
+}
+
+h1 {
+	margin-bottom: 1em;
+	font-size: x-large;
+}
+
+h2 {
+	margin-top: 1.5em;
+	margin-bottom: 1em;
+	font-size: large;
+}
+
+
+/*** Package information ***/
+
+
+.package-navbar {
+	margin: .5em 0;
+	background-color: #4C8C6C;
+}
+
+.package-title {
+	font-weight: bold;
+	padding: .5em;
+	display: inline-block;
+}
+
+.package-navlinks {
+	float: right;
+	margin-left: .5em;
+}
+
+.package-navlinks > a,
+.package-navlinks > span {
+	padding: .5em 1em;
+	display: inline-block;
+	border-width: 0;
+	border-left-width: medium;
+	border-style: solid;
+	border-color: #F0F0F0;
+}
+
+
+/*** Main area ***/
+
+
+.topic {}
+.toc {}
+
+
+/*** Table of contents ***/
+
+
+.toc-content {
+	margin .5em 0;
+}
+
+.toc-content ul {
+	margin: .5em 0;
+	font-weight: normal;
+	list-style-type: square;
+}
+
+.toc-content ul ul ul {
+	list-style-type: circle;
+}
+
+.toc-content ul ul ul ul {
+	margin-top: 0;
+	font-size: small;
+	font-style: italic;
+	list-style-type: none;
+}
+
+.toc-content > ul {
+	margin-bottom: 1em;
+}
+
+.toc-content > ul > li {
+	margin: .5em 0;
+	font-weight: bold;
+}
+
+.toc-footer {
+	margin: .5em 0;
+	padding: .5em;
+	font-size: small;
+	background-color: silver;
+}
+
+/*** Topics ***/
+
+
+.topic-navbar {
+	margin: .5em 0;
+	font-size: small;
+	background-color: silver;
+}
+
+.hier-navlinks {
+	padding: .5em;
+	display: inline-block;
+}
+
+.seq-navlinks {
+	float: right;
+	margin-left: .5em;
+}
+
+.seq-navlinks > a,
+.seq-navlinks > span {
+	padding: .5em 1em;
+	display: inline-block;
+	border-width: 0;
+	border-left-width: thin;
+	border-style: solid;
+	border-color: #F0F0F0;
+}
+
+.topic-content {
+	margin: .5em 0;
+}
+
+.topic-related {
+
+}
+
+.topic-footnotes {
+	margin: 1.5em 0;
+	border-width: 0;
+	border-top-width: thin;
+	border-style: dashed;
+	border-color: gray;
+}
+
+.footnote {
+	margin: 1.5em 0;
+}
+
+.topic-subtopics {
+	margin: 1.5em 0;
+	border-width: 0;
+	border-top-width: thick;
+	border-style: solid;
+	border-color: silver;
+}
+
+.summary-link {
+	margin: 1.5em 0;
+}

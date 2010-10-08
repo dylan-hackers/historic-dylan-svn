@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <title>{{topic.title}}</title>
+  <link rel="stylesheet" href="../{{css-file}}" type="text/css" media="screen" charset="utf-8" />
+</head>
+<body>
+  <div class="package-navbar">
+    <div class="package-navlinks">
+      {{if home-file = topic-file}}
+      <span>Home</span>
+      {{else}}
+      <a href="../{{home-file}}">Home</a>
+      {{end}}
+      <a href="../{{toc-file}}#{{topic.id}}">Contents</a>
+      <a href="../{{index-file}}">Index</a>
+    </div>
+    <div class="package-title">
+      {{package-title}}
+    </div>
+  </div>
+
+  <div class="topic">
+    <div class="topic-navbar">
+      <div class="seq-navlinks">
+        {{if topic.prev-topic}}
+        <a href="../{{topic.prev-topic.href}}"
+           title="{{topic.prev-topic.shortdesc}}">
+          ← {{topic.prev-topic.title}}
+        </a>
+        {{end}}
+        {{if topic.next-topic}}
+        <a href="../{{topic.next-topic.href}}"
+           title="{{topic.next-topic.shortdesc}}">
+          {{topic.next-topic.title}} →
+        </a>
+        {{end}}
+      </div>
+      <div class="hier-navlinks">
+        {{repeat with parent in topic.parent-topics info in loop-info}}
+        <a href="../{{parent.href}}"
+           title="{{parent.shortdesc}}">
+          {{parent.title +}}
+        </a>
+        {{if ~loop-info.last-rep?}} ▸ {{end}}
+        {{end}}
+        &nbsp;
+      </div>
+    </div>
+
+    <div class="topic-content">
+      <h1>{{topic.formatted-title !}}</h1>
+      {{topic.formatted-shortdesc !}}
+      {{topic.formatted-content !}}
+      {{topic.definitions-section !}}
+      {{topic.syntax-section !}}
+      {{topic.adjectives-section !}}
+      {{topic.conds-section !}}
+      {{topic.args-section !}}
+      {{topic.vals-section !}}
+      {{topic.keywords-section !}}
+      {{topic.value-section !}}
+      {{topic.inheritables-section !}}
+      {{topic.supers-section !}}
+      {{topic.subs-section !}}
+      {{topic.funcs-on-section !}}
+      {{topic.funcs-returning-section !}}
+      {{topic.modules-section !}}
+      {{topic.bindings-section !}}
+      {{topic.methods-section !}}
+
+      {{if topic.related-links.size > 0}}
+      <div class="topic-related">
+        <h2>Related links</h2>
+        <ul>
+          {{repeat with link in topic.related-links}}
+          <li><a href="../{{link.href}}"
+                 title="{{link.shortdesc}}">
+            {{link.title +}}
+          </a></li>
+          {{end}}
+        </ul>
+      </div>
+      {{end}}
+
+      {{if topic.footnotes.size > 0}}
+      <div class="topic-footnotes">
+        {{repeat with footnote in topic.footnotes}}
+        <div class="footnote">
+          (footnote goes here)
+        </div>
+        {{end}}
+      </div>
+      {{end}}
+    </div>
+
+    {{if topic.subtopics.size > 0}}
+    <div class="topic-subtopics">
+      {{repeat with subtopic in topic.subtopics}}
+      <div class="summary-link">
+        <a href="../{{subtopic.href}}">{{subtopic.title}}</a>
+        {{if subtopic.shortdesc ~= ""}}
+        <p>
+          {{subtopic.shortdesc}}
+        </p>
+        {{end}}
+      </div>
+      {{end}}
+    </div>
+    {{end}}
+
+    <div class="topic-navbar">
+      <div class="seq-navlinks">
+        {{if topic.prev-topic}}
+        <a href="../{{topic.prev-topic.href}}"
+           title="{{topic.prev-topic.shortdesc}}">
+          ← {{topic.prev-topic.title}}
+        </a>
+        {{end}}
+        {{if topic.next-topic}}
+        <a href="../{{topic.next-topic.href}}"
+           title="{{topic.next-topic.shortdesc}}">
+          {{topic.next-topic.title}} →
+        </a>
+        {{end}}
+      </div>
+      <div class="hier-navlinks">
+        &nbsp;
+      </div>
+    </div>
+  </div>
+</body>
+</html>

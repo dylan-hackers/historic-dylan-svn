@@ -6,44 +6,38 @@ module: main
 
 define argument-parser <my-arg-parser> ()
    regular-arguments files;
-   option output-dir = *package-directory*,
-      "=<directory>",
-      format-to-string("Documentation path [%s]", *package-directory*),
-      long: "output-dir", short: "o", knd: <parameter-option-parser>;
-   option package-title = *package-title*,
-      "=<title>",
+   option output-path, " <directory>",
+      format-to-string("Documentation path [%s]", *output-directory*),
+      long: "output-dir", short: "o", kind: <parameter-option-parser>;
+   option output-formats, " html|dita",
+      format-to-string("Documentation format [%s]", *output-types*.item-string-list),
+      long: "format", short: "f", kind: <repeated-parameter-option-parser>;
+   option package-title, " <title>",
       format-to-string("Documentation title [%s]", *package-title*),
       long: "title", short: "t", kind: <parameter-option-parser>;
-   option template-path = *topic-template-directory*,
-      "=<directory>",
-      format-to-string("Path to topic templates [%s]", *topic-template-directory*),
-      long: "templates", kind: <parameter-option-parser>;
-   option toc-pattern = *contents-file-extension*,
-      "=<ext>",
+   option cfg-pattern, " <ext>",
+      format-to-string("Configuration files [%s]", *config-file-extension*),
+      long: "cfg", short: "c", kind: <parameter-option-parser>;
+   option toc-pattern, " <ext>",
       format-to-string("Table of contents files [%s]", *contents-file-extension*),
       long: "toc", kind: <parameter-option-parser>;
-   // option cfg-pattern = "cfg",
-   //    "=<ext>",
-   //    "Configuration files [\"cfg\"]",
-   //    long: "cfg", short: "c", kind: <parameter-option-parser>;
-   option doc-pattern = *topic-file-extension*,
-      "=<ext>",
+   option doc-pattern, " <ext>",
       format-to-string("Documentation text files [%s]", *topic-file-extension*),
       long: "doc", kind: <parameter-option-parser>;
-   option api-list-filename = #f,
-      "=<filename>",
+   option template-path, " <directory>",
+      format-to-string("Template files [%s]", *template-directory*),
+      long: "templates", kind: <parameter-option-parser>;
+   option api-list-filename, " <filename>",
       "Write fully qualified API names to file",
       long: "name-list", kind: <parameter-option-parser>;
-   option generated-topics-path = #f,
-      "=<directory>",
-      "Write automatically-generated topic files",
+   option generated-topics-path, " <directory>",
+      "Save automatically-generated topic files",
       long: "autogen-dir", kind: <parameter-option-parser>;
    // option tab-size = "8",
    //    "=<n>",
    //    "Tab size [8]",
    //    long: "tabsize", kind: <parameter-option-parser>;
-   option disabled-warnings,
-      "=<nn>",
+   option disabled-warnings, " <nn>",
       "Hide warning message",
       long: "no-warn", short: "w", kind: <repeated-parameter-option-parser>;
    option stop-on-errors?,
@@ -60,7 +54,9 @@ define argument-parser <my-arg-parser> ()
       long: "version";
    synopsis print-help,
       usage: "doctower [options] <files>",
-      description: "Creates Dylan API documentation from files."
+      description: "Creates Dylan API documentation from files. Files may be configuration files,\n"
+         "table of contents files, documentation text files, Dylan source files, or Dylan\n"
+         "LID files."
 end argument-parser;
 
 
@@ -72,7 +68,7 @@ define variable *error-code* :: false-or(<integer>) = #f;
 
 define function main (name, arguments)
 
-   // Check arguments
+   // Retrieve arguments
 
    let args = make(<my-arg-parser>);
    let good-options? = parse-arguments(args, arguments);
@@ -98,44 +94,73 @@ define function main (name, arguments)
 
    *stop-on-errors?* := args.stop-on-errors?;
    *verbose?* := ~args.quiet?;
-   *topic-template-directory* := as(<directory-locator>, args.template-path);
-   *topic-file-extension* := args.doc-pattern;
-   *package-title* := args.package-title;
+   
+   // Retrieve and process config files
+   
+   let file-locators = map(curry(as, <file-locator>), args.files);
+   *config-file-extension* := args.cfg-pattern | *config-file-extension*;
+   let cfg-files = choose(
+         method (loc :: <file-locator>) => (cfg-locator? :: <boolean>)
+            case-insensitive-equal?(*config-file-extension*, loc.locator-extension)
+         end method, file-locators);
+   
+   // TODO: Process config files. We can have multiple config files, but they
+   // cannot collectively define a config more than once.
 
-   *generated-topics-directory* :=
-         when (args.generated-topics-path)
-            as(<directory-locator>, args.generated-topics-path)
-         end when;
+   // Override configs with command-line options
 
-   *api-list-file* := 
-         when (args.api-list-filename)
-            as(<file-locator>, args.api-list-filename)
-         end when;
+   *contents-file-extension* := args.toc-pattern | *contents-file-extension*;
+   *topic-file-extension* := args.doc-pattern | *topic-file-extension*;
+   *package-title* := args.package-title | *package-title*;
+
+   if (args.template-path)
+      *template-directory* := as(<directory-locator>, args.template-path)
+   end if;
+   
+   if (args.output-path)
+      *output-directory* := as(<directory-locator>, args.output-path)
+   end if;
+   
+   if (~args.output-formats.empty?)
+      *output-types* := map(curry(as, <symbol>), args.output-formats);
+   end if;
+   
+   if (args.generated-topics-path)
+      *generated-topics-directory* := as(<directory-locator>, args.generated-topics-path)
+   end if;
+
+   if (args.api-list-filename)
+      *api-list-file* := as(<file-locator>, args.api-list-filename)
+   end if;
+
+   // Classify input files
 
    let toc-files = make(<stretchy-vector>);
    let doc-files = make(<stretchy-vector>);
    let src-files = make(<stretchy-vector>);
-   for (filename in args.files)
-      block()
-         let loc = as(<file-locator>, filename);
-         select (loc.locator-extension by case-insensitive-equal?)
-            args.doc-pattern => doc-files := add!(doc-files, loc);
-            args.toc-pattern => toc-files := add!(toc-files, loc);
-            ("dylan", "dyl", "lid") => src-files := add!(src-files, loc);
-            otherwise => file-type-not-known(filename: filename);
-         end select;
-      exception (<skip-error-restart>)
-      end block;
+   for (loc in file-locators)
+      select (loc.locator-extension by case-insensitive-equal?)
+         *config-file-extension*
+            => #f /* Already dealt with these */;
+         *topic-file-extension*
+            => doc-files := add!(doc-files, loc);
+         *contents-file-extension*
+            => toc-files := add!(toc-files, loc);
+         ("dylan", "dyl", "lid")
+            => src-files := add!(src-files, loc);
+         otherwise
+            => file-type-not-known(filename: as(<string>, loc));
+      end select;
    end for;
-
-   // Process files.
+   
+   // Build documentation
 
    let doc-tree = create-doc-tree(toc-files, doc-files, src-files);
    create-output-files(doc-tree);
 
-   // TODO: For now, just output it.
-   print(doc-tree, *standard-output*, pretty?: #t);
-   new-line(*standard-output*);
+   /**/
+   // print(doc-tree, *standard-output*, pretty?: #t);
+   // new-line(*standard-output*);
 
    exit-application(*error-code* | 0);
 end function main;

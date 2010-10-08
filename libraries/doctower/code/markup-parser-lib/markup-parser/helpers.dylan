@@ -31,7 +31,7 @@ such as bullet lists.
 */
 define function first-item-and-last-subelements (items :: <sequence>)
 => (simplified-items :: <sequence>)
-   let opt-many-items = items[1];
+   let opt-many-items = items[1] | #[];
    apply(vector, items[0], map(last, opt-many-items))
 end function;
 
@@ -392,7 +392,7 @@ end method;
 
 define method print-object (o :: <quote-token>, s :: <stream>) => ()
    format(s, "{quote %s%s%s%s%s %=}",
-      o.prequoted-text | "", o.open-quote, o.quoted-text | "", o.close-quote,
+      o.prequoted-text | "", o.open-quote, o.quoted-text, o.close-quote,
       o.postquoted-text | "", o.quote-spec | "(default)")
 end method;
 

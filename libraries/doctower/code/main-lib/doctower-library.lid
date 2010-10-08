@@ -1,8 +1,6 @@
 library:    doctower-library
 executable: doctower
 files:      doctower-library
-            template-files/module
-            template-files/template-files
             dylan-topics/module
             dylan-topics/dylan-topics
             dylan-topics/namespace-topics

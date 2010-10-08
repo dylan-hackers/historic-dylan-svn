@@ -8,10 +8,9 @@ define module topic-resolver
    use ordered-tree;
    use name-processing;
    use regular-expressions, import: { regexp-replace };
-   use transcendental, import: { log => math-log };
    
    export
       group-mergeable-topics, check-and-merge-topics,
       resolution-info, resolve-target-placeholders, replace-content-placeholders,
-      arrange-topics, ensure-topic-ids;
+      arrange-topics;
 end module;

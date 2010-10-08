@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <title>{{package-title}} Contents</title>
+  <link rel="stylesheet" href="../{{css-file}}" type="text/css" media="screen" charset="utf-8" />
+</head>
+<body>
+  <div class="package-navbar">
+    <div class="package-navlinks">
+      <a href="../{{home-file}}">Home</a>
+      <span>Contents</span>
+      <a href="../{{index-file}}">Index</a>
+    </div>
+    <div class="package-title">
+      {{package-title}}
+    </div>
+  </div>
+  <div class="toc">
+    <div class="toc-content">
+      <h1>Table of Contents</h1>
+      <ul>
+        {{repeat with topic in root-topics}}
+        <li>
+          <a href="../{{topic.href}}"
+             name="{{topic.id}}"
+             title="{{topic.shortdesc}}">
+            {{topic.title}}
+          </a>
+{{topic.child-recursion !}}
+        </li>
+        {{end}}
+      </ul>
+    </div>
+    <div class="toc-footer">
+       &nbsp;
+    </div>
+  </div>
+</body>
+</html>

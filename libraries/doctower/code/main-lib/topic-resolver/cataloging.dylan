@@ -1,18 +1,6 @@
 module: topic-resolver
 
 
-define method ensure-topic-ids (doc-tree :: <ordered-tree>) => ()
-   let next-topic-id = 1;
-   let places = ceiling(math-log(doc-tree.size, base: 10));
-   for (topic :: false-or(<topic>) in doc-tree)
-      if (topic & ~topic.id)
-         topic.id := format-to-string(":Topic-%0*d", places, next-topic-id);
-         next-topic-id := next-topic-id + 1;
-      end if
-   end for
-end method;
-
-
 define method resolution-info (topics :: <sequence>)
 => (target-resolutions :: <table>, duplicate-title-targets :: <table>)
 

@@ -2,22 +2,34 @@ module: common
 synopsis: Useful I/O functions.
 
 
+define macro with-file-error-handlers
+   {  with-file-error-handlers (#key ?default-locator:expression) 
+         ?:body
+      end }
+   => {  block ()
+            ?body
+         exception (err :: <file-does-not-exist-error>)
+            file-not-found(location: #f, filename: err.file-error-locator)
+         exception (err :: <file-error>)
+            file-error(filename: err.file-error-locator, error: condition-to-string(err))
+         exception (err :: <file-system-error>)
+            file-error(filename: ?default-locator, error: condition-to-string(err))
+         end block }
+end macro;
+
+
 define macro with-open-file
    {  with-open-file (?:name = ?locator:expression, #rest ?keys:expression)
          ?:body
       end }
-   => {  block ()
+   => {  with-file-error-handlers (default-locator: ?locator)
             let ?name = make(<file-stream>, locator: ?locator, ?keys);
             block ()
                ?body
             cleanup
                close(?name)
             end block
-         exception (err :: <file-does-not-exist-error>)
-            file-not-found(location: #f, filename: ?locator)
-         exception (err :: <file-system-error>)
-            file-error(filename: ?locator, error: condition-to-string(err))
-         end block }
+         end with-file-error-handlers }
 end macro;
 
 
@@ -50,4 +62,25 @@ define method read-lines-to-end (stream :: <stream>)
       end if;
    end iterate;
    lines
+end method;
+
+
+define method delete-directory (directory :: <directory-locator>) => ()
+   do-directory(
+         method (directory, filename, type) => ()
+            select (type)
+               #"directory" =>
+                  let subdir-loc = merge-locators(
+                        as(<directory-locator>, filename),
+                        directory);
+                  delete-directory(subdir-loc);
+               otherwise =>
+                  let file-loc = merge-locators(
+                        as(<file-locator>, filename),
+                        directory);
+                  delete-file(file-loc);
+            end select
+         end method,
+         directory);
+   sys-delete-directory(directory);
 end method;

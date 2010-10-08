@@ -194,8 +194,8 @@ define caching parser quote (<source-location-token>)
       tokens[0].prequoted-text;
    slot open-quote :: <string> = 
       tokens[0].open-quote;
-   slot quoted-text :: false-or(<string>) =
-      tokens[0].quoted-text;
+   slot quoted-text :: <string> =
+      tokens[0].quoted-text | "";
    slot close-quote :: <string> =
       tokens[0].close-quote;
    slot postquoted-text :: false-or(<string>) =

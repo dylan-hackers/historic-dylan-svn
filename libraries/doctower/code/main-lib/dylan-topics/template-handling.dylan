@@ -2,10 +2,27 @@ module: dylan-topics
 synopsis: Operations for template documents.
 
 
+define constant $topic-templates = #[
+   #"all-catalog-topics",
+   #"lib-catalog-topics",
+   #"mod-catalog-topics",
+   #"library-topic",
+   #"module-topic",
+   #"class-topic",
+   #"function-topic",
+   #"generic-topic",
+   #"method-topic",
+   #"constant-topic",
+   #"variable-topic",
+   #"macro-topic",
+   #"unbound-topic"
+];
+
+
 define method topics-from-template
    (template-name :: <symbol>, generated-topic, vars :: <table>)
 => (topics :: <sequence>)
-   let template = topic-template(template-name);
+   let template = template-by-name(template-name);
    let generated-body = process-template(template, operations: $template-ops, 
          variables: vars);
          

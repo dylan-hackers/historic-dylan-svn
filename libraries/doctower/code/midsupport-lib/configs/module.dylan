@@ -5,8 +5,8 @@ define module configs
    
    export
       *api-list-file*, *generated-topics-directory*, *topic-file-extension*,
-      *contents-file-extension*, *package-title*, *package-directory*,
-      *topic-template-directory*;
+      *contents-file-extension*, *config-file-extension*, *package-title*,
+      *output-directory*, *output-types*, *template-directory*;
       
    export
       $ascii-line-chars, $bullet-chars, $open-quote-chars, $close-quote-chars,

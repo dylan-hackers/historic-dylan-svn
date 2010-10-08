@@ -230,7 +230,7 @@ define method process-tokens
       #"relevant-to" =>
          topic.relevant-to := concatenate!(topic.relevant-to, targets);
       #"see-also" =>
-         topic.see-also := concatenate!(topic.see-also, targets);
+         topic.related-links := concatenate!(topic.related-links, targets);
    end select;
 end method;
 

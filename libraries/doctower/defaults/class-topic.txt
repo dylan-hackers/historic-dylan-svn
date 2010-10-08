@@ -60,7 +60,7 @@ Make keywords:
 {{+ END (* if keywords *) }}
 
 -----------------------------------------------
-Subheading: Inheritable Slots	[:Inheritables]
+Subheading: Inheritable slots	[:Inheritables]
 -----------------------------------------------
 
 {{ IF class.inheritable-getters +}}

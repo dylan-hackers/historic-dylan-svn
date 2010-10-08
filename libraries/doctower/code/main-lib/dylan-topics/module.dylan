@@ -20,5 +20,5 @@ define module dylan-topics
    use template-engine;
 
    export
-      topics-from-dylan;
+      topics-from-dylan, $topic-templates;
 end module;
