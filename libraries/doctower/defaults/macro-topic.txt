@@ -12,7 +12,7 @@ Defined in {{macro.source.filename}} line {{macro.source.line}}.
 Exported under these names:
 
 {{ REPEAT WITH export IN macro.exports +}}
-- '{{export.name}}' [api] in module '{{export.module.name}}' {{ +}}
+- '{{export.name}}' [api] in module '{{export.module.name}}', {{ +}}
 {{+ CASE export.module.id +}}
 [api qv {{export.module.id}}] {{ +}}
 {{+ ELSE +}}

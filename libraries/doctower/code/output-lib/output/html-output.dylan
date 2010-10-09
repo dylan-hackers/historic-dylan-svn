@@ -5,7 +5,10 @@ define constant $html-templates = #[
    #"html-redirect",
    #"html-toc",
    #"html-toc-recursion",
-   #"html-topic"
+   #"html-topic",
+   #"html-section",
+   #"html-unordered-list",
+   #"html-defn-list"
 ];
 
 
@@ -138,7 +141,7 @@ define method add-html-link-info
    let title-id = format-to-string(":Title(%s)", target-id);
    let target-href = format-to-string("%s#%s", filename, target-id);
    let title-href = format-to-string("%s#%s", filename, target-id);
-   target-info[topic] := make(<topic-target>,
+   target-info[sect] := make(<topic-target>,
          id: target-id, href: target-href,
          title-id: title-id, title-href: title-href);
    #t
@@ -164,7 +167,7 @@ end method;
 
 define method write-output-file
    (output == #"html", file-info :: <redirect-output-file>,
-    link-map :: <table>, link-info :: <table>, special-file-info :: <table>)
+    link-map :: <table>, target-info :: <table>, special-file-info :: <table>)
 => ()
    let var-table = table(<case-insensitive-string-table>,
          "destination" => file-info.destination.locator);
@@ -174,7 +177,7 @@ end method;
 
 define method write-output-file
    (output == #"html", file-info :: <toc-output-file>,
-    link-map :: <table>, link-info :: <table>, special-file-info :: <table>)
+    link-map :: <table>, target-info :: <table>, special-file-info :: <table>)
 => ()
    let var-table = table(<case-insensitive-string-table>,
          "css-file" => special-file-info[#"css"].locator,
@@ -189,12 +192,12 @@ define method write-output-file
          "href" =>
                method (key :: <ordered-tree-key>) => (href :: <string>)
                   let topic = file-info.tree[key];
-                  link-info[topic].target-href
+                  target-info[topic].target-href
                end method,
          "id" =>
                method (key :: <ordered-tree-key>) => (id :: <string>)
                   let topic = file-info.tree[key];
-                  link-info[topic].target-id
+                  target-info[topic].target-id
                end method,
          "shortdesc" =>
                method (key :: <ordered-tree-key>) => (desc :: <string>)
@@ -205,13 +208,13 @@ define method write-output-file
                      ""
                   end if
                end method,
-         "title" =>
+         "formatted-title" =>
                method (key :: <ordered-tree-key>) => (title :: <string>)
                   let topic = file-info.tree[key];
-                  topic.title.stringify-title
+                  html-content(topic.title, target-info)
                end method,
          "child-recursion" =>
-               identity /* replace this with local method */
+               identity /* this is replaced with local method below */
          );
 
    local method do-child-recursion (key :: <ordered-tree-key>) => (text :: <string>)
@@ -230,7 +233,7 @@ end method;
 
 define method write-output-file
    (output == #"html", file-info :: <index-output-file>,
-    link-map :: <table>, link-info :: <table>, special-file-info :: <table>)
+    link-map :: <table>, target-info :: <table>, special-file-info :: <table>)
 => ()
    // TODO: General index
 end method;
@@ -238,7 +241,7 @@ end method;
 
 define method write-output-file
    (output == #"html", file-info :: <topic-output-file>,
-    link-map :: <table>, link-info :: <table>, special-file-info :: <table>)
+    link-map :: <table>, target-info :: <table>, special-file-info :: <table>)
 => ()
    let var-table = table(<case-insensitive-string-table>,
          "css-file" => special-file-info[#"css"].locator,
@@ -254,14 +257,14 @@ define method write-output-file
          "href" =>
                method (topic :: type-union(<topic>, <url>)) => (href :: <string>)
                   if (instance?(topic, <topic>))
-                     link-info[topic].target-href
+                     target-info[topic].target-href
                   else
                      topic
                   end if
                end method,
          "id" =>
                method (topic :: <topic>) => (id :: <string>)
-                  link-info[topic].target-id
+                  target-info[topic].target-id
                end method,
          "shortdesc" =>
                method (topic :: type-union(<topic>, <url>)) => (desc :: <string>)
@@ -293,32 +296,48 @@ define method write-output-file
                end method,
          "formatted-title" =>
                method (topic :: <topic>) => (html :: <string>)
-                  html-content(topic.title)
+                  html-content(topic.title, target-info)
                end method,
          "formatted-shortdesc" =>
                method (topic :: <topic>) => (html :: <string>)
-                  html-content(topic.shortdesc | "")
+                  html-content(topic.shortdesc | "", target-info)
                end method,
          "formatted-content" =>
                method (topic :: <topic>) => (html :: <string>)
-                  html-content(topic.content)
+                  html-content(topic.content, target-info)
                end method,
-         "definitions-section"   => rcurry(html-section, definitions-section),
-         "syntax-section"        => rcurry(html-section, syntax-section),
-         "adjectives-section"    => rcurry(html-section, adjectives-section),
-         "conds-section"         => rcurry(html-section, conds-section),
-         "args-section"          => rcurry(html-section, args-section),
-         "vals-section"          => rcurry(html-section, vals-section),
-         "keywords-section"      => rcurry(html-section, keywords-section),
-         "value-section"         => rcurry(html-section, value-section),
-         "inheritables-section"  => rcurry(html-section, inheritables-section),
-         "supers-section"        => rcurry(html-section, supers-section),
-         "subs-section"          => rcurry(html-section, subs-section),
-         "funcs-on-section"      => rcurry(html-section, funcs-on-section),
-         "funcs-returning-section" => rcurry(html-section, funcs-returning-section),
-         "methods-section"       => rcurry(html-section, methods-section),
-         "modules-section"       => rcurry(html-section, modules-section),
-         "bindings-section"      => rcurry(html-section, bindings-section),
+         "definitions-section" =>
+               rcurry(html-section, definitions-section, target-info),
+         "syntax-section" =>
+               rcurry(html-section, syntax-section, target-info),
+         "adjectives-section" =>
+               rcurry(html-section, adjectives-section, target-info),
+         "conds-section" =>
+               rcurry(html-section, conds-section, target-info),
+         "args-section" =>
+               rcurry(html-section, args-section, target-info),
+         "vals-section" =>
+               rcurry(html-section, vals-section, target-info),
+         "keywords-section" =>
+               rcurry(html-section, keywords-section, target-info),
+         "value-section" =>
+               rcurry(html-section, value-section, target-info),
+         "inheritables-section" =>
+               rcurry(html-section, inheritables-section, target-info),
+         "supers-section" =>
+               rcurry(html-section, supers-section, target-info),
+         "subs-section" =>
+               rcurry(html-section, subs-section, target-info),
+         "funcs-on-section" =>
+               rcurry(html-section, funcs-on-section, target-info),
+         "funcs-returning-section" =>
+               rcurry(html-section, funcs-returning-section, target-info),
+         "methods-section" =>
+               rcurry(html-section, methods-section, target-info),
+         "modules-section" =>
+               rcurry(html-section, modules-section, target-info),
+         "bindings-section" =>
+               rcurry(html-section, bindings-section, target-info),
          "subtopics" =>
                method (topic :: <topic>) => (subtopics :: <sequence>)
                   link-map[topic].child-topics
@@ -336,41 +355,206 @@ define method write-output-file
 end method;
 
 
-define method html-content (seq :: <sequence>) => (html :: <string>)
-   reduce(concatenate, "", map-as(<vector>, html-content, seq))
-end method;
-
-
-define method html-content (str :: <string>) => (html :: <string>)
-   xml-sanitizer(str)
-end method;
-
-
-define method html-content (char :: <character>) => (html :: <string>)
-   xml-sanitizer(as(<string>, char))
-end method;
-
-
-define method html-content (para :: <paragraph>) => (html :: <string>)
-   concatenate("<p>\n", html-content(para.content), "</p>\n")
-end method;
-
-
-define method html-content (obj :: <object>) => (html :: <string>)
-   "?"
-end method;
-
-
-define method html-section (topic :: <topic>, accessor :: <function>)
+define method html-section
+   (topic :: <topic>, accessor :: <function>, target-info)
 => (html :: <string>)
    if (applicable-method?(accessor, topic))
       let sect :: false-or(<section>) = topic.accessor;
       if (sect & ~sect.content.empty?)
-         concatenate("<h2>\n", html-content(sect.title), "</h2>\n")
+         let vars = table(<case-insensitive-string-table>,
+               "id" =>
+                     target-info[sect].target-id,
+               "formatted-title" =>
+                     html-content(sect.title, target-info),
+               "content" =>
+                     html-content(sect.content, target-info)
+               );
+         text-from-template(#"html-section", variables: vars);
       else
          ""
       end if
    else
       ""
    end if
+end method;
+
+
+define method html-content (obj :: <object>, target-info)
+=> (html :: <string>)
+   /**/
+   format-to-string("%=", obj).xml-sanitizer;
+end method;
+
+
+define method html-content (seq :: <sequence>, target-info)
+=> (html :: <string>)
+   let html-elems = map-as(<vector>, rcurry(html-content, target-info), seq);
+   reduce(concatenate, "", html-elems)
+end method;
+
+
+define method html-content (str :: <string>, target-info)
+=> (html :: <string>)
+   xml-sanitizer(str)
+end method;
+
+
+define method html-content (char :: <character>, target-info)
+=> (html :: <string>)
+   xml-sanitizer(as(<string>, char))
+end method;
+
+
+define method html-content (xref :: <xref>, target-info)
+=> (html :: <string>)
+   let title = html-content(xref.text, target-info);
+   select (xref.target by instance?)
+      <url> =>
+         let href = as(<string>, xref.target).xml-sanitizer;
+         format-to-string("<a href=\"%s\">%s</a>", href, title);
+      <topic> =>
+         let href = target-info[xref.target].target-href.xml-sanitizer;
+         let desc =
+               if (xref.target.shortdesc)
+                  xref.target.shortdesc.content.stringify-markup.xml-sanitizer
+               else
+                  ""
+               end if;
+         format-to-string("<a href=\"../%s\" title=\"%s\">%s</a>", href, desc, title);
+      <section> =>
+         let href = target-info[xref.target].target-href.xml-sanitizer;
+         format-to-string("<a href=\"../%s\">%s</a>", href, title);
+      otherwise =>
+         // TODO: Xref output for footnotes and ph-markers.
+         next-method();
+   end select
+end method;
+
+
+define method html-content (conref :: <conref>, target-info)
+=> (html :: <string>)
+   if (conref.style = #"title")
+      html-content(conref.target.title, target-info)
+   else
+      html-content(conref.target.shortdesc, target-info)
+   end if;
+end method;
+
+
+define method html-content (ul :: <unordered-list>, target-info)
+=> (html :: <string>)
+   let html-items = map(rcurry(html-content, target-info), ul.items);
+   let vars = table(<case-insensitive-string-table>, "items" => html-items);
+   text-from-template(#"html-unordered-list", variables: vars)
+end method;
+
+
+define method html-content (defn-list :: <defn-list>, target-info)
+=> (html :: <string>)
+   // BUGFIX: Map can't create an <array>. Bug #7473.
+   let html-items = make(<array>, dimensions: defn-list.items.dimensions);
+   map-into(html-items, rcurry(html-content, target-info), defn-list.items);
+   let vars = table(<case-insensitive-string-table>,
+         "class" =>
+               if (instance?(defn-list, <one-line-defn-list>))
+                  "one-line"
+               else
+                  "many-line"
+               end if,
+         "items" =>
+               range(from: 0, below: dimension(html-items, 0))
+         );
+   let ops = table(<case-insensitive-string-table>,
+         "term" =>
+               method (i :: <integer>) => (html :: <string>)
+                  html-items[i, 0]
+               end,
+         "defn" =>
+               method (i :: <integer>) => (html :: <string>)
+                  html-items[i, 1]
+               end
+         );
+   text-from-template(#"html-defn-list", variables: vars, operations: ops)
+end method;
+
+
+define method html-content (ent :: <entity>, target-info)
+=> (html :: <string>)
+   format-to-string("&#%d;", ent.code)
+end method;
+
+
+define method html-content (parm :: <api/parm-name>, target-info)
+=> (html :: <string>)
+   entag("var", parm.text, target-info)
+end method;
+
+
+define method html-content (term :: <term>, target-info)
+=> (html :: <string>)
+   entag("dfn", term.text, target-info)
+end method;
+
+
+define method html-content (term :: <term-style>, target-info)
+=> (html :: <string>)
+   enspan("term", term.text, target-info)
+end method;
+
+
+define method html-content (code :: <code-phrase>, target-info)
+=> (html :: <string>)
+   entag("code", code.text, target-info)
+end method;
+
+
+define method html-content (cite :: <cite>, target-info)
+=> (html :: <string>)
+   entag("cite", cite.text, target-info)
+end method;
+
+
+define method html-content (bold :: <bold>, target-info)
+=> (html :: <string>)
+   entag("b", bold.text, target-info)
+end method;
+
+
+define method html-content (ital :: <italic>, target-info)
+=> (html :: <string>)
+   entag("i", ital.text, target-info)
+end method;
+
+
+define method html-content (und :: <underline>, target-info)
+=> (html :: <string>)
+   entag("u", und.text, target-info)
+end method;
+
+
+define method html-content (em :: <emphasis>, target-info)
+=> (html :: <string>)
+   entag("em", em.text, target-info)
+end method;
+
+
+define method html-content (para :: <paragraph>, target-info)
+=> (html :: <string>)
+   entag("p", para.content, target-info)
+end method;
+
+
+define method enspan (span-class :: <string>, content, target-info)
+=> (html :: <string>)
+   concatenate("<span class=\"", span-class.xml-sanitizer, "\"",
+         html-content(content, target-info),
+         "</span>")
+end method;
+
+
+define method entag (tag :: <string>, content, target-info)
+=> (html :: <string>)
+   concatenate("<", tag, ">",
+         html-content(content, target-info),
+         "</", tag, ">")
 end method;

@@ -24,7 +24,7 @@ define method make-directive-section
    let (setter, section-id, section-title) =
          select (section-type)
             #"keywords" =>
-               values(keywords-section-setter, ":Keywords", "Make Keywords");
+               values(keywords-section-setter, ":Keywords", "Make keywords");
             #"conditions" =>
                values(conds-section-setter, ":Conditions", "Conditions");
             #"arguments" =>

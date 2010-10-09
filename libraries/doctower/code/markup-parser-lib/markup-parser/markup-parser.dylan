@@ -90,7 +90,7 @@ define method parse-internal-markup
       if (success?)
          markup-token;
       else
-         error("Failed to parse internal markup at stream position %d: %=",
+         error("Failed to parse internal markup at stream position %d: expected %s",
                extent.parse-position, extent.parse-expected);
       end if;
    cleanup

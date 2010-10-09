@@ -1,7 +1,7 @@
 The {{class.name}} class.
 
 ----------------------------------------------
-Subheading: Definitions		[:Definitions]
+Subheading: Definitions         [:Definitions]
 ----------------------------------------------
 
 {{ IF class.source +}}
@@ -12,7 +12,7 @@ Defined in {{class.source.filename}} line {{class.source.line}}.
 Exported under these names:
 
 {{ REPEAT WITH export IN class.exports +}}
-- '{{export.name}}' [api] in module '{{export.module.name}}' {{ +}}
+- '{{export.name}}' [api] in module '{{export.module.name}}', {{ +}}
 {{+ CASE export.module.id +}}
 [api qv {{export.module.id}}] {{ +}}
 {{+ ELSE +}}
@@ -30,7 +30,7 @@ in library '{{export.library.name}}'. {{ +}}
 {{+ END (* if exports *) }}
 
 ---------------------------------------------
-Subheading: Adjectives  	[:Adjectives]
+Subheading: Adjectives          [:Adjectives]
 ---------------------------------------------
 
 {{class.adjectives}}
@@ -42,67 +42,67 @@ Make keywords:
 {{ IF class.keywords +}}
 {{+ REPEAT WITH keyword IN class.keywords +}}
 '{{keyword.name}}:' [api] -
-	{{ CASE ~keyword.type +}}
-	An object.
-	{{+ CASE keyword.type.id +}}
- 	An instance of '{{keyword.type.id}}'. [api qv]
-	{{+ ELSE +}}
-	An instance of '{{keyword.type.text}}'. [code]
-	{{+ END (* case *) }} {{ +}}
+        {{ CASE ~keyword.type +}}
+        An object.
+        {{+ CASE keyword.type.id +}}
+        An instance of '{{keyword.type.id}}'. [api qv]
+        {{+ ELSE +}}
+        An instance of '{{keyword.type.text}}'. [code]
+        {{+ END (* case *) }} {{ +}}
 
-	{{+ IF keyword.default +}}
-	Optional. Defaults to '{{keyword.default.text}}'. [code]
-	{{+ ELSE +}}
-	Required.
-	{{+ END (* if default *) }}
+        {{+ IF keyword.default +}}
+        Optional. Defaults to '{{keyword.default.text}}'. [code]
+        {{+ ELSE +}}
+        Required.
+        {{+ END (* if default *) }}
 {{ +}}
 {{+ END (* repeat *) +}}
 {{+ END (* if keywords *) }}
 
 -----------------------------------------------
-Subheading: Inheritable slots	[:Inheritables]
+Subheading: Inheritable slots   [:Inheritables]
 -----------------------------------------------
 
 {{ IF class.inheritable-getters +}}
-{{+ REPEAT WITH getter IN class.inheritable-getters +}}
+{{+ REPEAT WITH getter IN class.inheritable-getters INFO IN getter-info +}}
 {{+ CASE getter.id +}}
-'{{getter.id}}' [api qv]  {{ +}}
+'{{getter.id}}'{{ IF ~getter-info.last-rep? }},{{ END }} [api qv]  {{ +}}
 {{+ ELSE +}}
-'{{getter.name}}' [api]  {{ +}}
+'{{getter.name}}'{{ IF ~getter-info.last-rep? }},{{ END }} [api]  {{ +}}
 {{+ END (* case *) +}}
 {{+ END (* repeat *) +}}
 {{+ END (* if inheritable-getters *) }}
 
 -----------------------------------------------
-Subheading: Superclasses	[:Superclasses]
+Subheading: Superclasses        [:Superclasses]
 -----------------------------------------------
 
 {{ IF class.superclasses +}}
-{{+ REPEAT WITH superclass IN class.superclasses +}}
+{{+ REPEAT WITH superclass IN class.superclasses INFO IN super-info +}}
 {{+ CASE superclass.id +}}
-'{{superclass.id}}' [api qv]  {{ +}}
+'{{superclass.id}}'{{ IF ~super-info.last-rep? }},{{ END }} [api qv]  {{ +}}
 {{+ ELSE +}}
-'{{superclass.name}}' [api]  {{ +}}
+'{{superclass.name}}'{{ IF ~super-info.last-rep? }},{{ END }} [api]  {{ +}}
 {{+ END (* case *) +}}
 {{+ END (* repeat *) +}}
 {{+ END (* if superclasses *) }}
 
 ---------------------------------------------
-Subheading: Subclasses		[:Subclasses]
+Subheading: Subclasses          [:Subclasses]
 ---------------------------------------------
 
 {{ IF class.subclasses +}}
-{{+ REPEAT WITH subclass IN class.subclasses +}}
+{{+ REPEAT WITH subclass IN class.subclasses INFO IN sub-info +}}
 {{+ CASE subclass.id +}}
-'{{subclass.id}}' [api qv]  {{ +}}
+'{{subclass.id}}'{{ IF ~sub-info.last-rep? }},{{ END }} [api qv]  {{ +}}
 {{+ ELSE +}}
-'{{subclass.name}}' [api]  {{ +}}
+'{{subclass.name}}'{{ IF ~sub-info.last-rep? }},{{ END }} [api]  {{ +}}
 {{+ END (* case *) +}}
 {{+ END (* repeat *) +}}
 {{+ END (* if subclasses *) }}
 
 --------------------------------------------------------------
-Subheading: Functions on {{class.name}}		[:FunctionsOn]
+Subheading: Functions on {{class.name}}         [:FunctionsOn]
 --------------------------------------------------------------
 
 {{ IF class.functions-on-class +}}
@@ -117,7 +117,7 @@ Subheading: Functions on {{class.name}}		[:FunctionsOn]
 {{+ END (* if functions-on-class *) }}
 
 ---------------------------------------------------------------------
-Subheading: Functions returning {{class.name}}	[:FunctionsReturning]
+Subheading: Functions returning {{class.name}}  [:FunctionsReturning]
 ---------------------------------------------------------------------
 
 {{ IF class.functions-returning-class +}}

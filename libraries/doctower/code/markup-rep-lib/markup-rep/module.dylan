@@ -30,7 +30,7 @@ define module markup-rep
    export
       abs-size, abs-size-setter, adjectives-section, adjectives-section-setter,
       api-type, api-type-setter, args-section, args-section-setter,
-      bindings-section, bindings-section-setter, conds-section,
+      bindings-section, bindings-section-setter, code, conds-section,
       conds-section-setter, content, content-setter, definitions-section,
       definitions-section-setter, existent-api?, existent-api?-setter,
       fixed-parent, fixed-parent-setter, footnotes, footnotes-setter,
@@ -45,7 +45,7 @@ define module markup-rep
       modules-section, modules-section-setter, parent, parent-setter,
       qualified-scope-name, qualified-scope-name-setter, rel-size,
       rel-size-setter, relevant-to, relevant-to-setter, related-links,
-      related-links-setter, shortdesc, shortdesc-setter, subs-section,
+      related-links-setter, shortdesc, shortdesc-setter, style, subs-section,
       subs-section-setter, supers-section, supers-section-setter,
       syntax-section, syntax-section-setter, target, target-setter,
       target-from-text?, text, text-setter, title, title-setter,

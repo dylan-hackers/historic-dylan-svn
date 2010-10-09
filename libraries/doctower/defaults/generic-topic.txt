@@ -12,7 +12,7 @@ Defined in {{gen.source.filename}} line {{gen.source.line}}.
 Exported under these names:
 
 {{ REPEAT WITH export IN gen.exports +}}
-- '{{export.name}}' [api] in module '{{export.module.name}}' {{ +}}
+- '{{export.name}}' [api] in module '{{export.module.name}}', {{ +}}
 {{+ CASE export.module.id +}}
 [api qv {{export.module.id}}] {{ +}}
 {{+ ELSE +}}

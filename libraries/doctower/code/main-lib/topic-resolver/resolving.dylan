@@ -109,6 +109,10 @@ define method resolve-target-placeholder-in-topic
 end method;
 
 
+// TODO: Conrefs can target a section title. Make a new method to handle that,
+// similar to the xref method above.
+
+
 define method resolve-target-placeholder-in-topic
    (placeholder :: <target-placeholder>,
     #key setter, topic: current-topic, resolutions, parms, dup-titles, unused-catalogs)

@@ -9,6 +9,10 @@ body {
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 }
 
+:link, :visited {
+	text-decoration: none;
+}
+
 div {
 	position: relative;
 	box-sizing: border-box;
@@ -20,15 +24,33 @@ div {
 }
 
 h1 {
-	margin-bottom: 1em;
+	margin-top: 1em;
+	margin-bottom: 1.5em;
 	font-size: x-large;
 }
 
 h2 {
+	border-width: 0;
+	border-bottom-width: thin;
+	border-color: silver;
+	border-style: solid;
 	margin-top: 1.5em;
 	margin-bottom: 1em;
 	font-size: large;
 }
+
+code {
+	font-family: Consolas, Andale Mono, Menlo, Monaco, monospace
+}
+
+parm {}
+dfn {}
+cite {}
+b {}
+i {}
+u {}
+em {}
+p {}
 
 
 /*** Package information ***/
@@ -72,17 +94,21 @@ h2 {
 
 
 .toc-content {
-	margin .5em 0;
+	margin: .5em 0;
 }
 
 .toc-content ul {
-	margin: .5em 0;
+	margin: 1em 0;
 	font-weight: normal;
 	list-style-type: square;
 }
 
 .toc-content ul ul ul {
 	list-style-type: circle;
+}
+
+.toc-content ul ul ul > li {
+	margin: .5em 0;
 }
 
 .toc-content ul ul ul ul {
@@ -92,21 +118,18 @@ h2 {
 	list-style-type: none;
 }
 
-.toc-content > ul {
-	margin-bottom: 1em;
-}
-
 .toc-content > ul > li {
-	margin: .5em 0;
+	margin: 1em 0;
 	font-weight: bold;
 }
 
-.toc-footer {
+.toc-bar {
 	margin: .5em 0;
 	padding: .5em;
 	font-size: small;
 	background-color: silver;
 }
+
 
 /*** Topics ***/
 
@@ -160,7 +183,7 @@ h2 {
 .topic-subtopics {
 	margin: 1.5em 0;
 	border-width: 0;
-	border-top-width: thick;
+	border-top-width: .5em;
 	border-style: solid;
 	border-color: silver;
 }
@@ -168,3 +191,16 @@ h2 {
 .summary-link {
 	margin: 1.5em 0;
 }
+
+
+/*** Content ***/
+
+
+.section {}
+
+.term {
+	font-style: italic;
+}
+
+dl.one-line {}
+dl.many-line {}

@@ -78,7 +78,7 @@
           {{repeat with link in topic.related-links}}
           <li><a href="../{{link.href}}"
                  title="{{link.shortdesc}}">
-            {{link.title +}}
+            {{link.formatted-title !+}}
           </a></li>
           {{end}}
         </ul>
@@ -101,11 +101,7 @@
       {{repeat with subtopic in topic.subtopics}}
       <div class="summary-link">
         <a href="../{{subtopic.href}}">{{subtopic.title}}</a>
-        {{if subtopic.shortdesc ~= ""}}
-        <p>
-          {{subtopic.shortdesc}}
-        </p>
-        {{end}}
+        {{subtopic.formatted-shortdesc !}}
       </div>
       {{end}}
     </div>

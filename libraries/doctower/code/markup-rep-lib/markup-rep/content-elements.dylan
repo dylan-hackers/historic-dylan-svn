@@ -96,6 +96,9 @@ end class;
 define class <warning-note> (<note>)
 end class;
 
+// TODO: If all items of <ordered-list> or <unordered-list> are one paragraph,
+// make it a compact list. In HTML, render without <p>, or <p> in a compact style.
+
 define class <ordered-list> (<markup-element>)
    slot start :: type-union(<integer>, <character>), 
          init-keyword: #"start";
@@ -169,7 +172,7 @@ end class;
 
 
 /// This will be rendered as a DITA <p> or <ph> element with a conref attribute
-/// or an HTML <p> or <span>. The #"shortdesc" style is only relevent to <topic>
+/// or an HTML <p> or text. The #"shortdesc" style is only relevent to <topic>
 /// targets.
 define class <conref> (<markup-element>)
    slot target :: type-union(<topic>, <section>, <target-placeholder>),

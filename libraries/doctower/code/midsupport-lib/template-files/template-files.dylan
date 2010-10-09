@@ -69,7 +69,7 @@ define method parse-template
       block ()
          apply(make, <template>, document:, template-text, keys);
       exception (err :: <parse-failure>)
-         error("Failed to parse template %s at %d: %s", template-file,
+         error("Failed to parse template %s at %d: expected %s", template-file,
                err.parse-position, err.parse-expected)
       end block
    end with-open-file

@@ -18,6 +18,9 @@
     </div>
   </div>
   <div class="toc">
+    <div class="toc-bar">
+       &nbsp;
+    </div>
     <div class="toc-content">
       <h1>Table of Contents</h1>
       <ul>
@@ -26,14 +29,14 @@
           <a href="../{{topic.href}}"
              name="{{topic.id}}"
              title="{{topic.shortdesc}}">
-            {{topic.title}}
+            {{topic.formatted-title !}}
           </a>
 {{topic.child-recursion !}}
         </li>
         {{end}}
       </ul>
     </div>
-    <div class="toc-footer">
+    <div class="toc-bar">
        &nbsp;
     </div>
   </div>
