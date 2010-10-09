@@ -26,6 +26,7 @@ define module template-engine
    use streams, exclude: { <string-stream> };
    use format;
    use format-out;
+   use standard-io;
    // from sequence-stream
    use sequence-stream, import: { <string-stream> };
    // from peg-parser

@@ -85,50 +85,50 @@ end class;
 
 
 define caching parser lf-paren-directive (<directive-prolog-token>)
-   rule seq(choice(seq(opt-space, lex-lf-parens, lex-plus), lex-lf-parens),
+   rule seq(choice(seq(opt-space, lit-lf-parens, lit-plus), lit-lf-parens),
             opt-templ-space) => tokens;
 end;
 
 define caching parser lf-angle-directive (<directive-prolog-token>)
-   rule seq(choice(seq(opt-space, lex-lf-angles, lex-plus), lex-lf-angles),
+   rule seq(choice(seq(opt-space, lit-lf-angles, lit-plus), lit-lf-angles),
             opt-templ-space) => tokens;
 end;
 
 define caching parser lf-brace-directive (<directive-prolog-token>)
-   rule seq(choice(seq(opt-space, lex-lf-braces, lex-plus), lex-lf-braces),
+   rule seq(choice(seq(opt-space, lit-lf-braces, lit-plus), lit-lf-braces),
             opt-templ-space) => tokens;
 end;
 
 define caching parser lf-brack-directive (<directive-prolog-token>)
-   rule seq(choice(seq(opt-space, lex-lf-bracks, lex-plus), lex-lf-bracks),
+   rule seq(choice(seq(opt-space, lit-lf-bracks, lit-plus), lit-lf-bracks),
             opt-templ-space) => tokens;
 end;
 
 
 define caching parser rt-paren-directive (<directive-epilog-token>)
-   rule seq(opt-templ-space, opt(lex-exclamation),
-            choice(lex-rt-parens, seq(lex-plus, lex-rt-parens, opt-space)))
+   rule seq(opt-templ-space, opt(lit-exclamation),
+            choice(lit-rt-parens, seq(lit-plus, lit-rt-parens, opt-space)))
       => tokens;
    inherited slot raw-output? = tokens[1].true?;
 end;
 
 define caching parser rt-angle-directive (<directive-epilog-token>)
-   rule seq(opt-templ-space, opt(lex-exclamation),
-            choice(lex-rt-angles, seq(lex-plus, lex-rt-angles, opt-space)))
+   rule seq(opt-templ-space, opt(lit-exclamation),
+            choice(lit-rt-angles, seq(lit-plus, lit-rt-angles, opt-space)))
       => tokens;
    inherited slot raw-output? = tokens[1].true?;
 end;
 
 define caching parser rt-brace-directive (<directive-epilog-token>)
-   rule seq(opt-templ-space, opt(lex-exclamation),             
-            choice(lex-rt-braces, seq(lex-plus, lex-rt-braces, opt-space)))
+   rule seq(opt-templ-space, opt(lit-exclamation),             
+            choice(lit-rt-braces, seq(lit-plus, lit-rt-braces, opt-space)))
       => tokens;
    inherited slot raw-output? = tokens[1].true?;
 end;
 
 define caching parser rt-brack-directive (<directive-epilog-token>)
-   rule seq(opt-templ-space, opt(lex-exclamation),             
-            choice(lex-rt-bracks, seq(lex-plus, lex-rt-bracks, opt-space)))
+   rule seq(opt-templ-space, opt(lit-exclamation),             
+            choice(lit-rt-bracks, seq(lit-plus, lit-rt-bracks, opt-space)))
       => tokens;
    inherited slot raw-output? = tokens[1].true?;
 end;

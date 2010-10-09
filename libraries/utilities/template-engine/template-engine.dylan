@@ -182,6 +182,8 @@ define method initialize
 
       // Parse template.
    
+      // *parser-trace* := *standard-output*;
+
       let (result, success?, extent) = parse-template(template-stream, context);
       if (success?)
          template.parsed-template := result
