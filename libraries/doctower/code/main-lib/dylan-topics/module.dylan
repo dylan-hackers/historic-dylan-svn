@@ -14,8 +14,6 @@ define module dylan-topics
    use markup-translator;
    use template-files;
    use name-processing;
-   // from wrapper-streams
-   use canonical-text-stream;
    // from template-engine
    use template-engine;
 

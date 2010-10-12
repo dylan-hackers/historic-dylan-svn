@@ -1,7 +1,7 @@
 The {{mod.name}} module.
 
 ----------------------------------------------
-Subheading: Definition          [:Definitions]
+Section: Definition             [:Definitions]
 ----------------------------------------------
 
 {{ IF mod.source +}}
@@ -23,7 +23,7 @@ Exported under these names:
 {{+ END (* if exports *) }}
 
 -----------------------------------------------------------
-Subheading: Bindings and Unbound Names          [:Bindings]
+Section: Bindings and Unbound Names             [:Bindings]
 -----------------------------------------------------------
 
 [LIST OF BINDINGS IN {{mod.scope-name}}]

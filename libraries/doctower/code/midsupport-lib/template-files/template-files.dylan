@@ -64,10 +64,11 @@ define method parse-template
 => (template :: <template>)
    verbose-log("Parsing template %s", template-file);
    with-open-file (file = template-file)
-      let file-contents = make(<string-stream>, contents: file.stream-contents);
-      let template-text = make(<canonical-text-stream>, inner-stream: file-contents);
+      let template-text = file.canonical-text-stream;
       block ()
          apply(make, <template>, document:, template-text, keys);
+      cleanup
+         template-text.close
       exception (err :: <parse-failure>)
          error("Failed to parse template %s at %d: expected %s", template-file,
                err.parse-position, err.parse-expected)

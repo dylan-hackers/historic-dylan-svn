@@ -1,7 +1,7 @@
 The {{class.name}} class.
 
 ----------------------------------------------
-Subheading: Definitions         [:Definitions]
+Section: Definitions            [:Definitions]
 ----------------------------------------------
 
 {{ IF class.source +}}
@@ -30,7 +30,7 @@ in library '{{export.library.name}}'. {{ +}}
 {{+ END (* if exports *) }}
 
 ---------------------------------------------
-Subheading: Adjectives          [:Adjectives]
+Section: Adjectives             [:Adjectives]
 ---------------------------------------------
 
 {{class.adjectives}}
@@ -60,7 +60,7 @@ Make keywords:
 {{+ END (* if keywords *) }}
 
 -----------------------------------------------
-Subheading: Inheritable slots   [:Inheritables]
+Section: Inheritable slots      [:Inheritables]
 -----------------------------------------------
 
 {{ IF class.inheritable-getters +}}
@@ -74,7 +74,7 @@ Subheading: Inheritable slots   [:Inheritables]
 {{+ END (* if inheritable-getters *) }}
 
 -----------------------------------------------
-Subheading: Superclasses        [:Superclasses]
+Section: Superclasses           [:Superclasses]
 -----------------------------------------------
 
 {{ IF class.superclasses +}}
@@ -88,7 +88,7 @@ Subheading: Superclasses        [:Superclasses]
 {{+ END (* if superclasses *) }}
 
 ---------------------------------------------
-Subheading: Subclasses          [:Subclasses]
+Section: Subclasses             [:Subclasses]
 ---------------------------------------------
 
 {{ IF class.subclasses +}}
@@ -102,7 +102,7 @@ Subheading: Subclasses          [:Subclasses]
 {{+ END (* if subclasses *) }}
 
 --------------------------------------------------------------
-Subheading: Functions on {{class.name}}         [:FunctionsOn]
+Section: Functions on {{class.name}}            [:FunctionsOn]
 --------------------------------------------------------------
 
 {{ IF class.functions-on-class +}}
@@ -117,7 +117,7 @@ Subheading: Functions on {{class.name}}         [:FunctionsOn]
 {{+ END (* if functions-on-class *) }}
 
 ---------------------------------------------------------------------
-Subheading: Functions returning {{class.name}}  [:FunctionsReturning]
+Section: Functions returning {{class.name}}     [:FunctionsReturning]
 ---------------------------------------------------------------------
 
 {{ IF class.functions-returning-class +}}

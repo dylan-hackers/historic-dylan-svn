@@ -6,7 +6,8 @@ define module source-files
    use ordered-tree;
    use markup-rep;
    use parser-common,
-      import: { source-location => token-src-loc };
+      import: { canonical-text-stream, line-col-position-func,
+                source-location => token-src-loc };
    use markup-parser,
       import: { parse-markup, <markup-content-token> };
    use dylan-parser,
@@ -18,8 +19,6 @@ define module source-files
    
    // from regular-expressions
    use regular-expressions, import: { regexp-position };
-   // from wrapper-streams
-   use canonical-text-stream;
    // from system
    use file-system, import: { <file-does-not-exist-error> };
    use locators, import: { locator-extension, merge-locators };

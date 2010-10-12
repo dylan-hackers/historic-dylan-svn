@@ -255,8 +255,8 @@ define caching parser directive-topic-spec-text :: <symbol>
 end;
 
 define caching parser titled-directive-section-spec-text :: <symbol>
-   rule subheading-lit => token;
-   yield token;
+   rule section-lit => token;
+   yield #"section";
 end;
 
 define caching parser paragraph-directive-spec-text :: <symbol>
@@ -265,8 +265,8 @@ define caching parser paragraph-directive-spec-text :: <symbol>
 end;
 
 define caching parser link-directive-spec-text :: <symbol>
-   rule section-lit => token;
-   yield token;
+   rule seq(parent-lit, opt-seq(spaces, topic-lit)) => tokens;
+   yield #"parent";
 end;
 
 define caching parser links-directive-spec-text :: <symbol>

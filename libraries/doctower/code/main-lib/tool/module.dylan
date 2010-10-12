@@ -16,6 +16,5 @@ define module main
    // from dylan
    use extensions, import: { report-condition };
    // from system
-   use file-system, import: { <file-does-not-exist-error> };
    use locators, import: { locator-extension };
 end module;

@@ -159,6 +159,7 @@ define literal-parsers
    names-lit      = "names";
    note-lit       = "note";
    of-lit         = "of";
+   parent-lit     = "parent";
    q-lit          = "q";
    qq-lit         = "qq";
    qualified-lit  = "qualified";
@@ -168,7 +169,6 @@ define literal-parsers
    see-lit        = "see";
    sic-lit        = "sic";
    signals-lit    = "signals";
-   subheading-lit = "subheading";
    syn-lit        = "syn";
    synopsis-lit   = "synopsis";
    term-lit       = "term";

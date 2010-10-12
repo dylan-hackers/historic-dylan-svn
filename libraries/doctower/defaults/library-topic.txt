@@ -1,7 +1,7 @@
 The {{lib.name}} library.
 
 ----------------------------------------------
-Subheading: Definition		[:Definitions]
+Section: Definition             [:Definitions]
 ----------------------------------------------
 
 {{ IF lib.source +}}
@@ -9,7 +9,7 @@ Defined in {{lib.source.filename}} line {{lib.source.line}}.
 {{+ END }}
 
 ------------------------------------------
-Subheading: Modules		[:Modules]
+Section: Modules                [:Modules]
 ------------------------------------------
 
 [LIST OF MODULES IN {{lib.scope-name}}]

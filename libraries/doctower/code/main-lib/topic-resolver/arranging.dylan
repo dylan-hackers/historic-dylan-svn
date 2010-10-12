@@ -351,7 +351,7 @@ define method toc-arrangement (tocs :: <sequence>)
 end method;
 
 
-/// Synopsis: Determines parent/child relationships according to "Section:"
+/// Synopsis: Determines parent/child relationships according to "Parent Topic:"
 /// directives, represented by topics' 'parent' slot. The directive indicates
 /// a parent.
 define method section-directive-arrangement (topics :: <sequence>)

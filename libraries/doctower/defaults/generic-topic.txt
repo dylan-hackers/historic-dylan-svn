@@ -1,7 +1,7 @@
 The {{gen.name}} generic function.
 
 ----------------------------------------------
-Subheading: Definitions         [:Definitions]
+Section: Definitions            [:Definitions]
 ----------------------------------------------
 
 {{ IF gen.source +}}
@@ -30,7 +30,7 @@ in library '{{export.library.name}}'. {{ +}}
 {{+ END (* if exports *) }}
 
 ---------------------------------------------
-Subheading: Adjectives          [:Adjectives]
+Section: Adjectives             [:Adjectives]
 ---------------------------------------------
 
 {{gen.adjectives}}
@@ -42,7 +42,7 @@ Arguments:
 {{ IF gen.required-arguments +}}
 {{+ REPEAT WITH argument IN gen.required-arguments +}}
 '{{argument.name}}' [api] -
-	{{ CASE ~argument.type +}}
+        {{ CASE ~argument.type +}}
         An object.
         {{+ CASE argument.singleton +}}
         The value '{{argument.singleton.text}}'. [code]
@@ -58,7 +58,7 @@ Arguments:
 {{ IF gen.keyword-arguments +}}
 {{+ REPEAT WITH argument IN gen.keyword-arguments +}}
 '{{argument.name}}:' [api] -
-	{{ CASE ~argument.type +}}
+        {{ CASE ~argument.type +}}
         An object.
         {{+ CASE argument.singleton +}}
         The value '{{argument.singleton.text}}'. [code]
@@ -102,7 +102,7 @@ Values:
 {{ IF gen.required-values +}}
 {{+ REPEAT WITH value IN gen.required-values +}}
 '{{value.name}}' [api] -
-	{{ CASE ~value.type +}}
+        {{ CASE ~value.type +}}
         An object.
         {{+ CASE value.singleton +}}
         The value '{{value.singleton.text}}'. [code]
@@ -118,8 +118,8 @@ Values:
 {{ IF gen.rest-value +}}
 {{+ WITH value = gen.rest-value +}}
 #rest '{{value.name}}' [api] -
-	{{ CASE ~value.type +}}
-	Zero or more values.
+        {{ CASE ~value.type +}}
+        Zero or more values.
         {{+ CASE value.type.id +}}
         Zero or more instances of '{{value.type.id}}'. [api qv]
         {{+ ELSE +}}
@@ -129,7 +129,7 @@ Values:
 {{+ END }}
 
 ------------------------------------------
-Subheading: Methods             [:Methods]
+Section: Methods                [:Methods]
 ------------------------------------------
 
 {{ IF gen.methods +}}

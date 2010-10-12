@@ -1,7 +1,7 @@
 The {{const.name}} constant.
 
 ----------------------------------------------
-Subheading: Definitions		[:Definitions]
+Section: Definitions            [:Definitions]
 ----------------------------------------------
 
 {{ IF const.source +}}
@@ -30,13 +30,13 @@ in library '{{export.library.name}}'. {{ +}}
 {{+ END (* if exports *) }}
 
 ---------------------------------------------
-Subheading: Adjectives	        [:Adjectives]
+Section: Adjectives             [:Adjectives]
 ---------------------------------------------
 
 {{const.adjectives}}
 
 ----------------------------------------
-Subheading: Type and value	[:Value]
+Section: Type and value         [:Value]
 ----------------------------------------
 
 {{ IF const.value +}}

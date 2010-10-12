@@ -167,7 +167,7 @@ duplication.
   /// Not the same as 'format' [io/streams/format] from the 'io' module.
   /// Here is a big discussion. 
   ///
-  /// Section: I/O Functions
+  /// Parent: I/O Functions
   ///
   /// Arguments:
   ///  string - Yo, like, a string or something.
@@ -224,7 +224,7 @@ We'll need a separate settings file containing image directories, user-defined
 stuff, doc files, etc. This could be combined with a ToC file, but doesn't have
 to be. Topics can be arranged by any of the following:
 
-  - section: directives
+  - parent topic directives
   - vi quotes
   - toc file
   - topic hierarchy in a doc file or comment block

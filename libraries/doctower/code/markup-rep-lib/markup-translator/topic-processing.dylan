@@ -205,7 +205,7 @@ define method process-tokens
    let target = make(<target-placeholder>, link: section-token.link.token-text,
                      source-location: section-token.link.token-src-loc);
    select (section-token.directive-type)
-      #"section" =>
+      #"parent" =>
          topic.parent := make(<topic-ref>, target: target,
                               source-location: section-token.token-src-loc);
    end select;

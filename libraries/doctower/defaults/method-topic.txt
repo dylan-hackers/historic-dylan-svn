@@ -15,7 +15,7 @@ method on {{ +}}
 {{+ END (* if required-arguments *) }}
 
 ----------------------------------------------
-Subheading: Definitions         [:Definitions]
+Section: Definitions            [:Definitions]
 ----------------------------------------------
 
 {{ IF meth.source +}}
@@ -23,7 +23,7 @@ Defined in {{meth.source.filename}} line {{meth.source.line}}.
 {{+ END }}
 
 ---------------------------------------------
-Subheading: Adjectives          [:Adjectives]
+Section: Adjectives             [:Adjectives]
 ---------------------------------------------
 
 {{meth.adjectives}}
@@ -35,7 +35,7 @@ Arguments:
 {{ IF meth.required-arguments +}}
 {{+ REPEAT WITH argument IN meth.required-arguments +}}
 '{{argument.name}}' [api] -
-	{{ CASE ~argument.type +}}
+        {{ CASE ~argument.type +}}
         An object.
         {{+ CASE argument.singleton +}}
         The value '{{argument.singleton.text}}'. [code]
@@ -51,7 +51,7 @@ Arguments:
 {{ IF meth.keyword-arguments +}}
 {{+ REPEAT WITH argument IN meth.keyword-arguments +}}
 '{{argument.name}}:' [api] -
-	{{ CASE ~argument.type +}}
+        {{ CASE ~argument.type +}}
         An object.
         {{+ CASE argument.singleton +}}
         The value '{{argument.singleton.text}}'. [code]
@@ -95,7 +95,7 @@ Values:
 {{ IF meth.required-values +}}
 {{+ REPEAT WITH value IN meth.required-values +}}
 '{{value.name}}' [api] -
-	{{ CASE ~value.type +}}
+        {{ CASE ~value.type +}}
         An object.
         {{+ CASE value.singleton +}}
         The value '{{value.singleton.text}}'. [code]
@@ -111,8 +111,8 @@ Values:
 {{ IF meth.rest-value +}}
 {{+ WITH value = meth.rest-value +}}
 #rest '{{value.name}}' [api] -
-	{{ CASE ~value.type +}}
-	Zero or more values.
+        {{ CASE ~value.type +}}
+        Zero or more values.
         {{+ CASE value.type.id +}}
         Zero or more instances of '{{value.type.id}}'. [api qv]
         {{+ ELSE +}}

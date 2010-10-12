@@ -39,12 +39,11 @@
         {{end}}
       </div>
       <div class="hier-navlinks">
-        {{repeat with parent in topic.parent-topics info in loop-info}}
+        {{repeat with parent in topic.parent-topics}}
         <a href="../{{parent.href}}"
            title="{{parent.shortdesc}}">
           {{parent.title +}}
-        </a>
-        {{if ~loop-info.last-rep?}} ▸ {{end}}
+        </a> ▸ 
         {{end}}
         &nbsp;
       </div>

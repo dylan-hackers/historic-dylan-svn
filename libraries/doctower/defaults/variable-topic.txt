@@ -1,7 +1,7 @@
 The {{var.name}} variable.
 
 ----------------------------------------------
-Subheading: Definitions		[:Definitions]
+Section: Definitions            [:Definitions]
 ----------------------------------------------
 
 {{ IF var.source +}}
@@ -30,13 +30,13 @@ in library '{{export.library.name}}'. {{ +}}
 {{+ END (* if exports *) }}
 
 ---------------------------------------------
-Subheading: Adjectives	        [:Adjectives]
+Section: Adjectives             [:Adjectives]
 ---------------------------------------------
 
 {{var.adjectives}}
 
 ----------------------------------------
-Subheading: Type and value	[:Value]
+Section: Type and value         [:Value]
 ----------------------------------------
 
 {{ IF var.value +}}

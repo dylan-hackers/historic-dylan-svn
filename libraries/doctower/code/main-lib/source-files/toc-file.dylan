@@ -6,16 +6,16 @@ define method toc-from-file (locator :: <file-locator>)
 => (toc :: <ordered-tree>)
    verbose-log("Parsing %s", locator);
    with-open-file (file = locator)
-      let file-contents = make(<string-stream>, contents: file.stream-contents);
-      let text = make(<canonical-text-stream>, inner-stream: file-contents);
+      let text = file.canonical-text-stream;
+      let line-col-position = text.line-col-position-func;
       block ()
          let toc = make(<ordered-tree>, root: #f);
          let last-key = toc.root-key;
          iterate next-line ()
-            let line-num = text.line-col-position;
+            let line-num = text.stream-position.line-col-position;
             let line = read-line(text, on-end-of-stream: #f);
             when (line)
-               let loc = make(<file-source-location>, file: file.stream-locator,
+               let loc = make(<file-source-location>, file: locator,
                               start-line: line-num, end-line: line-num);
                let (dummy, dummy, dash-start, dash-end, link-start, link-end) =
                      regexp-position(line, "^(-+)\\s+(.*)\\s*$");

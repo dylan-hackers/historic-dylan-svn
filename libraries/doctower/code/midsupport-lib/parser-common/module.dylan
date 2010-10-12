@@ -1,10 +1,13 @@
 module: dylan-user
 
 define module parser-common
-   use common, exclude: { source-location, file-locator, line-col-position };
+   use common, exclude: { source-location, file-locator };
+   use configs, import: { $tab-size };
 
    // from peg-parser
    use peg-parser;
+   
+   export canonical-text-stream, line-col-position-func;
    
    export <updatable-source-location-mixin>, <source-location-token>,
           source-location, source-location-setter,

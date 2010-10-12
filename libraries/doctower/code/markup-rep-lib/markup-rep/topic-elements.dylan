@@ -42,9 +42,10 @@ define class <topic> (<markup-element>)
    // topic nesting markup or generic method.
    slot fixed-parent :: false-or(<topic>) = #f;
    
-   // parent is parent topic as indicated by "Section:" directive. If not false,
-   // should end up being the same as fixed-parent (if fixed-parent is not false).
-   // If not the same, different parent topics caught during topic arrangement.
+   // Parent topic as indicated by "Parent Topic:" directive. If not false,
+   // should end up being the same as fixed-parent (if fixed-parent is not
+   // false). If not the same, different parent topics caught during topic
+   // arrangement.
    slot parent :: false-or(<topic-ref> /* to <topic> or <target-placeholder> */)
          = #f;
    

@@ -1,7 +1,7 @@
 The {{unbound.name}} unbound name. Modules may import this name and define it.
 
 ----------------------------------------------
-Subheading: Definitions		[:Definitions]
+Section: Definitions            [:Definitions]
 ----------------------------------------------
 
 {{ IF unbound.source +}}

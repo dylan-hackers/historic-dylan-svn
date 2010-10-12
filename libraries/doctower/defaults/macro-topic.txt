@@ -1,7 +1,7 @@
 The {{macro.name}} macro.
 
 ----------------------------------------------
-Subheading: Definitions		[:Definitions]
+Section: Definitions            [:Definitions]
 ----------------------------------------------
 
 {{ IF macro.source +}}
