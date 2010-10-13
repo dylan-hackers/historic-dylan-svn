@@ -79,6 +79,10 @@ idea -- Support logging categories.  Each log message is associated with a
         run time.  Categories could be hierarchical so that messages from
         entire subsystems can be enabled/disabled en masse.
 
+todo -- See http://pypi.python.org/pypi/LogPy/1.0 for some (well, at least one)
+        interesting ideas.  Attach arbitrary tags to log messages (instead of
+        hierarchical categories or in addition to?).
+
 */
 
 
