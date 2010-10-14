@@ -1,23 +1,19 @@
 <?xml version = "1.0"?>
 <koala>
+
   <listener address = "0.0.0.0" port = "8000"/>
   <listener address = "0.0.0.0" port = "8443" ssl = "yes"
             certificate = "certificate.pem"
             key = "key.pem"
             />
-  <debug-server value = "off" />
 
-  <!-- dev mode makes DSP check for modified templates and reparse them. -->
-  <development-mode enabled = "on" />
-
-  <server-root location = "/home/cgay/trunk/libraries/network/opendylan.org"/>
-
-  <!-- Enable fall-back to the default virtual host.  (This element seems badly named.) -->
-  <default-virtual-host enabled = "yes"/>
+  <server root="/home/cgay/trunk/libraries/network/opendylan.org"
+          debug="no"
+          use-default-virtual-host="yes"
+          />
 
   <!-- Index.html default doc is for the DRM.  Should really have a separate
        <directory> element for each book. -->
-
   <directory
       url = "/books"
       location = "/home/cgay/trunk/www/books"
@@ -56,6 +52,8 @@
       location = "/usr/lib/cgi-bin/bugzilla"
       extensions = "cgi"
       />
+
+  <dsp reparse-templates="yes" />
 
   <wiki content-directory = "/home/cgay/opendylan.org/database"
         static-directory = "/home/cgay/trunk/libraries/network/wiki/www"
