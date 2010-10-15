@@ -1,4 +1,5 @@
-The {{unbound.name}} unbound name. Modules may import this name and define it.
+The '{{unbound.name}}' [api] unbound name. Modules may import this name and
+define it.
 
 ----------------------------------------------
 Section: Definitions            [:Definitions]

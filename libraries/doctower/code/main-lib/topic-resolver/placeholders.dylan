@@ -5,7 +5,7 @@ synopsis: Replaces placeholders with actual content.
 define method replace-content-placeholders (doc-tree :: <ordered-tree>) => ()
    for (topic :: false-or(<topic>) keyed-by topic-key in doc-tree)
       if (topic)  // Root of doc-tree is #f.
-         visit-content-placeholders(topic, replacer, topic: topic,
+         visit-content-placeholders(topic, replacer, recurse-topic: pair(topic, #t),
                topic-key: topic-key, doc-tree: doc-tree)
       end if
    end for;
@@ -13,23 +13,26 @@ end method;
 
 
 define method replacer
-   (object :: <object>, #key setter, topic, topic-key, doc-tree)
+   (object :: <object>, #key setter, recurse-topic, topic-key, doc-tree)
 => (slots? :: <boolean>)
    #t
 end method;
 
 
 define method replacer
-   (topic :: <topic>, #key setter, topic: current-topic :: <topic>, topic-key, doc-tree)
+   (topic :: <topic>, #key setter, recurse-topic, topic-key, doc-tree)
 => (slots? :: <boolean>)
-   // Only allow recursion into current topic.
-   topic == current-topic
+   // Only allow recursion into initial topic once.
+   if (topic == recurse-topic.head & recurse-topic.tail)
+      recurse-topic.tail := #f;
+      #t
+   end if;
 end method;
 
 
 define method replacer
    (placeholder :: <api-list-placeholder>, #key setter :: false-or(<function>),
-    topic-key :: <ordered-tree-key>, doc-tree :: <ordered-tree>, topic: unused)
+    topic-key :: <ordered-tree-key>, doc-tree :: <ordered-tree>, recurse-topic)
 => (slots? :: <boolean>)
    let desired-topic-types =
          select (placeholder.api-type)

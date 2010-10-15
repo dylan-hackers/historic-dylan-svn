@@ -54,7 +54,7 @@ Quoted words can be followed by bracket options, but does not have to be. The
 quotes and default processing is:
 
   "..." - Smart quotes. Default options are [qq qv].
-  '...' - Linked text. Default options are [api qv].
+  '...' - Linked text. Default options are [qv].
   `...` - Inline code. Default options are [code].
   
 When followed by bracket options, the default processing is not done. Instead,

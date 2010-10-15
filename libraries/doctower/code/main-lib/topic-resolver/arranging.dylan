@@ -379,24 +379,29 @@ define method vi-arrangement (topics :: <sequence>)
 => (trees :: <sequence> /* of <ordered-tree> */)
    let trees = make(<stretchy-vector>);
    
-   local method visit (object, #key setter, topic: current-topic :: <topic>)
+   local method visit (object, #key setter, recurse-topic :: <pair>)
          => (slots? :: <boolean>)
             select (object by instance?)
                <vi-xref> =>
                   let xref :: <vi-xref> = object;
                   let child-topic = xref.target;
                   let arranged-parent
-                        = make(<arranged-topic>, topic: current-topic, type: #"vi-directive",
+                        = make(<arranged-topic>, topic: recurse-topic.head,
+                              type: #"vi-directive",
                               source-location: xref.source-location);
                   let arranged-child
-                        = make(<arranged-topic>, topic: child-topic, type: #"vi-directive",
+                        = make(<arranged-topic>, topic: child-topic,
+                              type: #"vi-directive",
                               source-location: xref.source-location);
                   let tree = make-parent-child-tree(arranged-parent, arranged-child);
                   trees := add!(trees, tree);
                   #f;
                <topic> =>
-                  // Only allow recursion into current topic.
-                  object == current-topic;
+                  // Only allow recursion into initial topic once.
+                  if (object == recurse-topic.head & recurse-topic.tail)
+                     recurse-topic.tail := #f;
+                     #t
+                  end if;
                otherwise =>
                   // Allow recursion into everything else.
                   #t;
@@ -404,7 +409,7 @@ define method vi-arrangement (topics :: <sequence>)
          end method;
          
    for (parent-topic in topics)
-      visit-target-placeholders(parent-topic, visit, topic: parent-topic)
+      visit-target-placeholders(parent-topic, visit, recurse-topic: pair(parent-topic, #t))
    end for;
    trees
 end method;

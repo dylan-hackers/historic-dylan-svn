@@ -1,4 +1,4 @@
-The {{class.name}} class.
+The '{{class.name}}' [api] class.
 
 ----------------------------------------------
 Section: Definitions            [:Definitions]
@@ -45,7 +45,7 @@ Make keywords:
         {{ CASE ~keyword.type +}}
         An object.
         {{+ CASE keyword.type.id +}}
-        An instance of '{{keyword.type.id}}'. [api qv]
+        An instance of '{{keyword.type.id}}'. [qv]
         {{+ ELSE +}}
         An instance of '{{keyword.type.text}}'. [code]
         {{+ END (* case *) }} {{ +}}
@@ -66,7 +66,7 @@ Section: Inheritable slots      [:Inheritables]
 {{ IF class.inheritable-getters +}}
 {{+ REPEAT WITH getter IN class.inheritable-getters INFO IN getter-info +}}
 {{+ CASE getter.id +}}
-'{{getter.id}}'{{ IF ~getter-info.last-rep? }},{{ END }} [api qv]  {{ +}}
+'{{getter.id}}'{{ IF ~getter-info.last-rep? }},{{ END }} [qv]  {{ +}}
 {{+ ELSE +}}
 '{{getter.name}}'{{ IF ~getter-info.last-rep? }},{{ END }} [api]  {{ +}}
 {{+ END (* case *) +}}
@@ -80,7 +80,7 @@ Section: Superclasses           [:Superclasses]
 {{ IF class.superclasses +}}
 {{+ REPEAT WITH superclass IN class.superclasses INFO IN super-info +}}
 {{+ CASE superclass.id +}}
-'{{superclass.id}}'{{ IF ~super-info.last-rep? }},{{ END }} [api qv]  {{ +}}
+'{{superclass.id}}'{{ IF ~super-info.last-rep? }},{{ END }} [qv]  {{ +}}
 {{+ ELSE +}}
 '{{superclass.name}}'{{ IF ~super-info.last-rep? }},{{ END }} [api]  {{ +}}
 {{+ END (* case *) +}}
@@ -94,21 +94,21 @@ Section: Subclasses             [:Subclasses]
 {{ IF class.subclasses +}}
 {{+ REPEAT WITH subclass IN class.subclasses INFO IN sub-info +}}
 {{+ CASE subclass.id +}}
-'{{subclass.id}}'{{ IF ~sub-info.last-rep? }},{{ END }} [api qv]  {{ +}}
+'{{subclass.id}}'{{ IF ~sub-info.last-rep? }},{{ END }} [qv]  {{ +}}
 {{+ ELSE +}}
 '{{subclass.name}}'{{ IF ~sub-info.last-rep? }},{{ END }} [api]  {{ +}}
 {{+ END (* case *) +}}
 {{+ END (* repeat *) +}}
 {{+ END (* if subclasses *) }}
 
---------------------------------------------------------------
-Section: Functions on {{class.name}}            [:FunctionsOn]
---------------------------------------------------------------
+----------------------------------------------------------------------
+Section: Functions on '{{class.name}}' [api]            [:FunctionsOn]
+----------------------------------------------------------------------
 
 {{ IF class.functions-on-class +}}
 {{+ REPEAT WITH function IN class.functions-on-class +}}
 {{+ CASE function.id +}}
-- '{{function.id}}' [api qv]
+- '{{function.id}}' [qv]
 {{+ ELSE +}}
 - '{{function.name}}' [api]
 {{+ END (* case *) }}
@@ -116,14 +116,14 @@ Section: Functions on {{class.name}}            [:FunctionsOn]
 {{+ END (* repeat *) +}}
 {{+ END (* if functions-on-class *) }}
 
----------------------------------------------------------------------
-Section: Functions returning {{class.name}}     [:FunctionsReturning]
----------------------------------------------------------------------
+-----------------------------------------------------------------------------
+Section: Functions returning '{{class.name}}' [api]     [:FunctionsReturning]
+-----------------------------------------------------------------------------
 
 {{ IF class.functions-returning-class +}}
 {{+ REPEAT WITH function IN class.functions-returning-class +}}
 {{+ CASE function.id +}}
-- '{{function.id}}' [api qv]
+- '{{function.id}}' [qv]
 {{+ ELSE +}}
 - '{{function.name}}' [api]
 {{+ END (* case *) }}

@@ -3,6 +3,7 @@ synopsis: This file merges API topic fragments.
 
 
 /// Synopsis: Group topics that can be merged together.
+// TODO: Maybe merge implicit generic functions with their single methods?
 define method group-mergeable-topics (topics :: <sequence>)
 => (grouped-topics :: <sequence>)
    let api-topics = choose(rcurry(instance?, <api-doc>), topics);

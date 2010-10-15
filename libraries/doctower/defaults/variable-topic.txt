@@ -1,4 +1,4 @@
-The {{var.name}} variable.
+The '{{var.name}}' [api] variable.
 
 ----------------------------------------------
 Section: Definitions            [:Definitions]
@@ -43,7 +43,7 @@ Section: Type and value         [:Value]
 {{+ CASE ~var.type +}}
 An object {{ +}}
 {{+ CASE var.type.id +}}
-An instance of '{{var.type.id}}' [api qv] {{ +}}
+An instance of '{{var.type.id}}' [qv] {{ +}}
 {{+ ELSE +}}
 An instance of '{{var.type.text}}' [code] {{ +}}
 {{+ END (* case *) +}}

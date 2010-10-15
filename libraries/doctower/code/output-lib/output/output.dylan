@@ -239,7 +239,7 @@ end method;
 
 define method as-filename-part (string :: <string>) => (filename-part :: <string>)
    let string = string.copy-sequence;
-   let bad-chars = vector(' ', '\\', '#', file-system-separator());
+   let bad-chars = vector(' ', '\\', '#', '?', file-system-separator());
    replace-elements!(string, rcurry(member?, bad-chars), always('_'));
    string
 end method;

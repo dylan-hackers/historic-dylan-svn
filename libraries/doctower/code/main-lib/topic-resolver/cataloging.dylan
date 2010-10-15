@@ -175,7 +175,7 @@ define method add-parms-from-section
    if (parm-list)
       for (row from 0 below dimension(parm-list.items, 0))
          let parm-markup = parm-list.items[row, 0];
-         let parm-name = parm-markup.stringify-markup.standardize-target;
+         let parm-name = parm-markup.stringify-markup.standardize-parm-target;
          parms[parm-name] := section;
       end for
    end if;

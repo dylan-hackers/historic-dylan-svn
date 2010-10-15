@@ -1,61 +1,61 @@
-======================================================================
-Topic: {{lib.name}} Modules             [:Modules({{lib.scope-name}})]
-======================================================================
+==============================================================================
+Topic: '{{lib.name}}' [api] Modules             [:Modules({{lib.scope-name}})]
+==============================================================================
 
-The {{lib.name}} library exports these modules:
+The '{{lib.name}}' [api] library exports these modules:
 
 [LIST OF MODULES IN {{lib.scope-name}}]
 
 
 =======================================================================================
-Topic: {{lib.name}} Bindings and Unbound Names          [:Bindings({{lib.scope-name}})]
+Topic: '{{lib.name}}' [api] Bindings and Unbound Names  [:Bindings({{lib.scope-name}})]
 =======================================================================================
 
-The {{lib.name}} library exports these bindings and unbound names:
+The '{{lib.name}}' [api] library exports these bindings and unbound names:
 
 [LIST OF BINDINGS IN {{lib.scope-name}}]
 
 
-======================================================================
-Topic: {{lib.name}} Classes             [:Classes({{lib.scope-name}})]
-======================================================================
+==============================================================================
+Topic: '{{lib.name}}' [api] Classes             [:Classes({{lib.scope-name}})]
+==============================================================================
 
-The {{lib.name}} library exports these classes:
+The '{{lib.name}}' [api] library exports these classes:
 
 [LIST OF CLASSES IN {{lib.scope-name}}]
 
 
-========================================================================
-Topic: {{lib.name}} Functions           [:Functions({{lib.scope-name}})]
-========================================================================
+================================================================================
+Topic: '{{lib.name}}' [api] Functions           [:Functions({{lib.scope-name}})]
+================================================================================
 
-The {{lib.name}} library exports these generic functions and methods:
+The '{{lib.name}}' [api] library exports these generic functions and methods:
 
 [LIST OF FUNCTIONS IN {{lib.scope-name}}]
 
 
 ========================================================================================
-Topic: {{lib.name}} Constants and Variables             [:Variables({{lib.scope-name}})]
+Topic: '{{lib.name}}' [api] Constants and Variables     [:Variables({{lib.scope-name}})]
 ========================================================================================
 
-The {{lib.name}} library exports these constants and variables:
+The '{{lib.name}}' [api] library exports these constants and variables:
 
 [LIST OF VARIABLES IN {{lib.scope-name}}]
 
 
-=====================================================================
-Topic: {{lib.name}} Macros              [:Macros({{lib.scope-name}})]
-=====================================================================
+=============================================================================
+Topic: '{{lib.name}}' [api] Macros              [:Macros({{lib.scope-name}})]
+=============================================================================
 
-The {{lib.name}} library exports these macros:
+The '{{lib.name}}' [api] library exports these macros:
 
 [LIST OF MACROS IN {{lib.scope-name}}]
 
 
-======================================================================
-Topic: {{lib.name}} Unbound Names       [:Unbound({{lib.scope-name}})]
-======================================================================
+==============================================================================
+Topic: '{{lib.name}}' [api] Unbound Names       [:Unbound({{lib.scope-name}})]
+==============================================================================
 
-The {{lib.name}} library exports these unbound names:
+The '{{lib.name}}' [api] library exports these unbound names:
 
 [LIST OF UNBOUND NAMES IN {{lib.scope-name}}]

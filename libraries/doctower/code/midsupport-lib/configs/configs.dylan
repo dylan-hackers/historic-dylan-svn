@@ -36,7 +36,7 @@ define constant $close-quote-chars = "'\"`"; //< [ditto $open-quote-chars]
 /// Synopsis: The default specifiers for each quote type in normal markup.
 define constant $default-markup-quote-specs =
       table(<string-table>,
-            "'" => #[#"api", #"qv"],
+            "'" => #[#"qv"],
             "\"" => #[#"qq", #"qv"],
             "`" => #[#"code"]
       );
@@ -45,7 +45,7 @@ define constant $default-markup-quote-specs =
 /// phrase lists.
 define constant $default-list-quote-specs =
       table(<string-table>,
-            "'" => #[#"api"],
+            "'" => #[#"q"],
             "\"" => #[#"qq"],
             "`" => #[#"code"]
       );
@@ -54,7 +54,7 @@ define constant $default-list-quote-specs =
 /// TODO: Should maybe be the same as $default-markup-quote-specs without qv or vi.
 define constant $default-title-quote-specs =
       table(<string-table>,
-            "'" => #[#"api"],
+            "'" => #[#"q"],
             "\"" => #[#"qq"],
             "`" => #[#"code"]
       );

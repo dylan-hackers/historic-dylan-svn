@@ -1,4 +1,4 @@
-The {{mod.name}} module.
+The '{{mod.name}}' [api] module.
 
 ----------------------------------------------
 Section: Definition             [:Definitions]
@@ -33,7 +33,7 @@ May export other bindings from these modules:
 
 {{ REPEAT WITH unknown-reexport IN mod.unknown-reexports +}}
 {{+ CASE unknown-reexport.id +}}
-- '{{unknown-reexport.id}}' [api qv]
+- '{{unknown-reexport.id}}' [qv]
 {{+ ELSE +}}
 - '{{unknown-reexport.name}}' [api]
 {{+ END (* case *) }}

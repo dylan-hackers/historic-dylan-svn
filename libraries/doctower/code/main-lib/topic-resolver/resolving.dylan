@@ -21,8 +21,9 @@ define method resolve-target-placeholders
    for (topic in topics)
       let defined-parms = sections-by-parm-name(topic);
       visit-target-placeholders(topic, resolve-target-placeholder-in-topic,
-            topic: topic, resolutions: target-resolutions, parms: defined-parms,
-            dup-titles: duplicate-title-targets, unused-catalogs: unused-catalogs)
+            recurse-topic: pair(topic, #t), resolutions: target-resolutions,
+            parms: defined-parms, dup-titles: duplicate-title-targets,
+            unused-catalogs: unused-catalogs)
    end for;
 
    // Assign topics in place of tables of content references.
@@ -31,7 +32,8 @@ define method resolve-target-placeholders
          if (toc-ref)
             resolve-target-placeholder-in-topic(toc-ref.target,
                   setter: rcurry(target-setter, toc-ref),
-                  topic: #f, resolutions: target-resolutions, parms: #f,
+                  recurse-topic: pair(#f, #f), parms: #f,
+                  resolutions: target-resolutions,
                   dup-titles: duplicate-title-targets,
                   unused-catalogs: unused-catalogs);
          end if;
@@ -47,7 +49,7 @@ end method;
 
 define method resolve-target-placeholder-in-topic
    (object :: <object>,
-    #key setter, topic, resolutions, parms, dup-titles, unused-catalogs)
+    #key setter, recurse-topic, resolutions, parms, dup-titles, unused-catalogs)
 => (visit-slots? :: <boolean>)
    // Allow recursion in the general case.
    #t
@@ -56,27 +58,31 @@ end method;
 
 define method resolve-target-placeholder-in-topic
    (topic :: <topic>,
-    #key setter, topic: current-topic, resolutions, parms, dup-titles, unused-catalogs)
+    #key setter, recurse-topic, resolutions, parms, dup-titles, unused-catalogs)
 => (visit-slots? :: <boolean>)
-   // Only allow recursion into current topic.
-   topic == current-topic
+   // Only allow recursion into current topic once.
+   if (topic == recurse-topic.head & recurse-topic.tail)
+      recurse-topic.tail := #f;
+      #t
+   end if
 end method;
 
 
 define method resolve-target-placeholder-in-topic
    (xref :: <xref>,
-    #key setter, topic: current-topic, resolutions, parms, dup-titles, unused-catalogs)
+    #key setter, recurse-topic, resolutions, parms, dup-titles, unused-catalogs)
 => (visit-slots? :: <boolean>)
    if (instance?(xref.target, <target-placeholder>))
       let placeholder :: <target-placeholder> = xref.target;
-      let (resolution, replace-text-with-title?) =
+      let (resolution, replace-text-with-title?, parm-style?) =
             begin
-               let local-res = resolve-parm-link(placeholder, current-topic, parms);
+               let topic = recurse-topic.first;
+               let local-res = resolve-parm-link(placeholder, topic, parms);
                if (local-res)
-                  values(local-res, #f)
+                  values(local-res, #f, #t)
                else
-                  values(resolve-link(placeholder, current-topic, resolutions),
-                         xref.target-from-text?)
+                  values(resolve-link(placeholder, topic, resolutions),
+                         xref.target-from-text?, #f)
                end if
             end;
 
@@ -90,6 +96,10 @@ define method resolve-target-placeholder-in-topic
          if (replace-text-with-title?)
             xref.text := make(<conref>, target: resolution, style: #"title",
                   source-location: placeholder.source-location)
+         elseif (parm-style?)
+            let parm-style = make(<api/parm-name>, text: xref,
+                  source-location: placeholder.source-location);
+            setter(parm-style)
          end if;
          #t
 
@@ -115,9 +125,9 @@ end method;
 
 define method resolve-target-placeholder-in-topic
    (placeholder :: <target-placeholder>,
-    #key setter, topic: current-topic, resolutions, parms, dup-titles, unused-catalogs)
+    #key setter, recurse-topic, resolutions, parms, dup-titles, unused-catalogs)
 => (visit-slots? :: <boolean>)
-   let resolution = resolve-link(placeholder, current-topic, resolutions);
+   let resolution = resolve-link(placeholder, recurse-topic.first, resolutions);
    if (resolution)
       check-resolves-to-topic(placeholder, resolution);
       setter(resolution);
@@ -184,13 +194,18 @@ end method;
 /// In general, a link is resolved to one of the following, in order:
 ///   1. Local argument/value name
 ///   2. ID
-///   3. Fully qualified name disguised as ID
-///   4. Unique title
-///   5. API in current module/library
-///   6. Unique API in other module/library
+///   3. Fully qualified name in ID form (e.g. "::Dylan:Dylan:Make")
+///   4. Fully qualified name in abbreviated ID form (e.g. ":::Make")
+///   5. Unique title
+///   6. API in current module/library
+///   7. Unique API in other module/library
 ///
 /// Case 1 is handled by 'resolve-parm-link' before this method is called. Cases
-/// 2-4 are precalculated by 'resolution-info'.
+/// 2, 3, and 5 are precalculated by 'resolution-info'. Cases 4, 6, and 7 are
+/// checked in this method if necessary. Technically, this method works out of 
+/// order since it checks case 4 after 2-5, but there is no possibility of an
+/// incorrect resolution because IDs are unique and titles cannot start with a
+/// colon.
 ///
 /// Arguments:
 ///   link               - The <target-placeholder> to resolve.
@@ -206,9 +221,27 @@ define method resolve-link
    (link :: <target-placeholder>, containing-topic :: false-or(<topic>),
     target-resolutions :: <table>)
 => (resolution :: false-or(type-union(<topic>, <section>)))
-   let topic = element(target-resolutions, link.target, default: #f);
+   let link-text = link.target;
+   let topic = element(target-resolutions, link-text, default: #f);
+
+   // Check for abbreviated fully qualified name.
+   if (~topic & copy-sequence(link-text, end: 3) = ":::")
+      if (instance?(containing-topic, <api-doc>) & containing-topic.fully-qualified-name)
+         let last-part = regexp-matches(link-text, ":::(.*)");
+         let (lib-part, mod-part)
+               = regexp-matches(containing-topic.fully-qualified-name, "([^:]+)(:[^:]+)?");
+         let mod-id
+               = format-to-string("%s:%s", lib-part, last-part).qualified-name-as-id;
+         let bind-id 
+               = mod-part & format-to-string("%s%s:%s", lib-part, mod-part, last-part)
+                            .qualified-name-as-id;
+         topic := element(target-resolutions, bind-id, default: #f)
+               | element(target-resolutions, mod-id, default: #f);
+      end if
+   end if;
+
+   // It is an API or a duplicate title or something unknown.
    if (~topic)
-      // It is an API or a duplicate title or something unknown.
       // TODO: API canonicalization and lookup.
    end if;
    topic
@@ -219,12 +252,12 @@ define method resolve-parm-link
    (link :: <target-placeholder>, containing-topic :: false-or(<topic>),
     section-by-parm-name :: <table>)
 => (resolution :: false-or(<section>))
-   let link-text = link.target.standardize-target;
+   let link-text = link.target.standardize-parm-target;
    element(section-by-parm-name, link-text, default: #f)
 end method;
 
 
-define method standardize-target (target :: <string>) => (cleaned :: <string>)
+define method standardize-parm-target (target :: <string>) => (cleaned :: <string>)
    let cleaned = target.copy-sequence;
    cleaned := replace-elements!(cleaned, rcurry(\=, '\n'), always(' '));
    cleaned := regexp-replace(cleaned, " {2,}", " ");

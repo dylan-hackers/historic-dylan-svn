@@ -1,4 +1,4 @@
-The {{const.name}} constant.
+The '{{const.name}}' [api] constant.
 
 ----------------------------------------------
 Section: Definitions            [:Definitions]
@@ -43,7 +43,7 @@ Section: Type and value         [:Value]
 {{+ CASE ~const.type +}}
 An object {{ +}}
 {{+ CASE const.type.id +}}
-An instance of '{{const.type.id}}' [api qv] {{ +}}
+An instance of '{{const.type.id}}' [qv] {{ +}}
 {{+ ELSE +}}
 An instance of '{{const.type.text}}' [code] {{ +}}
 {{+ END (* case *) +}}

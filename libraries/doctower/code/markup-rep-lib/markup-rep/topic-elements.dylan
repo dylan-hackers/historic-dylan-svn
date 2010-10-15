@@ -10,9 +10,9 @@ Synopsis: List of elements corresponding to the title-words grammar.
    bracketed-render-span   - <dita-content> or <html-content>
 **/
 define constant <title-seq> = limited(<stretchy-vector>,
-      of: type-union(<string>, <character>, <inline-image>, <html-content>,
-                     <dita-content>, <term>, <term-style>, <code-phrase>, <entity>,
-                     <cite>, <bold>, <italic>, <underline>, <emphasis>,
+      of: type-union(<string>, <character>, <inline-image>, <html-content>, <cite>,
+                     <dita-content>, <api/parm-name>, <term>, <term-style>,
+                     <code-phrase>, <entity>, <bold>, <italic>, <underline>, <emphasis>,
                      singleton(#f)));
 
 define method title-seq (#rest elements) => (seq :: <title-seq>)

@@ -1,4 +1,4 @@
-The {{lib.name}} library.
+The '{{lib.name}}' [api] library.
 
 ----------------------------------------------
 Section: Definition             [:Definitions]
@@ -19,7 +19,7 @@ May export other modules from these libraries:
 
 {{ REPEAT WITH unknown-reexport IN lib.unknown-reexports +}}
 {{+ CASE unknown-reexport.id +}}
-- '{{unknown-reexport.id}}' [api qv]
+- '{{unknown-reexport.id}}' [qv]
 {{+ ELSE +}}
 - '{{unknown-reexport.name}}' [api]
 {{+ END (* case *) }}

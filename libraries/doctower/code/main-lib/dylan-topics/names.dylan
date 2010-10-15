@@ -56,17 +56,21 @@ end method;
 define generic canonical-title (defn :: <definition>, #key) => (title :: <title-seq>);
 
 define method canonical-title (defn :: <library>, #key) => (title :: <title-seq>)
-   let name = defn.canonical-name.local-name;
-   title-seq(format-to-string("%s Library", name.as-titlecase))
+   let api-name = make(<api/parm-name>, source-location: defn.source-location,
+         text: defn.canonical-name.local-name.standardize-title);
+   title-seq(api-name, " Library")
 end method;
 
 define method canonical-title (defn :: <module>, #key) => (title :: <title-seq>)
-   let name = defn.canonical-name.local-name;
-   title-seq(format-to-string("%s Module", name.as-titlecase))
+   let api-name = make(<api/parm-name>, source-location: defn.source-location,
+         text: defn.canonical-name.local-name.standardize-title);
+   title-seq(api-name, " Module")
 end method;
 
 define method canonical-title (defn :: <binding>, #key) => (title :: <title-seq>)
-   title-seq(defn.canonical-name.local-name.as-titlecase)
+   let api-name = make(<api/parm-name>, source-location: defn.source-location,
+         text: defn.canonical-name.local-name.standardize-title);
+   title-seq(api-name)
 end method;
 
 define method canonical-title
@@ -77,7 +81,9 @@ define method canonical-title
       let type-list = types.item-string-list | "";
       let title = format-to-string("%s(%s)",
             defn.canonical-name.local-name, type-list);
-      title-seq(standardize-title(title))
+      let api-name = make(<api/parm-name>, source-location: defn.source-location,
+            text: title.standardize-title);
+      title-seq(api-name)
    else
       next-method()
    end if

@@ -249,7 +249,7 @@ define errors (<user-visible-error>)
       filenames;
    
    69 link-without-qv-or-vi-in-spec
-      "Quoted phrase options do not include \"qv\" or \"vi\" but include a link",
+      "Quoted phrase options include a link without \"qv\" or \"vi\"",
       location;
 
    70 file-error

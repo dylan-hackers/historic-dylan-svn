@@ -1,4 +1,4 @@
-The {{meth.base-name}} {{ +}}
+The '{{meth.base-name}}' [api] {{ +}}
 {{+ IF ~meth.required-arguments +}}
 method.
 {{+ ELSE +}}
@@ -7,7 +7,7 @@ method on {{ +}}
 {{+ CASE ~argument.type +}}
 '<Object>'{{ IF arg-info.last-rep? }}.{{ ELSE }},{{ END }} [api] {{ +}}
 {{+ CASE argument.type.id +}}
-'{{argument.type.id}}'{{ IF arg-info.last-rep? }}.{{ ELSE }},{{ END }} [api qv] {{ +}}
+'{{argument.type.id}}'{{ IF arg-info.last-rep? }}.{{ ELSE }},{{ END }} [qv] {{ +}}
 {{+ ELSE +}}
 '{{argument.type.text}}'{{ IF arg-info.last-rep? }}.{{ ELSE }},{{ END }} [code] {{ +}}
 {{+ END (* case *) +}}
@@ -40,7 +40,7 @@ Arguments:
         {{+ CASE argument.singleton +}}
         The value '{{argument.singleton.text}}'. [code]
         {{+ CASE argument.type.id +}}
-        An instance of '{{argument.type.id}}'. [api qv]
+        An instance of '{{argument.type.id}}'. [qv]
         {{+ ELSE +}}
         An instance of '{{argument.type.text}}'. [code]
         {{+ END }}
@@ -56,7 +56,7 @@ Arguments:
         {{+ CASE argument.singleton +}}
         The value '{{argument.singleton.text}}'. [code]
         {{+ CASE argument.type.id +}}
-        An instance of '{{argument.type.id}}'. [api qv]
+        An instance of '{{argument.type.id}}'. [qv]
         {{+ ELSE +}}
         An instance of '{{argument.type.text}}'. [code]
         {{+ END }} {{ +}}
@@ -100,7 +100,7 @@ Values:
         {{+ CASE value.singleton +}}
         The value '{{value.singleton.text}}'. [code]
         {{+ CASE value.type.id +}}
-        An instance of '{{value.type.id}}'. [api qv]
+        An instance of '{{value.type.id}}'. [qv]
         {{+ ELSE +}}
         An instance of '{{value.type.text}}'. [code]
         {{+ END }}
@@ -114,7 +114,7 @@ Values:
         {{ CASE ~value.type +}}
         Zero or more values.
         {{+ CASE value.type.id +}}
-        Zero or more instances of '{{value.type.id}}'. [api qv]
+        Zero or more instances of '{{value.type.id}}'. [qv]
         {{+ ELSE +}}
         Zero or more instances of '{{value.type.text}}'. [code]
         {{+ END}}
