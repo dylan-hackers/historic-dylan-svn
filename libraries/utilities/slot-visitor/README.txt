@@ -29,9 +29,9 @@ slots.
 
 --- Arguments: ---
 
-NAME	- The name of the visitor generic function.
-CLASS	- The name of a class that the visitor can visit.
-SLOT	- The name of a slot of the class that the visitor will visit.
+NAME    - The name of the visitor generic function.
+CLASS   - The name of a class that the visitor can visit.
+SLOT    - The name of a slot of the class that the visitor will visit.
 
 
 --- Discussion: ---
@@ -54,7 +54,7 @@ define class <employee> (<person>)
   slot manager-name :: <string>, init-keyword: #"manager";
 end class;
 
-define slot-visitor visit-every-name							[:1]
+define slot-visitor visit-every-name                                    [:1]
   <person>,  name;
   <manager>, manager-name;
   <string>   ;
@@ -69,6 +69,9 @@ function to that string. When called on an '<employee>', it will apply the
 action to the '<employee>' and then to the strings in the employee's
 'manager-name' and 'name' slots -- the latter because '<employee>' is a subclass
 of '<person>' and the entry for '<person>' lists the 'name' slot.
+
+The visitor function can accept user-specified keyword arguments. These
+arguments are passed on to each action function application.
 
 The action function is only applied to an object if it is applicable to that
 object based on the function's first argument. If the function is applicable,
@@ -85,12 +88,13 @@ The action function is called with a 'setter' keyword argument. This is a
 function by which the action function can replace the object or slot value. It
 is false if the action function is applied to a top-level object not contained
 by a slot or to an object contained in a slot specified with the 'constant'
-[code] adjective shown in the macro syntax.
+[code] adjective shown in the macro syntax. Any 'setter' keyword argument passed
+to the visitor function is replaced.
 
-The visitor function can accept user-specified keyword arguments. These
-arguments are passed on to each action function application. This is not true of
-'setter' keyword arguments; action functions are called with a 'setter' argument
-as described above.
+The action function is also called with a 'visited' keyword argument. This is a
+table that tracks visited objects to prevent infinite recursion. It defaults to
+a <table> if not provided, but you can provide an instance of a subclass of
+<table> by calling the visitor function with a 'visited' keyword argument.
 
 The 'constant' [code] adjective shown in the macro syntax indicates that there
 is no setter available for the given slot. Every 'SLOT' argument to the macro
@@ -113,4 +117,5 @@ the action function.
 include additional keyword parameters corresponding to arguments of the visitor
 function:
 
-: (object :: CLASS, #key setter :: false-or(<function>)) => (do-slots? :: <boolean>)
+: (object :: CLASS, #key setter :: false-or(<function>), visited :: <table>)
+: => (do-slots? :: <boolean>)

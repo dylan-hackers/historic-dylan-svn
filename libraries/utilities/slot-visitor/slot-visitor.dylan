@@ -56,15 +56,21 @@ define macro class-visitors
    => {
          define method ?name
             (object :: ?class-name, action :: <function>, #rest keys,
-             #key setter, #all-keys)
+             #key setter, visited :: <table> = make(limited(<table>, of: <boolean>)),
+             #all-keys)
          => ()
-            remove-property!(keys, #"setter");
-            let skip-slots? =
-                  if (instance?(object, action.function-specializers.first))
-                     ~ apply(action, object, setter:, setter, keys)
-                  end if;
-            unless (skip-slots?)
-               apply(?name ## "-slots", object, action, keys)
+            unless (element(visited, object, default: #f))
+               visited[object] := #t;
+               remove-property!(keys, #"setter");
+               remove-property!(keys, #"visited");
+               let skip-slots? =
+                     if (instance?(object, action.function-specializers.first))
+                        ~ apply(action, object, setter:, setter, visited:, visited,
+                                keys)
+                     end if;
+               unless (skip-slots?)
+                  apply(?name ## "-slots", object, action, visited:, visited, keys)
+               end unless;
             end unless;
          end method;
          
