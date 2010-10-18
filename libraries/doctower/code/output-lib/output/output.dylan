@@ -151,7 +151,8 @@ define method target-navigation-ids (doc-tree :: <ordered-tree>)
          let line-list = make(<stretchy-vector>);
 
          local method add-to-list
-                  (obj :: type-union(<section>, <footnote>, <ph-marker>), #key setter)
+                  (obj :: type-union(<section>, <footnote>, <ph-marker>),
+                   #key setter, visited)
                => (visit-slots? :: <boolean>)
                   select (obj by instance?)
                      <section> =>

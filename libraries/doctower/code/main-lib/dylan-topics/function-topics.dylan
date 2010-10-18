@@ -154,7 +154,7 @@ define method document-args/vals
    end if;
    if (~val-items.empty? & authored-topic.vals-section)
       let tokens = val-items.all-markup-tokens;
-      unused-docs-in-topic(location: authored-topic.args-section.source-location,
+      unused-docs-in-topic(location: authored-topic.vals-section.source-location,
             doc-locations: map(token-src-loc, tokens).item-string-list)
    end if;
 end method;

@@ -21,7 +21,7 @@ define method resolve-target-placeholders
    for (topic in topics)
       let defined-parms = sections-by-parm-name(topic);
       visit-target-placeholders(topic, resolve-target-placeholder-in-topic,
-            recurse-topic: pair(topic, #t), resolutions: target-resolutions,
+            topic: topic, resolutions: target-resolutions,
             parms: defined-parms, dup-titles: duplicate-title-targets,
             unused-catalogs: unused-catalogs)
    end for;
@@ -32,7 +32,7 @@ define method resolve-target-placeholders
          if (toc-ref)
             resolve-target-placeholder-in-topic(toc-ref.target,
                   setter: rcurry(target-setter, toc-ref),
-                  recurse-topic: pair(#f, #f), parms: #f,
+                  topic: #f, parms: #f,
                   resolutions: target-resolutions,
                   dup-titles: duplicate-title-targets,
                   unused-catalogs: unused-catalogs);
@@ -49,7 +49,7 @@ end method;
 
 define method resolve-target-placeholder-in-topic
    (object :: <object>,
-    #key setter, recurse-topic, resolutions, parms, dup-titles, unused-catalogs)
+    #key setter, visited, topic, resolutions, parms, dup-titles, unused-catalogs)
 => (visit-slots? :: <boolean>)
    // Allow recursion in the general case.
    #t
@@ -57,26 +57,13 @@ end method;
 
 
 define method resolve-target-placeholder-in-topic
-   (topic :: <topic>,
-    #key setter, recurse-topic, resolutions, parms, dup-titles, unused-catalogs)
-=> (visit-slots? :: <boolean>)
-   // Only allow recursion into current topic once.
-   if (topic == recurse-topic.head & recurse-topic.tail)
-      recurse-topic.tail := #f;
-      #t
-   end if
-end method;
-
-
-define method resolve-target-placeholder-in-topic
    (xref :: <xref>,
-    #key setter, recurse-topic, resolutions, parms, dup-titles, unused-catalogs)
+    #key setter, visited, topic, resolutions, parms, dup-titles, unused-catalogs)
 => (visit-slots? :: <boolean>)
    if (instance?(xref.target, <target-placeholder>))
       let placeholder :: <target-placeholder> = xref.target;
       let (resolution, replace-text-with-title?, parm-style?) =
             begin
-               let topic = recurse-topic.first;
                let local-res = resolve-parm-link(placeholder, topic, parms);
                if (local-res)
                   values(local-res, #f, #t)
@@ -125,9 +112,9 @@ end method;
 
 define method resolve-target-placeholder-in-topic
    (placeholder :: <target-placeholder>,
-    #key setter, recurse-topic, resolutions, parms, dup-titles, unused-catalogs)
+    #key setter, visited, topic, resolutions, parms, dup-titles, unused-catalogs)
 => (visit-slots? :: <boolean>)
-   let resolution = resolve-link(placeholder, recurse-topic.first, resolutions);
+   let resolution = resolve-link(placeholder, topic, resolutions);
    if (resolution)
       check-resolves-to-topic(placeholder, resolution);
       setter(resolution);

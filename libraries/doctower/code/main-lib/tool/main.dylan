@@ -156,7 +156,10 @@ define function main (name, arguments)
    // Build documentation
 
    let doc-tree = create-doc-tree(toc-files, doc-files, src-files);
-   create-output-files(doc-tree);
+   
+   unless (*error-code*)
+      create-output-files(doc-tree)
+   end unless;
 
    /**/
    // print(doc-tree, *standard-output*, pretty?: #t);
@@ -172,6 +175,7 @@ begin
          method (cond, next)
             report-condition(cond, *standard-error*);
             new-line(*standard-error*);
+            force-output(*standard-error*);
             when (*stop-on-errors?*)
                exit-application(cond.error-code);
             end when;
@@ -187,10 +191,12 @@ begin
                *stop-on-errors?* =>
                   report-condition(cond, *standard-error*);
                   new-line(*standard-error*);
+                  force-output(*standard-error*);
                   exit-application(cond.error-code);
                otherwise =>
                   report-condition(cond, *standard-output*);
                   new-line(*standard-output*);
+                  force-output(*standard-output*);
             end case
          end method;
 

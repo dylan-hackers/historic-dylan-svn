@@ -6,6 +6,12 @@ Most of the things marked with TODO in a comment are need-to-do items.
 
 -----
 
+The [LIST OF] directive should not be transformed into a <unordered-list> in the
+internal representation. Instead, it should be its own thing that is transformed
+into a title-and-shortdesc list during the output stage.
+
+-----
+
 Better template handling. Right now, there is little debugging information for
 templates. If the template itself is badly formed, you get a direct error from
 the parser without the usual file name and position. That is easy enough to
@@ -13,15 +19,6 @@ clean up. But if the document resulting from the template has errors or
 warnings, you get source locations that say nothing more than "automatically
 generated". This can be improved to refer to an actual file if the --autogen-dir
 switch is used.
-
------
-
-API recognition. If you type "use the <integer> class," the code should figure
-out that you want to link to the class. This relies on cues within the name, of
-course. If you type "use the stream-location function," I doubt the code can
-guess that you want to link to the function -- though maybe if an adjacent word
-is "function" and the word is the name of a documented function, that might
-work.
 
 -----
 
@@ -51,13 +48,14 @@ tokenizing words -- actual character boundaries matter.
 Figure out how to turn "--" into an em-dash automatically. This won't interfere
 with ASCII lines because an ASCII line needs *three* consecutive characters.
 
-------
+-----
 
-Rewrite <ordered-tree>. There is is a data structure called a "zipper" that acts
-much like a tree, but is based around a pointer to a current node. This is what
-I was trying to do when I wrote the <ordered-tree> class, but I expect the
-zipper will be faster and more efficient. It would be good to replace the
-current <ordered-tree> implementation with a zipper-based one.
+API recognition. If you type "use the <integer> class," the code should figure
+out that you want to link to the class. This relies on cues within the name, of
+course. If you type "use the stream-location function," I doubt the code can
+guess that you want to link to the function -- though maybe if an adjacent word
+is "function" and the word is the name of a documented function, that might
+work.
 
 
 ============

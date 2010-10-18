@@ -43,20 +43,23 @@ define method topics-from-dylan (api-definitions :: <sequence>)
    let catalog-topics = make(<stretchy-vector>);
    let definition-topics = make(<stretchy-vector>);
    for (api-defn in choose(should-have-topic?, api-definitions))
-      verbose-log("Documenting %s", api-defn.canonical-name);
-      let (new-topics, new-catalogs) = make-source-topics(api-defn);
-      topics := concatenate!(topics, new-topics);
-      catalog-topics := concatenate!(catalog-topics, new-catalogs);
+      block ()
+         verbose-log("Documenting %s", api-defn.canonical-name);
+         let (new-topics, new-catalogs) = make-source-topics(api-defn);
+         topics := concatenate!(topics, new-topics);
+         catalog-topics := concatenate!(catalog-topics, new-catalogs);
 
-      when (*api-list-file*)
-         let new-definition-topics
-               = choose(conjoin(generated-topic?, rcurry(instance?, <api-doc>)),
-                        new-topics);
-         unless (new-definition-topics.size = 0)
-            definition-topics
-                  := add!(definition-topics, pair(api-defn, new-definition-topics))
-         end unless
-      end when
+         when (*api-list-file*)
+            let new-definition-topics
+                  = choose(conjoin(generated-topic?, rcurry(instance?, <api-doc>)),
+                           new-topics);
+            unless (new-definition-topics.size = 0)
+               definition-topics
+                     := add!(definition-topics, pair(api-defn, new-definition-topics))
+            end unless
+         end when
+      exception (restart :: <skip-error-restart>)
+      end block
    end for;
    
    // Clean up.

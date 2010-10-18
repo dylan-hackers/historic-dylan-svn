@@ -572,12 +572,74 @@ end;
 // Macro Definitions
 //
 
-define parser macro-definition (<token>)
-   rule seq(lex-MACRO-NAME, main-rule-set, opt(aux-rule-sets),
-            lex-END, opt(lex-MACRO), opt-seq(lex-MACRO-NAME))
+define class <macro-definition-token> (<token>)
+   slot name :: <string>, init-keyword: #"name";
+   slot main-rule-set :: <sequence>, init-keyword: #"main-rule-set";
+end class;
+
+// Note the macro name as soon as we have it, and use it in parse-modifiers to
+// know when modifiers end.
+define parser-method macro-definition (stream, context)
+=> (token :: false-or(<macro-definition-token>), success? :: <boolean>,
+    extent :: false-or(<parse-extent>))
+   label "macro definition";
+   let start = stream.stream-position;
+   let (parsed-name :: false-or(<lex-MACRO-NAME-token>), name-success?, name-extent)
+         = parse-lex-MACRO-NAME(stream, context);
+   if (name-success?)
+      // Isolate part of name that goes in definer macros.
+      let match = "-definer";
+      let full-name = parsed-name.value;
+      let sub-start = full-name.size - match.size;
+      let short-name =
+            if (full-name.size > match.size
+                  & copy-sequence(full-name, start: sub-start, end: match.size))
+               copy-sequence(full-name, end: sub-start)
+            end if;
+      // Make available to lower productions.
+      with-attributes (full-macro-name :: <string> = full-name,
+                       short-macro-name :: <string> = short-name | full-name)
+         let (parsed-main-rule-set, rules-success?, rules-extent)
+               = parse-macro-definition-after-name(stream, context);
+         let token = rules-success? &
+               make(<macro-definition-token>, start: start, end: stream.stream-position,
+                    name: parsed-name.value, main-rule-set: parsed-main-rule-set);
+         values(token, rules-success?, combine-extents(name-extent, rules-extent))
+      end with-attributes
+   else
+      values(#f, #f, name-extent)
+   end if
+end parser-method;
+
+// The name of the macro currently being defined.
+define parser-method full-macro-name (stream, context)
+=> (name :: false-or(<lex-MACRO-NAME-token>))
+   label "macro name";
+   let parsed-name :: false-or(<lex-MACRO-NAME-token>)
+         = parse-lex-MACRO-NAME(stream, context);
+   let expected-name = attr(full-macro-name);
+   if (parsed-name & case-insensitive-equal?(expected-name, parsed-name.value))
+      parsed-name
+   end if
+end parser-method;
+
+// The name of the macro currently being defined, without the "-definer" part.
+define parser-method short-macro-name (stream, context)
+=> (name :: false-or(<lex-MACRO-NAME-token>))
+   label "macro name";
+   let parsed-name :: false-or(<lex-MACRO-NAME-token>)
+         = parse-lex-MACRO-NAME(stream, context);
+   let expected-name = attr(short-macro-name);
+   if (parsed-name & case-insensitive-equal?(expected-name, parsed-name.value))
+      parsed-name
+   end if
+end parser-method;
+
+define parser macro-definition-after-name :: <sequence> /* of main rules */
+   rule seq(main-rule-set, opt(aux-rule-sets), lex-END,
+            opt(lex-MACRO), opt(full-macro-name))
    => tokens;
-   slot name :: <string> = tokens[0].value;
-   slot main-rule-set :: <sequence> = tokens[1];
+   yield tokens[0];
 end;
 
 define parser main-rule-set :: <sequence> /* of main rules */
@@ -590,7 +652,7 @@ define parser main-rule-set :: <sequence> /* of main rules */
 end;
 
 define parser body-style-definition-rule (<source-location-token>)
-   rule seq(lex-LF-BRACE, lex-DEFINE, opt(definition-head), lex-MACRO-NAME,
+   rule seq(lex-LF-BRACE, lex-DEFINE, opt(definition-head), short-macro-name,
             opt(pattern), opt(lex-SEMICOLON), lex-END, lex-RT-BRACE,
             lex-ARROW, rhs)
    => tokens;
@@ -599,7 +661,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define parser list-style-definition-rule (<source-location-token>)
-   rule seq(lex-LF-BRACE, lex-DEFINE, opt(definition-head), lex-MACRO-NAME,
+   rule seq(lex-LF-BRACE, lex-DEFINE, opt(definition-head), short-macro-name,
             opt(pattern), lex-RT-BRACE, lex-ARROW, rhs)
    => tokens;
 afterwards (context, tokens, value, start-pos, end-pos)
@@ -611,11 +673,12 @@ define parser rhs (<token>)
 end;
 
 define parser definition-head (<token>)
-  rule many(choice(modifier, pattern-variable)) => tokens;
+  rule many(seq(not-next(short-macro-name), choice(modifier, pattern-variable)))
+  => tokens;
 end;
 
 define parser statement-rule (<source-location-token>)
-   rule seq(lex-LF-BRACE, lex-MACRO-NAME, opt(pattern), opt(lex-SEMICOLON),
+   rule seq(lex-LF-BRACE, full-macro-name, opt(pattern), opt(lex-SEMICOLON),
             lex-END, lex-RT-BRACE, lex-ARROW, rhs)
    => tokens;
 afterwards (context, tokens, value, start-pos, end-pos)
@@ -623,7 +686,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define parser function-rule (<source-location-token>)
-   rule seq(lex-LF-BRACE, lex-MACRO-NAME, lex-LF-PAREN, opt(pattern), lex-RT-PAREN,
+   rule seq(lex-LF-BRACE, full-macro-name, lex-LF-PAREN, opt(pattern), lex-RT-PAREN,
             lex-RT-BRACE, lex-ARROW, rhs)
    => tokens;
 afterwards (context, tokens, value, start-pos, end-pos)
@@ -688,8 +751,8 @@ define parser pattern-keywords (<token>)
 end;
 
 define parser pattern-keyword (<token>)
-   rule seq(choice(lex-QUESTION, lex-DOUBLE-QUESTION),
-            choice(lex-NAME, lex-CONSTRAINED-NAME),
+   rule seq(choice(lex-DOUBLE-QUESTION, lex-QUESTION),
+            choice(lex-CONSTRAINED-NAME, lex-NAME),
             opt(default))
    => tokens;
 end;
@@ -735,7 +798,7 @@ define parser name-suffix (<token>)
 end;
 
 define parser name-string-or-symbol (<token>)
-   rule choice(lex-NAME, lex-STRING, lex-SYMBOL) => tokens;
+   rule choice(lex-SYMBOL, lex-NAME, lex-STRING) => tokens;
 end;
 
 //

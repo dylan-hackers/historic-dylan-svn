@@ -244,7 +244,9 @@ end method;
 
 define method matching-id? (test-id :: <string>, topic :: <api-doc>)
 => (matching? :: <boolean>)
-   test-id = topic.id | test-id = topic.fully-qualified-name.qualified-name-as-id
+   let fqn = topic.fully-qualified-name;
+   test-id = topic.id
+      | (fqn & test-id = fqn.qualified-name-as-id)
 end method;
 
 
@@ -379,37 +381,22 @@ define method vi-arrangement (topics :: <sequence>)
 => (trees :: <sequence> /* of <ordered-tree> */)
    let trees = make(<stretchy-vector>);
    
-   local method visit (object, #key setter, recurse-topic :: <pair>)
+   local method visit (xref :: <vi-xref>, #key setter, visited, topic :: <topic>)
          => (slots? :: <boolean>)
-            select (object by instance?)
-               <vi-xref> =>
-                  let xref :: <vi-xref> = object;
-                  let child-topic = xref.target;
-                  let arranged-parent
-                        = make(<arranged-topic>, topic: recurse-topic.head,
-                              type: #"vi-directive",
-                              source-location: xref.source-location);
-                  let arranged-child
-                        = make(<arranged-topic>, topic: child-topic,
-                              type: #"vi-directive",
-                              source-location: xref.source-location);
-                  let tree = make-parent-child-tree(arranged-parent, arranged-child);
-                  trees := add!(trees, tree);
-                  #f;
-               <topic> =>
-                  // Only allow recursion into initial topic once.
-                  if (object == recurse-topic.head & recurse-topic.tail)
-                     recurse-topic.tail := #f;
-                     #t
-                  end if;
-               otherwise =>
-                  // Allow recursion into everything else.
-                  #t;
-            end select
+            let child-topic = xref.target;
+            let arranged-parent
+                  = make(<arranged-topic>, topic: topic, type: #"vi-directive",
+                        source-location: xref.source-location);
+            let arranged-child
+                  = make(<arranged-topic>, topic: child-topic, type: #"vi-directive",
+                        source-location: xref.source-location);
+            let tree = make-parent-child-tree(arranged-parent, arranged-child);
+            trees := add!(trees, tree);
+            #f
          end method;
          
    for (parent-topic in topics)
-      visit-target-placeholders(parent-topic, visit, recurse-topic: pair(parent-topic, #t))
+      visit-target-placeholders(parent-topic, visit, topic: parent-topic)
    end for;
    trees
 end method;

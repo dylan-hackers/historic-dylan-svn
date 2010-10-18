@@ -179,7 +179,9 @@ afterwards (context, tokens, value, start-pos, end-pos)
 end;
 
 define parser slot-adjectives (<token>)
-   rule many(seq(not-next(lex-SLOT), lex-UNRESERVED-NAME)) => tokens;
+   rule many(seq(not-next(lex-SLOT),
+                 choice(lex-CONSTANT, lex-CLASS, lex-UNRESERVED-NAME)))
+   => tokens;
    slot clause-doc = tokens.first.second.lexeme-doc;
    slot slot-modifiers = map(value, collect-subelements(tokens, 1));
 end;

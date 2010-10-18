@@ -257,7 +257,7 @@ slot-spec:
    ( COMMA slot-option )* COMMA?
 
 slot-adjectives:
-   ( !SLOT UNRESERVED-NAME )+
+   ( !SLOT ( CONSTANT / CLASS / UNRESERVED-NAME ) )+
 
 init-expression:
    EQUAL expression

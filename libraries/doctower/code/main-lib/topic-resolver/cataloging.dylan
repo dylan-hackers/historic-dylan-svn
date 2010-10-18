@@ -68,20 +68,20 @@ end method;
 
 
 define method add-target-info
-   (object :: <object>, #key setter, topic, ids, fqns, titles)
+   (object :: <object>, #key setter, visited, topic, ids, fqns, titles)
 => (do-slots? :: <boolean>)
    #t
 end method;
 
 define method add-target-info
-   (object :: <api-doc>, #key setter, topic, ids, fqns, titles)
+   (object :: <api-doc>, #key setter, visited, topic, ids, fqns, titles)
 => (do-slots? :: <boolean>)
    add-target-fqn(object, fqns);
    next-method()
 end method;
 
 define method add-target-info
-   (object :: <topic>, #key setter, topic, ids, fqns, titles)
+   (object :: <topic>, #key setter, visited, topic, ids, fqns, titles)
 => (do-slots? :: <boolean>)
    add-target-id(object, #f, ids);
    add-target-title(object, titles);
@@ -89,7 +89,7 @@ define method add-target-info
 end method;
 
 define method add-target-info
-   (object :: <section>, #key setter, topic, ids, fqns, titles)
+   (object :: <section>, #key setter, visited, topic, ids, fqns, titles)
 => (do-slots? :: <boolean>)
    add-target-id(topic, object, ids);
    add-target-title(object, titles);

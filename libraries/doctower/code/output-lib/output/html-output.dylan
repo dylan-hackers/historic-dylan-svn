@@ -111,7 +111,7 @@ end method;
 
 define method add-html-link-info
    (object :: <object>,
-    #key setter, target-info, current-topic, fallback-ids, filename)
+    #key setter, visited, target-info, current-topic, fallback-ids, filename)
 => (visit-slots? :: <boolean>)
    #t
 end method;
@@ -119,7 +119,7 @@ end method;
 
 define method add-html-link-info
    (topic :: <topic>,
-    #key setter, target-info, current-topic, fallback-ids, filename)
+    #key setter, visited, target-info, current-topic, fallback-ids, filename)
 => (visit-slots? :: <boolean>)
    let target-id = topic.id | fallback-ids[topic];
    let target-href = format-to-string("%s#%s", filename, target-id);
@@ -133,7 +133,7 @@ end method;
 
 define method add-html-link-info
    (sect :: <section>,
-    #key setter, target-info, current-topic, fallback-ids, filename)
+    #key setter, visited, target-info, current-topic, fallback-ids, filename)
 => (visit-slots? :: <boolean>)
    let topic-id = current-topic.id | fallback-ids[current-topic];
    let section-id = sect.id | fallback-ids[sect];
@@ -150,7 +150,7 @@ end method;
 
 define method add-html-link-info
    (content :: type-union(<footnote>, <ph-marker>),
-    #key setter, target-info, current-topic, fallback-ids, filename)
+    #key setter, visited, target-info, current-topic, fallback-ids, filename)
 => (visit-slots? :: <boolean>)
    let topic-id = current-topic.id | fallback-ids[current-topic];
    let target-id = format-to-string("%s/%s", topic-id, fallback-ids[content]);

@@ -5,35 +5,24 @@ synopsis: Replaces placeholders with actual content.
 define method replace-content-placeholders (doc-tree :: <ordered-tree>) => ()
    for (topic :: false-or(<topic>) keyed-by topic-key in doc-tree)
       if (topic)  // Root of doc-tree is #f.
-         visit-content-placeholders(topic, replacer, recurse-topic: pair(topic, #t),
+         visit-content-placeholders(topic, replacer,
                topic-key: topic-key, doc-tree: doc-tree)
       end if
    end for;
 end method;
 
 
-define method replacer
-   (object :: <object>, #key setter, recurse-topic, topic-key, doc-tree)
-=> (slots? :: <boolean>)
+define method replacer (object, #key setter, visited, topic-key, doc-tree)
+=> (visit-slots? :: <boolean>)
+   // Allow recursion in the general case.
    #t
 end method;
 
 
 define method replacer
-   (topic :: <topic>, #key setter, recurse-topic, topic-key, doc-tree)
-=> (slots? :: <boolean>)
-   // Only allow recursion into initial topic once.
-   if (topic == recurse-topic.head & recurse-topic.tail)
-      recurse-topic.tail := #f;
-      #t
-   end if;
-end method;
-
-
-define method replacer
-   (placeholder :: <api-list-placeholder>, #key setter :: false-or(<function>),
-    topic-key :: <ordered-tree-key>, doc-tree :: <ordered-tree>, recurse-topic)
-=> (slots? :: <boolean>)
+   (placeholder :: <api-list-placeholder>, #key setter, visited,
+    topic-key :: <ordered-tree-key>, doc-tree :: <ordered-tree>)
+=> (visit-slots? :: <boolean>)
    let desired-topic-types =
          select (placeholder.api-type)
             #"functions" => #[ #"function", #"generic-function" ];
@@ -51,7 +40,7 @@ define method replacer
    let found-topics = make(<stretchy-vector>);
    for (topic :: false-or(<topic>) in doc-tree)
       if (topic & member?(topic.topic-type, desired-topic-types)) // Root is #f.
-         if (desired-namespace)
+         if (desired-namespace & topic.fully-qualified-name)
             let enclosing-name = topic.fully-qualified-name.enclosing-qualified-name;
             if (enclosing-name = desired-namespace
                   | enclosing-name.enclosing-qualified-name = desired-namespace)
@@ -81,5 +70,5 @@ define method replacer
    let api-list = make(<unordered-list>, source-location: placeholder.source-location);
    api-list.items := map(make-list-item, found-topics);
    setter(api-list);
-   #t
+   #f
 end method;
