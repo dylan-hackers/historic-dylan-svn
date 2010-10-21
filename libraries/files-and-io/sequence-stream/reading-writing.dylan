@@ -20,7 +20,7 @@ define method ext-read-element
 => (elem-or-eof :: <object>)
    check-stream-open(stream);
    check-stream-readable(stream);
-   read-element(read-element, stream, on-end-of-stream: on-end-of-stream);
+   read-element(stream, on-end-of-stream: on-end-of-stream);
 end method;
 
 
