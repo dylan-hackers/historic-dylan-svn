@@ -7,20 +7,20 @@ module: sequence-stream
 
 
 define method ext-peek
-   (stream :: <sequence-stream>, #rest keys, #key on-end-of-stream)
+   (stream :: <sequence-stream>, #key on-end-of-stream = unsupplied())
 => (elem-or-eof :: <object>)
    check-stream-open(stream);
    check-stream-readable(stream);
-   apply(peek, stream, keys)
+   peek(stream, on-end-of-stream: on-end-of-stream)
 end method;
 
 
 define method ext-read-element
-   (stream :: <sequence-stream>, #rest keys, #key on-end-of-stream)
+   (stream :: <sequence-stream>, #key on-end-of-stream = unsupplied())
 => (elem-or-eof :: <object>)
    check-stream-open(stream);
    check-stream-readable(stream);
-   apply(read-element, stream, keys);
+   read-element(read-element, stream, on-end-of-stream: on-end-of-stream);
 end method;
 
 
@@ -39,8 +39,7 @@ end method;
 
 
 define method ext-read
-   (stream :: <sequence-stream>, n :: <integer>,
-    #key on-end-of-stream = unsupplied())
+   (stream :: <sequence-stream>, n :: <integer>, #key on-end-of-stream = unsupplied())
 => (elements-or-eof :: <object>)
    check-stream-open(stream);
    check-stream-readable(stream);
@@ -116,22 +115,24 @@ end method;
 
 
 define method ext-read-to
-   (stream :: <sequence-stream>, to-elem :: <object>, #rest keys,
-    #key on-end-of-stream, test)
+   (stream :: <sequence-stream>, to-elem :: <object>,
+    #key on-end-of-stream = unsupplied(), test :: <function> = \==)
 => (elements-or-eof :: <object>, found? :: <boolean>)
    check-stream-open(stream);
    check-stream-readable(stream);
-   apply(read-through, stream, to-elem, keep-term:, #f, keys)
+   read-through(stream, to-elem, keep-term: #f, test: test,
+         on-end-of-stream: on-end-of-stream)
 end method;
 
 
 define method ext-read-through
-   (stream :: <sequence-stream>, to-elem :: <object>, #rest keys,
-    #key on-end-of-stream, test)
+   (stream :: <sequence-stream>, to-elem :: <object>,
+    #key on-end-of-stream = unsupplied(), test :: <function> = \==)
 => (elements-or-eof :: <object>, found? :: <boolean>)
    check-stream-open(stream);
    check-stream-readable(stream);
-   apply(read-through, stream, to-elem, keep-term:, #t, keys)
+   read-through(stream, to-elem, keep-term: #t, test: test,
+         on-end-of-stream: on-end-of-stream)
 end method;
 
 
@@ -146,11 +147,11 @@ end method;
 
 
 define method ext-skip-through
-   (stream :: <sequence-stream>, to-elem :: <object>, #rest keys, #key test)
+   (stream :: <sequence-stream>, to-elem :: <object>, #key test :: <function> = \==)
 => (found? :: <boolean>)
    check-stream-open(stream);
    check-stream-readable(stream);
-   apply(skip-through, stream, to-elem, keys).true?;
+   skip-through(stream, to-elem, test: test).true?
 end method;
 
 
@@ -376,7 +377,8 @@ define sealed domain ext-write (<byte-string-stream>, <byte-string>);
 
 define method ext-write-line
    (stream :: <sequence-stream>, string :: <string>,
-    #key start: start-pos = 0, end: end-pos = string.size)
+    #key start: start-pos :: <integer> = 0,
+         end: end-pos :: <integer> = string.size)
 => ()
    if (end-pos - start-pos < string.size)
       string := copy-sequence(string, start: start-pos, end: end-pos);

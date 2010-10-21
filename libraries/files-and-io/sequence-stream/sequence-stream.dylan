@@ -143,10 +143,10 @@ end method;
 
 
 define method ext-stream-contents-as
-   (type :: subclass(<sequence>), stream :: <sequence-stream>, #rest keys,
-    #key clear-contents?)
+   (type :: subclass(<sequence>), stream :: <sequence-stream>,
+    #key clear-contents? :: <boolean> = #t)
 => (contents :: <sequence>)
-   as(type, apply(ext-stream-contents, stream.outer-stream, keys))
+   as(type, ext-stream-contents(stream.outer-stream, clear-contents?: clear-contents?))
 end method;
 
 
@@ -176,10 +176,11 @@ end method;
 
 
 define method ext-adjust-stream-position
-   (stream :: <sequence-stream>, delta :: <integer>, #rest keys, #key from)
+   (stream :: <sequence-stream>, delta :: <integer>,
+    #key from :: one-of(#"current", #"start", #"end") = #"current")
 => (new-position :: <integer>)
    check-stream-open(stream);
-   apply(adjust-stream-position, stream, delta, keys) + stream.stream-position-offset
+   adjust-stream-position(stream, delta, from: from) + stream.stream-position-offset
 end method;
 
 
@@ -302,7 +303,8 @@ end method;
 
 define method read-through
    (stream :: <sequence-stream>, to-elem :: <object>,
-    #key on-end-of-stream = unsupplied(), test = \==, keep-term :: <boolean> = #t)
+    #key on-end-of-stream = unsupplied(), test :: <function> = \==,
+         keep-term :: <boolean> = #t)
 => (elements-or-eof :: <object>, found? :: <boolean>)
 
    if (stream.stream-at-end?)
@@ -351,7 +353,7 @@ end method;
 
 
 define method skip-through
-   (stream :: <sequence-stream>, to-elem :: <object>, #key test = \==)
+   (stream :: <sequence-stream>, to-elem :: <object>, #key test :: <function> = \==)
 => (found-idx :: false-or(<integer>), next-idx :: <integer>)
    let start-idx = stream.stream-position + stream.stream-start;
    let found-idx = #f;
