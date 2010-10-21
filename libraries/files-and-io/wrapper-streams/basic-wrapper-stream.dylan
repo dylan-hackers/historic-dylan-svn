@@ -41,6 +41,9 @@ anyway.
 Additionally, the following method is implemented on this class to keep it
 from being delegated to the inner stream:
    - close
+
+This implementation of 'close' does nothing. Generally, one expects that closing
+a wrapper stream leaves the inner stream open.
 */
 
 define open class <basic-wrapper-stream> (<wrapper-stream>)

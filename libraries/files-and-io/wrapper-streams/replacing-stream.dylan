@@ -2,11 +2,6 @@ module: replacing-stream
 author: Dustin Voss
 
 
-// TODO: Not sure, but I think rather than inheriting from <basic-wrapper-stream>,
-// this should inherit from <wrapper-stream> and the inner stream should be wrapped
-// in <basic-wrapper-stream> if necessary.
-
-
 /**
 Class: <replacing-stream>
 -------------------------
@@ -38,21 +33,24 @@ assuming the replacement sequence is mutable, of course.
 define open class <replacing-stream> (<basic-wrapper-stream>, <positionable-stream>)
 
    // Elements of 'inner-stream-limits', 'segment-contents', and 'segment-limits'
-   // correspond. 'inner-stream-limits' are the base stream positions just past
+   // correspond. 'inner-stream-limits' are the inner stream positions just past
    // the end of each segment, 'segment-contents' are the contents of each
-   // segment or #f if the base stream's contents should be used, and 
+   // segment or #f if the inner stream's contents should be used, and 
    // 'segment-limits' are the wrapper stream positions just past the end of
    // each segment, considering all preceding replacement contents. Last
-   // segment is always a replacement; stream contents beyond that are base
+   // segment is always a replacement; stream contents beyond that are inner
    // stream contents. There is always at least one element in these arrays;
    // they are prepopulated with an empty segment.
    
+   // Inner stream positions could be <stream-position> or <integer>, but I
+   // convert to <integer> because I often need to compute sizes and differences
+   // and I need <integer> for that.
    slot inner-stream-limits =
-      make(<stretchy-vector> /* of <stream-position> or <integer> */);
+         make(limited(<stretchy-vector>, of: <integer>), fill: 0);
    slot segment-contents =
-      make(<stretchy-vector> /* of <sequence> or #f */);
+         make(limited(<stretchy-vector>, of: false-or(<sequence>)), fill: #f);
    slot segment-limits =
-      make(<stretchy-vector> /* of <integer> */);
+         make(limited(<stretchy-vector>, of: <integer>), fill: 0);
    slot current-segment :: <integer> = 1;
    slot current-offset :: <integer> = 0;
    keyword inner-stream:, type: <positionable-stream>;
@@ -71,14 +69,15 @@ correspond to the inner stream's end-of-stream position. If the inner stream
 cannot be grown, an error is signaled.
 
 The current 'wrapper' stream position is left effectively unchanged (pointing
-to the same current element) if possible.
+to the same current element in the inner stream or replacement content) if
+possible.
 
 - If the current element was not replaced or removed, the stream position may
   be altered but will still point to the same element.
-- If the current element was replaced by a new element, the stream position
-  will point to the replacement element.
-- If the current element was removed altogether, the stream position will
-  point to the next element still present in the stream.
+- If the current element from the inner stream was replaced by a new element,
+  the stream position will point to the replacement element.
+- If the current element from the inner stream was removed altogether, the
+  stream position will point to the next element still present in the stream.
 
 Arguments:
 
@@ -117,29 +116,39 @@ define method add-replacement-contents
    let inner = wrapper.inner-stream;
    let orig-pos = wrapper.stream-position;
    
+   local method acceptable-replacement-elements? () => (acceptable? :: <boolean>)
+            every?(acceptable-element?, replacement)
+         end method,
+         method first-unacceptable-replacement-element () => (elem)
+            replacement[find-key(replacement, unacceptable-element?)]
+         end method,
+         method acceptable-element? (elem) => (acceptable? :: <boolean>)
+            instance?(elem, inner.stream-element-type)
+         end method,
+         method unacceptable-element? (elem) => (acceptable? :: <boolean>)
+            ~elem.acceptable-element?
+         end method;
+
    assert(start-pos <= end-pos,
-          "Start position %= comes after end position %=", start-pos, end-pos);
+         "Start position %= comes after end position %=", start-pos, end-pos);
    assert(start-pos >= seg-limits.last,
-          "Replacements follow position %=", start-pos);
+         "Replacements follow position %=", start-pos);
    assert(~instance?(replacement, <stretchy-collection>),
-          "Replacement cannot be stretchy");
-   assert(inner.stream-element-type = <object> |
-         every?(rcurry(instance?, inner.stream-element-type), replacement),
+         "Replacement cannot be stretchy");
+   assert(inner.stream-element-type = <object> | acceptable-replacement-elements?(),
          "Replacement element %= not of inner stream element type %=",
-         any?(rcurry(complement(instance?), inner.stream-element-type),
-              replacement),
-         inner.stream-element-type);
+         first-unacceptable-replacement-element(), inner.stream-element-type);
    
    if (end-pos - start-pos = 0 & replacement.size = 0)
       // If replacement is empty and segment to replace is empty, might as
       // well make no change at all.
       values(start-pos, end-pos)
    else
-      // If new segment isn't adjacent to last segment, create base stream
+      // If new segment isn't adjacent to last segment, create inner stream
       // segment to cover the gap. Covering segment runs from last segment to
       // start of new segment, and the inner stream is grown if necessary.
       if (start-pos ~= seg-limits.last)
-         let inner-end-pos = offset-inner-stream-position(wrapper,
+         let inner-end-pos = adjust-stream-position-below-end(inner,
                origin: inner-limits.last, delta: start-pos - seg-limits.last);
          inner-limits := add!(inner-limits, inner-end-pos);
          seg-limits := add!(seg-limits, start-pos);
@@ -149,11 +158,11 @@ define method add-replacement-contents
       // Add new segment. We want the inner stream increased to just before
       // end-pos, and we want the (eos) stream-position of end-pos itself so we
       // can add it to inner-limits.
-      let inner-end-pos = offset-inner-stream-position(wrapper,
+      let inner-end-pos = adjust-stream-position-below-end(inner,
             origin: inner-limits.last, delta: end-pos - start-pos);
-      inner-limits := add!(inner-limits, inner-end-pos);
-      seg-limits := add!(seg-limits, start-pos + replacement.size);
-      seg-contents := add!(seg-contents, replacement);
+      wrapper.inner-stream-limits := add!(inner-limits, inner-end-pos);
+      wrapper.segment-limits := add!(seg-limits, start-pos + replacement.size);
+      wrapper.segment-contents := add!(seg-contents, replacement);
    
       // Adjust current stream position considering new segment.
       case
@@ -179,55 +188,55 @@ Method: inner-stream-position
 -----------------------------
 Synopsis: Inner stream position corresponding to given stream position.
 
-Each 'wrapper' stream element may come from the inner stream or from
-replacement content. If the element comes from an the inner stream element, or
-it comes from replacement content but there is a one-to-one correspondence
-with an inner stream element, the position of the element in the inner stream
-is returned. Otherwise, if there is not a one-to-one correspondence with an
-inner stream element, extra elements are considered to have been removed from
-or added to the beginning of the replacement content and the remaining inner
-stream elements are the corresponding elements. A flag indicating whether
-the position was inserted into the stream and does not correspond to a real
-inner stream position is returned.
+Each 'wrapper' stream element may come from the inner stream or from replacement
+content. If the element comes from an the inner stream element, or it comes from
+replacement content but there is a one-to-one correspondence with an inner
+stream element, this method returns the position of the element in the inner
+stream. Otherwise, if there is not a one-to-one correspondence with an inner
+stream element, extra elements are considered to have been removed from or added
+to the beginning of the replacement content and the remaining inner stream
+elements are the corresponding elements. This method also returns a flag
+indicating if the position was inserted into the stream and does not correspond
+to a real inner stream position.
 
 In the following examples, stream elements ("Elt") are shown with their
-corresponding stream positions ("Pos"), inner stream positions ("ISP") and
+corresponding stream positions ("Pos"), inner stream positions ("InP") and
 insertion flag values ("Ins"). Only the one's place is shown.
 
 - The inner stream's "?" characters are replaced by "x" characters.
   : Elt  VM-38?? => VM-38xx
   : Pos  0123456    0123456
-  : ISP             0123456
+  : InP             0123456
   : Ins             fffffff
 
 - The "and/" in the inner stream's "and/or" is deleted.
   : Elt  This and/or that => This or that
   : Pos  0123456789012345    012345678901
-  : ISP                      012349012345
+  : InP                      012349012345
   : Ins                      ffffffffffff
 
 - The phrase "et cetera" is replaced by "etc."
   : Elt  Red, et cetera, => Red, etc.,
   : Pos  012345678901234    0123456789
-  : ISP                     0123401234
+  : InP                     0123401234
   : Ins                     ffffffffff
 
 - The "-" is replaced by the word "through."
   : Elt  A-Z => A through Z
   : Pos  012    01234567890
-  : ISP         01111111112
+  : InP         01111111112
   : Ins         fttttttttff
 
 - The text "[sic]" is inserted immediately after "ain't" in "ain't nothing."
   : Elt  ain't nothing => ain't [sic] nothing
   : Pos  0123456789012    0123456789012345678
-  : ISP                   0123455555556789012
+  : InP                   0123455555556789012
   : Ins                   fffffttttttffffffff
 
 - The "Mr." in the inner stream's "Mr./Mrs." is replaced by "Mister."
   : Elt  Mr./Mrs. => Mister/Mrs.
   : Pos  01234567    01234567890
-  : ISP              00001234567
+  : InP              00001234567
   : Ins              tttffffffff
 
 - The inner stream's text is double-parenthesized. Note that the inner stream
@@ -235,7 +244,7 @@ insertion flag values ("Ins"). Only the one's place is shown.
   positions.
   : Elt  Budget => ((Budget))
   : Pos  012345 => 0123456789
-  : ISP            0001234566
+  : InP            0001234566
   : Ins            ttfffffftt
    
 Arguments:
@@ -247,8 +256,8 @@ Arguments:
 
 Values:
 
-   inner-pos - An instance of <integer> or <stream-position> representing a
-               position in or just beyond the end of 'wrapper''s inner stream.
+   inner-pos - An instance of <integer> representing a position in or just
+               beyond the end of 'wrapper''s inner stream.
              
    inserted? - An instance of <boolean>, indicating if the element at the 'at:'
                position was inserted into the inner stream before the 'inner-pos'
@@ -257,7 +266,7 @@ Values:
 
 define method inner-stream-position
    (wrapper :: <replacing-stream>, #key at: at-pos :: false-or(<integer>) = #f)
-=> (inner-pos :: type-union(<integer>, <stream-position>), inserted? :: <boolean>)
+=> (inner-pos :: <integer>, inserted? :: <boolean>)
    let inner = wrapper.inner-stream;
    let inner-limits = wrapper.inner-stream-limits;
    let seg-count = inner-limits.size;
@@ -270,28 +279,17 @@ define method inner-stream-position
 
    let inner-seg-start = inner-limits[seg - 1];
    if (seg < seg-count)
-      // Match corresponding inner and wrapper stream positions by counting
-      // back from end of inner and wrapper stream segment until reaching start
-      // of inner stream segment. This method doesn't require knowing size of
-      // inner stream segment, just the start position and position equality.
-      let seg-size = segment-size(wrapper, seg);
-      let adjs-to-reach-off = seg-size - off;
-      let inner-limit = inner-limits[seg];
-      inner.stream-position := inner-limit;
-      let (inner-pos, remaining-adjs) =
-            for (remaining-adjs from adjs-to-reach-off above 0 by -1,
-                 inner-pos = inner-limit then adjust-stream-position(inner, -1),
-                 while: inner-pos ~= inner-seg-start)
-            finally
-               values(inner-pos, remaining-adjs)
-            end for;
-      let corresponds? = (remaining-adjs = 0);
-      values(inner-pos, ~corresponds?);
+      // Return inner stream position corresponding to start of segment plus
+      // whatever one-to-one correspondence we have between inner stream content
+      // and segment content past the segment's inserted content.
+      let inner-seg-size = inner-limits[seg] - inner-seg-start;
+      let inserted-extent = segment-size(wrapper, seg) - inner-seg-size;
+      let inserted? = off < inserted-extent;
+      let inner-off = max(0, off - inserted-extent);
+      values(inner-seg-start + inner-off, inserted?)
    else
       // Return corresponding inner stream position at end of inner stream.
-      let inner-pos = offset-inner-stream-position(wrapper,
-            origin: inner-seg-start, delta: off);
-      values(inner-pos, #f);
+      values(inner-seg-start + off, #f);
    end if;
 end method;
 
@@ -334,13 +332,13 @@ define method unread-element
    let cur-seg = wrapper.current-segment;
    let cur-off = wrapper.current-offset;
 
-   let elem = #f;
-   if (cur-seg < seg-count & seg-contents[cur-seg])
-      elem := seg-contents[cur-seg][cur-off];
-   else
-      set-inner-stream-position(wrapper);
-      elem := peek(inner);
-   end if;
+   let elem =
+         if (cur-seg < seg-count & seg-contents[cur-seg])
+            seg-contents[cur-seg][cur-off];
+         else
+            set-inner-stream-position(wrapper);
+            peek(inner);
+         end if;
    
    if (elem ~== expected-elem)
       error("Unread to %=, expecting %=", elem, expected-elem);
@@ -372,8 +370,8 @@ end method;
 
 define method stream-input-available? (wrapper :: <replacing-stream>)
 => (available? :: <boolean>)
-  wrapper.current-segment < wrapper.segment-limits.size |
-  wrapper.inner-stream.stream-input-available?
+   wrapper.current-segment < wrapper.segment-limits.size
+      | wrapper.inner-stream.stream-input-available?
 end method;
 
 
@@ -399,9 +397,10 @@ end method;
 
 define method stream-at-end? (wrapper :: <replacing-stream>)
 => (at-end? :: <boolean>)
-   set-inner-stream-position(wrapper);
-   wrapper.current-segment >= wrapper.segment-contents.size &
-         wrapper.inner-stream.stream-at-end?;
+   if (wrapper.current-segment >= wrapper.segment-limits.size)
+      set-inner-stream-position(wrapper);
+      wrapper.inner-stream.stream-at-end?
+   end if
 end method;
 
 
@@ -458,17 +457,17 @@ define method adjust/grow-stream-position
          select (from)
             #"current" =>
                values(wrapper.current-segment, wrapper.current-offset);
-            #"start" => values(1, 0);
+            #"start" =>
+               values(1, 0);
             #"end" =>
-               let post-segment-size =
-                     inner.stream-size - as(<integer>, inner-limits.last);
-               values(seg-count, post-segment-size);
+               values(seg-count, inner.stream-size - inner-limits.last);
          end select;
-   
+
    if (delta = 0)
       if (grow?)
-         // Even if delta was 0, adjust the inner stream position in case we are at
-         // the end of the inner stream and need to add a position.
+         // Even if delta was 0, adjust the inner stream position in case we are
+         // at the end of the inner stream and need to add a position per
+         // adjust-stream-position contract.
          set-inner-stream-position(wrapper);
          adjust-stream-position(inner, 0);
       end if;
@@ -477,7 +476,8 @@ define method adjust/grow-stream-position
          if (delta < 0)
             if (cur-seg > 0)
                // Move no further than just before segment.
-               let adj-size = min(cur-off + 1, -delta);
+               let seg-size-left = cur-off;
+               let adj-size = min(seg-size-left + 1, abs(delta));
                cur-off := cur-off - adj-size;
             
                // While before the start of the segment, move to prev segment.
@@ -487,15 +487,10 @@ define method adjust/grow-stream-position
                   cur-off := segment-size(wrapper, cur-seg) - 1;
                end while;
             
-               delta := delta + adj-size;
+               delta := delta + adj-size; // Delta < 0, so decrease it by adding.
             else
                // This branch handles case where we move to before any wrapper
-               // stream content. Should signal error, if not, just move to start.
-               if (grow?)
-                  adjust-stream-position(inner, delta, from: #"start")
-               else
-                  offset-inner-stream-position(wrapper, delta: delta);
-               end if;
+               // stream content. Just move to start.
                delta := 0;
                cur-seg := 1;
                cur-off := 0;
@@ -517,24 +512,28 @@ define method adjust/grow-stream-position
                delta := delta - adj-size;
             else
                // After end of segments, can just delegate to inner stream.
-               set-inner-stream-position(wrapper, segment: cur-seg, offset: cur-off);
-               if (grow?)
-                  adjust-stream-position(inner, delta);
-               else
-                  offset-inner-stream-position(wrapper, delta: delta);
-               end if;
-               cur-off := cur-off + delta;
+               let inner-pos = inner-limits.last + cur-off;
+               let pos =
+                     if (grow?)
+                        inner.stream-position := inner-pos;
+                        adjust-stream-position(inner, delta);
+                     else
+                        adjust-stream-position-below-end(inner,
+                              origin: inner-pos, delta: delta);
+                     end if;
+               cur-off := pos - inner-limits.last;
                delta := 0;
             end if;
          end if;
       end while;
    end if;
    
-   // Even if delta was 0, ensure cur-seg/cur-off is a valid position or is at
-   // end of stream, i.e., not past the end of a segment and not in empty segment.
+   // Even if delta was 0, ensure cur-seg/cur-off is a valid position, i.e.,
+   // cur-seg is not an empty segment and cur-off is not past the end of the
+   // segment.
    while (cur-seg < seg-count & cur-off >= segment-size(wrapper, cur-seg))
+      cur-off := cur-off - segment-size(wrapper, cur-seg);
       cur-seg := cur-seg + 1;
-      cur-off := 0;
    end while;
    
    wrapper.current-segment := cur-seg;
@@ -545,12 +544,8 @@ end method;
 
 define method stream-size (wrapper :: <replacing-stream>)
 => (sz :: <integer>)
-   // Move to end of inner stream less 1 and read to reach actual end of stream.
-   // inner.stream-position := #"end" can give an error if stream does not have
-   // well-defined stream-limit.
-   adjust-stream-position(wrapper.inner-stream, -1, from: #"end");
-   read-element(wrapper.inner-stream);
-   let last-seg-start = as(<integer>, wrapper.inner-stream-limits.last);
+   wrapper.inner-stream.stream-position := #"end";
+   let last-seg-start = wrapper.inner-stream-limits.last;
    let last-seg-end = as(<integer>, wrapper.inner-stream.stream-position);
    wrapper.segment-limits.last + (last-seg-end - last-seg-start)
 end method;
@@ -562,22 +557,23 @@ define inline method stream-limit (wrapper :: <replacing-stream>)
 end method;
 
 
+/// This method does not clear the contents of the inner stream.
 define method stream-contents
-   (wrapper :: <replacing-stream>, #rest keys, #key clear-contents?)
+   (wrapper :: <replacing-stream>, #key clear-contents? :: <boolean> = #t)
 => (contents :: <sequence>)
-   apply(stream-contents-as, wrapper.sequence-type-for-inner-stream, wrapper,
-         keys)
+   stream-contents-as(wrapper.sequence-type-for-inner-stream, wrapper,
+                      clear-contents?: clear-contents?)
 end method;
 
 
+/// This method does not clear the contents of the inner stream.
 define method stream-contents-as
-   (type :: subclass(<sequence>), wrapper :: <replacing-stream>, #rest keys,
+   (type :: subclass(<sequence>), wrapper :: <replacing-stream>,
     #key clear-contents? :: <boolean> = #t)
 => (contents :: <sequence>)
+   let inner = wrapper.inner-stream;
    let inner-limits = wrapper.inner-stream-limits;
    let seg-contents = wrapper.segment-contents;
-
-   let inner-contents = apply(stream-contents, wrapper.inner-stream, keys);
    let contents-sequences = make(<stretchy-vector>);
 
    for (content in seg-contents, seg-num from 0)
@@ -586,26 +582,23 @@ define method stream-contents-as
          contents-sequences := add!(contents-sequences, copy-sequence(content));
       else
          // Get content from inner stream.
-         let cont-start = as(<integer>, inner-limits[max(seg-num - 1, 0)]);
-         let cont-end = as(<integer>, inner-limits[seg-num]);
-         let content =
-               copy-sequence(inner-contents, start: cont-start, end: cont-end);
+         let cont-start = inner-limits[max(seg-num - 1, 0)];
+         let cont-end = inner-limits[seg-num];
+         inner.stream-position := cont-start;
+         let content = read(inner, cont-end - cont-start);
          contents-sequences := add!(contents-sequences, content);
       end if;
    end for;
 
    // Get trailing content from inner stream.
-   let cont-start = as(<integer>, inner-limits.last);
-   let cont-end = inner-contents.size;
-   let content = copy-sequence(inner-contents, start: cont-start, end: cont-end);
-   contents-sequences := add!(contents-sequences, content);
+   inner.stream-position := inner-limits.last;
+   contents-sequences := add!(contents-sequences, read-to-end(inner));
 
    if (clear-contents?)
-      // Clear-contents for inner stream was done while binding inner-contents.
       clear-contents(wrapper);
    end if;
    
-   apply(concatenate-as, type, contents-sequences)
+   reduce1(curry(concatenate-as, type), contents-sequences)
 end method;
 
 
@@ -630,12 +623,10 @@ define function clear-contents (wrapper :: <replacing-stream>) => ()
    wrapper.segment-contents.size := 0;
    wrapper.segment-limits.size := 0;
    wrapper.inner-stream.stream-position := #"start";
-   wrapper.inner-stream-limits :=
-         add!(wrapper.inner-stream-limits, wrapper.inner-stream.stream-position);
-   wrapper.segment-contents :=
-         add!(wrapper.segment-contents, #());
-   wrapper.segment-limits :=
-         add!(wrapper.segment-limits, 0);
+   let inner-pos = as(<integer>, wrapper.inner-stream.stream-position);
+   wrapper.inner-stream-limits := add!(wrapper.inner-stream-limits, inner-pos);
+   wrapper.segment-contents := add!(wrapper.segment-contents, #());
+   wrapper.segment-limits := add!(wrapper.segment-limits, 0);
    wrapper.stream-position := #"start";
 end function;
 
@@ -644,7 +635,20 @@ define function segment-from-position
    (wrapper :: <replacing-stream>, position :: <integer>)
 => (segment :: <integer>, offset :: <integer>)
    let seg-limits = wrapper.segment-limits;
-   let prev-seg = find-last-key(seg-limits, rcurry(\<=, position));
+   
+   // Binary search.
+   let partition-start = 0;
+   let partition-end = seg-limits.size;
+   while (partition-start < partition-end)
+      let pivot = partition-start + floor/(partition-end - partition-start, 2);
+      if (position < seg-limits[pivot])
+         partition-end := pivot;
+      else
+         partition-start := pivot + 1;
+      end if;
+   end while;
+
+   let prev-seg = partition-start - 1;
    let off = position - seg-limits[prev-seg];
    values(prev-seg + 1, off)
 end function;
@@ -663,26 +667,26 @@ define function set-inner-stream-position
          offset: cur-off = wrapper.current-offset)
 => ()
    let inner-start = wrapper.inner-stream-limits[cur-seg - 1];
-   offset-inner-stream-position(wrapper, origin: inner-start, delta: cur-off);
+   adjust-stream-position-below-end(wrapper.inner-stream,
+         origin: inner-start, delta: cur-off);
 end function;
 
 
-define function offset-inner-stream-position
-   (wrapper :: <replacing-stream>,
-    #key origin = wrapper.inner-stream.stream-position,
-         delta :: <integer>)
-=> (new-position)
-   // Can't simply use adjust-stream-position because if we are moving to the
-   // end-of-stream position, it will attempt to grow the inner stream.
-   let inner = wrapper.inner-stream;
-   inner.stream-position := origin;
+// Just like adjust-stream-position, except that you can move to the
+// end-of-stream position without growing the stream. However, if you move past
+// the end-of-stream position, it does grow the stream.
+define function adjust-stream-position-below-end
+   (stream :: <positionable-stream>,
+    #key origin = stream.stream-position, delta :: <integer>)
+=> (new-position :: <integer>)
+   stream.stream-position := origin;
    if (delta > 0)
-      adjust-stream-position(inner, delta - 1);
-      read-element(inner);
+      adjust-stream-position(stream, delta - 1);
+      read-element(stream, on-end-of-stream: #f);
    elseif (delta < 0)
-      adjust-stream-position(inner, delta);
+      adjust-stream-position(stream, delta);
    end if;
-   inner.stream-position
+   as(<integer>, stream.stream-position)
 end function;
 
 
