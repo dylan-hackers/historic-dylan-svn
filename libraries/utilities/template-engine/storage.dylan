@@ -432,91 +432,87 @@ end method;
 
 
 define method catalog-object
-   (object :: <sequence>, #key setter, references, dependencies, byte-blocks)
+   (object :: <sequence>,
+    #key setter, visited, references, dependencies, byte-blocks)
 => (do-slots? :: <boolean>)
-   unless (element(references, object, default: #f))
-      let payload-size = $size-size + (object.size * $reference-size);
-      let block-size = $tag-size + payload-size;
-      let bytes = make(<byte-vector>, size: block-size);
-      replace-bytes!(bytes, 0, object.tag-byte);
-      replace-bytes!(bytes, $payload-start, as(<machine-word>, payload-size));
-   
-      dependencies[object] := object;
-      references[object] := byte-blocks.size;
-      add!(byte-blocks, bytes);
+   let payload-size = $size-size + (object.size * $reference-size);
+   let block-size = $tag-size + payload-size;
+   let bytes = make(<byte-vector>, size: block-size);
+   replace-bytes!(bytes, 0, object.tag-byte);
+   replace-bytes!(bytes, $payload-start, as(<machine-word>, payload-size));
 
-      for (elem in object)
-         visit-objects(elem, catalog-object, references: references,
-               dependencies: dependencies, byte-blocks: byte-blocks)
-      end for;
-      #t
-   end unless
+   dependencies[object] := object;
+   references[object] := byte-blocks.size;
+   add!(byte-blocks, bytes);
+
+   for (elem in object)
+      visit-objects(elem, catalog-object, visited: visited, references: references,
+            dependencies: dependencies, byte-blocks: byte-blocks)
+   end for;
+   #t
 end method;
 
 
 define method catalog-object
-   (object :: <byte-string>, #key setter, references, dependencies, byte-blocks)
+   (object :: <byte-string>,
+    #key setter, visited, references, dependencies, byte-blocks)
 => (do-slots? :: <boolean>)
-   unless (element(references, object, default: #f))
-      let payload-size = $size-size + object.size;
-      let block-size = $tag-size + payload-size;
-      let bytes = make(<byte-vector>, size: block-size);
-      replace-bytes!(bytes, 0, object.tag-byte);
-      replace-bytes!(bytes, $payload-start, as(<machine-word>, payload-size));
+   let payload-size = $size-size + object.size;
+   let block-size = $tag-size + payload-size;
+   let bytes = make(<byte-vector>, size: block-size);
+   replace-bytes!(bytes, 0, object.tag-byte);
+   replace-bytes!(bytes, $payload-start, as(<machine-word>, payload-size));
 
-      dependencies[object] := #();
-      references[object] := byte-blocks.size;
-      add!(byte-blocks, bytes);
-      #t
-   end unless
+   dependencies[object] := #();
+   references[object] := byte-blocks.size;
+   add!(byte-blocks, bytes);
+   #t
 end method;
 
 
 define method catalog-object
-   (object :: <unicode-string>, #key setter, references, dependencies, byte-blocks)
+   (object :: <unicode-string>,
+    #key setter, visited, references, dependencies, byte-blocks)
 => (do-slots? :: <boolean>)
-   unless (element(references, object, default: #f))
-      let payload-size = $size-size + (object.size * 2 /* 16-bit characters */);
-      let block-size = $tag-size + payload-size;
-      let bytes = make(<byte-vector>, size: block-size);
-      replace-bytes!(bytes, 0, object.tag-byte);
-      replace-bytes!(bytes, $payload-start, as(<machine-word>, payload-size));
-   
-      dependencies[object] := #();
-      references[object] := byte-blocks.size;
-      add!(byte-blocks, bytes);
-      #t
-   end unless
+   let payload-size = $size-size + (object.size * 2 /* 16-bit characters */);
+   let block-size = $tag-size + payload-size;
+   let bytes = make(<byte-vector>, size: block-size);
+   replace-bytes!(bytes, 0, object.tag-byte);
+   replace-bytes!(bytes, $payload-start, as(<machine-word>, payload-size));
+
+   dependencies[object] := #();
+   references[object] := byte-blocks.size;
+   add!(byte-blocks, bytes);
+   #t
 end method;
 
 
 define method catalog-object
-   (object :: <object>, #key setter, references, dependencies, byte-blocks)
+   (object :: <object>,
+    #key setter, visited, references, dependencies, byte-blocks)
 => (do-slots? :: <boolean>)
-   unless (element(references, object, default: #f))
-      // An object may be an instance of several described classes. The biggest
-      // of these is the one to use.
-      let sizes = choose-by(curry(instance?, object), map(first, $payload-sizes),
-                            map(second, $payload-sizes));
-      let payload-size = apply(max, sizes);
-      let block-size = $tag-size + payload-size;
-      let bytes = make(<byte-vector>, size: block-size);
-      replace-bytes!(bytes, 0, object.tag-byte);
-   
-      dependencies[object] :=
-            begin
-               let slots = object.slot-list;
-               let deps = make(<vector>, size: slots.size);
-               for (s in slots, i from 0)
-                  deps[i] := object.s
-               end for;
-               deps
-            end;
+   // An object may be an instance of several described classes. The biggest
+   // of these is the one to use.
+   let sizes = choose-by(curry(instance?, object), map(first, $payload-sizes),
+                         map(second, $payload-sizes));
+   let payload-size = apply(max, sizes);
+   let block-size = $tag-size + payload-size;
+   let bytes = make(<byte-vector>, size: block-size);
+   replace-bytes!(bytes, 0, object.tag-byte);
 
-      references[object] := byte-blocks.size;
-      add!(byte-blocks, bytes);
-      #t
-   end unless
+   dependencies[object] :=
+         begin
+            let slots = object.slot-list;
+            let deps = make(<vector>, size: slots.size);
+            for (s in slots, i from 0)
+               deps[i] := object.s
+            end for;
+            deps
+         end;
+
+   references[object] := byte-blocks.size;
+   add!(byte-blocks, bytes);
+   #t
 end method;
 
 
