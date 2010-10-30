@@ -48,15 +48,6 @@ tokenizing words -- actual character boundaries matter.
 Figure out how to turn "--" into an em-dash automatically. This won't interfere
 with ASCII lines because an ASCII line needs *three* consecutive characters.
 
------
-
-API recognition. If you type "use the <integer> class," the code should figure
-out that you want to link to the class. This relies on cues within the name, of
-course. If you type "use the stream-location function," I doubt the code can
-guess that you want to link to the function -- though maybe if an adjacent word
-is "function" and the word is the name of a documented function, that might
-work.
-
 
 ============
 Bonus Points

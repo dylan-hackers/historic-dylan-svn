@@ -34,7 +34,12 @@ define method parse-dylan
          file-locator: locator,
          line-col-position-method: text-line-col-position);
             
-   // *parser-trace* := *standard-output*;
+   if (debugging?(#"dylan-parser"))
+      *parser-trace* := *standard-output*;
+   else
+      *parser-trace* := #f;
+   end if;
+
    // *parser-cache-hits* := #t;
 
    let (file-token, success?, extent) = parse-interchange-file(text, context);

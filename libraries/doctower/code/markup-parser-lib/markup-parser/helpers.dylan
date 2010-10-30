@@ -259,7 +259,7 @@ end method;
 
 define method print-object (o :: <directive-topic-token>, s :: <stream>) => ()
    format(s, "{topic (%s) %= id %s: %=}",
-      o.topic-type, o.topic-title.title-text,
+      o.topic-type, o.topic-title.title-content,
       o.topic-nickname & o.topic-nickname.text,
       o.content)
 end method;
@@ -290,8 +290,12 @@ define method print-object (o :: <title-nickname-token>, s :: <stream>) => ()
    format(s, "{id %s}", o.text)
 end method;
 
-define method print-object (o :: <directive-topic-title-token>, s :: <stream>) => ()
-   format(s, "{title (%s) %=}", o.title-type, o.title-text)
+define method print-object (o :: <topic-directive-title-token>, s :: <stream>) => ()
+   format(s, "{title (%s) %=}", o.title-type, o.title-content)
+end method;
+
+define method print-object (o :: <section-directive-title-token>, s :: <stream>) => ()
+   format(s, "{title (%s) %=}", o.title-type, o.title-content)
 end method;
 
 define method print-object
@@ -411,11 +415,6 @@ end method;
 define method print-object (o :: <link-word-token>, s :: <stream>) => ()
    format(s, "{link %s}", o.text)
 end method;
-
-/*
-define method print-object (o :: <api-ref-token>, s :: <stream>) => ()
-end method;
-*/
 
 define method print-object (o :: <bracketed-render-span-token>, s :: <stream>)
 => ()

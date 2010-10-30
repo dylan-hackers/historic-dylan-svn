@@ -31,7 +31,8 @@ define method make-source-topics (binding :: <class-binding>)
    
    // Replace generated init-arg docs with individual init-arg markup.
 
-   let item-defn-list = generated-topic.keywords-section.defn-list;
+   let item-defn-list = generated-topic.keywords-section
+         & generated-topic.keywords-section.defn-list;
    if (item-defn-list)
       replace-list-item-docs(item-defn-list, binding.effective-init-args)
    end if;

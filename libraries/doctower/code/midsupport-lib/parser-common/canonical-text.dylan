@@ -1,13 +1,19 @@
 module: parser-common
 
 
+define constant <string-vector> = limited(<vector>, of: <string>);
+define variable *tabstop-fillers* :: <string-vector> = make(<string-vector>, size: 0);
+         
+
 define method canonical-text-stream (file :: <positionable-stream>)
 => (text-stream :: <string-stream>)
-   let tabstop-fillers = make(<vector>, size: 8);
-   for (i from 0 below $tab-size)
-      let filler-size = $tab-size - i;
-      tabstop-fillers[i] := make(<string>, size: filler-size, fill: ' ');
-   end for;
+   unless (*tabstop-fillers*.size > 0)
+      *tabstop-fillers* := make(<string-vector>, size: $tab-size, fill: "");
+      for (tab-pos from 0 below $tab-size)
+         let filler-size = $tab-size - tab-pos;
+         *tabstop-fillers*[tab-pos] := make(<string>, size: filler-size, fill: ' ');
+      end for
+   end unless;
 
    local method next-line () => (line :: false-or(<string>))
             read-line(file, on-end-of-stream: #f)
@@ -24,7 +30,7 @@ define method canonical-text-stream (file :: <positionable-stream>)
    for (line = next-line() then next-line(), while: line)
       // Detab
       for (tab-index = next-tab(line) then next-tab(line), while: tab-index)
-         let filler = tabstop-fillers[modulo(tab-index, $tab-size)];
+         let filler = *tabstop-fillers*[modulo(tab-index, $tab-size)];
          line := replace-subsequence!(line, filler, start: tab-index, end: tab-index + 1)
       end for;
       
@@ -47,7 +53,7 @@ define method line-col-position-func (stream :: <positionable-stream>)
    let current-pos = stream.stream-position;
    stream.stream-position := #"start";
    while (skip-through(stream, '\n'))
-      line-ends := add!(line-ends, as(<integer>, stream.stream-position) - 1);
+      line-ends := add!(line-ends, as(<integer>, stream.stream-position));
    end while;
    stream.stream-position := current-pos;
    
@@ -64,14 +70,14 @@ define method line-col-position-func (stream :: <positionable-stream>)
                   part-end := pivot
                end if;
             end while;
-            let line = part-start + 1;
+            let line = part-start;
             let col =
                   if (part-start > 0)
-                     pos - line-ends[part-start - 1] + 1
+                     pos - line-ends[part-start - 1]
                   else
-                     pos + 1
+                     pos
                   end if;
-            values(line, col)
+            values(line + 1, col + 1)
          end method;
    
    line-col-position

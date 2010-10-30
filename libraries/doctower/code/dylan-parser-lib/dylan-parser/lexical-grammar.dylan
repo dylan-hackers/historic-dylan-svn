@@ -1029,7 +1029,7 @@ end;
 
 define parser string :: <string>
    rule seq(quote, opt-many(string-character), quote) => tokens;
-   yield tokens[1].concatenated-strings;
+   yield (tokens[1] & tokens[1].concatenated-strings) | "";
 end;
 
 define parser lex-STRING (<lexeme>)

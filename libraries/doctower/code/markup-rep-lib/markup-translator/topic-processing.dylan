@@ -60,21 +60,9 @@ end method;
 
 
 //
-// Processing <topic-or-section-title-token>, <directive-topic-title-token>
+// Processing <topic-or-section-title-token>, <topic-directive-title-token>,
 // <topic-nickname-token>
 //
-
-
-define method process-tokens
-   (topic :: <topic>, token :: <topic-or-section-title-token>)
-=> ()
-   topic.title-source-loc := token.token-src-loc;
-   with-dynamic-bindings (*default-quote-specs* = $default-title-quote-specs,
-                          *title-markup* = #t)
-      process-tokens(topic.title, token.title-content);
-   end with-dynamic-bindings;
-   check-title(topic);
-end method;
 
 
 /**
@@ -84,10 +72,14 @@ titles replace user-defined titles and that takes care of "Library" and "Module"
 and spaces and casing.
 **/
 define method process-tokens
-   (topic :: <topic>, token :: <directive-topic-title-token>)
+   (topic :: <topic>,
+    token :: type-union(<topic-or-section-title-token>, <topic-directive-title-token>))
 => ()
    topic.title-source-loc := token.token-src-loc;
-   add!(topic.title, token.title-text);
+   with-dynamic-bindings (*default-quote-specs* = $default-title-quote-specs,
+                          *title-markup* = #t)
+      process-tokens(topic.title, token.title-content);
+   end with-dynamic-bindings;
    check-title(topic);
 end method;
 
@@ -117,13 +109,13 @@ end method;
 
 
 //
-// Processing <titled-section-token> and <titled-directive-section-token>
+// Processing <titled-section-token> and <section-directive-token>
 //
 
 
 define method process-tokens
    (topic :: <topic>,
-    section-token :: type-union(<titled-section-token>, <titled-directive-section-token>))
+    section-token :: type-union(<titled-section-token>, <section-directive-token>))
 => ()
    let section = make(<section>, source-location: section-token.token-src-loc);
    process-tokens(section, section-token);

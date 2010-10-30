@@ -56,8 +56,8 @@ The comment block itself is assumed tagged as a certain type. If the comment
 block contains content that violates the rules of that type, while the content
 is lexically part of that block, it isn't part of the block's implicitly
 classified content. The extra content is still processed and included in the
-output, though. For example, if a macro definition includes an "Arguments"
-directive, it is still a macro definition, and it has a section named
+output, though. For example, if a class definition includes an "Arguments"
+directive, it is still a class definition, and it has a section named
 "Arguments," but special argument processing does not occur.
 
 API elements may be defined under more than one name. One of the names is

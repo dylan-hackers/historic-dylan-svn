@@ -32,6 +32,42 @@ afterwards (context, token, value, start-pos, end-pos, fail: fail)
    end unless;
 end;
 
+//
+// Directive titles
+//
+
+// exported
+define caching parser topic-directive-title (<source-location-token>)
+   rule seq(directive-spec-intro, topic-directive-spec-text, colon, spaces,
+            title-words-til-midline-nickname, opt-seq(ascii-midline, opt-spaces),
+            choice(ls, title-nickname), opt(ascii-underline))
+      => tokens;
+   slot title-type :: <symbol> = tokens[1];
+   slot title-content :: <title-word-sequence> = tokens[4];
+   slot title-nickname :: false-or(<title-nickname-token>) =
+      instance?(tokens[6], <title-nickname-token>) & tokens[6];
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value)
+end;
+
+// exported
+define caching parser section-directive-title (<source-location-token>)
+   rule seq(directive-spec-intro, section-directive-spec-text, colon, spaces,
+            title-words-til-midline-nickname, opt-seq(ascii-midline, opt-spaces),
+            choice(ls, title-nickname), opt(ascii-underline))
+      => tokens;
+   slot title-type :: <symbol> = tokens[1];
+   slot title-content :: <title-word-sequence> = tokens[4];
+   slot title-nickname :: false-or(<title-nickname-token>) =
+         instance?(tokens[6], <title-nickname-token>) & tokens[6];
+afterwards (context, tokens, value, start-pos, end-pos)
+   note-source-location(context, value)
+end;
+
+//
+// Title styles
+//
+
 // exported
 define caching parser topic-or-section-title (<source-location-token>)
    rule choice(title-midline-style, title-bare-style) => token;
@@ -96,7 +132,7 @@ define caching parser title-line-bare-style-til-nickname :: <title-line-bare-sty
 end;
 
 define caching parser title-line-midline-style (<token>)
-   rule seq(sol, ascii-midline, spaces, title-words, opt(ascii-midline), ls)
+   rule seq(sol, ascii-midline, spaces, title-words-til-midline, opt(ascii-midline), ls)
       => tokens;
    slot content :: <title-word-sequence> = tokens[3];
 end;
@@ -107,18 +143,11 @@ define caching parser title-line-bare-style (<token>)
 end;
 
 define caching parser title-nickname-line-midline-style (<token>)
-   rule seq(sol, ascii-midline, spaces,
-            opt-choice(seq(opt(title-words), ascii-midline, spaces),
-                       seq(title-words-til-nickname)),
-            title-nickname)
+   rule seq(sol, ascii-midline, spaces, opt(title-words-til-midline-nickname),
+            opt-seq(ascii-midline, spaces), title-nickname)
       => tokens;
-   // tokens[3] will be one of
-   // - #f
-   // - #[ #f, ascii-midline, spaces ]
-   // - #[ #[ title-words,... ], ascii-midline, spaces]
-   // - #[ #[ title-words,... ] ]
-   slot content :: <title-word-sequence> = (tokens[3] & tokens[3][0]) | #[];
-   slot title-nickname :: <title-nickname-token> = tokens[4];
+   slot content :: <title-word-sequence> = tokens[3] | #[];
+   slot title-nickname :: <title-nickname-token> = tokens[5];
 end;
 
 define caching parser title-nickname-line-bare-style (<token>)
@@ -136,9 +165,21 @@ define caching parser title-words :: <title-word-sequence>
    yield collect-subelements(tokens, 0);
 end;
 
+define caching parser title-words-til-midline :: <title-word-sequence>
+   rule many(seq(not-next(ascii-midline), title-word, opt-spaces)) => tokens;
+   yield collect-subelements(tokens, 1);
+end;
+
 define caching parser title-words-til-nickname :: <title-word-sequence>
    rule many(seq(not-next(title-nickname), title-word, opt-spaces)) => tokens;
    yield collect-subelements(tokens, 1);
+end;
+
+define caching parser title-words-til-midline-nickname :: <title-word-sequence>
+   rule many(seq(not-next(ascii-midline), not-next(title-nickname),
+                 title-word, opt-spaces))
+      => tokens;
+   yield collect-subelements(tokens, 2);
 end;
 
 // exported

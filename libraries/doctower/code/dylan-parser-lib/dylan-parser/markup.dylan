@@ -27,13 +27,13 @@ define method markup-from-comment
    if (comment-contents.last ~= '\n')
       comment-contents := add!(comment-contents, '\n');
    end if;
-
+   
    // Parse markup.
 
    let text-stream = make(<string-stream>, contents: comment-contents);
    block ()
-      values(parse-markup(text-stream, base-line-col-position, context.file-locator),
-             #f);
+      let markup = parse-markup(text-stream, base-line-col-position, context.file-locator);
+      values(markup, #f);
    cleanup
       text-stream.close;
    exception (parse-failure :: <parse-failure>)

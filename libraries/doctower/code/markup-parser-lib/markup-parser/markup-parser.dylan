@@ -32,7 +32,13 @@ define method parse-markup
             line-col-position-method:
                compose(text-line-col-position, text-stream-position));
 
-      // *parser-trace* := *standard-output*;
+      if (debugging?(#"markup-parser", #"file-markup-parser"))
+         log("--- %s ---", locator);
+         *parser-trace* := *standard-output*;
+      else
+         *parser-trace* := #f;
+      end if;
+      
       // *parser-cache-hits* := #t;
    
       let (markup-token, success?, extent) =
@@ -80,7 +86,12 @@ define method parse-internal-markup
                          cache-stream: indented-stream,
                          locator: locator);
 
-      // *parser-trace* := *standard-output*;
+      if (debugging?(#"markup-parser", #"template-markup-parser"))
+         log("--- (template) ---");
+         *parser-trace* := *standard-output*;
+      else
+         *parser-trace* := #f;
+      end if;
    
       let (markup-token, success?, extent) =
             parse-markup-block(indented-stream, context);

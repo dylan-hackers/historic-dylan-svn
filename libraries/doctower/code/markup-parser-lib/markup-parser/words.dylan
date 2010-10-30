@@ -6,7 +6,6 @@ module: markup-parser
 
 define constant <markup-word-types> =
       type-union(<quote-token>,
-                 <api-ref-token>,
                  <line-marker-ref-token>,
                  <footnote-ref-token>,
                  <image-ref-token>,
@@ -45,17 +44,15 @@ define caching parser markup-words-til-hyphen-spc :: <markup-word-sequence>
 end;
 
 define caching parser markup-word :: <markup-word-types>
-   rule choice(quote, api-ref, line-marker-ref, footnote-ref, image-ref,
+   rule choice(quote, line-marker-ref, footnote-ref, image-ref,
                synopsis-ref, bracketed-render-span, text-word)
       => token;
    yield token;
 end;
 
 define caching parser title-word :: <title-word-types>
-   rule seq(not-next(ascii-line),
-            choice(quote, image-ref, bracketed-render-span, text-word))
-      => tokens;
-   yield tokens[1];
+   rule choice(quote, image-ref, bracketed-render-span, text-word) => token;
+   yield token;
 end;
 
 // exported
@@ -150,14 +147,6 @@ define caching parser nickname-word :: <string>
    yield remove-multiple-spaces(token.text);
 end;
 
-// exported
-define caching parser api-ref (<source-location-token>)
-   label "API reference";
-   rule nil(#f) => token;
-afterwards (context, tokens, value, start-pos, end-pos, fail: fail)
-   fail(make(<parse-failure>));
-end;
-
 //
 // Text tokens
 //
@@ -169,15 +158,6 @@ end;
 
 define caching parser text-til-spc-ls (<token>)
    rule many(seq(not-next(spc-ls), char)) => items;
-   slot text :: <string> = as(<string>, collect-subelements(items, 1));
-end;
-
-define caching parser text-til-ascii-nickname-ls (<token>)
-   rule many(seq(not-next(choice(ls,
-                                 seq(spaces, ascii-line),
-                                 seq(spaces, title-nickname))),
-                 char))
-      => items;
    slot text :: <string> = as(<string>, collect-subelements(items, 1));
 end;
 
@@ -236,11 +216,11 @@ end;
 // Literals
 //
 
-define caching parser directive-topic-spec-text :: <symbol>
+define caching parser topic-directive-spec-text :: <symbol>
    rule choice(seq(nil(#f), constant-lit),
                seq(nil(#f), function-lit),
                seq(nil(#f), variable-lit),
-               seq(generic-lit, spaces, function-lit),
+               seq(generic-lit, opt-seq(spaces, function-lit)),
                seq(nil(#f), library-lit),
                seq(nil(#f), method-lit),
                seq(nil(#f), module-lit),
@@ -254,7 +234,7 @@ define caching parser directive-topic-spec-text :: <symbol>
          end select;
 end;
 
-define caching parser titled-directive-section-spec-text :: <symbol>
+define caching parser section-directive-spec-text :: <symbol>
    rule section-lit => token;
    yield #"section";
 end;

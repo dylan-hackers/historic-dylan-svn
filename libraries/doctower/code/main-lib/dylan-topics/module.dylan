@@ -16,6 +16,8 @@ define module dylan-topics
    use name-processing;
    // from template-engine
    use template-engine;
+   // from system
+   use file-system, import: { ensure-directories-exist };
 
    export
       topics-from-dylan, $topic-templates;

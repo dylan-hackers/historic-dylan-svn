@@ -301,11 +301,20 @@ define method \< (arr1 :: <arranged-topic>, arr2 :: <arranged-topic>)
                // Keep relative order.
                #f;
             otherwise =>
-               // Alphabetical.
+               // Alphabetical, but reference topics go after conceptual/task topics.
                when (arr1.topic & arr2.topic)
-                  let str1 = arr1.topic.title.stringify-title;
-                  let str2 = arr2.topic.title.stringify-title;
-                  str1 < str2
+                  let top1 = arr1.topic;
+                  let top2 = arr2.topic;
+                  case
+                     instance?(top1, <api-doc>) & ~instance?(top2, <api-doc>) =>
+                        #f;
+                     ~instance?(top1, <api-doc>) & instance?(top2, <api-doc>) =>
+                        #t;
+                     otherwise =>
+                        let str1 = top1.title.stringify-title;
+                        let str2 = top2.title.stringify-title;
+                        str1 < str2;
+                  end case;
                end when;
          end case;
    end case;

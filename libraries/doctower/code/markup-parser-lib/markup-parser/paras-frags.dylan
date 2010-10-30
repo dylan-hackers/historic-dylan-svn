@@ -13,6 +13,13 @@ define constant <quote-options-sequence> = <sequence>;
 // Paragraphs
 //
 
+define caching parser paragraph-directive-content :: <paragraph-token>
+   rule choice(seq(indent, paragraph, dedent),
+               seq(nil(#f), paragraph-til-null-directive, nil(#f)))
+      => tokens;
+   yield tokens[1]
+end;
+
 // exported -- contents are those of paragraph-lines combined
 define caching parser paragraph (<source-location-token>)
    rule many(paragraph-line) => items;
@@ -208,7 +215,7 @@ end;
 
 // content promoted to <quote-token>
 define caching parser quoted-words (<token>)
-   rule seq(opt-many(choice(left-paren, open-bracket, left-brace, lt)),
+   rule seq(opt-many(choice(left-paren, open-bracket)),
             quote-start, opt(text-til-end-quote), quote-end,
             opt(text-til-spc-ls))
       => tokens;

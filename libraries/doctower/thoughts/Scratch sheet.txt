@@ -294,10 +294,10 @@ in a topic. Should I assume that APIs are in code? Which ones won't be?
   - Arguments and values that are functions with a given signature. For this,
     the argument/functions directives are sufficient.
   - APIs for a library for which source is not available, e.g. the Dylan
- 	library. In a case like this, one could create some fake source code. If API
-	filenames or line numbers are documented, though, this will be incorrect.
-	May want to a) not list them or only list them for maintainer documentation,
-	or b) allow it to be specified. That means another directive.
+    library. In a case like this, one could create some fake source code. If API
+    filenames or line numbers are documented, though, this will be incorrect.
+    May want to a) not list them or only list them for maintainer documentation,
+    or b) allow it to be specified. That means another directive.
 
 I don't want to deal with adding syntax to fully specify an API in docs. So,
 I should assume that APIs are in code, though the documentation may or may not

@@ -21,9 +21,9 @@ define module markup-parser
    
    export
       <markup-content-token>, <directive-topic-token>, <titled-topic-token>,
-      <titled-section-token>, <titled-directive-section-token>,
-      <footnote-token>, <topic-or-section-title-token>, <title-nickname-token>,
-      <directive-topic-title-token>, <directive-section-title-token>,
+      <titled-section-token>, <section-directive-token>, <footnote-token>,
+      <topic-or-section-title-token>, <title-nickname-token>,
+      <topic-directive-title-token>, <section-directive-title-token>,
       <paragraph-directive-token>, <link-directive-token>,
       <links-directive-token>, <word-directive-token>,
       <division-directive-token>, <indented-content-directive-token>,
@@ -36,8 +36,7 @@ define module markup-parser
       <phrase-list-item-token>, <paragraph-token>, <raw-line-token>,
       <image-ref-token>, <line-marker-ref-token>, <footnote-ref-token>,
       <synopsis-ref-token>, <quote-token>, <quote-spec-token>,
-      <text-word-token>, <link-word-token>, <api-ref-token>,
-      <bracketed-render-span-token>;
+      <text-word-token>, <link-word-token>, <bracketed-render-span-token>;
    
    export
       <topic-content-types>, <division-content-types>;
@@ -48,8 +47,7 @@ define module markup-parser
       list-type, open-quote, ordinal, postquoted-text, prequoted-text,
       quote-options, quote-spec, quoted-text, scale-factor, scale-type,
       scope-word, section-nickname, section-title, text, title-content,
-      title-style, title-text, topic-nickname, topic-title, topic-type, topics,
-      word;
+      title-style, topic-nickname, topic-title, topic-type, topics, word;
    
    export
       <topic-level-style>;

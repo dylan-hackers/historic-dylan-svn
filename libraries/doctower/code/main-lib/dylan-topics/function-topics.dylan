@@ -133,9 +133,11 @@ define method document-args/vals
     generated-topic :: <function-doc>, authored-topic :: <function-doc>)
 => ()
    let arg-items = defn.param-list.all-params/values;
-   let arg-defn-list = generated-topic.args-section.defn-list;
+   let arg-defn-list = generated-topic.args-section
+         & generated-topic.args-section.defn-list;
    let val-items = defn.value-list.all-params/values;
-   let val-defn-list = generated-topic.vals-section.defn-list;
+   let val-defn-list = generated-topic.vals-section
+         & generated-topic.vals-section.defn-list;
 
    if (arg-defn-list)
       replace-list-item-docs(arg-defn-list, arg-items)

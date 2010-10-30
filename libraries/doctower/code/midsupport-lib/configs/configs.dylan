@@ -16,6 +16,12 @@ define variable *output-directory* :: <directory-locator>
       = as(<directory-locator>, "./doc");
 define variable *output-types* :: <sequence> = #[ #"html" ];
 
+define variable *debug-features* :: <sequence> = #[];
+
+define method debugging? (#rest features) => (debugging? :: <boolean>)
+   intersection(features, *debug-features*).size > 0
+end method;
+
 
 /// Synopsis: The set of characters allowed for underline/overline.
 /// TODO: Should be configurable.
@@ -30,7 +36,7 @@ define constant $bullet-chars = "-*+oO";
 /// Synopsis: The set of quote characters.
 /// TODO: Should be configurable.
 define constant $open-quote-chars  = "'\"`";
-define constant $close-quote-chars = "'\"`"; //< [ditto $open-quote-chars]
+define constant $close-quote-chars = "'\"`";
 
 
 /// Synopsis: The default specifiers for each quote type in normal markup.

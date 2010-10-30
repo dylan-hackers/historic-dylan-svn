@@ -11,7 +11,7 @@ define constant <topic-content-types> =
                  <word-directive-token>,
                  <division-directive-token>,
                  <titled-section-token>,
-                 <titled-directive-section-token>,
+                 <section-directive-token>,
                  <footnote-token>,
                  <division-content-types>);
                  
@@ -74,9 +74,9 @@ end parser;
 
 // exported
 define caching parser directive-topic (<source-location-token>)
-   rule seq(directive-topic-title, opt(topic-content)) => tokens;
+   rule seq(topic-directive-title, opt(topic-content)) => tokens;
    slot topic-type :: <symbol> = tokens[0].title-type;
-   slot topic-title :: <directive-topic-title-token> = tokens[0];
+   slot topic-title :: <topic-directive-title-token> = tokens[0];
    slot topic-nickname :: false-or(<title-nickname-token>) =
       tokens[0].title-nickname;
    slot content :: <topic-content-sequence> = tokens[1] | #[];
@@ -106,28 +106,31 @@ end;
 
 define caching parser section
       :: type-union(<titled-section-token>,
+                    <section-directive-token>,
                     <paragraph-directive-token>,
                     <link-directive-token>,
                     <links-directive-token>,
                     <word-directive-token>,
                     <division-directive-token>,
                     <division-content-sequence>,
-                    <titled-directive-section-token>)
-   rule choice(directive-section, titled-directive-section, titled-section) 
+                    <section-directive-token>)
+   rule choice(directive-section, titled-section) 
       => token;
    yield token;
 end;
 
 // null-directive yields <division-content-sequence>
 define caching parser directive-section
-      :: type-union(<paragraph-directive-token>,
+      :: type-union(<section-directive-token>,
+                    <paragraph-directive-token>,
                     <link-directive-token>,
                     <links-directive-token>,
                     <word-directive-token>,
                     <division-directive-token>,
                     <division-content-sequence>)
-   rule choice(paragraph-directive, link-directive, links-directive,
-               word-directive, division-directive, null-directive)
+   rule choice(section-directive, paragraph-directive, link-directive,
+               links-directive, word-directive, division-directive,
+               null-directive)
       => token;
    yield token;
 end;
@@ -146,10 +149,10 @@ end;
 // exported
 // Not subclassed from <titled-section-token> because of the disjoint
 // section-title slot.
-define caching parser titled-directive-section (<source-location-token>)
-   rule seq(directive-section-title, opt(division-content))
+define caching parser section-directive (<source-location-token>)
+   rule seq(section-directive-title, opt(division-content))
       => tokens;
-   slot section-title :: <directive-section-title-token> = tokens[0];
+   slot section-title :: <section-directive-title-token> = tokens[0];
    slot section-nickname :: false-or(<title-nickname-token>) =
       tokens[0].title-nickname;
    slot content :: <division-content-sequence> = tokens[1] | #[];
@@ -185,7 +188,8 @@ define caching parser division-content :: <division-content-sequence>
 end;
 
 define caching parser division-break
-   rule choice(topic, section, footnote);
+   rule choice(topic-or-section-title, topic-directive-title,
+               section-directive-title, directive-spec, footnote);
 end;
 
 // The choose removes #f (i.e. blank-lines) from the content blocks.

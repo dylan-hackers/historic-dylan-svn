@@ -30,6 +30,13 @@ anyway, it also makes the API list file.
 **/
 define method topics-from-dylan (api-definitions :: <sequence>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
+   // Prepare for generated topic files.
+   if (*generated-topics-directory*)
+      with-file-error-handlers (default-locator: *generated-topics-directory*)
+         ensure-directories-exist(*generated-topics-directory*)
+      end with-file-error-handlers
+   end if;
+
    // Make <source-name> quick-reference table.
    for (api-defn :: <definition> in api-definitions)
       for (api-name :: <source-name> in api-defn.aliases)
@@ -68,24 +75,27 @@ define method topics-from-dylan (api-definitions :: <sequence>)
    // Generate API list.
    when (*api-list-file*)
       verbose-log("Writing fully-qualified API names to %s", *api-list-file*);
-      with-open-file (api-list = *api-list-file*, direction: #"output")
-         write(api-list,
-            "# Each first line is the fully qualified name of a library, module, or binding.\n"
-            "# Each subsequent indented line is an alternative name for the library, module,\n"
-            "# or binding as declared or used in Dylan source code.\n\n");
-         for (defn-topic in definition-topics)
-            for (topic in defn-topic.tail)
-               write-line(api-list, topic.fully-qualified-name)
-            end for;
-            for (alias in defn-topic.head.aliases)
-               when (instance?(alias.source-location, <file-source-location>))
-                  format(api-list, "\tDeclared as \"%s\" at %s\n", 
-                         alias, alias.source-location)
-               end when
-            end for;
-            api-list.new-line
-         end for
-      end with-open-file
+      with-file-error-handlers (default-locator: *api-list-file*)
+         ensure-directories-exist(*api-list-file*);
+         with-open-file (api-list = *api-list-file*, direction: #"output")
+            write(api-list,
+               "# Each first line is the fully qualified name of a library, module, or binding.\n"
+               "# Each subsequent indented line is an alternative name for the library, module,\n"
+               "# or binding as declared or used in Dylan source code.\n\n");
+            for (defn-topic in definition-topics)
+               for (topic in defn-topic.tail)
+                  write-line(api-list, topic.fully-qualified-name)
+               end for;
+               for (alias in defn-topic.head.aliases)
+                  when (instance?(alias.source-location, <file-source-location>))
+                     format(api-list, "\tDeclared as \"%s\" at %s\n", 
+                            alias, alias.source-location)
+                  end when
+               end for;
+               api-list.new-line
+            end for
+         end with-open-file
+      end with-file-error-handlers
    end when;
 
    // Generate global catalog topics.

@@ -9,7 +9,7 @@ do not have content.
 **/
 define constant <section-token> =
       type-union(<directive-section-token>, <titled-section-token>,
-                 <titled-directive-section-token>);
+                 <section-directive-token>);
 
 
 /** [ditto <section-token>] **/
@@ -45,7 +45,7 @@ end method;
 
 define method process-tokens
    (section :: <section>,
-    token :: type-union(<titled-section-token>, <titled-directive-section-token>))
+    token :: type-union(<titled-section-token>, <section-directive-token>))
 => ()
    process-tokens(section, token.section-nickname);
    process-tokens(section, token.section-title);
@@ -54,22 +54,14 @@ end method;
 
 
 define method process-tokens
-   (section :: <section>, token :: <topic-or-section-title-token>)
+   (section :: <section>,
+    token :: type-union(<topic-or-section-title-token>, <section-directive-title-token>))
 => ()
    section.title-source-loc := token.token-src-loc;
    with-dynamic-bindings (*default-quote-specs* = $default-title-quote-specs,
                           *title-markup* = #t)
       process-tokens(section.title, token.title-content);
    end with-dynamic-bindings;
-   check-title(section);
-end method;
-
-
-define method process-tokens
-   (section :: <section>, token :: <directive-section-title-token>)
-=> ()
-   section.title-source-loc := token.token-src-loc;
-   add!(section.title, token.title-text);
    check-title(section);
 end method;
 

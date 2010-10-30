@@ -53,21 +53,21 @@ markup-content:
 topic:
    directive-topic / titled-topic
 directive-topic:
-   directive-topic-title topic-content?
+   topic-directive-title topic-content?
 titled-topic:
    topic-title topic-content?
 topic-content:
    ( section / footnote / division-content )+
 
 section:
-   directive-section / titled-directive-section / titled-section
+   directive-section / titled-section
 directive-section:
-   paragraph-directive / link-directive / links-directive / word-directive /
-   division-directive / null-directive
+   section-directive / paragraph-directive / link-directive / links-directive /
+   word-directive / division-directive / null-directive
 titled-section:
    section-title division-content?
-titled-directive-section:
-   directive-section-title division-content?
+section-directive:
+   section-directive-title division-content?
 
 footnote:
    [-SPC ( NUMBER / ORDINAL ) SPC-] ':' SPC+ division-content?
@@ -75,7 +75,9 @@ footnote:
 division-content:
    ( indented-content / !division-break content-block )+
 division-break:
-   topic / section / footnote
+   topic-or-section-title / topic-directive-title / section-directive-title /
+   directive-spec / footnote
+
 indented-content:
    INDENT content-block+ DEDENT
 
@@ -89,6 +91,15 @@ topic-title:
    topic-or-section-title
 section-title:
    topic-or-section-title
+
+topic-directive-title:
+   directive-spec-intro topic-directive-spec-text ':' SPC+ 
+   title-words-til-midline-nickname ( ascii-midline SPC* )?
+   ( LS / title-nickname ) ascii-underline?
+section-directive-title:
+   directive-spec-intro section-directive-spec-text ':' SPC+ 
+   title-words-til-midline-nickname ( ascii-midline SPC* )?
+   ( LS / title-nickname ) ascii-underline?
 
 topic-or-section-title:
    title-midline-style / title-bare-style
@@ -108,37 +119,31 @@ title-line-midline-style-til-nickname:
 title-line-bare-style-til-nickname:
    !title-nickname-line-bare-style title-line-bare-style
 title-line-midline-style:
-   SOL ascii-midline SPC+ title-words ascii-midline? LS
+   SOL ascii-midline SPC+ title-words-til-midline ascii-midline? LS
 title-line-bare-style:
    SOL title-words LS
 title-nickname-line-midline-style:
-   SOL ascii-midline SPC+
-   ( title-words? ascii-midline SPC+ / title-words-til-nickname )?
-   title-nickname
+   SOL ascii-midline SPC+ title-words-til-midline-nickname?
+   ( ascii-midline SPC+ )? title-nickname
 title-nickname-line-bare-style:
    SOL title-words-til-nickname? title-nickname
 
 title-words:
    ( title-word SPC* )+
+title-words-til-midline:
+   ( !ascii-midline title-word SPC* )+
 title-words-til-nickname:
    ( !title-nickname title-word SPC* )+
+title-words-til-midline-nickname:
+   ( !ascii-midline !title-nickname title-word SPC* )+
 title-nickname:
    [-SPC nickname-word SPC-] LS
 
 ______________
   DIRECTIVES
 
-directive-topic-title:
-   directive-spec-intro directive-topic-spec-text ':' SPC+ 
-   text-til-ascii-nickname-ls ( SPC+ ascii-midline )?
-   ( LS / SPC+ title-nickname ) ascii-underline?
-directive-section-title:
-   directive-spec-intro titled-directive-section-spec-text ':' SPC+ 
-   text-til-ascii-nickname-ls ( SPC+ ascii-midline )?
-   ( LS / SPC+ title-nickname ) ascii-underline?
-
 paragraph-directive:
-   paragraph-directive-spec markup-words? LS paragraph-til-null-directive?
+   paragraph-directive-spec markup-words? LS paragraph-directive-content?
 link-directive:
    link-directive-spec link-line
 links-directive:
@@ -151,6 +156,11 @@ indented-content-directive:
    indented-content-directive-spec remainder-and-indented-content?
 null-directive:
    null-directive-spec division-content?
+
+directive-spec:
+   paragraph-directive-spec / link-directive-spec / links-directive-spec /
+   word-directive-spec / division-directive-spec / indented-content-directive-spec /
+   null-directive-spec    
 
 paragraph-directive-spec:
    directive-spec-intro paragraph-directive-spec-text ':' directive-spec-extro
@@ -266,6 +276,9 @@ hyphen-ls:
 ______________
   PARAGRAPHS
 
+paragraph-directive-content:
+   INDENT paragraph DEDENT / paragraph-til-null-directive
+
 paragraph:
    paragraph-line+
 paragraph-til-null-directive:
@@ -313,7 +326,7 @@ synopsis-ref:
 quote:
    quoted-words ( SPC-LS+ quote-spec )?
 quoted-words:
-   ( '(' / '[' / '{' / '<' )* quote-start text-til-end-quote? quote-end
+   ( '(' / '[' )* quote-start text-til-end-quote? quote-end
    text-til-spc-ls?
 quote-start:
    ''' / '"' / '`' / user-defined
@@ -335,10 +348,10 @@ markup-words:
 markup-words-til-hyphen-spc:
    ( !hyphen-spc markup-word SPC* )+
 markup-word:
-   quote / api-ref / line-marker-ref / footnote-ref / image-ref / synopsis-ref
-   / bracketed-render-span / text-word
+   quote / line-marker-ref / footnote-ref / image-ref / synopsis-ref /
+   bracketed-render-span / text-word
 title-word:
-   !ascii-line ( quote / image-ref / bracketed-render-span / text-word )
+   quote / image-ref / bracketed-render-span / text-word
 text-word:
    text-til-spc-ls
 word-line:
@@ -363,15 +376,11 @@ filename:
    quote-start text-til-end-quote quote-end
 nickname-word:
    text-til-cls-brack
-api-ref:
-   ...
 
 text-til-ls:
    ( !LS CHAR )+
 text-til-spc-ls:
    ( !SPC-LS CHAR )+
-text-til-ascii-nickname-ls:
-   ( !( LS / SPC+ ascii-line / SPC+ title-nickname ) ) CHAR )+
 text-til-cls-brack:
    ( !SPC-] CHAR )+
 text-til-spc-cls-brack:
@@ -388,10 +397,10 @@ bracketed-render-span-start:
 bracketed-render-span-end:
    [-SPC "END" ( SPC-LS+ bracketed-render-span-spec-text )? SPC-]
 
-directive-topic-spec-text:
-   "CONSTANT" / "FUNCTION" / "VARIABLE" / ( "GENERIC" SPC+ "FUNCTION" ) / 
+topic-directive-spec-text:
+   "CONSTANT" / "FUNCTION" / "VARIABLE" / ( "GENERIC" ( SPC+ "FUNCTION" )? ) / 
    "LIBRARY" / "METHOD" / "MODULE" / "CLASS" / "MACRO" / "TOPIC"
-titled-directive-section-spec-text:
+section-directive-spec-text:
    "SECTION"
 paragraph-directive-spec-text:
    "SYNOPSIS" / "SYN"

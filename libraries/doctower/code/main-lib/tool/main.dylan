@@ -26,13 +26,13 @@ define argument-parser <my-arg-parser> ()
       long: "doc", kind: <parameter-option-parser>;
    option template-path, " <directory>",
       format-to-string("Template files [%s]", *template-directory*),
-      long: "templates", kind: <parameter-option-parser>;
+      long: "templates", short: "T", kind: <parameter-option-parser>;
    option api-list-filename, " <filename>",
       "Write fully qualified API names to file",
-      long: "name-list", kind: <parameter-option-parser>;
+      long: "name-list", short: "n", kind: <parameter-option-parser>;
    option generated-topics-path, " <directory>",
       "Save automatically-generated topic files",
-      long: "autogen-dir", kind: <parameter-option-parser>;
+      long: "autogen-dir", short: "g", kind: <parameter-option-parser>;
    // option tab-size = "8",
    //    "=<n>",
    //    "Tab size [8]",
@@ -43,6 +43,9 @@ define argument-parser <my-arg-parser> ()
    option stop-on-errors?,
       "Stop on first error or warning",
       long: "stop";
+   option debug-features, " <feature>",
+      "Enable developer debugging feature",
+      long: "debug", short: "D", kind: <repeated-parameter-option-parser>;
    option quiet?,
       "Hide progress messages",
       long: "quiet", short: "q";
@@ -54,9 +57,10 @@ define argument-parser <my-arg-parser> ()
       long: "version";
    synopsis print-help,
       usage: "doctower [options] <files>",
-      description: "Creates Dylan API documentation from files. Files may be configuration files,\n"
-         "table of contents files, documentation text files, Dylan source files, or Dylan\n"
-         "LID files."
+      description: "\n"
+         "Creates Dylan API documentation from files. Files include configuration files,\n"
+         "table of contents files, documentation text files, Dylan source code files, and\n"
+         "Dylan LID files."
 end argument-parser;
 
 
@@ -80,7 +84,7 @@ define function main (name, arguments)
          print-help(args, *standard-output*);
          exit-application(0);
       args.version? =>
-         format-out("Doctower 1.0\nby Dustin Voss");
+         format-out("Doctower 1.0\nby Dustin Voss\n");
          exit-application(0);
       args.files.empty? =>
          no-files-in-command-arguments();
@@ -94,6 +98,7 @@ define function main (name, arguments)
 
    *stop-on-errors?* := args.stop-on-errors?;
    *verbose?* := ~args.quiet?;
+   *debug-features* := map(curry(as, <symbol>), args.debug-features);
    
    // Retrieve and process config files
    
@@ -161,9 +166,11 @@ define function main (name, arguments)
       create-output-files(doc-tree)
    end unless;
 
-   /**/
-   // print(doc-tree, *standard-output*, pretty?: #t);
-   // new-line(*standard-output*);
+   if (debugging?(#"doc-tree"))
+      log("--- Doc tree ---");
+      print(doc-tree, *standard-output*, pretty?: #t);
+      new-line(*standard-output*);
+   end if;
 
    exit-application(*error-code* | 0);
 end function main;

@@ -588,6 +588,8 @@ define parser-method macro-definition (stream, context)
          = parse-lex-MACRO-NAME(stream, context);
    if (name-success?)
       // Isolate part of name that goes in definer macros.
+      // Can't use substring-position here because that can't handle a name like
+      // "x-definer-definer".
       let match = "-definer";
       let full-name = parsed-name.value;
       let sub-start = full-name.size - match.size;

@@ -75,13 +75,6 @@ define method process-tokens
 end method;
 
 
-define method process-tokens
-   (seq :: <markup-seq>, api-ref :: <api-ref-token>)
-=> ()
-   // TODO
-end method;
-
-
 //
 // Quotes
 //

@@ -8,7 +8,6 @@ Synopsis: List of elements corresponding to the markup-words grammar.
    image-ref         - <inline-image>
    quote             - <xref>, <vi-xref>, <api-name>, <bold>, etc.
    bracketed-render-span   - <dita-content> or <html-content>
-   api-ref           - Basically converts to an API qv.
    line-marker-ref   - An <xref> to a <ph-marker>.
    footnote-ref      - An <xref> to a <footnote>.
    synopsis-ref      - <conref>
