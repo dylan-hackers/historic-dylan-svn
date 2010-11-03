@@ -56,7 +56,11 @@ The log file will be rolled immediately if it exists and is not zero length.
 If you don't want it to be rolled on startup, pass ``roll: #f`` to ``make``
 in the above call.
 
-Loggers may be disabled with ``logger-enabled?(logger) := #f``.
+Loggers may be disabled with ``logger-enabled?(logger) := #f``.  When
+disabled, no messages will be logged to the logger's local targets,
+but the value of logger-additive? will still be respected.  In other
+words, logging to a disabled logger will still log to ancestor loggers
+if they are themselves enabled.
 
 Formatters
 ==========
