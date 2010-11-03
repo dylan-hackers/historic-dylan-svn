@@ -227,6 +227,19 @@ define method float-to-formatted-string
 end method float-to-formatted-string;
 
 
+// TODO:
+//   as(<integer>, "123")
+//   as(<single-float>, "123.0")
+//   as(<double-float>, "123.0")
+//   The equivalent works in Python, so why not Dylan?  The options
+//   in string-to-integer, for example, are just difficult to program
+//   around when you want to know if the string you have your hands on
+//   can be converted to an integer.  Skipping initial whitespace feels
+//   like featuritis.  I'm guessing it came from CL.
+//
+//   Semi-related, I would like all such built-in converters to raise
+//   <value-error> (better name?) instead of just <error>.
+
 
 // ----------------------------------------------------------------------
 // For removing certain keyword/value pairs from argument lists before
