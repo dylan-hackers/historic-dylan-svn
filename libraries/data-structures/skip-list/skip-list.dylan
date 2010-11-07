@@ -183,7 +183,7 @@ define primary class <basic-skip-list>
   slot key-test :: <function>, 
      init-value: $default-skip-list-test, 
      setter: #f,
-     init-keyword: test:;
+     init-keyword: key-test:;
   
   // The user can provide a key comparison function 
   slot key-order :: <function>,
