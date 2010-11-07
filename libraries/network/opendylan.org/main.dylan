@@ -8,7 +8,7 @@ Author: Carl Gay
 define constant $urls
   = list(#(#("/", "/index"), "index.dsp"),
          #("/about-dylan", "about-dylan.dsp"),
-         #("/about-gwydion.dsp", "about-gwydion.dsp"),
+         #("/about-gwydion", "about-gwydion.dsp"),
          #("/browser", "browser.dsp"),
          #("/building-win32-cygwin", "building-win32-cygwin.dsp"),
          #("/community", "community.dsp"),
@@ -45,11 +45,6 @@ define constant $urls
          #("/tools", "tools.dsp"));
 
 define class <od-page> (<dylan-server-page>)
-end;
-
-define method unmatched-url-suffix
-    (resource :: <od-page>, unmatched :: <sequence>)
-  resource-not-found-error();
 end;
 
 define constant $header-page :: <od-page>

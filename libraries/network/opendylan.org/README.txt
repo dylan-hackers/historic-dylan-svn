@@ -9,9 +9,8 @@ INSTALLATION
 
 * Build the opendylan-dot-org library
 
-* Start the server.  This is the way I do it on Mccarthy:
-
-  opendylan-dot-org --config /home/cgay/opendylan.org/config.xml --working-directory /home/cgay/trunk/libraries/network/opendylan.org/dsp/opendylan.org
+* Start the server:
+  opendylan-dot-org --config /home/cgay/opendylan.org/config.xml
 
 TODO
 ----
