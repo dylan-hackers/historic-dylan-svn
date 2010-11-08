@@ -49,44 +49,65 @@ end method;
 
 
 //
-// Title form of canonical-name
+// Title form of canonical-name and aliases
 //
 
 
-define generic canonical-title (defn :: <definition>, #key) => (title :: <title-seq>);
+define generic canonical-title (defn :: <definition>, #key alias :: <source-name>)
+=> (title :: <title-seq>);
 
-define method canonical-title (defn :: <library>, #key) => (title :: <title-seq>)
-   let api-name = make(<api/parm-name>, source-location: defn.source-location,
-         text: defn.canonical-name.local-name.standardize-title);
+define method canonical-title
+   (defn :: <library>, #key alias :: <source-name> = defn.canonical-name)
+=> (title :: <title-seq>)
+   let api-name = make(<api/parm-name>, source-location: alias.source-location,
+         text: alias.local-name.standardize-title);
    title-seq(api-name, " Library")
 end method;
 
-define method canonical-title (defn :: <module>, #key) => (title :: <title-seq>)
-   let api-name = make(<api/parm-name>, source-location: defn.source-location,
-         text: defn.canonical-name.local-name.standardize-title);
+define method canonical-title
+   (defn :: <module>, #key alias :: <source-name> = defn.canonical-name)
+=> (title :: <title-seq>)
+   let api-name = make(<api/parm-name>, source-location: alias.source-location,
+         text: alias.local-name.standardize-title);
    title-seq(api-name, " Module")
 end method;
 
-define method canonical-title (defn :: <binding>, #key) => (title :: <title-seq>)
-   let api-name = make(<api/parm-name>, source-location: defn.source-location,
-         text: defn.canonical-name.local-name.standardize-title);
+define method canonical-title
+   (defn :: <binding>, #key alias :: <source-name> = defn.canonical-name)
+=> (title :: <title-seq>)
+   let api-name = make(<api/parm-name>, source-location: alias.source-location,
+         text: alias.local-name.standardize-title);
    title-seq(api-name)
 end method;
 
+// TODO: This method does not use local names of types appropriate for the
+// namespace of the alias. Can fix by passing enclosing namespace to
+// canonical-param-types so it can find matching param type aliases.
 define method canonical-title
-   (defn :: <generic-binding>, #key method-params :: false-or(<sequence>))
+   (defn :: <generic-binding>,
+    #key alias :: <source-name> = defn.canonical-name,
+         method-params :: false-or(<sequence>))
 => (id :: <title-seq>)
    if (method-params)
       let types = canonical-param-types(method-params, #f);
       let type-list = types.item-string-list | "";
-      let title = format-to-string("%s(%s)",
-            defn.canonical-name.local-name, type-list);
-      let api-name = make(<api/parm-name>, source-location: defn.source-location,
+      let title = format-to-string("%s(%s)", alias.local-name, type-list);
+      let api-name = make(<api/parm-name>, source-location: alias.source-location,
             text: title.standardize-title);
       title-seq(api-name)
    else
       next-method()
    end if
+end method;
+
+
+define method make-alias-titles (topic :: <api-doc>, defn :: <definition>) => ()
+   for (alias in defn.aliases)
+      let namespace = format-to-string("%s", alias.enclosing-name);
+      let title = canonical-title(defn, alias: alias);
+      let titles = element(topic.titles-in-namespace, namespace, default: #[]);
+      topic.titles-in-namespace[namespace] := add-new!(titles, title, test: \=);
+   end for
 end method;
 
 

@@ -48,10 +48,9 @@ define method assign-fully-qualified-names (api-topics :: <sequence>) => ()
                                       identified-topic-titles, identified-topics);
 
       if (matching-topics.empty?)
-         let uppercased-topic-type = printed-topic-type(topic.topic-type);
-         uppercased-topic-type[0] := uppercased-topic-type[0].as-uppercase;
          api-not-found-in-code(location: topic.source-location,
-               topic-type: uppercased-topic-type, title: topic-title)
+               topic-type: printed-topic-type(topic.topic-type),
+               title: topic-title)
 
       else
          let qualified-name = matching-topics.first.fully-qualified-name;
@@ -147,6 +146,14 @@ define method merge-two-topics (a :: <api-doc>, b :: <api-doc>)
          a.fully-qualified-name = b.fully-qualified-name,
          "Fully qualified names for %= and %= do not match");
    a.existent-api? := a.existent-api? | b.existent-api?;
+   a.canonical-namespace := a.canonical-namespace | b.canonical-namespace;
+
+   for (b-titles keyed-by namespace in b.titles-in-namespace)
+      let a-titles = element(a.titles-in-namespace, namespace, default: #[]);
+      let combined = union(a-titles, b-titles, test: \=);
+      a.titles-in-namespace[namespace] := combined;
+   end for;
+
    a.definitions-section := a.definitions-section | b.definitions-section;
    next-method()
 end method;

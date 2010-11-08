@@ -142,7 +142,7 @@ end method;
    
 
 define class <case-insensitive-skip-list> (<skip-list>)
-   keyword test: = case-insensitive-equal?;
+   keyword key-test: = case-insensitive-equal?;
    keyword key-order: = case-insensitive-less?;
 end class;
 

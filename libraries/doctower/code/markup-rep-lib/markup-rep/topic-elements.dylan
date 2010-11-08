@@ -1,6 +1,7 @@
 module: markup-rep
 synopsis: Classes comprising API reference topics.
 
+
 /**
 Synopsis: List of elements corresponding to the title-words grammar.
    text-word   - <string> and <character>
@@ -12,11 +13,16 @@ Synopsis: List of elements corresponding to the title-words grammar.
 define constant <title-seq> = limited(<stretchy-vector>,
       of: type-union(<string>, <character>, <inline-image>, <html-content>, <cite>,
                      <dita-content>, <api/parm-name>, <term>, <term-style>,
-                     <code-phrase>, <entity>, <bold>, <italic>, <underline>, <emphasis>,
-                     singleton(#f)));
+                     <code-phrase>, <entity>, <bold>, <italic>, <underline>,
+                     <emphasis>, singleton(#f)));
 
 define method title-seq (#rest elements) => (seq :: <title-seq>)
    make-limited-seq(<title-seq>, elements)
+end method;
+
+define method \= (title1 :: <title-seq>, title2 :: <title-seq>)
+=> (equal? :: <boolean>)
+   title1.stringify-title = title2.stringify-title
 end method;
 
                      
@@ -126,6 +132,17 @@ define class <api-doc> (<ref-topic>)
    // existent during topic merging.
    slot existent-api? :: <boolean> = #f,
          init-keyword: #"existent-api";
+   
+   // If the topic is an existent API, the enclosing namespace
+   // (e.g. "Dylan:Dylan").
+   slot canonical-namespace :: false-or(<string>) = #f,
+         init-keyword: #"namespace";
+
+   // Title or titles used in each enclosing namespace. Keys are <string>,
+   // elements are sequence of <title-seq>. If the topic is an existent API,
+   // there will be an element at 'canonical-namespace' that includes 'title'.
+   // These titles are used when constructing API lists for a specific namespace.
+   slot titles-in-namespace :: <table> = make(<case-insensitive-string-table>);
          
    slot definitions-section :: false-or(<section>) = #f;
 end class;
@@ -178,6 +195,9 @@ define class <function-doc> (<api-doc>)
 end class;
 
 define class <generic-doc> (<function-doc>)
+   // TODO: Remove methods-section and set method topics' fixed-parent to their
+   // generic. This section is redundant to this topic's automatically-generated
+   // child topic list. See if it is okay to get rid of this class entirely.
    slot methods-section :: false-or(<section>) = #f;
    keyword topic-type: = #"generic-function";
 end class;

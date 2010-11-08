@@ -30,13 +30,14 @@ define module markup-rep
    export
       abs-size, abs-size-setter, adjectives-section, adjectives-section-setter,
       api-type, api-type-setter, args-section, args-section-setter,
-      bindings-section, bindings-section-setter, code, conds-section,
-      conds-section-setter, content, content-setter, definitions-section,
-      definitions-section-setter, existent-api?, existent-api?-setter,
-      fixed-parent, fixed-parent-setter, footnotes, footnotes-setter,
-      fully-qualified-name, fully-qualified-name-setter,
-      fully-qualified-name-source-loc, fully-qualified-name-source-loc-setter,
-      funcs-on-section, funcs-on-section-setter, funcs-returning-section,
+      bindings-section, bindings-section-setter, canonical-namespace,
+      canonical-namespace-setter, code, conds-section, conds-section-setter,
+      content, content-setter, definitions-section, definitions-section-setter,
+      existent-api?, existent-api?-setter, fixed-parent, fixed-parent-setter,
+      footnotes, footnotes-setter, fully-qualified-name,
+      fully-qualified-name-setter, fully-qualified-name-source-loc,
+      fully-qualified-name-source-loc-setter, funcs-on-section,
+      funcs-on-section-setter, funcs-returning-section,
       funcs-returning-section-setter, generated-topic?, headings,
       headings-setter, id, id-setter, id-source-loc, id-source-loc-setter,
       image-name, image-name-setter, index, index-setter, inheritables-section,
@@ -49,8 +50,8 @@ define module markup-rep
       subs-section-setter, supers-section, supers-section-setter,
       syntax-section, syntax-section-setter, target, target-setter,
       target-from-text?, text, text-setter, title, title-setter,
-      title-source-loc, title-source-loc-setter, topic-type, vals-section,
-      vals-section-setter, value-section, value-section-setter;
+      titles-in-namespace, title-source-loc, title-source-loc-setter, topic-type,
+      vals-section, vals-section-setter, value-section, value-section-setter;
 
    export
       stringify-title, stringify-markup, printed-topic-type,

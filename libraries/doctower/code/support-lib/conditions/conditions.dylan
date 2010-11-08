@@ -124,7 +124,7 @@ define errors (<user-visible-warning>)
       location;
 
    03 api-not-found-in-code
-      "%s \"%s\" is not present in source code; check title unless intentional",
+      "Found no source code for %s \"%s\"",
       location, topic-type, title;
 
    04 no-definition-for-bindings

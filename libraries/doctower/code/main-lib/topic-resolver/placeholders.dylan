@@ -37,38 +37,50 @@ define method replacer
          end select;
    let desired-namespace = placeholder.qualified-scope-name;
 
+   local method combine-unique-titles
+            (titles-1 :: <sequence>, titles-2 :: <sequence>) /* of <title-seq> */
+         => (combined :: <sequence>)
+            union(titles-1, titles-2, test: \=)
+         end method;
+   
    let found-topics = make(<stretchy-vector>);
    for (topic :: false-or(<topic>) in doc-tree)
       if (topic & member?(topic.topic-type, desired-topic-types)) // Root is #f.
-         if (desired-namespace & topic.fully-qualified-name)
-            let enclosing-name = topic.fully-qualified-name.enclosing-qualified-name;
-            if (enclosing-name = desired-namespace
-                  | enclosing-name.enclosing-qualified-name = desired-namespace)
-               found-topics := add!(found-topics, topic)
-            end if
-         else
-            found-topics := add!(found-topics, topic)
-         end if
+         let matching-titles = 
+               if (desired-namespace)
+                  // If an API is known in a namespace, it will have a title in
+                  // that namespace. Take title(s) and note them with this topic.
+                  element(topic.titles-in-namespace, desired-namespace, default: #[])
+               else
+                  // Take all titles for the topic and note them with this topic.
+                  reduce(combine-unique-titles, vector(topic.title),
+                         topic.titles-in-namespace);
+               end if;
+         let topic-titles = map(rcurry(pair, topic), matching-titles);
+         found-topics := concatenate!(found-topics, topic-titles);
       end if
    end for;
-
-   found-topics := sort!(found-topics, test:
-         method (topic1 :: <topic>, topic2 :: <topic>) => (before? :: <boolean>)
-            topic1.title.stringify-title < topic2.title.stringify-title
-         end method);
-         
-   local method make-list-item (topic :: <api-doc>) => (list-item :: <content-seq>)
-            let title-ref = make(<conref>, source-location: placeholder.source-location,
-                  target: topic, style: #"title");
+   
+   local method make-list-item (title-topic :: <pair>)
+         => (list-item :: <content-seq>)
             let xref = make(<xref>, source-location: placeholder.source-location,
-                  target: topic, text: title-ref);
+                  target: title-topic.tail, text: title-topic.head);
             let para = make(<paragraph>, source-location: placeholder.source-location,
                   content: markup-seq(xref));
             content-seq(para)
-         end method;
+         end method,
 
+         method title-sorts-first?
+            (title-topic-1 :: <pair>, title-topic-2 :: <pair>)
+         => (t1-first? :: <boolean>)
+            let t1 :: <title-seq> = title-topic-1.head;
+            let t2 :: <title-seq> = title-topic-2.head;
+            t1.stringify-title < t2.stringify-title
+         end method;
+         
+   let sorted-topics = sort(found-topics, test: title-sorts-first?);
    let api-list = make(<unordered-list>, source-location: placeholder.source-location);
-   api-list.items := map(make-list-item, found-topics);
+   api-list.items := map(make-list-item, sorted-topics);
    setter(api-list);
    #f
 end method;

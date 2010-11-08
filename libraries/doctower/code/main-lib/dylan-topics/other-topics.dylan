@@ -15,15 +15,19 @@ end method;
 /// them.
 define method make-source-topics (binding :: <empty-binding>) 
 => (topics :: <sequence>, catalog-topics :: <sequence>)
+   let fqn = binding.definition-qualified-name;
+   let namespace = fqn.enclosing-qualified-name;
    let generated-topic = make(<unbound-doc>, generated: #t, existent-api: #t,
          id: binding.canonical-id, title: binding.canonical-title,
-         qualified-name: binding.definition-qualified-name,
+         qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
+   make-alias-titles(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "unbound" => binding);
    let topics = topics-from-template(#"unbound-topic", generated-topic, vars);
+
    values(topics, #[]);
 end method;
 
@@ -43,17 +47,20 @@ define method make-const/var-topics
    (binding :: type-union(<constant-binding>, <variable-binding>),
     template-var :: <string>, topic-type :: <symbol>, template-name :: <symbol>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
+   let fqn = binding.definition-qualified-name;
+   let namespace = fqn.enclosing-qualified-name;
    
    // Create body of generated topic.
    
    let generated-topic = make(<variable-doc>,
          generated: #t, existent-api: #t, topic-type: topic-type,
          id: binding.canonical-id, title: binding.canonical-title,
-         qualified-name: binding.definition-qualified-name,
+         qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
-   
+
+   make-alias-titles(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, template-var => binding);
    let topics = topics-from-template(template-name, generated-topic, vars);
 
@@ -62,7 +69,7 @@ define method make-const/var-topics
    let authored-topic = make(<variable-doc>,
          generated: #f, existent-api: #t, topic-type: topic-type,
          id: binding.canonical-id, title: binding.canonical-title,
-         qualified-name: binding.definition-qualified-name,
+         qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
@@ -76,15 +83,34 @@ end method;
 
 define method make-source-topics (binding :: <macro-binding>) 
 => (topics :: <sequence>, catalog-topics :: <sequence>)
+   let fqn = binding.definition-qualified-name;
+   let namespace = fqn.enclosing-qualified-name;
+   
+   // Create body of generated topic.
+   
    let generated-topic = make(<macro-doc>, generated: #t, existent-api: #t,
          id: binding.canonical-id, title: binding.canonical-title,
-         qualified-name: binding.definition-qualified-name,
+         qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
+   make-alias-titles(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "macro" => binding);
    let topics = topics-from-template(#"macro-topic", generated-topic, vars);
+
+   // Create authored topics.
+   
+   let authored-topic = make(<macro-doc>, generated: #f, existent-api: #t,
+         id: binding.canonical-id, title: binding.canonical-title,
+         qualified-name: fqn, namespace: namespace,
+         source-location: binding.source-location,
+         title-id-source-location: $generated-source-location,
+         qualified-name-source-location: $generated-source-location);
+
+   let authored-topics = make-authored-topics(binding.markup-tokens, authored-topic);
+   topics := concatenate!(topics, authored-topics);
+   
    values(topics, #[]);
 end method;
 

@@ -100,7 +100,7 @@ end method;
 define method add-target-id
    (topic :: <topic>, section :: <section>, id-table :: <table>)
 => ()
-   if (section.id)
+   if (section.id & section.id.first ~= ':')
       if (~topic.id)
          section-id-without-topic-id(location: section.id-source-loc)
       else

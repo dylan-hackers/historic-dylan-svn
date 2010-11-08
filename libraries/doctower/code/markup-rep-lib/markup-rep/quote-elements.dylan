@@ -11,7 +11,7 @@ define class <xref> (<markup-element>)
                              <target-placeholder>, <footnote-placeholder>,
                              <line-marker-placeholder>),
          init-keyword: #"target";
-   slot text :: type-union(<string>, <conref>),
+   slot text :: type-union(<string>, <conref>, <title-seq>),
          init-keyword: #"text";
    slot target-from-text? :: <boolean> = #f,
          init-keyword: #"target-from-text";

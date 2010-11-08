@@ -3,17 +3,20 @@ module: dylan-topics
 
 define method make-source-topics (binding :: <function-binding>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
+   let fqn = binding.definition-qualified-name;
+   let namespace = fqn.enclosing-qualified-name;
 
    // Create body of generated topic.
    
    let generated-topic = make(<function-doc>,
          generated: #t, existent-api: #t, topic-type: #"function",
          id: binding.canonical-id, title: binding.canonical-title,
-         qualified-name: binding.definition-qualified-name,
+         qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
-         
+
+   make-alias-titles(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "func" => binding);
    let topics = topics-from-template(#"function-topic", generated-topic, vars);
 
@@ -22,7 +25,7 @@ define method make-source-topics (binding :: <function-binding>)
    let authored-topic = make(<function-doc>,
          generated: #f, existent-api: #t, topic-type: #"function",
          id: binding.canonical-id, title: binding.canonical-title,
-         qualified-name: binding.definition-qualified-name,
+         qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
@@ -42,16 +45,19 @@ end method;
 
 define method make-source-topics (binding :: <generic-binding>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
+   let fqn = binding.definition-qualified-name;
+   let namespace = fqn.enclosing-qualified-name;
 
    // Create body of generated topic.
    
    let generated-topic = make(<generic-doc>, generated: #t, existent-api: #t,
          id: binding.canonical-id, title: binding.canonical-title,
-         qualified-name: binding.definition-qualified-name,
+         qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
-         
+
+   make-alias-titles(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "gen" => binding);
    let topics = topics-from-template(#"generic-topic", generated-topic, vars);
 
@@ -59,7 +65,7 @@ define method make-source-topics (binding :: <generic-binding>)
    
    let authored-topic = make(<generic-doc>, generated: #f, existent-api: #t,
          id: binding.canonical-id, title: binding.canonical-title,
-         qualified-name: binding.definition-qualified-name,
+         qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
@@ -90,6 +96,8 @@ define method make-method-topics (generic-method :: <generic-method>)
    let binding = generic-method.generic-binding;
    let method-defn = generic-method.method-defn;
    let method-params = method-defn.param-list.req-params;
+   let fqn = definition-qualified-name(binding, method-params: method-params);
+   let namespace = fqn.enclosing-qualified-name;
 
    // Create body of generated topic.
    
@@ -97,11 +105,12 @@ define method make-method-topics (generic-method :: <generic-method>)
          generated: #t, existent-api: #t, topic-type: #"method",
          id: canonical-id(binding, method-params: method-params),
          title: canonical-title(binding, method-params: method-params),
-         qualified-name: definition-qualified-name(binding, method-params: method-params),
+         qualified-name: fqn, namespace: namespace,
          source-location: method-defn.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
-         
+
+   make-alias-titles(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "meth" => generic-method);
    let topics = topics-from-template(#"method-topic", generated-topic, vars);
 
@@ -111,7 +120,7 @@ define method make-method-topics (generic-method :: <generic-method>)
          generated: #f, existent-api: #t, topic-type: #"method",
          id: canonical-id(binding, method-params: method-params),
          title: canonical-title(binding, method-params: method-params),
-         qualified-name: definition-qualified-name(binding, method-params: method-params),
+         qualified-name: fqn, namespace: namespace,
          source-location: method-defn.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
@@ -151,13 +160,17 @@ define method document-args/vals
    // the argument- or value-specific markup.
    if (~arg-items.empty? & authored-topic.args-section)
       let tokens = arg-items.all-markup-tokens;
-      unused-docs-in-topic(location: authored-topic.args-section.source-location,
-            doc-locations: map(token-src-loc, tokens).item-string-list)
+      unless (tokens.empty?)
+         unused-docs-in-topic(location: authored-topic.args-section.source-location,
+               doc-locations: map(token-src-loc, tokens).item-string-list);
+      end unless;
    end if;
    if (~val-items.empty? & authored-topic.vals-section)
       let tokens = val-items.all-markup-tokens;
-      unused-docs-in-topic(location: authored-topic.vals-section.source-location,
-            doc-locations: map(token-src-loc, tokens).item-string-list)
+      unless (tokens.empty?)
+         unused-docs-in-topic(location: authored-topic.vals-section.source-location,
+               doc-locations: map(token-src-loc, tokens).item-string-list);
+      end unless;
    end if;
 end method;
 

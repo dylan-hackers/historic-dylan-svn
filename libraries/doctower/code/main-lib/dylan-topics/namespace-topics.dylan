@@ -46,14 +46,18 @@ end method;
 
 define method make-source-topics (defn :: <module>) 
 => (topics :: <sequence>, catalog-topics :: <sequence>)
+   let fqn = defn.definition-qualified-name;
+   let namespace = fqn.enclosing-qualified-name;
 
    // Create generated topic.
 
    let generated-topic = make(<module-doc>, source-location: defn.source-location,
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
-         qualified-name: defn.definition-qualified-name, existent-api: #t,
+         qualified-name: fqn, namespace: namespace, existent-api: #t,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
+
+   make-alias-titles(generated-topic, defn);
 
    // Create body of generated topic.
    
@@ -67,7 +71,7 @@ define method make-source-topics (defn :: <module>)
    unless (defn.markup-tokens.empty?)
       let context-topic = make(<module-doc>, source-location: defn.source-location,
             id: defn.canonical-id, title: defn.canonical-title, generated: #f,
-            qualified-name: defn.definition-qualified-name, existent-api: #t,
+            qualified-name: fqn, namespace: namespace, existent-api: #t,
             title-id-source-location: $generated-source-location,
             qualified-name-source-location: $generated-source-location);
       let authored-topics = make-authored-topics(defn.markup-tokens, context-topic);

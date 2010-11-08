@@ -212,16 +212,22 @@ define method resolve-link
    let topic = element(target-resolutions, link-text, default: #f);
 
    // Check for abbreviated fully qualified name.
-   if (~topic & copy-sequence(link-text, end: 3) = ":::")
-      if (instance?(containing-topic, <api-doc>) & containing-topic.fully-qualified-name)
-         let last-part = regexp-matches(link-text, ":::(.*)");
+   if (~topic)
+      let last-part = regexp-matches(link-text, ":::(.+)");
+      if (last-part & instance?(containing-topic, <api-doc>)
+            & containing-topic.fully-qualified-name)
          let (lib-part, mod-part)
                = regexp-matches(containing-topic.fully-qualified-name, "([^:]+)(:[^:]+)?");
-         let mod-id
-               = format-to-string("%s:%s", lib-part, last-part).qualified-name-as-id;
-         let bind-id 
-               = mod-part & format-to-string("%s%s:%s", lib-part, mod-part, last-part)
-                            .qualified-name-as-id;
+         let mod-id =
+               if (lib-part)
+                  format-to-string("%s:%s", lib-part, last-part)
+                        .qualified-name-as-id
+               end if;
+         let bind-id =
+               if (lib-part & mod-part)
+                  format-to-string("%s%s:%s", lib-part, mod-part, last-part)
+                        .qualified-name-as-id
+               end if;
          topic := element(target-resolutions, bind-id, default: #f)
                | element(target-resolutions, mod-id, default: #f);
       end if

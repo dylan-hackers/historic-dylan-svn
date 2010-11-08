@@ -102,20 +102,13 @@ define method topic-link-map (doc-tree :: <ordered-tree>) => (nav-map :: <table>
       unless (~topic)   // Root of doc-tree is #f.
          let next-key = topic-key.succ-key;
          let prev-key = topic-key.pred-key;
+         let child-keys = topic-key.inf-key-sequence;
 
          let parent-keys = make(<list>);
          for (parent-key = topic-key.sup-key then parent-key.sup-key,
                while: parent-key ~= doc-tree.root-key)
             parent-keys := add!(parent-keys, parent-key)
          end for;
-         
-         // Only include conceptual topics as children. Reference topics have
-         // API lists includes in the topic itself.
-         let child-keys = choose(
-               method (key :: <ordered-tree-key>) => (include? :: <boolean>)
-                  ~instance?(doc-tree[key], <api-doc>)
-               end,
-               topic-key.inf-key-sequence);
 
          let doc-tree-elem = curry(element, doc-tree);
          nav-map[topic] := make(<topic-nav>,

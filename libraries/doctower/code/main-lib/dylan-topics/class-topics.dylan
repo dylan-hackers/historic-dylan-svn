@@ -4,16 +4,19 @@ synopsis: Code to generate class topics.
 
 define method make-source-topics (binding :: <class-binding>) 
 => (topics :: <sequence>, catalog-topics :: <sequence>)
+   let fqn = binding.definition-qualified-name;
+   let namespace = fqn.enclosing-qualified-name;
    
    // Create body of generated topic.
    
    let generated-topic = make(<class-doc>, generated: #t, existent-api: #t,
          id: binding.canonical-id, title: binding.canonical-title,
-         qualified-name: binding.definition-qualified-name,
+         qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
+   make-alias-titles(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "class" => binding);
    let topics = topics-from-template(#"class-topic", generated-topic, vars);
          
@@ -21,7 +24,7 @@ define method make-source-topics (binding :: <class-binding>)
    
    let authored-topic = make(<class-doc>, generated: #f, existent-api: #t,
          id: binding.canonical-id, title: binding.canonical-title,
-         qualified-name: binding.definition-qualified-name,
+         qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
