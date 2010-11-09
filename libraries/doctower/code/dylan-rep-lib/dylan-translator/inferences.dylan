@@ -71,21 +71,41 @@ define method infer-and-merge-used-names
    
    let names-in-used 
          = as(<stretchy-vector>, used-namespace.exported-names.copy-sequence);
-   let names-in-this = make(<stretchy-vector>, size: names-in-used.size, fill: #f);
-
+   let names-in-this = make(<stretchy-vector>, size: names-in-used.size, fill: #[]);
+         // Each element of names-in-this is a sequence of names that correspond
+         // to an exported name from the used namespace. An element of that
+         // sequence may be #t; those elements are replaced by the name as
+         // exported (with prefix). If the sequence is empty, this namespace
+         // does not import the corresponding name from the used namespace.
+   
    local method find-used-name-index (name :: <string>)
          => (index :: false-or(<integer>))
             find-key(names-in-used, curry(case-insensitive-equal?, name))
          end,
          
-         method set-name-for-used-name (this-name, used-name :: <string>)
+         method add-name-for-used-name (this-name, used-name :: <string>)
          => ()
             let name-index = find-used-name-index(used-name);
             if (name-index)
-               names-in-this[name-index] := this-name;
+               // Add name to local names associated with used-name. Need to
+               // rebind result of add-new! because names-in-this is not filled
+               // with <stretchy-vector>.
+               names-in-this[name-index] :=
+                     add-new!(names-in-this[name-index], this-name,
+                              test: case-insensitive-equal?);
             else
+               // Name is not already known in used namespace. Assume it should
+               // be, and add it.
                add!(names-in-used, used-name);
-               add!(names-in-this, this-name);
+               add!(names-in-this, vector(this-name));
+            end if;
+         end,
+         
+         method remove-names-for-used-name (used-name :: <string>)
+         =>()
+            let name-index = find-used-name-index(used-name);
+            if (name-index)
+               names-in-this[name-index] := #[];
             end if;
          end;
                
@@ -94,62 +114,68 @@ define method infer-and-merge-used-names
       for (reexported-name in export-options)
          let name-in-used = unprefixed-name(reexported-name, prefix-option);
          if (name-in-used)
-            set-name-for-used-name(reexported-name, name-in-used);
+            add-name-for-used-name(reexported-name, name-in-used);
          end if;
       end for;
    end if;
    
    // ...and maybe all exported names from used namespace...
    if (import-options = #"all")
-      replace-elements!(names-in-this, false?, always(#t));
+      replace-elements!(names-in-this, empty?, method (a) vector(#t) end);
    end if;
    
    // ...but exclude excluded names...
-   for (excluded-name in exclude-options)
-      set-name-for-used-name(#f, excluded-name);
-   end for;
+   do(remove-names-for-used-name, exclude-options);
    
    // ...and include specifically-mentioned imported and renamed names...
    for (renaming-token :: <renaming-token> in import-and-rename-options)
       let name-in-used = renaming-token.token-import-name;
       let name-in-this = renaming-token.token-local-name | #t;
-      set-name-for-used-name(name-in-this, name-in-used);
+      add-name-for-used-name(name-in-this, name-in-used);
    end for;
    
-   // ...either with prefixes or as themselves.
+   // ...and if they haven't been given a local name yet, use their name as
+   // exported (plus any prefix).
    for (name-in-used keyed-by name-index in names-in-used)
-      if (names-in-this[name-index] = #t)
-         names-in-this[name-index] := concatenate(prefix-option | "", name-in-used);
-      end if;
+      let prefixed-name-in-used = concatenate(prefix-option | "", name-in-used);
+      names-in-this[name-index] :=
+            replace-elements!(names-in-this[name-index], curry(\=, #t),
+                              always(prefixed-name-in-used));
    end for;
-   
+
    // Skip names we don't care about.
-   let imported-names-from-used = choose-by(true?, names-in-this, names-in-used);
-   let imported-names-in-local = choose(true?, names-in-this);
+   let not-empty? = method (a) ~a.empty? end;
+   let imported-names-from-used = choose-by(not-empty?, names-in-this, names-in-used);
+   let imported-names-in-local = choose(not-empty?, names-in-this);
    
    // Go through each local/imported name pairing and create placeholders or merge.
    
-   for (this-name in imported-names-in-local, used-name in imported-names-from-used)
-      let this-defn = element(namespace.definitions, this-name, default: #f)
-            | make-inferred-definition-in-namespace(namespace, this-name, clause);
+   for (names in imported-names-in-local, used-name in imported-names-from-used)
+      let used-scoped-name = make-name-in-namespace(used-namespace, used-name, clause);
       let used-defn = element(used-namespace.definitions, used-name, default: #f)
             | make-inferred-definition-in-namespace(used-namespace, used-name, clause);
-      let merged-defn = merge-definitions(context, this-defn, used-defn);
-      
-      let this-scoped-name = make-name-in-namespace(namespace, this-name, clause);
-      let used-scoped-name = make-name-in-namespace(used-namespace, used-name, clause);
-      
-      add-definition(context, namespace.definitions, merged-defn,
-                     this-scoped-name);
-      add-definition(context, used-namespace.definitions, merged-defn,
-                     used-scoped-name);
+
+      for (this-name in names)
+         let this-scoped-name = make-name-in-namespace(namespace, this-name, clause);
+         let this-defn = element(namespace.definitions, this-name, default: #f)
+               | make-inferred-definition-in-namespace(namespace, this-name, clause);
+
+         let merged-defn = merge-definitions(context, this-defn, used-defn);
+         add-definition(context, namespace.definitions, merged-defn,
+                        this-scoped-name);
+         add-definition(context, used-namespace.definitions, merged-defn,
+                        used-scoped-name);
+      end for;
    end for;
    
    // Add any new exported names that we find.
    
-   let used-names-to-export
-         = if (export-options = #"all") imported-names-in-local
-           else export-options end if;
+   let used-names-to-export = 
+         if (export-options = #"all")
+            reduce1(concatenate, imported-names-in-local)
+         else
+            export-options
+         end if;
    let new-names-to-export = difference(used-names-to-export, namespace.exported-names,
                                         test: case-insensitive-equal?);
 
