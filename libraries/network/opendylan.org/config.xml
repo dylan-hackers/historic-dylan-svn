@@ -23,11 +23,17 @@
       default-documents = "index.html,index.htm,Index.html"
       />
 
-  <!-- static files for opendylan-dot-org -->
+  <!-- static files for opendylan.org web pages -->
   <directory
       url = "/static"
       location = "/home/cgay/trunk/libraries/network/opendylan.org/static"
       />
+
+  <!-- downloads directory -->
+  <directory
+      url = "/downloads"
+      location = "/ftproot/pub/gd/"
+      allow-directory-listing = "yes" />
 
   <!-- CGI scripts for opendylan.org itself.  -->
   <cgi-directory
@@ -72,6 +78,10 @@
     <mail host = "lists.opendylan.org"/>
   </wiki>
 
+
+  <!-- TODO: the base-url is not yet respected, so each of the patterns
+             currently specifies the full URL path, including the
+	     base-url. -->
   <rewrite-rules base-url="/books/drm/">
     <!--
     These rules are translated directly from www/books/drm/.htaccess.
@@ -91,10 +101,10 @@
     -->
 
     <!-- Redirect image references to the images directory. -->
-    <rewrite-rule pattern="^([^/]*\.(png|jpg|gif))$" replacement="images/$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/([^/]*\.(png|jpg|gif))$" replacement="images/$1" redirect="permanent" terminal="yes" />
 
     <!-- Canonicalize any direct references to index.html to the directory. -->
-    <rewrite-rule pattern="^index(\.html)?$" replacement="Cover" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/index(\.html)?$" replacement="Cover" redirect="permanent" terminal="yes" />
 
     <!--
     # The following set of RewriteRule's could be simplified if we used a
@@ -111,165 +121,165 @@
     -->
 
     <!-- Front matter -->
-    <rewrite-rule pattern="^drm_1(\.html)?$" replacement="Title$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_2(\.html)?$" replacement="Copyrights$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_3(\.html)?$" replacement="Contents$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_4(\.html)?$" replacement="Preface$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_1(\.html)?$" replacement="Title$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_2(\.html)?$" replacement="Copyrights$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_3(\.html)?$" replacement="Contents$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_4(\.html)?$" replacement="Preface$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 1: Introduction -->
-    <rewrite-rule pattern="^drm_5(\.html)?$" replacement="Introduction$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_6(\.html)?$" replacement="Background_and_Goals$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_7(\.html)?$" replacement="Language_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_8(\.html)?$" replacement="Manual_Notation$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_5(\.html)?$" replacement="Introduction$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_6(\.html)?$" replacement="Background_and_Goals$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_7(\.html)?$" replacement="Language_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_8(\.html)?$" replacement="Manual_Notation$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 2: Syntax -->
-    <rewrite-rule pattern="^drm_9(\.html)?$" replacement="Syntax$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_10(\.html)?$" replacement="Syntax_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_11(\.html)?$" replacement="Libraries_and_Modules$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_12(\.html)?$" replacement="Bindings$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_13(\.html)?$" replacement="Macros_Syntax$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_14(\.html)?$" replacement="Bodies$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_15(\.html)?$" replacement="Definitions$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_16(\.html)?$" replacement="Local_Declarations$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_17(\.html)?$" replacement="Expressions$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_18(\.html)?$" replacement="Statements$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_19(\.html)?$" replacement="Parameter_Lists_Syntax$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_20(\.html)?$" replacement="Lexical_Syntax$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_21(\.html)?$" replacement="Special_Treatment_of_Names$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_22(\.html)?$" replacement="Top-Level_Definitions$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_23(\.html)?$" replacement="Dylan_Interchange_Format$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_24(\.html)?$" replacement="Naming_Conventions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_9(\.html)?$" replacement="Syntax$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_10(\.html)?$" replacement="Syntax_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_11(\.html)?$" replacement="Libraries_and_Modules$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_12(\.html)?$" replacement="Bindings$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_13(\.html)?$" replacement="Macros_Syntax$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_14(\.html)?$" replacement="Bodies$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_15(\.html)?$" replacement="Definitions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_16(\.html)?$" replacement="Local_Declarations$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_17(\.html)?$" replacement="Expressions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_18(\.html)?$" replacement="Statements$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_19(\.html)?$" replacement="Parameter_Lists_Syntax$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_20(\.html)?$" replacement="Lexical_Syntax$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_21(\.html)?$" replacement="Special_Treatment_of_Names$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_22(\.html)?$" replacement="Top-Level_Definitions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_23(\.html)?$" replacement="Dylan_Interchange_Format$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_24(\.html)?$" replacement="Naming_Conventions$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 3: Program Structure -->
-    <rewrite-rule pattern="^drm_25(\.html)?$" replacement="Program_Structure$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_26(\.html)?$" replacement="Modules$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_27(\.html)?$" replacement="Libraries$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_25(\.html)?$" replacement="Program_Structure$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_26(\.html)?$" replacement="Modules$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_27(\.html)?$" replacement="Libraries$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 4: Program Control -->
-    <rewrite-rule pattern="^drm_28(\.html)?$" replacement="Program_Control$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_29(\.html)?$" replacement="Program_Control_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_30(\.html)?$" replacement="Function_Calls$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_31(\.html)?$" replacement="Operators$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_32(\.html)?$" replacement="Assignment$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_33(\.html)?$" replacement="Conditional_Execution$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_34(\.html)?$" replacement="Iteration$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_35(\.html)?$" replacement="Nonlocal_Exits_and_Cleanup_Clauses$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_36(\.html)?$" replacement="Multiple_Values$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_37(\.html)?$" replacement="Order_of_Execution$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_28(\.html)?$" replacement="Program_Control$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_29(\.html)?$" replacement="Program_Control_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_30(\.html)?$" replacement="Function_Calls$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_31(\.html)?$" replacement="Operators$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_32(\.html)?$" replacement="Assignment$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_33(\.html)?$" replacement="Conditional_Execution$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_34(\.html)?$" replacement="Iteration$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_35(\.html)?$" replacement="Nonlocal_Exits_and_Cleanup_Clauses$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_36(\.html)?$" replacement="Multiple_Values$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_37(\.html)?$" replacement="Order_of_Execution$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 5: Types and Classes -->
-    <rewrite-rule pattern="^drm_38(\.html)?$" replacement="Types_and_Classes$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_39(\.html)?$" replacement="Types_and_Classes_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_40(\.html)?$" replacement="Type_Protocol$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_41(\.html)?$" replacement="Classes$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_42(\.html)?$" replacement="Slots$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_43(\.html)?$" replacement="Instance_Creation_and_Initialization$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_44(\.html)?$" replacement="Singletons$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_45(\.html)?$" replacement="Union_Types$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_46(\.html)?$" replacement="Limited_Types$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_38(\.html)?$" replacement="Types_and_Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_39(\.html)?$" replacement="Types_and_Classes_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_40(\.html)?$" replacement="Type_Protocol$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_41(\.html)?$" replacement="Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_42(\.html)?$" replacement="Slots$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_43(\.html)?$" replacement="Instance_Creation_and_Initialization$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_44(\.html)?$" replacement="Singletons$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_45(\.html)?$" replacement="Union_Types$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_46(\.html)?$" replacement="Limited_Types$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 6: Functions -->
-    <rewrite-rule pattern="^drm_47(\.html)?$" replacement="Functions$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_48(\.html)?$" replacement="Functions_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_49(\.html)?$" replacement="Parameter_Lists$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_50(\.html)?$" replacement="Method_Dispatch$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_51(\.html)?$" replacement="Operations_on_Functions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_47(\.html)?$" replacement="Functions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_48(\.html)?$" replacement="Functions_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_49(\.html)?$" replacement="Parameter_Lists$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_50(\.html)?$" replacement="Method_Dispatch$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_51(\.html)?$" replacement="Operations_on_Functions$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 7: Conditions -->
-    <rewrite-rule pattern="^drm_52(\.html)?$" replacement="Conditions$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_53(\.html)?$" replacement="Conditions_Background$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_54(\.html)?$" replacement="Conditions_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_55(\.html)?$" replacement="Signalers_Conditions_and_Handlers$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_56(\.html)?$" replacement="Exception_Handling$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_57(\.html)?$" replacement="Condition_Messages$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_58(\.html)?$" replacement="Introspective_Operations_on_Conditions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_52(\.html)?$" replacement="Conditions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_53(\.html)?$" replacement="Conditions_Background$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_54(\.html)?$" replacement="Conditions_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_55(\.html)?$" replacement="Signalers_Conditions_and_Handlers$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_56(\.html)?$" replacement="Exception_Handling$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_57(\.html)?$" replacement="Condition_Messages$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_58(\.html)?$" replacement="Introspective_Operations_on_Conditions$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 8: Collections -->
-    <rewrite-rule pattern="^drm_59(\.html)?$" replacement="Collections$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_60(\.html)?$" replacement="Collections_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_61(\.html)?$" replacement="Collection_Keys$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_62(\.html)?$" replacement="Iteration_Stability_and_Natural_Order$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_63(\.html)?$" replacement="Mutability$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_64(\.html)?$" replacement="Collection_Alteration_and_Allocation$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_65(\.html)?$" replacement="Collection_Alignment$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_66(\.html)?$" replacement="Defining_a_New_Collection_Class$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_67(\.html)?$" replacement="Tables$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_68(\.html)?$" replacement="Element_Types$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_69(\.html)?$" replacement="Limited_Collection_Types$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_59(\.html)?$" replacement="Collections$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_60(\.html)?$" replacement="Collections_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_61(\.html)?$" replacement="Collection_Keys$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_62(\.html)?$" replacement="Iteration_Stability_and_Natural_Order$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_63(\.html)?$" replacement="Mutability$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_64(\.html)?$" replacement="Collection_Alteration_and_Allocation$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_65(\.html)?$" replacement="Collection_Alignment$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_66(\.html)?$" replacement="Defining_a_New_Collection_Class$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_67(\.html)?$" replacement="Tables$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_68(\.html)?$" replacement="Element_Types$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_69(\.html)?$" replacement="Limited_Collection_Types$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 9: Sealing -->
-    <rewrite-rule pattern="^drm_70(\.html)?$" replacement="Sealing$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_71(\.html)?$" replacement="Sealing_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_72(\.html)?$" replacement="Explicitly_Known_Objects$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_73(\.html)?$" replacement="Declaring_Characteristics_of_Classes$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_74(\.html)?$" replacement="Declaring_Characteristics_of_Generic_Functions$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_75(\.html)?$" replacement="Define_Sealed_Domain$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_70(\.html)?$" replacement="Sealing$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_71(\.html)?$" replacement="Sealing_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_72(\.html)?$" replacement="Explicitly_Known_Objects$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_73(\.html)?$" replacement="Declaring_Characteristics_of_Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_74(\.html)?$" replacement="Declaring_Characteristics_of_Generic_Functions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_75(\.html)?$" replacement="Define_Sealed_Domain$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 10: Macros -->
-    <rewrite-rule pattern="^drm_76(\.html)?$" replacement="Macros$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_77(\.html)?$" replacement="Macros_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_78(\.html)?$" replacement="Extensible_Grammar$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_79(\.html)?$" replacement="Macro_Names$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_80(\.html)?$" replacement="Rewrite_Rules$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_81(\.html)?$" replacement="Patterns$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_82(\.html)?$" replacement="Pattern_Variable_Constraints$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_83(\.html)?$" replacement="Templates$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_84(\.html)?$" replacement="Auxiliary_Rule_Sets$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_85(\.html)?$" replacement="Hygiene$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_86(\.html)?$" replacement="Rewrite_Rule_Examples$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_76(\.html)?$" replacement="Macros$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_77(\.html)?$" replacement="Macros_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_78(\.html)?$" replacement="Extensible_Grammar$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_79(\.html)?$" replacement="Macro_Names$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_80(\.html)?$" replacement="Rewrite_Rules$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_81(\.html)?$" replacement="Patterns$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_82(\.html)?$" replacement="Pattern_Variable_Constraints$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_83(\.html)?$" replacement="Templates$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_84(\.html)?$" replacement="Auxiliary_Rule_Sets$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_85(\.html)?$" replacement="Hygiene$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_86(\.html)?$" replacement="Rewrite_Rule_Examples$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 11: The Built-In Classes -->
-    <rewrite-rule pattern="^drm_87(\.html)?$" replacement="Built-In_Classes$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_88(\.html)?$" replacement="Built-In_Classes_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_89(\.html)?$" replacement="Object_Classes$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_90(\.html)?$" replacement="Type_Classes$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_91(\.html)?$" replacement="Simple_Object_Classes$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_92(\.html)?$" replacement="Number_Classes$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_93(\.html)?$" replacement="Collection_Classes$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_94(\.html)?$" replacement="Function_Classes$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_95(\.html)?$" replacement="Condition_Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_87(\.html)?$" replacement="Built-In_Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_88(\.html)?$" replacement="Built-In_Classes_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_89(\.html)?$" replacement="Object_Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_90(\.html)?$" replacement="Type_Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_91(\.html)?$" replacement="Simple_Object_Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_92(\.html)?$" replacement="Number_Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_93(\.html)?$" replacement="Collection_Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_94(\.html)?$" replacement="Function_Classes$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_95(\.html)?$" replacement="Condition_Classes$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 12: The Built-In Functions -->
-    <rewrite-rule pattern="^drm_96(\.html)?$" replacement="Built-In_Functions$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_97(\.html)?$" replacement="Built-In_Functions_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_98(\.html)?$" replacement="Constructing_and_Initializing_Instances$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_99(\.html)?$" replacement="Equality_and_Comparison$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_100(\.html)?$" replacement="Arithmetic_Operations$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_101(\.html)?$" replacement="Coercing_and_Copying_Objects$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_102(\.html)?$" replacement="Collection_Operations$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_103(\.html)?$" replacement="Reflective_Operations_on_Types$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_104(\.html)?$" replacement="Functional_Operations$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_105(\.html)?$" replacement="Function_Application$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_106(\.html)?$" replacement="Reflective_Operations_on_Functions$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_107(\.html)?$" replacement="Operations_on_Conditions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_96(\.html)?$" replacement="Built-In_Functions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_97(\.html)?$" replacement="Built-In_Functions_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_98(\.html)?$" replacement="Constructing_and_Initializing_Instances$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_99(\.html)?$" replacement="Equality_and_Comparison$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_100(\.html)?$" replacement="Arithmetic_Operations$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_101(\.html)?$" replacement="Coercing_and_Copying_Objects$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_102(\.html)?$" replacement="Collection_Operations$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_103(\.html)?$" replacement="Reflective_Operations_on_Types$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_104(\.html)?$" replacement="Functional_Operations$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_105(\.html)?$" replacement="Function_Application$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_106(\.html)?$" replacement="Reflective_Operations_on_Functions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_107(\.html)?$" replacement="Operations_on_Conditions$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 13: Other Built-In Objects -->
-    <rewrite-rule pattern="^drm_108(\.html)?$" replacement="Other_Built-In_Objects$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_109(\.html)?$" replacement="Other_Built-In_Objects_Defined$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_108(\.html)?$" replacement="Other_Built-In_Objects$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_109(\.html)?$" replacement="Other_Built-In_Objects_Defined$1" redirect="permanent" terminal="yes" />
 
     <!-- Chapter 14: The Built-In Macros and Special Definitions -->
-    <rewrite-rule pattern="^drm_110(\.html)?$" replacement="Built-In_Macros_and_Special_Definitions$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_111(\.html)?$" replacement="Built-In_Macros_and_Special_Definitions_Overview$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_112(\.html)?$" replacement="Definition_Macros$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_113(\.html)?$" replacement="Local_Declaration_Macros$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_114(\.html)?$" replacement="Statement_Macros$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_115(\.html)?$" replacement="Function_Macros$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_110(\.html)?$" replacement="Built-In_Macros_and_Special_Definitions$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_111(\.html)?$" replacement="Built-In_Macros_and_Special_Definitions_Overview$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_112(\.html)?$" replacement="Definition_Macros$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_113(\.html)?$" replacement="Local_Declaration_Macros$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_114(\.html)?$" replacement="Statement_Macros$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_115(\.html)?$" replacement="Function_Macros$1" redirect="permanent" terminal="yes" />
 
     <!-- Appendix A: BNF -->
-    <rewrite-rule pattern="^drm_116(\.html)?$" replacement="BNF$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_117(\.html)?$" replacement="Lexical_Grammar$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_118(\.html)?$" replacement="Phrase_Grammar$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_116(\.html)?$" replacement="BNF$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_117(\.html)?$" replacement="Lexical_Grammar$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_118(\.html)?$" replacement="Phrase_Grammar$1" redirect="permanent" terminal="yes" />
 
     <!-- Appendix B: Exported Names -->
-    <rewrite-rule pattern="^drm_119(\.html)?$" replacement="Exported_Names$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_119(\.html)?$" replacement="Exported_Names$1" redirect="permanent" terminal="yes" />
 
     <!-- Back matter -->
-    <rewrite-rule pattern="^drm_126(\.html)?$" replacement="Glossary$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_127(\.html)?$" replacement="Index$1" redirect="permanent" terminal="yes" />
-    <rewrite-rule pattern="^drm_128(\.html)?$" replacement="Colophon$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_126(\.html)?$" replacement="Glossary$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_127(\.html)?$" replacement="Index$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_128(\.html)?$" replacement="Colophon$1" redirect="permanent" terminal="yes" />
 
     <!-- Errata -->
-    <rewrite-rule pattern="^drm_errata(\.html)?$" replacement="Errata$1" redirect="permanent" terminal="yes" />
+    <rewrite-rule pattern="^/books/drm/drm_errata(\.html)?$" replacement="Errata$1" redirect="permanent" terminal="yes" />
 
   </rewrite-rules>
 

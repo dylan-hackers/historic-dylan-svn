@@ -17,7 +17,7 @@ define constant $urls
          #("/dhc2004", "dhc2004.dsp"),
          #("/dhc", "dhc.dsp"),
          #(#("/doc", "/docs", "/documentation"), "documentation.dsp"),
-         #(#("/download", "/downloads", "/downloading"), "downloading.dsp"),
+         #("/downloading", "downloading.dsp"),
          #("/footer", "footer.dsp"),
          #("/fragments", "fragments.dsp"),
          #("/goals", "goals.dsp"),
