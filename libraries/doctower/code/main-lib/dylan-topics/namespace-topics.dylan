@@ -35,7 +35,6 @@ define method make-source-topics (defn :: <library>)
    // Create file markup topics.
    
    when (instance?(defn, <defined-namespace>))
-      // TODO: Am I going to need some sort of lookup context for these topics?
       let file-topics = make-authored-topics(defn.file-markup-tokens, #f);
       topics := concatenate!(topics, file-topics);
    end when;
@@ -81,7 +80,6 @@ define method make-source-topics (defn :: <module>)
    // Create file markup topics.
    
    when (instance?(defn, <defined-namespace>))
-      // TODO: Am I going to need some sort of lookup context for these topics?
       let file-topics = make-authored-topics(defn.file-markup-tokens, #f);
       topics := concatenate!(topics, file-topics);
    end when;

@@ -6,7 +6,7 @@
                 <a href="../{{child.href}}"
                    name="{{child.id}}"
                    title="{{child.shortdesc}}">
-                  {{child.formatted-title !}}
+                  {{child.title}}
                 </a>
 {{child.child-recursion !}}
               </li>

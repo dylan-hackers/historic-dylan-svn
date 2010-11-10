@@ -1,8 +1,8 @@
 body {
 	background: #F0F0F0;
-	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 	margin: 0;
 	border-width: 0;
 	padding: 0 1em;
@@ -15,9 +15,9 @@ body {
 
 div {
 	position: relative;
-	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 	margin: 0;
 	border-width: 0;
 	padding: 0;
@@ -103,23 +103,21 @@ p {}
 	list-style-type: square;
 }
 
-.toc-content ul ul ul {
-	list-style-type: circle;
+.toc-content li {
+	margin: .25em 0;
 }
 
-.toc-content ul ul ul > li {
-	margin: .5em 0;
+.toc-content ul ul ul {
+	list-style-type: none;
 }
 
 .toc-content ul ul ul ul {
 	margin-top: 0;
 	font-size: small;
 	font-style: italic;
-	list-style-type: none;
 }
 
 .toc-content > ul > li {
-	margin: 1em 0;
 	font-weight: bold;
 }
 
@@ -192,14 +190,33 @@ p {}
 	margin: 1.5em 0;
 }
 
+.summary-link p {
+	margin: .5em 0;
+	padding-left: 1em;
+}
+
 
 /*** Content ***/
 
+
+.topic-content li {
+	margin-top: .5em;
+	margin-bottom: .5em;
+}
 
 .section {}
 
 .term {
 	font-style: italic;
+}
+
+.api-list {
+	-webkit-column-count: 3;
+	-webkit-column-gap: 2em;
+	-moz-column-count: 3;
+	-moz-column-gap: 2em;
+	column-count: 3;
+	column-gap: 2em;
 }
 
 dl.one-line {}

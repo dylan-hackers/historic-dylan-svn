@@ -17,8 +17,12 @@ define generic make-topic-from-token (token :: <topic-token>)
 
 define method make-topic-from-token (token :: <directive-topic-token>)
 => (topic :: <topic>)
+   let topic-type = token.token-topic-type;
+   if (topic-type = #"topic" & dynamic-binding(*catalog-topics*))
+      topic-type := #"catalog"
+   end if;
    let topic = make(<topic>, source-location: token.token-src-loc,
-                    topic-type: token.token-topic-type);
+                    topic-type: topic-type);
    process-tokens(topic, token);
    topic
 end method;
@@ -26,7 +30,10 @@ end method;
 
 define method make-topic-from-token (token :: <titled-topic-token>)
 => (topic :: <con-topic>)
-   let topic = make(<con-topic>, source-location: token.token-src-loc);
+   let topic-type =
+         if (dynamic-binding(*catalog-topics*)) #"catalog" else #"topic" end;
+   let topic = make(<topic>, source-location: token.token-src-loc,
+                    topic-type: topic-type);
    process-tokens(topic, token);
    topic
 end method;
@@ -140,8 +147,6 @@ define method process-tokens
          topic.funcs-returning-section := section;
       ":Value" =>
          topic.value-section := section;
-      ":Methods" =>
-         topic.methods-section := section;
       otherwise =>
          add!(topic.content, section);
    end select;

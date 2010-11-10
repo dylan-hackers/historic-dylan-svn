@@ -98,6 +98,7 @@ define method ensure-parm-list (section :: <section>) => ()
                         <one-line-defn-list> => <one-line-parm-list>;
                         <many-line-defn-list> => <many-line-parm-list>;
                      end select;
+               // TODO: Process parm names into API style except for #-words.
                make(parm-list-class, source-location: list-of-parm.source-location,
                     items: list-of-parm.items);
             end method,

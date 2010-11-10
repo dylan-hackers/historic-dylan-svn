@@ -125,7 +125,7 @@ define method process-tokens
     token :: <table-token>)
 => ()
    let simp-tbl = make(<simple-table>);
-   // TODO
+   // TODO: <table-token>
 end method;
 
 

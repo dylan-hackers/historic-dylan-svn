@@ -8,6 +8,7 @@ define constant $html-templates = #[
    #"html-topic",
    #"html-section",
    #"html-unordered-list",
+   #"html-api-list",
    #"html-defn-list"
 ];
 
@@ -213,6 +214,11 @@ define method write-output-file
                   let topic = file-info.tree[key];
                   html-content(topic.title, target-info)
                end method,
+         "title" =>
+               method (key :: <ordered-tree-key>) => (title :: <string>)
+                  let topic = file-info.tree[key];
+                  topic.title.stringify-title
+               end method,
          "child-recursion" =>
                identity /* this is replaced with local method below */
          );
@@ -282,6 +288,11 @@ define method write-output-file
                      topic
                   end if
                end method,
+         "child-topic" =>
+               method (topic :: <topic>) => (child :: false-or(<topic>))
+                  let children = link-map[topic].child-topics;
+                  ~children.empty? & children.first
+               end method,
          "prev-topic" =>
                method (topic :: <topic>) => (prev :: false-or(<topic>))
                   link-map[topic].prev-topic
@@ -332,8 +343,6 @@ define method write-output-file
                rcurry(html-section, funcs-on-section, target-info),
          "funcs-returning-section" =>
                rcurry(html-section, funcs-returning-section, target-info),
-         "methods-section" =>
-               rcurry(html-section, methods-section, target-info),
          "modules-section" =>
                rcurry(html-section, modules-section, target-info),
          "bindings-section" =>
@@ -437,7 +446,15 @@ define method html-content (conref :: <conref>, target-info)
       html-content(conref.target.title, target-info)
    else
       html-content(conref.target.shortdesc, target-info)
-   end if;
+   end if
+end method;
+
+
+define method html-content (api-list :: <api-list-placeholder>, target-info)
+=> (html :: <string>)
+   let api-refs = map(rcurry(html-content, target-info), api-list.api-xrefs);
+   let vars = table(<case-insensitive-string-table>, "items" => api-refs);
+   text-from-template(#"html-api-list", variables: vars)
 end method;
 
 

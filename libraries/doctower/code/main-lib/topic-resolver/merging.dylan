@@ -217,12 +217,6 @@ define method merge-two-topics (a :: <function-doc>, b :: <function-doc>)
    next-method()
 end method;
 
-define method merge-two-topics (a :: <generic-doc>, b :: <generic-doc>)
-=> (merged :: <api-doc>)
-   a.methods-section := a.methods-section | b.methods-section;
-   next-method()
-end method;
-
 
 /// Synopsis: Warn user if known keywords are undocumented.
 define method check-authored-keywords (a :: <class-doc>, b :: <class-doc>) => ()

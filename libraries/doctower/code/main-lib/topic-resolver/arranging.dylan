@@ -21,10 +21,10 @@ define method arrange-topics (topics :: <sequence>, tocs :: <sequence>)
    let trees = concatenate-as(<stretchy-vector>,
                               tocs.toc-arrangement,
                               topics.vi-arrangement,
-                              topics.header-arrangement,
+                              topics.title-style-arrangement,
                               topics.free-arrangements,
                               topics.generic-function-arrangement,
-                              topics.section-directive-arrangement);
+                              topics.parent-directive-arrangement);
    // log-object("Topic trees", trees);
    
    // Combine topics that are == in different trees into one tree. Topics are
@@ -252,10 +252,13 @@ end method;
 
 /// Synopsis: Node of a fragmentary hierarchy containing the topic at that
 /// location and the reason for its positioning there.
+/// Discussion: The top of a fragmentary hierarchy will generally have an
+/// arrangement type of #"none" because it has no special priority in relation
+/// to its eventual siblings from being at the top.
 define class <arranged-topic> (<source-location-mixin>)
    slot topic :: false-or(<topic>),
       required-init-keyword: #"topic";
-   slot type :: one-of(#"toc-file", #"section-directive", #"vi-directive",
+   slot type :: one-of(#"toc-file", #"parent-directive", #"vi-directive",
                        #"generic-family", #"topic-style", #"none"),
       required-init-keyword: #"type";
 end class;
@@ -278,11 +281,17 @@ end method;
 ///   2. By VI directives in quotes, in the order encountered in the parent
 ///      topic.
 ///   3. Children created with subtopic styling, in the order encountered
-///      in the source code.
-///   4. Alphabetically by title.
+///      in the markup.
+///   4. Grouped by topic type:
+///      a. Conceptual/task topics
+///      b. Catalog topics
+///      c. Libraries
+///      d. Modules
+///      e. Bindings
+///   5. Alphabetically by title.
 define method \< (arr1 :: <arranged-topic>, arr2 :: <arranged-topic>)
 => (arr1-sorts-before? :: <boolean>)
-   let ranked-types =  #[#"toc-file", #"vi-directive", #"topic-style"];
+   let ranked-types = #[#"toc-file", #"vi-directive", #"topic-style"];
    let arr1-rank = position(ranked-types, arr1.type) | ranked-types.size;
    let arr2-rank = position(ranked-types, arr2.type) | ranked-types.size;
    case
@@ -301,15 +310,19 @@ define method \< (arr1 :: <arranged-topic>, arr2 :: <arranged-topic>)
                // Keep relative order.
                #f;
             otherwise =>
-               // Alphabetical, but reference topics go after conceptual/task topics.
+               // Alphabetical, but grouped by topic type.
                when (arr1.topic & arr2.topic)
+                  let ranked-topic-types =
+                        #[#"topic", #"catalog", #"library", #"module"];
                   let top1 = arr1.topic;
                   let top2 = arr2.topic;
+                  let top1-rank = position(ranked-topic-types, top1.topic-type)
+                        | ranked-topic-types.size;
+                  let top2-rank = position(ranked-topic-types, top2.topic-type)
+                        | ranked-topic-types.size;
                   case
-                     instance?(top1, <api-doc>) & ~instance?(top2, <api-doc>) =>
-                        #f;
-                     ~instance?(top1, <api-doc>) & instance?(top2, <api-doc>) =>
-                        #t;
+                     top1-rank < top2-rank => #t;
+                     top1-rank > top2-rank => #f;
                      otherwise =>
                         let str1 = top1.title.stringify-title;
                         let str2 = top2.title.stringify-title;
@@ -365,16 +378,16 @@ end method;
 /// Synopsis: Determines parent/child relationships according to "Parent Topic:"
 /// directives, represented by topics' 'parent' slot. The directive indicates
 /// a parent.
-define method section-directive-arrangement (topics :: <sequence>)
+define method parent-directive-arrangement (topics :: <sequence>)
 => (trees :: <sequence> /* of <ordered-tree> */)
    let sectioned-topics = choose(parent, topics);
    let trees = make(<stretchy-vector>);
    for (topic in sectioned-topics)
       let arranged-parent = make(<arranged-topic>, topic: topic.parent.target,
-                                 type: #"section-directive",
+                                 type: #"none",
                                  source-location: topic.parent.source-location);
       let arranged-child = make(<arranged-topic>, topic: topic,
-                                type: #"section-directive",
+                                type: #"parent-directive",
                                 source-location: topic.parent.source-location);
       let tree = make-parent-child-tree(arranged-parent, arranged-child);
       trees := add!(trees, tree);
@@ -394,7 +407,7 @@ define method vi-arrangement (topics :: <sequence>)
          => (slots? :: <boolean>)
             let child-topic = xref.target;
             let arranged-parent
-                  = make(<arranged-topic>, topic: topic, type: #"vi-directive",
+                  = make(<arranged-topic>, topic: topic, type: #"none",
                         source-location: xref.source-location);
             let arranged-child
                   = make(<arranged-topic>, topic: child-topic, type: #"vi-directive",
@@ -411,36 +424,35 @@ define method vi-arrangement (topics :: <sequence>)
 end method;
 
 
-/// Synopsis: Determines relationships by generic function and method relations.
-/// The generic function is the parent of its methods.
+/// Synopsis: Determines relationships by generic function and method relations
+/// as determined by fully qualified name. The generic function is the parent of
+/// its methods.
 /// Discussion: This will result in one tree per documented generic.
 define method generic-function-arrangement (topics :: <sequence>)
 => (trees :: <sequence> /* of <ordered-tree> */)
    let trees = make(<stretchy-vector>);
-   let function-topics
-         = choose(method (topic :: <topic>) => (use? :: <boolean>)
-                     instance?(topic, <function-doc>)
-                           & topic.topic-type = #"method"
-                           & topic.fully-qualified-name.true?
-                  end, topics);
-   let generic-topics
-         = choose(method (topic :: <topic>) => (use? :: <boolean>)
-                     instance?(topic, <generic-doc>)
-                           & topic.fully-qualified-name.true?
-                  end, topics);
+   let function-topics = choose(
+         method (topic :: <topic>) => (use? :: <boolean>)
+            instance?(topic, <function-doc>) & topic.fully-qualified-name.true?
+         end, topics);
+   let method-topics =
+         choose(method (t) t.topic-type = #"method" end, function-topics);
+   let generic-topics = 
+         choose(method (t) t.topic-type = #"generic-function" end, function-topics);
+
    for (generic-topic in generic-topics)
       let arranged-children = make(<stretchy-vector>);
-      for (function-topic in function-topics)
-         let generic-name = function-topic.fully-qualified-name.enclosing-qualified-name;
+      for (method-topic in method-topics)
+         let generic-name = method-topic.fully-qualified-name.enclosing-qualified-name;
          if (generic-name = generic-topic.fully-qualified-name)
             arranged-children := add!(arranged-children,
                   make(<arranged-topic>, type: #"generic-family",
                        source-location: generic-topic.source-location,
-                       topic: function-topic))
+                       topic: method-topic))
          end if
       end for;
       unless (arranged-children.empty?)
-         let arranged-parent = make(<arranged-topic>, type: #"generic-family",
+         let arranged-parent = make(<arranged-topic>, type: #"none",
                source-location: generic-topic.source-location, topic: generic-topic);
          let tree = apply(make-parent-child-tree, arranged-parent, arranged-children);
          trees := add!(trees, tree)
@@ -450,12 +462,30 @@ define method generic-function-arrangement (topics :: <sequence>)
 end method;
 
 
-/// Synopsis: Determines relationships by header style in a comment block,
-/// represented by topics' 'fixed-parent' slot.
-define method header-arrangement (topics :: <sequence>)
+/// Synopsis: Determines relationships by title style of a topic in a comment
+/// block, represented by topics' 'fixed-parent' slot.
+define method title-style-arrangement (topics :: <sequence>)
 => (trees :: <sequence> /* of <ordered-tree> */)
-   // TODO
-   #()
+   let trees = make(<stretchy-vector>);
+   let parented-topics = choose(fixed-parent, topics);
+   let child-groups = group-elements(parented-topics,
+         test: method (a, b) a.fixed-parent == b.fixed-parent end);
+   for (group in child-groups)
+      let parent = group.first.fixed-parent;
+      let arranged-parent = make(<arranged-topic>, type: #"none",
+            source-location: parent.source-location, topic: parent);
+
+      local method make-arranged-child (child :: <topic>)
+            => (arranged-child :: <arranged-topic>)
+               make(<arranged-topic>, type: #"topic-style",
+                    source-location: child.source-location, topic: child)
+            end method;
+            
+      let arranged-children = map(make-arranged-child, group);
+      let tree = apply(make-parent-child-tree, arranged-parent, arranged-children);
+      trees := add!(trees, tree);
+   end for;
+   trees
 end method;
 
 

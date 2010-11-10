@@ -25,6 +25,12 @@
   <div class="topic">
     <div class="topic-navbar">
       <div class="seq-navlinks">
+        {{if topic.child-topic}}
+        <a href="../{{topic.child-topic.href}}"
+           title="{{topic.child-topic.shortdesc}}">
+          ↳ {{topic.child-topic.title}}
+        </a>
+        {{end}}
         {{if topic.prev-topic}}
         <a href="../{{topic.prev-topic.href}}"
            title="{{topic.prev-topic.shortdesc}}">
@@ -51,24 +57,23 @@
 
     <div class="topic-content">
       <h1>{{topic.formatted-title !}}</h1>
-      {{topic.formatted-shortdesc !}}
-      {{topic.formatted-content !}}
-      {{topic.definitions-section !}}
-      {{topic.syntax-section !}}
-      {{topic.adjectives-section !}}
-      {{topic.conds-section !}}
-      {{topic.args-section !}}
-      {{topic.vals-section !}}
-      {{topic.keywords-section !}}
-      {{topic.value-section !}}
-      {{topic.inheritables-section !}}
-      {{topic.supers-section !}}
-      {{topic.subs-section !}}
-      {{topic.funcs-on-section !}}
-      {{topic.funcs-returning-section !}}
-      {{topic.modules-section !}}
-      {{topic.bindings-section !}}
-      {{topic.methods-section !}}
+{{topic.formatted-shortdesc !}}
+{{topic.formatted-content !}}
+{{topic.definitions-section !}}
+{{topic.syntax-section !}}
+{{topic.adjectives-section !}}
+{{topic.conds-section !}}
+{{topic.args-section !}}
+{{topic.vals-section !}}
+{{topic.keywords-section !}}
+{{topic.value-section !}}
+{{topic.inheritables-section !}}
+{{topic.supers-section !}}
+{{topic.subs-section !}}
+{{topic.funcs-on-section !}}
+{{topic.funcs-returning-section !}}
+{{topic.modules-section !}}
+{{topic.bindings-section !}}
 
       {{if topic.related-links.size > 0}}
       <div class="topic-related">
@@ -99,7 +104,7 @@
     <div class="topic-subtopics">
       {{repeat with subtopic in topic.subtopics}}
       <div class="summary-link">
-        <a href="../{{subtopic.href}}">{{subtopic.title}}</a>
+        <a href="../{{subtopic.href}}">{{subtopic.formatted-title !}}</a>
         {{subtopic.formatted-shortdesc !}}
       </div>
       {{end}}

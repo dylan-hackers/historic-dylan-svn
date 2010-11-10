@@ -18,10 +18,17 @@ define constant $topic-templates = #[
    #"unbound-topic"
 ];
 
+define constant $catalog-templates = #[
+   #"all-catalog-topics",
+   #"lib-catalog-topics",
+   #"mod-catalog-topics"
+];
+
 
 define method topics-from-template
    (template-name :: <symbol>, generated-topic, vars :: <table>)
 => (topics :: <sequence>)
+   let catalog? = member?(template-name, $catalog-templates);
    let template = template-by-name(template-name);
    let generated-body = process-template(template, operations: $template-ops, 
          variables: vars);
@@ -54,7 +61,7 @@ define method topics-from-template
    let generated-body-stream = make(<string-stream>, contents: generated-body);
    let markup-content = parse-internal-markup(generated-body-stream,
          $generated-source-location);
-   topics-from-markup(markup-content, generated-topic, internal: #t)
+   topics-from-markup(markup-content, generated-topic, internal: #t, catalog: catalog?)
 end method;
 
 
@@ -170,7 +177,7 @@ define constant $template-ops = table(<case-insensitive-string-table>,
 
 define method sort-comparison-by-name (a :: <definition>, b :: <definition>)
 => (less-than? :: <boolean>)
-   a.canonical-name.local-name.as-lowercase < b.canonical-name.local-name.as-lowercase
+   case-insensitive-less?(a.canonical-name.local-name, b.canonical-name.local-name)
 end method;
 
 
@@ -401,13 +408,17 @@ end method;
 
 define method template-functions-on-class (binding :: <class-binding>)
 => (functions :: false-or(<sequence>))
-   ~binding.functions-on-class.empty? & binding.functions-on-class
+   unless (binding.functions-on-class.empty?)
+      sort(binding.functions-on-class, test: sort-comparison-by-name)
+   end unless
 end method;
 
 
 define method template-functions-returning-class (binding :: <class-binding>)
 => (functions :: false-or(<sequence>))
-   ~binding.functions-returning-class.empty? & binding.functions-returning-class
+   unless (binding.functions-returning-class.empty?)
+      sort(binding.functions-returning-class, test: sort-comparison-by-name)
+   end unless
 end method;
 
 

@@ -45,7 +45,7 @@ end method;
 
 define class <topic> (<markup-element>)
    // No placeholder needed for fixed-parent, because the parent is known from
-   // topic nesting markup or generic method.
+   // topic nesting markup.
    slot fixed-parent :: false-or(<topic>) = #f;
    
    // Parent topic as indicated by "Parent Topic:" directive. If not false,
@@ -94,12 +94,13 @@ define method make
             #"variable" => <variable-doc>;
             #"function" => <function-doc>;
             #"method" => <function-doc>;
-            #"generic-function" => <generic-doc>;
+            #"generic-function" => <function-doc>;
             #"library" => <library-doc>;
             #"module" => <module-doc>;
             #"macro" => <macro-doc>;
             #"unbound" => <unbound-doc>;
             #"topic" => <con-topic>;
+            #"catalog" => <catalog-topic>;
          end select;
    apply(make, subclass, keys);
 end method;
@@ -116,6 +117,10 @@ define class <con-topic> (<topic>)
 end class;
 
 define class <ref-topic> (<topic>)
+end class;
+
+define class <catalog-topic> (<ref-topic>)
+   keyword topic-type: = #"catalog";
 end class;
 
 define class <api-doc> (<ref-topic>)
@@ -192,12 +197,4 @@ define class <function-doc> (<api-doc>)
    slot vals-section :: false-or(<section>) = #f;
    slot conds-section :: false-or(<section>) = #f;
    keyword topic-type: = #"function";
-end class;
-
-define class <generic-doc> (<function-doc>)
-   // TODO: Remove methods-section and set method topics' fixed-parent to their
-   // generic. This section is redundant to this topic's automatically-generated
-   // child topic list. See if it is okay to get rid of this class entirely.
-   slot methods-section :: false-or(<section>) = #f;
-   keyword topic-type: = #"generic-function";
 end class;

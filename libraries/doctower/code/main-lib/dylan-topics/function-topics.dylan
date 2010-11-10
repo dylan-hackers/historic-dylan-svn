@@ -50,7 +50,8 @@ define method make-source-topics (binding :: <generic-binding>)
 
    // Create body of generated topic.
    
-   let generated-topic = make(<generic-doc>, generated: #t, existent-api: #t,
+   let generated-topic = make(<function-doc>,
+         generated: #t, existent-api: #t, topic-type: #"generic-function",
          id: binding.canonical-id, title: binding.canonical-title,
          qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
@@ -63,7 +64,8 @@ define method make-source-topics (binding :: <generic-binding>)
 
    // Create authored topics.
    
-   let authored-topic = make(<generic-doc>, generated: #f, existent-api: #t,
+   let authored-topic = make(<function-doc>,
+         generated: #f, existent-api: #t, topic-type: #"generic-function",
          id: binding.canonical-id, title: binding.canonical-title,
          qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,

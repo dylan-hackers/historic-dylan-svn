@@ -6,12 +6,6 @@ Most of the things marked with TODO in a comment are need-to-do items.
 
 -----
 
-The [LIST OF] directive should not be transformed into a <unordered-list> in the
-internal representation. Instead, it should be its own thing that is transformed
-into a title-and-shortdesc list during the output stage.
-
------
-
 Better template handling. Right now, there is little debugging information for
 templates. If the template itself is badly formed, you get a direct error from
 the parser without the usual file name and position. That is easy enough to

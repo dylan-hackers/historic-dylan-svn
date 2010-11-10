@@ -6,6 +6,8 @@ define method print-object (o :: <topic>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       format(s, "id %=, ", o.id);
       pprint-newline(#"fill", s);
+      format(s, "%s, ", o.topic-type);
+      pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
          format(s, "{topic %= %s}",
@@ -125,31 +127,7 @@ define method print-object (o :: <function-doc>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       format(s, "fqn %=, ", o.fully-qualified-name);
       pprint-newline(#"fill", s);
-      write(s, "parent ");
-      if (instance?(o.parent, <topic>))
-         format(s, "{topic %= %s}",
-               o.parent.title.stringify-title, o.parent.source-location);
-      else
-         format(s, "%=", o.parent);
-      end if;
-      write(s, ", ");
-      pprint-newline(#"linear", s);
-      format(s, "content %=", o.content);
-      print-topic-section("definitions", o.definitions-section, s);
-      print-topic-section("adjectives", o.adjectives-section, s);
-      print-topic-section("args", o.args-section, s);
-      print-topic-section("vals", o.vals-section, s);
-      print-topic-section("conds", o.conds-section, s);
-   end printing-logical-block;
-end method;
-
-define method print-object (o :: <generic-doc>, s :: <stream>) => ()
-   printing-logical-block (s, prefix: "{", suffix: "}")
-      format(s, "generic topic %=, ", o.title);
-      pprint-newline(#"fill", s);
-      format(s, "id %=, ", o.id);
-      pprint-newline(#"fill", s);
-      format(s, "fqn %=, ", o.fully-qualified-name);
+      format(s, "%s, ", o.topic-type);
       pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
@@ -166,7 +144,6 @@ define method print-object (o :: <generic-doc>, s :: <stream>) => ()
       print-topic-section("args", o.args-section, s);
       print-topic-section("vals", o.vals-section, s);
       print-topic-section("conds", o.conds-section, s);
-      print-topic-section("methods", o.methods-section, s);
    end printing-logical-block;
 end method;
 

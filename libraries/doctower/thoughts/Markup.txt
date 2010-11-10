@@ -53,7 +53,7 @@ Quoted words
 Quoted words can be followed by bracket options, but does not have to be. The
 quotes and default processing is:
 
-  "..." - Smart quotes. Default options are [qq qv].
+  "..." - Smart quotes. Default options are [qq].
   '...' - Linked text. Default options are [qv].
   `...` - Inline code. Default options are [code].
   
@@ -368,7 +368,7 @@ ARGS|ARGUMENTS|VALUES:
 GETTERS|GETTERS AND|& SETTERS|SLOTS|SLOT ACCESSORS:
   A list of getters, setters, or slots available for a class. The only allowed
   content is a term or phrase definition list; each item results in separate
-  method topic. Only in class topics. [TODO: This.]
+  method topic. Only in class topics. [TODO: Getter/setter slot directives.]
 
 CONDITIONS|SIGNALS|ERRORS|EXCEPTIONS:
   A list of signals raised by a function. May include paragraphs and other

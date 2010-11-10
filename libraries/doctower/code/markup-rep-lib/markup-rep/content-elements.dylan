@@ -96,7 +96,7 @@ define class <warning-note> (<note>)
 end class;
 
 // TODO: If all items of <ordered-list> or <unordered-list> are one paragraph,
-// make it a compact list. In HTML, render without <p>, or <p> in a compact style.
+// make it a compact list. In HTML, render without <p>.
 
 define class <ordered-list> (<markup-element>)
    slot start :: type-union(<integer>, <character>), 
@@ -157,6 +157,10 @@ define class <api-list-placeholder> (<markup-element>)
    slot api-type :: <symbol>, init-keyword: #"type";
    slot qualified-scope-name :: false-or(<string>) = #f,
       init-keyword: #"scope";
+      
+   // This is the list of matching APIs to be output. Each element is an <xref>
+   // to a <topic>. Filled in after topics are arranged.
+   slot api-xrefs :: <sequence> /* of <xref> */;
 end class;
 
 define class <ditto-placeholder> (<markup-element>)

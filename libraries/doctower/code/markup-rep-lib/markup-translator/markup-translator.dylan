@@ -4,11 +4,11 @@ module: markup-translator
 /** Synopsis: Returns <topic>s from a markup block. **/
 define method topics-from-markup
    (token :: <markup-content-token>, context-topic :: false-or(<topic>),
-    #key internal :: <boolean> = #f)
+    #key internal :: <boolean> = #f, catalog :: <boolean> = #f)
 => (result :: <sequence>)
    let topics = make(<stretchy-vector>);
    
-   with-dynamic-bindings (*internal-markup* = internal)
+   with-dynamic-bindings (*internal-markup* = internal, *catalog-topics* = catalog)
       unless (token.default-topic-content.empty?)
          if (context-topic)
             process-tokens(context-topic, token.default-topic-content);

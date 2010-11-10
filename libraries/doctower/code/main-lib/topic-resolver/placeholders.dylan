@@ -61,13 +61,9 @@ define method replacer
       end if
    end for;
    
-   local method make-list-item (title-topic :: <pair>)
-         => (list-item :: <content-seq>)
-            let xref = make(<xref>, source-location: placeholder.source-location,
-                  target: title-topic.tail, text: title-topic.head);
-            let para = make(<paragraph>, source-location: placeholder.source-location,
-                  content: markup-seq(xref));
-            content-seq(para)
+   local method make-api-xref (title-topic :: <pair>) => (xref :: <xref>)
+            make(<xref>, source-location: placeholder.source-location,
+                 target: title-topic.tail, text: title-topic.head);
          end method,
 
          method title-sorts-first?
@@ -79,8 +75,6 @@ define method replacer
          end method;
          
    let sorted-topics = sort(found-topics, test: title-sorts-first?);
-   let api-list = make(<unordered-list>, source-location: placeholder.source-location);
-   api-list.items := map(make-list-item, sorted-topics);
-   setter(api-list);
+   placeholder.api-xrefs := map(make-api-xref, sorted-topics);
    #f
 end method;

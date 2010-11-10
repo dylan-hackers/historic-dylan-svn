@@ -127,18 +127,3 @@ Values:
         {{+ END}}
 {{+ END +}}
 {{+ END }}
-
-------------------------------------------
-Section: Methods                [:Methods]
-------------------------------------------
-
-{{ IF gen.methods +}}
-{{+ REPEAT WITH meth IN gen.methods +}}
-{{+ CASE meth.id +}}
-- '{{meth.id}}' [qv]
-{{+ ELSE +}}
-- '{{meth.name}}' [api]
-{{+ END (* case *) }}
-{{ +}}
-{{+ END (* repeat *) +}}
-{{+ END (* if methods *) }}

@@ -23,7 +23,6 @@ define collection-recursive slot-visitor visit-target-placeholders
                            inheritables-section, supers-section, subs-section,
                            funcs-on-section, funcs-returning-section;
    <function-doc>,         adjectives-section, args-section, vals-section, conds-section;
-   <generic-doc>,          methods-section;
    <variable-doc>,         adjectives-section, value-section;
    <macro-doc>,            syntax-section, args-section, vals-section;
    <unbound-doc>,          ;
@@ -81,7 +80,6 @@ define collection-recursive slot-visitor visit-content-placeholders
                            inheritables-section, supers-section, subs-section,
                            funcs-on-section, funcs-returning-section;
    <function-doc>,         adjectives-section, args-section, vals-section, conds-section;
-   <generic-doc>,          methods-section;
    <variable-doc>,         adjectives-section, value-section;
    <macro-doc>,            syntax-section, args-section, vals-section;
    <unbound-doc>,          ;
@@ -126,7 +124,6 @@ define collection-recursive slot-visitor visit-targets
                       inheritables-section, supers-section, subs-section,
                       funcs-on-section, funcs-returning-section;
    <function-doc>,    adjectives-section, args-section, vals-section, conds-section;
-   <generic-doc>,     methods-section;
    <variable-doc>,    adjectives-section, value-section;
    <macro-doc>,       syntax-section, args-section, vals-section;
    <unbound-doc>,     ;

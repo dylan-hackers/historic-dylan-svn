@@ -43,7 +43,7 @@ define constant $close-quote-chars = "'\"`";
 define constant $default-markup-quote-specs =
       table(<string-table>,
             "'" => #[#"qv"],
-            "\"" => #[#"qq", #"qv"],
+            "\"" => #[#"qq"],
             "`" => #[#"code"]
       );
 
