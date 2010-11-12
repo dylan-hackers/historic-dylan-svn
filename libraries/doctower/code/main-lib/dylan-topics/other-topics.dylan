@@ -2,14 +2,6 @@ module: dylan-topics
 synopsis: Code to generate constant, empty binding, and macro docs.
 
 
-/// Placeholder bindings cannot have topics generated from source, since they
-/// aren't defined in source.
-define method make-source-topics (binding :: <placeholder-binding>)
-=> (topics :: <sequence>, catalog-topics :: <sequence>)
-   values(#[], #[])
-end method;
-
-
 /// Empty bindings cannot have user-authored documentation; they must be
 /// documented as a class, etc. But if they aren't, this generates a page for
 /// them.
@@ -29,6 +21,24 @@ define method make-source-topics (binding :: <empty-binding>)
    let topics = topics-from-template(#"unbound-topic", generated-topic, vars);
 
    values(topics, #[]);
+end method;
+
+
+define method make-source-topics (binding :: <placeholder-binding>)
+=> (topics :: <sequence>, catalog-topics :: <sequence>)
+   let fqn = binding.definition-qualified-name;
+   let namespace = fqn.enclosing-qualified-name;
+   let generated-topic = make(<placeholder-doc>, generated: #t, existent-api: #t,
+         id: binding.canonical-id, title: binding.canonical-title,
+         qualified-name: fqn, namespace: namespace,
+         source-location: binding.source-location,
+         title-id-source-location: $generated-source-location,
+         qualified-name-source-location: $generated-source-location);
+   
+   make-alias-titles(generated-topic, binding);
+   let vars = table(<case-insensitive-string-table>, "placeholder" => binding);
+   let topics = topics-from-template(#"placeholder-topic", generated-topic, vars);
+   values(topics, #[])
 end method;
 
 

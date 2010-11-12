@@ -16,7 +16,7 @@ define collection-recursive slot-visitor visit-target-placeholders
    // Topic elements
    <topic>,                content, shortdesc, parent, footnotes, related-links,
                            relevant-to;
-   <api-doc>,              definitions-section;
+   <api-doc>,              declarations-section;
    <library-doc>,          modules-section;
    <module-doc>,           bindings-section;
    <class-doc>,            adjectives-section, keywords-section, conds-section,
@@ -25,6 +25,7 @@ define collection-recursive slot-visitor visit-target-placeholders
    <function-doc>,         adjectives-section, args-section, vals-section, conds-section;
    <variable-doc>,         adjectives-section, value-section;
    <macro-doc>,            syntax-section, args-section, vals-section;
+   <placeholder-doc>,      ;
    <unbound-doc>,          ;
 
    // Body elements
@@ -73,7 +74,7 @@ end slot-visitor;
 define collection-recursive slot-visitor visit-content-placeholders
    // Topic elements
    <topic>,                content, footnotes;
-   <api-doc>,              definitions-section;
+   <api-doc>,              declarations-section;
    <library-doc>,          modules-section;
    <module-doc>,           bindings-section;
    <class-doc>,            adjectives-section, keywords-section, conds-section,
@@ -82,6 +83,7 @@ define collection-recursive slot-visitor visit-content-placeholders
    <function-doc>,         adjectives-section, args-section, vals-section, conds-section;
    <variable-doc>,         adjectives-section, value-section;
    <macro-doc>,            syntax-section, args-section, vals-section;
+   <placeholder-doc>,      ;
    <unbound-doc>,          ;
    
    // Body elements
@@ -117,7 +119,7 @@ end slot-visitor;
 define collection-recursive slot-visitor visit-targets
    // Topic elements
    <topic>,           content, footnotes;
-   <api-doc>,         definitions-section;
+   <api-doc>,         declarations-section;
    <library-doc>,     modules-section;
    <module-doc>,      bindings-section;
    <class-doc>,       adjectives-section, keywords-section, conds-section,
@@ -126,6 +128,7 @@ define collection-recursive slot-visitor visit-targets
    <function-doc>,    adjectives-section, args-section, vals-section, conds-section;
    <variable-doc>,    adjectives-section, value-section;
    <macro-doc>,       syntax-section, args-section, vals-section;
+   <placeholder-doc>, ;
    <unbound-doc>,     ;
 
    // Body elements

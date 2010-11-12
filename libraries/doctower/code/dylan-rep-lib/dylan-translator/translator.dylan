@@ -40,7 +40,7 @@ define method apis-from-dylan (file-sets :: <sequence>)
    inherit-slots(definitions, class-list);
    inherit-init-args(definitions, class-list);
    note-class-functions(definitions, class-list);
-
+   
    definitions
 end method;
 
@@ -53,10 +53,10 @@ define method unique-definitions (context :: <context>)
       all-defns := add-new!(all-defns, lib);
       for (mod in lib.definitions)
          all-defns := add-new!(all-defns, mod);
-         all-bindings := union(all-bindings, mod.definitions.element-sequence);
+         all-bindings := concatenate!(all-bindings, mod.definitions.element-sequence);
       end for;
    end for;
-   concatenate(all-defns, all-bindings)
+   concatenate(all-defns, all-bindings.remove-duplicates!)
 end method;
 
 

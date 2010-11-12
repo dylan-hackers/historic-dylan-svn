@@ -1,11 +1,11 @@
 The '{{macro.name}}' [api] macro.
 
-----------------------------------------------
-Section: Definitions            [:Definitions]
-----------------------------------------------
+-----------------------------------------------
+Section: Declarations           [:Declarations]
+-----------------------------------------------
 
-{{ IF macro.source +}}
-Defined in {{macro.source.filename}} line {{macro.source.line}}.
+{{ IF macro.declaration +}}
+Declared in {{macro.declaration.filename}} line {{macro.declaration.line}}.
 {{+ END }}
 
 {{ IF macro.exports +}}

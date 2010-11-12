@@ -317,8 +317,8 @@ define method write-output-file
                method (topic :: <topic>) => (html :: <string>)
                   html-content(topic.content, target-info)
                end method,
-         "definitions-section" =>
-               rcurry(html-section, definitions-section, target-info),
+         "declarations-section" =>
+               rcurry(html-section, declarations-section, target-info),
          "syntax-section" =>
                rcurry(html-section, syntax-section, target-info),
          "adjectives-section" =>
@@ -367,24 +367,25 @@ end method;
 define method html-section
    (topic :: <topic>, accessor :: <function>, target-info)
 => (html :: <string>)
-   if (applicable-method?(accessor, topic))
-      let sect :: false-or(<section>) = topic.accessor;
-      if (sect & ~sect.content.empty?)
-         let vars = table(<case-insensitive-string-table>,
-               "id" =>
-                     target-info[sect].target-id,
-               "formatted-title" =>
-                     html-content(sect.title, target-info),
-               "content" =>
-                     html-content(sect.content, target-info)
-               );
-         text-from-template(#"html-section", variables: vars);
-      else
-         ""
-      end if
-   else
-      ""
-   end if
+   let html = 
+         if (applicable-method?(accessor, topic))
+            let sect :: false-or(<section>) = topic.accessor;
+            if (sect & ~sect.content.empty?)
+               let section-content = html-content(sect.content, target-info);
+               if (~section-content.empty?)
+                  let vars = table(<case-insensitive-string-table>,
+                        "id" =>
+                              target-info[sect].target-id,
+                        "formatted-title" =>
+                              html-content(sect.title, target-info),
+                        "content" =>
+                              section-content
+                        );
+                  text-from-template(#"html-section", variables: vars);
+               end if
+            end if
+         end if;
+   html | ""
 end method;
 
 
@@ -453,8 +454,12 @@ end method;
 define method html-content (api-list :: <api-list-placeholder>, target-info)
 => (html :: <string>)
    let api-refs = map(rcurry(html-content, target-info), api-list.api-xrefs);
-   let vars = table(<case-insensitive-string-table>, "items" => api-refs);
-   text-from-template(#"html-api-list", variables: vars)
+   if (api-refs.empty?)
+      ""
+   else
+      let vars = table(<case-insensitive-string-table>, "items" => api-refs);
+      text-from-template(#"html-api-list", variables: vars)
+   end if
 end method;
 
 

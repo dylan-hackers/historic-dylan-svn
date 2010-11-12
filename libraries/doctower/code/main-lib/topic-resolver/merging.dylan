@@ -129,10 +129,15 @@ define method merge-two-topics (a :: <topic>, b :: <topic>)
       a.id-source-loc := b.id-source-loc;
    end if;
 
-   a.shortdesc := a.shortdesc | b.shortdesc;
-   if (a.content.empty?)
-      a.content := b.content
-   end if;
+   // If B is generated, do not take its shortdesc or content unless A has neither.
+   let ignore-b-content = b.generated-topic? & (a.shortdesc | ~a.content.empty?);
+   unless (ignore-b-content)
+      a.shortdesc := a.shortdesc | b.shortdesc;
+      if (a.content.empty?)
+         a.content := b.content
+      end if
+   end unless;
+   
    a.footnotes := concatenate!(a.footnotes, b.footnotes);
    a.related-links := concatenate!(a.related-links, b.related-links);
    a.relevant-to := concatenate!(a.relevant-to, b.relevant-to);
@@ -154,14 +159,27 @@ define method merge-two-topics (a :: <api-doc>, b :: <api-doc>)
       a.titles-in-namespace[namespace] := combined;
    end for;
 
-   a.definitions-section := a.definitions-section | b.definitions-section;
+   a.declarations-section := a.declarations-section | b.declarations-section;
    next-method()
+end method;
+
+
+define method merge-two-topics (a :: <placeholder-doc>, b :: <api-doc>)
+   if (instance?(b, <placeholder-doc>))
+      next-method()
+   else
+      merge-two-topics(b, a)
+   end if
 end method;
 
 
 define method merge-two-topics (a :: <unbound-doc>, b :: <api-doc>)
 => (merged :: <api-doc>)
-   merge-two-topics(b, a)
+   if (instance?(b, <unbound-doc>))
+      next-method()
+   else
+      merge-two-topics(b, a)
+   end if
 end method;
 
 

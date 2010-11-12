@@ -37,6 +37,7 @@ define module dylan-rep
       all-defns,
       all-keys?,
       all-keys?-setter,
+      api-type-name,
       binding-name,
       canonical-name,
       canonical-name-setter,
@@ -123,5 +124,5 @@ define module dylan-rep
       ;
    
    export
-      visit-type-fragments;
+      all-markup-tokens, visit-type-fragments;
 end module;

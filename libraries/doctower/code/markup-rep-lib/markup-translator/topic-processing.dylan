@@ -127,8 +127,8 @@ define method process-tokens
    let section = make(<section>, source-location: section-token.token-src-loc);
    process-tokens(section, section-token);
    select (section.id by \=)
-      ":Definitions" => 
-         topic.definitions-section := section;
+      ":Declarations" => 
+         topic.declarations-section := section;
       ":Modules" =>
          topic.modules-section := section;
       ":Bindings" =>

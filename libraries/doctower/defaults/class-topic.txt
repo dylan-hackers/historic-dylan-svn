@@ -1,11 +1,11 @@
 The '{{class.name}}' [api] class.
 
-----------------------------------------------
-Section: Definitions            [:Definitions]
-----------------------------------------------
+-----------------------------------------------
+Section: Declarations           [:Declarations]
+-----------------------------------------------
 
-{{ IF class.source +}}
-Defined in {{class.source.filename}} line {{class.source.line}}.
+{{ IF class.declaration +}}
+Declared in {{class.declaration.filename}} line {{class.declaration.line}}.
 {{+ END }}
 
 {{ IF class.exports +}}

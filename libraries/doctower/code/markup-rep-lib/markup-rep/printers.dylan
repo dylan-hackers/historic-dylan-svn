@@ -29,6 +29,8 @@ define method print-object (o :: <api-doc>, s :: <stream>) => ()
       pprint-newline(#"fill", s);
       format(s, "fqn %=, ", o.fully-qualified-name);
       pprint-newline(#"fill", s);
+      format(s, "%s, ", o.topic-type);
+      pprint-newline(#"fill", s);
       write(s, "parent ");
       if (instance?(o.parent, <topic>))
          format(s, "{topic %= %s}",
@@ -39,7 +41,7 @@ define method print-object (o :: <api-doc>, s :: <stream>) => ()
       write(s, ", ");
       pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
-      print-topic-section("definitions", o.definitions-section, s);
+      print-topic-section("declarations", o.declarations-section, s);
    end printing-logical-block;
 end method;
 
@@ -61,7 +63,7 @@ define method print-object (o :: <library-doc>, s :: <stream>) => ()
       write(s, ", ");
       pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
-      print-topic-section("definitions", o.definitions-section, s);
+      print-topic-section("declarations", o.declarations-section, s);
       print-topic-section("modules", o.modules-section, s);
    end printing-logical-block;
 end method;
@@ -84,7 +86,7 @@ define method print-object (o :: <module-doc>, s :: <stream>) => ()
       write(s, ", ");
       pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
-      print-topic-section("definitions", o.definitions-section, s);
+      print-topic-section("declarations", o.declarations-section, s);
       print-topic-section("bindings", o.bindings-section, s);
    end printing-logical-block;
 end method;
@@ -107,7 +109,7 @@ define method print-object (o :: <class-doc>, s :: <stream>) => ()
       write(s, ", ");
       pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
-      print-topic-section("definitions", o.definitions-section, s);
+      print-topic-section("declarations", o.declarations-section, s);
       print-topic-section("adjectives", o.adjectives-section, s);
       print-topic-section("keywords", o.keywords-section, s);
       print-topic-section("conds", o.conds-section, s);
@@ -139,7 +141,7 @@ define method print-object (o :: <function-doc>, s :: <stream>) => ()
       write(s, ", ");
       pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
-      print-topic-section("definitions", o.definitions-section, s);
+      print-topic-section("declarations", o.declarations-section, s);
       print-topic-section("adjectives", o.adjectives-section, s);
       print-topic-section("args", o.args-section, s);
       print-topic-section("vals", o.vals-section, s);
@@ -165,7 +167,7 @@ define method print-object (o :: <variable-doc>, s :: <stream>) => ()
       write(s, ", ");
       pprint-newline(#"linear", s);
       format(s, "content %=", o.content);
-      print-topic-section("definitions", o.definitions-section, s);
+      print-topic-section("declarations", o.declarations-section, s);
       print-topic-section("adjectives", o.adjectives-section, s);
       print-topic-section("value", o.value-section, s);
    end printing-logical-block;

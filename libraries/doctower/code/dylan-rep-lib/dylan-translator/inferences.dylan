@@ -119,6 +119,13 @@ define method infer-and-merge-used-names
       end for;
    end if;
    
+   // ...and include specifically-mentioned imported and renamed names...
+   for (renaming-token :: <renaming-token> in import-and-rename-options)
+      let name-in-used = renaming-token.token-import-name;
+      let name-in-this = renaming-token.token-local-name | #t;
+      add-name-for-used-name(name-in-this, name-in-used);
+   end for;
+   
    // ...and maybe all exported names from used namespace...
    if (import-options = #"all")
       replace-elements!(names-in-this, empty?, method (a) vector(#t) end);
@@ -127,14 +134,7 @@ define method infer-and-merge-used-names
    // ...but exclude excluded names...
    do(remove-names-for-used-name, exclude-options);
    
-   // ...and include specifically-mentioned imported and renamed names...
-   for (renaming-token :: <renaming-token> in import-and-rename-options)
-      let name-in-used = renaming-token.token-import-name;
-      let name-in-this = renaming-token.token-local-name | #t;
-      add-name-for-used-name(name-in-this, name-in-used);
-   end for;
-   
-   // ...and if they haven't been given a local name yet, use their name as
+   // ...and if an import hasn't been given a local name yet, use its name as
    // exported (plus any prefix).
    for (name-in-used keyed-by name-index in names-in-used)
       let prefixed-name-in-used = concatenate(prefix-option | "", name-in-used);
@@ -178,11 +178,19 @@ define method infer-and-merge-used-names
          end if;
    let new-names-to-export = difference(used-names-to-export, namespace.exported-names,
                                         test: case-insensitive-equal?);
+   let new-names-in-used = difference(names-in-used, used-namespace.exported-names,
+                                      test: case-insensitive-equal?);
 
    if (new-names-to-export.size > 0)
       context.changed? := #t;
       namespace.exported-names
             := concatenate!(namespace.exported-names, new-names-to-export);
+   end if;
+   
+   if (new-names-in-used.size > 0)
+      context.changed? := #t;
+      used-namespace.exported-names
+            := concatenate!(used-namespace.exported-names, new-names-in-used);
    end if;
    
    // Add used namespace's unknown reexport sources, if applicable.

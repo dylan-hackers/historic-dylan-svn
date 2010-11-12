@@ -9,7 +9,8 @@ define module dylan-topics
    use dylan-rep;
    use markup-rep;
    use markup-parser,
-      import: { parse-internal-markup, source-location => token-src-loc };
+      import: { parse-internal-markup, topics => token-topics,
+                source-location => token-src-loc };
    use dylan-translator, import: { $object-type };
    use markup-translator;
    use template-files;

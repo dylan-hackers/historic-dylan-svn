@@ -127,9 +127,9 @@ define errors (<user-visible-warning>)
       "Found no source code for %s \"%s\"",
       location, topic-type, title;
 
-   04 no-definition-for-bindings
-      "No definition of exported binding %s",
-      location, names;
+   04 doc-comment-in-undocumented-file
+      "Documentation from internal %s \"%s\" will not be used",
+      location, api-type, api-name;
 
    05 qv-or-vi-in-title
       "Title cannot include quoted phrase options \"qv\" or \"vi\"",
@@ -172,6 +172,10 @@ define errors (<user-visible-warning>)
    14 ambiguous-title-in-xref
       "Cross-reference to \"%s\" is ambiguous and might refer to any of %s",
       location, target-text, target-locations;
+   
+   15 doc-comment-on-undocumented-api
+      "Documentation related to internal %s \"%s\" will not be used",
+      location, api-type, api-name;
 end errors;
 
 

@@ -69,8 +69,8 @@ end method;
 
 /// Synopsis: Return definition with better provenance.
 ///
-/// The better definition is the one whose source location we want to keep.
-/// It depends on the definition's provenance.
+/// The better definition is the one whose source location and canonical name we
+/// want to keep. It depends on the definition's provenance.
 define generic better-definition (existing :: <definition>, new :: <definition>)
 => (better :: <definition>, worse :: <definition>);
 
@@ -81,7 +81,7 @@ define method better-definition (existing :: <definition>, new :: <definition>)
    else
       let ranked-provenances = 
             #[#"predefined", #"create-clause", #"generic-definition", 
-              #"definition", #"declaration", #"inference", #"expression"];
+              #"definition", #"inference", #"declaration", #"expression"];
       let existing-prov-rank = position(ranked-provenances, existing.provenance);
       let new-prov-rank = position(ranked-provenances, new.provenance);
       if (existing-prov-rank <= new-prov-rank)

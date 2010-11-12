@@ -1,11 +1,11 @@
 The '{{const.name}}' [api] constant.
 
-----------------------------------------------
-Section: Definitions            [:Definitions]
-----------------------------------------------
+-----------------------------------------------
+Section: Declarations           [:Declarations]
+-----------------------------------------------
 
-{{ IF const.source +}}
-Defined in {{const.source.filename}} line {{const.source.line}}.
+{{ IF const.declaration +}}
+Declared in {{const.declaration.filename}} line {{const.declaration.line}}.
 {{+ END }}
 
 {{ IF const.exports +}}

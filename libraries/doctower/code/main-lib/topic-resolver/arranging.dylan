@@ -232,6 +232,20 @@ define method default-parent-ids (topic :: <unbound-doc>)
    end if
 end method;
 
+define method default-parent-ids (topic :: <placeholder-doc>)
+=> (ids :: <sequence>)
+   if (topic.existent-api?)
+      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let lib-name = mod-name.enclosing-qualified-name;
+      list(format-to-string(":Bindings(%s)", mod-name).standardize-id,
+           format-to-string(":Bindings(%s)", lib-name).standardize-id,
+           ":Bindings",
+           mod-name.qualified-name-as-id)
+   else
+      #()
+   end if
+end method;
+
 define method default-parent-ids (topic :: <topic>) => (ids :: <sequence>)
    #()
 end method;

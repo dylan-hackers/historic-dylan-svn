@@ -1,11 +1,11 @@
 The '{{gen.name}}' [api] generic function.
 
-----------------------------------------------
-Section: Definitions            [:Definitions]
-----------------------------------------------
+-----------------------------------------------
+Section: Declarations           [:Declarations]
+-----------------------------------------------
 
-{{ IF gen.source +}}
-Defined in {{gen.source.filename}} line {{gen.source.line}}.
+{{ IF gen.declaration +}}
+Declared in {{gen.declaration.filename}} line {{gen.declaration.line}}.
 {{+ END }}
 
 {{ IF gen.exports +}}

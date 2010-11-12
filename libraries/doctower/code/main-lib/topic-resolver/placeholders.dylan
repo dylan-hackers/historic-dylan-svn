@@ -29,7 +29,8 @@ define method replacer
             #"libraries" => #[ #"library" ];
             #"variables" => #[ #"variable", #"constant" ];
             #"bindings" => #[ #"function", #"generic-function", #"class",
-                              #"variable", #"constant", #"macro", #"unbound" ];
+                              #"variable", #"constant", #"macro", #"unbound",
+                              #"placeholder" ];
             #"classes" => #[ #"class" ];
             #"modules" => #[ #"module" ];
             #"unbound-names" => #[ #"unbound" ];

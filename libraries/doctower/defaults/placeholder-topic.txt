@@ -1,18 +1,17 @@
-The '{{unbound.name}}' [api] unbound name. Modules may import this name and
-define it.
+The '{{placeholder.name}}' [api] binding. This binding is defined elsewhere.
 
 -----------------------------------------------
 Section: Declarations           [:Declarations]
 -----------------------------------------------
 
-{{ IF unbound.declaration +}}
-Declared in {{unbound.declaration.filename}} line {{unbound.declaration.line}}.
+{{ IF placeholder.declaration +}}
+Declared in {{placeholder.declaration.filename}} line {{placeholder.declaration.line}}.
 {{+ END }}
 
-{{ IF unbound.exports +}}
+{{ IF placeholder.exports +}}
 Exported under these names:
 
-{{ REPEAT WITH export IN unbound.exports +}}
+{{ REPEAT WITH export IN placeholder.exports +}}
 - '{{export.name}}' [api] in module '{{export.module.name}}', {{ +}}
 {{+ CASE export.module.id +}}
 [api qv {{export.module.id}}] {{ +}}

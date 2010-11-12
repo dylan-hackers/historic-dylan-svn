@@ -14,12 +14,12 @@ method on {{ +}}
 {{+ END (* repeat *) +}}
 {{+ END (* if required-arguments *) }}
 
-----------------------------------------------
-Section: Definitions            [:Definitions]
-----------------------------------------------
+-----------------------------------------------
+Section: Declarations           [:Declarations]
+-----------------------------------------------
 
-{{ IF meth.source +}}
-Defined in {{meth.source.filename}} line {{meth.source.line}}.
+{{ IF meth.declaration +}}
+Declared in {{meth.declaration.filename}} line {{meth.declaration.line}}.
 {{+ END }}
 
 ---------------------------------------------

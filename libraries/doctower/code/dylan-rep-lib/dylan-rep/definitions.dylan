@@ -20,14 +20,14 @@ define abstract class <definition> (<documentable-api-object>)
    /// #"generic-definition" - From a "define generic" statement.
    /// #"definition"         - From a "define method", "define class", or other
    ///                         definition statement, or an implicit generic.
+   /// #"inference"          - From an export or import option in a "use" clause.
    /// #"declaration"        - From a "slot" clause and its getter and setter
    ///                         declarations, or a "define sealed domain" statement,
    ///                         or a "use" or "export" clause.
-   /// #"inference"          - From an export or import option in a "use" clause.
    /// #"expression"         - Mentioned in an expression, including type
    ///                         expressions.
    slot provenance :: one-of(#"predefined", #"create-clause", #"generic-definition", 
-                             #"definition", #"declaration", #"inference",
+                             #"definition", #"inference", #"declaration",
                              #"expression"),
       required-init-keyword: #"provenance";
    
@@ -39,6 +39,43 @@ end class;
 define method initialize (obj :: <definition>, #key) => ()
    next-method();
    obj.aliases := add!(obj.aliases, obj.canonical-name);
+end method;
+
+
+define method api-type-name (api :: <library>) => (type :: <string>)
+   "library"
+end method;
+
+define method api-type-name (api :: <module>) => (type :: <string>)
+   "module"
+end method;
+
+define method api-type-name (api :: <binding>) => (type :: <string>)
+   "binding"
+end method;
+
+define method api-type-name (api :: <constant-binding>) => (type :: <string>)
+   "constant"
+end method;
+
+define method api-type-name (api :: <variable-binding>) => (type :: <string>)
+   "variable"
+end method;
+
+define method api-type-name (api :: <class-binding>) => (type :: <string>)
+   "class"
+end method;
+
+define method api-type-name (api :: <generic-binding>) => (type :: <string>)
+   "generic function"
+end method;
+
+define method api-type-name (api :: <function-binding>) => (type :: <string>)
+   "function"
+end method;
+
+define method api-type-name (api :: <macro-binding>) => (type :: <string>)
+   "macro"
 end method;
 
 

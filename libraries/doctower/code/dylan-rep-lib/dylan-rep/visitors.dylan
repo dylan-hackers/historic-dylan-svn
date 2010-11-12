@@ -46,3 +46,30 @@ define collection-recursive slot-visitor visit-type-fragments
    // Cut recursion
    <string>,               ;
 end slot-visitor;
+
+
+/// Generic Function: visit-api-markup-tokens
+/// Synopsis: Visits <documentable-api-object> instances tightly associated with
+/// APIs.
+///
+/// Arguments:
+///   object      - The <api-object> to visit.
+///   operation   - A <function> on 'object'. The function is passed the object
+///                 and the setter: argument, which is a function that can
+///                 replace the object.
+
+define collection-recursive slot-visitor visit-api-markup-tokens
+   // Our goal
+   <documentable-api-object>, ;
+   
+   // Bindings
+   <binding>,              all-defns;
+   <class-binding>,        effective-init-args;
+   
+   // Parameters and values
+   <func/gen-defn>,        param-list, value-list;
+   <param-list>,           req-params;
+   <key-param-list>,       key-params, rest-param;
+   <var-param-list>,       rest-param;
+   <value-list>,           req-values, rest-value;
+end slot-visitor;

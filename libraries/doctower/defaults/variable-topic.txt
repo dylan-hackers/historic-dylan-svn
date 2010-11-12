@@ -1,11 +1,11 @@
 The '{{var.name}}' [api] variable.
 
-----------------------------------------------
-Section: Definitions            [:Definitions]
-----------------------------------------------
+-----------------------------------------------
+Section: Declarations           [:Declarations]
+-----------------------------------------------
 
-{{ IF var.source +}}
-Defined in {{var.source.filename}} line {{var.source.line}}.
+{{ IF var.declaration +}}
+Declared in {{var.declaration.filename}} line {{var.declaration.line}}.
 {{+ END }}
 
 {{ IF var.exports +}}

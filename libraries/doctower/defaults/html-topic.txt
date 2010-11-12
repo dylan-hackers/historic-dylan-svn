@@ -59,7 +59,7 @@
       <h1>{{topic.formatted-title !}}</h1>
 {{topic.formatted-shortdesc !}}
 {{topic.formatted-content !}}
-{{topic.definitions-section !}}
+{{topic.declarations-section !}}
 {{topic.syntax-section !}}
 {{topic.adjectives-section !}}
 {{topic.conds-section !}}

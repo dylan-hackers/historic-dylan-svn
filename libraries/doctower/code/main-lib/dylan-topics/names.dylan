@@ -102,7 +102,7 @@ end method;
 
 
 define method make-alias-titles (topic :: <api-doc>, defn :: <definition>) => ()
-   for (alias in defn.aliases)
+   for (alias in choose(exported-name?, defn.aliases))
       let namespace = format-to-string("%s", alias.enclosing-name);
       let title = canonical-title(defn, alias: alias);
       let titles = element(topic.titles-in-namespace, namespace, default: #[]);

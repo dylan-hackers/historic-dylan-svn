@@ -15,7 +15,8 @@ define constant $topic-templates = #[
    #"constant-topic",
    #"variable-topic",
    #"macro-topic",
-   #"unbound-topic"
+   #"unbound-topic",
+   #"placeholder-topic"
 ];
 
 define constant $catalog-templates = #[
@@ -71,102 +72,114 @@ define constant $template-ops = table(<case-insensitive-string-table>,
       
       /*
       "lib" => <library>
-            .id .name .scope-name .source .exports .unknown-reexports
+            .id .name .scope-name .declaration .source .exports
+            .unknown-reexports
       "mod" => <module>
-            .id .name .scope-name .source .exports .unknown-reexports
+            .id .name .scope-name .declaration .source .exports
+            .unknown-reexports
       "class" => <class-binding>
-            .id .name .scope-name .source .exports .adjectives
+            .id .name .scope-name .declaration .source .exports .adjectives
             .functions-on-class .functions-returning-class .inheritable-getters
             .keywords .subclasses .superclasses
       "func" => <function-binding>
-            .id .name .scope-name .source .exports .adjectives
+            .id .name .scope-name .declaration .source .exports .adjectives
             .required-arguments .keyword-arguments .rest-argument
             .all-keys-argument? .takes-keywords? .required-values 
             .rest-value
       "gen" => <generic-binding>
-            .id .name .scope-name .source .exports .adjectives
+            .id .name .scope-name .declaration .source .exports .adjectives
             .required-arguments .keyword-arguments .rest-argument
             .all-keys-argument? .takes-keywords? .required-values 
             .rest-value .methods
       "meth" => <generic-method>
-            .id .name .source .adjectives .required-arguments
+            .id .name .declaration .adjectives .required-arguments
             .keyword-arguments .rest-argument .all-keys-argument?
             .takes-keywords? .required-values .rest-value
       "const" => <constant-binding>
-            .id .name .scope-name .source .exports .adjectives .type .value
+            .id .name .scope-name .declaration .source .exports .adjectives
+            .type .value
       "var" => <variable-binding>
-            .id .name .scope-name .source .exports .adjectives .type .value
+            .id .name .scope-name .declaration .source .exports .adjectives
+            .type .value
       "macro" => <macro-binding>
-            .id .name .scope-name .source .exports
+            .id .name .scope-name .declaration .source .exports
+      "unbound" => <empty-binding>
+            .id .name .scope-name .declaration .source .exports
+      "placeholder" => <empty-binding>
+            .id .name .scope-name .declaration .source .exports
       */    
 
       "adjectives" => template-adjectives,                  // <string>
       "all-keys-argument?" => template-all-keys-argument?,  // <boolean>
       "base-name" => template-base-name,                    // <string>
+      "declaration" => template-declaration,
+            // .filename .line
       "default" => template-default,
             // .text .source
       "exports" => template-exports,
             // each .name .library .module
       "filename" => source-file,                            // <string>
       "functions-on-class" => template-functions-on-class,
-            // each .id .name .scope-name .source .exports .adjectives
-            // .required-arguments .keyword-arguments .rest-argument
+            // each .id .name .scope-name .declaration .source .exports 
+            // .adjectives.required-arguments .keyword-arguments .rest-argument
             // .all-keys-argument? .takes-keywords? .required-values 
             // .rest-value .methods
       "functions-returning-class" => template-functions-returning-class,
-            // each .id .name .scope-name .source .exports .adjectives
-            // .required-arguments .keyword-arguments .rest-argument
+            // each .id .name .scope-name .declaration .source .exports
+            // .adjectives .required-arguments .keyword-arguments .rest-argument
             // .all-keys-argument? .takes-keywords? .required-values 
             // .rest-value .methods
       "id" => template-id,                                  // false-or(<string>)
       "inheritable-getters" => template-inheritable-getters,
-            // each .id .name .scope-name .source .exports .adjectives
-            // .required-arguments .keyword-arguments .rest-argument
+            // each .id .name .scope-name .declaration .source .exports
+            // .adjectives .required-arguments .keyword-arguments .rest-argument
             // .all-keys-argument? .takes-keywords? .required-values 
             // .rest-value .methods
       "keyword-arguments" => template-keyword-arguments,
-            // each .name .source .type .default .singleton
+            // each .name .declaration .type .default .singleton
       "keywords" => template-keywords,
-            // each .name .source .type .default
+            // each .name .declaration .type .default
       "library" => template-library,
-            // .id .name .scope-name .source .exports .unknown-reexports
+            // .id .name .scope-name .declaration .source .exports
+            // .unknown-reexports
       "line" => source-start-line,                          // <string>
       "methods" => template-methods,
-            // each .id .name .source .adjectives .required-arguments
+            // each .id .name .declaration .adjectives .required-arguments
             // .keyword-arguments .rest-argument .all-keys-argument?
             // .takes-keywords? .required-values .rest-value
       "module" => template-module,
-            // .id .name .scope-name .source .exports .unknown-reexports
+            // .id .name .scope-name .declaration .source .exports
+            // .unknown-reexports
       "name" => template-name,                              // <string>
       "required-arguments" => template-required-arguments,
-            // each .name .source .type .singleton
+            // each .name .declaration .type .singleton
       "required-values" => template-required-values,
-            // each .name .source .type .singleton
+            // each .name .declaration .type .singleton
       "rest-argument" => template-rest-argument,
-            // .name .source
+            // .name .declaration
       "rest-value" => template-rest-value,
-            // .name .source .type .singleton
+            // .name .declaration .type .singleton
       "scope-name" => definition-qualified-name,            // <string>
       "singleton" => template-singleton,
-            // .text .source
+            // .text .declaration
       "source" => template-source,
-            // .filename .line
+            // .name .library .module
       "subclasses" => template-subclasses,
-            // each .id .name .scope-name .source .exports .adjectives
-            // .functions-on-class .functions-returning-class .inheritable-getters
-            // .keywords .subclasses .superclasses
+            // each .id .name .scope-name .declaration .source .exports
+            // .adjectives .functions-on-class .functions-returning-class
+            // .inheritable-getters .keywords .subclasses .superclasses
       "superclasses" => template-superclasses,
-            // each .id .name .scope-name .source .exports .adjectives
-            // .functions-on-class .functions-returning-class .inheritable-getters
-            // .keywords .subclasses .superclasses
+            // each .id .name .scope-name .declaration .source .exports
+            // .adjectives .functions-on-class .functions-returning-class
+            // .inheritable-getters .keywords .subclasses .superclasses
       "takes-keywords?" => template-takes-keywords?,        // <boolean>
       "text" => template-text,                              // <string>
       "type" => template-type,
-            // .text .id .source
+            // .text .id .declaration
       "unknown-reexports" => template-unknown-reexports,
             // each .name .library .module            
       "value" => template-value
-            // .text .source
+            // .text .declaration
       );
 
 
@@ -282,30 +295,35 @@ end method;
 //
 
 
-define method template-source (api-object :: <api-object>)
+define method template-declaration (api-object :: <api-object>)
 => (loc :: false-or(<file-source-location>))
    instance?(api-object.source-location, <file-source-location>)
          & api-object.source-location
 end method;
 
 
-define method template-source (gen-method :: <generic-method>)
+define method template-declaration (gen-method :: <generic-method>)
 => (loc :: false-or(<file-source-location>))
    instance?(gen-method.method-defn.source-location, <file-source-location>)
          & gen-method.method-defn.source-location
 end method;
 
 
+define method template-source (api-defn :: <definition>)
+=> (source :: false-or(<source-name>))
+   api-defn.canonical-name.enclosing-name
+end method;
+
+
+define method template-source (api-defn :: <library>)
+=> (source :: false-or(<source-name>))
+   #f
+end method;
+
+
 define method template-exports (api-defn :: <definition>)
 => (exports :: false-or(<sequence>))
-   let exported-aliases = make(<stretchy-vector>);
-   for (alias :: <source-name> in api-defn.aliases)
-      let enclosing-namespace = *definitions*[alias.enclosing-name];
-      if (member?(alias.local-name, enclosing-namespace.exported-names,
-                  test: case-insensitive-equal?))
-         exported-aliases := add!(exported-aliases, alias);
-      end if;
-   end for;
+   let exported-aliases = choose(exported-name?, api-defn.aliases);
    let exports = sort(exported-aliases, test: sort-comparison-by-name);
    ~exports.empty? & exports
 end method;
@@ -316,6 +334,7 @@ define method template-unknown-reexports (namespace :: <defined-namespace>)
    let sources = sort(namespace.unknown-reexport-sources, test: sort-comparison-by-name);
    ~sources.empty? & sources
 end method;
+
 
 define method template-unknown-reexports (namespace :: <undefined-namespace>)
 => (sources :: false-or(<sequence>))
@@ -396,35 +415,43 @@ end method;
 
 define method template-superclasses (binding :: <class-binding>)
 => (superclasses :: false-or(<sequence>))
-   ~binding.effective-supers.empty? & binding.effective-supers
+   if (binding.effective-cpl.size > 1)
+      copy-sequence(binding.effective-cpl, start: 1)
+   end if
 end method;
 
 
 define method template-subclasses (binding :: <class-binding>)
 => (subclasses :: false-or(<sequence>))
-   ~binding.effective-subs.empty? & binding.effective-subs
+   let subclasses = choose(should-have-topic?, binding.effective-subs);
+   ~subclasses.empty? & subclasses
 end method;
 
 
 define method template-functions-on-class (binding :: <class-binding>)
 => (functions :: false-or(<sequence>))
-   unless (binding.functions-on-class.empty?)
-      sort(binding.functions-on-class, test: sort-comparison-by-name)
+   let functions = choose(should-have-topic?, binding.functions-on-class);
+   unless (functions.empty?)
+      sort(functions, test: sort-comparison-by-name)
    end unless
 end method;
 
 
 define method template-functions-returning-class (binding :: <class-binding>)
 => (functions :: false-or(<sequence>))
-   unless (binding.functions-returning-class.empty?)
-      sort(binding.functions-returning-class, test: sort-comparison-by-name)
+   let functions = choose(should-have-topic?, binding.functions-returning-class);
+   unless (functions.empty?)
+      sort(functions, test: sort-comparison-by-name)
    end unless
 end method;
 
 
 define method template-inheritable-getters (binding :: <class-binding>)
 => (functions :: false-or(<sequence>))
-   ~binding.effective-slots.empty? & binding.effective-slots
+   let functions = choose(should-have-topic?, binding.effective-slots);
+   unless (functions.empty?)
+      sort(functions, test: sort-comparison-by-name)
+   end unless
 end method;
 
 

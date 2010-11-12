@@ -1,11 +1,11 @@
 The '{{mod.name}}' [api] module.
 
-----------------------------------------------
-Section: Definition             [:Definitions]
-----------------------------------------------
+-----------------------------------------------
+Section: Declarations           [:Declarations]
+-----------------------------------------------
 
-{{ IF mod.source +}}
-Defined in {{mod.source.filename}} line {{mod.source.line}}.
+{{ IF mod.declaration +}}
+Declared in {{mod.declaration.filename}} line {{mod.declaration.line}}.
 {{+ END }}
 
 {{ IF mod.exports +}}

@@ -63,14 +63,6 @@ define method make-expression-binding
 end method;
 
 
-define method make-inferred-binding
-   (context :: <context>, name :: <binding-name>)
-=> (binding :: <binding>)
-   make(<placeholder-binding>, local-name: name, source-location: name.source-location,
-        provenance: #"declaration")
-end method;
-
-
 //
 // Placeholders
 // 

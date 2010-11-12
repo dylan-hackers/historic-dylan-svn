@@ -91,11 +91,10 @@ Automatic and overriding documentation
 API documentation topics can be automatically generated or manually authored.
 These coexist until the stage in which they are merged.
 
-Automatically-generated documentation is normally only created for exported API
-elements -- regardless of whether the exporting library or module is within the
-documentation's scope -- that have an implicit or explicit definition that IS
-within the documentation's scope. This includes create clauses, not that there
-is much to say about them absent overriding authored documentation.
+Automatically-generated documentation is normally only created for API elements
+that have an exported name or that add a definition to a standard Dylan binding.
+In the case of maintenance documentation, automatically-generated documentation
+will be created for every API element, exported or not.
 
 Manually-authored overriding documentation must generally be a topic type that
 matches the API type, e.g., a class must be documented with a "Class:" topic
@@ -184,7 +183,7 @@ Topic IDs:
   Module catalogs     - :Bindings(Dylan:Dylan), :Classes(Dylan:Dylan), etc.
 
 Section IDs:
-  "Definitions"       - :Definitions
+  "Declarations"      - :Declarations
   "Modules"           - :Modules
   "Bindings"          - :Bindings
   "Functions on X"    - :FunctionsOn
@@ -200,7 +199,7 @@ Output IDs:
   Topic without ID   - :Topic-nnn
   Section without ID - :Sect-nnn
   Topic title        - :Title
-  Section title      - :Title(:Definitions), :Title(:Sect-nnn), etc.
+  Section title      - :Title(:Declarations), :Title(:Sect-nnn), etc.
   Footnote           - :Foot-nnn
   Phrase marker      - :Line-nnn
 

@@ -33,6 +33,20 @@ define abstract class <documentable-api-object> (<api-object>)
 end class;
 
 
+/// Synopsis: Get all markup tokens from one or more API objects.
+define method all-markup-tokens (items :: type-union(<sequence>, <api-object>))
+=> (tokens :: <sequence>)
+   let tokens = make(<stretchy-vector>);
+   visit-api-markup-tokens(items,
+         method (doc :: <documentable-api-object>, #key, #all-keys)
+         => (do-slots? :: <boolean>)
+            tokens := concatenate!(tokens, doc.markup-tokens);
+            #t
+         end);
+   tokens
+end method;
+
+
 //
 // Scoped names
 //
@@ -147,6 +161,38 @@ define method \= (name1 :: <binding-name>, name2 :: <binding-name>)
       | case-insensitive-equal?(name1.library-name, name2.library-name)
       & case-insensitive-equal?(name1.module-name, name2.module-name)
       & case-insensitive-equal?(name1.binding-name, name2.binding-name)
+end method;
+
+
+define constant $ranked-name-types
+      = vector(<binding-name>, <module-name>, <library-name>);
+
+define method \< (n1 :: <source-name>, n2 :: <source-name>)
+=> (n1-first? :: <boolean>)
+   unless (n1 == n2)
+      let less-than? = case-insensitive-less?;
+      let equal-to? = case-insensitive-equal?;
+      let rank1 = find-key($ranked-name-types, curry(instance?, n1));
+      let rank2 = find-key($ranked-name-types, curry(instance?, n2));
+      case
+         rank1 > rank2 => #t;
+         rank1 < rank2 => #f;
+         otherwise =>
+            let has-module? = rank1 <= 1;
+            let has-binding? = rank1 = 0;
+            if (less-than?(n1.library-name, n2.library-name))
+               #t
+            elseif (has-module? & equal-to?(n1.library-name, n2.library-name))
+               if (less-than?(n1.module-name, n2.module-name))
+                  #t
+               elseif (has-binding? & equal-to?(n1.module-name, n2.module-name))
+                  if (less-than?(n1.binding-name, n2.binding-name))
+                     #t
+                  end if
+               end if
+            end if;
+      end case
+   end unless
 end method;
 
 

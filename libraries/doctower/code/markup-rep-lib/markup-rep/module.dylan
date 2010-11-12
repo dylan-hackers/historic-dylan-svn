@@ -19,9 +19,9 @@ define module markup-rep
       <many-line-defn-list>, <many-line-parm-list>, <line-marker-placeholder>,
       <markup-seq>, <module-doc>, <note>, <one-line-defn-list>,
       <one-line-parm-list>, <ordered-list>, <paragraph>, <parm-list>,
-      <ph-marker>, <pre>, <ref-topic>, <section>, <simple-table>,
-      <target-placeholder>, <term-style>, <term>, <title-seq>, <topic-ref>,
-      <topic>, <topic-content-seq>, <underline>, <unordered-list>,
+      <ph-marker>, <placeholder-doc>, <pre>, <ref-topic>, <section>,
+      <simple-table>, <target-placeholder>, <term-style>, <term>, <title-seq>,
+      <topic-ref>, <topic>, <topic-content-seq>, <underline>, <unordered-list>,
       <variable-doc>, <vi-xref>, <warning-note>, <xref>;
 
    export
@@ -32,8 +32,8 @@ define module markup-rep
       api-type, api-type-setter, api-xrefs, api-xrefs-setter, args-section,
       args-section-setter, bindings-section, bindings-section-setter,
       canonical-namespace, canonical-namespace-setter, code, conds-section,
-      conds-section-setter, content, content-setter, definitions-section,
-      definitions-section-setter, existent-api?, existent-api?-setter,
+      conds-section-setter, content, content-setter, declarations-section,
+      declarations-section-setter, existent-api?, existent-api?-setter,
       fixed-parent, fixed-parent-setter, footnotes, footnotes-setter,
       fully-qualified-name, fully-qualified-name-setter,
       fully-qualified-name-source-loc, fully-qualified-name-source-loc-setter,

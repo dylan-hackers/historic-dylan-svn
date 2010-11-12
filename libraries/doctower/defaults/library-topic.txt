@@ -1,11 +1,11 @@
 The '{{lib.name}}' [api] library.
 
-----------------------------------------------
-Section: Definition             [:Definitions]
-----------------------------------------------
+-----------------------------------------------
+Section: Declarations		[:Declarations]
+-----------------------------------------------
 
-{{ IF lib.source +}}
-Defined in {{lib.source.filename}} line {{lib.source.line}}.
+{{ IF lib.declaration +}}
+Declared in {{lib.declaration.filename}} line {{lib.declaration.line}}.
 {{+ END }}
 
 ------------------------------------------

@@ -45,11 +45,3 @@ define method replace-list-item-docs (defn-list :: <defn-list>, api-items :: <se
    end for;
    defn-list
 end method;
-
-
-/// Synopsis: Get all markup tokens from a sequence of <documentable-api-object>.
-define method all-markup-tokens (documentable-items :: <sequence>)
-=> (tokens :: <sequence>)
-   let token-sets = map(markup-tokens, documentable-items);
-   apply(concatenate, #[], token-sets)
-end method;

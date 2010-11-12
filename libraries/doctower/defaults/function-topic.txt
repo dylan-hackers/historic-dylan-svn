@@ -1,11 +1,11 @@
 The '{{func.name}}' [api] function.
 
-----------------------------------------------
-Section: Definitions            [:Definitions]
-----------------------------------------------
+-----------------------------------------------
+Section: Declarations           [:Declarations]
+-----------------------------------------------
 
-{{ IF func.source +}}
-Defined in {{func.source.filename}} line {{func.source.line}}.
+{{ IF func.declaration +}}
+Declared in {{func.declaration.filename}} line {{func.declaration.line}}.
 {{+ END }}
 
 {{ IF func.exports +}}

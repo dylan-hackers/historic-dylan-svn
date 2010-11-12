@@ -99,6 +99,7 @@ define method make
             #"module" => <module-doc>;
             #"macro" => <macro-doc>;
             #"unbound" => <unbound-doc>;
+            #"placeholder" => <placeholder-doc>;
             #"topic" => <con-topic>;
             #"catalog" => <catalog-topic>;
          end select;
@@ -149,7 +150,7 @@ define class <api-doc> (<ref-topic>)
    // These titles are used when constructing API lists for a specific namespace.
    slot titles-in-namespace :: <table> = make(<case-insensitive-string-table>);
          
-   slot definitions-section :: false-or(<section>) = #f;
+   slot declarations-section :: false-or(<section>) = #f;
 end class;
 
 define class <library-doc> (<api-doc>)
@@ -164,6 +165,10 @@ end class;
 
 define class <unbound-doc> (<api-doc>)
    keyword topic-type: = #"unbound";
+end class;
+
+define class <placeholder-doc> (<api-doc>)
+   keyword topic-type: = #"placeholder";
 end class;
 
 define class <class-doc> (<api-doc>)
