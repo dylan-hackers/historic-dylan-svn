@@ -50,7 +50,7 @@
        Also it was originally mapped to just /cgi-bin. -->
   <cgi-directory
       url = "/cgi-bin/viewvc"
-      location = "/usr/local/viewvc-1.0.5/bin/cgi"
+      location = "/home/cgay/viewvc-1.0.12/bin/cgi"
       extensions = "cgi"
       />
 

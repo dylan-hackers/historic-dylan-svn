@@ -47,14 +47,23 @@ define constant $urls
 define class <od-page> (<dylan-server-page>)
 end;
 
+define constant $od-directory = "/home/cgay/trunk/libraries/network/opendylan.org/";
+
+define method make
+    (class == <od-page>, #rest args, #key source)
+ => (page :: <od-page>)
+  let source = concatenate($od-directory, source);
+  apply(next-method, class, source: source, args)
+end;
+
 define constant $header-page :: <od-page>
-  = make(<od-page>, source: "header.dsp");
+  = make(<od-page>, source: "dsp/opendylan.org/header.dsp");
 
 define constant $footer-page :: <od-page>
-  = make(<od-page>, source: "footer.dsp");
+  = make(<od-page>, source: "dsp/opendylan.org/footer.dsp");
 
 define constant $menu-page :: <od-page>
-  = make(<od-page>, source: "menu.dsp");
+  = make(<od-page>, source: "dsp/opendylan.org/menu.dsp");
 
 define taglib od ()
 
@@ -63,7 +72,8 @@ define taglib od ()
       process-template($header-page);
       output("<title>");
       process-body();
-      output("</title>");
+      output("</title>\n");
+      output("</head>\n");
       process-template($menu-page);
     end;
 
@@ -85,7 +95,8 @@ define method add-opendylan-resources
   add-wiki-responders(http-server);
   for (item in $urls)
     let (urls, source) = apply(values, item);
-    let page = make(<od-page>, source: source);
+    let page = make(<od-page>,
+                    source: concatenate("dsp/opendylan.org/", source));
     for (url in if (instance?(urls, <string>))
                   list(urls)
                 else

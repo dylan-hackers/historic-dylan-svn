@@ -9,6 +9,12 @@ INSTALLATION
 
 * Build the opendylan-dot-org library
 
+* Setup viewvc:
+  * Download it and run ./viewvc-install
+  * Edit viewvc-1.0.12/viewvc.conf
+  * Edit templates/include/{header,footer}.ezt to include the od.org
+    HTML wrappers.  See /home/cgay/viewvc-1.0.12 for an example.
+
 * Start the server:
   opendylan-dot-org --config /home/cgay/opendylan.org/config.xml
 

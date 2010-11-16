@@ -11,7 +11,7 @@
       </div>
 
       <div>
-Copyright &copy;1998&ndash;2009 Gwydion Dylan Maintainers. All rights
+Copyright &copy;1998&ndash;2010 Gwydion Dylan Maintainers. All rights
 reserved.
       </div>
 
