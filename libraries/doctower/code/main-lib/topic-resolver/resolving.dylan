@@ -15,7 +15,7 @@ define method resolve-target-placeholders
     catalog-topics :: <sequence>, target-resolutions :: <table>,
     duplicate-title-targets :: <table>)
 => (resolved-topics :: <sequence>, tables-of-content :: <sequence>)
-   let unused-catalogs = catalog-topics.copy-sequence;
+   let unused-catalogs = as(<stretchy-vector>, catalog-topics.copy-sequence);
    
    // Assign topics in place of placeholders.
    for (topic in topics)
@@ -28,16 +28,10 @@ define method resolve-target-placeholders
 
    // Assign topics in place of tables of content references.
    for (toc in tables-of-content)
-      for (toc-ref :: false-or(<topic-ref>) in toc)
-         if (toc-ref)
-            resolve-target-placeholder-in-topic(toc-ref.target,
-                  setter: rcurry(target-setter, toc-ref),
-                  topic: #f, parms: #f,
-                  resolutions: target-resolutions,
-                  dup-titles: duplicate-title-targets,
-                  unused-catalogs: unused-catalogs);
-         end if;
-      end for;
+      visit-target-placeholders(toc, resolve-target-placeholder-in-topic,
+            topic: #f, resolutions: target-resolutions,
+            parms: #f, dup-titles: duplicate-title-targets,
+            unused-catalogs: unused-catalogs)
    end for;
    
    // Remove unused catalog topics.

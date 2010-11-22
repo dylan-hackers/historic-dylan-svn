@@ -109,9 +109,20 @@ define method infer-and-merge-used-names
             end if;
          end;
                
-   // Include names from export specifiers...
-   if (export-options ~= #"all")
-      for (reexported-name in export-options)
+   // Include specifically-mentioned imported and renamed names...
+   for (renaming-token :: <renaming-token> in import-and-rename-options)
+      let name-in-used = renaming-token.token-import-name;
+      let name-in-this = renaming-token.token-local-name | #t;
+      add-name-for-used-name(name-in-this, name-in-used);
+   end for;
+   
+   // ...and include other names from export specifier...
+   if (export-options ~= #"all" & import-options = #"all")
+      let local-exported-names =
+            reduce(concatenate!, make(<stretchy-vector>), names-in-this);
+      let reexported-names = difference(export-options, local-exported-names,
+                                        test: case-insensitive-equal?);
+      for (reexported-name in reexported-names)
          let name-in-used = unprefixed-name(reexported-name, prefix-option);
          if (name-in-used)
             add-name-for-used-name(reexported-name, name-in-used);
@@ -119,23 +130,16 @@ define method infer-and-merge-used-names
       end for;
    end if;
    
-   // ...and include specifically-mentioned imported and renamed names...
-   for (renaming-token :: <renaming-token> in import-and-rename-options)
-      let name-in-used = renaming-token.token-import-name;
-      let name-in-this = renaming-token.token-local-name | #t;
-      add-name-for-used-name(name-in-this, name-in-used);
-   end for;
-   
    // ...and maybe all exported names from used namespace...
    if (import-options = #"all")
       replace-elements!(names-in-this, empty?, method (a) vector(#t) end);
    end if;
    
-   // ...but exclude excluded names...
+   // ...but exclude excluded names.
    do(remove-names-for-used-name, exclude-options);
    
-   // ...and if an import hasn't been given a local name yet, use its name as
-   // exported (plus any prefix).
+   // If an import hasn't been given a local name yet, use its name as exported
+   // (plus any prefix).
    for (name-in-used keyed-by name-index in names-in-used)
       let prefixed-name-in-used = concatenate(prefix-option | "", name-in-used);
       names-in-this[name-index] :=
@@ -154,31 +158,31 @@ define method infer-and-merge-used-names
       let used-scoped-name = make-name-in-namespace(used-namespace, used-name, clause);
       let used-defn = element(used-namespace.definitions, used-name, default: #f)
             | make-inferred-definition-in-namespace(used-namespace, used-name, clause);
+      used-defn := add-definition(context, used-namespace.definitions,
+                                  used-defn, used-scoped-name);
 
       for (this-name in names)
          let this-scoped-name = make-name-in-namespace(namespace, this-name, clause);
          let this-defn = element(namespace.definitions, this-name, default: #f)
                | make-inferred-definition-in-namespace(namespace, this-name, clause);
-
-         let merged-defn = merge-definitions(context, this-defn, used-defn);
-         add-definition(context, namespace.definitions, merged-defn,
-                        this-scoped-name);
-         add-definition(context, used-namespace.definitions, merged-defn,
-                        used-scoped-name);
+         this-defn := add-definition(context, namespace.definitions,
+                                     this-defn, this-scoped-name);
+         this-defn := add-definition(context, used-namespace.definitions,
+                                     this-defn, used-scoped-name);
       end for;
    end for;
    
    // Add any new exported names that we find.
    
-   let used-names-to-export = 
+   let local-names-to-export = 
          if (export-options = #"all")
-            reduce1(concatenate, imported-names-in-local)
+            reduce(concatenate!, make(<stretchy-vector>), imported-names-in-local)
          else
             export-options
          end if;
-   let new-names-to-export = difference(used-names-to-export, namespace.exported-names,
+   let new-names-to-export = difference(local-names-to-export, namespace.exported-names,
                                         test: case-insensitive-equal?);
-   let new-names-in-used = difference(names-in-used, used-namespace.exported-names,
+   let new-names-in-used = difference(imported-names-from-used, used-namespace.exported-names,
                                       test: case-insensitive-equal?);
 
    if (new-names-to-export.size > 0)

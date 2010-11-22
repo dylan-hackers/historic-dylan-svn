@@ -22,17 +22,18 @@ define method create-doc-tree
    // Collect authored and generated topics.
    let doc-file-topics = topics-from-markup-files(doc-files);
    let (src-file-topics, catalog-topics) = topics-from-dylan-files(source-files);
-   let topics = concatenate(doc-file-topics, src-file-topics);
-   
+
    // Discard templates; all topics will have been created.
    discard-templates();
    
    verbose-log("Organizing documentation");
-   
+   let topics = concatenate(doc-file-topics, src-file-topics, catalog-topics)
+         .remove-duplicates!;
+
    // Check and combine API topic fragments.
    let grouped-topics = group-mergeable-topics(topics);
    let topics = map(check-and-merge-topics, grouped-topics);
-   
+
    // Index topics and sections by various means.
    // Check for duplicate IDs and other issues.
    let (target-res, dup-titles) = topics.resolution-info;

@@ -100,8 +100,8 @@ end method;
 define method add-target-id
    (topic :: <topic>, section :: <section>, id-table :: <table>)
 => ()
-   if (section.id & section.id.first ~= ':')
-      if (~topic.id)
+   if (section.id)
+      if (~topic.id & section.id.first ~= ':')
          section-id-without-topic-id(location: section.id-source-loc)
       else
          let id-string = format-to-string("%s/%s", topic.id, section.id);
@@ -132,8 +132,7 @@ define method add-target-fqn
    (topic :: <api-doc>, fqn-table :: <table>)
 => ()
    if (topic.fully-qualified-name)
-      let fqn-id-string = topic.fully-qualified-name.qualified-name-as-id;
-      add-target-for-string(topic, fqn-table, fqn-id-string);
+      add-target-for-string(topic, fqn-table, topic.fully-qualified-name);
    end if;
 end method;
 

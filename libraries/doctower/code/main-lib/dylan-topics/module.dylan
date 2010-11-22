@@ -11,7 +11,9 @@ define module dylan-topics
    use markup-parser,
       import: { parse-internal-markup, topics => token-topics,
                 source-location => token-src-loc };
-   use dylan-translator, import: { $object-type };
+   use dylan-translator,
+      import: { $object-type, $dylan-library, $dylan-module,
+                $common-dylan-library, $common-dylan-module };
    use markup-translator;
    use template-files;
    use name-processing;

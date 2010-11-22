@@ -64,7 +64,7 @@ define method line-col-position-func (stream :: <positionable-stream>)
             let part-end = line-ends.size;
             while (part-start < part-end)
                let pivot = part-start + floor/(part-end - part-start, 2);
-               if (pos > line-ends[pivot])
+               if (pos >= line-ends[pivot])
                   part-start := pivot + 1
                else
                   part-end := pivot

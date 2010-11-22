@@ -415,22 +415,22 @@ end method;
 
 define method template-superclasses (binding :: <class-binding>)
 => (superclasses :: false-or(<sequence>))
-   if (binding.effective-cpl.size > 1)
-      copy-sequence(binding.effective-cpl, start: 1)
-   end if
+   let cpl = copy-sequence(binding.effective-cpl, start: 1);
+   let superclasses = choose(user-recognizable-class?, cpl);
+   ~superclasses.empty? & superclasses
 end method;
 
 
 define method template-subclasses (binding :: <class-binding>)
 => (subclasses :: false-or(<sequence>))
-   let subclasses = choose(should-have-topic?, binding.effective-subs);
+   let subclasses = choose(user-recognizable-class?, binding.effective-subs);
    ~subclasses.empty? & subclasses
 end method;
 
 
 define method template-functions-on-class (binding :: <class-binding>)
 => (functions :: false-or(<sequence>))
-   let functions = choose(should-have-topic?, binding.functions-on-class);
+   let functions = choose(exported-name?, binding.functions-on-class);
    unless (functions.empty?)
       sort(functions, test: sort-comparison-by-name)
    end unless
@@ -439,7 +439,7 @@ end method;
 
 define method template-functions-returning-class (binding :: <class-binding>)
 => (functions :: false-or(<sequence>))
-   let functions = choose(should-have-topic?, binding.functions-returning-class);
+   let functions = choose(exported-name?, binding.functions-returning-class);
    unless (functions.empty?)
       sort(functions, test: sort-comparison-by-name)
    end unless
@@ -448,11 +448,20 @@ end method;
 
 define method template-inheritable-getters (binding :: <class-binding>)
 => (functions :: false-or(<sequence>))
-   let functions = choose(should-have-topic?, binding.effective-slots);
+   let functions = choose(exported-name?, binding.effective-slots);
    unless (functions.empty?)
       sort(functions, test: sort-comparison-by-name)
    end unless
 end method;
+
+
+define function user-recognizable-class? (binding :: <class-binding>)
+=> (recognizable? :: <boolean>)
+   select (binding.provenance)
+      (#"definition", #"create-clause") => binding.exported-name?;
+      otherwise => #t;
+   end select
+end function;
 
 
 //

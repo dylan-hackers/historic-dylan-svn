@@ -16,5 +16,6 @@ define module dylan-translator
    use markup-rep,
       rename: { api-type => api-list-type, api-type-setter => api-list-type-setter};
    
-   export apis-from-dylan, $object-type;
+   export apis-from-dylan, $object-type, $dylan-library, $dylan-module,
+          $common-dylan-library, $common-dylan-module;
 end module;
