@@ -556,7 +556,7 @@ end method;
 
 define method html-content (em :: <emphasis>, target-info)
 => (html :: <string>)
-   entag("em", em.text, target-info)
+   entag("strong", em.text, target-info)
 end method;
 
 
