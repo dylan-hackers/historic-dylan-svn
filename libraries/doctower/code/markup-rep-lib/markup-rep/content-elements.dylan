@@ -29,7 +29,6 @@ Synopsis: List of elements corresponding to content-block grammar.
    marginal-verbatim-block - <pre>
    figure-ref-line      - <fig>
    ditto-ref-line       - <ditto-placeholder>
-   api-list-ref-line    - <api-list-placeholder>
    bracketed-raw-block  - <code-block> or <pre>
    table                - <simple-table>
    bullet-list          - <unordered-list>
@@ -40,8 +39,8 @@ Synopsis: List of elements corresponding to content-block grammar.
 **/
 define constant <content-seq> = limited(<stretchy-vector>,
    of: type-union(<code-block>, <pre>, <fig>, <ditto-placeholder>,
-                  <api-list-placeholder>, <simple-table>, <unordered-list>,
-                  <ordered-list>, <defn-list>, <paragraph>, singleton(#f)));
+                  <simple-table>, <unordered-list>, <ordered-list>, <defn-list>,
+                  <paragraph>, singleton(#f)));
 
 define method content-seq (#rest elements) => (seq :: <content-seq>)
    make-limited-seq(<content-seq>, elements)
@@ -152,16 +151,6 @@ end class;
 // Section/topic content placeholders
 //
 
-
-define class <api-list-placeholder> (<markup-element>)
-   slot api-type :: <symbol>, init-keyword: #"type";
-   slot qualified-scope-name :: false-or(<string>) = #f,
-      init-keyword: #"scope";
-      
-   // This is the list of matching APIs to be output. Each element is an <xref>
-   // to a <topic>. Filled in after topics are arranged.
-   slot api-xrefs :: <sequence> /* of <xref> */;
-end class;
 
 define class <ditto-placeholder> (<markup-element>)
    slot target :: type-union(<topic>, <target-placeholder>),

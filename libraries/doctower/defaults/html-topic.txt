@@ -58,7 +58,7 @@
     <div class="topic-content">
       <h1>{{topic.formatted-title !}}</h1>
 {{topic.formatted-shortdesc !}}
-{{topic.formatted-content !}}
+{{topic.main-body !}}
 {{topic.declarations-section !}}
 {{topic.syntax-section !}}
 {{topic.adjectives-section !}}

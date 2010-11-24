@@ -1,6 +1,11 @@
 module: topic-resolver
 
 
+//
+// Topic look-up information
+//
+
+
 define method resolution-info (topics :: <sequence>)
 => (target-resolutions :: <table>, duplicate-title-targets :: <table>)
 
@@ -190,4 +195,133 @@ define method section-parm-list (section :: false-or(<section>))
       let parm-lists = choose(rcurry(instance?, <parm-list>), section-content);
       ~parm-lists.empty? & parm-lists.first;
    end if
+end method;
+
+
+//
+// API catalogs
+//
+
+
+define method add-catalog-information (doc-tree :: <ordered-tree>)
+=> ()
+   for (topic keyed-by topic-key in doc-tree)
+      add-catalog-info-to-topic(topic, topic-key, doc-tree)
+   end for
+end method;
+
+
+define method add-catalog-info-to-topic
+   (topic, topic-key, doc-tree)
+=> ()
+end method;
+
+
+define method add-catalog-info-to-topic
+   (catalog :: <library-doc>, catalog-key, doc-tree)
+=> ()
+   catalog.api-xrefs := xrefs-for-catalog(doc-tree, #f, #[ #"module" ],
+         catalog.qualified-scope-name);
+end method;
+
+
+define method add-catalog-info-to-topic
+   (catalog :: <module-doc>, catalog-key, doc-tree)
+=> ()
+   catalog.api-xrefs := xrefs-for-catalog(doc-tree, #f,
+         #[ #"function", #"generic-function", #"class", #"variable",
+            #"constant", #"macro", #"unbound", #"placeholder" ],
+         catalog.qualified-scope-name);
+end method;
+
+
+define method add-catalog-info-to-topic
+   (catalog :: <catalog-topic>, catalog-key, doc-tree)
+=> ()
+   let catalog-type = regexp-matches(catalog.id, "^(:[A-Za-z]+)");
+   if (catalog-type)
+      let desired-topic-types =
+            select (catalog-type by case-insensitive-equal?)
+               (":Bindings", ":Others")
+                  => #[ #"function", #"generic-function", #"class", #"variable",
+                        #"constant", #"macro", #"unbound", #"placeholder" ];
+               ":Libraries" => #[ #"library" ];
+               ":Modules"   => #[ #"module" ];
+               ":Functions" => #[ #"function", #"generic-function" ];
+               ":Variables" => #[ #"variable", #"constant" ];
+               ":Classes"   => #[ #"class" ];
+               ":Macros"    => #[ #"macro" ];
+               ":Unbound"   => #[ #"unbound" ];
+            end select;
+      let parent-key =
+            if (case-insensitive-equal?(catalog-type, ":Others")) catalog-key end;
+      catalog.api-xrefs := xrefs-for-catalog(doc-tree, parent-key,
+            desired-topic-types, catalog.qualified-scope-name);
+   end if
+end method;
+
+
+define method xrefs-for-catalog
+   (doc-tree :: <ordered-tree>, catalog-key :: false-or(<ordered-tree-key>),
+    desired-topic-types :: <sequence>, desired-namespace :: false-or(<string>))
+=> (xrefs :: <sequence>)
+   let candidate-topic-keys =
+         if (catalog-key)
+            catalog-key.inf-key-sequence
+         else
+            remove(doc-tree.key-sequence, doc-tree.root-key,
+                   test: doc-tree.key-test, count: 1)
+         end if;
+            
+   local method combine-unique-titles
+            (titles-1 :: <sequence>, titles-2 :: <sequence>) /* of <title-seq> */
+         => (combined :: <sequence>)
+            union(titles-1, titles-2, test: \=)
+         end method,
+         
+         method in-desired-namespace? (candidate :: <string>) => (desired? :: <boolean>)
+            begins-with-string?(candidate, desired-namespace,
+                                string-test: case-insensitive-equal?)
+         end method;
+   
+   let found-topics = make(<stretchy-vector>) /* of (title, topic) pairs */;
+   for (topic-key in candidate-topic-keys)
+      let topic :: <topic> = doc-tree[topic-key];
+      if (member?(topic.topic-type, desired-topic-types))
+         // If an API is known in a namespace, it will have a title in that
+         // namespace. Take title(s) and note them with this topic.
+         let namespace-keys = topic.titles-in-namespace.key-sequence;
+         let matching-keys =
+               if (desired-namespace)
+                  choose(in-desired-namespace?, namespace-keys)
+               else
+                  namespace-keys
+               end if;
+         unless (matching-keys.empty?)
+            let matching-title-groups =
+                  map(curry(element, topic.titles-in-namespace), matching-keys);
+            let matching-titles =
+                  reduce(combine-unique-titles, make(<stretchy-vector>),
+                         matching-title-groups);
+            let topic-title-pairs = map(rcurry(pair, topic), matching-titles);
+            found-topics := concatenate!(found-topics, topic-title-pairs);
+         end unless
+      end if
+   end for;
+   
+   local method make-api-xref (title-topic :: <pair>) => (xref :: <xref>)
+            make(<xref>, source-location: $generated-source-location,
+                 target: title-topic.tail, text: title-topic.head);
+         end method,
+
+         method title-sorts-first?
+            (title-topic-1 :: <pair>, title-topic-2 :: <pair>)
+         => (t1-first? :: <boolean>)
+            let t1 :: <title-seq> = title-topic-1.head;
+            let t2 :: <title-seq> = title-topic-2.head;
+            t1.stringify-title < t2.stringify-title
+         end method;
+         
+   let sorted-topics = sort(found-topics, test: title-sorts-first?);
+   map(make-api-xref, sorted-topics);
 end method;

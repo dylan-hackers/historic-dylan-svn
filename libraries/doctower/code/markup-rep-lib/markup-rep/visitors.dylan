@@ -63,7 +63,7 @@ end slot-visitor;
 
 /// Generic function: visit-content-placeholders
 /// Synopsis: Visit a <topic> and its nested elements that can contain
-/// <api-list-placeholder> and <ditto-placeholder> objects.
+/// <ditto-placeholder> objects.
 ///
 /// Arguments:
 ///   element     - The <markup-element> or collection to visit.
@@ -96,7 +96,6 @@ define collection-recursive slot-visitor visit-content-placeholders
    <unordered-list>,       items;
    
    // Placeholders
-   <api-list-placeholder>  ;
    <ditto-placeholder>     ;
    
    // Cut recursion

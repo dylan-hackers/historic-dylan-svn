@@ -188,8 +188,8 @@ ___________
 
 content-block: 
    blank-lines / marginal-code-block / marginal-verbatim-block /
-   figure-ref-line / ditto-ref-line / api-list-ref-line / bracketed-raw-block /
-   table / bullet-list / numeric-list / hyphenated-list / phrase-list /
+   figure-ref-line / ditto-ref-line / bracketed-raw-block / table /
+   bullet-list / numeric-list / hyphenated-list / phrase-list /
    indented-content-directive / paragraph
 
 blank-lines:
@@ -212,9 +212,6 @@ scale-factor:
 
 ditto-ref-line:
    SOL [-SPC "DITTO" SPC-LS+ link-til-cls-brack SPC-] LS
-api-list-ref-line:
-   SOL [-SPC "LIST" SPC-LS+ "OF" SPC-LS+ api-list-spec-text
-   ( SPC-LS+ "IN" SPC-LS+ word-til-cls-brack )? SPC-] LS
 
 bracketed-raw-block:
    bracketed-raw-block-start-line
@@ -419,9 +416,6 @@ indented-content-directive-spec-text:
 
 null-directive-spec-text:
    "DISCUSSION"
-api-list-spec-text:
-   "FUNCTIONS" / "LIBRARIES" / "VARIABLES" / "BINDINGS" / "CLASSES" / "MODULES" / 
-   ( "UNBOUND" SPC+ "NAMES" ) / "MACROS"
 bracketed-raw-block-spec-text:
    "VERBATIM" / "DIAGRAM" / "EXAMPLE" / "CODE"
 bracketed-render-span-spec-text:

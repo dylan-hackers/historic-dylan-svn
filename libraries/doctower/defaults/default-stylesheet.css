@@ -211,7 +211,7 @@ p {}
 	font-style: italic;
 }
 
-.api-list {
+.catalog {
 	-webkit-column-count: 3;
 	-webkit-column-gap: 2em;
 	-moz-column-count: 3;

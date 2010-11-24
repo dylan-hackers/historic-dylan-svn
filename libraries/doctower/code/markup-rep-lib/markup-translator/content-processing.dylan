@@ -105,16 +105,6 @@ define method process-tokens
 end method;
 
 
-define method process-tokens
-   (seq :: type-union(<topic-content-seq>, <content-seq>),
-    token :: <api-list-ref-line-token>)
-=> ()
-   let scope-string = token.scope-word & token.scope-word.token-text;
-   add!(seq, make(<api-list-placeholder>, source-location: token.token-src-loc,
-                  type: token.list-type, scope: scope-string));
-end method;
-
-
 //
 // Tables
 //

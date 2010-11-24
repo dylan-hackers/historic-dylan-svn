@@ -34,6 +34,16 @@ define function item-string-list (items :: <collection>)
 end function;
 
 
+define function begins-with-string?
+   (big :: <string>, small :: <string>, #key string-test :: <function> = \=)
+=> (begins? :: <boolean>)
+   if (small.size <= big.size)
+      let maybe-small = copy-sequence(big, end: small.size);
+      string-test(maybe-small, small)
+   end if
+end function;
+
+
 /**
 Synopsis: Divides a collection into several collections, each containing related
 elements.

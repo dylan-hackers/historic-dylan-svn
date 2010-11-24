@@ -26,8 +26,6 @@ Exported under these names:
 Section: Bindings and Unbound Names             [:Bindings]
 -----------------------------------------------------------
 
-[LIST OF BINDINGS IN {{mod.scope-name}}]
-
 {{ IF mod.unknown-reexports +}}
 May export other bindings from these modules:
 

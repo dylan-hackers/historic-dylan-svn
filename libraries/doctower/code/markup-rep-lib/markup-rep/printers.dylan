@@ -280,10 +280,6 @@ define method print-object (o :: <target-placeholder>, s :: <stream>) => ()
    format(s, "{placeholder %=}", o.target)
 end method;
 
-define method print-object (o :: <api-list-placeholder>, s :: <stream>) => ()
-   format(s, "{api-list-placeholder (%s) id %=}", o.api-type, o.qualified-scope-name)
-end method;
-
 define method print-object
    (o :: type-union(<ordered-list>, <unordered-list>), s :: <stream>)
 => ()

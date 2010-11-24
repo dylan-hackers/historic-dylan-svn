@@ -288,22 +288,6 @@ define caching parser null-directive-spec-text
    rule discussion-lit;
 end;
 
-define caching parser api-list-spec-text :: <symbol>
-   rule choice(seq(nil(#f), functions-lit),
-               seq(nil(#f), libraries-lit),
-               seq(nil(#f), variables-lit), 
-               seq(nil(#f), bindings-lit),
-               seq(nil(#f), classes-lit),
-               seq(nil(#f), modules-lit), 
-               seq(unbound-lit, spaces, names-lit),
-               seq(nil(#f), macros-lit))
-      => token;
-   yield select (token[0])
-            #"unbound" => #"unbound-names";
-            otherwise => token[1];
-         end select;
-end;
-
 define caching parser bracketed-raw-block-spec-text :: <symbol>
    rule choice(verbatim-lit, diagram-lit, example-lit, code-lit) => token;
    yield token;

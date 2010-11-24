@@ -29,14 +29,14 @@ define module markup-parser
       <division-directive-token>, <indented-content-directive-token>,
       <marginal-code-block-token>, <marginal-verbatim-block-token>,
       <figure-ref-line-token>, <ditto-ref-line-token>,
-      <api-list-ref-line-token>, <bracketed-raw-block-token>, <table-token>,
-      <bullet-list-token>, <bullet-list-item-token>, <numeric-list-token>,
-      <numeric-list-item-token>, <hyphenated-list-token>,
-      <hyphenated-list-item-token>, <phrase-list-token>,
-      <phrase-list-item-token>, <paragraph-token>, <raw-line-token>,
-      <image-ref-token>, <line-marker-ref-token>, <footnote-ref-token>,
-      <synopsis-ref-token>, <quote-token>, <quote-spec-token>,
-      <text-word-token>, <link-word-token>, <bracketed-render-span-token>;
+      <bracketed-raw-block-token>, <table-token>, <bullet-list-token>,
+      <bullet-list-item-token>, <numeric-list-token>, <numeric-list-item-token>,
+      <hyphenated-list-token>, <hyphenated-list-item-token>,
+      <phrase-list-token>, <phrase-list-item-token>, <paragraph-token>,
+      <raw-line-token>, <image-ref-token>, <line-marker-ref-token>,
+      <footnote-ref-token>, <synopsis-ref-token>, <quote-token>,
+      <quote-spec-token>, <text-word-token>, <link-word-token>,
+      <bracketed-render-span-token>;
    
    export
       <topic-content-types>, <division-content-types>;
@@ -44,10 +44,10 @@ define module markup-parser
    export
       block-type, caption, close-quote, content, default-topic-content,
       directive-type, filename, index, item-label, link, links, list-start,
-      list-type, open-quote, ordinal, postquoted-text, prequoted-text,
-      quote-options, quote-spec, quoted-text, scale-factor, scale-type,
-      scope-word, section-nickname, section-title, text, title-content,
-      title-style, topic-nickname, topic-title, topic-type, topics, word;
+      open-quote, ordinal, postquoted-text, prequoted-text, quote-options,
+      quote-spec, quoted-text, scale-factor, scale-type, section-nickname,
+      section-title, text, title-content, title-style, topic-nickname,
+      topic-title, topic-type, topics, word;
    
    export
       <topic-level-style>;

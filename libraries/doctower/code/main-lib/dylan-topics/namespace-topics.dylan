@@ -4,14 +4,17 @@ synopsis: Code to generate library and module topics.
 
 define method make-source-topics (defn :: <library>) 
 => (topics :: <sequence>, catalog-topics :: <sequence>)
+   let fqn = defn.definition-qualified-name;
 
    // Create generated topic.
 
    let generated-topic = make(<library-doc>, source-location: defn.source-location,
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
-         qualified-name: defn.definition-qualified-name, existent-api: #t,
+         qualified-name: fqn, scope: fqn, existent-api: #t,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
+
+   make-alias-titles(generated-topic, defn);
 
    // Create body of generated topics.
    
@@ -25,7 +28,7 @@ define method make-source-topics (defn :: <library>)
    unless (defn.markup-tokens.empty?)
       let context-topic = make(<library-doc>, source-location: defn.source-location,
             id: defn.canonical-id, title: defn.canonical-title, generated: #f,
-            qualified-name: defn.definition-qualified-name, existent-api: #t,
+            qualified-name: fqn, scope: fqn, existent-api: #t,
             title-id-source-location: $generated-source-location,
             qualified-name-source-location: $generated-source-location);
       let authored-topics = make-authored-topics(defn.markup-tokens, context-topic);
@@ -38,6 +41,9 @@ define method make-source-topics (defn :: <library>)
       let file-topics = make-authored-topics(defn.file-markup-tokens, #f);
       topics := concatenate!(topics, file-topics);
    end when;
+   
+   // Set catalog topic scopes.
+   do(curry(qualified-scope-name-setter, fqn), catalog-topics);
 
    values(topics, catalog-topics)
 end method;
@@ -52,7 +58,7 @@ define method make-source-topics (defn :: <module>)
 
    let generated-topic = make(<module-doc>, source-location: defn.source-location,
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
-         qualified-name: fqn, namespace: namespace, existent-api: #t,
+         qualified-name: fqn, scope: fqn, namespace: namespace, existent-api: #t,
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
@@ -70,7 +76,7 @@ define method make-source-topics (defn :: <module>)
    unless (defn.markup-tokens.empty?)
       let context-topic = make(<module-doc>, source-location: defn.source-location,
             id: defn.canonical-id, title: defn.canonical-title, generated: #f,
-            qualified-name: fqn, namespace: namespace, existent-api: #t,
+            qualified-name: fqn, scope: fqn, namespace: namespace, existent-api: #t,
             title-id-source-location: $generated-source-location,
             qualified-name-source-location: $generated-source-location);
       let authored-topics = make-authored-topics(defn.markup-tokens, context-topic);
@@ -83,6 +89,9 @@ define method make-source-topics (defn :: <module>)
       let file-topics = make-authored-topics(defn.file-markup-tokens, #f);
       topics := concatenate!(topics, file-topics);
    end when;
+
+   // Set catalog topic scopes.
+   do(curry(qualified-scope-name-setter, fqn), catalog-topics);
 
    values(topics, catalog-topics)
 end method;

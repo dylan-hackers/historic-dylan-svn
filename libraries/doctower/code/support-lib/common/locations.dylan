@@ -2,7 +2,12 @@ module: common
 synopsis: Source location methods.
 
 
+define class <generated-source-location> (<source-location>)
+end class;
+
+
 define constant $unknown-source-location = make(<unknown-source-location>);
+define constant $generated-source-location = make(<generated-source-location>);
 
 
 define method merge-file-source-locations
@@ -68,4 +73,9 @@ end method;
 define method print-message (o :: <unknown-source-location>, s :: <stream>)
 => ()
    write(s, "unspecified location")
+end method;
+
+define method print-message (o :: <generated-source-location>, s :: <stream>)
+=> ()
+   write(s, "automatically-generated documentation")
 end method;

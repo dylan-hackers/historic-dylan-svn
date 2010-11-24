@@ -20,7 +20,6 @@ define constant <division-content-types> =
                  <marginal-verbatim-block-token>,
                  <figure-ref-line-token>,
                  <ditto-ref-line-token>,
-                 <api-list-ref-line-token>,
                  <bracketed-raw-block-token>,
                  <table-token>,
                  <bullet-list-token>,

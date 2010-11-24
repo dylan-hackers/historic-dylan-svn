@@ -25,7 +25,6 @@ define method arrange-topics (topics :: <sequence>, tocs :: <sequence>)
                               topics.free-arrangements,
                               topics.generic-function-arrangement,
                               topics.parent-directive-arrangement);
-   // log-object("Topic trees", trees);
    
    // Combine topics that are == in different trees into one tree. Topics are
    // == if a topic reference leading to a parent/child relationship was
@@ -158,7 +157,10 @@ define method default-parent-ids (topic :: <class-doc>)
            format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Classes",
            ":Bindings",
-           mod-name.qualified-name-as-id)
+           format-to-string(":Others(%s)", mod-name).standardize-id,
+           format-to-string(":Others(%s)", lib-name).standardize-id,
+           mod-name.qualified-name-as-id,
+           ":Others")
    else
       #()
    end if
@@ -175,7 +177,10 @@ define method default-parent-ids (topic :: <variable-doc>)
            format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Variables",
            ":Bindings",
-           mod-name.qualified-name-as-id)
+           format-to-string(":Others(%s)", mod-name).standardize-id,
+           format-to-string(":Others(%s)", lib-name).standardize-id,
+           mod-name.qualified-name-as-id,
+           ":Others")
    else
       #()
    end if
@@ -192,7 +197,10 @@ define method default-parent-ids (topic :: <function-doc>)
            format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Functions",
            ":Bindings",
-           mod-name.qualified-name-as-id)
+           format-to-string(":Others(%s)", mod-name).standardize-id,
+           format-to-string(":Others(%s)", lib-name).standardize-id,
+           mod-name.qualified-name-as-id,
+           ":Others")
    else
       #()
    end if
@@ -209,7 +217,10 @@ define method default-parent-ids (topic :: <macro-doc>)
            format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Macros",
            ":Bindings",
-           mod-name.qualified-name-as-id)
+           format-to-string(":Others(%s)", mod-name).standardize-id,
+           format-to-string(":Others(%s)", lib-name).standardize-id,
+           mod-name.qualified-name-as-id,
+           ":Others")
    else
       #()
    end if
@@ -226,7 +237,10 @@ define method default-parent-ids (topic :: <unbound-doc>)
            format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Unbound",
            ":Bindings",
-           mod-name.qualified-name-as-id)
+           format-to-string(":Others(%s)", mod-name).standardize-id,
+           format-to-string(":Others(%s)", lib-name).standardize-id,
+           mod-name.qualified-name-as-id,
+           ":Others")
    else
       #()
    end if
@@ -240,7 +254,10 @@ define method default-parent-ids (topic :: <placeholder-doc>)
       list(format-to-string(":Bindings(%s)", mod-name).standardize-id,
            format-to-string(":Bindings(%s)", lib-name).standardize-id,
            ":Bindings",
-           mod-name.qualified-name-as-id)
+           format-to-string(":Others(%s)", mod-name).standardize-id,
+           format-to-string(":Others(%s)", lib-name).standardize-id,
+           mod-name.qualified-name-as-id,
+           ":Others")
    else
       #()
    end if

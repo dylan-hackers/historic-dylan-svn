@@ -4,25 +4,27 @@ Topic: '{{mod.name}}' [api] Bindings and Unbound Names          [:Bindings({{mod
 
 The '{{mod.name}}' [api] module includes these bindings and unbound names:
 
-[LIST OF BINDINGS IN {{mod.scope-name}}]
+
+=============================================================================================
+Topic: Other '{{mod.name}}' [api] Bindings and Unbound Names    [:Others({{mod.scope-name}})]
+=============================================================================================
+
+The '{{mod.name}}' [api] module includes these bindings and unbound names not
+listed elsewhere:
 
 
-==============================================================================
-Topic: '{{mod.name}}' [api] Classes             [:Classes({{mod.scope-name}})]
-==============================================================================
+==============================================================================================
+Topic: '{{mod.name}}' [api] Classes                             [:Classes({{mod.scope-name}})]
+==============================================================================================
 
 The '{{mod.name}}' [api] module includes these classes:
 
-[LIST OF CLASSES IN {{mod.scope-name}}]
 
-
-================================================================================
-Topic: '{{mod.name}}' [api] Functions           [:Functions({{mod.scope-name}})]
-================================================================================
+================================================================================================
+Topic: '{{mod.name}}' [api] Functions                           [:Functions({{mod.scope-name}})]
+================================================================================================
 
 The '{{mod.name}}' [api] module includes these generic functions and methods:
-
-[LIST OF FUNCTIONS IN {{mod.scope-name}}]
 
 
 ================================================================================================
@@ -31,22 +33,16 @@ Topic: '{{mod.name}}' [api] Constants and Variables             [:Variables({{mo
 
 The '{{mod.name}}' [api] module includes these constants and variables:
 
-[LIST OF VARIABLES IN {{mod.scope-name}}]
 
-
-=============================================================================
-Topic: '{{mod.name}}' [api] Macros              [:Macros({{mod.scope-name}})]
-=============================================================================
+=============================================================================================
+Topic: '{{mod.name}}' [api] Macros                              [:Macros({{mod.scope-name}})]
+=============================================================================================
 
 The '{{mod.name}}' [api] module includes these macros:
 
-[LIST OF MACROS IN {{mod.scope-name}}]
 
-
-==============================================================================
-Topic: '{{mod.name}}' [api] Unbound Names       [:Unbound({{mod.scope-name}})]
-==============================================================================
+==============================================================================================
+Topic: '{{mod.name}}' [api] Unbound Names                       [:Unbound({{mod.scope-name}})]
+==============================================================================================
 
 The '{{mod.name}}' [api] module includes these unbound names:
-
-[LIST OF UNBOUND NAMES IN {{mod.scope-name}}]

@@ -16,10 +16,9 @@ define constant <raw-line-sequence> = <sequence>;
 // #"blank-lines" counts as #f
 define caching parser content-block :: false-or(<division-content-types>)
    rule choice(blank-lines, marginal-code-block, marginal-verbatim-block,
-               figure-ref-line, ditto-ref-line, api-list-ref-line,
-               bracketed-raw-block, table, bullet-list, numeric-list,
-               hyphenated-list, phrase-list, indented-content-directive,
-               paragraph)
+               figure-ref-line, ditto-ref-line, bracketed-raw-block, table,
+               bullet-list, numeric-list, hyphenated-list, phrase-list,
+               indented-content-directive, paragraph)
       => token;
    yield (token ~= #"blank-lines") & token;
 end;
@@ -89,19 +88,6 @@ define caching parser ditto-ref-line (<source-location-token>)
             spc-cls-brack, ls)
       => tokens;
    slot link :: <link-word-token> = tokens[4];
-afterwards (context, tokens, value, start-pos, end-pos)
-   note-source-location(context, value)
-end;
-
-// exported
-define caching parser api-list-ref-line (<source-location-token>)
-   rule seq(sol, opn-brack-spc,
-            list-lit, many-spc-ls, of-lit, many-spc-ls, api-list-spec-text,
-            opt-seq(many-spc-ls, in-lit, many-spc-ls, word-til-cls-brack),
-            spc-cls-brack, ls)
-      => tokens;
-   slot list-type :: <symbol> = tokens[6];
-   slot scope-word :: false-or(<text-word-token>) = tokens[7] & tokens[7][3];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;

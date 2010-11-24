@@ -179,6 +179,7 @@ Topic IDs:
   "All Variables"     - :Variables
   "All Macros"        - :Macros
   "All Unbound Names" - :Unbound
+  "Other Bindings"    - :Others
   Library catalogs    - :Modules(Dylan), :Bindings(Dylan), etc.
   Module catalogs     - :Bindings(Dylan:Dylan), :Classes(Dylan:Dylan), etc.
 

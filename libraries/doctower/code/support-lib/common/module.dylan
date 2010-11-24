@@ -14,8 +14,10 @@ define module common
    export *verbose?*, verbose-log, log, log-object;
    export with-file-error-handlers, with-open-file;
    export read-expected, read-lines-to-end, delete-directory;
-   export merge-file-source-locations, $unknown-source-location;
+   export merge-file-source-locations, $unknown-source-location,
+          $generated-source-location;
    export item-string-list, group-elements, any-element;
    export add-row;
-   export <case-insensitive-skip-list>, case-insensitive-less?;
+   export <case-insensitive-skip-list>;
+   export begins-with-string?, case-insensitive-less?;
 end module;   

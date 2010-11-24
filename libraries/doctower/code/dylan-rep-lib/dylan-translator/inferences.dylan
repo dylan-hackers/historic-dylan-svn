@@ -214,7 +214,7 @@ end method;
 
 define method unprefixed-name (name :: <string>, prefix :: false-or(<string>))
 => (name :: false-or(<string>))
-   if (prefix)
+   if (prefix & prefix.size < name.size)
       let maybe-prefix = copy-sequence(name, end: prefix.size);
       if (case-insensitive-equal?(maybe-prefix, prefix))
          copy-sequence(name, start: prefix.size)

@@ -12,8 +12,6 @@ Declared in {{lib.declaration.filename}} line {{lib.declaration.line}}.
 Section: Modules                [:Modules]
 ------------------------------------------
 
-[LIST OF MODULES IN {{lib.scope-name}}]
-
 {{ IF lib.unknown-reexports +}}
 May export other modules from these libraries:
 

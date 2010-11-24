@@ -34,9 +34,8 @@ Synopsis: List of elements corresponding to topic-content grammar.
 **/
 define constant <topic-content-seq> = limited(<stretchy-vector>,
       of: type-union(<code-block>, <pre>, <fig>, <ditto-placeholder>,
-                     <api-list-placeholder>, <simple-table>, <unordered-list>,
-                     <ordered-list>, <defn-list>, <paragraph>, <note>, <section>,
-                     <footnote>, singleton(#f)));
+                     <simple-table>, <unordered-list>, <ordered-list>, <defn-list>,
+                     <paragraph>, <note>, <section>, <footnote>, singleton(#f)));
 
 define method topic-content-seq (#rest elements) => (seq :: <topic-content-seq>)
    make-limited-seq(<topic-content-seq>, elements)
@@ -121,6 +120,12 @@ define class <ref-topic> (<topic>)
 end class;
 
 define class <catalog-topic> (<ref-topic>)
+   slot qualified-scope-name :: false-or(<string>) = #f, init-keyword: #"scope";
+
+   // This is the list of matching APIs to list in the topic. Each element is an
+   // <xref> to a <topic>. Filled in after topics are arranged.
+   slot api-xrefs :: <sequence> /* of <xref> */;
+
    keyword topic-type: = #"catalog";
 end class;
 
@@ -153,12 +158,12 @@ define class <api-doc> (<ref-topic>)
    slot declarations-section :: false-or(<section>) = #f;
 end class;
 
-define class <library-doc> (<api-doc>)
+define class <library-doc> (<api-doc>, <catalog-topic>)
    slot modules-section :: false-or(<section>) = #f;
    keyword topic-type: = #"library";
 end class;
 
-define class <module-doc> (<api-doc>)
+define class <module-doc> (<api-doc>, <catalog-topic>)
    slot bindings-section :: false-or(<section>) = #f;
    keyword topic-type: = #"module";
 end class;

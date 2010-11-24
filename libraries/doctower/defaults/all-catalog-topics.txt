@@ -1,70 +1,62 @@
-============================================
-Topic: Library Reference        [:Libraries]
-============================================
+====================================================================
+Topic: Libraries Reference                              [:Libraries]
+====================================================================
 
 This package includes the following libraries:
 
-[LIST OF LIBRARIES]
 
-
-==========================================
-Topic: Module Reference         [:Modules]
-==========================================
+==================================================================
+Topic: Modules Reference                                [:Modules]
+==================================================================
 
 This package includes the following modules:
 
-[LIST OF MODULES]
 
-
-===========================================================
-Topic: Bindings and Unbound Names Reference     [:Bindings]
-===========================================================
+===================================================================
+Topic: Bindings and Unbound Names Reference             [:Bindings]
+===================================================================
 
 This package includes the following bindings and unbound names:
 
-[LIST OF BINDINGS]
+
+=================================================================
+Topic: Other Bindings and Unbound Names Reference       [:Others]
+=================================================================
+
+This package includes the following bindings and unbound names not listed
+elsewhere:
 
 
-==========================================
-Topic: Classes Reference        [:Classes]
-==========================================
+==================================================================
+Topic: Classes Reference                                [:Classes]
+==================================================================
 
 This package includes the following classes:
 
-[LIST OF CLASSES]
 
-
-============================================
-Topic: Functions Reference      [:Functions]
-============================================
+====================================================================
+Topic: Functions Reference                              [:Functions]
+====================================================================
 
 This package includes the following generic functions and methods:
 
-[LIST OF FUNCTIONS]
 
-
-============================================================
-Topic: Constants and Variables Reference        [:Variables]
-============================================================
+====================================================================
+Topic: Constants and Variables Reference                [:Variables]
+====================================================================
 
 This package includes the following constants and variables:
 
-[LIST OF VARIABLES]
 
-
-=========================================
-Topic: Macros Reference         [:Macros]
-=========================================
+=================================================================
+Topic: Macros Reference                                 [:Macros]
+=================================================================
 
 This package includes the following macros:
 
-[LIST OF MACROS]
 
-
-==================================================
-Topic: Unbound Names Reference          [:Unbound]
-==================================================
+==================================================================
+Topic: Unbound Names Reference                          [:Unbound]
+==================================================================
 
 This package includes the following unbound names:
-
-[LIST OF UNBOUND NAMES]

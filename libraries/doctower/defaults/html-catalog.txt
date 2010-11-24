@@ -1,0 +1,7 @@
+      <div class="catalog">
+      <ul>
+        {{repeat with item in items}}
+        <li>{{item !}}</li>
+        {{end}}
+      </ul>
+      </div>

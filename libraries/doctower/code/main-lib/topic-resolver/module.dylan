@@ -12,5 +12,5 @@ define module topic-resolver
    export
       group-mergeable-topics, check-and-merge-topics,
       resolution-info, resolve-target-placeholders, replace-content-placeholders,
-      arrange-topics;
+      arrange-topics, add-catalog-information;
 end module;

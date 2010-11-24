@@ -327,9 +327,6 @@ end method;
 
 define method print-object (o :: <ditto-ref-line-token>, s :: <stream>) => ()
 end method;
-
-define method print-object (o :: <api-list-ref-line-token>, s :: <stream>) => ()
-end method;
 */
 
 define method print-object (o :: <bracketed-raw-block-token>, s :: <stream>) => ()

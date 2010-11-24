@@ -7,8 +7,8 @@ define constant $html-templates = #[
    #"html-toc-recursion",
    #"html-topic",
    #"html-section",
+   #"html-catalog",
    #"html-unordered-list",
-   #"html-api-list",
    #"html-defn-list"
 ];
 
@@ -313,9 +313,9 @@ define method write-output-file
                method (topic :: <topic>) => (html :: <string>)
                   html-content(topic.shortdesc | "", target-info)
                end method,
-         "formatted-content" =>
+         "main-body" =>
                method (topic :: <topic>) => (html :: <string>)
-                  html-content(topic.content, target-info)
+                  html-main-body(topic, target-info)
                end method,
          "declarations-section" =>
                rcurry(html-section, declarations-section, target-info),
@@ -364,14 +364,44 @@ define method write-output-file
 end method;
 
 
+define method html-catalog-content (topic :: <catalog-topic>, target-info)
+=> (html :: <string>)
+   let api-refs = map(rcurry(html-content, target-info), topic.api-xrefs);
+   if (api-refs.empty?)
+      ""
+   else
+      let vars = table(<case-insensitive-string-table>, "items" => api-refs);
+      text-from-template(#"html-catalog", variables: vars)
+   end if
+end method;
+
+
+define method html-main-body (topic :: <topic>, target-info)
+=> (html :: <string>)
+   html-content(topic.content, target-info)
+end method;
+
+
+define method html-main-body (topic :: <catalog-topic>, target-info)
+=> (html :: <string>)
+   if (topic.topic-type = #"catalog")
+      concatenate(next-method(), html-catalog-content(topic, target-info))
+   else
+      next-method()
+   end if
+end method;
+
+
 define method html-section
-   (topic :: <topic>, accessor :: <function>, target-info)
+   (topic :: <topic>, accessor :: <function>, target-info,
+    #key prepend :: <string> = "")
 => (html :: <string>)
    let html = 
          if (applicable-method?(accessor, topic))
             let sect :: false-or(<section>) = topic.accessor;
-            if (sect & ~sect.content.empty?)
-               let section-content = html-content(sect.content, target-info);
+            if (sect)
+               let section-content =
+                     concatenate(prepend, html-content(sect.content, target-info));
                if (~section-content.empty?)
                   let vars = table(<case-insensitive-string-table>,
                         "id" =>
@@ -386,6 +416,22 @@ define method html-section
             end if
          end if;
    html | ""
+end method;
+
+
+define method html-section
+   (topic :: <library-doc>, accessor == modules-section, target-info, #key)
+=> (html :: <string>)
+   next-method(topic, accessor, target-info,
+         prepend: html-catalog-content(topic, target-info))
+end method;
+
+
+define method html-section
+   (topic :: <module-doc>, accessor == bindings-section, target-info, #key)
+=> (html :: <string>)
+   next-method(topic, accessor, target-info,
+         prepend: html-catalog-content(topic, target-info))
 end method;
 
 
@@ -447,18 +493,6 @@ define method html-content (conref :: <conref>, target-info)
       html-content(conref.target.title, target-info)
    else
       html-content(conref.target.shortdesc, target-info)
-   end if
-end method;
-
-
-define method html-content (api-list :: <api-list-placeholder>, target-info)
-=> (html :: <string>)
-   let api-refs = map(rcurry(html-content, target-info), api-list.api-xrefs);
-   if (api-refs.empty?)
-      ""
-   else
-      let vars = table(<case-insensitive-string-table>, "items" => api-refs);
-      text-from-template(#"html-api-list", variables: vars)
    end if
 end method;
 

@@ -434,15 +434,6 @@ text
   strictly for the purposes of escaping spaces; the quote options cannot be
   used.
   
-[LIST OF LIBRARIES|MODULES|BINDINGS|CLASSES|FUNCTIONS|VARIABLES|MACROS|
-UNBOUND NAMES]
-  Shows all libraries, modules, etc.
-
-[LIST OF MODULES|BINDINGS|CLASSES|FUNCTIONS|VARIABLES|MACROS|
-UNBOUND NAMES IN name]
-  As above, but the list is restricted to the modules, classes, etc., in the
-  given fully qualified name, which must be a library or module.
-  
 [DITTO topic|"title"]
   Make identical to another topic as much as possible. The quotation here is
   strictly for the purposes of escaping spaces; the quote options cannot be
@@ -453,3 +444,17 @@ UNBOUND NAMES IN name]
   
 ...[DITA] dita markup [END DITA?]...
   DITA markup is rendered exactly. Only applies to DITA output.
+
+
+Table of Contents Files
+=======================
+
+A table of contents file follows a simple format. Each line refers to a topic by
+title or tag, and indicates its depth in the hierarchy using one or more
+hyphens.
+
+  - Topic 1
+  -- Topic 1.1
+  -- Topic 1.2
+  --- Topic 1.2.1
+  - Topic 2

@@ -191,6 +191,13 @@ define method exported-name? (name :: type-union(<module-name>, <binding-name>))
 end method;
 
 
+// TODO: Make a global-name? function that works like exported-name? but also
+// lists names that originate from a foreign library. This will include Dylan
+// and Common-Dylan, so remove those special cases from exported-name? and
+// should-have-topic?(<namespace>). Use this function to generate the exports
+// section, but not when generating API lists.
+
+
 define method predefined-and-renamed? (defn :: <definition>)
 => (pre-and-re? :: <boolean>)
    if (defn.provenance = #"predefined")
@@ -222,20 +229,4 @@ define method make-authored-topics
    // If several markup tokens attach to the same context topic, the context
    // topic will be duplicated. This is unnecessary, so clear out duplicates.
    topics.remove-duplicates!
-end method;
-
-
-//
-// Source location for automatically-generated topics
-//
-
-
-define class <generated-source-location> (<source-location>)
-end class;
-
-define constant $generated-source-location = make(<generated-source-location>);
-
-define method print-message (o :: <generated-source-location>, s :: <stream>)
-=> ()
-   write(s, "automatically-generated documentation location")
 end method;

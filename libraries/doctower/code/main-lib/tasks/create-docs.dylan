@@ -47,7 +47,7 @@ define method create-doc-tree
    let doc-tree = arrange-topics(topics, tocs);
    
    // Create API lists.
-   replace-content-placeholders(doc-tree);
+   add-catalog-information(doc-tree);
    
    // Finalize table of contents.
    // TODO: I think this means creating the general index and other structural pages.

@@ -105,7 +105,7 @@ define constant $template-ops = table(<case-insensitive-string-table>,
             .id .name .scope-name .declaration .source .exports
       "unbound" => <empty-binding>
             .id .name .scope-name .declaration .source .exports
-      "placeholder" => <empty-binding>
+      "placeholder" => <placeholder-binding>
             .id .name .scope-name .declaration .source .exports
       */    
 
