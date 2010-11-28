@@ -1,5 +1,5 @@
-      <div class=".section">
-        <a name="{{id}}" />
+      <div class="section">
+        <a id="{{id}}" />
         <h2>{{formatted-title !}}</h2>
 {{content !}}
       </div>

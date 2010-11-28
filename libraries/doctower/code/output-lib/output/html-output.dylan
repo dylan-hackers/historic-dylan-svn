@@ -101,9 +101,9 @@ define method target-link-info
    let target-info = make(<table>);
    for (topic in doc-tree)
       unless (~topic) // Root of doc-tree is #f
-         let filename = as(<string>, file-info[topic].locator);
          visit-targets(topic, add-html-link-info, target-info: target-info,
-               current-topic: topic, fallback-ids: fallback-ids, filename: filename)
+               current-topic: topic, fallback-ids: fallback-ids,
+               output-file: file-info[topic])
       end unless
    end for;
    target-info
@@ -112,7 +112,7 @@ end method;
 
 define method add-html-link-info
    (object :: <object>,
-    #key setter, visited, target-info, current-topic, fallback-ids, filename)
+    #key setter, visited, target-info, current-topic, fallback-ids, output-file)
 => (visit-slots? :: <boolean>)
    #t
 end method;
@@ -120,28 +120,35 @@ end method;
 
 define method add-html-link-info
    (topic :: <topic>,
-    #key setter, visited, target-info, current-topic, fallback-ids, filename)
+    #key setter, visited, target-info, current-topic, fallback-ids, output-file)
 => (visit-slots? :: <boolean>)
-   let target-id = topic.id | fallback-ids[topic];
+   let raw-target-id = topic.id | fallback-ids[topic];
+   let raw-title-id = ":Title";
+   let target-id = raw-target-id.sanitized-id;
+   let title-id = raw-title-id.sanitized-id;
+   let filename = output-file.locator.sanitized-url-path;
    let target-href = format-to-string("%s#%s", filename, target-id);
-   let title-href = format-to-string("%s#:Title", filename);
+   let title-href = format-to-string("%s#%s", filename, title-id);
    target-info[topic] := make(<topic-target>,
          id: target-id, href: target-href,
-         title-id: ":Title", title-href: title-href);
+         title-id: title-id, title-href: title-href);
    #t
 end method;
 
 
 define method add-html-link-info
    (sect :: <section>,
-    #key setter, visited, target-info, current-topic, fallback-ids, filename)
+    #key setter, visited, target-info, current-topic, fallback-ids, output-file)
 => (visit-slots? :: <boolean>)
-   let topic-id = current-topic.id | fallback-ids[current-topic];
-   let section-id = sect.id | fallback-ids[sect];
-   let target-id = format-to-string("%s/%s", topic-id, section-id);
-   let title-id = format-to-string(":Title(%s)", target-id);
+   let raw-topic-id = current-topic.id | fallback-ids[current-topic];
+   let raw-section-id = sect.id | fallback-ids[sect];
+   let raw-target-id = format-to-string("%s/%s", raw-topic-id, raw-section-id);
+   let raw-title-id = format-to-string(":Title(%s)", raw-target-id);
+   let target-id = raw-target-id.sanitized-id;
+   let title-id = raw-title-id.sanitized-id;
+   let filename = output-file.locator.sanitized-url-path;
    let target-href = format-to-string("%s#%s", filename, target-id);
-   let title-href = format-to-string("%s#%s", filename, target-id);
+   let title-href = format-to-string("%s#%s", filename, title-id);
    target-info[sect] := make(<topic-target>,
          id: target-id, href: target-href,
          title-id: title-id, title-href: title-href);
@@ -151,10 +158,12 @@ end method;
 
 define method add-html-link-info
    (content :: type-union(<footnote>, <ph-marker>),
-    #key setter, visited, target-info, current-topic, fallback-ids, filename)
+    #key setter, visited, target-info, current-topic, fallback-ids, output-file)
 => (visit-slots? :: <boolean>)
-   let topic-id = current-topic.id | fallback-ids[current-topic];
-   let target-id = format-to-string("%s/%s", topic-id, fallback-ids[content]);
+   let raw-topic-id = current-topic.id | fallback-ids[current-topic];
+   let raw-target-id = format-to-string("%s/%s", raw-topic-id, fallback-ids[content]);
+   let target-id = raw-target-id.sanitized-id;
+   let filename = output-file.locator.sanitized-url-path;
    let target-href = format-to-string("%s#%s", filename, target-id);
    let info-class =
          select (content by instance?)
@@ -171,7 +180,8 @@ define method write-output-file
     link-map :: <table>, target-info :: <table>, special-file-info :: <table>)
 => ()
    let var-table = table(<case-insensitive-string-table>,
-         "destination" => file-info.destination.locator);
+         "destination" => file-info.destination.locator.sanitized-url-path
+         );
    output-from-template(#"html-redirect", file-info, variables: var-table);
 end method;
 
@@ -181,9 +191,9 @@ define method write-output-file
     link-map :: <table>, target-info :: <table>, special-file-info :: <table>)
 => ()
    let var-table = table(<case-insensitive-string-table>,
-         "css-file" => special-file-info[#"css"].locator,
-         "home-file" => special-file-info[#"home"].locator,
-         "index-file" => special-file-info[#"index"].locator,
+         "css-file" => special-file-info[#"css"].locator.sanitized-url-path,
+         "home-file" => special-file-info[#"home"].locator.sanitized-url-path,
+         "index-file" => special-file-info[#"index"].locator.sanitized-url-path,
          "package-title" => *package-title*,
          "root-topics" => file-info.tree.root-key.inf-key-sequence
          );
@@ -250,11 +260,11 @@ define method write-output-file
     link-map :: <table>, target-info :: <table>, special-file-info :: <table>)
 => ()
    let var-table = table(<case-insensitive-string-table>,
-         "css-file" => special-file-info[#"css"].locator,
-         "home-file" => special-file-info[#"home"].locator,
-         "toc-file" => special-file-info[#"toc"].locator,
-         "index-file" => special-file-info[#"index"].locator,
-         "topic-file" => file-info.locator,
+         "css-file" => special-file-info[#"css"].locator.sanitized-url-path,
+         "home-file" => special-file-info[#"home"].locator.sanitized-url-path,
+         "toc-file" => special-file-info[#"toc"].locator.sanitized-url-path,
+         "index-file" => special-file-info[#"index"].locator.sanitized-url-path,
+         "topic-file" => file-info.locator.sanitized-url-path,
          "package-title" => *package-title*,
          "topic" => file-info.topic
          );
@@ -438,7 +448,7 @@ end method;
 define method html-content (obj :: <object>, target-info)
 => (html :: <string>)
    /**/
-   format-to-string("%=", obj).xml-sanitizer;
+   format-to-string("%=", obj).sanitized-xml;
 end method;
 
 
@@ -451,13 +461,13 @@ end method;
 
 define method html-content (str :: <string>, target-info)
 => (html :: <string>)
-   xml-sanitizer(str)
+   sanitized-xml(str)
 end method;
 
 
 define method html-content (char :: <character>, target-info)
 => (html :: <string>)
-   xml-sanitizer(as(<string>, char))
+   sanitized-xml(as(<string>, char))
 end method;
 
 
@@ -466,19 +476,19 @@ define method html-content (xref :: <xref>, target-info)
    let title = html-content(xref.text, target-info);
    select (xref.target by instance?)
       <url> =>
-         let href = as(<string>, xref.target).xml-sanitizer;
+         let href = as(<string>, xref.target).sanitized-xml;
          format-to-string("<a href=\"%s\">%s</a>", href, title);
       <topic> =>
-         let href = target-info[xref.target].target-href.xml-sanitizer;
+         let href = target-info[xref.target].target-href.sanitized-xml;
          let desc =
                if (xref.target.shortdesc)
-                  xref.target.shortdesc.content.stringify-markup.xml-sanitizer
+                  xref.target.shortdesc.content.stringify-markup.sanitized-xml
                else
                   ""
                end if;
          format-to-string("<a href=\"../%s\" title=\"%s\">%s</a>", href, desc, title);
       <section> =>
-         let href = target-info[xref.target].target-href.xml-sanitizer;
+         let href = target-info[xref.target].target-href.sanitized-xml;
          format-to-string("<a href=\"../%s\">%s</a>", href, title);
       otherwise =>
          // TODO: Xref output for footnotes and ph-markers.
@@ -602,7 +612,7 @@ end method;
 
 define method enspan (span-class :: <string>, content, target-info)
 => (html :: <string>)
-   concatenate("<span class=\"", span-class.xml-sanitizer, "\"",
+   concatenate("<span class=\"", span-class.sanitized-xml, "\"",
          html-content(content, target-info),
          "</span>")
 end method;

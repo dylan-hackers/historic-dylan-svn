@@ -65,7 +65,7 @@ define method create-output-files (doc-tree :: <ordered-tree>) => ()
       let output-type-name = as(<string>, output-type).as-uppercase;
       
       verbose-log("Reading %s templates", output-type-name);
-      create-templates(output-type.output-templates, sanitizer: xml-sanitizer);
+      create-templates(output-type.output-templates, sanitizer: sanitized-xml);
       
       verbose-log("Generating %s documentation files", output-type-name);
       let (topic-output-files, special-output-files, output-files)

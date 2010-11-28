@@ -27,7 +27,7 @@
         {{repeat with topic in root-topics}}
         <li>
           <a href="../{{topic.href}}"
-             name="{{topic.id}}"
+             id="{{topic.id}}"
              title="{{topic.shortdesc}}">
             {{topic.title}}
           </a>

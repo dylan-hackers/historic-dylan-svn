@@ -7,5 +7,6 @@ define library output-library
    use template-engine;
    use system;
    use transcendental;
+   use string-extensions;
    export output;
 end library;

@@ -2,9 +2,8 @@
             <ul>
               {{repeat with child in children}}
               <li>
-                <a anchor="{{child.id}}" />
                 <a href="../{{child.href}}"
-                   name="{{child.id}}"
+                   id="{{child.id}}"
                    title="{{child.shortdesc}}">
                   {{child.title}}
                 </a>

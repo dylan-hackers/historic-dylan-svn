@@ -31,6 +31,9 @@ will be the same as 'target-href'.
 The '<topic-target>' and '<section-target>' classes have additional keywords:
 'title-href' and 'title-id'. These work like the 'target-href' and 'target-id'
 keywords except that they are only used in DITA title conrefs.
+
+The IDs and the ID part of the HREFs are constructed as namespace-compatible
+XML IDs.
 */
 
 define abstract class <target> (<object>)
@@ -233,7 +236,7 @@ end method;
 
 define method as-filename-part (string :: <string>) => (filename-part :: <string>)
    let string = string.copy-sequence;
-   let bad-chars = vector(' ', '\\', '#', '?', file-system-separator());
+   let bad-chars = vector(' ', '\\', '?', file-system-separator());
    replace-elements!(string, rcurry(member?, bad-chars), always('_'));
    string
 end method;
@@ -274,18 +277,80 @@ define method output-from-template
 end method;
 
 
-define method xml-sanitizer (raw :: <string>) => (sanitized :: <string>)
+/**
+Synopsis: Ensures text does not contain XML reserved characters.
+**/
+define method sanitized-xml (raw :: <string>) => (sanitized :: <string>)
    let sanitized = make(<stretchy-vector>);
    for (c in raw)
-      select (c)
-         '&' =>   sanitized := concatenate!(sanitized, "&amp;");
-         '<' =>   sanitized := concatenate!(sanitized, "&lt;");
-         '>' =>   sanitized := concatenate!(sanitized, "&gt;");
-         '\'' =>  sanitized := concatenate!(sanitized, "&apos;");
-         '"' =>   sanitized := concatenate!(sanitized, "&quot;");
-         otherwise =>
-            sanitized := add!(sanitized, c);
-      end select;
+      sanitized :=
+            select (c)
+               '&' =>   concatenate!(sanitized, "&amp;");
+               '<' =>   concatenate!(sanitized, "&lt;");
+               '>' =>   concatenate!(sanitized, "&gt;");
+               '\'' =>  concatenate!(sanitized, "&apos;");
+               '"' =>   concatenate!(sanitized, "&quot;");
+               otherwise => add!(sanitized, c);
+            end select;
    end for;
    as(<string>, sanitized)
+end method;
+
+
+/**
+Synopsis: Ensures an ID is valid for use as an XML ID. Such IDs are also valid
+URL components.
+**/
+define method sanitized-id (id :: <string>) => (xml-id :: <string>)
+   let sanitized = make(<stretchy-vector>);
+   for (c in id, first? = #t then #f)
+      sanitized :=
+            case
+               c.alphabetic?
+                  => add!(sanitized, c);
+               ~first? & (c.digit? | c = '.' | c = '-')
+                  => add!(sanitized, c);
+               otherwise
+                  => concatenate!(sanitized, format-to-string("_%02X", as(<integer>, c)));
+            end case
+   end for;
+   as(<string>, sanitized)
+end method;
+
+
+/**
+Synopsis: Ensure the path and filename components of an URL or HREF are valid
+and will not interfere with surrounding delimiters.
+**/
+define method sanitized-url-path (locator :: <locator>)
+=> (url-part :: <string>)
+   local method pathnames (loc :: <locator>) => (path :: <sequence>)
+            as(<vector>, loc.parent-names.reverse!)
+         end method,
+         
+         method parent-names (loc :: false-or(<locator>)) => (parents :: <list>)
+            if (loc & loc.locator-name)
+               pair(loc.locator-name, loc.locator-directory.parent-names)
+            else
+               #()
+            end if
+         end method,
+         
+         method clean-path-component (component :: <string>) => (component :: <string>)
+            let sanitized = make(<stretchy-vector>);
+            for (c in component)
+               sanitized := 
+                     case
+                        c.alphanumeric? | member?(c, "-_.!~*'()") /* RFC 2396 marks */
+                           => add!(sanitized, c);
+                        otherwise
+                           => let esc = format-to-string("%%%02X", as(<integer>, c));
+                              concatenate!(sanitized, esc);
+                     end case
+            end for;
+            as(<string>, sanitized)
+         end method;
+            
+   let path-components = map(clean-path-component, locator.pathnames);
+   apply(join, "/", path-components)
 end method;
