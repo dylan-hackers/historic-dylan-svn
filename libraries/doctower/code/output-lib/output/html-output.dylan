@@ -520,7 +520,7 @@ define method html-content (link :: <topic-ref>, target-info)
          format-to-string("<a href=\"%s\">%s</a>", href, title);
       <topic> =>
          let title = html-content(link.target.title, target-info);
-         let href = target-info[link.target].target-href;
+         let href = target-info[link.target].target-href.sanitized-xml;
          let desc =
                if (link.target.shortdesc)
                   link.target.shortdesc.content.stringify-markup.sanitized-xml
