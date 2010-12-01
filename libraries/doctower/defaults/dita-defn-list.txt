@@ -1,0 +1,12 @@
+      <dl outputclass="{{class}}">
+        {{repeat with item in items}}
+        <dlterm>
+          <dt>
+{{item.term !}}
+          </dt>
+          <dd>
+{{item.defn !}}
+          </dd>
+        </dlterm>
+        {{end}}
+      </dl>

@@ -137,7 +137,8 @@ Titles and identifiers
 
 Doctower IDs can have any UTF-8 character except for space, "/", "[", "]".
 
-  - "/" is used to distinguish content within a topic.
+  - "/" is used to link to content within a topic, so it is not allowed in topic
+    IDs, and not allowed in section IDs for symmetry.
   - "[" and "]" are not included so that "]" can be used to stop an ID.
   - Space is not included to help distinguish IDs from titles and to eliminate
     the need to handle quoted IDs.
@@ -196,6 +197,7 @@ Output IDs:
   Section without ID - :Sect-nnn
   Topic title        - :Title
   Section title      - :Title(:Declarations), :Title(:Sect-nnn), etc.
+  Topic synopsis     - :Synopsis
   Footnote           - :Foot-nnn
   Phrase marker      - :Line-nnn
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN"
+ "http://docs.oasis-open.org/dita/dtd/map.dtd">
+<map title="{{package-title}}">
+  {{repeat with topic in root-topics}}
+  <topicref href="{{topic.href}}">
+{{topic.child-recursion !}}
+  </topicref>
+  {{end}}
+</map>

@@ -29,8 +29,9 @@ corresponding 'target-id' will be 'topicid' or 'contentid'. For HTML output,
 will be the same as 'target-href'.
 
 The '<topic-target>' and '<section-target>' classes have additional keywords:
-'title-href' and 'title-id'. These work like the 'target-href' and 'target-id'
-keywords except that they are only used in DITA title conrefs.
+'title-href', 'title-id', and -- for '<topic-target>' -- 'shortdesc-href' and
+'shortdesc-id'. These work like the 'target-href' and 'target-id' keywords
+except that they are only used in DITA title conrefs.
 
 The IDs and the ID part of the HREFs are constructed as namespace-compatible
 XML IDs.
@@ -48,6 +49,10 @@ define class <topic-target> (<target>)
       required-init-keyword: #"title-href";
    constant slot title-id :: <string>,
       required-init-keyword: #"title-id";
+   constant slot shortdesc-href :: <string>,
+      required-init-keyword: #"shortdesc-href";
+   constant slot shortdesc-id :: <string>,
+      required-init-keyword: #"shortdesc-id";
 end class;
 
 define class <section-target> (<target>)
@@ -236,7 +241,7 @@ end method;
 
 define method as-filename-part (string :: <string>) => (filename-part :: <string>)
    let string = string.copy-sequence;
-   let bad-chars = vector(' ', '\\', '?', file-system-separator());
+   let bad-chars = vector(' ', '\\', '?', '<', '>', '$', file-system-separator());
    replace-elements!(string, rcurry(member?, bad-chars), always('_'));
    string
 end method;
@@ -353,4 +358,11 @@ define method sanitized-url-path (locator :: <locator>)
             
    let path-components = map(clean-path-component, locator.pathnames);
    apply(join, "/", path-components)
+end method;
+
+
+// TODO: Sanitized-url for using <url> in hrefs.
+define method sanitized-url (url :: <url>)
+=> (url :: <string>)
+   as(<string>, url)
 end method;

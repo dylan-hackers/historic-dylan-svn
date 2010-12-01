@@ -129,10 +129,10 @@ define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>
    let first-term = #t;
 
    // This is a list of quote options included in the quote spec in the correct
-   // order for wrapping and processing.
+   // order for wrapping and processing, from innermost to outermost.
    let used-specs-in-order =
          choose(rcurry(member?, specs),
-                #[ #"qv", #"vi", #"api", #"term", #"code", #"q", #"qq", #"bib",
+                #[ #"api", #"term", #"qv", #"vi", #"code", #"q", #"qq", #"bib",
                    #"b", #"i", #"u", #"term", #"em" ]);
 
    for (spec in used-specs-in-order)
@@ -149,11 +149,14 @@ define method quote-elements (quote :: <quote-token>) => (elements :: <sequence>
                        text: interior, target: link-target,
                        target-from-text: ~link-token);
                #"api" =>
+                  // Note that interior of <api/parm-name> has to be plain text.
                   make(<api/parm-name>, source-location: quote.token-src-loc,
                        text: interior);
                #"term" =>
+                  // Note that interior of <term> has to be plain text.
                   let term = make(if (first-term) <term> else <term-style> end,
-                                  source-location: quote.token-src-loc, text: interior);
+                                  source-location: quote.token-src-loc,
+                                  text: interior);
                   first-term := #f;
                   term;
                #"code" =>

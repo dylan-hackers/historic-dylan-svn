@@ -1,0 +1,5 @@
+      <sl outputclass="catalog">
+        {{repeat with item in items}}
+        <sli>{{item !}}</sli>
+        {{end}}
+      </sl>

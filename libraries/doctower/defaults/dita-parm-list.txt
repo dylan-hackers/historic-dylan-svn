@@ -1,0 +1,12 @@
+      <parml outputclass="{{class}}">
+        {{repeat with item in items}}
+        <plentry>
+          <pt>
+{{item.term !}}
+          </pt>
+          <pd>
+{{item.defn !}}
+          </pd>
+        </plentry>
+        {{end}}
+      </parml>

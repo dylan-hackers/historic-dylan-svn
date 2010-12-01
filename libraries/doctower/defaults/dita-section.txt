@@ -1,0 +1,6 @@
+    <section id="{{id}}">
+      <title><ph id="{{title-id}}">
+        {{formatted-title !}}
+      </ph></title>
+{{content !}}
+    </section>

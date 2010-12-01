@@ -11,8 +11,10 @@ define class <xref> (<markup-element>)
                              <target-placeholder>, <footnote-placeholder>,
                              <line-marker-placeholder>),
          init-keyword: #"target";
-   slot text :: type-union(<string>, <conref>, <title-seq>),
-         init-keyword: #"text";
+   // Can be a <conref>, <title-seq>, or anything in a <title-seq>. This includes
+   // <cite> which is not normally allowed in DITA <xref>, but we put the link
+   // text in a <ph> so it is okay.
+   slot text, init-keyword: #"text";
    slot target-from-text? :: <boolean> = #f,
          init-keyword: #"target-from-text";
 end class;
@@ -24,11 +26,13 @@ define class <vi-xref> (<xref>)
 end class;
 
 define class <api/parm-name> (<markup-element>)
-   slot text, init-keyword: #"text";
+   // DITA only allows plain text; must be innermost quotation wrapper.
+   slot text :: <string>, init-keyword: #"text";
 end class;
 
 define class <term> (<markup-element>)
-   slot text, init-keyword: #"text";
+   // DITA only allows plain text; must be innermost quotation wrapper.
+   slot text :: <string>, init-keyword: #"text";
 end class;
 
 /// Synopsis: Like <emphasis>, this is a style that will be rendered as bold,

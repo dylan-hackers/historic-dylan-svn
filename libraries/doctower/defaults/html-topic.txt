@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <div class="topic">
+  <div class="topic" id="{{topic.id}}">
     <div class="topic-navbar">
       <div class="seq-navlinks">
         {{if topic.child-topic}}
@@ -80,10 +80,7 @@
         <h2>Related links</h2>
         <ul>
           {{repeat with link in topic.related-links}}
-          <li><a href="../{{link.href}}"
-                 title="{{link.shortdesc}}">
-            {{link.formatted-title !+}}
-          </a></li>
+          <li>{{link !}}</li>
           {{end}}
         </ul>
       </div>

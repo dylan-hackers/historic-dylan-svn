@@ -122,16 +122,20 @@ define method add-html-link-info
    (topic :: <topic>,
     #key setter, visited, target-info, current-topic, fallback-ids, output-file)
 => (visit-slots? :: <boolean>)
-   let raw-target-id = topic.id | fallback-ids[topic];
-   let raw-title-id = ":Title";
-   let target-id = raw-target-id.sanitized-id;
+   let raw-topic-id = topic.id | fallback-ids[topic];
+   let raw-title-id = format-to-string("%s/:Title", raw-topic-id);
+   let raw-shortdesc-id = format-to-string("%s/:Synopsis", raw-topic-id);
+   let topic-id = raw-topic-id.sanitized-id;
    let title-id = raw-title-id.sanitized-id;
+   let shortdesc-id = raw-shortdesc-id.sanitized-id;
    let filename = output-file.locator.sanitized-url-path;
-   let target-href = format-to-string("%s#%s", filename, target-id);
+   let topic-href = format-to-string("%s#%s", filename, target-id);
    let title-href = format-to-string("%s#%s", filename, title-id);
+   let shortdesc-href = format-to-string("%s#%s", filename, shortdesc-id);
    target-info[topic] := make(<topic-target>,
-         id: target-id, href: target-href,
-         title-id: title-id, title-href: title-href);
+         id: topic-id, href: topic-href,
+         title-id: title-id, title-href: title-href,
+         shortdesc-id: shortdesc-id, shortdesc-href: shortdesc-href);
    #t
 end method;
 
@@ -143,14 +147,14 @@ define method add-html-link-info
    let raw-topic-id = current-topic.id | fallback-ids[current-topic];
    let raw-section-id = sect.id | fallback-ids[sect];
    let raw-target-id = format-to-string("%s/%s", raw-topic-id, raw-section-id);
-   let raw-title-id = format-to-string(":Title(%s)", raw-target-id);
-   let target-id = raw-target-id.sanitized-id;
+   let raw-title-id = format-to-string("%s/:Title(%s)", raw-topic-id, raw-section-id);
+   let section-id = raw-target-id.sanitized-id;
    let title-id = raw-title-id.sanitized-id;
    let filename = output-file.locator.sanitized-url-path;
-   let target-href = format-to-string("%s#%s", filename, target-id);
+   let section-href = format-to-string("%s#%s", filename, section-id);
    let title-href = format-to-string("%s#%s", filename, title-id);
-   target-info[sect] := make(<topic-target>,
-         id: target-id, href: target-href,
+   target-info[sect] := make(<section-target>,
+         id: section-id, href: section-href,
          title-id: title-id, title-href: title-href);
    #t
 end method;
@@ -161,16 +165,16 @@ define method add-html-link-info
     #key setter, visited, target-info, current-topic, fallback-ids, output-file)
 => (visit-slots? :: <boolean>)
    let raw-topic-id = current-topic.id | fallback-ids[current-topic];
-   let raw-target-id = format-to-string("%s/%s", raw-topic-id, fallback-ids[content]);
-   let target-id = raw-target-id.sanitized-id;
+   let raw-content-id = format-to-string("%s/%s", raw-topic-id, fallback-ids[content]);
+   let content-id = raw-content-id.sanitized-id;
    let filename = output-file.locator.sanitized-url-path;
-   let target-href = format-to-string("%s#%s", filename, target-id);
+   let content-href = format-to-string("%s#%s", filename, target-id);
    let info-class =
          select (content by instance?)
             <footnote> => <footnote-target>;
             <ph-marker> => <ph-marker-target>;
          end select;
-   target-info[content] := make(info-class, id: target-id, href: target-href);
+   target-info[content] := make(info-class, id: content-id, href: content-href);
    #t
 end method;
 
@@ -362,8 +366,8 @@ define method write-output-file
                   link-map[topic].child-topics
                end method,
          "related-links" =>
-               method (topic :: <topic>) => (links :: <sequence>)
-                  map(target, topic.related-links)
+               method (topic :: <topic>) => (html-links :: <sequence>)
+                  map(rcurry(html-content, target-info), topic.related-links)
                end method,
          "footnotes" => footnotes,
          "size" => size
@@ -476,7 +480,7 @@ define method html-content (xref :: <xref>, target-info)
    let title = html-content(xref.text, target-info);
    select (xref.target by instance?)
       <url> =>
-         let href = as(<string>, xref.target).sanitized-xml;
+         let href = xref.target.sanitized-url.sanitized-xml;
          format-to-string("<a href=\"%s\">%s</a>", href, title);
       <topic> =>
          let href = target-info[xref.target].target-href.sanitized-xml;
@@ -504,6 +508,28 @@ define method html-content (conref :: <conref>, target-info)
    else
       html-content(conref.target.shortdesc, target-info)
    end if
+end method;
+
+
+define method html-content (link :: <topic-ref>, target-info)
+=> (html :: <string>)
+   select (link.target by instance?)
+      <url> =>
+         let title = as(<string>, link.target).sanitized-xml;
+         let href = link.target.sanitized-url.sanitized-xml;
+         format-to-string("<a href=\"%s\">%s</a>", href, title);
+      <topic> =>
+         let title = html-content(link.target.title, target-info);
+         let href = target-info[link.target].target-href.sanitized-xml;
+         let desc =
+               if (link.target.shortdesc)
+                  link.target.shortdesc.content.stringify-markup.sanitized-xml
+               else
+                  ""
+               end if;
+         format-to-string("<a href=\"../%s\" title=\"%s\">%s</a>",
+               href, desc, title);
+   end select
 end method;
 
 
@@ -552,13 +578,13 @@ end method;
 
 define method html-content (parm :: <api/parm-name>, target-info)
 => (html :: <string>)
-   entag("var", parm.text, target-info)
+   html-entag("var", parm.text, target-info)
 end method;
 
 
 define method html-content (term :: <term>, target-info)
 => (html :: <string>)
-   entag("dfn", term.text, target-info)
+   html-entag("dfn", term.text, target-info)
 end method;
 
 
@@ -570,43 +596,43 @@ end method;
 
 define method html-content (code :: <code-phrase>, target-info)
 => (html :: <string>)
-   entag("code", code.text, target-info)
+   html-entag("code", code.text, target-info)
 end method;
 
 
 define method html-content (cite :: <cite>, target-info)
 => (html :: <string>)
-   entag("cite", cite.text, target-info)
+   html-entag("cite", cite.text, target-info)
 end method;
 
 
 define method html-content (bold :: <bold>, target-info)
 => (html :: <string>)
-   entag("b", bold.text, target-info)
+   html-entag("b", bold.text, target-info)
 end method;
 
 
 define method html-content (ital :: <italic>, target-info)
 => (html :: <string>)
-   entag("i", ital.text, target-info)
+   html-entag("i", ital.text, target-info)
 end method;
 
 
 define method html-content (und :: <underline>, target-info)
 => (html :: <string>)
-   entag("u", und.text, target-info)
+   html-entag("u", und.text, target-info)
 end method;
 
 
 define method html-content (em :: <emphasis>, target-info)
 => (html :: <string>)
-   entag("strong", em.text, target-info)
+   html-entag("strong", em.text, target-info)
 end method;
 
 
 define method html-content (para :: <paragraph>, target-info)
 => (html :: <string>)
-   entag("p", para.content, target-info)
+   concatenate(html-entag("p", para.content, target-info), "\n");
 end method;
 
 
@@ -618,7 +644,7 @@ define method enspan (span-class :: <string>, content, target-info)
 end method;
 
 
-define method entag (tag :: <string>, content, target-info)
+define method html-entag (tag :: <string>, content, target-info)
 => (html :: <string>)
    concatenate("<", tag, ">",
          html-content(content, target-info),

@@ -14,8 +14,8 @@ Synopsis: List of elements corresponding to the markup-words grammar.
 **/
 define constant <markup-seq> = limited(<stretchy-vector>,
       of: type-union(<string>, <character>, <inline-image>, <html-content>,
-                     <dita-content>, <conref>, <xref>, <api/parm-name>, <term>,
-                     <term-style>, <code-phrase>, <entity>, <cite>, <bold>,
+                     <dita-content>, <conref>, <xref>, <api/parm-name>, <cite>,
+                     <term>, <term-style>, <code-phrase>, <entity>, <bold>,
                      <italic>, <underline>, <emphasis>, singleton(#f)));
 
 define method markup-seq (#rest elements) => (seq :: <markup-seq>)

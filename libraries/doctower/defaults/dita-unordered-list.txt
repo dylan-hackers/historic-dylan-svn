@@ -1,0 +1,7 @@
+      <ul>
+        {{repeat with item in items}}
+        <li>
+{{item !}}
+        </li>
+        {{end}}
+      </ul>

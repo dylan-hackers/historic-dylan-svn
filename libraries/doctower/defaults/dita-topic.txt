@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+ "http://docs.oasis-open.org/dita/dtd/topic.dtd">
+<topic id="{{topic.id}}">
+  <title><ph id="{{topic.title-id}}">
+    {{topic.formatted-title !}}
+  </ph></title>
+  <shortdesc><ph id="{{topic.shortdesc-id}}">
+    {{topic.formatted-shortdesc !}}
+  </ph></shortdesc>
+  <body>
+{{topic.main-body !}}
+  </body>
+  <related-links>
+    {{repeat with link in topic.related-links}}
+    {{link !}}
+    {{end}}
+  </related-links>
+</topic>

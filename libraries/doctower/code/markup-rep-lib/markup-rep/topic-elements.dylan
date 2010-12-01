@@ -6,13 +6,13 @@ synopsis: Classes comprising API reference topics.
 Synopsis: List of elements corresponding to the title-words grammar.
    text-word   - <string> and <character>
    image-ref   - <inline-image>
-   quote       - <bold>, etc., but not <xref>, <vi-xref>, <api-name>, or
-                 <parm-name> which are introduced by qv and vi.
+   quote       - <bold>, etc., but not <xref> or <vi-xref>. <cite> is allowed
+                 because title will be within DITA <ph> tag.
    bracketed-render-span   - <dita-content> or <html-content>
 **/
 define constant <title-seq> = limited(<stretchy-vector>,
-      of: type-union(<string>, <character>, <inline-image>, <html-content>, <cite>,
-                     <dita-content>, <api/parm-name>, <term>, <term-style>,
+      of: type-union(<string>, <character>, <inline-image>, <html-content>,
+                     <dita-content>, <api/parm-name>, <cite>, <term>, <term-style>,
                      <code-phrase>, <entity>, <bold>, <italic>, <underline>,
                      <emphasis>, singleton(#f)));
 
