@@ -129,7 +129,7 @@ define method add-html-link-info
    let title-id = raw-title-id.sanitized-id;
    let shortdesc-id = raw-shortdesc-id.sanitized-id;
    let filename = output-file.locator.sanitized-url-path;
-   let topic-href = format-to-string("%s#%s", filename, target-id);
+   let topic-href = format-to-string("%s#%s", filename, topic-id);
    let title-href = format-to-string("%s#%s", filename, title-id);
    let shortdesc-href = format-to-string("%s#%s", filename, shortdesc-id);
    target-info[topic] := make(<topic-target>,
@@ -168,7 +168,7 @@ define method add-html-link-info
    let raw-content-id = format-to-string("%s/%s", raw-topic-id, fallback-ids[content]);
    let content-id = raw-content-id.sanitized-id;
    let filename = output-file.locator.sanitized-url-path;
-   let content-href = format-to-string("%s#%s", filename, target-id);
+   let content-href = format-to-string("%s#%s", filename, content-id);
    let info-class =
          select (content by instance?)
             <footnote> => <footnote-target>;
@@ -520,7 +520,7 @@ define method html-content (link :: <topic-ref>, target-info)
          format-to-string("<a href=\"%s\">%s</a>", href, title);
       <topic> =>
          let title = html-content(link.target.title, target-info);
-         let href = target-info[link.target].target-href.sanitized-xml;
+         let href = target-info[link.target].target-href;
          let desc =
                if (link.target.shortdesc)
                   link.target.shortdesc.content.stringify-markup.sanitized-xml

@@ -80,7 +80,7 @@ define method resolve-target-placeholder-in-topic
          elseif (parm-style?)
             let parm-style = make(<api/parm-name>, text: xref.text.stringify-markup,
                   source-location: placeholder.source-location);
-            xref.text := title-seq(parm)
+            xref.text := title-seq(parm-style)
          end if;
          #t
 
