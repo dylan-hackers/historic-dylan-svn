@@ -39,8 +39,16 @@ h2 {
 	font-size: large;
 }
 
-code {
+pre, code {
 	font-family: Consolas, Andale Mono, Menlo, Monaco, monospace
+}
+
+pre {
+	padding: 0.75em;
+	background-color: #D9E7E0;
+	border-width: thin;
+	border-style: dotted;
+	border-color: #4C8C6C;
 }
 
 parm {}

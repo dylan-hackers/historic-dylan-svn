@@ -582,6 +582,24 @@ define method html-content (defn-list :: <defn-list>, target-info)
 end method;
 
 
+define method html-content (code :: type-union(<code-block>, <pre>), target-info)
+=> (html :: <string>)
+   html-entag("pre", code.content, target-info)
+end method;
+
+
+define method html-content (raw :: <dita-content>, target-info)
+=> (html :: <string>)
+   ""
+end method;
+
+
+define method html-content (raw :: <html-content>, target-info)
+=> (html :: <string>)
+   raw.content
+end method;
+
+
 define method html-content (ent :: <entity>, target-info)
 => (html :: <string>)
    format-to-string("&#%d;", ent.code)

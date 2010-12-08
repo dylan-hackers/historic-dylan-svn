@@ -78,7 +78,9 @@ define method resolve-target-placeholder-in-topic
             xref.text := make(<conref>, target: resolution, style: #"title",
                   source-location: placeholder.source-location)
          elseif (parm-style?)
-            let parm-style = make(<api/parm-name>, text: xref.text.stringify-markup,
+            let content = if (instance?(xref.text, <title-seq>)) xref.text
+                          else title-seq(xref.text) end;
+            let parm-style = make(<api/parm-name>, text: content.stringify-title,
                   source-location: placeholder.source-location);
             xref.text := title-seq(parm-style)
          end if;

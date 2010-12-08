@@ -191,7 +191,7 @@ define caching parser bracketed-render-span (<source-location-token>)
    slot block-type :: <symbol> = tokens[0];
    slot text :: <string> = as(<string>, collect-subelements(tokens[1], 1));
 attributes
-   bracketed-spec-text :: false-or(<string>) = #f;
+   bracketed-spec-text :: false-or(<symbol>) = #f;
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;

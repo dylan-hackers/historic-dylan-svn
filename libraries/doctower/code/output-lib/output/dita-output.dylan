@@ -509,6 +509,30 @@ define method dita-content (defn-list :: <defn-list>, target-info)
 end method;
 
 
+define method dita-content (code :: <code-block>, target-info)
+=> (dita :: <string>)
+   dita-entag("codeblock", code.content, target-info)
+end method;
+
+
+define method dita-content (code :: <pre>, target-info)
+=> (dita :: <string>)
+   dita-entag("pre", code.content, target-info)
+end method;
+
+
+define method dita-content (raw :: <dita-content>, target-info)
+=> (dita :: <string>)
+   raw.content
+end method;
+
+
+define method dita-content (raw :: <html-content>, target-info)
+=> (dita :: <string>)
+   ""
+end method;
+
+
 define method dita-content (ent :: <entity>, target-info)
 => (dita :: <string>)
    format-to-string("&#%d;", ent.code)
