@@ -2,9 +2,26 @@
 <!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN"
  "http://docs.oasis-open.org/dita/dtd/map.dtd">
 <map title="{{package-title}}">
-  {{repeat with topic in root-topics}}
+  {{repeat with topic in root-topics +}}
   <topicref href="{{topic.href}}">
 {{topic.child-recursion !}}
   </topicref>
   {{end}}
+
+  <!-- Siblings' narrative sequences -->
+  {{repeat with seq in sibling-sequences}}
+  <topicgroup collection-type="sequence" toc="no">
+    {{repeat with sib in seq +}}
+    <topicref href="{{sib.href}}"/>
+    {{end}}
+  </topicgroup>
+  {{end}}
+
+  <!-- Complete narrative sequence, depth-first -->
+
+  <topicgroup collection-type="sequence" toc="no">
+    {{repeat with topic in full-sequence +}}
+    <topicref href="{{topic.href}}"/>
+    {{end}}
+  </topicgroup>
 </map>

@@ -133,9 +133,10 @@ define method add-html-link-info
    let title-href = format-to-string("%s#%s", filename, title-id);
    let shortdesc-href = format-to-string("%s#%s", filename, shortdesc-id);
    target-info[topic] := make(<topic-target>,
-         id: topic-id, href: topic-href,
-         title-id: title-id, title-href: title-href,
-         shortdesc-id: shortdesc-id, shortdesc-href: shortdesc-href);
+         id: topic-id, href: topic-href, markup-id: raw-topic-id,
+         title-id: title-id, title-href: title-href, title-markup-id: raw-title-id,
+         shortdesc-id: shortdesc-id, shortdesc-href: shortdesc-href,
+         shortdesc-markup-id: raw-shortdesc-id);
    #t
 end method;
 
@@ -154,8 +155,8 @@ define method add-html-link-info
    let section-href = format-to-string("%s#%s", filename, section-id);
    let title-href = format-to-string("%s#%s", filename, title-id);
    target-info[sect] := make(<section-target>,
-         id: section-id, href: section-href,
-         title-id: title-id, title-href: title-href);
+         id: section-id, href: section-href, markup-id: raw-target-id,
+         title-id: title-id, title-href: title-href, title-markup-id: raw-title-id);
    #t
 end method;
 
@@ -213,6 +214,11 @@ define method write-output-file
                method (key :: <ordered-tree-key>) => (id :: <string>)
                   let topic = file-info.tree[key];
                   target-info[topic].target-id
+               end method,
+         "markup-id" =>
+               method (key :: <ordered-tree-key>) => (id :: <string>)
+                  let topic = file-info.tree[key];
+                  target-info[topic].markup-id
                end method,
          "shortdesc" =>
                method (key :: <ordered-tree-key>) => (desc :: <string>)
@@ -285,6 +291,10 @@ define method write-output-file
          "id" =>
                method (topic :: <topic>) => (id :: <string>)
                   target-info[topic].target-id
+               end method,
+         "markup-id" =>
+               method (topic :: <topic>) => (id :: <string>)
+                  target-info[topic].markup-id
                end method,
          "shortdesc" =>
                method (topic :: type-union(<topic>, <url>)) => (desc :: <string>)
@@ -420,6 +430,8 @@ define method html-section
                   let vars = table(<case-insensitive-string-table>,
                         "id" =>
                               target-info[sect].target-id,
+                        "markup-id" =>
+                              target-info[sect].markup-id,
                         "formatted-title" =>
                               html-content(sect.title, target-info),
                         "content" =>

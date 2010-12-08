@@ -1,5 +1,5 @@
-    <section id="{{id}}">
-      <title><ph id="{{title-id}}">
+    <section id="{{id}}" otherprops="{{markup-id}}">
+      <title><ph id="{{title-id}}" otherprops="{{title-markup-id}}">
         {{formatted-title !}}
       </ph></title>
 {{content !}}

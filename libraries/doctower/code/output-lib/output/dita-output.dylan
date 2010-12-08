@@ -93,17 +93,21 @@ define method add-dita-link-info
    (topic :: <topic>,
     #key setter, visited, target-info, current-topic, fallback-ids, output-file)
 => (visit-slots? :: <boolean>)
-   let topic-id = (topic.id | fallback-ids[topic]).sanitized-id;
-   let title-id = ":Title".sanitized-id;
-   let shortdesc-id = ":Synopsis".sanitized-id;
+   let raw-topic-id = topic.id | fallback-ids[topic];
+   let topic-id = raw-topic-id.sanitized-id;
+   let raw-title-id = ":Title";
+   let title-id = raw-title-id.sanitized-id;
+   let raw-shortdesc-id = ":Synopsis";
+   let shortdesc-id = raw-shortdesc-id.sanitized-id;
    let filename = output-file.locator.sanitized-url-path;
    let topic-href = format-to-string("%s#%s", filename, topic-id);
    let title-href = format-to-string("%s#%s/%s", filename, topic-id, title-id);
    let shortdesc-href = format-to-string("%s#%s/%s", filename, topic-id, shortdesc-id);
    target-info[topic] := make(<topic-target>,
-         id: topic-id, href: topic-href,
-         title-id: title-id, title-href: title-href,
-         shortdesc-id: shortdesc-id, shortdesc-href: shortdesc-href);
+         id: topic-id, href: topic-href, markup-id: raw-topic-id,
+         title-id: title-id, title-href: title-href, title-markup-id: raw-title-id,
+         shortdesc-id: shortdesc-id, shortdesc-href: shortdesc-href,
+         shortdesc-markup-id: raw-shortdesc-id);
    #t
 end method;
 
@@ -112,7 +116,8 @@ define method add-dita-link-info
    (sect :: <section>,
     #key setter, visited, target-info, current-topic, fallback-ids, output-file)
 => (visit-slots? :: <boolean>)
-   let topic-id = (current-topic.id | fallback-ids[current-topic]).sanitized-id;
+   let raw-topic-id = current-topic.id | fallback-ids[current-topic];
+   let topic-id = raw-topic-id.sanitized-id;
    let raw-section-id = sect.id | fallback-ids[sect];
    let raw-title-id = format-to-string(":Title(%s)", raw-section-id);
    let section-id = raw-section-id.sanitized-id;
@@ -121,8 +126,8 @@ define method add-dita-link-info
    let section-href = format-to-string("%s#%s/%s", filename, topic-id, section-id);
    let title-href = format-to-string("%s#%s/%s", filename, topic-id, title-id);
    target-info[sect] := make(<section-target>,
-         id: section-id, href: section-href,
-         title-id: title-id, title-href: title-href);
+         id: section-id, href: section-href, markup-id: raw-section-id,
+         title-id: title-id, title-href: title-href, title-markup-id: raw-title-id);
    #t
 end method;
 
@@ -149,9 +154,17 @@ define method write-output-file
    (output == #"dita", file-info :: <toc-output-file>,
     link-map :: <table>, target-info :: <table>, special-file-info :: <table>)
 => ()
+   let keys-with-root = file-info.tree.key-sequence;
+   let all-sibling-sequences = map(inf-key-sequence, keys-with-root);
+   let sibling-sequences = choose
+         (method (seq) seq.size > 1 end, all-sibling-sequences);
+   let full-sequence = copy-sequence(keys-with-root, start: 1);
+   
    let var-table = table(<case-insensitive-string-table>,
          "package-title" => *package-title*,
-         "root-topics" => file-info.tree.root-key.inf-key-sequence
+         "root-topics" => file-info.tree.root-key.inf-key-sequence,
+         "full-sequence" => full-sequence,
+         "sibling-sequences" => sibling-sequences
          );
 
    let ops-table = table(<case-insensitive-string-table>,
@@ -198,6 +211,18 @@ define method write-output-file
          "shortdesc-id" =>
                method (topic :: <topic>) => (id :: <string>)
                   target-info[topic].shortdesc-id
+               end method,
+         "markup-id" =>
+               method (topic :: <topic>) => (id :: <string>)
+                  target-info[topic].markup-id
+               end method,
+         "title-markup-id" =>
+               method (topic :: <topic>) => (id :: <string>)
+                  target-info[topic].title-markup-id
+               end method,
+         "shortdesc-markup-id" =>
+               method (topic :: <topic>) => (id :: <string>)
+                  target-info[topic].shortdesc-markup-id
                end method,
          "formatted-title" =>
                method (topic :: <topic>) => (dita :: <string>)
@@ -309,6 +334,10 @@ define method dita-section
                               target-info[sect].target-id,
                         "title-id" =>
                               target-info[sect].title-id,
+                        "markup-id" =>
+                              target-info[sect].markup-id,
+                        "title-markup-id" =>
+                              target-info[sect].title-markup-id,
                         "formatted-title" =>
                               dita-content(sect.title, target-info),
                         "content" =>
@@ -403,7 +432,7 @@ end method;
 define method dita-content (conref :: <conref>, target-info)
 => (dita :: <string>)
    let href-func = if (conref.style = #"title") title-href else shortdesc-href end;
-   format-to-string("<ph conref=\"../%s\" />",
+   format-to-string("<ph conref=\"../%s\"/>",
          target-info[conref.target].href-func.sanitized-xml)
 end method;
 
@@ -433,7 +462,7 @@ define method dita-content (link :: <topic-ref>, target-info)
          if (format) format-to-string("format=\"%s\" ", format) else "" end;
    let type-attr =
          if (type) format-to-string("type=\"%s\" ", type) else "" end;
-   format-to-string("<link %s%s%shref=\"%s\" />",
+   format-to-string("<link %s%s%shref=\"%s\"/>",
          scope-attr, format-attr, type-attr, href);
 end method;
 

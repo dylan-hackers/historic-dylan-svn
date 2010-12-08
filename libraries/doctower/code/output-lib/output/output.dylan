@@ -33,8 +33,9 @@ The '<topic-target>' and '<section-target>' classes have additional keywords:
 'shortdesc-id'. These work like the 'target-href' and 'target-id' keywords
 except that they are only used in DITA title conrefs.
 
-The IDs and the ID part of the HREFs are constructed as namespace-compatible
-XML IDs.
+The IDs and the ID part of the HREFs are constructed as namespace-compatible XML
+IDs. The 'markup-id', 'title-markup-id', and 'shortdesc-markup-id' slots are the
+IDs as used in the markup; they are not valid in HTML or DITA "id" attributes.
 */
 
 define abstract class <target> (<object>)
@@ -42,6 +43,8 @@ define abstract class <target> (<object>)
       required-init-keyword: #"href";
    constant slot target-id :: <string>,
       required-init-keyword: #"id";
+   constant slot markup-id :: <string>,
+      required-init-keyword: #"markup-id";
 end class;
 
 define class <topic-target> (<target>)
@@ -49,10 +52,14 @@ define class <topic-target> (<target>)
       required-init-keyword: #"title-href";
    constant slot title-id :: <string>,
       required-init-keyword: #"title-id";
+   constant slot title-markup-id :: <string>,
+      required-init-keyword: #"title-markup-id";
    constant slot shortdesc-href :: <string>,
       required-init-keyword: #"shortdesc-href";
    constant slot shortdesc-id :: <string>,
       required-init-keyword: #"shortdesc-id";
+   constant slot shortdesc-markup-id :: <string>,
+      required-init-keyword: #"shortdesc-markup-id";
 end class;
 
 define class <section-target> (<target>)
@@ -60,6 +67,8 @@ define class <section-target> (<target>)
       required-init-keyword: #"title-href";
    constant slot title-id :: <string>,
       required-init-keyword: #"title-id";
+   constant slot title-markup-id :: <string>,
+      required-init-keyword: #"title-markup-id";
 end class;
 
 define class <footnote-target> (<target>)
@@ -361,7 +370,14 @@ define method sanitized-url-path (locator :: <locator>)
 end method;
 
 
-// TODO: Sanitized-url for using <url> in hrefs.
+/**
+Synopsis: Ensures an URL does not have invalid characters.
+
+There is not much we can do here. The user has to escape whatever needs to be
+escaped because we can't know what needs to be escaped for a given URL scheme.
+We could escape forbidden characters like space, but they might throw a wrench
+into the browser's own handling of forbidden characters. So we just leave it be.
+**/
 define method sanitized-url (url :: <url>)
 => (url :: <string>)
    as(<string>, url)

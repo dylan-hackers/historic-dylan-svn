@@ -1,5 +1,5 @@
-        {{repeat with child in children}}
+        {{repeat with child in children +}}
         <topicref href="{{child.href}}">
 {{child.child-recursion !}}
         </topicref>
-        {{end}}
+        {{end +}}

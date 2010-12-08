@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <div class="topic" id="{{topic.id}}">
+  <div class="topic">
     <div class="topic-navbar">
       <div class="seq-navlinks">
         {{if topic.child-topic}}
@@ -55,7 +55,8 @@
       </div>
     </div>
 
-    <div class="topic-content">
+    <!-- {{topic.markup-id !}} -->
+    <div class="topic-content" id="{{topic.id}}">
       <h1>{{topic.formatted-title !}}</h1>
 {{topic.formatted-shortdesc !}}
 {{topic.main-body !}}

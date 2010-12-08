@@ -2,10 +2,10 @@
 <!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN"
  "http://docs.oasis-open.org/dita/dtd/concept.dtd">
 <concept id="{{topic.id}}">
-  <title><ph id="{{topic.title-id}}">
+  <title><ph id="{{topic.title-id}}" otherprops="{{topic.title-markup-id}}">
     {{topic.formatted-title !}}
   </ph></title>
-  <shortdesc><ph id="{{topic.shortdesc-id}}">
+  <shortdesc><ph id="{{topic.shortdesc-id}}" otherprops="{{topic.shortdesc-markup-id}}">
     {{topic.formatted-shortdesc !}}
   </ph></shortdesc>
   <conbody>

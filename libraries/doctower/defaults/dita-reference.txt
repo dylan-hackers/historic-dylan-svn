@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN"
  "http://docs.oasis-open.org/dita/dtd/topic.dtd">
-<reference id="{{topic.id}}">
-  <title><ph id="{{topic.title-id}}">
+<reference id="{{topic.id}}" otherprops="{{topic.markup-id}}">
+  <title><ph id="{{topic.title-id}}" otherprops="{{topic.title-markup-id}}">
     {{topic.formatted-title !}}
   </ph></title>
-  <shortdesc><ph id="{{topic.shortdesc-id}}">
+  <shortdesc><ph id="{{topic.shortdesc-id}}" otherprops="{{topic.shortdesc-markup-id}}">
     {{topic.formatted-shortdesc !}}
   </ph></shortdesc>
   <refbody>
