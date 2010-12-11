@@ -16,6 +16,10 @@ define variable *output-directory* :: <directory-locator>
       = as(<directory-locator>, "./doc");
 define variable *output-types* :: <sequence> = #[ #"html" ];
 
+define constant $debug-features =
+      #[ #"dylan-parser", #"doc-tree", #"markup-parser", #"file-markup-parser",
+         #"template-markup-parser" ];
+
 define variable *debug-features* :: <sequence> = #[];
 
 define method debugging? (#rest features) => (debugging? :: <boolean>)

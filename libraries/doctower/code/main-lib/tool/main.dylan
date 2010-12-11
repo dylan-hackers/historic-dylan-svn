@@ -82,6 +82,7 @@ define function main (name, arguments)
          error-in-command-arguments();
       args.help? =>
          print-help(args, *standard-output*);
+         format-out("\nDebugging features are %s.\n", $debug-features.item-string-list);
          exit-application(0);
       args.version? =>
          format-out("Doctower 1.0\nby Dustin Voss\n");
@@ -99,6 +100,9 @@ define function main (name, arguments)
    *stop-on-errors?* := args.stop-on-errors?;
    *verbose?* := ~args.quiet?;
    *debug-features* := map(curry(as, <symbol>), args.debug-features);
+   unless (every?(rcurry(member?, $debug-features), *debug-features*))
+      error-in-command-option(option: "--debug");
+   end unless;
    
    // Retrieve and process config files
    

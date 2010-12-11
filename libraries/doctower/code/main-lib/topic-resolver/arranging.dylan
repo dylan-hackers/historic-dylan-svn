@@ -509,7 +509,7 @@ define method title-style-arrangement (topics :: <sequence>)
       local method make-arranged-child (child :: <topic>)
             => (arranged-child :: <arranged-topic>)
                make(<arranged-topic>, type: #"topic-style",
-                    source-location: child.source-location, topic: child)
+                    source-location: child.title-source-loc, topic: child)
             end method;
             
       let arranged-children = map(make-arranged-child, group);

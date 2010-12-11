@@ -487,6 +487,27 @@ define method html-content (char :: <character>, target-info)
 end method;
 
 
+define method html-content (sect :: <section>, target-info)
+=> (html :: <string>)
+   let section-content = html-content(sect.content, target-info);
+   if (~section-content.empty?)
+      let vars = table(<case-insensitive-string-table>,
+            "id" =>
+                  target-info[sect].target-id,
+            "markup-id" =>
+                  target-info[sect].markup-id,
+            "formatted-title" =>
+                  html-content(sect.title, target-info),
+            "content" =>
+                  section-content
+            );
+      text-from-template(#"html-section", variables: vars)
+   else
+      ""
+   end if
+end method;
+
+
 define method html-content (xref :: <xref>, target-info)
 => (html :: <string>)
    let title = html-content(xref.text, target-info);

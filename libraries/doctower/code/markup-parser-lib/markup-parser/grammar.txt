@@ -119,14 +119,15 @@ title-line-midline-style-til-nickname:
 title-line-bare-style-til-nickname:
    !title-nickname-line-bare-style title-line-bare-style
 title-line-midline-style:
-   SOL ascii-midline SPC+ title-words-til-midline ascii-midline? LS
+   !ascii-underline SOL ascii-midline SPC+ title-words-til-midline
+   ascii-midline? LS
 title-line-bare-style:
-   SOL title-words LS
+   !ascii-underline SOL title-words LS
 title-nickname-line-midline-style:
-   SOL ascii-midline SPC+ title-words-til-midline-nickname?
+   !ascii-underline SOL ascii-midline SPC+ title-words-til-midline-nickname?
    ( ascii-midline SPC+ )? title-nickname
 title-nickname-line-bare-style:
-   SOL title-words-til-nickname? title-nickname
+   !ascii-underline SOL title-words-til-nickname? title-nickname
 
 title-words:
    ( title-word SPC* )+

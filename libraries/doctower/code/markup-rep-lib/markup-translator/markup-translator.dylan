@@ -7,12 +7,19 @@ define method topics-from-markup
     #key internal :: <boolean> = #f, catalog :: <boolean> = #f)
 => (result :: <sequence>)
    let topics = make(<stretchy-vector>);
+   let header-styles = make(<stretchy-vector>);
+   let header-topics = make(<stretchy-vector>);
    
-   with-dynamic-bindings (*internal-markup* = internal, *catalog-topics* = catalog)
+   with-dynamic-bindings (*internal-markup* = internal, *catalog-topics* = catalog,
+          *topic-level-styles* = header-styles, *topic-level-topics* = header-topics)
       unless (token.default-topic-content.empty?)
          if (context-topic)
+            // Use context topic as parent for subsequent topics in block.
+            header-styles[0] := #f;
+            header-topics[0] := context-topic;
+            
             process-tokens(context-topic, token.default-topic-content);
-            add!(topics, context-topic)
+            add!(topics, context-topic);
          else
             let content = token.default-topic-content;
             let loc = merge-file-source-locations

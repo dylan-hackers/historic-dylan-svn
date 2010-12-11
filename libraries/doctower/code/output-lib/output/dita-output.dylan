@@ -393,6 +393,31 @@ define method dita-content (char :: <character>, target-info)
 end method;
 
 
+define method dita-content (sect :: <section>, target-info)
+=> (dita :: <string>)
+   let section-content = dita-content(sect.content, target-info);
+   if (~section-content.empty?)
+      let vars = table(<case-insensitive-string-table>,
+            "id" =>
+                  target-info[sect].target-id,
+            "title-id" =>
+                  target-info[sect].title-id,
+            "markup-id" =>
+                  target-info[sect].markup-id,
+            "title-markup-id" =>
+                  target-info[sect].title-markup-id,
+            "formatted-title" =>
+                  dita-content(sect.title, target-info),
+            "content" =>
+                  section-content
+            );
+      text-from-template(#"dita-section", variables: vars);
+   else
+      ""
+   end if
+end method;
+
+
 define method dita-content (xref :: <xref>, target-info)
 => (dita :: <string>)
    // TODO: Xref output for footnotes and ph-markers.

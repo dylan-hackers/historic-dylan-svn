@@ -82,6 +82,32 @@ define method process-tokens
    (topic :: <topic>,
     token :: type-union(<topic-or-section-title-token>, <topic-directive-title-token>))
 => ()
+   // Determine parent topic by title style.
+
+   let level-styles = dynamic-binding(*topic-level-styles*);
+   let level-topics = dynamic-binding(*topic-level-topics*);
+   let (level, style) =
+         if (instance?(token, <topic-or-section-title-token>))
+            let style = token.title-style;
+            let level = find-key(level-styles, curry(\=, style),
+                                 failure: level-styles.size);
+            values(level, style)
+         else
+            values(0, #f)
+         end if;
+
+   if (level > 0)
+      topic.fixed-parent := level-topics[level - 1];
+   end if;
+   level-styles[level] := style;
+   level-topics[level] := topic;
+   
+   // Clear lower levels so user can't make child topic that jumps levels.
+   level-styles.size := level + 1;
+   level-topics.size := level + 1;
+   
+   // Process topic content.
+
    topic.title-source-loc := token.token-src-loc;
    with-dynamic-bindings (*default-quote-specs* = $default-title-quote-specs,
                           *title-markup* = #t)
