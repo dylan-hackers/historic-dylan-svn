@@ -12,19 +12,20 @@ Declared in {{class.declaration.filename}} line {{class.declaration.line}}.
 Exported under these names:
 
 {{ REPEAT WITH export IN class.exports +}}
-- '{{export.name}}' [api] in module '{{export.module.name}}', {{ +}}
+- '{{export.name}}' [api] in '{{export.module.name}}' {{ +}}
 {{+ CASE export.module.id +}}
 [api qv {{export.module.id}}] {{ +}}
 {{+ ELSE +}}
 [api] {{ +}}
 {{+ END (* case *) +}}
 
-in library '{{export.library.name}}'. {{ +}}
+module of '{{export.library.name}}' {{ +}}
 {{+ CASE export.library.id +}}
-[api qv {{export.library.id}}]
+[api qv {{export.library.id}}] {{ +}}
 {{+ ELSE +}}
-[api]
-{{+ END (* case *) }}
+[api] {{ +}}
+{{+ END (* case *) +}}
+library.
 {{ +}}
 {{+ END (* repeat *) +}}
 {{+ END (* if exports *) }}

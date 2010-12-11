@@ -12,12 +12,13 @@ Declared in {{mod.declaration.filename}} line {{mod.declaration.line}}.
 Exported under these names:
 
 {{ REPEAT WITH export IN mod.exports +}}
-- '{{export.name}}' [api] in library '{{export.library.name}}'. {{ +}}
+- '{{export.name}}' [api] in '{{export.library.name}}' {{ +}}
 {{+ CASE export.library.id +}}
-[api qv {{export.library.id}}]
+[api qv {{export.library.id}}] {{ +}}
 {{+ ELSE +}}
-[api]
-{{+ END (* case *) }}
+[api] {{ +}}
+{{+ END (* case *) +}}
+library.
 {{ +}}
 {{+ END (* repeat *) +}}
 {{+ END (* if exports *) }}
