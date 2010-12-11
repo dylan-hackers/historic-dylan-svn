@@ -33,6 +33,9 @@ define argument-parser <my-arg-parser> ()
    option generated-topics-path, " <directory>",
       "Save automatically-generated topic files",
       long: "autogen-dir", short: "g", kind: <parameter-option-parser>;
+   option ignore-comments?,
+      "Ignore source code documentation comments",
+      long: "no-comment", short: "N";
    // option tab-size = "8",
    //    "=<n>",
    //    "Tab size [8]",
@@ -121,6 +124,7 @@ define function main (name, arguments)
    *contents-file-extension* := args.toc-pattern | *contents-file-extension*;
    *topic-file-extension* := args.doc-pattern | *topic-file-extension*;
    *package-title* := args.package-title | *package-title*;
+   *scan-only?* := args.ignore-comments? | *scan-only?*;
 
    if (args.template-path)
       *template-directory* := as(<directory-locator>, args.template-path)

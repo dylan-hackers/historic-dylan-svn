@@ -34,7 +34,7 @@ define method markup-sort-test
 end method;
 
 define method choose-markup-tokens (seq) => (seq :: <sequence>)
-   map(markup, choose(rcurry(instance?, <doc-block-token>), seq));
+   map(markup, choose(rcurry(instance?, <doc-comment-block-token>), seq));
 end method;
 
 define method claim-docs (token :: <documentable-token-mixin>, seq :: <sequence>)

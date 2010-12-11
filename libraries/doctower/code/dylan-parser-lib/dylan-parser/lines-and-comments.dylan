@@ -80,7 +80,18 @@ define parser eol-comment
    rule seq(double-slash, opt(eol-comment-text), eol)
 end;
 
-define caching parser doc-block (<token>)
+define parser-method doc-block (stream, context)
+=> (token :: false-or(<doc-comment-block-token>), succ? :: <boolean>,
+    err :: false-or(<parse-failure>))
+   label "documentation comment block";
+   if (*scan-only?*)
+      values(#f, #f, #f)
+   else
+      parse-doc-comment-block(stream, context)
+   end if
+end;
+
+define caching parser doc-comment-block (<token>)
    rule seq(opt-spaces, choice(delim-doc-comment, eol-doc-comments)) => tokens;
    slot comment :: <doc-comment-token> = tokens[1];
    slot markup :: <markup-content-token>;

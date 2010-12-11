@@ -16,6 +16,8 @@ define variable *output-directory* :: <directory-locator>
       = as(<directory-locator>, "./doc");
 define variable *output-types* :: <sequence> = #[ #"html" ];
 
+define variable *scan-only?* :: <boolean> = #f;
+
 define constant $debug-features =
       #[ #"dylan-parser", #"doc-tree", #"markup-parser", #"file-markup-parser",
          #"template-markup-parser" ];

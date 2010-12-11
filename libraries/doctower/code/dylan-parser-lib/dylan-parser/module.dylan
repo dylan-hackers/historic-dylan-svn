@@ -4,7 +4,7 @@ define module dylan-parser
    use common, exclude: { source-location };
    use parser-common, export: { source-location };
    use markup-parser, import: { <markup-content-token>, parse-markup };
-   use configs, import: { debugging? };
+   use configs, import: { debugging?, *scan-only?* };
    use conditions;
 
    // from peg-parser
