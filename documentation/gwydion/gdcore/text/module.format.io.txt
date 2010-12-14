@@ -70,7 +70,7 @@ space ( ) - Format positive numbers with a preceding space. By default,
 hash (#)  - Formats floating-point numbers with a decimal point or trailing
             zeros. By default, these are removed if possible.
 zero (0)  - When formatting numbers to a _width_ or _precision_, use 0 instead
-            of space to fill the alloted space.
+            of space to fill the allotted space.
 
 If _width_ is specified, the argument is formatted with extra spaces to
 achieve a minimum width.
