@@ -36,7 +36,7 @@
       <deftype>&lt;float&gt;</deftype>
       <defdescription>
 	<para>User-settable universal constant controlling the ratio of a
-	circle's diameter to its circumferance.</para>
+	circle's diameter to its circumference.</para>
       </defdescription>
     </dylan-variable-def>
 

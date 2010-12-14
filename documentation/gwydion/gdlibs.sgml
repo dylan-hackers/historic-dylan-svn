@@ -1166,7 +1166,7 @@ end;</PROGRAMLISTING>
       <PARA>When all elements of a stream have been read, further
       calls to <dname>read-element</dname> result in the
       <dclass>end-of-stream-error</dclass> condition
-      being signalled. An alternative end-of-stream behavior is to
+      being signaled. An alternative end-of-stream behavior is to
       have a distinguished end-of-stream value returned. You can
       supply such an end-of-stream value as a keyword argument to the
       various read functions; the value can be any object. Supplying
@@ -2353,7 +2353,7 @@ values(v, stream-contents(stream));</PROGRAMLISTING>
 	  to write a file for which the user has no write permission,
 	  then an
 	  <dclass>invalid-file-permissions-error</dclass>
-	  condition is signalled at the time the file stream is
+	  condition is signaled at the time the file stream is
 	  created.</PARA>
 
 	  <PARA>Because creating a file stream always involves an
@@ -6419,7 +6419,7 @@ let lights = table(&lt;string-table&gt;, "red" => "stop", "green" => "go");
   	    <paramname>character</paramname>
   	    <paramtype>&lt;character&gt;</paramtype>
   	    <paramsummary>
-  	      An error is signalled character it is not alphanumeric.
+  	      An error is signaled character it is not alphanumeric.
   	    </paramsummary>
   	  </param>
   	</defparameters>
@@ -6435,7 +6435,7 @@ let lights = table(&lt;string-table&gt;, "red" => "stop", "green" => "go");
   	    <dname>Digit-to-integer</dname> converts an
   	    alphanumeric character to an integer. '0' through '9'
   	    convert to 0 to 9, and 'a' through 'z' convert to 10 to
-  	    35. An error is signalled if the character is not in this
+  	    35. An error is signaled if the character is not in this
   	    range.
   	  </para>
   	</defdescription>
@@ -6483,7 +6483,7 @@ let lights = table(&lt;string-table&gt;, "red" => "stop", "green" => "go");
   	    integer to the corresponding digit in the specified
   	    base. If the integer is outside the range a single digit
   	    in the specified base can represent, an error is
-  	    signalled. Digits for values of 10 or higher are
+  	    signaled. Digits for values of 10 or higher are
   	    represented with the letters 'a' through 'z', with 'a' for
   	    10 and 'z' for 35.
   	  </para>
@@ -6507,7 +6507,7 @@ let lights = table(&lt;string-table&gt;, "red" => "stop", "green" => "go");
   	    <paramsummary>
   	      <dkeyword>Base</dkeyword> should be between 2 and 36, inclusive,
   	      and is the radix of the string representation.  An error
-	      will be signalled for radixes not in this range. 
+	      will be signaled for radixes not in this range. 
   	    </paramsummary>
   	  </keyparam>
   	  <keyparam>
@@ -6560,7 +6560,7 @@ let lights = table(&lt;string-table&gt;, "red" => "stop", "green" => "go");
 	    <paramdefault>10</paramdefault>
   	    <paramsummary>
   	      Between 2 and 36, inclusive, denoting the base to read
-  	      integers in. An error is signalled if base is not in
+  	      integers in. An error is signaled if base is not in
   	      this range.
   	    </paramsummary>
   	  </keyparam>
@@ -6580,7 +6580,7 @@ let lights = table(&lt;string-table&gt;, "red" => "stop", "green" => "go");
   	    maximum depending on the base. For example, octal (base 8)
   	    digits must be in [0-7], decimal digits must be in [0-9],
   	    and hexadecimal digits must be in [0-9] or [a-f]. An error
-  	    is signalled if this constraint is violated. (Start
+  	    is signaled if this constraint is violated. (Start
   	    negative integers with a '-', so "-36" would become -36.)
   	  </para>
   	</defdescription>
@@ -9366,7 +9366,7 @@ let mat = matrix(#[1, 1, 2], #[3, 5, 8], #[13, 21, 34]);
 	    Finds the inverse of a matrix, by using a modified
 	    gauss-jordan elimination.  Given any matrix, if there is
 	    an inverse, the inverse will be returned, otherwise, an
-	    error will be signalled. To determine the existence of an
+	    error will be signaled. To determine the existence of an
 	    inverse, the algorithm finds the upper triangular matrix,
 	    and then multiplies all of the elements along the main
 	    diagonal.  If the result of this multiplication is zero,

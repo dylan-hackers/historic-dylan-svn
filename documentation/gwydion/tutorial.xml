@@ -73,7 +73,7 @@
       It is a <link linkend="functional">functional</link> language&mdash;like
       Scheme or TCL&mdash;but uses an algebraic infix syntax similar to C's.
       &dylan; is object-oriented from the ground up, supports multiple 
-      inheritence and exceptions, implements <link linkend="multiple-dispatch">
+      inheritance and exceptions, implements <link linkend="multiple-dispatch">
       multiple dispatch</link>, and <link linkend="gc">collects garbage</link>.
     </para>
     
@@ -165,8 +165,8 @@ end method;
 	
       <para>
 	Languages based on LISP typically use a notation called
-	<glossterm>fully-parethesized prefix syntax</glossterm>. This consists
-	of innumerable nested paretheses, as seen in the following Scheme
+	<glossterm>fully-parenthesized prefix syntax</glossterm>. This consists
+	of innumerable nested parentheses, as seen in the following Scheme
 	version of the <function>shoe-size</function> function:
       </para>
 
@@ -198,7 +198,7 @@ end method;
 	analysis and explicit <link linkend="type-declarations">type
 	declarations</link> allow the compiler to optimize away most of the
 	overhead. Other language features permit the programmer to mark
-	certain classes as <glossterm>sealed</glossterm>, that is, inelligible
+	certain classes as <glossterm>sealed</glossterm>, that is, ineligible
 	for further subclassing.
       </para>
 
@@ -210,7 +210,7 @@ end method;
 	whole host of other gotchas familiar to &cpp; programmers. Methods are
 	separate from class declarations, allowing a programmer to write new
 	polymorphic functions without editing the relevant base class.  Methods
-	may also dispatch ploymorphically on more than one parameter, a
+	may also dispatch polymorphically on more than one parameter, a
 	powerful technique known as <glossterm>multiple dispatch</glossterm>.
 	All of these features will be explained in greater detail later on.
       </para>
@@ -239,7 +239,7 @@ end method;
 	Times have changed, however. Garbage collection technology has
 	improved. Processors speed has increased enormously. Most importantly,
 	however, the standard practice of the industry has changed, and large
-	commerical software is now built in &cpp;.
+	commercial software is now built in &cpp;.
       </para>
 
       <para>
@@ -265,7 +265,7 @@ end method;
 	Dylan's greatest weakness is the lack of commercial-quality
 	compilers, especially on the Macintosh. Apple has refused to comment
 	on the future of their technology release, and <ulink
-	url="http://www.functionalobjects.com/">functional Objects</ulink> is
+	url="http://www.functionalobjects.com/">Functional Objects</ulink> is
 	targeting the Windows and Linux markets with their compiler. The
 	&gwydprj;'s Dylan implementation will support multiple UNIXs, Windows,
 	and Macintosh when complete.
@@ -305,7 +305,7 @@ end method;
     </para>
 
     <para>
-      As in &cpp;, Dylan infix operators may also be refered to as
+      As in &cpp;, Dylan infix operators may also be referred to as
       functions. In &cpp;, <literal>(a + b)</literal> could also be written
       as <literal>operator+(a, b)</literal>. In Dylan, the same expression
       could be written <literal>\+(a, b)</literal>. In both languages,
@@ -399,7 +399,7 @@ let y = x; // creates y, and binds it to
 
       <para>
 	If two variables are bound to one object with internal
-	structure, the results may suprise C and Pascal programmers.
+	structure, the results may surprise C and Pascal programmers.
       </para>
 
       <programlisting>
@@ -515,7 +515,7 @@ let (x, y, z) = values (2, 3, 4);
 	In Perl, the equivalent statement would assign a vector of
 	values to a vector of variables. In Dylan, no actual vectors or lists
 	are used. All three values are assigned directly, using some
-	implementation-dependant mechanism.
+	implementation-dependent mechanism.
       </para>
     </sect1>
 
@@ -657,7 +657,9 @@ end method printf;
       <para>
 	For an actual implementation of a lightweight <function>printf
 	</function>function, see Appendix A.
-	<!-- <link linkend="printf-code"/Appendix      A/. -->
+	<!-- <link linkend="printf-code"/Appendix
+
+      A/. -->
       </para>
 
       <para>
@@ -872,7 +874,7 @@ end;
       </para>
 
       <para>
-	Generic functions may also be declared explicity, allowing the
+	Generic functions may also be declared explicitly, allowing the
 	programmer to exercise control over what sort of methods get added.
 	For example, the following declaration limits all <function>display
 	</function> methods to single parameter and no return value:
@@ -894,7 +896,7 @@ define generic display(thing :: &object;) =&gt; ()
       <para>
 	Functions may accept <glossterm>keyword arguments</glossterm>,
 	extra parameters which are identified by a label rather than by their
-	postion in the argument list. Keyword arguments are often used in a
+	position in the argument list. Keyword arguments are often used in a
 	fashion similar to <glossterm>default parameter values</glossterm>
 	in &cpp;. For example, the following hypothetical method might print
 	records to an output device:
@@ -1759,7 +1761,7 @@ end module;
       </table>
 
       <para>
-	The <literal>String-Extensions</literal> library, in particlar,
+	The <literal>String-Extensions</literal> library, in particular,
 	contains a number of useful functions. It provides many of Perl's
 	popular text-manipulation features.
       </para>

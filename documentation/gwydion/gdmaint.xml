@@ -66,7 +66,7 @@
     <title>Introduction</title>
 
     <para>This manual serves as a guide to porting and maintaining
-    Gywdion &dylan;. It includes:</para>
+    Gwydion &dylan;. It includes:</para>
 
     <itemizedlist>
       <listitem>
@@ -173,7 +173,7 @@
 	    <para>
 	      As a matter of policy, we do not promise completion dates
 	      to outside entities. This is because of the volunteer nature of
-	      the project and the traditional unreliablity of software
+	      the project and the traditional unreliability of software
 	      estimation. Of course, individuals may promise due dates of
 	      their own, but nobody else will take responsibility for meeting
 	      those dates.
@@ -205,7 +205,7 @@
 	Documentation changes should validate cleanly before being
 	checked int.  For compiler changes, you should at least run the
 	test suites in <filename>gd/src/tests</filename> as a smoke test.
-	Also, a full bootstrap cycle is strongly recommended before commiting
+	Also, a full bootstrap cycle is strongly recommended before committing
 	more complicated changes.
       </para>
     </sect1>
@@ -224,7 +224,7 @@
 	<para>
 	  Add your platform to the <filename>platforms.descr</filename>
 	  file and <filename>configure.in</filename>. This will require a bit
-	  of delibrate research.
+	  of deliberate research.
 	</para>
       </listitem>
       <listitem>
@@ -322,7 +322,7 @@
     </para>
 
     <para>
-      The actual compilation process procedes roughly as follows:
+      The actual compilation process proceeds roughly as follows:
     </para>
 
     <itemizedlist>
@@ -376,9 +376,9 @@
 	  <para>
 	    Optimizing &dylan; code requires careful attention to the
 	    object model. Unfortunately, &d2c; uses algorithms which require
-	    the entire class hiearchy to be computed before link time. (The
+	    the entire class hierarchy to be computed before link time. (The
 	    biggest problem here appear to be assigning unique IDs to
-	    individual classes.) The code to analyze the class hierachy lives
+	    individual classes.) The code to analyze the class hierarchy lives
 	    in the <link linkend="gdmaint-d2c-base-classes">
 	    <dmodule>Classes</dmodule> module</link> of the &base-lib;.
 	  </para>
@@ -425,8 +425,8 @@
 
 	      <para>
 		The compiler performs two kinds of optimizations:
-		<glossterm>simplications</glossterm> and required
-		optimizations. The simplications should produce output
+		<glossterm>simplifications</glossterm> and required
+		optimizations. The simplifications should produce output
 		equivalent to their input. The required optimizations,
 		however, clean up certain artifacts in the code and insert
 		type checks. It is an error to pass a top-level form to the
@@ -644,7 +644,7 @@
 	       <para>
 		 <dname>&lt;data-unit-name></dname> is a
 		 <dname>&lt;symbol></dname> because is must be
-		 comparible with <dname>\==</dname>.
+		 comparable with <dname>\==</dname>.
 	       </para> 
 	     </defdescription>
 	   </dylan-constant-def>
@@ -1077,7 +1077,7 @@ method(state :: &lt;load-state>) => res :: &lt;object-type-read-in>
 		Note that the stuff is implicitly grouped in
 		clumps of 3.  Either of the init-keyword or the setter
 		may be &false;, but not both.  The "make dumper"
-		requests backpatching when it encounters an unresolved
+		requests back-patching when it encounters an unresolved
 		forward reference (due to circularities).  Any slot
 		which might have a forward reference must have a
 		setter function (it can also have an init-keyword,
@@ -1087,8 +1087,8 @@ method(state :: &lt;load-state>) => res :: &lt;object-type-read-in>
 	      <para>
 		A "make dumper" may be used when an object can
 		be reconstructed from some accessor values by
-		reinstatiating the object with <dname>make</dname> and
-		backpatching some slots.  This is pretty general,
+		re-instatiating the object with <dname>make</dname> and
+		back-patching some slots.  This is pretty general,
 		since the accessor and setter function are not
 		required to be slot accessors and setters. 
 	      </para>
@@ -1461,7 +1461,7 @@ add-od-loader(*default-dispatcher*, #"byte-string",
 	     into the dispatching method to reconstruct a dumped
 	     object (so, you do not need to <dname>make</dname> a
 	     <dname>&lt;load-state></dname> instance).  Use that object
-	     in conjuction with the functions described below.
+	     in conjunction with the functions described below.
 	    </para>
 	  </defdescription>
 	 </dylan-class-def>
@@ -1680,7 +1680,7 @@ add-od-loader(*default-dispatcher*, #"simple-object-vector",
 	   references and defined later. The loader for the object
 	   containing the forward reference has the option of delaying
 	   object creation until the forward referenced object is loaded,
-	   or requesting that the object be backpatched when the forward
+	   or requesting that the object be back-patched when the forward
 	   referenced object is finally loaded.
 	 </para>
 
@@ -1863,7 +1863,7 @@ add-od-loader(*default-dispatcher*, #"simple-object-vector",
       
 	<para>
 	  &d2c; was designed to fetch source records from several
-	  sources, including flat text files and eventaully code
+	  sources, including flat text files and eventually code
 	  databases. To permit this flexibility, &d2c; uses a very abstract
 	  interface for representing locations in source code.
 	</para>
@@ -1890,7 +1890,7 @@ add-od-loader(*default-dispatcher*, #"simple-object-vector",
 	  <dname>&lt;file-source-location></dname>, which represents a
 	  location within a source file. Separating these two classes is not
 	  feasible. Among other things, this code generates the attractive,
-	  multiline displays of exactly where an error occured.
+	  multiline displays of exactly where an error occurred.
 	</para>
       </sect2>
 
@@ -1911,7 +1911,7 @@ add-od-loader(*default-dispatcher*, #"simple-object-vector",
 	  similar to those used by Internet e-mail and many other
 	  protocols. This module provides support for parsing headers at the
 	  top of a file and extracting the values of keywords. White space at
-	  the begining and ends of lines is removed automatically.
+	  the beginning and ends of lines is removed automatically.
 	</para>
       </sect2>
 
@@ -2276,7 +2276,7 @@ define variable foo :: run-time-expression() = #f;
 
 	<para>
 	  Prior to SSA conversion, variables are represented by the
-	  class <dname>&lt;intial-variable></dname>. Each individual
+	  class <dname>&lt;initial-variable></dname>. Each individual
 	  assignment to a variable is represented as an
 	  <dname>&lt;initial-definition></dname>. After SSA conversion,
 	  variables are represented by the class
@@ -2573,7 +2573,7 @@ source code (with a macro pattern) in
       <title>The &front-lib;</title>
 
       <para>
-	The &front-lib; is repsonsible for processing the <glossterm>Front
+	The &front-lib; is responsible for processing the <glossterm>Front
 	End Representation</glossterm> of a &dylan; program. It depends only
 	on the &base-lib;.
       </para>
@@ -2682,7 +2682,7 @@ source code (with a macro pattern) in
 	</variablelist>
 
 	<para>
-	  To add a new class to the <acronym>FER</acronym> hiearchy,
+	  To add a new class to the <acronym>FER</acronym> hierarchy,
 	  you'll need to add code to the following files:
 	  <filename>front.dylan</filename>,
 	  <filename>fer-dump.dylan</filename>,
@@ -2759,7 +2759,7 @@ source code (with a macro pattern) in
       </para>
 
       <para>
-	As a rule of thumb, the &convert-lib; implements thosep arts of the 
+	As a rule of thumb, the &convert-lib; implements those parts of the 
 	front end which know about the output of the parser.
       </para>
 
@@ -2836,7 +2836,7 @@ source code (with a macro pattern) in
 	      <para>
 		This function is called by the compilation driver when
 		all the top-level forms have been parsed. It's used to
-		implement various kinds of foward references within a
+		implement various kinds of forward references within a
 		module.  (See <xref linkend=
 		"gdmaint-d2c-front-top-level-forms"/>.)
 	      </para>
@@ -3081,7 +3081,7 @@ source code (with a macro pattern) in
 	</para>
 
 	<para>
-	  Unfortunaely, <dname>maybe-convert-to-ssa</dname> isn't very
+	  Unfortunately, <dname>maybe-convert-to-ssa</dname> isn't very
 	  smart. It only does the most trivial kind of conversion&mdash;it
 	  changes <dname>&lt;initial-variable></dname>s with one
 	  <dname>&lt;initial-definition></dname> into
@@ -3108,7 +3108,7 @@ source code (with a macro pattern) in
 
 	<para>
 	  The generic function <dname>optimize</dname> is implemented
-	  by methods stewn throughout the optimizer. Each of these methods
+	  by methods strewn throughout the optimizer. Each of these methods
 	  knows how to simplify a particular kind of queueable object. The
 	  method for <dname>&lt;if-region></dname>, for example, checks to
 	  see if the test condition is a compile-time value, and if so,
@@ -3127,7 +3127,7 @@ source code (with a macro pattern) in
 	</para>
 
 	<para>
-	  To reoptimize depedents, we can't use recursive calls to
+	  To reoptimize dependents, we can't use recursive calls to
 	  <dname>optimize</dname>. Instead, we must re-insert the dependent
 	  into the <dname>reoptimize-queue</dname> (remember that?) using the
 	  function <dname>reoptimize</dname>. If the dependent is already in
@@ -3184,7 +3184,7 @@ source code (with a macro pattern) in
 
 	<para>
 	  &dylan;, like LISP, uses function calls to represent most
-	  language operations. Arithmetic oprators are functions. Slot
+	  language operations. Arithmetic operators are functions. Slot
 	  getters and setters are functions. Even array access is done using
 	  functions. Given this, it's clear that the optimizer needs to
 	  spend a lot of time improving function calls.

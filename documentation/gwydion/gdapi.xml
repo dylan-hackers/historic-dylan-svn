@@ -1223,7 +1223,7 @@ first setting it if it is <dlit>#f</dlit>.</para>
 	    </param>
 	    <rest-param>
 	      <param-name>fields</param-name>
-	      <param-summary>Plist of fieldnames and values.</param-summary>
+	      <param-summary>Plist of field names and values.</param-summary>
 	    </rest-param>
 	  </defparameters>
 	  <defreturns>
