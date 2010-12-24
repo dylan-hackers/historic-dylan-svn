@@ -112,7 +112,7 @@ define method make-method-topics (generic-method :: <generic-method>)
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
-   make-alias-titles(generated-topic, binding);
+   make-alias-titles(generated-topic, generic-method);
    let vars = table(<case-insensitive-string-table>, "meth" => generic-method);
    let topics = topics-from-template(#"method-topic", generated-topic, vars);
 

@@ -114,6 +114,21 @@ define method make-alias-titles (topic :: <api-doc>, defn :: <definition>) => ()
 end method;
 
 
+define method make-alias-titles (topic :: <api-doc>, meth :: <generic-method>) => ()
+   let method-params = meth.method-defn.param-list.req-params;
+   for (alias in choose(exported-name?, meth.generic-binding.aliases))
+      let namespace =
+            if (alias.object-class == <library-name>) ""
+            else format-to-string("%s", alias.enclosing-name)
+            end if;
+      let title = canonical-title(meth.generic-binding, alias: alias,
+            method-params: method-params);
+      let titles = element(topic.titles-in-namespace, namespace, default: #[]);
+      topic.titles-in-namespace[namespace] := add-new!(titles, title, test: \=);
+   end for
+end method;
+
+
 //
 // Helpers
 //

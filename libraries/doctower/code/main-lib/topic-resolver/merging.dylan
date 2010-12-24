@@ -238,17 +238,80 @@ end method;
 
 /// Synopsis: Warn user if known keywords are undocumented.
 define method check-authored-keywords (a :: <class-doc>, b :: <class-doc>) => ()
-   // TODO: check-authored-keywords
+   let (gen, auth) = pick-generated-authored-topic(a, b);
+   let gen-keywords = section-parm-list(gen.keywords-section);
+   let auth-keywords = section-parm-list(auth.keywords-section);
+   let warning =
+         method () => ()
+            mismatch-in-api-keywords(location: auth-keywords.source-location,
+                  qualified-name: gen.fully-qualified-name)
+         end;
+   check-parmlist-items(gen-keywords, auth-keywords, warning);
 end method;
 
 
 /// Synopsis: Warn user if known arguments are undocumented.
 define method check-authored-arguments (a :: <function-doc>, b :: <function-doc>) => ()
-   // TODO: check-authored-arguments
+   let (gen, auth) = pick-generated-authored-topic(a, b);
+   let gen-args = section-parm-list(gen.args-section);
+   let auth-args = section-parm-list(auth.args-section);
+   let warning =
+         method () => ()
+            mismatch-in-api-arguments(location: auth-args.source-location,
+                  qualified-name: gen.fully-qualified-name)
+         end;
+   check-parmlist-items(gen-args, auth-args, warning);
 end method;
 
 
 /// Synopsis: Warn user if known values are undocumented.
 define method check-authored-values (a :: <function-doc>, b :: <function-doc>) => ()
-   // TODO: check-authored-values
+   let (gen, auth) = pick-generated-authored-topic(a, b);
+   let gen-vals = section-parm-list(gen.vals-section);
+   let auth-vals = section-parm-list(auth.vals-section);
+   let warning =
+         method () => ()
+            mismatch-in-api-values(location: auth-vals.source-location,
+                  qualified-name: gen.fully-qualified-name)
+         end;
+   check-parmlist-items(gen-vals, auth-vals, warning);
+end method;
+
+
+define function pick-generated-authored-topic (a :: <topic>, b :: <topic>)
+=> (generated :: <topic>, authored :: <topic>)
+   if (a.generated-topic?)
+      values(a, b)
+   else
+      values(b, a)
+   end if
+end function;
+
+
+define method check-parmlist-items
+   (generated :: <parm-list>, authored :: <parm-list>, warning :: <function>)
+=> ()
+   local method parm-name (parms :: <parm-list>, i :: <integer>) => (s :: <string>)
+            parms.items[i,0].stringify-markup.standardize-parm-target
+         end method;
+   let gen-names = map(curry(parm-name, generated),
+                       range(below: generated.items.dimensions.first));
+   let auth-names = map(curry(parm-name, authored),
+                        range(below: authored.items.dimensions.first));
+   unless (gen-names.size = auth-names.size
+         & every?(true?, map(case-insensitive-equal?, gen-names, auth-names)))
+      warning()
+   end unless
+end method;
+
+
+define method check-parmlist-items
+   (generated == #f, authored :: <parm-list>, warning :: <function>)
+=> ()
+   warning()
+end method;
+
+
+define method check-parmlist-items (generated, authored, warning)
+=> ()
 end method;

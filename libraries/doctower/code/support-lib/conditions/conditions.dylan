@@ -176,6 +176,18 @@ define errors (<user-visible-warning>)
    15 doc-comment-on-undocumented-api
       "Documentation related to internal %s \"%s\" will not be used",
       location, api-type, api-name;
+      
+   16 mismatch-in-api-arguments
+      "Documented parameters of \"%s\" do not match source code",
+      location, qualified-name;
+      
+   17 mismatch-in-api-values
+      "Documented return values of \"%s\" do not match source code",
+      location, qualified-name;
+      
+   18 mismatch-in-api-keywords
+      "Documented keywords of \"%s\" do not match source code",
+      location, qualified-name;
 end errors;
 
 

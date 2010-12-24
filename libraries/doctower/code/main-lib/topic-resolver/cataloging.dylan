@@ -133,6 +133,15 @@ define method add-target-title
 end method;
 
 
+define method add-target-title
+   (target :: <api-doc>, title-table :: <table>)
+=> ()
+   let titles = reduce(concatenate!, vector(target.title), target.titles-in-namespace);
+   let title-strings = map(stringify-title, titles);
+   do(curry(add-target-for-string, target, title-table), title-strings);
+end method;
+
+
 define method add-target-fqn
    (topic :: <api-doc>, fqn-table :: <table>)
 => ()
@@ -146,7 +155,7 @@ define method add-target-for-string
    (target, target-table :: <table>, string :: <string>)
 => ()
    let target-list = element(target-table, string, default: #());
-   target-list := add!(target-list, target);
+   target-list := add-new!(target-list, target);
    target-table[string] := target-list;
 end method;
 
