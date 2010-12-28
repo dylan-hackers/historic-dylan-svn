@@ -101,7 +101,8 @@ Map over them in key order      for (x in H using
 Get rid of a key with           remove-key!(H, 3);
 Reorder elements with           H.element-sequence := sort(H.element-sequence);
 Of course you can use any key and not only integers, as long as you provide an
-ordering function:              make(<skip-list>, test: case-insensitive-equal?,
+ordering function:              make(<skip-list>, 
+                                     key-test: case-insensitive-equal?,
                                      key-order: case-insensitive-less?)
 
 Some test functions show that Pugh is right. There is very little difference in
