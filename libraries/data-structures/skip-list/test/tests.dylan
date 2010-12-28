@@ -18,6 +18,7 @@ end function;
 
 
 define suite skip-list-suite ()
+  test string-key-test;
   test make-test;
   test not-key-order-test;
   test remove-first-key-test;
@@ -34,6 +35,15 @@ define suite skip-list-suite ()
   test reorder-changed-element-test;
 end suite;
 
+
+define test string-key-test ()
+  let skip = make(<skip-list>);
+  skip["zzz"] := 1;
+  skip["aaa"] := 2;
+  skip["AAA"] := 3;
+  skip["rrr"] := 4;
+  check-equal("key order", #["zzz", "aaa", "AAA", "rrr"], key-sequence(skip));
+end test;
 
 define test make-test ()
   let skip = make-skip-list();
