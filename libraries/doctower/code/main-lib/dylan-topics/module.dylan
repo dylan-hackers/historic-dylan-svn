@@ -3,8 +3,7 @@ synopsis: This module creates topics from Dylan code representation.
 
 define module dylan-topics
    use common, rename: { binding-name => dyn-binding-name };
-   use configs,
-      import: { *api-list-file*, *generated-topics-directory*, *topic-file-extension* };
+   use configs, import: { *api-list-file*, *topic-file-extension*, debugging? };
    use conditions;
    use dylan-rep;
    use markup-rep;

@@ -3,7 +3,6 @@ synopsis: Configurable parameters. These are read from config files if present.
 
 
 define variable *api-list-file* :: false-or(<file-locator>) = #f;
-define variable *generated-topics-directory* :: false-or(<directory-locator>) = #f;
 define variable *template-directory* :: <directory-locator>
       = as(<directory-locator>, "../defaults");
 
@@ -19,8 +18,8 @@ define variable *output-types* :: <sequence> = #[ #"html" ];
 define variable *scan-only?* :: <boolean> = #f;
 
 define constant $debug-features =
-      #[ #"dylan-parser", #"doc-tree", #"markup-parser", #"file-markup-parser",
-         #"template-markup-parser" ];
+      #[ #"dylan-parser", #"doc-tree", #"file-markup-parser", #"template-markup-parser",
+         #"template-output" ];
 
 define variable *debug-features* :: <sequence> = #[];
 

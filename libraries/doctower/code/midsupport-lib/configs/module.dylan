@@ -4,10 +4,9 @@ define module configs
    use common;
    
    export
-      *api-list-file*, *generated-topics-directory*, *topic-file-extension*,
-      *contents-file-extension*, *config-file-extension*, *package-title*,
-      *output-directory*, *output-types*, *template-directory*, *debug-features*,
-      *scan-only?*;
+      *api-list-file*, *topic-file-extension*, *contents-file-extension*,
+      *config-file-extension*, *package-title*, *output-directory*,
+      *output-types*, *template-directory*, *debug-features*, *scan-only?*;
    
    export
       debugging?;

@@ -29,10 +29,7 @@ define argument-parser <my-arg-parser> ()
       long: "templates", short: "T", kind: <parameter-option-parser>;
    option api-list-filename, " <filename>",
       "Write fully qualified API names to file",
-      long: "name-list", short: "n", kind: <parameter-option-parser>;
-   option generated-topics-path, " <directory>",
-      "Save automatically-generated topic files",
-      long: "autogen-dir", short: "g", kind: <parameter-option-parser>;
+      long: "names", short: "n", kind: <parameter-option-parser>;
    option ignore-comments?,
       "Ignore source code documentation comments",
       long: "no-comment", short: "N";
@@ -61,9 +58,9 @@ define argument-parser <my-arg-parser> ()
    synopsis print-help,
       usage: "doctower [options] <files>",
       description: "\n"
-         "Creates Dylan API documentation from files. Files include configuration files,\n"
-         "table of contents files, documentation text files, Dylan source code files, and\n"
-         "Dylan LID files."
+         "Creates Dylan API documentation from files. Files may include configuration\n"
+         "files, table of contents files, documentation text files, Dylan source code\n"
+         "files, and Dylan LID files."
 end argument-parser;
 
 
@@ -85,7 +82,8 @@ define function main (name, arguments)
          error-in-command-arguments();
       args.help? =>
          print-help(args, *standard-output*);
-         format-out("\nDebugging features are %s.\n", $debug-features.item-string-list);
+         format-out("\nDeveloper debugging features are %s.\n",
+               $debug-features.item-string-list);
          exit-application(0);
       args.version? =>
          format-out("Doctower 1.0\nby Dustin Voss\n");
@@ -138,10 +136,6 @@ define function main (name, arguments)
       *output-types* := map(curry(as, <symbol>), args.output-formats);
    end if;
    
-   if (args.generated-topics-path)
-      *generated-topics-directory* := as(<directory-locator>, args.generated-topics-path)
-   end if;
-
    if (args.api-list-filename)
       *api-list-file* := as(<file-locator>, args.api-list-filename)
    end if;

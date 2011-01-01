@@ -150,7 +150,7 @@ define errors (<user-visible-warning>)
    
    09 fully-qualified-name-not-found-in-code
       "Fully qualified name \"%s\" is not present in source code; "
-      "see --name-list file",
+      "see --names file",
       location, qualified-name;
    
    10 unused-docs-in-topic

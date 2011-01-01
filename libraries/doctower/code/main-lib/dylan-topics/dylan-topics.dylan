@@ -24,9 +24,10 @@ anyway, it also makes the API list file.
 define method topics-from-dylan (api-definitions :: <sequence>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
    // Prepare for generated topic files.
-   if (*generated-topics-directory*)
-      with-file-error-handlers (default-locator: *generated-topics-directory*)
-         ensure-directories-exist(*generated-topics-directory*)
+   if (debugging?(#"template-output"))
+      let dir = as(<directory-locator>, "template-output");
+      with-file-error-handlers (default-locator: dir)
+         ensure-directories-exist(dir)
       end with-file-error-handlers
    end if;
 

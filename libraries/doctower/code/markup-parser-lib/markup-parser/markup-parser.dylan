@@ -32,7 +32,7 @@ define method parse-markup
             line-col-position-method:
                compose(text-line-col-position, text-stream-position));
 
-      if (debugging?(#"markup-parser", #"file-markup-parser"))
+      if (debugging?(#"file-markup-parser"))
          log("--- %s ---", locator);
          *parser-trace* := *standard-output*;
       else
@@ -86,7 +86,7 @@ define method parse-internal-markup
                          cache-stream: indented-stream,
                          locator: locator);
 
-      if (debugging?(#"markup-parser", #"template-markup-parser"))
+      if (debugging?(#"template-markup-parser"))
          log("--- (template) ---");
          *parser-trace* := *standard-output*;
       else

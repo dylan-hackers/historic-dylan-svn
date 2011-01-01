@@ -34,7 +34,7 @@ define method topics-from-template
    let generated-body = process-template(template, operations: $template-ops, 
          variables: vars);
          
-   if (*generated-topics-directory*)
+   if (debugging?(#"template-output"))
       let base-name :: <string> = 
             if (~vars.empty?)
                debug-assert(vars.size = 1, "More than one variable for template");
@@ -52,8 +52,9 @@ define method topics-from-template
             else
                as(<string>, template-name)
             end if;
-      let locator = make(<file-locator>, directory: *generated-topics-directory*,
-                         base: base-name, extension: *topic-file-extension*);
+      let dir = as(<directory-locator>, "template-output");
+      let locator = make(<file-locator>, directory: dir, base: base-name,
+                         extension: *topic-file-extension*);
       with-open-file (template-output = locator, direction: #"output")
          write(template-output, generated-body)
       end with-open-file;
