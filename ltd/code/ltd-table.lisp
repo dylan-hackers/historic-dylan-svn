@@ -20,6 +20,8 @@
   ;; it.  If the spec is an (or ...), do each branch. For example,
   ;; (or standard-class my-class) converts to (type-union <class> <my-class>).
   (cond ((null spec) nil)
+	((starts-with spec 'eql)
+	 `(singleton ,@(mapcar #'cvt-exp (rest/ spec))))
         ((starts-with spec 'or)
 	 `(type-union ,@(mapcar #'cvt-type (args spec))))
         ((starts-with spec 'integer)
