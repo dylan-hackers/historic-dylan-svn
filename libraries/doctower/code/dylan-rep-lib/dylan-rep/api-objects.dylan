@@ -58,30 +58,23 @@ end class;
 
 
 define class <library-name> (<source-name>)
-   constant slot library-name :: <string>, init-keyword: #"library";
+   constant slot library-name :: <string>, required-init-keyword: #"library";
 end class;
 
 
-define class <module-name> (<library-name>)
-   constant slot module-name :: <string>, init-keyword: #"module";
+define class <module-name> (<source-name>)
+   constant slot library-name :: <string>, init-keyword: #"library";
+   constant slot module-name :: <string>, required-init-keyword: #"module";
    keyword #"within", type: <library-name>;
 end class;
 
 
-define class <binding-name> (<module-name>)   
-   constant slot binding-name :: <string>, init-keyword: #"binding";
+define class <binding-name> (<source-name>)   
+   constant slot library-name :: <string>, init-keyword: #"library";
+   constant slot module-name :: <string>, init-keyword: #"module";
+   constant slot binding-name :: <string>, required-init-keyword: #"binding";
    keyword #"within", type: <module-name>;
 end class;
-
-
-/// This method simply ensures the 'library' init argument is supplied. Using
-/// 'make' instead of making it a required keyword because it only needs to be 
-/// supplied for <library-name> itself.
-define method make
-   (cls == <library-name>, #key library :: <string>)
-=> (inst :: <library-name>)
-   next-method()
-end method;
 
 
 /// This method ensures the 'module' init argument is supplied and handles the
@@ -139,6 +132,10 @@ end method;
 define method enclosing-name (mod :: <module-name>) => (lib :: <library-name>)
    make(<library-name>, library: mod.library-name,
         source-location: mod.source-location);
+end method;
+
+define method enclosing-name (lib :: <library-name>) => (false :: singleton(#f))
+   #f
 end method;
 
 

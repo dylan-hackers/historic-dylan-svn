@@ -60,12 +60,12 @@ end method;
 /// 'context-module', and 'context-name' slots, set with this macro.
 define macro with-context-name
    { with-context-name ?:name (?:expression) ?:body end }
-      => {  let saved-context = ?name;
+      => {  let saved-context = ?name.context-name;
             block()
                ?name.context-name := ?expression;
                ?body
             cleanup
-               ?name := saved-context
+               ?name.context-name := saved-context
             end block }
 
    { with-context-name (?:expression) ?:body end }

@@ -39,8 +39,9 @@ end method;
 define method make-module-from-definition
    (context :: <context>, token :: <module-definer-token>)
 => (module :: <module>)
+   let lib = context.context-library;
    let mod-name = make(<module-name>, source-location: token.token-src-loc,
-                       module: token.api-name, within: context.context-name);
+                       module: token.api-name, within: lib.canonical-name);
    let new-module = make(<defined-module>, source-location: token.token-src-loc,
                          local-name: mod-name, markup: token.scoped-docs,
                          provenance: #"definition");
@@ -53,9 +54,8 @@ define method make-module-from-use-clause
    (context :: <context>, token :: <use-clause-token>)
 => (module :: <module>)
    let lib = context.context-library;
-   let mod-name = make(<module-name>, module: token.use-name, 
-                       within: context.context-name,
-                       source-location: token.token-src-loc);
+   let mod-name = make(<module-name>, source-location: token.token-src-loc,
+                       module: token.use-name, within: lib.canonical-name);
    let new-module = make(<undefined-module>, source-location: token.token-src-loc,
                          local-name: mod-name, provenance: #"declaration");
    add-definition(context, lib.definitions, new-module, mod-name);
@@ -65,13 +65,13 @@ end method;
 define method make-modules-from-export-clause
    (context :: <context>, token :: <export-clause-token>)
 => ()
-   let library = context.context-library;
+   let lib = context.context-library;
    for (name in token.export-names)
       let mod-name = make(<module-name>, source-location: token.token-src-loc,
-                          module: name, within: library.canonical-name);
+                          module: name, within: lib.canonical-name);
       let new-module = make(<undefined-module>, source-location: token.token-src-loc,
                             local-name: mod-name, provenance: #"declaration");
-      add-definition(context, library.definitions, new-module, mod-name);
+      add-definition(context, lib.definitions, new-module, mod-name);
    end for;
 end method;
 
@@ -108,7 +108,7 @@ define method process-namespace-clauses (context :: <context>) => ()
       // Evaluate clauses if the library has a definer.
       when (key-exists?(context.definers, lib))
          let clauses = context.definers[lib].namespace-clauses;
-         with-context-name(lib.canonical-name)
+         with-context-name (lib.canonical-name)
             do(curry(process-namespace-clause, context, lib, node), clauses);
 
             // Do library's modules. Use shallow-copy in case clauses add new
@@ -126,7 +126,7 @@ define method process-namespace-clauses (context :: <context>) => ()
                   let module-name = make(<module-name>, module: local-name,
                                          within: context.context-name,
                                          source-location: definer.token-src-loc);
-                  with-context-name(module-name)
+                  with-context-name (module-name)
                      do(curry(process-namespace-clause, context, mod, node), clauses);
                   end with-context-name;
                end when;

@@ -82,6 +82,14 @@ end method;
 // Text tokens
 //
 
+define function no-backslash (string :: <string>) => (string :: <string>)
+   if (string.size > 0 & string[0] = '\\')
+      copy-sequence(string, start: 1)
+   else
+      string
+   end if
+end function;
+
 define method capture-text
    (context :: <dylan-parse-context>, token :: <text-token>)
 => ()

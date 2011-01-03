@@ -775,7 +775,7 @@ end;
 define parser lex-NAME (<lexeme>)
    label "name";
    rule seq(opt-whitespace, name, word-sep) => tokens;
-   slot value :: <string> = tokens[1];
+   slot value :: <string> = tokens[1].no-backslash;
    inherited slot lexeme-doc = last-whitespace-doc(tokens[0]);
 afterwards (context, tokens, value, start-pos, end-pos)
    adjust-token-start(value, tokens);
@@ -789,7 +789,7 @@ end;
 define parser lex-UNRESERVED-NAME (<lexeme>)
    label "name";
    rule seq(opt-whitespace, unreserved-name, word-sep) => tokens;
-   slot value :: <string> = tokens[1];
+   slot value :: <string> = tokens[1].no-backslash;
    inherited slot lexeme-doc = last-whitespace-doc(tokens[0]);
 afterwards (context, tokens, value, start-pos, end-pos)
    adjust-token-start(value, tokens);
@@ -806,7 +806,7 @@ end;
 define parser lex-ORDINARY-NAME (<lexeme>)
    label "name";
    rule seq(opt-whitespace, ordinary-name, word-sep) => tokens;
-   slot value :: <string> = tokens[1];
+   slot value :: <string> = tokens[1].no-backslash;
    inherited slot lexeme-doc = last-whitespace-doc(tokens[0]);
 afterwards (context, tokens, value, start-pos, end-pos)
    adjust-token-start(value, tokens);
@@ -840,7 +840,7 @@ end;
 define parser lex-MACRO-NAME (<lexeme>)
    label "name";
    rule seq(opt-whitespace, macro-name, word-sep) => tokens;
-   slot value :: <string> = tokens[1];
+   slot value :: <string> = tokens[1].no-backslash;
    inherited slot lexeme-doc = last-whitespace-doc(tokens[0]);
 afterwards (context, tokens, value, start-pos, end-pos)
    adjust-token-start(value, tokens);
@@ -853,7 +853,7 @@ define parser lex-NAME-NOT-END (<lexeme>)
                    lit-local, lit-macro, lit-otherwise),
             word-sep)
    => tokens;
-   slot value :: <string> = tokens[1];
+   slot value :: <string> = tokens[1].no-backslash;
    inherited slot lexeme-doc = last-whitespace-doc(tokens[0]);
 afterwards (context, tokens, value, start-pos, end-pos)
    adjust-token-start(value, tokens);
