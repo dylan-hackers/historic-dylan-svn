@@ -322,29 +322,6 @@ define method count
   count
 end method count;
 
-//// multiple-value-setq
-
-//define macro mset
-//  { mset(?:expression, ?vars:*) } => { do-mset(?expression, ?vars) ?vars end }
-//end macro mset;
-
-define macro pset
-  { pset (?vars:*) ?:expression end }
-    => { do-mset(?expression, ?vars) ?vars end }
-end;
-
-define macro do-mset
-  { do-mset(?:expression, ?bind-vars) ?sets end }
-    => { let (?bind-vars) = ?expression; ?sets }
-bind-vars:
-  { } => { }
-  { ?:name, ... } => { "bind-" ## ?name ## "", ... }
-sets:
-  { } => { }
-  { ?:name, ... } => { ?name := "bind-" ## ?name ## "" ; ... }
-end;
-
-
 //// Tries who's keys are strings
 
 // This should be fixed not to be specifically for strings.

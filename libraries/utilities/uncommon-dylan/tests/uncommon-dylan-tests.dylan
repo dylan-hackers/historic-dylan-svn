@@ -22,7 +22,6 @@ define module-spec uncommon-dylan ()
 
   // Collections
   function count (<collection>, <function>, key:, limit:) => (<integer>);
-  function has-key? (<explicit-key-collection>, <object>) => (<boolean>);
   function value-sequence (<table>) => (<sequence>);
   function remove-keys (<sequence>, rest:) => (<list>);
 
@@ -39,7 +38,6 @@ define module-spec uncommon-dylan ()
   macro-test ignore-errors-test;
   macro-test with-restart-test;
   macro-test iff-test;
-  macro-test pset-test;
   macro-test bind-test;
 end module-spec uncommon-dylan;
 
@@ -123,10 +121,6 @@ define uncommon-dylan macro-test dec!-test ()
   //---*** Fill this in...
 end macro-test dec!-test;
 
-define uncommon-dylan macro-test pset-test ()
-  //---*** Fill this in...
-end macro-test pset-test;
-
 define uncommon-dylan constant-test <positive-integer> ()
   //---*** Fill this in...
 end constant-test <positive-integer>;
@@ -142,10 +136,6 @@ end function-test remove-keys;
 define uncommon-dylan macro-test bind-test ()
   //---*** Fill this in...
 end macro-test bind-test;
-
-define uncommon-dylan function-test has-key? ()
-  //---*** Fill this in...
-end function-test has-key?;
 
 define uncommon-dylan function-test trie-children ()
   //---*** Fill this in...

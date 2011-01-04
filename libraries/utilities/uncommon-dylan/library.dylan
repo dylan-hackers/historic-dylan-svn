@@ -15,7 +15,6 @@ end;
 define module uncommon-dylan
   use dylan;
   use collection-utilities,
-    rename: { key-exists? => has-key? },
     export: all;
   use common-extensions;
   use streams, import: { write, with-output-to-string };
@@ -39,7 +38,6 @@ define module uncommon-dylan
     count,
 
     wrapping-inc!,
-    pset,                // multiple-value-setq
 
     <string-trie>,
     find-object,
