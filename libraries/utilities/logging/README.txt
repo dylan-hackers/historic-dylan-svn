@@ -1,6 +1,9 @@
 Logging Library
 ~~~~~~~~~~~~~~~
 
+.. Copyright (c) 2011 Carl L Gay
+   See License.txt for details.
+
 .. This file uses the reStructured Text markup language, which can be rendered
    as (X)HTML, LateX, etc.  See http://docutils.sourceforge.net for details.
 
