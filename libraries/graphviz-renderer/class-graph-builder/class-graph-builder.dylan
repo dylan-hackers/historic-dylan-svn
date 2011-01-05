@@ -1,7 +1,7 @@
 Module:    class-graph-builder
-Synopsis:  helps to build class graphs
-Author:    Hannes Mehnert
-Copyright: (C) 2009.  All rights reversed.
+author: Andreas Bogk and Hannes Mehnert
+copyright: 2005-2011 Andreas Bogk and Hannes Mehnert. All rights reserved.
+license: see license.txt in this directory
 
 define function callback-handler (#rest args)
 end function callback-handler;

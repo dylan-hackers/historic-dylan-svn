@@ -1,6 +1,7 @@
 module: graphviz-renderer
-author: Hannes Mehnert <hannes@mehnert.org>
-copyright: (C) 2007,  All rights reversed.
+author: Andreas Bogk and Hannes Mehnert
+copyright: 2005-2011 Andreas Bogk and Hannes Mehnert. All rights reserved.
+license: see license.txt in this directory
 
 define function generate-dot
  (graph :: <graph>, output :: <stream>, #key top-node) => ()
