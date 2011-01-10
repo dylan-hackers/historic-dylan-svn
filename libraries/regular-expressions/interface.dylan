@@ -185,8 +185,22 @@ define inline function make-regex-positioner
   end method;
 end function make-regex-positioner;
 
+define constant <replacement> = type-union(<string>, <function>);
+
+// Replace 'pattern' with 'replacement-text' in 'big'.
+// @param big -- The original text on which to perform the replacements.
+// @param pattern -- The regex to replace.
+// @param replatement -- The replacement text, or a function that accepts a
+//     single argument of type <regex-match> and returns the replacement text.
+// @param count -- If #f replace all occurrances, otherwise replace the first
+//     'count' occurrances starting from 'start'
+// @param start -- Where to begin the search.
+// @param end -- Where to end the search.
+// @param case-sensitive -- Whether to be case-sensitive while matching.  Default
+//   is #t.  (I don't believe this affects character set (e.g., [a-z]) matching.
+//   Check it.)
 define generic regex-replace
-    (big :: <string>, pattern :: <regex>, replacement-text :: <string>,
+    (big :: <string>, pattern :: <regex>, replacement :: <replacement>,
      #key start :: <integer>,
           end: epos :: <integer>,
           count :: false-or(<integer>),
@@ -194,7 +208,7 @@ define generic regex-replace
  => (new-string :: <string>);
 
 define method regex-replace
-    (big :: <string>, pattern :: <regex>, replacement-text :: <string>,
+    (big :: <string>, pattern :: <regex>, replacement :: <replacement>,
      #key count :: false-or(<integer>),
           start :: <integer> = 0,
           end: epos :: <integer> = big.size,
@@ -202,8 +216,7 @@ define method regex-replace
  => (new-string :: <string>)
   let positioner
     = make-regex-positioner(pattern, case-sensitive: case-sensitive);
-  do-replacement(positioner, replacement-text, big, start,
-		 epos, count, #t);
+  do-replacement(positioner, replacement, big, start, epos, count, #t);
 end method regex-replace;
 
 // todo -- Improve error message for <invalid-match-group> errors.

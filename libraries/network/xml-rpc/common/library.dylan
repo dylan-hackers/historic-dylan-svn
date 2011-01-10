@@ -2,7 +2,7 @@ Module:    dylan-user
 Synopsis:  Definitions shared by the XML-RPC client and server
 Author:    Carl Gay
 Copyright: (C) 2002, Carl L Gay.  All rights reserved.
-License:   Functional Objects Library Public License Version 1.0
+License:      See License.txt in this distribution for details.
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library xml-rpc-common

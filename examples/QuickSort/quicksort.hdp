@@ -9,5 +9,4 @@ minor-version:	1
 library-pack:	0
 compilation-mode:	tight
 target-type:	executable
-other-files:	Open-Source-License.txt
 comment:	additional keywords
