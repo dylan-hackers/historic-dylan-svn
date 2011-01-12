@@ -95,12 +95,12 @@ define method topics-from-dylan (api-definitions :: <sequence>)
                            a.canonical-name < b.canonical-name
                         end);
             for (api-defn in sorted-defns)
-               write-line(api-list, api-defn.definition-qualified-name);
+               write-line(api-list, api-defn.canonical-qualified-name);
                if (instance?(api-defn, <generic-binding>))
                   for (meth-defn in api-defn.implicit-defns)
                      let params = meth-defn.param-list.req-params;
                      write-line(api-list,
-                           definition-qualified-name(api-defn, method-params: params))
+                           canonical-qualified-name(api-defn, method-params: params))
                   end for
                end if;
                for (alias in sort(api-defn.aliases))

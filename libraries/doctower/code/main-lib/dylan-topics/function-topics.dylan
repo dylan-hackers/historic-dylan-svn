@@ -3,7 +3,7 @@ module: dylan-topics
 
 define method make-source-topics (binding :: <function-binding>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
-   let fqn = binding.definition-qualified-name;
+   let fqn = binding.canonical-qualified-name;
    let namespace = fqn.enclosing-qualified-name;
 
    // Create body of generated topic.
@@ -16,7 +16,7 @@ define method make-source-topics (binding :: <function-binding>)
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
-   make-alias-titles(generated-topic, binding);
+   make-namespace-names(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "func" => binding);
    let topics = topics-from-template(#"function-topic", generated-topic, vars);
 
@@ -45,7 +45,7 @@ end method;
 
 define method make-source-topics (binding :: <generic-binding>)
 => (topics :: <sequence>, catalog-topics :: <sequence>)
-   let fqn = binding.definition-qualified-name;
+   let fqn = binding.canonical-qualified-name;
    let namespace = fqn.enclosing-qualified-name;
 
    // Create body of generated topic.
@@ -58,7 +58,7 @@ define method make-source-topics (binding :: <generic-binding>)
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
-   make-alias-titles(generated-topic, binding);
+   make-namespace-names(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "gen" => binding);
    let topics = topics-from-template(#"generic-topic", generated-topic, vars);
 
@@ -98,7 +98,7 @@ define method make-method-topics (generic-method :: <generic-method>)
    let binding = generic-method.generic-binding;
    let method-defn = generic-method.method-defn;
    let method-params = method-defn.param-list.req-params;
-   let fqn = definition-qualified-name(binding, method-params: method-params);
+   let fqn = canonical-qualified-name(binding, method-params: method-params);
    let namespace = fqn.enclosing-qualified-name;
 
    // Create body of generated topic.
@@ -112,7 +112,7 @@ define method make-method-topics (generic-method :: <generic-method>)
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
-   make-alias-titles(generated-topic, generic-method);
+   make-namespace-names(generated-topic, generic-method);
    let vars = table(<case-insensitive-string-table>, "meth" => generic-method);
    let topics = topics-from-template(#"method-topic", generated-topic, vars);
 

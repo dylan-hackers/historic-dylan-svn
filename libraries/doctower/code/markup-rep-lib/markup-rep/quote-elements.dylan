@@ -11,9 +11,9 @@ define class <xref> (<markup-element>)
                              <target-placeholder>, <footnote-placeholder>,
                              <line-marker-placeholder>),
          init-keyword: #"target";
-   // Can be a <conref>, <title-seq>, or anything in a <title-seq>. This includes
-   // <cite> which is not normally allowed in DITA <xref>, but we put the link
-   // text in a <ph> so it is okay.
+   // Can be a <conref>, <title-seq>, or anything allowed in a <title-seq>. This
+   // includes <cite> which is not normally allowed in DITA <xref>, but we put
+   // the link text in a <ph> so it is okay.
    slot text, init-keyword: #"text";
    slot target-from-text? :: <boolean> = #f,
          init-keyword: #"target-from-text";

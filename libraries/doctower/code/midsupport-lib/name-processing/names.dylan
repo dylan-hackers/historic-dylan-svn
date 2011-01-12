@@ -7,6 +7,12 @@ define function standardize-qualified-name (name :: <string>) => (name :: <strin
 end function;
 
 
+/// Synopsis: Makes titlecase.
+define function standardize-presentation-name (name :: <string>) => (name :: <string>)
+   name.as-titlecase
+end function;
+
+
 /// Synopsis: Ensures legal characters in IDs.
 define function standardize-id (id :: <string>) => (id :: <string>)
    replace-elements!(id, curry(\=, '/'), always('.'));

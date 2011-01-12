@@ -73,9 +73,9 @@ define generic group-elements
 => (categories :: <sequence>);
 
 define method group-elements
-   (collection :: <table>, #key test :: <function> = \==)
+   (collection :: <explicit-key-collection>, #key test :: <function> = \==)
 => (categories :: <sequence>)
-   let categories = list();
+   let categories = make(<stretchy-vector>);
    for (elem keyed-by key in collection)
       block (matched)
          // See if an existing category fits.
@@ -86,7 +86,8 @@ define method group-elements
             end if;
          end for;
          // If not, make a new one.
-         let categ = table(collection.type-for-copy, key => elem);
+         let categ = make(collection.type-for-copy);
+         categ[key] := elem;
          categories := add!(categories, categ);
       end block;
    end for;

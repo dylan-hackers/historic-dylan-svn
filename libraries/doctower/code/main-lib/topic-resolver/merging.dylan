@@ -153,10 +153,10 @@ define method merge-two-topics (a :: <api-doc>, b :: <api-doc>)
    a.existent-api? := a.existent-api? | b.existent-api?;
    a.canonical-namespace := a.canonical-namespace | b.canonical-namespace;
 
-   for (b-titles keyed-by namespace in b.titles-in-namespace)
-      let a-titles = element(a.titles-in-namespace, namespace, default: #[]);
-      let combined = union(a-titles, b-titles, test: \=);
-      a.titles-in-namespace[namespace] := combined;
+   for (b-names keyed-by namespace in b.names-in-namespace)
+      let a-names = element(a.names-in-namespace, namespace, default: #[]);
+      let combined = union(a-names, b-names, test: \=);
+      a.names-in-namespace[namespace] := combined;
    end for;
 
    a.declarations-section := a.declarations-section | b.declarations-section;

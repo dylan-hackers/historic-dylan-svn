@@ -133,21 +133,18 @@ define method add-target-title
 end method;
 
 
-define method add-target-title
-   (target :: <api-doc>, title-table :: <table>)
-=> ()
-   let titles = reduce(concatenate!, vector(target.title), target.titles-in-namespace);
-   let title-strings = map(stringify-title, titles);
-   do(curry(add-target-for-string, target, title-table), title-strings);
-end method;
-
-
 define method add-target-fqn
    (topic :: <api-doc>, fqn-table :: <table>)
 => ()
    if (topic.fully-qualified-name)
       add-target-for-string(topic, fqn-table, topic.fully-qualified-name);
    end if;
+   for (name-list keyed-by namespace in topic.names-in-namespace)
+      for (name in name-list)
+         let fqn = concatenate(namespace, ":", name.standardize-qualified-name);
+         add-target-for-string(topic, fqn-table, fqn);
+      end for;
+   end for;
 end method;
 
 
@@ -282,55 +279,56 @@ define method xrefs-for-catalog
                    test: doc-tree.key-test, count: 1)
          end if;
             
-   local method combine-unique-titles
-            (titles-1 :: <sequence>, titles-2 :: <sequence>) /* of <title-seq> */
+   local method combine-unique-names (names-1 :: <sequence>, names-2 :: <sequence>)
          => (combined :: <sequence>)
-            union(titles-1, titles-2, test: \=)
-         end method,
-         
-         method in-desired-namespace? (candidate :: <string>) => (desired? :: <boolean>)
-            begins-with-string?(candidate, desired-namespace,
-                                string-test: case-insensitive-equal?)
+            union(names-1, names-2, test: \=)
          end method;
    
-   let found-topics = make(<stretchy-vector>) /* of (title, topic) pairs */;
+   let found-topics = make(<stretchy-vector>) /* of (name, topic) pairs */;
    for (topic-key in candidate-topic-keys)
       let topic :: <topic> = doc-tree[topic-key];
       if (member?(topic.topic-type, desired-topic-types))
-         // If an API is known in a namespace, it will have a title in that
-         // namespace. Take title(s) and note them with this topic.
-         let namespace-keys = topic.titles-in-namespace.key-sequence;
+         // If an API is known in a namespace, it will have a name in that
+         // namespace.
+         let namespace-keys = topic.names-in-namespace.key-sequence;
          let matching-keys =
                if (desired-namespace)
-                  choose(in-desired-namespace?, namespace-keys)
+                  choose(curry(\=, desired-namespace), namespace-keys)
                else
                   namespace-keys
                end if;
+
+         // If we have a desired namespace, matching-keys will be empty or have
+         // one namespace key. If we do not have a desired namespace,
+         // matching-keys will contain all namespace keys. Grab the unique names
+         // associated with each key and put them into (name, topic) pairs.
          unless (matching-keys.empty?)
-            let matching-title-groups =
-                  map(curry(element, topic.titles-in-namespace), matching-keys);
-            let matching-titles =
-                  reduce(combine-unique-titles, make(<stretchy-vector>),
-                         matching-title-groups);
-            let topic-title-pairs = map(rcurry(pair, topic), matching-titles);
-            found-topics := concatenate!(found-topics, topic-title-pairs);
+            let matching-name-groups =
+                  map(curry(element, topic.names-in-namespace), matching-keys);
+            let matching-names =
+                  reduce(combine-unique-names, make(<stretchy-vector>),
+                         matching-name-groups);
+            let topic-name-pairs = map(rcurry(pair, topic), matching-names);
+            found-topics := concatenate!(found-topics, topic-name-pairs);
          end unless
       end if
    end for;
    
-   local method make-api-xref (title-topic :: <pair>) => (xref :: <xref>)
+   local method make-api-xref (name-topic :: <pair>) => (xref :: <xref>)
+            let api-name = make(<api/parm-name>, text: name-topic.head,
+                  source-location: name-topic.tail.source-location);
             make(<xref>, source-location: $generated-source-location,
-                 target: title-topic.tail, text: title-topic.head);
+                 target: name-topic.tail, text: api-name);
          end method,
 
-         method title-sorts-first?
-            (title-topic-1 :: <pair>, title-topic-2 :: <pair>)
+         method name-sorts-first?
+            (name-topic-1 :: <pair>, name-topic-2 :: <pair>)
          => (t1-first? :: <boolean>)
-            let t1 :: <title-seq> = title-topic-1.head;
-            let t2 :: <title-seq> = title-topic-2.head;
-            t1.stringify-title < t2.stringify-title
+            let t1 :: <string> = name-topic-1.head;
+            let t2 :: <string> = name-topic-2.head;
+            case-insensitive-less?(t1, t2)
          end method;
          
-   let sorted-topics = sort(found-topics, test: title-sorts-first?);
+   let sorted-topics = sort(found-topics, test: name-sorts-first?);
    map(make-api-xref, sorted-topics);
 end method;

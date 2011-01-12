@@ -4,7 +4,7 @@ synopsis: Code to generate library and module topics.
 
 define method make-source-topics (defn :: <library>) 
 => (topics :: <sequence>, catalog-topics :: <sequence>)
-   let fqn = defn.definition-qualified-name;
+   let fqn = defn.canonical-qualified-name;
 
    // Create generated topic.
 
@@ -14,7 +14,7 @@ define method make-source-topics (defn :: <library>)
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
-   make-alias-titles(generated-topic, defn);
+   make-namespace-names(generated-topic, defn);
 
    // Create body of generated topics.
    
@@ -51,7 +51,7 @@ end method;
 
 define method make-source-topics (defn :: <module>) 
 => (topics :: <sequence>, catalog-topics :: <sequence>)
-   let fqn = defn.definition-qualified-name;
+   let fqn = defn.canonical-qualified-name;
    let namespace = fqn.enclosing-qualified-name;
 
    // Create generated topic.
@@ -62,7 +62,7 @@ define method make-source-topics (defn :: <module>)
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
-   make-alias-titles(generated-topic, defn);
+   make-namespace-names(generated-topic, defn);
 
    // Create body of generated topic.
    

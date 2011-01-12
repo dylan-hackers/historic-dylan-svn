@@ -42,12 +42,13 @@ define method topics-from-template
                select (var-object by instance?)
                   <definition> =>
                      format-to-string("%s_%s", template-name,
-                           var-object.definition-qualified-name);
+                           var-object.canonical-qualified-name);
                   <generic-method> =>
                      let binding = var-object.generic-binding;
                      let method-params = var-object.method-defn.param-list.req-params;
                      format-to-string("%s_%s", template-name,
-                           definition-qualified-name(binding, method-params: method-params));
+                           canonical-qualified-name
+                           (binding, method-params: method-params));
                end select
             else
                as(<string>, template-name)
@@ -160,7 +161,7 @@ define constant $template-ops = table(<case-insensitive-string-table>,
             // .name .declaration
       "rest-value" => template-rest-value,
             // .name .declaration .type .singleton
-      "scope-name" => definition-qualified-name,            // <string>
+      "scope-name" => canonical-qualified-name,             // <string>
       "singleton" => template-singleton,
             // .text .declaration
       "source" => template-source,
@@ -207,15 +208,13 @@ end method;
 
 
 define method template-name (defn :: <definition>) => (name :: <string>)
-   defn.canonical-name.local-name.as-titlecase
+   defn.presentation-name
 end method;
 
 
 define method template-name (meth :: <generic-method>) => (name :: <string>)
    let params = meth.method-defn.param-list.req-params;
-   let types = canonical-param-types(params, #f);
-   let type-list = types.item-string-list | "";
-   format-to-string("%s(%s)", meth.template-base-name, type-list.as-titlecase)
+   presentation-name(meth.generic-binding, method-params: params)
 end method;
 
 
@@ -236,7 +235,7 @@ end method;
 
 
 define method template-text (frag :: <fragment>) => (text :: <string>)
-   source-text-as-string(frag.source-text, #f)
+   source-text-as-string(frag.source-text)
 end method;
 
 
@@ -485,7 +484,7 @@ end method;
 
 
 define method template-base-name (meth :: <generic-method>) => (name :: <string>)
-   meth.generic-binding.template-name
+   meth.generic-binding.presentation-name
 end method;
 
 

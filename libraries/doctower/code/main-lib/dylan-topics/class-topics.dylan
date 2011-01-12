@@ -4,7 +4,7 @@ synopsis: Code to generate class topics.
 
 define method make-source-topics (binding :: <class-binding>) 
 => (topics :: <sequence>, catalog-topics :: <sequence>)
-   let fqn = binding.definition-qualified-name;
+   let fqn = binding.canonical-qualified-name;
    let namespace = fqn.enclosing-qualified-name;
    
    // Create body of generated topic.
@@ -16,7 +16,7 @@ define method make-source-topics (binding :: <class-binding>)
          title-id-source-location: $generated-source-location,
          qualified-name-source-location: $generated-source-location);
 
-   make-alias-titles(generated-topic, binding);
+   make-namespace-names(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "class" => binding);
    let topics = topics-from-template(#"class-topic", generated-topic, vars);
          

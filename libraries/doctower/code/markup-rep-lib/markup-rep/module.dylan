@@ -42,16 +42,16 @@ define module markup-rep
       headings-setter, id, id-setter, id-source-loc, id-source-loc-setter,
       image-name, image-name-setter, index, index-setter, inheritables-section,
       inheritables-section-setter, items, items-setter, keywords-section,
-      keywords-section-setter, modules-section, modules-section-setter, parent,
-      parent-setter, qualified-scope-name, qualified-scope-name-setter,
-      rel-size, rel-size-setter, relevant-to, relevant-to-setter, related-links,
-      related-links-setter, shortdesc, shortdesc-setter, style, subs-section,
-      subs-section-setter, supers-section, supers-section-setter,
-      syntax-section, syntax-section-setter, target, target-setter,
-      target-from-text?, text, text-setter, title, title-setter,
-      titles-in-namespace, title-source-loc, title-source-loc-setter,
-      topic-type, vals-section, vals-section-setter, value-section,
-      value-section-setter;
+      keywords-section-setter, modules-section, modules-section-setter,
+      names-in-namespace, parent, parent-setter, qualified-scope-name,
+      qualified-scope-name-setter, rel-size, rel-size-setter, relevant-to,
+      relevant-to-setter, related-links, related-links-setter, shortdesc,
+      shortdesc-setter, style, subs-section, subs-section-setter,
+      supers-section, supers-section-setter, syntax-section,
+      syntax-section-setter, target, target-setter, target-from-text?, text,
+      text-setter, title, title-setter, title-source-loc,
+      title-source-loc-setter, topic-type, vals-section, vals-section-setter,
+      value-section, value-section-setter;
 
    export
       stringify-title, stringify-markup, printed-topic-type,

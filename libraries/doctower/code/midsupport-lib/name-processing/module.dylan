@@ -11,6 +11,7 @@ define module name-processing
    use vector-search, import: { find-last-key };
    
    export
-      standardize-qualified-name, standardize-id, standardize-title,
-      as-titlecase, enclosing-qualified-name, qualified-name-as-id;
+      standardize-qualified-name, standardize-presentation-name, standardize-id,
+      standardize-title, as-titlecase, enclosing-qualified-name,
+      qualified-name-as-id;
 end module;
