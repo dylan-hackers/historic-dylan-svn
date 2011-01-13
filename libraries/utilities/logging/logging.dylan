@@ -109,7 +109,7 @@ define abstract class <abstract-logger> (<object>)
 
   // If this is #t then log messages sent to this logger will be passed up
   // the hierarchy to parent loggers as well, until it reaches a logger
-  // whos additivity is #f.  Terminology stolen from log4j.
+  // whose additivity is #f.  Terminology stolen from log4j.
   //
   slot logger-additive? :: <boolean>,
     init-keyword: additive:,
@@ -415,7 +415,7 @@ define constant log-error = curry(log-message, $error-level);
 //// Targets
 ////
 
-// Absract target for logging.  Subclasses represent different
+// Abstract target for logging.  Subclasses represent different
 // backend targets such as streams, files, databases, etc.
 //
 define open abstract class <log-target> (<closable-object>)
