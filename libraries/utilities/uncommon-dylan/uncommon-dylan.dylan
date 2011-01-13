@@ -300,7 +300,7 @@ end;
 
 // copy-table?
 
-// Count the number of occurrances of item in collection, as determined
+// Count the number of occurrences of item in collection, as determined
 // by the predicate.  'limit' is an efficiency hack: stop counting when limit
 // is reached, the theory being that it's common to want to know if there's
 // more than one of the given item.
