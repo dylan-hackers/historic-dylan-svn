@@ -407,7 +407,7 @@ link-directive-spec-text:
 links-directive-spec-text:
    "RELEVANT" SPC+ "TO" / "SEE" SPC+ "ALSO"
 word-directive-spec-text:
-   "FULLY" SPC+ "QUALIFIED" SPC+ "NAME"
+   "IN" SPC+ ( "LIBRARY" / "MODULE" )
 division-directive-spec-text:
    "INIT-KEYWORDS" / "CONDITIONS" / "EXCEPTIONS" / "ARGUMENTS" / "KEYWORDS" /
    "SIGNALS" / "ERRORS" / "VALUES" / "ARGS" / ( "MAKE" SPC+ "KEYWORDS" ) /

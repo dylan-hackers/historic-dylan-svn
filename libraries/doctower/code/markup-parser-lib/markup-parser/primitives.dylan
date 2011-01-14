@@ -134,12 +134,12 @@ define literal-parsers
    example-lit    = "example";
    exceptions-lit = "exceptions";
    fig-lit        = "fig";
-   fully-lit      = "fully";
    function-lit   = "function";
    generic-lit    = "generic";
    html-lit       = "html";
    i-lit          = "i";
    img-lit        = "img";
+   in-lit         = "in";
    init-keywords-lit = "init-keywords";
    keywords-lit   = "keywords";
    library-lit    = "library";
@@ -147,13 +147,11 @@ define literal-parsers
    make-lit       = "make";
    method-lit     = "method";
    module-lit     = "module";
-   name-lit       = "name";
    note-lit       = "note";
    of-lit         = "of";
    parent-lit     = "parent";
    q-lit          = "q";
    qq-lit         = "qq";
-   qualified-lit  = "qualified";
    qv-lit         = "qv";
    relevant-lit   = "relevant";
    section-lit    = "section";

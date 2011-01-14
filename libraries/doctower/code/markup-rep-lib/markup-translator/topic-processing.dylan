@@ -264,22 +264,21 @@ end method;
 
 
 define method process-tokens
-   (topic :: <api-doc>, section-token :: <word-directive-token>)
-=> ()
-   select (section-token.directive-type)
-      #"fully-qualified-name" =>
-         topic.fully-qualified-name :=
-               standardize-qualified-name(section-token.word.token-text);
-         topic.fully-qualified-name-source-loc := section-token.token-src-loc;
-   end select;
-end method;
-
-
-define method process-tokens
    (topic :: <topic>, section-token :: <word-directive-token>)
 => ()
    select (section-token.directive-type)
-      #"fully-qualified-name" =>
-         fully-qualified-name-in-non-api-topic(location: section-token.token-src-loc);
+      #"in-library" =>
+         unless (instance?(topic, <module-doc>))
+            library-specifier-in-non-module-topic
+                  (location: section-token.token-src-loc)
+         end unless;
+      #"in-module" =>
+         unless (instance?(topic, <binding-doc>))
+            module-specifier-in-non-binding-topic
+                  (location: section-token.token-src-loc)
+         end unless;
    end select;
+   topic.canonical-namespace :=
+         section-token.word.token-text.standardize-qualified-name;
+   topic.canonical-namespace-source-loc := section-token.token-src-loc;
 end method;

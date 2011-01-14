@@ -260,8 +260,12 @@ define caching parser links-directive-spec-text :: <symbol>
 end;
 
 define caching parser word-directive-spec-text :: <symbol>
-   rule seq(fully-lit, spaces, qualified-lit, spaces, name-lit) => tokens;
-   yield #"fully-qualified-name";
+   rule seq(in-lit, spaces, choice(module-lit, library-lit))
+      => tokens;
+   yield select (tokens[2])
+            #"module" => #"in-module";
+            #"library" => #"in-library";
+         end select;
 end;
 
 define caching parser division-directive-spec-text :: <symbol>

@@ -33,7 +33,7 @@ end method;
 
 
 /**
-Synopsis: Fill in fully qualified names where not provided.
+Synopsis: Fill in fully qualified names where missing.
 
 Arguments:
 topics - A <sequence> of <api-topic>.
@@ -41,26 +41,71 @@ topics - A <sequence> of <api-topic>.
 define method assign-fully-qualified-names (api-topics :: <sequence>) => ()
    let (identified-topics, unidentified-topics) =
          partition(fully-qualified-name, api-topics);
-   let identified-topic-titles = map(compose(stringify-title, title), identified-topics);
    for (topic :: <api-doc> in unidentified-topics)
-      let topic-title = stringify-title(topic.title);
-      let matching-topics = choose-by(curry(case-insensitive-equal?, topic-title),
-                                      identified-topic-titles, identified-topics);
+      let presentation-name = topic.title.stringify-title.standardize-title;
 
+      // Find topics with a fully qualified name of the same type, namespace,
+      // and presentation name as the current, unknown topic.
+      
+      local method name-in-list? (name :: <string>, list :: <sequence>)
+            => (present? :: <boolean>)
+               member?(name, list, test: \=)
+            end method,
+
+            method matching-topic? (possible-topic :: <api-doc>)
+            => (matches? :: <boolean>)
+               if (possible-topic.topic-type = topic.topic-type)
+                  if (topic.canonical-namespace)
+                     let possible-topic-names =
+                           element(possible-topic.names-in-namespace,
+                                   topic.canonical-namespace, default: #[]);
+                     name-in-list?(presentation-name, possible-topic-names)
+                  else
+                     any?(curry(name-in-list?, presentation-name),
+                          possible-topic.names-in-namespace)
+                  end if
+               end if
+            end method;
+
+      let matching-topics = choose(matching-topic?, identified-topics);
+      
+      // If there aren't any, this may not be an actual API.
+      
       if (matching-topics.empty?)
-         api-not-found-in-code(location: topic.source-location,
-               topic-type: printed-topic-type(topic.topic-type),
-               title: topic-title)
-
-      else
-         let qualified-name = matching-topics.first.fully-qualified-name;
-         if (every?(compose(curry(\=, qualified-name), fully-qualified-name),
-                    matching-topics))
-            topic.fully-qualified-name := qualified-name
+         if (topic.canonical-namespace)
+            api-not-found-in-namespace
+                  (location: topic.canonical-namespace-source-loc,
+                   topic-type: topic.topic-type.printed-topic-type,
+                   api-name: presentation-name,
+                   api-namespace: topic.canonical-namespace)
          else
-            let locs = map(source-location, matching-topics).item-string-list;
-            ambiguous-api-in-topics(location: topic.source-location,
-                  title: topic-title, topic-locations: locs);
+            api-not-found-in-code
+                 (location: topic.title-source-loc,
+                  topic-type: topic.topic-type.printed-topic-type,
+                  api-name: presentation-name)
+         end if;
+      
+      // Otherwise, see what possible fully-qualified-names we found. If we have
+      // only one, that is our man.
+      
+      else
+         let fqns = remove-duplicates!
+               (map(fully-qualified-name, matching-topics), test: \=);
+
+         if (fqns.size = 1)
+            topic.fully-qualified-name := fqns.first
+         else
+            let fqn-strings = map(curry(format-to-string, "\"%s\""), fqns);
+            let warning-func =
+                  if (instance?(topic, <module-doc>))
+                     ambiguous-module-in-topics
+                  else
+                     ambiguous-binding-in-topics
+                  end if;
+            warning-func
+                  (location: topic.title-source-loc,
+                   qualified-names: fqn-strings.item-string-list,
+                   api-name: presentation-name);
          end if;
       end if;
    end for
@@ -72,8 +117,7 @@ Synopsis: Combine a series of partial authored and generated topics into one,
 and perform validity checks that require both.
 
 Specifically, this function checks the authored argument, value, and keyword
-sections against the automatically-generated ones, and warns if a fully
-qualified name is given for a non-existent API.
+sections against the automatically-generated ones.
 
 Arguments:
 topics   - A sequence of <topic>. If there is more than one topic, then all
@@ -82,15 +126,6 @@ topics   - A sequence of <topic>. If there is more than one topic, then all
          may or may not have a fully qualified name.
 **/
 define method check-and-merge-topics (topics :: <sequence>) => (topic :: <topic>)
-   // Warn if non-existent API has fully qualified name.
-   if (instance?(topics.first, <api-doc>))
-      if (topics.first.fully-qualified-name & every?(complement(existent-api?), topics))
-         fully-qualified-name-not-found-in-code
-               (location: topics.first.fully-qualified-name-source-loc,
-                qualified-name: topics.first.fully-qualified-name)
-      end if
-   end if;
-   
    if (topics.size = 1)
       topics.first
    else
@@ -145,6 +180,13 @@ define method merge-two-topics (a :: <topic>, b :: <topic>)
 end method;
 
 
+define method merge-two-topics (a :: <catalog-topic>, b :: <catalog-topic>)
+=> (merged :: <catalog-topic>)
+   a.qualified-scope-name := a.qualified-scope-name | b.qualified-scope-name;
+   next-method()
+end method;
+
+
 define method merge-two-topics (a :: <api-doc>, b :: <api-doc>)
 => (merged :: <api-doc>)
    debug-assert(~a.fully-qualified-name | ~b.fully-qualified-name |
@@ -152,6 +194,8 @@ define method merge-two-topics (a :: <api-doc>, b :: <api-doc>)
          "Fully qualified names for %= and %= do not match");
    a.existent-api? := a.existent-api? | b.existent-api?;
    a.canonical-namespace := a.canonical-namespace | b.canonical-namespace;
+   a.canonical-namespace-source-loc :=
+         a.canonical-namespace-source-loc | b.canonical-namespace-source-loc;
 
    for (b-names keyed-by namespace in b.names-in-namespace)
       let a-names = element(a.names-in-namespace, namespace, default: #[]);

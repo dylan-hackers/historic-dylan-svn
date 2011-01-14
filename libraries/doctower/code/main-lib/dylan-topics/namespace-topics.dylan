@@ -12,7 +12,7 @@ define method make-source-topics (defn :: <library>)
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
          qualified-name: fqn, scope: fqn, existent-api: #t,
          title-id-source-location: $generated-source-location,
-         qualified-name-source-location: $generated-source-location);
+         canonical-namespace-source-location: $generated-source-location);
 
    make-namespace-names(generated-topic, defn);
 
@@ -30,7 +30,7 @@ define method make-source-topics (defn :: <library>)
             id: defn.canonical-id, title: defn.canonical-title, generated: #f,
             qualified-name: fqn, scope: fqn, existent-api: #t,
             title-id-source-location: $generated-source-location,
-            qualified-name-source-location: $generated-source-location);
+            canonical-namespace-source-location: $generated-source-location);
       let authored-topics = make-authored-topics(defn.markup-tokens, context-topic);
       topics := concatenate!(topics, authored-topics);
    end unless;
@@ -60,7 +60,7 @@ define method make-source-topics (defn :: <module>)
          id: defn.canonical-id, title: defn.canonical-title, generated: #t,
          qualified-name: fqn, scope: fqn, namespace: namespace, existent-api: #t,
          title-id-source-location: $generated-source-location,
-         qualified-name-source-location: $generated-source-location);
+         canonical-namespace-source-location: $generated-source-location);
 
    make-namespace-names(generated-topic, defn);
 
@@ -78,7 +78,7 @@ define method make-source-topics (defn :: <module>)
             id: defn.canonical-id, title: defn.canonical-title, generated: #f,
             qualified-name: fqn, scope: fqn, namespace: namespace, existent-api: #t,
             title-id-source-location: $generated-source-location,
-            qualified-name-source-location: $generated-source-location);
+            canonical-namespace-source-location: $generated-source-location);
       let authored-topics = make-authored-topics(defn.markup-tokens, context-topic);
       topics := concatenate!(topics, authored-topics);
    end unless;

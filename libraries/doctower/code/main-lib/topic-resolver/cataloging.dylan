@@ -38,14 +38,9 @@ define method resolution-info (topics :: <sequence>)
    
    // FQNs
    for (target-list keyed-by fqn in fqns)
-      debug-assert(target-list.size >= 1, "No targets with fqn %=", fqn);
-      if (target-list.size = 1)
-         target-resolutions[fqn.qualified-name-as-id] := target-list.first
-      else
-         let fqn-locs = map(fully-qualified-name-source-loc, target-list);
-         multiple-topics-for-fqn(location: fqn-locs.first, fqn: fqn,
-               fqn-locations: fqn-locs.item-string-list);
-      end if
+      debug-assert(target-list.size = 1, "%d targets with fqn %=",
+            target-list.size, fqn);
+      target-resolutions[fqn.qualified-name-as-id] := target-list.first
    end for;
    
    // IDs
@@ -289,22 +284,22 @@ define method xrefs-for-catalog
       let topic :: <topic> = doc-tree[topic-key];
       if (member?(topic.topic-type, desired-topic-types))
          // If an API is known in a namespace, it will have a name in that
-         // namespace.
-         let namespace-keys = topic.names-in-namespace.key-sequence;
-         let matching-keys =
+         // namespace. If we don't care about namespace, include them all.
+         let all-namespace-keys = topic.names-in-namespace.key-sequence;
+         let namespace-keys =
                if (desired-namespace)
-                  choose(curry(\=, desired-namespace), namespace-keys)
+                  choose(curry(\=, desired-namespace), all-namespace-keys)
                else
-                  namespace-keys
+                  all-namespace-keys
                end if;
-
-         // If we have a desired namespace, matching-keys will be empty or have
-         // one namespace key. If we do not have a desired namespace,
-         // matching-keys will contain all namespace keys. Grab the unique names
-         // associated with each key and put them into (name, topic) pairs.
-         unless (matching-keys.empty?)
+               
+         // If we have a desired namespace, namespace-keys will be empty or have
+         // one key. If we do not have a desired namespace, namespace-keys will
+         // contain all namespaces. Grab the unique names associated with each
+         // key and put them into (name, topic) pairs.
+         unless (namespace-keys.empty?)
             let matching-name-groups =
-                  map(curry(element, topic.names-in-namespace), matching-keys);
+                  map(curry(element, topic.names-in-namespace), namespace-keys);
             let matching-names =
                   reduce(combine-unique-names, make(<stretchy-vector>),
                          matching-name-groups);

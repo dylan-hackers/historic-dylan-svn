@@ -130,12 +130,10 @@ define class <catalog-topic> (<ref-topic>)
 end class;
 
 define class <api-doc> (<ref-topic>)
-   // The fully qualified name, either automatically generated or supplied by
-   // author and standardized. No need to test with case-insensitive-equal?.
+   // The fully qualified name, automatically generated and standardized. No 
+   // need to test with case-insensitive-equal?.
    slot fully-qualified-name :: false-or(<string>) = #f, 
          init-keyword: #"qualified-name";
-   slot fully-qualified-name-source-loc :: <source-location> = $unknown-source-location,
-         init-keyword: #"qualified-name-source-location";
    
    // True if this API actually exists in code; false if it is conceptual and
    // provided by author. All automatically generated API topics are existent,
@@ -148,6 +146,8 @@ define class <api-doc> (<ref-topic>)
    // (e.g. "Dylan:Dylan"). No need to test with case-insensitive-equal?.
    slot canonical-namespace :: false-or(<string>) = #f,
          init-keyword: #"namespace";
+   slot canonical-namespace-source-loc :: <source-location> = $unknown-source-location,
+         init-keyword: #"namespace-source-location";
 
    // Alternative presentation name in each enclosing namespace. Keys are
    // <string>, the enclosing namespace fqn. Elements are sequence of <string>,
@@ -170,15 +170,18 @@ define class <module-doc> (<api-doc>, <catalog-topic>)
    keyword topic-type: = #"module";
 end class;
 
-define class <unbound-doc> (<api-doc>)
+define class <binding-doc> (<api-doc>)
+end class;
+
+define class <unbound-doc> (<binding-doc>)
    keyword topic-type: = #"unbound";
 end class;
 
-define class <placeholder-doc> (<api-doc>)
+define class <placeholder-doc> (<binding-doc>)
    keyword topic-type: = #"placeholder";
 end class;
 
-define class <class-doc> (<api-doc>)
+define class <class-doc> (<binding-doc>)
    slot adjectives-section :: false-or(<section>) = #f;
    slot keywords-section :: false-or(<section>) = #f;
    slot conds-section :: false-or(<section>) = #f;
@@ -190,20 +193,20 @@ define class <class-doc> (<api-doc>)
    keyword topic-type: = #"class";
 end class;
 
-define class <variable-doc> (<api-doc>)
+define class <variable-doc> (<binding-doc>)
    slot adjectives-section :: false-or(<section>) = #f;
    slot value-section :: false-or(<section>) = #f;
    keyword topic-type: = #"variable";
 end class;
 
-define class <macro-doc> (<api-doc>)
+define class <macro-doc> (<binding-doc>)
    slot syntax-section :: false-or(<section>) = #f;
    slot args-section :: false-or(<section>) = #f;
    slot vals-section :: false-or(<section>) = #f;
    keyword topic-type: = #"macro";
 end class;
 
-define class <function-doc> (<api-doc>)
+define class <function-doc> (<binding-doc>)
    slot adjectives-section :: false-or(<section>) = #f;
    slot args-section :: false-or(<section>) = #f;
    slot vals-section :: false-or(<section>) = #f;

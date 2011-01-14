@@ -14,7 +14,7 @@ define method make-source-topics (binding :: <function-binding>)
          qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
-         qualified-name-source-location: $generated-source-location);
+         canonical-namespace-source-location: $generated-source-location);
 
    make-namespace-names(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "func" => binding);
@@ -28,7 +28,7 @@ define method make-source-topics (binding :: <function-binding>)
          qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
-         qualified-name-source-location: $generated-source-location);
+         canonical-namespace-source-location: $generated-source-location);
 
    let authored-topics = make-authored-topics(binding.markup-tokens, authored-topic);
    topics := concatenate!(topics, authored-topics);
@@ -56,7 +56,7 @@ define method make-source-topics (binding :: <generic-binding>)
          qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
-         qualified-name-source-location: $generated-source-location);
+         canonical-namespace-source-location: $generated-source-location);
 
    make-namespace-names(generated-topic, binding);
    let vars = table(<case-insensitive-string-table>, "gen" => binding);
@@ -70,7 +70,7 @@ define method make-source-topics (binding :: <generic-binding>)
          qualified-name: fqn, namespace: namespace,
          source-location: binding.source-location,
          title-id-source-location: $generated-source-location,
-         qualified-name-source-location: $generated-source-location);
+         canonical-namespace-source-location: $generated-source-location);
 
    let authored-topics = make-authored-topics(binding.markup-tokens, authored-topic);
    topics := concatenate!(topics, authored-topics);
@@ -110,7 +110,7 @@ define method make-method-topics (generic-method :: <generic-method>)
          qualified-name: fqn, namespace: namespace,
          source-location: method-defn.source-location,
          title-id-source-location: $generated-source-location,
-         qualified-name-source-location: $generated-source-location);
+         canonical-namespace-source-location: $generated-source-location);
 
    make-namespace-names(generated-topic, generic-method);
    let vars = table(<case-insensitive-string-table>, "meth" => generic-method);
@@ -125,7 +125,7 @@ define method make-method-topics (generic-method :: <generic-method>)
          qualified-name: fqn, namespace: namespace,
          source-location: method-defn.source-location,
          title-id-source-location: $generated-source-location,
-         qualified-name-source-location: $generated-source-location);
+         canonical-namespace-source-location: $generated-source-location);
 
    let authored-topics = make-authored-topics(method-defn.markup-tokens, authored-topic);
    topics := concatenate!(topics, authored-topics);

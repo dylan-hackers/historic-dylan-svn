@@ -163,8 +163,7 @@ Conceptual API topics do not have tool-assigned IDs.
 Topic IDs:
   Each class, function,
   macro, or variable  - ::Dylan:Dylan:<Integer>
-  Each member method  -
-    ::Dylan:Dylan:As(Dylan:Dylan:Singleton(Dylan:Dylan:<Integer>),Dylan:Dylan:<Float>)
+  Each member method  - ::Dylan:Dylan:As(Singleton(<Integer>),<Float>)
   Each library        - ::Dylan
   Each module         - ::Dylan:Dylan
   "All Libraries"     - :Libraries

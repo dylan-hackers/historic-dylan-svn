@@ -124,8 +124,8 @@ define errors (<user-visible-warning>)
       location;
 
    03 api-not-found-in-code
-      "Found no source code for %s \"%s\"",
-      location, topic-type, title;
+      "No source code found for %s \"%s\"",
+      location, topic-type, api-name;
 
    04 doc-comment-in-undocumented-file
       "Documentation from internal %s \"%s\" will not be used",
@@ -143,23 +143,23 @@ define errors (<user-visible-warning>)
       "Alias of binding \"%s\" cannot be individually documented",
       location, alias-name;
    
-   08 ambiguous-api-in-topics
+   08 ambiguous-module-in-topics
       "\"%s\" is ambiguous and might refer to any of %s; "
-      "add \"Fully Qualified Name:\" to clarify",
-      location, title, topic-locations;
+      "specify with \"In Library:\" directive",
+      location, api-name, qualified-names;
    
-   09 fully-qualified-name-not-found-in-code
-      "Fully qualified name \"%s\" is not present in source code; "
-      "see --names file",
-      location, qualified-name;
+   09 api-not-found-in-namespace
+      "No source code found for %s \"%s\" in \"%s\"",
+      location, topic-type, api-name, api-namespace;
    
    10 unused-docs-in-topic
       "Documentation replaces other documentation at %s",
       location, doc-locations;
    
-   11 fully-qualified-name-in-non-api-topic
-      "Fully qualified name of general topic has no use",
-      location;
+   11 ambiguous-binding-in-topics
+      "\"%s\" is ambiguous and might refer to any of %s; "
+      "specify with \"In Module:\" directive",
+      location, api-name, qualified-names;
    
    12 unresolvable-target-in-xref
       "Unable to resolve cross-reference to \"%s\"",
@@ -345,4 +345,12 @@ define errors (<user-visible-error>)
    89 section-where-topic-required-in-link
       "Topic-only link cannot refer to section at %s",
       location, section-location;
+   
+   90 library-specifier-in-non-module-topic
+      "Library specifier only applies to module topics",
+      location;
+
+   90 module-specifier-in-non-binding-topic
+      "Module specifier only applies to binding topics",
+      location;
 end errors;

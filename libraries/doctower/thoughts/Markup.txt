@@ -334,10 +334,10 @@ SECTION: title
   alternative to the ASCII-art method of denoting a section (though like all
   directives, you can add ASCII-art around it that is ignored).
 
-FULLY QUALIFIED NAME: name
-  May be necessary to determine which of several APIs this topic refers to.
-  Only in reference topics. Doctower has a command-line switch to get a list of
-  all the fully qualified names in the project and their local aliases.
+IN LIBRARY|MODULE: name
+  Define which library or module contains this module or binding topic. Only
+  necessary to disambiguate. Doctower will provide an error message if this
+  directive is needed.
 
 SYN|SYNOPSIS: paragraph
   A brief description of the topic.

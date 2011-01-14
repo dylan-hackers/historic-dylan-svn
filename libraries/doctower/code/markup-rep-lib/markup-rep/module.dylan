@@ -10,7 +10,7 @@ define module markup-rep
    use locators, import: { <url> }, export: all;
 
    export
-      <api-doc>, <api/parm-name>, <bold>, <catalog-topic>, <cite>,
+      <api-doc>, <api/parm-name>, <binding-doc>, <bold>, <catalog-topic>, <cite>,
       <unbound-doc>, <class-doc>, <code-block>, <code-phrase>, <con-topic>,
       <conref>, <content-seq>, <defn-list>, <dita-content>, <ditto-placeholder>,
       <emphasis>, <entity>, <fig>, <footnote>, <footnote-placeholder>,
@@ -31,13 +31,13 @@ define module markup-rep
       abs-size, abs-size-setter, adjectives-section, adjectives-section-setter,
       api-xrefs, api-xrefs-setter, args-section, args-section-setter,
       bindings-section, bindings-section-setter, canonical-namespace,
-      canonical-namespace-setter, code, conds-section, conds-section-setter,
-      content, content-setter, declarations-section,
+      canonical-namespace-setter, canonical-namespace-source-loc,
+      canonical-namespace-source-loc-setter, code, conds-section,
+      conds-section-setter, content, content-setter, declarations-section,
       declarations-section-setter, existent-api?, existent-api?-setter,
       fixed-parent, fixed-parent-setter, footnotes, footnotes-setter,
-      fully-qualified-name, fully-qualified-name-setter,
-      fully-qualified-name-source-loc, fully-qualified-name-source-loc-setter,
-      funcs-on-section, funcs-on-section-setter, funcs-returning-section,
+      fully-qualified-name, fully-qualified-name-setter, funcs-on-section,
+      funcs-on-section-setter, funcs-returning-section,
       funcs-returning-section-setter, generated-topic?, headings,
       headings-setter, id, id-setter, id-source-loc, id-source-loc-setter,
       image-name, image-name-setter, index, index-setter, inheritables-section,

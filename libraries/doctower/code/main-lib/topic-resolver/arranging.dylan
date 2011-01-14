@@ -137,7 +137,7 @@ end method;
 define method default-parent-ids (topic :: <module-doc>)
 => (ids :: <sequence>)
    if (topic.existent-api?)
-      let lib-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let lib-name = topic.canonical-namespace;
       list(format-to-string(":Modules(%s)", lib-name).standardize-id,
            ":Modules",
            lib-name.qualified-name-as-id)
@@ -149,7 +149,7 @@ end method;
 define method default-parent-ids (topic :: <class-doc>)
 => (ids :: <sequence>)
    if (topic.existent-api?)
-      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let mod-name = topic.canonical-namespace;
       let lib-name = mod-name.enclosing-qualified-name;
       list(format-to-string(":Classes(%s)", mod-name).standardize-id,
            format-to-string(":Bindings(%s)", mod-name).standardize-id,
@@ -169,7 +169,7 @@ end method;
 define method default-parent-ids (topic :: <variable-doc>)
 => (ids :: <sequence>)
    if (topic.existent-api?)
-      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let mod-name = topic.canonical-namespace;
       let lib-name = mod-name.enclosing-qualified-name;
       list(format-to-string(":Variables(%s)", mod-name).standardize-id,
            format-to-string(":Bindings(%s)", mod-name).standardize-id,
@@ -189,7 +189,7 @@ end method;
 define method default-parent-ids (topic :: <function-doc>)
 => (ids :: <sequence>)
    if (topic.existent-api? & topic.topic-type ~= #"method")
-      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let mod-name = topic.canonical-namespace;
       let lib-name = mod-name.enclosing-qualified-name;
       list(format-to-string(":Functions(%s)", mod-name).standardize-id,
            format-to-string(":Bindings(%s)", mod-name).standardize-id,
@@ -209,7 +209,7 @@ end method;
 define method default-parent-ids (topic :: <macro-doc>)
 => (ids :: <sequence>)
    if (topic.existent-api?)
-      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let mod-name = topic.canonical-namespace;
       let lib-name = mod-name.enclosing-qualified-name;
       list(format-to-string(":Macros(%s)", mod-name).standardize-id,
            format-to-string(":Bindings(%s)", mod-name).standardize-id,
@@ -229,7 +229,7 @@ end method;
 define method default-parent-ids (topic :: <unbound-doc>)
 => (ids :: <sequence>)
    if (topic.existent-api?)
-      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let mod-name = topic.canonical-namespace;
       let lib-name = mod-name.enclosing-qualified-name;
       list(format-to-string(":Unbound(%s)", mod-name).standardize-id,
            format-to-string(":Bindings(%s)", mod-name).standardize-id,
@@ -249,7 +249,7 @@ end method;
 define method default-parent-ids (topic :: <placeholder-doc>)
 => (ids :: <sequence>)
    if (topic.existent-api?)
-      let mod-name = topic.fully-qualified-name.enclosing-qualified-name;
+      let mod-name = topic.canonical-namespace;
       let lib-name = mod-name.enclosing-qualified-name;
       list(format-to-string(":Bindings(%s)", mod-name).standardize-id,
            format-to-string(":Bindings(%s)", lib-name).standardize-id,
