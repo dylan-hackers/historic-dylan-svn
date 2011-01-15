@@ -7,24 +7,28 @@ module: topic-resolver
 
 
 define method resolution-info (topics :: <sequence>)
-=> (target-resolutions :: <table>, duplicate-title-targets :: <table>)
+=> (target-resolutions :: <table>, duplicate-title-targets :: <table>,
+    duplicate-short-qualified-name-targets :: <table>)
 
    // Collect info.
    
    let combined-ids = make(<case-insensitive-string-table>);
    let titles = make(<case-insensitive-string-table>);
    let fqns = make(<case-insensitive-string-table>);
+   let short-fqns = make(<case-insensitive-string-table>);
    for (topic in topics)
       visit-targets(topic, add-target-info, topic: topic,
-            ids: combined-ids, titles: titles, fqns: fqns)
+            ids: combined-ids, titles: titles, fqns: fqns, short-fqns: short-fqns)
    end for;
    
    // Check for duplicates and collate. Resolution priority goes
-   // 1) ID, 2) FQN as ID, 3) unique title. Assign to common resolution table
-   // in 3-2-1 order so that higher priority resolutions replace lower.
+   // 1) ID, 2) FQN as ID, 3) FQN short name as ID, 4) unique title. Assign
+   // to common resolution table in 4-3-2-1 order so that higher priority
+   // resolutions replace lower.
    
    let target-resolutions = make(<case-insensitive-string-table>);
    let dup-titles = make(<case-insensitive-string-table>);
+   let dup-short-fqns = make(<case-insensitive-string-table>);
    
    // Titles
    for (target-list keyed-by title in titles)
@@ -33,6 +37,17 @@ define method resolution-info (topics :: <sequence>)
          target-resolutions[title] := target-list.first
       else
          dup-titles[title] := target-list
+      end if
+   end for;
+   
+   // Short FQNs
+   for (target-list keyed-by short-fqn in short-fqns)
+      debug-assert(target-list.size >= 1, "No targets with short fqn %=", short-fqn);
+      let sqn-id = short-fqn.short-qualified-name-as-id;
+      if (target-list.size = 1)
+         target-resolutions[sqn-id] := target-list.first
+      else
+         dup-short-fqns[sqn-id] := target-list
       end if
    end for;
    
@@ -63,25 +78,25 @@ define method resolution-info (topics :: <sequence>)
       end if
    end for;
    
-   values(target-resolutions, dup-titles)
+   values(target-resolutions, dup-titles, dup-short-fqns)
 end method;
 
 
 define method add-target-info
-   (object :: <object>, #key setter, visited, topic, ids, fqns, titles)
+   (object :: <object>, #key setter, visited, topic, ids, fqns, titles, short-fqns)
 => (do-slots? :: <boolean>)
    #t
 end method;
 
 define method add-target-info
-   (object :: <api-doc>, #key setter, visited, topic, ids, fqns, titles)
+   (object :: <api-doc>, #key setter, visited, topic, ids, fqns, titles, short-fqns)
 => (do-slots? :: <boolean>)
-   add-target-fqn(object, fqns);
+   add-target-fqn(object, fqns, short-fqns);
    next-method()
 end method;
 
 define method add-target-info
-   (object :: <topic>, #key setter, visited, topic, ids, fqns, titles)
+   (object :: <topic>, #key setter, visited, topic, ids, fqns, titles, short-fqns)
 => (do-slots? :: <boolean>)
    add-target-id(object, #f, ids);
    add-target-title(object, titles);
@@ -89,7 +104,7 @@ define method add-target-info
 end method;
 
 define method add-target-info
-   (object :: <section>, #key setter, visited, topic, ids, fqns, titles)
+   (object :: <section>, #key setter, visited, topic, ids, fqns, titles, short-fqns)
 => (do-slots? :: <boolean>)
    add-target-id(topic, object, ids);
    add-target-title(object, titles);
@@ -129,18 +144,20 @@ end method;
 
 
 define method add-target-fqn
-   (topic :: <api-doc>, fqn-table :: <table>)
+   (topic :: <api-doc>, fqn-table :: <table>, short-fqn-table :: <table>)
 => ()
    if (topic.fully-qualified-name)
       add-target-for-string(topic, fqn-table, topic.fully-qualified-name);
    end if;
    for (name-list keyed-by namespace in topic.names-in-namespace)
       for (name in name-list)
-         let fqn = concatenate(namespace, ":", name.standardize-qualified-name);
+         let short-fqn = name.standardize-qualified-name;
+         let fqn = concatenate(namespace, ":", short-fqn);
          add-target-for-string(topic, fqn-table, fqn);
+         add-target-for-string(topic, short-fqn-table, short-fqn);
       end for;
    end for;
-end method;
+end method;   
 
 
 define method add-target-for-string

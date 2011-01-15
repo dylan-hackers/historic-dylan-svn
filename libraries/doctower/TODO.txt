@@ -24,29 +24,6 @@ document. Probably just CSS styles, maybe a logo or common header or footer. We
 should offer a couple of different layout styles. For anything more extensive,
 the user should generate DITA output and use XSLT or a DITA processing system.
 
------
-
-Simplify fully-qualified names of methods. The names of arguments do not need to
-be fully qualified; they can just be the local name in the specified namespace.
-For example, the FQN "dylan:dylan:as-uppercase(dylan:dylan:<string>)" can become
-"dylan:dylan:as-uppercase(<string>)".
-
-Replace the "Fully Qualified Name" directive with a "Namespace" directive (or
-words to that effect), since all I need that directive to do is disambiguate the
-title and provide a namespace for non-existant APIs; with this change, we can
-assume that the fully-qualified-name slot is always correct and only present for
-an existent API. Take the title part of an API topic directive to be the base
-part of an FQN instead of a full title, thereby solving the "Library: Io
-Library" awkwardness.
-
-The elements of the names-in-namespace slot can be the local name in the keyed
-namespace instead of a fully-qualified name; we can get the fully qualified name
-by simply concatenating the key and the element. The ":::" ID notation can refer
-to any matching namespace-local name, rather than the local name in the
-"current" namespace which is not always a defined concept. The "::" ID notation
-should be able to refer to aliases of the API in addition to the canonical
-fully-qualified name.
-
 -------
 
 Note API names that do not correspond to topics, such as names imported from

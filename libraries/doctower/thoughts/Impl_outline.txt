@@ -202,9 +202,8 @@ Output IDs:
 
 The output IDs are used for DITA or HTML conref and href attributes.
 
-In API reference topics, the user may link to an ID like ":::Something". This is
-shorthand for an API in the current module or library. "Something" may not have
-colons.
+The user may also link to an ID like ":::Something". This is shorthand for an
+API in any module or library named "Something".
 
 
 Identifier conversion

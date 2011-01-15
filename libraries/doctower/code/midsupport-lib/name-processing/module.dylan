@@ -13,5 +13,5 @@ define module name-processing
    export
       standardize-qualified-name, standardize-presentation-name, standardize-id,
       standardize-title, as-titlecase, enclosing-qualified-name,
-      qualified-name-as-id;
+      qualified-name-as-id, short-qualified-name-as-id;
 end module;

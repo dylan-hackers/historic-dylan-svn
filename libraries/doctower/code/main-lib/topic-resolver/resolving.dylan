@@ -13,7 +13,8 @@ Signals an error if a link fails to resolve.
 define method resolve-target-placeholders
    (topics :: <sequence>, tables-of-content :: <sequence>,
     catalog-topics :: <sequence>, target-resolutions :: <table>,
-    duplicate-title-targets :: <table>)
+    duplicate-title-targets :: <table>,
+    duplicate-short-qualified-name-targets :: <table>)
 => (resolved-topics :: <sequence>, tables-of-content :: <sequence>)
    let unused-catalogs = as(<stretchy-vector>, catalog-topics.copy-sequence);
    
@@ -23,6 +24,7 @@ define method resolve-target-placeholders
       visit-target-placeholders(topic, resolve-target-placeholder-in-topic,
             topic: topic, resolutions: target-resolutions,
             parms: defined-parms, dup-titles: duplicate-title-targets,
+            dup-sqns: duplicate-short-qualified-name-targets,
             unused-catalogs: unused-catalogs)
    end for;
 
@@ -31,6 +33,7 @@ define method resolve-target-placeholders
       visit-target-placeholders(toc, resolve-target-placeholder-in-topic,
             topic: #f, resolutions: target-resolutions,
             parms: #f, dup-titles: duplicate-title-targets,
+            dup-sqns: duplicate-short-qualified-name-targets,
             unused-catalogs: unused-catalogs)
    end for;
    
@@ -43,7 +46,8 @@ end method;
 
 define method resolve-target-placeholder-in-topic
    (object :: <object>,
-    #key setter, visited, topic, resolutions, parms, dup-titles, unused-catalogs)
+    #key setter, visited, topic, resolutions, parms, dup-titles, dup-sqns,
+         unused-catalogs)
 => (visit-slots? :: <boolean>)
    // Allow recursion in the general case.
    #t
@@ -52,7 +56,8 @@ end method;
 
 define method resolve-target-placeholder-in-topic
    (xref :: <xref>,
-    #key setter, visited, topic, resolutions, parms, dup-titles, unused-catalogs)
+    #key setter, visited, topic, resolutions, parms, dup-titles, dup-sqns,
+         unused-catalogs)
 => (visit-slots? :: <boolean>)
    if (instance?(xref.target, <target-placeholder>))
       let placeholder :: <target-placeholder> = xref.target;
@@ -89,13 +94,13 @@ define method resolve-target-placeholder-in-topic
       elseif (xref.target-from-text?)
          // May not be intended as an actual link target. Give warning and
          // remove unlinkable xref.
-         cant-resolve-xref-warning(placeholder, dup-titles);
+         cant-resolve-xref-warning(placeholder, dup-titles, dup-sqns);
          setter(xref.text);
          #f
 
       else
          // Explicit link target. Give error.
-         cant-resolve-error(placeholder, dup-titles);
+         cant-resolve-error(placeholder, dup-titles, dup-sqns);
          #f
       end if
    end if
@@ -108,7 +113,8 @@ end method;
 
 define method resolve-target-placeholder-in-topic
    (placeholder :: <target-placeholder>,
-    #key setter, visited, topic, resolutions, parms, dup-titles, unused-catalogs)
+    #key setter, visited, topic, resolutions, parms, dup-titles, dup-sqns,
+         unused-catalogs)
 => (visit-slots? :: <boolean>)
    let resolution = resolve-link(placeholder, topic, resolutions);
    if (resolution)
@@ -118,7 +124,7 @@ define method resolve-target-placeholder-in-topic
       #f
 
    else
-      cant-resolve-error(placeholder, dup-titles);
+      cant-resolve-error(placeholder, dup-titles, dup-sqns);
       #t
    end if;
 end method;
@@ -140,28 +146,29 @@ end method;
 
 
 define method cant-resolve-error
-   (placeholder :: <target-placeholder>, dup-titles :: <table>)
+   (placeholder :: <target-placeholder>, dup-titles :: <table>, dup-sqns :: <table>)
 => ()
-   signal-cant-resolve(placeholder, dup-titles,
+   signal-cant-resolve(placeholder, dup-titles, dup-sqns,
          ambiguous-title-in-link, target-not-found-in-link)
 end method;
 
 
 define method cant-resolve-xref-warning
-   (placeholder :: <target-placeholder>, dup-titles :: <table>)
+   (placeholder :: <target-placeholder>, dup-titles :: <table>, dup-sqns :: <table>)
 => ()
-   signal-cant-resolve(placeholder, dup-titles,
+   signal-cant-resolve(placeholder, dup-titles, dup-sqns,
          ambiguous-title-in-xref, unresolvable-target-in-xref)
 end method;
 
 
 define method signal-cant-resolve
-   (placeholder :: <target-placeholder>, dup-titles :: <table>,
+   (placeholder :: <target-placeholder>, dup-titles :: <table>, dup-sqns :: <table>,
     signal-ambiguous :: <function>, signal-not-found :: <function>)
 => ()
-   let targets-with-title = element(dup-titles, placeholder.target, default: #f);
-   if (targets-with-title)
-      let locs = map(source-location, targets-with-title);
+   let possible-targets = element(dup-sqns, placeholder.target, default: #f)
+         | element(dup-titles, placeholder.target, default: #f);
+   if (possible-targets & ~possible-targets.empty?)
+      let locs = map(source-location, possible-targets);
       signal-ambiguous(location: placeholder.source-location,
             target-text: placeholder.target,
             target-locations: locs.item-string-list);
@@ -206,28 +213,6 @@ define method resolve-link
 => (resolution :: false-or(type-union(<topic>, <section>)))
    let link-text = link.target;
    let topic = element(target-resolutions, link-text, default: #f);
-
-   // Check for abbreviated fully qualified name.
-   if (~topic)
-      let last-part = regexp-matches(link-text, ":::(.+)");
-      if (last-part & instance?(containing-topic, <api-doc>)
-            & containing-topic.fully-qualified-name)
-         let (lib-part, mod-part)
-               = regexp-matches(containing-topic.fully-qualified-name, "([^:]+)(:[^:]+)?");
-         let mod-id =
-               if (lib-part)
-                  format-to-string("%s:%s", lib-part, last-part)
-                        .qualified-name-as-id
-               end if;
-         let bind-id =
-               if (lib-part & mod-part)
-                  format-to-string("%s%s:%s", lib-part, mod-part, last-part)
-                        .qualified-name-as-id
-               end if;
-         topic := element(target-resolutions, bind-id, default: #f)
-               | element(target-resolutions, mod-id, default: #f);
-      end if
-   end if;
 
    // It is an API or a duplicate title or something unknown.
    if (~topic)

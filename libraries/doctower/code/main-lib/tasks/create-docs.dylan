@@ -36,12 +36,12 @@ define method create-doc-tree
 
    // Index topics and sections by various means.
    // Check for duplicate IDs and other issues.
-   let (target-res, dup-titles) = topics.resolution-info;
+   let (target-res, dup-titles, dup-sqns) = topics.resolution-info;
    
    // Resolve table of contents and topic and local placeholders.
    // Discard unused catalog topics.
    let (topics, tocs) = resolve-target-placeholders(topics, tocs,
-         catalog-topics, target-res, dup-titles);
+         catalog-topics, target-res, dup-titles, dup-sqns);
    
    // Check for ambiguous titles and arrange authored and generated topics.
    let doc-tree = arrange-topics(topics, tocs);

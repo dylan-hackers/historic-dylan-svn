@@ -74,3 +74,9 @@ end function;
 define function qualified-name-as-id (name :: <string>) => (id :: <string>)
    format-to-string("::%s", name).standardize-id
 end function;
+
+
+/// Synopsis: Returns the short ID form of a qualified name.
+define function short-qualified-name-as-id (name :: <string>) => (id :: <string>)
+   format-to-string(":::%s", name).standardize-id
+end function;
