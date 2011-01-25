@@ -89,6 +89,6 @@ Dylan documentation.
 This requires some sort of repository. The user should be able to set this up
 wherever he likes; it should be a strictly optional feature. The HTML or DITA
 output (or maybe the internal representation saved to a file) will need to have
-hooks recognizable and replacable by the system. To keep the main application
+hooks recognizable and replaceable by the system. To keep the main application
 from being overburdened with purposes and options, a separate tool should manage
 the user's document collections and interconnections.

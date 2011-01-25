@@ -279,7 +279,7 @@ as many errors as possible automatically.
 
 As for API doc blocks without backing code, I think the best way to handle that
 is with the usual hierarchy methods. The user can put the API wherever he likes.
-So what happens if there is a conflict between the hierachy placement and the
+So what happens if there is a conflict between the hierarchy placement and the
 actual code? Well, first, is there -- or should there be -- detection of that
 situation? The topic model doesn't currently include separate library or module
 references apart from its place in the hierarchy. So it isn't currently

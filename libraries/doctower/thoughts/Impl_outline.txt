@@ -71,7 +71,7 @@ modules that use the API element will.
 
 In cases like "as", the binding is owned by an external library, and a
 documented module may add an additional method while not explicitly re-exporting
-th name. The additional method still needs to be documented, listed, and indexed
+the name. The additional method still needs to be documented, listed, and indexed
 in the module. It should be listed under its local exported name in the module
 or, if not exported, under its fully-qualified canonical name.
 
