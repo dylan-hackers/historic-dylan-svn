@@ -1,7 +1,7 @@
 module: dylan-user
 
 define module parser-common
-   use common, exclude: { source-location, file-locator };
+   use common, exclude: { source-location };
    use configs, import: { $tab-size };
 
    // from peg-parser

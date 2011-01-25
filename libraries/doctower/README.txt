@@ -34,3 +34,8 @@ code      - Source code. Each directory is a library, and the directories within
 thoughts  - What passes for design documents. These contain some of my thought
             processes. I also have a notebook, which I cannot really upload.
 defaults  - Prototype designs for HTML, CSS, and various generated elements.
+
+
+### Making ###
+
+Run "make required-libs" and then run "make".
