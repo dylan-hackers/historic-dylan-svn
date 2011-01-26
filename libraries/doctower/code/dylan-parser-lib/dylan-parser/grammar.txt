@@ -146,17 +146,17 @@ delim-comment:
 eol-comment:
    "//" eol-comment-text? EOL
 
-doc-block:
-   delim-doc-comment / eol-doc-comments
+doc-block (aka doc-comment-block):
+   SPC* ( delim-doc-comment / eol-doc-comments )
 
 delim-doc-comment:
-   SPC* "/**" SPC ( delim-comment / delim-comment-text )* "*/"
+   "/**" ( SPC / EOL ) ( delim-comment / delim-comment-text )* "*/"
 
 eol-doc-comments:
    ( SPC* eol-doc-comment )+
 
 eol-doc-comment:
-   "///" ( SPC eol-comment-text )? eol
+   "///" ( SPC eol-comment-text )? EOL
 
 delim-comment-text:
    ( !"*/" CHAR )+
