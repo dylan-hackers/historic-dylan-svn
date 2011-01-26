@@ -168,7 +168,7 @@ define caching parser footnote (<source-location-token>)
    rule seq(opn-brack-spc, choice(number, ordinal), spc-cls-brack, colon,
             spaces, opt(division-content))
       => tokens;
-   slot index :: type-union(<integer>, <string>) = tokens[1];
+   slot index :: type-union(<integer>, <character>) = tokens[1];
    slot content :: <division-content-sequence> = tokens[5] | #[];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)

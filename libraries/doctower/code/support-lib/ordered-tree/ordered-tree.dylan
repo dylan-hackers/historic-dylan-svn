@@ -366,7 +366,7 @@ end method;
 /// If cached-change-count < tree.change-count, cache is invalidated. A change
 /// to a node's value doesn't count as a real change.
 ///
-define function node (key :: <ordered-tree-key>)
+define method node (key :: <ordered-tree-key>)
 => (node :: false-or(<ordered-tree-node>))
    if (key.cache-valid?)
       key.cached-node
@@ -380,7 +380,7 @@ define function node (key :: <ordered-tree-key>)
       end for;
       cache-node (key, node);
    end if;
-end function;
+end method;
 
 define function cache-valid? (key :: <ordered-tree-key>) => (valid? :: <boolean>)
    let valid? =

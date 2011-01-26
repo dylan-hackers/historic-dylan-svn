@@ -40,7 +40,7 @@ define caching parser numeric-list (<source-location-token>)
             opt-many(seq(opt(blank-lines), numeric-list-item)),
             opt(blank-lines))
       => items;
-   slot list-start :: type-union(<integer>, <string>) = items[0].ordinal;
+   slot list-start :: type-union(<integer>, <character>) = items[0].ordinal;
    slot content :: <sequence> /* of <numeric-list-item-token> */ =
       first-item-and-last-subelements(items);
 attributes
@@ -54,7 +54,7 @@ end;
 define caching parser numeric-list-first-item (<numeric-list-item-token>)
    rule seq(sol, numeric-list-first-marker, remainder-and-indented-content)
       => tokens;
-   slot ordinal :: type-union(<integer>, <string>) = tokens[1];
+   slot ordinal :: type-union(<integer>, <character>) = tokens[1];
    inherited slot content /* :: <division-content-sequence> */ = tokens[2];
 afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
@@ -68,7 +68,7 @@ afterwards (context, tokens, value, start-pos, end-pos)
    note-source-location(context, value)
 end;
 
-define caching parser numeric-list-first-marker :: type-union(<integer>, <string>)
+define caching parser numeric-list-first-marker :: type-union(<integer>, <character>)
    rule seq(choice(number, ordinal), choice(colon, right-paren, period), spaces)
       => tokens;
    yield tokens[0];
