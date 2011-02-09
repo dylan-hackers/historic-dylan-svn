@@ -199,19 +199,19 @@ A thread in the application may be in one of the following states:
 4. Running (able to run)
 
 The user may be able to interact with a thread when it is suspended by
-the environment. The environment may suspend a thread either beacuse
+the environment. The environment may suspend a thread either because
 of direct user request (Interrupt), or in response to unhandled error
 condition, or when a breakpoint is encountered.
 
 Ability to interact with a suspended thread depends on the code
-location. We will clasify code locations in two dimensional space: 
+location. We will classify code locations in two dimensional space: 
 
 1. A code location may be Known or Unknown. A Known location
 corresponds to a known place in the source code. These known points
 are recorded by the compiler in order to support source code stepping.
 
 2. A code location may be Interactive or Non-interactive. Known
-locations may be either Interactive of Non-interactive. All Unknown
+locations may be either Interactive or Non-interactive. All Unknown
 
 Only Interactive locations allow for evaluation of expressions in
 their dynamic and lexical environments. Examples of interactive
@@ -220,7 +220,7 @@ locations are:
  * Entry points for non-optimized calls to a functions (e.g. an XEP)
  * The "unhandled condition" handler
 
-The user my find himself in an Interactive location in the following
+The user may find himself in an Interactive location in the following
 situations:
 
 1. The developer requested an interrupt
@@ -231,7 +231,7 @@ situations:
 or at a breakpoint
 
 In particular it is not guaranteed that any breakpoint location or
-a function or expression which was single steped into will be
+a function or expression which was single-stepped into will be
 interactive. The interactor will deactivate the evaluation interface
 in this case.
 
@@ -257,7 +257,7 @@ There can only be one interactor associated with a thread.
 Evaluation Threads 
 ------------------
 
-The user may request a fresh thread for the purposes of evaluationg
+The user may request a fresh thread for the purposes of evaluating
 expressions. The environment will start a new thread in the
 Application Runtime on behalf of the user. The thread will "run" a
 control loop with an abort handler. A new interactor/listener will be
@@ -287,7 +287,7 @@ naming conventions document). The user may also set the compiler
 namespace explictly. In this case the namespace is NOT modified when the
 lexical context changes and the lexical environment for the purposes
 of evaluation/compilation is constructed by shadowing the selected
-namespace by the local variables bindings. Note that this may result
+namespace by the local variable bindings. Note that this may result
 in unexpected behavior.
 
 Shutting down the Runtime
@@ -295,7 +295,7 @@ Shutting down the Runtime
 
 When the user shuts down the Application Runtime the following
 happens. The Compiler database and the Canonical Source it is pointing
-to is reversed to the state from before starting the Remote
+to is reverted to the state from before starting the Remote
 Application, except for the modified, saved and compiled Project
 Source records and new project source records if created and
 compiled. 
